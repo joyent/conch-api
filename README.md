@@ -48,4 +48,13 @@ Currently we are running this project through LiquidPlanner, which requires an i
 
 # Installation
 
-...
+## Database
+
+```
+pkgin in postgresql96-server postgresql96-contrib
+```
+
+```
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+```

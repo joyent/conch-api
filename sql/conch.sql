@@ -28,7 +28,7 @@ CREATE TABLE datacenter_room (
     id                  uuid        PRIMARY KEY,
     datacenter          uuid        NOT NULL REFERENCES datacenter (id),
     az                  text        NOT NULL, -- us-east-1b
-    alias               text                  -- AZ1
+    alias               text,                 -- AZ1
     vendor_name         text,                 -- VA1.3
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
@@ -54,7 +54,7 @@ CREATE TABLE hardware_vendor (
 );
 
 -- joyent hardware makes ("products")
-hardware_product (
+CREATE TABLE hardware_product (
     id                  uuid        PRIMARY KEY,
     name                text        UNIQUE NOT NULL, -- Joyent-Compute-Platform-1101
     alias               text        UNIQUE NOT NULL, -- Richmond A
@@ -69,7 +69,7 @@ hardware_product (
 -- the disk bits here are kind of terrible, but.
 -- TODO: hardware_product_profile_disks: Granular disk map to support
 -- stranger mixed-disk chassis.
-hardware_product_profile (
+CREATE TABLE hardware_product_profile (
     id                  uuid        PRIMARY KEY,
     product_id          uuid        NOT NULL REFERENCES hardware_product (id),
     purpose             text        NOT NULL, -- General Compute
@@ -117,7 +117,7 @@ CREATE TABLE hardware_totals (
 CREATE TABLE device (
     id                  uuid        PRIMARY KEY,
     serial_number       text        UNIQUE NOT NULL,
-    hardware_type       uuid        NOT NULL REFERENCES hardware_type (id),
+    hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     state               text        NOT NULL, -- TODO: define ENUMs
     health              text        NOT NULL, -- TODO: define ENUMs
     deactivated         timestamptz DEFAULT NULL,
@@ -139,7 +139,7 @@ CREATE TABLE device_settings (
 CREATE TABLE device_location (
     device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
     location            uuid        NOT NULL REFERENCES datacenter_rack (id),
-    rack_unit           integer     NOT NULL
+    rack_unit           integer     NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
@@ -185,7 +185,7 @@ CREATE TABLE device_nic (
 -- this is a log table, so we can track port changes over time.
 CREATE TABLE device_nic_state (
     id                  uuid        PRIMARY KEY,
-    nic_id              uuid        NOT NULL REFERENCES device_nic (mac),
+    nic_id              macaddr     NOT NULL REFERENCES device_nic (mac),
     state               text,
     speed               text,
     ipaddr              inet,
@@ -196,7 +196,7 @@ CREATE TABLE device_nic_state (
 -- this is a log table, so we can track port changes over time.
 CREATE TABLE device_neighbor (
     id                  uuid        PRIMARY KEY,
-    nic_id              uuid        NOT NULL REFERENCES device_nic (mac),
+    nic_id              macaddr     NOT NULL REFERENCES device_nic (mac),
     raw_text            text,       --- raw command output
     peer_switch         text,
     peer_port           text,
