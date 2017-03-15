@@ -37,7 +37,7 @@ CREATE TABLE datacenter_room (
 
 CREATE TABLE datacenter_rack (
     id                  uuid        PRIMARY KEY,
-    datacenter_id       uuid        NOT NULL REFERENCES datacenter (id),
+    datacenter_room_id  uuid        NOT NULL REFERENCES datacenter_room (id),
     name                text        NOT NULL,  -- A02
     rack_size           integer,               -- total number of RU
     deactivated         timestamptz DEFAULT NULL,
