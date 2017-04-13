@@ -1,0 +1,17 @@
+**metadata.json
+.chef/checksums/**
+wp
+*.swo
+*.swp
+*~
+\#*
+.\#*
+.DS_Store
+.Trashes
+.bundle
+.rbenv-version
+.rvmrc
+Berksfile.lock
+Gemfile.lock
+.zero-knife.rb
+.vagrant/
