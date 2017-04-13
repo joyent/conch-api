@@ -13,8 +13,11 @@
 --   * are all rows completely defined wholly and only by the primary key?
 -- What fields do we need to keep track of their updated time?
 
+-- Run this as superuser:
+-- CREATE EXTENSION pgcrypto;
+
 CREATE TABLE datacenter (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     vendor              text        NOT NULL, -- Raging Wire
     vendor_name         text,                 -- VA1
     region              text        NOT NULL, -- us-east1
@@ -25,7 +28,7 @@ CREATE TABLE datacenter (
 );
 
 CREATE TABLE datacenter_room (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     datacenter          uuid        NOT NULL REFERENCES datacenter (id),
     az                  text        NOT NULL, -- us-east-1b
     alias               text,                 -- AZ1
@@ -36,7 +39,7 @@ CREATE TABLE datacenter_room (
 );
 
 CREATE TABLE datacenter_rack (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     datacenter_room_id  uuid        NOT NULL REFERENCES datacenter_room (id),
     name                text        NOT NULL,  -- A02
     rack_size           integer,               -- total number of RU
@@ -46,7 +49,7 @@ CREATE TABLE datacenter_rack (
 );
 
 CREATE TABLE hardware_vendor (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     name                text        UNIQUE NOT NULL,
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
@@ -55,7 +58,7 @@ CREATE TABLE hardware_vendor (
 
 -- joyent hardware makes ("products")
 CREATE TABLE hardware_product (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     name                text        UNIQUE NOT NULL, -- Joyent-Compute-Platform-1101
     alias               text        UNIQUE NOT NULL, -- Richmond A
     prefix              text        UNIQUE,          -- RA
@@ -70,7 +73,7 @@ CREATE TABLE hardware_product (
 -- TODO: hardware_product_profile_disks: Granular disk map to support
 -- stranger mixed-disk chassis.
 CREATE TABLE hardware_product_profile (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id          uuid        NOT NULL REFERENCES hardware_product (id),
     purpose             text        NOT NULL, -- General Compute
     bios_firmware       text        NOT NULL, -- prtdiag output; Dell Inc. 2.2.5 09/06/2016
@@ -95,7 +98,7 @@ CREATE TABLE hardware_product_profile (
 -- denormalized dumping ground for changes we make to systems, like boot order,
 -- fan speeds, etc. Can also dump env requirements here, like temp ranges.
 CREATE TABLE hardware_profile_settings (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     profile_id          uuid        NOT NULL REFERENCES hardware_product_profile (id),
     resource            text        NOT NULL, -- component: bios, ipmi, disk, etc.
     name                text        NOT NULL, -- element to lookup
@@ -108,14 +111,14 @@ CREATE TABLE hardware_profile_settings (
 -- The total number of expected systems of a given time, per rack.
 -- Used for generating reports.
 CREATE TABLE hardware_totals (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     datacenter_rack     uuid        NOT NULL REFERENCES datacenter_rack (id),
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     total               integer     NOT NULL
 );
 
 CREATE TABLE device (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     serial_number       text        UNIQUE NOT NULL,
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     state               text        NOT NULL, -- TODO: define ENUMs
@@ -128,7 +131,7 @@ CREATE TABLE device (
 -- denormalized dumping ground for changes we made to systems, like boot order,
 -- fan speeds, etc.
 CREATE TABLE device_settings (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           uuid        NOT NULL REFERENCES device (id),
     resource_id         uuid        NOT NULL REFERENCES hardware_profile_settings (id),
     value               text        NOT NULL,
@@ -157,7 +160,7 @@ CREATE TABLE device_specs (
 );
 
 CREATE TABLE device_disk (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           uuid        NOT NULL REFERENCES device (id),
     hba                 integer,
     slot                integer     NOT NULL,
@@ -184,7 +187,7 @@ CREATE TABLE device_nic (
 
 -- this is a log table, so we can track port changes over time.
 CREATE TABLE device_nic_state (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     nic_id              macaddr     NOT NULL REFERENCES device_nic (mac),
     state               text,
     speed               text,
@@ -195,7 +198,7 @@ CREATE TABLE device_nic_state (
 
 -- this is a log table, so we can track port changes over time.
 CREATE TABLE device_neighbor (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     nic_id              macaddr     NOT NULL REFERENCES device_nic (mac),
     raw_text            text,       --- raw command output
     peer_switch         text,
@@ -206,7 +209,7 @@ CREATE TABLE device_neighbor (
 -- this is a log table for PSU info, fan speed changes, chassis/disk temp
 -- changes, etc. Populated on discovery and when things change.
 CREATE TABLE device_log (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           uuid        NOT NULL REFERENCES device (id),
     component_type      text        NOT NULL, -- PSU, chassis, disk, fan, etc.
     component_id        uuid,                 -- if we can reference a component we should fill this out.
@@ -216,7 +219,7 @@ CREATE TABLE device_log (
 
 -- Admin notes.
 CREATE TABLE device_notes (
-    id                  uuid        PRIMARY KEY,
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           uuid        NOT NULL REFERENCES device (id),
     text                text        NOT NULL,
     author              text        NOT NULL,
