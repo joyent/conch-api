@@ -162,13 +162,16 @@ CREATE TABLE device_specs (
 CREATE TABLE device_disk (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           uuid        NOT NULL REFERENCES device (id),
+    serial_number       text        UNIQUE NOT NULL,
     hba                 integer,
     slot                integer     NOT NULL,
     size                integer     NOT NULL, -- MBytes
     vendor              text,                 -- TODO: REF this out
+    model               text,                 -- TODO: REF this out
     firmware            text,                 -- version
-    serial_number       text,
+    transport           text,                 -- version
     health              text,
+    drive_type          text,
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp

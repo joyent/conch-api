@@ -52,6 +52,11 @@ __PACKAGE__->table("device_disk");
   is_nullable: 0
   size: 16
 
+=head2 serial_number
+
+  data_type: 'text'
+  is_nullable: 0
+
 =head2 hba
 
   data_type: 'integer'
@@ -72,17 +77,27 @@ __PACKAGE__->table("device_disk");
   data_type: 'text'
   is_nullable: 1
 
+=head2 model
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 firmware
 
   data_type: 'text'
   is_nullable: 1
 
-=head2 serial_number
+=head2 transport
 
   data_type: 'text'
   is_nullable: 1
 
 =head2 health
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 drive_type
 
   data_type: 'text'
   is_nullable: 1
@@ -118,6 +133,8 @@ __PACKAGE__->add_columns(
   },
   "device_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "serial_number",
+  { data_type => "text", is_nullable => 0 },
   "hba",
   { data_type => "integer", is_nullable => 1 },
   "slot",
@@ -126,11 +143,15 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 0 },
   "vendor",
   { data_type => "text", is_nullable => 1 },
+  "model",
+  { data_type => "text", is_nullable => 1 },
   "firmware",
   { data_type => "text", is_nullable => 1 },
-  "serial_number",
+  "transport",
   { data_type => "text", is_nullable => 1 },
   "health",
+  { data_type => "text", is_nullable => 1 },
+  "drive_type",
   { data_type => "text", is_nullable => 1 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
@@ -162,6 +183,20 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<device_disk_serial_number_key>
+
+=over 4
+
+=item * L</serial_number>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("device_disk_serial_number_key", ["serial_number"]);
+
 =head1 RELATIONS
 
 =head2 device
@@ -180,8 +215,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-13 05:24:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oHxIRcL6etPT0MYKj7l8lA
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-14 06:58:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:W3AeP0Px+6NeePt7r2uSCA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

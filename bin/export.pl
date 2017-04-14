@@ -12,7 +12,7 @@ use vars qw/@ARGV/;
 sub read_ohai {
   my $filename = shift;
 
-  my $generate_ohai = `ohai -c /var/chef/solo.rb > $filename`;
+  my $generate_ohai = `ohai -c /var/chef/solo.rb > $filename 2> /tmp/ohai.err`;
 
   my $json_text = do {
      open(my $json_fh, "<:encoding(UTF-8)", $filename)
@@ -119,6 +119,170 @@ sub load_hardware {
   return $device;
 }
 
+sub get_smartctl {
+  my $disk = shift;
+
+  my $smartctl = `smartctl -a /dev/$disk`;
+  chomp $smartctl;
+
+  my $devstat = {};
+
+  for ( split /^/, $smartctl ) {
+    next unless $_ =~ /:/;
+    my ( $k, $v ) = split(/:/, $_);
+    chomp $k;
+    chomp $v;
+    $v =~ s/^\s+|\s+$//g;
+
+    if ( $k =~ /Rotation Rate/ ) {
+      $devstat->{rotation} = $v;
+    }
+
+    if ( $k =~ /Serial/ ) {
+      $devstat->{serial_number} = $v;
+    }
+
+    if ( $k =~ /SMART Health Status/ ) {
+      $devstat->{health} = $v;
+    }
+  }
+
+  return $devstat;
+}
+
+# This is terrible, even for me.
+sub get_lsusb {
+  my $devstat = {};
+
+  my $device_id = `lsusb | grep Flash`;
+  $device_id =~ s/^.*Bus //;
+  $device_id =~ s/:.*$//;
+  $device_id =~ s/ Device /:/;
+
+  chomp $device_id;
+
+  my $lsusb = `lsusb -v -s $device_id | grep iSerial`;
+  chomp $lsusb;
+
+  my @line = split(/\s+/,$lsusb);
+  my $sn = $line[-1];
+
+  my ($hba,$slot) = split(/:/,$device_id);
+
+  $devstat->{serial_number} = $sn;
+  $devstat->{hba}  = $hba;
+  $devstat->{slot} = $slot;
+
+  return $devstat;
+}
+
+sub load_disks {
+  my ( $device ) = @_;
+
+  my $output = `lsblk -ido KNAME,TRAN,SIZE,VENDOR,MODEL > /tmp/lsblk.out`;
+  
+  open(FILE, "/tmp/lsblk.out") or die "Could not read file: $!";
+  while(<FILE>) {
+    chomp;
+    next if $_ =~ /KNAME/;
+  
+    # sda sas 93.2G HGST HUSMH8010BSS204
+  
+    my @line = split(/\s+/,$_);
+  
+    my $disk   = $line[0];
+    my $tran   = $line[1];
+    my $size   = $line[2];
+    my $vendor = $line[3];
+    my $model  = $line[4];
+
+    my $devstat;
+    if ($tran eq "usb") {
+      $devstat = get_lsusb();
+    } else {
+      $devstat = get_smartctl($disk);
+    }
+
+    if ($size =~ /T/) {
+      $size =~ s/T.*$//;
+      $size = $size*1000000;
+    }
+
+    if ($size =~ /G/) {
+      $size =~ s/G.*$//;
+      $size = $size*1000;
+    }
+
+    unless (defined $devstat->{serial_number}) {
+      warn "Could not get serial number for $disk!";
+      next;
+    }
+
+    my $sn = $devstat->{serial_number};
+
+    $device->{disks}{$sn}{device} = $disk;
+    $device->{disks}{$sn}{health} = $devstat->{health} if defined $devstat->{health};
+
+    # We might get these from lsusb.
+    $device->{disks}{$sn}{hba}    = $devstat->{hba} || 0;
+    $device->{disks}{$sn}{slot}   = $devstat->{slot} if defined $devstat->{slot};
+  
+    $device->{disks}{$sn}{transport} = $tran;
+    $device->{disks}{$sn}{size}      = $size;
+    $device->{disks}{$sn}{vendor}    = $vendor;
+    $device->{disks}{$sn}{model}     = $model;
+  }
+  
+  close FILE;
+  
+  return $device;
+}
+
+sub load_sas3 {
+  my ( $device ) = @_;
+
+  my $sas3 = `./sas3ircu 0 DISPLAY > /tmp/sas3.out`;
+  
+  open(FILE, "/tmp/sas3.out");
+  
+  my %lines;
+  my $slot;
+  
+  while(<FILE>) {
+    if (/^Device is a Hard disk/ .. /Drive Type.*\n$/) {
+      chomp;
+  
+      if ($_ =~ /Slot #/) {
+        $slot = $_;
+        $slot =~ s/^.*: //;
+      }
+  
+      # The first run won't have $slot defined yet.
+      if ($_ =~ /:/ && defined $slot) {
+        my ($k, $v) = split(/:/, $_);
+  
+        $v =~ s/^\s+|\s+$//g;
+        $k =~ s/^\s+|\s+$//g;
+  
+        $lines{$slot}{$k} = $v;
+      }
+    }
+  }
+  
+  close FILE;
+
+  foreach my $slot (keys %lines) {
+
+    my $sn = $lines{$slot}{'Serial No'};
+    $device->{disks}{$sn}{slot}        = $slot;
+    $device->{disks}{$sn}{firmware}    = $lines{$slot}{'Firmware Revision'};
+    $device->{disks}{$sn}{drive_type}  = $lines{$slot}{'Drive Type'};
+    $device->{disks}{$sn}{guid}        = $lines{$slot}{'GUID'};
+  }
+
+  return $device;
+}
+
 sub load_interfaces {
   my ( $device, $ohai ) = @_;
 
@@ -166,6 +330,8 @@ my $device = {};
 my $ohai = read_ohai($ARGV[0]);
 
 $device = load_hardware($device);
+$device = load_disks($device);
+$device = load_sas3($device);
 $device = load_interfaces($device, $ohai);
 $device = load_device($device, $ohai);
 

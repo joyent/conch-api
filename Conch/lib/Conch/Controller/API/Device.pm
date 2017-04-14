@@ -52,6 +52,22 @@ sub device_POST :Path('/api/device') {
     ram_total       => $req->{memory}->{total},
   });
 
+  foreach my $disk (keys %{$req->{disks}}) {
+    my $disk_rs = $c->model('DB::DeviceDisk')->update_or_create({
+      device_id       => $device_rs->id,
+      serial_number   => $disk,
+      slot            => $req->{disks}->{$disk}->{slot},
+      hba             => $req->{disks}->{$disk}->{hba},
+      vendor          => $req->{disks}->{$disk}->{vendor},
+      health          => $req->{disks}->{$disk}->{health},
+      size            => $req->{disks}->{$disk}->{size},
+      model           => $req->{disks}->{$disk}->{model},
+      drive_type      => $req->{disks}->{$disk}->{drive_type},
+      transport       => $req->{disks}->{$disk}->{transport},
+      firmware        => $req->{disks}->{$disk}->{firmware},
+    });
+  }
+
   foreach my $nic (keys %{$req->{interfaces}}) {
     my $nic_rs = $c->model('DB::DeviceNic')->update_or_create({
       mac           => $req->{interfaces}->{$nic}->{mac},
@@ -75,7 +91,6 @@ sub device_POST :Path('/api/device') {
       peer_switch   => $req->{interfaces}->{$nic}->{peer_switch},
       peer_port     => $req->{interfaces}->{$nic}->{peer_port},
     });
-
   }
 
   $self->status_ok(

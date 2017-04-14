@@ -2,10 +2,10 @@
 
 PSQL="psql -d preflight -U preflight"
 
-$PSQL < conch.sql
-
 psql -U postgres -d preflight -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
 psql -U postgres -d preflight -c 'CREATE EXTENSION IF NOT EXISTS "pgcrypto";'
+
+$PSQL < conch.sql
 
 $PSQL < datacenter_staging.sql 
 
