@@ -34,13 +34,12 @@ sub device_POST :Path('/api/device') {
   my $hw_profile = $hw_profile_rs->first;
 
   my $device_rs = $c->model('DB::Device')->update_or_create({
+    id               => $req->{system_uuid},
     hardware_product => $hw->id,
     serial_number    => $req->{serial_number},
     state            => $req->{state},
     health           => $req->{health},
   });
-
-  p $req;
 
   my $device_specs = $c->model('DB::DeviceSpec')->update_or_create({
     device_id       => $device_rs->id,

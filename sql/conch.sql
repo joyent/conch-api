@@ -118,7 +118,7 @@ CREATE TABLE hardware_totals (
 );
 
 CREATE TABLE device (
-    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    id                  uuid        PRIMARY KEY, -- System baseboard UUID
     serial_number       text        UNIQUE NOT NULL,
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     state               text        NOT NULL, -- TODO: define ENUMs

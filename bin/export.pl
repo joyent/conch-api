@@ -52,9 +52,10 @@ sub load_device {
   my $serial_number = $ohai->{dmi}->{system}->{serial_number};
 
   $device->{serial_number} = $serial_number;
-  $device->{product_name} = $ohai->{dmi}->{system}->{product_name};
-  $device->{state}        = "ONLINE";
-  $device->{health}       = "PASS";
+  $device->{product_name}  = $ohai->{dmi}->{system}->{product_name};
+  $device->{system_uuid}   = $ohai->{dmi}->{system}->{uuid};
+  $device->{state}         = "ONLINE";
+  $device->{health}        = "PASS";
 
   my $thermal_state = $ohai->{dmi}->{chassis}->{thermal_state};
   my $psu_state     = $ohai->{dmi}->{chassis}->{power_supply_state};
