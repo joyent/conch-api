@@ -210,6 +210,18 @@ CREATE TABLE device_neighbor (
     created             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+-- log which tests a device has passed or failed here.
+CREATE TABLE device_test (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    device_id           uuid        NOT NULL REFERENCES device (id),
+    component_type      text        NOT NULL, -- what we're testing
+    component_id        uuid,                 -- if we can reference a component we should fill this out.
+    log                 text,
+    status              boolean     NOT NULL, -- true, false, unknown
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
 -- this is a log table for PSU info, fan speed changes, chassis/disk temp
 -- changes, etc. Populated on discovery and when things change.
 CREATE TABLE device_log (
