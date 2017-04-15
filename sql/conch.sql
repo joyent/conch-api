@@ -147,6 +147,7 @@ CREATE TABLE device_location (
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+-- All temps should be in C
 CREATE TABLE device_temperature (
     device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
     cpu0_temp           integer,
