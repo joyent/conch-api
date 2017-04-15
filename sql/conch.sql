@@ -147,6 +147,16 @@ CREATE TABLE device_location (
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+CREATE TABLE device_temperature (
+    device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
+    cpu0_temp           integer,
+    cpu1_temp           integer,
+    inlet_temp          integer,
+    exhaust_temp        integer,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
 CREATE TABLE device_specs (
     device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
     product_id          uuid        NOT NULL REFERENCES hardware_product_profile (id),
@@ -173,6 +183,7 @@ CREATE TABLE device_disk (
     transport           text,                 -- version
     health              text,
     drive_type          text,
+    temp                integer,
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp

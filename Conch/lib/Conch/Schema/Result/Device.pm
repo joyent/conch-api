@@ -249,6 +249,36 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 device_temperature
+
+Type: might_have
+
+Related object: L<Conch::Schema::Result::DeviceTemperature>
+
+=cut
+
+__PACKAGE__->might_have(
+  "device_temperature",
+  "Conch::Schema::Result::DeviceTemperature",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 device_tests
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DeviceTest>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_tests",
+  "Conch::Schema::Result::DeviceTest",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 hardware_product
 
 Type: belongs_to
@@ -265,8 +295,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 04:49:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3M43imyEJEW9/FFbEJsTwA
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 05:52:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JpruYXgJu3V5IrLtAl0wWQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

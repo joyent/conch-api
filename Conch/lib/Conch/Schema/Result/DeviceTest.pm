@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::DeviceSpec;
+package Conch::Schema::Result::DeviceTest;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::DeviceSpec
+Conch::Schema::Result::DeviceTest
 
 =cut
 
@@ -30,13 +30,20 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<device_specs>
+=head1 TABLE: C<device_test>
 
 =cut
 
-__PACKAGE__->table("device_specs");
+__PACKAGE__->table("device_test");
 
 =head1 ACCESSORS
+
+=head2 id
+
+  data_type: 'uuid'
+  default_value: gen_random_uuid()
+  is_nullable: 0
+  size: 16
 
 =head2 device_id
 
@@ -45,82 +52,88 @@ __PACKAGE__->table("device_specs");
   is_nullable: 0
   size: 16
 
-=head2 product_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 0
-  size: 16
-
-=head2 bios_firmware
+=head2 component_type
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 hba_firmware
+=head2 component_id
+
+  data_type: 'uuid'
+  is_nullable: 1
+  size: 16
+
+=head2 log
 
   data_type: 'text'
   is_nullable: 1
 
-=head2 cpu_num
+=head2 status
 
-  data_type: 'integer'
+  data_type: 'boolean'
   is_nullable: 0
 
-=head2 cpu_type
+=head2 created
 
-  data_type: 'text'
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
   is_nullable: 0
+  original: {default_value => \"now()"}
 
-=head2 nics_num
+=head2 updated
 
-  data_type: 'integer'
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
   is_nullable: 0
-
-=head2 dimms_num
-
-  data_type: 'integer'
-  is_nullable: 0
-
-=head2 ram_total
-
-  data_type: 'integer'
-  is_nullable: 0
+  original: {default_value => \"now()"}
 
 =cut
 
 __PACKAGE__->add_columns(
+  "id",
+  {
+    data_type => "uuid",
+    default_value => \"gen_random_uuid()",
+    is_nullable => 0,
+    size => 16,
+  },
   "device_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "product_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "bios_firmware",
+  "component_type",
   { data_type => "text", is_nullable => 0 },
-  "hba_firmware",
+  "component_id",
+  { data_type => "uuid", is_nullable => 1, size => 16 },
+  "log",
   { data_type => "text", is_nullable => 1 },
-  "cpu_num",
-  { data_type => "integer", is_nullable => 0 },
-  "cpu_type",
-  { data_type => "text", is_nullable => 0 },
-  "nics_num",
-  { data_type => "integer", is_nullable => 0 },
-  "dimms_num",
-  { data_type => "integer", is_nullable => 0 },
-  "ram_total",
-  { data_type => "integer", is_nullable => 0 },
+  "status",
+  { data_type => "boolean", is_nullable => 0 },
+  "created",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+    original      => { default_value => \"now()" },
+  },
+  "updated",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+    original      => { default_value => \"now()" },
+  },
 );
 
 =head1 PRIMARY KEY
 
 =over 4
 
-=item * L</device_id>
+=item * L</id>
 
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("device_id");
+__PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
@@ -139,24 +152,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 product
-
-Type: belongs_to
-
-Related object: L<Conch::Schema::Result::HardwareProductProfile>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "product",
-  "Conch::Schema::Result::HardwareProductProfile",
-  { id => "product_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
 
 # Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 05:52:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ASY0k45fgVtujK3axEvDow
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uSD8WPgyPNP7L273kcTDfw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

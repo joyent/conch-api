@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::DeviceDisk;
+package Conch::Schema::Result::DeviceTemperature;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::DeviceDisk
+Conch::Schema::Result::DeviceTemperature
 
 =cut
 
@@ -30,20 +30,13 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<device_disk>
+=head1 TABLE: C<device_temperature>
 
 =cut
 
-__PACKAGE__->table("device_disk");
+__PACKAGE__->table("device_temperature");
 
 =head1 ACCESSORS
-
-=head2 id
-
-  data_type: 'uuid'
-  default_value: gen_random_uuid()
-  is_nullable: 0
-  size: 16
 
 =head2 device_id
 
@@ -52,64 +45,24 @@ __PACKAGE__->table("device_disk");
   is_nullable: 0
   size: 16
 
-=head2 serial_number
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 hba
+=head2 cpu0_temp
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 slot
-
-  data_type: 'integer'
-  is_nullable: 0
-
-=head2 size
-
-  data_type: 'integer'
-  is_nullable: 0
-
-=head2 vendor
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 model
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 firmware
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 transport
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 health
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 drive_type
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 temp
+=head2 cpu1_temp
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 deactivated
+=head2 inlet_temp
 
-  data_type: 'timestamp with time zone'
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 exhaust_temp
+
+  data_type: 'integer'
   is_nullable: 1
 
 =head2 created
@@ -129,39 +82,16 @@ __PACKAGE__->table("device_disk");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  {
-    data_type => "uuid",
-    default_value => \"gen_random_uuid()",
-    is_nullable => 0,
-    size => 16,
-  },
   "device_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "serial_number",
-  { data_type => "text", is_nullable => 0 },
-  "hba",
+  "cpu0_temp",
   { data_type => "integer", is_nullable => 1 },
-  "slot",
-  { data_type => "integer", is_nullable => 0 },
-  "size",
-  { data_type => "integer", is_nullable => 0 },
-  "vendor",
-  { data_type => "text", is_nullable => 1 },
-  "model",
-  { data_type => "text", is_nullable => 1 },
-  "firmware",
-  { data_type => "text", is_nullable => 1 },
-  "transport",
-  { data_type => "text", is_nullable => 1 },
-  "health",
-  { data_type => "text", is_nullable => 1 },
-  "drive_type",
-  { data_type => "text", is_nullable => 1 },
-  "temp",
+  "cpu1_temp",
   { data_type => "integer", is_nullable => 1 },
-  "deactivated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
+  "inlet_temp",
+  { data_type => "integer", is_nullable => 1 },
+  "exhaust_temp",
+  { data_type => "integer", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -182,27 +112,13 @@ __PACKAGE__->add_columns(
 
 =over 4
 
-=item * L</id>
+=item * L</device_id>
 
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("id");
-
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<device_disk_serial_number_key>
-
-=over 4
-
-=item * L</serial_number>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("device_disk_serial_number_key", ["serial_number"]);
+__PACKAGE__->set_primary_key("device_id");
 
 =head1 RELATIONS
 
@@ -223,7 +139,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 05:52:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GP7D/77aoKKGAjSY0sdoEQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Z/luHqVvI+fMdsZAsMXk1w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
