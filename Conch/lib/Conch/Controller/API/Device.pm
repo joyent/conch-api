@@ -55,7 +55,7 @@ sub device_POST :Path('/api/device') {
     ram_total       => $req->{memory}->{total},
   });
 
-  my $device_temps = $c->model('DB::DeviceTempurature')->update_or_create({
+  my $device_temps = $c->model('DB::DeviceTemperature')->update_or_create({
     device_id       => $device_rs->id,
     cpu0_temp       => $req->{temp}->{cpu0},
     cpu1_temp       => $req->{temp}->{cpu1},
