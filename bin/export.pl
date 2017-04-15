@@ -126,6 +126,13 @@ sub load_hardware {
 # Exhaust Temp     | 41 degrees C      | ok
 # Temp             | 41 degrees C      | ok
 # Temp             | 52 degrees C      | ok
+#
+# SMCI:
+# CPU1 Temp        | 38 degrees C      | ok
+# CPU2 Temp        | 38 degrees C      | ok
+# PCH Temp         | 32 degrees C      | ok
+# System Temp      | 29 degrees C      | ok
+# Peripheral Temp  | 33 degrees C      | ok
 sub get_temp {
   my ($device) = @_;
   
@@ -142,15 +149,24 @@ sub get_temp {
     $v =~ s/^\s+|\s+$//g;
     $status =~ s/^\s+|\s+$//g;
 
-    if ( $k =~ /^Inlet Temp/ ) {
+    if ( $k =~ /^Inlet Temp|^System Temp/ ) {
       $device->{temp}->{inlet} = $v;
     }
 
-    if ( $k =~ /^Exhaust Temp/ ) {
+    if ( $k =~ /^Exhaust Temp|^Peripheral Temp/ ) {
       $device->{temp}->{exhaust} = $v;
+    }
+
+    if ( $k =~ /^CPU1 Temp/ ) {
+      $device->{temp}->{cpu0} = $v;
+    }
+
+    if ( $k =~ /^CPU2 Temp/ ) {
+      $device->{temp}->{cpu1} = $v;
     }
   }
 
+  # Because Dell and my bad Perl skills.
   # Physical id 0:  +41.0 C  (high = +93.0 C, crit = +103.0 C)
   # Physical id 1:  +52.0 C  (high = +93.0 C, crit = +103.0 C)
   my $cpu_temp = `sensors | grep Phys`;
