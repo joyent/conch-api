@@ -46,6 +46,7 @@ sub create_device {
 sub get_boot_order {
 }
 
+
 sub load_device {
   my ($device, $ohai ) = @_;
 
@@ -120,6 +121,62 @@ sub load_hardware {
   return $device;
 }
 
+# Dell:
+# Inlet Temp       | 23 degrees C      | ok
+# Exhaust Temp     | 41 degrees C      | ok
+# Temp             | 41 degrees C      | ok
+# Temp             | 52 degrees C      | ok
+sub get_temp {
+  my ($device) = @_;
+  
+  my $ipmi_sensors = `ipmitool sdr | grep Temp`;
+  chomp $ipmi_sensors;
+
+  for (split/^/,$ipmi_sensors) {
+    chomp;
+    my ($k, $v, $status) = split/\|/, $_;
+
+    $v =~ s/ degrees C//;
+
+    $k =~ s/^\s+|\s+$//g;
+    $v =~ s/^\s+|\s+$//g;
+    $status =~ s/^\s+|\s+$//g;
+
+    if ( $k =~ /^Inlet Temp/ ) {
+      $device->{temp}->{inlet} = $v;
+    }
+
+    if ( $k =~ /^Exhaust Temp/ ) {
+      $device->{temp}->{exhaust} = $v;
+    }
+  }
+
+  # Physical id 0:  +41.0 C  (high = +93.0 C, crit = +103.0 C)
+  # Physical id 1:  +52.0 C  (high = +93.0 C, crit = +103.0 C)
+  my $cpu_temp = `sensors | grep Phys`;
+  chomp $cpu_temp;
+
+  for (split/^/,$cpu_temp) {
+    $_ =~ s/ C.*$//;
+    $_ =~ s/\+//;
+    my ($cpu, $temp) = split(/:/, $_);
+    chomp $cpu;
+    chomp $temp;
+    $temp =~ s/^\s+|\s+$//g;
+    $temp =~ s/\..*$//;
+
+    if ($cpu eq "Physical id 0") {
+      $device->{temp}->{cpu0} = $temp;
+    }
+
+    if ($cpu eq "Physical id 1") {
+      $device->{temp}->{cpu1} = $temp;
+    }
+  }
+
+  return $device;
+}
+
 sub get_smartctl {
   my $disk = shift;
 
@@ -145,6 +202,11 @@ sub get_smartctl {
 
     if ( $k =~ /SMART Health Status/ ) {
       $devstat->{health} = $v;
+    }
+
+    if ( $k =~ /Current Drive Temperature/ ) {
+      $v =~ s/ C$//;
+      $devstat->{temp} = $v;
     }
   }
 
@@ -223,6 +285,7 @@ sub load_disks {
 
     $device->{disks}{$sn}{device} = $disk;
     $device->{disks}{$sn}{health} = $devstat->{health} if defined $devstat->{health};
+    $device->{disks}{$sn}{temp}   = $devstat->{temp} if defined $devstat->{temp};
 
     # We might get these from lsusb.
     $device->{disks}{$sn}{hba}    = $devstat->{hba} || 0;
@@ -335,6 +398,7 @@ $device = load_disks($device);
 $device = load_sas3($device);
 $device = load_interfaces($device, $ohai);
 $device = load_device($device, $ohai);
+$device = get_temp($device);
 
+p $device;
 create_device($device);
-#p $device;
