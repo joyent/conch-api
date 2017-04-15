@@ -155,6 +155,7 @@ CREATE TABLE device_specs (
     cpu_num             integer     NOT NULL,
     cpu_type            text        NOT NULL, -- prtdiag output:
                                               -- Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz
+    nics_num            integer     NOT NULL,
     dimms_num           integer     NOT NULL,
     ram_total           integer     NOT NULL -- prtconf -m: 262050 (MB)
 );

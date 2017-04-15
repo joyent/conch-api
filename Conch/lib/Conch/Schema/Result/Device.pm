@@ -41,7 +41,6 @@ __PACKAGE__->table("device");
 =head2 id
 
   data_type: 'uuid'
-  default_value: gen_random_uuid()
   is_nullable: 0
   size: 16
 
@@ -90,12 +89,7 @@ __PACKAGE__->table("device");
 
 __PACKAGE__->add_columns(
   "id",
-  {
-    data_type => "uuid",
-    default_value => \"gen_random_uuid()",
-    is_nullable => 0,
-    size => 16,
-  },
+  { data_type => "uuid", is_nullable => 0, size => 16 },
   "serial_number",
   { data_type => "text", is_nullable => 0 },
   "hardware_product",
@@ -271,8 +265,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-14 06:58:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:CgpaZsNpOLKty1nWac70YQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 04:49:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3M43imyEJEW9/FFbEJsTwA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

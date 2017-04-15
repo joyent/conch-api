@@ -77,6 +77,11 @@ __PACKAGE__->table("device_specs");
   data_type: 'integer'
   is_nullable: 0
 
+=head2 nics_num
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =head2 ram_total
 
   data_type: 'integer'
@@ -98,6 +103,8 @@ __PACKAGE__->add_columns(
   "cpu_type",
   { data_type => "text", is_nullable => 0 },
   "dimms_num",
+  { data_type => "integer", is_nullable => 0 },
+  "nics_num",
   { data_type => "integer", is_nullable => 0 },
   "ram_total",
   { data_type => "integer", is_nullable => 0 },
@@ -148,8 +155,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-14 06:58:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3F2DJnWT9PRihvXwjMpBJA
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 04:49:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:M0JMBK7y/O8h/WGNAlNERw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

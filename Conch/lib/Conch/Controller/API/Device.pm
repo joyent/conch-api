@@ -41,12 +41,16 @@ sub device_POST :Path('/api/device') {
     health           => $req->{health},
   });
 
+  my %interfaces = %{$req->{interfaces}};
+  my $nics_num = keys %interfaces;
+
   my $device_specs = $c->model('DB::DeviceSpec')->update_or_create({
     device_id       => $device_rs->id,
     product_id      => $hw_profile->id,
     bios_firmware   => $req->{bios_version},
     cpu_num         => $req->{processor}->{count},
     cpu_type        => $req->{processor}->{type},
+    nics_num        => $nics_num,
     dimms_num       => $req->{memory}->{count},
     ram_total       => $req->{memory}->{total},
   });
