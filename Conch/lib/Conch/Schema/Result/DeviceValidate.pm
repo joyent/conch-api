@@ -57,6 +57,11 @@ __PACKAGE__->table("device_validate");
   data_type: 'text'
   is_nullable: 0
 
+=head2 component_name
+
+  data_type: 'text'
+  is_nullable: 0
+
 =head2 component_id
 
   data_type: 'uuid'
@@ -69,6 +74,11 @@ __PACKAGE__->table("device_validate");
   is_foreign_key: 1
   is_nullable: 1
   size: 16
+
+=head2 metric
+
+  data_type: 'integer'
+  is_nullable: 1
 
 =head2 log
 
@@ -108,10 +118,14 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "component_type",
   { data_type => "text", is_nullable => 0 },
+  "component_name",
+  { data_type => "text", is_nullable => 0 },
   "component_id",
   { data_type => "uuid", is_nullable => 1, size => 16 },
   "criteria_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  "metric",
+  { data_type => "integer", is_nullable => 1 },
   "log",
   { data_type => "text", is_nullable => 1 },
   "status",
@@ -182,8 +196,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-16 16:37:49
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5CCk0Fl/BDKyW8YD/SKcTw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-16 19:17:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HM7aTkVlZvyPDcB5e3TIOQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -247,9 +247,11 @@ CREATE TABLE device_validate_criteria (
 CREATE TABLE device_validate (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           uuid        NOT NULL REFERENCES device (id),
-    component_type      text        NOT NULL, -- what we're testing
+    component_type      text        NOT NULL, -- type of thing we're testing
+    component_name      text        NOT NULL, -- actual thingwe're testing
     component_id        uuid,                 -- if we can reference a component we should fill this out.
     criteria_id         uuid        REFERENCES device_validate_criteria (id),
+    metric              integer,
     log                 text,
     status              boolean     NOT NULL, -- true, false, unknown
     created             timestamptz NOT NULL DEFAULT current_timestamp,

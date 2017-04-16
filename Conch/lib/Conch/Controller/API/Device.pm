@@ -33,6 +33,8 @@ sub device_POST :Path('/api/device') {
 
   my $hw_profile = $hw_profile_rs->first;
 
+  $c->log->debug("Recording device for " . $req->{system_uuid});
+
   my $device_rs = $c->model('DB::Device')->update_or_create({
     id               => $req->{system_uuid},
     hardware_product => $hw->id,
@@ -43,6 +45,8 @@ sub device_POST :Path('/api/device') {
 
   my %interfaces = %{$req->{interfaces}};
   my $nics_num = keys %interfaces;
+
+  $c->log->debug("Recording device specs for " . $device_rs->id);
 
   my $device_specs = $c->model('DB::DeviceSpec')->update_or_create({
     device_id       => $device_rs->id,
@@ -55,7 +59,9 @@ sub device_POST :Path('/api/device') {
     ram_total       => $req->{memory}->{total},
   });
 
-  my $device_temps = $c->model('DB::DeviceEnvironment')->update_or_create({
+  $c->log->debug("Recording environmentals for " . $device_rs->id);
+
+  my $device_env = $c->model('DB::DeviceEnvironment')->update_or_create({
     device_id       => $device_rs->id,
     cpu0_temp       => $req->{temp}->{cpu0},
     cpu1_temp       => $req->{temp}->{cpu1},
@@ -63,7 +69,12 @@ sub device_POST :Path('/api/device') {
     exhaust_temp    => $req->{temp}->{exhaust},
   });
 
+  $c->log->debug("Recording disks for " . $device_rs->id);
+
+  # XXX If a disk vanishes/replaces, we need to mark it deactivated here.
   foreach my $disk (keys %{$req->{disks}}) {
+    $c->log->debug($device_rs->id . ": recording disk: $disk");
+
     my $disk_rs = $c->model('DB::DeviceDisk')->update_or_create({
       device_id       => $device_rs->id,
       serial_number   => $disk,
@@ -81,6 +92,9 @@ sub device_POST :Path('/api/device') {
   }
 
   foreach my $nic (keys %{$req->{interfaces}}) {
+
+    $c->log->debug("Recording NIC " . $req->{interfaces}->{$nic}->{mac} . " for " . $device_rs->id);
+
     my $nic_rs = $c->model('DB::DeviceNic')->update_or_create({
       mac           => $req->{interfaces}->{$nic}->{mac},
       device_id     => $device_rs->id,
@@ -105,11 +119,17 @@ sub device_POST :Path('/api/device') {
     });
   }
 
+  $c->forward('/validate/environment/index');
+  $c->forward('/validate/inventory/index');
+
+  $c->log->debug("Finishing req for " . $device_rs->id);
+
   $self->status_ok(
     $c,
     entity => {
-      action  => "create",
       uuid    => $device_rs->id,
+      validated => "",
+      action  => "create",
       status  => "200"
     }
   );
