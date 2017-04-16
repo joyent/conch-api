@@ -100,7 +100,7 @@ sub load_hardware {
     if ( $_ =~ /processor/ ){
       my $product = join(" ", splice(@line, 3, $#line));
       $device->{processor}{count}++;
-      $device->{processor}{type} = $product ;
+      $device->{processor}{type} = "Intel(R) $product";
     }
 
     # Get network info.
