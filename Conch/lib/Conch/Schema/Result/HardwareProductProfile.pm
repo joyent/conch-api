@@ -102,6 +102,11 @@ __PACKAGE__->table("hardware_product_profile");
   data_type: 'integer'
   is_nullable: 1
 
+=head2 sata_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 sas_num
 
   data_type: 'integer'
@@ -112,12 +117,27 @@ __PACKAGE__->table("hardware_product_profile");
   data_type: 'integer'
   is_nullable: 1
 
+=head2 sas_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 ssd_num
 
   data_type: 'integer'
   is_nullable: 1
 
 =head2 ssd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 ssd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 psu_total
 
   data_type: 'integer'
   is_nullable: 1
@@ -173,13 +193,21 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 1 },
   "sata_size",
   { data_type => "integer", is_nullable => 1 },
+  "sata_slots",
+  { data_type => "text", is_nullable => 1 },
   "sas_num",
   { data_type => "integer", is_nullable => 1 },
   "sas_size",
   { data_type => "integer", is_nullable => 1 },
+  "sas_slots",
+  { data_type => "text", is_nullable => 1 },
   "ssd_num",
   { data_type => "integer", is_nullable => 1 },
   "ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "psu_total",
   { data_type => "integer", is_nullable => 1 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
@@ -228,6 +256,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 device_validate_criterias
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DeviceValidateCriteria>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_validate_criterias",
+  "Conch::Schema::Result::DeviceValidateCriteria",
+  { "foreign.product_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 hardware_profile_settings
 
 Type: has_many
@@ -259,8 +302,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-14 06:58:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:r6LfZPO+TOGG7HCv0uR5EQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-16 16:37:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RPfURaWMSNwuXe+JGoQixw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -1,0 +1,31 @@
+Pass error hash through stash $c->
+
+Temps:
+cpu_temp
+disk_temp
+inlet_temp
+exhaust_temp
+
+Inventory / Correct number of:
+cpu_count
+cpu_type
+disk_count
+disk_type
+ram_dimm_count
+ram_total
+nic_count
+nic_type
+nic_links
+
+Network:
+net_lldp_peers
+net_lacp
+
+Configuration:
+bios_version
+bios_boot_order
+bios_oem
+bios_product
+bios_fan_speed
+drac_net
+drac_version

@@ -159,6 +159,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 device_environment
+
+Type: might_have
+
+Related object: L<Conch::Schema::Result::DeviceEnvironment>
+
+=cut
+
+__PACKAGE__->might_have(
+  "device_environment",
+  "Conch::Schema::Result::DeviceEnvironment",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 device_location
 
 Type: might_have
@@ -249,32 +264,17 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_temperature
-
-Type: might_have
-
-Related object: L<Conch::Schema::Result::DeviceTemperature>
-
-=cut
-
-__PACKAGE__->might_have(
-  "device_temperature",
-  "Conch::Schema::Result::DeviceTemperature",
-  { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 device_tests
+=head2 device_validates
 
 Type: has_many
 
-Related object: L<Conch::Schema::Result::DeviceTest>
+Related object: L<Conch::Schema::Result::DeviceValidate>
 
 =cut
 
 __PACKAGE__->has_many(
-  "device_tests",
-  "Conch::Schema::Result::DeviceTest",
+  "device_validates",
+  "Conch::Schema::Result::DeviceValidate",
   { "foreign.device_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -295,8 +295,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 05:52:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JpruYXgJu3V5IrLtAl0wWQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-16 16:37:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zBSfmuRA7KH9Ve7kPm/bCA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

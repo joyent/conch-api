@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::DeviceTest;
+package Conch::Schema::Result::DeviceValidate;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::DeviceTest
+Conch::Schema::Result::DeviceValidate
 
 =cut
 
@@ -30,11 +30,11 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<device_test>
+=head1 TABLE: C<device_validate>
 
 =cut
 
-__PACKAGE__->table("device_test");
+__PACKAGE__->table("device_validate");
 
 =head1 ACCESSORS
 
@@ -60,6 +60,13 @@ __PACKAGE__->table("device_test");
 =head2 component_id
 
   data_type: 'uuid'
+  is_nullable: 1
+  size: 16
+
+=head2 criteria_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
   is_nullable: 1
   size: 16
 
@@ -103,6 +110,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "component_id",
   { data_type => "uuid", is_nullable => 1, size => 16 },
+  "criteria_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
   "log",
   { data_type => "text", is_nullable => 1 },
   "status",
@@ -137,6 +146,26 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 criteria
+
+Type: belongs_to
+
+Related object: L<Conch::Schema::Result::DeviceValidateCriteria>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "criteria",
+  "Conch::Schema::Result::DeviceValidateCriteria",
+  { id => "criteria_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
 =head2 device
 
 Type: belongs_to
@@ -153,8 +182,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-15 05:52:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uSD8WPgyPNP7L273kcTDfw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-16 16:37:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5CCk0Fl/BDKyW8YD/SKcTw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

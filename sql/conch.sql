@@ -86,10 +86,14 @@ CREATE TABLE hardware_product_profile (
     nics_num            integer     NOT NULL,
     sata_num            integer,
     sata_size           integer,
+    sata_slots          text,                 -- A range of where we expect to find these disks
     sas_num             integer,
     sas_size            integer,
+    sas_slots           text,                 -- A range of where we expect to find these disks
     ssd_num             integer,
     ssd_size            integer,
+    ssd_slots           text,                 -- A range of where we expect to find these disks
+    psu_total           integer,
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
@@ -148,12 +152,14 @@ CREATE TABLE device_location (
 );
 
 -- All temps should be in C
-CREATE TABLE device_temperature (
+CREATE TABLE device_environment (
     device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
     cpu0_temp           integer,
     cpu1_temp           integer,
     inlet_temp          integer,
     exhaust_temp        integer,
+    psu0_voltage        decimal,
+    psu1_voltage        decimal,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
@@ -217,17 +223,33 @@ CREATE TABLE device_neighbor (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     nic_id              macaddr     NOT NULL REFERENCES device_nic (mac),
     raw_text            text,       --- raw command output
-    peer_switch         text,
-    peer_port           text,
+    peer_switch         text,       --- from LLDP
+    peer_port           text,       --- from LLDP
+    want_switch         text,       --- from wiremap spec
+    want_port           text,       --- from wiremap spec
     created             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+CREATE TABLE device_validate_criteria (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id          uuid        REFERENCES hardware_product_profile (id),
+    component           text        NOT NULL, -- what we're testing (CPU)
+    condition           text        NOT NULL, -- the part of the thing (temp)
+    vendor              text,
+    model               text,
+    string              text,
+    min                 integer,
+    warn                integer,
+    crit                integer
+);
+
 -- log which tests a device has passed or failed here.
-CREATE TABLE device_test (
+CREATE TABLE device_validate (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           uuid        NOT NULL REFERENCES device (id),
     component_type      text        NOT NULL, -- what we're testing
     component_id        uuid,                 -- if we can reference a component we should fill this out.
+    criteria_id         uuid        REFERENCES device_validate_criteria (id),
     log                 text,
     status              boolean     NOT NULL, -- true, false, unknown
     created             timestamptz NOT NULL DEFAULT current_timestamp,

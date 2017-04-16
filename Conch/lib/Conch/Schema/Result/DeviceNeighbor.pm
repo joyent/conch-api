@@ -66,6 +66,16 @@ __PACKAGE__->table("device_neighbor");
   data_type: 'text'
   is_nullable: 1
 
+=head2 want_switch
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 want_port
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 created
 
   data_type: 'timestamp with time zone'
@@ -90,6 +100,10 @@ __PACKAGE__->add_columns(
   "peer_switch",
   { data_type => "text", is_nullable => 1 },
   "peer_port",
+  { data_type => "text", is_nullable => 1 },
+  "want_switch",
+  { data_type => "text", is_nullable => 1 },
+  "want_port",
   { data_type => "text", is_nullable => 1 },
   "created",
   {
@@ -130,8 +144,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-14 06:58:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:e4IbLMNyXSrJecYoGfjBiw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-16 16:37:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zDodH5PgmzjC7WS2fBLFXg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

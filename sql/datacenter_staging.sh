@@ -20,3 +20,4 @@ done
 
 $PSQL < hardware.sql
 $PSQL < hardware_profiles.sql
+$PSQL < validate_criteria.sql
