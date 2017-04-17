@@ -146,7 +146,7 @@ CREATE TABLE device_settings (
 
 CREATE TABLE device_location (
     device_id           text        PRIMARY KEY NOT NULL REFERENCES device (id),
-    location            uuid        NOT NULL REFERENCES datacenter_rack (id),
+    rack_id             uuid        NOT NULL REFERENCES datacenter_rack (id),
     rack_unit           integer     NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp

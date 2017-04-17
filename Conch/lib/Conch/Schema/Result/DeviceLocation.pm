@@ -44,7 +44,7 @@ __PACKAGE__->table("device_location");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 location
+=head2 rack_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -75,7 +75,7 @@ __PACKAGE__->table("device_location");
 __PACKAGE__->add_columns(
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
-  "location",
+  "rack_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "rack_unit",
   { data_type => "integer", is_nullable => 0 },
@@ -124,7 +124,7 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 location
+=head2 rack
 
 Type: belongs_to
 
@@ -133,15 +133,15 @@ Related object: L<Conch::Schema::Result::DatacenterRack>
 =cut
 
 __PACKAGE__->belongs_to(
-  "location",
+  "rack",
   "Conch::Schema::Result::DatacenterRack",
-  { id => "location" },
+  { id => "rack_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:19:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JGRXdt7bQn4mAza2h7vqXQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:46:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wjG2eH4fNq7ER6SuQlVzSA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

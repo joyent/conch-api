@@ -155,7 +155,7 @@ Related object: L<Conch::Schema::Result::DeviceLocation>
 __PACKAGE__->has_many(
   "device_locations",
   "Conch::Schema::Result::DeviceLocation",
-  { "foreign.location" => "self.id" },
+  { "foreign.rack_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -175,8 +175,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:19:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:J87BTljxn7PNucNpw11tvQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:46:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OqjR5cLs9xPseUoyVEqkvQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
