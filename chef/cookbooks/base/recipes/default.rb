@@ -36,9 +36,9 @@ end
 %w{
   export.pl
   sas3ircu
-}.eacho do |file|
-  cookbook_file "/var/preflight/bin/#{file}"
-    source file
+}.each do |file|
+  cookbook_file "/var/preflight/bin/#{file}" do
+    source "bin/#{file}"
     mode 0755
   end
 end
