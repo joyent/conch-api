@@ -40,10 +40,9 @@ __PACKAGE__->table("device_environment");
 
 =head2 device_id
 
-  data_type: 'uuid'
+  data_type: 'text'
   is_foreign_key: 1
   is_nullable: 0
-  size: 16
 
 =head2 cpu0_temp
 
@@ -93,7 +92,7 @@ __PACKAGE__->table("device_environment");
 
 __PACKAGE__->add_columns(
   "device_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "cpu0_temp",
   { data_type => "integer", is_nullable => 1 },
   "cpu1_temp",
@@ -152,8 +151,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 02:49:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YWTpAXMQZZ1hL3UbG6mE/Q
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:19:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rtYWQPA23VZf8zlmTLs15Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

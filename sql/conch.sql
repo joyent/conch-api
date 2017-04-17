@@ -122,8 +122,8 @@ CREATE TABLE hardware_totals (
 );
 
 CREATE TABLE device (
-    id                  uuid        PRIMARY KEY, -- System baseboard UUID
-    serial_number       text        UNIQUE NOT NULL,
+    id                  text        PRIMARY KEY, -- System serial number
+    system_uuid                     uuid UNIQUE, -- We get this on the first run
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
     health              text        NOT NULL, -- PASS, FAIL, UNKNOWN
@@ -137,7 +137,7 @@ CREATE TABLE device (
 -- fan speeds, etc.
 CREATE TABLE device_settings (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    device_id           uuid        NOT NULL REFERENCES device (id),
+    device_id           text        NOT NULL REFERENCES device (id),
     resource_id         uuid        NOT NULL REFERENCES hardware_profile_settings (id),
     value               text        NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
@@ -145,7 +145,7 @@ CREATE TABLE device_settings (
 );
 
 CREATE TABLE device_location (
-    device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
+    device_id           text        PRIMARY KEY NOT NULL REFERENCES device (id),
     location            uuid        NOT NULL REFERENCES datacenter_rack (id),
     rack_unit           integer     NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
@@ -154,7 +154,7 @@ CREATE TABLE device_location (
 
 -- All temps should be in C
 CREATE TABLE device_environment (
-    device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
+    device_id           text        PRIMARY KEY NOT NULL REFERENCES device (id),
     cpu0_temp           integer,
     cpu1_temp           integer,
     inlet_temp          integer,
@@ -166,7 +166,7 @@ CREATE TABLE device_environment (
 );
 
 CREATE TABLE device_specs (
-    device_id           uuid        PRIMARY KEY NOT NULL REFERENCES device (id),
+    device_id           text        PRIMARY KEY NOT NULL REFERENCES device (id),
     product_id          uuid        NOT NULL REFERENCES hardware_product_profile (id),
     bios_firmware       text        NOT NULL, -- prtdiag output; Dell Inc. 2.2.5 09/06/2016
     hba_firmware        text,
@@ -180,7 +180,7 @@ CREATE TABLE device_specs (
 
 CREATE TABLE device_disk (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    device_id           uuid        NOT NULL REFERENCES device (id),
+    device_id           text        NOT NULL REFERENCES device (id),
     serial_number       text        UNIQUE NOT NULL,
     hba                 integer,
     slot                integer     NOT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE device_disk (
 
 CREATE TABLE device_nic (
     mac                 macaddr     PRIMARY KEY NOT NULL,
-    device_id           uuid        NOT NULL REFERENCES device (id),
+    device_id           text        NOT NULL REFERENCES device (id),
     iface_name          text        NOT NULL, -- eth0, ixgbe0
     iface_type          text        NOT NULL,
     iface_vendor        text        NOT NULL,
@@ -248,7 +248,7 @@ CREATE TABLE device_validate_criteria (
 -- log which tests a device has passed or failed here.
 CREATE TABLE device_validate (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    device_id           uuid        NOT NULL REFERENCES device (id),
+    device_id           text        NOT NULL REFERENCES device (id),
     component_type      text        NOT NULL, -- type of thing we're testing
     component_name      text        NOT NULL, -- actual thingwe're testing
     component_id        uuid,                 -- if we can reference a component we should fill this out.
@@ -256,15 +256,14 @@ CREATE TABLE device_validate (
     metric              integer,
     log                 text,
     status              boolean     NOT NULL, -- true, false, unknown
-    created             timestamptz NOT NULL DEFAULT current_timestamp,
-    updated             timestamptz NOT NULL DEFAULT current_timestamp
+    created             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 -- this is a log table for PSU info, fan speed changes, chassis/disk temp
 -- changes, etc. Populated on discovery and when things change.
 CREATE TABLE device_log (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    device_id           uuid        NOT NULL REFERENCES device (id),
+    device_id           text       NOT NULL REFERENCES device (id),
     component_type      text        NOT NULL, -- PSU, chassis, disk, fan, etc.
     component_id        uuid,                 -- if we can reference a component we should fill this out.
     log                 text        NOT NULL,
@@ -274,7 +273,7 @@ CREATE TABLE device_log (
 -- Admin notes.
 CREATE TABLE device_notes (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    device_id           uuid        NOT NULL REFERENCES device (id),
+    device_id           text        NOT NULL REFERENCES device (id),
     text                text        NOT NULL,
     author              text        NOT NULL,
     ticket_id           text,       -- Field for JIRA tickets or whatever.

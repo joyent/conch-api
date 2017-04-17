@@ -45,10 +45,9 @@ __PACKAGE__->table("device_nic");
 
 =head2 device_id
 
-  data_type: 'uuid'
+  data_type: 'text'
   is_foreign_key: 1
   is_nullable: 0
-  size: 16
 
 =head2 iface_name
 
@@ -95,7 +94,7 @@ __PACKAGE__->add_columns(
   "mac",
   { data_type => "macaddr", is_nullable => 0 },
   "device_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "iface_name",
   { data_type => "text", is_nullable => 0 },
   "iface_type",
@@ -182,8 +181,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 02:49:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FB9etBOe8zvWXgEU+XXZcQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:19:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cOTiSBmV7Sstu369HsYVzg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

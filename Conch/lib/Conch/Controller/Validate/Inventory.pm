@@ -36,7 +36,7 @@ sub index :Path :Args(0) {
 sub system : Private {
   my ( $self, $c ) = @_;
 
-  my $device_id = lc($c->req->data->{system_uuid});
+  my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating system inventory");
 
   my $device_spec = $c->model('DB::DeviceSpec')->search({
@@ -140,7 +140,7 @@ sub system : Private {
 sub disks : Private {
   my ( $self, $c ) = @_;
 
-  my $device_id = lc($c->req->data->{system_uuid});
+  my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating disk inventory");
 
   my $device_spec = $c->model('DB::DeviceSpec')->search({

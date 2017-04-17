@@ -29,12 +29,11 @@ sub index :Path :Args(0) {
   $c->forward('product');
 }
 
-# XXX
 sub product : Private {
   my ( $self, $c ) = @_;
 
   # Validate that req->{data}->{product_name} is being passed up
-  my $device_id = lc($c->req->data->{system_uuid});
+  my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating hardware product information");
 
   my $product_name = $c->req->data->{product_name};

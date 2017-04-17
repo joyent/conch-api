@@ -40,14 +40,14 @@ __PACKAGE__->table("device");
 
 =head2 id
 
-  data_type: 'uuid'
-  is_nullable: 0
-  size: 16
-
-=head2 serial_number
-
   data_type: 'text'
   is_nullable: 0
+
+=head2 system_uuid
+
+  data_type: 'uuid'
+  is_nullable: 1
+  size: 16
 
 =head2 hardware_product
 
@@ -94,9 +94,9 @@ __PACKAGE__->table("device");
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "uuid", is_nullable => 0, size => 16 },
-  "serial_number",
   { data_type => "text", is_nullable => 0 },
+  "system_uuid",
+  { data_type => "uuid", is_nullable => 1, size => 16 },
   "hardware_product",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "state",
@@ -137,17 +137,17 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<device_serial_number_key>
+=head2 C<device_system_uuid_key>
 
 =over 4
 
-=item * L</serial_number>
+=item * L</system_uuid>
 
 =back
 
 =cut
 
-__PACKAGE__->add_unique_constraint("device_serial_number_key", ["serial_number"]);
+__PACKAGE__->add_unique_constraint("device_system_uuid_key", ["system_uuid"]);
 
 =head1 RELATIONS
 
@@ -302,8 +302,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 02:49:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4EXuInHu5sNGhCVMw/VmqQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:19:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FfYk+KJf/naixLlE52zahw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -47,10 +47,9 @@ __PACKAGE__->table("device_settings");
 
 =head2 device_id
 
-  data_type: 'uuid'
+  data_type: 'text'
   is_foreign_key: 1
   is_nullable: 0
-  size: 16
 
 =head2 resource_id
 
@@ -89,7 +88,7 @@ __PACKAGE__->add_columns(
     size => 16,
   },
   "device_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "resource_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "value",
@@ -155,8 +154,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 02:49:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tmontpfHIsh+VQbEJqRZew
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:19:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/PWo/LhZmEmHPzAs9DoXcw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

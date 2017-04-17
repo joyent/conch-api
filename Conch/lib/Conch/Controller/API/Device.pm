@@ -33,12 +33,12 @@ sub device_POST :Path('/api/device') {
 
   my $hw_profile = $hw_profile_rs->first;
 
-  $c->log->debug($req->{system_uuid} . ": Recording device");
+  $c->log->debug($req->{serial_number} . ": Recording device");
 
   my $device_rs = $c->model('DB::Device')->update_or_create({
-    id               => $req->{system_uuid},
+    id               => $req->{serial_number},
+    system_uuid      => $req->{system_uuid},
     hardware_product => $hw->id,
-    serial_number    => $req->{serial_number},
     state            => $req->{state},
     health           => $req->{health},
     last_seen        => \'NOW()',

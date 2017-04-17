@@ -35,7 +35,7 @@ sub index :Path :Args(0) {
 sub links : Private {
   my ( $self, $c ) = @_;
 
-  my $device_id = lc($c->req->data->{system_uuid});
+  my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating network links");
 
   my $device_nics = $c->model('DB::DeviceNic')->search({
@@ -93,7 +93,7 @@ sub wiremap : Private {
   # want_switch         text,       --- from wiremap spec
   # want_port           text,       --- from wiremap spec
 
-  my $device_id = lc($c->req->data->{system_uuid});
+  my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating network links");
 
   my $device_nics = $c->model('DB::DeviceNic')->search({
