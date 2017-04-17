@@ -74,7 +74,7 @@ sub device_POST :Path('/api/device') {
 
   # XXX If a disk vanishes/replaces, we need to mark it deactivated here.
   foreach my $disk (keys %{$req->{disks}}) {
-    $c->log->debug($device_rs->id . ": recording disk: $disk");
+    $c->log->debug($device_rs->id . ": Recording disk: $disk");
 
     my $disk_rs = $c->model('DB::DeviceDisk')->update_or_create({
       device_id       => $device_rs->id,
@@ -120,6 +120,7 @@ sub device_POST :Path('/api/device') {
     });
   }
 
+  $c->forward('/validate/configuration/index');
   $c->forward('/validate/inventory/index');
   $c->forward('/validate/network/index');
   $c->forward('/validate/environment/index');

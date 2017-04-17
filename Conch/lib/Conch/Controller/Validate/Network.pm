@@ -88,9 +88,6 @@ sub links : Private {
 sub wiremap : Private {
   my ( $self, $c ) = @_;
 
-  # Get NICs
-  # Get wiremap
-
   # peer_switch         text,       --- from LLDP
   # peer_port           text,       --- from LLDP
   # want_switch         text,       --- from wiremap spec
@@ -103,7 +100,6 @@ sub wiremap : Private {
     device_id => $device_id
   });
 
-  my $nics = {};
   while ( my $iface = $device_nics->next ) {
     my $nic_state = $c->model('DB::DeviceNicState')->search({
       mac => $iface->mac,
@@ -117,7 +113,6 @@ sub wiremap : Private {
 
     # If we don't have a wiremap entry _or_ LLDP for a port, skip it. Who cares.
     next unless (defined $nic_neighbor->peer_switch || defined $nic_neighbor->want_switch);
-
 
     my $want_switch = "?";
     my $want_port   = "?";

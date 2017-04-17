@@ -22,9 +22,11 @@ Catalyst Controller.
 =cut
 
 sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+  my ( $self, $c ) = @_;
 
-    $c->response->body('Matched Conch::Controller::Validate::Configuration in Validate::Configuration.');
+  $c->response->body('Matched Conch::Controller::Validate::Configuration in Validate::Configuration.');
+
+  $c->forward('product');
 }
 
 # XXX
@@ -32,6 +34,28 @@ sub product : Private {
   my ( $self, $c ) = @_;
 
   # Validate that req->{data}->{product_name} is being passed up
+  my $device_id = lc($c->req->data->{system_uuid});
+  $c->log->debug("$device_id: Validating hardware product information");
+
+  my $product_name = $c->req->data->{product_name};
+  my $product_name_log = "Has = $product_name, Want = Matches:Joyent";
+  my $product_name_status;
+
+  if ( $product_name !~ /Joyent/ ) {
+    $product_name_status = 0;
+    $c->log->debug("$device_id: CRITICAL: Product name not set: $product_name_log");
+  } else {
+    $product_name_status = 1;
+    $c->log->debug("$device_id: OK: Product name set: $product_name_log");
+  }
+
+  my $product_name_record = $c->model('DB::DeviceValidate')->update_or_create({
+    device_id       => $device_id,
+    component_type  => "BIOS",
+    component_name  => "product_name",
+    log             => $product_name_log,
+    status          => $product_name_status
+  });
 }
 
 

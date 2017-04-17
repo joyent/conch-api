@@ -4,6 +4,7 @@ serial_number = node[:dmi][:system][:serial_number]
   /etc/chef
   /etc/chef/ohai_plugins
   /var/preflight
+  /var/preflight/bin
   /var/preflight/log
 }.each do |dir|
   directory dir
@@ -30,6 +31,16 @@ end
 cookbook_file "/etc/chef/ohai_plugins/lldp.rb" do
   source "plugins/lldp.rb"
   notifies :reload, "ohai[reload]"
+end
+
+%w{
+  export.pl
+  sas3ircu
+}.eacho do |file|
+  cookbook_file "/var/preflight/bin/#{file}"
+    source file
+    mode 0755
+  end
 end
 
 directory "/var/preflight/log/#{serial_number}"
