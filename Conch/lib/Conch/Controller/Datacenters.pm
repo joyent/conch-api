@@ -31,6 +31,8 @@ sub list :Local {
   my ($self, $c) = @_;
   $c->stash(datacenters => [$c->model('DB::Datacenter')->all]);
   $c->stash(template => 'datacenters/list.tt2');
+
+  $c->forward('View::HTML');
 }
 
 =encoding utf8
