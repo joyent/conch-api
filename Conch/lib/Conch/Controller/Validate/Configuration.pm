@@ -27,6 +27,13 @@ sub index :Path :Args(0) {
     $c->response->body('Matched Conch::Controller::Validate::Configuration in Validate::Configuration.');
 }
 
+# XXX
+sub product : Private {
+  my ( $self, $c ) = @_;
+
+  # Validate that req->{data}->{product_name} is being passed up
+}
+
 
 
 =encoding utf8

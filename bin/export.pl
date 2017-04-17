@@ -10,9 +10,8 @@ use HTTP::Tiny;
 use vars qw/@ARGV/;
 
 sub read_ohai {
-  my $filename = shift;
-
-  my $generate_ohai = `ohai -c /var/chef/solo.rb > $filename 2> /tmp/ohai.err`;
+  my $filename = "/tmp/ohai.json";
+  my $generate_ohai = `/usr/bin/ohai -c /var/chef/solo.rb > $filename 2> /tmp/ohai.err`;
 
   my $json_text = do {
      open(my $json_fh, "<:encoding(UTF-8)", $filename)
@@ -79,17 +78,17 @@ sub load_device {
 sub load_hardware {
   my ( $device ) = @_;
 
-  my $dimms = `dmidecode -t memory | grep Size | grep -v 'No Module' | wc -l`;
+  my $dimms = `/usr/sbin/dmidecode -t memory | grep Size | grep -v 'No Module' | wc -l`;
   chomp $dimms;
   $device->{memory}{count} = $dimms;
 
-  my $mem_grep = `grep ^MemTotal /proc/meminfo | awk '{print \$2}'`;
+  my $mem_grep = `/bin/grep ^MemTotal /proc/meminfo | awk '{print \$2}'`;
   my $mem_total = $mem_grep / 1024;
   $mem_total =~ s/\..*$//;
   $device->{memory}{total} = $mem_total;
 
   # lshw JSON and XML output is broken in awesome ways, so we resort to this.
-  my $output = `lshw -quiet -short > /tmp/lshw.out`;
+  my $output = `/usr/bin/lshw -quiet -short > /tmp/lshw.out`;
 
   open(FILE, "/tmp/lshw.out") or die "Could not read file: $!";
 
@@ -136,7 +135,7 @@ sub load_hardware {
 sub get_temp {
   my ($device) = @_;
   
-  my $ipmi_sensors = `ipmitool sdr | grep Temp`;
+  my $ipmi_sensors = `/usr/bin/ipmitool sdr | grep Temp`;
   chomp $ipmi_sensors;
 
   for (split/^/,$ipmi_sensors) {
@@ -169,7 +168,7 @@ sub get_temp {
   # Because Dell and my bad Perl skills.
   # Physical id 0:  +41.0 C  (high = +93.0 C, crit = +103.0 C)
   # Physical id 1:  +52.0 C  (high = +93.0 C, crit = +103.0 C)
-  my $cpu_temp = `sensors | grep Phys`;
+  my $cpu_temp = `/usr/bin/sensors | grep Phys`;
   chomp $cpu_temp;
 
   for (split/^/,$cpu_temp) {
@@ -196,7 +195,7 @@ sub get_temp {
 sub get_smartctl {
   my $disk = shift;
 
-  my $smartctl = `smartctl -a /dev/$disk`;
+  my $smartctl = `/usr/sbin/smartctl -a /dev/$disk`;
   chomp $smartctl;
 
   my $devstat = {};
@@ -233,14 +232,14 @@ sub get_smartctl {
 sub get_lsusb {
   my $devstat = {};
 
-  my $device_id = `lsusb | grep Flash`;
+  my $device_id = `/usr/bin/lsusb | grep Flash`;
   $device_id =~ s/^.*Bus //;
   $device_id =~ s/:.*$//;
   $device_id =~ s/ Device /:/;
 
   chomp $device_id;
 
-  my $lsusb = `lsusb -v -s $device_id | grep iSerial`;
+  my $lsusb = `/usr/bin/lsusb -v -s $device_id | grep iSerial`;
   chomp $lsusb;
 
   my @line = split(/\s+/,$lsusb);
@@ -258,7 +257,7 @@ sub get_lsusb {
 sub load_disks {
   my ( $device ) = @_;
 
-  my $output = `lsblk -ido KNAME,TRAN,SIZE,VENDOR,MODEL > /tmp/lsblk.out`;
+  my $output = `/bin/lsblk -ido KNAME,TRAN,SIZE,VENDOR,MODEL > /tmp/lsblk.out`;
   
   open(FILE, "/tmp/lsblk.out") or die "Could not read file: $!";
   while(<FILE>) {
@@ -321,7 +320,7 @@ sub load_disks {
 sub load_sas3 {
   my ( $device ) = @_;
 
-  my $sas3 = `./sas3ircu 0 DISPLAY > /tmp/sas3.out`;
+  my $sas3 = `/var/preflight/bin/sas3ircu 0 DISPLAY > /tmp/sas3.out`;
   
   open(FILE, "/tmp/sas3.out");
   
@@ -407,7 +406,7 @@ sub load_interfaces {
 
 my $device = {};
 
-my $ohai = read_ohai($ARGV[0]);
+my $ohai = read_ohai();
 
 $device = load_hardware($device);
 $device = load_disks($device);
