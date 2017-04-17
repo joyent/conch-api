@@ -33,7 +33,7 @@ sub device_POST :Path('/api/device') {
 
   my $hw_profile = $hw_profile_rs->first;
 
-  $c->log->debug("Recording device for " . $req->{system_uuid});
+  $c->log->debug($req->{system_uuid} . ": Recording device");
 
   my $device_rs = $c->model('DB::Device')->update_or_create({
     id               => $req->{system_uuid},
@@ -46,7 +46,7 @@ sub device_POST :Path('/api/device') {
   my %interfaces = %{$req->{interfaces}};
   my $nics_num = keys %interfaces;
 
-  $c->log->debug("Recording device specs for " . $device_rs->id);
+  $c->log->debug($device_rs->id . ": Recording device specs");
 
   my $device_specs = $c->model('DB::DeviceSpec')->update_or_create({
     device_id       => $device_rs->id,
@@ -59,7 +59,7 @@ sub device_POST :Path('/api/device') {
     ram_total       => $req->{memory}->{total},
   });
 
-  $c->log->debug("Recording environmentals for " . $device_rs->id);
+  $c->log->debug($device_rs->id . ": Recording environmentals");
 
   my $device_env = $c->model('DB::DeviceEnvironment')->update_or_create({
     device_id       => $device_rs->id,
@@ -69,7 +69,7 @@ sub device_POST :Path('/api/device') {
     exhaust_temp    => $req->{temp}->{exhaust},
   });
 
-  $c->log->debug("Recording disks for " . $device_rs->id);
+  $c->log->debug($device_rs->id . ": Recording disks");
 
   # XXX If a disk vanishes/replaces, we need to mark it deactivated here.
   foreach my $disk (keys %{$req->{disks}}) {
@@ -93,7 +93,7 @@ sub device_POST :Path('/api/device') {
 
   foreach my $nic (keys %{$req->{interfaces}}) {
 
-    $c->log->debug("Recording NIC " . $req->{interfaces}->{$nic}->{mac} . " for " . $device_rs->id);
+    $c->log->debug($device_rs->id . ": Recording NIC: " . $req->{interfaces}->{$nic}->{mac});
 
     my $nic_rs = $c->model('DB::DeviceNic')->update_or_create({
       mac           => $req->{interfaces}->{$nic}->{mac},
@@ -105,22 +105,23 @@ sub device_POST :Path('/api/device') {
     });
 
     my $nic_state = $c->model('DB::DeviceNicState')->update_or_create({
-      nic_id        => $req->{interfaces}->{$nic}->{mac},
+      mac           => $req->{interfaces}->{$nic}->{mac},
       state         => $req->{interfaces}->{$nic}->{state},
       ipaddr        => $req->{interfaces}->{$nic}->{ipaddr},
       mtu           => $req->{interfaces}->{$nic}->{mtu},
     });
 
     my $nic_peers = $c->model('DB::DeviceNeighbor')->update_or_create({
-      nic_id        => $req->{interfaces}->{$nic}->{mac},
+      mac           => $req->{interfaces}->{$nic}->{mac},
       raw_text      => $req->{interfaces}->{$nic}->{peer_text},
       peer_switch   => $req->{interfaces}->{$nic}->{peer_switch},
       peer_port     => $req->{interfaces}->{$nic}->{peer_port},
     });
   }
 
-  $c->forward('/validate/environment/index');
   $c->forward('/validate/inventory/index');
+  $c->forward('/validate/network/index');
+  $c->forward('/validate/environment/index');
 
   $c->log->debug("Finishing req for " . $device_rs->id);
 

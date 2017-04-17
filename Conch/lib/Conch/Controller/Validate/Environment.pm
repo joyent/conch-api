@@ -58,13 +58,13 @@ sub cpu_temp : Private {
     my $method = "${cpu}_temp";
 
     if ( $device_env->$method > $criteria->crit ) {
-      $cpu_msg = "CRITICAL: $cpu: " . $device_env->$method . " (>". $criteria->crit .")";
+      $cpu_msg = "$device_id: CRITICAL: $cpu: " . $device_env->$method . " (>". $criteria->crit .")";
       $cpu_status = 0;
      } elsif ( $device_env->$method > $criteria->warn ) {
-       $cpu_msg = "WARNING: $cpu: " . $device_env->$method . " (>". $criteria->warn .")";
+       $cpu_msg = "$device_id: WARNING: $cpu: " . $device_env->$method . " (>". $criteria->warn .")";
        $cpu_status = 0;
      } else {
-       $cpu_msg = "OK: $cpu: " . $device_env->$method . " (<". $criteria->warn .")";
+       $cpu_msg = "$device_id: OK: $cpu: " . $device_env->$method . " (<". $criteria->warn .")";
        $cpu_status = 1;
      }
 

@@ -70,6 +70,11 @@ __PACKAGE__->table("device_nic");
   data_type: 'text'
   is_nullable: 1
 
+=head2 deactivated
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =head2 created
 
   data_type: 'timestamp with time zone'
@@ -99,6 +104,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "iface_driver",
   { data_type => "text", is_nullable => 1 },
+  "deactivated",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -144,39 +151,39 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 device_neighbors
+=head2 device_neighbor
 
-Type: has_many
+Type: might_have
 
 Related object: L<Conch::Schema::Result::DeviceNeighbor>
 
 =cut
 
-__PACKAGE__->has_many(
-  "device_neighbors",
+__PACKAGE__->might_have(
+  "device_neighbor",
   "Conch::Schema::Result::DeviceNeighbor",
-  { "foreign.nic_id" => "self.mac" },
+  { "foreign.mac" => "self.mac" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_nic_states
+=head2 device_nic_state
 
-Type: has_many
+Type: might_have
 
 Related object: L<Conch::Schema::Result::DeviceNicState>
 
 =cut
 
-__PACKAGE__->has_many(
-  "device_nic_states",
+__PACKAGE__->might_have(
+  "device_nic_state",
   "Conch::Schema::Result::DeviceNicState",
-  { "foreign.nic_id" => "self.mac" },
+  { "foreign.mac" => "self.mac" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-16 19:17:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:euidYXRpt97doOgajuEHeA
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 01:22:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:U7DCODmZX7UCNP4Xyb88wQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -203,31 +203,32 @@ CREATE TABLE device_nic (
     iface_type          text        NOT NULL,
     iface_vendor        text        NOT NULL,
     iface_driver        text,
+    deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 -- this is a log table, so we can track port changes over time.
 CREATE TABLE device_nic_state (
-    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    nic_id              macaddr     NOT NULL REFERENCES device_nic (mac),
+    mac                 macaddr     PRIMARY KEY NOT NULL REFERENCES device_nic (mac),
     state               text,
     speed               text,
     ipaddr              inet,
     mtu                 integer,
-    created             timestamptz NOT NULL DEFAULT current_timestamp
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 -- this is a log table, so we can track port changes over time.
 CREATE TABLE device_neighbor (
-    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    nic_id              macaddr     NOT NULL REFERENCES device_nic (mac),
+    mac                 macaddr     PRIMARY KEY NOT NULL REFERENCES device_nic (mac),
     raw_text            text,       --- raw command output
     peer_switch         text,       --- from LLDP
     peer_port           text,       --- from LLDP
     want_switch         text,       --- from wiremap spec
     want_port           text,       --- from wiremap spec
-    created             timestamptz NOT NULL DEFAULT current_timestamp
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 CREATE TABLE device_validate_criteria (
