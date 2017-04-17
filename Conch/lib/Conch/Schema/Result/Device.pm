@@ -71,6 +71,11 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 last_seen
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =head2 created
 
   data_type: 'timestamp with time zone'
@@ -99,6 +104,8 @@ __PACKAGE__->add_columns(
   "health",
   { data_type => "text", is_nullable => 0 },
   "deactivated",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
+  "last_seen",
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
   {
@@ -295,8 +302,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 01:22:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:703ecK5uxrsagqnNytgUjQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 02:49:35
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4EXuInHu5sNGhCVMw/VmqQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

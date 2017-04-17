@@ -41,6 +41,7 @@ sub device_POST :Path('/api/device') {
     serial_number    => $req->{serial_number},
     state            => $req->{state},
     health           => $req->{health},
+    last_seen        => \'NOW()',
   });
 
   my %interfaces = %{$req->{interfaces}};

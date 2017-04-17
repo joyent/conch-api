@@ -125,9 +125,10 @@ CREATE TABLE device (
     id                  uuid        PRIMARY KEY, -- System baseboard UUID
     serial_number       text        UNIQUE NOT NULL,
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
-    state               text        NOT NULL, -- TODO: define ENUMs
-    health              text        NOT NULL, -- TODO: define ENUMs
+    state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
+    health              text        NOT NULL, -- PASS, FAIL, UNKNOWN
     deactivated         timestamptz DEFAULT NULL,
+    last_seen           timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
