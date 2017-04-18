@@ -110,11 +110,25 @@ while ( my $row = $csv->getline( $fh ) ) {
 
     #print "$sn $mac $iface $switch:$port\n";
 
+    # LLDP        vs device42: FIGHT!
+    # rack0109-43 vs eu-central-1a-109-2
+    # XXX I don't expect this to work well elsewhere.
+    my ( $country, $region, $datacenter, $rack, $switch_num ) = split(/-/,$switch);
+    my $switch_ru;
+    if ( $switch_num == 1 ) {
+      $switch_ru = 44;
+    } else {
+      $switch_ru = 43;
+    }
+    # XXX I expect "0$rack" to bite us later, but maybe check length or pad it... depends on
+    # XXX what other datacenter racks names are. This whole section is pretty fragile.
+    my $switch_f = "rack0$rack-$switch_ru";
+
     printf $device_nic_fh "INSERT INTO device_nic (mac, device_id, iface_name, iface_type, iface_vendor) VALUES ('%s', '%s', '%s', '%s', '%s');\n",
       $mac, $sn, $iface, "UNKNOWN", "UNKNOWN";
 
     printf $device_nic_fh "INSERT INTO device_neighbor (mac, want_switch, want_port) VALUES ('%s', '%s', '%s');\n",
-      $mac, $switch, $port;
+      $mac, $switch_f, $port;
      
     $i = $i+3;
   }
