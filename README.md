@@ -18,6 +18,25 @@ Once the collection is complete, a JSON blob is POSTed to the Conch API. The dat
 
 The web UI allows operators to view the health of the new environment. It surfaces actionable reports (bad cabling, dead disks, etc.)
 
+## Current Features
+
+* Simple REST API
+* Validates data on ingestion
+* Simple web UI
+* Spaghetti demon to export data from client systems
+* Basic system configuration
+
+### Data exporter exports
+
+* Temps
+* Basic system hardware (CPU, RAM)
+* Hard drives
+* Network interfaces
+* Network peers
+* Firmware versions
+
+...more to come.
+
 ## Future Work
 
 Later we will want to integrate conch data with our CMDB (device42) and JIRA, to make it easier to resolve issues in an environment.
