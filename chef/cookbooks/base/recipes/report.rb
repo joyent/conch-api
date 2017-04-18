@@ -1,8 +1,8 @@
 serial_number = node[:dmi][:system][:serial_number]
 
-dmidecode_pre_file = "/var/preflight/log/#{serial_number}/dmidecode_pre.txt".chomp
-ohai_file = "/var/preflight/log/#{serial_number}/ohai.json".chomp
-lldp_file = "/var/preflight/log/#{serial_number}/lldp.txt".chomp
+dmidecode_pre_file = "/var/preflight/log/dmidecode_pre.txt".chomp
+ohai_file = "/var/preflight/log/ohai.json".chomp
+lldp_file = "/var/preflight/log/lldp.txt".chomp
 
 bash 'gather_dmidecode_pre' do
   code <<-EOH

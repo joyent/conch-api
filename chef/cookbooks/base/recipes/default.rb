@@ -7,7 +7,9 @@ serial_number = node[:dmi][:system][:serial_number]
   /var/preflight/bin
   /var/preflight/log
 }.each do |dir|
-  directory dir
+  directory dir do
+    action :create
+  end
 end
 
 node[:network][:interfaces].keys.sort.each do |iface|
@@ -49,5 +51,6 @@ cron 'exporter' do
   command "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/dell/srvadmin/bin:/opt/dell/srvadmin/sbin:/opt/dell/srvadmin/sbin /var/preflight/bin/export.pl > /var/preflight/log/export.log 2>&1"
 end
 
-include_recipe "base::report"
+#include_recipe "base::report"
 include_recipe "base::telegraf"
+include_recipe "base::fan_speed"
