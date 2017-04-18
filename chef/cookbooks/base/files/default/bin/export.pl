@@ -232,7 +232,8 @@ sub get_smartctl {
 sub get_lsusb {
   my $devstat = {};
 
-  my $device_id = `/usr/bin/lsusb | grep Flash`;
+  # XXX This needs to get updated whenever we change USB drives.
+  my $device_id = `/usr/bin/lsusb | grep -e Flash -e Kingston`;
   $device_id =~ s/^.*Bus //;
   $device_id =~ s/:.*$//;
   $device_id =~ s/ Device /:/;
@@ -404,6 +405,37 @@ sub load_interfaces {
   return $device;
 }
 
+sub load_ipmi_net {
+  my ($device) = @_;
+  my $output = `/usr/bin/ipmitool lan print 1 > /tmp/ipmi_net.out`;
+
+  open(FILE, "/tmp/ipmi_net.out") or die "Could not read file: $!";
+
+  while(<FILE>) {
+    chomp;
+    my ($k, $v) = split(/ : /,$_);
+    $k =~ s/^\s+|\s+$//g;
+    $v =~ s/^\s+|\s+$//g;
+
+    if ( $k eq "IP Address" ) {
+      $device->{interfaces}{ipmi1}{ipaddr} = $v;
+    }
+
+    if ( $k eq "MAC Address" ) {
+      $device->{interfaces}{ipmi1}{mac}    = $v;
+    }
+
+    # XXX Could make this smarter by detecting Dell vs SMCI. Or not.
+    # racadm getniccfg can tell you if the DRAC link is up, for instance.
+    $device->{interfaces}{ipmi1}{product} = "OOB";
+    $device->{interfaces}{ipmi1}{vendor}  = "Intel";
+  }
+
+  close FILE;
+
+  return $device;
+}
+
 my $device = {};
 
 my $ohai = read_ohai();
@@ -412,6 +444,7 @@ $device = load_hardware($device);
 $device = load_disks($device);
 $device = load_sas3($device);
 $device = load_interfaces($device, $ohai);
+$device = load_ipmi_net($device);
 $device = load_device($device, $ohai);
 $device = get_temp($device);
 
