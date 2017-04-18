@@ -52,6 +52,7 @@ sub links : Private {
 
   my $links_up;
   while ( my $iface = $device_nics->next ) {
+    next if $iface->iface_name eq "ipmi1";
     my $nic_state = $c->model('DB::DeviceNicState')->search({
       mac => $iface->mac,
     })->single;
@@ -101,6 +102,7 @@ sub wiremap : Private {
   });
 
   while ( my $iface = $device_nics->next ) {
+    next if $iface->iface_name eq "ipmi1";
     my $nic_state = $c->model('DB::DeviceNicState')->search({
       mac => $iface->mac,
     })->single;
