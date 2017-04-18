@@ -25,6 +25,7 @@ The web UI allows operators to view the health of the new environment. It surfac
 * Simple web UI
 * Spaghetti demon to export data from client systems
 * Basic system configuration
+* Preloading datacenter inventory
 
 ### Data exporter exports
 
