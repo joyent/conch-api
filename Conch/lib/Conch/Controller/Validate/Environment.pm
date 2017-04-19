@@ -38,6 +38,8 @@ sub cpu_temp : Private {
   my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating CPU temps");
 
+  my $device = $c->model('DB::Device')->find($device_id);
+
   my $device_env = $c->model('DB::DeviceEnvironment')->search({
     device_id => $device_id,
   }, {
@@ -59,6 +61,7 @@ sub cpu_temp : Private {
 
     if ( $device_env->$method > $criteria->crit ) {
       $cpu_msg = "$device_id: CRITICAL: $cpu: " . $device_env->$method . " (>". $criteria->crit .")";
+      $c->stash( fail => 1 );
       $cpu_status = 0;
      } elsif ( $device_env->$method > $criteria->warn ) {
        $cpu_msg = "$device_id: WARNING: $cpu: " . $device_env->$method . " (>". $criteria->warn .")";
@@ -86,6 +89,8 @@ sub disk_temp : Private {
   my ( $self, $c ) = @_;
   my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating Disk temps");
+
+  my $device = $c->model('DB::Device')->find($device_id);
 
   my $criteria_sas = $c->model('DB::DeviceValidateCriteria')->search({
     component  => "SAS_HDD",
@@ -125,8 +130,9 @@ sub disk_temp : Private {
     }
 
     if ( $disk->temp > $crit ) {
-      $disk_msg = "CRITICAL: " . $disk->serial_number . ": " . $disk->temp. " (>". $crit .")";
       $disk_status = 0;
+      $disk_msg = "CRITICAL: " . $disk->serial_number . ": " . $disk->temp. " (>". $crit .")";
+      $c->stash( fail => 1 );
      } elsif ( $disk->temp > $warn ) {
        $disk_msg = "WARNING: " . $disk->serial_number . ": " . $disk->temp . " (>". $warn .")";
        $disk_status = 0;

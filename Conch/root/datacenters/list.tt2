@@ -1,6 +1,7 @@
 [% META title = 'Datacenter List' -%]
  
 <table border=1>
+
 <tr><th>Vendor</th><th>Region</th><th>Location</th></tr>
 [% FOREACH dc IN datacenters -%]
   <tr>

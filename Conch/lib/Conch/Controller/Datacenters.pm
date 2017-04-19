@@ -4,6 +4,8 @@ use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
+use Data::Printer;
+
 =head1 NAME
 
 Conch::Controller::Datacenters - Catalyst Controller
@@ -29,7 +31,10 @@ sub index :Path :Args(0) {
 
 sub list :Local {
   my ($self, $c) = @_;
-  $c->stash(datacenters => [$c->model('DB::Datacenter')->all]);
+
+  my @rs = $c->model('DB::Datacenter')->all;
+
+  $c->stash(datacenters => @rs);
   $c->stash(template => 'datacenters/list.tt2');
 
   $c->forward('View::HTML');

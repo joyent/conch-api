@@ -36,6 +36,8 @@ sub product : Private {
   my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating hardware product information");
 
+  my $device = $c->model('DB::Device')->find($device_id);
+
   my $product_name = $c->req->data->{product_name};
   my $product_name_log = "Has = $product_name, Want = Matches:Joyent";
   my $product_name_status;
@@ -43,6 +45,7 @@ sub product : Private {
   if ( $product_name !~ /Joyent/ ) {
     $product_name_status = 0;
     $c->log->debug("$device_id: CRITICAL: Product name not set: $product_name_log");
+    $c->stash( fail => 1 );
   } else {
     $product_name_status = 1;
     $c->log->debug("$device_id: OK: Product name set: $product_name_log");
@@ -56,8 +59,6 @@ sub product : Private {
     status          => $product_name_status
   });
 }
-
-
 
 =encoding utf8
 

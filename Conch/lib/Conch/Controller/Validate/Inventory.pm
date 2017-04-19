@@ -39,6 +39,8 @@ sub system : Private {
   my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating system inventory");
 
+  my $device = $c->model('DB::Device')->search({ id => $device_id})->single;
+
   my $device_spec = $c->model('DB::DeviceSpec')->search({
     device_id => $device_id,
   })->single;
@@ -58,6 +60,7 @@ sub system : Private {
   if ( $device_spec->cpu_num != $hw_profile->cpu_num ) {
     $cpu_num_status = 0;
     $c->log->debug("$device_id: CRITICAL: Incorrect CPU count: $cpu_num_log");
+    $c->stash( fail => 1 );
   } else {
     $cpu_num_status = 1;
     $c->log->debug("$device_id: OK: Correct CPU count: $cpu_num_log");
@@ -79,6 +82,7 @@ sub system : Private {
   if ( $device_spec->dimms_num != $hw_profile->dimms_num ) {
     $dimms_num_status = 0;
     $c->log->debug("$device_id: CRITICAL: Incorrect DIMM count: $dimms_num_log");
+    $c->stash( fail => 1 );
   } else {
     $dimms_num_status = 1;
     $c->log->debug("$device_id: OK: Correct DIMM count: $dimms_num_log");
@@ -100,6 +104,7 @@ sub system : Private {
   if ( $device_spec->ram_total != $hw_profile->ram_total ) {
     $ram_total_status = 0;
     $c->log->debug("$device_id: CRITICAL: Incorrect RAM total: $ram_total_log");
+    $c->stash( fail => 1 );
   } else {
     $ram_total_status = 1;
     $c->log->debug("$device_id: OK: Correct RAM total: $ram_total_log");
@@ -121,6 +126,7 @@ sub system : Private {
   if ( $device_spec->nics_num != $hw_profile->nics_num ) {
     $nics_num_status = 0;
     $c->log->debug("$device_id: CRITICAL: Incorrect number of network interfaces: $nics_num_log");
+    $c->stash( fail => 1 );
   } else {
     $nics_num_status = 1;
     $c->log->debug("$device_id: OK: Correct number of network interfacesl: $nics_num_log");
@@ -143,6 +149,8 @@ sub disks : Private {
   my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating disk inventory");
 
+  my $device = $c->model('DB::Device')->find($device_id);
+
   my $device_spec = $c->model('DB::DeviceSpec')->search({
     device_id => $device_id,
   })->single;
@@ -161,8 +169,8 @@ sub disks : Private {
     id => $hw_profile->product_id
   })->single;
 
-  my $sas_hdd_num;
-  my $sas_ssd_num;
+  my $sas_hdd_num = 0;
+  my $sas_ssd_num = 0;
   my $slog_slot;
  
   while ( my $disk = $device_disk->next ) {
@@ -185,6 +193,7 @@ sub disks : Private {
   if ( $sas_hdd_num != $hw_profile->sas_num ) {
     $sas_hdd_num_status = 0;
     $c->log->debug("$device_id: CRITICAL: Incorrect number of SAS_HDD: $sas_hdd_num_log");
+    $c->stash( fail => 1 );
   } else {
     $sas_hdd_num_status = 1;
     $c->log->debug("$device_id: OK: Correct number of SAS_HDD: $sas_hdd_num_log");
@@ -206,6 +215,7 @@ sub disks : Private {
   if ( $sas_ssd_num != $hw_profile->ssd_num ) {
     $sas_ssd_num_status = 0;
     $c->log->debug("$device_id: CRITICAL: Incorrect number of SAS_SSD: $sas_ssd_num_log");
+    $c->stash( fail => 1 );
   } else {
     $sas_ssd_num_status = 1;
     $c->log->debug("$device_id: OK: Correct number of SAS_SSD: $sas_ssd_num_log");
@@ -227,6 +237,7 @@ sub disks : Private {
     if ( $slog_slot != 0 ) {
       $slog_slot_status = 0;
       $c->log->debug("$device_id: CRITICAL: ZFS SLOG is in wrong slot: $slog_slot_log");
+      $c->stash( fail => 1 );
     } else {
       $slog_slot_status = 1;
       $c->log->debug("$device_id: OK: ZFS SLOG is in correct slot: $slog_slot_log");

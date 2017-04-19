@@ -38,6 +38,8 @@ sub links : Private {
   my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating network links");
 
+  my $device = $c->model('DB::Device')->find($device_id);
+
   my $device_nics = $c->model('DB::DeviceNic')->search({
     device_id => $device_id
   });
@@ -69,6 +71,8 @@ sub links : Private {
   my $nic_state_log = "Has = $links_up, Want = 4";
   if ( $links_up < 4 ) {
     $nic_state_msg = "$device_id: CRITICAL: links_up: $nic_state_log";
+    $c->stash( fail => 1 );
+
     $nic_state_status = 0;
    } else {
      $nic_state_msg = "$device_id: OK: links_up: $nic_state_log";
@@ -96,6 +100,8 @@ sub wiremap : Private {
 
   my $device_id = $c->req->data->{serial_number};
   $c->log->debug("$device_id: Validating network links");
+
+  my $device = $c->model('DB::Device')->find($device_id);
 
   my $device_nics = $c->model('DB::DeviceNic')->search({
     device_id => $device_id
@@ -144,6 +150,7 @@ sub wiremap : Private {
     if ( $has_sup ne $want_sup ) {
       $nic_peer_status = 0;
       $c->log->debug("$device_id: CRITICAL: Wrong peer: $nic_peer_log");
+      $c->stash( fail => 1 );
     } else {
       $nic_peer_status = 1;
       $c->log->debug("$device_id: OK: Correct peer: $nic_peer_log");

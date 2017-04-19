@@ -125,6 +125,15 @@ sub device_POST :Path('/api/device') {
   $c->forward('/validate/network/index');
   $c->forward('/validate/environment/index');
 
+  # If no validators flagged anything, assume we're passing now. History will be available
+  # in device_validate.
+  if ( defined $c->stash->{fail}) {
+    $device_rs->update({ health => "FAIL" });
+  } else {
+    $device_rs->update({ health => "PASS" });
+  }
+
+
   $c->log->debug("Finishing req for " . $device_rs->id);
 
   $self->status_ok(
