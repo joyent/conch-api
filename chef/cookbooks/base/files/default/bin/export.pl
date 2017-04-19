@@ -30,7 +30,7 @@ sub create_device {
   my $device = shift;
 
   my $response = HTTP::Tiny->new->post(
-    "http://172.16.0.1:3000/device" => {
+    "http://172.16.0.1/device" => {
       content => to_json($device),
       headers => {
         "Content-Type" => "application/json",
