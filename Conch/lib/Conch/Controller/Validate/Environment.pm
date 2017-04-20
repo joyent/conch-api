@@ -135,7 +135,7 @@ sub disk_temp : Private {
       $c->stash( fail => 1 );
      } elsif ( $disk->temp > $warn ) {
        $disk_msg = "WARNING: " . $disk->serial_number . ": " . $disk->temp . " (>". $warn .")";
-       $disk_status = 0;
+       $disk_status = 1;
      } else {
        $disk_msg = "OK: " . $disk->serial_number . ": " . $disk->temp . " (<". $warn .")";
        $disk_status = 1;
