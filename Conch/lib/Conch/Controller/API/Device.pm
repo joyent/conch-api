@@ -120,10 +120,7 @@ sub device_POST :Path('/api/device') {
     });
   }
 
-  $c->forward('/validate/configuration/index');
-  $c->forward('/validate/inventory/index');
-  $c->forward('/validate/network/index');
-  $c->forward('/validate/environment/index');
+  $c->forward('/validate/index');
 
   # If no validators flagged anything, assume we're passing now. History will be available
   # in device_validate.
@@ -132,7 +129,6 @@ sub device_POST :Path('/api/device') {
   } else {
     $device_rs->update({ health => "PASS" });
   }
-
 
   $c->log->debug("Finishing req for " . $device_rs->id);
 

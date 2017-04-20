@@ -194,7 +194,6 @@ sub disks : Private {
   }
 
   while ( my $usb_disk = $device_usb->next ) {
-    p $usb_disk;
     $usb_hdd_num++;
   }
 

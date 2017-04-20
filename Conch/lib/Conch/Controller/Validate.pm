@@ -22,9 +22,12 @@ Catalyst Controller.
 =cut
 
 sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+  my ( $self, $c ) = @_;
 
-    $c->response->body('Matched Conch::Controller::Validate in Validate.');
+  $c->forward('/validate/configuration/index');
+  $c->forward('/validate/inventory/index');
+  $c->forward('/validate/network/index');
+  $c->forward('/validate/environment/index');
 }
 
 
