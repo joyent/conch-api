@@ -161,6 +161,12 @@ sub disks : Private {
     transport   => { '!=', "usb" }
   });
 
+  my $device_usb = $c->model('DB::DeviceDisk')->search({
+    device_id => $device_id,
+    deactivated => { '=', undef },
+    transport   => 'usb',
+  });
+
   my $hw_profile = $c->model('DB::HardwareProductProfile')->search({
     id => $device_spec->product_id
   })->single;
@@ -169,6 +175,7 @@ sub disks : Private {
     id => $hw_profile->product_id
   })->single;
 
+  my $usb_hdd_num = 0;
   my $sas_hdd_num = 0;
   my $sas_ssd_num = 0;
   my $slog_slot;
@@ -185,6 +192,33 @@ sub disks : Private {
       $sas_ssd_num++;
     }
   }
+
+  while ( my $usb_disk = $device_usb->next ) {
+    p $usb_disk;
+    $usb_hdd_num++;
+  }
+
+  # Ensure we have correct number of USB HDDs
+  my $usb_hdd_num_status;
+  my $usb_hdd_num_log = "Has = " . $usb_hdd_num .", Want = 1";
+
+  if ( $usb_hdd_num != 1 ) {
+    $usb_hdd_num_status = 0;
+    $c->log->debug("$device_id: CRITICAL: Incorrect number of USB_HDD: $usb_hdd_num_log");
+    $c->stash( fail => 1 );
+  } else {
+    $usb_hdd_num_status = 1;
+    $c->log->debug("$device_id: OK: Correct number of USB_HDD: $usb_hdd_num_log");
+  }
+
+  my $usb_hdd_num_record = $c->model('DB::DeviceValidate')->update_or_create({
+    device_id       => $device_id,
+    component_type  => "DISK",
+    component_name  => "usb_hdd_num",
+    metric          => $usb_hdd_num,
+    log             => $usb_hdd_num_log,
+    status          => $usb_hdd_num_status
+  });
 
   # Ensure we have correct number of SAS HDDs
   my $sas_hdd_num_status;
