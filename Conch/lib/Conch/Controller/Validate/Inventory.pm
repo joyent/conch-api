@@ -210,9 +210,21 @@ sub disks : Private {
 
   # Ensure we have correct number of SAS SSDs
   my $sas_ssd_num_status;
-  my $sas_ssd_num_log = "Has = " . $sas_ssd_num .", Want = " . $hw_profile->ssd_num;
 
-  if ( $sas_ssd_num != $hw_profile->ssd_num ) {
+  # Joyent-Compute-Platform-3302 special case.
+  # HCs can have 8 or 16 SSD and there's no other identifier. Here, we want
+  # to avoid missing failed/missing disks, so we jump through a couple extra
+  # hoops.
+
+  my $ssd_want = $hw_profile->ssd_num;
+
+  if ( $hw_product->name eq "Joyent-Compute-Platform-3302" ) {
+    if ( $sas_ssd_num <= 8 ) { $ssd_want = 8; }
+    if ( $sas_ssd_num >  8 ) { $ssd_want = 16; }
+  }
+  my $sas_ssd_num_log = "Has = " . $sas_ssd_num .", Want = " . $ssd_want;
+
+  if ( $sas_ssd_num != $ssd_want ) {
     $sas_ssd_num_status = 0;
     $c->log->debug("$device_id: CRITICAL: Incorrect number of SAS_SSD: $sas_ssd_num_log");
     $c->stash( fail => 1 );
