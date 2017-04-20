@@ -178,7 +178,7 @@ sub disks : Private {
       $sas_hdd_num++;
     }
 
-    if ( $disk->drive_type eq "SAS_SSD" ) {
+    if ( $disk->drive_type eq "SAS_SSD" || $disk->drive_type eq "SATA_SSD" ) {
       # This gets overwritten if we have more than one SSD. But most systems are
       # mixed media. See below for the sas_ssd_num == 1 check.
       $slog_slot = $disk->slot;

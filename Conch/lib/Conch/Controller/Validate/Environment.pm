@@ -123,7 +123,7 @@ sub disk_temp : Private {
       $criteria_id = $criteria_sas->id;
     }
 
-    if ( $disk->drive_type eq "SAS_SSD" ) {
+    if ( $disk->drive_type eq "SAS_SSD" || $disk->drive_type eq "SATA_SSD" ) {
       $crit = $criteria_ssd->crit;
       $warn = $criteria_ssd->warn;
       $criteria_id = $criteria_ssd->id;
