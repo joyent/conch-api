@@ -201,6 +201,16 @@ sub get_smartctl {
   my $devstat = {};
 
   for ( split /^/, $smartctl ) {
+
+    # SSDs aren't really supported by smartctl. They spit out a new fun format.
+    # ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED WHEN_FAILED RAW_VALUE
+    # 194 Temperature_Celsius     0x0022   100   100   000    Old_age   Always # -       27
+    if ( $_ =~ /Temperature_Celsius/) {
+      my @a = split(/\s+/,$_);
+      $devstat->{temp} = $a[-1];
+    }
+
+    # Back to our regularly schedule programming...
     next unless $_ =~ /:/;
     my ( $k, $v ) = split(/:/, $_);
     chomp $k;
@@ -215,7 +225,10 @@ sub get_smartctl {
       $devstat->{serial_number} = $v;
     }
 
-    if ( $k =~ /SMART Health Status/ ) {
+    if ( $k =~ /SMART Health Status|SMART overall-health self-assessment test result/ ) {
+      if ($v eq "PASSED") {
+         $v = "OK";
+      }
       $devstat->{health} = $v;
     }
 
