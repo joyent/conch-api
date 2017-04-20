@@ -4,11 +4,11 @@ INSERT INTO device_validate_criteria ( component, condition, min, warn, crit )
 
 -- SATA_SSD for Intel BTHC640405US1P6PGN at 70C
 INSERT INTO device_validate_criteria ( component, condition, min, warn, crit )
-       VALUES ( 'SATA_SSD', 'temp', 25, 41, 51 );
+       VALUES ( 'SATA_SSD', 'temp', 25, 41, 60 );
 
 -- SAS_HDD for Toshiba AL14SEB120N flip at 65C.
 INSERT INTO device_validate_criteria ( component, condition, min, warn, crit )
-       VALUES ( 'SAS_HDD', 'temp', 25, 41, 51 );
+       VALUES ( 'SAS_HDD', 'temp', 25, 41, 60 );
 
 -- SAS_SSD for HGST HUSMH8010BSS204 flip at 70C.
 INSERT INTO device_validate_criteria ( component, condition, min, warn, crit )
