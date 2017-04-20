@@ -90,6 +90,11 @@ __PACKAGE__->table("device");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 graduated
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -121,6 +126,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "graduated",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -302,8 +309,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:46:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2vW4qddy5ckonmcSpylSLQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-20 19:53:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iO4+v5NesjJf9dO6uV0sEg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

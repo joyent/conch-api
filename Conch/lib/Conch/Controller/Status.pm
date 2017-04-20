@@ -46,6 +46,17 @@ sub status : Local {
     $c->stash(reporting_count => $reporting_count);
   }
 
+  my @graduated_devices = $c->model('DB::Device')->search({
+    graduated => { '!=', undef },
+  });
+
+  my $graduated_count;
+  if ( @graduated_devices ) {
+    $graduated_count = scalar(@graduated_devices);
+    $c->stash(graduated_devices => \@graduated_devices);
+    $c->stash(graduated_count => $graduated_count);
+  }
+
   my @passing_devices = $c->model('DB::Device')->search({
     health => "PASS"
   });

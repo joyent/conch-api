@@ -6,6 +6,7 @@
     <th>Passing</th>
     <th>Failing</th>
     <th>Uknown</th>
+    <th>Graduated</th>
     <th>Active (last 2min)</th>
   </tr>
   <tr>
@@ -13,6 +14,7 @@
    <td>[% passing_count %]</td>
    <td>[% failing_count %]</td>
    <td>[% unknown_count %]</td>
+   <td>[% graduated_count %]</td>
    <td>[% reporting_count %]</td>
   </tr>
 </table>
@@ -45,6 +47,14 @@
      <tr><td>Unknown</td></tr>
      [% FOREACH u IN unknown_devices -%]
      <tr><td>[% u.id %]</td></tr>
+     [% END -%]
+     </table>
+   </td>
+   <td valign="top">
+     <table border=1 valign="top">
+     <tr><td>Graduated</td></tr>
+     [% FOREACH g IN graduated_devices -%]
+     <tr><td>[% g.id %]</td></tr>
      [% END -%]
      </table>
    </td>
