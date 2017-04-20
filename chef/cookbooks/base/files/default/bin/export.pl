@@ -6,6 +6,7 @@ use warnings;
 use JSON;
 use Data::Printer;
 use HTTP::Tiny;
+use Data::UUID;
 
 use vars qw/@ARGV/;
 
@@ -44,7 +45,6 @@ sub create_device {
 # XXX
 sub get_boot_order {
 }
-
 
 sub load_device {
   my ($device, $ohai ) = @_;
@@ -303,8 +303,11 @@ sub load_disks {
     $device->{disks}{$sn}{health} = $devstat->{health} if defined $devstat->{health};
     $device->{disks}{$sn}{temp}   = $devstat->{temp} if defined $devstat->{temp};
 
-    # We might get these from lsusb.
-    $device->{disks}{$sn}{hba}    = $devstat->{hba} || 0;
+    # We might get these from lsusb, or it might be defined from sas3 already.
+    unless ( $device->{disks}{$sn}{hba} ) {
+      $device->{disks}{$sn}{hba}    = $devstat->{hba} || 0;
+    }
+
     $device->{disks}{$sn}{slot}   = $devstat->{slot} if defined $devstat->{slot};
   
     $device->{disks}{$sn}{transport} = $tran;
@@ -312,16 +315,27 @@ sub load_disks {
     $device->{disks}{$sn}{vendor}    = $vendor;
     $device->{disks}{$sn}{model}     = $model;
   }
-  
+
   close FILE;
   
   return $device;
+}
+
+sub process_sas3_line {
+  my ($uuid, $lines, $line) = @_;
+  return unless $line =~ /:/;
+  chomp $line;
+  my ($k, $v) = split(/:/, $line);
+  $v =~ s/^\s+|\s+$//g;
+  $k =~ s/^\s+|\s+$//g;
+  $lines->{$uuid}{$k} = $v;
 }
 
 sub load_sas3 {
   my ( $device ) = @_;
 
   my $sas3 = `/var/preflight/bin/sas3ircu 0 DISPLAY > /tmp/sas3.out`;
+  my $ug  = Data::UUID->new;
   
   open(FILE, "/tmp/sas3.out");
   
@@ -329,37 +343,26 @@ sub load_sas3 {
   my $slot;
   
   while(<FILE>) {
-    if (/^Device is a Hard disk/ .. /Drive Type.*\n$/) {
-      chomp;
-  
-      if ($_ =~ /Slot #/) {
-        $slot = $_;
-        $slot =~ s/^.*: //;
-      }
-  
-      # The first run won't have $slot defined yet.
-      if ($_ =~ /:/ && defined $slot) {
-        my ($k, $v) = split(/:/, $_);
-  
-        $v =~ s/^\s+|\s+$//g;
-        $k =~ s/^\s+|\s+$//g;
-  
-        $lines{$slot}{$k} = $v;
+    $_ =~ s/\s+$//g;
+    if ($_ =~ /Device is a Hard disk/) {
+      my $uuid = $ug->create_str();
+      while(<FILE>) {
+        if (/^$/) { last; } else { process_sas3_line($uuid, \%lines, $_); }
       }
     }
   }
   
   close FILE;
 
-  foreach my $slot (keys %lines) {
-
-    my $sn = $lines{$slot}{'Serial No'};
-    $device->{disks}{$sn}{slot}        = $slot;
-    $device->{disks}{$sn}{firmware}    = $lines{$slot}{'Firmware Revision'};
-    $device->{disks}{$sn}{drive_type}  = $lines{$slot}{'Drive Type'};
-    $device->{disks}{$sn}{guid}        = $lines{$slot}{'GUID'};
+  foreach my $key (keys %lines) {
+    my $sn                             = $lines{$key}{'Serial No'};
+    $device->{disks}{$sn}{slot}        = $lines{$key}{'Slot #'};
+    $device->{disks}{$sn}{firmware}    = $lines{$key}{'Firmware Revision'};
+    $device->{disks}{$sn}{drive_type}  = $lines{$key}{'Drive Type'};
+    $device->{disks}{$sn}{guid}        = $lines{$key}{'GUID'};
+    $device->{disks}{$sn}{hba}         = $lines{$key}{'Enclosure #'};
   }
-
+  
   return $device;
 }
 
