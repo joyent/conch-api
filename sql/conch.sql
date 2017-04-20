@@ -127,6 +127,7 @@ CREATE TABLE device (
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
     health              text        NOT NULL, -- PASS, FAIL, UNKNOWN
+    graduated           timestamptz DEFAULT NULL, -- Device has moved to production
     deactivated         timestamptz DEFAULT NULL,
     last_seen           timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
