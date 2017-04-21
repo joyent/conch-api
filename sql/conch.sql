@@ -123,12 +123,14 @@ CREATE TABLE hardware_totals (
 
 CREATE TABLE device (
     id                  text        PRIMARY KEY, -- System serial number
-    system_uuid                     uuid UNIQUE, -- We get this on the first run
+    system_uuid         uuid        UNIQUE, -- We get this on the first run from ohai/dmi
+    triton_uuid         uuid        UNIQUE,      -- We pull this from Triton when it's available
+                                                 -- Triton sometimes byte-shifts the system UUID,
+                                                 -- so we can't assume they are the same.
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
     health              text        NOT NULL, -- PASS, FAIL, UNKNOWN
     graduated           timestamptz DEFAULT NULL, -- Device has moved to production
-    triton_setup        boolean,    -- Device is setup in Triton
     deactivated         timestamptz DEFAULT NULL,
     last_seen           timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
