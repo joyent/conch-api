@@ -61,7 +61,6 @@ sub status : Local {
     health => "PASS"
   });
 
-
   my $passing_count;
   if ( @passing_devices ) {
     $passing_count = scalar(@passing_devices);

@@ -128,6 +128,7 @@ CREATE TABLE device (
     state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
     health              text        NOT NULL, -- PASS, FAIL, UNKNOWN
     graduated           timestamptz DEFAULT NULL, -- Device has moved to production
+    triton_setup        boolean,    -- Device is setup in Triton
     deactivated         timestamptz DEFAULT NULL,
     last_seen           timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
