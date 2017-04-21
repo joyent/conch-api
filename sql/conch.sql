@@ -249,6 +249,7 @@ CREATE TABLE device_validate_criteria (
 -- log which tests a device has passed or failed here.
 CREATE TABLE device_validate (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    report_id           uuid,
     device_id           text        NOT NULL REFERENCES device (id),
     component_type      text        NOT NULL, -- type of thing we're testing
     component_name      text        NOT NULL, -- actual thingwe're testing
