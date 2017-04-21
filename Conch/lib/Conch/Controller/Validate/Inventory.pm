@@ -37,7 +37,8 @@ sub system : Private {
   my ( $self, $c ) = @_;
 
   my $device_id = $c->req->data->{serial_number};
-  $c->log->debug("$device_id: Validating system inventory");
+  my $report_id = $c->req->data->{report_id};
+  $c->log->debug("$device_id: report $report_id: Validating system inventory");
 
   my $device = $c->model('DB::Device')->search({ id => $device_id})->single;
 
@@ -59,15 +60,16 @@ sub system : Private {
 
   if ( $device_spec->cpu_num != $hw_profile->cpu_num ) {
     $cpu_num_status = 0;
-    $c->log->debug("$device_id: CRITICAL: Incorrect CPU count: $cpu_num_log");
+    $c->log->debug("$device_id: report $report_id: CRITICAL: Incorrect CPU count: $cpu_num_log");
     $c->stash( fail => 1 );
   } else {
     $cpu_num_status = 1;
-    $c->log->debug("$device_id: OK: Correct CPU count: $cpu_num_log");
+    $c->log->debug("$device_id: report $report_id: OK: Correct CPU count: $cpu_num_log");
   }
 
   my $cpu_num_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "CPU",
     component_name  => "cpu_count",
     metric          => $device_spec->cpu_num,
@@ -81,15 +83,16 @@ sub system : Private {
 
   if ( $device_spec->dimms_num != $hw_profile->dimms_num ) {
     $dimms_num_status = 0;
-    $c->log->debug("$device_id: CRITICAL: Incorrect DIMM count: $dimms_num_log");
+    $c->log->debug("$device_id: report $report_id: CRITICAL: Incorrect DIMM count: $dimms_num_log");
     $c->stash( fail => 1 );
   } else {
     $dimms_num_status = 1;
-    $c->log->debug("$device_id: OK: Correct DIMM count: $dimms_num_log");
+    $c->log->debug("$device_id: report $report_id: OK: Correct DIMM count: $dimms_num_log");
   }
 
   my $dimms_num_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "RAM",
     component_name  => "dimm_count",
     metric          => $device_spec->dimms_num,
@@ -103,15 +106,16 @@ sub system : Private {
 
   if ( $device_spec->ram_total != $hw_profile->ram_total ) {
     $ram_total_status = 0;
-    $c->log->debug("$device_id: CRITICAL: Incorrect RAM total: $ram_total_log");
+    $c->log->debug("$device_id: report $report_id: CRITICAL: Incorrect RAM total: $ram_total_log");
     $c->stash( fail => 1 );
   } else {
     $ram_total_status = 1;
-    $c->log->debug("$device_id: OK: Correct RAM total: $ram_total_log");
+    $c->log->debug("$device_id: report $report_id: OK: Correct RAM total: $ram_total_log");
   }
 
   my $ram_total_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "RAM",
     component_name  => "ram_total",
     metric          => $device_spec->ram_total,
@@ -125,15 +129,16 @@ sub system : Private {
 
   if ( $device_spec->nics_num != $hw_profile->nics_num ) {
     $nics_num_status = 0;
-    $c->log->debug("$device_id: CRITICAL: Incorrect number of network interfaces: $nics_num_log");
+    $c->log->debug("$device_id: report $report_id: CRITICAL: Incorrect number of network interfaces: $nics_num_log");
     $c->stash( fail => 1 );
   } else {
     $nics_num_status = 1;
-    $c->log->debug("$device_id: OK: Correct number of network interfacesl: $nics_num_log");
+    $c->log->debug("$device_id: report $report_id: OK: Correct number of network interfacesl: $nics_num_log");
   }
 
   my $nics_num_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "NET",
     component_name  => "nics_num",
     metric          => $device_spec->nics_num,
@@ -147,7 +152,8 @@ sub disks : Private {
   my ( $self, $c ) = @_;
 
   my $device_id = $c->req->data->{serial_number};
-  $c->log->debug("$device_id: Validating disk inventory");
+  my $report_id = $c->req->data->{report_id};
+  $c->log->debug("$device_id: report $report_id: Validating disk inventory");
 
   my $device = $c->model('DB::Device')->find($device_id);
 
@@ -203,15 +209,16 @@ sub disks : Private {
 
   if ( $usb_hdd_num != 1 ) {
     $usb_hdd_num_status = 0;
-    $c->log->debug("$device_id: CRITICAL: Incorrect number of USB_HDD: $usb_hdd_num_log");
+    $c->log->debug("$device_id: report $report_id: CRITICAL: Incorrect number of USB_HDD: $usb_hdd_num_log");
     $c->stash( fail => 1 );
   } else {
     $usb_hdd_num_status = 1;
-    $c->log->debug("$device_id: OK: Correct number of USB_HDD: $usb_hdd_num_log");
+    $c->log->debug("$device_id: report $report_id: OK: Correct number of USB_HDD: $usb_hdd_num_log");
   }
 
   my $usb_hdd_num_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "DISK",
     component_name  => "usb_hdd_num",
     metric          => $usb_hdd_num,
@@ -225,15 +232,16 @@ sub disks : Private {
 
   if ( $sas_hdd_num != $hw_profile->sas_num ) {
     $sas_hdd_num_status = 0;
-    $c->log->debug("$device_id: CRITICAL: Incorrect number of SAS_HDD: $sas_hdd_num_log");
+    $c->log->debug("$device_id: report $report_id: CRITICAL: Incorrect number of SAS_HDD: $sas_hdd_num_log");
     $c->stash( fail => 1 );
   } else {
     $sas_hdd_num_status = 1;
-    $c->log->debug("$device_id: OK: Correct number of SAS_HDD: $sas_hdd_num_log");
+    $c->log->debug("$device_id: report $report_id: OK: Correct number of SAS_HDD: $sas_hdd_num_log");
   }
 
   my $sas_hdd_num_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "DISK",
     component_name  => "sas_hdd_num",
     metric          => $sas_hdd_num,
@@ -259,15 +267,16 @@ sub disks : Private {
 
   if ( $sas_ssd_num != $ssd_want ) {
     $sas_ssd_num_status = 0;
-    $c->log->debug("$device_id: CRITICAL: Incorrect number of SAS_SSD: $sas_ssd_num_log");
+    $c->log->debug("$device_id: CRITICAL: report $report_id: Incorrect number of SAS_SSD: $sas_ssd_num_log");
     $c->stash( fail => 1 );
   } else {
     $sas_ssd_num_status = 1;
-    $c->log->debug("$device_id: OK: Correct number of SAS_SSD: $sas_ssd_num_log");
+    $c->log->debug("$device_id: report $report_id: OK: Correct number of SAS_SSD: $sas_ssd_num_log");
   }
 
   my $sas_ssd_num_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "DISK",
     component_name  => "sas_ssd_num",
     metric          => $sas_ssd_num,
@@ -281,15 +290,16 @@ sub disks : Private {
     my $slog_slot_log = "Has = " . $slog_slot .", Want = 0";
     if ( $slog_slot != 0 ) {
       $slog_slot_status = 0;
-      $c->log->debug("$device_id: CRITICAL: ZFS SLOG is in wrong slot: $slog_slot_log");
+      $c->log->debug("$device_id: report $report_id: CRITICAL: ZFS SLOG is in wrong slot: $slog_slot_log");
       $c->stash( fail => 1 );
     } else {
       $slog_slot_status = 1;
-      $c->log->debug("$device_id: OK: ZFS SLOG is in correct slot: $slog_slot_log");
+      $c->log->debug("$device_id: report $report_id: OK: ZFS SLOG is in correct slot: $slog_slot_log");
     }
 
     my $slog_slot_record = $c->model('DB::DeviceValidate')->update_or_create({
       device_id       => $device_id,
+      report_id       => $report_id,
       component_type  => "DISK",
       component_name  => "slog_slot",
       metric          => $slog_slot,

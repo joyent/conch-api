@@ -34,7 +34,8 @@ sub product : Private {
 
   # Validate that req->{data}->{product_name} is being passed up
   my $device_id = $c->req->data->{serial_number};
-  $c->log->debug("$device_id: Validating hardware product information");
+  my $report_id = $c->req->data->{report_id};
+  $c->log->debug("$device_id: report $report_id: Validating hardware product information");
 
   my $device = $c->model('DB::Device')->find($device_id);
 
@@ -53,6 +54,7 @@ sub product : Private {
 
   my $product_name_record = $c->model('DB::DeviceValidate')->update_or_create({
     device_id       => $device_id,
+    report_id       => $report_id,
     component_type  => "BIOS",
     component_name  => "product_name",
     log             => $product_name_log,

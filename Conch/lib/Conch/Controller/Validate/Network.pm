@@ -36,7 +36,8 @@ sub links : Private {
   my ( $self, $c ) = @_;
 
   my $device_id = $c->req->data->{serial_number};
-  $c->log->debug("$device_id: Validating network links");
+  my $report_id = $c->req->data->{report_id};
+  $c->log->debug("$device_id: report $report_id: Validating network links");
 
   my $device = $c->model('DB::Device')->find($device_id);
 
@@ -64,18 +65,18 @@ sub links : Private {
     $links_up++ if $nic_state->state eq "up";
   }
 
-  $c->log->debug("$device_id: validating links_up");
+  $c->log->debug("$device_id: report $report_id: validating links_up");
   my $nic_state_msg;
   my $nic_state_status;
 
   my $nic_state_log = "Has = $links_up, Want = 4";
   if ( $links_up < 4 ) {
-    $nic_state_msg = "$device_id: CRITICAL: links_up: $nic_state_log";
+    $nic_state_msg = "$device_id: report $report_id: CRITICAL: links_up: $nic_state_log";
     $c->stash( fail => 1 );
 
     $nic_state_status = 0;
    } else {
-     $nic_state_msg = "$device_id: OK: links_up: $nic_state_log";
+     $nic_state_msg = "$device_id: report $report_id: OK: links_up: $nic_state_log";
      $nic_state_status = 1;
    }
 
@@ -83,6 +84,7 @@ sub links : Private {
 
    my $device_validate = $c->model('DB::DeviceValidate')->update_or_create({
      device_id       => $device_id,
+     report_id       => $report_id,
      component_type  => "NET",
      component_name  => "links_up",
      log             => $nic_state_msg,
@@ -99,6 +101,7 @@ sub wiremap : Private {
   # want_port           text,       --- from wiremap spec
 
   my $device_id = $c->req->data->{serial_number};
+  my $report_id = $c->req->data->{report_id};
   $c->log->debug("$device_id: Validating network links");
 
   my $device = $c->model('DB::Device')->find($device_id);
@@ -149,15 +152,16 @@ sub wiremap : Private {
 
     if ( $has_sup ne $want_sup ) {
       $nic_peer_status = 0;
-      $c->log->debug("$device_id: CRITICAL: Wrong peer: $nic_peer_log");
+      $c->log->debug("$device_id: report $report_id: CRITICAL: Wrong peer: $nic_peer_log");
       $c->stash( fail => 1 );
     } else {
       $nic_peer_status = 1;
-      $c->log->debug("$device_id: OK: Correct peer: $nic_peer_log");
+      $c->log->debug("$device_id: report $report_id: OK: Correct peer: $nic_peer_log");
     }
 
     my $nic_peer_record = $c->model('DB::DeviceValidate')->update_or_create({
       device_id       => $device_id,
+      report_id       => $report_id,
       component_type  => "NET",
       component_name  => $iface->mac . "_peer",
       log             => $nic_peer_log,

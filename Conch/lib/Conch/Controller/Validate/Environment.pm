@@ -36,7 +36,8 @@ sub cpu_temp : Private {
   my ( $self, $c ) = @_;
     
   my $device_id = $c->req->data->{serial_number};
-  $c->log->debug("$device_id: Validating CPU temps");
+  my $report_id = $c->req->data->{report_id};
+  $c->log->debug("$device_id: report $report_id: Validating CPU temps");
 
   my $device = $c->model('DB::Device')->find($device_id);
 
@@ -75,6 +76,7 @@ sub cpu_temp : Private {
 
      my $device_validate = $c->model('DB::DeviceValidate')->update_or_create({
        device_id       => $device_id, 
+       report_id       => $report_id, 
        component_type  => "CPU",
        component_name  => $cpu,
        criteria_id     => $criteria->id,
@@ -88,7 +90,8 @@ sub cpu_temp : Private {
 sub disk_temp : Private {
   my ( $self, $c ) = @_;
   my $device_id = $c->req->data->{serial_number};
-  $c->log->debug("$device_id: Validating Disk temps");
+  my $report_id = $c->req->data->{report_id};
+  $c->log->debug("$device_id: report $report_id: Validating Disk temps");
 
   my $device = $c->model('DB::Device')->find($device_id);
 
@@ -109,7 +112,7 @@ sub disk_temp : Private {
   });
 
   while ( my $disk = $disks->next ) {
-    $c->log->debug($disk->id . ": ". $disk->serial_number . ": validating temps");
+    $c->log->debug("$device_id: report $report_id: " . $disk->id . ": ". $disk->serial_number . ": validating temps");
    
     my $crit;
     my $warn;
@@ -141,10 +144,11 @@ sub disk_temp : Private {
        $disk_status = 1;
      }
 
-     $c->log->debug($disk->id . ": ". $disk->serial_number . ": " . $disk_msg);
+     $c->log->debug("$device_id: report $report_id: " . $disk->id . ": ". $disk->serial_number . ": " . $disk_msg);
 
      my $device_validate = $c->model('DB::DeviceValidate')->update_or_create({
        device_id       => $device_id, 
+       report_id       => $report_id, 
        component_type  => $disk->drive_type,
        component_name  => $disk->serial_number,
        component_id    => $disk->id,
