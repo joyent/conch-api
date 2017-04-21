@@ -3,9 +3,9 @@
 <table border=1>
   <tr>
     <th>Active (last 2min)</th>
-    <th>Ready</th>
     <th>Uknown</th>
     <th>Failing</th>
+    <th>Ready</th>
     <th>Validated</th>
     <th>Graduated</th>
     <th>Triton Pending</th>
@@ -14,9 +14,9 @@
   </tr>
   <tr>
    <td>[% reporting_count %]</td>
-   <td>[% ready_count %]</td>
    <td>[% unknown_count %]</td>
    <td>[% failing_count %]</td>
+   <td>[% ready_count %]</td>
    <td>[% passing_count %]</td>
    <td>[% graduated_count %]</td>
    <td>[% triton_pending_count %]</td>
@@ -41,14 +41,6 @@
    </td>
    <td valign="top">
      <table border=1 valign="top">
-     <tr><td>Ready</td></tr>
-     [% FOREACH rd IN ready_devices -%]
-     <tr><td>[% rd.id %]</td></tr>
-     [% END -%]
-     </table>
-   </td>
-   <td valign="top">
-     <table border=1 valign="top">
      <tr><td>Unknown</td></tr>
      [% FOREACH u IN unknown_devices -%]
      <tr><td>[% u.id %]</td></tr>
@@ -60,6 +52,14 @@
      <tr><td>Failing</td></tr>
      [% FOREACH f IN failing_devices -%]
      <tr><td>[% f.id %]</td></tr>
+     [% END -%]
+     </table>
+   </td>
+   <td valign="top">
+     <table border=1 valign="top">
+     <tr><td>Ready</td></tr>
+     [% FOREACH rd IN ready_devices -%]
+     <tr><td>[% rd.id %]</td></tr>
      [% END -%]
      </table>
    </td>
