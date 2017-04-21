@@ -30,6 +30,9 @@ sub read_ohai {
 sub create_device {
   my $device = shift;
 
+  my $ug  = Data::UUID->new;
+  $device->{report_id} = $ug->create_str();
+
   my $response = HTTP::Tiny->new->post(
     "http://172.16.0.1/device" => {
       content => to_json($device),
