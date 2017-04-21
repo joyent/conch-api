@@ -72,6 +72,14 @@
      </table>
    </td>
    <td valign="top">
+     <table border=1 valign="top">
+     <tr><td>Graduated</td></tr>
+     [% FOREACH g IN graduated_devices -%]
+     <tr><td>[% g.id %]</td></tr>
+     [% END -%]
+     </table>
+   </td>
+   <td valign="top">
      <table border=1>
      <tr><td>Triton Pending</td></tr>
      [% FOREACH tp IN triton_pending_devices -%]
@@ -84,14 +92,6 @@
      <tr><td>Triton Setup</td></tr>
      [% FOREACH t IN triton_devices -%]
      <tr><td>[% t.id %]</td></tr>
-     [% END -%]
-     </table>
-   </td>
-   <td valign="top">
-     <table border=1 valign="top">
-     <tr><td>Graduated</td></tr>
-     [% FOREACH g IN graduated_devices -%]
-     <tr><td>[% g.id %]</td></tr>
      [% END -%]
      </table>
    </td>
