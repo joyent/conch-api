@@ -127,7 +127,7 @@ CREATE TABLE device (
     triton_uuid         uuid        UNIQUE,      -- We pull this from Triton when it's available
                                                  -- Triton sometimes byte-shifts the system UUID,
                                                  -- so we can't assume they are the same.
-    triton_setup        boolean,
+    triton_setup        boolean     NOT NULL DEFAULT FALSE,
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
     health              text        NOT NULL, -- PASS, FAIL, UNKNOWN
