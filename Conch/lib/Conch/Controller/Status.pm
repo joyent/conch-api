@@ -46,6 +46,42 @@ sub status : Local {
     $c->stash(reporting_count => $reporting_count);
   }
 
+  my @ready_devices = $c->model('DB::Device')->search({
+    triton_setup => "false",
+    graduated => { '=', undef },
+    health => 'PASS',
+  });
+
+  my $ready_count;
+  if ( @ready_devices ) {
+    $ready_count = scalar(@ready_devices);
+    $c->stash(ready_devices => \@ready_devices);
+    $c->stash(ready_count => $ready_count);
+  }
+
+  my @triton_pending_devices = $c->model('DB::Device')->search({
+    triton_setup => "false",
+    triton_uuid => { '!=', undef },
+  });
+
+  my $triton_pending_count;
+  if ( @triton_pending_devices ) {
+    $triton_pending_count = scalar(@triton_pending_devices);
+    $c->stash(triton_pending_devices => \@triton_pending_devices);
+    $c->stash(triton_pending_count => $triton_pending_count);
+  }
+
+  my @triton_devices = $c->model('DB::Device')->search({
+    triton_setup => "true",
+  });
+
+  my $triton_count;
+  if ( @triton_devices ) {
+    $triton_count = scalar(@triton_devices);
+    $c->stash(triton_devices => \@triton_devices);
+    $c->stash(triton_count => $triton_count);
+  }
+
   my @graduated_devices = $c->model('DB::Device')->search({
     graduated => { '!=', undef },
   });
