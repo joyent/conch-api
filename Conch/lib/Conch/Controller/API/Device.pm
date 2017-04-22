@@ -40,7 +40,7 @@ sub device_POST :Path('/api/device') {
     system_uuid      => $req->{system_uuid},
     hardware_product => $hw->id,
     state            => $req->{state},
-    health           => $req->{health},
+    health           => "UNKNOWN",
     last_seen        => \'NOW()',
   });
 
@@ -125,8 +125,10 @@ sub device_POST :Path('/api/device') {
   # If no validators flagged anything, assume we're passing now. History will be available
   # in device_validate.
   if ( defined $c->stash->{fail}) {
+    $c->log->debug($device_rs->id . ": Marking FAIL");
     $device_rs->update({ health => "FAIL" });
   } else {
+    $c->log->debug($device_rs->id . ": Marking PASS");
     $device_rs->update({ health => "PASS" });
   }
 
