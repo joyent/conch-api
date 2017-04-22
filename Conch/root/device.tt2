@@ -1,4 +1,8 @@
 [% META title = 'Device View' -%]
+[% color.1 = "#44ff82" %]
+[% color.0 = "#ff4444" %]
+[% color.PASS = "#44ff82" %]
+[% color.FAIL = "#ff4444" %]
 
 <p><a href="/status">Status</a></p>
 
@@ -19,7 +23,7 @@
 </tr>
 <tr>
   <td>Validated</td>
-  <td>[% device.health %]</td>
+  <td bgcolor="[% color.${device.health} %]">&nbsp;</td>
 </tr>
 <tr>
   <td>Datacenter</td>
@@ -53,7 +57,7 @@
   </tr>
   <tr>
     <td>Triton Setup</td>
-    <td>[% device.triton_setup %]
+   <td bgcolor="[% color.${device.triton_setup} %]">&nbsp;</td>
   </tr>
 </table>
 
@@ -100,8 +104,6 @@
     <th>Log</th>
   </tr>
 
-[% color.1 = "#44ff82" %]
-[% color.0 = "#ff4444" %]
 
 [% FOREACH r IN report -%]
   <tr>

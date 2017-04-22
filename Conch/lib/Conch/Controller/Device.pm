@@ -38,7 +38,6 @@ sub view : Local {
 
   # Device basics from device table
   my $device = $c->model("DB::Device")->find($sn);
-  p $device;
   $host->{id} = $device->id;
   $host->{health} = $device->health;
 
