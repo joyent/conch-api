@@ -32,7 +32,9 @@ sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
     # Hello World
-    $c->response->body("BEHOLD THE NIGHTMARE");
+    #$c->response->body("BEHOLD THE NIGHTMARE");
+    $c->res->redirect('/status');
+    $c->detach;
 }
 
 =head2 default
