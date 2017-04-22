@@ -71,7 +71,7 @@
 <tr>
   <th>Name</th>
   <th>MAC</th>
-  <th>Preflight IP</th>
+  <th>IP</th>
   <th>State</th>
   <th>Type</th>
   <th>Want Peer</th>
