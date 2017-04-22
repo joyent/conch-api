@@ -34,7 +34,7 @@ sub create_device {
   $device->{report_id} = $ug->create_str();
 
   my $response = HTTP::Tiny->new->post(
-    "http://172.16.0.1/device" => {
+    "http://172.16.0.1/api/device" => {
       content => to_json($device),
       headers => {
         "Content-Type" => "application/json",
