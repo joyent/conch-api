@@ -1,0 +1,116 @@
+[% META title = 'Device View' -%]
+
+<p><a href="/status">Status</a></p>
+
+<hr>
+
+<table>
+  <tr>
+    <td>
+
+<table border=1>
+<tr>
+  <td>Serial</td>
+  <td>[% device.id %]</td>
+</tr>
+<tr>
+  <td>Hardware Product</td>
+  <td>[% host.product_name %] ([% host.product_alias %])</td>
+</tr>
+<tr>
+  <td>Validated</td>
+  <td>[% device.health %]</td>
+</tr>
+<tr>
+  <td>Datacenter</td>
+  <td>[% host.dc_name %]</td>
+</tr>
+<tr>
+  <td>Rack #</td>
+  <td>[% host.rack_num %]</td>
+</tr>
+<tr>
+  <td>Rack Unit</td>
+  <td>[% host.rack_unit %]</td>
+</tr>
+<tr>
+  <td>Last Seen</td>
+  <td>[% device.last_seen %]</td>
+</tr>
+</table>
+
+  </td>
+  <td valign=top>
+
+<table border=1>
+  <tr>
+    <td>Flipped to Triton</td>
+    <td>[% device.graduated %]
+  </tr>
+  <tr>
+    <td>Triton UUID</td>
+    <td>[% device.triton_uuid %]
+  </tr>
+  <tr>
+    <td>Triton Setup</td>
+    <td>[% device.triton_setup %]
+  </tr>
+</table>
+
+  </td>
+  </tr>
+</table>
+
+<hr>
+
+<table border=1>
+<tr>
+  <th>Name</th>
+  <th>MAC</th>
+  <th>Preflight IP</th>
+  <th>State</th>
+  <th>Type</th>
+  <th>Want Peer</th>
+  <th>Has Peer</th>
+</tr>
+[% FOREACH nic IN host.nics -%]
+<tr>
+<td>[% host.nics.${nic.key}.name %]</td>
+<td>[% nic.key %]</td>
+<td>[% host.nics.${nic.key}.ipaddr %]</td>
+<td>[% host.nics.${nic.key}.state %]</td>
+<td>[% host.nics.${nic.key}.type %]</td>
+<td>[% host.nics.${nic.key}.want_sup %]</td>
+<td>[% host.nics.${nic.key}.peer_sup %]</td>
+</tr>
+[% END -%]
+</table>
+
+<hr>
+
+<h3>Last Report:</h3>
+
+<table border=1>
+  <tr>
+    <th>Created</th>
+    <th>Type</th>
+    <th>Name</th>
+    <th>Metric</th>
+    <th>Status</th>
+    <th>Log</th>
+  </tr>
+
+[% color.1 = "#44ff82" %]
+[% color.0 = "#ff4444" %]
+
+[% FOREACH r IN report -%]
+  <tr>
+   <td>[% r.created %]</td>
+   <td>[% r.component_type %]</td>
+   <td>[% r.component_name %]</td>
+   <td>[% r.metric %]</td>
+   <td bgcolor="[% color.${r.status} %]">&nbsp;</td>
+   <td>[% r.log %]</td>
+  </tr>
+[% END -%]
+</table>
