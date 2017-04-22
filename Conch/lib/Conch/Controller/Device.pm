@@ -47,13 +47,15 @@ sub view : Local {
   $host->{product_prefix} = $hw_product->prefix;
 
   my $location = $c->model("DB::DeviceLocation")->find($sn);
-  $host->{rack_unit} = $location->rack_unit;
+  if (defined $location) {
+    $host->{rack_unit} = $location->rack_unit;
 
-  my $rack = $c->model("DB::DatacenterRack")->find($location->rack_id);
-  $host->{rack_num} = $rack->name;
+    my $rack = $c->model("DB::DatacenterRack")->find($location->rack_id);
+    $host->{rack_num} = $rack->name;
 
-  my $dc_room = $c->model("DB::DatacenterRoom")->find($rack->datacenter_room_id);
-  $host->{dc_name} = $dc_room->az;
+    my $dc_room = $c->model("DB::DatacenterRoom")->find($rack->datacenter_room_id);
+    $host->{dc_name} = $dc_room->az;
+  }
 
   # Device network map
   my $nics = $c->model("DB::DeviceNic")->search({ device_id => $device->id });
