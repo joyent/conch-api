@@ -49,8 +49,7 @@ sub status : Local {
   my @missing_devices = $c->model('DB::Device')->search({
     triton_setup => "false",
     triton_uuid => { '=', undef },
-    graduated => { '!=', undef },
-    health => 'PASS',
+    graduated => { '!=', undef }
   });
 
   my $missing_count;
