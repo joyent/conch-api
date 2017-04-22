@@ -8,6 +8,7 @@
     <th>Ready</th>
     <th>Validated</th>
     <th>Graduated</th>
+    <th>Missing</th>
     <th>Triton Pending</th>
     <th>Triton Setup</th>
     <th>Total</th>
@@ -19,6 +20,7 @@
    <td>[% ready_count %]</td>
    <td>[% passing_count %]</td>
    <td>[% graduated_count %]</td>
+   <td>[% missing_count %]</td>
    <td>[% triton_pending_count %]</td>
    <td>[% triton_count %]</td>
    <td>[% device_count %]</td>
@@ -76,6 +78,14 @@
      <tr><td>Graduated</td></tr>
      [% FOREACH g IN graduated_devices -%]
      <tr><td>[% g.id %]</td></tr>
+     [% END -%]
+     </table>
+   </td>
+   <td valign="top">
+     <table border=1 valign="top">
+     <tr><td>Missing</td></tr>
+     [% FOREACH m IN missing_devices -%]
+     <tr><td>[% m.id %]</td></tr>
      [% END -%]
      </table>
    </td>

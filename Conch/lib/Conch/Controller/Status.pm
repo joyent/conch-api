@@ -46,6 +46,20 @@ sub status : Local {
     $c->stash(reporting_count => $reporting_count);
   }
 
+  my @missing_devices = $c->model('DB::Device')->search({
+    triton_setup => "false",
+    triton_uuid => { '=', undef },
+    graduated => { '!=', undef },
+    health => 'PASS',
+  });
+
+  my $missing_count;
+  if ( @missing_devices ) {
+    $missing_count = scalar(@missing_devices);
+    $c->stash(missing_devices => \@missing_devices);
+    $c->stash(missing_count => $missing_count);
+  }
+
   my @ready_devices = $c->model('DB::Device')->search({
     triton_setup => "false",
     graduated => { '=', undef },
