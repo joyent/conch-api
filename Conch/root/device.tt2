@@ -8,15 +8,13 @@
 
 <hr>
 
+<h3>[% device.id %]</h3>
+
 <table>
   <tr>
     <td>
 
 <table border=1>
-<tr>
-  <td>Serial</td>
-  <td>[% device.id %]</td>
-</tr>
 <tr>
   <td>Hardware Product</td>
   <td>[% host.product_name %] ([% host.product_alias %])</td>
@@ -67,6 +65,27 @@
 
 <hr>
 
+<h3>Environment</h3>
+
+<table border=1>
+<tr>
+  <th>CPU0 Temp</th>
+  <th>CPU1 Temp</th>
+  <th>Inlet Temp</th>
+  <th>Exhaust Temp</th>
+</tr>
+<tr>
+  <td>[% host.env.cpu0 %]</td>
+  <td>[% host.env.cpu1 %]</td>
+  <td>[% host.env.inlet %]</td>
+  <td>[% host.env.exhaust %]</td>
+</tr>
+</table>
+
+<hr>
+
+<h3>Network</h3>
+
 <table border=1>
 <tr>
   <th>Name</th>
@@ -92,7 +111,43 @@
 
 <hr>
 
-<h3>Last Report:</h3>
+<h3>Storage</h3>
+
+<table border=1>
+<tr>
+  <th>Serial Number</th>
+  <th>HBA</th>
+  <th>Slot #</th>
+  <th>Vendor</th>
+  <th>Model</th>
+  <th>Size</th>
+  <th>Drive Type</th>
+  <th>Transport</th>
+  <th>Firmware</th>
+  <th>Health</th>
+  <th>Temp</th>
+</tr>
+[% FOREACH disk IN host.disks -%]
+<tr>
+<td>[% disk.key %]</td>
+<td>[% host.disks.${disk.key}.hba %]</td>
+<td>[% host.disks.${disk.key}.slot %]</td>
+<td>[% host.disks.${disk.key}.vendor %]</td>
+<td>[% host.disks.${disk.key}.model %]</td>
+<td>[% host.disks.${disk.key}.size %]</td>
+<td>[% host.disks.${disk.key}.drive_type %]</td>
+<td>[% host.disks.${disk.key}.transport %]</td>
+<td>[% host.disks.${disk.key}.firmware %]</td>
+<td>[% host.disks.${disk.key}.health %]</td>
+<td>[% host.disks.${disk.key}.temp %]</td>
+</tr>
+[% END -%]
+</table>
+
+
+<hr>
+
+<h3>Most Recent Host Report</h3>
 
 <table border=1>
   <tr>

@@ -81,6 +81,27 @@ sub view : Local {
     }
   }
 
+  my $device_env = $c->model("DB::DeviceEnvironment")->find($device->id);
+  $host->{env}{cpu0}    = $device_env->cpu0_temp;
+  $host->{env}{cpu1}    = $device_env->cpu1_temp;
+  $host->{env}{inlet}   = $device_env->inlet_temp;
+  $host->{env}{exhaust} = $device_env->exhaust_temp;
+
+  my $disks = $c->model("DB::DeviceDisk")->search({ device_id => $device->id });
+  while (my $disk = $disks->next) {
+    $host->{disks}{$disk->serial_number}{hba}        = $disk->hba;
+    $host->{disks}{$disk->serial_number}{slot}       = $disk->slot;
+    $host->{disks}{$disk->serial_number}{health}     = $disk->health;
+    $host->{disks}{$disk->serial_number}{temp}       = $disk->temp;
+    $host->{disks}{$disk->serial_number}{vendor}     = $disk->vendor;
+    $host->{disks}{$disk->serial_number}{model}      = $disk->model;
+    $host->{disks}{$disk->serial_number}{size}       = $disk->size;
+    $host->{disks}{$disk->serial_number}{drive_type} = $disk->drive_type;
+    $host->{disks}{$disk->serial_number}{size}       = $disk->size;
+    $host->{disks}{$disk->serial_number}{transport}  = $disk->transport;
+    $host->{disks}{$disk->serial_number}{firmware}   = $disk->firmware;
+  }
+
   # Get most recent port for host
   # If no report_id, .. guess.
 
