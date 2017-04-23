@@ -128,7 +128,7 @@ sub status : Local {
   }
 
   my @unknown_devices = $c->model('DB::Device')->search({
-    health => "UNKNOWN"
+    state => "UNKNOWN"
   });
 
   my $unknown_count;

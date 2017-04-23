@@ -7,7 +7,7 @@ __PACKAGE__->config(
     schema_class => 'Conch::Schema',
     
     connect_info => {
-        dsn => 'dbi:Pg:dbname=preflight',
+        dsn => 'dbi:Pg:dbname=preflight;port=6432',
         user => 'preflight',
         password => 'bs9BsWn68U8O',
         quote_names => q{1},
