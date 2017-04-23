@@ -60,8 +60,7 @@ sub status : Local {
   }
 
   my @ready_devices = $c->model('DB::Device')->search({
-    triton_setup => "false",
-    graduated => { '=', undef },
+    last_seen => \' > NOW() - INTERVAL \'2 minutes\'',
     health => 'PASS',
   });
 

@@ -1,4 +1,16 @@
 [% META title = 'Status' -%]
+
+<ul>
+<li>Active: Has checked into preflight very recently.</li>
+<li>Unknown: Unknown status. Has not booted into preflight, but exists inventory.</li>
+<li>Failing: Current health status is FAIL. Investigate.</li>
+<li>Ready: Ready to be graduated to production.</li>
+<li>Validated: Has been successfully validated by preflight checks.</li>
+<li>Graduated: VLAN has been flipped from preflight to Triton.</li>
+<li>Missing: Has been graduated but has not yet shown up in Triton.</li>
+<li>Triton Pending: Booted into Triton but not yet setup.</li>
+<li>Triton Setup: Has been successfully setup in Triton</li>
+</ul>
  
 <table border=1>
   <tr>
