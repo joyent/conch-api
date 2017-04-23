@@ -1,5 +1,7 @@
 [% META title = 'Status' -%]
 
+<p>The export script on each host runs every 5 minutes, with a 30 second splay.<p>
+
 <ul>
 <li>Active: Has checked into preflight very recently.</li>
 <li>Unknown: Unknown status. Has not booted into preflight, but exists inventory.</li>
@@ -14,7 +16,7 @@
  
 <table border=1>
   <tr>
-    <th>Active (last 2min)</th>
+    <th>Active (last 5min)</th>
     <th>Uknown</th>
     <th>Failing</th>
     <th>Ready</th>

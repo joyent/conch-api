@@ -36,7 +36,7 @@ sub status : Local {
   my $device_count = scalar(@devices);
 
   my @reporting_devices = $c->model('DB::Device')->search({
-    last_seen => \' > NOW() - INTERVAL \'2 minutes\'',
+    last_seen => \' > NOW() - INTERVAL \'10 minutes\'',
   });
 
   my $reporting_count;
@@ -60,7 +60,7 @@ sub status : Local {
   }
 
   my @ready_devices = $c->model('DB::Device')->search({
-    last_seen => \' > NOW() - INTERVAL \'2 minutes\'',
+    last_seen => \' > NOW() - INTERVAL \'10 minutes\'',
     health => 'PASS',
   });
 
