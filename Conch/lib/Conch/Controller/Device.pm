@@ -36,6 +36,8 @@ sub view : Local {
 
   my $host = {};
 
+  $c->stash(datacenter => $c->config->{datacenter});
+
   # Device basics from device table
   my $device = $c->model("DB::Device")->find($sn);
   $host->{id} = $device->id;
