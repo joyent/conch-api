@@ -32,6 +32,8 @@ sub index :Path :Args(0) {
 sub status : Local {
   my ( $self, $c ) = @_;
 
+  $c->stash(datacenter => $c->config->{datacenter});
+
   my @devices = $c->model('DB::Device')->all;
   my $device_count = scalar(@devices);
 

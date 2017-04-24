@@ -1,5 +1,9 @@
 [% META title = 'Status' -%]
 
+<h3>[% datacenter %]</h3>
+
+<hr>
+
 <p>The export script on each host runs every 5 minutes, with a 30 second splay.<p>
 
 <ul>
