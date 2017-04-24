@@ -84,10 +84,12 @@ sub view : Local {
   }
 
   my $device_env = $c->model("DB::DeviceEnvironment")->find($device->id);
-  $host->{env}{cpu0}    = $device_env->cpu0_temp;
-  $host->{env}{cpu1}    = $device_env->cpu1_temp;
-  $host->{env}{inlet}   = $device_env->inlet_temp;
-  $host->{env}{exhaust} = $device_env->exhaust_temp;
+  if (defined $device_env) {
+    $host->{env}{cpu0}    = $device_env->cpu0_temp;
+    $host->{env}{cpu1}    = $device_env->cpu1_temp;
+    $host->{env}{inlet}   = $device_env->inlet_temp;
+    $host->{env}{exhaust} = $device_env->exhaust_temp;
+  }
 
   my $disks = $c->model("DB::DeviceDisk")->search({ device_id => $device->id });
   while (my $disk = $disks->next) {
