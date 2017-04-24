@@ -19,3 +19,4 @@ nytprof.out
 *.bs
 /_eumm/
 *.swp
+/Conch/conch.conf
