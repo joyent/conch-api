@@ -42,6 +42,7 @@ CREATE TABLE datacenter_rack (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     datacenter_room_id  uuid        NOT NULL REFERENCES datacenter_room (id),
     name                text        NOT NULL,  -- A02
+    role                text,                  -- TRITON, MANTA, NETWORK, CERES
     rack_size           integer,               -- total number of RU
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
