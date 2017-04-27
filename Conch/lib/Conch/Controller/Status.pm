@@ -34,6 +34,10 @@ sub status : Local {
 
   $c->stash(datacenter => $c->config->{datacenter});
 
+  my $ceres_hw = $c->model('DB::HardwareProduct')->search({
+    name => "CERES",
+  })->single;
+
   my @devices = $c->model('DB::Device')->all;
   my $device_count = scalar(@devices);
 
@@ -51,7 +55,8 @@ sub status : Local {
   my @missing_devices = $c->model('DB::Device')->search({
     triton_setup => "false",
     triton_uuid => { '=', undef },
-    graduated => { '!=', undef }
+    graduated => { '!=', undef },
+    deactivated => { '=', undef },
   });
 
   my $missing_count;
@@ -64,6 +69,7 @@ sub status : Local {
   my @ready_devices = $c->model('DB::Device')->search({
     last_seen => \' > NOW() - INTERVAL \'10 minutes\'',
     health => 'PASS',
+    deactivated => { '=', undef },
   });
 
   my $ready_count;
@@ -76,6 +82,7 @@ sub status : Local {
   my @triton_pending_devices = $c->model('DB::Device')->search({
     triton_setup => "false",
     triton_uuid => { '!=', undef },
+    deactivated => { '=', undef },
   });
 
   my $triton_pending_count;
@@ -98,6 +105,7 @@ sub status : Local {
 
   my @graduated_devices = $c->model('DB::Device')->search({
     graduated => { '!=', undef },
+    deactivated => { '=', undef },
   });
 
   my $graduated_count;
@@ -108,7 +116,8 @@ sub status : Local {
   }
 
   my @passing_devices = $c->model('DB::Device')->search({
-    health => "PASS"
+    health => "PASS",
+    deactivated => { '=', undef },
   });
 
   my $passing_count;
@@ -119,7 +128,8 @@ sub status : Local {
   }
 
   my @failing_devices = $c->model('DB::Device')->search({
-    health => "FAIL"
+    health => "FAIL",
+    deactivated => { '=', undef },
   });
 
   my $failing_count;
@@ -130,7 +140,9 @@ sub status : Local {
   }
 
   my @unknown_devices = $c->model('DB::Device')->search({
-    state => "UNKNOWN"
+    state => "UNKNOWN",
+    deactivated => { '=', undef },
+    hardware_product => { '!=', $ceres_hw->id },
   });
 
   my $unknown_count;

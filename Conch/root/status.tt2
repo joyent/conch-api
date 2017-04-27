@@ -22,6 +22,7 @@
   <tr>
     <th>Active (last 5min)</th>
     <th>Uknown</th>
+    <th>Retired</th>
     <th>Failing</th>
     <th>Ready</th>
     <th>Validated</th>
@@ -34,6 +35,7 @@
   <tr>
    <td>[% reporting_count %]</td>
    <td>[% unknown_count %]</td>
+   <td>[% retired_count %]</td>
    <td>[% failing_count %]</td>
    <td>[% ready_count %]</td>
    <td>[% passing_count %]</td>
@@ -64,6 +66,14 @@
      <tr><td>Unknown</td></tr>
      [% FOREACH u IN unknown_devices -%]
      <tr><td><a href="/device/view/[% u.id %]">[% u.id %]</a></td></tr>
+     [% END -%]
+     </table>
+   </td>
+   <td valign="top">
+     <table border=1 valign="top">
+     <tr><td>Retired</td></tr>
+     [% FOREACH rd IN retired_devices -%]
+     <tr><td><a href="/device/view/[% rd.id %]">[% rd.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
