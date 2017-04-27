@@ -94,6 +94,7 @@ sub status : Local {
 
   my @triton_devices = $c->model('DB::Device')->search({
     triton_setup => "true",
+    deactivated => { '=', undef},
   });
 
   my $triton_count;
