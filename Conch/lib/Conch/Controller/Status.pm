@@ -140,6 +140,17 @@ sub status : Local {
     $c->stash(failing_count => $failing_count);
   }
 
+  my @retired_devices = $c->model('DB::Device')->search({
+    deactivated => { '!=', undef },
+  });
+
+  my $retired_count;
+  if ( @retired_devices ) {
+    $retired_count = scalar(@retired_devices);
+    $c->stash(retired_devices => \@retired_devices);
+    $c->stash(retired_count => $retired_count);
+  }
+
   my @unknown_devices = $c->model('DB::Device')->search({
     state => "UNKNOWN",
     deactivated => { '=', undef },
