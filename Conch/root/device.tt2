@@ -8,7 +8,8 @@
 
 <hr>
 
-<h3>[% device.id %] ([% datacenter %])</h3>
+<a name="overview"></a>
+<h3><a href="#overview">&#128206;</a>[% device.id %] ([% datacenter %])</h3>
 
 <table>
   <tr>
@@ -65,7 +66,8 @@
 
 <hr>
 
-<h3>Environment</h3>
+<a name="environment"></a>
+<h3><a href="#environment">&#128206;</a>Environment</h3>
 
 <table border=1>
 <tr>
@@ -84,7 +86,8 @@
 
 <hr>
 
-<h3>Network</h3>
+<a name="network"></a>
+<h3><a href="#network">&#128206;</a>Network</h3>
 
 <table border=1>
 <tr>
@@ -111,7 +114,8 @@
 
 <hr>
 
-<h3>Storage</h3>
+<a name="storage"></a>
+<h3><a href="#storage">&#128206;</a>Storage</h3>
 
 <table border=1>
 <tr>
@@ -147,7 +151,8 @@
 
 <hr>
 
-<h3>Most Recent Host Report</h3>
+<a name="report"></a>
+<h3><a href="#report">&#128206;</a>Most Recent Host Report</h3>
 
 <table border=1>
   <tr>
