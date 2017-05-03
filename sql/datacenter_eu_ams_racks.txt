@@ -37,7 +37,7 @@ eu-central-1a 0110 45 TRITON
 eu-central-1a 0111 45 TRITON
 eu-central-1a 0112 45 TRITON
 eu-central-1a 0115 45 CERES
-eu-central-1a 0115 45 CERES
+eu-central-1a 0116 45 CERES
 eu-central-1b 0101 45 NETWORK
 eu-central-1b 0102 45 NETWORK
 eu-central-1b 0103 45 MANTA
