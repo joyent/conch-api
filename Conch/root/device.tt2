@@ -4,7 +4,14 @@
 [% color.PASS = "#44ff82" %]
 [% color.FAIL = "#ff4444" %]
 
-<p><a href="/status">Status</a></p>
+<p>
+<a href="/status">Main</a> |
+<a href="#overview">Overview</a> |
+<a href="#environment">Environment</a> |
+<a href="#network">Network</a> |
+<a href="#storage">Storage</a> |
+<a href="#report">Report</a>
+</p>
 
 <hr>
 
