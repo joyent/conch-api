@@ -14,8 +14,10 @@ while(<FILE>) {
   chomp;
   my ( $dc, $rack, $size, $role ) = split(/\s+/,$_);
   my $dc_id = `$psql -c "SELECT id FROM datacenter_room WHERE az = '$dc'"`;
-  print "$dc $rack $size $role\n";
-  my $INSERT_SQL = "INSERT INTO datacenter_rack (datacenter_room_id, name, rack_size, role)"
+  chomp $dc_id;
+  my $INSERT_SQL = "INSERT INTO datacenter_rack (datacenter_room_id, name, rack_size, role)";
   my $VALUES_SQL = "VALUES ('$dc_id', '$rack', $size, '$role')";
-  print "$INSERT_SQL $VALUES_SQL";
+  print "$INSERT_SQL $VALUES_SQL;\n";
+  my $insert = `$psql -c "$INSERT_SQL $VALUES_SQL;"`;
+  print "$insert";
 }
