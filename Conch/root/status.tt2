@@ -8,7 +8,7 @@
 
 <table border=1 width="100%">
 <tr>
-<td valign=top bgcolor="#89ff9b">
+<td valign=top bgcolor="#d0ffb5">
 <h3>Preflight Status</h3>
 <ul>
 <li>Active: Has checked into preflight recently</li>
@@ -20,7 +20,7 @@
 <li>Graduated: VLAN has been flipped from preflight to Triton</li>
 </ul>
 </td>
-<td valign=top bgcolor="#679ef7">
+<td valign=top bgcolor="#b2cfff">
 <h3>Triton Status</h3>
 <ul>
 <li>Missing: Has been graduated but has not yet shown up in Triton</li>
@@ -31,7 +31,7 @@
 </td>
 </tr>
 <tr>
-<td bgcolor="#89ff9b">
+<td bgcolor="#d0ffb5">
 <table border=1 width="100%">
   <tr>
     <th>Active (last 5min)</th>
@@ -55,7 +55,7 @@
   </tr>
 </table>
 </td>
-<td bgcolor="#679ef7">
+<td bgcolor="#b2cfff">
 <table border=1 valign=bottom width="100%">
 <tr>
 <th>Missing</th>
