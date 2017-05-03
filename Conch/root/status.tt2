@@ -6,25 +6,26 @@
 
 <p>The export script on each host runs every 5 minutes, with a 30 second splay.<p>
 
-<table border=1>
+<table border=1 width="100%">
 <tr>
 <td valign=top bgcolor="#89ff9b">
 <h3>Preflight Status</h3>
 <ul>
-<li>Active: Has checked into preflight very recently.</li>
-<li>Unknown: Unknown status. Has not booted into preflight, but exists inventory.</li>
-<li>Failing: Current health status is FAIL. Investigate.</li>
-<li>Ready: Ready to be graduated to production.</li>
-<li>Validated: Has been successfully validated by preflight checks.</li>
-<li>Graduated: VLAN has been flipped from preflight to Triton.</li>
+<li>Active: Has checked into preflight recently</li>
+<li>Unknown: Unknown status. Has not booted into preflight, but exists inventory</li>
+<li>Failing: Current health status is FAIL. Investigate</li>
+<li>Ready: Ready to be graduated to production</li>
+<li>Validated: Has been successfully validated by preflight checks</li>
+<li>Graduated: VLAN has been flipped from preflight to Triton</li>
 </ul>
 </td>
 <td valign=top bgcolor="#679ef7">
 <h3>Triton Status</h3>
 <ul>
-<li>Missing: Has been graduated but has not yet shown up in Triton.</li>
-<li>Triton Pending: Booted into Triton but not yet setup.</li>
-<li>Triton Setup: Has been successfully setup in Triton</li>
+<li>Missing: Has been graduated but has not yet shown up in Triton</li>
+<li>Pending: Booted into Triton but not yet setup</li>
+<li>Compute: non-Manta CNs successfully setup</li>
+<li>Manta: Metadata and Shrimps successfully setup</li>
 </ul>
 </td>
 </tr>
@@ -39,7 +40,7 @@
     <th>Ready</th>
     <th>Validated</th>
     <th>Graduated</th>
-    <th>Total Inventory</th>
+    <th>Total</th>
   </tr>
   <tr>
    <td>[% reporting_count %]</td>
