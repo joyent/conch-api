@@ -72,8 +72,6 @@ sub role_counts {
 
   $role_counts->{ total_triton } = $role_counts->{ TRITON }->{total} + $role_counts->{ MANTA }->{total};
 
-  p $role_counts;
-
   return $role_counts;
 }
 
