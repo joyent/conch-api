@@ -39,16 +39,16 @@ die unless $dell_product;
 die unless $smci_product;
 
 my %dc_rooms;
-my $am1 = `$psql -q -t -A -c "SELECT id FROM datacenter_room where vendor_name = 'AM1'`;
-chomp $am1;
-my $am3 = `$psql -q -t -A -c "SELECT id FROM datacenter_room where vendor_name = 'AM3'`;
-chomp $am3;
-my $am6 = `$psql -q -t -A -c "SELECT id FROM datacenter_room where vendor_name = 'AM6'`;
-chomp $am6;
+my $az1 = `$psql -q -t -A -c "SELECT id FROM datacenter_room where alias = 'AZ1'`;
+chomp $az1;
+my $az2 = `$psql -q -t -A -c "SELECT id FROM datacenter_room where alias = 'AZ2'`;
+chomp $az2;
+my $az3 = `$psql -q -t -A -c "SELECT id FROM datacenter_room where alias = 'AZ3'`;
+chomp $az3;
 
-$dc_rooms{AM1} = $am1;
-$dc_rooms{AM3} = $am3;
-$dc_rooms{AM6} = $am6;
+$dc_rooms{SG1} = $az1;
+$dc_rooms{SG2} = $az2;
+$dc_rooms{SG3} = $az3;
 
 my $hosts = {};
 
@@ -70,6 +70,12 @@ while ( my $row = $csv->getline( $fh ) ) {
   # DC, ROOM, RACK, RU, SN, (MAC, IFACE, PEER), (MAC, IFACE, PEER), (MAC, IFACE, PEER), (MAC, IFACE, PEER), (BMC_MAC, ipmi1, BMC_PEER)
 
   my ( $dc, $room, $rack, $ru, $sn ) = @$row[0..4];
+
+  # Sometimes we have ' and sometimes we don't, but we don't want 'em.
+  $dc    =~ s/'//g;
+  $room  =~ s/'//g;
+  $rack  =~ s/'//g;
+  $sn    =~ s/'//g;
 
   # This is pretty lame, but it'll be fixed the first time the agent runs.
   if ( $sn =~ /^S247/ ){
@@ -110,25 +116,25 @@ while ( my $row = $csv->getline( $fh ) ) {
 
     #print "$sn $mac $iface $switch:$port\n";
 
-    # LLDP        vs device42: FIGHT!
-    # rack0109-43 vs eu-central-1a-109-2
-    # XXX I don't expect this to work well elsewhere.
+    # ap-se-1a-0509-tor2
     my ( $country, $region, $datacenter, $rack, $switch_num ) = split(/-/,$switch);
-    my $switch_ru;
-    if ( $switch_num == 1 ) {
-      $switch_ru = 44;
-    } else {
-      $switch_ru = 43;
-    }
+
+    # AMS hackery
+    #my $switch_ru;
+    #if ( $switch_num == 1 ) {
+    #  $switch_ru = 44;
+    #} else {
+    #  $switch_ru = 43;
+    #}
     # XXX I expect "0$rack" to bite us later, but maybe check length or pad it... depends on
     # XXX what other datacenter racks names are. This whole section is pretty fragile.
-    my $switch_f = "rack0$rack-$switch_ru";
-
+    #my $switch_f = "rack0$rack-$switch_ru";
+ 
     printf $device_nic_fh "INSERT INTO device_nic (mac, device_id, iface_name, iface_type, iface_vendor) VALUES ('%s', '%s', '%s', '%s', '%s');\n",
       $mac, $sn, $iface, "UNKNOWN", "UNKNOWN";
 
     printf $device_nic_fh "INSERT INTO device_neighbor (mac, want_switch, want_port) VALUES ('%s', '%s', '%s');\n",
-      $mac, $switch_f, $port;
+      $mac, $switch, $port;
      
     $i = $i+3;
   }
