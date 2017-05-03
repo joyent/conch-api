@@ -13,6 +13,7 @@
 <ul>
 <li>Active: Has checked into preflight recently</li>
 <li>Unknown: Unknown status. Has not booted into preflight, but exists inventory</li>
+<li>Retired: Host removed from service</li>
 <li>Failing: Current health status is FAIL. Investigate</li>
 <li>Ready: Ready to be graduated to production</li>
 <li>Validated: Has been successfully validated by preflight checks</li>
