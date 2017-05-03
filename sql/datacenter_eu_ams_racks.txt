@@ -44,6 +44,7 @@ eu-central-1b 0103 45 MANTA
 eu-central-1b 0104 45 MANTA
 eu-central-1b 0105 45 MANTA
 eu-central-1b 0106 45 MANTA
+eu-central-1b 0107 45 MANTA
 eu-central-1b 0108 45 MANTA
 eu-central-1b 0109 45 MANTA
 eu-central-1b 0110 45 MANTA
