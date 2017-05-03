@@ -39,6 +39,7 @@
     <th>Ready</th>
     <th>Validated</th>
     <th>Graduated</th>
+    <th>Total Inventory</th>
   </tr>
   <tr>
    <td>[% reporting_count %]</td>
@@ -48,6 +49,7 @@
    <td>[% ready_count %]</td>
    <td>[% passing_count %]</td>
    <td>[% graduated_count %]</td>
+   <td>[% device_count %]</td>
   </tr>
 </table>
 </td>
@@ -55,17 +57,17 @@
 <table border=1 valign=bottom width="100%">
 <tr>
 <th>Missing</th>
-<th>Triton Pending</th>
-<th>Triton</th>
+<th>Pending</th>
+<th>Compute</th>
 <th>Manta</th>
-<th>Total Inventory</th>
+<th>Total</th>
 </tr>
 <tr>
 <td>[% missing_count %]</td>
 <td>[% triton_pending_count %]</td>
-<td>[% count_compute_setup %] ([% count_triton_total %])</td>
+<td>[% count_compute_setup %] ([% count_compute_total %])</td>
 <td>[% count_manta_setup %] ([% count_manta_total %])</td>
-<td>[% device_count %]</td>
+<td>[% triton_count %] ([% count_triton_total %])</td>
 </tr>
 </table>
 </td>
