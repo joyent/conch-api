@@ -34,7 +34,7 @@
 <table border=1 width="100%">
   <tr>
     <th>Active (last 5min)</th>
-    <th>Uknown</th>
+    <th>Unknown</th>
     <th>Retired</th>
     <th>Failing</th>
     <th>Ready</th>
