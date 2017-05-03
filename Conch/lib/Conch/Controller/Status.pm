@@ -29,10 +29,67 @@ sub index :Path :Args(0) {
   $c->forward('status');
 }
 
+sub rack_roles {
+  my ( $racks ) = @_;
+
+  my $rack_roles = {};
+  foreach my $r (@{$racks}) {
+    $rack_roles->{ $r->id } = $r->role;
+  }
+
+  return $rack_roles;
+}
+
+sub role_counts {
+  my ( $c, $racks, $devices ) = @_;
+
+  my $role_counts = {};
+  foreach my $d (@{$devices}) {
+
+    next if $d->deactivated;
+
+    my $loc = $c->model('DB::DeviceLocation')->find({
+      device_id => $d->id
+    });
+
+    my $rack_id;
+    if ( defined $loc ) {
+      $rack_id = $loc->rack_id;
+    } else {
+      warn $d->id . " has no rack location";
+    }
+
+    my $rack_role = $racks->{ $rack_id };
+    if ( $rack_role ) {
+      #$c->log->debug($d->id . " = $rack_role");
+      $role_counts->{ $rack_role}->{total}++;
+    }
+
+    if ( defined $d->triton_setup && $d->triton_setup == 1 ) {
+      $role_counts->{ $rack_role }->{setup}++;
+    }
+  }
+
+  $role_counts->{ total_triton } = $role_counts->{ TRITON }->{total} + $role_counts->{ MANTA }->{total};
+
+  p $role_counts;
+
+  return $role_counts;
+}
+
 sub status : Local {
   my ( $self, $c ) = @_;
 
   $c->stash(datacenter => $c->config->{datacenter});
+
+  my $dc_id = $c->model('DB::DatacenterRoom')->search({
+    az => $c->config->{datacenter},
+  })->single;
+
+  my @racks = $c->model('DB::DatacenterRack')->search({
+    datacenter_room_id => $dc_id->id,
+  });
+
 
   my $ceres_hw = $c->model('DB::HardwareProduct')->search({
     name => "CERES",
@@ -40,6 +97,17 @@ sub status : Local {
 
   my @devices = $c->model('DB::Device')->all;
   my $device_count = scalar(@devices);
+
+  my $rack_roles = rack_roles(\@racks);
+  my $role_counts = role_counts($c, $rack_roles, \@devices);
+
+  $c->stash(
+    count_triton_total   => $role_counts->{total_triton},
+    count_compute_total => $role_counts->{TRITON}->{total}, 
+    count_compute_setup => $role_counts->{TRITON}->{setup}, 
+    count_manta_total  => $role_counts->{MANTA}->{total}, 
+    count_manta_setup  => $role_counts->{MANTA}->{setup}, 
+  );
 
   my @reporting_devices = $c->model('DB::Device')->search({
     last_seen => \' > NOW() - INTERVAL \'10 minutes\'',

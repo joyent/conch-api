@@ -6,6 +6,10 @@
 
 <p>The export script on each host runs every 5 minutes, with a 30 second splay.<p>
 
+<table border=1>
+<tr>
+<td valign=top bgcolor="#89ff9b">
+<h3>Preflight Status</h3>
 <ul>
 <li>Active: Has checked into preflight very recently.</li>
 <li>Unknown: Unknown status. Has not booted into preflight, but exists inventory.</li>
@@ -13,12 +17,20 @@
 <li>Ready: Ready to be graduated to production.</li>
 <li>Validated: Has been successfully validated by preflight checks.</li>
 <li>Graduated: VLAN has been flipped from preflight to Triton.</li>
+</ul>
+</td>
+<td valign=top bgcolor="#679ef7">
+<h3>Triton Status</h3>
+<ul>
 <li>Missing: Has been graduated but has not yet shown up in Triton.</li>
 <li>Triton Pending: Booted into Triton but not yet setup.</li>
 <li>Triton Setup: Has been successfully setup in Triton</li>
 </ul>
- 
-<table border=1>
+</td>
+</tr>
+<tr>
+<td bgcolor="#89ff9b">
+<table border=1 width="100%">
   <tr>
     <th>Active (last 5min)</th>
     <th>Uknown</th>
@@ -27,10 +39,6 @@
     <th>Ready</th>
     <th>Validated</th>
     <th>Graduated</th>
-    <th>Missing</th>
-    <th>Triton Pending</th>
-    <th>Triton Setup</th>
-    <th>Total</th>
   </tr>
   <tr>
    <td>[% reporting_count %]</td>
@@ -40,14 +48,29 @@
    <td>[% ready_count %]</td>
    <td>[% passing_count %]</td>
    <td>[% graduated_count %]</td>
-   <td>[% missing_count %]</td>
-   <td>[% triton_pending_count %]</td>
-   <td>[% triton_count %]</td>
-   <td>[% device_count %]</td>
   </tr>
 </table>
-
-<p>
+</td>
+<td bgcolor="#679ef7">
+<table border=1 valign=bottom width="100%">
+<tr>
+<th>Missing</th>
+<th>Triton Pending</th>
+<th>Triton</th>
+<th>Manta</th>
+<th>Total Inventory</th>
+</tr>
+<tr>
+<td>[% missing_count %]</td>
+<td>[% triton_pending_count %]</td>
+<td>[% count_compute_setup %] ([% count_triton_total %])</td>
+<td>[% count_manta_setup %] ([% count_manta_total %])</td>
+<td>[% device_count %]</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
 
 <hr>
 
