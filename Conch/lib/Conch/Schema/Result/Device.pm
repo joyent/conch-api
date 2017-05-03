@@ -107,6 +107,11 @@ __PACKAGE__->table("device");
   default_value: false
   is_nullable: 0
 
+=head2 triton_status
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -144,6 +149,8 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_nullable => 1, size => 16 },
   "triton_setup",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "triton_status",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -337,8 +344,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-22 09:38:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2c4jKzpeFC+rp3/yzh7Ymw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-05-03 03:12:29
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mzrZ0SSA9h17PUPxE75/bA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
