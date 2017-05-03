@@ -81,6 +81,11 @@ __PACKAGE__->table("datacenter_rack");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 role
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -113,6 +118,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "role",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -175,8 +182,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-04-17 05:46:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OqjR5cLs9xPseUoyVEqkvQ
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2017-05-03 03:12:29
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GyckCkc8HlZj2w/JcCzmGA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
