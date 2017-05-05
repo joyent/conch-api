@@ -84,7 +84,7 @@
      <table border=1 valign="top">
      <tr><td>Active</td></tr>
      [% FOREACH r IN reporting_devices -%]
-     <tr><td><a href="/device/view/[% r.id %]">[% r.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% r.id %]">([% host_roles.${r.id} %]) [% r.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -92,7 +92,7 @@
      <table border=1 valign="top">
      <tr><td>Unknown</td></tr>
      [% FOREACH u IN unknown_devices -%]
-     <tr><td><a href="/device/view/[% u.id %]">[% u.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% u.id %]">([% host_roles.${u.id} %]) [% u.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -100,7 +100,7 @@
      <table border=1 valign="top">
      <tr><td>Retired</td></tr>
      [% FOREACH rd IN retired_devices -%]
-     <tr><td><a href="/device/view/[% rd.id %]">[% rd.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% rd.id %]">([% host_roles.${rd.id} %]) [% rd.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -108,7 +108,7 @@
      <table border=1 valign="top">
      <tr><td>Failing</td></tr>
      [% FOREACH f IN failing_devices -%]
-     <tr><td><a href="/device/view/[% f.id %]">[% f.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% f.id %]">([% host_roles.${f.id} %]) [% f.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -116,7 +116,7 @@
      <table border=1 valign="top">
      <tr><td>Ready</td></tr>
      [% FOREACH rd IN ready_devices -%]
-     <tr><td><a href="/device/view/[% rd.id %]">[% rd.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% rd.id %]">([% host_roles.${rd.id} %]) [% rd.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -124,7 +124,7 @@
      <table border=1>
      <tr><td>Validated</td></tr>
      [% FOREACH p IN passing_devices -%]
-     <tr><td><a href="/device/view/[% p.id %]">[% p.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% p.id %]">([% host_roles.${p.id} %]) [% p.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -132,7 +132,7 @@
      <table border=1 valign="top">
      <tr><td>Graduated</td></tr>
      [% FOREACH g IN graduated_devices -%]
-     <tr><td><a href="/device/view/[% g.id %]">[% g.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% g.id %]">([% host_roles.${g.id} %]) [% g.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -140,7 +140,7 @@
      <table border=1 valign="top">
      <tr><td>Missing</td></tr>
      [% FOREACH m IN missing_devices -%]
-     <tr><td><a href="/device/view/[% m.id %]">[% m.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% m.id %]">([% host_roles.${m.id} %]) [% m.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -148,7 +148,7 @@
      <table border=1>
      <tr><td>Triton Pending</td></tr>
      [% FOREACH tp IN triton_pending_devices -%]
-     <tr><td><a href="/device/view/[% tp.id %]">[% tp.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% tp.id %]">([% host_roles.${tp.id} %]) [% tp.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>
@@ -156,7 +156,7 @@
      <table border=1>
      <tr><td>Triton Setup</td></tr>
      [% FOREACH t IN triton_devices -%]
-     <tr><td><a href="/device/view/[% t.id %]">[% t.id %]</a></td></tr>
+     <tr><td><a href="/device/view/[% t.id %]">([% host_roles.${t.id} %]) [% t.id %]</a></td></tr>
      [% END -%]
      </table>
    </td>

@@ -61,7 +61,10 @@ sub role_counts {
 
     my $rack_role = $racks->{ $rack_id };
     if ( $rack_role ) {
-      #$c->log->debug($d->id . " = $rack_role");
+  
+      my $short_role = substr($rack_role, 0, 1);
+      $role_counts->{hosts}->{ $d->id } = $short_role;
+      
       $role_counts->{ $rack_role}->{total}++;
     }
 
@@ -88,7 +91,6 @@ sub status : Local {
     datacenter_room_id => $dc_id->id,
   });
 
-
   my $ceres_hw = $c->model('DB::HardwareProduct')->search({
     name => "CERES",
   })->single;
@@ -101,10 +103,11 @@ sub status : Local {
 
   $c->stash(
     count_triton_total   => $role_counts->{total_triton},
-    count_compute_total => $role_counts->{TRITON}->{total}, 
-    count_compute_setup => $role_counts->{TRITON}->{setup}, 
-    count_manta_total  => $role_counts->{MANTA}->{total}, 
-    count_manta_setup  => $role_counts->{MANTA}->{setup}, 
+    count_compute_total  => $role_counts->{TRITON}->{total}, 
+    count_compute_setup  => $role_counts->{TRITON}->{setup}, 
+    count_manta_total    => $role_counts->{MANTA}->{total}, 
+    count_manta_setup    => $role_counts->{MANTA}->{setup}, 
+    host_roles           => $role_counts->{hosts},
   );
 
   my @reporting_devices = $c->model('DB::Device')->search({
