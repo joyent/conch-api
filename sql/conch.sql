@@ -53,6 +53,7 @@ CREATE TABLE datacenter_rack (
 CREATE TABLE datacenter_network (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     datacenter_id       uuid        NOT NULL REFERENCES datacenter (id),
+    subnet              cidr        NOT NULL,
     name                text        NOT NULL,
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
@@ -65,6 +66,7 @@ CREATE TABLE datacenter_room_network (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     network_id          uuid        NOT NULL REFERENCES datacenter_network (id),
     datacenter_room_id  uuid        REFERENCES datacenter_room (id),
+    subnet              cidr        NOT NULL,
     name                text        NOT NULL,
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
