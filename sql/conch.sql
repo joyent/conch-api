@@ -49,6 +49,28 @@ CREATE TABLE datacenter_rack (
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+-- Define regional subnets.
+CREATE TABLE datacenter_network (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    datacenter_id       uuid        NOT NULL REFERENCES datacenter (id),
+    name                text        NOT NULL,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+-- Define per-DC/AZ subnets. May reference a datacenter_network, but
+-- not always.
+CREATE TABLE datacenter_room_network (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    network_id          uuid        NOT NULL REFERENCES datacenter_network (id),
+    datacenter_room_id  uuid        REFERENCES datacenter_room (id),
+    name                text        NOT NULL,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
 CREATE TABLE hardware_vendor (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     name                text        UNIQUE NOT NULL,
