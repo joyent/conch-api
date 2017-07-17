@@ -194,7 +194,7 @@ CREATE TABLE triton (
                                                       -- so we can't assume they are the same.
     setup               boolean     NOT NULL DEFAULT FALSE, -- This is the basic "setup" field in Triton.
     post_setup          boolean     NOT NULL DEFAULT FALSE, -- Post-setup setup.
-    status              text,
+    state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
