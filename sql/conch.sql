@@ -81,6 +81,31 @@ CREATE TABLE hardware_vendor (
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+-- Define the type of pool to build
+CREATE TABLE zpool_profile (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                text,       -- mirror, raidz2, customX
+    vdev                integer,    -- number of root vdevs
+    disk_per            integer,    -- disks per vdev
+    spare               integer,
+    log                 integer,
+    cache               integer,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+-- Define per-profile zpool attributes. Compression, logbias, recordsize, etc.
+CREATE TABLE zpool_attributes (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id          uuid        NOT NULL REFERENCES hardware_product (id),
+    name                text,
+    value               text,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
 -- joyent hardware makes ("products")
 CREATE TABLE hardware_product (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -100,6 +125,7 @@ CREATE TABLE hardware_product (
 CREATE TABLE hardware_product_profile (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id          uuid        NOT NULL REFERENCES hardware_product (id),
+    zpool_id            uuid        NOT NULL REFERENCES zpool_profile (id),
     purpose             text        NOT NULL, -- General Compute
     bios_firmware       text        NOT NULL, -- prtdiag output; Dell Inc. 2.2.5 09/06/2016
     hba_firmware        text,
