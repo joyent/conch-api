@@ -241,7 +241,7 @@ CREATE TABLE device_specs (
 CREATE TABLE device_memory (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           text        PRIMARY KEY NOT NULL REFERENCES device (id),
-    serial              text        NOT NULL, -- May be used in other systems, so not UNIQUE.
+    serial_number       text        NOT NULL, -- May be used in other systems, so not UNIQUE.
     vendor              text        NOT NULL, -- TODO: REF this out
     model               text        NOT NULL,
     bank                text        NOT NULL, -- A04, B03, etc.
