@@ -175,11 +175,6 @@ CREATE TABLE hardware_totals (
 CREATE TABLE device (
     id                  text        PRIMARY KEY, -- System serial number
     system_uuid         uuid        UNIQUE, -- We get this on the first run from ohai/dmi
-    triton_uuid         uuid        UNIQUE,      -- We pull this from Triton when it's available
-                                                 -- Triton sometimes byte-shifts the system UUID,
-                                                 -- so we can't assume they are the same.
-    triton_setup        boolean     NOT NULL DEFAULT FALSE,
-    triton_status       text,
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
     boot_phase          text,                 -- memtest, firmware, test, none
     role                text,
@@ -190,6 +185,49 @@ CREATE TABLE device (
     last_seen           timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+CREATE TABLE triton (
+    id                  text        PRIMARY KEY NOT NULL REFERENCES device (id),
+    triton_uuid         uuid        NOT NULL UNIQUE,  -- We pull this from Triton when it's available
+                                                      -- Triton sometimes byte-shifts the system UUID,
+                                                      -- so we can't assume they are the same.
+    setup               boolean     NOT NULL DEFAULT FALSE, -- This is the basic "setup" field in Triton.
+    post_setup          boolean     NOT NULL DEFAULT FALSE, -- Post-setup setup.
+    status              text,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+-- The current stage the system is setup at. Post-basic Triton setup, we modify
+-- the GZ in various ways.
+-- Each stage of post-setup needs to be defined here.
+CREATE TABLE triton_post_setup_stage (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                text        NOT NULL UNIQUE,
+    requires            uuid        NOT NULL REFERENCES triton_post_setup_stage (id),
+    description         text,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+);
+
+-- Tracks where in the triton_post_setup_stage process each CN is at.
+CREATE TABLE triton_post_setup (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    triton_uuid         uuid        NOT NULL REFERENCES triton(id),
+    stage               uuid        NOT NULL REFERENCES triton_post_setup_stage (id),
+    status              boolean     NOT NULL DEFAULT FALSE,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+-- If a stage needs to be re-run, we want to capture all log entries, not just
+-- the most recent.
+CREATE TABLE triton_post_setup_log (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    stage_id            uuid        NOT NULL REFERENCES triton_post_setup (id),
+    log                 text        NOT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 -- denormalized dumping ground for changes we made to systems, like boot order,
