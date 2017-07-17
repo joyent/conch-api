@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/env carton exec perl
 use Dancer;
 use Conch;
 dance;
