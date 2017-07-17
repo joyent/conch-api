@@ -1794,6 +1794,18 @@ DISTRIBUTIONS
       WWW::Form::UrlEncoded 0.23
       parent 0
       perl 5.008001
+  Plack-Middleware-Deflater-0.12
+    pathname: K/KA/KAZEBURO/Plack-Middleware-Deflater-0.12.tar.gz
+    provides:
+      Plack::Middleware::Deflater 0.12
+      Plack::Middleware::Deflater::Encoder 0.12
+    requirements:
+      Compress::Zlib 0
+      ExtUtils::MakeMaker 6.59
+      Plack 0
+      Test::More 0.96
+      Test::Requires 0
+      perl 5.008001
   Plack-Middleware-FixMissingBodyInRedirect-0.12
     pathname: S/SW/SWEETKID/Plack-Middleware-FixMissingBodyInRedirect-0.12.tar.gz
     provides:
@@ -2246,6 +2258,15 @@ DISTRIBUTIONS
       Test::Harness 3.35
       Test::More 1.302047
       Test::Warn 0.30
+  Test-Requires-0.10
+    pathname: T/TO/TOKUHIROM/Test-Requires-0.10.tar.gz
+    provides:
+      Test::Requires 0.10
+    requirements:
+      ExtUtils::MakeMaker 6.64
+      Test::Builder::Module 0
+      Test::More 0.47
+      perl 5.006
   Test-SharedFork-0.35
     pathname: E/EX/EXODIST/Test-SharedFork-0.35.tar.gz
     provides:
