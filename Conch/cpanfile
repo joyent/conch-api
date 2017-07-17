@@ -1,4 +1,7 @@
-requires 'Dancer';
-requires 'YAML';
-requires 'JSON';
+requires 'perl', '5.24.1';
+
 requires 'DBIx::Class';
+requires 'Dancer';
+requires 'Dancer::Plugin::DBIC';
+requires 'JSON';
+requires 'YAML';
