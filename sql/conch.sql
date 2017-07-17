@@ -220,9 +220,10 @@ CREATE TABLE triton_post_setup (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     triton_uuid         uuid        NOT NULL REFERENCES triton(id),
     stage               uuid        NOT NULL REFERENCES triton_post_setup_stage (id),
-    status              boolean     NOT NULL DEFAULT FALSE,
+    status              text        NOT NULL, -- unknown, running, passed, failed
     created             timestamptz NOT NULL DEFAULT current_timestamp,
-    updated             timestamptz NOT NULL DEFAULT current_timestamp
+    updated             timestamptz NOT NULL DEFAULT current_timestamp,
+    UNIQUE (triton_uuid, stage)
 );
 
 -- If a stage needs to be re-run, we want to capture all log entries, not just
