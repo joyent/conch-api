@@ -237,6 +237,20 @@ CREATE TABLE device_specs (
     ram_total           integer     NOT NULL -- prtconf -m: 262050 (MB)
 );
 
+-- Map DIMMS to the banks in a device. Mark when a DIMM has been replaced.
+CREATE TABLE device_memory (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    device_id           text        PRIMARY KEY NOT NULL REFERENCES device (id),
+    serial              text        NOT NULL, -- May be used in other systems, so not UNIQUE.
+    vendor              text        NOT NULL, -- TODO: REF this out
+    model               text        NOT NULL,
+    bank                text        NOT NULL, -- A04, B03, etc.
+    speed               text        NOT NULL,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
 CREATE TABLE device_disk (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     device_id           text        NOT NULL REFERENCES device (id),
