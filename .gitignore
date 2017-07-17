@@ -21,3 +21,7 @@ nytprof.out
 *.swp
 /Conch/conch.conf
 Conch/conch.conf
+.DS_Store
+
+# Carton-installed dependency folder
+local/
