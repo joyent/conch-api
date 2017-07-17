@@ -201,10 +201,13 @@ CREATE TABLE triton (
 );
 
 -- The current stage the system is setup at. Post-basic Triton setup, we modify
--- the GZ in various ways.
+-- the GZ in various ways. Stages are sometimes tied to specific products
+-- (server classes). If product_id is null, we assume it should be applied to
+-- all classes.
 -- Each stage of post-setup needs to be defined here.
 CREATE TABLE triton_post_setup_stage (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id          uuid        REFERENCES hardware_product (id),
     name                text        NOT NULL UNIQUE,
     requires            uuid        NOT NULL REFERENCES triton_post_setup_stage (id),
     description         text,
