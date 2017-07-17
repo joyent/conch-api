@@ -187,6 +187,7 @@ CREATE TABLE device (
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+-- Caches data about servers from the Triton APIs.
 CREATE TABLE triton (
     id                  text        PRIMARY KEY NOT NULL REFERENCES device (id),
     triton_uuid         uuid        NOT NULL UNIQUE,  -- We pull this from Triton when it's available
