@@ -155,6 +155,7 @@ CREATE TABLE device (
     triton_setup        boolean     NOT NULL DEFAULT FALSE,
     triton_status       text,
     hardware_product    uuid        NOT NULL REFERENCES hardware_product (id),
+    boot_phase          text,                 -- memtest, firmware, test, none
     role                text,
     state               text        NOT NULL, -- ONLINE, REBOOTING, UNKNOWN
     health              text        NOT NULL, -- PASS, FAIL, UNKNOWN
