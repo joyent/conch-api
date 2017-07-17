@@ -210,7 +210,7 @@ CREATE TABLE triton_post_setup_stage (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id          uuid        REFERENCES hardware_product (id),
     name                text        NOT NULL UNIQUE,
-    requires            uuid        NOT NULL REFERENCES triton_post_setup_stage (id),
+    requires            uuid        REFERENCES triton_post_setup_stage (id),
     description         text,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
 );
