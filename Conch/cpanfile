@@ -1,7 +1,11 @@
-requires 'perl', '5.24.1';
+requires "Dancer2" => "0.205001";
 
-requires 'DBIx::Class';
-requires 'Dancer';
-requires 'Dancer::Plugin::DBIC';
-requires 'JSON';
-requires 'YAML';
+recommends "YAML"             => "0";
+recommends "URL::Encode::XS"  => "0";
+recommends "CGI::Deurl::XS"   => "0";
+recommends "HTTP::Parser::XS" => "0";
+
+on "test" => sub {
+    requires "Test::More"            => "0";
+    requires "HTTP::Request::Common" => "0";
+};

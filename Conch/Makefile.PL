@@ -3,7 +3,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 # Normalize version strings like 6.30_02 to 6.3002,
-# so that we can do numerical comparisons on them.
+# so that we can do numerical comparisons on it.
 my $eumm_version = $ExtUtils::MakeMaker::VERSION;
 $eumm_version =~ s/_//;
 
@@ -19,7 +19,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Test::More' => 0,
         'YAML'       => 0,
-        'Dancer'     => 1.3202,
+        'Dancer2'     => 0.205001,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Conch-*' },
