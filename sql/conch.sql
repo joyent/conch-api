@@ -81,6 +81,19 @@ CREATE TABLE hardware_vendor (
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+
+-- joyent hardware makes ("products")
+CREATE TABLE hardware_product (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                text        UNIQUE NOT NULL, -- Joyent-Compute-Platform-1101
+    alias               text        UNIQUE NOT NULL, -- Richmond A
+    prefix              text        UNIQUE,          -- RA
+    vendor              uuid        NOT NULL REFERENCES hardware_vendor (id),
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
 -- Define the type of pool to build
 CREATE TABLE zpool_profile (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -101,18 +114,6 @@ CREATE TABLE zpool_attributes (
     product_id          uuid        NOT NULL REFERENCES hardware_product (id),
     name                text,
     value               text,
-    deactivated         timestamptz DEFAULT NULL,
-    created             timestamptz NOT NULL DEFAULT current_timestamp,
-    updated             timestamptz NOT NULL DEFAULT current_timestamp
-);
-
--- joyent hardware makes ("products")
-CREATE TABLE hardware_product (
-    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    name                text        UNIQUE NOT NULL, -- Joyent-Compute-Platform-1101
-    alias               text        UNIQUE NOT NULL, -- Richmond A
-    prefix              text        UNIQUE,          -- RA
-    vendor              uuid        NOT NULL REFERENCES hardware_vendor (id),
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
@@ -212,13 +213,13 @@ CREATE TABLE triton_post_setup_stage (
     name                text        NOT NULL UNIQUE,
     requires            text,       -- This should be a list of uuids this stage requires before running.
     description         text,
-    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    created             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 -- Tracks where in the triton_post_setup_stage process each CN is at.
 CREATE TABLE triton_post_setup (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    triton_uuid         uuid        NOT NULL REFERENCES triton(id),
+    triton_uuid         uuid        NOT NULL REFERENCES triton(triton_uuid),
     stage               uuid        NOT NULL REFERENCES triton_post_setup_stage (id),
     status              text        NOT NULL, -- unknown, running, passed, failed
     created             timestamptz NOT NULL DEFAULT current_timestamp,
@@ -283,7 +284,7 @@ CREATE TABLE device_specs (
 -- Map DIMMS to the banks in a device. Mark when a DIMM has been replaced.
 CREATE TABLE device_memory (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    device_id           text        PRIMARY KEY NOT NULL REFERENCES device (id),
+    device_id           text        NOT NULL REFERENCES device (id),
     serial_number       text        NOT NULL, -- May be used in other systems, so not UNIQUE.
     vendor              text        NOT NULL, -- TODO: REF this out
     model               text        NOT NULL,
