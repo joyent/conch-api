@@ -1,14 +1,20 @@
-requires "Dancer2" => "0.205001";
+requires 'Dancer2' => '0.205001';
 
-recommends "YAML";
-recommends "URL::Encode::XS";
-recommends "CGI::Deurl::XS";
-recommends "HTTP::Parser::XS";
-recommends "Plack::Middleware::Deflater";
-recommends "Plack";
+recommends 'YAML';
+recommends 'URL::Encode::XS';
+recommends 'CGI::Deurl::XS';
+recommends 'HTTP::Parser::XS';
+recommends 'Plack::Middleware::Deflater';
+recommends 'Plack';
 
-on "test" => sub {
-    requires "Test::More";
-    requires "HTTP::Request::Common";
+requires 'DBIx::Class::Schema::Loader';
+requires 'Config::General';
+requires 'DBIx::Class';
+requires 'DBIx::Class::TimeStamp';
+requires 'DBD::Pg';
+
+on 'test' => sub {
+    requires 'Test::More';
+    requires 'HTTP::Request::Common';
 };
 

@@ -1,10 +1,12 @@
 test:
-	carton exec prove -l lib
+	@carton exec prove -l lib
 
 run:
-	carton exec plackup bin/app.psgi
+	@carton exec plackup bin/app.psgi
 
+deps: install-deps
 install-deps:
-	carton install
+	@carton install
 
-
+generate-dbic:
+	@carton exec dbicdump schema.conf
