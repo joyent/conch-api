@@ -7,11 +7,12 @@ recommends 'HTTP::Parser::XS';
 recommends 'Plack::Middleware::Deflater';
 recommends 'Plack';
 
-requires 'DBIx::Class::Schema::Loader';
 requires 'Config::General';
-requires 'DBIx::Class';
-requires 'DBIx::Class::TimeStamp';
 requires 'DBD::Pg';
+requires 'DBIx::Class';
+requires 'DBIx::Class::Schema::Loader';
+requires 'DBIx::Class::TimeStamp';
+requires 'Dancer2::Plugin::DBIC';
 
 on 'test' => sub {
     requires 'Test::More';

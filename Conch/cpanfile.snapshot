@@ -971,6 +971,19 @@ DISTRIBUTIONS
       URI::Escape 0
       YAML 0.86
       parent 0
+  Dancer2-Plugin-DBIC-0.0013
+    pathname: I/IR/IRONCAMEL/Dancer2-Plugin-DBIC-0.0013.tar.gz
+    provides:
+      Dancer2::Plugin::DBIC 0.0013
+    requirements:
+      DBICx::Sugar 0
+      Dancer2 0.153002
+      Dancer2::Plugin 0
+      ExtUtils::MakeMaker 0
+      perl 5.006
+      strict 0
+      utf8 0
+      warnings 0
   Data-Dump-1.23
     pathname: G/GA/GAAS/Data-Dump-1.23.tar.gz
     provides:
