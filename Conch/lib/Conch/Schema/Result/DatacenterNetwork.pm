@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::Datacenter;
+package Conch::Schema::Result::DatacenterNetwork;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::Datacenter
+Conch::Schema::Result::DatacenterNetwork
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
-=head1 TABLE: C<datacenter>
+=head1 TABLE: C<datacenter_network>
 
 =cut
 
-__PACKAGE__->table("datacenter");
+__PACKAGE__->table("datacenter_network");
 
 =head1 ACCESSORS
 
@@ -44,22 +44,19 @@ __PACKAGE__->table("datacenter");
   is_nullable: 0
   size: 16
 
-=head2 vendor
+=head2 datacenter_id
 
-  data_type: 'text'
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
+=head2 subnet
+
+  data_type: 'cidr'
   is_nullable: 0
 
-=head2 vendor_name
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 region
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 location
+=head2 name
 
   data_type: 'text'
   is_nullable: 0
@@ -93,13 +90,11 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "vendor",
-  { data_type => "text", is_nullable => 0 },
-  "vendor_name",
-  { data_type => "text", is_nullable => 1 },
-  "region",
-  { data_type => "text", is_nullable => 0 },
-  "location",
+  "datacenter_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "subnet",
+  { data_type => "cidr", is_nullable => 0 },
+  "name",
   { data_type => "text", is_nullable => 0 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
@@ -133,39 +128,39 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 datacenter_networks
+=head2 datacenter
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<Conch::Schema::Result::DatacenterNetwork>
+Related object: L<Conch::Schema::Result::Datacenter>
 
 =cut
 
-__PACKAGE__->has_many(
-  "datacenter_networks",
-  "Conch::Schema::Result::DatacenterNetwork",
-  { "foreign.datacenter_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "datacenter",
+  "Conch::Schema::Result::Datacenter",
+  { id => "datacenter_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 datacenter_rooms
+=head2 datacenter_room_networks
 
 Type: has_many
 
-Related object: L<Conch::Schema::Result::DatacenterRoom>
+Related object: L<Conch::Schema::Result::DatacenterRoomNetwork>
 
 =cut
 
 __PACKAGE__->has_many(
-  "datacenter_rooms",
-  "Conch::Schema::Result::DatacenterRoom",
-  { "foreign.datacenter" => "self.id" },
+  "datacenter_room_networks",
+  "Conch::Schema::Result::DatacenterRoomNetwork",
+  { "foreign.network_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 13:15:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:K/aLi6oqhroGtjTEbyk9hw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:CWFMyJBN7/Ymwb8n4d3xjg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

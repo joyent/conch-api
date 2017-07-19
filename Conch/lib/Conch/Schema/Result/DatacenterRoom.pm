@@ -165,9 +165,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 datacenter_room_networks
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2v575bbpysNKM+5x1aPpXA
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DatacenterRoomNetwork>
+
+=cut
+
+__PACKAGE__->has_many(
+  "datacenter_room_networks",
+  "Conch::Schema::Result::DatacenterRoomNetwork",
+  { "foreign.datacenter_room_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 13:15:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7TlN1ao0yfc0y+Ullxnnjg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

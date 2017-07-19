@@ -1,6 +1,6 @@
 package Conch;
 use Dancer2;
-use Conch::Route::Collect;
+use Conch::Route::DeviceReport;
 
 our $VERSION = '0.1';
 

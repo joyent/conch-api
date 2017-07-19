@@ -238,6 +238,20 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<hardware_product_profile_product_id_key>
+
+=over 4
+
+=item * L</product_id>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("hardware_product_profile_product_id_key", ["product_id"]);
+
 =head1 RELATIONS
 
 =head2 device_specs
@@ -297,12 +311,12 @@ __PACKAGE__->belongs_to(
   "product",
   "Conch::Schema::Result::HardwareProduct",
   { id => "product_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JtPmC9nPrNejxhprM0ChRA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 13:32:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JJrJourFZqB3TjOAEeynaw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

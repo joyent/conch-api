@@ -188,16 +188,16 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 hardware_product_profiles
+=head2 hardware_product_profile
 
-Type: has_many
+Type: might_have
 
 Related object: L<Conch::Schema::Result::HardwareProductProfile>
 
 =cut
 
-__PACKAGE__->has_many(
-  "hardware_product_profiles",
+__PACKAGE__->might_have(
+  "hardware_product_profile",
   "Conch::Schema::Result::HardwareProductProfile",
   { "foreign.product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
@@ -234,8 +234,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XfgUE8+wSKkzR9NkOAO/pA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 13:15:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Nmc/vU8jCCV4p3Cv8z49MA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

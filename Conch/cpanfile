@@ -1,3 +1,5 @@
+requires 'perl', '5.24.1';
+
 requires 'Dancer2' => '0.205001';
 
 recommends 'YAML';
@@ -13,6 +15,12 @@ requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::TimeStamp';
 requires 'Dancer2::Plugin::DBIC';
+requires 'Dancer2::Plugin::LogReport';
+
+requires 'Moose';
+requires 'MooseX::Constructor::AllErrors';
+requires 'MooseX::Types::UUID';
+requires 'TryCatch';
 
 on 'test' => sub {
     requires 'Test::More';
