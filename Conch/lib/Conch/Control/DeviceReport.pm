@@ -1,9 +1,7 @@
 package Conch::Control::DeviceReport;
 
 use strict;
-use Dancer2 appname => 'Conch';
-use Dancer2::Plugin::LogReport;
-use Dancer2::Plugin::DBIC;
+use Log::Report;
 use Conch::Data::DeviceReport;
 
 use Exporter 'import';
@@ -27,8 +25,8 @@ sub parse_device_report {
 }
 
 sub record_device_report {
-  my $dr = shift;
-  my $hw = resultset('HardwareProduct')->find({
+  my ($schema, $dr) = @_;
+  my $hw = $schema->resultset('HardwareProduct')->find({
     name => $dr->{product_name}
   });
   $hw or error "Product $dr->{product_name} not found";
@@ -38,8 +36,8 @@ sub record_device_report {
 
   info "Ready to record report for Device $dr->{serial_number}";
 
-  try { schema->txn_do (sub {
-      my $device_rs = resultset('Device')->update_or_create({
+  try { $schema->txn_do (sub {
+      my $device_rs = $schema->resultset('Device')->update_or_create({
         id               => $dr->{serial_number},
         system_uuid      => $dr->{system_uuid},
         hardware_product => $hw->id,
@@ -53,7 +51,7 @@ sub record_device_report {
       my %interfaces = %{$dr->{interfaces}};
       my $nics_num = keys %interfaces;
 
-      my $device_specs = resultset('DeviceSpec')->update_or_create({
+      my $device_specs = $schema->resultset('DeviceSpec')->update_or_create({
         device_id       => $device_id,
         product_id      => $hw_profile->id,
         bios_firmware   => $dr->{bios_version},
@@ -66,7 +64,7 @@ sub record_device_report {
 
       info "Created Device Spec for Device $device_id";
 
-      my $device_env = resultset('DeviceEnvironment')->update_or_create({
+      my $device_env = $schema->resultset('DeviceEnvironment')->update_or_create({
           device_id       => $device_rs->id,
           cpu0_temp       => $dr->{temp}->{cpu0},
           cpu1_temp       => $dr->{temp}->{cpu1},
@@ -80,7 +78,7 @@ sub record_device_report {
       foreach my $disk (keys %{$dr->{disks}}) {
         trace "Device $device_id: Recording disk: $disk";
 
-        my $disk_rs = resultset('DeviceDisk')->update_or_create({
+        my $disk_rs = $schema->resultset('DeviceDisk')->update_or_create({
           device_id       => $device_rs->id,
           serial_number   => $disk,
           slot            => $dr->{disks}->{$disk}->{slot},
@@ -102,7 +100,7 @@ sub record_device_report {
 
         trace "Device $device_id: Recording NIC: $dr->{interfaces}->{$nic}->{mac}";
 
-        my $nic_rs = resultset('DeviceNic')->update_or_create({
+        my $nic_rs = $schema->resultset('DeviceNic')->update_or_create({
             mac           => $dr->{interfaces}->{$nic}->{mac},
             device_id     => $device_rs->id,
             iface_name    => $nic,
@@ -111,14 +109,14 @@ sub record_device_report {
             iface_driver  => "",
           });
 
-        my $nic_state = resultset('DeviceNicState')->update_or_create({
+        my $nic_state = $schema->resultset('DeviceNicState')->update_or_create({
             mac           => $dr->{interfaces}->{$nic}->{mac},
             state         => $dr->{interfaces}->{$nic}->{state},
             ipaddr        => $dr->{interfaces}->{$nic}->{ipaddr},
             mtu           => $dr->{interfaces}->{$nic}->{mtu},
           });
 
-        my $nic_peers = resultset('DeviceNeighbor')->update_or_create({
+        my $nic_peers = $schema->resultset('DeviceNeighbor')->update_or_create({
             mac           => $dr->{interfaces}->{$nic}->{mac},
             raw_text      => $dr->{interfaces}->{$nic}->{peer_text},
             peer_switch   => $dr->{interfaces}->{$nic}->{peer_switch},

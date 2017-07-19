@@ -1,18 +1,23 @@
 package Conch::Route::DeviceReport;
 
 use strict;
-use Dancer2 appname => 'Conch';
-use Hash::MultiValue;
 use Conch::Control::DeviceReport;
+use Dancer2 appname => 'Conch';
+use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::LogReport;
+use Hash::MultiValue;
 set serializer => 'JSON';
 
 prefix '/api' => sub {
 
   post '/device' => sub {
-    record_device_report(
-      parse_device_report(body_parameters->as_hashref)
-    );
-    return {status => "success"};
+    if (process sub {
+        record_device_report(
+          schema,
+          parse_device_report(body_parameters->as_hashref)
+        );
+      }) { return {status => "success"}; }
+    else { return {status => "fail"}; }
   };
 
 };
