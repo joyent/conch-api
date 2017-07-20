@@ -12,17 +12,24 @@ set serializer => 'JSON';
 prefix '/api' => sub {
 
   post '/device' => sub {
-    #if (process sub {
-
-        my $device = record_device_report(
+    my $device;
+    if (process sub {
+        $device = record_device_report(
             schema,
             parse_device_report(body_parameters->as_hashref)
           );
         validate_device(schema, $device);
-       return {status => "success"};
-
-      #}) { return {status => "success"}; }
-    #else { return {status => "fail"}; }
+      }) {
+        return entity => {
+            device_id => $device->id,
+            validated => 1,
+            action    => "create",
+            status    => "200"
+        };
+    }
+    else {
+      return {status => "fail"};
+    }
   };
 
 };
