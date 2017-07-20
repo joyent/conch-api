@@ -1,0 +1,24 @@
+---
+abstract: 'YOUR APPLICATION ABSTRACT'
+author:
+  - 'YOUR NAME <youremail@example.com>'
+build_requires:
+  ExtUtils::MakeMaker: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 7.3, CPAN::Meta::Converter version 2.143240'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Conch
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Dancer: '1.3202'
+  Test::More: '0'
+  YAML: '0'
+version: '0.1'

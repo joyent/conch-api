@@ -1,0 +1,31 @@
+requires 'perl', '5.24.1';
+
+requires 'Dancer2' => '0.205001';
+
+recommends 'YAML';
+recommends 'URL::Encode::XS';
+recommends 'CGI::Deurl::XS';
+recommends 'HTTP::Parser::XS';
+recommends 'Plack::Middleware::Deflater';
+recommends 'Plack';
+
+requires 'Config::General';
+requires 'Data::UUID';
+
+requires 'DBD::Pg';
+requires 'DBIx::Class';
+requires 'DBIx::Class::Schema::Loader';
+requires 'DBIx::Class::TimeStamp';
+requires 'Dancer2::Plugin::DBIC';
+requires 'Dancer2::Plugin::LogReport';
+
+requires 'Moose';
+requires 'MooseX::Constructor::AllErrors';
+requires 'MooseX::Types::UUID';
+requires 'TryCatch';
+
+on 'test' => sub {
+    requires 'Test::More';
+    requires 'HTTP::Request::Common';
+};
+
