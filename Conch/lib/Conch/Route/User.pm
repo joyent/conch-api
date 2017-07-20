@@ -20,14 +20,13 @@ Dancer2::Plugin::Auth::Tiny->extend(
         goto $coderef;
       }
       else {
-        ## replace with 401
         status_401('unauthorized');
       }
     };
   }
 );
 
-post '/user' => sub {
+post '/user' => needs admin => sub {
   my $user;
   my $name = body_parameters->get('user');
   my $existingUser = lookup_user_by_name(schema, $name);
