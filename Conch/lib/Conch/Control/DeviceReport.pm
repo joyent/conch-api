@@ -3,6 +3,7 @@ package Conch::Control::DeviceReport;
 use strict;
 use Log::Report;
 use Conch::Data::DeviceReport;
+use Conch::Control::Device::Environment;
 
 use Exporter 'import';
 our @EXPORT = qw( parse_device_report record_device_report );
@@ -24,6 +25,7 @@ sub parse_device_report {
   }
 }
 
+# Returns a Device for processing in the validation steps
 sub record_device_report {
   my ($schema, $dr) = @_;
   my $hw = $schema->resultset('HardwareProduct')->find({
@@ -36,8 +38,9 @@ sub record_device_report {
 
   info "Ready to record report for Device $dr->{serial_number}";
 
+  my $device;
   try { $schema->txn_do (sub {
-      my $device_rs = $schema->resultset('Device')->update_or_create({
+      $device = $schema->resultset('Device')->update_or_create({
         id               => $dr->{serial_number},
         system_uuid      => $dr->{system_uuid},
         hardware_product => $hw->id,
@@ -45,7 +48,7 @@ sub record_device_report {
         health           => "UNKNOWN",
         last_seen        => \'NOW()',
       });
-      my $device_id = $device_rs->id;
+      my $device_id = $device->id;
       info "Created Device $device_id";
 
       my %interfaces = %{$dr->{interfaces}};
@@ -65,7 +68,7 @@ sub record_device_report {
       info "Created Device Spec for Device $device_id";
 
       my $device_env = $schema->resultset('DeviceEnvironment')->update_or_create({
-          device_id       => $device_rs->id,
+          device_id       => $device->id,
           cpu0_temp       => $dr->{temp}->{cpu0},
           cpu1_temp       => $dr->{temp}->{cpu1},
           inlet_temp      => $dr->{temp}->{inlet},
@@ -79,7 +82,7 @@ sub record_device_report {
         trace "Device $device_id: Recording disk: $disk";
 
         my $disk_rs = $schema->resultset('DeviceDisk')->update_or_create({
-          device_id       => $device_rs->id,
+          device_id       => $device->id,
           serial_number   => $disk,
           slot            => $dr->{disks}->{$disk}->{slot},
           hba             => $dr->{disks}->{$disk}->{hba},
@@ -102,7 +105,7 @@ sub record_device_report {
 
         my $nic_rs = $schema->resultset('DeviceNic')->update_or_create({
             mac           => $dr->{interfaces}->{$nic}->{mac},
-            device_id     => $device_rs->id,
+            device_id     => $device->id,
             iface_name    => $nic,
             iface_type    => $dr->{interfaces}->{$nic}->{product},
             iface_vendor  => $dr->{interfaces}->{$nic}->{vendor},
@@ -126,6 +129,7 @@ sub record_device_report {
     });
   };
   if ($@) { $@->reportFatal; }
-  }
+  else { return $device; }
+}
 
 1;

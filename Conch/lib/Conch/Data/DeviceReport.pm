@@ -31,7 +31,8 @@ has 'state' => (
 has 'interfaces' => (
   required => 1,
   is => 'ro',
-  isa => 'HashRef[HashRef[Str]]'
+  # hash can contain undef values
+  isa => 'HashRef[HashRef[Maybe[Str]]]'
 );
 
 has 'bios_version' => (
@@ -43,25 +44,25 @@ has 'bios_version' => (
 has 'processor' => (
   required => 1,
   is => 'ro',
-  isa => 'HashRef[HashRef[Str]]'
+  isa => 'HashRef[Value]'
 );
 
 has 'memory' => (
   required => 1,
   is => 'ro',
-  isa => 'HashRef[HashRef[Str]]'
-);
-
-has 'memory' => (
-  required => 1,
-  is => 'ro',
-  isa => 'HashRef[HashRef[Str]]'
+  isa => 'HashRef[Int]'
 );
 
 has 'disks' => (
   required => 1,
   is => 'ro',
-  isa => 'HashRef[HashRef[Str]]'
+  isa => 'HashRef[HashRef[Value]]'
+);
+
+has 'temp' => (
+  required => 1,
+  is => 'ro',
+  isa => 'HashRef[Int]'
 );
 
 __PACKAGE__->meta->make_immutable;

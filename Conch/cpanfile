@@ -10,6 +10,8 @@ recommends 'Plack::Middleware::Deflater';
 recommends 'Plack';
 
 requires 'Config::General';
+requires 'Data::UUID';
+
 requires 'DBD::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
