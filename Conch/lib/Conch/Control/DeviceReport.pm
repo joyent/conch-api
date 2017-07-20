@@ -34,7 +34,7 @@ sub record_device_report {
   $hw or error "Product $dr->{product_name} not found";
 
   my $hw_profile = $hw->hardware_product_profile;
-  $hw or fault "Hardware product $hw->{name} exists but does not have a hardware profile";
+  $hw_profile or fault "Hardware product $hw->{name} exists but does not have a hardware profile";
 
   info "Ready to record report for Device $dr->{serial_number}";
 

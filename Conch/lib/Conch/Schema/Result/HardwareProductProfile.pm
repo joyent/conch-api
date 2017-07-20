@@ -51,6 +51,13 @@ __PACKAGE__->table("hardware_product_profile");
   is_nullable: 0
   size: 16
 
+=head2 zpool_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =head2 purpose
 
   data_type: 'text'
@@ -171,6 +178,8 @@ __PACKAGE__->add_columns(
     size => 16,
   },
   "product_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "zpool_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "purpose",
   { data_type => "text", is_nullable => 0 },
@@ -311,12 +320,27 @@ __PACKAGE__->belongs_to(
   "product",
   "Conch::Schema::Result::HardwareProduct",
   { id => "product_id" },
-  { is_deferrable => 0, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
+);
+
+=head2 zpool
+
+Type: belongs_to
+
+Related object: L<Conch::Schema::Result::ZpoolProfile>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "zpool",
+  "Conch::Schema::Result::ZpoolProfile",
+  { id => "zpool_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 13:32:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JJrJourFZqB3TjOAEeynaw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 21:27:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FhSKL9Nsc1+BfH+X5zpAbA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

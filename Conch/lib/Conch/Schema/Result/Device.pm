@@ -48,29 +48,22 @@ __PACKAGE__->table("device");
   is_nullable: 1
   size: 16
 
-=head2 triton_uuid
-
-  data_type: 'uuid'
-  is_nullable: 1
-  size: 16
-
-=head2 triton_setup
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 triton_status
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 hardware_product
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
+
+=head2 boot_phase
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 role
+
+  data_type: 'text'
+  is_nullable: 1
 
 =head2 state
 
@@ -118,14 +111,12 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "system_uuid",
   { data_type => "uuid", is_nullable => 1, size => 16 },
-  "triton_uuid",
-  { data_type => "uuid", is_nullable => 1, size => 16 },
-  "triton_setup",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "triton_status",
-  { data_type => "text", is_nullable => 1 },
   "hardware_product",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "boot_phase",
+  { data_type => "text", is_nullable => 1 },
+  "role",
+  { data_type => "text", is_nullable => 1 },
   "state",
   { data_type => "text", is_nullable => 0 },
   "health",
@@ -177,18 +168,6 @@ __PACKAGE__->set_primary_key("id");
 =cut
 
 __PACKAGE__->add_unique_constraint("device_system_uuid_key", ["system_uuid"]);
-
-=head2 C<device_triton_uuid_key>
-
-=over 4
-
-=item * L</triton_uuid>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("device_triton_uuid_key", ["triton_uuid"]);
 
 =head1 RELATIONS
 
@@ -248,6 +227,21 @@ Related object: L<Conch::Schema::Result::DeviceLog>
 __PACKAGE__->has_many(
   "device_logs",
   "Conch::Schema::Result::DeviceLog",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 device_memories
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DeviceMemory>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_memories",
+  "Conch::Schema::Result::DeviceMemory",
   { "foreign.device_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -342,9 +336,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 triton
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:h+023P55Sjf8CFoRnTg8YA
+Type: might_have
+
+Related object: L<Conch::Schema::Result::Triton>
+
+=cut
+
+__PACKAGE__->might_have(
+  "triton",
+  "Conch::Schema::Result::Triton",
+  { "foreign.id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 21:27:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GrZeR3YceOKqLHh47lzGSw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
