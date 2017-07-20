@@ -97,8 +97,9 @@ CREATE TABLE hardware_product (
 -- Define the type of pool to build
 CREATE TABLE zpool_profile (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    name                text,       -- mirror, raidz2, customX
-    vdev                integer,    -- number of root vdevs
+    name                text,       -- Product Name
+    vdev_t              text,       -- mirror, raidz, raidz2
+    vdev_n              integer,    -- number of root vdevs
     disk_per            integer,    -- disks per vdev
     spare               integer,
     log                 integer,
@@ -126,7 +127,7 @@ CREATE TABLE zpool_attributes (
 CREATE TABLE hardware_product_profile (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id          uuid        UNIQUE NOT NULL REFERENCES hardware_product (id) ON DELETE CASCADE,
-    zpool_id            uuid        NOT NULL REFERENCES zpool_profile (id),
+    zpool_id            uuid        REFERENCES zpool_profile (id),
     purpose             text        NOT NULL, -- General Compute
     bios_firmware       text        NOT NULL, -- prtdiag output; Dell Inc. 2.2.5 09/06/2016
     hba_firmware        text,
