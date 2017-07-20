@@ -23,12 +23,11 @@ INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_n
        );
 
 INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_num, cpu_type,
-            dimms_num, ram_total, nics_num, sas_num, ssd_num, ssd_size, ssd_slots, psu_total )
+            dimms_num, ram_total, nics_num, sas_num, ssd_num, ssd_size, ssd_slots, psu_total, zpool_id )
       VALUES (  ( SELECT id FROM hardware_product WHERE name = 'Joyent-Compute-Platform-3302' ),
             'SSD Compute', 'Dell Inc. 2.2.5', 2, 'Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz',
             16, 258372, 7, 0, 16, 1490.42, '0-15', 2,
-            ( SELECT id FROM zpool_profile WHERE name = 'Joyent-Compute-Platform-3302' )
-            
+            ( SELECT id FROM zpool_profile WHERE name = 'Joyent-Compute-Platform-3302' AND disk_per = 16 )
        );
 
 INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_num, cpu_type,
