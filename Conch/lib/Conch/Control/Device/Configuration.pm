@@ -22,7 +22,7 @@ sub validate_product {
 
   if ( $product_name !~ /Joyent/ ) {
     $product_name_status = 0;
-    warning ("$device_id: CRITICAL: Product name not set: $product_name_log");
+    mistake ("$device_id: CRITICAL: Product name not set: $product_name_log");
   } else {
     $product_name_status = 1;
     trace("$device_id: OK: Product name set: $product_name_log");

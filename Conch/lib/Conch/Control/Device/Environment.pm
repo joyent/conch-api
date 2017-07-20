@@ -38,10 +38,10 @@ sub validate_cpu_temp {
 
     if ( $device_env->$method > $criteria->crit ) {
       $cpu_msg = "$device_id: CRITICAL: $cpu: " . $device_env->$method . " (>". $criteria->crit .")";
-      warning $cpu_msg;
+      mistake $cpu_msg;
       $cpu_status = 0;
      } elsif ( $device_env->$method > $criteria->warn ) {
-       $cpu_msg = "$device_id: WARNING: $cpu: " . $device_env->$method . " (>". $criteria->warn .")";
+       $cpu_msg = "$device_id: mistake: $cpu: " . $device_env->$method . " (>". $criteria->warn .")";
        $cpu_status = 0;
      } else {
        $cpu_msg = "$device_id: OK: $cpu: " . $device_env->$method . " (<". $criteria->warn .")";
@@ -117,9 +117,9 @@ sub validate_disk_temp {
     if ( $disk->temp > $crit ) {
       $disk_status = 0;
       $disk_msg = "CRITICAL: " . $disk->serial_number . ": " . $disk->temp. " (>". $crit .")";
-      warning $disk_msg;
+      mistake $disk_msg;
      } elsif ( $disk->temp > $warn ) {
-       $disk_msg = "WARNING: " . $disk->serial_number . ": " . $disk->temp . " (>". $warn .")";
+       $disk_msg = "mistake: " . $disk->serial_number . ": " . $disk->temp . " (>". $warn .")";
        $disk_status = 1;
      } else {
        $disk_msg = "OK: " . $disk->serial_number . ": " . $disk->temp . " (<". $warn .")";
