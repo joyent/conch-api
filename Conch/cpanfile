@@ -1,28 +1,35 @@
 requires 'perl', '5.24.1';
 
+# framework
 requires 'Dancer2' => '0.205001';
 
-recommends 'YAML';
-recommends 'URL::Encode::XS';
-recommends 'CGI::Deurl::XS';
-recommends 'HTTP::Parser::XS';
-recommends 'Plack::Middleware::Deflater';
-recommends 'Plack';
-
+# basics
+requires 'YAML';
+requires 'URL::Encode::XS';
+requires 'CGI::Deurl::XS';
+requires 'HTTP::Parser::XS';
+requires 'Plack::Middleware::Deflater';
+requires 'Plack';
 requires 'Config::General';
 requires 'Data::UUID';
 
+# database
 requires 'DBD::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::TimeStamp';
+
+# dancer plugin
+requires 'Dancer2::Plugin::Auth::Tiny';
 requires 'Dancer2::Plugin::DBIC';
 requires 'Dancer2::Plugin::LogReport';
+requires 'Dancer2::Plugin::Passphrase';
+requires 'Dancer2::Plugin::REST';
 
+# moose
 requires 'Moose';
 requires 'MooseX::Constructor::AllErrors';
 requires 'MooseX::Types::UUID';
-requires 'TryCatch';
 
 on 'test' => sub {
     requires 'Test::More';

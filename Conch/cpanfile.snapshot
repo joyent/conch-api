@@ -119,36 +119,12 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  CGI-4.36
-    pathname: L/LE/LEEJO/CGI-4.36.tar.gz
+  CGI-Deurl-XS-0.08
+    pathname: A/AT/ATHOMASON/CGI-Deurl-XS-0.08.tar.gz
     provides:
-      CGI 4.36
-      CGI::Carp 4.36
-      CGI::Cookie 4.36
-      CGI::File::Temp 4.36
-      CGI::HTML::Functions undef
-      CGI::MultipartBuffer 4.36
-      CGI::Pretty 4.36
-      CGI::Push 4.36
-      CGI::Util 4.36
-      Fh 4.36
+      CGI::Deurl::XS 0.08
     requirements:
-      Carp 0
-      Config 0
-      Encode 0
-      Exporter 0
       ExtUtils::MakeMaker 0
-      File::Spec 0.82
-      File::Temp 0.17
-      HTML::Entities 3.69
-      base 0
-      if 0
-      overload 0
-      parent 0.225
-      perl 5.008001
-      strict 0
-      utf8 0
-      warnings 0
   Capture-Tiny-0.46
     pathname: D/DA/DAGOLDEN/Capture-Tiny-0.46.tar.gz
     provides:
@@ -288,6 +264,22 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Class-Mix-0.005
+    pathname: Z/ZE/ZEFRAM/Class-Mix-0.005.tar.gz
+    provides:
+      Class::Mix 0.005
+    requirements:
+      Carp 0
+      Exporter 0
+      Module::Build 0
+      Params::Classify 0
+      Test::More 0
+      constant 0
+      if 0
+      parent 0
+      perl 5.006
+      strict 0
+      warnings 0
   Class-Singleton-1.5
     pathname: S/SH/SHAY/Class-Singleton-1.5.tar.gz
     provides:
@@ -385,6 +377,35 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Pod::Text 2.08
+  Crypt-Eksblowfish-0.009
+    pathname: Z/ZE/ZEFRAM/Crypt-Eksblowfish-0.009.tar.gz
+    provides:
+      Crypt::Eksblowfish 0.009
+      Crypt::Eksblowfish::Bcrypt 0.009
+      Crypt::Eksblowfish::Blowfish 0.009
+      Crypt::Eksblowfish::Family 0.009
+      Crypt::Eksblowfish::Subkeyed 0.009
+      Crypt::Eksblowfish::Uklblowfish 0.009
+    requirements:
+      Carp 0
+      Class::Mix 0.001
+      Exporter 0
+      ExtUtils::CBuilder 0.15
+      MIME::Base64 2.21
+      Module::Build 0
+      Test::More 0
+      XSLoader 0
+      parent 0
+      perl 5.006
+      strict 0
+      warnings 0
+  Crypt-Rijndael-1.13
+    pathname: L/LE/LEONT/Crypt-Rijndael-1.13.tar.gz
+    provides:
+      Crypt::Rijndael 1.13
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.006
   DBD-Pg-3.6.2
     pathname: T/TU/TURNSTEP/DBD-Pg-3.6.2.tar.gz
     provides:
@@ -765,137 +786,6 @@ DISTRIBUTIONS
       Time::HiRes 0
       Time::Warp 0
       perl 5.008001
-  Dancer-1.3202
-    pathname: B/BI/BIGPRESH/Dancer-1.3202.tar.gz
-    provides:
-      Dancer 1.3202
-      Dancer::App 1.3202
-      Dancer::Config 1.3202
-      Dancer::Config::Object 1.3202
-      Dancer::Continuation 1.3202
-      Dancer::Continuation::Halted 1.3202
-      Dancer::Continuation::Route 1.3202
-      Dancer::Continuation::Route::ErrorSent 1.3202
-      Dancer::Continuation::Route::FileSent 1.3202
-      Dancer::Continuation::Route::Forwarded 1.3202
-      Dancer::Continuation::Route::Passed 1.3202
-      Dancer::Continuation::Route::Templated 1.3202
-      Dancer::Cookie 1.3202
-      Dancer::Cookies 1.3202
-      Dancer::Deprecation 1.3202
-      Dancer::Engine 1.3202
-      Dancer::Error 1.3202
-      Dancer::Exception 1.3202
-      Dancer::Exception::Base 1.3202
-      Dancer::Factory::Hook 1.3202
-      Dancer::FileUtils 1.3202
-      Dancer::GetOpt 1.3202
-      Dancer::HTTP 1.3202
-      Dancer::Handler 1.3202
-      Dancer::Handler::Debug 1.3202
-      Dancer::Handler::PSGI 1.3202
-      Dancer::Handler::Standalone 1.3202
-      Dancer::Hook 1.3202
-      Dancer::Hook::Properties 1.3202
-      Dancer::Logger 1.3202
-      Dancer::Logger::Abstract 1.3202
-      Dancer::Logger::Capture 1.3202
-      Dancer::Logger::Capture::Trap 1.3202
-      Dancer::Logger::Console 1.3202
-      Dancer::Logger::Diag 1.3202
-      Dancer::Logger::File 1.3202
-      Dancer::Logger::Note 1.3202
-      Dancer::Logger::Null 1.3202
-      Dancer::MIME 1.3202
-      Dancer::ModuleLoader 1.3202
-      Dancer::Object 1.3202
-      Dancer::Object::Singleton 1.3202
-      Dancer::Plugin 1.3202
-      Dancer::Plugin::Ajax 1.3202
-      Dancer::Renderer 1.3202
-      Dancer::Request 1.3202
-      Dancer::Request::Upload 1.3202
-      Dancer::Response 1.3202
-      Dancer::Route 1.3202
-      Dancer::Route::Cache 1.3202
-      Dancer::Route::Registry 1.3202
-      Dancer::Serializer 1.3202
-      Dancer::Serializer::Abstract 1.3202
-      Dancer::Serializer::Dumper 1.3202
-      Dancer::Serializer::JSON 1.3202
-      Dancer::Serializer::JSONP 1.3202
-      Dancer::Serializer::Mutable 1.3202
-      Dancer::Serializer::XML 1.3202
-      Dancer::Serializer::YAML 1.3202
-      Dancer::Session 1.3202
-      Dancer::Session::Abstract 1.3202
-      Dancer::Session::Simple 1.3202
-      Dancer::Session::YAML 1.3202
-      Dancer::SharedData 1.3202
-      Dancer::Template 1.3202
-      Dancer::Template::Abstract 1.3202
-      Dancer::Template::Simple 1.3202
-      Dancer::Template::TemplateToolkit 1.3202
-      Dancer::Test 1.3202
-      Dancer::Timer 1.3202
-    requirements:
-      Carp 0
-      Cwd 0
-      Data::Dumper 0
-      Encode 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      Fcntl 0
-      File::Basename 0
-      File::Copy 0
-      File::Path 0
-      File::Spec 0
-      File::Spec::Functions 0
-      File::Temp 0
-      File::stat 0
-      FindBin 0
-      Getopt::Long 0
-      HTTP::Body 0
-      HTTP::Date 0
-      HTTP::Headers 0
-      HTTP::Server::Simple::PSGI 0
-      Hash::Merge::Simple 0
-      IO::File 0
-      LWP::UserAgent 0
-      MIME::Types 0
-      Module::Runtime 0
-      POSIX 0
-      Pod::Usage 0
-      Scalar::Util 0
-      Test::Builder 0
-      Test::More 0
-      Time::HiRes 0
-      Try::Tiny 0
-      URI 0
-      URI::Escape 0
-      base 0
-      bytes 0
-      constant 0
-      lib 0
-      overload 0
-      parent 0
-      perl 5.006
-      strict 0
-      vars 0
-      warnings 0
-  Dancer-Plugin-DBIC-0.2104
-    pathname: I/IR/IRONCAMEL/Dancer-Plugin-DBIC-0.2104.tar.gz
-    provides:
-      Dancer::Plugin::DBIC 0.2104
-    requirements:
-      DBICx::Sugar 0
-      Dancer 1.3098
-      Dancer::Plugin 0
-      ExtUtils::MakeMaker 0
-      perl 5.006
-      strict 0
-      utf8 0
-      warnings 0
   Dancer2-0.205001
     pathname: C/CR/CROMEDOME/Dancer2-0.205001.tar.gz
     provides:
@@ -1005,6 +895,18 @@ DISTRIBUTIONS
       URI::Escape 0
       YAML 0.86
       parent 0
+  Dancer2-Plugin-Auth-Tiny-0.008
+    pathname: X/XS/XSAWYERX/Dancer2-Plugin-Auth-Tiny-0.008.tar.gz
+    provides:
+      Dancer2::Plugin::Auth::Tiny 0.008
+    requirements:
+      Carp 0
+      Dancer2 0.154000
+      Dancer2::Plugin 0
+      ExtUtils::MakeMaker 6.17
+      perl 5.008001
+      strict 0
+      warnings 0
   Dancer2-Plugin-DBIC-0.0013
     pathname: I/IR/IRONCAMEL/Dancer2-Plugin-DBIC-0.0013.tar.gz
     provides:
@@ -1017,6 +919,34 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       utf8 0
+      warnings 0
+  Dancer2-Plugin-Passphrase-3.3.0
+    pathname: S/SY/SYSPETE/Dancer2-Plugin-Passphrase-3.3.0.tar.gz
+    provides:
+      Dancer2::Plugin::Passphrase 3.003000
+      Dancer2::Plugin::Passphrase::Core undef
+      Dancer2::Plugin::Passphrase::Hashed undef
+    requirements:
+      Dancer2 0.200000
+      Data::Entropy 0.007
+      Digest::Bcrypt 0
+      Digest::SHA 5.74
+      ExtUtils::MakeMaker 0
+      Test::More 0
+      perl 5.010001
+  Dancer2-Plugin-REST-1.01
+    pathname: Y/YA/YANICK/Dancer2-Plugin-REST-1.01.tar.gz
+    provides:
+      Dancer2::Plugin::REST 1.01
+    requirements:
+      Carp 0
+      Dancer2 0.203000
+      Dancer2::Core::HTTP 0.203000
+      Dancer2::Plugin 0
+      ExtUtils::MakeMaker 0
+      List::Util 0
+      perl 5.012000
+      strict 0
       warnings 0
   Data-Dump-1.23
     pathname: G/GA/GAAS/Data-Dump-1.23.tar.gz
@@ -1043,6 +973,48 @@ DISTRIBUTIONS
       Exporter 0
       ExtUtils::MakeMaker 0
       perl 5.006
+  Data-Entropy-0.007
+    pathname: Z/ZE/ZEFRAM/Data-Entropy-0.007.tar.gz
+    provides:
+      Data::Entropy 0.007
+      Data::Entropy::Algorithms 0.007
+      Data::Entropy::RawSource::CryptCounter 0.007
+      Data::Entropy::RawSource::Local 0.007
+      Data::Entropy::RawSource::RandomOrg 0.007
+      Data::Entropy::RawSource::RandomnumbersInfo 0.007
+      Data::Entropy::Source 0.007
+    requirements:
+      Carp 0
+      Crypt::Rijndael 0
+      Data::Float 0.008
+      Errno 1.00
+      Exporter 0
+      HTTP::Lite 2.2
+      IO::File 1.03
+      Module::Build 0
+      Params::Classify 0
+      Test::More 0
+      constant 0
+      integer 0
+      parent 0
+      perl 5.006
+      strict 0
+      warnings 0
+  Data-Float-0.012
+    pathname: Z/ZE/ZEFRAM/Data-Float-0.012.tar.gz
+    provides:
+      Data::Float 0.012
+    requirements:
+      Carp 0
+      Exporter 0
+      Module::Build 0
+      Test::More 0
+      constant 0
+      integer 0
+      parent 0
+      perl 5.006
+      strict 0
+      warnings 0
   Data-Munge-0.097
     pathname: M/MA/MAUKE/Data-Munge-0.097.tar.gz
     provides:
@@ -1676,6 +1648,21 @@ DISTRIBUTIONS
     requirements:
       Devel::StackTrace 0
       ExtUtils::MakeMaker 0
+  Digest-Bcrypt-1.209
+    pathname: C/CA/CAPOEIRAB/Digest-Bcrypt-1.209.tar.gz
+    provides:
+      Digest::Bcrypt 1.209
+    requirements:
+      Carp 0
+      Crypt::Eksblowfish::Bcrypt 0
+      Digest 0
+      ExtUtils::MakeMaker 0
+      bytes 0
+      parent 0
+      perl 5.008001
+      strict 0
+      utf8 0
+      warnings 0
   Dist-CheckConflicts-0.11
     pathname: D/DO/DOY/Dist-CheckConflicts-0.11.tar.gz
     provides:
@@ -1827,19 +1814,6 @@ DISTRIBUTIONS
       File::Spec 0.8
       Pod::Man 0
       perl 5.006
-  File-Listing-6.04
-    pathname: G/GA/GAAS/File-Listing-6.04.tar.gz
-    provides:
-      File::Listing 6.04
-      File::Listing::apache 6.04
-      File::Listing::dosftp 6.04
-      File::Listing::netware 6.04
-      File::Listing::unix 6.04
-      File::Listing::vms 6.04
-    requirements:
-      ExtUtils::MakeMaker 0
-      HTTP::Date 6
-      perl 5.006002
   File-Remove-1.57
     pathname: S/SH/SHLOMIF/File-Remove-1.57.tar.gz
     provides:
@@ -1942,38 +1916,6 @@ DISTRIBUTIONS
       File::Temp 0.14
       HTTP::Headers 0
       IO::File 1.14
-  HTTP-Cookies-6.03
-    pathname: O/OA/OALDERS/HTTP-Cookies-6.03.tar.gz
-    provides:
-      HTTP::Cookies 6.03
-      HTTP::Cookies::Microsoft 6.03
-      HTTP::Cookies::Netscape 6.03
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 0
-      HTTP::Date 6
-      HTTP::Headers::Util 6
-      HTTP::Request 0
-      Time::Local 0
-      locale 0
-      perl 5.008001
-      strict 0
-      vars 0
-  HTTP-Daemon-6.01
-    pathname: G/GA/GAAS/HTTP-Daemon-6.01.tar.gz
-    provides:
-      HTTP::Daemon 6.01
-      HTTP::Daemon::ClientConn 6.01
-    requirements:
-      ExtUtils::MakeMaker 0
-      HTTP::Date 6
-      HTTP::Request 6
-      HTTP::Response 6
-      HTTP::Status 6
-      IO::Socket 0
-      LWP::MediaTypes 6
-      Sys::Hostname 0
-      perl 5.008001
   HTTP-Date-6.02
     pathname: G/GA/GAAS/HTTP-Date-6.02.tar.gz
     provides:
@@ -2009,6 +1951,17 @@ DISTRIBUTIONS
       HTTP::Date 0
       Module::Build::Tiny 0.035
       perl 5.008001
+  HTTP-Lite-2.44
+    pathname: N/NE/NEILB/HTTP-Lite-2.44.tar.gz
+    provides:
+      HTTP::Lite 2.44
+    requirements:
+      ExtUtils::MakeMaker 0
+      Fcntl 0
+      Socket 1.3
+      perl 5.005
+      strict 0
+      warnings 0
   HTTP-Message-6.13
     pathname: O/OA/OALDERS/HTTP-Message-6.13.tar.gz
     provides:
@@ -2058,35 +2011,14 @@ DISTRIBUTIONS
       Test::Deep 0
       Test::More 0.88
       perl 5.008001
-  HTTP-Negotiate-6.01
-    pathname: G/GA/GAAS/HTTP-Negotiate-6.01.tar.gz
+  HTTP-Parser-XS-0.17
+    pathname: K/KA/KAZUHO/HTTP-Parser-XS-0.17.tar.gz
     provides:
-      HTTP::Negotiate 6.01
+      HTTP::Parser::XS 0.17
+      HTTP::Parser::XS::PP undef
     requirements:
-      ExtUtils::MakeMaker 0
-      HTTP::Headers 6
-      perl 5.008001
-  HTTP-Server-Simple-0.52
-    pathname: B/BP/BPS/HTTP-Server-Simple-0.52.tar.gz
-    provides:
-      HTTP::Server::Simple 0.52
-      HTTP::Server::Simple::CGI undef
-      HTTP::Server::Simple::CGI::Environment undef
-    requirements:
-      CGI 0
       ExtUtils::MakeMaker 6.36
-      Socket 1.94
-      Test::More 0
-  HTTP-Server-Simple-PSGI-0.16
-    pathname: M/MI/MIYAGAWA/HTTP-Server-Simple-PSGI-0.16.tar.gz
-    provides:
-      HTTP::Server::Simple::PSGI 0.16
-      HTTP::Server::Simple::PSGI::Writer 0.16
-      Plack::Handler::HTTP::Server::Simple 0.16
-      Plack::Handler::HTTP::Server::Simple::PSGIServer 0.16
-    requirements:
-      ExtUtils::MakeMaker 6.30
-      HTTP::Server::Simple 0.42
+      Test::More 0.96
   HTTP-XSCookies-0.000010
     pathname: G/GO/GONZUS/HTTP-XSCookies-0.000010.tar.gz
     provides:
@@ -2095,14 +2027,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       XSLoader 0
       perl 5.008009
-  Hash-Flatten-1.19
-    pathname: B/BB/BBC/Hash-Flatten-1.19.tar.gz
-    provides:
-      Hash::Flatten 1.19
-    requirements:
-      ExtUtils::MakeMaker 0
-      Log::Trace 0
-      Test::Assertions 0
   Hash-Merge-0.200
     pathname: R/RE/REHSACK/Hash-Merge-0.200.tar.gz
     provides:
@@ -2407,13 +2331,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       String::Print 0.91
       Test::More 0.86
-  Log-Trace-1.070
-    pathname: B/BB/BBC/Log-Trace-1.070.tar.gz
-    provides:
-      Log::Trace 1.070
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0
   MIME-Charset-1.012.2
     pathname: N/NE/NEZUMI/MIME-Charset-1.012.2.tar.gz
     provides:
@@ -2424,18 +2341,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.42
       Test::More 0
       perl 5.005
-  MIME-Types-2.13
-    pathname: M/MA/MARKOV/MIME-Types-2.13.tar.gz
-    provides:
-      MIME::Type 2.13
-      MIME::Types 2.13
-      MojoX::MIME::Types 2.13
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Basename 0
-      File::Spec 0
-      List::Util 0
-      Test::More 0.47
   MRO-Compat-0.13
     pathname: H/HA/HAARG/MRO-Compat-0.13.tar.gz
     provides:
@@ -3095,25 +3000,6 @@ DISTRIBUTIONS
       Test::Exception 0
       Test::More 0
       ok 0
-  Net-HTTP-6.16
-    pathname: O/OA/OALDERS/Net-HTTP-6.16.tar.gz
-    provides:
-      Net::HTTP 6.16
-      Net::HTTP::Methods 6.16
-      Net::HTTP::NB 6.16
-      Net::HTTPS 6.16
-    requirements:
-      Carp 0
-      Compress::Raw::Zlib 0
-      ExtUtils::MakeMaker 0
-      IO::Socket::INET 0
-      IO::Uncompress::Gunzip 0
-      URI 0
-      base 0
-      perl 5.006002
-      strict 0
-      vars 0
-      warnings 0
   POSIX-strftime-Compiler-0.42
     pathname: K/KA/KAZEBURO/POSIX-strftime-Compiler-0.42.tar.gz
     provides:
@@ -3293,6 +3179,20 @@ DISTRIBUTIONS
       Module::Runtime 0.013
       perl 5.006
       strictures 2.000000
+  Params-Classify-0.014
+    pathname: Z/ZE/ZEFRAM/Params-Classify-0.014.tar.gz
+    provides:
+      Params::Classify 0.014
+    requirements:
+      Exporter 0
+      ExtUtils::ParseXS 2.2006
+      Module::Build 0
+      Scalar::Util 1.01
+      Test::More 0
+      parent 0
+      perl 5.006001
+      strict 0
+      warnings 0
   Params-Util-1.07
     pathname: A/AD/ADAMK/Params-Util-1.07.tar.gz
     provides:
@@ -4049,16 +3949,6 @@ DISTRIBUTIONS
       File::Spec 0.8
       File::Temp 0.12
       Scalar::Util 0
-  Test-Assertions-1.054
-    pathname: B/BB/BBC/Test-Assertions-1.054.tar.gz
-    provides:
-      Test::Assertions 1.054
-      Test::Assertions::TestScript 1.018
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 0
-      Getopt::Long 0
-      Log::Trace 0
   Test-Deep-1.127
     pathname: R/RJ/RJBS/Test-Deep-1.127.tar.gz
     provides:
@@ -4125,9 +4015,8 @@ DISTRIBUTIONS
     requirements:
       Capture::Tiny 0.24
       Data::Dumper 2.126
-      ExtUtils::MakeMaker 0
       Test::More 0.88
-      Text::Diff 1.43
+      Text::Diff 0.35
   Test-Exception-0.43
     pathname: E/EX/EXODIST/Test-Exception-0.43.tar.gz
     provides:
@@ -4539,6 +4428,30 @@ DISTRIBUTIONS
       parent 0
       perl 5.008001
       utf8 0
+  URL-Encode-0.03
+    pathname: C/CH/CHANSEN/URL-Encode-0.03.tar.gz
+    provides:
+      URL::Encode 0.03
+      URL::Encode::PP 0.03
+    requirements:
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 6.59
+      Test::More 0.88
+      XSLoader 0
+      perl 5.008001
+  URL-Encode-XS-0.03
+    pathname: C/CH/CHANSEN/URL-Encode-XS-0.03.tar.gz
+    provides:
+      URL::Encode::XS 0.03
+    requirements:
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 6.59
+      Test::More 0.88
+      URL::Encode 0.03
+      XSLoader 0
+      perl 5.008001
   Unicode-LineBreak-2017.004
     pathname: N/NE/NEZUMI/Unicode-LineBreak-2017.004.tar.gz
     provides:
@@ -4551,81 +4464,6 @@ DISTRIBUTIONS
       MIME::Charset v1.6.2
       Test::More 0.45
       perl 5.008
-  Validation-Class-7.900057
-    pathname: A/AW/AWNCORP/Validation-Class-7.900057.tar.gz
-    provides:
-      Validation::Class 7.900057
-      Validation::Class::Configuration 7.900057
-      Validation::Class::Directive 7.900057
-      Validation::Class::Directive::Alias 7.900057
-      Validation::Class::Directive::Between 7.900057
-      Validation::Class::Directive::City 7.900057
-      Validation::Class::Directive::Creditcard 7.900057
-      Validation::Class::Directive::Date 7.900057
-      Validation::Class::Directive::Decimal 7.900057
-      Validation::Class::Directive::Default 7.900057
-      Validation::Class::Directive::DependsOn 7.900057
-      Validation::Class::Directive::Email 7.900057
-      Validation::Class::Directive::Error 7.900057
-      Validation::Class::Directive::Errors 7.900057
-      Validation::Class::Directive::Filtering 7.900057
-      Validation::Class::Directive::Filters 7.900057
-      Validation::Class::Directive::Help 7.900057
-      Validation::Class::Directive::Hostname 7.900057
-      Validation::Class::Directive::Label 7.900057
-      Validation::Class::Directive::Length 7.900057
-      Validation::Class::Directive::Matches 7.900057
-      Validation::Class::Directive::MaxAlpha 7.900057
-      Validation::Class::Directive::MaxDigits 7.900057
-      Validation::Class::Directive::MaxLength 7.900057
-      Validation::Class::Directive::MaxSum 7.900057
-      Validation::Class::Directive::MaxSymbols 7.900057
-      Validation::Class::Directive::Messages 7.900057
-      Validation::Class::Directive::MinAlpha 7.900057
-      Validation::Class::Directive::MinDigits 7.900057
-      Validation::Class::Directive::MinLength 7.900057
-      Validation::Class::Directive::MinSum 7.900057
-      Validation::Class::Directive::MinSymbols 7.900057
-      Validation::Class::Directive::Mixin 7.900057
-      Validation::Class::Directive::MixinField 7.900057
-      Validation::Class::Directive::Multiples 7.900057
-      Validation::Class::Directive::Name 7.900057
-      Validation::Class::Directive::Options 7.900057
-      Validation::Class::Directive::Pattern 7.900057
-      Validation::Class::Directive::Readonly 7.900057
-      Validation::Class::Directive::Required 7.900057
-      Validation::Class::Directive::SSN 7.900057
-      Validation::Class::Directive::State 7.900057
-      Validation::Class::Directive::Telephone 7.900057
-      Validation::Class::Directive::Time 7.900057
-      Validation::Class::Directive::Toggle 7.900057
-      Validation::Class::Directive::UUID 7.900057
-      Validation::Class::Directive::Validation 7.900057
-      Validation::Class::Directive::Value 7.900057
-      Validation::Class::Directive::Zipcode 7.900057
-      Validation::Class::Directives 7.900057
-      Validation::Class::Errors 7.900057
-      Validation::Class::Exporter 7.900057
-      Validation::Class::Field 7.900057
-      Validation::Class::Fields 7.900057
-      Validation::Class::Listing 7.900057
-      Validation::Class::Mapping 7.900057
-      Validation::Class::Mixin 7.900057
-      Validation::Class::Mixins 7.900057
-      Validation::Class::Params 7.900057
-      Validation::Class::Prototype 7.900057
-      Validation::Class::Simple 7.900057
-      Validation::Class::Simple::Streamer 7.900057
-      Validation::Class::Util 7.900057
-    requirements:
-      ExtUtils::MakeMaker 0
-      Hash::Flatten 0
-      Hash::Merge 0
-      List::MoreUtils 0
-      Module::Find 0
-      Module::Runtime 0
-      Scalar::Util 0
-      perl 5.010
   Variable-Magic-0.61
     pathname: V/VP/VPIT/Variable-Magic-0.61.tar.gz
     provides:
@@ -4654,18 +4492,6 @@ DISTRIBUTIONS
       Exporter 0
       ExtUtils::CBuilder 0
       Module::Build 0.4005
-      perl 5.008001
-  WWW-RobotRules-6.02
-    pathname: G/GA/GAAS/WWW-RobotRules-6.02.tar.gz
-    provides:
-      WWW::RobotRules 6.02
-      WWW::RobotRules::AnyDBM_File 6.00
-      WWW::RobotRules::InCore 6.02
-    requirements:
-      AnyDBM_File 0
-      ExtUtils::MakeMaker 0
-      Fcntl 0
-      URI 1.10
       perl 5.008001
   XML-Writer-0.625
     pathname: J/JO/JOSEPHW/XML-Writer-0.625.tar.gz
@@ -4746,70 +4572,6 @@ DISTRIBUTIONS
       XSLoader 0
       lib 0
       perl 5.008001
-  libwww-perl-6.26
-    pathname: O/OA/OALDERS/libwww-perl-6.26.tar.gz
-    provides:
-      LWP 6.26
-      LWP::Authen::Basic 6.26
-      LWP::Authen::Digest 6.26
-      LWP::Authen::Ntlm 6.26
-      LWP::ConnCache 6.26
-      LWP::Debug 6.26
-      LWP::Debug::TraceHTTP 6.26
-      LWP::Debug::TraceHTTP::Socket 6.26
-      LWP::DebugFile 6.26
-      LWP::MemberMixin 6.26
-      LWP::Protocol 6.26
-      LWP::Protocol::MyFTP 6.26
-      LWP::Protocol::cpan 6.26
-      LWP::Protocol::data 6.26
-      LWP::Protocol::file 6.26
-      LWP::Protocol::ftp 6.26
-      LWP::Protocol::gopher 6.26
-      LWP::Protocol::http 6.26
-      LWP::Protocol::http::Socket 6.26
-      LWP::Protocol::http::SocketMethods 6.26
-      LWP::Protocol::loopback 6.26
-      LWP::Protocol::mailto 6.26
-      LWP::Protocol::nntp 6.26
-      LWP::Protocol::nogo 6.26
-      LWP::RobotUA 6.26
-      LWP::Simple 6.26
-      LWP::UserAgent 6.26
-      libwww::perl undef
-    requirements:
-      Digest::MD5 0
-      Encode 2.12
-      Encode::Locale 0
-      ExtUtils::MakeMaker 0
-      File::Copy 0
-      File::Listing 6
-      Getopt::Long 0
-      HTML::Entities 0
-      HTML::HeadParser 0
-      HTTP::Cookies 6
-      HTTP::Daemon 6
-      HTTP::Date 6
-      HTTP::Negotiate 6
-      HTTP::Request 6
-      HTTP::Request::Common 6
-      HTTP::Response 6
-      HTTP::Status 6
-      IO::Select 0
-      IO::Socket 0
-      LWP::MediaTypes 6
-      MIME::Base64 2.1
-      Net::FTP 2.58
-      Net::HTTP 6.07
-      Scalar::Util 0
-      Try::Tiny 0
-      URI 1.10
-      URI::Escape 0
-      WWW::RobotRules 6
-      base 0
-      perl 5.008001
-      strict 0
-      warnings 0
   multidimensional-0.013
     pathname: I/IL/ILMARI/multidimensional-0.013.tar.gz
     provides:

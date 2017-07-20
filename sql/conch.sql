@@ -398,6 +398,22 @@ CREATE TABLE device_notes (
     created             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+CREATE TABLE user_account (
+  id               uuid           PRIMARY KEY DEFAULT gen_random_uuid(),
+  name             text           NOT NULL UNIQUE, -- human-readable user name
+  password_hash    text           NOT NULL, -- base-64 encoded Bcrypted password
+  created          timestamptz    NOT NULL DEFAULT current_timestamp,
+  last_login       timestamptz
+);
+
+-- Simple table to associate a user_account and the datacenter room they have
+-- visibility access to
+CREATE TABLE user_datacenter_room_access (
+  user_id               uuid    NOT NULL REFERENCES user_account (id),
+  datacenter_room_id    uuid    NOT NULL REFERENCES datacenter_room (id),
+  PRIMARY KEY (user_id, datacenter_room_id)
+);
+
 -----------------------------------------------------------------------------
 -- Indexes
 -----------------------------------------------------------------------------

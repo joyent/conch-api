@@ -28,7 +28,7 @@ prefix '/api' => sub {
         };
     }
     else {
-      return {status => "fail"};
+      return status => "fail_validation";
     }
   };
 
