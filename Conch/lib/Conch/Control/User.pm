@@ -2,11 +2,9 @@ package Conch::Control::User;
 
 use strict;
 use Log::Report;
+# required for 'passphrase'. Dumb.
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Passphrase;
-
-use Conch::Data::UserLogin;
-use Conch::Control::Device::Environment;
 
 use Exporter 'import';
 our @EXPORT = qw( lookup_user_by_name authenticate create_integrator_user create_admin_passphrase );
