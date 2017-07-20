@@ -20,6 +20,8 @@ charset: "UTF-8"
 
 template: "simple"
 
+admin_password: '{CRYPT}$2a$04$d4Wo8azqZ4VwYmYV50jPG.6CyjJhf1nov/B8Z.qhM6UJKAlA8.cq6'
+
 # template: "template_toolkit"
 # engines:
 #   template:

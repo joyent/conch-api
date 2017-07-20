@@ -41,7 +41,7 @@ sub validate_cpu_temp {
       mistake $cpu_msg;
       $cpu_status = 0;
      } elsif ( $device_env->$method > $criteria->warn ) {
-       $cpu_msg = "$device_id: mistake: $cpu: " . $device_env->$method . " (>". $criteria->warn .")";
+       $cpu_msg = "$device_id: WARNING: $cpu: " . $device_env->$method . " (>". $criteria->warn .")";
        $cpu_status = 0;
      } else {
        $cpu_msg = "$device_id: OK: $cpu: " . $device_env->$method . " (<". $criteria->warn .")";
@@ -119,14 +119,14 @@ sub validate_disk_temp {
       $disk_msg = "CRITICAL: " . $disk->serial_number . ": " . $disk->temp. " (>". $crit .")";
       mistake $disk_msg;
      } elsif ( $disk->temp > $warn ) {
-       $disk_msg = "mistake: " . $disk->serial_number . ": " . $disk->temp . " (>". $warn .")";
+       $disk_msg = "WARNING; " . $disk->serial_number . ": " . $disk->temp . " (>". $warn .")";
        $disk_status = 1;
      } else {
        $disk_msg = "OK: " . $disk->serial_number . ": " . $disk->temp . " (<". $warn .")";
        $disk_status = 1;
      }
 
-     trace("$device_id: report $report_id: " . $disk->id . ": ". $disk->serial_number . ": " . $disk_msg);
+     trace "$device_id: report $report_id: " . $disk->id . ": ". $disk->serial_number . ": " . $disk_msg;
 
      my $device_validate = $schema->resultset('DeviceValidate')->update_or_create({
        device_id       => $device_id,
