@@ -26,6 +26,8 @@ Complete! Modules were installed into /root/src/conch/Conch/local
 
 ## Configuration
 
+Copy `environments/development.yml.dist` to `environments/development.yml`.
+
 Edit the database connection info in `environments/development.yml`:
 
 ```
@@ -33,7 +35,7 @@ plugins:
   DBIC:
     default:
       dsn: dbi:Pg:dbname=conch;host=1.2.3.4
-      user: preflight
+      user: conch
       password: SECRET
       schema_class: Conch::Schema
 ```
