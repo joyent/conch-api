@@ -10,10 +10,10 @@ our @EXPORT = qw( validate_cpu_temp validate_disk_temp );
 sub validate_cpu_temp {
   my ($schema, $device, $report_id) = @_;
 
-  $device or error "Device undefined";
+  $device or fault "device undefined";
 
   my $device_id = $device->id;
-  trace "$device_id: report $report_id: Validating CPU temps";
+  trace "$device_id: report $report_id: validating cpu temps";
 
   my $device_env = $schema->resultset('DeviceEnvironment')->search({
     device_id => $device_id,
