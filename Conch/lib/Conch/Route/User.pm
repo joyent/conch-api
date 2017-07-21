@@ -9,6 +9,8 @@ use Dancer2::Plugin::Passphrase;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::User;
+use Conch::Control::Datacenter;
+use Data::Dumper;
 set serializer => 'JSON';
 
 # Add an admin role that validates against a shared secret
@@ -72,8 +74,15 @@ post '/login' => sub {
     status_200();
   }
   else {
-    status_404 "failed_log_in";
+    status_401 "failed log in attempt";
   }
+};
+
+put '/datacenter_access' => sub {
+  if (process sub {
+    set_datacenter_room_access(schema, body_parameters->as_hashref)
+  })    { status_200(); }
+   else { status_500('error setting user datacenter access'); }
 };
 
 1;

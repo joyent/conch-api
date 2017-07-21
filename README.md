@@ -152,11 +152,70 @@ Creates a new integrator user with a randomly generated 8-digit password.
   EOF
   ```
 
+### Setting user datacenter access
+
+Set the access permissions for a set of users for a set a datacenter rooms.
+
+**NOTE:** Without BHDA access, I decided to use AZs as identifiers for the
+datacenter rooms. We need a unique value that can identify a datacenter room.
+We could also use the vendor name, but that's null-able. AZs are not unique, so
+we could have multiple datacenter rooms with the same AZ (is this desired?).
+
+* URL
+
+  `/datacenter_access`
+
+* Methods
+
+  `PUT`
+
+  This is an idempotent operation, so it is a **PUT** request rather than POST.
+
+* Payload
+
+  The payload is a JSON object with user names as keys, an a list of AZ names as values.
+
+  ```
+  { "${INTEGRATOR_NAME}" : ["${DATACENTER_ROOM_AZ}", ... ]}
+  ...
+  }
+  ```
+
+* Authorization
+
+  Requires logged-in admin
+
+* Success Response:
+
+  * `200 Created`
+
+  No payload in response.
+
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as admin first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http PUT :5000/datacenter_access --session admin_session <<EOF
+  { "integrator_1234" : ["ap-southeast-1a"] }
+  EOF
+  ```
+
 ## Devices
 
 ### Listing integrator accessible devices
 
-List all of the devices a given integrator has premissioned access for. 
+List all of the devices a given integrator has premissioned access for, as
+granted by `PUT /datacenter_access`.
 
 * URL
 
