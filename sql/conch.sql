@@ -374,13 +374,7 @@ CREATE TABLE device_validate (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     report_id           uuid        NOT NULL REFERENCES device_report (id),
     device_id           text        NOT NULL REFERENCES device (id),
-    component_type      text        NOT NULL, -- type of thing we're testing
-    component_name      text        NOT NULL, -- actual thingwe're testing
-    component_id        uuid,                 -- if we can reference a component we should fill this out.
-    criteria_id         uuid        REFERENCES device_validate_criteria (id),
-    metric              integer,
-    log                 text,
-    status              boolean     NOT NULL, -- true, false, unknown
+    validation          jsonb       NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp
 );
 

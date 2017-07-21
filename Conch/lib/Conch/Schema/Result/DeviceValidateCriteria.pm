@@ -135,21 +135,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 device_validates
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::DeviceValidate>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_validates",
-  "Conch::Schema::Result::DeviceValidate",
-  { "foreign.criteria_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 product
 
 Type: belongs_to
@@ -171,8 +156,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XikrMB0Wton5kSWTG4iUeA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 14:16:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uo8Bo69Zvm7cilK2xKIDbw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

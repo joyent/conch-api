@@ -57,42 +57,9 @@ __PACKAGE__->table("device_validate");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 component_type
+=head2 validation
 
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 component_name
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 component_id
-
-  data_type: 'uuid'
-  is_nullable: 1
-  size: 16
-
-=head2 criteria_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 1
-  size: 16
-
-=head2 metric
-
-  data_type: 'integer'
-  is_nullable: 1
-
-=head2 log
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 status
-
-  data_type: 'boolean'
+  data_type: 'jsonb'
   is_nullable: 0
 
 =head2 created
@@ -116,20 +83,8 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
-  "component_type",
-  { data_type => "text", is_nullable => 0 },
-  "component_name",
-  { data_type => "text", is_nullable => 0 },
-  "component_id",
-  { data_type => "uuid", is_nullable => 1, size => 16 },
-  "criteria_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
-  "metric",
-  { data_type => "integer", is_nullable => 1 },
-  "log",
-  { data_type => "text", is_nullable => 1 },
-  "status",
-  { data_type => "boolean", is_nullable => 0 },
+  "validation",
+  { data_type => "jsonb", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -152,26 +107,6 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
-
-=head2 criteria
-
-Type: belongs_to
-
-Related object: L<Conch::Schema::Result::DeviceValidateCriteria>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "criteria",
-  "Conch::Schema::Result::DeviceValidateCriteria",
-  { id => "criteria_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
 
 =head2 device
 
@@ -204,8 +139,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fMD3VGbapMTdPQZkGeGQiA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 14:16:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i01uNIcSwKWwiAgVJGgPvA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
