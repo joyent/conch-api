@@ -181,6 +181,11 @@ we could have multiple datacenter rooms with the same AZ (is this desired?).
   }
   ```
 
+  **NOTE:** You can remote all user access by associating a list with
+  non-existing datacenter names. e.g., `{ "no_access_user" : ["__NO_ACCESS__"] }`.
+  Ideally, you could set this with a empty list, but because of how Perl
+  handles hashes, this is a bug for now.
+
 * Authorization
 
   Requires logged-in admin
