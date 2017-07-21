@@ -6,6 +6,7 @@ use Conch::Control::Device::Validation;
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::LogReport;
+use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 set serializer => 'JSON';
 
@@ -20,15 +21,15 @@ prefix '/api' => sub {
           );
         validate_device(schema, $device);
       }) {
-        return entity => {
+        status_200(entity => {
             device_id => $device->id,
             validated => 1,
             action    => "create",
             status    => "200"
-        };
+        });
     }
     else {
-      return status => "fail_validation";
+      status_500("error occurred in persisting device report");
     }
   };
 

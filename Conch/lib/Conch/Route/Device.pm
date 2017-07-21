@@ -5,6 +5,7 @@ use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::LogReport;
+use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::Device;
 set serializer => 'JSON';
@@ -17,7 +18,7 @@ get '/device' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my @devices;
   process sub { @devices = devices_for_user(schema, $user_name); };
-  return {devices => (@devices || []) };
+  status_200({devices => (@devices || []) });
 };
 
 1;
