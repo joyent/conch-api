@@ -23,6 +23,17 @@ Dancer2::Plugin::Auth::Tiny->extend(
         status_401('unauthorized');
       }
     };
+  },
+  integrator => sub {
+    my ($auth, $coderef) = @_;
+    return sub {
+      if ( $auth->app->session->read('integrator') ) {
+        goto $coderef;
+      }
+      else {
+        status_401('unauthorized');
+      }
+    };
   }
 );
 
@@ -52,10 +63,12 @@ post '/login' => sub {
     passphrase($password)->matches(config->{'admin_password'}))
   {
     session is_admin => 1;
+    info "admin logged in";
     status_200({role => "admin"});
   }
   elsif (authenticate(schema, $username, $password)) {
-    session user => $username;
+    session integrator => $username;
+    info "integrator '$username' logged in";
     status_200();
   }
   else {
