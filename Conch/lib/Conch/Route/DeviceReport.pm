@@ -14,12 +14,13 @@ prefix '/api' => sub {
 
   post '/device' => sub {
     my $device;
+    my $report_id;
     if (process sub {
-        $device = record_device_report(
+        ($device, $report_id) = record_device_report(
             schema,
             parse_device_report(body_parameters->as_hashref)
           );
-        validate_device(schema, $device);
+        validate_device(schema, $device, $report_id);
       }) {
         status_200(entity => {
             device_id => $device->id,

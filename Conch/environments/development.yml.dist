@@ -6,6 +6,16 @@
 # file:    log message to a file in log/
 logger: "LogReport"
 
+engines:
+  logger:
+    LogReport:
+      log_format: %a%i%m
+      app_name: Conch
+      dispatchers:
+        default:
+          mode: DEBUG
+          type: PERL
+
 # the log level for this environment
 # core is the lowest, it shows Dancer2's core log messages as well as yours
 # (debug, info, warning and error)

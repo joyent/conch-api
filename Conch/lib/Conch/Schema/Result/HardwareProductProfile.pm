@@ -55,7 +55,7 @@ __PACKAGE__->table("hardware_product_profile");
 
   data_type: 'uuid'
   is_foreign_key: 1
-  is_nullable: 0
+  is_nullable: 1
   size: 16
 
 =head2 purpose
@@ -180,7 +180,7 @@ __PACKAGE__->add_columns(
   "product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "zpool_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
   "purpose",
   { data_type => "text", is_nullable => 0 },
   "bios_firmware",
@@ -335,12 +335,17 @@ __PACKAGE__->belongs_to(
   "zpool",
   "Conch::Schema::Result::ZpoolProfile",
   { id => "zpool_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 21:27:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FhSKL9Nsc1+BfH+X5zpAbA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1D8/0UfROuWHAIxgpg4dWA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

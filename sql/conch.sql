@@ -363,10 +363,16 @@ CREATE TABLE device_validate_criteria (
     crit                integer
 );
 
+CREATE TABLE device_report (
+  id                    uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  device_id             text        NOT NULL REFERENCES device (id),
+  report                jsonb       NOT NULL
+);
+
 -- log which tests a device has passed or failed here.
 CREATE TABLE device_validate (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    report_id           uuid,
+    report_id           uuid        NOT NULL REFERENCES device_report (id),
     device_id           text        NOT NULL REFERENCES device (id),
     component_type      text        NOT NULL, -- type of thing we're testing
     component_name      text        NOT NULL, -- actual thingwe're testing

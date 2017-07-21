@@ -4,6 +4,7 @@ use strict;
 use Log::Report;
 use Conch::Data::DeviceReport;
 use Conch::Control::Device::Environment;
+use JSON::XS;
 
 use Exporter 'import';
 our @EXPORT = qw( parse_device_report record_device_report );
@@ -39,6 +40,7 @@ sub record_device_report {
   info "Ready to record report for Device $dr->{serial_number}";
 
   my $device;
+  my $device_report;
   try { $schema->txn_do (sub {
       $device = $schema->resultset('Device')->update_or_create({
         id               => $dr->{serial_number},
@@ -50,6 +52,14 @@ sub record_device_report {
       });
       my $device_id = $device->id;
       info "Created Device $device_id";
+
+      # Stores the JSON representation of Conch::Data::DeviceReport as serialized
+      # by MooseX::Storage
+      $device_report = $schema->resultset('DeviceReport')->create({
+        device_id => $device_id,
+        report => $dr->freeze()
+      });
+
 
       my %interfaces = %{$dr->{interfaces}};
       my $nics_num = keys %interfaces;
@@ -129,7 +139,7 @@ sub record_device_report {
     });
   };
   if ($@) { $@->reportFatal; }
-  else { return $device; }
+  else { return ($device, $device_report->id); }
 }
 
 1;

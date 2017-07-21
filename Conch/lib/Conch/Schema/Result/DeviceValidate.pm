@@ -47,7 +47,8 @@ __PACKAGE__->table("device_validate");
 =head2 report_id
 
   data_type: 'uuid'
-  is_nullable: 1
+  is_foreign_key: 1
+  is_nullable: 0
   size: 16
 
 =head2 device_id
@@ -112,7 +113,7 @@ __PACKAGE__->add_columns(
     size => 16,
   },
   "report_id",
-  { data_type => "uuid", is_nullable => 1, size => 16 },
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "component_type",
@@ -187,9 +188,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 report
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:avlaVEwHiyJ4xs5iPnT63Q
+Type: belongs_to
+
+Related object: L<Conch::Schema::Result::DeviceReport>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "report",
+  "Conch::Schema::Result::DeviceReport",
+  { id => "report_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fMD3VGbapMTdPQZkGeGQiA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -49,7 +49,12 @@ __PACKAGE__->table("zpool_profile");
   data_type: 'text'
   is_nullable: 1
 
-=head2 vdev
+=head2 vdev_t
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 vdev_n
 
   data_type: 'integer'
   is_nullable: 1
@@ -105,7 +110,9 @@ __PACKAGE__->add_columns(
   },
   "name",
   { data_type => "text", is_nullable => 1 },
-  "vdev",
+  "vdev_t",
+  { data_type => "text", is_nullable => 1 },
+  "vdev_n",
   { data_type => "integer", is_nullable => 1 },
   "disk_per",
   { data_type => "integer", is_nullable => 1 },
@@ -163,8 +170,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 21:27:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mU10vOBHkyFzXbhpmi9JfA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HYjlXEoRRaf4dYsTWeCMuw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

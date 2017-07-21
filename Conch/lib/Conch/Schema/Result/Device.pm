@@ -276,6 +276,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 device_reports
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DeviceReport>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_reports",
+  "Conch::Schema::Result::DeviceReport",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 device_settings
 
 Type: has_many
@@ -352,8 +367,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 21:27:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GrZeR3YceOKqLHh47lzGSw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:C3+HL9k1PC0MpLJtJgKF6A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
