@@ -3,6 +3,7 @@ package Conch::Control::Device::Environment;
 
 use strict;
 use Log::Report;
+use JSON::XS;
 
 use Exporter 'import';
 our @EXPORT = qw( validate_cpu_temp validate_disk_temp );
@@ -53,12 +54,14 @@ sub validate_cpu_temp {
      my $device_validate = $schema->resultset('DeviceValidate')->update_or_create({
        device_id       => $device_id,
        report_id       => $report_id,
-       component_type  => "CPU",
-       component_name  => $cpu,
-       criteria_id     => $criteria->id,
-       metric          => $device_env->$method,
-       log             => $cpu_msg,
-       status          => $cpu_status,
+       validation => encode_json({
+         component_type  => "CPU",
+         component_name  => $cpu,
+         criteria_id     => $criteria->id,
+         metric          => $device_env->$method,
+         log             => $cpu_msg,
+         status          => $cpu_status,
+       })
      });
   }
 }
@@ -131,13 +134,15 @@ sub validate_disk_temp {
      my $device_validate = $schema->resultset('DeviceValidate')->update_or_create({
        device_id       => $device_id,
        report_id       => $report_id,
-       component_type  => $disk->drive_type,
-       component_name  => $disk->serial_number,
-       component_id    => $disk->id,
-       criteria_id     => $criteria_id,
-       metric          => $disk->temp,
-       log             => $disk_msg,
-       status          => $disk_status,
+       validation => encode_json({
+         component_type  => $disk->drive_type,
+         component_name  => $disk->serial_number,
+         component_id    => $disk->id,
+         criteria_id     => $criteria_id,
+         metric          => $disk->temp,
+         log             => $disk_msg,
+         status          => $disk_status,
+       })
      });
   }
 }

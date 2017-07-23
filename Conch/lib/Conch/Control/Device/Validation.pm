@@ -1,7 +1,7 @@
 package Conch::Control::Device::Validation;
 
 use strict;
-use Log::Report mode => 'DEBUG';
+use Log::Report;
 use Data::UUID;
 use Conch::Control::Device::Configuration;
 use Conch::Control::Device::Environment;
@@ -13,7 +13,6 @@ our @EXPORT = qw( validate_device );
 
 sub validate_device {
   my ($schema, $device, $report_id) = @_;
-  my $report_id  = Data::UUID->new->create_str();
 
   # all of the validation functions to run
   # validation function should have the following signature:
@@ -40,10 +39,10 @@ sub validate_device {
   # be available in device_validate.
   if ($@->exceptions > 0) {
       map { trace $_; } $@->exceptions;
-      trace($device->id . ": Marking FAIL");
+      warning($device->id . ": Marking FAIL");
       $device->update({ health => "FAIL" });
   } else {
-      trace($device->id . ": Marking PASS");
+      info($device->id . ": Marking PASS");
       $device->update({ health => "PASS" });
   }
 }

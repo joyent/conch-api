@@ -3,6 +3,9 @@ package Conch::Data::DeviceReport;
 use Moose;
 use MooseX::Constructor::AllErrors;
 use MooseX::Types::UUID qw( UUID );
+use MooseX::Storage;
+
+with Storage('format' => 'JSON');
 
 has 'product_name' => (
   required => 1,

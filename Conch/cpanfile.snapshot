@@ -125,6 +125,12 @@ DISTRIBUTIONS
       CGI::Deurl::XS 0.08
     requirements:
       ExtUtils::MakeMaker 0
+  Canary-Stability-2012
+    pathname: M/ML/MLEHMANN/Canary-Stability-2012.tar.gz
+    provides:
+      Canary::Stability 2012
+    requirements:
+      ExtUtils::MakeMaker 0
   Capture-Tiny-0.46
     pathname: D/DA/DAGOLDEN/Capture-Tiny-0.46.tar.gz
     provides:
@@ -2089,6 +2095,22 @@ DISTRIBUTIONS
       Symbol 0
       strict 0
       warnings 0
+  IO-stringy-2.111
+    pathname: D/DS/DSKOLL/IO-stringy-2.111.tar.gz
+    provides:
+      IO::AtomicFile 2.111
+      IO::Clever 1.01
+      IO::InnerFile 2.111
+      IO::Lines 2.111
+      IO::Scalar 2.111
+      IO::ScalarArray 2.111
+      IO::Stringy 2.111
+      IO::Wrap 2.111
+      IO::WrapTie 2.111
+      IO::WrapTie::Master 2.111
+      IO::WrapTie::Slave 2.111
+    requirements:
+      ExtUtils::MakeMaker 0
   Import-Into-1.002005
     pathname: H/HA/HAARG/Import-Into-1.002005.tar.gz
     provides:
@@ -2121,6 +2143,15 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
+  JSON-XS-3.03
+    pathname: M/ML/MLEHMANN/JSON-XS-3.03.tar.gz
+    provides:
+      JSON::XS 3.03
+    requirements:
+      Canary::Stability 0
+      ExtUtils::MakeMaker 6.52
+      Types::Serialiser 0
+      common::sense 0
   LWP-MediaTypes-6.02
     pathname: G/GA/GAAS/LWP-MediaTypes-6.02.tar.gz
     provides:
@@ -2922,6 +2953,49 @@ DISTRIBUTIONS
       namespace::autoclean 0.16
       overload 0
       perl 5.006
+  MooseX-Storage-0.52
+    pathname: E/ET/ETHER/MooseX-Storage-0.52.tar.gz
+    provides:
+      MooseX::Storage 0.52
+      MooseX::Storage::Base::WithChecksum 0.52
+      MooseX::Storage::Basic 0.52
+      MooseX::Storage::Deferred 0.52
+      MooseX::Storage::Engine 0.52
+      MooseX::Storage::Engine::IO::AtomicFile 0.52
+      MooseX::Storage::Engine::IO::File 0.52
+      MooseX::Storage::Engine::Trait::DisableCycleDetection 0.52
+      MooseX::Storage::Engine::Trait::OnlyWhenBuilt 0.52
+      MooseX::Storage::Format::JSON 0.52
+      MooseX::Storage::Format::Storable 0.52
+      MooseX::Storage::Format::YAML 0.52
+      MooseX::Storage::IO::AtomicFile 0.52
+      MooseX::Storage::IO::File 0.52
+      MooseX::Storage::IO::StorableFile 0.52
+      MooseX::Storage::Meta::Attribute::DoNotSerialize 0.52
+      MooseX::Storage::Meta::Attribute::Trait::DoNotSerialize 0.52
+      MooseX::Storage::Traits::DisableCycleDetection 0.52
+      MooseX::Storage::Traits::OnlyWhenBuilt 0.52
+      MooseX::Storage::Util 0.52
+    requirements:
+      CPAN::Meta::Requirements 2.120620
+      Carp 0
+      Data::Dumper 0
+      Digest 0
+      ExtUtils::MakeMaker 0
+      IO::AtomicFile 0
+      IO::File 0
+      JSON::MaybeXS 1.001000
+      Module::Metadata 0
+      Module::Runtime 0
+      Moose 0.99
+      Moose::Meta::Attribute 0
+      Moose::Role 0
+      Scalar::Util 0
+      Storable 0
+      String::RewritePrefix 0
+      YAML::Any 0
+      namespace::autoclean 0
+      perl 5.008
   MooseX-Traits-0.13
     pathname: E/ET/ETHER/MooseX-Traits-0.13.tar.gz
     provides:
@@ -4364,6 +4438,16 @@ DISTRIBUTIONS
       Exporter::Tiny 0.026
       ExtUtils::MakeMaker 6.17
       perl 5.006001
+  Types-Serialiser-1.0
+    pathname: M/ML/MLEHMANN/Types-Serialiser-1.0.tar.gz
+    provides:
+      JSON::PP::Boolean 1.0
+      Types::Serialiser 1.0
+      Types::Serialiser::BooleanBase 1.0
+      Types::Serialiser::Error 1.0
+    requirements:
+      ExtUtils::MakeMaker 0
+      common::sense 0
   URI-1.71
     pathname: E/ET/ETHER/URI-1.71.tar.gz
     provides:
@@ -4554,6 +4638,12 @@ DISTRIBUTIONS
       perl 5.008001
       strict 0
       warnings 0
+  common-sense-3.74
+    pathname: M/ML/MLEHMANN/common-sense-3.74.tar.gz
+    provides:
+      common::sense 3.74
+    requirements:
+      ExtUtils::MakeMaker 0
   indirect-0.37
     pathname: V/VP/VPIT/indirect-0.37.tar.gz
     provides:

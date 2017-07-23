@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::DeviceValidate;
+package Conch::Schema::Result::DeviceReport;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::DeviceValidate
+Conch::Schema::Result::DeviceReport
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
-=head1 TABLE: C<device_validate>
+=head1 TABLE: C<device_report>
 
 =cut
 
-__PACKAGE__->table("device_validate");
+__PACKAGE__->table("device_report");
 
 =head1 ACCESSORS
 
@@ -44,30 +44,16 @@ __PACKAGE__->table("device_validate");
   is_nullable: 0
   size: 16
 
-=head2 report_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 0
-  size: 16
-
 =head2 device_id
 
   data_type: 'text'
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 validation
+=head2 report
 
   data_type: 'jsonb'
   is_nullable: 0
-
-=head2 created
-
-  data_type: 'timestamp with time zone'
-  default_value: current_timestamp
-  is_nullable: 0
-  original: {default_value => \"now()"}
 
 =cut
 
@@ -79,19 +65,10 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "report_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
-  "validation",
+  "report",
   { data_type => "jsonb", is_nullable => 0 },
-  "created",
-  {
-    data_type     => "timestamp with time zone",
-    default_value => \"current_timestamp",
-    is_nullable   => 0,
-    original      => { default_value => \"now()" },
-  },
 );
 
 =head1 PRIMARY KEY
@@ -123,24 +100,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 report
+=head2 device_validates
 
-Type: belongs_to
+Type: has_many
 
-Related object: L<Conch::Schema::Result::DeviceReport>
+Related object: L<Conch::Schema::Result::DeviceValidate>
 
 =cut
 
-__PACKAGE__->belongs_to(
-  "report",
-  "Conch::Schema::Result::DeviceReport",
-  { id => "report_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+__PACKAGE__->has_many(
+  "device_validates",
+  "Conch::Schema::Result::DeviceValidate",
+  { "foreign.report_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 14:16:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i01uNIcSwKWwiAgVJGgPvA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wO3oH3HBtQyNGmmeV8Mhig
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

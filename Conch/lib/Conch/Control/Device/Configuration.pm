@@ -2,6 +2,7 @@ package Conch::Control::Device::Configuration;
 
 use strict;
 use Log::Report;
+use JSON::XS;
 
 use Exporter 'import';
 our @EXPORT = qw( validate_product );
@@ -31,10 +32,12 @@ sub validate_product {
   $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "BIOS",
-    component_name  => "product_name",
-    log             => $product_name_log,
-    status          => $product_name_status
+    validation      => encode_json({
+      component_type  => "BIOS",
+      component_name  => "product_name",
+      log             => $product_name_log,
+      status          => $product_name_status
+    })
   });
 }
 

@@ -2,6 +2,7 @@ package Conch::Control::Device::Network;
 
 use strict;
 use Log::Report;
+use JSON::XS;
 
 use Exporter 'import';
 our @EXPORT = qw( validate_links validate_wiremap );
@@ -42,10 +43,12 @@ sub validate_links {
    $schema->resultset('DeviceValidate')->update_or_create({
      device_id       => $device_id,
      report_id       => $report_id,
-     component_type  => "NET",
-     component_name  => "links_up",
-     log             => $nic_state_msg,
-     status          => $nic_state_status,
+     validation      => encode_json({
+       component_type  => "NET",
+       component_name  => "links_up",
+       log             => $nic_state_msg,
+       status          => $nic_state_status,
+     })
    });
 }
 
@@ -111,10 +114,12 @@ sub validate_wiremap {
     $schema->resultset('DeviceValidate')->update_or_create({
       device_id       => $device_id,
       report_id       => $report_id,
-      component_type  => "NET",
-      component_name  => $iface->mac . "_peer",
-      log             => $nic_peer_log,
-      status          => $nic_peer_status
+      validation      => encode_json({
+        component_type  => "NET",
+        component_name  => $iface->mac . "_peer",
+        log             => $nic_peer_log,
+        status          => $nic_peer_status
+      })
     });
   }
 

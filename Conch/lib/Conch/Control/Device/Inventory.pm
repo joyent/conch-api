@@ -2,6 +2,7 @@ package Conch::Control::Device::Inventory;
 
 use strict;
 use Log::Report;
+use JSON::XS;
 
 use Exporter 'import';
 our @EXPORT = qw( validate_system validate_disks);
@@ -34,11 +35,13 @@ sub validate_system {
   $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "CPU",
-    component_name  => "cpu_count",
-    metric          => $device_spec->cpu_num,
-    log             => $cpu_num_log,
-    status          => $cpu_num_status
+    validation      => encode_json({
+      component_type  => "CPU",
+      component_name  => "cpu_count",
+      metric          => $device_spec->cpu_num,
+      log             => $cpu_num_log,
+      status          => $cpu_num_status
+    })
   });
  
   # Ensure we have correct number of DIMMs
@@ -56,11 +59,13 @@ sub validate_system {
   $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "RAM",
-    component_name  => "dimm_count",
-    metric          => $device_spec->dimms_num,
-    log             => $dimms_num_log,
-    status          => $dimms_num_status
+    validation      => encode_json({
+      component_type  => "RAM",
+      component_name  => "dimm_count",
+      metric          => $device_spec->dimms_num,
+      log             => $dimms_num_log,
+      status          => $dimms_num_status
+    })
   });
 
   # Ensure we have correct amount of total RAM
@@ -78,11 +83,13 @@ sub validate_system {
   $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "RAM",
-    component_name  => "ram_total",
-    metric          => $device_spec->ram_total,
-    log             => $ram_total_log,
-    status          => $ram_total_status
+    validation      => encode_json({
+      component_type  => "RAM",
+      component_name  => "ram_total",
+      metric          => $device_spec->ram_total,
+      log             => $ram_total_log,
+      status          => $ram_total_status
+    })
   });
 
   # Ensure we have correct number of network interfaces
@@ -100,11 +107,13 @@ sub validate_system {
   $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "NET",
-    component_name  => "nics_num",
-    metric          => $device_spec->nics_num,
-    log             => $nics_num_log,
-    status          => $nics_num_status
+    validation      => encode_json({
+      component_type  => "NET",
+      component_name  => "nics_num",
+      metric          => $device_spec->nics_num,
+      log             => $nics_num_log,
+      status          => $nics_num_status
+    })
   });
 
 }
@@ -170,11 +179,13 @@ sub validate_disks {
   $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "DISK",
-    component_name  => "usb_hdd_num",
-    metric          => $usb_hdd_num,
-    log             => $usb_hdd_num_log,
-    status          => $usb_hdd_num_status
+    validation      => encode_json({
+      component_type  => "DISK",
+      component_name  => "usb_hdd_num",
+      metric          => $usb_hdd_num,
+      log             => $usb_hdd_num_log,
+      status          => $usb_hdd_num_status
+    })
   });
 
   # Ensure we have correct number of SAS HDDs
@@ -192,11 +203,13 @@ sub validate_disks {
   $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "DISK",
-    component_name  => "sas_hdd_num",
-    metric          => $sas_hdd_num,
-    log             => $sas_hdd_num_log,
-    status          => $sas_hdd_num_status
+    validation      => encode_json({
+      component_type  => "DISK",
+      component_name  => "sas_hdd_num",
+      metric          => $sas_hdd_num,
+      log             => $sas_hdd_num_log,
+      status          => $sas_hdd_num_status
+    })
   });
 
   # Ensure we have correct number of SAS SSDs
@@ -226,11 +239,13 @@ sub validate_disks {
    $schema->resultset('DeviceValidate')->update_or_create({
     device_id       => $device_id,
     report_id       => $report_id,
-    component_type  => "DISK",
-    component_name  => "sas_ssd_num",
-    metric          => $sas_ssd_num,
-    log             => $sas_ssd_num_log,
-    status          => $sas_ssd_num_status
+    validation      => encode_json({
+      component_type  => "DISK",
+      component_name  => "sas_ssd_num",
+      metric          => $sas_ssd_num,
+      log             => $sas_ssd_num_log,
+      status          => $sas_ssd_num_status
+    })
   });
 
   # Ensure slog is in slot 0 on mixed media systems
@@ -248,11 +263,13 @@ sub validate_disks {
     $schema->resultset('DeviceValidate')->update_or_create({
       device_id       => $device_id,
       report_id       => $report_id,
-      component_type  => "DISK",
-      component_name  => "slog_slot",
-      metric          => $slog_slot,
-      log             => $slog_slot_log,
-      status          => $slog_slot_status
+      validation      => encode_json({
+        component_type  => "DISK",
+        component_name  => "slog_slot",
+        metric          => $slog_slot,
+        log             => $slog_slot_log,
+        status          => $slog_slot_status
+      })
     });
   }
 }

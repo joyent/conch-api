@@ -12,6 +12,7 @@ requires 'Plack::Middleware::Deflater';
 requires 'Plack';
 requires 'Config::General';
 requires 'Data::UUID';
+requires 'JSON::XS';
 
 # database
 requires 'DBD::Pg';
@@ -30,6 +31,7 @@ requires 'Dancer2::Plugin::REST';
 requires 'Moose';
 requires 'MooseX::Constructor::AllErrors';
 requires 'MooseX::Types::UUID';
+requires 'MooseX::Storage';
 
 on 'test' => sub {
     requires 'Test::More';
