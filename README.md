@@ -74,7 +74,7 @@ Takes a JSON blob created by `export.pl` and processes it.
 
 * URL
 
-  `/api/device`
+  `/device`
 
 * Methods
 
@@ -105,6 +105,37 @@ Takes a JSON blob created by `export.pl` and processes it.
   http POST :5000/api/device < report_from_HB.json
   ```
 
+### Retrieving device inventory and validation report
+
+Takes a serial number. Returns a JSON blob.
+
+* URL
+
+  `/device/:serial`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+  Requires integrator account and session.
+
+* Success Response:
+
+  * `200`
+
+* Error Response:
+
+  * `401`
+
+  Unauthorized or device does not exist.
+
+* Example request
+
+  ```
+  http :5000/device/45M2ND2 --session account
+  ```
 
 ## User
 
