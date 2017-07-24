@@ -74,7 +74,7 @@ Takes a JSON blob created by `export.pl` and processes it.
 
 * URL
 
-  `/device`
+  `/device/:serial`
 
 * Methods
 
