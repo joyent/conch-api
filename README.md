@@ -109,6 +109,8 @@ Takes a JSON blob created by `export.pl` and processes it.
 
 Takes a serial number. Returns a JSON blob.
 
+The most recent validation report is returned as an array.
+
 * URL
 
   `/device/:serial`
