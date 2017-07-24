@@ -12,6 +12,8 @@ use Conch::Control::Device;
 use Conch::Control::DeviceReport;
 use Conch::Control::Device::Validation;
 
+use Data::Printer;
+
 set serializer => 'JSON';
 
 # Return all devices an integrator user has access to
@@ -22,7 +24,33 @@ get '/device' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my @devices;
   process sub { @devices = devices_for_user(schema, $user_name); };
-  status_200({devices => (@devices || []) });
+  status_200(\@devices || []);
+};
+
+get '/device/:serial' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $serial    = param 'serial';
+
+  # Verify the requested device is accessible to this user.
+  my @user_devices;
+  process sub { @user_devices = devices_for_user(schema, $user_name); };
+
+  unless (grep /$serial/, @user_devices) {
+    warning "$user_name not allowed to view device $serial or $serial does not exist";
+    return status_401('unauthorized');
+  }
+
+  my ($report_id, $device_report ) = device_inventory(schema, $serial);
+  my @validation_report = device_validation_report(schema, $report_id);
+
+  $device_report->{validation} = \@validation_report;
+
+  p $device_report;
+
+  # XXX Conch::Data::DeviceReport is sticking its __CLASS__ where it's not wanted.
+  my $cleanup = delete $device_report->{"__CLASS__"};
+
+  status_200($device_report || []);
 };
 
 post '/device' => sub {

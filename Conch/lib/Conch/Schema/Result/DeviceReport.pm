@@ -55,6 +55,13 @@ __PACKAGE__->table("device_report");
   data_type: 'jsonb'
   is_nullable: 0
 
+=head2 created
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+  original: {default_value => \"now()"}
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -69,6 +76,13 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "report",
   { data_type => "jsonb", is_nullable => 0 },
+  "created",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+    original      => { default_value => \"now()" },
+  },
 );
 
 =head1 PRIMARY KEY
@@ -116,8 +130,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wO3oH3HBtQyNGmmeV8Mhig
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-24 19:19:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Z4L+v89dHzX74aYPWZ3W0g
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

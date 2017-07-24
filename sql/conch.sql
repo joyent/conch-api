@@ -366,7 +366,8 @@ CREATE TABLE device_validate_criteria (
 CREATE TABLE device_report (
   id                    uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   device_id             text        NOT NULL REFERENCES device (id),
-  report                jsonb       NOT NULL
+  report                jsonb       NOT NULL,
+  created               timestamptz NOT NULL DEFAULT current_timestamp
 );
 
 -- log which tests a device has passed or failed here.
