@@ -59,6 +59,12 @@ post '/device/:serial' => sub {
   my $device;
   my $report_id;
 
+  # 
+  # NOTE This stops reports being ingested until the device is slotted into a rack.
+  #      This may not be desireable. Once the device is entered into device_location
+  #      via /rack/:rackid, reports can be consumed. This checks does stop, in theory,
+  #      people from submitting reports for hosts they don't control.
+
   # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
   # Verify the requested device is accessible to this user.
   my @user_devices;
