@@ -14,7 +14,7 @@ use Data::Printer;
 
 set serializer => 'JSON';
 
-# Return all devices an integrator user has access to
+# Return all racks an integrator user has access to
 # Admins currently don't have access to endpoint and they get a 401.
 # TODO: If we want to add admin access, what should this endpoint return? All
 # devices across all DCs?
