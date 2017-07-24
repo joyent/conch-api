@@ -10,7 +10,7 @@ use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::User;
 use Conch::Control::Datacenter;
-use Data::Dumper;
+use Data::Printer;
 set serializer => 'JSON';
 
 # Add an admin role that validates against a shared secret
@@ -78,8 +78,10 @@ post '/login' => sub {
   }
 };
 
-put '/datacenter_access' => sub {
+post '/datacenter_access' => sub {
   if (process sub {
+    # XXX This is truncating what we're passing in as an array for some reason.
+    # XXX Only the last value makes it in.
     set_datacenter_room_access(schema, body_parameters->as_hashref)
   })    { status_200(); }
    else { status_500('error setting user datacenter access'); }

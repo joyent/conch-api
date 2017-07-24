@@ -13,6 +13,7 @@ requires 'Plack';
 requires 'Config::General';
 requires 'Data::UUID';
 requires 'JSON::XS';
+requires 'Data::Printer';
 
 # database
 requires 'DBD::Pg';
