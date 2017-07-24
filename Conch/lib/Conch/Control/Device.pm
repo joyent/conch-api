@@ -8,7 +8,7 @@ use Dancer2::Plugin::Passphrase;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( devices_for_user );
+our @EXPORT = qw( devices_for_user device_inventory );
 
 sub devices_for_user {
   my ($schema, $user_name) = @_;
@@ -24,5 +24,16 @@ sub devices_for_user {
 
 };
 
+sub device_inventory {
+  my ($schema, $device_id) = @_;
+
+  # Get the most recent entry in device_report.
+  my $report = $schema->resultset('DeviceReport')->search(
+    { device_id => $device_id },
+    { order_by => { -desc => 'created' } }
+  )->first;
+
+  return Dancer2::Serializer::JSON::from_json($report->report);
+}
 
 1;

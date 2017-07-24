@@ -12,6 +12,8 @@ use Conch::Control::Device;
 use Conch::Control::DeviceReport;
 use Conch::Control::Device::Validation;
 
+use Data::Printer;
+
 set serializer => 'JSON';
 
 # Return all devices an integrator user has access to
@@ -38,7 +40,8 @@ get '/device/:serial' => needs integrator => sub {
     return status_401('unauthorized');
   }
 
-  status_200({"device" => ($serial || []) });
+  my $device_report = device_inventory(schema, $serial);
+  status_200($device_report || []);
 };
 
 post '/device' => sub {
