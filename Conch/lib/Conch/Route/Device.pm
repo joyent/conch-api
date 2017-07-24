@@ -45,8 +45,6 @@ get '/device/:serial' => needs integrator => sub {
 
   $device_report->{validation} = \@validation_report;
 
-  p $device_report;
-
   # XXX Conch::Data::DeviceReport is sticking its __CLASS__ where it's not wanted.
   my $cleanup = delete $device_report->{"__CLASS__"};
 
