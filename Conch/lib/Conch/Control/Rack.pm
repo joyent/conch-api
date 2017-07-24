@@ -28,8 +28,9 @@ sub racks_for_user {
   my $user_racks = {};
   foreach my $rack (@racks) {
     my $rack_dc = $dc{ $rack->datacenter_room_id }{name};
-    $user_racks->{ $rack_dc }{ $rack->name }{ role } = $rack->role;
-    $user_racks->{ $rack_dc }{ $rack->name }{ size } = $rack->rack_size;
+    $user_racks->{ $rack_dc }{ $rack->id }{ name } = $rack->name;
+    $user_racks->{ $rack_dc }{ $rack->id }{ role } = $rack->role;
+    $user_racks->{ $rack_dc }{ $rack->id }{ size } = $rack->rack_size;
   }
 
   return $user_racks;
