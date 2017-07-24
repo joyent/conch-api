@@ -8,7 +8,7 @@ use Dancer2::Plugin::Passphrase;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( devices_for_user device_inventory );
+our @EXPORT = qw( devices_for_user device_inventory device_validation_report );
 
 sub devices_for_user {
   my ($schema, $user_name) = @_;
@@ -33,7 +33,21 @@ sub device_inventory {
     { order_by => { -desc => 'created' } }
   )->first;
 
-  return Dancer2::Serializer::JSON::from_json($report->report);
+  return ($report->id, Dancer2::Serializer::JSON::from_json($report->report));
+}
+
+# Bundle up the validate logs for a given device report.
+sub device_validation_report {
+  my ($schema, $report_id) = @_;
+
+  my @validate_report = $schema->resultset('DeviceValidate')->search({ report_id => $report_id });
+
+  my @reports;
+  foreach my $r (@validate_report) {
+    push @reports, Dancer2::Serializer::JSON::from_json($r->validation);
+  }
+
+  return @reports;
 }
 
 1;

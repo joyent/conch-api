@@ -40,7 +40,16 @@ get '/device/:serial' => needs integrator => sub {
     return status_401('unauthorized');
   }
 
-  my $device_report = device_inventory(schema, $serial);
+  my ($report_id, $device_report ) = device_inventory(schema, $serial);
+  my @validation_report = device_validation_report(schema, $report_id);
+
+  $device_report->{validation} = \@validation_report;
+
+  p $device_report;
+
+  # XXX Conch::Data::DeviceReport is sticking its __CLASS__ where it's not wanted.
+  my $cleanup = delete $device_report->{"__CLASS__"};
+
   status_200($device_report || []);
 };
 
