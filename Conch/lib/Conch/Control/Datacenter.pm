@@ -36,6 +36,7 @@ sub set_datacenter_room_access {
     scalar @datacenter_rooms 
       or warning "No valid datacenter rooms found for user '$user_name'";
 
+    # XXX BUG: https://app.liquidplanner.com/space/174715/projects/show/39854773P
     # XXX Only works for updating a single row?
     # XXX This isn't a list; it's being truncated upstream.
     # XXX Orig:
