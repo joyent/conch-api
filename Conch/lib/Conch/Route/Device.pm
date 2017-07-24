@@ -31,6 +31,7 @@ get '/device/:serial' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';
 
+  # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
   # Verify the requested device is accessible to this user.
   my @user_devices;
   process sub { @user_devices = devices_for_user(schema, $user_name); };
@@ -51,9 +52,29 @@ get '/device/:serial' => needs integrator => sub {
   status_200($device_report || []);
 };
 
-post '/device' => sub {
+post '/device/:serial' => sub {
+  my $user_name = session->read('integrator');
+  my $serial    = param 'serial';
+
   my $device;
   my $report_id;
+
+  # 
+  # NOTE This stops reports being ingested until the device is slotted into a rack.
+  #      This may not be desireable. Once the device is entered into device_location
+  #      via /rack/:rackid, reports can be consumed. This checks does stop, in theory,
+  #      people from submitting reports for hosts they don't control.
+
+  # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
+  # Verify the requested device is accessible to this user.
+  my @user_devices;
+  process sub { @user_devices = devices_for_user(schema, $user_name); };
+
+  unless (grep /$serial/, @user_devices) {
+    warning "$user_name not allowed to view device $serial or $serial does not exist";
+    return status_401('unauthorized');
+  }
+
   if (process sub {
       ($device, $report_id) = record_device_report(
           schema,
@@ -61,12 +82,12 @@ post '/device' => sub {
         );
       validate_device(schema, $device, $report_id);
     }) {
-      status_200(entity => {
+      status_200({entity => {
           device_id => $device->id,
           validated => 1,
           action    => "create",
           status    => "200"
-      });
+      }});
   }
   else {
     status_500("error occurred in persisting device report");
