@@ -22,7 +22,23 @@ get '/device' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my @devices;
   process sub { @devices = devices_for_user(schema, $user_name); };
-  status_200({devices => (@devices || []) });
+  status_200(\@devices || []);
+};
+
+get '/device/:serial' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $serial    = param 'serial';
+
+  # Verify the requested device is accessible to this user.
+  my @user_devices;
+  process sub { @user_devices = devices_for_user(schema, $user_name); };
+
+  unless (grep /$serial/, @user_devices) {
+    warning "$user_name not allowed to view device $serial or $serial does not exist";
+    return status_401('unauthorized');
+  }
+
+  status_200({"device" => ($serial || []) });
 };
 
 post '/device' => sub {
