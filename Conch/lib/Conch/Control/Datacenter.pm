@@ -5,7 +5,7 @@ use Log::Report;
 use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
 
-use Data::Dumper;
+use Data::Printer;
 
 use Exporter 'import';
 our @EXPORT = qw( set_datacenter_room_access );
@@ -36,7 +36,14 @@ sub set_datacenter_room_access {
     scalar @datacenter_rooms 
       or warning "No valid datacenter rooms found for user '$user_name'";
 
-    $user->set_datacenter_rooms(@datacenter_rooms || [])
+    # XXX Only works for updating a single row?
+    # XXX This isn't a list; it's being truncated upstream.
+    # XXX Orig:
+    #$user->set_datacenter_rooms(@datacenter_rooms || [])
+    # XXX Still busted:
+    foreach my $room (@datacenter_rooms) {
+      $user->set_datacenter_rooms($room || [])
+    }
   }
 };
 
