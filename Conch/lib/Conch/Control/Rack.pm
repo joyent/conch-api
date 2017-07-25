@@ -8,7 +8,7 @@ use Conch::Control::User;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( racks_for_user rack_roles );
+our @EXPORT = qw( racks_for_user rack_roles rack_layout );
 
 sub rack_roles {
   my ($schema) = @_;
@@ -51,6 +51,51 @@ sub racks_for_user {
   }
 
   return $user_racks;
+}
+
+sub rack_layout {
+  my ($schema, $uuid) = @_;
+
+  my @datacenter_room = $schema->resultset('DatacenterRoom')->
+    search({})->all;
+
+  my %dc;
+  foreach my $dc (@datacenter_room) {
+    $dc{ $dc->id }{name} = $dc->az;
+    $dc{ $dc->id }{region} = $dc->datacenter->region;
+  }
+
+  my @rack_slots = $schema->resultset('DatacenterRackLayout')->search({
+    rack_id => $uuid
+  });
+  @rack_slots or error "Rack $uuid not found";
+
+  my $rack_info = $schema->resultset('DatacenterRack')->find({
+    id => $uuid
+  });
+
+  my %rack;
+  $rack{id} = $uuid;
+  $rack{name} = $rack_info->name;
+  $rack{role} = $rack_info->role->name;
+  $rack{datacenter} = $dc{ $rack_info->datacenter_room_id}{name};
+
+  foreach my $slot (@rack_slots) {
+    my $hw = $schema->resultset('HardwareProduct')->find({
+      id => $slot->product_id
+    });
+
+    my $hw_profile = $hw->hardware_product_profile;
+    $hw_profile or fault "Hardware product " . $slot->product_id . " exists but does not have a hardware profile";
+
+    $rack{slots}{ $slot->ru_start }{id     } = $hw->id;
+    $rack{slots}{ $slot->ru_start }{alias  } = $hw->alias;
+    $rack{slots}{ $slot->ru_start }{name   } = $hw->name;
+    $rack{slots}{ $slot->ru_start }{vendor } = $hw->vendor->name;
+    $rack{slots}{ $slot->ru_start }{size   } = $hw_profile->rack_unit;
+  }
+
+  return \%rack;
 }
 
 1;

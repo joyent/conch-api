@@ -43,7 +43,6 @@ get '/rack/:uuid' => needs integrator => sub {
   my $user_racks;
   process sub { $user_racks = racks_for_user(schema, $user_name); };
 
-  # XXX This is terrible -- bdha
   my $authorized = 0;
   foreach my $az (keys %{$user_racks}) {
     if (defined $user_racks->{$az}{$uuid}) {
@@ -56,8 +55,9 @@ get '/rack/:uuid' => needs integrator => sub {
     return status_401('unauthorized');
   }
 
-  status_200({rack => $uuid}); 
+  my $rack = rack_layout(schema, $uuid);
 
+  status_200({rack => $rack}); 
 };
 
 # TODO
