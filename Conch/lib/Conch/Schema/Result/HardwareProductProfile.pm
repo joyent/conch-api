@@ -58,6 +58,11 @@ __PACKAGE__->table("hardware_product_profile");
   is_nullable: 1
   size: 16
 
+=head2 rack_unit
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =head2 purpose
 
   data_type: 'text'
@@ -181,6 +186,8 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "zpool_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  "rack_unit",
+  { data_type => "integer", is_nullable => 0 },
   "purpose",
   { data_type => "text", is_nullable => 0 },
   "bios_firmware",
@@ -344,8 +351,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-21 13:21:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1D8/0UfROuWHAIxgpg4dWA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-25 03:11:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ipX7c6f1nNbJvS+9eVyC+Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

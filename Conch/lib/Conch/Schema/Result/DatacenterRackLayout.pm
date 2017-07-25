@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::DatacenterRack;
+package Conch::Schema::Result::DatacenterRackLayout;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::DatacenterRack
+Conch::Schema::Result::DatacenterRackLayout
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
-=head1 TABLE: C<datacenter_rack>
+=head1 TABLE: C<datacenter_rack_layout>
 
 =cut
 
-__PACKAGE__->table("datacenter_rack");
+__PACKAGE__->table("datacenter_rack_layout");
 
 =head1 ACCESSORS
 
@@ -44,29 +44,24 @@ __PACKAGE__->table("datacenter_rack");
   is_nullable: 0
   size: 16
 
-=head2 datacenter_room_id
+=head2 rack_id
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
 
-=head2 name
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 role
+=head2 product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
 
-=head2 deactivated
+=head2 ru_start
 
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
+  data_type: 'integer'
+  is_nullable: 0
 
 =head2 created
 
@@ -92,14 +87,12 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "datacenter_room_id",
+  "rack_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "name",
-  { data_type => "text", is_nullable => 0 },
-  "role",
+  "product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "deactivated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
+  "ru_start",
+  { data_type => "integer", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -130,84 +123,39 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 datacenter_rack_layouts
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::DatacenterRackLayout>
-
-=cut
-
-__PACKAGE__->has_many(
-  "datacenter_rack_layouts",
-  "Conch::Schema::Result::DatacenterRackLayout",
-  { "foreign.rack_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 datacenter_room
+=head2 product
 
 Type: belongs_to
 
-Related object: L<Conch::Schema::Result::DatacenterRoom>
+Related object: L<Conch::Schema::Result::HardwareProduct>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "datacenter_room",
-  "Conch::Schema::Result::DatacenterRoom",
-  { id => "datacenter_room_id" },
+  "product",
+  "Conch::Schema::Result::HardwareProduct",
+  { id => "product_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 device_locations
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::DeviceLocation>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_locations",
-  "Conch::Schema::Result::DeviceLocation",
-  { "foreign.rack_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 hardware_totals
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::HardwareTotal>
-
-=cut
-
-__PACKAGE__->has_many(
-  "hardware_totals",
-  "Conch::Schema::Result::HardwareTotal",
-  { "foreign.datacenter_rack" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 role
+=head2 rack
 
 Type: belongs_to
 
-Related object: L<Conch::Schema::Result::DatacenterRackRole>
+Related object: L<Conch::Schema::Result::DatacenterRack>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "role",
-  "Conch::Schema::Result::DatacenterRackRole",
-  { id => "role" },
+  "rack",
+  "Conch::Schema::Result::DatacenterRack",
+  { id => "rack_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-25 03:11:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Rycs4LnfjjWixsI6O2/ung
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GGIvO1EUVZXUXRR4uqDTNg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

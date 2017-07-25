@@ -2,7 +2,11 @@ INSERT INTO hardware_vendor (name) VALUES ( 'Dell');
 INSERT INTO hardware_vendor (name) VALUES ( 'SuperMicro');
 
 INSERT INTO hardware_product (name, alias, prefix, vendor)
+       VALUES ( 'F10-S4048', 'Force 10 S4048', 'F10', ( SELECT id FROM hardware_vendor WHERE name = 'Dell' ) );
+
+INSERT INTO hardware_product (name, alias, prefix, vendor)
        VALUES ( 'Joyent-Dell-R730-9001', 'Priestriver A', 'PA', ( SELECT id FROM hardware_vendor WHERE name = 'Dell' ) );
+
 INSERT INTO hardware_product (name, alias, prefix, vendor)
        VALUES ( 'Joyent-Dell-R730-9002', 'Priestriver C', 'PC', ( SELECT id FROM hardware_vendor WHERE name = 'Dell' ) );
 INSERT INTO hardware_product (name, alias, prefix, vendor)

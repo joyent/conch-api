@@ -15,6 +15,28 @@
 
 -- Run this as superuser:
 -- CREATE EXTENSION pgcrypto;
+--
+-- Ordering matters, sadly.
+
+CREATE TABLE hardware_vendor (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                text        UNIQUE NOT NULL,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+-- joyent hardware makes ("products")
+CREATE TABLE hardware_product (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                text        UNIQUE NOT NULL, -- Joyent-Compute-Platform-1101
+    alias               text        UNIQUE NOT NULL, -- Richmond A
+    prefix              text        UNIQUE,          -- RA
+    vendor              uuid        NOT NULL REFERENCES hardware_vendor (id),
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
 
 CREATE TABLE datacenter (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -38,13 +60,29 @@ CREATE TABLE datacenter_room (
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+CREATE TABLE datacenter_rack_role (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name                text        NOT NULL,  -- MANTA, TRITON, CERES
+    rack_size           integer     NOT NULL,  -- total number of RU
+    UNIQUE ( name, rack_size )
+);
+
 CREATE TABLE datacenter_rack (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     datacenter_room_id  uuid        NOT NULL REFERENCES datacenter_room (id),
     name                text        NOT NULL,  -- A02
-    role                text,                  -- TRITON, MANTA, NETWORK, CERES
-    rack_size           integer,               -- total number of RU
+    role                uuid        NOT NULL REFERENCES datacenter_rack_role (id),
     deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+-- Define the server types in each rack slot for a given role.
+CREATE TABLE datacenter_rack_layout (
+    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    rack_id             uuid        NOT NULL REFERENCES datacenter_rack (id),
+    product_id          uuid        NOT NULL REFERENCES hardware_product (id),
+    ru_start            integer     NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
 );
@@ -68,27 +106,6 @@ CREATE TABLE datacenter_room_network (
     datacenter_room_id  uuid        REFERENCES datacenter_room (id),
     subnet              cidr        NOT NULL,
     name                text        NOT NULL,
-    deactivated         timestamptz DEFAULT NULL,
-    created             timestamptz NOT NULL DEFAULT current_timestamp,
-    updated             timestamptz NOT NULL DEFAULT current_timestamp
-);
-
-CREATE TABLE hardware_vendor (
-    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    name                text        UNIQUE NOT NULL,
-    deactivated         timestamptz DEFAULT NULL,
-    created             timestamptz NOT NULL DEFAULT current_timestamp,
-    updated             timestamptz NOT NULL DEFAULT current_timestamp
-);
-
-
--- joyent hardware makes ("products")
-CREATE TABLE hardware_product (
-    id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    name                text        UNIQUE NOT NULL, -- Joyent-Compute-Platform-1101
-    alias               text        UNIQUE NOT NULL, -- Richmond A
-    prefix              text        UNIQUE,          -- RA
-    vendor              uuid        NOT NULL REFERENCES hardware_vendor (id),
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
     updated             timestamptz NOT NULL DEFAULT current_timestamp
@@ -128,6 +145,7 @@ CREATE TABLE hardware_product_profile (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id          uuid        UNIQUE NOT NULL REFERENCES hardware_product (id) ON DELETE CASCADE,
     zpool_id            uuid        REFERENCES zpool_profile (id),
+    rack_unit           integer     NOT NULL, -- 2RU, 4RU, etc.
     purpose             text        NOT NULL, -- General Compute
     bios_firmware       text        NOT NULL, -- prtdiag output; Dell Inc. 2.2.5 09/06/2016
     hba_firmware        text,
