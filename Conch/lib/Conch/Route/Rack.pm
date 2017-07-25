@@ -37,9 +37,27 @@ get '/rack/role' => needs integrator => sub {
 get '/rack/:uuid' => needs integrator => sub {
   my $user_name = session->read('integrator');
 
+  my $uuid = param 'uuid';
+
   # Verify this rack is assigned to the user.
   my $user_racks;
   process sub { $user_racks = racks_for_user(schema, $user_name); };
+
+  # XXX This is terrible -- bdha
+  my $authorized = 0;
+  foreach my $az (keys %{$user_racks}) {
+    if (defined $user_racks->{$az}{$uuid}) {
+      $authorized = 1;
+    }
+  }
+
+  unless ($authorized) {
+    warning "$user_name not allowed to view rack $uuid or rack does not exist";
+    return status_401('unauthorized');
+  }
+
+  status_200({rack => $uuid}); 
+
 };
 
 # TODO
