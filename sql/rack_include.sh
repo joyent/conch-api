@@ -13,7 +13,7 @@ MANTA_RACK=$( $PSQL -q -t -A -c "SELECT id FROM datacenter_rack_role WHERE name 
 MANTA_TALL_RACK=$( $PSQL -q -t -A -c "SELECT id FROM datacenter_rack_role WHERE name = 'MANTA_TALL'" )
 
 F10_SWITCH=$( $PSQL -q -t -A -c "SELECT id FROM hardware_product WHERE name = 'F10-S4048'" )
-SHRIMP=$( $PSQL -q -t -A -c "SELECT id FROM hardware_product WHERE name = 'Joyent-Storage-Platform-7001"  )
+SHRIMP=$( $PSQL -q -t -A -c "SELECT id FROM hardware_product WHERE name = 'Joyent-Storage-Platform-7001'"  )
 HA=$( $PSQL -q -t -A -c "SELECT id FROM hardware_product WHERE name = 'Joyent-Compute-Platform-3301'" )
 HB=$( $PSQL -q -t -A -c "SELECT id FROM hardware_product WHERE name = 'Joyent-Storage-Platform-7201'" )
 HC=$( $PSQL -q -t -A -c "SELECT id FROM hardware_product WHERE name = 'Joyent-Compute-Platform-3302'" )
