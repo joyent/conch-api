@@ -26,4 +26,19 @@ get '/rack' => needs integrator => sub {
   status_200({racks => ($racks || []) });
 };
 
+# Returns defined rack roles.
+get '/rack/role' => needs integrator => sub {
+};
+
+# Returns the layout for a given rack role, to help construct a rack map.
+get '/rack/role/:uuid' => needs integrator => sub {
+};
+
+# Returns a rack with devices populated.
+get '/rack/:uuid' => needs integrator => sub {
+  # Verify this rack is assigned to the user.
+  my $user_racks;
+  process sub { $user_racks = racks_for_user(schema, $user_name); };
+};
+
 1;

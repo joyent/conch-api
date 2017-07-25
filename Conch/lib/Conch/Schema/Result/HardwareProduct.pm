@@ -173,6 +173,21 @@ __PACKAGE__->add_unique_constraint("hardware_product_prefix_key", ["prefix"]);
 
 =head1 RELATIONS
 
+=head2 datacenter_rack_layouts
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DatacenterRackLayout>
+
+=cut
+
+__PACKAGE__->has_many(
+  "datacenter_rack_layouts",
+  "Conch::Schema::Result::DatacenterRackLayout",
+  { "foreign.product_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 devices
 
 Type: has_many
@@ -264,8 +279,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-19 21:27:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V/lFJeMphCdD55zpVYN1ow
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-25 03:11:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZAk9mpGMKifKb+Fr8V8d+w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
