@@ -106,6 +106,25 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("device_id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<device_location_rack_id_rack_unit_key>
+
+=over 4
+
+=item * L</rack_id>
+
+=item * L</rack_unit>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint(
+  "device_location_rack_id_rack_unit_key",
+  ["rack_id", "rack_unit"],
+);
+
 =head1 RELATIONS
 
 =head2 device
@@ -139,8 +158,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Q9kqb438Ygz6GNpA/YKJqg
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-26 20:00:28
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KVQsJ2B3N9jqSYxQkz3SaQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
