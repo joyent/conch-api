@@ -1,0 +1,19 @@
+{
+    "name": "conch-ui",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "dependencies": {
+        "mithril": "^1.1.3"
+    },
+    "devDependencies": {
+        "webpack": "^3.4.1"
+    },
+    "scripts": {
+        "start": "webpack src/index.js bin/app.js -d --watch",
+        "build": "webpack src/index.js bin/app.js -p"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "Apache-2.0"
+}
