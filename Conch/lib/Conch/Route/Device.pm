@@ -23,7 +23,11 @@ set serializer => 'JSON';
 get '/device' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my @devices;
-  process sub { @devices = devices_for_user(schema, $user_name); };
+  # XXX I don't understand the process call here, but it's interfering with
+  # XXX error checking later on. -- bdha
+  #process sub { @devices = devices_for_user(schema, $user_name); };
+  @devices = devices_for_user(schema, $user_name);
+  
   status_200(\@devices || []);
 };
 
@@ -34,7 +38,7 @@ get '/device/:serial' => needs integrator => sub {
   # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
   # Verify the requested device is accessible to this user.
   my @user_devices;
-  process sub { @user_devices = devices_for_user(schema, $user_name); };
+  @user_devices = devices_for_user(schema, $user_name);
 
   unless (grep /$serial/, @user_devices) {
     warning "$user_name not allowed to view device $serial or $serial does not exist";
@@ -52,7 +56,7 @@ get '/device/:serial' => needs integrator => sub {
   status_200($device_report || []);
 };
 
-post '/device/:serial' => sub {
+post '/device/:serial' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';
 
@@ -68,29 +72,56 @@ post '/device/:serial' => sub {
   # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
   # Verify the requested device is accessible to this user.
   my @user_devices;
-  process sub { @user_devices = devices_for_user(schema, $user_name); };
+  #process sub { @user_devices = devices_for_user(schema, $user_name); };
+  @user_devices = devices_for_user(schema, $user_name);
 
-  unless (grep /$serial/, @user_devices) {
-    warning "$user_name not allowed to view device $serial or $serial does not exist";
-    return status_401('unauthorized');
-  }
+  # XXX This won't work for newly created hosts which lack a location.
+  #      Needs to be smarter.
+  #unless (grep /$serial/, @user_devices) {
+  #  warning "$user_name not allowed to view device $serial or $serial does not exist";
+  #  return status_401('unauthorized');
+  #}
 
-  if (process sub {
-      ($device, $report_id) = record_device_report(
-          schema,
-          parse_device_report(body_parameters->as_hashref)
-        );
-      validate_device(schema, $device, $report_id);
-    }) {
-      status_200({entity => {
+  ($device, $report_id) = record_device_report(
+                            schema,
+                            parse_device_report(body_parameters->as_hashref)
+                          );
+
+  # XXX validate_device needs to return more context, or "validated" in the
+  #     response is a rubber stamp.
+  my $store_report = validate_device(schema, $device, $report_id);
+  if ($store_report) {
+      status_200({
           device_id => $device->id,
           validated => 1,
-          action    => "create",
+          action    => "report",
           status    => "200"
-      }});
+      });
   }
   else {
     status_500("error occurred in persisting device report");
+  }
+};
+
+post '/device/location/:serial' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+
+  my $serial    = param 'serial';
+
+  # XXX Input validation. Required fields.
+
+  my $result = update_device_location(
+      schema,
+      body_parameters->as_hashref
+  );
+
+  if ($result) {
+    status_200({ device_id => $serial,
+      action    => "update",
+      status    => 200
+    });
+  } else {
+    status_500({error => "error occured updating device location for $serial"});
   }
 };
 

@@ -71,7 +71,7 @@ post '/login' => sub {
   elsif (authenticate(schema, $username, $password)) {
     session integrator => $username;
     info "integrator '$username' logged in";
-    status_200();
+    status_200({role => "integrator"});
   }
   else {
     status_401 "failed log in attempt";

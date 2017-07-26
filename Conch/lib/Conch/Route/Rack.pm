@@ -60,9 +60,4 @@ get '/rack/:uuid' => needs integrator => sub {
   status_200({rack => $rack}); 
 };
 
-# TODO
-# Populate the device_location table.
-# post '/rack/:uuid' => needs integrator => sub {
-#};
-
 1;
