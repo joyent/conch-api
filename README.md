@@ -65,6 +65,53 @@ user does not have.
   { "user" : "admin", "password": "hunter2" }
   EOF
   ```
+## Relays
+
+### Retrieving all registered relays
+
+* URL
+
+  `/relay`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+Requires an admin account.
+
+### Registering a relay
+
+Registration doubles with heartbeating (using the `updated` field.)
+
+* URL
+
+  `/relay/:serial/register`
+
+* Methods
+
+  `POST`
+
+* Authorization
+
+Requires an integrator account.
+
+* Paylout
+
+A JSON blob containing the image version and the SSH port of the reverse tunnel
+service on the Relay.
+
+* Example
+
+```
+http POST :5000/relay/000000003d1d1c36/register $SESSION <<EOF
+{
+  "version": "0.1",
+  "ssh_port": 26432
+}
+EOF
+```
 
 ## Device Reports
 
