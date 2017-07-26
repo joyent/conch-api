@@ -18,6 +18,15 @@
 --
 -- Ordering matters, sadly.
 
+CREATE TABLE relay (
+    id                  text        PRIMARY KEY, -- System serial number
+    version             text,
+    ssh_port            integer,
+    deactivated         timestamptz DEFAULT NULL,
+    created             timestamptz NOT NULL DEFAULT current_timestamp,
+    updated             timestamptz NOT NULL DEFAULT current_timestamp
+);
+
 CREATE TABLE hardware_vendor (
     id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     name                text        UNIQUE NOT NULL,
