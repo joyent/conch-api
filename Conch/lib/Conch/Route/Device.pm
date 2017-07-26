@@ -103,7 +103,7 @@ post '/device/:serial' => needs integrator => sub {
   }
 };
 
-post '/device/location/:serial' => needs integrator => sub {
+post '/device/:serial/location' => needs integrator => sub {
   my $user_name = session->read('integrator');
 
   my $serial    = param 'serial';

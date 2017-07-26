@@ -9,6 +9,7 @@ use Dancer2::Plugin::LogReport;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::Rack;
+use Conch::Control::Device;
 
 use Data::Printer;
 
@@ -36,7 +37,6 @@ get '/rack/role' => needs integrator => sub {
 # Returns a rack with layout.
 get '/rack/:uuid' => needs integrator => sub {
   my $user_name = session->read('integrator');
-
   my $uuid = param 'uuid';
 
   # Verify this rack is assigned to the user.
@@ -58,6 +58,52 @@ get '/rack/:uuid' => needs integrator => sub {
   my $rack = rack_layout(schema, $uuid);
 
   status_200({rack => $rack}); 
+};
+
+# Bulk update a rack layout.
+# XXX This should be wrapped in a txn. With real error messages.
+post '/rack/:uuid/layout' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $uuid = param 'uuid';
+
+  my $layout = body_parameters->as_hashref;
+
+  # Verify this rack is assigned to the user.
+  my $user_racks;
+  process sub { $user_racks = racks_for_user(schema, $user_name); };
+
+  my $authorized = 0;
+  foreach my $az (keys %{$user_racks}) {
+    if (defined $user_racks->{$az}{$uuid}) {
+      $authorized = 1;
+    }
+  }
+
+  unless ($authorized) {
+    warning "$user_name not allowed to view rack $uuid or rack does not exist";
+    return status_401('unauthorized');
+  }
+
+  my @errors;
+  my @updates;
+
+  foreach my $k (keys %{$layout}) {
+    my $update = {};
+    $update->{device}    = $k;
+    $update->{rack}      = $uuid;
+    $update->{rack_unit} = $layout->{$k};
+    my $result = update_device_location(
+        schema,
+        $update
+    );
+    if ($result) {
+      push @updates, $k;
+    } else {
+      push @errors, $k;
+    }
+  }
+
+  status_200({ updated => \@updates, errors => \@errors });
 };
 
 1;
