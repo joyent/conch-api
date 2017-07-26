@@ -86,8 +86,7 @@ Takes a JSON blob created by `export.pl` and processes it.
 
 * Authorization
 
-  No authorization for now. Should change to use either the integrator's key or
-  some shared secret.
+  Requires integrator account and session.
 
 * Success Response:
 
@@ -102,7 +101,7 @@ Takes a JSON blob created by `export.pl` and processes it.
 * Example request
 
   ```
-  http POST :5000/api/device < report_from_HB.json
+  http POST :5000//device/A8CD3FG < report_from_HB.json
   ```
 
 ### Retrieving device inventory and validation report
@@ -137,6 +136,48 @@ The most recent validation report is returned as an array.
 
   ```
   http :5000/device/45M2ND2 --session account
+  ```
+
+## Updating device location
+
+Takes a serial number, the rack UUID, and the rack slot.
+
+If the device does not yet exist, will create a stub entry in the device table.
+
+Will not let you clobber an occupied slot, and verifies that the slot you want to use exists.
+
+* URL
+
+  `/device/location/:serial`
+
+* Methods
+
+ `POST`
+
+* Authorization
+
+  Requires integrator account and session.
+
+* Success Response:
+
+  * `200`
+
+* Error Response:
+
+  * `401`
+
+  Unauthorized or device does not exist.
+
+  * `500`
+
+  Something went wrong while trying to update the record. See the logs.
+
+* Example request
+
+  ```
+  http :5000/device/location/45M2ND2 --session account <<EOF
+  { "device": "$SERIAL", "rack": "$RACK_UUID", "rack_unit": "$RACK_UNIT" }
+  EOF
   ```
 
 ## User
