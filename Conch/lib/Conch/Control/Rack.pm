@@ -88,6 +88,17 @@ sub rack_layout {
     my $hw_profile = $hw->hardware_product_profile;
     $hw_profile or fault "Hardware product " . $slot->product_id . " exists but does not have a hardware profile";
 
+    my $device_location = $schema->resultset('DeviceLocation')->search({
+      rack_id   => $uuid,
+      rack_unit => $slot->ru_start
+    })->single;
+
+    if ($device_location) {
+      $rack{slots}{ $slot->ru_start }{occupant} = $device_location->device_id;
+    } else {
+      $rack{slots}{ $slot->ru_start }{occupant} = undef;
+    }
+
     $rack{slots}{ $slot->ru_start }{id     } = $hw->id;
     $rack{slots}{ $slot->ru_start }{alias  } = $hw->alias;
     $rack{slots}{ $slot->ru_start }{name   } = $hw->name;
