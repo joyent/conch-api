@@ -148,7 +148,7 @@ Will not let you clobber an occupied slot, and verifies that the slot you want t
 
 * URL
 
-  `/device/location/:serial`
+  `/device/:serial/location`
 
 * Methods
 
@@ -179,6 +179,54 @@ Will not let you clobber an occupied slot, and verifies that the slot you want t
   { "device": "$SERIAL", "rack": "$RACK_UUID", "rack_unit": "$RACK_UNIT" }
   EOF
   ```
+
+## Racks
+
+### Retrieving available racks
+
+* URL
+
+  * `/rack`
+
+### Retrieve layout for specific rack
+
+* URL
+
+  * `/rack/:uuid`
+
+### Bulk updating a rack layout
+
+Returns `updated` and `errors` arrays.
+
+* URL
+
+  `/rack/:uuid/layout`
+
+* Method
+
+  `POST`
+
+
+Takes a JSON blob in the form
+
+```
+{
+  "$SERIAL": $RACK_UNIT,
+  "$SERIAL": $RACK_UNIT,
+  "$SERIAL": $RACK_UNIT
+}
+```
+
+* Example request
+
+```
+http POST :5000/7d7665d3-9244-42d6-bad8-f9505a9380ae/layout --session account <<EOF
+{
+  "BAENG1O": 3,
+  "45M2ND2": 1
+}
+EOF
+```
 
 ## User
 
