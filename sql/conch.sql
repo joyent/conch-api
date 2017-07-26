@@ -271,7 +271,8 @@ CREATE TABLE device_location (
     rack_id             uuid        NOT NULL REFERENCES datacenter_rack (id),
     rack_unit           integer     NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
-    updated             timestamptz NOT NULL DEFAULT current_timestamp
+    updated             timestamptz NOT NULL DEFAULT current_timestamp,
+    UNIQUE ( rack_id, rack_unit )
 );
 
 -- All temps should be in C
