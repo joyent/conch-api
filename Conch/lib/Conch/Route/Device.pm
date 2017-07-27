@@ -37,6 +37,18 @@ get '/device/active' => needs integrator => sub {
   status_200(\@devices);
 };
 
+get '/device/health/:state' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $state = param 'state';
+
+  if ($state !~ /PASS|FAIL/) {
+    return status_500({error => "/device/health/:state must be PASS or FAIL"});
+  }
+
+  my @devices = get_devices_by_health(schema, $user_name, $state);
+  status_200(\@devices);
+};
+
 get '/device/:serial' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';
@@ -105,7 +117,7 @@ post '/device/:serial' => needs integrator => sub {
       });
   }
   else {
-    status_500("error occurred in persisting device report");
+    return status_500("error occurred in persisting device report");
   }
 };
 
@@ -127,7 +139,7 @@ post '/device/:serial/location' => needs integrator => sub {
       status    => 200
     });
   } else {
-    status_500({error => "error occured updating device location for $serial"});
+    return status_500({error => "error occured updating device location for $serial"});
   }
 };
 

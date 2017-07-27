@@ -11,7 +11,7 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw( device_info device_location devices_for_user device_inventory
                   device_validation_report update_device_location
-                  get_validation_criteria get_active_devices
+                  get_validation_criteria get_active_devices get_devices_by_health
                  );
 
 sub get_validation_criteria {
@@ -53,12 +53,12 @@ sub get_active_devices {
 
   my @user_devices = devices_for_user($schema, $user_name);
 
-  my @active_rs = $schema->resultset('Device')->search({
+  my @rs = $schema->resultset('Device')->search({
     last_seen => \' > NOW() - INTERVAL \'5 minutes\'',
   });
 
   my @active_devices;
-  foreach my $a (@active_rs) {
+  foreach my $a (@rs) {
     push @active_devices, $a->id;
   }
 
@@ -66,6 +66,28 @@ sub get_active_devices {
   my @active_user_devices = $lc->get_intersection;
 
   return @active_user_devices;
+}
+
+# Return all devices that match health: $state
+sub get_devices_by_health {
+  my ($schema, $user_name, $state ) = @_;
+
+  my @user_devices = devices_for_user($schema, $user_name);
+
+  my @rs = $schema->resultset('Device')->search({
+    health => "$state",
+    deactivated => { '=', undef },
+  });
+
+  my @devices;
+  foreach my $d (@rs) {
+    push @devices, $d->id;
+  }
+
+  my $lc = List::Compare->new(\@user_devices, \@devices);
+  my @return_devices = $lc->get_intersection;
+
+  return @return_devices;
 }
 
 sub device_info {
