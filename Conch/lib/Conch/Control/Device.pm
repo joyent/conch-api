@@ -11,7 +11,8 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw( device_info device_location devices_for_user device_inventory
                   device_validation_report update_device_location
-                  get_validation_criteria get_active_devices get_devices_by_health
+                  delete_device_location get_validation_criteria
+                  get_active_devices get_devices_by_health
                  );
 
 sub get_validation_criteria {
@@ -133,8 +134,38 @@ sub device_validation_report {
   return @reports;
 }
 
+sub delete_device_location {
+  my ($schema, $device_info) = @_;
+
+  my $device    = $device_info->{device};
+  my $rack_id   = $device_info->{rack};
+  my $rack_unit = $device_info->{rack_unit};
+
+  info "Going to remove $device from $rack_id:$rack_unit";
+
+  my $rs = $schema->resultset('DeviceLocation')->find({
+    device_id => $device_info->{device}
+  });
+
+  unless ($rs) {
+    warning "Could not find $device in $rack_id:$rack_unit for removal";
+    return undef
+  }
+
+  $rs->delete;
+
+  if ($rs->in_storage) {
+    warning "Failed to remove $device from $rack_id:$rack_unit";
+    return undef;
+  }
+
+  info "Removed $device from $rack_id:$rack_unit";
+
+  return 1;
+}
+
 sub update_device_location {
-  my ($schema, $device_info ) = @_;
+  my ($schema, $device_info) = @_;
 
   # If the device doesn't exist, create a stub entry for it.
   my $device_check = $schema->resultset('Device')->find({
@@ -142,8 +173,6 @@ sub update_device_location {
   });
 
   unless ($device_check) {
-
-    p $device_info;
 
     my $slot_info = $schema->resultset('DatacenterRackLayout')->search({
       rack_id   => $device_info->{rack},
