@@ -14,7 +14,7 @@ var Auth = {
     login: function() {
         m.request({
             method: "PUT",
-            url: "http://0.0.0.0:5000/login",
+            url: "http://localhost:5000/login",
             data: {user: Auth.username, password: Auth.password}
         }).then(function(data) {
             console.log("logged in successfully and got " + data.token);
