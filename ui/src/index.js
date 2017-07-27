@@ -15,9 +15,9 @@ var Auth = {
         m.request({
             method: "POST",
             url: "http://10.64.223.75:5000/login",
-            data: {username: Auth.username, password: Auth.password},
-            config: (xhr) => {
-                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+            data: {user: Auth.username, password: Auth.password},
+            headers: {
+                'Content-Type': 'application/json'
             }
         }).then(function(data) {
             console.log("logged in successfully and got " + data.token);
