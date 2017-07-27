@@ -31,6 +31,12 @@ get '/device' => needs integrator => sub {
   status_200(\@devices || []);
 };
 
+get '/device/active' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my @devices = get_active_devices(schema, $user_name);
+  status_200(\@devices);
+};
+
 get '/device/:serial' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';
