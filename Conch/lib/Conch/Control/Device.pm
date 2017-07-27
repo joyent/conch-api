@@ -1,6 +1,7 @@
 package Conch::Control::Device;
 
 use strict;
+use List::Compare;
 use Log::Report;
 use Log::Report::DBIC::Profiler;
 use Dancer2::Plugin::Passphrase;
@@ -10,7 +11,7 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw( device_info device_location devices_for_user device_inventory
                   device_validation_report update_device_location
-                  get_validation_criteria
+                  get_validation_criteria get_active_devices
                  );
 
 sub get_validation_criteria {
@@ -45,6 +46,26 @@ sub devices_for_user {
   }
 
   return @user_devices;
+}
+
+sub get_active_devices {
+  my ($schema, $user_name ) = @_;
+
+  my @user_devices = devices_for_user($schema, $user_name);
+
+  my @active_rs = $schema->resultset('Device')->search({
+    last_seen => \' > NOW() - INTERVAL \'5 minutes\'',
+  });
+
+  my @active_devices;
+  foreach my $a (@active_rs) {
+    push @active_devices, $a->id;
+  }
+
+  my $lc = List::Compare->new(\@user_devices, \@active_devices);
+  my @active_user_devices = $lc->get_intersection;
+
+  return @active_user_devices;
 }
 
 sub device_info {

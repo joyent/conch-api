@@ -97,7 +97,7 @@ Registration doubles with heartbeating (using the `updated` field.)
 
 Requires an integrator account.
 
-* Paylout
+* Payload
 
 A JSON blob containing the image version and the SSH port of the reverse tunnel
 service on the Relay.
@@ -113,7 +113,49 @@ http POST :5000/relay/000000003d1d1c36/register $SESSION <<EOF
 EOF
 ```
 
-## Device Reports
+## Devices
+
+### List all account accessible devices
+
+* URL
+
+  `/device`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+  Requires an integrator account.
+
+* Example
+
+```
+http :5000/device --session integrator
+```
+
+### List active devices
+
+List all devices on your account that have reported in the last two minutes.
+
+* URL
+
+  `/device/active`
+
+* Method
+
+  `GET`
+
+* Authorization
+
+  Requires an integrator account.
+
+* Example
+
+```
+http :5000/device --session integrator
+```
 
 ### Creating device report
 
