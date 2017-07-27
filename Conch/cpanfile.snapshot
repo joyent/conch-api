@@ -3564,6 +3564,19 @@ DISTRIBUTIONS
       WWW::Form::UrlEncoded 0.23
       parent 0
       perl 5.008001
+  Plack-Middleware-CrossOrigin-0.012
+    pathname: H/HA/HAARG/Plack-Middleware-CrossOrigin-0.012.tar.gz
+    provides:
+      Plack::Middleware::CrossOrigin 0.012
+    requirements:
+      ExtUtils::MakeMaker 0
+      Plack::Middleware 0
+      Plack::Util 0
+      Plack::Util::Accessor 0
+      parent 0
+      perl 5.008
+      strict 0
+      warnings 0
   Plack-Middleware-Deflater-0.12
     pathname: K/KA/KAZEBURO/Plack-Middleware-Deflater-0.12.tar.gz
     provides:
