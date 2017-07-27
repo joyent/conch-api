@@ -13,12 +13,9 @@ var Auth = {
     },
     login: function() {
         m.request({
-            method: "POST",
-            url: "http://10.64.223.75:5000/login",
-            data: {user: Auth.username, password: Auth.password},
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            method: "PUT",
+            url: "http://0.0.0.0:5000/login",
+            data: {user: Auth.username, password: Auth.password}
         }).then(function(data) {
             console.log("logged in successfully and got " + data.token);
             localStorage.setItem("auth-token", data.token);
