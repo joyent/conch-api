@@ -8,7 +8,31 @@ use Dancer2::Plugin::Passphrase;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( devices_for_user device_inventory device_validation_report update_device_location );
+our @EXPORT = qw( device_info device_location devices_for_user device_inventory
+                  device_validation_report update_device_location
+                  get_validation_criteria
+                 );
+
+sub get_validation_criteria {
+  my ($schema) = @_;
+  
+  my $criteria = {};
+
+  my @rs = $schema->resultset('DeviceValidateCriteria')->search({})->all;
+  foreach my $c (@rs) {
+    $criteria->{$c->id}{product_id} = $c->product_id || undef;
+    $criteria->{$c->id}{component}  = $c->component || undef;
+    $criteria->{$c->id}{condition}  = $c->condition || undef;
+    $criteria->{$c->id}{vendor}     = $c->vendor || undef;
+    $criteria->{$c->id}{model}      = $c->model || undef;
+    $criteria->{$c->id}{string}     = $c->string || undef;
+    $criteria->{$c->id}{min}        = $c->min || undef;
+    $criteria->{$c->id}{warn}       = $c->warn || undef;
+    $criteria->{$c->id}{crit}       = $c->crit || undef;
+  }
+
+  return $criteria;
+}
 
 sub devices_for_user {
   my ($schema, $user_name) = @_;
@@ -21,8 +45,19 @@ sub devices_for_user {
   }
 
   return @user_devices;
+}
 
-};
+sub device_info {
+  my ($schema, $device_id) = @_;
+  my $device = $schema->resultset('Device')->find({id => $device_id});
+  return $device;
+}
+
+sub device_location {
+  my ($schema, $device_id) = @_;
+  my $device = $schema->resultset('DeviceLocation')->find({device_id => $device_id});
+  return $device;
+}
 
 sub device_inventory {
   my ($schema, $device_id) = @_;

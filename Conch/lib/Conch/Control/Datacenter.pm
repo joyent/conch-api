@@ -8,7 +8,13 @@ use Conch::Control::User;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( set_datacenter_room_access );
+our @EXPORT = qw( get_datacenter_room set_datacenter_room_access );
+
+sub get_datacenter_room {
+  my ($schema, $room_id) = @_;
+  my $room = $schema->resultset('DatacenterRoom')->find({id => $room_id});
+  return $room;
+}
 
 # Replace and sets (idempotent) datacenter room access for a hash of user names
 # and list of datacenter rooms.
