@@ -276,7 +276,31 @@ Will not let you clobber an occupied slot, and verifies that the slot you want t
 * Example request
 
   ```
-  http :5000/device/location/45M2ND2 --session account <<EOF
+  http :5000/device/45M2ND2/location --session account <<EOF
+  { "device": "$SERIAL", "rack": "$RACK_UUID", "rack_unit": "$RACK_UNIT" }
+  EOF
+  ```
+
+### Removing a device from a rack slot
+
+Takes a serial number, rack UUID, and rack slot.
+
+* URL
+
+  `/device/:serial/location`
+
+* Methods
+
+  `DELETE`
+
+* Authorization
+
+  Requires integrator account.
+
+* Example request
+
+  ```
+  http DELETE :5000/device/45M2ND2/location --session account <<EOF
   { "device": "$SERIAL", "rack": "$RACK_UUID", "rack_unit": "$RACK_UNIT" }
   EOF
   ```

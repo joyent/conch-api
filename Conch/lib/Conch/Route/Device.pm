@@ -123,23 +123,42 @@ post '/device/:serial' => needs integrator => sub {
 
 post '/device/:serial/location' => needs integrator => sub {
   my $user_name = session->read('integrator');
-
   my $serial    = param 'serial';
 
   # XXX Input validation. Required fields.
 
-  my $result = update_device_location(
-      schema,
-      body_parameters->as_hashref
-  );
+  my $req    = body_parameters->as_hashref;
+  my $result = update_device_location(schema, $req);
 
   if ($result) {
-    status_200({ device_id => $serial,
+    status_200({
+      device_id => $serial,
       action    => "update",
-      status    => 200
+      status    => 200,
+      moved_to  => "$req->{rack}:$req->{rack_unit}",
     });
   } else {
     return status_500({error => "error occured updating device location for $serial"});
+  }
+};
+
+del '/device/:serial/location' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $serial    = param 'serial';
+
+  my $req    = body_parameters->as_hashref;
+  my $result = delete_device_location(schema, $req);
+
+
+  if ($result) {
+    status_200({
+      device_id => $serial,
+      action    => "delete",
+      status    => 200,
+      removed_from => "$req->{rack}:$req->{rack_unit}",
+    });
+  } else {
+    return status_500({error => "error removing $serial from $req->{rack}:$req->{rack_unit}"});
   }
 };
 
