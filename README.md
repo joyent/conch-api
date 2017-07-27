@@ -427,3 +427,95 @@ granted by `PUT /datacenter_access`.
   http :5000/user --session integrator_session
   ```
 
+## Problems
+
+### Listing all problems for integrator devices
+
+Get a JSON object that describes all problems in the last Device Validation
+Report for devices assigned to an integrator account.
+
+Device Reports and their associated Validation Criteria are not heavily
+normalized, so a long of munging is probably going to be required. As some
+point, all tests associated with a device should have definitions in the
+`device_validation_criteria` table, with associated log messages and
+remediation steps. Big TODO here.
+
+We try to return as much useful context for a given problem as possible, including:
+
+* Device location
+* Datacenter information
+* Rack information
+* Array of problems
+* Validation criteria for each problem (if it exists)
+
+* URL
+
+  `/problem`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+  Requires integrator account.
+
+* Success Response:
+
+  * `200`
+
+```
+{
+    "BAENG1O": {
+        "datacenter": {
+            "id": "f465c98a-85f5-4540-9a78-acee9aa87ba7",
+            "name": "arcadia-planitia-1a"
+        },
+        "health": "FAIL",
+        "problems": [
+            {
+                "component_id": "3b26f301-d7b8-454f-bf0a-e8d0b5d29d2b",
+                "component_name": "BTHC640407461P6PGN",
+                "component_type": "SATA_SSD",
+                "criteria": {
+                    "component": "SAS_SSD",
+                    "condition": "temp",
+                    "crit": 51,
+                    "id": "317b20f4-522c-4b37-b06d-7419a47bc535",
+                    "min": 25,
+                    "warn": 41
+                },
+                "log": "CRITICAL: BTHC640407461P6PGN: 75 (>51)",
+                "metric": 75
+            },
+            {
+                "component_id": "b2cb730f-d58b-4d2c-b21d-6b768b3aba38",
+                "component_name": "BTHC640405WM1P6PGN",
+                "component_type": "SATA_SSD",
+                "criteria": {
+                    "component": "SAS_SSD",
+                    "condition": "temp",
+                    "crit": 51,
+                    "id": "317b20f4-522c-4b37-b06d-7419a47bc535",
+                    "min": 25,
+                    "warn": 41
+                },
+                "log": "CRITICAL: BTHC640405WM1P6PGN: 100 (>51)",
+                "metric": 100
+            }
+        ],
+        "rack": {
+            "id": "7d7665d3-9244-42d6-bad8-f9505a9380ae",
+            "name": "A01",
+            "role": "TRITON",
+            "unit": 3
+        }
+    }
+}
+```
+
+* Example request
+
+  ```
+  http :5000/problem --session integrator_session
+  ```

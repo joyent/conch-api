@@ -2287,6 +2287,18 @@ DISTRIBUTIONS
       Lingua::Stem::Snowball::Da 1.01
     requirements:
       ExtUtils::MakeMaker 0
+  List-Compare-0.53
+    pathname: J/JK/JKEENAN/List-Compare-0.53.tar.gz
+    provides:
+      List::Compare 0.53
+      List::Compare::Accelerated 0.53
+      List::Compare::Base::_Auxiliary 0.53
+      List::Compare::Base::_Engine 0.53
+      List::Compare::Functional 0.53
+      List::Compare::Multiple 0.53
+      List::Compare::Multiple::Accelerated 0.53
+    requirements:
+      ExtUtils::MakeMaker 0
   List-MoreUtils-0.419
     pathname: R/RE/REHSACK/List-MoreUtils-0.419.tar.gz
     provides:

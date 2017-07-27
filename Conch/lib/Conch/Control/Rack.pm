@@ -8,7 +8,13 @@ use Conch::Control::User;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( racks_for_user rack_roles rack_layout );
+our @EXPORT = qw( get_rack racks_for_user rack_roles rack_layout );
+
+sub get_rack {
+  my ($schema, $rack_id ) = @_;
+  my $rack = $schema->resultset('DatacenterRack')->find({id => $rack_id});
+  return $rack;
+}
 
 sub rack_roles {
   my ($schema) = @_;
