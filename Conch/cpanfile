@@ -9,6 +9,7 @@ requires 'URL::Encode::XS';
 requires 'CGI::Deurl::XS';
 requires 'HTTP::Parser::XS';
 requires 'Plack::Middleware::Deflater';
+requires 'Plack::Middleware::CrossOrigin';
 requires 'Plack';
 requires 'Config::General';
 requires 'Data::UUID';
@@ -39,4 +40,3 @@ on 'test' => sub {
     requires 'Test::More';
     requires 'HTTP::Request::Common';
 };
-
