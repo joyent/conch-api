@@ -7,14 +7,32 @@ Database build and management service
 Conch uses `carton` to manage dependencies. Install `carton` and run `carton
 install` or `make deps` in the `Conch/` directory.
 
-
-
 # Endpoints
 
 I am going to *strongly* recommend using [HTTPie](https://httpie.org) for
 testing the endpoints in the command-line. Managing cookies and JSON encoding
 with cURL is a pain, and HTTPie manages it well. All endpoint examples will be
 done with HTTPie. The executable for HTTPie is `http`.
+
+| Endpoint                 | Method | Auth       | Returns | Description |
+| ------------------------ | ------ | ---------- | ------- | ----------- |
+| /login                   | POST   | -          | Hash    | Create a login session |
+| /user                    | POST   | admin      | Hash    | Create integrator users |
+| /datacenter_access       | POST   | admin      | Hash    | Associate a user account with racks |
+| /relay                   | GET    | admin      | Array   | List all Relay Devices |
+| /relay/:serial/register  | POST   | integrator | Hash    | Register a Relay Device |
+| /device                  | GET    | integrator | Array   | List all devices |
+| /device/active           | GET    | integrator | Array   | List all devices active in last 2 minutes |
+| /device/health/FAIL      | GET    | integrator | Array   | List all devices failing validation |
+| /device/health/PASS      | GET    | integrator | Array   | List all devices passing validation |
+| /device/:serial          | POST   | integrator | Hash    | Submit a device report for validation |
+| /device/:serial          | GET    | integrator | Hash    | Retrieve the most recent device report |
+| /device/:serial/location | POST   | integrator | Hash    | Update a single device rack location |
+| /device/:serial/location | DELETE | integrator | Hash    | Remove a single device from a rack location |
+| /rack                    | GET    | integrator | Hash    | List all available racks |
+| /rack/:uuid              | GET    | integrator | Hash    | Get layout for a specific rack |
+| /rack/:uuid/layout       | POST   | integrator | Hash    | Update multiple slots in a given rack |
+| /problem                 | GET    | integrator | Hash    | Describe all components failing validation |
 
 ## Login
 
