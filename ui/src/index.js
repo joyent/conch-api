@@ -20,6 +20,8 @@ var Auth = {
             console.log("logged in successfully and got " + data.token);
             localStorage.setItem("auth-token", data.token);
             m.route.set("/racks");
+        }).catch(function(error) {
+            console.log("An error fired: " + error);
         });
     }
 }
