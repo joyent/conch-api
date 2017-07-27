@@ -89,10 +89,11 @@ sub get_failing_user_devices {
 
   my @user_devices = devices_for_user($schema, $user_name);
 
-  # XXX Presumably a JOIN/custom schema would serve this better.
+  #  If at some point we care about time-bounding when we've seen failures,
+  #  add this:
+  #  last_seen => \' > NOW() - INTERVAL \'2 minutes\'',
   my @failing_rs = $schema->resultset('Device')->search({
     health => "FAIL",
-    last_seen => \' > NOW() - INTERVAL \'2 minutes\'',
   });
 
   my @failing_devices;
