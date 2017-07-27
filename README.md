@@ -157,6 +157,18 @@ List all devices on your account that have reported in the last two minutes.
 http :5000/device --session integrator
 ```
 
+### List all device failing validation
+
+* URL
+
+  `/device/health/FAIL`
+
+### List all devices passing validation
+
+* URL
+
+  `/device/health/PASS`
+
 ### Creating device report
 
 Takes a JSON blob created by `export.pl` and processes it.
