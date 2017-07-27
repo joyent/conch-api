@@ -59,6 +59,7 @@ post '/user' => needs admin => sub {
 
 
 post '/login' => sub {
+  header 'Access-Control-Allow-Origin' => '*';
   my $username = body_parameters->get('user');
   my $password = body_parameters->get('password');
   if ($username eq 'admin' &&
