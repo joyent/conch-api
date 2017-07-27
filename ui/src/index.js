@@ -13,7 +13,7 @@ var Auth = {
     },
     login: function() {
         m.request({
-            method: "PUT",
+            method: "POST",
             url: "http://localhost:5000/login",
             data: {user: Auth.username, password: Auth.password}
         }).then(function(data) {
