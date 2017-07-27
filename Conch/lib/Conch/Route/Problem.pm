@@ -16,10 +16,14 @@ set serializer => 'JSON';
 
 get '/problem' => needs integrator => sub {
   my $user_name = session->read('integrator');
-  
   my $problems = get_problems(schema, $user_name);
-
   status_200($problems);
+};
+
+# Not currently supported.
+get '/problem/:uuid' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  status_200({problem => "https://www.dropbox.com/s/55vth4g7yalc5u1/problem.jpg"});
 };
 
 1;
