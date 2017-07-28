@@ -2,7 +2,7 @@
 
 This is an Nginx config that proxy's port 80 to port 5000 for the
 Conch dancer2 service.  In addition it adds the proper CORS headers
-for preflight checks.  See (this page)[https://distinctplace.com/2017/04/17/nginx-access-control-allow-origin-cors/]
+for preflight checks.  See [this page](https://distinctplace.com/2017/04/17/nginx-access-control-allow-origin-cors/)
 for some documentation about CORS.  We should only need this if the UI
 is running on a different server than the Conch dancer2 server.
 
@@ -45,4 +45,4 @@ The response should look like:
 
 The most important part is the `200 OK` and `< Access-Control-Allow-Origin: *`
 
-If you don't see either of those, cross-origin requests will not work.
+If you don't see either of those, cross-origin requests **will not work**.
