@@ -45,4 +45,13 @@ The response should look like:
 
 The most important part is the `200 OK` and `< Access-Control-Allow-Origin: *`
 
-If you don't see either of those, cross-origin requests **will not work**.
+If you don't see either of those, cross-origin requests **will not work**
+
+If that does work, you can then do the normal request that you intended in the
+first place:
+
+``` shell
+curl -v -X POST -d '{"user":"myuname","password":"mypasswd"}' http://<service ip>:80/login
+```
+
+Again, that should return `200 OK` and `< Access-Control-Allow-Origin: *`
