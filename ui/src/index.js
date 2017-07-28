@@ -17,7 +17,7 @@ var Auth = {
             headers: {
                 "Content-Type": "application/json"
             },
-            url: "http://127.0.0.1:5000/login",
+            url: "http://10.64.223.75:80/login",
             data: {user: Auth.username, password: Auth.password}
             //withCredentials: true
         }).then(function(data) {
