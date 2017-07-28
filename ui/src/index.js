@@ -14,14 +14,20 @@ var Auth = {
     login: function() {
         m.request({
             method: "POST",
-            url: "http://10.64.223.75:5000/login",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            url: "http://127.0.0.1:5000/login",
             data: {user: Auth.username, password: Auth.password}
+            //withCredentials: true
         }).then(function(data) {
             console.log("logged in successfully and got " + data.token);
-            localStorage.setItem("auth-token", data.token);
-            m.route.set("/racks");
+            console.log(data);
+            //localStorage.setItem("auth-token", data.token);
+            //m.route.set("/racks");
         }).catch(function(error) {
-            console.log("An error fired: " + error);
+            console.log("An error fired: ");
+            console.log(error);
         });
     }
 }
