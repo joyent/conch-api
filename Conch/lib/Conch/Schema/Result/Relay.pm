@@ -71,6 +71,11 @@ __PACKAGE__->table("relay");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 ipaddr
+
+  data_type: 'inet'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -96,6 +101,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "ipaddr",
+  { data_type => "inet", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -111,8 +118,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-26 20:00:28
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YQTwoglvLoFs612o+UW0hw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-30 03:19:37
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wwHGk0MQGyUcmJ2Ivsf7CQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

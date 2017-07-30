@@ -34,15 +34,16 @@ sub list_relays {
 }
 
 sub register_relay {
-  my ($schema, $serial, $attrib) = @_;
+  my ($schema, $serial, $ip, $attrib) = @_;
 
   info "Registering relay device $serial";
 
   my $relay = $schema->resultset('Relay')->update_or_create({
-    id       => $serial,
-    version  => $attrib->{version},
-    ssh_port => $attrib->{ssh_port},
-    updated  => \'NOW()',
+    id        => $serial,
+    ipaddr    => $ip,
+    version   => $attrib->{version},
+    ssh_port  => $attrib->{ssh_port},
+    updated   => \'NOW()',
   });
 
   unless ($relay->in_storage) {

@@ -28,12 +28,13 @@ get '/relay/active' => needs admin => sub {
 
 # This acts as both an initial registration and heartbeat endpoint.
 post '/relay/:serial/register' => needs integrator => sub {
+  my $ip = request->address;
   my $serial = param 'serial';
   my $attrib = body_parameters->as_hashref;
 
   # XXX Attribute validation.
 
-  my $relay = register_relay(schema, $serial, $attrib);
+  my $relay = register_relay(schema, $serial, $ip, $attrib);
   if ($relay) {
     status_200({
       relay => $serial,

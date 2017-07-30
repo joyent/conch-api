@@ -21,6 +21,7 @@
 CREATE TABLE relay (
     id                  text        PRIMARY KEY, -- System serial number
     version             text,
+    ipaddr              inet,
     ssh_port            integer,
     deactivated         timestamptz DEFAULT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
