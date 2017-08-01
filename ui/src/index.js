@@ -1,6 +1,31 @@
 var m = require("mithril");
 //var localStorage = require("localStorage");
 
+
+// GET wrapper around m.request()
+// function Gt(uri){
+//     var gt = {};
+//     gt.data = null;
+//     gt.loading = false;
+//     gt.get = function() { start(); return req('GET', uri).then(set).then(done); };
+
+//     function start(){ gt.loading = true; m.redraw(); }
+//     function done(){ gt.loading = false; }
+//     function set(data){ gt.data = data; }
+//     function config(){ }
+//     function req(method, uri, data){
+//         return m.request({
+//             method: method,
+//             url: uri,
+//             data: data,
+//             withCredentials: true,
+//             config: config
+//         });
+//     };
+
+//     return gt;
+// }
+
 var Auth = {
     username: "",
     password: "",
@@ -14,14 +39,10 @@ var Auth = {
     login: function() {
         m.request({
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             url: "http://10.64.223.75:80/login",
             data: {user: Auth.username, password: Auth.password}
-            //withCredentials: true
         }).then(function(data) {
-            console.log("logged in successfully and got " + data.token);
+            console.log("logged in successfully and got ");
             console.log(data);
             //localStorage.setItem("auth-token", data.token);
             //m.route.set("/racks");
@@ -45,19 +66,17 @@ var Login = {
                 onclick: Auth.login},
               "Login blah")]);
     }
-}
+};
+
+
 
 var RackList = require("./views/RackList");
+var Layout = require("./views/Layout");
 
-m.route(document.body, "/list", {
-    "/list": {
-        onmatch: function() {
-            if (!localStorage.getItem("auth-token")) {
-                return m.route.set("/login");
-            }
-            else {
-                return RackList;
-            }
+m.route(document.body, "/racks", {
+    "/racks": {
+        render: function() {
+            return m(Layout, m(RackList));
         }
     },
     "/login": Login
