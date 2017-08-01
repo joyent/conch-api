@@ -6,9 +6,6 @@ var Rack = {
         return m.request({
             method: "GET",
             url: "http://10.64.223.75:80/rack",
-            headers: {
-                "Access-Control-Allow-Credentials": true
-            },
             withCredentials: true
         }).then(function(result) {
             console.log("Result is...");
