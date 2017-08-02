@@ -11,6 +11,8 @@ var Rack = {
             console.log("Result is...");
             console.log(result);
             Rack.list = result.data.racks;
+        }).catch(function(e) {
+            console.log("Error in GET /rack: " + e.message);
         });
     },
 
@@ -22,6 +24,8 @@ var Rack = {
             withCredentials: true
         }).then(function(result) {
             Rack.current = result;
+        }).catch(function(e) {
+            console.log("Error in GET /rack/" + id + ": " + e.message);
         });
     }
 }

@@ -1,30 +1,4 @@
 var m = require("mithril");
-//var localStorage = require("localStorage");
-
-
-// GET wrapper around m.request()
-// function Gt(uri){
-//     var gt = {};
-//     gt.data = null;
-//     gt.loading = false;
-//     gt.get = function() { start(); return req('GET', uri).then(set).then(done); };
-
-//     function start(){ gt.loading = true; m.redraw(); }
-//     function done(){ gt.loading = false; }
-//     function set(data){ gt.data = data; }
-//     function config(){ }
-//     function req(method, uri, data){
-//         return m.request({
-//             method: method,
-//             url: uri,
-//             data: data,
-//             withCredentials: true,
-//             config: config
-//         });
-//     };
-
-//     return gt;
-// }
 
 var Auth = {
     username: "",
@@ -44,11 +18,12 @@ var Auth = {
         }).then(function(data) {
             console.log("logged in successfully and got ");
             console.log(data);
+            m.route.set("/racks");
             //localStorage.setItem("auth-token", data.token);
             //m.route.set("/racks");
-        }).catch(function(error) {
+        }).catch(function(e) {
             console.log("An error fired: ");
-            console.log(error);
+            console.log(e);
         });
     }
 }
