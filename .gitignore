@@ -23,6 +23,7 @@ nytprof.out
 Conch/conch.conf
 .DS_Store
 Conch/environments/*.yml
+Conch/sessions
 
 # Carton-installed dependency folder
 local/

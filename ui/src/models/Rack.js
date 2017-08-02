@@ -1,18 +1,33 @@
 var m = require("mithril");
 
-var Racks = {
+var Rack = {
     list: [],
-    loadRacks: function() {
+    loadList: function() {
         return m.request({
             method: "GET",
-            url: "http://localhost:5000/rack",
+            url: "http://10.64.223.75:80/rack",
             withCredentials: true
         }).then(function(result) {
             console.log("Result is...");
             console.log(result);
-            Racks.list = result.data.racks;
+            Rack.list = result.data.racks;
+        }).catch(function(e) {
+            console.log("Error in GET /rack: " + e.message);
+        });
+    },
+
+    current: {},
+    load: function(id) {
+        return m.request({
+            method: "GET",
+            url: "http://10.64.223.75:80/rack/" + id,
+            withCredentials: true
+        }).then(function(result) {
+            Rack.current = result;
+        }).catch(function(e) {
+            console.log("Error in GET /rack/" + id + ": " + e.message);
         });
     }
-};
+}
 
-module.exports = Racks;
+module.exports = Rack;

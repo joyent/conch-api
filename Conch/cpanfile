@@ -28,6 +28,8 @@ requires 'Dancer2::Plugin::DBIC';
 requires 'Dancer2::Plugin::LogReport';
 requires 'Dancer2::Plugin::Passphrase';
 requires 'Dancer2::Plugin::REST';
+requires 'Dancer2::Plugin::REST';
+requires 'Dancer2::Session::YAML';
 
 # moose
 requires 'Moose';
