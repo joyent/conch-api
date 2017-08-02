@@ -14,7 +14,6 @@ Conch->to_app;
 use Plack::Builder;
 
 builder {
-    enable 'CrossOrigin', origins => '*';
     enable 'Deflater';
     Conch->to_app;
 }
