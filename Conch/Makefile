@@ -1,12 +1,28 @@
+.PHONY: test run deps install-deps generate-dbic
+
+
 test:
 	@carton exec prove -l lib
 
-run:
+run: public/js/app.js
 	@carton exec plackup bin/app.psgi
+
 
 deps: install-deps
 install-deps:
-	@carton install
+	# '--deployment' installs the same dep versions that are in the lockfile
+	@carton install --deployment
 
 generate-dbic:
 	@carton exec dbicdump schema.conf
+
+
+# Build Javascript UI
+JS_SRC := $(shell find ui/src -name '*.js')
+
+ui/node_modules:
+	@cd ui && npm install;
+
+public/js/app.js: $(JS_SRC) ui/node_modules
+	@cd ui && npm run-script build;
+	@cp ui/bin/app.js public/js/app.js;
