@@ -20,6 +20,7 @@
 
 CREATE TABLE relay (
     id                  text        PRIMARY KEY, -- System serial number
+    alias               text,
     version             text,
     ipaddr              inet,
     ssh_port            integer,
