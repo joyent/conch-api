@@ -13,7 +13,7 @@ var Auth = {
     login: function() {
         m.request({
             method: "POST",
-            url: "http://localhost:5000/login",
+            url: "/login",
             data: {user: Auth.username, password: Auth.password}
         }).then(function(data) {
             console.log("logged in successfully and got ");
@@ -46,7 +46,7 @@ var Login = {
 var RackList = require("./views/RackList");
 var Layout = require("./views/Layout");
 
-m.route(document.body, "/racks", {
+m.route(document.body, "/login", {
     "/racks": {
         render: function() {
             return m(Layout, m(RackList));

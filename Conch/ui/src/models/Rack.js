@@ -5,7 +5,7 @@ var Rack = {
     loadList: function() {
         return m.request({
             method: "GET",
-            url: "http://localhost:5000/rack",
+            url: "/rack",
             withCredentials: true
         }).then(function(result) {
             console.log("Result is...");
@@ -20,7 +20,7 @@ var Rack = {
     load: function(id) {
         return m.request({
             method: "GET",
-            url: "http://localhost:5000/rack/" + id,
+            url: "/rack/" + id,
             withCredentials: true
         }).then(function(result) {
             Rack.current = result;
