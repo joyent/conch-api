@@ -8,4 +8,8 @@ use Conch::Route::Problem;
 
 our $VERSION = '0.1';
 
+get '/' => sub {
+  send_file '/index.html'
+};
+
 true;
