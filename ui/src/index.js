@@ -19,8 +19,6 @@ var Auth = {
             console.log("logged in successfully and got ");
             console.log(data);
             m.route.set("/racks");
-            //localStorage.setItem("auth-token", data.token);
-            //m.route.set("/racks");
         }).catch(function(e) {
             console.log("An error fired: ");
             console.log(e);
@@ -39,7 +37,7 @@ var Login = {
                 value: Auth.password}),
             m("button[type=button]", {
                 onclick: Auth.login},
-              "Login blah")]);
+              "Login")]);
     }
 };
 
