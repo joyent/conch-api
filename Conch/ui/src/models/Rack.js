@@ -21,8 +21,8 @@ var Rack = {
             method: "GET",
             url: "/rack/" + id,
             withCredentials: true
-        }).then(function(result) {
-            Rack.current = result;
+        }).then(function(res) {
+            Rack.current = res.rack;
         }).catch(function(e) {
             console.log("Error in GET /rack/" + id + ": " + e.message);
         });

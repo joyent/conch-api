@@ -1,55 +1,18 @@
 var m = require("mithril");
 
-var Auth = {
-    username: "",
-    password: "",
-
-    setUsername: function(value) {
-        Auth.username = value;
-    },
-    setPassword: function(value) {
-        Auth.password = value;
-    },
-    login: function() {
-        m.request({
-            method: "POST",
-            url: "/login",
-            data: {user: Auth.username, password: Auth.password}
-        }).then(function(data) {
-            console.log("logged in successfully and got ");
-            console.log(data);
-            m.route.set("/racks");
-        }).catch(function(e) {
-            console.log("An error fired: ");
-            console.log(e);
-        });
-    }
-}
-
-var Login = {
-    view: function() {
-        return m("form", [
-            m("input[type=text]", {
-                oninput: m.withAttr("value", Auth.setUsername),
-                value: Auth.username}),
-            m("input[type=password]", {
-                oninput: m.withAttr("value", Auth.setPassword),
-                value: Auth.password}),
-            m("button[type=button]", {
-                onclick: Auth.login},
-              "Login")]);
-    }
-};
-
-
-
-var RackList = require("./views/RackList");
+var Rack = require("./views/Rack");
 var Layout = require("./views/Layout");
+var Login = require("./views/Login");
 
 m.route(document.body, "/login", {
     "/racks": {
         render: function() {
-            return m(Layout, m(RackList));
+            return m(Layout, m(Rack.allRacks));
+        }
+    },
+    "/rack/:id": {
+        render: function(vnode) {
+            return m(Layout, m(Rack.rackLayout, vnode.attrs));
         }
     },
     "/login": Login
