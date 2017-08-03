@@ -1,16 +1,15 @@
 var m = require("mithril");
 
 var Rack = {
-    list: [],
-    loadList: function() {
+    // Associative array of room names to list of racks
+    rackRooms: {},
+    loadRooms: function() {
         return m.request({
             method: "GET",
             url: "/rack",
             withCredentials: true
-        }).then(function(result) {
-            console.log("Result is...");
-            console.log(result);
-            Rack.list = result.data.racks;
+        }).then(function(res) {
+            Rack.rackRooms = res.racks;
         }).catch(function(e) {
             console.log("Error in GET /rack: " + e.message);
         });

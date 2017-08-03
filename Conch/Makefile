@@ -1,4 +1,4 @@
-.PHONY: test run deps install-deps generate-dbic
+.PHONY: test run deps install-deps generate-dbic watch
 
 
 test:
@@ -29,3 +29,7 @@ public/js/app.js: $(JS_SRC) ui/node_modules
 
 public/css/app.css: public/js/app.js
 	@cp ui/css/app.css public/css/app.css;
+
+
+watch:
+	find lib ui/src | entr -r -d -c make run

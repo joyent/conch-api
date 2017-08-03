@@ -51,9 +51,12 @@ sub racks_for_user {
   my $user_racks = {};
   foreach my $rack (@racks) {
     my $rack_dc = $dc{ $rack->datacenter_room_id }{name};
-    $user_racks->{ $rack_dc }{ $rack->id }{ name } = $rack->name;
-    $user_racks->{ $rack_dc }{ $rack->id }{ role } = $rack_roles->{ $rack->role }{name};
-    $user_racks->{ $rack_dc }{ $rack->id }{ size } = $rack_roles->{ $rack->role }{size};
+    my $user_rack = {};
+    $user_rack->{ id } = $rack->id;
+    $user_rack->{ name } = $rack->name;
+    $user_rack->{ role } = $rack_roles->{ $rack->role }{name};
+    $user_rack->{ size } = $rack_roles->{ $rack->role }{size};
+    push @{ $user_racks->{ $rack_dc } }, $user_rack;
   }
 
   return $user_racks;
