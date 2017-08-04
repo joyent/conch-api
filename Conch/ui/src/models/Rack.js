@@ -9,7 +9,13 @@ var Rack = {
             url: "/rack",
             withCredentials: true
         }).then(function(res) {
-            Rack.rackRooms = res.racks;
+            // sort and assign the rack rooms
+            Rack.rackRooms =
+                Object.keys(res.racks).sort().reduce(
+                    function(acc, room) {
+                        acc[room] = res.racks[room];
+                        return acc;
+                    }, {});
         }).catch(function(e) {
             console.log("Error in GET /rack: " + e.message);
         });
@@ -27,6 +33,7 @@ var Rack = {
             console.log("Error in GET /rack/" + id + ": " + e.message);
         });
     },
+    assignSuccess: false,
     assignDevices: function(rack) {
         var deviceAssignments =
             Object.keys(rack.slots).reduce(function(obj, slot) {
@@ -42,7 +49,12 @@ var Rack = {
             data: deviceAssignments,
             withCredentials: true
         }).then(function(res) {
-            console.log(res);
+            Rack.assignSuccess = true;
+            setTimeout(
+                function(){ Rack.assignSuccess = false; m.redraw();},
+                3000
+            );
+            return res;
         }).catch(function(e) {
             console.log("Error in assigning devices" + e.message);
         });

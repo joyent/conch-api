@@ -76,24 +76,31 @@ var rackLayoutTable = { view: function () {
 var rackLayout = {
     oninit: function(vnode) { Rack.load(vnode.attrs.id) },
     view: function() {
-        return m(".pure-g", [
-            m(".pure-u-1-3", m("h3", "Datacenter")),
-            m(".pure-u-1-3", m("h3", "Rack Name")),
-            m(".pure-u-1-3", m("h3", "Rack Role")),
-            m(".pure-u-1-3", Rack.current.datacenter),
-            m(".pure-u-1-3", Rack.current.name),
-            m(".pure-u-1-3", Rack.current.role),
-            m(".pure-u-1", 
-                m("form.pure-form",
-                    { onsubmit: function (e) {
-                        e.preventDefault; Rack.assignDevices(Rack.current);
-                    } },
-                [
-                    m("button.pure-button.pure-button-primary[type=submit]", "Assign Devices"),
-                    m(rackLayoutTable),
-                ])
-            )
-        ]);
+        return [
+            Rack.assignSuccess
+                ? m(".notification.notification-success",
+                    "Successfully assigned devices to rack")
+                : null,
+            m(".pure-g", [
+                m(".pure-u-1-3", m("h3", "Datacenter")),
+                m(".pure-u-1-3", m("h3", "Rack Name")),
+                m(".pure-u-1-3", m("h3", "Rack Role")),
+                m(".pure-u-1-3", Rack.current.datacenter),
+                m(".pure-u-1-3", Rack.current.name),
+                m(".pure-u-1-3", Rack.current.role),
+                m(".pure-u-1",
+                    m("form.pure-form",
+                        { onsubmit: function (e) {
+                            e.preventDefault;
+                            Rack.assignDevices(Rack.current);
+                        } },
+                        [
+                            m("button.pure-button.pure-button-primary[type=submit]", "Assign Devices"),
+                            m(rackLayoutTable),
+                        ])
+                )
+            ])
+        ];
     }
 };
 
