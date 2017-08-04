@@ -52,7 +52,7 @@ var Rack = {
             Rack.assignSuccess = true;
             setTimeout(
                 function(){ Rack.assignSuccess = false; m.redraw();},
-                3000
+                2600
             );
             return res;
         }).catch(function(e) {

@@ -3,23 +3,32 @@ var Rack = require("../models/Rack");
 
 var allRacks = {
     oninit: Rack.loadRooms,
-    view: function() {
-        return m(".room-list", Object.keys(Rack.rackRooms).map(
-          function(roomName) {
-            return [
-              m("h3.room-list-header", roomName),
-              m(".rack-list", Rack.rackRooms[roomName].map(
-                function(rack) {
-                  return m("a.rack-list-item",
-                    {href: "/rack/" + rack.id, oncreate: m.route.link},
-                    "Name: " + rack.name + ", Role: "
-                      + rack.role + ", Size: " + rack.size
-                  );
-              }))
+    view: function(vnode) {
+        return [
+            m(".room-list.pure-u-1-3", Object.keys(Rack.rackRooms).map(
+                function(roomName) {
+                    return [
+                        m("h3.room-list-header", roomName),
+                        m(".rack-list", Rack.rackRooms[roomName].map(
+                            function(rack) {
+                                return m("a.rack-list-item",
+                                    {
+                                        href: "/rack/" + rack.id,
+                                        oncreate: m.route.link,
+                                        onclick: function() {
+                                            Rack.load(rack.id);
+                                        }
+                                    },
+                                    "Name: " + rack.name + ", Role: "
+                                    + rack.role + ", Size: " + rack.size
+                                );
+                            }))
 
-            ];
-          })
-        );
+                    ];
+                })
+        ),
+        vnode.children
+        ];
     }
 };
 
@@ -56,12 +65,13 @@ var rackLayoutTable = { view: function () {
                     m("td", Rack.current.slots[slot].size),
                     m("td",
                         m("input[type=text][placeholder=Unassigned]",
-                            { oninput:
-                                m.withAttr("value",
-                                    function(value) {
-                                        Rack.current.slots[slot].occupant = value;
-                                    }
-                                ),
+                            {
+                                oninput:
+                                    m.withAttr("value",
+                                        function(value) {
+                                            Rack.current.slots[slot].occupant = value;
+                                        }
+                                    ),
                                 id: "slot-" + slot,
                                 onkeypress: enterAsTab,
                                 value: Rack.current.slots[slot].occupant
@@ -76,7 +86,7 @@ var rackLayoutTable = { view: function () {
 var rackLayout = {
     oninit: function(vnode) { Rack.load(vnode.attrs.id) },
     view: function() {
-        return [
+        return m(".pure-u-2-3", [
             Rack.assignSuccess
                 ? m(".notification.notification-success",
                     "Successfully assigned devices to rack")
@@ -100,7 +110,7 @@ var rackLayout = {
                         ])
                 )
             ])
-        ];
+        ]);
     }
 };
 

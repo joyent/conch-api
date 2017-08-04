@@ -17,7 +17,7 @@ module.exports = {
                   ))
                 )
             ]),
-            m("section", vnode.children)
+            m(".pure-g", vnode.children)
         ]);
     }
 };

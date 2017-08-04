@@ -12,7 +12,10 @@ m.route(document.body, "/login", {
     },
     "/rack/:id": {
         render: function(vnode) {
-            return m(Layout, m(Rack.rackLayout, vnode.attrs));
+            return m(Layout,
+              m(Rack.allRacks, 
+                m(Rack.rackLayout, vnode.attrs))
+            );
         }
     },
     "/login": Login

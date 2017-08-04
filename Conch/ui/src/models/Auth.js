@@ -23,6 +23,9 @@ var Auth = {
             console.log("An error fired: ");
             console.log(e);
         });
+    },
+    logout: function() {
+        return m.request({method: "POST", url: "/logout" });
     }
 }
 
