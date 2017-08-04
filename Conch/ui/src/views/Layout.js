@@ -8,11 +8,13 @@ module.exports = {
                   m(".pure-menu.pure-menu-horizontal",
                     m("ul.pure-menu-list",[
                       m("li.pure-menu-item",
-                        m("a[href='/racks'].pure-menu-link", {oncreate: m.route.link}, "Racks")
+                        m("a[href='/rack'].pure-menu-link",
+                          {oncreate: m.route.link}, "Racks")
                       ),
-                      m("li.pure-menu-item",
-                        m("a[href='/problems'].pure-menu-link", {oncreate: m.route.link}, "Problems")
-                      ),
+                      //m("li.pure-menu-item",
+                        //m("a[href='/problems'].pure-menu-link",
+                          //{oncreate: m.route.link}, "Problems")
+                      //),
                     ]
                   ))
                 )

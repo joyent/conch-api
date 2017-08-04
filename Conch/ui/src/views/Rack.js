@@ -17,7 +17,9 @@ var allRacks = {
                                         oncreate: m.route.link,
                                         onclick: function() {
                                             Rack.load(rack.id);
-                                        }
+                                        },
+                                        class: rack.id === Rack.current.id
+                                                ? "rack-list-item-active" : ""
                                     },
                                     "Name: " + rack.name + ", Role: "
                                     + rack.role + ", Size: " + rack.size

@@ -1,5 +1,10 @@
 body,.input,.button {font:normal 16px Verdana;margin:0;}
 
+.select-rack {
+    padding: 100px 0;
+    text-align: center;
+}
+
 .room-list {
     height: 100vh;
     overflow: auto;
@@ -10,13 +15,17 @@ body,.input,.button {font:normal 16px Verdana;margin:0;}
     border:1px solid #ddd;
     color:#333;
     display:block;
-    margin:0 0 1px;
+    margin:0 0 2px;
     padding:8px 15px;
     text-decoration:none;
 }
 
 .rack-list-item:hover {
     text-decoration:underline;
+}
+
+.rack-list-item-active {
+    background: #e0e0e0;
 }
 
 .notification {

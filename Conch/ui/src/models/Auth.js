@@ -10,15 +10,13 @@ var Auth = {
     setPassword: function(value) {
         Auth.password = value;
     },
-    login: function() {
+    login: function(route) {
         m.request({
             method: "POST",
             url: "/login",
             data: {user: Auth.username, password: Auth.password}
         }).then(function(data) {
-            console.log("logged in successfully and got ");
-            console.log(data);
-            m.route.set("/racks");
+            m.route.set("/rack");
         }).catch(function(e) {
             console.log("An error fired: ");
             console.log(e);
