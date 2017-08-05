@@ -1,6 +1,7 @@
 package Conch::Route::Rack;
 
 use strict;
+use warnings;
 
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
@@ -11,6 +12,7 @@ use Hash::MultiValue;
 use Conch::Control::Rack;
 use Conch::Control::Device;
 
+use List::MoreUtils;
 use Data::Printer;
 
 set serializer => 'JSON';
@@ -45,8 +47,11 @@ get '/rack/:uuid' => needs integrator => sub {
 
   my $authorized = 0;
   foreach my $az (keys %{$user_racks}) {
-    if (defined $user_racks->{$az}{$uuid}) {
-      $authorized = 1;
+    my @rack_ids = map { $_->{id} }@{ $user_racks->{$az} };
+    foreach my $rack_id (@rack_ids) {
+      if ($rack_id eq $uuid ) {
+        $authorized = 1;
+      }
     }
   }
 
@@ -74,8 +79,11 @@ post '/rack/:uuid/layout' => needs integrator => sub {
 
   my $authorized = 0;
   foreach my $az (keys %{$user_racks}) {
-    if (defined $user_racks->{$az}{$uuid}) {
-      $authorized = 1;
+    my @rack_ids = map { $_->{id} }@{ $user_racks->{$az} };
+    foreach my $rack_id (@rack_ids) {
+      if ($rack_id eq $uuid ) {
+        $authorized = 1;
+      }
     }
   }
 

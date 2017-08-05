@@ -1,11 +1,13 @@
-.PHONY: test run deps install-deps generate-dbic
+.PHONY: test run build deps install-deps generate-dbic watch
 
 
 test:
 	@carton exec prove -l lib
 
-run: public/js/app.js
+run: build
 	@carton exec plackup bin/app.psgi
+
+build: public/js/app.js public/css/app.css
 
 
 deps: install-deps
@@ -29,3 +31,7 @@ public/js/app.js: $(JS_SRC) ui/node_modules
 
 public/css/app.css: public/js/app.js
 	@cp ui/css/app.css public/css/app.css;
+
+
+watch:
+	find lib ui/src | entr -r -d -c make run
