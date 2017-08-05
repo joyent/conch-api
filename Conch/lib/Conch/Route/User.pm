@@ -60,9 +60,6 @@ post '/user' => needs admin => sub {
 
 post '/login' => sub {
 
-  warning "In /login";
-  p body_parameters->as_hashref;
-
   my $username = body_parameters->get('user');
   my $password = body_parameters->get('password');
   if ($username eq 'admin' &&
