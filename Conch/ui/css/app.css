@@ -1,5 +1,17 @@
 body,.input,.button {font:normal 16px Verdana;margin:0;}
 
+.login-view {
+    position: absolute;
+    left: 50%;
+    margin: 100px -300px 0;
+    height: 200px;
+    width: 600px; 
+}
+
+.login-view input {
+    margin: 0 10px 0 0;
+}
+
 .select-rack {
     padding: 100px 0;
     text-align: center;

@@ -3,15 +3,16 @@ var Auth = require("../models/Auth");
 
 module.exports = {
     view: function() {
-        return m("form.pure-form", [
-            m("input[type=text]", {
+        return m(".login-view", m("form.pure-form", [
+            m("legend", "Login to Conch"),
+            m("input[type=text][placeholder=User Name]", {
                 oninput: m.withAttr("value", Auth.setUsername),
                 value: Auth.username}),
-            m("input[type=password]", {
+            m("input[type=password][placeholder=PIN]", {
                 oninput: m.withAttr("value", Auth.setPassword),
                 value: Auth.password}),
             m("button[type=button].pure-button.pure-button-primary", {
                 onclick: Auth.login},
-              "Login")]);
+              "Login")]));
     }
 };
