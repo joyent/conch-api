@@ -11,7 +11,7 @@ module.exports = {
             m("input[type=password][placeholder=PIN]", {
                 oninput: m.withAttr("value", Auth.setPassword),
                 value: Auth.password}),
-            m("button[type=button].pure-button.pure-button-primary", {
+            m("button[type=submit].pure-button.pure-button-primary", {
                 onclick: Auth.login},
               "Login")]));
     }
