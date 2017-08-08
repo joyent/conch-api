@@ -4,22 +4,20 @@ module.exports = {
     view: function(vnode) {
         return m("main.layout", [
             m(".pure-g", [
-                m(".pure-u-1-3",
-                  m(".pure-menu.pure-menu-horizontal",
-                    m("ul.pure-menu-list",[
-                      m("li.pure-menu-item",
-                        m("a[href='/rack'].pure-menu-link",
-                          {oncreate: m.route.link}, "Racks")
-                      ),
-                      //m("li.pure-menu-item",
-                        //m("a[href='/problems'].pure-menu-link",
-                          //{oncreate: m.route.link}, "Problems")
-                      //),
-                    ]
-                  ))
-                )
+              m(".pure-u-1-12.pure-menu.nav",
+                m("ul.pure-menu-list",[
+                  m("li.pure-menu-item.nav-item",
+                    m("a[href='/rack'].pure-menu-link",
+                      {oncreate: m.route.link}, "Racks")
+                  ),
+                  m("li.pure-menu-item.nav-item",
+                    m("a[href='/problem'].pure-menu-link",
+                      {oncreate: m.route.link}, "Problems")
+                  ),
+                ]
+                )),
+                vnode.children
             ]),
-            m(".pure-g", vnode.children)
         ]);
     }
 };
