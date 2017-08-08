@@ -55,7 +55,15 @@ var showDevice = {
                         m(".pure-u-2-5", problem.log),
                     ]));
                 }),
-                m(".pure-u-1-3", 
+                m(".pure-u-1-4",
+                    m("a.pure-button",
+                        {
+                            href: "/device/" + vnode.attrs.id,
+                            oncreate: m.route.link
+                        },
+                        "Show Device Report"
+                )),
+                m(".pure-u-1-4",
                     m("a.pure-button",
                         {
                             href: "/rack/" + Problem.selected.rack.id 
@@ -63,7 +71,8 @@ var showDevice = {
                             oncreate: m.route.link
                         },
                         "Show Device in Rack"
-                )),
+                    ),
+                ),
             ]
             )
         );

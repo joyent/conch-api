@@ -26,6 +26,7 @@ var Device = {
             withCredentials: true
         }).then(function(res) {
             Device.deviceReport = res;
+            Device.deviceReport.id = deviceId;
         }).catch(function(e) {
             if (e.error === "unauthorized") {
                 m.route.set("/login");
