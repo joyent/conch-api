@@ -71,8 +71,8 @@ var showDevice = {
                             oncreate: m.route.link
                         },
                         "Show Device in Rack"
-                    ),
-                ),
+                    )
+                )
             ]
             )
         );
