@@ -5,6 +5,22 @@ var Layout = require("./views/Layout");
 var Login = require("./views/Login");
 var Problem = require("./views/Problem");
 var Device = require("./views/Device");
+var t = require('i18n4v');
+
+var korean = require('./languages/ko.json');
+var languages = {
+    en: require('./languages/en.json'),
+    ko: korean,
+    'ko-KR': korean
+};
+
+t.setLanguage('ko');
+
+t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
+    console.log("Language: " + lang);
+    t.translator.add(languages[lang] ? languages[lang] : languages.en);
+});
+
 
 m.route(document.body, "/rack", {
     "/rack": {

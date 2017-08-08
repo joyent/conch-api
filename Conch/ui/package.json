@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.js",
     "dependencies": {
+        "i18n4v": "^0.2.2",
         "mithril": "^1.1.3",
         "ramda": "^0.24.1"
     },
