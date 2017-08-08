@@ -14,6 +14,10 @@ module.exports = {
                     m("a[href='/problem'].pure-menu-link",
                       {oncreate: m.route.link}, "Problems")
                   ),
+                  m("li.pure-menu-item.nav-item",
+                    m("a[href='/device'].pure-menu-link",
+                      {oncreate: m.route.link}, "Devices")
+                  ),
                 ]
                 )),
                 vnode.children
