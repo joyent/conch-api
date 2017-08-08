@@ -5,7 +5,7 @@ var Layout = require("./views/Layout");
 var Login = require("./views/Login");
 var Problem = require("./views/Problem");
 
-m.route(document.body, "/login", {
+m.route(document.body, "/rack", {
     "/rack": {
         render: function() {
             return m(Layout,
