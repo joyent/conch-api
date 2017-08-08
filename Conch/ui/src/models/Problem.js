@@ -8,7 +8,12 @@ var Problem = {
             url: "/problem",
             withCredentials: true
         }).then(function(res) {
-            Problem.devices = res;
+            Problem.devices =
+                Object.keys(res).sort().reduce(
+                    function(acc, i) {
+                        acc[i] = res[i];
+                        return acc;
+                    }, {});
         }).catch(function(e) {
             console.log("Error in GET /problem: " + e.message);
         });
