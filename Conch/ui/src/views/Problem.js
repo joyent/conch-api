@@ -6,7 +6,7 @@ var selectProblemDevice = {
     oninit: Problem.loadDeviceProblems,
     view: function(vnode) {
         return [
-            m(".selection-list.pure-u-1-4", Object.keys(Problem.devices).map(
+            m(".selection-list.pure-u-1-6", Object.keys(Problem.devices).map(
                 function(deviceId) {
                     return m("a.selection-list-item",
                         {
@@ -25,7 +25,7 @@ var selectProblemDevice = {
             ),
             vnode.children.length > 0
                 ? vnode.children
-                : m(".pure-u", "Select a device in the sidebar")
+                : m(".make-selection.pure-u-3-4", "Select a device in the sidebar")
         ];
     }
 };
@@ -39,7 +39,7 @@ var showDevice = {
             return m(".pure-u", "Loading...");
         }
 
-        return m(".content-pane.pure-u-2-3",
+        return m(".content-pane.pure-u-3-4",
             m(".pure-g", [
                 m(".pure-u-1", [
                     m(".pure-u-1-5", m("h3", "Component Type")),

@@ -31,7 +31,7 @@ var allRacks = {
         ),
         vnode.children.length > 0
             ? vnode.children
-            : m(".select-rack.pure-u-3-4", "Select a rack in the sidebar")
+            : m(".make-selection.pure-u-3-4", "Select a rack in the sidebar")
         ];
     }
 };
