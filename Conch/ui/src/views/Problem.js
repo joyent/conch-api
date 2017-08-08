@@ -17,14 +17,14 @@ var selectProblemDevice = {
                             oncreate: m.route.link
                         },
                         // Pluralize when localizing
-                        "Device " + deviceId + ": Detected  "
-                            + Problem.devices[deviceId].problems.length
-                            + " problems."
+                        "Device " + deviceId + ": Detected  " +
+                            Problem.devices[deviceId].problems.length +
+                            " problems."
                     );
                 })
             ),
-            vnode.children.length > 0
-                ? vnode.children
+            vnode.children.length > 0 ?
+                vnode.children
                 : m(".make-selection.pure-u-3-4", "Select a device in the sidebar")
         ];
     }
@@ -49,8 +49,8 @@ var showDevice = {
                 ]),
                 Problem.selected.problems.map(function(problem){
                     return m(".pure-u-1", m(".pure-g", [
-                        m(".pure-u-1-5", problem['component_type']),
-                        m(".pure-u-1-5", problem['component_name']),
+                        m(".pure-u-1-5", problem.component_type),
+                        m(".pure-u-1-5", problem.component_name),
                         m(".pure-u-1-5", problem.criteria.condition),
                         m(".pure-u-2-5", problem.log),
                     ]));
@@ -66,8 +66,8 @@ var showDevice = {
                 m(".pure-u-1-4",
                     m("a.pure-button",
                         {
-                            href: "/rack/" + Problem.selected.rack.id 
-                                + "?device=" + vnode.attrs.id,
+                            href: "/rack/" + Problem.selected.rack.id +
+                                "?device=" + vnode.attrs.id,
                             oncreate: m.route.link
                         },
                         "Show Device in Rack"
@@ -80,7 +80,7 @@ var showDevice = {
 };
 
 
-module.exports =
-    { selectProblemDevice : selectProblemDevice,
-      showDevice: showDevice
-    }
+module.exports = {
+    selectProblemDevice : selectProblemDevice,
+    showDevice          : showDevice
+};

@@ -70,6 +70,6 @@ var Rack = {
         });
     },
     highlightDevice: null
-}
+};
 
 module.exports = Rack;

@@ -14,15 +14,15 @@ var allDevices = {
                                 Device.loadDeviceReport(deviceId);
                             },
                             oncreate: m.route.link,
-                            class: deviceId === Device.deviceReport.id
-                                ? "selection-list-item-active" : ""
+                            class: deviceId === Device.deviceReport.id ?
+                                "selection-list-item-active" : ""
                         },
                         deviceId
                     );
                 })
         ),
-        vnode.children.length > 0
-            ? vnode.children
+        vnode.children.length > 0 ?
+            vnode.children
             : m(".make-selection.pure-u-3-4", "Select a device in the sidebar")
         ];
     }
@@ -37,7 +37,7 @@ function reportTable(header, rows) {
             return m("tr", r.map(function(d) { return m("td", d); }));
         }))
     ]));
-};
+}
 
 var deviceReport = {
     oninit: function(vnode) { Device.loadDeviceReport(vnode.attrs.id); },
@@ -61,8 +61,8 @@ var deviceReport = {
             m(".pure-u-1-2", Device.deviceReport['state']),
         ]);
 
-        var environment = Device.deviceReport.temp
-            ? [
+        var environment = Device.deviceReport.temp ?
+            [
                 m(".pure-u-1", m("h2", "Environment")),
                 reportTable(
                     ["Name", "Temperature"],
@@ -70,10 +70,10 @@ var deviceReport = {
                         return [k, Device.deviceReport.temp[k]];
                     })
                 )
-             ]
+            ]
             : null;
-        var network = Device.deviceReport.interfaces
-            ? [
+        var network = Device.deviceReport.interfaces ?
+            [
                 m(".pure-u-1", m("h2", "Network")),
                 reportTable(
                     [
@@ -94,16 +94,16 @@ var deviceReport = {
                             iface.ipaddr,
                             iface.state,
                             iface.product,
-                            iface['peer_switch'],
-                            iface['peer_port'],
-                            iface['peer_mac'],
+                            iface.peer_switch,
+                            iface.peer_port,
+                            iface.peer_mac,
                         ];
                     })
                 )
             ]
             : null;
-        var disks = Device.deviceReport.disks
-            ? [
+        var disks = Device.deviceReport.disks ?
+            [
                 m(".pure-u-1", m("h2", "Storage")),
                 reportTable(
                     [
@@ -128,7 +128,7 @@ var deviceReport = {
                             disk.vendor,
                             disk.model,
                             disk.size,
-                            disk['drive_type'],
+                            disk.drive_type,
                             disk.transport,
                             disk.firmware,
                             disk.health,
@@ -149,20 +149,20 @@ var deviceReport = {
                         "Log",
                     ],
                     Device.deviceReport.validation.sort(function(a, b) {
-                        if (a['component_type'] < b['component_type']) {
+                        if (a.component_type < b.component_type) {
                             return -1;
                         }
-                        if (a['component_type'] > b['component_type']) {
+                        if (a.component_type > b.component_type) {
                             return 1;
                         }
                         return 0;
                     }).map(function(v) {
                         return [
                             v.status ? "" : "X",
-                            v['component_type'],
-                            v['component_name'],
-                            v['metric'],
-                            v['log'],
+                            v.component_type,
+                            v.component_name,
+                            v.metric,
+                            v.log,
                         ];
                     })
                 )

@@ -25,6 +25,6 @@ var Auth = {
     logout: function() {
         return m.request({method: "POST", url: "/logout" });
     }
-}
+};
 
 module.exports = Auth;

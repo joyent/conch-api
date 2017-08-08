@@ -18,19 +18,19 @@ var allRacks = {
                                         onclick: function() {
                                             Rack.load(rack.id);
                                         },
-                                        class: rack.id === Rack.current.id
-                                                ? "selection-list-item-active" : ""
+                                        class: rack.id === Rack.current.id ?
+                                            "selection-list-item-active" : ""
                                     },
-                                    "Name: " + rack.name + ", Role: "
-                                    + rack.role + ", Size: " + rack.size
+                                    "Name: " + rack.name + ", Role: " +
+                                        rack.role + ", Size: " + rack.size
                                 );
                             }))
 
                     ];
                 })
         ),
-        vnode.children.length > 0
-            ? vnode.children
+        vnode.children.length > 0 ?
+            vnode.children
             : m(".make-selection.pure-u-3-4", "Select a rack in the sidebar")
         ];
     }
@@ -46,7 +46,7 @@ function enterAsTab(e) {
                 e.preventDefault();
             }
     }
-    catch (e){ }
+    catch(e){ }
 }
 
 var rackLayoutTable = { view: function () {
@@ -81,9 +81,8 @@ var rackLayoutTable = { view: function () {
                                     onkeypress: enterAsTab,
                                     value: Rack.current.slots[slot].occupant,
                                     class:
-                                        Rack.highlightDevice === Rack.current.slots[slot].occupant
-                                        ? "row-highlight"
-                                        : ""
+                                        Rack.highlightDevice === Rack.current.slots[slot].occupant ?
+                                            "row-highlight" : ""
                                 }
                             )
                         )
