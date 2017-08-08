@@ -5,13 +5,13 @@ var allRacks = {
     oninit: Rack.loadRooms,
     view: function(vnode) {
         return [
-            m(".room-list.pure-u-1-3", Object.keys(Rack.rackRooms).map(
+            m(".selection-list.pure-u-1-6", Object.keys(Rack.rackRooms).map(
                 function(roomName) {
                     return [
-                        m("h3.room-list-header", roomName),
-                        m(".rack-list", Rack.rackRooms[roomName].map(
+                        m("h3.selection-list-header", roomName),
+                        m(".selection-list-group", Rack.rackRooms[roomName].map(
                             function(rack) {
-                                return m("a.rack-list-item",
+                                return m("a.selection-list-item",
                                     {
                                         href: "/rack/" + rack.id,
                                         oncreate: m.route.link,
@@ -19,7 +19,7 @@ var allRacks = {
                                             Rack.load(rack.id);
                                         },
                                         class: rack.id === Rack.current.id
-                                                ? "rack-list-item-active" : ""
+                                                ? "selection-list-item-active" : ""
                                     },
                                     "Name: " + rack.name + ", Role: "
                                     + rack.role + ", Size: " + rack.size
@@ -59,36 +59,44 @@ var rackLayoutTable = { view: function () {
         ])),
         m("tbody",
             Object.keys(Rack.current.slots || {}).reverse().map(function(slot) {
-                return m("tr", [
-                    m("td", slot),
-                    m("td", Rack.current.slots[slot].name),
-                    m("td", Rack.current.slots[slot].alias),
-                    m("td", Rack.current.slots[slot].vendor),
-                    m("td", Rack.current.slots[slot].size),
-                    m("td",
-                        m("input[type=text][placeholder=Unassigned]",
-                            {
-                                oninput:
+                return m("tr",
+                    [
+                        m("td", slot),
+                        m("td", Rack.current.slots[slot].name),
+                        m("td", Rack.current.slots[slot].alias),
+                        m("td", Rack.current.slots[slot].vendor),
+                        m("td", Rack.current.slots[slot].size),
+                        m("td",
+                            m("input[type=text][placeholder=Unassigned]",
+                                {
+                                    oninput:
                                     m.withAttr("value",
                                         function(value) {
                                             Rack.current.slots[slot].occupant = value;
                                         }
                                     ),
-                                id: "slot-" + slot,
-                                onkeypress: enterAsTab,
-                                value: Rack.current.slots[slot].occupant
-                            }
+                                    id: "slot-" + slot,
+                                    onkeypress: enterAsTab,
+                                    value: Rack.current.slots[slot].occupant,
+                                    class:
+                                        Rack.highlightDevice === Rack.current.slots[slot].occupant
+                                        ? "row-highlight"
+                                        : ""
+                                }
+                            )
                         )
-                    )
-                ]);
+                    ]);
             }))
     ]);
 } };
 
 var rackLayout = {
-    oninit: function(vnode) { Rack.load(vnode.attrs.id) },
+    oninit: function(vnode) {
+        Rack.load(vnode.attrs.id);
+        Rack.highlightDevice = vnode.attrs.device;
+    },
     view: function() {
-        return m(".pure-u-2-3", [
+        return m(".content-pane.pure-u-3-4", [
             Rack.assignSuccess
                 ? m(".notification.notification-success",
                     "Successfully assigned devices to rack")
@@ -107,8 +115,8 @@ var rackLayout = {
                             Rack.assignDevices(Rack.current);
                         } },
                         [
-                            m("button.pure-button.pure-button-primary[type=submit]", "Assign Devices"),
                             m(rackLayoutTable),
+                            m("button.pure-button.pure-button-primary[type=submit]", "Assign Devices"),
                         ])
                 )
             ])

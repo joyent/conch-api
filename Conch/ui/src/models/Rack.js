@@ -58,7 +58,8 @@ var Rack = {
         }).catch(function(e) {
             console.log("Error in assigning devices" + e.message);
         });
-    }
+    },
+    highlightDevice: null
 }
 
 module.exports = Rack;

@@ -1,5 +1,13 @@
 body,.input,.button {font:normal 16px Verdana;margin:0;}
 
+.nav {
+    margin: 20px 0;
+}
+
+.nav-item {
+    padding: 10px 4px;
+}
+
 .login-view {
     position: absolute;
     left: 50%;
@@ -17,12 +25,22 @@ body,.input,.button {font:normal 16px Verdana;margin:0;}
     text-align: center;
 }
 
-.room-list {
+.selection-list {
     height: 100vh;
     overflow: auto;
 }
 
-.rack-list-item {
+.content-pane {
+    height: 100vh;
+    overflow: auto;
+}
+
+.content-pane table {
+    width: 90%;
+    margin: 20px auto;
+}
+
+.selection-list-item {
     background:#fafafa;
     border:1px solid #ddd;
     color:#333;
@@ -32,11 +50,11 @@ body,.input,.button {font:normal 16px Verdana;margin:0;}
     text-decoration:none;
 }
 
-.rack-list-item:hover {
+.selection-list-item:hover {
     text-decoration:underline;
 }
 
-.rack-list-item-active {
+.selection-list-item-active {
     background: #e0e0e0;
 }
 
@@ -50,4 +68,8 @@ body,.input,.button {font:normal 16px Verdana;margin:0;}
 
 .notification-success {
     background: #75ec75;
+}
+
+.row-highlight {
+    background: #fdfd77;
 }
