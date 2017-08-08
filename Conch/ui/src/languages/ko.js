@@ -1,6 +1,9 @@
 module.exports = {
     "values": {
 
+        // General
+        "Loading" : "Loading",
+
         // Main menu items
         "Racks"    : "그물 선반",
         "Problems" : "문제",
@@ -27,5 +30,18 @@ module.exports = {
         "Select Rack"    : "Select a rack in the sidebar",
         "Assign Devices" : "Assign Devices",
         "Assign Success" : "Successfully assigned devices to rack",
+
+        // Problems page
+        "Select Device"       : "Select a Device in the sidebar",
+        "Component Type"      : "Component Type",
+        "Component Name"      : "Component Name",
+        "Condition"           : "Condition",
+        "Log"                 : "Log",
+        "Show Device Report"  : "Show Device Report",
+        "Show Device in Rack" : "Show Device in Rack",
+        "%n problems found"   : [
+            [1, 1, "1 problem found"],
+            [2, null, "%n problems found"]
+        ]
     }
 };

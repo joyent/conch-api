@@ -1,4 +1,5 @@
 var m = require("mithril");
+var t = require("i18n4v");
 var Problem = require("../models/Problem");
 var Rack = require("../models/Rack");
 
@@ -17,15 +18,16 @@ var selectProblemDevice = {
                             oncreate: m.route.link
                         },
                         // Pluralize when localizing
-                        "Device " + deviceId + ": Detected  " +
-                            Problem.devices[deviceId].problems.length +
-                            " problems."
+                        m(".pure-g", [
+                            m(".pure-u-1", t("Device") + " " + deviceId),
+                            m(".pure-u-1", t("%n problems found", Problem.devices[deviceId].problems.length))
+                        ])
                     );
                 })
             ),
             vnode.children.length > 0 ?
                 vnode.children
-                : m(".make-selection.pure-u-3-4", "Select a device in the sidebar")
+                : m(".make-selection.pure-u-3-4", t("Select Device"))
         ];
     }
 };
@@ -36,16 +38,16 @@ var showDevice = {
     },
     view: function(vnode) {
         if (!Problem.selected) {
-            return m(".pure-u", "Loading...");
+            return m(".pure-u", t("Loading") + "...");
         }
 
         return m(".content-pane.pure-u-3-4",
             m(".pure-g", [
                 m(".pure-u-1", [
-                    m(".pure-u-1-5", m("h3", "Component Type")),
-                    m(".pure-u-1-5", m("h3", "Component Name")),
-                    m(".pure-u-1-5", m("h3", "Condition")),
-                    m(".pure-u-2-5", m("h3", "Log")),
+                    m(".pure-u-1-5", m("h3", t("Component Type"))),
+                    m(".pure-u-1-5", m("h3", t("Component Name"))),
+                    m(".pure-u-1-5", m("h3", t("Condition"))),
+                    m(".pure-u-2-5", m("h3", t("Log"))),
                 ]),
                 Problem.selected.problems.map(function(problem){
                     return m(".pure-u-1", m(".pure-g", [
@@ -61,7 +63,7 @@ var showDevice = {
                             href: "/device/" + vnode.attrs.id,
                             oncreate: m.route.link
                         },
-                        "Show Device Report"
+                        t("Show Device Report")
                 )),
                 m(".pure-u-1-4",
                     m("a.pure-button",
@@ -70,7 +72,7 @@ var showDevice = {
                                 "?device=" + vnode.attrs.id,
                             oncreate: m.route.link
                         },
-                        "Show Device in Rack"
+                        t("Show Device in Rack")
                     )
                 )
             ]

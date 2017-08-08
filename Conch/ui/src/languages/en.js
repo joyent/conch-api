@@ -1,6 +1,9 @@
 module.exports = {
     "values": {
 
+        // General
+        "Loading" : "Loading",
+
         // Main menu items
         "Racks"    : "Racks",
         "Problems" : "Problems",
@@ -29,6 +32,16 @@ module.exports = {
         "Assign Success" : "Successfully assigned devices to rack",
 
         // Problems page
-        "Select Device" : "Select a Device in the sidebar"
+        "Select Device"       : "Select a Device in the sidebar",
+        "Component Type"      : "Component Type",
+        "Component Name"      : "Component Name",
+        "Condition"           : "Condition",
+        "Log"                 : "Log",
+        "Show Device Report"  : "Show Device Report",
+        "Show Device in Rack" : "Show Device in Rack",
+        "%n problems found"   : [
+            [1, 1, "1 problem found"],
+            [2, null, "%n problems found"]
+        ]
     }
 };
