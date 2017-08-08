@@ -9,9 +9,7 @@ m.route(document.body, "/rack", {
     "/rack": {
         render: function() {
             return m(Layout,
-              m(Rack.allRacks,
-                m(".select-rack.pure-u-2-3", "Select a rack in the sidebar")
-              ));
+              m(Rack.allRacks));
         }
     },
     "/rack/:id": {

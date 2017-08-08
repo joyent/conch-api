@@ -29,7 +29,9 @@ var allRacks = {
                     ];
                 })
         ),
-        vnode.children
+        vnode.children.length > 0
+            ? vnode.children
+            : m(".select-rack.pure-u-3-4", "Select a rack in the sidebar")
         ];
     }
 };
