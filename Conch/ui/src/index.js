@@ -7,9 +7,9 @@ var Problem = require("./views/Problem");
 var Device = require("./views/Device");
 var t = require('i18n4v');
 
-var korean = require('./languages/ko.json');
+var korean = require('./languages/ko.js');
 var languages = {
-    en: require('./languages/en.json'),
+    en: require('./languages/en.js'),
     ko: korean,
     'ko-KR': korean
 };

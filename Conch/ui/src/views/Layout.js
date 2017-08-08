@@ -1,4 +1,5 @@
 var m = require("mithril");
+var t = require('i18n4v');
 
 module.exports = {
     view: function(vnode) {
@@ -8,15 +9,15 @@ module.exports = {
                 m("ul.pure-menu-list",[
                   m("li.pure-menu-item.nav-item",
                     m("a[href='/rack'].pure-menu-link",
-                      {oncreate: m.route.link}, "Racks")
+                      {oncreate: m.route.link}, t("Racks"))
                   ),
                   m("li.pure-menu-item.nav-item",
                     m("a[href='/problem'].pure-menu-link",
-                      {oncreate: m.route.link}, "Problems")
+                      {oncreate: m.route.link}, t("Problems"))
                   ),
                   m("li.pure-menu-item.nav-item",
                     m("a[href='/device'].pure-menu-link",
-                      {oncreate: m.route.link}, "Devices")
+                      {oncreate: m.route.link}, t("Devices"))
                   ),
                 ]
                 )),
