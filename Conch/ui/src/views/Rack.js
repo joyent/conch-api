@@ -1,4 +1,5 @@
 var m = require("mithril");
+var t = require("i18n4v");
 var Rack = require("../models/Rack");
 
 var allRacks = {
@@ -21,8 +22,11 @@ var allRacks = {
                                         class: rack.id === Rack.current.id ?
                                             "selection-list-item-active" : ""
                                     },
-                                    "Name: " + rack.name + ", Role: " +
-                                        rack.role + ", Size: " + rack.size
+                                    m(".pure-g", [
+                                        m(".pure-u-1", t("Name") + ": " + rack.name),
+                                        m(".pure-u-1", t("Role") + ": " + rack.role),
+                                        m(".pure-u-1", t("Size") + ": " + rack.size)
+                                    ])
                                 );
                             }))
 
@@ -31,7 +35,7 @@ var allRacks = {
         ),
         vnode.children.length > 0 ?
             vnode.children
-            : m(".make-selection.pure-u-3-4", "Select a rack in the sidebar")
+            : m(".make-selection.pure-u-3-4", t('Select Rack'))
         ];
     }
 };
@@ -52,12 +56,12 @@ function enterAsTab(e) {
 var rackLayoutTable = { view: function () {
     return m("table.pure-table.pure-table-horizontal.pure-table-striped", [
         m("thead", m("tr", [
-            m("th", "Slot number"),
-            m("th", "Name"),
-            m("th", "Alias"),
-            m("th", "Vendor"),
-            m("th", "Size"),
-            m("th", "Device")
+            m("th", t("Slot Number")),
+            m("th", t("Name")),
+            m("th", t("Alias")),
+            m("th", t("Vendor")),
+            m("th", t("Size")),
+            m("th", t("Device"))
         ])),
         m("tbody",
             Object.keys(Rack.current.slots || {}).reverse().map(function(slot) {
@@ -69,7 +73,7 @@ var rackLayoutTable = { view: function () {
                         m("td", Rack.current.slots[slot].vendor),
                         m("td", Rack.current.slots[slot].size),
                         m("td",
-                            m("input[type=text][placeholder=Unassigned]",
+                            m("input[type=text]",
                                 {
                                     oninput:
                                     m.withAttr("value",
@@ -78,6 +82,7 @@ var rackLayoutTable = { view: function () {
                                         }
                                     ),
                                     id: "slot-" + slot,
+                                    placeholder: t("Unassigned"),
                                     onkeypress: enterAsTab,
                                     value: Rack.current.slots[slot].occupant,
                                     class:
@@ -98,26 +103,25 @@ var rackLayout = {
     },
     view: function() {
         return m(".content-pane.pure-u-3-4", [
-            Rack.assignSuccess
-                ? m(".notification.notification-success",
-                    "Successfully assigned devices to rack")
+            Rack.assignSuccess ?
+                m(".notification.notification-success",
+                    t("Assign Success"))
                 : null,
             m(".pure-g", [
-                m(".pure-u-1-3", m("h3", "Datacenter")),
-                m(".pure-u-1-3", m("h3", "Rack Name")),
-                m(".pure-u-1-3", m("h3", "Rack Role")),
+                m(".pure-u-1-3", m("h3", t("Datacenter"))),
+                m(".pure-u-1-3", m("h3", t("Rack Name"))),
+                m(".pure-u-1-3", m("h3", t("Rack Role"))),
                 m(".pure-u-1-3", Rack.current.datacenter),
                 m(".pure-u-1-3", Rack.current.name),
                 m(".pure-u-1-3", Rack.current.role),
                 m(".pure-u-1",
                     m("form.pure-form",
-                        { onsubmit: function (e) {
-                            e.preventDefault;
+                        { onsubmit: function (e){
                             Rack.assignDevices(Rack.current);
                         } },
                         [
                             m(rackLayoutTable),
-                            m("button.pure-button.pure-button-primary[type=submit]", "Assign Devices"),
+                            m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices")),
                         ])
                 )
             ])
