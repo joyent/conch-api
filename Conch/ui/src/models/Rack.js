@@ -17,7 +17,12 @@ var Rack = {
                         return acc;
                     }, {});
         }).catch(function(e) {
-            console.log("Error in GET /rack: " + e.message);
+            if (e.error === "unauthorized") {
+                m.route.set("/login");
+            }
+            else {
+                console.log("Error in GET /rack: " + e.message);
+            }
         });
     },
 
@@ -30,7 +35,12 @@ var Rack = {
         }).then(function(res) {
             Rack.current = res.rack;
         }).catch(function(e) {
-            console.log("Error in GET /rack/" + id + ": " + e.message);
+            if (e.error === "unauthorized") {
+                m.route.set("/login");
+            }
+            else {
+                console.log("Error in GET /rack/" + id + ": " + e.message);
+            }
         });
     },
     assignSuccess: false,
