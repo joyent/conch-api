@@ -119,6 +119,21 @@ __PACKAGE__->add_unique_constraint("user_account_name_key", ["name"]);
 
 =head1 RELATIONS
 
+=head2 relay_users
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::RelayUser>
+
+=cut
+
+__PACKAGE__->has_many(
+  "relay_users",
+  "Conch::Schema::Result::RelayUser",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 user_datacenter_room_accesses
 
 Type: has_many
@@ -149,8 +164,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-20 15:16:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ihXYUPsQClLQVnVU69X0ww
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-09 14:46:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PCzqkC8QYfbeLEQRwCs7FA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

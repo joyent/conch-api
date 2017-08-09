@@ -68,4 +68,11 @@ has 'temp' => (
   isa => 'HashRef[Int]'
 );
 
+# Only key in hash is currently 'serial'
+has 'relay' => (
+  required => 0,
+  is => 'ro',
+  isa => 'HashRef[Str]'
+);
+
 __PACKAGE__->meta->make_immutable;

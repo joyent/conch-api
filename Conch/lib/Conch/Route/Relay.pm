@@ -30,21 +30,25 @@ get '/relay/active' => needs admin => sub {
 post '/relay/:serial/register' => needs integrator => sub {
   my $ip = request->address;
   my $serial = param 'serial';
+  my $user_name = session->read('integrator');
   my $attrib = body_parameters->as_hashref;
 
   # XXX Attribute validation.
 
-  my $relay = register_relay(schema, $serial, $ip, $attrib);
+  my $relay = process sub {
+    associate_relay(schema, $user_name, $serial);
+    return register_relay(schema, $serial, $ip, $attrib)
+  };
+
   if ($relay) {
     status_200({
       relay => $serial,
-      registered => 1,
-      error => undef, 
+      registered => \1,
     });
   } else {
     status_500({
       relay => $serial,
-      registered => undef,
+      registered => \0,
       error => "error while registering $serial",
     });
   }
