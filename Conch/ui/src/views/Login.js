@@ -19,6 +19,22 @@ module.exports = {
                 onclick: Auth.login},
               t("Login")
             )
-        ]));
+        ]),
+            m("button.pure-button", {
+                onclick: function() {
+                    t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
+                        if(!lang || lang === 'en') {
+                            t.setLanguage('ko');
+                        }
+                        else {
+                            t.setLanguage('en');
+                        }
+                        location.reload();
+                    });
+                }
+            },
+                t("Toggle Language")
+            )
+        );
     }
 };
