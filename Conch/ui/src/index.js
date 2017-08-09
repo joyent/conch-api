@@ -14,8 +14,6 @@ var languages = {
     'ko-KR': korean
 };
 
-t.setLanguage('ko');
-
 t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
     console.log("Language: " + lang);
     t.translator.add(languages[lang] ? languages[lang] : languages.en);
