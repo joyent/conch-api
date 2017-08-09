@@ -76,11 +76,6 @@ __PACKAGE__->table("relay");
   data_type: 'inet'
   is_nullable: 1
 
-=head2 alias
-
-  data_type: 'text'
-  is_nullable: 1
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -108,8 +103,6 @@ __PACKAGE__->add_columns(
   },
   "ipaddr",
   { data_type => "inet", is_nullable => 1 },
-  "alias",
-  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -124,9 +117,56 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-02 01:22:03
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/VfjaPhe5vmH13wgVFlFdA
+=head2 device_reports
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DeviceReport>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_reports",
+  "Conch::Schema::Result::DeviceReport",
+  { "foreign.relay_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 devices
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::Device>
+
+=cut
+
+__PACKAGE__->has_many(
+  "devices",
+  "Conch::Schema::Result::Device",
+  { "foreign.seen_by_relay_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 relay_users
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::RelayUser>
+
+=cut
+
+__PACKAGE__->has_many(
+  "relay_users",
+  "Conch::Schema::Result::RelayUser",
+  { "foreign.relay_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-09 15:14:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DHBySxWxY1IYiEY8UpEgUQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

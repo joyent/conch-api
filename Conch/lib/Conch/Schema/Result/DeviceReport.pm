@@ -62,6 +62,12 @@ __PACKAGE__->table("device_report");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 relay_id
+
+  data_type: 'text'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -83,6 +89,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "relay_id",
+  { data_type => "text", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -129,9 +137,29 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 relay
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-24 19:19:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Z4L+v89dHzX74aYPWZ3W0g
+Type: belongs_to
+
+Related object: L<Conch::Schema::Result::Relay>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "relay",
+  "Conch::Schema::Result::Relay",
+  { id => "relay_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-09 14:46:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bJSsokY/KyFlj+FvKEu6fA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -49,6 +49,7 @@ sub record_device_report {
         state            => $dr->{state},
         health           => "UNKNOWN",
         last_seen        => \'NOW()',
+        seen_by_relay_id => $dr->{relay}{serial}
       });
       my $device_id = $device->id;
       info "Created Device $device_id";

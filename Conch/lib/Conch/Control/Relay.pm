@@ -4,11 +4,12 @@ use strict;
 use Log::Report;
 use Log::Report::DBIC::Profiler;
 use Dancer2::Plugin::Passphrase;
+use Conch::Control::User;
 
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( register_relay list_relays );
+our @EXPORT = qw( register_relay list_relays associate_relay);
 
 sub list_relays {
   my ($schema, $interval) = @_;
@@ -43,7 +44,7 @@ sub register_relay {
     ipaddr    => $ip,
     version   => $attrib->{version},
     ssh_port  => $attrib->{ssh_port},
-    updated   => \'NOW()',
+    updated   => \'NOW()'
   });
 
   unless ($relay->in_storage) {
@@ -51,5 +52,19 @@ sub register_relay {
     return undef;
   }
 }
+
+# Associate relay with a user
+sub associate_relay {
+  my ($schema, $user_name, $relay_id) = @_;
+  my $user_id = lookup_user_by_name($schema, $user_name)->id;
+
+  # 'first_seen' column will only be written on create. It should remain
+  # untouched on updates
+  $schema->resultset('RelayUser')->update_or_create({
+    user_id   => $user_id,
+    relay_id  => $relay_id,
+    last_seen => \'NOW()'
+  });
+};
 
 1;
