@@ -1,4 +1,5 @@
 var m = require("mithril");
+var t = require("i18n4v");
 var Device = require("../models/Device");
 
 var allDevices = {
@@ -23,7 +24,7 @@ var allDevices = {
         ),
         vnode.children.length > 0 ?
             vnode.children
-            : m(".make-selection.pure-u-3-4", "Select a device in the sidebar")
+            : m(".make-selection.pure-u-3-4", t("Select Device"))
         ];
     }
 };
@@ -43,29 +44,29 @@ var deviceReport = {
     oninit: function(vnode) { Device.loadDeviceReport(vnode.attrs.id); },
     view: function(vnode) {
         if (! Device.deviceReport.validation || !Device.deviceReport.validation.length) {
-            return m(".pure-u-3-4.make-selection", "No report collected for device yet");
+            return m(".pure-u-3-4.make-selection", t("No report for device"));
         }
         var basicInfo = m(".pure-u-1.pure-g", [
-            m(".pure-u-1", m("h2", "Device: " + Device.deviceReport.id)),
+            m(".pure-u-1", m("h2", t("Device") + ": " + Device.deviceReport.id)),
 
-            m(".pure-u-1-2", m("b", "Product Name")),
-            m(".pure-u-1-2", Device.deviceReport['product_name']),
+            m(".pure-u-1-2", m("b", t("Product Name"))),
+            m(".pure-u-1-2", Device.deviceReport.product_name),
 
-            m(".pure-u-1-2", m("b", "BIOS Version")),
-            m(".pure-u-1-2", Device.deviceReport['bios_version']),
+            m(".pure-u-1-2", m("b", t("BIOS Version"))),
+            m(".pure-u-1-2", Device.deviceReport.bios_version),
 
-            m(".pure-u-1-2", m("b", "System UUID")),
-            m(".pure-u-1-2", Device.deviceReport['system_uuid']),
+            m(".pure-u-1-2", m("b", t("System UUID"))),
+            m(".pure-u-1-2", Device.deviceReport.system_uuid),
 
-            m(".pure-u-1-2", m("b", "State")),
-            m(".pure-u-1-2", Device.deviceReport['state']),
+            m(".pure-u-1-2", m("b", t("State"))),
+            m(".pure-u-1-2", Device.deviceReport.state),
         ]);
 
         var environment = Device.deviceReport.temp ?
             [
-                m(".pure-u-1", m("h2", "Environment")),
+                m(".pure-u-1", m("h2", t("Environment"))),
                 reportTable(
-                    ["Name", "Temperature"],
+                    [t("Name"), t("Temperature")],
                     Object.keys(Device.deviceReport.temp).sort().map(function(k) {
                         return [k, Device.deviceReport.temp[k]];
                     })
@@ -74,17 +75,17 @@ var deviceReport = {
             : null;
         var network = Device.deviceReport.interfaces ?
             [
-                m(".pure-u-1", m("h2", "Network")),
+                m(".pure-u-1", m("h2", t("Network"))),
                 reportTable(
                     [
-                        "Name",
-                        "MAC", 
-                        "IP Address", 
-                        "State", 
-                        "Product", 
-                        "Peer Switch", 
-                        "Peer Port", 
-                        "Peer MAC"
+                        t("Name"),
+                        t("MAC"), 
+                        t("IP Address"), 
+                        t("State"), 
+                        t("Product"), 
+                        t("Peer Switch"), 
+                        t("Peer Port"), 
+                        t("Peer MAC")
                     ],
                     Object.keys(Device.deviceReport.interfaces).sort().map(function(k) {
                         var iface = Device.deviceReport.interfaces[k];
@@ -104,20 +105,20 @@ var deviceReport = {
             : null;
         var disks = Device.deviceReport.disks ?
             [
-                m(".pure-u-1", m("h2", "Storage")),
+                m(".pure-u-1", m("h2", t("Storage"))),
                 reportTable(
                     [
-                        "Serial Number",
-                        "HBA",
-                        "Slot #",
-                        "Vendor",
-                        "Model",
-                        "Size",
-                        "Drive Type",
-                        "Transport",
-                        "Firmware",
-                        "Health",
-                        "Temperature"
+                        t("Serial Number"),
+                        t("HBA"),
+                        t("Slot Number"),
+                        t("Vendor"),
+                        t("Model"),
+                        t("Size"),
+                        t("Drive Type"),
+                        t("Transport"),
+                        t("Firmware"),
+                        t("Health"),
+                        t("Temperature")
                     ],
                     Object.keys(Device.deviceReport.disks).sort().map(function(k) {
                         var disk = Device.deviceReport.disks[k];
@@ -139,14 +140,14 @@ var deviceReport = {
             ]
             : null;
         var validations = [
-                m(".pure-u-1", m("h2", "Most Recent Report")),
+                m(".pure-u-1", m("h2", t("Device Validation Tests"))),
                 reportTable(
                     [
-                        "Status",
-                        "Type",
-                        "Name",
-                        "Metric",
-                        "Log",
+                        t("Status"),
+                        t("Type"),
+                        t("Name"),
+                        t("Metric"),
+                        t("Log"),
                     ],
                     Device.deviceReport.validation.sort(function(a, b) {
                         if (a.component_type < b.component_type) {
@@ -169,7 +170,7 @@ var deviceReport = {
         ];
         return m(".content-pane.pure-u-3-4",
             m(".pure-g", [
-                m(".pure-u-1", m("h1", "Device Report")),
+                m(".pure-u-1", m("h1", t("Latest Device Report"))),
                 basicInfo,
                 environment,
                 network,
