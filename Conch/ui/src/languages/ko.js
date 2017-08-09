@@ -9,6 +9,8 @@ module.exports = {
         "Log"                     : "Log",
         "Vendor"                  : "Vendor",
         "Select Device"           : "Select a Device in the sidebar",
+        // Used to change the language preference
+        "Toggle Language"         : "Switch to Korean",
 
 
         /* Main menu items */
