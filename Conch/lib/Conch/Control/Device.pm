@@ -9,15 +9,16 @@ use Dancer2::Plugin::Passphrase;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( device_info device_location devices_for_user device_inventory
-                  device_validation_report update_device_location
-                  delete_device_location get_validation_criteria
-                  get_active_devices get_devices_by_health
+our @EXPORT = qw( device_info device_location devices_for_user
+                  device_ids_for_user device_inventory device_validation_report
+                  update_device_location delete_device_location
+                  get_validation_criteria get_active_devices
+                  get_devices_by_health
                  );
 
 sub get_validation_criteria {
   my ($schema) = @_;
-  
+
   my $criteria = {};
 
   my @rs = $schema->resultset('DeviceValidateCriteria')->search({})->all;
@@ -36,23 +37,26 @@ sub get_validation_criteria {
   return $criteria;
 }
 
-sub devices_for_user {
+sub devices_for_user  {
+  my ($schema, $user_name) = @_;
+  return $schema->resultset('UserDeviceAccess')->
+      search({}, { bind => [$user_name] })->all;
+}
+
+sub device_ids_for_user {
   my ($schema, $user_name) = @_;
 
-  my @user_devices;
-
-  foreach my $device ($schema->resultset('UserDeviceAccess')->
-                      search({}, { bind => [$user_name] })->all) {
-    push @user_devices,$device->id;
+  my @user_device_ids;
+  foreach my $device (devices_for_user($schema, $user_name)) {
+    push @user_device_ids,$device->id;
   }
-
-  return @user_devices;
+  return @user_device_ids;
 }
 
 sub get_active_devices {
   my ($schema, $user_name ) = @_;
 
-  my @user_devices = devices_for_user($schema, $user_name);
+  my @user_devices = device_ids_for_user($schema, $user_name);
 
   my @rs = $schema->resultset('Device')->search({
     last_seen => \' > NOW() - INTERVAL \'5 minutes\'',
@@ -73,7 +77,7 @@ sub get_active_devices {
 sub get_devices_by_health {
   my ($schema, $user_name, $state ) = @_;
 
-  my @user_devices = devices_for_user($schema, $user_name);
+  my @user_devices = device_ids_for_user($schema, $user_name);
 
   my @rs = $schema->resultset('Device')->search({
     health => "$state",
@@ -117,7 +121,7 @@ sub device_inventory {
   } else {
     return undef;
   }
-  
+
 }
 
 # Bundle up the validate logs for a given device report.
@@ -183,7 +187,7 @@ sub update_device_location {
       warning "Could not find a slot $device_info->{rack}:$device_info->{rack_unit} for device $device_info->{device}";
       return undef;
     }
- 
+
     my $device_create = $schema->resultset('Device')->update_or_create({
       id     => $device_info->{device},
       health => "UNKNOWN",
@@ -231,7 +235,7 @@ sub update_device_location {
     device_id => $device_info->{device},
     rack_id   => $device_info->{rack},
     rack_unit => $device_info->{rack_unit}
-  }); 
+  });
 }
 
 1;
