@@ -73,3 +73,8 @@ body,.input,.button {font:normal 16px Verdana;margin:0;}
 .row-highlight {
     background: #fdfd77;
 }
+
+.color-failure {
+    background: #ff6e6e;
+
+}
