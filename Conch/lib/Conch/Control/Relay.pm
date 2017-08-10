@@ -9,7 +9,9 @@ use Conch::Control::User;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( register_relay list_relays associate_relay);
+our @EXPORT = qw( register_relay list_relays connect_user_relay
+                  device_relay_connect
+                );
 
 sub list_relays {
   my ($schema, $interval) = @_;
@@ -54,17 +56,30 @@ sub register_relay {
 }
 
 # Associate relay with a user
-sub associate_relay {
+sub connect_user_relay {
   my ($schema, $user_name, $relay_id) = @_;
   my $user_id = lookup_user_by_name($schema, $user_name)->id;
 
   # 'first_seen' column will only be written on create. It should remain
   # untouched on updates
-  $schema->resultset('RelayUser')->update_or_create({
+  $schema->resultset('UserRelayConnection')->update_or_create({
     user_id   => $user_id,
     relay_id  => $relay_id,
     last_seen => \'NOW()'
   });
 };
+
+# Associate relay with a device
+sub device_relay_connect {
+  my ($schema, $device_id, $relay_id) = @_;
+
+  # 'first_seen' column will only be written on create. It should remain
+  # untouched on updates
+  $schema->resultset('DeviceRelayConnection')->update_or_create({
+    device_id   => $device_id,
+    relay_id  => $relay_id,
+    last_seen => \'NOW()'
+  });
+}
 
 1;

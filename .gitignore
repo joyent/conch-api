@@ -26,6 +26,7 @@ Conch/public/css/app.css
 .DS_Store
 Conch/environments/*.yml
 Conch/sessions
+Conch/lib/Conch/Schema/Result/Migration.pm
 
 # Carton-installed dependency folder
 local/

@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::RelayUser;
+package Conch::Schema::Result::UserRelayConnection;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::RelayUser
+Conch::Schema::Result::UserRelayConnection
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
-=head1 TABLE: C<relay_user>
+=head1 TABLE: C<user_relay_connection>
 
 =cut
 
-__PACKAGE__->table("relay_user");
+__PACKAGE__->table("user_relay_connection");
 
 =head1 ACCESSORS
 
@@ -134,8 +134,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-09 14:46:03
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Xd3XoroW/M7AdWC9gio0gQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-10 14:16:20
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YSlP/4NJdItmcWi9ywkaag
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

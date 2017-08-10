@@ -4,6 +4,7 @@ use strict;
 use Log::Report;
 use Conch::Data::DeviceReport;
 use Conch::Control::Device::Environment;
+use Conch::Control::Relay;
 use JSON::XS;
 
 use Exporter 'import';
@@ -49,10 +50,11 @@ sub record_device_report {
         state            => $dr->{state},
         health           => "UNKNOWN",
         last_seen        => \'NOW()',
-        seen_by_relay_id => $dr->{relay}{serial}
       });
       my $device_id = $device->id;
       info "Created Device $device_id";
+
+      device_relay_connect($schema, $device_id, $dr->{relay}{serial});
 
       # Stores the JSON representation of Conch::Data::DeviceReport as serialized
       # by MooseX::Storage

@@ -104,12 +104,6 @@ __PACKAGE__->table("device");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 seen_by_relay_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 1
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -147,8 +141,6 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
-  "seen_by_relay_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -284,6 +276,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 device_relay_connections
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::DeviceRelayConnection>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_relay_connections",
+  "Conch::Schema::Result::DeviceRelayConnection",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 device_reports
 
 Type: has_many
@@ -359,26 +366,6 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 seen_by_relay
-
-Type: belongs_to
-
-Related object: L<Conch::Schema::Result::Relay>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "seen_by_relay",
-  "Conch::Schema::Result::Relay",
-  { id => "seen_by_relay_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
-
 =head2 triton
 
 Type: might_have
@@ -395,8 +382,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-09 14:46:03
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aUEQ1p9ztLN16+Zu4YmuGw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-10 14:16:20
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bxB2maTozaXwTEcPSVmFQQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

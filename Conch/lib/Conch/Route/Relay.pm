@@ -36,7 +36,7 @@ post '/relay/:serial/register' => needs integrator => sub {
   # XXX Attribute validation.
 
   my $relay = process sub {
-    associate_relay(schema, $user_name, $serial);
+    connect_user_relay(schema, $user_name, $serial);
     return register_relay(schema, $serial, $ip, $attrib)
   };
 
