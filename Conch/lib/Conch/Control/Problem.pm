@@ -39,6 +39,7 @@ sub get_problems {
     my $device_location = device_location($schema, $device_id);
 
     $problems->{$device_id}{health} = $device->health;
+    my @problems;
 
     if ($device_location) {
       my $rack_info       = get_rack($schema, $device_location->rack_id);
@@ -55,14 +56,18 @@ sub get_problems {
     else {
       $problems->{$device_id}{rack} = undef;
       $problems->{$device_id}{datacenter} = undef;
+      my $fail = {};
+      $fail->{log} = "Device not assigned to datacenter rack" ;
+      $fail->{component_type} = "Location" ;
+      $fail->{component_name} = "Location" ;
+      $fail->{criteria}{condition} = "Location" ;
+      push @problems, $fail;
     }
-
 
     my $report = newest_report($schema, $device_id);
     if ($report) {
       $problems->{$device_id}{report_id}  = $report->id;
       my @validation_report = device_validation_report($schema, $report->id);
-      my @problems;
       foreach my $v (@validation_report) {
         my $fail = {};
         if ($v->{status} eq 0) {
@@ -81,20 +86,20 @@ sub get_problems {
           push @problems,$fail;
         }
       }
-      $problems->{$device_id}{problems} = \@problems;
     }
     else {
       $problems->{$device_id}{report_id} = undef;
+      my $fail = {};
+      $fail->{log} = "No reports received from device" ;
+      $fail->{component_type} = "Report" ;
+      $fail->{component_name} = "Report" ;
+      $fail->{criteria}{condition} = "Report" ;
+      push @problems, $fail;
     }
+    $problems->{$device_id}{problems} = \@problems;
   }
 
   return $problems;
-}
-
-sub unlocated_devices {
-  my ($schema, $user_name) = @_;
-  return $schema->resultset('UnlocatedUserRelayDevices')->
-      search({}, { bind => [$user_name] })->all;
 }
 
 sub newest_report {

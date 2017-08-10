@@ -17,7 +17,6 @@ var selectProblemDevice = {
                             },
                             oncreate: m.route.link
                         },
-                        // Pluralize when localizing
                         m(".pure-g", [
                             m(".pure-u-1", t("Device") + " " + deviceId),
                             m(".pure-u-1", t("%n problems found", Problem.devices[deviceId].problems.length))
@@ -58,22 +57,27 @@ var showDevice = {
                     ]));
                 }),
                 m(".pure-u-1-4",
-                    m("a.pure-button",
-                        {
-                            href: "/device/" + vnode.attrs.id,
-                            oncreate: m.route.link
-                        },
-                        t("Show Device Report")
-                )),
+                    Problem.selected.report_id ?
+                        m("a.pure-button",
+                            {
+                                href: "/device/" + vnode.attrs.id,
+                                oncreate: m.route.link
+                            },
+                            t("Show Device Report")
+                        )
+                        : ""
+                ),
                 m(".pure-u-1-4",
-                    m("a.pure-button",
-                        {
-                            href: "/rack/" + Problem.selected.rack.id +
-                                "?device=" + vnode.attrs.id,
-                            oncreate: m.route.link
-                        },
-                        t("Show Device in Rack")
-                    )
+                    Problem.selected.rack ?
+                        m("a.pure-button",
+                            {
+                                href: "/rack/" + Problem.selected.rack.id +
+                                    "?device=" + vnode.attrs.id,
+                                oncreate: m.route.link
+                            },
+                            t("Show Device in Rack")
+                        )
+                        : ""
                 )
             ]
             )

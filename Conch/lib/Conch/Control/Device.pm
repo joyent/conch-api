@@ -13,7 +13,7 @@ our @EXPORT = qw( device_info device_location devices_for_user
                   device_ids_for_user device_inventory device_validation_report
                   update_device_location delete_device_location
                   get_validation_criteria get_active_devices
-                  get_devices_by_health
+                  get_devices_by_health unlocated_devices
                  );
 
 sub get_validation_criteria {
@@ -43,15 +43,29 @@ sub devices_for_user  {
       search({}, { bind => [$user_name] })->all;
 }
 
+# Includes device IDs for unlocated devices
 sub device_ids_for_user {
   my ($schema, $user_name) = @_;
 
   my @user_device_ids;
+
   foreach my $device (devices_for_user($schema, $user_name)) {
     push @user_device_ids,$device->id;
   }
+
+  foreach my $device (unlocated_devices($schema, $user_name)) {
+    push @user_device_ids,$device->id;
+  }
+
   return @user_device_ids;
 }
+
+sub unlocated_devices {
+  my ($schema, $user_name) = @_;
+  return $schema->resultset('UnlocatedUserRelayDevices')->
+      search({}, { bind => [$user_name] })->all;
+}
+
 
 sub get_active_devices {
   my ($schema, $user_name ) = @_;
