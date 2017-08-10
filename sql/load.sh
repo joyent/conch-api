@@ -13,3 +13,6 @@ for F in conch.sql hardware.sql zpool_profiles.sql hardware_profiles.sql validat
 done
 
 ./rack_roles.sh
+
+# Run migrations
+./run_migrations.sh
