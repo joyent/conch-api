@@ -1,6 +1,7 @@
 var m = require("mithril");
 var t = require("i18n4v");
 var Rack = require("../models/Rack");
+var Problem = require("../models/Problem");
 
 var allRacks = {
     oninit: Rack.loadRooms,
@@ -58,38 +59,46 @@ var rackLayoutTable = { view: function () {
         m("thead", m("tr", [
             m("th", t("Slot Number")),
             m("th", t("Name")),
-            m("th", t("Alias")),
             m("th", t("Vendor")),
-            m("th", t("Size")),
-            m("th", t("Device"))
+            m("th", t("RU Height")),
+            m("th", t("Device")),
+            m("th", t("Status")),
         ])),
         m("tbody",
-            Object.keys(Rack.current.slots || {}).reverse().map(function(slot) {
+            Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
+                var slot = Rack.current.slots[slotId];
+                var healthy = slot.occupant && ! Problem.devices[slot.occupant];
                 return m("tr",
                     [
-                        m("td", slot),
-                        m("td", Rack.current.slots[slot].name),
-                        m("td", Rack.current.slots[slot].alias),
-                        m("td", Rack.current.slots[slot].vendor),
-                        m("td", Rack.current.slots[slot].size),
+                        m("td", slotId),
+                        m("td", slot.name),
+                        m("td", slot.vendor),
+                        m("td", slot.size),
                         m("td",
                             m("input[type=text]",
                                 {
-                                    oninput:
-                                    m.withAttr("value",
-                                        function(value) {
-                                            Rack.current.slots[slot].occupant = value;
-                                        }
-                                    ),
+                                    oninput: m.withAttr("value", function(value) {
+                                            slot.assignment = value;
+                                        }),
                                     id: "slot-" + slot,
-                                    placeholder: t("Unassigned"),
+                                    placeholder: slot.occupant ? "" : t("Unassigned"),
                                     onkeypress: enterAsTab,
-                                    value: Rack.current.slots[slot].occupant,
+                                    value: slot.assignment || slot.occupant || "",
                                     class:
-                                        Rack.highlightDevice === Rack.current.slots[slot].occupant ?
-                                            "row-highlight" : ""
+                                        Rack.highlightDevice === slot.occupant ?
+                                        "row-highlight" : ""
                                 }
                             )
+                        ),
+                        m("td", slot.occupant ?
+                            m("a.pure-button", {
+                                href: "/device/" + slot.occupant,
+                                oncreate: m.route.link,
+                                title: t("Show Device Report"),
+                                class: healthy ? "" : "color-failure"
+                            },
+                                healthy ? t("Pass") : t("FAIL") )
+                            : ""
                         )
                     ]);
             }))
@@ -100,6 +109,7 @@ var rackLayout = {
     oninit: function(vnode) {
         Rack.load(vnode.attrs.id);
         Rack.highlightDevice = vnode.attrs.device;
+        Problem.loadDeviceProblems();
     },
     view: function() {
         return m(".content-pane.pure-u-3-4", [
@@ -107,23 +117,21 @@ var rackLayout = {
                 m(".notification.notification-success",
                     t("Assign Success"))
                 : null,
-            m(".pure-g", [
-                m(".pure-u-1-3", m("h3", t("Datacenter"))),
-                m(".pure-u-1-3", m("h3", t("Rack Name"))),
-                m(".pure-u-1-3", m("h3", t("Rack Role"))),
-                m(".pure-u-1-3", Rack.current.datacenter),
-                m(".pure-u-1-3", Rack.current.name),
-                m(".pure-u-1-3", Rack.current.role),
-                m(".pure-u-1",
-                    m("form.pure-form",
-                        { onsubmit: function (e){
-                            Rack.assignDevices(Rack.current);
-                        } },
-                        [
-                            m(rackLayoutTable),
-                            m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices")),
-                        ])
-                )
+            m("form.pure-form.pure-g",
+                { onsubmit: function (e){
+                    Rack.assignDevices(Rack.current);
+                } },
+                [
+                m(".pure-u-1-4", m("h3", t("Datacenter"))),
+                m(".pure-u-1-4", m("h3", t("Rack Name"))),
+                m(".pure-u-1-4", m("h3", t("Rack Role"))),
+                m(".pure-u-1-4", ""),
+                m(".pure-u-1-4", Rack.current.datacenter),
+                m(".pure-u-1-4", Rack.current.name),
+                m(".pure-u-1-4", Rack.current.role),
+                m(".pure-u-1-4",
+                        m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices"))),
+                m(".pure-u-1", m(rackLayoutTable))
             ])
         ]);
     }

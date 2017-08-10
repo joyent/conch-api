@@ -47,7 +47,7 @@ var Rack = {
     assignDevices: function(rack) {
         var deviceAssignments =
             Object.keys(rack.slots).reduce(function(obj, slot) {
-                var device = rack.slots[slot].occupant;
+                var device = rack.slots[slot].assignment;
                 if (device) {
                     obj[device] = slot;
                 }
@@ -64,6 +64,7 @@ var Rack = {
                 function(){ Rack.assignSuccess = false; m.redraw();},
                 2600
             );
+            Rack.load(rack.id);
             return res;
         }).catch(function(e) {
             console.log("Error in assigning devices" + e.message);

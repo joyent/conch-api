@@ -6,8 +6,10 @@ module.exports = {
         // Name for objects, like servers
         "Name"                    : "Name",
         "Size"                    : "Size",
+        "RU Height"               : "Rack Unit Height",
         "Log"                     : "Log",
         "Vendor"                  : "Vendor",
+        "Status"                  : "Status",
         "Select Device"           : "Select a Device in the sidebar",
         "Toggle Language"         : "한국어로 전환",
 
@@ -78,7 +80,6 @@ module.exports = {
 
         "Device Validation Tests" : "Device Validation Tests",
 
-        "Status"                  : "Status",
         "Type"                    : "Type",
         "Metric"                  : "Metric",
         "Latest Device Report"    : "Latest Device Report",
