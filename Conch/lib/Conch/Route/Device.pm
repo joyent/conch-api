@@ -24,10 +24,7 @@ set serializer => 'JSON';
 get '/device' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my @devices;
-  # XXX I don't understand the process call here, but it's interfering with
-  # XXX error checking later on. -- bdha
-  #process sub { @devices = devices_for_user(schema, $user_name); };
-  @devices = devices_for_user(schema, $user_name);
+  @devices = device_ids_for_user(schema, $user_name);
   
   status_200(\@devices || []);
 };
@@ -57,7 +54,7 @@ get '/device/:serial' => needs integrator => sub {
   # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
   # Verify the requested device is accessible to this user.
   my @user_devices;
-  @user_devices = devices_for_user(schema, $user_name);
+  @user_devices = device_ids_for_user(schema, $user_name);
 
   unless (grep /$serial/, @user_devices) {
     warning "$user_name not allowed to view device $serial or $serial does not exist";
@@ -82,7 +79,6 @@ post '/device/:serial' => needs integrator => sub {
   my $device;
   my $report_id;
 
-  # 
   # NOTE This stops reports being ingested until the device is slotted into a rack.
   #      This may not be desireable. Once the device is entered into device_location
   #      via /rack/:rackid, reports can be consumed. This checks does stop, in theory,
@@ -90,9 +86,8 @@ post '/device/:serial' => needs integrator => sub {
 
   # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
   # Verify the requested device is accessible to this user.
-  my @user_devices;
-  #process sub { @user_devices = devices_for_user(schema, $user_name); };
-  @user_devices = devices_for_user(schema, $user_name);
+  #my @user_devices;
+  #@user_devices = device_ids_for_user(schema, $user_name);
 
   # XXX This won't work for newly created hosts which lack a location.
   #      Needs to be smarter.
