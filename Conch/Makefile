@@ -29,9 +29,9 @@ public/js/app.js: $(JS_SRC) ui/node_modules
 	@cd ui && npm run-script build;
 	@cp ui/bin/app.js public/js/app.js;
 
-public/css/app.css: public/js/app.js
-	@cp ui/css/app.css public/css/app.css;
+public/css/app.css: ui/css/app.css
+	cp ui/css/app.css public/css/app.css;
 
 
 watch:
-	find lib ui/src | entr -r -d -c make run
+	find lib ui/src ui/css | entr -r -d -c make run
