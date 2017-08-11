@@ -23,46 +23,48 @@ m.route(document.body, "/rack", {
     "/rack": {
         render: function() {
             return m(Layout,
-              m(Rack.allRacks));
+              m(Rack.allRacks),
+              m(Rack.makeSelection)
+            );
         }
     },
     "/rack/:id": {
         render: function(vnode) {
             return m(Layout,
-              m(Rack.allRacks,
-                m(Rack.rackLayout, vnode.attrs))
+                m(Rack.allRacks),
+                m(Rack.rackLayout, vnode.attrs)
             );
         }
     },
     "/problem": {
         render: function(vnode) {
             return m(Layout,
-              m(Problem.selectProblemDevice)
+                m(Problem.selectProblemDevice),
+                m(Problem.makeSelection)
             );
         }
     },
     "/problem/:id": {
         render: function(vnode) {
             return m(Layout,
-              m(Problem.selectProblemDevice,
+                m(Problem.selectProblemDevice),
                 m(Problem.showDevice, vnode.attrs)
-              )
             );
         }
     },
     "/device": {
         render: function(vnode) {
             return m(Layout,
-              m(Device.allDevices)
+                m(Device.allDevices),
+                m(Device.makeSelection)
             );
         }
     },
     "/device/:id": {
         render: function(vnode) {
             return m(Layout,
-              m(Device.allDevices,
+                m(Device.allDevices),
                 m(Device.deviceReport, vnode.attrs)
-              )
             );
         }
     },

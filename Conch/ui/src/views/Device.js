@@ -5,27 +5,27 @@ var Device = require("../models/Device");
 var allDevices = {
     oninit: Device.loadDevices,
     view: function(vnode) {
-        return [
-            m(".selection-list.pure-u-1-6", Device.devices.map(
-                function(deviceId) {
-                    return m("a.selection-list-item",
-                        {
-                            href: "/device/" + deviceId,
-                            onclick: function() {
-                                Device.loadDeviceReport(deviceId);
-                            },
-                            oncreate: m.route.link,
-                            class: deviceId === Device.deviceReport.id ?
-                                "selection-list-item-active" : ""
+        return Device.devices.map(
+            function(deviceId) {
+                return m("a.selection-list-item",
+                    {
+                        href: "/device/" + deviceId,
+                        onclick: function() {
+                            Device.loadDeviceReport(deviceId);
                         },
-                        deviceId
-                    );
-                })
-        ),
-        vnode.children.length > 0 ?
-            vnode.children
-            : m(".make-selection.pure-u-3-4", t("Select Device"))
-        ];
+                        oncreate: m.route.link,
+                        class: deviceId === Device.deviceReport.id ?
+                        "selection-list-item-active" : ""
+                    },
+                    deviceId
+                );
+            });
+    }
+};
+
+var makeSelection = {
+    view: function() {
+        return m(".make-selection", t("Select Device"));
     }
 };
 
@@ -44,7 +44,7 @@ var deviceReport = {
     oninit: function(vnode) { Device.loadDeviceReport(vnode.attrs.id); },
     view: function(vnode) {
         if (! Device.deviceReport.validation || !Device.deviceReport.validation.length) {
-            return m(".pure-u-3-4.make-selection", t("No report for device"));
+            return t("No report for device");
         }
         var basicInfo = m(".pure-u-1.pure-g", [
             m(".pure-u-1", m("h2", t("Device") + ": " + Device.deviceReport.id)),
@@ -168,21 +168,20 @@ var deviceReport = {
                     })
                 )
         ];
-        return m(".content-pane.pure-u-3-4",
-            m(".pure-g", [
-                m(".pure-u-1", m("h1", t("Latest Device Report"))),
-                basicInfo,
-                environment,
-                network,
-                disks,
-                validations
-            ]
-        ));
+        return m(".pure-g", [
+            m(".pure-u-1", m("h1", t("Latest Device Report"))),
+            basicInfo,
+            environment,
+            network,
+            disks,
+            validations
+        ]);
     }
 };
 
 
 module.exports = {
-    allDevices   : allDevices,
-    deviceReport : deviceReport
+    allDevices    : allDevices,
+    makeSelection : makeSelection,
+    deviceReport  : deviceReport
 };
