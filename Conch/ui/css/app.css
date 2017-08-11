@@ -1,12 +1,35 @@
-body,.input,.button {font:normal 16px Verdana;margin:0;}
+body {
+    font: normal 16px Verdana;
+    margin: 0;
+    color: #001b2a;
+}
 
 .nav {
-    margin: 20px 0;
+    background: #011119;
 }
 
-.nav-item {
-    padding: 10px 4px;
+.nav h1 {
+    color: #fff;
+    margin: 20px auto;
 }
+
+.nav-link {
+    padding: 20px;
+    color: #fff;
+}
+
+.nav-link:active {
+    color: #fd361b;
+}
+
+.nav-link:hover {
+    background-color: #1b2a32;
+}
+
+.nav-link:focus {
+    background-color: #1b2a32;
+}
+
 
 .login-view {
     position: absolute;
