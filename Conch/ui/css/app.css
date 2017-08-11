@@ -4,6 +4,7 @@ body {
     color: #001b2a;
 }
 
+
 #nav {
     background: #011119;
     width: 150px;
@@ -13,7 +14,6 @@ body {
     color: #fff;
     margin: 20px 20px;
 }
-
 .nav-link {
     padding: 20px;
     color: #fff;
@@ -28,6 +28,7 @@ body {
 }
 
 .nav-link:focus {
+    color: #fd361b;
     background-color: #1b2a32;
 }
 
@@ -37,7 +38,7 @@ body {
     left: 50%;
     margin: 100px -300px 0;
     height: 200px;
-    width: 600px; 
+    width: 600px;
 }
 
 .login-view input {
@@ -48,27 +49,28 @@ body {
     padding: 100px 0;
     text-align: center;
 }
-
 .selection-list {
     height: 100vh;
     overflow: auto;
     width: 250px;
-}
-
-.content-pane {
-    height: 100vh;
-    overflow: auto;
-}
-
-.content-pane table {
-    width: 90%;
-    margin: 20px auto;
+    border-right:1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .selection-list-header {
-    padding-bottom: 10px;
-    padding-left: 15px;
+    background: #fff;
     border-bottom:1px solid #ddd;
+    border-top:1px solid #ddd;
+    left: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 15px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
 }
 
 .selection-list-item {
@@ -77,6 +79,7 @@ body {
     color:#333;
     display:block;
     margin:0;
+    min-height: 50px;
     padding:8px 15px;
     text-decoration:none;
 }
@@ -87,6 +90,16 @@ body {
 
 .selection-list-item-active {
     background: #e0e0e0;
+}
+
+.content-pane {
+    height: 100vh;
+    overflow: auto;
+}
+
+.content-pane table {
+    width: 90%;
+    margin: 20px auto;
 }
 
 .notification {
@@ -107,5 +120,41 @@ body {
 
 .color-failure {
     background: #ff6e6e;
+}
+
+.rack-layout-footer {
+    background: #fff;
+    border-top:1px solid #ddd;
+    position: sticky;
+    position: -webkit-sticky;
+    bottom: 0;
+    width: 100%;
+}
+
+.rack-layout-footer button {
+    display: block;
+    margin: 10px auto;
+}
+
+@media (min-width: 60em) {
+
+    .layout {
+        padding-left: 400px;
+    }
+
+    #nav {
+        margin-left: -400px;
+    }
+    .content-pane {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 400px;
+        width: auto;
+    }
+
+    .selection-list {
+        /*margin-left: -250px;*/
+    }
 
 }
