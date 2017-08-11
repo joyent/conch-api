@@ -44,7 +44,7 @@ var deviceReport = {
     oninit: function(vnode) { Device.loadDeviceReport(vnode.attrs.id); },
     view: function(vnode) {
         if (! Device.deviceReport.validation || !Device.deviceReport.validation.length) {
-            return t("No report for device");
+            return m(".make-selection", t("No report for device"));
         }
         var basicInfo = m(".pure-u-1.pure-g", [
             m(".pure-u-1", m("h2", t("Device") + ": " + Device.deviceReport.id)),

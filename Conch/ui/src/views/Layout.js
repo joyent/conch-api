@@ -5,7 +5,7 @@ var t = require('i18n4v');
 // Three-pane layout with two children. Additional children will not be rendered.
 module.exports = {
     view: function(vnode) {
-        return m("main.layout", [
+        return m(".layout", [
             m(".pure-g",
                 [
                     m(".pure-u.pure-menu#nav",
@@ -30,7 +30,7 @@ module.exports = {
                         ])
                     ),
                     m(".selection-list.pure-u", vnode.children[0]),
-                    m(".content-pane.pure-u-1-2", vnode.children[1])
+                    m(".content-pane.pure-u-1", vnode.children[1])
             ]),
         ]);
     }

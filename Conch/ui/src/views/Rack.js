@@ -23,15 +23,18 @@ var allRacks = {
                                     "selection-list-item-active" : ""
                                 },
                                 m(".pure-g", [
-                                    m(".pure-u-1", t("Name") + ": " + rack.name),
-                                    m(".pure-u-1", t("Role") + ": " + rack.role),
-                                    m(".pure-u-1", t("Size") + ": " + rack.size)
+                                    m(".pure-u-1-3", m("b", t("Name"))),
+                                    m(".pure-u-1-3", m("b", t("Role"))),
+                                    m(".pure-u-1-3", m("b", t("RU"))),
+
+                                    m(".pure-u-1-3", rack.name),
+                                    m(".pure-u-1-3", rack.role),
+                                    m(".pure-u-1-3", rack.size)
                                 ])
                             );
                         }))
-
                 ];
-            });
+        });
     }
 };
 
@@ -57,18 +60,11 @@ var rackLayout = {
                 { onsubmit: function (e){
                     Rack.assignDevices(Rack.current);
                 } },
-                [
-                m(".pure-u-1-4", m("h3", t("Datacenter"))),
-                m(".pure-u-1-4", m("h3", t("Rack Name"))),
-                m(".pure-u-1-4", m("h3", t("Rack Role"))),
-                m(".pure-u-1-4", ""),
-                m(".pure-u-1-4", Rack.current.datacenter),
-                m(".pure-u-1-4", Rack.current.name),
-                m(".pure-u-1-4", Rack.current.role),
-                m(".pure-u-1-4",
-                        m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices"))),
-                m(".pure-u-1", m(rackLayoutTable))
-            ])
+                m(".rack-layout-table.pure-u-1", m(rackLayoutTable)),
+                m(".rack-layout-footer",
+                    m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices"))
+                )
+            )
         ];
     }
 };
