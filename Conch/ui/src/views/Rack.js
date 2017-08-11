@@ -6,37 +6,69 @@ var Problem = require("../models/Problem");
 var allRacks = {
     oninit: Rack.loadRooms,
     view: function(vnode) {
-        return [
-            m(".selection-list.pure-u-1-6", Object.keys(Rack.rackRooms).map(
-                function(roomName) {
-                    return [
-                        m("h3.selection-list-header", roomName),
-                        m(".selection-list-group", Rack.rackRooms[roomName].map(
-                            function(rack) {
-                                return m("a.selection-list-item",
-                                    {
-                                        href: "/rack/" + rack.id,
-                                        oncreate: m.route.link,
-                                        onclick: function() {
-                                            Rack.load(rack.id);
-                                        },
-                                        class: rack.id === Rack.current.id ?
-                                            "selection-list-item-active" : ""
+        return Object.keys(Rack.rackRooms).map(
+            function(roomName) {
+                return [
+                    m("h3.selection-list-header", roomName),
+                    m(".selection-list-group", Rack.rackRooms[roomName].map(
+                        function(rack) {
+                            return m("a.selection-list-item",
+                                {
+                                    href: "/rack/" + rack.id,
+                                    oncreate: m.route.link,
+                                    onclick: function() {
+                                        Rack.load(rack.id);
                                     },
-                                    m(".pure-g", [
-                                        m(".pure-u-1", t("Name") + ": " + rack.name),
-                                        m(".pure-u-1", t("Role") + ": " + rack.role),
-                                        m(".pure-u-1", t("Size") + ": " + rack.size)
-                                    ])
-                                );
-                            }))
+                                    class: rack.id === Rack.current.id ?
+                                    "selection-list-item-active" : ""
+                                },
+                                m(".pure-g", [
+                                    m(".pure-u-1", t("Name") + ": " + rack.name),
+                                    m(".pure-u-1", t("Role") + ": " + rack.role),
+                                    m(".pure-u-1", t("Size") + ": " + rack.size)
+                                ])
+                            );
+                        }))
 
-                    ];
-                })
-        ),
-        vnode.children.length > 0 ?
-            vnode.children
-            : m(".make-selection.pure-u-3-4", t('Select Rack'))
+                ];
+            });
+    }
+};
+
+var makeSelection = {
+    view: function() {
+        return m(".make-selection", t("Select Rack"));
+    }
+};
+
+var rackLayout = {
+    oninit: function(vnode) {
+        Rack.load(vnode.attrs.id);
+        Rack.highlightDevice = vnode.attrs.device;
+        Problem.loadDeviceProblems();
+    },
+    view: function() {
+        return [
+            Rack.assignSuccess ?
+                m(".notification.notification-success",
+                    t("Assign Success"))
+                : null,
+            m("form.pure-form.pure-g",
+                { onsubmit: function (e){
+                    Rack.assignDevices(Rack.current);
+                } },
+                [
+                m(".pure-u-1-4", m("h3", t("Datacenter"))),
+                m(".pure-u-1-4", m("h3", t("Rack Name"))),
+                m(".pure-u-1-4", m("h3", t("Rack Role"))),
+                m(".pure-u-1-4", ""),
+                m(".pure-u-1-4", Rack.current.datacenter),
+                m(".pure-u-1-4", Rack.current.name),
+                m(".pure-u-1-4", Rack.current.role),
+                m(".pure-u-1-4",
+                        m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices"))),
+                m(".pure-u-1", m(rackLayoutTable))
+            ])
         ];
     }
 };
@@ -105,36 +137,8 @@ var rackLayoutTable = { view: function () {
     ]);
 } };
 
-var rackLayout = {
-    oninit: function(vnode) {
-        Rack.load(vnode.attrs.id);
-        Rack.highlightDevice = vnode.attrs.device;
-        Problem.loadDeviceProblems();
-    },
-    view: function() {
-        return m(".content-pane.pure-u-3-4", [
-            Rack.assignSuccess ?
-                m(".notification.notification-success",
-                    t("Assign Success"))
-                : null,
-            m("form.pure-form.pure-g",
-                { onsubmit: function (e){
-                    Rack.assignDevices(Rack.current);
-                } },
-                [
-                m(".pure-u-1-4", m("h3", t("Datacenter"))),
-                m(".pure-u-1-4", m("h3", t("Rack Name"))),
-                m(".pure-u-1-4", m("h3", t("Rack Role"))),
-                m(".pure-u-1-4", ""),
-                m(".pure-u-1-4", Rack.current.datacenter),
-                m(".pure-u-1-4", Rack.current.name),
-                m(".pure-u-1-4", Rack.current.role),
-                m(".pure-u-1-4",
-                        m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices"))),
-                m(".pure-u-1", m(rackLayoutTable))
-            ])
-        ]);
-    }
+module.exports = {
+    allRacks      : allRacks,
+    makeSelection : makeSelection,
+    rackLayout    : rackLayout,
 };
-
-module.exports = { allRacks: allRacks, rackLayout: rackLayout };
