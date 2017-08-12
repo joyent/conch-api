@@ -26,7 +26,7 @@ module.exports = {
                         { class: vnode.attrs.active === 0 ? "mobile-is-active" : "" },
 
                         m("ul.pure-menu-list",[
-                            m(".pure-menu-heading.nav-text-color", t("Conch")),
+                            m(".pure-menu-heading.nav-text-color", m("h2", t("Conch"))),
 
                             m("li.pure-menu-item",
                                 m("a[href='/rack'].pure-menu-link.nav-link.nav-text-color",

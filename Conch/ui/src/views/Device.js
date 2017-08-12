@@ -35,7 +35,7 @@ function reportTable(header, rows) {
             m("tr", header.map(function(h) { return m("th", h); }))
         ),
         m("tbody", rows.map(function(r) {
-            return m("tr", r.map(function(d) { return m("td", d); }));
+            return m("tr", r.map(function(d, i) { return m("td", {'data-label' : header[i] }, d); }));
         }))
     ]));
 }

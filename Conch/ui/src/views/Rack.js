@@ -85,7 +85,7 @@ function enterAsTab(e) {
 var rackLayoutTable = { view: function () {
     return m("table.pure-table.pure-table-horizontal.pure-table-striped", [
         m("thead", m("tr", [
-            m("th", t("Slot Number")),
+            m("th",  t("Slot Number")),
             m("th", t("Name")),
             m("th", t("Vendor")),
             m("th", t("RU Height")),
@@ -98,11 +98,11 @@ var rackLayoutTable = { view: function () {
                 var healthy = slot.occupant && ! Problem.devices[slot.occupant];
                 return m("tr",
                     [
-                        m("td", slotId),
-                        m("td", slot.name),
-                        m("td", slot.vendor),
-                        m("td", slot.size),
-                        m("td",
+                        m("td", {'data-label' : t("Slot Number")}, slotId),
+                        m("td", {'data-label' : t("Name")}, slot.name),
+                        m("td", {'data-label' : t("Vendor")}, slot.vendor),
+                        m("td", {'data-label' : t("RU Height")}, slot.size),
+                        m("td", {'data-label' : t("Device")},
                             m("input[type=text]",
                                 {
                                     oninput: m.withAttr("value", function(value) {
@@ -118,7 +118,7 @@ var rackLayoutTable = { view: function () {
                                 }
                             )
                         ),
-                        m("td", slot.occupant ?
+                        m("td", {'data-label' : t("Status")}, slot.occupant ?
                             m("a.pure-button", {
                                 href: "/device/" + slot.occupant,
                                 oncreate: m.route.link,
@@ -126,7 +126,7 @@ var rackLayoutTable = { view: function () {
                                 class: healthy ? "" : "color-failure"
                             },
                                 healthy ? t("Pass") : t("FAIL") )
-                            : ""
+                            : null
                         )
                     ]);
             }))
