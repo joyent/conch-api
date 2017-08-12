@@ -7,6 +7,8 @@ module.exports = {
         "Name"                    : "Name",
         "Size"                    : "Size",
         "RU Height"               : "Rack Unit Height",
+        // Abbreviation for "Rack Units"
+        "RU"                      : "RU",
         "Log"                     : "Log",
         "Vendor"                  : "Vendor",
         "Status"                  : "Status",

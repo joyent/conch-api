@@ -19,10 +19,18 @@ t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
 });
 
 
-m.route(document.body, "/rack", {
+m.route(document.body, "/", {
+    "/": {
+        render: function() {
+            return m(Layout, { active : 0 },
+              m(Rack.allRacks),
+              m(Rack.makeSelection)
+            );
+        }
+    },
     "/rack": {
         render: function() {
-            return m(Layout,
+            return m(Layout, { active : 1 },
               m(Rack.allRacks),
               m(Rack.makeSelection)
             );
@@ -30,7 +38,7 @@ m.route(document.body, "/rack", {
     },
     "/rack/:id": {
         render: function(vnode) {
-            return m(Layout,
+            return m(Layout, { active : 2 },
                 m(Rack.allRacks),
                 m(Rack.rackLayout, vnode.attrs)
             );
@@ -38,7 +46,7 @@ m.route(document.body, "/rack", {
     },
     "/problem": {
         render: function(vnode) {
-            return m(Layout,
+            return m(Layout, { active : 1 },
                 m(Problem.selectProblemDevice),
                 m(Problem.makeSelection)
             );
@@ -46,7 +54,7 @@ m.route(document.body, "/rack", {
     },
     "/problem/:id": {
         render: function(vnode) {
-            return m(Layout,
+            return m(Layout, { active : 2 },
                 m(Problem.selectProblemDevice),
                 m(Problem.showDevice, vnode.attrs)
             );
@@ -54,7 +62,7 @@ m.route(document.body, "/rack", {
     },
     "/device": {
         render: function(vnode) {
-            return m(Layout,
+            return m(Layout, { active : 1 },
                 m(Device.allDevices),
                 m(Device.makeSelection)
             );
@@ -62,7 +70,7 @@ m.route(document.body, "/rack", {
     },
     "/device/:id": {
         render: function(vnode) {
-            return m(Layout,
+            return m(Layout, { active : 2 },
                 m(Device.allDevices),
                 m(Device.deviceReport, vnode.attrs)
             );

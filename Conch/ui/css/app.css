@@ -6,17 +6,26 @@ body {
 
 
 #nav {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
     background: #011119;
-    width: 150px;
+    text-align: center;
 }
 
-#nav h1 {
-    color: #fff;
-    margin: 20px 20px;
+#nav.mobile-is-active {
+    display: block;
 }
+
+.nav-text-color {
+    color: #fff;
+}
+
 .nav-link {
     padding: 20px;
-    color: #fff;
 }
 
 .nav-link:active {
@@ -45,17 +54,36 @@ body {
     margin: 0 10px 0 0;
 }
 
+.mobile-nav {
+    background: #011119;
+    height: 50px;
+    position: fixed;
+    color: #fff;
+}
+
+.mobile-nav .pure-button {
+    margin-top: 8px;
+    margin-left: 20px;
+    background: #fd361b;
+}
+
 .make-selection {
     padding: 100px 0;
     text-align: center;
 }
 .selection-list {
-    height: 100vh;
+    display: none;
+    position: fixed;
     overflow: auto;
-    width: 250px;
-    border-right:1px solid #ddd;
     text-align: center;
-    vertical-align: middle;
+    top: 80px;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+}
+
+.selection-list.mobile-is-active {
+    display: block;
 }
 
 .selection-list-header {
@@ -93,8 +121,17 @@ body {
 }
 
 .content-pane {
-    height: 100vh;
+    display: none;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    bottom: 0;
+    right: 0;
     overflow: auto;
+}
+
+.content-pane.mobile-is-active {
+    display: block;
 }
 
 .content-pane table {
@@ -142,19 +179,36 @@ body {
         padding-left: 400px;
     }
 
-    #nav {
-        margin-left: -400px;
+    .mobile-nav {
+        display: none;
     }
+
+    #nav {
+        display: block;
+        position: static;
+        margin-left: -400px;
+        width: 150px;
+    }
+
+    .selection-list {
+        border-right:1px solid #ddd;
+        display: block;
+        height: 100vh;
+        overflow: auto;
+        position: static;
+        text-align: center;
+        vertical-align: middle;
+        width: 250px;
+    }
+
     .content-pane {
+        display: block;
+        height: 100vh;
         position: fixed;
         top: 0;
         right: 0;
         left: 400px;
         width: auto;
-    }
-
-    .selection-list {
-        /*margin-left: -250px;*/
     }
 
 }
