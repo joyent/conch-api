@@ -2,6 +2,7 @@ module.exports = {
     "values": {
 
         /* Common */
+        "Conch"                   : "Conch",
         "Loading"                 : "Loading",
         // Name for objects, like servers
         "Name"                    : "Name",

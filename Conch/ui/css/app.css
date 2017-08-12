@@ -61,10 +61,15 @@ body {
     color: #fff;
 }
 
+.mobile-nav h2 {
+    text-align: center;
+}
+
 .mobile-nav .pure-button {
     margin-top: 8px;
     margin-left: 20px;
     background: #fd361b;
+    color: #fff;
 }
 
 .make-selection {

@@ -22,7 +22,7 @@ t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
 m.route(document.body, "/", {
     "/": {
         render: function() {
-            return m(Layout, { active : 0 },
+            return m(Layout, { active : 0, title: "Conch" },
               m(Rack.allRacks),
               m(Rack.makeSelection)
             );
@@ -30,7 +30,7 @@ m.route(document.body, "/", {
     },
     "/rack": {
         render: function() {
-            return m(Layout, { active : 1 },
+            return m(Layout, { active : 1, title: "Racks"  },
               m(Rack.allRacks),
               m(Rack.makeSelection)
             );
@@ -38,7 +38,7 @@ m.route(document.body, "/", {
     },
     "/rack/:id": {
         render: function(vnode) {
-            return m(Layout, { active : 2 },
+            return m(Layout, { active : 2, title: "Rack"  },
                 m(Rack.allRacks),
                 m(Rack.rackLayout, vnode.attrs)
             );
@@ -46,7 +46,7 @@ m.route(document.body, "/", {
     },
     "/problem": {
         render: function(vnode) {
-            return m(Layout, { active : 1 },
+            return m(Layout, { active : 1, title: "Problems"  },
                 m(Problem.selectProblemDevice),
                 m(Problem.makeSelection)
             );
@@ -54,7 +54,7 @@ m.route(document.body, "/", {
     },
     "/problem/:id": {
         render: function(vnode) {
-            return m(Layout, { active : 2 },
+            return m(Layout, { active : 2, title: "Problem"  },
                 m(Problem.selectProblemDevice),
                 m(Problem.showDevice, vnode.attrs)
             );
@@ -62,7 +62,7 @@ m.route(document.body, "/", {
     },
     "/device": {
         render: function(vnode) {
-            return m(Layout, { active : 1 },
+            return m(Layout, { active : 1, title: "Device Reports"  },
                 m(Device.allDevices),
                 m(Device.makeSelection)
             );
@@ -70,7 +70,7 @@ m.route(document.body, "/", {
     },
     "/device/:id": {
         render: function(vnode) {
-            return m(Layout, { active : 2 },
+            return m(Layout, { active : 2, title: "Report"  },
                 m(Device.allDevices),
                 m(Device.deviceReport, vnode.attrs)
             );
