@@ -6,6 +6,8 @@ module.exports = {
         // Name for objects, like servers
         "Name"                    : "Name",
         "Size"                    : "Size",
+        // Abbreviation for "Rack Units"
+        "RU"                      : "RU",
         "RU Height"               : "Rack Unit Height",
         "Log"                     : "Log",
         "Vendor"                  : "Vendor",
