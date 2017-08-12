@@ -16,6 +16,7 @@ module.exports = {
                         } },
                         "<"
                     )),
+                m("h2.pure-u-1-3",  t(vnode.attrs.title)),
                 m(".pure-u-1-3", "")
             );
         return m(".layout", [
