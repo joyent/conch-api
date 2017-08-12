@@ -41,20 +41,26 @@ var showDevice = {
         }
 
         return m(".pure-g", [
-            m(".pure-u-1", [
-                m(".pure-u-1-5", m("h3", t("Component Type"))),
-                m(".pure-u-1-5", m("h3", t("Component Name"))),
-                m(".pure-u-1-5", m("h3", t("Condition"))),
-                m(".pure-u-2-5", m("h3", t("Log"))),
-            ]),
-            Problem.selected.problems.map(function(problem){
-                return m(".pure-u-1", m(".pure-g", [
-                    m(".pure-u-1-5", problem.component_type),
-                    m(".pure-u-1-5", problem.component_name),
-                    m(".pure-u-1-5", problem.criteria.condition),
-                    m(".pure-u-2-5", problem.log),
-                ]));
-            }),
+            m(".pure-u-1",
+                m("table.pure-table.pure-table-horizontal.pure-table-striped", [
+                    m("thead", m("tr", [
+                        m("th", t("Component Type")),
+                        m("th", t("Component Name")),
+                        m("th", t("Condition")),
+                        m("th", t("Log")),
+                    ])),
+                    m("tbody",
+                        Problem.selected.problems.map(function(problem){
+                            return m("tr", [
+                                m("td", {'data-label' : t("Component Type")}, problem.component_type),
+                                m("td", {'data-label' : t("Component Name")}, problem.component_name),
+                                m("td", {'data-label' : t("Condition")}, problem.criteria.condition),
+                                m("td", {'data-label' : t("Log")}, problem.log),
+                            ]);
+                        })
+                    )
+                ])
+            ),
             m(".pure-u-1-4",
                 Problem.selected.report_id ?
                 m("a.pure-button",
