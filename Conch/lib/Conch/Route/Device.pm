@@ -12,6 +12,7 @@ use Conch::Control::Device;
 use Conch::Control::DeviceReport;
 use Conch::Control::Device::Validation;
 use Conch::Control::Relay;
+use Conch::Control::Device::Profile;
 
 use Data::Printer;
 
@@ -156,6 +157,19 @@ del '/device/:serial/location' => needs integrator => sub {
     });
   } else {
     return status_500({error => "error removing $serial from $req->{rack}:$req->{rack_unit}"});
+  }
+};
+
+
+post '/device/:serial/profile' => needs integrator => sub {
+  my $serial  = param 'serial';
+  my $profile = body_parameters->as_hashref;
+  my $product = determine_product(schema, $serial, $profile);
+
+  if ($product) {
+    status_200($product);
+  } else {
+    return status_500({error => "error occured determining productfor $serial"});
   }
 };
 
