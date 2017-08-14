@@ -134,21 +134,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_reports
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::DeviceReport>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_reports",
-  "Conch::Schema::Result::DeviceReport",
-  { "foreign.relay_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 user_relay_connections
 
 Type: has_many
@@ -165,8 +150,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-10 14:16:20
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HKM2onSiYQUcyakp61b9Vw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-14 09:24:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Br34Q3nHTDy9D7zHWCySIg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
