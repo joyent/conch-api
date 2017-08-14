@@ -14,7 +14,9 @@ module.exports = {
         "Vendor"                  : "Vendor",
         "Status"                  : "Status",
         "Select Device"           : "Select a Device in the sidebar",
-        "Toggle Language"         : "한국어로 전환",
+
+        // Used to change the language preference
+        "Toggle Language"         : "영/한 변경",
 
 
         /* Main menu items */
@@ -27,7 +29,7 @@ module.exports = {
         "Login to Conch"          : "Login to Conch",
         "User Name"               : "User Name",
         "Password"                : "Password",
-        // verb
+        // Verb
         "Login"                   : "Login",
 
 
