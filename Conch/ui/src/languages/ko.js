@@ -3,28 +3,30 @@ module.exports = {
 
         /* Common */
         "Conch"                   : "Conch",
-        "Loading"                 : "Loading",
+        "Loading"                 : "로딩",
         // Name for objects, like servers
-        "Name"                    : "Name",
-        "Size"                    : "Size",
+        "Name"                    : "이름",
+        "Size"                    : "사이즈",
+        "RU Height"               : "RU 높이",
         // Abbreviation for "Rack Units"
         "RU"                      : "RU",
-        "RU Height"               : "Rack Unit Height",
-        "Log"                     : "Log",
-        "Vendor"                  : "Vendor",
-        "Select Device"           : "Select a Device in the sidebar",
+        "Log"                     : "로그",
+        "Vendor"                  : "벤더",
+        "Status"                  : "상태",
+        "Select Device"           : "사이드바에서 디바이스 선택",
+
         // Used to change the language preference
-        "Toggle Language"         : "Switch to Korean",
+        "Toggle Language"         : "Switch to English",
 
 
         /* Main menu items */
-        "Racks"                   : "그물 선반",
+        "Racks"                   : "랙",
         "Problems"                : "문제",
-        "Devices"                 : "장치",
+        "Devices"                 : "Devices",
 
 
         /* Login items */
-        "Login to Conch"          : "귀하의 계정에 로그인하십시오.",
+        "Login to Conch"          : "Conch 로그인",
         "User Name"               : "사용자 이름",
         "Password"                : "암호",
         // Verb
@@ -32,61 +34,59 @@ module.exports = {
 
 
         /* Rack page */
-        "Rack Name"               : "Rack Name",
-        "Rack Role"               : "Rack Role",
-        "Role"                    : "Role",
-        "Datacenter"              : "Datacenter",
+        "Rack Name"               : "랙 이름",
+        "Rack Role"               : "랙 용도",
+        "Role"                    : "용도",
+        "Datacenter"              : "데이터 센터",
         "Slot Number"             : "Slot #",
         "Alias"                   : "Alias",
         "Device"                  : "Device",
         "Unassigned"              : "Unassigned",
-        "Select Rack"             : "Select a rack in the sidebar",
+        "Select Rack"             : "사이드바에서 랙선택",
         "Assign Devices"          : "Assign Devices",
-        "Assign Success"          : "Successfully assigned devices to rack",
+        "Assign Success"          : "Assign 성공",
 
 
         /* Problems page */
-        "Component Type"          : "Component Type",
-        "Component Name"          : "Component Name",
-        "Condition"               : "Condition",
+        "Component Type"          : "콤포넌트 종류",
+        "Component Name"          : "콤포넌트 이름",
+        "Condition"               : "상태",
         "Show Device Report"      : "Show Device Report",
         "Show Device in Rack"     : "Show Device in Rack",
-        "%n problems found"       : [ [1, 1, "1 problem found"], [2, null, "%n problems found"] ],
+        "%n problems found"       : [ [1, null, "%n 문제 발견"] ],
 
 
         /* Device Report page */
         "No report for device"    : "No report collected for device yet",
-        "Product Name"            : "Product Name",
+        "Product Name"            : "Product 이름",
         "BIOS Version"            : "BIOS Version",
         "System UUID"             : "System UUID",
-        "State"                   : "State",
-        "Environment"             : "Environment",
-        "Temperature"             : "Temperature",
-        "Network"                 : "Network",
+        "State"                   : "상태",
+        "Environment"             : "환경",
+        "Temperature"             : "온도",
+        "Network"                 : "네트워크",
 
         "MAC"                     : "MAC",
-        "IP Address"              : "IP Address",
+        "IP Address"              : "IP 주소",
         "Product"                 : "Product",
         "Peer Switch"             : "Peer Switch",
         "Peer Port"               : "Peer Port",
         "Peer MAC"                : "Peer MAC",
-        "Storage"                 : "Storage",
+        "Storage"                 : "스토리지",
 
-        "Serial Number"           : "Serial Number",
+        "Serial Number"           : "고유 번호",
         "HBA"                     : "HBA",
         "Slot #"                  : "Slot #",
         "Model"                   : "Model",
-        "Drive Type"              : "Drive Type",
+        "Drive Type"              : "드라이브 종류",
         "Transport"               : "Transport",
         "Firmware"                : "Firmware",
         "Health"                  : "Health",
 
-        "Device Validation Tests" : "Device Validation Tests",
+        "Device Validation Tests" : "장치 인증 테스트",
 
-        "Status"                  : "Status",
-        "Type"                    : "Type",
+        "Type"                    : "종류",
         "Metric"                  : "Metric",
-        "Latest Device Report"    : "Latest Device Report",
-
+        "Latest Device Report"    : "최근 디바이스 리포트",
     }
 };
