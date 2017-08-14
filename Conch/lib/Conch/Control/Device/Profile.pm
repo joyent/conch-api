@@ -13,6 +13,7 @@ use Exporter 'import';
 our @EXPORT = qw( determine_product );
 
 
+# XXX We should use 'hardware_product_profile' to determine the these details
 sub determine_product {
   my ($schema, $serial, $profile) = @_;
 
