@@ -9,7 +9,7 @@ use Dancer2::Plugin::Passphrase;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( device_info device_location devices_for_user
+our @EXPORT = qw( device_info device_location devices_for_user lookup_device_for_user
                   device_ids_for_user device_inventory device_validation_report
                   update_device_location delete_device_location
                   get_validation_criteria get_active_devices
@@ -42,6 +42,17 @@ sub devices_for_user  {
   return $schema->resultset('UserDeviceAccess')->
       search({}, { bind => [$user_name] })->all;
 }
+
+sub lookup_device_for_user  {
+  my ($schema, $device_id, $user_name) = @_;
+  my $device = $schema->resultset('UserDeviceAccess')->
+      search({id => $device_id}, { bind => [$user_name] })->single;
+  # Look for an unlocated device if no located device found
+  $device = $device or $schema->resultset('UnlocatedUserRelayDevices')->
+      search({id => $device_id}, { bind => [$user_name] })->single;
+  return $device;
+}
+
 
 # Includes device IDs for unlocated devices
 sub device_ids_for_user {
