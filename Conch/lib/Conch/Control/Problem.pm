@@ -90,7 +90,12 @@ sub get_problems {
     else {
       $problems->{$device_id}{report_id} = undef;
       my $fail = {};
-      $fail->{log} = "No reports received from device" ;
+      if ($problems->{$device_id}{rack}) {
+        $fail->{log} = "No report from Rack $problems->{$device_id}{rack}{name}, Slot $problems->{$device_id}{rack}{unit}";
+      }
+      else {
+        $fail->{log} = "No reports received from device";
+      }
       $fail->{component_type} = "Report" ;
       $fail->{component_name} = "Report" ;
       $fail->{criteria}{condition} = "Report" ;
