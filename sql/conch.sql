@@ -95,7 +95,8 @@ CREATE TABLE datacenter_rack_layout (
     product_id          uuid        NOT NULL REFERENCES hardware_product (id),
     ru_start            integer     NOT NULL,
     created             timestamptz NOT NULL DEFAULT current_timestamp,
-    updated             timestamptz NOT NULL DEFAULT current_timestamp
+    updated             timestamptz NOT NULL DEFAULT current_timestamp,
+    UNIQUE ( rack_id, ru_start )
 );
 
 -- Define regional subnets.
