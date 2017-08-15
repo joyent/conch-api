@@ -79,6 +79,13 @@ post '/login' => sub {
   }
 };
 
+
+post '/logout' => sub {
+  session->delete('is_admin');
+  session->delete('integrator');
+  status_200({status => "logged out"});
+};
+
 post '/datacenter_access' => sub {
   if (process sub {
     # XXX This is truncating what we're passing in as an array for some reason.
