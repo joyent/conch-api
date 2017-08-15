@@ -78,9 +78,8 @@ sub get_device_settings {
     $setting_id_to_names->{$hardware_setting->id} = $hardware_setting->name;
   }
 
-  my @resource_ids = keys %{$setting_id_to_names};
+  p $device->device_settings->all;
   my @device_settings = $device->device_settings->search({
-        resource_id => { 'in' => @resource_ids },
         deactivated => undef
       })->all;
 
