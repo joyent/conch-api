@@ -76,6 +76,11 @@ __PACKAGE__->table("device_settings");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 deactivated
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -106,6 +111,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "deactivated",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -153,8 +160,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RdwxJW0wc7ehdGUzSB8iHA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-15 15:27:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZYa3ci7GFl9sID7tPVvHag
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -3,15 +3,94 @@ package Conch::Control::Device::Profile;
 use v5.10;
 use strict;
 use List::Compare;
-use Log::Report;
+use Log::Report mode => 'DEBUG';
 use Log::Report::DBIC::Profiler;
 use Dancer2::Plugin::Passphrase;
 
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( determine_product );
+our @EXPORT = qw( determine_product set_device_settings get_device_settings );
 
+
+sub set_device_settings {
+  my ($schema, $device, $settings) = @_;
+
+  my @hardware_settings =
+    $device
+    ->hardware_product
+    ->hardware_product_profile
+    ->hardware_profile_settings
+    ->all;
+
+  my $setting_keys = {};
+  for my $hardware_setting (@hardware_settings) {
+    $setting_keys->{$hardware_setting->name} = $hardware_setting->id;
+  }
+
+  # Find all invalid keys in the request
+  try {
+    for my $setting_name (keys %{$settings}) {
+      mistake $setting_name unless $setting_keys->{$setting_name};
+    }
+  } acccept => 'ERROR';
+
+  if ($@->exceptions > 0) {
+      my @bad_names = map { $_->message } $@->exceptions;
+      error("No hardware product setting for following keys: @bad_names");
+  }
+
+  $schema->txn_do (sub {
+
+    for my $setting (keys %{$settings}) {
+      my $resource_id = $setting_keys->{$setting};
+      my $value = $settings->{$setting};
+
+      my $prev_setting =
+        $device->device_settings
+        ->search({resource_id => $resource_id, deactivated => undef})
+        ->single;
+      $prev_setting->update({ deactivated => \'NOW()' }) if $prev_setting;
+      $device->device_settings->create({
+          device_id => $device->id,
+          resource_id => $resource_id,
+          value => $value
+      });
+    }
+
+  });
+
+  return { status => "updated settings for " . $device->id };
+}
+
+sub get_device_settings {
+
+  my ($schema, $device) = @_;
+
+  my @hardware_settings =
+    $device
+    ->hardware_product
+    ->hardware_product_profile
+    ->hardware_profile_settings
+    ->all;
+
+  my $setting_id_to_names = {};
+  for my $hardware_setting (@hardware_settings) {
+    $setting_id_to_names->{$hardware_setting->id} = $hardware_setting->name;
+  }
+
+  my @resource_ids = keys %{$setting_id_to_names};
+  my @device_settings = $device->device_settings->search({
+        resource_id => { 'in' => @resource_ids },
+        deactivated => undef
+      })->all;
+
+  my $res = {};
+  for my $setting (@device_settings) {
+    $res->{$setting_id_to_names->{$setting->resource_id}} = $setting->value;
+  }
+  return $res;
+}
 
 # XXX We should use 'hardware_product_profile' to determine the these details
 sub determine_product {

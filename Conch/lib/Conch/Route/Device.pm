@@ -173,4 +173,42 @@ post '/device/:serial/profile' => needs integrator => sub {
   }
 };
 
+post '/device/:serial/settings' => needs integrator => sub {
+  my $serial  = param 'serial';
+  my $settings = body_parameters->as_hashref;
+
+  my $device = device_info(schema, $serial);
+  return status_404("Device $serial not found") unless $device;
+
+  my $status = try {
+    set_device_settings(schema, $device, $settings)
+  } accept => 'ERROR';
+
+  if ($@->exceptions > 0) {
+    my @err = $@->exceptions;
+    return status_400("@err");
+  }
+
+  if ($status) {
+    return status_200($status);
+  } else {
+    return status_500({error => "error occured determining settings for $serial"});
+  }
+};
+
+
+get '/device/:serial/settings' => needs integrator => sub {
+  my $serial  = param 'serial';
+  # XXX Restrict by user
+  my $device = device_info(schema, $serial);
+  return status_404("Device $serial not found") unless $device;
+  my $settings = get_device_settings(schema, $device);
+
+  if ($settings) {
+    return status_200($settings);
+  } else {
+    return status_500({error => "error occured determining settings for $serial"});
+  }
+};
+
 1;
