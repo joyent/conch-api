@@ -1,6 +1,7 @@
 var m = require("mithril");
 var t = require('i18n4v');
 
+var Auth = require("../models/Auth");
 
 // Three-pane layout with two children. Additional children will not be rendered.
 module.exports = {
@@ -41,6 +42,16 @@ module.exports = {
                             m("li.pure-menu-item",
                                 m("a[href='/device'].pure-menu-link.nav-link.nav-text-color",
                                     {oncreate: m.route.link}, t("Devices"))
+                            ),
+
+                            m("li.pure-menu-item",
+                                m("a[href='/login'].pure-menu-link.nav-link",
+                                    {
+                                        oncreate: m.route.link,
+                                        onclick: function () {
+                                            Auth.logout();
+                                        }
+                                    }, t("Logout"))
                             ),
 
                         ])
