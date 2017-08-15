@@ -48,8 +48,7 @@ sub set_device_settings {
 
       my $prev_setting =
         $device->device_settings
-        ->search({resource_id => $resource_id, deactivated => undef})
-        ->single;
+        ->find({resource_id => $resource_id, deactivated => undef});
       $prev_setting->update({ deactivated => \'NOW()' }) if $prev_setting;
       $device->device_settings->create({
           device_id => $device->id,

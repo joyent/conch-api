@@ -174,10 +174,11 @@ post '/device/:serial/profile' => needs integrator => sub {
 };
 
 post '/device/:serial/settings' => needs integrator => sub {
-  my $serial  = param 'serial';
-  my $settings = body_parameters->as_hashref;
+  my $serial    = param 'serial';
+  my $user_name = session->read('integrator');
+  my $settings  = body_parameters->as_hashref;
 
-  my $device = device_info(schema, $serial);
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
   return status_404("Device $serial not found") unless $device;
 
   my $status = try {
@@ -198,9 +199,10 @@ post '/device/:serial/settings' => needs integrator => sub {
 
 
 get '/device/:serial/settings' => needs integrator => sub {
-  my $serial  = param 'serial';
-  # XXX Restrict by user
-  my $device = device_info(schema, $serial);
+  my $serial    = param 'serial';
+  my $user_name = session->read('integrator');
+
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
   return status_404("Device $serial not found") unless $device;
   my $settings = get_device_settings(schema, $device);
 
