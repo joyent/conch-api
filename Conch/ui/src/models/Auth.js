@@ -11,7 +11,7 @@ var Auth = {
         Auth.password = value;
     },
     login: function(route) {
-        m.request({
+        return m.request({
             method: "POST",
             url: "/login",
             data: {user: Auth.username, password: Auth.password}

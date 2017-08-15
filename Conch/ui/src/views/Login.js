@@ -16,7 +16,8 @@ module.exports = {
                 placeholder: t("Password"),
                 value: Auth.password}),
             m("button[type=submit].pure-button.pure-button-primary", {
-                onclick: Auth.login},
+                onclick: function(e) { e.preventDefault(); Auth.login(); }
+            },
               t("Login")
             )
         ]),

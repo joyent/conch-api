@@ -31,6 +31,7 @@ module.exports = {
         "Password"                : "Password",
         // Verb
         "Login"                   : "Login",
+        "Logout"                   : "Logout",
 
 
         /* Rack page */
