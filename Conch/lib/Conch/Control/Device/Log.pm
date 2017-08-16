@@ -12,7 +12,7 @@ use Conch::Data::DeviceLog;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw(parse_device_log record_device_log get_device_logs get_device_component_logs);
+our @EXPORT = qw(parse_device_log record_device_log get_device_logs );
 
 # Parse a DeviceLog object from a HashRef and report all validation errors
 sub parse_device_log {
@@ -42,17 +42,16 @@ sub record_device_log {
 }
 
 sub get_device_logs {
-  my ($schema, $device) = @_;
-  my @device_logs =  $device->device_logs->search({}, { order_by => { -asc => 'created' }})->all;
+  my ($schema, $device, $component_type, $component_id) = @_;
 
-  return map format_log($_), @device_logs;
-}
+  my $search_filter = {};
+  $search_filter->{component_type} = $component_type if $component_type;
+  $search_filter->{component_id} = $component_id if $component_id;
 
-sub get_device_component_logs {
-  my ($schema, $device, $component_type) = @_;
-  my @device_logs =  $device->device_logs->search(
-    { component_type => $component_type }, { order_by => { -asc => 'created' }}
-  )->all;
+  p $search_filter;
+
+  my @device_logs = try { $device->device_logs->search($search_filter, { order_by => { -asc => 'created' }})->all };
+  $@->reportFatal;
 
   return map format_log($_), @device_logs;
 }

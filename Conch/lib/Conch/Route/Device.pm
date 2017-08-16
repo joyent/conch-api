@@ -8,6 +8,7 @@ use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::LogReport;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
+use Data::Validate::UUID qw( is_uuid );
 
 use Conch::Control::Device::Profile;
 use Conch::Control::Device::Validation;
@@ -236,27 +237,19 @@ post '/device/:serial/log' => needs integrator => sub {
 };
 
 get '/device/:serial/log' => needs integrator => sub {
-  my $serial    = param 'serial';
-  my $user_name = session->read('integrator');
-
-  my $device = lookup_device_for_user(schema, $serial, $user_name);
-  return status_404("Device $serial not found") unless $device;
-
-  my @logs = get_device_logs(schema, $device);
-
-  return status_200([@logs]);
-
-};
-
-get '/device/:serial/log/:component' => needs integrator => sub {
   my $serial         = param 'serial';
-  my $component_type = param 'component';
+  my $component_type = param 'component_type';
+  my $component_id   = param 'component_id';
   my $user_name      = session->read('integrator');
 
-  my $device = lookup_device_for_user(schema, $serial, $user_name);
-  return status_404("Device $serial not found") unless $device;
+  return status_400("'component_id' must be a UUID")
+    if $component_id && ! is_uuid($component_id);
 
-  my @logs = get_device_component_logs(schema, $device, $component_type);
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
+  return status_404("Device $serial not found")
+    unless $device;
+
+  my @logs = get_device_logs(schema, $device, $component_type, $component_id);
 
   return status_200([@logs]);
 
