@@ -3,7 +3,7 @@ package Conch::Control::Device::Profile;
 use v5.10;
 use strict;
 use List::Compare;
-use Log::Report mode => 'DEBUG';
+use Log::Report;
 use Log::Report::DBIC::Profiler;
 use Dancer2::Plugin::Passphrase;
 

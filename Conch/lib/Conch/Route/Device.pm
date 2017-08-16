@@ -8,11 +8,14 @@ use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::LogReport;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
+use Data::Validate::UUID qw( is_uuid );
+
+use Conch::Control::Device::Profile;
+use Conch::Control::Device::Validation;
+use Conch::Control::Device::Log;
 use Conch::Control::Device;
 use Conch::Control::DeviceReport;
-use Conch::Control::Device::Validation;
 use Conch::Control::Relay;
-use Conch::Control::Device::Profile;
 
 use Data::Printer;
 
@@ -197,7 +200,6 @@ post '/device/:serial/settings' => needs integrator => sub {
   }
 };
 
-
 get '/device/:serial/settings' => needs integrator => sub {
   my $serial    = param 'serial';
   my $user_name = session->read('integrator');
@@ -211,6 +213,46 @@ get '/device/:serial/settings' => needs integrator => sub {
   } else {
     return status_500({error => "error occured determining settings for $serial"});
   }
+};
+
+post '/device/:serial/log' => needs integrator => sub {
+  my $serial    = param 'serial';
+  my $user_name = session->read('integrator');
+
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
+  return status_404("Device $serial not found") unless $device;
+
+  try {
+    my $device_log = parse_device_log(body_parameters->as_hashref);
+    record_device_log(schema, $device, $device_log);
+  };
+
+  if ($@) {
+    my @err = $@->exceptions;
+    return status_400("@err");
+  }
+  else {
+    return status_200({ status => "Log written for device $serial." });
+  }
+};
+
+get '/device/:serial/log' => needs integrator => sub {
+  my $serial         = param 'serial';
+  my $component_type = param 'component_type';
+  my $component_id   = param 'component_id';
+  my $user_name      = session->read('integrator');
+
+  return status_400("'component_id' must be a UUID")
+    if $component_id && ! is_uuid($component_id);
+
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
+  return status_404("Device $serial not found")
+    unless $device;
+
+  my @logs = get_device_logs(schema, $device, $component_type, $component_id);
+
+  return status_200([@logs]);
+
 };
 
 1;

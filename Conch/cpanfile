@@ -15,9 +15,11 @@ requires 'Data::UUID';
 requires 'JSON::XS';
 requires 'Data::Printer';
 requires 'List::Compare';
+requires 'Data::Validate::UUID';
 
 # database
 requires 'DBD::Pg';
+requires 'DateTime::Format::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::TimeStamp';
