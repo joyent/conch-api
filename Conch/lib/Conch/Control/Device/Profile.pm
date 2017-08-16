@@ -29,14 +29,12 @@ sub set_device_settings {
   }
 
   # Find all invalid keys in the request
-  try {
-    for my $setting_name (keys %{$settings}) {
-      mistake $setting_name unless $setting_keys->{$setting_name};
-    }
-  } acccept => 'ERROR';
+  my @bad_names;
+  for my $setting_name (keys %{$settings}) {
+    push @bad_names, $setting_name unless $setting_keys->{$setting_name};
+  }
 
-  if ($@->exceptions > 0) {
-      my @bad_names = map { $_->message } $@->exceptions;
+  if (length @bad_names > 0) {
       error("No hardware product setting for following keys: @bad_names");
   }
 
@@ -78,7 +76,6 @@ sub get_device_settings {
     $setting_id_to_names->{$hardware_setting->id} = $hardware_setting->name;
   }
 
-  p $device->device_settings->all;
   my @device_settings = $device->device_settings->search({
         deactivated => undef
       })->all;
