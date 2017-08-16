@@ -45,14 +45,7 @@ sub get_device_logs {
   my ($schema, $device) = @_;
   my @device_logs =  $device->device_logs->search({}, { order_by => { -asc => 'created' }})->all;
 
-  return map {
-    {
-      component_type => $_->component_type,
-      component_id => $_->component_id,
-      msg => $_->log,
-      created => "".$_->created
-    }
-  } @device_logs;
+  return map format_log($_), @device_logs;
 }
 
 sub get_device_component_logs {
@@ -61,14 +54,18 @@ sub get_device_component_logs {
     { component_type => $component_type }, { order_by => { -asc => 'created' }}
   )->all;
 
-  return map {
+  return map format_log($_), @device_logs;
+}
+
+sub format_log {
+  my $device_log = shift;
+  return
     {
-      component_type => $_->component_type,
-      component_id => $_->component_id,
-      msg => $_->log,
-      created => "".$_->created
-    }
-  } @device_logs;
+      component_type => $device_log->component_type,
+      component_id => $device_log->component_id,
+      msg => $device_log->log,
+      created => "".$device_log->created
+    };
 }
 
 1;
