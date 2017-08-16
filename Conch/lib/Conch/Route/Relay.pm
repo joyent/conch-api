@@ -28,7 +28,7 @@ get '/relay/active' => needs admin => sub {
 
 # This acts as both an initial registration and heartbeat endpoint.
 post '/relay/:serial/register' => needs integrator => sub {
-  my $ip = request->address;
+  my $client_ip = request->address;
   my $serial = param 'serial';
   my $user_name = session->read('integrator');
   my $attrib = body_parameters->as_hashref;
@@ -37,7 +37,7 @@ post '/relay/:serial/register' => needs integrator => sub {
 
   my $relay = process sub {
     connect_user_relay(schema, $user_name, $serial);
-    return register_relay(schema, $serial, $ip, $attrib)
+    return register_relay(schema, $serial, $client_ip, $attrib)
   };
 
   if ($relay) {

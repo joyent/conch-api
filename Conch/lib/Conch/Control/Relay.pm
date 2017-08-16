@@ -37,13 +37,16 @@ sub list_relays {
 }
 
 sub register_relay {
-  my ($schema, $serial, $ip, $attrib) = @_;
+  my ($schema, $serial, $client_ip, $attrib) = @_;
+
+  # XXX $client_ip is where the request comes from, which is probably a NAT.
+  # XXX We should store that! But the actual Relay IP is in the attrib hash.
 
   info "Registering relay device $serial";
 
   my $relay = $schema->resultset('Relay')->update_or_create({
     id        => $serial,
-    ipaddr    => $ip,
+    ipaddr    => $attrib->{ipaddr} || undef,
     version   => $attrib->{version},
     ssh_port  => $attrib->{ssh_port},
     updated   => \'NOW()'
