@@ -1093,6 +1093,14 @@ DISTRIBUTIONS
     requirements:
       Digest::MD5 0
       ExtUtils::MakeMaker 0
+  Data-Validate-UUID-0.1.1
+    pathname: D/DR/DRZIGMAN/Data-Validate-UUID-0.1.1.tar.gz
+    provides:
+      Data::Validate::UUID 0.001001
+    requirements:
+      Exporter 0
+      Module::Build 0.28
+      perl 5.006
   DateTime-1.43
     pathname: D/DR/DROLSKY/DateTime-1.43.tar.gz
     provides:

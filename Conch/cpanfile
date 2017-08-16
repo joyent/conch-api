@@ -15,6 +15,7 @@ requires 'Data::UUID';
 requires 'JSON::XS';
 requires 'Data::Printer';
 requires 'List::Compare';
+requires 'Data::Validate::UUID';
 
 # database
 requires 'DBD::Pg';
