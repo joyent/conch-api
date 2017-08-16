@@ -185,7 +185,7 @@ post '/device/:serial/settings' => needs integrator => sub {
     set_device_settings(schema, $device, $settings)
   } accept => 'ERROR';
 
-  if ($@->exceptions > 0) {
+  if ($@) {
     my @err = $@->exceptions;
     return status_400("@err");
   }
