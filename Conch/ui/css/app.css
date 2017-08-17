@@ -215,7 +215,7 @@ body {
   height: auto;
 }
 
-@media (min-width: 60em) {
+@media (min-width: 68em) {
 
     .layout {
         padding-left: 400px;

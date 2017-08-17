@@ -2,17 +2,20 @@ var m = require("mithril");
 
 var Feedback = {
     text: "",
-    sendUserFeedback: function(text, next) {
+    sendFeedback: function(subject, message, next) {
         return m.request({
             method: "POST",
             url: "/feedback",
-            data: {subject: "Conch User Feedback", message: text}
+            data: {subject: subject, message: message}
         }).then(function(data) {
             next(data);
         }).catch(function(e) {
             console.log("An error fired: ");
             console.log(e);
         });
+    },
+    sendUserFeedback: function(text, next) {
+        return sendFeedback("Conch User Feedback", text, next);
     }
 };
 

@@ -23,7 +23,8 @@ module.exports = {
         "Racks"                   : "Racks",
         "Problems"                : "Problems",
         "Devices"                 : "Devices",
-
+        "Logout"                  : "Logout",
+        "Send Feedback"           : "Send Feedback",
 
         /* Login items */
         "Login to Conch"          : "Login to Conch",
@@ -31,7 +32,6 @@ module.exports = {
         "Password"                : "Password",
         // Verb
         "Login"                   : "Login",
-        "Logout"                   : "Logout",
 
 
         /* Rack page */
@@ -89,5 +89,11 @@ module.exports = {
         "Type"                    : "Type",
         "Metric"                  : "Metric",
         "Latest Device Report"    : "Latest Device Report",
+
+
+        /* Feedback form */
+        "Feedback placeholder" : "Tell us something you would like us to fix or improve",
+        "Submit Feedback"      : "Submit Feedback",
+        "Feedback submitted"   : "Feedback submitted, thank you!",
     }
 };

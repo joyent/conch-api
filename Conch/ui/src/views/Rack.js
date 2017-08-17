@@ -1,7 +1,9 @@
 var m = require("mithril");
 var t = require("i18n4v");
+
 var Rack = require("../models/Rack");
 var Problem = require("../models/Problem");
+var Table = require("./component/Table");
 
 var allRacks = {
     oninit: Rack.loadRooms,
@@ -82,56 +84,57 @@ function enterAsTab(e) {
     catch(e){ }
 }
 
-var rackLayoutTable = { view: function () {
-    return m("table.pure-table.pure-table-horizontal.pure-table-striped", [
-        m("thead", m("tr", [
-            m("th",  t("Slot Number")),
-            m("th", t("Name")),
-            m("th", t("Vendor")),
-            m("th", t("RU Height")),
-            m("th", t("Device")),
-            m("th", t("Status")),
-        ])),
-        m("tbody",
+var rackLayoutTable = {
+    view: function() {
+        function reportButton(slot) {
+            var healthy = slot.occupant && ! Problem.devices[slot.occupant];
+            return m("a.pure-button", {
+                href: "/device/" + slot.occupant,
+                oncreate: m.route.link,
+                title: t("Show Device Report"),
+                class: healthy ? "" : "color-failure"
+
+            }, healthy ? t("Pass") : t("FAIL") );
+        }
+        function deviceInput(slot){
+            return m("input[type=text]",
+                {
+                    oninput: m.withAttr("value", function(value) {
+                        slot.assignment = value;
+                    }),
+                    id: "slot-" + slot,
+                    placeholder: slot.occupant ? "" : t("Unassigned"),
+                    onkeypress: enterAsTab,
+                    value: slot.assignment || slot.occupant || "",
+                    class:
+                    Rack.highlightDevice === slot.occupant ?
+                    "row-highlight" : ""
+                }
+            );
+        }
+        return Table([
+            t("Slot Number"),
+            t("Name"),
+            t("Vendor"),
+            t("RU Height"),
+            t("Device"),
+            t("Status"),
+        ],
             Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
                 var slot = Rack.current.slots[slotId];
-                var healthy = slot.occupant && ! Problem.devices[slot.occupant];
-                return m("tr",
-                    [
-                        m("td", {'data-label' : t("Slot Number")}, slotId),
-                        m("td", {'data-label' : t("Name")}, slot.name),
-                        m("td", {'data-label' : t("Vendor")}, slot.vendor),
-                        m("td", {'data-label' : t("RU Height")}, slot.size),
-                        m("td", {'data-label' : t("Device")},
-                            m("input[type=text]",
-                                {
-                                    oninput: m.withAttr("value", function(value) {
-                                            slot.assignment = value;
-                                        }),
-                                    id: "slot-" + slot,
-                                    placeholder: slot.occupant ? "" : t("Unassigned"),
-                                    onkeypress: enterAsTab,
-                                    value: slot.assignment || slot.occupant || "",
-                                    class:
-                                        Rack.highlightDevice === slot.occupant ?
-                                        "row-highlight" : ""
-                                }
-                            )
-                        ),
-                        m("td", {'data-label' : t("Status")}, slot.occupant ?
-                            m("a.pure-button", {
-                                href: "/device/" + slot.occupant,
-                                oncreate: m.route.link,
-                                title: t("Show Device Report"),
-                                class: healthy ? "" : "color-failure"
-                            },
-                                healthy ? t("Pass") : t("FAIL") )
-                            : null
-                        )
-                    ]);
-            }))
-    ]);
-} };
+                return [
+                    slotId,
+                    slot.name,
+                    slot.vendor,
+                    slot.size,
+                    deviceInput(slot),
+                    slot.occupant ? reportButton(slot) : null,
+                    actionSelect
+                ];
+            })
+        );
+    }
+};
 
 module.exports = {
     allRacks      : allRacks,

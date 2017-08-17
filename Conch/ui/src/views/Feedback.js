@@ -7,13 +7,13 @@ var feedbackForm = {
     view: function() {
         return m(".feedback-form",
             feedbackForm.submitted ?
-                  m(".text-center", t("Feedback submitted, thank you!"))
+                  m(".text-center", t("Feedback submitted"))
                 : m("form.pure-form", [
                     m("legend", t("Send Feedback")),
                     m("fieldset.pure-group", [
                         m("textarea[required=true].pure-input-1", {
                             oninput: m.withAttr("value", function(v) { Feedback.text = v; }),
-                            placeholder: t("Tell us something you would like us to fix or improve"),
+                            placeholder: t("Feedback placeholder"),
                             value: Feedback.text
                         }),
                         m("button[type=submit].pure-button.pure-button-primary.pure-input-1", {
@@ -25,7 +25,7 @@ var feedbackForm = {
                                 });
                             }
                         },
-                            t("Send Feedback")
+                            t("Submit Feedback")
                         )
                     ])
                 ])

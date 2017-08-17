@@ -23,6 +23,8 @@ module.exports = {
         "Racks"                   : "랙",
         "Problems"                : "문제",
         "Devices"                 : "Devices",
+        "Logout"                  : "Logout",
+        "Send Feedback"           : "Send Feedback",
 
 
         /* Login items */
@@ -31,7 +33,6 @@ module.exports = {
         "Password"                : "암호",
         // Verb
         "Login"                   : "로그인",
-        "Logout"                  : "로그 아웃",
 
 
         /* Rack page */
@@ -89,5 +90,11 @@ module.exports = {
         "Type"                    : "종류",
         "Metric"                  : "Metric",
         "Latest Device Report"    : "최근 디바이스 리포트",
+
+
+        /* Feedback form */
+        "Feedback placeholder" : "Tell us something you would like us to fix or improve",
+        "Submit Feedback"      : "Submit Feedback",
+        "Feedback submitted"   : "Feedback submitted, thank you!",
     }
 };
