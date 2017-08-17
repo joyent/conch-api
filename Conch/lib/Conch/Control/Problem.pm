@@ -19,92 +19,111 @@ our @EXPORT = qw( get_problems );
 sub get_problems {
   my ($schema, $user_name) = @_;
 
-  my $problems   = {};
   my $rack_roles = rack_roles($schema);
   my $criteria   = get_validation_criteria($schema);
 
   my @failing_user_devices;
+  my @unreported_user_devices;
+  my @unlocated_user_devices;
   foreach my $d (devices_for_user($schema, $user_name)) {
-    if ($d->health eq 'FAIL' || $d->health eq 'UNKNOWN') {
+    if ($d->health eq 'FAIL') {
       push @failing_user_devices, $d;
+    }
+    if ($d->health eq 'UNKNOWN') {
+      push @unreported_user_devices, $d;
     }
   }
 
   foreach my $d (unlocated_devices($schema, $user_name)) {
-      push @failing_user_devices, $d;
+      push @unlocated_user_devices, $d;
   }
 
+  my $failing_problems = {};
   foreach my $device (@failing_user_devices) {
-    my $device_id       = $device->id;
-    my $device_location = device_location($schema, $device_id);
+    my $device_id = $device->id;
 
-    $problems->{$device_id}{health} = $device->health;
-    my @problems;
-
-    if ($device_location) {
-      my $rack_info       = get_rack($schema, $device_location->rack_id);
-      my $datacenter      = get_datacenter_room($schema, $rack_info->datacenter_room_id);
-
-      $problems->{$device_id}{rack}{id}   = $device_location->rack_id || undef;
-      $problems->{$device_id}{rack}{unit} = $device_location->rack_unit || undef;
-      $problems->{$device_id}{rack}{name} = $rack_info->name || undef;
-      $problems->{$device_id}{rack}{role} = $rack_info->role->name || undef;
-
-      $problems->{$device_id}{datacenter}{id}   = $datacenter->id;
-        $problems->{$device_id}{datacenter}{name} = $datacenter->az;
-    }
-    else {
-      $problems->{$device_id}{rack} = undef;
-      $problems->{$device_id}{datacenter} = undef;
-      my $fail = {};
-      $fail->{log} = "Device not assigned to datacenter rack" ;
-      $fail->{component_type} = "Location" ;
-      $fail->{component_name} = "Location" ;
-      $fail->{criteria}{condition} = "Location" ;
-      push @problems, $fail;
-    }
+    $failing_problems->{$device_id}{health}   = $device->health;
+    $failing_problems->{$device_id}{location} =
+      problem_device_location($schema, $device_id);
 
     my $report = newest_report($schema, $device_id);
-    if ($report) {
-      $problems->{$device_id}{report_id}  = $report->id;
-      my @validation_report = device_validation_report($schema, $report->id);
-      foreach my $v (@validation_report) {
-        my $fail = {};
-        if ($v->{status} eq 0) {
-          $fail->{criteria}{id}           = $v->{criteria_id} || undef;
-          $fail->{criteria}{component}    = $criteria->{ $v->{criteria_id} }{component} || undef;
-          $fail->{criteria}{condition}    = $criteria->{ $v->{criteria_id} }{condition} || undef;
-          $fail->{criteria}{min}          = $criteria->{ $v->{criteria_id} }{min} || undef;
-          $fail->{criteria}{warn}         = $criteria->{ $v->{criteria_id} }{warn} || undef;
-          $fail->{criteria}{crit}         = $criteria->{ $v->{criteria_id} }{crit} || undef;
-
-          $fail->{component_id}   = $v->{component_id} || undef;
-          $fail->{component_name} = $v->{component_name} || undef;
-          $fail->{component_type} = $v->{component_type} || undef;
-          $fail->{log}            = $v->{log} || undef;
-          $fail->{metric}         = $v->{metric} || undef;
-          push @problems,$fail;
-        }
-      }
-    }
-    else {
-      $problems->{$device_id}{report_id} = undef;
-      my $fail = {};
-      if ($problems->{$device_id}{rack}) {
-        $fail->{log} = "No report from Rack $problems->{$device_id}{rack}{name}, Slot $problems->{$device_id}{rack}{unit}";
-      }
-      else {
-        $fail->{log} = "No reports received from device";
-      }
-      $fail->{component_type} = "Report" ;
-      $fail->{component_name} = "Report" ;
-      $fail->{criteria}{condition} = "Report" ;
-      push @problems, $fail;
-    }
-    $problems->{$device_id}{problems} = \@problems;
+    $failing_problems->{$device_id}{report_id}  = $report->id;
+    my @failures = validation_failures($schema, $criteria, $report->id);
+    $failing_problems->{$device_id}{problems} = \@failures;
   }
 
-  return $problems;
+  my $unreported_problems = {};
+  foreach my $device (@unreported_user_devices) {
+    my $device_id = $device->id;
+
+    $unreported_problems->{$device_id}{health}   = $device->health;
+    $unreported_problems->{$device_id}{location} =
+      problem_device_location($schema, $device_id);
+  }
+
+  my $unlocated_problems = {};
+  foreach my $device (@unlocated_user_devices) {
+    my $device_id = $device->id;
+
+    $unlocated_problems ->{$device_id}{health}   = $device->health;
+    my $report = newest_report($schema, $device_id);
+    $unlocated_problems->{$device_id}{report_id}  = $report->id;
+    my @failures = validation_failures($schema, $criteria, $report->id);
+    $unlocated_problems->{$device_id}{problems} = \@failures;
+  }
+
+  return {
+    failing    => $failing_problems,
+    unreported => $unreported_problems,
+    unlocated  => $unlocated_problems
+  };
+}
+
+sub problem_device_location {
+    my ($schema, $device_id) = @_;
+    my $device_location = device_location($schema, $device_id);
+
+    my $rack_info       = get_rack($schema, $device_location->rack_id);
+    my $datacenter      = get_datacenter_room($schema, $rack_info->datacenter_room_id);
+
+    my $location = {};
+    $location->{rack}{id}   = $device_location->rack_id || undef;
+    $location->{rack}{unit} = $device_location->rack_unit || undef;
+    $location->{rack}{name} = $rack_info->name || undef;
+    $location->{rack}{role} = $rack_info->role->name || undef;
+
+    $location->{datacenter}{id}   = $datacenter->id;
+    $location->{datacenter}{name} = $datacenter->az;
+
+    return $location;
+}
+
+sub validation_failures {
+  my ($schema, $criteria, $report_id) = @_;
+  my @failures;
+
+  my @validation_report = device_validation_report($schema, $report_id);
+  foreach my $v (@validation_report) {
+    my $fail = {};
+    if ($v->{status} eq 0) {
+      $fail->{criteria}{id}           = $v->{criteria_id} || undef;
+      $fail->{criteria}{component}    = $criteria->{ $v->{criteria_id} }{component} || undef;
+      $fail->{criteria}{condition}    = $criteria->{ $v->{criteria_id} }{condition} || undef;
+      $fail->{criteria}{min}          = $criteria->{ $v->{criteria_id} }{min} || undef;
+      $fail->{criteria}{warn}         = $criteria->{ $v->{criteria_id} }{warn} || undef;
+      $fail->{criteria}{crit}         = $criteria->{ $v->{criteria_id} }{crit} || undef;
+
+      $fail->{component_id}   = $v->{component_id} || undef;
+      $fail->{component_name} = $v->{component_name} || undef;
+      $fail->{component_type} = $v->{component_type} || undef;
+      $fail->{log}            = $v->{log} || undef;
+      $fail->{metric}         = $v->{metric} || undef;
+
+      push @failures,$fail;
+    }
+  }
+
+  return @failures;
 }
 
 sub newest_report {
