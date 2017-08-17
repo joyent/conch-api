@@ -16,6 +16,7 @@ requires 'JSON::XS';
 requires 'Data::Printer';
 requires 'List::Compare';
 requires 'Data::Validate::UUID';
+requires 'Mail::Sendmail';
 
 # database
 requires 'DBD::Pg';

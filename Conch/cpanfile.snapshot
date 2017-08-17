@@ -2488,6 +2488,12 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Mail-Sendmail-0.79
+    pathname: M/MI/MIVKOVIC/Mail-Sendmail-0.79.tar.gz
+    provides:
+      Mail::Sendmail 0.79
+    requirements:
+      ExtUtils::MakeMaker 0
   Memoize-ExpireLRU-0.56
     pathname: N/NE/NEILB/Memoize-ExpireLRU-0.56.tar.gz
     provides:

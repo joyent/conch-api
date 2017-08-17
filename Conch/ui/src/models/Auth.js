@@ -10,7 +10,7 @@ var Auth = {
     setPassword: function(value) {
         Auth.password = value;
     },
-    login: function(route) {
+    login: function() {
         return m.request({
             method: "POST",
             url: "/login",
