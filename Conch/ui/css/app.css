@@ -4,8 +4,11 @@ body {
     color: #001b2a;
 }
 
+.text-center {
+    text-align: center;
+}
 
-#nav {
+.nav {
     display: none;
     position: fixed;
     top: 0;
@@ -16,7 +19,7 @@ body {
     text-align: center;
 }
 
-#nav.mobile-is-active {
+.nav.mobile-is-active {
     display: block;
 }
 
@@ -55,6 +58,15 @@ body {
 
 .login-view .pure-button {
     margin-top: 1.0em;
+}
+
+.feedback-form {
+    margin: 10% auto;
+    width: 90%;
+}
+
+.feedback-form textarea {
+    height: 200px;
 }
 
 .mobile-nav {
@@ -181,6 +193,28 @@ body {
     margin: 10px auto;
 }
 
+.modal {
+    content: "";
+    display: none;
+    background: rgba(0,0,0,.6);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 10;
+}
+
+.modal:target {
+    display: block;
+}
+
+.modal-dialog {
+  background: #fefefe;
+  border-radius: 5px;
+  margin: 20px auto;
+  z-index: 11;
+  padding: 5px;
+  height: auto;
+}
+
 @media (min-width: 60em) {
 
     .layout {
@@ -191,7 +225,7 @@ body {
         display: none;
     }
 
-    #nav {
+    .nav {
         display: block;
         position: static;
         margin-left: -400px;
@@ -217,6 +251,10 @@ body {
         right: 0;
         left: 400px;
         width: auto;
+    }
+
+    .modal-dialog {
+        width: 600px;
     }
 
 }

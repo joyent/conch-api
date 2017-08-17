@@ -5,6 +5,7 @@ use Conch::Route::Device;
 use Conch::Route::Rack;
 use Conch::Route::Relay;
 use Conch::Route::Problem;
+use Conch::Route::Feedback;
 
 our $VERSION = '0.1';
 

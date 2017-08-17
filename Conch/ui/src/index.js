@@ -1,11 +1,11 @@
 var m = require("mithril");
+var t = require('i18n4v');
 
-var Rack = require("./views/Rack");
+var Device = require("./views/Device");
 var Layout = require("./views/Layout");
 var Login = require("./views/Login");
 var Problem = require("./views/Problem");
-var Device = require("./views/Device");
-var t = require('i18n4v');
+var Rack = require("./views/Rack");
 
 var korean = require('./languages/ko.js');
 var languages = {
