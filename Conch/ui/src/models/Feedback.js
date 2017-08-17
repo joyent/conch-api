@@ -6,7 +6,7 @@ var Feedback = {
         return m.request({
             method: "POST",
             url: "/feedback",
-            data: {feedback: text}
+            data: {subject: "Conch User Feedback", message: text}
         }).then(function(data) {
             next(data);
         }).catch(function(e) {
