@@ -4,6 +4,10 @@ body {
     color: #001b2a;
 }
 
+.pure-table caption {
+    font: bold 16px sans-serif;
+}
+
 .text-center {
     text-align: center;
 }
