@@ -1,6 +1,8 @@
 var m = require("mithril");
 var t = require("i18n4v");
+
 var Device = require("../models/Device");
+var Table  = require("./component/Table");
 
 var allDevices = {
     oninit: Device.loadDevices,
@@ -29,17 +31,6 @@ var makeSelection = {
     }
 };
 
-function reportTable(header, rows) {
-    return m(".pure-u-1", m("table.pure-table.pure-table-horizontal.pure-table-striped", [
-        m("thead",
-            m("tr", header.map(function(h) { return m("th", h); }))
-        ),
-        m("tbody", rows.map(function(r) {
-            return m("tr", r.map(function(d, i) { return m("td", {'data-label' : header[i] }, d); }));
-        }))
-    ]));
-}
-
 var deviceReport = {
     oninit: function(vnode) { Device.loadDeviceReport(vnode.attrs.id); },
     view: function(vnode) {
@@ -65,7 +56,7 @@ var deviceReport = {
         var environment = Device.deviceReport.temp ?
             [
                 m(".pure-u-1", m("h2", t("Environment"))),
-                reportTable(
+                Table(
                     [t("Name"), t("Temperature")],
                     Object.keys(Device.deviceReport.temp).sort().map(function(k) {
                         return [k, Device.deviceReport.temp[k]];
@@ -76,7 +67,7 @@ var deviceReport = {
         var network = Device.deviceReport.interfaces ?
             [
                 m(".pure-u-1", m("h2", t("Network"))),
-                reportTable(
+                Table(
                     [
                         t("Name"),
                         t("MAC"), 
@@ -106,7 +97,7 @@ var deviceReport = {
         var disks = Device.deviceReport.disks ?
             [
                 m(".pure-u-1", m("h2", t("Storage"))),
-                reportTable(
+                Table(
                     [
                         t("Serial Number"),
                         t("HBA"),
@@ -141,7 +132,7 @@ var deviceReport = {
             : null;
         var validations = [
                 m(".pure-u-1", m("h2", t("Device Validation Tests"))),
-                reportTable(
+                Table(
                     [
                         t("Status"),
                         t("Type"),
