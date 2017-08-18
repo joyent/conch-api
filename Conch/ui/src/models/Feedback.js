@@ -15,7 +15,7 @@ var Feedback = {
         });
     },
     sendUserFeedback: function(text, next) {
-        return sendFeedback("Conch User Feedback", text, next);
+        return this.sendFeedback("Conch User Feedback", text, next);
     }
 };
 

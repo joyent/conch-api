@@ -2,6 +2,7 @@ var m = require("mithril");
 var t = require("i18n4v");
 
 var Rack = require("../models/Rack");
+var Feedback = require("../models/Feedback");
 var Problem = require("../models/Problem");
 var Table = require("./component/Table");
 
@@ -102,7 +103,6 @@ var rackLayoutTable = {
                     oninput: m.withAttr("value", function(value) {
                         slot.assignment = value;
                     }),
-                    id: "slot-" + slot,
                     placeholder: slot.occupant ? "" : t("Unassigned"),
                     onkeypress: enterAsTab,
                     value: slot.assignment || slot.occupant || "",
@@ -112,6 +112,20 @@ var rackLayoutTable = {
                 }
             );
         }
+        function flagDevice(slot, slotId) {
+            return m("a.pure-button", {
+                onclick: function (){
+                    Feedback.sendFeedback(
+                        "[NOTICE] User Flagged Device",
+                        "Device " + slot.occupant + " in slot " + slotId + " was flagged by the user.",
+                        function(){
+                            alert(t("Administrators notified about device"));
+                        }
+                    );
+                },
+                title: t("Notify administrators about device")
+            }, "⚐");
+        }
         return Table([
             t("Slot Number"),
             t("Name"),
@@ -119,6 +133,7 @@ var rackLayoutTable = {
             t("RU Height"),
             t("Device"),
             t("Status"),
+            t("Actions"),
         ],
             Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
                 var slot = Rack.current.slots[slotId];
@@ -129,7 +144,7 @@ var rackLayoutTable = {
                     slot.size,
                     deviceInput(slot),
                     slot.occupant ? reportButton(slot) : null,
-                    actionSelect
+                    slot.occupant ? flagDevice(slot, slotId) : null
                 ];
             })
         );
