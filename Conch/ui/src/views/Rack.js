@@ -88,9 +88,10 @@ function enterAsTab(e) {
 var rackLayoutTable = {
     view: function() {
         function reportButton(slot) {
-            var healthy = slot.occupant && ! Problem.devices[slot.occupant];
+            var healthy =
+                slot.occupant && ! Problem.deviceHasProblem(slot.occupant);
             return m("a.pure-button", {
-                href: "/device/" + slot.occupant,
+                href: healthy ? "/device/" + slot.occupant : "/problem/" + slot.occupant,
                 oncreate: m.route.link,
                 title: t("Show Device Report"),
                 class: healthy ? "" : "color-failure"
@@ -126,7 +127,8 @@ var rackLayoutTable = {
                 title: t("Notify administrators about device")
             }, "⚐");
         }
-        return Table([
+        return Table(t("Rack Layout"),
+        [
             t("Slot Number"),
             t("Name"),
             t("Vendor"),

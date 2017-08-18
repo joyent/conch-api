@@ -54,113 +54,102 @@ var deviceReport = {
         ]);
 
         var environment = Device.deviceReport.temp ?
-            [
-                m(".pure-u-1", m("h2", t("Environment"))),
-                Table(
-                    [t("Name"), t("Temperature")],
-                    Object.keys(Device.deviceReport.temp).sort().map(function(k) {
-                        return [k, Device.deviceReport.temp[k]];
-                    })
-                )
-            ]
+            Table(t("Environment"),
+                [t("Name"), t("Temperature")],
+                Object.keys(Device.deviceReport.temp).sort().map(function(k) {
+                    return [k, Device.deviceReport.temp[k]];
+                })
+            )
             : null;
         var network = Device.deviceReport.interfaces ?
-            [
-                m(".pure-u-1", m("h2", t("Network"))),
-                Table(
-                    [
-                        t("Name"),
-                        t("MAC"), 
-                        t("IP Address"), 
-                        t("State"), 
-                        t("Product"), 
-                        t("Peer Switch"), 
-                        t("Peer Port"), 
-                        t("Peer MAC")
-                    ],
-                    Object.keys(Device.deviceReport.interfaces).sort().map(function(k) {
-                        var iface = Device.deviceReport.interfaces[k];
-                        return [
-                            k,
-                            iface.mac,
-                            iface.ipaddr,
-                            iface.state,
-                            iface.product,
-                            iface.peer_switch,
-                            iface.peer_port,
-                            iface.peer_mac,
-                        ];
-                    })
-                )
-            ]
+            Table(t("Network"),
+                [
+                    t("Name"),
+                    t("MAC"), 
+                    t("IP Address"), 
+                    t("State"), 
+                    t("Product"), 
+                    t("Peer Switch"), 
+                    t("Peer Port"), 
+                    t("Peer MAC")
+                ],
+                Object.keys(Device.deviceReport.interfaces).sort().map(function(k) {
+                    var iface = Device.deviceReport.interfaces[k];
+                    return [
+                        k,
+                        iface.mac,
+                        iface.ipaddr,
+                        iface.state,
+                        iface.product,
+                        iface.peer_switch,
+                        iface.peer_port,
+                        iface.peer_mac,
+                    ];
+                })
+            )
             : null;
         var disks = Device.deviceReport.disks ?
-            [
-                m(".pure-u-1", m("h2", t("Storage"))),
-                Table(
-                    [
-                        t("Serial Number"),
-                        t("HBA"),
-                        t("Slot Number"),
-                        t("Vendor"),
-                        t("Model"),
-                        t("Size"),
-                        t("Drive Type"),
-                        t("Transport"),
-                        t("Firmware"),
-                        t("Health"),
-                        t("Temperature")
-                    ],
-                    Object.keys(Device.deviceReport.disks).sort().map(function(k) {
-                        var disk = Device.deviceReport.disks[k];
-                        return [
-                            k,
-                            disk.hba,
-                            disk.slot,
-                            disk.vendor,
-                            disk.model,
-                            disk.size,
-                            disk.drive_type,
-                            disk.transport,
-                            disk.firmware,
-                            disk.health,
-                            disk.temp,
-                        ];
-                    })
-                )
-            ]
+            Table(t("Storage"),
+                [
+                    t("Serial Number"),
+                    t("HBA"),
+                    t("Slot Number"),
+                    t("Vendor"),
+                    t("Model"),
+                    t("Size"),
+                    t("Drive Type"),
+                    t("Transport"),
+                    t("Firmware"),
+                    t("Health"),
+                    t("Temperature")
+                ],
+                Object.keys(Device.deviceReport.disks).sort().map(function(k) {
+                    var disk = Device.deviceReport.disks[k];
+                    return [
+                        k,
+                        disk.hba,
+                        disk.slot,
+                        disk.vendor,
+                        disk.model,
+                        disk.size,
+                        disk.drive_type,
+                        disk.transport,
+                        disk.firmware,
+                        disk.health,
+                        disk.temp,
+                    ];
+                })
+            )
             : null;
-        var validations = [
-                m(".pure-u-1", m("h2", t("Device Validation Tests"))),
-                Table(
-                    [
-                        t("Status"),
-                        t("Type"),
-                        t("Name"),
-                        t("Metric"),
-                        t("Log"),
-                    ],
-                    Device.deviceReport.validation.sort(function(a, b) {
-                        if (a.component_type < b.component_type) {
-                            return -1;
-                        }
-                        if (a.component_type > b.component_type) {
-                            return 1;
-                        }
-                        return 0;
-                    }).map(function(v) {
-                        return [
-                            v.status ? "" : "X",
-                            v.component_type,
-                            v.component_name,
-                            v.metric,
-                            v.log,
-                        ];
-                    })
-                )
-        ];
+        var validations =
+            Table(t("Device Validation Tests"),
+                [
+                    t("Status"),
+                    t("Type"),
+                    t("Name"),
+                    t("Metric"),
+                    t("Log"),
+                ],
+                Device.deviceReport.validation.sort(function(a, b) {
+                    if (a.component_type < b.component_type) {
+                        return -1;
+                    }
+                    if (a.component_type > b.component_type) {
+                        return 1;
+                    }
+                    return 0;
+                }).map(function(v) {
+                    return [
+                        v.status ? "" : "X",
+                        v.component_type,
+                        v.component_name,
+                        v.metric,
+                        v.log,
+                    ];
+                })
+            );
         return m(".pure-g", [
-            m(".pure-u-1", m("h1", t("Latest Device Report"))),
+            m(".pure-u-1", m("h1.text-center", t("Latest Device Report"))),
             basicInfo,
             environment,
             network,
