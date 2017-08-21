@@ -261,6 +261,10 @@ body {
         width: 600px;
     }
 
+    .two-pane {
+        left: 150px
+    }
+
 }
 
 
