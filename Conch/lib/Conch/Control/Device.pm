@@ -6,14 +6,17 @@ use Log::Report;
 use Log::Report::DBIC::Profiler;
 use Dancer2::Plugin::Passphrase;
 
+use Conch::Control::Rack;
+use Conch::Control::Datacenter;
+
 use Data::Printer;
 
 use Exporter 'import';
 our @EXPORT = qw( device_info device_location devices_for_user lookup_device_for_user
-                  device_ids_for_user device_inventory device_validation_report
-                  update_device_location delete_device_location
-                  get_validation_criteria get_active_devices
-                  get_devices_by_health unlocated_devices
+                  device_rack_location device_ids_for_user device_inventory
+                  device_validation_report update_device_location
+                  delete_device_location get_validation_criteria
+                  get_active_devices get_devices_by_health unlocated_devices
                  );
 
 sub get_validation_criteria {
@@ -130,6 +133,28 @@ sub device_location {
   my ($schema, $device_id) = @_;
   my $device = $schema->resultset('DeviceLocation')->find({device_id => $device_id});
   return $device;
+}
+
+# Gives a hash of Rack and Datacenter location details
+sub device_rack_location {
+  my ($schema, $device_id) = @_;
+
+  my $location;
+  my $device_location = device_location($schema, $device_id);
+  if ($device_location) {
+    my $rack_info  = get_rack($schema, $device_location->rack_id);
+    my $datacenter = get_datacenter_room($schema, $rack_info->datacenter_room_id);
+
+    $location->{rack}{id}   = $device_location->rack_id;
+    $location->{rack}{unit} = $device_location->rack_unit;
+    $location->{rack}{name} = $rack_info->name;
+    $location->{rack}{role} = $rack_info->role->name;
+
+    $location->{datacenter}{id}   = $datacenter->id;
+    $location->{datacenter}{name} = $datacenter->az;
+  }
+
+  return $location;
 }
 
 sub device_inventory {
