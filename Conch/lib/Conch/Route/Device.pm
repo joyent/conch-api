@@ -122,6 +122,22 @@ post '/device/:serial' => needs integrator => sub {
   }
 };
 
+
+get '/device/:serial/location' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $serial    = param 'serial';
+
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
+  return status_404("Device $serial not found") unless $device;
+
+  my $location = device_rack_location(schema, $serial);
+
+  return $location
+    ? status_200($location)
+    : status_409("Device $serial is not assigned to a rack");
+};
+
+
 post '/device/:serial/location' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';

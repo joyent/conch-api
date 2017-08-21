@@ -5,9 +5,7 @@ use Log::Report;
 use List::Compare;
 use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
-use Conch::Control::Datacenter;
 use Conch::Control::Device;
-use Conch::Control::Rack;
 
 use Data::Printer;
 
@@ -19,7 +17,6 @@ our @EXPORT = qw( get_problems );
 sub get_problems {
   my ($schema, $user_name) = @_;
 
-  my $rack_roles = rack_roles($schema);
   my $criteria   = get_validation_criteria($schema);
 
   my @failing_user_devices;
@@ -44,7 +41,7 @@ sub get_problems {
 
     $failing_problems->{$device_id}{health}   = $device->health;
     $failing_problems->{$device_id}{location} =
-      problem_device_location($schema, $device_id);
+      device_rack_location($schema, $device_id);
 
     my $report = newest_report($schema, $device_id);
     $failing_problems->{$device_id}{report_id}  = $report->id;
@@ -58,7 +55,7 @@ sub get_problems {
 
     $unreported_problems->{$device_id}{health}   = $device->health;
     $unreported_problems->{$device_id}{location} =
-      problem_device_location($schema, $device_id);
+      device_rack_location($schema, $device_id);
   }
 
   my $unlocated_problems = {};
@@ -77,25 +74,6 @@ sub get_problems {
     unreported => $unreported_problems,
     unlocated  => $unlocated_problems
   };
-}
-
-sub problem_device_location {
-    my ($schema, $device_id) = @_;
-    my $device_location = device_location($schema, $device_id);
-
-    my $rack_info       = get_rack($schema, $device_location->rack_id);
-    my $datacenter      = get_datacenter_room($schema, $rack_info->datacenter_room_id);
-
-    my $location = {};
-    $location->{rack}{id}   = $device_location->rack_id || undef;
-    $location->{rack}{unit} = $device_location->rack_unit || undef;
-    $location->{rack}{name} = $rack_info->name || undef;
-    $location->{rack}{role} = $rack_info->role->name || undef;
-
-    $location->{datacenter}{id}   = $datacenter->id;
-    $location->{datacenter}{name} = $datacenter->az;
-
-    return $location;
 }
 
 sub validation_failures {
