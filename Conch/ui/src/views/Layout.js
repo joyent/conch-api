@@ -100,7 +100,7 @@ var twoPane = {
                         mainNav(vnode.attrs.active === 0),
                         vnode.attrs.active > 0 ?
                             m(mobileNav, { title: vnode.attrs.title }) : null,
-                        m(".content-pane.pure-u-1",
+                        m(".content-pane.two-pane.pure-u-1",
                             { class: vnode.attrs.active === 1 ? "mobile-is-active" : "" },
                             vnode.children[0])
                     ]),

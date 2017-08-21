@@ -1,11 +1,12 @@
 var m = require("mithril");
 var t = require('i18n4v');
 
-var Device = require("./views/Device");
-var Layout = require("./views/Layout");
-var Login = require("./views/Login");
+var Device  = require("./views/Device");
+var Layout  = require("./views/Layout");
+var Login   = require("./views/Login");
 var Problem = require("./views/Problem");
-var Rack = require("./views/Rack");
+var Rack    = require("./views/Rack");
+var Status = require("./views/Status");
 
 var korean = require('./languages/ko.js');
 var languages = {
@@ -18,23 +19,17 @@ t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
     t.translator.add(languages[lang] ? languages[lang] : languages.en);
 });
 
+var statusPage = {
+    render: function() {
+        return m(Layout.twoPane, { active: 1, title : "Status"},
+            m(Status)
+        );
+    }
+};
 
 m.route(document.body, "/", {
-    "/": {
-        render: function() {
-            return m(Layout.threePane, { active : 0, title: "Conch" },
-              m(Rack.allRacks),
-              m(Rack.makeSelection)
-            );
-        }
-    },
-    "/summary" : {
-        render: function() {
-            return m(Layout.twoPane, { active: 1, title : "Summary"},
-                m("h1", "Summary")
-            );
-        }
-    },
+    "/"        : statusPage,
+    "/status" : statusPage,
     "/rack": {
         render: function() {
             return m(Layout.threePane, { active : 1, title: "Racks"  },
