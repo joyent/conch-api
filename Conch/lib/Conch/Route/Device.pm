@@ -28,10 +28,21 @@ set serializer => 'JSON';
 get '/device' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my @devices;
-  @devices = device_ids_for_user(schema, $user_name);
-  
-  status_200(\@devices || []);
+  if (param 'full') {
+    for my $d (all_user_devices(schema, $user_name)) {
+      my %data = $d->get_columns;
+      push @devices, \%data;
+    }
+  }
+  else {
+    @devices = device_ids_for_user(schema, $user_name);
+  }
+  return status_200(\@devices || []);
 };
+
+get '/device/status' => needs integrator => sub {
+};
+
 
 get '/device/active' => needs integrator => sub {
   my $user_name = session->read('integrator');
