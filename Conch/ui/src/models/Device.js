@@ -62,6 +62,29 @@ var Device = {
                 console.log("Error in GET /device: " + e.message);
             }
         });
+    },
+    rackLocation : null,
+    loadRackLocation : function(deviceId) {
+        return m.request({
+            method: "GET",
+            url: "/device/" + deviceId + "/location",
+            withCredentials: true,
+            extract: function(xhr) {
+                return { status: xhr.status, body: JSON.parse(xhr.response) };
+            }
+        }).then(function(res) {
+            Device.rackLocation = res.body;
+        }).catch(function(e) {
+            if (e.status === 401) {
+                m.route.set("/login");
+            }
+            else if (e.status === 409 || e.status === 400) {
+                Device.rackLocation = null;
+            }
+            else {
+                console.log("Error in GET /device/" + deviceId + "/location: " + e.message);
+            }
+        });
     }
 
 };
