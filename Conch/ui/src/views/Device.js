@@ -13,7 +13,7 @@ var allDevices = {
                     {
                         href: "/device/" + deviceId,
                         onclick: function() {
-                            Device.loadDeviceReport(deviceId);
+                            loadDeviceDetails(deviceId);
                         },
                         oncreate: m.route.link,
                         class: deviceId === Device.deviceReport.id ?
@@ -31,8 +31,13 @@ var makeSelection = {
     }
 };
 
+function loadDeviceDetails(id) {
+    Device.loadDeviceReport(id);
+    Device.loadRackLocation(id);
+}
+
 var deviceReport = {
-    oninit: function(vnode) { Device.loadDeviceReport(vnode.attrs.id); },
+    oninit: function(vnode) { loadDeviceDetails(vnode.attrs.id); },
     view: function(vnode) {
         if (! Device.deviceReport.validation || !Device.deviceReport.validation.length) {
             return m(".make-selection", t("No report for device"));
@@ -52,6 +57,22 @@ var deviceReport = {
             m(".pure-u-1-2", m("b", t("State"))),
             m(".pure-u-1-2", Device.deviceReport.state),
         ]);
+
+        var deviceLocation = m(".pure-u-1", Device.rackLocation ?
+            Table(t("Device Location"),
+            [
+                t("Datacenter"),
+                t("Rack"),
+                t("Role"),
+                t("Unit"),
+            ], [[
+                Device.rackLocation.datacenter.name,
+                Device.rackLocation.rack.name,
+                Device.rackLocation.rack.role,
+                Device.rackLocation.rack.unit,
+            ]])
+            : m("h3.text-center", t("Device has not been assigned a location"))
+        );
 
         var environment = Device.deviceReport.temp ?
             Table(t("Environment"),
@@ -151,6 +172,7 @@ var deviceReport = {
         return m(".pure-g", [
             m(".pure-u-1", m("h1.text-center", t("Latest Device Report"))),
             basicInfo,
+            deviceLocation,
             environment,
             network,
             disks,
