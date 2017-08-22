@@ -5,9 +5,9 @@ var Device = require("../models/Device");
 var Table  = require("./component/Table");
 
 var allDevices = {
-    oninit: Device.loadDevices,
+    oninit: Device.loadDeviceIds,
     view: function(vnode) {
-        return Device.devices.map(
+        return Device.deviceIds.map(
             function(deviceId) {
                 return m("a.selection-list-item",
                     {

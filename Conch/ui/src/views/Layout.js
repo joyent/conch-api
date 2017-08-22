@@ -13,7 +13,7 @@ function mainNav(isMobileView) {
 
                 m("li.pure-menu-item",
                     m("a[href='/summary'].pure-menu-link.nav-link.nav-text-color",
-                        {oncreate: m.route.link}, t("Summary"))
+                        {oncreate: m.route.link}, t("Status"))
                 ),
 
                 m("li.pure-menu-item",
