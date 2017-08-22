@@ -12,11 +12,12 @@ use Conch::Control::Datacenter;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( device_info device_location devices_for_user lookup_device_for_user
-                  device_rack_location device_ids_for_user device_inventory
-                  device_validation_report update_device_location
-                  delete_device_location get_validation_criteria
-                  get_active_devices get_devices_by_health unlocated_devices
+our @EXPORT = qw( device_info device_location all_user_devices devices_for_user
+                  lookup_device_for_user device_rack_location
+                  device_ids_for_user device_inventory device_validation_report
+                  update_device_location delete_device_location
+                  get_validation_criteria get_active_devices
+                  get_devices_by_health unlocated_devices device_response
                  );
 
 sub get_validation_criteria {
@@ -56,28 +57,31 @@ sub lookup_device_for_user  {
   return $device;
 }
 
+sub unlocated_devices {
+  my ($schema, $user_name) = @_;
+  return $schema->resultset('UnlocatedUserRelayDevices')->
+      search({}, { bind => [$user_name] })->all;
+}
 
-# Includes device IDs for unlocated devices
+# Includes located and unlocated devices
+sub all_user_devices {
+  my ($schema, $user_name) = @_;
+  return (
+    devices_for_user($schema, $user_name),
+    unlocated_devices($schema, $user_name)
+  );
+}
+
 sub device_ids_for_user {
   my ($schema, $user_name) = @_;
 
   my @user_device_ids;
 
-  foreach my $device (devices_for_user($schema, $user_name)) {
-    push @user_device_ids,$device->id;
-  }
-
-  foreach my $device (unlocated_devices($schema, $user_name)) {
+  foreach my $device (all_user_devices($schema, $user_name)) {
     push @user_device_ids,$device->id;
   }
 
   return @user_device_ids;
-}
-
-sub unlocated_devices {
-  my ($schema, $user_name) = @_;
-  return $schema->resultset('UnlocatedUserRelayDevices')->
-      search({}, { bind => [$user_name] })->all;
 }
 
 
