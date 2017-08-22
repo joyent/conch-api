@@ -19,17 +19,22 @@ t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
     t.translator.add(languages[lang] ? languages[lang] : languages.en);
 });
 
-var statusPage = {
-    render: function() {
-        return m(Layout.twoPane, { active: 1, title : "Status"},
-            m(Status)
-        );
-    }
-};
 
 m.route(document.body, "/", {
-    "/"        : statusPage,
-    "/status" : statusPage,
+    "/" : {
+        render: function() {
+            return m(Layout.twoPane, { active: 0, title : "Status"},
+                m(Status)
+            );
+        }
+    },
+    "/status" : {
+        render: function() {
+            return m(Layout.twoPane, { active: 1, title : "Status"},
+                m(Status)
+            );
+        }
+    },
     "/rack": {
         render: function() {
             return m(Layout.threePane, { active : 1, title: "Racks"  },

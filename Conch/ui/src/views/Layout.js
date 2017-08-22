@@ -12,7 +12,7 @@ function mainNav(isMobileView) {
                 m(".pure-menu-heading.nav-text-color", m("h2", t("Conch"))),
 
                 m("li.pure-menu-item",
-                    m("a[href='/summary'].pure-menu-link.nav-link.nav-text-color",
+                    m("a[href='/status'].pure-menu-link.nav-link.nav-text-color",
                         {oncreate: m.route.link}, t("Status"))
                 ),
 
