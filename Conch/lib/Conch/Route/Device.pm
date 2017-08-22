@@ -199,7 +199,7 @@ post '/device/:serial/profile' => needs integrator => sub {
   if ($product) {
     status_200($product);
   } else {
-    return status_500({error => "error occured determining productfor $serial"});
+    return status_500({error => "error occured determining product for $serial"});
   }
 };
 
