@@ -18,7 +18,8 @@ function isActive(device)  {
     }
 }
 
-function deviceList(title, devices) {
+function deviceList(title, isProblem, devices) {
+    var linkPrefix = isProblem ? "/problem/" : "/device/";
     return m(".pure-u-1.pure-u-sm-1-3.text-center",
         m("h2", title),
         devices ?
@@ -26,7 +27,7 @@ function deviceList(title, devices) {
                 function(device) {
                     return m("a.status-device-list-item",
                         {
-                            href: "/device/" + device.id,
+                            href: linkPrefix + device.id,
                             oncreate: m.route.link
                         }, device.id) ;
                 })
@@ -38,13 +39,22 @@ function deviceList(title, devices) {
 module.exports = {
     oninit : Device.loadDevices,
     view : function(vnode) {
-        var activeDevices = R.filter(isActive, Device.devices);
-        var activeHealthCounts = R.countBy(R.prop('health'), activeDevices);
-
+        var activeDevices   = R.filter(isActive, Device.devices);
         var inactiveDevices = R.filter(R.compose(R.not, isActive), Device.devices);
-        var inactiveHealthCounts = R.countBy(R.prop('health'), inactiveDevices);
 
-        var totalHealthCounts = R.countBy(R.prop('health'), Device.devices);
+        var healthCounts   = R.countBy(R.prop('health'));
+        var graduatedCount = R.reduce(function(acc, x) {
+            return R.propIs(String, 'graduated', x) ? acc + 1 : acc;
+        }, 0);
+
+        var activeHealthCounts   = healthCounts(activeDevices);
+        var activeGraduatedCount = graduatedCount(activeDevices);
+
+        var inactiveHealthCounts   = healthCounts(inactiveDevices);
+        var inactiveGraduatedCount = graduatedCount(inactiveDevices);
+
+        var totalHealthCounts   = healthCounts(Device.devices);
+        var totalGraduatedCount = graduatedCount(Device.devices);
 
         var deviceHealthGroups = R.groupBy(R.prop('health'), Device.devices);
         return [
@@ -52,33 +62,37 @@ module.exports = {
             Table(t("Summary of Device Status"),
                 [
                     "",
-                    t("Passing"),
+                    t("Unknown"),
                     t("Failing"),
-                    t("Unknown")
+                    t("Passing"),
+                    t("Graduated")
                 ],
                 [
                     [ t("Active Devices (reported in the last 5 minutes)"),
-                      activeHealthCounts.PASS || 0,
+                      activeHealthCounts.UNKNOWN || 0,
                       activeHealthCounts.FAIL || 0,
-                      activeHealthCounts.UNKNOWN || 0
+                      activeHealthCounts.PASS || 0,
+                      activeGraduatedCount
                     ],
 
                     [ t("Inactive Devices"),
-                      inactiveHealthCounts.PASS || 0,
+                      inactiveHealthCounts.UNKNOWN || 0,
                       inactiveHealthCounts.FAIL || 0,
-                      inactiveHealthCounts.UNKNOWN || 0
+                      inactiveHealthCounts.PASS || 0,
+                      inactiveGraduatedCount
                     ],
 
                     [ t("Total Devices"),
-                      totalHealthCounts.PASS || 0,
+                      totalHealthCounts.UNKNOWN || 0,
                       totalHealthCounts.FAIL || 0,
-                      totalHealthCounts.UNKNOWN || 0
+                      totalHealthCounts.PASS || 0,
+                      totalGraduatedCount
                     ],
 
                 ]),
-            deviceList(t("Passing"), deviceHealthGroups.PASS),
-            deviceList(t("Failing"), deviceHealthGroups.FAIL),
-            deviceList(t("Unknown"), deviceHealthGroups.UNKNOWN)
+            deviceList(t("Unknown"), true, deviceHealthGroups.UNKNOWN),
+            deviceList(t("Failing"), true, deviceHealthGroups.FAIL),
+            deviceList(t("Passing"), false, deviceHealthGroups.PASS)
         ];
     }
 
