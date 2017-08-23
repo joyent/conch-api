@@ -2,7 +2,6 @@ package Conch::Control::Device::Log;
 
 use v5.10;
 use strict;
-use List::Compare;
 use Log::Report;
 use Log::Report::DBIC::Profiler;
 use Dancer2::Plugin::Passphrase;
@@ -23,7 +22,7 @@ sub parse_device_log {
   };
   if ($@) {
     my $errs = join("; ", map { $_->message } $@->errors);
-    error "Error validating device report: $errs.";
+    error "Error validating device log $errs.";
   }
   else {
     return $dr;

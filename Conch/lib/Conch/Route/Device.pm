@@ -250,6 +250,9 @@ post '/device/:serial/log' => needs integrator => sub {
   my $device = lookup_device_for_user(schema, $serial, $user_name);
   return status_404("Device $serial not found") unless $device;
 
+  return status_400("Invalid JSON. Line breaks must be convereted to '\n' characters")
+    unless %{ body_parameters->as_hashref };
+
   try {
     my $device_log = parse_device_log(body_parameters->as_hashref);
     record_device_log(schema, $device, $device_log);
