@@ -42,15 +42,20 @@ sub record_device_log {
 }
 
 sub get_device_logs {
-  my ($schema, $device, $component_type, $component_id) = @_;
+  my ($schema, $device, $component_type, $component_id, $limit) = @_;
 
   my $search_filter = {};
   $search_filter->{component_type} = $component_type if $component_type;
   $search_filter->{component_id} = $component_id if $component_id;
 
-  p $search_filter;
+  my $search_attrs = { order_by => { -desc => 'created' }};
+  $search_attrs->{rows} = $limit if $limit;
 
-  my @device_logs = try { $device->device_logs->search($search_filter, { order_by => { -asc => 'created' }})->all };
+  my @device_logs = try {
+    $device->device_logs->search(
+      $search_filter, $search_attrs
+    )->all
+  };
   $@->reportFatal;
 
   return map format_log($_), @device_logs;
