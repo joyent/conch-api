@@ -34,6 +34,7 @@ var makeSelection = {
 function loadDeviceDetails(id) {
     Device.loadDeviceReport(id);
     Device.loadRackLocation(id);
+    Device.loadDeviceLogs(id, 20);
 }
 
 var deviceReport = {
@@ -169,6 +170,24 @@ var deviceReport = {
                     ];
                 })
             );
+        var logs =
+            Table(t("Devices Logs (20 most recent)"),
+                [
+                    t("Component Type"),
+                    t("Component ID"),
+                    t("Time"),
+                    t("Log")
+                ],
+                Device.logs.map(function(log) {
+                    return [
+                        log.component_type,
+                        log.component_id,
+                        log.created,
+                        // pre requried to preserve multi-lines
+                        m("span.log-text", log.msg),
+                    ];
+                })
+            );
         return m(".pure-g", [
             m(".pure-u-1", m("h1.text-center", t("Latest Device Report"))),
             basicInfo,
@@ -176,7 +195,8 @@ var deviceReport = {
             environment,
             network,
             disks,
-            validations
+            validations,
+            logs
         ]);
     }
 };

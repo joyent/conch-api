@@ -63,6 +63,7 @@ var Device = {
             }
         });
     },
+
     rackLocation : null,
     loadRackLocation : function(deviceId) {
         return m.request({
@@ -84,6 +85,20 @@ var Device = {
             else {
                 console.log("Error in GET /device/" + deviceId + "/location: " + e.message);
             }
+        });
+    },
+
+    logs : [],
+    loadDeviceLogs : function(deviceId, limit) {
+        return m.request({
+            method: "GET",
+            url: "/device/" + deviceId + "/log",
+            data : { limit : limit },
+            withCredentials: true,
+        }).then(function(res) {
+            Device.logs = res;
+        }).catch(function(e) {
+            console.log("Error in GET /device/" + deviceId + "/log: " + e.message);
         });
     }
 

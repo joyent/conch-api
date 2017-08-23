@@ -12,6 +12,11 @@ body {
     text-align: center;
 }
 
+.log-text {
+    white-space: pre-wrap;
+    font: normal 14px monospace;
+}
+
 ul li {
     list-style: none;
 }
