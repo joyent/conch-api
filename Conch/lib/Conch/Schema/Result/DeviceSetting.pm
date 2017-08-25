@@ -54,7 +54,7 @@ __PACKAGE__->table("device_settings");
 
   data_type: 'uuid'
   is_foreign_key: 1
-  is_nullable: 0
+  is_nullable: 1
   size: 16
 
 =head2 value
@@ -81,6 +81,11 @@ __PACKAGE__->table("device_settings");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 name
+
+  data_type: 'text'
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -94,7 +99,7 @@ __PACKAGE__->add_columns(
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "resource_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
   "value",
   { data_type => "text", is_nullable => 0 },
   "created",
@@ -113,6 +118,8 @@ __PACKAGE__->add_columns(
   },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "name",
+  { data_type => "text", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -126,6 +133,27 @@ __PACKAGE__->add_columns(
 =cut
 
 __PACKAGE__->set_primary_key("id");
+
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<device_name_deactivated_unique>
+
+=over 4
+
+=item * L</device_id>
+
+=item * L</name>
+
+=item * L</deactivated>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint(
+  "device_name_deactivated_unique",
+  ["device_id", "name", "deactivated"],
+);
 
 =head1 RELATIONS
 
@@ -156,12 +184,17 @@ __PACKAGE__->belongs_to(
   "resource",
   "Conch::Schema::Result::HardwareProfileSetting",
   { id => "resource_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-15 15:27:40
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZYa3ci7GFl9sID7tPVvHag
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-25 08:29:37
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:N1bco1ThKQ5k85NJHsaDag
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

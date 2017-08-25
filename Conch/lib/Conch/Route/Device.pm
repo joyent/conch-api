@@ -212,17 +212,10 @@ post '/device/:serial/settings' => needs integrator => sub {
   my $device = lookup_device_for_user(schema, $serial, $user_name);
   return status_404("Device $serial not found") unless $device;
 
-  my $status = try {
-    set_device_settings(schema, $device, $settings)
-  } accept => 'ERROR';
-
-  if ($@) {
-    my @err = $@->exceptions;
-    return status_400("@err");
-  }
+  my $status = set_device_settings(schema, $device, $settings);
 
   if ($status) {
-    return status_200($status);
+    return status_200({ status => "updated settings for " . $device->id });
   } else {
     return status_500({error => "error occured determining settings for $serial"});
   }
@@ -231,15 +224,60 @@ post '/device/:serial/settings' => needs integrator => sub {
 get '/device/:serial/settings' => needs integrator => sub {
   my $serial    = param 'serial';
   my $user_name = session->read('integrator');
+  my $keys_only = param 'keys_only';
 
   my $device = lookup_device_for_user(schema, $serial, $user_name);
   return status_404("Device $serial not found") unless $device;
   my $settings = get_device_settings(schema, $device);
 
   if ($settings) {
-    return status_200($settings);
+    return $keys_only
+      ? status_200([keys %{$settings}])
+      : status_200($settings);
   } else {
     return status_500({error => "error occured determining settings for $serial"});
+  }
+};
+
+post '/device/:serial/settings/:key' => needs integrator => sub {
+  my $serial      = param 'serial';
+  my $setting_key = param 'key';
+  my $user_name   = session->read('integrator');
+  my $setting     = body_parameters->as_hashref;
+
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
+  return status_404("Device $serial not found") unless $device;
+
+  my $setting_value = $setting->{$setting_key};
+  return status_400("Setting key in request body must match name in the URL ('$setting_key')")
+    unless $setting_value;
+  my $status =
+    process sub {set_device_setting(schema, $device, $setting_key, $setting_value)};
+
+  if ($status) {
+    return status_200({ status => "updated setting '$setting_key' for " . $device->id });
+  } else {
+    return status_500({error => "error occured determining setting for $serial"});
+  }
+};
+
+get '/device/:serial/settings/:key' => needs integrator => sub {
+  my $serial      = param 'serial';
+  my $setting_key = param 'key';
+  my $user_name   = session->read('integrator');
+
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
+  return status_404("Device $serial not found") unless $device;
+  my $setting = get_device_setting(schema, $device, $setting_key);
+
+  if ($setting) {
+    return status_200(
+      {$setting_key => $setting->value}
+    );
+  } else {
+    return status_404(
+      {error => "No such setting '$setting_key' for Device $serial"}
+    );
   }
 };
 

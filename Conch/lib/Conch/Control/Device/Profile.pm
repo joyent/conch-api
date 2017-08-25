@@ -10,7 +10,9 @@ use Dancer2::Plugin::Passphrase;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( determine_product set_device_settings get_device_settings );
+our @EXPORT =
+  qw( determine_product set_device_settings set_device_setting
+      get_device_settings get_device_setting );
 
 
 sub set_device_settings {
@@ -23,35 +25,27 @@ sub set_device_settings {
     ->hardware_profile_settings
     ->all;
 
-  my $setting_keys = {};
+  my $resource_ids = {};
   for my $hardware_setting (@hardware_settings) {
-    $setting_keys->{$hardware_setting->name} = $hardware_setting->id;
-  }
-
-  # Find all invalid keys in the request
-  my @bad_names;
-  for my $setting_name (keys %{$settings}) {
-    push @bad_names, $setting_name unless $setting_keys->{$setting_name};
-  }
-
-  if (length @bad_names > 0) {
-      error("No hardware product setting for following keys: @bad_names");
+    $resource_ids->{$hardware_setting->name} = $hardware_setting->id;
   }
 
   $schema->txn_do (sub {
 
-    for my $setting (keys %{$settings}) {
-      my $resource_id = $setting_keys->{$setting};
-      my $value = $settings->{$setting};
+    for my $setting_key (keys %{$settings}) {
+      # may be 'undef'
+      my $resource_id = $resource_ids->{$setting_key};
+      my $value = $settings->{$setting_key};
 
       my $prev_setting =
         $device->device_settings
         ->find({resource_id => $resource_id, deactivated => undef});
       $prev_setting->update({ deactivated => \'NOW()' }) if $prev_setting;
       $device->device_settings->create({
-          device_id => $device->id,
+          device_id   => $device->id,
           resource_id => $resource_id,
-          value => $value
+          name        => $setting_key,
+          value       => $value
       });
     }
 
@@ -60,21 +54,37 @@ sub set_device_settings {
   return { status => "updated settings for " . $device->id };
 }
 
-sub get_device_settings {
+sub set_device_setting {
+  my ($schema, $device, $setting_key, $setting_value) = @_;
 
-  my ($schema, $device) = @_;
-
-  my @hardware_settings =
+  my $hardware_setting =
     $device
     ->hardware_product
     ->hardware_product_profile
     ->hardware_profile_settings
-    ->all;
+    ->find({name => $setting_key});
 
-  my $setting_id_to_names = {};
-  for my $hardware_setting (@hardware_settings) {
-    $setting_id_to_names->{$hardware_setting->id} = $hardware_setting->name;
-  }
+  $schema->txn_do (sub {
+
+      my $prev_setting =
+        $device->device_settings
+        ->find({name => $setting_key, deactivated => undef});
+      $prev_setting->update({ deactivated => \'NOW()' })
+        if $prev_setting;
+      $device->device_settings->create({
+          device_id   => $device->id,
+          resource_id => $hardware_setting ? $hardware_setting->id : undef,
+          name        => $setting_key,
+          value       => $setting_value
+      });
+  });
+
+  return 1;
+}
+
+sub get_device_settings {
+
+  my ($schema, $device) = @_;
 
   my @device_settings = $device->device_settings->search({
         deactivated => undef
@@ -82,9 +92,18 @@ sub get_device_settings {
 
   my $res = {};
   for my $setting (@device_settings) {
-    $res->{$setting_id_to_names->{$setting->resource_id}} = $setting->value;
+    $res->{$setting->name} = $setting->value;
   }
   return $res;
+}
+
+sub get_device_setting {
+  my ($schema, $device, $setting_key) = @_;
+
+  return $device->device_settings->find({
+      name        => $setting_key,
+      deactivated => undef
+    });
 }
 
 # XXX We should use 'hardware_product_profile' to determine the these details
