@@ -14,25 +14,29 @@ testing the endpoints in the command-line. Managing cookies and JSON encoding
 with cURL is a pain, and HTTPie manages it well. All endpoint examples will be
 done with HTTPie. The executable for HTTPie is `http`.
 
-| Endpoint                   | Method | Auth       | Returns | Description |
-| -------------------------- | ------ | ---------- | ------- | ----------- |
-| `/login`                   | POST   | -          | Hash    | Create a login session |
-| `/user`                    | POST   | admin      | Hash    | Create integrator users |
-| `/datacenter_access`       | POST   | admin      | Hash    | Associate a user account with racks |
-| `/relay`                   | GET    | admin      | Array   | List all Relay Devices |
-| `/relay/:serial/register`  | POST   | integrator | Hash    | Register a Relay Device |
-| `/device`                  | GET    | integrator | Array   | List all devices |
-| `/device/active`           | GET    | integrator | Array   | List all devices active in last 2 minutes |
-| `/device/health/FAIL`      | GET    | integrator | Array   | List all devices failing validation |
-| `/device/health/PASS`      | GET    | integrator | Array   | List all devices passing validation |
-| `/device/:serial`          | POST   | integrator | Hash    | Submit a device report for validation |
-| `/device/:serial`          | GET    | integrator | Hash    | Retrieve the most recent device report |
-| `/device/:serial/location` | POST   | integrator | Hash    | Update a single device rack location |
-| `/device/:serial/location` | DELETE | integrator | Hash    | Remove a single device from a rack location |
-| `/rack`                    | GET    | integrator | Hash    | List all available racks |
-| `/rack/:uuid`              | GET    | integrator | Hash    | Get layout for a specific rack |
-| `/rack/:uuid/layout`       | POST   | integrator | Hash    | Update multiple slots in a given rack |
-| `/problem`                 | GET    | integrator | Hash    | Describe all components failing validation |
+| Endpoint                        | Method | Auth       | Returns     | Description                                         |
+| --------------------------      | ------ | ---------- | -------     | -----------                                         |
+| `/login`                        | POST   | -          | Hash        | Create a login session                              |
+| `/user`                         | POST   | admin      | Hash        | Create integrator users                             |
+| `/datacenter_access`            | POST   | admin      | Hash        | Associate a user account with racks                 |
+| `/relay`                        | GET    | admin      | Array       | List all Relay Devices                              |
+| `/relay/:serial/register`       | POST   | integrator | Hash        | Register a Relay Device                             |
+| `/device`                       | GET    | integrator | Array       | List all devices                                    |
+| `/device/active`                | GET    | integrator | Array       | List all devices active in last 2 minutes           |
+| `/device/health/FAIL`           | GET    | integrator | Array       | List all devices failing validation                 |
+| `/device/health/PASS`           | GET    | integrator | Array       | List all devices passing validation                 |
+| `/device/:serial`               | POST   | integrator | Hash        | Submit a device report for validation               |
+| `/device/:serial`               | GET    | integrator | Hash        | Retrieve the most recent device report              |
+| `/device/:serial/location`      | POST   | integrator | Hash        | Update a single device rack location                |
+| `/device/:serial/location`      | DELETE | integrator | Hash        | Remove a single device from a rack location         |
+| `/device/:serial/settings`      | GET    | integrator | Hash, Array | Retreive all device settings                        |
+| `/device/:serial/settings`      | POST   | integrator | Hash        | Update or adds multipe settings for device          |
+| `/device/:serial/settings/:key` | GET    | integrator | Hash        | Retreive single device setting identified by ':key' |
+| `/device/:serial/settings/:key` | POST   | integrator | Hash        | Update or adds single setting for device            |
+| `/rack`                         | GET    | integrator | Hash        | List all available racks                            |
+| `/rack/:uuid`                   | GET    | integrator | Hash        | Get layout for a specific rack                      |
+| `/rack/:uuid/layout`            | POST   | integrator | Hash        | Update multiple slots in a given rack               |
+| `/problem`                      | GET    | integrator | Hash        | Describe all components failing validation          |
 
 ## Login
 
@@ -521,6 +525,212 @@ granted by `PUT /datacenter_access`.
 
   ```
   http :5000/user --session integrator_session
+  ```
+
+### Device settings
+
+#### List all device settings
+
+List all of current settings for a device. List only the names of the setting
+keys if given the query parameter `keys_only`.
+
+* URL
+
+  `/device/:serial/settings[?keys_only=1]`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "bmc_fw": "2.43.43.43",
+         "exp_fw": "4.32",
+        "system_bios": "2.4.3"
+    }
+
+  ```
+
+  * `200 OK` (with `keys_only` set to true)
+
+  ```
+    [
+        "bmc_fw", "exp_fw", "system_bios"
+    ]
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloude.zone/device/BAENG1O/settings --session integrator_session
+  ```
+
+#### Set or update multiple device settings
+
+
+* URL
+
+  `/device/:serial/settings`
+
+* Methods
+
+  `POST`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "status": "updated settings for BAENG1O"
+    }
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloud.zone/device/BAENG1O/settings --session integrator_session <<EOF
+  {
+      "system_bios" : "2.4.3",
+      "exp_fw" : "4.32",
+      "bmc_fw" : "2.43.43.43"
+  }
+  EOF
+  ```
+
+#### Get single device setting
+
+Get an object with the value of the single specified setting.
+
+* URL
+
+  `/device/:serial/settings/:key`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "bmc_fw": "2.43.43.43",
+    }
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `404 Not Found`
+
+  The requested key is not set for this device.
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloude.zone/device/BAENG1O/settings/bmc_fw --session integrator_session
+  ```
+
+#### Set single device setting value
+
+
+* URL
+
+  `/device/:serial/settings/:key`
+
+* Methods
+
+  `POST`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "status": "updated setting 'bmc_fw' for BAENG1O"
+    }
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloud.zone/device/BAENG1O/settings/bmc_fw --session integrator_session <<EOF
+  {
+      "bmc_fw" : "2.43.43.43"
+  }
+  EOF
   ```
 
 ## Problems
