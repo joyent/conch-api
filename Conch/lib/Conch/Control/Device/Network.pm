@@ -4,6 +4,8 @@ use strict;
 use Log::Report;
 use JSON::XS;
 
+use Data::Printer;
+
 use Exporter 'import';
 our @EXPORT = qw( validate_links validate_wiremap );
 
@@ -83,17 +85,12 @@ sub validate_wiremap {
 
   my @device_nics = $device->device_nics->all;
 
-  # peer_switch         text,       --- from LLDP
-  # peer_port           text,       --- from LLDP
-  # want_switch         text,       --- from wiremap spec
-  # want_port           text,       --- from wiremap spec
-
-  trace("$device_id: Validating network links");
+  trace("$device_id: Validating network switch peers");
 
   my @eth_nics = grep {$_->iface_name =~ /eth/} @device_nics;
 
-  my $has_correct_peer_port = switch_peer_ports($device->device_location);
-  my @peer_ports = keys %{$has_correct_peer_port};
+  my $switch_peer_ports = switch_peer_ports($device->device_location);
+  my @peer_ports = keys %{$switch_peer_ports};
 
   for my $nic (@eth_nics) {
     my $nic_neighbor = $nic->device_neighbor;
@@ -104,16 +101,16 @@ sub validate_wiremap {
 
     my $nic_peer_log;
     my $nic_peer_status;
-    my $nic_peer_msg = "Has $peer_port, Needs one of @peer_ports";
-    if ($has_correct_peer_port->{$peer_port}) {
+    my $nic_peer_msg = "Interface ".$nic->iface_name." Has $peer_port, Needs either of @peer_ports";
+    if ($switch_peer_ports->{$peer_port}) {
+      $nic_peer_log = "$device_id: report $report_id: OK: Correct peer: $nic_peer_msg";
+      $nic_peer_status = 1;
+      info $nic_peer_log;
+    }
+    else {
       $nic_peer_log ="$device_id: report $report_id: CRITICAL: Wrong peer port: $nic_peer_msg";
       $nic_peer_status = 0;
       mistake $nic_peer_log;
-    }
-    else {
-      $nic_peer_log = "$device_id: report $report_id: OK: Correct peer: $nic_peer_msg";
-      $nic_peer_status = 1;
-      trace $nic_peer_log;
     }
 
     $schema->resultset('DeviceValidate')->update_or_create({
@@ -122,7 +119,7 @@ sub validate_wiremap {
       validation      => encode_json({
           component_type  => "NET",
           component_name  => $nic->mac . "_peer",
-          log             => $nic_peer_log,
+          log             => $nic_peer_msg,
           status          => $nic_peer_status
         })
     });
