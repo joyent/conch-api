@@ -21,8 +21,8 @@ sub parse_device_report {
     $dr = Conch::Data::DeviceReport->new(shift);
   };
   if ($@) {
-    my $errs = join("\n\t- ", map { $_->message } $@->errors);
-    error "Error validating device report:\n\t- $errs";
+    my $errs = join("; ", map { $_->message } $@->errors);
+    error "Error validating device report: $errs";
   }
   else {
     return $dr;
@@ -52,6 +52,7 @@ sub record_device_report {
         state            => $dr->{state},
         health           => "UNKNOWN",
         last_seen        => \'NOW()',
+        uptime_since     => $dr->uptime_since
       });
       my $device_id = $device->id;
       info "Created Device $device_id";

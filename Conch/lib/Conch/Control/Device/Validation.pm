@@ -40,9 +40,11 @@ sub validate_device {
       map { trace $_; } $@->exceptions;
       warning($device->id . ": Marking FAIL");
       $device->update({ health => "FAIL" });
+      return { health => "FAIL" };
   } else {
       info($device->id . ": Marking PASS");
       $device->update({ health => "PASS" });
+      return { health => "PASS" };
   }
 }
 

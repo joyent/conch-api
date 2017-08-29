@@ -104,6 +104,11 @@ __PACKAGE__->table("device");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 uptime_since
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -141,6 +146,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "uptime_since",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -382,8 +389,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-10 14:16:20
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bxB2maTozaXwTEcPSVmFQQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-29 16:06:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZsYw/u2f83PRWKYBZqnCtw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

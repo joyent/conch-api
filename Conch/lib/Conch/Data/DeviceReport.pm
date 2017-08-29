@@ -7,6 +7,14 @@ use MooseX::Storage;
 
 with Storage('format' => 'JSON');
 
+#subtype 'StrDateTime',
+  #as 'DateTime';
+
+#coerce 'StringDateTime',
+  #from 'Str',
+  #via { [ $_ ] };
+
+
 has 'product_name' => (
   required => 1,
   is => 'ro',
@@ -73,6 +81,12 @@ has 'relay' => (
   required => 0,
   is => 'ro',
   isa => 'HashRef[Str]'
+);
+
+has 'uptime_since' => (
+  required => 1,
+  is => 'ro',
+  isa => 'Str'
 );
 
 __PACKAGE__->meta->make_immutable;
