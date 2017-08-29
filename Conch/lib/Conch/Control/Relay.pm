@@ -79,7 +79,7 @@ sub device_relay_connect {
   # 'first_seen' column will only be written on create. It should remain
   # untouched on updates
   $schema->resultset('DeviceRelayConnection')->update_or_create({
-    device_id   => $device_id,
+    device_id  => $device_id,
     relay_id  => $relay_id,
     last_seen => \'NOW()'
   });

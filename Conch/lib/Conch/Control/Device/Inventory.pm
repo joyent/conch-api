@@ -43,7 +43,7 @@ sub validate_system {
       status          => $cpu_num_status
     })
   });
- 
+
   # Ensure we have correct number of DIMMs
   my $dimms_num_status;
   my $dimms_num_log = "Has = " . $device_spec->dimms_num .", Want = " . $hw_profile->dimms_num;
@@ -146,7 +146,7 @@ sub validate_disks {
   my $sas_hdd_num = 0;
   my $sas_ssd_num = 0;
   my $slog_slot;
- 
+
   while ( my $disk = $device_disks->next ) {
     if ( $disk->drive_type eq "SAS_HDD" ) {
       $sas_hdd_num++;

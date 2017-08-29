@@ -24,8 +24,7 @@ sub validate_device {
     \&validate_system,
     \&validate_disks,
     \&validate_links,
-    # Wiremaps don't exist yet
-    #\&validate_wiremap,
+    \&validate_wiremap,
 
   );
 
