@@ -51,7 +51,7 @@ sub set_device_settings {
 
   });
 
-  return { status => "updated settings for " . $device->id };
+  return 1;
 }
 
 sub set_device_setting {

@@ -52,13 +52,36 @@ sub validate_links {
    });
 }
 
+sub switch_peer_ports {
+  my $rack_location = shift;
+  my $role = $rack_location->rack->role;
+  my $ru = $rack_location->rack_unit;
+  my $case = {
+    'TRITON'     => sub { port_numbers(2, $ru) },
+    # upper two units are 2U racks
+    'MANTA'      => sub { $ru < 34 ? port_numbers(4,$ru) : port_numbers(2, $ru) },
+    'MANTA_TALL' => sub { port_numbers(4, $ru) }
+  };
+  return $case->{$role->name}->();
+}
+
+# Calculate the switch port numbers for a rack unit and size. Provides a hash
+sub port_numbers {
+  my $size = shift;
+  my $rack_unit = shift;
+  my $first_port = int(($rack_unit- 1) / $size) + 1;
+  my $second_port = $first_port + 19;
+  return { "1/$first_port" => 1, "1/$second_port" => 1 };
+}
+
+
 sub validate_wiremap {
   my ($schema, $device, $report_id) = @_;
 
   my $device_id = $device->id;
   trace("$device_id: report $report_id: Validating network links");
 
-  my $device_nics = $device->device_nics;
+  my @device_nics = $device->device_nics->all;
 
   # peer_switch         text,       --- from LLDP
   # peer_port           text,       --- from LLDP
@@ -67,59 +90,41 @@ sub validate_wiremap {
 
   trace("$device_id: Validating network links");
 
-  while ( my $iface = $device_nics->next ) {
-    next if $iface->iface_name eq "ipmi1";
+  my @eth_nics = grep {$_->iface_name =~ /eth/} @device_nics;
 
-    my $nic_state = $iface->device_nic_state;
-    my $nic_neighbor = $iface->device_neighbor;
+  my $has_correct_peer_port = switch_peer_ports($device->device_location);
+  my @peer_ports = keys %{$has_correct_peer_port};
 
+  for my $nic (@eth_nics) {
+    my $nic_neighbor = $nic->device_neighbor;
+    my $peer_port = $nic_neighbor->peer_port;
+
+    # skip if the link doesn't have a peer configured
+    next unless $peer_port;
+
+    my $nic_peer_log;
     my $nic_peer_status;
-
-    # If we don't have a wiremap entry _or_ LLDP for a port, skip it. Who cares.
-    next unless (defined $nic_neighbor->peer_switch || defined $nic_neighbor->want_switch);
-
-    my $want_switch = "?";
-    my $want_port   = "?";
-
-    my $peer_switch = "?";
-    my $peer_port   = "?";
-
-    if ( defined $nic_neighbor->want_switch ) {
-      $want_switch = $nic_neighbor->want_switch;
-    }
-    if ( defined $nic_neighbor->want_port ) {
-      $want_port = $nic_neighbor->want_port;
-    }
-
-    if ( defined $nic_neighbor->peer_switch ) {
-      $peer_switch = $nic_neighbor->peer_switch;
-    }
-    if ( defined $nic_neighbor->peer_port ) {
-      $peer_port = $nic_neighbor->peer_port;
-    }
-
-    my $has_sup  = "$peer_switch:$peer_port";
-    my $want_sup = "$want_switch:$want_port";
-
-    my $nic_peer_log = $iface->mac . ": Has = $has_sup, Want = $want_sup, Link = " . $nic_state->state;
-
-    if ( $has_sup ne $want_sup ) {
+    my $nic_peer_msg = "Has $peer_port, Needs one of @peer_ports";
+    if ($has_correct_peer_port->{$peer_port}) {
+      $nic_peer_log ="$device_id: report $report_id: CRITICAL: Wrong peer port: $nic_peer_msg";
       $nic_peer_status = 0;
-      mistake("$device_id: report $report_id: CRITICAL: Wrong peer: $nic_peer_log");
-    } else {
+      mistake $nic_peer_log;
+    }
+    else {
+      $nic_peer_log = "$device_id: report $report_id: OK: Correct peer: $nic_peer_msg";
       $nic_peer_status = 1;
-      trace("$device_id: report $report_id: OK: Correct peer: $nic_peer_log");
+      trace $nic_peer_log;
     }
 
     $schema->resultset('DeviceValidate')->update_or_create({
       device_id       => $device_id,
       report_id       => $report_id,
       validation      => encode_json({
-        component_type  => "NET",
-        component_name  => $iface->mac . "_peer",
-        log             => $nic_peer_log,
-        status          => $nic_peer_status
-      })
+          component_type  => "NET",
+          component_name  => $nic->mac . "_peer",
+          log             => $nic_peer_log,
+          status          => $nic_peer_status
+        })
     });
   }
 
