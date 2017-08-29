@@ -112,21 +112,23 @@ post '/device/:serial' => needs integrator => sub {
   #  return status_401('unauthorized');
   #}
 
-  process sub {
+  try {
     my $device_report = parse_device_report(body_parameters->as_hashref);
     ($device, $report_id) = record_device_report( schema, $device_report);
     connect_user_relay(schema, $user_name, $device_report->relay->{serial})
       if $device_report->relay;
   };
+  if ($@) {
+    chomp(my @err = $@->exceptions);
+    return status_400("@err");
+  }
 
-  # XXX validate_device needs to return more context, or "validated" in the
-  #     response is a rubber stamp.
-  my $store_report = validate_device(schema, $device, $report_id);
-  if ($store_report) {
+  my $validation = validate_device(schema, $device, $report_id);
+  if ($validation) {
       status_200({
           device_id => $device->id,
           validated => \1,
-          action    => "report",
+          health    => $validation->{health},
           status    => "200"
       });
   }
