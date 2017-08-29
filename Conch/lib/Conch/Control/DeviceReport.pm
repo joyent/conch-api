@@ -7,6 +7,8 @@ use Conch::Control::Device::Environment;
 use Conch::Control::Relay;
 use JSON::XS;
 
+use Data::Printer;
+
 use Exporter 'import';
 our @EXPORT = qw( parse_device_report record_device_report );
 
@@ -54,9 +56,7 @@ sub record_device_report {
       my $device_id = $device->id;
       info "Created Device $device_id";
 
-      my $relay_id = $dr->{relay}{serial};
-
-      device_relay_connect($schema, $device_id, $relay_id) if $relay_id;
+      device_relay_connect($schema, $device_id, $dr->{relay}{serial}) if $dr->{relay};
 
       # Stores the JSON representation of Conch::Data::DeviceReport as serialized
       # by MooseX::Storage

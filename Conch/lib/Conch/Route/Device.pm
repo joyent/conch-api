@@ -115,7 +115,8 @@ post '/device/:serial' => needs integrator => sub {
   process sub {
     my $device_report = parse_device_report(body_parameters->as_hashref);
     ($device, $report_id) = record_device_report( schema, $device_report);
-    connect_user_relay(schema, $user_name, $device_report->relay->{serial});
+    connect_user_relay(schema, $user_name, $device_report->relay->{serial})
+      if $device_report->relay;
   };
 
   # XXX validate_device needs to return more context, or "validated" in the

@@ -2,6 +2,8 @@ package Conch::Control::Device::Profile;
 
 use v5.10;
 use strict;
+use experimental 'smartmatch';
+
 use List::Compare;
 use Log::Report;
 use Log::Report::DBIC::Profiler;
