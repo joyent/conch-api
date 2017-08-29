@@ -139,6 +139,7 @@ sub record_device_report {
             raw_text      => $dr->{interfaces}->{$nic}->{peer_text},
             peer_switch   => $dr->{interfaces}->{$nic}->{peer_switch},
             peer_port     => $dr->{interfaces}->{$nic}->{peer_port},
+            peer_mac      => $dr->{interfaces}->{$nic}->{peer_mac}
           });
       }
     });
