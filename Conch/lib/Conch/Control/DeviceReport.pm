@@ -29,6 +29,22 @@ sub parse_device_report {
   }
 }
 
+sub add_reboot_count {
+  my $device = shift;
+
+  my $reboot_count = $device->device_settings->find_or_new({name => 'reboot_count'});
+  $reboot_count->updated(\'NOW()');
+
+  if ($reboot_count->in_storage) {
+    $reboot_count->value(1 +$reboot_count->value);
+    $reboot_count->update;
+  }
+  else {
+    $reboot_count->value(0);
+    $reboot_count->insert;
+  }
+}
+
 # Returns a Device for processing in the validation steps
 sub record_device_report {
   my ($schema, $dr) = @_;
@@ -45,6 +61,11 @@ sub record_device_report {
   my $device;
   my $device_report;
   try { $schema->txn_do (sub {
+
+      my $prev_uptime = $schema->resultset('Device')
+          ->find({id => $dr->{serial_number}})
+          ->uptime_since;
+
       $device = $schema->resultset('Device')->update_or_create({
         id               => $dr->{serial_number},
         system_uuid      => $dr->{system_uuid},
@@ -56,6 +77,13 @@ sub record_device_report {
       });
       my $device_id = $device->id;
       info "Created Device $device_id";
+
+      # Add a reboot count if there's not a previous uptime but one in this
+      # report (i.e. first uptime reported), or if the previous uptime date is
+      # less than the the current one (i.e. there has been a reboot)
+      add_reboot_count($device)
+        if (!$prev_uptime && $device->uptime_since)
+          || $prev_uptime < $device->uptime_since;
 
       device_relay_connect($schema, $device_id, $dr->{relay}{serial}) if $dr->{relay};
 
