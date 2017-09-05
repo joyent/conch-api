@@ -72,7 +72,7 @@ sub validate_wiremap {
   for my $nic (@eth_nics) {
     my $nic_neighbor = $nic->device_neighbor;
     my $peer_port    = $nic_neighbor->peer_port;
-    my $peer_name    = $nic_neighbor->peer_switch || $nic_neighbor->peer_mac;
+    my $peer_name    = $nic_neighbor->peer_mac;
 
     # skip if the link doesn't have a peer configured
     next unless $peer_port;
