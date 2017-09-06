@@ -107,18 +107,6 @@ DISTRIBUTIONS
       perl 5.008001
       strict 0
       warnings 0
-  B-Hooks-OP-PPAddr-0.05
-    pathname: E/ET/ETHER/B-Hooks-OP-PPAddr-0.05.tar.gz
-    provides:
-      B::Hooks::OP::PPAddr 0.05
-    requirements:
-      DynaLoader 0
-      ExtUtils::Depends 0.302
-      ExtUtils::MakeMaker 0
-      parent 0
-      perl 5.006
-      strict 0
-      warnings 0
   CGI-Deurl-XS-0.08
     pathname: A/AT/ATHOMASON/CGI-Deurl-XS-0.08.tar.gz
     provides:
@@ -292,17 +280,6 @@ DISTRIBUTIONS
       Class::Singleton 1.5
     requirements:
       ExtUtils::MakeMaker 0
-  Class-Tiny-1.006
-    pathname: D/DA/DAGOLDEN/Class-Tiny-1.006.tar.gz
-    provides:
-      Class::Tiny 1.006
-      Class::Tiny::Object 1.006
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 6.17
-      perl 5.006
-      strict 0
-      warnings 0
   Class-Unload-0.11
     pathname: I/IL/ILMARI/Class-Unload-0.11.tar.gz
     provides:
@@ -378,22 +355,15 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Cookie-Baker-0.07
-    pathname: K/KA/KAZEBURO/Cookie-Baker-0.07.tar.gz
+  Cookie-Baker-0.08
+    pathname: K/KA/KAZEBURO/Cookie-Baker-0.08.tar.gz
     provides:
-      Cookie::Baker 0.07
+      Cookie::Baker 0.08
     requirements:
       Exporter 0
-      Module::Build 0.38
+      Module::Build::Tiny 0.035
       URI::Escape 0
       perl 5.008001
-  Cpanel-JSON-XS-3.0233
-    pathname: R/RU/RURBAN/Cpanel-JSON-XS-3.0233.tar.gz
-    provides:
-      Cpanel::JSON::XS 3.0233
-    requirements:
-      ExtUtils::MakeMaker 0
-      Pod::Text 2.08
   Crypt-Eksblowfish-0.009
     pathname: Z/ZE/ZEFRAM/Crypt-Eksblowfish-0.009.tar.gz
     provides:
@@ -951,17 +921,19 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0
       perl 5.010001
-  Dancer2-Plugin-REST-1.01
-    pathname: Y/YA/YANICK/Dancer2-Plugin-REST-1.01.tar.gz
+  Dancer2-Plugin-REST-1.02
+    pathname: Y/YA/YANICK/Dancer2-Plugin-REST-1.02.tar.gz
     provides:
-      Dancer2::Plugin::REST 1.01
+      Dancer2::Plugin::REST 1.02
     requirements:
       Carp 0
       Dancer2 0.203000
       Dancer2::Core::HTTP 0.203000
       Dancer2::Plugin 0
+      Dancer2::Serializer::Mutable 0
       ExtUtils::MakeMaker 0
       List::Util 0
+      Moo 0
       perl 5.012000
       strict 0
       warnings 0
@@ -1635,21 +1607,6 @@ DISTRIBUTIONS
       perl 5.008004
       strict 0
       warnings 0
-  Devel-Declare-0.006019
-    pathname: E/ET/ETHER/Devel-Declare-0.006019.tar.gz
-    provides:
-      Devel::Declare 0.006019
-      Devel::Declare::Context::Simple 0.006019
-      Devel::Declare::MethodInstaller::Simple 0.006019
-    requirements:
-      B::Hooks::EndOfScope 0.05
-      B::Hooks::OP::Check 0.19
-      ExtUtils::Depends 0.302
-      Scalar::Util 1.11
-      Sub::Name 0
-      Test::More 0.88
-      Test::Requires 0
-      perl 5.008001
   Devel-GlobalDestruction-0.14
     pathname: H/HA/HAARG/Devel-GlobalDestruction-0.14.tar.gz
     provides:
@@ -1671,20 +1628,6 @@ DISTRIBUTIONS
       Sub::Identify 0
       overload 0
       perl 5.006
-      strict 0
-      warnings 0
-  Devel-PartialDump-0.20
-    pathname: E/ET/ETHER/Devel-PartialDump-0.20.tar.gz
-    provides:
-      Devel::PartialDump 0.20
-    requirements:
-      Carp 0
-      Class::Tiny 0
-      ExtUtils::MakeMaker 0
-      Scalar::Util 0
-      Sub::Exporter 0
-      namespace::clean 0.19
-      perl 5.006001
       strict 0
       warnings 0
   Devel-StackTrace-2.02
@@ -1889,31 +1832,15 @@ DISTRIBUTIONS
       File::HomeDir::Windows 1.002
     requirements:
       Carp 0
-      Cwd 3
+      Cwd 3.12
       ExtUtils::MakeMaker 0
       File::Basename 0
       File::Path 2.01
-      File::Spec 3
+      File::Spec 3.12
       File::Temp 0.19
       File::Which 0.05
-      Mac::SystemDirectory 0.04
       POSIX 0
       perl 5.005003
-  File-Remove-1.57
-    pathname: S/SH/SHLOMIF/File-Remove-1.57.tar.gz
-    provides:
-      File::Remove 1.57
-    requirements:
-      Cwd 3.29
-      ExtUtils::MakeMaker 0
-      File::Glob 0
-      File::Path 0
-      File::Spec 3.29
-      constant 0
-      perl 5.006
-      strict 0
-      vars 0
-      warnings 0
   File-ShareDir-1.104
     pathname: R/RE/REHSACK/File-ShareDir-1.104.tar.gz
     provides:
@@ -2016,10 +1943,10 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Time::Local 0
       perl 5.006002
-  HTTP-Entity-Parser-0.19
-    pathname: K/KA/KAZEBURO/HTTP-Entity-Parser-0.19.tar.gz
+  HTTP-Entity-Parser-0.20
+    pathname: K/KA/KAZEBURO/HTTP-Entity-Parser-0.20.tar.gz
     provides:
-      HTTP::Entity::Parser 0.19
+      HTTP::Entity::Parser 0.20
       HTTP::Entity::Parser::JSON undef
       HTTP::Entity::Parser::MultiPart undef
       HTTP::Entity::Parser::OctetStream undef
@@ -2111,10 +2038,10 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 6.36
       Test::More 0.96
-  HTTP-XSCookies-0.000010
-    pathname: G/GO/GONZUS/HTTP-XSCookies-0.000010.tar.gz
+  HTTP-XSCookies-0.000013
+    pathname: G/GO/GONZUS/HTTP-XSCookies-0.000013.tar.gz
     provides:
-      HTTP::XSCookies 0.000010
+      HTTP::XSCookies 0.000013
     requirements:
       ExtUtils::MakeMaker 0
       XSLoader 0
@@ -2143,17 +2070,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
-  Hook-LexWrap-0.26
-    pathname: E/ET/ETHER/Hook-LexWrap-0.26.tar.gz
-    provides:
-      Hook::LexWrap 0.26
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 0
-      overload 0
-      perl 5.006
-      strict 0
-      warnings 0
   IO-HTML-1.001
     pathname: C/CJ/CJM/IO-HTML-1.001.tar.gz
     provides:
@@ -2163,12 +2079,6 @@ DISTRIBUTIONS
       Encode 2.10
       Exporter 5.57
       ExtUtils::MakeMaker 6.30
-  IO-String-1.08
-    pathname: G/GA/GAAS/IO-String-1.08.tar.gz
-    provides:
-      IO::String 1.08
-    requirements:
-      ExtUtils::MakeMaker 0
   IO-TieCombine-1.005
     pathname: R/RJ/RJBS/IO-TieCombine-1.005.tar.gz
     provides:
@@ -2221,7 +2131,6 @@ DISTRIBUTIONS
       JSON::MaybeXS 1.003009
     requirements:
       Carp 0
-      Cpanel::JSON::XS 2.3310
       ExtUtils::CBuilder 0.27
       ExtUtils::MakeMaker 0
       File::Spec 0
@@ -2477,17 +2386,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006
-  Mac-SystemDirectory-0.10
-    pathname: E/ET/ETHER/Mac-SystemDirectory-0.10.tar.gz
-    provides:
-      Mac::SystemDirectory 0.10
-    requirements:
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      XSLoader 0
-      perl 5.006
-      strict 0
-      warnings 0
   Mail-Sendmail-0.79
     pathname: M/MI/MIVKOVIC/Mail-Sendmail-0.79.tar.gz
     provides:
@@ -3111,22 +3009,6 @@ DISTRIBUTIONS
       YAML::Any 0
       namespace::autoclean 0
       perl 5.008
-  MooseX-Traits-0.13
-    pathname: E/ET/ETHER/MooseX-Traits-0.13.tar.gz
-    provides:
-      MooseX::Traits 0.13
-      MooseX::Traits::Util 0.13
-    requirements:
-      Carp 0
-      Class::Load 0
-      Module::Build::Tiny 0.007
-      Moose::Role 0
-      Sub::Exporter 0
-      namespace::autoclean 0
-      perl 5.006
-      strict 0
-      warnings 0
-      warnings::register 0
   MooseX-Types-0.50
     pathname: E/ET/ETHER/MooseX-Types-0.50.tar.gz
     provides:
@@ -3160,25 +3042,6 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
-  MooseX-Types-Structured-0.36
-    pathname: E/ET/ETHER/MooseX-Types-Structured-0.36.tar.gz
-    provides:
-      MooseX::Types::Structured 0.36
-    requirements:
-      Devel::PartialDump 0.13
-      Module::Build::Tiny 0.034
-      Moose 0
-      Moose::Meta::TypeCoercion 0
-      Moose::Meta::TypeConstraint 0
-      Moose::Meta::TypeConstraint::Parameterizable 0
-      Moose::Util::TypeConstraints 1.06
-      MooseX::Types 0.22
-      Scalar::Util 0
-      Sub::Exporter 0.982
-      if 0
-      namespace::clean 0.19
-      overload 0
-      perl 5.008
   MooseX-Types-UUID-0.03
     pathname: B/BO/BOBTFISH/MooseX-Types-UUID-0.03.tar.gz
     provides:
@@ -3189,6 +3052,40 @@ DISTRIBUTIONS
       Test::Exception 0
       Test::More 0
       ok 0
+  Net-Server-2.009
+    pathname: R/RH/RHANDOM/Net-Server-2.009.tar.gz
+    provides:
+      Net::Server 2.009
+      Net::Server::Daemonize 0.06
+      Net::Server::Fork undef
+      Net::Server::HTTP undef
+      Net::Server::INET undef
+      Net::Server::INET::Handle undef
+      Net::Server::Log::Log::Log4perl undef
+      Net::Server::Log::Sys::Syslog undef
+      Net::Server::MultiType undef
+      Net::Server::Multiplex undef
+      Net::Server::Multiplex::MUX undef
+      Net::Server::PSGI undef
+      Net::Server::PreFork undef
+      Net::Server::PreForkSimple undef
+      Net::Server::Proto undef
+      Net::Server::Proto::SSL undef
+      Net::Server::Proto::SSLEAY undef
+      Net::Server::Proto::TCP undef
+      Net::Server::Proto::UDP undef
+      Net::Server::Proto::UNIX undef
+      Net::Server::Proto::UNIXDGRAM undef
+      Net::Server::SIG 0.03
+      Net::Server::Single undef
+      Net::Server::TiedHandle 2.009
+    requirements:
+      ExtUtils::MakeMaker 6.30
+      File::Temp 0
+      IO::Socket 0
+      POSIX 0
+      Socket 0
+      Time::HiRes 0
   POSIX-strftime-Compiler-0.42
     pathname: K/KA/KAZEBURO/POSIX-strftime-Compiler-0.42.tar.gz
     provides:
@@ -3200,120 +3097,6 @@ DISTRIBUTIONS
       POSIX 0
       Time::Local 0
       perl 5.008001
-  PPI-1.236
-    pathname: M/MI/MITHALDU/PPI-1.236.tar.gz
-    provides:
-      PPI 1.236
-      PPI::Cache 1.236
-      PPI::Document 1.236
-      PPI::Document::File 1.236
-      PPI::Document::Fragment 1.236
-      PPI::Document::Normalized 1.236
-      PPI::Dumper 1.236
-      PPI::Element 1.236
-      PPI::Exception 1.236
-      PPI::Exception::ParserRejection 1.236
-      PPI::Find 1.236
-      PPI::Lexer 1.236
-      PPI::Node 1.236
-      PPI::Normal 1.236
-      PPI::Normal::Standard 1.236
-      PPI::Statement 1.236
-      PPI::Statement::Break 1.236
-      PPI::Statement::Compound 1.236
-      PPI::Statement::Data 1.236
-      PPI::Statement::End 1.236
-      PPI::Statement::Expression 1.236
-      PPI::Statement::Given 1.236
-      PPI::Statement::Include 1.236
-      PPI::Statement::Include::Perl6 1.236
-      PPI::Statement::Null 1.236
-      PPI::Statement::Package 1.236
-      PPI::Statement::Scheduled 1.236
-      PPI::Statement::Sub 1.236
-      PPI::Statement::Unknown 1.236
-      PPI::Statement::UnmatchedBrace 1.236
-      PPI::Statement::Variable 1.236
-      PPI::Statement::When 1.236
-      PPI::Structure 1.236
-      PPI::Structure::Block 1.236
-      PPI::Structure::Condition 1.236
-      PPI::Structure::Constructor 1.236
-      PPI::Structure::For 1.236
-      PPI::Structure::Given 1.236
-      PPI::Structure::List 1.236
-      PPI::Structure::Subscript 1.236
-      PPI::Structure::Unknown 1.236
-      PPI::Structure::When 1.236
-      PPI::Token 1.236
-      PPI::Token::ArrayIndex 1.236
-      PPI::Token::Attribute 1.236
-      PPI::Token::BOM 1.236
-      PPI::Token::Cast 1.236
-      PPI::Token::Comment 1.236
-      PPI::Token::DashedWord 1.236
-      PPI::Token::Data 1.236
-      PPI::Token::End 1.236
-      PPI::Token::HereDoc 1.236
-      PPI::Token::Label 1.236
-      PPI::Token::Magic 1.236
-      PPI::Token::Number 1.236
-      PPI::Token::Number::Binary 1.236
-      PPI::Token::Number::Exp 1.236
-      PPI::Token::Number::Float 1.236
-      PPI::Token::Number::Hex 1.236
-      PPI::Token::Number::Octal 1.236
-      PPI::Token::Number::Version 1.236
-      PPI::Token::Operator 1.236
-      PPI::Token::Pod 1.236
-      PPI::Token::Prototype 1.236
-      PPI::Token::Quote 1.236
-      PPI::Token::Quote::Double 1.236
-      PPI::Token::Quote::Interpolate 1.236
-      PPI::Token::Quote::Literal 1.236
-      PPI::Token::Quote::Single 1.236
-      PPI::Token::QuoteLike 1.236
-      PPI::Token::QuoteLike::Backtick 1.236
-      PPI::Token::QuoteLike::Command 1.236
-      PPI::Token::QuoteLike::Readline 1.236
-      PPI::Token::QuoteLike::Regexp 1.236
-      PPI::Token::QuoteLike::Words 1.236
-      PPI::Token::Regexp 1.236
-      PPI::Token::Regexp::Match 1.236
-      PPI::Token::Regexp::Substitute 1.236
-      PPI::Token::Regexp::Transliterate 1.236
-      PPI::Token::Separator 1.236
-      PPI::Token::Structure 1.236
-      PPI::Token::Symbol 1.236
-      PPI::Token::Unknown 1.236
-      PPI::Token::Whitespace 1.236
-      PPI::Token::Word 1.236
-      PPI::Token::_QuoteEngine 1.236
-      PPI::Token::_QuoteEngine::Full 1.236
-      PPI::Token::_QuoteEngine::Simple 1.236
-      PPI::Tokenizer 1.236
-      PPI::Transform 1.236
-      PPI::Transform::UpdateCopyright 1.236
-      PPI::Util 1.236
-      PPI::XSAccessor 1.236
-    requirements:
-      Class::Inspector 1.22
-      Clone 0.30
-      Digest::MD5 2.35
-      ExtUtils::MakeMaker 6.59
-      File::Remove 1.42
-      File::Spec 0.84
-      IO::String 1.07
-      List::MoreUtils 0.16
-      List::Util 1.33
-      Params::Util 1.00
-      Storable 2.17
-      Task::Weaken 0
-      Test::Deep 0
-      Test::More 0.86
-      Test::Object 0.07
-      Test::SubCalls 1.07
-      perl 5.006
   Package-DeprecationManager-0.17
     pathname: D/DR/DROLSKY/Package-DeprecationManager-0.17.tar.gz
     provides:
@@ -3430,37 +3213,6 @@ DISTRIBUTIONS
       overload 0
       strict 0
       warnings 0
-  Parse-Method-Signatures-1.003019
-    pathname: K/KE/KENTNL/Parse-Method-Signatures-1.003019.tar.gz
-    provides:
-      Parse::Method::Signatures 1.003019
-      Parse::Method::Signatures::Param undef
-      Parse::Method::Signatures::Param::Bindable undef
-      Parse::Method::Signatures::Param::Named undef
-      Parse::Method::Signatures::Param::Placeholder undef
-      Parse::Method::Signatures::Param::Positional undef
-      Parse::Method::Signatures::Param::Unpacked undef
-      Parse::Method::Signatures::Param::Unpacked::Array undef
-      Parse::Method::Signatures::Param::Unpacked::Hash undef
-      Parse::Method::Signatures::ParamCollection undef
-      Parse::Method::Signatures::Sig undef
-      Parse::Method::Signatures::TypeConstraint undef
-      Parse::Method::Signatures::Types undef
-    requirements:
-      Class::Load 0.19
-      ExtUtils::MakeMaker 6.36
-      List::MoreUtils 0.20
-      Moose 0
-      MooseX::Traits 0.06
-      MooseX::Types 0.17
-      MooseX::Types::Moose 0
-      MooseX::Types::Structured 0
-      PPI 1.203
-      Test::Differences 0
-      Test::Exception 0
-      Test::More 0
-      aliased 0
-      namespace::clean 0.10
   Parse-RecDescent-1.967015
     pathname: J/JT/JTBRAUN/Parse-RecDescent-1.967015.tar.gz
     provides:
@@ -3835,19 +3587,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0
       perl 5.006001
-  Scope-Upper-0.29
-    pathname: V/VP/VPIT/Scope-Upper-0.29.tar.gz
-    provides:
-      Scope::Upper 0.29
-    requirements:
-      Config 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      POSIX 0
-      Test::More 0
-      XSLoader 0
-      base 0
-      perl 5.006001
   Snowball-Norwegian-1.2
     pathname: A/AS/ASKSH/Snowball-Norwegian-1.2.tar.gz
     provides:
@@ -3934,6 +3673,24 @@ DISTRIBUTIONS
       strict 0
       version 0.83
       warnings 0
+  Starman-0.4014
+    pathname: M/MI/MIYAGAWA/Starman-0.4014.tar.gz
+    provides:
+      HTTP::Server::PSGI::Net::Server::PreFork undef
+      Plack::Handler::Starman undef
+      Starman 0.4014
+      Starman::Server undef
+    requirements:
+      Data::Dump 0
+      HTTP::Date 0
+      HTTP::Parser::XS 0
+      HTTP::Status 0
+      Module::Build::Tiny 0.039
+      Net::Server 2.007
+      Plack 0.9971
+      Test::TCP 2.00
+      parent 0
+      perl 5.008001
   Stream-Buffered-0.03
     pathname: D/DO/DOY/Stream-Buffered-0.03.tar.gz
     provides:
@@ -4066,16 +3823,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Task-Weaken-1.04
-    pathname: A/AD/ADAMK/Task-Weaken-1.04.tar.gz
-    provides:
-      Task::Weaken 1.04
-    requirements:
-      ExtUtils::MakeMaker 6.42
-      File::Spec 0.80
-      Scalar::Util 1.14
-      Test::More 0.42
-      perl 5.005
   Template-Tiny-1.12
     pathname: A/AD/ADAMK/Template-Tiny-1.12.tar.gz
     provides:
@@ -4266,21 +4013,6 @@ DISTRIBUTIONS
       Test::More 0.47
       Test::Tester 0.107
       perl 5.006
-  Test-Object-0.07
-    pathname: A/AD/ADAMK/Test-Object-0.07.tar.gz
-    provides:
-      Test::Object 0.07
-      Test::Object::Test 0.07
-    requirements:
-      Carp 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      File::Spec 0.80
-      Scalar::Util 1.16
-      Test::Builder 0.33
-      Test::Builder::Tester 1.02
-      Test::More 0.42
-      overload 0
   Test-Requires-0.10
     pathname: T/TO/TOKUHIROM/Test-Requires-0.10.tar.gz
     provides:
@@ -4365,16 +4097,6 @@ DISTRIBUTIONS
       Storable 0
       perl 5.008001
       utf8 0
-  Test-SubCalls-1.09
-    pathname: A/AD/ADAMK/Test-SubCalls-1.09.tar.gz
-    provides:
-      Test::SubCalls 1.09
-    requirements:
-      ExtUtils::MakeMaker 6.42
-      File::Spec 0.80
-      Hook::LexWrap 0.20
-      Test::Builder::Tester 1.02
-      Test::More 0.42
   Test-TCP-2.19
     pathname: T/TO/TOKUHIROM/Test-TCP-2.19.tar.gz
     provides:
@@ -4496,28 +4218,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  TryCatch-1.003002
-    pathname: A/AS/ASH/TryCatch-1.003002.tar.gz
-    provides:
-      TryCatch 1.003002
-    requirements:
-      B::Hooks::EndOfScope 0.12
-      B::Hooks::OP::Check 0.18
-      B::Hooks::OP::PPAddr 0.03
-      Devel::Declare 0.005007
-      ExtUtils::Depends 0.302
-      ExtUtils::MakeMaker 6.59
-      Moose 0
-      MooseX::Types 0
-      Parse::Method::Signatures 1.003012
-      Scope::Upper 0.06
-      Sub::Exporter 0.979
-      Test::Exception 0
-      Test::More 0.88
-      Variable::Magic 0.28
-      XSLoader 0
-      namespace::clean 0.20
-      perl 5.008001
   Type-Tiny-1.002001
     pathname: T/TO/TOBYINK/Type-Tiny-1.002001.tar.gz
     provides:
@@ -4735,17 +4435,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
-  aliased-0.34
-    pathname: E/ET/ETHER/aliased-0.34.tar.gz
-    provides:
-      aliased 0.34
-    requirements:
-      Carp 0
-      Exporter 0
-      Module::Build::Tiny 0.039
-      perl 5.006
-      strict 0
-      warnings 0
   bareword-filehandles-0.005
     pathname: I/IL/ILMARI/bareword-filehandles-0.005.tar.gz
     provides:

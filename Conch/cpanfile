@@ -3,6 +3,8 @@
 # framework
 requires 'Dancer2' => '0.205001';
 
+requires 'Starman';
+
 # basics
 requires 'YAML';
 requires 'URL::Encode::XS';
