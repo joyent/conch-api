@@ -127,8 +127,6 @@ sub record_device_report {
       # XXX If a disk vanishes/replaces, we need to mark it deactivated here.
       foreach my $disk (keys %{$dr->{disks}}) {
         trace "Device $device_id: Recording disk: $disk";
-        p $disk;
-        p $dr->{disks}->{$disk};
 
         my $disk_rs = $schema->resultset('DeviceDisk')->update_or_create({
           device_id       => $device->id,
