@@ -5,7 +5,7 @@ test:
 	@carton exec prove -l lib
 
 run: build
-	@carton exec plackup bin/app.psgi
+	@carton exec ./local/bin/plackup -E development -s Starman --workers=50 -p 5001 -a bin/app.psgi
 
 build: public/js/app.js public/css/app.css
 
