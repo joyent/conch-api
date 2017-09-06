@@ -99,7 +99,7 @@ sub validate_wiremap {
       validation      => encode_json({
           component_type  => "NET",
           component_name  => $nic->mac . "_peer",
-          log             => $nic_peer_log,
+          log             => $nic_peer_msg,
           status          => $nic_peer_status
         })
     });
@@ -112,12 +112,12 @@ sub validate_wiremap {
   my $num_switch_status;
   my $num_switch_msg = "Has $num_switches peer switch(es), Needs 2";
   if ($num_switches == 2) {
-    $num_switch_log = "$device_id: report $report_id: OK: Correct number of switches: $num_switch_msg ";
+    $num_switch_log = "$device_id: report $report_id: OK: Correct number of switches: $num_switch_msg";
     $num_switch_status = 1;
     info $num_switch_log;
   }
   else {
-    $num_switch_log = "$device_id: report $report_id: CRITICAL: Wrong number of switches: $num_switch_msg ";
+    $num_switch_log = "$device_id: report $report_id: CRITICAL: Wrong number of switches: $num_switch_msg";
     $num_switch_status = 0;
     mistake $num_switch_log;
   }
@@ -128,7 +128,7 @@ sub validate_wiremap {
       validation      => encode_json({
           component_type  => "NET",
           component_name  => "num_switch_peers",
-          log             => $num_switch_log,
+          log             => $num_switch_msg,
           status          => $num_switch_status
         })
     });
@@ -140,14 +140,14 @@ sub validate_wiremap {
     my $num_ports = keys %{$switch_peers->{$switch_name}};
     my $num_ports_log;
     my $num_ports_status;
-    my $msg = "Has $num_ports port(s) connected to switch $switch_name, Needs 2";
+    my $num_ports_msg = "Has $num_ports port(s) connected to switch $switch_name, Needs 2";
     if ($num_ports == 2) {
-      $num_ports_log = "$device_id: report $report_id: OK: Correct number of peer ports: $msg ";
+      $num_ports_log = "$device_id: report $report_id: OK: Correct number of peer ports: $num_ports_msg";
       $num_ports_status = 1;
       info $num_ports_log;
     }
     else {
-      $num_ports_log = "$device_id: report $report_id: CRITICAL: Wrong number of peer ports: $msg ";
+      $num_ports_log = "$device_id: report $report_id: CRITICAL: Wrong number of peer ports: $num_ports_msg";
       $num_ports_status = 0;
       mistake $num_ports_log;
     }
@@ -158,7 +158,7 @@ sub validate_wiremap {
         validation      => encode_json({
             component_type  => "NET",
             component_name  => "num_peer_switch_ports",
-            log             => $num_switch_log,
+            log             => $num_ports_msg,
             status          => $num_ports_status
           })
       });
