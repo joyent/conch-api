@@ -5,6 +5,7 @@ var Rack = require("../models/Rack");
 var Feedback = require("../models/Feedback");
 var Device = require("../models/Device");
 var Table = require("./component/Table");
+var Icons  = require("./component/Icons");
 
 var allRacks = {
     oninit: Rack.loadRooms,
@@ -132,10 +133,10 @@ var rackLayoutTable = {
                 slot.occupant ?
                     [
                         slot.occupant.health === 'PASS' ?
-                          m("i.material-icons", { title : t("Device passes validation") }, "check")
-                        : m("i.material-icons", { title : t("Device fails validation") }, "error_outline"),
+                          Icons.passValidation
+                        : Icons.failValidation,
                         Device.isActive(slot.occupant) ?
-                          m("i.material-icons", { title : t("Reporting to Conch") }, "cloud_upload")
+                          Icons.deviceReporting
                         : null,
                     ]
                 : null

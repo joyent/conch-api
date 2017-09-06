@@ -3,6 +3,7 @@ var t = require("i18n4v");
 
 var Device = require("../models/Device");
 var Table  = require("./component/Table");
+var Icons  = require("./component/Icons");
 
 var allDevices = {
     oninit: Device.loadDeviceIds,
@@ -68,17 +69,10 @@ var deviceReport = {
                 t("Description")
             ], [
                 Device.current.health === 'PASS' ?
-                  [
-                    m("i.material-icons", { title : t("Device passes validation") }, "check"),
-                    t("Device passes validation")
-                  ]
-                : [
-                    m("i.material-icons", { title : t("Device fails validation") }, "error_outline"),
-                    t("Device fails validation")
-                  ],
+                  [ Icons.passValidation, t("Device passes validation") ]
+                : [ Icons.failValidation, t("Device fails validation") ],
                 Device.isActive(Device.current) ?
-                  [
-                    m("i.material-icons", { title : t("Reporting to Conch") }, "cloud_upload"),
+                  [ Icons.deviceReporting,
                     t("Actively reporting to Conch (Reported in the last 5 minutes)")
                   ]
                 : []
