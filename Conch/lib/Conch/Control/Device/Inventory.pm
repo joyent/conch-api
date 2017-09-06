@@ -32,7 +32,7 @@ sub validate_system {
     trace ("$device_id: report $report_id: OK: Correct CPU count: $cpu_num_log");
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({
@@ -56,7 +56,7 @@ sub validate_system {
     trace("$device_id: report $report_id: OK: Correct DIMM count: $dimms_num_log");
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({
@@ -80,7 +80,7 @@ sub validate_system {
     trace("$device_id: report $report_id: OK: Correct RAM total: $ram_total_log");
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({
@@ -104,7 +104,7 @@ sub validate_system {
     trace("$device_id: report $report_id: OK: Correct number of network interfacesl: $nics_num_log");
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({
@@ -176,7 +176,7 @@ sub validate_disks {
     trace("$device_id: report $report_id: OK: Correct number of USB_HDD: $usb_hdd_num_log");
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({
@@ -200,7 +200,7 @@ sub validate_disks {
     trace("$device_id: report $report_id: OK: Correct number of SAS_HDD: $sas_hdd_num_log");
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({
@@ -239,7 +239,7 @@ sub validate_disks {
     trace("$device_id: report $report_id: OK: Correct number of SAS_SSD: $sas_ssd_num_log");
   }
 
-   $schema->resultset('DeviceValidate')->update_or_create({
+   $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({
@@ -263,7 +263,7 @@ sub validate_disks {
       trace("$device_id: report $report_id: OK: ZFS SLOG is in correct slot: $slog_slot_log");
     }
 
-    $schema->resultset('DeviceValidate')->update_or_create({
+    $schema->resultset('DeviceValidate')->create({
       device_id       => $device_id,
       report_id       => $report_id,
       validation      => encode_json({

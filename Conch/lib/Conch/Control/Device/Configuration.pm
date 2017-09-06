@@ -29,7 +29,7 @@ sub validate_product {
     trace("$device_id: OK: Product name set: $product_name_log");
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
     device_id       => $device_id,
     report_id       => $report_id,
     validation      => encode_json({

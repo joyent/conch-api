@@ -12,19 +12,19 @@ use Exporter 'import';
 our @EXPORT = qw( validate_device );
 
 sub validate_device {
-  my ($schema, $device, $report_id) = @_;
+  my ($schema, $device, $device_report, $report_id) = @_;
 
   # all of the validation functions to run
   # validation function should have the following signature:
   # `my ($schema, $device, $report_id) = @_;`
   my @validations = (
     \&validate_cpu_temp,
-    \&validate_disk_temp,
     \&validate_product,
     \&validate_system,
-    \&validate_disks,
-    \&validate_links,
-    \&validate_wiremap,
+    $device_report->disks ? \&validate_disk_temp : (),
+    $device_report->disks ? \&validate_disks : (),
+    $device_report->interfaces ? \&validate_links : (),
+    $device_report->interfaces ? \&validate_wiremap : (),
 
   );
 

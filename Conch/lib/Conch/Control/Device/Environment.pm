@@ -51,7 +51,7 @@ sub validate_cpu_temp {
 
      info($cpu_msg);
 
-     my $device_validate = $schema->resultset('DeviceValidate')->update_or_create({
+     my $device_validate = $schema->resultset('DeviceValidate')->create({
        device_id       => $device_id,
        report_id       => $report_id,
        validation => encode_json({
@@ -131,7 +131,7 @@ sub validate_disk_temp {
 
      trace "$device_id: report $report_id: " . $disk->id . ": ". $disk->serial_number . ": " . $disk_msg;
 
-     my $device_validate = $schema->resultset('DeviceValidate')->update_or_create({
+     my $device_validate = $schema->resultset('DeviceValidate')->create({
        device_id       => $device_id,
        report_id       => $report_id,
        validation => encode_json({

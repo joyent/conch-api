@@ -92,8 +92,7 @@ post '/device/:serial' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';
 
-  my $device;
-  my $report_id;
+  my ($device, $report_id, $device_report);
 
   # NOTE This stops reports being ingested until the device is slotted into a rack.
   #      This may not be desireable. Once the device is entered into device_location
@@ -111,9 +110,8 @@ post '/device/:serial' => needs integrator => sub {
   #  warning "$user_name not allowed to view device $serial or $serial does not exist";
   #  return status_401('unauthorized');
   #}
-
   try {
-    my $device_report = parse_device_report(body_parameters->as_hashref);
+    $device_report = parse_device_report(body_parameters->as_hashref);
     ($device, $report_id) = record_device_report( schema, $device_report);
     connect_user_relay(schema, $user_name, $device_report->relay->{serial})
       if $device_report->relay;
@@ -123,7 +121,7 @@ post '/device/:serial' => needs integrator => sub {
     return status_400("@err");
   }
 
-  my $validation = validate_device(schema, $device, $report_id);
+  my $validation = validate_device(schema, $device, $device_report, $report_id);
   if ($validation) {
       status_200({
           device_id => $device->id,
