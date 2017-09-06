@@ -62,9 +62,10 @@ sub record_device_report {
   my $device_report;
   try { $schema->txn_do (sub {
 
-      my $prev_uptime = $schema->resultset('Device')
-          ->find({id => $dr->{serial_number}})
-          ->uptime_since;
+      my $prev_device = $schema->resultset('Device')
+          ->find({id => $dr->{serial_number}});
+
+      my $prev_uptime = $prev_device && $prev_device->uptime_since;
 
       $device = $schema->resultset('Device')->update_or_create({
         id               => $dr->{serial_number},
@@ -73,7 +74,7 @@ sub record_device_report {
         state            => $dr->{state},
         health           => "UNKNOWN",
         last_seen        => \'NOW()',
-        uptime_since     => $dr->uptime_since
+        uptime_since     => $dr->{uptime_since} || $prev_uptime
       });
       my $device_id = $device->id;
       info "Created Device $device_id";
@@ -82,8 +83,9 @@ sub record_device_report {
       # report (i.e. first uptime reported), or if the previous uptime date is
       # less than the the current one (i.e. there has been a reboot)
       add_reboot_count($device)
-        if (!$prev_uptime && $device->uptime_since)
-          || $prev_uptime < $device->uptime_since;
+        if (!$prev_uptime && $device->{uptime_since})
+          || $device->{uptime_since}
+          && $prev_uptime < $device->{uptime_since};
 
       device_relay_connect($schema, $device_id, $dr->{relay}{serial}) if $dr->{relay};
 
@@ -111,19 +113,22 @@ sub record_device_report {
 
       info "Created Device Spec for Device $device_id";
 
-      my $device_env = $schema->resultset('DeviceEnvironment')->update_or_create({
+      $schema->resultset('DeviceEnvironment')->update_or_create({
           device_id       => $device->id,
           cpu0_temp       => $dr->{temp}->{cpu0},
           cpu1_temp       => $dr->{temp}->{cpu1},
           inlet_temp      => $dr->{temp}->{inlet},
           exhaust_temp    => $dr->{temp}->{exhaust},
-        });
+        })
+        if $dr->{temp};
 
-      info "Recorded environment for Device $device_id";
+      $dr->{temp} and info "Recorded environment for Device $device_id";
 
       # XXX If a disk vanishes/replaces, we need to mark it deactivated here.
       foreach my $disk (keys %{$dr->{disks}}) {
         trace "Device $device_id: Recording disk: $disk";
+        p $disk;
+        p $dr->{disks}->{$disk};
 
         my $disk_rs = $schema->resultset('DeviceDisk')->update_or_create({
           device_id       => $device->id,
@@ -141,7 +146,7 @@ sub record_device_report {
         });
       }
 
-      info "Recorded disk info for Device $device_id";
+      $dr->{disks} and info "Recorded disk info for Device $device_id";
 
       foreach my $nic (keys %{$dr->{interfaces}}) {
 

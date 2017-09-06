@@ -42,7 +42,7 @@ sub validate_links {
      $nic_state_status = 1;
    }
 
-   $schema->resultset('DeviceValidate')->update_or_create({
+   $schema->resultset('DeviceValidate')->create({
      device_id       => $device_id,
      report_id       => $report_id,
      validation      => encode_json({
@@ -93,7 +93,7 @@ sub validate_wiremap {
       mistake $nic_peer_log;
     }
 
-    $schema->resultset('DeviceValidate')->update_or_create({
+    $schema->resultset('DeviceValidate')->create({
       device_id       => $device_id,
       report_id       => $report_id,
       validation      => encode_json({
@@ -122,7 +122,7 @@ sub validate_wiremap {
     mistake $num_switch_log;
   }
 
-  $schema->resultset('DeviceValidate')->update_or_create({
+  $schema->resultset('DeviceValidate')->create({
       device_id       => $device_id,
       report_id       => $report_id,
       validation      => encode_json({
@@ -152,7 +152,7 @@ sub validate_wiremap {
       mistake $num_ports_log;
     }
 
-    $schema->resultset('DeviceValidate')->update_or_create({
+    $schema->resultset('DeviceValidate')->create({
         device_id       => $device_id,
         report_id       => $report_id,
         validation      => encode_json({
@@ -187,6 +187,5 @@ sub port_numbers {
   my $second_port = $first_port + 19;
   return ("1/$first_port", "1/$second_port");
 }
-
 
 1;

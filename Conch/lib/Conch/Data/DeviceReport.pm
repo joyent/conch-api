@@ -7,12 +7,6 @@ use MooseX::Storage;
 
 with Storage('format' => 'JSON');
 
-#subtype 'StrDateTime',
-  #as 'DateTime';
-
-#coerce 'StringDateTime',
-  #from 'Str',
-  #via { [ $_ ] };
 
 
 has 'product_name' => (
@@ -40,7 +34,7 @@ has 'state' => (
 );
 
 has 'interfaces' => (
-  required => 1,
+  required => 0,
   is => 'ro',
   # hash can contain undef values
   isa => 'HashRef[HashRef[Maybe[Str]]]'
@@ -65,13 +59,13 @@ has 'memory' => (
 );
 
 has 'disks' => (
-  required => 1,
+  required => 0,
   is => 'ro',
   isa => 'HashRef[HashRef[Value]]'
 );
 
 has 'temp' => (
-  required => 1,
+  required => 0,
   is => 'ro',
   isa => 'HashRef[Int]'
 );
@@ -84,7 +78,7 @@ has 'relay' => (
 );
 
 has 'uptime_since' => (
-  required => 1,
+  required => 0,
   is => 'ro',
   isa => 'Str'
 );
