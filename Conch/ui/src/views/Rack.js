@@ -63,7 +63,14 @@ var rackLayout = {
                 { onsubmit: function (e){
                     Rack.assignDevices(Rack.current);
                 } },
-                m(".rack-layout-table.pure-u-1", m(rackLayoutTable)),
+                m(".pure-u-1", Table( t("Rack Details"),
+                    [
+                        t("Datacenter"), t("Rack Name"), t("Rack Role")
+                    ],[[
+                        Rack.current.datacenter, Rack.current.name, Rack.current.role
+                    ]])
+                ),
+                m(".pure-u-1", m(rackLayoutTable)),
                 m(".rack-layout-footer",
                     m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices"))
                 )
@@ -129,8 +136,12 @@ var rackLayoutTable = {
             }, m("i.material-icons.md-18", "flag"));
         }
         function statusIndicators(slot) {
-            return m(".rack-status",
-                slot.occupant ?
+            // null must be returned instead of any element, or else the
+            // content of the td isn't cleared between page navigations.
+            // Possibly a bug in Mithril or in how 'Table' is implemented,
+            // which is a function rather than a true Mithril component
+            return slot.occupant ?
+                m(".rack-status",
                     [
                         slot.occupant.health === 'PASS' ?
                           Icons.passValidation
@@ -139,8 +150,8 @@ var rackLayoutTable = {
                           Icons.deviceReporting
                         : null,
                     ]
-                : null
-            );
+                )
+                : null;
         }
         return Table(t("Rack Layout"),
         [
@@ -155,8 +166,9 @@ var rackLayoutTable = {
         ],
             Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
                 var slot = Rack.current.slots[slotId];
+                var statusInd = statusIndicators(slot);
                 return [
-                    statusIndicators(slot),
+                    statusInd,
                     slotId,
                     slot.name,
                     slot.vendor,
