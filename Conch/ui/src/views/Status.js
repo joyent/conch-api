@@ -5,19 +5,6 @@ var R = require("ramda");
 var Device = require("../models/Device");
 var Table  = require("./component/Table");
 
-
-function isActive(device)  {
-    if (device.last_seen) {
-        var lastSeen = new Date(device.last_seen);
-        var now = new Date();
-        var fiveMinutes = 5 * 60 * 1000;
-        return (now - lastSeen < fiveMinutes);
-    }
-    else {
-        return false;
-    }
-}
-
 function deviceList(title, isProblem, devices) {
     var linkPrefix = isProblem ? "/problem/" : "/device/";
     return m(".pure-u-1.pure-u-sm-1-3.text-center",
@@ -39,8 +26,8 @@ function deviceList(title, isProblem, devices) {
 module.exports = {
     oninit : Device.loadDevices,
     view : function(vnode) {
-        var activeDevices   = R.filter(isActive, Device.devices);
-        var inactiveDevices = R.filter(R.compose(R.not, isActive), Device.devices);
+        var activeDevices   = R.filter(Device.isActive, Device.devices);
+        var inactiveDevices = R.filter(R.compose(R.not, Device.isActive), Device.devices);
 
         var healthCounts   = R.countBy(R.prop('health'));
         var graduatedCount = R.reduce(function(acc, x) {

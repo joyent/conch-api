@@ -23,7 +23,7 @@ set serializer => 'JSON';
 # devices across all DCs?
 get '/rack' => needs integrator => sub {
   my $user_name = session->read('integrator');
-  debug "Collecting racks for $user_name"; 
+  debug "Collecting racks for $user_name";
   my $racks;
   process sub { $racks = racks_for_user(schema, $user_name); };
   status_200({racks => ($racks || []) });
@@ -62,7 +62,7 @@ get '/rack/:uuid' => needs integrator => sub {
 
   my $rack = rack_layout(schema, $uuid);
 
-  status_200({rack => $rack}); 
+  return status_200($rack);
 };
 
 # Bulk update a rack layout.

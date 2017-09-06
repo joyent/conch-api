@@ -14,7 +14,7 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw( device_info device_location all_user_devices devices_for_user
                   lookup_device_for_user device_rack_location
-                  device_ids_for_user device_inventory device_validation_report
+                  device_ids_for_user latest_device_report device_validation_report
                   update_device_location delete_device_location
                   get_validation_criteria get_active_devices
                   get_devices_by_health unlocated_devices device_response
@@ -161,21 +161,13 @@ sub device_rack_location {
   return $location;
 }
 
-sub device_inventory {
+sub latest_device_report {
   my ($schema, $device_id) = @_;
 
-  # Get the most recent entry in device_report.
-  my $report = $schema->resultset('DeviceReport')->search(
+  return $schema->resultset('DeviceReport')->search(
     { device_id => $device_id },
     { order_by => { -desc => 'created' } }
   )->first;
-
-  if ($report) {
-    return ($report->id, Dancer2::Serializer::JSON::from_json($report->report));
-  } else {
-    return undef;
-  }
-
 }
 
 # Bundle up the validate logs for a given device report.

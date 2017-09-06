@@ -3,7 +3,7 @@ var t = require("i18n4v");
 
 var Rack = require("../models/Rack");
 var Feedback = require("../models/Feedback");
-var Problem = require("../models/Problem");
+var Device = require("../models/Device");
 var Table = require("./component/Table");
 
 var allRacks = {
@@ -51,7 +51,6 @@ var rackLayout = {
     oninit: function(vnode) {
         Rack.load(vnode.attrs.id);
         Rack.highlightDevice = vnode.attrs.device;
-        Problem.loadDeviceProblems();
     },
     view: function() {
         return [
@@ -89,9 +88,9 @@ var rackLayoutTable = {
     view: function() {
         function reportButton(slot) {
             var healthy =
-                slot.occupant && ! Problem.deviceHasProblem(slot.occupant);
+                slot.occupant && slot.occupant.health === 'PASS';
             return m("a.pure-button", {
-                href: healthy ? "/device/" + slot.occupant : "/problem/" + slot.occupant,
+                href: healthy ? "/device/" + slot.occupant.id : "/problem/" + slot.occupant.id,
                 oncreate: m.route.link,
                 title: t("Show Device Report"),
                 class: healthy ? "" : "color-failure"
@@ -106,10 +105,11 @@ var rackLayoutTable = {
                     }),
                     placeholder: slot.occupant ? "" : t("Unassigned"),
                     onkeypress: enterAsTab,
-                    value: slot.assignment || slot.occupant || "",
+                    value: slot.assignment || (slot.occupant || {}).id || "",
                     class:
-                    Rack.highlightDevice === slot.occupant ?
-                    "row-highlight" : ""
+                        Rack.highlightDevice
+                        && Rack.highlightDevice === (slot.occupant || {}).id
+                        ?  "row-highlight" : ""
                 }
             );
         }
@@ -118,35 +118,51 @@ var rackLayoutTable = {
                 onclick: function (){
                     Feedback.sendFeedback(
                         "[NOTICE] User Flagged Device",
-                        "Device " + slot.occupant + " in slot " + slotId + " was flagged by the user.",
+                        "Device " + slot.occupant.id + " in slot " + slotId + " was flagged by the user.",
                         function(){
                             alert(t("Administrators notified about device"));
                         }
                     );
                 },
                 title: t("Notify administrators about device")
-            }, "⚐");
+            }, m("i.material-icons.md-18", "flag"));
+        }
+        function statusIndicators(slot) {
+            return m(".rack-status",
+                slot.occupant ?
+                    [
+                        slot.occupant.health === 'PASS' ?
+                          m("i.material-icons", { title : t("Device passes validation") }, "check")
+                        : m("i.material-icons", { title : t("Device fails validation") }, "error_outline"),
+                        Device.isActive(slot.occupant) ?
+                          m("i.material-icons", { title : t("Reporting to Conch") }, "cloud_upload")
+                        : null,
+                    ]
+                : null
+            );
         }
         return Table(t("Rack Layout"),
         [
+            t("Status"),
             t("Slot Number"),
             t("Name"),
             t("Vendor"),
             t("RU Height"),
             t("Device"),
-            t("Status"),
+            t("Report"),
             t("Actions"),
         ],
             Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
                 var slot = Rack.current.slots[slotId];
                 return [
+                    statusIndicators(slot),
                     slotId,
                     slot.name,
                     slot.vendor,
                     slot.size,
                     deviceInput(slot),
                     slot.occupant ? reportButton(slot) : null,
-                    slot.occupant ? flagDevice(slot, slotId) : null
+                    slot.occupant ? flagDevice(slot, slotId) : null,
                 ];
             })
         );
