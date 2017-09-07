@@ -2,6 +2,8 @@
 # env-related settings should go to environments/$env.yml
 # all the settings in this file will be loaded at Dancer's startup.
 
+session: "YAML"
+
 # Your application's name
 appname: "Conch"
 

@@ -1,4 +1,5 @@
 var m = require("mithril");
+var moment = require('moment');
 
 var Device = {
     deviceIds: [],
@@ -45,15 +46,15 @@ var Device = {
             }
         });
     },
-    deviceReport: {},
-    loadDeviceReport: function(deviceId) {
+
+    current : null,
+    loadDevice: function(deviceId) {
         return m.request({
             method: "GET",
             url: "/device/" + deviceId,
             withCredentials: true
         }).then(function(res) {
-            Device.deviceReport = res;
-            Device.deviceReport.id = deviceId;
+            Device.current = res;
         }).catch(function(e) {
             if (e.error === "unauthorized") {
                 m.route.set("/login");
@@ -100,8 +101,17 @@ var Device = {
         }).catch(function(e) {
             console.log("Error in GET /device/" + deviceId + "/log: " + e.message);
         });
-    }
+    },
 
+    // A device is active if it was last seen in the last 5 minutes
+    isActive : function(device) {
+        if (device.last_seen) {
+            var lastSeen = moment(device.last_seen);
+            var fiveMinutesAgo = moment().subtract(5, 'm');
+            return (fiveMinutesAgo < lastSeen);
+        }
+        return false;
+    }
 };
 
 module.exports = Device;

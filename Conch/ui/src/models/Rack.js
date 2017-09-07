@@ -33,7 +33,7 @@ var Rack = {
             url: "/rack/" + id,
             withCredentials: true
         }).then(function(res) {
-            Rack.current = res.rack;
+            Rack.current = res;
         }).catch(function(e) {
             if (e.error === "unauthorized") {
                 m.route.set("/login");

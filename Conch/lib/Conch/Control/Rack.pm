@@ -83,11 +83,11 @@ sub rack_layout {
     id => $uuid
   });
 
-  my %rack;
-  $rack{id} = $uuid;
-  $rack{name} = $rack_info->name;
-  $rack{role} = $rack_info->role->name;
-  $rack{datacenter} = $dc{ $rack_info->datacenter_room_id}{name};
+  my $rack;
+  $rack->{id} = $uuid;
+  $rack->{name} = $rack_info->name;
+  $rack->{role} = $rack_info->role->name;
+  $rack->{datacenter} = $dc{ $rack_info->datacenter_room_id}{name};
 
   foreach my $slot (@rack_slots) {
     my $hw = $schema->resultset('HardwareProduct')->find({
@@ -97,25 +97,26 @@ sub rack_layout {
     my $hw_profile = $hw->hardware_product_profile;
     $hw_profile or fault "Hardware product " . $slot->product_id . " exists but does not have a hardware profile";
 
-    my $device_location = $schema->resultset('DeviceLocation')->search({
+    my $device_location = $schema->resultset('DeviceLocation')->find({
       rack_id   => $uuid,
       rack_unit => $slot->ru_start
-    })->single;
+    });
 
     if ($device_location) {
-      $rack{slots}{ $slot->ru_start }{occupant} = $device_location->device_id;
+      my $device = {$device_location->device->get_columns};
+      $rack->{slots}{ $slot->ru_start }{occupant} = $device;
     } else {
-      $rack{slots}{ $slot->ru_start }{occupant} = undef;
+      $rack->{slots}{ $slot->ru_start }{occupant} = undef;
     }
 
-    $rack{slots}{ $slot->ru_start }{id     } = $hw->id;
-    $rack{slots}{ $slot->ru_start }{alias  } = $hw->alias;
-    $rack{slots}{ $slot->ru_start }{name   } = $hw->name;
-    $rack{slots}{ $slot->ru_start }{vendor } = $hw->vendor->name;
-    $rack{slots}{ $slot->ru_start }{size   } = $hw_profile->rack_unit;
+    $rack->{slots}{ $slot->ru_start }{id     } = $hw->id;
+    $rack->{slots}{ $slot->ru_start }{alias  } = $hw->alias;
+    $rack->{slots}{ $slot->ru_start }{name   } = $hw->name;
+    $rack->{slots}{ $slot->ru_start }{vendor } = $hw->vendor->name;
+    $rack->{slots}{ $slot->ru_start }{size   } = $hw_profile->rack_unit;
   }
 
-  return \%rack;
+  return $rack;
 }
 
 1;

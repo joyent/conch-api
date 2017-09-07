@@ -67,25 +67,27 @@ get '/device/:serial' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';
 
-  # XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
-  # Verify the requested device is accessible to this user.
-  my @user_devices;
-  @user_devices = device_ids_for_user(schema, $user_name);
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
 
-  unless (grep /$serial/, @user_devices) {
+  unless ($device) {
     warning "$user_name not allowed to view device $serial or $serial does not exist";
     return status_401('unauthorized');
   }
 
-  my ($report_id, $device_report ) = device_inventory(schema, $serial);
-  my @validation_report = device_validation_report(schema, $report_id);
+  my @validations = ();
+  my $report = {};
+  my $device_report = latest_device_report(schema, $serial);
+  if ($device_report) {
+    @validations = device_validation_report(schema, $device_report->id);
+    $report = from_json($device_report->report);
+    delete $report->{'__CLASS__'};
+  }
 
-  $device_report->{validation} = \@validation_report;
+  my $response = {$device->get_columns};
+  $response->{latest_report} = $report;
+  $response->{validations} = \@validations;
 
-  # XXX Conch::Data::DeviceReport is sticking its __CLASS__ where it's not wanted.
-  my $cleanup = delete $device_report->{"__CLASS__"};
-
-  status_200($device_report || []);
+  status_200($response);
 };
 
 post '/device/:serial' => needs integrator => sub {

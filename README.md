@@ -229,9 +229,9 @@ Takes a JSON blob created by `export.pl` and processes it.
 
 ### Retrieving device inventory and validation report
 
-Takes a serial number. Returns a JSON blob.
-
-The most recent validation report is returned as an array.
+Takes a device serial number and responds with a JSON object containing the
+device attributes, the latest device report (object key `latest_report`) and
+the validations run from that report (object key `validations`).
 
 * URL
 
@@ -273,7 +273,7 @@ Will not let you clobber an occupied slot, and verifies that the slot you want t
 
   `/device/:serial/location`
 
-* Methods
+
 
  `POST`
 
@@ -336,6 +336,8 @@ Takes a serial number, rack UUID, and rack slot.
   * `/rack`
 
 ### Retrieve layout for specific rack
+
+Includes the device object as key `occupant`, if assigned.
 
 * URL
 
