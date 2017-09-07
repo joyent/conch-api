@@ -34,7 +34,7 @@ watch-assets:
 	@find ui/css/app.css ui/bin/app.js | entr -r make web-assets
 
 watch-perl:
-	@find lib | entr -r -d -c make run-perl
+	@find lib | entr -r -c make run-perl
 
 watch:
 	(make watch-js &)

@@ -12,11 +12,12 @@
     "devDependencies": {
         "babel-core": "^6.26.0",
         "babel-loader": "^7.1.2",
+        "babel-preset-es2015": "^6.24.1",
         "webpack": "^3.4.1"
     },
     "scripts": {
-        "start": "webpack src/index.js bin/app.js -d --watch",
-        "build": "webpack src/index.js bin/app.js -p"
+        "start": "webpack -d --watch",
+        "build": "webpack"
     },
     "keywords": [],
     "author": "",

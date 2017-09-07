@@ -32,6 +32,11 @@ function mainNav(isMobileView) {
                 ),
 
                 m("li.pure-menu-item",
+                    m("a[href='/relay'].pure-menu-link.nav-link.nav-text-color",
+                        {oncreate: m.route.link}, t("Relays"))
+                ),
+
+                m("li.pure-menu-item",
                     m("a[href='/login'].pure-menu-link.nav-link",
                         {
                             oncreate: m.route.link,

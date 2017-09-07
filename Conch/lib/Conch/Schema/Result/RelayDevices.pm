@@ -25,6 +25,7 @@ __PACKAGE__->result_source_instance->view_definition(q[
   INNER JOIN device
     ON dr.device_id = device.id
   WHERE r.id = ?
+  ORDER by dr.last_seen desc
 ]);
 
 # NOTE: UPDATE BELOW WHEN Conch::Result::Device IS UPDATED!

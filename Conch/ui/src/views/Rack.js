@@ -1,11 +1,12 @@
 var m = require("mithril");
 var t = require("i18n4v");
 
-var Rack = require("../models/Rack");
+var Rack     = require("../models/Rack");
 var Feedback = require("../models/Feedback");
-var Device = require("../models/Device");
-var Table = require("./component/Table");
-var Icons  = require("./component/Icons");
+
+var DeviceStatus = require("./component/DeviceStatus");
+var Icons        = require("./component/Icons");
+var Table        = require("./component/Table");
 
 var allRacks = {
     oninit: Rack.loadRooms,
@@ -135,28 +136,6 @@ var rackLayoutTable = {
                 title: t("Notify administrators about device")
             }, m("i.material-icons.md-18", "flag"));
         }
-        var statusIndicators = {
-            view : function(vnode) {
-                var occupant = vnode.attrs.occupant;
-                if (occupant) {
-                    var healthIcon;
-                    if (occupant.health === 'PASS')
-                         healthIcon = Icons.passValidation;
-                    else if (occupant.health === 'FAIL')
-                         healthIcon = Icons.failValidation;
-                    else
-                         healthIcon = Icons.noReport;
-                    return m(".rack-status",
-                        [
-                            healthIcon,
-                            Device.isActive(occupant) ?
-                            Icons.deviceReporting
-                            : null,
-                        ]);
-                }
-                return m(".rack-status");
-            }
-        };
         return Table(t("Rack Layout"),
         [
             t("Status"),
@@ -171,7 +150,7 @@ var rackLayoutTable = {
             Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
                 var slot = Rack.current.slots[slotId];
                 return [
-                    m(statusIndicators, {occupant : slot.occupant }),
+                    m(DeviceStatus, {device : slot.occupant }),
                     slotId,
                     slot.name,
                     slot.vendor,

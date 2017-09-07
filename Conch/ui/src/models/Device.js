@@ -66,7 +66,7 @@ var Device = {
     },
 
     rackLocation : null,
-    loadRackLocation : function(deviceId) {
+    getDeviceLocation : deviceId => {
         return m.request({
             method: "GET",
             url: "/device/" + deviceId + "/location",
@@ -74,8 +74,6 @@ var Device = {
             extract: function(xhr) {
                 return { status: xhr.status, body: JSON.parse(xhr.response) };
             }
-        }).then(function(res) {
-            Device.rackLocation = res.body;
         }).catch(function(e) {
             if (e.status === 401) {
                 m.route.set("/login");
@@ -86,7 +84,11 @@ var Device = {
             else {
                 console.log("Error in GET /device/" + deviceId + "/location: " + e.message);
             }
-        });
+        }).then(res => res.body);
+    },
+    loadRackLocation : function(deviceId) {
+        return Device.getDeviceLocation(deviceId)
+            .then(res => Device.rackLocation = res );
     },
 
     logs : [],
