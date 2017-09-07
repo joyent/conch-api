@@ -135,24 +135,23 @@ var rackLayoutTable = {
                 title: t("Notify administrators about device")
             }, m("i.material-icons.md-18", "flag"));
         }
-        function statusIndicators(slot) {
-            // null must be returned instead of any element, or else the
-            // content of the td isn't cleared between page navigations.
-            // Possibly a bug in Mithril or in how 'Table' is implemented,
-            // which is a function rather than a true Mithril component
-            return slot.occupant ?
-                m(".rack-status",
-                    [
-                        slot.occupant.health === 'PASS' ?
-                          Icons.passValidation
-                        : Icons.failValidation,
-                        Device.isActive(slot.occupant) ?
-                          Icons.deviceReporting
-                        : null,
-                    ]
-                )
-                : null;
-        }
+        var statusIndicators = {
+            view : function(vnode) {
+                var occupant = vnode.attrs.occupant;
+                return occupant ?
+                    m(".rack-status",
+                        [
+                            occupant.health === 'PASS' ?
+                            Icons.passValidation
+                            : Icons.failValidation,
+                            Device.isActive(occupant) ?
+                            Icons.deviceReporting
+                            : null,
+                        ]
+                    )
+                    : m(".rack-status");
+            }
+        };
         return Table(t("Rack Layout"),
         [
             t("Status"),
@@ -166,9 +165,8 @@ var rackLayoutTable = {
         ],
             Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
                 var slot = Rack.current.slots[slotId];
-                var statusInd = statusIndicators(slot);
                 return [
-                    statusInd,
+                    m(statusIndicators, {occupant : slot.occupant }),
                     slotId,
                     slot.name,
                     slot.vendor,
