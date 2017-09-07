@@ -7,6 +7,7 @@ const Device = require('../../models/Device');
 
 const DeviceStatus = require('../component/DeviceStatus');
 const Table = require('../component/Table');
+const Icons = require('../component/Icons');
 
 module.exports = {
     loading : false,
@@ -57,7 +58,7 @@ module.exports = {
                             oncreate : m.route.link,
                             title : t("Show Rack")
                         },
-                        m("i.material-icons.md-18", "dns")
+                        Icons.showRack
                     ),
                 ]]
             )
@@ -75,16 +76,16 @@ module.exports = {
                         },
                         title : t("Find Device in Rack")
                     },
-                    m("i.material-icons.md-18", "dns")
+                    Icons.findDeviceInRack
                 ),
-                device.health === 'PASS' ?
+                device.health !== 'PASS' ?
                     m("a.pure-button",
                         {
                             href : "/problem/" + device.id,
                             oncreate : m.route.link,
                             title : t("Show Device Problems")
                         },
-                        m("i.material-icons.md-18", "report_problem")
+                        Icons.deviceProblems
                     )
                     : null,
                 m("a.pure-button",
@@ -93,10 +94,10 @@ module.exports = {
                         oncreate : m.route.link,
                         title : t("Latest Device Report")
                     },
-                    m("i.material-icons.md-18", "description")
+                    Icons.deviceReport
                 ),
-            ]
-        }
+            ];
+        };
         const deviceTable =
             Table(t("Connected Devices"),
                 [
