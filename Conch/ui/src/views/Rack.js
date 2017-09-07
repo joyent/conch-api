@@ -138,18 +138,23 @@ var rackLayoutTable = {
         var statusIndicators = {
             view : function(vnode) {
                 var occupant = vnode.attrs.occupant;
-                return occupant ?
-                    m(".rack-status",
+                if (occupant) {
+                    var healthIcon;
+                    if (occupant.health === 'PASS')
+                         healthIcon = Icons.passValidation;
+                    else if (occupant.health === 'FAIL')
+                         healthIcon = Icons.failValidation;
+                    else
+                         healthIcon = Icons.noReport;
+                    return m(".rack-status",
                         [
-                            occupant.health === 'PASS' ?
-                            Icons.passValidation
-                            : Icons.failValidation,
+                            healthIcon,
                             Device.isActive(occupant) ?
                             Icons.deviceReporting
                             : null,
-                        ]
-                    )
-                    : m(".rack-status");
+                        ]);
+                }
+                return m(".rack-status");
             }
         };
         return Table(t("Rack Layout"),

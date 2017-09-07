@@ -63,14 +63,22 @@ var deviceReport = {
             ]])
         );
 
+        var healthStatus;
+        if (Device.current.health === 'PASS')
+            healthStatus =
+                [ Icons.passValidation, t("Device passes validation") ];
+        else if (Device.current.health === 'FAIL')
+            healthStatus =
+                [ Icons.failValidation, t("Device fails validation") ];
+        else
+            healthStatus =
+                [ Icons.noReport, t("No reports collected from device") ];
         var deviceStatus = m(".pure-u-1",
             Table(t("Device Status"), [
                 t("Status"),
                 t("Description")
             ], [
-                Device.current.health === 'PASS' ?
-                  [ Icons.passValidation, t("Device passes validation") ]
-                : [ Icons.failValidation, t("Device fails validation") ],
+                healthStatus,
                 Device.isActive(Device.current) ?
                   [ Icons.deviceReporting,
                     t("Actively reporting to Conch (Reported in the last 5 minutes)")
