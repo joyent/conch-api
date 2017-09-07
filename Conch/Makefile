@@ -1,14 +1,45 @@
-.PHONY: test run build deps install-deps generate-dbic watch
+.PHONY: test run build build-js deps install-deps generate-dbic web-assets watch-js watch-perl watch
 
 
 test:
 	@carton exec prove -l lib
 
-run: build
+run-perl:
 	@carton exec ./local/bin/plackup -E development -s Starman --workers=50 -p 5001 -a bin/app.psgi
 
-build: public/js/app.js public/css/app.css
+run: build run-perl
 
+build: build-js web-assets
+
+build-js: ui/package-lock.json
+	@cd ui && npm run-script build;
+
+web-assets: public/css/app.css public/js/app.js
+
+ui/package-lock.json: ui/package.json
+	@cd ui && npm install;
+	@touch ui/package.json ui/package-lock.json
+
+public/js/app.js: ui/bin/app.js
+	@cp ui/bin/app.js public/js/app.js
+
+public/css/app.css: ui/css/app.css
+	@cp ui/css/app.css public/css/app.css
+
+
+watch-js:
+	@cd ui && npm start
+
+watch-assets:
+	@find ui/css/app.css ui/bin/app.js | entr -r make web-assets
+
+watch-perl:
+	@find lib | entr -r -d -c make run-perl
+
+watch:
+	(make watch-js &)
+	(make watch-assets &)
+	make watch-perl
 
 deps: install-deps
 install-deps:
@@ -18,20 +49,3 @@ install-deps:
 generate-dbic:
 	@carton exec dbicdump schema.conf
 
-
-# Build Javascript UI
-JS_SRC := $(shell find ui/src -name '*.js')
-
-ui/node_modules:
-	@cd ui && npm install;
-
-public/js/app.js: $(JS_SRC) ui/node_modules
-	@cd ui && npm run-script build;
-	@cp ui/bin/app.js public/js/app.js;
-
-public/css/app.css: ui/css/app.css
-	cp ui/css/app.css public/css/app.css;
-
-
-watch:
-	find lib ui/src ui/css | entr -r -d -c make run

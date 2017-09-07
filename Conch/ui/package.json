@@ -10,11 +10,13 @@
         "ramda": "^0.24.1"
     },
     "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
         "webpack": "^3.4.1"
     },
     "scripts": {
         "start": "webpack src/index.js bin/app.js -d --watch",
-        "build": "webpack src/index.js bin/app.js"
+        "build": "webpack src/index.js bin/app.js -p"
     },
     "keywords": [],
     "author": "",
