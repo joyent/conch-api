@@ -11,4 +11,7 @@ module.exports = {
     deviceReporting :
         m("i.material-icons", { title : t("Device reporting to Conch") }, "cloud_upload"),
 
+    noReport :
+        m("i.material-icons", { title : t("No reports collected from device") }, "help_outline"),
+
 };
