@@ -233,17 +233,17 @@ ul li {
 }
 
 .status-device-list {
-    width: 150px;
+    width: 200px;
     margin: 0 auto;
 }
 
 .status-device-list-item {
     background:#eee;
-    border:1px solid #ccc;
+    border-bottom:1px solid #efe2e2;
     color:#333;
     display:block;
-    margin-top: 5px;
     height: 30px;
+    min-width: 8em;
     padding:8px 15px;
     text-decoration:none;
     line-height:30px;

@@ -49,32 +49,43 @@ module.exports = {
             Table(t("Summary of Device Status"),
                 [
                     "",
-                    t("Unknown"),
-                    t("Failing"),
-                    t("Passing"),
-                    t("Graduated")
+                    t("Active Devices"),
+                    t("Inactive Devices"),
+                    t("Total Devices"),
                 ],
                 [
-                    [ t("Active Devices (reported in the last 5 minutes)"),
+                    [
+                        t("Unknown"),
                       activeHealthCounts.UNKNOWN || 0,
-                      activeHealthCounts.FAIL || 0,
-                      activeHealthCounts.PASS || 0,
-                      activeGraduatedCount
-                    ],
-
-                    [ t("Inactive Devices"),
                       inactiveHealthCounts.UNKNOWN || 0,
-                      inactiveHealthCounts.FAIL || 0,
-                      inactiveHealthCounts.PASS || 0,
-                      inactiveGraduatedCount
+                      totalHealthCounts.UNKNOWN || 0,
                     ],
 
-                    [ t("Total Devices"),
-                      totalHealthCounts.UNKNOWN || 0,
+                    [
+                        t("Failing"),
+                      activeHealthCounts.FAIL || 0,
+                      inactiveHealthCounts.FAIL || 0,
                       totalHealthCounts.FAIL || 0,
-                      totalHealthCounts.PASS || 0,
-                      totalGraduatedCount
                     ],
+
+                    [
+                        t("Passing"),
+                      activeHealthCounts.PASS || 0,
+                      inactiveHealthCounts.PASS || 0,
+                      totalHealthCounts.PASS || 0,
+                    ],
+                    [
+                        t("Graduated"),
+                        activeGraduatedCount,
+                        inactiveGraduatedCount,
+                        totalGraduatedCount
+                    ],
+                    [
+                        m("b", t("Sum")),
+                        activeDevices.length,
+                        inactiveDevices.length,
+                        activeDevices.length + inactiveDevices.length
+                    ]
 
                 ]),
             deviceList(t("Unknown"), true, deviceHealthGroups.UNKNOWN),
