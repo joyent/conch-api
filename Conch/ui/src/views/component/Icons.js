@@ -14,4 +14,16 @@ module.exports = {
     noReport :
         m("i.material-icons", { title : t("No reports collected from device") }, "help_outline"),
 
+    findDeviceInRack :
+        m("i.material-icons.md-18", "dns"),
+
+    showRack :
+        m("i.material-icons.md-18", "dns"),
+
+    deviceProblems :
+        m("i.material-icons.md-18", "report_problem"),
+
+    deviceReport :
+        m("i.material-icons.md-18", "description"),
+
 };
