@@ -16,24 +16,34 @@ our @EXPORT = qw( register_relay list_relays connect_user_relay
 sub list_relays {
   my ($schema, $interval) = @_;
 
-  my @relays_rs;
+  my @relays;
   if ($interval) {
-    @relays_rs = $schema->resultset('Relay')->search({
-      updated => { '>' => \"NOW() - INTERVAL '$interval minutes'" }
+    @relays = $schema->resultset('Relay')->search({
+      updated => { '>' => \"NOW() - INTERVAL '$interval minutes'" },
+      deactivated => { '=', undef }
     })->all;
   } else {
-    @relays_rs = $schema->resultset('Relay')->search({})->all;
+    @relays = $schema->resultset('Relay')->search({
+      deactivated => { '=', undef }
+    })->all;
   }
 
-  my $relays = {};
+  my @res;
+  for my $relay (@relays) {
+    my @devices = $schema->resultset('RelayDevices')->
+      search({}, { bind => [$relay->id] })->all;
+    my $location = $schema->resultset('RelayLocation')->
+      search({}, { bind => [$relay->id] })->single;
 
-  foreach my $r (@relays_rs) {
-    my $serial = $r->id;
-    $relays->{ $serial }{ ssh_port } = $r->ssh_port;
-    $relays->{ $serial }{ version }  = $r->version;
+    my $relay_res = {$relay->get_columns};
+    @devices = map { {$_->get_columns} } @devices;
+
+    $relay_res->{devices} = \@devices;
+    $relay_res->{location} = $location ? {$location->get_columns} : undef;
+    push @res, $relay_res;
   }
+  return @res;
 
-  return $relays;
 }
 
 sub register_relay {

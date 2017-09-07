@@ -15,15 +15,15 @@ use Data::Printer;
 set serializer => 'JSON';
 
 # Returns all relay devices and their status.
-get '/relay' => needs admin => sub {
-  my $relays = list_relays(schema);
-  status_200($relays);
+get '/relay' => needs integrator => sub {
+  my @relays = list_relays(schema);
+  status_200(\@relays);
 };
 
 # Returns all active relay devices and their status.
-get '/relay/active' => needs admin => sub {
-  my $relays = list_relays(schema, 2);
-  status_200($relays);
+get '/relay/active' => needs integrator => sub {
+  my @relays = list_relays(schema, 2);
+  status_200(\@relays);
 };
 
 # This acts as both an initial registration and heartbeat endpoint.
