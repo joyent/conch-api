@@ -10,20 +10,22 @@ module.exports = {
         if (device) {
 
             let healthIcon;
-            if (device.health === 'PASS')
+            if (device.health === 'PASS') {
                 healthIcon = Icons.passValidation;
-            else if (device.health === 'FAIL')
+            }
+            else if (device.health === 'FAIL') {
                 healthIcon = Icons.failValidation;
-            else
+            }
+            else {
                 healthIcon = Icons.noReport;
+            }
 
             return m(".device-status",
-                [
                     healthIcon,
                     Device.isActive(device) ?
                     Icons.deviceReporting
-                    : null,
-                ]);
+                    : null
+                );
         }
         return m(".device-status");
     }

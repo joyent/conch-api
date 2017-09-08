@@ -23,7 +23,7 @@ module.exports = {
         if (state.loading)
             return m(".loading", t("Loading"));
         const relayInfo =
-            Table(Relay.current.id,
+            Table(Relay.current.alias,
                 [
                     t("IP Address"),
                     t("SSH Port Tunnel"),
@@ -47,10 +47,7 @@ module.exports = {
                 ],
                 [[
                     Relay.current.location.room_name,
-                    m("a", {
-                            href : "/rack/" + Relay.current.location.rack_id,
-                            oncreate : m.route.link
-                        },Relay.current.location.rack_name),
+                    Relay.current.location.rack_name,
                     Relay.current.location.role_name,
                     m("a.pure-button",
                         {
@@ -98,17 +95,18 @@ module.exports = {
                 ),
             ];
         };
+        // TODO: Fix the bug with the status icons and add it back to the table
         const deviceTable =
             Table(t("Connected Devices"),
                 [
-                    t("Status"),
+                    //t("Status"),
                     t("Device"),
                     t("Last Seen"),
                     t("Actions")
                 ],
-                Relay.current.devices.map(device => {
+                Relay.current.devices.slice(0,-1).map(device => {
                     return [
-                        m(DeviceStatus, { device : device }),
+                        //m(DeviceStatus, { device : device }),
                         device.id,
                         m("span.time",
                             { title: device.last_seen },
