@@ -3,6 +3,9 @@ var t = require("i18n4v");
 var R = require("ramda");
 
 var Device = require("../models/Device");
+var Relay  = require("../models/Relay");
+
+var Icons  = require("./component/Icons");
 var Table  = require("./component/Table");
 
 function deviceList(title, isProblem, devices) {
@@ -24,8 +27,15 @@ function deviceList(title, isProblem, devices) {
 }
 
 module.exports = {
-    oninit : Device.loadDevices,
-    view : function(vnode) {
+    loading : true,
+    oninit : ({state}) => {
+        Promise.all([Device.loadDevices(), Relay.loadActiveRelays()])
+            .then(() => state.loading = false);
+    },
+    view : function({state}) {
+        if (state.loading)
+            return m(".loading", "Loading...");
+
         var activeDevices   = R.filter(Device.isActive, Device.devices);
         var inactiveDevices = R.filter(R.compose(R.not, Device.isActive), Device.devices);
 
@@ -88,6 +98,36 @@ module.exports = {
                     ]
 
                 ]),
+            Table(t("Active Relays"),
+                [ t("Name"), t("Devices Connected"), t("Actions") ],
+                Relay.activeList.map( relay => {
+                    return [
+                        relay.alias,
+                        R.filter(Device.isActive, relay.devices).length,
+                        [
+                            m("a.pure-button",
+                                {
+                                    href : `/relay/${relay.id}`,
+                                    oncreate : m.route.link,
+                                    title : t("Show Relay Details")
+                                },
+                                Icons.showRelay
+                            ),
+                            relay.location ? m("a.pure-button",
+                                {
+                                    href : `/rack/${relay.location.rack_id}`,
+                                    oncreate : m.route.link,
+                                    title : t("Show Connected Rack")
+                                },
+                                Icons.showRack
+                            )
+                            : null,
+                        ]
+                    ];
+                })
+            ),
+            m(".pure-u-1", m("hr")),
+            m(".pure-u-1", m("h2.text-center", t("Device Status"))),
             deviceList(t("Unknown"), true, deviceHealthGroups.UNKNOWN),
             deviceList(t("Failing"), true, deviceHealthGroups.FAIL),
             deviceList(t("Passing"), false, deviceHealthGroups.PASS)

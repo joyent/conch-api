@@ -26,6 +26,9 @@ module.exports = {
     deviceReport :
         m("i.material-icons.md-18", "description"),
 
+    showRelay :
+        m("i.material-icons.md-18", "router"),
+
     relayActive :
         m("i.material-icons", "router")
 
