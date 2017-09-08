@@ -20,8 +20,11 @@ function categoryTitle(category) {
 }
 
 var selectProblemDevice = {
-    oninit: Problem.loadDeviceProblems,
-    view: function(vnode) {
+    loading : true,
+    oninit: ({state}) => Problem.loadDeviceProblems().then(() => state.loading = false),
+    view: ({state}) => {
+        if (state.loading)
+            return m(".loading", "Loading...");
         return Object.keys(Problem.devices).map(function(category) {
             var devices = Problem.devices[category];
             return [
