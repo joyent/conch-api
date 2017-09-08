@@ -66,6 +66,15 @@ var rackLayout = {
         Rack.highlightDevice = vnode.attrs.device;
     },
     view: function() {
+        const activeRelay  =
+            Relay.activeList.find( relay => relay.location.rack_id === Rack.current.id);
+        const relayActive =
+            activeRelay ?
+                m(".pure-u-1", m(".rack-relay-active",
+                    m("a.pure-button", {href : `/relay/${relay.id}`, oncreate: m.route.link },
+                        Icons.relayActive, t("Relay Active in Rack"))
+                    ))
+              : null;
         return [
             Rack.assignSuccess ?
                 m(".notification.notification-success",
@@ -82,6 +91,7 @@ var rackLayout = {
                         Rack.current.datacenter, Rack.current.name, Rack.current.role
                     ]])
                 ),
+                relayActive,
                 m(".pure-u-1", m(rackLayoutTable)),
                 m(".rack-layout-footer",
                     m("button.pure-button.pure-button-primary[type=submit]", t("Assign Devices"))
