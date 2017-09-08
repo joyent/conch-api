@@ -32,6 +32,9 @@ module.exports = {
     relayActive :
         m("i.material-icons", "router"),
 
+    warning :
+        m("i.material-icons", "warning"),
+
     nav:  {
         status :
             m("i.material-icons", "assessment"),

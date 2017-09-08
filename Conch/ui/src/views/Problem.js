@@ -22,20 +22,26 @@ function categoryTitle(category) {
 var selectProblemDevice = {
     loading : true,
     oninit: ({state}) => Problem.loadDeviceProblems().then(() => state.loading = false),
-    view: ({state}) => {
+    view: ({state, attrs}) => {
         if (state.loading)
             return m(".loading", "Loading...");
+
         return Object.keys(Problem.devices).map(function(category) {
             var devices = Problem.devices[category];
             return [
                 m("h4.selection-list-header", categoryTitle(category)),
                 m(".selection-list-group", Object.keys(devices).map(
                     function(deviceId) {
+
+                        // Assign the current device if it matches the URL parameter
+                        if (attrs.id && attrs.id === deviceId)
+                            Problem.current = devices[deviceId];
+
                         return m("a.selection-list-item",
                             {
                                 href: "/problem/" + deviceId,
                                 onclick: function() {
-                                    Problem.selected = devices[deviceId];
+                                    Problem.current = devices[deviceId];
                                 },
                                 oncreate: m.route.link
                             },
@@ -56,13 +62,11 @@ var makeSelection = {
 
 var showDevice = {
     oninit: function(vnode) {
-        Problem.selectDevice(vnode.attrs.id);
     },
     view: function(vnode) {
-        if (!Problem.selected) {
-            return m(".pure-u", t("Loading") + "...");
-        }
-        var reportTable = Problem.selected.problems ?
+        if (!Problem.current)
+            return m(".make-selection", t("Select Device"));
+        var reportTable = Problem.current.problems ?
             Table(t("Validation Failures"),
             [
                 t("Component Type"),
@@ -70,7 +74,7 @@ var showDevice = {
                 t("Condition"),
                 t("Log"),
             ],
-                Problem.selected.problems.map(function(problem){
+                Problem.current.problems.map(function(problem){
                     return [
                         problem.component_type,
                         problem.component_name,
@@ -79,10 +83,10 @@ var showDevice = {
                     ];
                 })
             )
-            : Problem.selected.report_id ?
+            : Problem.current.report_id ?
                 null
                 : m("h2.text-center", t("Device has not sent a report"));
-        var reportButton = Problem.selected.report_id ?
+        var reportButton = Problem.current.report_id ?
                 m("a.pure-button",
                     {
                         href: "/device/" + vnode.attrs.id,
@@ -92,7 +96,7 @@ var showDevice = {
                 )
                 : null;
 
-        var deviceLocation = Problem.selected.location ?
+        var deviceLocation = Problem.current.location ?
             Table(t("Device Location"),
             [
                 t("Datacenter"),
@@ -100,16 +104,16 @@ var showDevice = {
                 t("Role"),
                 t("Unit"),
             ], [[
-                Problem.selected.location.datacenter.name,
-                Problem.selected.location.rack.name,
-                Problem.selected.location.rack.role,
-                Problem.selected.location.rack.unit,
+                Problem.current.location.datacenter.name,
+                Problem.current.location.rack.name,
+                Problem.current.location.rack.role,
+                Problem.current.location.rack.unit,
             ]])
             : m("h2.text-center", t("Device has not been assigned a location"));
-        var locationButton = Problem.selected.location ?
+        var locationButton = Problem.current.location ?
                 m("a.pure-button",
                     {
-                        href: "/rack/" + Problem.selected.location.rack.id +
+                        href: "/rack/" + Problem.current.location.rack.id +
                         "?device=" + vnode.attrs.id,
                         oncreate: m.route.link
                     },

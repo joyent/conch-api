@@ -66,7 +66,7 @@ m.route(document.body, "/", {
     "/problem/:id": {
         render: function(vnode) {
             return m(Layout.threePane, { active : 2, title: "Problem"  },
-                m(Problem.selectProblemDevice),
+                m(Problem.selectProblemDevice, vnode.attrs),
                 m(Problem.showDevice, vnode.attrs)
             );
         }
