@@ -310,10 +310,15 @@ ul li {
         left: 150px
     }
 
+
+}
+
+@media (min-width:681px) {
     .pure-table td, .pure-table th {
         text-align: center;
+        border-width: 0 0 1px;
+        border-bottom: 0;
     }
-
 }
 
 
@@ -321,6 +326,10 @@ ul li {
 
     table {
       border: 0;
+    }
+
+    .pure-table td {
+      border-bottom: 1px solid #cbcbcb
     }
 
     table thead {
