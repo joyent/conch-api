@@ -1,5 +1,6 @@
 var m = require("mithril");
 var t = require('i18n4v');
+var moment = require('moment');
 
 var Device      = require("./views/Device");
 var Layout      = require("./views/Layout");
@@ -18,6 +19,7 @@ const languages = {
 };
 
 t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
+    moment.locale(lang.slice(0,2));
     t.translator.add(languages[lang] ? languages[lang] : languages.en);
 });
 
