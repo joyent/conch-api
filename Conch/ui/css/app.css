@@ -210,6 +210,12 @@ ul li {
     min-width: 60px;
 }
 
+.rack-relay-active {
+    width: 90%;
+    margin: 0 auto;
+    text-align: right;
+}
+
 .modal {
     content: "";
     display: none;
