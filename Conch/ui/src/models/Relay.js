@@ -38,7 +38,7 @@ const Relay = {
             url: "/relay/active",
             withCredentials: true
         }).then(function(res) {
-            Relay.activeList = res(byAlias);
+            Relay.activeList = res.sort(byAlias);
         }).catch(function(e) {
             if (e.error === "unauthorized") {
                 m.route.set("/login");
