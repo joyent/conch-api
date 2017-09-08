@@ -5,7 +5,7 @@ var m = require('mithril');
  * used to collapse the table for smaller screens. The number of elements in
  * the header much match the number of elements in each list of the rows. */
 function table(caption, header, rows) {
-    return m(".pure-u-1", m("table.pure-table.pure-table-horizontal.pure-table-striped", [
+    return m(".pure-u-1", m("table.pure-table.pure-table-striped", [
         m("caption", caption),
         m("thead",
             m("tr", header.map(function(h) { return m("th", h); }))
