@@ -1,7 +1,9 @@
 var m = require("mithril");
 var t = require("i18n4v");
 
+var Device   = require("../models/Device");
 var Rack     = require("../models/Rack");
+var Relay    = require("../models/Relay");
 var Feedback = require("../models/Feedback");
 
 var DeviceStatus = require("./component/DeviceStatus");
@@ -9,8 +11,17 @@ var Icons        = require("./component/Icons");
 var Table        = require("./component/Table");
 
 var allRacks = {
-    oninit: Rack.loadRooms,
-    view: function(vnode) {
+    loading : true,
+    oninit : ({state}) => {
+        Promise.all([
+            Rack.loadRooms(),
+            Relay.loadActiveRelays()
+        ]
+        ).then(() => state.loading = false);
+    },
+    view : ({state}) => {
+        if (state.loading)
+            return m(".loading", "Loading...");
         return Object.keys(Rack.rackRooms).map(
             function(roomName) {
                 return [
@@ -136,21 +147,46 @@ var rackLayoutTable = {
                 title: t("Notify administrators about device")
             }, m("i.material-icons.md-18", "flag"));
         }
+        // TODO: Replace this with DeviceStatus after figuring out why it causes icons to duplicate
+        var statusIndicators = {
+            view : function(vnode) {
+                var occupant = vnode.attrs.occupant;
+                if (occupant) {
+                    var healthIcon;
+                    if (occupant.health === 'PASS')
+                        healthIcon = Icons.passValidation;
+                    else if (occupant.health === 'FAIL')
+                        healthIcon = Icons.failValidation;
+                    else
+                        healthIcon = Icons.noReport;
+                    return m(".rack-status",
+                        [
+                            healthIcon,
+                            Device.isActive(occupant) ?
+                            Icons.deviceReporting
+                            : null,
+                        ]);
+                }
+                return m(".rack-status");
+            }
+        };
+
+
         return Table(t("Rack Layout"),
-        [
-            t("Status"),
-            t("Slot Number"),
-            t("Name"),
-            t("Vendor"),
-            t("RU Height"),
-            t("Device"),
-            t("Report"),
-            t("Actions"),
-        ],
+            [
+                t("Status"),
+                t("Slot Number"),
+                t("Name"),
+                t("Vendor"),
+                t("RU Height"),
+                t("Device"),
+                t("Report"),
+                t("Actions"),
+            ],
             Object.keys(Rack.current.slots || {}).reverse().map(function(slotId) {
                 var slot = Rack.current.slots[slotId];
                 return [
-                    m(DeviceStatus, {device : slot.occupant }),
+                    m(statusIndicators, {occupant : slot.occupant }),
                     slotId,
                     slot.name,
                     slot.vendor,
