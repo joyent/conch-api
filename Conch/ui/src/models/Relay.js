@@ -1,5 +1,15 @@
 import m from "mithril";
 
+function byAlias(a,b) {
+    if (a.alias < b.alias) {
+        return -1;
+    }
+    if (a.alias > b.alias) {
+        return 1;
+    }
+    return 0;
+}
+
 const Relay = {
     list : [],
     activeList : [],
@@ -12,7 +22,7 @@ const Relay = {
             url: "/relay",
             withCredentials: true
         }).then(function(res) {
-            Relay.list = res;
+            Relay.list = res.sort(byAlias);
         }).catch(function(e) {
             if (e.error === "unauthorized") {
                 m.route.set("/login");
@@ -28,7 +38,7 @@ const Relay = {
             url: "/relay/active",
             withCredentials: true
         }).then(function(res) {
-            Relay.activeList = res;
+            Relay.activeList = res(byAlias);
         }).catch(function(e) {
             if (e.error === "unauthorized") {
                 m.route.set("/login");

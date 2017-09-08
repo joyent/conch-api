@@ -67,7 +67,9 @@ var rackLayout = {
     },
     view: function() {
         const activeRelay  =
-            Relay.activeList.find( relay => relay.location.rack_id === Rack.current.id);
+            Relay.activeList.find( relay => {
+                return relay.location && relay.location.rack_id === Rack.current.id;
+            });
         const relayActive =
             activeRelay ?
                 m(".pure-u-1", m(".rack-relay-active",
