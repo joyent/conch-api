@@ -73,7 +73,7 @@ var rackLayout = {
         const relayActive =
             activeRelay ?
                 m(".pure-u-1", m(".rack-relay-active",
-                    m("a.pure-button", {href : `/relay/${relay.id}`, oncreate: m.route.link },
+                    m("a.pure-button", {href : `/relay/${activeRelay.id}`, oncreate: m.route.link },
                         Icons.relayActive, t("Relay Active in Rack"))
                     ))
               : null;
