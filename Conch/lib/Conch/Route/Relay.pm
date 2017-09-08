@@ -16,13 +16,15 @@ set serializer => 'JSON';
 
 # Returns all relay devices and their status.
 get '/relay' => needs integrator => sub {
-  my @relays = list_relays(schema);
+  my $user_name = session->read('integrator');
+  my @relays = list_user_relays(schema, $user_name);
   status_200(\@relays);
 };
 
 # Returns all active relay devices and their status.
 get '/relay/active' => needs integrator => sub {
-  my @relays = list_relays(schema, 2);
+  my $user_name = session->read('integrator');
+  my @relays = list_user_relays(schema, $user_name, 2);
   status_200(\@relays);
 };
 

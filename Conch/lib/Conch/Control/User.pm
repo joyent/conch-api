@@ -7,13 +7,20 @@ use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Passphrase;
 
 use Exporter 'import';
-our @EXPORT = qw( lookup_user_by_name authenticate create_integrator_user create_admin_passphrase );
+our @EXPORT = qw( lookup_user_by_name user_id_by_name authenticate create_integrator_user create_admin_passphrase );
 
 sub lookup_user_by_name {
   my ($schema, $name) = @_;
-  return $schema->resultset('UserAccount')->search({
+  return $schema->resultset('UserAccount')->find({
     name => $name
-  })->single;
+  });
+};
+
+sub user_id_by_name {
+  my ($schema, $name) = @_;
+  return $schema->resultset('UserAccount')->find(
+    { name => $name }, { columns => 'id' }
+  )->id;
 };
 
 sub authenticate {

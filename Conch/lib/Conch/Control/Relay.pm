@@ -9,21 +9,31 @@ use Conch::Control::User;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( register_relay list_relays connect_user_relay
+our @EXPORT = qw( register_relay list_user_relays connect_user_relay
                   device_relay_connect
                 );
 
-sub list_relays {
-  my ($schema, $interval) = @_;
+sub list_user_relays {
+  my ($schema, $user_name, $interval) = @_;
+
+  my $user_id = user_id_by_name($schema, $user_name);
+  my $user_relays = $schema->resultset('UserRelayConnection')->search(
+      { user_id => $user_id,
+        last_seen => { '>' =>  \"NOW() - INTERVAL '1 week'" }
+      }
+    );
 
   my @relays;
   if ($interval) {
     @relays = $schema->resultset('Relay')->search({
+      id => { -in => $user_relays->get_column('relay_id')->as_query },
       updated => { '>' => \"NOW() - INTERVAL '$interval minutes'" },
       deactivated => { '=', undef }
     })->all;
-  } else {
+  }
+  else {
     @relays = $schema->resultset('Relay')->search({
+      id => { -in => $user_relays->get_column('relay_id')->as_query },
       deactivated => { '=', undef }
     })->all;
   }
@@ -71,7 +81,7 @@ sub register_relay {
 # Associate relay with a user
 sub connect_user_relay {
   my ($schema, $user_name, $relay_id) = @_;
-  my $user_id = lookup_user_by_name($schema, $user_name)->id;
+  my $user_id = user_id_by_name($schema, $user_name);
 
   # 'first_seen' column will only be written on create. It should remain
   # untouched on updates
