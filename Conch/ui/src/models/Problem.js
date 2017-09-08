@@ -10,6 +10,7 @@ function sortObject(obj) {
 
 var Problem = {
     devices: {},
+    current: null,
     loadDeviceProblems: function() {
         return m.request({
             method: "GET",
@@ -36,17 +37,6 @@ var Problem = {
             return Problem.devices[group][deviceId];
         });
     },
-    selected: null,
-    selectDevice: function (deviceId) {
-        return Problem.loadDeviceProblems()
-            .then(function() {
-                Object.keys(Problem.devices).forEach(function(group) {
-                    if (Problem.devices[group][deviceId]) {
-                        Problem.selected = Problem.devices[group][deviceId];
-                    }
-                });
-            });
-    }
 };
 
 

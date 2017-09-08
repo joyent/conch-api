@@ -22,8 +22,6 @@ const Relay = {
     list : [],
     activeList : [],
     current : null,
-    loadCurrentRelay : () => {
-    },
     loadRelays : () => {
         return m.request({
             method: "GET",

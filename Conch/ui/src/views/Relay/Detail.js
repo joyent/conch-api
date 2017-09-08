@@ -11,13 +11,7 @@ const Icons = require('../component/Icons');
 
 module.exports = {
     loading : false,
-    oninit : () => {
-        Relay.loadCurrentRelay();
-    },
-
     view : ({state}) => {
-        if (state.loading)
-            return m(".loading", "Loading...");
         if (!Relay.current)
             return m(".make-selection", t("select a relay"));
         if (state.loading)

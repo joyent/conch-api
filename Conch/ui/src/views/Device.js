@@ -190,7 +190,7 @@ var deviceReport = {
                     return 0;
                 }).map(function(v) {
                     return [
-                        v.status ? "" : "X",
+                        v.status ? "" : Icons.warning,
                         v.component_type,
                         v.component_name,
                         v.metric,
