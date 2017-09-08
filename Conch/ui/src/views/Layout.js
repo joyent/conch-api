@@ -4,36 +4,43 @@ var t = require('i18n4v');
 var Auth = require("../models/Auth");
 var FeedbackForm = require("../views/Feedback");
 
+var Icons = require("./component/Icons");
+
 function mainNav(isMobileView) {
         return m(".pure-u-1.pure-menu.nav",
             { class: isMobileView ? "mobile-is-active" : "" },
 
             m("ul.pure-menu-list",[
-                m(".pure-menu-heading.nav-text-color", m("h2", t("Conch"))),
+                m(".pure-menu-heading.text-center.nav-text-color", m("h2", t("Conch"))),
 
                 m("li.pure-menu-item",
                     m("a[href='/status'].pure-menu-link.nav-link.nav-text-color",
-                        {oncreate: m.route.link}, t("Status"))
+                        {oncreate: m.route.link}, [ Icons.nav.status, t("Status") ])
                 ),
 
                 m("li.pure-menu-item",
                     m("a[href='/rack'].pure-menu-link.nav-link.nav-text-color",
-                        {oncreate: m.route.link}, t("Racks"))
+                        {oncreate: m.route.link}, [ Icons.nav.racks, t("Racks") ])
                 ),
 
                 m("li.pure-menu-item",
                     m("a[href='/problem'].pure-menu-link.nav-link.nav-text-color",
-                        {oncreate: m.route.link}, t("Problems"))
+                        {oncreate: m.route.link}, [ Icons.nav.problems, t("Problems") ])
                 ),
 
                 m("li.pure-menu-item",
                     m("a[href='/device'].pure-menu-link.nav-link.nav-text-color",
-                        {oncreate: m.route.link}, t("Devices"))
+                        {oncreate: m.route.link}, [ Icons.nav.devices , t("Devices")] )
                 ),
 
                 m("li.pure-menu-item",
                     m("a[href='/relay'].pure-menu-link.nav-link.nav-text-color",
-                        {oncreate: m.route.link}, t("Relays"))
+                        {oncreate: m.route.link}, [ Icons.nav.relays, t("Relays") ] )
+                ),
+
+                m("li.pure-menu-item",
+                    m("a[href='#feedback-modal'].pure-menu-link.nav-link",
+                        [ Icons.nav.feedback, t("Feedback") ])
                 ),
 
                 m("li.pure-menu-item",
@@ -43,12 +50,8 @@ function mainNav(isMobileView) {
                             onclick: function () {
                                 Auth.logout();
                             }
-                        }, t("Logout"))
+                        }, [ Icons.nav.logout, t("Logout") ])
                 ),
-                m("li.pure-menu-item",
-                    m("a[href='#feedback-modal'].pure-menu-link.nav-link", t("Send Feedback"))
-                ),
-
             ])
         );
 }

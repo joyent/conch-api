@@ -28,8 +28,7 @@ ul li {
     left: 0;
     right: 0;
     height: 100vh;
-    background: #011119;
-    text-align: center;
+    background: hsl(200, 92%, 5%);
 }
 
 .nav.mobile-is-active {
@@ -42,6 +41,12 @@ ul li {
 
 .nav-link {
     padding: 20px;
+}
+
+.nav-link i.material-icons {
+    margin-right: 10px;
+    vertical-align: sub;
+    color: hsl(200, 80%, 40%);
 }
 
 .nav-link:active {

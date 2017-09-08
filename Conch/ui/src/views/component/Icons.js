@@ -30,6 +30,23 @@ module.exports = {
         m("i.material-icons.md-18", "router"),
 
     relayActive :
-        m("i.material-icons", "router")
+        m("i.material-icons", "router"),
+
+    nav:  {
+        status :
+            m("i.material-icons", "assessment"),
+        racks :
+            m("i.material-icons", "dns"),
+        problems :
+            m("i.material-icons", "report_problem"),
+        devices :
+            m("i.material-icons", "description"),
+        relays :
+            m("i.material-icons", "router"),
+        logout :
+            m("i.material-icons", "exit_to_app"),
+        feedback :
+            m("i.material-icons", "message"),
+    }
 
 };
