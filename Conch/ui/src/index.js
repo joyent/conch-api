@@ -19,7 +19,7 @@ const languages = {
 };
 
 t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
-    moment.locale(lang.slice(0,2));
+    moment.locale(lang ? lang.slice(0,2) : 'en');
     t.translator.add(languages[lang] ? languages[lang] : languages.en);
 });
 
