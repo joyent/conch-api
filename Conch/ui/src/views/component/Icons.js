@@ -35,7 +35,7 @@ module.exports = {
     warning :
         m("i.material-icons", "warning"),
 
-    nav:  {
+    nav : {
         status :
             m("i.material-icons", "assessment"),
         racks :
@@ -50,6 +50,11 @@ module.exports = {
             m("i.material-icons", "exit_to_app"),
         feedback :
             m("i.material-icons", "message"),
+    },
+
+    ui : {
+        close :
+            m("i.material-icons", "close"),
     }
 
 };
