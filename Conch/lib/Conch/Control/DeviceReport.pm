@@ -1,6 +1,7 @@
 package Conch::Control::DeviceReport;
 
 use strict;
+use Storable 'dclone';
 use Log::Report;
 use Conch::Data::DeviceReport;
 use Conch::Control::Device::Environment;
@@ -15,10 +16,12 @@ our @EXPORT = qw( parse_device_report record_device_report );
 
 # Parse a DeviceReport object from a HashRef and report all validation errors
 sub parse_device_report {
-  my $dr;
+  my $report = shift;
+  $report->{raw} = dclone($report);
 
+  my $dr;
   eval {
-    $dr = Conch::Data::DeviceReport->new(shift);
+    $dr = Conch::Data::DeviceReport->new($report);
   };
   if ($@) {
     my $errs = join("; ", map { $_->message } $@->errors);
