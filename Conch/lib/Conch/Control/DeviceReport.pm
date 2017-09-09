@@ -17,17 +17,24 @@ our @EXPORT = qw( parse_device_report record_device_report );
 # Parse a DeviceReport object from a HashRef and report all validation errors
 sub parse_device_report {
   my $report = shift;
-  $report->{raw} = dclone($report);
+  my $aux_report = dclone($report);
 
   my $dr;
   eval {
     $dr = Conch::Data::DeviceReport->new($report);
   };
+
   if ($@) {
     my $errs = join("; ", map { $_->message } $@->errors);
     error "Error validating device report: $errs";
   }
   else {
+    for my $attr (keys %{ $dr->pack() }) {
+      delete $aux_report->{$attr};
+    }
+    if ( %{ $aux_report }) {
+      $dr->{aux} = $aux_report;
+    }
     return $dr;
   }
 }

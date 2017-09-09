@@ -83,9 +83,10 @@ has 'uptime_since' => (
   isa => 'Str'
 );
 
-has 'raw' => (
-  required => 1,
-  is => 'ro',
+# Store auxillary data in the report. This is data that might be used later.
+has 'aux' => (
+  required => 0,
+  is => 'rw',
   isa => 'HashRef[Any]'
 );
 
