@@ -12,6 +12,10 @@ body {
     text-align: center;
 }
 
+.pointer {
+    cursor : pointer;
+}
+
 .log-text {
     white-space: pre-wrap;
     font: normal 14px monospace;
@@ -79,12 +83,18 @@ ul li {
 }
 
 .feedback-form {
-    margin: 10% auto;
+    margin: 7% auto;
     width: 90%;
 }
 
 .feedback-form textarea {
     height: 200px;
+}
+
+.feedback-form-close {
+    cursor : pointer;
+    position : absolute;
+    top: 35px;
 }
 
 .mobile-nav {
@@ -223,15 +233,10 @@ ul li {
 
 .modal {
     content: "";
-    display: none;
     background: rgba(0,0,0,.6);
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: 10;
-}
-
-.modal:target {
-    display: block;
 }
 
 .modal-dialog {

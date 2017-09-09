@@ -1,11 +1,18 @@
 var m = require('mithril');
 var t = require('i18n4v');
+
 var Feedback = require('../models/Feedback');
+
+const Icons = require('./component/Icons');
 
 
 var feedbackForm = {
-    view: function() {
+    view: function({attrs}) {
         return m(".feedback-form",
+            m("a.feedback-form-close",
+                { onclick : () => attrs.showFeedback = false },
+                Icons.ui.close
+            ),
             feedbackForm.submitted ?
                   m(".text-center", t("Feedback submitted"))
                 : m("form.pure-form", [

@@ -6,7 +6,7 @@ var FeedbackForm = require("../views/Feedback");
 
 var Icons = require("./component/Icons");
 
-function mainNav(isMobileView) {
+function mainNav(isMobileView, state) {
         return m(".pure-u-1.pure-menu.nav",
             { class: isMobileView ? "mobile-is-active" : "" },
 
@@ -39,7 +39,8 @@ function mainNav(isMobileView) {
                 ),
 
                 m("li.pure-menu-item",
-                    m("a[href='#feedback-modal'].pure-menu-link.nav-link",
+                    m("a.pure-menu-link.nav-link.pointer",
+                        { onclick : () => state.showFeedback = true },
                         [ Icons.nav.feedback, t("Feedback") ])
                 ),
 
@@ -77,12 +78,13 @@ var mobileNav = {
 
 // Three-pane layout with two children. Additional children will not be rendered.
 var threePane = {
+    showFeedback : false,
     view: function(vnode) {
         return [
             m(".layout", [
                 m(".pure-g",
                     [
-                        mainNav(vnode.attrs.active === 0),
+                        mainNav(vnode.attrs.active === 0, vnode.state),
                         vnode.attrs.active > 0 ?
                             m(mobileNav, { title: vnode.attrs.title }) : null,
                         m(".selection-list.pure-u-1",
@@ -93,19 +95,22 @@ var threePane = {
                             vnode.children[1])
                     ]),
             ]),
-            m("#feedback-modal.modal", m(".modal-dialog", m(FeedbackForm)))
+            vnode.state.showFeedback ?
+                m(".modal", m(".modal-dialog", m(FeedbackForm, vnode.state) ))
+              : null
         ];
     }
 };
 
 // Two-pane layout with one child. Additional children will not be rendered.
 var twoPane = {
+    showFeedback : false,
     view: function(vnode) {
         return [
             m(".layout", [
                 m(".pure-g",
                     [
-                        mainNav(vnode.attrs.active === 0),
+                        mainNav(vnode.attrs.active === 0, vnode.state),
                         vnode.attrs.active > 0 ?
                             m(mobileNav, { title: vnode.attrs.title }) : null,
                         m(".content-pane.two-pane.pure-u-1",
@@ -113,7 +118,9 @@ var twoPane = {
                             vnode.children[0])
                     ]),
             ]),
-            m("#feedback-modal.modal", m(".modal-dialog", m(FeedbackForm)))
+            vnode.state.showFeedback ?
+                m(".modal", m(".modal-dialog", m(FeedbackForm, vnode.state) ))
+              : null
         ];
     }
 };
