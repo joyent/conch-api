@@ -97,8 +97,7 @@ sub record_device_report {
       });
 
 
-      my %interfaces = %{$dr->{interfaces}};
-      my $nics_num = keys %interfaces;
+      my $nics_num = keys %{$dr->{interfaces}};
 
       my $device_specs = $schema->resultset('DeviceSpec')->update_or_create({
         device_id       => $device_id,
