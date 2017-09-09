@@ -83,4 +83,10 @@ has 'uptime_since' => (
   isa => 'Str'
 );
 
+has 'raw' => (
+  required => 1,
+  is => 'ro',
+  isa => 'HashRef[Any]'
+);
+
 __PACKAGE__->meta->make_immutable;
