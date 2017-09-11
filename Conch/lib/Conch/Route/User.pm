@@ -8,8 +8,11 @@ use Dancer2::Plugin::LogReport;
 use Dancer2::Plugin::Passphrase;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
+
 use Conch::Control::User;
+use Conch::Control::User::Setting;
 use Conch::Control::Datacenter;
+
 use Data::Printer;
 set serializer => 'JSON';
 
@@ -56,6 +59,95 @@ post '/user' => needs admin => sub {
   }
 
 };
+
+post '/user/me/settings' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $settings  = body_parameters->as_hashref;
+
+  return status_400("No settings specified or invalid JSON given")
+    unless $settings;
+
+  my $user = lookup_user_by_name(schema, $user_name);
+  my $status =
+    set_user_settings(schema, $user, $settings);
+
+  if ($status) {
+    return status_200({ status => "updated settings for user"});
+  } else {
+    return status_500({error => "error occured determining settings for user"});
+  }
+};
+
+get '/user/me/settings' => needs integrator => sub {
+  my $user_name = session->read('integrator');
+  my $keys_only = param 'keys_only';
+
+  my $user = lookup_user_by_name(schema, $user_name);
+  my $settings = get_user_settings(schema, $user);
+
+  if ($settings) {
+    return $keys_only
+      ? status_200([keys %{$settings}])
+      : status_200($settings);
+  } else {
+    return status_500({error => "error occured determining settings for user"});
+  }
+};
+
+post '/user/me/settings/:key' => needs integrator => sub {
+  my $setting_key = param 'key';
+  my $user_name   = session->read('integrator');
+  my $setting     = body_parameters->as_hashref;
+
+  my $setting_value = $setting->{$setting_key};
+
+  return status_400("Setting key in request body must match name in the URL ('$setting_key')")
+    unless $setting_value;
+
+  my $user = lookup_user_by_name(schema, $user_name);
+  my $status =
+    process sub {set_user_setting(schema, $user, $setting_key, $setting_value)};
+
+  if ($status) {
+    return status_200({ status => "updated setting '$setting_key' for user"});
+  } else {
+    return status_500({error => "error occured determining setting for user"});
+  }
+};
+
+get '/user/me/settings/:key' => needs integrator => sub {
+  my $setting_key = param 'key';
+  my $user_name   = session->read('integrator');
+
+  my $user = lookup_user_by_name(schema, $user_name);
+  my $setting = get_user_setting(schema, $user, $setting_key);
+
+  if ($setting) {
+    return status_200($setting);
+  } else {
+    return status_404(
+      {error => "No such setting '$setting_key'"}
+    );
+  }
+};
+
+
+del '/user/me/settings/:key' => needs integrator => sub {
+  my $setting_key = param 'key';
+  my $user_name   = session->read('integrator');
+
+  my $user = lookup_user_by_name(schema, $user_name);
+  my $deleted = delete_user_setting(schema, $user, $setting_key);
+
+  if ($deleted)  {
+    return status_200({"status" => "deleted setting '$setting_key' for user"});
+  }
+  else {
+    return status_404("setting '$setting_key' does not exist");
+  }
+
+};
+
 
 
 post '/login' => sub {
