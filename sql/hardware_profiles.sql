@@ -1,8 +1,8 @@
 INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_num, cpu_type, 
             dimms_num, ram_total, nics_num, psu_total, rack_unit )
-       VALUES ( ( SELECT id FROM hardware_product WHERE name = 'F10-S4048' ),
-            'TOR switch', '9.10(0.1P18)', 2, 'ASIC',
-            2, 2048, 48, 2, 2
+       VALUES ( ( SELECT id FROM hardware_product WHERE name = 'S4048-ON' ),
+            'TOR switch', '9.10(0.1P18)', 1, 'Intel Rangeley',
+            1, 3, 48, 2, 1
        );
 
 INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_num, cpu_type,
