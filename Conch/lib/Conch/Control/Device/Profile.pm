@@ -7,14 +7,13 @@ use experimental 'smartmatch';
 use List::Compare;
 use Log::Report;
 use Log::Report::DBIC::Profiler;
-use Dancer2::Plugin::Passphrase;
 
 use Data::Printer;
 
 use Exporter 'import';
 our @EXPORT =
   qw( determine_product set_device_settings set_device_setting
-      get_device_settings get_device_setting );
+      get_device_settings get_device_setting delete_device_setting );
 
 
 sub set_device_settings {
@@ -106,6 +105,18 @@ sub get_device_setting {
       name        => $setting_key,
       deactivated => undef
     });
+}
+
+sub delete_device_setting {
+  my ($schema, $device, $setting_key) = @_;
+
+  my $setting = $device->device_settings->find({
+      name        => $setting_key,
+      deactivated => undef
+    });
+  return 0 unless $setting;
+  $setting->update({ deactivated => \'NOW()' });
+  1;
 }
 
 # XXX We should use 'hardware_product_profile' to determine the these details

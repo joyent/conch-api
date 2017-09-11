@@ -264,6 +264,24 @@ post '/device/:serial/settings/:key' => needs integrator => sub {
   }
 };
 
+del '/device/:serial/settings/:key' => needs integrator => sub {
+  my $serial      = param 'serial';
+  my $setting_key = param 'key';
+  my $user_name   = session->read('integrator');
+
+  my $device = lookup_device_for_user(schema, $serial, $user_name);
+  return status_404("Device $serial not found") unless $device;
+  my $setting = delete_device_setting(schema, $device, $setting_key);
+
+  if ($setting) {
+    return status_200({ status => "Deleted setting '$setting_key' for Device $serial" });
+  } else {
+    return status_404(
+      {error => "No such setting '$setting_key' for Device $serial"}
+    );
+  }
+};
+
 get '/device/:serial/settings/:key' => needs integrator => sub {
   my $serial      = param 'serial';
   my $setting_key = param 'key';

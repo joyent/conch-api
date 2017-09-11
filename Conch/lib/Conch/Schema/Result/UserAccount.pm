@@ -149,6 +149,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 user_settings
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::UserSetting>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_settings",
+  "Conch::Schema::Result::UserSetting",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 datacenter_rooms
 
 Type: many_to_many
@@ -164,8 +179,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-10 14:16:20
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QPivmiOa+6p4LT79J4uwjQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-09-11 11:25:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wg2BBFITU7diyHNStOYVRQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

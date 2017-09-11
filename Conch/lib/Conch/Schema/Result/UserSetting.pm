@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Schema::Result::DeviceSetting;
+package Conch::Schema::Result::UserSetting;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Schema::Result::DeviceSetting
+Conch::Schema::Result::UserSetting
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
-=head1 TABLE: C<device_settings>
+=head1 TABLE: C<user_settings>
 
 =cut
 
-__PACKAGE__->table("device_settings");
+__PACKAGE__->table("user_settings");
 
 =head1 ACCESSORS
 
@@ -44,32 +44,24 @@ __PACKAGE__->table("device_settings");
   is_nullable: 0
   size: 16
 
-=head2 device_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
-=head2 resource_id
+=head2 user_id
 
   data_type: 'uuid'
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
   size: 16
 
-=head2 value
+=head2 name
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 created
+=head2 value
 
-  data_type: 'timestamp with time zone'
-  default_value: current_timestamp
+  data_type: 'jsonb'
   is_nullable: 0
-  original: {default_value => \"now()"}
 
-=head2 updated
+=head2 created
 
   data_type: 'timestamp with time zone'
   default_value: current_timestamp
@@ -81,11 +73,6 @@ __PACKAGE__->table("device_settings");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
-=head2 name
-
-  data_type: 'text'
-  is_nullable: 0
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -96,20 +83,13 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "device_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
-  "resource_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
-  "value",
+  "user_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "name",
   { data_type => "text", is_nullable => 0 },
+  "value",
+  { data_type => "jsonb", is_nullable => 0 },
   "created",
-  {
-    data_type     => "timestamp with time zone",
-    default_value => \"current_timestamp",
-    is_nullable   => 0,
-    original      => { default_value => \"now()" },
-  },
-  "updated",
   {
     data_type     => "timestamp with time zone",
     default_value => \"current_timestamp",
@@ -118,8 +98,6 @@ __PACKAGE__->add_columns(
   },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
-  "name",
-  { data_type => "text", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -136,44 +114,24 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 device
+=head2 user
 
 Type: belongs_to
 
-Related object: L<Conch::Schema::Result::Device>
+Related object: L<Conch::Schema::Result::UserAccount>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "device",
-  "Conch::Schema::Result::Device",
-  { id => "device_id" },
+  "user",
+  "Conch::Schema::Result::UserAccount",
+  { id => "user_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 resource
 
-Type: belongs_to
-
-Related object: L<Conch::Schema::Result::HardwareProfileSetting>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "resource",
-  "Conch::Schema::Result::HardwareProfileSetting",
-  { id => "resource_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-09-11 11:25:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6jfhL0zuB7iO+dvl3fWtvQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-09-11 11:57:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cUWT4FxjF7pIcq+l9Yg7kA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
