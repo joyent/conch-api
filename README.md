@@ -18,6 +18,11 @@ done with HTTPie. The executable for HTTPie is `http`.
 | --------------------------      | ------ | ---------- | -------     | -----------                                         |
 | `/login`                        | POST   | -          | Hash        | Create a login session                              |
 | `/user`                         | POST   | admin      | Hash        | Create integrator users                             |
+| `/user/me/settings`             | GET    | integrator | Hash, Array | Retreive all user settings                          |
+| `/user/me/settings`             | POST   | integrator | Hash        | Update or add multipe user settings                 |
+| `/user/me/settings/:key`        | GET    | integrator | Hash        | Retreive single user setting identified by ':key'   |
+| `/user/me/settings/:key`        | POST   | integrator | Hash        | Update or add single user setting                   |
+| `/user/me/settings/:key`        | DELETE | integrator | Hash        | Delete (deactivate) single user setting             |
 | `/datacenter_access`            | POST   | admin      | Hash        | Associate a user account with racks                 |
 | `/relay`                        | GET    | admin      | Array       | List all Relay Devices                              |
 | `/relay/:serial/register`       | POST   | integrator | Hash        | Register a Relay Device                             |
@@ -33,6 +38,7 @@ done with HTTPie. The executable for HTTPie is `http`.
 | `/device/:serial/settings`      | POST   | integrator | Hash        | Update or adds multipe settings for device          |
 | `/device/:serial/settings/:key` | GET    | integrator | Hash        | Retreive single device setting identified by ':key' |
 | `/device/:serial/settings/:key` | POST   | integrator | Hash        | Update or adds single setting for device            |
+| `/device/:serial/settings/:key` | DELETE | integrator | Hash        | Delete single setting for a device                  |
 | `/rack`                         | GET    | integrator | Hash        | List all available racks                            |
 | `/rack/:uuid`                   | GET    | integrator | Hash        | Get layout for a specific rack                      |
 | `/rack/:uuid/layout`            | POST   | integrator | Hash        | Update multiple slots in a given rack               |
@@ -423,6 +429,264 @@ Creates a new integrator user with a randomly generated 8-digit password.
   EOF
   ```
 
+### User settings
+
+#### List all user settings
+
+List all of current user settings. List only the names of the setting
+keys if given the query parameter `keys_only`.
+
+* URL
+
+  `/user/me/settings[?keys_only=1]`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "burn_in_time": "2430",
+        "favorite_foods": [ "peaches", "sushi ]
+    }
+
+  ```
+
+  * `200 OK` (with `keys_only` set to true)
+
+  ```
+    [
+        "burn_in_time", "favorite_foods"
+    ]
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloude.zone/user/me/settings --session integrator_session
+  ```
+
+#### Set or update multiple user settings
+
+Setting keys are strings, and values should be either a JSON value, object, or array.
+
+* URL
+
+  `/user/me/settings`
+
+* Methods
+
+  `POST`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "status": "updated settings for BAENG1O"
+    }
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloud.zone/user/me/settings --session integrator_session <<EOF
+  {
+        "burn_in_time": "2430",
+        "favorite_foods": [ "peaches", "sushi ]
+        "nested_structure" : { ... }
+  }
+  EOF
+  ```
+
+#### Get single user setting
+
+Get an object with the value of the single specified setting.
+
+* URL
+
+  `/user/me/settings/:key`
+
+* Methods
+
+  `GET`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "burn_in_time": "2430"
+    }
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `404 Not Found`
+
+  The requested key is not set for this user.
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloude.zone/user/me/settings/burn_in_time --session integrator_session
+  ```
+
+#### Set single user setting value
+
+
+Values should be either a JSON value, object, or array.
+
+* URL
+
+  `/user/me/settings/:key`
+
+* Methods
+
+  `POST`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "status": "updated setting 'burn_in_time' for user"
+    }
+
+  ```
+
+* Error Response:
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http preflight.scloud.zone/user/me/settings/burn_in_time --session integrator_session <<EOF
+  {
+     "burn_in_time": "2430"
+  }
+  EOF
+  ```
+
+#### Delete single user setting value
+
+
+* URL
+
+  `/user/me/settings/:key`
+
+* Methods
+
+  `DELETE`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "status": "deleted setting 'bmc_fw' for user"
+    }
+
+  ```
+
+* Error Response:
+
+  * `404 Not Found`
+
+  Setting doesn't exist (may have been previously deleted).
+
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http DELETE preflight.scloud.zone/user/me/settings/burn_in_time --session integrator_session
+  ```
+
+
 ### Setting user datacenter access
 
 Set the access permissions for a set of users for a set a datacenter rooms.
@@ -733,6 +997,55 @@ Get an object with the value of the single specified setting.
       "bmc_fw" : "2.43.43.43"
   }
   EOF
+  ```
+
+#### Delete single device setting value
+
+
+* URL
+
+  `/device/:serial/settings/:key`
+
+* Methods
+
+  `DELETE`
+
+* Authorization
+
+  Requires logged-in **integrator** user. Currently, an admin does not have
+  access to this endpoint (we need to decide how this should be used by an
+  admin).
+
+* Success Response:
+
+  * `200 OK`
+
+  ```
+    {
+        "status": "deleted setting 'bmc_fw' for Device BAENG1O"
+    }
+
+  ```
+
+* Error Response:
+
+  * `404 Not Found`
+
+  Setting doesn't exist (may have been previously deleted).
+
+
+  * `401 Unauthorized`
+
+  Unauthorized. Log in as an integrator first
+
+  * `500`
+
+  Big catch-all for now. Something went wrong. Check the logs.
+
+* Example request
+
+  ```
+  http DELETE preflight.scloud.zone/device/BAENG1O/settings/bmc_fw --session integrator_session
   ```
 
 ## Problems

@@ -120,7 +120,7 @@ sub delete_device_setting {
     });
   return 0 unless $setting;
   $setting->update({ deactivated => \'NOW()' });
-  1;
+  return 1;
 }
 
 # XXX We should use 'hardware_product_profile' to determine the these details
