@@ -12,6 +12,7 @@ use Conch::Control::Device::Network;
 
 use Conch::Role::Report;
 
+
 with Storage('format' => 'JSON');
 
 with 'Conch::Role::Report';
@@ -19,16 +20,23 @@ with 'Conch::Role::Report';
 sub validations {
   my $self = shift;
   return (
-    \&validate_cpu_temp,
-    \&validate_product,
     \&validate_system,
-    $self->disks ? \&validate_disk_temp : (),
-    $self->disks ? \&validate_disks : (),
-    #$self->interfaces ? \&validate_links : (),
-    #$self->interfaces ? \&validate_wiremap : (),
+    \&validate_cpu_temp,
+    \&validate_nics_num,
+    \&validate_bios_firmware
   );
 }
 
+sub nics_count {
+  my $self = shift;
+  my @nics;
+  for my $port (keys %{$self->media}) {
+    for my $nic (keys %{$self->media->{$port}}) {
+        push @nics, $nic if $self->media->{$port}->{$nic};
+    }
+  }
+  return scalar @nics;
+}
 
 has 'product_name' => (
   required => 1,
@@ -54,11 +62,10 @@ has 'state' => (
   isa => 'Str'
 );
 
-has 'interfaces' => (
-  required => 0,
+has 'media' => (
+  required => 1,
   is => 'ro',
-  # hash can contain undef values
-  isa => 'HashRef[HashRef[Maybe[Str]]]'
+  isa => 'HashRef[HashRef[Any]]'
 );
 
 has 'bios_version' => (

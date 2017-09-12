@@ -21,12 +21,18 @@ sub validations {
     \&validate_cpu_temp,
     \&validate_product,
     \&validate_system,
+    \&validate_nics_num,
     $self->disks ? \&validate_disk_temp : (),
     $self->disks ? \&validate_disks : (),
     $self->interfaces ? \&validate_links : (),
     $self->interfaces ? \&validate_wiremap : (),
   );
   return @validations;
+}
+
+sub nics_count {
+  my $self = shift;
+  return scalar (keys %{$self->interfaces});
 }
 
 has 'product_name' => (
