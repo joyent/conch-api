@@ -3,7 +3,8 @@ package Conch::Control::DeviceReport;
 use strict;
 use Storable 'dclone';
 use Log::Report;
-use Conch::Data::DeviceReport;
+use Conch::Data::Report::Server;
+use Conch::Data::Report::Switch;
 use Conch::Control::Device::Environment;
 use Conch::Control::Relay;
 use JSON::XS;
@@ -14,28 +15,35 @@ use Exporter 'import';
 our @EXPORT = qw( parse_device_report record_device_report );
 
 
-# Parse a DeviceReport object from a HashRef and report all validation errors
+# Parse a report object from a HashRef and report all validation errors
 sub parse_device_report {
-  my $report = shift;
-  my $aux_report = dclone($report);
+  my $input = shift;
+  my $aux_report = dclone($input);
 
-  my $dr;
-  eval {
-    $dr = Conch::Data::DeviceReport->new($report);
-  };
+  my $report;
+  if ($input->{device_type} eq "switch") {
+    eval {
+      $report = Conch::Data::Report::Switch->new($input);
+    };
+  }
+  else {
+    eval {
+      $report = Conch::Data::Report::Server->new($input);
+    };
+  }
 
   if ($@) {
     my $errs = join("; ", map { $_->message } $@->errors);
     error "Error validating device report: $errs";
   }
   else {
-    for my $attr (keys %{ $dr->pack() }) {
+    for my $attr (keys %{ $report->pack() }) {
       delete $aux_report->{$attr};
     }
     if ( %{ $aux_report }) {
-      $dr->{aux} = $aux_report;
+      $report->{aux} = $aux_report;
     }
-    return $dr;
+    return $report;
   }
 }
 
@@ -99,7 +107,7 @@ sub record_device_report {
 
       device_relay_connect($schema, $device_id, $dr->{relay}{serial}) if $dr->{relay};
 
-      # Stores the JSON representation of Conch::Data::DeviceReport as serialized
+      # Stores the JSON representation of device report as serialized
       # by MooseX::Storage
       $device_report = $schema->resultset('DeviceReport')->create({
         device_id => $device_id,
