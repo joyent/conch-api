@@ -65,8 +65,14 @@ sub validate_wiremap {
   trace("$device_id: Validating network switch peers");
 
   my @eth_nics = grep {$_->iface_name =~ /eth/} @device_nics;
+  my $rack_location = $device->device_location;
 
-  my @peer_ports = switch_peer_ports($device->device_location);
+  if (! $rack_location) {
+    error "$device_id is not assigned in a rack; cannot validate wiremap";
+    return 0;
+  }
+
+  my @peer_ports = switch_peer_ports($rack_location);
   my $switch_peers = {};
 
   for my $nic (@eth_nics) {
