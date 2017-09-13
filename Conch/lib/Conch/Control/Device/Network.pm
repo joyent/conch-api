@@ -172,9 +172,10 @@ sub switch_peer_ports {
   my $ru = $rack_location->rack_unit;
   my $case = {
     'TRITON'     => sub { port_numbers(2, $ru) },
-    # upper two units are 2U racks
-    'MANTA'      => sub { $ru < 34 ? port_numbers(4,$ru) : port_numbers(2, $ru) },
-    'MANTA_TALL' => sub { port_numbers(4, $ru) }
+    # add 2 to the rack unit past 38, which are 2 RU past 37
+    'MANTA'      => sub { $ru < 38 ? port_numbers(4,$ru) : port_numbers(4, $ru + 2) },
+    # add 2 to the rack unit past 50, which are 2 RU past 49
+    'MANTA_TALL' => sub {  $ru < 50 ? port_numbers(4,$ru) : port_numbers(4, $ru + 2) }
   };
   return $case->{$role->name}->();
 }
