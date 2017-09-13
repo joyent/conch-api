@@ -5,7 +5,9 @@ use Log::Report;
 use JSON::XS;
 
 use Exporter 'import';
-our @EXPORT = qw( validate_system validate_disks);
+our @EXPORT = qw( validate_system validate_nics_num validate_bios_firmware
+                  validate_disks
+                );
 
 
 sub validate_system {
@@ -91,6 +93,14 @@ sub validate_system {
       status          => $ram_total_status
     })
   });
+}
+
+sub validate_nics_num {
+  my ($schema, $device, $report_id) = @_;
+
+  my $device_id   = $device->id;
+  my $device_spec = $device->device_spec;
+  my $hw_profile  = $device->hardware_product->hardware_product_profile;
 
   # Ensure we have correct number of network interfaces
   my $nics_num_status;
@@ -113,6 +123,38 @@ sub validate_system {
       metric          => $device_spec->nics_num,
       log             => $nics_num_log,
       status          => $nics_num_status
+    })
+  });
+
+}
+
+sub validate_bios_firmware {
+  my ($schema, $device, $report_id) = @_;
+
+  my $device_id   = $device->id;
+  my $device_spec = $device->device_spec;
+  my $hw_profile  = $device->hardware_product->hardware_product_profile;
+
+  my $bios_version_status;
+  my $bios_version_log = "Has = " . $device_spec->bios_firmware .", Want = " . $hw_profile->bios_firmware;
+
+  if ( "$device_spec->bios_firmware" eq "$hw_profile->bios_firmware" ) {
+    $bios_version_status = 0;
+    mistake("$device_id: report $report_id: CRITICAL: Incorrect BIOS firmware version: $bios_version_log");
+  } else {
+    $bios_version_status = 1;
+    trace("$device_id: report $report_id: OK: Correct BIOS firmware version: $bios_version_log");
+  }
+
+  $schema->resultset('DeviceValidate')->create({
+    device_id       => $device_id,
+    report_id       => $report_id,
+    validation      => encode_json({
+      component_type  => "BIOS",
+      component_name  => "bios_firmware_version",
+      metric          => $device_spec->bios_firmware,
+      log             => $bios_version_log,
+      status          => $bios_version_status
     })
   });
 

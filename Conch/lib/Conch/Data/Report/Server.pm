@@ -1,13 +1,39 @@
-package Conch::Data::DeviceReport;
+package Conch::Data::Report::Server;
 
 use Moose;
 use MooseX::Constructor::AllErrors;
 use MooseX::Types::UUID qw( UUID );
 use MooseX::Storage;
+use Conch::Role::Report;
+
+use Conch::Control::Device::Configuration;
+use Conch::Control::Device::Environment;
+use Conch::Control::Device::Inventory;
+use Conch::Control::Device::Network;
 
 with Storage('format' => 'JSON');
 
+with 'Conch::Role::Report';
 
+sub validations {
+  my $self = shift;
+  my @validations = (
+    \&validate_cpu_temp,
+    \&validate_product,
+    \&validate_system,
+    \&validate_nics_num,
+    $self->disks ? \&validate_disk_temp : (),
+    $self->disks ? \&validate_disks : (),
+    $self->interfaces ? \&validate_links : (),
+    $self->interfaces ? \&validate_wiremap : (),
+  );
+  return @validations;
+}
+
+sub nics_count {
+  my $self = shift;
+  return scalar (keys %{$self->interfaces});
+}
 
 has 'product_name' => (
   required => 1,
@@ -91,3 +117,4 @@ has 'aux' => (
 );
 
 __PACKAGE__->meta->make_immutable;
+
