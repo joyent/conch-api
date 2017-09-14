@@ -3,6 +3,7 @@ package Conch::Control::Device::Inventory;
 use strict;
 use Log::Report;
 use JSON::XS;
+use Data::Printer;
 
 use Exporter 'import';
 our @EXPORT = qw( validate_system validate_nics_num validate_bios_firmware
@@ -190,6 +191,42 @@ sub validate_disks {
   my $slog_slot;
 
   while ( my $disk = $device_disks->next ) {
+    # If a disk/HBA/backplane goes back we'll often lose attributes. Fire a
+    # flare if that happens.
+    unless (defined $disk->slot) {
+      my $disk_slot_msg = $disk->serial_number . "has no slot number defined. Bad disk, HBA, cable, backplane?";
+      mistake("$device_id: report $report_id: CRITICAL: $disk_slot_msg");
+
+      $schema->resultset('DeviceValidate')->create({
+        device_id       => $device_id,
+        report_id       => $report_id,
+        validation      => encode_json({
+          component_type  => "DISK",
+          component_name  => "disk_slot_missing",
+          metric          => $disk->serial_number,
+          log             => $disk_slot_msg,
+          status          => 0
+        })
+      });
+    }
+
+    unless (defined $disk->size) {
+      my $disk_size_msg = $disk->serial_number . "has no disk size defined. Bad disk, HBA, cable, backplane?";
+      mistake("$device_id: report $report_id: CRITICAL: $disk_size_msg");
+
+      $schema->resultset('DeviceValidate')->create({
+        device_id       => $device_id,
+        report_id       => $report_id,
+        validation      => encode_json({
+          component_type  => "DISK",
+          component_name  => "disk_size_missing",
+          metric          => $disk->serial_number,
+          log             => $disk_size_msg,
+          status          => 0
+        })
+      });
+    }
+
     if ( $disk->drive_type eq "SAS_HDD" ) {
       $sas_hdd_num++;
     }
