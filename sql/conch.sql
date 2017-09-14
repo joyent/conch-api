@@ -332,8 +332,8 @@ CREATE TABLE device_disk (
     device_id           text        NOT NULL REFERENCES device (id),
     serial_number       text        UNIQUE NOT NULL,
     hba                 integer,
-    slot                integer     NOT NULL,
-    size                integer     NOT NULL, -- MBytes
+    slot                integer,
+    size                integer,
     vendor              text,                 -- TODO: REF this out
     model               text,                 -- TODO: REF this out
     firmware            text,                 -- version
