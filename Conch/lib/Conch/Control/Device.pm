@@ -18,7 +18,7 @@ our @EXPORT = qw( device_info device_location all_user_devices devices_for_user
                   update_device_location delete_device_location
                   get_validation_criteria get_active_devices
                   get_devices_by_health unlocated_devices device_response
-                  validate_device
+                  mark_device_validated
                  );
 
 sub get_validation_criteria {
@@ -285,7 +285,7 @@ sub update_device_location {
   });
 }
 
-sub validate_device {
+sub mark_device_validated {
   # $device may be a virtual view
   my ($schema, $device) = @_;
   $schema->resultset('Device')

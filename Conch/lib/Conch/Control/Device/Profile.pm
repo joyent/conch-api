@@ -21,7 +21,7 @@ our @EXPORT =
 # Certain pre-defined settings have side-effects. All functions should take
 # same parameters as `set_device_setting`
 my $setting_dispatch = {
-  'build.validated' => sub { $_[3] && validate_device(@_); }
+  'build.validated' => sub { $_[3] && mark_device_validated(@_); }
 };
 
 sub set_device_settings {
