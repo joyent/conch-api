@@ -154,6 +154,10 @@ post '/login' => sub {
 
   my $username = body_parameters->get('user');
   my $password = body_parameters->get('password');
+  unless (defined $username && defined $password) {
+    return status_400("'user' and 'password' must be specified");
+  }
+
   if ($username eq 'admin' &&
     passphrase($password)->matches(config->{'admin_password'}))
   {
