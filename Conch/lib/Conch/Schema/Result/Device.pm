@@ -109,6 +109,11 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 validated
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -147,6 +152,8 @@ __PACKAGE__->add_columns(
     original      => { default_value => \"now()" },
   },
   "uptime_since",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
+  "validated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
@@ -389,8 +396,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-08-29 16:06:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZsYw/u2f83PRWKYBZqnCtw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-09-15 11:10:34
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NzPYP1fwov0Yvcumfzpx+A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

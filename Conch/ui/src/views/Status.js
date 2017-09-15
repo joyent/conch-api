@@ -26,6 +26,7 @@ function deviceList(title, isProblem, devices) {
     );
 }
 
+
 module.exports = {
     loading : true,
     oninit : ({state}) => {
@@ -39,19 +40,19 @@ module.exports = {
         var activeDevices   = R.filter(Device.isActive, Device.devices);
         var inactiveDevices = R.filter(R.compose(R.not, Device.isActive), Device.devices);
 
-        var healthCounts   = R.countBy(R.prop('health'));
-        var graduatedCount = R.reduce(function(acc, x) {
-            return R.propIs(String, 'graduated', x) ? acc + 1 : acc;
-        }, 0);
+        var healthCounts   = R.countBy(d => {
+            if (R.propIs(String, 'graduated', d))
+                return 'GRADUATED';
+            if (R.propIs(String, 'validated', d))
+                return 'VALIDATED';
+            return R.prop('health', d);
+        });
 
         var activeHealthCounts   = healthCounts(activeDevices);
-        var activeGraduatedCount = graduatedCount(activeDevices);
 
         var inactiveHealthCounts   = healthCounts(inactiveDevices);
-        var inactiveGraduatedCount = graduatedCount(inactiveDevices);
 
         var totalHealthCounts   = healthCounts(Device.devices);
-        var totalGraduatedCount = graduatedCount(Device.devices);
 
         var deviceHealthGroups = R.groupBy(R.prop('health'), Device.devices);
         return [
@@ -84,11 +85,19 @@ module.exports = {
                       inactiveHealthCounts.PASS || 0,
                       totalHealthCounts.PASS || 0,
                     ],
+
+                    [
+                        t("Validated"),
+                      activeHealthCounts.VALIDATED || 0,
+                      inactiveHealthCounts.VALIDATED || 0,
+                      totalHealthCounts.VALIDATED || 0,
+                    ],
+
                     [
                         t("Graduated"),
-                        activeGraduatedCount,
-                        inactiveGraduatedCount,
-                        totalGraduatedCount
+                      activeHealthCounts.GRADUATED || 0,
+                      inactiveHealthCounts.GRADUATED || 0,
+                      totalHealthCounts.GRADUATED || 0,
                     ],
                     [
                         m("b", t("Sum")),

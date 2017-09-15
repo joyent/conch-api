@@ -8,6 +8,8 @@ use List::Compare;
 use Log::Report;
 use Log::Report::DBIC::Profiler;
 
+use Conch::Control::Device;
+
 use Data::Printer;
 
 use Exporter 'import';
@@ -15,6 +17,12 @@ our @EXPORT =
   qw( determine_product set_device_settings set_device_setting
       get_device_settings get_device_setting delete_device_setting );
 
+
+# Certain pre-defined settings have side-effects. All functions should take
+# same parameters as `set_device_setting`
+my $setting_dispatch = {
+  'build.validated' => sub { $_[3] && validate_device(@_); }
+};
 
 sub set_device_settings {
   my ($schema, $device, $settings) = @_;
@@ -34,24 +42,8 @@ sub set_device_settings {
   $schema->txn_do (sub {
 
     for my $setting_key (keys %{$settings}) {
-      # may be 'undef'
-      my $resource_id = $resource_ids->{$setting_key};
       my $value = $settings->{$setting_key};
-
-      my $prev_setting =
-        $device->device_settings
-        ->find({
-            name => $setting_key,
-            resource_id => $resource_id,
-            deactivated => undef
-        });
-      $prev_setting->update({ deactivated => \'NOW()' }) if $prev_setting;
-      $device->device_settings->create({
-          device_id   => $device->id,
-          resource_id => $resource_id,
-          name        => $setting_key,
-          value       => $value
-      });
+      set_device_setting($schema, $device, $setting_key, $value);
     }
 
   });
@@ -62,6 +54,7 @@ sub set_device_settings {
 sub set_device_setting {
   my ($schema, $device, $setting_key, $setting_value) = @_;
 
+  # may be 'undef'
   my $hardware_setting =
     $device
     ->hardware_product
@@ -69,20 +62,22 @@ sub set_device_setting {
     ->hardware_profile_settings
     ->find({name => $setting_key});
 
-  $schema->txn_do (sub {
 
-      my $prev_setting =
-        $device->device_settings
-        ->find({name => $setting_key, deactivated => undef});
-      $prev_setting->update({ deactivated => \'NOW()' })
-        if $prev_setting;
-      $device->device_settings->create({
-          device_id   => $device->id,
-          resource_id => $hardware_setting ? $hardware_setting->id : undef,
-          name        => $setting_key,
-          value       => $setting_value
-      });
+  my $prev_setting =
+  $device->device_settings
+  ->find({name => $setting_key, deactivated => undef});
+  $prev_setting->update({ deactivated => \'NOW()' })
+  if $prev_setting;
+  $device->device_settings->create({
+      device_id   => $device->id,
+      resource_id => $hardware_setting ? $hardware_setting->id : undef,
+      name        => $setting_key,
+      value       => $setting_value
   });
+
+  my $dispatch = $setting_dispatch->{$setting_key};
+  defined $dispatch && $dispatch->($schema, $device, $setting_key, $setting_value);
+
 
   return 1;
 }

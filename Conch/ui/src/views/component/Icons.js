@@ -2,6 +2,12 @@ var m = require('mithril');
 var t = require("i18n4v");
 
 module.exports = {
+    deviceValidated :
+        m("i.material-icons.green-icon", 
+            { title : t("Device validated and powered off. Good to ship.") },
+            "check_circle"
+        ),
+
     passValidation :
         m("i.material-icons", { title : t("Device passes validation") }, "check"),
 
