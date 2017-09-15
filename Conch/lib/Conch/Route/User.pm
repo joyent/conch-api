@@ -102,7 +102,7 @@ post '/user/me/settings/:key' => needs integrator => sub {
   my $setting_value = $setting->{$setting_key};
 
   return status_400("Setting key in request body must match name in the URL ('$setting_key')")
-    unless $setting_value;
+    unless defined $setting_value;
 
   my $user = lookup_user_by_name(schema, $user_name);
   my $status =

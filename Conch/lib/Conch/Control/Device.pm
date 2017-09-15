@@ -18,6 +18,7 @@ our @EXPORT = qw( device_info device_location all_user_devices devices_for_user
                   update_device_location delete_device_location
                   get_validation_criteria get_active_devices
                   get_devices_by_health unlocated_devices device_response
+                  validate_device
                  );
 
 sub get_validation_criteria {
@@ -282,6 +283,15 @@ sub update_device_location {
     rack_id   => $device_info->{rack},
     rack_unit => $device_info->{rack_unit}
   });
+}
+
+sub validate_device {
+  # $device may be a virtual view
+  my ($schema, $device) = @_;
+  $schema->resultset('Device')
+    ->find({id => $device->id })
+    ->update({validated => \'NOW()', updated => \'NOW()'});
+  return 1;
 }
 
 1;

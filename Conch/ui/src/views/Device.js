@@ -64,12 +64,15 @@ var deviceReport = {
         );
 
         var healthStatus;
-        if (Device.current.health === 'PASS')
+        if (Device.current.validated && Device.current.health === 'PASS')
             healthStatus =
-                [ Icons.passValidation, t("Device passes validation") ];
+                [ Icons.deviceValidated, t("Device is validated and has been powered off") ];
+        else if (Device.current.health === 'PASS')
+            healthStatus =
+                [ Icons.passValidation, t("Device passes validation tests") ];
         else if (Device.current.health === 'FAIL')
             healthStatus =
-                [ Icons.failValidation, t("Device fails validation") ];
+                [ Icons.failValidation, t("Device fails validation tests") ];
         else
             healthStatus =
                 [ Icons.noReport, t("No reports collected from device") ];

@@ -165,7 +165,9 @@ var rackLayoutTable = {
                 var occupant = vnode.attrs.occupant;
                 if (occupant) {
                     var healthIcon;
-                    if (occupant.health === 'PASS')
+                    if (occupant.validated && occupant.health === 'PASS')
+                        healthIcon = Icons.deviceValidated;
+                    else if (occupant.health === 'PASS')
                         healthIcon = Icons.passValidation;
                     else if (occupant.health === 'FAIL')
                         healthIcon = Icons.failValidation;
