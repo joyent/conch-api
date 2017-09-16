@@ -19,7 +19,7 @@
     },
     "scripts": {
         "start": "webpack -d --watch",
-        "build": "webpack"
+        "build": "webpack -p"
     },
     "keywords": [],
     "author": "",
