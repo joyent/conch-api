@@ -65,6 +65,28 @@ var Device = {
         });
     },
 
+    updatingFirmware : false,
+    loadFirmwareStatus: function(deviceId) {
+        return m.request({
+            method: "GET",
+            url: `/device/${deviceId}/settings/firmware`,
+            withCredentials: true
+        }).then(function(res) {
+            console.log(res);
+            Device.updatingFirmware = res.firmware === 'updating';
+        }).catch(function(e) {
+            if (e.error === "not found") {
+                Device.updatingFirmware = false;
+            }
+            else if (e.error === "unauthorized") {
+                m.route.set("/login");
+            }
+            else {
+                console.log("Error in GET /device: " + e.message);
+            }
+        });
+    },
+
     rackLocation : null,
     getDeviceLocation : deviceId => {
         return m.request({

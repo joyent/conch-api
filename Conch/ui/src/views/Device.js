@@ -33,9 +33,12 @@ var makeSelection = {
 };
 
 function loadDeviceDetails(id) {
-    Device.loadDevice(id);
-    Device.loadRackLocation(id);
-    Device.loadDeviceLogs(id, 20);
+    return Promise.all([
+        Device.loadDevice(id),
+        Device.loadRackLocation(id),
+        Device.loadFirmwareStatus(id),
+        Device.loadDeviceLogs(id, 20)
+    ]);
 }
 
 var deviceReport = {
@@ -63,6 +66,8 @@ var deviceReport = {
             ]])
         );
 
+
+        var statusRows = [];
         var healthStatus;
         if (Device.current.validated && Device.current.health === 'PASS')
             healthStatus =
@@ -76,18 +81,31 @@ var deviceReport = {
         else
             healthStatus =
                 [ Icons.noReport, t("No reports collected from device") ];
+        statusRows.push(healthStatus);
+
+        if (Device.updatingFirmware)
+            statusRows.push(
+                [ Icons.firmwareUpdating, t("Firmware Currently Updating") ]
+            );
+
+        if (Device.isActive(Device.current))
+            statusRows.push([
+                Icons.deviceReporting,
+                t("Actively reporting to Conch (Reported in the last 5 minutes)")
+            ]);
+
+        var firmwareUpdatingNotification =
+            Device.updatingFirmware ?
+                m(".pure-u-1", m(".notification.notification-success",
+                    t("Firmware Currently Updating"))
+                )
+              : null;
+
         var deviceStatus = m(".pure-u-1",
             Table(t("Device Status"), [
                 t("Status"),
-                t("Description")
-            ], [
-                healthStatus,
-                Device.isActive(Device.current) ?
-                  [ Icons.deviceReporting,
-                    t("Actively reporting to Conch (Reported in the last 5 minutes)")
-                  ]
-                : []
-            ])
+                t("Description") ],
+                statusRows )
         );
 
         var deviceLocation = m(".pure-u-1", Device.rackLocation ?
@@ -220,6 +238,7 @@ var deviceReport = {
                 })
             );
         return m(".pure-g", [
+            firmwareUpdatingNotification,
             basicInfo,
             deviceStatus,
             deviceLocation,
