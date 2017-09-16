@@ -202,6 +202,14 @@ ul li {
     color: hsl(120, 95%, 5%);
 }
 
+.tooltip {
+    background: hsl(200, 92%, 5%);
+    color: hsl(200, 10%, 95%);
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 3px;
+}
+
 .notification-warning {
     background: hsl(7, 85%, 85%);
     color: hsl(7, 95%, 15%);

@@ -1,24 +1,59 @@
 var m = require('mithril');
 var t = require("i18n4v");
+import Tooltip from "tooltip.js";
+
+function addToolTip(title, placement = 'right') {
+    return ({dom}) => {
+        new Tooltip(dom,
+            { title : title, placement: placement }
+        );
+    };
+}
 
 module.exports = {
-    deviceValidated :
-        m("i.material-icons.green-icon", 
-            { title : t("Device validated and powered off. Good to ship.") },
-            "check_circle"
-        ),
 
-    passValidation :
-        m("i.material-icons", { title : t("Device passes validation") }, "check"),
+    deviceValidated : {
+        view : () => {
+            return m("i.material-icons", {
+                oncreate : addToolTip(t("Device validated. Good to ship."))
+            }, "check_circle");
+        }
+    },
 
-    failValidation :
-        m("i.material-icons", { title : t("Device fails validation") }, "error_outline"),
+    passValidation : {
+        view : () => {
+            return m("i.material-icons", {
+                oncreate : addToolTip(t("Device passes validation"))
+            }, "check");
+        }
+    },
 
-    deviceReporting :
-        m("i.material-icons", { title : t("Device reporting to Conch") }, "cloud_upload"),
+    failValidation : {
+        view : () => {
+            return m("i.material-icons", {
+                oncreate : addToolTip(t("Device fails validation"))
+            }, "error_outline");
+        }
+    },
 
-    noReport :
-        m("i.material-icons", { title : t("No reports collected from device") }, "help_outline"),
+    deviceReporting : {
+        view : () => {
+            return m("i.material-icons", {
+                oncreate : addToolTip(t("Device reporting to Conch"))
+            }, "cloud_upload");
+        }
+    },
+
+    noReport : {
+        view : () => {
+            return m("i.material-icons", {
+                oncreate : addToolTip(t("No reports collected from device"))
+            }, "help_outline");
+        }
+    },
+
+    firmwareUpdating :
+        m("i.material-icons", "refresh"),
 
     findDeviceInRack :
         m("i.material-icons.md-18", "dns"),
@@ -40,9 +75,6 @@ module.exports = {
 
     warning :
         m("i.material-icons", "warning"),
-
-    firmwareUpdating :
-        m("i.material-icons", "refresh"),
 
     nav : {
         status :
