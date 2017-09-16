@@ -41,6 +41,9 @@ module.exports = {
     warning :
         m("i.material-icons", "warning"),
 
+    firmwareUpdating :
+        m("i.material-icons", "refresh"),
+
     nav : {
         status :
             m("i.material-icons", "assessment"),

@@ -54,7 +54,7 @@ ul li {
 }
 
 .nav-link:active {
-    color: #fd361b;
+    color: hsl(7, 98%, 55%);
 }
 
 .nav-link:hover {
@@ -189,14 +189,23 @@ ul li {
 
 .notification {
     position: fixed;
-    min-width: 100%;
     text-align: center;
     top: 0;
+    left: 400px;
     right: 0;
+    border-radius: 0 0 5px 5px;
+    padding: 4px 0;
 }
 
 .notification-success {
-    background: #75ec75;
+    background: hsl(120, 65%, 80%);
+    color: hsl(120, 95%, 5%);
+}
+
+.notification-warning {
+    background: hsl(7, 85%, 85%);
+    color: hsl(7, 95%, 15%);
+    border: 2px solid hsl(7, 85%, 75%);;
 }
 
 .row-highlight {
