@@ -173,11 +173,12 @@ var rackLayoutTable = {
                         healthIcon = Icons.failValidation;
                     else
                         healthIcon = Icons.noReport;
+
                     return m(".rack-status",
                         [
-                            healthIcon,
+                            m(healthIcon),
                             Device.isActive(occupant) ?
-                            Icons.deviceReporting
+                            m(Icons.deviceReporting)
                             : null,
                         ]);
                 }
