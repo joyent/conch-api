@@ -15,7 +15,7 @@ module.exports = {
     deviceValidated : {
         view : () => {
             return m("i.material-icons", {
-                oncreate : addToolTip(t("Device validated. Good to ship."))
+                oncreate : addToolTip(t("Device has completed validation. Good to ship."))
             }, "check_circle");
         }
     },

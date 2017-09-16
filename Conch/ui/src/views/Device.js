@@ -71,7 +71,7 @@ var deviceReport = {
         var healthStatus;
         if (Device.current.validated && Device.current.health === 'PASS')
             healthStatus =
-                [ m(Icons.deviceValidated), t("Device is validated and has been powered off") ];
+                [ m(Icons.deviceValidated), t("Device has completed validation. Good to ship.") ];
         else if (Device.current.health === 'PASS')
             healthStatus =
                 [ m(Icons.passValidation), t("Device passes validation tests") ];
@@ -90,7 +90,7 @@ var deviceReport = {
 
         if (Device.isActive(Device.current))
             statusRows.push([
-                Icons.deviceReporting,
+                m(Icons.deviceReporting),
                 t("Actively reporting to Conch (Reported in the last 5 minutes)")
             ]);
 
