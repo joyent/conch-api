@@ -40,6 +40,22 @@ function mainNav(isMobileView, state) {
 
                 m("li.pure-menu-item",
                     m("a.pure-menu-link.nav-link.pointer",
+                        { onclick: function() {
+                            t.selectLanguage(['en', 'ko', 'ko-KR'], function (err, lang) {
+                                if(!lang || lang === 'en') {
+                                    t.setLanguage('ko');
+                                }
+                                else {
+                                    t.setLanguage('en');
+                                }
+                                location.reload();
+                            });
+                        } },
+                        [ Icons.nav.language, t("Language") ])
+                ),
+
+                m("li.pure-menu-item",
+                    m("a.pure-menu-link.nav-link.pointer",
                         { onclick : () => state.showFeedback = true },
                         [ Icons.nav.feedback, t("Feedback") ])
                 ),

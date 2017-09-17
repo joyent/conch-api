@@ -91,6 +91,8 @@ module.exports = {
             m("i.material-icons", "exit_to_app"),
         feedback :
             m("i.material-icons", "message"),
+        language :
+            m("i.material-icons", "language"),
     },
 
     ui : {

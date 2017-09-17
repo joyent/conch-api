@@ -17,6 +17,7 @@ module.exports = {
 
         // Used to change the language preference
         "Toggle Language"         : "영/한 변경",
+        "Language"                : "Language",
 
 
         /* Main menu items */
@@ -24,7 +25,7 @@ module.exports = {
         "Problems"                : "Problems",
         "Devices"                 : "Devices",
         "Logout"                  : "Logout",
-        "Send Feedback"           : "Send Feedback",
+        "Feedback"                : "Feedback",
 
         /* Login items */
         "Login to Conch"          : "Login to Conch",

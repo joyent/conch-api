@@ -17,14 +17,14 @@ module.exports = {
 
         // Used to change the language preference
         "Toggle Language"         : "Switch to English",
-
+        "Language"                : "언어",
 
         /* Main menu items */
         "Racks"                   : "랙",
         "Problems"                : "문제",
-        "Devices"                 : "Devices",
-        "Logout"                  : "Logout",
-        "Send Feedback"           : "Send Feedback",
+        "Devices"                 : "디바이스",
+        "Logout"                  : "로그 아웃",
+        "Feedback"                : "의견 보내기",
 
 
         /* Login items */
