@@ -59,6 +59,8 @@ module.exports = {
         var deviceHealthGroups = R.groupBy(R.prop('health'), Device.devices);
         return [
             m("h1.text-center", "Status"),
+            m(".pure-u-1", m("h3.text-center", t("Datacenter Rack Build Status"))),
+            m(".pure-u-1", m(".text-center", m(RackProgress))),
             Table(t("Summary of Device Status"),
                 [
                     "",
@@ -109,8 +111,6 @@ module.exports = {
                     ]
 
                 ]),
-            m(".pure-u-1", m("h3.text-center", t("Datacenter Rack Status"))),
-            m(".pure-u-1", m(".text-center", m(RackProgress))),
             Table(t("Active Relays"),
                 [ t("Name"), t("Devices Connected"), t("Actions") ],
                 Relay.activeList.map( relay => {
