@@ -50,10 +50,10 @@ function nodeValue(rack) {
 
 // Sort order for the node groups in the graph.
 var sortOrder = {};
-sortOrder[t('Validated')] = 4;
-sortOrder[t('Failing')] = 3;
-sortOrder[t('In Progress')] = 2;
-sortOrder[t('Not Started')] = 1;
+sortOrder[t('Validated')] = 1;
+sortOrder[t('Failing')] = 2;
+sortOrder[t('In Progress')] = 3;
+sortOrder[t('Not Started')] = 4;
 
 function sortNode(a, b){
     if (sortOrder[a.parent] === sortOrder[b.parent])
@@ -86,7 +86,6 @@ export default function RackProgress({attr}) {
                 });
                 return acc;
             }, []);
-            rackStatus.sort(sortNode);
 
             return m(".rack-progress-graph", {
                 oncreate : ({dom, state}) => {
@@ -95,12 +94,14 @@ export default function RackProgress({attr}) {
                             showTooltips: true,
                             maxChildCount: 10,
                             showKeys: true,
-                            thresholds: [-1, 0, 25, 50, 75, 99],
+                            sortFunction: (nodes) => nodes.sort(sortNode),
+                            thresholds: [-1, 0, 25, 50, 75, 99, 100],
                             colors: [
                                 'hsl(0, 80%, 60%)',
-                                'hsl(225, 50%, 80%)',
                                 'hsl(225, 20%, 85%)',
+                                'hsl(225, 50%, 80%)',
                                 'hsl(225, 80%, 70%)',
+                                'hsl(190, 60%, 60%)',
                                 'hsl(160, 60%, 60%)',
                                 'hsl(130, 60%, 60%)',
                             ],
