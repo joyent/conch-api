@@ -16,8 +16,8 @@ function nodeParent(rack) {
         return t('Not Started');
 
     // If the only devices are validated, then the rack has finished validation
-    if (!rack.device_progress.VALID &&
-            rack.device_progress.PASS && !rack.device_progress.UNKNOWN)
+    if (rack.device_progress.VALID &&
+            !rack.device_progress.PASS && !rack.device_progress.UNKNOWN)
         return t('Validated');
 
     // There's a mixture of passing and unknown devices
@@ -95,7 +95,7 @@ export default function RackProgress({attr}) {
                             showTooltips: true,
                             maxChildCount: 10,
                             showKeys: true,
-                            thresholds: [-1, 0, 25, 50, 75, 100],
+                            thresholds: [-1, 0, 25, 50, 75, 99],
                             colors: [
                                 'hsl(0, 80%, 60%)',
                                 'hsl(225, 50%, 80%)',
