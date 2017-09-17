@@ -40,6 +40,13 @@ sub racks_for_user {
   my @datacenter_room = $schema->resultset('DatacenterRoom')->
     search({})->all;
 
+  my $rack_progress = {};
+  my @rack_progress = $schema->resultset('RackDeviceProgress')->
+    search({})->all;
+  for my $rp (@rack_progress) {
+    $rack_progress->{$rp->rack_id}->{$rp->status} = $rp->count;
+  }
+
   my %dc;
   foreach my $dc (@datacenter_room) {
     $dc{ $dc->id }{name} = $dc->az;
@@ -56,6 +63,7 @@ sub racks_for_user {
     $user_rack->{ name } = $rack->name;
     $user_rack->{ role } = $rack_roles->{ $rack->role }{name};
     $user_rack->{ size } = $rack_roles->{ $rack->role }{size};
+    $user_rack->{device_progress} = $rack_progress->{$rack->id} || {};
     push @{ $user_racks->{ $rack_dc } }, $user_rack;
   }
 
