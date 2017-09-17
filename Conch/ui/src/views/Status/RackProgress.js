@@ -48,11 +48,27 @@ function nodeValue(rack) {
     return score;
 }
 
+// Sort order for the node groups in the graph.
+var sortOrder = {};
+sortOrder[t('Validated')] = 4;
+sortOrder[t('Failing')] = 3;
+sortOrder[t('In Progress')] = 2;
+sortOrder[t('Not Started')] = 1;
+
+function sortNode(a, b){
+    if (sortOrder[a.parent] === sortOrder[b.parent])
+        return 0;
+    else
+        return sortOrder[a.parent] > sortOrder[b.parent] ?
+               1
+            : -1;
+}
+
 
 export default function RackProgress({attr}) {
     return {
         view : () => {
-            const rackStatus = Object.keys(Rack.rackRooms).reduce((acc, room) => {
+            let rackStatus = Object.keys(Rack.rackRooms).reduce((acc, room) => {
                 Rack.rackRooms[room].forEach((rack) => {
                     acc.push(
                         {
@@ -70,6 +86,8 @@ export default function RackProgress({attr}) {
                 });
                 return acc;
             }, []);
+            rackStatus.sort(sortNode);
+
             return m(".rack-progress-graph", {
                 oncreate : ({dom, state}) => {
                     if (rackStatus) {
