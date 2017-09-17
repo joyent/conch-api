@@ -72,7 +72,6 @@ var Device = {
             url: `/device/${deviceId}/settings/firmware`,
             withCredentials: true
         }).then(function(res) {
-            console.log(res);
             Device.updatingFirmware = res.firmware === 'updating';
         }).catch(function(e) {
             if (e.error === "not found") {
