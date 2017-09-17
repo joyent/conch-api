@@ -4,6 +4,10 @@ body {
     color: #001b2a;
 }
 
+body svg {
+    display: none;
+}
+
 .pure-table caption {
     font: bold 16px sans-serif;
 }
@@ -240,6 +244,11 @@ ul li {
 
 .rack-status {
     min-width: 60px;
+}
+
+.rack-progress-graph {
+    display: inline-block;
+    margin-left: -8vw;
 }
 
 .rack-relay-active {

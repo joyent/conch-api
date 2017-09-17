@@ -4,9 +4,12 @@ var R = require("ramda");
 
 var Device = require("../models/Device");
 var Relay  = require("../models/Relay");
+var Rack   = require("../models/Rack");
 
 var Icons  = require("./component/Icons");
 var Table  = require("./component/Table");
+
+import RackProgress from './Status/RackProgress';
 
 function deviceList(title, isProblem, devices) {
     var linkPrefix = isProblem ? "/problem/" : "/device/";
@@ -30,8 +33,9 @@ function deviceList(title, isProblem, devices) {
 module.exports = {
     loading : true,
     oninit : ({state}) => {
-        Promise.all([Device.loadDevices(), Relay.loadActiveRelays()])
-            .then(() => state.loading = false);
+        Promise.all([
+            Device.loadDevices(), Relay.loadActiveRelays(), Rack.loadRooms()
+        ]).then(() => state.loading = false);
     },
     view : function({state}) {
         if (state.loading)
@@ -49,10 +53,8 @@ module.exports = {
         });
 
         var activeHealthCounts   = healthCounts(activeDevices);
-
-        var inactiveHealthCounts   = healthCounts(inactiveDevices);
-
-        var totalHealthCounts   = healthCounts(Device.devices);
+        var inactiveHealthCounts = healthCounts(inactiveDevices);
+        var totalHealthCounts    = healthCounts(Device.devices);
 
         var deviceHealthGroups = R.groupBy(R.prop('health'), Device.devices);
         return [
@@ -107,6 +109,8 @@ module.exports = {
                     ]
 
                 ]),
+            m(".pure-u-1", m("h3.text-center", t("Datacenter Rack Status"))),
+            m(".pure-u-1", m(".text-center", m(RackProgress))),
             Table(t("Active Relays"),
                 [ t("Name"), t("Devices Connected"), t("Actions") ],
                 Relay.activeList.map( relay => {
@@ -135,11 +139,6 @@ module.exports = {
                     ];
                 })
             ),
-            m(".pure-u-1", m("hr")),
-            m(".pure-u-1", m("h2.text-center", t("Device Status"))),
-            deviceList(t("Unknown"), true, deviceHealthGroups.UNKNOWN),
-            deviceList(t("Failing"), true, deviceHealthGroups.FAIL),
-            deviceList(t("Passing"), false, deviceHealthGroups.PASS)
         ];
     }
 
