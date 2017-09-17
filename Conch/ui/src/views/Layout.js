@@ -11,7 +11,9 @@ function mainNav(isMobileView, state) {
             { class: isMobileView ? "mobile-is-active" : "" },
 
             m("ul.pure-menu-list",[
-                m(".pure-menu-heading.text-center.nav-text-color", m("h2", t("Conch"))),
+                m(".pure-menu-heading.text-center.nav-text-color",
+                    m(".logo"), m("h2", t("Conch"))
+                ),
 
                 m("li.pure-menu-item",
                     m("a[href='/status'].pure-menu-link.nav-link.nav-text-color",
@@ -69,7 +71,8 @@ function mainNav(isMobileView, state) {
                             }
                         }, [ Icons.nav.logout, t("Logout") ])
                 ),
-            ])
+                //m("li.pure-menu-item", m(".logo"))
+            ]),
         );
 }
 

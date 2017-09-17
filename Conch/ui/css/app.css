@@ -8,6 +8,13 @@ body svg {
     display: none;
 }
 
+.logo {
+    display: inline-block;
+    width: 118px;
+    height: 20px;
+    background: no-repeat center/80% url('/images/logo-white.svg');
+}
+
 .pure-table caption {
     font: bold 16px sans-serif;
 }
