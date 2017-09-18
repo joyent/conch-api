@@ -38,18 +38,28 @@ sub list_user_relays {
     })->all;
   }
 
+  my @relay_locations = $schema->resultset('RelayLocation')->search({})->all;
+  my $relay_locations = {};
+  for my $loc (@relay_locations) {
+    $relay_locations->{$loc->relay_id} = {
+      rack_id => $loc->rack_id,
+      rack_name => $loc->rack_name,
+      room_name => $loc->room_name,
+      role_name => $loc->role_name
+    };
+  }
+
+
   my @res;
   for my $relay (@relays) {
     my @devices = $schema->resultset('RelayDevices')->
       search({}, { bind => [$relay->id] })->all;
-    my $location = $schema->resultset('RelayLocation')->
-      search({}, { bind => [$relay->id] })->single;
 
     my $relay_res = {$relay->get_columns};
     @devices = map { {$_->get_columns} } @devices;
 
     $relay_res->{devices} = \@devices;
-    $relay_res->{location} = $location ? {$location->get_columns} : undef;
+    $relay_res->{location} = $relay_locations->{$relay->id};
     push @res, $relay_res;
   }
   return @res;
