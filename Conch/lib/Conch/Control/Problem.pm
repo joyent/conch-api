@@ -43,7 +43,7 @@ sub get_problems {
     $failing_problems->{$device_id}{location} =
       device_rack_location($schema, $device_id);
 
-    my $report = newest_report($schema, $device_id);
+    my $report = latest_device_report($schema, $device_id);
     $failing_problems->{$device_id}{report_id}  = $report->id;
     my @failures = validation_failures($schema, $criteria, $report->id);
     $failing_problems->{$device_id}{problems} = \@failures;
@@ -63,7 +63,7 @@ sub get_problems {
     my $device_id = $device->id;
 
     $unlocated_problems ->{$device_id}{health}   = $device->health;
-    my $report = newest_report($schema, $device_id);
+    my $report = latest_device_report($schema, $device_id);
     $unlocated_problems->{$device_id}{report_id}  = $report->id;
     my @failures = validation_failures($schema, $criteria, $report->id);
     $unlocated_problems->{$device_id}{problems} = \@failures;
@@ -104,16 +104,5 @@ sub validation_failures {
   return @failures;
 }
 
-sub newest_report {
-  my ($schema, $device_id) = @_;
-
-  # Get the most recent entry in device_report.
-  my $report = $schema->resultset('LatestDeviceReport')->search(
-    {},
-    { bind => [$device_id] }
-  )->first;
-
-  return $report;
-}
 
 1;

@@ -165,9 +165,9 @@ sub device_rack_location {
 sub latest_device_report {
   my ($schema, $device_id) = @_;
 
-  return $schema->resultset('DeviceReport')->search(
-    { device_id => $device_id },
-    { order_by => { -desc => 'created' } }
+  return $schema->resultset('LatestDeviceReport')->search(
+    {},
+    { bind => [$device_id] }
   )->first;
 }
 
