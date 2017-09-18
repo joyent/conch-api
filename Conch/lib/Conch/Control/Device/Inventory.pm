@@ -139,12 +139,12 @@ sub validate_bios_firmware {
   my $bios_version_status;
   my $bios_version_log = "Has = " . $device_spec->bios_firmware .", Want = " . $hw_profile->bios_firmware;
 
-  if ( "$device_spec->bios_firmware" eq "$hw_profile->bios_firmware" ) {
-    $bios_version_status = 0;
-    mistake("$device_id: report $report_id: CRITICAL: Incorrect BIOS firmware version: $bios_version_log");
-  } else {
+  if ( $device_spec->bios_firmware eq $hw_profile->bios_firmware ) {
     $bios_version_status = 1;
     trace("$device_id: report $report_id: OK: Correct BIOS firmware version: $bios_version_log");
+  } else {
+    $bios_version_status = 0;
+    mistake("$device_id: report $report_id: CRITICAL: Incorrect BIOS firmware version: $bios_version_log");
   }
 
   $schema->resultset('DeviceValidate')->create({

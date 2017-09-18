@@ -70,9 +70,8 @@ function mainNav(isMobileView, state) {
                                 Auth.logout();
                             }
                         }, [ Icons.nav.logout, t("Logout") ])
-                ),
-                //m("li.pure-menu-item", m(".logo"))
-            ]),
+                )
+            ])
         );
 }
 
