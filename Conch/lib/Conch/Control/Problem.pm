@@ -105,13 +105,12 @@ sub validation_failures {
 }
 
 sub newest_report {
-  my ($schema, $device) = @_;
+  my ($schema, $device_id) = @_;
 
   # Get the most recent entry in device_report.
-  my $report = $schema->resultset('DeviceReport')->search(
-    { device_id => $device },
-    { order_by => { -desc => 'created' },
-      columns => qw/id created/ }
+  my $report = $schema->resultset('LatestDeviceReport')->search(
+    {},
+    { bind => [$device_id] }
   )->first;
 
   return $report;
