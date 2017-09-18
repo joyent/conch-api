@@ -309,10 +309,7 @@ sub validate_disks {
 
   if ( $sas_ssd_num != $ssd_want ) {
     $sas_ssd_num_status = 0;
-    # XXX: Errors from SSD disabled due to SSD supply shortage. This will be
-    # re-enabled when validations are modularized.
-    info("$device_id: CRITICAL: report $report_id: Incorrect number of SAS_SSD: $sas_ssd_num_log");
-    #mistake("$device_id: CRITICAL: report $report_id: Incorrect number of SAS_SSD: $sas_ssd_num_log");
+    mistake("$device_id: CRITICAL: report $report_id: Incorrect number of SAS_SSD: $sas_ssd_num_log");
   } else {
     $sas_ssd_num_status = 1;
     trace("$device_id: report $report_id: OK: Correct number of SAS_SSD: $sas_ssd_num_log");
