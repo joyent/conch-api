@@ -38,7 +38,8 @@ sub list_user_relays {
     })->all;
   }
 
-  my @relay_locations = $schema->resultset('RelayLocation')->search({})->all;
+  my @relay_ids = map { $_->id } @relays;
+  my @relay_locations = $schema->resultset('RelayLocation')->search({ relay_id => { -in => \@relay_ids }})->all;
   my $relay_locations = {};
   for my $loc (@relay_locations) {
     $relay_locations->{$loc->relay_id} = {
