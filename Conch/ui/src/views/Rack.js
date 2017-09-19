@@ -119,15 +119,21 @@ function enterAsTab(e) {
 var rackLayoutTable = {
     view: function() {
         function reportButton(slot) {
-            var healthy =
-                slot.occupant && slot.occupant.health === 'PASS';
-            return m("a.pure-button", {
-                href: healthy ? "/device/" + slot.occupant.id : "/problem/" + slot.occupant.id,
-                oncreate: m.route.link,
-                title: t("Show Device Report"),
-                class: healthy ? "" : "color-failure"
-
-            }, healthy ? t("Pass") : t("FAIL") );
+            var healthButton = {
+                PASS : m("a.pure-button", {
+                    href: "/device/" + slot.occupant.id,
+                    oncreate: m.route.link,
+                    title: t("Show Device Report"),
+                }, t('Pass')),
+                UNKNOWN : t("No Report"),
+                FAIL : m("a.pure-button", {
+                    href: "/problem/" + slot.occupant.id,
+                    oncreate: m.route.link,
+                    title: t("Show Device Report"),
+                    class: "color-failure"
+                }, t('FAIL'))
+            };
+            return healthButton[slot.occupant.health];
         }
         function deviceInput(slot){
             return m("input[type=text]",
