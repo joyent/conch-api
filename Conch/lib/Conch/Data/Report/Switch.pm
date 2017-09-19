@@ -22,7 +22,6 @@ sub validations {
   return (
     \&validate_system,
     \&validate_cpu_temp,
-    \&validate_nics_num,
     \&validate_bios_firmware
   );
 }
