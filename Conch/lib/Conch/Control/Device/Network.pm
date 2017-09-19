@@ -2,6 +2,7 @@ package Conch::Control::Device::Network;
 
 use strict;
 use Log::Report;
+use List::Util 'first';
 use JSON::XS;
 
 use Data::Printer;
@@ -72,7 +73,13 @@ sub validate_wiremap {
     return 0;
   }
 
-  my @peer_ports = switch_peer_ports($rack_location);
+  my @rack_layout = $schema->resultset('DatacenterRackLayout')->search(
+    { rack_id => $rack_location->rack_id },
+    { order_by => { -asc => ['ru_start'] } }
+  )->all;
+  my @rack_slots = map { $_->ru_start } @rack_layout;
+
+  my @peer_ports = switch_peer_ports($rack_location->rack_unit, @rack_slots);
   my $switch_peers = {};
 
   for my $nic (@eth_nics) {
@@ -173,26 +180,16 @@ sub validate_wiremap {
 }
 
 sub switch_peer_ports {
-  my $rack_location = shift;
-  my $role = $rack_location->rack->role;
-  my $ru = $rack_location->rack_unit;
-  my $case = {
-    'TRITON'     => sub { port_numbers(2, $ru) },
-    # add 2 to the rack unit past 38, which are 2 RU past 37
-    'MANTA'      => sub { $ru < 38 ? port_numbers(4,$ru) : port_numbers(4, $ru + 2) },
-    # add 2 to the rack unit past 50, which are 2 RU past 49
-    'MANTA_TALL' => sub {  $ru < 50 ? port_numbers(4,$ru) : port_numbers(4, $ru + 2) }
-  };
-  return $case->{$role->name}->();
-}
+  my ($rack_unit, @rack_slots) = @_;
+  my $rack_index = first { $rack_slots[$_] == $rack_unit } 0..$#rack_slots;
+  defined $rack_index or error 'Device assigned to rack unit not in rack layout';
 
-# Calculate the switch port numbers for a rack unit and size
-sub port_numbers {
-  my $size = shift;
-  my $rack_unit = shift;
-  my $first_port = int(($rack_unit- 1) / $size) + 1;
+  my $first_port = 1 + $rack_index;
+  # offset of 19 is standard for all deployments, including 62U racks
   my $second_port = $first_port + 19;
+
   return ("1/$first_port", "1/$second_port");
 }
+
 
 1;
