@@ -29,7 +29,7 @@ module.exports = {
                         class: relay === Relay.current ?
                             "selection-list-item-active" : ""
                     },
-                    relay.alias
+                    relay.alias || relay.id
                 );
             });
     }

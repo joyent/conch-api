@@ -17,7 +17,7 @@ module.exports = {
         if (state.loading)
             return m(".loading", t("Loading"));
         const relayInfo =
-            Table(Relay.current.alias,
+            Table(Relay.current.alias || Relay.current.id,
                 [
                     t("IP Address"),
                     t("SSH Port Tunnel"),

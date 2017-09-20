@@ -3,14 +3,17 @@ import m from "mithril";
 
 // Use a natural sort with devices that end with a number.
 // e.g, 'PRD10' comes after 'PRD2'
-function byAlias(a,b) {
+// Fall back on ID if no alias is set
+function byAlias(relayA,relayB) {
+    const a = relayA.alias || relayA.id;
+    const b = relayB.alias || relayB.id;
     const reA = /[^a-zA-Z]/g;
     const reN = /[^0-9]/g;
-    const aA = a.alias.replace(reA, "");
-    const bA = b.alias.replace(reA, "");
+    const aA = a.replace(reA, "");
+    const bA = b.replace(reA, "");
     if(aA === bA) {
-        var aN = parseInt(a.alias.replace(reN, ""), 10);
-        var bN = parseInt(b.alias.replace(reN, ""), 10);
+        var aN = parseInt(a.replace(reN, ""), 10);
+        var bN = parseInt(b.replace(reN, ""), 10);
         return aN === bN ? 0 : aN > bN ? 1 : -1;
     }
     else {

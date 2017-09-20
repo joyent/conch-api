@@ -115,7 +115,7 @@ module.exports = {
                 [ t("Name"), t("Devices Connected"), t("Actions") ],
                 Relay.activeList.map( relay => {
                     return [
-                        relay.alias,
+                        relay.alias || relay.id,
                         R.filter(Device.isActive, relay.devices).length,
                         [
                             m("a.pure-button",
