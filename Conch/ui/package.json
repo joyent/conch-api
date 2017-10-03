@@ -22,7 +22,8 @@
     },
     "scripts": {
         "start": "webpack -d --watch",
-        "build": "webpack -p"
+        "build": "webpack -p",
+        "prettier": "prettier --write src/index.js src/views/**/*.js src/models/**/*.js"
     },
     "keywords": [],
     "author": "",

@@ -1,6 +1,5 @@
 .PHONY: test run build build-js deps install-deps generate-dbic web-assets watch-js watch-perl watch
 
-
 test:
 	@carton exec prove -l lib
 
@@ -13,6 +12,9 @@ build: build-js web-assets
 
 build-js: ui/package-lock.json
 	@cd ui && npm run-script build;
+
+format-js:
+	cd ui && npm run prettier
 
 web-assets: public/css/app.css public/js/app.js
 
