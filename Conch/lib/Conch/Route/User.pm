@@ -19,7 +19,7 @@ set serializer => 'JSON';
 # Add an admin role that validates against a shared secret
 Dancer2::Plugin::Auth::Tiny->extend(
   admin => sub {
-    my ($auth, $coderef) = @_;
+    my ( $auth, $coderef ) = @_;
     return sub {
       if ( $auth->app->session->read("is_admin") ) {
         goto $coderef;
@@ -30,7 +30,7 @@ Dancer2::Plugin::Auth::Tiny->extend(
     };
   },
   integrator => sub {
-    my ($auth, $coderef) = @_;
+    my ( $auth, $coderef ) = @_;
     return sub {
       if ( $auth->app->session->read('integrator') ) {
         goto $coderef;
@@ -45,16 +45,21 @@ Dancer2::Plugin::Auth::Tiny->extend(
 post '/user' => needs admin => sub {
   my $user;
   my $name = body_parameters->get('user');
-  my $existingUser = lookup_user_by_name(schema, $name);
+  my $existingUser = lookup_user_by_name( schema, $name );
 
   if ($existingUser) {
     status_400("username already exists");
   }
 
   else {
-    if (process sub {
-      $user = create_integrator_user(schema, $name);
-    })   { status_201($user); }
+    if (
+      process sub {
+        $user = create_integrator_user( schema, $name );
+      }
+      )
+    {
+      status_201($user);
+    }
     else { status_500('unable to create a user'); }
   }
 
@@ -67,14 +72,15 @@ post '/user/me/settings' => needs integrator => sub {
   return status_400("No settings specified or invalid JSON given")
     unless $settings;
 
-  my $user = lookup_user_by_name(schema, $user_name);
-  my $status =
-    set_user_settings(schema, $user, $settings);
+  my $user = lookup_user_by_name( schema, $user_name );
+  my $status = set_user_settings( schema, $user, $settings );
 
   if ($status) {
-    return status_200({ status => "updated settings for user"});
-  } else {
-    return status_500({error => "error occured determining settings for user"});
+    return status_200( { status => "updated settings for user" } );
+  }
+  else {
+    return status_500(
+      { error => "error occured determining settings for user" } );
   }
 };
 
@@ -82,15 +88,17 @@ get '/user/me/settings' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $keys_only = param 'keys_only';
 
-  my $user = lookup_user_by_name(schema, $user_name);
-  my $settings = get_user_settings(schema, $user);
+  my $user = lookup_user_by_name( schema, $user_name );
+  my $settings = get_user_settings( schema, $user );
 
   if ($settings) {
     return $keys_only
-      ? status_200([keys %{$settings}])
+      ? status_200( [ keys %{$settings} ] )
       : status_200($settings);
-  } else {
-    return status_500({error => "error occured determining settings for user"});
+  }
+  else {
+    return status_500(
+      { error => "error occured determining settings for user" } );
   }
 };
 
@@ -101,17 +109,22 @@ post '/user/me/settings/:key' => needs integrator => sub {
 
   my $setting_value = $setting->{$setting_key};
 
-  return status_400("Setting key in request body must match name in the URL ('$setting_key')")
+  return status_400(
+    "Setting key in request body must match name in the URL ('$setting_key')")
     unless defined $setting_value;
 
-  my $user = lookup_user_by_name(schema, $user_name);
+  my $user = lookup_user_by_name( schema, $user_name );
   my $status =
-    process sub {set_user_setting(schema, $user, $setting_key, $setting_value)};
+    process
+    sub { set_user_setting( schema, $user, $setting_key, $setting_value ) };
 
   if ($status) {
-    return status_200({ status => "updated setting '$setting_key' for user"});
-  } else {
-    return status_500({error => "error occured determining setting for user"});
+    return status_200(
+      { status => "updated setting '$setting_key' for user" } );
+  }
+  else {
+    return status_500(
+      { error => "error occured determining setting for user" } );
   }
 };
 
@@ -119,28 +132,27 @@ get '/user/me/settings/:key' => needs integrator => sub {
   my $setting_key = param 'key';
   my $user_name   = session->read('integrator');
 
-  my $user = lookup_user_by_name(schema, $user_name);
-  my $setting = get_user_setting(schema, $user, $setting_key);
+  my $user = lookup_user_by_name( schema, $user_name );
+  my $setting = get_user_setting( schema, $user, $setting_key );
 
   if ($setting) {
     return status_200($setting);
-  } else {
-    return status_404(
-      {error => "No such setting '$setting_key'"}
-    );
+  }
+  else {
+    return status_404( { error => "No such setting '$setting_key'" } );
   }
 };
-
 
 del '/user/me/settings/:key' => needs integrator => sub {
   my $setting_key = param 'key';
   my $user_name   = session->read('integrator');
 
-  my $user = lookup_user_by_name(schema, $user_name);
-  my $deleted = delete_user_setting(schema, $user, $setting_key);
+  my $user = lookup_user_by_name( schema, $user_name );
+  my $deleted = delete_user_setting( schema, $user, $setting_key );
 
-  if ($deleted)  {
-    return status_200({"status" => "deleted setting '$setting_key' for user"});
+  if ($deleted) {
+    return status_200(
+      { "status" => "deleted setting '$setting_key' for user" } );
   }
   else {
     return status_404("setting '$setting_key' does not exist");
@@ -148,47 +160,50 @@ del '/user/me/settings/:key' => needs integrator => sub {
 
 };
 
-
-
 post '/login' => sub {
 
   my $username = body_parameters->get('user');
   my $password = body_parameters->get('password');
-  unless (defined $username && defined $password) {
+  unless ( defined $username && defined $password ) {
     return status_400("'user' and 'password' must be specified");
   }
 
-  if ($username eq 'admin' &&
-    passphrase($password)->matches(config->{'admin_password'}))
+  if ( $username eq 'admin'
+    && passphrase($password)->matches( config->{'admin_password'} ) )
   {
     session is_admin => 1;
     info "admin logged in";
-    status_200({role => "admin"});
+    status_200( { role => "admin" } );
   }
-  elsif (authenticate(schema, $username, $password)) {
+  elsif ( authenticate( schema, $username, $password ) ) {
     session integrator => $username;
     info "integrator '$username' logged in";
-    status_200({role => "integrator"});
+    status_200( { role => "integrator" } );
   }
   else {
     status_401 "failed log in attempt";
   }
 };
 
-
 post '/logout' => sub {
   session->delete('is_admin');
   session->delete('integrator');
-  status_200({status => "logged out"});
+  status_200( { status => "logged out" } );
 };
 
 post '/datacenter_access' => sub {
-  if (process sub {
-    # XXX This is truncating what we're passing in as an array for some reason.
-    # XXX Only the last value makes it in.
-    set_datacenter_room_access(schema, body_parameters->as_hashref)
-  })    { status_200(); }
-   else { status_500('error setting user datacenter access'); }
+  if (
+    process sub {
+
+     # XXX This is truncating what we're passing in as an array for some reason.
+     # XXX Only the last value makes it in.
+      set_datacenter_room_access( schema, body_parameters->as_hashref );
+    }
+    )
+  {
+    status_200();
+  }
+  else { status_500('error setting user datacenter access'); }
 };
 
 1;

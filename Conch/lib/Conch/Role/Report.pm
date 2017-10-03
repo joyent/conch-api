@@ -8,5 +8,4 @@ use Moose::Role;
 # signature: `my ($schema, $device, $report_id) = @_;`
 requires qw( validations );
 
-
 1;

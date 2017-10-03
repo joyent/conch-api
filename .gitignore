@@ -30,3 +30,6 @@ Conch/lib/Conch/Schema/Result/Migration.pm
 
 # Carton-installed dependency folder
 local/
+
+# perltidy backup files
+*.bak

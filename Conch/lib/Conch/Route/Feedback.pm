@@ -15,16 +15,16 @@ use Data::Printer;
 set serializer => 'JSON';
 
 post '/feedback' => needs integrator => sub {
-  my $user_name  = session->read('integrator');
-  my $message = param 'message';
-  my $subject = param 'subject';
-  my %mail = (
+  my $user_name = session->read('integrator');
+  my $message   = param 'message';
+  my $subject   = param 'subject';
+  my %mail      = (
     To      => 'preflight-dev@joyent.com',
     From    => 'preflight-dev@joyent.com',
     Subject => "From user $user_name: $subject",
     Message => "$message"
   );
-  if (sendmail %mail) {
+  if ( sendmail %mail ) {
     info "Feedback email sent.";
   }
   else {

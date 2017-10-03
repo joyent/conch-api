@@ -11,8 +11,8 @@ use Exporter 'import';
 our @EXPORT = qw( get_datacenter_room set_datacenter_room_access );
 
 sub get_datacenter_room {
-  my ($schema, $room_id) = @_;
-  my $room = $schema->resultset('DatacenterRoom')->find({id => $room_id});
+  my ( $schema, $room_id ) = @_;
+  my $room = $schema->resultset('DatacenterRoom')->find( { id => $room_id } );
   return $room;
 }
 
@@ -26,33 +26,31 @@ sub get_datacenter_room {
 # To delete all datacenter room access, pass a list with a single value that is
 # not a valid room identifier.
 sub set_datacenter_room_access {
-  my ($schema, $room_access) = @_;
+  my ( $schema, $room_access ) = @_;
 
-  foreach my $user_name (keys %{$room_access}) {
+  foreach my $user_name ( keys %{$room_access} ) {
     my @datacenter_room_keys = $room_access->{$user_name};
-    my $user = lookup_user_by_name($schema, $user_name);
+    my $user = lookup_user_by_name( $schema, $user_name );
     $user or error "user name $user_name does not exist";
 
     #XXX How will refer to the datacenter room in the event? Vendor name? AZ?
     # Stubbed this with 'az' for now
-    my @datacenter_rooms = $schema->resultset('DatacenterRoom')->search(
-      { az => { -in => @datacenter_room_keys } }
-    );
+    my @datacenter_rooms = $schema->resultset('DatacenterRoom')
+      ->search( { az => { -in => @datacenter_room_keys } } );
 
-    scalar @datacenter_rooms 
+    scalar @datacenter_rooms
       or warning "No valid datacenter rooms found for user '$user_name'";
 
-    # XXX BUG: https://app.liquidplanner.com/space/174715/projects/show/39854773P
-    # XXX Only works for updating a single row?
-    # XXX This isn't a list; it's being truncated upstream.
-    # XXX Orig:
-    #$user->set_datacenter_rooms(@datacenter_rooms || [])
-    # XXX Still busted:
+   # XXX BUG: https://app.liquidplanner.com/space/174715/projects/show/39854773P
+   # XXX Only works for updating a single row?
+   # XXX This isn't a list; it's being truncated upstream.
+   # XXX Orig:
+   #$user->set_datacenter_rooms(@datacenter_rooms || [])
+   # XXX Still busted:
     foreach my $room (@datacenter_rooms) {
-      $user->set_datacenter_rooms($room || [])
+      $user->set_datacenter_rooms( $room || [] );
     }
   }
-};
-
+}
 
 1;

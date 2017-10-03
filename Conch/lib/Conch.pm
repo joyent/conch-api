@@ -10,7 +10,7 @@ use Conch::Route::Feedback;
 our $VERSION = '0.1';
 
 get '/' => sub {
-  send_file '/index.html'
+  send_file '/index.html';
 };
 
 true;
