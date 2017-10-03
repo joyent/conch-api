@@ -21,6 +21,7 @@ format-perl:
 	@find lib \
 		-path lib/Conch/Schema -prune \
 		-o -name "*.pm" -not -name "Schema*" -type f -exec perltidy {} +
+	@find lib -name "*.bak" -delete
 
 format-js:
 	@cd ui && npm run prettier

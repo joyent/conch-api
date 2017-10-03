@@ -54,8 +54,7 @@ sub lookup_device_for_user {
     ->search( { id => $device_id }, { bind => [$user_name] } )->single;
 
   # Look for an unlocated device if no located device found
-  $device =
-       $device
+  $device = $device
     || $schema->resultset('UnlocatedUserRelayDevices')
     ->search( { id => $device_id }, { bind => [$user_name] } )->single;
   return $device;
