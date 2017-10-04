@@ -1,7 +1,7 @@
 package Conch::Control::User;
 
 use strict;
-use Log::Report;
+use Log::Any '$log';
 
 # required for 'passphrase'. Dumb.
 use Dancer2 appname => 'Conch';
@@ -29,7 +29,7 @@ sub user_id_by_name {
 sub authenticate {
   my ( $schema, $name, $password ) = @_;
   my $user = lookup_user_by_name( $schema, $name );
-  $user or mistake "user name '$name' not found";
+  $user or return $log->warning("user name '$name' not found") and return;
 
   return passphrase($password)->matches( $user->password_hash );
 }

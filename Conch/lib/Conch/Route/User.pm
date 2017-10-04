@@ -4,7 +4,7 @@ use strict;
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
-use Dancer2::Plugin::LogReport;
+use Dancer2::Logger::LogAny;
 use Dancer2::Plugin::Passphrase;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
@@ -52,12 +52,8 @@ post '/user' => needs admin => sub {
   }
 
   else {
-    if (
-      process sub {
-        $user = create_integrator_user( schema, $name );
-      }
-      )
-    {
+    $user = create_integrator_user( schema, $name );
+    if ($user) {
       status_201($user);
     }
     else { status_500('unable to create a user'); }
@@ -115,8 +111,7 @@ post '/user/me/settings/:key' => needs integrator => sub {
 
   my $user = lookup_user_by_name( schema, $user_name );
   my $status =
-    process
-    sub { set_user_setting( schema, $user, $setting_key, $setting_value ) };
+    set_user_setting( schema, $user, $setting_key, $setting_value );
 
   if ($status) {
     return status_200(
@@ -193,12 +188,9 @@ post '/logout' => sub {
 
 post '/datacenter_access' => sub {
   if (
-    process sub {
-
      # XXX This is truncating what we're passing in as an array for some reason.
      # XXX Only the last value makes it in.
-      set_datacenter_room_access( schema, body_parameters->as_hashref );
-    }
+      set_datacenter_room_access( schema, body_parameters->as_hashref )
     )
   {
     status_200();
