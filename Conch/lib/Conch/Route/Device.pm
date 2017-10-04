@@ -5,7 +5,7 @@ use strict;
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
-use Dancer2::Plugin::LogReport;
+use Dancer2::Logger::LogAny;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Data::Validate::UUID 'is_uuid';
@@ -271,9 +271,7 @@ post '/device/:serial/settings/:key' => needs integrator => sub {
     "Setting key in request body must match name in the URL ('$setting_key')")
     unless defined $setting_value;
 
-  my $status =
-    process
-    sub { set_device_setting( schema, $device, $setting_key, $setting_value ) };
+  my $status = set_device_setting( schema, $device, $setting_key, $setting_value );
 
   if ($status) {
     return status_200(

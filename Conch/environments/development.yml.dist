@@ -4,17 +4,16 @@
 # console: log messages to STDOUT (your console where you started the
 #          application server)
 # file:    log message to a file in log/
-logger: "LogReport"
+logger: LogAny
 
 engines:
   logger:
-    LogReport:
-      log_format: %a%i%m
-      app_name: Conch
-      dispatchers:
-        default:
-          mode: DEBUG
-          type: PERL
+    LogAny:
+      category: dancer
+      logger:
+        - Screen
+        - use_color
+        - 1
   session:
     YAML:
     session_dir: "/tmp/dancer-sessions"

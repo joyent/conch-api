@@ -54,9 +54,3 @@ admin_password: '{CRYPT}$2a$04$d4Wo8azqZ4VwYmYV50jPG.6CyjJhf1nov/B8Z.qhM6UJKAlA8
 #      cookie_name: eshop.session
 #      is_secure: 1
 #      is_http_only: 1
-plugins:
-  LogReport:
-    # Whether to handle Dancer HTTP errors such as 404s. Currently has
-    # no effect due to unresolved issues saving messages to the session
-    # and accessing the DSL at that time.
-    handle_http_errors: 1

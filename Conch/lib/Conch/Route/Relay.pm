@@ -5,7 +5,7 @@ use strict;
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
-use Dancer2::Plugin::LogReport;
+use Dancer2::Logger::LogAny;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::Relay;
@@ -37,11 +37,8 @@ post '/relay/:serial/register' => needs integrator => sub {
 
   # XXX Attribute validation.
 
-  my $relay;
-  process sub {
-    $relay = register_relay( schema, $serial, $client_ip, $attrib );
-    connect_user_relay( schema, $user_name, $serial );
-  };
+  my $relay = register_relay( schema, $serial, $client_ip, $attrib );
+  connect_user_relay( schema, $user_name, $serial );
 
   if ($relay) {
     status_200(

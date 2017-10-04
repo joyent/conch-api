@@ -1,7 +1,7 @@
 package Conch::Control::Datacenter;
 
 use strict;
-use Log::Report;
+use Log::Any;
 use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
 

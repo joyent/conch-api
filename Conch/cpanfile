@@ -20,6 +20,11 @@ requires 'List::Compare';
 requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
 
+# logging
+requires 'Log::Any';
+requires 'Log::Any::Adapter::Screen';
+requires 'Log::Report';
+
 # database
 requires 'DBD::Pg';
 requires 'DateTime::Format::Pg';
@@ -30,7 +35,7 @@ requires 'DBIx::Class::TimeStamp';
 # dancer plugin
 requires 'Dancer2::Plugin::Auth::Tiny';
 requires 'Dancer2::Plugin::DBIC';
-requires 'Dancer2::Plugin::LogReport';
+requires 'Dancer2::Logger::LogAny';
 requires 'Dancer2::Plugin::Passphrase';
 requires 'Dancer2::Plugin::REST';
 requires 'Dancer2::Plugin::REST';
