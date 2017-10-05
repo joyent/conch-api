@@ -11,7 +11,7 @@ use Conch::Control::Datacenter;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( device_info device_location all_user_devices devices_for_user
+our @EXPORT = qw( get_device device_location all_user_devices devices_for_user
   lookup_device_for_user device_rack_location
   device_ids_for_user latest_device_report device_validation_report
   update_device_location delete_device_location
@@ -132,7 +132,7 @@ sub get_devices_by_health {
   return @return_devices;
 }
 
-sub device_info {
+sub get_device {
   my ( $schema, $device_id ) = @_;
   my $device = $schema->resultset('Device')->find( { id => $device_id } );
   return $device;
@@ -223,57 +223,24 @@ sub delete_device_location {
 }
 
 sub update_device_location {
-  my ( $schema, $device_info ) = @_;
+  my ( $schema, $device_info, $user_name ) = @_;
 
-  # If the device doesn't exist, create a stub entry for it.
-  my $device_check = $schema->resultset('Device')->find(
+  my $slot_info = $schema->resultset('DatacenterRackLayout')->search(
     {
-      id => $device_info->{device}
+      rack_id  => $device_info->{rack},
+      ru_start => $device_info->{rack_unit}
     }
-  );
+  )->single;
 
-  unless ($device_check) {
-
-    my $slot_info = $schema->resultset('DatacenterRackLayout')->search(
-      {
-        rack_id  => $device_info->{rack},
-        ru_start => $device_info->{rack_unit}
-      }
-    )->single;
-
-    unless ($slot_info) {
-      $log->warning(
-"Could not find a slot $device_info->{rack}:$device_info->{rack_unit} for device $device_info->{device}"
-      );
-      return undef;
-    }
-
-    my $device_create = $schema->resultset('Device')->update_or_create(
-      {
-        id               => $device_info->{device},
-        health           => "UNKNOWN",
-        state            => "UNKNOWN",
-        hardware_product => $slot_info->product_id,
-      }
+  unless ($slot_info) {
+    return (
+      undef,
+      $log->warningf(
+        "Could not find a slot %s : %s for assigning to device",
+        $device_info->{rack}, $device_info->{rack_unit},
+        $device_info->{device}
+      )
     );
-
-    unless ( $device_create->in_storage ) { return undef }
-  }
-
-  my $existing = $schema->resultset('DeviceLocation')->find(
-    {
-      device_id => $device_info->{device}
-    }
-  );
-
-  # Log that we're moving a device if we are.
-  if ($existing) {
-    my $e_ru = $existing->rack_id . ":" . $existing->rack_unit;
-    my $n_ru = $device_info->{rack} . ":" . $device_info->{rack_unit};
-
-    if ( $e_ru ne $n_ru ) {
-      $log->warning("Moving $device_info->{device} from $e_ru to $n_ru");
-    }
   }
 
   my $occupied = $schema->resultset('DeviceLocation')->search(
@@ -283,25 +250,53 @@ sub update_device_location {
     }
   )->single;
 
-  # XXX I couldn't figure out how to defref this properly!
-  # XXX It made me nuts :( -- bdha
-  # Refuse to move a device to a slot occupied by another device.
   if ($occupied) {
     my $occupied_device = $occupied->device_id;
 
-    unless ( $occupied_device == $device_info->{device} ) {
-
-      # XXX This needs a real error message.
-      $log->warning(
-"Cannot move $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}, occupied by $occupied_device"
+    # Location is currently occupied
+    unless ( $occupied_device eq $device_info->{device} ) {
+      return (
+        undef,
+        $log->warningf(
+          "Cannot move device %s to rack %s, slot %s, occupied by device %s",
+          $device_info->{device},    $device_info->{rack},
+          $device_info->{rack_unit}, $occupied_device
+        )
       );
-      return undef;
     }
+
+    # Nothing to do; is already assigned to this location
+    $log->infof(
+      "Device %s already occupies rack %s, slot %s",
+      $device_info->{device},
+      $device_info->{rack}, $device_info->{rack_unit},
+    );
+    return ( $occupied, undef );
   }
 
-  $log->info(
-"Updating location for $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}"
+  my $device = get_device( $schema, $device_info->{device} );
+
+  # Create a device if it doesn't exist
+  unless ($device) {
+    $device = $schema->resultset('Device')->create(
+      {
+        id               => $device_info->{device},
+        health           => "UNKNOWN",
+        state            => "UNKNOWN",
+        hardware_product => $slot_info->product_id,
+      }
+    );
+    Log::Any->get_logger( category => 'user.action.device.create' )
+      ->infof( "User '%s' created device %s to assign to location",
+      $user_name, $device->id );
+  }
+
+  my $existing = $schema->resultset('DeviceLocation')->find(
+    {
+      device_id => $device_info->{device}
+    }
   );
+
   my $result = $schema->resultset('DeviceLocation')->update_or_create(
     {
       device_id => $device_info->{device},
@@ -309,6 +304,14 @@ sub update_device_location {
       rack_unit => $device_info->{rack_unit}
     }
   );
+  Log::Any->get_logger( category => 'user.action.device.update_location' )
+    ->infof(
+    "User '%s' assigned device %s location to rack %s, slot %s",
+    $user_name,           $device_info->{device},
+    $device_info->{rack}, $device_info->{rack_unit}
+    );
+
+  return ( $result, undef );
 }
 
 sub mark_device_validated {

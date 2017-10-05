@@ -20,6 +20,7 @@ nytprof.out
 /_eumm/
 *.swp
 tags
+.lvimrc
 /Conch/conch.conf
 Conch/conch.conf
 Conch/public/js/app.js

@@ -114,13 +114,13 @@ post '/device/:serial' => needs integrator => sub {
 #  return status_401('unauthorized');
 #}
   my $raw_report = body_parameters->as_hashref;
-  Log::Any->get_logger( category => 'raw_device_report' )->trace($raw_report);
+  Log::Any->get_logger( category => 'report.raw' )->trace($raw_report);
 
   my ( $device_report, $parse_err ) = parse_device_report($raw_report);
 
   if ($parse_err) {
     my $err_log =
-      Log::Any->get_logger( category => 'unparsable_device_report' );
+      Log::Any->get_logger( category => 'report.unparsable' );
     $err_log->error( "Unparsable device report", { report => $raw_report } );
     return status_400("$parse_err");
   }
@@ -130,7 +130,7 @@ post '/device/:serial' => needs integrator => sub {
   };
   if ($@) {
     my $err_log =
-      Log::Any->get_logger( category => 'unpersistable_device_report' );
+      Log::Any->get_logger( category => 'report.error' );
     $err_log->crit( "Failed to persist report",
       { report => body_parameters->as_hashref, error => "$@" } );
     return status_500("$@");
@@ -177,22 +177,21 @@ post '/device/:serial/location' => needs integrator => sub {
   # XXX Input validation. Required fields.
 
   my $req = body_parameters->as_hashref;
-  my $result = update_device_location( schema, $req );
+  my ($result, $err) = update_device_location( schema, $req, $user_name);
 
-  if ($result) {
-    status_200(
-      {
-        device_id => $serial,
-        action    => "update",
-        status    => 200,
-        moved_to  => "$req->{rack}:$req->{rack_unit}",
-      }
-    );
-  }
-  else {
+  if ($err) {
     return status_500(
-      { error => "error occured updating device location for $serial" } );
+      { error => "error occured updating device location for $serial: $err" } );
   }
+
+  status_200(
+    {
+      device_id => $serial,
+      action    => "update",
+      status    => 200,
+      moved_to  => "$req->{rack}:$req->{rack_unit}",
+    }
+  );
 };
 
 del '/device/:serial/location' => needs integrator => sub {

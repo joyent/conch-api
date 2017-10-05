@@ -99,7 +99,7 @@ post '/rack/:uuid/layout' => needs integrator => sub {
     $update->{device}    = $k;
     $update->{rack}      = $uuid;
     $update->{rack_unit} = $layout->{$k};
-    my $result = update_device_location( schema, $update );
+    my $result = update_device_location( schema, $update, $user_name );
     if ($result) {
       push @updates, $k;
     }
