@@ -5,7 +5,6 @@ use strict;
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
-use Dancer2::Logger::LogAny;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Data::Validate::UUID 'is_uuid';
@@ -19,6 +18,7 @@ use Conch::Control::DeviceReport;
 use Conch::Control::Relay;
 
 use Data::Printer;
+use Log::Any;
 
 set serializer => 'JSON';
 
@@ -113,12 +113,28 @@ post '/device/:serial' => needs integrator => sub {
 #  warning "$user_name not allowed to view device $serial or $serial does not exist";
 #  return status_401('unauthorized');
 #}
-  my ($device_report, $parse_err) = parse_device_report( body_parameters->as_hashref );
+  my $raw_report = body_parameters->as_hashref;
+  Log::Any->get_logger( category => 'raw_device_report' )->trace($raw_report);
+
+  my ( $device_report, $parse_err ) = parse_device_report($raw_report);
 
   if ($parse_err) {
+    my $err_log =
+      Log::Any->get_logger( category => 'unparsable_device_report' );
+    $err_log->error( "Unparsable device report", { report => $raw_report } );
     return status_400("$parse_err");
   }
-  ( $device, $report_id ) = record_device_report( schema, $device_report );
+
+  eval {
+    ( $device, $report_id ) = record_device_report( schema, $device_report );
+  };
+  if ($@) {
+    my $err_log =
+      Log::Any->get_logger( category => 'unpersistable_device_report' );
+    $err_log->crit( "Failed to persist report",
+      { report => body_parameters->as_hashref, error => "$@" } );
+    return status_500("$@");
+  }
 
   connect_user_relay( schema, $user_name, $device_report->relay->{serial} )
     if $device_report->relay;
@@ -270,7 +286,8 @@ post '/device/:serial/settings/:key' => needs integrator => sub {
     "Setting key in request body must match name in the URL ('$setting_key')")
     unless defined $setting_value;
 
-  my $status = set_device_setting( schema, $device, $setting_key, $setting_value );
+  my $status =
+    set_device_setting( schema, $device, $setting_key, $setting_value );
 
   if ($status) {
     return status_200(
@@ -330,7 +347,8 @@ post '/device/:serial/log' => needs integrator => sub {
     "Invalid JSON. Line breaks must be convereted to '\n' characters")
     unless %{ body_parameters->as_hashref };
 
-  my ($device_log, $valid_err) = parse_device_log( body_parameters->as_hashref );
+  my ( $device_log, $valid_err ) =
+    parse_device_log( body_parameters->as_hashref );
   if ($valid_err) {
     return status_400("$valid_err");
   }

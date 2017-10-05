@@ -6,7 +6,6 @@ use warnings;
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
-use Dancer2::Logger::LogAny;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::Rack;

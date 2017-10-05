@@ -243,7 +243,7 @@ sub update_device_location {
 
     unless ($slot_info) {
       $log->warning(
-        "Could not find a slot $device_info->{rack}:$device_info->{rack_unit} for device $device_info->{device}"
+"Could not find a slot $device_info->{rack}:$device_info->{rack_unit} for device $device_info->{device}"
       );
       return undef;
     }
@@ -293,14 +293,14 @@ sub update_device_location {
 
       # XXX This needs a real error message.
       $log->warning(
-        "Cannot move $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}, occupied by $occupied_device"
+"Cannot move $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}, occupied by $occupied_device"
       );
       return undef;
     }
   }
 
   $log->info(
-    "Updating location for $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}"
+"Updating location for $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}"
   );
   my $result = $schema->resultset('DeviceLocation')->update_or_create(
     {

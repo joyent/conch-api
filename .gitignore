@@ -19,6 +19,7 @@ nytprof.out
 *.bs
 /_eumm/
 *.swp
+tags
 /Conch/conch.conf
 Conch/conch.conf
 Conch/public/js/app.js

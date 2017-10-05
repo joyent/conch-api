@@ -107,9 +107,9 @@ sub rack_layout {
 
     my $hw_profile = $hw->hardware_product_profile;
     $hw_profile
-      or die->error("Hardware product "
-      . $slot->product_id
-      . " exists but does not have a hardware profile");
+      or die->error( "Hardware product "
+        . $slot->product_id
+        . " exists but does not have a hardware profile" );
 
     my $device_location = $schema->resultset('DeviceLocation')->find(
       {

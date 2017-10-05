@@ -23,7 +23,7 @@ sub parse_device_log {
   if ($@) {
     my $err = join( "; ", map { $_->message } $@->errors );
     $log->warning("Invalid device log: $err.");
-    return (undef, $err);
+    return ( undef, $err );
   }
   else {
     return ($dr);

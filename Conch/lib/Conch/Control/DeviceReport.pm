@@ -32,7 +32,7 @@ sub parse_device_report {
   if ($@) {
     my $errs = join( "; ", map { $_->message } $@->errors );
     $log->warning("Error validating device report: $errs");
-    return (undef, $errs);
+    return ( undef, $errs );
   }
   else {
     for my $attr ( keys %{ $report->pack() } ) {
@@ -74,8 +74,9 @@ sub record_device_report {
 
   my $hw_profile = $hw->hardware_product_profile;
   $hw_profile
-    or die
-    $log->criticalf("Hardware product '%s' exists but does not have a hardware profile", $hw->name);
+    or die $log->criticalf(
+    "Hardware product '%s' exists but does not have a hardware profile",
+    $hw->name );
 
   $log->info("Ready to record report for Device $dr->{serial_number}");
 
@@ -86,7 +87,7 @@ sub record_device_report {
     sub {
 
       my $prev_device =
-      $schema->resultset('Device')->find( { id => $dr->{serial_number} } );
+        $schema->resultset('Device')->find( { id => $dr->{serial_number} } );
 
       my $prev_uptime = $prev_device && $prev_device->uptime_since;
 
@@ -108,11 +109,11 @@ sub record_device_report {
       # report (i.e. first uptime reported), or if the previous uptime date is
       # less than the the current one (i.e. there has been a reboot)
       add_reboot_count($device)
-      if ( !$prev_uptime && $device->{uptime_since} )
-      || $device->{uptime_since} && $prev_uptime < $device->{uptime_since};
+        if ( !$prev_uptime && $device->{uptime_since} )
+        || $device->{uptime_since} && $prev_uptime < $device->{uptime_since};
 
       device_relay_connect( $schema, $device_id, $dr->{relay}{serial} )
-      if $dr->{relay};
+        if $dr->{relay};
 
       # Stores the JSON representation of device report as serialized
       # by MooseX::Storage
@@ -150,8 +151,8 @@ sub record_device_report {
         }
       ) if $dr->{temp};
 
-      $dr->{temp} and
-      $log->info("Recorded environment for Device $device_id");
+      $dr->{temp}
+        and $log->info("Recorded environment for Device $device_id");
 
       # XXX If a disk vanishes/replaces, we need to mark it deactivated here.
       foreach my $disk ( keys %{ $dr->{disks} } ) {
@@ -175,8 +176,8 @@ sub record_device_report {
         );
       }
 
-      $dr->{disks} and
-      $log->info("Recorded disk info for Device $device_id");
+      $dr->{disks}
+        and $log->info("Recorded disk info for Device $device_id");
 
       foreach my $nic ( keys %{ $dr->{interfaces} } ) {
 
@@ -194,8 +195,7 @@ sub record_device_report {
           }
         );
 
-        my $nic_state =
-        $schema->resultset('DeviceNicState')->update_or_create(
+        my $nic_state = $schema->resultset('DeviceNicState')->update_or_create(
           {
             mac    => $dr->{interfaces}->{$nic}->{mac},
             state  => $dr->{interfaces}->{$nic}->{state},
@@ -204,8 +204,7 @@ sub record_device_report {
           }
         );
 
-        my $nic_peers =
-        $schema->resultset('DeviceNeighbor')->update_or_create(
+        my $nic_peers = $schema->resultset('DeviceNeighbor')->update_or_create(
           {
             mac         => $dr->{interfaces}->{$nic}->{mac},
             raw_text    => $dr->{interfaces}->{$nic}->{peer_text},
