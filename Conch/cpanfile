@@ -18,7 +18,6 @@ requires 'JSON::XS';
 requires 'Data::Printer';
 requires 'List::Compare';
 requires 'Data::Validate::UUID';
-requires 'Mail::Sendmail';
 
 # logging
 requires 'Log::Any';

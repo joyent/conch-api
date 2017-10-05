@@ -7,9 +7,9 @@ use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Passphrase;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
-use Mail::Sendmail;
 
 use Data::Printer;
+use Log::Any;
 
 set serializer => 'JSON';
 
@@ -17,19 +17,15 @@ post '/feedback' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $message   = param 'message';
   my $subject   = param 'subject';
-  my %mail      = (
-    To      => 'preflight-dev@joyent.com',
-    From    => 'preflight-dev@joyent.com',
-    Subject => "From user $user_name: $subject",
-    Message => "$message"
+
+  Log::Any->get_logger( category => "user.feedback" )->critical(
+    {
+      user     => $user_name,
+      feedback => $message,
+      subject  => $subject
+    }
   );
-  if ( sendmail %mail ) {
-    info "Feedback email sent.";
-  }
-  else {
-    warning "Sendmail error: $Mail::Sendmail::error";
-    return status_500("could not send feedback");
-  }
+
   status_200();
 };
 
