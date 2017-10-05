@@ -6,6 +6,7 @@ use Log::Any '$log';
 # required for 'passphrase'. Dumb.
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Passphrase;
+use Data::Printer;
 
 use Exporter 'import';
 our @EXPORT =
@@ -28,6 +29,7 @@ sub user_id_by_name {
 
 sub authenticate {
   my ( $schema, $name, $password ) = @_;
+  p $schema;
   my $user = lookup_user_by_name( $schema, $name );
   $user or $log->warning("user name '$name' not found") and return 0;
 

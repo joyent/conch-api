@@ -63,12 +63,12 @@ __PACKAGE__->table("device_disk");
 =head2 slot
 
   data_type: 'integer'
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 size
 
   data_type: 'integer'
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 vendor
 
@@ -141,9 +141,9 @@ __PACKAGE__->add_columns(
   "hba",
   { data_type => "integer", is_nullable => 1 },
   "slot",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_nullable => 1 },
   "size",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_nullable => 1 },
   "vendor",
   { data_type => "text", is_nullable => 1 },
   "model",
@@ -220,8 +220,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OZHDelJOfdUDkffiVt+VLQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:12:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qY1Yr25V2mYQ5R8eBGH0MQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
