@@ -45,6 +45,8 @@ requires 'Moose';
 requires 'MooseX::Constructor::AllErrors';
 requires 'MooseX::Types::UUID';
 requires 'MooseX::Storage';
+requires 'MooseX::MarkAsMethods';
+requires 'MooseX::NonMoose';
 
 on 'test' => sub {
     requires 'Test::More';

@@ -13,7 +13,10 @@ Conch::Schema::Result::DeviceEnvironment
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
+use Moose;
+use MooseX::NonMoose;
+use MooseX::MarkAsMethods autoclean => 1;
+extends 'DBIx::Class::Core';
 
 =head1 COMPONENTS LOADED
 
@@ -150,9 +153,10 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-07-18 10:35:30
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NBIqc+ACA+yJjpyziFzVSw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:32:26
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6IpHOduDc6hiVacmu4+90g
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+__PACKAGE__->meta->make_immutable;
 1;

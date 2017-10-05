@@ -13,7 +13,10 @@ Conch::Schema::Result::UserAccount
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
+use Moose;
+use MooseX::NonMoose;
+use MooseX::MarkAsMethods autoclean => 1;
+extends 'DBIx::Class::Core';
 
 =head1 COMPONENTS LOADED
 
@@ -179,9 +182,10 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-09-11 11:25:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wg2BBFITU7diyHNStOYVRQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:32:26
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wFQeVTIgKF1tZT+XDe4/DA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+__PACKAGE__->meta->make_immutable;
 1;
