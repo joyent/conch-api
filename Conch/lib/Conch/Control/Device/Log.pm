@@ -53,10 +53,8 @@ sub get_device_logs {
   my $search_attrs = { order_by => { -desc => 'created' } };
   $search_attrs->{rows} = $limit if $limit;
 
-  my @device_logs = try {
-    $device->device_logs->search( $search_filter, $search_attrs )->all
-  };
-  $@->reportFatal;
+  my @device_logs =
+    $device->device_logs->search( $search_filter, $search_attrs )->all;
 
   return map format_log($_), @device_logs;
 }
