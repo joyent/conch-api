@@ -1,8 +1,7 @@
 package Conch::Control::Relay;
 
 use strict;
-use Log::Report;
-use Log::Report::DBIC::Profiler;
+use Log::Any '$log';
 use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
 
@@ -80,7 +79,7 @@ sub register_relay {
   # XXX $client_ip is where the request comes from, which is probably a NAT.
   # XXX We should store that! But the actual Relay IP is in the attrib hash.
 
-  info "Registering relay device $serial";
+  $log->info("Registering relay device $serial");
 
   my $relay = $schema->resultset('Relay')->update_or_create(
     {
@@ -93,7 +92,7 @@ sub register_relay {
   );
 
   unless ( $relay->in_storage ) {
-    warning "Could not register relay device $serial";
+    $log->warning("Could not register relay device $serial");
     return undef;
   }
 }

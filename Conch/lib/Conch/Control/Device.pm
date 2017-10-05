@@ -2,8 +2,7 @@ package Conch::Control::Device;
 
 use strict;
 use List::Compare;
-use Log::Report;
-use Log::Report::DBIC::Profiler;
+use Log::Any '$log';
 use Dancer2::Plugin::Passphrase;
 
 use Conch::Control::Rack;
@@ -198,7 +197,7 @@ sub delete_device_location {
   my $rack_id   = $device_info->{rack};
   my $rack_unit = $device_info->{rack_unit};
 
-  info "Going to remove $device from $rack_id:$rack_unit";
+  $log->info("Going to remove $device from $rack_id:$rack_unit");
 
   my $rs = $schema->resultset('DeviceLocation')->find(
     {
@@ -207,18 +206,18 @@ sub delete_device_location {
   );
 
   unless ($rs) {
-    warning "Could not find $device in $rack_id:$rack_unit for removal";
+    $log->warning("Could not find $device in $rack_id:$rack_unit for removal");
     return undef;
   }
 
   $rs->delete;
 
   if ( $rs->in_storage ) {
-    warning "Failed to remove $device from $rack_id:$rack_unit";
+    $log->warning("Failed to remove $device from $rack_id:$rack_unit");
     return undef;
   }
 
-  info "Removed $device from $rack_id:$rack_unit";
+  $log->info("Removed $device from $rack_id:$rack_unit");
 
   return 1;
 }
@@ -243,8 +242,9 @@ sub update_device_location {
     )->single;
 
     unless ($slot_info) {
-      warning
-"Could not find a slot $device_info->{rack}:$device_info->{rack_unit} for device $device_info->{device}";
+      $log->warning(
+        "Could not find a slot $device_info->{rack}:$device_info->{rack_unit} for device $device_info->{device}"
+      );
       return undef;
     }
 
@@ -272,7 +272,7 @@ sub update_device_location {
     my $n_ru = $device_info->{rack} . ":" . $device_info->{rack_unit};
 
     if ( $e_ru ne $n_ru ) {
-      warning "Moving $device_info->{device} from $e_ru to $n_ru";
+      $log->warning("Moving $device_info->{device} from $e_ru to $n_ru");
     }
   }
 
@@ -292,14 +292,16 @@ sub update_device_location {
     unless ( $occupied_device == $device_info->{device} ) {
 
       # XXX This needs a real error message.
-      warning
-"Cannot move $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}, occupied by $occupied_device";
+      $log->warning(
+        "Cannot move $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}, occupied by $occupied_device"
+      );
       return undef;
     }
   }
 
-  info
-"Updating location for $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}";
+  $log->info(
+    "Updating location for $device_info->{device} to $device_info->{rack}:$device_info->{rack_unit}"
+  );
   my $result = $schema->resultset('DeviceLocation')->update_or_create(
     {
       device_id => $device_info->{device},

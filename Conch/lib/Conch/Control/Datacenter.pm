@@ -1,7 +1,7 @@
 package Conch::Control::Datacenter;
 
 use strict;
-use Log::Any;
+use Log::Any '$log';
 use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
 
@@ -26,12 +26,12 @@ sub get_datacenter_room {
 # To delete all datacenter room access, pass a list with a single value that is
 # not a valid room identifier.
 sub set_datacenter_room_access {
-  my ( $schema, $room_access ) = @_;
+  my ( $schema, $user, $room_access ) = @_;
 
   foreach my $user_name ( keys %{$room_access} ) {
     my @datacenter_room_keys = $room_access->{$user_name};
     my $user = lookup_user_by_name( $schema, $user_name );
-    $user or error "user name $user_name does not exist";
+    $user or die $log->error("user name $user_name does not exist");
 
     #XXX How will refer to the datacenter room in the event? Vendor name? AZ?
     # Stubbed this with 'az' for now
@@ -39,7 +39,7 @@ sub set_datacenter_room_access {
       ->search( { az => { -in => @datacenter_room_keys } } );
 
     scalar @datacenter_rooms
-      or warning "No valid datacenter rooms found for user '$user_name'";
+      or $log->warning("No valid datacenter rooms found for user '$user_name'");
 
    # XXX BUG: https://app.liquidplanner.com/space/174715/projects/show/39854773P
    # XXX Only works for updating a single row?

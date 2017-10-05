@@ -2,8 +2,8 @@ package Conch::Control::Device::Log;
 
 use v5.10;
 use strict;
-use Log::Report;
-use Log::Report::DBIC::Profiler;
+use Log::Any '$log';
+use Carp;
 use Dancer2::Plugin::Passphrase;
 
 use Conch::Data::DeviceLog;
@@ -14,16 +14,19 @@ use Exporter 'import';
 our @EXPORT = qw(parse_device_log record_device_log get_device_logs );
 
 # Parse a DeviceLog object from a HashRef and report all validation errors
+# Returns a list where the first element may be the parsed log and the second
+# may be validation errors, but not both.
 sub parse_device_log {
   my $dr;
 
   eval { $dr = Conch::Data::DeviceLog->new(shift); };
   if ($@) {
-    my $errs = join( "; ", map { $_->message } $@->errors );
-    error "Error validating device log $errs.";
+    my $err = join( "; ", map { $_->message } $@->errors );
+    $log->warning("Invalid device log: $err.");
+    return (undef, $err);
   }
   else {
-    return $dr;
+    return ($dr);
   }
 }
 

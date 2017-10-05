@@ -95,7 +95,7 @@ post '/device/:serial' => needs integrator => sub {
   my $user_name = session->read('integrator');
   my $serial    = param 'serial';
 
-  my ( $device, $report_id, $device_report );
+  my ( $device, $report_id );
 
 # NOTE This stops reports being ingested until the device is slotted into a rack.
 #      This may not be desireable. Once the device is entered into device_location
@@ -113,16 +113,15 @@ post '/device/:serial' => needs integrator => sub {
 #  warning "$user_name not allowed to view device $serial or $serial does not exist";
 #  return status_401('unauthorized');
 #}
-  try {
-    $device_report = parse_device_report( body_parameters->as_hashref );
-    ( $device, $report_id ) = record_device_report( schema, $device_report );
-    connect_user_relay( schema, $user_name, $device_report->relay->{serial} )
-      if $device_report->relay;
-  };
-  if ($@) {
-    chomp( my @err = $@->exceptions );
-    return status_400("@err");
+  my ($device_report, $parse_err) = parse_device_report( body_parameters->as_hashref );
+
+  if ($parse_err) {
+    return status_400("$parse_err");
   }
+  ( $device, $report_id ) = record_device_report( schema, $device_report );
+
+  connect_user_relay( schema, $user_name, $device_report->relay->{serial} )
+    if $device_report->relay;
 
   my $validation =
     validate_device( schema, $device, $device_report, $report_id );
@@ -331,18 +330,12 @@ post '/device/:serial/log' => needs integrator => sub {
     "Invalid JSON. Line breaks must be convereted to '\n' characters")
     unless %{ body_parameters->as_hashref };
 
-  try {
-    my $device_log = parse_device_log( body_parameters->as_hashref );
-    record_device_log( schema, $device, $device_log );
-  };
-
-  if ($@) {
-    my @err = $@->exceptions;
-    return status_400("@err");
+  my ($device_log, $valid_err) = parse_device_log( body_parameters->as_hashref );
+  if ($valid_err) {
+    return status_400("$valid_err");
   }
-  else {
-    return status_200( { status => "Log written for device $serial." } );
-  }
+  record_device_log( schema, $device, $device_log );
+  return status_200( { status => "Log written for device $serial." } );
 };
 
 get '/device/:serial/log' => needs integrator => sub {
