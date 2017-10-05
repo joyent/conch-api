@@ -29,7 +29,7 @@ sub user_id_by_name {
 sub authenticate {
   my ( $schema, $name, $password ) = @_;
   my $user = lookup_user_by_name( $schema, $name );
-  $user or return $log->warning("user name '$name' not found") and return;
+  $user or $log->warning("user name '$name' not found") and return 0;
 
   return passphrase($password)->matches( $user->password_hash );
 }

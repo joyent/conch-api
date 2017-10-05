@@ -3,10 +3,9 @@ package Conch::Control::Device::Profile;
 use v5.10;
 use strict;
 use experimental 'smartmatch';
+use Log::Any '$log';
 
 use List::Compare;
-use Log::Report;
-use Log::Report::DBIC::Profiler;
 
 use Conch::Control::Device;
 
@@ -140,7 +139,7 @@ sub determine_product {
       $product->{vendor} = "smci";
     }
     else {
-      warning "Unable to determine product vendor";
+      $log->warning("Unable to determine product vendor");
       $product->{vendor} = "UNKNOWN";
     }
   }
@@ -165,7 +164,7 @@ sub determine_product {
             $product->{model} = "hallasan";
           }
           else {
-            warning "Unable to determine Dell model";
+            $log->warning("Unable to determine Dell model");
             $product->{model} = "UNKNOWN";
           }
         }
@@ -183,14 +182,14 @@ sub determine_product {
           $product->{model} = "jsp-7001";
         }
         else {
-          warning "Unable to determine SMCI model";
+          $log->warning("Unable to determine SMCI model");
           $product->{model} = "UNKNOWN";
         }
       }
     }
 
     default {
-      warning "Unable to determine model for vendor $product->{vendor}";
+      $log->warning("Unable to determine model for vendor $product->{vendor}");
       $product->{model} = "UNKNOWN";
     }
   }

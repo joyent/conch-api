@@ -1,7 +1,7 @@
 package Conch::Control::Rack;
 
 use strict;
-use Log::Report;
+use Log::Any '$log';
 use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
 
@@ -84,7 +84,7 @@ sub rack_layout {
       rack_id => $uuid
     }
   );
-  @rack_slots or error "Rack $uuid not found";
+  @rack_slots or die $log->error("Rack $uuid not found");
 
   my $rack_info = $schema->resultset('DatacenterRack')->find(
     {
@@ -107,9 +107,9 @@ sub rack_layout {
 
     my $hw_profile = $hw->hardware_product_profile;
     $hw_profile
-      or fault "Hardware product "
+      or die->error("Hardware product "
       . $slot->product_id
-      . " exists but does not have a hardware profile";
+      . " exists but does not have a hardware profile");
 
     my $device_location = $schema->resultset('DeviceLocation')->find(
       {

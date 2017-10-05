@@ -1,7 +1,7 @@
 package Conch::Control::User::Setting;
 
 use strict;
-use Log::Report;
+use Log::Any '$log';
 use JSON::XS;
 
 use Data::Printer;
