@@ -280,6 +280,17 @@ DISTRIBUTIONS
       Class::Singleton 1.5
     requirements:
       ExtUtils::MakeMaker 0
+  Class-Tiny-1.006
+    pathname: D/DA/DAGOLDEN/Class-Tiny-1.006.tar.gz
+    provides:
+      Class::Tiny 1.006
+      Class::Tiny::Object 1.006
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.17
+      perl 5.006
+      strict 0
+      warnings 0
   Class-Unload-0.11
     pathname: I/IL/ILMARI/Class-Unload-0.11.tar.gz
     provides:
@@ -2332,6 +2343,19 @@ DISTRIBUTIONS
       constant 0
       strict 0
       warnings 0
+  Log-Any-Adapter-Log4perl-0.08
+    pathname: D/DA/DAGOLDEN/Log-Any-Adapter-Log4perl-0.08.tar.gz
+    provides:
+      Log::Any::Adapter::Log4perl 0.08
+    requirements:
+      ExtUtils::MakeMaker 6.17
+      Log::Any::Adapter::Base 0
+      Log::Any::Adapter::Util 1.03
+      Log::Log4perl 1.32
+      base 0
+      perl 5.006
+      strict 0
+      warnings 0
   Log-Any-Adapter-Screen-0.13
     pathname: P/PE/PERLANCAR/Log-Any-Adapter-Screen-0.13.tar.gz
     provides:
@@ -2344,6 +2368,82 @@ DISTRIBUTIONS
       Time::HiRes 0
       parent 0
       perl 5.010001
+      strict 0
+      warnings 0
+  Log-Log4perl-1.49
+    pathname: M/MS/MSCHILLI/Log-Log4perl-1.49.tar.gz
+    provides:
+      L4pResurrectable 0.01
+      Log::Log4perl 1.49
+      Log::Log4perl::Appender undef
+      Log::Log4perl::Appender::Buffer undef
+      Log::Log4perl::Appender::DBI undef
+      Log::Log4perl::Appender::File undef
+      Log::Log4perl::Appender::Limit undef
+      Log::Log4perl::Appender::RRDs undef
+      Log::Log4perl::Appender::Screen undef
+      Log::Log4perl::Appender::ScreenColoredLevels undef
+      Log::Log4perl::Appender::Socket undef
+      Log::Log4perl::Appender::String undef
+      Log::Log4perl::Appender::Synchronized undef
+      Log::Log4perl::Appender::TestArrayBuffer undef
+      Log::Log4perl::Appender::TestBuffer undef
+      Log::Log4perl::Appender::TestFileCreeper undef
+      Log::Log4perl::Catalyst undef
+      Log::Log4perl::Config undef
+      Log::Log4perl::Config::BaseConfigurator undef
+      Log::Log4perl::Config::DOMConfigurator 0.03
+      Log::Log4perl::Config::PropertyConfigurator undef
+      Log::Log4perl::Config::Watch undef
+      Log::Log4perl::DateFormat undef
+      Log::Log4perl::Filter undef
+      Log::Log4perl::Filter::Boolean undef
+      Log::Log4perl::Filter::LevelMatch undef
+      Log::Log4perl::Filter::LevelRange undef
+      Log::Log4perl::Filter::MDC undef
+      Log::Log4perl::Filter::StringMatch undef
+      Log::Log4perl::InternalDebug undef
+      Log::Log4perl::JavaMap undef
+      Log::Log4perl::JavaMap::ConsoleAppender undef
+      Log::Log4perl::JavaMap::FileAppender undef
+      Log::Log4perl::JavaMap::JDBCAppender undef
+      Log::Log4perl::JavaMap::NTEventLogAppender undef
+      Log::Log4perl::JavaMap::RollingFileAppender undef
+      Log::Log4perl::JavaMap::SyslogAppender undef
+      Log::Log4perl::JavaMap::TestBuffer undef
+      Log::Log4perl::Layout undef
+      Log::Log4perl::Layout::NoopLayout undef
+      Log::Log4perl::Layout::PatternLayout undef
+      Log::Log4perl::Layout::PatternLayout::Multiline undef
+      Log::Log4perl::Layout::SimpleLayout undef
+      Log::Log4perl::Level undef
+      Log::Log4perl::Logger undef
+      Log::Log4perl::MDC undef
+      Log::Log4perl::NDC undef
+      Log::Log4perl::Resurrector undef
+      Log::Log4perl::Util undef
+      Log::Log4perl::Util::Semaphore undef
+      Log::Log4perl::Util::TimeTracker undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Path 2.0606
+      File::Spec 0.82
+      Test::More 0.45
+  Log-Log4perl-Layout-JSON-0.52
+    pathname: M/MS/MSCHOUT/Log-Log4perl-Layout-JSON-0.52.tar.gz
+    provides:
+      Log::Log4perl::Layout::JSON 0.52
+    requirements:
+      Carp 0
+      Class::Tiny 0
+      ExtUtils::MakeMaker 0
+      JSON::MaybeXS 0
+      Log::Log4perl 0
+      Log::Log4perl::Layout 0
+      Log::Log4perl::Layout::PatternLayout 0
+      Log::Log4perl::Level 0
+      parent 0
+      perl 5.008
       strict 0
       warnings 0
   Log-Report-1.21

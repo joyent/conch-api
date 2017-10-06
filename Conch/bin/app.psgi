@@ -6,6 +6,9 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 
 
+use Log::Log4perl;
+Log::Log4perl::init($ENV{CONCH_LOG_CONF} || './log4perl.conf');
+
 # use this block if you don't need middleware, and only have a single target Dancer app to run here
 use Conch;
 

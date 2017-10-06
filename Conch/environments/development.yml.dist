@@ -1,9 +1,5 @@
 # configuration file for development environment
 
-# the logger engine to use
-# console: log messages to STDOUT (your console where you started the
-#          application server)
-# file:    log message to a file in log/
 logger: LogAny
 
 engines:
@@ -12,6 +8,8 @@ engines:
       category: dancer
       logger:
         - Screen
+        - min_level
+        - debug
         - use_color
         - 1
   session:
@@ -20,9 +18,8 @@ engines:
 
 session: YAML
 
-# the log level for this environment
-# core is the lowest, it shows Dancer2's core log messages as well as yours
-# (debug, info, warning and error)
+# Do not change this value; it is required to set up the logger in Dancer2.
+# Instead, to limit the level of logs, configure the LogAny engine above.
 log: "core"
 
 # should Dancer2 consider warnings as critical errors?
