@@ -49,14 +49,15 @@ const Rack = {
     },
     assignSuccess: false,
     assignDevices(rack) {
-        const deviceAssignments = Object.keys(rack.slots).reduce((obj, slot) => {
+        const deviceAssignments = Object.keys(
+            rack.slots
+        ).reduce((obj, slot) => {
             const device = rack.slots[slot].assignment;
             if (device) {
                 obj[device] = slot;
             }
             return obj;
-        },
-        {});
+        }, {});
         return m
             .request({
                 method: "POST",

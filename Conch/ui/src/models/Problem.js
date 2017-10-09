@@ -36,7 +36,9 @@ const Problem = {
     },
     deviceHasProblem(deviceId) {
         // Search through all categories for a matching deviceId
-        return Object.keys(Problem.devices).some(group => Problem.devices[group][deviceId]);
+        return Object.keys(Problem.devices).some(
+            group => Problem.devices[group][deviceId]
+        );
     },
 };
 
