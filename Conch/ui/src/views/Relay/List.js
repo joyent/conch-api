@@ -12,7 +12,8 @@ export default {
     view: ({ state, attrs }) => {
         if (state.loading) return m(".loading", t("Loading..."));
 
-        if (attrs.id) Relay.current = Relay.list.find(({id}) => id === attrs.id);
+        if (attrs.id)
+            Relay.current = Relay.list.find(({ id }) => id === attrs.id);
         else Relay.current = null;
 
         return Relay.list.map(relay => {

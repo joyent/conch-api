@@ -5,7 +5,7 @@ import RelationshipGraph from "d3-relationshipgraph";
 
 import Rack from "../../models/Rack";
 
-function nodeParent({device_progress}) {
+function nodeParent({ device_progress }) {
     // If there's any failing devices, the whole rack is Failing
     if (device_progress.FAIL) return t("Failing");
 
@@ -30,7 +30,7 @@ function nodeParent({device_progress}) {
 // in the rack. -1 when any device is failing, 0 when all devices are unknown
 // (haven't yet reported), 100 when all devices are validated, 50 when all
 // devices are passing, and somewhere between 0 and 100 otherwise
-function nodeValue({device_progress}) {
+function nodeValue({ device_progress }) {
     // Any failing rack should show up as another color
     if (device_progress.FAIL) return -1;
     const pass = device_progress.PASS || 0;
@@ -97,7 +97,7 @@ export default function RackProgress({ attr }) {
                                 "hsl(130, 60%, 60%)",
                             ],
                             onClick: {
-                                child: ({_private_}) => {
+                                child: ({ _private_ }) => {
                                     m.route.set(`/rack/${_private_.id}`);
                                 },
                             },

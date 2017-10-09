@@ -43,7 +43,7 @@ m.route(document.body, "/", {
         },
     },
     "/rack/:id": {
-        render({attrs}) {
+        render({ attrs }) {
             return m(
                 Layout.threePane,
                 { active: 2, title: "Rack" },
@@ -63,7 +63,7 @@ m.route(document.body, "/", {
         },
     },
     "/problem/:id": {
-        render({attrs}) {
+        render({ attrs }) {
             return m(
                 Layout.threePane,
                 { active: 2, title: "Problem" },
@@ -83,7 +83,7 @@ m.route(document.body, "/", {
         },
     },
     "/device/:id": {
-        render({attrs}) {
+        render({ attrs }) {
             return m(
                 Layout.threePane,
                 { active: 2, title: "Report" },

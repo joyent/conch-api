@@ -46,8 +46,8 @@ export default {
                           m(
                               "a.pure-button",
                               {
-                                  href:
-                                      `/rack/${Relay.current.location.rack_id}`,
+                                  href: `/rack/${Relay.current.location
+                                      .rack_id}`,
                                   oncreate: m.route.link,
                                   title: t("Show Rack"),
                               },
@@ -57,16 +57,15 @@ export default {
                   ]
               )
             : null;
-        const deviceActions = ({id, health}) => {
+        const deviceActions = ({ id, health }) => {
             return [
                 m(
                     "button.pure-button",
                     {
                         onclick: () => {
                             state.loading = true;
-                            Device.getDeviceLocation(id).then(({rack}) => m.route.set(
-                                `/rack/${rack.id}?device=${id}`
-                            )
+                            Device.getDeviceLocation(id).then(({ rack }) =>
+                                m.route.set(`/rack/${rack.id}?device=${id}`)
                             );
                         },
                         title: t("Find Device in Rack"),

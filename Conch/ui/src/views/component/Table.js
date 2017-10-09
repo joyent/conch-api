@@ -9,19 +9,15 @@ function table(caption, header, rows) {
         ".pure-u-1",
         m("table.pure-table.pure-table-striped", [
             m("caption", caption),
-            m(
-                "thead",
-                m(
-                    "tr",
-                    header.map(h => m("th", h))
-                )
-            ),
+            m("thead", m("tr", header.map(h => m("th", h)))),
             m(
                 "tbody",
-                rows.map(r => m(
-                    "tr",
-                    r.map((d, i) => m("td", { "data-label": header[i] }, d))
-                ))
+                rows.map(r =>
+                    m(
+                        "tr",
+                        r.map((d, i) => m("td", { "data-label": header[i] }, d))
+                    )
+                )
             ),
         ])
     );
