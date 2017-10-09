@@ -114,7 +114,7 @@ post '/device/:serial' => needs integrator => sub {
 #  return status_401('unauthorized');
 #}
   my $raw_report = body_parameters->as_hashref;
-  # Log::Any->get_logger( category => 'report.raw' )->trace(encode_json $raw_report);
+  Log::Any->get_logger( category => 'report.raw' )->trace(encode_json $raw_report);
 
   my ( $device_report, $parse_err ) = parse_device_report($raw_report);
 
