@@ -29,7 +29,6 @@ sub user_id_by_name {
 
 sub authenticate {
   my ( $schema, $name, $password ) = @_;
-  p $schema;
   my $user = lookup_user_by_name( $schema, $name );
   $user or $log->warning("user name '$name' not found") and return 0;
 
