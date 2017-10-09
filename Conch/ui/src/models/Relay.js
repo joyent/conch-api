@@ -11,8 +11,8 @@ function byAlias(relayA, relayB) {
     const aA = a.replace(reA, "");
     const bA = b.replace(reA, "");
     if (aA === bA) {
-        var aN = parseInt(a.replace(reN, ""), 10);
-        var bN = parseInt(b.replace(reN, ""), 10);
+        const aN = parseInt(a.replace(reN, ""), 10);
+        const bN = parseInt(b.replace(reN, ""), 10);
         return aN === bN ? 0 : aN > bN ? 1 : -1;
     } else {
         return aA > bA ? 1 : -1;
@@ -30,14 +30,14 @@ const Relay = {
                 url: "/relay",
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Relay.list = res.sort(byAlias);
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /relay  : " + e.message);
+                    console.log(`Error in GET /relay  : ${e.message}`);
                 }
             });
     },
@@ -48,17 +48,17 @@ const Relay = {
                 url: "/relay/active",
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Relay.activeList = res.sort(byAlias);
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /relay  : " + e.message);
+                    console.log(`Error in GET /relay  : ${e.message}`);
                 }
             });
     },
 };
 
-module.exports = Relay;
+export default Relay;

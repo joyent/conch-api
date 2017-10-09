@@ -1,45 +1,43 @@
-var m = require("mithril");
+import m from "mithril";
 
 function sortObject(obj) {
     return Object.keys(obj)
         .sort()
-        .reduce(function(acc, i) {
+        .reduce((acc, i) => {
             acc[i] = obj[i];
             return acc;
         }, {});
 }
 
-var Problem = {
+const Problem = {
     devices: {},
     current: null,
-    loadDeviceProblems: function() {
+    loadDeviceProblems() {
         return m
             .request({
                 method: "GET",
                 url: "/problem",
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Problem.devices = {
                     failing: sortObject(res.failing),
                     unlocated: sortObject(res.unlocated),
                     unreported: sortObject(res.unreported),
                 };
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /problem: " + e.message);
+                    console.log(`Error in GET /problem: ${e.message}`);
                 }
             });
     },
-    deviceHasProblem: function(deviceId) {
+    deviceHasProblem(deviceId) {
         // Search through all categories for a matching deviceId
-        return Object.keys(Problem.devices).some(function(group) {
-            return Problem.devices[group][deviceId];
-        });
+        return Object.keys(Problem.devices).some(group => Problem.devices[group][deviceId]);
     },
 };
 
-module.exports = Problem;
+export default Problem;

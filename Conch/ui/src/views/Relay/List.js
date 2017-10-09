@@ -1,9 +1,8 @@
-const m = require("mithril");
-const t = require("i18n4v");
+import m from "mithril";
+import t from "i18n4v";
+import Relay from "../../models/Relay";
 
-const Relay = require("../../models/Relay");
-
-module.exports = {
+export default {
     loading: true,
 
     oninit: ({ state }) => {
@@ -13,14 +12,14 @@ module.exports = {
     view: ({ state, attrs }) => {
         if (state.loading) return m(".loading", t("Loading..."));
 
-        if (attrs.id) Relay.current = Relay.list.find(r => r.id === attrs.id);
+        if (attrs.id) Relay.current = Relay.list.find(({id}) => id === attrs.id);
         else Relay.current = null;
 
         return Relay.list.map(relay => {
             return m(
                 "a.selection-list-item",
                 {
-                    href: "/relay/" + relay.id,
+                    href: `/relay/${relay.id}`,
                     onclick: () => {
                         Relay.current = relay;
                     },

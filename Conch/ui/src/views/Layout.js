@@ -1,10 +1,8 @@
-var m = require("mithril");
-var t = require("i18n4v");
-
-var Auth = require("../models/Auth");
-var FeedbackForm = require("../views/Feedback");
-
-var Icons = require("./component/Icons");
+import m from "mithril";
+import t from "i18n4v";
+import Auth from "../models/Auth";
+import FeedbackForm from "../views/Feedback";
+import Icons from "./component/Icons";
 
 function mainNav(isMobileView, state) {
     return m(
@@ -68,11 +66,8 @@ function mainNav(isMobileView, state) {
                 m(
                     "a.pure-menu-link.nav-link.pointer",
                     {
-                        onclick: function() {
-                            t.selectLanguage(["en", "ko", "ko-KR"], function(
-                                err,
-                                lang
-                            ) {
+                        onclick() {
+                            t.selectLanguage(["en", "ko", "ko-KR"], (err, lang) => {
                                 if (!lang || lang === "en") {
                                     t.setLanguage("ko");
                                 } else {
@@ -101,7 +96,7 @@ function mainNav(isMobileView, state) {
                     "a[href='/login'].pure-menu-link.nav-link",
                     {
                         oncreate: m.route.link,
-                        onclick: function() {
+                        onclick() {
                             Auth.logout();
                         },
                     },
@@ -112,8 +107,8 @@ function mainNav(isMobileView, state) {
     );
 }
 
-var mobileNav = {
-    view: function(vnode) {
+const mobileNav = {
+    view({attrs}) {
         return m(
             ".mobile-nav.pure-u-1.pure-g",
             m(
@@ -121,9 +116,9 @@ var mobileNav = {
                 m(
                     "a.pure-button",
                     {
-                        onclick: function() {
-                            var route = m.route.get();
-                            var upRoute = route.substring(
+                        onclick() {
+                            const route = m.route.get();
+                            const upRoute = route.substring(
                                 0,
                                 route.lastIndexOf("/")
                             );
@@ -133,83 +128,83 @@ var mobileNav = {
                     "<"
                 )
             ),
-            m("h2.pure-u-1-3", t(vnode.attrs.title)),
+            m("h2.pure-u-1-3", t(attrs.title)),
             m(".pure-u-1-3", "")
         );
     },
 };
 
 // Three-pane layout with two children. Additional children will not be rendered.
-var threePane = {
+const threePane = {
     showFeedback: false,
-    view: function(vnode) {
+    view({attrs, state, children}) {
         return [
             m(".layout", [
                 m(".pure-g", [
-                    mainNav(vnode.attrs.active === 0, vnode.state),
-                    vnode.attrs.active > 0
-                        ? m(mobileNav, { title: vnode.attrs.title })
+                    mainNav(attrs.active === 0, state),
+                    attrs.active > 0
+                        ? m(mobileNav, { title: attrs.title })
                         : null,
                     m(
                         ".selection-list.pure-u-1",
                         {
                             class:
-                                vnode.attrs.active === 1
+                                attrs.active === 1
                                     ? "mobile-is-active"
                                     : "",
                         },
-                        vnode.children[0]
+                        children[0]
                     ),
                     m(
                         ".content-pane.pure-u-1",
                         {
                             class:
-                                vnode.attrs.active === 2
+                                attrs.active === 2
                                     ? "mobile-is-active"
                                     : "",
                         },
-                        vnode.children[1]
+                        children[1]
                     ),
                 ]),
             ]),
-            vnode.state.showFeedback
-                ? m(".modal", m(".modal-dialog", m(FeedbackForm, vnode.state)))
+            state.showFeedback
+                ? m(".modal", m(".modal-dialog", m(FeedbackForm, state)))
                 : null,
         ];
     },
 };
 
 // Two-pane layout with one child. Additional children will not be rendered.
-var twoPane = {
+const twoPane = {
     showFeedback: false,
-    view: function(vnode) {
+    view({attrs, state, children}) {
         return [
             m(".layout", [
                 m(".pure-g", [
-                    mainNav(vnode.attrs.active === 0, vnode.state),
-                    vnode.attrs.active > 0
-                        ? m(mobileNav, { title: vnode.attrs.title })
+                    mainNav(attrs.active === 0, state),
+                    attrs.active > 0
+                        ? m(mobileNav, { title: attrs.title })
                         : null,
                     m(
                         ".content-pane.two-pane.pure-u-1",
                         {
                             class:
-                                vnode.attrs.active === 1
+                                attrs.active === 1
                                     ? "mobile-is-active"
                                     : "",
                         },
-                        vnode.children[0]
+                        children[0]
                     ),
                 ]),
             ]),
-            vnode.state.showFeedback
-                ? m(".modal", m(".modal-dialog", m(FeedbackForm, vnode.state)))
+            state.showFeedback
+                ? m(".modal", m(".modal-dialog", m(FeedbackForm, state)))
                 : null,
         ];
     },
 };
 
-module.exports = {
-    threePane: threePane,
-    twoPane: twoPane,
+export default {
+    threePane,
+    twoPane,
 };

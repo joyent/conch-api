@@ -1,15 +1,13 @@
-const m = require("mithril");
-const t = require("i18n4v");
-const moment = require("moment");
+import m from "mithril";
+import t from "i18n4v";
+import moment from "moment";
+import Relay from "../../models/Relay";
+import Device from "../../models/Device";
+import DeviceStatus from "../component/DeviceStatus";
+import Table from "../component/Table";
+import Icons from "../component/Icons";
 
-const Relay = require("../../models/Relay");
-const Device = require("../../models/Device");
-
-const DeviceStatus = require("../component/DeviceStatus");
-const Table = require("../component/Table");
-const Icons = require("../component/Icons");
-
-module.exports = {
+export default {
     loading: false,
     view: ({ state }) => {
         if (!Relay.current) return m(".make-selection", t("select a relay"));
@@ -49,7 +47,7 @@ module.exports = {
                               "a.pure-button",
                               {
                                   href:
-                                      "/rack/" + Relay.current.location.rack_id,
+                                      `/rack/${Relay.current.location.rack_id}`,
                                   oncreate: m.route.link,
                                   title: t("Show Rack"),
                               },
@@ -59,28 +57,27 @@ module.exports = {
                   ]
               )
             : null;
-        const deviceActions = device => {
+        const deviceActions = ({id, health}) => {
             return [
                 m(
                     "button.pure-button",
                     {
                         onclick: () => {
                             state.loading = true;
-                            Device.getDeviceLocation(device.id).then(loc =>
-                                m.route.set(
-                                    `/rack/${loc.rack.id}?device=${device.id}`
-                                )
+                            Device.getDeviceLocation(id).then(({rack}) => m.route.set(
+                                `/rack/${rack.id}?device=${id}`
+                            )
                             );
                         },
                         title: t("Find Device in Rack"),
                     },
                     Icons.findDeviceInRack
                 ),
-                device.health !== "PASS"
+                health !== "PASS"
                     ? m(
                           "a.pure-button",
                           {
-                              href: "/problem/" + device.id,
+                              href: `/problem/${id}`,
                               oncreate: m.route.link,
                               title: t("Show Device Problems"),
                           },
@@ -90,7 +87,7 @@ module.exports = {
                 m(
                     "a.pure-button",
                     {
-                        href: "/device/" + device.id,
+                        href: `/device/${id}`,
                         oncreate: m.route.link,
                         title: t("Latest Device Report"),
                     },

@@ -1,9 +1,9 @@
-var m = require("mithril");
-var Auth = require("../models/Auth");
-var t = require("i18n4v");
+import m from "mithril";
+import Auth from "../models/Auth";
+import t from "i18n4v";
 
-module.exports = {
-    view: function() {
+export default {
+    view() {
         return m(
             ".login-view",
             m("form.pure-form", [
@@ -21,7 +21,7 @@ module.exports = {
                 m(
                     "button[type=submit].pure-button.pure-button-primary",
                     {
-                        onclick: function(e) {
+                        onclick(e) {
                             e.preventDefault();
                             Auth.login();
                         },
@@ -32,11 +32,8 @@ module.exports = {
             m(
                 "button.pure-button",
                 {
-                    onclick: function() {
-                        t.selectLanguage(["en", "ko", "ko-KR"], function(
-                            err,
-                            lang
-                        ) {
+                    onclick() {
+                        t.selectLanguage(["en", "ko", "ko-KR"], (err, lang) => {
                             if (!lang || lang === "en") {
                                 t.setLanguage("ko");
                             } else {

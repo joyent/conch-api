@@ -1,12 +1,10 @@
-var m = require("mithril");
-var t = require("i18n4v");
+import m from "mithril";
+import t from "i18n4v";
+import Feedback from "../models/Feedback";
+import Icons from "./component/Icons";
 
-var Feedback = require("../models/Feedback");
-
-const Icons = require("./component/Icons");
-
-var feedbackForm = {
-    view: function({ attrs }) {
+const feedbackForm = {
+    view({ attrs }) {
         return m(
             ".feedback-form",
             m(
@@ -20,7 +18,7 @@ var feedbackForm = {
                       m("legend", t("Send Feedback")),
                       m("fieldset.pure-group", [
                           m("textarea[required=true].pure-input-1", {
-                              oninput: m.withAttr("value", function(v) {
+                              oninput: m.withAttr("value", v => {
                                   Feedback.text = v;
                               }),
                               placeholder: t("Feedback placeholder"),
@@ -29,13 +27,13 @@ var feedbackForm = {
                           m(
                               "button[type=submit].pure-button.pure-button-primary.pure-input-1",
                               {
-                                  onclick: function(e) {
+                                  onclick(e) {
                                       e.preventDefault();
                                       Feedback.sendUserFeedback(
                                           Feedback.text,
-                                          function() {
+                                          () => {
                                               feedbackForm.submitted = true;
-                                              setTimeout(function() {
+                                              setTimeout(() => {
                                                   location.reload();
                                               }, 1600);
                                           }
@@ -50,4 +48,4 @@ var feedbackForm = {
     },
 };
 
-module.exports = feedbackForm;
+export default feedbackForm;

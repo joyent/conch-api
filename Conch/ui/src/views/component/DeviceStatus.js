@@ -1,10 +1,9 @@
-const m = require("mithril");
-
-const Icons = require("./Icons");
-const Device = require("../../models/Device");
+import m from "mithril";
+import Icons from "./Icons";
+import Device from "../../models/Device";
 
 // Given a Device, renders icons in a <div> showing the current status.
-module.exports = {
+export default {
     view: ({ attrs }) => {
         const device = attrs.device;
         if (device) {

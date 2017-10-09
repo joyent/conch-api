@@ -1,29 +1,29 @@
-var m = require("mithril");
-var moment = require("moment");
+import m from "mithril";
+import moment from "moment";
 
-var Device = {
+const Device = {
     deviceIds: [],
-    loadDeviceIds: function() {
+    loadDeviceIds() {
         return m
             .request({
                 method: "GET",
                 url: "/device",
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Device.deviceIds = res.sort();
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /device: " + e.message);
+                    console.log(`Error in GET /device: ${e.message}`);
                 }
             });
     },
 
     devices: [],
-    loadDevices: function() {
+    loadDevices() {
         return m
             .request({
                 method: "GET",
@@ -31,8 +31,8 @@ var Device = {
                 data: { full: 1 },
                 withCredentials: true,
             })
-            .then(function(res) {
-                Device.devices = res.sort(function(a, b) {
+            .then(res => {
+                Device.devices = res.sort((a, b) => {
                     if (a.id < b.id) {
                         return -1;
                     }
@@ -42,53 +42,53 @@ var Device = {
                     return 0;
                 });
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /device: " + e.message);
+                    console.log(`Error in GET /device: ${e.message}`);
                 }
             });
     },
 
     current: null,
-    loadDevice: function(deviceId) {
+    loadDevice(deviceId) {
         return m
             .request({
                 method: "GET",
-                url: "/device/" + deviceId,
+                url: `/device/${deviceId}`,
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Device.current = res;
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /device: " + e.message);
+                    console.log(`Error in GET /device: ${e.message}`);
                 }
             });
     },
 
     updatingFirmware: false,
-    loadFirmwareStatus: function(deviceId) {
+    loadFirmwareStatus(deviceId) {
         return m
             .request({
                 method: "GET",
                 url: `/device/${deviceId}/settings/firmware`,
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Device.updatingFirmware = res.firmware === "updating";
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "not found") {
                     Device.updatingFirmware = false;
                 } else if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /device: " + e.message);
+                    console.log(`Error in GET /device: ${e.message}`);
                 }
             });
     },
@@ -98,65 +98,62 @@ var Device = {
         return m
             .request({
                 method: "GET",
-                url: "/device/" + deviceId + "/location",
+                url: `/device/${deviceId}/location`,
                 withCredentials: true,
-                extract: function(xhr) {
+                extract(xhr) {
                     return {
                         status: xhr.status,
                         body: JSON.parse(xhr.response),
                     };
                 },
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.status === 401) {
                     m.route.set("/login");
                 } else if (e.status === 409 || e.status === 400) {
                     Device.rackLocation = null;
                 } else {
                     console.log(
-                        "Error in GET /device/" +
-                            deviceId +
-                            "/location: " +
-                            e.message
+                        `Error in GET /device/${deviceId}/location: ${e.message}`
                     );
                 }
             })
             .then(res => res.body);
     },
-    loadRackLocation: function(deviceId) {
+    loadRackLocation(deviceId) {
         return Device.getDeviceLocation(deviceId).then(
             res => (Device.rackLocation = res)
         );
     },
 
     logs: [],
-    loadDeviceLogs: function(deviceId, limit) {
+    loadDeviceLogs(deviceId, limit) {
         return m
             .request({
                 method: "GET",
-                url: "/device/" + deviceId + "/log",
-                data: { limit: limit },
+                url: `/device/${deviceId}/log`,
+                data: { limit },
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Device.logs = res;
             })
-            .catch(function(e) {
+            .catch(e => {
                 console.log(
-                    "Error in GET /device/" + deviceId + "/log: " + e.message
+                    `Error in GET /device/${deviceId}/log: ${e.message}`
                 );
             });
     },
 
     // A device is active if it was last seen in the last 5 minutes
-    isActive: function(device) {
+    isActive(device) {
         if (device.last_seen) {
-            var lastSeen = moment(device.last_seen);
-            var fiveMinutesAgo = moment().subtract(5, "m");
+            const lastSeen = moment(device.last_seen);
+            const fiveMinutesAgo = moment().subtract(5, "m");
             return fiveMinutesAgo < lastSeen;
         }
         return false;
     },
 };
 
-module.exports = Device;
+export default Device;
