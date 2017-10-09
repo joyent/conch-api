@@ -1,41 +1,39 @@
-var m = require("mithril");
-var t = require("i18n4v");
-var moment = require("moment");
-
-var Device = require("./views/Device");
-var Layout = require("./views/Layout");
-var Login = require("./views/Login");
-var Problem = require("./views/Problem");
-var Rack = require("./views/Rack");
-var Status = require("./views/Status");
-var RelayList = require("./views/Relay/List");
-var RelayDetail = require("./views/Relay/Detail");
-
-var korean = require("./languages/ko.js");
+import m from "mithril";
+import t from "i18n4v";
+import moment from "moment";
+import Device from "./views/Device";
+import Layout from "./views/Layout";
+import Login from "./views/Login";
+import Problem from "./views/Problem";
+import Rack from "./views/Rack";
+import Status from "./views/Status";
+import RelayList from "./views/Relay/List";
+import RelayDetail from "./views/Relay/Detail";
+import korean from "./languages/ko.js";
 const languages = {
     en: require("./languages/en.js"),
     ko: korean,
     "ko-KR": korean,
 };
 
-t.selectLanguage(["en", "ko", "ko-KR"], function(err, lang) {
+t.selectLanguage(["en", "ko", "ko-KR"], (err, lang) => {
     moment.locale(lang ? lang.slice(0, 2) : "en");
     t.translator.add(languages[lang] ? languages[lang] : languages.en);
 });
 
 m.route(document.body, "/", {
     "/": {
-        render: function() {
+        render() {
             return m(Layout.twoPane, { active: 0, title: "Status" }, m(Status));
         },
     },
     "/status": {
-        render: function() {
+        render() {
             return m(Layout.twoPane, { active: 1, title: "Status" }, m(Status));
         },
     },
     "/rack": {
-        render: function() {
+        render() {
             return m(
                 Layout.threePane,
                 { active: 1, title: "Racks" },
@@ -45,17 +43,17 @@ m.route(document.body, "/", {
         },
     },
     "/rack/:id": {
-        render: function(vnode) {
+        render({attrs}) {
             return m(
                 Layout.threePane,
                 { active: 2, title: "Rack" },
                 m(Rack.allRacks),
-                m(Rack.rackLayout, vnode.attrs)
+                m(Rack.rackLayout, attrs)
             );
         },
     },
     "/problem": {
-        render: function(vnode) {
+        render(vnode) {
             return m(
                 Layout.threePane,
                 { active: 1, title: "Problems" },
@@ -65,17 +63,17 @@ m.route(document.body, "/", {
         },
     },
     "/problem/:id": {
-        render: function(vnode) {
+        render({attrs}) {
             return m(
                 Layout.threePane,
                 { active: 2, title: "Problem" },
-                m(Problem.selectProblemDevice, vnode.attrs),
-                m(Problem.showDevice, vnode.attrs)
+                m(Problem.selectProblemDevice, attrs),
+                m(Problem.showDevice, attrs)
             );
         },
     },
     "/device": {
-        render: function(vnode) {
+        render(vnode) {
             return m(
                 Layout.threePane,
                 { active: 1, title: "Device Reports" },
@@ -85,12 +83,12 @@ m.route(document.body, "/", {
         },
     },
     "/device/:id": {
-        render: function(vnode) {
+        render({attrs}) {
             return m(
                 Layout.threePane,
                 { active: 2, title: "Report" },
                 m(Device.allDevices),
-                m(Device.deviceReport, vnode.attrs)
+                m(Device.deviceReport, attrs)
             );
         },
     },

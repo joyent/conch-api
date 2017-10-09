@@ -1,16 +1,14 @@
-var m = require("mithril");
-var t = require("i18n4v");
+import m from "mithril";
+import t from "i18n4v";
+import Device from "../models/Device";
+import Rack from "../models/Rack";
+import Relay from "../models/Relay";
+import Feedback from "../models/Feedback";
+import DeviceStatus from "./component/DeviceStatus";
+import Icons from "./component/Icons";
+import Table from "./component/Table";
 
-var Device = require("../models/Device");
-var Rack = require("../models/Rack");
-var Relay = require("../models/Relay");
-var Feedback = require("../models/Feedback");
-
-var DeviceStatus = require("./component/DeviceStatus");
-var Icons = require("./component/Icons");
-var Table = require("./component/Table");
-
-var allRacks = {
+const allRacks = {
     loading: true,
     oninit: ({ state }) => {
         Promise.all([Rack.loadRooms(), Relay.loadActiveRelays()]).then(
@@ -19,56 +17,52 @@ var allRacks = {
     },
     view: ({ state }) => {
         if (state.loading) return m(".loading", "Loading...");
-        return Object.keys(Rack.rackRooms).map(function(roomName) {
-            return [
-                m("h3.selection-list-header", roomName),
-                m(
-                    ".selection-list-group",
-                    Rack.rackRooms[roomName].map(function(rack) {
-                        return m(
-                            "a.selection-list-item",
-                            {
-                                href: "/rack/" + rack.id,
-                                oncreate: m.route.link,
-                                onclick: function() {
-                                    Rack.load(rack.id);
-                                },
-                                class:
-                                    rack.id === Rack.current.id
-                                        ? "selection-list-item-active"
-                                        : "",
-                            },
-                            m(".pure-g", [
-                                m(".pure-u-1-3", m("b", t("Name"))),
-                                m(".pure-u-1-3", m("b", t("Role"))),
-                                m(".pure-u-1-3", m("b", t("RU"))),
+        return Object.keys(Rack.rackRooms).map(roomName => [
+            m("h3.selection-list-header", roomName),
+            m(
+                ".selection-list-group",
+                Rack.rackRooms[roomName].map(({id, name, role, size}) => m(
+                    "a.selection-list-item",
+                    {
+                        href: `/rack/${id}`,
+                        oncreate: m.route.link,
+                        onclick() {
+                            Rack.load(id);
+                        },
+                        class:
+                            id === Rack.current.id
+                                ? "selection-list-item-active"
+                                : "",
+                    },
+                    m(".pure-g", [
+                        m(".pure-u-1-3", m("b", t("Name"))),
+                        m(".pure-u-1-3", m("b", t("Role"))),
+                        m(".pure-u-1-3", m("b", t("RU"))),
 
-                                m(".pure-u-1-3", rack.name),
-                                m(".pure-u-1-3", rack.role),
-                                m(".pure-u-1-3", rack.size),
-                            ])
-                        );
-                    })
-                ),
-            ];
-        });
+                        m(".pure-u-1-3", name),
+                        m(".pure-u-1-3", role),
+                        m(".pure-u-1-3", size),
+                    ])
+                ))
+            ),
+        ]);
     },
 };
 
-var makeSelection = {
-    view: function() {
+const makeSelection = {
+    view() {
         return m(".make-selection", t("Select Rack"));
     },
 };
 
-var rackLayout = {
-    oninit: function(vnode) {
-        Rack.load(vnode.attrs.id);
-        Rack.highlightDevice = vnode.attrs.device;
+const rackLayout = {
+    oninit({attrs}) {
+        Rack.load(attrs.id);
+        Rack.highlightDevice = attrs.device;
     },
-    view: function() {
-        const activeRelay = Relay.activeList.find(relay => {
-            return relay.location && relay.location.rack_id === Rack.current.id;
+    view() {
+        const activeRelay = Relay.activeList.find(({location}) => {
+            return location && location.rack_id === Rack.current.id;
         });
         const relayActive = activeRelay
             ? m(
@@ -94,7 +88,7 @@ var rackLayout = {
             m(
                 "form.pure-form.pure-g",
                 {
-                    onsubmit: function(e) {
+                    onsubmit(e) {
                         Rack.assignDevices(Rack.current);
                     },
                 },
@@ -129,7 +123,7 @@ var rackLayout = {
 // Focus on the next Slot input when Enter is pressed.
 function enterAsTab(e) {
     try {
-        var nextInput =
+        const nextInput =
             e.target.parentNode.parentNode.nextSibling.lastChild.lastChild;
         if (e.which == 13 && nextInput) {
             nextInput.focus();
@@ -139,13 +133,13 @@ function enterAsTab(e) {
 }
 
 var rackLayoutTable = {
-    view: function() {
-        function reportButton(slot) {
-            var healthButton = {
+    view() {
+        function reportButton({occupant}) {
+            const healthButton = {
                 PASS: m(
                     "a.pure-button",
                     {
-                        href: "/device/" + slot.occupant.id,
+                        href: `/device/${occupant.id}`,
                         oncreate: m.route.link,
                         title: t("Show Device Report"),
                     },
@@ -155,7 +149,7 @@ var rackLayoutTable = {
                 FAIL: m(
                     "a.pure-button",
                     {
-                        href: "/problem/" + slot.occupant.id,
+                        href: `/problem/${occupant.id}`,
                         oncreate: m.route.link,
                         title: t("Show Device Report"),
                         class: "color-failure",
@@ -163,11 +157,11 @@ var rackLayoutTable = {
                     t("FAIL")
                 ),
             };
-            return healthButton[slot.occupant.health];
+            return healthButton[occupant.health];
         }
         function deviceInput(slot) {
             return m("input[type=text]", {
-                oninput: m.withAttr("value", function(value) {
+                oninput: m.withAttr("value", value => {
                     slot.assignment = value;
                 }),
                 placeholder: slot.occupant ? "" : t("Unassigned"),
@@ -180,19 +174,15 @@ var rackLayoutTable = {
                         : "",
             });
         }
-        function flagDevice(slot, slotId) {
+        function flagDevice({occupant}, slotId) {
             return m(
                 "a.pure-button",
                 {
-                    onclick: function() {
+                    onclick() {
                         Feedback.sendFeedback(
                             "[NOTICE] User Flagged Device",
-                            "Device " +
-                                slot.occupant.id +
-                                " in slot " +
-                                slotId +
-                                " was flagged by the user.",
-                            function() {
+                            `Device ${occupant.id} in slot ${slotId} was flagged by the user.`,
+                            () => {
                                 alert(
                                     t("Administrators notified about device")
                                 );
@@ -205,11 +195,11 @@ var rackLayoutTable = {
             );
         }
         // TODO: Replace this with DeviceStatus after figuring out why it causes icons to duplicate
-        var statusIndicators = {
-            view: function(vnode) {
-                var occupant = vnode.attrs.occupant;
+        const statusIndicators = {
+            view({attrs}) {
+                const occupant = attrs.occupant;
                 if (occupant) {
-                    var healthIcon;
+                    let healthIcon;
                     if (occupant.validated && occupant.health === "PASS")
                         healthIcon = Icons.deviceValidated;
                     else if (occupant.health === "PASS")
@@ -243,8 +233,8 @@ var rackLayoutTable = {
             ],
             Object.keys(Rack.current.slots || {})
                 .reverse()
-                .map(function(slotId) {
-                    var slot = Rack.current.slots[slotId];
+                .map(slotId => {
+                    const slot = Rack.current.slots[slotId];
                     return [
                         m(statusIndicators, { occupant: slot.occupant }),
                         slotId,
@@ -260,8 +250,8 @@ var rackLayoutTable = {
     },
 };
 
-module.exports = {
-    allRacks: allRacks,
-    makeSelection: makeSelection,
-    rackLayout: rackLayout,
+export default {
+    allRacks,
+    makeSelection,
+    rackLayout,
 };

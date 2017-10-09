@@ -1,40 +1,36 @@
-var m = require("mithril");
-var t = require("i18n4v");
-var R = require("ramda");
-
-var Device = require("../models/Device");
-var Relay = require("../models/Relay");
-var Rack = require("../models/Rack");
-
-var Icons = require("./component/Icons");
-var Table = require("./component/Table");
+import m from "mithril";
+import t from "i18n4v";
+import R from "ramda";
+import Device from "../models/Device";
+import Relay from "../models/Relay";
+import Rack from "../models/Rack";
+import Icons from "./component/Icons";
+import Table from "./component/Table";
 
 import RackProgress from "./Status/RackProgress";
 
 function deviceList(title, isProblem, devices) {
-    var linkPrefix = isProblem ? "/problem/" : "/device/";
+    const linkPrefix = isProblem ? "/problem/" : "/device/";
     return m(
         ".pure-u-1.pure-u-sm-1-3.text-center",
         m("h2", title),
         devices
             ? m(
                   ".status-device-list",
-                  devices.map(function(device) {
-                      return m(
-                          "a.status-device-list-item",
-                          {
-                              href: linkPrefix + device.id,
-                              oncreate: m.route.link,
-                          },
-                          device.id
-                      );
-                  })
+                  devices.map(({id}) => m(
+                      "a.status-device-list-item",
+                      {
+                          href: linkPrefix + id,
+                          oncreate: m.route.link,
+                      },
+                      id
+                  ))
               )
             : m("i", t("No devices"))
     );
 }
 
-module.exports = {
+export default {
     loading: true,
     oninit: ({ state }) => {
         Promise.all([
@@ -43,26 +39,26 @@ module.exports = {
             Rack.loadRooms(),
         ]).then(() => (state.loading = false));
     },
-    view: function({ state }) {
+    view({ state }) {
         if (state.loading) return m(".loading", "Loading...");
 
-        var activeDevices = R.filter(Device.isActive, Device.devices);
-        var inactiveDevices = R.filter(
+        const activeDevices = R.filter(Device.isActive, Device.devices);
+        const inactiveDevices = R.filter(
             R.compose(R.not, Device.isActive),
             Device.devices
         );
 
-        var healthCounts = R.countBy(d => {
+        const healthCounts = R.countBy(d => {
             if (R.propIs(String, "graduated", d)) return "GRADUATED";
             if (R.propIs(String, "validated", d)) return "VALIDATED";
             return R.prop("health", d);
         });
 
-        var activeHealthCounts = healthCounts(activeDevices);
-        var inactiveHealthCounts = healthCounts(inactiveDevices);
-        var totalHealthCounts = healthCounts(Device.devices);
+        const activeHealthCounts = healthCounts(activeDevices);
+        const inactiveHealthCounts = healthCounts(inactiveDevices);
+        const totalHealthCounts = healthCounts(Device.devices);
 
-        var deviceHealthGroups = R.groupBy(R.prop("health"), Device.devices);
+        const deviceHealthGroups = R.groupBy(R.prop("health"), Device.devices);
         return [
             m("h1.text-center", "Status"),
             m(
@@ -124,25 +120,25 @@ module.exports = {
             Table(
                 t("Active Relays"),
                 [t("Name"), t("Devices Connected"), t("Actions")],
-                Relay.activeList.map(relay => {
+                Relay.activeList.map(({alias, id, devices, location}) => {
                     return [
-                        relay.alias || relay.id,
-                        R.filter(Device.isActive, relay.devices).length,
+                        alias || id,
+                        R.filter(Device.isActive, devices).length,
                         [
                             m(
                                 "a.pure-button",
                                 {
-                                    href: `/relay/${relay.id}`,
+                                    href: `/relay/${id}`,
                                     oncreate: m.route.link,
                                     title: t("Show Relay Details"),
                                 },
                                 Icons.showRelay
                             ),
-                            relay.location
+                            location
                                 ? m(
                                       "a.pure-button",
                                       {
-                                          href: `/rack/${relay.location
+                                          href: `/rack/${location
                                               .rack_id}`,
                                           oncreate: m.route.link,
                                           title: t("Show Connected Rack"),

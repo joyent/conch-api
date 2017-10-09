@@ -1,35 +1,32 @@
-var m = require("mithril");
-var t = require("i18n4v");
+import m from "mithril";
+import t from "i18n4v";
+import Device from "../models/Device";
+import Table from "./component/Table";
+import Icons from "./component/Icons";
 
-var Device = require("../models/Device");
-var Table = require("./component/Table");
-var Icons = require("./component/Icons");
-
-var allDevices = {
+const allDevices = {
     oninit: Device.loadDeviceIds,
-    view: function(vnode) {
-        return Device.deviceIds.map(function(deviceId) {
-            return m(
-                "a.selection-list-item",
-                {
-                    href: "/device/" + deviceId,
-                    onclick: function() {
-                        loadDeviceDetails(deviceId);
-                    },
-                    oncreate: m.route.link,
-                    class:
-                        Device.current && deviceId === Device.current.id
-                            ? "selection-list-item-active"
-                            : "",
+    view(vnode) {
+        return Device.deviceIds.map(deviceId => m(
+            "a.selection-list-item",
+            {
+                href: `/device/${deviceId}`,
+                onclick() {
+                    loadDeviceDetails(deviceId);
                 },
-                deviceId
-            );
-        });
+                oncreate: m.route.link,
+                class:
+                    Device.current && deviceId === Device.current.id
+                        ? "selection-list-item-active"
+                        : "",
+            },
+            deviceId
+        ));
     },
 };
 
-var makeSelection = {
-    view: function() {
+const makeSelection = {
+    view() {
         return m(".make-selection", t("Select Device"));
     },
 };
@@ -43,21 +40,21 @@ function loadDeviceDetails(id) {
     ]);
 }
 
-var deviceReport = {
-    oninit: function(vnode) {
-        loadDeviceDetails(vnode.attrs.id);
+const deviceReport = {
+    oninit({attrs}) {
+        loadDeviceDetails(attrs.id);
     },
-    view: function(vnode) {
+    view(vnode) {
         if (!Device.current) {
             return m(".make-selection", t("No report for device"));
         }
 
-        var title = m(
+        const title = m(
             ".pure-u-1.text-center",
-            m("h1", t("Device") + ": " + Device.current.id)
+            m("h1", `${t("Device")}: ${Device.current.id}`)
         );
 
-        var basicInfo = m(
+        const basicInfo = m(
             ".pure-u-1",
             Table(
                 t("Basic Device Info"),
@@ -81,8 +78,8 @@ var deviceReport = {
             )
         );
 
-        var statusRows = [];
-        var healthStatus;
+        const statusRows = [];
+        let healthStatus;
         if (Device.current.validated && Device.current.health === "PASS")
             healthStatus = [
                 m(Icons.deviceValidated),
@@ -119,7 +116,7 @@ var deviceReport = {
                 ),
             ]);
 
-        var firmwareUpdatingNotification = Device.updatingFirmware
+        const firmwareUpdatingNotification = Device.updatingFirmware
             ? m(
                   ".pure-u-1",
                   m(
@@ -129,7 +126,7 @@ var deviceReport = {
               )
             : null;
 
-        var deviceStatus = m(
+        const deviceStatus = m(
             ".pure-u-1",
             Table(
                 t("Device Status"),
@@ -138,7 +135,7 @@ var deviceReport = {
             )
         );
 
-        var deviceLocation = m(
+        const deviceLocation = m(
             ".pure-u-1",
             Device.rackLocation
                 ? Table(
@@ -159,18 +156,16 @@ var deviceReport = {
                   )
         );
 
-        var environment = Device.current.latest_report.temp
+        const environment = Device.current.latest_report.temp
             ? Table(
                   t("Environment"),
                   [t("Name"), t("Temperature")],
                   Object.keys(Device.current.latest_report.temp)
                       .sort()
-                      .map(function(k) {
-                          return [k, Device.current.latest_report.temp[k]];
-                      })
+                      .map(k => [k, Device.current.latest_report.temp[k]])
               )
             : null;
-        var network = Device.current.latest_report.interfaces
+        const network = Device.current.latest_report.interfaces
             ? Table(
                   t("Network"),
                   [
@@ -185,8 +180,8 @@ var deviceReport = {
                   ],
                   Object.keys(Device.current.latest_report.interfaces)
                       .sort()
-                      .map(function(k) {
-                          var iface =
+                      .map(k => {
+                          const iface =
                               Device.current.latest_report.interfaces[k];
                           return [
                               k,
@@ -201,7 +196,7 @@ var deviceReport = {
                       })
               )
             : null;
-        var disks = Device.current.latest_report.disks
+        const disks = Device.current.latest_report.disks
             ? Table(
                   t("Storage"),
                   [
@@ -219,8 +214,8 @@ var deviceReport = {
                   ],
                   Object.keys(Device.current.latest_report.disks)
                       .sort()
-                      .map(function(k) {
-                          var disk = Device.current.latest_report.disks[k];
+                      .map(k => {
+                          const disk = Device.current.latest_report.disks[k];
                           return [
                               k,
                               disk.hba,
@@ -237,11 +232,11 @@ var deviceReport = {
                       })
               )
             : null;
-        var validations = Table(
+        const validations = Table(
             t("Device Validation Tests"),
             [t("Status"), t("Type"), t("Name"), t("Metric"), t("Log")],
             Device.current.validations
-                .sort(function(a, b) {
+                .sort((a, b) => {
                     if (a.component_type < b.component_type) {
                         return -1;
                     }
@@ -250,28 +245,24 @@ var deviceReport = {
                     }
                     return 0;
                 })
-                .map(function(v) {
-                    return [
-                        v.status ? "" : Icons.warning,
-                        v.component_type,
-                        v.component_name,
-                        v.metric,
-                        v.log,
-                    ];
-                })
+                .map(v => [
+                v.status ? "" : Icons.warning,
+                v.component_type,
+                v.component_name,
+                v.metric,
+                v.log,
+            ])
         );
-        var logs = Table(
+        const logs = Table(
             t("Devices Logs (20 most recent)"),
             [t("Component Type"), t("Component ID"), t("Time"), t("Log")],
-            Device.logs.map(function(log) {
-                return [
-                    log.component_type,
-                    log.component_id,
-                    log.created,
-                    // pre requried to preserve multi-lines
-                    m("span.log-text", log.msg),
-                ];
-            })
+            Device.logs.map(({component_type, component_id, created, msg}) => [
+                component_type,
+                component_id,
+                created,
+                // pre requried to preserve multi-lines
+                m("span.log-text", msg),
+            ])
         );
         return m(".pure-g", [
             firmwareUpdatingNotification,
@@ -289,8 +280,8 @@ var deviceReport = {
     },
 };
 
-module.exports = {
-    allDevices: allDevices,
-    makeSelection: makeSelection,
-    deviceReport: deviceReport,
+export default {
+    allDevices,
+    makeSelection,
+    deviceReport,
 };

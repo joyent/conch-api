@@ -1,25 +1,25 @@
-var m = require("mithril");
+import m from "mithril";
 
-var Feedback = {
+const Feedback = {
     text: "",
-    sendFeedback: function(subject, message, next) {
+    sendFeedback(subject, message, next) {
         return m
             .request({
                 method: "POST",
                 url: "/feedback",
-                data: { subject: subject, message: message },
+                data: { subject, message },
             })
-            .then(function(data) {
+            .then(data => {
                 next(data);
             })
-            .catch(function(e) {
+            .catch(e => {
                 console.log("An error fired: ");
                 console.log(e);
             });
     },
-    sendUserFeedback: function(text, next) {
+    sendUserFeedback(text, next) {
         return this.sendFeedback("Conch User Feedback", text, next);
     },
 };
 
-module.exports = Feedback;
+export default Feedback;

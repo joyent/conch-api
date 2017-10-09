@@ -1,33 +1,33 @@
-var m = require("mithril");
+import m from "mithril";
 
-var Auth = {
+const Auth = {
     username: "",
     password: "",
 
-    setUsername: function(value) {
+    setUsername(value) {
         Auth.username = value;
     },
-    setPassword: function(value) {
+    setPassword(value) {
         Auth.password = value;
     },
-    login: function() {
+    login() {
         return m
             .request({
                 method: "POST",
                 url: "/login",
                 data: { user: Auth.username, password: Auth.password },
             })
-            .then(function(data) {
+            .then(data => {
                 m.route.set("/rack");
             })
-            .catch(function(e) {
+            .catch(e => {
                 console.log("An error fired: ");
                 console.log(e);
             });
     },
-    logout: function() {
+    logout() {
         return m.request({ method: "POST", url: "/logout" });
     },
 };
 
-module.exports = Auth;
+export default Auth;

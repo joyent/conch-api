@@ -1,14 +1,14 @@
-var m = require("mithril");
-var t = require("i18n4v");
+import m from "mithril";
+import t from "i18n4v";
 import Tooltip from "tooltip.js";
 
 function addToolTip(title, placement = "right") {
     return ({ dom }) => {
-        new Tooltip(dom, { title: title, placement: placement });
+        new Tooltip(dom, { title, placement });
     };
 }
 
-module.exports = {
+export default {
     deviceValidated: {
         view: () => {
             return m(

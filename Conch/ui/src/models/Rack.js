@@ -1,59 +1,56 @@
-var m = require("mithril");
+import m from "mithril";
 
-var Rack = {
+const Rack = {
     // Associative array of room names to list of racks
     rackRooms: {},
-    loadRooms: function() {
+    loadRooms() {
         return m
             .request({
                 method: "GET",
                 url: "/rack",
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 // sort and assign the rack rooms
                 Rack.rackRooms = Object.keys(res.racks)
                     .sort()
-                    .reduce(function(acc, room) {
+                    .reduce((acc, room) => {
                         acc[room] = res.racks[room];
                         return acc;
                     }, {});
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /rack: " + e.message);
+                    console.log(`Error in GET /rack: ${e.message}`);
                 }
             });
     },
 
     current: {},
-    load: function(id) {
+    load(id) {
         return m
             .request({
                 method: "GET",
-                url: "/rack/" + id,
+                url: `/rack/${id}`,
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Rack.current = res;
             })
-            .catch(function(e) {
+            .catch(e => {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log("Error in GET /rack/" + id + ": " + e.message);
+                    console.log(`Error in GET /rack/${id}: ${e.message}`);
                 }
             });
     },
     assignSuccess: false,
-    assignDevices: function(rack) {
-        var deviceAssignments = Object.keys(rack.slots).reduce(function(
-            obj,
-            slot
-        ) {
-            var device = rack.slots[slot].assignment;
+    assignDevices(rack) {
+        const deviceAssignments = Object.keys(rack.slots).reduce((obj, slot) => {
+            const device = rack.slots[slot].assignment;
             if (device) {
                 obj[device] = slot;
             }
@@ -63,24 +60,24 @@ var Rack = {
         return m
             .request({
                 method: "POST",
-                url: "/rack/" + rack.id + "/layout",
+                url: `/rack/${rack.id}/layout`,
                 data: deviceAssignments,
                 withCredentials: true,
             })
-            .then(function(res) {
+            .then(res => {
                 Rack.assignSuccess = true;
-                setTimeout(function() {
+                setTimeout(() => {
                     Rack.assignSuccess = false;
                     m.redraw();
                 }, 2600);
                 Rack.load(rack.id);
                 return res;
             })
-            .catch(function(e) {
-                console.log("Error in assigning devices" + e.message);
+            .catch(e => {
+                console.log(`Error in assigning devices${e.message}`);
             });
     },
     highlightDevice: null,
 };
 
-module.exports = Rack;
+export default Rack;

@@ -1,9 +1,8 @@
-var m = require("mithril");
-var t = require("i18n4v");
-
-var Problem = require("../models/Problem");
-var Rack = require("../models/Rack");
-var Table = require("./component/Table");
+import m from "mithril";
+import t from "i18n4v";
+import Problem from "../models/Problem";
+import Rack from "../models/Rack";
+import Table from "./component/Table";
 
 function categoryTitle(category) {
     switch (category) {
@@ -18,20 +17,20 @@ function categoryTitle(category) {
     }
 }
 
-var selectProblemDevice = {
+const selectProblemDevice = {
     loading: true,
     oninit: ({ state }) =>
         Problem.loadDeviceProblems().then(() => (state.loading = false)),
     view: ({ state, attrs }) => {
         if (state.loading) return m(".loading", "Loading...");
 
-        return Object.keys(Problem.devices).map(function(category) {
-            var devices = Problem.devices[category];
+        return Object.keys(Problem.devices).map(category => {
+            const devices = Problem.devices[category];
             return [
                 m("h4.selection-list-header", categoryTitle(category)),
                 m(
                     ".selection-list-group",
-                    Object.keys(devices).map(function(deviceId) {
+                    Object.keys(devices).map(deviceId => {
                         // Assign the current device if it matches the URL parameter
                         if (attrs.id && attrs.id === deviceId)
                             Problem.current = devices[deviceId];
@@ -39,14 +38,14 @@ var selectProblemDevice = {
                         return m(
                             "a.selection-list-item",
                             {
-                                href: "/problem/" + deviceId,
-                                onclick: function() {
+                                href: `/problem/${deviceId}`,
+                                onclick() {
                                     Problem.current = devices[deviceId];
                                 },
                                 oncreate: m.route.link,
                             },
                             m(".pure-g", [
-                                m(".pure-u-1", t("Device") + " " + deviceId),
+                                m(".pure-u-1", `${t("Device")} ${deviceId}`),
                             ])
                         );
                     })
@@ -56,17 +55,17 @@ var selectProblemDevice = {
     },
 };
 
-var makeSelection = {
-    view: function() {
+const makeSelection = {
+    view() {
         return m(".make-selection", t("Select Device"));
     },
 };
 
-var showDevice = {
-    oninit: function(vnode) {},
-    view: function(vnode) {
+const showDevice = {
+    oninit(vnode) {},
+    view({attrs}) {
         if (!Problem.current) return m(".make-selection", t("Select Device"));
-        var reportTable = Problem.current.problems
+        const reportTable = Problem.current.problems
             ? Table(
                   t("Validation Failures"),
                   [
@@ -75,30 +74,28 @@ var showDevice = {
                       t("Condition"),
                       t("Log"),
                   ],
-                  Problem.current.problems.map(function(problem) {
-                      return [
-                          problem.component_type,
-                          problem.component_name,
-                          problem.criteria.condition,
-                          problem.log,
-                      ];
-                  })
+                  Problem.current.problems.map(({component_type, component_name, criteria, log}) => [
+                      component_type,
+                      component_name,
+                      criteria.condition,
+                      log,
+                  ])
               )
             : Problem.current.report_id
               ? null
               : m("h2.text-center", t("Device has not sent a report"));
-        var reportButton = Problem.current.report_id
+        const reportButton = Problem.current.report_id
             ? m(
                   "a.pure-button",
                   {
-                      href: "/device/" + vnode.attrs.id,
+                      href: `/device/${attrs.id}`,
                       oncreate: m.route.link,
                   },
                   t("Show Device Report")
               )
             : null;
 
-        var deviceLocation = Problem.current.location
+        const deviceLocation = Problem.current.location
             ? Table(
                   t("Device Location"),
                   [t("Datacenter"), t("Rack"), t("Role"), t("Unit")],
@@ -112,15 +109,12 @@ var showDevice = {
                   ]
               )
             : m("h2.text-center", t("Device has not been assigned a location"));
-        var locationButton = Problem.current.location
+        const locationButton = Problem.current.location
             ? m(
                   "a.pure-button",
                   {
                       href:
-                          "/rack/" +
-                          Problem.current.location.rack.id +
-                          "?device=" +
-                          vnode.attrs.id,
+                          `/rack/${Problem.current.location.rack.id}?device=${attrs.id}`,
                       oncreate: m.route.link,
                   },
                   t("Show Device in Rack")
@@ -136,8 +130,8 @@ var showDevice = {
     },
 };
 
-module.exports = {
-    selectProblemDevice: selectProblemDevice,
-    makeSelection: makeSelection,
-    showDevice: showDevice,
+export default {
+    selectProblemDevice,
+    makeSelection,
+    showDevice,
 };
