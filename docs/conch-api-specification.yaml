@@ -1,0 +1,177 @@
+---
+openapi: "3.0.0"
+info:
+  version: 2.0.0
+  title: Conch API Service
+servers:
+  - url: https://preflight.scloud.zone
+security:
+  integratorCookie: []
+paths:
+  /login:
+    post:
+      summary: Create a login session
+      security: []
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            required: true
+            schema:
+              properties:
+                user:
+                  type: string
+                password:
+                  type: string
+              required:
+                - user
+                - password
+      responses:
+        '200':
+          description: User successfully authenticated
+        '401':
+          description: User failed to authenticate
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user:
+    post:
+      summary: Create an integrator user
+      security:
+        - adminCookie: []
+      operationId: createIntegrator
+      requestBody:
+        content:
+          application/json:
+            required: true
+            schema:
+              properties:
+                user:
+                  type: string
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    type: string
+                  password:
+                    description: Randomly generated password
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/me/settings:
+    get:
+      summary: Get all settings for current user
+      operationId: getUserSettings
+    post:
+      summary: Update or add multiple user settings
+      operationId: setUserSettings
+  /user/me/settings/{key}:
+    get:
+      summary: Get specified setting for current user
+      operationId: getUserSetting
+    post:
+      summary: Update or add specified user setting
+      operationId: setUserSetting
+  /datacenter_access:
+    post:
+      summary: Associate a user accoutn with datacenter rooms
+  /relay:
+    get:
+      summary: List all relay devices a user has used
+      operationId: getRelays
+  /relay/{serial}/register:
+    post:
+      summary: Register a relay device
+      operationId: registerRelay
+  /device:
+    get:
+      summary: List all devices for the user
+      operationId: getDevices
+  /device/active:
+    get:
+      summary: List all device active in the last 2 minutes
+      operationId: getActiveDevices
+  /device/health/FAIL:
+    get:
+      summary: List all devices failing validation
+      operationId: getFailingDevices
+  /device/health/PASS:
+    get:
+      summary: List all devices passing validation
+      operationId: getPassingDevices
+  /device/{serial}:
+    get:
+      summary: Get most recent device report
+      operationId: getDeviceReport
+    post:
+      summary: Submit a device report for validation
+      operationId: sendDeviceReport
+  /device/{serial}/location:
+    post:
+      summary: Update the device rack location
+      operationId: setDeviceLocation
+    delete:
+      summary: Delete the device rack location
+      operationId: deleteDeviceLocation
+  /device/{serial}/settings:
+    summary: Settings are key-values that are set per-device. Keys are strings and values are JSON
+    get:
+      summary: Retrieve all settings for a device
+      operationId: getDeviceSettings
+    post:
+      summary: Update or add multiple settings for a device
+      operationId: setDeviceSettings
+  /device/{serial}/settings/{key}:
+    get:
+      summary: Retrieve specified setting for a device
+      operationId: getDeviceSetting
+    post:
+      summary: Update or add specified setting for a device
+      operationId: setDeviceSetting
+    delete:
+      summary: Delete specified setting for a device
+      operationId: removeDeviceSetting
+
+  /rack:
+    get:
+      summary: List all available racks
+      operationId: getRacks
+  /rack/:uuid:
+    get:
+      summary: Get layout for a specific rack
+      operationId: getRack
+  /rack/:uuid/layout:
+    post:
+      summary: Update multiple slots in a given rack
+      operationId: getRackLayout
+  /problem:
+    get:
+      summary: Describe all components failing validation
+      operationId: getProblems
+components:
+  schemas:
+    Error:
+      properties:
+        error:
+          type: object
+  securitySchemes:
+    integratorCookie:
+      type: apiKey
+      name: dancer.session
+      in: cookie
+    adminCookie:
+      type: apiKey
+      name: dancer.session
+      in: cookie
+
