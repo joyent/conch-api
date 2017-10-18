@@ -6,7 +6,7 @@ info:
 servers:
   - url: https://preflight.scloud.zone
 security:
-  conchCookie: []
+  apiCookie: []
 paths:
   /login:
     post:
@@ -14,8 +14,8 @@ paths:
       security: []
       operationId: login
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             schema:
               type: object
@@ -43,8 +43,8 @@ paths:
       summary: Create an integrator user
       operationId: createIntegrator
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             schema:
               type: object
@@ -104,8 +104,8 @@ paths:
       summary: Update or add multiple user settings
       operationId: setUserSettings
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             example: >
               { "favorite_foods": [ "avocados", "peaches"], "nested": { "structure": 1 } }
@@ -146,9 +146,9 @@ paths:
       summary: Update or add specified user setting
       operationId: setUserSetting
       requestBody:
+        required: true
+        description: The setting key in the JSON object must match the one in the path
         content:
-          required: true
-          description: The setting key in the JSON object must match the one in the path
           application/json:
             example: { "burn_in_time": "6540" }
       responses:
@@ -184,13 +184,13 @@ paths:
       summary: Idempotently associate a user account with datacenter rooms
       operationId: assignDatacenterAccess
       requestBody:
+        required: true
+        description: >
+            Payload should be a map between user names and a list of
+            datacenter room namess. To remove all access from a user, assign
+            the user name to a non-existant datacenter room (like
+            `__NO_ACCESS__'). This is a known bug.
         content:
-          required: true
-          description: >
-              Payload should be a map between user names and a list of
-              datacenter room namess. To remove all access from a user, assign
-              the user name to a non-existant datacenter room (like
-              `__NO_ACCESS__'). This is a known bug.
           application/json:
             example: '{ "integrator_user_name": [ "datacenter_az_1", "datacenter_az_2"}'
       responses:
@@ -226,8 +226,8 @@ paths:
       summary: Register a relay device
       operationId: registerRelay
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             schema:
               type: object
@@ -364,8 +364,8 @@ paths:
       summary: Submit a device report for validation
       operationId: sendDeviceReport
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             schema:
               $ref: "#/components/schemas/DeviceReport"
@@ -410,8 +410,8 @@ paths:
       summary: Update the device rack location
       operationId: setDeviceLocation
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             schema:
               type: object
@@ -447,8 +447,8 @@ paths:
       summary: Delete the device rack location
       operationId: deleteDeviceLocation
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             schema:
               type: object
@@ -514,8 +514,8 @@ paths:
       summary: Update or add multiple settings for a device
       operationId: setDeviceSettings
       requestBody:
+        required: true
         content:
-          required: true
           application/json:
             example: '{ "system_bios" : "2.4.3", "exp_fw" : "4.32", "bmc_fw" : "2.43.43.43" }'
       responses:
@@ -552,8 +552,8 @@ paths:
       summary: Update or add specified setting for a device
       operationId: setDeviceSetting
       requestBody:
+        required: true
         content:
-          required: true
           description: The setting key in the JSON object must match the one in the path
           application/json:
             example: '{ "bmc_fw" : "2.43.43.43" }'
@@ -630,11 +630,11 @@ paths:
       summary: Update multiple slots in a given rack
       operationId: assignRackSlots
       requestBody:
+        required: true
+        description: >
+          Map between device serial numbers and the slot number they should
+          be assigned in the rack
         content:
-          required: true
-          description: >
-            Map between device serial numbers and the slot number they should
-            be assigned in the rack
           application/json:
             schema:
               type: object
@@ -880,7 +880,7 @@ components:
           items:
             type: object
   securitySchemes:
-    conchCookie:
+    apiCookie:
       type: apiKey
       name: dancer.session
       in: cookie
