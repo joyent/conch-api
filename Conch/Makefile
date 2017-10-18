@@ -40,8 +40,8 @@ public/css/app.css: ui/css/app.css
 
 public/api/index.html: docs/conch-api/openapi-spec.yaml
 	@cd docs/conch-api && npm install && npm run render
-	@mkdir -p public/api
-	@cp docs/conch-api/index.html public/api/index.html
+	@mkdir -p public/doc
+	@cp docs/conch-api/index.html public/doc/index.html
 
 watch-js:
 	@cd ui && npm start
