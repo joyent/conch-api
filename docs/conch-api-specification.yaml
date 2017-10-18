@@ -337,7 +337,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  '/device/{serial}':
+  /device/{serial}:
     get:
       summary: Get specified device with latest device report
       operationId: getDeviceReport
@@ -579,14 +579,81 @@ paths:
     get:
       summary: List all available racks
       operationId: getRacks
+      responses:
+        '200':
+          description: >
+            Get all rack summaries available to user grouped by datacenter
+            rooms
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/RackSummary"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /rack/:uuid:
     get:
-      summary: Get layout for a specific rack
+      summary: Get details about a specific rack
       operationId: getRack
+      responses:
+        '200':
+          description: Details about a rack, including device assignments in slots
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Rack"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /rack/:uuid/layout:
     post:
       summary: Update multiple slots in a given rack
-      operationId: getRackLayout
+      operationId: assignRackSlots
+      requestBody:
+        content:
+          required: true
+          description: >
+            Map between device serial numbers and the slot number they should
+            be assigned in the rack
+          application/json:
+            schema:
+              type: object
+              items:
+                type: integer
+      responses:
+        '200':
+          description: >
+            An object with a list of errors collected when making the
+            assignments, and a list of Device IDs that were updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  updated:
+                    type: array
+                    items:
+                      type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /problem:
     get:
       summary: Describe all components failing validation
@@ -715,6 +782,40 @@ components:
               type: string
             unit:
               type integer
+    RackSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+        size:
+          type: integer
+        device_progress:
+          type: object
+          items:
+            type: integer
+    Rack:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+        size:
+          type: integer
+        datacenter:
+          type: string
+        slots:
+          type: object
+          items:
+            $ref: "#/components/schemas/Device"
   securitySchemes:
         created:
           type: string
