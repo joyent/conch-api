@@ -658,6 +658,24 @@ paths:
     get:
       summary: Describe all components failing validation
       operationId: getProblems
+      responses:
+        '200':
+          description: >
+            Object grouping device errors grouped into three categories:
+            _failing_, devices that failed validation; _unlocated_, devices
+            that have not been assigned a rack location but have sent a
+            report; and _unreported_, devices that are assigned a rack
+            location but have not yet sent a report.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problems"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 tags:
   - name: setting
     description: >
@@ -816,6 +834,36 @@ components:
           type: object
           items:
             $ref: "#/components/schemas/Device"
+    Problems:
+      type: object
+      properties:
+        failing:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+        unreported:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+        unlocated:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+    Problem:
+      type: object
+      properties:
+        location:
+          nullable: true
+          $ref: "#/components/schemas/DeviceLocation"
+        health:
+          type: string
+        report_id:
+          nullable: true
+          type: string
+          format: uuid
+        problems:
+          nullable: true
+          type: array
   securitySchemes:
         created:
           type: string
