@@ -15,8 +15,8 @@ paths:
       operationId: login
       requestBody:
         content:
+          required: true
           application/json:
-            required: true
             schema:
               properties:
                 user:
@@ -45,8 +45,8 @@ paths:
       operationId: createIntegrator
       requestBody:
         content:
+          required: true
           application/json:
-            required: true
             schema:
               properties:
                 user:
@@ -71,20 +71,110 @@ paths:
                 $ref: "#/components/schemas/Error"
   /user/me/settings:
     get:
+      tags: [ setting ]
       summary: Get all settings for current user
       operationId: getUserSettings
+      parameter:
+        - in: query
+          name: keys_only
+          description: If set, list only the names of the setting kyes
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Current user settings
+          content:
+            application/json:
+              examples:
+                default:
+                  value: { "burn_in_time": "2430", "favorite_foods": [ "peaches", "sushi" ] }
+                keys_only:
+                  summary: Response when keys_only is set to a non-zero integer
+                  value: [ "burn_in_time", "favorite_foods" ]
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
+      tags: [ setting ]
       summary: Update or add multiple user settings
       operationId: setUserSettings
+      requestBody:
+        content:
+          required: true
+          application/json:
+            example: { "favorite_foods": [ "avocados", "peaches"], "nested": { "structure": 1 } }
+      responses:
+        '200':
+          description: Set user settings successfully
+          content:
+            application/json:
+              example: { "status": "updated settings for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /user/me/settings/{key}:
     get:
+      tags: [ setting ]
       summary: Get specified setting for current user
       operationId: getUserSetting
+      responses:
+        '200':
+          description: Value for specified setting
+          content:
+            application/json:
+              example: { "burn_in_time": "2430" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
+      tags: [ setting ]
       summary: Update or add specified user setting
       operationId: setUserSetting
+      requestBody:
+        content:
+          required: true
+          description: The key in the JSON object must match the one in the path
+          application/json:
+            example: { "burn_in_time": "6540" }
+      responses:
+        '200':
+          description: Set user setting successfully
+          content:
+            application/json:
+              example: { "status": "updated setting 'burn_in_time' for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [ setting ]
+      summary: Remove specified user setting
+      operationId: removeUserSetting
+      responses:
+        '200':
+          content:
+            application/json:
+              example: { "status": "deleted settings 'burn_in_time' for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /datacenter_access:
-    post:
+    put:
       summary: Associate a user accoutn with datacenter rooms
   /relay:
     get:
@@ -159,6 +249,12 @@ paths:
     get:
       summary: Describe all components failing validation
       operationId: getProblems
+tags:
+  - name: setting
+    description: >
+      Settings are unstructured, key-value pairs. The key of a setting must be
+      a string. The value can be any valid JSON value (object, array, string,
+      number, or boolean).
 components:
   schemas:
     Error:
