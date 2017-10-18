@@ -1,0 +1,16 @@
+{
+  "name": "conch-api",
+  "version": "1.0.0",
+  "description": "Generate documentation for Conch API",
+  "main": "index.js",
+  "scripts": {
+    "render": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "js-yaml": "^3.10.0",
+    "shins": "^2.0.1-5",
+    "widdershins": "^2.2.3"
+  }
+}

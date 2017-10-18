@@ -1,0 +1,886 @@
+---
+openapi: "3.0.0"
+info:
+  version: 2.0.0
+  title: Conch API Service
+servers:
+  - url: https://preflight.scloud.zone
+security:
+  conchCookie: []
+paths:
+  /login:
+    post:
+      summary: Create a login session
+      security: []
+      operationId: login
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                password:
+                  type: string
+              required:
+                - user
+                - password
+      responses:
+        '200':
+          description: User successfully authenticated
+        '401':
+          description: User failed to authenticate
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user:
+    post:
+      summary: Create an integrator user
+      operationId: createIntegrator
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    type: string
+                  password:
+                    description: Randomly generated password
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/me/settings:
+    get:
+      tags: [setting]
+      summary: Get all settings for current user
+      operationId: getUserSettings
+      parameter:
+        - in: query
+          name: keys_only
+          description: If set, list only the names of the setting keys
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Current user settings
+          content:
+            application/json:
+              examples:
+                default:
+                  value: >
+                    { "burn_in_time": "2430", "favorite_foods": [ "peaches", "sushi" ] }
+                keys_only:
+                  summary: Response when keys_only is set to a non-zero integer
+                  value: >
+                    [ "burn_in_time", "favorite_foods" ]
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [setting]
+      summary: Update or add multiple user settings
+      operationId: setUserSettings
+      requestBody:
+        content:
+          required: true
+          application/json:
+            example: >
+              { "favorite_foods": [ "avocados", "peaches"], "nested": { "structure": 1 } }
+      responses:
+        '200':
+          description: Set user settings successfully
+          content:
+            application/json:
+              example: >
+                { "status": "updated settings for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/me/settings/{key}:
+    get:
+      tags: [ setting ]
+      summary: Get specified setting for current user
+      operationId: getUserSetting
+      responses:
+        '200':
+          description: Value for specified setting
+          content:
+            application/json:
+              example: >
+                { "burn_in_time": "2430" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [ setting ]
+      summary: Update or add specified user setting
+      operationId: setUserSetting
+      requestBody:
+        content:
+          required: true
+          description: The setting key in the JSON object must match the one in the path
+          application/json:
+            example: { "burn_in_time": "6540" }
+      responses:
+        '200':
+          description: Set user setting successfully
+          content:
+            application/json:
+              example: { "status": "updated setting 'burn_in_time' for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [ setting ]
+      summary: Remove specified user setting
+      operationId: removeUserSetting
+      responses:
+        '200':
+          description: Set user setting successfully
+          content:
+            application/json:
+              example: { "status": "deleted settings 'burn_in_time' for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /datacenter_access:
+    put:
+      summary: Idempotently associate a user account with datacenter rooms
+      operationId: assignDatacenterAccess
+      requestBody:
+        content:
+          required: true
+          description: >
+              Payload should be a map between user names and a list of
+              datacenter room namess. To remove all access from a user, assign
+              the user name to a non-existant datacenter room (like
+              `__NO_ACCESS__'). This is a known bug.
+          application/json:
+            example: '{ "integrator_user_name": [ "datacenter_az_1", "datacenter_az_2"}'
+      responses:
+        '200':
+          description: Associated user(s) and datacenter rooms successfully
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /relay:
+    get:
+      summary: List all relay devices a user has used
+      operationId: getRelays
+      responses:
+        '200':
+          description: List of relay objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relay"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /relay/{serial}/register:
+    post:
+      summary: Register a relay device
+      operationId: registerRelay
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              type: object
+              properties:
+                version:
+                  type: string
+                ssh_port:
+                  type: integer
+      responses:
+        '200':
+          description: Successfully registered relay
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device:
+    get:
+      summary: List all devices for the user
+      operationId: getDevices
+      parameter:
+        - in: query
+          name: full
+          description: >
+            If set to a non-zero integer, return details for all devices rather
+            than device serial numbers
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: >
+            List of Device serial numbers or full Device objects if the `full`
+            query parameter is specified
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                    example: '[ "DEVICE1", "DEVICE2"]'
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/Device"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/active:
+    get:
+      summary: List all device active in the last 2 minutes
+      operationId: getActiveDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers active in the last two minutes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/health/FAIL:
+    get:
+      summary: List all devices failing validation
+      operationId: getFailingDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers that have failed validation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/health/PASS:
+    get:
+      summary: List all devices passing validation
+      operationId: getPassingDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers that have passed validation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}:
+    get:
+      summary: Get specified device with latest device report
+      operationId: getDeviceReport
+      responses:
+        '200':
+          description: >
+            Device with `latest_report` and `validations` fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Submit a device report for validation
+      operationId: sendDeviceReport
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceReport"
+      responses:
+        '200':
+          description: >
+            Device with `latest_report` and `validations` fields filled
+          content:
+            application/json:
+              schema:
+                properties:
+                  device_id:
+                    type: string
+                  health:
+                    type: string
+                  validated:
+                    type: boolean
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/location:
+    get:
+      summary: Get the device rack location
+      operationId: getDeviceLocation
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceLocation"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Update the device rack location
+      operationId: setDeviceLocation
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                rack:
+                  type: string
+                  format: uuid
+                rack_unit:
+                  type: integer
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action:
+                    type: string
+                  device_id:
+                    type: string
+                  moved_to:
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete the device rack location
+      operationId: deleteDeviceLocation
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                rack:
+                  type: string
+                  format: uuid
+                rack_unit:
+                  type: integer
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action:
+                    type: string
+                  device_id:
+                    type: string
+                  removed_from:
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/settings:
+    summary: Settings are key-values that are set per-device. Keys are strings and values are JSON
+    get:
+      tags: [setting]
+      summary: Retrieve all settings for a device
+      operationId: getDeviceSettings
+      parameter:
+        - in: query
+          name: keys_only
+          description: If set, list only the names of the setting keys
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Current device settings
+          content:
+            application/json:
+              examples:
+                default:
+                  value: '{ "bmc_fw": "2.43.43.43", "exp_fw": "4.32", "system_bios": "2.4.3" }'
+                keys_only:
+                  summary: Response when keys_only is set to a non-zero integer
+                  value: '[ "bmc_fw", "exp_fw", "system_bios" ]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [setting]
+      summary: Update or add multiple settings for a device
+      operationId: setDeviceSettings
+      requestBody:
+        content:
+          required: true
+          application/json:
+            example: '{ "system_bios" : "2.4.3", "exp_fw" : "4.32", "bmc_fw" : "2.43.43.43" }'
+      responses:
+        '200':
+          description: Set device settings successfully
+          content:
+            application/json:
+              example: { "status": "updated settings for DEVICE1" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/settings/{key}:
+    get:
+      tags: [setting]
+      summary: Retrieve specified setting for a device
+      operationId: getDeviceSetting
+      responses:
+        '200':
+          description: Value for specified setting
+          content:
+            application/json:
+              example: '{ "bmc_fw": "2.43.43.43" }'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [setting]
+      summary: Update or add specified setting for a device
+      operationId: setDeviceSetting
+      requestBody:
+        content:
+          required: true
+          description: The setting key in the JSON object must match the one in the path
+          application/json:
+            example: '{ "bmc_fw" : "2.43.43.43" }'
+      responses:
+        '200':
+          description: Set device setting successfully
+          content:
+            application/json:
+              example: { "status": "updated setting 'bmc_fw' for device DEVICE1" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [setting]
+      summary: Delete specified setting for a device
+      operationId: removeDeviceSetting
+      responses:
+        '200':
+          description: Set device setting successfully
+          content:
+            application/json:
+              example: { "status": "deleted settings 'bmc_fw' for device DEVICE" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /rack:
+    get:
+      summary: List all available racks
+      operationId: getRacks
+      responses:
+        '200':
+          description: >
+            Get all rack summaries available to user grouped by datacenter
+            rooms
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/RackSummary"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /rack/:uuid:
+    get:
+      summary: Get details about a specific rack
+      operationId: getRack
+      responses:
+        '200':
+          description: Details about a rack, including device assignments in slots
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Rack"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /rack/:uuid/layout:
+    post:
+      summary: Update multiple slots in a given rack
+      operationId: assignRackSlots
+      requestBody:
+        content:
+          required: true
+          description: >
+            Map between device serial numbers and the slot number they should
+            be assigned in the rack
+          application/json:
+            schema:
+              type: object
+              items:
+                type: integer
+      responses:
+        '200':
+          description: >
+            An object with a list of errors collected when making the
+            assignments, and a list of Device IDs that were updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  updated:
+                    type: array
+                    items:
+                      type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /problem:
+    get:
+      summary: Describe all components failing validation
+      operationId: getProblems
+      responses:
+        '200':
+          description: >
+            Object grouping device errors grouped into three categories:
+            _failing_, devices that failed validation; _unlocated_, devices
+            that have not been assigned a rack location but have sent a
+            report; and _unreported_, devices that are assigned a rack
+            location but have not yet sent a report.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problems"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+tags:
+  - name: setting
+    description: >
+      Settings are unstructured, key-value pairs. The key of a setting must be
+      a string. The value can be any valid JSON value (object, array, string,
+      number, or boolean).
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    Relay:
+      type: object
+      properties:
+        alias:
+          type: string
+        created:
+          type: string
+          format: date-time
+        devices:
+          description: >
+            Array of devices that have reported through this relay device
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+        id:
+          type: string
+        ipaddr:
+          type: string
+        ssh_port:
+          type: string
+        updated:
+          type: string
+          format: date-time
+        version:
+          type: string
+    Device:
+      type: object
+      properties:
+        boot_pahse:
+          nullable: true
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        uptime_since:
+          nullable: true
+          type: string
+          format: date-time
+        hardware_product:
+          type: string
+          format: uuid
+        health:
+          type: string
+        id:
+          type: string
+        last_seen:
+          type: string
+          format: date-time
+        state:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        validated:
+          nullable: true
+          type: string
+          format: date-time
+        validations:
+          nullable: true
+          type: array
+          items:
+            type: object
+    DeviceReport:
+      type: object
+      required:
+        - product_name
+        - serial_number
+        - system_uuid
+        - state
+        - bios_version
+        - processor
+        - memory
+      properties:
+        product_name:
+          type: string
+        serial_number:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        state:
+          type: string
+        bios_version:
+          type: string
+        processor:
+          type: object
+        memory:
+          type: object
+    DeviceLocation:
+      type: object
+      properties:
+        datacenter:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+        rack:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            role:
+              type: string
+            unit:
+              type: integer
+    RackSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+        size:
+          type: integer
+        device_progress:
+          type: object
+          items:
+            type: integer
+    Rack:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+        size:
+          type: integer
+        datacenter:
+          type: string
+        slots:
+          type: object
+          items:
+            $ref: "#/components/schemas/Device"
+    Problems:
+      type: object
+      properties:
+        failing:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+        unreported:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+        unlocated:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+    Problem:
+      type: object
+      properties:
+        location:
+          nullable: true
+          $ref: "#/components/schemas/DeviceLocation"
+        health:
+          type: string
+        report_id:
+          nullable: true
+          type: string
+          format: uuid
+        problems:
+          nullable: true
+          type: array
+          items:
+            type: object
+  securitySchemes:
+    conchCookie:
+      type: apiKey
+      name: dancer.session
+      in: cookie
