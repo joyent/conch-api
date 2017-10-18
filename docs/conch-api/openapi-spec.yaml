@@ -6,7 +6,7 @@ info:
 servers:
   - url: https://preflight.scloud.zone
 security:
-  integratorCookie: []
+  conchCookie: []
 paths:
   /login:
     post:
@@ -41,8 +41,6 @@ paths:
   /user:
     post:
       summary: Create an integrator user
-      security:
-        - adminCookie: []
       operationId: createIntegrator
       requestBody:
         content:
@@ -184,8 +182,6 @@ paths:
   /datacenter_access:
     put:
       summary: Idempotently associate a user account with datacenter rooms
-      security:
-        - adminCookie: []
       requestBody:
         content:
           required: true
