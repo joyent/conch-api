@@ -79,7 +79,7 @@ paths:
       parameter:
         - in: query
           name: keys_only
-          description: If set, list only the names of the setting kyes
+          description: If set, list only the names of the setting keys
           schema:
             type: integer
       responses:
@@ -473,22 +473,108 @@ paths:
   /device/{serial}/settings:
     summary: Settings are key-values that are set per-device. Keys are strings and values are JSON
     get:
+      tags: [setting]
       summary: Retrieve all settings for a device
       operationId: getDeviceSettings
+      parameter:
+        - in: query
+          name: keys_only
+          description: If set, list only the names of the setting keys
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Current device settings
+          content:
+            application/json:
+              examples:
+                default:
+                  value: '{ "bmc_fw": "2.43.43.43", "exp_fw": "4.32", "system_bios": "2.4.3" }'
+                keys_only:
+                  summary: Response when keys_only is set to a non-zero integer
+                  value: '[ "bmc_fw", "exp_fw", "system_bios" ]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
+      tags: [setting]
       summary: Update or add multiple settings for a device
       operationId: setDeviceSettings
+      requestBody:
+        content:
+          required: true
+          application/json:
+            example: '{ "system_bios" : "2.4.3", "exp_fw" : "4.32", "bmc_fw" : "2.43.43.43" }'
+      responses:
+        '200':
+          description: Set device settings successfully
+          content:
+            application/json:
+              example: { "status": "updated settings for DEVICE1" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/{serial}/settings/{key}:
     get:
+      tags: [setting]
       summary: Retrieve specified setting for a device
       operationId: getDeviceSetting
+      responses:
+        '200':
+          description: Value for specified setting
+          content:
+            application/json:
+              example: '{ "bmc_fw": "2.43.43.43" }'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
+      tags: [setting]
       summary: Update or add specified setting for a device
       operationId: setDeviceSetting
+      requestBody:
+        content:
+          required: true
+          description: The setting key in the JSON object must match the one in the path
+          application/json:
+            example: '{ "bmc_fw" : "2.43.43.43" }'
+      responses:
+        '200':
+          description: Set device setting successfully
+          content:
+            application/json:
+              example: { "status": "updated setting 'bmc_fw' for device DEVICE1" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     delete:
+      tags: [setting]
       summary: Delete specified setting for a device
       operationId: removeDeviceSetting
-
+      responses:
+        '200':
+          description: Set device setting successfully
+          content:
+            application/json:
+              example: { "status": "deleted settings 'bmc_fw' for device DEVICE" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /rack:
     get:
       summary: List all available racks
