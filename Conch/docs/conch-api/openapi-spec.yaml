@@ -7,9 +7,39 @@ servers:
   - url: https://preflight.scloud.zone
 security:
   apiCookie: []
+tags:
+  - name: Login
+  - name: Workspace
+    description: >
+      A Workspace is a collection of datacenter resources and a list of users
+      who are assigned Roles in the Workspace. A Workspace is the unit of
+      access control, and determines who can see what resources in the system.
+      As special `GLOBAL` Workspace is defined, which has access to all
+      resources, but only a list of system-level administrators may access the
+      `GLOBAL` workspace.
+  - name: Role
+    description: >
+      A Role defines the types of operations an assigned User is permittedin
+      the Workspace. A User may only be assigned one Role in each Workspace.
+  - name: User
+    description: >
+      Users are assigned to a Role in a Workspace.
+  - name: Settings
+    description: >
+      Settings are unstructured, key-value pairs. The key of a setting must be
+      a string. The value can be any valid JSON value (object, array, string,
+      number, or boolean).
+  - name: Device
+    description: >
+      Devices are the servers and switches in a datacenter. Devices occupy one
+      or several slots in a datacenter rack. Devices send reports to Conch
+      through a Relay device.
+  - name: Relay
+  - name: Rack
 paths:
   /login:
     post:
+      tags: [Login]
       summary: Create a login session
       security: []
       operationId: login
@@ -38,10 +68,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /user:
+  /workspace:
+    get:
+      tags: [Workspace]
+      summary: List all workspaces the user is assigned
+      operationId: getWorkspaces
+  /workspace/{workspace_id}:
+    get:
+      tags: [Workspace]
+      summary: List Workspace Details
+      operationId: getWorkspace
+  /workspace/{workspace_id}/children:
     post:
-      summary: Create an integrator user
-      operationId: createIntegrator
+      tags: [Workspace]
+      summary: Create a sub-workspaces
+      operationId: createSubWorkspaces
+    get:
+      tags: [Workspace]
+      summary: List sub-workspaces
+      operationId: getSubWorkspaces
+  /workspace/{workspace_id}/role:
+    get:
+      tags: [Workspace, Role]
+      summary: List roles defined for the worksapce
+      operationId: getWorkspaceRoles
+  /workspace/{workspace_id}/user:
+    get:
+      tags: [User]
+      summary: List all users assigned to the workspace
+      operationId: getWorkspaceUsers
+    post:
+      tags: [User]
+      summary: Create or invite an user to the workspace
+      operationId: inviteUser
       requestBody:
         required: true
         content:
@@ -69,10 +128,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /user/me/settings:
+  /workspace/{workspace_id}/user/{user_id}:
     get:
-      tags: [setting]
-      summary: Get all settings for current user
+      tags: [User]
+      summary: Get the details of a User
+      operationId: getWorkspaceUser
+  /me:
+    get:
+      tags: [User]
+      summary: Get the details the currently logged-in User
+      operationId: getUser
+  /me/settings:
+    get:
+      tags: [User, Settings]
+      summary: Get system-wide settings for current User
       operationId: getUserSettings
       parameter:
         - in: query
@@ -82,7 +151,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: Current user settings
+          description: Current User settings
           content:
             application/json:
               examples:
@@ -100,8 +169,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      tags: [setting]
-      summary: Update or add multiple user settings
+      tags: [User, Settings]
+      summary: Update or add multiple system-wide user settings
       operationId: setUserSettings
       requestBody:
         required: true
@@ -123,10 +192,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /user/me/settings/{key}:
+  /me/settings/{key}:
     get:
-      tags: [ setting ]
-      summary: Get specified setting for current user
+      tags: [User, Settings]
+      summary: Get specified system-wide setting for current user
       operationId: getUserSetting
       responses:
         '200':
@@ -142,21 +211,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      tags: [ setting ]
+      tags: [User, Settings]
       summary: Update or add specified user setting
       operationId: setUserSetting
       requestBody:
         required: true
-        description: The setting key in the JSON object must match the one in the path
+        description: >
+          The setting key in the JSON object must match the one in the path
         content:
           application/json:
-            example: { "burn_in_time": "6540" }
+            example: >
+              { "burn_in_time": "6540" }
       responses:
         '200':
           description: Set user setting successfully
           content:
             application/json:
-              example: { "status": "updated setting 'burn_in_time' for user" }
+              example: >
+                { "status": "updated setting 'burn_in_time' for user" }
         default:
           description: Unexpected error
           content:
@@ -164,7 +236,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     delete:
-      tags: [ setting ]
+      tags: [User, Settings]
       summary: Remove specified user setting
       operationId: removeUserSetting
       responses:
@@ -172,39 +244,18 @@ paths:
           description: Set user setting successfully
           content:
             application/json:
-              example: { "status": "deleted settings 'burn_in_time' for user" }
+              example: >
+                { "status": "deleted settings 'burn_in_time' for user" }
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /datacenter_access:
-    put:
-      summary: Idempotently associate a user account with datacenter rooms
-      operationId: assignDatacenterAccess
-      requestBody:
-        required: true
-        description: >
-            Payload should be a map between user names and a list of
-            datacenter room namess. To remove all access from a user, assign
-            the user name to a non-existant datacenter room (like
-            `__NO_ACCESS__'). This is a known bug.
-        content:
-          application/json:
-            example: '{ "integrator_user_name": [ "datacenter_az_1", "datacenter_az_2"}'
-      responses:
-        '200':
-          description: Associated user(s) and datacenter rooms successfully
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /relay:
+  /workspace/{workspace_id}/relay:
     get:
-      summary: List all relay devices a user has used
+      summary: List all Relay devices a user has used in a Workspace
+      tags: [Relay]
       operationId: getRelays
       responses:
         '200':
@@ -223,7 +274,8 @@ paths:
                 $ref: "#/components/schemas/Error"
   /relay/{serial}/register:
     post:
-      summary: Register a relay device
+      summary: Register a Relay device
+      tags: [Relay]
       operationId: registerRelay
       requestBody:
         required: true
@@ -245,8 +297,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /device:
+  /workspace/{workspace_id}/device:
     get:
+      tags: [Device]
       summary: List all devices for the user
       operationId: getDevices
       parameter:
@@ -279,8 +332,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /device/active:
+  /workspace/{workspace_id}/device/active:
     get:
+      tags: [Device]
       summary: List all device active in the last 2 minutes
       operationId: getActiveDevices
       responses:
@@ -300,8 +354,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /device/health/FAIL:
+  /workspace/{workspace_id}/device/health/FAIL:
     get:
+      tags: [Device]
       summary: List all devices failing validation
       operationId: getFailingDevices
       responses:
@@ -321,8 +376,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /device/health/PASS:
+  /workspace/{workspace_id}/device/health/PASS:
     get:
+      tags: [Device]
       summary: List all devices passing validation
       operationId: getPassingDevices
       responses:
@@ -342,8 +398,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /device/{serial}:
+  /workspace/{workspace_id}/device/{serial}:
     get:
+      tags: [Device]
       summary: Get specified device with latest device report
       operationId: getDeviceReport
       responses:
@@ -361,6 +418,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
+      tags: [Device]
       summary: Submit a device report for validation
       operationId: sendDeviceReport
       requestBody:
@@ -389,8 +447,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /device/{serial}/location:
+  /workspace/{workspace_id}/device/{serial}/location:
     get:
+      tags: [Device]
       summary: Get the device rack location
       operationId: getDeviceLocation
       responses:
@@ -407,6 +466,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
+      tags: [Device]
       summary: Update the device rack location
       operationId: setDeviceLocation
       requestBody:
@@ -444,6 +504,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     delete:
+      tags: [Device]
       summary: Delete the device rack location
       operationId: deleteDeviceLocation
       requestBody:
@@ -481,9 +542,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
   /device/{serial}/settings:
-    summary: Settings are key-values that are set per-device. Keys are strings and values are JSON
+    summary: Get or modify all settings for a device
     get:
-      tags: [setting]
+      tags: [Device, Settings]
       summary: Retrieve all settings for a device
       operationId: getDeviceSettings
       parameter:
@@ -499,10 +560,12 @@ paths:
             application/json:
               examples:
                 default:
-                  value: '{ "bmc_fw": "2.43.43.43", "exp_fw": "4.32", "system_bios": "2.4.3" }'
+                  value: >
+                    { "bmc_fw": "2.43.43.43", "exp_fw": "4.32", "system_bios": "2.4.3" }
                 keys_only:
                   summary: Response when keys_only is set to a non-zero integer
-                  value: '[ "bmc_fw", "exp_fw", "system_bios" ]'
+                  value: >
+                    [ "bmc_fw", "exp_fw", "system_bios" ]
         default:
           description: Unexpected error
           content:
@@ -510,20 +573,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      tags: [setting]
+      tags: [Device, Settings]
       summary: Update or add multiple settings for a device
       operationId: setDeviceSettings
       requestBody:
         required: true
         content:
           application/json:
-            example: '{ "system_bios" : "2.4.3", "exp_fw" : "4.32", "bmc_fw" : "2.43.43.43" }'
+            example: >
+              { "system_bios" : "2.4.3", "exp_fw" : "4.32", "bmc_fw" : "2.43.43.43" }
       responses:
         '200':
           description: Set device settings successfully
           content:
             application/json:
-              example: { "status": "updated settings for DEVICE1" }
+              example: >
+                { "status": "updated settings for DEVICE1" }
         default:
           description: Unexpected error
           content:
@@ -532,7 +597,7 @@ paths:
                 $ref: "#/components/schemas/Error"
   /device/{serial}/settings/{key}:
     get:
-      tags: [setting]
+      tags: [Device, Settings]
       summary: Retrieve specified setting for a device
       operationId: getDeviceSetting
       responses:
@@ -548,7 +613,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      tags: [setting]
+      tags: [Device, Settings]
       summary: Update or add specified setting for a device
       operationId: setDeviceSetting
       requestBody:
@@ -556,13 +621,15 @@ paths:
         content:
           description: The setting key in the JSON object must match the one in the path
           application/json:
-            example: '{ "bmc_fw" : "2.43.43.43" }'
+            example: >
+              { "bmc_fw" : "2.43.43.43" }
       responses:
         '200':
           description: Set device setting successfully
           content:
             application/json:
-              example: { "status": "updated setting 'bmc_fw' for device DEVICE1" }
+              example: >
+                { "status": "updated setting 'bmc_fw' for device DEVICE1" }
         default:
           description: Unexpected error
           content:
@@ -570,7 +637,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     delete:
-      tags: [setting]
+      tags: [Device, Settings]
       summary: Delete specified setting for a device
       operationId: removeDeviceSetting
       responses:
@@ -578,16 +645,18 @@ paths:
           description: Set device setting successfully
           content:
             application/json:
-              example: { "status": "deleted settings 'bmc_fw' for device DEVICE" }
+              example: >
+                { "status": "deleted settings 'bmc_fw' for device DEVICE" }
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /rack:
+  /workspace/{workspace_id}/rack:
     get:
-      summary: List all available racks
+      summary: List all available racks in a workspace
+      tags: [Rack]
       operationId: getRacks
       responses:
         '200':
@@ -606,9 +675,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /rack/:uuid:
+  workspace/{workspace_id}/rack/:uuid:
     get:
       summary: Get details about a specific rack
+      tags: [Rack]
       operationId: getRack
       responses:
         '200':
@@ -625,9 +695,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /rack/:uuid/layout:
+  workspace/{workspace_id}/rack/:uuid/layout:
     post:
       summary: Update multiple slots in a given rack
+      tags: [Rack]
       operationId: assignRackSlots
       requestBody:
         required: true
@@ -664,9 +735,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /problem:
+  workspace/{workspace_id}/problem:
     get:
-      summary: Describe all components failing validation
+      tags: [Device]
+      summary: Describe all components failing validation in a workspace
       operationId: getProblems
       responses:
         '200':
@@ -686,12 +758,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-tags:
-  - name: setting
-    description: >
-      Settings are unstructured, key-value pairs. The key of a setting must be
-      a string. The value can be any valid JSON value (object, array, string,
-      number, or boolean).
 components:
   schemas:
     Error:
