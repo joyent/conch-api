@@ -89,10 +89,12 @@ paths:
             application/json:
               examples:
                 default:
-                  value: { "burn_in_time": "2430", "favorite_foods": [ "peaches", "sushi" ] }
+                  value: >
+                    { "burn_in_time": "2430", "favorite_foods": [ "peaches", "sushi" ] }
                 keys_only:
                   summary: Response when keys_only is set to a non-zero integer
-                  value: [ "burn_in_time", "favorite_foods" ]
+                  value: >
+                    [ "burn_in_time", "favorite_foods" ]
         default:
           description: Unexpected error
           content:
@@ -107,13 +109,15 @@ paths:
         content:
           required: true
           application/json:
-            example: { "favorite_foods": [ "avocados", "peaches"], "nested": { "structure": 1 } }
+            example: >
+              { "favorite_foods": [ "avocados", "peaches"], "nested": { "structure": 1 } }
       responses:
         '200':
           description: Set user settings successfully
           content:
             application/json:
-              example: { "status": "updated settings for user" }
+              example: >
+                { "status": "updated settings for user" }
         default:
           description: Unexpected error
           content:
@@ -131,7 +135,8 @@ paths:
           description: Value for specified setting
           content:
             application/json:
-              example: { "burn_in_time": "2430" }
+              example: >
+                { "burn_in_time": "2430" }
         default:
           description: Unexpected error
           content:
@@ -190,7 +195,7 @@ paths:
               the user name to a non-existant datacenter room (like
               `__NO_ACCESS__'). This is a known bug.
           application/json:
-            example: { "integrator_user_name": [ "datacenter_az_1", "datacenter_az_2"}
+            example: '{ "integrator_user_name": [ "datacenter_az_1", "datacenter_az_2"}'
       responses:
         '200':
           description: Associated user(s) and datacenter rooms successfully
@@ -292,6 +297,7 @@ paths:
                 items:
                   type: string
                 example: '[ "DEVICE1", "DEVICE2"]'
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -312,6 +318,7 @@ paths:
                 items:
                   type: string
                 example: '[ "DEVICE1", "DEVICE2"]'
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -332,6 +339,7 @@ paths:
                 items:
                   type: string
                 example: '[ "DEVICE1", "DEVICE2"]'
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -349,6 +357,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Device"
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -377,6 +386,7 @@ paths:
                     type: string
                   validated:
                     type: boolean
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -393,6 +403,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeviceLocation"
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -429,6 +440,7 @@ paths:
                     type: string
                   moved_to:
                     type: string
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -465,6 +477,7 @@ paths:
                     type: string
                   removed_from:
                     type: string
+        default:
           description: Unexpected error
           content:
             application/json:
@@ -865,8 +878,6 @@ components:
           nullable: true
           type: array
   securitySchemes:
-        created:
-          type: string
     integratorCookie:
       type: apiKey
       name: dancer.session
