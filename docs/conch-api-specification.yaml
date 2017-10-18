@@ -714,6 +714,8 @@ components:
           description: >
             Array of devices that have reported through this relay device
           type: array
+          items:
+            $ref: "#/components/schemas/Device"
         id:
           type: string
         ipaddr:
@@ -763,7 +765,8 @@ components:
         validations:
           nullable: true
           type: array
-
+          items:
+            type: object
     DeviceReport:
       type: object
       required:
@@ -812,7 +815,7 @@ components:
             role:
               type: string
             unit:
-              type integer
+              type: integer
     RackSummary:
       type: object
       properties:
@@ -877,6 +880,8 @@ components:
         problems:
           nullable: true
           type: array
+          items:
+            type: object
   securitySchemes:
     integratorCookie:
       type: apiKey
@@ -886,4 +891,3 @@ components:
       type: apiKey
       name: dancer.session
       in: cookie
-
