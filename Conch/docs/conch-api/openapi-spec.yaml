@@ -182,6 +182,7 @@ paths:
   /datacenter_access:
     put:
       summary: Idempotently associate a user account with datacenter rooms
+      operationId: assignDatacenterAccess
       requestBody:
         content:
           required: true
@@ -879,11 +880,7 @@ components:
           items:
             type: object
   securitySchemes:
-    integratorCookie:
-      type: apiKey
-      name: dancer.session
-      in: cookie
-    adminCookie:
+    conchCookie:
       type: apiKey
       name: dancer.session
       in: cookie

@@ -13,4 +13,9 @@ get '/' => sub {
   send_file '/index.html';
 };
 
+get '/api' => sub {
+  send_file '/api/index.html';
+};
+
+
 true;

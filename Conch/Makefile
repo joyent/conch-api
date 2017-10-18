@@ -26,7 +26,7 @@ format-perl:
 format-js:
 	@cd ui && npm run prettier
 
-web-assets: public/css/app.css public/js/app.js
+web-assets: public/css/app.css public/js/app.js public/api/index.html
 
 ui/package-lock.json: ui/package.json
 	@cd ui && npm install;
@@ -38,6 +38,10 @@ public/js/app.js: ui/bin/app.js
 public/css/app.css: ui/css/app.css
 	@cp ui/css/app.css public/css/app.css
 
+public/api/index.html: docs/conch-api/openapi-spec.yaml
+	@cd docs/conch-api && npm install && npm run render
+	@mkdir -p public/api
+	@cp docs/conch-api/index.html public/api/index.html
 
 watch-js:
 	@cd ui && npm start

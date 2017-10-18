@@ -4,7 +4,7 @@
   "description": "Generate documentation for Conch API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "render": "node index.js"
   },
   "author": "",
   "license": "ISC",
