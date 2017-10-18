@@ -1,3 +1,4 @@
+node_modules
 /blib/
 /.build/
 _build/
@@ -19,6 +20,7 @@ nytprof.out
 *.bs
 /_eumm/
 *.swp
+*.tmp
 tags
 .lvimrc
 /Conch/conch.conf
