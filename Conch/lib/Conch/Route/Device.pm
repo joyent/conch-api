@@ -214,7 +214,8 @@ del '/device/:serial/location' => needs integrator => sub {
   }
   else {
     return status_500(
-      { error => "error removing $serial from $req->{rack}:$req->{rack_unit}" }
+      { error => sprintf("error removing $serial from %s:%s",
+          $req->{rack}, $req->{rack_unit}) }
     );
   }
 };

@@ -18,6 +18,7 @@ paths:
           required: true
           application/json:
             schema:
+              type: object
               properties:
                 user:
                   type: string
@@ -48,6 +49,7 @@ paths:
           required: true
           application/json:
             schema:
+              type: object
               properties:
                 user:
                   type: string
@@ -226,6 +228,7 @@ paths:
           required: true
           application/json:
             schema:
+              type: object
               properties:
                 version:
                   type: string
@@ -398,9 +401,75 @@ paths:
     post:
       summary: Update the device rack location
       operationId: setDeviceLocation
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                rack:
+                  type: string
+                  format: uuid
+                rack_unit:
+                  type: integer
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action:
+                    type: string
+                  device_id:
+                    type: string
+                  moved_to:
+                    type: string
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     delete:
       summary: Delete the device rack location
       operationId: deleteDeviceLocation
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                rack:
+                  type: string
+                  format: uuid
+                rack_unit:
+                  type: integer
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action:
+                    type: string
+                  device_id:
+                    type: string
+                  removed_from:
+                    type: string
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/{serial}/settings:
     summary: Settings are key-values that are set per-device. Keys are strings and values are JSON
     get:
