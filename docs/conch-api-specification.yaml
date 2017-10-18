@@ -71,7 +71,7 @@ paths:
                 $ref: "#/components/schemas/Error"
   /user/me/settings:
     get:
-      tags: [ setting ]
+      tags: [setting]
       summary: Get all settings for current user
       operationId: getUserSettings
       parameter:
@@ -98,7 +98,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      tags: [ setting ]
+      tags: [setting]
       summary: Update or add multiple user settings
       operationId: setUserSettings
       requestBody:
@@ -143,7 +143,7 @@ paths:
       requestBody:
         content:
           required: true
-          description: The key in the JSON object must match the one in the path
+          description: The setting key in the JSON object must match the one in the path
           application/json:
             example: { "burn_in_time": "6540" }
       responses:
@@ -164,6 +164,7 @@ paths:
       operationId: removeUserSetting
       responses:
         '200':
+          description: Set user setting successfully
           content:
             application/json:
               example: { "status": "deleted settings 'burn_in_time' for user" }
@@ -175,15 +176,70 @@ paths:
                 $ref: "#/components/schemas/Error"
   /datacenter_access:
     put:
-      summary: Associate a user accoutn with datacenter rooms
+      summary: Idempotently associate a user account with datacenter rooms
+      security:
+        - adminCookie: []
+      requestBody:
+        content:
+          required: true
+          description: >
+              Payload should be a map between user names and a list of
+              datacenter room namess. To remove all access from a user, assign
+              the user name to a non-existant datacenter room (like
+              `__NO_ACCESS__'). This is a known bug.
+          application/json:
+            example: { "integrator_user_name": [ "datacenter_az_1", "datacenter_az_2"}
+      responses:
+        '200':
+          description: Associated user(s) and datacenter rooms successfully
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /relay:
     get:
       summary: List all relay devices a user has used
       operationId: getRelays
+      responses:
+        '200':
+          description: List of relay objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relay"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /relay/{serial}/register:
     post:
       summary: Register a relay device
       operationId: registerRelay
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+                properties:
+                  version:
+                    type: string
+                  ssh_port:
+                    type: integer
+      responses:
+        '200':
+          description: Successfully registered relay
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device:
     get:
       summary: List all devices for the user
@@ -261,7 +317,31 @@ components:
       properties:
         error:
           type: object
+    Relay:
+      properties:
+        alias:
+          type: string
+        created:
+          type: string
+          format: date-time
+        devices:
+          description: >
+            Array of devices that have reported through this relay device
+          type: array
+        id:
+          type: string
+        ipaddr:
+          type: string
+        ssh_port:
+          type: string
+        updated:
+          type: string
+          format: date-time
+        version:
+          type: string
   securitySchemes:
+        created:
+          type: string
     integratorCookie:
       type: apiKey
       name: dancer.session
