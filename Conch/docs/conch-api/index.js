@@ -18,7 +18,6 @@ catch(ex) {
     console.error(ex.message);
     process.exit(1);
 }
-console.log(jsonSpec);
 
 var convertOptions = { };
 

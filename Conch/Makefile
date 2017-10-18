@@ -10,7 +10,7 @@ run-perl:
 
 run: build run-perl
 
-build: build-js web-assets
+build: build-js web-assets doc
 
 build-js: ui/package-lock.json
 	@cd ui && npm run-script build;
@@ -27,7 +27,7 @@ format-perl:
 format-js:
 	@cd ui && npm run prettier
 
-web-assets: public/css/app.css public/js/app.js public/api/index.html
+web-assets: public/css/app.css public/js/app.js
 
 ui/package-lock.json: ui/package.json
 	@cd ui && npm install;
@@ -39,7 +39,9 @@ public/js/app.js: ui/bin/app.js
 public/css/app.css: ui/css/app.css
 	@cp ui/css/app.css public/css/app.css
 
-public/api/index.html: docs/conch-api/openapi-spec.yaml
+doc: public/doc/index.html
+
+public/doc/index.html: docs/conch-api/openapi-spec.yaml
 	@cd docs/conch-api && npm install && npm run render
 	@mkdir -p public/doc
 	@cp docs/conch-api/index.html public/doc/index.html
