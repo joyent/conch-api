@@ -226,11 +226,11 @@ paths:
           required: true
           application/json:
             schema:
-                properties:
-                  version:
-                    type: string
-                  ssh_port:
-                    type: integer
+              properties:
+                version:
+                  type: string
+                ssh_port:
+                  type: integer
       responses:
         '200':
           description: Successfully registered relay
@@ -244,26 +244,157 @@ paths:
     get:
       summary: List all devices for the user
       operationId: getDevices
+      parameter:
+        - in: query
+          name: full
+          description: >
+            If set to a non-zero integer, return details for all devices rather
+            than device serial numbers
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: >
+            List of Device serial numbers or full Device objects if the `full`
+            query parameter is specified
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                    example: '[ "DEVICE1", "DEVICE2"]'
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/Device"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/active:
     get:
       summary: List all device active in the last 2 minutes
       operationId: getActiveDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers active in the last two minutes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/health/FAIL:
     get:
       summary: List all devices failing validation
       operationId: getFailingDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers that have failed validation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/health/PASS:
     get:
       summary: List all devices passing validation
       operationId: getPassingDevices
-  /device/{serial}:
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers that have passed validation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  '/device/{serial}':
     get:
-      summary: Get most recent device report
+      summary: Get specified device with latest device report
       operationId: getDeviceReport
+      responses:
+        '200':
+          description: >
+            Device with `latest_report` and `validations` fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       summary: Submit a device report for validation
       operationId: sendDeviceReport
+      requestBody:
+        content:
+          required: true
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceReport"
+      responses:
+        '200':
+          description: >
+            Device with `latest_report` and `validations` fields filled
+          content:
+            application/json:
+              schema:
+                properties:
+                  device_id:
+                    type: string
+                  health:
+                    type: string
+                  validated:
+                    type: boolean
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/{serial}/location:
+    get:
+      summary: Get the device rack location
+      operationId: getDeviceLocation
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceLocation"
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       summary: Update the device rack location
       operationId: setDeviceLocation
@@ -314,10 +445,12 @@ tags:
 components:
   schemas:
     Error:
+      type: object
       properties:
         error:
-          type: object
+          type: string
     Relay:
+      type: object
       properties:
         alias:
           type: string
@@ -339,6 +472,94 @@ components:
           format: date-time
         version:
           type: string
+    Device:
+      type: object
+      properties:
+        boot_pahse:
+          nullable: true
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        uptime_since:
+          nullable: true
+          type: string
+          format: date-time
+        hardware_product:
+          type: string
+          format: uuid
+        health:
+          type: string
+        id:
+          type: string
+        last_seen:
+          type: string
+          format: date-time
+        state:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        validated:
+          nullable: true
+          type: string
+          format: date-time
+        validations:
+          nullable: true
+          type: array
+
+    DeviceReport:
+      type: object
+      required:
+        - product_name
+        - serial_number
+        - system_uuid
+        - state
+        - bios_version
+        - processor
+        - memory
+      properties:
+        product_name:
+          type: string
+        serial_number:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        state:
+          type: string
+        bios_version:
+          type: string
+        processor:
+          type: object
+        memory:
+          type: object
+    DeviceLocation:
+      type: object
+      properties:
+        datacenter:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+        rack:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            role:
+              type: string
+            unit:
+              type integer
   securitySchemes:
         created:
           type: string
