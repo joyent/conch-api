@@ -1,5 +1,6 @@
 .PHONY: test run build build-js format format-perl format-perl deps\
-	install-deps generate-dbic web-assets watch-js watch-perl watch
+	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
+	reset-database
 
 test:
 	@carton exec prove -l lib
@@ -64,4 +65,7 @@ install-deps:
 
 generate-dbic:
 	@carton exec dbicdump schema.conf
+
+reset-database:
+	@../sql/reset-database.sh
 
