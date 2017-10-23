@@ -21,7 +21,7 @@ SELECT run_migration(12, $$
   INSERT INTO role (name, description) VALUES
     ('Administrator', 'Full-access administrator for the workspace'),
     ('Read-only', 'Read-only access for the workspace'),
-    ('Integrator', 
+    ('Integrator',
       'Integrator has permissions to use Relays and assign Devices to Racks for '
       'the workspace'
     ),
