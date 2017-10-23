@@ -1,6 +1,7 @@
 package Conch::Route::Problem;
 
 use strict;
+use warnings;
 
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;

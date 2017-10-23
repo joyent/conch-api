@@ -3,7 +3,8 @@
 	reset-database
 
 test:
-	@carton exec prove -l lib
+	@carton exec prove -j9 -lpr
+
 
 run-perl:
 	@carton exec ./local/bin/plackup -E development -s Starman --workers=50 -p 5001 -a bin/app.psgi

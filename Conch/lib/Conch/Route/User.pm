@@ -1,6 +1,8 @@
 package Conch::Route::User;
 
 use strict;
+use warnings;
+
 use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
