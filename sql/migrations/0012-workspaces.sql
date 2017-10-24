@@ -33,10 +33,10 @@ SELECT run_migration(12, $$
     );
 
   CREATE TABLE user_workspace_role (
-    user_id      UUID     REFERENCES user_account(id),
-    workspace_id UUID     REFERENCES workspace(id),
-    role_id      INTEGER  REFERENCES role(id),
-    UNIQUE (user_id, workspace_id, role_id)
+    user_id      UUID     NOT NULL REFERENCES user_account(id),
+    workspace_id UUID     NOT NULL REFERENCES workspace(id),
+    role_id      INTEGER  NOT NULL REFERENCES role(id),
+    UNIQUE (user_id, workspace_id)
   );
 
   CREATE INDEX ON user_workspace_role (user_id);
@@ -48,6 +48,14 @@ SELECT run_migration(12, $$
   );
 
   CREATE INDEX ON workspace_datacenter_room (workspace_id);
+
+  -- Add all datacenter rooms to the global workspace
+  INSERT INTO workspace_datacenter_room (workspace_id, datacenter_room_id)
+  SELECT workspace.id, datacenter_room.id
+  FROM workspace, datacenter_room
+  WHERE workspace.name = 'GLOBAL';
+
+  ALTER TABLE user_account ADD COLUMN email UNIQUE;
 
 $$);
 
