@@ -17,8 +17,8 @@ use Conch::Control::Datacenter;
 use Data::Printer;
 set serializer => 'JSON';
 
-# Add an admin role that validates against a shared secret
 Dancer2::Plugin::Auth::Tiny->extend(
+  # Add an admin role that validates against a shared secret
   admin => sub {
     my ( $auth, $coderef ) = @_;
     return sub {
@@ -34,6 +34,18 @@ Dancer2::Plugin::Auth::Tiny->extend(
     my ( $auth, $coderef ) = @_;
     return sub {
       if ( $auth->app->session->read('integrator') ) {
+        goto $coderef;
+      }
+      else {
+        status_401('unauthorized');
+      }
+    };
+  },
+  login => sub {
+    my ( $auth, $coderef ) = @_;
+    return sub {
+      my $user_id = $auth->app->session->read('user_id');
+      if ( $user_id && valid_user_id( schema, $user_id ) ) {
         goto $coderef;
       }
       else {
@@ -170,8 +182,9 @@ post '/login' => sub {
     info "admin logged in";
     status_200( { role => "admin" } );
   }
-  elsif ( authenticate( schema, $username, $password ) ) {
+  elsif ( my $user = authenticate( schema, $username, $password ) ) {
     session integrator => $username;
+    session user_id => $user->id;
     info "integrator '$username' logged in";
     status_200( { role => "integrator" } );
   }

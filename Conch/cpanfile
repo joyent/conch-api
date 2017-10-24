@@ -29,6 +29,7 @@ requires 'Log::Report';
 
 # database
 requires 'DBD::Pg';
+requires 'Mojo::Pg';
 requires 'DateTime::Format::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
@@ -54,4 +55,5 @@ requires 'MooseX::NonMoose';
 on 'test' => sub {
     requires 'Test::More';
     requires 'HTTP::Request::Common';
+    requires 'HTTP::Cookies';
 };

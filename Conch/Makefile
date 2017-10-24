@@ -3,7 +3,7 @@
 	reset-database
 
 test:
-	@carton exec prove -j9 -lpr
+	@carton exec prove -j9 -lpr t/
 
 
 run-perl:
