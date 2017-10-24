@@ -104,6 +104,12 @@ subtest 'List sub-workspace' => sub {
 
   my $res_body = decode_json $res->content;
   isa_ok( $res_body, 'ARRAY' );
+  for my $workspace ( @{$res_body} ) {
+    ok( exists $workspace->{id},          "Workspace has id" );
+    ok( exists $workspace->{name},        "Workspace has name" );
+    ok( exists $workspace->{description}, "Workspace has description" );
+    ok( exists $workspace->{role},        "Workspace has role" );
+  }
 
 };
 

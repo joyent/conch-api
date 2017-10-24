@@ -9,7 +9,8 @@ use Mojo::Pg;
 use Mojo::Pg::Database;
 
 use Exporter 'import';
-our @EXPORT = qw( get_user_workspaces get_user_workspace create_sub_workspace );
+our @EXPORT =
+  qw( get_user_workspaces get_user_workspace create_sub_workspace get_sub_workspaces );
 
 sub get_user_workspaces {
   my ( $schema, $user_id ) = @_;
@@ -63,12 +64,12 @@ sub get_user_workspace {
 # Create a sub-workspace with the same role as the parent workspace
 sub create_sub_workspace {
   my ( $schema, $user_id, $ws_id, $name, $description ) = @_;
-  $schema->storage->debug(1);
   my $subworkspace = $schema->storage->dbh_do(
     sub {
       my ( $storage, $dbh ) = @_;
       my $db = Mojo::Pg::Database->new( dbh => $dbh, pg => Mojo::Pg->new );
-      my $tx = $db->begin;
+
+      my $tx      = $db->begin;
       my $role_id = $db->select( 'user_workspace_role', 'role_id',
         { user_id => $user_id, workspace_id => $ws_id } )->hash->{role_id};
       my $subws_id = $db->insert(
@@ -98,6 +99,38 @@ sub create_sub_workspace {
     }
   );
   return $subworkspace;
+}
+
+sub get_sub_workspaces {
+  my ( $schema, $user_id, $ws_id, $name, $description ) = @_;
+  my $subworkspaces = $schema->storage->dbh_do(
+    sub {
+      my ( $storage, $dbh ) = @_;
+      my $db = Mojo::Pg::Database->new( dbh => $dbh, pg => Mojo::Pg->new );
+      $db->query(
+        q{
+        WITH RECURSIVE subworkspace (id, name, description, parent_workspace_id) AS (
+            SELECT id, name, description, parent_workspace_id
+            FROM workspace w
+            WHERE parent_workspace_id = ?
+          UNION
+            SELECT w.id, w.name, w.description, w.parent_workspace_id
+            FROM workspace w, subworkspace s
+            WHERE w.parent_workspace_id = s.id
+        )
+        SELECT subworkspace.id, subworkspace.name, subworkspace.description,
+          role.name as role
+        FROM subworkspace
+        JOIN user_workspace_role uwr
+          ON subworkspace.id = uwr.workspace_id
+        JOIN role
+          ON role.id = uwr.role_id
+        WHERE uwr.user_id = ?
+      }, $ws_id, $user_id
+      )->hashes->to_array;
+    }
+  );
+  return $subworkspaces;
 }
 
 1;
