@@ -25,6 +25,9 @@ get '/workspace/:id' => needs login => sub {
   my $user_id = session->read('user_id');
   my $ws_id   = param 'id';
   my $workspace = get_user_workspace( schema, $user_id, $ws_id);
+  unless (defined $workspace) {
+    return status_404();
+  }
   status_200($workspace);
 };
 
@@ -38,6 +41,13 @@ post '/workspace/:id/child' => needs login => sub {
   }
   my $subworkspace = create_sub_workspace( schema, $user_id, $ws_id, $name, $description);
   status_201($subworkspace);
+};
+
+get '/workspace/:id/child' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $ws_id   = param 'id';
+  my $subworkspaces = get_sub_workspaces( schema, $user_id, $ws_id );
+  status_200($subworkspaces);
 };
 
 1;
