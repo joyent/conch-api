@@ -12,7 +12,9 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw(
   valid_user_id lookup_user_by_name user_id_by_name authenticate
-  create_integrator_user create_admin_passphrase );
+  create_integrator_user create_admin_passphrase create_integrator_password
+  hash_password
+  );
 
 sub valid_user_id {
   my ( $schema, $user_id ) = @_;
@@ -53,10 +55,15 @@ sub create_integrator_user {
   $schema->resultset('UserAccount')->create(
     {
       name          => $name,
-      password_hash => passphrase($password)->generate->rfc2307,
+      password_hash => hash_password($password)
     }
   );
   return { name => $name, password => $password };
+}
+
+sub hash_password {
+  my $password = shift;
+  return passphrase($password)->generate->rfc2307;
 }
 
 sub create_integrator_password {

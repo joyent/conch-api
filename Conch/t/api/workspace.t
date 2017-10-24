@@ -66,9 +66,9 @@ subtest 'Get single workspace' => sub {
 
 my $subworkspace_id;
 subtest 'Create sub-workspace' => sub {
-  my @chars = ("A".."Z", "a".."z");
+  my @chars = ( "A" .. "Z", "a" .. "z" );
   my $name;
-  $name .= $chars[rand @chars] for 1..8;
+  $name .= $chars[ rand @chars ] for 1 .. 8;
   my $payload = encode_json { name => $name, description => 'test workspace' };
 
   my $res = $test->request(
@@ -82,23 +82,22 @@ subtest 'Create sub-workspace' => sub {
   my $res_body = decode_json $res->content;
   isa_ok( $res_body, 'HASH' );
 
-
   ok( exists $res_body->{id}, 'Workspace has id' );
   is( $res_body->{name}, $name, 'Workspace has specified name' );
-  is( $res_body->{description}, 'test workspace',
+  is(
+    $res_body->{description},
+    'test workspace',
     'Workspace has specified description'
   );
   is( $res_body->{role}, 'Administrator', 'Creater has administrator role' );
 
-  $subworkspace_id = $res_body->{id}
+  $subworkspace_id = $res_body->{id};
 };
 
 subtest 'List sub-workspace' => sub {
 
-  my $res = $test->request(
-    GET "/workspace/$workspace_id/child",
-    Cookie  => $session
-  );
+  my $res =
+    $test->request( GET "/workspace/$workspace_id/child", Cookie => $session );
   is( $res->code, 200, "[GET /workspace/$workspace_id/child] successful" )
     or diag( $res->content );
 
@@ -110,6 +109,46 @@ subtest 'List sub-workspace' => sub {
     ok( exists $workspace->{description}, "Workspace has description" );
     ok( exists $workspace->{role},        "Workspace has role" );
   }
+
+};
+
+subtest 'Get workspace users' => sub {
+  my $res =
+    $test->request( GET "/workspace/$workspace_id/user", Cookie => $session );
+  is( $res->code, 200, "[GET /workspace/$workspace_id/user] successful" )
+    or diag( $res->content );
+
+  my $res_body = decode_json $res->content;
+  isa_ok( $res_body, 'ARRAY' );
+  for my $user ( @{$res_body} ) {
+    ok( exists $user->{name},  "User name" );
+    ok( exists $user->{email}, "User email" );
+    ok( exists $user->{role},  "User role" );
+  }
+
+};
+
+subtest 'Invite user' => sub {
+  my $payload = encode_json(
+    { email => 'conch+test@joyent.com',
+      role => 'Read-only'
+    }
+  );
+  my $res =
+    $test->request(
+      POST "/workspace/$workspace_id/user", 
+      Cookie => $session,
+      Content => $payload
+    );
+  is( $res->code, 200, "[POST /workspace/$workspace_id/user] successful" )
+    or diag( $res->content );
+
+  my $user = decode_json $res->content;
+  isa_ok( $user, 'HASH' );
+
+  ok( exists $user->{name},  "User name" );
+  ok( exists $user->{email}, "User email" );
+  ok( exists $user->{role},  "User role" );
 
 };
 

@@ -9,6 +9,7 @@ use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::Workspace;
+use Conch::Control::Role;
 
 use Data::Printer;
 
@@ -22,32 +23,78 @@ get '/workspace' => needs login => sub {
 };
 
 get '/workspace/:id' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my $ws_id   = param 'id';
-  my $workspace = get_user_workspace( schema, $user_id, $ws_id);
-  unless (defined $workspace) {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'id';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
     return status_404();
   }
   status_200($workspace);
 };
 
 post '/workspace/:id/child' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my $ws_id   = param 'id';
-  my $name = body_parameters->get('name');
+  my $user_id     = session->read('user_id');
+  my $ws_id       = param 'id';
+  my $name        = body_parameters->get('name');
   my $description = body_parameters->get('description');
-  unless (defined $name and defined $description) {
+  unless ( defined $name and defined $description ) {
     return status_400("'name' and 'description' required");
   }
-  my $subworkspace = create_sub_workspace( schema, $user_id, $ws_id, $name, $description);
+  my $subworkspace =
+    create_sub_workspace( schema, $user_id, $ws_id, $name, $description );
   status_201($subworkspace);
 };
 
 get '/workspace/:id/child' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my $ws_id   = param 'id';
+  my $user_id       = session->read('user_id');
+  my $ws_id         = param 'id';
   my $subworkspaces = get_sub_workspaces( schema, $user_id, $ws_id );
   status_200($subworkspaces);
+};
+
+post '/workspace/:id/user' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $ws_id   = param 'id';
+
+  my $email = body_parameters->get('email');
+  my $role  = body_parameters->get('role');
+
+  unless ( defined $email and defined $role ) {
+    return status_400("'email' and 'role' required");
+  }
+
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404();
+  }
+
+  unless ( is_valid_role_assignment( $role, $workspace->{role} ) ) {
+    my @valid_roles = @{ workspace_role_assignments( $workspace->{role} ) };
+    if (@valid_roles) {
+      return status_400(
+        "'role' must be one of: " . join( ', ', @valid_roles ) );
+    }
+    else {
+      return status_401(
+        "You do not have sufficient privileges to invite users this workspace"
+      );
+    }
+  }
+
+  my $user =
+    invite_user_to_workspace( schema, $workspace->{id}, $email, $role );
+  status_200($user);
+};
+
+get '/workspace/:id/user' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'id';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404();
+  }
+  my $users = workspace_users( schema, $workspace->{id} );
+  status_200($users);
 };
 
 1;
