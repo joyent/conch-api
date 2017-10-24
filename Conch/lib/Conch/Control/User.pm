@@ -1,6 +1,7 @@
 package Conch::Control::User;
 
 use strict;
+use warnings;
 use Log::Any '$log';
 
 # required for 'passphrase'. Dumb.
@@ -9,8 +10,19 @@ use Dancer2::Plugin::Passphrase;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT =
-  qw( lookup_user_by_name user_id_by_name authenticate create_integrator_user create_admin_passphrase );
+our @EXPORT = qw(
+  valid_user_id lookup_user_by_name user_id_by_name authenticate
+  create_integrator_user create_admin_passphrase );
+
+sub valid_user_id {
+  my ( $schema, $user_id ) = @_;
+  return $schema->resultset('UserAccount')->find(
+    {
+      id => $user_id
+    },
+    { columns => 'id' }
+  );
+}
 
 sub lookup_user_by_name {
   my ( $schema, $name ) = @_;
@@ -32,7 +44,7 @@ sub authenticate {
   my $user = lookup_user_by_name( $schema, $name );
   $user or $log->warning("user name '$name' not found") and return 0;
 
-  return passphrase($password)->matches( $user->password_hash );
+  return $user;
 }
 
 sub create_integrator_user {
