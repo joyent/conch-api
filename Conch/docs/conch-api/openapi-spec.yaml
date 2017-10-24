@@ -78,7 +78,7 @@ paths:
       tags: [Workspace]
       summary: List Workspace Details
       operationId: getWorkspace
-  /workspace/{workspace_id}/children:
+  /workspace/{workspace_id}/child:
     post:
       tags: [Workspace]
       summary: Create a sub-workspaces

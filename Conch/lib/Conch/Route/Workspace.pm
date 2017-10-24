@@ -28,4 +28,16 @@ get '/workspace/:id' => needs login => sub {
   status_200($workspace);
 };
 
+post '/workspace/:id/child' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $ws_id   = param 'id';
+  my $name = body_parameters->get('name');
+  my $description = body_parameters->get('description');
+  unless (defined $name and defined $description) {
+    return status_400("'name' and 'description' required");
+  }
+  my $subworkspace = create_sub_workspace( schema, $user_id, $ws_id, $name, $description);
+  status_201($subworkspace);
+};
+
 1;
