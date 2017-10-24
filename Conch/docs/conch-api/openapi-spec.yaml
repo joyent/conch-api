@@ -73,25 +73,95 @@ paths:
       tags: [Workspace]
       summary: List all workspaces the user is assigned
       operationId: getWorkspaces
+      responses:
+        '200':
+          description: List of workspaces user is assigned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workspace"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /workspace/{workspace_id}:
     get:
       tags: [Workspace]
       summary: List Workspace Details
       operationId: getWorkspace
+      responses:
+        '200':
+          description: List details of specified workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /workspace/{workspace_id}/child:
     post:
       tags: [Workspace]
       summary: Create a sub-workspaces
       operationId: createSubWorkspaces
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  nullable: true
+                  type: string
+      responses:
+        '200':
+          description: List of sub-workspaces of workspace
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workspace"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     get:
       tags: [Workspace]
       summary: List sub-workspaces
       operationId: getSubWorkspaces
-  /workspace/{workspace_id}/role:
+      responses:
+        '200':
+          description: List of sub-workspaces of workspace
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workspace"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /role:
     get:
-      tags: [Workspace, Role]
-      summary: List roles defined for the worksapce
-      operationId: getWorkspaceRoles
+      tags: [Role]
+      summary: List available roles for workspaces
+      operationId: getRoles
   /workspace/{workspace_id}/user:
     get:
       tags: [User]
@@ -945,6 +1015,20 @@ components:
           type: array
           items:
             type: object
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          nullable: true
+          type: string
+          format: uuid
+        role:
+          type: string
   securitySchemes:
     apiCookie:
       type: apiKey
