@@ -5,7 +5,6 @@
 test:
 	@carton exec prove -j9 -lpr t/
 
-
 run-perl:
 	@carton exec ./local/bin/plackup -E development -s Starman --workers=50 -p 5001 -a bin/app.psgi
 
@@ -55,6 +54,9 @@ watch-assets:
 
 watch-perl:
 	@find lib | entr -r -c make run-perl
+
+watch-test:
+	@find lib t | entr -r -c make test
 
 watch:
 	(make watch-js &)
