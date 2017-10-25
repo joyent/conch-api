@@ -30,7 +30,7 @@ my $cookie = $jar->as_string();
 $cookie =~ /^[^:]+: ([^;]+);/;
 my $session = $1;
 
-my $workspace_id;
+my $global_workspace_id;
 
 subtest 'List workspaces' => sub {
   my $res = $test->request( GET '/workspace', Cookie => $session );
@@ -46,14 +46,16 @@ subtest 'List workspaces' => sub {
     ok( exists $workspace->{name},        "Workspace has name" );
     ok( exists $workspace->{description}, "Workspace has description" );
     ok( exists $workspace->{role},        "Workspace has role" );
+    if ( $workspace->{name} eq 'GLOBAL' ) {
+      $global_workspace_id = $workspace->{id};
+    }
   }
-  $workspace_id = $res_body->[0]->{id};
 };
 
 subtest 'Get single workspace' => sub {
   my $res =
-    $test->request( GET "/workspace/$workspace_id", Cookie => $session );
-  is( $res->code, 200, "[GET /workspace/$workspace_id] successful" )
+    $test->request( GET "/workspace/$global_workspace_id", Cookie => $session );
+  is( $res->code, 200, "[GET /workspace/$global_workspace_id] successful" )
     or diag( $res->content );
 
   my $res_body = decode_json $res->content;
@@ -72,11 +74,11 @@ subtest 'Create sub-workspace' => sub {
   my $payload = encode_json { name => $name, description => 'test workspace' };
 
   my $res = $test->request(
-    POST "/workspace/$workspace_id/child",
+    POST "/workspace/$global_workspace_id/child",
     Cookie  => $session,
     Content => $payload
   );
-  is( $res->code, 201, "[POST /workspace/$workspace_id/child] successful" )
+  is( $res->code, 201, "[POST /workspace/$global_workspace_id/child] successful" )
     or diag( $res->content );
 
   my $res_body = decode_json $res->content;
@@ -97,8 +99,8 @@ subtest 'Create sub-workspace' => sub {
 subtest 'List sub-workspace' => sub {
 
   my $res =
-    $test->request( GET "/workspace/$workspace_id/child", Cookie => $session );
-  is( $res->code, 200, "[GET /workspace/$workspace_id/child] successful" )
+    $test->request( GET "/workspace/$global_workspace_id/child", Cookie => $session );
+  is( $res->code, 200, "[GET /workspace/$global_workspace_id/child] successful" )
     or diag( $res->content );
 
   my $res_body = decode_json $res->content;
@@ -114,8 +116,8 @@ subtest 'List sub-workspace' => sub {
 
 subtest 'Get workspace users' => sub {
   my $res =
-    $test->request( GET "/workspace/$workspace_id/user", Cookie => $session );
-  is( $res->code, 200, "[GET /workspace/$workspace_id/user] successful" )
+    $test->request( GET "/workspace/$global_workspace_id/user", Cookie => $session );
+  is( $res->code, 200, "[GET /workspace/$global_workspace_id/user] successful" )
     or diag( $res->content );
 
   my $res_body = decode_json $res->content;
@@ -136,11 +138,11 @@ subtest 'Invite user' => sub {
     }
   );
   my $res = $test->request(
-    POST "/workspace/$workspace_id/user",
+    POST "/workspace/$global_workspace_id/user",
     Cookie  => $session,
     Content => $payload
   );
-  is( $res->code, 200, "[POST /workspace/$workspace_id/user] successful" )
+  is( $res->code, 200, "[POST /workspace/$global_workspace_id/user] successful" )
     or diag( $res->content );
 
   my $user = decode_json $res->content;
@@ -156,8 +158,8 @@ my @room_ids = ();
 
 subtest 'Get workspace datacenter room' => sub {
   my $res =
-    $test->request( GET "/workspace/$workspace_id/room", Cookie => $session );
-  is( $res->code, 200, "[GET /workspace/$workspace_id/room] successful" )
+    $test->request( GET "/workspace/$global_workspace_id/room", Cookie => $session );
+  is( $res->code, 200, "[GET /workspace/$global_workspace_id/room] successful" )
     or diag( $res->content );
 
   my $res_body = decode_json $res->content;
@@ -179,7 +181,7 @@ subtest 'Modifying workspace datacenter rooms' => sub {
       Cookie => $session,
       Content => $payload
     );
-  is( $res->code, 200, "[PUT /workspace/$workspace_id/room] successful" )
+  is( $res->code, 200, "[PUT /workspace/$global_workspace_id/room] successful" )
     or diag( $res->content );
 
   my $res_body = decode_json $res->content;
