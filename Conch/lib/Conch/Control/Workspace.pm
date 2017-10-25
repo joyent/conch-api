@@ -97,7 +97,7 @@ sub create_sub_workspace {
       );
       $tx->commit;
       return {
-        id          => $ws_id,
+        id          => $subws_id,
         name        => $name,
         description => $description,
         role        => 'Administrator'
