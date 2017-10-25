@@ -2,6 +2,11 @@ SELECT run_migration(12, $$
 
   -- Implements schema described in OPS-RFD 23
   -- https://github.com/joyent/ops-rfd/tree/master/rfd/0023
+
+  -- It is important that the name constraint is UNIQUE, since we identify the
+  -- 'global' workspace by the name 'GLOBAL'. If users were able to create
+  -- another workspace also named 'GLOBAL', they might be able to escalate
+  -- their privileges.
   CREATE TABLE workspace (
     id                  UUID  PRIMARY KEY DEFAULT uuid_generate_v4(),
     name                TEXT  UNIQUE NOT NULL,
@@ -55,7 +60,8 @@ SELECT run_migration(12, $$
   FROM workspace, datacenter_room
   WHERE workspace.name = 'GLOBAL';
 
-  ALTER TABLE user_account ADD COLUMN email UNIQUE;
+  ALTER TABLE user_account ADD COLUMN email TEXT;
+  ALTER TABLE user_account ADD CONSTRAINT user_account_email_key UNIQUE (email);
 
 $$);
 

@@ -1,6 +1,6 @@
 .PHONY: test run build build-js format format-perl format-perl deps\
 	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
-	reset-database
+	reset-database watch-test
 
 test:
 	@carton exec prove -j9 -lpr t/
