@@ -180,13 +180,14 @@ post '/login' => sub {
   {
     session is_admin => 1;
     info "admin logged in";
-    status_200( { role => "admin" } );
+    return status_200( { role => "admin" } );
   }
-  elsif ( my $user = authenticate( schema, $username, $password ) ) {
+  my $user = authenticate( schema, $username, $password );
+  if ( defined $user  ) {
     session integrator => $username;
     session user_id => $user->id;
     info "integrator '$username' logged in";
-    status_200( { role => "integrator" } );
+    return status_200( { role => "integrator" } );
   }
   else {
     status_401 "failed log in attempt";

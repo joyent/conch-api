@@ -44,9 +44,12 @@ sub user_id_by_name {
 sub authenticate {
   my ( $schema, $name, $password ) = @_;
   my $user = lookup_user_by_name( $schema, $name );
-  $user or $log->warning("user name '$name' not found") and return 0;
+  $user or $log->warning("user name '$name' not found") and return undef;
 
-  return $user;
+  if (passphrase($password)->matches( $user->password_hash )) {
+    return $user;
+  }
+  return undef;
 }
 
 sub create_integrator_user {
