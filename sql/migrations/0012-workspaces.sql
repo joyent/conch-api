@@ -60,8 +60,29 @@ SELECT run_migration(12, $$
   FROM workspace, datacenter_room
   WHERE workspace.name = 'GLOBAL';
 
+  -- Add email column to user_account
   ALTER TABLE user_account ADD COLUMN email TEXT;
   ALTER TABLE user_account ADD CONSTRAINT user_account_email_key UNIQUE (email);
+
+
+  -- Trigger to make sure all datacenter rooms are added to the global
+  -- workspace. This should be done explicitly in code, but this trigger acts
+  -- as a safe-guard
+  CREATE OR REPLACE FUNCTION add_room_to_global_workspace()
+  RETURNS TRIGGER AS $BODY$
+  BEGIN
+    INSERT INTO workspace_datacenter_room (workspace_id, datacenter_room_id)
+    SELECT workspace.id, NEW.id
+    FROM workspace
+    WHERE workspace.name = 'GLOBAL'
+    ON CONFLICT (workspace_id, datacenter_room_id) DO NOTHING;
+    return NEW;
+  END;
+  $BODY$ LANGUAGE 'plpgsql';
+
+  CREATE TRIGGER all_rooms_in_global_workspace AFTER INSERT
+    ON datacenter_room
+    FOR EACH ROW EXECUTE PROCEDURE add_room_to_global_workspace();
 
 $$);
 
