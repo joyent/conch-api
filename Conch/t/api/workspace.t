@@ -130,16 +130,16 @@ subtest 'Get workspace users' => sub {
 
 subtest 'Invite user' => sub {
   my $payload = encode_json(
-    { email => 'conch+test@joyent.com',
-      role => 'Read-only'
+    {
+      email => 'conch+test@joyent.com',
+      role  => 'Read-only'
     }
   );
-  my $res =
-    $test->request(
-      POST "/workspace/$workspace_id/user", 
-      Cookie => $session,
-      Content => $payload
-    );
+  my $res = $test->request(
+    POST "/workspace/$workspace_id/user",
+    Cookie  => $session,
+    Content => $payload
+  );
   is( $res->code, 200, "[POST /workspace/$workspace_id/user] successful" )
     or diag( $res->content );
 
@@ -150,6 +150,46 @@ subtest 'Invite user' => sub {
   ok( exists $user->{email}, "User email" );
   ok( exists $user->{role},  "User role" );
 
+};
+
+my @room_ids = ();
+
+subtest 'Get workspace datacenter room' => sub {
+  my $res =
+    $test->request( GET "/workspace/$workspace_id/room", Cookie => $session );
+  is( $res->code, 200, "[GET /workspace/$workspace_id/room] successful" )
+    or diag( $res->content );
+
+  my $res_body = decode_json $res->content;
+  isa_ok( $res_body, 'ARRAY' );
+  for my $room ( @{$res_body} ) {
+    ok( exists $room->{id},          "Room ID" );
+    ok( exists $room->{alias},       "Room alias" );
+    ok( exists $room->{az},          "Room AZ" );
+    ok( exists $room->{vendor_name}, "Room vendor name" );
+    push @room_ids, $room->{id};
+  }
+};
+
+subtest 'Modifying workspace datacenter rooms' => sub {
+  my $payload = encode_json \@room_ids;
+  my $res =
+    $test->request(
+      PUT "/workspace/$subworkspace_id/room",
+      Cookie => $session,
+      Content => $payload
+    );
+  is( $res->code, 200, "[PUT /workspace/$workspace_id/room] successful" )
+    or diag( $res->content );
+
+  my $res_body = decode_json $res->content;
+  isa_ok( $res_body, 'ARRAY' );
+  for my $room ( @{$res_body} ) {
+    ok( exists $room->{id},          "Room ID" );
+    ok( exists $room->{alias},       "Room alias" );
+    ok( exists $room->{az},          "Room AZ" );
+    ok( exists $room->{vendor_name}, "Room vendor name" );
+  }
 };
 
 done_testing;
