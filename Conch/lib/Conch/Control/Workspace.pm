@@ -7,13 +7,15 @@ use Log::Any '$log';
 use Data::Printer;
 use Mojo::Pg;
 use Mojo::Pg::Database;
+use SQL::Abstract;
 
 use Conch::Control::User qw( create_integrator_password hash_password );
 
 use Exporter 'import';
 our @EXPORT = qw(
   get_user_workspaces get_user_workspace create_sub_workspace get_sub_workspaces
-  invite_user_to_workspace workspace_users
+  invite_user_to_workspace workspace_users replace_workspace_rooms
+  get_workspace_rooms
 );
 
 sub get_user_workspaces {
@@ -166,8 +168,10 @@ sub invite_user_to_workspace {
         # TODO Email the password or a password reset token link
         $log->alert("New user password: $password");
       }
+
       # On conflict, set the role for the user
-      $db->query( q{
+      $db->query(
+        q{
         INSERT INTO user_workspace_role (user_id, workspace_id, role_id)
         SELECT ?, ?, role.id
         FROM role
@@ -177,9 +181,9 @@ sub invite_user_to_workspace {
         }, $user->{id}, $ws_id, $role
       );
       return {
-        name => $user->{name},
+        name  => $user->{name},
         email => $user->{email},
-        role => $role
+        role  => $role
       };
     }
   );
@@ -191,7 +195,8 @@ sub workspace_users {
     sub {
       my ( $storage, $dbh ) = @_;
       my $db = Mojo::Pg::Database->new( dbh => $dbh, pg => Mojo::Pg->new );
-      return $db->query( q{
+      return $db->query(
+        q{
         SELECT u.name, u.email, r.name as role
         FROM user_workspace_role uwr
         JOIN user_account u
@@ -199,10 +204,123 @@ sub workspace_users {
         JOIN role r
         on r.id = uwr.role_id
         WHERE uwr.workspace_id = ?::uuid
-        }, $ws_id)->hashes;
+        }, $ws_id
+      )->hashes;
     }
   );
   return $users->to_array;
+}
+
+# Returns a list containing either the list of datacenter rooms or a string
+# error describing a state conflict
+sub replace_workspace_rooms {
+  my ( $schema, $ws_id, $room_ids ) = @_;
+  my ( $rooms, $conflict ) = $schema->storage->dbh_do(
+    sub {
+      my ( $storage, $dbh ) = @_;
+      my $db = Mojo::Pg::Database->new( dbh => $dbh, pg => Mojo::Pg->new );
+      my $parent_room_ids = $db->query(
+        q{
+          SELECT wdr.datacenter_room_id
+          FROM workspace_datacenter_room wdr
+          WHERE wdr.workspace_id = (
+            SELECT ws.parent_workspace_id
+            FROM workspace ws
+            WHERE ws.id = ?::uuid
+        )
+        }, $ws_id)->hashes->map(sub { $_->{datacenter_room_id} } )->to_array;
+      my @invalid_room_ids =
+        List::Compare->new( $room_ids, $parent_room_ids )->get_unique;
+      if (scalar @invalid_room_ids) {
+        return ( undef,
+          'Datacenter room IDs must be members of the parent workspace: '
+            . join( ', ', @invalid_room_ids ) );
+      }
+
+      my $current_room_ids = $db->query(
+        q{
+          SELECT wdr.datacenter_room_id
+          FROM workspace_datacenter_room wdr
+          WHERE wdr.workspace_id = ?::uuid
+        }, $ws_id)->hashes->map(sub { $_->{datacenter_room_id} } )->to_array;
+      my @ids_to_remove =
+        List::Compare->new( $current_room_ids, $room_ids )->get_unique;
+      my @ids_to_add =
+        List::Compare->new( $room_ids, $current_room_ids )->get_unique;
+
+      my $tx = $db->begin;
+      my $sql = SQL::Abstract->new;
+
+      # Remove room IDs from workspace and all children workspaces
+      # Use SQL::Abstract to generate the WHERE IN clause
+      if (scalar @ids_to_remove) {
+        my ($remove_where_clause, @remove_id_binds) = $sql->where(
+          { datacenter_room_id => { -in => \@ids_to_remove } }
+        );
+        $db->query(
+          qq{
+            WITH RECURSIVE workspace_and_children (id) AS (
+                SELECT id
+                FROM workspace
+                WHERE id = ?::uuid
+              UNION
+                SELECT w.id
+                FROM workspace w, workspace_and_children s
+                WHERE w.parent_workspace_id = s.id
+            )
+            DELETE FROM workspace_datacenter_room
+            $remove_where_clause
+              AND workspace_id IN (SELECT id FROM workspace_and_children)
+          }, $ws_id, @remove_id_binds);
+      }
+
+      # Add new room IDs to workspace only, not children
+      if (scalar @ids_to_add) {
+        my ($add_where_clause, @add_id_binds) = $sql->where(
+          { id => { -in => \@ids_to_add } }
+        );
+        $db->query(
+          qq{
+            INSERT INTO workspace_datacenter_room (workspace_id, datacenter_room_id)
+            SELECT ?::uuid, id
+            FROM datacenter_room
+            $add_where_clause
+          }, $ws_id, @add_id_binds);
+      }
+
+      $tx->commit;
+      my $rooms = $db->query(
+        q{
+          SELECT dr.id, dr.az, dr.alias, dr.vendor_name
+          FROM datacenter_room dr
+          JOIN workspace_datacenter_room wdr
+          ON dr.id = wdr.datacenter_room_id
+          WHERE wdr.workspace_id = ?::uuid
+        }, $ws_id
+        )->hashes;
+      return ($rooms->to_array, undef);
+    });
+  return ($rooms, $conflict);
+}
+
+sub get_workspace_rooms {
+  my ( $schema, $ws_id ) = @_;
+  my $rooms = $schema->storage->dbh_do(
+    sub {
+      my ( $storage, $dbh ) = @_;
+      my $db = Mojo::Pg::Database->new( dbh => $dbh, pg => Mojo::Pg->new );
+      return $db->query(
+        q{
+          SELECT dr.id, dr.az, dr.alias, dr.vendor_name
+          FROM datacenter_room dr
+          JOIN workspace_datacenter_room wdr
+          ON dr.id = wdr.datacenter_room_id
+          WHERE wdr.workspace_id = ?::uuid
+        }, $ws_id
+        )->hashes;
+    }
+  );
+  return $rooms->to_array;
 }
 
 1;

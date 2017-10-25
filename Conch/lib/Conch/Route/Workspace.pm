@@ -97,4 +97,40 @@ get '/workspace/:id/user' => needs login => sub {
   status_200($users);
 };
 
+put '/workspace/:id/room' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'id';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) { return status_404(); }
+  if ( $workspace->{name} eq 'GLOBAL' ) {
+    return status_400('Cannot modify GLOBAL workspace');
+  }
+  unless ( $workspace->{role} eq 'Administrator' ) {
+    return status_401('Only adminstrators may update the datacenter roles');
+  }
+  unless (request->body) {
+    return status_400("Array of datacenter room IDs required in request");
+  }
+  my $room_ids = decode_json(request->body) || {};
+  unless ( ref($room_ids) eq  'ARRAY' ) {
+    return status_400("Array of datacenter room IDs required in request");
+  }
+  my ( $rooms, $conflict ) =
+    replace_workspace_rooms( schema, $workspace->{id}, $room_ids );
+
+  if ( defined $conflict ) { return status_409($conflict); }
+  status_200($rooms);
+};
+
+get '/workspace/:id/room' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'id';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404();
+  }
+  my $rooms = get_workspace_rooms( schema, $workspace->{id} );
+  status_200($rooms);
+};
+
 1;
