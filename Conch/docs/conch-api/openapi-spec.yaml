@@ -157,11 +157,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /role:
-    get:
-      tags: [Role]
-      summary: List available roles for workspaces
-      operationId: getRoles
   /workspace/{workspace_id}/user:
     get:
       tags: [User]
@@ -198,11 +193,53 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /workspace/{workspace_id}/user/{user_id}:
+  /workspace/{workspace_id}/room
     get:
-      tags: [User]
-      summary: Get the details of a User
-      operationId: getWorkspaceUser
+      tags: [Room]
+      summary: List all datacenter rooms assigned to the workspace
+      operationId: getWorkspaceRooms
+      responses:
+        '200':
+          description: List of datacenter rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags: [Room]
+      summary: Idempotently replace the datacenter rooms assigned to the workspace
+      operationId: replaceWorkspaceRooms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: Datacenter rooms assigned to the workspace
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /me:
     get:
       tags: [User]
@@ -1028,6 +1065,19 @@ components:
           type: string
           format: uuid
         role:
+          type: string
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        az:
+          type: string
+        alias:
+          nullable: true
+          type: string
+        vendor_name:
           type: string
   securitySchemes:
     apiCookie:
