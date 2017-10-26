@@ -1,6 +1,6 @@
 .PHONY: test run build build-js format format-perl format-perl deps\
 	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
-	reset-database watch-test
+	migrate-db reset-db watch-test
 
 test:
 	@carton exec prove -j9 -lpr t/
@@ -71,6 +71,10 @@ install-deps:
 generate-dbic:
 	@carton exec dbicdump schema.conf
 
-reset-database:
+migrate-db:
+	@../sql/run_migrations.sh
+
+reset-db:
 	@../sql/reset-database.sh
+
 

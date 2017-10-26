@@ -57,7 +57,8 @@ get '/workspace/:wid/device/active' => needs login => sub {
     return status_404("Workspace $ws_id not found");
   }
 
-  my @devices = get_active_devices( schema, $user_id, $workspace->{id} );
+  my @devices = map { {$_->get_columns} }
+    get_active_devices( schema, $user_id, $workspace->{id} );
   status_200( \@devices );
 };
 
@@ -74,7 +75,8 @@ get '/workspace/:wid/device/health/:state' => needs login => sub {
     return status_400("/device/health/:state must be PASS or FAIL");
   }
 
-  my @devices = get_devices_by_health( schema, $user_id, $workspace->{id}, $state );
+  my @devices = map { {$_->get_columns} }
+    get_devices_by_health( schema, $user_id, $workspace->{id}, $state );
 
   status_200( \@devices );
 };
