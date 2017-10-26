@@ -21,8 +21,8 @@ subtest 'Create session' => sub {
   my $login =
     encode_json { user => $ENV{'TEST_USER'}, password => $ENV{'TEST_PW'} };
   my $res = $test->request( POST "/login", Content => $login );
-
-  is( $res->code, 200, 'Successful login' );
+  is( $res->code, 200, 'Successful login' )
+    or diag( $res->content );
   $jar->extract_cookies($res);
 };
 
