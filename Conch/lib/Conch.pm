@@ -8,7 +8,7 @@ use Conch::Route::Problem;
 use Conch::Route::Feedback;
 use Conch::Route::Workspace;
 
-our $VERSION = '0.1';
+our $VERSION = '2.0';
 
 get '/' => sub {
   send_file '/index.html';

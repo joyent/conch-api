@@ -96,7 +96,7 @@ sub get_active_devices {
       id => { -in => \@device_ids },
       last_seen => \' > NOW() - INTERVAL \'5 minutes\'',
     }
-  );
+  )->all;
 
   return @active_devices;
 }
@@ -105,14 +105,8 @@ sub get_active_devices {
 sub get_devices_by_health {
   my ( $schema, $user_id, $workspace_id, $state ) = @_;
 
-  my @device_ids = device_ids_for_workspace( $schema, $user_id, $workspace_id );
-
-  my @devices = $schema->resultset('Device')->search(
-    {
-      id => { -in => \@device_ids },
-      health      => "$state"
-    }
-  );
+  my @devices = grep { $_->health eq "$state" }
+    workspace_devices( $schema, $workspace_id );
 
   return @devices;
 }

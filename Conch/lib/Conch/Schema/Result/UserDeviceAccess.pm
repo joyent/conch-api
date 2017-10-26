@@ -19,7 +19,7 @@ __PACKAGE__->result_source_instance->is_virtual(1);
 # Takes a user ID and returns the list of devices the user has access to
 # through all of their assigned workspaces
 __PACKAGE__->result_source_instance->view_definition(q[
-  SELECT device.*
+  SELECT distinct device.*
   FROM user_workspace_role uwr
   JOIN workspace_datacenter_room wdr
     ON uwr.workspace_id = wdr.workspace_id

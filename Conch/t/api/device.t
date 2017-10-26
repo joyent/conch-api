@@ -43,6 +43,7 @@ subtest 'Device setup' => sub {
   ok( $global_workspace_id, 'Global workspace ID' );
 };
 
+
 my $test_device_id;
 
 subtest 'List device IDs in workspaces' => sub {
@@ -55,6 +56,9 @@ subtest 'List device IDs in workspaces' => sub {
   my $res_body = decode_json $res->content;
   isa_ok( $res_body, 'ARRAY' );
   $test_device_id = $res_body->[0];
+  for my $device_id ( @{$res_body}) {
+    is(ref $device_id, '', 'Device ID is a string' ) or last;
+  }
 };
 
 subtest 'List full devices in workspaces' => sub {
@@ -66,6 +70,9 @@ subtest 'List full devices in workspaces' => sub {
     or diag( $res->content );
   my $res_body = decode_json $res->content;
   isa_ok( $res_body, 'ARRAY' );
+  for my $device ( @{$res_body}) {
+    isa_ok($device, 'HASH', 'Device is an object') or last;
+  }
 };
 
 subtest 'List active devices in workspaces' => sub {
@@ -73,10 +80,13 @@ subtest 'List active devices in workspaces' => sub {
     GET "/workspace/$global_workspace_id/device/active",
     Cookie => $session
   );
-  is( $res->code, 200, "[GET /workspace/$global_workspace_id/device] successful" )
+  is( $res->code, 200, "[GET /workspace/$global_workspace_id/device/active] successful" )
     or diag( $res->content );
   my $res_body = decode_json $res->content;
   isa_ok( $res_body, 'ARRAY' );
+  for my $device ( @{$res_body} ) {
+    isa_ok($device, 'HASH', 'Device is an object') or last;
+  }
 };
 
 subtest 'List passing devices in workspaces' => sub {
@@ -88,6 +98,9 @@ subtest 'List passing devices in workspaces' => sub {
     or diag( $res->content );
   my $res_body = decode_json $res->content;
   isa_ok( $res_body, 'ARRAY' );
+  for my $device ( @{$res_body}) {
+    isa_ok($device, 'HASH', 'Device is an object') or last;
+  }
 };
 
 subtest 'List failing devices in workspaces' => sub {
@@ -99,6 +112,9 @@ subtest 'List failing devices in workspaces' => sub {
     or diag( $res->content );
   my $res_body = decode_json $res->content;
   isa_ok( $res_body, 'ARRAY' );
+  for my $device ( @{$res_body}) {
+    isa_ok($device, 'HASH', 'Device is an object') or last;
+  }
 };
 
 subtest 'Get single device' => sub {
