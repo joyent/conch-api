@@ -11,12 +11,12 @@ use Conch::Control::Datacenter;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( get_device device_location all_user_devices devices_for_user
-  lookup_device_for_user device_rack_location
-  device_ids_for_user latest_device_report device_validation_report
-  update_device_location delete_device_location
-  get_validation_criteria get_active_devices
-  get_devices_by_health unlocated_devices device_response
+our @EXPORT = qw(
+  get_device device_location workspace_devices devices_for_user
+  lookup_device_for_user device_rack_location device_ids_for_workspace
+  latest_device_report device_validation_report
+  update_device_location delete_device_location get_validation_criteria
+  get_active_devices get_devices_by_health unlocated_devices device_response
   mark_device_validated
 );
 
@@ -42,94 +42,79 @@ sub get_validation_criteria {
 }
 
 sub devices_for_user {
-  my ( $schema, $user_name ) = @_;
+  my ( $schema, $user_id ) = @_;
   return $schema->resultset('UserDeviceAccess')
-    ->search( {}, { bind => [$user_name] } )->all;
+    ->search( {}, { bind => [$user_id] } )->all;
 }
 
 sub lookup_device_for_user {
-  my ( $schema, $device_id, $user_name ) = @_;
+  my ( $schema, $device_id, $user_id ) = @_;
   my $device = $schema->resultset('UserDeviceAccess')
-    ->search( { id => $device_id }, { bind => [$user_name] } )->single;
+    ->search( { id => $device_id }, { bind => [$user_id] } )->single;
 
   # Look for an unlocated device if no located device found
   $device = $device
     || $schema->resultset('UnlocatedUserRelayDevices')
-    ->search( { id => $device_id }, { bind => [$user_name] } )->single;
+    ->search( { id => $device_id }, { bind => [$user_id] } )->single;
   return $device;
 }
 
 sub unlocated_devices {
-  my ( $schema, $user_name ) = @_;
+  my ( $schema, $user_id ) = @_;
   return $schema->resultset('UnlocatedUserRelayDevices')
-    ->search( {}, { bind => [$user_name] } )->all;
+    ->search( {}, { bind => [$user_id] } )->all;
 }
 
-# Includes located and unlocated devices
-sub all_user_devices {
-  my ( $schema, $user_name ) = @_;
-  return (
-    devices_for_user( $schema, $user_name ),
-    unlocated_devices( $schema, $user_name )
-  );
+sub workspace_devices {
+  my ( $schema, $workspace_id ) = @_;
+  return $schema->resultset('WorkspaceDevices')
+    ->search( {}, { bind => [$workspace_id] } )->all;
 }
 
-sub device_ids_for_user {
-  my ( $schema, $user_name ) = @_;
+# Includes located and unlocated device IDs
+sub device_ids_for_workspace {
+  my ( $schema, $user_id, $workspace_id ) = @_;
 
-  my @user_device_ids;
-
-  foreach my $device ( all_user_devices( $schema, $user_name ) ) {
-    push @user_device_ids, $device->id;
+  my @device_ids;
+  foreach my $device (
+    unlocated_devices( $schema, $user_id ),
+    workspace_devices( $schema, $workspace_id )
+    )
+  {
+    push @device_ids, $device->id;
   }
-
-  return @user_device_ids;
+  return @device_ids;
 }
 
 sub get_active_devices {
-  my ( $schema, $user_name ) = @_;
+  my ( $schema, $user_id, $workspace_id ) = @_;
 
-  my @user_devices = device_ids_for_user( $schema, $user_name );
+  my @device_ids = device_ids_for_workspace( $schema, $user_id, $workspace_id );
 
-  my @rs = $schema->resultset('Device')->search(
+  my @active_devices = $schema->resultset('Device')->search(
     {
+      id => { -in => \@device_ids },
       last_seen => \' > NOW() - INTERVAL \'5 minutes\'',
     }
   );
 
-  my @active_devices;
-  foreach my $a (@rs) {
-    push @active_devices, $a->id;
-  }
-
-  my $lc = List::Compare->new( \@user_devices, \@active_devices );
-  my @active_user_devices = $lc->get_intersection;
-
-  return @active_user_devices;
+  return @active_devices;
 }
 
 # Return all devices that match health: $state
 sub get_devices_by_health {
-  my ( $schema, $user_name, $state ) = @_;
+  my ( $schema, $user_id, $workspace_id, $state ) = @_;
 
-  my @user_devices = device_ids_for_user( $schema, $user_name );
+  my @device_ids = device_ids_for_workspace( $schema, $user_id, $workspace_id );
 
-  my @rs = $schema->resultset('Device')->search(
+  my @devices = $schema->resultset('Device')->search(
     {
-      health      => "$state",
-      deactivated => { '=', undef },
+      id => { -in => \@device_ids },
+      health      => "$state"
     }
   );
 
-  my @devices;
-  foreach my $d (@rs) {
-    push @devices, $d->id;
-  }
-
-  my $lc = List::Compare->new( \@user_devices, \@devices );
-  my @return_devices = $lc->get_intersection;
-
-  return @return_devices;
+  return @devices;
 }
 
 sub get_device {
@@ -223,7 +208,7 @@ sub delete_device_location {
 }
 
 sub update_device_location {
-  my ( $schema, $device_info, $user_name ) = @_;
+  my ( $schema, $device_info, $user_id ) = @_;
 
   my $slot_info = $schema->resultset('DatacenterRackLayout')->search(
     {
@@ -288,7 +273,7 @@ sub update_device_location {
     );
     Log::Any->get_logger( category => 'user.action.device.create' )
       ->infof( "User '%s' created device %s to assign to location",
-      $user_name, $device->id );
+      $user_id, $device->id );
   }
 
   my $existing = $schema->resultset('DeviceLocation')->find(
@@ -307,7 +292,7 @@ sub update_device_location {
   Log::Any->get_logger( category => 'user.action.device.update_location' )
     ->infof(
     "User '%s' assigned device %s location to rack %s, slot %s",
-    $user_name,           $device_info->{device},
+    $user_id,           $device_info->{device},
     $device_info->{rack}, $device_info->{rack_unit}
     );
 

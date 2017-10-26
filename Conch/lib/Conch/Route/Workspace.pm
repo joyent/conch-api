@@ -17,7 +17,6 @@ set serializer => 'JSON';
 
 get '/workspace' => needs login => sub {
   my $user_id = session->read('user_id');
-  status_200();
   my $workspaces = get_user_workspaces( schema, $user_id );
   status_200($workspaces);
 };
@@ -27,7 +26,7 @@ get '/workspace/:id' => needs login => sub {
   my $ws_id     = param 'id';
   my $workspace = get_user_workspace( schema, $user_id, $ws_id );
   unless ( defined $workspace ) {
-    return status_404();
+    return status_404("Workspace $ws_id not found");
   }
   status_200($workspace);
 };
@@ -65,7 +64,7 @@ post '/workspace/:id/user' => needs login => sub {
 
   my $workspace = get_user_workspace( schema, $user_id, $ws_id );
   unless ( defined $workspace ) {
-    return status_404();
+    return status_404("Workspace $ws_id not found");
   }
 
   unless ( is_valid_role_assignment( $role, $workspace->{role} ) ) {
@@ -91,7 +90,7 @@ get '/workspace/:id/user' => needs login => sub {
   my $ws_id     = param 'id';
   my $workspace = get_user_workspace( schema, $user_id, $ws_id );
   unless ( defined $workspace ) {
-    return status_404();
+    return status_404("Workspace $ws_id not found");
   }
   my $users = workspace_users( schema, $workspace->{id} );
   status_200($users);
@@ -101,7 +100,9 @@ put '/workspace/:id/room' => needs login => sub {
   my $user_id   = session->read('user_id');
   my $ws_id     = param 'id';
   my $workspace = get_user_workspace( schema, $user_id, $ws_id );
-  unless ( defined $workspace ) { return status_404(); }
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
   if ( $workspace->{name} eq 'GLOBAL' ) {
     return status_400('Cannot modify GLOBAL workspace');
   }
@@ -127,7 +128,7 @@ get '/workspace/:id/room' => needs login => sub {
   my $ws_id     = param 'id';
   my $workspace = get_user_workspace( schema, $user_id, $ws_id );
   unless ( defined $workspace ) {
-    return status_404();
+    return status_404("Workspace $ws_id not found");
   }
   my $rooms = get_workspace_rooms( schema, $workspace->{id} );
   status_200($rooms);

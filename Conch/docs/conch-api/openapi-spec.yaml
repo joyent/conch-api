@@ -193,7 +193,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /workspace/{workspace_id}/room
+  /workspace/{workspace_id}/room:
     get:
       tags: [Room]
       summary: List all datacenter rooms assigned to the workspace
@@ -1066,7 +1066,7 @@ components:
           format: uuid
         role:
           type: string
-    Workspace:
+    Room:
       type: object
       properties:
         id:

@@ -29,16 +29,16 @@ get '/relay/active' => needs integrator => sub {
 };
 
 # This acts as both an initial registration and heartbeat endpoint.
-post '/relay/:serial/register' => needs integrator => sub {
+post '/relay/:serial/register' => needs login => sub {
   my $client_ip = request->address;
   my $serial    = param 'serial';
-  my $user_name = session->read('integrator');
+  my $user_id   = session->read('user_id');
   my $attrib    = body_parameters->as_hashref;
 
   # XXX Attribute validation.
 
   my $relay = register_relay( schema, $serial, $client_ip, $attrib );
-  connect_user_relay( schema, $user_name, $serial );
+  connect_user_relay( schema, $user_id, $serial );
 
   if ($relay) {
     status_200(

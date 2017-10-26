@@ -27,7 +27,7 @@ __PACKAGE__->result_source_instance->view_definition(q[
     ON ur.relay_id = dr.relay_id
   INNER JOIN device
     ON dr.device_id = device.id
-  WHERE u.name = ?
+  WHERE u.id = ?
     AND device.id NOT IN (SELECT device_id FROM device_location)
 ]);
 

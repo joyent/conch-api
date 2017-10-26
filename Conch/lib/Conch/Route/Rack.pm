@@ -66,7 +66,8 @@ get '/rack/:uuid' => needs integrator => sub {
 
 # Bulk update a rack layout.
 # XXX This should be wrapped in a txn. With real error messages.
-post '/rack/:uuid/layout' => needs integrator => sub {
+post '/rack/:uuid/layout' => needs login => sub {
+  my $user_id = session->read('user_id');
   my $user_name = session->read('integrator');
   my $uuid      = param 'uuid';
 
@@ -87,7 +88,7 @@ post '/rack/:uuid/layout' => needs integrator => sub {
   }
 
   unless ($authorized) {
-    warning "$user_name not allowed to view rack $uuid or rack does not exist";
+    warning "User '$user_id' not allowed to view rack $uuid or rack does not exist";
     return status_401('unauthorized');
   }
 
@@ -99,7 +100,7 @@ post '/rack/:uuid/layout' => needs integrator => sub {
     $update->{device}    = $k;
     $update->{rack}      = $uuid;
     $update->{rack_unit} = $layout->{$k};
-    my $result = update_device_location( schema, $update, $user_name );
+    my $result = update_device_location( schema, $update, $user_id );
     if ($result) {
       push @updates, $k;
     }

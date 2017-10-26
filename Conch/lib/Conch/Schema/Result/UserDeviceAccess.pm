@@ -16,22 +16,20 @@ __PACKAGE__->add_columns(Conch::Schema::Result::Device->columns);
 # do not attempt to deploy() this view
 __PACKAGE__->result_source_instance->is_virtual(1);
 
-# NOTE! This will break if any of the relations between 'user_account' and 'device' change!
-# Takes a username and returns the list of devices the user has access to
+# Takes a user ID and returns the list of devices the user has access to
+# through all of their assigned workspaces
 __PACKAGE__->result_source_instance->view_definition(q[
   SELECT device.*
-  FROM user_account u
-  INNER JOIN user_datacenter_room_access access
-    ON u.id = access.user_id
-  INNER JOIN datacenter_room room
-    ON access.datacenter_room_id = room.id
-  INNER JOIN datacenter_rack rack
-    ON room.id = rack.datacenter_room_id
-  INNER JOIN device_location loc
+  FROM user_workspace_role uwr
+  JOIN workspace_datacenter_room wdr
+    ON uwr.workspace_id = wdr.workspace_id
+  JOIN datacenter_rack rack
+    ON wdr.datacenter_room_id = rack.datacenter_room_id
+  JOIN device_location loc
     ON rack.id = loc.rack_id
-  INNER JOIN device
+  JOIN device
     ON loc.device_id = device.id
-  WHERE u.name = ?
+  WHERE uwr.user_id = ?
 ]);
 
 # NOTE: UPDATE BELOW WHEN Conch::Result::Device IS UPDATED!
