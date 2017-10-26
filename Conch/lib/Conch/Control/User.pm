@@ -13,7 +13,7 @@ use Exporter 'import';
 our @EXPORT = qw(
   validate_user_id lookup_user authenticate create_admin_passphrase
   create_integrator_password hash_password
-  );
+);
 
 sub validate_user_id {
   my ( $schema, $user_id ) = @_;
@@ -44,7 +44,7 @@ sub authenticate {
 
   $user or $log->warning("user name '$name' not found") and return undef;
 
-  if (passphrase($password)->matches( $user->password_hash )) {
+  if ( passphrase($password)->matches( $user->password_hash ) ) {
     return $user;
   }
   return undef;

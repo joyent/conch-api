@@ -109,11 +109,11 @@ put '/workspace/:id/room' => needs login => sub {
   unless ( $workspace->{role} eq 'Administrator' ) {
     return status_401('Only adminstrators may update the datacenter roles');
   }
-  unless (request->body) {
+  unless ( request->body ) {
     return status_400("Array of datacenter room IDs required in request");
   }
-  my $room_ids = decode_json(request->body) || {};
-  unless ( ref($room_ids) eq  'ARRAY' ) {
+  my $room_ids = decode_json( request->body ) || {};
+  unless ( ref($room_ids) eq 'ARRAY' ) {
     return status_400("Array of datacenter room IDs required in request");
   }
   my ( $rooms, $conflict ) =

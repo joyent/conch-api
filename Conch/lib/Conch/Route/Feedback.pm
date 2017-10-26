@@ -17,8 +17,8 @@ set serializer => 'JSON';
 
 post '/feedback' => needs login => sub {
   my $user_id = session->read('user_id');
-  my $message   = param 'message';
-  my $subject   = param 'subject';
+  my $message = param 'message';
+  my $subject = param 'subject';
 
   Log::Any->get_logger( category => "user.feedback" )->critical(
     {

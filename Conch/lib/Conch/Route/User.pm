@@ -40,7 +40,7 @@ post '/login' => sub {
   }
 
   my $user = authenticate( schema, $username, $password );
-  unless ( defined $user  ) {
+  unless ( defined $user ) {
     return status_401 "failed log in attempt";
   }
   my $user_id = $user->id;
@@ -56,8 +56,8 @@ post '/logout' => sub {
 };
 
 post '/user/me/settings' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my $settings  = body_parameters->as_hashref;
+  my $user_id  = session->read('user_id');
+  my $settings = body_parameters->as_hashref;
 
   return status_400("No settings specified or invalid JSON given")
     unless $settings;
@@ -75,7 +75,7 @@ post '/user/me/settings' => needs login => sub {
 };
 
 get '/user/me/settings' => needs login => sub {
-  my $user_id = session->read('user_id');
+  my $user_id   = session->read('user_id');
   my $keys_only = param 'keys_only';
 
   my $user = lookup_user( schema, $user_id );
@@ -94,7 +94,7 @@ get '/user/me/settings' => needs login => sub {
 
 post '/user/me/settings/:key' => needs login => sub {
   my $setting_key = param 'key';
-  my $user_id = session->read('user_id');
+  my $user_id     = session->read('user_id');
   my $setting     = body_parameters->as_hashref;
 
   my $setting_value = $setting->{$setting_key};
@@ -118,7 +118,7 @@ post '/user/me/settings/:key' => needs login => sub {
 
 get '/user/me/settings/:key' => needs login => sub {
   my $setting_key = param 'key';
-  my $user_id = session->read('user_id');
+  my $user_id     = session->read('user_id');
 
   my $user = lookup_user( schema, $user_id );
   my $setting = get_user_setting( schema, $user, $setting_key );
@@ -133,7 +133,7 @@ get '/user/me/settings/:key' => needs login => sub {
 
 del '/user/me/settings/:key' => needs login => sub {
   my $setting_key = param 'key';
-  my $user_id = session->read('user_id');
+  my $user_id     = session->read('user_id');
 
   my $user = lookup_user( schema, $user_id );
   my $deleted = delete_user_setting( schema, $user, $setting_key );

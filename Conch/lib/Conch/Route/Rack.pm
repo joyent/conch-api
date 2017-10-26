@@ -30,7 +30,7 @@ get '/workspace/:wid/rack' => needs login => sub {
 };
 
 get '/rack-role' => needs login => sub {
-  my @roles   = values %{ rack_roles(schema) };
+  my @roles = values %{ rack_roles(schema) };
   status_200( \@roles );
 };
 
@@ -65,7 +65,7 @@ post '/workspace/:wid/rack/:uuid/layout' => needs login => sub {
   unless ( defined $workspace ) {
     return status_404("Workspace $ws_id not found");
   }
-  my $uuid      = param 'uuid';
+  my $uuid = param 'uuid';
 
   my $layout = body_parameters->as_hashref;
 

@@ -18,5 +18,4 @@ get '/doc' => sub {
   send_file '/doc/index.html';
 };
 
-
 true;
