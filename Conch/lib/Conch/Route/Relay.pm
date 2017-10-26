@@ -15,16 +15,16 @@ use Data::Printer;
 set serializer => 'JSON';
 
 # Returns all relay devices and their status.
-get '/relay' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  my @relays = list_user_relays( schema, $user_name );
+get '/relay' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my @relays = list_user_relays( schema, $user_id );
   status_200( \@relays );
 };
 
 # Returns all active relay devices and their status.
-get '/relay/active' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  my @relays = list_user_relays( schema, $user_name, 2 );
+get '/relay/active' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my @relays = list_user_relays( schema, $user_id, 2 );
   status_200( \@relays );
 };
 

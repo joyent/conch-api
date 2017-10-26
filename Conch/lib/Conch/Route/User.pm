@@ -12,40 +12,16 @@ use Hash::MultiValue;
 
 use Conch::Control::User;
 use Conch::Control::User::Setting;
-use Conch::Control::Datacenter;
 
 use Data::Printer;
 set serializer => 'JSON';
 
 Dancer2::Plugin::Auth::Tiny->extend(
-  # Add an admin role that validates against a shared secret
-  admin => sub {
-    my ( $auth, $coderef ) = @_;
-    return sub {
-      if ( $auth->app->session->read("is_admin") ) {
-        goto $coderef;
-      }
-      else {
-        status_401('unauthorized');
-      }
-    };
-  },
-  integrator => sub {
-    my ( $auth, $coderef ) = @_;
-    return sub {
-      if ( $auth->app->session->read('integrator') ) {
-        goto $coderef;
-      }
-      else {
-        status_401('unauthorized');
-      }
-    };
-  },
   login => sub {
     my ( $auth, $coderef ) = @_;
     return sub {
       my $user_id = $auth->app->session->read('user_id');
-      if ( $user_id && valid_user_id( schema, $user_id ) ) {
+      if ( $user_id && validate_user_id( schema, $user_id ) ) {
         goto $coderef;
       }
       else {
@@ -55,33 +31,38 @@ Dancer2::Plugin::Auth::Tiny->extend(
   }
 );
 
-post '/user' => needs admin => sub {
-  my $user;
-  my $name = body_parameters->get('user');
-  my $existingUser = lookup_user_by_name( schema, $name );
+post '/login' => sub {
 
-  if ($existingUser) {
-    status_400("username already exists");
+  my $username = body_parameters->get('user');
+  my $password = body_parameters->get('password');
+  unless ( defined $username && defined $password ) {
+    return status_400("'user' and 'password' must be specified");
   }
 
-  else {
-    $user = create_integrator_user( schema, $name );
-    if ($user) {
-      status_201($user);
-    }
-    else { status_500('unable to create a user'); }
+  my $user = authenticate( schema, $username, $password );
+  unless ( defined $user  ) {
+    return status_401 "failed log in attempt";
   }
+  my $user_id = $user->id;
+  session user_id => $user_id;
+  info("User $user_id '$username' logged in");
 
+  status_200( { status => "logged in" } );
 };
 
-post '/user/me/settings' => needs integrator => sub {
-  my $user_name = session->read('integrator');
+post '/logout' => sub {
+  session->destroy_session;
+  status_200( { status => "logged out" } );
+};
+
+post '/user/me/settings' => needs login => sub {
+  my $user_id = session->read('user_id');
   my $settings  = body_parameters->as_hashref;
 
   return status_400("No settings specified or invalid JSON given")
     unless $settings;
 
-  my $user = lookup_user_by_name( schema, $user_name );
+  my $user = lookup_user( schema, $user_id );
   my $status = set_user_settings( schema, $user, $settings );
 
   if ($status) {
@@ -93,11 +74,11 @@ post '/user/me/settings' => needs integrator => sub {
   }
 };
 
-get '/user/me/settings' => needs integrator => sub {
-  my $user_name = session->read('integrator');
+get '/user/me/settings' => needs login => sub {
+  my $user_id = session->read('user_id');
   my $keys_only = param 'keys_only';
 
-  my $user = lookup_user_by_name( schema, $user_name );
+  my $user = lookup_user( schema, $user_id );
   my $settings = get_user_settings( schema, $user );
 
   if ($settings) {
@@ -111,9 +92,9 @@ get '/user/me/settings' => needs integrator => sub {
   }
 };
 
-post '/user/me/settings/:key' => needs integrator => sub {
+post '/user/me/settings/:key' => needs login => sub {
   my $setting_key = param 'key';
-  my $user_name   = session->read('integrator');
+  my $user_id = session->read('user_id');
   my $setting     = body_parameters->as_hashref;
 
   my $setting_value = $setting->{$setting_key};
@@ -122,7 +103,7 @@ post '/user/me/settings/:key' => needs integrator => sub {
     "Setting key in request body must match name in the URL ('$setting_key')")
     unless defined $setting_value;
 
-  my $user = lookup_user_by_name( schema, $user_name );
+  my $user = lookup_user( schema, $user_id );
   my $status = set_user_setting( schema, $user, $setting_key, $setting_value );
 
   if ($status) {
@@ -135,11 +116,11 @@ post '/user/me/settings/:key' => needs integrator => sub {
   }
 };
 
-get '/user/me/settings/:key' => needs integrator => sub {
+get '/user/me/settings/:key' => needs login => sub {
   my $setting_key = param 'key';
-  my $user_name   = session->read('integrator');
+  my $user_id = session->read('user_id');
 
-  my $user = lookup_user_by_name( schema, $user_name );
+  my $user = lookup_user( schema, $user_id );
   my $setting = get_user_setting( schema, $user, $setting_key );
 
   if ($setting) {
@@ -150,11 +131,11 @@ get '/user/me/settings/:key' => needs integrator => sub {
   }
 };
 
-del '/user/me/settings/:key' => needs integrator => sub {
+del '/user/me/settings/:key' => needs login => sub {
   my $setting_key = param 'key';
-  my $user_name   = session->read('integrator');
+  my $user_id = session->read('user_id');
 
-  my $user = lookup_user_by_name( schema, $user_name );
+  my $user = lookup_user( schema, $user_id );
   my $deleted = delete_user_setting( schema, $user, $setting_key );
 
   if ($deleted) {
@@ -166,50 +147,4 @@ del '/user/me/settings/:key' => needs integrator => sub {
   }
 
 };
-
-post '/login' => sub {
-
-  my $username = body_parameters->get('user');
-  my $password = body_parameters->get('password');
-  unless ( defined $username && defined $password ) {
-    return status_400("'user' and 'password' must be specified");
-  }
-
-  if ( $username eq 'admin'
-    && passphrase($password)->matches( config->{'admin_password'} ) )
-  {
-    session is_admin => 1;
-    info "admin logged in";
-    return status_200( { role => "admin" } );
-  }
-  my $user = authenticate( schema, $username, $password );
-  if ( defined $user  ) {
-    session integrator => $username;
-    session user_id => $user->id;
-    info "integrator '$username' logged in";
-    return status_200( { role => "integrator" } );
-  }
-  else {
-    status_401 "failed log in attempt";
-  }
-};
-
-post '/logout' => sub {
-  session->delete('is_admin');
-  session->delete('integrator');
-  status_200( { status => "logged out" } );
-};
-
-post '/datacenter_access' => sub {
-  if (
-    # XXX This is truncating what we're passing in as an array for some reason.
-    # XXX Only the last value makes it in.
-    set_datacenter_room_access( schema, body_parameters->as_hashref )
-    )
-  {
-    status_200();
-  }
-  else { status_500('error setting user datacenter access'); }
-};
-
 1;

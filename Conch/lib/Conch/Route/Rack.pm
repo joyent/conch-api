@@ -65,7 +65,6 @@ post '/workspace/:wid/rack/:uuid/layout' => needs login => sub {
   unless ( defined $workspace ) {
     return status_404("Workspace $ws_id not found");
   }
-  my $user_name = session->read('integrator');
   my $uuid      = param 'uuid';
 
   my $layout = body_parameters->as_hashref;
