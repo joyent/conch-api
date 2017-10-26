@@ -93,7 +93,7 @@ sub get_active_devices {
 
   my @active_devices = $schema->resultset('Device')->search(
     {
-      id => { -in => \@device_ids },
+      id        => { -in => \@device_ids },
       last_seen => \' > NOW() - INTERVAL \'5 minutes\'',
     }
   )->all;
@@ -105,8 +105,8 @@ sub get_active_devices {
 sub get_devices_by_health {
   my ( $schema, $user_id, $workspace_id, $state ) = @_;
 
-  my @devices = grep { $_->health eq "$state" }
-    workspace_devices( $schema, $workspace_id );
+  my @devices =
+    grep { $_->health eq "$state" } workspace_devices( $schema, $workspace_id );
 
   return @devices;
 }
@@ -286,7 +286,7 @@ sub update_device_location {
   Log::Any->get_logger( category => 'user.action.device.update_location' )
     ->infof(
     "User '%s' assigned device %s location to rack %s, slot %s",
-    $user_id,           $device_info->{device},
+    $user_id,             $device_info->{device},
     $device_info->{rack}, $device_info->{rack_unit}
     );
 

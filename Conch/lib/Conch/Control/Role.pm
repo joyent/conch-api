@@ -35,9 +35,9 @@ sub workspace_role_assignments {
 # Check whether a given role may assign the specified role
 sub is_valid_role_assignment {
   my ( $role, $current_user_role ) = @_;
-  return scalar(
-      grep { $_ eq $role } @{ workspace_role_assignments($current_user_role) }
-    );
+  return
+    scalar( grep { $_ eq $role }
+      @{ workspace_role_assignments($current_user_role) } );
 }
 
 1;

@@ -26,5 +26,4 @@ get '/workspace/:wid/problem' => needs login => sub {
   status_200($problems);
 };
 
-
 1;

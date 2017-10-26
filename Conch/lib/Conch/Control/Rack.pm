@@ -8,7 +8,8 @@ use Conch::Control::User;
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( get_rack workspace_racks workspace_rack rack_roles rack_layout );
+our @EXPORT =
+  qw( get_rack workspace_racks workspace_rack rack_roles rack_layout );
 
 sub get_rack {
   my ( $schema, $rack_id ) = @_;
@@ -33,16 +34,16 @@ sub workspace_racks {
   my @racks = $schema->resultset('WorkspaceRacks')
     ->search( {}, { bind => [$workspace_id] } )->all;
 
-  my @datacenter_room = $schema->resultset('DatacenterRoom')->search(
-    {'workspace_datacenter_rooms.workspace_id' => $workspace_id},
-    { join => 'workspace_datacenter_rooms' }
-  )->all;
+  my @datacenter_room =
+    $schema->resultset('DatacenterRoom')
+    ->search( { 'workspace_datacenter_rooms.workspace_id' => $workspace_id },
+    { join => 'workspace_datacenter_rooms' } )->all;
 
   my @rack_ids = map { $_->id } @racks;
   my $rack_progress = {};
   my @rack_progress =
     $schema->resultset('RackDeviceProgress')
-    ->search( {rack_id => {-in => \@rack_ids } } )->all;
+    ->search( { rack_id => { -in => \@rack_ids } } )->all;
   for my $rp (@rack_progress) {
     $rack_progress->{ $rp->rack_id }->{ $rp->status } = $rp->count;
   }
@@ -57,7 +58,7 @@ sub workspace_racks {
 
   my $rack_groups = {};
   foreach my $rack (@racks) {
-    my $rack_dc   = $dc{ $rack->datacenter_room_id }{name};
+    my $rack_dc  = $dc{ $rack->datacenter_room_id }{name};
     my $rack_res = {};
     $rack_res->{id}              = $rack->id;
     $rack_res->{name}            = $rack->name;
@@ -80,13 +81,11 @@ sub workspace_rack {
 sub rack_layout {
   my ( $schema, $rack ) = @_;
 
-  my @rack_slots = $schema->resultset('DatacenterRackLayout')->search(
-    { rack_id => $rack->id }
-  );
+  my @rack_slots = $schema->resultset('DatacenterRackLayout')
+    ->search( { rack_id => $rack->id } );
 
-  my $datacenter_room = $schema->resultset('DatacenterRoom')->find(
-    { id => $rack->datacenter_room_id }
-  );
+  my $datacenter_room = $schema->resultset('DatacenterRoom')
+    ->find( { id => $rack->datacenter_room_id } );
 
   my $res;
   $res->{id}         = $rack->id;
