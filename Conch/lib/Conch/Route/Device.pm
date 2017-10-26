@@ -57,8 +57,9 @@ get '/workspace/:wid/device/active' => needs login => sub {
     return status_404("Workspace $ws_id not found");
   }
 
-  my @devices = map { {$_->get_columns} }
-    get_active_devices( schema, $user_id, $workspace->{id} );
+  my @devices = map {
+    { $_->get_columns }
+  } get_active_devices( schema, $user_id, $workspace->{id} );
   status_200( \@devices );
 };
 
@@ -75,18 +76,18 @@ get '/workspace/:wid/device/health/:state' => needs login => sub {
     return status_400("/device/health/:state must be PASS or FAIL");
   }
 
-  my @devices = map { {$_->get_columns} }
-    get_devices_by_health( schema, $user_id, $workspace->{id}, $state );
+  my @devices = map {
+    { $_->get_columns }
+  } get_devices_by_health( schema, $user_id, $workspace->{id}, $state );
 
   status_200( \@devices );
 };
 
 get '/device/:serial' => needs login => sub {
   my $user_id = session->read('user_id');
-  my $serial = param 'serial';
+  my $serial  = param 'serial';
 
-  my $device =
-    lookup_device_for_user( schema, $serial, $user_id );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
 
   unless ($device) {
     warning
@@ -112,7 +113,7 @@ get '/device/:serial' => needs login => sub {
 
 post '/device/:serial' => needs login => sub {
   my $user_id = session->read('user_id');
-  my $serial    = param 'serial';
+  my $serial  = param 'serial';
 
   my ( $device, $report_id );
 
@@ -186,7 +187,7 @@ get '/device/:serial/location' => needs login => sub {
 
 post '/device/:serial/location' => needs login => sub {
   my $user_id = session->read('user_id');
-  my $serial    = param 'serial';
+  my $serial  = param 'serial';
 
   # XXX Input validation. Required fields.
 
@@ -209,8 +210,8 @@ post '/device/:serial/location' => needs login => sub {
 };
 
 del '/device/:serial/location' => needs login => sub {
-  my $user_id= session->read('user_id');
-  my $serial    = param 'serial';
+  my $user_id = session->read('user_id');
+  my $serial  = param 'serial';
 
   my $req = body_parameters->as_hashref;
   my $result = delete_device_location( schema, $req );
@@ -272,7 +273,7 @@ post '/device/:serial/settings' => needs login => sub {
 
 get '/device/:serial/settings' => needs login => sub {
   my $serial    = param 'serial';
-  my $user_id = session->read('user_id');
+  my $user_id   = session->read('user_id');
   my $keys_only = param 'keys_only';
 
   my $device = lookup_device_for_user( schema, $serial, $user_id );
@@ -293,7 +294,7 @@ get '/device/:serial/settings' => needs login => sub {
 post '/device/:serial/settings/:key' => needs login => sub {
   my $serial      = param 'serial';
   my $setting_key = param 'key';
-  my $user_id   = session->read('user_id');
+  my $user_id     = session->read('user_id');
   my $setting     = body_parameters->as_hashref;
 
   my $device = lookup_device_for_user( schema, $serial, $user_id );
@@ -320,7 +321,7 @@ post '/device/:serial/settings/:key' => needs login => sub {
 del '/device/:serial/settings/:key' => needs login => sub {
   my $serial      = param 'serial';
   my $setting_key = param 'key';
-  my $user_id   = session->read('user_id');
+  my $user_id     = session->read('user_id');
 
   my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
@@ -339,7 +340,7 @@ del '/device/:serial/settings/:key' => needs login => sub {
 get '/device/:serial/settings/:key' => needs login => sub {
   my $serial      = param 'serial';
   my $setting_key = param 'key';
-  my $user_id   = session->read('user_id');
+  my $user_id     = session->read('user_id');
 
   my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;

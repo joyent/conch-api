@@ -10,86 +10,72 @@ use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::Rack;
 use Conch::Control::Device;
+use Conch::Control::Workspace 'get_user_workspace';
 
 use List::MoreUtils;
 use Data::Printer;
 
 set serializer => 'JSON';
 
-# Return all racks an integrator user has access to
-# Admins currently don't have access to endpoint and they get a 401.
-# TODO: If we want to add admin access, what should this endpoint return? All
-# devices across all DCs?
-get '/rack' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  debug "Collecting racks for $user_name";
-  my $racks;
-  $racks = racks_for_user( schema, $user_name );
-  status_200( { racks => ( $racks || [] ) } );
+# Return all racks in a workspace
+get '/workspace/:wid/rack' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
+  my $racks = workspace_racks( schema, $workspace->{id} );
+  status_200($racks);
 };
 
-# Returns defined rack roles.
-get '/rack/role' => needs integrator => sub {
-  my $roles;
-  $roles = rack_roles(schema);
-  status_200( { roles => ( $roles || [] ) } );
+get '/rack-role' => needs login => sub {
+  my @roles   = values %{ rack_roles(schema) };
+  status_200( \@roles );
 };
 
 # Returns a rack with layout.
-get '/rack/:uuid' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  my $uuid      = param 'uuid';
+get '/workspace/:wid/rack/:uuid' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
+  my $uuid = param 'uuid';
+  my $rack = workspace_rack( schema, $workspace->{id}, $uuid );
 
-  # Verify this rack is assigned to the user.
-  my $user_racks;
-  $user_racks = racks_for_user( schema, $user_name );
-
-  my $authorized = 0;
-  foreach my $az ( keys %{$user_racks} ) {
-    my @rack_ids = map { $_->{id} } @{ $user_racks->{$az} };
-    foreach my $rack_id (@rack_ids) {
-      if ( $rack_id eq $uuid ) {
-        $authorized = 1;
-      }
-    }
+  unless ( defined $rack ) {
+    warning
+      "User $user_id not allowed to view rack $uuid or rack does not exist";
+    return status_404("Rack $uuid not found");
   }
 
-  unless ($authorized) {
-    warning "$user_name not allowed to view rack $uuid or rack does not exist";
-    return status_401('unauthorized');
-  }
+  my $layout = rack_layout( schema, $rack );
 
-  my $rack = rack_layout( schema, $uuid );
-
-  return status_200($rack);
+  return status_200($layout);
 };
 
 # Bulk update a rack layout.
 # XXX This should be wrapped in a txn. With real error messages.
-post '/rack/:uuid/layout' => needs login => sub {
-  my $user_id = session->read('user_id');
+post '/workspace/:wid/rack/:uuid/layout' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
   my $user_name = session->read('integrator');
   my $uuid      = param 'uuid';
 
   my $layout = body_parameters->as_hashref;
 
-  # Verify this rack is assigned to the user.
-  my $user_racks;
-  $user_racks = racks_for_user( schema, $user_name );
+  my $rack = workspace_rack( schema, $workspace->{id}, $uuid );
 
-  my $authorized = 0;
-  foreach my $az ( keys %{$user_racks} ) {
-    my @rack_ids = map { $_->{id} } @{ $user_racks->{$az} };
-    foreach my $rack_id (@rack_ids) {
-      if ( $rack_id eq $uuid ) {
-        $authorized = 1;
-      }
-    }
-  }
-
-  unless ($authorized) {
-    warning "User '$user_id' not allowed to view rack $uuid or rack does not exist";
-    return status_401('unauthorized');
+  unless ( defined $rack ) {
+    warning
+      "User $user_id not allowed to view rack $uuid or rack does not exist";
+    return status_404("Rack $uuid not found");
   }
 
   my @errors;
