@@ -17,62 +17,78 @@ use Conch::Control::Device::Log;
 use Conch::Control::Device;
 use Conch::Control::DeviceReport;
 use Conch::Control::Relay;
+use Conch::Control::Workspace 'get_user_workspace';
 
 use Data::Printer;
 use Log::Any;
 
 set serializer => 'JSON';
 
-# Return all devices an integrator user has access to
-# Admins currently don't have access to endpoint and they get a 401.
-# TODO: If we want to add admin access, what should this endpoint return? All
-# devices across all DCs?
-get '/device' => needs integrator => sub {
-  my $user_name = session->read('integrator');
+get '/workspace/:wid/device' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
+
   my @devices;
   if ( param 'full' ) {
-    for my $d ( all_user_devices( schema, $user_name ) ) {
+    for my $d (
+      unlocated_devices( schema, $user_id ),
+      workspace_devices( schema, $workspace->{id} )
+      )
+    {
       my %data = $d->get_columns;
       push @devices, \%data;
     }
   }
   else {
-    @devices = device_ids_for_user( schema, $user_name );
+    @devices = device_ids_for_workspace( schema, $user_id, $workspace->{id} );
   }
-  return status_200( \@devices || [] );
+  return status_200( \@devices );
 };
 
-get '/device/status' => needs integrator => sub {
-};
+get '/workspace/:wid/device/active' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
 
-get '/device/active' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  my @devices = get_active_devices( schema, $user_name );
+  my @devices = get_active_devices( schema, $user_id, $workspace->{id} );
   status_200( \@devices );
 };
 
-get '/device/health/:state' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  my $state     = param 'state';
+get '/workspace/:wid/device/health/:state' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
 
+  my $state = param 'state';
   if ( $state !~ /PASS|FAIL/ ) {
-    return status_500(
-      { error => "/device/health/:state must be PASS or FAIL" } );
+    return status_400("/device/health/:state must be PASS or FAIL");
   }
 
-  my @devices = get_devices_by_health( schema, $user_name, $state );
+  my @devices = get_devices_by_health( schema, $user_id, $workspace->{id}, $state );
+
   status_200( \@devices );
 };
 
-get '/device/:serial' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  my $serial    = param 'serial';
+get '/device/:serial' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $serial = param 'serial';
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device =
+    lookup_device_for_user( schema, $serial, $user_id );
 
   unless ($device) {
     warning
-      "$user_name not allowed to view device $serial or $serial does not exist";
+      "$user_id not allowed to view device $serial or $serial does not exist";
     return status_401('unauthorized');
   }
 
@@ -92,8 +108,8 @@ get '/device/:serial' => needs integrator => sub {
   status_200($response);
 };
 
-post '/device/:serial' => needs integrator => sub {
-  my $user_name = session->read('integrator');
+post '/device/:serial' => needs login => sub {
+  my $user_id = session->read('user_id');
   my $serial    = param 'serial';
 
   my ( $device, $report_id );
@@ -103,27 +119,16 @@ post '/device/:serial' => needs integrator => sub {
 #      via /rack/:rackid, reports can be consumed. This checks does stop, in theory,
 #      people from submitting reports for hosts they don't control.
 
-# XXX Move this to Conch::Control::check_device_access(schema, $user_name, $serial);
-# Verify the requested device is accessible to this user.
-#my @user_devices;
-#@user_devices = device_ids_for_user(schema, $user_name);
-
-# XXX This won't work for newly created hosts which lack a location.
-#      Needs to be smarter.
-#unless (grep /$serial/, @user_devices) {
-#  warning "$user_name not allowed to view device $serial or $serial does not exist";
-#  return status_401('unauthorized');
-#}
   my $raw_report = body_parameters->as_hashref;
-  Log::Any->get_logger( category => 'report.raw' )->trace(encode_json $raw_report);
+  Log::Any->get_logger( category => 'report.raw' )
+    ->trace( encode_json $raw_report);
 
   my ( $device_report, $parse_err ) = parse_device_report($raw_report);
 
   if ($parse_err) {
-    my $err_log =
-      Log::Any->get_logger( category => 'report.unparsable' );
-    $err_log->crit( "Failed to parse report: $parse_err" );
-    $err_log->trace(encode_json $raw_report );
+    my $err_log = Log::Any->get_logger( category => 'report.unparsable' );
+    $err_log->crit("Failed to parse report: $parse_err");
+    $err_log->trace( encode_json $raw_report );
     return status_400("$parse_err");
   }
 
@@ -131,14 +136,13 @@ post '/device/:serial' => needs integrator => sub {
     ( $device, $report_id ) = record_device_report( schema, $device_report );
   };
   if ($@) {
-    my $err_log =
-      Log::Any->get_logger( category => 'report.error' );
-    $err_log->crit( "Failed to persist report: $@" );
-    $err_log->trace(encode_json $raw_report );
+    my $err_log = Log::Any->get_logger( category => 'report.error' );
+    $err_log->crit("Failed to persist report: $@");
+    $err_log->trace( encode_json $raw_report );
     return status_500("$@");
   }
 
-  connect_user_relay( schema, $user_name, $device_report->relay->{serial} )
+  connect_user_relay( schema, $user_id, $device_report->relay->{serial} )
     if $device_report->relay;
 
   my $validation =
@@ -158,11 +162,17 @@ post '/device/:serial' => needs integrator => sub {
   }
 };
 
-get '/device/:serial/location' => needs integrator => sub {
-  my $user_name = session->read('integrator');
-  my $serial    = param 'serial';
+get '/device/:serial/location' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $ws_id   = param 'wid';
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
+  my $serial = param 'serial';
+
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
 
   my $location = device_rack_location( schema, $serial );
@@ -172,14 +182,14 @@ get '/device/:serial/location' => needs integrator => sub {
     : status_409("Device $serial is not assigned to a rack");
 };
 
-post '/device/:serial/location' => needs integrator => sub {
-  my $user_name = session->read('integrator');
+post '/device/:serial/location' => needs login => sub {
+  my $user_id = session->read('user_id');
   my $serial    = param 'serial';
 
   # XXX Input validation. Required fields.
 
   my $req = body_parameters->as_hashref;
-  my ($result, $err) = update_device_location( schema, $req, $user_name);
+  my ( $result, $err ) = update_device_location( schema, $req, $user_id );
 
   if ($err) {
     return status_500(
@@ -196,8 +206,8 @@ post '/device/:serial/location' => needs integrator => sub {
   );
 };
 
-del '/device/:serial/location' => needs integrator => sub {
-  my $user_name = session->read('integrator');
+del '/device/:serial/location' => needs login => sub {
+  my $user_id= session->read('user_id');
   my $serial    = param 'serial';
 
   my $req = body_parameters->as_hashref;
@@ -215,13 +225,17 @@ del '/device/:serial/location' => needs integrator => sub {
   }
   else {
     return status_500(
-      { error => sprintf("error removing $serial from %s:%s",
-          $req->{rack}, $req->{rack_unit}) }
+      {
+        error => sprintf(
+          "error removing $serial from %s:%s",
+          $req->{rack}, $req->{rack_unit}
+        )
+      }
     );
   }
 };
 
-post '/device/:serial/profile' => needs integrator => sub {
+post '/device/:serial/profile' => needs login => sub {
   my $serial  = param 'serial';
   my $profile = body_parameters->as_hashref;
   my $product = determine_product( schema, $serial, $profile );
@@ -235,12 +249,12 @@ post '/device/:serial/profile' => needs integrator => sub {
   }
 };
 
-post '/device/:serial/settings' => needs integrator => sub {
-  my $serial    = param 'serial';
-  my $user_name = session->read('integrator');
-  my $settings  = body_parameters->as_hashref;
+post '/device/:serial/settings' => needs login => sub {
+  my $user_id  = session->read('user_id');
+  my $serial   = param 'serial';
+  my $settings = body_parameters->as_hashref;
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
 
   my $status = set_device_settings( schema, $device, $settings );
@@ -254,12 +268,12 @@ post '/device/:serial/settings' => needs integrator => sub {
   }
 };
 
-get '/device/:serial/settings' => needs integrator => sub {
+get '/device/:serial/settings' => needs login => sub {
   my $serial    = param 'serial';
-  my $user_name = session->read('integrator');
+  my $user_id = session->read('user_id');
   my $keys_only = param 'keys_only';
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
   my $settings = get_device_settings( schema, $device );
 
@@ -274,13 +288,13 @@ get '/device/:serial/settings' => needs integrator => sub {
   }
 };
 
-post '/device/:serial/settings/:key' => needs integrator => sub {
+post '/device/:serial/settings/:key' => needs login => sub {
   my $serial      = param 'serial';
   my $setting_key = param 'key';
-  my $user_name   = session->read('integrator');
+  my $user_id   = session->read('user_id');
   my $setting     = body_parameters->as_hashref;
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
 
   my $setting_value = $setting->{$setting_key};
@@ -301,12 +315,12 @@ post '/device/:serial/settings/:key' => needs integrator => sub {
   }
 };
 
-del '/device/:serial/settings/:key' => needs integrator => sub {
+del '/device/:serial/settings/:key' => needs login => sub {
   my $serial      = param 'serial';
   my $setting_key = param 'key';
-  my $user_name   = session->read('integrator');
+  my $user_id   = session->read('user_id');
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
   my $setting = delete_device_setting( schema, $device, $setting_key );
 
@@ -320,12 +334,12 @@ del '/device/:serial/settings/:key' => needs integrator => sub {
   }
 };
 
-get '/device/:serial/settings/:key' => needs integrator => sub {
+get '/device/:serial/settings/:key' => needs login => sub {
   my $serial      = param 'serial';
   my $setting_key = param 'key';
-  my $user_name   = session->read('integrator');
+  my $user_id   = session->read('user_id');
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
   my $setting = get_device_setting( schema, $device, $setting_key );
 
@@ -338,11 +352,11 @@ get '/device/:serial/settings/:key' => needs integrator => sub {
   }
 };
 
-post '/device/:serial/log' => needs integrator => sub {
-  my $serial    = param 'serial';
-  my $user_name = session->read('integrator');
+post '/device/:serial/log' => needs login => sub {
+  my $serial  = param 'serial';
+  my $user_id = session->read('user_id');
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
 
   return status_400(
@@ -358,19 +372,19 @@ post '/device/:serial/log' => needs integrator => sub {
   return status_200( { status => "Log written for device $serial." } );
 };
 
-get '/device/:serial/log' => needs integrator => sub {
+get '/device/:serial/log' => needs login => sub {
   my $serial         = param 'serial';
   my $component_type = param 'component_type';
   my $component_id   = param 'component_id';
   my $limit          = param 'limit';
-  my $user_name      = session->read('integrator');
+  my $user_id        = session->read('user_id');
 
   return status_400("'component_id' must be a UUID")
     if $component_id && !is_uuid($component_id);
   return status_400("'limit' must be a positive number")
     unless !$limit || looks_like_number($limit) && $limit > 0;
 
-  my $device = lookup_device_for_user( schema, $serial, $user_name );
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found")
     unless $device;
 

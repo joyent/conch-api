@@ -99,8 +99,7 @@ sub register_relay {
 
 # Associate relay with a user
 sub connect_user_relay {
-  my ( $schema, $user_name, $relay_id ) = @_;
-  my $user_id = user_id_by_name( $schema, $user_name );
+  my ( $schema, $user_id, $relay_id ) = @_;
 
   # 'first_seen' column will only be written on create. It should remain
   # untouched on updates
