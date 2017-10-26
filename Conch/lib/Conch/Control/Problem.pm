@@ -15,14 +15,14 @@ our @EXPORT = qw( get_problems );
 # The report / validation format is not normalized yet, so this is going to be
 # a giant mess. Sorry. -- bdha
 sub get_problems {
-  my ( $schema, $user_id ) = @_;
+  my ( $schema, $user_id, $workspace_id ) = @_;
 
   my $criteria = get_validation_criteria($schema);
 
   my @failing_user_devices;
   my @unreported_user_devices;
   my @unlocated_user_devices;
-  foreach my $d ( devices_for_user( $schema, $user_id ) ) {
+  foreach my $d ( workspace_devices( $schema, $workspace_id ) ) {
     if ( $d->health eq 'FAIL' ) {
       push @failing_user_devices, $d;
     }
