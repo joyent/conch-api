@@ -11,12 +11,11 @@ use Data::Printer;
 
 use Exporter 'import';
 our @EXPORT = qw(
-  valid_user_id lookup_user_by_name user_id_by_name authenticate
-  create_integrator_user create_admin_passphrase create_integrator_password
-  hash_password
+  validate_user_id lookup_user authenticate create_admin_passphrase
+  create_integrator_password hash_password
   );
 
-sub valid_user_id {
+sub validate_user_id {
   my ( $schema, $user_id ) = @_;
   return $schema->resultset('UserAccount')->find(
     {
@@ -26,42 +25,29 @@ sub valid_user_id {
   );
 }
 
-sub lookup_user_by_name {
-  my ( $schema, $name ) = @_;
+sub lookup_user {
+  my ( $schema, $user_id ) = @_;
   return $schema->resultset('UserAccount')->find(
     {
-      name => $name
+      id => $user_id
     }
   );
 }
 
-sub user_id_by_name {
-  my ( $schema, $name ) = @_;
-  return $schema->resultset('UserAccount')
-    ->find( { name => $name }, { columns => 'id' } )->id;
-}
-
 sub authenticate {
   my ( $schema, $name, $password ) = @_;
-  my $user = lookup_user_by_name( $schema, $name );
+  my $user = $schema->resultset('UserAccount')->find(
+    {
+      name => $name
+    }
+  );
+
   $user or $log->warning("user name '$name' not found") and return undef;
 
   if (passphrase($password)->matches( $user->password_hash )) {
     return $user;
   }
   return undef;
-}
-
-sub create_integrator_user {
-  my ( $schema, $name ) = @_;
-  my $password = create_integrator_password();
-  $schema->resultset('UserAccount')->create(
-    {
-      name          => $name,
-      password_hash => hash_password($password)
-    }
-  );
-  return { name => $name, password => $password };
 }
 
 sub hash_password {

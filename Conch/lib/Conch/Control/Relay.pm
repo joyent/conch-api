@@ -13,9 +13,8 @@ our @EXPORT = qw( register_relay list_user_relays connect_user_relay
 );
 
 sub list_user_relays {
-  my ( $schema, $user_name, $interval ) = @_;
+  my ( $schema, $user_id, $interval ) = @_;
 
-  my $user_id = user_id_by_name( $schema, $user_name );
   my $user_relays = $schema->resultset('UserRelayConnection')->search(
     {
       user_id   => $user_id,
