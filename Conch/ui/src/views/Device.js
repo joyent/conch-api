@@ -1,6 +1,8 @@
 import m from "mithril";
 import t from "i18n4v";
+import Auth from "../models/Auth";
 import Device from "../models/Device";
+import Workspace from "../models/Workspace";
 import Table from "./component/Table";
 import Icons from "./component/Icons";
 
