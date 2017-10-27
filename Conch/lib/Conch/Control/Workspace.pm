@@ -152,8 +152,9 @@ sub invite_user_to_workspace {
         [ 'id', 'name', 'email' ],
         { email => $email }
       )->hash;
+      my $password;
       unless ( defined $user ) {
-        my $password      = create_integrator_password();
+        $password      = create_integrator_password();
         my $password_hash = hash_password($password);
         $user = $db->insert(
           'user_account',
@@ -183,7 +184,8 @@ sub invite_user_to_workspace {
       return {
         name  => $user->{name},
         email => $user->{email},
-        role  => $role
+        role  => $role,
+        password => $password  # generated password or undef
       };
     }
   );
