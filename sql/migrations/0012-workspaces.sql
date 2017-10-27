@@ -110,7 +110,9 @@ SELECT run_migration(12, $$
       (SELECT id FROM role where name = 'Integrator')
     FROM new_workspace nw2
     JOIN user_access ua
-      ON nw2.name = ua.name
+      ON nw2.name = ua.name;
+
+  DROP TABLE user_datacenter_room_access;
 
 $$);
 

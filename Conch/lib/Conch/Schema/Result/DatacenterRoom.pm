@@ -183,21 +183,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 user_datacenter_room_accesses
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::UserDatacenterRoomAccess>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_datacenter_room_accesses",
-  "Conch::Schema::Result::UserDatacenterRoomAccess",
-  { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 workspace_datacenter_rooms
 
 Type: has_many
@@ -213,19 +198,9 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 users
 
-Type: many_to_many
-
-Composing rels: L</user_datacenter_room_accesses> -> user
-
-=cut
-
-__PACKAGE__->many_to_many("users", "user_datacenter_room_accesses", "user");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-23 16:37:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cK7Q8KloX+pKpi39Z13DAA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-27 13:20:16
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/SHYrxiQrDVhIYWiZXlrwA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

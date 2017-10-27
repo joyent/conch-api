@@ -44,36 +44,36 @@ __PACKAGE__->table("user_workspace_role");
 
   data_type: 'uuid'
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
   size: 16
 
 =head2 workspace_id
 
   data_type: 'uuid'
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
   size: 16
 
 =head2 role_id
 
   data_type: 'integer'
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
 
 =cut
 
 __PACKAGE__->add_columns(
   "user_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "workspace_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "role_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<user_workspace_role_user_id_workspace_id_role_id_key>
+=head2 C<user_workspace_role_user_id_workspace_id_key>
 
 =over 4
 
@@ -81,15 +81,13 @@ __PACKAGE__->add_columns(
 
 =item * L</workspace_id>
 
-=item * L</role_id>
-
 =back
 
 =cut
 
 __PACKAGE__->add_unique_constraint(
-  "user_workspace_role_user_id_workspace_id_role_id_key",
-  ["user_id", "workspace_id", "role_id"],
+  "user_workspace_role_user_id_workspace_id_key",
+  ["user_id", "workspace_id"],
 );
 
 =head1 RELATIONS
@@ -106,12 +104,7 @@ __PACKAGE__->belongs_to(
   "role",
   "Conch::Schema::Result::Role",
   { id => "role_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 user
@@ -126,12 +119,7 @@ __PACKAGE__->belongs_to(
   "user",
   "Conch::Schema::Result::UserAccount",
   { id => "user_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 workspace
@@ -146,17 +134,12 @@ __PACKAGE__->belongs_to(
   "workspace",
   "Conch::Schema::Result::Workspace",
   { id => "workspace_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-23 16:37:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gifY+Ty9A4XHNd2R+DBPMg
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-27 13:20:16
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IY2IojidkZV5O/GYw9Vhyw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
