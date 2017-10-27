@@ -84,6 +84,33 @@ SELECT run_migration(12, $$
     ON datacenter_room
     FOR EACH ROW EXECUTE PROCEDURE add_room_to_global_workspace();
 
-$$);
+  -- Create a workspace for each existing user using their current
+  -- datacenter_room access so the change will be transparent when they log in
+  WITH user_access (user_id, name, datacenter_room_id) as (
+    SELECT user_id, u.name, datacenter_room_id
+    FROM user_datacenter_room_access
+    JOIN user_account u
+      ON user_id = u.id
+  ), new_workspace (id, name) AS (
+    INSERT INTO workspace (parent_workspace_id, name, description)
+    SELECT DISTINCT
+      (SELECT id from workspace where name = 'GLOBAL'),
+      ua.name, 'Transition workspace for user ' || ua.name
+    FROM user_access ua
+    RETURNING id, name
+  ), add_rooms AS (
+    INSERT INTO workspace_datacenter_room (workspace_id, datacenter_room_id)
+    SELECT nw1.id, ua.datacenter_room_id
+    FROM new_workspace nw1
+    JOIN user_access ua
+      ON nw1.name = ua.name
+  )
+    INSERT INTO user_workspace_role (user_id, workspace_id, role_id)
+    SELECT DISTINCT ua.user_id, nw2.id,
+      (SELECT id FROM role where name = 'Integrator')
+    FROM new_workspace nw2
+    JOIN user_access ua
+      ON nw2.name = ua.name
 
+$$);
 
