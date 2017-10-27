@@ -20,7 +20,7 @@ my $session;
 my $global_workspace_id;
 
 # Login and get global workspace
-subtest 'Device setup' => sub {
+subtest 'Problem setup' => sub {
   my $login =
     encode_json { user => $ENV{'TEST_USER'}, password => $ENV{'TEST_PW'} };
   my $res = $test->request( POST "/login", Content => $login );

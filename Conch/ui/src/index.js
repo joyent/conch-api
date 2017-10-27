@@ -21,12 +21,7 @@ t.selectLanguage(["en", "ko", "ko-KR"], (err, lang) => {
     t.translator.add(languages[lang] ? languages[lang] : languages.en);
 });
 
-m.route(document.body, "/", {
-    "/": {
-        render() {
-            return m(Layout.twoPane, { active: 0, title: "Status" }, m(Status));
-        },
-    },
+m.route(document.body, "/status", {
     "/status": {
         render() {
             return m(Layout.twoPane, { active: 1, title: "Status" }, m(Status));

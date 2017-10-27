@@ -1,9 +1,11 @@
 import m from "mithril";
 import t from "i18n4v";
+import Auth from "../models/Auth";
 import Device from "../models/Device";
 import Rack from "../models/Rack";
 import Relay from "../models/Relay";
 import Feedback from "../models/Feedback";
+import Workspace from "../models/Workspace";
 import DeviceStatus from "./component/DeviceStatus";
 import Icons from "./component/Icons";
 import Table from "./component/Table";
@@ -11,8 +13,13 @@ import Table from "./component/Table";
 const allRacks = {
     loading: true,
     oninit: ({ state }) => {
-        Promise.all([Rack.loadRooms(), Relay.loadActiveRelays()]).then(
-            () => (state.loading = false)
+        Auth.requireLogin(
+            Workspace.withWorkspace(workspaceId => {
+                Promise.all([
+                    Relay.loadActiveRelays(),
+                    Rack.loadRooms(workspaceId),
+                ]).then(() => (state.loading = false));
+            })
         );
     },
     view: ({ state }) => {
@@ -27,7 +34,7 @@ const allRacks = {
                         href: `/rack/${id}`,
                         oncreate: m.route.link,
                         onclick() {
-                            Rack.load(id);
+                            Workspace.withWorkspace( workspaceId => Rack.load(workspaceId, id) );
                         },
                         class:
                             id === Rack.current.id
@@ -57,8 +64,12 @@ const makeSelection = {
 
 const rackLayout = {
     oninit({attrs}) {
-        Rack.load(attrs.id);
-        Rack.highlightDevice = attrs.device;
+        Auth.requireLogin(
+            Workspace.withWorkspace(workspaceId => {
+                Rack.load(workspaceId, attrs.id);
+                Rack.highlightDevice = attrs.device;
+            })
+        );
     },
     view() {
         const activeRelay = Relay.activeList.find(({location}) => {
@@ -89,7 +100,7 @@ const rackLayout = {
                 "form.pure-form.pure-g",
                 {
                     onsubmit(e) {
-                        Rack.assignDevices(Rack.current);
+                        Workspace.withWorkspace( workspaceId => Rack.assignDevices(workspaceId, Rack.current) ) ;
                     },
                 },
                 m(

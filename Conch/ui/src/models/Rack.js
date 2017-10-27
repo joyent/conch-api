@@ -3,19 +3,19 @@ import m from "mithril";
 const Rack = {
     // Associative array of room names to list of racks
     rackRooms: {},
-    loadRooms() {
+    loadRooms(workspaceId) {
         return m
             .request({
                 method: "GET",
-                url: "/rack",
+                url: `/workspace/${workspaceId}/rack`,
                 withCredentials: true,
             })
             .then(res => {
                 // sort and assign the rack rooms
-                Rack.rackRooms = Object.keys(res.racks)
+                Rack.rackRooms = Object.keys(res)
                     .sort()
                     .reduce((acc, room) => {
-                        acc[room] = res.racks[room];
+                        acc[room] = res[room];
                         return acc;
                     }, {});
             })
@@ -23,17 +23,17 @@ const Rack = {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log(`Error in GET /rack: ${e.message}`);
+                    throw e;
                 }
             });
     },
 
     current: {},
-    load(id) {
+    load(workspaceId, id) {
         return m
             .request({
                 method: "GET",
-                url: `/rack/${id}`,
+                url: `/workspace/${workspaceId}/rack/${id}`,
                 withCredentials: true,
             })
             .then(res => {
@@ -43,12 +43,12 @@ const Rack = {
                 if (e.error === "unauthorized") {
                     m.route.set("/login");
                 } else {
-                    console.log(`Error in GET /rack/${id}: ${e.message}`);
+                    throw e;
                 }
             });
     },
     assignSuccess: false,
-    assignDevices(rack) {
+    assignDevices(workspaceId, rack) {
         const deviceAssignments = Object.keys(
             rack.slots
         ).reduce((obj, slot) => {
@@ -61,7 +61,7 @@ const Rack = {
         return m
             .request({
                 method: "POST",
-                url: `/rack/${rack.id}/layout`,
+                url: `/workspace/${workspaceId}/rack/${rack.id}/layout`,
                 data: deviceAssignments,
                 withCredentials: true,
             })
@@ -71,7 +71,7 @@ const Rack = {
                     Rack.assignSuccess = false;
                     m.redraw();
                 }, 2600);
-                Rack.load(rack.id);
+                Workspace.withWorkspace( workspaceId => Rack.load(workspaceId, rack.id) ) ;
                 return res;
             })
             .catch(e => {

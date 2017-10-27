@@ -12,11 +12,11 @@ function sortObject(obj) {
 const Problem = {
     devices: {},
     current: null,
-    loadDeviceProblems() {
+    loadDeviceProblems(workspaceId) {
         return m
             .request({
                 method: "GET",
-                url: "/problem",
+                url: `/workspace/${workspaceId}/problem`,
                 withCredentials: true,
             })
             .then(res => {

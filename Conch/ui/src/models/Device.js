@@ -3,11 +3,12 @@ import moment from "moment";
 
 const Device = {
     deviceIds: [],
-    loadDeviceIds() {
+    current: null,
+    loadDeviceIds(workspaceId) {
         return m
             .request({
                 method: "GET",
-                url: "/device",
+                url: `/workspace/${workspaceId}/device`,
                 withCredentials: true,
             })
             .then(res => {
@@ -22,12 +23,11 @@ const Device = {
             });
     },
 
-    devices: [],
-    loadDevices() {
+    loadDevices(workspaceId) {
         return m
             .request({
                 method: "GET",
-                url: "/device",
+                url: `/workspace/${workspaceId}/device`,
                 data: { full: 1 },
                 withCredentials: true,
             })
@@ -51,7 +51,6 @@ const Device = {
             });
     },
 
-    current: null,
     loadDevice(deviceId) {
         return m
             .request({

@@ -5,7 +5,13 @@ import Table from "./component/Table";
 import Icons from "./component/Icons";
 
 const allDevices = {
-    oninit: Device.loadDeviceIds,
+    oninit({attrs}) {
+        Auth.requireLogin(
+            Workspace.withWorkspace(workspaceId => {
+                Device.loadDeviceIds(workspaceId);
+            })
+        );
+    },
     view(vnode) {
         return Device.deviceIds.map(deviceId => m(
             "a.selection-list-item",
@@ -31,18 +37,18 @@ const makeSelection = {
     },
 };
 
-function loadDeviceDetails(id) {
-    return Promise.all([
-        Device.loadDevice(id),
-        Device.loadRackLocation(id),
-        Device.loadFirmwareStatus(id),
-        Device.loadDeviceLogs(id, 20),
-    ]);
-}
 
 const deviceReport = {
     oninit({attrs}) {
-        loadDeviceDetails(attrs.id);
+        const id = attrs.id;
+        Auth.requireLogin(
+            Promise.all([
+                Device.loadDevice(id),
+                Device.loadRackLocation(id),
+                Device.loadFirmwareStatus(id),
+                Device.loadDeviceLogs(id, 20),
+            ])
+        );
     },
     view(vnode) {
         if (!Device.current) {
