@@ -505,7 +505,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /workspace/{workspace_id}/device/{serial}:
+  /device/{serial}:
     get:
       tags: [Device]
       summary: Get specified device with latest device report
@@ -554,7 +554,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /workspace/{workspace_id}/device/{serial}/location:
+  /device/{serial}/location:
     get:
       tags: [Device]
       summary: Get the device rack location
