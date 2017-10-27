@@ -165,9 +165,6 @@ sub invite_user_to_workspace {
           },
           { returning => [ 'id', 'name', 'email' ] }
         )->hash;
-
-        # TODO Email the password or a password reset token link
-        $log->alert("New user password: $password");
       }
 
       # On conflict, set the role for the user
