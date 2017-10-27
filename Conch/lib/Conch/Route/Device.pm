@@ -167,12 +167,6 @@ post '/device/:serial' => needs login => sub {
 
 get '/device/:serial/location' => needs login => sub {
   my $user_id = session->read('user_id');
-  my $ws_id   = param 'wid';
-
-  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
-  unless ( defined $workspace ) {
-    return status_404("Workspace $ws_id not found");
-  }
   my $serial = param 'serial';
 
   my $device = lookup_device_for_user( schema, $serial, $user_id );

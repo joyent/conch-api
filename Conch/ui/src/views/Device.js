@@ -39,18 +39,20 @@ const makeSelection = {
     },
 };
 
+function loadDeviceDetails(id) {
+    return Auth.requireLogin(
+        Promise.all([
+            Device.loadDevice(id),
+            Device.loadRackLocation(id),
+            Device.loadFirmwareStatus(id),
+            Device.loadDeviceLogs(id, 20),
+        ])
+    );
+}
 
 const deviceReport = {
     oninit({attrs}) {
-        const id = attrs.id;
-        Auth.requireLogin(
-            Promise.all([
-                Device.loadDevice(id),
-                Device.loadRackLocation(id),
-                Device.loadFirmwareStatus(id),
-                Device.loadDeviceLogs(id, 20),
-            ])
-        );
+        loadDeviceDetails(attrs.id);
     },
     view(vnode) {
         if (!Device.current) {

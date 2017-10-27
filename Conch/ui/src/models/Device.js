@@ -77,14 +77,20 @@ const Device = {
                 method: "GET",
                 url: `/device/${deviceId}/settings/firmware`,
                 withCredentials: true,
+                extract(xhr) {
+                    return {
+                        status: xhr.status,
+                        body: JSON.parse(xhr.response),
+                    };
+                },
             })
             .then(res => {
-                Device.updatingFirmware = res.firmware === "updating";
+                Device.updatingFirmware = res.body.firmware === "updating";
             })
             .catch(e => {
-                if (e.error === "not found") {
+                if (e.status === 404) {
                     Device.updatingFirmware = false;
-                } else if (e.error === "unauthorized") {
+                } else if (e.status === 401) {
                     m.route.set("/login");
                 } else {
                     console.log(`Error in GET /device: ${e.message}`);
@@ -106,6 +112,7 @@ const Device = {
                     };
                 },
             })
+            .then(res => res.body)
             .catch(e => {
                 if (e.status === 401) {
                     m.route.set("/login");
@@ -116,8 +123,7 @@ const Device = {
                         `Error in GET /device/${deviceId}/location: ${e.message}`
                     );
                 }
-            })
-            .then(res => res.body);
+            });
     },
     loadRackLocation(deviceId) {
         return Device.getDeviceLocation(deviceId).then(

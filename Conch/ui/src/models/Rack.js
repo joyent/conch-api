@@ -1,5 +1,7 @@
 import m from "mithril";
 
+import Workspace from "./Workspace";
+
 const Rack = {
     // Associative array of room names to list of racks
     rackRooms: {},
@@ -75,7 +77,7 @@ const Rack = {
                 return res;
             })
             .catch(e => {
-                console.log(`Error in assigning devices${e.message}`);
+                console.log(`Error in assigning devices: ${e.message}`);
             });
     },
     highlightDevice: null,
