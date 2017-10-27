@@ -85,12 +85,12 @@ post '/workspace/:wid/rack/:uuid/layout' => needs login => sub {
     $update->{device}    = $k;
     $update->{rack}      = $uuid;
     $update->{rack_unit} = $layout->{$k};
-    my $result = update_device_location( schema, $update, $user_id );
-    if ($result) {
+    my ($result, $err) = update_device_location( schema, $update, $user_id );
+    if (defined $result) {
       push @updates, $k;
     }
     else {
-      push @errors, $k;
+      push @errors, $err;
     }
   }
 
