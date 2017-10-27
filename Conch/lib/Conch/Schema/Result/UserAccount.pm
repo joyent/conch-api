@@ -69,6 +69,11 @@ __PACKAGE__->table("user_account");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 email
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -92,6 +97,8 @@ __PACKAGE__->add_columns(
   },
   "last_login",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "email",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -108,6 +115,18 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
+=head2 C<user_account_email_key>
+
+=over 4
+
+=item * L</email>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("user_account_email_key", ["email"]);
+
 =head2 C<user_account_name_key>
 
 =over 4
@@ -121,21 +140,6 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("user_account_name_key", ["name"]);
 
 =head1 RELATIONS
-
-=head2 user_datacenter_room_accesses
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::UserDatacenterRoomAccess>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_datacenter_room_accesses",
-  "Conch::Schema::Result::UserDatacenterRoomAccess",
-  { "foreign.user_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 
 =head2 user_relay_connections
 
@@ -182,23 +186,9 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 datacenter_rooms
 
-Type: many_to_many
-
-Composing rels: L</user_datacenter_room_accesses> -> datacenter_room
-
-=cut
-
-__PACKAGE__->many_to_many(
-  "datacenter_rooms",
-  "user_datacenter_room_accesses",
-  "datacenter_room",
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-23 16:37:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:CwoRYa5qvgDRWbr9vxXZLQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-27 13:20:16
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zrImmabNJGDbjC4bBn3kkQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
