@@ -58,13 +58,17 @@ sub workspace_racks {
 
   my $rack_groups = {};
   foreach my $rack (@racks) {
-    my $rack_dc  = $dc{ $rack->datacenter_room_id }{name};
+
+    # Prevent 1+n queries (e.g., $rack->role). ORMs--
+    $rack = { $rack->get_columns };
+
+    my $rack_dc  = $dc{ $rack->{datacenter_room_id} }{name};
     my $rack_res = {};
-    $rack_res->{id}              = $rack->id;
-    $rack_res->{name}            = $rack->name;
-    $rack_res->{role}            = $rack_roles->{ $rack->role }{name};
-    $rack_res->{size}            = $rack_roles->{ $rack->role }{size};
-    $rack_res->{device_progress} = $rack_progress->{ $rack->id } || {};
+    $rack_res->{id}              = $rack->{id};
+    $rack_res->{name}            = $rack->{name};
+    $rack_res->{role}            = $rack_roles->{ $rack->{role} }{name};
+    $rack_res->{size}            = $rack_roles->{ $rack->{role} }{size};
+    $rack_res->{device_progress} = $rack_progress->{ $rack->{id} } || {};
     push @{ $rack_groups->{$rack_dc} }, $rack_res;
   }
 
