@@ -1,7 +1,9 @@
 import m from "mithril";
 import t from "i18n4v";
+import Auth from "../models/Auth";
 import Problem from "../models/Problem";
 import Rack from "../models/Rack";
+import Workspace from "../models/Workspace";
 import Table from "./component/Table";
 
 function categoryTitle(category) {
@@ -19,8 +21,14 @@ function categoryTitle(category) {
 
 const selectProblemDevice = {
     loading: true,
-    oninit: ({ state }) =>
-        Problem.loadDeviceProblems().then(() => (state.loading = false)),
+    oninit: ({ state }) => {
+        Auth.requireLogin(
+            Workspace.withWorkspace(workspaceId =>
+                Problem.loadDeviceProblems(workspaceId)
+                    .then(() => (state.loading = false))
+            )
+        );
+    },
     view: ({ state, attrs }) => {
         if (state.loading) return m(".loading", "Loading...");
 

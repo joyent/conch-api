@@ -55,6 +55,11 @@ post '/logout' => sub {
   status_200( { status => "logged out" } );
 };
 
+# used to check if the current user is authenticated
+get '/me' => needs login => sub {
+  status_200();
+};
+
 post '/user/me/settings' => needs login => sub {
   my $user_id  = session->read('user_id');
   my $settings = body_parameters->as_hashref;

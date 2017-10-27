@@ -1,9 +1,11 @@
 import m from "mithril";
 import t from "i18n4v";
 import R from "ramda";
+import Auth from "../models/Auth";
 import Device from "../models/Device";
-import Relay from "../models/Relay";
 import Rack from "../models/Rack";
+import Relay from "../models/Relay";
+import Workspace from "../models/Workspace";
 import Icons from "./component/Icons";
 import Table from "./component/Table";
 
@@ -33,11 +35,15 @@ function deviceList(title, isProblem, devices) {
 export default {
     loading: true,
     oninit: ({ state }) => {
-        Promise.all([
-            Device.loadDevices(),
-            Relay.loadActiveRelays(),
-            Rack.loadRooms(),
-        ]).then(() => (state.loading = false));
+        Auth.requireLogin(
+            Workspace.withWorkspace(workspaceId => {
+                Promise.all([
+                    Device.loadDevices(workspaceId),
+                    Relay.loadActiveRelays(),
+                    Rack.loadRooms(workspaceId),
+                ]).then(() => (state.loading = false));
+            })
+        );
     },
     view({ state }) {
         if (state.loading) return m(".loading", "Loading...");

@@ -1,5 +1,6 @@
 import m from "mithril";
 import Auth from "../models/Auth";
+import Workspace from "../models/Workspace";
 import t from "i18n4v";
 
 export default {
@@ -23,7 +24,17 @@ export default {
                     {
                         onclick(e) {
                             e.preventDefault();
-                            Auth.login();
+                            try {
+                                Auth.login()
+                                    .then(_ =>
+                                        Workspace.loadWorkspaces()
+                                            .then(_ => m.route.set("/"))
+                                    );
+                            }
+                            catch (e) {
+                                // TODO: Display login error
+                                console.log('Failed login');
+                            }
                         },
                     },
                     t("Login")

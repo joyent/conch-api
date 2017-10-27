@@ -3,7 +3,26 @@ import m from "mithril";
 const Auth = {
     username: "",
     password: "",
-
+    _loggedIn: false,
+    requireLogin(next) {
+        if (Auth._loggedIn) return next;
+        m
+            .request({
+                method: "GET",
+                url: "/me",
+            })
+            .then(_res => {
+                Auth._loggedIn = true;
+                return next;
+            })
+            .catch(e => {
+                if (e.error === "unauthorized") {
+                    m.route.set("/login");
+                } else {
+                    throw e;
+                }
+            });
+    },
     setUsername(value) {
         Auth.username = value;
     },
@@ -17,16 +36,14 @@ const Auth = {
                 url: "/login",
                 data: { user: Auth.username, password: Auth.password },
             })
-            .then(data => {
-                m.route.set("/rack");
-            })
-            .catch(e => {
-                console.log("An error fired: ");
-                console.log(e);
+            .then(res => {
+                Auth._loggedIn = true;
             });
     },
     logout() {
-        return m.request({ method: "POST", url: "/logout" });
+        return m.request({ method: "POST", url: "/logout" }).then(res => {
+            Auth._loggedIn = false;
+        });
     },
 };
 
