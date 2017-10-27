@@ -5,25 +5,21 @@ const Workspace = {
     _currentId: null,
 
     withWorkspace(cb) {
-        if (!Workspace._currentId)
-            Workspace._currentId = localStorage.getItem("conch.workspace");
-
-        if (Workspace._currentId) return cb(Workspace._currentId);
-        else return loadWorkspaces.then(currentId => cb(currentId));
+        if (Workspace._currentId) cb(Workspace._currentId);
+        else Workspace.loadWorkspaces().then(currentId => { cb(currentId); } );
     },
-
-    async loadWorkspaces() {
-        const workspaces = await m.request({
+    loadWorkspaces() {
+        return m.request({
             method: "GET",
             url: "/workspace",
+        }).then( workspaces => {
+            Workspace.list = workspaces;
+            // Set to global workspace or first
+            Workspace._currentId = (workspaces.find(w => w.name === "GLOBAL") ||
+                workspaces[0]
+            ).id;
+            return Workspace._currentId
         });
-        // Set to global workspace or first
-        Workspace.list = workspaces;
-        Workspace._currentId = (workspaces.find(w => w.name === "GLOBAL") ||
-            workspace[0]
-        ).id;
-        localStorage.setItem("conch.workspace", Workspace._currentId);
-        return Window._currentId;
     },
 };
 
