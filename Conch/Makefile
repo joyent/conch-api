@@ -2,18 +2,18 @@
 	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
 	migrate-db reset-db watch-test
 
-test:
-	@carton exec prove -j9 -lpr t/
+run: build run-perl
 
 run-perl:
 	@carton exec ./local/bin/plackup -E development -s Starman --workers=50 -p 5001 -a bin/app.psgi
 
-run: build run-perl
-
-build: build-js web-assets doc
+build: build-js web-assets doc cpanfile.snapshot
 
 build-js: ui/package-lock.json
 	@cd ui && npm run-script build;
+
+test:
+	@carton exec prove -j9 -lpr t/
 
 format: format-perl format-js
 
@@ -63,9 +63,8 @@ watch:
 	(make watch-assets &)
 	make watch-perl
 
-deps: install-deps
-install-deps:
-	# '--deployment' installs the same dep versions that are in the lockfile
+# '--deployment' installs the same dep versions that are in the lockfile
+cpanfile.snapshot: cpanfile
 	@carton install --deployment
 
 generate-dbic:
@@ -74,7 +73,7 @@ generate-dbic:
 migrate-db:
 	@../sql/run_migrations.sh
 
-reset-db:
+reset-database:
 	@../sql/reset-database.sh
 
 
