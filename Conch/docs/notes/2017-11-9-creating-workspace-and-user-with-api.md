@@ -12,7 +12,7 @@ All commands presume you're already authenticated and have a session set up. To
 do so
 
 ```
-http https://preflight.scloud.zone/login --session my_session <<EOF
+http https://preflight.scloud.zone/login --session joyent_session <<EOF
 { "user" : "$user_name", "password": "$password" }
 EOF
 ```
