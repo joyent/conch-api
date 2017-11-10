@@ -14,18 +14,16 @@ use Data::Printer;
 
 set serializer => 'JSON';
 
-# Returns all relay devices and their status.
-get '/relay' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my @relays = list_user_relays( schema, $user_id );
-  status_200( \@relays );
-};
-
-# Returns all active relay devices and their status.
-get '/relay/active' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my @relays = list_user_relays( schema, $user_id, 2 );
-  status_200( \@relays );
+get '/workspace/:wid/relay' => needs login => sub {
+  my $ws_id  = param 'wid';
+  my $relays;
+  if (param 'active') {
+    $relays = list_workspace_relays( schema, $ws_id, 2);
+  }
+  else {
+    $relays = list_workspace_relays( schema, $ws_id );
+  }
+  status_200( $relays );
 };
 
 # This acts as both an initial registration and heartbeat endpoint.

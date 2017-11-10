@@ -361,9 +361,17 @@ paths:
                 $ref: "#/components/schemas/Error"
   /workspace/{workspace_id}/relay:
     get:
-      summary: List all Relay devices a user has used in a Workspace
+      summary: List all Relay devices used in a Workspace
       tags: [Relay]
       operationId: getRelays
+      parameter:
+        - in: query
+          name: Active
+          description: >
+            If set to a non-zero integer, return only Relays that are current
+            active
+          schema:
+            type: integer
       responses:
         '200':
           description: List of relay objects

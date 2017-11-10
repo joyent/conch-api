@@ -16,7 +16,7 @@ const allRacks = {
         Auth.requireLogin(
             Workspace.withWorkspace(workspaceId => {
                 Promise.all([
-                    Relay.loadActiveRelays(),
+                    Relay.loadActiveRelays(workspaceId),
                     Rack.loadRooms(workspaceId),
                 ]).then(() => (state.loading = false));
             })

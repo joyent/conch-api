@@ -4,29 +4,34 @@ use strict;
 use Log::Any '$log';
 use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
+use Conch::Control::Workspace qw(workspace_users);
+use Conch::Control::Device qw(workspace_devices);
 
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( register_relay list_user_relays connect_user_relay
-  device_relay_connect
+our @EXPORT = qw(
+  list_workspace_relays register_relay connect_user_relay device_relay_connect
 );
 
-sub list_user_relays {
-  my ( $schema, $user_id, $interval ) = @_;
+# list all relays that have most recently reported from *racks* assigned to the
+# workspace
+sub list_workspace_relays {
+  my ( $schema, $ws_id, $interval ) = @_;
 
-  my $user_relays = $schema->resultset('UserRelayConnection')->search(
-    {
-      user_id   => $user_id,
-      last_seen => { '>' => \"NOW() - INTERVAL '1 week'" }
-    }
-  );
+  my @workspace_racks = $schema->resultset('WorkspaceRacks')
+    ->search( {}, { bind => [$ws_id] } )->all;
+  my @workspace_rack_ids = map { $_->id } @workspace_racks;
+
+  my @relay_locations = $schema->resultset('RelayLocation')
+    ->search( { rack_id => { -in => \@workspace_rack_ids } } )->all;
+  my @workspace_relay_ids = map { $_->relay_id } @relay_locations;
 
   my @relays;
   if ($interval) {
     @relays = $schema->resultset('Relay')->search(
       {
-        id      => { -in => $user_relays->get_column('relay_id')->as_query },
+        id      => { -in => \@workspace_relay_ids },
         updated => { '>' => \"NOW() - INTERVAL '$interval minutes'" },
         deactivated => { '=', undef }
       }
@@ -35,15 +40,12 @@ sub list_user_relays {
   else {
     @relays = $schema->resultset('Relay')->search(
       {
-        id => { -in => $user_relays->get_column('relay_id')->as_query },
+        id => { -in => \@workspace_relay_ids },
         deactivated => { '=', undef }
       }
     )->all;
   }
 
-  my @relay_ids = map { $_->id } @relays;
-  my @relay_locations = $schema->resultset('RelayLocation')
-    ->search( { relay_id => { -in => \@relay_ids } } )->all;
   my $relay_locations = {};
   for my $loc (@relay_locations) {
     $relay_locations->{ $loc->relay_id } = {
@@ -56,8 +58,10 @@ sub list_user_relays {
 
   my @res;
   for my $relay (@relays) {
-    my @devices = $schema->resultset('RelayDevices')
-      ->search( {}, { bind => [ $relay->id ] } )->all;
+    my @devices =
+      $schema->resultset('RelayDevices')
+      ->search( {rack_id => {-in => \@workspace_rack_ids  } },
+      { bind => [ $relay->id ] } )->all;
 
     my $relay_res = { $relay->get_columns };
     @devices = map {
@@ -68,8 +72,7 @@ sub list_user_relays {
     $relay_res->{location} = $relay_locations->{ $relay->id };
     push @res, $relay_res;
   }
-  return @res;
-
+  return \@res;
 }
 
 sub register_relay {

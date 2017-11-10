@@ -1,5 +1,7 @@
 import m from "mithril";
 
+import Workspace from "./Workspace";
+
 // Use a natural sort with devices that end with a number.
 // e.g, 'PRD10' comes after 'PRD2'
 // Fall back on ID if no alias is set
@@ -23,11 +25,11 @@ const Relay = {
     list: [],
     activeList: [],
     current: null,
-    loadRelays: () => {
+    loadRelays: (workspaceId) => {
         return m
             .request({
                 method: "GET",
-                url: "/relay",
+                url: `/workspace/${workspaceId}/relay`,
                 withCredentials: true,
             })
             .then(res => {
@@ -41,11 +43,11 @@ const Relay = {
                 }
             });
     },
-    loadActiveRelays: () => {
+    loadActiveRelays: (workspaceId) => {
         return m
             .request({
                 method: "GET",
-                url: "/relay/active",
+                url: `/workspace/${workspaceId}/relay?active=1`,
                 withCredentials: true,
             })
             .then(res => {
