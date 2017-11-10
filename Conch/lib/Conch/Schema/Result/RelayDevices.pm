@@ -18,12 +18,14 @@ __PACKAGE__->result_source_instance->is_virtual(1);
 
 # Takes a relay ID and returns the list of devices connected to that relay
 __PACKAGE__->result_source_instance->view_definition(q[
-  SELECT device.*
+  SELECT device.*, dl.rack_id
   FROM relay r
   INNER JOIN device_relay_connection dr
     ON r.id = dr.relay_id
   INNER JOIN device
     ON dr.device_id = device.id
+  INNER JOIN device_location dl
+    ON dl.device_id = device.id
   WHERE r.id = ?
   ORDER by dr.last_seen desc
 ]);

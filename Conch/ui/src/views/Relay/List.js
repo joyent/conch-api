@@ -1,12 +1,15 @@
 import m from "mithril";
 import t from "i18n4v";
 import Relay from "../../models/Relay";
+import Workspace from "../../models/Workspace";
 
 export default {
     loading: true,
 
     oninit: ({ state }) => {
-        Relay.loadRelays().then(() => (state.loading = false));
+        Workspace.withWorkspace(workspaceId => {
+            Relay.loadRelays(workspaceId).then(() => {state.loading = false});
+        });
     },
 
     view: ({ state, attrs }) => {

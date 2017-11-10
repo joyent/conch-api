@@ -39,7 +39,7 @@ export default {
             Workspace.withWorkspace(workspaceId => {
                 Promise.all([
                     Device.loadDevices(workspaceId),
-                    Relay.loadActiveRelays(),
+                    Relay.loadActiveRelays(workspaceId),
                     Rack.loadRooms(workspaceId),
                 ]).then(() => (state.loading = false));
             })
