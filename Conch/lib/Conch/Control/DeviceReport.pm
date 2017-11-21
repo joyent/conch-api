@@ -154,9 +154,23 @@ sub record_device_report {
       $dr->{temp}
         and $log->info("Recorded environment for Device $device_id");
 
-      # XXX If a disk vanishes/replaces, we need to mark it deactivated here.
+      my @device_disks = $schema->resultset('DeviceDisk')->search(
+        {
+          device_id   => $device_id,
+          deactivated => { '=', undef }
+        }
+      )->all;
+
+      # Keep track of which disk serials have been previously recorded in the
+      # DB but are no longer being reported due to a disk swap, etc.
+      my %inactive_serials = map { $_->serial_number => 1 } @device_disks;
+
       foreach my $disk ( keys %{ $dr->{disks} } ) {
         $log->trace("Device $device_id: Recording disk: $disk");
+
+        if ( $inactive_serials{$disk} ) {
+          $inactive_serials{$disk} = 0;
+        }
 
         my $disk_rs = $schema->resultset('DeviceDisk')->update_or_create(
           {
@@ -172,8 +186,20 @@ sub record_device_report {
             drive_type    => $dr->{disks}->{$disk}->{drive_type},
             transport     => $dr->{disks}->{$disk}->{transport},
             firmware      => $dr->{disks}->{$disk}->{firmware},
+            deactivated   => undef
           }
         );
+      }
+
+      my @inactive_serials =
+        grep { $inactive_serials{$_} } keys %inactive_serials;
+
+      # Deactivate all disks that were previously recorded but are no longer
+      # reported in the device report
+      if ( scalar @inactive_serials ) {
+        $schema->resultset('DeviceDisk')
+          ->search_rs( { serial_number => { -in => \@inactive_serials } } )
+          ->update( { deactivated => \'NOW()' } );
       }
 
       $dr->{disks}
@@ -182,7 +208,8 @@ sub record_device_report {
       foreach my $nic ( keys %{ $dr->{interfaces} } ) {
 
         $log->trace(
-          "Device $device_id: Recording NIC: $dr->{interfaces}->{$nic}->{mac}");
+          "Device $device_id: Recording NIC: $dr->{interfaces}->{$nic}->{mac}"
+        );
 
         my $nic_rs = $schema->resultset('DeviceNic')->update_or_create(
           {
