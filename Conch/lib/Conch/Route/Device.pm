@@ -10,6 +10,7 @@ use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Data::Validate::UUID 'is_uuid';
 use Scalar::Util 'looks_like_number';
+use List::Util 'reduce';
 
 use Conch::Control::Device::Profile;
 use Conch::Control::Device::Validation;
@@ -32,20 +33,31 @@ get '/workspace/:wid/device' => needs login => sub {
     return status_404("Workspace $ws_id not found");
   }
 
+  # set of response filters based on the presence and values of query parameters
+  my @query_filters;
+  push @query_filters, sub { $_[0] if defined( $_[0]->{graduated} ); }
+    if ( param 'graduated' ) eq 't';
+  push @query_filters, sub { $_[0] if !defined( $_[0]->{graduated} ); }
+    if ( param 'graduated' ) eq 'f';
+  push @query_filters,
+    sub { $_[0] if uc( $_[0]->{health} ) eq uc( param 'health' ); }
+    if defined( param 'health' );
+
+  # transform result from hashes to single string field, should be added last
+  push @query_filters, sub { $_[0]->{id}; }
+    if param 'ids_only';
+
   my @devices;
-  if ( param 'full' ) {
-    for my $d (
-      unlocated_devices( schema, $user_id ),
-      workspace_devices( schema, $workspace->{id} )
-      )
-    {
-      my %data = $d->get_columns;
-      push @devices, \%data;
-    }
+  for my $d (
+    unlocated_devices( schema, $user_id ),
+    workspace_devices( schema, $workspace->{id} )
+    )
+  {
+    my %data = $d->get_columns;
+    my $device = reduce { $b->($a) if $a } \%data, @query_filters;
+    push @devices, $device if $device;
   }
-  else {
-    @devices = device_ids_for_workspace( schema, $user_id, $workspace->{id} );
-  }
+
   return status_200( \@devices );
 };
 
@@ -92,7 +104,7 @@ get '/device/:serial' => needs login => sub {
   unless ($device) {
     warning
       "$user_id not allowed to view device $serial or $serial does not exist";
-    return status_401('unauthorized');
+    return status_404('Device not found');
   }
 
   my @validations   = ();
@@ -167,7 +179,7 @@ post '/device/:serial' => needs login => sub {
 
 get '/device/:serial/location' => needs login => sub {
   my $user_id = session->read('user_id');
-  my $serial = param 'serial';
+  my $serial  = param 'serial';
 
   my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
@@ -390,6 +402,22 @@ get '/device/:serial/log' => needs login => sub {
 
   return status_200( [@logs] );
 
+};
+
+post '/device/:serial/graduate' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $serial  = param 'serial';
+
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
+  return status_404("Device $serial not found") unless $device;
+
+  return status_409("Device $serial has already been graduated")
+    if defined( $device->graduated );
+
+  $device = graduate_device( schema, $device->id );
+  my $response = { $device->get_columns };
+
+  return status_200( $response );
 };
 
 1;
