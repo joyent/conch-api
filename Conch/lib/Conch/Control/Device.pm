@@ -14,7 +14,7 @@ use Exporter 'import';
 our @EXPORT = qw(
   get_device device_location workspace_devices devices_for_user
   lookup_device_for_user device_rack_location device_ids_for_workspace
-  latest_device_report device_validation_report
+  latest_device_report device_validation_report graduate_device
   update_device_location delete_device_location get_validation_criteria
   get_active_devices get_devices_by_health unlocated_devices device_response
   mark_device_validated
@@ -122,6 +122,16 @@ sub device_location {
   my $device =
     $schema->resultset('DeviceLocation')->find( { device_id => $device_id } );
   return $device;
+}
+
+sub graduate_device {
+  my ( $schema, $device_id ) = @_;
+  $schema->resultset('Device')->find( { id => $device_id } )
+    ->update( { graduated => \'NOW()', updated => \'NOW()' } );
+
+  # `update` doesn't deflate the value of `NOW()`, which prevents rendering
+  # JSON in Dancer
+  return $schema->resultset('Device')->find( { id => $device_id } );
 }
 
 # Gives a hash of Rack and Datacenter location details

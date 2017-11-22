@@ -419,12 +419,31 @@ paths:
       operationId: getDevices
       parameter:
         - in: query
-          name: full
+          name: ids_only
           description: >
-            If set to a non-zero integer, return details for all devices rather
-            than device serial numbers
+            If set to a non-zero integer, return only the IDs of the devices
           schema:
             type: integer
+        - in: query
+          name: graduated
+          description: >
+            Filter devices by graduated value. The `graduated` field is a
+            timestamp denoting when the VLANs for the device have been flipped.
+            If the parameter is set to `t`, return devices that have been
+            graduated. If set to `f`, return devices that have not been graduated.
+          schema:
+            type: string
+            enum: [ "t", "f" ]
+        - in: query
+          name: health
+          description: >
+            Filter devices by health value. Health is determined
+            by whether the device has passed validations. Health is `"unknown"`
+            if the device hasn't sent a report to be validated, `"pass"` if the
+            most recent report has passed validations, and `"fail"` if it has failed.
+          schema:
+            type: string
+            enum: [ "unknown", "pass", "fail" ]
       responses:
         '200':
           description: >
@@ -549,6 +568,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   device_id:
                     type: string
@@ -556,6 +576,47 @@ paths:
                     type: string
                   validated:
                     type: boolean
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/graduate:
+    post:
+      tags: [Device]
+      summary: Mark a device as 'graduated' for VLAN management
+      operationId: graduateDevice
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceReport"
+      responses:
+        '200':
+          description: >
+            Device with `latest_report` and `validations` fields filled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        '409':
+          description: >
+            Device has already been graduated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
         default:
           description: Unexpected error
           content:
