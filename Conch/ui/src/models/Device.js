@@ -9,6 +9,7 @@ const Device = {
             .request({
                 method: "GET",
                 url: `/workspace/${workspaceId}/device`,
+                data: { ids_only: 1 },
                 withCredentials: true,
             })
             .then(res => {
@@ -28,7 +29,6 @@ const Device = {
             .request({
                 method: "GET",
                 url: `/workspace/${workspaceId}/device`,
-                data: { full: 1 },
                 withCredentials: true,
             })
             .then(res => {
