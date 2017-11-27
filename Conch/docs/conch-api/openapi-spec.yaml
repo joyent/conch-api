@@ -590,12 +590,6 @@ paths:
       tags: [Device]
       summary: Mark a device as 'graduated' for VLAN management
       operationId: graduateDevice
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DeviceReport"
       responses:
         '200':
           description: >
