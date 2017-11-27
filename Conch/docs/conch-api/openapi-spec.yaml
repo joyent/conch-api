@@ -536,15 +536,16 @@ paths:
     get:
       tags: [Device]
       summary: Get specified device with latest device report
-      operationId: getDeviceReport
+      operationId: getDevice
       responses:
         '200':
           description: >
-            Device with `latest_report` and `validations` fields
+            Device with related details (NICs, validations, latest device
+            report, location)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Device"
+                $ref: "#/components/schemas/DetailedDevice"
         default:
           description: Unexpected error
           content:
@@ -960,6 +961,71 @@ components:
           format: date-time
         version:
           type: string
+    DetailedDevice:
+      type: object
+      properties:
+        boot_pahse:
+          nullable: true
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        uptime_since:
+          nullable: true
+          type: string
+          format: date-time
+        hardware_product:
+          type: string
+          format: uuid
+        health:
+          type: string
+        id:
+          type: string
+        last_seen:
+          type: string
+          format: date-time
+        state:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        validated:
+          nullable: true
+          type: string
+          format: date-time
+        validations:
+          nullable: true
+          type: array
+          items:
+            type: object
+        location:
+          nullable: true
+          $ref: "#/components/schemas/DeviceLocation"
+        nics:
+          type: array
+          items:
+            type: object
+            properties:
+              mac:
+                type: string
+              iface_name:
+                type: string
+              iface_vendor:
+                type: string
+              iface_type:
+                type: string
+              peer_mac:
+                nullable: true
+                type: string
+              peer_port:
+                nullable: true
+                type: string
+              peer_switch:
+                nullable: true
+                type: string
     Device:
       type: object
       properties:

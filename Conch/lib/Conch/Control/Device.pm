@@ -13,7 +13,7 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw(
   get_device device_location workspace_devices devices_for_user
-  lookup_device_for_user device_rack_location device_ids_for_workspace
+  lookup_device_for_user device_nic_neighbors device_rack_location device_ids_for_workspace
   latest_device_report device_validation_report graduate_device
   update_device_location delete_device_location get_validation_criteria
   get_active_devices get_devices_by_health unlocated_devices device_response
@@ -57,6 +57,35 @@ sub lookup_device_for_user {
     || $schema->resultset('UnlocatedUserRelayDevices')
     ->search( { id => $device_id }, { bind => [$user_id] } )->single;
   return $device;
+}
+
+sub device_nic_neighbors {
+  my ( $schema, $device_id ) = @_;
+  my @nics = $schema->resultset('DeviceNic')->search(
+    {
+      device_id   => $device_id,
+      deactivated => { '=', undef }
+    },
+    { prefetch => 'device_neighbor' }
+  )->all;
+
+  my @neighbors;
+  for my $nic (@nics) {
+    my $device_neighbor = $nic->device_neighbor;
+
+    my $neighbor = {
+      iface_name   => $nic->iface_name,
+      iface_type   => $nic->iface_type,
+      iface_vendor => $nic->iface_vendor,
+      mac          => $nic->mac,
+      peer_mac     => $device_neighbor->peer_mac,
+      peer_port    => $device_neighbor->peer_port,
+      peer_switch  => $device_neighbor->peer_switch
+    };
+    push @neighbors, $neighbor;
+  }
+  return @neighbors;
+
 }
 
 sub unlocated_devices {

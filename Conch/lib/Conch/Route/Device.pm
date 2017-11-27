@@ -116,9 +116,14 @@ get '/device/:serial' => needs login => sub {
     delete $report->{'__CLASS__'};
   }
 
+  my $location = device_rack_location( schema, $serial );
+  my @nics = device_nic_neighbors( schema, $serial );
+
   my $response = { $device->get_columns };
   $response->{latest_report} = $report;
   $response->{validations}   = \@validations;
+  $response->{nics}          = \@nics;
+  $response->{location}      = $location;
 
   status_200($response);
 };
@@ -417,7 +422,7 @@ post '/device/:serial/graduate' => needs login => sub {
   $device = graduate_device( schema, $device->id );
   my $response = { $device->get_columns };
 
-  return status_200( $response );
+  return status_200($response);
 };
 
 1;
