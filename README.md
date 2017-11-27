@@ -16,7 +16,6 @@ project. All of these should be run in the `Conch/` directory.
 * `make watch` -- Continuously build and run the code, using [`entr`](http://entrproject.org).
 * `make format` -- Auto-format source code
 * `make test` -- Run tests
-* `make reset-database` -- Reset the local database to a clean schema
 * `make migrate-db` -- Run database migrations
 
 
