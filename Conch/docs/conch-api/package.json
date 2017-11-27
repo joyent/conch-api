@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "js-yaml": "^3.10.0",
-    "shins": "^2.0.1-5",
-    "widdershins": "^2.2.3"
+    "shins": "^2.1.0",
+    "widdershins": "^2.3.0"
   }
 }

@@ -250,7 +250,7 @@ paths:
       tags: [User, Settings]
       summary: Get system-wide settings for current User
       operationId: getUserSettings
-      parameter:
+      parameters:
         - in: query
           name: keys_only
           description: If set, list only the names of the setting keys
@@ -364,7 +364,7 @@ paths:
       summary: List all Relay devices used in a Workspace
       tags: [Relay]
       operationId: getRelays
-      parameter:
+      parameters:
         - in: query
           name: Active
           description: >
@@ -417,7 +417,7 @@ paths:
       tags: [Device]
       summary: List all devices for the user
       operationId: getDevices
-      parameter:
+      parameters:
         - in: query
           name: ids_only
           description: >
@@ -447,8 +447,8 @@ paths:
       responses:
         '200':
           description: >
-            List of Device serial numbers or full Device objects if the `full`
-            query parameter is specified
+            Array of Device objects (or Device IDs if the `ids_only` query
+            parameter is specified)
           content:
             application/json:
               schema:
@@ -723,7 +723,7 @@ paths:
       tags: [Device, Settings]
       summary: Retrieve all settings for a device
       operationId: getDeviceSettings
-      parameter:
+      parameters:
         - in: query
           name: keys_only
           description: If set, list only the names of the setting keys
