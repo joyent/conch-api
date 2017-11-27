@@ -1,6 +1,6 @@
 .PHONY: test run build build-js format format-perl format-perl deps\
 	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
-	migrate-db reset-db watch-test
+	migrate-db watch-test
 
 run: build run-perl
 
@@ -78,8 +78,4 @@ generate-dbic:
 
 migrate-db:
 	@../sql/run_migrations.sh
-
-reset-database:
-	@../sql/reset-database.sh
-
 
