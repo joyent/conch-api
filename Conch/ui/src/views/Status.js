@@ -71,7 +71,26 @@ export default {
                 ".pure-u-1",
                 m("h3.text-center", t("Datacenter Rack Build Status"))
             ),
-            m(".pure-u-1", m(".text-center", m(RackProgress))),
+            m(".pure-u-1",
+                m(".text-center",
+                    m(RackProgress, { group: state.group } )
+                ),
+                m(".text-center",
+                    m("button.pure-button",
+                        { onclick() {
+                            if (state.group === 'role') {
+                                state.group = 'status';
+                            }
+                            else {
+                                state.group = 'role'
+                            };
+                        } },
+                        "Group by " +
+                            { role: t("Status"), status: t("Rack Role") }
+                            [state.group || 'status']
+                    )
+                )
+            ),
             Table(
                 t("Summary of Device Status"),
                 [

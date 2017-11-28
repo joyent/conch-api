@@ -25,7 +25,7 @@ const Relay = {
     list: [],
     activeList: [],
     current: null,
-    loadRelays: (workspaceId) => {
+    loadRelays: workspaceId => {
         return m
             .request({
                 method: "GET",
@@ -43,7 +43,7 @@ const Relay = {
                 }
             });
     },
-    loadActiveRelays: (workspaceId) => {
+    loadActiveRelays: workspaceId => {
         return m
             .request({
                 method: "GET",

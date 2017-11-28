@@ -73,7 +73,9 @@ const Rack = {
                     Rack.assignSuccess = false;
                     m.redraw();
                 }, 2600);
-                Workspace.withWorkspace( workspaceId => Rack.load(workspaceId, rack.id) ) ;
+                Workspace.withWorkspace(workspaceId =>
+                    Rack.load(workspaceId, rack.id)
+                );
                 return res;
             })
             .catch(e => {

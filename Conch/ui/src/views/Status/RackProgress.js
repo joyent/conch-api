@@ -47,20 +47,36 @@ function nodeValue({ device_progress }) {
 }
 
 // Sort order for the node groups in the graph.
-const sortOrder = {};
-sortOrder[t("Validated")] = 1;
-sortOrder[t("Failing")] = 2;
-sortOrder[t("In Progress")] = 3;
-sortOrder[t("Not Started")] = 4;
+const statusSortOrder = {};
+statusSortOrder[t("Validated")] = 1;
+statusSortOrder[t("Failing")] = 2;
+statusSortOrder[t("In Progress")] = 3;
+statusSortOrder[t("Not Started")] = 4;
 
-function sortNode(a, b) {
-    if (sortOrder[a.parent] === sortOrder[b.parent]) return 0;
-    else return sortOrder[a.parent] > sortOrder[b.parent] ? 1 : -1;
-}
+const roleSortOrder = {};
+roleSortOrder["TRITON"] = 1;
+roleSortOrder["MANTA"] = 2;
+roleSortOrder["MANTA_TALL"] = 3;
+roleSortOrder["CERES"] = 4;
 
-export default function RackProgress({ attr }) {
+const sortNodes = sortOrder => nodes =>
+    nodes.sort((a, b) => {
+        if (sortOrder[a.parent] === sortOrder[b.parent]) return 0;
+        else return sortOrder[a.parent] > sortOrder[b.parent] ? 1 : -1;
+    });
+
+export default function RackProgress() {
     return {
-        view: () => {
+        view: ({ attrs }) => {
+            let sortFunction, selectParent;
+            if (attrs.group === undefined || attrs.group === "status") {
+                sortFunction = sortNodes(statusSortOrder);
+                selectParent = nodeParent;
+            } else {
+                sortFunction = sortNodes(roleSortOrder);
+                selectParent = rack => rack.role;
+            }
+
             let rackStatus = Object.keys(Rack.rackRooms).reduce((acc, room) => {
                 Rack.rackRooms[room].forEach(rack => {
                     acc.push({
@@ -68,7 +84,7 @@ export default function RackProgress({ attr }) {
                         "Rack Name": rack.name,
                         "Rack Role": rack.role,
                         "Rack size": rack.size,
-                        parent: nodeParent(rack),
+                        parent: selectParent(rack),
                         value: nodeValue(rack),
                         _private_: {
                             id: rack.id,
@@ -81,11 +97,11 @@ export default function RackProgress({ attr }) {
             return m(".rack-progress-graph", {
                 oncreate: ({ dom, state }) => {
                     if (rackStatus) {
-                        new RelationshipGraph(d3.select(dom), {
+                        state.graph = new RelationshipGraph(d3.select(dom), {
                             showTooltips: true,
                             maxChildCount: 10,
                             showKeys: true,
-                            sortFunction: nodes => nodes.sort(sortNode),
+                            sortFunction: sortFunction,
                             thresholds: [-1, 0, 25, 50, 75, 99, 100],
                             colors: [
                                 "hsl(0, 80%, 60%)",
@@ -98,16 +114,26 @@ export default function RackProgress({ attr }) {
                             ],
                             onClick: {
                                 child: ({ _private_ }) => {
-                                    m.route.set(`/rack/${_private_.id}`);
+                                    let path = window.location.href.split("/");
+                                    path.pop();
+                                    path = path.join("/");
+                                    window.open(
+                                        `${path}/rack/${_private_.id}`,
+                                        "_blank"
+                                    );
                                 },
                             },
                         }).data(rackStatus);
                     }
                 },
+                onupdate: ({ dom, state }) => {
+                    state.graph.configuration.sortFunction = sortFunction;
+                    state.graph.data(rackStatus);
+                },
                 onremove: ({ dom, state }) => {
                     // RelationshipGraph creates a d3Tip object which adds a
                     // svg to the body. This isn't cleaned up when the node is
-                    // removed, leaving a junk SVG block elmeent that screws
+                    // removed, leaving a junk SVG block elemeent that screws
                     // with the layout.
                     d3.selectAll("svg").remove();
                 },
