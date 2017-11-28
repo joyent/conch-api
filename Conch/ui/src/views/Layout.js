@@ -1,6 +1,7 @@
 import m from "mithril";
 import t from "i18n4v";
 import Auth from "../models/Auth";
+import Workspace from "../models/Workspace";
 import FeedbackForm from "../views/Feedback";
 import Icons from "./component/Icons";
 
@@ -14,6 +15,33 @@ function mainNav(isMobileView, state) {
                 ".pure-menu-heading.text-center.nav-text-color",
                 m(".logo"),
                 m("h2", t("Conch"))
+            ),
+
+            m(
+                "li.pure-menu-item.text-center",
+                m(".nav-text-color", t("Workspace")),
+                m(
+                    "select.pure-input-1-2.workspace-select",
+                    {
+                        onchange() {
+                            Workspace.setCurrentId(
+                                this[this.selectedIndex].value
+                            );
+                            location.reload();
+                        },
+                    },
+                    Workspace.list.map(workspace => {
+                        let option;
+                        if (workspace.id === Workspace.getCurrentId())
+                            option = "option[selected=true]";
+                        else option = "option";
+                        return m(
+                            option,
+                            { value: workspace.id },
+                            workspace.name
+                        );
+                    })
+                )
             ),
 
             m(
@@ -67,14 +95,17 @@ function mainNav(isMobileView, state) {
                     "a.pure-menu-link.nav-link.pointer",
                     {
                         onclick() {
-                            t.selectLanguage(["en", "ko", "ko-KR"], (err, lang) => {
-                                if (!lang || lang === "en") {
-                                    t.setLanguage("ko");
-                                } else {
-                                    t.setLanguage("en");
+                            t.selectLanguage(
+                                ["en", "ko", "ko-KR"],
+                                (err, lang) => {
+                                    if (!lang || lang === "en") {
+                                        t.setLanguage("ko");
+                                    } else {
+                                        t.setLanguage("en");
+                                    }
+                                    location.reload();
                                 }
-                                location.reload();
-                            });
+                            );
                         },
                     },
                     [Icons.nav.language, t("Language")]
@@ -108,7 +139,7 @@ function mainNav(isMobileView, state) {
 }
 
 const mobileNav = {
-    view({attrs}) {
+    view({ attrs }) {
         return m(
             ".mobile-nav.pure-u-1.pure-g",
             m(
@@ -137,7 +168,7 @@ const mobileNav = {
 // Three-pane layout with two children. Additional children will not be rendered.
 const threePane = {
     showFeedback: false,
-    view({attrs, state, children}) {
+    view({ attrs, state, children }) {
         return [
             m(".layout", [
                 m(".pure-g", [
@@ -148,20 +179,14 @@ const threePane = {
                     m(
                         ".selection-list.pure-u-1",
                         {
-                            class:
-                                attrs.active === 1
-                                    ? "mobile-is-active"
-                                    : "",
+                            class: attrs.active === 1 ? "mobile-is-active" : "",
                         },
                         children[0]
                     ),
                     m(
                         ".content-pane.pure-u-1",
                         {
-                            class:
-                                attrs.active === 2
-                                    ? "mobile-is-active"
-                                    : "",
+                            class: attrs.active === 2 ? "mobile-is-active" : "",
                         },
                         children[1]
                     ),
@@ -177,7 +202,7 @@ const threePane = {
 // Two-pane layout with one child. Additional children will not be rendered.
 const twoPane = {
     showFeedback: false,
-    view({attrs, state, children}) {
+    view({ attrs, state, children }) {
         return [
             m(".layout", [
                 m(".pure-g", [
@@ -188,10 +213,7 @@ const twoPane = {
                     m(
                         ".content-pane.two-pane.pure-u-1",
                         {
-                            class:
-                                attrs.active === 1
-                                    ? "mobile-is-active"
-                                    : "",
+                            class: attrs.active === 1 ? "mobile-is-active" : "",
                         },
                         children[0]
                     ),

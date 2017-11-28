@@ -2,15 +2,24 @@ import m from "mithril";
 
 const Workspace = {
     list: [],
-    _currentId: null,
 
     withWorkspace(cb) {
-        if (Workspace._currentId) cb(Workspace._currentId);
+        const currentId = Workspace.getCurrentId();
+        if (currentId && Workspace.list.length) cb(currentId);
         else
-            Workspace.loadWorkspaces().then(currentId => {
-                cb(currentId);
+            Workspace.loadWorkspaces().then(id => {
+                cb(id);
             });
     },
+
+    setCurrentId(workspaceId) {
+        localStorage.setItem("conch.workspace", workspaceId);
+    },
+
+    getCurrentId() {
+        return localStorage.getItem("conch.workspace");
+    },
+
     loadWorkspaces() {
         return m
             .request({
@@ -19,12 +28,15 @@ const Workspace = {
             })
             .then(workspaces => {
                 Workspace.list = workspaces;
-                // Set to global workspace or first
-                Workspace._currentId = (workspaces.find(
-                    w => w.name === "GLOBAL"
-                ) || workspaces[0]
-                ).id;
-                return Workspace._currentId;
+                let currentId = Workspace.getCurrentId();
+                if (!currentId) {
+                    // Set to global workspace or first in the list
+                    currentId = (workspaces.find(w => w.name === "GLOBAL") ||
+                        workspaces[0]
+                    ).id;
+                    Workspace.setCurrentId(currentId);
+                }
+                return currentId;
             });
     },
 };
