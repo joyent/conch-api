@@ -9,7 +9,7 @@ use Mojo::Pg;
 use Mojo::Pg::Database;
 
 use Exporter 'import';
-our @EXPORT = qw( workspace_role_assignments is_valid_role_assignment );
+our @EXPORT = qw( assignable_roles );
 
 # Map the roles a given role can assign to other users. Administrator can
 # bestow any privileges. Integrator Managers can invite Integrators and
@@ -27,17 +27,10 @@ my $ROLE_ASSIGNMENT = {
   'DC Operations'      => [ 'DC Operations', 'Read-only' ]
 };
 
-sub workspace_role_assignments {
-  my ($role) = @_;
+# Give the roles a given role may assign
+sub assignable_roles {
+  my ( $role ) = @_;
   return $ROLE_ASSIGNMENT->{$role};
-}
-
-# Check whether a given role may assign the specified role
-sub is_valid_role_assignment {
-  my ( $role, $current_user_role ) = @_;
-  return
-    scalar( grep { $_ eq $role }
-      @{ workspace_role_assignments($current_user_role) } );
 }
 
 1;
