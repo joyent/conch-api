@@ -17,6 +17,7 @@ function mainNav(isMobileView, state) {
                 m("h2", t("Conch"))
             ),
 
+            Workspace.list.length > 1 ?
             m(
                 "li.pure-menu-item.text-center",
                 m(".nav-text-color", t("Workspace")),
@@ -42,7 +43,7 @@ function mainNav(isMobileView, state) {
                         );
                     })
                 )
-            ),
+            ) : null,
 
             m(
                 "li.pure-menu-item",

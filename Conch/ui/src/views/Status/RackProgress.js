@@ -96,7 +96,6 @@ export default function RackProgress() {
 
             return m(".rack-progress-graph", {
                 oncreate: ({ dom, state }) => {
-                    if (rackStatus) {
                         state.graph = new RelationshipGraph(d3.select(dom), {
                             showTooltips: true,
                             maxChildCount: 10,
@@ -124,7 +123,6 @@ export default function RackProgress() {
                                 },
                             },
                         }).data(rackStatus);
-                    }
                 },
                 onupdate: ({ dom, state }) => {
                     state.graph.configuration.sortFunction = sortFunction;

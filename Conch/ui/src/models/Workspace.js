@@ -29,7 +29,7 @@ const Workspace = {
             .then(workspaces => {
                 Workspace.list = workspaces;
                 let currentId = Workspace.getCurrentId();
-                if (!currentId) {
+                if (!currentId || workspaces.findIndex(w => w.id === currentId) === -1) {
                     // Set to global workspace or first in the list
                     currentId = (workspaces.find(w => w.name === "GLOBAL") ||
                         workspaces[0]
