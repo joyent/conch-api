@@ -8,7 +8,9 @@ export default {
 
     oninit: ({ state }) => {
         Workspace.withWorkspace(workspaceId => {
-            Relay.loadRelays(workspaceId).then(() => {state.loading = false});
+            Relay.loadRelays(workspaceId).then(() => {
+                state.loading = false;
+            });
         });
     },
 
