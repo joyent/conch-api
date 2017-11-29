@@ -304,18 +304,20 @@ ul li {
 
 .workspace-select {
     margin: 10px 0 0;
-    border: 1px solid #111;
+    border: 0;
     width: 120px;
 
     text-indent: 10px;
     font-size: 12px;
     color: #fff;
-    border: 1px solid #ccc;
     height: 30px;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     background: hsl(200, 80%, 40%);
+    -webkit-box-shadow: inset 0 3px 3px 0px hsl(200, 70%, 30%);
+    -moz-box-shadow: inset 0 3px 3px 0px hsl(200, 70%, 30%);
+    box-shadow: inset 0 3px 3px 0px hsl(200, 70%, 30%);
 }
 select, option.selected {
     width:100px;
