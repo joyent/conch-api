@@ -139,10 +139,10 @@ sub get_sub_workspaces {
   return $subworkspaces;
 }
 
-# TODO: Send an email to the user when they're created or invited to the workspace
-# Sets the user role if the user is already assigned to the workspace
 sub invite_user_to_workspace {
-  my ( $schema, $ws_id, $email, $role ) = @_;
+  my ( $schema, $workspace, $email, $role, $invite_new_user,
+    $invite_existing_user )
+    = @_;
   return $schema->storage->dbh_do(
     sub {
       my ( $storage, $dbh ) = @_;
@@ -152,9 +152,12 @@ sub invite_user_to_workspace {
         [ 'id', 'name', 'email' ],
         { email => $email }
       )->hash;
-      my $password;
-      unless ( defined $user ) {
-        $password      = create_integrator_password();
+      if ( defined $user ) {
+        $invite_existing_user->(
+          { %$user, workspace_name => $workspace->{name} } );
+      }
+      else {
+        my $password      = create_integrator_password();
         my $password_hash = hash_password($password);
         $user = $db->insert(
           'user_account',
@@ -165,6 +168,8 @@ sub invite_user_to_workspace {
           },
           { returning => [ 'id', 'name', 'email' ] }
         )->hash;
+        $invite_new_user->( { %$user, password => $password } );
+
       }
 
       # On conflict, set the role for the user
@@ -176,13 +181,12 @@ sub invite_user_to_workspace {
         WHERE role.name = ?
         ON CONFLICT (user_id, workspace_id) DO UPDATE
           SET role_id = excluded.role_id
-        }, $user->{id}, $ws_id, $role
+        }, $user->{id}, $workspace->{id}, $role
       );
       return {
         name  => $user->{name},
         email => $user->{email},
-        role  => $role,
-        password => $password  # generated password or undef
+        role  => $role
       };
     }
   );

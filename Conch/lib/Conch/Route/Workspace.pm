@@ -10,6 +10,7 @@ use Dancer2::Plugin::REST;
 use Hash::MultiValue;
 use Conch::Control::Workspace;
 use Conch::Control::Role;
+use Conch::Mail;
 
 use Data::Printer;
 
@@ -67,21 +68,19 @@ post '/workspace/:id/user' => needs login => sub {
     return status_404("Workspace $ws_id not found");
   }
 
-  unless ( is_valid_role_assignment( $role, $workspace->{role} ) ) {
-    my @valid_roles = @{ workspace_role_assignments( $workspace->{role} ) };
-    if (@valid_roles) {
-      return status_400(
-        "'role' must be one of: " . join( ', ', @valid_roles ) );
-    }
-    else {
-      return status_401(
-        "You do not have sufficient privileges to invite users this workspace"
-      );
-    }
+  my $valid_roles = assignable_roles( $workspace->{role} );
+  unless ( defined($valid_roles) ) {
+    return status_401(
+      "You do not have sufficient privileges to invite users this workspace" );
+  }
+  unless ( grep /^$role$/, @$valid_roles ) {
+    return status_400(
+      "'role' must be one of: " . join( ', ', @$valid_roles ) );
   }
 
   my $user =
-    invite_user_to_workspace( schema, $workspace->{id}, $email, $role );
+    invite_user_to_workspace( schema, $workspace, $email, $role,
+    \&new_user_invite, \&existing_user_invite );
   status_200($user);
 };
 
