@@ -20,7 +20,7 @@ sub new_user_invite {
 
   my %mail = (
     To      => $email,
-    From    => 'noreply@preflight.scloud.zone',
+    From    => 'noreply@conch.joyent.us',
     Subject => "Welcome to Conch!",
     Message => qq{Hello,
 
@@ -52,7 +52,7 @@ sub existing_user_invite {
 
   my %mail = (
     To      => $email,
-    From    => 'noreply@preflight.scloud.zone',
+    From    => 'noreply@conch.joyent.us',
     Subject => "Invitation to join new Conch workspace",
     Message => qq{Hello,
 
