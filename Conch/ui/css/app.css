@@ -302,6 +302,28 @@ ul li {
     background: #f5f5f5;
 }
 
+.workspace-select {
+    margin: 10px 0 0;
+    border: 1px solid #111;
+    width: 120px;
+
+    text-indent: 10px;
+    font-size: 12px;
+    color: #fff;
+    border: 1px solid #ccc;
+    height: 30px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: hsl(200, 80%, 40%);
+}
+select, option.selected {
+    width:100px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
 @media (min-width: 68em) {
 
     .layout {

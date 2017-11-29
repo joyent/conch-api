@@ -71,7 +71,7 @@ export default {
                 ".pure-u-1",
                 m("h3.text-center", t("Datacenter Rack Build Status"))
             ),
-            m(".pure-u-1",
+            R.isEmpty(Rack.rackRooms) ? null : m(".pure-u-1",
                 m(".text-center",
                     m(RackProgress, { group: state.group } )
                 ),
