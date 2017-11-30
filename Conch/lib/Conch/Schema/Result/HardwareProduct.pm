@@ -221,36 +221,6 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 hardware_totals
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::HardwareTotal>
-
-=cut
-
-__PACKAGE__->has_many(
-  "hardware_totals",
-  "Conch::Schema::Result::HardwareTotal",
-  { "foreign.hardware_product" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 triton_post_setup_stages
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::TritonPostSetupStage>
-
-=cut
-
-__PACKAGE__->has_many(
-  "triton_post_setup_stages",
-  "Conch::Schema::Result::TritonPostSetupStage",
-  { "foreign.product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 vendor
 
 Type: belongs_to
@@ -266,24 +236,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 zpool_attributes
 
-Type: has_many
-
-Related object: L<Conch::Schema::Result::ZpoolAttribute>
-
-=cut
-
-__PACKAGE__->has_many(
-  "zpool_attributes",
-  "Conch::Schema::Result::ZpoolAttribute",
-  { "foreign.product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:32:26
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Kd47TwkMI7KWX0k4gJl4tg
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-29 17:37:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gTRMgGx2cvUL3tc49v8HZA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

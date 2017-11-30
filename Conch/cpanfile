@@ -42,7 +42,7 @@ requires 'Dancer2::Plugin::DBIC';
 requires 'Dancer2::Logger::LogAny';
 requires 'Dancer2::Plugin::Passphrase';
 requires 'Dancer2::Plugin::REST';
-requires 'Dancer2::Plugin::REST';
+requires 'Dancer2::Plugin::RootURIFor';
 requires 'Dancer2::Session::YAML';
 
 # moose

@@ -163,7 +163,7 @@ paths:
       summary: List all users assigned to the workspace
       operationId: getWorkspaceUsers
     post:
-      tags: [User]
+      tags: [User, Workspace]
       summary: Create or invite an user to the workspace
       operationId: inviteUser
       requestBody:
@@ -592,13 +592,21 @@ paths:
       summary: Mark a device as 'graduated' for VLAN management
       operationId: graduateDevice
       responses:
-        '200':
+        '303':
           description: >
-            Device with `latest_report` and `validations` fields filled
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Device"
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
         '404':
           description: >
             Device with specified ID not found or user doesn't have access
@@ -612,6 +620,80 @@ paths:
                 properties:
                   status:
                     type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/triton_reboot:
+    post:
+      tags: [Device]
+      summary: Mark a device as having rebooted into Triton
+      operationId: tritonRebootDevice
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/triton_uuid:
+    post:
+      tags: [Device]
+      summary: Mark a device as having rebooted into Triton
+      operationId: setDeviceTritonUUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                triton_uuid:
+                  type: string
+                  format: uuid
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '400':
+          description: >
+            JSON Object with key `"triton_uuid"` and UUID value required in
+            request body.
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
         default:
           description: Unexpected error
           content:
