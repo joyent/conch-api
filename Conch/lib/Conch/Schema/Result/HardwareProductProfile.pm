@@ -288,21 +288,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_validate_criterias
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::DeviceValidateCriteria>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_validate_criterias",
-  "Conch::Schema::Result::DeviceValidateCriteria",
-  { "foreign.product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 hardware_profile_settings
 
 Type: has_many
@@ -354,8 +339,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:32:26
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4OWDWJCgkL61jIEDbbz1Kw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-29 17:37:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oGqr/+XpzSlR89NmNRUtGw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

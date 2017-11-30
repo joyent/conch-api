@@ -178,21 +178,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 hardware_totals
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::HardwareTotal>
-
-=cut
-
-__PACKAGE__->has_many(
-  "hardware_totals",
-  "Conch::Schema::Result::HardwareTotal",
-  { "foreign.datacenter_rack" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 role
 
 Type: belongs_to
@@ -209,8 +194,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:32:26
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QOecqrOnDiWYFygHFqbFQQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-29 17:37:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7R7kakhG+2n2zIw2ZkC3iQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

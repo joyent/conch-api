@@ -58,11 +58,6 @@ __PACKAGE__->table("device");
   is_nullable: 0
   size: 16
 
-=head2 boot_phase
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 role
 
   data_type: 'text'
@@ -117,6 +112,17 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 latest_triton_reboot
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
+=head2 triton_uuid
+
+  data_type: 'uuid'
+  is_nullable: 1
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -126,8 +132,6 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_nullable => 1, size => 16 },
   "hardware_product",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "boot_phase",
-  { data_type => "text", is_nullable => 1 },
   "role",
   { data_type => "text", is_nullable => 1 },
   "state",
@@ -158,6 +162,10 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "validated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "latest_triton_reboot",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
+  "triton_uuid",
+  { data_type => "uuid", is_nullable => 1, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -278,21 +286,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_notes
-
-Type: has_many
-
-Related object: L<Conch::Schema::Result::DeviceNote>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_notes",
-  "Conch::Schema::Result::DeviceNote",
-  { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 device_relay_connections
 
 Type: has_many
@@ -383,24 +376,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 triton
 
-Type: might_have
-
-Related object: L<Conch::Schema::Result::Triton>
-
-=cut
-
-__PACKAGE__->might_have(
-  "triton",
-  "Conch::Schema::Result::Triton",
-  { "foreign.id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:32:26
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XKHYsAkodtx69NzXZqc6iA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-29 17:37:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mkeqNs/X+IM/teyzkv+hZg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

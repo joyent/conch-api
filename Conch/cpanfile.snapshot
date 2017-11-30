@@ -963,6 +963,16 @@ DISTRIBUTIONS
       perl 5.012000
       strict 0
       warnings 0
+  Dancer2-Plugin-RootURIFor-0.03
+    pathname: J/JB/JBARRETT/Dancer2-Plugin-RootURIFor-0.03.tar.gz
+    provides:
+      Dancer2::Plugin::RootURIFor 0.03
+    requirements:
+      Dancer2::Plugin 0.15
+      ExtUtils::MakeMaker 0
+      URI::Escape 0
+      strict 0
+      warnings 0
   Data-Dump-1.23
     pathname: G/GA/GAAS/Data-Dump-1.23.tar.gz
     provides:
