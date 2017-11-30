@@ -245,7 +245,7 @@ paths:
       tags: [User]
       summary: Get the details the currently logged-in User
       operationId: getUser
-  /me/settings:
+  /user/me/settings:
     get:
       tags: [User, Settings]
       summary: Get system-wide settings for current User
@@ -299,7 +299,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /me/settings/{key}:
+  /user/me/settings/{key}:
     get:
       tags: [User, Settings]
       summary: Get specified system-wide setting for current user
