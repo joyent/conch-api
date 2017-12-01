@@ -61,7 +61,9 @@ roleSortOrder["CERES"] = 4;
 
 const sortNodes = sortOrder => nodes =>
     nodes.sort((a, b) => {
-        if (sortOrder[a.parent] === sortOrder[b.parent]) return 0;
+        if (sortOrder[a.parent] === sortOrder[b.parent])
+            // sort by percentage validated within groups
+            return a.value - b.value;
         else return sortOrder[a.parent] > sortOrder[b.parent] ? 1 : -1;
     });
 
@@ -96,33 +98,33 @@ export default function RackProgress() {
 
             return m(".rack-progress-graph", {
                 oncreate: ({ dom, state }) => {
-                        state.graph = new RelationshipGraph(d3.select(dom), {
-                            showTooltips: true,
-                            maxChildCount: 10,
-                            showKeys: true,
-                            sortFunction: sortFunction,
-                            thresholds: [-1, 0, 25, 50, 75, 99, 100],
-                            colors: [
-                                "hsl(0, 80%, 60%)",
-                                "hsl(225, 20%, 85%)",
-                                "hsl(225, 50%, 80%)",
-                                "hsl(225, 80%, 70%)",
-                                "hsl(190, 60%, 60%)",
-                                "hsl(160, 60%, 60%)",
-                                "hsl(130, 60%, 60%)",
-                            ],
-                            onClick: {
-                                child: ({ _private_ }) => {
-                                    let path = window.location.href.split("/");
-                                    path.pop();
-                                    path = path.join("/");
-                                    window.open(
-                                        `${path}/rack/${_private_.id}`,
-                                        "_blank"
-                                    );
-                                },
+                    state.graph = new RelationshipGraph(d3.select(dom), {
+                        showTooltips: true,
+                        maxChildCount: 10,
+                        showKeys: true,
+                        sortFunction: sortFunction,
+                        thresholds: [-1, 0, 25, 50, 75, 99, 100],
+                        colors: [
+                            "hsl(0, 80%, 60%)",
+                            "hsl(225, 20%, 85%)",
+                            "hsl(225, 50%, 80%)",
+                            "hsl(225, 80%, 70%)",
+                            "hsl(190, 60%, 60%)",
+                            "hsl(160, 60%, 60%)",
+                            "hsl(130, 60%, 60%)",
+                        ],
+                        onClick: {
+                            child: ({ _private_ }) => {
+                                let path = window.location.href.split("/");
+                                path.pop();
+                                path = path.join("/");
+                                window.open(
+                                    `${path}/rack/${_private_.id}`,
+                                    "_blank"
+                                );
                             },
-                        }).data(rackStatus);
+                        },
+                    }).data(rackStatus);
                 },
                 onupdate: ({ dom, state }) => {
                     state.graph.configuration.sortFunction = sortFunction;
