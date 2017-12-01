@@ -247,16 +247,18 @@ const deviceReport = {
             [t("Status"), t("Type"), t("Name"), t("Metric"), t("Log")],
             Device.current.validations
                 .sort((a, b) => {
-                    if (a.component_type < b.component_type) {
+                    if (a.component_type < b.component_type)
                         return -1;
-                    }
-                    if (a.component_type > b.component_type) {
+                    if (a.component_type > b.component_type)
                         return 1;
-                    }
+                    if (a.component_name < b.component_name)
+                        return -1;
+                    if (a.component_name > b.component_name)
+                        return 1;
                     return 0;
                 })
                 .map(v => [
-                v.status ? "" : Icons.warning,
+                v.status ? m('i') : Icons.warning,
                 v.component_type,
                 v.component_name,
                 v.metric,
