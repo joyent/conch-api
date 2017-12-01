@@ -63,7 +63,7 @@ const sortNodes = sortOrder => nodes =>
     nodes.sort((a, b) => {
         if (sortOrder[a.parent] === sortOrder[b.parent])
             // sort by percentage validated within groups
-            return a.value - b.value;
+            return b.value - a.value;
         else return sortOrder[a.parent] > sortOrder[b.parent] ? 1 : -1;
     });
 
