@@ -616,10 +616,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -928,14 +925,69 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  workspace/{workspace_id}/rack/:uuid:
+    post:
+      summary: Add a rack to the workspace
+      operationId: addRackToWorkspace
+      description: >
+        Add an existing rack to the workspace. This enables adding a single
+        rack to a workspace without having to add all racks in a the entire
+        datacenter room.  The rack must be a member of the parents workspace to
+        be added.
+      requestBody:
+        required: true
+        description: >
+          Map between device serial numbers and the slot number they should
+          be assigned in the rack
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: The Rack ID to be added to the workspace
+      responses:
+        '303':
+          description: >
+            Redirection to the rack resource in the workspace
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for rack in the workspace
+        '409':
+          description: >
+            A condition exists that prevents the rack from being assigned.
+            Either the rack is not assigned to the parent workspace, or the
+            rack is already assigned to the workspace via a datacenter room
+            assignment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  workspace/{workspace_id}/rack/{rack_id}:
     get:
       summary: Get details about a specific rack
       tags: [Rack]
       operationId: getRack
       responses:
         '200':
-          description: Details about a rack, including device assignments in slots
+          description: >
+            Details about a rack, including device assignments in slots
           content:
             application/json:
               schema:
@@ -948,7 +1000,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  workspace/{workspace_id}/rack/:uuid/layout:
+    delete:
+      summary: Remove rack from workspace
+      operationId: removeRackFromWorkspace
+      description: >
+        Un-assign the rack from the workspace.  Only removes racks that have
+        been explicitly assigned using `addRackToWorkspace`. Rack assignments
+        that are assigned via a datacenter room assignment will not be
+        modified. This will remove the rack from all child sub-workspaces if
+        the rack has been assigned to those subspaces using
+        `addRackToWorkspace`.
+      responses:
+        '204':
+          description: >
+            The rack assignment has been successfully removed
+        '404':
+          description: >
+            Rack ID not found or is not assigned to the workspace
+        '409':
+          description: >
+            The rack is assigned to the workspace via a datacenter room
+            assignment and cannot be removed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  workspace/{workspace_id}/rack/{rack_id}/layout:
     post:
       summary: Update multiple slots in a given rack
       tags: [Rack]

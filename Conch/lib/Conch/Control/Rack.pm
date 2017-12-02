@@ -13,7 +13,8 @@ our @EXPORT =
 
 sub get_rack {
   my ( $schema, $rack_id ) = @_;
-  my $rack = $schema->resultset('DatacenterRack')->find( { id => $rack_id } );
+  my $rack = $schema->resultset('DatacenterRack')
+    ->find( { id => $rack_id, deactivated => { '=', undef } } );
   return $rack;
 }
 
@@ -34,10 +35,11 @@ sub workspace_racks {
   my @racks = $schema->resultset('WorkspaceRacks')
     ->search( {}, { bind => [$workspace_id] } )->all;
 
+  my @rack_room_ids = map { $_->datacenter_room_id } @racks;
+
   my @datacenter_room =
     $schema->resultset('DatacenterRoom')
-    ->search( { 'workspace_datacenter_rooms.workspace_id' => $workspace_id },
-    { join => 'workspace_datacenter_rooms' } )->all;
+    ->search( { 'id' => { -in => \@rack_room_ids } } )->all;
 
   my @rack_ids = map { $_->id } @racks;
   my $rack_progress = {};

@@ -17,13 +17,26 @@ __PACKAGE__->add_columns(Conch::Schema::Result::DatacenterRack->columns);
 # do not attempt to deploy() this view
 __PACKAGE__->result_source_instance->is_virtual(1);
 
+# Note: the subquery on 'workspace_datacenter_rack' should come second in the
+# 'OR' clause in order to prevent duplicates. If reveresed with
+# `workspace_datacenter_room', query can contain duplicate racks.
 __PACKAGE__->result_source_instance->view_definition(q[
+  WITH target_workspace (id) AS ( values( ?::uuid ))
   SELECT rack.*
-  FROM workspace_datacenter_room wdr
-  JOIN datacenter_rack rack
-    ON wdr.datacenter_room_id = rack.datacenter_room_id
-  WHERE wdr.workspace_id = ?
-    AND rack.deactivated is null
+  FROM datacenter_rack rack
+  WHERE deactivated is null
+    AND (
+      rack.datacenter_room_id in (
+        SELECT datacenter_room_id
+        FROM workspace_datacenter_room
+        WHERE workspace_id = (select id from target_workspace)
+      )
+      OR rack.id in (
+        SELECT datacenter_rack_id
+        FROM workspace_datacenter_rack
+        WHERE workspace_id = (select id from target_workspace)
+      )
+    )
 ]);
 
 __PACKAGE__->belongs_to(

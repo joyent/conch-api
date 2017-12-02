@@ -7,10 +7,14 @@ use Dancer2 appname => 'Conch';
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::REST;
+use Dancer2::Plugin::RootURIFor;
 use Hash::MultiValue;
 use Conch::Control::Rack;
 use Conch::Control::Device;
-use Conch::Control::Workspace 'get_user_workspace';
+use Conch::Control::Workspace qw(
+  get_user_workspace add_datacenter_rack_to_workspace
+  remove_datacenter_rack_from_workspace
+);
 
 use List::MoreUtils;
 use Data::Printer;
@@ -34,6 +38,50 @@ get '/rack-role' => needs login => sub {
   status_200( \@roles );
 };
 
+# Add rack to workspace by ID
+post '/workspace/:wid/rack' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
+
+  my $rack_id = body_parameters->get('id');
+  my $conflict = add_datacenter_rack_to_workspace( schema, $ws_id, $rack_id );
+
+  return status_409($conflict) if defined($conflict);
+
+  my %location = ( Location => root_uri_for "/workspace/$ws_id/rack/$rack_id" );
+  response_header(%location);
+  return status_303( \%location );
+};
+
+# Remove a rack from a workspace
+del '/workspace/:wid/rack/:uuid' => needs login => sub {
+  my $user_id   = session->read('user_id');
+  my $ws_id     = param 'wid';
+  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
+  unless ( defined $workspace ) {
+    return status_404("Workspace $ws_id not found");
+  }
+  my $rack_id = param 'uuid';
+  my $rack = workspace_rack( schema, $workspace->{id}, $rack_id );
+
+  unless ( defined $rack ) {
+    warning
+      "User $user_id not allowed to view rack $rack_id or rack does not exist";
+    return status_404("Rack $rack_id not found");
+  }
+
+  my $conflict =
+    remove_datacenter_rack_from_workspace( schema, $ws_id, $rack_id );
+
+  return status_409($conflict) if defined($conflict);
+
+  return status_204();
+};
+
 # Returns a rack with layout.
 get '/workspace/:wid/rack/:uuid' => needs login => sub {
   my $user_id   = session->read('user_id');
@@ -42,13 +90,13 @@ get '/workspace/:wid/rack/:uuid' => needs login => sub {
   unless ( defined $workspace ) {
     return status_404("Workspace $ws_id not found");
   }
-  my $uuid = param 'uuid';
-  my $rack = workspace_rack( schema, $workspace->{id}, $uuid );
+  my $rack_id = param 'uuid';
+  my $rack = workspace_rack( schema, $workspace->{id}, $rack_id );
 
   unless ( defined $rack ) {
     warning
-      "User $user_id not allowed to view rack $uuid or rack does not exist";
-    return status_404("Rack $uuid not found");
+      "User $user_id not allowed to view rack $rack_id or rack does not exist";
+    return status_404("Rack $rack_id not found");
   }
 
   my $layout = rack_layout( schema, $rack );
@@ -65,16 +113,16 @@ post '/workspace/:wid/rack/:uuid/layout' => needs login => sub {
   unless ( defined $workspace ) {
     return status_404("Workspace $ws_id not found");
   }
-  my $uuid = param 'uuid';
+  my $rack_id = param 'uuid';
 
   my $layout = body_parameters->as_hashref;
 
-  my $rack = workspace_rack( schema, $workspace->{id}, $uuid );
+  my $rack = workspace_rack( schema, $workspace->{id}, $rack_id );
 
   unless ( defined $rack ) {
     warning
-      "User $user_id not allowed to view rack $uuid or rack does not exist";
-    return status_404("Rack $uuid not found");
+      "User $user_id not allowed to view rack $rack_id or rack does not exist";
+    return status_404("Rack $rack_id not found");
   }
 
   my @errors;
@@ -83,10 +131,10 @@ post '/workspace/:wid/rack/:uuid/layout' => needs login => sub {
   foreach my $k ( keys %{$layout} ) {
     my $update = {};
     $update->{device}    = $k;
-    $update->{rack}      = $uuid;
+    $update->{rack}      = $rack_id;
     $update->{rack_unit} = $layout->{$k};
-    my ($result, $err) = update_device_location( schema, $update, $user_id );
-    if (defined $result) {
+    my ( $result, $err ) = update_device_location( schema, $update, $user_id );
+    if ( defined $result ) {
       push @updates, $k;
     }
     else {
