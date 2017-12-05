@@ -37,9 +37,9 @@ get '/workspace/:wid/device' => needs login => sub {
   # set of response filters based on the presence and values of query parameters
   my @query_filters;
   push @query_filters, sub { $_[0] if defined( $_[0]->{graduated} ); }
-    if defined( param 'graduated' ) and ( param 'graudated ' ) eq 't';
+    if ( defined( param 'graduated' ) and ( param 'graduated' ) eq 't' );
   push @query_filters, sub { $_[0] if !defined( $_[0]->{graduated} ); }
-    if defined( param 'graduated' ) and ( param 'graudated ' ) eq 'f';
+    if ( defined( param 'graduated' ) and ( param 'graduated' ) eq 'f' );
   push @query_filters,
     sub { $_[0] if uc( $_[0]->{health} ) eq uc( param 'health' ); }
     if defined( param 'health' );
@@ -448,7 +448,7 @@ post '/device/:serial/triton_uuid' => needs login => sub {
   my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
 
-  my $triton_uuid   = param 'triton_uuid';
+  my $triton_uuid = param 'triton_uuid';
   return status_400("'triton_uuid' must be present and a UUID")
     unless defined($triton_uuid) && is_uuid($triton_uuid);
 
@@ -458,6 +458,5 @@ post '/device/:serial/triton_uuid' => needs login => sub {
   response_header(%location);
   return status_303( \%location );
 };
-
 
 1;
