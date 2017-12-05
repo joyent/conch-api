@@ -19,17 +19,31 @@ __PACKAGE__->result_source_instance->is_virtual(1);
 # Takes a user ID and returns the list of devices the user has access to
 # through all of their assigned workspaces
 __PACKAGE__->result_source_instance->view_definition(q[
+  WITH target_workspaces(id) AS (
+    SELECT workspace_id
+    FROM user_workspace_role
+    WHERE user_id = ?
+  )
   SELECT distinct device.*
-  FROM user_workspace_role uwr
-  JOIN workspace_datacenter_room wdr
-    ON uwr.workspace_id = wdr.workspace_id
-  JOIN datacenter_rack rack
-    ON wdr.datacenter_room_id = rack.datacenter_room_id
+  FROM device
   JOIN device_location loc
-    ON rack.id = loc.rack_id
-  JOIN device
     ON loc.device_id = device.id
-  WHERE uwr.user_id = ?
+  JOIN datacenter_rack rack
+    ON rack.id = loc.rack_id
+  WHERE device.deactivated IS NULL
+    AND (
+      rack.datacenter_room_id IN (
+        SELECT datacenter_room_id
+        FROM workspace_datacenter_room
+        WHERE workspace_id IN (SELECT id FROM target_workspaces)
+      )
+      OR rack.id IN (
+        SELECT datacenter_rack_id
+        FROM workspace_datacenter_rack
+        WHERE workspace_id IN (SELECT id FROM target_workspaces)
+      )
+    )
+
 ]);
 
 # NOTE: UPDATE BELOW WHEN Conch::Result::Device IS UPDATED!

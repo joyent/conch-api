@@ -13,9 +13,10 @@ use Conch::Control::User qw( create_integrator_password hash_password );
 
 use Exporter 'import';
 our @EXPORT = qw(
-  get_user_workspaces get_user_workspace create_sub_workspace get_sub_workspaces
-  invite_user_to_workspace workspace_users replace_workspace_rooms
-  get_workspace_rooms
+  get_user_workspaces get_user_workspace create_sub_workspace
+  get_sub_workspaces invite_user_to_workspace workspace_users
+  replace_workspace_rooms get_workspace_rooms add_datacenter_rack_to_workspace
+  remove_datacenter_rack_from_workspace
 );
 
 sub get_user_workspaces {
@@ -327,6 +328,111 @@ sub get_workspace_rooms {
     }
   );
   return $rooms->to_array;
+}
+
+sub add_datacenter_rack_to_workspace {
+  my ( $schema, $ws_id, $rack_id ) = @_;
+  my ( undef, $conflict ) = $schema->storage->dbh_do(
+    sub {
+      my ( $storage, $dbh ) = @_;
+      my $db = Mojo::Pg::Database->new( dbh => $dbh, pg => Mojo::Pg->new );
+
+      my $rack_in_parent_workspace = $db->query(
+        qq{
+          WITH parent_workspace (id) AS (
+            SELECT ws.parent_workspace_id
+            FROM workspace ws
+            WHERE ws.id = ?::uuid
+          )
+          SELECT id
+          FROM datacenter_rack rack
+          WHERE rack.deactivated IS NULL
+          AND rack.id = ?
+          AND (
+            rack.datacenter_room_id IN (
+              SELECT datacenter_room_id
+              FROM workspace_datacenter_room
+              WHERE workspace_id = (SELECT id FROM parent_workspace)
+            )
+            OR rack.id IN (
+              SELECT datacenter_rack_id
+              FROM workspace_datacenter_rack wdr
+              WHERE workspace_id = (SELECT id FROM parent_workspace)
+            )
+          )
+        }, $ws_id, $rack_id
+      )->rows;
+
+      return ( undef,
+        "Rack '$rack_id' must be assigned in parent workspace to be assignable."
+      ) unless $rack_in_parent_workspace;
+
+      my $rack_in_workspace_room = $db->query(
+        q{
+          SELECT id
+          FROM workspace_datacenter_room wdr
+          JOIN datacenter_rack rack
+            on wdr.datacenter_room_id = rack.datacenter_room_id
+          WHERE wdr.workspace_id = ?::uuid
+            AND rack.id = ?::uuid
+        }, $ws_id, $rack_id
+      )->rows;
+
+      return ( undef,
+            "Rack '$rack_id' is already assigned to this workspace"
+          . " via a datacenter room assignment" )
+        if $rack_in_workspace_room;
+
+      $db->query(
+        q{
+          INSERT INTO workspace_datacenter_rack
+            (workspace_id, datacenter_rack_id)
+          VALUES (?::uuid, ?::uuid)
+          ON CONFLICT (workspace_id, datacenter_rack_id) DO NOTHING
+        }, $ws_id, $rack_id
+      );
+    }
+  );
+  return $conflict if $conflict;
+}
+
+sub remove_datacenter_rack_from_workspace {
+  my ( $schema, $ws_id, $rack_id ) = @_;
+  my ( undef, $conflict ) = $schema->storage->dbh_do(
+    sub {
+      my ( $storage, $dbh ) = @_;
+      my $db = Mojo::Pg::Database->new( dbh => $dbh, pg => Mojo::Pg->new );
+
+      my $rack_exists =
+        $db->select( 'workspace_datacenter_rack', undef,
+        { workspace_id => $ws_id, datacenter_rack_id => $rack_id } )->rows;
+
+      return ( undef,
+            "Rack '$rack_id' is not explicitly assigned to the workspace. It"
+          . " is assigned implicitly via a datacenter room assignment." )
+        unless $rack_exists;
+
+      # Remove rack ID from workspace and all children workspaces
+      $db->query(
+        qq{
+          WITH RECURSIVE workspace_and_children (id) AS (
+              SELECT id
+              FROM workspace
+              WHERE id = ?::uuid
+            UNION
+              SELECT w.id
+              FROM workspace w, workspace_and_children s
+              WHERE w.parent_workspace_id = s.id
+          )
+          DELETE FROM workspace_datacenter_rack
+          WHERE datacenter_rack_id = ?
+            AND workspace_id IN (SELECT id FROM workspace_and_children)
+        }, $ws_id, $rack_id
+      );
+
+    }
+  );
+  return $conflict if $conflict;
 }
 
 1;
