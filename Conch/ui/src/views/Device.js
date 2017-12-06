@@ -7,7 +7,7 @@ import Table from "./component/Table";
 import Icons from "./component/Icons";
 
 const allDevices = {
-    oninit({attrs}) {
+    oninit({ attrs }) {
         Auth.requireLogin(
             Workspace.withWorkspace(workspaceId => {
                 Device.loadDeviceIds(workspaceId);
@@ -15,21 +15,23 @@ const allDevices = {
         );
     },
     view(vnode) {
-        return Device.deviceIds.map(deviceId => m(
-            "a.selection-list-item",
-            {
-                href: `/device/${deviceId}`,
-                onclick() {
-                    loadDeviceDetails(deviceId);
+        return Device.deviceIds.map(deviceId =>
+            m(
+                "a.selection-list-item",
+                {
+                    href: `/device/${deviceId}`,
+                    onclick() {
+                        loadDeviceDetails(deviceId);
+                    },
+                    oncreate: m.route.link,
+                    class:
+                        Device.current && deviceId === Device.current.id
+                            ? "selection-list-item-active"
+                            : "",
                 },
-                oncreate: m.route.link,
-                class:
-                    Device.current && deviceId === Device.current.id
-                        ? "selection-list-item-active"
-                        : "",
-            },
-            deviceId
-        ));
+                deviceId
+            )
+        );
     },
 };
 
@@ -51,7 +53,7 @@ function loadDeviceDetails(id) {
 }
 
 const deviceReport = {
-    oninit({attrs}) {
+    oninit({ attrs }) {
         loadDeviceDetails(attrs.id);
     },
     view(vnode) {
@@ -247,34 +249,39 @@ const deviceReport = {
             [t("Status"), t("Type"), t("Name"), t("Metric"), t("Log")],
             Device.current.validations
                 .sort((a, b) => {
-                    if (a.component_type < b.component_type)
+                    if (
+                        a.component_type + a.component_name <
+                        b.component_type + b.component_name
+                    )
                         return -1;
-                    if (a.component_type > b.component_type)
+                    if (
+                        a.component_type + a.component_name >
+                        b.component_type + b.component_name
+                    )
                         return 1;
-                    if (a.component_name < b.component_name)
-                        return -1;
-                    if (a.component_name > b.component_name)
-                        return 1;
+
                     return 0;
                 })
                 .map(v => [
-                v.status ? m('i') : Icons.warning,
-                v.component_type,
-                v.component_name,
-                v.metric,
-                v.log,
-            ])
+                    v.status ? m("i") : Icons.warning,
+                    v.component_type,
+                    v.component_name,
+                    v.metric,
+                    v.log,
+                ])
         );
         const logs = Table(
             t("Devices Logs (20 most recent)"),
             [t("Component Type"), t("Component ID"), t("Time"), t("Log")],
-            Device.logs.map(({component_type, component_id, created, msg}) => [
-                component_type,
-                component_id,
-                created,
-                // pre requried to preserve multi-lines
-                m("span.log-text", msg),
-            ])
+            Device.logs.map(
+                ({ component_type, component_id, created, msg }) => [
+                    component_type,
+                    component_id,
+                    created,
+                    // pre requried to preserve multi-lines
+                    m("span.log-text", msg),
+                ]
+            )
         );
         return m(".pure-g", [
             firmwareUpdatingNotification,

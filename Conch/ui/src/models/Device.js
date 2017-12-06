@@ -159,6 +159,15 @@ const Device = {
         }
         return false;
     },
+
+    setAssetTag(deviceId, assetTag) {
+        return m.request({
+            method: "POST",
+            url: `/device/${deviceId}/asset_tag`,
+            data: { asset_tag: assetTag },
+            withCredentials: true,
+        });
+    },
 };
 
 export default Device;

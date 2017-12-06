@@ -712,6 +712,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /device/{serial}/asset_tag:
+    post:
+      tags: [Device]
+      summary: Set the asset tag for a device
+      operationId: setDeviceAssetTag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                asset_tag:
+                  type: string
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '400':
+          description: >
+            JSON Object with key `"asset_tag"` and string value required in request body.
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/{serial}/location:
     get:
       tags: [Device]
