@@ -7,16 +7,10 @@ run: build run-perl
 run-perl:
 	@carton exec ./local/bin/plackup -E development -s Starman --workers=50 -p 5001 -a bin/app.psgi
 
-build: build-js web-assets doc cpanfile.snapshot local
+build: web-assets doc cpanfile.snapshot local
 
 local:
 	@carton install --deployment
-
-build-js: ui/package-lock.json ui/node_modules
-	@cd ui && npm run-script build;
-
-ui/node_modules:
-	@cd ui && npm install
 
 test:
 	@carton exec prove -j9 -lpr t/
@@ -34,6 +28,9 @@ format-js:
 	@cd ui && npm run prettier
 
 web-assets: public/css/app.css public/js/app.js
+
+ui/bin/app.js: ui/src/** ui/package-lock.json
+	@cd ui && npm run-script build;
 
 ui/package-lock.json: ui/package.json
 	@cd ui && npm install;
