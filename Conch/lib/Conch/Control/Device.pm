@@ -278,27 +278,27 @@ sub update_device_location {
   )->single;
 
   if ($occupied) {
-    my $occupied_device = $occupied->device_id;
-
-    # Location is currently occupied
-    unless ( $occupied_device eq $device_info->{device} ) {
-      return (
-        undef,
-        $log->warningf(
-          "Cannot move device %s to rack %s, slot %s, occupied by device %s",
-          $device_info->{device},    $device_info->{rack},
-          $device_info->{rack_unit}, $occupied_device
-        )
-      );
-    }
 
     # Nothing to do; is already assigned to this location
-    $log->infof(
-      "Device %s already occupies rack %s, slot %s",
-      $device_info->{device},
-      $device_info->{rack}, $device_info->{rack_unit},
-    );
-    return ( $occupied, undef );
+    if ( $occupied->device_id eq $device_info->{device} ) {
+      $log->infof(
+        "Device %s already occupies rack %s, slot %s",
+        $device_info->{device},
+        $device_info->{rack}, $device_info->{rack_unit},
+      );
+      return ( $occupied, undef );
+    }
+    # Location is currently occupied. remove device
+    else {
+      $log->infof(
+        "Device %s occupies rack %s, slot %s. Replacing with %s.",
+        $occupied->device_id,
+        $device_info->{rack},
+        $device_info->{rack_unit},
+        $device_info->{device}
+      );
+      $occupied->delete;
+    }
   }
 
   my $device = get_device( $schema, $device_info->{device} );

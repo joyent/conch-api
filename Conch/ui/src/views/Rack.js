@@ -165,12 +165,15 @@ var rackLayoutTable = {
             return healthButton[occupant.health];
         }
         function deviceInput(slot) {
+            if (slot.assignment === undefined) {
+                slot.assignment = (slot.occupant || {}).id;
+            }
             return m("input[type=text]", {
                 oninput: m.withAttr("value", value => {
                     slot.assignment = value;
                 }),
                 placeholder: slot.occupant ? "" : t("Unassigned"),
-                value: slot.assignment || (slot.occupant || {}).id || "",
+                value: slot.assignment || "",
                 class:
                     Rack.highlightDevice &&
                     Rack.highlightDevice === (slot.occupant || {}).id
