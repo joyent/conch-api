@@ -145,6 +145,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 workspace_datacenter_racks
+
+Type: has_many
+
+Related object: L<Conch::Schema::Result::WorkspaceDatacenterRack>
+
+=cut
+
+__PACKAGE__->has_many(
+  "workspace_datacenter_racks",
+  "Conch::Schema::Result::WorkspaceDatacenterRack",
+  { "foreign.workspace_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 workspace_datacenter_rooms
 
 Type: has_many
@@ -176,8 +191,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-23 16:37:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zPfIlerNBuWdVu7jKImfmQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-12-06 09:14:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uQQS5FlCm40UfKm6qi3nVw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -193,9 +193,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 workspace_datacenter_racks
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-29 17:37:40
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7R7kakhG+2n2zIw2ZkC3iQ
+Type: has_many
+
+Related object: L<Conch::Schema::Result::WorkspaceDatacenterRack>
+
+=cut
+
+__PACKAGE__->has_many(
+  "workspace_datacenter_racks",
+  "Conch::Schema::Result::WorkspaceDatacenterRack",
+  { "foreign.datacenter_rack_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-12-06 09:14:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xhB151+ZCi/1OtV981sQig
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

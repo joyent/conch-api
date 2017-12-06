@@ -28,29 +28,33 @@ const allRacks = {
             m("h3.selection-list-header", roomName),
             m(
                 ".selection-list-group",
-                Rack.rackRooms[roomName].map(({id, name, role, size}) => m(
-                    "a.selection-list-item",
-                    {
-                        href: `/rack/${id}`,
-                        oncreate: m.route.link,
-                        onclick() {
-                            Workspace.withWorkspace( workspaceId => Rack.load(workspaceId, id) );
+                Rack.rackRooms[roomName].map(({ id, name, role, size }) =>
+                    m(
+                        "a.selection-list-item",
+                        {
+                            href: `/rack/${id}`,
+                            oncreate: m.route.link,
+                            onclick() {
+                                Workspace.withWorkspace(workspaceId =>
+                                    Rack.load(workspaceId, id)
+                                );
+                            },
+                            class:
+                                id === Rack.current.id
+                                    ? "selection-list-item-active"
+                                    : "",
                         },
-                        class:
-                            id === Rack.current.id
-                                ? "selection-list-item-active"
-                                : "",
-                    },
-                    m(".pure-g", [
-                        m(".pure-u-1-3", m("b", t("Name"))),
-                        m(".pure-u-1-3", m("b", t("Role"))),
-                        m(".pure-u-1-3", m("b", t("RU"))),
+                        m(".pure-g", [
+                            m(".pure-u-1-3", m("b", t("Name"))),
+                            m(".pure-u-1-3", m("b", t("Role"))),
+                            m(".pure-u-1-3", m("b", t("RU"))),
 
-                        m(".pure-u-1-3", name),
-                        m(".pure-u-1-3", role),
-                        m(".pure-u-1-3", size),
-                    ])
-                ))
+                            m(".pure-u-1-3", name),
+                            m(".pure-u-1-3", role),
+                            m(".pure-u-1-3", size),
+                        ])
+                    )
+                )
             ),
         ]);
     },
@@ -63,7 +67,7 @@ const makeSelection = {
 };
 
 const rackLayout = {
-    oninit({attrs}) {
+    oninit({ attrs }) {
         Auth.requireLogin(
             Workspace.withWorkspace(workspaceId => {
                 Rack.load(workspaceId, attrs.id);
@@ -72,7 +76,7 @@ const rackLayout = {
         );
     },
     view() {
-        const activeRelay = Relay.activeList.find(({location}) => {
+        const activeRelay = Relay.activeList.find(({ location }) => {
             return location && location.rack_id === Rack.current.id;
         });
         const relayActive = activeRelay
@@ -100,7 +104,9 @@ const rackLayout = {
                 "form.pure-form.pure-g",
                 {
                     onsubmit(e) {
-                        Workspace.withWorkspace( workspaceId => Rack.assignDevices(workspaceId, Rack.current) ) ;
+                        Workspace.withWorkspace(workspaceId =>
+                            Rack.assignDevices(workspaceId, Rack.current)
+                        );
                     },
                 },
                 m(
@@ -131,21 +137,9 @@ const rackLayout = {
     },
 };
 
-// Focus on the next Slot input when Enter is pressed.
-function enterAsTab(e) {
-    try {
-        const nextInput =
-            e.target.parentNode.parentNode.nextSibling.lastChild.lastChild;
-        if (e.which == 13 && nextInput) {
-            nextInput.focus();
-            e.preventDefault();
-        }
-    } catch (e) {}
-}
-
 var rackLayoutTable = {
-    view() {
-        function reportButton({occupant}) {
+    view({ state }) {
+        function reportButton({ occupant }) {
             const healthButton = {
                 PASS: m(
                     "a.pure-button",
@@ -176,7 +170,6 @@ var rackLayoutTable = {
                     slot.assignment = value;
                 }),
                 placeholder: slot.occupant ? "" : t("Unassigned"),
-                onkeypress: enterAsTab,
                 value: slot.assignment || (slot.occupant || {}).id || "",
                 class:
                     Rack.highlightDevice &&
@@ -185,7 +178,30 @@ var rackLayoutTable = {
                         : "",
             });
         }
-        function flagDevice({occupant}, slotId) {
+        function deviceAssetTag(slot) {
+            if (!slot.occupant) {
+                return m("input[type=text]", {
+                    placeholder: t("Must first assign device"),
+                    disabled: true,
+                });
+            }
+            const deviceId = slot.occupant.id;
+            if (!state[deviceId]) {
+                state[deviceId] = {};
+                state[deviceId].assetTag = slot.occupant.asset_tag || null;
+            }
+            return m("input[type=text]", {
+                oninput: m.withAttr("value", value => {
+                    state[deviceId].assetTag = value;
+                }),
+                onchange: () => {
+                    Device.setAssetTag(deviceId, state[deviceId].assetTag);
+                },
+                placeholder: t("Device asset tag"),
+                value: state[deviceId].assetTag || "",
+            });
+        }
+        function flagDevice({ occupant }, slotId) {
             return m(
                 "a.pure-button",
                 {
@@ -207,7 +223,7 @@ var rackLayoutTable = {
         }
         // TODO: Replace this with DeviceStatus after figuring out why it causes icons to duplicate
         const statusIndicators = {
-            view({attrs}) {
+            view({ attrs }) {
                 const occupant = attrs.occupant;
                 if (occupant) {
                     let healthIcon;
@@ -240,6 +256,7 @@ var rackLayoutTable = {
                 t("RU Height"),
                 t("Device"),
                 t("Report"),
+                t("Asset Tag"),
                 t("Actions"),
             ],
             Object.keys(Rack.current.slots || {})
@@ -254,6 +271,7 @@ var rackLayoutTable = {
                         slot.size,
                         deviceInput(slot),
                         slot.occupant ? reportButton(slot) : null,
+                        deviceAssetTag(slot),
                         slot.occupant ? flagDevice(slot, slotId) : null,
                     ];
                 })

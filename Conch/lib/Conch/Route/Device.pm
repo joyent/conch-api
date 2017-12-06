@@ -448,11 +448,29 @@ post '/device/:serial/triton_uuid' => needs login => sub {
   my $device = lookup_device_for_user( schema, $serial, $user_id );
   return status_404("Device $serial not found") unless $device;
 
-  my $triton_uuid = param 'triton_uuid';
+  my $triton_uuid = body_parameters->get('triton_uuid');
   return status_400("'triton_uuid' must be present and a UUID")
     unless defined($triton_uuid) && is_uuid($triton_uuid);
 
   set_triton_uuid( schema, $device->id, $triton_uuid );
+
+  my %location = ( Location => root_uri_for "/device/$serial" );
+  response_header(%location);
+  return status_303( \%location );
+};
+
+post '/device/:serial/asset_tag' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $serial  = param 'serial';
+
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
+  return status_404("Device $serial not found") unless $device;
+
+  my $asset_tag = body_parameters->get('asset_tag');
+  return status_400("'asset_tag' must be present and a string value")
+    unless defined($asset_tag) && ref($asset_tag) eq '';
+
+  set_device_asset_tag( schema, $device->id, $asset_tag );
 
   my %location = ( Location => root_uri_for "/device/$serial" );
   response_header(%location);
