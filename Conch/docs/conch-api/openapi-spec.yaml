@@ -467,14 +467,9 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: array
-                    items:
-                      type: string
-                    example: '[ "DEVICE1", "DEVICE2"]'
-                  - type: array
-                    items:
-                      $ref: "#/components/schemas/Device"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
         default:
           description: Unexpected error
           content:
@@ -1186,17 +1181,13 @@ components:
     DetailedDevice:
       type: object
       properties:
-        boot_pahse:
+        asset_tag:
+          nullable: true
+          type: string
+        boot_phase:
           nullable: true
           type: string
         created:
-          type: string
-          format: date-time
-        updated:
-          type: string
-          format: date-time
-        uptime_since:
-          nullable: true
           type: string
           format: date-time
         hardware_product:
@@ -1206,14 +1197,37 @@ components:
           type: string
         id:
           type: string
-        last_seen:
+        graduated:
+          nullable: true
           type: string
           format: date-time
+        last_seen:
+          nullable: true
+          type: string
+          format: date-time
+        latest_triton_reboot:
+          nullable: true
+          type: string
+          format: date-time
+        role:
+          nullable: true
+          type: string
         state:
           type: string
         system_uuid:
           type: string
           format: uuid
+        triton_uuid:
+          nullable: true
+          type: string
+          format: uuid
+        updated:
+          type: string
+          format: date-time
+        uptime_since:
+          nullable: true
+          type: string
+          format: date-time
         validated:
           nullable: true
           type: string
@@ -1251,17 +1265,13 @@ components:
     Device:
       type: object
       properties:
-        boot_pahse:
+        asset_tag:
+          nullable: true
+          type: string
+        boot_phase:
           nullable: true
           type: string
         created:
-          type: string
-          format: date-time
-        updated:
-          type: string
-          format: date-time
-        uptime_since:
-          nullable: true
           type: string
           format: date-time
         hardware_product:
@@ -1271,23 +1281,41 @@ components:
           type: string
         id:
           type: string
-        last_seen:
+        graduated:
+          nullable: true
           type: string
           format: date-time
+        last_seen:
+          nullable: true
+          type: string
+          format: date-time
+        latest_triton_reboot:
+          nullable: true
+          type: string
+          format: date-time
+        role:
+          nullable: true
+          type: string
         state:
           type: string
         system_uuid:
           type: string
           format: uuid
+        triton_uuid:
+          nullable: true
+          type: string
+          format: uuid
+        updated:
+          type: string
+          format: date-time
+        uptime_since:
+          nullable: true
+          type: string
+          format: date-time
         validated:
           nullable: true
           type: string
           format: date-time
-        validations:
-          nullable: true
-          type: array
-          items:
-            type: object
     DeviceReport:
       type: object
       required:
