@@ -186,7 +186,8 @@ sub record_device_report {
             drive_type    => $dr->{disks}->{$disk}->{drive_type},
             transport     => $dr->{disks}->{$disk}->{transport},
             firmware      => $dr->{disks}->{$disk}->{firmware},
-            deactivated   => undef
+            deactivated   => undef,
+            updated     => \'NOW()'
           }
         );
       }
@@ -199,48 +200,77 @@ sub record_device_report {
       if ( scalar @inactive_serials ) {
         $schema->resultset('DeviceDisk')
           ->search_rs( { serial_number => { -in => \@inactive_serials } } )
-          ->update( { deactivated => \'NOW()' } );
+          ->update( { deactivated => \'NOW()', updated => \'NOW()' } );
       }
 
       $dr->{disks}
         and $log->info("Recorded disk info for Device $device_id");
 
+      my @device_nics = $schema->resultset('DeviceNic')->search(
+        {
+          device_id   => $device_id,
+          deactivated => { '=', undef }
+        }
+      )->all;
+
+      my %inactive_macs = map { uc( $_->mac ) => 1 } @device_nics;
+
       foreach my $nic ( keys %{ $dr->{interfaces} } ) {
 
-        $log->trace(
-          "Device $device_id: Recording NIC: $dr->{interfaces}->{$nic}->{mac}"
-        );
+        my $mac = uc( $dr->{interfaces}->{$nic}->{mac} );
+
+        $log->trace( "Device $device_id: Recording NIC: $mac" );
+
+        if ( $inactive_macs{$mac} ) {
+          $inactive_macs{$mac} = 0;
+        }
 
         my $nic_rs = $schema->resultset('DeviceNic')->update_or_create(
           {
-            mac          => $dr->{interfaces}->{$nic}->{mac},
+            mac          => $mac,
             device_id    => $device->id,
             iface_name   => $nic,
             iface_type   => $dr->{interfaces}->{$nic}->{product},
             iface_vendor => $dr->{interfaces}->{$nic}->{vendor},
-            iface_driver => "",
+            iface_driver => '',
+            updated      => \'NOW()',
+            deactivated  => undef
           }
         );
 
         my $nic_state = $schema->resultset('DeviceNicState')->update_or_create(
           {
-            mac    => $dr->{interfaces}->{$nic}->{mac},
-            state  => $dr->{interfaces}->{$nic}->{state},
-            ipaddr => $dr->{interfaces}->{$nic}->{ipaddr},
-            mtu    => $dr->{interfaces}->{$nic}->{mtu},
+            mac     => $mac,
+            state   => $dr->{interfaces}->{$nic}->{state},
+            ipaddr  => $dr->{interfaces}->{$nic}->{ipaddr},
+            mtu     => $dr->{interfaces}->{$nic}->{mtu},
+            updated => \'NOW()'
           }
         );
 
         my $nic_peers = $schema->resultset('DeviceNeighbor')->update_or_create(
           {
-            mac         => $dr->{interfaces}->{$nic}->{mac},
+            mac         => $mac,
             raw_text    => $dr->{interfaces}->{$nic}->{peer_text},
             peer_switch => $dr->{interfaces}->{$nic}->{peer_switch},
             peer_port   => $dr->{interfaces}->{$nic}->{peer_port},
-            peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac}
+            peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac},
+            updated     => \'NOW()'
           }
         );
       }
+
+      my @inactive_macs =
+        grep { $inactive_macs{$_} } keys %inactive_macs;
+
+      # Deactivate all nics that were previously recorded but are no longer
+      # reported in the device report
+      if ( scalar @inactive_macs ) {
+        $schema->resultset('DeviceNic')
+          ->search_rs( { mac => { -in => \@inactive_macs } } )
+          ->update( { deactivated => \'NOW()', updated => \'NOW()' } );
+      }
+
     }
   );
   return ( $device, $device_report->id );
