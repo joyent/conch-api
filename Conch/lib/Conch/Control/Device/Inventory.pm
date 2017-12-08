@@ -55,11 +55,20 @@ sub validate_system {
   );
 
   # Ensure we have correct number of DIMMs
+  my $dimms_num  = $device_spec->dimms_num;
+  my $dimms_want = $hw_profile->dimms_num;
+
+  # Shrimps can have 256GB or 512GB RAM, with 8 or 16 DIMMs.
+  if ( $hw_product->name eq "Joyent-Storage-Platform-7001" ) {
+    if ( $dimms_num <= 8 ) { $dimms_want = 8; }
+    if ( $dimms_num > 8 )  { $dimms_want = 16; }
+  }
+
   my $dimms_num_status;
   my $dimms_num_log =
-    "Has = " . $device_spec->dimms_num . ", Want = " . $hw_profile->dimms_num;
+    "Has = " . $dimms_num . ", Want = " . $dimms_want;
 
-  if ( $device_spec->dimms_num != $hw_profile->dimms_num ) {
+  if ( $dimms_num != $dimms_want ) {
     $dimms_num_status = 0;
     mistake(
 "$device_id: report $report_id: CRITICAL: Incorrect DIMM count: $dimms_num_log"
@@ -79,7 +88,7 @@ sub validate_system {
         {
           component_type => "RAM",
           component_name => "dimm_count",
-          metric         => $device_spec->dimms_num,
+          metric         => $dimms_num,
           log            => $dimms_num_log,
           status         => $dimms_num_status
         }
@@ -88,11 +97,20 @@ sub validate_system {
   );
 
   # Ensure we have correct amount of total RAM
+  my $ram_total = $device_spec->ram_total;
+  my $ram_want  = $hw_profile->ram_total;
+
+  # Shrimps can have 256GB or 512GB RAM, with 8 or 16 DIMMs.
+  if ( $hw_product->name eq "Joyent-Storage-Platform-7001" ) {
+    if ( $ram_total <= 256 ) { $ram_want = 256; }
+    if ( $ram_total > 256  ) { $ram_want = 512; }
+  }
+
   my $ram_total_status;
   my $ram_total_log =
-    "Has = " . $device_spec->ram_total . ", Want = " . $hw_profile->ram_total;
+    "Has = " . $ram_total . ", Want = " . $ram_want;
 
-  if ( $device_spec->ram_total != $hw_profile->ram_total ) {
+  if ( $ram_total != $ram_want ) {
     $ram_total_status = 0;
     mistake(
 "$device_id: report $report_id: CRITICAL: Incorrect RAM total: $ram_total_log"
@@ -112,7 +130,7 @@ sub validate_system {
         {
           component_type => "RAM",
           component_name => "ram_total",
-          metric         => $device_spec->ram_total,
+          metric         => $ram_total,
           log            => $ram_total_log,
           status         => $ram_total_status
         }
