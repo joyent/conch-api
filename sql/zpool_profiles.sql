@@ -2,6 +2,9 @@ INSERT INTO zpool_profile (name, vdev_t, vdev_n, disk_per, spare, log, cache)
        VALUES ( 'Joyent-Compute-Platform-3301', 'mirror', 7, 2, 1, 1, 0 );
 
 INSERT INTO zpool_profile (name, vdev_t, vdev_n, disk_per, spare, log, cache)
+       VALUES ( 'Joyent-Compute-Platform-3101', 'mirror', 7, 2, 1, 1, 0 );
+
+INSERT INTO zpool_profile (name, vdev_t, vdev_n, disk_per, spare, log, cache)
        VALUES ( 'Joyent-Compute-Platform-3302', 'raidz2', 1, 8, 0, 0, 0 );
 
 INSERT INTO zpool_profile (name, vdev_t, vdev_n, disk_per, spare, log, cache)

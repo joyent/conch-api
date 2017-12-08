@@ -12,6 +12,8 @@ INSERT INTO hardware_product (name, alias, prefix, vendor)
 INSERT INTO hardware_product (name, alias, prefix, vendor)
        VALUES ( 'Joyent-Compute-Platform-3301', 'Hallasan A', 'HA', ( SELECT id FROM hardware_vendor WHERE name = 'Dell' ) );
 INSERT INTO hardware_product (name, alias, prefix, vendor)
+       VALUES ( 'Joyent-Compute-Platform-3101', 'Hallasan A r2', 'HA', ( SELECT id FROM hardware_vendor WHERE name = 'SuperMicro' ) );
+INSERT INTO hardware_product (name, alias, prefix, vendor)
        VALUES ( 'Joyent-Compute-Platform-3302', 'Hallasan C', 'HC', ( SELECT id FROM hardware_vendor WHERE name = 'Dell' ) );
 INSERT INTO hardware_product (name, alias, prefix, vendor)
        VALUES ( 'CERES', 'Type 1', 'CE', ( SELECT id FROM hardware_vendor WHERE name = 'Dell' ) );
