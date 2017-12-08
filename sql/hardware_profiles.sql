@@ -36,6 +36,16 @@ INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_n
        );
 
 INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_num, cpu_type,
+            dimms_num, ram_total, nics_num, sas_num, sas_size, ssd_num, ssd_size, ssd_slots, psu_total, zpool_id,
+            rack_unit )
+      VALUES (  ( SELECT id FROM hardware_product WHERE name = 'Joyent-Compute-Platform-3101' ),
+            'General Compute', '2.0a', 2, 'Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz',
+            16, 512, 7, 15, 1117.81, 1, 93.16, '0', 2,
+            ( SELECT id FROM zpool_profile WHERE name = 'Joyent-Compute-Platform-3101' ),
+            2
+       );
+
+INSERT INTO hardware_product_profile ( product_id, purpose, bios_firmware, cpu_num, cpu_type,
             dimms_num, ram_total, nics_num, sas_num, ssd_num, ssd_size, ssd_slots, psu_total, zpool_id,
             rack_unit )
       VALUES (  ( SELECT id FROM hardware_product WHERE name = 'Joyent-Compute-Platform-3302' ),
