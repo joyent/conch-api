@@ -178,6 +178,7 @@ sub record_device_report {
             serial_number => $disk,
             slot          => $dr->{disks}->{$disk}->{slot},
             hba           => $dr->{disks}->{$disk}->{hba},
+            enclosure     => $dr->{disks}->{$disk}->{enclosure},
             vendor        => $dr->{disks}->{$disk}->{vendor},
             health        => $dr->{disks}->{$disk}->{health},
             size          => $dr->{disks}->{$disk}->{size},

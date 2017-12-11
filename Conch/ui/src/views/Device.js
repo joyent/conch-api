@@ -213,6 +213,7 @@ const deviceReport = {
                   t("Storage"),
                   [
                       t("Serial Number"),
+                      t("Enclosure"),
                       t("HBA"),
                       t("Slot Number"),
                       t("Vendor"),
@@ -230,6 +231,7 @@ const deviceReport = {
                           const disk = Device.current.latest_report.disks[k];
                           return [
                               k,
+                              disk.enclosure,
                               disk.hba,
                               disk.slot,
                               disk.vendor,
