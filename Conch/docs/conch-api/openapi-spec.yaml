@@ -1398,7 +1398,28 @@ components:
         slots:
           type: object
           items:
-            $ref: "#/components/schemas/Device"
+            type: object
+            properties:
+              alias:
+                type: string
+                description: Hardware product alias
+              id:
+                type: string
+                format: uuid
+                description: Hardware product ID
+              name:
+                type: string
+                description: Hardware product name
+              size:
+                type: integer
+                description: Number of RUs for slot
+              vendor:
+                type: string
+                description: Hardware product vendor
+              occupant:
+                nullable: true
+                description: Device assigned to this slot or null
+                $ref: "#/components/schemas/Device"
     Problems:
       type: object
       properties:
