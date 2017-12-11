@@ -1365,6 +1365,22 @@ components:
               type: string
             unit:
               type: integer
+        target_hardware_product:
+          type: object
+          description: >
+            Details of the hardware product the device is expected to be based
+            on it's current position and the rack layout.
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: Hardware product ID
+            name:
+              type: string
+              description: Hardware product name
+            alias:
+              type: string
+              description: Hardware product alias
     RackSummary:
       type: object
       properties:

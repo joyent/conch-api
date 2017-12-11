@@ -18,7 +18,7 @@ our @EXPORT = qw(
   graduate_device triton_reboot_device set_triton_uuid update_device_location
   delete_device_location get_validation_criteria get_active_devices
   get_devices_by_health unlocated_devices device_response mark_device_validated
-  set_device_asset_tag 
+  set_device_asset_tag
 );
 
 sub get_validation_criteria {
@@ -182,11 +182,18 @@ sub device_rack_location {
     my $rack_info = get_rack( $schema, $device_location->rack_id );
     my $datacenter =
       get_datacenter_room( $schema, $rack_info->datacenter_room_id );
+    my $target_hardware =
+      get_target_hardware_product( $schema, $rack_info->id,
+      $device_location->rack_unit );
 
     $location->{rack}{id}   = $device_location->rack_id;
     $location->{rack}{unit} = $device_location->rack_unit;
     $location->{rack}{name} = $rack_info->name;
     $location->{rack}{role} = $rack_info->role->name;
+
+    $location->{target_hardware_product}{id}    = $target_hardware->id;
+    $location->{target_hardware_product}{name}  = $target_hardware->name;
+    $location->{target_hardware_product}{alias} = $target_hardware->alias;
 
     $location->{datacenter}{id}   = $datacenter->id;
     $location->{datacenter}{name} = $datacenter->az;
@@ -200,6 +207,19 @@ sub latest_device_report {
 
   return $schema->resultset('LatestDeviceReport')
     ->search( {}, { bind => [$device_id] } )->first;
+}
+
+# get the hardware product a device should be by rack location
+sub get_target_hardware_product {
+  my ( $schema, $rack_id, $rack_unit ) = @_;
+
+  return $schema->resultset('HardwareProduct')->search(
+    {
+      'datacenter_rack_layouts.rack_id'  => $rack_id,
+      'datacenter_rack_layouts.ru_start' => $rack_unit
+    },
+    { join => 'datacenter_rack_layouts' }
+  )->single;
 }
 
 # Bundle up the validate logs for a given device report.
@@ -288,14 +308,13 @@ sub update_device_location {
       );
       return ( $occupied, undef );
     }
+
     # Location is currently occupied. remove device
     else {
       $log->infof(
         "Device %s occupies rack %s, slot %s. Replacing with %s.",
-        $occupied->device_id,
-        $device_info->{rack},
-        $device_info->{rack_unit},
-        $device_info->{device}
+        $occupied->device_id,      $device_info->{rack},
+        $device_info->{rack_unit}, $device_info->{device}
       );
       $occupied->delete;
     }
