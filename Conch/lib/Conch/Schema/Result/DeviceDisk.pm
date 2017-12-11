@@ -58,11 +58,6 @@ __PACKAGE__->table("device_disk");
   data_type: 'text'
   is_nullable: 0
 
-=head2 hba
-
-  data_type: 'integer'
-  is_nullable: 1
-
 =head2 slot
 
   data_type: 'integer'
@@ -127,6 +122,16 @@ __PACKAGE__->table("device_disk");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 enclosure
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 hba
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -141,8 +146,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "serial_number",
   { data_type => "text", is_nullable => 0 },
-  "hba",
-  { data_type => "integer", is_nullable => 1 },
   "slot",
   { data_type => "integer", is_nullable => 1 },
   "size",
@@ -177,6 +180,10 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "enclosure",
+  { data_type => "text", is_nullable => 1 },
+  "hba",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -223,8 +230,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-10-05 17:32:26
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wXKSC/nY0Eiq/trtWC/EfQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-12-11 15:05:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H5DYdqjLNb22jQvy2ePY5Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
