@@ -162,18 +162,6 @@ __PACKAGE__->add_unique_constraint("hardware_product_alias_key", ["alias"]);
 
 __PACKAGE__->add_unique_constraint("hardware_product_name_key", ["name"]);
 
-=head2 C<hardware_product_prefix_key>
-
-=over 4
-
-=item * L</prefix>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("hardware_product_prefix_key", ["prefix"]);
-
 =head1 RELATIONS
 
 =head2 datacenter_rack_layouts
@@ -237,8 +225,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-29 17:37:40
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gTRMgGx2cvUL3tc49v8HZA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-12-11 15:05:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:evqVl/uIee8b2DFts5wtmA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
