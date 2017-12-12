@@ -9,6 +9,7 @@ use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Passphrase;
 use Dancer2::Plugin::REST;
 use Hash::MultiValue;
+use HTTP::Headers::ActionPack::Authorization::Basic;
 
 use Conch::Control::User;
 use Conch::Control::User::Setting;
@@ -24,9 +25,19 @@ Dancer2::Plugin::Auth::Tiny->extend(
       if ( $user_id && validate_user_id( schema, $user_id ) ) {
         goto $coderef;
       }
-      else {
-        status_401('unauthorized');
+
+      my $auth_header = $auth->app->request->header('Authorization');
+      if ( defined($auth_header) ) {
+        my $cred =
+          HTTP::Headers::ActionPack::Authorization::Basic->new_from_string(
+          $auth_header);
+        my $user = authenticate( schema, $cred->username, $cred->password );
+        if ( defined($user) ) {
+          $auth->app->session->write( user_id => $user->id );
+          goto $coderef;
+        }
       }
+      status_401('unauthorized');
     };
   }
 );

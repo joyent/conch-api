@@ -19,6 +19,7 @@ requires 'Data::Printer';
 requires 'List::Compare';
 requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
+requires 'HTTP::Headers::ActionPack::Authorization::Basic';
 
 # logging
 requires 'Log::Any';
