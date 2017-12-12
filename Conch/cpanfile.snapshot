@@ -1971,6 +1971,47 @@ DISTRIBUTIONS
       Stream::Buffered 0
       WWW::Form::UrlEncoded 0.23
       perl 5.008005
+  HTTP-Headers-ActionPack-0.09
+    pathname: D/DR/DROLSKY/HTTP-Headers-ActionPack-0.09.tar.gz
+    provides:
+      HTTP::Headers::ActionPack 0.09
+      HTTP::Headers::ActionPack::AcceptCharset 0.09
+      HTTP::Headers::ActionPack::AcceptLanguage 0.09
+      HTTP::Headers::ActionPack::AuthenticationInfo 0.09
+      HTTP::Headers::ActionPack::Authorization 0.09
+      HTTP::Headers::ActionPack::Authorization::Basic 0.09
+      HTTP::Headers::ActionPack::Authorization::Digest 0.09
+      HTTP::Headers::ActionPack::ContentNegotiation 0.09
+      HTTP::Headers::ActionPack::Core::Base 0.09
+      HTTP::Headers::ActionPack::Core::BaseAuthHeader 0.09
+      HTTP::Headers::ActionPack::Core::BaseHeaderList 0.09
+      HTTP::Headers::ActionPack::Core::BaseHeaderType 0.09
+      HTTP::Headers::ActionPack::Core::BaseHeaderWithParams 0.09
+      HTTP::Headers::ActionPack::DateHeader 0.09
+      HTTP::Headers::ActionPack::LinkHeader 0.09
+      HTTP::Headers::ActionPack::LinkList 0.09
+      HTTP::Headers::ActionPack::MediaType 0.09
+      HTTP::Headers::ActionPack::MediaTypeList 0.09
+      HTTP::Headers::ActionPack::PriorityList 0.09
+      HTTP::Headers::ActionPack::Util 0.09
+      HTTP::Headers::ActionPack::WWWAuthenticate 0.09
+    requirements:
+      Carp 0
+      Encode 0
+      ExtUtils::MakeMaker 6.30
+      HTTP::Date 0
+      HTTP::Headers::Util 0
+      List::Util 0
+      MIME::Base64 0
+      Module::Runtime 0
+      Scalar::Util 0
+      Sub::Exporter 0
+      Time::Piece 0
+      URI::Escape 0
+      overload 0
+      parent 0
+      strict 0
+      warnings 0
   HTTP-Headers-Fast-0.21
     pathname: T/TO/TOKUHIROM/HTTP-Headers-Fast-0.21.tar.gz
     provides:
