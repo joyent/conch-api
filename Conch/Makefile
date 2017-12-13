@@ -5,7 +5,7 @@
 run: build run-perl
 
 run-perl:
-	@carton exec ./local/bin/plackup -E development -s Starman --workers=50 -p 5001 -a bin/app.psgi
+	@bin/conch daemon
 
 build: web-assets doc cpanfile.snapshot local
 

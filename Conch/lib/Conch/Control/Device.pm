@@ -3,7 +3,7 @@ package Conch::Control::Device;
 use strict;
 use List::Compare;
 use Log::Any '$log';
-use Dancer2::Plugin::Passphrase;
+use JSON::XS;
 
 use Conch::Control::Rack;
 use Conch::Control::Datacenter;
@@ -233,7 +233,7 @@ sub device_validation_report {
 
   my @reports;
   foreach my $r (@validate_report) {
-    push @reports, Dancer2::Serializer::JSON::from_json( $r->validation );
+    push @reports, decode_json( $r->validation );
   }
 
   return @reports;

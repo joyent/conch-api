@@ -69,6 +69,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    get:
+      tags: [Login]
+      summary: Verify the user is logged in or authenticated 
+      operationId: checkLogin
+      responses:
+        '204':
+          description: User successfully logged in or authenticated
+        '401':
+          description: User not logged in or failed to authenticate
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /reset_password:
     post:
       tags: [Login]
@@ -103,7 +118,7 @@ paths:
     get:
       tags: [Workspace]
       summary: List all workspaces the user is assigned
-      operationId: getWorkspaces
+      operationId: listWorkspaces
       responses:
         '200':
           description: List of workspaces user is assigned
@@ -140,8 +155,8 @@ paths:
   /workspace/{workspace_id}/child:
     post:
       tags: [Workspace]
-      summary: Create a sub-workspaces
-      operationId: createSubWorkspaces
+      summary: Create a sub-workspacs
+      operationId: createSubWorkspace
       requestBody:
         required: true
         content:
@@ -155,14 +170,12 @@ paths:
                   nullable: true
                   type: string
       responses:
-        '200':
-          description: List of sub-workspaces of workspace
+        '201':
+          description: Newly created workspace object
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Workspace"
+                $ref: "#/components/schemas/Workspace"
         default:
           description: Unexpected error
           content:
@@ -224,15 +237,6 @@ paths:
       responses:
         '201':
           description: User created
-          content:
-            application/json:
-              schema:
-                properties:
-                  user:
-                    type: string
-                  password:
-                    description: Randomly generated password
-                    type: string
         default:
           description: Unexpected error
           content:
@@ -393,12 +397,8 @@ paths:
       summary: Remove specified user setting
       operationId: removeUserSetting
       responses:
-        '200':
+        '204':
           description: Set user setting successfully
-          content:
-            application/json:
-              example: >
-                { "status": "deleted settings 'burn_in_time' for user" }
         default:
           description: Unexpected error
           content:
@@ -490,6 +490,13 @@ paths:
           schema:
             type: string
             enum: [ "unknown", "pass", "fail" ]
+        - in: query
+          name: active
+          description: >
+            If present, filter devices that have reproted within the last 5 minutes (300 seconds).
+          schema:
+            type: string
+            enum: [ "t", "f" ]
       responses:
         '200':
           description: >
@@ -1014,12 +1021,8 @@ paths:
       summary: Delete specified setting for a device
       operationId: removeDeviceSetting
       responses:
-        '200':
+        '204':
           description: Set device setting successfully
-          content:
-            application/json:
-              example: >
-                { "status": "deleted settings 'bmc_fw' for device DEVICE" }
         default:
           description: Unexpected error
           content:
@@ -1390,6 +1393,10 @@ components:
           nullable: true
           type: string
           format: uuid
+        triton_setup:
+          nullable: true
+          type: string
+          format: date-time
         updated:
           type: string
           format: date-time
@@ -1524,6 +1531,8 @@ components:
               type: integer
             ssd_slots:
               type: string
+            usb_num:
+              type: integer
             zpool:
               type: object
               properties:
@@ -1531,7 +1540,7 @@ components:
                   type: integer
                 log:
                   type: integer
-                disks_per:
+                disk_per:
                   nullable: true
                   type: integer
                 spare:

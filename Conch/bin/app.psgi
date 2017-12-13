@@ -5,50 +5,29 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
-
 use Log::Log4perl;
+use Data::Printer;
+use Mojo::Server::PSGI;
 Log::Log4perl::init($ENV{CONCH_LOG_CONF} || './log4perl.conf');
 
-# use this block if you don't need middleware, and only have a single target Dancer app to run here
 use Conch;
-
-Conch->to_app;
 
 use Plack::Builder;
 
-builder {
-    enable 'Deflater';
-    Conch->to_app;
-}
-
-
-
-=begin comment
-# use this block if you want to include middleware such as Plack::Middleware::Deflater
-
-use Conch;
-use Plack::Builder;
+my $dancer_app = Conch->to_app;
+my $mojo_app = Mojo::Server::PSGI->new;
+$mojo_app->load_app("bin/mojo");
 
 builder {
     enable 'Deflater';
-    Conch->to_app;
+    sub {
+      my $env = shift;
+      my $res = $dancer_app->($env);
+      my $foo = ref $res;
+      if (ref $res eq 'ARRAY' && $res->[0] == 404 ) {
+        my $fallback_res = $mojo_app->run($env);
+        return $fallback_res if $fallback_res->[0] != 404;
+      }
+      return $res;
+    };
 }
-
-=end comment
-
-=cut
-
-=begin comment
-# use this block if you want to include middleware such as Plack::Middleware::Deflater
-
-use Conch;
-use Conch_admin;
-
-builder {
-    mount '/'      => Conch->to_app;
-    mount '/admin'      => Conch_admin->to_app;
-}
-
-=end comment
-
-=cut
