@@ -195,8 +195,9 @@ sub device_rack_location {
     $location->{target_hardware_product}{name}  = $target_hardware->name;
     $location->{target_hardware_product}{alias} = $target_hardware->alias;
 
-    $location->{datacenter}{id}   = $datacenter->id;
-    $location->{datacenter}{name} = $datacenter->az;
+    $location->{datacenter}{id}          = $datacenter->id;
+    $location->{datacenter}{name}        = $datacenter->az;
+    $location->{datacenter}{vendor_name} = $datacenter->vendor_name;
   }
 
   return $location;
