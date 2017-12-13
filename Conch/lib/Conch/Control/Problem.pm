@@ -3,7 +3,6 @@ package Conch::Control::Problem;
 use strict;
 use Log::Report;
 use List::Compare;
-use Dancer2::Plugin::Passphrase;
 use Conch::Control::User;
 use Conch::Control::Device;
 

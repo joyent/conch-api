@@ -15,11 +15,13 @@ requires 'Plack';
 requires 'Config::General';
 requires 'Data::UUID';
 requires 'JSON::XS';
+requires 'YAML::XS';
 requires 'Data::Printer';
 requires 'List::Compare';
 requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
 requires 'HTTP::Headers::ActionPack::Authorization::Basic';
+requires 'aliased';
 
 # logging
 requires 'Log::Any';
@@ -54,8 +56,14 @@ requires 'MooseX::Storage';
 requires 'MooseX::MarkAsMethods';
 requires 'MooseX::NonMoose';
 
+# mojolicious
+requires 'Mojolicious';
+requires 'Mojo::Server::PSGI';
+requires 'Mojolicious::Plugin::Bcrypt';
+requires 'Mojolicious::Plugin::Util::RandomString';
+
 on 'test' => sub {
     requires 'Test::More';
-    requires 'HTTP::Request::Common';
-    requires 'HTTP::Cookies';
+    requires 'Mock::Quick';
+    requires 'Test::PostgreSQL';
 };

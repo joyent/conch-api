@@ -14,7 +14,6 @@ our @EXPORT = qw(
 
 sub new_user_invite {
   my ($args)   = @_;
-  my $username = $args->{name};
   my $email    = $args->{email};
   my $password = $args->{password};
 
@@ -28,7 +27,7 @@ sub new_user_invite {
     you. Please log into https://conch.joyent.us using the credentials
     below:
 
-    Username: $username
+    Username: $email
     Password: $password
 
     Thank you,
@@ -46,7 +45,6 @@ sub new_user_invite {
 
 sub existing_user_invite {
   my ($args)         = @_;
-  my $username       = $args->{name};
   my $email          = $args->{email};
   my $workspace_name = $args->{workspace_name};
 
@@ -58,7 +56,7 @@ sub existing_user_invite {
 
     You have been invited to join a new Joyent Conch workspace
     "$workspace_name".  Please log into https://conch.joyent.us using
-    your existing account credentails with username '$username'. You can switch
+    your existing account credentails with username '$email'. You can switch
     between available workspaces in the sidebar.
 
     Thank you,
@@ -77,7 +75,6 @@ sub existing_user_invite {
 sub password_reset_email {
   my ($args)         = @_;
   my $email          = $args->{email};
-  my $username       = $args->{name} || $email;
   my $password       = $args->{password};
 
   my %mail = (
@@ -91,7 +88,7 @@ sub password_reset_email {
 
     Please log into https://conch.joyent.us using the following credentials:
 
-    Username: $username
+    Username: $email
     Password: $password
 
 
