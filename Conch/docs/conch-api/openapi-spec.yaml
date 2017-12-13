@@ -6,7 +6,7 @@ info:
 servers:
   - url: https://preflight.scloud.zone
 security:
-  apiCookie: []
+  basicAuth: []
 tags:
   - name: Login
   - name: Workspace
@@ -1607,7 +1607,10 @@ components:
         vendor_name:
           type: string
   securitySchemes:
-    apiCookie:
+    basicAuth:
       type: apiKey
-      name: dancer.session
-      in: cookie
+      name: Basic HTTP Authorization
+      in: header
+      description: >
+        Basic HTTP Authentication scheme, as defined in [RFC
+        7617](https://tools.ietf.org/html/rfc7617)
