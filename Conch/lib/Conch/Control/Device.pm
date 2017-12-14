@@ -18,7 +18,7 @@ our @EXPORT = qw(
   graduate_device triton_reboot_device set_triton_uuid update_device_location
   delete_device_location get_validation_criteria get_active_devices
   get_devices_by_health unlocated_devices device_response mark_device_validated
-  set_device_asset_tag
+  set_device_asset_tag mark_device_triton_setup
 );
 
 sub get_validation_criteria {
@@ -368,6 +368,12 @@ sub mark_device_validated {
   $schema->resultset('Device')->find( { id => $device->id } )
     ->update( { validated => \'NOW()', updated => \'NOW()' } );
   return 1;
+}
+
+sub mark_device_triton_setup {
+  my ( $schema, $device_id ) = @_;
+  $schema->resultset('Device')->find( { id => $device_id } )
+    ->update( { triton_setup => \'NOW()', updated => \'NOW()' } );
 }
 
 sub set_device_asset_tag {
