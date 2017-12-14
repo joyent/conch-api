@@ -27,8 +27,9 @@ use Log::Any;
 set serializer => 'JSON';
 
 get '/workspace/:wid/device' => needs login => sub {
-  my $user_id   = session->read('user_id');
-  my $ws_id     = param 'wid';
+  my $user_id = session->read('user_id');
+  my $ws_id   = param 'wid';
+  return status_400("$ws_id must be a UUID") unless is_uuid($ws_id);
   my $workspace = get_user_workspace( schema, $user_id, $ws_id );
   unless ( defined $workspace ) {
     return status_404("Workspace $ws_id not found");
@@ -421,6 +422,33 @@ post '/device/:serial/graduate' => needs login => sub {
     if defined( $device->graduated );
 
   graduate_device( schema, $device->id );
+
+  my %location = ( Location => root_uri_for "/device/$serial" );
+  response_header %location;
+  return status_303( \%location );
+};
+
+post '/device/:serial/triton_setup' => needs login => sub {
+  my $user_id = session->read('user_id');
+  my $serial  = param 'serial';
+
+  my $device = lookup_device_for_user( schema, $serial, $user_id );
+  return status_404("Device $serial not found") unless $device;
+
+  return status_409(
+      "Device $serial must be marked as rebooted into Triton and the Trition ".
+      "UUID set before it can be marked as set up for Triton"
+    )
+    unless (
+      defined( $device->latest_triton_reboot )
+      && defined( $device->triton_uuid )
+    );
+
+  return status_409(
+    "Device $serial has already been marked as set up for Triton")
+    if defined( $device->triton_setup );
+
+  mark_device_triton_setup( schema, $device->id );
 
   my %location = ( Location => root_uri_for "/device/$serial" );
   response_header %location;

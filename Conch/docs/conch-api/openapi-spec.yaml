@@ -708,6 +708,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /device/{serial}/triton_setup:
+    post:
+      tags: [Device]
+      summary: Mark a device as set up for Triton
+      operationId: markDeviceTritonSetup
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        '409':
+          description: >
+            The device either must be marked as being rebooted into Triton
+            (`tritonRebootDevice`) and the Triton UUID set
+            (`setDeviceTritonUUID`), or it has already been marked as set up
+            for Trition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /device/{serial}/asset_tag:
     post:
       tags: [Device]
