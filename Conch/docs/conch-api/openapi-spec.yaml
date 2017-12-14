@@ -667,7 +667,7 @@ paths:
   /device/{serial}/triton_uuid:
     post:
       tags: [Device]
-      summary: Mark a device as having rebooted into Triton
+      summary: Set the Triton UUID associated with the device
       operationId: setDeviceTritonUUID
       requestBody:
         required: true
