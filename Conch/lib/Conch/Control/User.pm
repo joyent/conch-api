@@ -11,8 +11,8 @@ use Data::Printer;
 
 use Exporter 'import';
 our @EXPORT = qw(
-  validate_user_id lookup_user authenticate create_admin_passphrase
-  create_integrator_password hash_password
+  validate_user_id lookup_user authenticate generate_random_password
+  hash_password reset_user_password
 );
 
 sub validate_user_id {
@@ -36,11 +36,7 @@ sub lookup_user {
 
 sub authenticate {
   my ( $schema, $name, $password ) = @_;
-  my $user = $schema->resultset('UserAccount')->find(
-    {
-      name => $name
-    }
-  );
+  my $user = $schema->resultset('UserAccount')->find( { name => $name } );
 
   $user or $log->warning("user name '$name' not found") and return undef;
 
@@ -50,39 +46,40 @@ sub authenticate {
   return undef;
 }
 
+sub generate_random_password {
+  my $length = shift || 8;
+
+  my $password = passphrase->generate_random( { length => $length } );
+  my $password_hash = hash_password($password);
+  return {
+    password      => $password,
+    password_hash => $password_hash
+  };
+}
+
 sub hash_password {
   my $password = shift;
   return passphrase($password)->generate->rfc2307;
 }
 
-sub create_integrator_password {
+sub reset_user_password {
+  my ( $schema, $email, $emailer ) = @_;
 
-  # Password are 8 digits
-  return passphrase->generate_random(
+  my $user = $schema->resultset('UserAccount')->find( { email => $email } );
+  return unless $user;
+
+  my $pw = generate_random_password();
+  $user->password_hash( $pw->{password_hash} );
+  $user->update;
+  $emailer->(
     {
-      length  => 8,
-      charset => [ '0' .. '9' ]
+      name     => $user->name,
+      email    => $email,
+      password => $pw->{password}
     }
   );
-}
 
-# Useful from a one-liner if a new password is needed
-# > carton exec perl -Ilib -mConch::Control::User -e \
-#      'my $pw = Conch::Control::User::create_admin_passphrase(); \
-#       print $pw->{password} . "\n" . $pw->{password_hash};'
-sub create_admin_passphrase {
-
-  # 24 character long passwords
-  my $password = passphrase->generate_random(
-    {
-      length => 24
-    }
-  );
-  my $password_hash = passphrase($password)->generate->rfc2307;
-  return {
-    password      => $password,
-    password_hash => $password_hash
-  };
+  1;
 }
 
 1;

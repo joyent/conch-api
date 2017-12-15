@@ -69,6 +69,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /login:
+    post:
+      tags: [Login]
+      summary: Reset user password
+      security: []
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email address of the user to password reset
+              required:
+                - email
+      responses:
+        '204':
+          description: >
+            Password reset email has been sent if the email was associated with
+            a user account. Response will be identical if the email was not
+            found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /workspace:
     get:
       tags: [Workspace]

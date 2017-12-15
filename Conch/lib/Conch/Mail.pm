@@ -9,7 +9,7 @@ use Log::Any '$log';
 
 use Exporter 'import';
 our @EXPORT = qw(
-  new_user_invite existing_user_invite 
+  new_user_invite existing_user_invite password_reset_email
 );
 
 sub new_user_invite {
@@ -25,7 +25,7 @@ sub new_user_invite {
     Message => qq{Hello,
 
     You have been invited to join Joyent Conch. An account has been created for
-    you. Please log into https://preflight.scloud.zone using the credentials
+    you. Please log into https://conch.joyent.us using the credentials
     below:
 
     Username: $username
@@ -57,9 +57,43 @@ sub existing_user_invite {
     Message => qq{Hello,
 
     You have been invited to join a new Joyent Conch workspace
-    "$workspace_name".  Please log into https://preflight.scloud.zone using
+    "$workspace_name".  Please log into https://conch.joyent.us using
     your existing account credentails with username '$username'. You can switch
     between available workspaces in the sidebar.
+
+    Thank you,
+    Joyent Build Ops Team
+    }
+
+  );
+  if ( sendmail %mail ) {
+    $log->info("Existing user invite successfully sent to $email.");
+  }
+  else {
+    $log->error("Sendmail error: $Mail::Sendmail::error");
+  }
+}
+
+sub password_reset_email {
+  my ($args)         = @_;
+  my $email          = $args->{email};
+  my $username       = $args->{name} || $email;
+  my $password       = $args->{password};
+
+  my %mail = (
+    To      => $email,
+    From    => 'noreply@conch.joyent.us',
+    Subject => "Conch Password Reset",
+    Message => qq{Hello,
+
+    A request was received to reset your password.  A new password has been
+    randomly generated and your old password has been deactivated.
+
+    Please log into https://conch.joyent.us using the following credentials:
+
+    Username: $username
+    Password: $password
+
 
     Thank you,
     Joyent Build Ops Team
