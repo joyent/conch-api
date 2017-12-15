@@ -12,6 +12,7 @@ use Hash::MultiValue;
 use HTTP::Headers::ActionPack::Authorization::Basic;
 
 use Conch::Control::User;
+use Conch::Mail qw( password_reset_email );
 use Conch::Control::User::Setting;
 
 use Data::Printer;
@@ -64,6 +65,18 @@ post '/login' => sub {
 post '/logout' => sub {
   session->destroy_session;
   status_200( { status => "logged out" } );
+};
+
+post '/reset_password' => sub {
+  my $username = body_parameters->get('email');
+  unless ( defined $email ) {
+    return status_400("'email' must be specified");
+  }
+  reset_user_password( schema, $email, \&password_reset_email );
+
+  # always return 200 whether or not the user exists so no information about
+  # the status of a user is given
+  status_200();
 };
 
 # used to check if the current user is authenticated

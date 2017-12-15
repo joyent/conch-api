@@ -9,7 +9,7 @@ use Mojo::Pg;
 use Mojo::Pg::Database;
 use SQL::Abstract;
 
-use Conch::Control::User qw( create_integrator_password hash_password );
+use Conch::Control::User qw( generate_random_password hash_password );
 
 use Exporter 'import';
 our @EXPORT = qw(
@@ -158,18 +158,17 @@ sub invite_user_to_workspace {
           { %$user, workspace_name => $workspace->{name} } );
       }
       else {
-        my $password      = create_integrator_password();
-        my $password_hash = hash_password($password);
+        my $pw = generate_random_password();
         $user = $db->insert(
           'user_account',
           {
             name          => $email,
             email         => $email,
-            password_hash => $password_hash
+            password_hash => $pw->{password_hash}
           },
           { returning => [ 'id', 'name', 'email' ] }
         )->hash;
-        $invite_new_user->( { %$user, password => $password } );
+        $invite_new_user->( { %$user, password => $pw->{password} } );
 
       }
 
