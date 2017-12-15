@@ -68,7 +68,7 @@ post '/logout' => sub {
 };
 
 post '/reset_password' => sub {
-  my $username = body_parameters->get('email');
+  my $email = body_parameters->get('email');
   unless ( defined $email ) {
     return status_400("'email' must be specified");
   }
