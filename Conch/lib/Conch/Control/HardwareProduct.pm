@@ -14,10 +14,10 @@ sub list_hardware_products {
 
   my @hardware_products = $schema->resultset('HardwareProduct')->search(
     {
-      'me.deactivated' => { '=', undef },
+      'me.deactivated'              => { '=',  undef },
       'hardware_product_profile.id' => { '!=', undef }
     },
-    { prefetch => { hardware_product_profile => 'zpool' } }
+    { prefetch => [ { hardware_product_profile => 'zpool' }, 'vendor' ] }
   )->all;
 
   my @hw_response = map { build_hardware_product_hash($_) } @hardware_products;
@@ -29,14 +29,15 @@ sub get_hardware_product {
 
   my $hardware_product = $schema->resultset('HardwareProduct')->search(
     {
-      'me.id'          => $hw_id,
-      'me.deactivated' => { '=', undef },
+      'me.id'                       => $hw_id,
+      'me.deactivated'              => { '=', undef },
       'hardware_product_profile.id' => { '!=', undef }
     },
-    { prefetch => { hardware_product_profile => 'zpool' } }
+    { prefetch => [ { hardware_product_profile => 'zpool' }, 'vendor' ] }
   )->single;
 
-  return build_hardware_product_hash($hardware_product) if defined($hardware_product);
+  return build_hardware_product_hash($hardware_product)
+    if defined($hardware_product);
 }
 
 # Build a hash with hardware product and hardware product profile details.
@@ -46,11 +47,15 @@ sub build_hardware_product_hash {
 
   my $hw_profile = $hw->hardware_product_profile;
 
+  my $hw_vendor_name = $hw->vendor->name;
+
   my %hw_columns = $hw->get_columns;
 
   my %profile_columns = $hw_profile->get_columns;
 
-  my %res     = %hw_columns{qw/id name alias prefix /};
+  my %res = %hw_columns{qw/id name alias prefix /};
+  $res{vendor} = $hw_vendor_name;
+
   my %profile = %profile_columns{
     qw/purpose bios_firmware hba_firmware
       cpu_num cpu_type dimms_num ram_total nics_num sata_num sata_size sata_slots

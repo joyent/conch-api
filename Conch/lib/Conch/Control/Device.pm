@@ -194,6 +194,7 @@ sub device_rack_location {
     $location->{target_hardware_product}{id}    = $target_hardware->id;
     $location->{target_hardware_product}{name}  = $target_hardware->name;
     $location->{target_hardware_product}{alias} = $target_hardware->alias;
+    $location->{target_hardware_product}{vendor} = $target_hardware->vendor->name;
 
     $location->{datacenter}{id}          = $datacenter->id;
     $location->{datacenter}{name}        = $datacenter->az;
@@ -219,7 +220,7 @@ sub get_target_hardware_product {
       'datacenter_rack_layouts.rack_id'  => $rack_id,
       'datacenter_rack_layouts.ru_start' => $rack_unit
     },
-    { join => 'datacenter_rack_layouts' }
+    { join => 'datacenter_rack_layouts'}
   )->single;
 }
 

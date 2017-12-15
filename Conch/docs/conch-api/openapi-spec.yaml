@@ -1436,6 +1436,9 @@ components:
             alias:
               type: string
               description: Hardware product alias
+            vendor:
+              type: string
+              description: Hardware product vendor name
     HardwareProduct:
       type: object
       properties:
@@ -1450,6 +1453,7 @@ components:
           type: string
         vendor:
           type: string
+          description: Hardware product vendor name
         profile:
           type: object
           properties:
