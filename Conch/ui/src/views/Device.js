@@ -226,24 +226,30 @@ const deviceReport = {
                       t("Temperature"),
                   ],
                   Object.keys(Device.current.latest_report.disks)
-                      .sort()
                       .map(k => {
                           const disk = Device.current.latest_report.disks[k];
-                          return [
-                              k,
-                              disk.enclosure,
-                              disk.hba,
-                              disk.slot,
-                              disk.vendor,
-                              disk.model,
-                              disk.size,
-                              disk.drive_type,
-                              disk.transport,
-                              disk.firmware,
-                              disk.health,
-                              disk.temp,
-                          ];
+                          return {
+                              sortKey:
+                                  100 * (parseInt(disk.hba) || 0) +
+                                  (parseInt(disk.slot) || 0),
+                              value: [
+                                  k,
+                                  disk.enclosure,
+                                  disk.hba,
+                                  disk.slot,
+                                  disk.vendor,
+                                  disk.model,
+                                  disk.size,
+                                  disk.drive_type,
+                                  disk.transport,
+                                  disk.firmware,
+                                  disk.health,
+                                  disk.temp,
+                              ],
+                          };
                       })
+                      .sort((a, b) => a.sortKey - b.sortKey)
+                      .map(a => a.value)
               )
             : null;
         const validations = Table(
