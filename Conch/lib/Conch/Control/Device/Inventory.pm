@@ -329,7 +329,7 @@ sub validate_disks {
     unless (defined $disk->health) {
       $disk_smart_status = 0;
       $disk_smart_log =
-        "No SMART telemetry from disk /dev/" . $disk->device;
+        "No SMART telemetry from disk " . $disk->serial_number;
 
       mistake($disk_smart_prefix .
         "CRITICAL: " . $disk->serial_number . " did not return SMART telemetry.");
