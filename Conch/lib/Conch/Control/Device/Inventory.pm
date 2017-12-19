@@ -318,6 +318,51 @@ sub validate_disks {
       $slog_slot = $disk->slot;
       $sas_ssd_num++;
     }
+
+    # Check for a not-OK, non-USB drive using its SMART data.
+    # This is provided on the host by smartctl -a <dev>
+    if ($disk->transport != "usb") {
+      my $disk_smart_log = undef;
+      my $disk_smart_status = 0;
+
+      my $disk_smart_prefix = "$device_id: report $report_id: ";
+
+      if ($disk->health == undef) {
+        $disk_smart_log =
+          "No SMART telemetry from disk /dev/" . $disk->device;
+
+        mistake($disk_smart_prefix .
+          "WARNING: /dev/" . $disk->device . " did not return SMART telemetry.");
+      } elsif ($disk->health != "OK") {
+        $disk_smart_log = "SMART says " . $disk->health . ", Want OK";
+
+        mistake($disk_smart_prefix .
+          "CRITICAL: /dev/" . $disk->device .
+          " SMART telemetry indicates: $disk->health");
+      } else {
+        $disk_smart_status = 1;
+        $disk_smart_log = "SMART says " . $disk->health;
+
+        trace($disk_smart_prefix .
+          "NOTICE: /dev/" . $disk->device . " SMART telemetry nominal.");
+      }
+
+      $schema->resultset('DeviceValidate')->create(
+        {
+          device_id  => $device_id,
+          report_id  => $report_id,
+          validation => encode_json(
+            {
+              component_type => "DISK",
+              component_name => "disk_smart_data",
+              metric         => $disk->serial_number,
+              log            => $disk_smart_log,
+              status         => $disk_smart_status
+            }
+          )
+        }
+      );
+    }
   }
 
   while ( my $usb_disk = $device_usbs->next ) {
