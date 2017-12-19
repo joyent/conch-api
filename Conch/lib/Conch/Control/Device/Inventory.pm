@@ -327,7 +327,6 @@ sub validate_disks {
     my $disk_smart_prefix = "$device_id: report $report_id: ";
 
     unless (defined $disk->health) {
-      mistake("KWATZ" . $disk->device_id . " " . $disk->serial_number . " " . $disk->health);
       $disk_smart_status = 0;
       $disk_smart_log =
         "No SMART telemetry from disk /dev/" . $disk->device;
