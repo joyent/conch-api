@@ -10,4 +10,7 @@ SELECT run_migration(19, $$
     UPDATE hardware_product_profile SET usb_num = 0 WHERE product_id =
     (SELECT id FROM hardware_product WHERE name='Joyent-Compute-Platform-3211');
 
+    -- Adjust usb_num to NOT NULL after we have placed a value in each row.
+    ALTER TABLE hardware_product_profile ALTER COLUMN usb_num SET NOT NULL;
+
 $$);
