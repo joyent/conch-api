@@ -254,7 +254,6 @@ sub validate_disks {
     }
   );
 
-  my $usb_hdd_num = 0;
   my $sas_hdd_num = 0;
   my $sas_ssd_num = 0;
   my $slog_slot;
@@ -369,15 +368,18 @@ sub validate_disks {
     );
   }
 
+  # Ensure we have correct number of USB HDDs
+  my $usb_hdd_num = 0;
+
   while ( my $usb_disk = $device_usbs->next ) {
     $usb_hdd_num++;
   }
 
-  # Ensure we have correct number of USB HDDs
   my $usb_hdd_num_status;
-  my $usb_hdd_num_log = "Has = " . $usb_hdd_num . ", Want = 1";
+  my $usb_hdd_num_log =
+    "Has = " . $usb_hdd_num . ", Want = " . $hw_profile->usb_num;
 
-  if ( $usb_hdd_num != 1 ) {
+  if ( $usb_hdd_num != $hw_profile->usb_num ) {
     $usb_hdd_num_status = 0;
     mistake(
 "$device_id: report $report_id: CRITICAL: Incorrect number of USB_HDD: $usb_hdd_num_log"
