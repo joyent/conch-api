@@ -175,6 +175,11 @@ __PACKAGE__->table("hardware_product_profile");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 usb_num
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -243,6 +248,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "usb_num",
+  { data_type => "integer", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -354,8 +361,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-30 10:43:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BOXgZRR0vlb4cimoCC1awg
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-09 18:06:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rpxEUbl5N+LHrYj3/3Lj3Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
