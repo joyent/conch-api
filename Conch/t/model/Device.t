@@ -3,8 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::Workspace;
-use Mojo::Conch::Model::Device;
+use Conch::Model::Workspace;
+use Conch::Model::Device;
 
 use Data::Printer;
 use Data::UUID;
@@ -14,7 +14,7 @@ my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 my $uuid = Data::UUID->new;
 
-my $ws_model = Mojo::Conch::Model::Workspace->new( pg => $pg );
+my $ws_model = Conch::Model::Workspace->new( pg => $pg );
 my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
 
 my $hardware_vendor_id = $pg->db->insert(
@@ -32,8 +32,8 @@ my $hardware_product_id = $pg->db->insert(
   { returning => ['id'] }
 )->hash->{id};
 
-new_ok('Mojo::Conch::Model::Device');
-my $device_model = Mojo::Conch::Model::Device->new( pg => $pg );
+new_ok('Conch::Model::Device');
+my $device_model = Conch::Model::Device->new( pg => $pg );
 
 my $new_device_id;
 subtest "Create new device" => sub {
@@ -55,7 +55,7 @@ subtest "lookup device " => sub {
   can_ok( $device_model, 'lookup' );
   my $attempt = $device_model->lookup( $new_device_id);
   isa_ok( $attempt, 'Attempt::Success' );
-  isa_ok( $attempt->value, 'Mojo::Conch::Class::Device' );
+  isa_ok( $attempt->value, 'Conch::Class::Device' );
   $new_device = $attempt->value;
 
   my $bad_attempt = $device_model->lookup( 'bad device id' );
@@ -64,14 +64,14 @@ subtest "lookup device " => sub {
 
 subtest "lookup device in user workspaces" => sub {
   my $attempt =
-    Mojo::Conch::Model::Device::_lookup_device_in_user_workspaces( $pg->db,
+    Conch::Model::Device::_lookup_device_in_user_workspaces( $pg->db,
     $uuid->create_str(), $new_device_id );
   isa_ok( $attempt, 'Attempt::Fail' );
 };
 
 subtest "lookup unlocated device" => sub {
   my $attempt =
-    Mojo::Conch::Model::Device::_lookup_unlocated_device_reported_by_user_relay(
+    Conch::Model::Device::_lookup_unlocated_device_reported_by_user_relay(
       $pg->db, $uuid->create_str(), $new_device_id );
   isa_ok( $attempt, 'Attempt::Fail' );
 };

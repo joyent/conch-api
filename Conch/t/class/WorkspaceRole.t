@@ -1,15 +1,15 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Mojo::Conch::Class::WorkspaceRole;
+use Conch::Class::WorkspaceRole;
 use Data::Printer;
 
-new_ok('Mojo::Conch::Class::WorkspaceRole');
+new_ok('Conch::Class::WorkspaceRole');
 
 my $attrs = {
     id => 'id', name => 'name', role => 'role'
   };
-my $ws_user = Mojo::Conch::Class::WorkspaceRole->new({
+my $ws_user = Conch::Class::WorkspaceRole->new({
     %$attrs, encode_json => sub { shift }
   });
 

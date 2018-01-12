@@ -3,8 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::Workspace;
-use Mojo::Conch::Model::WorkspaceRack;
+use Conch::Model::Workspace;
+use Conch::Model::WorkspaceRack;
 
 use Data::Printer;
 use Data::UUID;
@@ -14,11 +14,11 @@ my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 my $uuid = Data::UUID->new;
 
-my $ws_model = Mojo::Conch::Model::Workspace->new( pg => $pg );
+my $ws_model = Conch::Model::Workspace->new( pg => $pg );
 my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
 
-new_ok('Mojo::Conch::Model::WorkspaceRack');
-my $ws_rack_model = Mojo::Conch::Model::WorkspaceRack->new( pg => $pg );
+new_ok('Conch::Model::WorkspaceRack');
+my $ws_rack_model = Conch::Model::WorkspaceRack->new( pg => $pg );
 
 subtest "Add rack to workspace" => sub {
   can_ok( $ws_rack_model, 'add_to_workspace' );

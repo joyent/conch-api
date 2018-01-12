@@ -7,14 +7,14 @@ use Attempt;
 use Data::UUID;
 
 use Data::Printer;
-use Mojo::Conch::Route::Device 'device_routes';
+use Conch::Route::Device 'device_routes';
 
 my $uuid = Data::UUID->new;
 
 my $t = Test::Mojo->new(Mojolicious->new);
 
 my $routes = $t->app->routes;
-push @{$routes->namespaces}, 'Mojo::Conch::Controller';
+push @{$routes->namespaces}, 'Conch::Controller';
 device_routes($routes);
 
 $t->app->helper(status => sub {
@@ -27,7 +27,8 @@ $t->app->helper(status => sub {
 my $fake_device = qobj(
   id => qmeth {1},
   latest_triton_reboot => undef,
-  triton_uuid => undef
+  triton_uuid => undef,
+  as_v2_json => {}
 );
 
 my $mock_device_model = qobj(
@@ -49,6 +50,16 @@ my $mock_device_model = qobj(
 );
 
 $t->app->helper(device => sub { $mock_device_model });
+$t->app->helper(device_report => sub {
+    qobj(
+      latest_device_report => qmeth { Attempt::fail }
+    )
+  });
+$t->app->helper(device_location => sub {
+    qobj(
+      lookup => qmeth { Attempt::fail }
+    )
+  });
 
 $t->get_ok('/device/1')->status_is(200);
 $t->get_ok('/device/2')->status_is(404)

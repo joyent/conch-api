@@ -3,15 +3,15 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::User;
+use Conch::Model::User;
 use Data::Printer;
 
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new($pgtmp->uri);
 
-new_ok('Mojo::Conch::Model::User');
+new_ok('Conch::Model::User');
 
-my $user_model = Mojo::Conch::Model::User->new(
+my $user_model = Conch::Model::User->new(
     hash_password => sub { reverse shift },
     pg => $pg,
     validate_against_hash => sub { reverse(shift) eq shift }
@@ -22,12 +22,12 @@ subtest "Create new user" => sub {
   can_ok($user_model, 'create');
   my $attempt = $user_model->create('foo@bar.com', 'password');
   isa_ok($attempt, 'Attempt::Success');
-  isa_ok($attempt->value, 'Mojo::Conch::Class::User');
+  isa_ok($attempt->value, 'Conch::Class::User');
   $new_user = $attempt->value;
 
   my $another_new_user = $user_model->create('foo@bar.com', 'password');
   isa_ok($another_new_user, 'Attempt::Fail');
-  isa_ok($another_new_user->failure, 'Mojo::Conch::Error::Conflict');
+  isa_ok($another_new_user->failure, 'Conch::Error::Conflict');
 };
 
 subtest "lookup" => sub {

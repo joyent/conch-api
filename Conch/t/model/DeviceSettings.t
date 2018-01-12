@@ -3,8 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::Device;
-use Mojo::Conch::Model::DeviceSettings;
+use Conch::Model::Device;
+use Conch::Model::DeviceSettings;
 use Data::Printer;
 
 
@@ -26,14 +26,14 @@ my $hardware_product_id = $pg->db->insert(
   { returning => ['id'] }
 )->hash->{id};
 
-my $device_model = Mojo::Conch::Model::Device->new( pg => $pg );
+my $device_model = Conch::Model::Device->new( pg => $pg );
 
 my $device = $device_model->create( 'coffee', $hardware_product_id );
 my $device_id = $device->value;
 
-new_ok('Mojo::Conch::Model::DeviceSettings');
+new_ok('Conch::Model::DeviceSettings');
 
-my $device_settings_model = Mojo::Conch::Model::DeviceSettings->new(
+my $device_settings_model = Conch::Model::DeviceSettings->new(
     pg => $pg,
   );
 

@@ -1,136 +1,53 @@
 package Conch::Route::Workspace;
+use Mojo::Base -strict;
 
-use strict;
-use warnings;
+use Exporter 'import';
+our @EXPORT = qw(
+  workspace_routes
+);
 
-use Dancer2 appname => 'Conch';
-use Dancer2::Plugin::Auth::Tiny;
-use Dancer2::Plugin::DBIC;
-use Dancer2::Plugin::REST;
-use Hash::MultiValue;
-use Conch::Control::Workspace;
-use Conch::Control::Role;
-use Conch::Mail;
+sub workspace_routes {
+  my $r = shift;
 
-use Data::Printer;
+  $r->get('/workspace')->to('workspace#list');
+  $r->get('/workspace/:id')->to('workspace#get');
 
-set serializer => 'JSON';
+  # routes namespaced under a specific workspace
+  my $in_workspace = $r->under('/workspace/:id')->to('workspace#under');
 
-get '/workspace' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my $workspaces = get_user_workspaces( schema, $user_id );
-  status_200($workspaces);
-};
+  $in_workspace->get('/child')->to('workspace#get_sub_workspaces');
+  $in_workspace->post('/child')->to('workspace#create_sub_workspace');
 
-get '/workspace/:id' => needs login => sub {
-  my $user_id   = session->read('user_id');
-  my $ws_id     = param 'id';
-  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
-  unless ( defined $workspace ) {
-    return status_404("Workspace $ws_id not found");
-  }
-  status_200($workspace);
-};
+  $in_workspace->get('/device')->to('workspace_device#list');
+  # Redirect /workspace/:id/device/active to use query parameter on /workspace/:id/device
+  $in_workspace->get('/device/active', sub {
+      my $c = shift;
+      my @here = @{ $c->url_for->path->parts };
+      pop @here;
+      $c->redirect_to(
+        $c->url_for(join('/', @here))->query(active => 't')->to_abs
+      );
+    });
 
-post '/workspace/:id/child' => needs login => sub {
-  my $user_id     = session->read('user_id');
-  my $ws_id       = param 'id';
-  my $name        = body_parameters->get('name');
-  my $description = body_parameters->get('description');
-  unless ( defined $name and defined $description ) {
-    return status_400("'name' and 'description' required");
-  }
-  my $subworkspace =
-    create_sub_workspace( schema, $user_id, $ws_id, $name, $description );
-  status_201($subworkspace);
-};
+  $in_workspace->get('/problem')->to('workspace_problem#list');
 
-get '/workspace/:id/child' => needs login => sub {
-  my $user_id       = session->read('user_id');
-  my $ws_id         = param 'id';
-  my $subworkspaces = get_sub_workspaces( schema, $user_id, $ws_id );
-  status_200($subworkspaces);
-};
+  $in_workspace->get('/rack')->to('workspace_rack#list');
+  $in_workspace->post('/rack')->to('workspace_rack#add');
 
-post '/workspace/:id/user' => needs login => sub {
-  my $user_id = session->read('user_id');
-  my $ws_id   = param 'id';
+  my $with_workspace_rack =
+    $in_workspace->under('/rack/:rack_id')->to('workspace_rack#under');
 
-  my $email = body_parameters->get('email');
-  my $role  = body_parameters->get('role');
+  $with_workspace_rack->get('')->to('workspace_rack#get_layout');
+  $with_workspace_rack->delete('')->to('workspace_rack#remove');
+  $with_workspace_rack->post('/layout')->to('workspace_rack#assign_layout');
 
-  unless ( defined $email and defined $role ) {
-    return status_400("'email' and 'role' required");
-  }
+  $in_workspace->get('/room')->to('workspace_room#list');
+  $in_workspace->put('/room')->to('workspace_room#replace_rooms');
 
-  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
-  unless ( defined $workspace ) {
-    return status_404("Workspace $ws_id not found");
-  }
+  $in_workspace->get('/relay')->to('workspace_relay#list');
 
-  my $valid_roles = assignable_roles( $workspace->{role} );
-  unless ( defined($valid_roles) ) {
-    return status_401(
-      "You do not have sufficient privileges to invite users this workspace" );
-  }
-  unless ( grep /^$role$/, @$valid_roles ) {
-    return status_400(
-      "'role' must be one of: " . join( ', ', @$valid_roles ) );
-  }
-
-  my $user =
-    invite_user_to_workspace( schema, $workspace, $email, $role,
-    \&new_user_invite, \&existing_user_invite );
-  status_200($user);
-};
-
-get '/workspace/:id/user' => needs login => sub {
-  my $user_id   = session->read('user_id');
-  my $ws_id     = param 'id';
-  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
-  unless ( defined $workspace ) {
-    return status_404("Workspace $ws_id not found");
-  }
-  my $users = workspace_users( schema, $workspace->{id} );
-  status_200($users);
-};
-
-put '/workspace/:id/room' => needs login => sub {
-  my $user_id   = session->read('user_id');
-  my $ws_id     = param 'id';
-  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
-  unless ( defined $workspace ) {
-    return status_404("Workspace $ws_id not found");
-  }
-  if ( $workspace->{name} eq 'GLOBAL' ) {
-    return status_400('Cannot modify GLOBAL workspace');
-  }
-  unless ( $workspace->{role} eq 'Administrator' ) {
-    return status_401('Only adminstrators may update the datacenter roles');
-  }
-  unless ( request->body ) {
-    return status_400("Array of datacenter room IDs required in request");
-  }
-  my $room_ids = decode_json( request->body ) || {};
-  unless ( ref($room_ids) eq 'ARRAY' ) {
-    return status_400("Array of datacenter room IDs required in request");
-  }
-  my ( $rooms, $conflict ) =
-    replace_workspace_rooms( schema, $workspace->{id}, $room_ids );
-
-  if ( defined $conflict ) { return status_409($conflict); }
-  status_200($rooms);
-};
-
-get '/workspace/:id/room' => needs login => sub {
-  my $user_id   = session->read('user_id');
-  my $ws_id     = param 'id';
-  my $workspace = get_user_workspace( schema, $user_id, $ws_id );
-  unless ( defined $workspace ) {
-    return status_404("Workspace $ws_id not found");
-  }
-  my $rooms = get_workspace_rooms( schema, $workspace->{id} );
-  status_200($rooms);
-};
+  $in_workspace->get('/user')->to('workspace_user#list');
+  $in_workspace->post('/user')->to('workspace_user#invite');
+}
 
 1;

@@ -6,13 +6,13 @@ use Mock::Quick;
 use Attempt;
 
 use Data::Printer;
-use Mojo::Conch::Route::Workspace 'workspace_routes';
-use aliased 'Mojo::Conch::Class::Device';
+use Conch::Route::Workspace 'workspace_routes';
+use aliased 'Conch::Class::Device';
 
 my $t = Test::Mojo->new(Mojolicious->new);
 
 my $routes = $t->app->routes;
-push @{$routes->namespaces}, 'Mojo::Conch::Controller';
+push @{$routes->namespaces}, 'Conch::Controller';
 workspace_routes($routes);
 
 $t->app->helper(status => sub {

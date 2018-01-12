@@ -3,20 +3,20 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::User;
-use Mojo::Conch::Model::UserSettings;
+use Conch::Model::User;
+use Conch::Model::UserSettings;
 use Data::Printer;
 
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new($pgtmp->uri);
 
-new_ok('Mojo::Conch::Model::UserSettings');
+new_ok('Conch::Model::UserSettings');
 
-my $user_settings_model = Mojo::Conch::Model::UserSettings->new(
+my $user_settings_model = Conch::Model::UserSettings->new(
     pg => $pg,
   );
 
-my $user_model = Mojo::Conch::Model::User->new(
+my $user_model = Conch::Model::User->new(
     hash_password => sub { reverse shift },
     pg => $pg,
     validate_against_hash => sub { reverse(shift) eq shift }

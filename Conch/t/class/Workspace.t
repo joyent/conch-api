@@ -1,16 +1,16 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Mojo::Conch::Class::Workspace;
+use Conch::Class::Workspace;
 use Data::Printer;
 
-new_ok('Mojo::Conch::Class::Workspace');
+new_ok('Conch::Class::Workspace');
 
 my $attrs = {
     id => 'id', name => 'name', description => 'description',
     parent_workspace_id => 'parent_workspace_id'
   };
-my $ws = Mojo::Conch::Class::Workspace->new({
+my $ws = Conch::Class::Workspace->new({
     %$attrs, encode_json => sub { shift }
   });
 

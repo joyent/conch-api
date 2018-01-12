@@ -1,27 +1,36 @@
-#requires 'perl', '5.24.1';
-
-# framework
-requires 'Dancer2' => '0.205001';
-
-requires 'Starman';
+requires 'perl', '5.26.1';
 
 # basics
-requires 'YAML';
-requires 'URL::Encode::XS';
-requires 'CGI::Deurl::XS';
-requires 'HTTP::Parser::XS';
-requires 'Plack::Middleware::Deflater';
-requires 'Plack';
-requires 'Config::General';
 requires 'Data::UUID';
-requires 'JSON::XS';
-requires 'YAML::XS';
 requires 'Data::Printer';
 requires 'List::Compare';
 requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
-requires 'HTTP::Headers::ActionPack::Authorization::Basic';
 requires 'aliased';
+
+# mojolicious
+requires 'Mojolicious';
+requires 'Mojo::Pg';
+requires 'Mojo::Server::PSGI';
+requires 'Mojolicious::Plugin::Bcrypt';
+requires 'Mojolicious::Plugin::Util::RandomString';
+
+### Legacy Deps
+#
+# database
+requires 'DBD::Pg';
+requires 'DateTime::Format::Pg';
+requires 'DBIx::Class';
+requires 'DBIx::Class::Schema::Loader';
+requires 'Config::General';
+requires 'DBIx::Class::TimeStamp';
+
+# moose
+requires 'Moose';
+requires 'MooseX::Constructor::AllErrors';
+requires 'MooseX::Types::UUID';
+requires 'MooseX::Storage';
+requires 'MooseX::MarkAsMethods';
 
 # logging
 requires 'Log::Any';
@@ -31,36 +40,6 @@ requires 'Log::Log4perl';
 requires 'Log::Log4perl::Layout::JSON';
 requires 'Log::Report';
 
-# database
-requires 'DBD::Pg';
-requires 'Mojo::Pg';
-requires 'DateTime::Format::Pg';
-requires 'DBIx::Class';
-requires 'DBIx::Class::Schema::Loader';
-requires 'DBIx::Class::TimeStamp';
-
-# dancer plugin
-requires 'Dancer2::Plugin::Auth::Tiny';
-requires 'Dancer2::Plugin::DBIC';
-requires 'Dancer2::Logger::LogAny';
-requires 'Dancer2::Plugin::Passphrase';
-requires 'Dancer2::Plugin::REST';
-requires 'Dancer2::Plugin::RootURIFor';
-requires 'Dancer2::Session::YAML';
-
-# moose
-requires 'Moose';
-requires 'MooseX::Constructor::AllErrors';
-requires 'MooseX::Types::UUID';
-requires 'MooseX::Storage';
-requires 'MooseX::MarkAsMethods';
-requires 'MooseX::NonMoose';
-
-# mojolicious
-requires 'Mojolicious';
-requires 'Mojo::Server::PSGI';
-requires 'Mojolicious::Plugin::Bcrypt';
-requires 'Mojolicious::Plugin::Util::RandomString';
 
 on 'test' => sub {
     requires 'Test::More';

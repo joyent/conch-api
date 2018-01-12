@@ -13,7 +13,7 @@ local:
 	@carton install --deployment
 
 test:
-	@carton exec prove -j9 -lpr t/
+	@carton exec prove -lpr t/
 
 format: format-perl format-js
 

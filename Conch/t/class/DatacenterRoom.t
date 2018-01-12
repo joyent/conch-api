@@ -1,15 +1,15 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Mojo::Conch::Class::DatacenterRoom;
+use Conch::Class::DatacenterRoom;
 use Data::Printer;
 
-new_ok('Mojo::Conch::Class::DatacenterRoom');
+new_ok('Conch::Class::DatacenterRoom');
 
 my $attrs = {
     id => 'id', az => 'az', alias => 'alias', vendor_name => 'vendor_name'
   };
-my $ws_user = Mojo::Conch::Class::DatacenterRoom->new({
+my $ws_user = Conch::Class::DatacenterRoom->new({
     %$attrs, encode_json => sub { shift }
   });
 
