@@ -449,6 +449,10 @@ paths:
                   type: string
                 ssh_port:
                   type: integer
+                ipaddr:
+                  type: string
+                alias:
+                  type: string
       responses:
         '200':
           description: Successfully registered relay

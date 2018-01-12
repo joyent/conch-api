@@ -3,7 +3,7 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::DeviceLocation;
+use Conch::Model::DeviceLocation;
 
 use Data::Printer;
 use Data::UUID;
@@ -15,8 +15,8 @@ my $uuid = Data::UUID->new;
 # Really phoning these tests in. They need datacenters, datacenter rooms, and
 # datacenter racks to be set up. These tests should be improved as this
 # functionality is added -- Lane
-new_ok('Mojo::Conch::Model::DeviceLocation');
-my $device_loc_model = Mojo::Conch::Model::DeviceLocation->new( pg => $pg );
+new_ok('Conch::Model::DeviceLocation');
+my $device_loc_model = Conch::Model::DeviceLocation->new( pg => $pg );
 
 can_ok($device_loc_model, 'lookup');
 

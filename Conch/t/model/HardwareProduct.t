@@ -3,7 +3,7 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::HardwareProduct;
+use Conch::Model::HardwareProduct;
 
 use Data::Printer;
 use Data::UUID;
@@ -52,8 +52,8 @@ my $hardware_profile_id = $pg->db->insert(
   { returning => ['id'] }
 )->hash->{id};
 
-new_ok('Mojo::Conch::Model::HardwareProduct');
-my $hw_product_model = Mojo::Conch::Model::HardwareProduct->new( pg => $pg );
+new_ok('Conch::Model::HardwareProduct');
+my $hw_product_model = Conch::Model::HardwareProduct->new( pg => $pg );
 
 subtest 'list hardware products' => sub {
   can_ok( $hw_product_model, 'list' );
@@ -62,9 +62,9 @@ subtest 'list hardware products' => sub {
   is( scalar @$hw_products, 1, 'Contains 1 hardware product' );
   my $hw_product = $hw_products->[0];
 
-  isa_ok($hw_product, 'Mojo::Conch::Class::HardwareProduct');
-  isa_ok($hw_product->profile, 'Mojo::Conch::Class::HardwareProductProfile');
-  isa_ok($hw_product->profile->zpool, 'Mojo::Conch::Class::ZpoolProfile');
+  isa_ok($hw_product, 'Conch::Class::HardwareProduct');
+  isa_ok($hw_product->profile, 'Conch::Class::HardwareProductProfile');
+  isa_ok($hw_product->profile->zpool, 'Conch::Class::ZpoolProfile');
 };
 
 subtest 'lookup hardware product' => sub {
@@ -73,9 +73,9 @@ subtest 'lookup hardware product' => sub {
   isa_ok( $attempt, 'Attempt::Success' );
   my $hw_product = $attempt->value;
 
-  isa_ok($hw_product, 'Mojo::Conch::Class::HardwareProduct');
-  isa_ok($hw_product->profile, 'Mojo::Conch::Class::HardwareProductProfile');
-  isa_ok($hw_product->profile->zpool, 'Mojo::Conch::Class::ZpoolProfile');
+  isa_ok($hw_product, 'Conch::Class::HardwareProduct');
+  isa_ok($hw_product->profile, 'Conch::Class::HardwareProductProfile');
+  isa_ok($hw_product->profile->zpool, 'Conch::Class::ZpoolProfile');
 
 };
 

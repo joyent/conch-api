@@ -7,7 +7,7 @@ use Attempt;
 
 use Data::Printer;
 
-my $t = Test::Mojo->new('Mojo::Conch');
+my $t = Test::Mojo->new('Conch');
 
 my $mock_authenticate = sub {
   qobj(

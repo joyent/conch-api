@@ -6,12 +6,12 @@ use Mock::Quick;
 use Attempt;
 
 use Data::Printer;
-use Mojo::Conch::Route::User 'user_routes';
+use Conch::Route::User 'user_routes';
 
 my $t = Test::Mojo->new(Mojolicious->new);
 
 my $routes = $t->app->routes;
-push @{$routes->namespaces}, 'Mojo::Conch::Controller';
+push @{$routes->namespaces}, 'Conch::Controller';
 user_routes($routes);
 $t->app->helper(status => sub {
     my $self = shift;

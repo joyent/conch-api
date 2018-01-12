@@ -6,12 +6,12 @@ use Mock::Quick;
 use Attempt;
 
 use Data::Printer;
-use Mojo::Conch::Route::Workspace 'workspace_routes';
+use Conch::Route::Workspace 'workspace_routes';
 
 my $t = Test::Mojo->new(Mojolicious->new);
 
 my $routes = $t->app->routes;
-push @{$routes->namespaces}, 'Mojo::Conch::Controller';
+push @{$routes->namespaces}, 'Conch::Controller';
 workspace_routes($routes);
 
 $t->app->helper(status => sub {
@@ -59,7 +59,7 @@ $t->app->helper(workspace_rack => sub {
         my (undef, undef, $id) = @_;
         my @found = grep {/$id/} @fake_store;
         return Attempt::fail() unless $found[0];
-        return Attempt::success();
+        return Attempt::success( qobj( id => $id) );
       },
       rack_layout => qmeth { shift; shift; },
     )

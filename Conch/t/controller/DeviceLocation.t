@@ -7,14 +7,14 @@ use Attempt;
 use Data::UUID;
 
 use Data::Printer;
-use Mojo::Conch::Route::Device 'device_routes';
+use Conch::Route::Device 'device_routes';
 
 my $uuid = Data::UUID->new;
 
 my $t = Test::Mojo->new(Mojolicious->new);
 
 my $routes = $t->app->routes;
-push @{$routes->namespaces}, 'Mojo::Conch::Controller';
+push @{$routes->namespaces}, 'Conch::Controller';
 device_routes($routes);
 
 $t->app->helper(status => sub {

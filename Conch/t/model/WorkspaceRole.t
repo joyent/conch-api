@@ -3,16 +3,16 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::WorkspaceRole;
+use Conch::Model::WorkspaceRole;
 
 use Data::Printer;
 
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new( $pgtmp->uri );
 
-new_ok('Mojo::Conch::Model::WorkspaceRole');
+new_ok('Conch::Model::WorkspaceRole');
 
-my $role_model = Mojo::Conch::Model::WorkspaceRole->new( pg => $pg );
+my $role_model = Conch::Model::WorkspaceRole->new( pg => $pg );
 
 my $role;
 subtest "Get list of workspace roles" => sub {
@@ -20,7 +20,7 @@ subtest "Get list of workspace roles" => sub {
   isa_ok($roles, 'ARRAY');
   cmp_ok(scalar @$roles, '>', 1) or die;
   $role = $roles->[0];
-  isa_ok($role, 'Mojo::Conch::Class::WorkspaceRole');
+  isa_ok($role, 'Conch::Class::WorkspaceRole');
 };
 
 subtest "Get role by name" => sub {

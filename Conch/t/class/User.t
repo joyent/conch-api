@@ -1,15 +1,15 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Mojo::Conch::Class::User;
+use Conch::Class::User;
 use Data::Printer;
 
-new_ok('Mojo::Conch::Class::User');
+new_ok('Conch::Class::User');
 
 my $attrs = {
     id => 'id', name => 'name', password_hash => 'hash'
   };
-my $user = Mojo::Conch::Class::User->new({
+my $user = Conch::Class::User->new({
     %$attrs, encode_json => sub { shift }
   });
 

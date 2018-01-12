@@ -7,17 +7,17 @@ use Attempt;
 use Data::UUID;
 
 use Data::Printer;
-use Mojo::Conch::Route::HardwareProduct 'hardware_product_routes';
-use aliased 'Mojo::Conch::Class::HardwareProduct';
-use aliased 'Mojo::Conch::Class::HardwareProductProfile';
-use aliased 'Mojo::Conch::Class::ZpoolProfile';
+use Conch::Route::HardwareProduct 'hardware_product_routes';
+use aliased 'Conch::Class::HardwareProduct';
+use aliased 'Conch::Class::HardwareProductProfile';
+use aliased 'Conch::Class::ZpoolProfile';
 
 my $uuid = Data::UUID->new;
 
 my $t = Test::Mojo->new(Mojolicious->new);
 
 my $routes = $t->app->routes;
-push @{$routes->namespaces}, 'Mojo::Conch::Controller';
+push @{$routes->namespaces}, 'Conch::Controller';
 hardware_product_routes($routes);
 
 $t->app->helper(status => sub {

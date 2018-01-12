@@ -3,9 +3,9 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::Device;
-use Mojo::Conch::Model::Relay;
-use Mojo::Conch::Model::User;
+use Conch::Model::Device;
+use Conch::Model::Relay;
+use Conch::Model::User;
 
 use Data::Printer;
 use Data::UUID;
@@ -30,8 +30,8 @@ my $hardware_product_id = $pg->db->insert(
   { returning => ['id'] }
 )->hash->{id};
 
-new_ok('Mojo::Conch::Model::Relay');
-my $relay_model = Mojo::Conch::Model::Relay->new(
+new_ok('Conch::Model::Relay');
+my $relay_model = Conch::Model::Relay->new(
     pg => $pg,
   );
 
@@ -40,7 +40,7 @@ can_ok($relay_model, 'create');
 ok($relay_model->create($relay_serial, 'v1', '127.0.0.1', 22, 'test'));
 
 subtest "connect device relay" => sub {
-  my $device_model = Mojo::Conch::Model::Device->new( pg => $pg );
+  my $device_model = Conch::Model::Device->new( pg => $pg );
   my $device_id = $device_model->create( 'coffee', $hardware_product_id )->value;
 
   ok($relay_model->connect_device_relay($device_id, $relay_serial));
@@ -48,7 +48,7 @@ subtest "connect device relay" => sub {
 };
 
 subtest "connect user relay" => sub {
-  my $user_model = Mojo::Conch::Model::User->new(
+  my $user_model = Conch::Model::User->new(
       hash_password => sub { reverse shift },
       pg => $pg,
       validate_against_hash => sub { reverse(shift) eq shift }

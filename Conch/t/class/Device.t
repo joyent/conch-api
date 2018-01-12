@@ -1,10 +1,10 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Mojo::Conch::Class::Device;
+use Conch::Class::Device;
 use Data::Printer;
 
-new_ok('Mojo::Conch::Class::Device');
+new_ok('Conch::Class::Device');
 
 my $attrs = {
   id => 'id',
@@ -25,7 +25,7 @@ my $attrs = {
   validated => 'validated'
   };
 
-my $device = Mojo::Conch::Class::Device->new({
+my $device = Conch::Class::Device->new({
     %$attrs, encode_json => sub { shift }
   });
 

@@ -3,16 +3,16 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Mojo::Conch::Model::User;
-use Mojo::Conch::Model::Workspace;
+use Conch::Model::User;
+use Conch::Model::Workspace;
 use Data::Printer;
 
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new( $pgtmp->uri );
 
-new_ok('Mojo::Conch::Model::Workspace');
+new_ok('Conch::Model::Workspace');
 
-my $ws_model = Mojo::Conch::Model::Workspace->new( pg => $pg, );
+my $ws_model = Conch::Model::Workspace->new( pg => $pg, );
 
 my $global_ws;
 
@@ -23,12 +23,12 @@ subtest "Lookup workspace by name" => sub {
 
   $attempt = $ws_model->lookup_by_name('GLOBAL');
   ok( $attempt->is_success );
-  isa_ok( $attempt->value, 'Mojo::Conch::Class::Workspace' );
+  isa_ok( $attempt->value, 'Conch::Class::Workspace' );
   $global_ws = $attempt->value;
   is( $global_ws->name, 'GLOBAL' );
 };
 
-my $user_model = Mojo::Conch::Model::User->new(
+my $user_model = Conch::Model::User->new(
   hash_password         => sub { reverse shift },
   pg                    => $pg,
   validate_against_hash => sub { reverse(shift) eq shift }
