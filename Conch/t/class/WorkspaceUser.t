@@ -18,6 +18,6 @@ can_ok($ws_user, 'id');
 can_ok($ws_user, 'name');
 can_ok($ws_user, 'email');
 can_ok($ws_user, 'role');
-can_ok($ws_user, 'as_v2_json');
+can_ok($ws_user, 'as_v1_json');
 
 done_testing();

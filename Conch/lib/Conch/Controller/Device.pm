@@ -43,7 +43,7 @@ sub get ($c) {
     location => $maybe_location->value
   );
 
-  $c->status(200, $detailed_device->as_v2_json);
+  $c->status(200, $detailed_device->as_v1_json);
 }
 
 sub graduate($c) {

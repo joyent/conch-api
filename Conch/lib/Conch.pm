@@ -9,7 +9,6 @@ use Data::Printer;
 
 sub startup {
   my $self = shift;
-  my $r = $self->routes;
 
    # Configuration
   $self->plugin('Config');
@@ -55,6 +54,7 @@ sub startup {
   $self->plugin('Conch::Plugin::Model');
   $self->plugin('Conch::Plugin::Mail');
 
+  my $r = $self->routes;
   all_routes($r);
 }
 

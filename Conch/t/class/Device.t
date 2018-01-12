@@ -48,7 +48,7 @@ can_ok($device, 'updated');
 can_ok($device, 'uptime_since');
 can_ok($device, 'validated');
 
-can_ok($device, 'as_v2_json');
+can_ok($device, 'as_v1_json');
 done_testing();
 
 

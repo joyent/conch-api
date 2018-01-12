@@ -31,6 +31,7 @@ requires 'MooseX::Constructor::AllErrors';
 requires 'MooseX::Types::UUID';
 requires 'MooseX::Storage';
 requires 'MooseX::MarkAsMethods';
+requires 'MooseX::NonMoose';
 
 # logging
 requires 'Log::Any';

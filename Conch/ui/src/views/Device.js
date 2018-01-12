@@ -46,8 +46,7 @@ function loadDeviceDetails(id) {
         Promise.all([
             Device.loadDevice(id),
             Device.loadRackLocation(id),
-            Device.loadFirmwareStatus(id),
-            Device.loadDeviceLogs(id, 20),
+            Device.loadFirmwareStatus(id)
         ])
     );
 }
@@ -278,19 +277,6 @@ const deviceReport = {
                     v.log,
                 ])
         );
-        const logs = Table(
-            t("Devices Logs (20 most recent)"),
-            [t("Component Type"), t("Component ID"), t("Time"), t("Log")],
-            Device.logs.map(
-                ({ component_type, component_id, created, msg }) => [
-                    component_type,
-                    component_id,
-                    created,
-                    // pre requried to preserve multi-lines
-                    m("span.log-text", msg),
-                ]
-            )
-        );
         return m(".pure-g", [
             firmwareUpdatingNotification,
             basicInfo,
@@ -301,8 +287,7 @@ const deviceReport = {
             environment,
             network,
             disks,
-            validations,
-            logs,
+            validations
         ]);
     },
 };

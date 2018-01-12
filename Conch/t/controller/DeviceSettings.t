@@ -75,7 +75,8 @@ $t->delete_ok('/device/1/settings/fizzle')
   ->status_is(204)
   ->content_is('');
 $t->get_ok('/device/1/settings/fizzle')
-  ->status_is(404);
+  ->status_is(404)
+  ->json_like('/error', qr/fizzle/);
 $t->delete_ok('/device/1/settings/fizzle')
   ->status_is(404)
   ->json_like('/error', qr/fizzle/);

@@ -11,7 +11,7 @@ sub get ($c) {
   return $c->status(409, { error => "Device $device_id is not assigned to a rack" })
     if $maybe_location->is_fail;
 
-  $c->status(200, $maybe_location->value->as_v2_json);
+  $c->status(200, $maybe_location->value->as_v1_json);
 }
 
 sub set ($c) {

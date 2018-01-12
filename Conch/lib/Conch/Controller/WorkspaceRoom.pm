@@ -5,7 +5,7 @@ use Data::Printer;
 
 sub list ($c) {
   my $rooms = $c->workspace_room->list( $c->stash('current_workspace')->id );
-  $c->status( 200, [ map { $_->as_v2_json } @$rooms ]);
+  $c->status( 200, [ map { $_->as_v1_json } @$rooms ]);
 }
 
 sub replace_rooms ($c) {

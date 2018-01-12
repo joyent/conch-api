@@ -29,7 +29,7 @@ my $mock_workspace_model = qobj(
   get_user_workspace  => qmeth {
     my ( undef, undef, $ws_id ) = @_;
     if ( $ws_id == 1 ) {
-      return Attempt::success( qobj( id => $ws_id, as_v2_json => qmeth {} ) );
+      return Attempt::success( qobj( id => $ws_id, as_v1_json => qmeth {} ) );
     }
     else {
       return Attempt::fail();

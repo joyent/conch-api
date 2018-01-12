@@ -17,7 +17,7 @@ my $ws_user = Conch::Class::WorkspaceRole->new({
 can_ok($ws_user, 'id');
 can_ok($ws_user, 'name');
 can_ok($ws_user, 'description');
-can_ok($ws_user, 'as_v2_json');
+can_ok($ws_user, 'as_v1_json');
 
 done_testing();
 

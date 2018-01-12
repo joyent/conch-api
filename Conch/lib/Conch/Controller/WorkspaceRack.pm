@@ -56,7 +56,7 @@ sub remove ($c) {
 # TODO: This is legacy code that is non-transactional. It should be reworked. --Lane
 # Bulk update a rack layout.
 sub assign_layout ($c) {
-  my $rack_id = $c->stash('current_ws_rack');
+  my $rack_id = $c->stash('current_ws_rack')->id;
 
   my $layout = $c->req->json;
   my @errors;

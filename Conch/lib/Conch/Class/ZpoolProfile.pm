@@ -2,7 +2,7 @@ package Conch::Class::ZpoolProfile;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV2';
+with 'Conch::Class::Role::JsonV1';
 
 has [qw(
   name

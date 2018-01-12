@@ -21,7 +21,7 @@ can_ok($ws, 'description');
 can_ok($ws, 'parent_workspace_id');
 can_ok($ws, 'role');
 can_ok($ws, 'role_id');
-can_ok($ws, 'as_v2_json');
-is($ws->as_v2_json->{parent_workspace_id}, undef, 'parent workspace ID not published');
+can_ok($ws, 'as_v1_json');
+is($ws->as_v1_json->{parent_workspace_id}, undef, 'parent workspace ID not published');
 
 done_testing();
