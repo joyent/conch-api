@@ -33,7 +33,7 @@ sub get_all ($c) {
 sub get_single ($c) {
   my $setting_key = $c->param('key');
   my $settings = $c->device_settings->get_settings($c->stash('current_device')->id);
-  return $c->status(404)
+  return $c->status(404, { error => "No such setting '$setting_key'" })
     unless $settings->{$setting_key};
   $c->status(200, $settings->{$setting_key});
 }

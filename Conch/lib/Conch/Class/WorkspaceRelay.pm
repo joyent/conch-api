@@ -2,13 +2,12 @@ package Conch::Class::WorkspaceRelay;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV2';
+with 'Conch::Class::Role::JsonV1';
 
 has [qw(
   id
   alias
   created
-  id
   ipaddr
   ssh_port
   updated
@@ -17,7 +16,7 @@ has [qw(
   location
   )];
 
-sub as_v2_json {
+sub as_v1_json {
   my $self = shift;
   {
     id => $self->id,
@@ -27,8 +26,8 @@ sub as_v2_json {
     ssh_port => $self->ssh_port,
     updated => $self->updated,
     version => $self->version,
-    devices => [ map { $_->as_v2_json } @$self->devices ],
-    devices => $self->location
+    devices => [ map { $_->as_v1_json } @{ $self->devices } ],
+    location => $self->location
   }
 }
 

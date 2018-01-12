@@ -82,7 +82,7 @@ sub assign ($self, $device_id, $rack_id, $rack_unit) {
   my $tx = $db->begin;
 
   my $maybe_slot = attempt $db->select(
-      'datacenter_rack_layout', ['id'],
+      'datacenter_rack_layout', ['id', 'product_id'],
       { rack_id => $rack_id, ru_start => $rack_unit }
     )->hash;
   return fail("Slot $rack_unit does not exist in the layout for rack $rack_id")
@@ -101,8 +101,19 @@ sub assign ($self, $device_id, $rack_id, $rack_unit) {
       { device_id => $maybe_occupied->value->{device_id} });
   }
 
+  my $maybe_device = $db->select('device', ['id'], { id => $device_id })->hash;
+  # Create a device if it doesn't exist
+  unless ($maybe_device) {
+    $db->insert('device', {
+        id               => $device_id,
+        health           => "UNKNOWN",
+        state            => "UNKNOWN",
+        hardware_product => $maybe_slot->value->{product_id},
+      });
+  }
+
   $db->query(q{
-    INSERT INTO TABLE device_location (device_id, rack_id, rack_unit)
+    INSERT INTO device_location (device_id, rack_id, rack_unit)
     VALUES (?, ?, ?)
     ON CONFLICT (device_id) DO UPDATE SET
     rack_id = excluded.rack_id, rack_unit = excluded.rack_unit,

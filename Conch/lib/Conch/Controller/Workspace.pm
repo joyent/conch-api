@@ -16,12 +16,12 @@ sub under ($c) {
 
 sub list ($c) {
   my $wss = $c->workspace->get_user_workspaces($c->stash('user_id'));
-  $c->status(200, [ map { $_->as_v2_json } @$wss ]);
+  $c->status(200, [ map { $_->as_v1_json } @$wss ]);
 }
 
 sub get ($c) {
   if ($c->under) {
-    $c->status(200, $c->stash('current_workspace')->as_v2_json);
+    $c->status(200, $c->stash('current_workspace')->as_v1_json);
   }
   else {
     return 0;
@@ -30,7 +30,7 @@ sub get ($c) {
 
 sub get_sub_workspaces ($c) {
   my $sub_wss = $c->workspace->get_sub_workspaces($c->stash('user_id'), $c->stash('current_workspace')->id);
-  $c->status(200, [ map { $_->as_v2_json } @$sub_wss ]);
+  $c->status(200, [ map { $_->as_v1_json } @$sub_wss ]);
 }
 
 sub create_sub_workspace ($c) {
@@ -49,7 +49,7 @@ sub create_sub_workspace ($c) {
   return $c->status(500, { error => 'unable to create a sub-workspace' })
     if $sub_ws_attempt->is_fail;
 
-  $c->status(201, $sub_ws_attempt->value->as_v2_json);
+  $c->status(201, $sub_ws_attempt->value->as_v1_json);
 }
 
 1;

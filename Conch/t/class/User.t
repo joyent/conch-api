@@ -18,6 +18,6 @@ can_ok($user, 'id');
 can_ok($user, 'name');
 can_ok($user, 'password_hash');
 
-can_ok($user, 'as_v2_json');
+can_ok($user, 'as_v1_json');
 
 done_testing();

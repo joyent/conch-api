@@ -33,7 +33,7 @@ sub get_settings ($c) {
 sub get_setting ($c) {
   my $setting_key = $c->param('key');
   my $settings = $c->user_settings->get_settings($c->stash('user_id'));
-  return $c->status(404)
+  return $c->status(404, { error => "No such setting '$setting_key'" })
     unless $settings->{$setting_key};
   $c->status(200, $settings->{$setting_key});
 }

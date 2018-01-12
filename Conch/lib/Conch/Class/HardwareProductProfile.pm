@@ -2,7 +2,7 @@ package Conch::Class::HardwareProductProfile;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV2';
+with 'Conch::Class::Role::JsonV1';
 
 has [qw(
   bios_firmware
@@ -27,7 +27,7 @@ has [qw(
   zpool
   )];
 
-sub as_v2_json {
+sub as_v1_json {
   my $self = shift;
   {
     bios_firmware => $self->bios_firmware,
@@ -49,7 +49,7 @@ sub as_v2_json {
     ssd_size => $self->ssd_size,
     ssd_slots => $self->ssd_slots,
     usb_num => $self->usb_num,
-    zpool => $self->zpool->as_v2_json
+    zpool => $self->zpool->as_v1_json
   }
 }
 1;

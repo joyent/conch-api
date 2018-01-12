@@ -80,7 +80,7 @@ const Device = {
                 extract(xhr) {
                     return {
                         status: xhr.status,
-                        body: JSON.parse(xhr.response),
+                        body: xhr.response ? JSON.parse(xhr.response) : null,
                     };
                 },
             })
@@ -93,7 +93,7 @@ const Device = {
                 } else if (e.status === 401) {
                     m.route.set("/login");
                 } else {
-                    console.log(`Error in GET /device: ${e.message}`);
+                    console.log(`Error in GET /device/${deviceId}/settings/firmware: ${e.message}`);
                 }
             });
     },
@@ -129,25 +129,6 @@ const Device = {
         return Device.getDeviceLocation(deviceId).then(
             res => (Device.rackLocation = res)
         );
-    },
-
-    logs: [],
-    loadDeviceLogs(deviceId, limit) {
-        return m
-            .request({
-                method: "GET",
-                url: `/device/${deviceId}/log`,
-                data: { limit },
-                withCredentials: true,
-            })
-            .then(res => {
-                Device.logs = res;
-            })
-            .catch(e => {
-                console.log(
-                    `Error in GET /device/${deviceId}/log: ${e.message}`
-                );
-            });
     },
 
     // A device is active if it was last seen in the last 5 minutes

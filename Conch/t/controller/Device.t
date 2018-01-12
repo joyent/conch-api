@@ -28,7 +28,7 @@ my $fake_device = qobj(
   id => qmeth {1},
   latest_triton_reboot => undef,
   triton_uuid => undef,
-  as_v2_json => {}
+  as_v1_json => {}
 );
 
 my $mock_device_model = qobj(

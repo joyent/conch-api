@@ -26,7 +26,7 @@ sub list ($c) {
   if (defined $c->param('ids_only')) {
     @devices = map { $_->id } @devices;
   } else {
-    @devices = map { $_->as_v2_json } @devices;
+    @devices = map { $_->as_v1_json } @devices;
   }
 
   $c->status(200, \@devices );

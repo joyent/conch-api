@@ -1788,6 +1788,29 @@ DISTRIBUTIONS
       List::Compare::Multiple::Accelerated 0.53
     requirements:
       ExtUtils::MakeMaker 0
+  List-MoreUtils-0.428
+    pathname: R/RE/REHSACK/List-MoreUtils-0.428.tar.gz
+    provides:
+      List::MoreUtils 0.428
+      List::MoreUtils::PP 0.428
+    requirements:
+      Exporter::Tiny 0.038
+      ExtUtils::MakeMaker 0
+      List::MoreUtils::XS 0.426
+  List-MoreUtils-XS-0.428
+    pathname: R/RE/REHSACK/List-MoreUtils-XS-0.428.tar.gz
+    provides:
+      List::MoreUtils::XS 0.428
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      File::Basename 0
+      File::Copy 0
+      File::Path 0
+      File::Spec 0
+      IPC::Cmd 0
+      XSLoader 0.22
+      base 0
   Log-Any-1.704
     pathname: P/PR/PREACTION/Log-Any-1.704.tar.gz
     provides:
@@ -2791,6 +2814,22 @@ DISTRIBUTIONS
       namespace::autoclean 0.12
       overload 0
       strict 0
+      warnings 0
+  MooseX-NonMoose-0.26
+    pathname: D/DO/DOY/MooseX-NonMoose-0.26.tar.gz
+    provides:
+      MooseX::NonMoose 0.26
+      MooseX::NonMoose::InsideOut 0.26
+      MooseX::NonMoose::Meta::Role::Class 0.26
+      MooseX::NonMoose::Meta::Role::Constructor 0.26
+    requirements:
+      ExtUtils::MakeMaker 6.30
+      List::MoreUtils 0
+      Module::Runtime 0
+      Moose::Exporter 0
+      Moose::Role 2.0000
+      Moose::Util 0
+      Try::Tiny 0
       warnings 0
   MooseX-Storage-0.52
     pathname: E/ET/ETHER/MooseX-Storage-0.52.tar.gz

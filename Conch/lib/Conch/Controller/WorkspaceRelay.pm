@@ -9,7 +9,7 @@ sub list ($c) {
     $c->stash('current_workspace')->id,
     $c->param('active') ? 2 : undef
   );
-  $c->status( 200, [ map { $_->as_v2_json } @$relays ]);
+  $c->status( 200, [ map { $_->as_v1_json } @$relays ]);
 }
 
 1;

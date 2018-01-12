@@ -18,7 +18,7 @@ can_ok($ws_user, 'id');
 can_ok($ws_user, 'az');
 can_ok($ws_user, 'alias');
 can_ok($ws_user, 'vendor_name');
-can_ok($ws_user, 'as_v2_json');
+can_ok($ws_user, 'as_v1_json');
 
 done_testing();
 

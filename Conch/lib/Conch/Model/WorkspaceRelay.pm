@@ -31,7 +31,6 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
     }, $ws_id)->hashes->map(sub { $_->{id} })->to_array;
 
   return [] unless scalar @$workspace_rack_ids;
-  my $workspace_rack_ids_in_clause = join(',', @$workspace_rack_ids);
 
   # find relay locations based on the device most recently reported through the
   # relay
@@ -49,7 +48,7 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
           ON rack.datacenter_room_id = room.id
         JOIN datacenter_rack_role role
           ON rack.role = role.id
-        WHERE rack.id IN ($workspace_rack_ids_in_clause)
+        WHERE rack.id = ANY (?)
         AND drc1.last_seen = (
           SELECT max(drc2.last_seen)
           FROM device_relay_connection drc2
@@ -57,25 +56,20 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
             ON drc2.device_id = loc2.device_id
           WHERE loc.rack_id = loc2.rack_id
         )
-      }
+      }, $workspace_rack_ids
     )->hashes->to_array;
-
   return [] unless scalar @$relay_locations;
   my @workspace_relay_ids = map { $_->{relay_id} } @$relay_locations;
 
-  my $relays;
-  if ($interval_minutes) {
-    $relays = $db->select('relay', undef, 
-      { id => { -in => \@workspace_relay_ids },
-        updated => { '>=' => "NOW() - INTERVAL '$interval_minutes minutes'" },
-        deactivated => undef
-      })->hashes->to_array;
-  } else {
-    $relays = $db->select('relay', undef, 
-      { id => { -in => \@workspace_relay_ids },
-        deactivated => undef
-      })->hashes->to_array;
-  }
+  my $interval_clause = $interval_minutes
+      ? "AND updated >= NOW() - INTERVAL '$interval_minutes minutes'"
+      : '';
+  my $relays = $db->query(qq{
+      SELECT relay.*
+      FROM relay
+      WHERE id = ANY (?)
+      AND deactivated IS NULL
+    }, \@workspace_relay_ids)->hashes->to_array;
 
   my $relay_location_map = {};
   for my $loc (@$relay_locations) {
@@ -99,14 +93,20 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
         INNER JOIN device_location dl
           ON dl.device_id = device.id
         WHERE r.id = ?
-          AND dl.rack_id IN ($workspace_rack_ids_in_clause)
+          AND dl.rack_id = ANY (?)
         ORDER by dr.last_seen desc
-      }, $relay->{id})->hashes->map(sub { Device->new($_) })->to_array;
+      }, $relay->{id}, $workspace_rack_ids
+    )->hashes->map(sub { Device->new($_) })->to_array;
 
-    #my $relay_res = { $relay->get_columns };
-    #@devices = map { { $_->get_columns } } @devices;
-    push @res, Relay->new(
-      devices => $devices,
+    push @res, WorkspaceRelay->new(
+      id       => $relay->{id},
+      alias    => $relay->{alias},
+      created  => $relay->{created},
+      ipaddr   => $relay->{ipaddr},
+      ssh_port => $relay->{ssh_port},
+      updated  => $relay->{updated},
+      version  => $relay->{version},
+      devices  => $devices,
       location => $relay_location_map->{ $relay->{id} }
     );
   }

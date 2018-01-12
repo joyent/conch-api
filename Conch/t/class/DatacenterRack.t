@@ -17,7 +17,7 @@ my $ws_user = Conch::Class::DatacenterRack->new({
 can_ok($ws_user, 'id');
 can_ok($ws_user, 'name');
 can_ok($ws_user, 'role_name');
-can_ok($ws_user, 'as_v2_json');
+can_ok($ws_user, 'as_v1_json');
 
 done_testing();
 

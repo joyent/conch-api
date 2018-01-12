@@ -2,7 +2,7 @@ package Conch::Class::HardwareProduct;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV2';
+with 'Conch::Class::Role::JsonV1';
 
 has [qw(
   id
@@ -13,7 +13,7 @@ has [qw(
   profile
   )];
 
-sub as_v2_json {
+sub as_v1_json {
   my $self = shift;
   {
     id => $self->id,
@@ -21,7 +21,7 @@ sub as_v2_json {
     alias => $self->alias,
     prefix => $self->prefix,
     vendor => $self->vendor,
-    profile => $self->profile && $self->profile->as_v2_json
+    profile => $self->profile && $self->profile->as_v1_json
   }
 }
 
