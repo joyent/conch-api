@@ -32,6 +32,8 @@ Conch/environments/*.yml
 Conch/sessions
 Conch/report
 Conch/lib/Conch/Schema/Result/Migration.pm
+Conch/public/doc
+Conch/docs/conch-api/index.html
 
 # Carton-installed dependency folder
 local/
