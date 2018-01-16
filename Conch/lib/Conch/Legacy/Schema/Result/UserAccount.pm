@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::UserAccount;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<user_account>
 
@@ -79,10 +80,10 @@ __PACKAGE__->table("user_account");
 __PACKAGE__->add_columns(
   "id",
   {
-    data_type => "uuid",
+    data_type     => "uuid",
     default_value => \"gen_random_uuid()",
-    is_nullable => 0,
-    size => 16,
+    is_nullable   => 0,
+    size          => 16,
   },
   "name",
   { data_type => "text", is_nullable => 0 },
@@ -125,7 +126,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("user_account_email_key", ["email"]);
+__PACKAGE__->add_unique_constraint( "user_account_email_key", ["email"] );
 
 =head2 C<user_account_name_key>
 
@@ -137,7 +138,7 @@ __PACKAGE__->add_unique_constraint("user_account_email_key", ["email"]);
 
 =cut
 
-__PACKAGE__->add_unique_constraint("user_account_name_key", ["name"]);
+__PACKAGE__->add_unique_constraint( "user_account_name_key", ["name"] );
 
 =head1 RELATIONS
 
@@ -153,7 +154,7 @@ __PACKAGE__->has_many(
   "user_relay_connections",
   "Conch::Legacy::Schema::Result::UserRelayConnection",
   { "foreign.user_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy      => 0, cascade_delete => 0 },
 );
 
 =head2 user_settings
@@ -168,7 +169,7 @@ __PACKAGE__->has_many(
   "user_settings",
   "Conch::Legacy::Schema::Result::UserSetting",
   { "foreign.user_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy      => 0, cascade_delete => 0 },
 );
 
 =head2 user_workspace_roles
@@ -183,13 +184,11 @@ __PACKAGE__->has_many(
   "user_workspace_roles",
   "Conch::Legacy::Schema::Result::UserWorkspaceRole",
   { "foreign.user_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy      => 0, cascade_delete => 0 },
 );
-
 
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SpYdOvVV5rFGdcUb6WYcOg
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

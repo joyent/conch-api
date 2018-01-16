@@ -10,45 +10,49 @@ sub list ($c) {
 
 sub under ($c) {
   my $rack_id = $c->param('rack_id');
-  my $maybe_rack = $c->workspace_rack->lookup( $c->stash('current_workspace')->id, $rack_id );
+  my $maybe_rack =
+    $c->workspace_rack->lookup( $c->stash('current_workspace')->id, $rack_id );
   unless ($maybe_rack) {
-    $c->status(404, { error => "Rack $rack_id not found" });
+    $c->status( 404, { error => "Rack $rack_id not found" } );
     return 0;
   }
-  $c->stash(current_ws_rack => $maybe_rack->value);
+  $c->stash( current_ws_rack => $maybe_rack->value );
   return 1;
 }
 
 # Return with layout
 sub get_layout ($c) {
   return unless $c->under;
-  my $layout = $c->workspace_rack->rack_layout( $c->stash('current_ws_rack'));
-  $c->status(200, $layout);
+  my $layout = $c->workspace_rack->rack_layout( $c->stash('current_ws_rack') );
+  $c->status( 200, $layout );
 }
 
 sub add ($c) {
   my $body = $c->req->json;
-  return $c->status(400, { error => 'JSON object with "id" Rack ID field required' })
-    unless ($body && $body->{id});
+  return $c->status( 400,
+    { error => 'JSON object with "id" Rack ID field required' } )
+    unless ( $body && $body->{id} );
   my $rack_id = $body->{id};
 
   my $add_attempt =
-    $c->workspace_rack->add_to_workspace( $c->stash('current_workspace')->id, $rack_id );
+    $c->workspace_rack->add_to_workspace( $c->stash('current_workspace')->id,
+    $rack_id );
 
-  return $c->status(409, { error => $add_attempt->failure }) if $add_attempt->is_fail;
+  return $c->status( 409, { error => $add_attempt->failure } )
+    if $add_attempt->is_fail;
 
   $c->status(303);
-  $c->redirect_to( $c->url_for->to_abs . "/$rack_id");
+  $c->redirect_to( $c->url_for->to_abs . "/$rack_id" );
 }
 
 sub remove ($c) {
-  my $remove_attempt =
-    $c->workspace_rack->remove_from_workspace(
-      $c->stash('current_workspace')->id,
-      $c->stash('current_ws_rack')->id,
-    );
+  my $remove_attempt = $c->workspace_rack->remove_from_workspace(
+    $c->stash('current_workspace')->id,
+    $c->stash('current_ws_rack')->id,
+  );
 
-  return $c->status(409, { error => $remove_attempt->failure }) if $remove_attempt->is_fail;
+  return $c->status( 409, { error => $remove_attempt->failure } )
+    if $remove_attempt->is_fail;
 
   $c->status(204);
 }
@@ -63,7 +67,8 @@ sub assign_layout ($c) {
   my @updates;
   foreach my $device_id ( keys %{$layout} ) {
     my $rack_unit = $layout->{$device_id};
-    my $attempt = $c->device_location->assign($device_id, $rack_id, $rack_unit);
+    my $attempt =
+      $c->device_location->assign( $device_id, $rack_id, $rack_unit );
     if ( $attempt->is_success ) {
       push @updates, $device_id;
     }
@@ -72,10 +77,9 @@ sub assign_layout ($c) {
     }
   }
 
-  return $c->status(409, { updated => \@updates, errors => \@errors })
+  return $c->status( 409, { updated => \@updates, errors => \@errors } )
     if scalar @errors;
-  $c->status(200, { updated => \@updates });
-};
-
+  $c->status( 200, { updated => \@updates } );
+}
 
 1;

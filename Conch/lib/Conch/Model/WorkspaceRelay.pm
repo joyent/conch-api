@@ -8,10 +8,12 @@ use aliased 'Conch::Class::WorkspaceRelay';
 
 has 'pg';
 
-sub list ($self, $ws_id, $interval_minutes = undef) {
+sub list ( $self, $ws_id, $interval_minutes = undef ) {
   my $db = $self->pg->db;
+
   # Find all racks in the workspace
-  my $workspace_rack_ids = $db->query(q{
+  my $workspace_rack_ids = $db->query(
+    q{
       WITH target_workspace (id) AS ( values( ?::uuid ))
       SELECT rack.id
       FROM datacenter_rack rack
@@ -28,13 +30,15 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
             WHERE workspace_id = (select id from target_workspace)
           )
         )
-    }, $ws_id)->hashes->map(sub { $_->{id} })->to_array;
+    }, $ws_id
+  )->hashes->map( sub { $_->{id} } )->to_array;
 
   return [] unless scalar @$workspace_rack_ids;
 
   # find relay locations based on the device most recently reported through the
   # relay
-  my $relay_locations = $db->query(qq{
+  my $relay_locations = $db->query(
+    qq{
         SELECT drc1.relay_id, rack.id as rack_id, rack.name as rack_name,
           room.az as room_name, role.name as role_name
         FROM device_relay_connection drc1
@@ -57,19 +61,22 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
           WHERE loc.rack_id = loc2.rack_id
         )
       }, $workspace_rack_ids
-    )->hashes->to_array;
+  )->hashes->to_array;
   return [] unless scalar @$relay_locations;
   my @workspace_relay_ids = map { $_->{relay_id} } @$relay_locations;
 
-  my $interval_clause = $interval_minutes
-      ? "AND updated >= NOW() - INTERVAL '$interval_minutes minutes'"
-      : '';
-  my $relays = $db->query(qq{
+  my $interval_clause =
+    $interval_minutes
+    ? "AND updated >= NOW() - INTERVAL '$interval_minutes minutes'"
+    : '';
+  my $relays = $db->query(
+    qq{
       SELECT relay.*
       FROM relay
       WHERE id = ANY (?)
       AND deactivated IS NULL
-    }, \@workspace_relay_ids)->hashes->to_array;
+    }, \@workspace_relay_ids
+  )->hashes->to_array;
 
   my $relay_location_map = {};
   for my $loc (@$relay_locations) {
@@ -83,7 +90,8 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
 
   my @res;
   for my $relay (@$relays) {
-    my $devices = $db->query( qq{
+    my $devices = $db->query(
+      qq{
         SELECT device.*
         FROM relay r
         INNER JOIN device_relay_connection dr
@@ -96,9 +104,10 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
           AND dl.rack_id = ANY (?)
         ORDER by dr.last_seen desc
       }, $relay->{id}, $workspace_rack_ids
-    )->hashes->map(sub { Device->new($_) })->to_array;
+    )->hashes->map( sub { Device->new($_) } )->to_array;
 
-    push @res, WorkspaceRelay->new(
+    push @res,
+      WorkspaceRelay->new(
       id       => $relay->{id},
       alias    => $relay->{alias},
       created  => $relay->{created},
@@ -108,7 +117,7 @@ sub list ($self, $ws_id, $interval_minutes = undef) {
       version  => $relay->{version},
       devices  => $devices,
       location => $relay_location_map->{ $relay->{id} }
-    );
+      );
   }
   return \@res;
 }

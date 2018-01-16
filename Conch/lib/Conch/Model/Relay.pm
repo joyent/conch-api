@@ -3,12 +3,14 @@ use Mojo::Base -base, -signatures;
 
 use Attempt qw(attempt try);
 
-
 has 'pg';
 
-sub create ($self, $serial, $version, $ipaddr, $ssh_port, $alias, $ip_origin = undef) {
+sub create ( $self, $serial, $version, $ipaddr, $ssh_port, $alias,
+  $ip_origin = undef )
+{
   try {
-    $self->pg->db->query(q{
+    $self->pg->db->query(
+      q{
       INSERT INTO relay
         ( id, version, ipaddr, ssh_port, updated )
       VALUES
@@ -25,20 +27,21 @@ sub create ($self, $serial, $version, $ipaddr, $ssh_port, $alias, $ip_origin = u
       $ipaddr,
       $ssh_port,
       'NOW()'
-    )->rows
+      )->rows
   };
 }
 
-sub lookup ($self, $relay_id) {
-  attempt $self->pg->db->select('Relay', undef, { id => $relay_id })->hash;
+sub lookup ( $self, $relay_id ) {
+  attempt $self->pg->db->select( 'Relay', undef, { id => $relay_id } )->hash;
 }
 
 # Associate relay with a user
-sub connect_user_relay ($self, $user_id, $relay_id) {
+sub connect_user_relay ( $self, $user_id, $relay_id ) {
   try {
     # 'first_seen' column will only be written on create. It should remain
     # unchanged on updates
-    $self->pg->db->query(q{
+    $self->pg->db->query(
+      q{
         INSERT INTO user_relay_connection
           ( user_id, relay_id, last_seen )
         VALUES
@@ -53,11 +56,12 @@ sub connect_user_relay ($self, $user_id, $relay_id) {
 }
 
 # Associate relay with a device
-sub connect_device_relay($self, $device_id, $relay_id) {
+sub connect_device_relay ( $self, $device_id, $relay_id ) {
   try {
     # 'first_seen' column will only be written on create. It should remain
     # unchanged on updates
-    $self->pg->db->query(q{
+    $self->pg->db->query(
+      q{
         INSERT INTO device_relay_connection
           ( device_id, relay_id, last_seen )
         VALUES

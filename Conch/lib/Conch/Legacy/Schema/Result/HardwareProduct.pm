@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::HardwareProduct;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<hardware_product>
 
@@ -93,10 +94,10 @@ __PACKAGE__->table("hardware_product");
 __PACKAGE__->add_columns(
   "id",
   {
-    data_type => "uuid",
+    data_type     => "uuid",
     default_value => \"gen_random_uuid()",
-    is_nullable => 0,
-    size => 16,
+    is_nullable   => 0,
+    size          => 16,
   },
   "name",
   { data_type => "text", is_nullable => 0 },
@@ -148,7 +149,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("hardware_product_alias_key", ["alias"]);
+__PACKAGE__->add_unique_constraint( "hardware_product_alias_key", ["alias"] );
 
 =head2 C<hardware_product_name_key>
 
@@ -160,7 +161,7 @@ __PACKAGE__->add_unique_constraint("hardware_product_alias_key", ["alias"]);
 
 =cut
 
-__PACKAGE__->add_unique_constraint("hardware_product_name_key", ["name"]);
+__PACKAGE__->add_unique_constraint( "hardware_product_name_key", ["name"] );
 
 =head1 RELATIONS
 
@@ -176,7 +177,7 @@ __PACKAGE__->has_many(
   "datacenter_rack_layouts",
   "Conch::Legacy::Schema::Result::DatacenterRackLayout",
   { "foreign.product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy         => 0, cascade_delete => 0 },
 );
 
 =head2 devices
@@ -191,7 +192,7 @@ __PACKAGE__->has_many(
   "devices",
   "Conch::Legacy::Schema::Result::Device",
   { "foreign.hardware_product" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy               => 0, cascade_delete => 0 },
 );
 
 =head2 hardware_product_profile
@@ -206,7 +207,7 @@ __PACKAGE__->might_have(
   "hardware_product_profile",
   "Conch::Legacy::Schema::Result::HardwareProductProfile",
   { "foreign.product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy         => 0, cascade_delete => 0 },
 );
 
 =head2 vendor
@@ -220,14 +221,12 @@ Related object: L<Conch::Legacy::Schema::Result::HardwareVendor>
 __PACKAGE__->belongs_to(
   "vendor",
   "Conch::Legacy::Schema::Result::HardwareVendor",
-  { id => "vendor" },
+  { id            => "vendor" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZLHVx+uuGswuhZ4u7QxssQ
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

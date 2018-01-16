@@ -6,7 +6,7 @@ use Data::Printer;
 sub list ($c) {
   my $users =
     $c->workspace_user->workspace_users( $c->stash('current_workspace')->id );
-  $c->status( 200, [ map { $_->as_v1_json } @$users ]);
+  $c->status( 200, [ map { $_->as_v1_json } @$users ] );
 }
 
 sub invite ($c) {

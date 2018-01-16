@@ -10,16 +10,11 @@ __PACKAGE__->table('RelayLocation');
 #
 # Has the same columns as 'Device'
 __PACKAGE__->add_columns(
-  "relay_id",
-  { data_type => "text", is_nullable => 0 },
-  "rack_id",
-  { data_type => "uuid", is_nullable => 0, size => 16 },
-  "rack_name",
-  { data_type => "text", is_nullable => 0 },
-  "room_name",
-  { data_type => "text", is_nullable => 0 },
-  "role_name",
-  { data_type => "text", is_nullable => 0 },
+  "relay_id",  { data_type => "text", is_nullable => 0 },
+  "rack_id",   { data_type => "uuid", is_nullable => 0, size => 16 },
+  "rack_name", { data_type => "text", is_nullable => 0 },
+  "room_name", { data_type => "text", is_nullable => 0 },
+  "role_name", { data_type => "text", is_nullable => 0 },
 );
 #
 
@@ -33,7 +28,8 @@ __PACKAGE__->result_source_instance->is_virtual(1);
 # connects to Device B which also happens to be in rack 1. This query should
 # show that PRD2 is connected to rack 1 and PRD 1 is not.
 #
-__PACKAGE__->result_source_instance->view_definition(q[
+__PACKAGE__->result_source_instance->view_definition(
+  q[
   SELECT drc1.relay_id, rack.id as rack_id, rack.name as rack_name,
     room.az as room_name, role.name as role_name
   FROM device_relay_connection drc1
@@ -54,7 +50,8 @@ __PACKAGE__->result_source_instance->view_definition(q[
       ON drc2.device_id = loc2.device_id
     WHERE loc.rack_id = loc2.rack_id
   )
-]);
+]
+);
 
 1;
 

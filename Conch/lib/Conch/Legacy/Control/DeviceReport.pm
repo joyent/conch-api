@@ -156,7 +156,7 @@ sub record_device_report {
             transport     => $dr->{disks}->{$disk}->{transport},
             firmware      => $dr->{disks}->{$disk}->{firmware},
             deactivated   => undef,
-            updated     => \'NOW()'
+            updated       => \'NOW()'
           }
         );
       }
@@ -188,7 +188,7 @@ sub record_device_report {
 
         my $mac = uc( $dr->{interfaces}->{$nic}->{mac} );
 
-        $log->trace( "Device $device_id: Recording NIC: $mac" );
+        $log->trace("Device $device_id: Recording NIC: $mac");
 
         if ( $inactive_macs{$mac} ) {
           $inactive_macs{$mac} = 0;

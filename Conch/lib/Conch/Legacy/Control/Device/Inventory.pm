@@ -65,8 +65,7 @@ sub validate_system {
   }
 
   my $dimms_num_status;
-  my $dimms_num_log =
-    "Has = " . $dimms_num . ", Want = " . $dimms_want;
+  my $dimms_num_log = "Has = " . $dimms_num . ", Want = " . $dimms_want;
 
   if ( $dimms_num != $dimms_want ) {
     $dimms_num_status = 0;
@@ -103,12 +102,11 @@ sub validate_system {
   # Shrimps can have 256GB or 512GB RAM, with 8 or 16 DIMMs.
   if ( $hw_product->name eq "Joyent-Storage-Platform-7001" ) {
     if ( $ram_total <= 256 ) { $ram_want = 256; }
-    if ( $ram_total > 256  ) { $ram_want = 512; }
+    if ( $ram_total > 256 )  { $ram_want = 512; }
   }
 
   my $ram_total_status;
-  my $ram_total_log =
-    "Has = " . $ram_total . ", Want = " . $ram_want;
+  my $ram_total_log = "Has = " . $ram_total . ", Want = " . $ram_want;
 
   if ( $ram_total != $ram_want ) {
     $ram_total_status = 0;
@@ -320,35 +318,39 @@ sub validate_disks {
 
     # Check for a not-OK, non-USB drive using its SMART data.
     # This is provided on the host by smartctl -a <dev>
-    my $disk_smart_log = undef;
+    my $disk_smart_log    = undef;
     my $disk_smart_status = 0;
 
     my $disk_smart_prefix = "$device_id: report $report_id: ";
 
-    unless (defined $disk->health) {
+    unless ( defined $disk->health ) {
       $disk_smart_status = 0;
-      $disk_smart_log =
-        "No SMART telemetry from disk " . $disk->serial_number;
+      $disk_smart_log = "No SMART telemetry from disk " . $disk->serial_number;
 
-      mistake($disk_smart_prefix .
-        "CRITICAL: " . $disk->serial_number . " did not return SMART telemetry.");
+      mistake( $disk_smart_prefix
+          . "CRITICAL: "
+          . $disk->serial_number
+          . " did not return SMART telemetry." );
     }
 
-    if ($disk->health ne "OK") {
+    if ( $disk->health ne "OK" ) {
       $disk_smart_status = 0;
-      $disk_smart_log = "SMART says " . $disk->health . ", Want OK";
+      $disk_smart_log    = "SMART says " . $disk->health . ", Want OK";
 
-      mistake($disk_smart_prefix .
-        "CRITICAL: " . $disk->serial_number .
-        " SMART telemetry indicates: $disk->health");
+      mistake( $disk_smart_prefix
+          . "CRITICAL: "
+          . $disk->serial_number
+          . " SMART telemetry indicates: $disk->health" );
     }
 
-    if ($disk->health eq "OK") {
+    if ( $disk->health eq "OK" ) {
       $disk_smart_status = 1;
-      $disk_smart_log = "SMART says " . $disk->health;
+      $disk_smart_log    = "SMART says " . $disk->health;
 
-      trace($disk_smart_prefix .
-        "NOTICE: " . $disk->serial_number . " SMART telemetry nominal.");
+      trace($disk_smart_prefix
+          . "NOTICE: "
+          . $disk->serial_number
+          . " SMART telemetry nominal." );
     }
 
     $schema->resultset('DeviceValidate')->create(

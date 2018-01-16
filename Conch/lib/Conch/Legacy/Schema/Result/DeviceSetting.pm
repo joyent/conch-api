@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::DeviceSetting;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<device_settings>
 
@@ -87,10 +88,10 @@ __PACKAGE__->table("device_settings");
 __PACKAGE__->add_columns(
   "id",
   {
-    data_type => "uuid",
+    data_type     => "uuid",
     default_value => \"gen_random_uuid()",
-    is_nullable => 0,
-    size => 16,
+    is_nullable   => 0,
+    size          => 16,
   },
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
@@ -141,14 +142,12 @@ Related object: L<Conch::Legacy::Schema::Result::Device>
 __PACKAGE__->belongs_to(
   "device",
   "Conch::Legacy::Schema::Result::Device",
-  { id => "device_id" },
+  { id            => "device_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Ii1UEVeBUjhpM5sIbuVIXQ
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

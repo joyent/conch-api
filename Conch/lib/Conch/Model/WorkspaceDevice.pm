@@ -7,10 +7,12 @@ use aliased 'Conch::Class::Device';
 has 'pg';
 
 sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
-  my $last_seen_clause = $last_seen_seconds ?
-    "AND device.last_seen > NOW() - INTERVAL '$last_seen_seconds seconds'"
+  my $last_seen_clause =
+    $last_seen_seconds
+    ? "AND device.last_seen > NOW() - INTERVAL '$last_seen_seconds seconds'"
     : '';
-  $self->pg->db->query(qq{
+  $self->pg->db->query(
+    qq{
     WITH target_workspace (id) AS ( values(?::uuid) )
     SELECT device.*
     FROM device
@@ -32,7 +34,8 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
         )
       )
       $last_seen_clause
-  }, $ws_id)->hashes->map( sub { Device->new(shift) })->to_array;
+  }, $ws_id
+  )->hashes->map( sub { Device->new(shift) } )->to_array;
 }
 
 1;

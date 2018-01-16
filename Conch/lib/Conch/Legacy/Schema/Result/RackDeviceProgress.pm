@@ -22,7 +22,8 @@ __PACKAGE__->add_columns(
 # do not attempt to deploy() this view
 __PACKAGE__->result_source_instance->is_virtual(1);
 
-__PACKAGE__->result_source_instance->view_definition(q[
+__PACKAGE__->result_source_instance->view_definition(
+  q[
   SELECT rack_id, health AS status, count(*) as count
   FROM device
   INNER JOIN device_location
@@ -38,6 +39,7 @@ __PACKAGE__->result_source_instance->view_definition(q[
     ON device.id = device_id
   WHERE validated is not null
   GROUP BY rack_id
-]);
+]
+);
 
 1;
