@@ -17,7 +17,7 @@ sub list ( $self, $ws_id ) {
         ON dr.id = wdr.datacenter_room_id
       WHERE wdr.workspace_id = ?::uuid
     }, $ws_id
-  )->hashes->map( sub { DatacenterRoom-new($_) } )->to_array;
+  )->hashes->map( sub { DatacenterRoom->new($_) } )->to_array;
 }
 
 sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
