@@ -38,7 +38,8 @@ sub mk_tmp_db {
   $dbh->do($base_schema);
 
   opendir(my $dh, 'sql/migrations');
-  while (readdir $dh) {
+  my @migrations = grep { -f "sql/migrations/$_" } readdir($dh);
+  for (sort @migrations) {
     open(my $fh, '<', "sql/migrations/$_");
     my $migration = do { local $/; <$fh> };
     $dbh->do($migration);
