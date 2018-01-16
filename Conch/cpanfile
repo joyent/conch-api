@@ -1,5 +1,6 @@
 requires 'perl', '5.26.1';
 
+
 # basics
 requires 'Data::UUID';
 requires 'Data::Printer';
@@ -17,6 +18,21 @@ requires 'Mojolicious::Plugin::Util::RandomString';
 
 ### Legacy Deps
 #
+
+# DBIC::Class::Schema::Loader requires String::CamelCase 0.02. Problem
+# is that 0.02 is broken under perl 5.26 because @INC no longer
+# includes '.' for security reasons. Unfortunately, there's a syntax
+# error in the META.yml file for 0.03 which means tools don't know that
+# the 0.03 tarball actually contains 0.03. It reads as a version of
+# undef. If we specifically require it, carton will install 0.03 because
+# we aren't specifying a version. Usually, the installation will Just
+# Work. However, sometimes 'carton install --deployment' decides to try
+# to install Schema::Loader before doing this install, which causes
+# carton to grab 0.02 since Schema::Loader specifies a version. That
+# install fails. Typically, running 'carton install --deployment' or
+# 'make run' a second time will get a correct install. 
+requires 'String::CamelCase';
+
 # database
 requires 'DBD::Pg';
 requires 'DateTime::Format::Pg';
