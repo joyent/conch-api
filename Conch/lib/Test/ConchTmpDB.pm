@@ -21,29 +21,28 @@ and all migrations. Returns the object from L<Test::PostgreSQL>.
 
 =cut
 
-
 sub mk_tmp_db {
 
   my $pgtmp = Test::PostgreSQL->new()
-      or die $Test::PostgreSQL::errstr;
+    or die $Test::PostgreSQL::errstr;
 
-  my $dbh = DBI->connect($pgtmp->dsn);
+  my $dbh = DBI->connect( $pgtmp->dsn );
 
   $dbh->do('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";') or die;
-  $dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";') or die;
+  $dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')  or die;
 
-  open(my $fh, '<', 'sql/conch.sql');
+  open( my $fh, '<', 'sql/conch.sql' );
   my $base_schema = do { local $/; <$fh> };
 
   $dbh->do($base_schema);
 
-  opendir(my $dh, 'sql/migrations');
+  opendir( my $dh, 'sql/migrations' );
   my @migrations = grep { -f "sql/migrations/$_" } readdir($dh);
-  for (sort @migrations) {
-    open(my $fh, '<', "sql/migrations/$_");
+  for ( sort @migrations ) {
+    open( my $fh, '<', "sql/migrations/$_" );
     my $migration = do { local $/; <$fh> };
     $dbh->do($migration);
-  };
+  }
 
   closedir($dh);
 

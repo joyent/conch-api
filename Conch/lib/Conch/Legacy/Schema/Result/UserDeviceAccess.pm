@@ -11,14 +11,15 @@ __PACKAGE__->table('UserDeviceAccess');
 
 #
 # Has the same columns as 'Device'
-__PACKAGE__->add_columns(Conch::Legacy::Schema::Result::Device->columns);
+__PACKAGE__->add_columns( Conch::Legacy::Schema::Result::Device->columns );
 
 # do not attempt to deploy() this view
 __PACKAGE__->result_source_instance->is_virtual(1);
 
 # Takes a user ID and returns the list of devices the user has access to
 # through all of their assigned workspaces
-__PACKAGE__->result_source_instance->view_definition(q[
+__PACKAGE__->result_source_instance->view_definition(
+  q[
   WITH target_workspaces(id) AS (
     SELECT workspace_id
     FROM user_workspace_role
@@ -44,9 +45,11 @@ __PACKAGE__->result_source_instance->view_definition(q[
       )
     )
 
-]);
+]
+);
 
 # NOTE: UPDATE BELOW WHEN Conch::Result::Device IS UPDATED!
+
 =head1 RELATIONS
 
 =head2 device_disks
@@ -61,7 +64,7 @@ __PACKAGE__->has_many(
   "device_disks",
   "Conch::Legacy::Schema::Result::DeviceDisk",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_environment
@@ -76,7 +79,7 @@ __PACKAGE__->might_have(
   "device_environment",
   "Conch::Legacy::Schema::Result::DeviceEnvironment",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_location
@@ -91,7 +94,7 @@ __PACKAGE__->might_have(
   "device_location",
   "Conch::Legacy::Schema::Result::DeviceLocation",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_logs
@@ -106,7 +109,7 @@ __PACKAGE__->has_many(
   "device_logs",
   "Conch::Legacy::Schema::Result::DeviceLog",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_memories
@@ -121,7 +124,7 @@ __PACKAGE__->has_many(
   "device_memories",
   "Conch::Legacy::Schema::Result::DeviceMemory",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_nics
@@ -136,7 +139,7 @@ __PACKAGE__->has_many(
   "device_nics",
   "Conch::Legacy::Schema::Result::DeviceNic",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_notes
@@ -151,7 +154,7 @@ __PACKAGE__->has_many(
   "device_notes",
   "Conch::Legacy::Schema::Result::DeviceNote",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_relay_connections
@@ -166,7 +169,7 @@ __PACKAGE__->has_many(
   "device_relay_connections",
   "Conch::Legacy::Schema::Result::DeviceRelayConnection",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_reports
@@ -181,7 +184,7 @@ __PACKAGE__->has_many(
   "device_reports",
   "Conch::Legacy::Schema::Result::DeviceReport",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_settings
@@ -196,7 +199,7 @@ __PACKAGE__->has_many(
   "device_settings",
   "Conch::Legacy::Schema::Result::DeviceSetting",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_spec
@@ -211,7 +214,7 @@ __PACKAGE__->might_have(
   "device_spec",
   "Conch::Legacy::Schema::Result::DeviceSpec",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_validates
@@ -226,7 +229,7 @@ __PACKAGE__->has_many(
   "device_validates",
   "Conch::Legacy::Schema::Result::DeviceValidate",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 hardware_product
@@ -240,7 +243,7 @@ Related object: L<Conch::Legacy::Schema::Result::HardwareProduct>
 __PACKAGE__->belongs_to(
   "hardware_product",
   "Conch::Legacy::Schema::Result::HardwareProduct",
-  { id => "hardware_product" },
+  { id            => "hardware_product" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 

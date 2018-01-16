@@ -6,7 +6,7 @@ use aliased 'Conch::Class::DatacenterRoom';
 
 has 'pg';
 
-sub list ($self, $ws_id) {
+sub list ( $self, $ws_id ) {
   $self->pg->db->query(
     q{
       SELECT dr.id, dr.az, dr.alias, dr.vendor_name
@@ -15,11 +15,11 @@ sub list ($self, $ws_id) {
         ON dr.id = wdr.datacenter_room_id
       WHERE wdr.workspace_id = ?::uuid
     }, $ws_id
-  )->hashes->map(sub { DatacenterRoom-new($_)})->to_array;
+  )->hashes->map( sub { DatacenterRoom-new($_) } )->to_array;
 }
 
-sub replace_workspace_rooms ($self, $ws_id, $room_ids) {
-  my $db = $self->pg->db;
+sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
+  my $db              = $self->pg->db;
   my $parent_room_ids = $db->query(
     q{
       SELECT wdr.datacenter_room_id

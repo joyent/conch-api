@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::DeviceNic;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<device_nic>
 
@@ -148,7 +149,7 @@ Related object: L<Conch::Legacy::Schema::Result::Device>
 __PACKAGE__->belongs_to(
   "device",
   "Conch::Legacy::Schema::Result::Device",
-  { id => "device_id" },
+  { id            => "device_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -164,7 +165,7 @@ __PACKAGE__->might_have(
   "device_neighbor",
   "Conch::Legacy::Schema::Result::DeviceNeighbor",
   { "foreign.mac" => "self.mac" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy  => 0, cascade_delete => 0 },
 );
 
 =head2 device_nic_state
@@ -179,13 +180,11 @@ __PACKAGE__->might_have(
   "device_nic_state",
   "Conch::Legacy::Schema::Result::DeviceNicState",
   { "foreign.mac" => "self.mac" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy  => 0, cascade_delete => 0 },
 );
-
 
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tXKzq6//k+M3cdzo70Sx8g
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

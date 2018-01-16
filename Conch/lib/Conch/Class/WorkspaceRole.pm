@@ -8,4 +8,3 @@ has [qw( id name description )];
 
 1;
 
-

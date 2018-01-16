@@ -6,7 +6,6 @@ use warnings;
 use Exporter 'import';
 our @EXPORT_OK = qw(fail success try sequence attempt when_defined);
 
-
 sub fail {
   return bless { value => $_[0] }, __PACKAGE__ . '::Fail';
 }
@@ -17,17 +16,15 @@ sub success {
 
 sub try (&) {
   my $sub = shift;
-  my $res; 
-  eval {
-    $res = $sub->();
-  };
+  my $res;
+  eval { $res = $sub->(); };
   return fail($@) if $@;
   return success($res);
 }
 
 sub attempt ($) {
   my $value = shift;
-  if (defined $value) {
+  if ( defined $value ) {
     return success($value);
   }
   else {
@@ -36,9 +33,9 @@ sub attempt ($) {
 }
 
 sub when_defined (&$) {
-  my $sub = shift;
+  my $sub   = shift;
   my $value = shift;
-  if (defined $value) {
+  if ( defined $value ) {
     return success($value)->next($sub);
   }
   else {
@@ -47,16 +44,17 @@ sub when_defined (&$) {
 }
 
 sub sequence {
-  my $acc = success([]);
+  my $acc = success( [] );
   my $foo = @_;
   for (@_) {
-    if ($_->is_success) {
+    if ( $_->is_success ) {
       $acc = $acc->next(
         sub {
           my $values = shift;
           push @$values, $_->value;
           return $values;
-        });
+        }
+      );
     }
     else {
       $acc = $_;
@@ -85,11 +83,11 @@ sub failure {
 }
 
 sub next {
-  my ($self, $f) = @_;
+  my ( $self, $f ) = @_;
   return $self if $self->is_fail;
 
-  my $next = $f->($self->value);
-  my $pkg = __PACKAGE__;
+  my $next = $f->( $self->value );
+  my $pkg  = __PACKAGE__;
 
   # $next is either Success or Fail
   return $next if ref($next) =~ /^$pkg/;
@@ -107,7 +105,6 @@ use parent -norequire, 'Attempt';
 use overload 'bool' => sub { 1 };
 
 1;
-
 
 __END__
 

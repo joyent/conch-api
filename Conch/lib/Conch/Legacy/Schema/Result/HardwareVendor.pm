@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::HardwareVendor;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<hardware_vendor>
 
@@ -76,10 +77,10 @@ __PACKAGE__->table("hardware_vendor");
 __PACKAGE__->add_columns(
   "id",
   {
-    data_type => "uuid",
+    data_type     => "uuid",
     default_value => \"gen_random_uuid()",
-    is_nullable => 0,
-    size => 16,
+    is_nullable   => 0,
+    size          => 16,
   },
   "name",
   { data_type => "text", is_nullable => 0 },
@@ -125,7 +126,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("hardware_vendor_name_key", ["name"]);
+__PACKAGE__->add_unique_constraint( "hardware_vendor_name_key", ["name"] );
 
 =head1 RELATIONS
 
@@ -141,13 +142,11 @@ __PACKAGE__->has_many(
   "hardware_products",
   "Conch::Legacy::Schema::Result::HardwareProduct",
   { "foreign.vendor" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy     => 0, cascade_delete => 0 },
 );
-
 
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0J/MoD4dsnf/gJTO9CyALQ
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

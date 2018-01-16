@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::Relay;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<relay>
 
@@ -141,7 +142,7 @@ __PACKAGE__->has_many(
   "device_relay_connections",
   "Conch::Legacy::Schema::Result::DeviceRelayConnection",
   { "foreign.relay_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy       => 0, cascade_delete => 0 },
 );
 
 =head2 user_relay_connections
@@ -156,13 +157,11 @@ __PACKAGE__->has_many(
   "user_relay_connections",
   "Conch::Legacy::Schema::Result::UserRelayConnection",
   { "foreign.relay_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy       => 0, cascade_delete => 0 },
 );
-
 
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UCl/UcO/AgS94txaBJ+dXQ
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

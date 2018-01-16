@@ -15,7 +15,7 @@ has 'log';
 # Parse a report object from a HashRef and report all validation errors
 # Returns a list where the first element may be the parsed log and the second
 # may be validation errors, but not both.
-sub parse_device_report ($self, $input) {
+sub parse_device_report ( $self, $input ) {
   my $aux_report = dclone($input);
 
   my $report;
@@ -26,7 +26,7 @@ sub parse_device_report ($self, $input) {
     $report = try { Conch::Legacy::Data::Report::Server->new($input) };
   }
 
-  if ($report->is_fail) {
+  if ( $report->is_fail ) {
     my $errs = join( "; ", map { $_->message } $report->failure->errors );
     $self->log->warn("Error validating device report: $errs");
     return fail($errs);
@@ -42,7 +42,7 @@ sub parse_device_report ($self, $input) {
   }
 }
 
-sub latest_device_report ($self, $device_id) {
+sub latest_device_report ( $self, $device_id ) {
   attempt $self->pg->db->query(
     q{
       SELECT me.id, me.device_id, me.report, me.created
@@ -57,23 +57,21 @@ sub latest_device_report ($self, $device_id) {
   )->expand->hash;
 }
 
-sub validation_results ($self, $report_id) {
-  $self->pg->db->select(
-    'device_validate', undef, { report_id => $report_id }
-  )->expand->hashes->to_array;
+sub validation_results ( $self, $report_id ) {
+  $self->pg->db->select( 'device_validate', undef, { report_id => $report_id } )
+    ->expand->hashes->to_array;
 }
 
 # Returns a Device for processing in the validation steps
-sub record_device_report ($self, $dr) {
+sub record_device_report ( $self, $dr ) {
   my $db = $self->pg->db;
-  my $hw = attempt $db->select('hardware_product', undef,
-    { name => $dr->{product_name} }
-  )->hash;
+  my $hw = attempt $db->select( 'hardware_product', undef,
+    { name => $dr->{product_name} } )->hash;
   return fail("Product $dr->{product_name} not found")
     if $hw->is_fail;
 
-  my $hw_profile = $db->select('hardware_product_profile', undef,
-    { product_id => $hw->{id} });
+  my $hw_profile = $db->select( 'hardware_product_profile', undef,
+    { product_id => $hw->{id} } );
 
   $self->log->info("Ready to record report for Device $dr->{serial_number}");
 
@@ -81,10 +79,10 @@ sub record_device_report ($self, $dr) {
     my $device_report_id;
     my $tx = $db->begin;
 
-    my $maybe_device = $self->device->lookup->($dr->{serial_number});
+    my $maybe_device = $self->device->lookup->( $dr->{serial_number} );
 
     my $device_id;
-    if ($maybe_device->is_fail) {
+    if ( $maybe_device->is_fail ) {
       $device_id = $self->device->create(
         {
           id               => $dr->{serial_number},
@@ -97,14 +95,14 @@ sub record_device_report ($self, $dr) {
         }
       );
       $self->log->info("Created Device $device_id");
-      _add_reboot_count($db, $device_id);
+      _add_reboot_count( $db, $device_id );
     }
     else {
       $device_id = $maybe_device->value->id;
-      $self->device->mark_uptime_last_seen($dr->{uptime_since});
+      $self->device->mark_uptime_last_seen( $dr->{uptime_since} );
 
-      _add_reboot_count($db, $device_id)
-        if $dr-$maybe_device->value->uptime_since > $dr->{uptime_since};
+      _add_reboot_count( $db, $device_id )
+        if $dr - $maybe_device->value->uptime_since > $dr->{uptime_since};
     }
 
     _device_relay_connect( $db, $device_id, $dr->{relay}{serial} )
@@ -112,7 +110,8 @@ sub record_device_report ($self, $dr) {
 
     # Stores the JSON representation of device report as serialized
     # by MooseX::Storage
-    $device_report_id = $db->insert('device_report',
+    $device_report_id = $db->insert(
+      'device_report',
       {
         device_id => $device_id,
         report    => $dr->freeze()
@@ -121,7 +120,8 @@ sub record_device_report ($self, $dr) {
     );
 
     my $nics_num = $dr->{nics_count};
-    $db->query(q{
+    $db->query(
+      q{
       INSERT INTO device_spec
         ( device_id, product_id, bios_firmware, cpu_num, cpu_type, nics_num,
           dimms_num, ram_total )
@@ -148,7 +148,8 @@ sub record_device_report ($self, $dr) {
 
     $self->log->info("Created Device Spec for Device $device_id");
 
-    $db->query(q{
+    $db->query(
+      q{
       INSERT INTO device_environment
         (device_id, cpu0_temp, cpu1_temp, inlet_temp, exhaust_temp)
       VALUES
@@ -169,10 +170,10 @@ sub record_device_report ($self, $dr) {
     $dr->{temp}
       and $self->log->info("Recorded environment for Device $device_id");
 
-    _record_device_disks($db, $device_id, $dr);
+    _record_device_disks( $db, $device_id, $dr );
     $self->log->info("Recorded disk info for Device $device_id");
 
-    _record_device_nics($db, $device_id, $dr);
+    _record_device_nics( $db, $device_id, $dr );
     $self->log->info("Recorded NIC info for Device $device_id");
 
     $tx->commit;
@@ -180,10 +181,10 @@ sub record_device_report ($self, $dr) {
   };
 }
 
-
 # Add or update the reboot_count setting
-sub _add_reboot_count ($db, $device_id) {
-  $db->query(q{
+sub _add_reboot_count ( $db, $device_id ) {
+  $db->query(
+    q{
       INSERT INTO device_settings
         (device_id, name, value)
       VALUES
@@ -195,10 +196,12 @@ sub _add_reboot_count ($db, $device_id) {
   );
 }
 
-sub _device_relay_connect ($db, $device_id, $relay_id) {
+sub _device_relay_connect ( $db, $device_id, $relay_id ) {
+
   # 'first_seen' column will only be written on create. It should remain
   # untouched on updates
-  $db->query(q{
+  $db->query(
+    q{
       INSERT INTO device_relay_connection
         ( device_id, relay_id, last_seen )
       VALUES ( ?, ?, ? )
@@ -207,14 +210,16 @@ sub _device_relay_connect ($db, $device_id, $relay_id) {
           relay_id = excluded.relay_id,
           last_seen = excluded.last_seen
     },
-      $device_id,
-      $relay_id,
-      'NOW()'
+    $device_id,
+    $relay_id,
+    'NOW()'
   );
 }
 
-sub _record_device_nics ($db, $device_id, $dr) {
-  my $device_nics = $db->select('device_nic', undef,
+sub _record_device_nics ( $db, $device_id, $dr ) {
+  my $device_nics = $db->select(
+    'device_nic',
+    undef,
     {
       device_id   => $device_id,
       deactivated => undef
@@ -231,7 +236,8 @@ sub _record_device_nics ($db, $device_id, $dr) {
       $inactive_macs{$mac} = 0;
     }
 
-    $db->query(q{
+    $db->query(
+      q{
       INSERT INTO device_nic
         (mac, device_id, iface_name, iface_type, iface_vendor,
         iface_driver, updated, deactivated)
@@ -247,16 +253,17 @@ sub _record_device_nics ($db, $device_id, $dr) {
           updated = excluded.updated,
           deactivated = excluded.deactivated
       }, $mac,
-        $device_id,
-        $nic,
-        $dr->{interfaces}->{$nic}->{product},
-        $dr->{interfaces}->{$nic}->{vendor},
-        '',
-        'NOW()',
-        undef
+      $device_id,
+      $nic,
+      $dr->{interfaces}->{$nic}->{product},
+      $dr->{interfaces}->{$nic}->{vendor},
+      '',
+      'NOW()',
+      undef
     );
 
-    $db->query(q{
+    $db->query(
+      q{
       INSERT INTO device_nic_state
         ( mac, state, ipaddr, mtu, updated )
       VALUES
@@ -274,7 +281,8 @@ sub _record_device_nics ($db, $device_id, $dr) {
       'NOW()'
     );
 
-    $db->query(q{
+    $db->query(
+      q{
       INSERT INTO device_neighbor
         ( mac, raw_text, peer_switch, peer_port, peer_mac, updated )
       VALUES
@@ -297,19 +305,23 @@ sub _record_device_nics ($db, $device_id, $dr) {
   }
 
   my @inactive_macs =
-  grep { $inactive_macs{$_} } keys %inactive_macs;
+    grep { $inactive_macs{$_} } keys %inactive_macs;
 
   # Deactivate all nics that were previously recorded but are no longer
   # reported in the device report
   if ( scalar @inactive_macs ) {
-    $db->update('device_nic', { mac => { -in => \@inactive_macs } },
+    $db->update(
+      'device_nic',
+      { mac => { -in => \@inactive_macs } },
       { deactivated => 'NOW()', updated => 'NOW()' }
     );
   }
 }
 
-sub _record_device_disks ($db, $device_id, $dr){
-  my $device_disks = $db->select('device_disk', undef,
+sub _record_device_disks ( $db, $device_id, $dr ) {
+  my $device_disks = $db->select(
+    'device_disk',
+    undef,
     {
       device_id   => $device_id,
       deactivated => undef
@@ -325,7 +337,8 @@ sub _record_device_disks ($db, $device_id, $dr){
       $inactive_serials{$disk} = 0;
     }
 
-    $db->query(q{
+    $db->query(
+      q{
       INSERT INTO device_disk
         ( device_id, serial_number, slot, hba, enclosure, vendor, health,
           size, model, temp, drive_type, transport, firmware, deactivated,
@@ -368,12 +381,14 @@ sub _record_device_disks ($db, $device_id, $dr){
   }
 
   my @inactive_serials =
-  grep { $inactive_serials{$_} } keys %inactive_serials;
+    grep { $inactive_serials{$_} } keys %inactive_serials;
 
   # Deactivate all disks that were previously recorded but are no longer
   # reported in the device report
   if ( scalar @inactive_serials ) {
-    $db->update('device_disk', { serial_number => { -in => \@inactive_serials } },
+    $db->update(
+      'device_disk',
+      { serial_number => { -in => \@inactive_serials } },
       { deactivated => 'NOW()', updated => 'NOW()' }
     );
   }

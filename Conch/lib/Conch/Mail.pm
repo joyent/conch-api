@@ -73,9 +73,9 @@ sub existing_user_invite {
 }
 
 sub password_reset_email {
-  my ($args)         = @_;
-  my $email          = $args->{email};
-  my $password       = $args->{password};
+  my ($args)   = @_;
+  my $email    = $args->{email};
+  my $password = $args->{password};
 
   my %mail = (
     To      => $email,

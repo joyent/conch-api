@@ -19,15 +19,18 @@ sub workspace_routes {
   $in_workspace->post('/child')->to('workspace#create_sub_workspace');
 
   $in_workspace->get('/device')->to('workspace_device#list');
-  # Redirect /workspace/:id/device/active to use query parameter on /workspace/:id/device
-  $in_workspace->get('/device/active', sub {
-      my $c = shift;
+
+# Redirect /workspace/:id/device/active to use query parameter on /workspace/:id/device
+  $in_workspace->get(
+    '/device/active',
+    sub {
+      my $c    = shift;
       my @here = @{ $c->url_for->path->parts };
       pop @here;
       $c->redirect_to(
-        $c->url_for(join('/', @here))->query(active => 't')->to_abs
-      );
-    });
+        $c->url_for( join( '/', @here ) )->query( active => 't' )->to_abs );
+    }
+  );
 
   $in_workspace->get('/problem')->to('workspace_problem#list');
 

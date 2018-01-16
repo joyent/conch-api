@@ -4,7 +4,7 @@ use Mojo::Base -role, -signatures;
 use Data::Printer;
 
 sub as_v1_json {
-  my $self = shift;
+  my $self   = shift;
   my %fields = %$self;
   return {%fields};
 }

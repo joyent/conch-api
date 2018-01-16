@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::DatacenterRoom;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<datacenter_room>
 
@@ -93,10 +94,10 @@ __PACKAGE__->table("datacenter_room");
 __PACKAGE__->add_columns(
   "id",
   {
-    data_type => "uuid",
+    data_type     => "uuid",
     default_value => \"gen_random_uuid()",
-    is_nullable => 0,
-    size => 16,
+    is_nullable   => 0,
+    size          => 16,
   },
   "datacenter",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
@@ -149,7 +150,7 @@ Related object: L<Conch::Legacy::Schema::Result::Datacenter>
 __PACKAGE__->belongs_to(
   "datacenter",
   "Conch::Legacy::Schema::Result::Datacenter",
-  { id => "datacenter" },
+  { id            => "datacenter" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -165,7 +166,7 @@ __PACKAGE__->has_many(
   "datacenter_racks",
   "Conch::Legacy::Schema::Result::DatacenterRack",
   { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy                 => 0, cascade_delete => 0 },
 );
 
 =head2 datacenter_room_networks
@@ -180,7 +181,7 @@ __PACKAGE__->has_many(
   "datacenter_room_networks",
   "Conch::Legacy::Schema::Result::DatacenterRoomNetwork",
   { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy                 => 0, cascade_delete => 0 },
 );
 
 =head2 workspace_datacenter_rooms
@@ -195,13 +196,11 @@ __PACKAGE__->has_many(
   "workspace_datacenter_rooms",
   "Conch::Legacy::Schema::Result::WorkspaceDatacenterRoom",
   { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy                 => 0, cascade_delete => 0 },
 );
-
 
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:B+8S6ZX24ALj2VK7nwWa+Q
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

@@ -1,4 +1,5 @@
 use utf8;
+
 package Conch::Legacy::Schema::Result::Device;
 
 # Created by DBIx::Class::Schema::Loader
@@ -30,7 +31,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
+__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
 
 =head1 TABLE: C<device>
 
@@ -206,7 +207,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("device_system_uuid_key", ["system_uuid"]);
+__PACKAGE__->add_unique_constraint( "device_system_uuid_key", ["system_uuid"] );
 
 =head1 RELATIONS
 
@@ -222,7 +223,7 @@ __PACKAGE__->has_many(
   "device_disks",
   "Conch::Legacy::Schema::Result::DeviceDisk",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_environment
@@ -237,7 +238,7 @@ __PACKAGE__->might_have(
   "device_environment",
   "Conch::Legacy::Schema::Result::DeviceEnvironment",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_location
@@ -252,7 +253,7 @@ __PACKAGE__->might_have(
   "device_location",
   "Conch::Legacy::Schema::Result::DeviceLocation",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_logs
@@ -267,7 +268,7 @@ __PACKAGE__->has_many(
   "device_logs",
   "Conch::Legacy::Schema::Result::DeviceLog",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_memories
@@ -282,7 +283,7 @@ __PACKAGE__->has_many(
   "device_memories",
   "Conch::Legacy::Schema::Result::DeviceMemory",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_nics
@@ -297,7 +298,7 @@ __PACKAGE__->has_many(
   "device_nics",
   "Conch::Legacy::Schema::Result::DeviceNic",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_relay_connections
@@ -312,7 +313,7 @@ __PACKAGE__->has_many(
   "device_relay_connections",
   "Conch::Legacy::Schema::Result::DeviceRelayConnection",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_reports
@@ -327,7 +328,7 @@ __PACKAGE__->has_many(
   "device_reports",
   "Conch::Legacy::Schema::Result::DeviceReport",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_settings
@@ -342,7 +343,7 @@ __PACKAGE__->has_many(
   "device_settings",
   "Conch::Legacy::Schema::Result::DeviceSetting",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_spec
@@ -357,7 +358,7 @@ __PACKAGE__->might_have(
   "device_spec",
   "Conch::Legacy::Schema::Result::DeviceSpec",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 device_validates
@@ -372,7 +373,7 @@ __PACKAGE__->has_many(
   "device_validates",
   "Conch::Legacy::Schema::Result::DeviceValidate",
   { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { cascade_copy        => 0, cascade_delete => 0 },
 );
 
 =head2 hardware_product
@@ -386,14 +387,12 @@ Related object: L<Conch::Legacy::Schema::Result::HardwareProduct>
 __PACKAGE__->belongs_to(
   "hardware_product",
   "Conch::Legacy::Schema::Result::HardwareProduct",
-  { id => "hardware_product" },
+  { id            => "hardware_product" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-
 # Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+Qh05SYyzPtqFI7A6eOUrA
-
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

@@ -5,7 +5,7 @@ use aliased 'Conch::Class::WorkspaceUser';
 
 has 'pg';
 
-sub workspace_users ($self, $ws_id) {
+sub workspace_users ( $self, $ws_id ) {
   $self->pg->db->query(
     q{
       SELECT u.name, u.email, r.name as role
