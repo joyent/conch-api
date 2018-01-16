@@ -61,9 +61,22 @@ sub lookup_by_email($self, $email) {
   return success(User->new($user_res));
 }
 
-sub authenticate ( $self, $email, $password ) {
-  my $att_user = $self->lookup_by_email($email);
-  return $att_user->next( sub {
+sub authenticate ( $self, $user_id, $password ) {
+  my $user_res = $self->pg->db->select(
+    'user_account',
+    undef,
+    { name => $user_id } )->hash;
+
+  unless($user_res) {
+    $user_res = $self->pg->db->select(
+      'user_account',
+      undef,
+      { email => $user_id } )->hash;
+  }
+
+  return fail("No user with name or email address of  $user_id") unless $user_res;
+
+  return success(User->new($user_res))->next( sub {
       my $user = shift;
       my $password_hash = $user->password_hash;
       $password_hash =~ s/{CRYPT}//; # remove Dancer2 legacy prefix

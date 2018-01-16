@@ -54,13 +54,20 @@ subtest "lookup_by_email" => sub {
 subtest "authenticate" => sub {
   can_ok($user_model, 'authenticate');
   isa_ok($user_model->authenticate($new_user->email, 'password'),
-    "Attempt::Success", "authentication success");
+    "Attempt::Success", "authentication success with email address");
 
   isa_ok($user_model->authenticate($new_user->email, 'bad_password'),
-    "Attempt::Fail", "bad password fails authentication");
+    "Attempt::Fail", "bad password fails authentication with email address");
 
   isa_ok($user_model->authenticate('bad@email.com', 'password'),
     "Attempt::Fail", "bad email fails authentication");
+
+  isa_ok($user_model->authenticate($new_user->name, 'password'),
+    "Attempt::Success", "authentication success with user name");
+
+  isa_ok($user_model->authenticate($new_user->name, 'bad_password'),
+    "Attempt::Fail", "bad password fails authentication with user name");
+
 };
 
 subtest "update_password" => sub {
