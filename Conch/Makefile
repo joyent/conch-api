@@ -9,6 +9,9 @@ run-perl:
 
 build: web-assets doc cpanfile.snapshot local
 
+ui/node_modules:
+	@cd ui && npm install
+
 local:
 	@carton install --deployment
 
@@ -27,16 +30,16 @@ format-perl:
 format-js:
 	@cd ui && npm run prettier
 
-web-assets: public/css/app.css public/js/app.js
+web-assets: ui/node_modules public/css/app.css public/js/app.js
 
-ui/bin/app.js: ui/src/** ui/package-lock.json
+ui/bin/app.js: ui/node_modules ui/src/** ui/package-lock.json
 	@cd ui && npm run-script build;
 
 ui/package-lock.json: ui/package.json
 	@cd ui && npm install;
 	@touch ui/package.json ui/package-lock.json
 
-public/js/app.js: ui/bin/app.js
+public/js/app.js: ui/node_modules ui/bin/app.js
 	@cp ui/bin/app.js public/js/app.js
 
 public/css/app.css: ui/css/app.css
