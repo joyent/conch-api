@@ -1,6 +1,8 @@
 package Conch::Model::WorkspaceRoom;
 use Mojo::Base -base, -signatures;
 
+use List::Compare;
+
 use Attempt qw(fail success);
 use aliased 'Conch::Class::DatacenterRoom';
 
