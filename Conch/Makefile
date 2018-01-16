@@ -5,7 +5,7 @@
 run: build run-perl
 
 run-perl:
-	@bin/conch daemon
+	@carton exec bin/conch daemon
 
 build: web-assets doc cpanfile.snapshot local
 
