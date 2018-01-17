@@ -32,8 +32,11 @@ my ($mock_workspace_model, $mock_control) = qobjc(
       }
     },
     get_user_sub_workspace => qmeth { shift->get_user_workspace(@_) },
-    create_sub_workspace => qmeth { shift->get_user_workspace(@_); }
+    create_sub_workspace => qmeth { shift->get_user_workspace(@_); },
+    get_user_sub_workspaces => qmeth { [] },
   );
+
+$mock_control->strict(1);
 
 $t->app->helper(workspace => sub { $mock_workspace_model });
 

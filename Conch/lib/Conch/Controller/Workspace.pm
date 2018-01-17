@@ -30,7 +30,7 @@ sub get ($c) {
 }
 
 sub get_sub_workspaces ($c) {
-  my $sub_wss = $c->workspace->get_sub_workspaces( $c->stash('user_id'),
+  my $sub_wss = $c->workspace->get_user_sub_workspaces( $c->stash('user_id'),
     $c->stash('current_workspace')->id );
   $c->status( 200, [ map { $_->as_v1_json } @$sub_wss ] );
 }
