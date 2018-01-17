@@ -123,7 +123,7 @@ sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
       ON role.id = uwr.role_id
     WHERE uwr.user_id = ?
   }, $ws_id, $user_id
-  )->hashes->to_array;
+  )->hashes->map( sub { Workspace->new($_) } )->to_array;
 }
 
 1;

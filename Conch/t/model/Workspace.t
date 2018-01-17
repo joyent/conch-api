@@ -78,6 +78,7 @@ subtest "List user sub workspaces" => sub {
   isa_ok($user_sub_wss  , 'ARRAY');
   is( scalar @$user_sub_wss, 1, 'Contains one sub workspace' );
   ok( grep(sub { $_->id eq $sub_ws->id }, @$user_sub_wss),'Contains sub-workspace' );
+  isa_ok( $user_sub_wss->[0], 'Conch::Class::Workspace' );
 
   # Create a sub-workspace for the sub-workspace. It should be listed
   subtest "Get all descendents" => sub {
