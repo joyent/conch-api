@@ -17,9 +17,11 @@ has [
 sub as_v1_json {
   my $self    = shift;
   my $device  = $self->device->as_v1_json;
+  my @results = map { $_->{validation} } $self->validation_results->@*;
+
   my $details = {
     latest_report => $self->latest_report,
-    validations   => $self->validation_results,
+    validations   => \@results,
     nics          => $self->nics,
     location      => $self->location && $self->location->as_v1_json
   };
