@@ -38,7 +38,7 @@ sub get_single ($c) {
     $c->device_settings->get_settings( $c->stash('current_device')->id );
   return $c->status( 404, { error => "No such setting '$setting_key'" } )
     unless $settings->{$setting_key};
-  $c->status( 200, $settings->{$setting_key} );
+  $c->status( 200, { $setting_key => $settings->{$setting_key} } );
 }
 
 sub delete_single ($c) {
