@@ -10,43 +10,46 @@ use aliased 'Conch::Class::HardwareProduct';
 
 has 'pg';
 
-my $fields = q{
-  loc.rack_unit AS location_rack_unit,
-
-  rack.id AS rack_id,
-  rack.name AS rack_name,
-  rack_role.name AS rack_role_name,
-
-  room.id AS room_id,
-  room.az AS room_az,
-  room.alias AS room_alias,
-  room.vendor_name AS room_vendor_name,
-
-  hw_product.id AS hw_product_id,
-  hw_product.name AS hw_product_name,
-  hw_product.alias AS hw_product_alias,
-  hw_product.prefix AS hw_product_prefix,
-  hw_product.vendor AS hw_product_vendor
-
-};
-
 sub lookup ( $self, $device_id ) {
   when_defined { _build_device_location(shift) } $self->pg->db->query(
     qq{
-    SELECT $fields
+    SELECT
+      loc.rack_unit AS location_rack_unit,
+
+      rack.id           AS rack_id,
+      rack.name         AS rack_name,
+      rack_role.name    AS rack_role_name,
+
+      room.id           AS room_id,
+      room.az           AS room_az,
+      room.alias        AS room_alias,
+      room.vendor_name  AS room_vendor_name,
+
+      hw_product.id     AS hw_product_id,
+      hw_product.name   AS hw_product_name,
+      hw_product.alias  AS hw_product_alias,
+      hw_product.prefix AS hw_product_prefix,
+      hw_product.vendor AS hw_product_vendor
+
     FROM device_location loc
     JOIN datacenter_rack rack
       ON loc.rack_id = rack.id
+
     JOIN datacenter_rack_role rack_role
       ON rack.role = rack_role.id
+
     JOIN datacenter_room room
       ON rack.datacenter_room_id = room.id
+
     JOIN datacenter_rack_layout layout
       ON layout.rack_id = rack.id AND layout.ru_start = loc.rack_unit
+
     JOIN hardware_product hw_product
       ON layout.product_id = hw_product.id
+
     JOIN hardware_vendor vendor
       ON hw_product.vendor = vendor.id
+
     WHERE loc.device_id = ?
   }, $device_id
   )->hash;
