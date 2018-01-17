@@ -15,19 +15,25 @@ has [
 
 sub as_v1_json {
   my $self = shift;
-
-  my $target_hardware_product = $self->target_hardware_product->as_v1_json;
-  delete $target_hardware_product->{profile};
-
-  my $rack = $self->datacenter_rack->as_v1_json;
-  $rack->{rack_unit} = $self->rack_unit;
-
   return {
-    rack                    => $rack,
-    datacenter              => $self->datacenter_room->as_v1_json,
-    target_hardware_product => $target_hardware_product
+    datacenter => {
+      id          => $self->datacenter_room->id,
+      name        => $self->datacenter_room->az,
+      vendor_name => $self->datacenter_room->vendor_name,
+    },
+    rack => {
+      id   => $self->datacenter_rack->id,
+      unit => $self->rack_unit,
+      name => $self->datacenter_rack->name,
+      role => $self->datacenter_rack->role_name,
+    },
+    target_hardware_product => {
+      id     => $self->target_hardware_product->id,
+      name   => $self->target_hardware_product->name,
+      alias  => $self->target_hardware_product->alias,
+      vendor => $self->target_hardware_product->vendor,
+    },
   };
-
 }
 
 1;
