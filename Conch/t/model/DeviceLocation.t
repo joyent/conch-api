@@ -15,6 +15,10 @@ my $uuid = Data::UUID->new;
 # Really phoning these tests in. They need datacenters, datacenter rooms, and
 # datacenter racks to be set up. These tests should be improved as this
 # functionality is added -- Lane
+# TODO
+fail("Can't test DeviceLocation fully yet");
+
+
 new_ok('Conch::Model::DeviceLocation');
 my $device_loc_model = Conch::Model::DeviceLocation->new( pg => $pg );
 
