@@ -6,18 +6,34 @@ use Data::Printer;
 
 new_ok('Conch::Class::DatacenterRack');
 
-my $attrs = {
-    id => 'id', name => 'name', role_name => 'name'
-  };
-my $ws_user = Conch::Class::DatacenterRack->new({
-    %$attrs, encode_json => sub { shift }
-  });
+my %attrs = (
+  id        => 'id',
+  name      => 'name',
+  role_name => 'role_name',
+  datacenter_room_id => 'dc',
+);
 
+my $rack = Conch::Class::DatacenterRack->new(%attrs);
 
-can_ok($ws_user, 'id');
-can_ok($ws_user, 'name');
-can_ok($ws_user, 'role_name');
-can_ok($ws_user, 'as_v1_json');
+subtest "Method checks" => sub {
+  can_ok($rack, 'id');
+  can_ok($rack, 'name');
+  can_ok($rack, 'role_name');
+  can_ok($rack, 'datacenter_room_id');
+  can_ok($rack, 'as_v1_json');
+};
+
+subtest "Naive value checks" => sub {
+  is($rack->id,        $attrs{id});
+  is($rack->name,      $attrs{name});
+  is($rack->role_name, $attrs{role_name});
+  is($rack->datacenter_room_id, $attrs{datacenter_room_id});
+};
+
+subtest "V1 Data Contract" => sub {
+  diag("We never actually use as_v1_json in the codebase"); # TODO
+  is_deeply($rack->as_v1_json, \%attrs);
+};
 
 done_testing();
 
