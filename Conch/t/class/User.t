@@ -20,4 +20,6 @@ can_ok($user, 'password_hash');
 
 can_ok($user, 'as_v1_json');
 
+fail("Test more than the existence of methods");
+
 done_testing();

@@ -24,4 +24,6 @@ can_ok($ws, 'role_id');
 can_ok($ws, 'as_v1_json');
 is($ws->as_v1_json->{parent_workspace_id}, undef, 'parent workspace ID not published');
 
+fail("Test more than the existence of methods");
+
 done_testing();
