@@ -49,6 +49,10 @@ can_ok($device, 'uptime_since');
 can_ok($device, 'validated');
 
 can_ok($device, 'as_v1_json');
+
+
+fail("Test more than the existence of methods");
+
 done_testing();
 
 

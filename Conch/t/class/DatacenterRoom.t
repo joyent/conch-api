@@ -20,5 +20,7 @@ can_ok($ws_user, 'alias');
 can_ok($ws_user, 'vendor_name');
 can_ok($ws_user, 'as_v1_json');
 
+fail("Test more than the existence of methods");
+
 done_testing();
 
