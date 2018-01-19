@@ -51,7 +51,7 @@ $t->get_ok('/settings')->status_is(200)
   ->json_is('/foo', 'bar', 'Setting was stored');
 
 $t->get_ok('/settings/foo')->status_is(200)
-  ->content_is('"bar"', 'Setting was stored');
+  ->json_is({ foo => 'bar' });
 
 $t->post_ok('/settings/fizzle', json => { no_match => 'gibbet' })
   ->status_is(400, 'Fail if parameter and key do not match');
@@ -59,7 +59,7 @@ $t->post_ok('/settings/fizzle', json => { fizzle => 'gibbet' })
   ->status_is(200);
 $t->get_ok('/settings/fizzle')
   ->status_is(200)
-  ->content_is('"gibbet"');
+  ->json_is({ fizzle => "gibbet" });
 
 $t->delete_ok('/settings/fizzle')
   ->status_is(204)
