@@ -40,3 +40,5 @@ local/
 
 # perltidy backup files
 *.bak
+
+Conch/log
