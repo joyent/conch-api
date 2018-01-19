@@ -63,4 +63,5 @@ on 'test' => sub {
     requires 'Mock::Quick';
     requires 'Test::PostgreSQL';
     requires 'Test::Pod::Coverage';
+    requires 'IO::All';
 };

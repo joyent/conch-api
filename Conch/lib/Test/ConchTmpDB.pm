@@ -2,6 +2,7 @@ package Test::ConchTmpDB;
 
 use Test::PostgreSQL;
 use DBI;
+use IO::All;
 
 use Exporter 'import';
 @EXPORT = qw( mk_tmp_db );
@@ -31,19 +32,11 @@ sub mk_tmp_db {
   $dbh->do('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";') or die;
   $dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')  or die;
 
-  open( my $fh, '<', 'sql/conch.sql' );
-  my $base_schema = do { local $/; <$fh> };
+  $dbh->do(io("sql/conch.sql")->all);
 
-  $dbh->do($base_schema);
-
-  opendir( my $dh, 'sql/migrations' );
-  my @migrations = grep { -f "sql/migrations/$_" } readdir($dh);
-  for ( sort @migrations ) {
-    open( my $fh, '<', "sql/migrations/$_" );
-    my $migration = do { local $/; <$fh> };
-    $dbh->do($migration);
+  for my $file (io->dir("sql/migrations")->sort->glob("*.sql")) {
+    $dbh->do($file->all) or die;
   }
-  closedir($dh);
 
   # Add a user so we can log in. User: conch; Password: conch;
   $dbh->do(q|

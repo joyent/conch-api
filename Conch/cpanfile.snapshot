@@ -1586,6 +1586,27 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Scalar::Util 0
       perl 5.008001
+  IO-All-0.87
+    pathname: F/FR/FREW/IO-All-0.87.tar.gz
+    provides:
+      IO::All 0.87
+      IO::All::Base undef
+      IO::All::DBM undef
+      IO::All::Dir undef
+      IO::All::File undef
+      IO::All::Filesys undef
+      IO::All::Link undef
+      IO::All::MLDBM undef
+      IO::All::Pipe undef
+      IO::All::STDIO undef
+      IO::All::Socket undef
+      IO::All::String undef
+      IO::All::Temp undef
+    requirements:
+      Cwd 0
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      perl 5.008001
   IO-stringy-2.111
     pathname: D/DS/DSKOLL/IO-stringy-2.111.tar.gz
     provides:
