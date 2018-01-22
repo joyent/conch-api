@@ -3,9 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Conch::Model::User;
-use Conch::Model::UserSettings;
-use Data::Printer;
+use_ok("Conch::Model::User");
+use_ok("Conch::Model::UserSettings");
 
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new($pgtmp->uri);
@@ -23,7 +22,7 @@ my $user_model = Conch::Model::User->new(
   );
 my $new_user = $user_model->create('foo@bar.com', 'password')->value;
 
-can_ok($user_settings_model, 'set_settings');
+fail("Test 'set_settings'");
 
 my $settings = {foo => 'bar', deeply => { nested => 'hash' }};
 
@@ -33,7 +32,6 @@ subtest 'set user settings' => sub {
 };
 
 subtest 'get user settings' => sub {
-  can_ok($user_settings_model, 'get_settings');
   my $user_settings = $user_settings_model->get_settings($new_user->id);
   is_deeply($user_settings, $settings, 'stored settings match stored');
 };
@@ -48,7 +46,6 @@ subtest 'update user setting' => sub {
 };
 
 subtest 'delete user setting' => sub {
-  can_ok($user_settings_model, 'delete_user_setting');
   delete $settings->{foo};
   my $deleted = $user_settings_model->delete_user_setting($new_user->id, 'foo');
   ok($deleted, 'Deleted stored setting');

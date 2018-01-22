@@ -195,7 +195,7 @@ for my $file (io->dir("../sql/test/")->sort->glob("*.sql")) {
 	$dbh->do($file->all) or BAIL_OUT("Test SQL load failed");
 }
 
-
+# XXX 
 $t->get_ok("/hardware_product")->status_is(200)->json_is('',[]);
 
 

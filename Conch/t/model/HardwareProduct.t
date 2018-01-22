@@ -3,9 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Conch::Model::HardwareProduct;
+use_ok("Conch::Model::HardwareProduct");
 
-use Data::Printer;
 use Data::UUID;
 
 my $pgtmp = mk_tmp_db() or die;
@@ -53,10 +52,9 @@ my $hardware_profile_id = $pg->db->insert(
 )->hash->{id};
 
 new_ok('Conch::Model::HardwareProduct');
-my $hw_product_model = Conch::Model::HardwareProduct->new( pg => $pg );
+my $hw_product_model = new_ok("Conch::Model::HardwareProduct", [ pg => $pg ]);
 
 subtest 'list hardware products' => sub {
-  can_ok( $hw_product_model, 'list' );
   my $hw_products = $hw_product_model->list;
   isa_ok( $hw_products, 'ARRAY' );
   is( scalar @$hw_products, 1, 'Contains 1 hardware product' );
@@ -68,7 +66,6 @@ subtest 'list hardware products' => sub {
 };
 
 subtest 'lookup hardware product' => sub {
-  can_ok( $hw_product_model, 'lookup' );
   my $attempt = $hw_product_model->lookup($hardware_product_id);
   isa_ok( $attempt, 'Attempt::Success' );
   my $hw_product = $attempt->value;

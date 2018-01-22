@@ -3,9 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Conch::Model::DeviceLocation;
+use_ok("Conch::Model::DeviceLocation");
 
-use Data::Printer;
 use Data::UUID;
 
 my $pgtmp = mk_tmp_db() or die;
@@ -20,18 +19,14 @@ fail("Can't test DeviceLocation fully yet");
 
 
 new_ok('Conch::Model::DeviceLocation');
-my $device_loc_model = Conch::Model::DeviceLocation->new( pg => $pg );
-
-can_ok($device_loc_model, 'lookup');
+my $device_loc_model = new_ok("Conch::Model::DeviceLocation", [ pg => $pg ]);
 
 my $attempt = $device_loc_model->lookup('deadbeef');
 isa_ok($attempt, 'Attempt::Fail');
 
-can_ok($device_loc_model, 'assign');
 my $assign_attempt = $device_loc_model->assign('deadbeef', $uuid->create_str, 20);
 isa_ok($assign_attempt  , 'Attempt::Fail');
 
-can_ok($device_loc_model, 'unassign');
 my $unassign_attempt = $device_loc_model->unassign('deadbeef');
 is($unassign_attempt, 0);
 

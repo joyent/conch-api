@@ -3,10 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Conch::Model::Device;
-use Conch::Model::DeviceSettings;
-use Data::Printer;
-
+use_ok("Conch::Model::Device");
+use_ok("Conch::Model::DeviceSettings");
 
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new($pgtmp->uri);
@@ -16,6 +14,7 @@ my $hardware_vendor_id = $pg->db->insert(
   { name      => 'test vendor' },
   { returning => ['id'] }
 )->hash->{id};
+
 my $hardware_product_id = $pg->db->insert(
   'hardware_product',
   {
@@ -37,7 +36,7 @@ my $device_settings_model = Conch::Model::DeviceSettings->new(
     pg => $pg,
   );
 
-can_ok($device_settings_model, 'set_settings');
+fail("Test 'set_settings'");
 
 my $settings = { foo => 'bar' };
 
@@ -47,7 +46,6 @@ subtest 'set device settings' => sub {
 };
 
 subtest 'get device settings' => sub {
-  can_ok($device_settings_model, 'get_settings');
   my $device_settings = $device_settings_model->get_settings($device_id);
   is_deeply($device_settings, $settings, 'stored settings match stored');
 };
@@ -62,7 +60,6 @@ subtest 'update device setting' => sub {
 };
 
 subtest 'delete device setting' => sub {
-  can_ok($device_settings_model, 'delete_device_setting');
   delete $settings->{foo};
   my $deleted = $device_settings_model->delete_device_setting($device_id, 'foo');
   ok($deleted, 'Deleted stored setting');
