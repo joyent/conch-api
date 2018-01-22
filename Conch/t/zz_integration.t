@@ -87,11 +87,8 @@ $t->get_ok("/user/me/settings/TEST")->status_is(404)->json_is('', {
 ######################
 ### WORKSPACES
 
-$t->get_ok("/workspace/notauuid")->status_is(400);
-TODO: {
-	local $TODO = "API currently throws an exception when not-uuids are passed in";
-	$t->content_like(qr/not sure/);
-}
+$t->get_ok("/workspace/notauuid")->status_is(400)
+	->json_like('/error', qr/must be a UUID/);
 
 $t->get_ok('/workspace')->status_is(200)->json_is('/0/name', 'GLOBAL');
 
@@ -166,11 +163,8 @@ $t->get_ok("/workspace/$id/room")->status_is(200)->json_is('', []);
 note("Variance: /rack in v1 returns a hash keyed by datacenter room id instead of an array");
 $t->get_ok("/workspace/$id/rack")->status_is(200)->json_is('', {});
 
-$t->get_ok("/workspace/$id/rack/notauuid")->status_is(400);
-TODO: {
-	local $TODO = "API currently throws an exception when not-uuids are passed in";
-	$t->content_like(qr/not sure/);
-}
+$t->get_ok("/workspace/$id/rack/notauuid")->status_is(400)
+	->json_like('/error', qr/must be a UUID/);
 $t->get_ok("/workspace/$id/rack/".$uuid->create_str())->status_is(404);
 
 
