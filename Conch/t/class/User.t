@@ -1,25 +1,15 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Conch::Class::User;
-use Data::Printer;
-
+use_ok("Conch::Class::User");
 new_ok('Conch::Class::User');
 
-my $attrs = {
-    id => 'id', name => 'name', password_hash => 'hash'
-  };
-my $user = Conch::Class::User->new({
-    %$attrs, encode_json => sub { shift }
-  });
+new_ok("Conch::Class::User", [
+	id   => 'id',
+	name => 'name',
+	password_hash => 'hash'
+]);
 
-
-can_ok($user, 'id');
-can_ok($user, 'name');
-can_ok($user, 'password_hash');
-
-can_ok($user, 'as_v1_json');
-
-fail("Test more than the existence of methods");
+fail("Test more than constructors");
 
 done_testing();

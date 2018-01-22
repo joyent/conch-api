@@ -1,25 +1,17 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Conch::Class::WorkspaceRole;
-use Data::Printer;
-
+use_ok("Conch::Class::WorkspaceRole");
 new_ok('Conch::Class::WorkspaceRole');
 
-my $attrs = {
-    id => 'id', name => 'name', role => 'role'
-  };
-my $ws_user = Conch::Class::WorkspaceRole->new({
-    %$attrs, encode_json => sub { shift }
-  });
+new_ok(
+	"Conch::Class::WorkspaceRole", [
+		id   => 'id',
+		name => 'name',
+		role => 'role'
+	]
+);
 
-
-can_ok($ws_user, 'id');
-can_ok($ws_user, 'name');
-can_ok($ws_user, 'description');
-can_ok($ws_user, 'as_v1_json');
-
-fail("Test more than the existence of methods");
-
+fail("Test more than constructors");
 done_testing();
 

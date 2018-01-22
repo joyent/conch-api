@@ -3,21 +3,19 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use Conch::Model::User;
-use Conch::Model::Workspace;
-use Data::Printer;
+use_ok("Conch::Model::User");
+use_ok("Conch::Model::Workspace");
 
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 new_ok('Conch::Model::Workspace');
 
-my $ws_model = Conch::Model::Workspace->new( pg => $pg, );
+my $ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg, ] );
 
 my $global_ws;
 
 subtest "Lookup workspace by name" => sub {
-  can_ok( $ws_model, 'lookup_by_name' );
   my $attempt = $ws_model->lookup_by_name('NON EXISTANT');
   ok( $attempt->is_fail );
 
@@ -36,13 +34,11 @@ my $user_model = Conch::Model::User->new(
 my $new_user = $user_model->create( 'foo@bar.com', 'password' )->value;
 
 subtest "Add user to Workspace" => sub {
-  can_ok( $ws_model, 'add_user_to_workspace' );
   is( $ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 1 ),
     1, "Successfully added user to workspace" );
 };
 
 subtest "Get user Workspace" => sub {
-  can_ok( $ws_model, 'get_user_workspace' );
   my $user_ws = $ws_model->get_user_workspace( $new_user->id, $global_ws->id );
   isa_ok($user_ws, 'Attempt::Success');
   ok( $user_ws->is_success );
@@ -53,7 +49,6 @@ subtest "Get user Workspace" => sub {
 
 my $sub_ws;
 subtest "Create subworkspace" => sub {
-  can_ok( $ws_model, 'create_sub_workspace' );
   my $sub_ws_attempt =
     $ws_model->create_sub_workspace( $new_user->id, $global_ws->id, 1,
     'Sub WS', 'Sub Workspace Test' );
@@ -64,7 +59,6 @@ subtest "Create subworkspace" => sub {
 
 # Test after creating sub workspace so it contains more than 1 workspace
 subtest "List all user workspaces" => sub {
-  can_ok( $ws_model, 'get_user_workspaces' );
   my $user_wss = $ws_model->get_user_workspaces( $new_user->id );
   isa_ok($user_wss , 'ARRAY');
   is( scalar @$user_wss, 2, 'Contains two workspaces' );
@@ -73,7 +67,6 @@ subtest "List all user workspaces" => sub {
 };
 
 subtest "List user sub workspaces" => sub {
-  can_ok( $ws_model, 'get_user_sub_workspaces' );
   my $user_sub_wss = $ws_model->get_user_sub_workspaces( $new_user->id, $global_ws->id );
   isa_ok($user_sub_wss  , 'ARRAY');
   is( scalar @$user_sub_wss, 1, 'Contains one sub workspace' );
