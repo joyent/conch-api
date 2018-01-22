@@ -3,6 +3,9 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
+use Data::UUID;
+my $uuid = Data::UUID->new->create_str();
+
 use_ok("Conch::Model::User");
 
 my $pgtmp = mk_tmp_db() or die;
@@ -10,67 +13,67 @@ my $pg = Mojo::Pg->new($pgtmp->uri);
 
 new_ok('Conch::Model::User');
 
-my $user_model = new_ok("Conch::Model::User", [
-  hash_password => sub { reverse shift },
-  pg => $pg,
-  validate_against_hash => sub { reverse(shift) eq shift }
+my $model = new_ok("Conch::Model::User", [
+	pg =>  $pg,
 ]);
+
+
 my $new_user;
 
 subtest "Create new user" => sub {
-  my $attempt = $user_model->create('foo@bar.com', 'password');
-  isa_ok($attempt, 'Attempt::Success');
-  isa_ok($attempt->value, 'Conch::Class::User');
-  $new_user = $attempt->value;
+	$new_user = $model->create('foo@bar.com', 'password');
+	isa_ok($new_user, 'Conch::Model::User');
 
-  my $another_new_user = $user_model->create('foo@bar.com', 'password');
-  isa_ok($another_new_user, 'Attempt::Fail');
-  isa_ok($another_new_user->failure, 'Conch::Error::Conflict');
+	is($model->create('foo@bar.com', 'password'), undef, "User conflict");
 };
 
 subtest "lookup" => sub {
-  ok($user_model->lookup($new_user->id),
-    "lookup ID success");
-
-  my $bad_id = $new_user->id;
-  $bad_id =~ s/[0-9]/0/g;
-  ok(! $user_model->lookup($bad_id),
-    "lookup by email fail");
-
+	ok($model->lookup($new_user->id), "lookup ID success");
+	is($model->lookup($uuid), undef, "lookup by ID fail");
 };
 
 subtest "lookup_by_email" => sub {
-  ok($user_model->lookup_by_email('foo@bar.com'),
-    "lookup by email success");
+	ok($model->lookup_by_email('foo@bar.com'), "lookup by email success");
+	is($model->lookup_by_email('bad@email.com'), undef, "lookup by email fail");
+};
 
-  ok(! $user_model->lookup_by_email('bad@email.com'),
-    "lookup by email fail");
+subtest "validate password" => sub {
+	is($new_user->validate_password('password'), 1, "Validate good password");
+	is($new_user->validate_password('bad password'), 0, "Fail to validate bad password");
 };
 
 subtest "authenticate" => sub {
-  isa_ok($user_model->authenticate($new_user->email, 'password'),
-    "Attempt::Success", "authentication success with email address");
+	ok(
+		$model->authenticate($new_user->email, 'password'),
+		"Auth passes with good email and good pass"
+	);
 
-  isa_ok($user_model->authenticate($new_user->email, 'bad_password'),
-    "Attempt::Fail", "bad password fails authentication with email address");
+	ok(
+		!$model->authenticate($new_user->email, 'bad_password'),
+		"Auth fails with good email and bad pass"
+	);
 
-  isa_ok($user_model->authenticate('bad@email.com', 'password'),
-    "Attempt::Fail", "bad email fails authentication");
+	ok(
+		!$model->authenticate('bad@email.com', 'password'),
+		"Auth fails with bad email"
+	);
 
-  isa_ok($user_model->authenticate($new_user->name, 'password'),
-    "Attempt::Success", "authentication success with user name");
+	ok(
+		$model->authenticate($new_user->name, 'password'),
+		"Auth passes with good name and good pass"
+	);
 
-  isa_ok($user_model->authenticate($new_user->name, 'bad_password'),
-    "Attempt::Fail", "bad password fails authentication with user name");
+	ok(
+		!$model->authenticate($new_user->name, 'bad_password'),
+		"Auth fails with good name and bad pass"
+	);
 
 };
 
 subtest "update_password" => sub {
-  my $a = $user_model->update_password($new_user->id, 'new_password');
-  ok(!$user_model->authenticate($new_user->email, 'password'),
-    "old password fails authentication");
-  ok($user_model->authenticate($new_user->email, 'new_password'),
-    "new password authenticates");
+	$new_user->update_password('new_password');
+	ok(!$model->authenticate($new_user->email, 'password'), "Auth fails appropriately with old password");
+	ok($model->authenticate($new_user->email, 'new_password'), "Auth passes with new password");
 };
 
 
