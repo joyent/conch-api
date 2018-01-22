@@ -31,7 +31,7 @@ my $ws_user_model = Conch::Model::WorkspaceUser->new( pg => $pg );
 subtest "Get list of workspace users" => sub {
   my $workspace_users = $ws_user_model->workspace_users($global_ws->id);
   isa_ok($workspace_users, 'ARRAY');
-  is(scalar @$workspace_users, 1);
+  is(scalar @$workspace_users, 2);
   isa_ok($workspace_users->[0], 'Conch::Class::WorkspaceUser');
 };
 
