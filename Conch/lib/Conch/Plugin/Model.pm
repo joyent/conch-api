@@ -59,8 +59,6 @@ sub register ( $self, $app, $conf ) {
     user => sub {
       state $user = Conch::Model::User->new(
         pg                    => $app->pg,
-        hash_password         => sub { $app->bcrypt(@_) },
-        validate_against_hash => sub { $app->bcrypt_validate(@_) }
       );
     }
   );

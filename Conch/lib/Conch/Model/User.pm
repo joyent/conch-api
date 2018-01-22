@@ -1,85 +1,150 @@
 package Conch::Model::User;
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(fail success);
-
-use aliased 'Conch::Class::User';
-use aliased 'Conch::Error::Conflict';
+use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
+use Data::Validate::UUID qw(is_uuid);
 
 use Data::Printer;
 
-has 'pg';
-has 'hash_password';
-has 'validate_against_hash';
+has [qw(
+	email
+	id
+	name
+	password_hash
+	pg
+)];
+
+has 'bcrypt_cost' => 4; # default as per dancer2
+
+sub as_v1 ( $self ) {
+	{
+		id    => $self->id,
+		email => $self->email,
+		name  => $self->name,
+	}
+}
+
 
 sub create ( $self, $email, $password ) {
-  my $password_hash = $self->hash_password->($password);
+	my $password_hash = $self->_hash_password($password);
 
-  $self->pg->db->select( 'user_account', ['id'], { email => $email } )->rows
-    and return fail(
-    Conflict->new( message => "User with email address already exists" ) );
+	my $ret = $self->pg->db->select(
+		'user_account',
+		[ 'id' ],
+		{ email => $email },
+	)->rows;
+	return undef if $ret;
 
-  return success(
-    User->new(
-      $self->pg->db->insert(
-        'user_account',
-        {
-          email         => $email,
-          password_hash => $password_hash,
-          name          => $email
-        },
-        { returning => [qw(id name email password_hash)] }
-      )->hash
-    )
-  );
+	$ret = $self->pg->db->insert(
+		'user_account', {
+			email         => $email,
+			password_hash => $password_hash,
+			name          => $email
+		},
+		{  returning => [qw(id)], }
+	)->hash;
+
+	return undef unless ($ret && $ret->{id});
+	return __PACKAGE__->new(
+		pg    => $self->pg,
+		id    => $ret->{id},
+		email => $email,
+		name  => $email,
+		password_hash => $password_hash,
+	);
 }
 
-sub lookup ( $self, $user_id ) {
-  my $user_res =
-    $self->pg->db->select( 'user_account', undef, { id => $user_id } )->hash;
-  return fail("No user with ID $user_id") unless $user_res;
-  return success( User->new($user_res) );
-}
+sub lookup ( $self, $id ) {
+	my $where = {};
+	my $ret;
+	if (is_uuid($id)) {
+		$ret = $self->pg->db->select(
+			'user_account',
+			undef,
+			{ id => $id },
+		)->hash;
+	} else {
+		$ret = $self->pg->db->select(
+			'user_account',
+			undef,
+			{ name => $id },
+		)->hash;
 
-sub update_password ( $self, $user_id, $password ) {
-  my $password_hash = $self->hash_password->($password);
-  $self->pg->db->update(
-    'user_account',
-    { password_hash => $password_hash },
-    { id            => $user_id }
-  )->rows;
+		unless ($ret) {
+			$ret = $self->pg->db->select(
+				'user_account',
+				undef,
+				{ email => $id },
+			)->hash;
+		}
+	}
+
+	return undef unless $ret;
+
+	$ret->{password_hash} =~ s/^{CRYPT}//; # ohai dancer
+	return __PACKAGE__->new(
+		pg    => $self->pg,
+		id    => $ret->{id},
+		email => $ret->{email},
+		name  => $ret->{name},
+		password_hash => $ret->{password_hash},
+	);
+
 }
 
 sub lookup_by_email ( $self, $email ) {
-  my $user_res =
-    $self->pg->db->select( 'user_account', undef, { email => $email } )->hash;
-  return fail('No user with email address') unless $user_res;
-  return success( User->new($user_res) );
+	return $self->lookup($email);
 }
+
+sub lookup_by_name ( $self, $name ) {
+	return $self->lookup($name);
+}
+
+sub update_password ( $self, $p ) {
+	my $password_hash = $self->_hash_password($p);
+	my $ret = $self->pg->db->update(
+		'user_account',
+		{ password_hash => $password_hash },
+		{ id            => $self->id }
+	);
+	# XXX
+	return $ret;
+}
+
+sub validate_password ($self, $p) {
+	if($self->password_hash eq bcrypt($p, $self->password_hash)) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 
 sub authenticate ( $self, $user_id, $password ) {
-  my $user_res =
-    $self->pg->db->select( 'user_account', undef, { name => $user_id } )->hash;
+	my $u = $self->lookup($user_id);
+	return undef unless $u and $u->id;
 
-  unless ($user_res) {
-    $user_res =
-      $self->pg->db->select( 'user_account', undef, { email => $user_id } )
-      ->hash;
-  }
-
-  return fail("No user with name or email address of  $user_id")
-    unless $user_res;
-
-  return success( User->new($user_res) )->next(
-    sub {
-      my $user          = shift;
-      my $password_hash = $user->password_hash;
-      $password_hash =~ s/{CRYPT}//;    # remove Dancer2 legacy prefix
-      return fail('Invalid password attempt')
-        unless $self->validate_against_hash->( $password, $password_hash );
-      return $user;
-    }
-  );
+	if ($u->validate_password($password)) {
+		return 1;
+	} else {
+		return 0;
+	}
 }
+
+###########
+
+sub _hash_password ($self, $p) {
+	my $cost = sprintf('%02d', $self->bcrypt_cost || 6);
+	my $settings = join( '$', '$2a', $cost, _bcrypt_salt() );
+	return bcrypt($p, $settings);
+}
+
+sub _bcrypt_salt {
+	my $num = 999999;
+	my $cr = crypt( rand($num), rand($num) ) . crypt( rand($num), rand($num) );
+	en_base64(substr( $cr, 4, 16 ));
+}
+
+
 
 1;
