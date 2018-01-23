@@ -23,7 +23,7 @@ sub register ($c) {
     $c->relay->create( $serial, $version, $ipaddr, $ssh_port, $alias );
   }
 
-  my $attempt = $c->relay->connect_user_relay( $user_id, $relay_id );
+  my $attempt = $c->relay->connect_user_relay( $user_id, $serial );
   if ( $attempt->is_fail ) {
     $c->app->log->error( $attempt->failure );
     return $c->status( 500, { error => "unable to register relay '$serial'" } );
