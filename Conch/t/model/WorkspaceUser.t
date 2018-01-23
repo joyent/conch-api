@@ -11,11 +11,9 @@ my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 my $user_model = new_ok("Conch::Model::User", [
-  hash_password         => sub { reverse shift },
-  pg                    => $pg,
-  validate_against_hash => sub { reverse(shift) eq shift }
+  pg => $pg,
 ]);
-my $new_user = $user_model->create( 'foo@bar.com', 'password' )->value;
+my $new_user = $user_model->create( 'foo@bar.com', 'password' );
 
 my $ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg ]);
 my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;

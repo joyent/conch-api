@@ -16,11 +16,9 @@ my $user_settings_model = Conch::Model::UserSettings->new(
   );
 
 my $user_model = Conch::Model::User->new(
-    hash_password => sub { reverse shift },
     pg => $pg,
-    validate_against_hash => sub { reverse(shift) eq shift }
   );
-my $new_user = $user_model->create('foo@bar.com', 'password')->value;
+my $new_user = $user_model->create('foo@bar.com', 'password');
 
 fail("Test 'set_settings'");
 
