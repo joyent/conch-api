@@ -14,7 +14,7 @@ has [qw(
 	pg
 )];
 
-has 'bcrypt_cost' => 4; # default as per dancer2
+sub _BCRYPT_COST { 4 } # dancer2 legacy
 
 sub as_v1 ( $self ) {
 	{
@@ -25,17 +25,17 @@ sub as_v1 ( $self ) {
 }
 
 
-sub create ( $self, $email, $password ) {
-	my $password_hash = $self->_hash_password($password);
+sub create ( $class, $pg, $email, $password ) {
+	my $password_hash = _hash_password($password);
 
-	my $ret = $self->pg->db->select(
+	my $ret = $pg->db->select(
 		'user_account',
 		[ 'id' ],
 		{ email => $email },
 	)->rows;
 	return undef if $ret;
 
-	$ret = $self->pg->db->insert(
+	$ret = $pg->db->insert(
 		'user_account', {
 			email         => $email,
 			password_hash => $password_hash,
@@ -45,8 +45,8 @@ sub create ( $self, $email, $password ) {
 	)->hash;
 
 	return undef unless ($ret && $ret->{id});
-	return __PACKAGE__->new(
-		pg    => $self->pg,
+	return $class->new(
+		pg    => $pg,
 		id    => $ret->{id},
 		email => $email,
 		name  => $email,
@@ -54,24 +54,24 @@ sub create ( $self, $email, $password ) {
 	);
 }
 
-sub lookup ( $self, $id ) {
+sub lookup ( $class, $pg, $id ) {
 	my $where = {};
 	my $ret;
 	if (is_uuid($id)) {
-		$ret = $self->pg->db->select(
+		$ret = $pg->db->select(
 			'user_account',
 			undef,
 			{ id => $id },
 		)->hash;
 	} else {
-		$ret = $self->pg->db->select(
+		$ret = $pg->db->select(
 			'user_account',
 			undef,
 			{ name => $id },
 		)->hash;
 
 		unless ($ret) {
-			$ret = $self->pg->db->select(
+			$ret = $pg->db->select(
 				'user_account',
 				undef,
 				{ email => $id },
@@ -82,32 +82,35 @@ sub lookup ( $self, $id ) {
 	return undef unless $ret;
 
 	$ret->{password_hash} =~ s/^{CRYPT}//; # ohai dancer
-	return __PACKAGE__->new(
-		pg    => $self->pg,
+	return $class->new(
+		pg    => $pg,
 		id    => $ret->{id},
 		email => $ret->{email},
 		name  => $ret->{name},
 		password_hash => $ret->{password_hash},
 	);
-
 }
 
-sub lookup_by_email ( $self, $email ) {
-	return $self->lookup($email);
+sub lookup_by_email ( $class, $pg, $email ) {
+	return $class->lookup($pg, $email);
 }
 
-sub lookup_by_name ( $self, $name ) {
-	return $self->lookup($name);
+sub lookup_by_name ($class, $pg, $name ) {
+	return $class->lookup($pg, $name);
 }
 
 sub update_password ( $self, $p ) {
-	my $password_hash = $self->_hash_password($p);
+	my $password_hash = _hash_password($p);
 	my $ret = $self->pg->db->update(
 		'user_account',
 		{ password_hash => $password_hash },
 		{ id            => $self->id }
 	);
-	return scalar $ret->rows;
+	if (scalar $ret->rows) {
+		$self->password_hash($password_hash);
+		return 1;
+	}
+	return 0;
 }
 
 sub validate_password ($self, $p) {
@@ -118,22 +121,10 @@ sub validate_password ($self, $p) {
 	}
 }
 
-
-sub authenticate ( $self, $user_id, $password ) {
-	my $u = $self->lookup($user_id);
-	return undef unless $u and $u->id;
-
-	if ($u->validate_password($password)) {
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
 ###########
 
-sub _hash_password ($self, $p) {
-	my $cost = sprintf('%02d', $self->bcrypt_cost || 6);
+sub _hash_password ($p) {
+	my $cost = sprintf('%02d', _BCRYPT_COST || 6);
 	my $settings = join( '$', '$2a', $cost, _bcrypt_salt() );
 	return bcrypt($p, $settings);
 }
