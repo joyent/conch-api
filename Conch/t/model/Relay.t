@@ -46,12 +46,11 @@ subtest "connect device relay" => sub {
 };
 
 subtest "connect user relay" => sub {
+
   my $user_model = new_ok("Conch::Model::User", [
-      hash_password => sub { reverse shift },
       pg => $pg,
-      validate_against_hash => sub { reverse(shift) eq shift }
   ]);
-  my $user_id = $user_model->create('foo@bar.com', 'password')->value->id;
+  my $user_id = $user_model->create('foo@bar.com', 'password')->id;
   ok($relay_model->connect_user_relay($user_id, $relay_serial));
   ok(!$relay_model->connect_user_relay($user_id, 'bad_serial'));
 };
