@@ -9,7 +9,7 @@ use DDP;
 sub relay_routes {
   my $r = shift;
 
-  $r->get('/relay/:id/register')->to('relay#register');
+  $r->post('/relay/:id/register')->to('relay#register');
 }
 
 1;

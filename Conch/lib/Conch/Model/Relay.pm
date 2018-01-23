@@ -32,7 +32,7 @@ sub create ( $self, $serial, $version, $ipaddr, $ssh_port, $alias,
 }
 
 sub lookup ( $self, $relay_id ) {
-  attempt $self->pg->db->select( 'Relay', undef, { id => $relay_id } )->hash;
+  attempt $self->pg->db->select( 'relay', undef, { id => $relay_id } )->hash;
 }
 
 # Associate relay with a user

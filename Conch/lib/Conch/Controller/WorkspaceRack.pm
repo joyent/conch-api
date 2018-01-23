@@ -40,6 +40,14 @@ sub add ($c) {
 		unless ( $body && $body->{id} );
 	my $rack_id = $body->{id};
 
+	return $c->status( 400,
+		{ error => "Rack ID must be a UUID. Got '$rack_id'." } )
+		unless is_uuid($rack_id);
+
+	return $c->status( 400,
+		{ error => "Cannot modify GLOBAL workspace" } )
+		if $c->stash('current_workspace')->name eq 'GLOBAL';
+
 	my $add_attempt =
 		$c->workspace_rack->add_to_workspace( $c->stash('current_workspace')->id,
 		$rack_id );
@@ -52,6 +60,10 @@ sub add ($c) {
 }
 
 sub remove ($c) {
+	return $c->status( 400,
+		{ error => "Cannot modify GLOBAL workspace" } )
+		if $c->stash('current_workspace')->name eq 'GLOBAL';
+
 	my $remove_attempt = $c->workspace_rack->remove_from_workspace(
 		$c->stash('current_workspace')->id,
 		$c->stash('current_ws_rack')->id,
