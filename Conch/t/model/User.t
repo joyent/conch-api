@@ -71,9 +71,29 @@ subtest "authenticate" => sub {
 };
 
 subtest "update_password" => sub {
-	$new_user->update_password('new_password');
-	ok(!$model->authenticate($new_user->email, 'password'), "Auth fails appropriately with old password");
-	ok($model->authenticate($new_user->email, 'new_password'), "Auth passes with new password");
+	my $ret = $new_user->update_password('new_password');
+	is($ret, 1, "Affected 1 row");
+	ok(
+		!$model->authenticate($new_user->email,'password'),
+		"Auth fails appropriately with old password"
+	);
+	ok(
+		$model->authenticate($new_user->email, 'new_password'),
+		"Auth passes with new password"
+	);
+
+	my $u = Conch::Model::User->new(
+		pg    => $pg,
+		id    => $uuid,
+		email => 'wat@wat',
+		name  => 'wat',
+	);
+	is(
+		$u->update_password("test"), 
+		0, 
+		"Updating password on non-existent user does nothing"
+	);
+
 };
 
 

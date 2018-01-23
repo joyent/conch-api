@@ -107,8 +107,7 @@ sub update_password ( $self, $p ) {
 		{ password_hash => $password_hash },
 		{ id            => $self->id }
 	);
-	# XXX
-	return $ret;
+	return scalar $ret->rows;
 }
 
 sub validate_password ($self, $p) {
