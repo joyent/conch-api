@@ -133,9 +133,9 @@ sub set_setting ($self, $key, $value) {
 	$self->pg->db->update(
 		'user_settings',
 		{ deactivated => 'now()' },
-		{ 
-			user_id => $self->id, 
-			name    => $key, 
+		{
+			user_id => $self->id,
+			name    => $key,
 			deactivated => undef
 		}
 	);
@@ -143,9 +143,9 @@ sub set_setting ($self, $key, $value) {
 	my $ret = $self->pg->db->insert(
 		'user_settings',
 		{
-			  user_id => $self->id,
-			  name    => $key,
-			  value   => to_json($value)
+			user_id => $self->id,
+			name    => $key,
+			value   => to_json($value)
 		}
 	);
 
@@ -160,9 +160,9 @@ sub delete_setting ($self, $key) {
 	my $ret = $self->pg->db->update(
 		'user_settings',
 		{ deactivated => 'now()' },
-		{ 
-			user_id => $self->id, 
-			name    => $key, 
+		{
+			user_id => $self->id,
+			name    => $key,
 			deactivated => undef
 		}
 	);
