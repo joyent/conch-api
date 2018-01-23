@@ -3,8 +3,7 @@ use Mojo::Base -base, -signatures;
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 use Data::Validate::UUID qw(is_uuid);
-
-use Data::Printer;
+use Mojo::JSON 'to_json';
 
 has [qw(
 	email
@@ -119,6 +118,78 @@ sub validate_password ($self, $p) {
 	} else {
 		return 0;
 	}
+}
+
+
+sub settings ($self) {
+	my $ret = $self->pg->db->select(
+		'user_settings',
+		undef,
+		{
+			deactivated => undef,
+			user_id => $self->id,
+		}
+	)->expand->hashes;
+
+	my %settings;
+	for my $setting ($ret->@*) {
+		$settings{ $setting->{name} } = $setting->{value};
+	}
+	return \%settings;
+}
+
+sub set_setting ($self, $key, $value) {
+	$self->pg->db->update(
+		'user_settings',
+		{ deactivated => 'now()' },
+		{ 
+			user_id => $self->id, 
+			name    => $key, 
+			deactivated => undef
+		}
+	);
+
+	my $ret = $self->pg->db->insert(
+		'user_settings',
+		{
+			  user_id => $self->id,
+			  name    => $key,
+			  value   => to_json($value)
+		}
+	);
+
+	return $ret->rows;
+}
+
+sub setting ($self, $key) {
+	return $self->settings()->{$key};
+}
+
+sub delete_setting ($self, $key) {
+	my $ret = $self->pg->db->update(
+		'user_settings',
+		{ deactivated => 'now()' },
+		{ 
+			user_id => $self->id, 
+			name    => $key, 
+			deactivated => undef
+		}
+	);
+
+	return $ret->rows;
+}
+
+sub set_settings ($self, $settings) {
+	my $current_settings = $self->settings;
+	for my $setting (keys $current_settings->%*) {
+		$self->delete_setting($setting);
+	}
+
+	for my $setting (keys $settings->%*) {
+		$self->set_setting($setting, $settings->{$setting});
+	}
+
+	return $self->settings;
 }
 
 ###########
