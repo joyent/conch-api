@@ -13,7 +13,7 @@ my $pg = Mojo::Pg->new( $pgtmp->uri );
 my $user_model = new_ok("Conch::Model::User", [
   pg => $pg,
 ]);
-my $new_user = $user_model->create( 'foo@bar.com', 'password' );
+my $new_user = Conch::Model::User->create($pg, 'foo@bar.com', 'password' );
 
 my $ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg ]);
 my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;

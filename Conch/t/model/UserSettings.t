@@ -9,16 +9,11 @@ use_ok("Conch::Model::UserSettings");
 my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new($pgtmp->uri);
 
-new_ok('Conch::Model::UserSettings');
-
 my $user_settings_model = Conch::Model::UserSettings->new(
     pg => $pg,
   );
 
-my $user_model = Conch::Model::User->new(
-    pg => $pg,
-  );
-my $new_user = $user_model->create('foo@bar.com', 'password');
+my $new_user = Conch::Model::User->create($pg, 'foo@bar.com', 'password');
 
 fail("Test 'set_settings'");
 

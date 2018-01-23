@@ -26,12 +26,7 @@ subtest "Lookup workspace by name" => sub {
   is( $global_ws->name, 'GLOBAL' );
 };
 
-my $user_model = Conch::Model::User->new(
-  hash_password         => sub { reverse shift },
-  pg                    => $pg,
-  validate_against_hash => sub { reverse(shift) eq shift }
-);
-my $new_user = $user_model->create( 'foo@bar.com', 'password' )->value;
+my $new_user = Conch::Model::User->create($pg, 'foo@bar.com', 'password' );
 
 subtest "Add user to Workspace" => sub {
   is( $ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 1 ),
