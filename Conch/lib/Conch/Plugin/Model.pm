@@ -7,7 +7,6 @@ use Conch::Model::DeviceReport;
 use Conch::Model::DeviceSettings;
 use Conch::Model::HardwareProduct;
 use Conch::Model::Relay;
-use Conch::Model::UserSettings;
 use Conch::Model::Workspace;
 use Conch::Model::WorkspaceDevice;
 use Conch::Model::WorkspaceRack;
@@ -52,11 +51,6 @@ sub register ( $self, $app, $conf ) {
   $app->helper(
     relay => sub {
       state $relay = Conch::Model::Relay->new( pg => $app->pg );
-    }
-  );
-  $app->helper(
-    user_settings => sub {
-      state $user_settings = Conch::Model::UserSettings->new( pg => $app->pg );
     }
   );
   $app->helper(

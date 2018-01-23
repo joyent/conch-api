@@ -3,6 +3,8 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
+use DDP;
+
 use Data::UUID;
 my $uuid = Data::UUID->new->create_str();
 
@@ -60,6 +62,67 @@ subtest "update_password" => sub {
 		$u->update_password("test"), 
 		0, 
 		"Updating password on non-existent user does nothing"
+	);
+};
+
+subtest "Settings" => sub {
+	is_deeply($new_user->settings(), {}, "Empty user has no settings");
+
+	is(
+		$new_user->set_setting(test => "string"), 
+		1, 
+		"Set a setting affects 1 row"
+	);
+
+	is_deeply(
+		$new_user->settings,
+		{ test => "string" },
+		"Have one setting now"
+	);
+
+	is_deeply(
+		$new_user->setting("test"),
+		"string",
+		"setting 'test' is 'string'"
+	);
+	is_deeply(
+		$new_user->set_setting("test" => "string2"), 
+		1, 
+		"Updating setting affects 1 row"
+	);
+	is_deeply(
+		$new_user->setting("test"), 
+		"string2", 
+		"setting 'test' is 'string2'"
+	);
+
+	is(
+		$new_user->delete_setting("test"),
+		1,
+		"Delete a setting affects 1 row"
+	);
+	is_deeply(
+		$new_user->setting("test"), 
+		undef, 
+		"setting 'test' is now undef"
+	);
+
+	is_deeply($new_user->settings(), {}, "No settings now");
+
+	my %settings = ( 
+		test2 => "wat"
+	);
+	is_deeply(
+		$new_user->set_settings(\%settings), 
+		\%settings,
+		"New settings match",
+	);
+
+	%settings = ( test3 => "wat" );
+	is_deeply(
+		$new_user->set_settings(\%settings), 
+		\%settings,
+		"New new settings match",
 	);
 
 };
