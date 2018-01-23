@@ -15,15 +15,6 @@ has [qw(
 
 sub _BCRYPT_COST { 4 } # dancer2 legacy
 
-sub as_v1 ( $self ) {
-	{
-		id    => $self->id,
-		email => $self->email,
-		name  => $self->name,
-	}
-}
-
-
 sub create ( $class, $pg, $email, $password ) {
 	my $password_hash = _hash_password($password);
 
