@@ -3,20 +3,25 @@ package Conch::Controller::Device;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 
+use Conch::Model::Device;
 use aliased 'Conch::Class::DeviceDetailed';
 
 use Data::Printer;
 
 sub under ($c) {
   my $device_id = $c->param('id');
-  my $maybe_device =
-    $c->device->lookup_for_user( $c->stash('user_id'), $device_id );
-  if ( $maybe_device->is_fail ) {
-    $c->status( 404, { error => "Device '$device_id' not found" } );
-    return 0;
+  my $device = Conch::Model::Device->lookup_for_user(
+      $c->pg,
+      $c->stash('user_id'),
+      $device_id,
+  );
+  if($device) {
+      $c->stash(current_device => $device);
+      return 1;
+  } else {
+      $c->status( 404, { error => "Device '$device_id' not found" } );
+      return 0;
   }
-  $c->stash( current_device => $maybe_device->value );
-  return 1;
 }
 
 sub get ($c) {
@@ -34,7 +39,7 @@ sub get ($c) {
   }
 
   my $maybe_location = $c->device_location->lookup( $device->id );
-  my $nics           = $c->device->device_nic_neighbors( $device->id );
+  my $nics           = $device->device_nic_neighbors( $device->id );
 
   my $detailed_device = DeviceDetailed->new(
     device             => $device,
@@ -53,7 +58,7 @@ sub graduate($c) {
   return $c->status( 409, "Device $device_id has already been graduated" )
     if defined( $device->graduated );
 
-  $c->device->graduate_device( $device->id );
+  $device->graduate;
 
   $c->status(303);
   $c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
@@ -61,7 +66,7 @@ sub graduate($c) {
 
 sub set_triton_reboot ($c) {
   my $device = $c->stash('current_device');
-  $c->device->set_triton_reboot( $device->id );
+  $device->set_triton_reboot;
 
   $c->status(303);
   $c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
@@ -78,7 +83,7 @@ sub set_triton_uuid ($c) {
     }
   ) unless defined($triton_uuid) && is_uuid($triton_uuid);
 
-  $c->device->set_triton_uuid( $device->id, $triton_uuid );
+  $device->set_triton_uuid($triton_uuid );
 
   $c->status(303);
   $c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
@@ -102,7 +107,7 @@ sub set_triton_setup ($c) {
     "Device $device_id has already been marked as set up for Triton" )
     if defined( $device->triton_setup );
 
-  $c->device->set_triton_setup( $device->id );
+  $device->set_triton_setup;
 
   $c->status(303);
   $c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
@@ -119,7 +124,7 @@ sub set_asset_tag ($c) {
     }
   ) unless defined($asset_tag) && ref($asset_tag) eq '';
 
-  $c->device->set_asset_tag( $device->id, $asset_tag );
+  $device->set_asset_tag($asset_tag );
 
   $c->status(303);
   $c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );

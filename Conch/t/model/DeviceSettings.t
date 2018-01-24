@@ -25,10 +25,8 @@ my $hardware_product_id = $pg->db->insert(
   { returning => ['id'] }
 )->hash->{id};
 
-my $device_model = Conch::Model::Device->new( pg => $pg );
-
-my $device = $device_model->create( 'coffee', $hardware_product_id );
-my $device_id = $device->value;
+my $device = Conch::Model::Device->create($pg, 'coffee', $hardware_product_id );
+my $device_id = $device->id;
 
 new_ok('Conch::Model::DeviceSettings');
 

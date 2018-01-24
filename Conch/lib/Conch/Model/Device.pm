@@ -1,170 +1,249 @@
 package Conch::Model::Device;
+use Role::Tiny 'with';
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(try fail success attempt when_defined);
+use Try::Tiny;
+use Data::Validate::UUID qw(is_uuid);
 
-use aliased 'Conch::Class::Device';
+use aliased 'Conch::Class::DatacenterRack';
+use aliased 'Conch::Class::DatacenterRoom';
+use aliased 'Conch::Class::HardwareProduct';
 
 has 'pg';
+has [qw(
+	asset_tag
+	boot_phase
+	created
+	graduated
+	hardware_product
+	health
+	id
+	last_seen
+	latest_triton_reboot
+	role
+	state
+	system_uuid
+	triton_setup
+	triton_uuid
+	updated
+	uptime_since
+	validated
+)];
 
-sub create ( $self, $id, $hardware_product_id, $state = 'UNKNOWN',
-  $health = 'UNKNOWN' )
-{
-  my $create_attempt = try {
-    $self->pg->db->insert(
-      'device',
-      {
-        id               => $id,
-        hardware_product => $hardware_product_id,
-        state            => $state,
-        health           => $health
-      },
-      { returning => ['id'] }
-    )->hash;
-  };
-  $create_attempt->next( sub { shift->{id} } );
+sub as_v1 ($self) {
+	{
+		asset_tag            => $self->asset_tag,
+		boot_phase           => $self->boot_phase,
+		created              => $self->created,
+		graduated            => $self->graduated,
+		hardware_product     => $self->hardware_product,
+		health               => $self->health,
+		id                   => $self->id,
+		last_seen            => $self->last_seen,
+		latest_triton_reboot => $self->latest_triton_reboot,
+		role                 => $self->role,
+		state                => $self->state,
+		system_uuid          => $self->system_uuid,
+		triton_setup         => $self->triton_setup,
+		triton_uuid          => $self->triton_uuid,
+		updated              => $self->updated,
+		uptime_since         => $self->uptime_since,
+		validated            => $self->validated,
+	}
 }
 
-sub lookup ( $self, $device_id ) {
-  when_defined { Device->new(shift) } $self->pg->db->select(
-    'device', undef,
-    {
-      id          => $device_id,
-      deactivated => undef
-    }
-  )->hash;
+
+sub create ( $class, $pg, $id, $hardware_product_id, $state = 'UNKNOWN', $health = 'UNKNOWN' ) {
+	my $ret;
+	try {
+		$ret = $pg->db->insert(
+			'device',
+			{
+				id               => $id,
+				hardware_product => $hardware_product_id,
+				state            => $state,
+				health           => $health
+			},
+			{ returning => 'id' },
+		)->hash;
+	};
+	return undef unless $ret and $ret->{id};
+	return $class->lookup($pg, $ret->{id});
 }
 
-sub lookup_for_user ( $self, $user_id, $device_id ) {
-  my $db = $self->pg->db;
-  my $maybe_device =
-    _lookup_device_in_user_workspaces( $db, $user_id, $device_id );
+sub lookup ( $class, $pg, $device_id ) {
+	my $ret = $pg->db->select(
+		'device',
+		undef,
+		{
+			id          => $device_id,
+			deactivated => undef
+		}
+	)->hash;
+	return undef unless $ret and $ret->{id};
+	return $class->new(pg => $pg, $ret->%*);
+}
 
-  # Look for an unlocated device if no located device found
-  $maybe_device = $maybe_device
-    || _lookup_unlocated_device_reported_by_user_relay( $db, $user_id,
-    $device_id );
-  return $maybe_device->next( sub { Device->new(shift) } );
+sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
+	my $ret = $pg->db->query(q{
+		WITH target_workspaces(id) AS (
+			SELECT workspace_id
+			FROM user_workspace_role
+			WHERE user_id = ?
+		)
+		SELECT distinct device.*
+		FROM device
+		JOIN device_location loc
+			ON loc.device_id = device.id
+		JOIN datacenter_rack rack
+			ON rack.id = loc.rack_id
+		WHERE device.id = ?
+		AND device.deactivated IS NULL
+		AND (
+			rack.datacenter_room_id IN (
+				SELECT datacenter_room_id
+					FROM workspace_datacenter_room
+					WHERE workspace_id IN (SELECT id FROM target_workspaces)
+			)
+			OR rack.id IN (
+				SELECT datacenter_rack_id
+				FROM workspace_datacenter_rack
+				WHERE workspace_id IN (SELECT id FROM target_workspaces)
+			)
+		)
+	}, $user_id, $device_id )->hash;
 
+	unless($ret and $ret->{id}) {
+		$ret = $pg->db->query(q{
+			SELECT device.*
+				FROM user_account u
+				INNER JOIN user_relay_connection ur
+					ON u.id = ur.user_id
+				INNER JOIN device_relay_connection dr
+					ON ur.relay_id = dr.relay_id
+				INNER JOIN device
+					ON dr.device_id = device.id
+			WHERE u.id = ?
+				AND device.id = ?
+				AND device.id NOT IN (SELECT device_id FROM device_location)
+		}, $user_id, $device_id)->hash;
+	}
+
+	return undef unless $ret and $ret->{id};
+	return $class->new(pg => $pg, $ret->%*);
 }
 
 sub device_nic_neighbors ( $self, $device_id ) {
-  my $nics = $self->pg->db->query(
-    q{
-      SELECT nic.*, neighbor.*
-      FROM device_nic nic
-      JOIN device_neighbor neighbor
-        ON nic.mac = neighbor.mac
-      WHERE nic.device_id = ?
-        AND deactivated IS NULL
-    }, $device_id
-  )->hashes;
-  my @neighbors;
-  for my $nic (@$nics) {
-    push @neighbors,
-      {
-      iface_name   => $nic->{iface_name},
-      iface_type   => $nic->{iface_type},
-      iface_vendor => $nic->{iface_vendor},
-      mac          => $nic->{mac},
-      peer_mac     => $nic->{peer_mac},
-      peer_port    => $nic->{peer_port},
-      peer_switch  => $nic->{peer_switch}
-      };
-  }
-  return \@neighbors;
+	my $nics = $self->pg->db->query(q{
+		SELECT nic.*, neighbor.*
+		FROM device_nic nic
+		JOIN device_neighbor neighbor
+			ON nic.mac = neighbor.mac
+		WHERE nic.device_id = ?
+			AND deactivated IS NULL
+	}, $device_id )->hashes;
+
+	my @neighbors;
+	for my $nic (@$nics) {
+		push @neighbors, {
+			iface_name   => $nic->{iface_name},
+			iface_type   => $nic->{iface_type},
+			iface_vendor => $nic->{iface_vendor},
+			mac          => $nic->{mac},
+			peer_mac     => $nic->{peer_mac},
+			peer_port    => $nic->{peer_port},
+			peer_switch  => $nic->{peer_switch}
+		};
+	}
+	return \@neighbors;
 }
 
-sub _lookup_device_in_user_workspaces ( $db, $user_id, $device_id ) {
-  attempt $db->query(
-    q{
-    WITH target_workspaces(id) AS (
-      SELECT workspace_id
-      FROM user_workspace_role
-      WHERE user_id = ?
-    )
-    SELECT distinct device.*
-    FROM device
-    JOIN device_location loc
-      ON loc.device_id = device.id
-    JOIN datacenter_rack rack
-      ON rack.id = loc.rack_id
-    WHERE device.id = ?
-      AND device.deactivated IS NULL
-      AND (
-        rack.datacenter_room_id IN (
-          SELECT datacenter_room_id
-          FROM workspace_datacenter_room
-          WHERE workspace_id IN (SELECT id FROM target_workspaces)
-        )
-        OR rack.id IN (
-          SELECT datacenter_rack_id
-          FROM workspace_datacenter_rack
-          WHERE workspace_id IN (SELECT id FROM target_workspaces)
-        )
-      )
-  }, $user_id, $device_id
-  )->hash;
+sub graduate ( $self) {
+	my $ret = $self->pg->db->update(
+		'device',
+		{
+			graduated => 'NOW()', 
+			updated   => 'NOW()'
+		},
+		{ id => $self->id },
+		{ returning => [qw(graduated updated)] },
+	)->hash;
+	return undef unless $ret;
+
+	$self->graduated($ret->{graduated});
+	$self->updated($ret->{updated});
+
+	return 1;
 }
 
-sub _lookup_unlocated_device_reported_by_user_relay ( $db, $user_id,
-  $device_id )
-{
-  attempt $db->query(
-    q{
-    SELECT device.*
-    FROM user_account u
-    INNER JOIN user_relay_connection ur
-      ON u.id = ur.user_id
-    INNER JOIN device_relay_connection dr
-      ON ur.relay_id = dr.relay_id
-    INNER JOIN device
-      ON dr.device_id = device.id
-    WHERE u.id = ?
-      AND device.id = ?
-      AND device.id NOT IN (SELECT device_id FROM device_location)
-  }, $user_id, $device_id
-  )->hash;
+sub set_triton_setup ( $self ) {
+	my $ret = $self->pg->db->update(
+		'device',
+		{
+			triton_setup => 'NOW()',
+			updated => 'NOW()'
+		},
+		{ id => $self->id },
+		{ returning => [qw(triton_setup updated)] }
+	)->hash;
+	return undef unless $ret;
+
+	$self->triton_setup($ret->{triton_setup});
+	$self->updated($ret->{updated});
+	return 1;
 }
 
-sub graduate_device ( $self, $device_id ) {
-  $self->pg->db->update(
-    'device',
-    { graduated => 'NOW()', updated => 'NOW()' },
-    { id        => $device_id }
-  );
+sub set_triton_uuid ( $self, $uuid ) {
+	return undef unless is_uuid($uuid);
+
+	my $ret = $self->pg->db->update(
+		'device',
+		{
+			triton_uuid => $uuid,
+			updated     => 'NOW()'
+		},
+		{ id => $self->id },
+		{ returning => [qw(triton_uuid updated)] }
+	)->hash;
+	return undef unless $ret;
+
+	$self->triton_uuid($ret->{triton_uuid});
+	$self->updated($ret->{updated});
+	return 1;
 }
 
-sub set_triton_setup ( $self, $device_id ) {
-  $self->pg->db->update(
-    'device',
-    { triton_setup => 'NOW()', updated => 'NOW()' },
-    { id           => $device_id }
-  );
+sub set_triton_reboot ( $self ) {
+	my $ret = $self->pg->db->update(
+		'device',
+		{
+			latest_triton_reboot => 'NOW()',
+			updated => 'NOW()'
+		},
+		{ id => $self->id },
+		{ returning => [qw(latest_triton_reboot updated)] }
+	)->hash;
+	return undef unless $ret;
+
+	$self->latest_triton_reboot($ret->{latest_triton_reboot});
+	$self->updated($ret->{updated});
+	return 1;
 }
 
-sub set_triton_uuid ( $self, $device_id, $uuid ) {
-  $self->pg->db->update(
-    'device',
-    { triton_uuid => $uuid, updated => 'NOW()' },
-    { id          => $device_id }
-  );
-}
+sub set_asset_tag ( $self, $asset_tag ) {
+	my $ret = $self->pg->db->update(
+		'device',
+		{
+			asset_tag => $asset_tag,
+			updated => 'NOW()'
+		},
+		{ id => $self->id },
+		{ returning => [qw(asset_tag updated)] },
+	)->hash;
+	return undef unless $ret;
 
-sub set_triton_reboot ( $self, $device_id ) {
-  $self->pg->db->update(
-    'device',
-    { latest_triton_reboot => 'NOW()', updated => 'NOW()' },
-    { id                   => $device_id }
-  );
-}
-
-sub set_asset_tag ( $self, $device_id, $asset_tag ) {
-  $self->pg->db->update(
-    'device',
-    { asset_tag => $asset_tag, updated => 'NOW()' },
-    { id        => $device_id }
-  );
+	$self->asset_tag($ret->{asset_tag});
+	$self->updated($ret->{updated});
+	return 1;
 }
 
 1;

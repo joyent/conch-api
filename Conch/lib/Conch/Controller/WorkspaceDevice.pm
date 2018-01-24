@@ -29,7 +29,7 @@ sub list ($c) {
     @devices = map { $_->id } @devices;
   }
   else {
-    @devices = map { $_->as_v1_json } @devices;
+    @devices = map { $_->as_v1 } @devices;
   }
 
   $c->status( 200, \@devices );
