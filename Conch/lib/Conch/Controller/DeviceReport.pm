@@ -12,8 +12,8 @@ use Conch::Legacy::Data::Report::Switch;
 use Conch::Legacy::Data::Report::Server;
 
 # TODO: None of the available Mojolicious Log4Perl libraries allow selecting
-# the category (appender) for Log4Perl. We used this mechanism to log unparsable
-# device reports and device reports that result in processing exceptions.
+# the category (appender) for Log4Perl. We use this mechanism to log unparsable
+# device reports and device reports that result in processing exceptions
 sub process ($c) {
 	my $raw_report = $c->req->json;
 
@@ -28,6 +28,16 @@ sub process ($c) {
 			'Failed parsing device report: ' . $device_report->failure );
 		return $c->status( 400, { error => $device_report->failure } );
 	}
+
+	my $hw_product_name = $device_report->value->{product_name};
+	my $maybe_hw        = $c->hardware_product->lookup_by_name($hw_product_name);
+
+	return $c->status(
+		409,
+		{
+			error => "Hardware Product '$hw_product_name' does not exist."
+		}
+	) if $maybe_hw->is_fail;
 
 	# Use the old device report recording and device validation code for now.
 	# This will be removed when OPS-RFD 22 is implemented

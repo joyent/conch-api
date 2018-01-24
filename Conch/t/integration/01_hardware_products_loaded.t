@@ -62,17 +62,10 @@ subtest 'Register relay' => sub {
 };
 
 subtest 'Device Report' => sub {
-TODO: {
-		local $TODO = qq(
-		Device report endpoint throws an exception if a hardware product with
-		hardware product profile matching the hardware product name in the
-		report can't be found. It should respond more gracefully with a 409
-	);
-		my $report =
-			io->file('t/integration/resource/passing-device-report.json')->slurp;
-		$t->post_ok( '/device/TEST', $report )->status_is(409)
-			->json_like( '/error', qr/Hardware product not found/ );
-	}
+	my $report =
+	io->file('t/integration/resource/passing-device-report.json')->slurp;
+	$t->post_ok( '/device/TEST', $report )->status_is(409)
+		->json_like( '/error', qr/Hardware Product '.+' does not exist/ );
 };
 
 subtest 'Hardware Product' => sub {

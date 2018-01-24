@@ -83,6 +83,24 @@ sub lookup ( $self, $hw_id ) {
   )->hash;
 }
 
+sub lookup_by_name ( $self, $name ) {
+  when_defined { _build_hardware_product(shift) }
+  $self->pg->db->query(
+    qq{
+        SELECT $fields
+        FROM hardware_product hw_product
+        JOIN hardware_product_profile hw_profile
+          ON hw_product.id = hw_profile.product_id
+        JOIN hardware_vendor vendor
+          ON hw_product.vendor = vendor.id
+        LEFT JOIN zpool_profile zpool
+          ON hw_profile.zpool_id = zpool.id
+        WHERE hw_product.deactivated IS NULL
+          AND hw_product.name = ?
+      }, $name
+  )->hash;
+}
+
 sub _build_hardware_product ($hw) {
 
   my $zpool_profile = $hw->{zpool_id}
