@@ -3,44 +3,10 @@ use Mojo::Base -base, -signatures;
 
 use Attempt qw(try fail success attempt when_defined);
 
-use Storable 'dclone';
-use Conch::Legacy::Data::Report::Switch;
-use Conch::Legacy::Data::Report::Server;
-
 use aliased 'Conch::Class::Device';
 
 has 'pg';
 has 'log';
-
-# Parse a report object from a HashRef and report all validation errors
-# Returns a list where the first element may be the parsed log and the second
-# may be validation errors, but not both.
-sub parse_device_report ( $self, $input ) {
-  my $aux_report = dclone($input);
-
-  my $report;
-  if ( $input->{device_type} && $input->{device_type} eq "switch" ) {
-    $report = try { Conch::Legacy::Data::Report::Switch->new($input) };
-  }
-  else {
-    $report = try { Conch::Legacy::Data::Report::Server->new($input) };
-  }
-
-  if ( $report->is_fail ) {
-    my $errs = join( "; ", map { $_->message } $report->failure->errors );
-    $self->log->warn("Error validating device report: $errs");
-    return fail($errs);
-  }
-  else {
-    for my $attr ( keys %{ $report->value->pack } ) {
-      delete $aux_report->{$attr};
-    }
-    if ( %{$aux_report} ) {
-      $report->value->{aux} = $aux_report;
-    }
-    return $report;
-  }
-}
 
 sub latest_device_report ( $self, $device_id ) {
   attempt $self->pg->db->query(
