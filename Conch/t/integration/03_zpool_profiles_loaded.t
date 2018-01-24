@@ -97,6 +97,10 @@ subtest 'Hardware Product' => sub {
 	);
 	ok( !defined( $hardware_product_hash{'S4048-ON'}->{profile}->{zpool} ),
 		'Switch does not have zpool profile' );
+	for my $hardware_product (@hardware_products) {
+		$t->get_ok("/hardware_product/". $hardware_product->{id})->status_is(200)
+			->json_is('', $hardware_product);
+	}
 };
 
 done_testing();

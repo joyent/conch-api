@@ -86,6 +86,8 @@ subtest 'Hardware Product' => sub {
 			!defined( $hardware_product->{profile}->{zpool} ),
 			'No product has zpool profile defined'
 		);
+		$t->get_ok("/hardware_product/". $hardware_product->{id})->status_is(200)
+			->json_is('', $hardware_product);
 	}
 };
 
