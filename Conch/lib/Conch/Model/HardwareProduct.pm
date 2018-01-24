@@ -38,6 +38,7 @@ my $fields = q{
   hw_profile.ssd_slots AS hw_profile_ssd_slots,
   hw_profile.usb_num AS hw_profile_usb_num,
 
+  zpool.id AS zpool_id,
   zpool.name AS zpool_name,
   zpool.cache AS zpool_cache,
   zpool.log AS zpool_log,
@@ -56,7 +57,7 @@ sub list ($self) {
         ON hw_product.id = hw_profile.product_id
       JOIN hardware_vendor vendor
         ON hw_product.vendor = vendor.id
-      JOIN zpool_profile zpool
+      LEFT JOIN zpool_profile zpool
         ON hw_profile.zpool_id = zpool.id
       WHERE hw_product.deactivated IS NULL
     }
@@ -74,7 +75,7 @@ sub lookup ( $self, $hw_id ) {
           ON hw_product.id = hw_profile.product_id
         JOIN hardware_vendor vendor
           ON hw_product.vendor = vendor.id
-        JOIN zpool_profile zpool
+        LEFT JOIN zpool_profile zpool
           ON hw_profile.zpool_id = zpool.id
         WHERE hw_product.deactivated IS NULL
           AND hw_product.id = ?
@@ -84,15 +85,17 @@ sub lookup ( $self, $hw_id ) {
 
 sub _build_hardware_product ($hw) {
 
-  my $zpool_profile = ZpoolProfile->new(
-    name     => $hw->{zpool_name},
-    cache    => $hw->{zpool_cache},
-    log      => $hw->{zpool_log},
-    disk_per => $hw->{zpool_disk_per},
-    spare    => $hw->{zpool_spare},
-    vdev_n   => $hw->{zpool_vdev_n},
-    vdev_t   => $hw->{zpool_vdev_t},
-  );
+  my $zpool_profile = $hw->{zpool_id}
+    ? ZpoolProfile->new(
+        name     => $hw->{zpool_name},
+        cache    => $hw->{zpool_cache},
+        log      => $hw->{zpool_log},
+        disk_per => $hw->{zpool_disk_per},
+        spare    => $hw->{zpool_spare},
+        vdev_n   => $hw->{zpool_vdev_n},
+        vdev_t   => $hw->{zpool_vdev_t}
+	)
+    : undef;
   my $hw_profile = HardwareProductProfile->new(
     bios_firmware => $hw->{hw_profile_bios_firmware},
     cpu_num       => $hw->{hw_profile_cpu_num},

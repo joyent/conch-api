@@ -70,7 +70,23 @@ subtest 'Device Report' => sub {
 };
 
 subtest 'Hardware Product' => sub {
-	$t->get_ok("/hardware_product")->status_is(200)->json_is( '', [] );
+	$t->get_ok("/hardware_product")->status_is(200);
+	my @hardware_products = $t->tx->res->json->@*;
+	is( scalar @hardware_products, 3 );
+	my @hardware_product_names = sort map { $_->{name} } @hardware_products;
+	is_deeply(
+		\@hardware_product_names,
+		[
+			'Joyent-Compute-Platform-3301', 'Joyent-Storage-Platform-7001',
+			'S4048-ON'
+		]
+	);
+	for my $hardware_product (@hardware_products) {
+		ok(
+			!defined( $hardware_product->{profile}->{zpool} ),
+			'No product has zpool profile defined'
+		);
+	}
 };
 
 done_testing();

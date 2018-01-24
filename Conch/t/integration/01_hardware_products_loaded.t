@@ -78,7 +78,7 @@ TODO: {
 subtest 'Hardware Product' => sub {
 	$t->get_ok("/hardware_product")->status_is(200)
 		->json_is( '', [],
-		'Not hardware products because zpool profiles are missing' );
+		'No hardware products because hardware product profiles are missing' );
 };
 
 done_testing();

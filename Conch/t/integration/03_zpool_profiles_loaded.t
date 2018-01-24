@@ -70,12 +70,33 @@ subtest 'Device Report' => sub {
 };
 
 subtest 'Hardware Product' => sub {
+
 	$t->get_ok("/hardware_product")->status_is(200);
-	my @hardware_product_names = sort map { $_->{name} } @{ $t->tx->res->json };
-	is( scalar @hardware_product_names,
-		2, 'Has 2 hardware products with zpool profiles' );
-	is_deeply( \@hardware_product_names,
-		[ 'Joyent-Compute-Platform-3301', 'Joyent-Storage-Platform-7001' ] );
+	my @hardware_products = $t->tx->res->json->@*;
+	is( scalar @hardware_products, 3 );
+	my %hardware_product_hash = map { $_->{name} => $_ } @hardware_products;
+	my @hardware_product_names = sort keys %hardware_product_hash;
+	is_deeply(
+		\@hardware_product_names,
+		[
+			'Joyent-Compute-Platform-3301', 'Joyent-Storage-Platform-7001',
+			'S4048-ON'
+		]
+	);
+	ok(
+		defined(
+			$hardware_product_hash{'Joyent-Compute-Platform-3301'}->{profile}->{zpool}
+		),
+		'Compute has zpool profile'
+	);
+	ok(
+		defined(
+			$hardware_product_hash{'Joyent-Storage-Platform-7001'}->{profile}->{zpool}
+		),
+		'Storage has zpool profile'
+	);
+	ok( !defined( $hardware_product_hash{'S4048-ON'}->{profile}->{zpool} ),
+		'Switch does not have zpool profile' );
 };
 
 done_testing();
