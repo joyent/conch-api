@@ -51,7 +51,7 @@ sub as_v1_json {
     ssd_size      => $self->ssd_size,
     ssd_slots     => $self->ssd_slots,
     usb_num       => $self->usb_num,
-    zpool         => $self->zpool->as_v1_json
+    zpool         => $self->zpool && $self->zpool->as_v1_json
   };
 }
 1;
