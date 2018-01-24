@@ -1,7 +1,6 @@
 package Conch::Plugin::Model;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use Conch::Model::Device;
 use Conch::Model::DeviceLocation;
 use Conch::Model::DeviceReport;
 use Conch::Model::DeviceSettings;
@@ -16,12 +15,6 @@ use Conch::Model::WorkspaceUser;
 
 # Setup Conch Models for production
 sub register ( $self, $app, $conf ) {
-
-  $app->helper(
-    device => sub {
-      state $device = Conch::Model::Device->new( pg => $app->pg );
-    }
-  );
   $app->helper(
     device_location => sub {
       state $device_location =

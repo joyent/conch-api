@@ -8,6 +8,7 @@ requires 'List::Compare';
 requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
 requires 'aliased';
+requires 'Try::Tiny';
 
 # mojolicious
 requires 'Mojolicious';

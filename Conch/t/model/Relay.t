@@ -39,7 +39,12 @@ ok($relay_model->create($relay_serial, 'v1', '127.0.0.1', 22, 'test'));
 
 subtest "connect device relay" => sub {
   my $device_model = new_ok("Conch::Model::Device", [ pg => $pg ]);
-  my $device_id = $device_model->create( 'coffee', $hardware_product_id )->value;
+
+  my $device_id = Conch::Model::Device->create(
+    $pg,
+    'coffee',
+    $hardware_product_id
+  )->id;
 
   ok($relay_model->connect_device_relay($device_id, $relay_serial));
   ok(!$relay_model->connect_device_relay($device_id, 'bad_serial'));

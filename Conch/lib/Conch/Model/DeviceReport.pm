@@ -3,8 +3,6 @@ use Mojo::Base -base, -signatures;
 
 use Attempt qw(try fail success attempt when_defined);
 
-use aliased 'Conch::Class::Device';
-
 has 'pg';
 has 'log';
 

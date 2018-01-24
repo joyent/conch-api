@@ -28,7 +28,7 @@ sub as_v1_json {
     ssh_port => $self->ssh_port,
     updated  => $self->updated,
     version  => $self->version,
-    devices  => [ map { $_->as_v1_json } @{ $self->devices } ],
+    devices  => [ map { $_->as_v1 } @{ $self->devices } ],
     location => $self->location
   };
 }

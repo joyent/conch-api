@@ -16,7 +16,7 @@ has [
 
 sub as_v1_json {
   my $self    = shift;
-  my $device  = $self->device->as_v1_json;
+  my $device  = $self->device->as_v1;
   my @results = map { $_->{validation} } $self->validation_results->@*;
 
   my $details = {

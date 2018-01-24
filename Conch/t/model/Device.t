@@ -3,105 +3,206 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
+use Try::Tiny;
+use IO::All;
+
+use_ok("Conch::Model::WorkspaceRole");
 use_ok("Conch::Model::Workspace");
 use_ok("Conch::Model::Device");
+use_ok("Conch::Model::User");
 
 use Data::UUID;
 
+use DDP;
+
 my $pgtmp = mk_tmp_db() or die;
+my $dbh = DBI->connect( $pgtmp->dsn );
 my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 my $uuid = Data::UUID->new;
 
-my $ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg ]);
-my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
+my ($ws_model, $global_ws, $hw_vendor_id, $hw_product_id);
 
-my $hardware_vendor_id = $pg->db->insert(
-  'hardware_vendor',
-  { name      => 'test vendor' },
-  { returning => ['id'] }
-)->hash->{id};
-my $hardware_product_id = $pg->db->insert(
-  'hardware_product',
-  {
-    name   => 'test hw product',
-    alias  => 'alias',
-    vendor => $hardware_vendor_id
-  },
-  { returning => ['id'] }
-)->hash->{id};
+try {
+	$ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg ]);
+	$global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
 
-new_ok('Conch::Model::Device');
-my $device_model = new_ok("Conch::Model::Device", [ pg => $pg ]);
+	$hw_vendor_id = $pg->db->insert(
+		'hardware_vendor',
+		{ name      => 'test vendor' },
+		{ returning => ['id'] }
+	)->hash->{id};
 
-my $new_device_id;
+	$hw_product_id = $pg->db->insert(
+		'hardware_product',
+		{
+			name   => 'test hw product',
+			alias  => 'alias',
+			vendor => $hw_vendor_id
+		},
+		{ returning => ['id'] }
+	)->hash->{id};
+} catch {
+	BAIL_OUT("Setup failed");
+};
+
+my $d;
+my $device_serial = 'c0ff33';
 subtest "Create new device" => sub {
-  my $device_serial = 'c0ff33';
-  my $attempt = $device_model->create( $device_serial, $hardware_product_id );
-  isa_ok( $attempt, 'Attempt::Success' );
-  is( $attempt->value, $device_serial );
-  $new_device_id = $attempt->value;
 
-  my $duplicate_attempt =
-    $device_model->create( $device_serial, $hardware_product_id );
-  isa_ok( $duplicate_attempt, 'Attempt::Fail' );
-  like($duplicate_attempt->failure, qr/duplicate/);
+	$d = Conch::Model::Device->create(
+		$pg,
+		$device_serial,
+		$hw_product_id
+	);
+
+	isa_ok($d, "Conch::Model::Device");
+	is( $d->id, $device_serial, "New device ID matches expectations");
+	is( $d->state, "UNKNOWN", "New device state matches expectations");
+
+	is(
+		$d->hardware_product,
+		$hw_product_id,
+		"New device hardware product id matches expectations"
+	); 
+
+	my $duplicate = Conch::Model::Device->create(
+		$pg,
+		$device_serial,
+		$hw_product_id
+	);
+	is($duplicate, undef, "Duplicate creation attempt fails");
 };
 
-my $new_device;
-subtest "lookup device " => sub {
-  my $attempt = $device_model->lookup( $new_device_id);
-  isa_ok( $attempt, 'Attempt::Success' );
-  isa_ok( $attempt->value, 'Conch::Class::Device' );
-  $new_device = $attempt->value;
+my $user;
+subtest "Lookup" => sub {
+	my $d2 = Conch::Model::Device->lookup($pg, $d->id);
+	isa_ok($d2, "Conch::Model::Device");
+	is_deeply($d2, $d, "Looked-up device matches expectations");
+	
+	is(
+		Conch::Model::Device->lookup($pg, 'bad device id' ),
+		undef,
+		"Lookup for bad device fails",
+	);
 
-  my $bad_attempt = $device_model->lookup( 'bad device id' );
-  isa_ok( $bad_attempt, 'Attempt::Fail' );
-};
+	$user = Conch::Model::User->create($pg, 'foo@bar.com', 'password');
+	is(
+		Conch::Model::Device->lookup_for_user($pg, $user->id ,$d->id),
+		undef,
+		"brand new user can't find a device"
+	);
 
-subtest "lookup device in user workspaces" => sub {
-  my $attempt =
-    Conch::Model::Device::_lookup_device_in_user_workspaces( $pg->db,
-    $uuid->create_str(), $new_device_id );
-  isa_ok( $attempt, 'Attempt::Fail' );
-};
-
-subtest "lookup unlocated device" => sub {
-  my $attempt =
-    Conch::Model::Device::_lookup_unlocated_device_reported_by_user_relay(
-      $pg->db, $uuid->create_str(), $new_device_id );
-  isa_ok( $attempt, 'Attempt::Fail' );
-};
-
-subtest "device modifiers" => sub {
-  my $device;
-  $device = $device_model->lookup($new_device_id)->value;
-
-  ok( !defined($device->graduated) );
-  $device_model->graduate_device($new_device_id);
-  $device = $device_model->lookup($new_device_id)->value;
-  ok( defined($device->graduated) );
-
-  ok( !defined($device->triton_setup) );
-  $device_model->set_triton_setup($new_device_id);
-  $device = $device_model->lookup($new_device_id)->value;
-  ok( defined($device->triton_setup) );
-
-  ok( !defined($device->triton_uuid) );
-  $device_model->set_triton_uuid($new_device_id, $uuid->create_str());
-  $device = $device_model->lookup($new_device_id)->value;
-  ok( defined($device->triton_uuid) );
-
-  ok( !defined($device->latest_triton_reboot) );
-  $device_model->set_triton_reboot($new_device_id);
-  $device = $device_model->lookup($new_device_id)->value;
-  ok( defined($device->latest_triton_reboot) );
-
-  ok( !defined($device->asset_tag) );
-  $device_model->set_asset_tag($new_device_id, 'asset tag');
-  $device = $device_model->lookup($new_device_id)->value;
-  is($device->asset_tag, 'asset tag' );
 
 };
+
+subtest "Device Modifiers" => sub {
+	subtest "graduate" => sub {
+		is(
+			$d->graduated,
+			undef,
+			"graduated is not already set"
+		);
+
+		is($d->graduate(), 1, "graduate affects 1 row"); 
+		ok($d->graduated, "graduated is set on the object");
+
+		is(
+			Conch::Model::Device->lookup($pg, $d->id)->graduated,
+			$d->graduated,
+			"graduated is set in the db"
+		);
+	};
+
+	subtest "triton_setup" => sub {
+		is(
+			$d->triton_setup,
+			undef,
+			"triton_setup is not already set"
+		);
+
+		is($d->set_triton_setup(), 1, "set_triton_setup affects 1 row"); 
+		ok($d->triton_setup, "triton_setup is set on the object");
+
+		is(
+			Conch::Model::Device->lookup($pg, $d->id)->triton_setup,
+			$d->triton_setup,
+			"triton_setup is set in the db"
+		);
+	};
+
+	subtest "triton_uuid" => sub {
+		my $d_uuid = lc($uuid->create_str()); # the db lowercases UUIDs
+		is(
+			$d->triton_uuid,
+			undef,
+			"triton_uuid is not already set"
+		);
+
+		is($d->set_triton_uuid($d_uuid), 1, "set_triton_uuid affects 1 row"); 
+		is(
+			$d->triton_uuid,
+			$d_uuid,
+			"triton_uuid is set appropriately on the object"
+		);
+
+		is(
+			Conch::Model::Device->lookup($pg, $d->id)->triton_uuid,
+			$d_uuid,
+			"triton_uuid is set appropriately in the db"
+		);
+	};
+
+
+	subtest "latest_triton_reboot" => sub {
+		is(
+			$d->latest_triton_reboot,
+			undef,
+			"latest_triton_reboot is not already set"
+		);
+
+		is($d->set_triton_reboot(), 1, "set_triton_reboot affects 1 row"); 
+		ok($d->latest_triton_reboot, "triton_reboot is set on the object");
+
+		is(
+			Conch::Model::Device->lookup($pg, $d->id)->latest_triton_reboot,
+			$d->latest_triton_reboot,
+			"latest_triton_reboot is set in the db"
+		);
+	};
+
+	subtest "asset_tag" => sub {
+		my $asset_tag = "TEST";
+		is(
+			$d->asset_tag,
+			undef,
+			"asset_tag is not already set"
+		);
+
+		is($d->set_asset_tag($asset_tag), 1, "set_asset_tag affects 1 row");
+		is(
+			$d->asset_tag,
+			$asset_tag,
+			"asset_tag matches expectations on the object"
+		);
+
+		is(
+			Conch::Model::Device->lookup($pg, $d->id)->asset_tag,
+			$asset_tag,
+			"asset_tag matches expectations"
+		);
+	};
+};
+
+my @test_sql_files = qw(
+	00-hardware.sql 01-hardware-profiles.sql 02-zpool-profiles.sql
+	03-test-datacenter.sql
+);
+
+for my $file ( map { io->file("../sql/test/$_") } @test_sql_files ) {
+	$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
+}
+
+fail("test device_nic_neighbors");
 
 done_testing();

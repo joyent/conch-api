@@ -3,7 +3,7 @@ use Mojo::Base -base, -signatures;
 
 use Attempt qw(when_defined fail success);
 
-use aliased 'Conch::Class::Device';
+use Conch::Model::Device;
 use aliased 'Conch::Class::WorkspaceRelay';
 
 has 'pg';
@@ -90,9 +90,10 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 
   my @res;
   for my $relay (@$relays) {
-    my $devices = $db->query(
+    my $devices = [];
+    my $ret = $db->query(
       qq{
-        SELECT device.*
+        SELECT device.id
         FROM relay r
         INNER JOIN device_relay_connection dr
           ON r.id = dr.relay_id
@@ -104,7 +105,11 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
           AND dl.rack_id = ANY (?)
         ORDER by dr.last_seen desc
       }, $relay->{id}, $workspace_rack_ids
-    )->hashes->map( sub { Device->new($_) } )->to_array;
+    )->hashes;
+
+    for my $d ($ret->@*) {
+      push $devices->@*, Conch::Model::Device->new($self->pg, $d->{id});
+    }
 
     push @res,
       WorkspaceRelay->new(
