@@ -15,7 +15,7 @@ BEGIN {
 	use_ok( "Conch::Route", qw(all_routes) );
 }
 
-my $spec_file = "schema/v1.yaml";
+my $spec_file = "json-schema/v1.yaml";
 BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
 
