@@ -2,6 +2,7 @@ package Conch::Controller::WorkspaceRoom;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
+use List::Compare;
 
 sub list ($c) {
 	my $rooms = $c->workspace_room->list( $c->stash('current_workspace')->id );
@@ -29,15 +30,23 @@ sub replace_rooms ($c) {
 			}
 		);
 	}
+
+	my $parent_rooms = $c->workspace_room->list_parent_workspace_rooms($workspace->id);
+
+	my @invalid_room_ids = List::Compare->new($body, $parent_rooms)->get_unique;
+	if(@invalid_room_ids) {
+		my $s = join(', ', @invalid_room_ids);
+		return $c->status(
+			409,
+			{ error => "Datacenter room IDs must be members of the parent workspace: $s" }
+		}
+	}
+
 	my $room_attempt = $c->workspace_room->replace_workspace_rooms(
 		$workspace->id,
 		$body
 	);
-
-	if ( $room_attempt->is_fail ) {
-		return $c->status( 409, { error => $room_attempt->failure } );
-	}
-	return $c->status( 200, $room_attempt->value );
+	return $c->status( 200, $room_attempt );
 }
 
 1;

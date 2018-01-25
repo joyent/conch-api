@@ -3,7 +3,6 @@ use Mojo::Base -base, -signatures;
 
 use List::Compare;
 
-use Attempt qw(fail success);
 use aliased 'Conch::Class::DatacenterRoom';
 
 has 'pg';
@@ -20,9 +19,8 @@ sub list ( $self, $ws_id ) {
   )->hashes->map( sub { DatacenterRoom->new($_) } )->to_array;
 }
 
-sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
-  my $db              = $self->pg->db;
-  my $parent_room_ids = $db->query(
+sub list_parent_workspace_rooms( $self, $ws_id ) {
+  return $self->pg->db->query(
     q{
       SELECT wdr.datacenter_room_id
       FROM workspace_datacenter_room wdr
@@ -33,13 +31,16 @@ sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
     )
     }, $ws_id
   )->hashes->map( sub { $_->{datacenter_room_id} } )->to_array;
+}
+
+sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
+  my $db              = $self->pg->db;
+  my $parent_room_ids = $self->list_parent_workspace_rooms($ws_id);
 
   my @invalid_room_ids =
     List::Compare->new( $room_ids, $parent_room_ids )->get_unique;
   if ( scalar @invalid_room_ids ) {
-    return fail(
-      'Datacenter room IDs must be members of the parent workspace: '
-        . join( ', ', @invalid_room_ids ) );
+    return undef;
   }
 
   my $current_room_ids = $db->query(
@@ -104,7 +105,7 @@ sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
       WHERE wdr.workspace_id = ?::uuid
     }, $ws_id
   )->hashes->to_array;
-  return success($rooms);
+  return $rooms;
 }
 
 1;
