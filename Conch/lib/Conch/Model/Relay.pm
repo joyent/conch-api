@@ -1,15 +1,14 @@
 package Conch::Model::Relay;
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(attempt try);
+use Try::Tiny;
 
 has 'pg';
 
-sub create ( $self, $serial, $version, $ipaddr, $ssh_port, $alias,
-  $ip_origin = undef )
-{
+sub create ( $self, $serial, $version, $ipaddr, $ssh_port, $alias, $ip_origin = undef ) {
+  my $ret;
   try {
-    $self->pg->db->query(
+    $ret = $self->pg->db->query(
       q{
       INSERT INTO relay
         ( id, version, ipaddr, ssh_port, updated )
@@ -27,20 +26,22 @@ sub create ( $self, $serial, $version, $ipaddr, $ssh_port, $alias,
       $ipaddr,
       $ssh_port,
       'NOW()'
-      )->rows
+      )->rows;
   };
+  return $ret;
 }
 
 sub lookup ( $self, $relay_id ) {
-  attempt $self->pg->db->select( 'relay', undef, { id => $relay_id } )->hash;
+  return $self->pg->db->select( 'relay', undef, { id => $relay_id } )->hash;
 }
 
 # Associate relay with a user
 sub connect_user_relay ( $self, $user_id, $relay_id ) {
+  my $ret;
   try {
     # 'first_seen' column will only be written on create. It should remain
     # unchanged on updates
-    $self->pg->db->query(
+    $ret = $self->pg->db->query(
       q{
         INSERT INTO user_relay_connection
           ( user_id, relay_id, last_seen )
@@ -53,14 +54,16 @@ sub connect_user_relay ( $self, $user_id, $relay_id ) {
       }, $user_id, $relay_id, 'NOW()'
     )->rows;
   };
+  return $ret;
 }
 
 # Associate relay with a device
 sub connect_device_relay ( $self, $device_id, $relay_id ) {
+  my $ret;
   try {
     # 'first_seen' column will only be written on create. It should remain
     # unchanged on updates
-    $self->pg->db->query(
+    $ret = $self->pg->db->query(
       q{
         INSERT INTO device_relay_connection
           ( device_id, relay_id, last_seen )
@@ -73,6 +76,7 @@ sub connect_device_relay ( $self, $device_id, $relay_id ) {
       }, $device_id, $relay_id, 'NOW()'
     )->rows;
   };
+  return $ret;
 }
 
 1;
