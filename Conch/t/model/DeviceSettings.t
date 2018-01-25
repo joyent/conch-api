@@ -34,13 +34,11 @@ my $device_settings_model = Conch::Model::DeviceSettings->new(
     pg => $pg,
   );
 
-fail("Test 'set_settings'");
-
 my $settings = { foo => 'bar' };
 
 subtest 'set device settings' => sub {
   my $set_attempt = $device_settings_model->set_settings($device_id, $settings);
-  ok($set_attempt->is_success, 'set device settings successful');
+  is($set_attempt, 1, 'set device settings successful');
 };
 
 subtest 'get device settings' => sub {
@@ -51,7 +49,7 @@ subtest 'get device settings' => sub {
 subtest 'update device setting' => sub {
   $settings->{foo} = 'baz';
   my $next_attempt = $device_settings_model->set_settings($device_id, $settings);
-  ok($next_attempt->is_success, 'set device settings successful');
+  is($next_attempt, 1, 'set device settings successful');
 
   my $device_settings = $device_settings_model->get_settings($device_id);
   is_deeply($device_settings, $settings, 'stored settings match');
