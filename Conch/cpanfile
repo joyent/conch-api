@@ -65,4 +65,6 @@ on 'test' => sub {
     requires 'Test::PostgreSQL';
     requires 'Test::Pod::Coverage';
     requires 'IO::All';
+    requires 'JSON::Validator';
+    requires 'YAML::Tiny';
 };
