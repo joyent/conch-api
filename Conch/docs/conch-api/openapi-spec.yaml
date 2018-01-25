@@ -191,9 +191,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Workspace"
+                $ref: "#/components/schemas/Workspaces"
         default:
           description: Unexpected error
           content:
@@ -205,6 +203,19 @@ paths:
       tags: [User]
       summary: List all users assigned to the workspace
       operationId: getWorkspaceUsers
+      responses:
+        '200':
+          description: List of workspace users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceUsers"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       tags: [User, Workspace]
       summary: Create or invite an user to the workspace
@@ -1831,6 +1842,21 @@ components:
             - type: null
         role:
           type: string
+    WorkspaceUsers:
+      type: array
+      items:
+        type: object
+        required:
+          - name
+          - email
+          - role
+        properties:
+          name:
+            type: string
+          email:
+            type: string
+          role:
+            type: string
     Rooms:
       type: array
       items:
