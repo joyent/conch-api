@@ -1,8 +1,6 @@
 package Conch::Model::HardwareProduct;
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(try fail success attempt when_defined);
-
 use aliased 'Conch::Class::HardwareProduct';
 use aliased 'Conch::Class::HardwareProductProfile';
 use aliased 'Conch::Class::ZpoolProfile';
@@ -66,8 +64,7 @@ sub list ($self) {
 }
 
 sub lookup ( $self, $hw_id ) {
-  when_defined { _build_hardware_product(shift) }
-  $self->pg->db->query(
+  my $ret = $self->pg->db->query(
     qq{
         SELECT $fields
         FROM hardware_product hw_product
@@ -81,6 +78,8 @@ sub lookup ( $self, $hw_id ) {
           AND hw_product.id = ?
       }, $hw_id
   )->hash;
+  return undef unless $ret;
+  return _build_hardware_product($ret);
 }
 
 sub lookup_by_name ( $self, $name ) {

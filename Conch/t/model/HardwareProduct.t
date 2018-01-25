@@ -66,10 +66,7 @@ subtest 'list hardware products' => sub {
 };
 
 subtest 'lookup hardware product' => sub {
-  my $attempt = $hw_product_model->lookup($hardware_product_id);
-  isa_ok( $attempt, 'Attempt::Success' );
-  my $hw_product = $attempt->value;
-
+  my $hw_product = $hw_product_model->lookup($hardware_product_id);
   isa_ok($hw_product, 'Conch::Class::HardwareProduct');
   isa_ok($hw_product->profile, 'Conch::Class::HardwareProductProfile');
   isa_ok($hw_product->profile->zpool, 'Conch::Class::ZpoolProfile');
