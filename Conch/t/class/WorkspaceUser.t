@@ -10,6 +10,4 @@ new_ok("Conch::Class::WorkspaceUser", [
 	role => 'role'
 ]);
 
-fail("Test more than constructors");
-
 done_testing();

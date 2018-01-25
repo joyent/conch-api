@@ -12,6 +12,5 @@ new_ok(
 	]
 );
 
-fail("Test more than constructors");
 done_testing();
 

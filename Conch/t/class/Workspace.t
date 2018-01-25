@@ -17,6 +17,4 @@ is(
 	'parent workspace ID not published'
 );
 
-fail("Test more than constructors");
-
 done_testing();
