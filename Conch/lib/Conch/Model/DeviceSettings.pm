@@ -1,7 +1,8 @@
 package Conch::Model::DeviceSettings;
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(fail success try);
+use Try::Tiny;
+
 use DDP;
 
 has 'pg';
@@ -9,7 +10,7 @@ has 'pg';
 # Device settings values, unlike user settings, are text fields rather than JSON
 sub set_settings ( $self, $device_id, $settings ) {
   my $db      = $self->pg->db;
-  my $attempt = try {
+  try {
     my $tx = $db->begin;
     for my $setting_key ( keys %{$settings} ) {
       my $value = $settings->{$setting_key};
@@ -17,8 +18,10 @@ sub set_settings ( $self, $device_id, $settings ) {
       _insert_device_setting( $db, $device_id, $setting_key, $value );
     }
     $tx->commit;
+  } catch {
+    return undef
   };
-  return $attempt;
+  return 1;
 }
 
 sub _insert_device_setting ( $db, $device_id, $setting_key, $value ) {
