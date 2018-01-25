@@ -23,26 +23,24 @@ sub invite ($c) {
       { error => '"role" must be one of: ' . $role_names } );
   }
 
-  my $maybe_user = $c->user->lookup_by_email( $body->{user} );
-  my $user;
-  if ( $maybe_user->is_fail ) {
-    my $password = $c->random_string( length => 10 );
-    $user = $c->user->create( $body->{user}, $password );
-    $c->mail->send_new_user_invite(
-      { email => $user->email, password => $password } );
-  }
-  else {
-    $user = $maybe_user->value;
+  my $user = $c->user->lookup_by_email( $body->{user} );
+
+  if ($user) {
     $c->mail->send_existing_user_invite(
       {
         email          => $user->email,
         workspace_name => $ws->name
       }
     );
+  } else {
+    my $password = $c->random_string( length => 10 );
+    $user = $c->user->create( $body->{user}, $password );
+    $c->mail->send_new_user_invite(
+      { email => $user->email, password => $password } );
   }
 
   $c->workspace->add_user_to_workspace( $user->id, $ws,
-    $maybe_role->value->id );
+    $maybe_role->id );
   $c->status(201);
 }
 
