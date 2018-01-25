@@ -42,6 +42,6 @@ sub json_schema_is {
 					. join( "\n\t", @errors ) );
 		}
 		);
-};
+}
 
 1;

@@ -20,11 +20,13 @@ my $global_ws = $ws_model->lookup_by_name('GLOBAL');
 new_ok('Conch::Model::WorkspaceRack');
 my $ws_rack_model = Conch::Model::WorkspaceRack->new( pg => $pg );
 
-isa_ok($ws_rack_model->list( $global_ws->id ), 'HASH', "Get list of workspaces");
+isa_ok( $ws_rack_model->list( $global_ws->id ),
+	'HASH', "Get list of workspaces" );
 
 subtest "Get workspace rack by ID" => sub {
-  my $workspace_rack = $ws_rack_model->lookup( $global_ws->id, $uuid->create_str() );
-  is($workspace_rack, undef, "Bad lookup fails");
+	my $workspace_rack =
+		$ws_rack_model->lookup( $global_ws->id, $uuid->create_str() );
+	is( $workspace_rack, undef, "Bad lookup fails" );
 };
 
 TODO: {
@@ -35,7 +37,6 @@ TODO: {
 
 	fail("Test 'get workspace rack layout'");
 }
-
 
 done_testing();
 

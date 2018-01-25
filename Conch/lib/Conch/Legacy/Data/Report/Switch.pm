@@ -17,99 +17,99 @@ with Storage( 'format' => 'JSON' );
 with 'Conch::Legacy::Data::Report::Role';
 
 sub validations {
-  my $self = shift;
-  return ( \&validate_system, \&validate_cpu_temp, \&validate_bios_firmware );
+	my $self = shift;
+	return ( \&validate_system, \&validate_cpu_temp, \&validate_bios_firmware );
 }
 
 sub nics_count {
-  my $self = shift;
-  my @nics;
-  for my $port ( keys %{ $self->media } ) {
-    for my $nic ( keys %{ $self->media->{$port} } ) {
-      push @nics, $nic if $self->media->{$port}->{$nic};
-    }
-  }
-  return scalar @nics;
+	my $self = shift;
+	my @nics;
+	for my $port ( keys %{ $self->media } ) {
+		for my $nic ( keys %{ $self->media->{$port} } ) {
+			push @nics, $nic if $self->media->{$port}->{$nic};
+		}
+	}
+	return scalar @nics;
 }
 
 has 'product_name' => (
-  required => 1,
-  is       => 'ro',
-  isa      => 'Str'
+	required => 1,
+	is       => 'ro',
+	isa      => 'Str'
 );
 
 has 'serial_number' => (
-  required => 1,
-  is       => 'ro',
-  isa      => 'Str'
+	required => 1,
+	is       => 'ro',
+	isa      => 'Str'
 );
 
 has 'system_uuid' => (
-  required => 1,
-  is       => 'ro',
-  isa      => UUID
+	required => 1,
+	is       => 'ro',
+	isa      => UUID
 );
 
 has 'state' => (
-  required => 1,
-  is       => 'ro',
-  isa      => 'Str'
+	required => 1,
+	is       => 'ro',
+	isa      => 'Str'
 );
 
 has 'media' => (
-  required => 1,
-  is       => 'ro',
-  isa      => 'HashRef[HashRef[Any]]'
+	required => 1,
+	is       => 'ro',
+	isa      => 'HashRef[HashRef[Any]]'
 );
 
 has 'bios_version' => (
-  required => 1,
-  is       => 'ro',
-  isa      => 'Str'
+	required => 1,
+	is       => 'ro',
+	isa      => 'Str'
 );
 
 has 'processor' => (
-  required => 1,
-  is       => 'ro',
-  isa      => 'HashRef[Value]'
+	required => 1,
+	is       => 'ro',
+	isa      => 'HashRef[Value]'
 );
 
 has 'memory' => (
-  required => 1,
-  is       => 'ro',
-  isa      => 'HashRef[Int]'
+	required => 1,
+	is       => 'ro',
+	isa      => 'HashRef[Int]'
 );
 
 has 'disks' => (
-  required => 0,
-  is       => 'ro',
-  isa      => 'HashRef[HashRef[Value]]'
+	required => 0,
+	is       => 'ro',
+	isa      => 'HashRef[HashRef[Value]]'
 );
 
 has 'temp' => (
-  required => 0,
-  is       => 'ro',
-  isa      => 'HashRef[Int]'
+	required => 0,
+	is       => 'ro',
+	isa      => 'HashRef[Int]'
 );
 
 # Only key in hash is currently 'serial'
 has 'relay' => (
-  required => 0,
-  is       => 'ro',
-  isa      => 'HashRef[Str]'
+	required => 0,
+	is       => 'ro',
+	isa      => 'HashRef[Str]'
 );
 
 has 'uptime_since' => (
-  required => 0,
-  is       => 'ro',
-  isa      => 'Str'
+	required => 0,
+	is       => 'ro',
+	isa      => 'Str'
 );
 
 # Store auxillary data in the report. This is data that might be used later.
 has 'aux' => (
-  required => 0,
-  is       => 'rw',
-  isa      => 'HashRef[Any]'
+	required => 0,
+	is       => 'rw',
+	isa      => 'HashRef[Any]'
 );
 
 __PACKAGE__->meta->make_immutable;

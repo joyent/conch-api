@@ -63,7 +63,7 @@ subtest 'Register relay' => sub {
 
 subtest 'Device Report' => sub {
 	my $report =
-	io->file('t/integration/resource/passing-device-report.json')->slurp;
+		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(409)
 		->json_like( '/error', qr/Hardware Product '.+' does not exist/ );
 };

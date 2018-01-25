@@ -5,7 +5,8 @@ use_ok("Conch::Class::WorkspaceRole");
 new_ok('Conch::Class::WorkspaceRole');
 
 new_ok(
-	"Conch::Class::WorkspaceRole", [
+	"Conch::Class::WorkspaceRole",
+	[
 		id   => 'id',
 		name => 'name',
 		role => 'role'

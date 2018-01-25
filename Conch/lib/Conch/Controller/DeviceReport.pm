@@ -22,15 +22,18 @@ sub process ($c) {
 	#->trace( encode_json $raw_report);
 	my $device_report;
 	try {
-		if ( $raw_report->{device_type} && $raw_report->{device_type} eq "switch" ) {
+		if ( $raw_report->{device_type} && $raw_report->{device_type} eq "switch" )
+		{
 			$device_report = Conch::Legacy::Data::Report::Switch->new($raw_report);
-		} else {
+		}
+		else {
 			$device_report = Conch::Legacy::Data::Report::Server->new($raw_report);
 		}
-	} catch {
+	}
+	catch {
 		my $errs = join( "; ", map { $_->message } $device_report->errors );
 
-		$c->app->log->error('Failed parsing device report: ' . $errs );
+		$c->app->log->error( 'Failed parsing device report: ' . $errs );
 
 		return $c->status( 400, { error => $errs } );
 	};
@@ -46,13 +49,13 @@ sub process ($c) {
 	my $hw_product_name = $device_report->{product_name};
 	my $maybe_hw        = $c->hardware_product->lookup_by_name($hw_product_name);
 
-	unless($maybe_hw) {
+	unless ($maybe_hw) {
 		return $c->status(
 			409,
 			{
 				error => "Hardware Product '$hw_product_name' does not exist."
 			}
-		)
+		);
 	}
 
 	# Use the old device report recording and device validation code for now.
@@ -60,8 +63,7 @@ sub process ($c) {
 	my $schema = Conch::Legacy::Schema->connect( $c->pg->dsn, $c->pg->username,
 		$c->pg->password );
 
-	my ( $device, $report_id ) =
-		record_device_report( $schema, $device_report );
+	my ( $device, $report_id ) = record_device_report( $schema, $device_report );
 	my $validation_result =
 		validate_device( $schema, $device, $device_report, $report_id );
 

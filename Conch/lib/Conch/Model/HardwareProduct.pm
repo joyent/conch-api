@@ -47,8 +47,8 @@ my $fields = q{
 };
 
 sub list ($self) {
-  my $hw_product_hashes = $self->pg->db->query(
-    qq{
+	my $hw_product_hashes = $self->pg->db->query(
+		qq{
       SELECT $fields
       FROM hardware_product hw_product
       JOIN hardware_product_profile hw_profile
@@ -59,13 +59,13 @@ sub list ($self) {
         ON hw_profile.zpool_id = zpool.id
       WHERE hw_product.deactivated IS NULL
     }
-  )->hashes->to_array;
-  return [ map { _build_hardware_product($_) } @$hw_product_hashes ];
+	)->hashes->to_array;
+	return [ map { _build_hardware_product($_) } @$hw_product_hashes ];
 }
 
 sub lookup ( $self, $hw_id ) {
-  my $ret = $self->pg->db->query(
-    qq{
+	my $ret = $self->pg->db->query(
+		qq{
         SELECT $fields
         FROM hardware_product hw_product
         JOIN hardware_product_profile hw_profile
@@ -77,14 +77,14 @@ sub lookup ( $self, $hw_id ) {
         WHERE hw_product.deactivated IS NULL
           AND hw_product.id = ?
       }, $hw_id
-  )->hash;
-  return undef unless $ret;
-  return _build_hardware_product($ret);
+	)->hash;
+	return undef unless $ret;
+	return _build_hardware_product($ret);
 }
 
 sub lookup_by_name ( $self, $name ) {
-  my $ret = $self->pg->db->query(
-    qq{
+	my $ret = $self->pg->db->query(
+		qq{
         SELECT $fields
         FROM hardware_product hw_product
         JOIN hardware_product_profile hw_profile
@@ -96,56 +96,57 @@ sub lookup_by_name ( $self, $name ) {
         WHERE hw_product.deactivated IS NULL
           AND hw_product.name = ?
       }, $name
-  )->hash;
-  return undef unless $ret;
+	)->hash;
+	return undef unless $ret;
 
-  return _build_hardware_product($ret);
+	return _build_hardware_product($ret);
 }
 
 sub _build_hardware_product ($hw) {
 
-  my $zpool_profile = $hw->{zpool_id}
-    ? ZpoolProfile->new(
-        name     => $hw->{zpool_name},
-        cache    => $hw->{zpool_cache},
-        log      => $hw->{zpool_log},
-        disk_per => $hw->{zpool_disk_per},
-        spare    => $hw->{zpool_spare},
-        vdev_n   => $hw->{zpool_vdev_n},
-        vdev_t   => $hw->{zpool_vdev_t}
-	)
-    : undef;
-  my $hw_profile = HardwareProductProfile->new(
-    bios_firmware => $hw->{hw_profile_bios_firmware},
-    cpu_num       => $hw->{hw_profile_cpu_num},
-    cpu_type      => $hw->{hw_profile_cpu_type},
-    dimms_num     => $hw->{hw_profile_dimms_num},
-    hba_firmware  => $hw->{hw_profile_hba_firmware},
-    nics_num      => $hw->{hw_profile_nics_num},
-    psu_total     => $hw->{hw_profile_psu_total},
-    purpose       => $hw->{hw_profile_purpose},
-    ram_total     => $hw->{hw_profile_ram_total},
-    sas_num       => $hw->{hw_profile_sas_num},
-    sas_size      => $hw->{hw_profile_sas_size},
-    sas_slots     => $hw->{hw_profile_sas_slots},
-    sata_num      => $hw->{hw_profile_sata_num},
-    sata_size     => $hw->{hw_profile_sata_size},
-    sata_slots    => $hw->{hw_profile_sata_slots},
-    ssd_num       => $hw->{hw_profile_ssd_num},
-    ssd_size      => $hw->{hw_profile_ssd_size},
-    ssd_slots     => $hw->{hw_profile_ssd_slots},
-    usb_numb      => $hw->{hw_profile_usb_num},
-    zpool         => $zpool_profile
-  );
+	my $zpool_profile =
+		$hw->{zpool_id}
+		? ZpoolProfile->new(
+		name     => $hw->{zpool_name},
+		cache    => $hw->{zpool_cache},
+		log      => $hw->{zpool_log},
+		disk_per => $hw->{zpool_disk_per},
+		spare    => $hw->{zpool_spare},
+		vdev_n   => $hw->{zpool_vdev_n},
+		vdev_t   => $hw->{zpool_vdev_t}
+		)
+		: undef;
+	my $hw_profile = HardwareProductProfile->new(
+		bios_firmware => $hw->{hw_profile_bios_firmware},
+		cpu_num       => $hw->{hw_profile_cpu_num},
+		cpu_type      => $hw->{hw_profile_cpu_type},
+		dimms_num     => $hw->{hw_profile_dimms_num},
+		hba_firmware  => $hw->{hw_profile_hba_firmware},
+		nics_num      => $hw->{hw_profile_nics_num},
+		psu_total     => $hw->{hw_profile_psu_total},
+		purpose       => $hw->{hw_profile_purpose},
+		ram_total     => $hw->{hw_profile_ram_total},
+		sas_num       => $hw->{hw_profile_sas_num},
+		sas_size      => $hw->{hw_profile_sas_size},
+		sas_slots     => $hw->{hw_profile_sas_slots},
+		sata_num      => $hw->{hw_profile_sata_num},
+		sata_size     => $hw->{hw_profile_sata_size},
+		sata_slots    => $hw->{hw_profile_sata_slots},
+		ssd_num       => $hw->{hw_profile_ssd_num},
+		ssd_size      => $hw->{hw_profile_ssd_size},
+		ssd_slots     => $hw->{hw_profile_ssd_slots},
+		usb_numb      => $hw->{hw_profile_usb_num},
+		zpool         => $zpool_profile
+	);
 
-  return HardwareProduct->new(
-    id      => $hw->{hw_product_id},
-    name    => $hw->{hw_product_name},
-    alias   => $hw->{hw_product_alias},
-    prefix  => $hw->{hw_product_prefix},
-    vendor  => $hw->{hw_product_vendor},
-    profile => $hw_profile
-  );
+	return HardwareProduct->new(
+		id      => $hw->{hw_product_id},
+		name    => $hw->{hw_product_name},
+		alias   => $hw->{hw_product_alias},
+		prefix  => $hw->{hw_product_prefix},
+		vendor  => $hw->{hw_product_vendor},
+		profile => $hw_profile
+	);
 }
 
 1;

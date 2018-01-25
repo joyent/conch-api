@@ -88,7 +88,8 @@ subtest 'Workspace Racks' => sub {
 "Variance: /rack in v1 returns a hash keyed by datacenter room AZ instead of an array"
 	);
 	$t->get_ok("/workspace/$id/rack")->status_is(200)
-		->json_is('/test-region-1a/0/name', 'Test Rack', 'Has test datacenter rack' );
+		->json_is( '/test-region-1a/0/name', 'Test Rack',
+		'Has test datacenter rack' );
 
 	$rack_id = $t->tx->res->json->{'test-region-1a'}->[0]->{id};
 

@@ -7,9 +7,9 @@ our @EXPORT = qw( relay_routes);
 use DDP;
 
 sub relay_routes {
-  my $r = shift;
+	my $r = shift;
 
-  $r->post('/relay/:id/register')->to('relay#register');
+	$r->post('/relay/:id/register')->to('relay#register');
 }
 
 1;
