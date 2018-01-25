@@ -4,8 +4,8 @@ use Test::ConchTmpDB;
 use Mock::Quick;
 use Mojo::Pg;
 
-use Conch::Model::Device;
-use Conch::Model::DeviceReport;
+use_ok "Conch::Model::Device";
+use_ok "Conch::Model::DeviceReport";
 use Data::Printer;
 
 
@@ -33,18 +33,9 @@ my $device_id = $device->id;
 
 new_ok('Conch::Model::DeviceReport');
 
-my $device_report_model = Conch::Model::DeviceReport->new(
+my $device_report_model = new_ok("Conch::Model::DeviceReport", [
     pg => $pg,
     log => qobj()
-  );
-
-subtest 'add reboot count' => sub {
-  Conch::Model::DeviceReport::_add_reboot_count($pg->db, $device_id);
-  my $reboot_count = $pg->db->select('device_settings', ['value'], { name => 'reboot_count', device_id => $device_id })->hash->{value};
-  is($reboot_count, 0, '_add_reboot_count begins with 0');
-  Conch::Model::DeviceReport::_add_reboot_count($pg->db, $device_id);
-  $reboot_count = $pg->db->select('device_settings', ['value'], { name => 'reboot_count', device_id => $device_id })->hash->{value};
-  is($reboot_count, 1, '_add_reboot_count adds 1');
-};
+  ]);
 
 done_testing();
