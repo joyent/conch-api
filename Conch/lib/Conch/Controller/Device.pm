@@ -46,7 +46,7 @@ sub get ($c) {
     latest_report      => $report,
     validation_results => $validations,
     nics               => $nics,
-    location           => $maybe_location->value
+    location           => $maybe_location
   );
 
   $c->status( 200, $detailed_device->as_v1_json );

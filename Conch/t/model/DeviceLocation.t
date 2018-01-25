@@ -22,10 +22,10 @@ new_ok('Conch::Model::DeviceLocation');
 my $device_loc_model = new_ok("Conch::Model::DeviceLocation", [ pg => $pg ]);
 
 my $attempt = $device_loc_model->lookup('deadbeef');
-isa_ok($attempt, 'Attempt::Fail');
+is($attempt, undef, "Bad loookup returns undef");
 
 my $assign_attempt = $device_loc_model->assign('deadbeef', $uuid->create_str, 20);
-isa_ok($assign_attempt  , 'Attempt::Fail');
+is($assign_attempt, undef, "Bad assign returns undef");
 
 my $unassign_attempt = $device_loc_model->unassign('deadbeef');
 is($unassign_attempt, 0);
