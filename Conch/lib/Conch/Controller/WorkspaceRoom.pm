@@ -39,8 +39,8 @@ sub replace_rooms ($c) {
 		return $c->status(
 			409,
 			{ error => "Datacenter room IDs must be members of the parent workspace: $s" }
-		}
-	}
+    );
+  }
 
 	my $room_attempt = $c->workspace_room->replace_workspace_rooms(
 		$workspace->id,
