@@ -1,8 +1,6 @@
 package Conch::Model::DeviceLocation;
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(when_defined attempt fail success);
-
 use aliased 'Conch::Class::DatacenterRack';
 use aliased 'Conch::Class::DatacenterRoom';
 use aliased 'Conch::Class::DeviceLocation';
@@ -11,7 +9,7 @@ use aliased 'Conch::Class::HardwareProduct';
 has 'pg';
 
 sub lookup ( $self, $device_id ) {
-  when_defined { _build_device_location(shift) } $self->pg->db->query(
+  my $ret = $self->pg->db->query(
     qq{
     SELECT
       loc.rack_unit AS location_rack_unit,
@@ -53,6 +51,8 @@ sub lookup ( $self, $device_id ) {
     WHERE loc.device_id = ?
   }, $device_id
   )->hash;
+  return undef unless $ret;
+  return _build_device_location($ret);
 }
 
 sub _build_device_location ($loc) {
@@ -86,15 +86,15 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
   my $db = $self->pg->db;
   my $tx = $db->begin;
 
-  my $maybe_slot = attempt $db->select(
+  my $maybe_slot = $db->select(
     'datacenter_rack_layout',
     [ 'id', 'product_id' ],
     { rack_id => $rack_id, ru_start => $rack_unit }
   )->hash;
-  return fail("Slot $rack_unit does not exist in the layout for rack $rack_id")
-    if $maybe_slot->is_fail;
 
-  my $maybe_occupied = attempt $db->select(
+  return undef unless $maybe_slot;
+
+  my $maybe_occupied = $db->select(
     'device_location',
     ['device_id'],
     {
@@ -104,9 +104,9 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
   )->hash;
 
   # Remove current occupant if it exists
-  if ( $maybe_occupied->is_success ) {
+  if ( $maybe_occupied ) {
     $db->delete( 'device_location',
-      { device_id => $maybe_occupied->value->{device_id} } );
+      { device_id => $maybe_occupied->{device_id} } );
   }
 
   my $maybe_device =
@@ -120,7 +120,7 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
         id               => $device_id,
         health           => "UNKNOWN",
         state            => "UNKNOWN",
-        hardware_product => $maybe_slot->value->{product_id},
+        hardware_product => $maybe_slot->{product_id},
       }
     );
   }
@@ -136,7 +136,7 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
   );
 
   $tx->commit;
-  return success;
+  return 1;
 }
 
 sub unassign ( $self, $device_id ) {

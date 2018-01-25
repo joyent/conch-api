@@ -85,13 +85,13 @@ sub assign_layout ($c) {
 	my @updates;
 	foreach my $device_id ( keys %{$layout} ) {
 		my $rack_unit = $layout->{$device_id};
-		my $attempt =
+		my $loc =
 			$c->device_location->assign( $device_id, $rack_id, $rack_unit );
-		if ( $attempt->is_success ) {
+		if ( $loc ) {
 			push @updates, $device_id;
 		}
 		else {
-			push @errors, $attempt->failure;
+      push @errors, "Slot $rack_unit does not exist in the layout for rack $rack_id";
 		}
 	}
 

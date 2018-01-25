@@ -10,9 +10,9 @@ sub get ($c) {
   my $maybe_location = $c->device_location->lookup($device_id);
   return $c->status( 409,
     { error => "Device $device_id is not assigned to a rack" } )
-    if $maybe_location->is_fail;
+    unless $maybe_location;
 
-  $c->status( 200, $maybe_location->value->as_v1_json );
+  $c->status( 200, $maybe_location->as_v1_json );
 }
 
 sub set ($c) {
@@ -25,8 +25,9 @@ sub set ($c) {
   my $assign =
     $c->device_location->assign( $device_id, $body->{rack_id},
     $body->{rack_unit} );
-  return $c->status( 409, { error => $assign->failure } )
-    if $assign->is_fail;
+  return $c->status( 409, { 
+    error => "Slot ".$body->{rack_unit}." does not exist in the layout for rack ".$body->{rack_id}
+  } ) unless $assign;
 
   $c->status(303);
   $c->redirect_to( $c->url_for("/device/$device_id/location")->to_abs );
