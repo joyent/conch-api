@@ -84,8 +84,7 @@ sub lookup ( $self, $hw_id ) {
 }
 
 sub lookup_by_name ( $self, $name ) {
-  when_defined { _build_hardware_product(shift) }
-  $self->pg->db->query(
+  my $ret = $self->pg->db->query(
     qq{
         SELECT $fields
         FROM hardware_product hw_product
@@ -99,6 +98,9 @@ sub lookup_by_name ( $self, $name ) {
           AND hw_product.name = ?
       }, $name
   )->hash;
+  return undef unless $ret;
+
+  return _build_hardware_product($ret);
 }
 
 sub _build_hardware_product ($hw) {

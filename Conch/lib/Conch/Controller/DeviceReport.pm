@@ -2,8 +2,9 @@ package Conch::Controller::DeviceReport;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
-use Attempt qw(try);
 use Storable 'dclone';
+
+use Try::Tiny;
 
 use Conch::Legacy::Schema;
 use Conch::Legacy::Control::DeviceReport 'record_device_report';
@@ -19,25 +20,40 @@ sub process ($c) {
 
 	#Log::Any->get_logger( category => 'report.raw' )
 	#->trace( encode_json $raw_report);
-	my $device_report = $c->_parse_device_report($raw_report);
+	my $device_report;
+	try {
+		if ( $raw_report->{device_type} && $raw_report->{device_type} eq "switch" ) {
+			$device_report = Conch::Legacy::Data::Report::Switch->new($raw_report);
+		} else {
+			$device_report = Conch::Legacy::Data::Report::Server->new($raw_report);
+		}
+	} catch {
+		my $errs = join( "; ", map { $_->message } $device_report->errors );
 
-	if ( $device_report->is_fail ) {
+		$c->app->log->error('Failed parsing device report: ' . $errs );
 
-		#my $err_log = Log::Any->get_logger( category => 'report.unparsable' );
-		$c->app->log->error(
-			'Failed parsing device report: ' . $device_report->failure );
-		return $c->status( 400, { error => $device_report->failure } );
+		return $c->status( 400, { error => $errs } );
+	};
+
+	my $aux_report = dclone($raw_report);
+	for my $attr ( keys %{ $device_report->pack } ) {
+		delete $aux_report->{$attr};
+	}
+	if ( %{$aux_report} ) {
+		$device_report->{aux} = $aux_report;
 	}
 
-	my $hw_product_name = $device_report->value->{product_name};
+	my $hw_product_name = $device_report->{product_name};
 	my $maybe_hw        = $c->hardware_product->lookup_by_name($hw_product_name);
 
-	return $c->status(
-		409,
-		{
-			error => "Hardware Product '$hw_product_name' does not exist."
-		}
-	) if $maybe_hw->is_fail;
+	unless($maybe_hw) {
+		return $c->status(
+			409,
+			{
+				error => "Hardware Product '$hw_product_name' does not exist."
+			}
+		)
+	}
 
 	# Use the old device report recording and device validation code for now.
 	# This will be removed when OPS-RFD 22 is implemented
@@ -45,41 +61,11 @@ sub process ($c) {
 		$c->pg->password );
 
 	my ( $device, $report_id ) =
-		record_device_report( $schema, $device_report->value );
+		record_device_report( $schema, $device_report );
 	my $validation_result =
-		validate_device( $schema, $device, $device_report->value, $report_id );
+		validate_device( $schema, $device, $device_report, $report_id );
 
 	$c->status( 200, $validation_result );
-}
-
-# Parse a report object from a HashRef and report all validation errors
-# Returns a list where the first element may be the parsed log and the second
-# may be validation errors, but not both.
-sub _parse_device_report ( $self, $input ) {
-	my $aux_report = dclone($input);
-
-	my $report;
-	if ( $input->{device_type} && $input->{device_type} eq "switch" ) {
-		$report = try { Conch::Legacy::Data::Report::Switch->new($input) };
-	}
-	else {
-		$report = try { Conch::Legacy::Data::Report::Server->new($input) };
-	}
-
-	if ( $report->is_fail ) {
-		my $errs = join( "; ", map { $_->message } $report->failure->errors );
-		$self->log->warn("Error validating device report: $errs");
-		return fail($errs);
-	}
-	else {
-		for my $attr ( keys %{ $report->value->pack } ) {
-			delete $aux_report->{$attr};
-		}
-		if ( %{$aux_report} ) {
-			$report->value->{aux} = $aux_report;
-		}
-		return $report;
-	}
 }
 
 1;
