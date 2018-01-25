@@ -17,12 +17,10 @@ my $global_ws;
 
 subtest "Lookup workspace by name" => sub {
   my $attempt = $ws_model->lookup_by_name('NON EXISTANT');
-  ok( $attempt->is_fail );
+  is( $attempt, undef, "Lookup for bad workspace fails" );
 
-  $attempt = $ws_model->lookup_by_name('GLOBAL');
-  ok( $attempt->is_success );
-  isa_ok( $attempt->value, 'Conch::Class::Workspace' );
-  $global_ws = $attempt->value;
+  $global_ws = $ws_model->lookup_by_name('GLOBAL');
+  isa_ok( $global_ws, 'Conch::Class::Workspace' );
   is( $global_ws->name, 'GLOBAL' );
 };
 
@@ -35,21 +33,22 @@ subtest "Add user to Workspace" => sub {
 
 subtest "Get user Workspace" => sub {
   my $user_ws = $ws_model->get_user_workspace( $new_user->id, $global_ws->id );
-  isa_ok($user_ws, 'Attempt::Success');
-  ok( $user_ws->is_success );
-  is( $user_ws->value->id, $global_ws->id );
-  is( $user_ws->value->role_id, 1, 'has assigned role ID' );
-  is( $user_ws->value->role, 'Administrator', 'has assigned role name' );
+  isa_ok($user_ws, 'Conch::Class::Workspace');
+  is( $user_ws->id, $global_ws->id );
+  is( $user_ws->role_id, 1, 'has assigned role ID' );
+  is( $user_ws->role, 'Administrator', 'has assigned role name' );
 };
 
 my $sub_ws;
 subtest "Create subworkspace" => sub {
-  my $sub_ws_attempt =
-    $ws_model->create_sub_workspace( $new_user->id, $global_ws->id, 1,
-    'Sub WS', 'Sub Workspace Test' );
-  isa_ok($sub_ws_attempt, 'Attempt::Success');
-  ok( $sub_ws_attempt->is_success );
-  $sub_ws = $sub_ws_attempt->value;
+  $sub_ws = $ws_model->create_sub_workspace(
+    $new_user->id,
+    $global_ws->id,
+    1,
+    'Sub WS',
+    'Sub Workspace Test'
+  );
+  isa_ok($sub_ws, 'Conch::Class::Workspace');
 };
 
 # Test after creating sub workspace so it contains more than 1 workspace
@@ -73,7 +72,7 @@ subtest "List user sub workspaces" => sub {
     my $sub_ws_attempt =
     $ws_model->create_sub_workspace( $new_user->id, $sub_ws->id, 1,
       'Sub-Sub WS', 'Sub Workspace Test' );
-    isa_ok($sub_ws_attempt, 'Attempt::Success');
+    isa_ok($sub_ws_attempt, 'Conch::Class::Workspace');
     $user_sub_wss = $ws_model->get_user_sub_workspaces( $new_user->id, $global_ws->id );
     is( scalar @$user_sub_wss, 2, 'Contains two sub workspaces' );
     ok( grep(sub { $_->id eq $sub_ws_attempt->value->id }, @$user_sub_wss),'Contains sub-workspace' );

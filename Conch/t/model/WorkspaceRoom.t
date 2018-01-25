@@ -10,7 +10,7 @@ my $pgtmp = mk_tmp_db() or die;
 my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 my $ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg ]);
-my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
+my $global_ws = $ws_model->lookup_by_name('GLOBAL');
 
 new_ok('Conch::Model::WorkspaceRoom');
 my $ws_room_model = new_ok("Conch::Model::WorkspaceRoom", [ pg => $pg ]);

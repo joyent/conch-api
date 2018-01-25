@@ -15,7 +15,7 @@ my $pg = Mojo::Pg->new( $pgtmp->uri );
 my $uuid = Data::UUID->new;
 
 my $ws_model = Conch::Model::Workspace->new( pg => $pg );
-my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
+my $global_ws = $ws_model->lookup_by_name('GLOBAL');
 
 new_ok('Conch::Model::WorkspaceRelay');
 my $ws_relay_model = Conch::Model::WorkspaceRelay->new( pg => $pg );

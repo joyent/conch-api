@@ -11,14 +11,14 @@ sub under ($c) {
 			{ error => "Workspace ID must be a UUID. Got '$ws_id'." } );
 		return 0;
 	}
-	my $ws_attempt =
-		$c->workspace->get_user_workspace( $c->stash('user_id'), $ws_id );
-	if ( $ws_attempt->is_fail ) {
+	my $ws = $c->workspace->get_user_workspace( $c->stash('user_id'), $ws_id );
+	if ( $ws ) {
+		$c->stash( current_workspace => $ws );
+		return 1;
+	} else {
 		$c->status( 404, { error => "Workspace $ws_id not found" } );
 		return 0;
 	}
-	$c->stash( current_workspace => $ws_attempt->value );
-	return 1;
 }
 
 sub list ($c) {
@@ -52,9 +52,9 @@ sub create_sub_workspace ($c) {
 	);
 
 	return $c->status( 500, { error => 'unable to create a sub-workspace' } )
-		if $sub_ws_attempt->is_fail;
+		unless $sub_ws_attempt;
 
-	$c->status( 201, $sub_ws_attempt->value->as_v1_json );
+	$c->status( 201, $sub_ws_attempt->as_v1_json );
 }
 
 1;
