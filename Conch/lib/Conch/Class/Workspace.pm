@@ -7,13 +7,13 @@ with 'Conch::Class::Role::JsonV1';
 has [qw( id name description parent_workspace_id role role_id )];
 
 sub as_v1_json {
-  my $self = shift;
-  {
-    id          => $self->id,
-    name        => $self->name,
-    description => $self->description,
-    role        => $self->role
-  };
+	my $self = shift;
+	{
+		id          => $self->id,
+		name        => $self->name,
+		description => $self->description,
+		role        => $self->role
+	};
 }
 
 1;

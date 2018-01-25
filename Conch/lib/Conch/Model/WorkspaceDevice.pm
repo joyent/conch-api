@@ -6,11 +6,13 @@ use Conch::Model::Device;
 has 'pg';
 
 sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
-	my $last_seen_clause = $last_seen_seconds
+	my $last_seen_clause =
+		$last_seen_seconds
 		? "AND device.last_seen > NOW() - INTERVAL '$last_seen_seconds seconds'"
 		: '';
 
-	my $ret = $self->pg->db->query(qq{
+	my $ret = $self->pg->db->query(
+		qq{
 		WITH target_workspace (id) AS ( values(?::uuid) )
 		SELECT device.id
 		FROM device
@@ -32,11 +34,12 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 			)
 		  )
   		$last_seen_clause
-	}, $ws_id)->hashes;
+	}, $ws_id
+	)->hashes;
 
 	my @devices;
-	for my $d ($ret->@*) {
-		push @devices, Conch::Model::Device->lookup($self->pg, $d->{id});
+	for my $d ( $ret->@* ) {
+		push @devices, Conch::Model::Device->lookup( $self->pg, $d->{id} );
 	}
 	return \@devices;
 }

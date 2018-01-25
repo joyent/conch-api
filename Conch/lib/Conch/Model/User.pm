@@ -5,41 +5,41 @@ use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 use Data::Validate::UUID qw(is_uuid);
 use Mojo::JSON 'to_json';
 
-has [qw(
-	email
-	id
-	name
-	password_hash
-	pg
-)];
+has [
+	qw(
+		email
+		id
+		name
+		password_hash
+		pg
+		)
+];
 
-sub _BCRYPT_COST { 4 } # dancer2 legacy
+sub _BCRYPT_COST { 4 }    # dancer2 legacy
 
 sub create ( $class, $pg, $email, $password ) {
 	my $password_hash = _hash_password($password);
 
-	my $ret = $pg->db->select(
-		'user_account',
-		[ 'id' ],
-		{ email => $email },
-	)->rows;
+	my $ret =
+		$pg->db->select( 'user_account', ['id'], { email => $email }, )->rows;
 	return undef if $ret;
 
 	$ret = $pg->db->insert(
-		'user_account', {
+		'user_account',
+		{
 			email         => $email,
 			password_hash => $password_hash,
 			name          => $email
 		},
-		{  returning => [qw(id)], }
+		{ returning => [qw(id)], }
 	)->hash;
 
-	return undef unless ($ret && $ret->{id});
+	return undef unless ( $ret && $ret->{id} );
 	return $class->new(
-		pg    => $pg,
-		id    => $ret->{id},
-		email => $email,
-		name  => $email,
+		pg            => $pg,
+		id            => $ret->{id},
+		email         => $email,
+		name          => $email,
 		password_hash => $password_hash,
 	);
 }
@@ -47,70 +47,59 @@ sub create ( $class, $pg, $email, $password ) {
 sub lookup ( $class, $pg, $id ) {
 	my $where = {};
 	my $ret;
-	if (is_uuid($id)) {
-		$ret = $pg->db->select(
-			'user_account',
-			undef,
-			{ id => $id },
-		)->hash;
-	} else {
-		$ret = $pg->db->select(
-			'user_account',
-			undef,
-			{ name => $id },
-		)->hash;
+	if ( is_uuid($id) ) {
+		$ret = $pg->db->select( 'user_account', undef, { id => $id }, )->hash;
+	}
+	else {
+		$ret = $pg->db->select( 'user_account', undef, { name => $id }, )->hash;
 
 		unless ($ret) {
-			$ret = $pg->db->select(
-				'user_account',
-				undef,
-				{ email => $id },
-			)->hash;
+			$ret = $pg->db->select( 'user_account', undef, { email => $id }, )->hash;
 		}
 	}
 
 	return undef unless $ret;
 
-	$ret->{password_hash} =~ s/^{CRYPT}//; # ohai dancer
+	$ret->{password_hash} =~ s/^{CRYPT}//;    # ohai dancer
 	return $class->new(
-		pg    => $pg,
-		id    => $ret->{id},
-		email => $ret->{email},
-		name  => $ret->{name},
+		pg            => $pg,
+		id            => $ret->{id},
+		email         => $ret->{email},
+		name          => $ret->{name},
 		password_hash => $ret->{password_hash},
 	);
 }
 
 sub lookup_by_email ( $class, $pg, $email ) {
-	return $class->lookup($pg, $email);
+	return $class->lookup( $pg, $email );
 }
 
-sub lookup_by_name ($class, $pg, $name ) {
-	return $class->lookup($pg, $name);
+sub lookup_by_name ( $class, $pg, $name ) {
+	return $class->lookup( $pg, $name );
 }
 
 sub update_password ( $self, $p ) {
 	my $password_hash = _hash_password($p);
-	my $ret = $self->pg->db->update(
+	my $ret           = $self->pg->db->update(
 		'user_account',
 		{ password_hash => $password_hash },
 		{ id            => $self->id }
 	);
-	if (scalar $ret->rows) {
+	if ( scalar $ret->rows ) {
 		$self->password_hash($password_hash);
 		return 1;
 	}
 	return 0;
 }
 
-sub validate_password ($self, $p) {
-	if($self->password_hash eq bcrypt($p, $self->password_hash)) {
+sub validate_password ( $self, $p ) {
+	if ( $self->password_hash eq bcrypt( $p, $self->password_hash ) ) {
 		return 1;
-	} else {
+	}
+	else {
 		return 0;
 	}
 }
-
 
 sub settings ($self) {
 	my $ret = $self->pg->db->select(
@@ -118,24 +107,24 @@ sub settings ($self) {
 		undef,
 		{
 			deactivated => undef,
-			user_id => $self->id,
+			user_id     => $self->id,
 		}
 	)->expand->hashes;
 
 	my %settings;
-	for my $setting ($ret->@*) {
+	for my $setting ( $ret->@* ) {
 		$settings{ $setting->{name} } = $setting->{value};
 	}
 	return \%settings;
 }
 
-sub set_setting ($self, $key, $value) {
+sub set_setting ( $self, $key, $value ) {
 	$self->pg->db->update(
 		'user_settings',
 		{ deactivated => 'now()' },
 		{
-			user_id => $self->id,
-			name    => $key,
+			user_id     => $self->id,
+			name        => $key,
 			deactivated => undef
 		}
 	);
@@ -152,17 +141,17 @@ sub set_setting ($self, $key, $value) {
 	return $ret->rows;
 }
 
-sub setting ($self, $key) {
+sub setting ( $self, $key ) {
 	return $self->settings()->{$key};
 }
 
-sub delete_setting ($self, $key) {
+sub delete_setting ( $self, $key ) {
 	my $ret = $self->pg->db->update(
 		'user_settings',
 		{ deactivated => 'now()' },
 		{
-			user_id => $self->id,
-			name    => $key,
+			user_id     => $self->id,
+			name        => $key,
 			deactivated => undef
 		}
 	);
@@ -170,14 +159,14 @@ sub delete_setting ($self, $key) {
 	return $ret->rows;
 }
 
-sub set_settings ($self, $settings) {
+sub set_settings ( $self, $settings ) {
 	my $current_settings = $self->settings;
-	for my $setting (keys $current_settings->%*) {
+	for my $setting ( keys $current_settings->%* ) {
 		$self->delete_setting($setting);
 	}
 
-	for my $setting (keys $settings->%*) {
-		$self->set_setting($setting, $settings->{$setting});
+	for my $setting ( keys $settings->%* ) {
+		$self->set_setting( $setting, $settings->{$setting} );
 	}
 
 	return $self->settings;
@@ -186,17 +175,15 @@ sub set_settings ($self, $settings) {
 ###########
 
 sub _hash_password ($p) {
-	my $cost = sprintf('%02d', _BCRYPT_COST || 6);
+	my $cost = sprintf( '%02d', _BCRYPT_COST || 6 );
 	my $settings = join( '$', '$2a', $cost, _bcrypt_salt() );
-	return bcrypt($p, $settings);
+	return bcrypt( $p, $settings );
 }
 
 sub _bcrypt_salt {
 	my $num = 999999;
 	my $cr = crypt( rand($num), rand($num) ) . crypt( rand($num), rand($num) );
-	en_base64(substr( $cr, 4, 16 ));
+	en_base64( substr( $cr, 4, 16 ) );
 }
-
-
 
 1;

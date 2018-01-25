@@ -10,25 +10,27 @@ use aliased 'Conch::Class::DatacenterRoom';
 use aliased 'Conch::Class::HardwareProduct';
 
 has 'pg';
-has [qw(
-	asset_tag
-	boot_phase
-	created
-	graduated
-	hardware_product
-	health
-	id
-	last_seen
-	latest_triton_reboot
-	role
-	state
-	system_uuid
-	triton_setup
-	triton_uuid
-	updated
-	uptime_since
-	validated
-)];
+has [
+	qw(
+		asset_tag
+		boot_phase
+		created
+		graduated
+		hardware_product
+		health
+		id
+		last_seen
+		latest_triton_reboot
+		role
+		state
+		system_uuid
+		triton_setup
+		triton_uuid
+		updated
+		uptime_since
+		validated
+		)
+];
 
 sub as_v1 ($self) {
 	{
@@ -49,11 +51,15 @@ sub as_v1 ($self) {
 		updated              => $self->updated,
 		uptime_since         => $self->uptime_since,
 		validated            => $self->validated,
-	}
+	};
 }
 
-
-sub create ( $class, $pg, $id, $hardware_product_id, $state = 'UNKNOWN', $health = 'UNKNOWN' ) {
+sub create (
+	$class, $pg, $id, $hardware_product_id,
+	$state  = 'UNKNOWN',
+	$health = 'UNKNOWN'
+	)
+{
 	my $ret;
 	try {
 		$ret = $pg->db->insert(
@@ -68,24 +74,24 @@ sub create ( $class, $pg, $id, $hardware_product_id, $state = 'UNKNOWN', $health
 		)->hash;
 	};
 	return undef unless $ret and $ret->{id};
-	return $class->lookup($pg, $ret->{id});
+	return $class->lookup( $pg, $ret->{id} );
 }
 
 sub lookup ( $class, $pg, $device_id ) {
 	my $ret = $pg->db->select(
-		'device',
-		undef,
+		'device', undef,
 		{
 			id          => $device_id,
 			deactivated => undef
 		}
 	)->hash;
 	return undef unless $ret and $ret->{id};
-	return $class->new(pg => $pg, $ret->%*);
+	return $class->new( pg => $pg, $ret->%* );
 }
 
 sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
-	my $ret = $pg->db->query(q{
+	my $ret = $pg->db->query(
+		q{
 		WITH target_workspaces(id) AS (
 			SELECT workspace_id
 			FROM user_workspace_role
@@ -111,10 +117,12 @@ sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
 				WHERE workspace_id IN (SELECT id FROM target_workspaces)
 			)
 		)
-	}, $user_id, $device_id )->hash;
+	}, $user_id, $device_id
+	)->hash;
 
-	unless($ret and $ret->{id}) {
-		$ret = $pg->db->query(q{
+	unless ( $ret and $ret->{id} ) {
+		$ret = $pg->db->query(
+			q{
 			SELECT device.*
 				FROM user_account u
 				INNER JOIN user_relay_connection ur
@@ -126,26 +134,30 @@ sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
 			WHERE u.id = ?
 				AND device.id = ?
 				AND device.id NOT IN (SELECT device_id FROM device_location)
-		}, $user_id, $device_id)->hash;
+		}, $user_id, $device_id
+		)->hash;
 	}
 
 	return undef unless $ret and $ret->{id};
-	return $class->new(pg => $pg, $ret->%*);
+	return $class->new( pg => $pg, $ret->%* );
 }
 
 sub device_nic_neighbors ( $self, $device_id ) {
-	my $nics = $self->pg->db->query(q{
+	my $nics = $self->pg->db->query(
+		q{
 		SELECT nic.*, neighbor.*
 		FROM device_nic nic
 		JOIN device_neighbor neighbor
 			ON nic.mac = neighbor.mac
 		WHERE nic.device_id = ?
 			AND deactivated IS NULL
-	}, $device_id )->hashes;
+	}, $device_id
+	)->hashes;
 
 	my @neighbors;
 	for my $nic (@$nics) {
-		push @neighbors, {
+		push @neighbors,
+			{
 			iface_name   => $nic->{iface_name},
 			iface_type   => $nic->{iface_type},
 			iface_vendor => $nic->{iface_vendor},
@@ -153,7 +165,7 @@ sub device_nic_neighbors ( $self, $device_id ) {
 			peer_mac     => $nic->{peer_mac},
 			peer_port    => $nic->{peer_port},
 			peer_switch  => $nic->{peer_switch}
-		};
+			};
 	}
 	return \@neighbors;
 }
@@ -162,16 +174,16 @@ sub graduate ( $self) {
 	my $ret = $self->pg->db->update(
 		'device',
 		{
-			graduated => 'NOW()', 
+			graduated => 'NOW()',
 			updated   => 'NOW()'
 		},
-		{ id => $self->id },
+		{ id        => $self->id },
 		{ returning => [qw(graduated updated)] },
 	)->hash;
 	return undef unless $ret;
 
-	$self->graduated($ret->{graduated});
-	$self->updated($ret->{updated});
+	$self->graduated( $ret->{graduated} );
+	$self->updated( $ret->{updated} );
 
 	return 1;
 }
@@ -181,15 +193,15 @@ sub set_triton_setup ( $self ) {
 		'device',
 		{
 			triton_setup => 'NOW()',
-			updated => 'NOW()'
+			updated      => 'NOW()'
 		},
-		{ id => $self->id },
+		{ id        => $self->id },
 		{ returning => [qw(triton_setup updated)] }
 	)->hash;
 	return undef unless $ret;
 
-	$self->triton_setup($ret->{triton_setup});
-	$self->updated($ret->{updated});
+	$self->triton_setup( $ret->{triton_setup} );
+	$self->updated( $ret->{updated} );
 	return 1;
 }
 
@@ -202,13 +214,13 @@ sub set_triton_uuid ( $self, $uuid ) {
 			triton_uuid => $uuid,
 			updated     => 'NOW()'
 		},
-		{ id => $self->id },
+		{ id        => $self->id },
 		{ returning => [qw(triton_uuid updated)] }
 	)->hash;
 	return undef unless $ret;
 
-	$self->triton_uuid($ret->{triton_uuid});
-	$self->updated($ret->{updated});
+	$self->triton_uuid( $ret->{triton_uuid} );
+	$self->updated( $ret->{updated} );
 	return 1;
 }
 
@@ -217,15 +229,15 @@ sub set_triton_reboot ( $self ) {
 		'device',
 		{
 			latest_triton_reboot => 'NOW()',
-			updated => 'NOW()'
+			updated              => 'NOW()'
 		},
-		{ id => $self->id },
+		{ id        => $self->id },
 		{ returning => [qw(latest_triton_reboot updated)] }
 	)->hash;
 	return undef unless $ret;
 
-	$self->latest_triton_reboot($ret->{latest_triton_reboot});
-	$self->updated($ret->{updated});
+	$self->latest_triton_reboot( $ret->{latest_triton_reboot} );
+	$self->updated( $ret->{updated} );
 	return 1;
 }
 
@@ -234,15 +246,15 @@ sub set_asset_tag ( $self, $asset_tag ) {
 		'device',
 		{
 			asset_tag => $asset_tag,
-			updated => 'NOW()'
+			updated   => 'NOW()'
 		},
-		{ id => $self->id },
+		{ id        => $self->id },
 		{ returning => [qw(asset_tag updated)] },
 	)->hash;
 	return undef unless $ret;
 
-	$self->asset_tag($ret->{asset_tag});
-	$self->updated($ret->{updated});
+	$self->asset_tag( $ret->{asset_tag} );
+	$self->updated( $ret->{updated} );
 	return 1;
 }
 

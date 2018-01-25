@@ -12,10 +12,11 @@ sub under ($c) {
 		return 0;
 	}
 	my $ws = $c->workspace->get_user_workspace( $c->stash('user_id'), $ws_id );
-	if ( $ws ) {
+	if ($ws) {
 		$c->stash( current_workspace => $ws );
 		return 1;
-	} else {
+	}
+	else {
 		$c->status( 404, { error => "Workspace $ws_id not found" } );
 		return 0;
 	}

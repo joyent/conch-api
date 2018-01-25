@@ -6,8 +6,8 @@ use aliased 'Conch::Class::DatacenterRack';
 has 'pg';
 
 sub lookup ( $self, $ws_id, $rack_id ) {
-  my $ret = $self->pg->db->query(
-    q{
+	my $ret = $self->pg->db->query(
+		q{
       WITH target_workspace (id) AS ( values( ?::uuid ))
       SELECT rack.*, role.name AS role_name
       FROM datacenter_rack rack
@@ -28,32 +28,32 @@ sub lookup ( $self, $ws_id, $rack_id ) {
         )
       )
     }, $ws_id, $rack_id
-  )->hash;
-  return undef unless $ret;
-  return DatacenterRack->new($ret);
+	)->hash;
+	return undef unless $ret;
+	return DatacenterRack->new($ret);
 }
 
 sub rack_layout ( $self, $rack ) {
-  my $db = $self->pg->db;
+	my $db = $self->pg->db;
 
-  my $rack_slots =
-    $db->select( 'datacenter_rack_layout', undef, { rack_id => $rack->id } )
-    ->hashes->to_array;
+	my $rack_slots =
+		$db->select( 'datacenter_rack_layout', undef, { rack_id => $rack->id } )
+		->hashes->to_array;
 
-  my $datacenter_room =
-    $db->select( 'datacenter_room', 'az', { id => $rack->datacenter_room_id } )
-    ->hash;
+	my $datacenter_room =
+		$db->select( 'datacenter_room', 'az', { id => $rack->datacenter_room_id } )
+		->hash;
 
-  my $res;
-  $res->{id}         = $rack->id;
-  $res->{name}       = $rack->name;
-  $res->{role}       = $rack->role_name;
-  $res->{datacenter} = $datacenter_room->{az};
+	my $res;
+	$res->{id}         = $rack->id;
+	$res->{name}       = $rack->name;
+	$res->{role}       = $rack->role_name;
+	$res->{datacenter} = $datacenter_room->{az};
 
-  foreach my $slot (@$rack_slots) {
-    my $ru_start = $slot->{ru_start};
-    my $hw       = $db->query(
-      q{
+	foreach my $slot (@$rack_slots) {
+		my $ru_start = $slot->{ru_start};
+		my $hw       = $db->query(
+			q{
       SELECT hw.*, vendor.name AS vendor, profile.rack_unit as size
       FROM hardware_product hw
       JOIN hardware_vendor vendor
@@ -62,43 +62,43 @@ sub rack_layout ( $self, $rack ) {
         ON hw.id = profile.product_id
       WHERE hw.id = ?
       }, $slot->{product_id}
-    )->hash;
+		)->hash;
 
-    my $device = $db->query(
-      q{
+		my $device = $db->query(
+			q{
       SELECT device.*
       FROM device
       JOIN device_location loc on device.id = loc.device_id
       WHERE loc.rack_id = ?
         AND loc.rack_unit = ?
       }, $rack->id, $ru_start
-    )->hash;
+		)->hash;
 
-    if ($device) {
-      $res->{slots}{$ru_start}{occupant} = $device;
-    }
-    else {
-      $res->{slots}{$ru_start}{occupant} = undef;
-    }
+		if ($device) {
+			$res->{slots}{$ru_start}{occupant} = $device;
+		}
+		else {
+			$res->{slots}{$ru_start}{occupant} = undef;
+		}
 
-    $res->{slots}{$ru_start}{id}     = $hw->{id};
-    $res->{slots}{$ru_start}{alias}  = $hw->{alias};
-    $res->{slots}{$ru_start}{name}   = $hw->{name};
-    $res->{slots}{$ru_start}{vendor} = $hw->{vendor};
-    $res->{slots}{$ru_start}{size}   = $hw->{size};
-  }
+		$res->{slots}{$ru_start}{id}     = $hw->{id};
+		$res->{slots}{$ru_start}{alias}  = $hw->{alias};
+		$res->{slots}{$ru_start}{name}   = $hw->{name};
+		$res->{slots}{$ru_start}{vendor} = $hw->{vendor};
+		$res->{slots}{$ru_start}{size}   = $hw->{size};
+	}
 
-  return $res;
+	return $res;
 }
 
 # TODO: This is legacy code. It is overly complicated and hard to test.
 # There's too many queries and munging to quickly identify any particular
 # problem. -- Lane
 sub list ( $self, $ws_id ) {
-  my $db = $self->pg->db;
+	my $db = $self->pg->db;
 
-  my $racks = $db->query(
-    q{
+	my $racks = $db->query(
+		q{
     WITH target_workspace (id) AS ( values( ?::uuid ))
     SELECT rack.*
     FROM datacenter_rack rack
@@ -116,19 +116,19 @@ sub list ( $self, $ws_id ) {
         )
       )
     }, $ws_id
-  )->hashes->to_array;
+	)->hashes->to_array;
 
-  my @rack_room_ids = map { $_->{datacenter_room_id} } @$racks;
+	my @rack_room_ids = map { $_->{datacenter_room_id} } @$racks;
 
-  my $datacenter_rooms = $db->select( 'datacenter_room', undef,
-    { id => { -in => \@rack_room_ids } } )->hashes->to_array;
+	my $datacenter_rooms = $db->select( 'datacenter_room', undef,
+		{ id => { -in => \@rack_room_ids } } )->hashes->to_array;
 
-  my @rack_ids = map { "'" . $_->{id} . "'" } @$racks;
-  my $rack_id_clause =
-    scalar @rack_ids ? 'AND rack_id IN (' . join( ',', @rack_ids ) . ')' : '';
+	my @rack_ids = map { "'" . $_->{id} . "'" } @$racks;
+	my $rack_id_clause =
+		scalar @rack_ids ? 'AND rack_id IN (' . join( ',', @rack_ids ) . ')' : '';
 
-  my $rack_progresses = $db->query(
-    qq{
+	my $rack_progresses = $db->query(
+		qq{
       SELECT rack_id, health AS status, count(*) as count
       FROM device
       INNER JOIN device_location
@@ -147,43 +147,43 @@ sub list ( $self, $ws_id ) {
         $rack_id_clause
       GROUP BY rack_id
     }
-  )->hashes->to_array;
+	)->hashes->to_array;
 
-  my $rack_progress = {};
-  for my $rp (@$rack_progresses) {
-    $rack_progress->{ $rp->{rack_id} }->{ $rp->{status} } = $rp->{count};
-  }
+	my $rack_progress = {};
+	for my $rp (@$rack_progresses) {
+		$rack_progress->{ $rp->{rack_id} }->{ $rp->{status} } = $rp->{count};
+	}
 
-  my $dc;
-  foreach my $room (@$datacenter_rooms) {
-    $dc->{ $room->{id} }{name} = $room->{az};
-  }
+	my $dc;
+	foreach my $room (@$datacenter_rooms) {
+		$dc->{ $room->{id} }{name} = $room->{az};
+	}
 
-  my $all_rack_roles = $db->select('datacenter_rack_role')->hashes->to_array;
-  my $rack_roles     = {};
-  foreach my $rack_role (@$all_rack_roles) {
-    $rack_roles->{ $rack_role->{id} }->{name} = $rack_role->{name};
-    $rack_roles->{ $rack_role->{id} }->{size} = $rack_role->{rack_size};
-  }
+	my $all_rack_roles = $db->select('datacenter_rack_role')->hashes->to_array;
+	my $rack_roles     = {};
+	foreach my $rack_role (@$all_rack_roles) {
+		$rack_roles->{ $rack_role->{id} }->{name} = $rack_role->{name};
+		$rack_roles->{ $rack_role->{id} }->{size} = $rack_role->{rack_size};
+	}
 
-  my $rack_groups = {};
-  foreach my $rack (@$racks) {
+	my $rack_groups = {};
+	foreach my $rack (@$racks) {
 
-    my $rack_dc  = $dc->{ $rack->{datacenter_room_id} }{name};
-    my $rack_res = {};
-    $rack_res->{id}              = $rack->{id};
-    $rack_res->{name}            = $rack->{name};
-    $rack_res->{role}            = $rack_roles->{ $rack->{role} }{name};
-    $rack_res->{size}            = $rack_roles->{ $rack->{role} }{size};
-    $rack_res->{device_progress} = $rack_progress->{ $rack->{id} } || {};
-    push @{ $rack_groups->{$rack_dc} }, $rack_res;
-  }
-  return $rack_groups;
+		my $rack_dc  = $dc->{ $rack->{datacenter_room_id} }{name};
+		my $rack_res = {};
+		$rack_res->{id}              = $rack->{id};
+		$rack_res->{name}            = $rack->{name};
+		$rack_res->{role}            = $rack_roles->{ $rack->{role} }{name};
+		$rack_res->{size}            = $rack_roles->{ $rack->{role} }{size};
+		$rack_res->{device_progress} = $rack_progress->{ $rack->{id} } || {};
+		push @{ $rack_groups->{$rack_dc} }, $rack_res;
+	}
+	return $rack_groups;
 }
 
 sub rack_in_parent_workspace ( $self, $ws_id, $rack_id ) {
-  return $self->pg->db->query(
-    qq{
+	return $self->pg->db->query(
+		qq{
       WITH parent_workspace (id) AS (
         SELECT ws.parent_workspace_id
         FROM workspace ws
@@ -206,12 +206,12 @@ sub rack_in_parent_workspace ( $self, $ws_id, $rack_id ) {
         )
       )
     }, $ws_id, $rack_id
-  )->rows;
+	)->rows;
 }
 
 sub rack_in_workspace_room ( $self, $ws_id, $rack_id ) {
-  return $self->pg->db->query(
-    q{
+	return $self->pg->db->query(
+		q{
     SELECT id
     FROM workspace_datacenter_room wdr
     JOIN datacenter_rack rack
@@ -219,39 +219,38 @@ sub rack_in_workspace_room ( $self, $ws_id, $rack_id ) {
     WHERE wdr.workspace_id = ?::uuid
       AND rack.id = ?::uuid
     }, $ws_id, $rack_id
-  )->rows;
+	)->rows;
 }
 
-
 sub add_to_workspace ( $self, $ws_id, $rack_id ) {
-  my $db = $self->pg->db;
+	my $db = $self->pg->db;
 
-  return undef unless $self->rack_in_parent_workspace($ws_id, $rack_id);
-  return undef if $self->rack_in_workspace_room($ws_id, $rack_id);
+	return undef unless $self->rack_in_parent_workspace( $ws_id, $rack_id );
+	return undef if $self->rack_in_workspace_room( $ws_id, $rack_id );
 
-  $db->query(
-    q{
+	$db->query(
+		q{
     INSERT INTO workspace_datacenter_rack
     (workspace_id, datacenter_rack_id)
     VALUES (?::uuid, ?::uuid)
     ON CONFLICT (workspace_id, datacenter_rack_id) DO NOTHING
     }, $ws_id, $rack_id
-  );
-  return 1;
+	);
+	return 1;
 }
 
 sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
-  my $db = $self->pg->db;
+	my $db = $self->pg->db;
 
-  my $rack_exists =
-    $db->select( 'workspace_datacenter_rack', undef,
-    { workspace_id => $ws_id, datacenter_rack_id => $rack_id } )->rows;
+	my $rack_exists =
+		$db->select( 'workspace_datacenter_rack', undef,
+		{ workspace_id => $ws_id, datacenter_rack_id => $rack_id } )->rows;
 
-  return undef unless $rack_exists;
+	return undef unless $rack_exists;
 
-  # Remove rack ID from workspace and all children workspaces
-  $db->query(
-    qq{
+	# Remove rack ID from workspace and all children workspaces
+	$db->query(
+		qq{
       WITH RECURSIVE workspace_and_children (id) AS (
           SELECT id
           FROM workspace
@@ -265,9 +264,9 @@ sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
       WHERE datacenter_rack_id = ?
         AND workspace_id IN (SELECT id FROM workspace_and_children)
     }, $ws_id, $rack_id
-  );
+	);
 
-  return 1;
+	return 1;
 }
 
 1;

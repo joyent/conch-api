@@ -8,81 +8,82 @@ use aliased 'Conch::Class::Workspace';
 has 'pg';
 
 sub lookup_by_name ( $self, $name ) {
-  my $ret = $self->pg->db->select(
-    'workspace',
-    undef,
-    { name => $name } )->hash;
+	my $ret =
+		$self->pg->db->select( 'workspace', undef, { name => $name } )->hash;
 
-  return undef unless $ret;
-  return Workspace->new($ret);
+	return undef unless $ret;
+	return Workspace->new($ret);
 }
 
 sub add_user_to_workspace ( $self, $user_id, $ws_id, $role_id ) {
 
-  # On conflict, set the role for the user
-  $self->pg->db->query(
-    q{
+	# On conflict, set the role for the user
+	$self->pg->db->query(
+		q{
       INSERT INTO user_workspace_role (user_id, workspace_id, role_id)
       SELECT ?, ?, ?
       ON CONFLICT (user_id, workspace_id) DO UPDATE
         SET role_id = excluded.role_id
     }, $user_id, $ws_id, $role_id
-  )->rows;
+	)->rows;
 }
 
 # Create a sub-workspace with the same role as the parent workspace
-sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name, $description ) {
-  my $db = $self->pg->db;
+sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
+	$description )
+{
+	my $db = $self->pg->db;
 
-  my $tx = $db->begin;
-  my ($subws_id, $role_name);
-  try {
-    my $subws = $db->insert(
-      'workspace',
-      {
-        name                => $name,
-        description         => $description,
-        parent_workspace_id => $parent_id
-      },
-      { returning => 'id' }
-    )->hash;
+	my $tx = $db->begin;
+	my ( $subws_id, $role_name );
+	try {
+		my $subws = $db->insert(
+			'workspace',
+			{
+				name                => $name,
+				description         => $description,
+				parent_workspace_id => $parent_id
+			},
+			{ returning => 'id' }
+		)->hash;
 
-    die unless $subws;
-    $subws_id = $subws->{id};
+		die unless $subws;
+		$subws_id = $subws->{id};
 
-    $db->insert(
-      'user_workspace_role',
-      {
-        user_id      => $user_id,
-        workspace_id => $subws_id,
-        role_id      => $role_id
-      }
-    );
-    my $role = $db->select( 'role', 'name', { id => $role_id } )->hash;
-    die undef unless $role;
+		$db->insert(
+			'user_workspace_role',
+			{
+				user_id      => $user_id,
+				workspace_id => $subws_id,
+				role_id      => $role_id
+			}
+		);
+		my $role = $db->select( 'role', 'name', { id => $role_id } )->hash;
+		die undef unless $role;
 
-    $role_name = $role->{name};
-  } catch {
-    $tx->rollback;
-    return undef;
-  };
-  $tx->commit;
+		$role_name = $role->{name};
+	}
+	catch {
+		$tx->rollback;
+		return undef;
+	};
+	$tx->commit;
 
-  return Workspace->new(
-    {
-      id                  => $subws_id,
-      name                => $name,
-      description         => $description,
-      role                => $role_name,
-      role_id             => $role_id,
-      parent_workspace_id => $parent_id
-    }
-  );
+	return Workspace->new(
+		{
+			id                  => $subws_id,
+			name                => $name,
+			description         => $description,
+			role                => $role_name,
+			role_id             => $role_id,
+			parent_workspace_id => $parent_id
+		}
+	);
 }
 
 sub get_user_workspaces ( $self, $user_id ) {
-  $self->pg->db->query(
-    q{
+	$self->pg->db->query(
+		q{
     SELECT w.id, w.name, w.description, r.name as role, r.id as role_id
     FROM workspace w
     JOIN user_workspace_role uwr
@@ -93,12 +94,12 @@ sub get_user_workspaces ( $self, $user_id ) {
     on r.id = uwr.role_id
     WHERE u.id = ?::uuid
     }, $user_id
-  )->hashes->map( sub { Workspace->new($_) } )->to_array;
+	)->hashes->map( sub { Workspace->new($_) } )->to_array;
 }
 
 sub get_user_workspace ( $self, $user_id, $ws_id ) {
-  my $ret = $self->pg->db->query(
-    q{
+	my $ret = $self->pg->db->query(
+		q{
           SELECT w.id, w.name, w.description, r.name as role, r.id as role_id
           FROM workspace w
           JOIN user_workspace_role uwr
@@ -110,15 +111,15 @@ sub get_user_workspace ( $self, $user_id, $ws_id ) {
           WHERE u.id = ?::uuid
             AND w.id = ?::uuid
           }, $user_id, $ws_id
-  )->hash;
-  return undef unless $ret;
-  return Workspace->new($ret);
+	)->hash;
+	return undef unless $ret;
+	return Workspace->new($ret);
 }
 
 # Get all descendents of a workspace recursively
 sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
-  $self->pg->db->query(
-    q{
+	$self->pg->db->query(
+		q{
     WITH RECURSIVE subworkspace (id, name, description, parent_workspace_id) AS (
         SELECT id, name, description, parent_workspace_id
         FROM workspace w
@@ -137,7 +138,7 @@ sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
       ON role.id = uwr.role_id
     WHERE uwr.user_id = ?
   }, $ws_id, $user_id
-  )->hashes->map( sub { Workspace->new($_) } )->to_array;
+	)->hashes->map( sub { Workspace->new($_) } )->to_array;
 }
 
 1;
