@@ -31,10 +31,10 @@ sub get ($c) {
   my $device_report = $c->device_report->latest_device_report( $device->id );
   my $report        = {};
   my $validations   = [];
-  if ( $device_report->is_success ) {
+  if ( $device_report ) {
     $validations =
-      $c->device_report->validation_results( $device_report->value->{id} );
-    $report = $device_report->value->{report};
+      $c->device_report->validation_results( $device_report->{id} );
+    $report = $device_report->{report};
     delete $report->{'__CLASS__'};
   }
 
