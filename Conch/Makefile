@@ -1,5 +1,5 @@
 .PHONY: test run build build-js format format-perl format-perl deps\
-	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
+	install-deps generate-dbic web-assets watch-js watch-perl watch \
 	migrate-db watch-test
 
 run: build run-perl
@@ -7,7 +7,7 @@ run: build run-perl
 run-perl:
 	@carton exec bin/conch daemon
 
-build: web-assets doc cpanfile.snapshot local
+build: web-assets cpanfile.snapshot local
 
 ui/node_modules:
 	@cd ui && npm install
@@ -45,12 +45,6 @@ public/js/app.js: ui/node_modules ui/bin/app.js
 public/css/app.css: ui/css/app.css
 	@cp ui/css/app.css public/css/app.css
 
-doc: public/doc/index.html
-
-public/doc/index.html: docs/conch-api/openapi-spec.yaml
-	@cd docs/conch-api && npm install && npm run render
-	@mkdir -p public/doc
-	@cp docs/conch-api/index.html public/doc/index.html
 
 watch-js:
 	@cd ui && npm start

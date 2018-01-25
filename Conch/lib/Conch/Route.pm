@@ -26,9 +26,6 @@ sub all_routes {
   $unsecured->get( '/js/app.js',
     sub { shift->reply->static('../public/js/app.js') } );
 
-  $unsecured->get( '/doc',
-    sub { shift->reply->static('../public/doc/index.html') } );
-
   $unsecured->get(
     '/ping',
     sub {
