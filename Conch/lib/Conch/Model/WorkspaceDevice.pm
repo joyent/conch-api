@@ -1,8 +1,6 @@
 package Conch::Model::WorkspaceDevice;
 use Mojo::Base -base, -signatures;
 
-use Attempt 'when_defined';
-
 use Conch::Model::Device;
 
 has 'pg';
