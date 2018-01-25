@@ -1,0 +1,615 @@
+---
+schemas:
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+  DetailedDevice:
+    type: object
+    required:
+      - asset_tag
+      - created
+      - hardware_product
+      - health
+      - id
+      - graduated
+      - last_seen
+      - latest_triton_reboot
+      - role
+      - state
+      - system_uuid
+      - triton_uuid
+      - updated
+      - uptime_since
+      - validated
+      - validations
+      - location
+      - nics
+    properties:
+      asset_tag:
+        anyOf:
+          - type: string
+          - type: null
+      created:
+        type: string
+        format: date-time
+      hardware_product:
+        type: string
+        format: uuid
+      health:
+        type: string
+      id:
+        type: string
+      graduated:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      last_seen:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      latest_triton_reboot:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      role:
+        anyOf:
+          - type: string
+          - type: null
+      state:
+        type: string
+      system_uuid:
+        type: string
+        format: uuid
+      triton_uuid:
+        anyOf:
+          - type: string
+            format: uuid
+          - type: null
+      updated:
+        type: string
+        format: date-time
+      uptime_since:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      validated:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      validations:
+        anyOf:
+          - type: array
+            items:
+              type: object
+          - type: null
+      location:
+        anyOf:
+          - $ref: "#/schemas/DeviceLocation"
+          - type: null
+      nics:
+        type: array
+        items:
+          type: object
+          properties:
+            mac:
+              type: string
+            iface_name:
+              type: string
+            iface_vendor:
+              type: string
+            iface_type:
+              type: string
+            peer_mac:
+              anyOf:
+                - type: string
+                - type: null
+            peer_port:
+              anyOf:
+                - type: string
+                - type: null
+            peer_switch:
+              anyOf:
+                - type: string
+                - type: null
+  Devices:
+    type: array
+    items:
+      $ref: "#/schemas/Device"
+  Device:
+    type: object
+    required:
+      - asset_tag
+      - created
+      - hardware_product
+      - health
+      - id
+      - graduated
+      - last_seen
+      - latest_triton_reboot
+      - role
+      - state
+      - system_uuid
+      - triton_uuid
+      - updated
+      - uptime_since
+      - validated
+    properties:
+      asset_tag:
+        anyOf:
+          - type: string
+          - type: null
+      created:
+        type: string
+        format: date-time
+      hardware_product:
+        type: string
+        format: uuid
+      health:
+        type: string
+      id:
+        type: string
+      graduated:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      last_seen:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      latest_triton_reboot:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      role:
+        anyOf:
+          - type: string
+          - type: null
+      state:
+        type: string
+      system_uuid:
+        type: string
+        format: uuid
+      triton_uuid:
+        anyOf:
+          - type: string
+            format: uuid
+          - type: null
+      triton_setup:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      updated:
+        type: string
+        format: date-time
+      uptime_since:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+      validated:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
+  DeviceReport:
+    type: object
+    required:
+      - product_name
+      - serial_number
+      - system_uuid
+      - state
+      - bios_version
+      - processor
+      - memory
+    properties:
+      product_name:
+        type: string
+      serial_number:
+        type: string
+      system_uuid:
+        type: string
+        format: uuid
+      state:
+        type: string
+      bios_version:
+        type: string
+      processor:
+        type: object
+      memory:
+        type: object
+  DeviceLocation:
+    type: object
+    required:
+      - datacenter
+      - rack
+      - target_hardware_product
+    properties:
+      datacenter:
+        type: object
+        required:
+          - id
+          - name
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+      rack:
+        type: object
+        required:
+          - id
+          - name
+          - role
+          - unit
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+          role:
+            type: string
+          unit:
+            type: integer
+      target_hardware_product:
+        type: object
+        description: >
+          Details of the hardware product the device is expected to be based
+          on it's current position and the rack layout.
+        required:
+          - id
+          - name
+          - alias
+          - vendor
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: Hardware product ID
+          name:
+            type: string
+            description: Hardware product name
+          alias:
+            type: string
+            description: Hardware product alias
+          vendor:
+            type: string
+            description: Hardware product vendor name
+  HardwareProducts:
+    type: array
+    items:
+      $ref: "#/schemas/HardwareProduct"
+  HardwareProduct:
+    type: object
+    required:
+      - id
+      - name
+      - alias
+      - prefix
+      - vendor
+      - profile
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      alias:
+        type: string
+      prefix:
+        type: string
+      vendor:
+        type: string
+        description: Hardware product vendor name
+      profile:
+        type: object
+        required:
+          - bios_firmware
+          - cpu_num
+          - cpu_type
+          - dimms_num
+          - hba_firmware
+          - nics_num
+          - psu_total
+          - purpose
+          - ram_total
+          - sas_num
+          - sas_size
+          - sas_slots
+          - sata_num
+          - sata_size
+          - sata_slots
+          - ssd_num
+          - ssd_size
+          - ssd_slots
+          - usb_num
+          - zpool
+        properties:
+          bios_firmware:
+            anyOf:
+              - type: string
+              - type: null
+          cpu_num:
+            type: integer
+          cpu_type:
+            type: string
+          dimms_num:
+            type: integer
+          hba_firmware:
+            anyOf:
+              - type: string
+              - type: null
+          nics_num:
+            type: integer
+          psu_total:
+            type: integer
+          purpose:
+            type: string
+          ram_total:
+            type: integer
+          sas_num:
+            anyOf:
+              - type: integer
+              - type: null
+          sas_size:
+            anyOf:
+              - type: integer
+              - type: null
+          sas_slots:
+            anyOf:
+              - type: integer
+              - type: null
+          sata_num:
+            anyOf:
+              - type: integer
+              - type: null
+          sata_size:
+            anyOf:
+              - type: integer
+              - type: null
+          sata_slots:
+            anyOf:
+              - type: string
+              - type: null
+          ssd_num:
+            anyOf:
+              - type: integer
+              - type: null
+          ssd_size:
+            anyOf:
+              - type: integer
+              - type: null
+          ssd_slots:
+            anyOf:
+              - type: string
+              - type: null
+          usb_num:
+            anyOf:
+              - type: integer
+              - type: null
+          zpool:
+            anyOf:
+              - type: object
+                required:
+                  - cache
+                  - log
+                  - disk_per
+                  - spare
+                  - vdev_n
+                  - vdev_t
+                properties:
+                  cache:
+                    type: integer
+                  log:
+                    type: integer
+                  disk_per:
+                    anyOf:
+                      - type: integer
+                      - type: null
+                  spare:
+                    type: integer
+                  vdev_n:
+                    type: integer
+                  vdev_t:
+                    type: string
+              - type: null
+
+  RackSummary:
+    type: object
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+        size:
+          type: integer
+        device_progress:
+          type: object
+          items:
+            type: integer
+  Rack:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      role:
+        type: string
+      size:
+        type: integer
+      datacenter:
+        type: string
+      slots:
+        type: object
+        items:
+          type: object
+          properties:
+            alias:
+              type: string
+              description: Hardware product alias
+            id:
+              type: string
+              format: uuid
+              description: Hardware product ID
+            name:
+              type: string
+              description: Hardware product name
+            size:
+              type: integer
+              description: Number of RUs for slot
+            vendor:
+              type: string
+              description: Hardware product vendor
+            occupant:
+              description: Device assigned to this slot or null
+              anyOf:
+                - $ref: "#/schemas/Device"
+                - type: null
+  Relays:
+    type: array
+    items:
+      $ref: "#/schemas/Relay"
+  Relay:
+    type: object
+    properties:
+      alias:
+        anyOf:
+          - type: string
+          - type: null
+      created:
+        type: string
+        format: date-time
+      devices:
+        description: >
+          Array of devices that have reported through this relay device
+        type: array
+        items:
+          $ref: "#/schemas/Device"
+      id:
+        type: string
+      ipaddr:
+        anyOf:
+          - type: string
+          - type: null
+      ssh_port:
+        type: number
+      updated:
+        type: string
+        format: date-time
+      version:
+        type: string
+  Problems:
+    type: object
+    properties:
+      failing:
+        type: object
+        items:
+          $ref: "#/schemas/Problem"
+      unreported:
+        type: object
+        items:
+          $ref: "#/schemas/Problem"
+      unlocated:
+        type: object
+        items:
+          $ref: "#/schemas/Problem"
+  Problem:
+    type: object
+    properties:
+      location:
+        anyOf:
+          - $ref: "#/schemas/DeviceLocation"
+          - type: null
+      health:
+        type: string
+      report_id:
+        anyOf:
+          - type: string
+            format: uuid
+          - type: null
+      problems:
+        anyOf:
+          - type: array
+            items:
+              type: object
+          - type: null
+  Workspaces:
+    type: array
+    items:
+      $ref: "#/schemas/Workspace"
+  Workspace:
+    type: object
+    required:
+      - id
+      - name
+      - description
+      - role
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      description:
+        anyOf:
+          - type: string
+          - type: null
+      role:
+        type: string
+  WorkspaceUsers:
+    type: array
+    items:
+      type: object
+      required:
+        - name
+        - email
+        - role
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+  Rooms:
+    type: array
+    items:
+      $ref: "#/schemas/Room"
+  Room:
+    type: object
+    required:
+      - id
+      - az
+      - alias
+      - vendor_name
+    properties:
+      id:
+        type: string
+        format: uuid
+      az:
+        type: string
+      alias:
+        anyOf:
+          - type: string
+          - type: null
+      vendor_name:
+        type: string
