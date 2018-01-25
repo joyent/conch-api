@@ -1,7 +1,6 @@
 package Conch::Model::WorkspaceRole;
 use Mojo::Base -base, -signatures;
 
-use Attempt 'when_defined';
 use aliased 'Conch::Class::WorkspaceRole';
 
 has 'pg';
@@ -12,8 +11,13 @@ sub list ( $self ) {
 }
 
 sub lookup_by_name ( $self, $role_name ) {
-  when_defined { WorkspaceRole->new(shift) }
-  $self->pg->db->select( 'role', undef, { name => $role_name } )->hash;
+  my $ret = $self->pg->db->select(
+    'role',
+    undef,
+    { name => $role_name }
+  )->hash;
+  return undef unless $ret;
+  return WorkspaceRole->new($ret);
 }
 
 1;

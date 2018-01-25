@@ -12,7 +12,7 @@ my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 new_ok('Conch::Model::WorkspaceRole');
 
-my $role_model = Conch::Model::WorkspaceRole->new( pg => $pg );
+my $role_model = new_ok("Conch::Model::WorkspaceRole", [ pg => $pg ]);
 
 my $role;
 subtest "Get list of workspace roles" => sub {
@@ -25,8 +25,8 @@ subtest "Get list of workspace roles" => sub {
 
 subtest "Get role by name" => sub {
   my $role_by_name = $role_model->lookup_by_name($role->name);
-  isa_ok($role_by_name, 'Attempt::Success');
-  is_deeply($role_by_name->value, $role);
+  isa_ok($role_by_name, 'Conch::Class::WorkspaceRole');
+  is_deeply($role_by_name, $role);
 };
 
 done_testing();
