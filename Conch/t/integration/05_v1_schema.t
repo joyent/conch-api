@@ -1,6 +1,6 @@
 use Mojo::Base -strict;
 use Mojo::Util 'monkey_patch';
-use Test::Mojo;
+use Test::MojoSchema;
 use Test::More;
 use Data::UUID;
 use Data::Validate::UUID 'is_uuid';
@@ -15,7 +15,7 @@ BEGIN {
 	use_ok( "Conch::Route", qw(all_routes) );
 }
 
-my $spec_file = "docs/conch-api/openapi-spec.yaml";
+my $spec_file = "schema/v1.yaml";
 BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
 
@@ -27,59 +27,18 @@ my $valid_formats = $validator->formats;
 $valid_formats->{uuid} = \&is_uuid;
 $validator->formats($valid_formats);
 
-# Adds a method 'json_schema_is` to Test::Mojo to validate the JSON response of
-# the most recent request. If given a string, looks up the schema in
-# #/components/schemas in the OpenAPI spec to validate. If given a hash, uses
-# the hash as the schema to validate.
-# Why patch Test::Mojo rather than just defining a subroutine? This keeps the
-# nice fluid interface of Test::Mojo, and Test::Mojo already has the machinery
-# in place to show the line number /where the test is invoked/, rather than where
-# it's defined.
-# When we need this functionality in multiple tests, we will subclass
-# Test::Mojo and add it there.
-monkey_patch 'Test::Mojo', json_schema_is => sub {
-	my ( $self, $schema ) = @_;
-
-	my @errors;
-	return $self->_test( 'fail', 'No request has been made' ) unless $self->tx;
-	my $json = $self->tx->res->json;
-	return $self->_test( 'fail', 'No JSON in response' ) unless $json;
-
-	if ( ref $schema eq 'HASH' ) {
-		@errors = $validator->validate( $json, $schema );
-	}
-	else {
-		my $component_schema = $validator->get("/components/schemas/$schema");
-		return $self->_test( 'fail',
-			"Component schema '$schema' is not defined in OpenAPI spec $spec_file" )
-			unless $component_schema;
-		@errors = $validator->validate( $json, $component_schema );
-	}
-
-	my $error_count = @errors;
-	my $req         = $self->tx->req->method . ' ' . $self->tx->req->url->path;
-	return $self->_test( 'ok', !$error_count,
-		'JSON response has no schema validation errors' )->or(
-		sub {
-			diag( $error_count
-					. " Error(s) occurred when validating $req with schema "
-					. "$schema':\n\t"
-					. join( "\n\t", @errors ) );
-		}
-		);
-};
-
 my $uuid = Data::UUID->new;
 
 my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
 my $dbh = DBI->connect( $pgtmp->dsn );
 
-my $t = Test::Mojo->new(
+my $t = Test::MojoSchema->new(
 	Conch => {
 		pg      => $pgtmp->uri,
 		secrets => ["********"]
-	}
+	},
 );
+$t->validator($validator);
 
 #### Load up data
 for my $file ( io->dir("../sql/test/")->sort->glob("*.sql") ) {
