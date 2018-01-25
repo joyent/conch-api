@@ -24,7 +24,7 @@ isa_ok($ws_rack_model->list( $global_ws->id ), 'HASH', "Get list of workspaces")
 
 subtest "Get workspace rack by ID" => sub {
   my $workspace_rack = $ws_rack_model->lookup( $global_ws->id, $uuid->create_str() );
-  isa_ok( $workspace_rack, 'Attempt::Fail' );
+  is($workspace_rack, undef, "Bad lookup fails");
 };
 
 TODO: {
