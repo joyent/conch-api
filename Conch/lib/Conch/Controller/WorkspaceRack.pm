@@ -22,7 +22,7 @@ sub under ($c) {
 		$c->status( 404, { error => "Rack $rack_id not found" } );
 		return 0;
 	}
-	$c->stash( current_ws_rack => $maybe_rack->value );
+	$c->stash( current_ws_rack => $maybe_rack  );
 	return 1;
 }
 
@@ -48,12 +48,28 @@ sub add ($c) {
 		{ error => "Cannot modify GLOBAL workspace" } )
 		if $c->stash('current_workspace')->name eq 'GLOBAL';
 
-	my $add_attempt =
-		$c->workspace_rack->add_to_workspace( $c->stash('current_workspace')->id,
-		$rack_id );
+	my $ws_id = $c->stash('current_workspace')->id;
+	unless($c->workspace_rack->rack_in_parent_workspace($ws_id, $rack_id)) {
+		return $c->status(
+			409,
+			{
+				error => "Rack '$rack_id' must be assigned in parent workspace".
+					" to be assignable."
+			},
+		);
+	}
 
-	return $c->status( 409, { error => $add_attempt->failure } )
-		if $add_attempt->is_fail;
+	if($c->workspace_rack->rack_in_workspace_room($ws_id, $rack_id)) {
+		return $c->status(
+			409,
+			{
+				error => "Rack '$rack_id' is already assigned to this ".
+					"workspace via datacenter room assignment"
+			},
+		);
+	}
+
+	$c->workspace_rack->add_to_workspace( $ws_id, $rack_id );
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for->to_abs . "/$rack_id" );
@@ -68,11 +84,16 @@ sub remove ($c) {
 		$c->stash('current_workspace')->id,
 		$c->stash('current_ws_rack')->id,
 	);
+	return $c->status(204) if $remove_attempt;
 
-	return $c->status( 409, { error => $remove_attempt->failure } )
-		if $remove_attempt->is_fail;
-
-	$c->status(204);
+	return $c->status(
+		409,
+		{ error =>  "Rack '".$c->stash('current_ws_rack')->id.
+			"' is not explicitly assigned to the ".
+			"workspace. It is assigned implicitly via a datacenter room ".
+			"assignment."
+		}
+	)
 }
 
 # TODO: This is legacy code that is non-transactional. It should be reworked. --Lane

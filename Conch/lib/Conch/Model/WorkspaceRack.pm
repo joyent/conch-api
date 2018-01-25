@@ -1,13 +1,12 @@
 package Conch::Model::WorkspaceRack;
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(when_defined fail success);
 use aliased 'Conch::Class::DatacenterRack';
 
 has 'pg';
 
 sub lookup ( $self, $ws_id, $rack_id ) {
-  when_defined { DatacenterRack->new(shift) } $self->pg->db->query(
+  my $ret = $self->pg->db->query(
     q{
       WITH target_workspace (id) AS ( values( ?::uuid ))
       SELECT rack.*, role.name AS role_name
@@ -30,6 +29,8 @@ sub lookup ( $self, $ws_id, $rack_id ) {
       )
     }, $ws_id, $rack_id
   )->hash;
+  return undef unless $ret;
+  return DatacenterRack->new($ret);
 }
 
 sub rack_layout ( $self, $rack ) {
@@ -180,9 +181,8 @@ sub list ( $self, $ws_id ) {
   return $rack_groups;
 }
 
-sub add_to_workspace ( $self, $ws_id, $rack_id ) {
-  my $db                       = $self->pg->db;
-  my $rack_in_parent_workspace = $db->query(
+sub rack_in_parent_workspace ( $self, $ws_id, $rack_id ) {
+  return $self->pg->db->query(
     qq{
       WITH parent_workspace (id) AS (
         SELECT ws.parent_workspace_id
@@ -207,12 +207,10 @@ sub add_to_workspace ( $self, $ws_id, $rack_id ) {
       )
     }, $ws_id, $rack_id
   )->rows;
+}
 
-  return fail(
-    "Rack '$rack_id' must be assigned in parent workspace to be assignable.")
-    unless $rack_in_parent_workspace;
-
-  my $rack_in_workspace_room = $db->query(
+sub rack_in_workspace_room ( $self, $ws_id, $rack_id ) {
+  return $self->pg->db->query(
     q{
     SELECT id
     FROM workspace_datacenter_room wdr
@@ -222,10 +220,14 @@ sub add_to_workspace ( $self, $ws_id, $rack_id ) {
       AND rack.id = ?::uuid
     }, $ws_id, $rack_id
   )->rows;
+}
 
-  return fail( "Rack '$rack_id' is already assigned to this workspace"
-      . " via a datacenter room assignment" )
-    if $rack_in_workspace_room;
+
+sub add_to_workspace ( $self, $ws_id, $rack_id ) {
+  my $db = $self->pg->db;
+
+  return undef unless $self->rack_in_parent_workspace($ws_id, $rack_id);
+  return undef if $self->rack_in_workspace_room($ws_id, $rack_id);
 
   $db->query(
     q{
@@ -235,7 +237,7 @@ sub add_to_workspace ( $self, $ws_id, $rack_id ) {
     ON CONFLICT (workspace_id, datacenter_rack_id) DO NOTHING
     }, $ws_id, $rack_id
   );
-  return success();
+  return 1;
 }
 
 sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
@@ -245,10 +247,7 @@ sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
     $db->select( 'workspace_datacenter_rack', undef,
     { workspace_id => $ws_id, datacenter_rack_id => $rack_id } )->rows;
 
-  return fail(
-        "Rack '$rack_id' is not explicitly assigned to the workspace. It"
-      . " is assigned implicitly via a datacenter room assignment." )
-    unless $rack_exists;
+  return undef unless $rack_exists;
 
   # Remove rack ID from workspace and all children workspaces
   $db->query(
@@ -268,7 +267,7 @@ sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
     }, $ws_id, $rack_id
   );
 
-  return success();
+  return 1;
 }
 
 1;
