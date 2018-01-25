@@ -174,6 +174,10 @@ TODO: {
 	$t->get_ok("/workspace/$id/relay")->status_is(200)
 		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
 		->json_schema_is('Relays');
+
+	$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
+		->json_is( '/0/id', 'deadbeef', 'Has active relay' )
+		->json_schema_is('Relays');
 }
 
 $t->get_ok("/workspace/$id/device?ids_only=1")->status_is(200)

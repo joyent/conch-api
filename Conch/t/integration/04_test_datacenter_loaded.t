@@ -282,6 +282,8 @@ subtest 'Workspace devices' => sub {
 subtest 'Relays' => sub {
 	$t->get_ok("/workspace/$id/relay")->status_is(200)
 		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' );
+	$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
+		->json_is( '/0/id', 'deadbeef', 'Has active relay' );
 };
 
 subtest 'Device location' => sub {
