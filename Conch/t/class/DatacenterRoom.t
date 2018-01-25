@@ -11,7 +11,5 @@ new_ok("Conch::Class::DatacenterRoom", [
 	vendor_name => 'vendor_name'
 ]);
 
-fail("Test more than constructors");
-
 done_testing();
 
