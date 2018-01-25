@@ -20,9 +20,6 @@ my $global_ws = $ws_model->lookup_by_name('GLOBAL');
 new_ok('Conch::Model::WorkspaceRack');
 my $ws_rack_model = Conch::Model::WorkspaceRack->new( pg => $pg );
 
-fail("Test 'add rack to workspace'");
-fail("Test 'remove rack to workspace'");
-
 isa_ok($ws_rack_model->list( $global_ws->id ), 'HASH', "Get list of workspaces");
 
 subtest "Get workspace rack by ID" => sub {
@@ -30,7 +27,14 @@ subtest "Get workspace rack by ID" => sub {
   isa_ok( $workspace_rack, 'Attempt::Fail' );
 };
 
-fail("Test 'get workspace rack layout'");
+TODO: {
+	local $TODO = "Untested sections";
+
+	fail("Test 'add rack to workspace'");
+	fail("Test 'remove rack to workspace'");
+
+	fail("Test 'get workspace rack layout'");
+}
 
 
 done_testing();
