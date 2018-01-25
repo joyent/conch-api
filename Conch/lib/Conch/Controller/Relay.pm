@@ -15,17 +15,19 @@ sub register ($c) {
     unless defined($serial);
 
   my $relay_exists = $c->relay->lookup($serial);
-  if ( $relay_exists->is_fail ) {
-    my $version  = $body->{version};
-    my $ipaddr   = $body->{ipaddr};
-    my $ssh_port = $body->{ssh_port};
-    my $alias    = $body->{alias};
-    $c->relay->create( $serial, $version, $ipaddr, $ssh_port, $alias );
+  unless ( $relay_exists ) {
+    $c->relay->create(
+      $serial,
+      $body->{version},
+      $body->{ipaddr},
+      $body->{ssh_port},
+      $body->{alias},
+    );
   }
 
   my $attempt = $c->relay->connect_user_relay( $user_id, $serial );
-  if ( $attempt->is_fail ) {
-    $c->app->log->error( $attempt->failure );
+
+  unless ( $attempt ) {
     return $c->status( 500, { error => "unable to register relay '$serial'" } );
   }
 
