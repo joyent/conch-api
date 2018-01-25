@@ -1,7 +1,6 @@
 package Conch::Model::WorkspaceRelay;
 use Mojo::Base -base, -signatures;
 
-use Attempt qw(when_defined fail success);
 
 use Conch::Model::Device;
 use aliased 'Conch::Class::WorkspaceRelay';
