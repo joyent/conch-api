@@ -1,5 +1,5 @@
 ---
-schemas:
+definitions:
   Error:
     type: object
     properties:
@@ -91,7 +91,7 @@ schemas:
           - type: null
       location:
         anyOf:
-          - $ref: "#/schemas/DeviceLocation"
+          - $ref: "#/definitions/DeviceLocation"
           - type: null
       nics:
         type: array
@@ -121,7 +121,7 @@ schemas:
   Devices:
     type: array
     items:
-      $ref: "#/schemas/Device"
+      $ref: "#/definitions/Device"
   Device:
     type: object
     required:
@@ -290,7 +290,7 @@ schemas:
   HardwareProducts:
     type: array
     items:
-      $ref: "#/schemas/HardwareProduct"
+      $ref: "#/definitions/HardwareProduct"
   HardwareProduct:
     type: object
     required:
@@ -482,12 +482,12 @@ schemas:
             occupant:
               description: Device assigned to this slot or null
               anyOf:
-                - $ref: "#/schemas/Device"
+                - $ref: "#/definitions/Device"
                 - type: null
   Relays:
     type: array
     items:
-      $ref: "#/schemas/Relay"
+      $ref: "#/definitions/Relay"
   Relay:
     type: object
     properties:
@@ -503,7 +503,7 @@ schemas:
           Array of devices that have reported through this relay device
         type: array
         items:
-          $ref: "#/schemas/Device"
+          $ref: "#/definitions/Device"
       id:
         type: string
       ipaddr:
@@ -523,21 +523,21 @@ schemas:
       failing:
         type: object
         items:
-          $ref: "#/schemas/Problem"
+          $ref: "#/definitions/Problem"
       unreported:
         type: object
         items:
-          $ref: "#/schemas/Problem"
+          $ref: "#/definitions/Problem"
       unlocated:
         type: object
         items:
-          $ref: "#/schemas/Problem"
+          $ref: "#/definitions/Problem"
   Problem:
     type: object
     properties:
       location:
         anyOf:
-          - $ref: "#/schemas/DeviceLocation"
+          - $ref: "#/definitions/DeviceLocation"
           - type: null
       health:
         type: string
@@ -555,7 +555,7 @@ schemas:
   Workspaces:
     type: array
     items:
-      $ref: "#/schemas/Workspace"
+      $ref: "#/definitions/Workspace"
   Workspace:
     type: object
     required:
@@ -593,7 +593,7 @@ schemas:
   Rooms:
     type: array
     items:
-      $ref: "#/schemas/Room"
+      $ref: "#/definitions/Room"
   Room:
     type: object
     required:
