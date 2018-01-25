@@ -25,7 +25,7 @@ my ($ws_model, $global_ws, $hw_vendor_id, $hw_product_id);
 
 try {
 	$ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg ]);
-	$global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
+	$global_ws = $ws_model->lookup_by_name('GLOBAL');
 
 	$hw_vendor_id = $pg->db->insert(
 		'hardware_vendor',
@@ -43,7 +43,7 @@ try {
 		{ returning => ['id'] }
 	)->hash->{id};
 } catch {
-	BAIL_OUT("Setup failed");
+	BAIL_OUT("Setup failed: $_");
 };
 
 my $d;

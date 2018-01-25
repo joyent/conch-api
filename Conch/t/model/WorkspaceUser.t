@@ -16,7 +16,7 @@ my $user_model = new_ok("Conch::Model::User", [
 my $new_user = Conch::Model::User->create($pg, 'foo@bar.com', 'password' );
 
 my $ws_model = new_ok("Conch::Model::Workspace", [ pg => $pg ]);
-my $global_ws = $ws_model->lookup_by_name('GLOBAL')->value;
+my $global_ws = $ws_model->lookup_by_name('GLOBAL');
 
 $ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 1 );
 
