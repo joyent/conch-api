@@ -1655,6 +1655,18 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
+  JSON-Validator-2.00
+    pathname: J/JH/JHTHORSEN/JSON-Validator-2.00.tar.gz
+    provides:
+      JSON::Validator 2.00
+      JSON::Validator::Error undef
+      JSON::Validator::OpenAPI undef
+      JSON::Validator::OpenAPI::Dancer2 undef
+      JSON::Validator::OpenAPI::Mojolicious undef
+      JSON::Validator::Ref undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Mojolicious 7.28
   Lexical-SealRequireHints-0.011
     pathname: Z/ZE/ZEFRAM/Lexical-SealRequireHints-0.011.tar.gz
     provides:
@@ -1842,24 +1854,24 @@ DISTRIBUTIONS
       IPC::Cmd 0
       XSLoader 0.22
       base 0
-  Log-Any-1.705
-    pathname: P/PR/PREACTION/Log-Any-1.705.tar.gz
+  Log-Any-1.704
+    pathname: P/PR/PREACTION/Log-Any-1.704.tar.gz
     provides:
-      Log::Any 1.705
-      Log::Any::Adapter 1.705
-      Log::Any::Adapter::Base 1.705
-      Log::Any::Adapter::File 1.705
-      Log::Any::Adapter::Null 1.705
-      Log::Any::Adapter::Stderr 1.705
-      Log::Any::Adapter::Stdout 1.705
-      Log::Any::Adapter::Syslog 1.705
-      Log::Any::Adapter::Test 1.705
-      Log::Any::Adapter::Util 1.705
-      Log::Any::Manager 1.705
-      Log::Any::Proxy 1.705
-      Log::Any::Proxy::Null 1.705
-      Log::Any::Proxy::Test 1.705
-      Log::Any::Test 1.705
+      Log::Any 1.704
+      Log::Any::Adapter 1.704
+      Log::Any::Adapter::Base 1.704
+      Log::Any::Adapter::File 1.704
+      Log::Any::Adapter::Null 1.704
+      Log::Any::Adapter::Stderr 1.704
+      Log::Any::Adapter::Stdout 1.704
+      Log::Any::Adapter::Syslog 1.704
+      Log::Any::Adapter::Test 1.704
+      Log::Any::Adapter::Util 1.704
+      Log::Any::Manager 1.704
+      Log::Any::Proxy 1.704
+      Log::Any::Proxy::Null 1.704
+      Log::Any::Proxy::Test 1.704
+      Log::Any::Test 1.704
     requirements:
       B 0
       Carp 0
@@ -2257,8 +2269,8 @@ DISTRIBUTIONS
       Mojolicious 7.53
       SQL::Abstract 1.81
       perl 5.010001
-  Mojolicious-7.61
-    pathname: S/SR/SRI/Mojolicious-7.61.tar.gz
+  Mojolicious-7.60
+    pathname: S/SR/SRI/Mojolicious-7.60.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2327,7 +2339,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 7.61
+      Mojolicious 7.60
       Mojolicious::Command undef
       Mojolicious::Command::cgi undef
       Mojolicious::Command::cpanify undef
@@ -3853,6 +3865,20 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
+  YAML-Tiny-1.70
+    pathname: E/ET/ETHER/YAML-Tiny-1.70.tar.gz
+    provides:
+      YAML::Tiny 1.70
+    requirements:
+      B 0
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Fcntl 0
+      Scalar::Util 0
+      perl 5.008001
+      strict 0
+      warnings 0
   aliased-0.34
     pathname: E/ET/ETHER/aliased-0.34.tar.gz
     provides:
