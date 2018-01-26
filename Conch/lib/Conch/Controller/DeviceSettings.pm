@@ -1,6 +1,23 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::DeviceSettings
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::DeviceSettings;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+
+=head2 set_all
+
+Overrides all settings for a device with the given payload
+
+=cut
 
 sub set_all ($c) {
 	my $body = $c->req->json;
@@ -9,6 +26,14 @@ sub set_all ($c) {
 	$c->device_settings->set_settings( $c->stash('current_device')->id, $body );
 	$c->status(200);
 }
+
+
+=head2 set_single
+
+Sets a single setting on a device. If the setting already exists, it is
+overwritten
+
+=cut
 
 sub set_single ($c) {
 	my $body          = $c->req->json;
@@ -26,11 +51,25 @@ sub set_single ($c) {
 	$c->status(200);
 }
 
+
+=head2 get_all
+
+Get all settings for a device as a hash
+
+=cut
+
 sub get_all ($c) {
 	my $settings =
 		$c->device_settings->get_settings( $c->stash('current_device')->id );
 	$c->status( 200, $settings );
 }
+
+
+=head2 get_single
+
+Get a single setting from a device
+
+=cut
 
 sub get_single ($c) {
 	my $setting_key = $c->param('key');
@@ -40,6 +79,13 @@ sub get_single ($c) {
 		unless $settings->{$setting_key};
 	$c->status( 200, { $setting_key => $settings->{$setting_key} } );
 }
+
+
+=head2 delete_single
+
+Delete a single setting from a device, provide that setting was previously set
+
+=cut
 
 sub delete_single ($c) {
 	my $setting_key = $c->param('key');
@@ -57,3 +103,18 @@ sub delete_single ($c) {
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

@@ -1,9 +1,27 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::DeviceLocation
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::DeviceLocation;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 
 use Data::Printer;
+
+
+=head2 get
+
+Retrieves the location for the current device, via a serialized DeviceLocation
+object
+
+=cut
 
 sub get ($c) {
 	my $device_id      = $c->stash('current_device')->id;
@@ -14,6 +32,13 @@ sub get ($c) {
 
 	$c->status( 200, $maybe_location->as_v1_json );
 }
+
+
+=head2 set
+
+Sets the location for a device, given a valid rack id and rack unit
+
+=cut
 
 sub set ($c) {
 	my $device_id = $c->stash('current_device')->id;
@@ -39,6 +64,14 @@ sub set ($c) {
 	$c->redirect_to( $c->url_for("/device/$device_id/location")->to_abs );
 }
 
+
+
+=head2 delete
+
+Deletes the location data for a device, provided it has been assigned to a location
+
+=cut
+
 sub delete ($c) {
 	my $device_id = $c->stash('current_device')->id;
 	my $unassign  = $c->device_location->unassign($device_id);
@@ -50,3 +83,19 @@ sub delete ($c) {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License,
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

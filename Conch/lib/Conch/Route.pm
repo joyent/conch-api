@@ -1,3 +1,17 @@
+=pod
+
+=head1 NAME
+
+Conch::Route
+
+=head1 DESCRIPTION
+
+Setup all the routes for the Conch Mojo app
+
+=head1 METHODS
+
+=cut
+
 package Conch::Route;
 use Mojo::Base -strict;
 
@@ -11,6 +25,13 @@ use Exporter 'import';
 our @EXPORT = qw(
 	all_routes
 );
+
+
+=head2 all_routes
+
+Set up the full route structure
+
+=cut
 
 sub all_routes {
 	my $r = shift;
@@ -57,3 +78,18 @@ sub all_routes {
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

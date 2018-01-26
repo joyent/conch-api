@@ -1,3 +1,13 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::DeviceReport
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::DeviceReport;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
@@ -11,6 +21,13 @@ use Conch::Legacy::Control::DeviceReport 'record_device_report';
 use Conch::Legacy::Control::Device::Validation 'validate_device';
 use Conch::Legacy::Data::Report::Switch;
 use Conch::Legacy::Data::Report::Server;
+
+
+=head2 process
+
+Processes the device report using the Legacy report code base
+
+=cut
 
 # TODO: None of the available Mojolicious Log4Perl libraries allow selecting
 # the category (appender) for Log4Perl. We use this mechanism to log unparsable
@@ -71,3 +88,19 @@ sub process ($c) {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

@@ -1,17 +1,36 @@
+=pod
+
+=head1 NAME
+
+Test::MojoSchema
+
+=head1 METHODS
+
+=cut
+
 package Test::MojoSchema;
 use Mojo::Base 'Test::Mojo';
 
+=head2 validator
+
+=cut
+
 has 'validator';
 
-# Adds a method 'json_schema_is` to validate the JSON response of
-# the most recent request. If given a string, looks up the schema in
-# #/definitions in the JSON Schema spec to validate. If given a hash, uses
-# the hash as the schema to validate.
-#
-# Why subclass Test::Mojo rather than just defining a subroutine? This keeps
-# the nice fluid interface of Test::Mojo, and Test::Mojo already has the
-# machinery in place to show the line number /where the test is invoked/,
-# rather than where it's defined.
+=head2 json_schema_is
+
+Adds a method 'json_schema_is` to validate the JSON response of
+the most recent request. If given a string, looks up the schema in
+#/definitions in the JSON Schema spec to validate. If given a hash, uses
+the hash as the schema to validate.
+
+Why subclass Test::Mojo rather than just defining a subroutine? This keeps
+the nice fluid interface of Test::Mojo, and Test::Mojo already has the
+machinery in place to show the line number /where the test is invoked/,
+rather than where it's defined.
+
+=cut
+
 sub json_schema_is {
 	my ( $self, $schema ) = @_;
 
@@ -45,3 +64,19 @@ sub json_schema_is {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

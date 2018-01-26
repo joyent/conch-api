@@ -1,8 +1,61 @@
+=pod
+
+=head1 NAME
+
+Conch::Class::HardwareProductProfile
+
+=head1 METHODS
+
+=cut
+
 package Conch::Class::HardwareProductProfile;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
 with 'Conch::Class::Role::JsonV1';
+
+
+=head2 bios_firmware
+
+=head2 cpu_num
+
+=head2 cpu_type
+
+=head2 dimms_num
+
+=head2 hba_firmware
+
+=head2 nics_num
+
+=head2 psu_total
+
+=head2 purpose
+
+=head2 ram_total
+
+=head2 sas_num
+
+=head2 sas_size
+
+=head2 sas_slots
+
+=head2 sata_num
+
+=head2 sata_size
+
+=head2 sata_slots
+
+=head2 ssd_num
+
+=head2 ssd_size
+
+=head2 ssd_slots
+
+=head2 usb_num
+
+=head2 zpool
+
+=cut
 
 has [
 	qw(
@@ -28,6 +81,11 @@ has [
 		zpool
 		)
 ];
+
+
+=head2 as_v1_json
+
+=cut
 
 sub as_v1_json {
 	my $self = shift;
@@ -55,3 +113,17 @@ sub as_v1_json {
 	};
 }
 1;
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut

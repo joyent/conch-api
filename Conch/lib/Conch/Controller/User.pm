@@ -1,3 +1,13 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::User
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::User;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
@@ -6,6 +16,13 @@ use Mojo::JSON qw(to_json);
 
 use Data::Printer;
 
+
+=head2 _user_as_v1
+
+Provides a v1 representation of a User
+
+=cut
+
 sub _user_as_v1($user) {
 	{
 		id    => $user->id,
@@ -13,6 +30,13 @@ sub _user_as_v1($user) {
 		name  => $user->name,
 	};
 }
+
+
+=head2 _settings_as_v1
+
+Provides a v1 representation of the given user's UserSettings
+
+=cut
 
 sub _settings_as_v1($user) {
 	my $settings = $user->settings();
@@ -24,11 +48,25 @@ sub _settings_as_v1($user) {
 	return \%output;
 }
 
+
+=head2 _setting_as_v1
+
+Provides a v1 representation of the given setting key/value pair
+
+=cut
+
 sub _setting_as_v1 ( $key, $value ) {
 	return { $key => $value };
 }
 
 ######
+
+
+=head2 set_settings
+
+Override the settings for a user with the provided payload
+
+=cut
 
 sub set_settings ($c) {
 	my $body = $c->req->json;
@@ -41,6 +79,13 @@ sub set_settings ($c) {
 
 	$c->status(200);
 }
+
+
+=head2 set_setting
+
+Set the value of a single setting for the user
+
+=cut
 
 sub set_setting ($c) {
 	my $body  = $c->req->json;
@@ -66,12 +111,26 @@ sub set_setting ($c) {
 	}
 }
 
+
+=head2 get_settings
+
+Get the key/values of every setting for a User
+
+=cut
+
 sub get_settings ($c) {
 	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
 	return $c->status(401) unless $user;
 
 	$c->status( 200, _settings_as_v1($user) );
 }
+
+
+=head2 get_setting
+
+Get the individual key/value pair for a setting for the User
+
+=cut
 
 sub get_setting ($c) {
 	my $key = $c->param('key');
@@ -86,6 +145,13 @@ sub get_setting ($c) {
 
 	$c->status( 200, _setting_as_v1( $key => $settings->{$key} ) );
 }
+
+
+=head2 delete_setting
+
+Delete a single setting for a user, provided it was set previously
+
+=cut
 
 sub delete_setting ($c) {
 	my $key = $c->param('key');
@@ -107,3 +173,19 @@ sub delete_setting ($c) {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

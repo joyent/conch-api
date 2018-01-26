@@ -1,3 +1,13 @@
+=pod
+
+=head1 NAME
+
+Conch::Mail
+
+=head1 METHODS
+
+=cut
+
 package Conch::Mail;
 
 use strict;
@@ -11,6 +21,12 @@ use Exporter 'import';
 our @EXPORT = qw(
 	new_user_invite existing_user_invite password_reset_email
 );
+
+=head2 new_user_invite
+
+Template for the email for inviting a new user
+
+=cut
 
 sub new_user_invite {
 	my ($args)   = @_;
@@ -43,6 +59,13 @@ sub new_user_invite {
 	}
 }
 
+
+=head2 existing_user_invite
+
+Template for the email to invite an existing user to a workspace
+
+=cut
+
 sub existing_user_invite {
 	my ($args)         = @_;
 	my $email          = $args->{email};
@@ -71,6 +94,13 @@ sub existing_user_invite {
 		$log->error("Sendmail error: $Mail::Sendmail::error");
 	}
 }
+
+
+=head2 password_reset_email
+
+Template for reseting a existing user's password
+
+=cut
 
 sub password_reset_email {
 	my ($args)   = @_;
@@ -106,3 +136,19 @@ sub password_reset_email {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

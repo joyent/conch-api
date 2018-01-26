@@ -1,7 +1,24 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::WorkspaceRelay
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::WorkspaceRelay;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
+
+
+=head2 list
+
+List all relays for the current stashed C<current_workspace>
+
+=cut
 
 sub list ($c) {
 	my $relays = $c->workspace_relay->list( $c->stash('current_workspace')->id,
@@ -10,3 +27,19 @@ sub list ($c) {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

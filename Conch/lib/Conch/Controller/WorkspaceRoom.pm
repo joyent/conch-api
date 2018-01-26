@@ -1,13 +1,38 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::WorkspaceRoom
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::WorkspaceRoom;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
 use List::Compare;
 
+
+=head1 list
+
+Get a list of rooms for the current stashed C<current_workspace>
+
+=cut
+
 sub list ($c) {
 	my $rooms = $c->workspace_room->list( $c->stash('current_workspace')->id );
 	$c->status( 200, [ map { $_->as_v1_json } @$rooms ] );
 }
+
+
+=head1 replace_rooms
+
+Replace the room list for the current stashed C<current_workspace>, given that
+workspace is not GLOBAL, and provided that the user is an Administrator
+
+=cut
 
 sub replace_rooms ($c) {
 	my $workspace = $c->stash('current_workspace');
@@ -50,3 +75,18 @@ sub replace_rooms ($c) {
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+
