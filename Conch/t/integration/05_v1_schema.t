@@ -122,14 +122,19 @@ subtest 'Set up a test device' => sub {
 		->json_is( '/health', 'PASS' );
 };
 
-TODO: {
-	local $TODO = q(
-	Postgres timestamps are being rendered in JSON response rather than ISO
-	8601 formatted timestamps. This causes the date-time format validation to
-	fail for the following endpoints.
-	);
-	$t->get_ok('/device/TEST')->status_is(200)->json_schema_is('DetailedDevice');
+# Set the various timestamps on a device so we can validate them
+{
+	$t->post_ok('/device/TEST/graduate')->status_is(303);
+
+	$t->post_ok('/device/TEST/triton_reboot')->status_is(303);
+
+	$t->post_ok( '/device/TEST/triton_uuid',
+		json => { triton_uuid => $uuid->create_str() } )->status_is(303);
+
+	$t->post_ok('/device/TEST/triton_setup')->status_is(303)
 }
+
+$t->get_ok('/device/TEST')->status_is(200)->json_schema_is('DetailedDevice');
 
 $t->post_ok(
 	"/workspace/$id/rack/$rack_id/layout",
@@ -153,32 +158,25 @@ $t->post_ok(
 $t->get_ok("/device/TEST/settings")->status_is(200)
 	->json_schema_is( { type => 'object' } );
 
-TODO: {
-	local $TODO = q(
-	Postgres timestamps are being rendered in JSON response rather than ISO
-	8601 formatted timestamps. This causes the date-time format validation to
-	fail for the following endpoints.
-	);
-	$t->get_ok("/workspace/$id/device")->status_is(200)
-		->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
+$t->get_ok("/workspace/$id/device")->status_is(200)->json_is( '/0/id', 'TEST' )
+	->json_schema_is('Devices');
 
-	$t->get_ok("/workspace/$id/device?active=t")->status_is(200)
-		->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
+$t->get_ok("/workspace/$id/device?active=t")->status_is(200)
+	->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
 
-	$t->get_ok("/workspace/$id/device?graduated=f")->status_is(200)
-		->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
+$t->get_ok("/workspace/$id/device?graduated=t")->status_is(200)
+	->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
 
-	$t->get_ok("/workspace/$id/device?health=fail")->status_is(200)
-		->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
+$t->get_ok("/workspace/$id/device?health=pass")->status_is(200)
+	->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
 
-	$t->get_ok("/workspace/$id/relay")->status_is(200)
-		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
-		->json_schema_is('Relays');
+$t->get_ok("/workspace/$id/relay")->status_is(200)
+	->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
+	->json_schema_is('Relays');
 
-	$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
-		->json_is( '/0/id', 'deadbeef', 'Has active relay' )
-		->json_schema_is('Relays');
-}
+$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
+	->json_is( '/0/id', 'deadbeef', 'Has active relay' )
+	->json_schema_is('Relays');
 
 $t->get_ok("/workspace/$id/device?ids_only=1")->status_is(200)
 	->json_schema_is( { type => 'array', items => { type => 'string' } } );
