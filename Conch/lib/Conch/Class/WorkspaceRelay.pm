@@ -12,6 +12,8 @@ package Conch::Class::WorkspaceRelay;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
+use Conch::Time;
+
 with 'Conch::Class::Role::JsonV1';
 
 =head2 alias
@@ -48,6 +50,17 @@ has [
 		)
 ];
 
+=head2 new
+
+=cut
+
+sub new {
+	my $class = shift;
+	my %args  = @_;
+	map { $args{$_} = Conch::Time->new( $args{$_} ) if $args{$_} }
+		qw(created updated);
+	$class->SUPER::new(%args);
+}
 
 =head2 as_v1_json
 
@@ -83,4 +96,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

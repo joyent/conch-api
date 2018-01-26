@@ -2,6 +2,7 @@ package Conch::Model::Device;
 use Role::Tiny 'with';
 use Mojo::Base -base, -signatures;
 
+use Conch::Time;
 use Try::Tiny;
 use Data::Validate::UUID qw(is_uuid);
 
@@ -31,6 +32,12 @@ has [
 		validated
 		)
 ];
+
+sub new ( $class, %args ) {
+	map { $args{$_} = Conch::Time->new( $args{$_} ) if $args{$_} }
+		qw(created graduated last_seen latest_triton_reboot triton_setup updated uptime_since);
+	$class->SUPER::new(%args);
+}
 
 sub as_v1 ($self) {
 	{
@@ -182,8 +189,8 @@ sub graduate ( $self) {
 	)->hash;
 	return undef unless $ret;
 
-	$self->graduated( $ret->{graduated} );
-	$self->updated( $ret->{updated} );
+	$self->graduated( Conch::Time->new( $ret->{graduated} ) );
+	$self->updated( Conch::Time->new( $ret->{updated} ) );
 
 	return 1;
 }
@@ -200,8 +207,8 @@ sub set_triton_setup ( $self ) {
 	)->hash;
 	return undef unless $ret;
 
-	$self->triton_setup( $ret->{triton_setup} );
-	$self->updated( $ret->{updated} );
+	$self->triton_setup( Conch::Time->new($ret->{triton_setup}) );
+	$self->updated( Conch::Time->new($ret->{updated}) );
 	return 1;
 }
 
@@ -236,8 +243,8 @@ sub set_triton_reboot ( $self ) {
 	)->hash;
 	return undef unless $ret;
 
-	$self->latest_triton_reboot( $ret->{latest_triton_reboot} );
-	$self->updated( $ret->{updated} );
+	$self->latest_triton_reboot( Conch::Time->new($ret->{latest_triton_reboot}) );
+	$self->updated( Conch::Time->new($ret->{updated}) );
 	return 1;
 }
 
