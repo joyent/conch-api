@@ -53,9 +53,6 @@ sub startup {
 		}
 	);
 
-	# use cost 4 for backwards compatibility with passwords hashed with
-	# Dancer2::Plugin::Passphrase
-	$self->plugin( 'bcrypt', { cost => 4 } );
 	$self->plugin('Util::RandomString');
 	$self->plugin('Conch::Plugin::Model');
 	$self->plugin('Conch::Plugin::Mail');
