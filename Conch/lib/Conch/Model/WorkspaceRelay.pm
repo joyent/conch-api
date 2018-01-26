@@ -91,7 +91,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 		my $devices = [];
 		my $ret     = $db->query(
 			qq{
-        SELECT device.id
+        SELECT device.*
         FROM relay r
         INNER JOIN device_relay_connection dr
           ON r.id = dr.relay_id
@@ -106,7 +106,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 		)->hashes;
 
 		for my $d ( $ret->@* ) {
-			push $devices->@*, Conch::Model::Device->new( $self->pg, $d->{id} );
+			push $devices->@*, Conch::Model::Device->new( pg => $self->pg, $d->%* );
 		}
 
 		push @res,
