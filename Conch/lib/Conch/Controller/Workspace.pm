@@ -1,8 +1,26 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::Workspace
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::Workspace;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 use Data::Printer;
+
+
+=head2 under
+
+For all subroutes, this figures out the current Workspace, putting it in the
+stash as C<current_workspace>
+
+=cut
 
 sub under ($c) {
 	my $ws_id = $c->param('id');
@@ -22,10 +40,24 @@ sub under ($c) {
 	}
 }
 
+
+=head2 list
+
+Get a list of all workspaces available to current stashed C<user_id>
+
+=cut
+
 sub list ($c) {
 	my $wss = $c->workspace->get_user_workspaces( $c->stash('user_id') );
 	$c->status( 200, [ map { $_->as_v1_json } @$wss ] );
 }
+
+
+=head2 get
+
+Get the details of the current workspace
+
+=cut
 
 sub get ($c) {
 	if ( $c->under ) {
@@ -36,11 +68,26 @@ sub get ($c) {
 	}
 }
 
+
+=head2 get_sub_workspaces
+
+Get all sub workspaces for the current stashed C<user_id> and current stashed
+C<current_workspace>
+
+=cut
+
 sub get_sub_workspaces ($c) {
 	my $sub_wss = $c->workspace->get_user_sub_workspaces( $c->stash('user_id'),
 		$c->stash('current_workspace')->id );
 	$c->status( 200, [ map { $_->as_v1_json } @$sub_wss ] );
 }
+
+
+=head2 create_sub_workspace
+
+Create a new subworkspace for the current stashed C<current_workspace>
+
+=cut
 
 sub create_sub_workspace ($c) {
 	my $body = $c->req->json;
@@ -59,3 +106,19 @@ sub create_sub_workspace ($c) {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

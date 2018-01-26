@@ -1,9 +1,27 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::Relay
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::Relay;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 
 use Data::Printer;
+
+
+=head2 register
+
+Registers a relay and connects it with the current user. The relay is created
+it if the relay does not already exists
+
+=cut
 
 sub register ($c) {
 	my $body    = $c->req->json;
@@ -32,3 +50,18 @@ sub register ($c) {
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

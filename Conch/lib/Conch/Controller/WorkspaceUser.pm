@@ -1,13 +1,37 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::WorkspaceUser
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::WorkspaceUser;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
+
+
+=head2 list
+
+Get a list of users for the current stashed C<current_workspace>
+
+=cut
 
 sub list ($c) {
 	my $users =
 		$c->workspace_user->workspace_users( $c->stash('current_workspace')->id );
 	$c->status( 200, [ map { $_->as_v1_json } @$users ] );
 }
+
+
+=head2 invite
+
+Invite a user to the current stashed C<current_workspace>
+
+=cut
 
 sub invite ($c) {
 	my $body = $c->req->json;
@@ -45,3 +69,19 @@ sub invite ($c) {
 }
 
 1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

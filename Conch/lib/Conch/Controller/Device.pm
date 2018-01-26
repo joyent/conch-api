@@ -1,3 +1,13 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::Device
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::Device;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
@@ -7,6 +17,15 @@ use Conch::Model::Device;
 use aliased 'Conch::Class::DeviceDetailed';
 
 use Data::Printer;
+
+
+=head2 under
+
+All endpoints exist under /device/:id - C<under> looks up the device referenced
+and stashes it in C<current_device> so the action isn't repeated by every
+endpoint
+
+=cut
 
 sub under ($c) {
 	my $device_id = $c->param('id');
@@ -22,6 +41,14 @@ sub under ($c) {
 		return 0;
 	}
 }
+
+
+=head2 get
+
+Retrieves details about a single device, returning a serialized
+Conch::Class::DeviceDetailed
+
+=cut
 
 sub get ($c) {
 	return unless $c->under;
@@ -51,6 +78,13 @@ sub get ($c) {
 	$c->status( 200, $detailed_device->as_v1_json );
 }
 
+
+=head2 graduate
+
+Sets the C<graduated> field on a device, unless that field has already been set
+
+=cut
+
 sub graduate($c) {
 	my $device    = $c->stash('current_device');
 	my $device_id = $device->id;
@@ -63,6 +97,13 @@ sub graduate($c) {
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
 }
 
+
+=head2 set_triton_reboot
+
+Sets the C<triton_reboot> field on a device
+
+=cut
+
 sub set_triton_reboot ($c) {
 	my $device = $c->stash('current_device');
 	$device->set_triton_reboot;
@@ -70,6 +111,14 @@ sub set_triton_reboot ($c) {
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
 }
+
+
+=head2 set_triton_uuid
+
+Sets the C<triton_uuid> field on a device, given a triton_uuid field that is a
+valid UUID
+
+=cut
 
 sub set_triton_uuid ($c) {
 	my $device = $c->stash('current_device');
@@ -87,6 +136,14 @@ sub set_triton_uuid ($c) {
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
 }
+
+
+=head2 set_triton_setup
+
+If a device has been marked as rebooted into Triton and has a Triton UUID, sets
+the C<triton_setup> field. Fails if the device has already been marked as such.
+
+=cut
 
 sub set_triton_setup ($c) {
 	my $device    = $c->stash('current_device');
@@ -112,6 +169,13 @@ sub set_triton_setup ($c) {
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
 }
 
+
+=head2 set_asset_tag
+
+Sets the C<asset_tag> field on a device
+
+=cut
+
 sub set_asset_tag ($c) {
 	my $device = $c->stash('current_device');
 	my $asset_tag = $c->req->json && $c->req->json->{asset_tag};
@@ -130,3 +194,18 @@ sub set_asset_tag ($c) {
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

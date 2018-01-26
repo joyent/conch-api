@@ -1,5 +1,17 @@
 #!/usr/bin/env perl
 
+=pod
+
+=head1 NAME
+
+conch
+
+=head1 DESCRIPTION
+
+Start script for conch Mojo app
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,3 +21,19 @@ use Mojolicious::Commands;
 
 # Start command line interface for application
 Mojolicious::Commands->start_app('Conch');
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+

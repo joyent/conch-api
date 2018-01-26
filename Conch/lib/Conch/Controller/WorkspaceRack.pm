@@ -1,13 +1,38 @@
+=pod
+
+=head1 NAME
+
+Conch::Controller::WorkspaceRack
+
+=head1 METHODS
+
+=cut
+
 package Conch::Controller::WorkspaceRack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 use Data::Printer;
 
+
+=head2 list
+
+Get a list of racks for the current stashed C<current_workspace>
+
+=cut
+
 sub list ($c) {
 	my $racks = $c->workspace_rack->list( $c->stash('current_workspace')->id );
 	$c->status( 200, $racks );
 }
+
+
+=head2 under
+
+For all subroutes, grab the rack ID and stash the relevant rack in
+C<current_ws_rack>
+
+=cut
 
 sub under ($c) {
 	my $rack_id = $c->param('rack_id');
@@ -26,12 +51,26 @@ sub under ($c) {
 	return 1;
 }
 
-# Return with layout
+
+=head2 get_layout
+
+Get the RackLayout for the current stashed C<current_ws_rack>
+
+=cut
+
 sub get_layout ($c) {
 	return unless $c->under;
 	my $layout = $c->workspace_rack->rack_layout( $c->stash('current_ws_rack') );
 	$c->status( 200, $layout );
 }
+
+=head2 add
+
+Add a rack to a workspace, unless it is the GLOBAL workspace, provided the rack
+is assigned to the parent workspace of this one, and provided the rack is not
+already assigned via a datacenter room assignment
+
+=cut
 
 sub add ($c) {
 	my $body = $c->req->json;
@@ -74,6 +113,14 @@ sub add ($c) {
 	$c->redirect_to( $c->url_for->to_abs . "/$rack_id" );
 }
 
+
+=head2 remove
+
+Remove a rack from a workspace, unless it was implicitly assigned via a
+datacenter room assignment
+
+=cut
+
 sub remove ($c) {
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $c->stash('current_workspace')->name eq 'GLOBAL';
@@ -95,6 +142,13 @@ sub remove ($c) {
 		}
 	);
 }
+
+
+=head2 assign_layout
+
+Assign the full layout for a rack
+
+=cut
 
 # TODO: This is legacy code that is non-transactional. It should be reworked. --Lane
 # Bulk update a rack layout.
@@ -122,3 +176,18 @@ sub assign_layout ($c) {
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License, 
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+
