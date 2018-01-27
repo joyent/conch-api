@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::Relay
+
+=head1 METHODS
+
+=cut
 package Conch::Model::Relay;
 use Mojo::Base -base, -signatures;
 
@@ -5,6 +14,11 @@ use Try::Tiny;
 
 has 'pg';
 
+=head2 create
+
+Create a new Relay.
+
+=cut
 sub create ( $self, $serial, $version, $ipaddr, $ssh_port, $alias,
 	$ip_origin = undef )
 {
@@ -33,11 +47,20 @@ sub create ( $self, $serial, $version, $ipaddr, $ssh_port, $alias,
 	return $ret;
 }
 
+=head2 lookup
+
+Look up a relay by ID.
+
+=cut
 sub lookup ( $self, $relay_id ) {
 	return $self->pg->db->select( 'relay', undef, { id => $relay_id } )->hash;
 }
 
-# Associate relay with a user
+=head2 connect_user_relay
+
+Associate relay with a user.
+
+=cut
 sub connect_user_relay ( $self, $user_id, $relay_id ) {
 	my $ret;
 	try {
@@ -59,7 +82,11 @@ sub connect_user_relay ( $self, $user_id, $relay_id ) {
 	return $ret;
 }
 
-# Associate relay with a device
+=head2 connect_device_relay
+
+Associate relay with a device
+
+=cut
 sub connect_device_relay ( $self, $device_id, $relay_id ) {
 	my $ret;
 	try {

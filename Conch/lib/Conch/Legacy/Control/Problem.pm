@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Control::Problem - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Control::Problem;
 
 use strict;
@@ -10,17 +19,22 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw( get_problems );
 
+=head2 get_problems
+
+Build a collection of failing devices in a workspace
+
+=cut
 # The report / validation format is not normalized yet, so this is going to be
 # a giant mess. Sorry. -- bdha
 sub get_problems {
 	my ( $schema, $user_id, $workspace_id ) = @_;
 
-	my $criteria = get_validation_criteria($schema);
+	my $criteria = _get_validation_criteria($schema);
 
 	my @failing_user_devices;
 	my @unreported_user_devices;
 	my @unlocated_user_devices;
-	foreach my $d ( workspace_devices( $schema, $workspace_id ) ) {
+	foreach my $d ( _workspace_devices( $schema, $workspace_id ) ) {
 		if ( $d->health eq 'FAIL' ) {
 			push @failing_user_devices, $d;
 		}
@@ -29,7 +43,7 @@ sub get_problems {
 		}
 	}
 
-	foreach my $d ( unlocated_devices( $schema, $user_id ) ) {
+	foreach my $d ( _unlocated_devices( $schema, $user_id ) ) {
 		push @unlocated_user_devices, $d;
 	}
 
@@ -39,11 +53,11 @@ sub get_problems {
 
 		$failing_problems->{$device_id}{health} = $device->health;
 		$failing_problems->{$device_id}{location} =
-			device_rack_location( $schema, $device_id );
+			_device_rack_location( $schema, $device_id );
 
-		my $report = latest_device_report( $schema, $device_id );
+		my $report = _latest_device_report( $schema, $device_id );
 		$failing_problems->{$device_id}{report_id} = $report->id;
-		my @failures = validation_failures( $schema, $criteria, $report->id );
+		my @failures = _validation_failures( $schema, $criteria, $report->id );
 		$failing_problems->{$device_id}{problems} = \@failures;
 	}
 
@@ -53,7 +67,7 @@ sub get_problems {
 
 		$unreported_problems->{$device_id}{health} = $device->health;
 		$unreported_problems->{$device_id}{location} =
-			device_rack_location( $schema, $device_id );
+			_device_rack_location( $schema, $device_id );
 	}
 
 	my $unlocated_problems = {};
@@ -61,9 +75,9 @@ sub get_problems {
 		my $device_id = $device->id;
 
 		$unlocated_problems->{$device_id}{health} = $device->health;
-		my $report = latest_device_report( $schema, $device_id );
+		my $report = _latest_device_report( $schema, $device_id );
 		$unlocated_problems->{$device_id}{report_id} = $report->id;
-		my @failures = validation_failures( $schema, $criteria, $report->id );
+		my @failures = _validation_failures( $schema, $criteria, $report->id );
 		$unlocated_problems->{$device_id}{problems} = \@failures;
 	}
 
@@ -74,11 +88,11 @@ sub get_problems {
 	};
 }
 
-sub validation_failures {
+sub _validation_failures {
 	my ( $schema, $criteria, $report_id ) = @_;
 	my @failures;
 
-	my @validation_report = device_validation_report( $schema, $report_id );
+	my @validation_report = _device_validation_report( $schema, $report_id );
 	foreach my $v (@validation_report) {
 		my $fail = {};
 		if ( $v->{status} eq 0 ) {
@@ -104,7 +118,7 @@ sub validation_failures {
 	return @failures;
 }
 
-sub get_validation_criteria {
+sub _get_validation_criteria {
 	my ($schema) = @_;
 
 	my $criteria = {};
@@ -125,30 +139,30 @@ sub get_validation_criteria {
 	return $criteria;
 }
 
-sub workspace_devices {
+sub _workspace_devices {
 	my ( $schema, $workspace_id ) = @_;
 	return $schema->resultset('WorkspaceDevices')
 		->search( {}, { bind => [$workspace_id] } )->all;
 }
 
-sub unlocated_devices {
+sub _unlocated_devices {
 	my ( $schema, $user_id ) = @_;
 	return $schema->resultset('UnlocatedUserRelayDevices')
 		->search( {}, { bind => [$user_id] } )->all;
 }
 
 # Gives a hash of Rack and Datacenter location details
-sub device_rack_location {
+sub _device_rack_location {
 	my ( $schema, $device_id ) = @_;
 
 	my $location;
-	my $device_location = device_location( $schema, $device_id );
+	my $device_location = _device_location( $schema, $device_id );
 	if ($device_location) {
-		my $rack_info = get_rack( $schema, $device_location->rack_id );
+		my $rack_info = _get_rack( $schema, $device_location->rack_id );
 		my $datacenter =
-			get_datacenter_room( $schema, $rack_info->datacenter_room_id );
+			_get_datacenter_room( $schema, $rack_info->datacenter_room_id );
 		my $target_hardware =
-			get_target_hardware_product( $schema, $rack_info->id,
+			_get_target_hardware_product( $schema, $rack_info->id,
 			$device_location->rack_unit );
 
 		$location->{rack}{id}   = $device_location->rack_id;
@@ -170,28 +184,28 @@ sub device_rack_location {
 	return $location;
 }
 
-sub device_location {
+sub _device_location {
 	my ( $schema, $device_id ) = @_;
 	my $device =
 		$schema->resultset('DeviceLocation')->find( { device_id => $device_id } );
 	return $device;
 }
 
-sub get_rack {
+sub _get_rack {
 	my ( $schema, $rack_id ) = @_;
 	my $rack = $schema->resultset('DatacenterRack')
 		->find( { id => $rack_id, deactivated => { '=', undef } } );
 	return $rack;
 }
 
-sub get_datacenter_room {
+sub _get_datacenter_room {
 	my ( $schema, $room_id ) = @_;
 	my $room = $schema->resultset('DatacenterRoom')->find( { id => $room_id } );
 	return $room;
 }
 
 # get the hardware product a device should be by rack location
-sub get_target_hardware_product {
+sub _get_target_hardware_product {
 	my ( $schema, $rack_id, $rack_unit ) = @_;
 
 	return $schema->resultset('HardwareProduct')->search(
@@ -203,7 +217,7 @@ sub get_target_hardware_product {
 	)->single;
 }
 
-sub latest_device_report {
+sub _latest_device_report {
 	my ( $schema, $device_id ) = @_;
 
 	return $schema->resultset('LatestDeviceReport')
@@ -211,7 +225,7 @@ sub latest_device_report {
 }
 
 # Bundle up the validate logs for a given device report.
-sub device_validation_report {
+sub _device_validation_report {
 	my ( $schema, $report_id ) = @_;
 
 	my @validate_report =

@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::WorkspaceUser
+
+=head1 METHODS
+
+=cut
 package Conch::Model::WorkspaceUser;
 use Mojo::Base -base, -signatures;
 
@@ -5,6 +14,11 @@ use aliased 'Conch::Class::WorkspaceUser';
 
 has 'pg';
 
+=head2 workspace_users
+
+Retrieve list users assigned to a workspace.
+
+=cut
 sub workspace_users ( $self, $ws_id ) {
 	$self->pg->db->query(
 		q{

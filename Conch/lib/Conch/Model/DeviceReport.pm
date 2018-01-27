@@ -1,9 +1,23 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::DeviceReport
+
+=head1 METHODS
+
+=cut
 package Conch::Model::DeviceReport;
 use Mojo::Base -base, -signatures;
 
 has 'pg';
 has 'log';
 
+=head2 latest_device_report
+
+Look up the latest device report for a given device
+
+=cut
 sub latest_device_report ( $self, $device_id ) {
 	my $ret = $self->pg->db->query(
 		q{
@@ -20,6 +34,11 @@ sub latest_device_report ( $self, $device_id ) {
 	return $ret;
 }
 
+=head2 validation_results
+
+Get the validation results for a given device report
+
+=cut
 sub validation_results ( $self, $report_id ) {
 	$self->pg->db->select( 'device_validate', undef, { report_id => $report_id } )
 		->expand->hashes->to_array;

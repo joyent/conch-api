@@ -52,7 +52,7 @@ sub compare {
 	$self->datetime eq $other->datetime;
 }
 
-=head2 compare
+=head2 to_string
 
 Render the timestamp as a RFC 3337 string with the UTC suffix C<Z>. Used to
 overload string coercion.

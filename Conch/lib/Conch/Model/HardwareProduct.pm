@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::HardwareProduct
+
+=head1 METHODS
+
+=cut
 package Conch::Model::HardwareProduct;
 use Mojo::Base -base, -signatures;
 
@@ -46,6 +55,12 @@ my $fields = q{
   zpool.vdev_t AS zpool_vdev_t
 };
 
+=head2 list
+
+Retrieve a list of all hardware products and associated hardware product
+profiles.
+
+=cut
 sub list ($self) {
 	my $hw_product_hashes = $self->pg->db->query(
 		qq{
@@ -63,6 +78,12 @@ sub list ($self) {
 	return [ map { _build_hardware_product($_) } @$hw_product_hashes ];
 }
 
+=head2 lookup
+
+Look up a hardware product and associated hardware product
+profile by ID.
+
+=cut
 sub lookup ( $self, $hw_id ) {
 	my $ret = $self->pg->db->query(
 		qq{
@@ -82,6 +103,12 @@ sub lookup ( $self, $hw_id ) {
 	return _build_hardware_product($ret);
 }
 
+=head2 lookup_by_name
+
+Look up a hardware product and associated hardware product
+profile by the hardware product name.
+
+=cut
 sub lookup_by_name ( $self, $name ) {
 	my $ret = $self->pg->db->query(
 		qq{

@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Data::Server - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Data::Report::Server;
 
 use Moose;
@@ -16,6 +25,12 @@ with Storage( 'format' => 'JSON' );
 
 with 'Conch::Legacy::Data::Report::Role';
 
+=head2 validations
+
+Return the list of validation functions associated with this category of device
+report.
+
+=cut
 sub validations {
 	my $self        = shift;
 	my @validations = (
@@ -31,6 +46,11 @@ sub validations {
 	return @validations;
 }
 
+=head2 nics_count
+
+Get number of NICs in report
+
+=cut
 sub nics_count {
 	my $self = shift;
 	return scalar( keys %{ $self->interfaces } );

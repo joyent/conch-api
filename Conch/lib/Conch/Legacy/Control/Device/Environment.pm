@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Control::Device::Environment - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Control::Device::Environment;
 
 use strict;
@@ -7,6 +16,11 @@ use Mojo::JSON qw(decode_json encode_json);
 use Exporter 'import';
 our @EXPORT = qw( validate_cpu_temp validate_disk_temp );
 
+=head2 validate_cpu_temp
+
+Valdidate device CPU temperatures
+
+=cut
 sub validate_cpu_temp {
 	my ( $schema, $device, $report_id ) = @_;
 
@@ -85,6 +99,11 @@ sub validate_cpu_temp {
 	}
 }
 
+=head2 validate_disk_temp
+
+Valdidate device disk temperatures
+
+=cut
 sub validate_disk_temp {
 	my ( $schema, $device, $report_id ) = @_;
 

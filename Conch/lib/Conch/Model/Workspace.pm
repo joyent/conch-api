@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::Workspace
+
+=head1 METHODS
+
+=cut
 package Conch::Model::Workspace;
 use Mojo::Base -base, -signatures;
 
@@ -7,6 +16,11 @@ use aliased 'Conch::Class::Workspace';
 
 has 'pg';
 
+=head2 lookup_by_name
+
+Look up a workspace by name.
+
+=cut
 sub lookup_by_name ( $self, $name ) {
 	my $ret =
 		$self->pg->db->select( 'workspace', undef, { name => $name } )->hash;
@@ -15,6 +29,11 @@ sub lookup_by_name ( $self, $name ) {
 	return Workspace->new($ret);
 }
 
+=head2 add_user_to_workspace
+
+Add a user to a workspace with a specified role.
+
+=cut
 sub add_user_to_workspace ( $self, $user_id, $ws_id, $role_id ) {
 
 	# On conflict, set the role for the user
@@ -28,7 +47,12 @@ sub add_user_to_workspace ( $self, $user_id, $ws_id, $role_id ) {
 	)->rows;
 }
 
-# Create a sub-workspace with the same role as the parent workspace
+=head2 create_sub_workspace
+
+Create a sub-workspace for a user. The user will have the same role as in the
+parent workspace.
+
+=cut
 sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 	$description )
 {
@@ -81,6 +105,11 @@ sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 	);
 }
 
+=head2 get_user_workspaces
+
+Retrieve the list of workspaces associated with a user.
+
+=cut
 sub get_user_workspaces ( $self, $user_id ) {
 	$self->pg->db->query(
 		q{
@@ -97,6 +126,12 @@ sub get_user_workspaces ( $self, $user_id ) {
 	)->hashes->map( sub { Workspace->new($_) } )->to_array;
 }
 
+=head2 get_user_workspace
+
+Look up a workspace by ID. Limited to workspaces associated with the specified
+user ID.
+
+=cut
 sub get_user_workspace ( $self, $user_id, $ws_id ) {
 	my $ret = $self->pg->db->query(
 		q{
@@ -116,7 +151,12 @@ sub get_user_workspace ( $self, $user_id, $ws_id ) {
 	return Workspace->new($ret);
 }
 
-# Get all descendents of a workspace recursively
+=head2 get_user_sub_workspaces
+
+Get all sub-workspace descendents of a workspace, recursively. Limited to workspaces
+associated with the specified user ID.
+
+=cut
 sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
 	$self->pg->db->query(
 		q{
@@ -152,7 +192,7 @@ __DATA__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 

@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::Device
+
+=head1 METHODS
+
+=cut
 package Conch::Model::Device;
 use Role::Tiny 'with';
 use Mojo::Base -base, -signatures;
@@ -33,12 +42,20 @@ has [
 		)
 ];
 
+=head2 new
+
+=cut
 sub new ( $class, %args ) {
 	map { $args{$_} = Conch::Time->new( $args{$_} ) if $args{$_} }
 		qw(created graduated last_seen latest_triton_reboot triton_setup updated uptime_since);
 	$class->SUPER::new(%args);
 }
 
+=head2 as_v1
+
+Serialize a hash according to the v1 schema
+
+=cut
 sub as_v1 ($self) {
 	{
 		asset_tag            => $self->asset_tag,
@@ -61,6 +78,11 @@ sub as_v1 ($self) {
 	};
 }
 
+=head2 create
+
+Create a new device
+
+=cut
 sub create (
 	$class, $pg, $id, $hardware_product_id,
 	$state  = 'UNKNOWN',
@@ -84,6 +106,12 @@ sub create (
 	return $class->lookup( $pg, $ret->{id} );
 }
 
+=head2 lookup
+
+Find a device by ID (sometimes also called "serial number") or return undef.
+Does not consider user access restrictions.
+
+=cut
 sub lookup ( $class, $pg, $device_id ) {
 	my $ret = $pg->db->select(
 		'device', undef,
@@ -96,6 +124,14 @@ sub lookup ( $class, $pg, $device_id ) {
 	return $class->new( pg => $pg, $ret->%* );
 }
 
+=head2 lookup_for_user
+
+Find a device by ID for a given user, which either:
+
+a) is located in a datacenter rack in one of the user's workspaces
+b) has sent a device report proxied by a relay using the user's credentials
+
+=cut
 sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
 	my $ret = $pg->db->query(
 		q{
@@ -149,6 +185,11 @@ sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
 	return $class->new( pg => $pg, $ret->%* );
 }
 
+=head2 device_nic_neighbors
+
+Return a hash of NIC and associated NIC peers details for a device
+
+=cut
 sub device_nic_neighbors ( $self, $device_id ) {
 	my $nics = $self->pg->db->query(
 		q{
@@ -177,6 +218,11 @@ sub device_nic_neighbors ( $self, $device_id ) {
 	return \@neighbors;
 }
 
+=head2 graduate
+
+Mark the device as "graduated" (VLAN flipped) 
+
+=cut
 sub graduate ( $self) {
 	my $ret = $self->pg->db->update(
 		'device',
@@ -195,6 +241,11 @@ sub graduate ( $self) {
 	return 1;
 }
 
+=head2 set_triton_setup
+
+Mark the device as set up for triton.
+
+=cut
 sub set_triton_setup ( $self ) {
 	my $ret = $self->pg->db->update(
 		'device',
@@ -212,6 +263,11 @@ sub set_triton_setup ( $self ) {
 	return 1;
 }
 
+=head2 set_triton_uuid
+
+Set and store Triton UUID.
+
+=cut
 sub set_triton_uuid ( $self, $uuid ) {
 	return undef unless is_uuid($uuid);
 
@@ -231,6 +287,11 @@ sub set_triton_uuid ( $self, $uuid ) {
 	return 1;
 }
 
+=head2 set_triton_reboot
+
+Mark the device as rebooted into Triton.
+
+=cut
 sub set_triton_reboot ( $self ) {
 	my $ret = $self->pg->db->update(
 		'device',
@@ -248,6 +309,11 @@ sub set_triton_reboot ( $self ) {
 	return 1;
 }
 
+=head2 set_asset_tag
+
+Set the asset tag for the device
+
+=cut
 sub set_asset_tag ( $self, $asset_tag ) {
 	my $ret = $self->pg->db->update(
 		'device',

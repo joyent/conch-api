@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::DeviceLocation
+
+=head1 METHODS
+
+=cut
 package Conch::Model::DeviceLocation;
 use Mojo::Base -base, -signatures;
 
@@ -8,6 +17,11 @@ use aliased 'Conch::Class::HardwareProduct';
 
 has 'pg';
 
+=head2 lookup
+
+Find a DeviceLocation by Device ID or return undef.
+
+=cut
 sub lookup ( $self, $device_id ) {
 	my $ret = $self->pg->db->query(
 		qq{
@@ -82,6 +96,14 @@ sub _build_device_location ($loc) {
 	);
 }
 
+=head2 assign
+
+Assign a device to provided datacenter rack and rack unit. Return undef if:
+
+a) the datacenter rack doesn't exist
+b) the rack unit in the rack layout doesn't exist
+
+=cut
 sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
 	my $db = $self->pg->db;
 	my $tx = $db->begin;
@@ -139,12 +161,17 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
 	return 1;
 }
 
+
+=head2 unassign
+
+Unassign a device from its current location.
+
+=cut
 sub unassign ( $self, $device_id ) {
 	$self->pg->db->delete( 'device_location', { device_id => $device_id } )->rows;
 }
 
 1;
-
 
 __DATA__
 

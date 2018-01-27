@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Control::Device::Validation - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Control::Device::Validation;
 
 use strict;
@@ -11,6 +20,11 @@ use Conch::Legacy::Control::Device::Network;
 use Exporter 'import';
 our @EXPORT = qw( validate_device );
 
+=head2 validate_device
+
+Run device validations with a device report.
+
+=cut
 sub validate_device {
 	my ( $schema, $device, $device_report, $report_id ) = @_;
 
