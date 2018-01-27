@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Control::Device::Configuration - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Control::Device::Configuration;
 
 use strict;
@@ -7,6 +16,11 @@ use Mojo::JSON qw(decode_json encode_json);
 use Exporter 'import';
 our @EXPORT = qw( validate_product );
 
+=head2 validate_product
+
+Validate device product name.
+
+=cut
 sub validate_product {
 	my ( $schema, $device, $report_id ) = @_;
 

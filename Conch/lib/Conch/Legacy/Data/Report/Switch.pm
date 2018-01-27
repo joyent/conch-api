@@ -16,11 +16,22 @@ with Storage( 'format' => 'JSON' );
 
 with 'Conch::Legacy::Data::Report::Role';
 
+=head2 validations
+
+Return the list of validation functions associated with this category of device
+report.
+
+=cut
 sub validations {
 	my $self = shift;
 	return ( \&validate_system, \&validate_cpu_temp, \&validate_bios_firmware );
 }
 
+=head2 nics_count
+
+Get number of NICs in device report
+
+=cut
 sub nics_count {
 	my $self = shift;
 	my @nics;

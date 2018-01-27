@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::User
+
+=head1 METHODS
+
+=cut
 package Conch::Model::User;
 use Mojo::Base -base, -signatures;
 
@@ -17,6 +26,11 @@ has [
 
 sub _BCRYPT_COST { 4 }    # dancer2 legacy
 
+=head2 create
+
+Create a new user
+
+=cut
 sub create ( $class, $pg, $email, $password ) {
 	my $password_hash = _hash_password($password);
 
@@ -44,6 +58,12 @@ sub create ( $class, $pg, $email, $password ) {
 	);
 }
 
+=head2 lookup
+
+Look up user by ID if $id is UUID, then try to lookup by name, and finally try
+by email. Otherwise, return undef.
+
+=cut
 sub lookup ( $class, $pg, $id ) {
 	my $where = {};
 	my $ret;
@@ -70,14 +90,23 @@ sub lookup ( $class, $pg, $id ) {
 	);
 }
 
+=head2 lookup_by_email
+=cut
 sub lookup_by_email ( $class, $pg, $email ) {
 	return $class->lookup( $pg, $email );
 }
 
+=head2 lookup_by_name
+=cut
 sub lookup_by_name ( $class, $pg, $name ) {
 	return $class->lookup( $pg, $name );
 }
 
+=head2 update_password
+
+Update user's password. Stores a bcrypt'd hashed password.
+
+=cut
 sub update_password ( $self, $p ) {
 	my $password_hash = _hash_password($p);
 	my $ret           = $self->pg->db->update(
@@ -92,6 +121,11 @@ sub update_password ( $self, $p ) {
 	return 0;
 }
 
+=head2 validate_password
+
+Check whether the given password text has a hash matching the stored password hash.
+
+=cut
 sub validate_password ( $self, $p ) {
 	if ( $self->password_hash eq bcrypt( $p, $self->password_hash ) ) {
 		return 1;
@@ -101,6 +135,11 @@ sub validate_password ( $self, $p ) {
 	}
 }
 
+=head2 settings
+
+Retrieve all user's stored settings.
+
+=cut
 sub settings ($self) {
 	my $ret = $self->pg->db->select(
 		'user_settings',
@@ -118,6 +157,11 @@ sub settings ($self) {
 	return \%settings;
 }
 
+=head2 set_setting
+
+Set and store a single setting.
+
+=cut
 sub set_setting ( $self, $key, $value ) {
 	$self->pg->db->update(
 		'user_settings',
@@ -141,10 +185,20 @@ sub set_setting ( $self, $key, $value ) {
 	return $ret->rows;
 }
 
+=head2 setting
+
+Retrieve a single setting specified by a key.
+
+=cut
 sub setting ( $self, $key ) {
 	return $self->settings()->{$key};
 }
 
+=head2 delete_setting
+
+Delete (deactivate) a specified setting.
+
+=cut
 sub delete_setting ( $self, $key ) {
 	my $ret = $self->pg->db->update(
 		'user_settings',
@@ -159,6 +213,11 @@ sub delete_setting ( $self, $key ) {
 	return $ret->rows;
 }
 
+=head2 set_settings
+
+Set and store a collection of settings.
+
+=cut
 sub set_settings ( $self, $settings ) {
 	my $current_settings = $self->settings;
 	for my $setting ( keys $current_settings->%* ) {

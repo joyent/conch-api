@@ -15,7 +15,7 @@ use Data::Printer;
 use List::Compare;
 
 
-=head1 list
+=head2 list
 
 Get a list of rooms for the current stashed C<current_workspace>
 
@@ -27,7 +27,7 @@ sub list ($c) {
 }
 
 
-=head1 replace_rooms
+=head2 replace_rooms
 
 Replace the room list for the current stashed C<current_workspace>, given that
 workspace is not GLOBAL, and provided that the user is an Administrator

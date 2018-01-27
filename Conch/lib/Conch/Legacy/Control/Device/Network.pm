@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Control::Device::Network - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Control::Device::Network;
 
 use strict;
@@ -10,6 +19,11 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw( validate_links validate_wiremap );
 
+=head2 validate_links
+
+Validate the network links for a device
+
+=cut
 sub validate_links {
 	my ( $schema, $device, $report_id ) = @_;
 
@@ -62,6 +76,11 @@ sub validate_links {
 	);
 }
 
+=head2 validate_wiremap
+
+Validate the device wiremap
+
+=cut
 sub validate_wiremap {
 	my ( $schema, $device, $report_id ) = @_;
 
@@ -208,6 +227,11 @@ sub validate_wiremap {
 
 }
 
+=head2 switch_peer_ports
+
+Validate the peer ports connected to the device
+
+=cut
 sub switch_peer_ports {
 	my ( $rack_unit, @rack_slots ) = @_;
 	my $rack_index = first { $rack_slots[$_] == $rack_unit } 0 .. $#rack_slots;

@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Control::DeviceReport - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Control::DeviceReport;
 
 use strict;
@@ -13,6 +22,8 @@ use Data::Printer;
 use Exporter 'import';
 our @EXPORT = qw( record_device_report );
 
+=head2 add_reboot_count
+=cut
 sub add_reboot_count {
 	my $device = shift;
 
@@ -30,7 +41,11 @@ sub add_reboot_count {
 	}
 }
 
-# Returns a Device for processing in the validation steps
+=head2 record_device_report
+
+Record device report and device details from the report
+
+=cut
 sub record_device_report {
 	my ( $schema, $dr ) = @_;
 	my $hw = $schema->resultset('HardwareProduct')->find(
@@ -80,7 +95,7 @@ sub record_device_report {
 				if ( !$prev_uptime && $device->{uptime_since} )
 				|| $device->{uptime_since} && $prev_uptime < $device->{uptime_since};
 
-			device_relay_connect( $schema, $device_id, $dr->{relay}{serial} )
+			_device_relay_connect( $schema, $device_id, $dr->{relay}{serial} )
 				if $dr->{relay};
 
 			# Stores the JSON representation of device report as serialized
@@ -245,8 +260,7 @@ sub record_device_report {
 	return ( $device, $device_report->id );
 }
 
-# Associate relay with a device
-sub device_relay_connect {
+sub _device_relay_connect {
 	my ( $schema, $device_id, $relay_id ) = @_;
 
 	# 'first_seen' column will only be written on create. It should remain

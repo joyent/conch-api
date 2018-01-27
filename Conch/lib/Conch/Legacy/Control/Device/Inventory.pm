@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Legacy::Control::Device::Inventory - B<LEGACY MODULE>
+
+=head1 METHODS
+
+=cut
 package Conch::Legacy::Control::Device::Inventory;
 
 use strict;
@@ -10,6 +19,11 @@ our @EXPORT = qw( validate_system validate_nics_num validate_bios_firmware
 	validate_disks
 );
 
+=head2 validate_system
+
+Validate device according to hardware product profile
+
+=cut
 sub validate_system {
 	my ( $schema, $device, $report_id ) = @_;
 
@@ -137,6 +151,11 @@ sub validate_system {
 	);
 }
 
+=head2 validate_nics_num
+
+Validate the number of NICs for a device
+
+=cut
 sub validate_nics_num {
 	my ( $schema, $device, $report_id ) = @_;
 
@@ -180,6 +199,11 @@ sub validate_nics_num {
 
 }
 
+=head2 validate_bios_firmware
+
+Validate device BIOS firmware
+
+=cut
 sub validate_bios_firmware {
 	my ( $schema, $device, $report_id ) = @_;
 
@@ -225,6 +249,11 @@ sub validate_bios_firmware {
 
 }
 
+=head2 validate_disks
+
+Validate device disks
+
+=cut
 sub validate_disks {
 	my ( $schema, $device, $report_id ) = @_;
 

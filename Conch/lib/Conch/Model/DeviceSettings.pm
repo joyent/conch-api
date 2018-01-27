@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::DeviceSettings
+
+=head1 METHODS
+
+=cut
 package Conch::Model::DeviceSettings;
 use Mojo::Base -base, -signatures;
 
@@ -7,7 +16,14 @@ use DDP;
 
 has 'pg';
 
-# Device settings values, unlike user settings, are text fields rather than JSON
+=head2 set_settings
+
+Associate a collection of settings (in a hashref) with a device.
+
+Device settings values, unlike user settings, are strings rather than JSON
+values.
+
+=cut
 sub set_settings ( $self, $device_id, $settings ) {
 	my $db = $self->pg->db;
 	try {
@@ -44,6 +60,11 @@ sub _deactivate_device_setting ( $db, $device_id, $setting_key ) {
 	);
 }
 
+=head2 get_settings
+
+Retrieve all settings associated with a device and build a hash
+
+=cut
 sub get_settings ( $self, $device_id ) {
 	my $settings = $self->pg->db->select( 'device_settings', undef,
 		{ deactivated => undef, device_id => $device_id } )->expand->hashes;
@@ -56,6 +77,11 @@ sub get_settings ( $self, $device_id ) {
 	);
 }
 
+=head2 delete_device_setting
+
+Delete (deactivate) a specifie device setting.
+
+=cut
 sub delete_device_setting ( $self, $device_id, $setting_key ) {
 	_deactivate_device_setting( $self->pg->db, $device_id, $setting_key )->rows;
 }
@@ -71,7 +97,7 @@ __DATA__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 

@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::WorkspaceDevice
+
+=head1 METHODS
+
+=cut
 package Conch::Model::WorkspaceDevice;
 use Mojo::Base -base, -signatures;
 
@@ -5,6 +14,11 @@ use Conch::Model::Device;
 
 has 'pg';
 
+=head2 list
+
+List all devices located in workspace.
+
+=cut
 sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 	my $last_seen_clause =
 		$last_seen_seconds

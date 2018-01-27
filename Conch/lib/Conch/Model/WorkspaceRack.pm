@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::WorkspaceRack
+
+=head1 METHODS
+
+=cut
 package Conch::Model::WorkspaceRack;
 use Mojo::Base -base, -signatures;
 
@@ -5,6 +14,11 @@ use aliased 'Conch::Class::DatacenterRack';
 
 has 'pg';
 
+=head2 lookup
+
+Look up a datacenter rack assigned in a workspace.
+
+=cut
 sub lookup ( $self, $ws_id, $rack_id ) {
 	my $ret = $self->pg->db->query(
 		q{
@@ -33,6 +47,11 @@ sub lookup ( $self, $ws_id, $rack_id ) {
 	return DatacenterRack->new($ret);
 }
 
+=head2 rack_layout
+
+Build a hash representing the layout of the datacenter rack.
+
+=cut
 sub rack_layout ( $self, $rack ) {
 	my $db = $self->pg->db;
 
@@ -91,6 +110,11 @@ sub rack_layout ( $self, $rack ) {
 	return $res;
 }
 
+=head2 list
+
+Retrieve a list of all datacenter racks assigned to a workspace.
+
+=cut
 # TODO: This is legacy code. It is overly complicated and hard to test.
 # There's too many queries and munging to quickly identify any particular
 # problem. -- Lane
@@ -181,6 +205,12 @@ sub list ( $self, $ws_id ) {
 	return $rack_groups;
 }
 
+=head2 rack_in_parent_workspace
+
+Determine if a datacenter rack can be assigned to a workspace via a parent
+workspace assignment.
+
+=cut
 sub rack_in_parent_workspace ( $self, $ws_id, $rack_id ) {
 	return $self->pg->db->query(
 		qq{
@@ -209,6 +239,12 @@ sub rack_in_parent_workspace ( $self, $ws_id, $rack_id ) {
 	)->rows;
 }
 
+=head2 rack_in_workspace_room
+
+Determine if a datacenter rack is assigned to a workspace via a datacenter room
+assignment.
+
+=cut
 sub rack_in_workspace_room ( $self, $ws_id, $rack_id ) {
 	return $self->pg->db->query(
 		q{
@@ -222,6 +258,11 @@ sub rack_in_workspace_room ( $self, $ws_id, $rack_id ) {
 	)->rows;
 }
 
+=head2 add_to_workspace
+
+Add a rack to a workspace.
+
+=cut
 sub add_to_workspace ( $self, $ws_id, $rack_id ) {
 	my $db = $self->pg->db;
 
@@ -239,6 +280,11 @@ sub add_to_workspace ( $self, $ws_id, $rack_id ) {
 	return 1;
 }
 
+=head2 remove_from_workspace
+
+Remove a rack from a workspace.
+
+=cut
 sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
 	my $db = $self->pg->db;
 

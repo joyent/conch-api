@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::WorkspaceRelay
+
+=head1 METHODS
+
+=cut
 package Conch::Model::WorkspaceRelay;
 use Mojo::Base -base, -signatures;
 
@@ -6,6 +15,11 @@ use aliased 'Conch::Class::WorkspaceRelay';
 
 has 'pg';
 
+=head2 list
+
+Retrieve list of workspace relays.
+
+=cut
 sub list ( $self, $ws_id, $interval_minutes = undef ) {
 	my $db = $self->pg->db;
 

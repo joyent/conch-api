@@ -58,7 +58,7 @@ Alias for Conch::Mail::existing_user_invite
 
 =cut
 
-sub send_exiting_user_invite {
+sub send_existing_user_invite {
 	shift;
 	Conch::Mail::existing_user_invite(@_);
 }

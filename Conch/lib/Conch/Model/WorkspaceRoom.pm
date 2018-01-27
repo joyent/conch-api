@@ -1,3 +1,12 @@
+=pod
+
+=head1 NAME
+
+Conch::Model::WorkspaceRoom
+
+=head1 METHODS
+
+=cut
 package Conch::Model::WorkspaceRoom;
 use Mojo::Base -base, -signatures;
 
@@ -7,6 +16,11 @@ use aliased 'Conch::Class::DatacenterRoom';
 
 has 'pg';
 
+=head2 list
+
+List all datacenter rooms assigned to a workspace.
+
+=cut
 sub list ( $self, $ws_id ) {
 	$self->pg->db->query(
 		q{
@@ -19,6 +33,11 @@ sub list ( $self, $ws_id ) {
 	)->hashes->map( sub { DatacenterRoom->new($_) } )->to_array;
 }
 
+=head2 list_parent_workspace_rooms
+
+List workspace rooms assigned to parent workspace.
+
+=cut
 sub list_parent_workspace_rooms ( $self, $ws_id ) {
 	return $self->pg->db->query(
 		q{
@@ -33,6 +52,11 @@ sub list_parent_workspace_rooms ( $self, $ws_id ) {
 	)->hashes->map( sub { $_->{datacenter_room_id} } )->to_array;
 }
 
+=head2 replace_workspace_rooms
+
+Replace all datacenter rooms assigned to a workspace.
+
+=cut
 sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
 	my $db              = $self->pg->db;
 	my $parent_room_ids = $self->list_parent_workspace_rooms($ws_id);
