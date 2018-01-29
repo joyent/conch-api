@@ -32,8 +32,6 @@ sub mk_tmp_db {
 	$dbh->do('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";') or die;
 	$dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')  or die;
 
-	$dbh->do( io("sql/conch.sql")->all );
-
 	for my $file ( io->dir("sql/migrations")->sort->glob("*.sql") ) {
 		$dbh->do( $file->all ) or die;
 	}
