@@ -1,5 +1,4 @@
 use utf8;
-
 package Conch::Legacy::Schema::Result::Role;
 
 # Created by DBIx::Class::Schema::Loader
@@ -31,7 +30,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
+__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
 =head1 TABLE: C<role>
 
@@ -98,7 +97,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint( "role_name_key", ["name"] );
+__PACKAGE__->add_unique_constraint("role_name_key", ["name"]);
 
 =head1 RELATIONS
 
@@ -114,11 +113,12 @@ __PACKAGE__->has_many(
   "user_workspace_roles",
   "Conch::Legacy::Schema::Result::UserWorkspaceRole",
   { "foreign.role_id" => "self.id" },
-  { cascade_copy      => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PvflBCSDC0eAbcP8tZM+xg
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rMGIiQ1aU7CQJK1pY2iaeQ
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
