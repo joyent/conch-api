@@ -47,3 +47,4 @@ Conch/log
 deploy/site.retry
 deploy/staging
 deploy/production
+deploy/.vault_pass
