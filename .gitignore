@@ -1,50 +1,31 @@
-node_modules
-/blib/
-/.build/
-_build/
-cover_db/
-inc/
-Build
-!Build/
-Build.bat
-.last_cover_stats
-/Makefile
-/Makefile.old
-/MANIFEST.bak
-/META.yml
-/META.json
-/MYMETA.*
-nytprof.out
-/pm_to_blib
+# Temporary, backup, dependency, and object files
 *.o
 *.bs
 /_eumm/
 *.swp
 *.tmp
+*.bak
 tags
 .lvimrc
-/Conch/conch.conf
+.agignore
+.DS_Store
+node_modules
+
+# Conch
 Conch/conch.conf
+Conch/report
 Conch/public/js/app.js
 Conch/public/css/app.css
-.DS_Store
-Conch/environments/*.yml
-Conch/sessions
-Conch/report
-Conch/lib/Conch/Schema/Result/Migration.pm
 Conch/public/doc
-Conch/docs/conch-api/index.html
+Conch/log
+Conch/bin/hypnotoad.pid
 
 # Carton-installed dependency folder
 local/
-
-# perltidy backup files
-*.bak
-
-Conch/log
 
 # deploy files
 deploy/site.retry
 deploy/staging
 deploy/production
 deploy/.vault_pass
+
