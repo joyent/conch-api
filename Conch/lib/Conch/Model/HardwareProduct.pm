@@ -26,7 +26,7 @@ my $fields = q{
   vendor.name AS hw_product_vendor,
 
   hw_profile.id AS hw_profile_id,
-  hw_profile.bios_firmware AS hw_profile_bios_profile,
+  hw_profile.bios_firmware AS hw_profile_bios_firmware,
   hw_profile.cpu_num AS hw_profile_cpu_num,
   hw_profile.cpu_type AS hw_profile_cpu_type,
   hw_profile.dimms_num AS hw_profile_dimms_num,
