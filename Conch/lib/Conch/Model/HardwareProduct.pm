@@ -25,6 +25,7 @@ my $fields = q{
   hw_product.prefix AS hw_product_prefix,
   vendor.name AS hw_product_vendor,
 
+  hw_profile.id AS hw_profile_id,
   hw_profile.bios_firmware AS hw_profile_bios_profile,
   hw_profile.cpu_num AS hw_profile_cpu_num,
   hw_profile.cpu_type AS hw_profile_cpu_type,
@@ -144,6 +145,7 @@ sub _build_hardware_product ($hw) {
 		)
 		: undef;
 	my $hw_profile = HardwareProductProfile->new(
+		id            => $hw->{hw_profile_id},
 		bios_firmware => $hw->{hw_profile_bios_firmware},
 		cpu_num       => $hw->{hw_profile_cpu_num},
 		cpu_type      => $hw->{hw_profile_cpu_type},

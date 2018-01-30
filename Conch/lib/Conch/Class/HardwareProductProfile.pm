@@ -14,6 +14,7 @@ use Role::Tiny 'with';
 
 with 'Conch::Class::Role::JsonV1';
 
+=head2 id
 
 =head2 bios_firmware
 
@@ -59,6 +60,7 @@ with 'Conch::Class::Role::JsonV1';
 
 has [
 	qw(
+		id
 		bios_firmware
 		cpu_num
 		cpu_type
@@ -90,6 +92,7 @@ has [
 sub as_v1_json {
 	my $self = shift;
 	{
+		id            => $self->id,
 		bios_firmware => $self->bios_firmware,
 		cpu_num       => $self->cpu_num,
 		cpu_type      => $self->cpu_type,
