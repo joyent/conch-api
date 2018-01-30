@@ -1,5 +1,4 @@
 use utf8;
-
 package Conch::Legacy::Schema::Result::DatacenterRack;
 
 # Created by DBIx::Class::Schema::Loader
@@ -31,7 +30,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
+__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
 =head1 TABLE: C<datacenter_rack>
 
@@ -91,10 +90,10 @@ __PACKAGE__->table("datacenter_rack");
 __PACKAGE__->add_columns(
   "id",
   {
-    data_type     => "uuid",
+    data_type => "uuid",
     default_value => \"gen_random_uuid()",
-    is_nullable   => 0,
-    size          => 16,
+    is_nullable => 0,
+    size => 16,
   },
   "datacenter_room_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
@@ -146,7 +145,7 @@ __PACKAGE__->has_many(
   "datacenter_rack_layouts",
   "Conch::Legacy::Schema::Result::DatacenterRackLayout",
   { "foreign.rack_id" => "self.id" },
-  { cascade_copy      => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 datacenter_room
@@ -160,7 +159,7 @@ Related object: L<Conch::Legacy::Schema::Result::DatacenterRoom>
 __PACKAGE__->belongs_to(
   "datacenter_room",
   "Conch::Legacy::Schema::Result::DatacenterRoom",
-  { id            => "datacenter_room_id" },
+  { id => "datacenter_room_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -176,7 +175,7 @@ __PACKAGE__->has_many(
   "device_locations",
   "Conch::Legacy::Schema::Result::DeviceLocation",
   { "foreign.rack_id" => "self.id" },
-  { cascade_copy      => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 role
@@ -190,7 +189,7 @@ Related object: L<Conch::Legacy::Schema::Result::DatacenterRackRole>
 __PACKAGE__->belongs_to(
   "role",
   "Conch::Legacy::Schema::Result::DatacenterRackRole",
-  { id            => "role" },
+  { id => "role" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -206,11 +205,12 @@ __PACKAGE__->has_many(
   "workspace_datacenter_racks",
   "Conch::Legacy::Schema::Result::WorkspaceDatacenterRack",
   { "foreign.datacenter_rack_id" => "self.id" },
-  { cascade_copy                 => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WC1Z/E6qvbPxDM5NZAWuAQ
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:35
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zdUUE7p8vbmZabSZxM70kQ
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

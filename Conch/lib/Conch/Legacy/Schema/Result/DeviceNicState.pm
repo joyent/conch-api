@@ -1,5 +1,4 @@
 use utf8;
-
 package Conch::Legacy::Schema::Result::DeviceNicState;
 
 # Created by DBIx::Class::Schema::Loader
@@ -31,7 +30,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
+__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
 =head1 TABLE: C<device_nic_state>
 
@@ -135,12 +134,13 @@ Related object: L<Conch::Legacy::Schema::Result::DeviceNic>
 __PACKAGE__->belongs_to(
   "mac",
   "Conch::Legacy::Schema::Result::DeviceNic",
-  { mac           => "mac" },
+  { mac => "mac" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HZbsjT6jdhGS11mzg7NUmA
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:N1VHjk1YqFxhRcDDVUvOEw
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

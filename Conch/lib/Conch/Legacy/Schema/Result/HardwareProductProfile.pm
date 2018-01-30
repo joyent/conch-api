@@ -1,5 +1,4 @@
 use utf8;
-
 package Conch::Legacy::Schema::Result::HardwareProductProfile;
 
 # Created by DBIx::Class::Schema::Loader
@@ -31,7 +30,7 @@ extends 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components( "InflateColumn::DateTime", "TimeStamp" );
+__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
 =head1 TABLE: C<hardware_product_profile>
 
@@ -186,10 +185,10 @@ __PACKAGE__->table("hardware_product_profile");
 __PACKAGE__->add_columns(
   "id",
   {
-    data_type     => "uuid",
+    data_type => "uuid",
     default_value => \"gen_random_uuid()",
-    is_nullable   => 0,
-    size          => 16,
+    is_nullable => 0,
+    size => 16,
   },
   "product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
@@ -277,8 +276,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint( "hardware_product_profile_product_id_key",
-  ["product_id"] );
+__PACKAGE__->add_unique_constraint("hardware_product_profile_product_id_key", ["product_id"]);
 
 =head1 RELATIONS
 
@@ -294,7 +292,7 @@ __PACKAGE__->has_many(
   "device_specs",
   "Conch::Legacy::Schema::Result::DeviceSpec",
   { "foreign.product_id" => "self.id" },
-  { cascade_copy         => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 device_validate_criterias
@@ -309,7 +307,7 @@ __PACKAGE__->has_many(
   "device_validate_criterias",
   "Conch::Legacy::Schema::Result::DeviceValidateCriteria",
   { "foreign.product_id" => "self.id" },
-  { cascade_copy         => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 hardware_profile_settings
@@ -324,7 +322,7 @@ __PACKAGE__->has_many(
   "hardware_profile_settings",
   "Conch::Legacy::Schema::Result::HardwareProfileSetting",
   { "foreign.profile_id" => "self.id" },
-  { cascade_copy         => 0, cascade_delete => 0 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 product
@@ -338,7 +336,7 @@ Related object: L<Conch::Legacy::Schema::Result::HardwareProduct>
 __PACKAGE__->belongs_to(
   "product",
   "Conch::Legacy::Schema::Result::HardwareProduct",
-  { id            => "product_id" },
+  { id => "product_id" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
@@ -362,8 +360,9 @@ __PACKAGE__->belongs_to(
   },
 );
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-12 11:35:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HgneTBPwUcvVIlPJD5qjhg
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gAKUcqiVM6bNCBVA58nzxA
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
