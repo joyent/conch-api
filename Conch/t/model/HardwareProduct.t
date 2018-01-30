@@ -64,6 +64,7 @@ subtest 'list hardware products' => sub {
 	isa_ok( $hw_product->profile->zpool, 'Conch::Class::ZpoolProfile' );
 
 	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
+	is($hw_product->profile->bios_firmware, "test", "BIOS Firmware");
 };
 
 subtest 'lookup hardware product' => sub {
@@ -73,6 +74,7 @@ subtest 'lookup hardware product' => sub {
 	isa_ok( $hw_product->profile->zpool, 'Conch::Class::ZpoolProfile' );
 
 	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
+	is($hw_product->profile->bios_firmware, "test", "BIOS Firmware");
 };
 
 done_testing();
