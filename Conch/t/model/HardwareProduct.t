@@ -62,6 +62,8 @@ subtest 'list hardware products' => sub {
 	isa_ok( $hw_product,                 'Conch::Class::HardwareProduct' );
 	isa_ok( $hw_product->profile,        'Conch::Class::HardwareProductProfile' );
 	isa_ok( $hw_product->profile->zpool, 'Conch::Class::ZpoolProfile' );
+
+	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
 };
 
 subtest 'lookup hardware product' => sub {
@@ -70,6 +72,7 @@ subtest 'lookup hardware product' => sub {
 	isa_ok( $hw_product->profile,        'Conch::Class::HardwareProductProfile' );
 	isa_ok( $hw_product->profile->zpool, 'Conch::Class::ZpoolProfile' );
 
+	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
 };
 
 done_testing();

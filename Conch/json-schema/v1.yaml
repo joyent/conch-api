@@ -321,6 +321,7 @@ definitions:
           - cpu_type
           - dimms_num
           - hba_firmware
+          - id
           - nics_num
           - psu_total
           - purpose
