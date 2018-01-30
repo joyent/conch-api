@@ -352,6 +352,9 @@ definitions:
             anyOf:
               - type: string
               - type: null
+          id:
+              type: string
+              format: uuid
           nics_num:
             type: integer
           psu_total:
