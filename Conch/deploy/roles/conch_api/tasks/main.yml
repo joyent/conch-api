@@ -26,6 +26,8 @@
     chdir: /opt/conch/Conch
   environment:
     PATH: "/opt/local/lib/perl5/site_perl/bin:{{ ansible_env.PATH }}"
+  tags:
+    - deploy
 
 - name: Import Conch SMF manifest
   command: svccfg import /opt/conch/smf/conch.xml
@@ -39,3 +41,5 @@
   service:
     name: conch
     state: restarted
+  tags:
+    - deploy

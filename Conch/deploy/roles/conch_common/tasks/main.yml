@@ -14,3 +14,5 @@
     version: "{{ conch_version }}"
     accept_hostkey: yes
     ssh_opts: "-o StrictHostKeyChecking=no"
+  tags:
+    - deploy
