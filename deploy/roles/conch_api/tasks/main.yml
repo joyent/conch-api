@@ -20,6 +20,11 @@
   cpanm:
     name: Carton
 
+- name: Update npm
+  npm:
+    name: npm
+    global: yes
+
 - name: Build Conch and dependencies
   shell: make build
   args:
