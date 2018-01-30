@@ -42,3 +42,8 @@ local/
 *.bak
 
 Conch/log
+
+# deploy files
+deploy/site.retry
+deploy/staging
+deploy/production
