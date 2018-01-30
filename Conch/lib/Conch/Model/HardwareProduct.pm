@@ -135,6 +135,7 @@ sub _build_hardware_product ($hw) {
 	my $zpool_profile =
 		$hw->{zpool_id}
 		? ZpoolProfile->new(
+		id       => $hw->{zpool_id},
 		name     => $hw->{zpool_name},
 		cache    => $hw->{zpool_cache},
 		log      => $hw->{zpool_log},

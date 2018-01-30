@@ -407,6 +407,7 @@ definitions:
             anyOf:
               - type: object
                 required:
+                  - id 
                   - cache
                   - log
                   - disk_per
@@ -414,6 +415,9 @@ definitions:
                   - vdev_n
                   - vdev_t
                 properties:
+                  id:
+                    type: string
+                    format: uuid
                   cache:
                     type: integer
                   log:

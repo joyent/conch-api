@@ -65,6 +65,7 @@ subtest 'list hardware products' => sub {
 
 	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
 	is($hw_product->profile->bios_firmware, "test", "BIOS Firmware");
+	is($hw_product->profile->zpool->id, $zpool_profile_id, "Zpool profile ID");
 };
 
 subtest 'lookup hardware product' => sub {
@@ -75,6 +76,7 @@ subtest 'lookup hardware product' => sub {
 
 	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
 	is($hw_product->profile->bios_firmware, "test", "BIOS Firmware");
+	is($hw_product->profile->zpool->id, $zpool_profile_id, "Zpool profile ID");
 };
 
 done_testing();

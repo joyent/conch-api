@@ -14,6 +14,7 @@ use Role::Tiny 'with';
 
 with 'Conch::Class::Role::JsonV1';
 
+=head2 id
 
 =head2 cache
 
@@ -33,6 +34,7 @@ with 'Conch::Class::Role::JsonV1';
 
 has [
 	qw(
+		id
 		name
 		cache
 		log
