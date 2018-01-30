@@ -1,0 +1,6 @@
+---
+conch_version: v2.0.1
+conch_db_password: "{{secret.conch_db_password}}"
+conch_secret_1: "{{secret.conch_secret_1}}"
+conch_secret_2: "{{secret.conch_secret_2}}"
+database_host: "{{groups['db'][0]}}"

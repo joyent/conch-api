@@ -1,0 +1,14 @@
+---
+- name: Conch API servers
+  hosts: api
+  remote_user: root
+  roles:
+    - conch_common
+    - conch_api
+
+- name: Conch DB server
+  hosts: db
+  remote_user: root
+  roles:
+    - conch_common
+    - conch_db

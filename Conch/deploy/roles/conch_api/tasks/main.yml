@@ -1,0 +1,41 @@
+---
+# tasks file for conch_api
+
+- name: Install default perl package
+  package: name=perl state=present
+
+- name: Install cpanm
+  package: name=p5-App-cpanminus state=present
+
+- name: Install gmake
+  package: name=gmake state=present
+
+- name: Install gcc49
+  package: name=gcc49 state=present
+
+- name: Install postgresql96-client
+  package: name=postgresql96-client state=present
+
+- name: Install carton with cpanm
+  cpanm:
+    name: Carton
+
+- name: Build Conch and dependencies
+  shell: make build
+  args:
+    chdir: /opt/conch/Conch
+  environment:
+    PATH: "/opt/local/lib/perl5/site_perl/bin:{{ ansible_env.PATH }}"
+
+- name: Import Conch SMF manifest
+  command: svccfg import /opt/conch/smf/conch.xml
+
+- name: Copy Conch configuration file
+  template:
+    src: conch.conf.j2
+    dest: /opt/conch/Conch/conch.conf
+
+- name: Refresh Conch process
+  service:
+    name: conch
+    state: restarted
