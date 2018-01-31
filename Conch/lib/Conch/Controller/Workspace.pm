@@ -96,6 +96,7 @@ sub create_sub_workspace ($c) {
 	my $ws             = $c->stash('current_workspace');
 
 	return $c->status(401) if $ws->role eq 'Read-only';
+	return $c->status(401) if $ws->role eq 'Integrator';
 
 	my $sub_ws_attempt = $c->workspace->create_sub_workspace(
 		$c->stash('user_id'), $ws->id, $ws->role_id,
