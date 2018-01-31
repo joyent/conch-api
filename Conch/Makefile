@@ -10,7 +10,7 @@ run-perl:
 build: web-assets cpanfile.snapshot local
 
 ui/node_modules:
-	@cd ui && npm install
+	@cd ui && npm install --no-save
 
 local:
 	@carton install --deployment
