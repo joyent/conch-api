@@ -34,7 +34,7 @@ sub authenticate ($c) {
 
 	my $user_id = $c->session('user');
 	unless ($user_id) {
-		$c->status(401);
+		$c->status(401, { error => 'unauthorized'});
 		return 0;
 	}
 	my $user = Conch::Model::User->lookup( $c->pg, $user_id );
@@ -43,7 +43,7 @@ sub authenticate ($c) {
 		return 1;
 	}
 	else {
-		$c->status(401);
+		$c->status(401, { error => 'unauthorized'});
 		return 0;
 	}
 }

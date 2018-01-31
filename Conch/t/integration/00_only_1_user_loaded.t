@@ -30,6 +30,9 @@ all_routes( $t->app->routes );
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 
+$t->get_ok("/me")->status_is(401)->json_is( '/error' => 'unauthorized' );
+$t->get_ok("/login")->status_is(401)->json_is( '/error' => 'unauthorized' );
+
 $t->post_ok(
 	"/login" => json => {
 		user     => 'conch',
@@ -312,7 +315,7 @@ subtest 'Hardware Product' => sub {
 
 subtest 'Log out' => sub {
 	$t->post_ok("/logout")->status_is(204);
-	$t->get_ok("/workspace")->status_is(401);
+	$t->get_ok("/workspace")->status_is(401)->json_is( '/error' => 'unauthorized' );
 };
 
 done_testing();
