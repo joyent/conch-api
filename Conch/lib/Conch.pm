@@ -45,9 +45,13 @@ sub startup {
 
 	$self->helper(
 		status => sub {
-			my $self = shift;
-			$self->res->code(shift);
-			my $payload = shift;
+			my ($self, $code, $payload) = @_;
+
+			$self->res->code($code);
+			if ($code == 401 && !$payload) {
+				$payload = { error => "Unauthorized" };
+			}
+
 			return $payload ? $self->render( json => $payload ) : $self->finish;
 		}
 	);
