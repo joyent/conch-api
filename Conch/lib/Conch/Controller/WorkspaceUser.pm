@@ -41,7 +41,7 @@ sub invite ($c) {
 	my $ws         = $c->stash('current_workspace');
 	my $maybe_role = $c->role->lookup_by_name( $body->{role} );
 
-	if ( $maybe_role->is_fail ) {
+	unless ( $maybe_role ) {
 		my $role_names = join( ', ', map { $_->name } @{ $c->role->list() } );
 		return $c->status( 400,
 			{ error => '"role" must be one of: ' . $role_names } );
