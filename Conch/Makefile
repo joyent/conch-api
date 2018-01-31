@@ -10,7 +10,7 @@ run-perl:
 build: web-assets cpanfile.snapshot local
 
 ui/node_modules:
-	@cd ui && npm install --no-save
+	@cd ui && yarn install
 
 local:
 	@carton install --deployment
@@ -38,7 +38,7 @@ ui/bin/app.js: ui/node_modules ui/src/** ui/package-lock.json
 	@cd ui && npm run-script build;
 
 ui/package-lock.json: ui/package.json
-	@cd ui && npm install;
+	@cd ui && yarn install
 	@touch ui/package.json ui/package-lock.json
 
 public/js/app.js: ui/node_modules ui/bin/app.js
