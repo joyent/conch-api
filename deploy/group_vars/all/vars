@@ -5,5 +5,12 @@ conch_secret_1: "{{secret.conch_secret_1}}"
 conch_secret_2: "{{secret.conch_secret_2}}"
 database_host: "{{groups['db'][0]}}"
 
-nginx_server_names: conch.joyent.us preflight.scloud.zone
-nginx_https_enabled: True
+nginx_server_names: "{{inventory_hostname}}.xip.io"
+nginx_https_enabled: False
+
+letsencrypt_enabled: True
+letsencrypt:
+  domain: "{{inventory_hostname}}.xip.io"
+  admin_email: preflight-dev@joyent.com
+  staging: True
+

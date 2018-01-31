@@ -60,8 +60,12 @@ http {
     server {
         listen 0.0.0.0:80;
         server_name {{ nginx_server_names }};
+        location /.well-known {
+            allow all;
+            root /var/www/html;
+        }
 
-    {% if nginx_https_enabled %}
+    {% if letsencrypt_enabled %}
         if ($scheme != "https") {
             return 302 https://$host$request_uri;
         }
@@ -71,9 +75,8 @@ http {
         listen 0.0.0.0:443 ssl;
         server_name {{ nginx_server_names }};
 
-        ssl_certificate /etc/letsencrypt/live/preflight.scloud.zone/fullchain.pem; # managed by Certbot
-        ssl_certificate_key /etc/letsencrypt/live/preflight.scloud.zone/privkey.pem; # managed by Certbot
-        include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+        ssl_certificate /opt/local/etc/letsencrypt/live/{{letsencrypt.domain}}/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /opt/local/etc/letsencrypt/live/{{letsencrypt.domain}}/privkey.pem; # managed by Certbot
 
     {% endif %}
 

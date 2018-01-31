@@ -19,6 +19,36 @@
 - name: Install postgresql96-client
   package: name=postgresql96-client state=present
 
+- name: Install certbot
+  package: name=py27-certbot state=present
+
+- name: Create webroot directory
+  file:
+    path: /var/www/html
+    state: directory
+    owner: www
+    group: www
+    mode: 0755
+
+- name: Create Let's Encrypt-signed certificate
+  command: >
+    certbot certonly --webroot --webroot-path /var/www/html
+    --noninteractive --agree-tos
+    --email {{ letsencrypt.admin_email }}
+    {% if letsencrypt.staging %} --staging {% endif %}
+    -d {{ letsencrypt.domain }}
+  args:
+    creates: /opt/local/etc/letsencrypt/live/{{letsencrypt.domain}}
+  when: letsencrypt_enabled
+
+- name: Cron job to renew Let's Encrypt certificate
+  cron:
+    minute: 0
+    hour: 0,12
+    job: >
+      perl -e 'sleep int(rand(3600))' && certbot renew --webroot --webroot-path /var/www/html --quiet
+    state: present
+
 - name: Install carton with cpanm
   cpanm:
     name: Carton
