@@ -4,6 +4,9 @@
 - name: Install default perl package
   package: name=perl state=present
 
+- name: Install nginx
+  package: name=nginx state=present
+
 - name: Install cpanm
   package: name=p5-App-cpanminus state=present
 
@@ -25,26 +28,31 @@
     name: npm
     global: yes
 
+- name: Import Conch SMF manifest
+  command: svccfg import /opt/conch/smf/conch.xml
+  changed_when: False
+
 - name: Build Conch and dependencies
   shell: make build
   args:
     chdir: /opt/conch/Conch
   environment:
     PATH: "/opt/local/lib/perl5/site_perl/bin:{{ ansible_env.PATH }}"
+  notify:
+    - refresh conch
   tags:
     - deploy
-
-- name: Import Conch SMF manifest
-  command: svccfg import /opt/conch/smf/conch.xml
 
 - name: Copy Conch configuration file
   template:
     src: conch.conf.j2
     dest: /opt/conch/Conch/conch.conf
+  notify:
+    - refresh conch
 
-- name: Refresh Conch process
-  service:
-    name: conch
-    state: restarted
-  tags:
-    - deploy
+- name: Load nginx configuration
+  template:
+    src: nginx.conf.j2
+    dest: /opt/local/etc/nginx/nginx.conf
+  notify:
+    - restart nginx

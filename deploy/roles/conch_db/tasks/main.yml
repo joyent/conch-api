@@ -15,6 +15,13 @@
     enabled: yes
     state: started
 
+- name: Add postgres configuration
+  copy:
+    src: postgresql.conf
+    dest: /var/pgsql/data/postgresql.conf
+  notify:
+    - restart postgres
+
 - name: Install PsycoPG2 for postgresql_* tasks
   package:
     name: py27-psycopg2
