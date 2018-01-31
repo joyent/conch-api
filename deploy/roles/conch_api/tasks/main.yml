@@ -30,9 +30,19 @@
     group: www
     mode: 0755
 
+- name: Register nginx status
+  command: svcs svc:/pkgsrc/nginx:default
+  changed_when: False
+  register: nginx_running
+
 - name: Create Let's Encrypt-signed certificate
   command: >
-    certbot certonly --webroot --webroot-path /var/www/html
+    certbot certonly
+    {% if nginx_running.stdout.find('online') != -1 %}
+    --webroot --web-path /var/www/html
+    {% else %}
+    --standalone
+    {% endif %}
     --noninteractive --agree-tos
     --email {{ letsencrypt.admin_email }}
     {% if letsencrypt.staging %} --staging {% endif %}
@@ -53,9 +63,9 @@
   cpanm:
     name: Carton
 
-- name: Update npm
+- name: Install yarn (JS build tool)
   npm:
-    name: npm
+    name: yarn
     global: yes
 
 - name: Import Conch SMF manifest
