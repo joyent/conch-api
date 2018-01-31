@@ -79,8 +79,8 @@ sub add ($c) {
 		unless ( $body && $body->{id} );
 	my $rack_id = $body->{id};
 
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Read-only';
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Integrator';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Read-only';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Integrator';
 
 	return $c->status( 400,
 		{ error => "Rack ID must be a UUID. Got '$rack_id'." } )
@@ -125,8 +125,8 @@ datacenter room assignment
 =cut
 
 sub remove ($c) {
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Read-only';
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Integrator';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Read-only';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Integrator';
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $c->stash('current_workspace')->name eq 'GLOBAL';
 
@@ -158,8 +158,8 @@ Assign the full layout for a rack
 # TODO: This is legacy code that is non-transactional. It should be reworked. --Lane
 # Bulk update a rack layout.
 sub assign_layout ($c) {
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Read-only';
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Integrator';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Read-only';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Integrator';
 	my $rack_id = $c->stash('current_ws_rack')->id;
 
 	my $layout = $c->req->json;
