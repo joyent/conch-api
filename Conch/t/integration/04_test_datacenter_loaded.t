@@ -364,8 +364,54 @@ subtest 'Permissions' => sub {
 				}
 			)->status_is(401);
 		};
+		$t->post_ok("/logout")->status_is(204);
+	};
+
+	subtest "Integrator" => sub {
+		my $name = 'integrator@wat.wat';
+		my $pass = 'password';
+
+		my $role = $role_model->lookup_by_name( 'Integrator' );
+		my $user = Conch::Model::User->create($pg, $name, $pass);
+		$ws_model->add_user_to_workspace($user->id, $id, $role->id);
+		$t->post_ok(
+			"/login" => json => {
+				user     => $name,
+				password => $pass,
+			}
+		)->status_is(200);
+
+		$t->get_ok('/workspace')->status_is(200)->json_is( '/0/name', 'GLOBAL' );
+		subtest "Can't create a subworkspace" => sub {
+			$t->post_ok(
+				"/workspace/$id/child" => json => {
+					name        => "test",
+					description => "also test",
+				}
+			)->status_is(401);
+		};
+
+		subtest "Can't set a rack layout" => sub {
+			$t->post_ok(
+				"/workspace/$id/rack/$rack_id/layout",
+				json => {
+					TEST => 1
+				}
+			)->status_is(401);
+		};
 
 
+		subtest "Can't invite a user" => sub {
+			$t->post_ok(
+				"/workspace/$id/user",
+				json => {
+					user => 'another@wat.wat',
+					role => 'Read-only',
+				}
+			)->status_is(401);
+		};
+
+		$t->post_ok("/logout")->status_is(204);
 
 	};
 
