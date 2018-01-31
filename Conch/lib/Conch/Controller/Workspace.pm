@@ -94,6 +94,9 @@ sub create_sub_workspace ($c) {
 	return $c->status( 401, { error => '"name" must be defined in request' } )
 		unless $body->{name};
 	my $ws             = $c->stash('current_workspace');
+
+	return $c->status(401) if $ws->role eq 'Read-only';
+
 	my $sub_ws_attempt = $c->workspace->create_sub_workspace(
 		$c->stash('user_id'), $ws->id, $ws->role_id,
 		$body->{name},        $body->{description}

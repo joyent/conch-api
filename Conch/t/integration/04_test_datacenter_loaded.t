@@ -8,6 +8,8 @@ use Data::Printer;
 
 BEGIN {
 	use_ok("Test::ConchTmpDB");
+	use_ok("Conch::Model::WorkspaceRole");
+	use_ok("Conch::Model::Workspace");
 	use_ok( "Conch::Route", qw(all_routes) );
 }
 
@@ -301,6 +303,73 @@ subtest 'Device location' => sub {
 subtest 'Log out' => sub {
 	$t->post_ok("/logout")->status_is(204);
 	$t->get_ok("/workspace")->status_is(401);
+};
+
+subtest 'Permissions' => sub {
+	my $ro_name = 'readonly@wat.wat';
+	my $ro_pass = 'password';
+
+	my $pg = Mojo::Pg->new( $pgtmp->uri );
+
+	my $role_model = new_ok( "Conch::Model::WorkspaceRole", [ pg => $pg ] );
+	my $ws_model = new_ok( "Conch::Model::Workspace", [ pg => $pg ] );
+
+	subtest "Read-only" => sub {
+
+		my $ro_role = $role_model->lookup_by_name( 'Read-only' );
+
+		my $ro_user = Conch::Model::User->create( $pg, $ro_name, $ro_pass );
+
+		$ws_model->add_user_to_workspace($ro_user->id, $id, $ro_role->id);
+
+		$t->post_ok(
+			"/login" => json => {
+				user     => $ro_name,
+				password => $ro_pass,
+			}
+		)->status_is(200);
+		BAIL_OUT("Login failed") if $t->tx->res->code != 200;
+
+		$t->get_ok('/workspace')->status_is(200)->json_is( '/0/name', 'GLOBAL' );
+
+		subtest "Can't create a subworkspace" => sub {
+			$t->post_ok(
+				"/workspace/$id/child" => json => {
+					name        => "test",
+					description => "also test",
+				}
+			)->status_is(401);
+		};
+
+		subtest "Can't add a rack" => sub {
+			$t->post_ok( "/workspace/$id/rack", json => { id => $rack_id } )
+				->status_is(401)
+		};
+
+		subtest "Can't set a rack layout" => sub {
+			$t->post_ok(
+				"/workspace/$id/rack/$rack_id/layout",
+				json => {
+					TEST => 1
+				}
+			)->status_is(401);
+		};
+
+		subtest "Can't invite a user" => sub {
+			$t->post_ok(
+				"/workspace/$id/user",
+				json => {
+					user => 'another@wat.wat',
+					role => 'Read-only',
+				}
+			)->status_is(401);
+		};
+
+
+
+	};
+
+
 };
 
 done_testing();
