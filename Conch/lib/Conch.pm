@@ -49,7 +49,7 @@ sub startup {
 
 			$self->res->code($code);
 			if ( ($code == 403) && !$payload) {
-				$payload = { error => "Unauthorized" };
+				$payload = { error => "Forbidden" };
 			}
 
 			return $payload ? $self->render( json => $payload ) : $self->finish;

@@ -338,12 +338,12 @@ subtest 'Permissions' => sub {
 					name        => "test",
 					description => "also test",
 				}
-			)->status_is(403)->json_is("/error", "Unauthorized");
+			)->status_is(403)->json_is("/error", "Forbidden");
 		};
 
 		subtest "Can't add a rack" => sub {
 			$t->post_ok( "/workspace/$id/rack", json => { id => $rack_id } )
-				->status_is(403)->json_is("/error", "Unauthorized");
+				->status_is(403)->json_is("/error", "Forbidden");
 		};
 
 		subtest "Can't set a rack layout" => sub {
@@ -352,7 +352,7 @@ subtest 'Permissions' => sub {
 				json => {
 					TEST => 1
 				}
-			)->status_is(403)->json_is("/error", "Unauthorized");
+			)->status_is(403)->json_is("/error", "Forbidden");
 		};
 
 		subtest "Can't invite a user" => sub {
@@ -362,7 +362,7 @@ subtest 'Permissions' => sub {
 					user => 'another@wat.wat',
 					role => 'Read-only',
 				}
-			)->status_is(403)->json_is("/error", "Unauthorized");
+			)->status_is(403)->json_is("/error", "Forbidden");
 		};
 		$t->post_ok("/logout")->status_is(204);
 	};
@@ -388,7 +388,7 @@ subtest 'Permissions' => sub {
 					name        => "test",
 					description => "also test",
 				}
-			)->status_is(403)->json_is("/error", "Unauthorized");
+			)->status_is(403)->json_is("/error", "Forbidden");
 		};
 
 
@@ -399,7 +399,7 @@ subtest 'Permissions' => sub {
 					user => 'another@wat.wat',
 					role => 'Read-only',
 				}
-			)->status_is(403)->json_is("/error", "Unauthorized");
+			)->status_is(403)->json_is("/error", "Forbidden");
 		};
 
 		$t->post_ok("/logout")->status_is(204);
