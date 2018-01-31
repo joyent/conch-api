@@ -391,15 +391,6 @@ subtest 'Permissions' => sub {
 			)->status_is(403)->json_is("/error", "Unauthorized");
 		};
 
-		subtest "Can't set a rack layout" => sub {
-			$t->post_ok(
-				"/workspace/$id/rack/$rack_id/layout",
-				json => {
-					TEST => 1
-				}
-			)->status_is(403)->json_is("/error", "Unauthorized");
-		};
-
 
 		subtest "Can't invite a user" => sub {
 			$t->post_ok(
