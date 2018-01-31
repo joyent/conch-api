@@ -48,7 +48,7 @@ sub startup {
 			my ($self, $code, $payload) = @_;
 
 			$self->res->code($code);
-			if ($code == 401 && !$payload) {
+			if ( ($code == 403) && !$payload) {
 				$payload = { error => "Unauthorized" };
 			}
 

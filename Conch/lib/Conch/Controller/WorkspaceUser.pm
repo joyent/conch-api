@@ -38,8 +38,8 @@ sub invite ($c) {
 	return $c->status( 400, { error => '"user" and "role " fields required ' } )
 		unless ( $body->{user} and $body->{role} );
 
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Read-only';
-	return $c->status(401) if $c->stash('current_workspace')->role eq 'Integrator';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Read-only';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'Integrator';
 
 	my $ws         = $c->stash('current_workspace');
 	my $maybe_role = $c->role->lookup_by_name( $body->{role} );
