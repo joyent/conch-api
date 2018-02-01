@@ -583,6 +583,9 @@ definitions:
           - type: null
       role:
         type: string
+      parent_id:
+        type: string
+        format: uuid
   WorkspaceUsers:
     type: array
     items:
