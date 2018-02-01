@@ -78,6 +78,9 @@
     chdir: /opt/conch/Conch
   environment:
     PATH: "/opt/local/lib/perl5/site_perl/bin:{{ ansible_env.PATH }}"
+  # Installing Strings::CamelCase transiently fails on first build. Try it
+  # twice. This dependency will be removed when DBIx::Class is removed.
+  retries: 2
   notify:
     - refresh conch
   tags:
