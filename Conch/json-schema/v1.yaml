@@ -2,23 +2,30 @@
 definitions:
   Error:
     type: object
+    additionalProperties: false
+    required:
+      - error
     properties:
       error:
         type: string
   DetailedDevice:
     type: object
+    additionalProperties: false
     required:
       - asset_tag
+      - boot_phase
       - created
       - hardware_product
       - health
       - id
       - graduated
       - last_seen
+      - latest_report
       - latest_triton_reboot
       - role
       - state
       - system_uuid
+      - triton_setup
       - triton_uuid
       - updated
       - uptime_since
@@ -28,6 +35,10 @@ definitions:
       - nics
     properties:
       asset_tag:
+        anyOf:
+          - type: string
+          - type: null
+      boot_phase:
         anyOf:
           - type: string
           - type: null
@@ -51,6 +62,11 @@ definitions:
           - type: string
             format: date-time
           - type: null
+      latest_report:
+        anyOf:
+          - type: string
+            format: uuid
+          - type: null
       latest_triton_reboot:
         anyOf:
           - type: string
@@ -65,6 +81,11 @@ definitions:
       system_uuid:
         type: string
         format: uuid
+      triton_setup:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: null
       triton_uuid:
         anyOf:
           - type: string
@@ -97,6 +118,14 @@ definitions:
         type: array
         items:
           type: object
+          additionalProperties: false
+          required:
+            - mac
+            - iface_name
+            - iface_vendor
+            - peer_mac
+            - peer_port
+            - peer_switch
           properties:
             mac:
               type: string
@@ -124,8 +153,10 @@ definitions:
       $ref: "#/definitions/Device"
   Device:
     type: object
+    additionalProperties: false
     required:
       - asset_tag
+      - boot_phase
       - created
       - hardware_product
       - health
@@ -142,6 +173,10 @@ definitions:
       - validated
     properties:
       asset_tag:
+        anyOf:
+          - type: string
+          - type: null
+      boot_phase:
         anyOf:
           - type: string
           - type: null
@@ -204,6 +239,7 @@ definitions:
           - type: null
   DeviceReport:
     type: object
+    additionalProperties: false
     required:
       - product_name
       - serial_number
@@ -230,6 +266,7 @@ definitions:
         type: object
   DeviceLocation:
     type: object
+    additionalProperties: false
     required:
       - datacenter
       - rack
@@ -237,17 +274,22 @@ definitions:
     properties:
       datacenter:
         type: object
+        additionalProperties: false
         required:
           - id
           - name
+          - vendor_name
         properties:
           id:
             type: string
             format: uuid
           name:
             type: string
+          vendor_name:
+            type: string
       rack:
         type: object
+        additionalProperties: false
         required:
           - id
           - name
@@ -268,6 +310,7 @@ definitions:
         description: >
           Details of the hardware product the device is expected to be based
           on it's current position and the rack layout.
+        additionalProperties: false
         required:
           - id
           - name
@@ -293,6 +336,7 @@ definitions:
       $ref: "#/definitions/HardwareProduct"
   HardwareProduct:
     type: object
+    additionalProperties: false
     required:
       - id
       - name
@@ -315,6 +359,7 @@ definitions:
         description: Hardware product vendor name
       profile:
         type: object
+        additionalProperties: false
         required:
           - bios_firmware
           - cpu_num
@@ -406,6 +451,7 @@ definitions:
           zpool:
             anyOf:
               - type: object
+                additionalProperties: false
                 required:
                   - id 
                   - cache
@@ -438,6 +484,7 @@ definitions:
     type: object
     items:
       type: object
+      additionalProperties: false
       properties:
         id:
           type: string
@@ -454,6 +501,7 @@ definitions:
             type: integer
   Rack:
     type: object
+    additionalProperties: false
     properties:
       id:
         type: string
@@ -470,6 +518,7 @@ definitions:
         type: object
         items:
           type: object
+          additionalProperties: false
           properties:
             alias:
               type: string
@@ -498,6 +547,17 @@ definitions:
       $ref: "#/definitions/Relay"
   Relay:
     type: object
+    additionalProperties: false
+    required:
+      - alias
+      - created
+      - devices
+      - id
+      - ipaddr
+      - location
+      - ssh_port
+      - updated
+      - version
     properties:
       alias:
         anyOf:
@@ -518,6 +578,19 @@ definitions:
         anyOf:
           - type: string
           - type: null
+      location:
+        type: object
+        additionalProperties: false
+        properties:
+          rack_id:
+            type: string
+            format: uuid
+          rack_name:
+            type: string
+          role_name:
+            type: string
+          room_name:
+            type: string
       ssh_port:
         type: number
       updated:
@@ -527,6 +600,7 @@ definitions:
         type: string
   Problems:
     type: object
+    additionalProperties: false
     properties:
       failing:
         type: object
@@ -542,6 +616,12 @@ definitions:
           $ref: "#/definitions/Problem"
   Problem:
     type: object
+    additionalProperties: false
+    required:
+      - location
+      - health
+      - report_id
+      - problems
     properties:
       location:
         anyOf:
@@ -566,6 +646,7 @@ definitions:
       $ref: "#/definitions/Workspace"
   Workspace:
     type: object
+    additionalProperties: false
     required:
       - id
       - name
@@ -592,6 +673,7 @@ definitions:
     type: array
     items:
       type: object
+      additionalProperties: false
       required:
         - name
         - email
@@ -609,6 +691,7 @@ definitions:
       $ref: "#/definitions/Room"
   Room:
     type: object
+    additionalProperties: false
     required:
       - id
       - az
