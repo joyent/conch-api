@@ -1,22 +1,4 @@
--- conch schema
-
--- Questions to ask for each column:
--- NOT NULL?
--- UNIQUE?
--- REFERENCES?
--- ON (DELETE | UPDATE)
--- DEFAULT value?
--- Indexed?
-
--- Questions to ask for each table
--- Normalization:
---   * are all rows completely defined wholly and only by the primary key?
--- What fields do we need to keep track of their updated time?
-
--- Run this as superuser:
--- CREATE EXTENSION pgcrypto;
---
--- Ordering matters, sadly.
+SELECT run_migration(0, $$
 
 CREATE TABLE relay (
     id                  text        PRIMARY KEY, -- System serial number
@@ -447,8 +429,5 @@ CREATE TABLE user_datacenter_room_access (
   PRIMARY KEY (user_id, datacenter_room_id)
 );
 
------------------------------------------------------------------------------
--- Indexes
------------------------------------------------------------------------------
 
--- CREATE INDEX user_to_device     ON device               (user_id);
+$$);

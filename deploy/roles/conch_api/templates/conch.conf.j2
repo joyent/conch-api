@@ -1,0 +1,18 @@
+{
+    # Secrets used for HMAC-signed (not encrypted!) cookies. Only the first is
+    # used to create new signatures, but all of them for verification. This
+    # rotating in new passphrases and out old ones.
+    secrets => ["{{conch_secret_1}}", "{{conch_secret_2}}"],
+
+    # URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+    pg => 'postgresql://conch:{{conch_db_password}}@{{database_host}}/conch',
+
+    # See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
+    hypnotoad => {
+      listen => ['http://*:{{conch_port}}'],
+      # operates behind a reverse proxy
+      proxy => 1,
+    }
+
+}
+

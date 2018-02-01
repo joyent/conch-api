@@ -1,0 +1,18 @@
+---
+# tasks file for conch_common
+
+- name: Install git
+  package:
+    name: git
+    update_cache: yes
+    state: present
+
+- name: Get latest Conch repo
+  git:
+    repo: ssh://git@github.com/joyent/conch.git
+    dest: /opt/conch
+    version: "{{ conch_version }}"
+    accept_hostkey: yes
+    ssh_opts: "-o StrictHostKeyChecking=no"
+  tags:
+    - deploy

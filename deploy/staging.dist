@@ -1,0 +1,6 @@
+[api]
+127.0.0.1 ansible_python_interpreter=/opt/local/bin/python
+
+[db]
+127.0.0.1 ansible_python_interpreter=/opt/local/bin/python
+

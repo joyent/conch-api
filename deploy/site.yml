@@ -1,0 +1,18 @@
+---
+- name: Conch API servers
+  hosts: api
+  remote_user: root
+  roles:
+    - conch_common
+    - conch_api
+  vars: 
+    conch_version: user/lane/ansible-deployment
+
+- name: Conch DB server
+  hosts: db
+  remote_user: root
+  roles:
+    - conch_common
+    - conch_db
+  vars: 
+    conch_version: user/lane/ansible-deployment
