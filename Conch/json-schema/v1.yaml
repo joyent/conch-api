@@ -584,8 +584,10 @@ definitions:
       role:
         type: string
       parent_id:
-        type: string
-        format: uuid
+        anyOf:
+            - type: string
+              format: uuid
+            - type: null
   WorkspaceUsers:
     type: array
     items:

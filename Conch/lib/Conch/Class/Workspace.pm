@@ -39,16 +39,13 @@ has [qw( id name description parent_workspace_id role role_id )];
 
 sub as_v1_json {
 	my $self = shift;
-	my $ret  = {
+	{
 		id          => $self->id,
 		name        => $self->name,
 		description => $self->description,
 		role        => $self->role,
-	};
-	if ($self->parent_workspace_id) {
-		$ret->{parent_id} = $self->parent_workspace_id;
+		parent_id   => $self->parent_workspace_id,
 	}
-	return $ret
 }
 
 1;

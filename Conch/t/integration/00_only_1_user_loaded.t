@@ -142,6 +142,7 @@ subtest 'Workspaces' => sub {
 			name        => "GLOBAL",
 			role        => "Administrator",
 			description => "Global workspace. Ancestor of all workspaces.",
+			parent_id   => undef,
 		},
 		'Workspace v1 data contract'
 	);
