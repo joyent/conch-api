@@ -20,7 +20,7 @@ BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
 
 my $validator = JSON::Validator->new;
-$validator->schema( YAML::Tiny->read($spec_file)->[0] );
+$validator->schema( $spec_file );
 
 # add UUID validation
 my $valid_formats = $validator->formats;
@@ -81,7 +81,7 @@ $t->get_ok("/workspace/$id")->status_is(200)->json_schema_is('Workspace');
 $t->get_ok("/workspace/$id/user")->status_is(200)
 	->json_schema_is('WorkspaceUsers');
 
-$t->get_ok("/workspace/$id/problem")->status_is(200)->json_schema_is('Problem');
+$t->get_ok("/workspace/$id/problem")->status_is(200)->json_schema_is('Problems');
 
 $t->post_ok(
 	"/workspace/$id/child" => json => {
