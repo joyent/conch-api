@@ -6,7 +6,7 @@
     - conch_common
     - conch_api
   vars: 
-    conch_version: user/lane/ansible-deployment
+    conch_version: v2.1.0
 
 - name: Conch DB server
   hosts: db
@@ -15,4 +15,4 @@
     - conch_common
     - conch_db
   vars: 
-    conch_version: user/lane/ansible-deployment
+    conch_version: v2.1.0
