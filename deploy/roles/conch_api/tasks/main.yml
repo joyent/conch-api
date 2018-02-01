@@ -81,6 +81,8 @@
   # Installing Strings::CamelCase transiently fails on first build. Try it
   # twice. This dependency will be removed when DBIx::Class is removed.
   retries: 2
+  register: build_result
+  until: build_result.rc == 0
   notify:
     - refresh conch
   tags:
