@@ -13,6 +13,7 @@ package Conch::Controller::User;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::Model::User;
 use Mojo::JSON qw(to_json);
+use Mojo::Exception;
 
 use Data::Printer;
 
@@ -73,7 +74,8 @@ sub set_settings ($c) {
 	return $c->status( 400, { error => 'Payload required' } ) unless $body;
 
 	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
-	return $c->status(401) unless $user;
+	Mojo::Exception->throw('Could not find previously stashed user')
+		unless $user;
 
 	$user->set_settings($body);
 
@@ -100,7 +102,8 @@ sub set_setting ($c) {
 	) unless $value;
 
 	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
-	return $c->status(401) unless $user;
+	Mojo::Exception->throw('Could not find previously stashed user')
+		unless $user;
 
 	my $ret = $user->set_setting( $key => $value );
 	if ($ret) {
@@ -120,7 +123,8 @@ Get the key/values of every setting for a User
 
 sub get_settings ($c) {
 	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
-	return $c->status(401) unless $user;
+	Mojo::Exception->throw('Could not find previously stashed user')
+		unless $user;
 
 	$c->status( 200, _settings_as_v1($user) );
 }
@@ -136,7 +140,8 @@ sub get_setting ($c) {
 	my $key = $c->param('key');
 
 	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
-	return $c->status(401) unless $user;
+	Mojo::Exception->throw('Could not find previously stashed user')
+		unless $user;
 
 	my $settings = $user->settings;
 
@@ -157,7 +162,8 @@ sub delete_setting ($c) {
 	my $key = $c->param('key');
 
 	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
-	return $c->status(401) unless $user;
+	Mojo::Exception->throw('Could not find previously stashed user')
+		unless $user;
 
 	my $settings = $user->settings;
 
@@ -183,7 +189,7 @@ __DATA__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
