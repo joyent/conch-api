@@ -113,7 +113,7 @@ Retrieve the list of workspaces associated with a user.
 sub get_user_workspaces ( $self, $user_id ) {
 	$self->pg->db->query(
 		q{
-    SELECT w.id, w.name, w.description, r.name as role, r.id as role_id
+    SELECT w.*, r.name as role, r.id as role_id
     FROM workspace w
     JOIN user_workspace_role uwr
     ON w.id = uwr.workspace_id
@@ -135,7 +135,7 @@ user ID.
 sub get_user_workspace ( $self, $user_id, $ws_id ) {
 	my $ret = $self->pg->db->query(
 		q{
-          SELECT w.id, w.name, w.description, r.name as role, r.id as role_id
+          SELECT w.*, r.name as role, r.id as role_id
           FROM workspace w
           JOIN user_workspace_role uwr
           ON w.id = uwr.workspace_id
@@ -169,7 +169,7 @@ sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
         FROM workspace w, subworkspace s
         WHERE w.parent_workspace_id = s.id
     )
-    SELECT subworkspace.id, subworkspace.name, subworkspace.description,
+    SELECT subworkspace.*,
       role.name as role, role.id as role_id
     FROM subworkspace
     JOIN user_workspace_role uwr

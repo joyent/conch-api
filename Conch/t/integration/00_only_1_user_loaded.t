@@ -197,6 +197,7 @@ subtest 'Sub-Workspace' => sub {
 					name        => "test",
 					role        => "Administrator",
 					description => "also test",
+					parent_id   => $id,
 				}
 			],
 			"Subworkspace List V1 Data Contract"
@@ -210,6 +211,7 @@ subtest 'Sub-Workspace' => sub {
 				name        => "test",
 				role        => "Administrator",
 				description => "also test",
+				parent_id   => $id,
 			},
 			"Subworkspace V1 Data Contract"
 		);
