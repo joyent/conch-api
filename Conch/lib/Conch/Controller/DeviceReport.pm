@@ -37,7 +37,7 @@ sub process ($c) {
 
 	#Log::Any->get_logger( category => 'report.raw' )
 	#->trace( encode_json $raw_report);
-	my $device_report;
+	my ($device_report, $errs);
 	try {
 		if ( $raw_report->{device_type} && $raw_report->{device_type} eq "switch" )
 		{
@@ -48,12 +48,10 @@ sub process ($c) {
 		}
 	}
 	catch {
-		my $errs = join( "; ", map { $_->message } $device_report->errors );
-
+		$errs = join( "; ", map { $_->message } $_->errors );
 		$c->app->log->error( 'Failed parsing device report: ' . $errs );
-
-		return $c->status( 400, { error => $errs } );
 	};
+	return $c->status( 400, { error => $errs } ) if $errs;
 
 	my $aux_report = dclone($raw_report);
 	for my $attr ( keys %{ $device_report->pack } ) {
