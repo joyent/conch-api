@@ -59,6 +59,8 @@ sub startup {
 	$self->helper(
 		global_auth => sub {
 			my ($c, $role_name) = @_;
+			return 0 unless $c->stash('user_id');
+
 			my $ws = $c->workspace->lookup_by_name('GLOBAL');
 			return 0 unless $ws;
 
