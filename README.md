@@ -21,4 +21,4 @@ project. All of these should be run in the `Conch/` directory.
 
 # API
 
-The Conch API is documented at [preflight.scloud.zone/doc](https://preflight.scloud.zone/doc).
+The Conch API is documented at [here](https://conch.joyent.us/doc).
