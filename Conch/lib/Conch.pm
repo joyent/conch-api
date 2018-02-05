@@ -56,6 +56,26 @@ sub startup {
 		}
 	);
 
+	$self->helper(
+		global_auth => sub {
+			my ($c, $role_name) = @_;
+			my $ws = $c->workspace->lookup_by_name('GLOBAL');
+			return 0 unless $ws;
+
+			my $user_ws = $c->workspace->get_user_workspace(
+				$c->stash('user_id'),
+				$ws->id,
+			);
+
+			return 0 unless $user_ws;
+			return 0 unless $user_ws->role eq $role_name;
+			return 1;
+		},
+		is_global_admin => sub { shift->global_auth('Administrator') },
+	);
+
+
+
 	# Render exceptions and Not Found as JSON
 	$self->hook(
 		before_render => sub {
