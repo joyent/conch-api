@@ -251,6 +251,9 @@ subtest 'Device Report' => sub {
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(409)
 		->json_like( '/error', qr/Hardware Product '.+' does not exist/ );
+	
+	$t->post_ok( '/device/TEST', json => { serial_number => 'TEST' })
+		->status_is(400)->json_like('/error', qr/Attribute .* is required/);
 };
 
 subtest 'Single device' => sub {
