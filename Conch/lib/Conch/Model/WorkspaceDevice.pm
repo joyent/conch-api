@@ -28,7 +28,7 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 	my $ret = $self->pg->db->query(
 		qq{
 		WITH target_workspace (id) AS ( values(?::uuid) )
-		SELECT device.id
+		SELECT device.*
 		FROM device
 		JOIN device_location loc
 		  ON loc.device_id = device.id
@@ -53,7 +53,7 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 
 	my @devices;
 	for my $d ( $ret->@* ) {
-		push @devices, Conch::Model::Device->lookup( $self->pg, $d->{id} );
+		push @devices, Conch::Model::Device->new( pg => $self->pg, %$d);
 	}
 	return \@devices;
 }
