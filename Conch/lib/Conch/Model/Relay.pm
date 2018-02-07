@@ -121,7 +121,7 @@ Provide a list of all relays in the database as Class::Relay objects
 sub list ( $self ) {
 	my @relays;
 	try {
-		for my $r ($self->pg->db->query("select * from relay;")->hashes->@*) {
+		for my $r ($self->pg->db->select('relay')->hashes->@*) {
 			$r->{created} = Conch::Time->new($r->{created}) if $r->{created};
 			$r->{updated} = Conch::Time->new($r->{updated}) if $r->{updated};
 			push @relays, Conch::Class::Relay->new($r);
