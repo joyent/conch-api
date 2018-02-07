@@ -10,6 +10,9 @@ Conch::Model::Relay
 package Conch::Model::Relay;
 use Mojo::Base -base, -signatures;
 
+use Conch::Class::Relay;
+use Conch::Time;
+
 use Try::Tiny;
 
 has 'pg';
@@ -106,6 +109,25 @@ sub connect_device_relay ( $self, $device_id, $relay_id ) {
 		)->rows;
 	};
 	return $ret;
+}
+
+
+=head2 list
+
+Provide a list of all relays in the database as Class::Relay objects
+
+=cut
+
+sub list ( $self ) {
+	my @relays;
+	try {
+		for my $r ($self->pg->db->query("select * from relay;")->hashes->@*) {
+			$r->{created} = Conch::Time->new($r->{created}) if $r->{created};
+			$r->{updated} = Conch::Time->new($r->{updated}) if $r->{updated};
+			push @relays, Conch::Class::Relay->new($r);
+		}
+	};
+	return @relays;
 }
 
 1;
