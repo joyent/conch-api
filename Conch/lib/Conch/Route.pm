@@ -44,9 +44,6 @@ sub all_routes {
 
 	$unsecured->get( '/', sub { shift->reply->static('../public/index.html') } );
 
-	$unsecured->get( '/js/app.js',
-		sub { shift->reply->static('../public/js/app.js') } );
-
 	$unsecured->get(
 		'/ping',
 		sub {
