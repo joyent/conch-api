@@ -73,7 +73,12 @@ sub startup {
 			return 0 unless $user_ws->role eq $role_name;
 			return 1;
 		},
-		is_global_admin => sub { shift->global_auth('Administrator') },
+	);
+	
+	$self->helper(
+		is_global_admin => sub {
+			shift->global_auth('Administrator')
+		}
 	);
 
 
