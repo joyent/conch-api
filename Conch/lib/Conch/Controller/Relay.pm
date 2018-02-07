@@ -49,6 +49,18 @@ sub register ($c) {
 	$c->status(204);
 }
 
+
+=head2 list
+
+If the user is a global admin, retrieve a list of all relays in the database
+
+=cut
+
+sub list ($c) {
+	return $c->status(403) unless $c->is_global_admin;
+	$c->status( 200, [ map { $_->as_v1_json } $c->relay->list ] );
+}
+
 1;
 
 __DATA__

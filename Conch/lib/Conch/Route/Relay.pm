@@ -28,6 +28,7 @@ sub relay_routes {
 	my $r = shift;
 
 	$r->post('/relay/:id/register')->to('relay#register');
+	$r->get('/relay')->to('relay#list');
 }
 
 1;
