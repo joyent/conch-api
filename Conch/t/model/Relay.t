@@ -58,4 +58,12 @@ subtest "connect user relay" => sub {
 	ok( !$relay_model->connect_user_relay( $user_id, 'bad_serial' ) );
 };
 
+subtest "list" => sub {
+	my @relays = $relay_model->list();
+	is(scalar @relays, 1, "Relay count");
+	is($relays[0]->id, "deadbeef", "ID checks out");
+	isa_ok($relays[0]->created, 'Conch::Time');
+	isa_ok($relays[0]->updated, 'Conch::Time');
+};
+
 done_testing();
