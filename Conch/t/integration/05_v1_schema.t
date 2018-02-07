@@ -172,11 +172,11 @@ $t->get_ok("/workspace/$id/device?health=pass")->status_is(200)
 
 $t->get_ok("/workspace/$id/relay")->status_is(200)
 	->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
-	->json_schema_is('Relays');
+	->json_schema_is('WorkspaceRelays');
 
 $t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
 	->json_is( '/0/id', 'deadbeef', 'Has active relay' )
-	->json_schema_is('Relays');
+	->json_schema_is('WorkspaceRelays');
 
 $t->get_ok("/workspace/$id/device?ids_only=1")->status_is(200)
 	->json_schema_is( { type => 'array', items => { type => 'string' } } );
@@ -188,5 +188,7 @@ my $hw_id = $t->tx->res->json->[0]->{id};
 
 $t->get_ok("/hardware_product/$hw_id")->status_is(200)
 	->json_schema_is('HardwareProduct');
+
+$t->get_ok("/relay")->status_is(200)->json_schema_is('Relays');
 
 done_testing();

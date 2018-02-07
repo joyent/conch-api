@@ -61,6 +61,11 @@ subtest 'Register relay' => sub {
 	)->status_is(204);
 };
 
+subtest 'Relay List' => sub {
+	$t->get_ok('/relay')->status_is(200);
+	$t->json_is('/0/id' => 'deadbeef');
+};
+
 subtest 'Device Report' => sub {
 	my $report =
 		io->file('t/integration/resource/passing-device-report.json')->slurp;

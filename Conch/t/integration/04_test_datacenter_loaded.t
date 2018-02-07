@@ -140,6 +140,7 @@ subtest 'Register relay' => sub {
 	)->status_is(204);
 };
 
+
 subtest 'Device Report' => sub {
 	my $report = io->file('t/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(200)
@@ -287,6 +288,8 @@ subtest 'Relays' => sub {
 		->json_is( '/0/devices/0/id', 'TEST', 'Associated with reporting device' );
 	$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
 		->json_is( '/0/id', 'deadbeef', 'Has active relay' );
+
+	$t->get_ok('/relay')->status_is(200)->json_is('/0/id' => 'deadbeef');
 };
 
 subtest 'Device location' => sub {
@@ -299,6 +302,7 @@ subtest 'Device location' => sub {
 
 	$t->delete_ok('/device/TEST/location')->status_is(204);
 };
+
 
 subtest 'Log out' => sub {
 	$t->post_ok("/logout")->status_is(204);
@@ -364,6 +368,10 @@ subtest 'Permissions' => sub {
 				}
 			)->status_is(403)->json_is("/error", "Forbidden");
 		};
+
+		subtest "Can't get a relay list" => sub {
+			$t->get_ok("/relay")->status_is(403);
+		};
 		$t->post_ok("/logout")->status_is(204);
 	};
 
@@ -400,6 +408,10 @@ subtest 'Permissions' => sub {
 					role => 'Read-only',
 				}
 			)->status_is(403)->json_is("/error", "Forbidden");
+		};
+
+		subtest "Can't get a relay list" => sub {
+			$t->get_ok("/relay")->status_is(403);
 		};
 
 		$t->post_ok("/logout")->status_is(204);
