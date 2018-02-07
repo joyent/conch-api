@@ -29,7 +29,12 @@ sub authenticate ($c) {
 		my ( $user, $password ) = split /:/, $basic_auth;
 		my $u = Conch::Model::User->lookup( $c->pg, $user );
 		return 0 unless $u;
-		return $u->validate_password($password);
+
+		my $ret = $u->validate_password($password);
+		if ($ret) {
+			$c->stash(user_id => $u->id);
+		}
+		return $ret;
 	}
 
 	my $user_id = $c->session('user');
