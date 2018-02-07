@@ -541,11 +541,11 @@ definitions:
               anyOf:
                 - $ref: "#/definitions/Device"
                 - type: null
-  Relays:
+  WorkspaceRelays:
     type: array
     items:
-      $ref: "#/definitions/Relay"
-  Relay:
+      $ref: "#/definitions/WorkspaceRelay"
+  WorkspaceRelay:
     type: object
     additionalProperties: false
     required:
@@ -709,3 +709,44 @@ definitions:
           - type: null
       vendor_name:
         type: string
+  Relays:
+    type: array
+    items:
+      $ref: "#/definitions/Relay"
+  Relay:
+    type: object
+    additionalProperties: false
+    required:
+      - alias
+      - created
+      - id
+      - ipaddr
+      - ssh_port
+      - updated
+      - version
+    properties:
+      alias:
+        anyOf:
+          - type: string
+          - type: null
+      created:
+        type: string
+        format: date-time
+      id:
+        type: string
+      ipaddr:
+        anyOf:
+          - type: string
+          - type: null
+      ssh_port:
+        anyOf:
+          - type: number
+          - type: null
+      updated:
+        type: string
+        format: date-time
+      version:
+        anyOf:
+          - type: string
+          - type: null
+
