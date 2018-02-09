@@ -33,6 +33,7 @@ for my $file ( map { io->file("../sql/test/$_") } @test_sql_files ) {
 all_routes( $t->app->routes );
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
+$t->get_ok("/version")->status_is(200);
 
 $t->post_ok(
 	"/login" => json => {

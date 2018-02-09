@@ -51,6 +51,12 @@ sub all_routes {
 		}
 	);
 
+	my $git_rev = `git describe`;
+	chomp($git_rev);
+	$unsecured->get('/version' => sub { 
+		shift->status(200, { version => $git_rev });
+	});
+
 	$unsecured->post('/login')->to('login#session_login');
 	$unsecured->post('/logout')->to('login#session_logout');
 	$unsecured->post('/reset_password')->to('login#reset_password');
