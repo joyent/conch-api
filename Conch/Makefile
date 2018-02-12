@@ -4,6 +4,9 @@
 
 run: build run-perl
 
+run_dev: build
+	@carton exec -- morbo -v bin/conch -l http://\*:5001
+
 run-perl:
 	@carton exec bin/conch daemon
 
