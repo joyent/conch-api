@@ -22,6 +22,8 @@ use Conch::Route::Relay;
 use Conch::Route::HardwareProduct;
 use Conch::Route::Validation;
 
+use Conch::Route::Orc;
+
 use Exporter 'import';
 our @EXPORT = qw(
 	all_routes
@@ -35,6 +37,7 @@ Set up the full route structure
 
 sub all_routes {
 	my $r = shift;
+	my $features = shift || {};
 
 	my $unsecured = $r->under(
 		sub {
@@ -76,6 +79,9 @@ sub all_routes {
 		}
 	);
 
+	if ($features->{orc}) {
+		Conch::Route::Orc->load($secured);
+	}
 
 	workspace_routes($secured);
 	device_routes($secured);

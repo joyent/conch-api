@@ -17,6 +17,10 @@
     # present, uses the value of $app->mode ('production' with Hypnotoad).
     # rollbar_environment => 'staging',
 
+	features => {
+		#'orc' => 1,
+	},
+
     # See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
     hypnotoad => {
       listen => ['http://*:5000'],

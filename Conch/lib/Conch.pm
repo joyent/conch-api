@@ -48,6 +48,9 @@ sub startup {
 	Conch::Pg->new($self->config('pg'));
 	Conch::Minion->new;
 
+	my %features = $self->config('features') ? 
+		$self->config('features')->%* : () ;
+
 	$self->helper(
 		status => sub {
 			my ( $self, $code, $payload ) = @_;
@@ -221,8 +224,7 @@ sub startup {
 
 	Conch::ValidationSystem->load_validations;
 
-	my $r = $self->routes;
-	all_routes($r);
+	all_routes($self->routes, \%features);
 }
 
 1;

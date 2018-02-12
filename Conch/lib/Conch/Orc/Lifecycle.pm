@@ -1,0 +1,499 @@
+=pod
+
+=head1 NAME
+
+Conch::Orc::Lifecycle
+
+=head1 DESCRIPTION
+
+A 'lifecycle' is an ordered list of 'workflows' for a given hardware product and
+device role. 
+
+=cut
+
+package Conch::Orc::Lifecycle;
+
+use strict;
+use warnings;
+use utf8;
+use v5.20;
+
+use Moo;
+use experimental qw(signatures);
+
+use Try::Tiny;
+use Type::Tiny;
+use Types::Standard qw(Num InstanceOf Str Bool);
+use Types::UUID qw(Uuid);
+
+use Conch::Time;
+use Conch::Pg;
+use Conch::Orc;
+
+=head1 ACCESSORS
+
+=over 4
+
+=item id
+
+UUID. Can't be written by user
+
+=cut
+
+has 'id' => (
+	is  => 'rwp',
+	isa => Uuid,
+);
+
+
+=item name
+
+String. Required
+
+=cut
+
+has 'name' => (
+	is       => 'rw',
+	isa      => Str,
+	required => 1,
+);
+
+
+=item version
+
+Number. Required.
+
+=cut
+
+has 'version' => (
+	default  => 1,
+	is       => 'rw',
+	isa      => Num,
+	required => 1,
+);
+
+
+=item created
+
+Conch::Time. Can't be written by user
+
+=cut
+
+has 'created' => (
+	is => 'rwp',
+	isa => InstanceOf["Conch::Time"]
+);
+
+
+=item updated
+
+Conch::Time. Can't be written by user. Will be updated to C<<Conch::Time->now>>
+whenever C<save> is called.
+
+=cut
+
+has 'updated' => (
+	is => 'rwp',
+	isa => InstanceOf["Conch::Time"]
+);
+
+
+=item deactivated
+
+Bool. Defaults to 0
+
+=cut
+
+has 'deactivated' => (
+	is => 'rw',
+	isa => Bool,
+	default => 0,
+);
+
+
+=item hardware_id
+
+UUID. FKs into C<hardware_product(id)>
+
+=cut
+
+has 'hardware_id' => (
+	is       => 'rw',
+	isa      => Uuid,
+	required => 1,
+);
+
+
+=item locked
+
+Bool. Defaults to 0
+
+=cut
+
+has 'locked' => (
+	is      => 'rw',
+	isa     => Bool,
+	default => 0,
+);
+
+
+=item device_role 
+
+String. Value of C<device(role)>
+
+=cut
+
+has 'device_role' => (
+	is       => 'rw',
+	isa      => Str,
+	required => 1,
+);
+
+
+=pod
+
+=back
+
+=head1 METHODS
+
+=head2 from_id
+
+Look up a Lifecycle by its UUID. Returns undef if not found
+
+=cut
+
+sub from_id ($class, $uuid) {
+	return $class->_from(id => $uuid);
+}
+
+
+=head2 from_name
+
+Look up a lifecycle by its name. Returns undef if not found
+
+=cut
+
+sub from_name ($class, $name) {
+	return $class->_from(name => $name);
+}
+
+
+sub _from ($class, $key, $value) {
+	my $ret;
+	try {
+		$ret = Conch::Pg->new()->db->select('orc_lifecycle', undef, {
+			$key => $value
+		})->hash;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->_from: $_");
+		return undef;
+	};
+
+	$ret->{created} = Conch::Time->new($ret->{created});
+	$ret->{updated} = Conch::Time->new($ret->{updated});
+
+	return $class->new($ret->%*);
+}
+
+
+=head2 many_from_device
+
+	my @lifecycles = Conch::Orc::Lifecycle->many_from_device($d)->@*;
+
+Returns an arrayref containing all Lifecycles for a given device
+
+=cut
+
+sub many_from_device($class, $device) {
+	my $ret = Conch::Pg->new->db->query(qq|
+		select distinct(w.id) as workflow_id, ol.* from orc_lifecycle ol
+			join orc_lifecycle_plan olp on ol.id = olp.orc_lifecycle_id
+			join workflow w on w.id = olp.workflow_id
+			join workflow_status ws on ws.workflow_id = w.id
+		where ws.device_id = ?
+	|, $device->id)->hashes;
+
+	my @many = map {
+		$_->{created} = Conch::Time->new($_->{created});
+		$_->{updated} = Conch::Time->new($_->{updated});
+		$class->new($_->%*)
+	} $ret->@*;
+
+	return \@many;
+}
+
+
+=head2 all
+
+Returns an arrayref containing all lifecycles in the database
+
+=cut
+
+sub all ($class) {
+	my $ret;
+	try {
+		$ret = Conch::Pg->new()->db->select('orc_lifecycle')->hashes;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->all: $_");
+		return undef;
+	};
+
+	my @many = map {
+		$_->{created} = Conch::Time->new($_->{created});
+		$_->{updated} = Conch::Time->new($_->{updated});
+		$class->new($_->%*)
+	} $ret->@*;
+
+	return \@many;
+}
+
+
+=head2 workflows
+
+Returns an arrayref of all Workflows in the Lifecycle
+
+=cut
+
+sub workflows ($self) {
+	my $db = Conch::Pg->new()->db;
+	my $ret = $db->query(qq|
+		select * from workflow w
+		natural join orc_lifecycle_plan olp
+		where olp.orc_lifecycle_id = ?
+			and w.id = olp.workflow_id
+		order by olp.workflow_order
+	|, $self->id)->hashes;
+
+	my @plan = map {
+		$_->{created} = Conch::Time->new($_->{created});
+		$_->{updated} = Conch::Time->new($_->{updated});
+		Conch::Orc::Workflow->new($_->%*)
+	} $ret->@*;
+
+	return \@plan;
+}
+
+
+=head2 add_workflow
+
+	$lifecycle->add_workflow($workflow);
+
+	$lifecycle->add_workflow($workflow, 2);
+
+Add a new Workflow to the plan. Also takes an optional order number. If
+provided, the workflow will be added to that slot and the other Workflows will
+be reordered.
+
+Returns C<$self>, allowing for method chaining
+
+=cut
+
+sub add_workflow($self, $workflow, $order = undef) {
+	my $db = Conch::Pg->new->db;
+
+	unless($order) {
+		$order = 1;
+		my $ret;
+		try {
+			$ret = $db->query(qq|
+				select workflow_order from orc_lifecycle_plan
+				where orc_lifecycle_id = ?
+				order by workflow_order asc
+				limit 1
+			|, $self->id)->hash;
+		} catch {
+			Mojo::Exception->throw(__PACKAGE__."->add_workflow: $_");
+			return undef;
+		};
+		if($ret) {
+			$order = $ret->{workflow_order} + 1;
+		}
+	}
+
+	try {
+		$db->insert('orc_lifecycle_plan', {
+			orc_lifecycle_id => $self->id,
+			workflow_id      => $workflow->id,
+			workflow_order   => $order,
+		});
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->add_workflow: $_");
+		return undef;
+	};
+
+	return $self;
+}
+
+
+=head2 remove_workflow
+
+	$lifecycle->remove_workflow($workflow);
+
+Remove a workflow from the plan. Remaining workflows will be reordered.
+
+Returns C<$self>, allowing for method chaining.
+
+=cut
+
+sub remove_workflow($self, $workflow) {
+	my $db = Conch::Pg->new->db;
+
+	my $plan;
+	try {
+		$plan = $db->query(qq|
+			select * from orc_lifecycle_plan
+			where orc_lifecycle_id = ?
+			order by workflow_order asc
+		|, $self->id)->hashes;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->remove_workflow: $_");
+		return undef;
+	};
+
+	return $self unless $plan->@*;
+
+
+	my $tx = $db->begin;
+	try {
+		my $ret = $db->query(qq|
+			delete from orc_lifecycle_plan
+			where orc_lifecycle_id = ? and workflow_id = ?
+		|, $self->id, $workflow->id);
+
+
+		my $found = 0;
+		for my $r ($plan->@*) {
+			if ($r->{workflow_id} eq $workflow->id) {
+				$found = 1;
+				next;
+			}
+			if ($found) {
+				$db->query(qq|
+					update orc_lifecycle_plan
+					set workflow_order = ?
+					where orc_lifecycle_id = ? and workflow_id = ?
+				|, ($r->{workflow_order}-1), $self->id, $r->{workflow_id})
+			}
+		}
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->remove_workflow: $_");
+		return undef;
+	};
+	$tx->commit;
+
+	return $self;
+}
+
+
+=head2 save
+
+Save or update the Lifecycle
+
+Returns C<$self>, allowing for method chaining
+
+=cut
+
+sub save ($self) {
+	my $db = Conch::Pg->new()->db;
+
+	my $ret;
+	my %attrs = (
+		name        => $self->name,
+		version     => $self->version,
+		device_role => $self->device_role,
+		hardware_id => $self->hardware_id,
+		updated     => Conch::Time->now->timestamptz,
+		deactivated => $self->deactivated,
+		locked      => $self->locked,
+	);
+	try {
+		if($self->id) {
+			$ret = $db->update(
+				'orc_lifecycle', 
+				\%attrs,
+				{ id => $self->id }
+			)->hash;
+		} else {
+			$ret = $db->insert(
+				'orc_lifecycle', 
+				\%attrs,
+				{ returning => [qw(id created updated)] }
+			)->hash;
+		}
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->save: $_");
+		return undef;
+	};
+
+	$self->_set_id($ret->{id});
+	$self->_set_created(Conch::Time->new($ret->{created}));
+	$self->_set_updated(Conch::Time->new($ret->{updated}));
+
+	return $self;
+}
+
+
+=head2 v1
+
+Returns a hashref, representing the object in v1 format.
+
+This format B<lacks> workflows and will the resultant output will contain an
+empty arrayref for C<workflows>
+
+=cut
+
+#############################
+sub v1 ($self) {
+	{
+		created     => $self->created->rfc3339,
+		deactivated => $self->deactivated,
+		device_role => $self->device_role,
+		hardware_id => $self->hardware_id,
+		id          => $self->id,
+		locked      => $self->locked,
+		name        => $self->name,
+		updated     => $self->updated->rfc3339,
+		version     => $self->version,
+		workflows   => [],
+	}
+}
+
+
+=head2 v1_cascade
+
+Returns a hashref, representing the object in v1 format.
+
+This format contains full workflows, loaded via their C<v1_cascade> method.
+
+=cut
+
+sub v1_cascade ($self) {
+	my $v1 = $self->v1;
+
+	my @v1_workflows = map { $_->v1_cascade } $self->workflows->@*;
+
+	$v1->{workflows} = \@v1_workflows;
+
+	return $v1;
+}
+
+
+
+
+1;
+
+
+__DATA__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License,
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+
