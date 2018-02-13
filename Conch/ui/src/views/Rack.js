@@ -28,7 +28,7 @@ const allRacks = {
             m("h3.selection-list-header", roomName),
             m(
                 ".selection-list-group",
-                Rack.rackRooms[roomName].map(({ id, name, role, size }) =>
+                Rack.rackRooms[roomName].map(({ id, name, role }) =>
                     m(
                         "a.selection-list-item",
                         {
@@ -45,13 +45,11 @@ const allRacks = {
                                     : "",
                         },
                         m(".pure-g", [
-                            m(".pure-u-1-3", m("b", t("Name"))),
-                            m(".pure-u-1-3", m("b", t("Role"))),
-                            m(".pure-u-1-3", m("b", t("RU"))),
+                            m(".pure-u-1-2", m("b", t("Name"))),
+                            m(".pure-u-1-2", m("b", t("Role"))),
 
-                            m(".pure-u-1-3", name),
-                            m(".pure-u-1-3", role),
-                            m(".pure-u-1-3", size),
+                            m(".pure-u-1-2", name),
+                            m(".pure-u-1-2", role),
                         ])
                     )
                 )
