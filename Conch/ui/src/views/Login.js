@@ -11,7 +11,7 @@ export default {
                 m("legend", t("Login to Conch")),
                 m("input[type=text]", {
                     oninput: m.withAttr("value", Auth.setUsername),
-                    placeholder: t("User Name"),
+                    placeholder: t("Email Address"),
                     value: Auth.username,
                 }),
                 m("input[type=password]", {
