@@ -15,6 +15,7 @@ Conch - Setup and helpers for Conch Mojo app
 package Conch;
 use Mojo::Base 'Mojolicious';
 
+use Conch::Pg;
 use Conch::Route qw(all_routes);
 use Mojo::Pg;
 use Mojolicious::Plugin::Bcrypt;
@@ -36,10 +37,9 @@ sub startup {
 	$self->sessions->cookie_name('conch');
 	$self->sessions->default_expiration(2592000);    # 30 days
 
-	my $pg_uri = $self->config('pg');
 	$self->helper(
 		pg => sub {
-			state $pg = Mojo::Pg->new($pg_uri);
+			state $pg = Conch::Pg->new($self->config('pg'));
 		}
 	);
 
