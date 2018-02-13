@@ -36,6 +36,9 @@ sub startup {
 	$self->sessions->cookie_name('conch');
 	$self->sessions->default_expiration(2592000);    # 30 days
 
+	# Log all messages regardless of operating mode
+	$self->log->level('debug');
+
 	my $pg_uri = $self->config('pg');
 	$self->helper(
 		pg => sub {
