@@ -82,6 +82,24 @@ sub startup {
 		}
 	);
 
+	my $unparsable_report_logger = Mojo::Log->new(
+		path   => "log/unparsable_report.log",
+		format => sub {
+			my ( $time, undef, @lines ) = @_;
+			$time = localtime($time);
+			return map { "[$time] " . $_ . "\n" } @lines;
+		}
+	);
+	$self->helper(
+		log_unparsable_report => sub {
+			my ( undef, $report, $errs ) = @_;
+			$unparsable_report_logger->error(
+				'Failed parsing device report: ' . $errs );
+			$unparsable_report_logger->error(
+				"Device Report: " . Mojo::JSON::encode_json($report) );
+		}
+	);
+
 	# Render exceptions and Not Found as JSON
 	$self->hook(
 		before_render => sub {
@@ -122,7 +140,7 @@ __DATA__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
