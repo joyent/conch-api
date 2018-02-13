@@ -155,7 +155,15 @@ const deviceReport = {
                       [
                           [
                               Device.rackLocation.datacenter.name,
-                              Device.rackLocation.rack.name,
+                          m(
+                              "a.pure-button",
+                              {
+                                  href: `/rack/${Device.rackLocation.rack.id}`,
+                                  oncreate: m.route.link,
+                                  title: t("Show Rack"),
+                              },
+                              t(Device.rackLocation.rack.name)
+                          ),
                               Device.rackLocation.rack.role,
                               Device.rackLocation.rack.unit,
                           ],
