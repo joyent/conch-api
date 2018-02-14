@@ -37,6 +37,9 @@ sub startup {
 	$self->sessions->cookie_name('conch');
 	$self->sessions->default_expiration(2592000);    # 30 days
 
+	# Log all messages regardless of operating mode
+	$self->log->level('debug');
+
 	$self->helper(
 		pg => sub {
 			state $pg = Conch::Pg->new($self->config('pg'));
@@ -45,10 +48,10 @@ sub startup {
 
 	$self->helper(
 		status => sub {
-			my ($self, $code, $payload) = @_;
+			my ( $self, $code, $payload ) = @_;
 
 			$self->res->code($code);
-			if ( ($code == 403) && !$payload) {
+			if ( ( $code == 403 ) && !$payload ) {
 				$payload = { error => "Forbidden" };
 			}
 
@@ -58,30 +61,44 @@ sub startup {
 
 	$self->helper(
 		global_auth => sub {
-			my ($c, $role_name) = @_;
+			my ( $c, $role_name ) = @_;
 			return 0 unless $c->stash('user_id');
 
 			my $ws = $c->workspace->lookup_by_name('GLOBAL');
 			return 0 unless $ws;
 
-			my $user_ws = $c->workspace->get_user_workspace(
-				$c->stash('user_id'),
-				$ws->id,
-			);
+			my $user_ws =
+				$c->workspace->get_user_workspace( $c->stash('user_id'), $ws->id, );
 
 			return 0 unless $user_ws;
 			return 0 unless $user_ws->role eq $role_name;
 			return 1;
 		},
 	);
-	
+
 	$self->helper(
 		is_global_admin => sub {
-			shift->global_auth('Administrator')
+			shift->global_auth('Administrator');
 		}
 	);
 
-
+	my $unparsable_report_logger = Mojo::Log->new(
+		path   => "log/unparsable_report.log",
+		format => sub {
+			my ( $time, undef, @lines ) = @_;
+			$time = localtime($time);
+			return map { "[$time] " . $_ . "\n" } @lines;
+		}
+	);
+	$self->helper(
+		log_unparsable_report => sub {
+			my ( undef, $report, $errs ) = @_;
+			$unparsable_report_logger->error(
+				'Failed parsing device report: ' . $errs );
+			$unparsable_report_logger->error(
+				"Device Report: " . Mojo::JSON::encode_json($report) );
+		}
+	);
 
 	# Render exceptions and Not Found as JSON
 	$self->hook(
@@ -123,7 +140,7 @@ __DATA__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 

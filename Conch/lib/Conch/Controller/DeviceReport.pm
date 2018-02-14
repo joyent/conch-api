@@ -22,22 +22,16 @@ use Conch::Legacy::Control::Device::Validation 'validate_device';
 use Conch::Legacy::Data::Report::Switch;
 use Conch::Legacy::Data::Report::Server;
 
-
 =head2 process
 
 Processes the device report using the Legacy report code base
 
 =cut
 
-# TODO: None of the available Mojolicious Log4Perl libraries allow selecting
-# the category (appender) for Log4Perl. We use this mechanism to log unparsable
-# device reports and device reports that result in processing exceptions
 sub process ($c) {
 	my $raw_report = $c->req->json;
 
-	#Log::Any->get_logger( category => 'report.raw' )
-	#->trace( encode_json $raw_report);
-	my ($device_report, $errs);
+	my ( $device_report, $errs );
 	try {
 		if ( $raw_report->{device_type} && $raw_report->{device_type} eq "switch" )
 		{
@@ -49,7 +43,7 @@ sub process ($c) {
 	}
 	catch {
 		$errs = join( "; ", map { $_->message } $_->errors );
-		$c->app->log->error( 'Failed parsing device report: ' . $errs );
+		$c->app->log_unparsable_report( $raw_report, $errs );
 	};
 	return $c->status( 400, { error => $errs } ) if $errs;
 
@@ -87,7 +81,6 @@ sub process ($c) {
 
 1;
 
-
 __DATA__
 
 =pod
@@ -101,4 +94,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
