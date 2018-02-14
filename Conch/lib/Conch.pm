@@ -74,7 +74,14 @@ sub startup {
 				$payload = { error => "Forbidden" };
 			}
 
-			return $payload ? $self->render( json => $payload ) : $self->finish;
+			if($payload) {
+				return $self->respond_to(
+					json => { json => $payload },
+					any  => { json => $payload },
+				);
+			} else {
+				return $self->finish;
+			}
 		}
 	);
 
