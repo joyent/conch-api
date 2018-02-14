@@ -36,19 +36,19 @@ subtest "lookup_by_email" => sub {
 };
 
 subtest "validate password" => sub {
-	is( $new_user->validate_password('password'), 1, "Validate good password" );
-	is( $new_user->validate_password('bad password'),
-		0, "Fail to validate bad password" );
+	ok( $new_user->validate_password('password'), "Validate good password" );
+	ok( ! $new_user->validate_password('bad password'),
+		 "Fail to validate bad password" );
 };
 
 subtest "update_password" => sub {
 	my $ret = $new_user->update_password('new_password');
 	is( $ret, 1, "Affected 1 row" );
 
-	is( $new_user->validate_password('password'),
-		0, "Auth fails appropriately with old password" );
-	is( $new_user->validate_password('new_password'),
-		1, "Auth passes with new password" );
+	ok( ! $new_user->validate_password('password'),
+		"Auth fails appropriately with old password" );
+	ok( $new_user->validate_password('new_password'),
+		"Auth passes with new password" );
 
 	my $u = Conch::Model::User->new(
 		pg    => $pg,
