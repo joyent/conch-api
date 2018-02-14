@@ -127,12 +127,8 @@ Check whether the given password text has a hash matching the stored password ha
 
 =cut
 sub validate_password ( $self, $p ) {
-	if ( $self->password_hash eq bcrypt( $p, $self->password_hash ) ) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
+	return Mojo::Util::secure_compare( $self->password_hash,
+		bcrypt( $p, $self->password_hash ) );
 }
 
 =head2 settings

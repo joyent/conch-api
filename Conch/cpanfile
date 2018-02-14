@@ -9,6 +9,7 @@ requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
 requires 'aliased';
 requires 'Try::Tiny';
+requires 'Class::StrongSingleton';
 
 # mojolicious
 requires 'Mojolicious';

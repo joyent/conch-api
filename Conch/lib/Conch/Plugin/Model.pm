@@ -23,6 +23,8 @@ use Conch::Model::WorkspaceRelay;
 use Conch::Model::WorkspaceRoom;
 use Conch::Model::WorkspaceUser;
 
+use Conch::Pg;
+
 
 
 =head2 register
@@ -35,13 +37,13 @@ sub register ( $self, $app, $conf ) {
 	$app->helper(
 		device_location => sub {
 			state $device_location =
-				Conch::Model::DeviceLocation->new( pg => $app->pg );
+				Conch::Model::DeviceLocation->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		device_report => sub {
 			state $device_report = Conch::Model::DeviceReport->new(
-				pg  => $app->pg,
+				pg  => Conch::Pg->new(),
 				log => $app->log
 			);
 		}
@@ -49,59 +51,59 @@ sub register ( $self, $app, $conf ) {
 	$app->helper(
 		device_settings => sub {
 			state $device_settings =
-				Conch::Model::DeviceSettings->new( pg => $app->pg );
+				Conch::Model::DeviceSettings->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		hardware_product => sub {
 			state $hardware_product =
-				Conch::Model::HardwareProduct->new( pg => $app->pg );
+				Conch::Model::HardwareProduct->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		relay => sub {
-			state $relay = Conch::Model::Relay->new( pg => $app->pg );
+			state $relay = Conch::Model::Relay->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		workspace => sub {
-			state $workspace = Conch::Model::Workspace->new( pg => $app->pg );
+			state $workspace = Conch::Model::Workspace->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		workspace_device => sub {
 			state $workspace_device =
-				Conch::Model::WorkspaceDevice->new( pg => $app->pg );
+				Conch::Model::WorkspaceDevice->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		workspace_rack => sub {
 			state $workspace_rack =
-				Conch::Model::WorkspaceRack->new( pg => $app->pg );
+				Conch::Model::WorkspaceRack->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		workspace_relay => sub {
 			state $workspace_relay =
-				Conch::Model::WorkspaceRelay->new( pg => $app->pg );
+				Conch::Model::WorkspaceRelay->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		workspace_room => sub {
 			state $workspace_room =
-				Conch::Model::WorkspaceRoom->new( pg => $app->pg );
+				Conch::Model::WorkspaceRoom->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		workspace_user => sub {
 			state $workspace_user =
-				Conch::Model::WorkspaceUser->new( pg => $app->pg );
+				Conch::Model::WorkspaceUser->new( pg => Conch::Pg->new() );
 		}
 	);
 	$app->helper(
 		role => sub {
 			state $workspace_role =
-				Conch::Model::WorkspaceRole->new( pg => $app->pg );
+				Conch::Model::WorkspaceRole->new( pg => Conch::Pg->new() );
 		}
 	);
 
