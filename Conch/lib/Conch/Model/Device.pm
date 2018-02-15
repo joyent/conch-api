@@ -47,7 +47,7 @@ has [
 =cut
 sub new ( $class, %args ) {
 	map { $args{$_} = Conch::Time->new( $args{$_} ) if $args{$_} }
-		qw(created graduated last_seen latest_triton_reboot triton_setup updated uptime_since);
+		qw(created graduated last_seen latest_triton_reboot triton_setup updated uptime_since validated);
 	$class->SUPER::new(%args);
 }
 
@@ -328,6 +328,28 @@ sub set_asset_tag ( $self, $asset_tag ) {
 
 	$self->asset_tag( $ret->{asset_tag} );
 	$self->updated( $ret->{updated} );
+	return 1;
+}
+
+=head2 set_validated
+
+Mark the validated timestamp for the device
+
+=cut
+sub set_validated ( $self ) {
+	my $ret = $self->pg->db->update(
+		'device',
+		{
+			validated => 'NOW()',
+			updated   => 'NOW()'
+		},
+		{ id        => $self->id },
+		{ returning => [qw(validated updated)] }
+	)->hash;
+	return undef unless $ret;
+
+	$self->validated( Conch::Time->new($ret->{validated}) );
+	$self->updated( Conch::Time->new($ret->{updated}) );
 	return 1;
 }
 
