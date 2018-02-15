@@ -54,6 +54,10 @@ $t->get_ok("/user/me/settings/test")->status_is(401)
 	->json_is( '/error' => 'unauthorized' );
 $t->post_ok("/user/me/settings/test", json => { a => 'b' })->status_is(401)
 	->json_is( '/error' => 'unauthorized' );
+$t->get_ok("/user/me/settings/test.dot")->status_is(401)
+	->json_is( '/error' => 'unauthorized' );
+$t->post_ok("/user/me/settings/test.dot", json => { 'test.dot' => 'b' })
+	->status_is(401)->json_is( '/error' => 'unauthorized' );
 
 $t->get_ok("/hardware_product")->status_is(401)
 	->json_is( '/error' => 'unauthorized' );
