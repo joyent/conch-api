@@ -122,6 +122,21 @@ subtest 'User' => sub {
 			error => "No such setting 'TEST'",
 		}
 	);
+
+	$t->post_ok(
+		"/user/me/settings/dot.setting" => json => {
+			"dot.setting" => "set",
+		}
+	)->status_is(200)->content_is('');
+
+	$t->get_ok("/user/me/settings/dot.setting")->status_is(200)->json_is(
+		'',
+		{
+			"dot.setting" => "set",
+		}
+	);
+	$t->delete_ok("/user/me/settings/dot.setting")->status_is(204)->content_is('');
+
 };
 
 my $id;
