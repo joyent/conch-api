@@ -29,7 +29,7 @@ module.exports = {
 
         /* Login items */
         "Login to Conch"          : "Login to Conch",
-        "User Name"               : "User Name",
+        "Login Email"             : "Login Email Address",
         "Password"                : "Password",
         // Verb
         "Login"                   : "Login",

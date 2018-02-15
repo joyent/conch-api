@@ -1,7 +1,7 @@
 import m from "mithril";
 
 const Auth = {
-    username: "",
+    loginEmail: "",
     password: "",
     _loggedIn: false,
     requireLogin(next) {
@@ -23,8 +23,8 @@ const Auth = {
                 }
             });
     },
-    setUsername(value) {
-        Auth.username = value;
+    setLoginEmail(value) {
+        Auth.loginEmail = value;
     },
     setPassword(value) {
         Auth.password = value;
@@ -34,7 +34,7 @@ const Auth = {
             .request({
                 method: "POST",
                 url: "/login",
-                data: { user: Auth.username, password: Auth.password },
+                data: { user: Auth.loginEmail, password: Auth.password },
             })
             .then(res => {
                 Auth._loggedIn = true;

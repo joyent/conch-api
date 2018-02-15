@@ -10,9 +10,9 @@ export default {
             m("form.pure-form", [
                 m("legend", t("Login to Conch")),
                 m("input[type=text]", {
-                    oninput: m.withAttr("value", Auth.setUsername),
+                    oninput: m.withAttr("value", Auth.setLoginEmail),
                     placeholder: t("Email Address"),
-                    value: Auth.username,
+                    value: Auth.loginEmail,
                 }),
                 m("input[type=password]", {
                     oninput: m.withAttr("value", Auth.setPassword),
