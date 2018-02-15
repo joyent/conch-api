@@ -135,7 +135,8 @@ subtest 'User' => sub {
 			"dot.setting" => "set",
 		}
 	);
-	$t->delete_ok("/user/me/settings/dot.setting")->status_is(204)->content_is('');
+	$t->delete_ok("/user/me/settings/dot.setting")->status_is(204)
+		->content_is('');
 
 };
 
@@ -263,8 +264,24 @@ subtest 'Register relay' => sub {
 };
 
 subtest 'Relay List' => sub {
-	$t->get_ok('/relay')->status_is(200);
-	$t->json_is('/0/id' => 'deadbeef');
+	$t->get_ok('/relay')->status_is(200)->json_is( '/0/id' => 'deadbeef' )
+		->json_is( '/0/version', '0.0.1' );
+	subtest 'Update relay' => sub {
+
+		$t->post_ok(
+			'/relay/deadbeef/register',
+			json => {
+				serial   => 'deadbeef',
+				version  => '0.0.2',
+				idaddr   => '127.0.0.1',
+				ssh_port => '22',
+				alias    => 'test relay'
+			}
+		)->status_is(204);
+
+		$t->get_ok('/relay')->status_is(200)->json_is( '/0/id', 'deadbeef' )
+			->json_is( '/0/version', '0.0.2', 'Version updated' );
+	};
 };
 
 subtest 'Device Report' => sub {
@@ -272,9 +289,9 @@ subtest 'Device Report' => sub {
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(409)
 		->json_like( '/error', qr/Hardware Product '.+' does not exist/ );
-	
-	$t->post_ok( '/device/TEST', json => { serial_number => 'TEST' })
-		->status_is(400)->json_like('/error', qr/Attribute .* is required/);
+
+	$t->post_ok( '/device/TEST', json => { serial_number => 'TEST' } )
+		->status_is(400)->json_like( '/error', qr/Attribute .* is required/ );
 };
 
 subtest 'Single device' => sub {
@@ -342,7 +359,8 @@ subtest 'Hardware Product' => sub {
 
 subtest 'Log out' => sub {
 	$t->post_ok("/logout")->status_is(204);
-	$t->get_ok("/workspace")->status_is(401)->json_is( '/error' => 'unauthorized' );
+	$t->get_ok("/workspace")->status_is(401)
+		->json_is( '/error' => 'unauthorized' );
 };
 
 done_testing();

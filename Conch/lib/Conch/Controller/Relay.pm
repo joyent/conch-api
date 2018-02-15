@@ -15,7 +15,6 @@ use Data::Validate::UUID 'is_uuid';
 
 use Data::Printer;
 
-
 =head2 register
 
 Registers a relay and connects it with the current user. The relay is created
@@ -32,13 +31,10 @@ sub register ($c) {
 		{ error => "'serial' attribute required in request" } )
 		unless defined($serial);
 
-	my $relay_exists = $c->relay->lookup($serial);
-	unless ($relay_exists) {
-		$c->relay->create(
-			$serial,           $body->{version}, $body->{ipaddr},
-			$body->{ssh_port}, $body->{alias},
-		);
-	}
+	$c->relay->register(
+		$serial,           $body->{version}, $body->{ipaddr},
+		$body->{ssh_port}, $body->{alias},
+	);
 
 	my $attempt = $c->relay->connect_user_relay( $user_id, $serial );
 
@@ -48,7 +44,6 @@ sub register ($c) {
 
 	$c->status(204);
 }
-
 
 =head2 list
 
@@ -76,4 +71,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
