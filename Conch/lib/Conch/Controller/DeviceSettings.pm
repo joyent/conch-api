@@ -37,7 +37,11 @@ overwritten
 
 sub set_single ($c) {
 	my $body          = $c->req->json;
-	my $setting_key   = $c->param('key');
+  my @k = keys %{$body};
+
+  # $c->param('key') seems to mangle input values if you use periods in
+  # the key. Which we do. So bdha did something gross.
+  my $setting_key   = $k[0];
 	my $setting_value = $body->{$setting_key};
 	return $c->status(
 		400,
