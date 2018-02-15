@@ -6,7 +6,6 @@ use Data::UUID;
 use Data::Validate::UUID 'is_uuid';
 use IO::All;
 use JSON::Validator;
-use YAML::Tiny;
 
 use Data::Printer;
 
