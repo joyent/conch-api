@@ -1,3 +1,4 @@
+
 =pod
 
 =head1 NAME
@@ -11,7 +12,6 @@ Conch::Controller::DeviceSettings
 package Conch::Controller::DeviceSettings;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-
 
 =head2 set_all
 
@@ -27,7 +27,6 @@ sub set_all ($c) {
 	$c->status(200);
 }
 
-
 =head2 set_single
 
 Sets a single setting on a device. If the setting already exists, it is
@@ -36,16 +35,17 @@ overwritten
 =cut
 
 sub set_single ($c) {
-	my $body          = $c->req->json;
-  my $setting_key;
+	my $body = $c->req->json;
+	my $setting_key;
 
 	# We use foo.bar=kwatz settings. Mojo translates that into "foo" being the
-  # entire key, instead of "foo.bar". Jump through some hoops.
-  if ($c->stash('format')) {
-    $setting_key   = $c->param('key').'.'.$c->stash('format');
-  } else {
-    $setting_key   = $c->param('key');
-  }
+	# entire key, instead of "foo.bar". Jump through some hoops.
+	if ( $c->stash('format') ) {
+		$setting_key = $c->param('key') . '.' . $c->stash('format');
+	}
+	else {
+		$setting_key = $c->param('key');
+	}
 
 	my $setting_value = $body->{$setting_key};
 	return $c->status(
@@ -60,7 +60,6 @@ sub set_single ($c) {
 	$c->status(200);
 }
 
-
 =head2 get_all
 
 Get all settings for a device as a hash
@@ -73,7 +72,6 @@ sub get_all ($c) {
 	$c->status( 200, $settings );
 }
 
-
 =head2 get_single
 
 Get a single setting from a device
@@ -81,15 +79,16 @@ Get a single setting from a device
 =cut
 
 sub get_single ($c) {
-  my $setting_key;
+	my $setting_key;
 
-  # We use foo.bar=kwatz settings. Mojo translates that into "foo" being the
-  # entire key, instead of "foo.bar". Jump through some hoops.
-  if ($c->stash('format')) {
-    $setting_key   = $c->param('key').'.'.$c->stash('format');
-  } else {
-    $setting_key   = $c->param('key');
-  }
+	# We use foo.bar=kwatz settings. Mojo translates that into "foo" being the
+	# entire key, instead of "foo.bar". Jump through some hoops.
+	if ( $c->stash('format') ) {
+		$setting_key = $c->param('key') . '.' . $c->stash('format');
+	}
+	else {
+		$setting_key = $c->param('key');
+	}
 
 	my $settings =
 		$c->device_settings->get_settings( $c->stash('current_device')->id );
@@ -97,7 +96,6 @@ sub get_single ($c) {
 		unless $settings->{$setting_key};
 	$c->status( 200, { $setting_key => $settings->{$setting_key} } );
 }
-
 
 =head2 delete_single
 
