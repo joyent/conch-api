@@ -10,6 +10,7 @@ requires 'Mail::Sendmail';
 requires 'aliased';
 requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
+requires 'YAML::Tiny';
 
 # mojolicious
 requires 'Mojolicious';
