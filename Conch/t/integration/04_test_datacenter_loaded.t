@@ -217,6 +217,15 @@ subtest 'Single device' => sub {
 			->json_like( '/error', qr/fizzle/ );
 		$t->delete_ok('/device/TEST/settings/fizzle')->status_is(404)
 			->json_like( '/error', qr/fizzle/ );
+
+		$t->post_ok( '/device/TEST/settings/foo.bar', json => { 'foo.bar' => 'bar' } )
+			->status_is(200);
+		$t->get_ok('/device/TEST/settings/foo.bar')->status_is(200)
+			->json_is( '/foo.bar', 'bar', 'Setting was stored' );
+		$t->delete_ok('/device/TEST/settings/foo.bar')->status_is(204)
+			->content_is('');
+		$t->get_ok('/device/TEST/settings/foo.bar')->status_is(404)
+			->json_like( '/error', qr/foo\.bar/ );
 	};
 
 };

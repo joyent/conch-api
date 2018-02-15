@@ -46,10 +46,10 @@ sub device_routes {
 	$with_device->get('/settings')->to('device_settings#get_all');
 	$with_device->post('/settings')->to('device_settings#set_all');
 
-	$with_device->get('/settings/:key')->to('device_settings#get_single');
-	$with_device->post('/settings/:key')->to('device_settings#set_single');
+	$with_device->get('/settings/#key')->to('device_settings#get_single');
+	$with_device->post('/settings/#key')->to('device_settings#set_single');
 
-	$with_device->delete('/settings/:key')->to('device_settings#delete_single');
+	$with_device->delete('/settings/#key')->to('device_settings#delete_single');
 
 }
 
