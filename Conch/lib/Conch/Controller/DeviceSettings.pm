@@ -37,7 +37,16 @@ overwritten
 
 sub set_single ($c) {
 	my $body          = $c->req->json;
-	my $setting_key   = $c->param('key');
+  my $setting_key;
+
+	# We use foo.bar=kwatz settings. Mojo translates that into "foo" being the
+  # entire key, instead of "foo.bar". Jump through some hoops.
+  if ($c->stash('format')) {
+    $setting_key   = $c->param('key').'.'.$c->stash('format');
+  } else {
+    $setting_key   = $c->param('key');
+  }
+
 	my $setting_value = $body->{$setting_key};
 	return $c->status(
 		400,
@@ -72,7 +81,16 @@ Get a single setting from a device
 =cut
 
 sub get_single ($c) {
-	my $setting_key = $c->param('key');
+  my $setting_key;
+
+  # We use foo.bar=kwatz settings. Mojo translates that into "foo" being the
+  # entire key, instead of "foo.bar". Jump through some hoops.
+  if ($c->stash('format')) {
+    $setting_key   = $c->param('key').'.'.$c->stash('format');
+  } else {
+    $setting_key   = $c->param('key');
+  }
+
 	my $settings =
 		$c->device_settings->get_settings( $c->stash('current_device')->id );
 	return $c->status( 404, { error => "No such setting '$setting_key'" } )
