@@ -137,6 +137,17 @@ subtest "Device Modifiers" => sub {
 		is( Conch::Model::Device->lookup( $pg, $d->id )->asset_tag,
 			$asset_tag, "asset_tag matches expectations" );
 	};
+
+	subtest "validated" => sub {
+		is( $d->validated, undef,
+			"validated is not already set" );
+
+		is( $d->set_validated(), 1);
+		ok( $d->validated, "validated is set on the object" );
+
+		is( Conch::Model::Device->lookup( $pg, $d->id )->validated,
+			$d->validated, "validated is set in the db" );
+	};
 };
 
 my @test_sql_files = qw(
