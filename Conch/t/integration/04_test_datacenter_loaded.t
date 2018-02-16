@@ -141,7 +141,6 @@ subtest 'Register relay' => sub {
 	)->status_is(204);
 };
 
-
 subtest 'Device Report' => sub {
 	my $report = io->file('t/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(200)
@@ -187,6 +186,11 @@ subtest 'Single device' => sub {
 		$t->post_ok( '/device/TEST/asset_tag',
 			json => { asset_tag => 'asset tag' } )->status_is(303)
 			->header_like( Location => qr!/device/TEST$! );
+
+		$t->post_ok('/device/TEST/validated')->status_is(303)
+			->header_like( Location => qr!/device/TEST$! );
+		$t->post_ok('/device/TEST/validated')->status_is(409)
+			->json_like( '/error', qr/already marked validated/ );
 	};
 
 	subtest 'Device settings' => sub {
@@ -218,14 +222,18 @@ subtest 'Single device' => sub {
 		$t->delete_ok('/device/TEST/settings/fizzle')->status_is(404)
 			->json_like( '/error', qr/fizzle/ );
 
-		$t->post_ok( '/device/TEST/settings/foo.bar', json => { 'foo.bar' => 'bar' } )
-			->status_is(200);
+		$t->post_ok( '/device/TEST/settings/foo.bar',
+			json => { 'foo.bar' => 'bar' } )->status_is(200);
 		$t->get_ok('/device/TEST/settings/foo.bar')->status_is(200)
 			->json_is( '/foo.bar', 'bar', 'Setting was stored' );
 		$t->delete_ok('/device/TEST/settings/foo.bar')->status_is(204)
 			->content_is('');
 		$t->get_ok('/device/TEST/settings/foo.bar')->status_is(404)
 			->json_like( '/error', qr/foo\.bar/ );
+
+		$t->post_ok( '/device/TEST/settings/device.validated',
+			json => { 'device.validated' => 1 }
+		)->status_is(200);
 	};
 
 };
@@ -299,7 +307,7 @@ subtest 'Relays' => sub {
 	$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
 		->json_is( '/0/id', 'deadbeef', 'Has active relay' );
 
-	$t->get_ok('/relay')->status_is(200)->json_is('/0/id' => 'deadbeef');
+	$t->get_ok('/relay')->status_is(200)->json_is( '/0/id' => 'deadbeef' );
 };
 
 subtest 'Device location' => sub {
@@ -313,7 +321,6 @@ subtest 'Device location' => sub {
 	$t->delete_ok('/device/TEST/location')->status_is(204);
 };
 
-
 subtest 'Log out' => sub {
 	$t->post_ok("/logout")->status_is(204);
 	$t->get_ok("/workspace")->status_is(401);
@@ -326,15 +333,15 @@ subtest 'Permissions' => sub {
 	my $pg = Mojo::Pg->new( $pgtmp->uri );
 
 	my $role_model = new_ok( "Conch::Model::WorkspaceRole", [ pg => $pg ] );
-	my $ws_model = new_ok( "Conch::Model::Workspace", [ pg => $pg ] );
+	my $ws_model   = new_ok( "Conch::Model::Workspace",     [ pg => $pg ] );
 
 	subtest "Read-only" => sub {
 
-		my $ro_role = $role_model->lookup_by_name( 'Read-only' );
+		my $ro_role = $role_model->lookup_by_name('Read-only');
 
 		my $ro_user = Conch::Model::User->create( $pg, $ro_name, $ro_pass );
 
-		$ws_model->add_user_to_workspace($ro_user->id, $id, $ro_role->id);
+		$ws_model->add_user_to_workspace( $ro_user->id, $id, $ro_role->id );
 
 		$t->post_ok(
 			"/login" => json => {
@@ -352,12 +359,12 @@ subtest 'Permissions' => sub {
 					name        => "test",
 					description => "also test",
 				}
-			)->status_is(403)->json_is("/error", "Forbidden");
+			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
 		subtest "Can't add a rack" => sub {
 			$t->post_ok( "/workspace/$id/rack", json => { id => $rack_id } )
-				->status_is(403)->json_is("/error", "Forbidden");
+				->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
 		subtest "Can't set a rack layout" => sub {
@@ -366,7 +373,7 @@ subtest 'Permissions' => sub {
 				json => {
 					TEST => 1
 				}
-			)->status_is(403)->json_is("/error", "Forbidden");
+			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
 		subtest "Can't invite a user" => sub {
@@ -376,7 +383,7 @@ subtest 'Permissions' => sub {
 					user => 'another@wat.wat',
 					role => 'Read-only',
 				}
-			)->status_is(403)->json_is("/error", "Forbidden");
+			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
 		subtest "Can't get a relay list" => sub {
@@ -389,9 +396,9 @@ subtest 'Permissions' => sub {
 		my $name = 'integrator@wat.wat';
 		my $pass = 'password';
 
-		my $role = $role_model->lookup_by_name( 'Integrator' );
-		my $user = Conch::Model::User->create($pg, $name, $pass);
-		$ws_model->add_user_to_workspace($user->id, $id, $role->id);
+		my $role = $role_model->lookup_by_name('Integrator');
+		my $user = Conch::Model::User->create( $pg, $name, $pass );
+		$ws_model->add_user_to_workspace( $user->id, $id, $role->id );
 		$t->post_ok(
 			"/login" => json => {
 				user     => $name,
@@ -406,9 +413,8 @@ subtest 'Permissions' => sub {
 					name        => "test",
 					description => "also test",
 				}
-			)->status_is(403)->json_is("/error", "Forbidden");
+			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
-
 
 		subtest "Can't invite a user" => sub {
 			$t->post_ok(
@@ -417,7 +423,7 @@ subtest 'Permissions' => sub {
 					user => 'another@wat.wat',
 					role => 'Read-only',
 				}
-			)->status_is(403)->json_is("/error", "Forbidden");
+			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
 		subtest "Can't get a relay list" => sub {
@@ -427,7 +433,6 @@ subtest 'Permissions' => sub {
 		$t->post_ok("/logout")->status_is(204);
 
 	};
-
 
 };
 

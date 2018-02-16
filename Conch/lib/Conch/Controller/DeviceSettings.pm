@@ -46,8 +46,18 @@ sub set_single ($c) {
 "Setting key in request object must match name in the URL ('$setting_key')"
 		}
 	) unless $setting_value;
+
 	$c->device_settings->set_settings( $c->stash('current_device')->id,
 		{ $setting_key => $setting_value } );
+
+	# TODO: This hard-coded setting dispatch is added for backwards
+	# compatibility with Conch v1.0.0.  It is to be removed once Conch-Relay
+	# and Conch-Rebooter are updated to use /device/:id/validated or the
+	# orchestration system is implemented
+	if ($setting_key eq 'device.validated') {
+		$c->stash('current_device')->set_validated();
+	}
+
 	$c->status(200);
 }
 
