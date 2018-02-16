@@ -38,6 +38,7 @@ sub device_routes {
 	$with_device->post('/triton_uuid')->to('device#set_triton_uuid');
 	$with_device->post('/triton_reboot')->to('device#set_triton_reboot');
 	$with_device->post('/asset_tag')->to('device#set_asset_tag');
+	$with_device->post('/validated')->to('device#set_validated');
 
 	$with_device->get('/location')->to('device_location#get');
 	$with_device->post('/location')->to('device_location#set');

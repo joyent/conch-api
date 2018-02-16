@@ -18,7 +18,6 @@ use aliased 'Conch::Class::DeviceDetailed';
 
 use Data::Printer;
 
-
 =head2 under
 
 All endpoints exist under /device/:id - C<under> looks up the device referenced
@@ -41,7 +40,6 @@ sub under ($c) {
 		return 0;
 	}
 }
-
 
 =head2 get
 
@@ -78,7 +76,6 @@ sub get ($c) {
 	$c->status( 200, $detailed_device->as_v1_json );
 }
 
-
 =head2 graduate
 
 Sets the C<graduated> field on a device, unless that field has already been set
@@ -97,7 +94,6 @@ sub graduate($c) {
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
 }
 
-
 =head2 set_triton_reboot
 
 Sets the C<triton_reboot> field on a device
@@ -111,7 +107,6 @@ sub set_triton_reboot ($c) {
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
 }
-
 
 =head2 set_triton_uuid
 
@@ -136,7 +131,6 @@ sub set_triton_uuid ($c) {
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
 }
-
 
 =head2 set_triton_setup
 
@@ -169,7 +163,6 @@ sub set_triton_setup ($c) {
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
 }
 
-
 =head2 set_asset_tag
 
 Sets the C<asset_tag> field on a device
@@ -193,6 +186,25 @@ sub set_asset_tag ($c) {
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
 }
 
+=head2 set_validated
+
+Sets the C<validated> field on a device unless that field has already been set
+
+=cut
+
+sub set_validated($c) {
+	my $device    = $c->stash('current_device');
+	my $device_id = $device->id;
+	return $c->status( 409,
+		{ error => "Device $device_id has already marked validated" } )
+		if defined( $device->validated );
+
+	$device->set_validated();
+
+	$c->status(303);
+	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
+}
+
 1;
 
 __DATA__
@@ -208,4 +220,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
