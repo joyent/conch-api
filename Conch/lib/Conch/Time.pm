@@ -30,6 +30,7 @@ use overload
 	'""' => 'rfc3339',
 	eq   => 'compare',
 	ne   => sub { !compare(@_) };
+	cmp  => 'compare',
 
 
 
