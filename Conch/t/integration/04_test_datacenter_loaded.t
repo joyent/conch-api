@@ -231,9 +231,12 @@ subtest 'Single device' => sub {
 		$t->get_ok('/device/TEST/settings/foo.bar')->status_is(404)
 			->json_like( '/error', qr/foo\.bar/ );
 
-		$t->post_ok( '/device/TEST/settings/device.validated',
-			json => { 'device.validated' => 1 }
+		$t->post_ok(
+			'/device/TEST/settings/build.validated',
+			json => { 'build.validated' => 1 }
 		)->status_is(200);
+		$t->get_ok('/device/TEST')->status_is(200)
+			->json_like( '/validated', qr/^\d{4}-\d\d-\d\d/ );
 	};
 
 };

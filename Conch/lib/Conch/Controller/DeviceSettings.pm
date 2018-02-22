@@ -54,7 +54,7 @@ sub set_single ($c) {
 	# compatibility with Conch v1.0.0.  It is to be removed once Conch-Relay
 	# and Conch-Rebooter are updated to use /device/:id/validated or the
 	# orchestration system is implemented
-	if ($setting_key eq 'device.validated') {
+	if ($setting_key eq 'build.validated') {
 		$c->stash('current_device')->set_validated();
 	}
 
