@@ -16,7 +16,6 @@ our @EXPORT = qw(
 	device_routes
 );
 
-
 =head2 device_routes
 
 Sets up routes for /device
@@ -52,10 +51,13 @@ sub device_routes {
 
 	$with_device->delete('/settings/#key')->to('device_settings#delete_single');
 
+	$with_device->post('/validation/#validation_id')
+		->to('device_validation#validate');
+	$with_device->post('/validation_plan/#validation_plan_id')
+		->to('device_validation#run_validation_plan');
 }
 
 1;
-
 
 __DATA__
 
@@ -70,4 +72,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

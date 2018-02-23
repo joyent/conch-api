@@ -541,6 +541,59 @@ definitions:
               anyOf:
                 - $ref: "#/definitions/Device"
                 - type: null
+  Validations:
+    type: array
+    items:
+      $ref: "#/definitions/Validation"
+  Validation:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - version
+      - description
+      - created
+      - updated
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      version:
+        type: number
+      description:
+        type: string
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+  ValidationPlans:
+    type: array
+    items:
+      $ref: "#/definitions/ValidationPlan"
+  ValidationPlan:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - description
+      - created
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      description:
+        type: string
+      created:
+        type: string
+        format: date-time
   WorkspaceRelays:
     type: array
     items:

@@ -21,6 +21,7 @@ use Mojo::Pg;
 use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
+use Conch::ValidationSystem;
 
 use Mojo::JSON;
 
@@ -214,6 +215,8 @@ sub startup {
 			$log->debug(Mojo::JSON::to_json($d));
 		});
 	}
+
+	Conch::ValidationSystem->new->load_validations;
 
 	my $r = $self->routes;
 	all_routes($r);

@@ -31,6 +31,10 @@ sub lookup ( $self, $device_id ) {
       rack.id           AS rack_id,
       rack.name         AS rack_name,
       rack_role.name    AS rack_role_name,
+      ARRAY(SELECT ru_start FROM datacenter_rack_layout
+         WHERE rack_id = rack.id
+         ORDER BY ru_start)
+                        AS rack_slots,
 
       room.id           AS room_id,
       room.az           AS room_az,
@@ -74,6 +78,7 @@ sub _build_device_location ($loc) {
 		id        => $loc->{rack_id},
 		name      => $loc->{rack_name},
 		role_name => $loc->{rack_role_name},
+		slots     => $loc->{rack_slots},
 	);
 	my $datacenter_room = DatacenterRoom->new(
 		id          => $loc->{room_id},

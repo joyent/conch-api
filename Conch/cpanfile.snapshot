@@ -2129,6 +2129,27 @@ DISTRIBUTIONS
       Fennec::Lite 0
       Test::Exception 0
       Test::More 0
+  Minion-8.12
+    pathname: S/SR/SRI/Minion-8.12.tar.gz
+    provides:
+      LinkCheck undef
+      LinkCheck::Controller::Links undef
+      LinkCheck::Task::CheckLinks undef
+      Minion 8.12
+      Minion::Backend undef
+      Minion::Backend::Pg undef
+      Minion::Command::minion undef
+      Minion::Command::minion::job undef
+      Minion::Command::minion::worker undef
+      Minion::Job undef
+      Minion::Worker undef
+      Minion::_Guard 8.12
+      Mojolicious::Plugin::Minion undef
+      Mojolicious::Plugin::Minion::Admin undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Mojolicious 7.56
+      perl 5.010001
   Mock-Quick-1.111
     pathname: E/EX/EXODIST/Mock-Quick-1.111.tar.gz
     provides:
@@ -3566,6 +3587,18 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Submodules-1.0014
+    pathname: Z/ZA/ZARABOZO/Submodules-1.0014.tar.gz
+    provides:
+      Submodules 1.0014
+      Submodules::Result 1.0014
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Basename 0
+      File::Find 0
+      File::Spec 0
+      Test::More 0
+      perl 5.006
   Test-Deep-1.127
     pathname: R/RJ/RJBS/Test-Deep-1.127.tar.gz
     provides:
@@ -3686,10 +3719,10 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Test-PostgreSQL-1.24
-    pathname: T/TJ/TJC/Test-PostgreSQL-1.24.tar.gz
+  Test-PostgreSQL-1.25
+    pathname: T/TJ/TJC/Test-PostgreSQL-1.25.tar.gz
     provides:
-      Test::PostgreSQL 1.24
+      Test::PostgreSQL 1.25
     requirements:
       DBD::Pg 0
       DBI 0

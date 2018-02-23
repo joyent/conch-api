@@ -14,8 +14,10 @@ requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
 requires 'Time::Moment', ">= 0.43";
 requires 'IO::Socket::SSL';
+requires 'Submodules';
 
 # mojolicious
+requires 'Minion';
 requires 'Mojolicious';
 requires 'Mojo::Pg';
 requires 'Mojo::JSON_XS';
@@ -58,6 +60,7 @@ requires 'Log::Report';
 
 on 'test' => sub {
     requires 'Test::More';
+    requires 'Test::Exception';
     requires 'Mock::Quick';
     requires 'Test::PostgreSQL';
     requires 'Test::Pod::Coverage';
