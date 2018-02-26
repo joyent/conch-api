@@ -74,6 +74,10 @@ sub startup {
 				$payload = { error => "Forbidden" };
 			}
 
+			if ( ( $code ==	501 ) && !$payload ) {
+				$payload = { error => "Unimplemented" };
+			}
+
 			if($payload) {
 				return $self->respond_to(
 					json => { json => $payload },
