@@ -62,6 +62,26 @@ sub mk_tmp_db {
 	return $pgtmp;
 }
 
+
+=head2 make_full_db
+
+	my $pg = Test::ConchTmpDB->make_full_db($path);
+
+Generate a test database using all sql files in the given path. Path defaults to C<../sql/test/>
+
+=cut
+
+sub make_full_db {
+	my $class = shift;
+	my $path = shift || "../sql/test/";
+	my $pg = $class->mk_tmp_db;
+	my $dbh = DBI->connect($pg->dsn);
+	for my $file ( io->dir($path)->sort->glob("*.sql") ) {
+		$dbh->do($file->all) or die "Failed to load sql file: $file";
+	}
+	return $pg;
+}
+
 1;
 
 
