@@ -6,6 +6,9 @@
     # URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
     pg => 'postgresql://conch@/conch',
 
+    # Version of conch. To be filled by configuration management
+    version => 'v2.0.0-dev',
+
     # See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
     hypnotoad => {
       listen => ['http://*:5000'],
