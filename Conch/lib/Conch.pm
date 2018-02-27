@@ -21,6 +21,8 @@ use Mojo::Pg;
 use Mojolicious::Plugin::Bcrypt;
 use Data::Printer;
 
+use Mojo::JSON;
+
 =head2 startup
 
 Used by Mojo in the startup process. Loads the config file and sets up the
@@ -49,6 +51,27 @@ sub startup {
 	$self->helper(
 		status => sub {
 			my ( $self, $code, $payload ) = @_;
+			my $c = $self->app;
+			my $tx = $self->tx;
+
+			my $u = $self->stash('user');
+			my $u_str = $u ?
+				$u->email . " (".$u->id.")" :
+				'NOT AUTHED';
+
+			my $msg = join(" || ",
+				"URL: ".$tx->req->url->to_abs,
+				"Code: $code",
+				"Source: ".$tx->original_remote_address.":".$tx->remote_port,
+				"User: $u_str",
+			);
+
+			if ($code >= 400) {
+				$msg = "$msg || Payload: ".Mojo::JSON::to_json($payload);
+				$c->log->warn($msg);
+			} else {
+				$c->log->info($msg);
+			}
 
 			$self->res->code($code);
 			if ( ( $code == 403 ) && !$payload ) {
