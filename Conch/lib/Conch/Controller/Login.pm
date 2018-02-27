@@ -33,6 +33,7 @@ sub authenticate ($c) {
 		my $ret = $u->validate_password($password);
 		if ($ret) {
 			$c->stash(user_id => $u->id);
+			$c->stash(user => $u);
 		}
 		return $ret;
 	}
@@ -45,6 +46,7 @@ sub authenticate ($c) {
 	my $user = Conch::Model::User->lookup( $c->pg, $user_id );
 	if ($user) {
 		$c->stash( user_id => $user_id );
+		$c->stash(user => $user);
 		return 1;
 	}
 	else {
