@@ -22,6 +22,7 @@ use Conch::Model::WorkspaceRack;
 use Conch::Model::WorkspaceRelay;
 use Conch::Model::WorkspaceRoom;
 use Conch::Model::WorkspaceUser;
+use Conch::Model::WorkspaceRole;
 
 use Conch::Pg;
 
