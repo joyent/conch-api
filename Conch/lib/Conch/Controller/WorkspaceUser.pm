@@ -13,6 +13,9 @@ package Conch::Controller::WorkspaceUser;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
 
+use Conch::Model::User;
+use Conch::Pg;
+
 
 =head2 list
 
@@ -50,7 +53,10 @@ sub invite ($c) {
 			{ error => '"role" must be one of: ' . $role_names } );
 	}
 
-	my $user = $c->user->lookup_by_email( $body->{user} );
+	my $user = Conch::Model::User->lookup_by_email(
+		Conch::Pg->new(),
+		$body->{user}
+	);
 
 	if ($user) {
 		$c->mail->send_existing_user_invite(
@@ -62,12 +68,16 @@ sub invite ($c) {
 	}
 	else {
 		my $password = $c->random_string( length => 10 );
-		$user = $c->user->create( $body->{user}, $password );
+		$user = Conch::Model::User->create(
+			Conch::Pg->new(),
+			$body->{user},
+			$password
+		);
 		$c->mail->send_new_user_invite(
 			{ email => $user->email, password => $password } );
 	}
 
-	$c->workspace->add_user_to_workspace( $user->id, $ws, $maybe_role->id );
+	$c->workspace->add_user_to_workspace( $user->id, $ws->id, $maybe_role->id );
 	$c->status(201);
 }
 
