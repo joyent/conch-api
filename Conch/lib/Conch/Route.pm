@@ -51,9 +51,10 @@ sub all_routes {
 		}
 	);
 
-	$unsecured->get('/version' => sub {
-		my $c = shift;
-		$c->status(200, { version => $c->app->config('version') });
+	my $git_rev = `git describe`;
+	chomp($git_rev);
+	$unsecured->get('/version' => sub { 
+		shift->status(200, { version => $git_rev });
 	});
 
 	$unsecured->post('/login')->to('login#session_login');
