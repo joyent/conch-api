@@ -1,7 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB;
-use Mock::Quick;
 use Mojo::Pg;
 
 use_ok "Conch::Model::Device";
@@ -33,12 +32,5 @@ my $device =
 my $device_id = $device->id;
 
 new_ok('Conch::Model::DeviceReport');
-
-my $device_report_model = new_ok(
-	"Conch::Model::DeviceReport",
-	[
-		log => qobj()
-	]
-);
 
 done_testing();
