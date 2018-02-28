@@ -150,6 +150,11 @@ sub startup {
 		my $log = Mojo::Log->new(path => $log_path);
 		$self->hook(after_dispatch => sub {
 			my $c = shift;
+			my $u = $c->stash('user');
+			my $u_str = $u ?
+				$u->email . " (".$u->id.")" :
+				'NOT AUTHED';
+
 
 			my $req_headers = $c->req->headers->to_hash;
 			delete $req_headers->{Authorization};
@@ -164,6 +169,7 @@ sub startup {
 				remote_port => $c->tx->remote_port,
 				url         => $c->req->url->to_abs,
 				method      => $c->req->method,
+				user        => $u_str,
 				request     => {
 					headers => $req_headers,
 					body    => $c->req->body,
