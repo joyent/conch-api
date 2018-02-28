@@ -145,6 +145,52 @@ sub startup {
 	$self->plugin('Conch::Plugin::Mail');
 	$self->plugin(NYTProf => $self->config);
 
+	if($self->config('audit')) {
+		my $log_path = $self->config('audit_log_path') || 'log/audit.log';
+		my $log = Mojo::Log->new(path => $log_path);
+		$self->hook(after_dispatch => sub {
+			my $c = shift;
+			my $u = $c->stash('user');
+			my $u_str = $u ?
+				$u->email . " (".$u->id.")" :
+				'NOT AUTHED';
+
+			my $req_body = "disabled in config";
+			my $res_body = "disabled in config";
+
+			if ($self->config('audit_payloads')) {
+				$req_body = $c->req->body;
+				$res_body = $c->res->body;
+			}
+
+			my $req_headers = $c->req->headers->to_hash;
+			delete $req_headers->{Authorization};
+			delete $req_headers->{Cookie};
+
+			my $params = $c->req->params->to_hash;
+			if($c->req->url =~ /login/) {
+				$params = { 'content' => 'withheld' }
+			}
+			my $d = {
+				remote_ip   => $c->tx->original_remote_address,
+				remote_port => $c->tx->remote_port,
+				url         => $c->req->url->to_abs,
+				method      => $c->req->method,
+				user        => $u_str,
+				request     => {
+					headers => $req_headers,
+					body    => $req_body,
+					params  => $params,
+				},
+				response    => {
+					headers => $c->res->headers->to_hash,
+					body    => $res_body,
+				},
+			};
+			$log->debug(Mojo::JSON::to_json($d));
+		});
+	}
+
 	my $r = $self->routes;
 	all_routes($r);
 }
