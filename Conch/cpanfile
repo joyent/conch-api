@@ -4,6 +4,7 @@ requires 'perl', '5.26.0';
 # basics
 requires 'Data::UUID';
 requires 'Data::Printer';
+requires 'DateTime::Format::Strptime';
 requires 'List::Compare';
 requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
@@ -37,7 +38,6 @@ requires 'String::CamelCase';
 
 # database
 requires 'DBD::Pg';
-requires 'DateTime::Format::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
 requires 'Config::General';

@@ -18,28 +18,67 @@ Conch::Time - format Postgres Timestamps as RFC 3337 UTC timestamps
 =head1 METHODS
 
 =cut
+
 package Conch::Time;
 use Mojo::Base -base, -signatures;
+use DateTime::Format::Strptime;
+use Carp 'croak';
+
 use overload
 	'""' => 'to_string',
-	eq => 'compare',
-	ne => sub { !compare(@_) };
+	eq   => 'compare',
+	ne   => sub { !compare(@_) };
 
-use DateTime::Format::Pg;
+=head2 timestamp
 
-=head2 datetime
-
-Underlying L<DateTime> object.
+Underlying RFC 3339 formatted timestamp
 
 =cut
 
-has 'datetime';
+has 'timestamp';
 
 =head2 new
 =cut
+
+my $pg_timestamp_format =
+qr/^(\d{4,})-(\d{2,})-(\d{2,}) (\d{2,}):(\d{2,}):(\d{2,})(\.\d+)?([-\+][\d:]+)$/;
+
 sub new ( $class, $timestamptz ) {
-	my $dt = DateTime::Format::Pg->parse_timestamptz($timestamptz);
-	$class->SUPER::new( datetime => $dt );
+	croak 'Invalid Postgres timestamp'
+		unless $timestamptz && ( $timestamptz =~ m/$pg_timestamp_format/ );
+	my $dt = "$1-$2-$3T$4:$5:$6." . _normalize_millisec($7) . _normalize_tz($8);
+	$class->SUPER::new( timestamp => $dt );
+}
+
+# Given a float, return the number of integer milliseconds it represents
+sub _normalize_millisec {
+	substr( sprintf( '%.3f', shift || 0 ), 2 );
+}
+
+sub _normalize_tz {
+	my $tz = shift;
+	# return 'Z' if the timezone is 00 or 00:00
+	return 'Z' if $tz =~ /^[-\+]00(?!:[1-9]\d)/;
+	# Append :00 if the timezone doesn't specify minutes
+	return $tz . ':00' if $tz =~ /^[-\+]\d\d$/;
+	return $tz;
+}
+
+my $_parser = DateTime::Format::Strptime->new(
+	pattern  => '%Y-%m-%dT%H:%M:%S.%3N%z',
+	on_error => 'croak'
+);
+
+=head2 to_datetime
+
+Return a C<DateTime> object representing the timestamp.
+
+B<NOTE:> This method will negatively impact performance if called frequently.
+
+=cut
+
+sub to_datetime {
+	return $_parser->parse_datetime( shift->timestamp );
 }
 
 =head2 compare
@@ -47,20 +86,21 @@ sub new ( $class, $timestamptz ) {
 Compare two Conch::Time objects. Used to overload C<eq> and C<ne>.
 
 =cut
+
 sub compare {
 	my ( $self, $other ) = @_;
-	$self->datetime eq $other->datetime;
+	$self->timestamp eq $other->timestamp;
 }
 
 =head2 to_string
 
-Render the timestamp as a RFC 3337 string with the UTC suffix C<Z>. Used to
+Render the timestamp as a RFC 3337 timestamp string. Used to
 overload string coercion.
 
 =cut
+
 sub to_string {
-	my $self = shift;
-	$self->datetime->strftime('%Y-%m-%dT%H:%M:%S.%3NZ');
+	shift->timestamp;
 }
 
 1;
