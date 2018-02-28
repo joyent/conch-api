@@ -7,13 +7,15 @@ run: build run-perl
 run-perl:
 	@carton exec bin/conch daemon
 
-build: web-assets cpanfile.snapshot local
+build: web-assets local
 
 ui/node_modules:
 	@cd ui && yarn install
 
-local:
+local: cpanfile.snapshot
+# '--deployment' installs the same dep versions that are in the lockfile
 	@carton install --deployment
+	@touch local
 
 test:
 	@carton exec prove -lpr t/
@@ -64,10 +66,6 @@ watch:
 	(make watch-js &)
 	(make watch-assets &)
 	make watch-perl
-
-# '--deployment' installs the same dep versions that are in the lockfile
-cpanfile.snapshot: cpanfile
-	@carton install --deployment
 
 generate-dbic:
 	@carton exec dbicdump schema.conf
