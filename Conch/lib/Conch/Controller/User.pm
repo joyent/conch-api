@@ -15,26 +15,6 @@ use Conch::Model::User;
 use Mojo::Exception;
 
 
-=head2 _settings_as_v1
-
-Provides a v1 representation of the given user's UserSettings
-
-=cut
-
-sub _settings_as_v1($user) {
-	my $settings = $user->settings();
-
-	my %output;
-	for my $k ( keys $settings->%* ) {
-		$output{$k} = $settings->{$k};
-	}
-	return \%output;
-}
-
-
-######
-
-
 =head2 set_settings
 
 Override the settings for a user with the provided payload
@@ -98,7 +78,13 @@ sub get_settings ($c) {
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
-	$c->status( 200, _settings_as_v1($user) );
+	my $settings = $user->settings();
+	my %output;
+	for my $k ( keys $settings->%* ) {
+		$output{$k} = $settings->{$k};
+	}
+
+	$c->status( 200, \%output );
 }
 
 
