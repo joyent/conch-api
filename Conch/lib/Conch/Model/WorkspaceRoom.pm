@@ -14,7 +14,7 @@ use List::Compare;
 
 use aliased 'Conch::Class::DatacenterRoom';
 
-has 'pg';
+use Conch::Pg;
 
 =head2 list
 
@@ -22,7 +22,7 @@ List all datacenter rooms assigned to a workspace.
 
 =cut
 sub list ( $self, $ws_id ) {
-	$self->pg->db->query(
+	Conch::Pg->new->db->query(
 		q{
       SELECT dr.id, dr.az, dr.alias, dr.vendor_name
       FROM datacenter_room dr
@@ -39,7 +39,7 @@ List workspace rooms assigned to parent workspace.
 
 =cut
 sub list_parent_workspace_rooms ( $self, $ws_id ) {
-	return $self->pg->db->query(
+	return Conch::Pg->new->db->query(
 		q{
       SELECT wdr.datacenter_room_id
       FROM workspace_datacenter_room wdr
@@ -58,7 +58,7 @@ Replace all datacenter rooms assigned to a workspace.
 
 =cut
 sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
-	my $db              = $self->pg->db;
+	my $db              = Conch::Pg->new->db;
 	my $parent_room_ids = $self->list_parent_workspace_rooms($ws_id);
 
 	my @invalid_room_ids =

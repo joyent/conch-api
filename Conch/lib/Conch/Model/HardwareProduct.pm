@@ -14,7 +14,7 @@ use aliased 'Conch::Class::HardwareProduct';
 use aliased 'Conch::Class::HardwareProductProfile';
 use aliased 'Conch::Class::ZpoolProfile';
 
-has 'pg';
+use Conch::Pg;
 
 # Query fields used to build HardwareProduct, which depends on
 # HardwareProductProfile and ZpoolProfile
@@ -63,7 +63,7 @@ profiles.
 
 =cut
 sub list ($self) {
-	my $hw_product_hashes = $self->pg->db->query(
+	my $hw_product_hashes = Conch::Pg->new->db->query(
 		qq{
       SELECT $fields
       FROM hardware_product hw_product
@@ -86,7 +86,7 @@ profile by ID.
 
 =cut
 sub lookup ( $self, $hw_id ) {
-	my $ret = $self->pg->db->query(
+	my $ret = Conch::Pg->new->db->query(
 		qq{
         SELECT $fields
         FROM hardware_product hw_product
@@ -111,7 +111,7 @@ profile by the hardware product name.
 
 =cut
 sub lookup_by_name ( $self, $name ) {
-	my $ret = $self->pg->db->query(
+	my $ret = Conch::Pg->new->db->query(
 		qq{
         SELECT $fields
         FROM hardware_product hw_product

@@ -27,7 +27,7 @@ existing session for the user
 sub authenticate ($c) {
 	if ( my $basic_auth = $c->req->url->to_abs->userinfo ) {
 		my ( $user, $password ) = split /:/, $basic_auth;
-		my $u = Conch::Model::User->lookup( $c->pg, $user );
+		my $u = Conch::Model::User->lookup( $user );
 		return 0 unless $u;
 
 		my $ret = $u->validate_password($password);
@@ -43,7 +43,7 @@ sub authenticate ($c) {
 		$c->status(401, { error => 'unauthorized'});
 		return 0;
 	}
-	my $user = Conch::Model::User->lookup( $c->pg, $user_id );
+	my $user = Conch::Model::User->lookup( $user_id );
 	if ($user) {
 		$c->stash( user_id => $user_id );
 		$c->stash(user => $user);
@@ -68,7 +68,7 @@ sub session_login ($c) {
 	return $c->status( 400, { error => '"user" and "password" required' } )
 		unless $body->{user} and $body->{password};
 
-	my $user = Conch::Model::User->lookup( $c->pg, $body->{user} );
+	my $user = Conch::Model::User->lookup( $body->{user} );
 
 	return $c->status( 401, { error => 'Invalid login' } ) unless $user;
 
@@ -110,7 +110,7 @@ sub reset_password ($c) {
 	# check for the user and sent the email non-blocking to prevent timing attacks
 	Mojo::IOLoop->subprocess(
 		sub {
-			my $user = Conch::Model::User->lookup( $c->pg, $body->{email} );
+			my $user = Conch::Model::User->lookup( $body->{email} );
 
 			if ($user) {
 				my $pw = $c->random_string( length => 10 );

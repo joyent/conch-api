@@ -8,9 +8,10 @@ use_ok("Conch::Model::Relay");
 use_ok("Conch::Model::User");
 
 use Data::UUID;
+use Conch::Pg;
 
 my $pgtmp = mk_tmp_db() or die;
-my $pg = Mojo::Pg->new( $pgtmp->uri );
+my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 my $uuid = Data::UUID->new;
 
@@ -30,12 +31,7 @@ my $hardware_product_id = $pg->db->insert(
 )->hash->{id};
 
 new_ok('Conch::Model::Relay');
-my $relay_model = new_ok(
-	"Conch::Model::Relay",
-	[
-		pg => $pg,
-	]
-);
+my $relay_model = new_ok("Conch::Model::Relay");
 
 my $relay_serial = 'deadbeef';
 subtest "registering relay" => sub {
@@ -64,10 +60,10 @@ subtest "registering relay" => sub {
 };
 
 subtest "connect device relay" => sub {
-	my $device_model = new_ok( "Conch::Model::Device", [ pg => $pg ] );
+	my $device_model = new_ok( "Conch::Model::Device");
 
 	my $device_id =
-		Conch::Model::Device->create( $pg, 'coffee', $hardware_product_id )->id;
+		Conch::Model::Device->create( 'coffee', $hardware_product_id )->id;
 
 	ok( $relay_model->connect_device_relay( $device_id, $relay_serial ) );
 	ok( !$relay_model->connect_device_relay( $device_id, 'bad_serial' ) );
@@ -76,7 +72,7 @@ subtest "connect device relay" => sub {
 subtest "connect user relay" => sub {
 
 	my $user_id =
-		Conch::Model::User->create( $pg, 'foo@bar.com', 'password' )->id;
+		Conch::Model::User->create( 'foo@bar.com', 'password' )->id;
 	ok( $relay_model->connect_user_relay( $user_id, $relay_serial ) );
 	ok( !$relay_model->connect_user_relay( $user_id, 'bad_serial' ) );
 };

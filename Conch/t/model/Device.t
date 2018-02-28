@@ -1,7 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB;
-use Mojo::Pg;
 
 use Try::Tiny;
 use IO::All;
@@ -13,18 +12,17 @@ use_ok("Conch::Model::User");
 
 use Data::UUID;
 
-use DDP;
+use Conch::Pg;
 
 my $pgtmp = mk_tmp_db() or die;
-my $dbh   = DBI->connect( $pgtmp->dsn );
-my $pg    = Mojo::Pg->new( $pgtmp->uri );
+my $pg    = Conch::Pg->new($pgtmp->uri);
 
 my $uuid = Data::UUID->new;
 
 my ( $ws_model, $global_ws, $hw_vendor_id, $hw_product_id );
 
 try {
-	$ws_model = new_ok( "Conch::Model::Workspace", [ pg => $pg ] );
+	$ws_model = new_ok( "Conch::Model::Workspace");
 	$global_ws = $ws_model->lookup_by_name('GLOBAL');
 
 	$hw_vendor_id = $pg->db->insert(
@@ -51,7 +49,7 @@ my $d;
 my $device_serial = 'c0ff33';
 subtest "Create new device" => sub {
 
-	$d = Conch::Model::Device->create( $pg, $device_serial, $hw_product_id );
+	$d = Conch::Model::Device->create( $device_serial, $hw_product_id );
 
 	isa_ok( $d, "Conch::Model::Device" );
 	is( $d->id,    $device_serial, "New device ID matches expectations" );
@@ -61,23 +59,23 @@ subtest "Create new device" => sub {
 		"New device hardware product id matches expectations" );
 
 	my $duplicate =
-		Conch::Model::Device->create( $pg, $device_serial, $hw_product_id );
+		Conch::Model::Device->create( $device_serial, $hw_product_id );
 	is( $duplicate, undef, "Duplicate creation attempt fails" );
 };
 
 my $user;
 subtest "Lookup" => sub {
-	my $d2 = Conch::Model::Device->lookup( $pg, $d->id );
+	my $d2 = Conch::Model::Device->lookup( $d->id );
 	isa_ok( $d2, "Conch::Model::Device" );
 	is_deeply( $d2, $d, "Looked-up device matches expectations" );
 
 	is(
-		Conch::Model::Device->lookup( $pg, 'bad device id' ),
+		Conch::Model::Device->lookup( 'bad device id' ),
 		undef, "Lookup for bad device fails",
 	);
 
-	$user = Conch::Model::User->create( $pg, 'foo@bar.com', 'password' );
-	is( Conch::Model::Device->lookup_for_user( $pg, $user->id, $d->id ),
+	$user = Conch::Model::User->create( 'foo@bar.com', 'password' );
+	is( Conch::Model::Device->lookup_for_user( $user->id, $d->id ),
 		undef, "brand new user can't find a device" );
 
 };
@@ -89,7 +87,7 @@ subtest "Device Modifiers" => sub {
 		is( $d->graduate(), 1, "graduate affects 1 row" );
 		ok( $d->graduated, "graduated is set on the object" );
 
-		is( Conch::Model::Device->lookup( $pg, $d->id )->graduated,
+		is( Conch::Model::Device->lookup( $d->id )->graduated,
 			$d->graduated, "graduated is set in the db" );
 	};
 
@@ -99,7 +97,7 @@ subtest "Device Modifiers" => sub {
 		is( $d->set_triton_setup(), 1, "set_triton_setup affects 1 row" );
 		ok( $d->triton_setup, "triton_setup is set on the object" );
 
-		is( Conch::Model::Device->lookup( $pg, $d->id )->triton_setup,
+		is( Conch::Model::Device->lookup( $d->id )->triton_setup,
 			$d->triton_setup, "triton_setup is set in the db" );
 	};
 
@@ -111,7 +109,7 @@ subtest "Device Modifiers" => sub {
 		is( $d->triton_uuid, $d_uuid,
 			"triton_uuid is set appropriately on the object" );
 
-		is( Conch::Model::Device->lookup( $pg, $d->id )->triton_uuid,
+		is( Conch::Model::Device->lookup( $d->id )->triton_uuid,
 			$d_uuid, "triton_uuid is set appropriately in the db" );
 	};
 
@@ -122,7 +120,7 @@ subtest "Device Modifiers" => sub {
 		is( $d->set_triton_reboot(), 1, "set_triton_reboot affects 1 row" );
 		ok( $d->latest_triton_reboot, "triton_reboot is set on the object" );
 
-		is( Conch::Model::Device->lookup( $pg, $d->id )->latest_triton_reboot,
+		is( Conch::Model::Device->lookup( $d->id )->latest_triton_reboot,
 			$d->latest_triton_reboot, "latest_triton_reboot is set in the db" );
 	};
 
@@ -134,7 +132,7 @@ subtest "Device Modifiers" => sub {
 		is( $d->asset_tag, $asset_tag,
 			"asset_tag matches expectations on the object" );
 
-		is( Conch::Model::Device->lookup( $pg, $d->id )->asset_tag,
+		is( Conch::Model::Device->lookup( $d->id )->asset_tag,
 			$asset_tag, "asset_tag matches expectations" );
 	};
 
@@ -145,7 +143,7 @@ subtest "Device Modifiers" => sub {
 		is( $d->set_validated(), 1);
 		ok( $d->validated, "validated is set on the object" );
 
-		is( Conch::Model::Device->lookup( $pg, $d->id )->validated,
+		is( Conch::Model::Device->lookup( $d->id )->validated,
 			$d->validated, "validated is set in the db" );
 	};
 };

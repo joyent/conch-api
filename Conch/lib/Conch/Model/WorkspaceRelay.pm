@@ -13,7 +13,7 @@ use Mojo::Base -base, -signatures;
 use Conch::Model::Device;
 use aliased 'Conch::Class::WorkspaceRelay';
 
-has 'pg';
+use Conch::Pg;
 
 =head2 list
 
@@ -21,7 +21,7 @@ Retrieve list of workspace relays.
 
 =cut
 sub list ( $self, $ws_id, $interval_minutes = undef ) {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 
 	# Find all racks in the workspace
 	my $workspace_rack_ids = $db->query(
@@ -120,7 +120,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 		)->hashes;
 
 		for my $d ( $ret->@* ) {
-			push $devices->@*, Conch::Model::Device->new( pg => $self->pg, $d->%* );
+			push $devices->@*, Conch::Model::Device->new( $d->%* );
 		}
 
 		push @res,

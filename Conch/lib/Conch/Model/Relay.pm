@@ -14,7 +14,7 @@ use Mojo::Base -base, -signatures;
 use Conch::Class::Relay;
 use Conch::Time;
 
-has 'pg';
+use Conch::Pg;
 
 =head2 register
 
@@ -24,7 +24,7 @@ an existing relay's version, IP address, SSH port, alias, and updated timestamp
 =cut
 
 sub register ( $self, $serial, $version, $ipaddr, $ssh_port, $alias ) {
-	$self->pg->db->query(
+	Conch::Pg->new->db->query(
 		q{
 		INSERT INTO relay
 			( id, version, ipaddr, ssh_port, alias, updated )
@@ -56,7 +56,7 @@ Look up a relay by ID.
 
 sub lookup ( $self, $relay_id ) {
 	my $maybe_relay =
-		$self->pg->db->select( 'relay', undef, { id => $relay_id } )->hash;
+		Conch::Pg->new->db->select( 'relay', undef, { id => $relay_id } )->hash;
 	return $maybe_relay && Conch::Class::Relay->new($maybe_relay);
 }
 
@@ -70,7 +70,7 @@ sub connect_user_relay ( $self, $user_id, $relay_id ) {
 
 	# 'first_seen' column will only be written on create. It should remain
 	# unchanged on updates
-	return $self->pg->db->query(
+	return Conch::Pg->new->db->query(
 		q{
 		INSERT INTO user_relay_connection
 			( user_id, relay_id, last_seen )
@@ -96,7 +96,7 @@ sub connect_device_relay ( $self, $device_id, $relay_id ) {
 
 	# 'first_seen' column will only be written on create. It should remain
 	# unchanged on updates
-	return $self->pg->db->query(
+	return Conch::Pg->new->db->query(
 		q{
 		INSERT INTO device_relay_connection
 			( device_id, relay_id, last_seen )
@@ -120,7 +120,7 @@ Provide a list of all relays in the database as Class::Relay objects
 
 sub list ( $self ) {
 	my @relays;
-	for my $r ( $self->pg->db->select('relay')->hashes->@* ) {
+	for my $r ( Conch::Pg->new->db->select('relay')->hashes->@* ) {
 		$r->{created} = Conch::Time->new( $r->{created} ) if $r->{created};
 		$r->{updated} = Conch::Time->new( $r->{updated} ) if $r->{updated};
 		push @relays, Conch::Class::Relay->new($r);

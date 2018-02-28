@@ -12,9 +12,7 @@ use Mojo::Base -base, -signatures;
 
 use Try::Tiny;
 
-use DDP;
-
-has 'pg';
+use Conch::Pg;
 
 =head2 set_settings
 
@@ -25,24 +23,25 @@ values.
 
 =cut
 sub set_settings ( $self, $device_id, $settings ) {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 	try {
 		my $tx = $db->begin;
 		for my $setting_key ( keys %{$settings} ) {
 			my $value = $settings->{$setting_key};
-			_deactivate_device_setting( $db, $device_id, $setting_key );
-			_insert_device_setting( $db, $device_id, $setting_key, $value );
+			_deactivate_device_setting( $device_id, $setting_key );
+			_insert_device_setting( $device_id, $setting_key, $value );
 		}
 		$tx->commit;
 	}
 	catch {
+		Mojo::Exception->throw(__PACKAGE__."->set_settings: $_");
 		return undef
 	};
 	return 1;
 }
 
-sub _insert_device_setting ( $db, $device_id, $setting_key, $value ) {
-	$db->insert(
+sub _insert_device_setting ( $device_id, $setting_key, $value ) {
+	Conch::Pg->new->db->insert(
 		'device_settings',
 		{
 			device_id => $device_id,
@@ -52,8 +51,8 @@ sub _insert_device_setting ( $db, $device_id, $setting_key, $value ) {
 	);
 }
 
-sub _deactivate_device_setting ( $db, $device_id, $setting_key ) {
-	$db->update(
+sub _deactivate_device_setting ( $device_id, $setting_key ) {
+	Conch::Pg->new->db->update(
 		'device_settings',
 		{ deactivated => 'now()' },
 		{ device_id   => $device_id, name => $setting_key, deactivated => undef }
@@ -66,7 +65,7 @@ Retrieve all settings associated with a device and build a hash
 
 =cut
 sub get_settings ( $self, $device_id ) {
-	my $settings = $self->pg->db->select( 'device_settings', undef,
+	my $settings = Conch::Pg->new->db->select( 'device_settings', undef,
 		{ deactivated => undef, device_id => $device_id } )->expand->hashes;
 	return $settings->reduce(
 		sub {
@@ -83,7 +82,7 @@ Delete (deactivate) a specifie device setting.
 
 =cut
 sub delete_device_setting ( $self, $device_id, $setting_key ) {
-	_deactivate_device_setting( $self->pg->db, $device_id, $setting_key )->rows;
+	_deactivate_device_setting( $device_id, $setting_key )->rows;
 }
 
 1;

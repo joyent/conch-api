@@ -333,16 +333,14 @@ subtest 'Permissions' => sub {
 	my $ro_name = 'readonly@wat.wat';
 	my $ro_pass = 'password';
 
-	my $pg = Mojo::Pg->new( $pgtmp->uri );
-
-	my $role_model = new_ok( "Conch::Model::WorkspaceRole", [ pg => $pg ] );
-	my $ws_model   = new_ok( "Conch::Model::Workspace",     [ pg => $pg ] );
+	my $role_model = new_ok( "Conch::Model::WorkspaceRole");
+	my $ws_model   = new_ok( "Conch::Model::Workspace");
 
 	subtest "Read-only" => sub {
 
 		my $ro_role = $role_model->lookup_by_name('Read-only');
 
-		my $ro_user = Conch::Model::User->create( $pg, $ro_name, $ro_pass );
+		my $ro_user = Conch::Model::User->create( $ro_name, $ro_pass );
 
 		$ws_model->add_user_to_workspace( $ro_user->id, $id, $ro_role->id );
 
@@ -400,7 +398,7 @@ subtest 'Permissions' => sub {
 		my $pass = 'password';
 
 		my $role = $role_model->lookup_by_name('Integrator');
-		my $user = Conch::Model::User->create( $pg, $name, $pass );
+		my $user = Conch::Model::User->create( $name, $pass );
 		$ws_model->add_user_to_workspace( $user->id, $id, $role->id );
 		$t->post_ok(
 			"/login" => json => {

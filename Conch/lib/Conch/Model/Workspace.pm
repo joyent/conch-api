@@ -14,7 +14,7 @@ use Try::Tiny;
 
 use aliased 'Conch::Class::Workspace';
 
-has 'pg';
+use Conch::Pg;
 
 =head2 lookup_by_name
 
@@ -23,7 +23,7 @@ Look up a workspace by name.
 =cut
 sub lookup_by_name ( $self, $name ) {
 	my $ret =
-		$self->pg->db->select( 'workspace', undef, { name => $name } )->hash;
+		Conch::Pg->new->db->select( 'workspace', undef, { name => $name } )->hash;
 
 	return undef unless $ret;
 	return Workspace->new($ret);
@@ -37,7 +37,7 @@ Add a user to a workspace with a specified role.
 sub add_user_to_workspace ( $self, $user_id, $ws_id, $role_id ) {
 
 	# On conflict, set the role for the user
-	$self->pg->db->query(
+	Conch::Pg->new->db->query(
 		q{
       INSERT INTO user_workspace_role (user_id, workspace_id, role_id)
       SELECT ?, ?, ?
@@ -56,7 +56,7 @@ parent workspace.
 sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 	$description )
 {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 
 	my $tx = $db->begin;
 	my ( $subws_id, $role_name );
@@ -111,7 +111,7 @@ Retrieve the list of workspaces associated with a user.
 
 =cut
 sub get_user_workspaces ( $self, $user_id ) {
-	$self->pg->db->query(
+	Conch::Pg->new->db->query(
 		q{
     SELECT w.*, r.name as role, r.id as role_id
     FROM workspace w
@@ -133,7 +133,7 @@ user ID.
 
 =cut
 sub get_user_workspace ( $self, $user_id, $ws_id ) {
-	my $ret = $self->pg->db->query(
+	my $ret = Conch::Pg->new->db->query(
 		q{
           SELECT w.*, r.name as role, r.id as role_id
           FROM workspace w
@@ -158,7 +158,7 @@ associated with the specified user ID.
 
 =cut
 sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
-	$self->pg->db->query(
+	Conch::Pg->new->db->query(
 		q{
     WITH RECURSIVE subworkspace (id, name, description, parent_workspace_id) AS (
         SELECT id, name, description, parent_workspace_id

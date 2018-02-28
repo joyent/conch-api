@@ -19,7 +19,8 @@ use aliased 'Conch::Class::DatacenterRack';
 use aliased 'Conch::Class::DatacenterRoom';
 use aliased 'Conch::Class::HardwareProduct';
 
-has 'pg';
+use Conch::Pg;
+
 has [
 	qw(
 		asset_tag
@@ -84,14 +85,14 @@ Create a new device
 
 =cut
 sub create (
-	$class, $pg, $id, $hardware_product_id,
+	$class, $id, $hardware_product_id,
 	$state  = 'UNKNOWN',
 	$health = 'UNKNOWN'
 	)
 {
 	my $ret;
 	try {
-		$ret = $pg->db->insert(
+		$ret = Conch::Pg->new()->db->insert(
 			'device',
 			{
 				id               => $id,
@@ -103,7 +104,7 @@ sub create (
 		)->hash;
 	};
 	return undef unless $ret and $ret->{id};
-	return $class->lookup( $pg, $ret->{id} );
+	return $class->lookup( $ret->{id} );
 }
 
 =head2 lookup
@@ -112,8 +113,8 @@ Find a device by ID (sometimes also called "serial number") or return undef.
 Does not consider user access restrictions.
 
 =cut
-sub lookup ( $class, $pg, $device_id ) {
-	my $ret = $pg->db->select(
+sub lookup ( $class, $device_id ) {
+	my $ret = Conch::Pg->new()->db->select(
 		'device', undef,
 		{
 			id          => $device_id,
@@ -121,7 +122,7 @@ sub lookup ( $class, $pg, $device_id ) {
 		}
 	)->hash;
 	return undef unless $ret and $ret->{id};
-	return $class->new( pg => $pg, $ret->%* );
+	return $class->new( $ret->%* );
 }
 
 =head2 lookup_for_user
@@ -132,8 +133,8 @@ a) is located in a datacenter rack in one of the user's workspaces
 b) has sent a device report proxied by a relay using the user's credentials
 
 =cut
-sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
-	my $ret = $pg->db->query(
+sub lookup_for_user ( $class, $user_id, $device_id ) {
+	my $ret = Conch::Pg->new()->db->query(
 		q{
 		WITH target_workspaces(id) AS (
 			SELECT workspace_id
@@ -164,7 +165,7 @@ sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
 	)->hash;
 
 	unless ( $ret and $ret->{id} ) {
-		$ret = $pg->db->query(
+		$ret = Conch::Pg->new()->db->query(
 			q{
 			SELECT device.*
 				FROM user_account u
@@ -182,7 +183,7 @@ sub lookup_for_user ( $class, $pg, $user_id, $device_id ) {
 	}
 
 	return undef unless $ret and $ret->{id};
-	return $class->new( pg => $pg, $ret->%* );
+	return $class->new( $ret->%* );
 }
 
 =head2 device_nic_neighbors
@@ -191,7 +192,7 @@ Return a hash of NIC and associated NIC peers details for a device
 
 =cut
 sub device_nic_neighbors ( $self, $device_id ) {
-	my $nics = $self->pg->db->query(
+	my $nics = Conch::Pg->new()->db->query(
 		q{
 		SELECT nic.*, neighbor.*
 		FROM device_nic nic
@@ -224,7 +225,7 @@ Mark the device as "graduated" (VLAN flipped)
 
 =cut
 sub graduate ( $self) {
-	my $ret = $self->pg->db->update(
+	my $ret = Conch::Pg->new()->db->update(
 		'device',
 		{
 			graduated => 'NOW()',
@@ -247,7 +248,7 @@ Mark the device as set up for triton.
 
 =cut
 sub set_triton_setup ( $self ) {
-	my $ret = $self->pg->db->update(
+	my $ret = Conch::Pg->new()->db->update(
 		'device',
 		{
 			triton_setup => 'NOW()',
@@ -271,7 +272,7 @@ Set and store Triton UUID.
 sub set_triton_uuid ( $self, $uuid ) {
 	return undef unless is_uuid($uuid);
 
-	my $ret = $self->pg->db->update(
+	my $ret = Conch::Pg->new()->db->update(
 		'device',
 		{
 			triton_uuid => $uuid,
@@ -293,7 +294,7 @@ Mark the device as rebooted into Triton.
 
 =cut
 sub set_triton_reboot ( $self ) {
-	my $ret = $self->pg->db->update(
+	my $ret = Conch::Pg->new()->db->update(
 		'device',
 		{
 			latest_triton_reboot => 'NOW()',
@@ -315,7 +316,7 @@ Set the asset tag for the device
 
 =cut
 sub set_asset_tag ( $self, $asset_tag ) {
-	my $ret = $self->pg->db->update(
+	my $ret = Conch::Pg->new()->db->update(
 		'device',
 		{
 			asset_tag => $asset_tag,
@@ -337,7 +338,7 @@ Mark the validated timestamp for the device
 
 =cut
 sub set_validated ( $self ) {
-	my $ret = $self->pg->db->update(
+	my $ret = Conch::Pg->new()->db->update(
 		'device',
 		{
 			validated => 'NOW()',

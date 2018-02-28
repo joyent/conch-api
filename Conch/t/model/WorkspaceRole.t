@@ -1,18 +1,16 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB;
-use Mojo::Pg;
+use Conch::Pg;
 
 use Conch::Model::WorkspaceRole;
 
-use Data::Printer;
-
 my $pgtmp = mk_tmp_db() or die;
-my $pg = Mojo::Pg->new( $pgtmp->uri );
+Conch::Pg->new( $pgtmp->uri );
 
 new_ok('Conch::Model::WorkspaceRole');
 
-my $role_model = new_ok( "Conch::Model::WorkspaceRole", [ pg => $pg ] );
+my $role_model = new_ok( "Conch::Model::WorkspaceRole" );
 
 my $role;
 subtest "Get list of workspace roles" => sub {

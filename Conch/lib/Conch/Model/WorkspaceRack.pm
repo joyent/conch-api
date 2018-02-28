@@ -12,7 +12,7 @@ use Mojo::Base -base, -signatures;
 
 use aliased 'Conch::Class::DatacenterRack';
 
-has 'pg';
+use Conch::Pg;
 
 =head2 lookup
 
@@ -20,7 +20,7 @@ Look up a datacenter rack assigned in a workspace.
 
 =cut
 sub lookup ( $self, $ws_id, $rack_id ) {
-	my $ret = $self->pg->db->query(
+	my $ret = Conch::Pg->new->db->query(
 		q{
       WITH target_workspace (id) AS ( values( ?::uuid ))
       SELECT rack.*, role.name AS role_name
@@ -53,7 +53,7 @@ Build a hash representing the layout of the datacenter rack.
 
 =cut
 sub rack_layout ( $self, $rack ) {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 
 	my $rack_slots =
 		$db->select( 'datacenter_rack_layout', undef, { rack_id => $rack->id } )
@@ -119,7 +119,7 @@ Retrieve a list of all datacenter racks assigned to a workspace.
 # There's too many queries and munging to quickly identify any particular
 # problem. -- Lane
 sub list ( $self, $ws_id ) {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 
 	my $racks = $db->query(
 		q{
@@ -212,7 +212,7 @@ workspace assignment.
 
 =cut
 sub rack_in_parent_workspace ( $self, $ws_id, $rack_id ) {
-	return $self->pg->db->query(
+	return Conch::Pg->new->db->query(
 		qq{
       WITH parent_workspace (id) AS (
         SELECT ws.parent_workspace_id
@@ -246,7 +246,7 @@ assignment.
 
 =cut
 sub rack_in_workspace_room ( $self, $ws_id, $rack_id ) {
-	return $self->pg->db->query(
+	return Conch::Pg->new->db->query(
 		q{
     SELECT id
     FROM workspace_datacenter_room wdr
@@ -264,7 +264,7 @@ Add a rack to a workspace.
 
 =cut
 sub add_to_workspace ( $self, $ws_id, $rack_id ) {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 
 	return undef unless $self->rack_in_parent_workspace( $ws_id, $rack_id );
 	return undef if $self->rack_in_workspace_room( $ws_id, $rack_id );
@@ -286,7 +286,7 @@ Remove a rack from a workspace.
 
 =cut
 sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 
 	my $rack_exists =
 		$db->select( 'workspace_datacenter_rack', undef,
