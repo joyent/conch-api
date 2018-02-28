@@ -21,13 +21,17 @@ Conch::Time - format Postgres Timestamps as RFC 3337 UTC timestamps
 
 package Conch::Time;
 use Mojo::Base -base, -signatures;
+
 use DateTime::Format::Strptime;
-use Carp 'croak';
+use Mojo::Exception;
 
 use overload
 	'""' => 'to_string',
 	eq   => 'compare',
 	ne   => sub { !compare(@_) };
+
+use constant PG_TIMESTAMP_FORMAT =>
+	qr/^(\d{4,})-(\d{2,})-(\d{2,}) (\d{2,}):(\d{2,}):(\d{2,})(\.\d+)?([-\+][\d:]+)$/;
 
 =head2 timestamp
 
@@ -40,12 +44,10 @@ has 'timestamp';
 =head2 new
 =cut
 
-my $pg_timestamp_format =
-qr/^(\d{4,})-(\d{2,})-(\d{2,}) (\d{2,}):(\d{2,}):(\d{2,})(\.\d+)?([-\+][\d:]+)$/;
 
 sub new ( $class, $timestamptz ) {
-	croak 'Invalid Postgres timestamp'
-		unless $timestamptz && ( $timestamptz =~ m/$pg_timestamp_format/ );
+	Mojo::Exception->throw('Invalid Postgres timestamp')
+		unless $timestamptz && ( $timestamptz =~ m/${\PG_TIMESTAMP_FORMAT}/ );
 	my $dt = "$1-$2-$3T$4:$5:$6." . _normalize_millisec($7) . _normalize_tz($8);
 	$class->SUPER::new( timestamp => $dt );
 }
