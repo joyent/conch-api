@@ -1,0 +1,20 @@
+#!/bin/bash
+
+export PATH=$PATH:/opt/local/bin:/opt/local/sbin
+cd /opt/conch/Conch
+
+case "$1" in
+  start)
+    /opt/local/lib/perl5/site_perl/bin/carton exec hypnotoad bin/conch
+    ;;
+  stop)
+    /opt/local/lib/perl5/site_perl/bin/carton exec hypnotoad -s bin/conch
+    ;;
+  restart)
+    /opt/local/lib/perl5/site_perl/bin/carton exec hypnotoad bin/conch
+    ;;
+  *)
+    echo "Usage:  {start|stop|restart}"
+    exit 1
+    ;;
+esac
