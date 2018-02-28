@@ -143,6 +143,7 @@ sub startup {
 	$self->plugin('Util::RandomString');
 	$self->plugin('Conch::Plugin::Model');
 	$self->plugin('Conch::Plugin::Mail');
+	$self->plugin(NYTProf => $self->config);
 
 	my $r = $self->routes;
 	all_routes($r);

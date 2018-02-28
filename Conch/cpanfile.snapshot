@@ -9,6 +9,18 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0.47
       perl 5.006
+  Algorithm-Combinatorics-0.27
+    pathname: F/FX/FXN/Algorithm-Combinatorics-0.27.tar.gz
+    provides:
+      Algorithm::Combinatorics 0.27
+      Algorithm::Combinatorics::Iterator 0.27
+      Algorithm::Combinatorics::JustCoderef 0.27
+    requirements:
+      ExtUtils::MakeMaker 0
+      FindBin 0
+      Scalar::Util 0
+      Test::More 0
+      XSLoader 0
   Algorithm-Diff-1.1903
     pathname: T/TY/TYEMQ/Algorithm-Diff-1.1903.tar.gz
     provides:
@@ -1325,6 +1337,31 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Sub::Exporter::Progressive 0.001011
       perl 5.006
+  Devel-NYTProf-6.04
+    pathname: T/TI/TIMB/Devel-NYTProf-6.04.tar.gz
+    provides:
+      Devel::NYTProf 6.04
+      Devel::NYTProf::Apache 4.00
+      Devel::NYTProf::Constants undef
+      Devel::NYTProf::Core 6.04
+      Devel::NYTProf::Data 4.02
+      Devel::NYTProf::FileHandle undef
+      Devel::NYTProf::FileInfo undef
+      Devel::NYTProf::ReadStream 4.00
+      Devel::NYTProf::Reader 4.06
+      Devel::NYTProf::Run undef
+      Devel::NYTProf::SubCallInfo undef
+      Devel::NYTProf::SubInfo undef
+      Devel::NYTProf::Util 4.00
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Which 1.09
+      Getopt::Long 0
+      JSON::MaybeXS 0
+      List::Util 0
+      Test::Differences 0.60
+      Test::More 0.84
+      XSLoader 0
   Devel-OverloadInfo-0.004
     pathname: I/IL/ILMARI/Devel-OverloadInfo-0.004.tar.gz
     provides:
@@ -2409,6 +2446,22 @@ DISTRIBUTIONS
       Mojolicious 4.0
       strict 0
       warnings 0
+  Mojolicious-Plugin-NYTProf-0.20
+    pathname: L/LE/LEEJO/Mojolicious-Plugin-NYTProf-0.20.tar.gz
+    provides:
+      Mojolicious::Plugin::NYTProf 0.20
+    requirements:
+      Algorithm::Combinatorics 0.27
+      Devel::NYTProf 5.07
+      ExtUtils::MakeMaker 0
+      File::Spec::Functions 3.30
+      File::Temp 0.22
+      File::Which 1.09
+      Mojolicious 6.00
+      Test::Exception 0.32
+      Test::More 0
+      Time::HiRes 1.9719
+      perl 5.010001
   Mojolicious-Plugin-Util-RandomString-0.06
     pathname: A/AK/AKRON/Mojolicious-Plugin-Util-RandomString-0.06.tar.gz
     provides:

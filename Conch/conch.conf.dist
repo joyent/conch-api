@@ -11,6 +11,49 @@
       listen => ['http://*:5000'],
       # operates behind a reverse proxy
       proxy => 1,
-    }
+    },
+
+    nytprof => {
+ 
+    # path to your nytprofhtml script (installed as part of Devel::NYTProf
+    # distribution). the plugin will do its best to try to find this so this
+    # is optional, just set if you have a none standard path
+    nytprofhtml_path => 'local/bin/nytprofhtml',
+ 
+    # path to store Devel::NYTProf output profiles and generated html pages.
+    # options, defaults to "/path/to/your/app/root/dir/nytprof"
+    profiles_dir => 'nytprof/',
+ 
+    # set this to true to allow the plugin to run when in production mode
+    # the default value is 0 so you can deploy your app to prod without
+    # having to make any changes to config/plugin register
+    allow_production => 1,
+ 
+    # Devel::NYTProf environment options, see the documentation at
+    # https://metacpan.org/pod/Devel::NYTProf#NYTPROF-ENVIRONMENT-VARIABLE
+    # for a complete list. N.B. you can't supply start or file as these
+    # are used internally in the plugin so will be ignored if passed
+    env => {
+      blocks => 1
+    },
+ 
+    # when to enable Devel::NYTProf profiling - the pre_hook will run
+    # to enable_profile and the post_hook will run to disable_profile
+    # and finish_profile. the values show here are the defaults so you
+    # do not need to provide these options
+    #
+    # bear in mind the caveats in the Mojolicious docs regarding hooks
+    # and that they may not fire in the order you expect - this can
+    # affect the NYTProf output and cause some things not to appear
+    # (or appear in the wrong order). the defaults below should be 
+    # sufficient for profiling your code, however you can change these
+    #
+    # N.B. there is nothing stopping you reversing the order of the
+    # hooks, which would cause the Mojolicious framework code to be
+    # profiled, or providing hooks that are the same or even invalid. these
+    # config options should probably be used with some care
+    pre_hook  => 'before_routes',
+    post_hook => 'around_dispatch',
+  }
 
 }
