@@ -32,16 +32,6 @@ sub _settings_as_v1($user) {
 }
 
 
-=head2 _setting_as_v1
-
-Provides a v1 representation of the given setting key/value pair
-
-=cut
-
-sub _setting_as_v1 ( $key, $value ) {
-	return { $key => $value };
-}
-
 ######
 
 
@@ -130,7 +120,7 @@ sub get_setting ($c) {
 	return $c->status( 404, { error => "No such setting '$key'" } )
 		unless $settings->{$key};
 
-	$c->status( 200, _setting_as_v1( $key => $settings->{$key} ) );
+	$c->status( 200, { $key => $settings->{$key} } );
 }
 
 
