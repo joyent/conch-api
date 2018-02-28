@@ -12,25 +12,7 @@ package Conch::Controller::User;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::Model::User;
-use Mojo::JSON qw(to_json);
 use Mojo::Exception;
-
-use Data::Printer;
-
-
-=head2 _user_as_v1
-
-Provides a v1 representation of a User
-
-=cut
-
-sub _user_as_v1($user) {
-	{
-		id    => $user->id,
-		email => $user->email,
-		name  => $user->name,
-	};
-}
 
 
 =head2 _settings_as_v1
