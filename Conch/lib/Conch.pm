@@ -155,6 +155,13 @@ sub startup {
 				$u->email . " (".$u->id.")" :
 				'NOT AUTHED';
 
+			my $req_body = "disabled in config";
+			my $res_body = "disabled in config";
+
+			if ($self->config('audit_payloads')) {
+				$req_body = $c->req->body;
+				$res_body = $c->res->body;
+			}
 
 			my $req_headers = $c->req->headers->to_hash;
 			delete $req_headers->{Authorization};
@@ -172,12 +179,12 @@ sub startup {
 				user        => $u_str,
 				request     => {
 					headers => $req_headers,
-					body    => $c->req->body,
+					body    => $req_body,
 					params  => $params,
 				},
 				response    => {
 					headers => $c->res->headers->to_hash,
-					body    => $c->res->body,
+					body    => $res_body,
 				},
 			};
 			$log->debug(Mojo::JSON::to_json($d));

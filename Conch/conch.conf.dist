@@ -8,6 +8,7 @@
 
 	audit => 0,
 	audit_log_path => "log/audit.log",
+	audit_payloads => 0,
 
     # See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
     hypnotoad => {
