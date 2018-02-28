@@ -148,15 +148,6 @@ subtest "Device Modifiers" => sub {
 	};
 };
 
-my @test_sql_files = qw(
-	00-hardware.sql 01-hardware-profiles.sql 02-zpool-profiles.sql
-	03-test-datacenter.sql
-);
-
-for my $file ( map { io->file("../sql/test/$_") } @test_sql_files ) {
-	$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
-}
-
 TODO: {
 	local $TODO = "Untested methods";
 	fail("test device_nic_neighbors");
