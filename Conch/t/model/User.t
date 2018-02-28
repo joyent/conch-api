@@ -3,35 +3,35 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
-use DDP;
-
 use Data::UUID;
 my $uuid = Data::UUID->new->create_str();
+
+use Conch::Pg;
 
 use_ok("Conch::Model::User");
 
 my $pgtmp = mk_tmp_db() or die;
-my $pg = Mojo::Pg->new( $pgtmp->uri );
+my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 my $new_user;
 
 subtest "Create new user" => sub {
-	$new_user = Conch::Model::User->create( $pg, 'foo@bar.com', 'password' );
+	$new_user = Conch::Model::User->create( 'foo@bar.com', 'password' );
 	isa_ok( $new_user, 'Conch::Model::User' );
 
-	is( Conch::Model::User->create( $pg, 'foo@bar.com', 'password' ),
+	is( Conch::Model::User->create( 'foo@bar.com', 'password' ),
 		undef, "User conflict" );
 };
 
 subtest "lookup" => sub {
-	ok( Conch::Model::User->lookup( $pg, $new_user->id ), "lookup ID success" );
-	is( Conch::Model::User->lookup( $pg, $uuid ), undef, "lookup by ID fail" );
+	ok( Conch::Model::User->lookup( $new_user->id ), "lookup ID success" );
+	is( Conch::Model::User->lookup( $uuid ), undef, "lookup by ID fail" );
 };
 
 subtest "lookup_by_email" => sub {
-	ok( Conch::Model::User->lookup_by_email( $pg, 'foo@bar.com' ),
+	ok( Conch::Model::User->lookup_by_email( 'foo@bar.com' ),
 		"lookup by email success" );
-	is( Conch::Model::User->lookup_by_email( $pg, 'bad@email.com' ),
+	is( Conch::Model::User->lookup_by_email( 'bad@email.com' ),
 		undef, "lookup by email fail" );
 };
 
@@ -51,7 +51,6 @@ subtest "update_password" => sub {
 		"Auth passes with new password" );
 
 	my $u = Conch::Model::User->new(
-		pg    => $pg,
 		id    => $uuid,
 		email => 'wat@wat',
 		name  => 'wat',

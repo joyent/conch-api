@@ -8,7 +8,7 @@ use_ok("Conch::Model::HardwareProduct");
 use Data::UUID;
 
 my $pgtmp = mk_tmp_db() or die;
-my $pg = Mojo::Pg->new( $pgtmp->uri );
+my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
@@ -51,7 +51,7 @@ my $hardware_profile_id = $pg->db->insert(
 )->hash->{id};
 
 new_ok('Conch::Model::HardwareProduct');
-my $hw_product_model = new_ok( "Conch::Model::HardwareProduct", [ pg => $pg ] );
+my $hw_product_model = new_ok( "Conch::Model::HardwareProduct");
 
 subtest 'list hardware products' => sub {
 	my $hw_products = $hw_product_model->list;

@@ -73,7 +73,7 @@ sub set_settings ($c) {
 	my $body = $c->req->json;
 	return $c->status( 400, { error => 'Payload required' } ) unless $body;
 
-	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
+	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -101,7 +101,7 @@ sub set_setting ($c) {
 		}
 	) unless $value;
 
-	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
+	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -122,7 +122,7 @@ Get the key/values of every setting for a User
 =cut
 
 sub get_settings ($c) {
-	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
+	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -139,7 +139,7 @@ Get the individual key/value pair for a setting for the User
 sub get_setting ($c) {
 	my $key = $c->param('key');
 
-	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
+	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -161,7 +161,7 @@ Delete a single setting for a user, provided it was set previously
 sub delete_setting ($c) {
 	my $key = $c->param('key');
 
-	my $user = Conch::Model::User->lookup( $c->pg, $c->stash('user_id') );
+	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 

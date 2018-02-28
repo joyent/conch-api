@@ -8,13 +8,15 @@ use IO::All;
 use_ok("Conch::Model::DeviceLocation");
 
 use Data::UUID;
+use Conch::Pg;
 
 my $pgtmp = mk_tmp_db() or die;
-my $pg    = Mojo::Pg->new( $pgtmp->uri );
+
+my $pg    = Conch::Pg->new( $pgtmp->uri );
 my $uuid  = Data::UUID->new;
 
 new_ok('Conch::Model::DeviceLocation');
-my $device_loc_model = new_ok( "Conch::Model::DeviceLocation", [ pg => $pg ] );
+my $device_loc_model = new_ok( "Conch::Model::DeviceLocation");
 
 my $attempt = $device_loc_model->lookup('deadbeef');
 is( $attempt, undef, "Bad loookup returns undef" );

@@ -12,7 +12,7 @@ use Mojo::Base -base, -signatures;
 
 use aliased 'Conch::Class::WorkspaceUser';
 
-has 'pg';
+use Conch::Pg;
 
 =head2 workspace_users
 
@@ -20,7 +20,7 @@ Retrieve list users assigned to a workspace.
 
 =cut
 sub workspace_users ( $self, $ws_id ) {
-	$self->pg->db->query(
+	Conch::Pg->new->db->query(
 		q{
       SELECT u.name, u.email, r.name as role
       FROM user_workspace_role uwr

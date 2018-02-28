@@ -3,15 +3,17 @@ use Test::More;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
+use Conch::Pg;
+
 use_ok("Conch::Model::User");
 use_ok("Conch::Model::Workspace");
 
 my $pgtmp = mk_tmp_db() or die;
-my $pg = Mojo::Pg->new( $pgtmp->uri );
+my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 new_ok('Conch::Model::Workspace');
 
-my $ws_model = new_ok( "Conch::Model::Workspace", [ pg => $pg, ] );
+my $ws_model = new_ok( "Conch::Model::Workspace" );
 
 my $global_ws;
 
@@ -24,7 +26,7 @@ subtest "Lookup workspace by name" => sub {
 	is( $global_ws->name, 'GLOBAL' );
 };
 
-my $new_user = Conch::Model::User->create( $pg, 'foo@bar.com', 'password' );
+my $new_user = Conch::Model::User->create( 'foo@bar.com', 'password' );
 
 subtest "Add user to Workspace" => sub {
 	is( $ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 1 ),

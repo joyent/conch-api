@@ -69,8 +69,9 @@ sub process ($c) {
 
 	# Use the old device report recording and device validation code for now.
 	# This will be removed when OPS-RFD 22 is implemented
-	my $schema = Conch::Legacy::Schema->connect( $c->pg->dsn, $c->pg->username,
-		$c->pg->password );
+	my $pg = Conch::Pg->new;
+	my $schema = Conch::Legacy::Schema->connect( $pg->dsn, $pg->username,
+		$pg->password );
 
 	my ( $device, $report_id ) = record_device_report( $schema, $device_report );
 	my $validation_result =

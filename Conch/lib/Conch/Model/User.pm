@@ -20,7 +20,6 @@ has [
 		id
 		name
 		password_hash
-		pg
 		)
 ];
 
@@ -31,14 +30,14 @@ sub _BCRYPT_COST { 4 }    # dancer2 legacy
 Create a new user
 
 =cut
-sub create ( $class, $pg, $email, $password ) {
+sub create ( $class, $email, $password ) {
 	my $password_hash = _hash_password($password);
 
 	my $ret =
-		$pg->db->select( 'user_account', ['id'], { email => $email }, )->rows;
+		Conch::Pg->new->db->select( 'user_account', ['id'], { email => $email }, )->rows;
 	return undef if $ret;
 
-	$ret = $pg->db->insert(
+	$ret = Conch::Pg->new->db->insert(
 		'user_account',
 		{
 			email         => $email,
@@ -50,7 +49,6 @@ sub create ( $class, $pg, $email, $password ) {
 
 	return undef unless ( $ret && $ret->{id} );
 	return $class->new(
-		pg            => $pg,
 		id            => $ret->{id},
 		email         => $email,
 		name          => $email,
@@ -64,17 +62,17 @@ Look up user by ID if $id is UUID, then try to lookup by name, and finally try
 by email. Otherwise, return undef.
 
 =cut
-sub lookup ( $class, $pg, $id ) {
+sub lookup ( $class, $id ) {
 	my $where = {};
 	my $ret;
 	if ( is_uuid($id) ) {
-		$ret = $pg->db->select( 'user_account', undef, { id => $id }, )->hash;
+		$ret = Conch::Pg->new->db->select( 'user_account', undef, { id => $id }, )->hash;
 	}
 	else {
-		$ret = $pg->db->select( 'user_account', undef, { name => $id }, )->hash;
+		$ret = Conch::Pg->new->db->select( 'user_account', undef, { name => $id }, )->hash;
 
 		unless ($ret) {
-			$ret = $pg->db->select( 'user_account', undef, { email => $id }, )->hash;
+			$ret = Conch::Pg->new->db->select( 'user_account', undef, { email => $id }, )->hash;
 		}
 	}
 
@@ -82,7 +80,6 @@ sub lookup ( $class, $pg, $id ) {
 
 	$ret->{password_hash} =~ s/^{CRYPT}//;    # ohai dancer
 	return $class->new(
-		pg            => $pg,
 		id            => $ret->{id},
 		email         => $ret->{email},
 		name          => $ret->{name},
@@ -92,14 +89,14 @@ sub lookup ( $class, $pg, $id ) {
 
 =head2 lookup_by_email
 =cut
-sub lookup_by_email ( $class, $pg, $email ) {
-	return $class->lookup( $pg, $email );
+sub lookup_by_email ( $class, $email ) {
+	return $class->lookup( $email );
 }
 
 =head2 lookup_by_name
 =cut
-sub lookup_by_name ( $class, $pg, $name ) {
-	return $class->lookup( $pg, $name );
+sub lookup_by_name ( $class, $name ) {
+	return $class->lookup( $name );
 }
 
 =head2 update_password
@@ -109,7 +106,7 @@ Update user's password. Stores a bcrypt'd hashed password.
 =cut
 sub update_password ( $self, $p ) {
 	my $password_hash = _hash_password($p);
-	my $ret           = $self->pg->db->update(
+	my $ret           = Conch::Pg->new->db->update(
 		'user_account',
 		{ password_hash => $password_hash },
 		{ id            => $self->id }
@@ -137,7 +134,7 @@ Retrieve all user's stored settings.
 
 =cut
 sub settings ($self) {
-	my $ret = $self->pg->db->select(
+	my $ret = Conch::Pg->new->db->select(
 		'user_settings',
 		undef,
 		{
@@ -159,7 +156,7 @@ Set and store a single setting.
 
 =cut
 sub set_setting ( $self, $key, $value ) {
-	$self->pg->db->update(
+	Conch::Pg->new->db->update(
 		'user_settings',
 		{ deactivated => 'now()' },
 		{
@@ -169,7 +166,7 @@ sub set_setting ( $self, $key, $value ) {
 		}
 	);
 
-	my $ret = $self->pg->db->insert(
+	my $ret = Conch::Pg->new->db->insert(
 		'user_settings',
 		{
 			user_id => $self->id,
@@ -196,7 +193,7 @@ Delete (deactivate) a specified setting.
 
 =cut
 sub delete_setting ( $self, $key ) {
-	my $ret = $self->pg->db->update(
+	my $ret = Conch::Pg->new->db->update(
 		'user_settings',
 		{ deactivated => 'now()' },
 		{

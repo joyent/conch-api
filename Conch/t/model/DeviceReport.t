@@ -6,10 +6,11 @@ use Mojo::Pg;
 
 use_ok "Conch::Model::Device";
 use_ok "Conch::Model::DeviceReport";
-use Data::Printer;
+
+use Conch::Pg;
 
 my $pgtmp = mk_tmp_db() or die;
-my $pg = Mojo::Pg->new( $pgtmp->uri );
+my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
@@ -28,7 +29,7 @@ my $hardware_product_id = $pg->db->insert(
 )->hash->{id};
 
 my $device =
-	Conch::Model::Device->create( $pg, 'coffee', $hardware_product_id );
+	Conch::Model::Device->create( 'coffee', $hardware_product_id );
 my $device_id = $device->id;
 
 new_ok('Conch::Model::DeviceReport');
@@ -36,7 +37,6 @@ new_ok('Conch::Model::DeviceReport');
 my $device_report_model = new_ok(
 	"Conch::Model::DeviceReport",
 	[
-		pg  => $pg,
 		log => qobj()
 	]
 );

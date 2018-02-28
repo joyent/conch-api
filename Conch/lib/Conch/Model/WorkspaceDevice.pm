@@ -12,7 +12,7 @@ use Mojo::Base -base, -signatures;
 
 use Conch::Model::Device;
 
-has 'pg';
+use Conch::Pg;
 
 =head2 list
 
@@ -25,7 +25,7 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 		? "AND device.last_seen > NOW() - INTERVAL '$last_seen_seconds seconds'"
 		: '';
 
-	my $ret = $self->pg->db->query(
+	my $ret = Conch::Pg->new->db->query(
 		qq{
 		WITH target_workspace (id) AS ( values(?::uuid) )
 		SELECT device.*
@@ -53,7 +53,7 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 
 	my @devices;
 	for my $d ( $ret->@* ) {
-		push @devices, Conch::Model::Device->new( pg => $self->pg, %$d);
+		push @devices, Conch::Model::Device->new(%$d);
 	}
 	return \@devices;
 }

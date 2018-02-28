@@ -15,7 +15,7 @@ use aliased 'Conch::Class::DatacenterRoom';
 use aliased 'Conch::Class::DeviceLocation';
 use aliased 'Conch::Class::HardwareProduct';
 
-has 'pg';
+use Conch::Pg;
 
 =head2 lookup
 
@@ -23,7 +23,7 @@ Find a DeviceLocation by Device ID or return undef.
 
 =cut
 sub lookup ( $self, $device_id ) {
-	my $ret = $self->pg->db->query(
+	my $ret = Conch::Pg->new->db->query(
 		qq{
     SELECT
       loc.rack_unit AS location_rack_unit,
@@ -105,7 +105,7 @@ b) the rack unit in the rack layout doesn't exist
 
 =cut
 sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
-	my $db = $self->pg->db;
+	my $db = Conch::Pg->new->db;
 	my $tx = $db->begin;
 
 	my $maybe_slot = $db->select(
@@ -168,7 +168,7 @@ Unassign a device from its current location.
 
 =cut
 sub unassign ( $self, $device_id ) {
-	$self->pg->db->delete( 'device_location', { device_id => $device_id } )->rows;
+	Conch::Pg->new->db->delete( 'device_location', { device_id => $device_id } )->rows;
 }
 
 1;

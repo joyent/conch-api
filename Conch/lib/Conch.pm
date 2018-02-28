@@ -26,7 +26,7 @@ use Mojo::JSON;
 =head2 startup
 
 Used by Mojo in the startup process. Loads the config file and sets up the
-helpers for C<pg>, C<status>
+helpers
 
 =cut
 
@@ -41,12 +41,7 @@ sub startup {
 
 	# Log all messages regardless of operating mode
 	$self->log->level('debug');
-
-	$self->helper(
-		pg => sub {
-			state $pg = Conch::Pg->new($self->config('pg'));
-		}
-	);
+	Conch::Pg->new($self->config('pg'));
 
 	$self->helper(
 		status => sub {

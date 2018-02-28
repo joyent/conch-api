@@ -29,7 +29,7 @@ endpoint
 sub under ($c) {
 	my $device_id = $c->param('id');
 	my $device =
-		Conch::Model::Device->lookup_for_user( $c->pg, $c->stash('user_id'),
+		Conch::Model::Device->lookup_for_user( $c->stash('user_id'),
 		$device_id, );
 	if ($device) {
 		$c->stash( current_device => $device );
