@@ -24,6 +24,7 @@ use warnings;
 use v5.10;
 
 use base qw(Class::StrongSingleton);
+use Mojo::Pg;
 
 =head2 new
 
