@@ -150,20 +150,27 @@ sub startup {
 		my $log = Mojo::Log->new(path => $log_path);
 		$self->hook(after_dispatch => sub {
 			my $c = shift;
+
+			my $req_headers = $c->req->headers->to_hash;
+			delete $req_headers->{Authorization};
+			delete $req_headers->{Cookie};
+
+			my $params = $c->req->params->to_hash;
+			if($c->req->url =~ /login/) {
+				$params = { 'content' => 'withheld' }
+			}
 			my $d = {
 				remote_ip   => $c->tx->original_remote_address,
 				remote_port => $c->tx->remote_port,
 				url         => $c->req->url->to_abs,
 				method      => $c->req->method,
 				request     => {
-					headers => $c->req->headers->to_hash,
+					headers => $req_headers,
 					body    => $c->req->body,
-					cookies => $c->req->cookies,
-					params  => $c->req->params->to_hash,
+					params  => $params,
 				},
 				response    => {
 					headers => $c->res->headers->to_hash,
-					cookies => $c->res->cookies,
 					body    => $c->res->body,
 				},
 			};
