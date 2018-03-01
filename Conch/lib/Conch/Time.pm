@@ -22,6 +22,8 @@ Conch::Time - format Postgres Timestamps as RFC 3337 UTC timestamps
 package Conch::Time;
 use Mojo::Base -base, -signatures;
 
+use POSIX qw(strftime);
+use Time::HiRes;
 use DateTime::Format::Strptime;
 use Mojo::Exception;
 
@@ -52,6 +54,29 @@ sub new ( $class, $timestamptz ) {
 	$class->SUPER::new( timestamp => $dt );
 }
 
+sub _from_hires($class, $epoch, $mil) {
+	my $dt = strftime("%Y-%m-%dT%H:%M:%S", gmtime($epoch)) .
+		_normalize_millisec($mil) . "Z";
+
+	return $class->SUPER::new(timestamp => $dt);
+}
+
+
+=head2 now
+
+	my $t = Conch::Time->now();
+
+Return an object based on the current time.
+
+Time are high resolution and will generate unique timestamps to the
+millisecond.
+
+=cut
+
+sub now ($class) {
+	return $class->_from_hires(Time::HiRes::gettimeofday());
+}
+
 # Given a float, return the number of integer milliseconds it represents
 sub _normalize_millisec {
 	substr( sprintf( '%.3f', shift || 0 ), 2 );
@@ -63,6 +88,10 @@ sub _normalize_tz {
 	return 'Z' if $tz =~ /^[-\+]00(?!:[1-9]\d)/;
 	# Append :00 if the timezone doesn't specify minutes
 	return $tz . ':00' if $tz =~ /^[-\+]\d\d$/;
+
+	# Munge offsets like -0500 into -05:00
+	return "$1$2:$3" if $tz =~ /^([-\+])(\d\d)(\d\d)$/;
+
 	return $tz;
 }
 

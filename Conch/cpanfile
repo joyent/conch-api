@@ -11,6 +11,7 @@ requires 'Mail::Sendmail';
 requires 'aliased';
 requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
+requires 'Time::HiRes';
 
 # mojolicious
 requires 'Mojolicious';

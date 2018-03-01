@@ -93,4 +93,8 @@ subtest 'Test parsing of timestamps' => sub {
 	}
 };
 
+my $d = Conch::Time->_from_hires(1519922279, 0);
+is($d->timestamp, "2018-03-01T16:37:59000Z", "->_from_hires output"); 
+isnt(Conch::Time->now(), Conch::Time->now(), "Multiple now()s are unique");
+
 done_testing();
