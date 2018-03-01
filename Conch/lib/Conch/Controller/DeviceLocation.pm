@@ -13,8 +13,7 @@ package Conch::Controller::DeviceLocation;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 
-use Data::Printer;
-
+use Conch::Models;
 
 =head2 get
 
@@ -25,7 +24,7 @@ object
 
 sub get ($c) {
 	my $device_id      = $c->stash('current_device')->id;
-	my $maybe_location = $c->device_location->lookup($device_id);
+	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device_id);
 	return $c->status( 409,
 		{ error => "Device $device_id is not assigned to a rack" } )
 		unless $maybe_location;
@@ -47,9 +46,11 @@ sub set ($c) {
 		{ error => 'rack_id and rack_unit must be defined the the request object' }
 	) unless $body->{rack_id} && $body->{rack_unit};
 
-	my $assign =
-		$c->device_location->assign( $device_id, $body->{rack_id},
-		$body->{rack_unit} );
+	my $assign = Conch::Model::DeviceLocation->new->assign(
+		$device_id,
+		$body->{rack_id},
+		$body->{rack_unit}
+	);
 	return $c->status(
 		409,
 		{
@@ -74,7 +75,7 @@ Deletes the location data for a device, provided it has been assigned to a locat
 
 sub delete ($c) {
 	my $device_id = $c->stash('current_device')->id;
-	my $unassign  = $c->device_location->unassign($device_id);
+	my $unassign  = Conch::Model::DeviceLocation->new->unassign($device_id);
 	return $c->status( 409,
 		{ error => "Device $device_id is not assigned to a rack" } )
 		unless $unassign;

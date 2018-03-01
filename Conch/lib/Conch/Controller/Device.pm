@@ -13,10 +13,9 @@ package Conch::Controller::Device;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 
-use Conch::Model::Device;
 use aliased 'Conch::Class::DeviceDetailed';
 
-use Data::Printer;
+use Conch::Models;
 
 =head2 under
 
@@ -62,7 +61,7 @@ sub get ($c) {
 		delete $report->{'__CLASS__'};
 	}
 
-	my $maybe_location = $c->device_location->lookup( $device->id );
+	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
 	my $nics           = $device->device_nic_neighbors( $device->id );
 
 	my $detailed_device = DeviceDetailed->new(
