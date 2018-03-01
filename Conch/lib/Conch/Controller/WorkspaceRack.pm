@@ -12,8 +12,8 @@ package Conch::Controller::WorkspaceRack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
-use Data::Printer;
 
+use Conch::Models;
 
 =head2 list
 
@@ -166,7 +166,11 @@ sub assign_layout ($c) {
 	my @updates;
 	foreach my $device_id ( keys %{$layout} ) {
 		my $rack_unit = $layout->{$device_id};
-		my $loc = $c->device_location->assign( $device_id, $rack_id, $rack_unit );
+		my $loc = Conch::Model::DeviceLocation->new->assign(
+			$device_id,
+			$rack_id,
+			$rack_unit
+		);
 		if ($loc) {
 			push @updates, $device_id;
 		}
