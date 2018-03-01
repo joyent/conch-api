@@ -137,7 +137,6 @@ sub rfc3339 {
 
 
 
-
 =head3 timestamp
 
 Return an RFC3339 compatible string
@@ -156,6 +155,19 @@ overload string coercion.
 =cut
 
 sub to_string { shift->rfc3339 }
+
+
+
+
+=head3 timestamptz
+
+Render a string in PostgreSQL's timestamptz style
+
+=cut
+
+sub timestamptz {
+	return shift->moment->strftime("%Y-%m-%d %H:%M:%S%f%z");
+}
 
 1;
 
