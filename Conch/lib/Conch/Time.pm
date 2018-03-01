@@ -66,11 +66,6 @@ sub _normalize_tz {
 	return $tz;
 }
 
-my $_parser = DateTime::Format::Strptime->new(
-	pattern  => '%Y-%m-%dT%H:%M:%S.%3N%z',
-	on_error => 'croak'
-);
-
 =head2 to_datetime
 
 Return a C<DateTime> object representing the timestamp.
@@ -80,7 +75,10 @@ B<NOTE:> This method will negatively impact performance if called frequently.
 =cut
 
 sub to_datetime {
-	return $_parser->parse_datetime( shift->timestamp );
+	return DateTime::Format::Strptime->new(
+		pattern  => '%Y-%m-%dT%H:%M:%S.%3N%z',
+		on_error => 'croak'
+	)->parse_datetime( shift->timestamp );
 }
 
 =head2 compare
