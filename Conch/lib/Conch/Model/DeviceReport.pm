@@ -12,8 +12,6 @@ use Mojo::Base -base, -signatures;
 
 use Conch::Pg;
 
-has 'log';
-
 =head2 latest_device_report
 
 Look up the latest device report for a given device
