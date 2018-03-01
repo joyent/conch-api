@@ -5,8 +5,6 @@ use Test::Exception;
 use Mojo::Pg;
 use Time::HiRes;
 
-use DDP;
-
 use_ok("Conch::Time");
 use Conch::Time;
 
@@ -102,5 +100,10 @@ lives_ok {
 
 isnt(Conch::Time->now(), Conch::Time->now(), "Multiple now()s are unique");
 
+like(
+	Conch::Time->new("2018-01-02 00:00:00+00")->timestamptz, 
+	Conch::Time->PG_TIMESTAMP_FORMAT,
+	"Roundtrip timestamptz"
+);
 
 done_testing();
