@@ -51,12 +51,13 @@ sub get ($c) {
 	return unless $c->under;
 	my $device = $c->stash('current_device');
 
-	my $device_report = $c->device_report->latest_device_report( $device->id );
+	my $device_report = Conch::Model::DeviceReport->new->latest_device_report( $device->id );
 	my $report        = {};
 	my $validations   = [];
 	if ($device_report) {
-		$validations =
-			$c->device_report->validation_results( $device_report->{id} );
+		$validations = Conch::Model::DeviceReport->new
+			->validation_results( $device_report->{id} );
+
 		$report = $device_report->{report};
 		delete $report->{'__CLASS__'};
 	}
