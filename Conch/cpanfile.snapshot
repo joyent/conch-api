@@ -285,6 +285,7 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
+      Config::General 2.47
       Module::Pluggable::Object 3.6
   Config-General-2.63
     pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
@@ -485,10 +486,10 @@ DISTRIBUTIONS
       SQL::Translator 0
       Test::More 0
       ok 0
-  DBIx-Class-0.082841
-    pathname: R/RI/RIBASUSHI/DBIx-Class-0.082841.tar.gz
+  DBIx-Class-0.082840
+    pathname: R/RI/RIBASUSHI/DBIx-Class-0.082840.tar.gz
     provides:
-      DBIx::Class 0.082841
+      DBIx::Class 0.082840
       DBIx::Class::AccessorGroup undef
       DBIx::Class::Admin undef
       DBIx::Class::CDBICompat undef
@@ -622,45 +623,45 @@ DISTRIBUTIONS
       DBIx::Class 0
       ExtUtils::MakeMaker 6.36
       Test::More 0
-  DBIx-Class-Schema-Loader-0.07048
-    pathname: I/IL/ILMARI/DBIx-Class-Schema-Loader-0.07048.tar.gz
+  DBIx-Class-Schema-Loader-0.07047
+    pathname: I/IL/ILMARI/DBIx-Class-Schema-Loader-0.07047.tar.gz
     provides:
-      DBIx::Class::Schema::Loader 0.07048
-      DBIx::Class::Schema::Loader::Base 0.07048
+      DBIx::Class::Schema::Loader 0.07047
+      DBIx::Class::Schema::Loader::Base 0.07047
       DBIx::Class::Schema::Loader::Column undef
-      DBIx::Class::Schema::Loader::DBI 0.07048
-      DBIx::Class::Schema::Loader::DBI::ADO 0.07048
-      DBIx::Class::Schema::Loader::DBI::ADO::MS_Jet 0.07048
-      DBIx::Class::Schema::Loader::DBI::ADO::Microsoft_SQL_Server 0.07048
-      DBIx::Class::Schema::Loader::DBI::Component::QuotedDefault 0.07048
-      DBIx::Class::Schema::Loader::DBI::DB2 0.07048
-      DBIx::Class::Schema::Loader::DBI::Firebird 0.07048
-      DBIx::Class::Schema::Loader::DBI::Informix 0.07048
-      DBIx::Class::Schema::Loader::DBI::InterBase 0.07048
-      DBIx::Class::Schema::Loader::DBI::MSSQL 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::ACCESS 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::Firebird 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::Microsoft_SQL_Server 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::SQL_Anywhere 0.07048
-      DBIx::Class::Schema::Loader::DBI::Oracle 0.07048
-      DBIx::Class::Schema::Loader::DBI::Pg 0.07048
-      DBIx::Class::Schema::Loader::DBI::SQLAnywhere 0.07048
-      DBIx::Class::Schema::Loader::DBI::SQLite 0.07048
-      DBIx::Class::Schema::Loader::DBI::Sybase 0.07048
-      DBIx::Class::Schema::Loader::DBI::Sybase::Common 0.07048
-      DBIx::Class::Schema::Loader::DBI::Sybase::Microsoft_SQL_Server 0.07048
-      DBIx::Class::Schema::Loader::DBI::Writing 0.07048
-      DBIx::Class::Schema::Loader::DBI::mysql 0.07048
+      DBIx::Class::Schema::Loader::DBI 0.07047
+      DBIx::Class::Schema::Loader::DBI::ADO 0.07047
+      DBIx::Class::Schema::Loader::DBI::ADO::MS_Jet 0.07047
+      DBIx::Class::Schema::Loader::DBI::ADO::Microsoft_SQL_Server 0.07047
+      DBIx::Class::Schema::Loader::DBI::Component::QuotedDefault 0.07047
+      DBIx::Class::Schema::Loader::DBI::DB2 0.07047
+      DBIx::Class::Schema::Loader::DBI::Firebird 0.07047
+      DBIx::Class::Schema::Loader::DBI::Informix 0.07047
+      DBIx::Class::Schema::Loader::DBI::InterBase 0.07047
+      DBIx::Class::Schema::Loader::DBI::MSSQL 0.07047
+      DBIx::Class::Schema::Loader::DBI::ODBC 0.07047
+      DBIx::Class::Schema::Loader::DBI::ODBC::ACCESS 0.07047
+      DBIx::Class::Schema::Loader::DBI::ODBC::Firebird 0.07047
+      DBIx::Class::Schema::Loader::DBI::ODBC::Microsoft_SQL_Server 0.07047
+      DBIx::Class::Schema::Loader::DBI::ODBC::SQL_Anywhere 0.07047
+      DBIx::Class::Schema::Loader::DBI::Oracle 0.07047
+      DBIx::Class::Schema::Loader::DBI::Pg 0.07047
+      DBIx::Class::Schema::Loader::DBI::SQLAnywhere 0.07047
+      DBIx::Class::Schema::Loader::DBI::SQLite 0.07047
+      DBIx::Class::Schema::Loader::DBI::Sybase 0.07047
+      DBIx::Class::Schema::Loader::DBI::Sybase::Common 0.07047
+      DBIx::Class::Schema::Loader::DBI::Sybase::Microsoft_SQL_Server 0.07047
+      DBIx::Class::Schema::Loader::DBI::Writing 0.07047
+      DBIx::Class::Schema::Loader::DBI::mysql 0.07047
       DBIx::Class::Schema::Loader::DBObject undef
       DBIx::Class::Schema::Loader::DBObject::Informix undef
       DBIx::Class::Schema::Loader::DBObject::Sybase undef
       DBIx::Class::Schema::Loader::Optional::Dependencies undef
-      DBIx::Class::Schema::Loader::RelBuilder 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_040 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_05 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_06 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_07 0.07048
+      DBIx::Class::Schema::Loader::RelBuilder 0.07047
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_040 0.07047
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_05 0.07047
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_06 0.07047
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_07 0.07047
       DBIx::Class::Schema::Loader::Table undef
       DBIx::Class::Schema::Loader::Table::Informix undef
       DBIx::Class::Schema::Loader::Table::Sybase undef
@@ -695,7 +696,6 @@ DISTRIBUTIONS
       Test::More 0.94
       Test::Warn 0.21
       Try::Tiny 0
-      curry 1.000000
       namespace::clean 0.23
       perl 5.008001
   DBIx-Class-TimeStamp-0.14
@@ -1700,10 +1700,10 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-2.02
-    pathname: J/JH/JHTHORSEN/JSON-Validator-2.02.tar.gz
+  JSON-Validator-2.00
+    pathname: J/JH/JHTHORSEN/JSON-Validator-2.00.tar.gz
     provides:
-      JSON::Validator 2.02
+      JSON::Validator 2.00
       JSON::Validator::Error undef
       JSON::Validator::OpenAPI undef
       JSON::Validator::OpenAPI::Dancer2 undef
@@ -2036,29 +2036,29 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
-  Log-Report-1.26
-    pathname: M/MA/MARKOV/Log-Report-1.26.tar.gz
+  Log-Report-1.25
+    pathname: M/MA/MARKOV/Log-Report-1.25.tar.gz
     provides:
-      Dancer2::Logger::LogReport 1.26
-      Dancer2::Plugin::LogReport 1.26
-      Dancer2::Plugin::LogReport::Message 1.26
-      Dancer::Logger::LogReport 1.26
-      Log::Report 1.26
-      Log::Report::DBIC::Profiler 1.26
-      Log::Report::Die 1.26
-      Log::Report::Dispatcher 1.26
-      Log::Report::Dispatcher::Callback 1.26
-      Log::Report::Dispatcher::File 1.26
-      Log::Report::Dispatcher::Log4perl 1.26
-      Log::Report::Dispatcher::LogDispatch 1.26
-      Log::Report::Dispatcher::Perl 1.26
-      Log::Report::Dispatcher::Syslog 1.26
-      Log::Report::Dispatcher::Try 1.26
-      Log::Report::Domain 1.26
-      Log::Report::Exception 1.26
-      Log::Report::Message 1.26
-      Log::Report::Translator 1.26
-      MojoX::Log::Report 1.26
+      Dancer2::Logger::LogReport 1.25
+      Dancer2::Plugin::LogReport 1.25
+      Dancer2::Plugin::LogReport::Message 1.25
+      Dancer::Logger::LogReport 1.25
+      Log::Report 1.25
+      Log::Report::DBIC::Profiler 1.25
+      Log::Report::Die 1.25
+      Log::Report::Dispatcher 1.25
+      Log::Report::Dispatcher::Callback 1.25
+      Log::Report::Dispatcher::File 1.25
+      Log::Report::Dispatcher::Log4perl 1.25
+      Log::Report::Dispatcher::LogDispatch 1.25
+      Log::Report::Dispatcher::Perl 1.25
+      Log::Report::Dispatcher::Syslog 1.25
+      Log::Report::Dispatcher::Try 1.25
+      Log::Report::Domain 1.25
+      Log::Report::Exception 1.25
+      Log::Report::Message 1.25
+      Log::Report::Translator 1.25
+      MojoX::Log::Report 1.25
     requirements:
       Devel::GlobalDestruction 0.09
       Encode 2.00
@@ -2146,27 +2146,6 @@ DISTRIBUTIONS
       Fennec::Lite 0
       Test::Exception 0
       Test::More 0
-  Minion-8.10
-    pathname: S/SR/SRI/Minion-8.10.tar.gz
-    provides:
-      LinkCheck undef
-      LinkCheck::Controller::Links undef
-      LinkCheck::Task::CheckLinks undef
-      Minion 8.10
-      Minion::Backend undef
-      Minion::Backend::Pg undef
-      Minion::Command::minion undef
-      Minion::Command::minion::job undef
-      Minion::Command::minion::worker undef
-      Minion::Job undef
-      Minion::Worker undef
-      Minion::_Guard 8.10
-      Mojolicious::Plugin::Minion undef
-      Mojolicious::Plugin::Minion::Admin undef
-    requirements:
-      ExtUtils::MakeMaker 0
-      Mojolicious 7.56
-      perl 5.010001
   Mock-Quick-1.111
     pathname: E/EX/EXODIST/Mock-Quick-1.111.tar.gz
     provides:
@@ -2330,24 +2309,23 @@ DISTRIBUTIONS
       Mojolicious 5.66
       Test::More 0
       perl 5.010001
-  Mojo-Pg-4.08
-    pathname: S/SR/SRI/Mojo-Pg-4.08.tar.gz
+  Mojo-Pg-4.04
+    pathname: S/SR/SRI/Mojo-Pg-4.04.tar.gz
     provides:
-      Mojo::Pg 4.08
+      Mojo::Pg 4.04
       Mojo::Pg::Database undef
       Mojo::Pg::Migrations undef
       Mojo::Pg::PubSub undef
       Mojo::Pg::Results undef
       Mojo::Pg::Transaction undef
-      SQL::Abstract::Pg undef
     requirements:
       DBD::Pg 3.005001
       ExtUtils::MakeMaker 0
       Mojolicious 7.53
-      SQL::Abstract 1.85
+      SQL::Abstract 1.81
       perl 5.010001
-  Mojolicious-7.60
-    pathname: S/SR/SRI/Mojolicious-7.60.tar.gz
+  Mojolicious-7.61
+    pathname: S/SR/SRI/Mojolicious-7.61.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2416,7 +2394,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 7.60
+      Mojolicious 7.61
       Mojolicious::Command undef
       Mojolicious::Command::cgi undef
       Mojolicious::Command::cpanify undef
@@ -3239,10 +3217,10 @@ DISTRIBUTIONS
     requirements:
       Exporter 5.57
       perl 5.006
-  SQL-Abstract-1.85
-    pathname: I/IL/ILMARI/SQL-Abstract-1.85.tar.gz
+  SQL-Abstract-1.84
+    pathname: I/IL/ILMARI/SQL-Abstract-1.84.tar.gz
     provides:
-      SQL::Abstract 1.85
+      SQL::Abstract 1.84
       SQL::Abstract::Test undef
       SQL::Abstract::Tree undef
     requirements:
@@ -3255,7 +3233,6 @@ DISTRIBUTIONS
       Scalar::Util 0
       Sub::Quote 2.000001
       Text::Balanced 2.00
-      perl 5.006
   SQL-Translator-0.11024
     pathname: I/IL/ILMARI/SQL-Translator-0.11024.tar.gz
     provides:
@@ -3692,6 +3669,19 @@ DISTRIBUTIONS
       Test::More 0.47
       Test::Tester 0.107
       perl 5.006
+  Test-Number-Delta-1.06
+    pathname: D/DA/DAGOLDEN/Test-Number-Delta-1.06.tar.gz
+    provides:
+      Test::Number::Delta 1.06
+    requirements:
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 6.17
+      Test::Builder 0
+      perl 5.006
+      strict 0
+      vars 0
+      warnings 0
   Test-Pod-Coverage-1.10
     pathname: N/NE/NEILB/Test-Pod-Coverage-1.10.tar.gz
     provides:
@@ -3722,6 +3712,15 @@ DISTRIBUTIONS
       Types::Standard 0
       User::pwent 0
       perl 5.014
+  Test-Requires-0.10
+    pathname: T/TO/TOKUHIROM/Test-Requires-0.10.tar.gz
+    provides:
+      Test::Requires 0.10
+    requirements:
+      ExtUtils::MakeMaker 6.64
+      Test::Builder::Module 0
+      Test::More 0.47
+      perl 5.006
   Test-SharedFork-0.35
     pathname: E/EX/EXODIST/Test-SharedFork-0.35.tar.gz
     provides:
@@ -3788,6 +3787,22 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0
+  Time-Moment-0.42
+    pathname: C/CH/CHANSEN/Time-Moment-0.42.tar.gz
+    provides:
+      Time::Moment 0.42
+      Time::Moment::Adjusters 0.42
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.59
+      ExtUtils::ParseXS 3.18
+      Test::Fatal 0.006
+      Test::More 0.88
+      Test::Number::Delta 1.06
+      Test::Requires 0
+      Time::HiRes 0
+      XSLoader 0.02
+      perl 5.008001
   Time-Warp-0.52
     pathname: S/SZ/SZABGAB/Time-Warp-0.52.tar.gz
     provides:
@@ -3892,6 +3907,28 @@ DISTRIBUTIONS
       Exporter::Tiny 0.026
       ExtUtils::MakeMaker 6.17
       perl 5.006001
+  Types-UUID-0.004
+    pathname: T/TO/TOBYINK/Types-UUID-0.004.tar.gz
+    provides:
+      Types::UUID 0.004
+    requirements:
+      ExtUtils::MakeMaker 6.17
+      Type::Tiny 1.000000
+      UUID::Tiny 1.02
+      perl 5.008
+  UUID-Tiny-1.04
+    pathname: C/CA/CAUGUSTIN/UUID-Tiny-1.04.tar.gz
+    provides:
+      UUID::Tiny 1.04
+    requirements:
+      Carp 0
+      Digest::MD5 0
+      ExtUtils::MakeMaker 0
+      IO::File 0
+      MIME::Base64 0
+      POSIX 0
+      Test::More 0
+      Time::HiRes 0
   Unicode-LineBreak-2017.004
     pathname: N/NE/NEZUMI/Unicode-LineBreak-2017.004.tar.gz
     provides:
@@ -3968,20 +4005,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
-  YAML-Tiny-1.70
-    pathname: E/ET/ETHER/YAML-Tiny-1.70.tar.gz
-    provides:
-      YAML::Tiny 1.70
-    requirements:
-      B 0
-      Carp 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      Fcntl 0
-      Scalar::Util 0
-      perl 5.008001
-      strict 0
-      warnings 0
   aliased-0.34
     pathname: E/ET/ETHER/aliased-0.34.tar.gz
     provides:
@@ -4007,14 +4030,6 @@ DISTRIBUTIONS
       perl 5.008001
       strict 0
       warnings 0
-  curry-1.001000
-    pathname: M/MS/MSTROUT/curry-1.001000.tar.gz
-    provides:
-      curry 1.001000
-      curry::weak 1.001000
-    requirements:
-      ExtUtils::MakeMaker 0
-      perl 5.006
   indirect-0.38
     pathname: V/VP/VPIT/indirect-0.38.tar.gz
     provides:
