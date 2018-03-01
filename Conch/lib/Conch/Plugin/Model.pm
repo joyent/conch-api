@@ -33,13 +33,6 @@ Sets up Mojo helpers for all the models
 
 sub register ( $self, $app, $conf ) {
 	$app->helper(
-		device_report => sub {
-			state $device_report = Conch::Model::DeviceReport->new(
-				log => $app->log
-			);
-		}
-	);
-	$app->helper(
 		device_settings => sub {
 			state $device_settings =
 				Conch::Model::DeviceSettings->new();
