@@ -11,6 +11,7 @@ Conch::Controller::DeviceSettings
 package Conch::Controller::DeviceSettings;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+use Conch::Models;
 
 
 =head2 set_all
@@ -23,7 +24,11 @@ sub set_all ($c) {
 	my $body = $c->req->json;
 	return $c->status( 400, { error => 'Payload required' } )
 		unless $body;
-	$c->device_settings->set_settings( $c->stash('current_device')->id, $body );
+
+	Conch::Model::DeviceSettings->new->set_settings(
+		$c->stash('current_device')->id,
+		$body
+	);
 	$c->status(200);
 }
 
@@ -47,8 +52,10 @@ sub set_single ($c) {
 		}
 	) unless $setting_value;
 
-	$c->device_settings->set_settings( $c->stash('current_device')->id,
-		{ $setting_key => $setting_value } );
+	Conch::Model::DeviceSettings->new->set_settings(
+		$c->stash('current_device')->id,
+		{ $setting_key => $setting_value }
+	);
 
 	# TODO: This hard-coded setting dispatch is added for backwards
 	# compatibility with Conch v1.0.0.  It is to be removed once Conch-Relay
@@ -69,8 +76,9 @@ Get all settings for a device as a hash
 =cut
 
 sub get_all ($c) {
-	my $settings =
-		$c->device_settings->get_settings( $c->stash('current_device')->id );
+	my $settings = Conch::Model::DeviceSettings->new->get_settings(
+		$c->stash('current_device')->id
+	);
 	$c->status( 200, $settings );
 }
 
@@ -83,8 +91,10 @@ Get a single setting from a device
 
 sub get_single ($c) {
 	my $setting_key = $c->param('key');
-	my $settings =
-		$c->device_settings->get_settings( $c->stash('current_device')->id );
+	my $settings = Conch::Model::DeviceSettings->new->get_settings(
+		$c->stash('current_device')->id
+	);
+
 	return $c->status( 404, { error => "No such setting '$setting_key'" } )
 		unless $settings->{$setting_key};
 	$c->status( 200, { $setting_key => $settings->{$setting_key} } );
@@ -100,11 +110,10 @@ Delete a single setting from a device, provide that setting was previously set
 sub delete_single ($c) {
 	my $setting_key = $c->param('key');
 	unless (
-		$c->device_settings->delete_device_setting(
+		Conch::Model::DeviceSettings->new->delete_device_setting(
 			$c->stash('current_device')->id, $setting_key
 		)
-		)
-	{
+	){
 		return $c->status( 404, { error => "No such setting '$setting_key'" } );
 	}
 	else {
