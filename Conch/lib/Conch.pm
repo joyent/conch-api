@@ -19,7 +19,8 @@ use Conch::Pg;
 use Conch::Route qw(all_routes);
 use Mojo::Pg;
 use Mojolicious::Plugin::Bcrypt;
-use Data::Printer;
+
+use Conch::Models;
 
 use Mojo::JSON;
 
@@ -82,11 +83,13 @@ sub startup {
 			my ( $c, $role_name ) = @_;
 			return 0 unless $c->stash('user_id');
 
-			my $ws = $c->workspace->lookup_by_name('GLOBAL');
+			my $ws = Conch::Model::Workspace->new->lookup_by_name('GLOBAL');
 			return 0 unless $ws;
 
-			my $user_ws =
-				$c->workspace->get_user_workspace( $c->stash('user_id'), $ws->id, );
+			my $user_ws = Conch::Model::Workspace->new->get_user_workspace(
+				$c->stash('user_id'),
+				$ws->id,
+			);
 
 			return 0 unless $user_ws;
 			return 0 unless $user_ws->role eq $role_name;

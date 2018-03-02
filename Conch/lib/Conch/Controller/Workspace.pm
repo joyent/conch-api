@@ -12,8 +12,8 @@ package Conch::Controller::Workspace;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
-use Data::Printer;
 
+use Conch::Models;
 
 =head2 under
 
@@ -29,7 +29,10 @@ sub under ($c) {
 			{ error => "Workspace ID must be a UUID. Got '$ws_id'." } );
 		return 0;
 	}
-	my $ws = $c->workspace->get_user_workspace( $c->stash('user_id'), $ws_id );
+	my $ws = Conch::Model::Workspace->new->get_user_workspace(
+		$c->stash('user_id'),
+		$ws_id
+	);
 	if ($ws) {
 		$c->stash( current_workspace => $ws );
 		return 1;
@@ -48,7 +51,9 @@ Get a list of all workspaces available to current stashed C<user_id>
 =cut
 
 sub list ($c) {
-	my $wss = $c->workspace->get_user_workspaces( $c->stash('user_id') );
+	my $wss = Conch::Model::Workspace->new->get_user_workspaces(
+		$c->stash('user_id')
+	);
 	$c->status( 200, [ map { $_->as_v1_json } @$wss ] );
 }
 
@@ -77,8 +82,10 @@ C<current_workspace>
 =cut
 
 sub get_sub_workspaces ($c) {
-	my $sub_wss = $c->workspace->get_user_sub_workspaces( $c->stash('user_id'),
-		$c->stash('current_workspace')->id );
+	my $sub_wss = Conch::Model::Workspace->new->get_user_sub_workspaces(
+		$c->stash('user_id'),
+		$c->stash('current_workspace')->id
+	);
 	$c->status( 200, [ map { $_->as_v1_json } @$sub_wss ] );
 }
 
@@ -98,9 +105,12 @@ sub create_sub_workspace ($c) {
 	return $c->status(403) if $ws->role eq 'Read-only';
 	return $c->status(403) if $ws->role eq 'Integrator';
 
-	my $sub_ws_attempt = $c->workspace->create_sub_workspace(
-		$c->stash('user_id'), $ws->id, $ws->role_id,
-		$body->{name},        $body->{description}
+	my $sub_ws_attempt = Conch::Model::Workspace->new->create_sub_workspace(
+		$c->stash('user_id'),
+		$ws->id,
+		$ws->role_id,
+		$body->{name},
+		$body->{description}
 	);
 
 	return $c->status( 500, { error => 'unable to create a sub-workspace' } )
