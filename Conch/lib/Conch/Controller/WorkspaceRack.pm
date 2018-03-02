@@ -22,7 +22,9 @@ Get a list of racks for the current stashed C<current_workspace>
 =cut
 
 sub list ($c) {
-	my $racks = $c->workspace_rack->list( $c->stash('current_workspace')->id );
+	my $racks = Conch::Model::WorkspaceRack->new->list(
+		$c->stash('current_workspace')->id
+	);
 	$c->status( 200, $racks );
 }
 
@@ -41,8 +43,10 @@ sub under ($c) {
 			{ error => "Datacenter Rack ID must be a UUID. Got '$rack_id'." } );
 		return 0;
 	}
-	my $maybe_rack =
-		$c->workspace_rack->lookup( $c->stash('current_workspace')->id, $rack_id );
+	my $maybe_rack = Conch::Model::WorkspaceRack->lookup(
+		$c->stash('current_workspace')->id,
+		$rack_id
+	);
 	unless ($maybe_rack) {
 		$c->status( 404, { error => "Rack $rack_id not found" } );
 		return 0;
@@ -60,7 +64,9 @@ Get the RackLayout for the current stashed C<current_ws_rack>
 
 sub get_layout ($c) {
 	return unless $c->under;
-	my $layout = $c->workspace_rack->rack_layout( $c->stash('current_ws_rack') );
+	my $layout = Conch::Model::WorkspaceRack->new->rack_layout(
+		$c->stash('current_ws_rack')
+	);
 	$c->status( 200, $layout );
 }
 
@@ -90,7 +96,10 @@ sub add ($c) {
 		if $c->stash('current_workspace')->name eq 'GLOBAL';
 
 	my $ws_id = $c->stash('current_workspace')->id;
-	unless ( $c->workspace_rack->rack_in_parent_workspace( $ws_id, $rack_id ) ) {
+	unless ( Conch::Model::WorkspaceRack->rack_in_parent_workspace(
+		$ws_id,
+		$rack_id
+	)) {
 		return $c->status(
 			409,
 			{
@@ -100,7 +109,10 @@ sub add ($c) {
 		);
 	}
 
-	if ( $c->workspace_rack->rack_in_workspace_room( $ws_id, $rack_id ) ) {
+	if ( Conch::Model::WorkspaceRack->new->rack_in_workspace_room(
+		$ws_id,
+		$rack_id
+	) ) {
 		return $c->status(
 			409,
 			{
@@ -110,7 +122,7 @@ sub add ($c) {
 		);
 	}
 
-	$c->workspace_rack->add_to_workspace( $ws_id, $rack_id );
+	Conch::Model::WorkspaceRack->new->add_to_workspace( $ws_id, $rack_id );
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for->to_abs . "/$rack_id" );
@@ -130,7 +142,7 @@ sub remove ($c) {
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $c->stash('current_workspace')->name eq 'GLOBAL';
 
-	my $remove_attempt = $c->workspace_rack->remove_from_workspace(
+	my $remove_attempt = Conch::Model::WorkspaceRack->new->remove_from_workspace(
 		$c->stash('current_workspace')->id,
 		$c->stash('current_ws_rack')->id,
 	);
