@@ -33,12 +33,6 @@ Sets up Mojo helpers for all the models
 
 sub register ( $self, $app, $conf ) {
 	$app->helper(
-		hardware_product => sub {
-			state $hardware_product =
-				Conch::Model::HardwareProduct->new();
-		}
-	);
-	$app->helper(
 		relay => sub {
 			state $relay = Conch::Model::Relay->new();
 		}

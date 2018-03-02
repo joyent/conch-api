@@ -13,8 +13,7 @@ package Conch::Controller::HardwareProduct;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 
-use Data::Printer;
-
+use Conch::Models;
 
 =head2 list
 
@@ -24,7 +23,7 @@ Class::HardwareProduct objects
 =cut
 
 sub list ($c) {
-	my $hardware_products = $c->hardware_product->list;
+	my $hardware_products = Conch::Model::HardwareProduct->new->list;
 	$c->status( 200, [ map { $_->as_v1_json } @$hardware_products ] );
 }
 
@@ -41,7 +40,7 @@ sub get ($c) {
 	return $c->status( 400,
 		{ error => "Hardware Product ID must be a UUID. Got '$hw_id'." } )
 		unless is_uuid($hw_id);
-	my $hw_attempt = $c->hardware_product->lookup($hw_id);
+	my $hw_attempt = Conch::Model::HardwareProduct->new->lookup($hw_id);
 	if ($hw_attempt) {
 		return $c->status( 200, $hw_attempt->as_v1_json );
 	}

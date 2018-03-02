@@ -22,6 +22,8 @@ use Conch::Legacy::Control::Device::Validation 'validate_device';
 use Conch::Legacy::Data::Report::Switch;
 use Conch::Legacy::Data::Report::Server;
 
+use Conch::Models;
+
 =head2 process
 
 Processes the device report using the Legacy report code base
@@ -56,7 +58,9 @@ sub process ($c) {
 	}
 
 	my $hw_product_name = $device_report->{product_name};
-	my $maybe_hw        = $c->hardware_product->lookup_by_name($hw_product_name);
+	my $maybe_hw = Conch::Model::HardwareProduct->lookup_by_name(
+		$hw_product_name
+	);
 
 	unless ($maybe_hw) {
 		return $c->status(
