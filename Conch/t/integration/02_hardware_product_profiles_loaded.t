@@ -83,8 +83,8 @@ subtest 'Hardware Product' => sub {
 	is_deeply(
 		\@hardware_product_names,
 		[
-			'Joyent-Compute-Platform-3301', 'Joyent-Storage-Platform-7001',
-			'S4048-ON'
+			'Joyent-Compute-Platform', 'Joyent-Storage-Platform',
+			'Switch'
 		]
 	);
 	for my $hardware_product (@hardware_products) {

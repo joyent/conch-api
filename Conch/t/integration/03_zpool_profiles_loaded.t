@@ -85,23 +85,23 @@ subtest 'Hardware Product' => sub {
 	is_deeply(
 		\@hardware_product_names,
 		[
-			'Joyent-Compute-Platform-3301', 'Joyent-Storage-Platform-7001',
-			'S4048-ON'
+			'Joyent-Compute-Platform', 'Joyent-Storage-Platform',
+			'Switch'
 		]
 	);
 	ok(
 		defined(
-			$hardware_product_hash{'Joyent-Compute-Platform-3301'}->{profile}->{zpool}
+			$hardware_product_hash{'Joyent-Compute-Platform'}->{profile}->{zpool}
 		),
 		'Compute has zpool profile'
 	);
 	ok(
 		defined(
-			$hardware_product_hash{'Joyent-Storage-Platform-7001'}->{profile}->{zpool}
+			$hardware_product_hash{'Joyent-Storage-Platform'}->{profile}->{zpool}
 		),
 		'Storage has zpool profile'
 	);
-	ok( !defined( $hardware_product_hash{'S4048-ON'}->{profile}->{zpool} ),
+	ok( !defined( $hardware_product_hash{'Switch'}->{profile}->{zpool} ),
 		'Switch does not have zpool profile' );
 
 	for my $hardware_product (@hardware_products) {
