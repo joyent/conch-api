@@ -11,8 +11,8 @@ Conch::Controller::WorkspaceRelay
 package Conch::Controller::WorkspaceRelay;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Data::Printer;
 
+use Conch::Models;
 
 =head2 list
 
@@ -21,8 +21,10 @@ List all relays for the current stashed C<current_workspace>
 =cut
 
 sub list ($c) {
-	my $relays = $c->workspace_relay->list( $c->stash('current_workspace')->id,
-		$c->param('active') ? 2 : undef );
+	my $relays = Conch::Model::WorkspaceRelay->new->list(
+		$c->stash('current_workspace')->id,
+		$c->param('active') ? 2 : undef
+	);
 	$c->status( 200, [ map { $_->as_v1_json } @$relays ] );
 }
 
