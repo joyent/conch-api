@@ -13,7 +13,7 @@ package Conch::Controller::Relay;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
 
-use Data::Printer;
+use Conch::Models;
 
 =head2 register
 
@@ -31,12 +31,15 @@ sub register ($c) {
 		{ error => "'serial' attribute required in request" } )
 		unless defined($serial);
 
-	$c->relay->register(
+	Conch::Model::Relay->new->register(
 		$serial,           $body->{version}, $body->{ipaddr},
 		$body->{ssh_port}, $body->{alias},
 	);
 
-	my $attempt = $c->relay->connect_user_relay( $user_id, $serial );
+	my $attempt = Conch::Model::Relay->new->connect_user_relay(
+		$user_id,
+		$serial
+	);
 
 	unless ($attempt) {
 		return $c->status( 500, { error => "unable to register relay '$serial'" } );
@@ -53,7 +56,10 @@ If the user is a global admin, retrieve a list of all relays in the database
 
 sub list ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	$c->status( 200, [ map { $_->as_v1_json } $c->relay->list ] );
+	$c->status(
+		200,
+		[ map { $_->as_v1_json } Conch::Model::Relay->new->list ]
+	);
 }
 
 1;
