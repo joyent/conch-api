@@ -6,6 +6,7 @@ psql -d postgres -c 'DROP DATABASE conch'
 psql -d postgres -c 'DROP DATABASE conch'
 psql -d postgres -c 'CREATE ROLE conch LOGIN'
 psql -d postgres -c 'CREATE DATABASE conch OWNER conch'
+psql -U postgres -d conch -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
+psql -U postgres -d conch -c 'CREATE EXTENSION IF NOT EXISTS "pgcrypto";'
 
-$BASEDIR/load.sh
-
+$BASEDIR/../../sql/run_migrations.sh

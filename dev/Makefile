@@ -11,5 +11,5 @@ all: deps database
 deps: ../Conch/ui/node_modules ../Conch/local
 
 database:
-	../sql/reset-database.sh
+	sql/reset-database.sh
 	sql/make-dev-user.sh
