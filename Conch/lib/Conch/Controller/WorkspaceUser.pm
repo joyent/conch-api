@@ -24,8 +24,9 @@ Get a list of users for the current stashed C<current_workspace>
 =cut
 
 sub list ($c) {
-	my $users =
-		$c->workspace_user->workspace_users( $c->stash('current_workspace')->id );
+	my $users = Conch::Model::WorkspaceUser->new->workspace_users(
+		$c->stash('current_workspace')->id 
+	);
 	$c->status( 200, [ map { $_->as_v1_json } @$users ] );
 }
 
