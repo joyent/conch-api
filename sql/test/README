@@ -1,0 +1,2 @@
+This directory contains test data for integration tests (`t/integration`). It
+is not loaded into any production system.

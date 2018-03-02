@@ -142,7 +142,7 @@ subtest 'Register relay' => sub {
 };
 
 subtest 'Device Report' => sub {
-	my $report = io->file('t/resource/passing-device-report.json')->slurp;
+	my $report = io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(200)
 		->json_is( '/health', 'PASS' );
 };

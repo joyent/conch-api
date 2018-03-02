@@ -324,7 +324,7 @@
   },
   "state": "ONLINE",
   "serial_number": "TEST",
-  "product_name": "Joyent-Compute-Platform-3301",
+  "product_name": "Joyent-Compute-Platform",
   "relay": { "serial": "deadbeef" },
   "system_uuid": "4C4C4544-0035-4D10-8032-B4C04F4E4432"
 }
