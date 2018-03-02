@@ -11,8 +11,8 @@ Conch::Controller::WorkspaceDevice
 package Conch::Controller::WorkspaceDevice;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Data::Printer;
 
+use Conch::Models;
 
 =head2 list
 
@@ -21,7 +21,7 @@ Get a list of all devices in the current stashed C<current_workspace>
 =cut
 
 sub list ($c) {
-	my $workspace_devices = $c->workspace_device->list(
+	my $workspace_devices = Conch::Model::WorkspaceDevice->new->list(
 		$c->stash('current_workspace')->id,
 
 		# If 'active' query parameter specified, filter devices seen within in
