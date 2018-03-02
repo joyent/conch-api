@@ -33,11 +33,6 @@ Sets up Mojo helpers for all the models
 
 sub register ( $self, $app, $conf ) {
 	$app->helper(
-		workspace => sub {
-			state $workspace = Conch::Model::Workspace->new();
-		}
-	);
-	$app->helper(
 		workspace_device => sub {
 			state $workspace_device =
 				Conch::Model::WorkspaceDevice->new();

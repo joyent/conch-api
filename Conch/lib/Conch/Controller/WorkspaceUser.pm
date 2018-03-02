@@ -13,7 +13,7 @@ package Conch::Controller::WorkspaceUser;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
 
-use Conch::Model::User;
+use Conch::Models;
 use Conch::Pg;
 
 
@@ -77,7 +77,11 @@ sub invite ($c) {
 			{ email => $user->email, password => $password } );
 	}
 
-	$c->workspace->add_user_to_workspace( $user->id, $ws->id, $maybe_role->id );
+	Conch::Model::Workspace->new->add_user_to_workspace(
+		$user->id,
+		$ws->id,
+		$maybe_role->id
+	);
 	$c->status(201);
 }
 
