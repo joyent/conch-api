@@ -11,9 +11,9 @@ Conch::Controller::WorkspaceRoom
 package Conch::Controller::WorkspaceRoom;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Data::Printer;
 use List::Compare;
 
+use Conch::Models;
 
 =head2 list
 
@@ -22,7 +22,9 @@ Get a list of rooms for the current stashed C<current_workspace>
 =cut
 
 sub list ($c) {
-	my $rooms = $c->workspace_room->list( $c->stash('current_workspace')->id );
+	my $rooms = Conch::Model::WorkspaceRoom->new->list(
+		$c->stash('current_workspace')->id
+	);
 	$c->status( 200, [ map { $_->as_v1_json } @$rooms ] );
 }
 
@@ -54,8 +56,8 @@ sub replace_rooms ($c) {
 		);
 	}
 
-	my $parent_rooms =
-		$c->workspace_room->list_parent_workspace_rooms( $workspace->id );
+	my $parent_rooms = Conch::Model::WorkspaceRoom->new
+		->list_parent_workspace_rooms( $workspace->id );
 
 	my @invalid_room_ids = List::Compare->new( $body, $parent_rooms )->get_unique;
 	if (@invalid_room_ids) {
@@ -70,7 +72,11 @@ sub replace_rooms ($c) {
 	}
 
 	my $room_attempt =
-		$c->workspace_room->replace_workspace_rooms( $workspace->id, $body );
+		Conch::Model::WorkspaceRoom->new->replace_workspace_rooms(
+			$workspace->id, 
+			$body
+		);
+
 	return $c->status( 200, $room_attempt );
 }
 
