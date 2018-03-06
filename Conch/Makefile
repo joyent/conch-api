@@ -9,9 +9,6 @@ run-perl:
 
 build: web-assets local
 
-ui/node_modules:
-	@cd ui && yarn install
-
 local: cpanfile.snapshot
 # '--deployment' installs the same dep versions that are in the lockfile
 	@carton install --deployment
@@ -34,17 +31,20 @@ format-perl:
 format-js:
 	@cd ui && yarn run prettier
 
-web-assets: ui/node_modules public/css/app.css public/js/app.js
+web-assets: public/css/app.css public/js/app.js
 
-ui/dist/main.js: ui/node_modules ui/src/** ui/yarn.lock
+public/js/app.js: ui/dist/main.js
+	@cp ui/dist/main.js public/js/app.js
+
+ui/dist/main.js: ui/node_modules ui/src/**
 	@cd ui && yarn build;
+
+ui/node_modules: ui/yarn.lock
+	@cd ui && yarn install
 
 ui/yarn.lock: ui/package.json
 	@cd ui && yarn install
 	@touch ui/package.json ui/yarn.lock
-
-public/js/app.js: ui/node_modules ui/dist/main.js
-	@cp ui/dist/main.js public/js/app.js
 
 public/css/app.css: ui/css/app.css
 	@cp ui/css/app.css public/css/app.css
