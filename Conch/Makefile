@@ -32,29 +32,28 @@ format-perl:
 	@find t -name "*.bak" -delete
 
 format-js:
-	@cd ui && npm run prettier
+	@cd ui && yarn run prettier
 
 web-assets: ui/node_modules public/css/app.css public/js/app.js
 
-ui/bin/app.js: ui/node_modules ui/src/** ui/package-lock.json
-	@cd ui && npm run-script build;
+ui/dist/main.js: ui/node_modules ui/src/** ui/yarn.lock
+	@cd ui && yarn build;
 
-ui/package-lock.json: ui/package.json
+ui/yarn.lock: ui/package.json
 	@cd ui && yarn install
-	@touch ui/package.json ui/package-lock.json
+	@touch ui/package.json ui/yarn.lock
 
-public/js/app.js: ui/node_modules ui/bin/app.js
-	@cp ui/bin/app.js public/js/app.js
+public/js/app.js: ui/node_modules ui/dist/main.js
+	@cp ui/dist/main.js public/js/app.js
 
 public/css/app.css: ui/css/app.css
 	@cp ui/css/app.css public/css/app.css
 
-
 watch-js:
-	@cd ui && npm start
+	@cd ui && yarn start
 
 watch-assets:
-	@find ui/css/app.css ui/bin/app.js | entr -r make web-assets
+	@find ui/css/app.css ui/dist/main.js | entr -r make web-assets
 
 watch-perl:
 	@find lib | entr -r -c make run-perl
