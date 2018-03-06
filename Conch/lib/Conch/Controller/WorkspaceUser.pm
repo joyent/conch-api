@@ -55,7 +55,6 @@ sub invite ($c) {
 	}
 
 	my $user = Conch::Model::User->lookup_by_email(
-		Conch::Pg->new(),
 		$body->{user}
 	);
 
@@ -70,7 +69,6 @@ sub invite ($c) {
 	else {
 		my $password = $c->random_string( length => 10 );
 		$user = Conch::Model::User->create(
-			Conch::Pg->new(),
 			$body->{user},
 			$password
 		);
