@@ -10,6 +10,7 @@ tags
 .agignore
 .DS_Store
 node_modules
+Conch/ui/dist
 
 # Conch
 Conch/conch.conf

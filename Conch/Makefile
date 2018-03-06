@@ -9,9 +9,6 @@ run-perl:
 
 build: web-assets local
 
-ui/node_modules:
-	@cd ui && yarn install
-
 local: cpanfile.snapshot
 # '--deployment' installs the same dep versions that are in the lockfile
 	@carton install --deployment
@@ -32,29 +29,31 @@ format-perl:
 	@find t -name "*.bak" -delete
 
 format-js:
-	@cd ui && npm run prettier
+	@cd ui && yarn run prettier
 
-web-assets: ui/node_modules public/css/app.css public/js/app.js
+web-assets: public/css/app.css public/js/app.js
 
-ui/bin/app.js: ui/node_modules ui/src/** ui/package-lock.json
-	@cd ui && npm run-script build;
+public/js/app.js: ui/dist/main.js
+	@cp ui/dist/main.js public/js/app.js
 
-ui/package-lock.json: ui/package.json
+ui/dist/main.js: ui/node_modules ui/src/**
+	@cd ui && yarn build;
+
+ui/node_modules: ui/yarn.lock
 	@cd ui && yarn install
-	@touch ui/package.json ui/package-lock.json
 
-public/js/app.js: ui/node_modules ui/bin/app.js
-	@cp ui/bin/app.js public/js/app.js
+ui/yarn.lock: ui/package.json
+	@cd ui && yarn install
+	@touch ui/package.json ui/yarn.lock
 
 public/css/app.css: ui/css/app.css
 	@cp ui/css/app.css public/css/app.css
 
-
 watch-js:
-	@cd ui && npm start
+	@cd ui && yarn start
 
 watch-assets:
-	@find ui/css/app.css ui/bin/app.js | entr -r make web-assets
+	@find ui/css/app.css ui/dist/main.js | entr -r make web-assets
 
 watch-perl:
 	@find lib | entr -r -c make run-perl
