@@ -1,0 +1,1890 @@
+---
+openapi: "3.0.0"
+info:
+  version: 2.0.0
+  title: Conch API Service
+servers:
+  - url: https://preflight.scloud.zone
+security:
+  basicAuth: []
+tags:
+  - name: Login
+  - name: Workspace
+    description: >
+      A Workspace is a collection of datacenter resources and a list of users
+      who are assigned Roles in the Workspace. A Workspace is the unit of
+      access control, and determines who can see what resources in the system.
+      As special `GLOBAL` Workspace is defined, which has access to all
+      resources, but only a list of system-level administrators may access the
+      `GLOBAL` workspace.
+  - name: Role
+    description: >
+      A Role defines the types of operations an assigned User is permittedin
+      the Workspace. A User may only be assigned one Role in each Workspace.
+  - name: User
+    description: >
+      Users are assigned to a Role in a Workspace.
+  - name: Settings
+    description: >
+      Settings are unstructured, key-value pairs. The key of a setting must be
+      a string. The value can be any valid JSON value (object, array, string,
+      number, or boolean).
+  - name: Device
+    description: >
+      Devices are the servers and switches in a datacenter. Devices occupy one
+      or several slots in a datacenter rack. Devices send reports to Conch
+      through a Relay device.
+  - name: Relay
+  - name: Rack
+  - name: Hardware Product
+paths:
+  /login:
+    post:
+      tags: [Login]
+      summary: Create a login session
+      security: []
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                password:
+                  type: string
+              required:
+                - user
+                - password
+      responses:
+        '200':
+          description: User successfully authenticated
+        '401':
+          description: User failed to authenticate
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags: [Login]
+      summary: Verify the user is logged in or authenticated 
+      operationId: checkLogin
+      responses:
+        '204':
+          description: User successfully logged in or authenticated
+        '401':
+          description: User not logged in or failed to authenticate
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reset_password:
+    post:
+      tags: [Login]
+      summary: Reset user password
+      security: []
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email address of the user to password reset
+              required:
+                - email
+      responses:
+        '204':
+          description: >
+            Password reset email has been sent if the email was associated with
+            a user account. Response will be identical if the email was not
+            found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace:
+    get:
+      tags: [Workspace]
+      summary: List all workspaces the user is assigned
+      operationId: listWorkspaces
+      responses:
+        '200':
+          description: List of workspaces user is assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspaces"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}:
+    get:
+      tags: [Workspace]
+      summary: List Workspace Details
+      operationId: getWorkspace
+      responses:
+        '200':
+          description: List details of specified workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/child:
+    post:
+      tags: [Workspace]
+      summary: Create a sub-workspacs
+      operationId: createSubWorkspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  anyOf:
+                    - type: string
+                    - type: null
+      responses:
+        '201':
+          description: Newly created workspace object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags: [Workspace]
+      summary: List sub-workspaces
+      operationId: getSubWorkspaces
+      responses:
+        '200':
+          description: List of sub-workspaces of workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspaces"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/user:
+    get:
+      tags: [User]
+      summary: List all users assigned to the workspace
+      operationId: getWorkspaceUsers
+      responses:
+        '200':
+          description: List of workspace users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceUsers"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [User, Workspace]
+      summary: Create or invite an user to the workspace
+      description: >
+        Given a user's email address and the role to be assigned, invite a new
+        user to the workspace. If the email address is associated with an an
+        account, their account will be given access and an email will be sent
+        to notify the user of their new access. If the email isn't associated
+        with an account, a new account will be created and a email sent with
+        generated login details.
+      operationId: inviteUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                  format: email
+                  description: Email address of the user to be invited
+                role:
+                  type: string
+                  description: >
+                    Name of the role the user will be assigned. This will be
+                    dependent on the role your account is currently assigned
+                    for the workspace.
+      responses:
+        '201':
+          description: User created
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/room:
+    get:
+      tags: [Room]
+      summary: List all datacenter rooms assigned to the workspace
+      operationId: getWorkspaceRooms
+      responses:
+        '200':
+          description: List of datacenter rooms
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rooms"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags: [Room]
+      summary: Idempotently replace the datacenter rooms assigned to the workspace
+      operationId: replaceWorkspaceRooms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: Datacenter rooms assigned to the workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rooms"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /me:
+    get:
+      tags: [User]
+      summary: Get the details the currently logged-in User
+      operationId: getUser
+  /user/me/settings:
+    get:
+      tags: [User, Settings]
+      summary: Get system-wide settings for current User
+      operationId: getUserSettings
+      parameters:
+        - in: query
+          name: keys_only
+          description: If set, list only the names of the setting keys
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Current User settings
+          content:
+            application/json:
+              examples:
+                default:
+                  value: >
+                    { "burn_in_time": "2430", "favorite_foods": [ "peaches", "sushi" ] }
+                keys_only:
+                  summary: Response when keys_only is set to a non-zero integer
+                  value: >
+                    [ "burn_in_time", "favorite_foods" ]
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [User, Settings]
+      summary: Update or add multiple system-wide user settings
+      operationId: setUserSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example: >
+              { "favorite_foods": [ "avocados", "peaches"], "nested": { "structure": 1 } }
+      responses:
+        '200':
+          description: Set user settings successfully
+          content:
+            application/json:
+              example: >
+                { "status": "updated settings for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/me/settings/{key}:
+    get:
+      tags: [User, Settings]
+      summary: Get specified system-wide setting for current user
+      operationId: getUserSetting
+      responses:
+        '200':
+          description: Value for specified setting
+          content:
+            application/json:
+              example: >
+                { "burn_in_time": "2430" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [User, Settings]
+      summary: Update or add specified user setting
+      operationId: setUserSetting
+      requestBody:
+        required: true
+        description: >
+          The setting key in the JSON object must match the one in the path
+        content:
+          application/json:
+            example: >
+              { "burn_in_time": "6540" }
+      responses:
+        '200':
+          description: Set user setting successfully
+          content:
+            application/json:
+              example: >
+                { "status": "updated setting 'burn_in_time' for user" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [User, Settings]
+      summary: Remove specified user setting
+      operationId: removeUserSetting
+      responses:
+        '204':
+          description: Set user setting successfully
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/relay:
+    get:
+      summary: List all Relay devices used in a Workspace
+      tags: [Relay]
+      operationId: getRelays
+      parameters:
+        - in: query
+          name: Active
+          description: >
+            If set to a non-zero integer, return only Relays that are current
+            active
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of relay objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relay"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /relay/{serial}/register:
+    post:
+      summary: Register a Relay device
+      tags: [Relay]
+      operationId: registerRelay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version:
+                  type: string
+                ssh_port:
+                  type: integer
+                ipaddr:
+                  type: string
+                alias:
+                  type: string
+      responses:
+        '200':
+          description: Successfully registered relay
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/device:
+    get:
+      tags: [Device]
+      summary: List all devices for the user
+      operationId: getDevices
+      parameters:
+        - in: query
+          name: ids_only
+          description: >
+            If set to a non-zero integer, return only the IDs of the devices
+          schema:
+            type: integer
+        - in: query
+          name: graduated
+          description: >
+            Filter devices by graduated value. The `graduated` field is a
+            timestamp denoting when the VLANs for the device have been flipped.
+            If the parameter is set to `t`, return devices that have been
+            graduated. If set to `f`, return devices that have not been graduated.
+          schema:
+            type: string
+            enum: [ "t", "f" ]
+        - in: query
+          name: health
+          description: >
+            Filter devices by health value. Health is determined
+            by whether the device has passed validations. Health is `"unknown"`
+            if the device hasn't sent a report to be validated, `"pass"` if the
+            most recent report has passed validations, and `"fail"` if it has failed.
+          schema:
+            type: string
+            enum: [ "unknown", "pass", "fail" ]
+        - in: query
+          name: active
+          description: >
+            If present, filter devices that have reproted within the last 5 minutes (300 seconds).
+          schema:
+            type: string
+            enum: [ "t", "f" ]
+      responses:
+        '200':
+          description: >
+            Array of Device objects (or Device IDs if the `ids_only` query
+            parameter is specified)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Devices"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/device/active:
+    get:
+      tags: [Device]
+      summary: List all device active in the last 2 minutes
+      operationId: getActiveDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers active in the last two minutes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/device/health/FAIL:
+    get:
+      tags: [Device]
+      summary: List all devices failing validation
+      operationId: getFailingDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers that have failed validation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/device/health/PASS:
+    get:
+      tags: [Device]
+      summary: List all devices passing validation
+      operationId: getPassingDevices
+      responses:
+        '200':
+          description: >
+            List of Devices serial numbers that have passed validation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: '[ "DEVICE1", "DEVICE2"]'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}:
+    get:
+      tags: [Device]
+      summary: Get specified device with latest device report
+      operationId: getDevice
+      responses:
+        '200':
+          description: >
+            Device with related details (NICs, validations, latest device
+            report, location)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetailedDevice"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [Device]
+      summary: Submit a device report for validation
+      operationId: sendDeviceReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceReport"
+      responses:
+        '200':
+          description: >
+            Device with `latest_report` and `validations` fields filled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  health:
+                    type: string
+                  validated:
+                    type: boolean
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/graduate:
+    post:
+      tags: [Device]
+      summary: Mark a device as 'graduated' for VLAN management
+      operationId: graduateDevice
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        '409':
+          description: >
+            Device has already been graduated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/triton_reboot:
+    post:
+      tags: [Device]
+      summary: Mark a device as having rebooted into Triton
+      operationId: tritonRebootDevice
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/triton_uuid:
+    post:
+      tags: [Device]
+      summary: Set the Triton UUID associated with the device
+      operationId: setDeviceTritonUUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                triton_uuid:
+                  type: string
+                  format: uuid
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '400':
+          description: >
+            JSON Object with key `"triton_uuid"` and UUID value required in
+            request body.
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/triton_setup:
+    post:
+      tags: [Device]
+      summary: Mark a device as set up for Triton
+      operationId: markDeviceTritonSetup
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        '409':
+          description: >
+            The device either must be marked as being rebooted into Triton
+            (`tritonRebootDevice`) and the Triton UUID set
+            (`setDeviceTritonUUID`), or it has already been marked as set up
+            for Trition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/asset_tag:
+    post:
+      tags: [Device]
+      summary: Set the asset tag for a device
+      operationId: setDeviceAssetTag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                asset_tag:
+                  type: string
+      responses:
+        '303':
+          description: >
+            Redirection to the updated device resource
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for updated device
+        '400':
+          description: >
+            JSON Object with key `"asset_tag"` and string value required in request body.
+        '404':
+          description: >
+            Device with specified ID not found or user doesn't have access
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/location:
+    get:
+      tags: [Device]
+      summary: Get the device rack location
+      operationId: getDeviceLocation
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceLocation"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [Device]
+      summary: Update the device rack location
+      operationId: setDeviceLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                rack:
+                  type: string
+                  format: uuid
+                rack_unit:
+                  type: integer
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action:
+                    type: string
+                  device_id:
+                    type: string
+                  moved_to:
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [Device]
+      summary: Delete the device rack location
+      operationId: deleteDeviceLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  type: string
+                rack:
+                  type: string
+                  format: uuid
+                rack_unit:
+                  type: integer
+      responses:
+        '200':
+          description: Device location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action:
+                    type: string
+                  device_id:
+                    type: string
+                  removed_from:
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/settings:
+    summary: Get or modify all settings for a device
+    get:
+      tags: [Device, Settings]
+      summary: Retrieve all settings for a device
+      operationId: getDeviceSettings
+      parameters:
+        - in: query
+          name: keys_only
+          description: If set, list only the names of the setting keys
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Current device settings
+          content:
+            application/json:
+              examples:
+                default:
+                  value: >
+                    { "bmc_fw": "2.43.43.43", "exp_fw": "4.32", "system_bios": "2.4.3" }
+                keys_only:
+                  summary: Response when keys_only is set to a non-zero integer
+                  value: >
+                    [ "bmc_fw", "exp_fw", "system_bios" ]
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [Device, Settings]
+      summary: Update or add multiple settings for a device
+      operationId: setDeviceSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example: >
+              { "system_bios" : "2.4.3", "exp_fw" : "4.32", "bmc_fw" : "2.43.43.43" }
+      responses:
+        '200':
+          description: Set device settings successfully
+          content:
+            application/json:
+              example: >
+                { "status": "updated settings for DEVICE1" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /device/{serial}/settings/{key}:
+    get:
+      tags: [Device, Settings]
+      summary: Retrieve specified setting for a device
+      operationId: getDeviceSetting
+      responses:
+        '200':
+          description: Value for specified setting
+          content:
+            application/json:
+              example: '{ "bmc_fw": "2.43.43.43" }'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [Device, Settings]
+      summary: Update or add specified setting for a device
+      operationId: setDeviceSetting
+      requestBody:
+        required: true
+        content:
+          description: The setting key in the JSON object must match the one in the path
+          application/json:
+            example: >
+              { "bmc_fw" : "2.43.43.43" }
+      responses:
+        '200':
+          description: Set device setting successfully
+          content:
+            application/json:
+              example: >
+                { "status": "updated setting 'bmc_fw' for device DEVICE1" }
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [Device, Settings]
+      summary: Delete specified setting for a device
+      operationId: removeDeviceSetting
+      responses:
+        '204':
+          description: Set device setting successfully
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /hardware_product:
+    get:
+      tags: [Hardware Product]
+      summary: List all available hardware products
+      operationId: getHardwareProducts
+      responses:
+        '200':
+          description: >
+            List of hardware products with profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HardwareProduct"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /hardware_product/{hardware_product_id}:
+    get:
+      tags: [Hardware Product]
+      summary: Get a hardware product specified by ID
+      operationId: getHardwareProduct
+      responses:
+        '200':
+          description: Hardware product with profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HardwareProduct"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/rack:
+    get:
+      summary: List all available racks in a workspace
+      tags: [Rack]
+      operationId: getRacks
+      responses:
+        '200':
+          description: >
+            Get all rack summaries available to user grouped by datacenter
+            rooms
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RackSummary"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Add a rack to the workspace
+      operationId: addRackToWorkspace
+      description: >
+        Add an existing rack to the workspace. This enables adding a single
+        rack to a workspace without having to add all racks in a the entire
+        datacenter room.  The rack must be a member of the parents workspace to
+        be added.
+      requestBody:
+        required: true
+        description: >
+          Map between device serial numbers and the slot number they should
+          be assigned in the rack
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: The Rack ID to be added to the workspace
+      responses:
+        '303':
+          description: >
+            Redirection to the rack resource in the workspace
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Location:
+                    type: string
+                    description: URI for rack in the workspace
+        '409':
+          description: >
+            A condition exists that prevents the rack from being assigned.
+            Either the rack is not assigned to the parent workspace, or the
+            rack is already assigned to the workspace via a datacenter room
+            assignment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/rack/{rack_id}:
+    get:
+      summary: Get details about a specific rack
+      tags: [Rack]
+      operationId: getRack
+      responses:
+        '200':
+          description: >
+            Details about a rack, including device assignments in slots
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Rack"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Remove rack from workspace
+      operationId: removeRackFromWorkspace
+      description: >
+        Un-assign the rack from the workspace.  Only removes racks that have
+        been explicitly assigned using `addRackToWorkspace`. Rack assignments
+        that are assigned via a datacenter room assignment will not be
+        modified. This will remove the rack from all child sub-workspaces if
+        the rack has been assigned to those subspaces using
+        `addRackToWorkspace`.
+      responses:
+        '204':
+          description: >
+            The rack assignment has been successfully removed
+        '404':
+          description: >
+            Rack ID not found or is not assigned to the workspace
+        '409':
+          description: >
+            The rack is assigned to the workspace via a datacenter room
+            assignment and cannot be removed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/rack/{rack_id}/layout:
+    post:
+      summary: Update multiple slots in a given rack
+      tags: [Rack]
+      operationId: assignRackSlots
+      requestBody:
+        required: true
+        description: >
+          Map between device serial numbers and the slot number they should
+          be assigned in the rack
+        content:
+          application/json:
+            schema:
+              type: object
+              items:
+                type: integer
+      responses:
+        '200':
+          description: >
+            An object with a list of errors collected when making the
+            assignments, and a list of Device IDs that were updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  updated:
+                    type: array
+                    items:
+                      type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workspace/{workspace_id}/problem:
+    get:
+      tags: [Device]
+      summary: Describe all components failing validation in a workspace
+      operationId: getProblems
+      responses:
+        '200':
+          description: >
+            Object grouping device errors grouped into three categories:
+            _failing_, devices that failed validation; _unlocated_, devices
+            that have not been assigned a rack location but have sent a
+            report; and _unreported_, devices that are assigned a rack
+            location but have not yet sent a report.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problems"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    DetailedDevice:
+      type: object
+      required:
+        - asset_tag
+        - created
+        - hardware_product
+        - health
+        - id
+        - graduated
+        - last_seen
+        - latest_triton_reboot
+        - role
+        - state
+        - system_uuid
+        - triton_uuid
+        - updated
+        - uptime_since
+        - validated
+        - validations
+        - location
+        - nics
+      properties:
+        asset_tag:
+          anyOf:
+            - type: string
+            - type: null
+        created:
+          type: string
+          format: date-time
+        hardware_product:
+          type: string
+          format: uuid
+        health:
+          type: string
+        id:
+          type: string
+        graduated:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        last_seen:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        latest_triton_reboot:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        role:
+          anyOf:
+            - type: string
+            - type: null
+        state:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        triton_uuid:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: null
+        updated:
+          type: string
+          format: date-time
+        uptime_since:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        validated:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        validations:
+          anyOf:
+            - type: array
+              items:
+                type: object
+            - type: null
+        location:
+          anyOf:
+            - $ref: "#/components/schemas/DeviceLocation"
+            - type: null
+        nics:
+          type: array
+          items:
+            type: object
+            properties:
+              mac:
+                type: string
+              iface_name:
+                type: string
+              iface_vendor:
+                type: string
+              iface_type:
+                type: string
+              peer_mac:
+                anyOf:
+                  - type: string
+                  - type: null
+              peer_port:
+                anyOf:
+                  - type: string
+                  - type: null
+              peer_switch:
+                anyOf:
+                  - type: string
+                  - type: null
+    Devices:
+      type: array
+      items:
+        $ref: "#/components/schemas/Device"
+    Device:
+      type: object
+      required:
+        - asset_tag
+        - created
+        - hardware_product
+        - health
+        - id
+        - graduated
+        - last_seen
+        - latest_triton_reboot
+        - role
+        - state
+        - system_uuid
+        - triton_uuid
+        - updated
+        - uptime_since
+        - validated
+      properties:
+        asset_tag:
+          anyOf:
+            - type: string
+            - type: null
+        created:
+          type: string
+          format: date-time
+        hardware_product:
+          type: string
+          format: uuid
+        health:
+          type: string
+        id:
+          type: string
+        graduated:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        last_seen:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        latest_triton_reboot:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        role:
+          anyOf:
+            - type: string
+            - type: null
+        state:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        triton_uuid:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: null
+        triton_setup:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        updated:
+          type: string
+          format: date-time
+        uptime_since:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+        validated:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: null
+    DeviceReport:
+      type: object
+      required:
+        - product_name
+        - serial_number
+        - system_uuid
+        - state
+        - bios_version
+        - processor
+        - memory
+      properties:
+        product_name:
+          type: string
+        serial_number:
+          type: string
+        system_uuid:
+          type: string
+          format: uuid
+        state:
+          type: string
+        bios_version:
+          type: string
+        processor:
+          type: object
+        memory:
+          type: object
+    DeviceLocation:
+      type: object
+      required:
+        - datacenter
+        - rack
+        - target_hardware_product
+      properties:
+        datacenter:
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+        rack:
+          type: object
+          required:
+            - id
+            - name
+            - role
+            - unit
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            role:
+              type: string
+            unit:
+              type: integer
+        target_hardware_product:
+          type: object
+          description: >
+            Details of the hardware product the device is expected to be based
+            on it's current position and the rack layout.
+          required:
+            - id
+            - name
+            - alias
+            - vendor
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: Hardware product ID
+            name:
+              type: string
+              description: Hardware product name
+            alias:
+              type: string
+              description: Hardware product alias
+            vendor:
+              type: string
+              description: Hardware product vendor name
+    HardwareProducts:
+      type: array
+      items:
+        $ref: "#/components/schemas/HardwareProduct"
+    HardwareProduct:
+      type: object
+      required:
+        - id
+        - name
+        - alias
+        - prefix
+        - vendor
+        - profile
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        alias:
+          type: string
+        prefix:
+          type: string
+        vendor:
+          type: string
+          description: Hardware product vendor name
+        profile:
+          type: object
+          required:
+            - bios_firmware
+            - cpu_num
+            - cpu_type
+            - dimms_num
+            - hba_firmware
+            - nics_num
+            - psu_total
+            - purpose
+            - ram_total
+            - sas_num
+            - sas_size
+            - sas_slots
+            - sata_num
+            - sata_size
+            - sata_slots
+            - ssd_num
+            - ssd_size
+            - ssd_slots
+            - usb_num
+            - zpool
+          properties:
+            bios_firmware:
+              anyOf:
+                - type: string
+                - type: null
+            cpu_num:
+              type: integer
+            cpu_type:
+              type: string
+            dimms_num:
+              type: integer
+            hba_firmware:
+              anyOf:
+                - type: string
+                - type: null
+            nics_num:
+              type: integer
+            psu_total:
+              type: integer
+            purpose:
+              type: string
+            ram_total:
+              type: integer
+            sas_num:
+              anyOf:
+                - type: integer
+                - type: null
+            sas_size:
+              anyOf:
+                - type: integer
+                - type: null
+            sas_slots:
+              anyOf:
+                - type: integer
+                - type: null
+            sata_num:
+              anyOf:
+                - type: integer
+                - type: null
+            sata_size:
+              anyOf:
+                - type: integer
+                - type: null
+            sata_slots:
+              anyOf:
+                - type: string
+                - type: null
+            ssd_num:
+              anyOf:
+                - type: integer
+                - type: null
+            ssd_size:
+              anyOf:
+                - type: integer
+                - type: null
+            ssd_slots:
+              anyOf:
+                - type: string
+                - type: null
+            usb_num:
+              anyOf:
+                - type: integer
+                - type: null
+            zpool:
+              anyOf:
+                - type: object
+                  required:
+                    - cache
+                    - log
+                    - disk_per
+                    - spare
+                    - vdev_n
+                    - vdev_t
+                  properties:
+                    cache:
+                      type: integer
+                    log:
+                      type: integer
+                    disk_per:
+                      anyOf:
+                        - type: integer
+                        - type: null
+                    spare:
+                      type: integer
+                    vdev_n:
+                      type: integer
+                    vdev_t:
+                      type: string
+                - type: null
+
+    RackSummary:
+      type: object
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+          role:
+            type: string
+          size:
+            type: integer
+          device_progress:
+            type: object
+            items:
+              type: integer
+    Rack:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+        size:
+          type: integer
+        datacenter:
+          type: string
+        slots:
+          type: object
+          items:
+            type: object
+            properties:
+              alias:
+                type: string
+                description: Hardware product alias
+              id:
+                type: string
+                format: uuid
+                description: Hardware product ID
+              name:
+                type: string
+                description: Hardware product name
+              size:
+                type: integer
+                description: Number of RUs for slot
+              vendor:
+                type: string
+                description: Hardware product vendor
+              occupant:
+                description: Device assigned to this slot or null
+                anyOf:
+                  - $ref: "#/components/schemas/Device"
+                  - type: null
+    Relays:
+      type: array
+      items:
+        $ref: "#/components/schemas/Relay"
+    Relay:
+      type: object
+      properties:
+        alias:
+          anyOf:
+            - type: string
+            - type: null
+        created:
+          type: string
+          format: date-time
+        devices:
+          description: >
+            Array of devices that have reported through this relay device
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+        id:
+          type: string
+        ipaddr:
+          anyOf:
+            - type: string
+            - type: null
+        ssh_port:
+          type: number
+        updated:
+          type: string
+          format: date-time
+        version:
+          type: string
+    Problems:
+      type: object
+      properties:
+        failing:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+        unreported:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+        unlocated:
+          type: object
+          items:
+            $ref: "#/components/schemas/Problem"
+    Problem:
+      type: object
+      properties:
+        location:
+          anyOf:
+            - $ref: "#/components/schemas/DeviceLocation"
+            - type: null
+        health:
+          type: string
+        report_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: null
+        problems:
+          anyOf:
+            - type: array
+              items:
+                type: object
+            - type: null
+    Workspaces:
+      type: array
+      items:
+        $ref: "#/components/schemas/Workspace"
+    Workspace:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - role
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: null
+        role:
+          type: string
+    WorkspaceUsers:
+      type: array
+      items:
+        type: object
+        required:
+          - name
+          - email
+          - role
+        properties:
+          name:
+            type: string
+          email:
+            type: string
+          role:
+            type: string
+    Rooms:
+      type: array
+      items:
+        $ref: "#/components/schemas/Room"
+    Room:
+      type: object
+      required:
+        - id
+        - az
+        - alias
+        - vendor_name
+      properties:
+        id:
+          type: string
+          format: uuid
+        az:
+          type: string
+        alias:
+          anyOf:
+            - type: string
+            - type: null
+        vendor_name:
+          type: string
+  securitySchemes:
+    basicAuth:
+      type: apiKey
+      name: Basic HTTP Authorization
+      in: header
+      description: >
+        Basic HTTP Authentication scheme, as defined in [RFC
+        7617](https://tools.ietf.org/html/rfc7617)
