@@ -1,9 +1,9 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB;
-use Test::Exception;
 use Mojo::Pg;
-use Time::HiRes;
+
+use DDP;
 
 use_ok("Conch::Time");
 use Conch::Time;
@@ -15,6 +15,7 @@ my $pg    = Mojo::Pg->new( $pgtmp->uri );
 subtest 'Test timestamps from real DB' => sub {
 	my $now = $pg->db->query('SELECT NOW()::timestamptz as now ')->hash->{now};
 	ok( my $conch_time = Conch::Time->new($now) );
+	isa_ok( $conch_time->to_datetime, 'DateTime', 'Can produce DateTime object' );
 
 	my $dt = $pg->db->query("SELECT '2018-01-02'::timestamptz as datetime")
 		->hash->{datetime};
@@ -79,6 +80,11 @@ subtest 'Test parsing of timestamps' => sub {
 			expected => '2018-01-02T00:00:00.000+00:20',
 			message  => 'Does not modify 00 timezones that specify minutes'
 		},
+		{
+			input    => '2018-01-02 00:00:00.987654+00',
+			expected => '2018-01-02T00:00:00.988Z',
+			message  => 'Microseconds rounded to milliseconds'
+		},
 	);
 
 	for (@cases) {
@@ -87,23 +93,8 @@ subtest 'Test parsing of timestamps' => sub {
 	}
 };
 
-my $d;
-lives_ok {
-	$d = Conch::Time->from_epoch(1519922279, 0);
-} "->from_epoch with static input";
-
-is($d->timestamp, "2018-03-01T16:37:59.000Z", "->_from_epoch output"); 
-
-lives_ok {
-	$d = Conch::Time->from_epoch(Time::HiRes::gettimeofday);
-} "->from_epoch with gettimeofday";
-
+my $d = Conch::Time->_from_hires(1519922279, 0);
+is($d->timestamp, "2018-03-01T16:37:59000Z", "->_from_hires output"); 
 isnt(Conch::Time->now(), Conch::Time->now(), "Multiple now()s are unique");
-
-like(
-	Conch::Time->new("2018-01-02 00:00:00+00")->timestamptz, 
-	Conch::Time->PG_TIMESTAMP_FORMAT,
-	"Roundtrip timestamptz"
-);
 
 done_testing();
