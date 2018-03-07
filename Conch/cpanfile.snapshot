@@ -3810,22 +3810,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0
-  Time-Moment-0.42
-    pathname: C/CH/CHANSEN/Time-Moment-0.42.tar.gz
-    provides:
-      Time::Moment 0.42
-      Time::Moment::Adjusters 0.42
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 6.59
-      ExtUtils::ParseXS 3.18
-      Test::Fatal 0.006
-      Test::More 0.88
-      Test::Number::Delta 1.06
-      Test::Requires 0
-      Time::HiRes 0
-      XSLoader 0.02
-      perl 5.008001
   Time-Warp-0.52
     pathname: S/SZ/SZABGAB/Time-Warp-0.52.tar.gz
     provides:
