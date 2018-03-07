@@ -285,7 +285,6 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
-      Config::General 2.47
       Module::Pluggable::Object 3.6
   Config-General-2.63
     pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
@@ -2147,6 +2146,27 @@ DISTRIBUTIONS
       Fennec::Lite 0
       Test::Exception 0
       Test::More 0
+  Minion-8.11
+    pathname: S/SR/SRI/Minion-8.11.tar.gz
+    provides:
+      LinkCheck undef
+      LinkCheck::Controller::Links undef
+      LinkCheck::Task::CheckLinks undef
+      Minion 8.11
+      Minion::Backend undef
+      Minion::Backend::Pg undef
+      Minion::Command::minion undef
+      Minion::Command::minion::job undef
+      Minion::Command::minion::worker undef
+      Minion::Job undef
+      Minion::Worker undef
+      Minion::_Guard 8.11
+      Mojolicious::Plugin::Minion undef
+      Mojolicious::Plugin::Minion::Admin undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Mojolicious 7.56
+      perl 5.010001
   Mock-Quick-1.111
     pathname: E/EX/EXODIST/Mock-Quick-1.111.tar.gz
     provides:
@@ -2326,8 +2346,8 @@ DISTRIBUTIONS
       Mojolicious 7.53
       SQL::Abstract 1.85
       perl 5.010001
-  Mojolicious-7.61
-    pathname: S/SR/SRI/Mojolicious-7.61.tar.gz
+  Mojolicious-7.70
+    pathname: S/SR/SRI/Mojolicious-7.70.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2396,7 +2416,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 7.61
+      Mojolicious 7.70
       Mojolicious::Command undef
       Mojolicious::Command::cgi undef
       Mojolicious::Command::cpanify undef
@@ -3910,28 +3930,6 @@ DISTRIBUTIONS
       Exporter::Tiny 0.026
       ExtUtils::MakeMaker 6.17
       perl 5.006001
-  Types-UUID-0.004
-    pathname: T/TO/TOBYINK/Types-UUID-0.004.tar.gz
-    provides:
-      Types::UUID 0.004
-    requirements:
-      ExtUtils::MakeMaker 6.17
-      Type::Tiny 1.000000
-      UUID::Tiny 1.02
-      perl 5.008
-  UUID-Tiny-1.04
-    pathname: C/CA/CAUGUSTIN/UUID-Tiny-1.04.tar.gz
-    provides:
-      UUID::Tiny 1.04
-    requirements:
-      Carp 0
-      Digest::MD5 0
-      ExtUtils::MakeMaker 0
-      IO::File 0
-      MIME::Base64 0
-      POSIX 0
-      Test::More 0
-      Time::HiRes 0
   Unicode-LineBreak-2017.004
     pathname: N/NE/NEZUMI/Unicode-LineBreak-2017.004.tar.gz
     provides:
@@ -4008,6 +4006,20 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
+  YAML-Tiny-1.70
+    pathname: E/ET/ETHER/YAML-Tiny-1.70.tar.gz
+    provides:
+      YAML::Tiny 1.70
+    requirements:
+      B 0
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Fcntl 0
+      Scalar::Util 0
+      perl 5.008001
+      strict 0
+      warnings 0
   aliased-0.34
     pathname: E/ET/ETHER/aliased-0.34.tar.gz
     provides:
