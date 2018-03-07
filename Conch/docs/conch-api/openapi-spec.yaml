@@ -4,7 +4,7 @@ info:
   version: 2.0.0
   title: Conch API Service
 servers:
-  - url: https://preflight.scloud.zone
+  - url: https://conch.joyent.us
 security:
   basicAuth: []
 tags:

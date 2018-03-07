@@ -18,11 +18,13 @@ Conch/report
 Conch/public/js/app.js
 Conch/public/css/app.css
 Conch/public/doc
+Conch/doc/conch-api/index.html
 Conch/log
 Conch/bin/hypnotoad.pid
 
 # Carton-installed dependency folder
 local/
+
 
 # deploy files
 deploy/site.retry

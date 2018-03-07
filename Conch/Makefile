@@ -51,8 +51,10 @@ public/css/app.css: ui/css/app.css
 
 doc: public/doc/index.html
 
-public/doc/index.html: docs/conch-api/openapi-spec.yaml
-	@cd docs/conch-api && npm install && npm run render
+public/doc/index.html: \
+	docs/conch-api/openapi-spec.yaml \
+	docs/conch-api/yarn.lock docs/conch-api/index.js
+	@cd docs/conch-api && yarn install && yarn run render
 	@mkdir -p public/doc
 	@cp docs/conch-api/index.html public/doc/index.html
 
