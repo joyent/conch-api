@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "js-yaml": "^3.10.0",
-    "shins": "^2.1.0",
+    "js-yaml": "^3.11.0",
+    "shins": "^2.2.1-1",
     "widdershins": "^2.3.0"
   }
 }
