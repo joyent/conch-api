@@ -5,6 +5,7 @@ perl:
     - "5.26"
 before_install:
     - cpanm Carton
+    - cpanm String::CamelCase
 install:
   - "cd Conch; carton install --deployment"
 script:
