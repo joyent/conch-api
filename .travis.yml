@@ -9,6 +9,9 @@ install:
   - "cd Conch; carton install"
 script:
   - "cd Conch; carton exec prove -lpr t/"
+cache:
+  directories:
+    - "Conch/local"
 deploy:
   skip_cleanup: true
   provider: releases
