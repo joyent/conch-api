@@ -22,3 +22,12 @@ deploy:
   on:
     tags: true
     repo: joyent/conch
+notifications:
+  recipients:
+    - sungo@joyent.com
+      #- lane.seppala@joyent.com
+      #- bdha@joyent.com
+      #- dale.ghent@joyent.com
+  email:
+    on_success: change
+    on_failure: always
