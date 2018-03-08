@@ -7,6 +7,7 @@ Conch::Legacy::Control::Device::Validation - B<LEGACY MODULE>
 =head1 METHODS
 
 =cut
+
 package Conch::Legacy::Control::Device::Validation;
 
 use strict;
@@ -17,6 +18,8 @@ use Conch::Legacy::Control::Device::Environment;
 use Conch::Legacy::Control::Device::Inventory;
 use Conch::Legacy::Control::Device::Network;
 
+use Mojo::Exception;
+
 use Exporter 'import';
 our @EXPORT = qw( validate_device );
 
@@ -25,6 +28,7 @@ our @EXPORT = qw( validate_device );
 Run device validations with a device report.
 
 =cut
+
 sub validate_device {
 	my ( $schema, $device, $device_report, $report_id ) = @_;
 
@@ -36,8 +40,22 @@ sub validate_device {
 	}
 	accept => 'MISTAKE';    # Collect mistakes as failed validations
 
-	# If no validators flagged anything, assume we're passing now. History will
-	# be available in device_validate.
+	# Catch unhandled errors
+	if ( $@->died ) {
+		$device->update( { health => "FAIL" } );
+
+		my $died    = $@->died;
+		my $message = "$died";
+		if ( $died->can('report_opts') ) {
+			my $report_loc = $died->report_opts->{location};
+			my $src_file   = $report_loc->[1];
+			my $src_line   = $report_loc->[2];
+			$message .= " at $src_file line $src_line";
+		}
+		Mojo::Exception->throw(
+			$device->id . ": Marking FAIL because exception occurred: $message" );
+	}
+
 	my $validation_errors = $@ if $@;
 	if ( $validation_errors && $validation_errors->exceptions > 0 ) {
 		my @errors = $validation_errors->exceptions;
@@ -68,4 +86,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
