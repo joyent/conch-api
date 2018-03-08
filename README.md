@@ -5,7 +5,7 @@ Datacenter build and management service
 # Setup
 
 Conch uses [`carton`](https://metacpan.org/pod/Carton) to manage Perl
-dependencies and `npm` for Perl depdencies.  Both are required for building and
+dependencies and `npm` for nodejs depdencies.  Both are required for building and
 running the project.
 
 Below is a list of useful Make commands that can be used to build and run the
