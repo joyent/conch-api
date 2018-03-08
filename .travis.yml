@@ -2,32 +2,29 @@ os: linux
 sudo: false
 language: perl
 perl:
-    - "5.26"
+- '5.26'
 before_install:
-    - cpanm Carton
+- cpanm Carton
 install:
-  - "cd Conch; carton install"
+- cd Conch; carton install
 script:
-  - "cd Conch; carton exec prove -lpr t/"
+- cd Conch; carton exec prove -lpr t/
 cache:
   directories:
-    - "Conch/local"
+  - Conch/local
 branches:
   only:
-    - master
+  - master
 deploy:
   provider: releases
   api_key:
-    secure: A8vcNPDVPX+dnPWXrs4yT8HehrYa7bWlv7Zb2wvYjYngY+ztbnKUMSisnWbIWIx8N0gr6Xyb3KcV5S7WxLiNE7K2IAC2cF7O1EmvcaJ778TsBKowLuYdqWiew561beMQuuWoMQuL8jMQhl1bV2SMiR3J2aaYjM2c3jeGZQmQSNHpFp8o55KsXLPQNxX5mQ5mnZf1u5F00X8c30ahPj2tlHrXG5Q183HzPwdBktjbuWSyIdgGPGqtm5/0uJewFUOOcRKRODCPDlclXM2s65QvIeCopoqAr4KWGpmot5lt/qAso5XWtCe6aVGIXptyJBs9Rl0fhFOrbjZN0rkT2xenbxGS8OyrMVNfqSypofig9nU4BXK/fL8kdykiefwGVOqn6vbkjAEfphTVIsjlPfjIactPgORMJtAEIH7Tu/bI1F1T1DEce8m7VPtznH1YStUTWIuH7yMEQY81gQh2Ijn38PaDPgrcxlX4he+BwyRYeg1SO3TVbZheIUFQBSCJCATQtbUQZR9bGQS/bz2jC/eXzFUsY0Lhz2GA8zIX2A/+RLshbmua/erVtBocLUGQrBI/DNaIJ3K/RxivEL5keGKozcmxPO7nOBL4PhirCKiCBS1WMCpUd7G7n6+qOyeyWVrkp34PXWb17Ghbglsbpl9kschRKB1wkel+MV7AeQSYDpU=
+    secure: 4LnUL0ygKCqDWt+LdGTDN99Ny5TQqfNdDSMyeRkwVqEo3MjZJfplLDbXLR8xVBKyxOVtK9NCJ+UdQ4qWmFSgduts3F0iWK9Cw8vjNoCXTv8Q/yTi1mrOq/LYvyAdYUeoBG7NUrYapFVr5drTDcdDEousHXB3HmL0Jj1az2PVXXtl/bta5AGwe7lNSIecQyGIJUIu8Y5D8Uehhszn9bA0kuZ0Ka/mT0x5XSrEhnfydZf6VB2UOx5NBicCHyegfHWRO4qjPiRjp8UPre+hYS+oCInLliv4tMO6v0bVjuy02tK5hTZn2AbL5B69b0B0EIYP7cvj61gj6nqoPxWPnCv8s823zU5GsN+Q5bG+OOE8yjLA3voK5U9OWRY3umKYNddSa3j9ZDwWytITwzd8t+C04f056zZh82Qxaeip1eWDK/JeIA6nsMH6mBmSlenElUdZq0C9AziaIVtasUudu1TSkJecnkWj2nutHtCPAAGs/in3t/Yki1ci4KxM3g/W1rDg0NOR53DbUK8W0+YPrhR+TMkj3fONjYk2e+se7VHxJQtxeUvLSG3MHh4JKfuYoX+DglcW5BNedRvQP2Oi0tUyr82Dmhbq8B7TH0vPKciu0szb5GwY09jzBDX2VTkwRHugAFohasiZmb/XYmkqZTJO3dxnWBlDpRV9CtkpjWHrfd8=
+  file: ''
   on:
-    tags: true
     repo: joyent/conch
 notifications:
   recipients:
-    - sungo@joyent.com
-      #- lane.seppala@joyent.com
-      #- bdha@joyent.com
-      #- dale.ghent@joyent.com
+  - sungo@joyent.com
   email:
     on_success: change
     on_failure: always
