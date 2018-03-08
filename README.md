@@ -1,6 +1,6 @@
 # Conch
 
-Database build and management service
+Datacenter build and management service
 
 # Setup
 
@@ -17,7 +17,6 @@ project. All of these should be run in the `Conch/` directory.
 * `make format` -- Auto-format source code
 * `make test` -- Run tests
 * `make migrate-db` -- Run database migrations
-
 
 # API
 
