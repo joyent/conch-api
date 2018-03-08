@@ -31,12 +31,6 @@ use overload
 	eq   => 'compare',
 	ne   => sub { !compare(@_) };
 
-use constant PG_TIMESTAMP_FORMAT => qr/
-	^(\d{4,})-(\d{2,})-(\d{2,})\s
-	(\d{2,}):(\d{2,}):(\d{2,})\.?(\d+)
-	?([-\+])([\d:]+)$
-/x;
-
 
 
 has 'moment';
@@ -48,33 +42,9 @@ has 'moment';
 =cut
 
 sub new ( $class, $timestamptz ) {
-	my @c = ( $timestamptz =~ PG_TIMESTAMP_FORMAT );
-	Mojo::Exception->throw('Invalid Postgres timestamp')
-		unless @c;
-
-	$c[6] = 0 unless $c[6];
-
-	my $off_minutes;
-	if ($c[8] =~ /:/) {
-		my ($hours, $minutes) = $c[8] =~ /^(\d\d)[:]?(\d\d)$/;
-
-		$off_minutes = ($hours*60);
-		$off_minutes = $off_minutes + $minutes if $minutes;
-	} else {
-		$off_minutes = $c[8] * 60;
-	}
-
-	my $m = Time::Moment->new(
-		year       => $c[0],
-		month      => $c[1],
-		day        => $c[2],
-		hour       => $c[3],
-		minute     => $c[4],
-		second     => $c[5],
-		nanosecond => $c[6]*1000,
-		offset     => "${c[7]}${off_minutes}",
+	return $class->SUPER::new(
+		moment => Time::Moment->from_string($timestamptz, lenient => 1)
 	);
-	return $class->SUPER::new(moment => $m);
 }
 
 
