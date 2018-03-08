@@ -12,6 +12,7 @@ requires 'aliased';
 requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
+requires 'Time::Moment', ">= 0.43";
 
 # mojolicious
 requires 'Mojolicious';
@@ -71,4 +72,5 @@ on 'test' => sub {
     requires 'IO::All';
     requires 'JSON::Validator';
     requires 'YAML::XS';
+	requires 'Test::Exception';
 };
