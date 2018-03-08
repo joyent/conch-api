@@ -12,8 +12,10 @@ script:
 cache:
   directories:
     - "Conch/local"
+branches:
+  only:
+    - master
 deploy:
-  skip_cleanup: true
   provider: releases
   api_key:
     secure: A8vcNPDVPX+dnPWXrs4yT8HehrYa7bWlv7Zb2wvYjYngY+ztbnKUMSisnWbIWIx8N0gr6Xyb3KcV5S7WxLiNE7K2IAC2cF7O1EmvcaJ778TsBKowLuYdqWiew561beMQuuWoMQuL8jMQhl1bV2SMiR3J2aaYjM2c3jeGZQmQSNHpFp8o55KsXLPQNxX5mQ5mnZf1u5F00X8c30ahPj2tlHrXG5Q183HzPwdBktjbuWSyIdgGPGqtm5/0uJewFUOOcRKRODCPDlclXM2s65QvIeCopoqAr4KWGpmot5lt/qAso5XWtCe6aVGIXptyJBs9Rl0fhFOrbjZN0rkT2xenbxGS8OyrMVNfqSypofig9nU4BXK/fL8kdykiefwGVOqn6vbkjAEfphTVIsjlPfjIactPgORMJtAEIH7Tu/bI1F1T1DEce8m7VPtznH1YStUTWIuH7yMEQY81gQh2Ijn38PaDPgrcxlX4he+BwyRYeg1SO3TVbZheIUFQBSCJCATQtbUQZR9bGQS/bz2jC/eXzFUsY0Lhz2GA8zIX2A/+RLshbmua/erVtBocLUGQrBI/DNaIJ3K/RxivEL5keGKozcmxPO7nOBL4PhirCKiCBS1WMCpUd7G7n6+qOyeyWVrkp34PXWb17Ghbglsbpl9kschRKB1wkel+MV7AeQSYDpU=
