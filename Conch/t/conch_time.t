@@ -8,6 +8,13 @@ use Time::HiRes;
 use_ok("Conch::Time");
 use Conch::Time;
 
+use constant PG_TIMESTAMP_FORMAT => qr/
+	^(\d{4,})-(\d{2,})-(\d{2,})\s
+	(\d{2,}):(\d{2,}):(\d{2,})\.?(\d+)
+	?([-\+])([\d:]+)$
+/x;
+
+
 my $pgtmp = mk_tmp_db() or die;
 my $dbh   = DBI->connect( $pgtmp->dsn );
 my $pg    = Mojo::Pg->new( $pgtmp->uri );
@@ -102,7 +109,7 @@ isnt(Conch::Time->now(), Conch::Time->now(), "Multiple now()s are unique");
 
 like(
 	Conch::Time->new("2018-01-02 00:00:00+00")->timestamptz, 
-	Conch::Time->PG_TIMESTAMP_FORMAT,
+	PG_TIMESTAMP_FORMAT,
 	"Roundtrip timestamptz"
 );
 
