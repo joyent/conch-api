@@ -94,10 +94,8 @@ sub validate_wiremap {
 	my @eth_nics = grep { $_->iface_name =~ /eth/ } @device_nics;
 	my $rack_location = $device->device_location;
 
-	if ( !$rack_location ) {
-		error "$device_id is not assigned in a rack; cannot validate wiremap";
-		return 0;
-	}
+	# don't validate wiremap if no location
+	return 0 unless $rack_location;
 
 	my @rack_layout = $schema->resultset('DatacenterRackLayout')->search(
 		{ rack_id  => $rack_location->rack_id },
