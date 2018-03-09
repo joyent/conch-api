@@ -38,14 +38,6 @@ sub validate_cpu_temp {
 		}
 	)->single;
 
-	my $criteria = $schema->resultset('DeviceValidateCriteria')->search(
-		{
-			component => "CPU",
-			condition => "temp"
-		}
-	)->single;
-
-	$criteria or fault "no CPU device criteria defined";
 
 	# XXX This should be aware of cpu_num, but for now, whatever.
 	foreach my $cpu (qw/cpu0 cpu1/) {
@@ -55,26 +47,26 @@ sub validate_cpu_temp {
 
 		my $method = "${cpu}_temp";
 
-		if ( $device_env->$method > $criteria->crit ) {
+		if ( $device_env->$method > 70 ) {
 			$cpu_msg =
 				  "$device_id: CRITICAL: $cpu: "
 				. $device_env->$method . " (>"
-				. $criteria->crit . ")";
+				. 70 . ")";
 			mistake $cpu_msg;
 			$cpu_status = 0;
 		}
-		elsif ( $device_env->$method > $criteria->warn ) {
+		elsif ( $device_env->$method > 60 ) {
 			$cpu_msg =
 				  "$device_id: WARNING: $cpu: "
 				. $device_env->$method . " (>"
-				. $criteria->warn . ")";
+				. 60 . ")";
 			$cpu_status = 0;
 		}
 		else {
 			$cpu_msg =
 				  "$device_id: OK: $cpu: "
 				. $device_env->$method . " (<"
-				. $criteria->warn . ")";
+				. 60 . ")";
 			$cpu_status = 1;
 		}
 
@@ -88,7 +80,6 @@ sub validate_cpu_temp {
 					{
 						component_type => "CPU",
 						component_name => $cpu,
-						criteria_id    => $criteria->id,
 						metric         => $device_env->$method,
 						log            => $cpu_msg,
 						status         => $cpu_status,
@@ -113,23 +104,6 @@ sub validate_disk_temp {
 
 	my $device = $schema->resultset('Device')->find($device_id);
 
-	my $criteria_sas = $schema->resultset('DeviceValidateCriteria')->search(
-		{
-			component => "SAS_HDD",
-			condition => "temp"
-		}
-	)->single;
-
-	$criteria_sas or fault "no SAS_HDD device criteria defined";
-
-	my $criteria_ssd = $schema->resultset('DeviceValidateCriteria')->search(
-		{
-			component => "SAS_SSD",
-			condition => "temp"
-		}
-	)->single;
-
-	$criteria_ssd or fault "no SAS_SSD device criteria defined";
 
 	my $disks = $schema->resultset('DeviceDisk')->search(
 		{
@@ -149,18 +123,15 @@ sub validate_disk_temp {
 		my $warn;
 		my $disk_msg;
 		my $disk_status;
-		my $criteria_id;
 
 		if ( $disk->drive_type eq "SAS_HDD" ) {
-			$crit        = $criteria_sas->crit;
-			$warn        = $criteria_sas->warn;
-			$criteria_id = $criteria_sas->id;
+			$crit        = 60;
+			$warn        = 41;
 		}
 
 		if ( $disk->drive_type eq "SAS_SSD" || $disk->drive_type eq "SATA_SSD" ) {
-			$crit        = $criteria_ssd->crit;
-			$warn        = $criteria_ssd->warn;
-			$criteria_id = $criteria_ssd->id;
+			$crit        = 51;
+			$warn        = 41;
 		}
 
 		if ( $disk->temp > $crit ) {
@@ -202,7 +173,6 @@ sub validate_disk_temp {
 						component_type => $disk->drive_type,
 						component_name => $disk->serial_number,
 						component_id   => $disk->id,
-						criteria_id    => $criteria_id,
 						metric         => $disk->temp,
 						log            => $disk_msg,
 						status         => $disk_status,
