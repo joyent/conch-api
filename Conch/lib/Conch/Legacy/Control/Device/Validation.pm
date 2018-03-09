@@ -52,6 +52,22 @@ sub validate_device {
 			my $src_line   = $report_loc->[2];
 			$message .= " at $src_file line $src_line";
 		}
+
+		$schema->resultset('DeviceValidate')->create(
+			{
+				device_id  => $device_id,
+				report_id  => $report_id,
+				validation => encode_json(
+					{
+						component_type => '000',
+						log => "Exception occurred during device validation: $message."
+							. ' Administrators should check logs for more information.',
+						status => 0,
+					}
+				)
+			}
+		);
+
 		Mojo::Exception->throw(
 			$device->id . ": Marking FAIL because exception occurred: $message" );
 	}
