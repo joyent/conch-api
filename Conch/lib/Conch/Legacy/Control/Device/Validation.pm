@@ -18,7 +18,7 @@ use Conch::Legacy::Control::Device::Environment;
 use Conch::Legacy::Control::Device::Inventory;
 use Conch::Legacy::Control::Device::Network;
 
-use Mojo::Exception;
+use Mojo::JSON qw(encode_json);
 
 use Exporter 'import';
 our @EXPORT = qw( validate_device );
@@ -30,7 +30,7 @@ Run device validations with a device report.
 =cut
 
 sub validate_device {
-	my ( $schema, $device, $device_report, $report_id ) = @_;
+	my ( $schema, $device, $device_report, $report_id, $logger ) = @_;
 
 	my @validations = $device_report->validations;
 	try {
@@ -55,7 +55,7 @@ sub validate_device {
 
 		$schema->resultset('DeviceValidate')->create(
 			{
-				device_id  => $device_id,
+				device_id  => $device->id,
 				report_id  => $report_id,
 				validation => encode_json(
 					{
@@ -68,20 +68,20 @@ sub validate_device {
 			}
 		);
 
-		Mojo::Exception->throw(
+		$logger->error(
 			$device->id . ": Marking FAIL because exception occurred: $message" );
+		return { health => "FAIL", errors => [$message] };
 	}
 
 	my $validation_errors = $@ if $@;
 	if ( $validation_errors && $validation_errors->exceptions > 0 ) {
 		my @errors = $validation_errors->exceptions;
-		map { trace $_; } @errors;
-		warning( $device->id . ": Marking FAIL" );
+		$logger->warn( $device->id . ": Marking FAIL" );
 		$device->update( { health => "FAIL" } );
 		return { health => "FAIL", errors => \@errors };
 	}
 	else {
-		info( $device->id . ": Marking PASS" );
+		$logger->info( $device->id . ": Marking PASS" );
 		$device->update( { health => "PASS" } );
 		return { health => "PASS" };
 	}
