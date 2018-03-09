@@ -79,7 +79,7 @@ sub process ($c) {
 
 	my ( $device, $report_id ) = record_device_report( $schema, $device_report );
 	my $validation_result =
-		validate_device( $schema, $device, $device_report, $report_id );
+		validate_device( $schema, $device, $device_report, $report_id, $c->app->log );
 
 	$c->status( 200, $validation_result );
 }
