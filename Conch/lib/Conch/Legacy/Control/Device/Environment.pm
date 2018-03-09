@@ -119,19 +119,13 @@ sub validate_disk_temp {
 				. $disk->serial_number
 				. ": validating temps" );
 
-		my $crit;
-		my $warn;
+		my $crit = 51;
+		my $warn = 41;
 		my $disk_msg;
 		my $disk_status;
 
 		if ( $disk->drive_type eq "SAS_HDD" ) {
 			$crit        = 60;
-			$warn        = 41;
-		}
-
-		if ( $disk->drive_type eq "SAS_SSD" || $disk->drive_type eq "SATA_SSD" ) {
-			$crit        = 51;
-			$warn        = 41;
 		}
 
 		if ( $disk->temp > $crit ) {
