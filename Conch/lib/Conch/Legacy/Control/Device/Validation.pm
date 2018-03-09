@@ -71,11 +71,8 @@ sub validate_device {
 		$logger->error(
 			$device->id . ": Marking FAIL because exception occurred: $message" );
 		return { health => "FAIL", errors => [$message] };
-	}
-
-	my $validation_errors = $@ if $@;
-	if ( $validation_errors && $validation_errors->exceptions > 0 ) {
-		my @errors = $validation_errors->exceptions;
+	} elsif ( $@->exceptions > 0 ) {
+		my @errors = $@->exceptions;
 		$logger->warn( $device->id . ": Marking FAIL" );
 		$device->update( { health => "FAIL" } );
 		return { health => "FAIL", errors => \@errors };
