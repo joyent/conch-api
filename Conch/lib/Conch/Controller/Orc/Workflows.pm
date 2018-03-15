@@ -15,7 +15,7 @@ use Conch::Orc;
 
 =head2 get_all
 
-Get all workflows, in there entirety
+Get all workflows, in their entirety
 
 =cut
 

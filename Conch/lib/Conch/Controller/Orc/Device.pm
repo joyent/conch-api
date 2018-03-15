@@ -16,7 +16,7 @@ use Conch::Model::Device;
 
 =head2 get_executions
 
-Get all the Workflow::Executions assoicated with a device
+Get all the Workflow::Executions associated with a device
 
 =cut
 
