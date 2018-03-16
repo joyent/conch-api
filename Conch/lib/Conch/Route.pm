@@ -78,17 +78,18 @@ sub all_routes {
 			$c->app->log->warn( $c->req->body );
 		}
 	);
-
-	if ($features->{orc}) {
-		Conch::Route::Orc->load($secured);
-	}
-
 	workspace_routes($secured);
 	device_routes($secured);
 	relay_routes($secured);
 	user_routes( $secured->under('/user/me') );
 	hardware_product_routes($secured);
 	validation_routes($secured);
+
+	my $v2_authed = $secured->under('/v2');
+	if ($features->{orc}) {
+		Conch::Route::Orc->load($v2_authed);
+	}
+
 }
 
 1;
