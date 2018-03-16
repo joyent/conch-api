@@ -18,7 +18,7 @@ BEGIN {
 }
 use Conch::Pg;
 
-my $spec_file = "json-schema/orchestration-v1.yaml";
+my $spec_file = "json-schema/v2.yaml";
 BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
 
