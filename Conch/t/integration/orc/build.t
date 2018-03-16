@@ -59,14 +59,16 @@ $t->post_ok(
 BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
+sub BASE() { "/v2/o/humans" }
+
 ##########################
 
-$t->get_ok("/o/workflow")->status_is(200)->json_is([]);
+$t->get_ok(BASE."/workflow")->status_is(200)->json_is([]);
 
-$t->post_ok("/o/workflow", json => { id => 'wat' });
+$t->post_ok(BASE."/workflow", json => { id => 'wat' });
 $t->status_is(400)->json_schema_is("Error");
 
-$t->post_ok("/o/workflow", json => {
+$t->post_ok(BASE."/workflow", json => {
 	name => 'sungo'
 })->status_is(200)->json_is(
 	'/locked' => 0,
@@ -76,50 +78,50 @@ $t->post_ok("/o/workflow", json => {
 
 my $wid = $t->tx->res->json->{id};
 
-$t->get_ok("/o/workflow/".$wid)->status_is(200)->json_is(
+$t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
 	'/id' => $wid
 )->json_is(
 	'/name' => 'sungo'
 )->json_schema_is('Workflow');
 
-$t->post_ok("/o/workflow", json => {
+$t->post_ok(BASE."/workflow", json => {
 	name => 'sungo'
 })->status_is(400)->json_schema_is("Error");
 
 
-$t->post_ok("/o/workflow/".$wid, json => {
+$t->post_ok(BASE."/workflow/".$wid, json => {
 	preflight => 1
 })->status_is(200)->json_schema_is("Workflow");
 
 
-$t->get_ok("/o/workflow/".$wid)->status_is(200)->json_is(
+$t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
 	'/preflight' => 1,
 )->json_is(
 	'/name' => 'sungo'
 )->json_schema_is('Workflow');
 
-$t->get_ok("/o/workflow/".$wid."/delete")->status_is(204);
+$t->get_ok(BASE."/workflow/".$wid."/delete")->status_is(204);
 
-$t->get_ok("/o/workflow/".$wid)->status_is(404)->json_schema_is("Error");
+$t->get_ok(BASE."/workflow/".$wid)->status_is(404)->json_schema_is("Error");
 
 ##########################
 
 
 subtest "Step" => sub {
-	$t->post_ok("/o/workflow", json => {
+	$t->post_ok(BASE."/workflow", json => {
 		name => 'sungo2'
 	})->status_is(200)->json_schema_is("Workflow");
 
 	$wid = $t->tx->res->json->{id};
 
-	$t->post_ok("/o/workflow/$wid/step", json => {
+	$t->post_ok(BASE."/workflow/$wid/step", json => {
 		name => "step 1",
 		validation_plan_id => $validation_id,
 	})->status_is(200)->json_schema_is("WorkflowStep");
 
 	my $id = $t->tx->res->json->{id};
 
-	$t->get_ok("/o/step/$id")->status_is(200)->json_is(
+	$t->get_ok(BASE."/step/$id")->status_is(200)->json_is(
 		'/id' => $id
 	)->json_is(
 		'/name' => "step 1"
@@ -127,14 +129,14 @@ subtest "Step" => sub {
 		'/order' => 0,
 	)->json_schema_is('WorkflowStep');
 
-	$t->post_ok("/o/workflow/$wid/step", json => {
+	$t->post_ok(BASE."/workflow/$wid/step", json => {
 		name => "step 2",
 		validation_plan_id => $validation_id,
 	})->status_is(200)->json_schema_is("WorkflowStep");
 
 	my $id2 = $t->tx->res->json->{id};
 
-	$t->get_ok("/o/step/$id2")->status_is(200)->json_is(
+	$t->get_ok(BASE."/step/$id2")->status_is(200)->json_is(
 		'/id' => $id2
 	)->json_is(
 		'/name' => "step 2"
@@ -143,9 +145,9 @@ subtest "Step" => sub {
 	)->json_schema_is('WorkflowStep');
 
 
-	$t->delete_ok("/o/step/$id")->status_is(204);
+	$t->delete_ok(BASE."/step/$id")->status_is(204);
 
-	$t->get_ok("/o/step/$id2")->status_is(200)->json_is(
+	$t->get_ok(BASE."/step/$id2")->status_is(200)->json_is(
 		'/id' => $id2
 	)->json_is(
 		'/name' => "step 2"
@@ -154,11 +156,11 @@ subtest "Step" => sub {
 	)->json_schema_is('WorkflowStep');
 
 
-	$t->get_ok("/o/step/$id")->status_is(200)->json_is(
+	$t->get_ok(BASE."/step/$id")->status_is(200)->json_is(
 		'/deactivated' => 1,
 	)->json_schema_is('WorkflowStep');
 
-	$t->post_ok("/o/step/$id2", json => {
+	$t->post_ok(BASE."/step/$id2", json => {
 		retry => 1
 	})->status_is(200)->json_is(
 		'/id' => $id2,
@@ -166,7 +168,7 @@ subtest "Step" => sub {
 		'/retry' => 1
 	)->json_schema_is('WorkflowStep');
 
-	$t->get_ok("/o/step/$id2")->status_is(200)->json_is(
+	$t->get_ok(BASE."/step/$id2")->status_is(200)->json_is(
 		'/retry' => 1,
 	)->json_schema_is('WorkflowStep');
 

@@ -59,7 +59,9 @@ BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 my $db = Conch::Pg->new->db;
 
-$t->get_ok("/o/workflow")->status_is(200)->json_is([]);
+sub BASE() { '/v2/o/humans' }
+
+$t->get_ok(BASE."/workflow")->status_is(200)->json_is([]);
 $t->json_schema_is('Workflows');
 
 
@@ -93,11 +95,11 @@ lives_ok {
 
 
 
-$t->get_ok("/o/workflow")->status_is(200)->json_is(
+$t->get_ok(BASE."/workflow")->status_is(200)->json_is(
 	'/0/id' => $w->id
 )->json_schema_is('Workflows');
 
-$t->get_ok("/o/workflow/".$w->id)->status_is(200)->json_is(
+$t->get_ok(BASE."/workflow/".$w->id)->status_is(200)->json_is(
 	'/id' => $w->id
 )->json_schema_is('Workflow');
 
@@ -114,7 +116,7 @@ subtest "Step" => sub {
 	} 'Load step';
 
 
-	$t->get_ok("/o/workflow")->status_is(200)->json_is(
+	$t->get_ok(BASE."/workflow")->status_is(200)->json_is(
 		'/0/id' => $w->id
 	)->json_is(
 		'/0/steps/0/id' => $step->id
@@ -130,13 +132,13 @@ subtest "Step" => sub {
 		)->save();
 	} 'Load another step';
 
-	$t->get_ok("/o/step/".$step2->id)->status_is(200)->json_is(
+	$t->get_ok(BASE."/step/".$step2->id)->status_is(200)->json_is(
 		'/id' => $step2->id
 	)->json_is(
 		'/name' => $step2->name
 	)->json_schema_is('WorkflowStep');
 
-	$t->get_ok("/o/workflow")->status_is(200)->json_is(
+	$t->get_ok(BASE."/workflow")->status_is(200)->json_is(
 		'/0/id' => $w->id
 	)->json_is(
 		'/0/steps/0/id' => $step->id
@@ -156,7 +158,7 @@ subtest "Executions" => sub {
 	}, "Add an ONGOING workflow status";
 
 
-	$t->get_ok("/o/execution/active")->status_is(200)->json_is(
+	$t->get_ok(BASE."/execution/active")->status_is(200)->json_is(
 		'/0/workflow/id' => $w->id,
 	)->json_is(
 		'/0/status/0/id' => $s->id,
@@ -174,7 +176,7 @@ subtest "Executions" => sub {
 		)->save();
 	}, "Add a STOPPED workflow status";
 
-	$t->get_ok("/o/execution/stopped")->status_is(200)->json_is(
+	$t->get_ok(BASE."/execution/stopped")->status_is(200)->json_is(
 		'/0/workflow/id' => $w->id,
 	)->json_is(
 		'/0/status/1/id' => $s2->id,
@@ -182,10 +184,10 @@ subtest "Executions" => sub {
 		'/0/status/1/status' => Conch::Orc::Workflow::Status->STOPPED
 	)->json_schema_is("WorkflowExecutions");
 
-	$t->get_ok("/o/execution/active")->status_is(200)->json_is([]);
+	$t->get_ok(BASE."/execution/active")->status_is(200)->json_is([]);
 	$t->json_schema_is('WorkflowExecutions');
 
-	$t->get_ok("/o/device/".$d->id."/execution")->status_is(200)->json_is(
+	$t->get_ok(BASE."/device/".$d->id."/execution")->status_is(200)->json_is(
 		'/0/workflow/id' => $w->id,
 	)->json_is(
 		'/0/status/1/id' => $s2->id,
@@ -194,7 +196,7 @@ subtest "Executions" => sub {
 	)->json_schema_is('WorkflowExecutions');
 
 
-	$t->get_ok("/o/device/".$d->id)->status_is(200)->json_is(
+	$t->get_ok(BASE."/device/".$d->id)->status_is(200)->json_is(
 		'/workflow/id' => $w->id,
 	)->json_is(
 		'/status/0/id' => $s2->id,
@@ -218,20 +220,20 @@ subtest "Lifecycle" => sub {
 	} 'Lifecycle->add_workflow';
 
 
-	$t->get_ok("/o/lifecycle")->status_is(200)->json_is(
+	$t->get_ok(BASE."/lifecycle")->status_is(200)->json_is(
 		'/0/id' => $l->id
 	)->json_is(
 		'/0/name' => $l->name
 	)->json_schema_is("Lifecycles");
 
-	$t->get_ok("/o/lifecycle/".$l->id)->status_is(200)->json_is(
+	$t->get_ok(BASE."/lifecycle/".$l->id)->status_is(200)->json_is(
 		'/id' => $l->id,
 	)->json_is(
 		'/name' => $l->name,
 	)->json_schema_is("Lifecycle");
 
 	subtest "Device lifecycle" => sub {
-		$t->get_ok("/o/device/".$d->id."/lifecycle")->status_is(200);
+		$t->get_ok(BASE."/device/".$d->id."/lifecycle")->status_is(200);
 		$t->json_is(
 			'/0/id' => $l->id
 		)->json_is(
@@ -239,7 +241,7 @@ subtest "Lifecycle" => sub {
 		)->json_schema_is("Lifecycles");
 
 
-		$t->get_ok("/o/device/".$d->id."/lifecycle/execution");
+		$t->get_ok(BASE."/device/".$d->id."/lifecycle/execution");
 		$t->status_is(200);
 		$t->json_is(
 			'/0/lifecycle/id' => $l->id
