@@ -33,17 +33,11 @@ use Conch::Controller::Orc::Lifecycles;
 sub load ( $class, $r ) {
 	my $o = $r->under("/o");
 
-	my $ls = $o->under("/lifecycles");
-	$ls->get("/")->to("Orc::Lifecycles#get_all");
+	my $l = $o->under("/lifecycle");
+	$l->get("/")->to("Orc::Lifecycles#get_all");
+	$l->get("/:id")->to("Orc::Lifecycles#get_one");
 
-	my $l = $o->under("/lifecycle/:id");
-	$l->get("/")->to("Orc::Lifecycles#get_one");
-
-	my $ws = $o->under("/workflows");
-	$ws->get("/")->to("Orc::Workflows#get_all");
-
-
-	my $e = $o->under("/executions");
+	my $e = $o->under("/execution");
 	$e->get("/active")->to("Orc::WorkflowExecutions#get_active");
 	$e->get("/stopped")->to("Orc::WorkflowExecutions#get_stopped");
 	$e->get("/completed")->to("Orc::WorkflowsExecutions#get_completed");
@@ -51,11 +45,12 @@ sub load ( $class, $r ) {
 
 	my $d = $o->under("/device/:id");
 	$d->get("/")->to("Orc::Device#get_latest_execution");
-	$d->get("/all")->to("Orc::Device#get_executions");
-	$d->get("/lifecycles")->to("Orc::Device#get_lifecycles");
-	$d->get("/lifecycles/executions")->to("Orc::Device#get_lifecycles_executions");
+	$d->get("/execution")->to("Orc::Device#get_executions");
+	$d->get("/lifecycle")->to("Orc::Device#get_lifecycles");
+	$d->get("/lifecycle/execution")->to("Orc::Device#get_lifecycles_executions");
 
 	my $w = $o->under("/workflow");
+	$w->get("/")->to("Orc::Workflows#get_all");
 	$w->post("/")->to("Orc::Workflows#create");
 
 	my $wi = $w->under("/:id");

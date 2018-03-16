@@ -61,7 +61,7 @@ isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
 ##########################
 
-$t->get_ok("/o/workflows")->status_is(200)->json_is([]);
+$t->get_ok("/o/workflow")->status_is(200)->json_is([]);
 
 $t->post_ok("/o/workflow", json => { id => 'wat' });
 $t->status_is(400)->json_schema_is("Error");
