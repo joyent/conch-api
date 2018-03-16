@@ -183,7 +183,6 @@ definitions:
         format: date-time
       device_id:
         type: string
-        format: uuid
       force_retry:
         type: number
       id:
