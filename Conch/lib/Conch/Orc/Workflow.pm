@@ -354,16 +354,16 @@ sub remove_step ($self, $step) {
 
 
 
-=head2 v1
+=head2 v2
 
-Returns a hashref, representing the Workflow in the v1 data set.
+Returns a hashref, representing the Workflow in the v2 data set.
 
 This representation B<does not> contain any steps and the C<step> attribute will
 be set to an empty arrayref.
 
 =cut
 
-sub v1 ($self) {
+sub v2 ($self) {
 	{
 		id          => $self->id,
 		name        => $self->name,
@@ -378,19 +378,20 @@ sub v1 ($self) {
 
 
 
-=head2 v1_cascade
+=head2 v2_cascade
 
-Returns a hashref, representing the Workflow in the v1 data set.
+Returns a hashref, representing the Workflow in the v2 data set.
 
-This representation B<does> contain the steps, as per their C<<->v1>> method.
+This representation B<does> contain the steps, as per their C<<< ->v2 >>>
+method.
 
 =cut
 
-sub v1_cascade ($self) {
+sub v2_cascade ($self) {
 	$self->clear_steps;
-	my @steps = map { $_->v1 } $self->steps->@*;
+	my @steps = map { $_->v2 } $self->steps->@*;
 
-	my $base = $self->v1;
+	my $base = $self->v2;
 	$base->{steps} = \@steps;
 	return $base;
 }

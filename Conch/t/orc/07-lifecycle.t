@@ -69,12 +69,12 @@ lives_ok {
 	$l2 = Conch::Orc::Lifecycle->from_id($l->id);
 } '->from_id';
 
-is_deeply($l->v1, $l2->v1, "Saved data matches retrieved data");
+is_deeply($l->v2, $l2->v2, "Saved data matches retrieved data");
 
 lives_ok {
 	$l2 = Conch::Orc::Lifecycle->from_name($l->name);
 } '->from_name';
-is_deeply($l->v1, $l2->v1, "Saved data matches retrieved data");
+is_deeply($l->v2, $l2->v2, "Saved data matches retrieved data");
 
 
 
@@ -93,8 +93,8 @@ lives_ok {
 	@w = $l->workflows->@*;
 } '->workflows';
 
-is_deeply($w[0]->v1, $w->v1, "First workflow matches");
-is_deeply($w[1]->v1, $w2->v1, "Second workflow matches");
+is_deeply($w[0]->v2, $w->v2, "First workflow matches");
+is_deeply($w[1]->v2, $w2->v2, "Second workflow matches");
 
 lives_ok {
 	$l->remove_workflow($w);
@@ -105,7 +105,7 @@ lives_ok {
 	@w = $l->workflows->@*;
 } '->workflows';
 
-is_deeply($w[0]->v1, $w2->v1, "First workflow matches");
+is_deeply($w[0]->v2, $w2->v2, "First workflow matches");
 is($w[1], undef, "No other workflows remain");
 
 done_testing();

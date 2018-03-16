@@ -26,8 +26,8 @@ sub get_executions ($c) {
 		unless $d;
 
 	my $ex = Conch::Orc::Workflow::Execution->many_from_device($d);
-	my @v1 = map { $_->v1 } $ex->@*;
-	$c->status(200 => \@v1);
+	my @v2 = map { $_->v2 } $ex->@*;
+	$c->status(200 => \@v2);
 }
 
 
@@ -48,7 +48,7 @@ sub get_latest_execution ($c) {
 	return $c->status(404 => { error => "No status information" })
 		unless $ex;
 
-	$c->status(200 => $ex->v1_latest);
+	$c->status(200 => $ex->v2_latest);
 }
 
 
@@ -65,7 +65,7 @@ sub get_lifecycles ($c) {
 		unless $d;
 
 	my @many = map {
-		$_->v1_cascade if $_
+		$_->v2_cascade if $_
 	} Conch::Orc::Lifecycle->many_from_device($d)->@*;
 
 	$c->status(200 => \@many);
@@ -92,10 +92,10 @@ sub get_lifecycles_executions ($c) {
 			push @e, Conch::Orc::Workflow::Execution->new(
 				device_id   => $d->id,
 				workflow_id => $w->id,
-			)->v1;
+			)->v2;
 		}
 		push @many, {
-			lifecycle  => $l->v1_cascade,
+			lifecycle  => $l->v2_cascade,
 			executions => \@e,
 		};
 	}

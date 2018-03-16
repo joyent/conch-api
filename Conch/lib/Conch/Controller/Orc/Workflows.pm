@@ -21,7 +21,7 @@ Get all workflows, in their entirety
 
 sub get_all ($c) {
 	my $many = Conch::Orc::Workflow->all();
-	$c->status(200, [ map { $_->v1_cascade } $many->@* ]);
+	$c->status(200, [ map { $_->v2_cascade } $many->@* ]);
 }
 
 
@@ -36,7 +36,7 @@ sub get_one ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $w;
 	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
 
-	$c->status(200, $w->v1_cascade);
+	$c->status(200, $w->v2_cascade);
 }
 
 =head2 create
@@ -60,7 +60,7 @@ sub create ($c) {
 	}
 
 	my $w = Conch::Orc::Workflow->new($body->%*)->save();
-	$c->status(200, $w->v1);
+	$c->status(200, $w->v2);
 }
 
 
@@ -86,7 +86,7 @@ sub update ($c) {
 		}
 	}
 
-	$c->status(200, $w->update($body->%*)->save->v1);
+	$c->status(200, $w->update($body->%*)->save->v2);
 }
 
 
@@ -145,7 +145,7 @@ sub create_step ($c) {
 	my $s = Conch::Orc::Workflow::Step->new($body->%*);
 	$w->add_step($s);
 
-	$c->status(200 => $s->v1);
+	$c->status(200 => $s->v2);
 }
 
 

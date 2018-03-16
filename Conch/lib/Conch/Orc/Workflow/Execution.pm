@@ -218,47 +218,47 @@ sub latest_from_device ($class, $device) {
 }
 
 
-=head2 v1
+=head2 v2
 
-Returns a hashref representing the Execution in v1 format.
+Returns a hashref representing the Execution in v2 format.
 
 This format includes B<all> workflow and step statuses.
 
 =cut
 
 
-sub v1 ($self) {
-	my @workflow_status = map { $_ ? $_->v1 : undef } $self->workflow_status->@*;
-	my @steps_status = map { $_ ? $_->v1 : undef } $self->steps_status->@*;
+sub v2 ($self) {
+	my @workflow_status = map { $_ ? $_->v2 : undef } $self->workflow_status->@*;
+	my @steps_status = map { $_ ? $_->v2 : undef } $self->steps_status->@*;
 
 	return {
 		device       => $self->device->as_v1,
-		workflow     => $self->workflow->v1_cascade,
+		workflow     => $self->workflow->v2_cascade,
 		status       => \@workflow_status,
 		steps_status => \@steps_status,
 	}
 }
 
 
-=head2 v1_latest
+=head2 v2_latest
 
-Returns a hashref representing the Execution's most recent condition in v1
+Returns a hashref representing the Execution's most recent condition in v2
 format.
 
 This format includes B<only> the most recent workflow and step status
 
 =cut
 
-sub v1_latest ($self) {
+sub v2_latest ($self) {
 	my $status = $self->latest_workflow_status ? 
-		$self->latest_workflow_status->v1 : undef;
+		$self->latest_workflow_status->v2 : undef;
 
 	my $step_status = $self->latest_step_status ?
-		$self->latest_step_status->v1 : undef;
+		$self->latest_step_status->v2 : undef;
 
 	return {
 		device       => $self->device->as_v1,
-		workflow     => $self->workflow->v1_cascade,
+		workflow     => $self->workflow->v2_cascade,
 		status       => [ $status ],
 		steps_status => [ $step_status ],
 	}

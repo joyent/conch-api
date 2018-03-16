@@ -34,13 +34,13 @@ lives_ok {
 	$w2 = Conch::Orc::Workflow->from_id($w->id);
 } 'Workflow->from_id with known id';
 
-is_deeply($w->v1, $w2->v1, "Saved data matches retrieved from_id data");
+is_deeply($w->v2, $w2->v2, "Saved data matches retrieved from_id data");
 
 lives_ok {
 	$w2 = Conch::Orc::Workflow->from_name($w->name);
 } 'Workflow->from_id with known id';
 
-is_deeply($w->v1, $w2->v1, "Saved data matches retrieved from_name data");
+is_deeply($w->v2, $w2->v2, "Saved data matches retrieved from_name data");
 
 is_deeply($w->steps, [], "No steps");
 

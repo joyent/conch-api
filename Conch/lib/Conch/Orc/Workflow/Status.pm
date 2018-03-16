@@ -399,13 +399,13 @@ sub save ($self) {
 }
 
 
-=head2 v1
+=head2 v2
 
-Returns a hashref, representing the Status in v1 format
+Returns a hashref, representing the Status in v2 format
 
 =cut
 
-sub v1 ($self) {
+sub v2 ($self) {
 	{
 		device_id   => $self->device_id,
 		id          => $self->id,

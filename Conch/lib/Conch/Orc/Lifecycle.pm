@@ -433,9 +433,9 @@ sub save ($self) {
 }
 
 
-=head2 v1
+=head2 v2
 
-Returns a hashref, representing the object in v1 format.
+Returns a hashref, representing the object in v2 format.
 
 This format B<lacks> workflows and will the resultant output will contain an
 empty arrayref for C<workflows>
@@ -443,7 +443,7 @@ empty arrayref for C<workflows>
 =cut
 
 #############################
-sub v1 ($self) {
+sub v2 ($self) {
 	{
 		created     => $self->created->rfc3339,
 		deactivated => $self->deactivated,
@@ -459,22 +459,22 @@ sub v1 ($self) {
 }
 
 
-=head2 v1_cascade
+=head2 v2_cascade
 
-Returns a hashref, representing the object in v1 format.
+Returns a hashref, representing the object in v2 format.
 
-This format contains full workflows, loaded via their C<v1_cascade> method.
+This format contains full workflows, loaded via their C<v2_cascade> method.
 
 =cut
 
-sub v1_cascade ($self) {
-	my $v1 = $self->v1;
+sub v2_cascade ($self) {
+	my $v2 = $self->v2;
 
-	my @v1_workflows = map { $_->v1_cascade } $self->workflows->@*;
+	my @v2_workflows = map { $_->v2_cascade } $self->workflows->@*;
 
-	$v1->{workflows} = \@v1_workflows;
+	$v2->{workflows} = \@v2_workflows;
 
-	return $v1;
+	return $v2;
 }
 
 

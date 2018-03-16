@@ -449,13 +449,13 @@ sub latest_from_execution ($class, $ex) {
 }
 
 
-=head2 v1
+=head2 v2
 
-Returns a hashref, representing a Step::Status in the v1 format
+Returns a hashref, representing a Step::Status in the v2 format
 
 =cut
 
-sub v1 ($self) {
+sub v2 ($self) {
 	{
 		created              => $self->{created}->to_string(),
 		data                 => $self->{data},

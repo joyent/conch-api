@@ -52,7 +52,7 @@ sub _build_by_state ($state) {
 		push @e, Conch::Orc::Workflow::Execution->new(
 			device_id => $s->device->id,
 			workflow_id => $s->workflow->id,
-		)->v1;
+		)->v2;
 	}
 	return \@e
 }

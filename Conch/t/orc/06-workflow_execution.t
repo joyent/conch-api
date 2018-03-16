@@ -92,20 +92,20 @@ is_deeply($d, $we->device, "->device check");
 is_deeply($w, $we->workflow, "->workflow check");
 
 
-subtest "->v1" => sub {
-	my $v1 = $we->v1;
-	is_deeply($v1->{steps_status}, [ $step_status ], "->{steps_status}");
-	is_deeply($v1->{workflow}, $w->v1_cascade, '->{workflow}');
-	is_deeply($v1->{device}, $d->as_v1, '->{device}');
-	is_deeply($v1->{status}, [ $ws ], '->{status}');
+subtest "->v2" => sub {
+	my $v2 = $we->v2;
+	is_deeply($v2->{steps_status}, [ $step_status ], "->{steps_status}");
+	is_deeply($v2->{workflow}, $w->v2_cascade, '->{workflow}');
+	is_deeply($v2->{device}, $d->as_v1, '->{device}');
+	is_deeply($v2->{status}, [ $ws ], '->{status}');
 };
 
-subtest "->v1_latest" => sub {
-	my $v1 = $we->v1_latest;
-	is_deeply($v1->{steps_status}, [ $step_status ], "->{steps_status}");
-	is_deeply($v1->{workflow}, $w->v1_cascade, '->{workflow}');
-	is_deeply($v1->{device}, $d->as_v1, '->{device}');
-	is_deeply($v1->{status}, [ $ws ], '->{status}');
+subtest "->v2_latest" => sub {
+	my $v2 = $we->v2_latest;
+	is_deeply($v2->{steps_status}, [ $step_status ], "->{steps_status}");
+	is_deeply($v2->{workflow}, $w->v2_cascade, '->{workflow}');
+	is_deeply($v2->{device}, $d->as_v1, '->{device}');
+	is_deeply($v2->{status}, [ $ws ], '->{status}');
 };
 
 

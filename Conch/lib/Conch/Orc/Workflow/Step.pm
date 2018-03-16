@@ -339,13 +339,13 @@ sub save ($self) {
 	return $self;
 }
 
-=head2 v1
+=head2 v2
 
-Returns a hashref, representing the Step in v1 format
+Returns a hashref, representing the Step in v2 format
 
 =cut
 
-sub v1 ($self) {
+sub v2 ($self) {
 	{
 		created            => $self->created->rfc3339(),
 		deactivated        => $self->deactivated,
