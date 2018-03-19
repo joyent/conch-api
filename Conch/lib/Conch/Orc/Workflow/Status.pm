@@ -91,18 +91,13 @@ has 'workflow_id' => (
 
 =item workflow
 
-A C<Conch::Orc::Workflow> object, lazy loaded using C<workflow_id>
+A C<Conch::Orc::Workflow> object, loaded using C<workflow_id>
 
 =cut
 
-has 'workflow' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		my $self = shift;
-		return Conch::Orc::Workflow->from_id($self->workflow_id);
-	},
-);
+sub workflow ($self) { 
+	return Conch::Orc::Workflow->from_id($self->workflow_id);
+};
 
 
 
@@ -121,18 +116,13 @@ has 'device_id' => (
 
 =item device
 
-A C<Conch::Model::Device> object, lazy loaded using C<device_id>
+A C<Conch::Model::Device> object, loaded using C<device_id>
 
 =cut
 
-has 'device' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		my $self = shift;
-		return Conch::Model::Device->lookup($self->device_id);
-	},
-);
+sub device ($self) {
+	return Conch::Model::Device->lookup($self->device_id);
+}
 
 
 =item timestamp
@@ -396,7 +386,6 @@ sub save ($self) {
 	$self->timestamp(Conch::Time->new($ret->{timestamp}));
 
 	return $self;
-
 }
 
 
