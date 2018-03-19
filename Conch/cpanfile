@@ -25,20 +25,11 @@ requires 'Mojolicious::Plugin::NYTProf';
 
 ### Legacy Deps
 #
-
-# DBIC::Class::Schema::Loader requires String::CamelCase 0.02. Problem
-# is that 0.02 is broken under perl 5.26 because @INC no longer
-# includes '.' for security reasons. Unfortunately, there's a syntax
-# error in the META.yml file for 0.03 which means tools don't know that
-# the 0.03 tarball actually contains 0.03. It reads as a version of
-# undef. If we specifically require it, carton will install 0.03 because
-# we aren't specifying a version. Usually, the installation will Just
-# Work. However, sometimes 'carton install --deployment' decides to try
-# to install Schema::Loader before doing this install, which causes
-# carton to grab 0.02 since Schema::Loader specifies a version. That
-# install fails. Typically, running 'carton install --deployment' or
-# 'make run' a second time will get a correct install. 
-requires 'String::CamelCase';
+# String::CamelCase 0.03 has a broken META file that prevents the toolchain
+# from being able to figure out its version. All our dependencies rely on 0.02
+# so we pin that here. Otherwise, carton will try the latest version and
+# hilarity ensues.
+requires 'String::CamelCase', '== 0.02';
 
 # database
 requires 'DBD::Pg';
