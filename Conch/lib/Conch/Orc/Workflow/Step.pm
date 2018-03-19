@@ -63,17 +63,14 @@ has 'workflow_id' => (
 
 =item workflow
 
-A C<Conch::Orc::Workflow> object, lazy loaded from C<workflow_id>
+A C<Conch::Orc::Workflow> object, loaded from C<workflow_id>
 
 =cut
 
-has 'workflow' => (
-	is      => 'lazy',
-	builder => sub {
-		Conch::Orc::Workflow->from_id(shift->workflow_id);
-	},
-);
 
+sub workflow ($self) {
+	return Conch::Orc::Workflow->from_id($self->workflow_id);
+}
 
 
 =item name
@@ -149,13 +146,9 @@ Currently returns undef
 
 =cut
 
-has 'validation_plan' => (
-	is      => 'lazy',
-	builder => sub {
-		my $self = shift;
-		return undef; #XXX
-	},
-);
+sub validation_plan ($self) {
+	return undef; #XXX
+}
 
 =item created
 
