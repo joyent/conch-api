@@ -256,19 +256,13 @@ Returns an arrayref of all Workflows in the Lifecycle
 sub workflows ($self) {
 	my $db = Conch::Pg->new()->db;
 	my $ret = $db->query(qq|
-		select * from workflow w
-		natural join orc_lifecycle_plan olp
+		select w.id from workflow w
+		join orc_lifecycle_plan olp on olp.workflow_id = w.id
 		where olp.orc_lifecycle_id = ?
-			and w.id = olp.workflow_id
 		order by olp.workflow_order
 	|, $self->id)->hashes;
 
-	my @plan = map {
-		$_->{created} = Conch::Time->new($_->{created});
-		$_->{updated} = Conch::Time->new($_->{updated});
-		Conch::Orc::Workflow->new($_->%*)
-	} $ret->@*;
-
+	my @plan = map { $_->{id} } $ret->@*;
 	return \@plan;
 }
 
@@ -453,27 +447,8 @@ sub v2 ($self) {
 		name        => $self->name,
 		updated     => $self->updated->rfc3339,
 		version     => $self->version,
-		workflows   => [],
+		workflows   => $self->workflows,
 	}
-}
-
-
-=head2 v2_cascade
-
-Returns a hashref, representing the object in v2 format.
-
-This format contains full workflows, loaded via their C<v2_cascade> method.
-
-=cut
-
-sub v2_cascade ($self) {
-	my $v2 = $self->v2;
-
-	my @v2_workflows = map { $_->v2_cascade } $self->workflows->@*;
-
-	$v2->{workflows} = \@v2_workflows;
-
-	return $v2;
 }
 
 

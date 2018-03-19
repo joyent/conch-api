@@ -65,7 +65,7 @@ sub get_lifecycles ($c) {
 		unless $d;
 
 	my @many = map {
-		$_->v2_cascade if $_
+		$_->v2 if $_
 	} Conch::Orc::Lifecycle->many_from_device($d)->@*;
 
 	$c->status(200 => \@many);
@@ -91,11 +91,11 @@ sub get_lifecycles_executions ($c) {
 		foreach my $w ($l->workflows->@*) {
 			push @e, Conch::Orc::Workflow::Execution->new(
 				device_id   => $d->id,
-				workflow_id => $w->id,
+				workflow_id => $w,
 			)->v2;
 		}
 		push @many, {
-			lifecycle  => $l->v2_cascade,
+			lifecycle  => $l->v2,
 			executions => \@e,
 		};
 	}

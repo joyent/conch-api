@@ -93,8 +93,8 @@ lives_ok {
 	@w = $l->workflows->@*;
 } '->workflows';
 
-is_deeply($w[0]->v2, $w->v2, "First workflow matches");
-is_deeply($w[1]->v2, $w2->v2, "Second workflow matches");
+is_deeply($w[0], $w->id, "First workflow matches");
+is_deeply($w[1], $w2->id, "Second workflow matches");
 
 lives_ok {
 	$l->remove_workflow($w);
@@ -105,7 +105,7 @@ lives_ok {
 	@w = $l->workflows->@*;
 } '->workflows';
 
-is_deeply($w[0]->v2, $w2->v2, "First workflow matches");
+is_deeply($w[0], $w2->id, "First workflow matches");
 is($w[1], undef, "No other workflows remain");
 
 done_testing();

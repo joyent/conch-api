@@ -278,7 +278,8 @@ definitions:
           - type: null
           - type: array
             items:
-              $ref: "#/definitions/Workflow"
+              type: string
+              format: uuid
   Device:
     type: object
     additionalProperties: false

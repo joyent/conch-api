@@ -20,7 +20,7 @@ Get all Lifecycles.
 
 sub get_all ($c) {
 	my $many = Conch::Orc::Lifecycle->all();
-	$c->status(200, [ map { $_->v2_cascade } $many->@* ]);
+	$c->status(200, [ map { $_->v2 } $many->@* ]);
 }
 
 
@@ -35,7 +35,7 @@ sub get_one ($c) {
 	my $l = Conch::Orc::Lifecycle->from_id($c->param('id'));
 	$c->status(404 => { error => "Not found" }) unless $l;
 
-	$c->status(200, $l->v2_cascade);
+	$c->status(200, $l->v2);
 }
 
 1;
