@@ -45,7 +45,8 @@ create type e_workflow_status as enum (
 	'stopped',
 	'abort',
 	'resume',
-	'completed'
+	'completed',
+	'restart'
 );
 
 create table workflow_status (
