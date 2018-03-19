@@ -6,9 +6,9 @@ perl:
 before_install:
 - cpanm Carton
 install:
-- cd Conch; carton install
+- cd Conch; carton install --deployment
 script:
-- cd Conch; carton exec prove -lpr t/
+- cd Conch; make test
 cache:
   directories:
   - Conch/local
