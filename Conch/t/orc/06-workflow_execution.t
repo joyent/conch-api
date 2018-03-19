@@ -89,7 +89,7 @@ lives_ok {
 } 'Execution->new';
 
 is_deeply($d, $we->device, "->device check");
-is_deeply($w, $we->workflow, "->workflow check");
+is_deeply($w->v2, $we->workflow->v2, "->workflow check");
 
 
 subtest "->v2" => sub {

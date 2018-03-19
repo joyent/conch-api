@@ -101,7 +101,7 @@ sub delete ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $w;
 	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
 
-	$w->update(deactivated => 1)->save;
+	$w->update(deactivated => Conch::Time->now)->save;
 	return $c->status(204); 
 }
 

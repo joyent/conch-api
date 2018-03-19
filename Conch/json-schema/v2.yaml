@@ -43,7 +43,10 @@ definitions:
           type: string
           format: date-time
         deactivated:
-          type: number
+          anyOf:
+            - type: null
+            - type: string
+              format: date-time
         id:
           type: string
           format: uuid
@@ -73,10 +76,16 @@ definitions:
       - version
       - created
       - updated
+      - deactivated
       - locked
       - steps
       - preflight
     properties:
+      deactivated:
+        anyOf:
+          - type: null
+          - type: string
+            format: date-time
       preflight:
         type: number
       id:
@@ -243,7 +252,10 @@ definitions:
         type: string
         format: date-time
       deactivated:
-        type: number
+        anyOf:
+          - type: null
+          - type: string
+            format: date-time
       device_role:
         type: string
       hardware_id:

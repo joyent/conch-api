@@ -23,7 +23,7 @@ use experimental qw(signatures);
 
 use Try::Tiny;
 use Type::Tiny;
-use Types::Standard qw(Num InstanceOf Str Bool);
+use Types::Standard qw(Num InstanceOf Str Bool Undef);
 use Types::UUID qw(Uuid);
 
 use Conch::Time;
@@ -100,14 +100,13 @@ has 'updated' => (
 
 =item deactivated
 
-Bool. Defaults to 0
+Conch::Time
 
 =cut
 
 has 'deactivated' => (
 	is => 'rw',
-	isa => Bool,
-	default => 0,
+	isa => InstanceOf["Conch::Time"] | Undef
 );
 
 
@@ -403,7 +402,7 @@ sub save ($self) {
 		device_role => $self->device_role,
 		hardware_id => $self->hardware_id,
 		updated     => Conch::Time->now->timestamptz,
-		deactivated => $self->deactivated,
+		deactivated => $self->deactivated ? $self->deactivated->timestamptz : undef,
 		locked      => $self->locked,
 	);
 	try {
@@ -446,7 +445,7 @@ empty arrayref for C<workflows>
 sub v2 ($self) {
 	{
 		created     => $self->created->rfc3339,
-		deactivated => $self->deactivated,
+		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
 		device_role => $self->device_role,
 		hardware_id => $self->hardware_id,
 		id          => $self->id,

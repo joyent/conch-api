@@ -21,7 +21,7 @@ use experimental qw(signatures);
 
 use Try::Tiny;
 use Type::Tiny;
-use Types::Standard qw(Num InstanceOf Str Bool);
+use Types::Standard qw(Num InstanceOf Str Bool Undef);
 use Types::UUID qw(Uuid);
 
 use Role::Tiny::With;
@@ -103,14 +103,13 @@ has 'updated' => (
 
 =item deactivated
 
-Boolean. Defaults to 0
+Conch::Time
 
 =cut
 
 has 'deactivated' => (
-	is      => 'rw',
-	isa     => Bool,
-	default => 0,
+	is  => 'rw',
+	isa => InstanceOf["Conch::Time"] | Undef
 );
 
 
@@ -193,6 +192,9 @@ sub _from ($class, $key, $value) {
 	};
 
 	return undef unless $ret;
+	if($ret->{deactivated}) {
+		$ret->{deactivated} = Conch::Time->new($ret->{deactivated});
+	}
 
 	return $class->new(
 		id          => $ret->{id},
@@ -229,6 +231,9 @@ sub all ($class) {
 		my $s = $_;
 		$s->{created} = Conch::Time->new($s->{created});
 		$s->{updated} = Conch::Time->new($s->{updated});
+		if($s->{deactivated}) {
+			$s->{deactivated} = Conch::Time->new($s->{deactivated});
+		}
 		$class->new($s);
 	} $ret->@*;
 
@@ -249,7 +254,7 @@ sub save ($self) {
 
 	$self->_set_updated(Conch::Time->now);
 	my %fields = (
-		deactivated => $self->deactivated,
+		deactivated => $self->deactivated ? $self->deactivated->timestamptz : undef,
 		locked      => $self->locked,
 		name        => $self->name,
 		updated     => $self->updated->timestamptz,
@@ -346,7 +351,7 @@ sub remove_step ($self, $step) {
 		}
 	}
 
-	$step->deactivated(1);
+	$step->deactivated(Conch::Time->now);
 	$step->save;
 	$self->clear_steps();
 	return $self;
@@ -369,6 +374,7 @@ sub v2 ($self) {
 		name        => $self->name,
 		locked      => $self->locked,
 		version     => $self->version,
+		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
 		created     => $self->created->to_string,
 		updated     => $self->updated->to_string,
 		preflight   => $self->preflight,

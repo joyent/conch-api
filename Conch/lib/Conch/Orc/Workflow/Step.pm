@@ -19,7 +19,7 @@ use Moo;
 use experimental qw(signatures);
 
 use Type::Tiny;
-use Types::Standard qw(Num Bool Str InstanceOf);
+use Types::Standard qw(Num Bool Str InstanceOf Undef);
 use Types::UUID qw(Uuid);
 
 use Role::Tiny::With;
@@ -184,14 +184,13 @@ has 'updated' => (
 
 =item deactivated
 
-Boolean. Defaults to 0
+Conch::Time
 
 =cut
 
 has 'deactivated' => (
-	is      => 'rw',
-	isa     => Bool,
-	default => 0,
+	is  => 'rw',
+	isa => InstanceOf["Conch::Time"] | Undef
 );
 
 
@@ -232,6 +231,9 @@ sub _from ($class, $key, $value) {
 	};
 
 	return undef unless $ret;
+	if($ret->{deactivated}) {
+		$ret->{deactivated} = Conch::Time->new($ret->{deactivated});
+	}
 
 	return $class->new(
 		created            => Conch::Time->new($ret->{created}),
@@ -263,7 +265,7 @@ sub many_from_workflow ($class, $workflow) {
 	try {
 		$ret = Conch::Pg->new()->db->select('workflow_step', undef, { 
 			workflow_id => $workflow->id,
-			deactivated => 0,
+			deactivated => undef,
 		})->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->many_from_workflow: $_");
@@ -281,6 +283,9 @@ sub many_from_workflow ($class, $workflow) {
 		$s->{created}     = Conch::Time->new($s->{created});
 		$s->{updated}     = Conch::Time->new($s->{updated});
 		$s->{order}       = $s->{step_order};
+		if($s->{deactivated}) {
+			$s->{deactivated} = Conch::Time->new($s->{deactivate});
+		}
 		$class->new($s);
 	} $ret->@*;
 
@@ -302,7 +307,7 @@ sub save ($self) {
 
 	$self->_set_updated(Conch::Time->now);
 	my %fields = (
-		deactivated        => $self->deactivated,
+		deactivated        => $self->deactivated ? $self->deactivated->timestamptz : undef,
 		updated            => $self->updated->timestamptz,
 		max_retries        => $self->max_retries,
 		name               => $self->name,
@@ -348,7 +353,7 @@ Returns a hashref, representing the Step in v2 format
 sub v2 ($self) {
 	{
 		created            => $self->created->rfc3339(),
-		deactivated        => $self->deactivated,
+		deactivated        => $self->deactivated ? $self->deactivated->rfc3339 : undef,
 		id                 => $self->id,
 		max_retries        => $self->max_retries,
 		name               => $self->name,

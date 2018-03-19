@@ -156,10 +156,9 @@ subtest "Step" => sub {
 	)->json_schema_is('WorkflowStep');
 
 
-	$t->get_ok(BASE."/step/$id")->status_is(200)->json_is(
-		'/deactivated' => 1,
-	)->json_schema_is('WorkflowStep');
-
+	$t->get_ok(BASE."/step/$id")->status_is(200)->json_schema_is('WorkflowStep');
+	isnt($t->tx->res->json->{deactivated}, undef);
+  
 	$t->post_ok(BASE."/step/$id2", json => {
 		retry => 1
 	})->status_is(200)->json_is(

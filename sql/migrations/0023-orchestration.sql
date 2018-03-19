@@ -6,7 +6,7 @@ create table workflow (
 	version     int         not null default 1,
 	created     timestamptz not null default current_timestamp,
 	updated     timestamptz not null default current_timestamp,
-	deactivated bool        not null default false,
+	deactivated timestamptz,
 	locked      bool        not null default false,
 	preflight   bool        default false,
 	unique(name, version)
@@ -23,7 +23,7 @@ create table orc_lifecycle (
 
 	created     timestamptz not null default current_timestamp,
 	updated     timestamptz not null default current_timestamp,
-	deactivated bool        not null default false,
+	deactivated timestamptz,
 	locked      bool        not null default false,
 	unique(name),
 	unique(name, version),
@@ -63,7 +63,7 @@ create table workflow_step (
 	id                 uuid primary key default gen_random_uuid(),
 	created            timestamptz not null default current_timestamp,
 	updated            timestamptz not null default current_timestamp,
-	deactivated        bool not null default false,
+	deactivated        timestamptz,
 	workflow_id        uuid not null references workflow(id),
 	name               text not null,
 	step_order         int not null,
