@@ -54,6 +54,7 @@ use constant {
 	ABORT     => 'abort',
 	COMPLETED => 'completed',
 	ONGOING   => 'ongoing',
+	RESTART   => 'restart',
 	RESUME    => 'resume',
 	STOPPED   => 'stopped',
 };
@@ -156,7 +157,7 @@ One of the constants listed above. Defaults to ONGOING
 
 has 'status' => (
 	is      => 'rw',
-	isa     => Enum[ ABORT, COMPLETED, ONGOING, RESUME, STOPPED ],
+	isa     => Enum[ ABORT, COMPLETED, ONGOING, RESUME, STOPPED, RESTART ],
 	default => ONGOING,
 );
 
