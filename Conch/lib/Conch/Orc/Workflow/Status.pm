@@ -338,9 +338,26 @@ Returns the latest Status for a given workflow
 =cut
 
 sub latest_from_execution ($class, $ex) {
-	# XXX This should really be a database query so we don't have to pull back
-	# and process every single status for that execution.
-	return $class->many_from_execution($ex)->[-1];
+	my $ret;
+	try {
+		$ret = Conch::Pg->new->db->query(qq|
+			select * from workflow_status
+			where device_id = ? and workflow_id = ?
+			order by timestamp desc
+			limit 1
+		|, $ex->device_id, $ex->workflow_id)->hash
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->many_from_execution: $_");
+		return undef;
+	};
+
+	return $class->new(
+		device_id   => $ret->{device_id},
+		id          => $ret->{id},
+		status      => $ret->{status},
+		timestamp   => Conch::Time->new($ret->{timestamp}),
+		workflow_id => $ret->{workflow_id},
+	);
 }
 
 
