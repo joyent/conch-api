@@ -89,8 +89,8 @@ has 'created' => (
 
 =item updated
 
-Conch::Time. Cannot be written by user. Is set to C<<Conch::Time->now>> whenever
-C<save> is called.
+Conch::Time. Cannot be written by user. Is set to C<<< Conch::Time->now >>>
+whenever C<save> is called.
 
 =cut
 
@@ -137,25 +137,19 @@ has 'preflight' => (
 	default => 0,
 );
 
-=item steps
-
-Arrayref of all C<Workflow::Step>s associated with this workflow.
-
-Read-only. Lazy loaded.
-
-=cut
-
-has 'steps' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		Conch::Orc::Workflow::Step->many_from_workflow(shift);
-	},
-);
-
 =back
 
 =head1 METHODS
+
+=head2 steps
+
+Arrayref of all C<Workflow::Step>s associated with this workflow.
+
+=cut
+
+sub steps ($self) {
+	return Conch::Orc::Workflow::Step->many_from_workflow($self);
+}
 
 =head2 from_id
 
@@ -307,7 +301,6 @@ Returns C<$self>, allowing for method chaining.
 =cut
 
 sub add_step ($self, $step) {
-	$self->clear_steps();
 
 	if($self->steps->@*) {
 		my $last = $self->steps->[-1];
@@ -318,7 +311,6 @@ sub add_step ($self, $step) {
 	}
 	$step->save();
 
-	$self->clear_steps();
 	return $self;
 }
 
@@ -336,7 +328,6 @@ Returns C<$self>, allowing for method chaining.
 =cut
 
 sub remove_step ($self, $step) {
-	$self->clear_steps();
 
 	my @steps = $self->steps->@*;
 
@@ -352,7 +343,6 @@ sub remove_step ($self, $step) {
 
 	$step->deactivated(Conch::Time->now);
 	$step->save;
-	$self->clear_steps();
 	return $self;
 }
 
@@ -393,7 +383,6 @@ method.
 =cut
 
 sub v2_cascade ($self) {
-	$self->clear_steps;
 	my @steps = map { $_->v2 } $self->steps->@*;
 
 	my $base = $self->v2;

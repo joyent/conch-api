@@ -141,22 +141,13 @@ has 'device_id' => (
 
 =item device
 
-Conch::Model::Device. Lazy loaded from C<device_id>
+Conch::Model::Device. Loaded from C<device_id>
 
 =cut
 
-has 'device' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		my $self = shift;
-		return Conch::Model::Device->lookup(
-			Conch::Pg->new(),
-			$self->device_id
-		);
-	},
-);
-
+sub device ($self) {
+	return Conch::Model::Device->lookup($self->device_id);
+}
 
 =item workflow_step_id
 
@@ -173,17 +164,13 @@ has 'workflow_step_id' => (
 
 =item workflow_step
 
-Conch::Orc::Workflow::Step. Lazy loaded from C<workflow_step_id>
+Conch::Orc::Workflow::Step. Loaded from C<workflow_step_id>
 
 =cut
 
-has 'workflow_step' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		Conch::Orc::Workflow::Step->from_id(shift->workflow_step_id);
-	},
-);
+sub workflow_step ($self) {
+	return Conch::Orc::Workflow::Step->from_id($self->workflow_step_id);
+}
 
 
 =item state
@@ -254,13 +241,9 @@ Currently returns undef
 
 =cut
 
-has 'validation_result' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		return undef; # XXX
-	},
-);
+sub validation_result ($self) {
+	return undef; # XXX
+}
 
 =item force_retry
 

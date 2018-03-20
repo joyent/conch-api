@@ -81,7 +81,6 @@ lives_ok {
 		order              => 2,
 	)->save();
 } 'Step->save with known workflow id part 2';
-$w->clear_steps;
 is($w->steps->@*, 2, "Step count check");
 
 my $s3;
@@ -95,7 +94,6 @@ lives_ok {
 } 'Step->save with known workflow id part 3';
 
 
-$w->clear_steps;
 is($w->steps->@*, 3, "Step count check");
 
 my $s4;
@@ -110,14 +108,12 @@ lives_ok {
 	$w->add_step($s4);
 } '->add_step';
 
-$w->clear_steps;
 is($w->steps->@*, 4, "Step count check");
 
 lives_ok {
 	$w->remove_step($s3);
 } '->remove_step';
 
-$w->clear_steps;
 is($w->steps->@*, 3, "Step count check");
 
 is($w->steps->[-1]->order, scalar $w->steps->@*, 'Order verification');

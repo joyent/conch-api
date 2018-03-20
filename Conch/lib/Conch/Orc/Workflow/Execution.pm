@@ -55,19 +55,13 @@ has 'device_id' => (
 
 =item device
 
-Conch::Model::Device. Lazy loaded from C<device_id>
+Conch::Model::Device. Loaded from C<device_id>
 
 =cut
 
-has 'device' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		return Conch::Model::Device->lookup(
-			shift->device_id
-		);
-	},
-);
+sub device ($self) {
+	return Conch::Model::Device->lookup($self->device_id);
+}
 
 =item workflow_id
 
@@ -83,17 +77,13 @@ has 'workflow_id' => (
 
 =item workflow
 
-Conch::Orc::Workflow. Lazy loaded from C<workflow_id>
+Conch::Orc::Workflow. Loaded from C<workflow_id>
 
 =cut
 
-has 'workflow' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		Workflow->from_id(shift->workflow_id);
-	},
-);
+sub workflow ($self) {
+	return Workflow->from_id($self->workflow_id);
+}
 
 
 =item steps_status
@@ -101,74 +91,54 @@ has 'workflow' => (
 Arrayref containing the relevant Step::Status objects, where each Status is
 assigned an index based on the Step's order.
 
-Lazy loaded
-
 =cut
 
-has 'steps_status' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		my $self = shift;
+sub steps_status ($self) {
+	my %status = map {
+		$_->workflow_step_id => $_
+	} StepStatus->many_from_execution($self)->@*;
 
-		my %status = map {
-			$_->workflow_step_id => $_
-		} StepStatus->many_from_execution($self)->@*;
-
-		my @ret;
-		foreach my $step ($self->workflow->steps->@*) {
-			if ($status{$step->id}) {
-				$ret[ $step->order - 1 ] = $status{$step->id};
-			}
+	my @ret;
+	foreach my $step ($self->workflow->steps->@*) {
+		if ($status{$step->id}) {
+			$ret[ $step->order - 1 ] = $status{$step->id};
 		}
-		return \@ret;
 	}
-);
+	return \@ret;
+}
 
 
 =item latest_step_status
 
-The most recent Step::Status for the execution. Lazy loaded
+The most recent Step::Status for the execution.
 
 =cut
 
-has 'latest_step_status' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		StepStatus->latest_from_execution(shift);
-	},
-);
+sub latest_step_status ($self) {
+	return StepStatus->latest_from_execution($self);
+}
 
 
 =item workflow_status
 
-An arrayref containing all associated Workflow::Status objects. Lazy loaded
+An arrayref containing all associated Workflow::Status objects.
 
 =cut
 
-has 'workflow_status' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		WorkflowStatus->many_from_execution(shift)
-	},
-);
+sub workflow_status ($self) {
+	return WorkflowStatus->many_from_execution($self)
+}
 
 
 =item latest_workflow_status
 
-Most recent Workflow::Status. Lazy loaded
+Most recent Workflow::Status.
 
 =cut
 
-has 'latest_workflow_status' => (
-	clearer => 1,
-	is      => 'lazy',
-	builder => sub {
-		WorkflowStatus->latest_from_execution(shift)
-	},
-);
+sub latest_workflow_status ($self) {
+	return WorkflowStatus->latest_from_execution($self);
+}
 
 
 =back
