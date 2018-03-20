@@ -417,7 +417,7 @@ sub v2 ($self) {
 		device_id   => $self->device_id,
 		id          => $self->id,
 		status      => $self->status,
-		timestamp   => $self->timestamp->to_string,
+		timestamp   => $self->timestamp->rfc3339,
 		workflow_id => $self->workflow_id,
 	}
 }

@@ -364,8 +364,8 @@ sub v2 ($self) {
 		locked      => $self->locked,
 		version     => $self->version,
 		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
-		created     => $self->created->to_string,
-		updated     => $self->updated->to_string,
+		created     => $self->created->rfc3339,
+		updated     => $self->updated->rfc3339,
 		preflight   => $self->preflight,
 		steps       => [],
 	}

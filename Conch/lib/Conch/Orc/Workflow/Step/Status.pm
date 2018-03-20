@@ -440,7 +440,7 @@ Returns a hashref, representing a Step::Status in the v2 format
 
 sub v2 ($self) {
 	{
-		created              => $self->{created}->to_string(),
+		created              => $self->{created}->rfc3339(),
 		data                 => $self->{data},
 		device_id            => $self->{device_id},
 		force_retry          => $self->{force_retry},
@@ -448,7 +448,7 @@ sub v2 ($self) {
 		overridden           => $self->{overridden},
 		retry_count          => $self->{retry_count},
 		state                => $self->{state},
-		updated              => $self->{updated}->to_string(),
+		updated              => $self->{updated}->rfc3339(),
 		validation_result_id => $self->{validation_result_id},
 		validation_status    => $self->{validation_status},
 		workflow_step_id     => $self->{workflow_step_id},
