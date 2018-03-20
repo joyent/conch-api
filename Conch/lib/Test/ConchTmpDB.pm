@@ -5,7 +5,7 @@ use DBI;
 use IO::All;
 
 use Exporter 'import';
-@EXPORT = qw( mk_tmp_db );
+@EXPORT = qw( mk_tmp_db pg_dump );
 
 =head1 NAME
 
@@ -80,6 +80,22 @@ sub make_full_db {
 		$dbh->do($file->all) or die "Failed to load sql file: $file";
 	}
 	return $pg;
+}
+
+
+=head2 pg_dump
+
+	my $txt = pg_dump($pgtmp);
+
+Get the contents of a pg_dump called against the test database
+
+=cut
+
+sub pg_dump {
+	my $pg = shift;
+	my $uri = $pg->uri;
+	my $txt = `pg_dump --column-inserts --data-only --no-owner $uri 2>/dev/null`;
+	return $txt;
 }
 
 1;
