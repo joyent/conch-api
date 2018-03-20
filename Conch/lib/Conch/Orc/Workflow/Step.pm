@@ -251,7 +251,7 @@ sub many_from_workflow ($class, $workflow) {
 		$ret = Conch::Pg->new()->db->select('workflow_step', undef, { 
 			workflow_id => $workflow->id,
 			deactivated => undef,
-		})->hashes;
+		}, { -asc => 'step_order' })->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->many_from_workflow: $_");
 		return undef;
@@ -261,9 +261,7 @@ sub many_from_workflow ($class, $workflow) {
 		return [];
 	}
 
-	my @many = sort {
-		$a->order cmp $b->order
-	} map {
+	my @many = map {
 		my $s = $_;
 		$s->{created}     = Conch::Time->new($s->{created});
 		$s->{updated}     = Conch::Time->new($s->{updated});

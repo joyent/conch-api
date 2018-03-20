@@ -395,7 +395,7 @@ sub many_from_execution ($class, $ex) {
 		$ret = Conch::Pg->new()->db->select('workflow_step_status', undef, { 
 			device_id        => $ex->device->id,
 			workflow_step_id => { -in => \@step_ids },
-		})->expand->hashes;
+		}, { -asc => 'updated' })->expand->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->many_from_execution: $_");
 		return undef;
@@ -405,9 +405,7 @@ sub many_from_execution ($class, $ex) {
 		return [];
 	}
 
-	my @many = sort {
-		$a->updated cmp $b->updated
-	} map {
+	my @many = map {
 		my $s = $_;
 		$s->{created} = Conch::Time->new($s->{created});
 		$s->{updated} = Conch::Time->new($s->{updated});

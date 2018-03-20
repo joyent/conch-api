@@ -237,7 +237,7 @@ sub many_from_device($class, $d) {
 	try {
 		$ret = Conch::Pg->new()->db->select('workflow_status', undef, { 
 			device_id => $d->id
-		})->hashes;
+		}, { -asc => 'timestamp' })->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->many_from_device: $_");
 		return undef;
@@ -247,9 +247,7 @@ sub many_from_device($class, $d) {
 		return [];
 	}
 
-	my @many = sort {
-		$b->timestamp cmp $a->timestamp
-	} map {
+	my @many = map {
 		my $s = $_;
 		$s->{timestamp} = Conch::Time->new($s->{timestamp});
 		$class->new($s);
@@ -306,7 +304,7 @@ sub many_from_execution($class, $ex) {
 		$ret = Conch::Pg->new()->db->select('workflow_status', undef, { 
 			device_id   => $ex->device_id,
 			workflow_id => $ex->workflow_id,
-		})->hashes;
+		}, { -asc => 'timestamp'})->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->many_from_execution: $_");
 		return undef;
@@ -316,9 +314,7 @@ sub many_from_execution($class, $ex) {
 		return [];
 	}
 
-	my @many = sort {
-		$a->timestamp cmp $b->timestamp
-	} map {
+	my @many = map {
 		my $s = $_;
 		$s->{timestamp} = Conch::Time->new($s->{timestamp});
 		$class->new($s);
