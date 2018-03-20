@@ -223,22 +223,15 @@ sub _from ($class, $key, $value) {
 	};
 
 	return undef unless $ret;
-	if($ret->{deactivated}) {
-		$ret->{deactivated} = Conch::Time->new($ret->{deactivated});
-	}
 
-	return $class->new(
-		created            => Conch::Time->new($ret->{created}),
-		deactivated        => $ret->{deactivated},
-		id                 => $ret->{id},
-		max_retries        => $ret->{max_retries},
-		name               => $ret->{name},
-		order              => $ret->{step_order},
-		retry              => $ret->{retry},
-		updated            => Conch::Time->new($ret->{updated}),
-		validation_plan_id => $ret->{validation_plan_id},
-		workflow_id        => $ret->{workflow_id},
-	);
+	for my $k (qw(created updated deactivated)) {
+		if ($ret->{$k}) {
+			$ret->{$k} = Conch::Time->new($ret->{$k});
+		}
+	}
+	$ret->{order} = $ret->{step_order};
+
+	return $class->new($ret->%*);
 }
 
 
