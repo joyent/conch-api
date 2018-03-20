@@ -25,8 +25,7 @@ use Types::Standard qw(Num InstanceOf Str Bool Undef);
 use Types::UUID qw(Uuid);
 
 use Role::Tiny::With;
-
-with "Conch::Orc::Role::But";
+with "Conch::Role::But";
 
 use Conch::Time;
 use Conch::Pg;

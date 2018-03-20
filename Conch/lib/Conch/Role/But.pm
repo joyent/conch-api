@@ -1,6 +1,6 @@
 =head1 NAME
 
-Conch::Orc::Role::But
+Conch::Role::But
 
 =head1 SYNOPSIS
 
@@ -30,7 +30,7 @@ Perl6 concept (L<https://docs.perl6.org/routine/but>)
 
 =cut
 
-package Conch::Orc::Role::But;
+package Conch::Role::But;
 
 use Role::Tiny;
 use v5.20;

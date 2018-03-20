@@ -23,8 +23,7 @@ use Types::Standard qw(Num Bool Str InstanceOf Undef);
 use Types::UUID qw(Uuid);
 
 use Role::Tiny::With;
-
-with "Conch::Orc::Role::But";
+with "Conch::Role::But";
 
 use Conch::Pg;
 use Conch::Orc;
