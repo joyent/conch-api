@@ -205,10 +205,9 @@ Returns an arrayref containing all Lifecycles for a given device
 
 sub many_from_device($class, $device) {
 	my $ret = Conch::Pg->new->db->query(qq|
-		select distinct(w.id) as workflow_id, ol.* from orc_lifecycle ol
+		select distinct(olp.workflow_id) as workflow_id, ol.* from orc_lifecycle ol
 			join orc_lifecycle_plan olp on ol.id = olp.orc_lifecycle_id
-			join workflow w on w.id = olp.workflow_id
-			join workflow_status ws on ws.workflow_id = w.id
+			join workflow_status ws on ws.workflow_id = olp.workflow_id
 		where ws.device_id = ?
 	|, $device->id)->hashes;
 
