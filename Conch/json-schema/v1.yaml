@@ -212,8 +212,10 @@ definitions:
       state:
         type: string
       system_uuid:
-        type: string
-        format: uuid
+        anyOf:
+          - type: null
+          - type: string
+            format: uuid
       triton_uuid:
         anyOf:
           - type: string
@@ -802,4 +804,277 @@ definitions:
         anyOf:
           - type: string
           - type: null
+  Ping:
+    type: object
+    additionalProperties: false
+    required:
+      - ping
+    properties:
+      ping:
+        type: string
+  Version:
+    type: object
+    additionalProperties: false
+    required:
+      - version
+    properties:
+      version:
+        type: string
+  WorkflowStep:
+    type: object
+    additionalProperties: false
+    required:
+      - created
+      - deactivated
+      - id
+      - max_retries
+      - name
+      - order
+      - retry
+      - updated
+      - validation_plan_id
+      - workflow_id
+    properties:
+        created:
+          type: string
+          format: date-time
+        deactivated:
+          anyOf:
+            - type: null
+            - type: string
+              format: date-time
+        id:
+          type: string
+          format: uuid
+        max_retries:
+          type: number
+        name:
+          type: string
+        order:
+          type: number
+        retry:
+          type: number
+        updated:
+          type: string
+          format: date-time
+        validation_plan_id:
+          type: string
+          format: uuid
+        workflow_id:
+          type: string
+          format: uuid
+  Workflow:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - version
+      - created
+      - updated
+      - deactivated
+      - locked
+      - steps
+      - preflight
+    properties:
+      deactivated:
+        anyOf:
+          - type: null
+          - type: string
+            format: date-time
+      preflight:
+        type: number
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      version:  
+        type: number
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+      locked:
+        type: number
+      steps:
+        anyOf:
+          - type: null
+          - type: array
+            items:
+                type: string
+                format: uuid
+  WorkflowStatus:
+    type: object
+    additionalProperties: false
+    required:
+      - device_id
+      - id
+      - status
+      - timestamp
+      - workflow_id
+    properties:
+      device_id:
+        type: string
+      id:
+        type: string
+        format: uuid
+      status:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+      workflow_id:
+        type: string
+        format: uuid
+  Workflows:
+    type: array
+    items:
+      $ref: "#/definitions/Workflow"
+  WorkflowExecutions:
+    type: array
+    items:
+      $ref: "#/definitions/WorkflowExecution"
+  WorkflowExecution:
+    type: object
+    additionalProperties: false
+    required:
+      - device
+      - workflow
+      - status
+      - steps_status
+    properties:
+      device:
+        type: object
+        $ref: "#/definitions/Device"
+      workflow:
+        type: object
+        $ref: "#/definitions/Workflow"
+      status:
+        anyOf:
+          - type: null
+          - type: array
+            items:
+              $ref: "#/definitions/WorkflowStatus"
+      steps_status:
+        anyOf:
+          - type: null
+          - type: array
+            items:
+              $ref: "#/definitions/WorkflowStepStatus"
+  WorkflowStepStatus:
+    type: object
+    additionalProperties: false
+    required:
+      - created
+      - data
+      - device_id
+      - force_retry
+      - id
+      - overridden
+      - retry_count
+      - state
+      - updated
+      - validation_result_id
+      - validation_status
+      - workflow_step_id
+    properties:
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+      device_id:
+        type: string
+      force_retry:
+        type: number
+      id:
+        type: string
+        format: uuid
+      overridden:
+        type: number
+      retry_count:
+        type: number
+      state:
+        type: string
+      validation_results_id:
+        type: string
+        format: uuid
+      validation_status:
+        type: string
+      workflow_step_id:
+        type: string
+        format: uuid
+  Lifecycles:
+    type: array
+    items:
+      $ref: "#/definitions/Lifecycle"
+  LifecyclesWithExecutions:
+    type: array
+    items:
+      $ref: "#/definitions/LifecycleWithExecutions"
+  LifecycleWithExecutions:
+    type: object
+    additionalProperties: false
+    required:
+      - lifecycle
+      - executions
+    properties:
+      lifecycle:
+        type: object
+        $ref: "#/definitions/Lifecycle"
+      executions:
+        type: array
+        items:
+          $ref: "#/definitions/WorkflowExecution"
+  Lifecycle:
+    type: object
+    additionalProperties: false
+    required:
+      - created
+      - deactivated
+      - device_role
+      - hardware_id
+      - id
+      - locked
+      - name
+      - updated
+      - version
+      - workflows
+    properties:
+      created:
+        type: string
+        format: date-time
+      deactivated:
+        anyOf:
+          - type: null
+          - type: string
+            format: date-time
+      device_role:
+        type: string
+      hardware_id:
+        type: string
+        format: uuid
+      id:
+        type: string
+        format: uuid
+      locked:
+        type: number
+      name:
+        type: string
+      updated:
+        type: string
+        format: date-time
+      version:
+        type: number
+      workflows:
+        anyOf:
+          - type: null
+          - type: array
+            items:
+              type: string
+              format: uuid
 

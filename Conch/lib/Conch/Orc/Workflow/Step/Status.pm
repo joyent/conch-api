@@ -429,13 +429,13 @@ sub latest_from_execution ($class, $ex) {
 }
 
 
-=head2 v2
+=head2 serialize
 
-Returns a hashref, representing a Step::Status in the v2 format
+Returns a hashref, representing a Step::Status in a serialized format
 
 =cut
 
-sub v2 ($self) {
+sub serialize ($self) {
 	{
 		created              => $self->{created}->rfc3339(),
 		data                 => $self->{data},

@@ -402,13 +402,13 @@ sub save ($self) {
 }
 
 
-=head2 v2
+=head2 serialize
 
-Returns a hashref, representing the Status in v2 format
+Returns a hashref, representing the Status in a serialized format
 
 =cut
 
-sub v2 ($self) {
+sub serialize ($self) {
 	{
 		device_id   => $self->device_id,
 		id          => $self->id,

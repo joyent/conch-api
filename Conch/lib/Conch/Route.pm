@@ -85,9 +85,8 @@ sub all_routes {
 	hardware_product_routes($secured);
 	validation_routes($secured);
 
-	my $v2_authed = $secured->under('/v2');
 	if ($features->{orc}) {
-		Conch::Route::Orc->load($v2_authed);
+		Conch::Route::Orc->load($secured);
 	}
 
 }

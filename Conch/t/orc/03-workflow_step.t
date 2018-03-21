@@ -59,15 +59,23 @@ lives_ok {
 	$s2 = Conch::Orc::Workflow::Step->from_id($s->id);
 } 'Step->from_id with known id';
 
-is_deeply($s->v2, $s2->v2, "Saved data matches retrieved from_id data");
+is_deeply(
+	$s->serialize, 
+	$s2->serialize,
+	"Saved data matches retrieved from_id data"
+);
 
 lives_ok {
 	$s2 = Conch::Orc::Workflow::Step->from_name($s->name);
 } 'Step->from_name';
 
-is_deeply($s->v2, $s2->v2, "Saved data matches retrieved from_id data");
+is_deeply(
+	$s->serialize,
+	$s2->serialize,
+	"Saved data matches retrieved from_id data"
+);
 
-is_deeply($w->v2, $s->workflow->v2, "->workflow");
+is_deeply($w->serialize, $s->workflow->serialize, "->workflow");
 
 my $s3;
 lives_ok {

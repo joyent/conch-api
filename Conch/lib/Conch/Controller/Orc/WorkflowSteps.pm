@@ -22,7 +22,7 @@ Get a single Workflow::Step by its UUID
 sub get_one ($c) {
 	my $s = Conch::Orc::Workflow::Step->from_id($c->param('id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(200, $s->v2);
+	return $c->status(200, $s->serialize);
 }
 
 
@@ -44,7 +44,7 @@ sub update ($c) {
 	delete $body->{workflow_id};
 	delete $body->{order};
 
-	$c->status(200, $s->update($body->%*)->save->v2);
+	$c->status(200, $s->update($body->%*)->save->serialize);
 }
 
 =head2 delete

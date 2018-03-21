@@ -385,16 +385,13 @@ sub remove_step ($self, $step) {
 
 
 
-=head2 v2
+=head2 serialize
 
-Returns a hashref, representing the Workflow in the v2 data set.
-
-This representation B<does not> contain any steps and the C<step> attribute will
-be set to an empty arrayref.
+Returns a hashref, representing the Workflow in a serialized format
 
 =cut
 
-sub v2 ($self) {
+sub serialize ($self) {
 	{
 		id          => $self->id,
 		name        => $self->name,

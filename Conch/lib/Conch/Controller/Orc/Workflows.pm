@@ -21,7 +21,7 @@ Get all workflows, in their entirety
 
 sub get_all ($c) {
 	my $many = Conch::Orc::Workflow->all();
-	$c->status(200, [ map { $_->v2 } $many->@* ]);
+	$c->status(200, [ map { $_->serialize } $many->@* ]);
 }
 
 
@@ -36,7 +36,7 @@ sub get_one ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $w;
 	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
 
-	$c->status(200, $w->v2);
+	$c->status(200, $w->serialize);
 }
 
 =head2 create
@@ -54,7 +54,7 @@ sub create ($c) {
 		unless $body->{name};
 
 	my $w = Conch::Orc::Workflow->new($body->%*)->save();
-	$c->status(200, $w->v2);
+	$c->status(200, $w->serialize);
 }
 
 
@@ -80,7 +80,7 @@ sub update ($c) {
 		}
 	}
 
-	$c->status(200, $w->update($body->%*)->save->v2);
+	$c->status(200, $w->update($body->%*)->save->serialize);
 }
 
 
@@ -139,7 +139,7 @@ sub create_step ($c) {
 	my $s = Conch::Orc::Workflow::Step->new($body->%*);
 	$w->add_step($s);
 
-	$c->status(200 => $s->v2);
+	$c->status(200 => $s->serialize);
 }
 
 

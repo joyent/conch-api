@@ -18,7 +18,7 @@ BEGIN {
 }
 use Conch::Pg;
 
-my $spec_file = "json-schema/v2.yaml";
+my $spec_file = "json-schema/v1.yaml";
 BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
 
@@ -59,7 +59,7 @@ $t->post_ok(
 BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
-sub BASE() { "/v2/o/humans" }
+sub BASE() { "/o/humans" }
 
 ##########################
 

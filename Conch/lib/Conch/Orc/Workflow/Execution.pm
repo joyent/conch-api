@@ -188,47 +188,52 @@ sub latest_from_device ($class, $device) {
 }
 
 
-=head2 v2
+=head2 serialize
 
-Returns a hashref representing the Execution in v2 format.
+Returns a hashref representing the Execution in a serialized format
 
 This format includes B<all> workflow and step statuses.
 
 =cut
 
 
-sub v2 ($self) {
-	my @workflow_status = map { $_ ? $_->v2 : undef } $self->workflow_status->@*;
-	my @steps_status = map { $_ ? $_->v2 : undef } $self->steps_status->@*;
+sub serialize ($self) {
+	my @workflow_status = map {
+		$_ ? $_->serialize : undef
+	} $self->workflow_status->@*;
+
+	my @steps_status = map { 
+		$_ ? $_->serialize : undef
+	} $self->steps_status->@*;
 
 	return {
 		device       => $self->device->as_v1,
-		workflow     => $self->workflow->v2,
+		workflow     => $self->workflow->serialize,
 		status       => \@workflow_status,
 		steps_status => \@steps_status,
 	}
 }
 
 
-=head2 v2_latest
+=head2 serialize_latest
 
-Returns a hashref representing the Execution's most recent condition in v2
-format.
+Returns a hashref representing the Execution's most recent condition in a
+serialized format.
 
 This format includes B<only> the most recent workflow and step status
 
 =cut
 
-sub v2_latest ($self) {
+sub serialize_latest ($self) {
 	my $status = $self->latest_workflow_status ? 
-		$self->latest_workflow_status->v2 : undef;
+		$self->latest_workflow_status->serialize : undef;
 
 	my $step_status = $self->latest_step_status ?
-		$self->latest_step_status->v2 : undef;
+		$self->latest_step_status->serialize: undef;
 
 	return {
 		device       => $self->device->as_v1,
-		workflow     => $self->workflow->v2,
+		workflow     => $self->workflow->serialize,
 		status       => [ $status ],
 		steps_status => [ $step_status ],
 	}

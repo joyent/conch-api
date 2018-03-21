@@ -91,23 +91,23 @@ lives_ok {
 } 'Execution->new';
 
 is_deeply($d, $we->device, "->device check");
-is_deeply($w->v2, $we->workflow->v2, "->workflow check");
+is_deeply($w->serialize, $we->workflow->serialize, "->workflow check");
 
 
-subtest "->v2" => sub {
-	my $v2 = $we->v2;
-	is_deeply($v2->{steps_status}, [ $step_status ], "->{steps_status}");
-	is_deeply($v2->{workflow}, $w->v2, '->{workflow}');
-	is_deeply($v2->{device}, $d->as_v1, '->{device}');
-	is_deeply($v2->{status}, [ $ws ], '->{status}');
+subtest "->serialize" => sub {
+	my $serialize = $we->serialize;
+	is_deeply($serialize->{steps_status}, [ $step_status ], "->{steps_status}");
+	is_deeply($serialize->{workflow}, $w->serialize, '->{workflow}');
+	is_deeply($serialize->{device}, $d->as_v1, '->{device}');
+	is_deeply($serialize->{status}, [ $ws ], '->{status}');
 };
 
-subtest "->v2_latest" => sub {
-	my $v2 = $we->v2_latest;
-	is_deeply($v2->{steps_status}, [ $step_status ], "->{steps_status}");
-	is_deeply($v2->{workflow}, $w->v2, '->{workflow}');
-	is_deeply($v2->{device}, $d->as_v1, '->{device}');
-	is_deeply($v2->{status}, [ $ws ], '->{status}');
+subtest "->serialize_latest" => sub {
+	my $serialize = $we->serialize_latest;
+	is_deeply($serialize->{steps_status}, [ $step_status ], "->{steps_status}");
+	is_deeply($serialize->{workflow}, $w->serialize, '->{workflow}');
+	is_deeply($serialize->{device}, $d->as_v1, '->{device}');
+	is_deeply($serialize->{status}, [ $ws ], '->{status}');
 };
 
 

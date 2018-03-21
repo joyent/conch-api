@@ -365,13 +365,13 @@ sub save ($self) {
 	return $self;
 }
 
-=head2 v2
+=head2 serialize
 
-Returns a hashref, representing the Step in v2 format
+Returns a hashref, representing the Step in a serialized format
 
 =cut
 
-sub v2 ($self) {
+sub serialize ($self) {
 	{
 		created            => $self->created->rfc3339(),
 		deactivated        => $self->deactivated ? $self->deactivated->rfc3339 : undef,

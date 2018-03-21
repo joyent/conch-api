@@ -26,8 +26,8 @@ sub get_executions ($c) {
 		unless $d;
 
 	my $ex = Conch::Orc::Workflow::Execution->many_from_device($d);
-	my @v2 = map { $_->v2 } $ex->@*;
-	$c->status(200 => \@v2);
+	my @out = map { $_->serialize } $ex->@*;
+	$c->status(200 => \@out);
 }
 
 
@@ -48,7 +48,7 @@ sub get_latest_execution ($c) {
 	return $c->status(404 => { error => "No status information" })
 		unless $ex;
 
-	$c->status(200 => $ex->v2_latest);
+	$c->status(200 => $ex->serialize_latest);
 }
 
 
@@ -65,7 +65,7 @@ sub get_lifecycles ($c) {
 		unless $d;
 
 	my @many = map {
-		$_->v2 if $_
+		$_->serialize if $_
 	} Conch::Orc::Lifecycle->many_from_device($d)->@*;
 
 	$c->status(200 => \@many);
@@ -92,10 +92,10 @@ sub get_lifecycles_executions ($c) {
 			push @e, Conch::Orc::Workflow::Execution->new(
 				device_id   => $d->id,
 				workflow_id => $w,
-			)->v2;
+			)->serialize;
 		}
 		push @many, {
-			lifecycle  => $l->v2,
+			lifecycle  => $l->serialize,
 			executions => \@e,
 		};
 	}

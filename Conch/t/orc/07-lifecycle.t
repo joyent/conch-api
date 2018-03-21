@@ -69,12 +69,12 @@ lives_ok {
 	$l2 = Conch::Orc::Lifecycle->from_id($l->id);
 } '->from_id';
 
-is_deeply($l->v2, $l2->v2, "Saved data matches retrieved data");
+is_deeply($l->serialize, $l2->serialize, "Saved data matches retrieved data");
 
 lives_ok {
 	$l2 = Conch::Orc::Lifecycle->from_name($l->name);
 } '->from_name';
-is_deeply($l->v2, $l2->v2, "Saved data matches retrieved data");
+is_deeply($l->serialize, $l2->serialize, "Saved data matches retrieved data");
 
 
 

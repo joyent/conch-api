@@ -425,17 +425,14 @@ sub save ($self) {
 }
 
 
-=head2 v2
+=head2 serialize
 
-Returns a hashref, representing the object in v2 format.
-
-This format B<lacks> workflows and will the resultant output will contain an
-empty arrayref for C<workflows>
+Returns a hashref, representing the object in a serialized format
 
 =cut
 
 #############################
-sub v2 ($self) {
+sub serialize ($self) {
 	{
 		created     => $self->created->rfc3339,
 		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
