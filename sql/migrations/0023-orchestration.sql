@@ -2,7 +2,7 @@ SELECT run_migration(23, $$
 
 create table workflow (
 	id          uuid        primary key default gen_random_uuid(),
-	name        text        not null unique,
+	name        text        not null,
 	version     int         not null default 1,
 	created     timestamptz not null default current_timestamp,
 	updated     timestamptz not null default current_timestamp,
@@ -16,26 +16,23 @@ create table workflow (
 
 create table orc_lifecycle (
 	id          uuid        primary key default gen_random_uuid(),
-	name        text        not null unique,
+	name        text        not null,
 	version     int         not null default 1,
 	device_role text        not null,
-	product_id uuid        not null references hardware_product (id),
+	product_id  uuid        not null references hardware_product (id),
 
 	created     timestamptz not null default current_timestamp,
 	updated     timestamptz not null default current_timestamp,
 	deactivated timestamptz,
 	locked      bool        not null default false,
-	unique(name),
-	unique(name, version),
-	unique(name, version, device_role, product_id)
+	unique(name, version)
 );
 
 create table orc_lifecycle_plan (
 	orc_lifecycle_id uuid  not null references orc_lifecycle (id),
 	workflow_id      uuid  not null references workflow (id),
 	workflow_order   int   not null,
-	unique(orc_lifecycle_id, workflow_id),
-	unique(orc_lifecycle_id, workflow_order)
+	unique(orc_lifecycle_id, workflow_id)
 );
 
 /*****************/
@@ -100,7 +97,7 @@ create table workflow_step_status(
 	validation_status    e_workflow_validation_status not null default 'noop',
 	validation_result_id uuid, -- fk to real tables when they exist
 	force_retry          bool default false,
-	overridden            bool default false,
+	overridden           bool default false,
 	data                 jsonb
 );
 
