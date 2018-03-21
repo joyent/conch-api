@@ -172,8 +172,11 @@ sub from_id ($class, $uuid) {
 		return undef;
 	};
 
-	$ret->{created} = Conch::Time->new($ret->{created});
-	$ret->{updated} = Conch::Time->new($ret->{updated});
+	for my $k (qw(created updated deactivated)) {
+		if ($ret->{$k}) {
+			$ret->{$k} = Conch::Time->new($ret->{$k});
+		}
+	}
 
 	return $class->new($ret->%*);
 }
