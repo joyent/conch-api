@@ -59,7 +59,7 @@ $t->post_ok(
 BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
-sub BASE() { "/o/humans" }
+sub BASE() { "/o" }
 
 ##########################
 

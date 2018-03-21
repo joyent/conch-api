@@ -59,7 +59,7 @@ BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 my $db = Conch::Pg->new->db;
 
-sub BASE() { '/o/humans' }
+sub BASE() { '/o' }
 
 $t->get_ok(BASE."/workflow")->status_is(200)->json_is([]);
 $t->json_schema_is('Workflows');
