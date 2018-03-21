@@ -87,8 +87,8 @@ has 'created' => (
 
 =item updated
 
-Conch::Time. Can't be written by user. Will be updated to C<<Conch::Time->now>>
-whenever C<save> is called.
+Conch::Time. Can't be written by user. Will be updated to 
+C<<< Conch::Time->now >>> whenever C<save> is called.
 
 =cut
 
@@ -162,26 +162,10 @@ Look up a Lifecycle by its UUID. Returns undef if not found
 =cut
 
 sub from_id ($class, $uuid) {
-	return $class->_from(id => $uuid);
-}
-
-
-=head2 from_name
-
-Look up a lifecycle by its name. Returns undef if not found
-
-=cut
-
-sub from_name ($class, $name) {
-	return $class->_from(name => $name);
-}
-
-
-sub _from ($class, $key, $value) {
 	my $ret;
 	try {
 		$ret = Conch::Pg->new()->db->select('orc_lifecycle', undef, {
-			$key => $value
+			id => $uuid
 		})->hash;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->_from: $_");
