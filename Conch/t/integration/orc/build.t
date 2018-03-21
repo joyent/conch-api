@@ -70,7 +70,9 @@ $t->status_is(400)->json_schema_is("Error");
 
 $t->post_ok(BASE."/workflow", json => {
 	name => 'sungo'
-})->status_is(200)->json_is(
+})->status_is(303);
+
+$t->get_ok($t->tx->res->headers->location)->json_is(
 	'/locked' => 0,
 )->json_is(
 	'/version' => 1,
@@ -86,7 +88,9 @@ $t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
 
 $t->post_ok(BASE."/workflow/".$wid, json => {
 	preflight => 1
-})->status_is(200)->json_schema_is("Workflow");
+})->status_is(303);
+
+$t->get_ok($t->tx->res->headers->location)->json_schema_is("Workflow");
 
 
 $t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
@@ -105,14 +109,16 @@ $t->get_ok(BASE."/workflow/".$wid)->status_is(404)->json_schema_is("Error");
 subtest "Step" => sub {
 	$t->post_ok(BASE."/workflow", json => {
 		name => 'sungo2'
-	})->status_is(200)->json_schema_is("Workflow");
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->json_schema_is("Workflow");
 
 	$wid = $t->tx->res->json->{id};
 
 	$t->post_ok(BASE."/workflow/$wid/step", json => {
 		name => "step 1",
 		validation_plan_id => $validation_id,
-	})->status_is(200)->json_schema_is("WorkflowStep");
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->json_schema_is("WorkflowStep");
 
 	my $id = $t->tx->res->json->{id};
 
@@ -127,7 +133,8 @@ subtest "Step" => sub {
 	$t->post_ok(BASE."/workflow/$wid/step", json => {
 		name => "step 2",
 		validation_plan_id => $validation_id,
-	})->status_is(200)->json_schema_is("WorkflowStep");
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->json_schema_is("WorkflowStep");
 
 	my $id2 = $t->tx->res->json->{id};
 
@@ -156,7 +163,8 @@ subtest "Step" => sub {
   
 	$t->post_ok(BASE."/step/$id2", json => {
 		retry => 1
-	})->status_is(200)->json_is(
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->json_is(
 		'/id' => $id2,
 	)->json_is(
 		'/retry' => 1

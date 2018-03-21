@@ -44,7 +44,8 @@ sub update ($c) {
 	delete $body->{workflow_id};
 	delete $body->{order};
 
-	$c->status(200, $s->update($body->%*)->save->serialize);
+	$s->update($body->%*)->save;
+	$c->status(303 => "/o/step/".$s->id);
 }
 
 =head2 delete

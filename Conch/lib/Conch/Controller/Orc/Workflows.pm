@@ -54,7 +54,7 @@ sub create ($c) {
 		unless $body->{name};
 
 	my $w = Conch::Orc::Workflow->new($body->%*)->save();
-	$c->status(200, $w->serialize);
+	$c->status(303 => "/o/workflow/".$w->id);
 }
 
 
@@ -80,7 +80,8 @@ sub update ($c) {
 		}
 	}
 
-	$c->status(200, $w->update($body->%*)->save->serialize);
+	$w->update($body->%*)->save;
+	$c->status(303 => "/o/workflow/".$w->id);
 }
 
 
@@ -139,7 +140,7 @@ sub create_step ($c) {
 	my $s = Conch::Orc::Workflow::Step->new($body->%*);
 	$w->add_step($s);
 
-	$c->status(200 => $s->serialize);
+	$c->status(303 => "/o/step/".$s->id);
 }
 
 
