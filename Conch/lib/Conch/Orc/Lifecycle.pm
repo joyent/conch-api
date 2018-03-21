@@ -110,13 +110,13 @@ has 'deactivated' => (
 );
 
 
-=item hardware_id
+=item product_id
 
 UUID. FKs into C<hardware_product(id)>
 
 =cut
 
-has 'hardware_id' => (
+has 'product_id' => (
 	is       => 'rw',
 	isa      => Uuid,
 	required => 1,
@@ -393,7 +393,7 @@ sub save ($self) {
 		name        => $self->name,
 		version     => $self->version,
 		device_role => $self->device_role,
-		hardware_id => $self->hardware_id,
+		product_id  => $self->product_id,
 		updated     => Conch::Time->now->timestamptz,
 		deactivated => $self->deactivated ? $self->deactivated->timestamptz : undef,
 		locked      => $self->locked,
@@ -437,7 +437,7 @@ sub serialize ($self) {
 		created     => $self->created->rfc3339,
 		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
 		device_role => $self->device_role,
-		hardware_id => $self->hardware_id,
+		product_id  => $self->product_id,
 		id          => $self->id,
 		locked      => $self->locked,
 		name        => $self->name,

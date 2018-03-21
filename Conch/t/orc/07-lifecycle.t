@@ -60,7 +60,7 @@ lives_ok {
 	$l = Conch::Orc::Lifecycle->new(
 		name => 'sungo',
 		device_role => 'test',
-		hardware_id => $hardware_product_id,
+		product_id => $hardware_product_id,
 	)->save;
 } '->new->save';
 

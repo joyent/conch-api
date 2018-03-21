@@ -211,7 +211,7 @@ subtest "Lifecycle" => sub {
 		$l = Conch::Orc::Lifecycle->new(
 			name => 'sungo',
 			device_role => 'test',
-			hardware_id => $hw_id,
+			product_id => $hw_id,
 		)->save;
 	} 'Lifecycle->new->save';
 

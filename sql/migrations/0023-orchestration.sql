@@ -19,7 +19,7 @@ create table orc_lifecycle (
 	name        text        not null unique,
 	version     int         not null default 1,
 	device_role text        not null,
-	hardware_id uuid        not null references hardware_product (id),
+	product_id uuid        not null references hardware_product (id),
 
 	created     timestamptz not null default current_timestamp,
 	updated     timestamptz not null default current_timestamp,
@@ -27,7 +27,7 @@ create table orc_lifecycle (
 	locked      bool        not null default false,
 	unique(name),
 	unique(name, version),
-	unique(name, version, device_role, hardware_id)
+	unique(name, version, device_role, product_id)
 );
 
 create table orc_lifecycle_plan (

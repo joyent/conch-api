@@ -52,9 +52,9 @@ my $w;
 lives_ok {
 	$w = Conch::Orc::Workflow->new(
 		name        => 'sungo',
-		hardware_id => $hardware_product_id,
+		product_id => $hardware_product_id,
 	)->save();
-} 'Workflow->save with known hardware id';
+} 'Workflow->save with known hardware product id';
 
 my $v_id = lc $uuid->create_str();
 
