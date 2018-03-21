@@ -21,7 +21,7 @@ use experimental qw(signatures);
 
 use Try::Tiny;
 use Type::Tiny;
-use Types::Standard qw(Num InstanceOf Str Bool Undef);
+use Types::Standard qw(Num InstanceOf Str Bool Undef ArrayRef);
 use Types::UUID qw(Uuid);
 
 use Role::Tiny::With;
@@ -147,8 +147,42 @@ Arrayref of all C<Workflow::Step>s associated with this workflow.
 
 =cut
 
-sub steps ($self) {
-	return Conch::Orc::Workflow::Step->many_from_workflow($self);
+has 'steps' => (
+	is      => 'rwp',
+	isa     => ArrayRef,
+	default => sub { [] },
+);
+
+=head2 steps_as_objects
+
+Returns an array ref of Workflow::Step objects, using the IDs found in the
+C<steps> attribute
+
+=cut
+
+sub steps_as_objects ($self) {
+	return Conch::Orc::Workflow::Step->many_from_ids($self->steps);
+}
+
+sub _refresh_steps ($self) {
+	my $ret;
+	try {
+		$ret = Conch::Pg->new->db->query(qq|
+			select id from workflow_step
+			where workflow_id = ? and deactivated is null
+			order by step_order
+		|, $self->id)->hashes;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->_refresh_steps: $_");
+		return undef;
+	};
+
+	if($ret) {
+		my @steps = map { $_->{id} } $ret->@*;
+		$self->_set_steps(\@steps);
+	}
+
+	return $self;
 }
 
 =head2 from_id
@@ -158,47 +192,38 @@ Load a Workflow by its UUID
 =cut
 
 sub from_id ($class, $id) {
-	return $class->_from(id => $id);
-}
-
-
-=head2 from_name
-
-Load a workflow by its name
-
-=cut
-
-sub from_name ($class, $name) {
-	return $class->_from(name => $name);
-}
-
-
-sub _from ($class, $key, $value) {
 	my $ret;
 	try {
-		$ret = Conch::Pg->new()->db->select('workflow', undef, {
-			$key => $value
-		})->hash;
+		$ret = Conch::Pg->new->db->query(qq|
+			select w.*, array(
+				select ws.id
+				from workflow_step ws
+				where ws.workflow_id = w.id
+					and ws.deactivated is null
+				order by ws.step_order
+			) as steps
+			from workflow w
+			where w.id = ?;
+		|, $id)->hash;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->_from: $_");
 		return undef;
 	};
 
 	return undef unless $ret;
+
 	if($ret->{deactivated}) {
 		$ret->{deactivated} = Conch::Time->new($ret->{deactivated});
 	}
 
-	return $class->new(
-		id          => $ret->{id},
-		locked      => $ret->{locked},
-		name        => $ret->{name},
-		version     => $ret->{version},
-		preflight   => $ret->{preflight},
-		created     => Conch::Time->new($ret->{created}),
-		updated     => Conch::Time->new($ret->{updated}),
-		deactivated => $ret->{deactivated},
-	);
+	for my $k (qw(created updated deactivated)) {
+		if($ret->{$k}) {
+			$ret->{$k} = Conch::Time->new($ret->{$k});
+		}
+	}
+
+	my $s = $class->new($ret->%*);
+	return $s;
 }
 
 
@@ -211,7 +236,16 @@ Returns an arrayref containing all Workflows
 sub all ($class) {
 	my $ret;
 	try {
-		$ret = Conch::Pg->new()->db->select('workflow', undef, undef )->hashes;
+		$ret = Conch::Pg->new->db->query(qq|
+			select w.*, array(
+				select ws.id
+				from workflow_step ws
+				where ws.workflow_id = w.id
+					and ws.deactivated is null
+				order by ws.step_order
+			) as steps
+			from workflow w;
+		|)->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->all: $_");
 		return undef;
@@ -236,7 +270,8 @@ sub all ($class) {
 
 =head2 save
 
-Save or update a Workflow in the database.
+Save or update a Workflow in the database. Steps are B<not> saved this way. See
+C<add_step> and C<remove_step>
 
 Returns C<$self>, allowing for method chaining
 
@@ -301,9 +336,9 @@ Returns C<$self>, allowing for method chaining.
 =cut
 
 sub add_step ($self, $step) {
-
-	if($self->steps->@*) {
-		my $last = $self->steps->[-1];
+	my @steps = $self->_refresh_steps->steps_as_objects->@*;
+	if(@steps) {
+		my $last = $steps[-1];
 		my $order = $last->order + 1;
 		$step->order( $order );
 	} else {
@@ -311,7 +346,7 @@ sub add_step ($self, $step) {
 	}
 	$step->save();
 
-	return $self;
+	return $self->_refresh_steps;
 }
 
 
@@ -327,9 +362,9 @@ Returns C<$self>, allowing for method chaining.
 
 =cut
 
-sub remove_step ($self, $step) {
 
-	my @steps = $self->steps->@*;
+sub remove_step ($self, $step) {
+	my @steps = $self->_refresh_steps->steps_as_objects->@*;
 
 	my $found = 0;
 	for(my $i = 0; $i < @steps; $i++) {
@@ -341,9 +376,11 @@ sub remove_step ($self, $step) {
 		}
 	}
 
-	$step->deactivated(Conch::Time->now);
-	$step->save;
-	return $self;
+	if($found) {
+		$step->deactivated(Conch::Time->now);
+		$step->save;
+	}
+	return $self->_refresh_steps;
 }
 
 
@@ -367,27 +404,8 @@ sub v2 ($self) {
 		created     => $self->created->rfc3339,
 		updated     => $self->updated->rfc3339,
 		preflight   => $self->preflight,
-		steps       => [],
+		steps       => $self->steps,
 	}
-}
-
-
-
-=head2 v2_cascade
-
-Returns a hashref, representing the Workflow in the v2 data set.
-
-This representation B<does> contain the steps, as per their C<<< ->v2 >>>
-method.
-
-=cut
-
-sub v2_cascade ($self) {
-	my @steps = map { $_->v2 } $self->steps->@*;
-
-	my $base = $self->v2;
-	$base->{steps} = \@steps;
-	return $base;
 }
 
 

@@ -108,7 +108,8 @@ definitions:
           - type: null
           - type: array
             items:
-              $ref: "#/definitions/WorkflowStep"
+                type: string
+                format: uuid
   WorkflowStatus:
     type: object
     additionalProperties: false

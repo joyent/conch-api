@@ -119,7 +119,7 @@ subtest "Step" => sub {
 	$t->get_ok(BASE."/workflow")->status_is(200)->json_is(
 		'/0/id' => $w->id
 	)->json_is(
-		'/0/steps/0/id' => $step->id
+		'/0/steps/0' => $step->id
 	)->json_schema_is('Workflows');
 
 	my $step2;
@@ -141,9 +141,9 @@ subtest "Step" => sub {
 	$t->get_ok(BASE."/workflow")->status_is(200)->json_is(
 		'/0/id' => $w->id
 	)->json_is(
-		'/0/steps/0/id' => $step->id
+		'/0/steps/0' => $step->id
 	)->json_is(
-		'/0/steps/1/id' => $step2->id
+		'/0/steps/1' => $step2->id
 	)->json_schema_is('Workflows');
 };
 

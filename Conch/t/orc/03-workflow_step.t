@@ -51,6 +51,8 @@ lives_ok {
 	)->save();
 } 'Step->save with known workflow id';
 
+$w->_refresh_steps;
+
 
 my $s2;
 lives_ok {

@@ -84,11 +84,6 @@ $t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
 	'/name' => 'sungo'
 )->json_schema_is('Workflow');
 
-$t->post_ok(BASE."/workflow", json => {
-	name => 'sungo'
-})->status_is(400)->json_schema_is("Error");
-
-
 $t->post_ok(BASE."/workflow/".$wid, json => {
 	preflight => 1
 })->status_is(200)->json_schema_is("Workflow");

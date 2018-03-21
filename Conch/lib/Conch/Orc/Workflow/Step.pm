@@ -234,6 +234,44 @@ sub _from ($class, $key, $value) {
 	return $class->new($ret->%*);
 }
 
+=head2 many_from_ids
+
+	my @many = Conch::Orc::Workflow::Steps->many_from_ids(\@list)->@*;
+
+Returns an array ref of Workflow::Step objects, given a list of object UUIDs
+
+=cut
+
+sub many_from_ids ($class, $ids) {
+	my $ret;
+	try {
+		$ret = Conch::Pg->new->db->select('workflow_step', undef, {
+			id => { -in => $ids }
+		})->hashes;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->many_from_ids: $_");
+		return undef;
+	};
+
+	unless (scalar $ret->@*) {
+		return [];
+	}
+
+	my @many = map {
+		my $s = $_;
+		$s->{created}     = Conch::Time->new($s->{created});
+		$s->{updated}     = Conch::Time->new($s->{updated});
+		$s->{order}       = $s->{step_order};
+		if($s->{deactivated}) {
+			$s->{deactivated} = Conch::Time->new($s->{deactivated});
+		}
+		$class->new($s);
+	} $ret->@*;
+
+	return \@many;
+
+}
+
 
 =head2 many_from_workflow
 

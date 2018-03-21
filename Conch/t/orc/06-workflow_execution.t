@@ -62,6 +62,8 @@ lives_ok {
 	)->save();
 } 'Step->save with known workflow id';
 
+$w->_refresh_steps;
+
 my $step_status;
 lives_ok {
 	$step_status = Conch::Orc::Workflow::Step::Status->new(
@@ -95,7 +97,7 @@ is_deeply($w->v2, $we->workflow->v2, "->workflow check");
 subtest "->v2" => sub {
 	my $v2 = $we->v2;
 	is_deeply($v2->{steps_status}, [ $step_status ], "->{steps_status}");
-	is_deeply($v2->{workflow}, $w->v2_cascade, '->{workflow}');
+	is_deeply($v2->{workflow}, $w->v2, '->{workflow}');
 	is_deeply($v2->{device}, $d->as_v1, '->{device}');
 	is_deeply($v2->{status}, [ $ws ], '->{status}');
 };
@@ -103,7 +105,7 @@ subtest "->v2" => sub {
 subtest "->v2_latest" => sub {
 	my $v2 = $we->v2_latest;
 	is_deeply($v2->{steps_status}, [ $step_status ], "->{steps_status}");
-	is_deeply($v2->{workflow}, $w->v2_cascade, '->{workflow}');
+	is_deeply($v2->{workflow}, $w->v2, '->{workflow}');
 	is_deeply($v2->{device}, $d->as_v1, '->{device}');
 	is_deeply($v2->{status}, [ $ws ], '->{status}');
 };

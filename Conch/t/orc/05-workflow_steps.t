@@ -13,8 +13,6 @@ use Data::UUID;
 use Conch::Pg;
 use Conch::Orc;
 
-use DDP;
-
 my $pgtmp = Test::ConchTmpDB->make_full_db
 	or BAIL_OUT("Couldn't create temp db");
 my $dbh = DBI->connect( $pgtmp->dsn );
@@ -70,7 +68,7 @@ lives_ok {
 	)->save();
 } 'Step->save with known workflow id part 1';
 
-is($w->steps->@*, 1, "Step count check");
+is(Conch::Orc::Workflow->from_id($w->id)->steps->@*, 1, "Step count check");
 
 my $s2;
 lives_ok {
@@ -81,7 +79,7 @@ lives_ok {
 		order              => 2,
 	)->save();
 } 'Step->save with known workflow id part 2';
-is($w->steps->@*, 2, "Step count check");
+is(Conch::Orc::Workflow->from_id($w->id)->steps->@*, 2, "Step count check");
 
 my $s3;
 lives_ok {
@@ -94,7 +92,7 @@ lives_ok {
 } 'Step->save with known workflow id part 3';
 
 
-is($w->steps->@*, 3, "Step count check");
+is(Conch::Orc::Workflow->from_id($w->id)->steps->@*, 3, "Step count check");
 
 my $s4;
 lives_ok {
@@ -108,15 +106,16 @@ lives_ok {
 	$w->add_step($s4);
 } '->add_step';
 
-is($w->steps->@*, 4, "Step count check");
+is(Conch::Orc::Workflow->from_id($w->id)->steps->@*, 4, "Step count check");
 
 lives_ok {
 	$w->remove_step($s3);
 } '->remove_step';
 
-is($w->steps->@*, 3, "Step count check");
 
-is($w->steps->[-1]->order, scalar $w->steps->@*, 'Order verification');
+my $w2 = Conch::Orc::Workflow->from_id($w->id);
+is(scalar $w2->steps->@*, 3, "Step count check");
+is($w2->steps_as_objects->[-1]->order, scalar $w2->steps->@*, 'Order verification');
 
 
 done_testing();

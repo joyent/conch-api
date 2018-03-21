@@ -99,7 +99,7 @@ sub steps_status ($self) {
 	} StepStatus->many_from_execution($self)->@*;
 
 	my @ret;
-	foreach my $step ($self->workflow->steps->@*) {
+	foreach my $step ($self->workflow->steps_as_objects->@*) {
 		if ($status{$step->id}) {
 			$ret[ $step->order - 1 ] = $status{$step->id};
 		}
@@ -203,7 +203,7 @@ sub v2 ($self) {
 
 	return {
 		device       => $self->device->as_v1,
-		workflow     => $self->workflow->v2_cascade,
+		workflow     => $self->workflow->v2,
 		status       => \@workflow_status,
 		steps_status => \@steps_status,
 	}
@@ -228,7 +228,7 @@ sub v2_latest ($self) {
 
 	return {
 		device       => $self->device->as_v1,
-		workflow     => $self->workflow->v2_cascade,
+		workflow     => $self->workflow->v2,
 		status       => [ $status ],
 		steps_status => [ $step_status ],
 	}

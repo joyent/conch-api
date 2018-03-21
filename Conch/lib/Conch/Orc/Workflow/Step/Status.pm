@@ -391,10 +391,9 @@ given Execution, ordered by updated timestamp.
 sub many_from_execution ($class, $ex) {
 	my $ret;
 	try {
-		my @step_ids = map { $_->id } $ex->workflow->steps->@*;
 		$ret = Conch::Pg->new()->db->select('workflow_step_status', undef, { 
 			device_id        => $ex->device->id,
-			workflow_step_id => { -in => \@step_ids },
+			workflow_step_id => { -in => $ex->workflow->steps },
 		}, { -asc => 'updated' })->expand->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->many_from_execution: $_");

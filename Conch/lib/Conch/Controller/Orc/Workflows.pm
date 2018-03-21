@@ -21,7 +21,7 @@ Get all workflows, in their entirety
 
 sub get_all ($c) {
 	my $many = Conch::Orc::Workflow->all();
-	$c->status(200, [ map { $_->v2_cascade } $many->@* ]);
+	$c->status(200, [ map { $_->v2 } $many->@* ]);
 }
 
 
@@ -36,7 +36,7 @@ sub get_one ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $w;
 	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
 
-	$c->status(200, $w->v2_cascade);
+	$c->status(200, $w->v2);
 }
 
 =head2 create
@@ -52,12 +52,6 @@ sub create ($c) {
 	}
 	return $c->status(400 => { error => "'name' parameter required"})
 		unless $body->{name};
-
-	if(Conch::Orc::Workflow->from_name($body->{name})) {
-		return $c->status(400 => { 
-			error => "A workflow named '".$body->{name}." already exists" 
-		});
-	}
 
 	my $w = Conch::Orc::Workflow->new($body->%*)->save();
 	$c->status(200, $w->v2);
