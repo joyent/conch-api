@@ -70,15 +70,23 @@ sub startup {
 			}
 
 			$self->res->code($code);
-			if ( ( $code == 403 ) && !$payload ) {
-				$payload = { error => "Forbidden" };
-			}
 
-			if ( ( $code ==	501 ) && !$payload ) {
-				$payload = { error => "Unimplemented" };
+			unless ($payload) {
+				if ($code == 403) {
+					$payload = { error => "Forbidden" };
+				}
+
+				if ($code == 501) {
+					$payload = { error => "Unimplemented" };
+				}
 			}
 
 			if($payload) {
+				if ($code == 303) {
+					$self->redirect_to( $c->url_for($payload) );
+					return $self->finish;
+				}
+
 				return $self->respond_to(
 					json => { json => $payload },
 					any  => { json => $payload },
