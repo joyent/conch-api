@@ -14,6 +14,7 @@ use Mojo::Base -base, -signatures;
 use Conch::Pg;
 use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
+use Conch::Model::ValidationResult;
 
 my $attrs =
 	[qw( id name version description module persistence created updated)];
@@ -131,11 +132,13 @@ sub build_device_validation ( $self, $device, $device_location,
 	my $module = $self->module;
 
 	my $result_builder = sub {
-		my $result = { @_, validation_id => $self->id };
-		$result->{device_id} = $device->id if $device;
-		$result->{hardware_product_id} = $hardware_product->id
-			if $hardware_product;
-		return $result;
+		return Conch::Model::ValidationResult->new(
+			@_,
+			validation_id       => $self->id,
+			validation_id       => $self->id,
+			device_id           => $device && $device->id,
+			hardware_product_id => $hardware_product && $hardware_product->id
+		);
 	};
 
 	my $validation = $module->new(

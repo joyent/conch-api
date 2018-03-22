@@ -26,8 +26,8 @@ device.
 =cut
 
 sub validate ($c) {
-	my $device         = $c->stash('current_device');
-	my $device_id      = $device->id;
+	my $device    = $c->stash('current_device');
+	my $device_id = $device->id;
 
 	my $validation_id = $c->param("validation_id");
 	my $validation    = Conch::Model::Validation->lookup($validation_id);
@@ -37,9 +37,10 @@ sub validate ($c) {
 	my $validator = $validation->build_validation_for_device($device);
 	my $data      = $c->req->json;
 	$validator->run($data);
-	my $validation_results = $validator->validation_results;
+	my @validation_results =
+		map { $_->output_hash } $validator->validation_results->@*;
 
-	$c->status( 200, $validation_results );
+	$c->status( 200, \@validation_results );
 }
 
 =head2 run_validation_plan
@@ -54,8 +55,8 @@ device.
 =cut
 
 sub run_validation_plan ($c) {
-	my $device         = $c->stash('current_device');
-	my $device_id      = $device->id;
+	my $device    = $c->stash('current_device');
+	my $device_id = $device->id;
 
 	my $plan_id         = $c->param("validation_plan_id");
 	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);
@@ -63,9 +64,10 @@ sub run_validation_plan ($c) {
 		unless $validation_plan;
 
 	my $data = $c->req->json;
-	my $results = $validation_plan->run_validations( $device, $data );
+	my @results = map { $_->output_hash }
+		$validation_plan->run_validations( $device, $data )->@*;
 
-	$c->status( 200, $results );
+	$c->status( 200, \@results );
 }
 
 1;
