@@ -13,6 +13,7 @@ requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
 requires 'Time::Moment', ">= 0.43";
+requires 'IO::Socket::SSL';
 
 # mojolicious
 requires 'Mojolicious';
