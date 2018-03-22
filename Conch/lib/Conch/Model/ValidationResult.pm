@@ -17,6 +17,11 @@ my $attrs = [
 ];
 has $attrs;
 
+=head2 output_hash
+
+Render as a hashref for output
+
+=cut
 sub output_hash ($self) {
 	return {
 		id                  => $self->id,
