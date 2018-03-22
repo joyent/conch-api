@@ -1,4 +1,5 @@
 <!-- generated with `pod2github lib/Conch/Validation.pm > lib/Conch/Validation/README.md` -->
+
 ## Name
 
 Conch::Validation - base class for writing Conch Validations
@@ -9,8 +10,9 @@ Conch::Validation - base class for writing Conch Validations
     package Conch::Validation::DeviceValidation;
     use Mojo::Base 'Conch::Validation';
 
-    has name => 'device_validation';
-    has version => 1;
+    has name        => 'device_validation';
+    has version     => 1;
+    has category    => 'CPU';
     has description => q/Description of the validation/;
 
     # Optional schema to validate $input_data before `validate` is run.
@@ -37,6 +39,33 @@ Conch::Validation - base class for writing Conch Validations
             $self->register_result( expected => 'hello', got => $input_data->{hello} );
     }
 ```
+
+## Description
+
+`Conch::Validaiton` provides the base class to define and execute Conch
+Validations. Validations extend this class by implementing a `validate`
+method.  This method receives the input data (a `HASHREF`) to be validatated.
+This input data hash may be validated by setting the `schema` attribute with a
+schema definition in the [JSON-schema](http://json-schema.org) format (Note: A
+root-level `'object'` type is assumed in the schema. Only top-level
+properties need to be defined).
+
+The validation logic in the `validate` method will evaluate the input data and
+register one or more validation results with the
+[register\_result](#register_result) method. The logic may use device, device
+settings, hardware product name, hardware product vendor, and hardware product
+profile details to dispatch conditions and evaluation.
+
+Conch Validations should also define values for the `name`, `version`,
+`category`, and `description` attributes. These attributes are used in the
+identification of the validation and validation result storage in the
+Validation System infrastructure.
+
+Testing Conch Validations should be done with
+`Test::Conch::Validation::test_validation` with TAP-based tests. This
+functions tests that Validations define the required attributes and methods,
+and allow you to test the validaiton logic by running test cases against
+expected results.
 
 ## Methods
 
@@ -75,8 +104,8 @@ error validation result will be created.
 
     An optional `CODEREF` to construct validation results. If unspecified,
     validation results are built as `HASHREF`s. The `CODEREF` will be passed a
-    list of attributes and values (Attributes are 'message', 'name', 'status',
-    'hint') whenever a validation result is registered.
+    list of attributes and values (Attributes are 'message', 'name', 'category',
+    'status', and 'hint') whenever a validation result is created.
 
 ### Run
 
@@ -217,8 +246,9 @@ You may also provide the following attributes to override validation results
 
 - `name`
 
-    By default, the validation result stores the `name` attribute of the Validation class. You
-    may override the validation result name with this attribute
+    By default, the validation result stores the `name` attribute of the
+    Validation class. You may override the validation result name with this
+    attribute.
 
     ```perl
         $self->register_result(
@@ -239,6 +269,33 @@ You may also provide the following attributes to override validation results
                 expected => 'hello',
                 got      => 'hello',
                 message  => 'Hello world!'
+        );
+    ```
+
+- `category`
+
+    By default, the validation result stores the `category` attribute of the
+    Validation class. You may override the validation result category with this
+    attribute.
+
+    ```perl
+        $self->register_result(
+                expected => 'hello',
+                got      => 'hello',
+                category => 'BIOS'
+        );
+    ```
+
+- `component_id`
+
+    You may specify the optional string attribute `component_id` to set an
+    identifier to help identify a specific component under test.
+
+    ```perl
+        $self->register_result(
+                expected  => 'OK',
+                got       => $disk->{health},
+                hint      => $disk->{serial_number}
         );
     ```
 

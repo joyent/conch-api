@@ -39,6 +39,33 @@ Conch::Validation - base class for writing Conch Validations
 	}
 
 
+=head1 DESCRIPTION
+
+C<Conch::Validaiton> provides the base class to define and execute Conch
+Validations. Validations extend this class by implementing a C<validate>
+method.  This method receives the input data (a C<HASHREF>) to be validatated.
+This input data hash may be validated by setting the C<schema> attribute with a
+schema definition in the L<JSON-schema|http://json-schema.org> format (Note: A
+root-level C<'object'> type is assumed in the schema. Only top-level
+properties need to be defined).
+
+The validation logic in the C<validate> method will evaluate the input data and
+register one or more validation results with the
+L<register_result|"register_result"> method. The logic may use device, device
+settings, hardware product name, hardware product vendor, and hardware product
+profile details to dispatch conditions and evaluation.
+
+Conch Validations should also define values for the C<name>, C<version>,
+C<category>, and C<description> attributes. These attributes are used in the
+identification of the validation and validation result storage in the
+Validation System infrastructure.
+
+Testing Conch Validations should be done with
+C<Test::Conch::Validation::test_validation> with TAP-based tests. This
+functions tests that Validations define the required attributes and methods,
+and allow you to test the validaiton logic by running test cases against
+expected results.
+
 =head1 METHODS
 
 =cut
