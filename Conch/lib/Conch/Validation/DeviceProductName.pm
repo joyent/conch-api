@@ -4,12 +4,12 @@ use Mojo::Base 'Conch::Validation';
 
 has name        => 'product_name';
 has version     => 1;
+has 'category'  => 'BIOS';
 has description => q(
 Valdidate reported product name matches product name expected in rack layout
 );
 
 has category => 'BIOS';
-
 
 sub validate {
 	my ( $self, $data ) = @_;
@@ -18,8 +18,8 @@ sub validate {
 		unless $data->{product_name} && ref( $data->{product_name} ) eq '';
 
 	$self->register_result(
-		expected       => $self->hardware_product_name,
-		got            => $data->{product_name},
+		expected => $self->hardware_product_name,
+		got      => $data->{product_name},
 	);
 }
 

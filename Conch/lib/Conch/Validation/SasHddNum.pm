@@ -5,6 +5,7 @@ use v5.20;
 
 has 'name'        => 'sas_hdd_num';
 has 'version'     => 1;
+has 'category'    => 'DISK';
 has 'description' => q( Validate expected number of SAS HDDs );
 
 sub validate {
@@ -19,9 +20,8 @@ sub validate {
 		( values $data->{disks}->%* );
 
 	$self->register_result(
-		expected       => $hw_profile->sas_num,
-		got            => $sas_hdd_num,
-		component_type => 'DISK'
+		expected => $hw_profile->sas_num,
+		got      => $sas_hdd_num,
 	);
 
 }

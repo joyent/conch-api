@@ -5,6 +5,7 @@ use v5.20;
 
 has 'name'        => 'sas_ssd_num';
 has 'version'     => 1;
+has 'category'    => 'DISK';
 has 'description' => q( Validate expected number of SSDs );
 
 sub validate {
@@ -31,9 +32,8 @@ sub validate {
 	}
 
 	$self->register_result(
-		expected       => $ssd_want,
-		got            => $ssd_num,
-		component_type => 'DISK'
+		expected => $ssd_want,
+		got      => $ssd_num,
 	);
 
 }

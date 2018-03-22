@@ -5,6 +5,7 @@ use v5.20;
 
 has 'name'        => 'disk_temperature';
 has 'version'     => 1;
+has 'category'    => 'DISK';
 has 'description' => q(
 Validate the reported disk temperatures are under the maximum threshold
 );
@@ -29,11 +30,10 @@ sub validate {
 		$max_temp = 60 if $disk->{drive_type} eq 'SAS_HDD';
 
 		$self->register_result(
-			expected       => $max_temp,
-			got            => $disk->{temp},
-			cmp            => '<',
-			component_type => 'DISK',
-			component_id   => $disk_sn,
+			expected     => $max_temp,
+			got          => $disk->{temp},
+			cmp          => '<',
+			component_id => $disk_sn,
 		);
 	}
 }

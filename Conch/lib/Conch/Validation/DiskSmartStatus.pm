@@ -2,8 +2,9 @@ package Conch::Validation::DiskSmartStatus;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'    => 'disk_smart_status';
-has 'version' => 1;
+has 'name'     => 'disk_smart_status';
+has 'version'  => 1;
+has 'category' => 'DISK';
 has 'description' =>
 	q( Validate that all non-USB disks report 'OK' SMART status);
 
@@ -25,10 +26,9 @@ sub validate {
 			unless defined( $disk->{health} );
 
 		$self->register_result(
-			expected       => 'OK',
-			got            => $disk->{health},
-			component_type => 'DISK',
-			component_id   => $disk_sn
+			expected     => 'OK',
+			got          => $disk->{health},
+			component_id => $disk_sn
 		);
 
 	}

@@ -4,6 +4,7 @@ use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'links_up';
 has 'version'     => 1;
+has 'category'    => 'NET';
 has 'description' => q(
 Validate that there are at least 4 NICs in the 'up' state
 );
@@ -21,10 +22,9 @@ sub validate {
 	}
 
 	$self->register_result(
-		component_type => 'NET',
-		expected       => 4,
-		cmp            => '>=',
-		got            => $links_up
+		expected => 4,
+		cmp      => '>=',
+		got      => $links_up
 	);
 }
 

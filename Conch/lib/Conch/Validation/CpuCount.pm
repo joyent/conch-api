@@ -4,6 +4,7 @@ use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'cpu_count';
 has 'version'     => 1;
+has 'category'    => 'CPU';
 has 'description' => q(
 Validate the reported number of CPUs match the hardware product profile
 );
@@ -27,9 +28,8 @@ sub validate {
 	my $hw_profile = $self->hardware_product_profile;
 
 	$self->register_result(
-		expected       => $hw_profile->cpu_num,
-		got            => $data->{processor}->{count},
-		component_type => 'CPU'
+		expected => $hw_profile->cpu_num,
+		got      => $data->{processor}->{count},
 	);
 
 }

@@ -5,6 +5,7 @@ use v5.20;
 
 has 'name'        => 'usb_hdd_num';
 has 'version'     => 1;
+has 'category'    => 'DISK';
 has 'description' => q( Validate expected number of reported USB HDDs );
 
 sub validate {
@@ -19,9 +20,8 @@ sub validate {
 		grep { fc( $_->{transport} ) eq fc('usb') } ( values $data->{disks}->%* );
 
 	$self->register_result(
-		expected       => $hw_profile->usb_num,
-		got            => $usb_num,
-		component_type => 'DISK'
+		expected => $hw_profile->usb_num,
+		got      => $usb_num,
 	);
 
 }

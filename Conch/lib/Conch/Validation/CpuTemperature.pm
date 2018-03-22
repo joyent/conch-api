@@ -4,6 +4,7 @@ use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'cpu_temperature';
 has 'version'     => 1;
+has 'category'    => 'CPU';
 has 'description' => q(
 Validate the reported CPU temperatures are less than the maximum in the
 hardware product profile

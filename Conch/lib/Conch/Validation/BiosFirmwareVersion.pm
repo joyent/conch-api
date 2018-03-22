@@ -4,6 +4,7 @@ use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'bios_firmware_version';
 has 'version'     => 1;
+has 'category'    => 'BIOS';
 has 'description' => q(
 Validate the reported BIOS firmware version matches the hardware product
 profile

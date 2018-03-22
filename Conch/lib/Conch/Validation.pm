@@ -9,8 +9,9 @@ Conch::Validation - base class for writing Conch Validations
 	package Conch::Validation::DeviceValidation;
 	use Mojo::Base 'Conch::Validation';
 
-	has name => 'device_validation';
-	has version => 1;
+	has name        => 'device_validation';
+	has version     => 1;
+	has category    => 'CPU';
 	has description => q/Description of the validation/;
 
 	# Optional schema to validate $input_data before `validate` is run.
@@ -53,6 +54,7 @@ has 'name';
 has 'version';
 has 'description';
 has 'schema';
+has 'category';
 
 =head2 validation_results
 
@@ -101,8 +103,8 @@ validated. Empty C<HAHSREF> if unspecified.
 
 An optional C<CODEREF> to construct validation results. If unspecified,
 validation results are built as C<HASHREF>s. The C<CODEREF> will be passed a
-list of attributes and values (Attributes are 'message', 'name', 'status',
-'hint') whenever a validation result is registered.
+list of attributes and values (Attributes are 'message', 'name', 'category',
+'status', and 'hint') whenever a validation result is created.
 
 =back
 
@@ -139,10 +141,11 @@ sub run ( $self, $data ) {
 		my $error_loc =
 			'Exception raised in \'' . $frame->[0] . '\' at line ' . $frame->[2];
 		my $validation_error = $self->{_validation_result_builder}->(
-			message => $_->message,
-			name    => $self->name,
-			status  => STATUS_ERROR,
-			hint    => $error_loc
+			message  => $_->message,
+			name     => $self->name,
+			status   => STATUS_ERROR,
+			hint     => $error_loc,
+			category => $self->category,
 		);
 		push $self->validation_results->@*, $validation_error;
 	};
@@ -373,8 +376,9 @@ You may also provide the following attributes to override validation results
 
 =item C<name>
 
-By default, the validation result stores the C<name> attribute of the Validation class. You
-may override the validation result name with this attribute
+By default, the validation result stores the C<name> attribute of the
+Validation class. You may override the validation result name with this
+attribute.
 
 	$self->register_result(
 		expected => 'hello',
@@ -392,6 +396,29 @@ by specifying the C<message> attribute.
 		expected => 'hello',
 		got      => 'hello',
 		message  => 'Hello world!'
+	);
+
+=item C<category>
+
+By default, the validation result stores the C<category> attribute of the
+Validation class. You may override the validation result category with this
+attribute.
+
+	$self->register_result(
+		expected => 'hello',
+		got      => 'hello',
+		category => 'BIOS'
+	);
+
+=item C<component_id>
+
+You may specify the optional string attribute C<component_id> to set an
+identifier to help identify a specific component under test.
+
+	$self->register_result(
+		expected  => 'OK',
+		got       => $disk->{health},
+		hint      => $disk->{serial_number}
 	);
 
 =item C<hint>
@@ -453,8 +480,9 @@ sub register_result ( $self, %attrs ) {
 	}
 
 	my $validation_result = $self->{_validation_result_builder}->(
-		message => $attrs{message} || $expected_got_message,
-		name    => $attrs{name}    || $self->name,
+		message  => $attrs{message}  || $expected_got_message,
+		name     => $attrs{name}     || $self->name,
+		category => $attrs{category} || $self->category,
 		status => $success ? STATUS_SUCCESS : STATUS_FAIL,
 		hint   => $success ? $attrs{hint}   : undef
 	);
@@ -498,10 +526,11 @@ The attributes C<name> and C<hint> may be specified like with C<register_result>
 
 sub fail ( $self, $message, %attrs ) {
 	my $validation_result = $self->{_validation_result_builder}->(
-		message => $message,
-		name    => $attrs{name} || $self->name,
-		status  => STATUS_FAIL,
-		hint    => $attrs{hint}
+		message  => $message,
+		name     => $attrs{name} || $self->name,
+		category => $attrs{category} || $self->category,
+		status   => STATUS_FAIL,
+		hint     => $attrs{hint}
 	);
 	push $self->validation_results->@*, $validation_result;
 	return $self;

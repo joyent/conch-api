@@ -5,6 +5,7 @@ use List::Util 'first';
 
 has 'name'        => 'switch_peers';
 has 'version'     => 1;
+has 'category'    => 'NET';
 has 'description' => q(
 Validate the number of peer switches, the number of peer ports, and the
 expected peer port according to the rack layout
@@ -46,12 +47,11 @@ sub validate {
 		$switch_peers->{$peer_name}->{$peer_port} = 1;
 
 		$self->register_result(
-			expected       => [@peer_ports],
-			got            => $peer_port,
-			cmp            => 'oneOf',
-			component_type => 'NET',
-			component_id   => $nic->{nic},
-			name           => 'peer_ports'
+			expected     => [@peer_ports],
+			got          => $peer_port,
+			cmp          => 'oneOf',
+			component_id => $nic->{nic},
+			name         => 'peer_ports'
 		);
 
 	}
@@ -60,10 +60,9 @@ sub validate {
 	my $num_switches = keys %{$switch_peers};
 
 	$self->register_result(
-		expected       => 2,
-		got            => $num_switches,
-		component_type => 'NET',
-		name           => 'num_switches'
+		expected => 2,
+		got      => $num_switches,
+		name     => 'num_switches'
 	);
 
 	# Validate the number of ports per switch
@@ -73,10 +72,9 @@ sub validate {
 		my $num_ports = keys %{ $switch_peers->{$switch_name} };
 
 		$self->register_result(
-			expected       => 2,
-			got            => $num_ports,
-			component_type => 'NET',
-			name           => 'num_ports'
+			expected => 2,
+			got      => $num_ports,
+			name     => 'num_ports'
 		);
 	}
 }

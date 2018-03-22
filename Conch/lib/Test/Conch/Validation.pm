@@ -173,9 +173,11 @@ sub test_validation {
 		|| diag "$validation_module->new failed" && return;
 
 	ok( defined( $validation->name ) )
-		|| diag("'name' attribute should be defined for $validation_module");
+		|| diag("'name' attribute must be defined for $validation_module");
 	ok( defined( $validation->version ) )
-		|| diag("'version' attribute should be defined for $validation_module");
+		|| diag("'version' attribute must be defined for $validation_module");
+	ok( defined( $validation->category ) )
+		|| diag("'category' attribute should be defined for $validation_module");
 	ok( defined( $validation->description ) )
 		|| diag("'description' attribute should be defined for $validation_module");
 

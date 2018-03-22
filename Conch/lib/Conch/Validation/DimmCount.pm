@@ -4,16 +4,17 @@ use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'dimm_count';
 has 'version'     => 1;
+has 'category'    => 'RAM';
 has 'description' => 'Verify the number of DIMMs reported';
 
 has schema => sub {
 	{
 		required => ['memory'],
-		memory => {
+		memory   => {
 			type       => 'object',
 			properties => {
 				required => ['count'],
-				count => { type => 'integer' }
+				count    => { type => 'integer' }
 			}
 		}
 	};
@@ -34,9 +35,8 @@ sub validate {
 	}
 
 	$self->register_result(
-		expected       => $dimms_want,
-		got            => $dimms_num,
-		component_type => 'RAM'
+		expected => $dimms_want,
+		got      => $dimms_num,
 	);
 }
 

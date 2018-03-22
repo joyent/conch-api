@@ -4,6 +4,7 @@ use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'ram_total';
 has 'version'     => 1;
+has 'category'    => 'RAM';
 has 'description' => q(
 Validate the reported RAM match the hardware product profile
 );
@@ -34,9 +35,8 @@ sub validate {
 	}
 
 	$self->register_result(
-		expected       => $ram_want,
-		got            => $ram_total,
-		component_type => 'RAM'
+		expected => $ram_want,
+		got      => $ram_total,
 	);
 }
 

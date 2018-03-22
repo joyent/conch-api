@@ -4,6 +4,7 @@ use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'nics_num';
 has 'version'     => 1;
+has 'category'    => 'NET';
 has 'description' => q(
 Validate the reported number of NICs match the hardware product profile
 );
@@ -18,9 +19,8 @@ sub validate {
 	my $nics_count = scalar( keys $data->{interfaces}->%* );
 
 	$self->register_result(
-		expected       => $hw_profile->nics_num,
-		got            => $nics_count,
-		component_type => 'NET'
+		expected => $hw_profile->nics_num,
+		got      => $nics_count,
 	);
 }
 

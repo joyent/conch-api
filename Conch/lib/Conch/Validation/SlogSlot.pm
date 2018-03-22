@@ -5,6 +5,7 @@ use v5.20;
 
 has 'name'        => 'slog_slot';
 has 'version'     => 1;
+has 'category'    => 'DISK';
 has 'description' => q( Validate ZFS SLOG is in slot 0 );
 
 sub validate {
@@ -23,10 +24,9 @@ sub validate {
 		my $slog_slot = $ssd_disks[0]->{slot};
 
 		$self->register_result(
-			expected       => 0,
-			got            => $slog_slot,
-			component_type => 'DISK',
-			diag           => 'ZFS SLOG is in wrong slot'
+			expected => 0,
+			got      => $slog_slot,
+			hint     => 'ZFS SLOG is in wrong slot'
 		);
 	}
 
