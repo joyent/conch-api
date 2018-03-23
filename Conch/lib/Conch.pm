@@ -145,6 +145,7 @@ sub startup {
 
 	$self->plugin('Util::RandomString');
 	$self->plugin('Conch::Plugin::Mail');
+	$self->plugin('Conch::Plugin::GitVersion');
 	$self->plugin(NYTProf => $self->config);
 
 	if($self->config('audit')) {

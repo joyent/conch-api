@@ -26,7 +26,6 @@ our @EXPORT = qw(
 	all_routes
 );
 
-
 =head2 all_routes
 
 Set up the full route structure
@@ -43,10 +42,8 @@ sub all_routes {
 	);
 
 	$unsecured->get( '/', sub { shift->reply->static('../public/index.html') } );
-	$unsecured->get( '/doc', 
-		sub { shift->reply->static('../public/doc/index.html') }
-	);
-
+	$unsecured->get( '/doc',
+		sub { shift->reply->static('../public/doc/index.html') } );
 
 	$unsecured->get(
 		'/ping',
@@ -55,11 +52,12 @@ sub all_routes {
 		}
 	);
 
-	my $git_rev = `git describe`;
-	chomp($git_rev);
-	$unsecured->get('/version' => sub { 
-		shift->status(200, { version => $git_rev });
-	});
+	$unsecured->get(
+		'/version' => sub {
+			my $c = shift;
+			$c->status( 200, { version => $c->version_tag } );
+		}
+	);
 
 	$unsecured->post('/login')->to('login#session_login');
 	$unsecured->post('/logout')->to('login#session_logout');
@@ -99,4 +97,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
