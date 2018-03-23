@@ -423,9 +423,9 @@ You may specify the optional string attribute C<component_id> to set an
 identifier to help identify a specific component under test.
 
 	$self->register_result(
-		expected  => 'OK',
-		got       => $disk->{health},
-		hint      => $disk->{serial_number}
+		expected     => 'OK',
+		got          => $disk->{health},
+		component_id => $disk->{serial_number}
 	);
 
 =item C<hint>
@@ -510,8 +510,9 @@ sub register_result ( $self, %attrs ) {
 		message  => $attrs{message}  || $expected_got_message,
 		name     => $attrs{name}     || $self->name,
 		category => $attrs{category} || $self->category,
-		status => $success ? STATUS_SUCCESS : STATUS_FAIL,
-		hint   => $success ? $attrs{hint}   : undef
+		component_id => $attrs{component_id},
+		status       => $success ? STATUS_SUCCESS : STATUS_FAIL,
+		hint         => $success ? $attrs{hint} : undef
 	);
 
 	push $self->validation_results->@*, $validation_result;
@@ -542,7 +543,8 @@ continue validating other parts of the data.
 	$self->fail('This validation fails but validation evaluation will continue')
 		unless defined( $data->{required_value} );
 
-The attributes C<name> and C<hint> may be specified like with C<register_result>.
+The attributes C<name>, C<category>, C<component_id>, and C<hint> may be
+specified like with C<register_result>.
 
 	$self->fail('I fail!',
 		name => 'some_component_validation',
@@ -553,11 +555,12 @@ The attributes C<name> and C<hint> may be specified like with C<register_result>
 
 sub fail ( $self, $message, %attrs ) {
 	my $validation_result = $self->{_validation_result_builder}->(
-		message  => $message,
-		name     => $attrs{name} || $self->name,
-		category => $attrs{category} || $self->category,
-		status   => STATUS_FAIL,
-		hint     => $attrs{hint}
+		message      => $message,
+		name         => $attrs{name} || $self->name,
+		category     => $attrs{category} || $self->category,
+		component_id => $attrs{component_id},
+		status       => STATUS_FAIL,
+		hint         => $attrs{hint}
 	);
 	push $self->validation_results->@*, $validation_result;
 	return $self;
