@@ -2,13 +2,8 @@
 	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
 	migrate-db watch-test
 
-run: build run-perl
-
-run_dev: build
+run: build
 	@carton exec -- morbo -v bin/conch -l http://\*:5001
-
-run-perl:
-	@carton exec bin/conch daemon
 
 build: web-assets local doc
 
@@ -68,7 +63,7 @@ watch-assets:
 	@find ui/css/app.css ui/dist/main.js | entr -r make web-assets
 
 watch-perl:
-	@find lib | entr -r -c make run-perl
+	@find lib | entr -r -c make run
 
 watch-test:
 	@find lib t | entr -r -c make test
