@@ -283,6 +283,17 @@ sub device_settings ($self) {
 	return $self->{_device_settings};
 }
 
+=head2 has_device_location
+
+Return a boolean whether the device under validation has been assigned a
+location.
+
+=cut
+
+sub has_device_location ($self) {
+	return defined($self->{_device_location});
+}
+
 =head2 device_location
 
 Get the C<Conch::Class::DeviceLocation> object for the device under validation.
