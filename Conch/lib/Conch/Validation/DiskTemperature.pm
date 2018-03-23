@@ -26,11 +26,11 @@ sub validate {
 			unless defined( $disk->{temp} );
 
 		# from legacy validation
-		my $max_temp = 51;
-		$max_temp = 60 if $disk->{drive_type} eq 'SAS_HDD';
+		my $MAX_TEMP = 51;
+		$MAX_TEMP = 60 if $disk->{drive_type} eq 'SAS_HDD';
 
 		$self->register_result(
-			expected     => $max_temp,
+			expected     => $MAX_TEMP,
 			got          => $disk->{temp},
 			cmp          => '<',
 			component_id => $disk_sn,

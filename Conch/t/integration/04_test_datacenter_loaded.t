@@ -322,6 +322,7 @@ subtest 'Device location' => sub {
 		json => { rack_id => $rack_id, rack_unit => 3 } )->status_is(303)
 		->header_like( Location => qr!/device/TEST/location$! );
 
+	$t->delete_ok('/device/TEST/location', 'can delete device location')->status_is(204);
 };
 
 subtest 'Validations' => sub {
@@ -368,8 +369,6 @@ subtest 'Validations' => sub {
 		->content_is('[]');
 };
 
-
-$t->delete_ok('/device/TEST/location', 'can delete device location')->status_is(204);
 
 subtest 'Log out' => sub {
 	$t->post_ok("/logout")->status_is(204);

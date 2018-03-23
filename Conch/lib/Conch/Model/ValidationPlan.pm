@@ -53,7 +53,7 @@ Lookup a validation plan by ID
 
 sub lookup ( $class, $id ) {
 	my $ret =
-		Conch::Pg->new->db->select( 'validation_plan', $attrs, { id => $id } )
+		Conch::Pg->new->db->select( 'validation_plan', undef, { id => $id } )
 		->hash;
 	return $ret && $class->new( $ret->%* );
 }
@@ -66,7 +66,7 @@ Lookup a validation plan by name. Name is unique for validation plans.
 
 sub lookup_by_name ( $class, $name ) {
 	my $ret =
-		Conch::Pg->new->db->select( 'validation_plan', $attrs, { name => $name } )
+		Conch::Pg->new->db->select( 'validation_plan', undef, { name => $name } )
 		->hash;
 	return $ret && $class->new( $ret->%* );
 }
@@ -78,7 +78,7 @@ List all active Validation Planss
 =cut
 
 sub list ( $class ) {
-	Conch::Pg->new->db->select( 'validation_plan', $attrs,
+	Conch::Pg->new->db->select( 'validation_plan', undef,
 		{ deactivated => undef } )->hashes->map( sub { $class->new( shift->%* ) } )
 		->to_array;
 }
@@ -137,11 +137,15 @@ sub add_validation ( $self, $validation ) {
 	return $self;
 }
 
+
 =head2 remove_validation
 
 Remove the association of validation with this validation plan. Can pass either
 a validation ID string or a C<Conch::Model::Validation> object. Returns the
 object.
+
+B<Note>: This removes the join-table association between the C<validation_plan>
+and C<validation> tables. It does not use a C<deactivated> flag.
 
 =cut
 

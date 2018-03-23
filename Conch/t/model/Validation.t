@@ -16,15 +16,11 @@ my $pgtmp = mk_tmp_db() or die;
 my $pg = Conch::Pg->new( $pgtmp->uri );
 
 my $validation;
+
 subtest "Create validation" => sub {
 	$validation = Conch::Model::Validation->create( 'test', 1, 'test validation',
 		'Conch::Validation::Test' );
 	isa_ok( $validation, 'Conch::Model::Validation' );
-	ok( $validation->id );
-	is( $validation->name,        'test' );
-	is( $validation->version,     1 );
-	is( $validation->persistence, 0 );
-	is( $validation->description, 'test validation' );
 };
 
 subtest "lookup validation" => sub {

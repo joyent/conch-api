@@ -85,7 +85,7 @@ sub upsert ( $class, $name, $version, $description, $module ) {
 		},
 		$name, $version, $description, $module
 	)->hash;
-	return $ret && $class->new( $ret->%* );
+	return $class->new( $ret->%* ) if $ret;
 }
 
 =head2 lookup
@@ -96,9 +96,9 @@ Lookup a validation by ID
 
 sub lookup ( $class, $id ) {
 	my $ret =
-		Conch::Pg->new->db->select( 'validation', $attrs,
+		Conch::Pg->new->db->select( 'validation', undef,
 		{ id => $id, deactivated => undef } )->hash;
-	return $ret && $class->new( $ret->%* );
+	return $class->new( $ret->%* ) if $ret;
 }
 
 =head2 list
@@ -108,7 +108,7 @@ List all active Validations
 =cut
 
 sub list ( $class ) {
-	Conch::Pg->new->db->select( 'validation', $attrs, { deactivated => undef } )
+	Conch::Pg->new->db->select( 'validation', undef, { deactivated => undef } )
 		->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 

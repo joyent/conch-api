@@ -28,12 +28,12 @@ sub validate {
 	my ( $self, $data ) = @_;
 
 	# Value from device_validate_criteria in legacy validations
-	my $max_temp = 70;
+	my $MAX_TEMP = 70;
 
 	for my $cpu (qw/cpu0 cpu1/) {
 		$self->register_result(
 			type     => 'CPU',
-			expected => $max_temp,
+			expected => $MAX_TEMP,
 			cmp      => '<',
 			got      => $data->{temp}->{$cpu}
 		);

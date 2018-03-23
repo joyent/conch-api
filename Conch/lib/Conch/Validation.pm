@@ -41,7 +41,7 @@ Conch::Validation - base class for writing Conch Validations
 
 =head1 DESCRIPTION
 
-C<Conch::Validaiton> provides the base class to define and execute Conch
+C<Conch::Validation> provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a C<validate>
 method.  This method receives the input data (a C<HASHREF>) to be validatated.
 This input data hash may be validated by setting the C<schema> attribute with a
@@ -63,7 +63,7 @@ Validation System infrastructure.
 Testing Conch Validations should be done with
 C<Test::Conch::Validation::test_validation> with TAP-based tests. This
 functions tests that Validations define the required attributes and methods,
-and allow you to test the validaiton logic by running test cases against
+and allow you to test the validation logic by running test cases against
 expected results.
 
 =head1 METHODS
@@ -194,7 +194,7 @@ sub run_unsafe ( $self, $data ) {
 	local $SIG{__DIE__} = sub {
 		my $err = shift;
 		if ( $err->isa('Mojo::Exception') ) {
-			CORE::die $err;
+			return $err;
 		}
 		else {
 			# remove the 'at $filename line $line_number' from the exception
@@ -347,32 +347,12 @@ sub hardware_product_profile ($self) {
 	return $self->{_hardware_product}->profile;
 }
 
-my $cmp_dispatch = {
-	'=='  => sub { $_[0] == $_[1] },
-	'!='  => sub { $_[0] != $_[1] },
-	'>'   => sub { $_[0] > $_[1] },
-	'>='  => sub { $_[0] >= $_[1] },
-	'<'   => sub { $_[0] < $_[1] },
-	'<='  => sub { $_[0] <= $_[1] },
-	'<='  => sub { $_[0] <= $_[1] },
-	eq    => sub { $_[0] eq $_[1] },
-	ne    => sub { $_[0] ne $_[1] },
-	lt    => sub { $_[0] lt $_[1] },
-	le    => sub { $_[0] le $_[1] },
-	gt    => sub { $_[0] gt $_[1] },
-	ge    => sub { $_[0] ge $_[1] },
-	like  => sub { $_[0] =~ /$_[1]/ },
-	oneOf => sub {
-		scalar( grep { $_[0] eq $_ } $_[1]->@* );
-	}
-};
-
 =head2 register_result
 
-Register a Validation Result in the validaiton logic. C<register_result> may be
+Register a Validation Result in the validation logic. C<register_result> may be
 called as many times as desired in a C<validate> method.
 
-Instead of calculating whether a result should pass or fail in the validaiton
+Instead of calculating whether a result should pass or fail in the validation
 logic, provide an 'expected' value, the 'got' value, and a comparison operator.
 This declarative syntax allows for result de-duplication and consistent messages.
 
@@ -494,6 +474,26 @@ sub register_result ( $self, %attrs ) {
 			if ref($expected);
 	}
 
+	my $cmp_dispatch = {
+		'=='  => sub { $_[0] == $_[1] },
+		'!='  => sub { $_[0] != $_[1] },
+		'>'   => sub { $_[0] > $_[1] },
+		'>='  => sub { $_[0] >= $_[1] },
+		'<'   => sub { $_[0] < $_[1] },
+		'<='  => sub { $_[0] <= $_[1] },
+		'<='  => sub { $_[0] <= $_[1] },
+		eq    => sub { $_[0] eq $_[1] },
+		ne    => sub { $_[0] ne $_[1] },
+		lt    => sub { $_[0] lt $_[1] },
+		le    => sub { $_[0] le $_[1] },
+		gt    => sub { $_[0] gt $_[1] },
+		ge    => sub { $_[0] ge $_[1] },
+		like  => sub { $_[0] =~ /$_[1]/ },
+		oneOf => sub {
+			scalar( grep { $_[0] eq $_ } $_[1]->@* );
+		}
+	};
+
 	my $success = $cmp_dispatch->{$cmp_op}->( $got, $expected );
 	my $expected_got_message;
 	if ( $cmp_op eq 'oneOf' ) {
@@ -534,7 +534,7 @@ sub die ( $self, $message, $level = 1 ) {
 
 =head2 fail
 
-Record a failing validaiton result with a message and continues execution. This
+Record a failing validation result with a message and continues execution. This
 may be useful if you cannot validate some part of the input data but want to
 continue validating other parts of the data.
 

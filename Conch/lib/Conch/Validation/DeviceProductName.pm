@@ -9,13 +9,18 @@ has description => q(
 Valdidate reported product name matches product name expected in rack layout
 );
 
-has category => 'BIOS';
+has schema => sub {
+	{
+		required => ['product_name'],
+		product_name => {
+			type => 'string'
+		}
+	}
+
+};
 
 sub validate {
 	my ( $self, $data ) = @_;
-
-	$self->die("Need 'product_name' string in input")
-		unless $data->{product_name} && ref( $data->{product_name} ) eq '';
 
 	$self->register_result(
 		expected => $self->hardware_product_name,
