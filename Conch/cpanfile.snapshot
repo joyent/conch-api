@@ -283,6 +283,7 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
+      Config::General 2.47
       Module::Pluggable::Object 3.6
   Config-General-2.63
     pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
@@ -368,8 +369,8 @@ DISTRIBUTIONS
       Test::More 0.47
       Tie::Hash 0
       perl 5.006
-  DBI-1.640
-    pathname: T/TI/TIMB/DBI-1.640.tar.gz
+  DBI-1.641
+    pathname: T/TI/TIMB/DBI-1.641.tar.gz
     provides:
       Bundle::DBI 12.008696
       DBD::DBM 0.08
@@ -425,7 +426,7 @@ DISTRIBUTIONS
       DBD::Sponge::dr 12.010003
       DBD::Sponge::st 12.010003
       DBDI 12.015129
-      DBI 1.640
+      DBI 1.641
       DBI::Const::GetInfo::ANSI 2.008697
       DBI::Const::GetInfo::ODBC 2.011374
       DBI::Const::GetInfoReturn 2.008697
@@ -465,10 +466,9 @@ DISTRIBUTIONS
       DBI::SQL::Nano::Table_ 1.015544
       DBI::Util::CacheMemory 0.010315
       DBI::Util::_accessor 0.009479
-      DBI::common 1.640
+      DBI::common 1.641
     requirements:
       ExtUtils::MakeMaker 6.48
-      Storable 2.16
       Test::Simple 0.90
       perl 5.008
   DBICx-TestDatabase-0.05
@@ -613,53 +613,45 @@ DISTRIBUTIONS
       DBICx::TestDatabase 0
       DBIx::Class 0.08127
       ExtUtils::MakeMaker 6.36
-  DBIx-Class-IntrospectableM2M-0.001002
-    pathname: I/IL/ILMARI/DBIx-Class-IntrospectableM2M-0.001002.tar.gz
+  DBIx-Class-Schema-Loader-0.07049
+    pathname: I/IL/ILMARI/DBIx-Class-Schema-Loader-0.07049.tar.gz
     provides:
-      DBIx::Class::IntrospectableM2M 0.001002
-    requirements:
-      DBIx::Class 0
-      ExtUtils::MakeMaker 6.36
-      Test::More 0
-  DBIx-Class-Schema-Loader-0.07048
-    pathname: I/IL/ILMARI/DBIx-Class-Schema-Loader-0.07048.tar.gz
-    provides:
-      DBIx::Class::Schema::Loader 0.07048
-      DBIx::Class::Schema::Loader::Base 0.07048
+      DBIx::Class::Schema::Loader 0.07049
+      DBIx::Class::Schema::Loader::Base 0.07049
       DBIx::Class::Schema::Loader::Column undef
-      DBIx::Class::Schema::Loader::DBI 0.07048
-      DBIx::Class::Schema::Loader::DBI::ADO 0.07048
-      DBIx::Class::Schema::Loader::DBI::ADO::MS_Jet 0.07048
-      DBIx::Class::Schema::Loader::DBI::ADO::Microsoft_SQL_Server 0.07048
-      DBIx::Class::Schema::Loader::DBI::Component::QuotedDefault 0.07048
-      DBIx::Class::Schema::Loader::DBI::DB2 0.07048
-      DBIx::Class::Schema::Loader::DBI::Firebird 0.07048
-      DBIx::Class::Schema::Loader::DBI::Informix 0.07048
-      DBIx::Class::Schema::Loader::DBI::InterBase 0.07048
-      DBIx::Class::Schema::Loader::DBI::MSSQL 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::ACCESS 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::Firebird 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::Microsoft_SQL_Server 0.07048
-      DBIx::Class::Schema::Loader::DBI::ODBC::SQL_Anywhere 0.07048
-      DBIx::Class::Schema::Loader::DBI::Oracle 0.07048
-      DBIx::Class::Schema::Loader::DBI::Pg 0.07048
-      DBIx::Class::Schema::Loader::DBI::SQLAnywhere 0.07048
-      DBIx::Class::Schema::Loader::DBI::SQLite 0.07048
-      DBIx::Class::Schema::Loader::DBI::Sybase 0.07048
-      DBIx::Class::Schema::Loader::DBI::Sybase::Common 0.07048
-      DBIx::Class::Schema::Loader::DBI::Sybase::Microsoft_SQL_Server 0.07048
-      DBIx::Class::Schema::Loader::DBI::Writing 0.07048
-      DBIx::Class::Schema::Loader::DBI::mysql 0.07048
+      DBIx::Class::Schema::Loader::DBI 0.07049
+      DBIx::Class::Schema::Loader::DBI::ADO 0.07049
+      DBIx::Class::Schema::Loader::DBI::ADO::MS_Jet 0.07049
+      DBIx::Class::Schema::Loader::DBI::ADO::Microsoft_SQL_Server 0.07049
+      DBIx::Class::Schema::Loader::DBI::Component::QuotedDefault 0.07049
+      DBIx::Class::Schema::Loader::DBI::DB2 0.07049
+      DBIx::Class::Schema::Loader::DBI::Firebird 0.07049
+      DBIx::Class::Schema::Loader::DBI::Informix 0.07049
+      DBIx::Class::Schema::Loader::DBI::InterBase 0.07049
+      DBIx::Class::Schema::Loader::DBI::MSSQL 0.07049
+      DBIx::Class::Schema::Loader::DBI::ODBC 0.07049
+      DBIx::Class::Schema::Loader::DBI::ODBC::ACCESS 0.07049
+      DBIx::Class::Schema::Loader::DBI::ODBC::Firebird 0.07049
+      DBIx::Class::Schema::Loader::DBI::ODBC::Microsoft_SQL_Server 0.07049
+      DBIx::Class::Schema::Loader::DBI::ODBC::SQL_Anywhere 0.07049
+      DBIx::Class::Schema::Loader::DBI::Oracle 0.07049
+      DBIx::Class::Schema::Loader::DBI::Pg 0.07049
+      DBIx::Class::Schema::Loader::DBI::SQLAnywhere 0.07049
+      DBIx::Class::Schema::Loader::DBI::SQLite 0.07049
+      DBIx::Class::Schema::Loader::DBI::Sybase 0.07049
+      DBIx::Class::Schema::Loader::DBI::Sybase::Common 0.07049
+      DBIx::Class::Schema::Loader::DBI::Sybase::Microsoft_SQL_Server 0.07049
+      DBIx::Class::Schema::Loader::DBI::Writing 0.07049
+      DBIx::Class::Schema::Loader::DBI::mysql 0.07049
       DBIx::Class::Schema::Loader::DBObject undef
       DBIx::Class::Schema::Loader::DBObject::Informix undef
       DBIx::Class::Schema::Loader::DBObject::Sybase undef
       DBIx::Class::Schema::Loader::Optional::Dependencies undef
-      DBIx::Class::Schema::Loader::RelBuilder 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_040 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_05 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_06 0.07048
-      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_07 0.07048
+      DBIx::Class::Schema::Loader::RelBuilder 0.07049
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_040 0.07049
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_05 0.07049
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_06 0.07049
+      DBIx::Class::Schema::Loader::RelBuilder::Compat::v0_07 0.07049
       DBIx::Class::Schema::Loader::Table undef
       DBIx::Class::Schema::Loader::Table::Informix undef
       DBIx::Class::Schema::Loader::Table::Sybase undef
@@ -669,15 +661,11 @@ DISTRIBUTIONS
       Class::C3::Componentised 1.0008
       Class::Inspector 1.27
       Class::Unload 0.07
-      DBD::SQLite 1.29
       DBIx::Class 0.08127
-      DBIx::Class::IntrospectableM2M 0
       Data::Dump 1.06
       Digest::MD5 2.36
       Exporter 5.63
-      ExtUtils::MakeMaker 6.59
-      File::Path 2.07
-      File::Temp 0.16
+      ExtUtils::MakeMaker 0
       Hash::Merge 0.12
       Lingua::EN::Inflect::Number 1.1
       Lingua::EN::Inflect::Phrase 0.15
@@ -685,14 +673,8 @@ DISTRIBUTIONS
       List::Util 1.33
       MRO::Compat 0.09
       Scope::Guard 0.20
-      String::CamelCase 0.02
       String::ToIdentifier::EN 0.05
       Sub::Util 1.40
-      Test::Deep 0.107
-      Test::Differences 0.60
-      Test::Exception 0.31
-      Test::More 0.94
-      Test::Warn 0.21
       Try::Tiny 0
       curry 1.000000
       namespace::clean 0.23
@@ -1532,13 +1514,14 @@ DISTRIBUTIONS
       File::HomeDir::Windows 1.002
     requirements:
       Carp 0
-      Cwd 3.12
+      Cwd 3
       ExtUtils::MakeMaker 0
       File::Basename 0
       File::Path 2.01
-      File::Spec 3.12
+      File::Spec 3
       File::Temp 0.19
       File::Which 0.05
+      Mac::SystemDirectory 0.04
       POSIX 0
       perl 5.005003
   File-ShareDir-1.104
@@ -1640,6 +1623,23 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Scalar::Util 0
       perl 5.008001
+  IO-Socket-SSL-2.056
+    pathname: S/SU/SULLR/IO-Socket-SSL-2.056.tar.gz
+    provides:
+      IO::Socket::SSL 2.056
+      IO::Socket::SSL::Intercept 2.056
+      IO::Socket::SSL::OCSP_Cache 2.056
+      IO::Socket::SSL::OCSP_Resolver 2.056
+      IO::Socket::SSL::PublicSuffix undef
+      IO::Socket::SSL::SSL_Context 2.056
+      IO::Socket::SSL::SSL_HANDLE 2.056
+      IO::Socket::SSL::Session_Cache 2.056
+      IO::Socket::SSL::Utils 2.014
+    requirements:
+      ExtUtils::MakeMaker 0
+      Mozilla::CA 0
+      Net::SSLeay 1.46
+      Scalar::Util 0
   IO-stringy-2.111
     pathname: D/DS/DSKOLL/IO-stringy-2.111.tar.gz
     provides:
@@ -2079,6 +2079,17 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006
+  Mac-SystemDirectory-0.10
+    pathname: E/ET/ETHER/Mac-SystemDirectory-0.10.tar.gz
+    provides:
+      Mac::SystemDirectory 0.10
+    requirements:
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      XSLoader 0
+      perl 5.006
+      strict 0
+      warnings 0
   Mail-Sendmail-0.80
     pathname: N/NE/NEILB/Mail-Sendmail-0.80.tar.gz
     provides:
@@ -3004,6 +3015,24 @@ DISTRIBUTIONS
       Test::Exception 0
       Test::More 0
       ok 0
+  Mozilla-CA-20180117
+    pathname: A/AB/ABH/Mozilla-CA-20180117.tar.gz
+    provides:
+      Mozilla::CA 20180117
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test 0
+      perl 5.006
+  Net-SSLeay-1.85
+    pathname: M/MI/MIKEM/Net-SSLeay-1.85.tar.gz
+    provides:
+      Net::SSLeay 1.85
+      Net::SSLeay::Handle 0.61
+    requirements:
+      ExtUtils::MakeMaker 6.36
+      MIME::Base64 0
+      Test::More 0.60_01
+      perl 5.005
   Package-DeprecationManager-0.17
     pathname: D/DR/DROLSKY/Package-DeprecationManager-0.17.tar.gz
     provides:
@@ -3603,9 +3632,8 @@ DISTRIBUTIONS
     requirements:
       Capture::Tiny 0.24
       Data::Dumper 2.126
-      ExtUtils::MakeMaker 0
       Test::More 0.88
-      Text::Diff 1.43
+      Text::Diff 0.35
   Test-Exception-0.43
     pathname: E/EX/EXODIST/Test-Exception-0.43.tar.gz
     provides:

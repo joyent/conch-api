@@ -10,6 +10,13 @@
 	audit_log_path => "log/audit.log",
 	audit_payloads => 0,
 
+    # Rollbar access token. Must be a token with write permissions
+    # rollbar_access_token => '00000000000000000000000000000000',
+
+    # Optional environment string override for rollbar exceptions. If not
+    # present, uses the value of $app->mode ('production' with Hypnotoad).
+    # rollbar_environment => 'staging',
+
     # See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
     hypnotoad => {
       listen => ['http://*:5000'],

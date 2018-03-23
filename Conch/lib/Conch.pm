@@ -130,6 +130,7 @@ sub startup {
 				my $exception = $args->{exception};
 				$exception->verbose(1);
 				$self->log->error($exception);
+				$self->send_exception_to_rollbar($exception);
 				my @stack = @{ $exception->frames };
 				@stack = map { "\t" . $_->[3] . ' at ' . $_->[1] . ':' . $_->[2] }
 					grep defined, @{ $exception->frames }[ 0 .. 10 ];
@@ -146,6 +147,7 @@ sub startup {
 	$self->plugin('Util::RandomString');
 	$self->plugin('Conch::Plugin::Mail');
 	$self->plugin('Conch::Plugin::GitVersion');
+	$self->plugin('Conch::Plugin::Rollbar');
 	$self->plugin(NYTProf => $self->config);
 
 	if($self->config('audit')) {
