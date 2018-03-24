@@ -12,9 +12,10 @@ use Conch::Model::Device;
 use Conch::Model::Validation;
 use Conch::Model::ValidationPlan;
 
-my $uuid  = Data::UUID->new;
-my $pgtmp = mk_tmp_db() or die;
-my $pg    = Conch::Pg->new( $pgtmp->uri );
+my $uuid   = Data::UUID->new;
+my $pgtmp  = mk_tmp_db() or die;
+my $pg     = Conch::Pg->new( $pgtmp->uri );
+my $minion = Conch::Minion->new;
 
 my $validation_plan =
 	Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
@@ -40,32 +41,38 @@ my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
 BAIL_OUT("Could not create a validation plan and device ")
 	unless $validation_plan && $validation_plan->id && $device->id;
 
-my $minion = Minion->new( Pg => $pg->pg );
-my $validation_system = Conch::ValidationSystem->new( minion => $minion );
-
 throws_ok(
-	sub { $validation_system->run_validation_plan( undef, undef, undef ); },
-	qr/Device ID must be defined/ );
-throws_ok(
-	sub { $validation_system->run_validation_plan( 'foobar', undef, undef ); },
-	qr/Validation Plan ID must be defined/ );
-throws_ok(
-	sub { $validation_system->run_validation_plan( 'foobar', '1234', undef ); },
-	qr/Validation data must be a hashref/ );
-throws_ok(
-	sub { $validation_system->run_validation_plan( 'foobar', '1234', {} ); },
-	qr/No device exists with ID 'foobar'/ );
+	sub { Conch::ValidationSystem->run_validation_plan( undef, undef, undef ); },
+	qr/Device ID must be defined/
+);
 throws_ok(
 	sub {
-		$validation_system->run_validation_plan( 'coffee', $uuid->create_str, {} );
+		Conch::ValidationSystem->run_validation_plan( 'foobar', undef, undef );
+	},
+	qr/Validation Plan ID must be defined/
+);
+throws_ok(
+	sub {
+		Conch::ValidationSystem->run_validation_plan( 'foobar', '1234', undef );
+	},
+	qr/Validation data must be a hashref/
+);
+throws_ok(
+	sub { Conch::ValidationSystem->run_validation_plan( 'foobar', '1234', {} ); },
+	qr/No device exists with ID 'foobar'/
+);
+throws_ok(
+	sub {
+		Conch::ValidationSystem->run_validation_plan( 'coffee', $uuid->create_str,
+			{} );
 	},
 	qr/No Validation Plan found with ID/
 );
 
 throws_ok(
 	sub {
-		$validation_system->run_validation_plan( 'coffee', $validation_plan->id,
-			{} );
+		Conch::ValidationSystem->run_validation_plan( 'coffee',
+			$validation_plan->id, {} );
 	},
 	qr/Validation Plan .+ is not associated with any validations/
 );
@@ -76,7 +83,8 @@ my $validation = Conch::Model::Validation->create( 'test', 1, 'test validation',
 $validation_plan->add_validation($validation);
 
 my $new_validation_state =
-	$validation_system->run_validation_plan( 'coffee', $validation_plan->id, {} );
+	Conch::ValidationSystem->run_validation_plan( 'coffee', $validation_plan->id,
+	{} );
 
 isa_ok( $new_validation_state, 'Conch::Model::ValidationState' );
 ok( $new_validation_state->id );

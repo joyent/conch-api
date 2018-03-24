@@ -43,7 +43,10 @@ sub startup {
 
 	# Log all messages regardless of operating mode
 	$self->log->level('debug');
+
+	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
+	Conch::Minion->new;
 
 	$self->helper(
 		status => sub {
@@ -216,7 +219,7 @@ sub startup {
 		});
 	}
 
-	Conch::ValidationSystem->new->load_validations;
+	Conch::ValidationSystem->load_validations;
 
 	my $r = $self->routes;
 	all_routes($r);

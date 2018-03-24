@@ -11,15 +11,13 @@ Conch::ValidationSystem
 package Conch::ValidationSystem;
 
 use Mojo::Base -base, -signatures;
-use Minion;
+use Conch::Minion;
 use Mojo::Log;
 use Mojo::Exception;
 use Submodules;
 
 use Conch::Model::ValidationState;
 use Conch::Pg;
-
-has 'minion' => sub { Minion->new( Pg => Conch::Pg->new ) };
 
 =head2 load_validations
 
@@ -31,7 +29,7 @@ Returns the number of new or changed validations loaded.
 
 =cut
 
-sub load_validations ( $self, $logger = Mojo::Log->new ) {
+sub load_validations ( $class, $logger = Mojo::Log->new ) {
 	my $num_loaded_validations = 0;
 	for my $m ( Submodules->find('Conch::Validation') ) {
 		next if $m->{Module} eq 'Conch::Validation';
@@ -79,7 +77,7 @@ Returns a new validation state
 
 =cut
 
-sub run_validation_plan ( $self, $device_id, $validation_plan_id, $data ) {
+sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
 
 	Mojo::Exception->throw("Device ID must be defined") unless $device_id;
 	Mojo::Exception->throw("Validation Plan ID must be defined")
@@ -111,12 +109,13 @@ sub run_validation_plan ( $self, $device_id, $validation_plan_id, $data ) {
 	my $validation_state =
 		Conch::Model::ValidationState->create( $device_id, $validation_plan->id );
 
+	my $minion             = Conch::Minion->new;
 	my @validation_job_ids = map {
-		$self->minion->enqueue(
+		$minion->enqueue(
 			validation => [ $_, $device_id, $data, $validation_state->id ] );
 	} $validations->@*;
 
-	$self->minion->enqueue(
+	$minion->enqueue(
 		commit_validation_state => [ $validation_state->id ],
 		{ parents => \@validation_job_ids }
 	);
