@@ -1,5 +1,3 @@
-<!-- generated with `pod2github lib/Conch/Validation.pm > lib/Conch/Validation/README.md` -->
-
 ## Name
 
 Conch::Validation - base class for writing Conch Validations
@@ -42,7 +40,7 @@ Conch::Validation - base class for writing Conch Validations
 
 ## Description
 
-`Conch::Validaiton` provides the base class to define and execute Conch
+`Conch::Validation` provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a `validate`
 method.  This method receives the input data (a `HASHREF`) to be validatated.
 This input data hash may be validated by setting the `schema` attribute with a
@@ -64,7 +62,7 @@ Validation System infrastructure.
 Testing Conch Validations should be done with
 `Test::Conch::Validation::test_validation` with TAP-based tests. This
 functions tests that Validations define the required attributes and methods,
-and allow you to test the validaiton logic by running test cases against
+and allow you to test the validation logic by running test cases against
 expected results.
 
 ## Methods
@@ -169,6 +167,11 @@ conditional evaluation in the validation logic.
     return if $self->device_settings->{skip_this_validation};
 ```
 
+### Has\_Device\_Location
+
+Return a boolean whether the device under validation has been assigned a
+location.
+
 ### Device\_Location
 
 Get the `Conch::Class::DeviceLocation` object for the device under validation.
@@ -211,10 +214,10 @@ production, the product profile is a `Conch::Class:HardareProductProfile` object
 
 ### Register\_Result
 
-Register a Validation Result in the validaiton logic. `register_result` may be
+Register a Validation Result in the validation logic. `register_result` may be
 called as many times as desired in a `validate` method.
 
-Instead of calculating whether a result should pass or fail in the validaiton
+Instead of calculating whether a result should pass or fail in the validation
 logic, provide an 'expected' value, the 'got' value, and a comparison operator.
 This declarative syntax allows for result de-duplication and consistent messages.
 
@@ -293,9 +296,9 @@ You may also provide the following attributes to override validation results
 
     ```perl
         $self->register_result(
-                expected  => 'OK',
-                got       => $disk->{health},
-                hint      => $disk->{serial_number}
+                expected     => 'OK',
+                got          => $disk->{health},
+                component_id => $disk->{serial_number}
         );
     ```
 
@@ -324,7 +327,7 @@ Stop execution of the Validation immediately and record an error.
 
 ### Fail
 
-Record a failing validaiton result with a message and continues execution. This
+Record a failing validation result with a message and continues execution. This
 may be useful if you cannot validate some part of the input data but want to
 continue validating other parts of the data.
 
@@ -333,7 +336,8 @@ continue validating other parts of the data.
             unless defined( $data->{required_value} );
 ```
 
-The attributes `name` and `hint` may be specified like with `register_result`.
+The attributes `name`, `category`, `component_id`, and `hint` may be
+specified like with `register_result`.
 
 ```perl
     $self->fail('I fail!',
