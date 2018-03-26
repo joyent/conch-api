@@ -58,16 +58,23 @@ sub minion { shift->{minion}; }
 These methods are all proxy calls into the Minion object. They are available to
 allow Conch::Minion to be a drop-in replacement for our usage of Minion so far.
 
-=head2 enqueue
+=head2 add_task
 
 =head2 dequeue
 
+=head2 enqueue
+
+=head2 perform_jobs
+
+=head2 stats
+
 =cut
 
-sub enqueue { shift->minion->enqueue(@_); }
-sub dequeue { shift->minion->dequeue(@_); }
-sub stats   { shift->minion->stats(@_); }
-
+sub add_task     { shift->minion->add_task(@_); }
+sub dequeue      { shift->minion->dequeue(@_); }
+sub enqueue      { shift->minion->enqueue(@_); }
+sub perform_jobs { shift->minion->perform_jobs(@_); }
+sub stats        { shift->minion->stats(@_); }
 1;
 
 __DATA__

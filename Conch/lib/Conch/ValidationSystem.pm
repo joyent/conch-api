@@ -123,6 +123,45 @@ sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
 	return $validation_state;
 }
 
+=head2 start_tasks
+
+Start the Minion tasks for processing validations
+
+=cut
+
+sub start_tasks ( $class ) {
+	Conch::Minion->new->add_task(
+		validation => sub {
+			my ( $job, $validation_id, $device_id, $data ) = @_;
+
+			my $validation = Conch::Model::Validation->lookup($validation_id);
+			$job->fail("Unable to find Validation '$validation_id'")
+				unless $validation;
+			my $device = Conch::Model::Device->lookup($device_id);
+			$job->fail("Unable to find Device '$device_id'")
+				unless $device;
+
+			my @results = map { $_->output_hash }
+				$validation->run_validation_for_device( $device, $data )->@*;
+			$job->finish( \@results );
+		}
+	);
+
+	Conch::Minion->new->add_task(
+		commit_validation_state => sub {
+			my ( $job, $validation_state_id ) = @_;
+
+			my $validation_state =
+				Conch::Model::ValidationState->lookup($validation_state_id);
+			$job->fail( "Unable to find Validation State '$validation_state_id'."
+					. " to mark as completed" )
+				unless $validation_state;
+			$validation_state->mark_completed();
+			$job->finish();
+		}
+	);
+}
+
 1;
 __DATA__
 

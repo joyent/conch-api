@@ -12,6 +12,7 @@ package Conch::Model::Validation;
 use Mojo::Base -base, -signatures;
 
 use Conch::Pg;
+use Conch::Model::DeviceSettings;
 use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
 use Conch::Model::ValidationResult;
@@ -96,8 +97,21 @@ Lookup a validation by ID
 
 sub lookup ( $class, $id ) {
 	my $ret =
-		Conch::Pg->new->db->select( 'validation', undef,
+		Conch::Pg->new->db->select( 'validation', $attrs,
 		{ id => $id, deactivated => undef } )->hash;
+	return $class->new( $ret->%* ) if $ret;
+}
+
+=head2 lookup_by_name_and_version
+
+Lookup a validation by name and version
+
+=cut
+
+sub lookup_by_name_and_version ( $class, $name, $version ) {
+	my $ret =
+		Conch::Pg->new->db->select( 'validation', $attrs,
+		{ name => $name, version => $version, deactivated => undef } )->hash;
 	return $class->new( $ret->%* ) if $ret;
 }
 
@@ -108,7 +122,7 @@ List all active Validations
 =cut
 
 sub list ( $class ) {
-	Conch::Pg->new->db->select( 'validation', undef, { deactivated => undef } )
+	Conch::Pg->new->db->select( 'validation', $attrs, { deactivated => undef } )
 		->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 
@@ -151,22 +165,26 @@ sub build_device_validation ( $self, $device, $device_location,
 	return $validation;
 }
 
-=head2 build_validation_for_device
+=head2 run_validation_for_device
 
-Build the L<Conch::Validation> sub-class with the given device
+Run the L<Conch::Validation> sub-class with the given device
 (L<Conch::Model::Device>). Finds the location, settings, and expected hardwar
-product for the Device.
+product for the Device. Returns the validation results.
 
 =cut
 
-sub build_validation_for_device ( $self, $device ) {
+sub run_validation_for_device ( $self, $device, $data ) {
 	my $location   = Conch::Model::DeviceLocation->lookup( $device->id );
 	my $settings   = Conch::Model::DeviceSettings->get_settings( $device->id );
 	my $hw_product = Conch::Model::HardwareProduct->lookup(
 		$location->target_hardware_product->id )
 		if $location;
-	return $self->build_device_validation( $device, $location, $settings,
+
+	my $validation =
+		$self->build_device_validation( $device, $location, $settings,
 		$hw_product );
+	$validation->run($data);
+	return $validation->validation_results;
 }
 
 1;

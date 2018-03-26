@@ -32,6 +32,18 @@ subtest "lookup validation" => sub {
 		'found validation is same as created' );
 };
 
+subtest "lookup validation by name and version" => sub {
+	my $maybe_validation =
+		Conch::Model::Validation->lookup_by_name_and_version( 'test', 1 );
+	is_deeply( $maybe_validation, $validation,
+		'found validation is same as created' );
+
+	$maybe_validation =
+		Conch::Model::Validation->lookup_by_name_and_version( 'not found', 1 );
+	is( $maybe_validation, undef, 'unfound validation is undef' );
+
+};
+
 subtest "upsert validation" => sub {
 
 	subtest "Unchanged upsert returns undef " => sub {

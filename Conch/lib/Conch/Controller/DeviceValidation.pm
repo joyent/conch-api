@@ -34,11 +34,10 @@ sub validate ($c) {
 	$c->status( 404, { error => "Validation $validation_id not found" } )
 		unless $validation;
 
-	my $validator = $validation->build_validation_for_device($device);
-	my $data      = $c->req->json;
-	$validator->run($data);
+	my $data = $c->req->json;
 	my @validation_results =
-		map { $_->output_hash } $validator->validation_results->@*;
+		map { $_->output_hash }
+		$validation->run_validation_for_device( $device, $data )->@*;
 
 	$c->status( 200, \@validation_results );
 }

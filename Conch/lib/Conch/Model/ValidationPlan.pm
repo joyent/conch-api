@@ -53,7 +53,7 @@ Lookup a validation plan by ID
 
 sub lookup ( $class, $id ) {
 	my $ret =
-		Conch::Pg->new->db->select( 'validation_plan', undef, { id => $id } )
+		Conch::Pg->new->db->select( 'validation_plan', $attrs, { id => $id } )
 		->hash;
 	return $ret && $class->new( $ret->%* );
 }
@@ -66,7 +66,7 @@ Lookup a validation plan by name. Name is unique for validation plans.
 
 sub lookup_by_name ( $class, $name ) {
 	my $ret =
-		Conch::Pg->new->db->select( 'validation_plan', undef, { name => $name } )
+		Conch::Pg->new->db->select( 'validation_plan', $attrs, { name => $name } )
 		->hash;
 	return $ret && $class->new( $ret->%* );
 }
@@ -78,7 +78,7 @@ List all active Validation Planss
 =cut
 
 sub list ( $class ) {
-	Conch::Pg->new->db->select( 'validation_plan', undef,
+	Conch::Pg->new->db->select( 'validation_plan', $attrs,
 		{ deactivated => undef } )->hashes->map( sub { $class->new( shift->%* ) } )
 		->to_array;
 }

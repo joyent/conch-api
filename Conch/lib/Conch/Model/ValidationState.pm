@@ -37,7 +37,7 @@ Lookup a validation state by ID or return undef
 
 sub lookup ( $class, $id ) {
 	my $ret =
-		Conch::Pg->new->db->select( 'validation_state', undef, { id => $id } )
+		Conch::Pg->new->db->select( 'validation_state', $attrs, { id => $id } )
 		->hash;
 	return $ret && $class->new( $ret->%* );
 }
