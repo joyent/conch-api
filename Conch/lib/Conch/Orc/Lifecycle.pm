@@ -23,7 +23,7 @@ use experimental qw(signatures);
 
 use Try::Tiny;
 use Type::Tiny;
-use Types::Standard qw(Num InstanceOf Str Bool Undef);
+use Types::Standard qw(Num InstanceOf Str Bool Undef ArrayRef);
 use Types::UUID qw(Uuid);
 
 use Conch::Time;
@@ -106,7 +106,8 @@ Conch::Time
 
 has 'deactivated' => (
 	is => 'rw',
-	isa => InstanceOf["Conch::Time"] | Undef
+	isa => InstanceOf["Conch::Time"] | Undef,
+	default => undef,
 );
 
 
@@ -149,6 +150,19 @@ has 'device_role' => (
 );
 
 
+
+=item workflows
+
+Arrayref of all Workflows in the Lifecycle
+
+=cut
+
+has 'workflows' => (
+	is => 'rwp',
+	isa => ArrayRef
+	default => sub { [] }
+);
+
 =pod
 
 =back
@@ -164,11 +178,18 @@ Look up a Lifecycle by its UUID. Returns undef if not found
 sub from_id ($class, $uuid) {
 	my $ret;
 	try {
-		$ret = Conch::Pg->new()->db->select('orc_lifecycle', undef, {
-			id => $uuid
-		})->hash;
+		$ret = Conch::Pg->new()->db->query(qq|
+			select ol.*, array(
+				select olp.workflow_id 
+				from orc_lifecycle_plan olp
+				where olp.orc_lifecycle_id = ol.id
+				order by workflow_order
+			) as workflows
+			from orc_lifecycle ol
+			where ol.id = ?
+		|, $uuid)->hash;
 	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->_from: $_");
+		Mojo::Exception->throw(__PACKAGE__."->from_id: $_");
 		return undef;
 	};
 
@@ -191,16 +212,37 @@ Returns an arrayref containing all Lifecycles for a given device
 =cut
 
 sub many_from_device($class, $device) {
-	my $ret = Conch::Pg->new->db->query(qq|
-		select distinct(olp.workflow_id) as workflow_id, ol.* from orc_lifecycle ol
+	my $ret;
+	try {
+		$ret = Conch::Pg->new()->db->query(qq|
+			select ol.*, array(
+				select olp.workflow_id 
+				from orc_lifecycle_plan olp
+				where olp.orc_lifecycle_id = ol.id
+				order by workflow_order
+			) as workflows
+			from orc_lifecycle ol
 			join orc_lifecycle_plan olp on ol.id = olp.orc_lifecycle_id
-			join workflow_status ws on ws.workflow_id = olp.workflow_id
-		where ws.device_id = ?
-	|, $device->id)->hashes;
+			where olp.workflow_id in (
+				select distinct(ws.workflow_id)
+				from workflow_status ws
+				where ws.device_id = ?
+			)
+		|, $device->id)->hashes;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->many_from_device: $_");
+		return undef;
+	};
+
+	return [] unless $ret;
 
 	my @many = map {
-		$_->{created} = Conch::Time->new($_->{created});
-		$_->{updated} = Conch::Time->new($_->{updated});
+		for my $k (qw(created updated deactivated)) {
+			if ($_->{$k}) {
+				$_->{$k} = Conch::Time->new($_->{$k});
+			}
+		}
+
 		$class->new($_->%*)
 	} $ret->@*;
 
@@ -217,7 +259,15 @@ Returns an arrayref containing all lifecycles in the database
 sub all ($class) {
 	my $ret;
 	try {
-		$ret = Conch::Pg->new()->db->select('orc_lifecycle')->hashes;
+		$ret = Conch::Pg->new()->db->query(qq|
+			select ol.*, array(
+				select olp.workflow_id 
+				from orc_lifecycle_plan olp
+				where olp.orc_lifecycle_id = ol.id
+				order by olp.workflow_order
+			) as workflows
+			from orc_lifecycle ol
+		|)->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->all: $_");
 		return undef;
@@ -233,23 +283,19 @@ sub all ($class) {
 }
 
 
-=head2 workflows
 
-Returns an arrayref of all Workflows in the Lifecycle
-
-=cut
-
-sub workflows ($self) {
+sub _refresh_workflows ($self) {
 	my $db = Conch::Pg->new()->db;
 	my $ret = $db->query(qq|
-		select w.id from workflow w
-		join orc_lifecycle_plan olp on olp.workflow_id = w.id
-		where olp.orc_lifecycle_id = ?
-		order by olp.workflow_order
+		select workflow_id
+		from orc_lifecycle_plan
+		where orc_lifecycle_id = ?
+		order by workflow_order
 	|, $self->id)->hashes;
 
-	my @plan = map { $_->{id} } $ret->@*;
-	return \@plan;
+	my @plan = map { $_->{workflow_id} } $ret->@*;
+	$self->_set_workflows(\@plan);
+	return $self;
 }
 
 
@@ -267,6 +313,7 @@ Returns C<$self>, allowing for method chaining
 
 =cut
 
+# XXX This doesn't adjust the order of the other workflows in the plan
 sub add_workflow($self, $workflow, $order = undef) {
 	my $db = Conch::Pg->new->db;
 
@@ -300,6 +347,7 @@ sub add_workflow($self, $workflow, $order = undef) {
 		return undef;
 	};
 
+	$self->_refresh_workflows;
 	return $self;
 }
 
@@ -339,7 +387,6 @@ sub remove_workflow($self, $workflow) {
 			where orc_lifecycle_id = ? and workflow_id = ?
 		|, $self->id, $workflow->id);
 
-
 		my $found = 0;
 		for my $r ($plan->@*) {
 			if ($r->{workflow_id} eq $workflow->id) {
@@ -359,6 +406,7 @@ sub remove_workflow($self, $workflow) {
 		return undef;
 	};
 	$tx->commit;
+	$self->_refresh_workflows;
 
 	return $self;
 }
@@ -366,7 +414,7 @@ sub remove_workflow($self, $workflow) {
 
 =head2 save
 
-Save or update the Lifecycle
+Save or update the Lifecycle. This does B<not> save the workflow list.
 
 Returns C<$self>, allowing for method chaining
 

@@ -38,7 +38,6 @@ my $hardware_product_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
-my $d = Conch::Model::Device->create( 'test', $hardware_product_id );
 
 my $w;
 lives_ok {
@@ -81,7 +80,6 @@ lives_ok {
 	$l->add_workflow($w2);
 } '->add_workflow';
 
-
 my @w;
 lives_ok {
 	@w = $l->workflows->@*;
@@ -94,12 +92,43 @@ lives_ok {
 	$l->remove_workflow($w);
 } '->remove_workflow';
 
-
 lives_ok {
 	@w = $l->workflows->@*;
 } '->workflows';
 
 is_deeply($w[0], $w2->id, "First workflow matches");
 is($w[1], undef, "No other workflows remain");
+
+
+subtest "Devices" => sub {
+	$l = Conch::Orc::Lifecycle->from_id($l->id);
+
+	my $d = Conch::Model::Device->create( 'test', $hardware_product_id );
+	lives_ok {
+		$l->add_workflow($w);
+	} '->add_workflow';
+
+	my $s;
+	lives_ok {
+		$s = Conch::Orc::Workflow::Status->new(
+			workflow_id => $w->id,
+			device_id => $d->id,
+		)->save();
+	} 'Workflow::Status->save';
+
+	my @many;
+
+	lives_ok {
+		@many = Conch::Orc::Lifecycle->many_from_device($d)->@*;
+	} '->many_from_device';
+
+	is_deeply(\@many, [ $l ], "The right many");
+};
+
+my @all;
+lives_ok {
+	@all = Conch::Orc::Lifecycle->all->@*;
+} '->all';
+is_deeply(\@all, [ $l ], "all matches expectations");
 
 done_testing();
