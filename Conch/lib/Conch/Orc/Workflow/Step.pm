@@ -165,18 +165,6 @@ has 'updated' => (
 );
 
 
-=item deactivated
-
-Conch::Time
-
-=cut
-
-has 'deactivated' => (
-	is  => 'rw',
-	isa => InstanceOf["Conch::Time"] | Undef
-);
-
-
 =back
 
 =head1 METHODS
@@ -215,7 +203,7 @@ sub _from ($class, $key, $value) {
 
 	return undef unless $ret;
 
-	for my $k (qw(created updated deactivated)) {
+	for my $k (qw(created updated)) {
 		if ($ret->{$k}) {
 			$ret->{$k} = Conch::Time->new($ret->{$k});
 		}
@@ -253,9 +241,6 @@ sub many_from_ids ($class, $ids) {
 		$s->{created}     = Conch::Time->new($s->{created});
 		$s->{updated}     = Conch::Time->new($s->{updated});
 		$s->{order}       = $s->{step_order};
-		if($s->{deactivated}) {
-			$s->{deactivated} = Conch::Time->new($s->{deactivated});
-		}
 		$class->new($s);
 	} $ret->@*;
 
@@ -278,7 +263,6 @@ sub save ($self) {
 
 	$self->_set_updated(Conch::Time->now);
 	my %fields = (
-		deactivated        => $self->deactivated ? $self->deactivated->timestamptz : undef,
 		updated            => $self->updated->timestamptz,
 		max_retries        => $self->max_retries,
 		name               => $self->name,
@@ -324,7 +308,6 @@ Returns a hashref, representing the Step in a serialized format
 sub serialize ($self) {
 	{
 		created            => $self->created->rfc3339(),
-		deactivated        => $self->deactivated ? $self->deactivated->rfc3339 : undef,
 		id                 => $self->id,
 		max_retries        => $self->max_retries,
 		name               => $self->name,
@@ -334,6 +317,28 @@ sub serialize ($self) {
 		validation_plan_id => $self->validation_plan_id,
 		workflow_id        => $self->workflow_id,
 	}
+}
+
+
+=head2 burn
+
+Deletes the step from the database. This is B<permanent> and B<cannot> be
+undone.
+
+=cut
+
+sub burn ($self) {
+	my $ret;
+	try {
+		$ret = Conch::Pg->new()->db->delete('workflow_step', { 
+			id => $self->id,
+		});
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->from_id: $_");
+		return undef;
+	};
+
+	return undef;
 }
 
 1;

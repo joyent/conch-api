@@ -173,7 +173,7 @@ sub _refresh_steps ($self) {
 	try {
 		$ret = Conch::Pg->new->db->query(qq|
 			select id from workflow_step
-			where workflow_id = ? and deactivated is null
+			where workflow_id = ?
 			order by step_order
 		|, $self->id)->hashes;
 	} catch {
@@ -203,7 +203,6 @@ sub from_id ($class, $id) {
 				select ws.id
 				from workflow_step ws
 				where ws.workflow_id = w.id
-					and ws.deactivated is null
 				order by ws.step_order
 			) as steps
 			from workflow w
@@ -245,7 +244,6 @@ sub all ($class) {
 				select ws.id
 				from workflow_step ws
 				where ws.workflow_id = w.id
-					and ws.deactivated is null
 				order by ws.step_order
 			) as steps
 			from workflow w;
@@ -362,9 +360,11 @@ sub add_step ($self, $step) {
 
 	$workflow->remove_step($step);
 
-Remove any step from the Workflow. The other steps in the Workflow will be
-reordered. The removed Step will be marked as deactivated and its C<<->save>>
-method called.
+Remove any step from the Workflow. If the step is found in the workflow, the
+other steps in the Workflow will be reordered and the provided step will be
+C<burn>ed, removing it from the database entirely.
+
+Does nothing if C<locked> is true.
 
 Returns C<$self>, allowing for method chaining.
 
@@ -387,8 +387,7 @@ sub remove_step ($self, $step) {
 	}
 
 	if($found) {
-		$step->deactivated(Conch::Time->now);
-		$step->save;
+		$step->burn;
 	}
 	return $self->_refresh_steps;
 }

@@ -37,7 +37,6 @@ B<NOTE:> workflow_id and order cannot be updated this way
 sub update ($c) {
 	my $s = Conch::Orc::Workflow::Step->from_id($c->param('id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 
 	my $body = $c->req->json;
 	delete $body->{id};
