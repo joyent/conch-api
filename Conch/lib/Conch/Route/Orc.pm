@@ -31,7 +31,14 @@ use Conch::Controller::Orc::WorkflowExecutions;
 use Conch::Controller::Orc::Lifecycles;
 
 sub load ( $class, $r ) {
-	my $o = $r->under("/o");
+	my $o = $r->under("/o")->under(sub {
+		my $c = shift;
+
+		return 1 if $c->is_global_admin;
+
+		$c->status(403);
+		return undef;
+	});
 
 	my $w = $o->under("/workflow");
 	$w->post("/")->to("Orc::Workflows#create");
