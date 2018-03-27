@@ -273,47 +273,6 @@ sub many_from_ids ($class, $ids) {
 }
 
 
-=head2 many_from_workflow
-
-	my $w = Conch::Orc::Workflow->from_name('wat');
-	my $many = Conch::Orc::Workflow::Step->many_from_workflow($w);
-
-Returns an arrayref containing all the Steps associated with a workflow, sorted
-by order
-
-=cut
-
-sub many_from_workflow ($class, $workflow) {
-	my $ret;
-	try {
-		$ret = Conch::Pg->new()->db->select('workflow_step', undef, { 
-			workflow_id => $workflow->id,
-			deactivated => undef,
-		}, { -asc => 'step_order' })->hashes;
-	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->many_from_workflow: $_");
-		return undef;
-	};
-
-	unless (scalar $ret->@*) {
-		return [];
-	}
-
-	my @many = map {
-		my $s = $_;
-		$s->{created}     = Conch::Time->new($s->{created});
-		$s->{updated}     = Conch::Time->new($s->{updated});
-		$s->{order}       = $s->{step_order};
-		if($s->{deactivated}) {
-			$s->{deactivated} = Conch::Time->new($s->{deactivate});
-		}
-		$class->new($s);
-	} $ret->@*;
-
-	return \@many;
-}
-
-
 =head2 save
 
 Save or update the Step

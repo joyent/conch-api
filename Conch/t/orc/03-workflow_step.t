@@ -88,11 +88,4 @@ lives_ok {
 } 'Step->save with known workflow id';
 
 
-my $many = Conch::Orc::Workflow::Step->many_from_workflow($w);
-
-my @ids = map { $_->id } $many->@*;
-is_deeply(\@ids, [ lc $s->id, lc $s3->id ], "->many_from_workflow");
-
-
-
 done_testing();
