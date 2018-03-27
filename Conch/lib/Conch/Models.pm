@@ -17,6 +17,8 @@ use Conch::Model::DeviceReport;
 use Conch::Model::DeviceSettings;
 use Conch::Model::HardwareProduct;
 use Conch::Model::Relay;
+use Conch::Model::Validation;
+use Conch::Model::ValidationPlan;
 use Conch::Model::Workspace;
 use Conch::Model::WorkspaceDevice;
 use Conch::Model::WorkspaceRack;

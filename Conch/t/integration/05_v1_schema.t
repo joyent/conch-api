@@ -19,7 +19,7 @@ BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
 
 my $validator = JSON::Validator->new;
-$validator->schema( $spec_file );
+$validator->schema($spec_file);
 
 # add UUID validation
 my $valid_formats = $validator->formats;
@@ -81,7 +81,8 @@ $t->get_ok("/workspace/$id")->status_is(200)->json_schema_is('Workspace');
 $t->get_ok("/workspace/$id/user")->status_is(200)
 	->json_schema_is('WorkspaceUsers');
 
-$t->get_ok("/workspace/$id/problem")->status_is(200)->json_schema_is('Problems');
+$t->get_ok("/workspace/$id/problem")->status_is(200)
+	->json_schema_is('Problems');
 
 $t->post_ok(
 	"/workspace/$id/child" => json => {
@@ -117,7 +118,8 @@ subtest 'Set up a test device' => sub {
 		}
 	)->status_is(204)->content_is('');
 
-	my $report = io->file('t/integration/resource/passing-device-report.json')->slurp;
+	my $report =
+		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(200)
 		->json_is( '/health', 'PASS' );
 };
@@ -190,5 +192,26 @@ $t->get_ok("/hardware_product/$hw_id")->status_is(200)
 	->json_schema_is('HardwareProduct');
 
 $t->get_ok("/relay")->status_is(200)->json_schema_is('Relays');
+
+$t->get_ok("/validation")->status_is(200)->json_schema_is('Validations');
+
+my $validation_id = $t->tx->res->json->[0]->{id};
+
+$t->post_ok( "/validation_plan",
+	json => { name => 'test_plan', description => 'test plan' } )->status_is(201)
+	->json_schema_is('ValidationPlan');
+
+my $validation_plan_id = $t->tx->res->json->{id};
+
+$t->get_ok("/validation_plan")->status_is(200)
+	->json_schema_is('ValidationPlans');
+$t->get_ok("/validation_plan/$validation_plan_id")->status_is(200)
+	->json_schema_is('ValidationPlan');
+
+$t->post_ok( "/validation_plan/$validation_plan_id/validation",
+	json => { id => $validation_id } )->status_is(204);
+
+$t->get_ok("/validation_plan/$validation_plan_id/validation")->status_is(200)
+	->json_schema_is('Validations');
 
 done_testing();

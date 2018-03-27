@@ -142,7 +142,8 @@ subtest 'Register relay' => sub {
 };
 
 subtest 'Device Report' => sub {
-	my $report = io->file('t/integration/resource/passing-device-report.json')->slurp;
+	my $report =
+		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', $report )->status_is(200)
 		->json_is( '/health', 'PASS' );
 };
@@ -321,8 +322,53 @@ subtest 'Device location' => sub {
 		json => { rack_id => $rack_id, rack_unit => 3 } )->status_is(303)
 		->header_like( Location => qr!/device/TEST/location$! );
 
-	$t->delete_ok('/device/TEST/location')->status_is(204);
+	$t->delete_ok('/device/TEST/location', 'can delete device location')->status_is(204);
 };
+
+subtest 'Validations' => sub {
+	$t->get_ok("/validation")->status_is(200);
+
+	my $validation_id = $t->tx->res->json->[0]->{id};
+
+	$t->post_ok( "/validation_plan",
+		json => { name => 'test_plan', description => 'test plan' } )
+		->status_is(201);
+
+	my $validation_plan_id = $t->tx->res->json->{id};
+
+	$t->post_ok( "/validation_plan",
+		json => { name => 'test_plan', description => 'test plan' } )
+		->status_is(409)
+		->json_like( '/error' => qr/already exists with the name 'test_plan'/ );
+
+	$t->get_ok("/validation_plan")->status_is(200);
+
+	$t->get_ok("/validation_plan/$validation_plan_id")->status_is(200);
+
+	$t->post_ok( "/validation_plan/$validation_plan_id/validation",
+		json => { id => $validation_id } )->status_is(204);
+
+	$t->get_ok("/validation_plan/$validation_plan_id/validation")->status_is(200);
+
+	$t->get_ok("/validation_plan/$validation_plan_id/validation")->status_is(200)
+		->json_is( '/0/id' => $validation_id );
+
+	subtest 'test validating a device' => sub {
+		$t->post_ok( "/device/TEST/validation/$validation_id", json => {} )
+			->status_is(200);
+
+		$t->post_ok( "/device/TEST/validation_plan/$validation_plan_id",
+			json => {} )->status_is(200);
+	};
+
+	$t->delete_ok(
+		"/validation_plan/$validation_plan_id/validation/$validation_id")
+		->status_is(204);
+
+	$t->get_ok("/validation_plan/$validation_plan_id/validation")->status_is(200)
+		->content_is('[]');
+};
+
 
 subtest 'Log out' => sub {
 	$t->post_ok("/logout")->status_is(204);
@@ -333,8 +379,8 @@ subtest 'Permissions' => sub {
 	my $ro_name = 'readonly@wat.wat';
 	my $ro_pass = 'password';
 
-	my $role_model = new_ok( "Conch::Model::WorkspaceRole");
-	my $ws_model   = new_ok( "Conch::Model::Workspace");
+	my $role_model = new_ok("Conch::Model::WorkspaceRole");
+	my $ws_model   = new_ok("Conch::Model::Workspace");
 
 	subtest "Read-only" => sub {
 

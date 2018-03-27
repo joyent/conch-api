@@ -20,6 +20,7 @@ use Conch::Route::User;
 use Conch::Route::Device;
 use Conch::Route::Relay;
 use Conch::Route::HardwareProduct;
+use Conch::Route::Validation;
 
 use Exporter 'import';
 our @EXPORT = qw(
@@ -75,11 +76,13 @@ sub all_routes {
 		}
 	);
 
+
 	workspace_routes($secured);
 	device_routes($secured);
 	relay_routes($secured);
 	user_routes( $secured->under('/user/me') );
 	hardware_product_routes($secured);
+	validation_routes($secured);
 }
 
 1;

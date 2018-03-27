@@ -22,9 +22,29 @@ with 'Conch::Class::Role::JsonV1';
 
 =head2 datacenter_room_id
 
+=head2 slots
+
+List of available slots defined by the rack layout
+
 =cut
 
-has [qw( id name role_name datacenter_room_id )];
+has [qw( id name role_name datacenter_room_id slots)];
+
+=head2 as_v1_json
+
+=cut
+
+sub as_v1_json {
+	my $self = shift;
+	return {
+		id => $self->id,
+		name => $self->name,
+		role_name => $self->name,
+		datacenter_room_id => $self->datacenter_room_id
+	};
+}
+
+1;
 
 1;
 

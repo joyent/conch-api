@@ -21,6 +21,7 @@ use Mojo::Pg;
 use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
+use Conch::ValidationSystem;
 
 use Mojo::JSON;
 
@@ -42,7 +43,10 @@ sub startup {
 
 	# Log all messages regardless of operating mode
 	$self->log->level('debug');
+
+	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
+	Conch::Minion->new;
 
 	$self->helper(
 		status => sub {
@@ -214,6 +218,8 @@ sub startup {
 			$log->debug(Mojo::JSON::to_json($d));
 		});
 	}
+
+	Conch::ValidationSystem->load_validations;
 
 	my $r = $self->routes;
 	all_routes($r);

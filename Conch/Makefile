@@ -79,3 +79,11 @@ generate-dbic:
 migrate-db:
 	@../sql/run_migrations.sh
 
+validation_docs: docs/validation/BaseValidation.md docs/validation/BaseValidation.md
+
+# pod2github is installed with Pod::Github
+docs/validation/BaseValidation.md: lib/Conch/Validation.pm
+	@pod2github lib/Conch/Validation.pm > docs/validation/BaseValidation.md
+
+docs/validation/TestingValidations.md: lib/Test/Conch/Validation.pm
+	@pod2github lib/Test/Conch/Validation.pm > docs/validation/TestingValidations.md
