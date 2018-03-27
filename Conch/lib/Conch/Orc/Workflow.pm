@@ -244,6 +244,7 @@ sub all ($class) {
 				select ws.id
 				from workflow_step ws
 				where ws.workflow_id = w.id
+					and deactivated is null
 				order by ws.step_order
 			) as steps
 			from workflow w;
