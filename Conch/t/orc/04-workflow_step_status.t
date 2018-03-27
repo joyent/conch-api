@@ -47,6 +47,7 @@ my $w;
 lives_ok {
 	$w = Conch::Orc::Workflow->new(
 		name  => 'sungo',
+		product_id => $hardware_product_id,
 	)->save();
 } 'Workflow->save';
 

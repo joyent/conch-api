@@ -8,38 +8,10 @@ create table workflow (
 	updated     timestamptz not null default current_timestamp,
 	deactivated timestamptz,
 	locked      bool        not null default false,
-	preflight   bool        default false,
+	product_id  uuid        not null references hardware_product (id),
 	unique(name, version)
 );
 create unique index on workflow(name) where deactivated is null;
-
-/*****************/
-
-create table orc_lifecycle (
-	id          uuid        primary key default gen_random_uuid(),
-	name        text        not null,
-	version     int         not null default 1,
-	device_role text        not null,
-	product_id  uuid        not null references hardware_product (id),
-
-	created     timestamptz not null default current_timestamp,
-	updated     timestamptz not null default current_timestamp,
-	deactivated timestamptz,
-	locked      bool        not null default false,
-	unique(name, version)
-);
-create unique index on orc_lifecycle(name) where deactivated is null;
-
-/*****************/
-
-create table orc_lifecycle_plan (
-	orc_lifecycle_id uuid  not null references orc_lifecycle (id),
-	workflow_id      uuid  not null references workflow (id),
-	workflow_order   int   not null,
-	unique(orc_lifecycle_id, workflow_id)
-);
-
-/*****************/
 
 create type e_workflow_status as enum (
 	'ongoing',

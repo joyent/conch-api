@@ -125,17 +125,19 @@ has 'locked' => (
 );
 
 
-=item preflight
+=item product_id
 
-Boolean. Defaults to 0
+UUID. FK'd into hardware_product(id)
 
 =cut
 
-has 'preflight' => (
-	is      => 'rw',
-	isa     => Bool,
-	default => 0,
+has 'product_id' => (
+	is  => 'rw',
+	isa => Uuid,
+	required => 1,
 );
+
+
 
 =back
 
@@ -286,7 +288,7 @@ sub save ($self) {
 		locked      => $self->locked,
 		name        => $self->name,
 		updated     => $self->updated->timestamptz,
-		preflight   => $self->preflight,
+		product_id  => $self->product_id,
 		version     => $self->version,
 	);
 
@@ -400,7 +402,7 @@ sub serialize ($self) {
 		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
 		created     => $self->created->rfc3339,
 		updated     => $self->updated->rfc3339,
-		preflight   => $self->preflight,
+		product_id  => $self->product_id,
 		steps       => $self->steps,
 	}
 }

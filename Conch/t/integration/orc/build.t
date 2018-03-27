@@ -25,6 +25,23 @@ BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 
 my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
 my $dbh = DBI->connect( $pgtmp->dsn );
+my $pg = Conch::Pg->new( $pgtmp->uri );
+
+my $hardware_vendor_id = $pg->db->insert(
+	'hardware_vendor',
+	{ name      => 'test vendor' },
+	{ returning => ['id'] }
+)->hash->{id};
+my $hardware_product_id = $pg->db->insert(
+	'hardware_product',
+	{
+		name   => 'test hw product',
+		alias  => 'alias',
+		vendor => $hardware_vendor_id
+	},
+	{ returning => ['id'] }
+)->hash->{id};
+
 
 my $t = Test::MojoSchema->new(
 	'Conch' => {
@@ -69,7 +86,8 @@ $t->post_ok(BASE."/workflow", json => { id => 'wat' });
 $t->status_is(400)->json_schema_is("Error");
 
 $t->post_ok(BASE."/workflow", json => {
-	name => 'sungo'
+	name => 'sungo',
+	product_id => $hardware_product_id,
 })->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)->json_is(
@@ -87,14 +105,14 @@ $t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
 )->json_schema_is('Workflow');
 
 $t->post_ok(BASE."/workflow/".$wid, json => {
-	preflight => 1
+	locked => 1
 })->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)->json_schema_is("Workflow");
 
 
 $t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
-	'/preflight' => 1,
+	'/locked' => 1,
 )->json_is(
 	'/name' => 'sungo'
 )->json_schema_is('Workflow');
@@ -108,6 +126,7 @@ $t->get_ok(BASE."/workflow/".$wid)->status_is(404)->json_schema_is("Error");
 
 subtest "Step" => sub {
 	$t->post_ok(BASE."/workflow", json => {
+		product_id => $hardware_product_id,
 		name => 'sungo2'
 	})->status_is(303);
 	$t->get_ok($t->tx->res->headers->location)->json_schema_is("Workflow");

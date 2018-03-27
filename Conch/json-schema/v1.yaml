@@ -875,16 +875,17 @@ definitions:
       - deactivated
       - locked
       - steps
-      - preflight
+      - product_id
     properties:
       deactivated:
         anyOf:
           - type: null
           - type: string
             format: date-time
-      preflight:
-        type: number
       id:
+        type: string
+        format: uuid
+      product_id:
         type: string
         format: uuid
       name:
@@ -1008,73 +1009,4 @@ definitions:
       workflow_step_id:
         type: string
         format: uuid
-  Lifecycles:
-    type: array
-    items:
-      $ref: "#/definitions/Lifecycle"
-  LifecyclesWithExecutions:
-    type: array
-    items:
-      $ref: "#/definitions/LifecycleWithExecutions"
-  LifecycleWithExecutions:
-    type: object
-    additionalProperties: false
-    required:
-      - lifecycle
-      - executions
-    properties:
-      lifecycle:
-        type: object
-        $ref: "#/definitions/Lifecycle"
-      executions:
-        type: array
-        items:
-          $ref: "#/definitions/WorkflowExecution"
-  Lifecycle:
-    type: object
-    additionalProperties: false
-    required:
-      - created
-      - deactivated
-      - device_role
-      - product_id
-      - id
-      - locked
-      - name
-      - updated
-      - version
-      - workflows
-    properties:
-      created:
-        type: string
-        format: date-time
-      deactivated:
-        anyOf:
-          - type: null
-          - type: string
-            format: date-time
-      device_role:
-        type: string
-      product_id:
-        type: string
-        format: uuid
-      id:
-        type: string
-        format: uuid
-      locked:
-        type: number
-      name:
-        type: string
-      updated:
-        type: string
-        format: date-time
-      version:
-        type: number
-      workflows:
-        anyOf:
-          - type: null
-          - type: array
-            items:
-              type: string
-              format: uuid
-
+ 

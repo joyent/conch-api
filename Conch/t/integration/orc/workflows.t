@@ -84,6 +84,7 @@ lives_ok {
 
 	$w = Conch::Orc::Workflow->new(
 		name        => 'sungo',
+		product_id  => $hw_id,
 	)->save();
 
 	$d = Conch::Model::Device->create(
@@ -203,54 +204,6 @@ subtest "Executions" => sub {
 	)->json_is(
 		'/status/0/status' => Conch::Orc::Workflow::Status->STOPPED
 	)->json_schema_is('WorkflowExecution');
-};
-
-subtest "Lifecycle" => sub {
-	my $l;
-	lives_ok {
-		$l = Conch::Orc::Lifecycle->new(
-			name => 'sungo',
-			device_role => 'test',
-			product_id => $hw_id,
-		)->save;
-	} 'Lifecycle->new->save';
-
-	lives_ok {
-		$l->add_workflow($w);
-	} 'Lifecycle->add_workflow';
-
-
-	$t->get_ok(BASE."/lifecycle")->status_is(200)->json_is(
-		'/0/id' => $l->id
-	)->json_is(
-		'/0/name' => $l->name
-	)->json_schema_is("Lifecycles");
-
-	$t->get_ok(BASE."/lifecycle/".$l->id)->status_is(200)->json_is(
-		'/id' => $l->id,
-	)->json_is(
-		'/name' => $l->name,
-	)->json_schema_is("Lifecycle");
-
-	subtest "Device lifecycle" => sub {
-		$t->get_ok(BASE."/device/".$d->id."/lifecycle")->status_is(200);
-		$t->json_is(
-			'/0/id' => $l->id
-		)->json_is(
-			'/1' => undef
-		)->json_schema_is("Lifecycles");
-
-
-		$t->get_ok(BASE."/device/".$d->id."/lifecycle/execution");
-		$t->status_is(200);
-		$t->json_is(
-			'/0/lifecycle/id' => $l->id
-		)->json_is(
-			'/0/executions/0/device/id' => $d->id
-		)->json_schema_is("LifecyclesWithExecutions");
-	};
-
-
 };
 
 $t->post_ok("/logout")->status_is(204);

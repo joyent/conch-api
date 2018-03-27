@@ -11,7 +11,6 @@ Convenience package to load up all the Orchestration DB modules
 package Conch::Orc;
 
 use Conch::Time;
-use Conch::Orc::Lifecycle;
 use Conch::Orc::Workflow;
 use Conch::Orc::Workflow::Status;
 use Conch::Orc::Workflow::Step;

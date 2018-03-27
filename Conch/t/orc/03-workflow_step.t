@@ -22,6 +22,23 @@ my $pg = Conch::Pg->new( $pgtmp->uri );
 
 my $uuid = Data::UUID->new;
 
+my $hardware_vendor_id = $pg->db->insert(
+	'hardware_vendor',
+	{ name      => 'test vendor' },
+	{ returning => ['id'] }
+)->hash->{id};
+my $hardware_product_id = $pg->db->insert(
+	'hardware_product',
+	{
+		name   => 'test hw product',
+		alias  => 'alias',
+		vendor => $hardware_vendor_id
+	},
+	{ returning => ['id'] }
+)->hash->{id};
+
+
+
 throws_ok {
 	Conch::Orc::Workflow::Step->new(
 		name               => 'sungo',
@@ -36,6 +53,7 @@ my $w;
 lives_ok {
 	$w = Conch::Orc::Workflow->new(
 		name        => 'sungo',
+		product_id  => $hardware_product_id,
 	)->save();
 } 'Workflow->save';
 
