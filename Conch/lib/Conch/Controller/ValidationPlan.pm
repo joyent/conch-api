@@ -36,7 +36,8 @@ sub create ($c) {
 
 	my $body   = $c->req->json;
 	my @errors = $create_schema->validate($body);
-	return $c->status( 400, { error => "Errors in request: @errors" } )
+	return $c->status( 400,
+		{ error => "Errors in request body", source => \@errors } )
 		if @errors;
 
 	my $existing_validation_plan =
@@ -61,7 +62,8 @@ List all available Validation Plans
 =cut
 
 sub list ($c) {
-	my @validation_plans = map { $_->output_hash } Conch::Model::ValidationPlan->list->@*;
+	my @validation_plans =
+		map { $_->output_hash } Conch::Model::ValidationPlan->list->@*;
 	$c->status( 200, \@validation_plans );
 }
 
@@ -136,7 +138,8 @@ sub add_validation ($c) {
 
 	my $body   = $c->req->json;
 	my @errors = $add_schema->validate($body);
-	return $c->status( 400, { error => "Errors in request: @errors" } )
+	return $c->status( 400,
+		{ error => "Errors in request body", source => \@errors } )
 		if @errors;
 
 	my $maybe_validation = Conch::Model::Validation->lookup( $body->{id} );
