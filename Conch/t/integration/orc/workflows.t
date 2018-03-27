@@ -148,64 +148,6 @@ subtest "Step" => sub {
 	)->json_schema_is('Workflows');
 };
 
-subtest "Executions" => sub {
-	my $s;
-	lives_ok {
-		$s = Conch::Orc::Workflow::Status->new(
-			device_id => $d->id,
-			workflow_id => $w->id,
-			status => Conch::Orc::Workflow::Status->ONGOING,
-		)->save();
-	}, "Add an ONGOING workflow status";
-
-
-	$t->get_ok(BASE."/execution/active")->status_is(200)->json_is(
-		'/0/workflow/id' => $w->id,
-	)->json_is(
-		'/0/status/0/id' => $s->id,
-	)->json_is(
-		'/0/status/0/status' => Conch::Orc::Workflow::Status->ONGOING
-	)->json_schema_is("WorkflowExecutions");
-
-
-	my $s2;
-	lives_ok {
-		$s2 = Conch::Orc::Workflow::Status->new(
-			device_id => $d->id,
-			workflow_id => $w->id,
-			status => Conch::Orc::Workflow::Status->STOPPED,
-		)->save();
-	}, "Add a STOPPED workflow status";
-
-	$t->get_ok(BASE."/execution/stopped")->status_is(200)->json_is(
-		'/0/workflow/id' => $w->id,
-	)->json_is(
-		'/0/status/1/id' => $s2->id,
-	)->json_is(
-		'/0/status/1/status' => Conch::Orc::Workflow::Status->STOPPED
-	)->json_schema_is("WorkflowExecutions");
-
-	$t->get_ok(BASE."/execution/active")->status_is(200)->json_is([]);
-	$t->json_schema_is('WorkflowExecutions');
-
-	$t->get_ok(BASE."/device/".$d->id."/execution")->status_is(200)->json_is(
-		'/0/workflow/id' => $w->id,
-	)->json_is(
-		'/0/status/1/id' => $s2->id,
-	)->json_is(
-		'/0/status/1/status' => Conch::Orc::Workflow::Status->STOPPED
-	)->json_schema_is('WorkflowExecutions');
-
-
-	$t->get_ok(BASE."/device/".$d->id)->status_is(200)->json_is(
-		'/workflow/id' => $w->id,
-	)->json_is(
-		'/status/0/id' => $s2->id,
-	)->json_is(
-		'/status/0/status' => Conch::Orc::Workflow::Status->STOPPED
-	)->json_schema_is('WorkflowExecution');
-};
-
 $t->post_ok("/logout")->status_is(204);
 
 done_testing();

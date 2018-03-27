@@ -27,7 +27,6 @@ Load up all the routes and attendant subsystems
 
 use Conch::Orc;
 use Conch::Controller::Orc::Workflows;
-use Conch::Controller::Orc::WorkflowExecutions;
 
 sub load ( $class, $r ) {
 	my $o = $r->under("/o")->under(sub {
@@ -52,16 +51,6 @@ sub load ( $class, $r ) {
 	my $si = $o->under("/step/:id");
 	$si->post("/")->to("Orc::WorkflowSteps#update");
 	$si->delete("/")->to("Orc::WorkflowSteps#delete");
-
-	my $e = $o->under("/execution");
-	$e->get("/active")->to("Orc::WorkflowExecutions#get_active");
-	$e->get("/stopped")->to("Orc::WorkflowExecutions#get_stopped");
-	$e->get("/completed")->to("Orc::WorkflowsExecutions#get_completed");
-
-
-	my $d = $o->under("/device/:id");
-	$d->get("/")->to("Orc::Device#get_latest_execution");
-	$d->get("/execution")->to("Orc::Device#get_executions");
 
 	$o->get("/step/:id")->to("Orc::WorkflowSteps#get_one");
 }

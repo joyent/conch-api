@@ -934,37 +934,6 @@ definitions:
     type: array
     items:
       $ref: "#/definitions/Workflow"
-  WorkflowExecutions:
-    type: array
-    items:
-      $ref: "#/definitions/WorkflowExecution"
-  WorkflowExecution:
-    type: object
-    additionalProperties: false
-    required:
-      - device
-      - workflow
-      - status
-      - steps_status
-    properties:
-      device:
-        type: object
-        $ref: "#/definitions/Device"
-      workflow:
-        type: object
-        $ref: "#/definitions/Workflow"
-      status:
-        anyOf:
-          - type: null
-          - type: array
-            items:
-              $ref: "#/definitions/WorkflowStatus"
-      steps_status:
-        anyOf:
-          - type: null
-          - type: array
-            items:
-              $ref: "#/definitions/WorkflowStepStatus"
   WorkflowStepStatus:
     type: object
     additionalProperties: false

@@ -378,56 +378,6 @@ sub save ($self) {
 	return $self;
 }
 
-=head2 many_from_execution
-
-	my $ex = Conch::Orc::Workflow::Execution->new(...);
-	my $many = Conch::Orc::Workflow::Step::Status->many_from_execution($ex);
-
-Returns an arrayref that contains all the Step::Statuses associated with a
-given Execution, ordered by updated timestamp.
-
-=cut
-
-sub many_from_execution ($class, $ex) {
-	my $ret;
-	try {
-		$ret = Conch::Pg->new()->db->select('workflow_step_status', undef, { 
-			device_id        => $ex->device->id,
-			workflow_step_id => { -in => $ex->workflow->steps },
-		}, { -asc => 'updated' })->expand->hashes;
-	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->many_from_execution: $_");
-		return undef;
-	};
-
-	unless (scalar $ret->@*) {
-		return [];
-	}
-
-	my @many = map {
-		my $s = $_;
-		$s->{created} = Conch::Time->new($s->{created});
-		$s->{updated} = Conch::Time->new($s->{updated});
-		$class->new($s);
-	} $ret->@*;
-	return \@many;
-}
-
-
-=head2 latest_from_execution
-
-	my $ex = Conch::Orc::Workflow::Execution->new(...);
-	my $status = Conch::Orc::Workflow::Step::Status->latest_from_execution($ex);
-
-Returns the most recent Step::Status associated with an Execution
-
-=cut
-
-sub latest_from_execution ($class, $ex) {
-	# XXX Turn this into a db query
-	return $class->many_from_execution($ex)->[-1];
-}
-
 
 =head2 serialize
 

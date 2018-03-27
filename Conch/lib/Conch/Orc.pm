@@ -15,7 +15,6 @@ use Conch::Orc::Workflow;
 use Conch::Orc::Workflow::Status;
 use Conch::Orc::Workflow::Step;
 use Conch::Orc::Workflow::Step::Status;
-use Conch::Orc::Workflow::Execution;
 
 1;
 
