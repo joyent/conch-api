@@ -29,7 +29,9 @@ sub register ( $self, $app, $conf ) {
 	chomp $git_hash;
 
 	$app->helper(
-		version_tag  => sub { $git_tag },
+		version_tag  => sub { $git_tag }
+	);
+	$app->helper(
 		version_hash => sub { $git_hash }
 	);
 }
