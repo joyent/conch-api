@@ -53,6 +53,9 @@ sub create ($c) {
 	return $c->status(400 => { error => "'name' parameter required"})
 		unless $body->{name};
 
+	return $c->status(400 => { error => "'product_id' parameter required"})
+		unless $body->{product_id};
+
 	my $w = Conch::Orc::Workflow->new($body->%*)->save();
 	$c->status(303 => "/o/workflow/".$w->id);
 }
