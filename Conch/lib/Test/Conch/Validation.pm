@@ -146,7 +146,7 @@ sub test_validation {
 	use_ok($validation_module)
 		|| diag "$validation_module fails to compile" && return;
 
-	my $device = Conch::Model::Device->new( $args{device})
+	my $device = Conch::Model::Device->new( $args{device} )
 		if $args{device};
 
 	my $hw_product_profile = Conch::Class::HardwareProductProfile->new(
@@ -169,84 +169,89 @@ sub test_validation {
 		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,
 	);
-	isa_ok( $validation, $validation_module )
-		|| diag "$validation_module->new failed" && return;
+	isa_ok( $validation, $validation_module, "$validation_module->new failed" )
+		|| return;
 
-	ok( defined( $validation->name ) )
-		|| diag("'name' attribute must be defined for $validation_module");
-	ok( defined( $validation->version ) )
-		|| diag("'version' attribute must be defined for $validation_module");
-	ok( defined( $validation->category ) )
-		|| diag("'category' attribute should be defined for $validation_module");
-	ok( defined( $validation->description ) )
-		|| diag("'description' attribute should be defined for $validation_module");
+	ok( defined( $validation->name ),
+		"'name' attribute must be defined for $validation_module" );
+	ok( defined( $validation->version ),
+		"'version' attribute must be defined for $validation_module" );
+	ok( defined( $validation->category ),
+		"'category' attribute should be defined for $validation_module" );
+	ok( defined( $validation->description ),
+		"'description' attribute should be defined for $validation_module" );
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
-		my $case        = $args{cases}->[$case_index];
-		my $data        = $case->{data} || {};
-		my $pretty_data = substr( np($data), 2 );
-		my $debug       = $case->{debug};
-
-		my $msg_prefix = 'Case #' . ( $case_index + 1 );
-		$msg_prefix .=
-			$case->{description} ? ' [' . $case->{description} . ']:' : ':';
-
-		diag("$msg_prefix input data: $pretty_data") if $debug;
-
-		$validation->clear_results;
-
-		if ( $case->{dies} ) {
-			diag("$msg_prefix should die") if $debug;
-			dies_ok( sub { $validation->run_unsafe($data) } )
-				|| diag "$msg_prefix Was expecting $validation_module "
-				. "to die with the input data\n$pretty_data";
-			if ($debug) {
-				my $frame = $@->frames->[0];
-				my $error_loc =
-					$frame->[1] . ':' . $frame->[2] . " (calling " . $frame->[3] . ')';
-				my $err_msg = "'$@' at $error_loc";
-				diag "$msg_prefix Exception: $err_msg";
-			}
-		}
-		else {
-
-			lives_ok( sub { $validation->run_unsafe($data) } );
-			if ($@) {
-				my $frame = $@->frames->[0];
-				my $error_loc =
-					$frame->[1] . ':' . $frame->[2] . " (calling " . $frame->[3] . ')';
-				my $err_msg = "'$@' at $error_loc";
-				diag "$msg_prefix Was expecting $validation_module "
-					. "to not die with the input data\n$pretty_data"
-					. "\nException: $err_msg";
-			}
-		}
-
-		diag( "$msg_prefix Successful results:\n"
-			. _results_to_string( $validation->successes ) )
-		if $debug;
-		diag( "$msg_prefix Failing results:\n"
-			. _results_to_string( $validation->failures ) )
-		if $debug;
-
-		my $success_count = scalar $validation->successes->@*;
-		my $success_expect = $case->{success_num} || 0;
-		is( $success_count, $success_expect )
-		|| diag "$msg_prefix Was expecting validation to register "
-		. "$success_expect successful results, got $success_count."
-		. "\nSuccessful results:\n"
-		. _results_to_string( $validation->successes );
-
-		my $failure_count = scalar $validation->failures->@*;
-		my $failure_expect = $case->{failure_num} || 0;
-
-		is( $failure_count, $failure_expect )
-		|| diag "$msg_prefix Was expecting validation to register "
-		. "$failure_expect failing results, got $failure_count."
-		. "\nFailing results:\n"
-		. _results_to_string( $validation->failures );
-
+		_test_case( $validation, $validation_module, $args{cases}, $case_index );
 	}
+}
+
+sub _test_case {
+	my ( $validation, $validation_module, $cases, $case_index ) = @_;
+	my $case  = $cases->[$case_index];
+	my $data  = $case->{data} || {};
+	my $debug = $case->{debug};
+
+	my $msg_prefix = 'Case #' . ( $case_index + 1 );
+	$msg_prefix .=
+		$case->{description} ? ' [' . $case->{description} . ']:' : ':';
+
+	if ($debug) {
+		my $pretty_data = substr( np($data), 2 );
+		diag("$msg_prefix input data: $pretty_data");
+	}
+
+	$validation->clear_results;
+
+	if ( $case->{dies} ) {
+		dies_ok( sub { $validation->run_unsafe($data) },
+			"$msg_prefix Was expecting $validation_module " . "to die." );
+		if ( $debug && $@ ) {
+			my $err_msg = _pretty_err($@);
+			diag("$msg_prefix Exception: $err_msg");
+		}
+	}
+	else {
+
+		lives_ok( sub { $validation->run_unsafe($data) },
+			"$msg_prefix Was expecting $validation_module to not die." );
+		if ( $debug && $@ ) {
+			my $err_msg = _pretty_err($@);
+			diag("$msg_prefix Exception: $err_msg");
+		}
+	}
+
+	if ($debug) {
+		diag( "$msg_prefix Successful results:\n"
+				. _results_to_string( $validation->successes ) );
+		diag( "$msg_prefix Failing results:\n"
+				. _results_to_string( $validation->failures ) );
+	}
+
+	my $success_count = scalar $validation->successes->@*;
+	my $success_expect = $case->{success_num} || 0;
+	is( $success_count, $success_expect,
+		    "$msg_prefix Was expecting validation to register "
+			. "$success_expect successful results, got $success_count."
+			. "\nSuccessful results:\n"
+			. _results_to_string( $validation->successes ) );
+
+	my $failure_count = scalar $validation->failures->@*;
+	my $failure_expect = $case->{failure_num} || 0;
+
+	is( $failure_count, $failure_expect,
+		    "$msg_prefix Was expecting validation to register "
+			. "$failure_expect failing results, got $failure_count."
+			. "\nFailing results:\n"
+			. _results_to_string( $validation->failures ) );
+}
+
+sub _pretty_err {
+	my ($err) = @_;
+	my $frame = $@->frames->[0];
+	my $error_loc =
+		$frame->[1] . ':' . $frame->[2] . " (calling " . $frame->[3] . ')';
+	return "'$err' at $error_loc";
 }
 
 # Format the list of validation reusults into a single string, indented and
