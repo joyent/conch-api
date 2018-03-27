@@ -131,17 +131,6 @@ sub create_step ($c) {
 
 	# XXX verify validation_plan_id
 
-	{
-		my $s2 = Conch::Orc::Workflow::Step->from_name($body->{name});
-		if ($s2 and ($s2->workflow_id eq $w->id)) {
-			return $c->status(400 => { 
-				error => "A workflow step named '".
-					$body->{name}.
-					" already exists for workflow ".$w->id
-			});
-		};
-	}
-
 	$body->{workflow_id} = $w->id;
 	my $s = Conch::Orc::Workflow::Step->new($body->%*);
 	$w->add_step($s);
