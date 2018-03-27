@@ -116,6 +116,8 @@ has 'deactivated' => (
 
 Boolean. Defaults to 0
 
+This governs if steps can be added or removed from the workflow.
+
 =cut
 
 has 'locked' => (
@@ -333,11 +335,15 @@ Append a C<Conch::Orc::Workflow::Step> to the Workflow.
 The step's order attribute will be set to the appropriate value for the
 Workflow. The step will also have its C<<->save>> method called.
 
+Does nothing if C<locked> is true.
+
 Returns C<$self>, allowing for method chaining.
 
 =cut
 
 sub add_step ($self, $step) {
+	return $self if $self->locked;
+
 	my @steps = $self->_refresh_steps->steps_as_objects->@*;
 	if(@steps) {
 		my $last = $steps[-1];
@@ -366,6 +372,8 @@ Returns C<$self>, allowing for method chaining.
 
 
 sub remove_step ($self, $step) {
+	return $self if $self->locked;
+
 	my @steps = $self->_refresh_steps->steps_as_objects->@*;
 
 	my $found = 0;
