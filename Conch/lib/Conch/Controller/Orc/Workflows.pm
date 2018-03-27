@@ -56,6 +56,8 @@ sub create ($c) {
 	return $c->status(400 => { error => "'product_id' parameter required"})
 		unless $body->{product_id};
 
+	delete $body->{deactivated};
+
 	my $w = Conch::Orc::Workflow->new($body->%*)->save();
 	$c->status(303 => "/o/workflow/".$w->id);
 }
@@ -74,6 +76,7 @@ sub update ($c) {
 
 	my $body = $c->req->json;
 	delete $body->{id};
+	delete $body->{deactivated};
 
 	if($body->{name} and ($body->{name} ne $w->name)) {
 		if(Conch::Orc::Workflow->from_name($body->{name})) {
