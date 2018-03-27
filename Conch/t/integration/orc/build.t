@@ -18,6 +18,8 @@ BEGIN {
 }
 use Conch::Pg;
 
+use Conch::Model::ValidationPlan;
+
 my $spec_file = "json-schema/v1.yaml";
 BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
@@ -42,6 +44,7 @@ my $hardware_product_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
+my $validation_id = Conch::Model::ValidationPlan->create("test", "test plan")->id;
 
 my $t = Test::MojoSchema->new(
 	'Conch' => {
@@ -61,9 +64,7 @@ $validator->formats($valid_formats);
 
 $t->validator($validator);
 
-# XXX
 my $uuid = Data::UUID->new;
-my $validation_id = lc $uuid->create_str();
 
 my $db = Conch::Pg->new->db;
 

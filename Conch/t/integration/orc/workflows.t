@@ -18,6 +18,8 @@ BEGIN {
 }
 use Conch::Pg;
 
+use Conch::Model::ValidationPlan;
+
 my $spec_file = "json-schema/v1.yaml";
 BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
 	unless io->file($spec_file)->exists;
@@ -46,8 +48,8 @@ $t->validator($validator);
 
 # XXX
 my $uuid = Data::UUID->new;
-my $validation_id = lc $uuid->create_str();
 
+my $validation_id = Conch::Model::ValidationPlan->create("test", "test plan")->id;
 
 $t->post_ok(
 	"/login" => json => {

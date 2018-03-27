@@ -42,7 +42,7 @@ create table workflow_step (
 	step_order         int not null,
 	retry              bool default false,
 	max_retries        int not null default 1,
-	validation_plan_id uuid not null, -- fk to real tables when they exist
+	validation_plan_id uuid not null references validation_plan(id),
 	unique(name, workflow_id)
 );
 
@@ -71,7 +71,7 @@ create table workflow_step_status(
 	state                e_workflow_step_state not null default 'processing',
 	retry_count          int not null default 1,
 	validation_status    e_workflow_validation_status not null default 'noop',
-	validation_result_id uuid, -- fk to real tables when they exist
+	validation_state_id  uuid references validation_state(id),
 	force_retry          bool default false,
 	overridden           bool default false,
 	data                 jsonb

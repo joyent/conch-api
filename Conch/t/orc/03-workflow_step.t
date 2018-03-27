@@ -13,6 +13,8 @@ use Data::UUID;
 use Conch::Pg;
 use Conch::Orc;
 
+use Conch::Model::ValidationPlan;
+
 use DDP;
 
 my $pgtmp = Test::ConchTmpDB->make_full_db
@@ -38,12 +40,14 @@ my $hardware_product_id = $pg->db->insert(
 )->hash->{id};
 
 
+my $v_id = Conch::Model::ValidationPlan->create("test", "test plan")->id;
+
 
 throws_ok {
 	Conch::Orc::Workflow::Step->new(
 		name               => 'sungo',
 		workflow_id        => $uuid->create_str(),
-		validation_plan_id => $uuid->create_str(),
+		validation_plan_id => $v_id,
 		order              => 1,
 	)->save();
 } 'Mojo::Exception', 'Step->save with unknown workflow id';
@@ -57,7 +61,6 @@ lives_ok {
 	)->save();
 } 'Workflow->save';
 
-my $v_id = lc $uuid->create_str();
 
 my $s;
 lives_ok {

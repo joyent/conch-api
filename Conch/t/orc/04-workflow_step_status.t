@@ -12,6 +12,7 @@ use Data::UUID;
 use Conch::Pg;
 use Conch::Orc;
 use Conch::Model::Device;
+use Conch::Model::ValidationPlan;
 
 use DDP;
 
@@ -40,8 +41,7 @@ my $hardware_product_id = $pg->db->insert(
 
 my $d = Conch::Model::Device->create( 'c0ff33', $hardware_product_id );
 
-my $v_id = lc $uuid->create_str();
-my $vr_id = lc $uuid->create_str();
+my $v_id = Conch::Model::ValidationPlan->create("test", "test plan")->id;
 
 my $w;
 lives_ok {
@@ -65,7 +65,6 @@ throws_ok {
 	Conch::Orc::Workflow::Step::Status->new(
 		device_id            => $d->id,
 		workflow_step_id     => $uuid->create_str(),
-		validation_result_id => $vr_id,
 	)->save();
 } 'Mojo::Exception', '->save with bad workflow step id';
 
@@ -73,21 +72,8 @@ throws_ok {
 	Conch::Orc::Workflow::Step::Status->new(
 		device_id            => 'wat',
 		workflow_step_id     => $step->id,
-		validation_result_id => $vr_id,
 	)->save();
 } 'Mojo::Exception', '->save with bad device id';
-
-
-TODO: {
-	local $TODO = "When validation results exist...";
-	throws_ok {
-		Conch::Orc::Workflow::Step::Status->new(
-			device_id            => $d->id,
-			workflow_step_id     => $step->id,
-			validation_result_id => $uuid->create_str(),
-		)->save();
-	} 'Mojo::Exception', '->save with validation result id';
-};
 
 
 my $s;
@@ -95,7 +81,6 @@ lives_ok {
 	$s = Conch::Orc::Workflow::Step::Status->new(
 		device_id            => $d->id,
 		workflow_step_id     => $step->id,
-		validation_result_id => $vr_id,
 	)->save();
 } '->save';
 

@@ -128,7 +128,7 @@ has 'max_retries' => (
 
 =item validation_plan_id
 
-UUID. Required. 
+UUID. Required. FK'd into C<validation_plan(id)> 
 
 =cut
 
@@ -139,15 +139,6 @@ has 'validation_plan_id' => (
 );
 
 
-=item validation_plan
-
-Currently returns undef
-
-=cut
-
-sub validation_plan ($self) {
-	return undef; #XXX
-}
 
 =item created
 

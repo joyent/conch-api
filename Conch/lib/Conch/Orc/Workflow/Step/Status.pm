@@ -222,28 +222,17 @@ has 'validation_status' => (
 );
 
 
-=item validation_result_id
+=item validation_state_id
 
-UUID
+UUID. FK'd into C<validation_state(id)>
 
 =cut
 
-has 'validation_result_id' => (
+has 'validation_state_id' => (
 	is  => 'rw',
 	isa => Uuid,
-	# required => 1,
 );
 
-
-=item validation_result
-
-Currently returns undef
-
-=cut
-
-sub validation_result ($self) {
-	return undef; # XXX
-}
 
 =item force_retry
 
@@ -345,7 +334,7 @@ sub save ($self) {
 		retry_count          => $self->{retry_count},
 		state                => $self->{state},
 		updated              => Conch::Time->now->timestamptz,
-		validation_result_id => $self->{validation_result_id},
+		validation_state_id => $self->{validation_state_id},
 		validation_status    => $self->{validation_status},
 		workflow_step_id     => $self->{workflow_step_id},
 

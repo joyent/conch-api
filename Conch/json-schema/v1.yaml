@@ -947,7 +947,7 @@ definitions:
       - retry_count
       - state
       - updated
-      - validation_result_id
+      - validation_state_id
       - validation_status
       - workflow_step_id
     properties:
@@ -970,7 +970,7 @@ definitions:
         type: number
       state:
         type: string
-      validation_results_id:
+      validation_state_id:
         type: string
         format: uuid
       validation_status:

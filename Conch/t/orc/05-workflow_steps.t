@@ -13,6 +13,8 @@ use Data::UUID;
 use Conch::Pg;
 use Conch::Orc;
 
+use Conch::Model::ValidationPlan;
+
 my $pgtmp = Test::ConchTmpDB->make_full_db
 	or BAIL_OUT("Couldn't create temp db");
 my $dbh = DBI->connect( $pgtmp->dsn );
@@ -20,6 +22,7 @@ my $pg = Conch::Pg->new( $pgtmp->uri );
 
 my $uuid = Data::UUID->new;
 
+my $v_id = Conch::Model::ValidationPlan->create("test", "test plan")->id;
 
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
@@ -42,7 +45,7 @@ throws_ok {
 	Conch::Orc::Workflow::Step->new(
 		name               => 'sungo',
 		workflow_id        => $uuid->create_str(),
-		validation_plan_id => $uuid->create_str(),
+		validation_plan_id => $v_id,
 		order              => 1,
 	)->save();
 } 'Mojo::Exception', 'Step->save with unknown workflow id';
@@ -55,8 +58,6 @@ lives_ok {
 		product_id => $hardware_product_id,
 	)->save();
 } 'Workflow->save with known hardware product id';
-
-my $v_id = lc $uuid->create_str();
 
 my $s;
 lives_ok {
