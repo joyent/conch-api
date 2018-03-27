@@ -11,6 +11,7 @@ create table workflow (
 	preflight   bool        default false,
 	unique(name, version)
 );
+create unique index on workflow(name) where deactivated is null;
 
 /*****************/
 
@@ -27,6 +28,9 @@ create table orc_lifecycle (
 	locked      bool        not null default false,
 	unique(name, version)
 );
+create unique index on orc_lifecycle(name) where deactivated is null;
+
+/*****************/
 
 create table orc_lifecycle_plan (
 	orc_lifecycle_id uuid  not null references orc_lifecycle (id),
