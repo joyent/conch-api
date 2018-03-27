@@ -12,9 +12,6 @@ script:
 cache:
   directories:
   - Conch/local
-branches:
-  only:
-  - master
 deploy:
   provider: releases
   api_key:
