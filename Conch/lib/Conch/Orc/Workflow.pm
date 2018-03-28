@@ -286,7 +286,6 @@ sub save ($self) {
 		version     => $self->version,
 	);
 
-	my $tx = $db->begin;
 	my $ret;
 	try {
 		if($self->id) {
@@ -307,7 +306,6 @@ sub save ($self) {
 		Mojo::Exception->throw(__PACKAGE__."->save: $_");
 		return undef;
 	};
-	$tx->commit;
 
 	$self->_set_id($ret->{id});
 	$self->_set_created(Conch::Time->new($ret->{created}));
