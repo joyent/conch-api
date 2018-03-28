@@ -182,46 +182,6 @@ sub from_id ($class, $uuid) {
 }
 
 
-=head2 many_from_latest_status
-
-	my $many = Conch::Orc::Workflow::Status->many_from_latest_status(
-		Conch::Orc::Workflow::Status->ONGOING
-	);
-
-Returns an arrayref containing Status objects. These status objects represent
-the most recent update for their given workflow, if the status matches the
-provided value.
-
-This can be used, for instance, to find all workflows that are ONGOING.
-
-=cut
-
-sub many_from_latest_status ($class, $status) {
-	my $ret;
-	try {
-		$ret = Conch::Pg->new()->db->select('orc_latest_workflow_status',
-			undef,
-			{ status => $status }
-		)->hashes;
-	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->many_from_latest_status: $_");
-		return undef;
-	};
-
-	unless (scalar $ret->@*) {
-		return [];
-	}
-
-	my @many = map {
-		my $s = $_;
-		$s->{timestamp} = Conch::Time->new($s->{timestamp});
-		$class->new($s);
-	} $ret->@*;
-
-	return \@many;
-}
-
-
 =head2 many_from_device
 
 	my $device = Conch::Model::Device->from_id('wat');

@@ -76,16 +76,4 @@ create table workflow_step_status(
 	data                 jsonb
 );
 
-/*****************/
-
-create or replace view orc_latest_workflow_status as
-select * from (
-	select *, dense_rank() over (
-		partition by workflow_id
-		order by timestamp desc
-	) as workflow_rank
-	from workflow_status
-) as ranked_workflows
-where workflow_rank = 1;
-
 $$);
