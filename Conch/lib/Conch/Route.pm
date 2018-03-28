@@ -45,7 +45,9 @@ sub all_routes {
 		}
 	);
 
-	$unsecured->get( '/', sub { shift->reply->static('../public/index.html') } );
+	my $render_index = sub { shift->render('index') };
+	$unsecured->get( '/',           $render_index );
+	$unsecured->get( '/index.html', $render_index );
 	$unsecured->get( '/doc',
 		sub { shift->reply->static('../public/doc/index.html') } );
 
@@ -78,6 +80,7 @@ sub all_routes {
 			$c->app->log->warn( $c->req->body );
 		}
 	);
+
 	workspace_routes($secured);
 	device_routes($secured);
 	relay_routes($secured);
@@ -85,7 +88,7 @@ sub all_routes {
 	hardware_product_routes($secured);
 	validation_routes($secured);
 
-	if ($features->{orc}) {
+	if ( $features->{orc} ) {
 		Conch::Route::Orc->load($secured);
 	}
 
