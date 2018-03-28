@@ -26,6 +26,13 @@ requires 'Mojolicious::Plugin::Bcrypt';
 requires 'Mojolicious::Plugin::Util::RandomString';
 requires 'Mojolicious::Plugin::NYTProf';
 
+# orchestration
+requires 'Moo';
+requires 'Type::Tiny';
+requires 'Types::Standard';
+requires 'Types::UUID';
+requires 'Role::Tiny';
+
 ### Legacy Deps
 #
 # String::CamelCase 0.03 has a broken META file that prevents the toolchain
@@ -62,7 +69,7 @@ on 'test' => sub {
     requires 'Test::More';
     requires 'Test::Exception';
     requires 'Mock::Quick';
-    requires 'Test::PostgreSQL';
+    requires 'Test::PostgreSQL', ">= 1.24";
     requires 'Test::Pod::Coverage';
     requires 'IO::All';
     requires 'JSON::Validator';
