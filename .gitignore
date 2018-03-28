@@ -12,15 +12,19 @@ tags
 node_modules
 Conch/ui/dist
 
+CHANGELOG.md
+
 # Conch
 Conch/conch.conf
 Conch/report
 Conch/public/js/app.js
 Conch/public/css/app.css
 Conch/public/doc
-Conch/doc/conch-api/index.html
+Conch/docs/conch-api/index.html
 Conch/log
 Conch/bin/hypnotoad.pid
+Conch/nytprof
+Conch/nytprof.log
 
 # Carton-installed dependency folder
 local/
