@@ -173,21 +173,19 @@ sub startup {
 	$self->plugin('Util::RandomString');
 	$self->plugin('Conch::Plugin::Mail');
 	$self->plugin('Conch::Plugin::GitVersion');
-	$self->plugin('Conch::Plugin::Rollbar');
 	$self->plugin(NYTProf => $self->config);
+
+	if($features{'rollbar'}) {
+		$self->plugin('Conch::Plugin::Rollbar');
+	}
 
 	if($features{'audit'} ) {
 		my %opts;
 		if ($self->config('audit')) {
 			%opts = $self->config('audit')->%*;
-		} else {
-			%opts = (
-				payloads  => 0,
-				log_path => 'log/audit.log',
-			);
 		}
 
-		my $log_path = $opts{log_path};
+		my $log_path = $opts{log_path} || "log/audit.log";
 		my $log = Mojo::Log->new(path => $log_path);
 		$self->hook(after_dispatch => sub {
 			my $c = shift;

@@ -16,6 +16,7 @@
 	features => {
 		'audit' => 0,
 		#'orc' => 1,
+		'rollbar' => 1,
 	},
 
 	audit => {
