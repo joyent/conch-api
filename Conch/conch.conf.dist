@@ -14,9 +14,9 @@
     # rollbar_environment => 'staging',
 
     features => {
-        'audit' => 0,
-        #'orc' => 1,
-        'rollbar' => 1,
+        audit   => 0,
+        orc     => 0,
+        rollbar => 0,
     },
 
     audit => {
