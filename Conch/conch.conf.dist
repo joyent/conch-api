@@ -6,10 +6,6 @@
     # URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
     pg => 'postgresql://conch@/conch',
 
-	audit => 0,
-	audit_log_path => "log/audit.log",
-	audit_payloads => 0,
-
     # Rollbar access token. Must be a token with write permissions
     # rollbar_access_token => '00000000000000000000000000000000',
 
@@ -17,9 +13,16 @@
     # present, uses the value of $app->mode ('production' with Hypnotoad).
     # rollbar_environment => 'staging',
 
-	features => {
-		#'orc' => 1,
-	},
+    features => {
+        audit   => 0,
+        orc     => 0,
+        rollbar => 0,
+    },
+
+    audit => {
+        log_path => "log/audit.log",
+        payloads => 0,
+    },
 
     # See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
     hypnotoad => {
