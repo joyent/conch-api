@@ -176,8 +176,18 @@ sub startup {
 	$self->plugin('Conch::Plugin::Rollbar');
 	$self->plugin(NYTProf => $self->config);
 
-	if($self->config('audit')) {
-		my $log_path = $self->config('audit_log_path') || 'log/audit.log';
+	if($features{'audit'} ) {
+		my %opts;
+		if ($self->config('audit')) {
+			%opts = $self->config('audit')->%*;
+		} else {
+			%opts = (
+				payloads  => 0,
+				log_path => 'log/audit.log',
+			);
+		}
+
+		my $log_path = $opts{log_path};
 		my $log = Mojo::Log->new(path => $log_path);
 		$self->hook(after_dispatch => sub {
 			my $c = shift;
@@ -189,7 +199,7 @@ sub startup {
 			my $req_body = "disabled in config";
 			my $res_body = "disabled in config";
 
-			if ($self->config('audit_payloads')) {
+			if($opts{payloads}) {
 				$req_body = $c->req->body;
 				$res_body = $c->res->body;
 			}
