@@ -102,14 +102,14 @@ has 'device_id' => (
 );
 
 
-=item timestamp
+=item created
 
 Conch::Time. Defaults to C<<< Conch::Time->now >>>. Represents the time this
 status update occurred
 
 =cut
 
-has 'timestamp' => (
+has 'created' => (
 	is      => 'rw',
 	isa     => InstanceOf["Conch::Time"],
 	default => sub { Conch::Time->now() },
@@ -176,7 +176,7 @@ sub from_id ($class, $uuid) {
 		device_id   => $ret->{device_id},
 		id          => $ret->{id},
 		status      => $ret->{status},
-		timestamp   => Conch::Time->new($ret->{timestamp}),
+		created     => Conch::Time->new($ret->{created}),
 		workflow_id => $ret->{workflow_id},
 	);
 }
@@ -188,7 +188,7 @@ sub from_id ($class, $uuid) {
 	my $many = Conch::Orc::Workflow::Status->many_from_device($device);
 
 Returns an arrayref containing all the Status objects for a given Device,
-sorted by timestamp.
+sorted by created.
 
 =cut
 
@@ -197,7 +197,7 @@ sub many_from_device($class, $d) {
 	try {
 		$ret = Conch::Pg->new()->db->select('workflow_status', undef, { 
 			device_id => $d->id
-		}, { -asc => 'timestamp' })->hashes;
+		}, { -asc => 'created' })->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->many_from_device: $_");
 		return undef;
@@ -209,7 +209,7 @@ sub many_from_device($class, $d) {
 
 	my @many = map {
 		my $s = $_;
-		$s->{timestamp} = Conch::Time->new($s->{timestamp});
+		$s->{created} = Conch::Time->new($s->{created});
 		$class->new($s);
 	} $ret->@*;
 
@@ -233,7 +233,7 @@ sub latest_from_device($class, $d) {
 	try {
 		$ret = Conch::Pg->new()->db->query(qq|
 			select * from workflow_status where device_id = ?
-				order by timestamp asc
+				order by created asc
 				limit 1
 		|, $d->id)->hash;
 	} catch {
@@ -243,7 +243,7 @@ sub latest_from_device($class, $d) {
 
 	return undef unless $ret;
 
-	$ret->{timestamp} = Conch::Time->new($ret->{timestamp});
+	$ret->{created} = Conch::Time->new($ret->{created});
 	return $class->new($ret->%*);
 }
 
@@ -263,7 +263,7 @@ sub save ($self) {
 	my %fields = (
 		device_id   => $self->device_id,
 		status      => $self->status,
-		timestamp   => $self->timestamp->timestamptz,
+		created     => $self->created->timestamptz,
 		workflow_id => $self->workflow_id,
 	);
 	try {
@@ -272,13 +272,13 @@ sub save ($self) {
 				'workflow_status',
 				\%fields,
 				{ id => $self->id }, 
-				{ returning => [qw(id timestamp)]}
+				{ returning => [qw(id created)]}
 			)->hash;
 		} else {
 			$ret = $db->insert(
 				'workflow_status',
 				\%fields,
-				{ returning => [qw(id timestamp)] }
+				{ returning => [qw(id created)] }
 			)->hash;
 		}
 	} catch {
@@ -288,7 +288,7 @@ sub save ($self) {
 	$tx->commit;
 
 	$self->_set_id($ret->{id});
-	$self->timestamp(Conch::Time->new($ret->{timestamp}));
+	$self->created(Conch::Time->new($ret->{created}));
 
 	return $self;
 }
@@ -305,7 +305,7 @@ sub serialize ($self) {
 		device_id   => $self->device_id,
 		id          => $self->id,
 		status      => $self->status,
-		timestamp   => $self->timestamp->rfc3339,
+		created     => $self->created->rfc3339,
 		workflow_id => $self->workflow_id,
 	}
 }

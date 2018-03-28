@@ -908,7 +908,7 @@ definitions:
       - device_id
       - id
       - status
-      - timestamp
+      - created
       - workflow_id
     properties:
       device_id:
@@ -918,7 +918,7 @@ definitions:
         format: uuid
       status:
         type: string
-      timestamp:
+      created:
         type: string
         format: date-time
       workflow_id:

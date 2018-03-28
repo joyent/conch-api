@@ -26,7 +26,7 @@ create table workflow_status (
 	id          uuid              primary key default gen_random_uuid(),
 	workflow_id uuid              not null references workflow(id),
 	device_id   text              not null references device(id),
-	timestamp   timestamptz       not null default current_timestamp,
+	created     timestamptz       not null default current_timestamp,
 	status      e_workflow_status not null default 'ongoing'
 );
 
