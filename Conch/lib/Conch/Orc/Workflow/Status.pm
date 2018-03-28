@@ -89,18 +89,6 @@ has 'workflow_id' => (
 );
 
 
-=item workflow
-
-A C<Conch::Orc::Workflow> object, loaded using C<workflow_id>
-
-=cut
-
-sub workflow ($self) { 
-	return Conch::Orc::Workflow->from_id($self->workflow_id);
-};
-
-
-
 =item device_id
 
 UUID. Required. FK'd into C<device(id)>
@@ -112,17 +100,6 @@ has 'device_id' => (
 	required => 1,
 	isa      => Str,
 );
-
-
-=item device
-
-A C<Conch::Model::Device> object, loaded using C<device_id>
-
-=cut
-
-sub device ($self) {
-	return Conch::Model::Device->lookup($self->device_id);
-}
 
 
 =item timestamp
@@ -154,6 +131,29 @@ has 'status' => (
 =back
 
 =head1 METHODS
+
+=head2 workflow
+
+A C<Conch::Orc::Workflow> object, loaded using C<workflow_id>
+
+=cut
+
+sub workflow ($self) { 
+	return Conch::Orc::Workflow->from_id($self->workflow_id);
+};
+
+
+=head2 device
+
+A C<Conch::Model::Device> object, loaded using C<device_id>
+
+=cut
+
+sub device ($self) {
+	return Conch::Model::Device->lookup($self->device_id);
+}
+
+
 
 =head2 from_id
 
