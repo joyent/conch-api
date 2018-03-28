@@ -215,10 +215,6 @@ sub from_id ($class, $id) {
 
 	return undef unless $ret;
 
-	if($ret->{deactivated}) {
-		$ret->{deactivated} = Conch::Time->new($ret->{deactivated});
-	}
-
 	for my $k (qw(created updated deactivated)) {
 		if($ret->{$k}) {
 			$ret->{$k} = Conch::Time->new($ret->{$k});
