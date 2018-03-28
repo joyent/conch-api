@@ -240,10 +240,10 @@ sub all ($class) {
 				select ws.id
 				from workflow_step ws
 				where ws.workflow_id = w.id
-					and deactivated is null
 				order by ws.step_order
 			) as steps
-			from workflow w;
+			from workflow w
+			where deactivated is null;
 		|)->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->all: $_");
@@ -257,9 +257,6 @@ sub all ($class) {
 		my $s = $_;
 		$s->{created} = Conch::Time->new($s->{created});
 		$s->{updated} = Conch::Time->new($s->{updated});
-		if($s->{deactivated}) {
-			$s->{deactivated} = Conch::Time->new($s->{deactivated});
-		}
 		$class->new($s);
 	} $ret->@*;
 
