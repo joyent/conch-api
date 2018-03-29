@@ -75,6 +75,7 @@ definitions:
       role:
         anyOf:
           - type: string
+            format: uuid
           - type: null
       state:
         type: string
@@ -208,6 +209,7 @@ definitions:
       role:
         anyOf:
           - type: string
+            format: uuid
           - type: null
       state:
         type: string
@@ -972,4 +974,61 @@ definitions:
       workflow_step_id:
         type: string
         format: uuid
- 
+  DeviceRole:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - created
+      - updated
+      - description
+      - hardware_product_id
+      - services
+    properties:
+      id:
+        type: string
+        format: uuid
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+      description:
+        type: string
+      hardware_product_id:
+        type: string
+        format: uuid
+      services:
+        type: array
+        items:
+          type: string
+          format: uuid
+  DeviceRoles:
+    type: array
+    items:
+      $ref: "#/definitions/DeviceRole"
+  DeviceService:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - created
+      - updated
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+  DeviceServices:
+    type: array
+    items:
+      $ref: "#/definitions/DeviceService"

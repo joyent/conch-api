@@ -27,6 +27,9 @@ use Conch::Model::WorkspaceRoom;
 use Conch::Model::WorkspaceUser;
 use Conch::Model::WorkspaceRole;
 
+use Conch::Model::DeviceService;
+use Conch::Model::DeviceRole;
+
 1;
 
 __DATA__

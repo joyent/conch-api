@@ -205,6 +205,53 @@ sub set_validated($c) {
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
 }
 
+
+=head2 get_role
+
+If the device has a valid role, 303 to the relevant /role endpoint 
+
+=cut
+
+sub get_role($c) {
+	my $device = $c->stash('current_device');
+	if ($device->role) {
+		return $c->status(303 => "/device/role/".$device->role);
+	} else {
+		return $c->status(409 => { error => "device has no role" });
+	}
+}
+
+
+=head2 set_role
+
+Sets the device's C<role> attribute and 303's to the device endpoint
+
+=cut
+
+sub set_role($c) {
+	return $c->status(403) unless $c->is_global_admin;
+
+	my $device = $c->stash('current_device');
+	my $role = $c->req->json && $c->req->json->{role};
+	return $c->status(
+		400, {
+			error => "'role' element must be present"
+		}
+	) unless defined($role) && ref($role) eq '';
+
+	my $r = Conch::Model::DeviceRole->from_id($role);
+	if ($r) {
+		if ($r->deactivated) {
+			return $c->status(400 => "Role $role is deactivated");
+		}
+
+		$device->set_role($role);
+		return $c->status(303 => "/device/".$device->id);
+	} else {
+		return $c->status(400 => "Role $role does not exist");
+	}
+}
+
 1;
 
 __DATA__

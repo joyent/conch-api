@@ -214,4 +214,66 @@ $t->post_ok( "/validation_plan/$validation_plan_id/validation",
 $t->get_ok("/validation_plan/$validation_plan_id/validation")->status_is(200)
 	->json_schema_is('Validations');
 
+subtest 'Device Roles And Services' => sub {
+	$t->get_ok("/hardware_product")->status_is(200);
+	my @hardware_products = $t->tx->res->json->@*;
+
+	$t->get_ok("/device/role")->status_is(200)->json_schema_is("DeviceRoles");
+
+	$t->post_ok("/device/role", json => {
+		name => "test",
+		hardware_product_id => $hardware_products[0]->{id},
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("DeviceRole");
+
+	my $d_role = Conch::Model::DeviceRole->from_id($t->tx->res->json->{id});
+	$t->get_ok("/device/role")->status_is(200)->json_schema_is("DeviceRoles");
+
+	$t->get_ok("/device/service")->status_is(200)
+		->json_schema_is("DeviceServices");
+
+	$t->post_ok("/device/service", json => {
+		name => "test"
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("DeviceService");
+	my $s = Conch::Model::DeviceService->from_id($t->tx->res->json->{id});
+
+	$t->get_ok('/device/service/'.$s->id)->status_is(200)
+		->json_schema_is("DeviceService");
+
+	$t->get_ok("/device/service")->status_is(200)
+		->json_schema_is("DeviceServices");
+
+
+	########
+	
+	$t->get_ok('/device/role/'.$d_role->id)->status_is(200)
+		->json_schema_is("DeviceRole");
+
+	$t->post_ok('/device/role/'.$d_role->id.'/add_service', json => {
+		service => $s->id
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("DeviceRole");
+
+	$t->post_ok('/device/role/'.$d_role->id.'/remove_service', json => {
+		service => $s->id
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("DeviceRole");
+
+	$t->post_ok('/device/TEST/role', json => {
+		role => $d_role->id
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("DetailedDevice");
+
+	$t->get_ok('/device/TEST/role')->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("DeviceRole");
+
+};
+
 done_testing();
