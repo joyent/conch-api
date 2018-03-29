@@ -21,6 +21,14 @@ my $attrs =
 	[qw( id name version description module persistence created updated)];
 has $attrs;
 
+=head2 new
+
+=cut
+
+sub new ( $class, %args ) {
+	$class->SUPER::new( %args{@$attrs} );
+}
+
 =head2 output_hash
 
 Render as a hashref for output

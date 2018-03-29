@@ -111,7 +111,8 @@ sub validations ( $self ) {
 		WHERE
 			vpm.validation_plan_id = ?
 		}, $self->id
-	)->hashes->map( sub { Conch::Model::Validation->new(shift) } )->to_array;
+		)->hashes->map( sub { Conch::Model::Validation->new( shift->%* ) } )
+		->to_array;
 }
 
 =head2 add_validation
@@ -136,7 +137,6 @@ sub add_validation ( $self, $validation ) {
 
 	return $self;
 }
-
 
 =head2 remove_validation
 

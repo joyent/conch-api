@@ -51,6 +51,12 @@ subtest "associated validation" => sub {
 	is_deeply(
 		$validation_plan->validation_ids,
 		[ $validation->id ],
+		'associated validation IDs'
+	);
+
+	is_deeply(
+		$validation_plan->validations,
+		[ $validation ],
 		'associated validation'
 	);
 

@@ -8,6 +8,7 @@ use Data::UUID;
 
 use Conch::Model::Device;
 use Conch::Model::ValidationPlan;
+use Conch::Model::Validation;
 
 use_ok("Conch::Model::ValidationState");
 
@@ -74,19 +75,43 @@ subtest "modify validation state" => sub {
 };
 
 subtest "latest completed validation state" => sub {
-	my $latest = Conch::Model::ValidationState->latest_completed_state(
-		$device->id, $validation_plan->id
-	);
-	isa_ok( $latest, 'Conch::Model::ValidationState');
+	my $latest =
+		Conch::Model::ValidationState->latest_completed_state( $device->id,
+		$validation_plan->id );
+	isa_ok( $latest, 'Conch::Model::ValidationState' );
 
 	my $new_state =
 		Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
 	$new_state->mark_completed();
 
-	my $new_latest = Conch::Model::ValidationState->latest_completed_state(
-		$device->id, $validation_plan->id
-	);
+	my $new_latest =
+		Conch::Model::ValidationState->latest_completed_state( $device->id,
+		$validation_plan->id );
 	is_deeply( $new_state, $new_latest );
+};
+
+subtest "validation results" => sub {
+	is_deeply( $validation_state->validation_results, [] );
+
+	my $validation =
+		Conch::Model::Validation->create( 'test', 1, 'test validation',
+		'Test::Validation' );
+
+	my $result = Conch::Model::ValidationResult->new(
+		device_id           => $device->id,
+		validation_id       => $validation->id,
+		hardware_product_id => $hardware_product_id,
+		message             => 'foobar',
+		category            => 'TEST',
+		status              => 'fail'
+	)->record;
+
+	ok( $validation_state->add_validation_result($result) );
+	is_deeply( $validation_state->validation_results, [$result] );
+
+	# repeated addition is idempotent
+	ok( $validation_state->add_validation_result($result) );
+	is_deeply( $validation_state->validation_results, [$result] );
 };
 
 done_testing();

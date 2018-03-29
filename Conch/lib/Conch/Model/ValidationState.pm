@@ -84,6 +84,52 @@ sub latest_completed_state ( $class, $device_id, $plan_id ) {
 	return $class->new( $ret->%* ) if $ret;
 }
 
+=head2 add_validation_result
+
+Assoicate a validation result with the validation state. Returns the validation
+state. Idempotent and will only ever add once.
+
+=cut
+
+sub add_validation_result ( $self, $validation_result ) {
+	my $validation_result_id =
+		  $validation_result->isa('Conch::Model::ValidationResult')
+		? $validation_result->id
+		: $validation_result;
+	Conch::Pg->new->db->query(
+		q{
+		insert into validation_state_member
+			(validation_state_id, validation_result_id)
+			values (?, ?)
+		on conflict (validation_state_id, validation_result_id)
+			do nothing
+		}, $self->id, $validation_result_id
+	);
+
+	return $self;
+}
+
+=head2 validation_results
+
+Return an array of associated validation results associated with the validation
+state.
+
+=cut
+
+sub validation_results ($self) {
+	Conch::Pg->new->db->query(
+		q{
+		select result.*
+		from validation_result result
+		join validation_state_member member
+			on member.validation_result_id = result.id
+		where member.validation_state_id = ?
+		},
+		$self->id
+		)->hashes->map( sub { Conch::Model::ValidationResult->new( shift->%* ) } )
+		->to_array;
+}
+
 1;
 
 __DATA__

@@ -34,7 +34,7 @@ then C<record> to write it to the database.
 	);
 	$result->record;
 
-All attribute fields will be filled in.
+All unspecified attribute fields will be undef.
 
 =cut
 
