@@ -3463,10 +3463,10 @@ DISTRIBUTIONS
       strict 0
       version 0.83
       warnings 0
-  String-CamelCase-0.02
-    pathname: H/HI/HIO/String-CamelCase-0.02.tar.gz
+  String-CamelCase-0.04
+    pathname: H/HI/HIO/String-CamelCase-0.04.tar.gz
     provides:
-      String::CamelCase 0.02
+      String::CamelCase 0.04
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0

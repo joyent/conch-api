@@ -35,11 +35,12 @@ requires 'Role::Tiny';
 
 ### Legacy Deps
 #
-# String::CamelCase 0.03 has a broken META file that prevents the toolchain
-# from being able to figure out its version. All our dependencies rely on 0.02
-# so we pin that here. Otherwise, carton will try the latest version and
-# hilarity ensues.
-requires 'String::CamelCase', '== 0.02';
+# String::CamelCase 0.03 had a broken META file that prevents the toolchain
+# from being able to figure out its version, thus breaking 'carton install
+# --deployment'. The issue was resolved in 0.04
+# All our dependencies rely on 0.02 and up, but just to be careful, we'll pin
+# it at 0.04 or greater.
+requires 'String::CamelCase', '>= 0.04';
 
 # database
 requires 'DBD::Pg';
