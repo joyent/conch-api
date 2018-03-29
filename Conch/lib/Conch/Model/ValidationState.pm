@@ -39,7 +39,7 @@ sub lookup ( $class, $id ) {
 	my $ret =
 		Conch::Pg->new->db->select( 'validation_state', $attrs, { id => $id } )
 		->hash;
-	return $ret && $class->new( $ret->%* );
+	return $class->new( $ret->%* ) if $ret;
 }
 
 =head2 mark_completed
@@ -57,6 +57,31 @@ sub mark_completed ( $self ) {
 	)->hash->{completed};
 	$self->completed($completed);
 	return $self;
+}
+
+=head2 latest_completed_state
+
+Find the latest completed validation state for a given Device and Validation
+Plan, or return undef
+
+=cut
+
+sub latest_completed_state ( $class, $device_id, $plan_id ) {
+	my $fields = join( ', ', @$attrs );
+	my $ret = Conch::Pg->new->db->query(
+		qq{
+		select $fields
+		from validation_state
+		where
+			device_id = ? and
+			validation_plan_id = ? and
+			completed is not null
+		order by completed desc
+		limit 1
+		},
+		$device_id, $plan_id
+	)->hash;
+	return $class->new( $ret->%* ) if $ret;
 }
 
 1;

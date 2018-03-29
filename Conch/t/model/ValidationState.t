@@ -73,4 +73,20 @@ subtest "modify validation state" => sub {
 		'Validation state now has a completed value' );
 };
 
+subtest "latest completed validation state" => sub {
+	my $latest = Conch::Model::ValidationState->latest_completed_state(
+		$device->id, $validation_plan->id
+	);
+	isa_ok( $latest, 'Conch::Model::ValidationState');
+
+	my $new_state =
+		Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
+	$new_state->mark_completed();
+
+	my $new_latest = Conch::Model::ValidationState->latest_completed_state(
+		$device->id, $validation_plan->id
+	);
+	is_deeply( $new_state, $new_latest );
+};
+
 done_testing();
