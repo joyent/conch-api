@@ -176,17 +176,20 @@ sub build_device_validation ( $self, $device, $device_location,
 =head2 run_validation_for_device
 
 Run the L<Conch::Validation> sub-class with the given device
-(L<Conch::Model::Device>). Finds the location, settings, and expected hardwar
+(L<Conch::Model::Device>). Finds the location, settings, and expected hardware
 product for the Device. Returns the validation results.
 
 =cut
 
 sub run_validation_for_device ( $self, $device, $data ) {
-	my $location   = Conch::Model::DeviceLocation->lookup( $device->id );
-	my $settings   = Conch::Model::DeviceSettings->get_settings( $device->id );
-	my $hw_product = Conch::Model::HardwareProduct->lookup(
-		$location->target_hardware_product->id )
-		if $location;
+	my $location = Conch::Model::DeviceLocation->lookup( $device->id );
+	my $settings = Conch::Model::DeviceSettings->get_settings( $device->id );
+
+	my $hw_product_id =
+		  $location
+		? $location->target_hardware_product->id
+		: $device->hardware_product;
+	my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
 
 	my $validation =
 		$self->build_device_validation( $device, $location, $settings,

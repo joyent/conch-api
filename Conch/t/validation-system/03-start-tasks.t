@@ -39,12 +39,40 @@ my $hardware_product_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
+my $zpool_profile_id = $pg->db->insert(
+	'zpool_profile',
+	{ name      => 'test' },
+	{ returning => ['id'] }
+)->hash->{id};
+
+my $hardware_profile_id = $pg->db->insert(
+	'hardware_product_profile',
+	{
+		product_id    => $hardware_product_id,
+		zpool_id      => $zpool_profile_id,
+		rack_unit     => 1,
+		purpose       => 'test',
+		bios_firmware => 'test',
+		cpu_num       => 2,
+		cpu_type      => 'test',
+		dimms_num     => 3,
+		ram_total     => 4,
+		nics_num      => 5,
+		usb_num       => 6
+
+	},
+	{ returning => ['id'] }
+)->hash->{id};
+
+
 my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
 
 my $validation =
 	Conch::Model::Validation->lookup_by_name_and_version( 'product_name', 1 );
 
 $validation_plan->add_validation($validation);
+
+Conch::ValidationSystem->start_tasks;
 
 subtest "Run validation plan" => sub {
 	my $new_validation_state =
@@ -58,8 +86,6 @@ subtest "Run validation plan" => sub {
 
 	ok( !defined( $new_validation_state->completed ) );
 
-	Conch::ValidationSystem->start_tasks;
-
 	$minion->perform_jobs;
 
 	$stats = $minion->stats;
@@ -70,7 +96,31 @@ subtest "Run validation plan" => sub {
 	$new_validation_state =
 		Conch::Model::ValidationState->lookup( $new_validation_state->id );
 	ok( defined( $new_validation_state->completed ) );
+
+	my @results = $new_validation_state->validation_results->@*;
+	is( scalar @results, 1, 'has 1 validation result' );
+
+	subtest "Executing repeat validation plans re-use validation results" => sub {
+		my $next_validation_state =
+			Conch::ValidationSystem->run_validation_plan( 'coffee',
+			$validation_plan->id, {} );
+		$minion->perform_jobs;
+		my @repeat_results = $next_validation_state->validation_results->@*;
+		is_deeply( \@results, \@repeat_results );
+	};
+
+	subtest "Execute new validation plan use validation results" => sub {
+		my $next_validation_state =
+			Conch::ValidationSystem->run_validation_plan( 'coffee',
+			$validation_plan->id, { product_name => 'test hw product' } );
+		$minion->perform_jobs;
+		my @repeat_results = $next_validation_state->validation_results->@*;
+		is( scalar @repeat_results, 1);
+		isnt( $results[0]->{id}, $repeat_results[0]->{id} );
+	};
+
 };
+
 
 subtest "Verify Validations run to completion" => sub {
 	my $validation_state =
@@ -78,16 +128,15 @@ subtest "Verify Validations run to completion" => sub {
 
 	$minion->minion->reset;
 
-	my $id = $minion->minion->enqueue(
-		validation => [ $validation->id, $device->id, {}, $validation_state->id ] );
+	my $id = $minion->minion->enqueue( validation =>
+			[ $validation->id, $device->id, $validation_state->id, {}, {} ] );
 
 	$minion->perform_jobs;
 	my $stats = $minion->stats;
 	is( $stats->{finished_jobs}, 1, 'job finished' );
 
 	my $result = $minion->minion->job($id)->info->{result};
-	is( scalar( $result->@* ),  1 );
-	is( $result->[0]->{status}, 'error' );
+	is( scalar( $result->@* ), 1 );
 };
 
 done_testing();

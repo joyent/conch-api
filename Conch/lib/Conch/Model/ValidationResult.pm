@@ -11,7 +11,7 @@ Conch::Model::ValidationResult
 package Conch::Model::ValidationResult;
 use Mojo::Base -base, -signatures;
 
-use Digest::MD5 'md5';
+use Digest::MD5 'md5_base64';
 
 my $attrs = [
 	qw(id device_id hardware_product_id validation_id message hint status
@@ -72,7 +72,8 @@ sub comparison_hash($self) {
 	my @compared_attrs = qw( device_id hardware_product_id validation_id
 		message hint status category component_id);
 	my @attr_values = grep { defined } @$self{@compared_attrs};
-	return md5(@attr_values);
+	# use base64 encoding for serializability
+	return md5_base64(@attr_values);
 }
 
 =head2 lookup

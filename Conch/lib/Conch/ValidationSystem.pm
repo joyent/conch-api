@@ -71,6 +71,46 @@ sub load_validations ( $class, $logger = Mojo::Log->new ) {
 	return $num_loaded_validations;
 }
 
+=head2 load_legacy_plans
+
+=cut
+
+sub load_legacy_plans ( $class, $logger = Mojo::Log->new ) {
+
+	my $switch_plan =
+		Conch::Model::ValidationPlan->lookup_by_name(
+		'Conch v1 Legacy Plan: Switch');
+	$switch_plan ||=
+		Conch::Model::ValidationPlan->create( 'Conch v1 Legacy Plan: Switch',
+		'Validation plan containing all validations run in Conch v1 on switches' );
+
+	my @switch_validations =
+		qw( bios_firmware_version cpu_count cpu_temperature product_name
+		dimm_count ram_total );
+	for my $name (@switch_validations) {
+		my $validation =
+			Conch::Model::Validation->lookup_by_name_and_version( $name, 1 );
+		$switch_plan->add_validation($validation) if $validation;
+	}
+
+	my $server_plan =
+		Conch::Model::ValidationPlan->lookup_by_name(
+		'Conch v1 Legacy Plan: Server');
+	$server_plan ||=
+		Conch::Model::ValidationPlan->create( 'Conch v1 Legacy Plan: Server',
+		'Validation plan containing all validations run in Conch v1 on servers' );
+
+	my @server_validations = qw( bios_firmware_version cpu_count cpu_temperature
+		product_name dimm_count disk_smart_status disk_temperature links_up
+		nics_num ram_total sas_hdd_num sas_ssd_num slog_slot switch_peers
+		usb_hdd_num );
+	for my $name (@server_validations) {
+		my $validation =
+			Conch::Model::Validation->lookup_by_name_and_version( $name, 1 );
+		$server_plan->add_validation($validation) if $validation;
+	}
+}
+
 =head2 run_validation_plan
 
 Returns a new validation state
@@ -109,11 +149,21 @@ sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
 	my $validation_state =
 		Conch::Model::ValidationState->create( $device_id, $validation_plan->id );
 
-	my $minion             = Conch::Minion->new;
-	my @validation_job_ids = map {
-		$minion->enqueue(
-			validation => [ $_, $device_id, $data, $validation_state->id ] );
-	} $validations->@*;
+	my $latest_state =
+		Conch::Model::ValidationState->latest_completed_state( $device_id,
+		$validation_plan_id );
+
+	my %latest_results =
+		map { ( $_->comparison_hash => $_->id ) }
+		$latest_state->validation_results->@*
+		if $latest_state;
+
+	my $minion = Conch::Minion->new;
+	my @validation_job_ids =
+		map {
+		$minion->enqueue( validation =>
+				[ $_, $device_id, $validation_state->id, {%latest_results}, $data ] );
+		} $validations->@*;
 
 	$minion->enqueue(
 		commit_validation_state => [ $validation_state->id ],
@@ -132,7 +182,10 @@ Start the Minion tasks for processing validations
 sub start_tasks ( $class ) {
 	Conch::Minion->new->add_task(
 		validation => sub {
-			my ( $job, $validation_id, $device_id, $data ) = @_;
+			my ( $job, $validation_id, $device_id,
+				$validation_state_id, $latest_results, $data )
+				= @_;
+			$job->on( failed => sub { use DDP; p $_[1]; } );
 
 			my $validation = Conch::Model::Validation->lookup($validation_id);
 			$job->fail("Unable to find Validation '$validation_id'")
@@ -141,9 +194,26 @@ sub start_tasks ( $class ) {
 			$job->fail("Unable to find Device '$device_id'")
 				unless $device;
 
-			my @results = map { $_->output_hash }
+			my @new_results =
 				$validation->run_validation_for_device( $device, $data )->@*;
-			$job->finish( \@results );
+
+			my $state = Conch::Model::ValidationState->lookup($validation_state_id);
+
+			my @result_ids;
+			for my $result (@new_results) {
+				if ( my $last_result_id =
+					$latest_results->{ $result->comparison_hash } )
+				{
+					$state->add_validation_result($last_result_id);
+					push @result_ids, $last_result_id;
+				}
+				else {
+					$state->add_validation_result( $result->record );
+					push @result_ids, $result->id;
+				}
+			}
+
+			$job->finish( \@result_ids );
 		}
 	);
 

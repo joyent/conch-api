@@ -236,6 +236,8 @@ sub startup {
 	}
 
 	Conch::ValidationSystem->load_validations;
+	Conch::ValidationSystem->start_tasks;
+	Conch::ValidationSystem->load_legacy_plans;
 
 	all_routes($self->routes, \%features);
 }
