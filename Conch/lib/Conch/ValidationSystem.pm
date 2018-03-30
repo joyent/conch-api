@@ -130,11 +130,6 @@ sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
 	Mojo::Exception->throw("No device exists with ID '$device_id'")
 		unless $device;
 
-	my $hw_product = $device->hardware_product;
-	Mojo::Exception->throw(
-		"No hardware product associated with Device '$device_id'")
-		unless $hw_product;
-
 	my $validation_plan =
 		Conch::Model::ValidationPlan->lookup($validation_plan_id);
 	Mojo::Exception->throw(
