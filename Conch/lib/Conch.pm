@@ -156,7 +156,10 @@ sub startup {
 				my $exception = $args->{exception};
 				$exception->verbose(1);
 				$self->log->error($exception);
-				$self->send_exception_to_rollbar($exception);
+
+				$self->send_exception_to_rollbar($exception)
+					if $features{'rollbar'};
+
 				my @stack = @{ $exception->frames };
 				@stack = map { "\t" . $_->[3] . ' at ' . $_->[1] . ':' . $_->[2] }
 					grep defined, @{ $exception->frames }[ 0 .. 10 ];
