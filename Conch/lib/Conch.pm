@@ -22,6 +22,7 @@ use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
 use Conch::ValidationSystem;
+use Conch::Plugin::JsonValidator;
 
 use Mojo::JSON;
 
@@ -177,6 +178,7 @@ sub startup {
 	$self->plugin('Conch::Plugin::Mail');
 	$self->plugin('Conch::Plugin::GitVersion');
 	$self->plugin(NYTProf => $self->config);
+	$self->plugin('Conch::Plugin::JsonValidator');
 
 	if($features{'rollbar'}) {
 		$self->plugin('Conch::Plugin::Rollbar');

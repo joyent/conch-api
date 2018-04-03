@@ -1,0 +1,28 @@
+---
+definitions:
+  WorkflowCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - product_id
+    properties:
+      name:
+        type: string
+      product_id:
+        type: string
+        format: uuid
+  WorkflowUpdate:
+    type: object
+    additionalProperties: false
+    properties:
+      product_id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      version:  
+        type: number
+      locked:
+        type: number
+

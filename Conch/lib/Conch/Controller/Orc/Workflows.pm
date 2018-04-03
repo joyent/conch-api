@@ -21,7 +21,10 @@ Get all workflows, in their entirety
 
 sub get_all ($c) {
 	my $many = Conch::Orc::Workflow->all();
-	$c->status(200, [ map { $_->serialize } $many->@* ]);
+
+	$c->status_with_validation(200, Workflows => [ 
+		map { $_->serialize } $many->@*
+	]);
 }
 
 
@@ -36,7 +39,7 @@ sub get_one ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $w;
 	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
 
-	$c->status(200, $w->serialize);
+	$c->status_with_validation(200, Workflow => $w->serialize);
 }
 
 =head2 create
@@ -46,17 +49,7 @@ Create a new Workflow
 =cut
 
 sub create ($c) {
-	my $body = $c->req->json;
-	if($body->{id}) {
-		return $c->status(400 => { error => "'id' parameter not allowed'"});
-	}
-	return $c->status(400 => { error => "'name' parameter required"})
-		unless $body->{name};
-
-	return $c->status(400 => { error => "'product_id' parameter required"})
-		unless $body->{product_id};
-
-	delete $body->{deactivated};
+	my $body = $c->validate_input('WorkflowCreate') or return;
 
 	my $w = Conch::Orc::Workflow->new($body->%*)->save();
 	$c->status(303 => "/o/workflow/".$w->id);
@@ -73,10 +66,7 @@ sub update ($c) {
 	my $w = Conch::Orc::Workflow->from_id($c->param('id'));
 	return $c->status(404 => { error => "Not found" }) unless $w;
 	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
-
-	my $body = $c->req->json;
-	delete $body->{id};
-	delete $body->{deactivated};
+	my $body = $c->validate_input('WorkflowUpdate') or return;
 
 	if($body->{name} and ($body->{name} ne $w->name)) {
 		if(Conch::Orc::Workflow->from_name($body->{name})) {
