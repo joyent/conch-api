@@ -2517,6 +2517,15 @@ DISTRIBUTIONS
       Sub::Defer 2.003001
       Sub::Quote 2.003001
       perl 5.006
+  Moo-Role-ToJSON-0.02
+    pathname: K/KW/KWAKWA/Moo-Role-ToJSON-0.02.tar.gz
+    provides:
+      Moo::Role::ToJSON 0.02
+    requirements:
+      Module::Build::Tiny 0.034
+      Moo::Role 0
+      Type::Tiny 0
+      perl 5.008005
   Moose-2.2010
     pathname: E/ET/ETHER/Moose-2.2010.tar.gz
     provides:

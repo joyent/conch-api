@@ -354,6 +354,29 @@ sub set_validated ( $self ) {
 	return 1;
 }
 
+
+=head2 set_role
+
+Sets the C<role> attribute
+
+=cut
+sub set_role ( $self, $role ) {
+	my $ret = Conch::Pg->new()->db->update(
+		'device',
+		{
+			role    => $role,
+			updated => 'NOW()'
+		},
+		{ id        => $self->id },
+		{ returning => [qw(role updated)] },
+	)->hash;
+	return undef unless $ret;
+
+	$self->role( $ret->{role} );
+	$self->updated( $ret->{updated} );
+	return 1;
+}
+
 1;
 
 

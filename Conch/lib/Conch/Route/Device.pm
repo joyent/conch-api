@@ -25,6 +25,28 @@ Sets up routes for /device
 sub device_routes {
 	my $r = shift;
 
+	# Device Roles and Services
+	my $dr = $r->under("/device/role");
+	$dr->get('/')->to("device_roles#get_all");
+	$dr->post('/')->to("device_roles#create");
+
+	my $dri = $dr->under('/:id');
+	$dri->get("/")->to("device_roles#get_one");
+	$dri->post("/")->to("device_roles#update");
+	$dri->delete("/")->to("device_roles#delete");
+	$dri->post("/add_service")->to("device_roles#add_service");
+	$dri->post("/remove_service")->to("device_roles#remove_service");
+
+	my $drs = $r->under("/device/service");
+	$drs->get('/')->to("device_services#get_all");
+	$drs->post('/')->to("device_services#create");
+
+	my $drsi = $drs->under("/:id");
+	$drsi->get('/')->to("device_services#get_one");
+	$drsi->post('/')->to("device_services#update");
+	$drsi->delete("/")->to("device_services#delete");
+
+
 	$r->get('/device/:id')->to('device#get');
 
 	# routes namespaced for a specific device
@@ -55,6 +77,9 @@ sub device_routes {
 		->to('device_validation#validate');
 	$with_device->post('/validation_plan/#validation_plan_id')
 		->to('device_validation#run_validation_plan');
+
+	$with_device->get('/role')->to('device#get_role');
+	$with_device->post('/role')->to('device#set_role');
 }
 
 1;

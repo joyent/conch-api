@@ -16,6 +16,7 @@ requires 'Time::Moment', ">= 0.43";
 requires 'IO::Socket::SSL';
 requires 'Submodules';
 
+
 # mojolicious
 requires 'Minion';
 requires 'Mojolicious';
@@ -26,12 +27,13 @@ requires 'Mojolicious::Plugin::Bcrypt';
 requires 'Mojolicious::Plugin::Util::RandomString';
 requires 'Mojolicious::Plugin::NYTProf';
 
-# orchestration
 requires 'Moo';
+requires 'Moo::Role::ToJSON';
 requires 'Type::Tiny';
 requires 'Types::Standard';
 requires 'Types::UUID';
 requires 'Role::Tiny';
+requires 'List::MoreUtils';
 
 ### Legacy Deps
 #

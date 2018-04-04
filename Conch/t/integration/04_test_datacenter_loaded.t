@@ -8,8 +8,7 @@ use Data::Printer;
 
 BEGIN {
 	use_ok("Test::ConchTmpDB");
-	use_ok("Conch::Model::WorkspaceRole");
-	use_ok("Conch::Model::Workspace");
+	use_ok("Conch::Models");
 	use_ok( "Conch::Route", qw(all_routes) );
 }
 
@@ -21,7 +20,8 @@ my $dbh = DBI->connect( $pgtmp->dsn );
 my $t = Test::Mojo->new(
 	Conch => {
 		pg      => $pgtmp->uri,
-		secrets => ["********"]
+		secrets => ["********"],
+		features => { rollbar => 0 },
 	}
 );
 
@@ -238,6 +238,95 @@ subtest 'Single device' => sub {
 		)->status_is(200);
 		$t->get_ok('/device/TEST')->status_is(200)
 			->json_like( '/validated', qr/^\d{4}-\d\d-\d\d/ );
+	};
+
+	subtest 'Device Roles And Services' => sub {
+		$t->get_ok("/hardware_product")->status_is(200);
+		my @hardware_products = $t->tx->res->json->@*;
+
+		$t->get_ok("/device/role")->status_is(200)->json_is([]);
+		$t->post_ok("/device/role", json => {
+			name => "test",
+			hardware_product_id => $hardware_products[0]->{id},
+		})->status_is(303);
+		$t->get_ok($t->tx->res->headers->location)->status_is(200);
+
+		my $d_role = Conch::Model::DeviceRole->from_id($t->tx->res->json->{id});
+
+		$t->get_ok("/device/role")->status_is(200)->json_is([
+			$d_role->TO_JSON
+		]);
+
+		########
+		
+		$t->get_ok("/device/service")->status_is(200)->json_is([]);
+
+		$t->post_ok("/device/service", json => {
+			name => "test"
+		})->status_is(303);
+		$t->get_ok($t->tx->res->headers->location)->status_is(200);
+
+		my $s = Conch::Model::DeviceService->from_id($t->tx->res->json->{id});
+	
+		$t->get_ok("/device/service")->status_is(200)->json_is([
+			$s->TO_JSON
+		]);
+	
+		$t->get_ok('/device/service/'.$s->id)->status_is(200);
+		is_deeply($t->tx->res->json, $s->TO_JSON);
+
+		########
+		
+		$t->post_ok('/device/role/'.$d_role->id.'/add_service', json => {
+			service => $s->id
+		})->status_is(303);
+		$t->get_ok($t->tx->res->headers->location)->status_is(200);
+		is_deeply(
+			Conch::Model::DeviceRole->from_id($d_role->id)->services,
+			[ $s->id ],
+		);
+		$t->post_ok('/device/role/'.$d_role->id.'/remove_service', json => {
+			service => $s->id
+		})->status_is(303);
+		$t->get_ok($t->tx->res->headers->location)->status_is(200);
+		is_deeply(
+			Conch::Model::DeviceRole->from_id($d_role->id)->services,
+			[ ],
+		);
+		########
+		
+		$t->delete_ok('/device/service/'.$s->id)->status_is(204);
+		$t->get_ok('/device/service/'.$s->id)->status_is(404);
+
+		$t->delete_ok('/device/role/'.$d_role->id)->status_is(204);
+		$t->get_ok('/device/role/'.$d_role->id)->status_is(404);
+
+		########
+
+		$t->post_ok("/device/role", json => {
+			hardware_product_id => $hardware_products[0]->{id},
+		})->status_is(303);
+		$t->get_ok($t->tx->res->headers->location)->status_is(200);
+		$d_role = Conch::Model::DeviceRole->from_id($t->tx->res->json->{id});
+
+
+		$t->get_ok('/device/role/'.$d_role->id)->status_is(200);
+		is_deeply($t->tx->res->json, $d_role->TO_JSON);
+
+		$t->get_ok('/device/TEST/role')->status_is(409);
+
+		$t->post_ok('/device/TEST/role', json => {
+			role => $d_role->id
+		})->status_is(303);
+
+		$t->get_ok($t->tx->res->headers->location)->status_is(200)
+			->json_is('/role' => $d_role->id);
+
+		$t->get_ok('/device/TEST/role')->status_is(303);
+
+		$t->get_ok($t->tx->res->headers->location)->status_is(200)
+			->json_is('/id' => $d_role->id);
+		is_deeply($t->tx->res->json, $d_role->TO_JSON);
 	};
 
 };
