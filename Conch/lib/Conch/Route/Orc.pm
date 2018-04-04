@@ -27,6 +27,8 @@ Load up all the routes and attendant subsystems
 
 use Conch::Orc;
 use Conch::Controller::Orc::Workflows;
+use Conch::Controller::Orc::WorkflowSteps;
+use Conch::Controller::Orc::Lifecycles;
 
 sub load ( $class, $r ) {
 	my $o = $r->under("/o")->under(sub {
@@ -37,6 +39,13 @@ sub load ( $class, $r ) {
 		$c->status(403);
 		return undef;
 	});
+
+	my $l = $o->under("/lifecycle");
+	$l->post("/")->to("Orc::Lifecycles#create");
+	$l->get("/")->to("Orc::Lifecycles#get_all");
+	$l->get("/:id")->to("Orc::Lifecycles#get_one");
+	$l->post("/:id/add_workflow")->to("Orc::Lifecycles#add_workflow");
+	$l->post("/:id/remove_workflow")->to("Orc::Lifecycles#remove_workflow");
 
 	my $w = $o->under("/workflow");
 	$w->post("/")->to("Orc::Workflows#create");
