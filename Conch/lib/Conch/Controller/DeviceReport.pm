@@ -82,9 +82,11 @@ sub process ($c) {
 
 	my ( $device, $report_id ) = record_device_report( $schema, $device_report );
 
-	if ($validation_plan) {
-		Conch::ValidationSystem->run_validation_plan( $device->id,
-			$validation_plan->id, $raw_report );
+	my $features = $c->app->config('features') || {};
+
+	if ( $features->{new_validation} && $validation_plan) {
+		Conch::Model::ValidationState->run_validation_plan(
+			$device->id, $validation_plan->id, $raw_report );
 	}
 
 	my $validation_result =

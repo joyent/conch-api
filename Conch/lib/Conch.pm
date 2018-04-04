@@ -47,7 +47,6 @@ sub startup {
 
 	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
-	Conch::Minion->new;
 
 	my %features = $self->config('features') ? 
 		$self->config('features')->%* : () ;
@@ -235,9 +234,8 @@ sub startup {
 		});
 	}
 
-	Conch::ValidationSystem->load_validations;
-	Conch::ValidationSystem->start_tasks;
-	Conch::ValidationSystem->load_legacy_plans;
+	Conch::ValidationSystem->load_validations( $self->log );
+	Conch::ValidationSystem->load_legacy_plans( $self->log );
 
 	all_routes($self->routes, \%features);
 }

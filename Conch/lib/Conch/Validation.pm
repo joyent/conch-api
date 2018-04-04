@@ -92,9 +92,9 @@ Get the list of all validation results.
 has 'validation_results';
 
 use constant {
-	STATUS_ERROR   => 'error',
-	STATUS_FAIL    => 'fail',
-	STATUS_SUCCESS => 'pass'
+	STATUS_ERROR => 'error',
+	STATUS_FAIL  => 'fail',
+	STATUS_PASS  => 'pass'
 };
 
 =head2 new
@@ -518,23 +518,29 @@ sub register_result ( $self, %attrs ) {
 	};
 
 	my $success = $cmp_dispatch->{$cmp_op}->( $got, $expected );
-	my $expected_got_message;
+	my $message;
 	if ( $cmp_op eq 'oneOf' ) {
-		$expected_got_message =
+		$message =
 			  'Expected one of: '
 			. join( ', ', map { "'$_'" } $expected->@* )
 			. ". Got '$got'.";
 	}
+	# For relational operators, we want to produce messages that do not change
+	# between validation executions as long as the relation is constant.
+	elsif ( grep /$cmp_op/, ('>', '>=', '<', '<=', 'lt', 'le', 'gt', 'ge') ) {
+		$message = "Expected a value $cmp_op '$expected'.";
+		$message .= $success ? ' Passed.' : ' Failed.';
+	}
 	else {
-		$expected_got_message = "Expected $cmp_op '$expected'. Got '$got'.";
+		$message = "Expected $cmp_op '$expected'. Got '$got'.";
 	}
 
 	my $validation_result = $self->{_validation_result_builder}->(
-		message  => $attrs{message}  || $expected_got_message,
+		message  => $attrs{message}  || $message,
 		name     => $attrs{name}     || $self->name,
 		category => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
-		status       => $success ? STATUS_SUCCESS : STATUS_FAIL,
+		status       => $success ? STATUS_PASS : STATUS_FAIL,
 		hint         => $success ? $attrs{hint} : undef
 	);
 
@@ -550,7 +556,7 @@ attributes 'level' and 'hint' may be specified.
 
 	$self->die('This validation cannot continue!') if $bad_condition;
 	$self->die('This validation cannot continue!', hint => 'Here's how to fix it' );
-	$self->die('This exception happend 3 frames up', level => 2 );
+	$self->die('This exception happend 3 frames up', level => 3 );
 
 =cut
 
@@ -610,7 +616,7 @@ Get the list of validation results that were successful
 =cut
 
 sub successes ( $self ) {
-	[ grep { $_->{status} eq STATUS_SUCCESS } $self->validation_results->@* ];
+	[ grep { $_->{status} eq STATUS_PASS } $self->validation_results->@* ];
 }
 
 =head2 error
@@ -638,12 +644,12 @@ sub clear_results ( $self ) {
 	return $self;
 }
 
-# Internal error representation. not used outside of this module.
+# Internal error representation. not used outside of this module. Extends
+# 'Mojo::Exception' to store a 'hint' attribute.
 package Conch::Validation::Error;
 
 use Mojo::Base 'Mojo::Exception', -signatures;
 has 'hint';
-
 
 # Return a description of where the error occured. Provides the module name and
 # line number, but not the filepath, so it doesn't expose where the file lives.

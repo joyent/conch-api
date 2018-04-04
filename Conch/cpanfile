@@ -46,6 +46,7 @@ requires 'String::CamelCase', '>= 0.04';
 
 # database
 requires 'DBD::Pg';
+requires 'DateTime::Format::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
 requires 'Config::General';

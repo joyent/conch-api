@@ -11,7 +11,6 @@ Conch::ValidationSystem
 package Conch::ValidationSystem;
 
 use Mojo::Base -base, -signatures;
-use Conch::Minion;
 use Mojo::Log;
 use Mojo::Exception;
 use Submodules;
@@ -73,6 +72,16 @@ sub load_validations ( $class, $logger = Mojo::Log->new ) {
 
 =head2 load_legacy_plans
 
+Load two validation plans: 'Conch v1 Legacy Plan: Switch' and 'Conch v1 Legacy
+Plan: Server'.
+
+These validation plans contain validations that correspond to the validation
+logic run in previous version of Conch (called 'v1' here). All versions of the 
+
+This method can be removed once the infrastructure for building, managing, and
+associating validation plans with devices through Orchestration is available to
+users.
+
 =cut
 
 sub load_legacy_plans ( $class, $logger = Mojo::Log->new ) {
@@ -80,9 +89,14 @@ sub load_legacy_plans ( $class, $logger = Mojo::Log->new ) {
 	my $switch_plan =
 		Conch::Model::ValidationPlan->lookup_by_name(
 		'Conch v1 Legacy Plan: Switch');
-	$switch_plan ||=
-		Conch::Model::ValidationPlan->create( 'Conch v1 Legacy Plan: Switch',
-		'Validation plan containing all validations run in Conch v1 on switches' );
+
+	unless ($switch_plan) {
+		$switch_plan = Conch::Model::ValidationPlan->create(
+			'Conch v1 Legacy Plan: Switch',
+			'Validation plan containing all validations run in Conch v1 on switches'
+		);
+		$logger->debug( "Created validation plan " . $switch_plan->name );
+	}
 
 	my @switch_validations =
 		qw( bios_firmware_version cpu_count cpu_temperature product_name
@@ -90,15 +104,24 @@ sub load_legacy_plans ( $class, $logger = Mojo::Log->new ) {
 	for my $name (@switch_validations) {
 		my $validation =
 			Conch::Model::Validation->lookup_by_name_and_version( $name, 1 );
-		$switch_plan->add_validation($validation) if $validation;
+		if ($validation) {
+			$switch_plan->add_validation($validation);
+		}
+		else {
+			$logger->warn( "Could not find Validation name $name, version 1"
+					. " to load for Legacy Switch Validation Plan" );
+		}
 	}
 
 	my $server_plan =
 		Conch::Model::ValidationPlan->lookup_by_name(
 		'Conch v1 Legacy Plan: Server');
-	$server_plan ||=
-		Conch::Model::ValidationPlan->create( 'Conch v1 Legacy Plan: Server',
-		'Validation plan containing all validations run in Conch v1 on servers' );
+	unless ($server_plan) {
+		$server_plan =
+			Conch::Model::ValidationPlan->create( 'Conch v1 Legacy Plan: Server',
+			'Validation plan containing all validations run in Conch v1 on servers' );
+		$logger->debug( "Created validation plan " . $server_plan->name );
+	}
 
 	my @server_validations = qw( bios_firmware_version cpu_count cpu_temperature
 		product_name dimm_count disk_smart_status disk_temperature links_up
@@ -107,124 +130,16 @@ sub load_legacy_plans ( $class, $logger = Mojo::Log->new ) {
 	for my $name (@server_validations) {
 		my $validation =
 			Conch::Model::Validation->lookup_by_name_and_version( $name, 1 );
-		$server_plan->add_validation($validation) if $validation;
+		if ($validation) {
+			$server_plan->add_validation($validation);
+		}
+		else {
+			$logger->warn( "Could not find Validation name $name, version 1"
+					. " to load for Legacy Server Validation Plan" );
+		}
 	}
-}
 
-=head2 run_validation_plan
-
-Returns a new validation state
-
-=cut
-
-sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
-
-	Mojo::Exception->throw("Device ID must be defined") unless $device_id;
-	Mojo::Exception->throw("Validation Plan ID must be defined")
-		unless $validation_plan_id;
-	Mojo::Exception->throw("Validation data must be a hashref")
-		unless ref($data) eq 'HASH';
-
-	my $device = Conch::Model::Device->lookup($device_id);
-
-	Mojo::Exception->throw("No device exists with ID '$device_id'")
-		unless $device;
-
-	my $validation_plan =
-		Conch::Model::ValidationPlan->lookup($validation_plan_id);
-	Mojo::Exception->throw(
-		"No Validation Plan found with ID '$validation_plan_id'")
-		unless $validation_plan;
-
-	my $validations = $validation_plan->validation_ids;
-	Mojo::Exception->throw(
-		"Validation Plan $validation_plan_id is not associated with any validations"
-	) unless scalar( $validations->@* );
-
-	my $validation_state =
-		Conch::Model::ValidationState->create( $device_id, $validation_plan->id );
-
-	my $latest_state =
-		Conch::Model::ValidationState->latest_completed_state( $device_id,
-		$validation_plan_id );
-
-	my %latest_results =
-		map { ( $_->comparison_hash => $_->id ) }
-		$latest_state->validation_results->@*
-		if $latest_state;
-
-	my $minion = Conch::Minion->new;
-	my @validation_job_ids =
-		map {
-		$minion->enqueue( validation =>
-				[ $_, $device_id, $validation_state->id, {%latest_results}, $data ] );
-		} $validations->@*;
-
-	$minion->enqueue(
-		commit_validation_state => [ $validation_state->id ],
-		{ parents => \@validation_job_ids }
-	);
-
-	return $validation_state;
-}
-
-=head2 start_tasks
-
-Start the Minion tasks for processing validations
-
-=cut
-
-sub start_tasks ( $class ) {
-	Conch::Minion->new->add_task(
-		validation => sub {
-			my ( $job, $validation_id, $device_id,
-				$validation_state_id, $latest_results, $data )
-				= @_;
-			$job->on( failed => sub { use DDP; p $_[1]; } );
-
-			my $validation = Conch::Model::Validation->lookup($validation_id);
-			$job->fail("Unable to find Validation '$validation_id'")
-				unless $validation;
-			my $device = Conch::Model::Device->lookup($device_id);
-			$job->fail("Unable to find Device '$device_id'")
-				unless $device;
-
-			my @new_results =
-				$validation->run_validation_for_device( $device, $data )->@*;
-
-			my $state = Conch::Model::ValidationState->lookup($validation_state_id);
-
-			my @result_ids;
-			for my $result (@new_results) {
-				if ( my $last_result_id =
-					$latest_results->{ $result->comparison_hash } )
-				{
-					$state->add_validation_result($last_result_id);
-					push @result_ids, $last_result_id;
-				}
-				else {
-					$state->add_validation_result( $result->record );
-					push @result_ids, $result->id;
-				}
-			}
-
-			$job->finish( \@result_ids );
-		}
-	);
-
-	Conch::Minion->new->add_task(
-		commit_validation_state => sub {
-			my ( $job, $validation_state_id ) = @_;
-
-			my $validation_state =
-				Conch::Model::ValidationState->lookup($validation_state_id);
-			$job->fail( "Unable to find Validation State '$validation_state_id'."
-					. " to mark as completed" )
-				unless $validation_state;
-			$validation_state->mark_completed();
-			$job->finish();
-		}
-	);
+	return ( $switch_plan, $server_plan );
 }
 
 1;

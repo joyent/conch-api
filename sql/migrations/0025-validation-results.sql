@@ -1,4 +1,4 @@
-select run_migration(24, $$
+select run_migration(25, $$
 
 	create table validation_result (
 		id                  uuid                   primary key default uuid_generate_v4(),
@@ -10,6 +10,7 @@ select run_migration(24, $$
 		status              validation_status_enum not null,
 		category            text                   not null,
 		component_id        text,
+		result_order        int                    not null,
 		created             timestamptz            not null default now()
 	);
 
@@ -18,6 +19,9 @@ select run_migration(24, $$
 		validation_result_id uuid not null references validation_result(id),
 		primary key(validation_state_id, validation_result_id)
 	);
+
+    -- not used or needed
+    alter table validation drop column persistence;
 
 $$);
 

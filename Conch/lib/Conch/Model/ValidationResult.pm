@@ -13,9 +13,15 @@ use Mojo::Base -base, -signatures;
 
 use Digest::MD5 'md5_base64';
 
+use constant {
+	STATUS_ERROR => 'error',
+	STATUS_FAIL  => 'fail',
+	STATUS_PASS  => 'pass'
+};
+
 my $attrs = [
 	qw(id device_id hardware_product_id validation_id message hint status
-		category component_id)
+		category component_id result_order)
 ];
 has $attrs;
 
@@ -30,7 +36,8 @@ then C<record> to write it to the database.
 		hardware_product_id => $hardware_product_id,
 		message             => 'Expected eq '1', got '2',
 		category            => 'CPU',
-		status              => 'fail'
+		status              => 'fail',
+		result_order        => 3
 	);
 	$result->record;
 
@@ -64,15 +71,17 @@ sub record ( $self ) {
 
 =head2 comparison_hash
 
-Return an MD5 digest of the attributes for comparing two Validation Results (recorded or not)
+Return an MD5 digest (base-64 encoded) of the attributes for comparing two
+Validation Results to determine if they're contextually equivalent.
 
 =cut
 
 sub comparison_hash($self) {
 	my @compared_attrs = qw( device_id hardware_product_id validation_id
-		message hint status category component_id);
+		message status category component_id result_order);
 	my @attr_values = grep { defined } @$self{@compared_attrs};
-	# use base64 encoding for serializability
+
+	# base64 encoding for serializability
 	return md5_base64(@attr_values);
 }
 

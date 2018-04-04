@@ -16,7 +16,8 @@ sub validate {
 
 	my $hw_profile = $self->hardware_product_profile;
 
-	my $sas_hdd_num = grep { fc( $_->{drive_type} ) eq fc('SAS_HDD') }
+	my $sas_hdd_num =
+		grep { $_->{drive_type} && fc( $_->{drive_type} ) eq fc('SAS_HDD') }
 		( values $data->{disks}->%* );
 
 	$self->register_result(

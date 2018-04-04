@@ -1,10 +1,12 @@
 use Mojo::Base -strict;
 use Test::More;
+use Test::Exception;
 use Test::ConchTmpDB;
 use Mojo::Pg;
-
 use DDP;
 use Data::UUID;
+
+use Conch::Model::Device;
 
 my $uuid = Data::UUID->new;
 
@@ -16,6 +18,49 @@ my $pgtmp = mk_tmp_db() or die;
 my $pg = Conch::Pg->new( $pgtmp->uri );
 
 my $validation;
+
+my $hardware_vendor_id = $pg->db->insert(
+	'hardware_vendor',
+	{ name      => 'test vendor' },
+	{ returning => ['id'] }
+)->hash->{id};
+
+my $hardware_product_id = $pg->db->insert(
+	'hardware_product',
+	{
+		name   => 'test hw product',
+		alias  => 'alias',
+		vendor => $hardware_vendor_id
+	},
+	{ returning => ['id'] }
+)->hash->{id};
+
+my $zpool_profile_id = $pg->db->insert(
+	'zpool_profile',
+	{ name      => 'test' },
+	{ returning => ['id'] }
+)->hash->{id};
+
+my $hardware_profile_id = $pg->db->insert(
+	'hardware_product_profile',
+	{
+		product_id    => $hardware_product_id,
+		zpool_id      => $zpool_profile_id,
+		rack_unit     => 1,
+		purpose       => 'test',
+		bios_firmware => 'test',
+		cpu_num       => 2,
+		cpu_type      => 'test',
+		dimms_num     => 3,
+		ram_total     => 4,
+		nics_num      => 5,
+		usb_num       => 6
+
+	},
+	{ returning => ['id'] }
+)->hash->{id};
+
+my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
 
 subtest "Create validation" => sub {
 	$validation = Conch::Model::Validation->create( 'test', 1, 'test validation',
@@ -62,7 +107,6 @@ subtest "upsert validation" => sub {
 			'Has same ID as previous Validation' );
 		is( $upsert_validation->name,        'test' );
 		is( $upsert_validation->version,     1 );
-		is( $upsert_validation->persistence, 0 );
 		is( $upsert_validation->description, 'upsert test validation' );
 	};
 	subtest "Upsert new validation" => sub {
@@ -76,8 +120,63 @@ subtest "upsert validation" => sub {
 			'Has different ID as previous Validation' );
 		is( $upsert_validation->name,        'test' );
 		is( $upsert_validation->version,     2 );
-		is( $upsert_validation->persistence, 0 );
 		is( $upsert_validation->description, 'upsert new validation' );
+	};
+};
+
+subtest "build_device_validation" => sub {
+	my $hw_product = Conch::Model::HardwareProduct->lookup($hardware_product_id);
+
+	throws_ok(
+		sub {
+			$validation->build_device_validation( undef, $hw_product, undef, undef );
+		},
+		qr/Device must be defined/
+	);
+
+	throws_ok(
+		sub { $validation->build_device_validation( $device, undef, undef, undef ) }
+		,
+		qr/Hardware product must be defined/
+	);
+
+	throws_ok(
+		sub {
+			$validation->build_device_validation( $device, $hw_product, undef,
+				undef );
+		},
+		qr/Unable to create validation 'Conch::Validation::Test'/,
+		'The fake validation must throw an exception because it can not be created'
+	);
+
+	require Conch::Validation::DeviceProductName;
+	my $real_validation = Conch::Model::Validation->create(
+		'product_name', 1,
+		'real validation',
+		'Conch::Validation::DeviceProductName'
+	);
+
+	my $device_validation;
+	lives_ok {
+		$device_validation =
+			$real_validation->build_device_validation( $device, $hw_product, undef,
+			undef );
+	};
+
+	isa_ok( $device_validation, 'Conch::Validation' );
+	my $results = $device_validation->run( { product_name => 'test hw product' } )
+		->validation_results;
+	is( scalar @$results, 1 );
+
+	# 'run_validation_for_device' is a convenience function for building and
+	# running a single validation and returning results with a given device
+	subtest "run_validation_for_device" => sub {
+		my $run_results;
+		lives_ok {
+			$run_results = $real_validation->run_validation_for_device( $device,
+				{ product_name => 'test hw product' } );
+		};
+		is_deeply( $run_results, $results, 'Results should be the same' );
 	};
 };
 

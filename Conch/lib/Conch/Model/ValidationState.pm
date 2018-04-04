@@ -11,7 +11,13 @@ Conch::Model::ValidationState
 package Conch::Model::ValidationState;
 use Mojo::Base -base, -signatures;
 
-my $attrs = [qw( id device_id validation_plan_id created completed )];
+use constant {
+	STATUS_ERROR => 'error',
+	STATUS_FAIL  => 'fail',
+	STATUS_PASS  => 'pass'
+};
+
+my $attrs = [qw( id device_id validation_plan_id status created completed )];
 has $attrs;
 
 =head2 create
@@ -44,18 +50,19 @@ sub lookup ( $class, $id ) {
 
 =head2 mark_completed
 
-Mark the Validation State as completed
+Mark the Validation State as completed with a status
 
 =cut
 
-sub mark_completed ( $self ) {
-	my $completed = Conch::Pg->new->db->update(
+sub mark_completed ( $self, $status ) {
+	my $state = Conch::Pg->new->db->update(
 		'validation_state',
-		{ completed => 'NOW()' },
+		{ completed => 'NOW()', status => $status },
 		{ id        => $self->id },
-		{ returning => 'completed' }
-	)->hash->{completed};
-	$self->completed($completed);
+		{ returning => [ 'completed', 'status' ] }
+	)->hash;
+	$self->completed( $state->{completed} );
+	$self->status( $state->{status} );
 	return $self;
 }
 
@@ -128,6 +135,74 @@ sub validation_results ($self) {
 		$self->id
 		)->hashes->map( sub { Conch::Model::ValidationResult->new( shift->%* ) } )
 		->to_array;
+}
+
+=head2 run_validation_plan
+
+Process a validation plan with a device and input data. Returns a completed
+validation state. Associated validation results will be stored.
+
+=cut
+
+sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
+
+	Mojo::Exception->throw("Device ID must be defined") unless $device_id;
+	Mojo::Exception->throw("Validation Plan ID must be defined")
+		unless $validation_plan_id;
+	Mojo::Exception->throw("Validation data must be a hashref")
+		unless ref($data) eq 'HASH';
+
+	my $device = Conch::Model::Device->lookup($device_id);
+
+	Mojo::Exception->throw("No device exists with ID '$device_id'")
+		unless $device;
+
+	my $validation_plan =
+		Conch::Model::ValidationPlan->lookup($validation_plan_id);
+	Mojo::Exception->throw(
+		"No Validation Plan found with ID '$validation_plan_id'")
+		unless $validation_plan;
+
+	my $validation_state = $class->create( $device_id, $validation_plan->id );
+
+	my $latest_state =
+		$class->latest_completed_state( $device_id, $validation_plan_id );
+
+	my %latest_results =
+		map { ( $_->comparison_hash => $_ ) } $latest_state->validation_results->@*
+		if $latest_state;
+
+	my $new_results = $validation_plan->run_validations( $device, $data );
+
+	my %status = ();
+
+	# For all new results, check to see if a contextually equivalent result
+	# that occurred with the previous state. If the older result is the same as
+	# the new result, associate the new state with the older result and do not
+	# store the new result. This reduces the number of redundant results stored
+	# in the database.
+	for my $result (@$new_results) {
+		if ( my $last_result = $latest_results{ $result->comparison_hash } ) {
+			$validation_state->add_validation_result( $last_result->id );
+			$status{ $last_result->status } = 1;
+		}
+		else {
+			$validation_state->add_validation_result( $result->record() );
+			$status{ $result->status } = 1;
+		}
+	}
+
+	# if any result status was ERROR, the state status is ERROR. Else, if any
+	# were FAIL, the state status is FAIL. Otherwise, the state status is
+	# PASS
+	my $state_status =
+		  $status{ STATUS_ERROR() } ? STATUS_ERROR
+		: $status{ STATUS_FAIL() }  ? STATUS_FAIL
+		:                             STATUS_PASS;
+
+	$validation_state->mark_completed($state_status);
+
+	return $validation_state;
 }
 
 1;

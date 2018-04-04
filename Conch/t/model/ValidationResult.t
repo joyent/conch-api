@@ -56,7 +56,8 @@ subtest "validation result new " => sub {
 		hardware_product_id => $hardware_product_id,
 		message             => 'foobar',
 		category            => 'TEST',
-		status              => 'fail'
+		status              => 'fail',
+		result_order        => 0
 	);
 	isa_ok( $result, 'Conch::Model::ValidationResult' );
 	ok( !defined( $result->id ) );
@@ -80,7 +81,8 @@ subtest "validation result comparison_hash" => sub {
 		hardware_product_id => $hardware_product_id,
 		message             => 'foobar',
 		category            => 'TEST',
-		status              => 'fail'
+		status              => 'fail',
+		result_order        => 0
 	);
 	is( $result->comparison_hash, $result2->comparison_hash );
 	$result2->record;
@@ -96,7 +98,8 @@ subtest "validation result comparison_hash" => sub {
 		hardware_product_id => $hardware_product_id,
 		message             => 'Different message',
 		category            => 'TEST',
-		status              => 'fail'
+		status              => 'fail',
+		result_order        => 0
 	);
 
 	isnt( $result->comparison_hash, $result3->comparison_hash );

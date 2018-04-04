@@ -168,17 +168,19 @@ data. Returns the list of validation results.
 =cut
 
 sub run_validations ( $self, $device, $data ) {
-	my $location   = Conch::Model::DeviceLocation->lookup( $device->id );
-	my $settings   = Conch::Model::DeviceSettings->get_settings( $device->id );
-	my $hw_product = Conch::Model::HardwareProduct->lookup(
-		$location->target_hardware_product->id )
-		if $location;
+	my $location = Conch::Model::DeviceLocation->lookup( $device->id );
+	my $settings = Conch::Model::DeviceSettings->get_settings( $device->id );
+
+	my $hw_product_id =
+		  $location
+		? $location->target_hardware_product->id
+		: $device->hardware_product;
+	my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
 
 	my @results;
 	for my $validation ( $self->validations->@* ) {
 		my $validator =
-			$validation->build_device_validation( $device, $location, $settings,
-			$hw_product );
+			$validation->build_device_validation( $device, $hw_product, $location, $settings );
 		$validator->run($data);
 		push @results, $validator->validation_results->@*;
 	}

@@ -283,6 +283,7 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
+      Config::General 2.47
       Module::Pluggable::Object 3.6
   Config-General-2.63
     pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
@@ -846,6 +847,17 @@ DISTRIBUTIONS
       DateTime 0
       DateTime::Format::Builder 0.6
       Module::Build 0
+  DateTime-Format-Pg-0.16013
+    pathname: D/DM/DMAKI/DateTime-Format-Pg-0.16013.tar.gz
+    provides:
+      DateTime::Format::Pg 0.16013
+    requirements:
+      DateTime 0.10
+      DateTime::Format::Builder 0.72
+      DateTime::TimeZone 0.05
+      ExtUtils::MakeMaker 6.36
+      Module::Build::Tiny 0.035
+      Test::More 0
   DateTime-Format-SQLite-0.11
     pathname: C/CF/CFAERBER/DateTime-Format-SQLite-0.11.tar.gz
     provides:

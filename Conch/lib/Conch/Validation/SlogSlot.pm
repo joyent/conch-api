@@ -14,10 +14,13 @@ sub validate {
 	$self->die("Input data must include 'disks' hash")
 		unless $data->{disks} && ref( $data->{disks} ) eq 'HASH';
 
+	my @disks_with_drive_type =
+		grep { $_->{drive_type} } ( values $data->{disks}->%* );
+
 	my @ssd_disks = grep {
-		     fc( $_->{drive_type} ) eq fc('SAS_SSD')
+		fc( $_->{drive_type} ) eq fc('SAS_SSD')
 			|| fc( $_->{drive_type} ) eq fc('SATA_SSD')
-	} ( values $data->{disks}->%* );
+	} @disks_with_drive_type;
 
 	# Ensure slog is in slot 0 on mixed media systems
 	if ( scalar(@ssd_disks) == 1 ) {

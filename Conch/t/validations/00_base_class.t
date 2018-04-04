@@ -109,6 +109,29 @@ subtest '->register_result' => sub {
 		$base_validation->successes->[1]->{message},
 		"Expected ne 'test'. Got 'good'."
 	);
+	$base_validation->clear_results;
+
+	$base_validation->register_result(
+		expected => 20,
+		got      => 40,
+		cmp      => '>'
+	);
+	is( scalar $base_validation->successes->@*, 1, 'Successful comparison result' );
+	is(
+		$base_validation->successes->[0]->{message},
+		"Expected a value > '20'. Passed."
+	);
+
+	$base_validation->register_result(
+		expected => 20,
+		got      => 40,
+		cmp      => '<'
+	);
+	is( scalar $base_validation->failures->@*, 1, 'Failing comparison result' );
+	is(
+		$base_validation->failures->[0]->{message},
+		"Expected a value < '20'. Failed."
+	);
 
 	$base_validation->clear_results;
 

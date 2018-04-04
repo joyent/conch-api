@@ -1,5 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
+use Test::Exception;
 use Test::ConchTmpDB;
 use Mojo::Pg;
 
@@ -37,6 +38,31 @@ my $hardware_product_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
+my $zpool_profile_id = $pg->db->insert(
+	'zpool_profile',
+	{ name      => 'test' },
+	{ returning => ['id'] }
+)->hash->{id};
+
+my $hardware_profile_id = $pg->db->insert(
+	'hardware_product_profile',
+	{
+		product_id    => $hardware_product_id,
+		zpool_id      => $zpool_profile_id,
+		rack_unit     => 1,
+		purpose       => 'test',
+		bios_firmware => 'test',
+		cpu_num       => 2,
+		cpu_type      => 'test',
+		dimms_num     => 3,
+		ram_total     => 4,
+		nics_num      => 5,
+		usb_num       => 6
+
+	},
+	{ returning => ['id'] }
+)->hash->{id};
+
 my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
 
 BAIL_OUT("Could not create a validation plan and device ")
@@ -68,7 +94,7 @@ subtest "lookup validation state" => sub {
 subtest "modify validation state" => sub {
 	is( $validation_state->completed,
 		undef, 'Validation state does not have a completed value' );
-	isa_ok( $validation_state->mark_completed(),
+	isa_ok( $validation_state->mark_completed('pass'),
 		'Conch::Model::ValidationState' );
 	ok( $validation_state->completed,
 		'Validation state now has a completed value' );
@@ -82,7 +108,7 @@ subtest "latest completed validation state" => sub {
 
 	my $new_state =
 		Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
-	$new_state->mark_completed();
+	$new_state->mark_completed('pass');
 
 	my $new_latest =
 		Conch::Model::ValidationState->latest_completed_state( $device->id,
@@ -103,7 +129,8 @@ subtest "validation results" => sub {
 		hardware_product_id => $hardware_product_id,
 		message             => 'foobar',
 		category            => 'TEST',
-		status              => 'fail'
+		status              => 'fail',
+		result_order        => 0
 	)->record;
 
 	ok( $validation_state->add_validation_result($result) );
@@ -112,6 +139,69 @@ subtest "validation results" => sub {
 	# repeated addition is idempotent
 	ok( $validation_state->add_validation_result($result) );
 	is_deeply( $validation_state->validation_results, [$result] );
+};
+
+subtest "run validation plan" => sub {
+	throws_ok(
+		sub {
+			Conch::Model::ValidationState->run_validation_plan( 'bad_device',
+				$validation_plan->id, {} );
+		},
+		qr/No device exists/
+	);
+	throws_ok(
+		sub {
+			Conch::Model::ValidationState->run_validation_plan( $device->id,
+				$uuid->create_str, {} );
+		},
+		qr/No Validation Plan found with ID/
+	);
+	throws_ok(
+		sub {
+			Conch::Model::ValidationState->run_validation_plan( $device->id,
+				$validation_plan->id, 'bad' );
+		},
+		qr/Validation data must be a hashref/
+	);
+
+	is( scalar $validation_plan->validations->@*,
+		0, 'Validation plan should have no validations' );
+	my $new_state =
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+		$validation_plan->id, {} );
+	ok( $new_state->completed );
+	is( scalar $new_state->validation_results->@*, 0 );
+	is( $new_state->status, 'pass', 'Passes though no results stored' );
+
+	require Conch::Validation::DeviceProductName;
+	my $real_validation = Conch::Model::Validation->create(
+		'product_name', 1,
+		'test validation',
+		'Conch::Validation::DeviceProductName'
+	);
+
+	$validation_plan->add_validation($real_validation);
+
+	my $error_state =
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+		$validation_plan->id, {} );
+	is( scalar $error_state->validation_results->@*, 1 );
+	is( $error_state->status, 'error',
+		'Validation state should be error because result errored' );
+
+	my $fail_state =
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+		$validation_plan->id, { product_name => 'bad' } );
+	is( scalar $fail_state->validation_results->@*, 1 );
+	is( $fail_state->status, 'fail',
+		'Validation state should be fail because result failed' );
+
+	my $pass_state =
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+		$validation_plan->id, { product_name => 'test hw product' } );
+	is( scalar $pass_state->validation_results->@*, 1 );
+	is( $pass_state->status, 'pass',
+		'Validation state should be pass because all results passed' );
 };
 
 done_testing();
