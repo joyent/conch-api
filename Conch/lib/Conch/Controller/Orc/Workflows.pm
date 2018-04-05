@@ -20,11 +20,9 @@ Get all workflows, in their entirety
 =cut
 
 sub get_all ($c) {
-	my $many = Conch::Orc::Workflow->all();
-
-	$c->status_with_validation(200, Workflows => [ 
-		map { $_->serialize } $many->@*
-	]);
+	$c->status_with_validation(200,
+		Workflows => Conch::Orc::Workflow->all()
+	);
 }
 
 
@@ -39,7 +37,7 @@ sub get_one ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $w;
 	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
 
-	$c->status_with_validation(200, Workflow => $w->serialize);
+	$c->status_with_validation(200, Workflow => $w);
 }
 
 =head2 create

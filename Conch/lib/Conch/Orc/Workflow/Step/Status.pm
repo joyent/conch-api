@@ -29,6 +29,7 @@ use Mojo::JSON;
 use Conch::Pg;
 use Conch::Orc;
 
+with "Moo::Role::ToJSON";
 
 =head1 CONSTANTS
 
@@ -273,6 +274,21 @@ has 'data' => (
 	isa     => HashRef,
 );
 
+sub _build_serializable_attributes {[qw[
+	created
+	data
+	device_id
+	force_retry
+	id
+	overridden
+	retry_count
+	state
+	updated
+	validation_state_id
+	validation_status
+	workflow_step_id
+]]};
+
 
 =back
 
@@ -365,30 +381,6 @@ sub save ($self) {
 	$self->_set_updated(Conch::Time->new($ret->{updated}));
 
 	return $self;
-}
-
-
-=head2 serialize
-
-Returns a hashref, representing a Step::Status in a serialized format
-
-=cut
-
-sub serialize ($self) {
-	{
-		created              => $self->{created}->rfc3339(),
-		data                 => $self->{data},
-		device_id            => $self->{device_id},
-		force_retry          => $self->{force_retry},
-		id                   => $self->{id},
-		overridden           => $self->{overridden},
-		retry_count          => $self->{retry_count},
-		state                => $self->{state},
-		updated              => $self->{updated}->rfc3339(),
-		validation_result_id => $self->{validation_result_id},
-		validation_status    => $self->{validation_status},
-		workflow_step_id     => $self->{workflow_step_id},
-	}
 }
 
 

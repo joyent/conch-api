@@ -89,7 +89,7 @@ lives_ok {
 	$s2 = Conch::Orc::Workflow::Step::Status->from_id($s->id);
 } '->from_id';
 
-is_deeply($s->serialize, $s2->serialize, 'Data stored cmp data fetched');
+is_deeply($s->TO_JSON, $s2->TO_JSON, 'Data stored cmp data fetched');
 
 
 done_testing();

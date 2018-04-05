@@ -22,7 +22,7 @@ Get a single Workflow::Step by its UUID
 sub get_one ($c) {
 	my $s = Conch::Orc::Workflow::Step->from_id($c->param('id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(200, $s->serialize);
+	return $c->status(200, $s);
 }
 
 
