@@ -70,76 +70,58 @@ sub load_validations ( $class, $logger = Mojo::Log->new ) {
 	return $num_loaded_validations;
 }
 
-=head2 load_legacy_plans
+=head2 load_validation_plans
 
-Load two validation plans: 'Conch v1 Legacy Plan: Switch' and 'Conch v1 Legacy
-Plan: Server'.
+Takes an array ref of structured hash refs and creates a validation plan (if it doesn't
+exist) and adds specified validation plans for each of the structured hashes.
 
-These validation plans contain validations that correspond to the validation
-logic run in previous version of Conch (called 'v1' here). All versions of the 
+Each hash has the structure
 
-This method can be removed once the infrastructure for building, managing, and
-associating validation plans with devices through Orchestration is available to
-users.
+	{
+		name        => 'Validation plan name',
+		description => 'Validatoin plan description',
+		validations => [
+			{ name => 'validation_name', version => 1 }
+		]
+	}
+
+If a validation plan by the name already exists, all associations to
+validations are dropped before the specified validations are added. This allows
+modifying the membership of the validation plans.
+
+Returns the list of validations plan objects.
 
 =cut
 
-sub load_legacy_plans ( $class, $logger = Mojo::Log->new ) {
+sub load_validation_plans ( $class, $plans, $logger = Mojo::Log->new ) {
+	my @plans;
+	for my $p ( $plans->@* ) {
+		my $plan = Conch::Model::ValidationPlan->lookup_by_name( $p->{name} );
 
-	my $switch_plan =
-		Conch::Model::ValidationPlan->lookup_by_name(
-		'Conch v1 Legacy Plan: Switch');
-
-	unless ($switch_plan) {
-		$switch_plan = Conch::Model::ValidationPlan->create(
-			'Conch v1 Legacy Plan: Switch',
-			'Validation plan containing all validations run in Conch v1 on switches'
-		);
-		$logger->debug( "Created validation plan " . $switch_plan->name );
-	}
-
-	my @switch_validations =
-		qw( bios_firmware_version cpu_count cpu_temperature product_name
-		dimm_count ram_total );
-	for my $name (@switch_validations) {
-		my $validation =
-			Conch::Model::Validation->lookup_by_name_and_version( $name, 1 );
-		if ($validation) {
-			$switch_plan->add_validation($validation);
+		unless ($plan) {
+			$plan =
+				Conch::Model::ValidationPlan->create( $p->{name}, $p->{description}, );
+			$logger->debug( "Created validation plan " . $plan->name );
 		}
-		else {
-			$logger->warn( "Could not find Validation name $name, version 1"
-					. " to load for Legacy Switch Validation Plan" );
+		$plan->drop_validations;
+		for my $v ( $p->{validations}->@* ) {
+			my $validation =
+				Conch::Model::Validation->lookup_by_name_and_version( $v->{name},
+				$v->{version} );
+			if ($validation) {
+				$plan->add_validation($validation);
+			}
+			else {
+				$logger->warn(
+					"Could not find Validation name $v->{name}, version $v->{version}"
+						. " to load for "
+						. $plan->name );
+			}
 		}
+		$logger->debug( "Loaded validation plan " . $plan->name );
+		push @plans, $plan;
 	}
-
-	my $server_plan =
-		Conch::Model::ValidationPlan->lookup_by_name(
-		'Conch v1 Legacy Plan: Server');
-	unless ($server_plan) {
-		$server_plan =
-			Conch::Model::ValidationPlan->create( 'Conch v1 Legacy Plan: Server',
-			'Validation plan containing all validations run in Conch v1 on servers' );
-		$logger->debug( "Created validation plan " . $server_plan->name );
-	}
-
-	my @server_validations = qw( bios_firmware_version cpu_count cpu_temperature
-		product_name dimm_count disk_smart_status disk_temperature links_up
-		nics_num ram_total sas_hdd_num sas_ssd_num slog_slot switch_peers
-		usb_hdd_num );
-	for my $name (@server_validations) {
-		my $validation =
-			Conch::Model::Validation->lookup_by_name_and_version( $name, 1 );
-		if ($validation) {
-			$server_plan->add_validation($validation);
-		}
-		else {
-			$logger->warn( "Could not find Validation name $name, version 1"
-					. " to load for Legacy Server Validation Plan" );
-		}
-	}
-
-	return ( $switch_plan, $server_plan );
+	return @plans;
 }
 
 1;

@@ -18,7 +18,26 @@ my $pg    = Conch::Pg->new( $pgtmp->uri );
 my $logger = Mojo::Log->new( level => 'warn' );
 
 Conch::ValidationSystem->load_validations($logger);
-my @loaded_plans = Conch::ValidationSystem->load_legacy_plans($logger);
+
+my $validation_plan_config = [
+	{
+		name        => 'Test validation plan 1',
+		description => 'Test validation plan',
+		validations => [ { name => 'product_name', version => 1 } ]
+	},
+	{
+		name        => 'Test validation plan 2',
+		description => 'Test validation plan',
+		validations => [
+			{ name => 'product_name', version => 1 },
+			{ name => 'cpu_count',    version => 1 }
+		]
+	}
+];
+
+my @loaded_plans =
+	Conch::ValidationSystem->load_validation_plans( $validation_plan_config,
+	$logger );
 
 is( scalar @loaded_plans, 2, '2 plans returned' );
 
@@ -27,10 +46,10 @@ my $validation_plans = Conch::Model::ValidationPlan->list;
 is_deeply( \@loaded_plans, $validation_plans,
 	'loaded plans loaded match plans stored' );
 
-my ( $switch_plan, $server_plan ) = @loaded_plans;
+my ( $plan1, $plan2 ) = @loaded_plans;
 
-is( scalar $switch_plan->validations->@*, 6, '6 validations in switch plan' );
+is( scalar $plan1->validations->@*, 1, '1 validation in plan 1' );
 
-is( scalar $server_plan->validations->@*, 15, '15 validations in server plan' );
+is( scalar $plan2->validations->@*, 2, '2 validations in plan 2' );
 
 done_testing();

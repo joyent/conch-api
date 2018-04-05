@@ -235,7 +235,9 @@ sub startup {
 	}
 
 	Conch::ValidationSystem->load_validations( $self->log );
-	Conch::ValidationSystem->load_legacy_plans( $self->log );
+	my $preload_plans = $self->config('preload_validation_plans');
+	Conch::ValidationSystem->load_validation_plans( $preload_plans, $self->log )
+		if $preload_plans;
 
 	all_routes($self->routes, \%features);
 }

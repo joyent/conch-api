@@ -138,6 +138,23 @@ sub add_validation ( $self, $validation ) {
 	return $self;
 }
 
+=head2 drop_validations
+
+Remove all associations of validation with this validation plan.  Returns the
+object.
+
+B<Note>: This removes the join-table associations between the C<validation_plan>
+and C<validation> tables. It does not use a C<deactivated> flag.
+
+=cut
+
+sub drop_validations ( $self ) {
+	Conch::Pg->new->db->delete( 'validation_plan_member',
+		{ validation_plan_id => $self->id } );
+
+	return $self;
+}
+
 =head2 remove_validation
 
 Remove the association of validation with this validation plan. Can pass either
@@ -180,7 +197,8 @@ sub run_validations ( $self, $device, $data ) {
 	my @results;
 	for my $validation ( $self->validations->@* ) {
 		my $validator =
-			$validation->build_device_validation( $device, $hw_product, $location, $settings );
+			$validation->build_device_validation( $device, $hw_product, $location,
+			$settings );
 		$validator->run($data);
 		push @results, $validator->validation_results->@*;
 	}
