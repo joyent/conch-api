@@ -1,4 +1,4 @@
-select run_migration(25, $$
+select run_migration(26, $$
 
 	create table validation_result (
 		id                  uuid                   primary key default uuid_generate_v4(),

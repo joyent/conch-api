@@ -31,7 +31,7 @@ Create a new Validation.
 		module      => 'Conch::Validation::ExampleValidation',
 	);
 
-All unspecied fields will be 'undef'.
+All unspecified fields will be 'undef'.
 
 =cut
 

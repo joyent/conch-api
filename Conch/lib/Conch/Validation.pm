@@ -77,6 +77,8 @@ use Mojo::Exception;
 use JSON::Validator;
 use Try::Tiny;
 
+use Conch::ValidationError;
+
 has 'name';
 has 'version';
 has 'description';
@@ -188,13 +190,10 @@ during execution as L<Mojo::Exception>
 sub run_unsafe ( $self, $data ) {
 	local $SIG{__DIE__} = sub {
 		my $err = shift;
-		if ( $err->isa('Conch::Validation::Error') ) {
+		if ( $err->isa('Conch::ValidationError') ) {
 			return $err;
 		}
 		else {
-			use DDP;
-			p $err;
-
 			# remove the 'at $filename line $line_number' from the exception
 			# message. We might not want to reveal Conch's path
 			$err =~ s/ at .+$//;
@@ -562,7 +561,7 @@ attributes 'level' and 'hint' may be specified.
 
 sub die ( $self, $message, %args ) {
 
-	die Conch::Validation::Error->new($message)->hint( $args{hint} )
+	die Conch::ValidationError->new($message)->hint( $args{hint} )
 		->trace( $args{level} || 1 );
 }
 
@@ -642,23 +641,6 @@ Clear the stored validation results.
 sub clear_results ( $self ) {
 	$self->validation_results( [] );
 	return $self;
-}
-
-# Internal error representation. not used outside of this module. Extends
-# 'Mojo::Exception' to store a 'hint' attribute.
-package Conch::Validation::Error;
-
-use Mojo::Base 'Mojo::Exception', -signatures;
-has 'hint';
-
-# Return a description of where the error occured. Provides the module name and
-# line number, but not the filepath, so it doesn't expose where the file lives.
-#
-sub error_loc {
-	my $frame = shift->frames->[0];
-
-	my $error_loc =
-		'Exception raised in \'' . $frame->[0] . '\' at line ' . $frame->[2];
 }
 
 1;

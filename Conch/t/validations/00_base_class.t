@@ -41,7 +41,7 @@ subtest '->die' => sub {
 		sub {
 			$base_validation->die( 'Validation dies', hint => 'how to fix' );
 		},
-		'Conch::Validation::Error'
+		'Conch::ValidationError'
 	);
 	my $err = $@;
 	is( $err->message, 'Validation dies' );
