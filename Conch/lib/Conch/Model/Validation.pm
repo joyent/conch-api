@@ -17,9 +17,27 @@ use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
 use Conch::Model::ValidationResult;
 
-my $attrs =
-	[qw( id name version description module persistence created updated)];
+my $attrs = [qw( id name version description module created updated)];
 has $attrs;
+
+=head2 new
+
+Create a new Validation. 
+	
+	Conch::Model::Validation->new (
+		name        => 'example_validation',
+		version     => 1,
+		description => 'Example Validation',
+		module      => 'Conch::Validation::ExampleValidation',
+	);
+
+All unspecified fields will be 'undef'.
+
+=cut
+
+sub new ( $class, %args ) {
+	$class->SUPER::new( %args{@$attrs} );
+}
 
 =head2 output_hash
 
@@ -139,19 +157,32 @@ Run the returned Validation with `->run($input_data)`.
 
 =cut
 
-sub build_device_validation ( $self, $device, $device_location,
-	$device_settings, $hardware_product )
+sub build_device_validation ( $self, $device, $hardware_product,
+	$device_location, $device_settings )
 {
 
-	my $module = $self->module;
+	# Device and hardware product are required for storing validation results
+	Mojo::Exception->throw("Device must be defined") unless $device;
+	Mojo::Exception->throw("Hardware product must be defined")
+		unless $hardware_product;
 
+	my $module = $self->module;
+	Mojo::Exception->throw("Unable to create validation '$module'")
+		unless $module->can('new');
+
+	my $order          = 0;
 	my $result_builder = sub {
 		return Conch::Model::ValidationResult->new(
 			@_,
+
+			# each time a ValidationResult is created, increment order value
+			# post-assignment. This allows us to distinguish between multiples
+			# of similar results
+			result_order        => $order++,
 			validation_id       => $self->id,
 			validation_id       => $self->id,
-			device_id           => $device && $device->id,
-			hardware_product_id => $hardware_product && $hardware_product->id
+			device_id           => $device->id,
+			hardware_product_id => $hardware_product->id
 		);
 	};
 
@@ -168,21 +199,24 @@ sub build_device_validation ( $self, $device, $device_location,
 =head2 run_validation_for_device
 
 Run the L<Conch::Validation> sub-class with the given device
-(L<Conch::Model::Device>). Finds the location, settings, and expected hardwar
+(L<Conch::Model::Device>). Finds the location, settings, and expected hardware
 product for the Device. Returns the validation results.
 
 =cut
 
 sub run_validation_for_device ( $self, $device, $data ) {
-	my $location   = Conch::Model::DeviceLocation->lookup( $device->id );
-	my $settings   = Conch::Model::DeviceSettings->get_settings( $device->id );
-	my $hw_product = Conch::Model::HardwareProduct->lookup(
-		$location->target_hardware_product->id )
-		if $location;
+	my $location = Conch::Model::DeviceLocation->lookup( $device->id );
+	my $settings = Conch::Model::DeviceSettings->get_settings( $device->id );
+
+	my $hw_product_id =
+		  $location
+		? $location->target_hardware_product->id
+		: $device->hardware_product;
+	my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
 
 	my $validation =
-		$self->build_device_validation( $device, $location, $settings,
-		$hw_product );
+		$self->build_device_validation( $device, $hw_product, $location,
+		$settings );
 	$validation->run($data);
 	return $validation->validation_results;
 }

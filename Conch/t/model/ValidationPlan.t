@@ -51,8 +51,11 @@ subtest "associated validation" => sub {
 	is_deeply(
 		$validation_plan->validation_ids,
 		[ $validation->id ],
-		'associated validation'
+		'associated validation IDs'
 	);
+
+	is_deeply( $validation_plan->validations,
+		[$validation], 'associated validation' );
 
 	is( $validation_plan->add_validation( $validation->id ),
 		$validation_plan, 'can also use ID' );
@@ -70,6 +73,10 @@ subtest "associated validation" => sub {
 		'associated validation'
 	);
 
+	is( $validation_plan->drop_validations,
+		$validation_plan, 'drop all validation associations; fluid interface' );
+
+	is_deeply( $validation_plan->validation_ids, [], 'no associated validation' );
 };
 
 done_testing();

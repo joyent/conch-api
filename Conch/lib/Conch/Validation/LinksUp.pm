@@ -18,7 +18,7 @@ sub validate {
 	my $links_up = 0;
 	while ( my ( $name, $nic ) = each $data->{interfaces}->%* ) {
 		next if $name eq 'impi1';
-		$links_up++ if $nic->{state} eq 'up';
+		$links_up++ if ($nic->{state} && $nic->{state} eq 'up');
 	}
 
 	$self->register_result(

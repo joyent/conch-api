@@ -11,7 +11,6 @@ Conch::ValidationSystem
 package Conch::ValidationSystem;
 
 use Mojo::Base -base, -signatures;
-use Conch::Minion;
 use Mojo::Log;
 use Mojo::Exception;
 use Submodules;
@@ -71,95 +70,58 @@ sub load_validations ( $class, $logger = Mojo::Log->new ) {
 	return $num_loaded_validations;
 }
 
-=head2 run_validation_plan
+=head2 load_validation_plans
 
-Returns a new validation state
+Takes an array ref of structured hash refs and creates a validation plan (if it doesn't
+exist) and adds specified validation plans for each of the structured hashes.
 
-=cut
+Each hash has the structure
 
-sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
+	{
+		name        => 'Validation plan name',
+		description => 'Validatoin plan description',
+		validations => [
+			{ name => 'validation_name', version => 1 }
+		]
+	}
 
-	Mojo::Exception->throw("Device ID must be defined") unless $device_id;
-	Mojo::Exception->throw("Validation Plan ID must be defined")
-		unless $validation_plan_id;
-	Mojo::Exception->throw("Validation data must be a hashref")
-		unless ref($data) eq 'HASH';
+If a validation plan by the name already exists, all associations to
+validations are dropped before the specified validations are added. This allows
+modifying the membership of the validation plans.
 
-	my $device = Conch::Model::Device->lookup($device_id);
-
-	Mojo::Exception->throw("No device exists with ID '$device_id'")
-		unless $device;
-
-	my $hw_product = $device->hardware_product;
-	Mojo::Exception->throw(
-		"No hardware product associated with Device '$device_id'")
-		unless $hw_product;
-
-	my $validation_plan =
-		Conch::Model::ValidationPlan->lookup($validation_plan_id);
-	Mojo::Exception->throw(
-		"No Validation Plan found with ID '$validation_plan_id'")
-		unless $validation_plan;
-
-	my $validations = $validation_plan->validation_ids;
-	Mojo::Exception->throw(
-		"Validation Plan $validation_plan_id is not associated with any validations"
-	) unless scalar( $validations->@* );
-
-	my $validation_state =
-		Conch::Model::ValidationState->create( $device_id, $validation_plan->id );
-
-	my $minion             = Conch::Minion->new;
-	my @validation_job_ids = map {
-		$minion->enqueue(
-			validation => [ $_, $device_id, $data, $validation_state->id ] );
-	} $validations->@*;
-
-	$minion->enqueue(
-		commit_validation_state => [ $validation_state->id ],
-		{ parents => \@validation_job_ids }
-	);
-
-	return $validation_state;
-}
-
-=head2 start_tasks
-
-Start the Minion tasks for processing validations
+Returns the list of validations plan objects.
 
 =cut
 
-sub start_tasks ( $class ) {
-	Conch::Minion->new->add_task(
-		validation => sub {
-			my ( $job, $validation_id, $device_id, $data ) = @_;
+sub load_validation_plans ( $class, $plans, $logger = Mojo::Log->new ) {
+	my @plans;
+	for my $p ( $plans->@* ) {
+		my $plan = Conch::Model::ValidationPlan->lookup_by_name( $p->{name} );
 
-			my $validation = Conch::Model::Validation->lookup($validation_id);
-			$job->fail("Unable to find Validation '$validation_id'")
-				unless $validation;
-			my $device = Conch::Model::Device->lookup($device_id);
-			$job->fail("Unable to find Device '$device_id'")
-				unless $device;
-
-			my @results = map { $_->output_hash }
-				$validation->run_validation_for_device( $device, $data )->@*;
-			$job->finish( \@results );
+		unless ($plan) {
+			$plan =
+				Conch::Model::ValidationPlan->create( $p->{name}, $p->{description}, );
+			$logger->debug( "Created validation plan " . $plan->name );
 		}
-	);
-
-	Conch::Minion->new->add_task(
-		commit_validation_state => sub {
-			my ( $job, $validation_state_id ) = @_;
-
-			my $validation_state =
-				Conch::Model::ValidationState->lookup($validation_state_id);
-			$job->fail( "Unable to find Validation State '$validation_state_id'."
-					. " to mark as completed" )
-				unless $validation_state;
-			$validation_state->mark_completed();
-			$job->finish();
+		$plan->drop_validations;
+		for my $v ( $p->{validations}->@* ) {
+			my $validation =
+				Conch::Model::Validation->lookup_by_name_and_version( $v->{name},
+				$v->{version} );
+			if ($validation) {
+				$plan->add_validation($validation);
+			}
+			else {
+				$logger->warn(
+					"Could not find Validation name $v->{name}, version $v->{version}"
+						. " to load for "
+						. $plan->name );
+			}
 		}
-	);
+		$logger->debug( "Loaded validation plan " . $plan->name );
+		push @plans, $plan;
+	}
+	return @plans;
 }
 
 1;

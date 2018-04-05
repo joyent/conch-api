@@ -16,10 +16,13 @@ sub validate {
 
 	my $hw_profile = $self->hardware_product_profile;
 
+	my @disks_with_drive_type =
+		grep { $_->{drive_type} } ( values $data->{disks}->%* );
+
 	my $ssd_num = grep {
-		     fc( $_->{drive_type} ) eq fc('SAS_SSD')
+		fc( $_->{drive_type} ) eq fc('SAS_SSD')
 			|| fc( $_->{drive_type} ) eq fc('SATA_SSD')
-	} ( values $data->{disks}->%* );
+	} @disks_with_drive_type;
 
 	my $ssd_want = $hw_profile->ssd_num;
 

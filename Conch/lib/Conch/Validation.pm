@@ -77,6 +77,8 @@ use Mojo::Exception;
 use JSON::Validator;
 use Try::Tiny;
 
+use Conch::ValidationError;
+
 has 'name';
 has 'version';
 has 'description';
@@ -92,9 +94,9 @@ Get the list of all validation results.
 has 'validation_results';
 
 use constant {
-	STATUS_ERROR   => 'error',
-	STATUS_FAIL    => 'fail',
-	STATUS_SUCCESS => 'pass'
+	STATUS_ERROR => 'error',
+	STATUS_FAIL  => 'fail',
+	STATUS_PASS  => 'pass'
 };
 
 =head2 new
@@ -162,16 +164,11 @@ sub run ( $self, $data ) {
 
 	try { $self->run_unsafe($data) }
 	catch {
-		my $frame = $_->frames->[0];
-
-		# Provide module name and line number in error message, not filepath
-		my $error_loc =
-			'Exception raised in \'' . $frame->[0] . '\' at line ' . $frame->[2];
 		my $validation_error = $self->{_validation_result_builder}->(
 			message  => $_->message,
 			name     => $self->name,
 			status   => STATUS_ERROR,
-			hint     => $error_loc,
+			hint     => $_->hint || $_->error_loc,
 			category => $self->category,
 		);
 		push $self->validation_results->@*, $validation_error;
@@ -193,14 +190,14 @@ during execution as L<Mojo::Exception>
 sub run_unsafe ( $self, $data ) {
 	local $SIG{__DIE__} = sub {
 		my $err = shift;
-		if ( $err->isa('Mojo::Exception') ) {
+		if ( $err->isa('Conch::ValidationError') ) {
 			return $err;
 		}
 		else {
 			# remove the 'at $filename line $line_number' from the exception
 			# message. We might not want to reveal Conch's path
 			$err =~ s/ at .+$//;
-			$self->die( $err, 2 );
+			$self->die( $err, level => 2 );
 		}
 	};
 
@@ -218,6 +215,9 @@ sub check_against_schema ( $self, $data ) {
 	return unless $self->schema;
 	my $schema_validator = JSON::Validator->new;
 
+	# Try to coerce the values to the schema types, eg. "1" matches 'number'.
+	$schema_validator->coerce(1);
+
 	# Shallow copy the schema and pull out the 'required' list
 	my $schema   = { $self->schema->%* };
 	my $required = delete $schema->{required};
@@ -226,7 +226,14 @@ sub check_against_schema ( $self, $data ) {
 
 	$schema_validator->schema($full_schema);
 	my @errors = $schema_validator->validate($data);
-	$self->die( "@errors", 2 ) if @errors;
+	if (@errors) {
+		my $pretty_schema = substr( Data::Printer::np($full_schema), 2 );
+		$self->die(
+			"Schema errors: @errors",
+			hint  => "Input data does not satisfy schema:\n$pretty_schema",
+			level => 2
+		);
+	}
 }
 
 =head2 validate
@@ -248,7 +255,7 @@ raise an exception.
 
 sub validate ( $self, $data ) {
 	$self->die( 'Validations must implement the `validate` method in subclass!',
-		2 );
+		level => 2 );
 }
 
 =head2 device
@@ -262,7 +269,7 @@ logic to dispatch on Device attributes.
 =cut
 
 sub device ($self) {
-	$self->die( "No Device specified for validation", 2 )
+	$self->die( "No Device specified for validation", level => 2 )
 		unless $self->{_device};
 	return $self->{_device};
 }
@@ -291,7 +298,7 @@ location.
 =cut
 
 sub has_device_location ($self) {
-	return defined($self->{_device_location});
+	return defined( $self->{_device_location} );
 }
 
 =head2 device_location
@@ -308,8 +315,11 @@ been assigned a location.
 =cut
 
 sub device_location ($self) {
-	$self->die( "Device must be assigned a location.", 2 )
-		unless $self->{_device_location};
+	$self->die(
+		"Device must be assigned a location.",
+		hint  => "Assing this device to a rack slot before running this validation",
+		level => 2
+	) unless $self->{_device_location};
 	return $self->{_device_location};
 }
 
@@ -322,7 +332,7 @@ Get the expected hardware product name for the device under validation.
 =cut
 
 sub hardware_product_name ($self) {
-	$self->die( "Validation must have an expected hardware product", 2 )
+	$self->die( "Validation must have an expected hardware product", level => 2 )
 		unless $self->{_hardware_product};
 	return $self->{_hardware_product}->name;
 }
@@ -336,7 +346,7 @@ Get the expected hardware product vendor name for the device under validation.
 =cut
 
 sub hardware_product_vendor ($self) {
-	$self->die( "Validation must have an expected hardware product", 2 )
+	$self->die( "Validation must have an expected hardware product", level => 2 )
 		unless $self->{_hardware_product};
 	return $self->{_hardware_product}->vendor;
 }
@@ -353,7 +363,7 @@ production, the product profile is a C<Conch::Class:HardareProductProfile> objec
 =cut
 
 sub hardware_product_profile ($self) {
-	$self->die( "Validation must have an expected hardware product", 2 )
+	$self->die( "Validation must have an expected hardware product", level => 2 )
 		unless $self->{_hardware_product};
 	return $self->{_hardware_product}->profile;
 }
@@ -377,7 +387,7 @@ This declarative syntax allows for result de-duplication and consistent messages
 	$self->register_result( expected => 'second', got => 'first', cmp => 'lt' );
 
 	# using 'like' to match with a regex
-	$self->register_result( expected => qr/.+bar.+/, got => 'foobarbaz', cmp => 'like' );
+	$self->register_result( expected => qr/.+bar.+/, got => 'foobarbaz', cmpself => 'like' );
 
 	# using 'oneOf' to select one of multiple values
 	$self->register_result( expected => ['a', 'b', 'c' ], got => 'b', cmp => 'oneOf' );
@@ -461,27 +471,28 @@ sub register_result ( $self, %attrs ) {
 	my $got      = $attrs{got};
 	my $cmp_op   = $attrs{cmp} || 'eq';
 
-	$self->die( "'expected' value must be defined", 2 )
+	$self->die( "'expected' value must be defined", level => 2 )
 		unless defined($expected);
 
 	return $self->fail("'got' value is undefined") unless defined($got);
 
-	$self->die( "'got' value must be a scalar", 2 ) if ref($got);
+	$self->die( "'got' value must be a scalar", level => 2 ) if ref($got);
 
 	if ( $cmp_op eq 'oneOf' ) {
 		$self->die( "'expected' value must be an array when comparing with 'oneOf'",
-			2 )
+			level => 2 )
 			unless ref($expected) eq 'ARRAY';
 	}
 	elsif ( $cmp_op eq 'like' ) {
 		$self->die(
 			"'expected' value must be a scalar or Regexp when comparing with 'like'",
-			2
+			level => 2
 		) unless ref($expected) eq 'Regexp' || ref($expected) eq '';
 	}
 	else {
 		$self->die(
-			"'expected' value must be a scalar when comparing with '$cmp_op'", 2 )
+			"'expected' value must be a scalar when comparing with '$cmp_op'",
+			level => 2 )
 			if ref($expected);
 	}
 
@@ -506,23 +517,29 @@ sub register_result ( $self, %attrs ) {
 	};
 
 	my $success = $cmp_dispatch->{$cmp_op}->( $got, $expected );
-	my $expected_got_message;
+	my $message;
 	if ( $cmp_op eq 'oneOf' ) {
-		$expected_got_message =
+		$message =
 			  'Expected one of: '
 			. join( ', ', map { "'$_'" } $expected->@* )
 			. ". Got '$got'.";
 	}
+	# For relational operators, we want to produce messages that do not change
+	# between validation executions as long as the relation is constant.
+	elsif ( grep /$cmp_op/, ('>', '>=', '<', '<=', 'lt', 'le', 'gt', 'ge') ) {
+		$message = "Expected a value $cmp_op '$expected'.";
+		$message .= $success ? ' Passed.' : ' Failed.';
+	}
 	else {
-		$expected_got_message = "Expected $cmp_op '$expected'. Got '$got'.";
+		$message = "Expected $cmp_op '$expected'. Got '$got'.";
 	}
 
 	my $validation_result = $self->{_validation_result_builder}->(
-		message  => $attrs{message}  || $expected_got_message,
+		message  => $attrs{message}  || $message,
 		name     => $attrs{name}     || $self->name,
 		category => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
-		status       => $success ? STATUS_SUCCESS : STATUS_FAIL,
+		status       => $success ? STATUS_PASS : STATUS_FAIL,
 		hint         => $success ? $attrs{hint} : undef
 	);
 
@@ -533,15 +550,19 @@ sub register_result ( $self, %attrs ) {
 
 =head2 die
 
-Stop execution of the Validation immediately and record an error.
+Stop execution of the Validation immediately and record an error. The
+attributes 'level' and 'hint' may be specified.
 
 	$self->die('This validation cannot continue!') if $bad_condition;
+	$self->die('This validation cannot continue!', hint => 'Here's how to fix it' );
+	$self->die('This exception happend 3 frames up', level => 3 );
 
 =cut
 
-sub die ( $self, $message, $level = 1 ) {
+sub die ( $self, $message, %args ) {
 
-	die Mojo::Exception->new($message)->trace($level);
+	die Conch::ValidationError->new($message)->hint( $args{hint} )
+		->trace( $args{level} || 1 );
 }
 
 =head2 fail
@@ -594,7 +615,7 @@ Get the list of validation results that were successful
 =cut
 
 sub successes ( $self ) {
-	[ grep { $_->{status} eq STATUS_SUCCESS } $self->validation_results->@* ];
+	[ grep { $_->{status} eq STATUS_PASS } $self->validation_results->@* ];
 }
 
 =head2 error

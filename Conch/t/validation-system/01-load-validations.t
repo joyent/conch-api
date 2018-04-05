@@ -34,3 +34,4 @@ my $num_validations_reloaded =
 is( $num_validations_reloaded, 0, 'No new validations loaded' );
 
 done_testing();
+

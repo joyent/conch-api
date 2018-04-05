@@ -39,10 +39,15 @@ subtest '->die' => sub {
 
 	throws_ok(
 		sub {
-			$base_validation->die('Validation dies');
+			$base_validation->die( 'Validation dies', hint => 'how to fix' );
 		},
-		qr/Validation dies/
+		'Conch::ValidationError'
 	);
+	my $err = $@;
+	is( $err->message, 'Validation dies' );
+	is( $err->hint,    'how to fix' );
+	like( $err->error_loc, qr/Exception raised in 'main' at line \d+/ );
+
 };
 
 subtest '->clear_results' => sub {
@@ -63,16 +68,22 @@ subtest '->register_result' => sub {
 	my $base_validation = Conch::Validation->new;
 
 	throws_ok { $base_validation->register_result() }
-		qr/'expected' value must be defined/;
+	qr/'expected' value must be defined/;
 
-	throws_ok { $base_validation->register_result( got => [ 1, 2 ], expected => 1 ) }
-		qr/must be a scalar/;
+	throws_ok {
+		$base_validation->register_result( got => [ 1, 2 ], expected => 1 )
+	}
+	qr/must be a scalar/;
 
-	throws_ok { $base_validation->register_result( got => 1, expected => [ 1, 2 ] ) }
-		qr/must be a scalar when comparing with 'eq'/;
+	throws_ok {
+		$base_validation->register_result( got => 1, expected => [ 1, 2 ] )
+	}
+	qr/must be a scalar when comparing with 'eq'/;
 
-	throws_ok { $base_validation->register_result( got => 1, expected => { a => 1 } ) }
-		qr/must be a scalar when comparing with 'eq'/;
+	throws_ok {
+		$base_validation->register_result( got => 1, expected => { a => 1 } )
+	}
+	qr/must be a scalar when comparing with 'eq'/;
 
 	$base_validation->clear_results;
 
@@ -88,11 +99,38 @@ subtest '->register_result' => sub {
 	is( $base_validation->failures->[0]->{message},
 		"Expected eq 'test'. Got 'bad'." );
 
-	$base_validation->register_result( expected => 'test', got => 'good', cmp => 'ne' );
+	$base_validation->register_result(
+		expected => 'test',
+		got      => 'good',
+		cmp      => 'ne'
+	);
 	is( scalar $base_validation->successes->@*, 2, 'Successful result' );
 	is(
 		$base_validation->successes->[1]->{message},
 		"Expected ne 'test'. Got 'good'."
+	);
+	$base_validation->clear_results;
+
+	$base_validation->register_result(
+		expected => 20,
+		got      => 40,
+		cmp      => '>'
+	);
+	is( scalar $base_validation->successes->@*, 1, 'Successful comparison result' );
+	is(
+		$base_validation->successes->[0]->{message},
+		"Expected a value > '20'. Passed."
+	);
+
+	$base_validation->register_result(
+		expected => 20,
+		got      => 40,
+		cmp      => '<'
+	);
+	is( scalar $base_validation->failures->@*, 1, 'Failing comparison result' );
+	is(
+		$base_validation->failures->[0]->{message},
+		"Expected a value < '20'. Failed."
 	);
 
 	$base_validation->clear_results;
@@ -156,7 +194,7 @@ subtest '->check_against_schema' => sub {
 
 	$base_validation->schema( { foo => { type => 'string' } } );
 	throws_ok { $base_validation->check_against_schema( { foo => ['bar'] } ); }
-		qr/foo: Expected string - got array./ ;
+	qr/foo: Expected string - got array./;
 
 	$base_validation->schema(
 		{ required => ['foo'], foo => { type => 'string' } } );
@@ -167,7 +205,8 @@ subtest '->check_against_schema' => sub {
 		{ foo => { type => 'string' }, bar => { type => 'number' } } );
 	throws_ok {
 		$base_validation->check_against_schema( { foo => ['a'], bar => 'hello' } );
-	} qr'/bar: Expected number - got string. /foo: Expected string - got array.';
+	}
+	qr'/bar: Expected number - got string. /foo: Expected string - got array.';
 
 };
 
