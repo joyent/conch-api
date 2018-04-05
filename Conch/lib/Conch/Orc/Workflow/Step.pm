@@ -60,17 +60,6 @@ has 'workflow_id' => (
 );
 
 
-=item workflow
-
-A C<Conch::Orc::Workflow> object, loaded from C<workflow_id>
-
-=cut
-
-
-sub workflow ($self) {
-	return Conch::Orc::Workflow->from_id($self->workflow_id);
-}
-
 
 =item name
 
@@ -168,6 +157,17 @@ has 'updated' => (
 =back
 
 =head1 METHODS
+
+=head2 workflow
+
+A C<Conch::Orc::Workflow> object, loaded from C<workflow_id>
+
+=cut
+
+
+sub workflow ($self) {
+	return Conch::Orc::Workflow->from_id($self->workflow_id);
+}
 
 =head2 from_id
 
