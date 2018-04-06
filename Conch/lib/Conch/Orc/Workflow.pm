@@ -127,18 +127,19 @@ has 'locked' => (
 );
 
 
-=item product_id
+=item preflight
 
-UUID. FK'd into hardware_product(id)
+Boolean. Defaults to 0
+
+This governs if the workflow is used to validate a device for preflight
 
 =cut
 
-has 'product_id' => (
-	is  => 'rw',
-	isa => Uuid,
-	required => 1,
+has 'preflight' => (
+	is      => 'rw',
+	isa     => Bool,
+	default => 0,
 );
-
 
 
 =back
@@ -282,8 +283,8 @@ sub save ($self) {
 		locked      => $self->locked,
 		name        => $self->name,
 		updated     => $self->updated->timestamptz,
-		product_id  => $self->product_id,
 		version     => $self->version,
+		preflight   => $self->preflight,
 	);
 
 	my $ret;
@@ -401,7 +402,7 @@ sub serialize ($self) {
 		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
 		created     => $self->created->rfc3339,
 		updated     => $self->updated->rfc3339,
-		product_id  => $self->product_id,
+		preflight   => $self->preflight,
 		steps       => $self->steps,
 	}
 }

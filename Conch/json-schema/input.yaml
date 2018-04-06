@@ -25,4 +25,40 @@ definitions:
         type: number
       locked:
         type: number
+  OrcLifecycleCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - role_id
+    properties:
+      name:
+        type: string
+      version:
+        type: number
+      locked:
+        type: number
+      role_id:
+        type: string
+        format: uuid
+  OrcLifecycleAddWorkflow:
+    type: object
+    additionalProperties: false
+    required:
+      - workflow_id
+    properties:
+      workflow_id:
+        type: string
+        format: uuid
+      plan_order:
+        type: number
+  OrcLifecycleRemoveWorkflow:
+    type: object
+    additionalProperties: false
+    required:
+      - workflow_id
+    properties:
+      workflow_id:
+        type: string
+        format: uuid
 

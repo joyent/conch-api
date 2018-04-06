@@ -128,6 +128,13 @@ overload string coercion.
 sub to_string { shift->rfc3339 }
 
 
+=head3 TO_JSON
+
+Renderer for Mojo, as a RFC 3339 timestamp string
+
+=cut
+
+sub TO_JSON { shift->rfc3339 }
 
 
 =head3 timestamptz

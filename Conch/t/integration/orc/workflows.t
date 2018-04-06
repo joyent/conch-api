@@ -150,6 +150,72 @@ subtest "Step" => sub {
 	)->json_schema_is('Workflows');
 };
 
+
+subtest "Lifecycle" => sub {
+	my $w2 = Conch::Orc::Workflow->new(
+		name        => 'sungo2',
+		product_id  => $hw_id,
+	)->save();
+	my $w3 = Conch::Orc::Workflow->new(
+		name        => 'sungo3',
+		product_id  => $hw_id,
+	)->save();
+	my $w4 = Conch::Orc::Workflow->new(
+		name        => 'sungo4',
+		product_id  => $hw_id,
+	)->save();
+	my $r = Conch::Model::DeviceRole->new(
+		hardware_product_id => $hw_id
+	)->save;
+
+
+	$t->get_ok(BASE."/lifecycle")->status_is(200)
+		->json_schema_is('OrcLifecycles')
+		->json_is([]);
+
+	$t->post_ok(BASE."/lifecycle", json => {
+		name    => 'sungo',
+		role_id => $r->id,
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("OrcLifecycle")
+		->json_is( "/name" => "sungo" );
+
+	my $l_id = $t->tx->res->json->{id};
+
+	$t->post_ok(BASE."/lifecycle/${l_id}/add_workflow", json => {
+		workflow_id => $w->id,
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("OrcLifecycle")
+		->json_is( "/plan" => [ $w->id ] );
+
+
+	$t->post_ok(BASE."/lifecycle/${l_id}/add_workflow", json => {
+		workflow_id => $w2->id,
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("OrcLifecycle")
+		->json_is( "/plan" => [ $w->id, $w2->id ] );
+
+	$t->post_ok(BASE."/lifecycle/${l_id}/add_workflow", json => {
+		workflow_id => $w3->id,
+		plan_order => 1,
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("OrcLifecycle")
+		->json_is( "/plan" => [ $w->id, $w3->id, $w2->id ] );
+
+
+	$t->post_ok(BASE."/lifecycle/${l_id}/remove_workflow", json => {
+		workflow_id => $w->id,
+	})->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)
+		->json_schema_is("OrcLifecycle")
+		->json_is( "/plan" => [ $w3->id, $w2->id ] );
+
+};
+
 $t->post_ok("/logout")->status_is(204);
 
 done_testing();
