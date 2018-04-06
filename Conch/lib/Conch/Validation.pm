@@ -317,7 +317,7 @@ been assigned a location.
 sub device_location ($self) {
 	$self->die(
 		"Device must be assigned a location.",
-		hint  => "Assing this device to a rack slot before running this validation",
+		hint  => "Assign this device to a rack slot before running this validation",
 		level => 2
 	) unless $self->{_device_location};
 	return $self->{_device_location};
@@ -524,9 +524,10 @@ sub register_result ( $self, %attrs ) {
 			. join( ', ', map { "'$_'" } $expected->@* )
 			. ". Got '$got'.";
 	}
+
 	# For relational operators, we want to produce messages that do not change
 	# between validation executions as long as the relation is constant.
-	elsif ( grep /$cmp_op/, ('>', '>=', '<', '<=', 'lt', 'le', 'gt', 'ge') ) {
+	elsif ( grep /$cmp_op/, ( '>', '>=', '<', '<=', 'lt', 'le', 'gt', 'ge' ) ) {
 		$message = "Expected a value $cmp_op '$expected'.";
 		$message .= $success ? ' Passed.' : ' Failed.';
 	}
