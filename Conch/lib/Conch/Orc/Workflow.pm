@@ -26,6 +26,7 @@ use Types::UUID qw(Uuid);
 
 with "Conch::Role::But";
 with "Moo::Role::ToJSON";
+with "Conch::Role::Timestamps";
 
 use Conch::Time;
 use Conch::Pg;
@@ -72,43 +73,6 @@ has 'version' => (
 	is       => 'rw',
 	isa      => Num,
 	required => 1,
-);
-
-
-=item created
-
-Conch::Time. Cannot be written by user.
-
-=cut
-
-has 'created' => (
-	is => 'rwp',
-	isa => InstanceOf["Conch::Time"]
-);
-
-
-=item updated
-
-Conch::Time. Cannot be written by user. Is set to C<<< Conch::Time->now >>>
-whenever C<save> is called.
-
-=cut
-
-has 'updated' => (
-	is  => 'rwp',
-	isa => InstanceOf["Conch::Time"]
-);
-
-
-=item deactivated
-
-Conch::Time
-
-=cut
-
-has 'deactivated' => (
-	is  => 'rw',
-	isa => InstanceOf["Conch::Time"] | Undef
 );
 
 
@@ -223,20 +187,13 @@ sub from_id ($class, $id) {
 			where w.id = ?;
 		|, $id)->hash;
 	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->_from: $_");
+		Mojo::Exception->throw(__PACKAGE__."->from_id: $_");
 		return undef;
 	};
 
 	return undef unless $ret;
 
-	for my $k (qw(created updated deactivated)) {
-		if($ret->{$k}) {
-			$ret->{$k} = Conch::Time->new($ret->{$k});
-		}
-	}
-
-	my $s = $class->new($ret->%*);
-	return $s;
+	return $class->new(_fixup_timestamptzs($ret)->%*);
 }
 
 
@@ -264,14 +221,10 @@ sub all ($class) {
 		return undef;
 	};
 
-	unless (scalar $ret->@*) {
-		return [];
-	}
+	return [] unless scalar $ret->@*;
+
 	my @many = map {
-		my $s = $_;
-		$s->{created} = Conch::Time->new($s->{created});
-		$s->{updated} = Conch::Time->new($s->{updated});
-		$class->new($s);
+		$class->new(_fixup_timestamptzs($_)->%*);
 	} $ret->@*;
 
 	return \@many;
@@ -321,9 +274,11 @@ sub save ($self) {
 		return undef;
 	};
 
+	$ret = _fixup_timestamptzs($ret);
+	$self->_set_created($ret->{created});
+	$self->_set_updated($ret->{updated});
+
 	$self->_set_id($ret->{id});
-	$self->_set_created(Conch::Time->new($ret->{created}));
-	$self->_set_updated(Conch::Time->new($ret->{updated}));
 	
 	return $self;
 }
