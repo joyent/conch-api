@@ -51,7 +51,11 @@ lives_ok {
 	$w2 = Conch::Orc::Workflow->from_id($w->id);
 } 'Workflow->from_id with known id';
 
-is_deeply($w->serialize, $w2->serialize, "Saved data matches retrieved from_id data");
+is_deeply(
+	$w->TO_JSON,
+	$w2->TO_JSON,
+	"Saved data matches retrieved from_id data"
+);
 
 is_deeply($w->steps, [], "No steps");
 

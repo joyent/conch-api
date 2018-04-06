@@ -81,8 +81,8 @@ lives_ok {
 } 'Step->from_id with known id';
 
 is_deeply(
-	$s->serialize, 
-	$s2->serialize,
+	$s->TO_JSON, 
+	$s2->TO_JSON,
 	"Saved data matches retrieved from_id data"
 );
 
@@ -91,12 +91,12 @@ lives_ok {
 } 'Step->from_name';
 
 is_deeply(
-	$s->serialize,
-	$s2->serialize,
+	$s->TO_JSON,
+	$s2->TO_JSON,
 	"Saved data matches retrieved from_id data"
 );
 
-is_deeply($w->serialize, $s->workflow->serialize, "->workflow");
+is_deeply($w->TO_JSON, $s->workflow->TO_JSON, "->workflow");
 
 my $s3;
 lives_ok {

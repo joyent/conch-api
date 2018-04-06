@@ -24,8 +24,8 @@ use Type::Tiny;
 use Types::Standard qw(Num InstanceOf Str Bool Undef ArrayRef);
 use Types::UUID qw(Uuid);
 
-use Role::Tiny::With;
 with "Conch::Role::But";
+with "Moo::Role::ToJSON";
 
 use Conch::Time;
 use Conch::Pg;
@@ -157,6 +157,19 @@ has 'steps' => (
 	isa     => ArrayRef,
 	default => sub { [] },
 );
+
+
+sub _build_serializable_attributes {[qw[
+	id
+	name
+	version
+	created
+	updated
+	deactivated
+	locked
+	preflight
+	steps
+]]}
 
 =head2 steps_as_objects
 
@@ -385,27 +398,6 @@ sub remove_step ($self, $step) {
 	return $self->_refresh_steps;
 }
 
-
-
-=head2 serialize
-
-Returns a hashref, representing the Workflow in a serialized format
-
-=cut
-
-sub serialize ($self) {
-	{
-		id          => $self->id,
-		name        => $self->name,
-		locked      => $self->locked,
-		version     => $self->version,
-		deactivated => ($self->deactivated ? $self->deactivated->rfc3339 : undef),
-		created     => $self->created->rfc3339,
-		updated     => $self->updated->rfc3339,
-		preflight   => $self->preflight,
-		steps       => $self->steps,
-	}
-}
 
 
 1;

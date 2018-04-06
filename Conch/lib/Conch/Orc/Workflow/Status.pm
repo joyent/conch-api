@@ -26,6 +26,8 @@ use Types::UUID qw(Uuid);
 use Conch::Pg;
 use Conch::Orc;
 
+with "Moo::Role::ToJSON";
+
 =head1 CONSTANTS
 
 	$status->status( Conch::Orc::Workflow::Status->ONGOING );
@@ -127,6 +129,16 @@ has 'status' => (
 	isa     => Enum[ ABORT, COMPLETED, ONGOING, RESUME, STOPPED, RESTART ],
 	default => ONGOING,
 );
+
+sub _build_serializable_attributes {[qw[
+	device_id
+	id
+	status
+	created
+	workflow_id
+]]}
+
+
 
 =back
 
@@ -293,22 +305,6 @@ sub save ($self) {
 	return $self;
 }
 
-
-=head2 serialize
-
-Returns a hashref, representing the Status in a serialized format
-
-=cut
-
-sub serialize ($self) {
-	{
-		device_id   => $self->device_id,
-		id          => $self->id,
-		status      => $self->status,
-		created     => $self->created->rfc3339,
-		workflow_id => $self->workflow_id,
-	}
-}
 
 
 1;

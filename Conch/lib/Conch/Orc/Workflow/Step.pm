@@ -22,8 +22,8 @@ use Type::Tiny;
 use Types::Standard qw(Num Bool Str InstanceOf Undef);
 use Types::UUID qw(Uuid);
 
-use Role::Tiny::With;
 with "Conch::Role::But";
+with "Moo::Role::ToJSON";
 
 use Conch::Pg;
 use Conch::Orc;
@@ -59,17 +59,6 @@ has 'workflow_id' => (
 	isa      => Uuid,
 );
 
-
-=item workflow
-
-A C<Conch::Orc::Workflow> object, loaded from C<workflow_id>
-
-=cut
-
-
-sub workflow ($self) {
-	return Conch::Orc::Workflow->from_id($self->workflow_id);
-}
 
 
 =item name
@@ -164,10 +153,32 @@ has 'updated' => (
 	isa => InstanceOf["Conch::Time"]
 );
 
+sub _build_serializable_attributes {[qw[
+	created
+	id
+	max_retries
+	name
+	order
+	retry
+	updated
+	validation_plan_id
+	workflow_id
+]]}
 
 =back
 
 =head1 METHODS
+
+=head2 workflow
+
+A C<Conch::Orc::Workflow> object, loaded from C<workflow_id>
+
+=cut
+
+
+sub workflow ($self) {
+	return Conch::Orc::Workflow->from_id($self->workflow_id);
+}
 
 =head2 from_id
 
@@ -298,27 +309,6 @@ sub save ($self) {
 
 	return $self;
 }
-
-=head2 serialize
-
-Returns a hashref, representing the Step in a serialized format
-
-=cut
-
-sub serialize ($self) {
-	{
-		created            => $self->created->rfc3339(),
-		id                 => $self->id,
-		max_retries        => $self->max_retries,
-		name               => $self->name,
-		order              => $self->order,
-		retry              => $self->retry,
-		updated            => $self->updated->rfc3339(),
-		validation_plan_id => $self->validation_plan_id,
-		workflow_id        => $self->workflow_id,
-	}
-}
-
 
 =head2 burn
 
