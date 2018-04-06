@@ -102,8 +102,8 @@ subtest "modify validation state" => sub {
 
 subtest "latest completed validation state" => sub {
 	my $latest =
-		Conch::Model::ValidationState->latest_completed_state( $device->id,
-		$validation_plan->id );
+		Conch::Model::ValidationState->latest_completed_for_device_plan(
+		$device->id, $validation_plan->id );
 	isa_ok( $latest, 'Conch::Model::ValidationState' );
 
 	my $new_state =
@@ -111,8 +111,8 @@ subtest "latest completed validation state" => sub {
 	$new_state->mark_completed('pass');
 
 	my $new_latest =
-		Conch::Model::ValidationState->latest_completed_state( $device->id,
-		$validation_plan->id );
+		Conch::Model::ValidationState->latest_completed_for_device_plan(
+		$device->id, $validation_plan->id );
 	is_deeply( $new_state, $new_latest );
 };
 
@@ -202,6 +202,39 @@ subtest "run validation plan" => sub {
 	is( scalar $pass_state->validation_results->@*, 1 );
 	is( $pass_state->status, 'pass',
 		'Validation state should be pass because all results passed' );
+};
+
+subtest 'grouped_by_validation_states' => sub {
+	my $groups =
+		Conch::Model::ValidationResult->grouped_by_validation_states(
+		[$validation_state] );
+	my $results = $validation_state->validation_results;
+	is( scalar $groups->@*, 1 );
+	is_deeply( $groups->[0]->{state},   $validation_state );
+	is_deeply( $groups->[0]->{results}, $results );
+
+	my $new_state =
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+		$validation_plan->id, {} );
+	my $new_results = $new_state->validation_results;
+	$groups =
+		Conch::Model::ValidationResult->grouped_by_validation_states(
+		[ $validation_state, $new_state ] );
+	is( scalar $groups->@*, 2 );
+	is_deeply(
+		$groups,
+		[
+			{
+				state   => $validation_state,
+				results => $results
+			},
+			{
+				state   => $new_state,
+				results => $new_results
+			},
+
+		]
+	);
 };
 
 done_testing();

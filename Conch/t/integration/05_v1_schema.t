@@ -31,10 +31,18 @@ my $uuid = Data::UUID->new;
 my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
 my $dbh = DBI->connect( $pgtmp->dsn );
 
+my $test_validation_plan = {
+	name        => 'Conch v1 Legacy Plan: Server',
+	description => 'Test Plan',
+	validations => [ { name => 'product_name', version => 1 } ]
+};
+
 my $t = Test::MojoSchema->new(
 	Conch => {
 		pg      => $pgtmp->uri,
-		secrets => ["********"]
+		secrets => ["********"],
+		features => { new_validation => 1 },
+		preload_validation_plans => [ $test_validation_plan ]
 	},
 );
 $t->validator($validator);
@@ -193,26 +201,30 @@ $t->get_ok("/hardware_product/$hw_id")->status_is(200)
 
 $t->get_ok("/relay")->status_is(200)->json_schema_is('Relays');
 
-$t->get_ok("/validation")->status_is(200)->json_schema_is('Validations');
+subtest "Validations" => sub {
+	$t->get_ok("/validation")->status_is(200)->json_schema_is('Validations');
 
-my $validation_id = $t->tx->res->json->[0]->{id};
+	my $validation_id = $t->tx->res->json->[0]->{id};
 
-$t->post_ok( "/validation_plan",
-	json => { name => 'test_plan', description => 'test plan' } )->status_is(201)
-	->json_schema_is('ValidationPlan');
+	$t->post_ok( "/validation_plan",
+		json => { name => 'test_plan', description => 'test plan' } )->status_is(201)
+		->json_schema_is('ValidationPlan');
 
-my $validation_plan_id = $t->tx->res->json->{id};
+	my $validation_plan_id = $t->tx->res->json->{id};
 
-$t->get_ok("/validation_plan")->status_is(200)
-	->json_schema_is('ValidationPlans');
-$t->get_ok("/validation_plan/$validation_plan_id")->status_is(200)
-	->json_schema_is('ValidationPlan');
+	$t->get_ok("/validation_plan")->status_is(200)
+		->json_schema_is('ValidationPlans');
+	$t->get_ok("/validation_plan/$validation_plan_id")->status_is(200)
+		->json_schema_is('ValidationPlan');
 
-$t->post_ok( "/validation_plan/$validation_plan_id/validation",
-	json => { id => $validation_id } )->status_is(204);
+	$t->post_ok( "/validation_plan/$validation_plan_id/validation",
+		json => { id => $validation_id } )->status_is(204);
 
-$t->get_ok("/validation_plan/$validation_plan_id/validation")->status_is(200)
-	->json_schema_is('Validations');
+	$t->get_ok("/device/TEST/validation_state")->status_is(200)
+		->json_schema_is( 'ValidationStatesWithResults' );
+	$t->get_ok("/workspace/$id/validation_state")->status_is(200)
+		->json_schema_is('ValidationStatesWithResults');
+};
 
 subtest 'Device Roles And Services' => sub {
 	$t->get_ok("/hardware_product")->status_is(200);

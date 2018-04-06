@@ -68,6 +68,8 @@ sub workspace_routes {
 
 	$in_workspace->get('/user')->to('workspace_user#list');
 	$in_workspace->post('/user')->to('workspace_user#invite');
+
+	$in_workspace->get('/validation_state')->to('workspace_validation#workspace_validation_states');
 }
 
 1;

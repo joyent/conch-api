@@ -25,6 +25,26 @@ my $attrs = [
 ];
 has $attrs;
 
+=head2 TO_JSON
+
+Render as a hashref for output
+
+=cut
+
+sub TO_JSON ($self) {
+	return {
+		id                  => $self->id,
+		device_id           => $self->device_id,
+		hardware_product_id => $self->hardware_product_id,
+		validation_id       => $self->validation_id,
+		message             => $self->message,
+		hint                => $self->hint,
+		status              => $self->status,
+		category            => $self->category,
+		component_id        => $self->component_id,
+	};
+}
+
 =head2 new
 
 Create a new Validation Result. Unlike other models, C<new> should be used and
@@ -98,24 +118,43 @@ sub lookup ( $class, $id ) {
 	return $class->new( $ret->%* ) if $ret;
 }
 
-=head2 output_hash
+=head2 grouped_by_validation_states
 
-Render as a hashref for output
+Given a list of ValidationState objects, group associated validation results.
+
+Returns an array ref of hash refs with two keys. Key 'state' is a
+ValidationState object, and key 'results' is an array ref of all
+ValidationResult objects associated with the validation state.
 
 =cut
 
-sub output_hash ($self) {
-	return {
-		id                  => $self->id,
-		device_id           => $self->device_id,
-		hardware_product_id => $self->hardware_product_id,
-		validation_id       => $self->validation_id,
-		message             => $self->message,
-		hint                => $self->hint,
-		status              => $self->status,
-		category            => $self->category,
-		component_id        => $self->component_id,
-	};
+sub grouped_by_validation_states ( $class, $validation_states ) {
+	return [] unless scalar @$validation_states;
+
+	my %groups =
+		map { ( $_->id => { state => $_, results => [] } ) } $validation_states->@*;
+
+	my @validation_state_ids = keys %groups;
+
+	my $fields    = join( ', ', map { 'r.' . $_ } @$attrs );
+	my $in_values = join( ', ', map { "'$_'" } @validation_state_ids );
+	Conch::Pg->new->db->query(
+		qq{
+			select m.validation_state_id state_id, $fields
+			from validation_result r
+			join validation_state_member m
+				on r.id = m.validation_result_id
+			where m.validation_state_id in ($in_values)
+			}
+		)->hashes->map(
+		sub {
+			my %ret      = shift->%*;
+			my $state_id = delete $ret{state_id};
+			push @{ $groups{$state_id}->{results} }, $class->new(%ret);
+			1;
+		}
+		);
+	return [ values %groups ];
 }
 
 1;

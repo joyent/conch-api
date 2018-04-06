@@ -20,6 +20,22 @@ use constant {
 my $attrs = [qw( id device_id validation_plan_id status created completed )];
 has $attrs;
 
+=head2 TO_JSON
+
+=cut
+
+sub TO_JSON ($self) {
+	{
+		id                 => $self->id,
+		device_id          => $self->device_id,
+		validation_plan_id => $self->validation_plan_id,
+		status             => $self->status,
+		created            => Conch::Time->new( $self->created )->rfc3339,
+		completed          => $self->completed
+			&& Conch::Time->new( $self->completed )->rfc3339
+	};
+}
+
 =head2 create
 
 Create a new validation state
@@ -48,6 +64,19 @@ sub lookup ( $class, $id ) {
 	return $class->new( $ret->%* ) if $ret;
 }
 
+=head2 lookup_with_device
+
+Lookup a validation state by ID and Device ID or return undef
+
+=cut
+
+sub lookup_with_device ( $class, $id, $device_id ) {
+	my $ret =
+		Conch::Pg->new->db->select( 'validation_state', $attrs,
+		{ id => $id, device_id => $id } )->hash;
+	return $class->new( $ret->%* ) if $ret;
+}
+
 =head2 mark_completed
 
 Mark the Validation State as completed with a status
@@ -66,14 +95,14 @@ sub mark_completed ( $self, $status ) {
 	return $self;
 }
 
-=head2 latest_completed_state
+=head2 latest_completed_for_device_plan
 
 Find the latest completed validation state for a given Device and Validation
 Plan, or return undef
 
 =cut
 
-sub latest_completed_state ( $class, $device_id, $plan_id ) {
+sub latest_completed_for_device_plan ( $class, $device_id, $plan_id ) {
 	my $fields = join( ', ', @$attrs );
 	my $ret = Conch::Pg->new->db->query(
 		qq{
@@ -81,14 +110,62 @@ sub latest_completed_state ( $class, $device_id, $plan_id ) {
 		from validation_state
 		where
 			device_id = ? and
-			validation_plan_id = ? and
-			completed is not null
+			completed is not null and
+			validation_plan_id = ?
 		order by completed desc
 		limit 1
 		},
 		$device_id, $plan_id
 	)->hash;
 	return $class->new( $ret->%* ) if $ret;
+}
+
+=head2 latest_completed_states_for_device
+
+Return all latest completed states for each plans for a given Device
+
+=cut
+
+sub latest_completed_states_for_device ( $class, $device_id ) {
+	my $fields = join( ', ', @$attrs );
+	return Conch::Pg->new->db->query(
+		qq{
+		select distinct on (validation_plan_id) $fields
+		from validation_state
+		where
+			device_id = ? and
+			completed is not null
+		order by validation_plan_id, completed desc
+		},
+		$device_id
+	)->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
+}
+
+=head2 latest_completed_states_for_devices
+
+Return all latest completed states for a list of Device IDs
+
+=cut
+
+sub latest_completed_states_for_devices ( $class, $device_ids ) {
+	return [] unless scalar @$device_ids;
+
+	my $fields = join( ', ', @$attrs );
+	my $in_values = join( ', ', map { "'$_'" } @$device_ids );
+
+	return Conch::Pg->new->db->query(
+		qq{
+		select distinct on (device_id, validation_plan_id) $fields
+		from validation_state
+		where
+			device_id in ($in_values) and
+			completed is not null
+		order by
+			device_id,
+			validation_plan_id,
+			completed desc
+		},
+	)->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 
 =head2 add_validation_result
@@ -166,7 +243,7 @@ sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
 	my $validation_state = $class->create( $device_id, $validation_plan->id );
 
 	my $latest_state =
-		$class->latest_completed_state( $device_id, $validation_plan_id );
+		$class->latest_completed_for_device_plan( $device_id, $validation_plan_id );
 
 	my %latest_results =
 		map { ( $_->comparison_hash => $_ ) } $latest_state->validation_results->@*

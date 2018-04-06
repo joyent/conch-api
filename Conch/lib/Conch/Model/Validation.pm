@@ -39,13 +39,13 @@ sub new ( $class, %args ) {
 	$class->SUPER::new( %args{@$attrs} );
 }
 
-=head2 output_hash
+=head2 TO_JSON
 
 Render as a hashref for output
 
 =cut
 
-sub output_hash ($self) {
+sub TO_JSON ($self) {
 	{
 		id          => $self->id,
 		name        => $self->name,
