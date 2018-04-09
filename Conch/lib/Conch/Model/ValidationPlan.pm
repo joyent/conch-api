@@ -26,7 +26,7 @@ sub TO_JSON ($self) {
 		id          => $self->id,
 		name        => $self->name,
 		description => $self->description,
-		created     => Conch::Time->new( $self->created )->rfc3339
+		created     => Conch::Time->new( $self->created )
 	};
 }
 

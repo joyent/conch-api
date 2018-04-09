@@ -51,8 +51,8 @@ sub TO_JSON ($self) {
 		name        => $self->name,
 		version     => $self->version,
 		description => $self->description,
-		created     => Conch::Time->new( $self->created )->rfc3339,
-		updated     => Conch::Time->new( $self->updated )->rfc3339
+		created     => Conch::Time->new( $self->created ),
+		updated     => Conch::Time->new( $self->updated )
 	};
 }
 

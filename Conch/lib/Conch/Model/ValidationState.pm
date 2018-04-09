@@ -30,9 +30,9 @@ sub TO_JSON ($self) {
 		device_id          => $self->device_id,
 		validation_plan_id => $self->validation_plan_id,
 		status             => $self->status,
-		created            => Conch::Time->new( $self->created )->rfc3339,
+		created            => Conch::Time->new( $self->created ),
 		completed          => $self->completed
-			&& Conch::Time->new( $self->completed )->rfc3339
+			&& Conch::Time->new( $self->completed )
 	};
 }
 
