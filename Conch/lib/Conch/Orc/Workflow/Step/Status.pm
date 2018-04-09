@@ -21,7 +21,7 @@ use experimental qw(signatures);
 
 use Try::Tiny;
 use Type::Tiny;
-use Types::Standard qw(Num ArrayRef Bool Str Enum HashRef InstanceOf);
+use Types::Standard qw(Num ArrayRef Bool Str Enum HashRef InstanceOf Undef);
 use Types::UUID qw(Uuid);
 
 use Mojo::JSON;
@@ -29,7 +29,9 @@ use Mojo::JSON;
 use Conch::Pg;
 use Conch::Orc;
 
+with "Conch::Role::But";
 with "Moo::Role::ToJSON";
+with "Conch::Role::Timestamps";
 
 =head1 CONSTANTS
 
@@ -99,31 +101,6 @@ UUID. Cannot be written by user
 has 'id' => (
 	is  => 'rwp',
 	isa => Uuid,
-);
-
-
-=item created
-
-Conch::Time. Cannot be written by user.
-
-=cut 
-
-has 'created' => (
-	is  => 'rwp',
-	isa => InstanceOf["Conch::Time"]
-);
-
-
-=item updated
-
-Conch::Time. Cannot be written by user. Set to C<<< Conch::Time->now >>>
-whenever C<save> is called.
-
-=cut
-
-has 'updated' => (
-	is  => 'rwp',
-	isa => InstanceOf["Conch::Time"]
 );
 
 
@@ -231,7 +208,7 @@ UUID. FK'd into C<validation_state(id)>
 
 has 'validation_state_id' => (
 	is  => 'rw',
-	isa => Uuid,
+	isa => Uuid | Undef,
 );
 
 
@@ -312,21 +289,8 @@ sub from_id ($class, $uuid) {
 		return undef;
 	};
 
-	return $class->new(
-		created              => Conch::Time->new($ret->{created}),
-		data                 => $ret->{data},
-		device_id            => $ret->{device_id},
-		force_retry          => $ret->{force_retry},
-		id                   => $ret->{id},
-		overridden           => $ret->{overridden},
-		retry_count          => $ret->{retry_count},
-		state                => $ret->{state},
-		updated              => Conch::Time->new($ret->{updated}),
-		validation_result_id => $ret->{validation_result_id},
-		validation_status    => $ret->{validation_status},
-		workflow_step_id     => $ret->{workflow_step_id},
-	);
-
+	return undef unless $ret;
+	return $class->new(_fixup_timestamptzs($ret)->%*);
 }
 
 =head2 save
@@ -349,8 +313,8 @@ sub save ($self) {
 		overridden           => $self->{overridden},
 		retry_count          => $self->{retry_count},
 		state                => $self->{state},
-		updated              => Conch::Time->now->timestamptz,
-		validation_state_id => $self->{validation_state_id},
+		updated              => 'NOW()',
+		validation_state_id  => $self->{validation_state_id},
 		validation_status    => $self->{validation_status},
 		workflow_step_id     => $self->{workflow_step_id},
 
@@ -376,10 +340,11 @@ sub save ($self) {
 	};
 	$tx->commit;
 
-	$self->_set_id($ret->{id});
-	$self->_set_created(Conch::Time->new($ret->{created}));
-	$self->_set_updated(Conch::Time->new($ret->{updated}));
+	$ret = _fixup_timestamptzs($ret);
+	$self->_set_created($ret->{created});
+	$self->_set_updated($ret->{updated});
 
+	$self->_set_id($ret->{id});
 	return $self;
 }
 

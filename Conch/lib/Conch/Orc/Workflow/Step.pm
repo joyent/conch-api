@@ -24,6 +24,7 @@ use Types::UUID qw(Uuid);
 
 with "Conch::Role::But";
 with "Moo::Role::ToJSON";
+with "Conch::Role::Timestamps";
 
 use Conch::Pg;
 use Conch::Orc;
@@ -129,30 +130,6 @@ has 'validation_plan_id' => (
 
 
 
-=item created
-
-Conch::Time. Cannot be set by the user
-
-=cut
-
-has 'created' => (
-	is  => 'rwp',
-	isa => InstanceOf["Conch::Time"]
-);
-
-
-=item updated
-
-Conch::Time. Cannot be set by the user. Will be set to C<<< Conch::Time->now >>>
-whenever C<save> is called.
-
-=cut
-
-has 'updated' => (
-	is  => 'rwp',
-	isa => InstanceOf["Conch::Time"]
-);
-
 sub _build_serializable_attributes {[qw[
 	created
 	id
@@ -208,20 +185,15 @@ sub _from ($class, $key, $value) {
 			$key => $value
 		})->hash;
 	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->from_id: $_");
+		Mojo::Exception->throw(__PACKAGE__."->_from: $_");
 		return undef;
 	};
 
 	return undef unless $ret;
 
-	for my $k (qw(created updated)) {
-		if ($ret->{$k}) {
-			$ret->{$k} = Conch::Time->new($ret->{$k});
-		}
-	}
 	$ret->{order} = $ret->{step_order};
 
-	return $class->new($ret->%*);
+	return $class->new(_fixup_timestamptzs($ret)->%*);
 }
 
 =head2 many_from_ids
@@ -249,10 +221,8 @@ sub many_from_ids ($class, $ids) {
 
 	my @many = map {
 		my $s = $_;
-		$s->{created}     = Conch::Time->new($s->{created});
-		$s->{updated}     = Conch::Time->new($s->{updated});
 		$s->{order}       = $s->{step_order};
-		$class->new($s);
+		$class->new(_fixup_timestamptzs($s)->%*);
 	} $ret->@*;
 
 	return \@many;
@@ -303,9 +273,11 @@ sub save ($self) {
 	};
 	$tx->commit;
 
+	$ret = _fixup_timestamptzs($ret);
+
 	$self->_set_id($ret->{id});
-	$self->_set_created(Conch::Time->new($ret->{created}));
-	$self->_set_updated(Conch::Time->new($ret->{updated}));
+	$self->_set_created($ret->{created});
+	$self->_set_updated($ret->{updated});
 
 	return $self;
 }
