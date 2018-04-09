@@ -77,6 +77,10 @@ sub device_routes {
 		->to('device_validation#validate');
 	$with_device->post('/validation_plan/#validation_plan_id')
 		->to('device_validation#run_validation_plan');
+	$with_device->get('/validation_state')
+		->to('device_validation#list_validation_states');
+	$with_device->get('/validation_result')
+		->to('device_validation#list_validation_results');
 
 	$with_device->get('/role')->to('device#get_role');
 	$with_device->post('/role')->to('device#set_role');

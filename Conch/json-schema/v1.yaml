@@ -598,6 +598,91 @@ definitions:
       created:
         type: string
         format: date-time
+  ValidationResult:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - category
+      - component_id
+      - device_id
+      - hardware_product_id
+      - hint
+      - message
+      - status
+      - validation_id
+    properties:
+      id:
+        type: string
+        format: uuid
+      category:
+        type: string
+      component_id:
+        anyOf:
+          - type: null
+          - type: string
+      device_id:
+        type: string
+      hardware_product_id:
+        type: string
+        format: uuid
+      hint:
+        anyOf:
+          - type: null
+          - type: string
+      message:
+        type: string
+      status:
+        type: string
+        enum:
+          - error
+          - fail
+          - pass
+      validation_id:
+        type: string
+        format: uuid
+  ValidationStatesWithResults:
+    type: array
+    items:
+      $ref: "#/definitions/ValidationStateWithResults"
+  ValidationStateWithResults:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - completed
+      - created
+      - device_id
+      - results
+      - status
+      - validation_plan_id
+    properties:
+      id:
+        type: string
+        format: uuid
+      completed:
+        anyOf:
+          - type: null
+          - type: string
+            format: date-time
+      created:
+        type: string
+        format: date-time
+      device_id:
+        type: string
+      results:
+        type: array
+        items:
+          $ref: "#/definitions/ValidationResult"
+      status:
+        type: string
+        enum:
+          - error
+          - fail
+          - pass
+      validation_plan_id:
+        type: string
+        format: uuid
   WorkspaceRelays:
     type: array
     items:

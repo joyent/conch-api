@@ -52,7 +52,7 @@ sub create ($c) {
 	my $validation_plan =
 		Conch::Model::ValidationPlan->create( $body->{name}, $body->{description} );
 
-	$c->status( 201, $validation_plan->output_hash );
+	$c->status( 201, $validation_plan );
 }
 
 =head2 list
@@ -62,9 +62,8 @@ List all available Validation Plans
 =cut
 
 sub list ($c) {
-	my @validation_plans =
-		map { $_->output_hash } Conch::Model::ValidationPlan->list->@*;
-	$c->status( 200, \@validation_plans );
+	my $validation_plans = Conch::Model::ValidationPlan->list;
+	$c->status( 200, $validation_plans );
 }
 
 =head2 under
@@ -100,7 +99,7 @@ Get the Validation Plan specified by ID
 
 sub get ($c) {
 	if ( $c->under ) {
-		$c->status( 200, $c->stash('validation_plan')->output_hash );
+		$c->status( 200, $c->stash('validation_plan') );
 	}
 	else {
 		return 0;
@@ -114,10 +113,9 @@ List all Validations associated with the Validation Plan
 =cut
 
 sub list_validations ($c) {
-	my @validations =
-		map { $_->output_hash } $c->stash('validation_plan')->validations->@*;
+	my $validations = $c->stash('validation_plan')->validations;
 
-	$c->status( 200, \@validations );
+	$c->status( 200, $validations );
 }
 
 =head2 add_validation

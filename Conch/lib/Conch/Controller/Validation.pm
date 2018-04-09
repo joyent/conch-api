@@ -22,9 +22,9 @@ List all available Validations
 =cut
 
 sub list ($c) {
-	my @validations = map { $_->output_hash } Conch::Model::Validation->list->@*;
+	my $validations = Conch::Model::Validation->list;
 
-	$c->status( 200, [@validations] );
+	$c->status( 200, $validations );
 }
 
 1;

@@ -14,6 +14,56 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
 
+=head2 list_validation_states
+
+Get latest validation states for a device
+
+=cut
+
+sub list_validation_states ($c) {
+	my $device = $c->stash('current_device');
+
+	my $validation_states =
+		Conch::Model::ValidationState->latest_completed_states_for_device(
+		$device->id );
+
+	my $validation_state_groups =
+		Conch::Model::ValidationResult->grouped_by_validation_states(
+		$validation_states);
+
+	my @output = map {
+		{ $_->{state}->TO_JSON->%*, results => $_->{results} };
+	} @$validation_state_groups;
+
+	$c->status( 200, \@output );
+}
+
+=head2 get_validation_state
+
+Get validation states for a device
+
+=cut
+
+sub get_validation_state ($c) {
+	my $device = $c->stash('current_device');
+
+	my $validation_state_id = $c->param("validation_state_id");
+
+	my $validation_state =
+		Conch::Model::ValidationState->lookup_with_device( $validation_state_id,
+		$device->id );
+
+	return $c->status(
+		404,
+		{
+			error =>
+				"No Validation State ID $validation_state_id is associated with Device"
+		}
+	) unless $validation_state;
+
+	$c->status( 200, $validation_state );
+}
+
 =head2 validate
 
 Validate the device gainst the specified validation.
@@ -31,15 +81,14 @@ sub validate ($c) {
 
 	my $validation_id = $c->param("validation_id");
 	my $validation    = Conch::Model::Validation->lookup($validation_id);
-	$c->status( 404, { error => "Validation $validation_id not found" } )
+	return $c->status( 404, { error => "Validation $validation_id not found" } )
 		unless $validation;
 
 	my $data = $c->req->json;
-	my @validation_results =
-		map { $_->output_hash }
-		$validation->run_validation_for_device( $device, $data )->@*;
+	my $validation_results =
+		$validation->run_validation_for_device( $device, $data );
 
-	$c->status( 200, \@validation_results );
+	$c->status( 200, $validation_results );
 }
 
 =head2 run_validation_plan
@@ -63,10 +112,9 @@ sub run_validation_plan ($c) {
 		unless $validation_plan;
 
 	my $data = $c->req->json;
-	my @results = map { $_->output_hash }
-		$validation_plan->run_validations( $device, $data )->@*;
+	my $results = $validation_plan->run_validations( $device, $data );
 
-	$c->status( 200, \@results );
+	$c->status( 200, $results );
 }
 
 1;
