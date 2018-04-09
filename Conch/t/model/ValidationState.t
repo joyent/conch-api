@@ -225,15 +225,15 @@ subtest 'grouped_by_validation_states' => sub {
 		$groups,
 		[
 			{
-				state   => $validation_state,
-				results => $results
-			},
-			{
 				state   => $new_state,
 				results => $new_results
 			},
-
-		]
+			{
+				state   => $validation_state,
+				results => $results
+			},
+		],
+		'Groups return in sorted order by most recent completed state first'
 	);
 };
 

@@ -154,7 +154,8 @@ sub grouped_by_validation_states ( $class, $validation_states ) {
 			1;
 		}
 		);
-	return [ values %groups ];
+	return [ sort { $b->{state}->completed cmp $a->{state}->completed }
+			values %groups ];
 }
 
 1;
