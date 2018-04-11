@@ -23,7 +23,7 @@ use experimental qw(signatures);
 
 use Try::Tiny;
 use Type::Tiny;
-use Types::Standard qw(Str ArrayRef);
+use Types::Standard qw(Str ArrayRef Undef);
 use Types::UUID qw(Uuid);
 
 use List::MoreUtils qw(uniq bremove qsort);
@@ -85,7 +85,7 @@ Optional string describing this role
 
 has 'description' => (
 	is      => 'rw',
-	isa     => Str,
+	isa     => Str | Undef,
 	default => sub { "" }
 );
 

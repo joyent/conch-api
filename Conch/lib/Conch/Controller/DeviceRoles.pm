@@ -49,6 +49,7 @@ sub create ($c) {
 	}) unless $body->{hardware_product_id};
 
 	my $s = Conch::Model::DeviceRole->new(
+		description         => $body->{description},
 		hardware_product_id => $body->{hardware_product_id}
 	)->save();
 	$c->status(303 => "/device/role/".$s->id);
@@ -70,9 +71,16 @@ sub update ($c) {
 
 	my $body = $c->req->json;
 
-	$s->update(
-		hardware_product_id => $body->{hardware_product_id}
-	)->save;
+	if($body->{description}) {
+		$s->update(description => $body->{description});
+	}
+
+	if($body->{hardware_product_id}) {
+		$s->update(hardware_product_id => $body->{hardware_product_id});
+	}
+
+	$s->save;
+
 	$c->status(303 => "/device/role/".$s->id);
 }
 
