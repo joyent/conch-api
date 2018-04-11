@@ -1079,7 +1079,9 @@ definitions:
         type: string
         format: date-time
       description:
-        type: string
+        anyOf:
+          - type: string
+          - type: null
       hardware_product_id:
         type: string
         format: uuid
