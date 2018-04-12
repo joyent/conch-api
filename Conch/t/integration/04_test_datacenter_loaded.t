@@ -275,6 +275,11 @@ subtest 'Single device' => sub {
 		$t->get_ok('/device/service/'.$s->id)->status_is(200);
 		is_deeply($t->tx->res->json, $s->TO_JSON);
 
+		$t->get_ok('/device/service/name='.$s->name)->status_is(200);
+		is_deeply($t->tx->res->json, $s->TO_JSON);
+
+		$t->get_ok('/device/service/name=wat')->status_is(404);
+
 		########
 		
 		$t->post_ok('/device/role/'.$d_role->id.'/add_service', json => {

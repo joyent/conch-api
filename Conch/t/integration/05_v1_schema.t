@@ -258,6 +258,9 @@ subtest 'Device Roles And Services' => sub {
 	$t->get_ok("/device/service")->status_is(200)
 		->json_schema_is("DeviceServices");
 
+	$t->get_ok('/device/service/name=test')->status_is(200)
+		->json_schema_is("DeviceService");
+
 
 	########
 	
