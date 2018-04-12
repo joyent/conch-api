@@ -5,6 +5,38 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::Models;
 
 
+=head2 under
+
+Handles looking up the object by id or name depending on the url pattern 
+
+=cut
+
+sub under ($c) {
+	my $s;
+
+	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
+		if($1 eq 'name') {
+			$s = Conch::Model::DeviceService->from_name($2);
+		}
+	} else {
+		$s = Conch::Model::DeviceService->from_id($c->param('id'));
+	}
+
+	if ($s) {
+		if($s->deactivated) {
+			$c->status(404 => { error => "Not found" });
+			return undef;
+		}
+		$c->stash('deviceservice' => $s);
+		return 1;
+	} else {
+		$c->status(404 => { error => "Not found" });
+		return undef;
+	}
+
+}
+
+
 =head2 get_all
 
 Get all device services
@@ -23,11 +55,7 @@ Get a single device service
 =cut
 
 sub get_one ($c) {
-	my $s = Conch::Model::DeviceService->from_id($c->param('id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
-
-	$c->status(200, $s);
+	$c->status(200, $c->stash('deviceservice'));
 }
 
 =head2 create
@@ -65,10 +93,7 @@ Update an existing device service
 
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-
-	my $s = Conch::Model::DeviceService->from_id($c->param('id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
+	my $s = $c->stash('deviceservice');
 
 	my $body = $c->req->json;
 
@@ -92,11 +117,7 @@ sub update ($c) {
 =cut
 
 sub delete ($c) {
-	my $s = Conch::Model::DeviceService->from_id($c->param('id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
-
-	$s->burn;
+	$c->stash('deviceservice')->burn;
 	return $c->status(204); 
 }
 

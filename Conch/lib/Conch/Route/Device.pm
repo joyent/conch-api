@@ -30,6 +30,7 @@ sub device_routes {
 	$dr->get('/')->to("device_roles#get_all");
 	$dr->post('/')->to("device_roles#create");
 
+
 	my $dri = $dr->under('/:id');
 	$dri->get("/")->to("device_roles#get_one");
 	$dri->post("/")->to("device_roles#update");
@@ -41,7 +42,8 @@ sub device_routes {
 	$drs->get('/')->to("device_services#get_all");
 	$drs->post('/')->to("device_services#create");
 
-	my $drsi = $drs->under("/:id");
+
+	my $drsi = $drs->under("/:id")->to("device_services#under");
 	$drsi->get('/')->to("device_services#get_one");
 	$drsi->post('/')->to("device_services#update");
 	$drsi->delete("/")->to("device_services#delete");
