@@ -24,7 +24,7 @@ sub validate {
 			|| fc( $_->{drive_type} ) eq fc('SATA_SSD')
 	} @disks_with_drive_type;
 
-	my $ssd_want = $hw_profile->ssd_num;
+	my $ssd_want = $hw_profile->ssd_num || 0;
 
 	# Joyent-Compute-Platform-3302 special case.  HCs can have 8 or 16 SSD and
 	# there's no other identifier. Here, we want to avoid missing

@@ -11,10 +11,12 @@ Validate the reported RAM match the hardware product profile
 
 has schema => sub {
 	{
-		memory => {
+		required => ['memory'],
+		memory   => {
 			type       => 'object',
+			required => ['total'],
 			properties => {
-				total => { type => 'integer' }
+				total    => { type => 'integer' }
 			}
 		}
 	};
