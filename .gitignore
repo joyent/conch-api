@@ -17,7 +17,7 @@ CHANGELOG.md
 # Conch
 Conch/conch.conf
 Conch/report
-Conch/public/js/app.js
+Conch/public/js/main.js
 Conch/public/css/app.css
 Conch/public/doc
 Conch/docs/conch-api/index.html

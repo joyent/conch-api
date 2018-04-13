@@ -22,8 +22,8 @@
         "webpack-cli": "^2.0.10"
     },
     "scripts": {
-        "start": "webpack -d --watch",
-        "build": "webpack -p",
+        "start": "webpack -d --watch --output-path ../public/js",
+        "build": "webpack -p --output-path ../public/js",
         "prettier": "prettier --write src/index.js src/views/**/*.js src/models/**/*.js"
     },
     "keywords": [],

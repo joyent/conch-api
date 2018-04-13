@@ -1,8 +1,10 @@
-.PHONY: test run build build-js format format-perl format-perl deps\
+.PHONY: test run morbo build build-js format format-perl format-perl deps\
 	install-deps generate-dbic web-assets watch-js watch-perl watch doc\
 	migrate-db watch-test
 
-run: build
+run: build morbo
+
+morbo:
 	@carton exec -- morbo -v bin/conch -l http://\*:5001
 
 build: web-assets local doc
@@ -29,16 +31,14 @@ format-perl:
 format-js:
 	@cd ui && yarn run prettier
 
-web-assets: public/css/app.css public/js/app.js
+web-assets: public/css/app.css public/js/main.js
 
-public/js/app.js: ui/dist/main.js
-	@cp ui/dist/main.js public/js/app.js
-
-ui/dist/main.js: ui/node_modules ui/src/**
-	@cd ui && yarn build;
+public/js/main.js: ui/node_modules ui/src/**
+	@cd ui && yarn build
 
 ui/node_modules: ui/yarn.lock
 	@cd ui && yarn install
+	@touch ui/node_modules
 
 ui/yarn.lock: ui/package.json
 	@cd ui && yarn install
@@ -56,22 +56,19 @@ public/doc/index.html: \
 	@mkdir -p public/doc
 	@cp docs/conch-api/index.html public/doc/index.html
 
+watch:
+	(make watch-js &)
+	(make browser-sync &)
+	make morbo
+
 watch-js:
 	@cd ui && yarn start
 
-watch-assets:
-	@find ui/css/app.css ui/dist/main.js | entr -r make web-assets
-
-watch-perl:
-	@find lib | entr -r -c make run
+browser-sync:
+	@browser-sync start --proxy 'localhost:5001' --files 'public/**' 
 
 watch-test:
 	@find lib t | entr -r -c make test
-
-watch:
-	(make watch-js &)
-	(make watch-assets &)
-	make watch-perl
 
 generate-dbic:
 	@carton exec dbicdump schema.conf
