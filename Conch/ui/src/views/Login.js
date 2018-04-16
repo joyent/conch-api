@@ -4,11 +4,13 @@ import Workspace from "../models/Workspace";
 import t from "i18n4v";
 
 export default {
-    view() {
+    view({ state }) {
         return m(
             ".login-view",
             m("form.pure-form", [
                 m("legend", t("Login to Conch")),
+                state.badLogin &&
+                    m(".pure-u-1", t("Incorrect email address or password")),
                 m("input[type=text]", {
                     oninput: m.withAttr("value", Auth.setLoginEmail),
                     placeholder: t("Email Address"),
@@ -24,17 +26,16 @@ export default {
                     {
                         onclick(e) {
                             e.preventDefault();
-                            try {
-                                Auth.login()
-                                    .then(_ =>
-                                        Workspace.loadWorkspaces()
-                                            .then(_ => m.route.set("/"))
+                            Auth.login().then(loggedIn => {
+                                if (loggedIn) {
+                                    state.badLogin = false;
+                                    Workspace.loadWorkspaces().then(_ =>
+                                        m.route.set("/")
                                     );
-                            }
-                            catch (e) {
-                                // TODO: Display login error
-                                console.log('Failed login');
-                            }
+                                } else {
+                                    state.badLogin = true;
+                                }
+                            });
                         },
                     },
                     t("Login")
