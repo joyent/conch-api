@@ -196,7 +196,7 @@ subtest 'Sub-Workspace' => sub {
 
 	$t->get_ok("/workspace/$id/child")->status_is(200)->json_is( '', [] );
 	$t->post_ok("/workspace/$id/child")
-		->status_is( 401, 'No body is bad request' );
+		->status_is( 400, 'No body is bad request' );
 	$t->post_ok(
 		"/workspace/$id/child" => json => {
 			name        => "test",

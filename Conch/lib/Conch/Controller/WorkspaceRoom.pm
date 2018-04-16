@@ -49,7 +49,7 @@ sub replace_rooms ($c) {
 
 	unless ( $workspace->role eq 'Administrator' ) {
 		return $c->status(
-			401,
+			403,
 			{
 				error => 'Only workspace administrators may update the datacenter rooms'
 			}

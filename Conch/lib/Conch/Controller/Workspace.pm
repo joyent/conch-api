@@ -98,7 +98,7 @@ Create a new subworkspace for the current stashed C<current_workspace>
 
 sub create_sub_workspace ($c) {
 	my $body = $c->req->json;
-	return $c->status( 401, { error => '"name" must be defined in request' } )
+	return $c->status( 400, { error => '"name" must be defined in request' } )
 		unless $body->{name};
 	my $ws             = $c->stash('current_workspace');
 
