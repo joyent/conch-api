@@ -1,10 +1,14 @@
 import m from "mithril";
 import t from "i18n4v";
+
 import Auth from "../models/Auth";
 import Device from "../models/Device";
-import Workspace from "../models/Workspace";
-import Table from "./component/Table";
 import Icons from "./component/Icons";
+import Table from "./component/Table";
+import Validation from "../models/Validation";
+import ValidationPlan from "../models/ValidationPlan";
+import ValidationState from "../models/ValidationState";
+import Workspace from "../models/Workspace";
 
 const allDevices = {
     oninit({ attrs }) {
@@ -46,7 +50,10 @@ function loadDeviceDetails(id) {
         Promise.all([
             Device.loadDevice(id),
             Device.loadRackLocation(id),
-            Device.loadFirmwareStatus(id)
+            Device.loadFirmwareStatus(id),
+            Validation.load(),
+            ValidationPlan.load(id),
+            ValidationState.loadForDevice(id),
         ])
     );
 }
@@ -155,15 +162,17 @@ const deviceReport = {
                       [
                           [
                               Device.rackLocation.datacenter.name,
-                          m(
-                              "a.pure-button",
-                              {
-                                  href: `/rack/${Device.rackLocation.rack.id}`,
-                                  oncreate: m.route.link,
-                                  title: t("Show Rack"),
-                              },
-                              t(Device.rackLocation.rack.name)
-                          ),
+                              m(
+                                  "a.pure-button",
+                                  {
+                                      href: `/rack/${
+                                          Device.rackLocation.rack.id
+                                      }`,
+                                      oncreate: m.route.link,
+                                      title: t("Show Rack"),
+                                  },
+                                  t(Device.rackLocation.rack.name)
+                              ),
                               Device.rackLocation.rack.role,
                               Device.rackLocation.rack.unit,
                           ],
@@ -259,6 +268,35 @@ const deviceReport = {
                       .map(a => a.value)
               )
             : null;
+        const validationPlanTables = ValidationState.currentList.map(
+            validationState =>
+                Table(
+                    t(
+                        "Validation Plan: " +
+                            ValidationPlan.idToName[
+                                validationState.validation_plan_id
+                            ]
+                    ),
+                    [
+                        "",
+                        t("Category"),
+                        t("Name"),
+                        t("Component ID"),
+                        t("Status"),
+                        t("Message"),
+                        t("Hint"),
+                    ],
+                    validationState.results.map(r => [
+                        r.status == "pass" ? m("i") : Icons.warning,
+                        r.category,
+                        Validation.idToName[r.validation_id],
+                        r.component_id,
+                        r.status.toUpperCase(),
+                        r.message,
+                        r.hint,
+                    ]).sort()
+                )
+        );
         const validations = Table(
             t("Device Validation Tests"),
             [t("Status"), t("Type"), t("Name"), t("Metric"), t("Log")],
@@ -291,11 +329,13 @@ const deviceReport = {
             deviceStatus,
             deviceLocation,
             m(".pure-u-1", m("hr")),
-            m(".pure-u-1", m("h2.text-center", t("Latest Device Report"))),
+            m(".pure-u-1", m("h3.text-center", t("Validation States"))),
+            validationPlanTables,
+            m(".pure-u-1", m("h3.text-center", t("Latest Device Report"))),
             environment,
             network,
             disks,
-            validations
+            validations,
         ]);
     },
 };
