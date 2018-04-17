@@ -1,10 +1,13 @@
 import m from "mithril";
 import t from "i18n4v";
+
 import Auth from "../models/Auth";
 import Problem from "../models/Problem";
 import Rack from "../models/Rack";
-import Workspace from "../models/Workspace";
 import Table from "./component/Table";
+import Validation from "../models/Validation";
+import ValidationState from "../models/ValidationState";
+import Workspace from "../models/Workspace";
 
 function categoryTitle(category) {
     switch (category) {
@@ -24,8 +27,9 @@ const selectProblemDevice = {
     oninit: ({ state }) => {
         Auth.requireLogin(
             Workspace.withWorkspace(workspaceId =>
-                Problem.loadDeviceProblems(workspaceId)
-                    .then(() => (state.loading = false))
+                Problem.loadDeviceProblems(workspaceId).then(
+                    () => (state.loading = false)
+                )
             )
         );
     },
@@ -70,9 +74,49 @@ const makeSelection = {
 };
 
 const showDevice = {
-    oninit(vnode) {},
-    view({attrs}) {
+    loading: true,
+    oninit({ attrs, state }) {
+        if (attrs.id) {
+            Auth.requireLogin(
+                Promise.all([
+                    Validation.load(),
+                    ValidationState.loadForDevice(attrs.id).then(
+                        () => (state.loading = false)
+                    ),
+                ])
+            );
+        }
+    },
+    view({ attrs, state }) {
         if (!Problem.current) return m(".make-selection", t("Select Device"));
+        if (state.loading) return m(".loading", "Loading...");
+
+        const problemRows = Problem.current.problems.map(
+            ({ component_type, component_name, criteria, log }) => [
+                component_type,
+                component_name,
+                criteria.condition,
+                log,
+            ]
+        );
+        // Format the validation state results like the problems.
+        const validationRows = ValidationState.currentList.reduce((acc, vs) => {
+            vs.results.forEach(
+                ({ category, validation_id, status, message }) => {
+                    if (status !== "pass")
+                        acc.push([
+                            category,
+                            Validation.idToName[validation_id],
+                            status.toUpperCase(),
+                            message,
+                        ]);
+                }
+            );
+            return acc;
+        }, []);
+        const rows = problemRows.concat(validationRows);
+        rows.sort();
+
         const reportTable = Problem.current.problems
             ? Table(
                   t("Validation Failures"),
@@ -82,16 +126,11 @@ const showDevice = {
                       t("Condition"),
                       t("Log"),
                   ],
-                  Problem.current.problems.map(({component_type, component_name, criteria, log}) => [
-                      component_type,
-                      component_name,
-                      criteria.condition,
-                      log,
-                  ])
+                  rows
               )
             : Problem.current.report_id
-              ? null
-              : m("h2.text-center", t("Device has not sent a report"));
+                ? null
+                : m("h2.text-center", t("Device has not sent a report"));
         const reportButton = Problem.current.report_id
             ? m(
                   "a.pure-button",
@@ -121,8 +160,7 @@ const showDevice = {
             ? m(
                   "a.pure-button",
                   {
-                      href:
-                          `/rack/${Problem.current.location.rack.id}?device=${attrs.id}`,
+                      href: `/rack/${Problem.current.location.rack.id}?device=${attrs.id}`,
                       oncreate: m.route.link,
                   },
                   t("Show Device in Rack")
