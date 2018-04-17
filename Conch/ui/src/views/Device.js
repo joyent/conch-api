@@ -12,7 +12,7 @@ import Workspace from "../models/Workspace";
 
 const allDevices = {
     oninit({ attrs }) {
-        Auth.requireLogin(
+        Auth.requireLogin(() =>
             Workspace.withWorkspace(workspaceId => {
                 Device.loadDeviceIds(workspaceId);
             })
@@ -46,7 +46,7 @@ const makeSelection = {
 };
 
 function loadDeviceDetails(id) {
-    return Auth.requireLogin(
+    return Auth.requireLogin(() =>
         Promise.all([
             Device.loadDevice(id),
             Device.loadRackLocation(id),
@@ -286,15 +286,17 @@ const deviceReport = {
                         t("Message"),
                         t("Hint"),
                     ],
-                    validationState.results.map(r => [
-                        r.status == "pass" ? m("i") : Icons.warning,
-                        r.category,
-                        Validation.idToName[r.validation_id],
-                        r.component_id,
-                        r.status.toUpperCase(),
-                        r.message,
-                        r.hint,
-                    ]).sort()
+                    validationState.results
+                        .map(r => [
+                            r.status == "pass" ? m("i") : Icons.warning,
+                            r.category,
+                            Validation.idToName[r.validation_id],
+                            r.component_id,
+                            r.status.toUpperCase(),
+                            r.message,
+                            r.hint,
+                        ])
+                        .sort()
                 )
         );
         const validations = Table(

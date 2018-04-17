@@ -5,7 +5,7 @@ const Auth = {
     password: "",
     _loggedIn: false,
     requireLogin(next) {
-        if (Auth._loggedIn) return next;
+        if (Auth._loggedIn) return next();
         m
             .request({
                 method: "GET",
@@ -19,7 +19,7 @@ const Auth = {
             })
             .then(_res => {
                 Auth._loggedIn = true;
-                return next;
+                return next();
             })
             .catch(e => {
                 if (e.status === 401) {

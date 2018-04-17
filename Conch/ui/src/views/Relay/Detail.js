@@ -46,8 +46,9 @@ export default {
                           m(
                               "a.pure-button",
                               {
-                                  href: `/rack/${Relay.current.location
-                                      .rack_id}`,
+                                  href: `/rack/${
+                                      Relay.current.location.rack_id
+                                  }`,
                                   oncreate: m.route.link,
                                   title: t("Show Rack"),
                               },

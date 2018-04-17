@@ -25,7 +25,7 @@ function categoryTitle(category) {
 const selectProblemDevice = {
     loading: true,
     oninit: ({ state }) => {
-        Auth.requireLogin(
+        Auth.requireLogin(() =>
             Workspace.withWorkspace(workspaceId =>
                 Problem.loadDeviceProblems(workspaceId).then(
                     () => (state.loading = false)
@@ -77,7 +77,7 @@ const showDevice = {
     loading: true,
     oninit({ attrs, state }) {
         if (attrs.id) {
-            Auth.requireLogin(
+            Auth.requireLogin(() =>
                 Promise.all([
                     Validation.load(),
                     ValidationState.loadForDevice(attrs.id).then(
@@ -160,7 +160,9 @@ const showDevice = {
             ? m(
                   "a.pure-button",
                   {
-                      href: `/rack/${Problem.current.location.rack.id}?device=${attrs.id}`,
+                      href: `/rack/${Problem.current.location.rack.id}?device=${
+                          attrs.id
+                      }`,
                       oncreate: m.route.link,
                   },
                   t("Show Device in Rack")
