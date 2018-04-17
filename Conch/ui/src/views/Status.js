@@ -35,7 +35,7 @@ function deviceList(title, isProblem, devices) {
 export default {
     loading: true,
     oninit: ({ state }) => {
-        Auth.requireLogin(
+        Auth.requireLogin(() =>
             Workspace.withWorkspace(workspaceId => {
                 Promise.all([
                     Device.loadDevices(workspaceId),

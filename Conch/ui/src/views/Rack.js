@@ -13,7 +13,7 @@ import Table from "./component/Table";
 const allRacks = {
     loading: true,
     oninit: ({ state }) => {
-        Auth.requireLogin(
+        Auth.requireLogin(() =>
             Workspace.withWorkspace(workspaceId => {
                 Promise.all([
                     Relay.loadActiveRelays(workspaceId),
@@ -66,7 +66,7 @@ const makeSelection = {
 
 const rackLayout = {
     oninit({ attrs }) {
-        Auth.requireLogin(
+        Auth.requireLogin(() =>
             Workspace.withWorkspace(workspaceId => {
                 Rack.load(workspaceId, attrs.id);
                 Rack.highlightDevice = attrs.device;
@@ -209,7 +209,9 @@ var rackLayoutTable = {
                     onclick() {
                         Feedback.sendFeedback(
                             "[NOTICE] User Flagged Device",
-                            `Device ${occupant.id} in slot ${slotId} was flagged by the user.`,
+                            `Device ${
+                                occupant.id
+                            } in slot ${slotId} was flagged by the user.`,
                             () => {
                                 alert(
                                     t("Administrators notified about device")
