@@ -87,8 +87,7 @@ $t->post_ok(BASE."/workflow", json => { id => 'wat' });
 $t->status_is(400)->json_schema_is("Error");
 
 $t->post_ok(BASE."/workflow", json => {
-	name => 'sungo',
-	product_id => $hardware_product_id,
+	name => 'sungo'
 })->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)->json_is(
@@ -127,7 +126,6 @@ $t->get_ok(BASE."/workflow/".$wid)->status_is(404)->json_schema_is("Error");
 
 subtest "Step" => sub {
 	$t->post_ok(BASE."/workflow", json => {
-		product_id => $hardware_product_id,
 		name => 'sungo2'
 	})->status_is(303);
 	$t->get_ok($t->tx->res->headers->location)->json_schema_is("Workflow");
