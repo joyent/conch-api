@@ -13,7 +13,6 @@ expected peer port according to the rack layout
 
 has schema => sub {
 	{
-		required   => ['interfaces'],
 		interfaces => {
 			type => 'object',
 		}

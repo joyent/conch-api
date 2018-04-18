@@ -14,12 +14,12 @@ Conch::Validation - base class for writing Conch Validations
     has description => q/Description of the validation/;
 
     # Optional schema to validate $input_data before `validate` is run.
-    # Specified in the JSON-schema format.
+    # Specified in simplified JSON-schema format.
     has schema => sub {
             {
-                    required => [ 'hello' ],
-                    properties => {
-                            hello => { type => 'string' }
+                    hello => {
+                            world => { type => 'string' },
+                            required => ['world']
                     }
             }
     };
@@ -44,9 +44,13 @@ Conch::Validation - base class for writing Conch Validations
 Validations. Validations extend this class by implementing a `validate`
 method.  This method receives the input data (a `HASHREF`) to be validatated.
 This input data hash may be validated by setting the `schema` attribute with a
-schema definition in the [JSON-schema](http://json-schema.org) format (Note: A
-root-level `'object'` type is assumed in the schema. Only top-level
-properties need to be defined).
+schema definition in the [JSON-schema](http://json-schema.org) format.
+
+\_Note\_: A root-level `'object'` type is assumed in the schema. Only top-level
+properties need to be defined. All top-level properties are assumed to be
+required by default, but you may define the exact set of required properties by
+specifying a \`required\` attribute on the top-level with a list of required
+properties names
 
 The validation logic in the `validate` method will evaluate the input data and
 register one or more validation results with the
@@ -127,7 +131,7 @@ during execution as [Mojo::Exception](https://metacpan.org/pod/Mojo::Exception)
 
 ### Check\_Against\_Schema
 
-Check the Validation input data against the JSON schema, if specified.
+Check the Validation input data against JSON schema, if specified.
 
 ### Validate
 
@@ -231,7 +235,7 @@ This declarative syntax allows for result de-duplication and consistent messages
     $self->register_result( expected => 'second', got => 'first', cmp => 'lt' );
 
     # using 'like' to match with a regex
-    $self->register_result( expected => qr/.+bar.+/, got => 'foobarbaz', cmp => 'like' );
+    $self->register_result( expected => qr/.+bar.+/, got => 'foobarbaz', cmpself => 'like' );
 
     # using 'oneOf' to select one of multiple values
     $self->register_result( expected => ['a', 'b', 'c' ], got => 'b', cmp => 'oneOf' );
@@ -319,10 +323,13 @@ You may also provide the following attributes to override validation results
 
 ### Die
 
-Stop execution of the Validation immediately and record an error.
+Stop execution of the Validation immediately and record an error. The
+attributes 'level' and 'hint' may be specified.
 
 ```perl
     $self->die('This validation cannot continue!') if $bad_condition;
+    $self->die('This validation cannot continue!', hint => 'Here's how to fix it' );
+    $self->die('This exception happend 3 frames up', level => 3 );
 ```
 
 ### Fail

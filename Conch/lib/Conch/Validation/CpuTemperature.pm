@@ -12,7 +12,6 @@ hardware product profile
 
 has schema => sub {
 	{
-		required => [ 'temp' ],
 		temp => {
 			type       => 'object',
 			required => [ 'cpu0', 'cpu1' ],

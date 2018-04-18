@@ -9,7 +9,6 @@ has 'description' => 'Verify the number of DIMMs reported';
 
 has schema => sub {
 	{
-		required => ['memory'],
 		memory   => {
 			type       => 'object',
 			properties => {

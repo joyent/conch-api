@@ -11,7 +11,6 @@ Valdidate reported product name matches product name expected in rack layout
 
 has schema => sub {
 	{
-		required => ['product_name'],
 		product_name => {
 			type => 'string'
 		}
