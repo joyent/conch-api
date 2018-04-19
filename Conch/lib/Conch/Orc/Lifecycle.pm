@@ -62,20 +62,6 @@ has 'name' => (
 );
 
 
-=item version
-
-Number. Required. Defaults to 1
-
-=cut
-
-has 'version' => (
-	default  => 1,
-	is       => 'rw',
-	isa      => Num,
-	required => 1,
-);
-
-
 
 =item locked
 
@@ -123,7 +109,6 @@ sub _build_serializable_attributes { [qw[
 	created
 	updated
 	name
-	version
 	locked
 	role_id
 	plan
@@ -150,7 +135,7 @@ sub from_id ($class, $id) {
 				order by wlp.plan_order
 			) as plan
 			from workflow_lifecycle l
-			where l.deactivated is null and l.id = ?;
+			where l.id = ?;
 		|, $id)->hash;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->from_id: $_");
@@ -162,13 +147,13 @@ sub from_id ($class, $id) {
 }
 
 
-=head2 from_name_latest
+=head2 from_name
 
-Load the latest version of a Lifecycle for a given name
+Load a Lifecycle for by name
 
 =cut
 
-sub from_name_latest ($class, $name) {
+sub from_name ($class, $name) {
 	my $ret;
 	try {
 		$ret = Conch::Pg->new->db->query(qq|
@@ -179,83 +164,16 @@ sub from_name_latest ($class, $name) {
 				order by wlp.plan_order
 			) as plan
 			from workflow_lifecycle l
-			where l.deactivated is null and l.name = ?
-				order by l.version
-				limit 1
+			where l.name = ?
 		|, $name)->hash;
 	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->from_name_latest: $_");
+		Mojo::Exception->throw(__PACKAGE__."->from_name: $_");
 		return undef;
 	};
 
 	return undef unless $ret;
 	return $class->new(_fixup_timestamptzs($ret)->%*);
 }
-
-=head2 from_name_and_version
-
-Load a Lifecycle by its name and version
-
-=cut
-
-sub from_name_and_version ($class, $name, $version) {
-	my $ret;
-	try {
-		$ret = Conch::Pg->new->db->query(qq|
-			select l.*, array(
-				select wlp.workflow_id
-				from workflow_lifecycle_plan wlp
-				where wlp.lifecycle_id = l.id
-				order by wlp.plan_order
-			) as plan
-			from workflow_lifecycle l
-			where l.deactivated is null
-				and l.name = ?
-				and l.version = ?;
-		|, $name, $version)->hash;
-	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->from_name_and_version: $_");
-		return undef;
-	};
-
-	return undef unless $ret;
-	return $class->new(_fixup_timestamptzs($ret)->%*);
-}
-
-
-=head2 many_from_name
-
-Load all Lifecycles that match a given name
-
-=cut
-
-sub many_from_name ($class, $name) {
-	my $ret;
-	try {
-		$ret = Conch::Pg->new->db->query(qq|
-			select l.*, array(
-				select wlp.workflow_id
-				from workflow_lifecycle_plan wlp
-				where wlp.lifecycle_id = l.id
-				order by wlp.plan_order
-			) as plan
-			from workflow_lifecycle l
-			where l.deactivated is null and l.name = ?;
-		|, $name)->hashes;
-	} catch {
-		Mojo::Exception->throw(__PACKAGE__."->many_from_name: $_");
-		return undef;
-	};
-
-	return [] unless $ret and $ret->@*;
-
-	my @many = map {
-		$class->new(_fixup_timestamptzs($_)->%*);
-	} $ret->@*;
-
-	return \@many;
-}
-
 
 
 =head2 all
@@ -275,7 +193,6 @@ sub all ($class) {
 				order by wlp.plan_order
 			) as plan
 			from workflow_lifecycle l
-			where l.deactivated is null;
 		|)->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->all: $_");
@@ -307,10 +224,6 @@ sub save ($self) {
 	delete @fields{ qw(id plan created updated) };
 	$fields{updated} = 'NOW()';
 
-	if ($fields{deactivated}) {
-		$fields{deactivated} = $fields{deactivated}->timestamptz;
-	}
-
 	my $ret;
 	try {
 		if($self->id) {
@@ -337,11 +250,6 @@ sub save ($self) {
 	$self->_set_id($ret->{id});
 	$self->_set_created(Conch::Time->new($ret->{created}));
 	$self->_set_updated(Conch::Time->new($ret->{updated}));
-		
-	if($ret->{deactivated}) {
-		$self->deactivated($ret->{deactivated});
-	}
-
 	return $self;
 }
 

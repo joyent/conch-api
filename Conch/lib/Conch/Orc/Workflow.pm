@@ -62,20 +62,6 @@ has 'name' => (
 );
 
 
-=item version
-
-Number. Required. Defaults to 1
-
-=cut
-
-has 'version' => (
-	default  => 1,
-	is       => 'rw',
-	isa      => Num,
-	required => 1,
-);
-
-
 =item locked
 
 Boolean. Defaults to 0
@@ -126,10 +112,8 @@ has 'steps' => (
 sub _build_serializable_attributes {[qw[
 	id
 	name
-	version
 	created
 	updated
-	deactivated
 	locked
 	preflight
 	steps
@@ -196,6 +180,36 @@ sub from_id ($class, $id) {
 	return $class->new(_fixup_timestamptzs($ret)->%*);
 }
 
+=head2 from_name
+
+Load a Workflow by its name
+
+=cut
+
+sub from_name ($class, $id) {
+	my $ret;
+	try {
+		$ret = Conch::Pg->new->db->query(qq|
+			select w.*, array(
+				select ws.id
+				from workflow_step ws
+				where ws.workflow_id = w.id
+				order by ws.step_order
+			) as steps
+			from workflow w
+			where w.name = ?;
+		|, $id)->hash;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->from_name: $_");
+		return undef;
+	};
+
+	return undef unless $ret;
+
+	return $class->new(_fixup_timestamptzs($ret)->%*);
+}
+
+
 
 =head2 all
 
@@ -213,8 +227,7 @@ sub all ($class) {
 				where ws.workflow_id = w.id
 				order by ws.step_order
 			) as steps
-			from workflow w
-			where deactivated is null;
+			from workflow w;
 		|)->hashes;
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->all: $_");
@@ -243,13 +256,10 @@ Returns C<$self>, allowing for method chaining
 sub save ($self) {
 	my $db = Conch::Pg->new()->db;
 
-	$self->_set_updated(Conch::Time->now);
 	my %fields = (
-		deactivated => $self->deactivated ? $self->deactivated->timestamptz : undef,
 		locked      => $self->locked,
 		name        => $self->name,
-		updated     => $self->updated->timestamptz,
-		version     => $self->version,
+		updated     => 'NOW()',
 		preflight   => $self->preflight,
 	);
 

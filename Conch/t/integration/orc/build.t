@@ -92,8 +92,6 @@ $t->post_ok(BASE."/workflow", json => {
 
 $t->get_ok($t->tx->res->headers->location)->json_is(
 	'/locked' => 0,
-)->json_is(
-	'/version' => 1,
 )->json_schema_is("Workflow");
 
 my $wid = $t->tx->res->json->{id};
@@ -117,9 +115,6 @@ $t->get_ok(BASE."/workflow/".$wid)->status_is(200)->json_is(
 	'/name' => 'sungo'
 )->json_schema_is('Workflow');
 
-$t->get_ok(BASE."/workflow/".$wid."/delete")->status_is(204);
-
-$t->get_ok(BASE."/workflow/".$wid)->status_is(404)->json_schema_is("Error");
 
 ##########################
 

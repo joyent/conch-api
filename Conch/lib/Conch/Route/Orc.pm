@@ -54,7 +54,6 @@ sub load ( $class, $r ) {
 
 	my $wi = $w->under("/:id");
 	$wi->post("/")->to("Orc::Workflows#update");
-	$wi->get("/delete")->to("Orc::Workflows#delete");
 	$wi->post("/step")->to("Orc::Workflows#create_step");
 
 	my $si = $o->under("/step/:id");

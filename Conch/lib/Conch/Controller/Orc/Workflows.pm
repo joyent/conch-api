@@ -79,22 +79,6 @@ sub update ($c) {
 }
 
 
-=head2 delete
-
-"Delete" a workflow by marking it as deactivated
-
-=cut
-
-sub delete ($c) {
-	my $w = Conch::Orc::Workflow->from_id($c->param('id'));
-	return $c->status(404 => { error => "Not found" }) unless $w;
-	return $c->status(404 => { error => "Not found" }) if $w->deactivated;
-
-	$w->update(deactivated => Conch::Time->now)->save;
-	return $c->status(204); 
-}
-
-
 =head2 create_step
 
 Create a Workflow::Step tied to an existing Workflow
