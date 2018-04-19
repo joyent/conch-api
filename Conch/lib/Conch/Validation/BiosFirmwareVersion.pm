@@ -12,7 +12,6 @@ profile
 
 has schema => sub {
 	{
-		required     => [qw(bios_version)],
 		bios_version => {
 			type => 'string',
 		}

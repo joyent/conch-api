@@ -15,12 +15,12 @@ Conch::Validation - base class for writing Conch Validations
 	has description => q/Description of the validation/;
 
 	# Optional schema to validate $input_data before `validate` is run.
-	# Specified in the JSON-schema format.
+	# Specified in simplified JSON-schema format.
 	has schema => sub {
 		{
-			required => [ 'hello' ],
-			properties => {
-				hello => { type => 'string' }
+			hello => {
+				world => { type => 'string' },
+				required => ['world']
 			}
 		}
 	};
@@ -45,9 +45,13 @@ C<Conch::Validation> provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a C<validate>
 method.  This method receives the input data (a C<HASHREF>) to be validatated.
 This input data hash may be validated by setting the C<schema> attribute with a
-schema definition in the L<JSON-schema|http://json-schema.org> format (Note: A
-root-level C<'object'> type is assumed in the schema. Only top-level
-properties need to be defined).
+schema definition in the L<JSON-schema|http://json-schema.org> format.
+
+_Note_: A root-level C<'object'> type is assumed in the schema. Only top-level
+properties need to be defined. All top-level properties are assumed to be
+required by default, but you may define the exact set of required properties by
+specifying a `required` attribute on the top-level with a list of required
+properties names
 
 The validation logic in the C<validate> method will evaluate the input data and
 register one or more validation results with the
@@ -207,7 +211,8 @@ sub run_unsafe ( $self, $data ) {
 
 =head2 check_against_schema
 
-Check the Validation input data against the JSON schema, if specified.
+Check the Validation input data against JSON schema, if specified.
+
 
 =cut
 
@@ -220,7 +225,7 @@ sub check_against_schema ( $self, $data ) {
 
 	# Shallow copy the schema and pull out the 'required' list
 	my $schema   = { $self->schema->%* };
-	my $required = delete $schema->{required};
+	my $required = delete $schema->{required} || [ keys %{ $schema } ];
 	my $full_schema =
 		{ type => 'object', properties => $schema, required => $required };
 

@@ -11,7 +11,6 @@ Validate the reported number of CPUs match the hardware product profile
 
 has schema => sub {
 	{
-		required  => ['processor'],
 		processor => {
 			type       => 'object',
 			properties => {

@@ -11,7 +11,6 @@ Validate the reported RAM match the hardware product profile
 
 has schema => sub {
 	{
-		required => ['memory'],
 		memory   => {
 			type       => 'object',
 			required => ['total'],
