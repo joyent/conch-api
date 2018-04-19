@@ -950,26 +950,17 @@ definitions:
     required:
       - id
       - name
-      - version
       - created
       - updated
-      - deactivated
       - locked
       - steps
       - preflight
     properties:
-      deactivated:
-        anyOf:
-          - type: null
-          - type: string
-            format: date-time
       id:
         type: string
         format: uuid
       name:
         type: string
-      version:  
-        type: number
       created:
         type: string
         format: date-time
@@ -1124,7 +1115,6 @@ definitions:
     required:
       - id
       - name
-      - version
       - locked
       - role_id
       - plan
@@ -1142,8 +1132,6 @@ definitions:
       updated:
         type: string
         format: date-time
-      version:
-        type: number
       role_id:
         type: string
         format: uuid

@@ -51,15 +51,11 @@ sub create ($c) {
 	my $body = $c->validate_input('OrcLifecycleCreate') or return;
 
 	$body->{version} = 0 unless $body->{version};
-	if(Conch::Orc::Lifecycle->from_name_and_version(
-		$body->{name},
-		$body->{version}
-	)) {
+	if(Conch::Orc::Lifecycle->from_name($body->{name})) {
 		return $c->status_with_validation(400, Error => {
-			error => "Lifecycle already exists with this name and version"
+			error => "Lifecycle already exists with this name"
 		});
 	}
-
 	
 	my $l = Conch::Orc::Lifecycle->new($body->%*)->save();
 
