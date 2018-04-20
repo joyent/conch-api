@@ -8,6 +8,10 @@ definitions:
     properties:
       name:
         type: string
+      locked:
+        type: number
+      preflight:
+        type: number
   WorkflowUpdate:
     type: object
     additionalProperties: false
