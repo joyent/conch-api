@@ -31,8 +31,6 @@ definitions:
     properties:
       name:
         type: string
-      version:
-        type: number
       locked:
         type: number
       role_id:
