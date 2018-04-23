@@ -18,9 +18,9 @@ definitions:
     properties:
       name:
         type: string
-      version:  
-        type: number
       locked:
+        type: number
+      preflight:
         type: number
   OrcLifecycleCreate:
     type: object
