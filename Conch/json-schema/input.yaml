@@ -36,6 +36,17 @@ definitions:
       role_id:
         type: string
         format: uuid
+  OrcLifecycleUpdate:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      locked:
+        type: number
+      role_id:
+        type: string
+        format: uuid
   OrcLifecycleAddWorkflow:
     type: object
     additionalProperties: false
