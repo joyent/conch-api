@@ -106,6 +106,16 @@ $t->get_ok(BASE."/workflow/".$w->id)->status_is(200)->json_is(
 	'/id' => $w->id
 )->json_schema_is('Workflow');
 
+$t->post_ok(
+	BASE."/workflow/".$w->id, 
+	json => {
+		name => 'sungo-again',
+	}
+)->status_is(303);
+$t->get_ok($t->tx->res->headers->location)->status_is(200)->json_is(
+	"/name" => "sungo-again",
+)->json_schema_is('Workflow');
+
 subtest "Step" => sub {
 
 	my $step;
@@ -148,6 +158,18 @@ subtest "Step" => sub {
 	)->json_is(
 		'/0/steps/1' => $step2->id
 	)->json_schema_is('Workflows');
+
+	$t->post_ok(
+		BASE."/step/".$step2->id, 
+		json => {
+			name => 'sungo-again',
+		}
+	)->status_is(303);
+	$t->get_ok($t->tx->res->headers->location)->status_is(200)->json_is(
+		"/name" => "sungo-again",
+	)->json_schema_is('WorkflowStep')
+
+
 };
 
 
