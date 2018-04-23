@@ -62,6 +62,30 @@ sub create ($c) {
 	$c->status(303 => "/o/lifecycle/".$l->id);
 }
 
+=head2 update
+
+Update an existing lifecycle
+
+=cut
+
+sub update ($c) {
+	my $l = Conch::Orc::Lifecycle->from_id($c->param('id'));
+	return $c->status(404 => { error => "Not found" }) unless $l;
+
+	my $body = $c->validate_input('OrcLifecycleUpdate') or return;
+
+	$body->{version} = 0 unless $body->{version};
+	if($body->{name} and ($body->{name} ne $l->name)) {
+		if($body-Conch::Orc::Lifecycle->from_name($body->{name})) {
+			return $c->status_with_validation(400, Error => {
+				error => "Lifecycle already exists with this name"
+			});
+		}
+	}
+
+	$l->update($body->%*)->save;
+	$c->status(303 => "/o/lifecycle/".$l->id);
+}
 
 =head2 add_workflow
 
