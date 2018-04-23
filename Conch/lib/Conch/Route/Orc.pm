@@ -43,24 +43,26 @@ sub load ( $class, $r ) {
 	my $l = $o->under("/lifecycle");
 	$l->post("/")->to("Orc::Lifecycles#create");
 	$l->get("/")->to("Orc::Lifecycles#get_all");
-	$l->get("/:id")->to("Orc::Lifecycles#get_one");
-	$l->post("/:id/add_workflow")->to("Orc::Lifecycles#add_workflow");
-	$l->post("/:id/remove_workflow")->to("Orc::Lifecycles#remove_workflow");
+	my $li = $l->under("/:id");
+	$li->get("/")->to("Orc::Lifecycles#get_one");
+	$li->post("/")->to("Orc::Lifecycles#update");
+	$li->post("/add_workflow")->to("Orc::Lifecycles#add_workflow");
+	$li->post("/remove_workflow")->to("Orc::Lifecycles#remove_workflow");
 
 	my $w = $o->under("/workflow");
 	$w->post("/")->to("Orc::Workflows#create");
 	$w->get("/")->to("Orc::Workflows#get_all");
-	$w->get("/:id")->to("Orc::Workflows#get_one");
 
 	my $wi = $w->under("/:id");
+	$wi->get("/")->to("Orc::Workflows#get_one");
 	$wi->post("/")->to("Orc::Workflows#update");
 	$wi->post("/step")->to("Orc::Workflows#create_step");
 
 	my $si = $o->under("/step/:id");
+	$si->get("/")->to("Orc::WorkflowSteps#get_one");
 	$si->post("/")->to("Orc::WorkflowSteps#update");
 	$si->delete("/")->to("Orc::WorkflowSteps#delete");
 
-	$o->get("/step/:id")->to("Orc::WorkflowSteps#get_one");
 }
 
 1;
