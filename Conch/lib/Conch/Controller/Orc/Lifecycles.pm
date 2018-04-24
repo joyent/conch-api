@@ -76,7 +76,7 @@ sub update ($c) {
 
 	$body->{version} = 0 unless $body->{version};
 	if($body->{name} and ($body->{name} ne $l->name)) {
-		if($body-Conch::Orc::Lifecycle->from_name($body->{name})) {
+		if(Conch::Orc::Lifecycle->from_name($body->{name})) {
 			return $c->status_with_validation(400, Error => {
 				error => "Lifecycle already exists with this name"
 			});
