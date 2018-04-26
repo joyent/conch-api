@@ -50,6 +50,12 @@ sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $body = $c->validate_input('OrcLifecycleCreate') or return;
 
+	unless(Conch::Model::DeviceRole->from_id($body->{role_id})) {
+		return $c->status_with_validation(400, Error => {
+			error => "Role does not exist"
+		});
+	}
+
 	$body->{version} = 0 unless $body->{version};
 	if(Conch::Orc::Lifecycle->from_name($body->{name})) {
 		return $c->status_with_validation(400, Error => {
@@ -73,6 +79,14 @@ sub update ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $l;
 
 	my $body = $c->validate_input('OrcLifecycleUpdate') or return;
+
+	if($body->{role_id}) {
+		unless(Conch::Model::DeviceRole->from_id($body->{role_id})) {
+			return $c->status_with_validation(400, Error => {
+				error => "Role does not exist"
+			});
+		}
+	}
 
 	$body->{version} = 0 unless $body->{version};
 	if($body->{name} and ($body->{name} ne $l->name)) {
