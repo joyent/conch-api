@@ -63,7 +63,6 @@ sub create ($c) {
 	}
 
 
-	$body->{version} = 0 unless $body->{version};
 	if(Conch::Orc::Lifecycle->from_name($body->{name})) {
 		return $c->status_with_validation(400, Error => {
 			error => "Lifecycle already exists with this name"
@@ -102,7 +101,6 @@ sub update ($c) {
 		}
 	}
 
-	$body->{version} = 0 unless $body->{version};
 	if($body->{name} and ($body->{name} ne $l->name)) {
 		if(Conch::Orc::Lifecycle->from_name($body->{name})) {
 			return $c->status_with_validation(400, Error => {
