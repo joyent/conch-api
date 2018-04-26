@@ -56,6 +56,13 @@ sub create ($c) {
 		});
 	}
 
+	if(Conch::Orc::Lifecycle->from_role_id($body->{role_id})) {
+		return $c->status_with_validation(400, Error => {
+			error => "Role is already in use"
+		});
+	}
+
+
 	$body->{version} = 0 unless $body->{version};
 	if(Conch::Orc::Lifecycle->from_name($body->{name})) {
 		return $c->status_with_validation(400, Error => {
@@ -84,6 +91,13 @@ sub update ($c) {
 		unless(Conch::Model::DeviceRole->from_id($body->{role_id})) {
 			return $c->status_with_validation(400, Error => {
 				error => "Role does not exist"
+			});
+		}
+
+		my $lr = Conch::Orc::Lifecycle->from_role_id($body->{role_id});
+		if ($lr and ($lr->id ne $l->id)) {
+			return $c->status_with_validation(400, Error => {
+				error => "Role is already in use"
 			});
 		}
 	}

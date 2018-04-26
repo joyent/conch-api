@@ -207,11 +207,20 @@ subtest "Lifecycle" => sub {
 	$t->get_ok($t->tx->res->headers->location)->status_is(200)
 		->json_schema_is("OrcLifecycle")
 		->json_is( "/name" => "sungo" );
+
+
 	my $l_id = $t->tx->res->json->{id};
 
 	$t->post_ok(BASE."/lifecycle/$l_id", json => {
 		role_id => $uuid->create(),
 	})->status_is(400);
+
+	$t->post_ok(BASE."/lifecycle", json => {
+		name    => 'dupe role',
+		role_id => $r->id,
+	})->status_is(400);
+
+
 
 	$t->post_ok(BASE."/lifecycle/$l_id", json => {
 		name    => 'sungo2',
