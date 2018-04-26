@@ -175,6 +175,35 @@ sub from_name ($class, $name) {
 	return $class->new(_fixup_timestamptzs($ret)->%*);
 }
 
+=head2 from_role_id
+
+Load a Lifecycle by its role ID
+
+=cut
+
+sub from_role_id ($class, $id) {
+	my $ret;
+	try {
+		$ret = Conch::Pg->new->db->query(qq|
+			select l.*, array(
+				select wlp.workflow_id
+				from workflow_lifecycle_plan wlp
+				where wlp.lifecycle_id = l.id
+				order by wlp.plan_order
+			) as plan
+			from workflow_lifecycle l
+			where l.role_id = ?
+		|, $id)->hash;
+	} catch {
+		Mojo::Exception->throw(__PACKAGE__."->from_role_id: $_");
+		return undef;
+	};
+
+	return undef unless $ret;
+	return $class->new(_fixup_timestamptzs($ret)->%*);
+}
+
+
 
 =head2 all
 
