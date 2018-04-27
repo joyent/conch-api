@@ -32,6 +32,8 @@ with 'Conch::Class::Role::JsonV1';
 
 =head2 purpose
 
+=head2 rack_unit
+
 =head2 ram_total
 
 =head2 sas_num
@@ -69,6 +71,7 @@ has [
 		nics_num
 		psu_total
 		purpose
+		rack_unit
 		ram_total
 		sas_num
 		sas_size
@@ -101,6 +104,7 @@ sub as_v1_json {
 		nics_num      => $self->nics_num,
 		psu_total     => $self->psu_total,
 		purpose       => $self->purpose,
+		rack_unit     => $self->rack_unit,
 		ram_total     => $self->ram_total,
 		sas_num       => $self->sas_num,
 		sas_size      => $self->sas_size,

@@ -34,6 +34,7 @@ my $fields = q{
   hw_profile.nics_num AS hw_profile_nics_num,
   hw_profile.psu_total AS hw_profile_psu_total,
   hw_profile.purpose AS hw_profile_purpose,
+  hw_profile.rack_unit AS hw_profile_rack_unit,
   hw_profile.ram_total AS hw_profile_ram_total,
   hw_profile.sas_num AS hw_profile_sas_num,
   hw_profile.sas_size AS hw_profile_sas_size,
@@ -155,6 +156,7 @@ sub _build_hardware_product ($hw) {
 		nics_num      => $hw->{hw_profile_nics_num},
 		psu_total     => $hw->{hw_profile_psu_total},
 		purpose       => $hw->{hw_profile_purpose},
+		rack_unit     => $hw->{hw_profile_rack_unit},
 		ram_total     => $hw->{hw_profile_ram_total},
 		sas_num       => $hw->{hw_profile_sas_num},
 		sas_size      => $hw->{hw_profile_sas_size},
@@ -165,7 +167,7 @@ sub _build_hardware_product ($hw) {
 		ssd_num       => $hw->{hw_profile_ssd_num},
 		ssd_size      => $hw->{hw_profile_ssd_size},
 		ssd_slots     => $hw->{hw_profile_ssd_slots},
-		usb_numb      => $hw->{hw_profile_usb_num},
+		usb_num       => $hw->{hw_profile_usb_num},
 		zpool         => $zpool_profile
 	);
 

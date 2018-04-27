@@ -8,7 +8,7 @@ use_ok("Conch::Model::HardwareProduct");
 use Data::UUID;
 
 my $pgtmp = mk_tmp_db() or die;
-my $pg    = Conch::Pg->new( $pgtmp->uri );
+my $pg = Conch::Pg->new( $pgtmp->uri );
 
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
@@ -31,27 +31,30 @@ my $zpool_profile_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
+my %hw_profile_values = (
+	rack_unit     => 1,
+	purpose       => 'test',
+	bios_firmware => 'test',
+	cpu_num       => 2,
+	cpu_type      => 'test',
+	dimms_num     => 3,
+	ram_total     => 4,
+	nics_num      => 5,
+	usb_num       => 6
+);
+
 my $hardware_profile_id = $pg->db->insert(
 	'hardware_product_profile',
 	{
-		product_id    => $hardware_product_id,
-		zpool_id      => $zpool_profile_id,
-		rack_unit     => 1,
-		purpose       => 'test',
-		bios_firmware => 'test',
-		cpu_num       => 2,
-		cpu_type      => 'test',
-		dimms_num     => 3,
-		ram_total     => 4,
-		nics_num      => 5,
-		usb_num       => 6
-
+		product_id => $hardware_product_id,
+		zpool_id   => $zpool_profile_id,
+		%hw_profile_values
 	},
 	{ returning => ['id'] }
 )->hash->{id};
 
 new_ok('Conch::Model::HardwareProduct');
-my $hw_product_model = new_ok( "Conch::Model::HardwareProduct");
+my $hw_product_model = new_ok("Conch::Model::HardwareProduct");
 
 subtest 'list hardware products' => sub {
 	my $hw_products = $hw_product_model->list;
@@ -63,9 +66,9 @@ subtest 'list hardware products' => sub {
 	isa_ok( $hw_product->profile,        'Conch::Class::HardwareProductProfile' );
 	isa_ok( $hw_product->profile->zpool, 'Conch::Class::ZpoolProfile' );
 
-	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
-	is($hw_product->profile->bios_firmware, "test", "BIOS Firmware");
-	is($hw_product->profile->zpool->id, $zpool_profile_id, "Zpool profile ID");
+	is( $hw_product->profile->id, $hardware_profile_id, "Profile IDs match" );
+	is( $hw_product->profile->bios_firmware, "test", "BIOS Firmware" );
+	is( $hw_product->profile->zpool->id, $zpool_profile_id, "Zpool profile ID" );
 };
 
 subtest 'lookup hardware product' => sub {
@@ -74,10 +77,10 @@ subtest 'lookup hardware product' => sub {
 	isa_ok( $hw_product->profile,        'Conch::Class::HardwareProductProfile' );
 	isa_ok( $hw_product->profile->zpool, 'Conch::Class::ZpoolProfile' );
 
-	is($hw_product->profile->id, $hardware_profile_id, "Profile IDs match");
-	is($hw_product->profile->bios_firmware, "test", "BIOS Firmware");
-	is($hw_product->profile->zpool->id, $zpool_profile_id, "Zpool profile ID");
+	is( $hw_product->profile->id, $hardware_profile_id, "Profile IDs match" );
+	my %profile_values = %{ $hw_product->profile }{ keys %hw_profile_values };
+	is_deeply( { %profile_values }, { %hw_profile_values });
+	is( $hw_product->profile->zpool->id, $zpool_profile_id, "Zpool profile ID" );
 };
 
 done_testing();
-

@@ -374,6 +374,7 @@ definitions:
           - nics_num
           - psu_total
           - purpose
+          - rack_unit
           - ram_total
           - sas_num
           - sas_size
@@ -410,6 +411,8 @@ definitions:
             type: integer
           purpose:
             type: string
+          rack_unit:
+            type: integer
           ram_total:
             type: integer
           sas_num:
