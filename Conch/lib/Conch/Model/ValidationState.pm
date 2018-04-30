@@ -125,15 +125,20 @@ Return all latest completed states for each plans for a given Device
 
 =cut
 
-sub latest_completed_states_for_device ( $class, $device_id ) {
+sub latest_completed_states_for_device ( $class, $device_id, @statuses ) {
 	my $fields = join( ', ', @$attrs );
+	my $status_condition =
+		@statuses
+		? "status in (" . join( ', ', map { "'$_'" } @statuses ) . ")"
+		: " 1 = 1 ";
 	return Conch::Pg->new->db->query(
 		qq{
 		select distinct on (validation_plan_id) $fields
 		from validation_state
 		where
 			device_id = ? and
-			completed is not null
+			completed is not null and
+			$status_condition
 		order by validation_plan_id, completed desc
 		},
 		$device_id
@@ -146,11 +151,15 @@ Return all latest completed states for a list of Device IDs
 
 =cut
 
-sub latest_completed_states_for_devices ( $class, $device_ids ) {
+sub latest_completed_states_for_devices ( $class, $device_ids, @statuses ) {
 	return [] unless scalar @$device_ids;
 
 	my $fields = join( ', ', map { "vs.$_" } @$attrs );
 	my $values = join( ', ', map { "('$_')" } @$device_ids );
+	my $status_condition =
+		@statuses
+		? "vs.status in (" . join( ', ', map { "'$_'" } @statuses ) . ")"
+		: "1 = 1";
 
 	return Conch::Pg->new->db->query(
 		qq{
@@ -159,7 +168,8 @@ sub latest_completed_states_for_devices ( $class, $device_ids ) {
 		join ( values $values) tmp (id)
 			on vs.device_id = tmp.id
 		where
-			vs.completed is not null
+			vs.completed is not null and
+			$status_condition
 		order by
 			vs.device_id,
 			vs.validation_plan_id,
@@ -223,21 +233,21 @@ validation state. Associated validation results will be stored.
 
 sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
 
-	Mojo::Exception->throw("Device ID must be defined") unless $device_id;
-	Mojo::Exception->throw("Validation Plan ID must be defined")
+	Mojo::Exception->throw(" Device ID must be defined ") unless $device_id;
+	Mojo::Exception->throw(" Validation Plan ID must be defined ")
 		unless $validation_plan_id;
-	Mojo::Exception->throw("Validation data must be a hashref")
+	Mojo::Exception->throw(" Validation data must be a hashref ")
 		unless ref($data) eq 'HASH';
 
 	my $device = Conch::Model::Device->lookup($device_id);
 
-	Mojo::Exception->throw("No device exists with ID '$device_id'")
+	Mojo::Exception->throw(" No device exists with ID '$device_id'")
 		unless $device;
 
 	my $validation_plan =
 		Conch::Model::ValidationPlan->lookup($validation_plan_id);
 	Mojo::Exception->throw(
-		"No Validation Plan found with ID '$validation_plan_id'")
+		" No Validation Plan found with ID '$validation_plan_id'")
 		unless $validation_plan;
 
 	my $validation_state = $class->create( $device_id, $validation_plan->id );

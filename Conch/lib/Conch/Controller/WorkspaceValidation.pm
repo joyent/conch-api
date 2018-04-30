@@ -13,6 +13,7 @@ package Conch::Controller::WorkspaceValidation;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
+use List::Util qw(notall any);
 
 =head2 workspace_validation_states
 
@@ -21,12 +22,33 @@ Get a list of latest validation states with results for all devices in a workspa
 =cut
 
 sub workspace_validation_states ($c) {
+	my @statuses;
+	@statuses = map { lc($_) } split /,\s*/, $c->param('status')
+		if $c->param('status');
+	if (
+		@statuses
+		&& notall {
+			my $a = $_;
+			any { $_ eq $a } qw( pass fail error )
+		}
+		@statuses
+		)
+	{
+		return $c->status(
+			400,
+			{
+				error =>
+					"'status' query parameter must be any of 'pass', 'fail', or 'error'."
+			}
+		);
+	}
+
 	my $workspace_devices = Conch::Model::WorkspaceDevice->new->list(
 		$c->stash('current_workspace')->id );
 
 	my $validation_states =
 		Conch::Model::ValidationState->latest_completed_states_for_devices(
-		[ map { $_->id } @$workspace_devices ] );
+		[ map { $_->id } @$workspace_devices ], @statuses );
 
 	my $validation_state_groups =
 		Conch::Model::ValidationResult->grouped_by_validation_states(
