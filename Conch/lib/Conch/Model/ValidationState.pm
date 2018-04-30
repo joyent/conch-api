@@ -31,8 +31,7 @@ sub TO_JSON ($self) {
 		validation_plan_id => $self->validation_plan_id,
 		status             => $self->status,
 		created            => Conch::Time->new( $self->created ),
-		completed          => $self->completed
-			&& Conch::Time->new( $self->completed )
+		completed => $self->completed && Conch::Time->new( $self->completed )
 	};
 }
 
@@ -150,20 +149,21 @@ Return all latest completed states for a list of Device IDs
 sub latest_completed_states_for_devices ( $class, $device_ids ) {
 	return [] unless scalar @$device_ids;
 
-	my $fields = join( ', ', @$attrs );
-	my $in_values = join( ', ', map { "'$_'" } @$device_ids );
+	my $fields = join( ', ', map { "vs.$_" } @$attrs );
+	my $values = join( ', ', map { "('$_')" } @$device_ids );
 
 	return Conch::Pg->new->db->query(
 		qq{
-		select distinct on (device_id, validation_plan_id) $fields
-		from validation_state
+		select distinct on (vs.device_id, vs.validation_plan_id) $fields
+		from validation_state vs
+		join ( values $values) tmp (id)
+			on vs.device_id = tmp.id
 		where
-			device_id in ($in_values) and
-			completed is not null
+			vs.completed is not null
 		order by
-			device_id,
-			validation_plan_id,
-			completed desc
+			vs.device_id,
+			vs.validation_plan_id,
+			vs.completed desc
 		},
 	)->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
