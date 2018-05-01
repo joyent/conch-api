@@ -291,7 +291,7 @@ subtest 'Device Report' => sub {
 		->json_like( '/error', qr/Hardware Product '.+' does not exist/ );
 
 	$t->post_ok( '/device/TEST', json => { serial_number => 'TEST' } )
-		->status_is(400)->json_like( '/error', qr/Attribute .* is required/ );
+		->status_is(400)->json_like( '/error', qr/Missing property/ );
 };
 
 subtest 'Single device' => sub {

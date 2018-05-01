@@ -12,8 +12,6 @@ package Conch::Legacy::Control::DeviceReport;
 use strict;
 use Storable 'dclone';
 use Log::Any '$log';
-use Conch::Legacy::Data::Report::Server;
-use Conch::Legacy::Data::Report::Switch;
 use Conch::Legacy::Control::Device::Environment;
 use Mojo::JSON qw(decode_json encode_json);
 
@@ -98,16 +96,24 @@ sub record_device_report {
 			_device_relay_connect( $schema, $device_id, $dr->{relay}{serial} )
 				if $dr->{relay};
 
-			# Stores the JSON representation of device report as serialized
-			# by MooseX::Storage
 			$device_report = $schema->resultset('DeviceReport')->create(
 				{
 					device_id => $device_id,
-					report    => $dr->freeze()
+					report    => encode_json $dr
 				}
 			);
 
-			my $nics_num = $dr->nics_count;
+			my $nics_num = 0;
+			# switches use the 'media' attribute, and servers use 'interfaces'
+			if ( $dr->{media} ) {
+				for my $port ( keys %{ $dr->{media} } ) {
+					for my $nic ( keys %{ $dr->{media}->{$port} } ) {
+						$nics_num++;
+					}
+				}
+			} else {
+				$nics_num = scalar( keys %{ $dr->{interfaces} } );
+			}
 
 			my $device_specs = $schema->resultset('DeviceSpec')->update_or_create(
 				{

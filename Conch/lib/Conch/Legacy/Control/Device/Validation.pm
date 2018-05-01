@@ -32,7 +32,27 @@ Run device validations with a device report.
 sub validate_device {
 	my ( $schema, $device, $device_report, $report_id, $logger ) = @_;
 
-	my @validations = $device_report->validations;
+	my @validations;
+	if ( $device_report->{device_type}
+		&& $device_report->{device_type} eq 'switch' )
+	{
+		# validations for switches
+		@validations =
+			( \&validate_system, \&validate_cpu_temp, \&validate_bios_firmware );
+	}
+	else {
+		# validations for servers
+		@validations = (
+			\&validate_cpu_temp,
+			\&validate_product,
+			\&validate_system,
+			\&validate_nics_num,
+			$device_report->{disks}      ? \&validate_disk_temp : (),
+			$device_report->{disks}      ? \&validate_disks     : (),
+			$device_report->{interfaces} ? \&validate_links     : (),
+			$device_report->{interfaces} ? \&validate_wiremap   : (),
+		);
+	}
 	try {
 		foreach my $validation (@validations) {
 			$validation->( $schema, $device, $report_id );
@@ -71,7 +91,8 @@ sub validate_device {
 		$logger->error(
 			$device->id . ": Marking FAIL because exception occurred: $message" );
 		return { health => "FAIL", errors => [$message] };
-	} elsif ( $@->exceptions > 0 ) {
+	}
+	elsif ( $@->exceptions > 0 ) {
 		my @errors = $@->exceptions;
 		$logger->warn( $device->id . ": Marking FAIL" );
 		$device->update( { health => "FAIL" } );

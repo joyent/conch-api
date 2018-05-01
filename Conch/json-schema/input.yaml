@@ -1,5 +1,82 @@
 ---
 definitions:
+  DeviceReport:
+    required:
+      - bios_version
+      - memory
+      - processor
+      - product_name
+      - serial_number
+      - state
+      - system_uuid
+    properties:
+      bios_version:
+        type: string
+      disks:
+        type: object
+      device_type:
+        type: string
+        enum:
+          - server
+          - switch
+      interfaces:
+        type: object
+      media:
+        type: object
+      memory:
+        type: object
+        required:
+          - total
+          - count
+        properties:
+          total:
+            type: number
+          count:
+            type: number
+      processor:
+        type: object
+        required:
+          - type
+          - count
+        properties:
+          type:
+            type: string
+          count:
+            type: number
+      product_name:
+        type: string
+      relay:
+        type: object
+        required:
+          - serial
+        properties:
+          serial:
+            type: string
+      serial_number:
+        type: string
+      state:
+        type: string
+      system_uuid:
+        type: string
+        format: uuid
+      temp:
+        type: object
+        required:
+          - cpu0
+          - cpu1
+          - exhaust
+          - inlet
+        properties:
+          cpu0:
+            type: number
+          cpu1:
+            type: number
+          exhaust:
+            type: number
+          intlet:
+            type: number
+      uptime_since:
+        type: string
   WorkflowCreate:
     type: object
     additionalProperties: false
@@ -67,4 +144,3 @@ definitions:
       workflow_id:
         type: string
         format: uuid
-
