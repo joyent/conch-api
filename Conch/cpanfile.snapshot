@@ -2915,25 +2915,6 @@ DISTRIBUTIONS
       parent 0.223
       strict 1.03
       warnings 1.03
-  MooseX-Constructor-AllErrors-0.025
-    pathname: E/ET/ETHER/MooseX-Constructor-AllErrors-0.025.tar.gz
-    provides:
-      MooseX::Constructor::AllErrors 0.025
-      MooseX::Constructor::AllErrors::Error 0.025
-      MooseX::Constructor::AllErrors::Error::Constructor 0.025
-      MooseX::Constructor::AllErrors::Error::Misc 0.025
-      MooseX::Constructor::AllErrors::Error::Required 0.025
-      MooseX::Constructor::AllErrors::Error::TypeConstraint 0.025
-      MooseX::Constructor::AllErrors::Role::Object 0.025
-    requirements:
-      Module::Build::Tiny 0.007
-      Moose 0
-      Moose::Exporter 0
-      Moose::Role 0
-      Try::Tiny 0
-      namespace::autoclean 0.16
-      overload 0
-      perl 5.006
   MooseX-MarkAsMethods-0.15
     pathname: R/RS/RSRCHBOY/MooseX-MarkAsMethods-0.15.tar.gz
     provides:
@@ -2970,49 +2951,6 @@ DISTRIBUTIONS
       Moose::Util 0
       Try::Tiny 0
       warnings 0
-  MooseX-Storage-0.52
-    pathname: E/ET/ETHER/MooseX-Storage-0.52.tar.gz
-    provides:
-      MooseX::Storage 0.52
-      MooseX::Storage::Base::WithChecksum 0.52
-      MooseX::Storage::Basic 0.52
-      MooseX::Storage::Deferred 0.52
-      MooseX::Storage::Engine 0.52
-      MooseX::Storage::Engine::IO::AtomicFile 0.52
-      MooseX::Storage::Engine::IO::File 0.52
-      MooseX::Storage::Engine::Trait::DisableCycleDetection 0.52
-      MooseX::Storage::Engine::Trait::OnlyWhenBuilt 0.52
-      MooseX::Storage::Format::JSON 0.52
-      MooseX::Storage::Format::Storable 0.52
-      MooseX::Storage::Format::YAML 0.52
-      MooseX::Storage::IO::AtomicFile 0.52
-      MooseX::Storage::IO::File 0.52
-      MooseX::Storage::IO::StorableFile 0.52
-      MooseX::Storage::Meta::Attribute::DoNotSerialize 0.52
-      MooseX::Storage::Meta::Attribute::Trait::DoNotSerialize 0.52
-      MooseX::Storage::Traits::DisableCycleDetection 0.52
-      MooseX::Storage::Traits::OnlyWhenBuilt 0.52
-      MooseX::Storage::Util 0.52
-    requirements:
-      CPAN::Meta::Requirements 2.120620
-      Carp 0
-      Data::Dumper 0
-      Digest 0
-      ExtUtils::MakeMaker 0
-      IO::AtomicFile 0
-      IO::File 0
-      JSON::MaybeXS 1.001000
-      Module::Metadata 0
-      Module::Runtime 0
-      Moose 0.99
-      Moose::Meta::Attribute 0
-      Moose::Role 0
-      Scalar::Util 0
-      Storable 0
-      String::RewritePrefix 0
-      YAML::Any 0
-      namespace::autoclean 0
-      perl 5.008
   MooseX-Types-0.50
     pathname: E/ET/ETHER/MooseX-Types-0.50.tar.gz
     provides:
