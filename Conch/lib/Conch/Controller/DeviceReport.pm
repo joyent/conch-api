@@ -12,15 +12,12 @@ package Conch::Controller::DeviceReport;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Validate::UUID 'is_uuid';
-use Storable 'dclone';
 
 use Try::Tiny;
 
 use Conch::Legacy::Schema;
 use Conch::Legacy::Control::DeviceReport 'record_device_report';
 use Conch::Legacy::Control::Device::Validation 'validate_device';
-use Conch::Legacy::Data::Report::Switch;
-use Conch::Legacy::Data::Report::Server;
 
 use Conch::Models;
 
@@ -31,35 +28,7 @@ Processes the device report using the Legacy report code base
 =cut
 
 sub process ($c) {
-	my $raw_report = $c->req->json;
-
-	my ( $device_report, $errs, $validation_plan );
-	try {
-		if ( $raw_report->{device_type} && $raw_report->{device_type} eq "switch" )
-		{
-			$device_report   = Conch::Legacy::Data::Report::Switch->new($raw_report);
-			$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
-				'Conch v1 Legacy Plan: Switch');
-		}
-		else {
-			$device_report   = Conch::Legacy::Data::Report::Server->new($raw_report);
-			$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
-				'Conch v1 Legacy Plan: Server');
-		}
-	}
-	catch {
-		$errs = join( "; ", map { $_->message } $_->errors );
-		$c->app->log_unparsable_report( $raw_report, $errs );
-	};
-	return $c->status( 400, { error => $errs } ) if $errs;
-
-	my $aux_report = dclone($raw_report);
-	for my $attr ( keys %{ $device_report->pack } ) {
-		delete $aux_report->{$attr};
-	}
-	if ( %{$aux_report} ) {
-		$device_report->{aux} = $aux_report;
-	}
+	my $device_report = $c->validate_input('DeviceReport') or return;
 
 	my $hw_product_name = $device_report->{product_name};
 	my $maybe_hw =
@@ -84,9 +53,20 @@ sub process ($c) {
 
 	my $features = $c->app->config('features') || {};
 
-	if ( $features->{new_validation} && $validation_plan) {
-		Conch::Model::ValidationState->run_validation_plan(
-			$device->id, $validation_plan->id, $raw_report );
+	if ( $features->{new_validation} ) {
+		my $validation_plan;
+		if ( $device_report->{device_type}
+			&& $device_report->{device_type} eq "switch" )
+		{
+			$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
+				'Conch v1 Legacy Plan: Switch');
+		}
+		else {
+			$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
+				'Conch v1 Legacy Plan: Server');
+		}
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+			$validation_plan->id, $device_report );
 	}
 
 	my $validation_result =
