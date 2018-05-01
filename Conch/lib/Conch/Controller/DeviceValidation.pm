@@ -13,6 +13,7 @@ package Conch::Controller::DeviceValidation;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
+use List::Util qw(notall any);
 
 =head2 list_validation_states
 
@@ -21,11 +22,33 @@ Get latest validation states for a device
 =cut
 
 sub list_validation_states ($c) {
+	my @statuses;
+	@statuses = map { lc($_) } split /,\s*/, $c->param('status')
+		if $c->param('status');
+	
+	if (
+		@statuses
+		&& notall {
+			my $a = $_;
+			any { $_ eq $a } qw( pass fail error )
+		}
+		@statuses
+		)
+	{
+		return $c->status(
+			400,
+			{
+				error =>
+					"'status' query parameter must be any of 'pass', 'fail', or 'error'."
+			}
+		);
+	}
+
 	my $device = $c->stash('current_device');
 
 	my $validation_states =
 		Conch::Model::ValidationState->latest_completed_states_for_device(
-		$device->id );
+		$device->id, @statuses );
 
 	my $validation_state_groups =
 		Conch::Model::ValidationResult->grouped_by_validation_states(

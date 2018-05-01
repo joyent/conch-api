@@ -1,5 +1,5 @@
 use Mojo::Base -strict;
-use Test::Mojo;
+use Test::MojoSchema;
 use Test::More;
 use Data::UUID;
 use IO::All;
@@ -17,12 +17,19 @@ my $uuid = Data::UUID->new;
 my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
 my $dbh = DBI->connect( $pgtmp->dsn );
 
-my $t = Test::Mojo->new(
+my $test_validation_plan = {
+	name        => 'Conch v1 Legacy Plan: Server',
+	description => 'Test Plan',
+	validations => [ { name => 'product_name', version => 1 } ]
+};
+
+my $t = Test::MojoSchema->new(
 	Conch => {
 		pg      => $pgtmp->uri,
 		secrets => ["********"],
-		features => { rollbar => 0 },
-	}
+		features => { new_validation => 1 },
+		preload_validation_plans => [ $test_validation_plan ]
+	},
 );
 
 all_routes( $t->app->routes );
@@ -408,17 +415,6 @@ subtest 'Relays' => sub {
 	$t->get_ok('/relay')->status_is(200)->json_is( '/0/id' => 'deadbeef' );
 };
 
-subtest 'Device location' => sub {
-	$t->post_ok('/device/TEST/location')->status_is( 400, 'requires body' )
-		->json_like( '/error', qr/rack_unit/ )->json_like( '/error', qr/rack_id/ );
-
-	$t->post_ok( '/device/TEST/location',
-		json => { rack_id => $rack_id, rack_unit => 3 } )->status_is(303)
-		->header_like( Location => qr!/device/TEST/location$! );
-
-	$t->delete_ok('/device/TEST/location', 'can delete device location')->status_is(204);
-};
-
 subtest 'Validations' => sub {
 	$t->get_ok("/validation")->status_is(200);
 
@@ -461,6 +457,35 @@ subtest 'Validations' => sub {
 
 	$t->get_ok("/validation_plan/$validation_plan_id/validation")->status_is(200)
 		->content_is('[]');
+
+	$t->get_ok("/device/TEST/validation_state")->status_is(200)
+		->json_is( '/0/status', 'pass' );
+	$t->get_ok("/device/TEST/validation_state?status=pass")->status_is(200)
+		->json_is( '/0/status', 'pass' );
+	$t->get_ok("/device/TEST/validation_state?status=fail")->status_is(200)
+		->content_is( '[]' );
+	$t->get_ok("/device/TEST/validation_state?status=pass,bar")->status_is(400)
+		->json_like( '/error', qr/query parameter must be any of/ );
+
+	$t->get_ok("/workspace/$id/validation_state")->status_is(200)
+		->json_is( '/0/status', 'pass' );
+	$t->get_ok("/workspace/$id/validation_state?status=fail")->status_is(200)
+		->content_is( '[]' );
+	$t->get_ok("/workspace/$id/validation_state?status=fail,pass,error")->status_is(200)
+		->json_is( '/0/status', 'pass' );
+	$t->get_ok("/workspace/$id/validation_state?status=pass,bar")->status_is(400)
+		->json_like( '/error', qr/query parameter must be any of/ );
+};
+
+subtest 'Device location' => sub {
+	$t->post_ok('/device/TEST/location')->status_is( 400, 'requires body' )
+		->json_like( '/error', qr/rack_unit/ )->json_like( '/error', qr/rack_id/ );
+
+	$t->post_ok( '/device/TEST/location',
+		json => { rack_id => $rack_id, rack_unit => 3 } )->status_is(303)
+		->header_like( Location => qr!/device/TEST/location$! );
+
+	$t->delete_ok('/device/TEST/location', 'can delete device location')->status_is(204);
 };
 
 
