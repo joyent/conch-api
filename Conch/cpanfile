@@ -6,7 +6,6 @@ requires 'Data::UUID';
 requires 'Data::Printer';
 requires 'DateTime::Format::Strptime';
 requires 'List::Compare';
-requires 'Data::Validate::UUID';
 requires 'Mail::Sendmail';
 requires 'aliased';
 requires 'Try::Tiny';

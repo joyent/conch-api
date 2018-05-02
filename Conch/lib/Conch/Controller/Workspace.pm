@@ -11,7 +11,7 @@ Conch::Controller::Workspace
 package Conch::Controller::Workspace;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Data::Validate::UUID 'is_uuid';
+use Conch::UUID 'is_uuid';
 
 use Conch::Models;
 

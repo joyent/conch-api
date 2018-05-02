@@ -13,7 +13,7 @@ Controller for managing Validation Plans
 package Conch::Controller::ValidationPlan;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Data::Validate::UUID 'is_uuid';
+use Conch::UUID 'is_uuid';
 use Conch::Models;
 
 =head2 create

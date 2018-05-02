@@ -11,7 +11,7 @@ package Conch::Model::User;
 use Mojo::Base -base, -signatures;
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
-use Data::Validate::UUID qw(is_uuid);
+use Conch::UUID qw(is_uuid);
 use Mojo::JSON 'to_json';
 
 has [

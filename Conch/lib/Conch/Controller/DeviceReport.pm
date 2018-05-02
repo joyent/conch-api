@@ -11,7 +11,7 @@ Conch::Controller::DeviceReport
 package Conch::Controller::DeviceReport;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Data::Validate::UUID 'is_uuid';
+use Conch::UUID 'is_uuid';
 
 use Try::Tiny;
 

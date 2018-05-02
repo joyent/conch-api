@@ -13,7 +13,7 @@ use Mojo::Base -base, -signatures;
 
 use Conch::Time;
 use Try::Tiny;
-use Data::Validate::UUID qw(is_uuid);
+use Conch::UUID qw(is_uuid);
 
 use aliased 'Conch::Class::DatacenterRack';
 use aliased 'Conch::Class::DatacenterRoom';

@@ -9,7 +9,7 @@ use Test::Exception;
 use IO::All;
 use JSON::Validator;
 use Data::UUID;
-use Data::Validate::UUID 'is_uuid';
+use Conch::UUID 'is_uuid';
 
 BEGIN {
 	use_ok("Test::ConchTmpDB");
