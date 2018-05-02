@@ -50,7 +50,7 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 use IO::All;
 use JSON::Validator;
-use Data::Validate::UUID 'is_uuid';
+use Conch::UUID 'is_uuid';
 
 use constant OUTPUT_SCHEMA_FILE => "json-schema/v1.yaml";
 use constant INPUT_SCHEMA_FILE => "json-schema/input.yaml";

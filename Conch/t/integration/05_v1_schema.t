@@ -3,7 +3,7 @@ use Mojo::Util 'monkey_patch';
 use Test::MojoSchema;
 use Test::More;
 use Data::UUID;
-use Data::Validate::UUID 'is_uuid';
+use Conch::UUID 'is_uuid';
 use IO::All;
 use JSON::Validator;
 
