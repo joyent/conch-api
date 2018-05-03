@@ -70,6 +70,7 @@ sub all_routes {
 	my $secured = $r->under->to('login#authenticate');
 	$secured->get( '/login', sub { shift->status(204) } );
 	$secured->get( '/me',    sub { shift->status(204) } );
+	$secured->post('/refresh_token')->to('login#refresh_token');
 
 	$secured->post(
 		'/feedback',
@@ -82,7 +83,7 @@ sub all_routes {
 	workspace_routes($secured);
 	device_routes($secured);
 	relay_routes($secured);
-	user_routes( $secured->under('/user/me') );
+	user_routes( $secured->under('/user') );
 	hardware_product_routes($secured);
 	validation_routes($secured);
 

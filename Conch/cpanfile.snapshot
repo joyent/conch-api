@@ -2316,6 +2316,15 @@ DISTRIBUTIONS
       Mojolicious 5.66
       Test::More 0
       perl 5.010001
+  Mojo-JWT-0.07
+    pathname: J/JB/JBERGER/Mojo-JWT-0.07.tar.gz
+    provides:
+      Mojo::JWT 0.07
+    requirements:
+      Digest::SHA 0
+      MIME::Base64 3.11
+      Module::Build::Tiny 0
+      Mojolicious 5.00
   Mojo-Pg-4.08
     pathname: S/SR/SRI/Mojo-Pg-4.08.tar.gz
     provides:
@@ -3669,10 +3678,10 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Test-PostgreSQL-1.25
-    pathname: T/TJ/TJC/Test-PostgreSQL-1.25.tar.gz
+  Test-PostgreSQL-1.26
+    pathname: T/TJ/TJC/Test-PostgreSQL-1.26.tar.gz
     provides:
-      Test::PostgreSQL 1.25
+      Test::PostgreSQL 1.26
     requirements:
       DBD::Pg 0
       DBI 0
@@ -3841,44 +3850,44 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Type-Tiny-1.002001
-    pathname: T/TO/TOBYINK/Type-Tiny-1.002001.tar.gz
+  Type-Tiny-1.002002
+    pathname: T/TO/TOBYINK/Type-Tiny-1.002002.tar.gz
     provides:
-      Devel::TypeTiny::Perl56Compat 1.002001
-      Devel::TypeTiny::Perl58Compat 1.002001
-      Error::TypeTiny 1.002001
-      Error::TypeTiny::Assertion 1.002001
-      Error::TypeTiny::Compilation 1.002001
-      Error::TypeTiny::WrongNumberOfParameters 1.002001
-      Eval::TypeTiny 1.002001
-      Reply::Plugin::TypeTiny 1.002001
-      Test::TypeTiny 1.002001
-      Type::Coercion 1.002001
-      Type::Coercion::FromMoose 1.002001
-      Type::Coercion::Union 1.002001
-      Type::Library 1.002001
-      Type::Params 1.002001
-      Type::Parser 1.002001
-      Type::Registry 1.002001
-      Type::Tiny 1.002001
-      Type::Tiny::Class 1.002001
-      Type::Tiny::Duck 1.002001
-      Type::Tiny::Enum 1.002001
-      Type::Tiny::Intersection 1.002001
-      Type::Tiny::Role 1.002001
-      Type::Tiny::Union 1.002001
-      Type::Utils 1.002001
-      Types::Common::Numeric 1.002001
-      Types::Common::String 1.002001
-      Types::Standard 1.002001
-      Types::Standard::ArrayRef 1.002001
-      Types::Standard::CycleTuple 1.002001
-      Types::Standard::Dict 1.002001
-      Types::Standard::HashRef 1.002001
-      Types::Standard::Map 1.002001
-      Types::Standard::ScalarRef 1.002001
-      Types::Standard::Tuple 1.002001
-      Types::TypeTiny 1.002001
+      Devel::TypeTiny::Perl56Compat 1.002002
+      Devel::TypeTiny::Perl58Compat 1.002002
+      Error::TypeTiny 1.002002
+      Error::TypeTiny::Assertion 1.002002
+      Error::TypeTiny::Compilation 1.002002
+      Error::TypeTiny::WrongNumberOfParameters 1.002002
+      Eval::TypeTiny 1.002002
+      Reply::Plugin::TypeTiny 1.002002
+      Test::TypeTiny 1.002002
+      Type::Coercion 1.002002
+      Type::Coercion::FromMoose 1.002002
+      Type::Coercion::Union 1.002002
+      Type::Library 1.002002
+      Type::Params 1.002002
+      Type::Parser 1.002002
+      Type::Registry 1.002002
+      Type::Tiny 1.002002
+      Type::Tiny::Class 1.002002
+      Type::Tiny::Duck 1.002002
+      Type::Tiny::Enum 1.002002
+      Type::Tiny::Intersection 1.002002
+      Type::Tiny::Role 1.002002
+      Type::Tiny::Union 1.002002
+      Type::Utils 1.002002
+      Types::Common::Numeric 1.002002
+      Types::Common::String 1.002002
+      Types::Standard 1.002002
+      Types::Standard::ArrayRef 1.002002
+      Types::Standard::CycleTuple 1.002002
+      Types::Standard::Dict 1.002002
+      Types::Standard::HashRef 1.002002
+      Types::Standard::Map 1.002002
+      Types::Standard::ScalarRef 1.002002
+      Types::Standard::Tuple 1.002002
+      Types::TypeTiny 1.002002
     requirements:
       Exporter::Tiny 0.026
       ExtUtils::MakeMaker 6.17

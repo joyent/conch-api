@@ -11,9 +11,37 @@ Conch::Controller::User
 package Conch::Controller::User;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::Model::User;
 use Mojo::Exception;
 
+use Conch::Model::User;
+use Conch::Model::SessionToken;
+use Conch::UUID qw( is_uuid );
+
+=head2 revoke_tokens
+
+Override the settings for a user with the provided payload
+
+=cut
+
+sub revoke_tokens ($c) {
+	return $c->status( 403, { error => 'Must be global admin' } )
+		unless $c->is_global_admin;
+
+	my $user_param = $c->param('id');
+	my $user;
+	if ( is_uuid($user_param) ) {
+		$user = Conch::Model::User->lookup($user_param);
+	}
+	elsif ( $user_param =~ s/^email\=// ) {
+		$user = Conch::Model::User->lookup_by_email($user_param);
+	}
+	return $c->status( 404, { error => "user $user_param not found" } )
+		unless $user;
+
+	Conch::Model::SessionToken->revoke_user_tokens( $user->id );
+
+	$c->status(204);
+}
 
 =head2 set_settings
 
@@ -33,7 +61,6 @@ sub set_settings ($c) {
 
 	$c->status(200);
 }
-
 
 =head2 set_setting
 
@@ -66,7 +93,6 @@ sub set_setting ($c) {
 	}
 }
 
-
 =head2 get_settings
 
 Get the key/values of every setting for a User
@@ -86,7 +112,6 @@ sub get_settings ($c) {
 
 	$c->status( 200, \%output );
 }
-
 
 =head2 get_setting
 
@@ -108,7 +133,6 @@ sub get_setting ($c) {
 
 	$c->status( 200, { $key => $settings->{$key} } );
 }
-
 
 =head2 delete_setting
 
@@ -138,7 +162,6 @@ sub delete_setting ($c) {
 
 1;
 
-
 __DATA__
 
 =pod
@@ -152,4 +175,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
