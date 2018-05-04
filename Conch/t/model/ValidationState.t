@@ -106,6 +106,18 @@ subtest "latest completed validation state" => sub {
 		$device->id, $validation_plan->id );
 	isa_ok( $latest, 'Conch::Model::ValidationState' );
 
+	my @device_latest =
+		Conch::Model::ValidationState->latest_completed_states_for_device(
+		$device->id )->@*;
+
+	is( scalar @device_latest, 1);
+	is_deeply($latest, $device_latest[0]);
+
+	my @devices_latest =
+		Conch::Model::ValidationState->latest_completed_states_for_devices(
+		[ $device->id ] )->@*;
+	is_deeply(\@device_latest, \@devices_latest);
+
 	my $new_state =
 		Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
 	$new_state->mark_completed('pass');
@@ -234,6 +246,24 @@ subtest 'grouped_by_validation_states' => sub {
 			},
 		],
 		'Groups return in sorted order by most recent completed state first'
+	);
+};
+
+subtest 'SQL injection in ->latestcompleted_states_for_devices prevented' => sub {
+	$pg->db->query('create table foobar (id int)');
+	my $poison_device_id =
+		"')) tmp (id) on vs.device_id = tmp.id; drop table foobar; select * from validation_state vs join (values ('}";
+	my @states;
+	lives_ok {
+		@states =
+		Conch::Model::ValidationState->latest_completed_states_for_devices(
+			[$device->id, $poison_device_id] )->@*
+	};
+	is( scalar @states, 1, "should have non-poison state");
+	is(
+		$pg->db->query("select 1 from (select to_regclass('foobar')) a where a.to_regclass is not null")->rows,
+		1,
+		"table wasn't dropped by injection"
 	);
 };
 

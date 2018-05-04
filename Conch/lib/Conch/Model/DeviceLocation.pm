@@ -24,7 +24,7 @@ Find a DeviceLocation by Device ID or return undef.
 =cut
 sub lookup ( $self, $device_id ) {
 	my $ret = Conch::Pg->new->db->query(
-		qq{
+		q{
     SELECT
       loc.rack_unit AS location_rack_unit,
 

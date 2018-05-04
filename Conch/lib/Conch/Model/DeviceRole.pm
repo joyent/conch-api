@@ -117,7 +117,7 @@ Returns a DeviceRole given an existing uuid
 sub from_id ($class, $id) {
 	my $ret;
 	try {
-		$ret = Conch::Pg->new->db->query(qq|
+		$ret = Conch::Pg->new->db->query(q|
 			select r.*, array(
 				select drs.service_id
 				from device_role_services drs
@@ -149,7 +149,7 @@ Return all DeviceRoles
 sub all ($class) {
 	my $ret;
 	try {
-		$ret = Conch::Pg->new->db->query(qq|
+		$ret = Conch::Pg->new->db->query(q|
 			select r.*, array(
 				select drs.service_id
 				from device_role_services drs
@@ -191,7 +191,7 @@ sub add_service ($self, $service_uuid) {
 	return $self unless $self->id;
 	my $ret;
 	try {
-		$ret = Conch::Pg->new->db->query(qq|
+		$ret = Conch::Pg->new->db->query(q|
 			insert into device_role_services(role_id, service_id)
 			values( ?, ?)
 			on conflict do nothing
@@ -225,7 +225,7 @@ sub remove_service ($self, $service_uuid) {
 	return $self unless $self->id;
 	my $ret;
 	try {
-		$ret = Conch::Pg->new->db->query(qq|
+		$ret = Conch::Pg->new->db->query(q|
 			delete from device_role_services
 			where role_id = ? and service_id = ?
 		|, $self->id, $service_uuid);
