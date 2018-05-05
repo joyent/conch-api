@@ -127,22 +127,18 @@ Return all latest completed states for each plans for a given Device
 
 sub latest_completed_states_for_device ( $class, $device_id, @statuses ) {
 	my $fields = join( ', ', @$attrs );
-	my $p_index = 1;
-	my $status_condition =
-		@statuses
-		? "and status in (" . join( ', ', map { '$'.$p_index++ } @statuses ) . ")"
-		: "";
+	my $status_condition = @statuses ? "and status = any(?)" : "";
 	return Conch::Pg->new->db->query(
 		qq{
 		select distinct on (validation_plan_id) $fields
 		from validation_state
 		where
-			device_id = \$$p_index and
+			device_id = ? and
 			completed is not null
 			$status_condition
 		order by validation_plan_id, completed desc
 		},
-		( @statuses, $device_id )
+		( $device_id, @statuses ? \@statuses : () )
 	)->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 
@@ -157,12 +153,8 @@ sub latest_completed_states_for_devices ( $class, $device_ids, @statuses ) {
 
 	my $fields = join( ', ', map { "vs.$_" } @$attrs );
 
-	my $p_index = 1;
-	my $device_values = join( ', ', map { '($'.$p_index++.')' } @$device_ids );
-	my $status_condition =
-		@statuses
-		? "and vs.status in (" . join( ', ', map { '$'.$p_index++ } @statuses ) . ")"
-		: "";
+	my $device_values = join( ', ', map { '(?)' } @$device_ids );
+	my $status_condition = @statuses ? "and vs.status = any(?)" : "";
 
 	return Conch::Pg->new->db->query(
 		qq{
@@ -177,7 +169,7 @@ sub latest_completed_states_for_devices ( $class, $device_ids, @statuses ) {
 			vs.device_id,
 			vs.validation_plan_id,
 			vs.completed desc
-		}, (@$device_ids, @statuses)
+		}, ( @$device_ids, @statuses ? \@statuses : () )
 	)->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 

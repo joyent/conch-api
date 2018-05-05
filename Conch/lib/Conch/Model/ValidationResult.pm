@@ -137,9 +137,7 @@ sub grouped_by_validation_states ( $class, $validation_states ) {
 	my @validation_state_ids = keys %groups;
 
 	my $fields = join( ', ', map { 'r.' . $_ } @$attrs );
-	my $p_index = 1;
-	my $values =
-		join( ', ', map { '($' . $p_index++ . '::uuid)' } @validation_state_ids );
+	my $values = join( ', ', map { '(?::uuid)' } @validation_state_ids );
 	Conch::Pg->new->db->query(
 		qq{
 			select m.validation_state_id state_id, $fields
