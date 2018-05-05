@@ -147,6 +147,21 @@ sub startup {
 		}
 	);
 
+	$self->hook(
+		before_routes => sub {
+			my $c = shift;
+			my $headers = $c->req->headers;
+			# Preventative check against CSRF. Cross-origin requests can only
+			# specify application/x-www-form-urlencoded, multipart/form-data,
+			# and text/plain Content Types without triggering CORS checks in the browser.
+			# Appropriate CORS headers must still be added by the serving proxy
+			# to be effective against CSRF.
+			if ( $headers->content_length && ! $headers->content_type =~ /application\/json/ ) {
+				return $c->status(415);
+			}
+		}
+	);
+
 	# Render exceptions and Not Found as JSON
 	$self->hook(
 		before_render => sub {
