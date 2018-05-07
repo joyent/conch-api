@@ -213,7 +213,7 @@ workspace assignment.
 =cut
 sub rack_in_parent_workspace ( $self, $ws_id, $rack_id ) {
 	return Conch::Pg->new->db->query(
-		qq{
+		q{
       WITH parent_workspace (id) AS (
         SELECT ws.parent_workspace_id
         FROM workspace ws
@@ -296,7 +296,7 @@ sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
 
 	# Remove rack ID from workspace and all children workspaces
 	$db->query(
-		qq{
+		q{
       WITH RECURSIVE workspace_and_children (id) AS (
           SELECT id
           FROM workspace

@@ -127,21 +127,18 @@ Return all latest completed states for each plans for a given Device
 
 sub latest_completed_states_for_device ( $class, $device_id, @statuses ) {
 	my $fields = join( ', ', @$attrs );
-	my $status_condition =
-		@statuses
-		? "status in (" . join( ', ', map { "'$_'" } @statuses ) . ")"
-		: " 1 = 1 ";
+	my $status_condition = @statuses ? "and status = any(?)" : "";
 	return Conch::Pg->new->db->query(
 		qq{
 		select distinct on (validation_plan_id) $fields
 		from validation_state
 		where
 			device_id = ? and
-			completed is not null and
+			completed is not null
 			$status_condition
 		order by validation_plan_id, completed desc
 		},
-		$device_id
+		( $device_id, @statuses ? \@statuses : () )
 	)->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 
@@ -155,26 +152,24 @@ sub latest_completed_states_for_devices ( $class, $device_ids, @statuses ) {
 	return [] unless scalar @$device_ids;
 
 	my $fields = join( ', ', map { "vs.$_" } @$attrs );
-	my $values = join( ', ', map { "('$_')" } @$device_ids );
-	my $status_condition =
-		@statuses
-		? "vs.status in (" . join( ', ', map { "'$_'" } @statuses ) . ")"
-		: "1 = 1";
+
+	my $device_values = join( ', ', map { '(?)' } @$device_ids );
+	my $status_condition = @statuses ? "and vs.status = any(?)" : "";
 
 	return Conch::Pg->new->db->query(
 		qq{
 		select distinct on (vs.device_id, vs.validation_plan_id) $fields
 		from validation_state vs
-		join ( values $values) tmp (id)
+		join ( values $device_values) tmp (id)
 			on vs.device_id = tmp.id
 		where
-			vs.completed is not null and
+			vs.completed is not null
 			$status_condition
 		order by
 			vs.device_id,
 			vs.validation_plan_id,
 			vs.completed desc
-		},
+		}, ( @$device_ids, @statuses ? \@statuses : () )
 	)->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 

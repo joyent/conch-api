@@ -22,7 +22,7 @@ List all devices located in workspace.
 sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 	my $last_seen_clause =
 		$last_seen_seconds
-		? "AND device.last_seen > NOW() - INTERVAL '$last_seen_seconds seconds'"
+		? "AND device.last_seen > NOW() - ? * interval '1 second'"
 		: '';
 
 	my $ret = Conch::Pg->new->db->query(
@@ -48,7 +48,7 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 			)
 		  )
   		$last_seen_clause
-	}, $ws_id
+	}, ($ws_id, $last_seen_seconds || () )
 	)->hashes;
 
 	my @devices;

@@ -50,7 +50,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 	# find relay locations based on the device most recently reported through the
 	# relay
 	my $relay_locations = $db->query(
-		qq{
+		q{
         SELECT drc1.relay_id, rack.id as rack_id, rack.name as rack_name,
           room.az as room_name, role.name as role_name
         FROM device_relay_connection drc1
@@ -82,7 +82,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 		? "AND updated >= NOW() - INTERVAL '$interval_minutes minutes'"
 		: '';
 	my $relays = $db->query(
-		qq{
+		q{
       SELECT relay.*
       FROM relay
       WHERE id = ANY (?)
@@ -104,7 +104,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 	for my $relay (@$relays) {
 		my $devices = [];
 		my $ret     = $db->query(
-			qq{
+			q{
         SELECT device.*
         FROM relay r
         INNER JOIN device_relay_connection dr
