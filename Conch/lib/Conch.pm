@@ -48,7 +48,7 @@ sub startup {
 	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
 
-	my %features = $self->config('features') ? 
+	my %features = $self->config('features') ?
 		$self->config('features')->%* : () ;
 
 	$self->helper(
@@ -148,19 +148,22 @@ sub startup {
 	);
 
 	$self->hook(
+		# Preventative check against CSRF. Cross-origin requests can only
+		# specify application/x-www-form-urlencoded, multipart/form-data,
+		# and text/plain Content Types without triggering CORS checks in the browser.
+		# Appropriate CORS headers must still be added by the serving proxy
+		# to be effective against CSRF.
 		before_routes => sub {
 			my $c = shift;
 			my $headers = $c->req->headers;
-			# Preventative check against CSRF. Cross-origin requests can only
-			# specify application/x-www-form-urlencoded, multipart/form-data,
-			# and text/plain Content Types without triggering CORS checks in the browser.
-			# Appropriate CORS headers must still be added by the serving proxy
-			# to be effective against CSRF.
-			if($headers->content_length) {
-				unless ($headers->content_type) {
-					return $c->status(415);
-				}
-				if($headers->content_type !~ /application\/json/i) {
+
+			# Check only applies to requests with payloads (Content-Length
+			# header is specified and greater than 0). Content-Type header must
+			# be specified and must be 'application/json' for all payloads, or
+			# HTTP status code 415 'Unsupported Media Type' is returned.
+			if ( $headers->content_length ) {
+				unless ( $headers->content_type
+					&& $headers->content_type =~ /application\/json/i) {
 					return $c->status(415);
 				}
 			}

@@ -151,7 +151,7 @@ subtest 'Register relay' => sub {
 subtest 'Device Report' => sub {
 	my $report =
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
-	$t->post_ok( '/device/TEST', $report )->status_is(200)
+	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
 		->json_is( '/health', 'PASS' );
 };
 
@@ -485,7 +485,7 @@ subtest 'Device location' => sub {
 		json => { rack_id => $rack_id, rack_unit => 3 } )->status_is(303)
 		->header_like( Location => qr!/device/TEST/location$! );
 
-	$t->delete_ok('/device/TEST/location', 'can delete device location')->status_is(204);
+	$t->delete_ok('/device/TEST/location')->status_is(204, 'can delete device location');
 };
 
 
