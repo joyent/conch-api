@@ -156,8 +156,13 @@ sub startup {
 			# and text/plain Content Types without triggering CORS checks in the browser.
 			# Appropriate CORS headers must still be added by the serving proxy
 			# to be effective against CSRF.
-			if ( $headers->content_length && ! $headers->content_type =~ /application\/json/ ) {
-				return $c->status(415);
+			if($headers->content_length) {
+				unless ($headers->content_type) {
+					return $c->status(415);
+				}
+				if($headers->content_type !~ /application\/json/i) {
+					return $c->status(415);
+				}
 			}
 		}
 	);
