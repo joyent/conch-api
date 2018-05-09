@@ -43,16 +43,10 @@ sub workspace_validation_states ($c) {
 		);
 	}
 
-	my $workspace_devices = Conch::Model::WorkspaceDevice->new->list(
-		$c->stash('current_workspace')->id );
-
-	my $validation_states =
-		Conch::Model::ValidationState->latest_completed_states_for_devices(
-		[ map { $_->id } @$workspace_devices ], @statuses );
-
 	my $validation_state_groups =
-		Conch::Model::ValidationResult->grouped_by_validation_states(
-		$validation_states);
+		Conch::Model::ValidationState
+		->latest_completed_grouped_states_for_workspace(
+		$c->stash('current_workspace')->id, @statuses );
 
 	my @output = map {
 		{ $_->{state}->TO_JSON->%*, results => $_->{results} };
@@ -71,7 +65,7 @@ __DATA__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
