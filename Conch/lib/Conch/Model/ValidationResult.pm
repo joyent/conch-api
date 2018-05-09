@@ -19,7 +19,7 @@ use constant {
 	STATUS_PASS  => 'pass'
 };
 
-my $attrs = [
+our $attrs = [
 	qw(id device_id hardware_product_id validation_id message hint status
 		category component_id result_order)
 ];
@@ -116,47 +116,6 @@ sub lookup ( $class, $id ) {
 		Conch::Pg->new->db->select( 'validation_result', $attrs, { id => $id } )
 		->hash;
 	return $class->new( $ret->%* ) if $ret;
-}
-
-=head2 grouped_by_validation_states
-
-Given a list of ValidationState objects, group associated validation results.
-
-Returns an array ref of hash refs with two keys. Key 'state' is a
-ValidationState object, and key 'results' is an array ref of all
-ValidationResult objects associated with the validation state.
-
-=cut
-
-sub grouped_by_validation_states ( $class, $validation_states ) {
-	return [] unless scalar @$validation_states;
-
-	my %groups =
-		map { ( $_->id => { state => $_, results => [] } ) } $validation_states->@*;
-
-	my @validation_state_ids = keys %groups;
-
-	my $fields = join( ', ', map { 'r.' . $_ } @$attrs );
-	my $values = join( ', ', map { '(?::uuid)' } @validation_state_ids );
-	Conch::Pg->new->db->query(
-		qq{
-			select m.validation_state_id state_id, $fields
-			from validation_state_member m
-			join ( values $values) tmp(id)
-				on m.validation_state_id = tmp.id
-			join validation_result r
-				on r.id = m.validation_result_id
-			}, @validation_state_ids
-		)->hashes->map(
-		sub {
-			my %ret      = shift->%*;
-			my $state_id = delete $ret{state_id};
-			push @{ $groups{$state_id}->{results} }, $class->new(%ret);
-			1;
-		}
-		);
-	return [ sort { $b->{state}->completed cmp $a->{state}->completed }
-			values %groups ];
 }
 
 1;
