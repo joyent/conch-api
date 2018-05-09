@@ -393,16 +393,30 @@ subtest 'JWT authentication' => sub {
 		->status_is( 401, "Cannot use old token" );
 	$t->post_ok( '/refresh_token',
 		{ Authorization => "Bearer $jwt_token.$jwt_sig" } )
-		->status_is( 401, "Cannot reuse refresh token with old JWT" );
+		->status_is( 401, "Cannot reuse token with old JWT" );
 
 	$t->post_ok(
 		'/user/email=conch@conch.joyent.us/revoke',
 		{ Authorization => "Bearer $new_jwt_token" }
-	)->status_is( 204, "Revoke all refresh tokens for user" );
+	)->status_is( 204, "Revoke all tokens for user" );
 	$t->get_ok( "/workspace", { Authorization => "Bearer $new_jwt_token" } )
-		->status_is( 401, "Cannot use after full revocation" );
+		->status_is( 401, "Cannot use after user revocation" );
 	$t->post_ok( '/refresh_token', { Authorization => "Bearer $new_jwt_token" } )
-		->status_is( 401, "Cannot refresh after full revocation" );
+		->status_is( 401, "Cannot after user revocation" );
+
+	$t->post_ok(
+		"/login" => json => {
+			user     => 'conch',
+			password => 'conch'
+		}
+	)->status_is(200);
+	my $jwt_token_2 = $t->tx->res->json->{jwt_token};
+	$t->post_ok(
+		'/user/me/revoke',
+		{ Authorization => "Bearer $jwt_token_2" }
+	)->status_is( 204, "Revoke tokens for self" );
+	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token_2" } )
+		->status_is( 401, "Cannot use after self revocation" );
 };
 
 done_testing();

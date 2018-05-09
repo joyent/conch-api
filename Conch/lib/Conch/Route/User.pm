@@ -27,7 +27,8 @@ Sets up routes for the /user namespace
 sub user_routes {
 	my $r = shift;
 
-	$r->post('/#id/revoke')->to('user#revoke_tokens');
+	$r->post('/me/revoke')->to('user#revoke_own_tokens');
+	$r->post('/#id/revoke')->to('user#revoke_user_tokens');
 
 	$r->get('/me/settings')->to('user#get_settings');
 	$r->post('/me/settings')->to('user#set_settings');

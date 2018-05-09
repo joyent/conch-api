@@ -17,13 +17,25 @@ use Conch::Model::User;
 use Conch::Model::SessionToken;
 use Conch::UUID qw( is_uuid );
 
-=head2 revoke_tokens
+=head2 revoke_own_tokens
 
-Override the settings for a user with the provided payload
+Revoke the user's own session tokens.
+B<NOTE>: This will cause the next request to fail authentication.
 
 =cut
 
-sub revoke_tokens ($c) {
+sub revoke_own_tokens ($c) {
+	Conch::Model::SessionToken->revoke_user_tokens( $c->stash('user_id' ) );
+	$c->status(204);
+}
+
+=head2 revoke_user_tokens
+
+Revoke a specified user's session tokens. Global admin only.
+
+=cut
+
+sub revoke_user_tokens ($c) {
 	return $c->status( 403, { error => 'Must be global admin' } )
 		unless $c->is_global_admin;
 
