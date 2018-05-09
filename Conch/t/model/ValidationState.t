@@ -22,6 +22,12 @@ my $pg    = Conch::Pg->new( $pgtmp->uri );
 my $validation_plan =
 	Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
 
+my $real_validation = Conch::Model::Validation->create(
+	'product_name', 1,
+	'test validation',
+	'Conch::Validation::DeviceProductName'
+);
+
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
 	{ name      => 'test vendor' },
@@ -106,18 +112,6 @@ subtest "latest completed validation state" => sub {
 		$device->id, $validation_plan->id );
 	isa_ok( $latest, 'Conch::Model::ValidationState' );
 
-	my @device_latest =
-		Conch::Model::ValidationState->latest_completed_states_for_device(
-		$device->id )->@*;
-
-	is( scalar @device_latest, 1);
-	is_deeply($latest, $device_latest[0]);
-
-	my @devices_latest =
-		Conch::Model::ValidationState->latest_completed_states_for_devices(
-		[ $device->id ] )->@*;
-	is_deeply(\@device_latest, \@devices_latest);
-
 	my $new_state =
 		Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
 	$new_state->mark_completed('pass');
@@ -186,11 +180,6 @@ subtest "run validation plan" => sub {
 	is( $new_state->status, 'pass', 'Passes though no results stored' );
 
 	require Conch::Validation::DeviceProductName;
-	my $real_validation = Conch::Model::Validation->create(
-		'product_name', 1,
-		'test validation',
-		'Conch::Validation::DeviceProductName'
-	);
 
 	$validation_plan->add_validation($real_validation);
 
@@ -216,22 +205,29 @@ subtest "run validation plan" => sub {
 		'Validation state should be pass because all results passed' );
 };
 
-subtest 'grouped_by_validation_states' => sub {
+subtest 'latest_completed_grouped_states_for_device' => sub {
+	my $latest_state =
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+		$validation_plan->id, { product_name => 'test hw product' } );
 	my $groups =
-		Conch::Model::ValidationResult->grouped_by_validation_states(
-		[$validation_state] );
-	my $results = $validation_state->validation_results;
+		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
+		$device->id
+	);
+	my $results = $latest_state->validation_results;
 	is( scalar $groups->@*, 1 );
-	is_deeply( $groups->[0]->{state},   $validation_state );
+	is_deeply( $groups->[0]->{state},   $latest_state );
 	is_deeply( $groups->[0]->{results}, $results );
 
+	my $validation_plan_1 =
+		Conch::Model::ValidationPlan->create( 'test_1', 'test validation plan' );
+	$validation_plan_1->add_validation($real_validation);
 	my $new_state =
 		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, {} );
+		$validation_plan_1->id, {} );
 	my $new_results = $new_state->validation_results;
 	$groups =
-		Conch::Model::ValidationResult->grouped_by_validation_states(
-		[ $validation_state, $new_state ] );
+		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
+			$device->id );
 	is( scalar $groups->@*, 2 );
 	is_deeply(
 		$groups,
@@ -241,7 +237,7 @@ subtest 'grouped_by_validation_states' => sub {
 				results => $new_results
 			},
 			{
-				state   => $validation_state,
+				state   => $latest_state,
 				results => $results
 			},
 		],
@@ -249,22 +245,5 @@ subtest 'grouped_by_validation_states' => sub {
 	);
 };
 
-subtest 'SQL injection in ->latestcompleted_states_for_devices prevented' => sub {
-	$pg->db->query('create table foobar (id int)');
-	my $poison_device_id =
-		"')) tmp (id) on vs.device_id = tmp.id; drop table foobar; select * from validation_state vs join (values ('}";
-	my @states;
-	lives_ok {
-		@states =
-		Conch::Model::ValidationState->latest_completed_states_for_devices(
-			[$device->id, $poison_device_id] )->@*
-	};
-	is( scalar @states, 1, "should have non-poison state");
-	is(
-		$pg->db->query("select 1 from (select to_regclass('foobar')) a where a.to_regclass is not null")->rows,
-		1,
-		"table wasn't dropped by injection"
-	);
-};
 
 done_testing();

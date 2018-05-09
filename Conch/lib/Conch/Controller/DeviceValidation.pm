@@ -25,7 +25,7 @@ sub list_validation_states ($c) {
 	my @statuses;
 	@statuses = map { lc($_) } split /,\s*/, $c->param('status')
 		if $c->param('status');
-	
+
 	if (
 		@statuses
 		&& notall {
@@ -46,13 +46,9 @@ sub list_validation_states ($c) {
 
 	my $device = $c->stash('current_device');
 
-	my $validation_states =
-		Conch::Model::ValidationState->latest_completed_states_for_device(
-		$device->id, @statuses );
-
 	my $validation_state_groups =
-		Conch::Model::ValidationResult->grouped_by_validation_states(
-		$validation_states);
+		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
+		$device->id, @statuses );
 
 	my @output = map {
 		{ $_->{state}->TO_JSON->%*, results => $_->{results} };
