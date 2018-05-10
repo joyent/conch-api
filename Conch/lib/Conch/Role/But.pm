@@ -5,7 +5,7 @@ Conch::Role::But
 =head1 SYNOPSIS
 
 	use Role::Tiny::With;
-	with 'Conch::Orc::Role::But';
+	with 'Conch::Role::But';
 
 	<in calling code>
 
