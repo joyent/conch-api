@@ -7,12 +7,7 @@ SELECT run_migration(30, $$
 		primary key (user_id, token_hash)
 	);
 
-	-- fast deleting of expired otkens
+	-- fast deleting of expired tokens
 	create index on user_session_token (expires asc);
-
-	create function delete_expired_tokens() returns void
-		as 'delete from user_session_token where expires <= now()'
-	language sql;
-
 $$);
 

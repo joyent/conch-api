@@ -53,7 +53,8 @@ Check if a session token is valid for the user ID. Returns 1 if valid, 0 otherwi
 
 sub check_token ( $class, $user_id, $token ) {
 
-	Conch::Pg->new->db->query( 'select delete_expired_tokens()' );
+	Conch::Pg->new->db->delete( 'user_session_token',
+		{ expires => { '<=' => 'now()' } } );
 
 	return Conch::Pg->new->db->query(
 		q{
@@ -68,7 +69,6 @@ sub check_token ( $class, $user_id, $token ) {
 	)->rows;
 }
 
-
 =head2 use_token
 
 Use a token by permanetly deleting it from the database. Will return 1 if the
@@ -78,7 +78,8 @@ token was present and valid, 0 otherwise.
 
 sub use_token ( $class, $user_id, $token ) {
 
-	Conch::Pg->new->db->query( 'select delete_expired_tokens()' );
+	Conch::Pg->new->db->delete( 'user_session_token',
+		{ expires => { '<=' => 'now()' } } );
 
 	return Conch::Pg->new->db->query(
 		q{
