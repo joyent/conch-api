@@ -16,7 +16,6 @@
 
 	features => {
 		audit          => 0,
-		orc            => 0,
 		rollbar        => 0,
 		new_validation => 1
 	},
