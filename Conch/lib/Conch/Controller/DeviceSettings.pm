@@ -59,8 +59,7 @@ sub set_single ($c) {
 
 	# TODO: This hard-coded setting dispatch is added for backwards
 	# compatibility with Conch v1.0.0.  It is to be removed once Conch-Relay
-	# and Conch-Rebooter are updated to use /device/:id/validated or the
-	# orchestration system is implemented
+	# and Conch-Rebooter are updated to use /device/:id/validated
 	if ($setting_key eq 'build.validated') {
 		$c->stash('current_device')->set_validated();
 	}

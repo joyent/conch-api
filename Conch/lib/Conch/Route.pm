@@ -22,8 +22,6 @@ use Conch::Route::Relay;
 use Conch::Route::HardwareProduct;
 use Conch::Route::Validation;
 
-use Conch::Route::Orc;
-
 use Exporter 'import';
 our @EXPORT = qw(
 	all_routes
@@ -87,10 +85,6 @@ sub all_routes {
 	user_routes( $secured->under('/user/me') );
 	hardware_product_routes($secured);
 	validation_routes($secured);
-
-	if ( $features->{orc} ) {
-		Conch::Route::Orc->load($secured);
-	}
 
 }
 
