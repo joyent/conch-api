@@ -8,6 +8,14 @@ definitions:
     properties:
       error:
         type: string
+  Login:
+    type: object
+    additionalProperties: false
+    required:
+      - jwt_token
+    properties:
+      jwt_token:
+        type: string
   DetailedDevice:
     type: object
     additionalProperties: false

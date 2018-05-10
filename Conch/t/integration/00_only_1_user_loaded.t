@@ -363,4 +363,60 @@ subtest 'Log out' => sub {
 		->json_is( '/error' => 'unauthorized' );
 };
 
+subtest 'JWT authentication' => sub {
+	$t->post_ok(
+		"/login" => json => {
+			user     => 'conch',
+			password => 'conch'
+		}
+	)->status_is(200)->json_has('/jwt_token');
+
+	my $jwt_token = $t->tx->res->json->{jwt_token};
+	my $jwt_sig   = $t->tx->res->cookie('jwt_sig')->value;
+
+	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token" } )
+		->status_is( 200,
+		"user can provide JWT token with cookie to authenticate" );
+	$t->reset_session;
+	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token.$jwt_sig" } )
+		->status_is( 200,
+		"user can provide Authentication header with full JWT to authenticate" );
+
+	$t->post_ok( '/refresh_token',
+		{ Authorization => "Bearer $jwt_token.$jwt_sig" } )->status_is(200)
+		->json_has('/jwt_token');
+
+	my $new_jwt_token = $t->tx->res->json->{jwt_token};
+	$t->get_ok( "/workspace", { Authorization => "Bearer $new_jwt_token" } )
+		->status_is( 200, "Can authenticate with new token" );
+	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token.$jwt_sig" } )
+		->status_is( 401, "Cannot use old token" );
+	$t->post_ok( '/refresh_token',
+		{ Authorization => "Bearer $jwt_token.$jwt_sig" } )
+		->status_is( 401, "Cannot reuse token with old JWT" );
+
+	$t->post_ok(
+		'/user/email=conch@conch.joyent.us/revoke',
+		{ Authorization => "Bearer $new_jwt_token" }
+	)->status_is( 204, "Revoke all tokens for user" );
+	$t->get_ok( "/workspace", { Authorization => "Bearer $new_jwt_token" } )
+		->status_is( 401, "Cannot use after user revocation" );
+	$t->post_ok( '/refresh_token', { Authorization => "Bearer $new_jwt_token" } )
+		->status_is( 401, "Cannot after user revocation" );
+
+	$t->post_ok(
+		"/login" => json => {
+			user     => 'conch',
+			password => 'conch'
+		}
+	)->status_is(200);
+	my $jwt_token_2 = $t->tx->res->json->{jwt_token};
+	$t->post_ok(
+		'/user/me/revoke',
+		{ Authorization => "Bearer $jwt_token_2" }
+	)->status_is( 204, "Revoke tokens for self" );
+	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token_2" } )
+		->status_is( 401, "Cannot use after self revocation" );
+};
+
 done_testing();

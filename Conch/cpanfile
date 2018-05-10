@@ -22,6 +22,7 @@ requires 'Mojolicious';
 requires 'Mojo::Pg';
 requires 'Mojo::JSON_XS';
 requires 'Mojo::Server::PSGI';
+requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Bcrypt';
 requires 'Mojolicious::Plugin::Util::RandomString';
 requires 'Mojolicious::Plugin::NYTProf';

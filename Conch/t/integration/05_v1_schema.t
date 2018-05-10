@@ -62,7 +62,7 @@ $t->post_ok(
 		user     => 'conch',
 		password => 'conch'
 	}
-)->status_is(200);
+)->status_is(200)->json_schema_is('Login');
 BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
