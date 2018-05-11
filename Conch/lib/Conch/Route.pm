@@ -45,9 +45,6 @@ sub all_routes {
 		}
 	);
 
-	my $render_index = sub { shift->render('index') };
-	$unsecured->get( '/',           $render_index );
-	$unsecured->get( '/index.html', $render_index );
 	$unsecured->get( '/doc',
 		sub { shift->reply->static('../public/doc/index.html') } );
 
