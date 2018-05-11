@@ -36,6 +36,8 @@ Set up the full route structure
 sub all_routes {
 	my $r = shift;
 	my $features = shift || {};
+	# CORS preflight check
+	$r->options('*', sub{ shift->status(204) });
 
 	my $unsecured = $r->under(
 		sub {

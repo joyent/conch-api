@@ -196,6 +196,27 @@ sub startup {
 		}
 	);
 
+	# This sets CORS headers suitable for development. More restrictive headers
+	# *should* be added by a reverse-proxy for production deployments.
+	# This will set 'Access-Control-Allow-Origin' to the request Origin, which
+	# means it's vulnerable to CSRF attacks. However, for developing browser
+	# apps locally, this is a necessary evil.
+	if ($self->mode eq 'development') {
+		$self->hook(
+			after_dispatch => sub {
+				my $c = shift;
+				my $origin = $c->req->headers->origin || '*';
+				$c->res->headers->header( 'Access-Control-Allow-Origin' => $origin );
+				$c->res->headers->header(
+					'Access-Control-Allow-Methods' => 'GET, PUT, POST, DELETE, OPTIONS' );
+				$c->res->headers->header( 'Access-Control-Max-Age' => 3600 );
+				$c->res->headers->header( 'Access-Control-Allow-Headers' =>
+						'Content-Type, Authorization, X-Requested-With' );
+				$c->res->headers->header( 'Access-Control-Allow-Credentials' => 'true' );
+			}
+		);
+	}
+
 	$self->plugin('Util::RandomString');
 	$self->plugin('Conch::Plugin::Mail');
 	$self->plugin('Conch::Plugin::GitVersion');
