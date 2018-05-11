@@ -168,6 +168,8 @@ sub session_login ($c) {
 
 	if ( $user->validate_password( $body->{password} ) ) {
 
+		$c->stash( user_id => $user->id );
+
 		my $feature_flags = $c->app->config('feature') || {};
 		unless ( $feature_flags->{stop_conch_cookie_issue} ) {
 			$c->session( 'user' => $user->id );
