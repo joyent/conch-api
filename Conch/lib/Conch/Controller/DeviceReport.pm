@@ -17,7 +17,6 @@ use Try::Tiny;
 
 use Conch::Legacy::Schema;
 use Conch::Legacy::Control::DeviceReport 'record_device_report';
-use Conch::Legacy::Control::Device::Validation 'validate_device';
 
 use Conch::Models;
 
@@ -51,29 +50,26 @@ sub process ($c) {
 
 	my ( $device, $report_id ) = record_device_report( $schema, $device_report );
 
-	my $features = $c->app->config('features') || {};
-
-	if ( $features->{new_validation} ) {
-		my $validation_plan;
-		if ( $device_report->{device_type}
-			&& $device_report->{device_type} eq "switch" )
-		{
-			$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
-				'Conch v1 Legacy Plan: Switch');
-		}
-		else {
-			$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
-				'Conch v1 Legacy Plan: Server');
-		}
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-			$validation_plan->id, $device_report );
+	my $validation_plan;
+	if ( $device_report->{device_type}
+		&& $device_report->{device_type} eq "switch" )
+	{
+		$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
+			'Conch v1 Legacy Plan: Switch');
+	}
+	else {
+		$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
+			'Conch v1 Legacy Plan: Server');
 	}
 
-	my $validation_result =
-		validate_device( $schema, $device, $device_report, $report_id,
-		$c->app->log );
+	my $validation_state =
+		Conch::Model::ValidationState->run_validation_plan( $device->id,
+		$validation_plan->id, $device_report );
 
-	$c->status( 200, $validation_result );
+	# this uses the DBIC object from record_device_report to do the update
+	$device->update( { health => uc( $validation_state->status ) } );
+
+	$c->status( 200, $validation_state );
 }
 
 1;

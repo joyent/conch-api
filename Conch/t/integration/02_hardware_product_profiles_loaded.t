@@ -16,11 +16,18 @@ my $uuid = Data::UUID->new;
 my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
 my $dbh = DBI->connect( $pgtmp->dsn );
 
+my $test_validation_plan = {
+	name        => 'Conch v1 Legacy Plan: Server',
+	description => 'Test Plan',
+	validations => [ { name => 'product_name', version => 1 } ]
+};
+
 my $t = Test::Mojo->new(
 	Conch => {
 		pg      => $pgtmp->uri,
-		secrets => ["********"]
-	}
+		secrets => ["********"],
+		preload_validation_plans => [ $test_validation_plan ]
+	},
 );
 
 my @test_sql_files = qw( 00-hardware.sql 01-hardware-profiles.sql );
@@ -72,7 +79,7 @@ subtest 'Device Report' => sub {
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is( 200,
 'Device reports process despite hardware profiles not having a zpool profile'
-	)->json_is( '/health', 'PASS' );
+	)->json_is( '/status', 'pass' );
 };
 
 subtest 'Hardware Product' => sub {

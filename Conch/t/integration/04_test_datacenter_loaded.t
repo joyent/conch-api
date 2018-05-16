@@ -27,7 +27,6 @@ my $t = Test::MojoSchema->new(
 	Conch => {
 		pg      => $pgtmp->uri,
 		secrets => ["********"],
-		features => { new_validation => 1 },
 		preload_validation_plans => [ $test_validation_plan ]
 	},
 );
@@ -152,7 +151,7 @@ subtest 'Device Report' => sub {
 	my $report =
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
-		->json_is( '/health', 'PASS' );
+		->json_is( '/status', 'pass' );
 };
 
 subtest 'Single device' => sub {
