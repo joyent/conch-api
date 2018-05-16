@@ -652,6 +652,39 @@ definitions:
       validation_id:
         type: string
         format: uuid
+  ValidationState:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - completed
+      - created
+      - device_id
+      - status
+      - validation_plan_id
+    properties:
+      id:
+        type: string
+        format: uuid
+      completed:
+        anyOf:
+          - type: null
+          - type: string
+            format: date-time
+      created:
+        type: string
+        format: date-time
+      device_id:
+        type: string
+      status:
+        type: string
+        enum:
+          - error
+          - fail
+          - pass
+      validation_plan_id:
+        type: string
+        format: uuid
   ValidationStatesWithResults:
     type: array
     items:

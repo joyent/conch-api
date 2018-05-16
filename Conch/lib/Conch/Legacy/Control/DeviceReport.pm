@@ -12,7 +12,6 @@ package Conch::Legacy::Control::DeviceReport;
 use strict;
 use Storable 'dclone';
 use Log::Any '$log';
-use Conch::Legacy::Control::Device::Environment;
 use Mojo::JSON qw(decode_json encode_json);
 
 use Data::Printer;
