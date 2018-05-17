@@ -24,7 +24,7 @@ Class::HardwareProduct objects
 
 sub list ($c) {
 	my $hardware_products = Conch::Model::HardwareProduct->new->list;
-	$c->status( 200, [ map { $_->as_v1_json } @$hardware_products ] );
+	$c->status( 200, [ map { $_->TO_JSON } @$hardware_products ] );
 }
 
 
@@ -42,7 +42,7 @@ sub get ($c) {
 		unless is_uuid($hw_id);
 	my $hw_attempt = Conch::Model::HardwareProduct->new->lookup($hw_id);
 	if ($hw_attempt) {
-		return $c->status( 200, $hw_attempt->as_v1_json );
+		return $c->status( 200, $hw_attempt->TO_JSON );
 	}
 	else {
 		return $c->status( 404, { error => "Hardware Product $hw_id not found" } );

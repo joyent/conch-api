@@ -36,11 +36,11 @@ has [
 ];
 
 
-=head2 as_v1_json
+=head2 TO_JSON
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self = shift;
 	return {
 		datacenter => {

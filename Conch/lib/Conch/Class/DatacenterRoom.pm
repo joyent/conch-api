@@ -28,11 +28,11 @@ has [qw( id az alias vendor_name )];
 
 
 
-=head2 as_v1_json
+=head2 TO_JSON
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self = shift;
 	{
 		id          => $self->id,

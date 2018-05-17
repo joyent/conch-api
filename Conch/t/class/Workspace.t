@@ -14,7 +14,7 @@ my $ws = new_ok(
 	]
 );
 
-is( $ws->as_v1_json->{parent_workspace_id},
+is( $ws->TO_JSON->{parent_workspace_id},
 	undef, 'parent workspace ID not published' );
 
 done_testing();

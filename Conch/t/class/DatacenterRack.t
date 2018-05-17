@@ -23,8 +23,8 @@ is(
 );
 
 TODO: {
-	local $TODO = "We never actually use as_v1_json in the codebase";
-	is_deeply( $rack->as_v1_json, \%attrs );
+	local $TODO = "We never actually use TO_JSON in the codebase";
+	is_deeply( $rack->TO_JSON, \%attrs );
 }
 
 done_testing();

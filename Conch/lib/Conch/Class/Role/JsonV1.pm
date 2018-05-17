@@ -19,13 +19,13 @@ use Data::Printer;
 
 
 
-=head2 as_v1_json
+=head2 TO_JSON
 
 Marshalls a hash-based object into a JSON object
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self   = shift;
 	my %fields = %$self;
 	return {%fields};
