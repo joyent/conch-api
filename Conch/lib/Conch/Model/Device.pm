@@ -52,12 +52,12 @@ sub new ( $class, %args ) {
 	$class->SUPER::new(%args);
 }
 
-=head2 as_v1
+=head2 TO_JSON
 
 Serialize a hash according to the v1 schema
 
 =cut
-sub as_v1 ($self) {
+sub TO_JSON ($self) {
 	{
 		asset_tag            => $self->asset_tag,
 		boot_phase           => $self->boot_phase,

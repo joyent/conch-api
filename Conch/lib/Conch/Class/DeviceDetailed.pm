@@ -43,7 +43,7 @@ has [
 
 sub TO_JSON {
 	my $self    = shift;
-	my $device  = $self->device->as_v1;
+	my $device  = $self->device->TO_JSON;
 	my @results = map { $_->{validation} } $self->validation_results->@*;
 
 	my $details = {

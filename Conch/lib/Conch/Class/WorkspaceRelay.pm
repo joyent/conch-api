@@ -76,7 +76,7 @@ sub TO_JSON {
 		ssh_port => $self->ssh_port,
 		updated  => $self->updated,
 		version  => $self->version,
-		devices  => [ map { $_->as_v1 } @{ $self->devices } ],
+		devices  => [ map { $_->TO_JSON } @{ $self->devices } ],
 		location => $self->location
 	};
 }
