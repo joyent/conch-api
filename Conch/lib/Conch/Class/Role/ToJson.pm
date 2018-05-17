@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Conch::Class::Role::JsonV1
+Conch::Class::Role::ToJson
 
 =head1 DESCRIPTION
 
@@ -12,7 +12,7 @@ A role to provide a common JSON serializer for the v1 conch JSON format
 
 =cut
 
-package Conch::Class::Role::JsonV1;
+package Conch::Class::Role::ToJson;
 use Mojo::Base -role, -signatures;
 
 use Data::Printer;

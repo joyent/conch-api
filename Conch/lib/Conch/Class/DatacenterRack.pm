@@ -12,7 +12,7 @@ package Conch::Class::DatacenterRack;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV1';
+with 'Conch::Class::Role::ToJson';
 
 =head2 id
 

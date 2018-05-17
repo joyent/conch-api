@@ -14,7 +14,7 @@ use Role::Tiny 'with';
 
 use Conch::Time;
 
-with 'Conch::Class::Role::JsonV1';
+with 'Conch::Class::Role::ToJson';
 
 =head2 alias
 
