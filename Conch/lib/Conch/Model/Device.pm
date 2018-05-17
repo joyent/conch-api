@@ -54,7 +54,7 @@ sub new ( $class, %args ) {
 
 =head2 TO_JSON
 
-Serialize a hash according to the v1 schema
+Serialize a hash
 
 =cut
 sub TO_JSON ($self) {

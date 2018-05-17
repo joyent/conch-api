@@ -6,7 +6,8 @@ Conch::Class::Role::ToJson
 
 =head1 DESCRIPTION
 
-A role to provide a common JSON serializer for the v1 conch JSON format
+A role to provide a common JSON serializer that serializes the fields of the
+object.
 
 =head1 METHODS
 
@@ -21,7 +22,8 @@ use Data::Printer;
 
 =head2 TO_JSON
 
-Marshalls a hash-based object into a JSON object
+Marshalls a hash-based object into a JSON object hash using the fields of the
+object.
 
 =cut
 

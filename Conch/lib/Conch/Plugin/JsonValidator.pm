@@ -52,7 +52,7 @@ use IO::All;
 use JSON::Validator;
 use Conch::UUID 'is_uuid';
 
-use constant OUTPUT_SCHEMA_FILE => "json-schema/v1.yaml";
+use constant OUTPUT_SCHEMA_FILE => "json-schema/response.yaml";
 use constant INPUT_SCHEMA_FILE => "json-schema/input.yaml";
 
 sub _add_uuid_validation($v) {
