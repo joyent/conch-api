@@ -73,7 +73,7 @@ sub get ($c) {
 		location           => $maybe_location
 	);
 
-	$c->status( 200, $detailed_device->TO_JSON );
+	$c->status( 200, $detailed_device );
 }
 
 =head2 graduate

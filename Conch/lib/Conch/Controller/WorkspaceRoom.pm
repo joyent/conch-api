@@ -25,7 +25,7 @@ sub list ($c) {
 	my $rooms = Conch::Model::WorkspaceRoom->new->list(
 		$c->stash('current_workspace')->id
 	);
-	$c->status( 200, [ map { $_->TO_JSON } @$rooms ] );
+	$c->status( 200, $rooms );
 }
 
 
