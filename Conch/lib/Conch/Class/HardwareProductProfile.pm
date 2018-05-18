@@ -116,7 +116,7 @@ sub TO_JSON {
 		ssd_size      => $self->ssd_size,
 		ssd_slots     => $self->ssd_slots,
 		usb_num       => $self->usb_num,
-		zpool         => $self->zpool && $self->zpool->TO_JSON
+		zpool         => $self->zpool
 	};
 }
 1;

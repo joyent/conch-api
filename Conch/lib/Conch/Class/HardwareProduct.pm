@@ -52,7 +52,7 @@ sub TO_JSON {
 		alias   => $self->alias,
 		prefix  => $self->prefix,
 		vendor  => $self->vendor,
-		profile => $self->profile && $self->profile->TO_JSON
+		profile => $self->profile
 	};
 }
 
