@@ -54,7 +54,7 @@ sub list ($c) {
 	my $wss = Conch::Model::Workspace->new->get_user_workspaces(
 		$c->stash('user_id')
 	);
-	$c->status( 200, [ map { $_->as_v1_json } @$wss ] );
+	$c->status( 200, $wss );
 }
 
 
@@ -66,7 +66,7 @@ Get the details of the current workspace
 
 sub get ($c) {
 	if ( $c->under ) {
-		$c->status( 200, $c->stash('current_workspace')->as_v1_json );
+		$c->status( 200, $c->stash('current_workspace') );
 	}
 	else {
 		return 0;
@@ -86,7 +86,7 @@ sub get_sub_workspaces ($c) {
 		$c->stash('user_id'),
 		$c->stash('current_workspace')->id
 	);
-	$c->status( 200, [ map { $_->as_v1_json } @$sub_wss ] );
+	$c->status( 200, $sub_wss );
 }
 
 
@@ -116,7 +116,7 @@ sub create_sub_workspace ($c) {
 	return $c->status( 500, { error => 'unable to create a sub-workspace' } )
 		unless $sub_ws_attempt;
 
-	$c->status( 201, $sub_ws_attempt->as_v1_json );
+	$c->status( 201, $sub_ws_attempt );
 }
 
 1;

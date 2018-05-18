@@ -29,7 +29,7 @@ sub get ($c) {
 		{ error => "Device $device_id is not assigned to a rack" } )
 		unless $maybe_location;
 
-	$c->status( 200, $maybe_location->as_v1_json );
+	$c->status( 200, $maybe_location );
 }
 
 

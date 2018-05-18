@@ -94,7 +94,7 @@ my $rack_id;
 subtest 'Workspace Racks' => sub {
 
 	note(
-"Variance: /rack in v1 returns a hash keyed by datacenter room AZ instead of an array"
+"Variance: /rack in returns a hash keyed by datacenter room AZ instead of an array"
 	);
 	$t->get_ok("/workspace/$id/rack")->status_is(200)
 		->json_is( '/test-region-1a/0/name', 'Test Rack',

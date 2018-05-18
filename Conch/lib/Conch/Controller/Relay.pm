@@ -58,7 +58,7 @@ sub list ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	$c->status(
 		200,
-		[ map { $_->as_v1_json } Conch::Model::Relay->new->list ]
+		Conch::Model::Relay->new->list
 	);
 }
 

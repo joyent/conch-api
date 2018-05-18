@@ -12,7 +12,7 @@ package Conch::Class::Workspace;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV1';
+with 'Conch::Class::Role::ToJson';
 
 
 
@@ -33,11 +33,11 @@ with 'Conch::Class::Role::JsonV1';
 has [qw( id name description parent_workspace_id role role_id )];
 
 
-=head2 as_v1_json
+=head2 TO_JSON
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self = shift;
 	{
 		id          => $self->id,

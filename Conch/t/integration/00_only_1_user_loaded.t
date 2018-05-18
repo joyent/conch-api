@@ -161,7 +161,7 @@ subtest 'Workspaces' => sub {
 			description => "Global workspace. Ancestor of all workspaces.",
 			parent_id   => undef,
 		},
-		'Workspace v1 data contract'
+		'Workspace data contract'
 	);
 
 	$t->get_ok( "/workspace/" . $uuid->create_str() )->status_is(404);
@@ -173,7 +173,7 @@ subtest 'Workspaces' => sub {
 			unlocated  => {},
 			unreported => {},
 		},
-		"Workspace Problem (empty) V1 Data Contract"
+		"Workspace Problem (empty) Data Contract"
 	);
 
 	$t->get_ok("/workspace/$id/user")->status_is(200);
@@ -186,7 +186,7 @@ subtest 'Workspaces' => sub {
 				role  => "Administrator",
 			}
 		],
-		"Workspace User v1 Data Contract"
+		"Workspace User Data Contract"
 	);
 
 };
@@ -218,7 +218,7 @@ subtest 'Sub-Workspace' => sub {
 					parent_id   => $id,
 				}
 			],
-			"Subworkspace List V1 Data Contract"
+			"Subworkspace List Data Contract"
 		);
 
 		$t->get_ok("/workspace/$sub_ws")->status_is(200);
@@ -231,7 +231,7 @@ subtest 'Sub-Workspace' => sub {
 				description => "also test",
 				parent_id   => $id,
 			},
-			"Subworkspace V1 Data Contract"
+			"Subworkspace Data Contract"
 		);
 	};
 };
@@ -244,7 +244,7 @@ subtest 'Workspace Rooms' => sub {
 subtest 'Workspace Racks' => sub {
 
 	note(
-"Variance: /rack in v1 returns a hash keyed by datacenter room AZ instead of an array"
+"Variance: /rack in returns a hash keyed by datacenter room AZ instead of an array"
 	);
 	$t->get_ok("/workspace/$id/rack")->status_is(200)
 		->json_is( '', {}, 'No racks available' );

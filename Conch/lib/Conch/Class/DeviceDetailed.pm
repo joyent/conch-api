@@ -12,7 +12,7 @@ package Conch::Class::DeviceDetailed;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV1';
+with 'Conch::Class::Role::ToJson';
 
 =head2 device
 
@@ -37,20 +37,20 @@ has [
 ];
 
 
-=head2 as_v1_json
+=head2 TO_JSON
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self    = shift;
-	my $device  = $self->device->as_v1;
+	my $device  = $self->device->TO_JSON;
 	my @results = map { $_->{validation} } $self->validation_results->@*;
 
 	my $details = {
 		latest_report => $self->latest_report,
 		validations   => \@results,
 		nics          => $self->nics,
-		location      => $self->location && $self->location->as_v1_json
+		location      => $self->location && $self->location->TO_JSON
 	};
 	return { %$device, %$details };
 }

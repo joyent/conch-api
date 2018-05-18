@@ -2,30 +2,32 @@
 
 =head1 NAME
 
-Conch::Class::Role::JsonV1
+Conch::Class::Role::ToJson
 
 =head1 DESCRIPTION
 
-A role to provide a common JSON serializer for the v1 conch JSON format
+A role to provide a common JSON serializer that serializes the fields of the
+object.
 
 =head1 METHODS
 
 =cut
 
-package Conch::Class::Role::JsonV1;
+package Conch::Class::Role::ToJson;
 use Mojo::Base -role, -signatures;
 
 use Data::Printer;
 
 
 
-=head2 as_v1_json
+=head2 TO_JSON
 
-Marshalls a hash-based object into a JSON object
+Marshalls a hash-based object into a JSON object hash using the fields of the
+object.
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self   = shift;
 	my %fields = %$self;
 	return {%fields};

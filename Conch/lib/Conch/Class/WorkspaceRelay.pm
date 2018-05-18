@@ -14,7 +14,7 @@ use Role::Tiny 'with';
 
 use Conch::Time;
 
-with 'Conch::Class::Role::JsonV1';
+with 'Conch::Class::Role::ToJson';
 
 =head2 alias
 
@@ -62,11 +62,11 @@ sub new {
 	$class->SUPER::new(%args);
 }
 
-=head2 as_v1_json
+=head2 TO_JSON
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self = shift;
 	{
 		id       => $self->id,
@@ -76,7 +76,7 @@ sub as_v1_json {
 		ssh_port => $self->ssh_port,
 		updated  => $self->updated,
 		version  => $self->version,
-		devices  => [ map { $_->as_v1 } @{ $self->devices } ],
+		devices  => $self->devices,
 		location => $self->location
 	};
 }

@@ -12,7 +12,7 @@ package Conch::Class::HardwareProductProfile;
 use Mojo::Base -base, -signatures;
 use Role::Tiny 'with';
 
-with 'Conch::Class::Role::JsonV1';
+with 'Conch::Class::Role::ToJson';
 
 =head2 id
 
@@ -88,11 +88,11 @@ has [
 ];
 
 
-=head2 as_v1_json
+=head2 TO_JSON
 
 =cut
 
-sub as_v1_json {
+sub TO_JSON {
 	my $self = shift;
 	{
 		id            => $self->id,
@@ -116,7 +116,7 @@ sub as_v1_json {
 		ssd_size      => $self->ssd_size,
 		ssd_slots     => $self->ssd_slots,
 		usb_num       => $self->usb_num,
-		zpool         => $self->zpool && $self->zpool->as_v1_json
+		zpool         => $self->zpool
 	};
 }
 1;
