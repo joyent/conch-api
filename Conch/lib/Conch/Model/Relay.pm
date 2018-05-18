@@ -125,7 +125,7 @@ sub list ( $self ) {
 		$r->{updated} = Conch::Time->new( $r->{updated} ) if $r->{updated};
 		push @relays, Conch::Class::Relay->new($r);
 	}
-	return @relays;
+	return \@relays;
 }
 
 1;
