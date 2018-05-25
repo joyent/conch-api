@@ -8,6 +8,14 @@ all devices.
 
 Conch is open source, licensed under MPL2.
 
+## Contents
+
+* [Design](#design)
+* [Development Process](#development-process)
+* [Components](#components)
+* [Features](#features)
+* [Roadmap](#roadmap)
+
 ## Design
 
 Major Conch features must be written as Request For Discussion documents (RFD).
@@ -267,7 +275,7 @@ Production is the longest (hopefully!) stage of a device during its lifecycle.
 
 - [ ] API and UI for marking devices retired
 
-## 2018 Roadmap
+## Roadmap
 
 ### 2018H1 Goals
 
