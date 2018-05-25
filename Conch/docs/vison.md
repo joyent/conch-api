@@ -28,9 +28,9 @@ Minor features require discussion (often in GitHub Issues or email) but not
 RFDs.
 
 Conch is designed in public as much as possible, though there some components
-that currently closed (until they can be scrubbed for security.)
+that are currently closed (until they can be scrubbed for security.)
 
-## Code Review Continuous Integration
+## Development Process
 
 All Pull Requests to Conch repos require code review by at least one engineer.
 
