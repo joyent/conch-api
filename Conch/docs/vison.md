@@ -36,7 +36,7 @@ All Pull Requests to Conch repos require code review by at least one engineer.
 
 A buildbot deployment runs the Conch testsuites for every commit.
 
-Binary releases of the Conch CLI are available [here](https://github.com/joyent/conch-shell/releases) for many platforms.
+Binary releases of the Conch Shell are available [here](https://github.com/joyent/conch-shell/releases) for many platforms.
 
 ## Similar Products
 
@@ -97,22 +97,22 @@ The UI is an API consumer, and is not magical in any respect.
 The UI is written in [Mithril.js](https://mithril.js.org/), and is available
 [here](https://github.com/joyent/conch-ui).
 
-### CLI
+### Conch Shell
 
-The Conch CLI tool provides many useful primitives for interacting with the
-Conch API. It supports multiple user profiles and endpoints, and has JSON output
-options to allow users to create arbitrary processes with it.
+The Conch Shell is a CLI tool provides many useful primitives for interacting
+with the Conch API. It supports multiple user profiles and endpoints, and has
+JSON output options to allow users to create arbitrary processes with it.
 
-The CLI has many options. Here are some examples of using it:
+The Shell has many options. Here are some examples of using it:
 
 * [Overview](https://gist.github.com/bdha/1a625f22e922cbba315b660f30c3681c)
 * [Rack slot contents](https://gist.github.com/bdha/5bcb8bf8321026c68e5b15c76bc77470)
 * [Validation plans](https://gist.github.com/bdha/ea93ddd19be5afa7ad21f52bfd6c7bde)
 * [Hardware profiles](https://gist.github.com/bdha/ac41b6953325580b614ff4e44b09c095)
 
-The CLI is an API consumer, and is not magical in any respect.
+The Shell is an API consumer, and is not magical in any respect.
 
-The CLI is written on Go, and is available [here](https://github.com/joyent/conch-shell).
+The Shell is written on Go, and is available [here](https://github.com/joyent/conch-shell).
 
 A Go library is also [available](https://github.com/joyent/go-conch) for interacting with the API.
 
