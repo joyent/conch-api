@@ -23,7 +23,6 @@ my $fields = q{
   hw_product.name AS hw_product_name,
   hw_product.alias AS hw_product_alias,
   hw_product.prefix AS hw_product_prefix,
-  hw_product.specification AS hw_product_specification,
   vendor.name AS hw_product_vendor,
 
   hw_profile.id AS hw_profile_id,
