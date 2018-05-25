@@ -195,6 +195,8 @@ The livesys codebase is currently closed, but is planned on being open ASAP.
 - [x] Validation engine
 - [x] User settings (KV)
 - [x] Device settings (KV)
+- [x] Feature flags
+- [ ] Validation configuration
 - [ ] Organizations
 - [ ] Organization settings (KV)
 - [x] Korean localization (partial)
