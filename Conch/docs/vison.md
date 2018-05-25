@@ -42,7 +42,7 @@ that are currently closed (until they can be scrubbed for security.)
 
 All Pull Requests to Conch repos require code review by at least one engineer.
 
-A buildbot deployment runs the Conch testsuites for every commit.
+A buildbot deployment runs the Conch test suites for every commit.
 
 Binary releases of the Conch Shell are available [here](https://github.com/joyent/conch-shell/releases) for many platforms.
 
