@@ -3,7 +3,8 @@
 Conch helps you build and manage datacenters.
 
 Conch's goal is to provide an end-to-end solution for full datacenter resource
-lifecycle: from design to initial power-on to end-of-life.
+lifecycle: from design to initial power-on to end-of-life for all components of
+all devices.
 
 Conch is open source, licensed under MPL2.
 
@@ -32,13 +33,15 @@ Binary releases of the Conch CLI are available [here](https://github.com/joyent/
 * netbox
 * device42
 * Commerical CMMS (e.g., Fiix)
+* GitHub Metal Cloud
 
 ## Components
 
 ### API
 
-Conch's core is its REST API. It exposes basic CRUD for all resources we know
-how to manage:
+Conch's core is its REST API. The API is documented [here](https://conch.joyent.us/doc).
+
+It exposes basic CRUD for all resources we know how to manage:
 
 * Users
 * Workspaces
@@ -50,8 +53,9 @@ how to manage:
 * Stats
 
 It also includes report ingestion and validation endpoints. These feed into the
-[validation engine](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md) which allows us to decide if a device is healthy or not,
-based off its hardware profile, environmental or arbitrary data.
+[validation engine](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md)
+which allows us to decide if a device is healthy or not, based off its hardware
+profile, environmental or arbitrary data.
 
 Writing and testing new validations is documented
 [here](https://github.com/joyent/conch/blob/master/Conch/docs/validation/Guide.md).
@@ -77,9 +81,9 @@ The UI is written in [Mithril.js](https://mithril.js.org/), and is available
 
 ### CLI
 
-The Conch CLI tool many useful primitives for interacting with the Conch API. It
-supports multiple user profiles and endpoints, and has JSON output options to
-allow users to create arbitrary processes with it.
+The Conch CLI tool provides many useful primitives for interacting with the
+Conch API. It supports multiple user profiles and endpoints, and has JSON output
+options to allow users to create arbitrary processes with it.
 
 The CLI has many options. Here are some examples of using it:
 
@@ -98,23 +102,8 @@ A Go library is also [available](https://github.com/joyent/go-conch) for interac
 
 Conch's core database is Postgres.
 
-Conch uses a simple migration system for database changes.
-
-### Livesys
-
-The live system is a read-only image the Relay PXE boots on servers.
-
-The livesys includes a number of agents:
-
-* Firmware upgrade
-* Reporter
-* Rebooter
-* Burnin
-* ...
-
-The livesys is configured via `chef-solo` cookbooks.
-
-The livesys codebase is currently closed, but is planned on being open ASAP.
+Conch uses a [simple migration system](https://github.com/joyent/conch/tree/master/sql)
+for managing database changes.
 
 ### Relay
 
@@ -152,6 +141,22 @@ re-validation mode. In the future, this mode may also allow the planned
 production inventory agent to submit reports to the Conch APIs from a local
 service.
 
+### Livesys
+
+The live system is a read-only Linux image the Relay PXE boots on servers.
+
+The livesys includes a number of agents:
+
+* Firmware upgrade
+* Reporter
+* Rebooter
+* Burnin
+* ...
+
+The livesys is configured via `chef-solo` cookbooks.
+
+The livesys codebase is currently closed, but is planned on being open ASAP.
+
 ## Features
 
 ### Architecture
@@ -166,6 +171,7 @@ service.
 - [x] Device settings (KV)
 - [ ] Organizations
 - [ ] Organization settings (KV)
+- [x] Korean localization (partial)
 
 ### Datacenter Design and Visualization
 
@@ -179,13 +185,19 @@ service.
 
 - [x] Server tracking
 - [x] TOR tracking
-- [ ] Discrete component tracking
+- [ ] Component database
+- [ ] Parts and supply tracking
 - [ ] Preventative maintenance
+- [ ] Maintenance schedules
+- [ ] Work orders via JIRA integration or similar
+- [ ] Spare management
 - [ ] Build reports
 - [ ] Failure reports
 - [ ] Validation/audit reports
 
 ### Procurement and RFQs
+
+- [ ] Emit full BOMs from a datacenter workspace
 
 ### Preflight
 
@@ -204,7 +216,9 @@ during hardware integration, or during datacenter standup.
 - [ ] TOR extended validation
 - [ ] TOR burnin
 - [x] Server/TOR network map validation
-- [ ] Network stress testing
+- [ ] Network stress testing (intra-rack)
+- [ ] Network stress testing (inter-rack)
+- [ ] Network stress testing (cross-DC)
 - [ ] Burnin/stress metrics stored in TSDB
 - [x] PDU firmware upgrade
 - [x] PDU configuration
@@ -231,8 +245,28 @@ Production is the longest (hopefully!) stage of a device during its lifecycle.
 
 ### Device Retirement
 
-## 2018H1 Goals
+- [ ] API and UI for marking devices retired
 
-## 2018H2 Goals
+## 2018 Roadmap
 
-## References
+### 2018H1 Goals
+
+* Triton CN setup automation
+* Network stress v1
+* Arista/Cisco TOR support
+* Audit report generation
+* Production inventory agent
+* Datacenter designer
+
+### 2018H2 Goals
+
+* Manta expansion automation
+* Switch VLAN API
+* Admin server install
+* Store burnin in TSDB
+* Reporting
+* Triton testing v2
+* Manta testing v2
+* Diagnostics mode
+* Multi-OS boot / burnin
+* BOM builder
