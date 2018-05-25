@@ -64,6 +64,12 @@ It exposes basic CRUD for all resources we know how to manage:
 * Validation failures
 * Stats
 
+Workspaces are arbitrary collections of Datacenter Rooms or Racks. This is
+useful for a number of reasons: You can define workspaces for AZs, for
+expansions, or for specific builds. You can invite specific users to a given
+workspace, allowing you to limit the devices an outside vendor can interact
+with. Workspaces are a very power, very useful primitive.
+
 It also includes report ingestion and validation endpoints. These feed into the
 [validation engine](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md)
 which allows us to decide if a device is healthy or not, based off its hardware
@@ -72,7 +78,7 @@ profile, environmental or arbitrary data.
 Writing and testing new validations is documented
 [here](https://github.com/joyent/conch/blob/master/Conch/docs/validation/Guide.md).
 
-The APIs are written in Perl's [Mojolicious framework](https://mojolicious.org/), and is available
+The APIs are written in Perl's [Mojolicious framework](https://mojolicious.org/), and are available
 [here](https://github.com/joyent/conch).
 
 A basic workspace-aware stats framework is available [here](https://github.com/joyent/conch-stats).
@@ -173,12 +179,12 @@ The livesys codebase is currently closed, but is planned on being open ASAP.
 
 ### Architecture
 
-- [x] [Multi-tentant web service]()
-- [x] [Basic user roles]()
-- [x] [Rest APIs]()
-- [x] [CLI tool]()
-- [x] [Workspaces]()
-- [x] [Validation engine]()
+- [x] Multi-tentant web service
+- [x] Basic user roles
+- [x] Rest APIs
+- [x] CLI tool
+- [x] Workspaces
+- [x] Validation engine
 - [x] User settings (KV)
 - [x] Device settings (KV)
 - [ ] Organizations
