@@ -68,7 +68,7 @@ Workspaces are arbitrary collections of Datacenter Rooms or Racks. This is
 useful for a number of reasons: You can define workspaces for AZs, for
 expansions, or for specific builds. You can invite specific users to a given
 workspace, allowing you to limit the devices an outside vendor can interact
-with. Workspaces are a very power, very useful primitive.
+with. Workspaces are a very powerful, useful primitive.
 
 It also includes report ingestion and validation endpoints. These feed into the
 [validation engine](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md)
@@ -193,6 +193,8 @@ The livesys codebase is currently closed, but is planned on being open ASAP.
 
 ### Datacenter Design and Visualization
 
+- [x] Basic hardware profile support
+- [ ] Robust hardware profile support
 - [ ] IPAM
 - [ ] BOM designer
 - [ ] Rack designer
