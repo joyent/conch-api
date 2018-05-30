@@ -412,6 +412,15 @@ subtest 'Relays' => sub {
 		->json_is( '/0/id', 'deadbeef', 'Has active relay' );
 
 	$t->get_ok('/relay')->status_is(200)->json_is( '/0/id' => 'deadbeef' );
+
+	$t->get_ok("/workspace/$id/relay?no_devices=0")->status_is(200)
+		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
+		->json_is( '/0/devices/0/id', 'TEST', 'Associated with reporting device' );
+
+	$t->get_ok("/workspace/$id/relay?no_devices=1")->status_is(200)
+		->json_is( '/0/id', 'deadbeef' )
+		->json_is( '/0/devices', [] )
+
 };
 
 subtest 'Validations' => sub {
