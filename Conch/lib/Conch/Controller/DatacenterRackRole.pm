@@ -23,6 +23,11 @@ Supports rack role lookups by uuid and name
 =cut
 
 sub under ($c) {
+	unless($c->is_global_admin) {
+		$c->status(403);
+		return undef;
+	}
+
 	my $r;
 
 	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
@@ -70,6 +75,7 @@ Get a single rack role
 =cut
 
 sub get ($c) {
+	return $c->status(403) unless $c->is_global_admin;
 	$c->status(200, $c->stash('rack_role'));
 }
 
@@ -82,6 +88,7 @@ Get all rack roles
 =cut
 
 sub get_all ($c) {
+	return $c->status(403) unless $c->is_global_admin;
 	$c->status(200, Conch::Model::DatacenterRackRole->all());
 }
 

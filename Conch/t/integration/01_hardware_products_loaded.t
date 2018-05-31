@@ -83,5 +83,6 @@ subtest 'Hardware Product' => sub {
 $t->get_ok("/dc")->status_is(200)->json_is('', []);
 $t->get_ok("/room")->status_is(200)->json_is('', []);
 $t->get_ok("/rack_role")->status_is(200)->json_is('', []);
+$t->get_ok("/rack")->status_is(200)->json_is('', []);
 
 done_testing();

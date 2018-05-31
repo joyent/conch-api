@@ -108,7 +108,7 @@ $t->get_ok("/workspace/$id/room")->status_is(200)
 
 $t->get_ok("/workspace/$id/rack")->status_is(200)
 	->json_is( '/test-region-1a/0/name', 'Test Rack', 'Has test datacenter rack' )
-	->json_schema_is('RackSummary');
+	->json_schema_is('WorkspaceRackSummary');
 
 my $rack_id = $t->tx->res->json->{'test-region-1a'}->[0]->{id};
 

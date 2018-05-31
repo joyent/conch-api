@@ -495,7 +495,7 @@ definitions:
                     type: string
               - type: null
 
-  RackSummary:
+  WorkspaceRackSummary:
     type: object
     items:
       type: object
@@ -514,7 +514,7 @@ definitions:
           type: object
           items:
             type: integer
-  Rack:
+  WorkspaceRack:
     type: object
     additionalProperties: false
     properties:
@@ -1153,6 +1153,38 @@ definitions:
     type: array
     items:
       $ref: "#/definitions/DeviceService"
+  Racks:
+    type: array
+    items:
+      $ref: "#/definitions/Rack"
+  Rack:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - datacenter_room_id
+      - role
+      - created
+      - updated
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      datacenter_room_id:
+        type: string
+        format: uuid
+      role:
+        type: string
+        format: uuid
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
   RackRole:
     type: object
     additionalProperties: false
@@ -1180,3 +1212,4 @@ definitions:
     type: array
     items:
       $ref: "#/definitions/RackRole"
+

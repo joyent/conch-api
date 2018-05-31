@@ -39,6 +39,7 @@ sub routes {
 	$roi->get('/')->to("datacenter_room#get_one");
 	$roi->post('/')->to("datacenter_room#update");
 	$roi->delete('/')->to("datacenter_room#delete");
+	$roi->get('/racks')->to("datacenter_room#racks");
 
 	######
 	$r->get('/rack_role')->to("datacenter_rack_role#get_all");
@@ -48,6 +49,16 @@ sub routes {
 	$rr->get('/')->to("datacenter_rack_role#get");
 	$rr->post('/')->to("datacenter_rack_role#update");
 	$rr->delete('/')->to("datacenter_rack_role#delete");
+
+	######
+	$r->get('/rack')->to("datacenter_rack#get_all");
+	$r->post('/rack')->to("datacenter_rack#create");
+
+	$rr = $r->under('/rack/:id')->to("datacenter_rack#under");
+	$rr->get('/')->to("datacenter_rack#get");
+	$rr->post('/')->to("datacenter_rack#update");
+	$rr->delete('/')->to("datacenter_rack#delete");
+
 
 
 }

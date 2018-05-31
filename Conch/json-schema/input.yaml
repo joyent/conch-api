@@ -136,6 +136,22 @@ definitions:
             type: number
       uptime_since:
         type: string
+  RackCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - datacenter_room_id
+      - role
+    properties:
+      name:
+        type: string
+      datacenter_room_id:
+        type: string
+        format: uuid
+      role:
+        type: string
+        format: uuid
   RackRoleCreate:
     type: object
     additionalProperties: false

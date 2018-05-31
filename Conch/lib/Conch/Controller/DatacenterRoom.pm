@@ -103,6 +103,22 @@ sub delete ($c) {
 }
 
 
+=head2 racks
+
+=cut
+
+sub racks ($c) {
+	return $c->status(403) unless $c->is_global_admin;
+
+	return $c->status(
+		200 => Conch::Model::DatacenterRack->from_datacenter_room(
+			$c->stash('datacenter_room')->id
+		)
+	);
+
+}
+
+
 1;
 
 __DATA__
