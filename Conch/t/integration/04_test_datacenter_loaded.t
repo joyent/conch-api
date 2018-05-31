@@ -3,6 +3,7 @@ use Test::MojoSchema;
 use Test::More;
 use Data::UUID;
 use IO::All;
+use JSON::Validator;
 
 use Data::Printer;
 
@@ -11,6 +12,19 @@ BEGIN {
 	use_ok("Conch::Models");
 	use_ok( "Conch::Route", qw(all_routes) );
 }
+
+my $spec_file = "json-schema/response.yaml";
+BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
+	unless io->file($spec_file)->exists;
+
+my $validator = JSON::Validator->new;
+$validator->schema($spec_file);
+
+# add UUID validation
+my $valid_formats = $validator->formats;
+$valid_formats->{uuid} = \&is_uuid;
+$validator->formats($valid_formats);
+
 
 my $uuid = Data::UUID->new;
 
@@ -30,6 +44,7 @@ my $t = Test::MojoSchema->new(
 		preload_validation_plans => [ $test_validation_plan ]
 	},
 );
+$t->validator($validator);
 
 all_routes( $t->app->routes );
 
