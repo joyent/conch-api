@@ -1153,40 +1153,4 @@ definitions:
     type: array
     items:
       $ref: "#/definitions/DeviceService"
-  OrcLifecycle:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - name
-      - locked
-      - role_id
-      - plan
-      - created
-      - updated
-    properties:
-      id:
-        type: string
-        format: uuid
-      name:
-        type: string
-      created:
-        type: string
-        format: date-time
-      updated:
-        type: string
-        format: date-time
-      role_id:
-        type: string
-        format: uuid
-      locked:
-        type: number
-      plan:
-        type: array
-        items:
-          type: string
-          format: uuid
-  OrcLifecycles:
-    type: array
-    items:
-      $ref: "#/definitions/OrcLifecycle"
+
