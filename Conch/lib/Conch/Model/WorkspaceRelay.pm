@@ -20,7 +20,7 @@ use Conch::Pg;
 Retrieve list of workspace relays.
 
 =cut
-sub list ( $self, $ws_id, $interval_minutes = undef ) {
+sub list ( $self, $ws_id, $interval_minutes = undef, $with_devices = 1 ) {
 	my $db = Conch::Pg->new->db;
 
 	# Find all racks in the workspace
@@ -103,24 +103,24 @@ sub list ( $self, $ws_id, $interval_minutes = undef ) {
 	my @res;
 	for my $relay (@$relays) {
 		my $devices = [];
-		my $ret     = $db->query(
-			q{
-        SELECT device.*
-        FROM relay r
-        INNER JOIN device_relay_connection dr
-          ON r.id = dr.relay_id
-        INNER JOIN device
-          ON dr.device_id = device.id
-        INNER JOIN device_location dl
-          ON dl.device_id = device.id
-        WHERE r.id = ?
-          AND dl.rack_id = ANY (?)
-        ORDER by dr.last_seen desc
-      }, $relay->{id}, $workspace_rack_ids
-		)->hashes;
+		if ($with_devices) {
+			my $ret = $db->query(q{
+				SELECT device.*
+				FROM relay r
+				INNER JOIN device_relay_connection dr
+				  ON r.id = dr.relay_id
+				INNER JOIN device
+				  ON dr.device_id = device.id
+				INNER JOIN device_location dl
+				  ON dl.device_id = device.id
+				WHERE r.id = ?
+				  AND dl.rack_id = ANY (?)
+				ORDER by dr.last_seen desc
+		  }, $relay->{id}, $workspace_rack_ids)->hashes;
 
-		for my $d ( $ret->@* ) {
-			push $devices->@*, Conch::Model::Device->new( $d->%* );
+			for my $d ( $ret->@* ) {
+				push $devices->@*, Conch::Model::Device->new( $d->%* );
+			}
 		}
 
 		push @res,

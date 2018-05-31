@@ -23,7 +23,8 @@ List all relays for the current stashed C<current_workspace>
 sub list ($c) {
 	my $relays = Conch::Model::WorkspaceRelay->new->list(
 		$c->stash('current_workspace')->id,
-		$c->param('active') ? 2 : undef
+		$c->param('active') ? 2 : undef,
+		$c->param('no_devices') ? undef : 1,
 	);
 	$c->status( 200, $relays );
 }
