@@ -15,6 +15,7 @@ package Conch::Models;
 use Conch::Model::Datacenter;
 use Conch::Model::DatacenterRoom;
 use Conch::Model::DatacenterRackRole;
+use Conch::Model::DatacenterRack;
 
 use Conch::Model::DeviceLocation;
 use Conch::Model::DeviceReport;
@@ -34,6 +35,7 @@ use Conch::Model::WorkspaceRole;
 
 use Conch::Model::DeviceService;
 use Conch::Model::DeviceRole;
+
 
 1;
 
