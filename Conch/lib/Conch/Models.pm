@@ -12,6 +12,7 @@ Convenience class to load all the Conch::Model classes
 
 package Conch::Models;
 
+use Conch::Model::Datacenter;
 use Conch::Model::DeviceLocation;
 use Conch::Model::DeviceReport;
 use Conch::Model::DeviceSettings;
