@@ -12,6 +12,11 @@ Handles looking up the object by id or name depending on the url pattern
 =cut
 
 sub under ($c) {
+	unless($c->is_global_admin) {
+		$c->status(403);
+		return undef;
+	}
+
 	my $s;
 
 	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
@@ -39,6 +44,7 @@ Get all datacenter rooms
 =cut
 
 sub get_all ($c) {
+	return $c->status(403) unless $c->is_global_admin;
 	return $c->status(200, Conch::Model::DatacenterRoom->all());
 }
 
@@ -50,6 +56,7 @@ Get a single datacenter room
 =cut
 
 sub get_one ($c) {
+	return $c->status(403) unless $c->is_global_admin;
 	$c->status(200, $c->stash('datacenter_room'));
 }
 
@@ -90,6 +97,7 @@ Permanently delete a datacenter room
 =cut
 
 sub delete ($c) {
+	return $c->status(403) unless $c->is_global_admin;
 	$c->stash('datacenter_room')->burn;
 	return $c->status(204); 
 }
