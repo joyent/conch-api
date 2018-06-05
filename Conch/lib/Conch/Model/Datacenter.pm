@@ -17,10 +17,8 @@ use experimental qw(signatures);
 
 use Try::Tiny;
 use Type::Tiny;
-use Types::Standard qw(Str ArrayRef Undef);
+use Types::Standard qw(Str Undef);
 use Types::UUID qw(Uuid);
-
-use List::MoreUtils qw(uniq bremove qsort);
 
 use Conch::Pg;
 
@@ -66,7 +64,7 @@ String. Required
 
 has 'vendor_name' => (
 	is => 'rw',
-	isa => Str,
+	isa => Str | Undef,
 );
 
 
@@ -223,7 +221,7 @@ Delete the object in the database. This is a destructive action.
 
 sub burn ($self) {
 	try {
-		Conch::Pg->new->db->delete('datacenter', undef, { id => $self->id });
+		Conch::Pg->new->db->delete('datacenter', { id => $self->id });
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->burn: $_");
 		return undef;

@@ -80,4 +80,7 @@ subtest 'Hardware Product' => sub {
 		'No hardware products because hardware product profiles are missing' );
 };
 
+$t->get_ok("/dc")->status_is(200)->json_is('', []);
+$t->get_ok("/room")->status_is(200)->json_is('', []);
+
 done_testing();

@@ -22,6 +22,8 @@ use Conch::Route::Relay;
 use Conch::Route::HardwareProduct;
 use Conch::Route::Validation;
 
+use Conch::Route::Datacenter;
+
 use Exporter 'import';
 our @EXPORT = qw(
 	all_routes
@@ -86,6 +88,7 @@ sub all_routes {
 	hardware_product_routes($secured);
 	validation_routes($secured);
 
+	Conch::Route::Datacenter->routes($secured);
 }
 
 1;

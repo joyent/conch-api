@@ -123,7 +123,6 @@ sub from_id ($class, $id) {
 		$ret = Conch::Pg->new->db->select(
 			'datacenter_room',
 			undef,
-			undef,
 			{
 				id => $id,
 			}
@@ -150,8 +149,6 @@ sub all ($class) {
 	try {
 		$ret = Conch::Pg->new->db->select(
 			'datacenter_room',
-			undef,
-			undef,
 		)->hashes->map(sub {
 			$class->new(_fixup_timestamptzs($_)->%*);
 		})->to_array;
@@ -255,10 +252,10 @@ Also removes the room from all workspaces
 
 sub burn ($self) {
 	try {
-		Conch::Pg->new->db->delete('workspace_datacenter_room', undef, {
+		Conch::Pg->new->db->delete('workspace_datacenter_room', {
 			datacenter_room_id => $self->id
 		});
-		Conch::Pg->new->db->delete('datacenter_room', undef, { id => $self->id });
+		Conch::Pg->new->db->delete('datacenter_room', { id => $self->id });
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->burn: $_");
 		return undef;
