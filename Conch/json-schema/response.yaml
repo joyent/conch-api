@@ -1153,4 +1153,30 @@ definitions:
     type: array
     items:
       $ref: "#/definitions/DeviceService"
-
+  RackRole:
+    type: object
+    additionalProperties: false
+    required:
+      - id 
+      - name
+      - rack_size
+      - created
+      - updated
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      rack_size:
+        type: integer
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+  RackRoles:
+    type: array
+    items:
+      $ref: "#/definitions/RackRole"

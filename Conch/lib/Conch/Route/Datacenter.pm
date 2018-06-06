@@ -40,6 +40,16 @@ sub routes {
 	$roi->post('/')->to("datacenter_room#update");
 	$roi->delete('/')->to("datacenter_room#delete");
 
+	######
+	$r->get('/rack_role')->to("datacenter_rack_role#get_all");
+	$r->post('/rack_role')->to("datacenter_rack_role#create");
+
+	my $rr = $r->under('/rack_role/:id')->to("datacenter_rack_role#under");
+	$rr->get('/')->to("datacenter_rack_role#get");
+	$rr->post('/')->to("datacenter_rack_role#update");
+	$rr->delete('/')->to("datacenter_rack_role#delete");
+
+
 }
 
 
