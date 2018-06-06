@@ -1,5 +1,64 @@
 ---
 definitions:
+  DatacenterCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - vendor
+      - region
+      - location
+    properties:
+      vendor:
+        type: string
+      region:
+        type: string
+      vendor_name:
+        type: string
+      location:
+        type: string
+  DatacenterUpdate:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+        format: uuid
+      vendor:
+        type: string
+      region:
+        type: string
+      vendor_name:
+        type: string
+  DatacenterRoomCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - datacenter
+      - az
+    properties:
+      datacenter:
+        type: string
+        format: uuid
+      az:
+        type: string
+      alias:
+        type: string
+      vendor_name:
+        type: string
+  DatacenterRoomUpdate:
+    type: object
+    additionalProperties: false
+    properties:
+      datacenter:
+        type: string
+        format: uuid
+      az:
+        type: string
+      alias:
+        type: string
+      vendor_name:
+        type: string
+
   DeviceReport:
     required:
       - bios_version
