@@ -220,6 +220,7 @@ Delete the object in the database. This is a destructive action.
 =cut
 
 sub burn ($self) {
+	return $self unless $self->id;
 	try {
 		Conch::Pg->new->db->delete('datacenter', { id => $self->id });
 	} catch {

@@ -251,6 +251,7 @@ Also removes the room from all workspaces
 =cut
 
 sub burn ($self) {
+	return $self unless $self->id;
 	try {
 		Conch::Pg->new->db->delete('workspace_datacenter_room', {
 			datacenter_room_id => $self->id
