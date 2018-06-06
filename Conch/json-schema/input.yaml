@@ -136,4 +136,22 @@ definitions:
             type: number
       uptime_since:
         type: string
-
+  RackRoleCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - rack_size
+    properties:
+      name:
+        type: string
+      rack_size:
+        type: integer
+  RackRoleUpdate:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      rack_size:
+        type: integer
