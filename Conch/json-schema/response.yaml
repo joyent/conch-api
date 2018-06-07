@@ -1215,4 +1215,35 @@ definitions:
     type: array
     items:
       $ref: "#/definitions/RackRole"
-
+  RackLayouts:
+    type: array
+    items:
+      $ref: "#/definitions/RackLayout"
+  RackLayout:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - rack_id
+      - product_id
+      - ru_start
+      - created
+      - updated
+    properties:
+      id:
+        type: string
+        format: uuid
+      rack_id:
+        type: string
+        format: uuid
+      product_id:
+        type: string
+        format: uuid
+      ru_start:
+        type: integer
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
