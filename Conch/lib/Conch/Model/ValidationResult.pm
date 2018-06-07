@@ -42,6 +42,7 @@ sub TO_JSON ($self) {
 		status              => $self->status,
 		category            => $self->category,
 		component_id        => $self->component_id,
+		order               => $self->result_order
 	};
 }
 
