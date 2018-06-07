@@ -58,8 +58,17 @@ sub routes {
 	$rr->get('/')->to("datacenter_rack#get");
 	$rr->post('/')->to("datacenter_rack#update");
 	$rr->delete('/')->to("datacenter_rack#delete");
+	$rr->get('/layouts')->to("datacenter_rack#layouts");
 
 
+	######
+	$r->get('/layout')->to("datacenter_rack_layout#get_all");
+	$r->post('/layout')->to("datacenter_rack_layout#create");
+
+	$rr = $r->under('/layout/:id')->to("datacenter_rack_layout#under");
+	$rr->get('/')->to("datacenter_rack_layout#get");
+	$rr->post('/')->to("datacenter_rack_layout#update");
+	$rr->delete('/')->to("datacenter_rack_layout#delete");
 
 }
 

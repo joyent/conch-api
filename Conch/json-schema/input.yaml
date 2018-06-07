@@ -171,3 +171,32 @@ definitions:
         type: string
       rack_size:
         type: integer
+  RackLayoutCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - rack_id
+      - product_id
+      - ru_start
+    properties:
+      rack_id:
+        type: string
+        format: uuid
+      product_id:
+        type: string
+        format: uuid
+      ru_start:
+        type: integer
+  RackLayoutUpdate:
+    type: object
+    additionalProperties: false
+    properties:
+      rack_id:
+        type: string
+        format: uuid
+      product_id:
+        type: string
+        format: uuid
+      ru_start:
+        type: integer
+

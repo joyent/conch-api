@@ -96,6 +96,19 @@ sub get_all ($c) {
 	$c->status(200, Conch::Model::DatacenterRack->all());
 }
 
+=head2 layouts
+
+=cut
+
+sub layouts ($c) {
+	return $c->status(403) unless $c->is_global_admin;
+	$c->status(
+		200 =>
+		Conch::Model::DatacenterRackLayout->from_rack_id($c->stash('rack')->id)
+	);
+}
+
+
 
 =head2 update
 
