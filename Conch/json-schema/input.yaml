@@ -152,6 +152,18 @@ definitions:
       role:
         type: string
         format: uuid
+  RackUpdate:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      datacenter_room_id:
+        type: string
+        format: uuid
+      role:
+        type: string
+        format: uuid
   RackRoleCreate:
     type: object
     additionalProperties: false

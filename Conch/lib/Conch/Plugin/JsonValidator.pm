@@ -87,9 +87,14 @@ sub register ( $self, $app, $conf ) {
 
 	$app->helper(validate_input => sub ($c, $schema) {
 		my $j = $c->req->json;
+		my $s = _find_schema($input_validator, $schema);
+		unless ($s) {
+			Mojo::Exception->throw("unable to locate schema $schema");
+			return undef;
+		}
 		my @errors = $input_validator->validate(
 			$j,
-			_find_schema($input_validator, $schema)
+			$s,
 		);
 		if (@errors) {
 			$c->status(400 => { error => join("\n",@errors) });
@@ -107,10 +112,15 @@ sub register ( $self, $app, $conf ) {
 
 	$app->helper(
 		status_with_validation => sub ($c, $status_code, $schema, $data) {
+			my $s = _find_schema($output_validator, $schema);
+			unless ($s) {
+				Mojo::Exception->throw("unable to locate schema $schema");
+				return undef;
+			}
 
 			my @errors = $output_validator->validate(
 				$data,
-				_find_schema($output_validator, $schema)
+				$s,
 			);
 			if(@errors) {
 				my $err = join("\n\t", @errors);
