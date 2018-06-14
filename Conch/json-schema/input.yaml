@@ -29,6 +29,8 @@ definitions:
         type: string
       vendor_name:
         type: string
+      location:
+        type: string
   DatacenterRoomCreate:
     type: object
     additionalProperties: false
