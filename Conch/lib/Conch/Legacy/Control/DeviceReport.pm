@@ -44,7 +44,7 @@ Record device report and device details from the report
 
 =cut
 sub record_device_report {
-	my ( $schema, $dr ) = @_;
+	my ( $schema, $dr, $raw_report ) = @_;
 	my $hw = $schema->resultset('HardwareProduct')->find(
 		{
 			name => $dr->{product_name}
@@ -98,7 +98,7 @@ sub record_device_report {
 			$device_report = $schema->resultset('DeviceReport')->create(
 				{
 					device_id => $device_id,
-					report    => encode_json $dr
+					report    => $raw_report,
 				}
 			);
 
