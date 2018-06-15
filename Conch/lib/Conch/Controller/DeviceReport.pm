@@ -28,6 +28,7 @@ Processes the device report using the Legacy report code base
 
 sub process ($c) {
 	my $device_report = $c->validate_input('DeviceReport') or return;
+	my $raw_report = $c->req->body;
 
 	my $hw_product_name = $device_report->{product_name};
 	my $maybe_hw =
@@ -48,7 +49,7 @@ sub process ($c) {
 	my $schema =
 		Conch::Legacy::Schema->connect( $pg->dsn, $pg->username, $pg->password );
 
-	my ( $device, $report_id ) = record_device_report( $schema, $device_report );
+	my ( $device, $report_id ) = record_device_report( $schema, $device_report, $raw_report );
 
 	my $validation_plan;
 	if ( $device_report->{device_type}
