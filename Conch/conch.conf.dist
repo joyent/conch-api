@@ -70,6 +70,7 @@
 				{ name => 'dimm_count',            version => 1 },
 				{ name => 'disk_smart_status',     version => 1 },
 				{ name => 'disk_temperature',      version => 1 },
+				{ name => 'firmware_current',      version => 1 },
 				{ name => 'links_up',              version => 1 },
 				{ name => 'nics_num',              version => 1 },
 				{ name => 'product_name',          version => 1 },
