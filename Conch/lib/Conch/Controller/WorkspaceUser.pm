@@ -67,7 +67,7 @@ sub invite ($c) {
 		);
 	}
 	else {
-		my $password = $c->random_string( length => 10 );
+		my $password = $c->random_string();
 		$user = Conch::Model::User->create( $body->{user}, $password );
 		$c->mail->send_new_user_invite(
 			{ email => $user->email, password => $password } );
