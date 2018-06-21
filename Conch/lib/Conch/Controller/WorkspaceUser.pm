@@ -58,15 +58,7 @@ sub invite ($c) {
 
 	my $user = Conch::Model::User->lookup_by_email( $body->{user} );
 
-	if ($user) {
-		$c->mail->send_existing_user_invite(
-			{
-				email          => $user->email,
-				workspace_name => $ws->name
-			}
-		);
-	}
-	else {
+	unless ($user) {
 		my $password = $c->random_string();
 		$user = Conch::Model::User->create( $body->{user}, $password );
 		$c->mail->send_new_user_invite(

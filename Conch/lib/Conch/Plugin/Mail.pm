@@ -52,16 +52,6 @@ sub send_new_user_invite {
 }
 
 
-=head2 send_existing_user_invite
-
-Alias for Conch::Mail::existing_user_invite
-
-=cut
-
-sub send_existing_user_invite {
-	shift;
-	Conch::Mail::existing_user_invite(@_);
-}
 
 1;
 
