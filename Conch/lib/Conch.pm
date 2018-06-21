@@ -22,6 +22,7 @@ use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
 use Conch::ValidationSystem;
+use Conch::Plugin::AuthHelpers;
 use Conch::Plugin::JsonValidator;
 
 use Mojo::JSON;
@@ -104,30 +105,6 @@ sub startup {
 		}
 	);
 
-	$self->helper(
-		global_auth => sub {
-			my ( $c, $role_name ) = @_;
-			return 0 unless $c->stash('user_id');
-
-			my $ws = Conch::Model::Workspace->new->lookup_by_name('GLOBAL');
-			return 0 unless $ws;
-
-			my $user_ws = Conch::Model::Workspace->new->get_user_workspace(
-				$c->stash('user_id'),
-				$ws->id,
-			);
-
-			return 0 unless $user_ws;
-			return 0 unless $user_ws->role eq $role_name;
-			return 1;
-		},
-	);
-
-	$self->helper(
-		is_global_admin => sub {
-			shift->global_auth('Administrator');
-		}
-	);
 
 	my $unparsable_report_logger = Mojo::Log->new(
 		path   => "log/unparsable_report.log",
@@ -226,6 +203,7 @@ sub startup {
 	$self->plugin('Conch::Plugin::GitVersion');
 	$self->plugin(NYTProf => $self->config);
 	$self->plugin('Conch::Plugin::JsonValidator');
+	$self->plugin("Conch::Plugin::AuthHelpers");
 
 	if($features{'rollbar'}) {
 		$self->plugin('Conch::Plugin::Rollbar');
