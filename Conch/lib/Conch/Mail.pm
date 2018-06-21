@@ -19,7 +19,7 @@ use Log::Any '$log';
 
 use Exporter 'import';
 our @EXPORT = qw(
-	new_user_invite existing_user_invite password_reset_email
+	new_user_invite password_reset_email
 );
 
 =head2 new_user_invite
@@ -59,41 +59,6 @@ sub new_user_invite {
 	}
 }
 
-
-=head2 existing_user_invite
-
-Template for the email to invite an existing user to a workspace
-
-=cut
-
-sub existing_user_invite {
-	my ($args)         = @_;
-	my $email          = $args->{email};
-	my $workspace_name = $args->{workspace_name};
-
-	my %mail = (
-		To      => $email,
-		From    => 'noreply@conch.joyent.us',
-		Subject => "Invitation to join new Conch workspace",
-		Message => qq{Hello,
-
-    You have been invited to join a new Joyent Conch workspace
-    "$workspace_name".  Please log into https://conch.joyent.us using
-    your existing account credentails with username '$email'. You can switch
-    between available workspaces in the sidebar.
-
-    Thank you,
-    Joyent Build Ops Team
-    }
-
-	);
-	if ( sendmail %mail ) {
-		$log->info("Existing user invite successfully sent to $email.");
-	}
-	else {
-		$log->error("Sendmail error: $Mail::Sendmail::error");
-	}
-}
 
 
 =head2 password_reset_email
