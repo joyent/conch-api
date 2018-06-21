@@ -32,7 +32,8 @@ sub list ($c) {
 =head2 replace_rooms
 
 Replace the room list for the current stashed C<current_workspace>, given that
-workspace is not GLOBAL, and provided that the user is an Administrator
+workspace is not GLOBAL, and provided that the user is an Administrator (GLOBAL
+or local)
 
 =cut
 
@@ -47,11 +48,11 @@ sub replace_rooms ($c) {
 		return $c->status( 400, { error => 'Cannot modify GLOBAL workspace' } );
 	}
 
-	unless ( $workspace->role eq 'Administrator' ) {
+	unless ( $c->is_admin ) {
 		return $c->status(
 			403,
 			{
-				error => 'Only workspace administrators may update the datacenter rooms'
+				error => 'Only administrators may update the datacenter rooms'
 			}
 		);
 	}
