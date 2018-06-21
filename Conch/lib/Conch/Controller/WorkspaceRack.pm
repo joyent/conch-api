@@ -80,13 +80,12 @@ already assigned via a datacenter room assignment
 
 sub add ($c) {
 	my $body = $c->req->json;
+	return $c->status(403) unless $c->is_admin;
+
 	return $c->status( 400,
 		{ error => 'JSON object with "id" Rack ID field required' } )
 		unless ( $body && $body->{id} );
 	my $rack_id = $body->{id};
-
-	return $c->status(403) if $c->stash('current_workspace')->role eq 'Read-only';
-	return $c->status(403) if $c->stash('current_workspace')->role eq 'Integrator';
 
 	return $c->status( 400,
 		{ error => "Rack ID must be a UUID. Got '$rack_id'." } )
@@ -137,8 +136,8 @@ datacenter room assignment
 =cut
 
 sub remove ($c) {
-	return $c->status(403) if $c->stash('current_workspace')->role eq 'Read-only';
-	return $c->status(403) if $c->stash('current_workspace')->role eq 'Integrator';
+	return $c->status(403) unless $c->is_admin;
+
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $c->stash('current_workspace')->name eq 'GLOBAL';
 

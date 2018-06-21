@@ -98,12 +98,12 @@ Create a new subworkspace for the current stashed C<current_workspace>
 
 sub create_sub_workspace ($c) {
 	my $body = $c->req->json;
+	return $c->status(403) unless $c->is_admin;
+
 	return $c->status( 400, { error => '"name" must be defined in request' } )
 		unless $body->{name};
-	my $ws             = $c->stash('current_workspace');
 
-	return $c->status(403) if $ws->role eq 'Read-only';
-	return $c->status(403) if $ws->role eq 'Integrator';
+	my $ws = $c->stash('current_workspace');
 
 	my $sub_ws_attempt = Conch::Model::Workspace->new->create_sub_workspace(
 		$c->stash('user_id'),
