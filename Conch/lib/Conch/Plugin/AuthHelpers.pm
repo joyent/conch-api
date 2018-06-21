@@ -60,6 +60,25 @@ GLOBAL workspace
 		}
 	);
 
+=head2 is_admin
+
+	return $c->status(403) unless $c->is_admin;
+
+Verifies that the currently stashed user_id is either a global admin or an
+admin on the currently stashed 'current_workspace'
+
+=cut
+
+	$app->helper(
+		is_admin => sub ($c) {
+			return 1 if $c->is_global_admin;
+			my $ws = $c->stash("current_workspace");
+			return 0 unless $ws;
+			return 1 if $ws->role eq "Administrator";
+			return 0;
+		}
+	);
+
 }
 
 1;
