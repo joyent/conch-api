@@ -217,7 +217,11 @@ sub startup {
 		);
 	}
 
-	$self->plugin('Util::RandomString');
+	$self->plugin('Util::RandomString' => {
+		alphabet => '2345679bdfhmnprtFGHJLMNPRT*#!@^-_+=',
+		length => 30
+	});
+
 	$self->plugin('Conch::Plugin::Mail');
 	$self->plugin('Conch::Plugin::GitVersion');
 	$self->plugin(NYTProf => $self->config);

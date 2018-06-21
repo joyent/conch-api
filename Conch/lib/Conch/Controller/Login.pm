@@ -221,7 +221,7 @@ sub reset_password ($c) {
 			my $user = Conch::Model::User->lookup( $body->{email} );
 
 			if ($user) {
-				my $pw = $c->random_string( length => 10 );
+				my $pw = $c->random_string();
 				$user->update_password($pw);
 
 				$c->mail->send_password_reset_email(
