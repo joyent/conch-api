@@ -7,7 +7,7 @@ SELECT run_migration(35, $$
 	alter table hardware_product drop constraint hardware_product_alias_key;
 	alter table hardware_product add column sku text;
 	alter table hardware_product add column product_name text;
-	alter hardware_product add unique(sku);
+	alter table hardware_product add unique(sku);
 
 	update hardware_product set product_name = name;
 $$);
