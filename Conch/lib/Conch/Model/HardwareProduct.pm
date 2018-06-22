@@ -23,6 +23,10 @@ my $fields = q{
   hw_product.name AS hw_product_name,
   hw_product.alias AS hw_product_alias,
   hw_product.prefix AS hw_product_prefix,
+  hw_product.specification as hw_specification,
+  hw_product.sku as hw_sku,
+  hw_product.generation_name as hw_generation_name,
+  hw_product.legacy_product_name as hw_legacy_product_name,
   vendor.name AS hw_product_vendor,
 
   hw_profile.id AS hw_profile_id,
@@ -172,12 +176,16 @@ sub _build_hardware_product ($hw) {
 	);
 
 	return HardwareProduct->new(
-		id      => $hw->{hw_product_id},
-		name    => $hw->{hw_product_name},
-		alias   => $hw->{hw_product_alias},
-		prefix  => $hw->{hw_product_prefix},
-		vendor  => $hw->{hw_product_vendor},
-		profile => $hw_profile
+		id                  => $hw->{hw_product_id},
+		alias               => $hw->{hw_product_alias},
+		generation_name     => $hw->{hw_generation_name},
+		legacy_product_name => $hw->{hw_legacy_product_name},
+		name                => $hw->{hw_product_name},
+		prefix              => $hw->{hw_product_prefix},
+		sku                 => $hw->{hw_sku},
+		specification       => $hw->{hw_specification},
+		vendor              => $hw->{hw_product_vendor},
+		profile             => $hw_profile
 	);
 }
 

@@ -26,17 +26,29 @@ with 'Conch::Class::Role::ToJson';
 
 =head2 profile
 
+=head2 specification
+
+=head2 sku
+
+=head2 generation_name
+
+=head2 legacy_product_name
+
 =cut
 
 has [
 	qw(
 		id
-		name
 		alias
+		generation_name
+		legacy_product_name
+		name
 		prefix
-		vendor
 		profile
-		)
+		sku
+		specification
+		vendor
+	)
 ];
 
 
@@ -47,12 +59,16 @@ has [
 sub TO_JSON {
 	my $self = shift;
 	{
-		id      => $self->id,
-		name    => $self->name,
-		alias   => $self->alias,
-		prefix  => $self->prefix,
-		vendor  => $self->vendor,
-		profile => $self->profile
+		id                  => $self->id,
+		alias               => $self->alias,
+		generation_name     => $self->generation_name,
+		legacy_product_name => $self->legacy_product_name,
+		name                => $self->name,
+		prefix              => $self->prefix,
+		profile             => $self->profile,
+		sku                 => $self->sku,
+		specification       => $self->specification,
+		vendor              => $self->vendor,
 	};
 }
 

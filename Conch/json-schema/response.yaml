@@ -356,6 +356,10 @@ definitions:
       - prefix
       - vendor
       - profile
+      - generation_name
+      - legacy_product_name
+      - sku
+      - specification
     properties:
       id:
         type: string
@@ -369,6 +373,23 @@ definitions:
       vendor:
         type: string
         description: Hardware product vendor name
+      generation_name:
+        anyOf:
+          - type: string
+          - type: null
+      legacy_product_name:
+        anyOf:
+          - type: string
+          - type: null
+      sku:
+        anyOf:
+          - type: string
+          - type: null
+
+      specification:
+        anyOf:
+          - type: string
+          - type: null
       profile:
         type: object
         additionalProperties: false
