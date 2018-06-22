@@ -1,0 +1,103 @@
+{
+	"chassis": {
+		"dmi": {
+			"bios": {
+				"vendor_name": "American Megatrends Inc.",
+				"version": "3.0a"
+			},
+			"bmc": {
+				"version": "3.65"
+			},
+			"system": {
+				"vendor_id": "66fed141-85c1-4136-80d7-b1fffbfd2991",
+				"vendor_name": "SuperMicro",
+				"product_name": "Joyent-Storage-Platform-7001"
+			}
+		},
+		"power": {
+			"service_amps":  { "max": 0, "idle": 0 },
+			"service_watts": { "max": 0, "idle": 0 },
+			"psu": [
+				{ "type": "single", "max_wattage": 1280 },
+				{ "type": "single", "max_wattage": 1280 }
+		  ]
+		},
+		"cpu": {
+			"processors": [
+				{ "socket": 0, "vendor": "Intel", "model": "E5-2690 v4", "speed": 2.60, "microcode": "0xb000017" },
+				{ "socket": 1, "vendor": "Intel", "model": "E5-2690 v4", "speed": 2.60, "microcode": "0xb000017" }
+			]
+		},
+		"network": {
+			"cards": [
+				{ "slot": 3,    "vendor": "Intel", "model": "82599ES",  "bus": "PCI-E",   "speed": 10000, "type": "sfp", "ports": 2 },
+				{ "slot": 4,    "vendor": "Intel", "model": "82599ES",  "bus": "PCI-E",   "speed": 10000, "type": "sfp", "ports": 2 },
+				{ "slot": null, "vendor": "Intel", "model": "X540-AT2", "bus": "onboard", "speed": 10000, "type": "ethernet", "ports": 2 },
+				{ "slot": null, "vendor": "Intel", "model": "IPMI",     "bus": "onboard", "speed": 1000,  "type": "ethernet", "ports": 1 }
+			]
+		},
+		"storage": {
+			"hba": [
+				{ "vendor": "LSI", "model": "SAS3008", "bus": 3, "slot": 2, "speed": "12g", "mode": "IT", "firmware_rev": "14.00.00.00", "bios_version": "8.31.03.00" }
+			],
+			"disks": [
+				{ "enclosure": null, "hba": "001", "slot": "003", "vendor": "Kingston", "model": "DataTraveler 2.0", "size": 14500, "firmware_rev": null, "type": null, "transport": "usb" },
+				{ "enclosure": "2", "hba": "0", "slot": "0",  "vendor": "HGST", "model": "HUSMH8010BSS204", "size": 93200,   "firmware_rev": ["C360"], "type": "SAS_SSD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "1",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "2",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "3",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "4",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "5",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "6",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "7",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "8",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "9",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "10", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "11", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "12", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "13", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "14", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "15", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "16", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "17", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "18", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "19", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "20", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "21", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "22", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "2", "hba": "0", "slot": "23", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "0",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "1",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "2",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "3",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "4",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "5",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "6",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "7",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "8",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "9",  "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "10", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" },
+				{ "enclosure": "3", "hba": "0", "slot": "11", "vendor": "HGST", "model": "HUH721010AL4204", "size": 9100000, "firmware_rev": ["C384"], "type": "SAS_HDD", "transport": "sas" }
+			]
+		},
+		"memory": {
+			"dimms": [
+				{ "slot": "P1_DIMMA1", "bank": 1, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1_DIMMA2", "bank": 1, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1_DIMMC1", "bank": 2, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1_DIMMC2", "bank": 2, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1_DIMME1", "bank": 3, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1_DIMME2", "bank": 3, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1_DIMMG1", "bank": 4, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1_DIMMG2", "bank": 4, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 }
+			]
+		},
+		"zpool": {
+			"cache": 0,
+			"log": 1,
+			"spare": 2,
+			"vdev_n": 3,
+			"vdev_t": "raidz2"
+		}
+	}
+}
