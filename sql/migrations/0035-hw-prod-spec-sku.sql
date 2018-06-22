@@ -8,5 +8,6 @@ SELECT run_migration(35, $$
 	alter table hardware_product add column sku text;
 	alter table hardware_product add column product_name text;
 	alter hardware_product add unique(sku);
+
 	update hardware_product set product_name = name;
 $$);
