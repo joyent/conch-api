@@ -88,6 +88,26 @@ __PACKAGE__->table("hardware_product");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 specification
+
+  data_type: 'jsonb'
+  is_nullable: 1
+
+=head2 sku
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 generation_name
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 legacy_product_name
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -122,6 +142,14 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "specification",
+  { data_type => "jsonb", is_nullable => 1 },
+  "sku",
+  { data_type => "text", is_nullable => 1 },
+  "generation_name",
+  { data_type => "text", is_nullable => 1 },
+  "legacy_product_name",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -138,18 +166,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<hardware_product_alias_key>
-
-=over 4
-
-=item * L</alias>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("hardware_product_alias_key", ["alias"]);
-
 =head2 C<hardware_product_name_key>
 
 =over 4
@@ -161,6 +177,18 @@ __PACKAGE__->add_unique_constraint("hardware_product_alias_key", ["alias"]);
 =cut
 
 __PACKAGE__->add_unique_constraint("hardware_product_name_key", ["name"]);
+
+=head2 C<hardware_product_sku_key>
+
+=over 4
+
+=item * L</sku>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("hardware_product_sku_key", ["sku"]);
 
 =head1 RELATIONS
 
@@ -176,6 +204,21 @@ __PACKAGE__->has_many(
   "datacenter_rack_layouts",
   "Conch::Legacy::Schema::Result::DatacenterRackLayout",
   { "foreign.product_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 device_roles
+
+Type: has_many
+
+Related object: L<Conch::Legacy::Schema::Result::DeviceRole>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_roles",
+  "Conch::Legacy::Schema::Result::DeviceRole",
+  { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -209,6 +252,21 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 validation_results
+
+Type: has_many
+
+Related object: L<Conch::Legacy::Schema::Result::ValidationResult>
+
+=cut
+
+__PACKAGE__->has_many(
+  "validation_results",
+  "Conch::Legacy::Schema::Result::ValidationResult",
+  { "foreign.hardware_product_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 vendor
 
 Type: belongs_to
@@ -225,8 +283,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tBTjekeVLloh24CSITGpJA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-22 17:47:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UsXVcEzEU4u56W6BSxuKHg
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

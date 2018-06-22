@@ -156,6 +156,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 user_session_tokens
+
+Type: has_many
+
+Related object: L<Conch::Legacy::Schema::Result::UserSessionToken>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_session_tokens",
+  "Conch::Legacy::Schema::Result::UserSessionToken",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 user_settings
 
 Type: has_many
@@ -187,8 +202,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EfrL/m+rKeau+rZe9p0c2A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-22 17:47:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Ged9YWlka8O1ewsyGFQfZQ
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

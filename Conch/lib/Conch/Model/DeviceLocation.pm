@@ -45,7 +45,12 @@ sub lookup ( $self, $device_id ) {
       hw_product.name   AS hw_product_name,
       hw_product.alias  AS hw_product_alias,
       hw_product.prefix AS hw_product_prefix,
-      hw_product.vendor AS hw_product_vendor
+      hw_product.vendor AS hw_product_vendor,
+
+      hw_product.specification       AS hw_product_specification,
+      hw_product.sku                 AS hw_sku,
+      hw_product.generation_name     AS hw_generation_name,
+      hw_product.legacy_product_name AS hw_legacy_product_name
 
     FROM device_location loc
     JOIN datacenter_rack rack
@@ -87,11 +92,15 @@ sub _build_device_location ($loc) {
 		vendor_name => $loc->{room_vendor_name},
 	);
 	my $hardware_product = HardwareProduct->new(
-		id     => $loc->{hw_product_id},
-		name   => $loc->{hw_product_name},
-		alias  => $loc->{hw_product_alias},
-		prefix => $loc->{hw_product_prefix},
-		vendor => $loc->{hw_product_vendor}
+		id                  => $loc->{hw_product_id},
+		name                => $loc->{hw_product_name},
+		alias               => $loc->{hw_product_alias},
+		prefix              => $loc->{hw_product_prefix},
+		vendor              => $loc->{hw_product_vendor},
+		specification       => $loc->{hw_product_specification},
+		sku                 => $loc->{hw_sku},
+		generation_name     => $loc->{hw_generation_name},
+		legacy_product_name => $loc->{legacy_product_name},
 	);
 	return DeviceLocation->new(
 		rack_unit               => $loc->{location_rack_unit},
