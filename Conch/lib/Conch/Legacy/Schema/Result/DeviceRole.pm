@@ -1,12 +1,12 @@
 use utf8;
-package Conch::Legacy::Schema::Result::DatacenterRoom;
+package Conch::Legacy::Schema::Result::DeviceRole;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::Legacy::Schema::Result::DatacenterRoom
+Conch::Legacy::Schema::Result::DeviceRole
 
 =cut
 
@@ -32,11 +32,11 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp");
 
-=head1 TABLE: C<datacenter_room>
+=head1 TABLE: C<device_role>
 
 =cut
 
-__PACKAGE__->table("datacenter_room");
+__PACKAGE__->table("device_role");
 
 =head1 ACCESSORS
 
@@ -47,27 +47,17 @@ __PACKAGE__->table("datacenter_room");
   is_nullable: 0
   size: 16
 
-=head2 datacenter
+=head2 description
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 hardware_product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
-
-=head2 az
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 alias
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 vendor_name
-
-  data_type: 'text'
-  is_nullable: 1
 
 =head2 created
 
@@ -83,6 +73,11 @@ __PACKAGE__->table("datacenter_room");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 deactivated
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -93,14 +88,10 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "datacenter",
+  "description",
+  { data_type => "text", is_nullable => 1 },
+  "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "az",
-  { data_type => "text", is_nullable => 0 },
-  "alias",
-  { data_type => "text", is_nullable => 1 },
-  "vendor_name",
-  { data_type => "text", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -115,6 +106,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "deactivated",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -131,71 +124,56 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 datacenter
+=head2 device_role_services
+
+Type: has_many
+
+Related object: L<Conch::Legacy::Schema::Result::DeviceRoleService>
+
+=cut
+
+__PACKAGE__->has_many(
+  "device_role_services",
+  "Conch::Legacy::Schema::Result::DeviceRoleService",
+  { "foreign.role_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 devices
+
+Type: has_many
+
+Related object: L<Conch::Legacy::Schema::Result::Device>
+
+=cut
+
+__PACKAGE__->has_many(
+  "devices",
+  "Conch::Legacy::Schema::Result::Device",
+  { "foreign.role" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 hardware_product
 
 Type: belongs_to
 
-Related object: L<Conch::Legacy::Schema::Result::Datacenter>
+Related object: L<Conch::Legacy::Schema::Result::HardwareProduct>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "datacenter",
-  "Conch::Legacy::Schema::Result::Datacenter",
-  { id => "datacenter" },
+  "hardware_product",
+  "Conch::Legacy::Schema::Result::HardwareProduct",
+  { id => "hardware_product_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-=head2 datacenter_racks
-
-Type: has_many
-
-Related object: L<Conch::Legacy::Schema::Result::DatacenterRack>
-
-=cut
-
-__PACKAGE__->has_many(
-  "datacenter_racks",
-  "Conch::Legacy::Schema::Result::DatacenterRack",
-  { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 workspace_datacenter_rooms
-
-Type: has_many
-
-Related object: L<Conch::Legacy::Schema::Result::WorkspaceDatacenterRoom>
-
-=cut
-
-__PACKAGE__->has_many(
-  "workspace_datacenter_rooms",
-  "Conch::Legacy::Schema::Result::WorkspaceDatacenterRoom",
-  { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-22 17:47:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8P3ZBj9o//sEN+iuQB550A
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+SelsNhIqOrraERbTBrQEw
+
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
 1;
-
-
-__DATA__
-
-=pod
-
-=head1 LICENSING
-
-Copyright Joyent, Inc.
-
-This Source Code Form is subject to the terms of the Mozilla Public License, 
-v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at http://mozilla.org/MPL/2.0/.
-
-=cut
-

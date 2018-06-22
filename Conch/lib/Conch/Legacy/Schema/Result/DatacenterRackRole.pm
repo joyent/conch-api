@@ -57,6 +57,18 @@ __PACKAGE__->table("datacenter_rack_role");
   data_type: 'integer'
   is_nullable: 0
 
+=head2 created
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+
+=head2 updated
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -71,6 +83,18 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "rack_size",
   { data_type => "integer", is_nullable => 0 },
+  "created",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+  },
+  "updated",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -86,6 +110,18 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
+
+=head2 C<datacenter_rack_role_name_key>
+
+=over 4
+
+=item * L</name>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("datacenter_rack_role_name_key", ["name"]);
 
 =head2 C<datacenter_rack_role_name_rack_size_key>
 
@@ -122,8 +158,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:p8+ZhGz0flzjNuEmuWYVFw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-22 17:47:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i1W7m12iWWr2l5sXh2Uh5g
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

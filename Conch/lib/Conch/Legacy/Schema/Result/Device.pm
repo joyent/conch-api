@@ -58,11 +58,6 @@ __PACKAGE__->table("device");
   is_nullable: 0
   size: 16
 
-=head2 role
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 state
 
   data_type: 'text'
@@ -133,6 +128,13 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 role
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 1
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -142,8 +144,6 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_nullable => 1, size => 16 },
   "hardware_product",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "role",
-  { data_type => "text", is_nullable => 1 },
   "state",
   { data_type => "text", is_nullable => 0 },
   "health",
@@ -180,6 +180,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "triton_setup",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "role",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -390,9 +392,59 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 role
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:G166tbrCSikXS3L2cuexqQ
+Type: belongs_to
+
+Related object: L<Conch::Legacy::Schema::Result::DeviceRole>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "role",
+  "Conch::Legacy::Schema::Result::DeviceRole",
+  { id => "role" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+=head2 validation_results
+
+Type: has_many
+
+Related object: L<Conch::Legacy::Schema::Result::ValidationResult>
+
+=cut
+
+__PACKAGE__->has_many(
+  "validation_results",
+  "Conch::Legacy::Schema::Result::ValidationResult",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 validation_states
+
+Type: has_many
+
+Related object: L<Conch::Legacy::Schema::Result::ValidationState>
+
+=cut
+
+__PACKAGE__->has_many(
+  "validation_states",
+  "Conch::Legacy::Schema::Result::ValidationState",
+  { "foreign.device_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-22 17:47:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yslvrRLF4oZiM9y+Aj1f1Q
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

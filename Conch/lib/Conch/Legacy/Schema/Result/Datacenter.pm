@@ -67,11 +67,6 @@ __PACKAGE__->table("datacenter");
   data_type: 'text'
   is_nullable: 0
 
-=head2 deactivated
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
-
 =head2 created
 
   data_type: 'timestamp with time zone'
@@ -104,8 +99,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "location",
   { data_type => "text", is_nullable => 0 },
-  "deactivated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -136,21 +129,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 datacenter_networks
-
-Type: has_many
-
-Related object: L<Conch::Legacy::Schema::Result::DatacenterNetwork>
-
-=cut
-
-__PACKAGE__->has_many(
-  "datacenter_networks",
-  "Conch::Legacy::Schema::Result::DatacenterNetwork",
-  { "foreign.datacenter_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 datacenter_rooms
 
 Type: has_many
@@ -167,8 +145,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-01-29 19:26:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lFLQtVnZDo+cNhzXnCiAGQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-22 17:47:09
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:b9xeBjXN8apFk03Cd81g1Q
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
