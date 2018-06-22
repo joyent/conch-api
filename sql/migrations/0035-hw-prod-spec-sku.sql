@@ -1,6 +1,6 @@
-# name: manta-storage-v3-512g-36-8tb (Conch specific)
-# sku: 600-0025-001
-# product_name: Joyent-S10G4
+-- name: manta-storage-v3-512g-36-8tb (Conch specific)
+-- sku: 600-0025-001
+-- product_name: Joyent-S10G4
 
 SELECT run_migration(35, $$
 	alter table hardware_product add column specification jsonb;
