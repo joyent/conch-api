@@ -25,6 +25,8 @@ use Conch::ValidationSystem;
 use Conch::Plugin::AuthHelpers;
 use Conch::Plugin::JsonValidator;
 
+use Conch::Legacy::Schema qw();
+
 use Mojo::JSON;
 
 =head2 startup
@@ -48,6 +50,16 @@ sub startup {
 
 	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
+
+	# Provide access to DBIx::Class 
+	$self->helper(schema => sub { 
+		my $db = Conch::Pg->new();
+		return Conch::Legacy::Schema->connect( 
+			$db->dsn,
+			$db->username,
+			$db->password,
+		);
+	});
 
 	my %features = $self->config('features') ?
 		$self->config('features')->%* : () ;
