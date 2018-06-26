@@ -213,4 +213,55 @@ definitions:
         format: uuid
       ru_start:
         type: integer
+  DBHardwareProductCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - alias
+      - vendor
+    properties:
+      name:
+        type: string
+      alias:
+        type: string
+      prefix:
+        type: string
+      vendor:
+        type: string
+        format: uuid
+      specification:
+        type: object
+      sku:
+        type: string
+      generation_name:
+        type: string
+      legacy_product_name:
+        type: string
+  DBHardwareProductUpdate:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      alias:
+        type: string
+      prefix:
+        type: string
+      vendor:
+        type: string
+        format: uuid
+      specification:
+        type: object
+      sku:
+        type: string
+      generation_name:
+        type: string
+      legacy_product_name:
+        type: string
 

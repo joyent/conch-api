@@ -48,6 +48,7 @@ requires 'String::CamelCase', '>= 0.04';
 requires 'DBD::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
+requires 'DBIx::Class::Helpers';
 # DateTime::Format::Pg is required for DBIx::Class to inflate DateTimes, and
 # can be removed once DBIx::Class is removed
 requires 'DateTime::Format::Pg';

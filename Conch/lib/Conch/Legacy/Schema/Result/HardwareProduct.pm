@@ -283,11 +283,36 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-22 17:47:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UsXVcEzEU4u56W6BSxuKHg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-26 15:11:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xzY1ku62ECoe8jokTGjgYw
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
+
+__PACKAGE__->load_components(qw{Helper::Row::ToJSON});
+
+my %s;
+foreach (qw[
+	id
+	name
+	alias
+	prefix
+	vendor
+	created
+	updated
+	specification
+	sku
+	generation_name
+	legacy_product_name
+]) {
+	$s{"+$_"} = { is_serializable => 1 }
+}
+
+$s{"+deactivated"} = { is_serializable => 0 };
+
+__PACKAGE__->add_columns(%s);
+
+
 1;
 
 
