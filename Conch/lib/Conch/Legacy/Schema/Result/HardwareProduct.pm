@@ -308,6 +308,8 @@ foreach (qw[
 	$s{"+$_"} = { is_serializable => 1 }
 }
 
+$s{"+deactivated"} = { is_serializable => 0 };
+
 __PACKAGE__->add_columns(%s);
 
 
