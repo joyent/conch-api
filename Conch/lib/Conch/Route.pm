@@ -23,6 +23,7 @@ use Conch::Route::HardwareProduct;
 use Conch::Route::Validation;
 
 use Conch::Route::Datacenter;
+use Conch::Route::DB::HardwareProduct;
 
 use Exporter 'import';
 our @EXPORT = qw(
@@ -89,6 +90,9 @@ sub all_routes {
 	validation_routes($secured);
 
 	Conch::Route::Datacenter->routes($secured);
+
+	my $d = $secured->under("/db");
+	Conch::Route::DB::HardwareProduct->routes($d);
 }
 
 1;
