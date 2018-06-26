@@ -1268,3 +1268,56 @@ definitions:
       updated:
         type: string
         format: date-time
+  DBHardwareProducts:
+    type: array
+    items:
+      $ref: "#/definitions/DBHardwareProduct"
+  DBHardwareProduct:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - vendor
+      - alias
+      - created
+      - updated
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      alias:
+        type: string
+      vendor:
+        type: string
+        format: uuid
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+      specification:
+        anyOf:
+          - type: object
+          - type: null
+      sku:
+        anyOf:
+          - type: string
+          - type: null
+      generation_name:
+        anyOf:
+          - type: string
+          - type: null
+      legacy_product_name:
+        anyOf:
+          - type: string
+          - type: null
+      prefix:
+        anyOf:
+          - type: string
+          - type: null
+
+      
