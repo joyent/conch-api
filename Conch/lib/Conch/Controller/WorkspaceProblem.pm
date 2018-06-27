@@ -12,10 +12,9 @@ package Conch::Controller::WorkspaceProblem;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Conch::Legacy::Schema;
+use Conch::Models;
 use Conch::Legacy::Control::Problem 'get_problems';
 
-use Conch::Pg;
 
 =head2 list
 
@@ -25,12 +24,8 @@ Get a list of problems for a workspace, using the Legacy code base
 
 # get_problems needs to be heavily re-worked. For now, use the legacy code using DBIC
 sub list ($c) {
-	my $pg = Conch::Pg->new;
-	my $schema = Conch::Legacy::Schema->connect( $pg->dsn, $pg->username,
-		$pg->password );
-
 	my $problems = get_problems(
-		$schema,
+		$c->schema,
 		$c->stash('user_id'),
 		$c->stash('current_workspace')->id
 	);

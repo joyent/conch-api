@@ -11,14 +11,9 @@ Conch::Controller::DeviceReport
 package Conch::Controller::DeviceReport;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::UUID 'is_uuid';
-
-use Try::Tiny;
-
-use Conch::Legacy::Schema;
-use Conch::Legacy::Control::DeviceReport 'record_device_report';
 
 use Conch::Models;
+use Conch::Legacy::Control::DeviceReport 'record_device_report';
 
 =head2 process
 
@@ -45,11 +40,11 @@ sub process ($c) {
 
 	# Use the old device report recording and device validation code for now.
 	# This will be removed when OPS-RFD 22 is implemented
-	my $pg = Conch::Pg->new;
-	my $schema =
-		Conch::Legacy::Schema->connect( $pg->dsn, $pg->username, $pg->password );
-
-	my ( $device, $report_id ) = record_device_report( $schema, $device_report, $raw_report );
+	my ( $device, $report_id ) = record_device_report(
+		$c->schema,
+		$device_report,
+		$raw_report
+	);
 
 	my $validation_plan;
 	if ( $device_report->{device_type}
