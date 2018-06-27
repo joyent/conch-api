@@ -26,7 +26,7 @@ use Type::Tiny;
 use Types::Standard qw(Str ArrayRef Undef);
 use Types::UUID qw(Uuid);
 
-use List::MoreUtils qw(uniq bremove qsort);
+use List::MoreUtils::XS qw(uniq bremove qsort);
 
 use Conch::Pg;
 
