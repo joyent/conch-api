@@ -37,7 +37,10 @@ public/doc/index.html: \
 watch-test:
 	@find lib t | entr -r -c make test
 
-generate-dbic: ## Regenerate DBIC schemas
+generate-dbic: dbic 
+
+.PHONY: dbic
+dbic: ## Regenerate DBIC schemas
 	@carton exec dbicdump schema.conf
 
 migrate-db: ## Apply database migrations

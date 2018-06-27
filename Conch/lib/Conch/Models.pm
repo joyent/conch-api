@@ -12,7 +12,7 @@ Convenience class to load all the Conch::Model classes
 
 package Conch::Models;
 
-use Conch::Legacy::Schema;
+use Conch::DB::Schema;
 
 use Conch::Model::Datacenter;
 use Conch::Model::DatacenterRoom;
