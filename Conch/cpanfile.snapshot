@@ -283,7 +283,6 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
-      Config::General 2.47
       Module::Pluggable::Object 3.6
   Config-General-2.63
     pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
@@ -878,14 +877,6 @@ DISTRIBUTIONS
     requirements:
       Digest::MD5 0
       ExtUtils::MakeMaker 0
-  Data-Validate-UUID-0.1.1
-    pathname: D/DR/DRZIGMAN/Data-Validate-UUID-0.1.1.tar.gz
-    provides:
-      Data::Validate::UUID 0.001001
-    requirements:
-      Exporter 0
-      Module::Build 0.28
-      perl 5.006
   DateTime-1.46
     pathname: D/DR/DROLSKY/DateTime-1.46.tar.gz
     provides:
@@ -1422,14 +1413,6 @@ DISTRIBUTIONS
       perl 5.008004
       strict 0
       warnings 0
-  Devel-GlobalDestruction-0.14
-    pathname: H/HA/HAARG/Devel-GlobalDestruction-0.14.tar.gz
-    provides:
-      Devel::GlobalDestruction 0.14
-    requirements:
-      ExtUtils::MakeMaker 0
-      Sub::Exporter::Progressive 0.001011
-      perl 5.006
   Devel-NYTProf-6.04
     pathname: T/TI/TIMB/Devel-NYTProf-6.04.tar.gz
     provides:
@@ -1553,23 +1536,6 @@ DISTRIBUTIONS
       Test::Simple 0.88
       aliased 0
       perl v5.8.0
-  Exporter-Tiny-1.000000
-    pathname: T/TO/TOBYINK/Exporter-Tiny-1.000000.tar.gz
-    provides:
-      Exporter::Shiny 1.000000
-      Exporter::Tiny 1.000000
-    requirements:
-      ExtUtils::MakeMaker 6.17
-      perl 5.006001
-  ExtUtils-Config-0.008
-    pathname: L/LE/LEONT/ExtUtils-Config-0.008.tar.gz
-    provides:
-      ExtUtils::Config 0.008
-    requirements:
-      Data::Dumper 0
-      ExtUtils::MakeMaker 6.30
-      strict 0
-      warnings 0
   ExtUtils-Depends-0.405
     pathname: X/XA/XAOC/ExtUtils-Depends-0.405.tar.gz
     provides:
@@ -1580,36 +1546,6 @@ DISTRIBUTIONS
       File::Spec 0
       IO::File 0
       perl 5.006
-  ExtUtils-Helpers-0.026
-    pathname: L/LE/LEONT/ExtUtils-Helpers-0.026.tar.gz
-    provides:
-      ExtUtils::Helpers 0.026
-      ExtUtils::Helpers::Unix 0.026
-      ExtUtils::Helpers::VMS 0.026
-      ExtUtils::Helpers::Windows 0.026
-    requirements:
-      Carp 0
-      Exporter 5.57
-      ExtUtils::MakeMaker 0
-      File::Basename 0
-      File::Copy 0
-      File::Spec::Functions 0
-      Text::ParseWords 3.24
-      perl 5.006
-      strict 0
-      warnings 0
-  ExtUtils-InstallPaths-0.011
-    pathname: L/LE/LEONT/ExtUtils-InstallPaths-0.011.tar.gz
-    provides:
-      ExtUtils::InstallPaths 0.011
-    requirements:
-      Carp 0
-      ExtUtils::Config 0.002
-      ExtUtils::MakeMaker 0
-      File::Spec 0
-      perl 5.006
-      strict 0
-      warnings 0
   Fennec-Lite-0.004
     pathname: E/EX/EXODIST/Fennec-Lite-0.004.tar.gz
     provides:
@@ -1761,22 +1697,6 @@ DISTRIBUTIONS
       Mozilla::CA 0
       Net::SSLeay 1.46
       Scalar::Util 0
-  IO-stringy-2.111
-    pathname: D/DS/DSKOLL/IO-stringy-2.111.tar.gz
-    provides:
-      IO::AtomicFile 2.111
-      IO::Clever 1.01
-      IO::InnerFile 2.111
-      IO::Lines 2.111
-      IO::Scalar 2.111
-      IO::ScalarArray 2.111
-      IO::Stringy 2.111
-      IO::Wrap 2.111
-      IO::WrapTie 2.111
-      IO::WrapTie::Master 2.111
-      IO::WrapTie::Slave 2.111
-    requirements:
-      ExtUtils::MakeMaker 0
   Import-Into-1.002005
     pathname: H/HA/HAARG/Import-Into-1.002005.tar.gz
     provides:
@@ -1980,15 +1900,6 @@ DISTRIBUTIONS
       List::Compare::Multiple::Accelerated 0.53
     requirements:
       ExtUtils::MakeMaker 0
-  List-MoreUtils-0.428
-    pathname: R/RE/REHSACK/List-MoreUtils-0.428.tar.gz
-    provides:
-      List::MoreUtils 0.428
-      List::MoreUtils::PP 0.428
-    requirements:
-      Exporter::Tiny 0.038
-      ExtUtils::MakeMaker 0
-      List::MoreUtils::XS 0.426
   List-MoreUtils-XS-0.428
     pathname: R/RE/REHSACK/List-MoreUtils-XS-0.428.tar.gz
     provides:
@@ -2003,40 +1914,6 @@ DISTRIBUTIONS
       IPC::Cmd 0
       XSLoader 0.22
       base 0
-  Log-Any-1.705
-    pathname: P/PR/PREACTION/Log-Any-1.705.tar.gz
-    provides:
-      Log::Any 1.705
-      Log::Any::Adapter 1.705
-      Log::Any::Adapter::Base 1.705
-      Log::Any::Adapter::File 1.705
-      Log::Any::Adapter::Null 1.705
-      Log::Any::Adapter::Stderr 1.705
-      Log::Any::Adapter::Stdout 1.705
-      Log::Any::Adapter::Syslog 1.705
-      Log::Any::Adapter::Test 1.705
-      Log::Any::Adapter::Util 1.705
-      Log::Any::Manager 1.705
-      Log::Any::Proxy 1.705
-      Log::Any::Proxy::Null 1.705
-      Log::Any::Proxy::Test 1.705
-      Log::Any::Test 1.705
-    requirements:
-      B 0
-      Carp 0
-      Data::Dumper 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      Fcntl 0
-      File::Basename 0
-      FindBin 0
-      IO::File 0
-      Storable 0
-      Sys::Syslog 0
-      Test::Builder 0
-      constant 0
-      strict 0
-      warnings 0
   Log-Any-Adapter-Log4perl-0.09
     pathname: P/PR/PREACTION/Log-Any-Adapter-Log4perl-0.09.tar.gz
     provides:
@@ -2050,79 +1927,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Log-Any-Adapter-Screen-0.13
-    pathname: P/PE/PERLANCAR/Log-Any-Adapter-Screen-0.13.tar.gz
-    provides:
-      Log::Any::Adapter::Screen 0.13
-    requirements:
-      ExtUtils::MakeMaker 0
-      Log::Any 0
-      Log::Any::Adapter 0.11
-      Term::ANSIColor 0
-      Time::HiRes 0
-      parent 0
-      perl 5.010001
-      strict 0
-      warnings 0
-  Log-Log4perl-1.49
-    pathname: M/MS/MSCHILLI/Log-Log4perl-1.49.tar.gz
-    provides:
-      L4pResurrectable 0.01
-      Log::Log4perl 1.49
-      Log::Log4perl::Appender undef
-      Log::Log4perl::Appender::Buffer undef
-      Log::Log4perl::Appender::DBI undef
-      Log::Log4perl::Appender::File undef
-      Log::Log4perl::Appender::Limit undef
-      Log::Log4perl::Appender::RRDs undef
-      Log::Log4perl::Appender::Screen undef
-      Log::Log4perl::Appender::ScreenColoredLevels undef
-      Log::Log4perl::Appender::Socket undef
-      Log::Log4perl::Appender::String undef
-      Log::Log4perl::Appender::Synchronized undef
-      Log::Log4perl::Appender::TestArrayBuffer undef
-      Log::Log4perl::Appender::TestBuffer undef
-      Log::Log4perl::Appender::TestFileCreeper undef
-      Log::Log4perl::Catalyst undef
-      Log::Log4perl::Config undef
-      Log::Log4perl::Config::BaseConfigurator undef
-      Log::Log4perl::Config::DOMConfigurator 0.03
-      Log::Log4perl::Config::PropertyConfigurator undef
-      Log::Log4perl::Config::Watch undef
-      Log::Log4perl::DateFormat undef
-      Log::Log4perl::Filter undef
-      Log::Log4perl::Filter::Boolean undef
-      Log::Log4perl::Filter::LevelMatch undef
-      Log::Log4perl::Filter::LevelRange undef
-      Log::Log4perl::Filter::MDC undef
-      Log::Log4perl::Filter::StringMatch undef
-      Log::Log4perl::InternalDebug undef
-      Log::Log4perl::JavaMap undef
-      Log::Log4perl::JavaMap::ConsoleAppender undef
-      Log::Log4perl::JavaMap::FileAppender undef
-      Log::Log4perl::JavaMap::JDBCAppender undef
-      Log::Log4perl::JavaMap::NTEventLogAppender undef
-      Log::Log4perl::JavaMap::RollingFileAppender undef
-      Log::Log4perl::JavaMap::SyslogAppender undef
-      Log::Log4perl::JavaMap::TestBuffer undef
-      Log::Log4perl::Layout undef
-      Log::Log4perl::Layout::NoopLayout undef
-      Log::Log4perl::Layout::PatternLayout undef
-      Log::Log4perl::Layout::PatternLayout::Multiline undef
-      Log::Log4perl::Layout::SimpleLayout undef
-      Log::Log4perl::Level undef
-      Log::Log4perl::Logger undef
-      Log::Log4perl::MDC undef
-      Log::Log4perl::NDC undef
-      Log::Log4perl::Resurrector undef
-      Log::Log4perl::Util undef
-      Log::Log4perl::Util::Semaphore undef
-      Log::Log4perl::Util::TimeTracker undef
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Path 2.0606
-      File::Spec 0.82
-      Test::More 0.45
   Log-Log4perl-Layout-JSON-0.53
     pathname: M/MS/MSCHOUT/Log-Log4perl-Layout-JSON-0.53.tar.gz
     provides:
@@ -2338,31 +2142,6 @@ DISTRIBUTIONS
       Text::ParseWords 0
       perl 5.006001
       version 0.87
-  Module-Build-Tiny-0.039
-    pathname: L/LE/LEONT/Module-Build-Tiny-0.039.tar.gz
-    provides:
-      Module::Build::Tiny 0.039
-    requirements:
-      CPAN::Meta 0
-      DynaLoader 0
-      Exporter 5.57
-      ExtUtils::CBuilder 0
-      ExtUtils::Config 0.003
-      ExtUtils::Helpers 0.020
-      ExtUtils::Install 0
-      ExtUtils::InstallPaths 0.002
-      ExtUtils::ParseXS 0
-      File::Basename 0
-      File::Find 0
-      File::Path 0
-      File::Spec::Functions 0
-      Getopt::Long 2.36
-      JSON::PP 2
-      Pod::Man 0
-      TAP::Harness::Env 0
-      perl 5.006
-      strict 0
-      warnings 0
   Module-Find-0.13
     pathname: C/CR/CRENZ/Module-Find-0.13.tar.gz
     provides:
@@ -2552,7 +2331,6 @@ DISTRIBUTIONS
       Mojolicious::Lite undef
       Mojolicious::Plugin undef
       Mojolicious::Plugin::Config undef
-      Mojolicious::Plugin::Config::Sandbox undef
       Mojolicious::Plugin::DefaultHelpers undef
       Mojolicious::Plugin::EPLRenderer undef
       Mojolicious::Plugin::EPRenderer undef
@@ -3034,25 +2812,6 @@ DISTRIBUTIONS
       parent 0.223
       strict 1.03
       warnings 1.03
-  MooseX-Constructor-AllErrors-0.025
-    pathname: E/ET/ETHER/MooseX-Constructor-AllErrors-0.025.tar.gz
-    provides:
-      MooseX::Constructor::AllErrors 0.025
-      MooseX::Constructor::AllErrors::Error 0.025
-      MooseX::Constructor::AllErrors::Error::Constructor 0.025
-      MooseX::Constructor::AllErrors::Error::Misc 0.025
-      MooseX::Constructor::AllErrors::Error::Required 0.025
-      MooseX::Constructor::AllErrors::Error::TypeConstraint 0.025
-      MooseX::Constructor::AllErrors::Role::Object 0.025
-    requirements:
-      Module::Build::Tiny 0.007
-      Moose 0
-      Moose::Exporter 0
-      Moose::Role 0
-      Try::Tiny 0
-      namespace::autoclean 0.16
-      overload 0
-      perl 5.006
   MooseX-MarkAsMethods-0.15
     pathname: R/RS/RSRCHBOY/MooseX-MarkAsMethods-0.15.tar.gz
     provides:
@@ -3089,49 +2848,6 @@ DISTRIBUTIONS
       Moose::Util 0
       Try::Tiny 0
       warnings 0
-  MooseX-Storage-0.52
-    pathname: E/ET/ETHER/MooseX-Storage-0.52.tar.gz
-    provides:
-      MooseX::Storage 0.52
-      MooseX::Storage::Base::WithChecksum 0.52
-      MooseX::Storage::Basic 0.52
-      MooseX::Storage::Deferred 0.52
-      MooseX::Storage::Engine 0.52
-      MooseX::Storage::Engine::IO::AtomicFile 0.52
-      MooseX::Storage::Engine::IO::File 0.52
-      MooseX::Storage::Engine::Trait::DisableCycleDetection 0.52
-      MooseX::Storage::Engine::Trait::OnlyWhenBuilt 0.52
-      MooseX::Storage::Format::JSON 0.52
-      MooseX::Storage::Format::Storable 0.52
-      MooseX::Storage::Format::YAML 0.52
-      MooseX::Storage::IO::AtomicFile 0.52
-      MooseX::Storage::IO::File 0.52
-      MooseX::Storage::IO::StorableFile 0.52
-      MooseX::Storage::Meta::Attribute::DoNotSerialize 0.52
-      MooseX::Storage::Meta::Attribute::Trait::DoNotSerialize 0.52
-      MooseX::Storage::Traits::DisableCycleDetection 0.52
-      MooseX::Storage::Traits::OnlyWhenBuilt 0.52
-      MooseX::Storage::Util 0.52
-    requirements:
-      CPAN::Meta::Requirements 2.120620
-      Carp 0
-      Data::Dumper 0
-      Digest 0
-      ExtUtils::MakeMaker 0
-      IO::AtomicFile 0
-      IO::File 0
-      JSON::MaybeXS 1.001000
-      Module::Metadata 0
-      Module::Runtime 0
-      Moose 0.99
-      Moose::Meta::Attribute 0
-      Moose::Role 0
-      Scalar::Util 0
-      Storable 0
-      String::RewritePrefix 0
-      YAML::Any 0
-      namespace::autoclean 0
-      perl 5.008
   MooseX-Types-0.50
     pathname: E/ET/ETHER/MooseX-Types-0.50.tar.gz
     provides:
@@ -3630,16 +3346,6 @@ DISTRIBUTIONS
       HTML::Entities 0
       Test::More 0.86
       Unicode::GCString 0
-  String-RewritePrefix-0.007
-    pathname: R/RJ/RJBS/String-RewritePrefix-0.007.tar.gz
-    provides:
-      String::RewritePrefix 0.007
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 6.30
-      Sub::Exporter 0.972
-      strict 0
-      warnings 0
   String-ToIdentifier-EN-0.12
     pathname: R/RK/RKITOVER/String-ToIdentifier-EN-0.12.tar.gz
     provides:
@@ -3680,12 +3386,6 @@ DISTRIBUTIONS
       Sub::Name 0
       strict 0
       warnings 0
-  Sub-Exporter-Progressive-0.001013
-    pathname: F/FR/FREW/Sub-Exporter-Progressive-0.001013.tar.gz
-    provides:
-      Sub::Exporter::Progressive 0.001013
-    requirements:
-      ExtUtils::MakeMaker 0
   Sub-Identify-0.14
     pathname: R/RG/RGARCIA/Sub-Identify-0.14.tar.gz
     provides:
@@ -3735,18 +3435,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Submodules-1.0014
-    pathname: Z/ZA/ZARABOZO/Submodules-1.0014.tar.gz
-    provides:
-      Submodules 1.0014
-      Submodules::Result 1.0014
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Basename 0
-      File::Find 0
-      File::Spec 0
-      Test::More 0
-      perl 5.006
   Test-Deep-1.127
     pathname: R/RJ/RJBS/Test-Deep-1.127.tar.gz
     provides:
@@ -4186,17 +3874,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
-  aliased-0.34
-    pathname: E/ET/ETHER/aliased-0.34.tar.gz
-    provides:
-      aliased 0.34
-    requirements:
-      Carp 0
-      Exporter 0
-      Module::Build::Tiny 0.039
-      perl 5.006
-      strict 0
-      warnings 0
   bareword-filehandles-0.005
     pathname: I/IL/ILMARI/bareword-filehandles-0.005.tar.gz
     provides:
