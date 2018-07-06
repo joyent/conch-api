@@ -111,6 +111,7 @@ sub update ($c) {
 
 	for my $k (qw[name alias sku]) {
 		next unless $i->{$k};
+		next if $i->{$k} eq $c->stash('hardware_product')->get_column($k);
 		my @r = $c->schema->resultset("HardwareProduct")->search({
 			$k => $i->{$k}
 		})->all;
