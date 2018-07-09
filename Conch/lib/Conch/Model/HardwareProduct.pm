@@ -135,6 +135,32 @@ sub lookup_by_name ( $self, $name ) {
 	return _build_hardware_product($ret);
 }
 
+=head2 lookup_by_sku
+
+Look up a hardware product and associated hardware product
+profile by the hardware SKU.
+
+=cut
+sub lookup_by_sku ( $self, $sku ) {
+	my $ret = Conch::Pg->new->db->query(
+		qq{
+        SELECT $fields
+        FROM hardware_product hw_product
+        JOIN hardware_product_profile hw_profile
+          ON hw_product.id = hw_profile.product_id
+        JOIN hardware_vendor vendor
+          ON hw_product.vendor = vendor.id
+        LEFT JOIN zpool_profile zpool
+          ON hw_profile.zpool_id = zpool.id
+        WHERE hw_product.deactivated IS NULL
+          AND hw_product.sku = ?
+      }, $sku
+	)->hash;
+return undef unless $ret;
+
+return _build_hardware_product($ret);
+}
+
 sub _build_hardware_product ($hw) {
 
 	my $zpool_profile =

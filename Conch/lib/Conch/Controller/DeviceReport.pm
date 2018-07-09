@@ -26,8 +26,18 @@ sub process ($c) {
 	my $raw_report = $c->req->body;
 
 	my $hw_product_name = $device_report->{product_name};
-	my $maybe_hw =
-		Conch::Model::HardwareProduct->lookup_by_name($hw_product_name);
+	my $maybe_hw;
+
+	if ( $device_report->{device_type}
+		&& $device_report->{device_type} eq "switch" )
+	{
+		$maybe_hw =
+			Conch::Model::HardwareProduct->lookup_by_name($hw_product_name);
+	} else {
+		my $hw_sku = $device_report->{sku};
+		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_sku($hw_sku);
+	}
+
 
 	unless ($maybe_hw) {
 		return $c->status(

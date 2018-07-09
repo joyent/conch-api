@@ -342,6 +342,34 @@ sub hardware_product_name ($self) {
 	return $self->{_hardware_product}->name;
 }
 
+=head2 hardware_product_generation
+
+Get the expected hardware product generation for the device under validation.
+
+	if ($self->hardware_product_generation eq 'Joyent-123') {...}
+
+=cut
+
+sub hardware_product_name ($self) {
+	$self->die( "Validation must have an expected hardware product", level => 2 )
+		unless $self->{_hardware_product};
+	return $self->{_hardware_product}->generation_name;
+}
+
+=head2 hardware_product_sku
+
+Get the expected hardware product SKU for the device under validation.
+
+	if ($self->hardware_product_sku eq 'Joyent-123') {...}
+
+=cut
+
+sub hardware_product_name ($self) {
+	$self->die( "Validation must have an expected hardware product", level => 2 )
+		unless $self->{_hardware_product};
+	return $self->{_hardware_product}->sku;
+}
+
 =head2 hardware_product_vendor
 
 Get the expected hardware product vendor name for the device under validation.
