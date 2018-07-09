@@ -90,7 +90,7 @@ subtest 'Hardware Product' => sub {
 	is_deeply(
 		\@hardware_product_names,
 		[
-			'Joyent-Compute-Platform', 'Joyent-Storage-Platform',
+			'2-ssds-1-cpu', '65-ssds-2-cpu',
 			'Switch'
 		]
 	);
