@@ -350,7 +350,7 @@ Get the expected hardware product generation for the device under validation.
 
 =cut
 
-sub hardware_product_name ($self) {
+sub hardware_product_generation ($self) {
 	$self->die( "Validation must have an expected hardware product", level => 2 )
 		unless $self->{_hardware_product};
 	return $self->{_hardware_product}->generation_name;
@@ -364,7 +364,7 @@ Get the expected hardware product SKU for the device under validation.
 
 =cut
 
-sub hardware_product_name ($self) {
+sub hardware_product_sku ($self) {
 	$self->die( "Validation must have an expected hardware product", level => 2 )
 		unless $self->{_hardware_product};
 	return $self->{_hardware_product}->sku;
