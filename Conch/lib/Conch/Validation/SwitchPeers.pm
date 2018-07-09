@@ -26,13 +26,20 @@ sub validate {
 
 	my $rack_slots = $device_location->datacenter_rack->slots;
 
-	my @peer_ports =
-		$self->_calculate_switch_peer_ports( $device_location->rack_unit,
-		$rack_slots );
-
 	my @eth_nics =
 		map { $data->{interfaces}->{$_} }
 		grep { $_ =~ /eth/ } ( keys $data->{interfaces}->%* );
+
+	# XXX This is awful. I'm sorry.
+	my $peer_vendor;
+	foreach my $n (@eth_nics) {
+		$peer_vendor = $n->{peer_descr};
+		$peer_vendor =~ s/\s.*$//;
+	}
+
+	my @peer_ports =
+		$self->_calculate_switch_peer_ports( $device_location->rack_unit,
+		$rack_slots, $peer_vendor );
 
 	my $switch_peers = {};
 
@@ -79,7 +86,7 @@ sub validate {
 }
 
 sub _calculate_switch_peer_ports {
-	my ( $self, $rack_unit, $rack_slots ) = @_;
+	my ( $self, $rack_unit, $rack_slots, $peer_vendor ) = @_;
 	my $rack_index =
 		first { $rack_slots->[$_] == $rack_unit } 0 .. $rack_slots->$#*;
 	defined $rack_index
@@ -87,10 +94,17 @@ sub _calculate_switch_peer_ports {
 
 	my $first_port = 1 + $rack_index;
 
-	# offset of 19 is standard for all deployments, including 62U racks
-	my $second_port = $first_port + 19;
+	if ($peer_vendor eq "Dell") {
+		# offset of 19 is standard for all Dell deployments, including 62U racks
+		my $second_port = $first_port + 19;
+		return ( "1/$first_port", "1/$second_port" );
+	}
 
-	return ( "1/$first_port", "1/$second_port" );
+	if ($peer_vendor eq "Arista") {
+		# offset of 24 is standard for all Arista deployments, including 62U racks
+		my $second_port = $first_port + 24;
+		return ( "Ethernet$first_port", "Ethernet$second_port" );
+	}
 }
 
 1;
