@@ -16,13 +16,20 @@ INSERT INTO datacenter_rack (datacenter_room_id, name, role)
 INSERT INTO datacenter_rack_layout (rack_id, product_id, ru_start)
     VALUES (
         ( SELECT id FROM datacenter_rack WHERE name = 'Test Rack' ),
-        ( SELECT id FROM hardware_product WHERE name = 'Joyent-Compute-Platform'),
+        ( SELECT id FROM hardware_product WHERE name = '2-ssds-1-cpu'),
         1
     );
 
 INSERT INTO datacenter_rack_layout (rack_id, product_id, ru_start)
     VALUES (
         ( SELECT id FROM datacenter_rack WHERE name = 'Test Rack' ),
-        ( SELECT id FROM hardware_product WHERE name = 'Joyent-Compute-Platform'),
+        ( SELECT id FROM hardware_product WHERE name = '2-ssds-1-cpu'),
         3
+    );
+
+INSERT INTO datacenter_rack_layout (rack_id, product_id, ru_start)
+    VALUES (
+        ( SELECT id FROM datacenter_rack WHERE name = 'Test Rack' ),
+        ( SELECT id FROM hardware_product WHERE name = '65-ssds-2-cpu'),
+        7
     );

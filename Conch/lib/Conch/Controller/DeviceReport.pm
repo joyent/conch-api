@@ -25,17 +25,27 @@ sub process ($c) {
 	my $device_report = $c->validate_input('DeviceReport') or return;
 	my $raw_report = $c->req->body;
 
-	my $hw_product_name = $device_report->{product_name};
-	my $maybe_hw =
-		Conch::Model::HardwareProduct->lookup_by_name($hw_product_name);
+	my $maybe_hw;
 
-	unless ($maybe_hw) {
-		return $c->status(
-			409,
-			{
-				error => "Hardware Product '$hw_product_name' does not exist."
-			}
+	if ( $device_report->{device_type}
+		&& $device_report->{device_type} eq "switch" )
+	{
+		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_name(
+			$device_report->{product_name}
 		);
+		return $c->status(409, { 
+			error => "Hardware product name '".$device_report->{product_name}."' does not exist"
+		}) unless ($maybe_hw);
+
+	} else {
+		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_sku(
+			$device_report->{sku}
+		);
+
+		return $c->status(409, { 
+			error => "Hardware product SKU '".$device_report->{sku}."' does not exist"
+		}) unless ($maybe_hw);
+
 	}
 
 	# Use the old device report recording and device validation code for now.
