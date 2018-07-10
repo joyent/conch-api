@@ -80,5 +80,4 @@ on 'test' => sub {
     requires 'IO::All';
     requires 'JSON::Validator';
     requires 'YAML::XS';
-	requires 'Test::Exception';
 };
