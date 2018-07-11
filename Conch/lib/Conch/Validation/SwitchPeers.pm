@@ -87,24 +87,32 @@ sub validate {
 
 sub _calculate_switch_peer_ports {
 	my ( $self, $rack_unit, $rack_slots, $peer_vendor ) = @_;
-	my $rack_index =
-		first { $rack_slots->[$_] == $rack_unit } 0 .. $rack_slots->$#*;
+
+	my $rack_index = first { $rack_slots->[$_] == $rack_unit } 0 .. $rack_slots->$#*;
+
 	defined $rack_index
 		or $self->die('Device assigned to rack unit not in rack layout');
 
 	my $first_port = 1 + $rack_index;
 
-	if ($peer_vendor eq "Dell") {
-		# offset of 19 is standard for all Dell deployments, including 62U racks
+	if ($peer_vendor) {
+		if ($peer_vendor eq "Dell") {
+			# offset of 19 is standard for all Dell deployments, including 62U racks
+			my $second_port = $first_port + 19;
+			return ( "1/$first_port", "1/$second_port" );
+		}
+
+		if ($peer_vendor eq "Arista") {
+			# offset of 24 is standard for all Arista deployments, including 62U racks
+			my $second_port = $first_port + 24;
+			return ( "Ethernet$first_port", "Ethernet$second_port" );
+		}
+	} else {
+		# Handle legacy reports that lack peer vendor data
 		my $second_port = $first_port + 19;
 		return ( "1/$first_port", "1/$second_port" );
 	}
 
-	if ($peer_vendor eq "Arista") {
-		# offset of 24 is standard for all Arista deployments, including 62U racks
-		my $second_port = $first_port + 24;
-		return ( "Ethernet$first_port", "Ethernet$second_port" );
-	}
 }
 
 1;
