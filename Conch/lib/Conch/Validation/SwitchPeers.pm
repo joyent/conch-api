@@ -26,13 +26,40 @@ sub validate {
 
 	my $rack_slots = $device_location->datacenter_rack->slots;
 
-	my @peer_ports =
-		$self->_calculate_switch_peer_ports( $device_location->rack_unit,
-		$rack_slots );
-
 	my @eth_nics =
 		map { $data->{interfaces}->{$_} }
 		grep { $_ =~ /eth/ } ( keys $data->{interfaces}->%* );
+
+	# We assume that all eth_nics are peered with the same device right now.
+	# This should eventually also validate if we are peered to the right
+	# place.
+
+	my $peer_vendor;
+	for my $e (@eth_nics) {
+		if($e->{peer_vendor}) {
+			$peer_vendor = $e->{peer_vendor};
+
+		} elsif($e->{peer_descr}) {
+			# This is fragile because it depends on the format of the text string in
+			# peer_descr
+			# Example: "peer_descr": "Arista Networks EOS version 4.20.7M running on an Arista Networks $serial",
+			# We're extracting "Arista" from that string. Should it ever change, this
+			# code will break.
+
+			# Eventually, this normalization will be done on the edge and this
+			# block can be removed.
+			# [2018-07-11 sungo]
+			$peer_vendor = $e->{peer_descr};
+			$peer_vendor =~ s/\s.+$//;
+		}
+		last if $peer_vendor;
+	}
+
+	my @peer_ports = $self->_calculate_switch_peer_ports(
+		$device_location->rack_unit,
+		$rack_slots,
+		$peer_vendor,
+	);
 
 	my $switch_peers = {};
 
@@ -79,18 +106,31 @@ sub validate {
 }
 
 sub _calculate_switch_peer_ports {
-	my ( $self, $rack_unit, $rack_slots ) = @_;
-	my $rack_index =
-		first { $rack_slots->[$_] == $rack_unit } 0 .. $rack_slots->$#*;
+	my ( $self, $rack_unit, $rack_slots, $peer_vendor ) = @_;
+
+	my $rack_index = first { $rack_slots->[$_] == $rack_unit } 0 .. $rack_slots->$#*;
+
 	defined $rack_index
 		or $self->die('Device assigned to rack unit not in rack layout');
 
 	my $first_port = 1 + $rack_index;
 
-	# offset of 19 is standard for all deployments, including 62U racks
-	my $second_port = $first_port + 19;
+	if ($peer_vendor) {
+		if ($peer_vendor eq "Dell") {
+			# offset of 19 is standard for all Dell deployments, including 62U racks
+			my $second_port = $first_port + 19;
+			return ( "1/$first_port", "1/$second_port" );
+		} elsif ($peer_vendor eq "Arista") {
+			# offset of 24 is standard for all Arista deployments, including 62U racks
+			my $second_port = $first_port + 24;
+			return ( "Ethernet$first_port", "Ethernet$second_port" );
+		}
+	}
 
+	# Handle reports that lack peer vendor data
+	my $second_port = $first_port + 19;
 	return ( "1/$first_port", "1/$second_port" );
+
 }
 
 1;
