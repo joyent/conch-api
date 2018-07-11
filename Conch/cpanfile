@@ -81,3 +81,17 @@ on 'test' => sub {
     requires 'JSON::Validator';
     requires 'YAML::XS';
 };
+
+# note: DBD::Pg will fail to install on macos 10.13.x because Apple is
+# shipping a bad berkeley-db. To fix (do this in a subshell you will close
+# afterward, so as to not pollute your environment):
+# eval $(perl -Mlocal::lib='local/lib/perl5')
+# cpanm --look DB_File
+# (you're now in another subshell)
+# edit config.in to add these two lines, replacing the existing INCLUDE and LIB lines:
+#   INCLUDE	= /opt/local/include/db48
+#   LIB	= /opt/local/lib/db48
+# perl Makefile.PL; make install
+# <close subshell>
+# see also: https://rt.cpan.org/Public/Bug/Display.html?id=125238
+# and https://rt.perl.org/Ticket/Display.html?id=133280
