@@ -120,18 +120,16 @@ sub _calculate_switch_peer_ports {
 			# offset of 19 is standard for all Dell deployments, including 62U racks
 			my $second_port = $first_port + 19;
 			return ( "1/$first_port", "1/$second_port" );
-		}
-
-		if ($peer_vendor eq "Arista") {
+		} elsif ($peer_vendor eq "Arista") {
 			# offset of 24 is standard for all Arista deployments, including 62U racks
 			my $second_port = $first_port + 24;
 			return ( "Ethernet$first_port", "Ethernet$second_port" );
 		}
-	} else {
-		# Handle legacy reports that lack peer vendor data
-		my $second_port = $first_port + 19;
-		return ( "1/$first_port", "1/$second_port" );
 	}
+
+	# Handle reports that lack peer vendor data
+	my $second_port = $first_port + 19;
+	return ( "1/$first_port", "1/$second_port" );
 
 }
 
