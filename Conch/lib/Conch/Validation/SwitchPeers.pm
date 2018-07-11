@@ -30,16 +30,36 @@ sub validate {
 		map { $data->{interfaces}->{$_} }
 		grep { $_ =~ /eth/ } ( keys $data->{interfaces}->%* );
 
-	# XXX This is awful. I'm sorry.
+	# We assume that all eth_nics are peered with the same device right now.
+	# This should eventually also validate if we are peered to the right
+	# place.
+
 	my $peer_vendor;
-	foreach my $n (@eth_nics) {
-		$peer_vendor = $n->{peer_descr};
-		$peer_vendor =~ s/\s.*$//;
+	for my $e (@eth_nics) {
+		if($e->{peer_vendor}) {
+			$peer_vendor = $e->{peer_vendor};
+
+		} elsif($e->{peer_descr}) {
+			# This is fragile because it depends on the format of the text string in
+			# peer_descr
+			# Example: "peer_descr": "Arista Networks EOS version 4.20.7M running on an Arista Networks $serial",
+			# We're extracting "Arista" from that string. Should it ever change, this
+			# code will break.
+
+			# Eventually, this normalization will be done on the edge and this
+			# block can be removed.
+			# [2018-07-11 sungo]
+			$peer_vendor = $e->{peer_descr};
+			$peer_vendor =~ s/\s.+$//;
+		}
+		last if $peer_vendor;
 	}
 
-	my @peer_ports =
-		$self->_calculate_switch_peer_ports( $device_location->rack_unit,
-		$rack_slots, $peer_vendor );
+	my @peer_ports = $self->_calculate_switch_peer_ports(
+		$device_location->rack_unit,
+		$rack_slots,
+		$peer_vendor,
+	);
 
 	my $switch_peers = {};
 
