@@ -118,24 +118,6 @@ sub startup {
 	);
 
 
-	my $unparsable_report_logger = Mojo::Log->new(
-		path   => "log/unparsable_report.log",
-		format => sub {
-			my ( $time, undef, @lines ) = @_;
-			$time = localtime($time);
-			return map { "[$time] " . $_ . "\n" } @lines;
-		}
-	);
-	$self->helper(
-		log_unparsable_report => sub {
-			my ( undef, $report, $errs ) = @_;
-			$unparsable_report_logger->error(
-				'Failed parsing device report: ' . $errs );
-			$unparsable_report_logger->error(
-				"Device Report: " . Mojo::JSON::encode_json($report) );
-		}
-	);
-
 	$self->hook(
 		# Preventative check against CSRF. Cross-origin requests can only
 		# specify application/x-www-form-urlencoded, multipart/form-data,
