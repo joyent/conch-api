@@ -177,6 +177,7 @@ sub run ( $self, $data ) {
 		);
 		push $self->validation_results->@*, $validation_error;
 	};
+	return $self;
 }
 
 =head2 run_unsafe
