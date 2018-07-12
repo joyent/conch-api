@@ -39,7 +39,8 @@ my $hardware_product_id = $pg->db->insert(
 	{
 		name   => 'test hw product',
 		alias  => 'alias',
-		vendor => $hardware_vendor_id
+		vendor => $hardware_vendor_id,
+		generation_name => 'Joyent-G1',
 	},
 	{ returning => ['id'] }
 )->hash->{id};
@@ -199,7 +200,7 @@ subtest "run validation plan" => sub {
 
 	my $pass_state =
 		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, { product_name => 'test hw product' } );
+		$validation_plan->id, { product_name => 'Joyent-G1' } );
 	is( scalar $pass_state->validation_results->@*, 1 );
 	is( $pass_state->status, 'pass',
 		'Validation state should be pass because all results passed' );

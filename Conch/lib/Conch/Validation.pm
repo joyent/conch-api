@@ -342,6 +342,21 @@ sub hardware_product_name ($self) {
 	return $self->{_hardware_product}->name;
 }
 
+=head2 hardware_legacy_product_name
+
+Get the expected hardware legacy product name for the device under validation.
+
+	if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
+
+=cut
+
+sub hardware_legacy_product_name ($self) {
+	$self->die( "Validation must have an expected hardware product", level => 2 )
+		unless $self->{_hardware_product};
+	return $self->{_hardware_product}->legacy_product_name;
+}
+
+
 =head2 hardware_product_generation
 
 Get the expected hardware product generation for the device under validation.
@@ -349,7 +364,6 @@ Get the expected hardware product generation for the device under validation.
 	if ($self->hardware_product_generation eq 'Joyent-123') {...}
 
 =cut
-
 sub hardware_product_generation ($self) {
 	$self->die( "Validation must have an expected hardware product", level => 2 )
 		unless $self->{_hardware_product};

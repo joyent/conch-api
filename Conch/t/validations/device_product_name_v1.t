@@ -3,7 +3,10 @@ use Test::Conch::Validation;
 
 test_validation(
 	'Conch::Validation::DeviceProductName',
-	hardware_product => { name => 'Test Product' },
+	hardware_product => { 
+		name => 'Test Product',
+		generation_name => 'Joyent-G1',
+	},
 	cases            => [
 		{
 			description => 'No data dies',
@@ -12,7 +15,7 @@ test_validation(
 		},
 		{
 			description => 'Correct product name',
-			data        => { 'product_name' => 'Test Product' },
+			data        => { 'product_name' => 'Joyent-G1' },
 			success_num => 1
 		},
 		{

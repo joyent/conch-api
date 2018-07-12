@@ -20,11 +20,20 @@ has schema => sub {
 
 sub validate {
 	my ( $self, $data ) = @_;
-
-	$self->register_result(
-		expected => $self->hardware_product_name,
-		got      => $data->{product_name},
-	);
+	if(
+		($data->{product_name} =~ /^Joyent-Compute/) or
+		($data->{product_name} =~ /^Joyent-Storage/)
+	) {
+		$self->register_result(
+			expected => $self->hardware_legacy_product_name,
+			got      => $data->{product_name},
+		);
+	} else {
+		$self->register_result(
+			expected => $self->hardware_product_generation,
+			got      => $data->{product_name},
+		);
+	}
 }
 
 1;
