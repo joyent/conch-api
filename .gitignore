@@ -12,6 +12,9 @@ tags
 node_modules
 Conch/ui/dist
 
+.ackrc
+.vimlocal
+
 CHANGELOG.md
 
 # Conch

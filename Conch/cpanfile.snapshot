@@ -2399,16 +2399,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Mojo-JSON_XS-1.003
-    pathname: N/NI/NICZERO/Mojo-JSON_XS-1.003.tar.gz
-    provides:
-      Mojo::JSON_XS 1.003
-    requirements:
-      Cpanel::JSON::XS 3.0109
-      ExtUtils::MakeMaker 6.3
-      Mojolicious 5.66
-      Test::More 0
-      perl 5.010001
   Mojo-JWT-0.07
     pathname: J/JB/JBERGER/Mojo-JWT-0.07.tar.gz
     provides:
@@ -2434,8 +2424,8 @@ DISTRIBUTIONS
       Mojolicious 7.53
       SQL::Abstract 1.85
       perl 5.010001
-  Mojolicious-7.71
-    pathname: S/SR/SRI/Mojolicious-7.71.tar.gz
+  Mojolicious-7.88
+    pathname: S/SR/SRI/Mojolicious-7.88.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2466,6 +2456,10 @@ DISTRIBUTIONS
       Mojo::IOLoop::Delay undef
       Mojo::IOLoop::Server undef
       Mojo::IOLoop::Stream undef
+      Mojo::IOLoop::Stream::HTTPClient undef
+      Mojo::IOLoop::Stream::HTTPServer undef
+      Mojo::IOLoop::Stream::WebSocketClient undef
+      Mojo::IOLoop::Stream::WebSocketServer undef
       Mojo::IOLoop::Subprocess undef
       Mojo::IOLoop::TLS undef
       Mojo::JSON undef
@@ -2504,7 +2498,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 7.71
+      Mojolicious 7.88
       Mojolicious::Command undef
       Mojolicious::Command::cgi undef
       Mojolicious::Command::cpanify undef
