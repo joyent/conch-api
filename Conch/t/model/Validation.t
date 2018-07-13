@@ -30,7 +30,8 @@ my $hardware_product_id = $pg->db->insert(
 	{
 		name   => 'test hw product',
 		alias  => 'alias',
-		vendor => $hardware_vendor_id
+		vendor => $hardware_vendor_id,
+		generation_name => 'Joyent-G1',
 	},
 	{ returning => ['id'] }
 )->hash->{id};
@@ -164,8 +165,8 @@ subtest "build_device_validation" => sub {
 	};
 
 	isa_ok( $device_validation, 'Conch::Validation' );
-	my $results = $device_validation->run( { product_name => 'test hw product' } )
-		->validation_results;
+	my $results = $device_validation->run( { product_name => 'Joyent-G1' } )
+			->validation_results;
 	is( scalar @$results, 1 );
 
 	# 'run_validation_for_device' is a convenience function for building and
@@ -174,7 +175,7 @@ subtest "build_device_validation" => sub {
 		my $run_results;
 		lives_ok {
 			$run_results = $real_validation->run_validation_for_device( $device,
-				{ product_name => 'test hw product' } );
+				{ product_name => 'Joyent-G1' } );
 		};
 		is_deeply( $run_results, $results, 'Results should be the same' );
 	};
