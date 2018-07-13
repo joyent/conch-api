@@ -248,7 +248,7 @@ __PACKAGE__->might_have(
 );
 
 
-__DATA__
+__END__
 
 =pod
 

@@ -46,7 +46,7 @@ sub validation_results ( $self, $report_id ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

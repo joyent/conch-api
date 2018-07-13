@@ -241,7 +241,7 @@ sub _bcrypt_salt {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

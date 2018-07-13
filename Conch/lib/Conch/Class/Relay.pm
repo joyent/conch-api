@@ -59,7 +59,7 @@ sub TO_JSON {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

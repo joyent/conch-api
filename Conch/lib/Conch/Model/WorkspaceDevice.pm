@@ -42,7 +42,7 @@ sub list ( $self, $ws_id, $last_seen_seconds = undef ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

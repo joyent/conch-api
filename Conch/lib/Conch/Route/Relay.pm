@@ -35,7 +35,7 @@ sub relay_routes {
 
 
 
-__DATA__
+__END__
 
 =pod
 

@@ -135,7 +135,7 @@ sub register ( $self, $app, $conf ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

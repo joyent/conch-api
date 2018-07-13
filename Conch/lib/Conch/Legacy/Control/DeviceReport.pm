@@ -294,7 +294,7 @@ sub _device_relay_connect {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

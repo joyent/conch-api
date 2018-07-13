@@ -36,7 +36,7 @@ sub workspace_users ( $self, $ws_id ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

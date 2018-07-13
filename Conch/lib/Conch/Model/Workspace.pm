@@ -184,7 +184,7 @@ sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

@@ -142,7 +142,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef, $with_devices = 1 ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

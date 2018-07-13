@@ -127,7 +127,7 @@ sub load_validation_plans ( $class, $plans, $logger = Mojo::Log->new ) {
 }
 
 1;
-__DATA__
+__END__
 
 =pod
 

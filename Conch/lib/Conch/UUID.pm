@@ -64,7 +64,7 @@ sub is_uuid ($) {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

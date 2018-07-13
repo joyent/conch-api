@@ -26,7 +26,7 @@ has [qw( id name description )];
 
 1;
 
-__DATA__
+__END__
 
 =pod
 
