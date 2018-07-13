@@ -17,8 +17,6 @@ use warnings;
 
 use FindBin;
 BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
-# Must load before `use Mojo::JSON` is used
-use Mojo::JSON_XS;
 use Mojolicious::Commands;
 
 # Start command line interface for application
