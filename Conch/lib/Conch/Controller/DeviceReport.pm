@@ -68,6 +68,14 @@ sub process ($c) {
 			'Conch v1 Legacy Plan: Server');
 	}
 
+	# [2018-07-16 sungo] - As we grow this logic to be smarter and more
+	# interesting, it will probably be ok to not find a validation plan. For
+	# now, everything needs to validate using one of the legacy plans. It's a
+	# super big problem if they don't exist so we explode.
+	unless($validation_plan) {
+		Mojo::Exception->throw(__PACKAGE__.": Could not find a validation plan");
+	}
+
 	my $validation_state =
 		Conch::Model::ValidationState->run_validation_plan( $device->id,
 		$validation_plan->id, $device_report );
