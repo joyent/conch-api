@@ -1,3 +1,5 @@
+# vim: set ts=8 sts=4 sw=4 et :
+
 requires 'perl', '5.26.0';
 
 
@@ -18,7 +20,7 @@ requires 'JSON::Validator';
 
 # mojolicious
 requires 'Minion';
-requires 'Mojolicious', '7.87';	# for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
+requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
 requires 'Cpanel::JSON::XS';
 requires 'Mojo::Pg';
 requires 'Mojo::Server::PSGI';
