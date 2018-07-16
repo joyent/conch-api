@@ -213,7 +213,7 @@ sub startup {
 		my $log = Mojo::Log->new(path => $log_path, short => 1);
 		$log->format(sub {
 			my ($time, $level, @lines) = @_;
-			return Mojo::JSON::to_json($lines[0])."\n";
+			return Mojo::JSON::encode_json($lines[0])."\n";
 		});
 		$self->hook(after_dispatch => sub {
 			my $c = shift;
