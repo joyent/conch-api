@@ -210,7 +210,11 @@ sub startup {
 		}
 
 		my $log_path = $opts{log_path} || "log/audit.log";
-		my $log = Mojo::Log->new(path => $log_path);
+		my $log = Mojo::Log->new(path => $log_path, short => 1);
+		$log->format(sub {
+			my ($time, $level, @lines) = @_;
+			return Mojo::JSON::to_json($lines[0])."\n";
+		});
 		$self->hook(after_dispatch => sub {
 			my $c = shift;
 			my $u = $c->stash('user');
@@ -253,7 +257,7 @@ sub startup {
 					body    => $res_body,
 				},
 			};
-			$log->debug(Mojo::JSON::to_json($d));
+			$log->debug($d);
 		});
 	}
 
