@@ -229,6 +229,8 @@ sub startup {
 			my $req_headers = $c->req->headers->to_hash;
 			delete $req_headers->{Authorization};
 			delete $req_headers->{Cookie};
+			delete $req_headers->{jwt_token};
+			delete $req_headers->{jwt_sig};
 
 			my $params = $c->req->params->to_hash;
 			if($c->req->url =~ /login/) {
