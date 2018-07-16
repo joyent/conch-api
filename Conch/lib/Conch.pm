@@ -210,7 +210,11 @@ sub startup {
 		}
 
 		my $log_path = $opts{log_path} || "log/audit.log";
-		my $log = Mojo::Log->new(path => $log_path);
+		my $log = Mojo::Log->new(path => $log_path, short => 1);
+		$log->format(sub {
+			my ($time, $level, @lines) = @_;
+			return Mojo::JSON::encode_json($lines[0])."\n";
+		});
 		$self->hook(after_dispatch => sub {
 			my $c = shift;
 			my $u = $c->stash('user');
@@ -229,12 +233,15 @@ sub startup {
 			my $req_headers = $c->req->headers->to_hash;
 			delete $req_headers->{Authorization};
 			delete $req_headers->{Cookie};
+			delete $req_headers->{jwt_token};
+			delete $req_headers->{jwt_sig};
 
 			my $params = $c->req->params->to_hash;
 			if($c->req->url =~ /login/) {
 				$params = { 'content' => 'withheld' }
 			}
 			my $d = {
+				timestamp   => Conch::Time->now->timestamp,
 				remote_ip   => $c->tx->original_remote_address,
 				remote_port => $c->tx->remote_port,
 				url         => $c->req->url->to_abs,
@@ -250,7 +257,7 @@ sub startup {
 					body    => $res_body,
 				},
 			};
-			$log->debug(Mojo::JSON::to_json($d));
+			$log->debug($d);
 		});
 	}
 
