@@ -237,6 +237,7 @@ sub startup {
 				$params = { 'content' => 'withheld' }
 			}
 			my $d = {
+				timestamp   => Conch::Time->now->timestamp,
 				remote_ip   => $c->tx->original_remote_address,
 				remote_port => $c->tx->remote_port,
 				url         => $c->req->url->to_abs,
