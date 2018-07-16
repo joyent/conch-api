@@ -103,6 +103,7 @@ sub _build_serializable_attributes {[qw[
 	updated
 ]]}
 
+=back
 
 =head1 METHODS
 
