@@ -45,45 +45,6 @@
 		proxy => 1,
 	},
 
-	preload_validation_plans => [
-		{
-			name => 'Conch v1 Legacy Plan: Switch',
-			description =>
-				'Validation plan containing all validations run in Conch v1 on switches',
-			validations => [
-				{ name => 'bios_firmware_version', version => 1 },
-				{ name => 'cpu_count',             version => 1 },
-				{ name => 'cpu_temperature',       version => 1 },
-				{ name => 'dimm_count',            version => 1 },
-				{ name => 'product_name',          version => 1 },
-				{ name => 'ram_total',             version => 1 },
-			]
-		},
-		{
-			name => 'Conch v1 Legacy Plan: Server',
-			description =>
-				'Validation plan containing all validations run in Conch v1 on switches',
-			validations => [
-				{ name => 'bios_firmware_version', version => 1 },
-				{ name => 'cpu_count',             version => 1 },
-				{ name => 'cpu_temperature',       version => 1 },
-				{ name => 'dimm_count',            version => 1 },
-				{ name => 'disk_smart_status',     version => 1 },
-				{ name => 'disk_temperature',      version => 1 },
-				{ name => 'firmware_current',      version => 1 },
-				{ name => 'links_up',              version => 1 },
-				{ name => 'nics_num',              version => 1 },
-				{ name => 'product_name',          version => 1 },
-				{ name => 'ram_total',             version => 1 },
-				{ name => 'sas_hdd_num',           version => 1 },
-				{ name => 'sas_ssd_num',           version => 1 },
-				{ name => 'slog_slot',             version => 1 },
-				{ name => 'switch_peers',          version => 1 },
-				{ name => 'usb_hdd_num',           version => 1 },
-			]
-		}
-	],
-
 	nytprof => {
 
 		# path to your nytprofhtml script (installed as part of Devel::NYTProf

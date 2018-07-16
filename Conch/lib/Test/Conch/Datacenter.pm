@@ -53,19 +53,21 @@ sub initialize {
 
 	my $dbh = DBI->connect( $pgtmp->dsn );
 
-	my $test_validation_plan = {
-		name        => 'Conch v1 Legacy Plan: Server',
-		description => 'Test Plan',
-		validations => [ { name => 'product_name', version => 1 } ]
-	};
-
 	my $t = Test::MojoSchema->new(
 		Conch => {
 			pg      => $pgtmp->uri,
 			secrets => ["********"],
-			preload_validation_plans => [ $test_validation_plan ]
 		},
 	);
+
+	Conch::ValidationSystem->load_validation_plans([
+		{
+			name        => 'Conch v1 Legacy Plan: Server',
+			description => 'Test Plan',
+			validations => [ { name => 'product_name', version => 1 } ]
+		}
+	]);
+
 	$t->validator($validator);
 
 	all_routes( $t->app->routes );

@@ -14,47 +14,11 @@ BEGIN {
 	use_ok( "Conch::Route", qw(all_routes) );
 }
 
-my $spec_file = "json-schema/response.yaml";
-BAIL_OUT("OpenAPI spec file '$spec_file' doesn't exist.")
-	unless io->file($spec_file)->exists;
+use Test::Conch::Datacenter;
 
-my $validator = JSON::Validator->new;
-$validator->schema($spec_file);
-
-# add UUID validation
-my $valid_formats = $validator->formats;
-$valid_formats->{uuid} = \&is_uuid;
-$validator->formats($valid_formats);
+my ($pg, $t) = Test::Conch::Datacenter->initialize();
 
 my $uuid = Data::UUID->new;
-
-my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
-my $dbh = DBI->connect( $pgtmp->dsn );
-
-my $test_validation_plan = {
-	name        => 'Conch v1 Legacy Plan: Server',
-	description => 'Test Plan',
-	validations => [ { name => 'product_name', version => 1 } ]
-};
-
-my $t = Test::MojoSchema->new(
-	Conch => {
-		pg      => $pgtmp->uri,
-		secrets => ["********"],
-		preload_validation_plans => [ $test_validation_plan ]
-	},
-);
-$t->validator($validator);
-
-#### Load up data
-for my $file ( io->dir("../sql/test/")->sort->glob("*.sql") ) {
-	$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
-}
-
-all_routes( $t->app->routes );
-
-$t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
-$t->get_ok("/version")->status_is(200);
 
 $t->post_ok(
 	"/login" => json => {
