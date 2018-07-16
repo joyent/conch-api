@@ -57,8 +57,7 @@ requires 'Config::General';
 requires 'DBIx::Class::TimeStamp';
 
 # moose
-requires 'Moose';
-requires 'MooseX::MarkAsMethods';
+requires 'Moose' => '2.1400';
 requires 'MooseX::NonMoose';
 
 # logging
