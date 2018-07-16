@@ -91,6 +91,8 @@ modifying the membership of the validation plans.
 
 Returns the list of validations plan objects.
 
+I<Note: This is mostly used by the test harness>
+
 =cut
 
 sub load_validation_plans ( $class, $plans, $logger = Mojo::Log->new ) {
