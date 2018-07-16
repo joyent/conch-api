@@ -3071,16 +3071,6 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
-  MooseX-Types-UUID-0.03
-    pathname: B/BO/BOBTFISH/MooseX-Types-UUID-0.03.tar.gz
-    provides:
-      MooseX::Types::UUID 0.03
-    requirements:
-      ExtUtils::MakeMaker 6.42
-      MooseX::Types 0
-      Test::Exception 0
-      Test::More 0
-      ok 0
   Mozilla-CA-20180117
     pathname: A/AB/ABH/Mozilla-CA-20180117.tar.gz
     provides:

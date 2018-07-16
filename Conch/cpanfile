@@ -58,7 +58,6 @@ requires 'DBIx::Class::TimeStamp';
 
 # moose
 requires 'Moose';
-requires 'MooseX::Types::UUID';
 requires 'MooseX::MarkAsMethods';
 requires 'MooseX::NonMoose';
 
