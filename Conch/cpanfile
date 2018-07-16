@@ -11,7 +11,7 @@ requires 'aliased';
 requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
-requires 'Time::Moment', ">= 0.43";
+requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'IO::Socket::SSL';
 requires 'Submodules';
 
