@@ -22,7 +22,7 @@ use Conch::UUID 'is_uuid';
 =head2 create_jwt
 
 Create a JWT and return it in the response in two parts: the signature in a
-cookie named 'jwt_sig' and a resposne body named 'jwt_token'. 'jwt_token'
+cookie named 'jwt_sig' and a response body named 'jwt_token'. 'jwt_token'
 includes two claims: 'uid', for the user ID, and 'jti', for the token ID.
 
 =cut

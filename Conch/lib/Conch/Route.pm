@@ -6,7 +6,7 @@ Conch::Route
 
 =head1 DESCRIPTION
 
-Setup all the routes for the Conch Mojo app
+Set up all the routes for the Conch Mojo app
 
 =head1 METHODS
 
