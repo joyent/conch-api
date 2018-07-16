@@ -135,7 +135,7 @@ sub _calculate_switch_peer_ports {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

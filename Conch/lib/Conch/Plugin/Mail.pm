@@ -56,7 +56,7 @@ sub send_new_user_invite {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

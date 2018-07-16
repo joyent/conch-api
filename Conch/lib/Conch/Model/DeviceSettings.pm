@@ -88,7 +88,7 @@ sub delete_device_setting ( $self, $device_id, $setting_key ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

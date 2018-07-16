@@ -210,7 +210,7 @@ sub _build_hardware_product ($hw) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

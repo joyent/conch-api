@@ -11,10 +11,10 @@ requires 'aliased';
 requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
-requires 'Time::Moment', ">= 0.43";
+requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'IO::Socket::SSL';
 requires 'Submodules';
-
+requires 'JSON::Validator';
 
 # mojolicious
 requires 'Minion';
@@ -57,9 +57,7 @@ requires 'Config::General';
 requires 'DBIx::Class::TimeStamp';
 
 # moose
-requires 'Moose';
-requires 'MooseX::Types::UUID';
-requires 'MooseX::MarkAsMethods';
+requires 'Moose' => '2.1400';
 requires 'MooseX::NonMoose';
 
 # logging
@@ -78,7 +76,6 @@ on 'test' => sub {
     requires 'Test::PostgreSQL', ">= 1.24";
     requires 'Test::Pod::Coverage';
     requires 'IO::All';
-    requires 'JSON::Validator';
     requires 'YAML::XS';
 };
 

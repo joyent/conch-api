@@ -242,7 +242,7 @@ sub _device_validation_report {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

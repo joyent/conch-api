@@ -135,7 +135,7 @@ sub replace_workspace_rooms ( $self, $ws_id, $room_ids ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

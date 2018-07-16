@@ -29,7 +29,7 @@ has [qw( id name email role )];
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

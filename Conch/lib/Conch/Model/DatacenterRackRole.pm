@@ -232,7 +232,7 @@ sub burn ($self) {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

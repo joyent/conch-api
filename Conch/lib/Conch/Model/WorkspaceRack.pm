@@ -318,7 +318,7 @@ sub remove_from_workspace ( $self, $ws_id, $rack_id ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

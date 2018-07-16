@@ -3002,26 +3002,6 @@ DISTRIBUTIONS
       parent 0.223
       strict 1.03
       warnings 1.03
-  MooseX-MarkAsMethods-0.15
-    pathname: R/RS/RSRCHBOY/MooseX-MarkAsMethods-0.15.tar.gz
-    provides:
-      MooseX::MarkAsMethods 0.15
-      MooseX::MarkAsMethods::MetaRole::MethodMarker 0.15
-    requirements:
-      B::Hooks::EndOfScope 0
-      ExtUtils::MakeMaker 6.30
-      File::Find 0
-      File::Temp 0
-      Moose 0.94
-      Moose::Exporter 0
-      Moose::Role 0
-      Moose::Util::MetaRole 0
-      Test::Moose 0
-      Test::More 0.92
-      namespace::autoclean 0.12
-      overload 0
-      strict 0
-      warnings 0
   MooseX-NonMoose-0.26
     pathname: D/DO/DOY/MooseX-NonMoose-0.26.tar.gz
     provides:
@@ -3071,16 +3051,6 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
-  MooseX-Types-UUID-0.03
-    pathname: B/BO/BOBTFISH/MooseX-Types-UUID-0.03.tar.gz
-    provides:
-      MooseX::Types::UUID 0.03
-    requirements:
-      ExtUtils::MakeMaker 6.42
-      MooseX::Types 0
-      Test::Exception 0
-      Test::More 0
-      ok 0
   Mozilla-CA-20180117
     pathname: A/AB/ABH/Mozilla-CA-20180117.tar.gz
     provides:

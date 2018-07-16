@@ -223,7 +223,7 @@ sub run_validation_for_device ( $self, $device, $data ) {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

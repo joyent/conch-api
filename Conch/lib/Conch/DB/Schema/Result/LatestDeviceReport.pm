@@ -33,7 +33,7 @@ __PACKAGE__->result_source_instance->view_definition(
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

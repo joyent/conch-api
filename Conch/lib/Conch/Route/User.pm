@@ -42,7 +42,7 @@ sub user_routes {
 
 
 
-__DATA__
+__END__
 
 =pod
 

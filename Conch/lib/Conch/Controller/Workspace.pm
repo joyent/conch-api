@@ -122,7 +122,7 @@ sub create_sub_workspace ($c) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

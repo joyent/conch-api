@@ -52,7 +52,7 @@ repository](https://github.com/joyent/conch). To add new validations, you must
 create a local clone of the repository and add new validations as files in the
 repository.
 
-Clone the repository locally and set it's path to your working directory. All
+Clone the repository locally and set its path to your working directory. All
 file paths in this tutorial are relative to the root of the repository.
 
 To build and run Conch locally, Perl version 5.26.0,

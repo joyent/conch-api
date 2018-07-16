@@ -148,7 +148,7 @@ sub delete ($c) {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

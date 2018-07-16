@@ -26,7 +26,7 @@ sub validate {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

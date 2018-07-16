@@ -346,7 +346,7 @@ sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

@@ -39,7 +39,7 @@ sub lookup_by_name ( $self, $role_name ) {
 1;
 
 
-__DATA__
+__END__
 
 =pod
 

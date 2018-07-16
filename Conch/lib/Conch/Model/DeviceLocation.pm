@@ -187,7 +187,7 @@ sub unassign ( $self, $device_id ) {
 
 1;
 
-__DATA__
+__END__
 
 =pod
 

@@ -15,7 +15,7 @@ use warnings;
 
 use Moose;
 use MooseX::NonMoose;
-use MooseX::MarkAsMethods autoclean => 1;
+use namespace::autoclean;
 extends 'DBIx::Class::Core';
 
 =head1 COMPONENTS LOADED
@@ -185,8 +185,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-06-27 14:17:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MgDM+u5NCV18NS75b97U3A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-16 11:13:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+os7yL0yLqfSaZPHZbIibQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
