@@ -137,7 +137,6 @@ sub run_validation_plan ($c) {
 }
 
 1;
-
 __END__
 
 =pod

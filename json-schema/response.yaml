@@ -489,7 +489,7 @@ definitions:
               - type: object
                 additionalProperties: false
                 required:
-                  - id 
+                  - id
                   - cache
                   - log
                   - disk_per
@@ -1213,7 +1213,7 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - id 
+      - id
       - name
       - rack_size
       - created
@@ -1320,4 +1320,4 @@ definitions:
           - type: string
           - type: null
 
-      
+

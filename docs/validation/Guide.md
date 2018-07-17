@@ -201,12 +201,12 @@ field in the input data hash and call `$self->die` if it's not present.
 Instead, you may optionally define a 'schema' field. If `schema` is defined
 will validate the input data against the schema before calling `validate` if
 the data is valid. Any schema errors will be registered as validation results
-with 'error' status. 
+with 'error' status.
 
 The schema is defined using [JSON-Schema](http://json-schema.org), written with
 a Perl hash instead of a JSON string. You can find [an easy JSON-Schema
 tutorial here](http://json-schema.org/example1.html). It covers everything you
-should need to write a schema for a Conch Validation. 
+should need to write a schema for a Conch Validation.
 
 **NOTE:** As the input data is required to be a hash, the root-level `{ type =>
 'object', properties => {...} }` is omitted when defining validation schemas.

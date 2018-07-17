@@ -24,7 +24,7 @@ my $t = Test::Mojo->new(
 	},
 );
 
-Conch::ValidationSystem->load_validation_plans([ 
+Conch::ValidationSystem->load_validation_plans([
 	{
 		name        => 'Conch v1 Legacy Plan: Server',
 		description => 'Test Plan',

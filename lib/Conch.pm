@@ -50,10 +50,10 @@ sub startup {
 	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
 
-	# Provide access to DBIx::Class 
-	$self->helper(schema => sub { 
+	# Provide access to DBIx::Class
+	$self->helper(schema => sub {
 		my $db = Conch::Pg->new();
-		return Conch::DB::Schema->connect( 
+		return Conch::DB::Schema->connect(
 			$db->dsn,
 			$db->username,
 			$db->password,
@@ -267,7 +267,6 @@ sub startup {
 }
 
 1;
-
 __END__
 
 =pod

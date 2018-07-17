@@ -36,7 +36,7 @@ public/doc/index.html: \
 watch-test:
 	@find lib t | entr -r -c make test
 
-generate-dbic: dbic 
+generate-dbic: dbic
 
 .PHONY: dbic
 dbic: ## Regenerate DBIC schemas

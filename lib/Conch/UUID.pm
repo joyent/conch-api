@@ -33,6 +33,7 @@ https://tools.ietf.org/html/rfc4122#section-3
 UUID version and variant ('reserved') hex digit standards are ignored.
 
 =cut
+
 package Conch::UUID;
 
 use strict;
@@ -63,7 +64,6 @@ sub is_uuid ($) {
 }
 
 1;
-
 __END__
 
 =pod

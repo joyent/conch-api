@@ -274,7 +274,6 @@ sub _results_to_string ($) {
 }
 
 1;
-
 __END__
 
 =pod

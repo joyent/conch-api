@@ -18,7 +18,9 @@ use Exporter 'import';
 our @EXPORT_OK = qw( record_device_report );
 
 =head2 add_reboot_count
+
 =cut
+
 sub add_reboot_count {
 	my $device = shift;
 
@@ -41,6 +43,7 @@ sub add_reboot_count {
 Record device report and device details from the report
 
 =cut
+
 sub record_device_report {
 	my ( $schema, $dr, $raw_report ) = @_;
 
@@ -291,7 +294,6 @@ sub _device_relay_connect {
 }
 
 1;
-
 __END__
 
 =pod
@@ -300,9 +302,8 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

@@ -261,7 +261,6 @@ sub refresh_token ($c) {
 }
 
 1;
-
 __END__
 
 =pod

@@ -221,7 +221,7 @@ sub device_nic_neighbors ( $self, $device_id ) {
 
 =head2 graduate
 
-Mark the device as "graduated" (VLAN flipped) 
+Mark the device as "graduated" (VLAN flipped)
 
 =cut
 sub graduate ( $self) {
@@ -378,8 +378,6 @@ sub set_role ( $self, $role ) {
 }
 
 1;
-
-
 __END__
 
 =pod
@@ -388,9 +386,8 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

@@ -99,7 +99,7 @@ lives_ok {
 	$d = Conch::Time->from_epoch(1519922279, 0);
 } "->from_epoch with static input";
 
-is($d->timestamp, "2018-03-01T16:37:59.000Z", "->_from_epoch output"); 
+is($d->timestamp, "2018-03-01T16:37:59.000Z", "->_from_epoch output");
 
 lives_ok {
 	$d = Conch::Time->from_epoch(Time::HiRes::gettimeofday);
@@ -108,7 +108,7 @@ lives_ok {
 isnt(Conch::Time->now(), Conch::Time->now(), "Multiple now()s are unique");
 
 like(
-	Conch::Time->new("2018-01-02 00:00:00+00")->timestamptz, 
+	Conch::Time->new("2018-01-02 00:00:00+00")->timestamptz,
 	PG_TIMESTAMP_FORMAT,
 	"Roundtrip timestamptz"
 );

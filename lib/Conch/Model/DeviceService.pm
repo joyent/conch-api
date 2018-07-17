@@ -4,7 +4,7 @@ Conch::Model::DeviceService
 
 =head1 DESCRIPTION
 
-A service represents functionality for a device. 
+A service represents functionality for a device.
 
 =cut
 
@@ -105,7 +105,7 @@ sub _from ($class, $key, $value) {
 	my $ret;
 	try {
 		$ret = Conch::Pg->new()->db->select(
-			'device_service', 
+			'device_service',
 			undef,
 			{ $key => $value }
 		)->hash;
@@ -211,7 +211,7 @@ undone.
 sub burn ($self) {
 	my $ret;
 	try {
-		$ret = Conch::Pg->new()->db->delete('device_service', { 
+		$ret = Conch::Pg->new()->db->delete('device_service', {
 			id => $self->id,
 		});
 	} catch {
@@ -222,9 +222,7 @@ sub burn ($self) {
 	return undef;
 }
 
-
 1;
-
 __END__
 
 =pod
@@ -233,9 +231,8 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

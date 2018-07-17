@@ -105,7 +105,6 @@ sub revoke_user_tokens ( $class, $user_id ) {
 }
 
 1;
-
 __END__
 
 =pod

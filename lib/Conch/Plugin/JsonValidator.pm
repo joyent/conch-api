@@ -23,7 +23,7 @@ Conch::Plugin::JsonValidator provides an optional manner to validate input and
 output from a Mojo controller against JSON Schema.
 
 The C<validate_input> helper uses the provided schema definition to validate
-B<JUST> the incoming JSON request. Headers and query parameters B<ARE NOT> 
+B<JUST> the incoming JSON request. Headers and query parameters B<ARE NOT>
 validated. If the data fails validation, a 400 status is returned to user
 with an error payload containing the validation errors.
 
@@ -40,7 +40,6 @@ C<status_with_validation> validates data against the C<json-schema/v1.yaml>
 file.
 
 =head1 METHODS
-
 
 =cut
 
@@ -133,8 +132,6 @@ sub register ( $self, $app, $conf ) {
 }
 
 1;
-
-
 __END__
 
 =pod
@@ -148,4 +145,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

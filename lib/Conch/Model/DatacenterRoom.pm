@@ -111,7 +111,7 @@ sub _build_serializable_attributes {[qw[
 
 	my $r = Conch::Model::DatacenterRoom->from_id($uuid);
 
-Retrieve a datacenter room, given its UUID. 
+Retrieve a datacenter room, given its UUID.
 
 =cut
 
@@ -162,7 +162,7 @@ sub all ($class) {
 
 	my $r = Conch::Model::DatacenterRoom->from_datacenter($uuid);
 
-Retrieve all rooms for a given datacenter UUID. 
+Retrieve all rooms for a given datacenter UUID.
 
 =cut
 
@@ -264,8 +264,6 @@ sub burn ($self) {
 }
 
 1;
-
-
 __END__
 
 =pod
@@ -274,9 +272,8 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

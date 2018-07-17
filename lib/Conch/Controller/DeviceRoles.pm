@@ -98,7 +98,7 @@ sub delete ($c) {
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 
 	$s->update(deactivated => Conch::Time->now)->save;
-	return $c->status(204); 
+	return $c->status(204);
 }
 
 =head2 add_service
@@ -151,10 +151,7 @@ sub remove_service ($c) {
 	$c->status(303 => "/device/role/".$s->id);
 }
 
-
-
 1;
-
 __END__
 
 =pod
@@ -168,4 +165,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
