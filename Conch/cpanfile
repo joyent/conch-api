@@ -52,9 +52,7 @@ requires 'DBD::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::Helpers';
-# DateTime::Format::Pg is required for DBIx::Class to inflate DateTimes, and
-# can be removed once DBIx::Class is removed
-requires 'DateTime::Format::Pg';
+requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'Config::General';
 requires 'DBIx::Class::TimeStamp';
 
