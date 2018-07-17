@@ -7,7 +7,7 @@ use DBI;
 use IO::All;
 
 use Exporter 'import';
-our @EXPORT = qw( mk_tmp_db pg_dump );
+our @EXPORT_OK = qw( mk_tmp_db pg_dump );
 
 =head1 NAME
 

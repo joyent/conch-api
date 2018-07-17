@@ -10,7 +10,7 @@ use IO::All;
 use Data::Printer;
 
 BEGIN {
-	use_ok("Test::ConchTmpDB");
+	use_ok('Test::ConchTmpDB', 'mk_tmp_db');
 	use_ok( "Conch::Route", qw(all_routes) );
 }
 

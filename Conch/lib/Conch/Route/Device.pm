@@ -12,7 +12,7 @@ package Conch::Route::Device;
 use Mojo::Base -strict;
 
 use Exporter 'import';
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
 	device_routes
 );
 

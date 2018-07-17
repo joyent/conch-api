@@ -18,7 +18,7 @@ use Data::Printer;
 use Log::Any '$log';
 
 use Exporter 'import';
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
 	new_user_invite password_reset_email
 );
 

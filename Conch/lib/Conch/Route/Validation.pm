@@ -12,7 +12,7 @@ package Conch::Route::Validation;
 use Mojo::Base -strict;
 
 use Exporter 'import';
-our @EXPORT = qw( validation_routes );
+our @EXPORT_OK = qw( validation_routes );
 
 use DDP;
 

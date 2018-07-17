@@ -12,7 +12,7 @@ package Conch::Route::Relay;
 use Mojo::Base -strict;
 
 use Exporter 'import';
-our @EXPORT = qw( relay_routes);
+our @EXPORT_OK = qw( relay_routes);
 
 use DDP;
 

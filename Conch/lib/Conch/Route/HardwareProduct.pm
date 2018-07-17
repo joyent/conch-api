@@ -12,7 +12,7 @@ package Conch::Route::HardwareProduct;
 use Mojo::Base -strict;
 
 use Exporter 'import';
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
 	hardware_product_routes
 );
 
