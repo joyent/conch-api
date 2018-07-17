@@ -10,6 +10,7 @@ Conch::Legacy::Control::DeviceReport - B<LEGACY MODULE>
 package Conch::Legacy::Control::DeviceReport;
 
 use strict;
+use warnings;
 use Storable 'dclone';
 use Log::Any '$log';
 use Mojo::JSON qw(decode_json encode_json);

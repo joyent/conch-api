@@ -1,3 +1,5 @@
+use v5.20;
+use warnings;
 use Test::More;
 use Test::Conch::Validation;
 

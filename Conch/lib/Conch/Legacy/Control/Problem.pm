@@ -10,6 +10,7 @@ Conch::Legacy::Control::Problem - B<LEGACY MODULE>
 package Conch::Legacy::Control::Problem;
 
 use strict;
+use warnings;
 use Log::Report;
 use List::Compare;
 use Mojo::JSON 'decode_json';

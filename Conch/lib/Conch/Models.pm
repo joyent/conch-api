@@ -11,6 +11,8 @@ Convenience class to load all the Conch::Model classes
 =cut
 
 package Conch::Models;
+use v5.20;
+use warnings;
 
 use Conch::DB::Schema;
 

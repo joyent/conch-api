@@ -34,6 +34,7 @@ package Conch::Role::But;
 
 use Role::Tiny;
 use v5.20;
+use warnings;
 
 
 =head2 but
