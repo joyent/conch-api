@@ -231,7 +231,7 @@ definitions:
         type: string
         format: uuid
       specification:
-        type: object
+        type: string
       sku:
         type: string
       generation_name:
@@ -257,7 +257,7 @@ definitions:
         type: string
         format: uuid
       specification:
-        type: object
+        type: string
       sku:
         type: string
       generation_name:
