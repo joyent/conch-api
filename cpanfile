@@ -56,10 +56,6 @@ requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'Config::General';
 requires 'DBIx::Class::TimeStamp';
 
-# moose
-requires 'Moose' => '2.1400';
-requires 'MooseX::NonMoose';
-
 # logging
 requires 'Log::Any';
 requires 'Log::Any::Adapter::Log4perl';

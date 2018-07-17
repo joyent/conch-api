@@ -13,10 +13,7 @@ Conch::DB::Result::ValidationResult
 use strict;
 use warnings;
 
-use Moose;
-use MooseX::NonMoose;
-use namespace::autoclean;
-extends 'DBIx::Class::Core';
+use base 'DBIx::Class::Core';
 
 =head1 COMPONENTS LOADED
 
@@ -240,12 +237,11 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-20 14:04:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z3skjFQiV2q2EAkPJ8Y9Hw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-20 14:29:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tBqJtqhBvOaD5tXbslZvXQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
-__PACKAGE__->meta->make_immutable;
 1;
 __END__
 
