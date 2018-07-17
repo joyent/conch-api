@@ -2,7 +2,6 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Exception;
 use Test::ConchTmpDB qw(mk_tmp_db);
-use Mojo::Pg;
 use DDP;
 use Data::UUID;
 

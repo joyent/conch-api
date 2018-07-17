@@ -11,8 +11,6 @@ package Conch::Legacy::Control::Problem;
 
 use strict;
 use warnings;
-use Log::Report;
-use List::Compare;
 use Mojo::JSON 'decode_json';
 
 use Data::Printer;

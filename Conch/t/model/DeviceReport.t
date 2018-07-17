@@ -1,7 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
-use Mojo::Pg;
 
 use_ok "Conch::Model::Device";
 use_ok "Conch::Model::DeviceReport";

@@ -17,7 +17,6 @@ use Mojo::Base 'Mojolicious';
 
 use Conch::Pg;
 use Conch::Route qw(all_routes);
-use Mojo::Pg;
 use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
