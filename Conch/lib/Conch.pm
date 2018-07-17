@@ -147,7 +147,7 @@ sub startup {
 			my ( $c, $args ) = @_;
 			return unless my $template = $args->{template};
 			if ( $template =~ /exception/ ) {
-				my $exception = $c->stash('exception');
+				my $exception = $c->stash('exception') // $args->{exception};
 				$exception->verbose(1);
 				$self->log->error($exception);
 
