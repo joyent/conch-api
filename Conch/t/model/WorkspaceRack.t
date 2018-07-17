@@ -10,7 +10,8 @@ use Conch::Model::WorkspaceRack;
 use Data::Printer;
 use Data::UUID;
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 Conch::Pg->new( $pgtmp->uri );
 
 my $uuid = Data::UUID->new;

@@ -16,7 +16,8 @@ BEGIN {
 
 my $uuid = Data::UUID->new;
 
-my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
+my $pgtmp = mk_tmp_db();
+$pgtmp or BAIL_OUT("failed to create test database");
 my $dbh = DBI->connect( $pgtmp->dsn );
 
 my $t = Test::Mojo->new(

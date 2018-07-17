@@ -15,7 +15,8 @@ use constant PG_TIMESTAMP_FORMAT => qr/
 /x;
 
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 my $dbh   = DBI->connect( $pgtmp->dsn );
 my $pg    = Mojo::Pg->new( $pgtmp->uri );
 

@@ -6,7 +6,8 @@ use Conch::Pg;
 use_ok("Conch::Model::Workspace");
 use_ok("Conch::Model::WorkspaceRoom");
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 Conch::Pg->new( $pgtmp->uri );
 
 my $ws_model = new_ok( "Conch::Model::Workspace" );

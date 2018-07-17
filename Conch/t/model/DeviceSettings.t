@@ -8,7 +8,8 @@ use_ok("Conch::Model::DeviceSettings");
 
 use Conch::Pg;
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 my $hardware_vendor_id = $pg->db->insert(

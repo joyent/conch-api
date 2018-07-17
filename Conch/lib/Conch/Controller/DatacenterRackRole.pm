@@ -56,7 +56,8 @@ sub under ($c) {
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $d = $c->validate_input('RackRoleCreate') or return;
+	my $d = $c->validate_input('RackRoleCreate');
+	return if not $d;
 
 	if(Conch::Model::DatacenterRackRole->from_name($d->{name})) {
 		return $c->status(400 => { error => "name is already taken" });
@@ -99,7 +100,8 @@ sub get_all ($c) {
 
 
 sub update ($c) {
-	my $i = $c->validate_input('RackRoleUpdate') or return;
+	my $i = $c->validate_input('RackRoleUpdate');
+	return if not $i;
 
 	if ($i->{name}) {
 		if(Conch::Model::DatacenterRackRole->from_name($i->{name})) {

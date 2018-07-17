@@ -7,7 +7,8 @@ use_ok("Conch::Model::User");
 use_ok("Conch::Model::Workspace");
 use_ok("Conch::Model::WorkspaceUser");
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 Conch::Pg->new( $pgtmp->uri );
 
 my $user_model = new_ok( "Conch::Model::User", );
