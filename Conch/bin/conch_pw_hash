@@ -13,7 +13,7 @@ use feature qw(signatures);
 no warnings qw(experimental::signatures);
 
 use FindBin;
-BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
+use lib "$FindBin::Bin/../lib";
 
 use Conch::Model::User;
 
