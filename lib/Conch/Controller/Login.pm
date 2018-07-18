@@ -74,7 +74,7 @@ Handle the details of authenticating the user, with one of the following options
 
 1. HTTP Basic Auth
 2. JWT split between Authorization Bearer header value and jwt_sig cookie
-3. JWT combined with a Authorizaiton Beaer header using format "$jwt_token.$jwt_sig"
+3. JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
 existing session for the user
 4. Old 'conch' session cookie
 

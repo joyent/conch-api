@@ -155,7 +155,7 @@ Each hash has the structure
 
 	{
 		name        => 'Validation plan name',
-		description => 'Validatoin plan description',
+		description => 'Validation plan description',
 		validations => [
 			{ name => 'validation_name', version => 1 }
 		]
