@@ -1,14 +1,14 @@
 use Mojo::Base -strict;
 use Test::More;
-use Test::ConchTmpDB;
-use Mojo::Pg;
+use Test::ConchTmpDB qw(mk_tmp_db);
 
 use Conch::Pg;
 
 use_ok("Conch::Model::User");
 use_ok("Conch::Model::Workspace");
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 new_ok('Conch::Model::Workspace');

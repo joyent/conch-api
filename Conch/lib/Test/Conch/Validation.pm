@@ -21,7 +21,7 @@ use Conch::Class::HardwareProduct;
 use Conch::Class::HardwareProductProfile;
 
 use Exporter 'import';
-our @EXPORT = qw( test_validation );
+our @EXPORT_OK = qw( test_validation );
 
 =head2 test_validation
 

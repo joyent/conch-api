@@ -1,7 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
-use Test::ConchTmpDB;
-use Mojo::Pg;
+use Test::ConchTmpDB qw(mk_tmp_db);
 
 use Data::UUID;
 my $uuid = Data::UUID->new->create_str();
@@ -10,7 +9,8 @@ use Conch::Pg;
 
 use_ok("Conch::Model::User");
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 my $new_user;

@@ -17,7 +17,6 @@ use Mojo::Base 'Mojolicious';
 
 use Conch::Pg;
 use Conch::Route qw(all_routes);
-use Mojo::Pg;
 use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
@@ -145,7 +144,8 @@ sub startup {
 	$self->hook(
 		before_render => sub {
 			my ( $c, $args ) = @_;
-			return unless my $template = $args->{template};
+			my $template = $args->{template};
+			return if not $template;
 			if ( $template =~ /exception/ ) {
 				my $exception = $c->stash('exception') // $args->{exception};
 				$exception->verbose(1);

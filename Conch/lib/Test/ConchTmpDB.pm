@@ -1,11 +1,13 @@
 package Test::ConchTmpDB;
+use v5.20;
+use warnings;
 
 use Test::PostgreSQL;
 use DBI;
 use IO::All;
 
 use Exporter 'import';
-@EXPORT = qw( mk_tmp_db pg_dump );
+our @EXPORT_OK = qw( mk_tmp_db pg_dump );
 
 =head1 NAME
 

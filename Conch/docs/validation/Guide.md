@@ -372,7 +372,7 @@ exec prove t/validation/my_validation_v1.t`.
 
 ```perl
 use Test::More;
-use Test::Conch::Validation;
+use Test::Conch::Validation 'test_validation';
 
 test_validation(
 	'Conch::Validation::MyValidation',

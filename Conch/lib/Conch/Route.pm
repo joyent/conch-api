@@ -6,7 +6,7 @@ Conch::Route
 
 =head1 DESCRIPTION
 
-Setup all the routes for the Conch Mojo app
+Set up all the routes for the Conch Mojo app
 
 =head1 METHODS
 
@@ -15,18 +15,18 @@ Setup all the routes for the Conch Mojo app
 package Conch::Route;
 use Mojo::Base -strict;
 
-use Conch::Route::Workspace;
-use Conch::Route::User;
-use Conch::Route::Device;
-use Conch::Route::Relay;
-use Conch::Route::HardwareProduct;
-use Conch::Route::Validation;
+use Conch::Route::Workspace 'workspace_routes';
+use Conch::Route::User 'user_routes';
+use Conch::Route::Device 'device_routes';
+use Conch::Route::Relay 'relay_routes';
+use Conch::Route::HardwareProduct 'hardware_product_routes';
+use Conch::Route::Validation 'validation_routes';
 
 use Conch::Route::Datacenter;
 use Conch::Route::DB::HardwareProduct;
 
 use Exporter 'import';
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
 	all_routes
 );
 

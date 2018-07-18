@@ -1,5 +1,7 @@
+use v5.20;
+use warnings;
 use Test::More;
-use Test::Conch::Validation;
+use Test::Conch::Validation 'test_validation';
 
 test_validation(
 	'Conch::Validation::DeviceProductName',

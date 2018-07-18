@@ -12,7 +12,7 @@ package Conch::Route::User;
 use Mojo::Base -strict;
 
 use Exporter 'import';
-our @EXPORT = qw( user_routes);
+our @EXPORT_OK = qw( user_routes);
 
 use DDP;
 

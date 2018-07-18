@@ -10,14 +10,12 @@ Conch::Legacy::Control::DeviceReport - B<LEGACY MODULE>
 package Conch::Legacy::Control::DeviceReport;
 
 use strict;
-use Storable 'dclone';
+use warnings;
 use Log::Any '$log';
-use Mojo::JSON qw(decode_json encode_json);
-
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( record_device_report );
+our @EXPORT_OK = qw( record_device_report );
 
 =head2 add_reboot_count
 =cut

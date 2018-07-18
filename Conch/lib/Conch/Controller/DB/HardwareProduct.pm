@@ -81,7 +81,8 @@ sub get_one ($c) {
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $i = $c->validate_input('DBHardwareProductCreate') or return;
+	my $i = $c->validate_input('DBHardwareProductCreate');
+	return if not $i;
 
 	for my $k (qw[name alias sku]) {
 		next unless $i->{$k};
@@ -107,7 +108,8 @@ sub create ($c) {
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $i = $c->validate_input('DBHardwareProductUpdate') or return;
+	my $i = $c->validate_input('DBHardwareProductUpdate');
+	return if not $i;
 
 	for my $k (qw[name alias sku]) {
 		next unless $i->{$k};

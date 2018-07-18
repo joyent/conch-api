@@ -7,13 +7,14 @@ use IO::All;
 use Data::Printer;
 
 BEGIN {
-	use_ok("Test::ConchTmpDB");
+	use_ok('Test::ConchTmpDB', 'mk_tmp_db');
 	use_ok( "Conch::Route", qw(all_routes) );
 }
 
 my $uuid = Data::UUID->new;
 
-my $pgtmp = mk_tmp_db() or BAIL_OUT("failed to create test database");
+my $pgtmp = mk_tmp_db();
+$pgtmp or BAIL_OUT("failed to create test database");
 my $dbh = DBI->connect( $pgtmp->dsn );
 
 my $t = Test::Mojo->new(

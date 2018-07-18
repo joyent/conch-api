@@ -1,7 +1,7 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::Exception;
-use Test::ConchTmpDB;
+use Test::ConchTmpDB qw(mk_tmp_db);
 use Conch::Pg;
 use Data::UUID;
 use DDP;
@@ -12,7 +12,8 @@ use Conch::Model::Validation;
 use Conch::Model::ValidationPlan;
 
 my $uuid  = Data::UUID->new;
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 my $num_validations_loaded =

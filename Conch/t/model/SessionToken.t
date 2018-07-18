@@ -1,7 +1,7 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::Exception;
-use Test::ConchTmpDB;
+use Test::ConchTmpDB qw(mk_tmp_db);
 
 use Conch::Pg;
 
@@ -10,7 +10,8 @@ use_ok("Conch::Model::SessionToken");
 use Conch::Model::User;
 use Conch::Model::SessionToken;
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 my $pg = Conch::Pg->new( $pgtmp->uri );
 
 my $user = Conch::Model::User->create( 'foo@bar.com', 'password' );

@@ -83,7 +83,8 @@ Create a new datacenter
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $i = $c->validate_input('DatacenterCreate') or return;
+	my $i = $c->validate_input('DatacenterCreate');
+	return if not $i;
 
 	my $r = Conch::Model::Datacenter->new($i->%*)->save;
 	$c->status(303 => "/dc/".$r->id);
@@ -98,7 +99,8 @@ Update an existing datacenter
 
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $i = $c->validate_input('DatacenterUpdate') or return;
+	my $i = $c->validate_input('DatacenterUpdate');
+	return if not $i;
 
 	$c->stash('datacenter')->update($i->%*)->save();
 	$c->status(303 => "/dc/".$c->stash('datacenter')->id);

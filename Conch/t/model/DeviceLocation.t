@@ -1,7 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
-use Test::ConchTmpDB;
-use Mojo::Pg;
+use Test::ConchTmpDB qw(mk_tmp_db);
 
 use IO::All;
 
@@ -10,7 +9,8 @@ use_ok("Conch::Model::DeviceLocation");
 use Data::UUID;
 use Conch::Pg;
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 my $uuid  = Data::UUID->new;

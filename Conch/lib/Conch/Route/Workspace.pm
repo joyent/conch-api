@@ -12,7 +12,7 @@ package Conch::Route::Workspace;
 use Mojo::Base -strict;
 
 use Exporter 'import';
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
 	workspace_routes
 );
 

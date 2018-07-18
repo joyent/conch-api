@@ -1,8 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
-use Test::ConchTmpDB;
-use Mojo::Pg;
-
+use Test::ConchTmpDB qw(mk_tmp_db);
 use DDP;
 use Data::UUID;
 
@@ -15,7 +13,8 @@ use_ok("Conch::Model::ValidationPlan");
 
 use Conch::Model::ValidationPlan;
 
-my $pgtmp = mk_tmp_db() or die;
+my $pgtmp = mk_tmp_db();
+$pgtmp or die;
 my $pg = Conch::Pg->new( $pgtmp->uri );
 
 my $validation_plan;

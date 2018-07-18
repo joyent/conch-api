@@ -57,7 +57,8 @@ sub under ($c) {
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $d = $c->validate_input('RackCreate') or return;
+	my $d = $c->validate_input('RackCreate');
+	return if not $d;
 
 	unless(Conch::Model::DatacenterRoom->from_id($d->{datacenter_room_id})) {
 		return $c->status(400 => { "error" => "Room does not exist" });
@@ -115,7 +116,8 @@ sub layouts ($c) {
 =cut
 
 sub update ($c) {
-	my $i = $c->validate_input('RackUpdate') or return;
+	my $i = $c->validate_input('RackUpdate');
+	return if not $i;
 
 	if($i->{datacenter_room_id}) {
 		unless(Conch::Model::DatacenterRoom->from_id($i->{datacenter_room_id})) {

@@ -22,7 +22,8 @@ Processes the device report using the Legacy report code base
 =cut
 
 sub process ($c) {
-	my $device_report = $c->validate_input('DeviceReport') or return;
+	my $device_report = $c->validate_input('DeviceReport');
+	return if not $device_report;
 	my $raw_report = $c->req->body;
 
 	my $maybe_hw;

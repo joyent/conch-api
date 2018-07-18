@@ -10,14 +10,13 @@ Conch::Legacy::Control::Problem - B<LEGACY MODULE>
 package Conch::Legacy::Control::Problem;
 
 use strict;
-use Log::Report;
-use List::Compare;
+use warnings;
 use Mojo::JSON 'decode_json';
 
 use Data::Printer;
 
 use Exporter 'import';
-our @EXPORT = qw( get_problems );
+our @EXPORT_OK = qw( get_problems );
 
 =head2 get_problems
 
