@@ -9,8 +9,6 @@ tags
 .lvimrc
 .agignore
 .DS_Store
-node_modules
-Conch/ui/dist
 
 .ackrc
 .vimlocal
