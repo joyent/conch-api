@@ -6,7 +6,7 @@ run: build morbo ## Default. Build and run under morbo
 morbo: ## Run under morbo, listening on :5001
 	@carton exec -- morbo -v bin/conch -l http://\*:5001
 
-build: local doc ## Install deps and build docs
+build: local ## Install deps (TODO: and build docs)
 
 local: cpanfile.snapshot ## Install deps
 # '--deployment' installs the same dep versions that are in the lockfile
