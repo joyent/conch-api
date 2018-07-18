@@ -2,10 +2,10 @@
 
 all: deps database
 
-../Conch/local:
-	cd ../Conch/ && make local
+../local:
+	cd .. && make local
 
-deps: ../Conch/local
+deps: ../local
 
 database:
 	sql/reset-database.sh

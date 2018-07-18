@@ -49,7 +49,7 @@ sub all_routes {
 	);
 
 	$unsecured->get( '/doc',
-		sub { shift->reply->static('../public/doc/index.html') } );
+		sub { shift->reply->static('public/doc/index.html') } );
 
 	$unsecured->get(
 		'/ping',

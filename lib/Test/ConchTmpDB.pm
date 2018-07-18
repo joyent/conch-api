@@ -69,13 +69,13 @@ sub mk_tmp_db {
 
 	my $pg = Test::ConchTmpDB->make_full_db($path);
 
-Generate a test database using all sql files in the given path. Path defaults to C<../sql/test/>
+Generate a test database using all sql files in the given path. Path defaults to C<sql/test/>
 
 =cut
 
 sub make_full_db {
 	my $class = shift;
-	my $path = shift || "../sql/test/";
+	my $path = shift || "sql/test/";
 	my $pg = $class->mk_tmp_db;
 	my $dbh = DBI->connect($pg->dsn);
 	for my $file ( io->dir($path)->sort->glob("*.sql") ) {

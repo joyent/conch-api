@@ -16,14 +16,14 @@ tags
 CHANGELOG.md
 
 # Conch
-Conch/conch.conf
-Conch/report
-Conch/public/doc
-Conch/docs/conch-api/index.html
-Conch/log
-Conch/bin/hypnotoad.pid
-Conch/nytprof
-Conch/nytprof.log
+conch.conf
+report
+public/doc
+docs/conch-api/index.html
+log
+bin/hypnotoad.pid
+nytprof
+nytprof.log
 
 # Carton-installed dependency folder
 local/

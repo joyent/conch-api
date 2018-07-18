@@ -26,7 +26,7 @@ my $t = Test::Mojo->new(
 
 my @test_sql_files = qw( 00-hardware.sql );
 
-for my $file ( map { io->file("../sql/test/$_") } @test_sql_files ) {
+for my $file ( map { io->file("sql/test/$_") } @test_sql_files ) {
 	$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
 }
 

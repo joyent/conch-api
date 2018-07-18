@@ -32,7 +32,7 @@ TODO: {
 	local $TODO = "DeviceLocation needs datacenters, rooms, and racks";
 
 	my $dbh = DBI->connect( $pgtmp->dsn );
-	for my $file ( io->dir("../sql/test/")->sort->glob("*.sql") ) {
+	for my $file ( io->dir("sql/test/")->sort->glob("*.sql") ) {
 		$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
 	}
 

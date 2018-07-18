@@ -45,12 +45,12 @@ dbic: ## Regenerate DBIC schemas
 	@make db-schema
 
 migrate-db: ## Apply database migrations
-	@../sql/run_migrations.sh
+	@sql/run_migrations.sh
 	@make db-schema
 
 .PHONY: db-schema
 db-schema: ## create a dump of current db schema
-	pg_dump -U conch -s conch > ../sql/schema.sql
+	pg_dump -U conch -s conch > sql/schema.sql
 
 validation_docs: docs/validation/BaseValidation.md docs/validation/BaseValidation.md
 
