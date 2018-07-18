@@ -8,10 +8,9 @@ morbo: ## Run under morbo, listening on :5001
 
 build: local ## Install deps (TODO: and build docs)
 
-local: cpanfile.snapshot ## Install deps
+local: cpanfile.snapshot ## Install perl dependencies
 # '--deployment' installs the same dep versions that are in the lockfile
-	@carton install --deployment
-	@touch local
+	@carton install --deployment && touch local
 
 test: local ## Run tests
 	@carton exec prove -lpr t/
