@@ -29,6 +29,9 @@ sub routes {
 }
 
 1;
+__END__
+
+=pod
 
 =head1 LICENSING
 

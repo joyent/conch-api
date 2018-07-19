@@ -315,6 +315,7 @@ $s{"+deactivated"} = { is_serializable => 0 };
 __PACKAGE__->add_columns(%s);
 
 1;
+__END__
 
 =pod
 

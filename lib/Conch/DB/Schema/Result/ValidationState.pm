@@ -197,6 +197,7 @@ __PACKAGE__->many_to_many(
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
 1;
+__END__
 
 =pod
 

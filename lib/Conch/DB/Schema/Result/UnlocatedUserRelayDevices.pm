@@ -247,7 +247,7 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-
+1;
 __END__
 
 =pod

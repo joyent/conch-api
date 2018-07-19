@@ -76,6 +76,7 @@ sub initialize {
 }
 
 1;
+__END__
 
 =pod
 

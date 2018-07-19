@@ -82,6 +82,7 @@ admin on the currently stashed 'current_workspace'
 }
 
 1;
+__END__
 
 =pod
 
