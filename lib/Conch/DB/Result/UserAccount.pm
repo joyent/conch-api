@@ -204,6 +204,41 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-20 14:29:05
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/ob4MGQbDk0L0sqGUZ2EpA
 
+use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
+
+sub new {
+    my ($self, $args) = @_;
+
+    # extract non-column data to store in the right place
+    my $password = delete $args->{password};
+
+    $self = $self->next::method($args);
+
+    # extract password and turn into password_hash
+    # TODO: in the future, this could be moved into a 'password' setter method.
+    $self->password_hash(_hash_password($password)) if defined $password;
+
+    return $self;
+}
+
+# copied from Conch::Model::User
+sub _BCRYPT_COST { 4 }    # dancer2 legacy
+
+# copied from Conch::Model::User
+sub _hash_password {
+    my $p = shift;
+    my $cost = sprintf( '%02d', _BCRYPT_COST || 6 );
+    my $settings = join( '$', '$2a', $cost, _bcrypt_salt() );
+    return bcrypt( $p, $settings );
+}
+
+# copied from Conch::Model::User
+sub _bcrypt_salt {
+    my $num = 999999;
+    my $cr = crypt( rand($num), rand($num) ) . crypt( rand($num), rand($num) );
+    en_base64( substr( $cr, 4, 16 ) );
+}
+
 1;
 __END__
 
@@ -218,3 +253,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

@@ -31,7 +31,7 @@ use Mojo::JSON;
 =head2 startup
 
 Used by Mojo in the startup process. Loads the config file and sets up the
-helpers
+helpers, routes and everything else.
 
 =cut
 
@@ -260,6 +260,8 @@ sub startup {
 			$log->debug($d);
 		});
 	}
+
+	push @{$self->commands->namespaces}, 'Conch::Command';
 
 	Conch::ValidationSystem->load_validations( $self->log );
 
