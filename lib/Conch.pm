@@ -24,7 +24,7 @@ use Conch::ValidationSystem;
 use Conch::Plugin::AuthHelpers;
 use Conch::Plugin::JsonValidator;
 
-use Conch::DB::Schema qw();
+use Conch::DB qw();
 
 use Mojo::JSON;
 
@@ -53,7 +53,7 @@ sub startup {
 	# Provide access to DBIx::Class
 	$self->helper(schema => sub {
 		my $db = Conch::Pg->new();
-		return Conch::DB::Schema->connect(
+		return Conch::DB->connect(
 			$db->dsn,
 			$db->username,
 			$db->password,

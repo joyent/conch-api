@@ -14,7 +14,7 @@ package Conch::Models;
 use v5.20;
 use warnings;
 
-use Conch::DB::Schema;
+use Conch::DB;
 
 use Conch::Model::Datacenter;
 use Conch::Model::DatacenterRoom;
