@@ -79,12 +79,12 @@ workspace, allowing you to limit the devices an outside vendor can interact
 with. Workspaces are a very powerful, useful primitive.
 
 It also includes report ingestion and validation endpoints. These feed into the
-[validation engine](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md)
+[validation engine](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md)
 which allows us to decide if a device is healthy or not, based off its hardware
 profile, environmental or arbitrary data.
 
 Writing and testing new validations is documented
-[here](https://github.com/joyent/conch/blob/master/Conch/docs/validation/Guide.md).
+[here](https://github.com/joyent/conch/blob/master/docs/validation/Guide.md).
 
 The APIs are written in Perl's [Mojolicious framework](https://mojolicious.org/), and are available
 [here](https://github.com/joyent/conch).

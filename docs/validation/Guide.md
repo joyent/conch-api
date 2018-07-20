@@ -40,8 +40,8 @@ Guide: Writing, Deploying, and Testing a Conch Validation
 	3. Add a validation to a validation plan. `conch validation-plan
 	   VALIDATION_PLAN add-validation VALIDATION_ID`
 
-Documentation for the [Validation base class](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md)
-and [Validation test harness](https://github.com/joyent/conch/blob/master/Conch/docs/validation/TestingValidations.md)
+Documentation for the [Validation base class](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md)
+and [Validation test harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md)
 are useful references for writing and testing a new Conch Validation.
 
 Setting up the Conch Repository
@@ -59,16 +59,15 @@ To build and run Conch locally, Perl version 5.26.0,
 [Carton](http://search.cpan.org/~miyagawa/Carton-v1.0.28/lib/Carton.pm), and
 [yarn](https://yarnpkg.com) are all required to be installed on your system.
 
-To build conch, run `make build` in `Conch/`. `make test` runs all tests,
-including validation tests. To run the Conch server, run `make run` in
-`Conch/`. All valid Conch Validations are automatically loaded when the Conch
-server is started.
+To build conch, run `make build` in the top level directory. `make test` runs all tests,
+including validation tests. To run the Conch server, run `make run` in the top level directory.
+All valid Conch Validations are automatically loaded when the Conch server is started.
 	
 Creating a new Validation
 -------------------------
 
 Let's start by creating a simple yet valid validation. Create and write the
-following code to the file `Conch/lib/Conch/Validation/MyValidation.pm`:
+following code to the file `lib/Conch/Validation/MyValidation.pm`:
 
 ```perl
 package Conch::Validation::MyValidation;
@@ -87,8 +86,8 @@ sub validate {}
 
 This validation doesn't do anything useful and will not record results when
 executed. But it satisfies all of the basic requirements to be loaded as a new
-Validation into Conch. You could run `make run` in `Conch/` and this validation
-will be loaded into the system.
+Validation into Conch. You could run `make run` in the top level directory and
+this validation will be loaded into the system.
 
 Valid validations must be sub-classes of the `Conch::Validation` module, and
 the package must be under the `Conch::Validation` namespace. Validations use
@@ -133,21 +132,21 @@ register as many results as desired. Validation results can be registered with
 the following methods with different effects:
 
 
-* [`$self->die('string')`](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md#die):
+* [`$self->die('string')`](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#die):
   Stop execution of the validation and record a validation result with status
   'error'. This should be used when the validation cannot continue. For example,
   when expected values in the `$data` hash ref are not present, call
   `$self->die()` with a description of the expected value
 
-* [`$self->fail('string')`](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md#fail):
+* [`$self->fail('string')`](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#fail):
   Record a validation result with status 'fail' and continue execution of the
   validation. This may be used if some precondition is not satisfied but the
   validation should still continue.
 
-* [`$self->register_result( expected => $a, got => $b, cmp => 'eq')`](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md#register_result):
+* [`$self->register_result( expected => $a, got => $b, cmp => 'eq')`](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#register_result):
   this is the workhorse of validation logic. It takes an expected and 'got' value
   and compares them with the operator `cmp`. The list of available comparison
-  operators can be [found in the documentation.](https://github.com/joyent/conch/blob/master/Conch/docs/validation/BaseValidation.md#register_result)
+  operators can be [found in the documentation.](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#register_result)
 
 
 
@@ -421,7 +420,7 @@ objects, like hardware product and hardware profile, to be used in the
 validation under test. This is done by defining named arguments in the
 `test_validation` function like `hardware_product`. [The list of available
 named arguments and an example are given in the documentation for the test
-harness](https://github.com/joyent/conch/blob/master/Conch/docs/validation/TestingValidations.md).
+harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md).
 
 In the same file, after the `test_validation()` call and before
 `done_testing();`, we add tests for the edge case:
@@ -470,7 +469,7 @@ into master.
 *NOTE*: As of 2018-04-18, device reports are validated during ingest against
 one of two validation plans, named `Conch v1 Legacy Plan: Switch` and `Conch v1
 Legacy Plan: Server`. [The validations associated with these plans are configured
-in the Conch configuration file](https://github.com/joyent/conch/blob/master/Conch/conch.conf.dist#L37-L73).
+in the Conch configuration file](https://github.com/joyent/conch/blob/master/conch.conf.dist#L37-L73).
 These validations plans may be modified via the API, but the plans will be
 reset to the specified configuration every time the Conch service is restarted.
 To include your new validation permanently as part of one of these plans, the

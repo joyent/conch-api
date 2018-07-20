@@ -2,13 +2,10 @@
 
 all: deps database
 
-../Conch/ui/node_modules:
-	cd ../Conch/ && make ui/node_modules
+../local:
+	cd .. && make local
 
-../Conch/local:
-	cd ../Conch/ && make local
-
-deps: ../Conch/ui/node_modules ../Conch/local
+deps: ../local
 
 database:
 	sql/reset-database.sh

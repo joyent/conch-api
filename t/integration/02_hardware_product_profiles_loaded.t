@@ -34,7 +34,7 @@ Conch::ValidationSystem->load_validation_plans([
 
 my @test_sql_files = qw( 00-hardware.sql 01-hardware-profiles.sql );
 
-for my $file ( map { io->file("../sql/test/$_") } @test_sql_files ) {
+for my $file ( map { io->file("sql/test/$_") } @test_sql_files ) {
 	$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
 }
 
