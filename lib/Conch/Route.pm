@@ -37,25 +37,18 @@ Set up the full route structure
 =cut
 
 sub all_routes {
-	my $r = shift;
+	my $unsecured = shift;	# this is the base routing object
 	my $features = shift || {};
-	# CORS preflight check
-	$r->options('*', sub{ shift->status(204) });
 
-	my $unsecured = $r->under(
-		sub {
-			return 1;
-		}
-	);
+	# CORS preflight check
+	$unsecured->options('*', sub{ shift->status(204) });
 
 	$unsecured->get( '/doc',
 		sub { shift->reply->static('public/doc/index.html') } );
 
 	$unsecured->get(
 		'/ping',
-		sub {
-			shift->status( 200, { status => 'ok' } );
-		}
+		sub { shift->status( 200, { status => 'ok' } ) },
 	);
 
 	$unsecured->get(
@@ -69,7 +62,10 @@ sub all_routes {
 	$unsecured->post('/logout')->to('login#session_logout');
 	$unsecured->post('/reset_password')->to('login#reset_password');
 
-	my $secured = $r->under->to('login#authenticate');
+	# all routes after this point require authentication
+
+	my $secured = $unsecured->to('login#authenticate')->under;
+
 	$secured->get( '/login', sub { shift->status(204) } );
 	$secured->get( '/me',    sub { shift->status(204) } );
 	$secured->post('/refresh_token')->to('login#refresh_token');
@@ -85,14 +81,13 @@ sub all_routes {
 	workspace_routes($secured);
 	device_routes($secured);
 	relay_routes($secured);
-	user_routes( $secured->under('/user') );
+	user_routes( $secured->any('/user') );
 	hardware_product_routes($secured);
 	validation_routes($secured);
 
 	Conch::Route::Datacenter->routes($secured);
 
-	my $d = $secured->under("/db");
-	Conch::Route::DB::HardwareProduct->routes($d);
+	Conch::Route::DB::HardwareProduct->routes($secured->any('/db'));
 }
 
 1;

@@ -23,7 +23,7 @@ Sets up routes for the /user namespace
 =cut
 
 sub user_routes {
-	my $r = shift;
+	my $r = shift;	# secured, under /user
 
 	$r->post('/me/revoke')->to('user#revoke_own_tokens');
 	$r->post('/#id/revoke')->to('user#revoke_user_tokens');

@@ -18,14 +18,14 @@ Sets up the routes
 sub routes {
 	my ($class, $r) = @_;
 
-	my $d = $r->under('/hardware_product');
-	$d->get('/')->to("DB::HardwareProduct#get_all");
-	$d->post('/')->to("DB::HardwareProduct#create");
+	my $hardware_product = $r->any('/hardware_product');
+	$hardware_product->get('/')->to("DB::HardwareProduct#get_all");
+	$hardware_product->post('/')->to("DB::HardwareProduct#create");
 
-	my $i = $d->under('/:id')->to("DB::HardwareProduct#under");
-	$i->get('/')->to("DB::HardwareProduct#get_one");
-	$i->post('/')->to("DB::HardwareProduct#update");
-	$i->delete('/')->to("DB::HardwareProduct#delete");
+	my $with_id = $hardware_product->under('/:id')->to("DB::HardwareProduct#under");
+	$with_id->get('/')->to("DB::HardwareProduct#get_one");
+	$with_id->post('/')->to("DB::HardwareProduct#update");
+	$with_id->delete('/')->to("DB::HardwareProduct#delete");
 }
 
 1;
