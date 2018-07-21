@@ -30,10 +30,12 @@ sub run {
 
     local @ARGV = @_;
     my ($opt, $usage) = describe_options(
+        # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
+        # the 'usage' text block can be accessed with $opt->usage
         'create_user %o',
         [ 'name|n=s',       'the user\'s name', { required => 1 } ],
         [ 'email|e=s',      'the user\'s email address', { required => 1 } ],
-        [ 'password|p=s',   'the user password', { default => _random_password() } ],
+        [ 'password|p=s',   'the user password' ],
         [ 'send-email',     'send email to user' ],
         [],
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
@@ -44,13 +46,11 @@ sub run {
         return;
     }
 
-    my $user = $self->app->db_user_accounts->new_result({
+    my $user = $self->app->db_user_accounts->create({
         name => $opt->name,
         email => $opt->email,
-        password => $opt->password, # will be hashed in constructor
+        password => $opt->password // $self->app->random_string(), # will be hashed in constructor
     });
-
-    $user->insert;
     my $user_id = $user->id;
 
     say 'created user ', $opt->name, ' with email ', $opt->email, ': user id ', $user_id;
@@ -59,13 +59,6 @@ sub run {
         say 'sending email to ', $opt->email, '...';
         Conch::Mail::new_user_invite({ email => $opt->email, password => $opt->password });
     }
-}
-
-sub _random_password {
-    my @chars = ('A'..'Z', 'a'..'z', 0..9);
-    my $string = '';
-    $string .= $chars[rand @chars] for 1..8;
-    return $string;
 }
 
 1;

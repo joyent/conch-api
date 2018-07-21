@@ -13,9 +13,10 @@ package Conch::Controller::User;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Mojo::Exception;
 
-use Conch::Model::User;
 use Conch::Model::SessionToken;
 use Conch::UUID qw( is_uuid );
+use List::Util 'pairmap';
+use Mojo::JSON qw(to_json from_json);
 
 =head2 revoke_own_tokens
 
@@ -40,13 +41,11 @@ sub revoke_user_tokens ($c) {
 		unless $c->is_global_admin;
 
 	my $user_param = $c->param('id');
-	my $user;
-	if ( is_uuid($user_param) ) {
-		$user = Conch::Model::User->lookup($user_param);
-	}
-	elsif ( $user_param =~ s/^email\=// ) {
-		$user = Conch::Model::User->lookup_by_email($user_param);
-	}
+	my $user =
+		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
+	  : $user_param =~ s/^email\=// ? $c->db_user_accounts->lookup_by_email($user_param)
+	  : undef;
+
 	return $c->status( 404, { error => "user $user_param not found" } )
 		unless $user;
 
@@ -65,11 +64,16 @@ sub set_settings ($c) {
 	my $body = $c->req->json;
 	return $c->status( 400, { error => 'Payload required' } ) unless $body;
 
-	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
+	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
-	$user->set_settings($body);
+	# deactivate *all* settings first
+	$user->search_related('user_settings')->active->deactivate;
+
+	# store new settings
+	$user->create_related('user_settings', $_) foreach
+		pairmap { +{ name => $a, value => to_json($b) } } $body->%*;
 
 	$c->status(200);
 }
@@ -77,6 +81,8 @@ sub set_settings ($c) {
 =head2 set_setting
 
 Set the value of a single setting for the user
+
+FIXME: the key name is repeated in the URL and the payload :(
 
 =cut
 
@@ -92,12 +98,21 @@ sub set_setting ($c) {
 		}
 	) unless $value;
 
-	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
+	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
-	my $ret = $user->set_setting( $key => $value );
-	if ($ret) {
+	# FIXME? we should have a unique constraint on user_id+name
+	# rather than creating additional rows.
+
+	$user->search_related('user_settings', { name => $key })->active->deactivate;
+
+	my $setting = $user->create_related('user_settings', {
+		name => $key,
+		value => to_json($value),
+	});
+
+	if ($setting) {
 		return $c->status(200);
 	}
 	else {
@@ -112,15 +127,15 @@ Get the key/values of every setting for a User
 =cut
 
 sub get_settings ($c) {
-	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
+	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
-	my $settings = $user->settings();
-	my %output;
-	for my $k ( keys $settings->%* ) {
-		$output{$k} = $settings->{$k};
-	}
+	# turn user_setting db rows into name => value entries,
+	# newer entries overwriting older ones
+	my %output = map {
+		$_->name => from_json($_->value)
+	} $user->user_settings->active->search({}, { order_by => 'created' });
 
 	$c->status( 200, \%output );
 }
@@ -134,16 +149,19 @@ Get the individual key/value pair for a setting for the User
 sub get_setting ($c) {
 	my $key = $c->param('key');
 
-	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
+	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
-	my $settings = $user->settings;
+	my $setting = $user->user_settings->active->search(
+		{ name => $key },
+		{ order_by => { -desc => 'created' } },
+	)->first;
 
 	return $c->status( 404, { error => "No such setting '$key'" } )
-		unless $settings->{$key};
+		unless $setting;
 
-	$c->status( 200, { $key => $settings->{$key} } );
+	$c->status( 200, { $key => from_json($setting->value) } );
 }
 
 =head2 delete_setting
@@ -155,21 +173,16 @@ Delete a single setting for a user, provided it was set previously
 sub delete_setting ($c) {
 	my $key = $c->param('key');
 
-	my $user = Conch::Model::User->lookup( $c->stash('user_id') );
+	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
-	my $settings = $user->settings;
+	my $count = $user->search_related('user_settings', { name => $key })->active->deactivate;
 
 	return $c->status( 404, { error => "No such setting '$key'" } )
-		unless $settings->{$key};
+		unless $count;
 
-	if ( $user->delete_setting($key) ) {
-		return $c->status(204);
-	}
-	else {
-		return $c->status( 500 => "Failed to delete setting" );
-	}
+	return $c->status(204);
 }
 
 1;

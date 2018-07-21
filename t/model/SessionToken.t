@@ -7,14 +7,19 @@ use Conch::Pg;
 
 use_ok("Conch::Model::SessionToken");
 
-use Conch::Model::User;
 use Conch::Model::SessionToken;
 
 my $pgtmp = mk_tmp_db();
 $pgtmp or die;
+my $schema = Test::ConchTmpDB->schema($pgtmp);
+
 my $pg = Conch::Pg->new( $pgtmp->uri );
 
-my $user = Conch::Model::User->create( 'foo@bar.com', 'password' );
+my $user = $schema->resultset('UserAccount')->create({
+	name => 'foo',
+	email => 'foo@bar.com',
+	password => 'password',
+});
 
 my $token;
 subtest "Create new token" => sub {

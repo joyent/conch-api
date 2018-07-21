@@ -3,16 +3,19 @@ use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
 use Conch::Pg;
 
-use_ok("Conch::Model::User");
 use_ok("Conch::Model::Workspace");
 use_ok("Conch::Model::WorkspaceUser");
 
 my $pgtmp = mk_tmp_db();
 $pgtmp or die;
-Conch::Pg->new( $pgtmp->uri );
+my $pg    = Conch::Pg->new( $pgtmp->uri );
+my $schema = Test::ConchTmpDB->schema($pgtmp);
 
-my $user_model = new_ok( "Conch::Model::User", );
-my $new_user = Conch::Model::User->create( 'foo@bar.com', 'password' );
+my $new_user = $schema->resultset('UserAccount')->create({
+	name => 'foo',
+	email => 'foo@bar.com',
+	password => 'password',
+});
 
 my $ws_model = new_ok( "Conch::Model::Workspace" );
 my $global_ws = $ws_model->lookup_by_name('GLOBAL');

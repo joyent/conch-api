@@ -15,7 +15,6 @@ use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 
-use Conch::Model::User;
 use Conch::Model::SessionToken;
 use Conch::UUID 'is_uuid';
 
@@ -89,7 +88,7 @@ sub authenticate ($c) {
 		$c->app->log->debug('attempting to authenticate with user:password...');
 		my ($name, $password) = ($abs_url->username, $abs_url->password);
 		$c->app->log->debug('looking up user by name ' . $name . '...');
-		my $user = Conch::Model::User->lookup($name);
+		my $user = $c->db_user_accounts->lookup_by_name($name);
 
 		unless ($user) {
 			$c->status( 401, { error => 'unauthorized' } );
@@ -158,7 +157,7 @@ sub authenticate ($c) {
 	}
 
 	$c->app->log->debug('looking up user by id ' . $user_id . '...');
-	if (my $user = Conch::Model::User->lookup($user_id)) {
+	if (my $user = $c->db_user_accounts->lookup_by_id($user_id)) {
 		$c->stash( user_id => $user_id );
 		$c->stash( user    => $user );
 		return 1;
@@ -180,24 +179,25 @@ sub session_login ($c) {
 	return $c->status( 400, { error => '"user" and "password" required' } )
 		unless $body->{user} and $body->{password};
 
-	my $user = Conch::Model::User->lookup( $body->{user} );
+	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
+	# don't have to look up by all columns.
+	my $user = $c->db_user_accounts->lookup_by_id($body->{user})
+		|| $c->db_user_accounts->lookup_by_name($body->{user})
+		|| $c->db_user_accounts->lookup_by_email($body->{user});
 
-	return $c->status( 401, { error => 'Invalid login' } ) unless $user;
-
-	if ( $user->validate_password( $body->{password} ) ) {
-
-		$c->stash( user_id => $user->id );
-
-		my $feature_flags = $c->app->config('feature') || {};
-		unless ( $feature_flags->{stop_conch_cookie_issue} ) {
-			$c->session( 'user' => $user->id );
-		}
-
-		return $c->_create_jwt( $user->id );
+	if (not $user->validate_password($body->{password})) {
+		return $c->status(401, { error => 'Invalid login' });
 	}
-	else {
-		return $c->status( 401, { error => 'Invalid login' } );
+
+	$c->stash(user_id => $user->id);
+	$c->stash(user => $user);
+
+	my $feature_flags = $c->app->config('feature') || {};
+	unless ( $feature_flags->{stop_conch_cookie_issue} ) {
+		$c->session( 'user' => $user->id );
 	}
+
+	return $c->_create_jwt( $user->id );
 }
 
 =head2 session_logout
@@ -236,11 +236,11 @@ sub reset_password ($c) {
 	# check for the user and sent the email non-blocking to prevent timing attacks
 	Mojo::IOLoop->subprocess(
 		sub {
-			my $user = Conch::Model::User->lookup( $body->{email} );
+			my $user = $c->db_user_accounts->lookup_by_email($body->{email});
 
 			if ($user) {
 				my $pw = $c->random_string();
-				$user->update_password($pw);
+				$user->update({ password => $pw });
 
 				$c->mail->send_password_reset_email(
 					{

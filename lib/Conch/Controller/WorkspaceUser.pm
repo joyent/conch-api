@@ -53,11 +53,18 @@ sub invite ($c) {
 			{ error => '"role" must be one of: ' . $role_names } );
 	}
 
-	my $user = Conch::Model::User->lookup_by_email( $body->{user} );
+	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
+	# don't have to look up by multiple columns.
+	my $user = $c->db_user_accounts->lookup_by_email($body->{user})
+		|| $c->db_user_accounts->lookup_by_name($body->{user});
 
 	unless ($user) {
 		my $password = $c->random_string();
-		$user = Conch::Model::User->create( $body->{user}, $password );
+		$user = $c->db_user_accounts->create({
+			email => $body->{user},
+			name => $body->{user},	# FIXME: we should always have a name.
+			password => $password,	# will be hashed in constructor
+		});
 		$c->mail->send_new_user_invite(
 			{ email => $user->email, password => $password } );
 	}

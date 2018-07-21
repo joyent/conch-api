@@ -8,7 +8,6 @@ use IO::All;
 use_ok("Conch::Model::WorkspaceRole");
 use_ok("Conch::Model::Workspace");
 use_ok("Conch::Model::Device");
-use_ok("Conch::Model::User");
 
 use Data::UUID;
 
@@ -16,6 +15,8 @@ use Conch::Pg;
 
 my $pgtmp = mk_tmp_db();
 $pgtmp or die;
+my $schema = Test::ConchTmpDB->schema($pgtmp);
+
 my $pg    = Conch::Pg->new($pgtmp->uri);
 
 my $uuid = Data::UUID->new;
@@ -75,7 +76,11 @@ subtest "Lookup" => sub {
 		undef, "Lookup for bad device fails",
 	);
 
-	$user = Conch::Model::User->create( 'foo@bar.com', 'password' );
+	$user = $schema->resultset('UserAccount')->create({
+		email => 'foo@bar.com',
+		name => 'foo',
+		password => 'password',
+	});
 	is( Conch::Model::Device->lookup_for_user( $user->id, $d->id ),
 		undef, "brand new user can't find a device" );
 
