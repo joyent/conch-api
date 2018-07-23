@@ -16,8 +16,6 @@ our @EXPORT_OK = qw( user_routes);
 
 use DDP;
 
-
-
 =head2 user_routes
 
 Sets up routes for the /user namespace
@@ -39,9 +37,6 @@ sub user_routes {
 }
 
 1;
-
-
-
 __END__
 
 =pod
@@ -50,9 +45,8 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

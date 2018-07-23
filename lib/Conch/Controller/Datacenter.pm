@@ -4,10 +4,9 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
 
-
 =head2 under
 
-Handles looking up the object by id or name depending on the url pattern 
+Handles looking up the object by id or name depending on the url pattern
 
 =cut
 
@@ -116,12 +115,11 @@ Permanently delete a datacenter
 sub delete ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	$c->stash('datacenter')->burn;
-	return $c->status(204); 
+	return $c->status(204);
 }
 
 
 1;
-
 __END__
 
 =pod
@@ -135,4 +133,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

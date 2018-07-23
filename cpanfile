@@ -56,10 +56,6 @@ requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'Config::General';
 requires 'DBIx::Class::TimeStamp';
 
-# moose
-requires 'Moose' => '2.1400';
-requires 'MooseX::NonMoose';
-
 # logging
 requires 'Log::Any';
 requires 'Log::Any::Adapter::Log4perl';
@@ -83,6 +79,7 @@ on 'test' => sub {
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is
 # shipping a bad berkeley-db. To fix (do this in a subshell you will close
 # afterward, so as to not pollute your environment):
+# sudo port install db48    # you may have this already
 # eval $(perl -Mlocal::lib='local/lib/perl5')
 # cpanm --look DB_File
 # (you're now in another subshell)

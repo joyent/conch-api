@@ -173,7 +173,6 @@ sub delete_setting ($c) {
 }
 
 1;
-
 __END__
 
 =pod

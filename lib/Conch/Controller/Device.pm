@@ -208,7 +208,7 @@ sub set_validated($c) {
 
 =head2 get_role
 
-If the device has a valid role, 303 to the relevant /role endpoint 
+If the device has a valid role, 303 to the relevant /role endpoint
 
 =cut
 
@@ -253,7 +253,6 @@ sub set_role($c) {
 }
 
 1;
-
 __END__
 
 =pod

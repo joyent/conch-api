@@ -5,9 +5,9 @@ Test::Conch::Datacenter
 =head1 DESCRIPTION
 
 Does all the work to standup a test db, test harness, and all the other magic
-necessary to test against a full datacenter worth of test data. 
+necessary to test against a full datacenter worth of test data.
 
-Includes JSON validation ability via L<Test::MojoSchema>  
+Includes JSON validation ability via L<Test::MojoSchema>
 
 =head1 METHODS
 
@@ -76,6 +76,7 @@ sub initialize {
 }
 
 1;
+__END__
 
 =pod
 
@@ -83,9 +84,8 @@ sub initialize {
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

@@ -71,7 +71,7 @@ paths:
                 $ref: "#/components/schemas/Error"
     get:
       tags: [Login]
-      summary: Verify the user is logged in or authenticated 
+      summary: Verify the user is logged in or authenticated
       operationId: checkLogin
       responses:
         '204':

@@ -7,7 +7,7 @@ use Conch::Models;
 
 =head2 under
 
-Handles looking up the object by id or name depending on the url pattern 
+Handles looking up the object by id or name depending on the url pattern
 
 =cut
 
@@ -99,8 +99,8 @@ sub update ($c) {
 
 	if($body->{name} and ($body->{name} ne $s->name)) {
 		if(Conch::Model::DeviceService->from_name($body->{name})) {
-			return $c->status(400 => { 
-				error => "A service named '".$body->{name}." already exists" 
+			return $c->status(400 => {
+				error => "A service named '".$body->{name}." already exists"
 			});
 		}
 	}
@@ -118,12 +118,10 @@ sub update ($c) {
 
 sub delete ($c) {
 	$c->stash('deviceservice')->burn;
-	return $c->status(204); 
+	return $c->status(204);
 }
 
-
 1;
-
 __END__
 
 =pod
@@ -137,4 +135,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

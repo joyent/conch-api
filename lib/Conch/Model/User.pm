@@ -7,6 +7,7 @@ Conch::Model::User
 =head1 METHODS
 
 =cut
+
 package Conch::Model::User;
 use Mojo::Base -base, -signatures;
 
@@ -30,6 +31,7 @@ sub _BCRYPT_COST { 4 }    # dancer2 legacy
 Create a new user
 
 =cut
+
 sub create ( $class, $email, $password ) {
 	my $password_hash = _hash_password($password);
 
@@ -62,6 +64,7 @@ Look up user by ID if $id is UUID, then try to lookup by name, and finally try
 by email. Otherwise, return undef.
 
 =cut
+
 sub lookup ( $class, $id ) {
 	my $where = {};
 	my $ret;
@@ -88,13 +91,17 @@ sub lookup ( $class, $id ) {
 }
 
 =head2 lookup_by_email
+
 =cut
+
 sub lookup_by_email ( $class, $email ) {
 	return $class->lookup( $email );
 }
 
 =head2 lookup_by_name
+
 =cut
+
 sub lookup_by_name ( $class, $name ) {
 	return $class->lookup( $name );
 }
@@ -104,6 +111,7 @@ sub lookup_by_name ( $class, $name ) {
 Update user's password. Stores a bcrypt'd hashed password.
 
 =cut
+
 sub update_password ( $self, $p ) {
 	my $password_hash = _hash_password($p);
 	my $ret           = Conch::Pg->new->db->update(
@@ -123,6 +131,7 @@ sub update_password ( $self, $p ) {
 Check whether the given password text has a hash matching the stored password hash.
 
 =cut
+
 sub validate_password ( $self, $p ) {
 	return Mojo::Util::secure_compare( $self->password_hash,
 		bcrypt( $p, $self->password_hash ) );
@@ -239,8 +248,6 @@ sub _bcrypt_salt {
 }
 
 1;
-
-
 __END__
 
 =pod
@@ -249,9 +256,8 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

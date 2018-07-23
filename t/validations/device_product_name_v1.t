@@ -5,7 +5,7 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
 	'Conch::Validation::DeviceProductName',
-	hardware_product => { 
+	hardware_product => {
 		name => 'Test Product',
 		generation_name => 'Joyent-G1',
 	},

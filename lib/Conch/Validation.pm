@@ -693,7 +693,6 @@ sub clear_results ( $self ) {
 }
 
 1;
-
 __END__
 
 =pod

@@ -14,7 +14,7 @@ package Conch::Models;
 use v5.20;
 use warnings;
 
-use Conch::DB::Schema;
+use Conch::DB;
 
 use Conch::Model::Datacenter;
 use Conch::Model::DatacenterRoom;
@@ -41,9 +41,7 @@ use Conch::Model::WorkspaceRole;
 use Conch::Model::DeviceService;
 use Conch::Model::DeviceRole;
 
-
 1;
-
 __END__
 
 =pod
@@ -52,9 +50,8 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

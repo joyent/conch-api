@@ -33,7 +33,6 @@ sub error_loc {
 }
 
 1;
-
 __END__
 
 =pod

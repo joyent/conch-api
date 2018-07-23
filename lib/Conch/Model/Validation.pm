@@ -22,7 +22,7 @@ has $attrs;
 
 =head2 new
 
-Create a new Validation. 
+Create a new Validation.
 	
 	Conch::Model::Validation->new (
 		name        => 'example_validation',
@@ -222,7 +222,6 @@ sub run_validation_for_device ( $self, $device, $data ) {
 }
 
 1;
-
 __END__
 
 =pod

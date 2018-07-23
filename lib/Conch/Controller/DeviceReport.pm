@@ -34,7 +34,7 @@ sub process ($c) {
 		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_name(
 			$device_report->{product_name}
 		);
-		return $c->status(409, { 
+		return $c->status(409, {
 			error => "Hardware product name '".$device_report->{product_name}."' does not exist"
 		}) unless ($maybe_hw);
 
@@ -43,7 +43,7 @@ sub process ($c) {
 			$device_report->{sku}
 		);
 
-		return $c->status(409, { 
+		return $c->status(409, {
 			error => "Hardware product SKU '".$device_report->{sku}."' does not exist"
 		}) unless ($maybe_hw);
 
@@ -88,7 +88,6 @@ sub process ($c) {
 }
 
 1;
-
 __END__
 
 =pod
@@ -97,7 +96,7 @@ __END__
 
 Copyright Joyent, Inc.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, 
+This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 

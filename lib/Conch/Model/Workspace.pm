@@ -7,6 +7,7 @@ Conch::Model::Workspace
 =head1 METHODS
 
 =cut
+
 package Conch::Model::Workspace;
 use Mojo::Base -base, -signatures;
 
@@ -21,6 +22,7 @@ use Conch::Pg;
 Look up a workspace by name.
 
 =cut
+
 sub lookup_by_name ( $self, $name ) {
 	my $ret =
 		Conch::Pg->new->db->select( 'workspace', undef, { name => $name } )->hash;
@@ -34,6 +36,7 @@ sub lookup_by_name ( $self, $name ) {
 Add a user to a workspace with a specified role.
 
 =cut
+
 sub add_user_to_workspace ( $self, $user_id, $ws_id, $role_id ) {
 
 	# On conflict, set the role for the user
@@ -53,6 +56,7 @@ Create a sub-workspace for a user. The user will have the same role as in the
 parent workspace.
 
 =cut
+
 sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 	$description )
 {
@@ -110,6 +114,7 @@ sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 Retrieve the list of workspaces associated with a user.
 
 =cut
+
 sub get_user_workspaces ( $self, $user_id ) {
 	Conch::Pg->new->db->query(
 		q{
@@ -132,6 +137,7 @@ Look up a workspace by ID. Limited to workspaces associated with the specified
 user ID.
 
 =cut
+
 sub get_user_workspace ( $self, $user_id, $ws_id ) {
 	my $ret = Conch::Pg->new->db->query(
 		q{
@@ -157,6 +163,7 @@ Get all sub-workspace descendents of a workspace, recursively. Limited to worksp
 associated with the specified user ID.
 
 =cut
+
 sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
 	Conch::Pg->new->db->query(
 		q{
@@ -182,8 +189,6 @@ sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
 }
 
 1;
-
-
 __END__
 
 =pod
@@ -197,4 +202,3 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-

@@ -206,7 +206,6 @@ sub run_validations ( $self, $device, $data ) {
 }
 
 1;
-
 __END__
 
 =pod

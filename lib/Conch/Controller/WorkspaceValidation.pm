@@ -56,7 +56,6 @@ sub workspace_validation_states ($c) {
 }
 
 1;
-
 __END__
 
 =pod

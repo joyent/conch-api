@@ -27,7 +27,6 @@ sub validate {
 }
 
 1;
-
 __END__
 
 =pod
