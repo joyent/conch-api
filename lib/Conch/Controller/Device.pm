@@ -195,9 +195,7 @@ Sets the C<validated> field on a device unless that field has already been set
 sub set_validated($c) {
 	my $device    = $c->stash('current_device');
 	my $device_id = $device->id;
-	return $c->status( 204,
-		{ error => "Device $device_id has already marked validated" } )
-		if defined( $device->validated );
+	return $c->status(204) if defined( $device->validated );
 
 	$device->set_validated();
 
