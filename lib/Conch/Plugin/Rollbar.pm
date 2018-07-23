@@ -54,7 +54,7 @@ sub _record_exception ( $c, $exception ) {
 	# We only have context for the first frame
 	$frames[0]->{context} = $context;
 
-	my $user   = $c->stash(' user ');
+	my $user   = $c->stash('user');
 	my @person = (
 		person => {
 			id    => $user->id,
