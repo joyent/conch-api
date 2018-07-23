@@ -77,6 +77,11 @@ subsequent routes and actions.
 
 sub authenticate ($c) {
 
+	if (my $user = $c->stash('user')) {
+		$c->app->log->debug('already authenticated (user ' . $user->name . ')');
+		return 1;
+	}
+
 	# basic auth: look for user:password in the URL
 	my $abs_url = $c->req->url->to_abs;
 
