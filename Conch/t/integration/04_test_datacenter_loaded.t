@@ -170,7 +170,7 @@ subtest 'Single device' => sub {
 
 		$t->post_ok('/device/TEST/validated')->status_is(303)
 			->header_like( Location => qr!/device/TEST$! );
-		$t->post_ok('/device/TEST/validated')->status_is(409)
+		$t->post_ok('/device/TEST/validated')->status_is(204)
 			->json_like( '/error', qr/already marked validated/ );
 	};
 
