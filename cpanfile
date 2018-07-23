@@ -37,6 +37,7 @@ requires 'Types::UUID';
 requires 'Role::Tiny';
 requires 'List::MoreUtils';
 requires 'List::MoreUtils::XS';
+requires 'Getopt::Long::Descriptive';
 
 ### Legacy Deps
 #
