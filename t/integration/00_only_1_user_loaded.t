@@ -7,8 +7,6 @@ use Test::More;
 use Data::UUID;
 use IO::All;
 
-use Data::Printer;
-
 BEGIN {
 	use_ok('Test::ConchTmpDB', 'mk_tmp_db');
 	use_ok( "Conch::Route", qw(all_routes) );
@@ -67,21 +65,21 @@ subtest 'User' => sub {
 
 	$t->post_ok(
 		"/user/me/settings/TEST" => json => {
-			"TEST" => "test",
+			"TEST" => "TEST",
 		}
 	)->status_is(200)->content_is('');
 
 	$t->get_ok("/user/me/settings/TEST")->status_is(200)->json_is(
 		'',
 		{
-			"TEST" => "test",
+			"TEST" => "TEST",
 		}
 	);
 
 	$t->get_ok("/user/me/settings")->status_is(200)->json_is(
 		'',
 		{
-			"TEST" => "test"
+			"TEST" => "TEST"
 		}
 	);
 
@@ -101,7 +99,7 @@ subtest 'User' => sub {
 	$t->get_ok("/user/me/settings")->status_is(200)->json_is(
 		'',
 		{
-			"TEST"  => "test",
+			"TEST"  => "TEST",
 			"TEST2" => "test",
 		}
 	);
@@ -139,6 +137,28 @@ subtest 'User' => sub {
 	$t->delete_ok("/user/me/settings/dot.setting")->status_is(204)
 		->content_is('');
 
+	# everything should be deactivated now.
+	# starting over, let's see if set_settings overwrites everything...
+
+	$t->post_ok('/user/me/settings' => json => {
+			TEST1 => 'TEST',
+			TEST2 => 'ohhai',
+		}
+	)->status_is(200)->content_is('');
+
+	$t->post_ok('/user/me/settings' => json => {
+			TEST1 => 'test1',
+			TEST3 => 'test3',
+		}
+	)->status_is(200)->content_is('');
+
+	$t->get_ok('/user/me/settings')->status_is(200) ->json_is(
+		'',
+		{
+			TEST1 => 'test1',
+			TEST3 => 'test3',
+		}
+	);
 };
 
 my $id;
