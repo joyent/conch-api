@@ -28,4 +28,29 @@ test_validation(
 	]
 );
 
+test_validation(
+	'Conch::Validation::DeviceProductName',
+	hardware_product => {
+		name => 'Test Product',
+	},
+	cases            => [
+		{
+			description => 'Correct product name',
+			data        => {
+				device_type  => 'switch',
+				product_name => 'Test Product'
+			},
+			success_num => 1
+		},
+		{
+			description => 'Incorrect product name',
+			data        => {
+				device_type  => 'switch',
+				product_name => 'Test Product2'
+			},
+			failure_num => 1
+		}
+	]
+);
+
 done_testing();

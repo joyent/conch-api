@@ -20,6 +20,20 @@ has schema => sub {
 
 sub validate {
 	my ( $self, $data ) = @_;
+
+	# We do not currently define a Conch or Joyent specific name for
+	# switches. This may change in the future, but currently we continue
+	# to use the vendor product ID.
+	if ($data->{device_type} && $data->{device_type} eq "switch") {
+		$self->register_result(
+			expected => $self->hardware_product_name,
+			got      => $data->{product_name},
+		);
+		return;
+	}
+
+	# Previous iterations of our hardware naming are still in the field
+	# and cannot be updated to the new style. Continue to support them.
 	if(
 		($data->{product_name} =~ /^Joyent-Compute/) or
 		($data->{product_name} =~ /^Joyent-Storage/)
