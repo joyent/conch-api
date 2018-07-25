@@ -14,8 +14,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
-
-use Conch::Model::SessionToken;
 use Conch::UUID 'is_uuid';
 
 =head2 _create_jwt
@@ -40,7 +38,8 @@ sub _create_jwt ( $c, $user_id ) {
 		$expires += $jwt_config->{normal_expiry} || 86400;
 	}
 
-	my $token = Conch::Model::SessionToken->create( $user_id, $expires );
+	my $token = $c->db_user_session_tokens->generate_for_user($user_id, $expires);
+
 	my $jwt = Mojo::JWT->new(
 		claims => {
 			uid => $user_id,
@@ -116,21 +115,24 @@ sub authenticate ($c) {
 		if ($sig) {
 			$token = "$token.$sig";
 		}
-		my $jwt;
 
 		# Attempt to decode with every configured secret, in case JWT token was
 		# signed with a rotated secret
+		my $jwt;
 		for my $secret ( $c->config('secrets')->@* ) {
-
 			# Mojo::JWT->decode blows up if the token is invalid
 			try {
 				$jwt = Mojo::JWT->new( secret => $secret )->decode($token);
 			};
 			last if $jwt;
 		}
+
+		# clear out all expired session tokens
+		$c->db_user_session_tokens->expired->delete;
+
 		unless ( $jwt
-			&& $jwt->{exp} > time
-			&& Conch::Model::SessionToken->check_token( $jwt->{uid}, $jwt->{jti} ) )
+			and $jwt->{exp} > time
+			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->count )
 		{
 			$c->status( 401, { error => 'unauthorized' } );
 			return 0;
@@ -197,6 +199,10 @@ sub session_login ($c) {
 		$c->session( 'user' => $user->id );
 	}
 
+	# clear out all expired session tokens
+	$c->db_user_session_tokens->expired->delete;
+
+	# create a JWT for this user
 	return $c->_create_jwt( $user->id );
 }
 
@@ -209,9 +215,17 @@ Logs a user out by expiring their session
 sub session_logout ($c) {
 	$c->session( expires => 1 );
 
-	Conch::Model::SessionToken->use_token( $c->stash('user_id'),
-		$c->stash('token_id') )
-		if $c->stash('token_id');
+	# expire this user's token
+	# (assuming we have the user's id, which we probably don't)
+	if ($c->stash('user_id') and $c->stash('token_id')) {
+		$c->db_user_session_tokens
+			->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
+			->active
+			->expire;
+	}
+
+	# delete all expired session tokens
+	$c->db_user_session_tokens->expired->delete;
 
 	$c->cookie(
 		jwt_sig => '',
@@ -269,11 +283,16 @@ sub refresh_token ($c) {
 		return $c->_create_jwt($user_id);
 	}
 
-	my $valid_token = Conch::Model::SessionToken->use_token( $c->stash('user_id'),
-		$c->stash('token_id') );
+	# expire this token
+	my $token_valid = $c->db_user_session_tokens
+		->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
+		->active->expire;
+
+	# clear out all expired session tokens
+	$c->db_user_session_tokens->expired->delete;
 
 	return $c->status( 403, { error => 'Invalid token ID' } )
-		unless $valid_token;
+		unless $token_valid;
 
 	return $c->_create_jwt( $c->stash('user_id') );
 }

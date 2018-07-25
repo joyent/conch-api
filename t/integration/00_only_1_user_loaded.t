@@ -6,6 +6,7 @@ use Test::Mojo;
 use Test::More;
 use Data::UUID;
 use IO::All;
+use Test::Warnings;
 
 BEGIN {
 	use_ok('Test::ConchTmpDB', 'mk_tmp_db');

@@ -13,7 +13,6 @@ package Conch::Controller::User;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Mojo::Exception;
 
-use Conch::Model::SessionToken;
 use Conch::UUID qw( is_uuid );
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
@@ -26,7 +25,7 @@ B<NOTE>: This will cause the next request to fail authentication.
 =cut
 
 sub revoke_own_tokens ($c) {
-	Conch::Model::SessionToken->revoke_user_tokens( $c->stash('user_id' ) );
+	$c->stash('user')->delete_related('user_session_tokens');
 	$c->status(204);
 }
 
@@ -49,7 +48,7 @@ sub revoke_user_tokens ($c) {
 	return $c->status( 404, { error => "user $user_param not found" } )
 		unless $user;
 
-	Conch::Model::SessionToken->revoke_user_tokens( $user->id );
+	$user->delete_related('user_session_tokens');
 
 	$c->status(204);
 }
