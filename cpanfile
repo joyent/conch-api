@@ -56,6 +56,7 @@ requires 'DBIx::Class::Helpers';
 requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'Config::General';
 requires 'DBIx::Class::TimeStamp';
+requires 'Lingua::EN::Inflexion';
 
 # logging
 requires 'Log::Any';

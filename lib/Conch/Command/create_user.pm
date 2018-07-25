@@ -39,14 +39,12 @@ sub run {
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );
 
-    my $rs = $self->app->schema->resultset('UserAccount');
-
-    if ($rs->search([ name => $opt->name, email => $opt->email ])->count) {
+    if ($self->app->db_user_accounts->search([ name => $opt->name, email => $opt->email ])->count) {
         $self->app->log->warn('cannot create user: name ' . $opt->name . ' and/or email ' . $opt->email . ' already exists');
         return;
     }
 
-    my $user = $rs->new_result({
+    my $user = $self->app->db_user_accounts->new_result({
         name => $opt->name,
         email => $opt->email,
         password => $opt->password, # will be hashed in constructor

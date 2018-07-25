@@ -1823,6 +1823,24 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Lingua-EN-Inflexion-0.001007
+    pathname: D/DC/DCONWAY/Lingua-EN-Inflexion-0.001007.tar.gz
+    provides:
+      Lingua::EN::Inflexion 0.001007
+      Lingua::EN::Inflexion::Adjective undef
+      Lingua::EN::Inflexion::Indefinite undef
+      Lingua::EN::Inflexion::Noun undef
+      Lingua::EN::Inflexion::Noun::Classical undef
+      Lingua::EN::Inflexion::Nouns 20180505.223032
+      Lingua::EN::Inflexion::Term undef
+      Lingua::EN::Inflexion::Verb undef
+      Lingua::EN::Inflexion::Verbs 20180505.223034
+    requirements:
+      ExtUtils::MakeMaker 0
+      Lingua::EN::Nums2Words 1.16
+      Lingua::EN::Words2Nums 0
+      Test::More 0
+      perl 5.01
   Lingua-EN-Number-IsOrdinal-0.05
     pathname: R/RK/RKITOVER/Lingua-EN-Number-IsOrdinal-0.05.tar.gz
     provides:
@@ -1834,6 +1852,12 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Lingua-EN-Nums2Words-1.16
+    pathname: H/HI/HIGHTOWE/Lingua-EN-Nums2Words-1.16.zip
+    provides:
+      Lingua::EN::Nums2Words 1.16
+    requirements:
+      ExtUtils::MakeMaker 0
   Lingua-EN-Tagger-0.28
     pathname: A/AC/ACOBURN/Lingua-EN-Tagger-0.28.tar.gz
     provides:
