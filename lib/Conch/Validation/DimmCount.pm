@@ -27,12 +27,6 @@ sub validate {
 	my $dimms_num  = $data->{memory}->{count};
 	my $dimms_want = $hw_profile->dimms_num;
 
-	# Shrimps can have 256GB or 512GB RAM, with 8 or 16 DIMMs.
-	if ( $self->hardware_product_name eq 'Joyent-Storage-Platform-7001' ) {
-		if ( $dimms_num <= 8 ) { $dimms_want = 8; }
-		if ( $dimms_num > 8 )  { $dimms_want = 16; }
-	}
-
 	$self->register_result(
 		expected => $dimms_want,
 		got      => $dimms_num,
