@@ -29,12 +29,6 @@ sub validate {
 	my $ram_total = $data->{memory}->{total};
 	my $ram_want  = $hw_profile->ram_total;
 
-	# Shrimps can have 256GB or 512GB RAM, with 8 or 16 DIMMs.
-	if ( $self->hardware_product_name eq "Joyent-Storage-Platform-7001" ) {
-		if ( $ram_total <= 256 ) { $ram_want = 256; }
-		if ( $ram_total > 256 )  { $ram_want = 512; }
-	}
-
 	$self->register_result(
 		expected => $ram_want,
 		got      => $ram_total,
