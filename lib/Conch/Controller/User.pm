@@ -43,7 +43,7 @@ sub revoke_user_tokens ($c) {
 	return $c->status( 403, { error => 'Must be global admin' } )
 		unless $c->is_global_admin;
 
-	my $user_param = $c->param('id');
+	my $user_param = $c->stash('target_user');
 	my $user =
 		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
 	  : $user_param =~ s/^email\=// ? $c->db_user_accounts->lookup_by_email($user_param)
@@ -91,7 +91,7 @@ FIXME: the key name is repeated in the URL and the payload :(
 
 sub set_setting ($c) {
 	my $body  = $c->req->json;
-	my $key   = $c->param('key');
+	my $key   = $c->stash('key');
 	my $value = $body->{$key};
 	return $c->status(
 		400,
@@ -150,7 +150,7 @@ Get the individual key/value pair for a setting for the User
 =cut
 
 sub get_setting ($c) {
-	my $key = $c->param('key');
+	my $key = $c->stash('key');
 
 	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
@@ -174,7 +174,7 @@ Delete a single setting for a user, provided it was set previously
 =cut
 
 sub delete_setting ($c) {
-	my $key = $c->param('key');
+	my $key = $c->stash('key');
 
 	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
