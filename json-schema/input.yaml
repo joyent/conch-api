@@ -265,3 +265,11 @@ definitions:
       legacy_product_name:
         type: string
 
+  UserPassword:
+    type: object
+    additionalProperties: false
+    required:
+      - password
+    properties:
+      password:
+        type: string

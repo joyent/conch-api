@@ -160,6 +160,37 @@ subtest 'User' => sub {
 			TEST3 => 'test3',
 		}
 	);
+
+	$t->post_ok(
+		'/user/me/password' => json => { password => 'ohhai' }
+	)->status_is(204, 'changed password');
+
+	$t->get_ok('/user/me/settings')->status_is(401, 'session tokens revoked too');
+
+	$t->post_ok(
+		'/login' => json => {
+			user     => 'conch',
+			password => 'conch'
+		}
+	)->status_is(401, 'cannot use old password after changing it');
+
+	$t->post_ok(
+		'/login' => json => {
+			user     => 'conch',
+			password => 'ohhai'
+		}
+	)->status_is(200, 'logged in using new password');
+	$t->post_ok(
+		'/user/me/password' => json => { password => 'conch' }
+	)->status_is(204, 'changed password back');
+
+	$t->post_ok(
+		'/login' => json => {
+			user     => 'conch',
+			password => 'conch'
+		}
+	)->status_is(200, 'logged in using original password');
+	$t->get_ok('/user/me/settings')->status_is(200, 'original password works again');
 };
 
 my $id;

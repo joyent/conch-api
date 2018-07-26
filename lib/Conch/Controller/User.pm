@@ -25,6 +25,7 @@ B<NOTE>: This will cause the next request to fail authentication.
 =cut
 
 sub revoke_own_tokens ($c) {
+	$c->app->log->debug('revoking user token for user ' . $c->stash('user')->name . ' at their request');
 	$c->stash('user')->delete_related('user_session_tokens');
 	$c->status(204);
 }
@@ -182,6 +183,37 @@ sub delete_setting ($c) {
 		unless $count;
 
 	return $c->status(204);
+}
+
+=head2 change_password
+
+Stores a new password for the current user.
+
+Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke session
+tokens for the user, forcing all tools to log in again.
+
+=cut
+
+sub change_password ($c) {
+	my $body =  $c->validate_input('UserPassword');
+	return if not $body;
+
+	my $new_password = $body->{password};
+
+	my $user = $c->stash('user');
+	Mojo::Exception->throw('Could not find previously stashed user')
+		unless $user;
+
+	$user->update({ password => $new_password });
+	$c->app->log->debug('updated password for user ' . $user->name . ' at their request');
+
+	return $c->status(204)
+		unless $c->req->query_params->param('clear_tokens') // 1;
+
+	$c->stash('user')->delete_related('user_session_tokens');
+
+	# processing continues with Conch::Controller::Login::session_logout
+	return 1;
 }
 
 1;
