@@ -35,7 +35,8 @@ Alias for Conch::Mail::password_reset_email
 =cut
 
 sub send_password_reset_email {
-	shift;
+	my $self = shift;	# probably app or controller
+	$self->log->debug('sending password reset mail');
 	Conch::Mail::password_reset_email(@_);
 }
 
@@ -47,7 +48,8 @@ Alias for Conch::Mail::new_user_invite
 =cut
 
 sub send_new_user_invite {
-	shift;
+	my $self = shift;	# probably app or controller
+	$self->log->debug('sending new user invite mail');
 	Conch::Mail::new_user_invite(@_);
 }
 
