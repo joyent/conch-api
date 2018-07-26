@@ -119,6 +119,82 @@ sub password_reset_email {
 		&& $log->info("Existing user invite successfully sent to $email.");
 }
 
+=head2 changed_user_password
+
+Send mail when resetting an existing user's password
+
+=cut
+
+sub changed_user_password {
+	my ($args)   = @_;
+	my $name     = $args->{name};
+	my $email    = $args->{email};
+	my $password = $args->{password};
+
+	my $to = $email;
+	$to = "$name <$to>" if $name ne $email;
+
+	my $headers = {
+		To      => $to,
+		From    => 'noreply@conch.joyent.us',
+		Subject => "Your Conch password has changed.",
+	};
+	my $template = qq{Hello,
+
+    Your password at Joyent Conch has been reset. You should now log
+    into https://conch.joyent.us using the credentials below:
+
+    Username: $name
+    Email:    $email
+    Password: $password
+
+    Thank you,
+    Joyent Build Ops Team
+    };
+
+	send_mail_with_template($template, $headers)
+		&& $log->info("Password reset email sent to $email.");
+}
+
+=head2 welcome_new_user
+
+Template for the email when a new user has been created
+
+=cut
+
+sub welcome_new_user {
+	my ($args)   = @_;
+	my $name     = $args->{name};
+	my $email    = $args->{email};
+	my $password = $args->{password};
+
+	my $to = $email;
+	$to = "$name <$to>" if $name ne $email;
+
+	my $headers = {
+		To      => $to,
+		From    => 'noreply@conch.joyent.us',
+		Subject => "Welcome to Conch!",
+	};
+
+	my $template = qq{Hello,
+
+    You have been invited to join Joyent Conch. An account has been created for
+    you. Please log into https://conch.joyent.us using the credentials
+    below:
+
+    Username: $name
+    Email:    $email
+    Password: $password
+
+    Thank you,
+    Joyent Build Ops Team
+    };
+
+	send_mail_with_template($template, $headers)
+		&& $log->info("New user invite successfully sent to $email.");
+}
+
 1;
 __END__
 

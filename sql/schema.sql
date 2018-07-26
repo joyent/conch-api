@@ -737,7 +737,8 @@ CREATE TABLE public.user_account (
     password_hash text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     last_login timestamp with time zone,
-    email text NOT NULL
+    email text NOT NULL,
+    deactivated timestamp with time zone
 );
 
 

@@ -1320,4 +1320,40 @@ definitions:
           - type: string
           - type: null
 
+  User:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - email
+      - name
+    properties:
+      id:
+        type: string
+        format: uuid
+      email:
+        type: string
+      name:
+        type: string
+      created:
+        type: string
+        format: date-time
+      deactivated:
+        anyOf:
+          -
+            type: string
+            format: date-time
+          -
+            type: null
 
+  UserError:
+    type: object
+    additionalProperties: false
+    required:
+      - error
+      - user
+    properties:
+      error:
+        type: string
+      user:
+        $ref: /definitions/User

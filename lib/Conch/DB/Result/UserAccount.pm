@@ -73,6 +73,11 @@ __PACKAGE__->table("user_account");
   data_type: 'text'
   is_nullable: 0
 
+=head2 deactivated
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -98,6 +103,8 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "email",
   { data_type => "text", is_nullable => 0 },
+  "deactivated",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -201,8 +208,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-20 14:29:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/ob4MGQbDk0L0sqGUZ2EpA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-01 09:20:44
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hm6V/LYtoz14U9T8434bkw
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 

@@ -185,7 +185,7 @@ sub delete_setting ($c) {
 	return $c->status(204);
 }
 
-=head2 change_password
+=head2 change_own_password
 
 Stores a new password for the current user.
 
@@ -194,7 +194,7 @@ tokens for the user, forcing all tools to log in again.
 
 =cut
 
-sub change_password ($c) {
+sub change_own_password ($c) {
 	my $body =  $c->validate_input('UserPassword');
 	return if not $body;
 
@@ -214,6 +214,131 @@ sub change_password ($c) {
 
 	# processing continues with Conch::Controller::Login::session_logout
 	return 1;
+}
+
+=head2 reset_user_password
+
+Generates a new random password for a user. Global admin only.
+
+Optionally takes a query parameter 'send_password_reset_mail' (defaulting to true), to send an
+email to the user with the new password.
+
+Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke session
+tokens for the user, forcing all their tools to log in again.
+
+=cut
+
+sub reset_user_password ($c) {
+	my $user_param = $c->stash('target_user');
+	my $user =
+		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
+	  : $user_param =~ /^email\=/ ? $c->db_user_accounts->lookup_by_email($')
+	  : undef;
+
+	return $c->status(404, { error => "user $user_param not found" }) if not $user;
+
+	my $new_password = $c->random_string();
+	$c->log->warn('user ' . $c->stash('user')->name . ' resetting password for user ' . $user->name);
+	$user->update({ password => $new_password });
+
+	if ($c->req->query_params->param('clear_tokens') // 1) {
+		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for for user ' . $user->name);
+		$user->delete_related('user_session_tokens');
+
+		# TODO: set a flag in the user db to signal that the session token should not be
+		# accepted?
+	}
+
+	return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
+
+	$c->send_changed_user_password({ email => $user->email, password => $new_password });
+	return $c->status(202);
+}
+
+=head2 create
+
+Creates a user. Global admin only.
+
+Optionally takes a query parameter 'send_invite_mail' (defaulting to true), to send an email
+to the user with the new password.
+
+=cut
+
+sub create ($c) {
+	my $body =  $c->validate_input('NewUser');
+	if (not $body) {
+		$c->log->warn('missing body parameters when attempting to create new user');
+		return;
+	}
+
+	my $name = $body->{name} // $body->{email};
+	my $email = $body->{email};
+
+	# this would cause horrible clashes with our /user routes!
+	return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
+
+	# we don't use lookup_by_* because they only search active users.
+	if (my $user = $c->db_user_accounts->search({
+			-or => { name => $name, email => $email }
+		})->first)
+	{
+		return $c->status(409, {
+			error => 'duplicate user found',
+			user => { map { $_ => $user->$_ } qw(id email name created deactivated) },
+		});
+	}
+
+	my $password = $body->{password} // $c->random_string;
+
+	my $user = $c->db_user_accounts->create({
+		name => $name,
+		email => $email,
+		password => $password,	# will be hashed in constructor
+	});
+	$c->log->info('created user: ' . $user->name . ', email: ' . $user->email . ', id: ' . $user->id);
+
+	if ($c->req->query_params->param('send_invite_mail') // 1) {
+		$c->send_welcome_new_user({
+			(map { $_ => $user->$_ } qw(name email)),
+			password => $password,
+		});
+	}
+
+	return $c->status(201, { map { $_ => $user->$_ } qw(id email name) });
+}
+
+=head2 deactivate
+
+Deactivates a user. Global admin only.
+
+=cut
+
+sub deactivate ($c) {
+
+	my $user_param = $c->stash('target_user');
+	my $user =
+		is_uuid($user_param) ? $c->db_user_accounts->find({ id => $user_param })
+	  : $user_param =~ /^email\=/ ? $c->db_user_accounts->find({ email => $' })
+	  : undef;
+
+	return $c->status(404, { error => "user $user_param not found" }) if not $user;
+
+	if ($user->deactivated) {
+		return $c->status(410, {
+			error => 'user was already deactivated',
+			user => { map { $_ => $user->$_ } qw(id email name created deactivated) },
+		});
+	}
+
+	$c->log->warn('user ' . $c->stash('user')->name . ' deactivating user ' . $user->name);
+	$user->update({ password => $c->random_string, deactivated => \'NOW()' });
+
+	if ($c->req->query_params->param('clear_tokens') // 1) {
+		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for for user ' . $user->name);
+		$user->delete_related('user_session_tokens');
+	}
+
+	return $c->status(204);
 }
 
 1;

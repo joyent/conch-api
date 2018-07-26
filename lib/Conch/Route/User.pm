@@ -28,6 +28,9 @@ Sets up routes for the /user namespace
     DELETE  /user/me/settings/#key
     POST    /user/me/password
     POST    /user/#target_user/revoke
+    DELETE  /user/#target_user/password
+    POST    /user
+    DELETE  /user/#target_user
 
 =cut
 
@@ -59,7 +62,7 @@ sub user_routes {
         }
 
         # after changing password, (possibly) pass through to logging out too
-        $user_me->post('/password')->to('#change_password')
+        $user_me->post('/password')->to('#change_own_password')
             ->under->any->to('login#session_logout');
     }
 
@@ -69,6 +72,10 @@ sub user_routes {
         my $user_with_target = $user->require_global_admin->any('/#target_user');
 
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
+        $user_with_target->delete('/password')->to('#reset_user_password');
+
+        $user->require_global_admin->post('/')->to('#create');
+        $user_with_target->delete('/')->to('#deactivate');
     }
 }
 

@@ -456,4 +456,152 @@ subtest 'JWT authentication' => sub {
 		->status_is( 401, "Cannot use after self revocation" );
 };
 
+subtest 'modify another user' => sub {
+
+	$t->post_ok(
+		'/user?send_invite_mail=0',
+		json => { name => 'me', email => 'foo@conch.joyent.us' })
+		->status_is(400, 'user name "me" is prohibited')
+		->json_is({ error => 'user name "me" is prohibited' });
+
+	my $conch_user = $t->schema->resultset('UserAccount')->find({ name => 'conch' });
+
+	$t->post_ok(
+		'/user?send_invite_mail=0',
+		json => { name => 'conch', email => 'foo@conch.joyent.us' })
+		->status_is(409, 'cannot create user with a duplicate name')
+		->json_schema_is('UserError')
+		->json_is({
+				error => 'duplicate user found',
+				user => {
+					id => $conch_user->id,
+					email => 'conch@conch.joyent.us',
+					name => 'conch',
+					created => $conch_user->created,
+					deactivated => undef,
+				}
+			});
+
+	$t->post_ok(
+		'/user?send_invite_mail=0',
+		json => { name => 'foo', email => 'conch@conch.joyent.us' })
+		->status_is(409, 'cannot create user with a duplicate email address')
+		->json_schema_is('UserError')
+		->json_is({
+				error => 'duplicate user found',
+				user => {
+					id => $conch_user->id,
+					email => 'conch@conch.joyent.us',
+					name => 'conch',
+					created => $conch_user->created,
+					deactivated => undef,
+				}
+			});
+
+	$t->post_ok(
+		'/user?send_invite_mail=0',
+		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
+		->status_is(201, 'created new user foo')
+		->json_schema_is('User')
+		->json_has('/id', 'got user id')
+		->json_is('/email' => 'foo@conch.joyent.us', 'got email')
+		->json_is('/name' => 'foo', 'got name');
+
+	my $new_user_id = $t->tx->res->json->{id};
+
+	$t->post_ok(
+		'/user?send_invite_mail=0',
+		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
+		->status_is(409, 'cannot create the same user again')
+		->json_schema_is('UserError')
+		->json_is('/error' => 'duplicate user found')
+		->json_is('/user/id' => $new_user_id, 'got user id')
+		->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
+		->json_is('/user/name' => 'foo', 'got user name')
+		->json_is('/user/deactivated' => undef, 'got user deactivated date');
+
+	my $t2 = Test::Conch->new;
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => '123'
+		})
+		->status_is(200, 'new user can log in');
+	$t2->get_ok('/me')->status_is(204);
+
+	$t->post_ok("/user/$new_user_id/revoke")
+		->status_is(204, 'revoked all tokens for the new user');
+
+	$t2->reset_session;
+	$t2->get_ok('/me')->status_is(401, 'new user can no longer log in')
+		->json_is({ error => 'unauthorized' });
+
+	# in order to get the user's new password, we need to extract it from a method call before
+	# we forget it -- so we pull it out of the call to UserAccount->update.
+	my $orig_update = \&Conch::DB::Result::UserAccount::update;
+	my $new_password;
+	no warnings 'redefine';
+	local *Conch::DB::Result::UserAccount::update = sub {
+		$new_password = $_[1]->{password};
+		$orig_update->(@_);
+	};
+
+	$t->delete_ok(
+		"/user/foobar/password?send_password_reset_mail=0")
+		->status_is(404, 'attempted to reset the password for a non-existent user')
+		->json_is({ error => "user foobar not found" });
+
+	$t->delete_ok(
+		"/user/$new_user_id/password?send_password_reset_mail=0")
+		->status_is(204, 'reset the new user\'s password');
+
+	$t2->reset_session;
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => 'foo',
+		})
+		->status_is(401, 'cannot log in with the old password')
+		->json_is({ 'error' => 'unauthorized' });
+
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => $new_password,
+		})
+		->status_is(200, 'user can log in with new password');
+
+	$t2->get_ok('/me')->status_is(204);
+
+
+	$t->delete_ok("/user/foobar")
+		->status_is(404, 'attempted to deactivate a non-existent user')
+		->json_is({ error => "user foobar not found" });
+
+	$t->delete_ok("/user/$new_user_id")
+		->status_is(204, 'new user is deactivated');
+
+	# we haven't cleared the user's session yet...
+	$t2->get_ok('/me')
+		->status_is(401, 'user cannot log in with saved browser session')
+		->json_is({ 'error' => 'unauthorized' });
+
+	$t2->reset_session;
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => $new_password,
+		})
+		->status_is(401, 'user can no longer log in with credentials')
+		->json_is({ 'error' => 'unauthorized' });
+
+	$t->delete_ok("/user/$new_user_id")
+		->status_is(410, 'new user was already deactivated')
+		->json_schema_is('UserError')
+		->json_is('/error' => 'user was already deactivated')
+		->json_is('/user/id' => $new_user_id, 'got user id')
+		->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
+		->json_is('/user/name' => 'foo', 'got user name');
+};
+
 done_testing();

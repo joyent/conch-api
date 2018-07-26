@@ -27,7 +27,6 @@ sub register ( $self, $app, $conf ) {
 	$app->helper( mail => sub { $self } );
 }
 
-
 =head2 send_password_reset_email
 
 Alias for Conch::Mail::password_reset_email
@@ -40,7 +39,6 @@ sub send_password_reset_email {
 	Conch::Mail::password_reset_email(@_);
 }
 
-
 =head2 send_new_user_invite
 
 Alias for Conch::Mail::new_user_invite
@@ -51,6 +49,30 @@ sub send_new_user_invite {
 	my $self = shift;	# probably app or controller
 	$self->log->debug('sending new user invite mail');
 	Conch::Mail::new_user_invite(@_);
+}
+
+=head2 send_changed_user_password
+
+Alias for Conch::Mail::changed_user_password
+
+=cut
+
+sub send_changed_user_password {
+	my $self = shift;	# probably app or controller
+	$self->log->debug('sending "password was changed" mail');
+	Conch::Mail::changed_user_password(@_);
+}
+
+=head2 send_welcome_new_user
+
+Alias for Conch::Mail::welcome_new_user
+
+=cut
+
+sub send_welcome_new_user {
+	my $self = shift;	# probably app or controller
+	$self->log->debug('sending "welcome new user" mail');
+	Conch::Mail::welcome_new_user(@_);
 }
 
 1;
