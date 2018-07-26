@@ -40,6 +40,21 @@ sub all_routes {
 	my $root = shift;	# this is the base routing object
 	my $features = shift || {};
 
+	# provides a route to chain to that first checks the user is a global admin.
+	$root->add_shortcut(require_global_admin => sub {
+		my ($r, $path) = @_;
+		$r->any(sub {
+			my $c = shift;
+			return $c->status(401, { error => 'unauthorized' })
+				unless $c->stash('user') and $c->stash('user_id');
+
+			return $c->status(403, { error => 'Must be global admin' })
+				unless $c->is_global_admin;
+
+			return 1;
+		})->under;
+	});
+
 	# CORS preflight check
 	$root->options('*', sub{ shift->status(204) });
 

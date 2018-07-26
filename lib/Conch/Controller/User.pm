@@ -40,9 +40,6 @@ Revoke a specified user's session tokens. Global admin only.
 =cut
 
 sub revoke_user_tokens ($c) {
-	return $c->status( 403, { error => 'Must be global admin' } )
-		unless $c->is_global_admin;
-
 	my $user_param = $c->stash('target_user');
 	my $user =
 		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)

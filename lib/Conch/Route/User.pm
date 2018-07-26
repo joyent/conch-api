@@ -63,10 +63,10 @@ sub user_routes {
             ->under->any->to('login#session_logout');
     }
 
-    # interfaces for updating a different user's account...
+    # administrator interfaces for updating a different user's account...
     {
         # target_user could be a user id or email
-        my $user_with_target = $user->any('/#target_user');
+        my $user_with_target = $user->require_global_admin->any('/#target_user');
 
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
     }
