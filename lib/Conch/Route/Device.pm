@@ -26,19 +26,19 @@ sub device_routes {
 	my $r = shift;
 
 	# Device Roles and Services
-	my $dr = $r->under("/device/role");
+	my $dr = $r->any("/device/role");
 	$dr->get('/')->to("device_roles#get_all");
 	$dr->post('/')->to("device_roles#create");
 
 
-	my $dri = $dr->under('/:id');
+	my $dri = $dr->any('/:id');
 	$dri->get("/")->to("device_roles#get_one");
 	$dri->post("/")->to("device_roles#update");
 	$dri->delete("/")->to("device_roles#delete");
 	$dri->post("/add_service")->to("device_roles#add_service");
 	$dri->post("/remove_service")->to("device_roles#remove_service");
 
-	my $drs = $r->under("/device/service");
+	my $drs = $r->any("/device/service");
 	$drs->get('/')->to("device_services#get_all");
 	$drs->post('/')->to("device_services#create");
 

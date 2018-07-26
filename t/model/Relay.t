@@ -4,15 +4,15 @@ use Test::ConchTmpDB qw(mk_tmp_db);
 
 use_ok("Conch::Model::Device");
 use_ok("Conch::Model::Relay");
-use_ok("Conch::Model::User");
 
 use Data::UUID;
 use Conch::Pg;
 
 my $pgtmp = mk_tmp_db();
 $pgtmp or die;
-my $pg    = Conch::Pg->new( $pgtmp->uri );
+my $schema = Test::ConchTmpDB->schema($pgtmp);
 
+my $pg    = Conch::Pg->new( $pgtmp->uri );
 my $uuid = Data::UUID->new;
 
 my $hardware_vendor_id = $pg->db->insert(
@@ -71,8 +71,12 @@ subtest "connect device relay" => sub {
 
 subtest "connect user relay" => sub {
 
-	my $user_id =
-		Conch::Model::User->create( 'foo@bar.com', 'password' )->id;
+	my $user = $schema->resultset('UserAccount')->create({
+		name => 'foo',
+		email => 'foo@bar.com',
+		password => 'password',
+	});
+	my $user_id = $user->id;
 	ok( $relay_model->connect_user_relay( $user_id, $relay_serial ) );
 	ok( !$relay_model->connect_user_relay( $user_id, 'bad_serial' ) );
 };

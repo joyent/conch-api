@@ -56,6 +56,7 @@ requires 'DBIx::Class::Helpers';
 requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'Config::General';
 requires 'DBIx::Class::TimeStamp';
+requires 'Lingua::EN::Inflexion';
 
 # logging
 requires 'Log::Any';
@@ -75,6 +76,7 @@ on 'test' => sub {
     requires 'IO::All';
     requires 'YAML::XS';
     requires 'Test::Pod', '1.41';
+    requires 'Test::Warnings';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is

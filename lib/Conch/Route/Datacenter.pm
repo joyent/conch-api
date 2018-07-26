@@ -21,7 +21,7 @@ Sets up the routes
 sub routes {
 	my ($class, $r) = @_;
 
-	my $d = $r->under('/dc');
+	my $d = $r->any('/dc');
 	$d->get('/')->to("datacenter#get_all");
 	$d->post('/')->to("datacenter#create");
 

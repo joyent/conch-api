@@ -13,6 +13,7 @@ BEGIN {
 use Test::Conch::Datacenter;
 
 my ($pg, $t) = Test::Conch::Datacenter->initialize();
+my $schema = Test::ConchTmpDB->schema($pg);
 
 my $uuid = Data::UUID->new;
 
@@ -476,7 +477,8 @@ subtest 'Log out' => sub {
 };
 
 subtest 'Permissions' => sub {
-	my $ro_name = 'readonly@wat.wat';
+	my $ro_name = 'wat';
+	my $ro_email = 'readonly@wat.wat';
 	my $ro_pass = 'password';
 
 	my $role_model = new_ok("Conch::Model::WorkspaceRole");
@@ -486,7 +488,11 @@ subtest 'Permissions' => sub {
 
 		my $ro_role = $role_model->lookup_by_name('Read-only');
 
-		my $ro_user = Conch::Model::User->create( $ro_name, $ro_pass );
+		my $ro_user = $schema->resultset('UserAccount')->create({
+			name => $ro_name,
+			email => $ro_email,
+			password => $ro_pass,
+		});
 
 		$ws_model->add_user_to_workspace( $ro_user->id, $id, $ro_role->id );
 
@@ -540,15 +546,20 @@ subtest 'Permissions' => sub {
 	};
 
 	subtest "Integrator" => sub {
-		my $name = 'integrator@wat.wat';
+		my $name = 'integrator';
+		my $email = 'integrator@wat.wat';
 		my $pass = 'password';
 
 		my $role = $role_model->lookup_by_name('Integrator');
-		my $user = Conch::Model::User->create( $name, $pass );
+		my $user = $schema->resultset('UserAccount')->create({
+			name => $name,
+			email => $email,
+			password => $pass,
+		});
 		$ws_model->add_user_to_workspace( $user->id, $id, $role->id );
 		$t->post_ok(
 			"/login" => json => {
-				user     => $name,
+				user     => $email,
 				password => $pass,
 			}
 		)->status_is(200);

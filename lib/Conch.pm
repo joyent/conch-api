@@ -27,6 +27,8 @@ use Conch::Plugin::JsonValidator;
 use Conch::DB qw();
 
 use Mojo::JSON;
+use Lingua::EN::Inflexion 'noun';
+use Mojo::Util 'decamelize';
 
 =head2 startup
 
@@ -59,6 +61,17 @@ sub startup {
 			$db->password,
 		);
 	});
+
+	# db_user_accounts => $app->schema->resultset('UserAccount'), etc
+	foreach my $source ($self->schema->sources) {
+		# necessary for now due to RT#125930
+		my @words = split(/_/, decamelize($source));
+		$words[-1] = noun($words[-1])->plural;
+		my $name = join('_', @words);
+		$self->helper('db_'.$name, sub {
+			shift->app->schema->resultset($source)
+		});
+	}
 
 	my %features = $self->config('features') ?
 		$self->config('features')->%* : () ;

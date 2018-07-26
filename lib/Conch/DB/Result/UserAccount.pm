@@ -206,25 +206,63 @@ __PACKAGE__->has_many(
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 
+=head1 METHODS
+
+=head2 new
+
+Overrides original to move 'password' to 'password_hash'.
+
+=cut
+
 sub new {
     my ($self, $args) = @_;
 
     # extract non-column data to store in the right place
-    my $password = delete $args->{password};
+    $args->{password_hash} = _hash_password(delete $args->{password})
+        if exists $args->{password};
 
     $self = $self->next::method($args);
-
-    # extract password and turn into password_hash
-    # TODO: in the future, this could be moved into a 'password' setter method.
-    $self->password_hash(_hash_password($password)) if defined $password;
 
     return $self;
 }
 
-# copied from Conch::Model::User
-sub _BCRYPT_COST { 4 }    # dancer2 legacy
+=head2 update
 
-# copied from Conch::Model::User
+Overrides original to move 'password' to 'password_hash'.
+
+=cut
+
+sub update {
+    my ($self, $args) = @_;
+
+    # extract non-column data to store in the right place
+    $args->{password_hash} = _hash_password(delete $args->{password})
+        if exists $args->{password};
+
+    $self = $self->next::method($args);
+}
+
+=head2 validate_password
+
+Check whether the given password text has a hash matching the stored password hash.
+
+=cut
+
+sub validate_password {
+    my ($self, $p) = @_;
+
+    # handle legacy Dancer passwords (TODO: remove all remaining CRYPT constructs from
+    # passwords in the database using a migration script.)
+    (my $password_hash = $self->password_hash) =~ s/^{CRYPT}//;
+
+    return Mojo::Util::secure_compare(
+        $password_hash,
+        bcrypt($p, $password_hash),
+    );
+}
+
+use constant _BCRYPT_COST => 4; # dancer2 legacy
+
 sub _hash_password {
     my $p = shift;
     my $cost = sprintf( '%02d', _BCRYPT_COST || 6 );
@@ -232,7 +270,6 @@ sub _hash_password {
     return bcrypt( $p, $settings );
 }
 
-# copied from Conch::Model::User
 sub _bcrypt_salt {
     my $num = 999999;
     my $cr = crypt( rand($num), rand($num) ) . crypt( rand($num), rand($num) );

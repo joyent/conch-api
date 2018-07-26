@@ -4,10 +4,11 @@ use warnings;
 
 use Test::PostgreSQL;
 use DBI;
+use Conch::DB;
 use IO::All;
 
 use Exporter 'import';
-our @EXPORT_OK = qw( mk_tmp_db pg_dump );
+our @EXPORT_OK = qw( mk_tmp_db pg_dump );	 # TODO: do not export OO methods
 
 =head1 NAME
 
@@ -25,45 +26,45 @@ and all migrations. Returns the object from L<Test::PostgreSQL>.
 =cut
 
 sub mk_tmp_db {
+	my $class = shift // __PACKAGE__;
 
-	my $pgtmp = Test::PostgreSQL->new()
-		or die $Test::PostgreSQL::errstr;
+	my $pgtmp = Test::PostgreSQL->new();
+	die $Test::PostgreSQL::errstr if not $pgtmp;
 
-	my $dbh = DBI->connect( $pgtmp->dsn );
+	my $schema = $class->schema($pgtmp);
 
-	$dbh->do('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";') or die;
-	$dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')  or die;
+	$schema->storage->dbh_do(sub {
+		my ($storage, $dbh, @args) = @_;
+		$dbh->do('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";') or die;
+		$dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";') or die;
 
-	for my $file ( io->dir("sql/migrations")->sort->glob("*.sql") ) {
-		$dbh->do( $file->all ) or die;
-	}
+		for my $file ( io->dir("sql/migrations")->sort->glob("*.sql") ) {
+			$dbh->do( $file->all ) or die;
+		}
+	});
 
 	# Add a user so we can log in. User: conch; Password: conch;
-	$dbh->do(
-		q|
-    insert into user_account(
-      name,
-      email,
-      password_hash
-    ) values(
-      'conch',
-      'conch@conch.joyent.us',
-      '{CRYPT}$2a$04$h963P26i4rTMaVogvA2U7ePcZTYm2o0gfSHyxaUCZSuthkpg47Zbi'
-    ); |
-	) or die;
+    $schema->resultset('UserAccount')->create({
+        name => 'conch',
+        email => 'conch@conch.joyent.us',
+        password_hash => '{CRYPT}$2a$04$h963P26i4rTMaVogvA2U7ePcZTYm2o0gfSHyxaUCZSuthkpg47Zbi',
+    }) or die;
 
-	$dbh->do(
-		q|
-    insert into user_workspace_role(user_id,workspace_id,role_id) values(
-      (select id from user_account where name='conch' limit 1),
-      (select id from workspace where name='GLOBAL' limit 1),
-      (select id from role where name='Administrator' limit 1)
-    ); |
-	) or die;
+	$schema->storage->dbh_do(sub {
+		my ($storage, $dbh, @args) = @_;
+		$dbh->do(
+			q|
+		insert into user_workspace_role(user_id,workspace_id,role_id) values(
+		  (select id from user_account where name='conch' limit 1),
+		  (select id from workspace where name='GLOBAL' limit 1),
+		  (select id from role where name='Administrator' limit 1)
+		); |
+		) or die;
+	});
 
+	# TODO: return a DBIx::Class::Schema instead.
 	return $pgtmp;
 }
-
 
 =head2 make_full_db
 
@@ -76,14 +77,44 @@ Generate a test database using all sql files in the given path. Path defaults to
 sub make_full_db {
 	my $class = shift;
 	my $path = shift || "sql/test/";
+
 	my $pg = $class->mk_tmp_db;
-	my $dbh = DBI->connect($pg->dsn);
-	for my $file ( io->dir($path)->sort->glob("*.sql") ) {
-		$dbh->do($file->all) or die "Failed to load sql file: $file";
-	}
+	my $schema = $class->schema($pg);
+
+	$schema->storage->dbh_do(sub {
+		my ($storage, $dbh, @args) = @_;
+		for my $file ( io->dir($path)->sort->glob("*.sql") ) {
+			$dbh->do($file->all) or die "Failed to load sql file: $file";
+		}
+	});
+
+	# TODO: return a DBIx::Class::Schema instead.
 	return $pg;
 }
 
+=head2 schema
+
+Given the return value from C<mk_tmp_db> or C<make_full_db>, returns a DBIx::Class::Schema
+object just like C<< $c->schema >> or C<< $conch->schema >> in the application.
+
+=cut
+
+sub schema {
+	my $class = shift;
+	my $pgsql = shift;	# this is generally a Test::PostgreSQL
+
+	my $schema = Conch::DB->connect(sub {
+		# we could Mojo::Pg->new(..), but we don't have the pg_uri it wants.
+		DBI->connect($pgsql->dsn, undef, undef, {
+			# defaults used in Mojo::Pg
+			AutoCommit          => 1,
+			AutoInactiveDestroy => 1,
+			PrintError          => 0,
+			PrintWarn           => 0,
+			RaiseError          => 1
+		});
+	});
+}
 
 =head2 pg_dump
 
