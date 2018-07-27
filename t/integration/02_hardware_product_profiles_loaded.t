@@ -10,13 +10,14 @@ my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
 
-Conch::ValidationSystem->load_validation_plans([
-	{
+Conch::ValidationSystem->load_validation_plans(
+	[{
 		name        => 'Conch v1 Legacy Plan: Server',
 		description => 'Test Plan',
 		validations => [ { name => 'product_name', version => 1 } ]
-	}
-]);
+	}],
+	Conch::Log->new(level => 'debug'),
+);
 
 $t->schema->storage->dbh_do(sub {
 	my ($storage, $dbh, @args) = @_;

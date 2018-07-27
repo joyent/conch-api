@@ -147,6 +147,17 @@ sub timestamptz {
 	return shift->moment->strftime("%Y-%m-%d %H:%M:%S%f%z");
 }
 
+
+=head3 iso8601
+
+Render the timestamp as an ISO8601 extended format, in UTC
+
+=cut
+
+sub iso8601 {
+	return shift->moment->at_utc->strftime("%Y-%m-%dT%H:%M:%S%f%Z");
+}
+
 1;
 __END__
 
