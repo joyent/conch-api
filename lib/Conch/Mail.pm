@@ -52,11 +52,15 @@ Template for the email for inviting a new user
 
 sub new_user_invite {
 	my ($args)   = @_;
+	my $name     = $args->{name};
 	my $email    = $args->{email};
 	my $password = $args->{password};
 
+	my $to = $email;
+	$to = "$name <$to>" if $name ne $email;
+
 	my $headers = {
-		To      => $email,
+		To      => $to,
 		From    => 'noreply@conch.joyent.us',
 		Subject => "Welcome to Conch!",
 	};
@@ -67,7 +71,8 @@ sub new_user_invite {
     you. Please log into https://conch.joyent.us using the credentials
     below:
 
-    Username: $email
+    Username: $name
+    Email:    $email
     Password: $password
 
     Thank you,
