@@ -10,10 +10,12 @@ Conch::Controller::Relay
 
 package Conch::Controller::Relay;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
 use Conch::Models;
+with 'Conch::Role::MojoLog';
 
 =head2 register
 

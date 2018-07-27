@@ -10,10 +10,13 @@ Conch::Controller::DeviceValidation
 
 package Conch::Controller::DeviceValidation;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
 use List::Util qw(notall any);
+
+with 'Conch::Role::MojoLog';
 
 =head2 list_validation_states
 
@@ -35,13 +38,11 @@ sub list_validation_states ($c) {
 		@statuses
 		)
 	{
-		return $c->status(
-			400,
-			{
-				error =>
-					"'status' query parameter must be any of 'pass', 'fail', or 'error'."
-			}
-		);
+
+		$c->log->debug("Status params of ".$c->param('status') ." contains something other than 'pass', 'fail', or 'error'");
+		return $c->status(400 => {
+			error => "'status' query parameter must be any of 'pass', 'fail', or 'error'."
+		});
 	}
 
 	my $device = $c->stash('current_device');
@@ -54,6 +55,7 @@ sub list_validation_states ($c) {
 		{ $_->{state}->TO_JSON->%*, results => $_->{results} };
 	} @$validation_state_groups;
 
+	$c->log->debug("Found ".scalar(@output)." records");
 	$c->status( 200, \@output );
 }
 
@@ -69,16 +71,19 @@ sub get_validation_state ($c) {
 	my $validation_state_id = $c->param("validation_state_id");
 
 	my $validation_state =
-		Conch::Model::ValidationState->lookup_with_device( $validation_state_id,
-		$device->id );
+		Conch::Model::ValidationState->lookup_with_device(
+			$validation_state_id,
+			$device->id
+		);
 
-	return $c->status(
-		404,
-		{
-			error =>
-				"No Validation State ID $validation_state_id is associated with Device"
-		}
-	) unless $validation_state;
+	unless($validation_state) {
+		$c->log->debug("No Validation State ID $validation_state_id is associated with device ".$device->id);
+
+		# FIXME should this really be a 404?
+		return $c->status(404 => {
+			error => "No Validation State ID $validation_state_id is associated with Device"
+		});
+	}
 
 	$c->status( 200, $validation_state );
 }
@@ -100,12 +105,18 @@ sub validate ($c) {
 
 	my $validation_id = $c->param("validation_id");
 	my $validation    = Conch::Model::Validation->lookup($validation_id);
-	return $c->status( 404, { error => "Validation $validation_id not found" } )
-		unless $validation;
+	unless($validation) {
+		$c->log->debug("Could not find validation $validation_id");
+		return $c->status(404 => {
+			error => "Validation $validation_id not found"
+		});
+	}
 
 	my $data = $c->req->json;
-	my $validation_results =
-		$validation->run_validation_for_device( $device, $data );
+	my $validation_results = $validation->run_validation_for_device(
+		$device,
+		$data,
+	);
 
 	$c->status( 200, $validation_results );
 }
@@ -127,8 +138,13 @@ sub run_validation_plan ($c) {
 
 	my $plan_id         = $c->param("validation_plan_id");
 	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);
-	return $c->status( 404, { error => "Validation Plan '$plan_id' not found" } )
-		unless $validation_plan;
+
+	unless($validation_plan) {
+		$c->log->debug("Validation plan $plan_id not found");
+		return $c->status( 404 => {
+			error => "Validation Plan '$plan_id' not found"
+		});
+	}
 
 	my $data = $c->req->json;
 	my $results = $validation_plan->run_validations( $device, $data );

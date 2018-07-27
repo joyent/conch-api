@@ -10,10 +10,13 @@ Conch::Controller::DeviceReport
 
 package Conch::Controller::DeviceReport;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
 use Conch::Legacy::Control::DeviceReport 'record_device_report';
+
+with 'Conch::Role::MojoLog';
 
 =head2 process
 

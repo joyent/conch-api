@@ -10,11 +10,14 @@ Conch::Controller::DatacenterRackLayout
 
 package Conch::Controller::DatacenterRackLayout;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
 use Conch::Models;
 use List::MoreUtils qw(firstval);
+
+with 'Conch::Role::MojoLog';
 
 
 =head2 under
@@ -32,9 +35,11 @@ sub under ($c) {
 	my $r = Conch::Model::DatacenterRackLayout->from_id($c->param('id'));
 
 	if ($r) {
+		$c->log->debug("Found datacenter rack layout ".$r->id);
 		$c->stash('rack_layout' => $r);
 		return 1;
 	} else {
+		$c->log->debug("Could not find datacenter rack layout ".$c->param('id'));
 		$c->status(404 => { error => "Not found" });
 		return undef;
 	}
@@ -47,25 +52,32 @@ sub under ($c) {
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $d = $c->validate_input('RackLayoutCreate');
-	return if not $d;
+	if(not $d) {
+		$c->log->debug("Input failed validation");
+		return;
+	}
 
 	unless(Conch::Model::DatacenterRack->from_id($d->{rack_id})) {
+		$c->log->debug("Could not find datacenter rack ".$d->{rack_id});
 		return $c->status(400 => { "error" => "Rack does not exist" });
 	}
 
 	unless(Conch::Model::HardwareProduct->lookup($d->{product_id})) {
+		$c->log->debug("Could not find hardware product ".$d->{product_id});
 		return $c->status(400 => { "error" => "Hardware product does not exist" });
 	}
 
 	my @r = Conch::Model::DatacenterRackLayout->from_rack_id($d->{rack_id})->@*;
 	my $v = firstval { $_->{ru_start} == $d->{ru_start} } @r;
 	if($v) {
+		$c->log->debug("Conflict with ru_start value of ".$d->{ru_start});
 		return $c->status(400 => {
 			error => "ru_start conflict"
 		});
 	}
 
 	my $r = Conch::Model::DatacenterRackLayout->new($d->%*)->save();
+	$c->log->debug("Created datacenter rack layout ".$r->id);
 
 	$c->status(303 => "/layout/".$r->id);
 
@@ -88,7 +100,9 @@ sub get ($c) {
 
 sub get_all ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	$c->status(200, Conch::Model::DatacenterRackLayout->all());
+	my $d = Conch::Model::DatacenterRackLayout->all();
+	$c->log->debug("Found ".scalar($d->@*)." datacenter rack layouts");
+	$c->status(200 => $d);
 }
 
 =head2 update
@@ -119,6 +133,7 @@ sub update ($c) {
 		)->@*;
 
 		if($v) {
+			$c->log->debug("Conflict with ru_start value of ".$i->{ru_start});
 			return $c->status(400 => {
 				error => "ru_start conflict"
 			});
@@ -137,6 +152,7 @@ sub update ($c) {
 
 sub delete ($c) {
 	$c->stash('rack_layout')->burn;
+	$c->log->debug("Deleted datacenter rack layout ".$c->stash('rack_layout')->id);
 	return $c->status(204);
 }
 

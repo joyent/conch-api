@@ -12,8 +12,10 @@ Controller for managing Validations, B<NOT> executing them.
 
 package Conch::Controller::Validation;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::Models;
+with 'Conch::Role::MojoLog';
 
 =head2 list
 

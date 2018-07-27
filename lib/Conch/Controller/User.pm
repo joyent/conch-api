@@ -10,12 +10,15 @@ Conch::Controller::User
 
 package Conch::Controller::User;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Mojo::Exception;
 
 use Conch::UUID qw( is_uuid );
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
+
+with 'Conch::Role::MojoLog';
 
 =head2 revoke_own_tokens
 
@@ -25,7 +28,7 @@ B<NOTE>: This will cause the next request to fail authentication.
 =cut
 
 sub revoke_own_tokens ($c) {
-	$c->app->log->debug('revoking user token for user ' . $c->stash('user')->name . ' at their request');
+	$c->log->debug('revoking user token for user ' . $c->stash('user')->name . ' at their request');
 	$c->stash('user')->delete_related('user_session_tokens');
 	$c->status(204);
 }
@@ -205,7 +208,7 @@ sub change_password ($c) {
 		unless $user;
 
 	$user->update({ password => $new_password });
-	$c->app->log->debug('updated password for user ' . $user->name . ' at their request');
+	$c->log->debug('updated password for user ' . $user->name . ' at their request');
 
 	return $c->status(204)
 		unless $c->req->query_params->param('clear_tokens') // 1;

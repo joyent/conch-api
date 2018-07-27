@@ -16,7 +16,7 @@ Conch::ValidationSystem->load_validation_plans(
 		description => 'Test Plan',
 		validations => [ { name => 'product_name', version => 1 } ]
 	}],
-	Conch::Log->new(level => 'debug'),
+	$t->app->log,
 );
 
 $t->schema->storage->dbh_do(sub {

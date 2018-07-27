@@ -20,6 +20,8 @@ use Mojo::Base 'Test::Conch';
 use Test::ConchTmpDB;
 use Conch::Models;
 
+use Conch::Log;
+
 
 =head2 new
 
@@ -37,8 +39,8 @@ sub new {
 		pg => Test::ConchTmpDB->make_full_db,
 	);
 
-	Conch::ValidationSystem->load_validation_plans([
-		{
+	Conch::ValidationSystem->load_validation_plans(
+		[{
 			name        => 'Conch v1 Legacy Plan: Server',
 			description => 'Test Plan',
 			validations => [ { name => 'product_name', version => 1 } ]

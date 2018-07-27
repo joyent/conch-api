@@ -16,7 +16,9 @@ my $pgtmp = mk_tmp_db();
 $pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
-my $logger = Mojo::Log->new( level => 'warn' );
+
+use Conch::Log;
+my $logger = Conch::Log->new( level => 'warn' );
 
 Conch::ValidationSystem->load_validations($logger);
 

@@ -1,8 +1,10 @@
 package Conch::Controller::DeviceRoles;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
+with 'Conch::Role::MojoLog';
 
 
 =head2 get_all
@@ -12,7 +14,10 @@ Get all device roles
 =cut
 
 sub get_all ($c) {
-	return $c->status(200, Conch::Model::DeviceRole->all());
+	my $r = Conch::Model::DeviceRole->all();
+	$c->log->debug("Found ".scalar($r->@*)." device roles");
+
+	return $c->status(200, $r);
 }
 
 
@@ -26,6 +31,8 @@ sub get_one ($c) {
 	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
+
+	$c->log->debug("Found device role ".$s->id);
 
 	$c->status(200, $s);
 }
@@ -41,17 +48,24 @@ sub create ($c) {
 
 	my $body = $c->req->json;
 	if($body->{id}) {
+		$c->log->warn("Input failed validation"); # FIXME use the validator
 		return $c->status(400 => { error => "'id' parameter not allowed'"});
 	}
 
-	return $c->status(400 => {
-		error => "'hardware_product_id' parameter required"
-	}) unless $body->{hardware_product_id};
+	unless($body->{hardware_product_id}) {
+		$c->log->warn("Input failed validation"); # FIXME use the validator
+
+		return $c->status(400 => {
+			error => "'hardware_product_id' parameter required"
+		});
+	}
 
 	my $s = Conch::Model::DeviceRole->new(
 		description         => $body->{description},
 		hardware_product_id => $body->{hardware_product_id}
 	)->save();
+
+	$c->log->debug("Created device role ".$s->id);
 	$c->status(303 => "/device/role/".$s->id);
 }
 
@@ -68,6 +82,7 @@ sub update ($c) {
 	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
+	$c->log->debug("Found device role ".$s->id);
 
 	my $body = $c->req->json;
 
@@ -80,6 +95,7 @@ sub update ($c) {
 	}
 
 	$s->save;
+	$c->log->debug("Updated device role ".$s->id);
 
 	$c->status(303 => "/device/role/".$s->id);
 }
@@ -97,7 +113,10 @@ sub delete ($c) {
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 
+	$c->log->debug("Found device role ".$s->id);
+
 	$s->update(deactivated => Conch::Time->now)->save;
+	$c->log->debug("Deleted device role ".$s->id);
 	return $c->status(204);
 }
 
@@ -113,16 +132,25 @@ sub add_service ($c) {
 	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
+	
+	$c->log->debug("Found device role ".$s->id);
 
 	my $body = $c->req->json;
-	return $c->status(400 => { error => "'service' parameter required"})
-		unless $body->{service};
+	unless($body->{service}) {
+		$c->log->warn("Input failed validation"); # FIXME use the validator
+		return $c->status(400 => { error => "'service' parameter required"});
+	}
 
 	my $service = Conch::Model::DeviceService->from_id($body->{service});
 	if ($service) {
+		$c->log->debug("Found device service ".$service->id);
+
 		$s->add_service($body->{service});
+
+		$c->log->debug("Added device service ".$service->id." to device role ".$s->id);
 		return $c->status(303 => "/device/role/".$s->id);
 	} else {
+		$c->log->debug("Failed to find device service ".$body->{service});
 		return $c->status(404 => {
 			error => "Service does not exist"
 		});
@@ -144,10 +172,14 @@ sub remove_service ($c) {
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 	
 	my $body = $c->req->json;
-	return $c->status(400 => { error => "'service' parameter required"})
-		unless $body->{service};
+	unless($body->{service}) {
+		$c->log->warn("Input failed validation"); # FIXME use the validator
+		return $c->status(400 => { error => "'service' parameter required"});
+	}
 
 	$s->remove_service($body->{service});
+
+	$c->log->debug("Removed device service ".$body->{service}." from device role ".$s->id);
 	$c->status(303 => "/device/role/".$s->id);
 }
 

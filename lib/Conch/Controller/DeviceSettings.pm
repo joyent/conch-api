@@ -10,9 +10,11 @@ Conch::Controller::DeviceSettings
 
 package Conch::Controller::DeviceSettings;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::Models;
 
+with 'Conch::Role::MojoLog';
 
 =head2 set_all
 

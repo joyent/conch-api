@@ -93,9 +93,11 @@ sub register ( $self, $app, $conf ) {
 			$s,
 		);
 		if (@errors) {
+			$c->app->log->error("FAILED data validation for schema $schema: ".join(" // ", @errors));
 			$c->status(400 => { error => join("\n",@errors) });
 			return undef;
 		} else {
+			$c->app->log->debug("Passed data validation for schema $schema");
 			return $j;
 		}
 	});

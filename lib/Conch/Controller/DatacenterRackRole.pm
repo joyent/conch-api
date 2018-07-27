@@ -10,10 +10,13 @@ Conch::Controller::DatacenterRackRole
 
 package Conch::Controller::DatacenterRackRole;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
 use Conch::Models;
+
+with 'Conch::Role::MojoLog';
 
 
 =head2 under
@@ -31,20 +34,26 @@ sub under ($c) {
 	my $r;
 
 	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
-		if($1 eq 'name') {
-			$r = Conch::Model::DatacenterRackRole->from_name($2);
+		my ($k, $v) = ($1, $2);
+		if($k eq 'name') {
+			$c->log->debug("Looking up datacenter rack role using identifier '$k'");
+			$r = Conch::Model::DatacenterRackRole->from_name($v);
 		} else {
+			$c->log->warn("Unknown identifier '$k'");
 			$c->status(404 => { error => "Not found" });
 			return undef;
 		}
 	} else {
+		$c->log->debug("looking up datacenter rack role by id");
 		$r = Conch::Model::DatacenterRackRole->from_id($c->param('id'));
 	}
 
 	if ($r) {
+		$c->log->debug("Found datacenter rack role ".$r->id);
 		$c->stash('rack_role' => $r);
 		return 1;
 	} else {
+		$c->log->debug("Failed to find datacenter rack role");
 		$c->status(404 => { error => "Not found" });
 		return undef;
 	}
@@ -57,16 +66,19 @@ sub under ($c) {
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $d = $c->validate_input('RackRoleCreate');
-	return if not $d;
+	if(not $d) {
+		$c->log->warn("Input failed validation");
+		return;
+	}
 
 	if(Conch::Model::DatacenterRackRole->from_name($d->{name})) {
+		$c->log->debug("Name conflict on '".$d->{name}."'");
 		return $c->status(400 => { error => "name is already taken" });
 	}
 
 	my $r = Conch::Model::DatacenterRackRole->new($d->%*)->save();
-	$c->status(303);
-	$c->redirect_to($c->url_for("/rack_role/".$r->id));
-
+	$c->log->debug("Created datacenter rack role ".$r->id);
+	$c->status(303 => "/rack_role/".$r->id);
 }
 
 =head2 get
@@ -90,7 +102,11 @@ Get all rack roles
 
 sub get_all ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	$c->status(200, Conch::Model::DatacenterRackRole->all());
+
+	my $r = Conch::Model::DatacenterRackRole->all();
+	$c->log->debug("Found ".scalar($r->@*)." datacenter rack roles");
+
+	$c->status(200 => $r);
 }
 
 
@@ -101,14 +117,19 @@ sub get_all ($c) {
 
 sub update ($c) {
 	my $i = $c->validate_input('RackRoleUpdate');
-	return if not $i;
+	if(not $i) {
+		$c->log->warn("Input failed validation");
+		return;
+	}
 
 	if ($i->{name}) {
 		if(Conch::Model::DatacenterRackRole->from_name($i->{name})) {
+			$c->log->debug("Name conflict on '".$i->{name}."'");
 			return $c->status(400 => { error => "name is already taken" });
 		}
 	}
 	$c->stash('rack_role')->update($i->%*)->save();
+	$c->log->debug("Updated datacenter rack role ".$c->stash('rack_role')->id);
 	$c->status(303 => "/rack_role/".$c->stash('rack_role')->id);
 }
 
@@ -121,6 +142,7 @@ Delete a rack role
 
 sub delete ($c) {
 	$c->stash('rack_role')->burn;
+	$c->log->debug("Deleted datacenter rack role ".$c->stash('rack_role')->id);
 	return $c->status(204);
 }
 

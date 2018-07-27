@@ -10,10 +10,13 @@ Conch::Controller::WorkspaceProblem
 
 package Conch::Controller::WorkspaceProblem;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
 use Conch::Legacy::Control::Problem 'get_problems';
+
+with 'Conch::Role::MojoLog';
 
 
 =head2 list

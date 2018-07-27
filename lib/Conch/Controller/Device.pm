@@ -10,10 +10,13 @@ Conch::Controller::Device
 
 package Conch::Controller::Device;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
 use aliased 'Conch::Class::DeviceDetailed';
+
+with 'Conch::Role::MojoLog';
 
 use Conch::Models;
 
@@ -27,14 +30,19 @@ endpoint
 
 sub under ($c) {
 	my $device_id = $c->param('id');
-	my $device =
-		Conch::Model::Device->lookup_for_user( $c->stash('user_id'),
-		$device_id, );
+	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
+
+	my $device = Conch::Model::Device->lookup_for_user(
+		$c->stash('user_id'),
+		$device_id,
+	);
+
 	if ($device) {
+		$c->log->debug("Found device ".$device->id);
 		$c->stash( current_device => $device );
 		return 1;
-	}
-	else {
+	} else {
+		$c->log->debug("Failed to find device $device_id");
 		$c->status( 404, { error => "Device '$device_id' not found" } );
 		return 0;
 	}
@@ -85,10 +93,17 @@ Sets the C<graduated> field on a device, unless that field has already been set
 sub graduate($c) {
 	my $device    = $c->stash('current_device');
 	my $device_id = $device->id;
-	return $c->status( 409, "Device $device_id has already been graduated" )
-		if defined( $device->graduated );
+
+	# FIXME this shouldn't be an error
+	if(defined($device->graduated)) {
+		$c->log->debug("Device $device_id has already been graduated");
+		return $c->status( 409 => {
+			error => "Device $device_id has already been graduated"
+		})
+	}
 
 	$device->graduate;
+	$c->log->debug("Marked $device_id as graduated");
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
@@ -104,6 +119,8 @@ sub set_triton_reboot ($c) {
 	my $device = $c->stash('current_device');
 	$device->set_triton_reboot;
 
+	$c->log->debug("Marked ".$device->id." as rebooted into triton");
+
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
 }
@@ -118,15 +135,16 @@ valid UUID
 sub set_triton_uuid ($c) {
 	my $device = $c->stash('current_device');
 	my $triton_uuid = $c->req->json && $c->req->json->{triton_uuid};
-	return $c->status(
-		400,
-		{
-			error =>
-				"'triton_uuid' attribute must be present in JSON object and a UUID"
-		}
-	) unless defined($triton_uuid) && is_uuid($triton_uuid);
+
+	unless(defined($triton_uuid) && is_uuid($triton_uuid)) {
+		$c->log->warn("Input failed validation"); # FIXME use the validator
+		return $c->status(400 => {
+			error => "'triton_uuid' attribute must be present in JSON object and a UUID"
+		});
+	}
 
 	$device->set_triton_uuid($triton_uuid);
+	$c->log->debug("Set the triton uuid for device ".$device->id." to $triton_uuid");
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
@@ -142,22 +160,27 @@ the C<triton_setup> field. Fails if the device has already been marked as such.
 sub set_triton_setup ($c) {
 	my $device    = $c->stash('current_device');
 	my $device_id = $device->id;
-	return $c->status(
-		409,
-		{
-			error =>
-"Device $device_id must be marked as rebooted into Triton and the Trition "
-				. "UUID set before it can be marked as set up for Triton"
-		}
-		)
-		unless ( defined( $device->latest_triton_reboot )
-		&& defined( $device->triton_uuid ) );
 
-	return $c->status( 409,
-		"Device $device_id has already been marked as set up for Triton" )
-		if defined( $device->triton_setup );
+	unless ( defined( $device->latest_triton_reboot )
+		&& defined( $device->triton_uuid ) ) {
+
+		$c->log->warn("Input failed validation");
+
+		return $c->status(409 => {
+			error => "Device $device_id must be marked as rebooted into Triton and the Trition UUID set before it can be marked as set up for Triton"
+		});
+	}
+
+	# FIXME this should not be an error
+	if (defined($device->triton_setup)) {
+		$c->log->debug("Device $device_id has already been marked as set up for Triton");
+		return $c->status( 409 => {
+			error => "Device $device_id has already been marked as set up for Triton"
+		})
+	}
 
 	$device->set_triton_setup;
+	$c->log->debug("Device $device_id marked as set up for triton");
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
@@ -172,15 +195,16 @@ Sets the C<asset_tag> field on a device
 sub set_asset_tag ($c) {
 	my $device = $c->stash('current_device');
 	my $asset_tag = $c->req->json && $c->req->json->{asset_tag};
-	return $c->status(
-		400,
-		{
-			error =>
-"'asset_tag' attribute must be present and in JSON object a string value"
-		}
-	) unless defined($asset_tag) && ref($asset_tag) eq '';
+
+	unless(defined($asset_tag) && ref($asset_tag) eq '') {
+		$c->log->warn("Input failed validation"); #FIXME use the validator
+		return $c->status(400 => {
+			error => "'asset_tag' attribute must be present and in JSON object a string value"
+		});
+	}
 
 	$device->set_asset_tag($asset_tag);
+	$c->log->debug("Set the asset tag for device ".$device->id." to $asset_tag");
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
@@ -198,6 +222,7 @@ sub set_validated($c) {
 	return $c->status(204) if defined( $device->validated );
 
 	$device->set_validated();
+	$c->log->debug("Marked the device $device_id as validated");
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
