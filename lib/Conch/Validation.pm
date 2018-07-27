@@ -385,6 +385,19 @@ sub hardware_product_sku ($self) {
 	return $self->{_hardware_product}->sku;
 }
 
+=head2 hardware_product_specification
+
+Get the expected hardware product specification for the device under
+validation. Returns a JSON object.
+
+=cut
+
+sub hardware_product_specification ($self) {
+	$self->die( "Validation must have an expected hardware product", level => 2 )
+		unless $self->{_hardware_product};
+	return $self->{_hardware_product}->specification;
+}
+
 =head2 hardware_product_vendor
 
 Get the expected hardware product vendor name for the device under validation.
