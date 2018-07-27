@@ -36,9 +36,6 @@ C<Mojo::Exception> is thrown, returning a 500 to the user.
 
 C<validate_input> validates data against the C<json-schema/input.yaml> file.
 
-C<status_with_validation> validates data against the C<json-schema/v1.yaml>
-file.
-
 =head1 METHODS
 
 =cut
@@ -102,33 +99,6 @@ sub register ( $self, $app, $conf ) {
 			return $j;
 		}
 	});
-
-	####
-
-	my $output_validator = JSON::Validator->new();
-	$output_validator->schema(OUTPUT_SCHEMA_FILE);
-	_add_uuid_validation($output_validator);
-
-	$app->helper(
-		status_with_validation => sub ($c, $status_code, $schema, $data) {
-			my $s = _find_schema($output_validator, $schema);
-			unless ($s) {
-				Mojo::Exception->throw("unable to locate schema $schema");
-				return undef;
-			}
-
-			my @errors = $output_validator->validate(
-				$data,
-				$s,
-			);
-			if(@errors) {
-				my $err = join("\n\t", @errors);
-				Mojo::Exception->throw("Output is not $schema: $err");
-			} else {
-				return $c->status($status_code => $data);
-			}
-		}
-	);
 }
 
 1;
