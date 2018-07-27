@@ -1,6 +1,5 @@
 use Mojo::Base -strict;
 use Mojo::Util 'monkey_patch';
-use Test::MojoSchema;
 use Test::More;
 use Data::UUID;
 use Conch::UUID 'is_uuid';
@@ -9,14 +8,9 @@ use JSON::Validator;
 
 use Data::Printer;
 
-BEGIN {
-	use_ok('Test::ConchTmpDB', 'mk_tmp_db');
-	use_ok( "Conch::Route", qw(all_routes) );
-}
-
 use Test::Conch::Datacenter;
 
-my ($pg, $t) = Test::Conch::Datacenter->initialize();
+my $t = Test::Conch::Datacenter->new();
 
 my $uuid = Data::UUID->new;
 

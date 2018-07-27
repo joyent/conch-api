@@ -1,5 +1,4 @@
 use Mojo::Base -strict;
-use Test::MojoSchema;
 use Test::More;
 use Data::UUID;
 use IO::All;
@@ -12,7 +11,7 @@ BEGIN {
 
 use Test::Conch::Datacenter;
 
-my ($pg, $t) = Test::Conch::Datacenter->initialize();
+my $t = Test::Conch::Datacenter->new();
 
 my $uuid = Data::UUID->new;
 

@@ -1,28 +1,14 @@
 use Mojo::Base -strict;
-use Test::Mojo;
 use Test::More;
 use Data::UUID;
 use IO::All;
+use Test::Conch;
 
 use Data::Printer;
 
-BEGIN {
-	use_ok('Test::ConchTmpDB', 'mk_tmp_db');
-	use_ok( "Conch::Route", qw(all_routes) );
-}
-
 my $uuid = Data::UUID->new;
 
-my $pgtmp = mk_tmp_db();
-$pgtmp or BAIL_OUT("failed to create test database");
-my $dbh = DBI->connect( $pgtmp->dsn );
-
-my $t = Test::Mojo->new(
-	Conch => {
-		pg      => $pgtmp->uri,
-		secrets => ["********"],
-	},
-);
+my $t = Test::Conch->new;
 
 Conch::ValidationSystem->load_validation_plans([
 	{
@@ -32,16 +18,15 @@ Conch::ValidationSystem->load_validation_plans([
 	}
 ]);
 
+$t->schema->storage->dbh_do(sub {
+	my ($storage, $dbh, @args) = @_;
+	my @test_sql_files =
+		qw( 00-hardware.sql 01-hardware-profiles.sql 02-zpool-profiles.sql );
+	for my $file ( map { io->file("sql/test/$_") } @test_sql_files ) {
+		$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
+	}
+});
 
-
-my @test_sql_files =
-	qw( 00-hardware.sql 01-hardware-profiles.sql 02-zpool-profiles.sql );
-
-for my $file ( map { io->file("sql/test/$_") } @test_sql_files ) {
-	$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
-}
-
-all_routes( $t->app->routes );
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 $t->get_ok("/version")->status_is(200);

@@ -2,32 +2,17 @@ use strict;
 use warnings;
 use utf8;
 
-use Test::Mojo;
 use Test::More;
 use Data::UUID;
 use IO::All;
+use Test::Conch;
 
 use Data::Printer;
 
-BEGIN {
-	use_ok('Test::ConchTmpDB', 'mk_tmp_db');
-	use_ok( "Conch::Route", qw(all_routes) );
-}
 
 my $uuid = Data::UUID->new;
 
-my $pgtmp = mk_tmp_db();
-$pgtmp or BAIL_OUT("failed to create test database");
-my $dbh = DBI->connect( $pgtmp->dsn );
-
-my $t = Test::Mojo->new(
-	Conch => {
-		pg      => $pgtmp->uri,
-		secrets => ["********"]
-	}
-);
-
-all_routes( $t->app->routes );
+my $t = Test::Conch->new;
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 
