@@ -78,11 +78,10 @@ sub startup {
 
 	$self->helper(
 		status => sub {
-			my ( $self, $code, $payload ) = @_;
-			my $c = $self->app;
-			my $tx = $self->tx;
+			my ( $c, $code, $payload ) = @_;
+			my $tx = $c->tx;
 
-			my $u = $self->stash('user');
+			my $u = $c->stash('user');
 			my $u_str = $u ?
 				$u->email . " (".$u->id.")" :
 				'NOT AUTHED';
@@ -96,12 +95,12 @@ sub startup {
 
 			if ($code >= 400) {
 				$msg = "$msg || Payload: ".Mojo::JSON::to_json($payload);
-				$c->log->warn($msg);
+				$c->app->log->warn($msg);
 			} else {
-				$c->log->info($msg);
+				$c->app->log->info($msg);
 			}
 
-			$self->res->code($code);
+			$c->res->code($code);
 
 			unless ($payload) {
 				if ($code == 403) {
@@ -115,16 +114,16 @@ sub startup {
 
 			if($payload) {
 				if ($code == 303) {
-					$self->redirect_to( $c->url_for($payload) );
-					return $self->finish;
+					$c->redirect_to( $c->url_for($payload) );
+					return $c->finish;
 				}
 
-				return $self->respond_to(
+				return $c->respond_to(
 					json => { json => $payload },
 					any  => { json => $payload },
 				);
 			} else {
-				return $self->finish;
+				return $c->finish;
 			}
 		}
 	);
