@@ -7,7 +7,7 @@ Test::Conch::Datacenter
 Does all the work to standup a test db, test harness, and all the other magic
 necessary to test against a full datacenter worth of test data.
 
-Includes JSON validation ability via L<Test::MojoSchema>
+Includes JSON validation ability via L<Test::Conch>.
 
 =head1 METHODS
 
@@ -18,6 +18,7 @@ package Test::Conch::Datacenter;
 use Mojo::Base 'Test::Conch';
 
 use Test::ConchTmpDB;
+use Test::Conch;
 use Conch::Models;
 
 use Conch::Log;
