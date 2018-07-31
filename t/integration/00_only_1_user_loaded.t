@@ -500,6 +500,22 @@ subtest 'modify another user' => sub {
 
 	$t->post_ok(
 		'/user?send_invite_mail=0',
+		json => { name => 'conch', email => 'CONCH@conch.JOYENT.us' })
+		->status_is(409, 'emails are not case sensitive when checking for duplicate users')
+		->json_schema_is('UserError')
+		->json_is({
+				error => 'duplicate user found',
+				user => {
+					id => $conch_user->id,
+					email => 'conch@conch.joyent.us',
+					name => 'conch',
+					created => $conch_user->created,
+					deactivated => undef,
+				}
+			});
+
+	$t->post_ok(
+		'/user?send_invite_mail=0',
 		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
 		->status_is(201, 'created new user foo')
 		->json_schema_is('User')
@@ -554,6 +570,10 @@ subtest 'modify another user' => sub {
 	$t->delete_ok(
 		"/user/$new_user_id/password?send_password_reset_mail=0")
 		->status_is(204, 'reset the new user\'s password');
+
+	$t->delete_ok(
+		'/user/email=FOO@CONCH.JOYENT.US/password?send_password_reset_mail=0')
+		->status_is(204, 'reset the new user\'s password again, using (case insensitive) email lookup');
 
 	$t2->reset_session;
 	$t2->post_ok(

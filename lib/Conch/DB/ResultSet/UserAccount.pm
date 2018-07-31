@@ -48,11 +48,20 @@ sub lookup_by_id {
 
 =head2 lookup_by_email
 
+Returns the user with the (case-insensitively) matching email.
+
+If more than one is found, we return the one created most recently, and a warning will be
+logged (via DBIx::Class::ResultSet::single).
+
 =cut
 
 sub lookup_by_email {
     my ($self, $email) = @_;
-    $self->active->find({ email => $email });
+
+    $self->active->search(
+        [ \[ 'lower(email) = lower(?)', $email ] ],
+        { order_by => { -desc => 'created' } },
+    )->single;
 }
 
 =head2 lookup_by_name
