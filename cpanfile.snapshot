@@ -684,6 +684,19 @@ DISTRIBUTIONS
       Try::Tiny 0
       namespace::clean 0.23
       parent 0
+  DBIx-Class-InflateColumn-TimeMoment-0.050
+    pathname: N/NI/NIGELM/DBIx-Class-InflateColumn-TimeMoment-0.050.tar.gz
+    provides:
+      DBIx::Class::InflateColumn::TimeMoment 0.050
+    requirements:
+      DBIx::Class 0
+      ExtUtils::MakeMaker 0
+      Try::Tiny 0
+      base 0
+      namespace::clean 0
+      perl 5.008
+      strict 0
+      warnings 0
   DBIx-Class-Schema-Loader-0.07049
     pathname: I/IL/ILMARI/DBIx-Class-Schema-Loader-0.07049.tar.gz
     provides:
@@ -749,21 +762,6 @@ DISTRIBUTIONS
       Try::Tiny 0
       curry 1.000000
       namespace::clean 0.23
-      perl 5.008001
-  DBIx-Class-TimeStamp-0.14
-    pathname: R/RI/RIBASUSHI/DBIx-Class-TimeStamp-0.14.tar.gz
-    provides:
-      DBIx::Class::TimeStamp 0.14
-    requirements:
-      Class::Accessor::Grouped 0
-      DBIx::Class 0.08009
-      DBIx::Class::DynamicDefault 0.03
-      DateTime 0.55
-      DateTime::Format::MySQL 0
-      DateTime::Format::SQLite 0
-      ExtUtils::MakeMaker 6.42
-      Time::HiRes 0
-      Time::Warp 0
       perl 5.008001
   DBIx-Introspector-0.001005
     pathname: F/FR/FREW/DBIx-Introspector-0.001005.tar.gz
