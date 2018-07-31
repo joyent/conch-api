@@ -21,6 +21,8 @@ Test::ConchTmpDB
 Create a new ephemeral Postgres instance and load extensions, the base schema,
 and all migrations. Returns the object from L<Test::PostgreSQL>.
 
+TODO: move this to Test::Conch?
+
 =back
 
 =cut
@@ -71,6 +73,8 @@ sub mk_tmp_db {
 	my $pg = Test::ConchTmpDB->make_full_db($path);
 
 Generate a test database using all sql files in the given path. Path defaults to C<sql/test/>
+
+TODO: move this to Test::Conch::Datacenter?
 
 =cut
 

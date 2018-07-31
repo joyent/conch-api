@@ -15,49 +15,26 @@ Includes JSON validation ability via L<Test::MojoSchema>
 
 package Test::Conch::Datacenter;
 
-use Mojo::Base -strict;
-use Test::MojoSchema;
-use Data::UUID;
-use Conch::UUID 'is_uuid';
-use IO::All;
-use JSON::Validator;
+use Mojo::Base 'Test::Conch';
 
 use Test::ConchTmpDB;
 use Conch::Models;
-use Conch::Route qw(all_routes);
 
 
-=head2 initialize
+=head2 new
 
-	my ($pg, $t) = Test::Conch::Datacenter->initialize();
+	my $t = Test::Conch::Datacenter->new();
 	$t->get_ok("/")->status_is(200)->json_schema_is("Whatever");
 
 =cut
 
-sub initialize {
-	my $spec_file = "json-schema/response.yaml";
-	die("OpenAPI spec file '$spec_file' doesn't exist.")
-		unless io->file($spec_file)->exists;
+sub new {
+    my $class = shift;
+    my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-	my $validator = JSON::Validator->new;
-	$validator->schema($spec_file);
-
-	# add UUID validation
-	my $valid_formats = $validator->formats;
-	$valid_formats->{uuid} = \&is_uuid;
-	$validator->formats($valid_formats);
-
-
-	my $pgtmp = Test::ConchTmpDB->make_full_db
-		or die("failed to create test database");
-
-	my $dbh = DBI->connect( $pgtmp->dsn );
-
-	my $t = Test::MojoSchema->new(
-		Conch => {
-			pg      => $pgtmp->uri,
-			secrets => ["********"],
-		},
+	my $self = Test::Conch->new(
+		%$args,
+		pg => Test::ConchTmpDB->make_full_db,
 	);
 
 	Conch::ValidationSystem->load_validation_plans([
@@ -68,11 +45,8 @@ sub initialize {
 		}
 	]);
 
-	$t->validator($validator);
-
-	all_routes( $t->app->routes );
-
-	return ($pgtmp, $t);
+	bless($self, $class);
+	return $self;
 }
 
 1;

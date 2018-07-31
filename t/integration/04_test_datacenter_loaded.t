@@ -1,5 +1,4 @@
 use Mojo::Base -strict;
-use Test::MojoSchema;
 use Test::More;
 use Data::UUID;
 use IO::All;
@@ -12,8 +11,7 @@ BEGIN {
 
 use Test::Conch::Datacenter;
 
-my ($pg, $t) = Test::Conch::Datacenter->initialize();
-my $schema = Test::ConchTmpDB->schema($pg);
+my $t = Test::Conch::Datacenter->new();
 
 my $uuid = Data::UUID->new;
 
@@ -488,7 +486,7 @@ subtest 'Permissions' => sub {
 
 		my $ro_role = $role_model->lookup_by_name('Read-only');
 
-		my $ro_user = $schema->resultset('UserAccount')->create({
+		my $ro_user = $t->app->db_user_accounts->create({
 			name => $ro_name,
 			email => $ro_email,
 			password => $ro_pass,
@@ -551,7 +549,7 @@ subtest 'Permissions' => sub {
 		my $pass = 'password';
 
 		my $role = $role_model->lookup_by_name('Integrator');
-		my $user = $schema->resultset('UserAccount')->create({
+		my $user = $t->app->db_user_accounts->create({
 			name => $name,
 			email => $email,
 			password => $pass,
