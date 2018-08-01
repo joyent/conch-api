@@ -134,7 +134,6 @@ device.
 
 sub run_validation_plan ($c) {
 	my $device    = $c->stash('current_device');
-	my $device_id = $device->id;
 
 	my $plan_id         = $c->param("validation_plan_id");
 	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);
