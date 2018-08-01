@@ -167,6 +167,8 @@ sub startup {
 		);
 	}
 
+	# note: we have a leak originating in this plugin.
+	# see https://rt.cpan.org/Ticket/Display.html?id=125981
 	$self->plugin('Util::RandomString' => {
 		alphabet => '2345679bdfhmnprtFGHJLMNPRT*#!@^-_+=',
 		length => 30
