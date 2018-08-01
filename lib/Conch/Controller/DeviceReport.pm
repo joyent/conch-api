@@ -54,23 +54,26 @@ sub process ($c) {
 
 	# Use the old device report recording and device validation code for now.
 	# This will be removed when OPS-RFD 22 is implemented
+	$c->log->debug("Recording device report");
 	my ( $device, $report_id ) = record_device_report(
 		$c->schema,
 		$device_report,
 		$raw_report
 	);
 
-	my $validation_plan;
+
+	my $validation_name;
 	if ( $device_report->{device_type}
 		&& $device_report->{device_type} eq "switch" )
 	{
-		$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
-			'Conch v1 Legacy Plan: Switch');
+		$validation_name = 'Conch v1 Legacy Plan: Switch';
+	} else {
+		$validation_name = 'Conch v1 Legacy Plan: Server';
 	}
-	else {
-		$validation_plan = Conch::Model::ValidationPlan->lookup_by_name(
-			'Conch v1 Legacy Plan: Server');
-	}
+
+	$c->log->debug("Attempting to validation with plan '$validation_name'");
+
+	my $validation_plan = Conch::Model::ValidationPlan->lookup_by_name($validation_name);
 
 	# [2018-07-16 sungo] - As we grow this logic to be smarter and more
 	# interesting, it will probably be ok to not find a validation plan. For
@@ -80,9 +83,13 @@ sub process ($c) {
 		Mojo::Exception->throw(__PACKAGE__.": Could not find a validation plan");
 	}
 
-	my $validation_state =
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, $device_report );
+	$c->log->debug("Running validation plan ".$validation_plan->id);
+	my $validation_state = Conch::Model::ValidationState->run_validation_plan(
+		$device->id,
+		$validation_plan,
+		$device_report
+	);
+	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
 	# this uses the DBIC object from record_device_report to do the update
 	$device->update( { health => uc( $validation_state->status ) } );

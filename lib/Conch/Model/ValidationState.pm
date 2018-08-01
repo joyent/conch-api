@@ -283,65 +283,91 @@ validation state. Associated validation results will be stored.
 
 =cut
 
-sub run_validation_plan ( $class, $device_id, $validation_plan_id, $data ) {
+# FIXME we need the device id here because this code is called from places
+# where the "device" is dbic and thus way more helpful than our usual Model.
+# Specifically, it resolves ids to the real object, throwing later code for a
+# fit
+#
+# FIXME this should also be over in ValidationPlan
+sub run_validation_plan ( $class, $device_id, $validation_plan, $data = {} ) {
 
-	Mojo::Exception->throw(" Device ID must be defined ") unless $device_id;
-	Mojo::Exception->throw(" Validation Plan ID must be defined ")
-		unless $validation_plan_id;
-	Mojo::Exception->throw(" Validation data must be a hashref ")
+	Mojo::Exception->throw("Device ID must be defined") unless $device_id;
+	Mojo::Exception->throw("Validation Plan must be defined")
+		unless $validation_plan;
+	Mojo::Exception->throw("Validation data must be a hashref")
 		unless ref($data) eq 'HASH';
 
+
 	my $device = Conch::Model::Device->lookup($device_id);
+	Mojo::Exception->throw("No device exists with ID $device_id") unless $device;
 
-	Mojo::Exception->throw(" No device exists with ID '$device_id'")
-		unless $device;
-
-	my $validation_plan =
-		Conch::Model::ValidationPlan->lookup($validation_plan_id);
-	Mojo::Exception->throw(
-		" No Validation Plan found with ID '$validation_plan_id'")
-		unless $validation_plan;
-
-	my $validation_state = $class->create( $device_id, $validation_plan->id );
-
-	my $latest_state =
-		$class->latest_completed_for_device_plan( $device_id, $validation_plan_id );
-
-	my %latest_results =
-		map { ( $_->comparison_hash => $_ ) } $latest_state->validation_results->@*
-		if $latest_state;
+	my $state = $class->latest_completed_for_device_plan(
+		$device->id,
+		$validation_plan->id
+	);
 
 	my $new_results = $validation_plan->run_validations( $device, $data );
 
-	my %status = ();
+	unless($state) {
+		$state = $class->create($device->id, $validation_plan->id);
+	}
 
-	# For all new results, check to see if a contextually equivalent result
-	# that occurred with the previous state. If the older result is the same as
-	# the new result, associate the new state with the older result and do not
-	# store the new result. This reduces the number of redundant results stored
-	# in the database.
+	return $state->update($new_results);
+}
+
+=head2 update
+
+	$state->update(\@new_results);
+
+Update the database with the new validation results. If the current object has
+already been recorded, a new ValidationState object will be created and
+returned. 
+
+The methodology here is a little bendy. If an earlier state recorded the same
+result as one provided, the new state will point to that old result, thus
+preventing extraneous data in the database. If there is no earlier state or none
+matching our results, the results will be added to the database.
+
+=cut
+
+sub update ($self, $new_results = []) {
+	my %latest_results = map { ( $_->comparison_hash => $_ ) } 
+			$self->validation_results->@*;
+
+	my $state = $self;
+	if($self->status) {
+		$state = Conch::Model::ValidationState->create(
+			$self->device_id,
+			$self->validation_plan_id,
+		);
+	}
+
+	my @results;
+
+	my %status;
 	for my $result (@$new_results) {
 		if ( my $last_result = $latest_results{ $result->comparison_hash } ) {
-			$validation_state->add_validation_result( $last_result->id );
+			$state->add_validation_result( $last_result->id );
 			$status{ $last_result->status } = 1;
-		}
-		else {
-			$validation_state->add_validation_result( $result->record() );
+		} else {
+			$state->add_validation_result( $result->record() );
 			$status{ $result->status } = 1;
 		}
 	}
 
-	# if any result status was ERROR, the state status is ERROR. Else, if any
-	# were FAIL, the state status is FAIL. Otherwise, the state status is
-	# PASS
-	my $state_status =
-		  $status{ STATUS_ERROR() } ? STATUS_ERROR
-		: $status{ STATUS_FAIL() }  ? STATUS_FAIL
-		:                             STATUS_PASS;
+	my $state_status;
+	if($status{STATUS_ERROR()}) {
+		$state_status = STATUS_ERROR;
 
-	$validation_state->mark_completed($state_status);
+	} elsif($status{STATUS_FAIL()}) {
+		$state_status = STATUS_FAIL;
 
-	return $validation_state;
+	} else {
+		$state_status = STATUS_PASS;
+	}
+
+	$state->mark_completed($state_status);
+	return $state;
 }
 
 1;
