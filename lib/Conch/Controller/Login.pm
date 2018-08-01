@@ -10,11 +10,15 @@ Conch::Controller::Login
 
 package Conch::Controller::Login;
 
+use Role::Tiny::With;
+
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
+
+with 'Conch::Role::MojoLog';
 
 =head2 _create_jwt
 
@@ -76,7 +80,7 @@ subsequent routes and actions.
 sub authenticate ($c) {
 
 	if (my $user = $c->stash('user')) {
-		$c->app->log->debug('already authenticated (user ' . $user->name . ')');
+		$c->log->debug('already authenticated (user ' . $user->name . ')');
 		return 1;
 	}
 
@@ -84,9 +88,9 @@ sub authenticate ($c) {
 	my $abs_url = $c->req->url->to_abs;
 
 	if ( $abs_url->userinfo ) {
-		$c->app->log->debug('attempting to authenticate with user:password...');
+		$c->log->debug('attempting to authenticate with user:password...');
 		my ($name, $password) = ($abs_url->username, $abs_url->password);
-		$c->app->log->debug('looking up user by name ' . $name . '...');
+		$c->log->debug('looking up user by name ' . $name . '...');
 		my $user = $c->db_user_accounts->lookup_by_name($name);
 
 		unless ($user) {
@@ -109,7 +113,7 @@ sub authenticate ($c) {
 	if ( $c->req->headers->authorization
 		&& $c->req->headers->authorization =~ /^Bearer (.+)/ )
 	{
-		$c->app->log->debug('attempting to authenticate with Authorization: Bearer header...');
+		$c->log->debug('attempting to authenticate with Authorization: Bearer header...');
 		my $token = $1;
 		my $sig   = $c->cookie('jwt_sig');
 		if ($sig) {
@@ -141,7 +145,7 @@ sub authenticate ($c) {
 		$c->stash( 'token_id' => $jwt->{jti} );
 
 		if ( $user_id && $sig ) {
-			$c->app->log->debug('setting jwt_sig in cookie');
+			$c->log->debug('setting jwt_sig in cookie');
 			$c->cookie(
 				jwt_sig => $sig,
 				{ expires => time + 3600, secure => $c->req->is_secure, httponly => 1 }
@@ -158,7 +162,7 @@ sub authenticate ($c) {
 		return 0;
 	}
 
-	$c->app->log->debug('looking up user by id ' . $user_id . '...');
+	$c->log->debug('looking up user by id ' . $user_id . '...');
 	if (my $user = $c->db_user_accounts->lookup_by_id($user_id)) {
 		$c->stash( user_id => $user_id );
 		$c->stash( user    => $user );

@@ -1,6 +1,9 @@
 package Conch::Controller::Datacenter;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+with 'Conch::Role::MojoLog';
 
 use Conch::Models;
 
@@ -26,9 +29,11 @@ sub under ($c) {
 	}
 
 	if ($s) {
+		$c->log->debug("Found datacenter ".$c->param('id'));
 		$c->stash('datacenter' => $s);
 		return 1;
 	} else {
+		$c->log->debug("Unable to find datacenter ".$c->param('id'));
 		$c->status(404 => { error => "Not found" });
 		return undef;
 	}
@@ -44,7 +49,11 @@ Get all datacenters
 
 sub get_all ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	return $c->status(200, Conch::Model::Datacenter->all());
+	my @dc = Conch::Model::Datacenter->all()->@*;
+
+	$c->log->debug("Found ".scalar(@dc)." datacenters");
+
+	return $c->status(200, \@dc);
 }
 
 
@@ -69,9 +78,12 @@ Get all rooms for the given datacenter
 
 sub get_rooms ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	$c->status(200, Conch::Model::DatacenterRoom->from_datacenter(
+	my @r = Conch::Model::DatacenterRoom->from_datacenter(
 		$c->stash('datacenter')->id
-	));
+	)->@*;
+
+	$c->log->debug("Found ".scalar(@r)." datacenter rooms");
+	$c->status(200, \@r);
 }
 
 =head2 create
@@ -83,9 +95,13 @@ Create a new datacenter
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $i = $c->validate_input('DatacenterCreate');
-	return if not $i;
+	if(not $i) {
+		$c->log->debug("Input failed validation");
+		return;
+	}	
 
 	my $r = Conch::Model::Datacenter->new($i->%*)->save;
+	$c->log->debug("Created datacenter ".$r->id);
 	$c->status(303 => "/dc/".$r->id);
 }
 
@@ -99,9 +115,13 @@ Update an existing datacenter
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $i = $c->validate_input('DatacenterUpdate');
-	return if not $i;
+	if(not $i) {
+		$c->log->debug("Input failed validation");
+		return;
+	}
 
 	$c->stash('datacenter')->update($i->%*)->save();
+	$c->log->debug("Updated datacenter ".$c->stash('datacenter')->id);
 	$c->status(303 => "/dc/".$c->stash('datacenter')->id);
 }
 
@@ -115,6 +135,7 @@ Permanently delete a datacenter
 sub delete ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	$c->stash('datacenter')->burn;
+	$c->log->debug("Deleted datacenter ".$c->stash('datacenter')->id);
 	return $c->status(204);
 }
 

@@ -46,8 +46,7 @@ sub startup {
 	$self->sessions->cookie_name('conch');
 	$self->sessions->default_expiration(2592000);    # 30 days
 
-	# Log all messages regardless of operating mode
-	$self->log->level('debug');
+	$self->plugin('Conch::Plugin::Logging');
 
 	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
@@ -76,29 +75,26 @@ sub startup {
 	my %features = $self->config('features') ?
 		$self->config('features')->%* : () ;
 
+	$self->hook(
+		before_render => sub {
+			my ( $c, $args ) = @_;
+			my $template = $args->{template};
+			return if not $template;
+
+			if ( $template =~ /exception/ ) {
+				return $args->{json} = { error => "An exception occurred" };
+			}
+			if ( $args->{template} =~ /not_found/ ) {
+				return $args->{json} = { error => 'Not Found' };
+			}
+		}
+	);
+
+
+
 	$self->helper(
 		status => sub {
 			my ( $c, $code, $payload ) = @_;
-			my $tx = $c->tx;
-
-			my $u = $c->stash('user');
-			my $u_str = $u ?
-				$u->email . " (".$u->id.")" :
-				'NOT AUTHED';
-
-			my $msg = join(" || ",
-				"URL: ".$tx->req->url->to_abs,
-				"Code: $code",
-				"Source: ".$tx->original_remote_address.":".$tx->remote_port,
-				"User: $u_str",
-			);
-
-			if ($code >= 400) {
-				$msg = "$msg || Payload: ".Mojo::JSON::to_json($payload);
-				$c->app->log->warn($msg);
-			} else {
-				$c->app->log->info($msg);
-			}
 
 			$c->res->code($code);
 
@@ -152,32 +148,6 @@ sub startup {
 		}
 	);
 
-	# Render exceptions and Not Found as JSON
-	$self->hook(
-		before_render => sub {
-			my ( $c, $args ) = @_;
-			my $template = $args->{template};
-			return if not $template;
-			if ( $template =~ /exception/ ) {
-				my $exception = $c->stash('exception') // $args->{exception};
-				$exception->verbose(1);
-				$self->log->error($exception);
-
-				$self->send_exception_to_rollbar($exception)
-					if $features{'rollbar'};
-
-				my @stack = @{ $exception->frames };
-				@stack = map { "\t" . $_->[3] . ' at ' . $_->[1] . ':' . $_->[2] }
-					grep defined, @{ $exception->frames }[ 0 .. 10 ];
-				$self->log->error(
-					"Stack Trace (first 10 frames):\n" . join( "\n", @stack ) );
-				return $args->{json} = { error => 'Something went wrong' };
-			}
-			if ( $args->{template} =~ /not_found/ ) {
-				return $args->{json} = { error => 'Not Found' };
-			}
-		}
-	);
 
 	# This sets CORS headers suitable for development. More restrictive headers
 	# *should* be added by a reverse-proxy for production deployments.
@@ -213,64 +183,6 @@ sub startup {
 
 	if($features{'rollbar'}) {
 		$self->plugin('Conch::Plugin::Rollbar');
-	}
-
-	if($features{'audit'} ) {
-		my %opts;
-		if ($self->config('audit')) {
-			%opts = $self->config('audit')->%*;
-		}
-
-		my $log_path = $opts{log_path} || "log/audit.log";
-		my $log = Mojo::Log->new(path => $log_path, short => 1);
-		$log->format(sub {
-			my ($time, $level, @lines) = @_;
-			return Mojo::JSON::encode_json($lines[0])."\n";
-		});
-		$self->hook(after_dispatch => sub {
-			my $c = shift;
-			my $u = $c->stash('user');
-			my $u_str = $u ?
-				$u->email . " (".$u->id.")" :
-				'NOT AUTHED';
-
-			my $req_body = "disabled in config";
-			my $res_body = "disabled in config";
-
-			if($opts{payloads}) {
-				$req_body = $c->req->body;
-				$res_body = $c->res->body;
-			}
-
-			my $req_headers = $c->req->headers->to_hash;
-			delete $req_headers->{Authorization};
-			delete $req_headers->{Cookie};
-			delete $req_headers->{jwt_token};
-			delete $req_headers->{jwt_sig};
-
-			my $params = $c->req->params->to_hash;
-			if($c->req->url =~ /login/) {
-				$params = { 'content' => 'withheld' }
-			}
-			my $d = {
-				timestamp   => Conch::Time->now->timestamp,
-				remote_ip   => $c->tx->original_remote_address,
-				remote_port => $c->tx->remote_port,
-				url         => $c->req->url->to_abs,
-				method      => $c->req->method,
-				user        => $u_str,
-				request     => {
-					headers => $req_headers,
-					body    => $req_body,
-					params  => $params,
-				},
-				response    => {
-					headers => $c->res->headers->to_hash,
-					body    => $res_body,
-				},
-			};
-			$log->debug($d);
-		});
 	}
 
 	push @{$self->commands->namespaces}, 'Conch::Command';

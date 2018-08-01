@@ -10,10 +10,12 @@ Conch::Controller::WorkspaceRack
 
 package Conch::Controller::WorkspaceRack;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
 use Conch::Models;
+with 'Conch::Role::MojoLog';
 
 =head2 list
 
@@ -39,8 +41,10 @@ C<current_ws_rack>
 sub under ($c) {
 	my $rack_id = $c->param('rack_id');
 	unless ( is_uuid($rack_id) ) {
-		$c->status( 400,
-			{ error => "Datacenter Rack ID must be a UUID. Got '$rack_id'." } );
+		$c->log->warn("Input failed validation");
+		$c->status( 400 => { 
+			error => "Datacenter Rack ID must be a UUID. Got '$rack_id'."
+		});
 		return 0;
 	}
 	my $maybe_rack = Conch::Model::WorkspaceRack->lookup(
@@ -48,9 +52,11 @@ sub under ($c) {
 		$rack_id
 	);
 	unless ($maybe_rack) {
+		$c->log->debug("Could not find rack $rack_id");
 		$c->status( 404, { error => "Rack $rack_id not found" } );
 		return 0;
 	}
+	$c->log->debug("Found rack $rack_id");
 	$c->stash( current_ws_rack => $maybe_rack );
 	return 1;
 }
@@ -67,6 +73,7 @@ sub get_layout ($c) {
 	my $layout = Conch::Model::WorkspaceRack->new->rack_layout(
 		$c->stash('current_ws_rack')
 	);
+	$c->log->debug("Found rack layout ".$layout->{id});
 	$c->status( 200, $layout );
 }
 
@@ -82,9 +89,11 @@ sub add ($c) {
 	my $body = $c->req->json;
 	return $c->status(403) unless $c->is_admin;
 
-	return $c->status( 400,
-		{ error => 'JSON object with "id" Rack ID field required' } )
-		unless ( $body && $body->{id} );
+	unless($body && $body->{id}) {
+		return $c->status( 400 => {
+			error => 'JSON object with "id" Rack ID field required'
+		});
+	}	
 	my $rack_id = $body->{id};
 
 	return $c->status( 400,

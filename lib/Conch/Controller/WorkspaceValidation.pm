@@ -10,10 +10,13 @@ Conch::Controller::WorkspaceValidation
 
 package Conch::Controller::WorkspaceValidation;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
 use List::Util qw(notall any);
+
+with 'Conch::Role::MojoLog';
 
 =head2 workspace_validation_states
 
@@ -34,23 +37,23 @@ sub workspace_validation_states ($c) {
 		@statuses
 		)
 	{
-		return $c->status(
-			400,
-			{
-				error =>
-					"'status' query parameter must be any of 'pass', 'fail', or 'error'."
-			}
-		);
+		$c->log->debug("Status params of ".$c->param('status') ." contains something other than 'pass', 'fail', or 'error'");
+		return $c->status(400 => {
+			error => "'status' query parameter must be any of 'pass', 'fail', or 'error'."
+		});
 	}
 
 	my $validation_state_groups =
-		Conch::Model::ValidationState
-		->latest_completed_grouped_states_for_workspace(
-		$c->stash('current_workspace')->id, @statuses );
+		Conch::Model::ValidationState->latest_completed_grouped_states_for_workspace(
+			$c->stash('current_workspace')->id,
+			@statuses
+		);
 
 	my @output = map {
 		{ $_->{state}->TO_JSON->%*, results => $_->{results} };
 	} @$validation_state_groups;
+
+	$c->log->debug("Found ".scalar(@output)." records");
 
 	$c->status( 200, \@output );
 }

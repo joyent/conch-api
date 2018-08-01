@@ -10,10 +10,13 @@ Conch::Controller::DatacenterRack
 
 package Conch::Controller::DatacenterRack;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
 use Conch::Models;
+
+with 'Conch::Role::MojoLog';
 
 
 =head2 under
@@ -28,24 +31,31 @@ sub under ($c) {
 		return undef;
 	}
 
-
 	my $r;
 
 	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
-		if($1 eq 'name') {
-			$r = Conch::Model::DatacenterRack->from_name($2);
+		my $k = $1;
+		my $v = $2;
+
+		if($k eq 'name') {
+			$c->log->debug("Looking up a datacenter rack by identifier $k");
+			$r = Conch::Model::DatacenterRack->from_name($v);
 		} else {
+			$c->log->warn("Unsupported identifier '$k' found");
 			$c->status(404 => { error => "Not found" });
 			return undef;
 		}
 	} else {
+		$c->log->debug("Looking for datacenter rack ".$c->param('id'));
 		$r = Conch::Model::DatacenterRack->from_id($c->param('id'));
 	}
 
 	if ($r) {
+		$c->log->debug("Found datacenter rack ".$r->id);
 		$c->stash('rack' => $r);
 		return 1;
 	} else {
+		$c->log->debug("Could not find datacenter rack"); 
 		$c->status(404 => { error => "Not found" });
 		return undef;
 	}
@@ -58,7 +68,10 @@ sub under ($c) {
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $d = $c->validate_input('RackCreate');
-	return if not $d;
+	if(not $d) {
+		$c->log->debug("Input failed validation");
+		return;
+	}
 
 	unless(Conch::Model::DatacenterRoom->from_id($d->{datacenter_room_id})) {
 		return $c->status(400 => { "error" => "Room does not exist" });
@@ -69,6 +82,7 @@ sub create ($c) {
 	}
 		
 	my $r = Conch::Model::DatacenterRack->new($d->%*)->save();
+	$c->log->debug("Created datacenter rack ".$r->id);
 
 	$c->status(303 => "/rack/".$r->id);
 
@@ -94,7 +108,11 @@ Get all racks
 
 sub get_all ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	$c->status(200, Conch::Model::DatacenterRack->all());
+
+	my $r = Conch::Model::DatacenterRack->all();
+	$c->log->debug("Found ".scalar($r->@*)." datacenter racks");
+
+	$c->status(200, $r);
 }
 
 =head2 layouts
@@ -103,10 +121,12 @@ sub get_all ($c) {
 
 sub layouts ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	$c->status(
-		200 =>
-		Conch::Model::DatacenterRackLayout->from_rack_id($c->stash('rack')->id)
+	my $l = Conch::Model::DatacenterRackLayout->from_rack_id(
+		$c->stash('rack')->id
 	);
+
+	$c->log->debug("Found ".scalar($l->@*)." datacenter rack layouts");
+	$c->status(200 => $l);
 }
 
 
@@ -117,7 +137,10 @@ sub layouts ($c) {
 
 sub update ($c) {
 	my $i = $c->validate_input('RackUpdate');
-	return if not $i;
+	if(not $i) {
+		$c->log->debug("Input failed validation");
+		return;
+	}
 
 	if($i->{datacenter_room_id}) {
 		unless(Conch::Model::DatacenterRoom->from_id($i->{datacenter_room_id})) {
@@ -132,6 +155,7 @@ sub update ($c) {
 	}
 
 	$c->stash('rack')->update($i->%*)->save();
+	$c->log->debug("Updated datacenter rack ".$c->stash('rack')->id);
 	return $c->status(303 => "/rack/".$c->stash('rack')->id);
 }
 
@@ -144,6 +168,7 @@ Delete a rack
 
 sub delete ($c) {
 	$c->stash('rack')->burn;
+	$c->log->debug("Deleted datacenter rack ".$c->stash('rack')->id);
 	return $c->status(204);
 }
 

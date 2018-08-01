@@ -16,9 +16,11 @@ my $pgtmp = mk_tmp_db();
 $pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
+use Conch::Log;
+my $logger = Conch::Log->new(level => 'warn');
+
 my $num_validations_loaded =
-	Conch::ValidationSystem->load_validations(
-	Mojo::Log->new( level => 'warn' ) );
+	Conch::ValidationSystem->load_validations($logger);
 
 my $loaded_validations = Conch::Model::Validation->list;
 
@@ -29,8 +31,7 @@ is(
 );
 
 my $num_validations_reloaded =
-	Conch::ValidationSystem->load_validations(
-	Mojo::Log->new( level => 'warn' ) );
+	Conch::ValidationSystem->load_validations($logger);
 
 is( $num_validations_reloaded, 0, 'No new validations loaded' );
 

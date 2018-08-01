@@ -10,9 +10,11 @@ Conch::Controller::WorkspaceRelay
 
 package Conch::Controller::WorkspaceRelay;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
+with 'Conch::Role::MojoLog';
 
 =head2 list
 
@@ -25,6 +27,11 @@ sub list ($c) {
 		$c->stash('current_workspace')->id,
 		$c->param('active') ? 2 : undef,
 		$c->param('no_devices') ? undef : 1,
+	);
+
+	$c->log->debug(
+		"Found ".scalar($relays->@*).
+		" relays in workspace ".$c->stash('current_workspace')->id
 	);
 	$c->status( 200, $relays );
 }

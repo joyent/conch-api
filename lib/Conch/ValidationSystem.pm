@@ -11,7 +11,6 @@ Conch::ValidationSystem
 package Conch::ValidationSystem;
 
 use Mojo::Base -base, -signatures;
-use Mojo::Log;
 use Mojo::Exception;
 use Submodules;
 
@@ -28,7 +27,7 @@ Returns the number of new or changed validations loaded.
 
 =cut
 
-sub load_validations ( $class, $logger = Mojo::Log->new ) {
+sub load_validations ( $class, $logger ) {
 	my $num_loaded_validations = 0;
 	for my $m ( Submodules->find('Conch::Validation') ) {
 		next if $m->{Module} eq 'Conch::Validation';
@@ -37,12 +36,12 @@ sub load_validations ( $class, $logger = Mojo::Log->new ) {
 
 		my $validation_module = $m->{Module};
 		unless ( $validation_module->can('new') ) {
-			$logger->warn("$validation_module cannot '->new'. Skipping.");
+			$logger->info("$validation_module cannot '->new'. Skipping.");
 			next;
 		}
 		my $validation = $validation_module->new();
 		unless ( $validation->isa('Conch::Validation') ) {
-			$logger->warn(
+			$logger->info(
 				"$validation_module must be a sub-class of Conch::Validation. Skipping."
 			);
 			next;
@@ -52,7 +51,7 @@ sub load_validations ( $class, $logger = Mojo::Log->new ) {
 			&& $validation->version
 			&& $validation->description )
 		{
-			$logger->warn(
+			$logger->info(
 				"$validation_module must define the 'name', 'version, and 'description'"
 					. " attributes with values. Skipping." );
 			next;
@@ -65,7 +64,7 @@ sub load_validations ( $class, $logger = Mojo::Log->new ) {
 			if Conch::Model::Validation->upsert(
 			$validation->name,    $validation->version,
 			$trimmed_description, $validation_module,
-			) && $logger->debug("Loaded $validation_module");
+			) && $logger->info("Loaded $validation_module");
 	}
 	return $num_loaded_validations;
 }
@@ -95,7 +94,7 @@ I<Note: This is mostly used by the test harness>
 
 =cut
 
-sub load_validation_plans ( $class, $plans, $logger = Mojo::Log->new ) {
+sub load_validation_plans ( $class, $plans, $logger ) {
 	my @plans;
 	for my $p ( $plans->@* ) {
 		my $plan = Conch::Model::ValidationPlan->lookup_by_name( $p->{name} );
@@ -103,7 +102,7 @@ sub load_validation_plans ( $class, $plans, $logger = Mojo::Log->new ) {
 		unless ($plan) {
 			$plan =
 				Conch::Model::ValidationPlan->create( $p->{name}, $p->{description}, );
-			$logger->debug( "Created validation plan " . $plan->name );
+			$logger->info( "Created validation plan " . $plan->name );
 		}
 		$plan->drop_validations;
 		for my $v ( $p->{validations}->@* ) {
@@ -114,13 +113,13 @@ sub load_validation_plans ( $class, $plans, $logger = Mojo::Log->new ) {
 				$plan->add_validation($validation);
 			}
 			else {
-				$logger->warn(
+				$logger->info(
 					"Could not find Validation name $v->{name}, version $v->{version}"
 						. " to load for "
 						. $plan->name );
 			}
 		}
-		$logger->debug( "Loaded validation plan " . $plan->name );
+		$logger->info( "Loaded validation plan " . $plan->name );
 		push @plans, $plan;
 	}
 	return @plans;

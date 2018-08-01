@@ -10,9 +10,11 @@ Conch::Controller::WorkspaceDevice
 
 package Conch::Controller::WorkspaceDevice;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
+with 'Conch::Role::MojoLog';
 
 =head2 list
 

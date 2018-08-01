@@ -1,6 +1,9 @@
 package Conch::Controller::DB::HardwareProduct;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+with 'Conch::Role::MojoLog';
 
 use Conch::Models;
 
@@ -16,6 +19,9 @@ sub under ($c) {
 	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
 		my $k = $1;
 		my $v = $2;
+
+		$c->log->debug("Looking up a HardwareProduct by identifier ($k = $v)");
+
 		if($k eq "sku") {
 			$h = $c->schema->resultset("HardwareProduct")->single({
 				sku => $v,
@@ -32,10 +38,12 @@ sub under ($c) {
 				deactivated => undef,
 			});
 		} else {
+			$c->log->debug("Unknown identifier '$k' passed to HardwareProduct lookup");
 			$c->status('501');
 			return undef;
 		}
 	} else {
+		$c->log->debug("Looking up a HardwareProduct by id ".$c->param('id'));
 		$h = $c->schema->resultset("HardwareProduct")->single({
 			id => $c->param('id'),
 			deactivated => undef,
@@ -43,9 +51,11 @@ sub under ($c) {
 	}
 
 	if ($h) {
+		$c->log->debug("Found hardware product ".$h->id);
 		$c->stash('hardware_product' => $h);
 		return 1;
 	} else {
+		$c->log->debug("Could not locate a valid hardware product");
 		$c->status(404 => { error => "Not found" });
 		return undef;
 	}
@@ -61,6 +71,7 @@ sub get_all ($c) {
 	my @r = $c->schema->resultset("HardwareProduct")->search({
 		deactivated => undef,
 	})->all;
+	$c->log->debug("Found ".(scalar @r)." hardware products");
 	return $c->status(200, \@r);
 }
 
@@ -70,8 +81,7 @@ sub get_all ($c) {
 =cut
 
 sub get_one ($c) {
-	$c->status(200 => $c->stash('hardware_product')
-	);
+	$c->status(200 => $c->stash('hardware_product'));
 }
 
 
@@ -82,7 +92,10 @@ sub get_one ($c) {
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $i = $c->validate_input('DBHardwareProductCreate');
-	return if not $i;
+	if(not $i) {
+		$c->log->warn("Input failed validation");
+		return;
+	}
 
 	for my $k (qw[name alias sku]) {
 		next unless $i->{$k};
@@ -90,6 +103,7 @@ sub create ($c) {
 			$k => $i->{$k}
 		})->all;
 		if (scalar @r > 0) {
+			$c->log->debug("Failed to create hardware product: unique constraint violation for $k");
 			return $c->status(400 => {
 				error => "Unique constraint violated on '$k'"
 			});
@@ -97,6 +111,8 @@ sub create ($c) {
 	}
 
 	my $r = $c->schema->resultset("HardwareProduct")->create($i);
+
+	$c->log->debug("Created hardware product ".$r->id);
 	$c->status(303 => "/db/hardware_product/".$r->id);
 }
 
@@ -114,10 +130,13 @@ sub update ($c) {
 	for my $k (qw[name alias sku]) {
 		next unless $i->{$k};
 		next if $i->{$k} eq $c->stash('hardware_product')->get_column($k);
+
 		my @r = $c->schema->resultset("HardwareProduct")->search({
 			$k => $i->{$k}
 		})->all;
+
 		if (scalar @r > 0) {
+			$c->log->debug("Failed to create hardware product: unique constraint violation for $k");
 			return $c->status(400 => {
 				error => "Unique constraint violated on '$k'"
 			});
@@ -126,6 +145,7 @@ sub update ($c) {
 
 
 	$c->stash('hardware_product')->update($i);
+	$c->log->debug("Updated hardware product ".$c->stash('hardware_product')->id);
 	$c->status(303 => "/db/hardware_product/".$c->stash('hardware_product')->id);
 }
 
@@ -137,6 +157,7 @@ sub update ($c) {
 sub delete ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	$c->stash('hardware_product')->update({ deactivated => 'NOW()' });
+	$c->log->debug("Deleted hardware product ".$c->stash('hardware_product')->id);
 	return $c->status(204);
 }
 

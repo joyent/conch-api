@@ -12,9 +12,12 @@ Controller for managing Validation Plans
 
 package Conch::Controller::ValidationPlan;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 use Conch::Models;
+
+with 'Conch::Role::MojoLog';
 
 =head2 create
 
@@ -25,6 +28,7 @@ Create new Validation Plan.
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
+	# FIXME why is this not using the plugin?
 	my $create_schema = JSON::Validator->new->schema(
 		{
 			type     => 'object',
@@ -36,22 +40,30 @@ sub create ($c) {
 
 	my $body   = $c->req->json;
 	my @errors = $create_schema->validate($body);
-	return $c->status( 400,
-		{ error => "Errors in request body", source => \@errors } )
-		if @errors;
+	if(@errors) {
+		$c->log->warn("Input failed validation");
+		return $c->status( 400 => {
+			error => "Errors in request body",
+			source => \@errors,
+		});
+	}
 
 	my $existing_validation_plan =
 		Conch::Model::ValidationPlan->lookup_by_name( $body->{name} );
-	return $c->status(
-		409,
-		{
+
+	if($existing_validation_plan) {
+		$c->log->debug("Name conflict on '".$body->{name}."'");
+		return $c->status( 409 => {
 			error => "A Validation Plan already exists with the name '$body->{name}'"
-		}
-	) if $existing_validation_plan;
+		});
+	}	
 
 	my $validation_plan =
 		Conch::Model::ValidationPlan->create( $body->{name}, $body->{description} );
 
+	$c->log->debug("Created validation plan ".$validation_plan->id);
+
+	# FIXME why is this not using the same redirect methodology as the rest of the api?
 	$c->status( 201, $validation_plan );
 }
 
@@ -63,6 +75,7 @@ List all available Validation Plans
 
 sub list ($c) {
 	my $validation_plans = Conch::Model::ValidationPlan->list;
+	$c->log->debug("Found ".scalar($validation_plans->@*)." validation plans");
 	$c->status( 200, $validation_plans );
 }
 
@@ -76,16 +89,19 @@ C<validation_plan>.
 sub under ($c) {
 	my $vp_id = $c->param('id');
 	unless ( is_uuid($vp_id) ) {
-		$c->status( 400,
-			{ error => "Validation Plan ID must be a UUID. Got '$vp_id'." } );
+		$c->log->warn("ID is not a UUID");
+		$c->status( 400, {
+			error => "Validation Plan ID must be a UUID. Got '$vp_id'."
+		});
 		return 0;
 	}
 	my $vp = Conch::Model::ValidationPlan->lookup($vp_id);
 	if ($vp) {
+		$c->log->debug("Found validation plan ".$vp->id);
 		$c->stash( validation_plan => $vp );
 		return 1;
-	}
-	else {
+	} else {
+		$c->log->debug("Failed to find validation plan $vp_id");
 		$c->status( 404, { error => "Validation Plan $vp_id not found" } );
 		return 0;
 	}
@@ -100,8 +116,7 @@ Get the Validation Plan specified by ID
 sub get ($c) {
 	if ( $c->under ) {
 		$c->status( 200, $c->stash('validation_plan') );
-	}
-	else {
+	} else {
 		return 0;
 	}
 }
@@ -115,6 +130,12 @@ List all Validations associated with the Validation Plan
 sub list_validations ($c) {
 	my $validations = $c->stash('validation_plan')->validations;
 
+	$c->log->debug(
+		"Found ".scalar($validations->@*).
+		" validations for validation plan ".
+		$c->stash('validation_plan')->id
+	);
+
 	$c->status( 200, $validations );
 }
 
@@ -126,6 +147,8 @@ List all Validations associated with the Validation Plan
 
 sub add_validation ($c) {
 	return $c->status(403) unless $c->is_global_admin;
+
+	# FIXME why is this not using the plugin?
 	my $add_schema = JSON::Validator->new->schema(
 		{
 			type       => 'object',
@@ -136,16 +159,29 @@ sub add_validation ($c) {
 
 	my $body   = $c->req->json;
 	my @errors = $add_schema->validate($body);
-	return $c->status( 400,
-		{ error => "Errors in request body", source => \@errors } )
-		if @errors;
+
+	if(@errors) {
+		$c->log->warn("Input failed validation");
+		return $c->status( 400 => {
+			error  => "Errors in request body",
+			source => \@errors
+		});
+	}
 
 	my $maybe_validation = Conch::Model::Validation->lookup( $body->{id} );
-	return $c->status( 409,
-		{ error => "Validation with ID '$body->{id}' doesn't exist" } )
-		unless $maybe_validation;
+	unless($maybe_validation) {
+		$c->log->debug("Failed to find validation ".$body->{id});
+		return $c->status( 409 => {
+			error => "Validation with ID '$body->{id}' doesn't exist"
+		});
+	}
 
 	$c->stash('validation_plan')->add_validation($maybe_validation);
+
+	$c->log->debug(
+		"Added validation ".$maybe_validation->id." to validation plan".
+		$c->stash('validation_plan')->id
+	);
 
 	$c->status(204);
 }
@@ -161,21 +197,27 @@ sub remove_validation ($c) {
 
 	my $v_id = $c->param('validation_id');
 	unless ( is_uuid($v_id) ) {
-		return $c->status( 400,
-			{ error => "Validation ID must be a UUID. Got '$v_id'." } );
+		$c->log->warn("ID is not a UUID");
+		return $c->status( 400 => {
+			error => "Validation ID must be a UUID. Got '$v_id'."
+		});
 	}
+
 	my $validation_plan = $c->stash('validation_plan');
 	my $is_member = grep /$v_id/, $validation_plan->validation_ids->@*;
 
-	return $c->status(
-		409,
-		{
-			error =>
-				"Validation with ID '$v_id' isn't a member of the Validation Plan"
-		}
-	) unless $is_member;
+	unless($is_member) {
+		$c->log->debug("Validation with ID '$v_id' isn't a member of the Validation Plan");
+		return $c->status(409 => {
+			error => "Validation with ID '$v_id' isn't a member of the Validation Plan"
+		});
+	}
 
 	$c->stash('validation_plan')->remove_validation($v_id);
+	$c->log->debug(
+		"Removed validation $v_id from validation plan".
+		$c->stash('validation_plan')->id
+	);
 
 	$c->status(204);
 }

@@ -10,10 +10,13 @@ Conch::Controller::WorkspaceRoom
 
 package Conch::Controller::WorkspaceRoom;
 
+use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use List::Compare;
 
 use Conch::Models;
+
+with 'Conch::Role::MojoLog';
 
 =head2 list
 
@@ -25,6 +28,7 @@ sub list ($c) {
 	my $rooms = Conch::Model::WorkspaceRoom->new->list(
 		$c->stash('current_workspace')->id
 	);
+	$c->log->debug("Found ".scalar($rooms->@*)." workspace rooms");
 	$c->status( 200, $rooms );
 }
 
@@ -38,23 +42,24 @@ or local)
 =cut
 
 sub replace_rooms ($c) {
+	return $c->status(403) unless $c->is_admin;
+
 	my $workspace = $c->stash('current_workspace');
 	my $body      = $c->req->json;
+
 	unless ( $body && ref($body) eq 'ARRAY' ) {
-		return $c->status( 400,
-			{ error => 'Array of datacenter room IDs required in request' } );
-	}
-	if ( $workspace->name eq 'GLOBAL' ) {
-		return $c->status( 400, { error => 'Cannot modify GLOBAL workspace' } );
+		$c->log->warn("Input failed validation"); # FIXME use the validator
+
+		return $c->status( 400 => {
+			error => 'Array of datacenter room IDs required in request'
+		});
 	}
 
-	unless ( $c->is_admin ) {
-		return $c->status(
-			403,
-			{
-				error => 'Only administrators may update the datacenter rooms'
-			}
-		);
+	if ( $workspace->name eq 'GLOBAL' ) {
+		$c->log->warn("Attempt to modify GLOBAL workspace's rooms");
+		return $c->status( 400 => {
+			error => 'Cannot modify GLOBAL workspace' # [2018-07-30 sungo] why not?
+		});
 	}
 
 	my $parent_rooms = Conch::Model::WorkspaceRoom->new
@@ -63,13 +68,11 @@ sub replace_rooms ($c) {
 	my @invalid_room_ids = List::Compare->new( $body, $parent_rooms )->get_unique;
 	if (@invalid_room_ids) {
 		my $s = join( ', ', @invalid_room_ids );
-		return $c->status(
-			409,
-			{
-				error =>
-					"Datacenter room IDs must be members of the parent workspace: $s"
-			}
-		);
+		$c->log->debug("These datacenter rooms are not a member of the paernt workspace: $s");
+
+		return $c->status(409 => {
+			error => "Datacenter room IDs must be members of the parent workspace: $s"
+		});
 	}
 
 	my $room_attempt =
@@ -77,6 +80,7 @@ sub replace_rooms ($c) {
 			$workspace->id,
 			$body
 		);
+	$c->log->debug("Replaced the rooms in workspace ".$workspace->id);
 
 	return $c->status( 200, $room_attempt );
 }
