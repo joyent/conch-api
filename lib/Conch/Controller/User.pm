@@ -279,7 +279,10 @@ sub create ($c) {
 
 	# we don't use lookup_by_* because they only search active users.
 	if (my $user = $c->db_user_accounts->search({
-			-or => { name => $name, email => $email }
+			-or => [
+				{ name => $name },
+				\[ 'lower(email) = lower(?)', $email ],
+			]
 		})->first)
 	{
 		return $c->status(409, {
