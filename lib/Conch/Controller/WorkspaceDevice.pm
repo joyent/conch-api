@@ -1,3 +1,12 @@
+package Conch::Controller::WorkspaceDevice;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -5,17 +14,6 @@
 Conch::Controller::WorkspaceDevice
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::WorkspaceDevice;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-
-with 'Conch::Role::MojoLog';
-
-use Conch::UUID 'is_uuid';
 
 =head2 list
 

@@ -5,6 +5,14 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
+=pod
+
+=head1 NAME
+
+Conch::Controller::User
+
+=head1 METHODS
+
 =head2 find_hardware_vendor
 
 Handles looking up the object by name.

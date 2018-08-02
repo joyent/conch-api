@@ -1,3 +1,14 @@
+package Conch::Controller::Login;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Mojo::JWT;
+use Try::Tiny;
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -5,19 +16,6 @@
 Conch::Controller::Login
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::Login;
-
-use Role::Tiny::With;
-
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Mojo::JWT;
-use Try::Tiny;
-use Conch::UUID 'is_uuid';
-
-with 'Conch::Role::MojoLog';
 
 =head2 _create_jwt
 

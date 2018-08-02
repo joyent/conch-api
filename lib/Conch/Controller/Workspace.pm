@@ -1,3 +1,13 @@
+package Conch::Controller::Workspace;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Conch::UUID 'is_uuid';
+use List::Util 'any';
+
 =pod
 
 =head1 NAME
@@ -5,17 +15,6 @@
 Conch::Controller::Workspace
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::Workspace;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::UUID 'is_uuid';
-use List::Util 'any';
-
-with 'Conch::Role::MojoLog';
 
 =head2 find_workspace
 
@@ -132,7 +131,6 @@ sub get_sub_workspaces ($c) {
 
 	$c->status(200, \@workspaces);
 }
-
 
 =head2 create_sub_workspace
 

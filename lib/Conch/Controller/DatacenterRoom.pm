@@ -1,11 +1,15 @@
 package Conch::Controller::DatacenterRoom;
 
-use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-
+use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
+=head1 NAME
+
+Conch::Controller::DatacenterRoom
+
+=head1 METHODS
 
 =head2 find_datacenter_room
 

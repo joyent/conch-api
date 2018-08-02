@@ -1,3 +1,12 @@
+package Conch::Controller::DeviceSettings;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use List::Util 'pairmap';
+
 =pod
 
 =head1 NAME
@@ -5,16 +14,6 @@
 Conch::Controller::DeviceSettings
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::DeviceSettings;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-
-with 'Conch::Role::MojoLog';
-use List::Util 'pairmap';
 
 =head2 set_all
 
@@ -51,7 +50,6 @@ sub set_all ($c) {
 
 	$c->status(200);
 }
-
 
 =head2 set_single
 
@@ -90,7 +88,6 @@ sub set_single ($c) {
 	$c->status(200);
 }
 
-
 =head2 get_all
 
 Get all settings for a device as a hash
@@ -110,7 +107,6 @@ sub get_all ($c) {
 
 	$c->status( 200, \%settings );
 }
-
 
 =head2 get_single
 
@@ -136,7 +132,6 @@ sub get_single ($c) {
 
 	$c->status(200, { $setting_key => $setting->value });
 }
-
 
 =head2 delete_single
 

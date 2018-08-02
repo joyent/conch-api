@@ -1,3 +1,14 @@
+package Conch::Controller::User;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Mojo::Exception;
+use List::Util 'pairmap';
+use Mojo::JSON qw(to_json from_json);
+
 =pod
 
 =head1 NAME
@@ -5,19 +16,6 @@
 Conch::Controller::User
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::User;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Mojo::Exception;
-
-use List::Util 'pairmap';
-use Mojo::JSON qw(to_json from_json);
-
-with 'Conch::Role::MojoLog';
 
 =head2 revoke_own_tokens
 
