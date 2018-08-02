@@ -97,7 +97,6 @@ sub register ($self, $app, $conf) {
 			},
 		};
 
-
 		my $res_headers = $c->tx->res->headers->to_hash;
 		for (qw(Set-Cookie)) {
 			delete $res_headers->{$_};
@@ -120,6 +119,28 @@ sub register ($self, $app, $conf) {
 			unless ($c->req->url =~ /login/) {
 				$log->{res}->{body} = $c->res->body;
 			}
+		}
+
+		if(my $e = $c->stash('exception')) {
+			$c->stash('exception')->verbose;
+			my $eframes = $c->stash('exception')->frames;
+
+			my @frames;
+			for my $frame (reverse $eframes->@*) {
+				push @frames, {
+					class => $frame->[0],
+					file  => $frame->[1],
+					line  => $frame->[2],
+					func  => $frame->[3],
+				}
+			}
+
+			$log->{err} = {
+				fileName   => $frames[0]{file},
+				lineNumber => $frames[0]{line},
+				msg        => $c->stash('exception')->to_string,
+				frames     => \@frames,
+			};
 		}
 
 		my $l = Conch::Log->new(
