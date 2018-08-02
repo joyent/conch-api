@@ -384,11 +384,10 @@ subtest 'Workspace devices' => sub {
 	# then follow it and verify the results
 	subtest 'Redirect /workspace/:id/device/active' => sub {
 		$t->get_ok("/workspace/$id/device/active")->status_is(302);
-		my $temp = $t->ua->max_redirects;
 		$t->ua->max_redirects(1);
 		$t->get_ok("/workspace/$id/device/active")->status_is(200)
-			->json_is( '', [] );
-		$t->ua->max_redirects($temp);
+			->json_is( '', [], 'got empty list of workspaces' );
+		$t->ua->max_redirects(0);
 	};
 };
 
