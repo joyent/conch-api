@@ -37,34 +37,49 @@ Set up the full route structure
 =cut
 
 sub all_routes {
-	my $unsecured = shift;	# this is the base routing object
+	my $root = shift;	# this is the base routing object
 	my $features = shift || {};
 
-	# CORS preflight check
-	$unsecured->options('*', sub{ shift->status(204) });
+	# provides a route to chain to that first checks the user is a global admin.
+	$root->add_shortcut(require_global_admin => sub {
+		my ($r, $path) = @_;
+		$r->any(sub {
+			my $c = shift;
+			return $c->status(401, { error => 'unauthorized' })
+				unless $c->stash('user') and $c->stash('user_id');
 
-	$unsecured->get( '/doc',
+			return $c->status(403, { error => 'Must be global admin' })
+				unless $c->is_global_admin;
+
+			return 1;
+		})->under;
+	});
+
+	# CORS preflight check
+	$root->options('*', sub{ shift->status(204) });
+
+	$root->get( '/doc',
 		sub { shift->reply->static('public/doc/index.html') } );
 
-	$unsecured->get(
+	$root->get(
 		'/ping',
 		sub { shift->status( 200, { status => 'ok' } ) },
 	);
 
-	$unsecured->get(
+	$root->get(
 		'/version' => sub {
 			my $c = shift;
 			$c->status( 200, { version => $c->version_tag } );
 		}
 	);
 
-	$unsecured->post('/login')->to('login#session_login');
-	$unsecured->post('/logout')->to('login#session_logout');
-	$unsecured->post('/reset_password')->to('login#reset_password');
+	$root->post('/login')->to('login#session_login');
+	$root->post('/logout')->to('login#session_logout');
+	$root->post('/reset_password')->to('login#reset_password');
 
 	# all routes after this point require authentication
 
-	my $secured = $unsecured->to('login#authenticate')->under;
+	my $secured = $root->to('login#authenticate')->under;
 
 	$secured->get( '/login', sub { shift->status(204) } );
 	$secured->get( '/me',    sub { shift->status(204) } );

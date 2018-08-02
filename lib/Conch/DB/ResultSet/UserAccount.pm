@@ -23,6 +23,19 @@ allowing us to receive the 'password' key, which we hash into 'password_hash'.
 
 =cut
 
+=head2 update
+
+This method is built in to all resultsets.  In Conch::DB::Result::UserAccount we have overrides
+allowing us to receive the 'password' key, which we hash into 'password_hash'.
+
+    $c->schema->resultset('UserAccount') or $c->db_user_accounts
+    ->update({
+        password => ...,
+        ... possibly other things
+    });
+
+=cut
+
 =head2 lookup_by_id
 
 =cut
@@ -30,7 +43,7 @@ allowing us to receive the 'password' key, which we hash into 'password_hash'.
 sub lookup_by_id {
     my ($self, $user_id) = @_;
     return if not is_uuid($user_id);    # avoid pg exception "invalid input syntax for uuid"
-    $self->find({ id => $user_id });
+    $self->active->find({ id => $user_id });
 }
 
 =head2 lookup_by_email
@@ -39,7 +52,7 @@ sub lookup_by_id {
 
 sub lookup_by_email {
     my ($self, $email) = @_;
-    $self->find({ email => $email });
+    $self->active->find({ email => $email });
 }
 
 =head2 lookup_by_name
@@ -48,7 +61,33 @@ sub lookup_by_email {
 
 sub lookup_by_name {
     my ($self, $name) = @_;
-    $self->find({ name => $name });
+    $self->active->find({ name => $name });
+}
+
+=head2 active
+
+Chainable resultset to limit results to those that aren't deactivated.
+TODO: move to a role 'Deactivatable'
+
+=cut
+
+sub active {
+    my $self = shift;
+
+    $self->search({ deactivated => undef });
+}
+
+=head2 deactivate
+
+Update all matching rows by setting deactivated = NOW().
+TODO: move to a role 'Deactivatable'
+
+=cut
+
+sub deactivate {
+    my $self = shift;
+
+    $self->update({ deactivated => \'NOW()' });
 }
 
 1;

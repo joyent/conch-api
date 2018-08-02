@@ -19,8 +19,30 @@ use Log::Any '$log';
 
 use Exporter 'import';
 our @EXPORT_OK = qw(
-	new_user_invite password_reset_email
+	send_mail_with_template
+	new_user_invite
+	password_reset_email
 );
+
+=head2 send_mail_with_template
+
+Simple email sender.
+
+=cut
+
+sub send_mail_with_template {
+	my ($content, $mail_args) = @_;
+
+	# TODO: make use of Mojo::Template for more sophisticated content munging.
+
+	# TODO: rewrite from Mail::Sendmail to Email::Simple before rjbs kills us.
+	if (not sendmail(%$mail_args, Message => $content)) {
+		$log->error("Sendmail error: $Mail::Sendmail::error");
+		return;
+	}
+
+	return 1;
+}
 
 =head2 new_user_invite
 
@@ -30,36 +52,36 @@ Template for the email for inviting a new user
 
 sub new_user_invite {
 	my ($args)   = @_;
+	my $name     = $args->{name};
 	my $email    = $args->{email};
 	my $password = $args->{password};
 
-	my %mail = (
-		To      => $email,
+	my $to = $email;
+	$to = "$name <$to>" if $name ne $email;
+
+	my $headers = {
+		To      => $to,
 		From    => 'noreply@conch.joyent.us',
 		Subject => "Welcome to Conch!",
-		Message => qq{Hello,
+	};
+
+	my $template = qq{Hello,
 
     You have been invited to join Joyent Conch. An account has been created for
     you. Please log into https://conch.joyent.us using the credentials
     below:
 
-    Username: $email
+    Username: $name
+    Email:    $email
     Password: $password
 
     Thank you,
     Joyent Build Ops Team
-    }
+    };
 
-	);
-	if ( sendmail %mail ) {
-		$log->info("New user invite successfully sent to $email.");
-	}
-	else {
-		$log->error("Sendmail error: $Mail::Sendmail::error");
-	}
+	send_mail_with_template($template, $headers)
+		&& $log->info("New user invite successfully sent to $email.");
 }
-
-
 
 =head2 password_reset_email
 
@@ -72,11 +94,13 @@ sub password_reset_email {
 	my $email    = $args->{email};
 	my $password = $args->{password};
 
-	my %mail = (
+	my $headers = {
 		To      => $email,
 		From    => 'noreply@conch.joyent.us',
 		Subject => "Conch Password Reset",
-		Message => qq{Hello,
+	};
+
+	my $template = qq{Hello,
 
     A request was received to reset your password.  A new password has been
     randomly generated and your old password has been deactivated.
@@ -89,15 +113,86 @@ sub password_reset_email {
 
     Thank you,
     Joyent Build Ops Team
-    }
+    };
 
-	);
-	if ( sendmail %mail ) {
-		$log->info("Existing user invite successfully sent to $email.");
-	}
-	else {
-		$log->error("Sendmail error: $Mail::Sendmail::error");
-	}
+	send_mail_with_template($template, $headers)
+		&& $log->info("Existing user invite successfully sent to $email.");
+}
+
+=head2 changed_user_password
+
+Send mail when resetting an existing user's password
+
+=cut
+
+sub changed_user_password {
+	my ($args)   = @_;
+	my $name     = $args->{name};
+	my $email    = $args->{email};
+	my $password = $args->{password};
+
+	my $to = $email;
+	$to = "$name <$to>" if $name ne $email;
+
+	my $headers = {
+		To      => $to,
+		From    => 'noreply@conch.joyent.us',
+		Subject => "Your Conch password has changed.",
+	};
+	my $template = qq{Hello,
+
+    Your password at Joyent Conch has been reset. You should now log
+    into https://conch.joyent.us using the credentials below:
+
+    Username: $name
+    Email:    $email
+    Password: $password
+
+    Thank you,
+    Joyent Build Ops Team
+    };
+
+	send_mail_with_template($template, $headers)
+		&& $log->info("Password reset email sent to $email.");
+}
+
+=head2 welcome_new_user
+
+Template for the email when a new user has been created
+
+=cut
+
+sub welcome_new_user {
+	my ($args)   = @_;
+	my $name     = $args->{name};
+	my $email    = $args->{email};
+	my $password = $args->{password};
+
+	my $to = $email;
+	$to = "$name <$to>" if $name ne $email;
+
+	my $headers = {
+		To      => $to,
+		From    => 'noreply@conch.joyent.us',
+		Subject => "Welcome to Conch!",
+	};
+
+	my $template = qq{Hello,
+
+    You have been invited to join Joyent Conch. An account has been created for
+    you. Please log into https://conch.joyent.us using the credentials
+    below:
+
+    Username: $name
+    Email:    $email
+    Password: $password
+
+    Thank you,
+    Joyent Build Ops Team
+    };
+
+	send_mail_with_template($template, $headers)
+		&& $log->info("New user invite successfully sent to $email.");
 }
 
 1;

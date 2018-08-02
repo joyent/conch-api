@@ -273,3 +273,15 @@ definitions:
     properties:
       password:
         type: string
+  NewUser:
+    type: object
+    additionalProperties: false
+    required:
+      - email
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string

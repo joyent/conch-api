@@ -124,6 +124,7 @@ sub json_schema_is {
                     . " Error(s) occurred when validating $req with schema "
                     . "$schema':\n\t"
                     . join( "\n\t", @errors ) );
+            0;
         }
     );
 }

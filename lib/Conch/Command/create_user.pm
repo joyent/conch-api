@@ -57,7 +57,7 @@ sub run {
 
     if ($opt->send_email) {
         say 'sending email to ', $opt->email, '...';
-        Conch::Mail::new_user_invite({ email => $opt->email, password => $opt->password });
+        Conch::Mail::new_user_invite({ map { $_ => $opt->$_ } qw(name email password) });
     }
 }
 

@@ -84,8 +84,9 @@ sub invite ($c) {
 
 		$c->log->info("User '".$body->{user}."' was created with ID ".$user->id);
 		$c->mail->send_new_user_invite({
-			email    => $user->email,
-			password => $password
+			name	=> $user->name,
+			email	=> $user->email,
+			password => $password,
 		});
 
 		# TODO update this complain when we stop sending plaintext passwords

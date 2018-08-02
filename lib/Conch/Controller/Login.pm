@@ -191,8 +191,14 @@ sub session_login ($c) {
 		|| $c->db_user_accounts->lookup_by_name($body->{user})
 		|| $c->db_user_accounts->lookup_by_email($body->{user});
 
+	if (not $user) {
+		$c->log->debug("user lookup for $body->{user} failed");
+		return $c->status(401, { error => 'unauthorized' });
+	}
+
 	if (not $user->validate_password($body->{password})) {
-		return $c->status(401, { error => 'Invalid login' });
+		$c->log->debug("password validation for $body->{user} failed");
+		return $c->status(401, { error => 'unauthorized' });
 	}
 
 	$c->stash(user_id => $user->id);
