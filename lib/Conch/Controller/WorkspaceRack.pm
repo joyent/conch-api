@@ -31,36 +31,32 @@ sub list ($c) {
 }
 
 
-=head2 under
+=head2 find_rack
 
-For all subroutes, grab the rack ID and stash the relevant rack in
-C<current_ws_rack>
+Chainable action that takes the 'rack_id' provided in the path and looks it up in the
+database, stashing it as 'current_ws_rack'.
 
 =cut
 
-sub under ($c) {
-	my $rack_id = $c->param('rack_id');
-	unless ( is_uuid($rack_id) ) {
-		$c->log->warn("Input failed validation");
-		$c->status( 400 => { 
-			error => "Datacenter Rack ID must be a UUID. Got '$rack_id'."
-		});
-		return 0;
-	}
-	my $maybe_rack = Conch::Model::WorkspaceRack->lookup(
-		$c->stash('current_workspace')->id,
-		$rack_id
-	);
-	unless ($maybe_rack) {
-		$c->log->debug("Could not find rack $rack_id");
-		$c->status( 404, { error => "Rack $rack_id not found" } );
-		return 0;
-	}
-	$c->log->debug("Found rack $rack_id");
-	$c->stash( current_ws_rack => $maybe_rack );
-	return 1;
-}
+sub find_rack ($c) {
+	my $self = shift;
 
+	my $rack_id = $c->stash('rack_id');
+
+	if (not is_uuid($rack_id)) {
+		$c->log->warn('Input failed validation');
+		return $c->status(400 => { error => "Datacenter Rack ID must be a UUID. Got '$rack_id'." });
+	}
+
+	if (my $rack = Conch::Model::WorkspaceRack->lookup($c->stash('workspace_id'), $rack_id)) {
+		$c->log->debug("Found rack $rack_id");
+		$c->stash( current_ws_rack => $rack);
+		return 1;
+	}
+
+	$c->log->debug("Could not find rack $rack_id");
+	$c->status(404, { error => "Rack $rack_id not found" });
+}
 
 =head2 get_layout
 
@@ -69,7 +65,6 @@ Get the RackLayout for the current stashed C<current_ws_rack>
 =cut
 
 sub get_layout ($c) {
-	return unless $c->under;
 	my $layout = Conch::Model::WorkspaceRack->new->rack_layout(
 		$c->stash('current_ws_rack')
 	);

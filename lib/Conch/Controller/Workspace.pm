@@ -17,34 +17,28 @@ use Conch::UUID 'is_uuid';
 use Conch::Models;
 with 'Conch::Role::MojoLog';
 
-=head2 under
+=head2 find_workspace
 
-For all subroutes, this figures out the current Workspace, putting it in the
-stash as C<current_workspace>
+Chainable action that validates the 'workspace_id' provided in the path
+and looks up the current workspace and stashes it in C<current_workspace>.
 
 =cut
 
-sub under ($c) {
-	my $ws_id = $c->param('id');
-	unless ( is_uuid($ws_id) ) {
-		$c->status( 400,
-			{ error => "Workspace ID must be a UUID. Got '$ws_id'." } );
-		return 0;
-	}
-	my $ws = Conch::Model::Workspace->new->get_user_workspace(
-		$c->stash('user_id'),
-		$ws_id
-	);
-	if ($ws) {
-		$c->stash( current_workspace => $ws );
-		return 1;
-	}
-	else {
-		$c->status( 404, { error => "Workspace $ws_id not found" } );
-		return 0;
-	}
-}
+sub find_workspace ($c) {
+	my $self = shift;
 
+	my $ws_id = $c->stash('workspace_id');
+
+	if (not is_uuid($ws_id)) {
+		return $c->status(400, { error => "Workspace ID must be a UUID. Got '$ws_id'." });
+	}
+
+	my $ws = Conch::Model::Workspace->new->get_user_workspace($c->stash('user_id'), $ws_id);
+	return $c->status(404, { error => "Workspace $ws_id not found" }) if not $ws;
+
+	$c->stash(current_workspace => $ws);
+	return 1;
+}
 
 =head2 list
 
@@ -59,7 +53,6 @@ sub list ($c) {
 	$c->status( 200, $wss );
 }
 
-
 =head2 get
 
 Get the details of the current workspace
@@ -67,12 +60,7 @@ Get the details of the current workspace
 =cut
 
 sub get ($c) {
-	if ( $c->under ) {
-		$c->status( 200, $c->stash('current_workspace') );
-	}
-	else {
-		return 0;
-	}
+	$c->status( 200, $c->stash('current_workspace') );
 }
 
 

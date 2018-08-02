@@ -92,7 +92,7 @@ sub all_routes {
 		}
 	);
 
-	workspace_routes($secured);
+	workspace_routes($secured->any('/workspace'));
 	device_routes($secured);
 	relay_routes($secured);
 	user_routes( $secured->any('/user') );
