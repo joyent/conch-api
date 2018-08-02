@@ -18,6 +18,8 @@ $t->get_ok("/version")->status_is(200);
 $t->get_ok("/me")->status_is(401)->json_is( '/error' => 'unauthorized' );
 $t->get_ok("/login")->status_is(401)->json_is( '/error' => 'unauthorized' );
 
+my $now = Conch::Time->now;
+
 $t->post_ok(
 	"/login" => json => {
 		user     => 'conch',
@@ -27,6 +29,11 @@ $t->post_ok(
 BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
+
+my $conch_user = $t->schema->resultset('UserAccount')->find({ name => 'conch' });
+
+ok($conch_user->last_login >= $now, 'user last_login is updated')
+	or diag('last_login not updated: ' . $conch_user->last_login . ' is not updated to ' . $now);
 
 subtest 'User' => sub {
 	$t->get_ok("/me")->status_is(204)->content_is("");
@@ -463,8 +470,6 @@ subtest 'modify another user' => sub {
 		json => { name => 'me', email => 'foo@conch.joyent.us' })
 		->status_is(400, 'user name "me" is prohibited')
 		->json_is({ error => 'user name "me" is prohibited' });
-
-	my $conch_user = $t->schema->resultset('UserAccount')->find({ name => 'conch' });
 
 	$t->post_ok(
 		'/user?send_invite_mail=0',

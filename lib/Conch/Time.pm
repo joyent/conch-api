@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Conch::Time - format Postgres Timestamps as RFC 3337 UTC timestamps
+Conch::Time - format timestamps as RFC 3337 UTC timestamps
 
 =head1 SYNOPSIS
 
@@ -13,42 +13,37 @@ Conch::Time - format Postgres Timestamps as RFC 3337 UTC timestamps
 
 	$time eq $time; # 1
 
-
 =head1 METHODS
 
 =cut
 
 package Conch::Time;
-use Mojo::Base -base, -signatures;
 
-use POSIX qw(strftime);
-use Time::Moment;
-use Time::HiRes;
-use Mojo::Exception;
+use v5.26;
+use strict;
+use warnings;
 
-use overload
-	'""' => 'rfc3339',
-	eq   => 'compare',
-	ne   => sub { !compare(@_) },
-	cmp  => 'compare';
-
-
-
-has 'moment';
+use parent 'Time::Moment';
 
 =head2 new
 
+Overloads the constructor to use C<< ->from_string >> when a single argument is passed.
+
 	Conch::Time->new($pg_timestamptz);
+
+	... and any other constructor modes supported by Time::Moment
 
 =cut
 
-sub new ( $class, $timestamptz ) {
-	return $class->SUPER::new(
-		moment => Time::Moment->from_string($timestamptz, lenient => 1)
-	);
+sub new {
+	my $class = shift;
+
+	if (@_ == 1) {
+		return bless(Time::Moment->from_string($_[0], lenient => 1), $class);
+	}
+
+	return $class->SUPER::new(@_);
 }
-
-
 
 =head2 now
 
@@ -61,61 +56,39 @@ nanosecond.
 
 =cut
 
-sub now ($class) {
-	return $class->SUPER::new(moment => Time::Moment->now());
-}
-
 =head2 from_epoch
 
 	Conch::Time->from_epoch(time());
 
 	Conch::Time->from_epoch(Time::HiRes::gettimeofday);
 
-=cut
+	Conch::Time->from_epoch(1234567890, 123);
 
-sub from_epoch ($class, $epoch, $nano = 0) {
-	return $class->SUPER::new(moment => Time::Moment->from_epoch(
-		$epoch,
-		$nano,
-	));
-}
-
-
-=head2 compare
-
-Compare two Conch::Time objects. Used to overload C<eq> and C<ne>.
+See also L<Time::Moment/from_epoch>.
 
 =cut
-
-sub compare {
-	my ( $self, $other ) = @_;
-	return $self->moment->is_equal($other->moment)
-}
-
 
 =head2 CONVERSIONS
 
 =head3 rfc3339
 
-Return an RFC3339 compatible string
+Return an RFC3339 compatible string.
+Sub-second precision will use 3, 6 or 9 digits as necessary.
 
 =cut
 
 sub rfc3339 {
 	my $self = shift;
-	return $self->moment->strftime("%Y-%m-%dT%H:%M:%S.%3N%Z");
+	return $self->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
 }
-
-
 
 =head3 timestamp
 
-Return an RFC3339 compatible string
+Return an RFC3339 compatible string.
 
 =cut
 
-sub timestamp { shift->rfc3339() }
-
+sub timestamp { goto &rfc3339 }
 
 
 =head3 to_string
@@ -125,7 +98,7 @@ overload string coercion.
 
 =cut
 
-sub to_string { shift->rfc3339 }
+sub to_string { goto &rfc3339 }
 
 
 =head3 TO_JSON
@@ -134,7 +107,7 @@ Renderer for Mojo, as a RFC 3339 timestamp string
 
 =cut
 
-sub TO_JSON { shift->rfc3339 }
+sub TO_JSON { goto &rfc3339 }
 
 
 =head3 timestamptz
@@ -144,7 +117,7 @@ Render a string in PostgreSQL's timestamptz style
 =cut
 
 sub timestamptz {
-	return shift->moment->strftime("%Y-%m-%d %H:%M:%S%f%z");
+	return shift->strftime('%Y-%m-%d %H:%M:%S%f%z');
 }
 
 
@@ -155,7 +128,7 @@ Render the timestamp as an ISO8601 extended format, in UTC
 =cut
 
 sub iso8601 {
-	return shift->moment->at_utc->strftime("%Y-%m-%dT%H:%M:%S%f%Z");
+	return shift->at_utc->strftime('%Y-%m-%dT%H:%M:%S%f%Z');
 }
 
 1;

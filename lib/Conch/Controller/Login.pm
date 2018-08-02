@@ -212,7 +212,9 @@ sub session_login ($c) {
 	# clear out all expired session tokens
 	$c->db_user_session_tokens->expired->delete;
 
-	# create a JWT for this user
+	$user->update({ last_login => \'NOW()' });
+
+	# create a JWT for this user and return it in the header.
 	return $c->_create_jwt( $user->id );
 }
 

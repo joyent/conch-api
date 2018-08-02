@@ -19,9 +19,7 @@ use base 'DBIx::Class::Core';
 
 =over 4
 
-=item * L<DBIx::Class::InflateColumn::DateTime>
-
-=item * L<DBIx::Class::TimeStamp>
+=item * L<Conch::DB::InflateColumn::Time>
 
 =item * L<DBIx::Class::Helper::Row::ToJSON>
 
@@ -29,7 +27,7 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp", "Helper::Row::ToJSON");
+__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "Helper::Row::ToJSON");
 
 =head1 TABLE: C<user_account>
 
@@ -208,8 +206,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-01 09:20:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hm6V/LYtoz14U9T8434bkw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-01 14:34:45
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+qcKfZJc/oa3IWDNp/Q08A
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 

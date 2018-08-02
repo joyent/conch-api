@@ -54,8 +54,8 @@ requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::Helpers';
 requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
+requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Config::General';
-requires 'DBIx::Class::TimeStamp';
 requires 'Lingua::EN::Inflexion';
 
 # logging

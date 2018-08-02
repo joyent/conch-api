@@ -19,9 +19,7 @@ use base 'DBIx::Class::Core';
 
 =over 4
 
-=item * L<DBIx::Class::InflateColumn::DateTime>
-
-=item * L<DBIx::Class::TimeStamp>
+=item * L<Conch::DB::InflateColumn::Time>
 
 =item * L<DBIx::Class::Helper::Row::ToJSON>
 
@@ -29,7 +27,7 @@ use base 'DBIx::Class::Core';
 
 =cut
 
-__PACKAGE__->load_components("InflateColumn::DateTime", "TimeStamp", "Helper::Row::ToJSON");
+__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "Helper::Row::ToJSON");
 
 =head1 TABLE: C<datacenter>
 
@@ -144,8 +142,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-20 14:28:49
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:nlQZX7YLkXoM+ed9ZEom3g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-31 10:58:50
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bhiBVaB2b/n8uIPbESr14Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
