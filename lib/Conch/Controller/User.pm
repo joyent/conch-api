@@ -50,6 +50,7 @@ sub revoke_user_tokens ($c) {
 	return $c->status( 404, { error => "user $user_param not found" } )
 		unless $user;
 
+	$c->log->debug('revoking session tokens for user ' . $user->name . ', forcing them to /login again');
 	$user->delete_related('user_session_tokens');
 
 	$c->status(204);

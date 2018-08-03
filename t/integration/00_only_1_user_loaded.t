@@ -421,7 +421,7 @@ subtest 'JWT authentication' => sub {
 	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token" } )
 		->status_is( 200,
 		"user can provide JWT token with cookie to authenticate" );
-	$t->reset_session;
+	$t->reset_session;	# force JWT to be used to authenticate
 	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token.$jwt_sig" } )
 		->status_is( 200,
 		"user can provide Authentication header with full JWT to authenticate" );
@@ -548,14 +548,41 @@ subtest 'modify another user' => sub {
 			password => '123'
 		})
 		->status_is(200, 'new user can log in');
+	my $jwt_token = $t2->tx->res->json->{jwt_token};
+	my $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
+
 	$t2->get_ok('/me')->status_is(204);
+
+	my $t3 = Test::Conch->new;	# we will only use this $mojo for basic auth
+	$t3->get_ok($t3->ua->server->url->userinfo('foo:123')->path('/me'))
+		->status_is(204, 'user can also use the app with basic auth');
 
 	$t->post_ok("/user/$new_user_id/revoke")
 		->status_is(204, 'revoked all tokens for the new user');
 
 	$t2->reset_session;
-	$t2->get_ok('/me')->status_is(401, 'new user can no longer log in')
+	$t2->get_ok('/me')->status_is(401, 'new user cannot authenticate with persistent session after session is cleared')
 		->json_is({ error => 'unauthorized' });
+
+	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(401, 'new user cannot authenticate with JWT after tokens are revoked')
+		->json_is({ error => 'unauthorized' });
+
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => '123'
+		})
+		->status_is(200, 'new user can still log in again');
+	$jwt_token = $t2->tx->res->json->{jwt_token};
+	$jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
+
+	$t2->get_ok('/me')->status_is(204, 'session token re-established');
+
+	$t2->reset_session;	# force JWT to be used to authenticate
+	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(204, 'new JWT established');
+
 
 	# in order to get the user's new password, we need to extract it from a method call before
 	# we forget it -- so we pull it out of the call to UserAccount->update.
@@ -563,7 +590,7 @@ subtest 'modify another user' => sub {
 	my $new_password;
 	no warnings 'redefine';
 	local *Conch::DB::Result::UserAccount::update = sub {
-		$new_password = $_[1]->{password};
+		$new_password = $_[1]->{password} if exists $_[1]->{password};
 		$orig_update->(@_);
 	};
 
@@ -597,6 +624,9 @@ subtest 'modify another user' => sub {
 		->status_is(200, 'user can log in with new password');
 
 	$t2->get_ok('/me')->status_is(204);
+
+	$t3->get_ok($t3->ua->server->url->userinfo('foo:' . $new_password)->path('/me'))
+		->status_is(204, 'user can also use the new password in basic auth');
 
 
 	$t->delete_ok("/user/foobar")
