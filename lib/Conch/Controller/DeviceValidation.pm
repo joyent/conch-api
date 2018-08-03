@@ -95,6 +95,7 @@ device.
 =cut
 
 sub validate ($c) {
+
 	my $device    = $c->stash('current_device');
 	my $device_id = $device->id;
 

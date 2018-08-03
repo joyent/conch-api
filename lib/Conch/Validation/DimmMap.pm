@@ -2,6 +2,9 @@ package Conch::Validation::DimmMap;
 
 use Mojo::Base 'Conch::Validation';
 
+use List::Compare;
+use Mojo::Log;
+
 has 'name'        => 'dimm_map';
 has 'version'     => 1;
 has 'category'    => 'RAM';
@@ -10,9 +13,9 @@ has 'description' => 'Identify any missing or misbehaving DIMMs';
 sub validate {
 	my ( $self, $data ) = @_;
 
-	my $dimms   = $data->{dimms};
-	my $hw_spec = $self->hardware_product_specification;
-	my $dimm_sepc = $hw_spec->{memory}->{dimms};
+	my $dimms     = $data->{dimms};
+	my $hw_spec   = $self->hardware_product_specification;
+	my $dimm_spec = $hw_spec->{memory}->{dimms};
 
 	#$self->register_result(
 	#	expected => 
