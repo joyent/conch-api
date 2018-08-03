@@ -23,9 +23,11 @@ with 'Conch::Role::MojoLog';
 
 =head2 _create_jwt
 
-Create a JWT and return it in the response in two parts: the signature in a
-cookie named 'jwt_sig' and a response body named 'jwt_token'. 'jwt_token'
-includes two claims: 'uid', for the user ID, and 'jti', for the token ID.
+Create a JWT and sets it up to be returned in the response in two parts:
+
+	* the signature in a cookie named 'jwt_sig',
+	* and a response body named 'jwt_token'. 'jwt_token' includes two claims: 'uid', for the
+	  user ID, and 'jti', for the token ID.
 
 =cut
 
@@ -60,7 +62,9 @@ sub _create_jwt ( $c, $user_id ) {
 		jwt_sig => $sig,
 		{ expires => time + 3600, secure => $c->req->is_secure, httponly => 1 }
 	);
-	return $c->status( 200, { jwt_token => "$header.$payload" } );
+
+	# this should be returned in the json payload under the 'jwt_token' key.
+	return "$header.$payload";
 }
 
 =head2 authenticate
@@ -215,8 +219,7 @@ sub session_login ($c) {
 
 	$user->update({ last_login => \'NOW()' });
 
-	# create a JWT for this user and return it in the header.
-	return $c->_create_jwt( $user->id );
+	return $c->status(200, { jwt_token => $c->_create_jwt($user->id) } );
 }
 
 =head2 session_logout
@@ -294,7 +297,7 @@ sub refresh_token ($c) {
 	# re-authentication. Expires 'conch' cookie
 	if (my $user_id = $c->session('user') ){
 		$c->session( expires => 1 );
-		return $c->_create_jwt($user_id);
+		return $c->status(200, { jwt_token => $c->_create_jwt($user_id) } );
 	}
 
 	# expire this token
@@ -308,7 +311,7 @@ sub refresh_token ($c) {
 	return $c->status( 403, { error => 'Invalid token ID' } )
 		unless $token_valid;
 
-	return $c->_create_jwt( $c->stash('user_id') );
+	return $c->status(200, { jwt_token => $c->_create_jwt($c->stash('user_id')) } );
 }
 
 1;
