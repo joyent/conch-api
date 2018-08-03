@@ -4,6 +4,9 @@ use Mojo::Base 'Conch::Validation';
 
 use List::Compare;
 use Mojo::Log;
+use JSON::PP;
+
+use Data::Printer;
 
 has 'name'        => 'dimm_map';
 has 'version'     => 1;
@@ -14,8 +17,43 @@ sub validate {
 	my ( $self, $data ) = @_;
 
 	my $dimms     = $data->{dimms};
-	my $hw_spec   = $self->hardware_product_specification;
-	my $dimm_spec = $hw_spec->{memory}->{dimms};
+	my $hw_spec_j = $self->hardware_product_specification;
+	my $hw_spec   = decode_json $hw_spec_j;
+	my $dimm_spec = $hw_spec->{chassis}->{memory}->{dimms};
+
+# Build array of expected DIMMs keyed off bank locators from hw spec
+
+my @expected_slots;
+foreach my $spec_s ($dimm_spec->@*) {
+	my $slot = $spec_s->{slot};
+	push @expected_slots, $slot;
+}
+
+# Build array of reported DIMMs keyed off bank locators from report
+my @populated_slots;
+my @empty_slots;
+foreach my $dimm ($dimms->@*) {
+	my $slot = $dimm->{'memory-locator'};
+
+	if ($dimm->{'memory-serial-number'}) {
+		push @populated_slots, $slot;
+	} else {
+		unless (grep(/^$slot$/, @empty_slots)) {
+			push @empty_slots, $slot;
+		}
+	}
+}
+
+my $lc = List::Compare->new(\@expected_slots, \@populated_slots);
+
+my @incorrect = $lc->get_complement();
+say "Incorrectly installed:";
+p @incorrect;
+
+
+my @missing = $lc->get_unique();
+say "Missing:";
+p @missing;
 
 	#$self->register_result(
 	#	expected => 
