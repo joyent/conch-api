@@ -82,12 +82,15 @@ use JSON::Validator;
 use Try::Tiny;
 
 use Conch::ValidationError;
+use Conch::Log;
 
 has 'name';
 has 'version';
 has 'description';
 has 'schema';
 has 'category';
+
+has 'log' => sub { return Conch::Log->new() };
 
 =head2 validation_results
 

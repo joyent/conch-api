@@ -54,6 +54,8 @@ sub load_validations ( $class, $logger ) {
 			next;
 		}
 
+		$validation->log(sub { return $logger });
+
 		my $trimmed_description = $validation->description;
 		$trimmed_description =~ s/^\s+//;
 		$trimmed_description =~ s/\s+$//;
