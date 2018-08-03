@@ -45,7 +45,7 @@ sub new {
 			description => 'Test Plan',
 			validations => [ { name => 'product_name', version => 1 } ]
 		}],
-		Conch::Log->new(level => 'fatal'),
+		$self->app->log,
 	);
 
 	bless($self, $class);
