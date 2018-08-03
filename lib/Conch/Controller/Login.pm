@@ -114,20 +114,19 @@ sub authenticate ($c) {
 		}
 	}
 
-	my $user_id;
+	my ($user_id, $jwt, $jwt_sig);
 	if ( $c->req->headers->authorization
 		&& $c->req->headers->authorization =~ /^Bearer (.+)/ )
 	{
 		$c->log->debug('attempting to authenticate with Authorization: Bearer header...');
 		my $token = $1;
-		my $sig   = $c->cookie('jwt_sig');
-		if ($sig) {
-			$token = "$token.$sig";
+		$jwt_sig = $c->cookie('jwt_sig');
+		if ($jwt_sig) {
+			$token = "$token.$jwt_sig";
 		}
 
 		# Attempt to decode with every configured secret, in case JWT token was
 		# signed with a rotated secret
-		my $jwt;
 		for my $secret ( $c->config('secrets')->@* ) {
 			# Mojo::JWT->decode blows up if the token is invalid
 			try {
@@ -146,16 +145,8 @@ sub authenticate ($c) {
 			$c->status( 401, { error => 'unauthorized' } );
 			return 0;
 		}
-		$user_id = $jwt->{uid};
-		$c->stash( 'token_id' => $jwt->{jti} );
 
-		if ( $user_id && $sig ) {
-			$c->log->debug('setting jwt_sig in cookie');
-			$c->cookie(
-				jwt_sig => $sig,
-				{ expires => time + 3600, secure => $c->req->is_secure, httponly => 1 }
-			);
-		}
+		$user_id = $jwt->{uid};
 	}
 
 	# did we manage to authenticate the user, or find session info indicating we did so
@@ -165,6 +156,17 @@ sub authenticate ($c) {
 	if ($user_id and is_uuid($user_id)) {
 		$c->log->debug('looking up user by id ' . $user_id . '...');
 		if (my $user = $c->db_user_accounts->lookup_by_id($user_id)) {
+
+			$c->stash('token_id' => $jwt->{jti}) if $jwt;
+
+			if ($user_id and $jwt_sig) {
+				$c->log->debug('setting jwt_sig in cookie');
+				$c->cookie(
+					jwt_sig => $jwt_sig,
+					{ expires => time + 3600, secure => $c->req->is_secure, httponly => 1 }
+				);
+			}
+
 			$c->stash( user_id => $user_id );
 			$c->stash( user    => $user );
 			return 1;
