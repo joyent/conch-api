@@ -84,9 +84,8 @@ sub process ($c) {
 	}
 
 	$c->log->debug("Running validation plan ".$validation_plan->id);
-	my $validation_state = Conch::Model::ValidationState->run_validation_plan(
+	my $validation_state = $validation_plan->run_with_state(
 		$device->id,
-		$validation_plan,
 		$device_report
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
