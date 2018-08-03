@@ -6,8 +6,6 @@ use List::Compare;
 use Mojo::Log;
 use JSON::PP;
 
-use Data::Printer;
-
 has 'name'        => 'dimm_map';
 has 'version'     => 1;
 has 'category'    => 'RAM';
@@ -49,15 +47,8 @@ sub validate {
 
 	my $lc = List::Compare->new(\@expected_slots, \@populated_slots);
 
-	p @populated_slots;
-
 	my @incorrect = $lc->get_complement();
-	say "Incorrectly installed:";
-	p @incorrect;
-
 	my @missing = $lc->get_unique();
-	say "Missing:";
-	p @missing;
 
 	my $sorted_e = join(',', sort { lc($a) cmp lc($b) } @expected_slots);
 	my $sorted_p = join(',', sort { lc($a) cmp lc($b) } @populated_slots);
@@ -73,9 +64,6 @@ sub validate {
 	}
 
 	$message = "DIMM map OK" unless $error;
-
-
-	p $hint;
 
 	$self->register_result(
 		expected => $sorted_e,
