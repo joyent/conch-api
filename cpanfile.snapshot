@@ -763,6 +763,21 @@ DISTRIBUTIONS
       curry 1.000000
       namespace::clean 0.23
       perl 5.008001
+  DBIx-Class-TimeStamp-0.14
+    pathname: R/RI/RIBASUSHI/DBIx-Class-TimeStamp-0.14.tar.gz
+    provides:
+      DBIx::Class::TimeStamp 0.14
+    requirements:
+      Class::Accessor::Grouped 0
+      DBIx::Class 0.08009
+      DBIx::Class::DynamicDefault 0.03
+      DateTime 0.55
+      DateTime::Format::MySQL 0
+      DateTime::Format::SQLite 0
+      ExtUtils::MakeMaker 6.42
+      Time::HiRes 0
+      Time::Warp 0
+      perl 5.008001
   DBIx-Introspector-0.001005
     pathname: F/FR/FREW/DBIx-Introspector-0.001005.tar.gz
     provides:
@@ -1579,14 +1594,13 @@ DISTRIBUTIONS
       File::HomeDir::Windows 1.002
     requirements:
       Carp 0
-      Cwd 3
+      Cwd 3.12
       ExtUtils::MakeMaker 0
       File::Basename 0
       File::Path 2.01
-      File::Spec 3
+      File::Spec 3.12
       File::Temp 0.19
       File::Which 0.05
-      Mac::SystemDirectory 0.04
       POSIX 0
       perl 5.005003
   File-ShareDir-1.104
@@ -1748,7 +1762,6 @@ DISTRIBUTIONS
       JSON::MaybeXS 1.003010
     requirements:
       Carp 0
-      Cpanel::JSON::XS 2.3310
       ExtUtils::MakeMaker 0
       JSON::PP 2.27300
       Scalar::Util 0
@@ -2171,17 +2184,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006
-  Mac-SystemDirectory-0.10
-    pathname: E/ET/ETHER/Mac-SystemDirectory-0.10.tar.gz
-    provides:
-      Mac::SystemDirectory 0.10
-    requirements:
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      XSLoader 0
-      perl 5.006
-      strict 0
-      warnings 0
   Mail-Sendmail-0.80
     pathname: N/NE/NEILB/Mail-Sendmail-0.80.tar.gz
     provides:
