@@ -18,6 +18,7 @@ use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
 use Conch::Mail;
+use List::Util 'min';
 
 with 'Conch::Role::MojoLog';
 
@@ -31,21 +32,17 @@ Create a JWT and sets it up to be returned in the response in two parts:
 
 =cut
 
-sub _create_jwt ( $c, $user_id ) {
+sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 	my $jwt_config = $c->app->config('jwt') || {};
 
-	my $expires = time;
-	if ( $c->is_global_admin ) {
+	my $expires_abs = time + (
+		defined $expires_delta ? $expires_delta
+			# global admin default: 30 days
+	  : $c->is_global_admin ? ($jwt_config->{global_admin_expiry} || 2592000)
+			# normal default: 1 day
+	  : ($jwt_config->{normal_expiry} || 86400));
 
-		# default 1 month (30 days)
-		$expires += $jwt_config->{global_admin_expiry} || 2592000;
-	}
-	else {
-		# default 1 day
-		$expires += $jwt_config->{normal_expiry} || 86400;
-	}
-
-	my $token = $c->db_user_session_tokens->generate_for_user($user_id, $expires);
+	my $token = $c->db_user_session_tokens->generate_for_user($user_id, $expires_abs);
 
 	my $jwt = Mojo::JWT->new(
 		claims => {
@@ -53,14 +50,18 @@ sub _create_jwt ( $c, $user_id ) {
 			jti => $token
 		},
 		secret  => $c->config('secrets')->[0],
-		expires => $expires
+		expires => $expires_abs,
 	)->encode;
 
 	my ( $header, $payload, $sig ) = split /\./, $jwt;
 
 	$c->cookie(
 		jwt_sig => $sig,
-		{ expires => time + 3600, secure => $c->req->is_secure, httponly => 1 }
+		{
+			expires => min($expires_abs, time + 3600),
+			secure => $c->req->is_secure,
+			httponly => 1,
+		},
 	);
 
 	# this should be returned in the json payload under the 'jwt_token' key.
@@ -99,19 +100,26 @@ sub authenticate ($c) {
 		my $user = $c->db_user_accounts->lookup_by_name($name);
 
 		unless ($user) {
-			$c->status( 401, { error => 'unauthorized' } );
-			return 0;
+			$c->log->debug('basic auth failed: user not found');
+			return $c->status(401, { error => 'unauthorized' });
 		}
 
-		if ($user->validate_password($password)) {
-			$c->stash( user_id => $user->id );
-			$c->stash( user    => $user );
-			return 1;
+		if (not $user->validate_password($password)) {
+			$c->log->debug('basic auth failed: incorrect password');
+			return $c->status(401, { error => 'unauthorized' });
 		}
-		else {
-			$c->status( 401, { error => 'unauthorized' } );
-			return 0;
+
+		if ($user->force_password_change) {
+			$c->log->debug('basic auth failed: password correct, but force_password_change was set');
+			$c->res->headers->location($c->url_for('/user/me/password'));
+			return $c->status(401, { error => 'unauthorized' });
 		}
+
+		# pass through to whatever action the user was trying to reach
+		$c->log->debug('user ' . $user->name . ' accepted using basic auth');
+		$c->stash(user_id => $user->id);
+		$c->stash(user    => $user);
+		return 1;
 	}
 
 	my ($user_id, $jwt, $jwt_sig);
@@ -142,8 +150,8 @@ sub authenticate ($c) {
 			and $jwt->{exp} > time
 			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->count )
 		{
-			$c->status( 401, { error => 'unauthorized' } );
-			return 0;
+			$c->log->debug('JWT auth failed');
+			return $c->status(401, { error => 'unauthorized' });
 		}
 
 		$user_id = $jwt->{uid};
@@ -167,14 +175,34 @@ sub authenticate ($c) {
 				);
 			}
 
+			if ($user->refuse_session_auth) {
+				if ($user->force_password_change) {
+					if ($c->req->url ne '/user/me/password') {
+						$c->log->debug('attempt to authenticate before changing insecure password');
+
+						# ensure session and JWT expire in no more than 10 minutes
+						$c->session(expiration => 10 * 60);
+						$c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})
+							->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $jwt;
+
+						$c->res->headers->location($c->url_for('/user/me/password'));
+						return $c->status(401, { error => 'unauthorized' });
+					}
+				}
+				else {
+					$c->log->debug('user\'s tokens were revoked - they must /login again');
+					return $c->status(401, { error => 'unauthorized' });
+				}
+			}
+
 			$c->stash( user_id => $user_id );
 			$c->stash( user    => $user );
 			return 1;
 		}
 	}
 
-	$c->status( 401, { error => 'unauthorized' } );
-	return 0;
+	$c->log->debug('auth failed: no credentials provided');
+	return $c->status(401, { error => 'unauthorized' });
 }
 
 =head2 session_login
@@ -216,9 +244,35 @@ sub session_login ($c) {
 	# clear out all expired session tokens
 	$c->db_user_session_tokens->expired->delete;
 
-	$user->update({ last_login => \'NOW()' });
+	if ($user->force_password_change) {
+		$c->log->info('user ' . $user->name . ' logging in with one-time insecure password');
+		$user->update({
+			last_login => \'NOW()',
+			password => $c->random_string,	# ensure password cannot be used again
+		});
+		# password must be reset within 10 minutes
+		$c->session(expires => time + 10 * 60);
 
-	return $c->status(200, { jwt_token => $c->_create_jwt($user->id) } );
+		# we logged the user in, but he must now change his password (within 10 minutes)
+		$c->res->code(303);
+		$c->res->headers->location($c->url_for('/user/me/password'));
+		my $payload = { jwt_token => $c->_create_jwt($user->id, 10 * 60) };
+		$c->respond_to(
+			json => { json => $payload },
+			any  => { json => $payload },
+		);
+		return 0;
+	}
+
+	# allow the user to use session auth again
+	$user->update({
+		last_login => \'NOW()',
+		refuse_session_auth => 0,
+	});
+
+	return $c->status(200, {
+		jwt_token => $c->_create_jwt($user->id),
+	});
 }
 
 =head2 session_logout

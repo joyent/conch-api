@@ -738,7 +738,9 @@ CREATE TABLE public.user_account (
     created timestamp with time zone DEFAULT now() NOT NULL,
     last_login timestamp with time zone,
     email text NOT NULL,
-    deactivated timestamp with time zone
+    deactivated timestamp with time zone,
+    refuse_session_auth boolean DEFAULT false NOT NULL,
+    force_password_change boolean DEFAULT false NOT NULL
 );
 
 

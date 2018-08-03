@@ -52,6 +52,7 @@ sub revoke_user_tokens ($c) {
 
 	$c->log->debug('revoking session tokens for user ' . $user->name . ', forcing them to /login again');
 	$user->delete_related('user_session_tokens');
+	$user->update({ refuse_session_auth => 1 });
 
 	$c->status(204);
 }
@@ -206,7 +207,12 @@ sub change_own_password ($c) {
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
-	$user->update({ password => $new_password });
+	$user->update({
+		password => $new_password,
+		refuse_session_auth => 0,
+		force_password_change => 0,
+	});
+
 	$c->log->debug('updated password for user ' . $user->name . ' at their request');
 
 	return $c->status(204)
@@ -226,7 +232,8 @@ Optionally takes a query parameter 'send_password_reset_mail' (defaulting to tru
 email to the user with the new password.
 
 Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke session
-tokens for the user, forcing all their tools to log in again.
+tokens for the user, forcing all their tools to log in again. The user must also change their
+password after logging in, as they will not be able to log in with it again.
 
 =cut
 
@@ -247,8 +254,16 @@ sub reset_user_password ($c) {
 		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for for user ' . $user->name);
 		$user->delete_related('user_session_tokens');
 
-		# TODO: set a flag in the user db to signal that the session token should not be
-		# accepted?
+		$user->update({
+			# subsequent attempts to authenticate with the browser session or JWT will return
+			# 401 unauthorized, except for the /user/me/password endpoint
+			refuse_session_auth => 1,
+
+			# the next /login access will result in another password reset,
+			# a reminder to the user to change their password,
+			# and the session expiration will be reduced to 10 min
+			force_password_change => 1,
+		});
 	}
 
 	return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;

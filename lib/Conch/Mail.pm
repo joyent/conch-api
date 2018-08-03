@@ -142,7 +142,10 @@ sub changed_user_password {
 	my $template = qq{Hello,
 
     Your password at Joyent Conch has been reset. You should now log
-    into https://conch.joyent.us using the credentials below:
+    into https://conch.joyent.us using the credentials below.
+
+	WARNING!!! You will only be able to use this password once, and
+	must select a new password within 10 minutes after logging in.
 
     Username: $name
     Email:    $email
