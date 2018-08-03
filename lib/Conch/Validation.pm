@@ -393,9 +393,6 @@ validation. Returns a JSON object.
 sub hardware_product_specification ($self) {
 	$self->die( "Validation must have an expected hardware product", level => 2 )
 		unless $self->{_hardware_product};
-	$self->die( "Validation must have an expected hardware product
-specification", level => 2 )
-		unless $self->{_hardware_product}->specification;
 	return $self->{_hardware_product}->specification;
 }
 
