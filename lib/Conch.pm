@@ -96,31 +96,28 @@ sub startup {
 		status => sub {
 			my ( $c, $code, $payload ) = @_;
 
-			$c->res->code($code);
+			$payload //= { error => "Forbidden" } if $code == 403;
+			$payload //= { error => "Unimplemented" } if $code == 501;
 
-			unless ($payload) {
-				if ($code == 403) {
-					$payload = { error => "Forbidden" };
-				}
-
-				if ($code == 501) {
-					$payload = { error => "Unimplemented" };
-				}
+			if (not $payload) {
+				# no content - hopefully we set a 204 response code
+				$c->rendered($code);
+				return 0;
 			}
 
-			if($payload) {
-				if ($code == 303) {
-					$c->redirect_to( $c->url_for($payload) );
-					return $c->finish;
-				}
+			$c->res->code($code);
 
-				return $c->respond_to(
+			if ($code == 303) {
+				$c->redirect_to( $c->url_for($payload) );
+			}
+			else {
+				$c->respond_to(
 					json => { json => $payload },
 					any  => { json => $payload },
 				);
-			} else {
-				return $c->finish;
 			}
+
+			return 0;
 		}
 	);
 
