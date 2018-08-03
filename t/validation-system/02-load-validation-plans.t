@@ -2,25 +2,16 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Exception;
 use Test::ConchTmpDB qw(mk_tmp_db);
-use Conch::Pg;
-use Data::UUID;
-use DDP;
 
 use Conch::ValidationSystem;
 use Conch::Model::Device;
 use Conch::Model::Validation;
 use Conch::Model::ValidationPlan;
 
-my $uuid  = Data::UUID->new;
-my $pgtmp = mk_tmp_db();
-$pgtmp or die;
-my $pg    = Conch::Pg->new( $pgtmp->uri );
+use Test::Conch;
+my $t = Test::Conch->new();
 
-
-use Conch::Log;
-my $logger = Conch::Log->new( level => 'warn' );
-
-Conch::ValidationSystem->load_validations($logger);
+my $logger = $t->app->log;
 
 my $validation_plan_config = [
 	{
@@ -38,9 +29,10 @@ my $validation_plan_config = [
 	}
 ];
 
-my @loaded_plans =
-	Conch::ValidationSystem->load_validation_plans( $validation_plan_config,
-	$logger );
+my @loaded_plans = Conch::ValidationSystem->load_validation_plans(
+	$validation_plan_config,
+	$logger
+);
 
 is( scalar @loaded_plans, 2, '2 plans returned' );
 

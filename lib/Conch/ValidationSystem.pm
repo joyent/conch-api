@@ -59,11 +59,17 @@ sub load_validations ( $class, $logger ) {
 		my $trimmed_description = $validation->description;
 		$trimmed_description =~ s/^\s+//;
 		$trimmed_description =~ s/\s+$//;
-		$num_loaded_validations++
-			if Conch::Model::Validation->upsert(
-			$validation->name,    $validation->version,
-			$trimmed_description, $validation_module,
-			) && $logger->info("Loaded $validation_module");
+
+		my $v = Conch::Model::Validation->upsert(
+			$validation->name,
+			$validation->version,
+			$trimmed_description,
+			$validation_module,
+		);
+		if($v) {
+			$num_loaded_validations++;
+			$logger->info("Loaded $validation_module");
+		}
 	}
 	return $num_loaded_validations;
 }
