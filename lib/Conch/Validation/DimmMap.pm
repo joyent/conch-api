@@ -72,7 +72,8 @@ sub validate {
 		$message .= "Missing: " . join(', ', @missing) . "\n";
 	}
 
-	$hint    = "Expected: $sorted_e";
+	$message = "DIMM map OK" unless $error;
+
 
 	p $hint;
 
@@ -80,7 +81,7 @@ sub validate {
 		expected => $sorted_e,
 		got      => $sorted_p,
 		message  => $message,
-		hint     => $hint,
+		hint     => "Expected: $sorted_e",
 	);
 }
 
