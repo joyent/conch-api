@@ -162,16 +162,13 @@ sub authenticate ($c) {
 	# earlier (via /login)?
 	$user_id ||= $c->session('user');
 
-	unless ($user_id && is_uuid($user_id)) {
-		$c->status( 401, { error => 'unauthorized' } );
-		return 0;
-	}
-
-	$c->log->debug('looking up user by id ' . $user_id . '...');
-	if (my $user = $c->db_user_accounts->lookup_by_id($user_id)) {
-		$c->stash( user_id => $user_id );
-		$c->stash( user    => $user );
-		return 1;
+	if ($user_id and is_uuid($user_id)) {
+		$c->log->debug('looking up user by id ' . $user_id . '...');
+		if (my $user = $c->db_user_accounts->lookup_by_id($user_id)) {
+			$c->stash( user_id => $user_id );
+			$c->stash( user    => $user );
+			return 1;
+		}
 	}
 
 	$c->status( 401, { error => 'unauthorized' } );
