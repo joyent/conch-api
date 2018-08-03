@@ -141,14 +141,6 @@ subtest "build_device_validation" => sub {
 		qr/Hardware product must be defined/
 	);
 
-	throws_ok(
-		sub {
-			$validation->build_device_validation( $device, $hw_product, undef,
-				undef );
-		},
-		qr/Unable to create validation 'Conch::Validation::Test'/,
-		'The fake validation must throw an exception because it can not be created'
-	);
 
 	require Conch::Validation::DeviceProductName;
 	my $real_validation = Conch::Model::Validation->create(

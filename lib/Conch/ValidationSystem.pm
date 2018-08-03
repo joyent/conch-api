@@ -35,10 +35,7 @@ sub load_validations ( $class, $logger ) {
 		$m->require;
 
 		my $validation_module = $m->{Module};
-		unless ( $validation_module->can('new') ) {
-			$logger->info("$validation_module cannot '->new'. Skipping.");
-			next;
-		}
+
 		my $validation = $validation_module->new();
 		unless ( $validation->isa('Conch::Validation') ) {
 			$logger->info(

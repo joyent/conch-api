@@ -167,8 +167,6 @@ sub build_device_validation ( $self, $device, $hardware_product,
 		unless $hardware_product;
 
 	my $module = $self->module;
-	Mojo::Exception->throw("Unable to create validation '$module'")
-		unless $module->can('new');
 
 	my $order          = 0;
 	my $result_builder = sub {
