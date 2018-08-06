@@ -15,6 +15,7 @@ use Test::More;
 use Test::Exception;
 use Data::Printer;
 
+use Conch::Log;
 use Conch::Class::DatacenterRack;
 use Conch::Class::DeviceLocation;
 use Conch::Class::HardwareProduct;
@@ -125,10 +126,12 @@ Example:
 
 
 =cut
-
 sub test_validation {
 	my $validation_module = shift;
 	my %args              = @_;
+
+	my $log = Conch::Log->new(path => 'log/development.log');
+
 
 	use_ok($validation_module)
 		|| diag "$validation_module fails to compile" && return;
@@ -158,6 +161,7 @@ sub test_validation {
 		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,
 	);
+	$validation->log($log);
 	isa_ok( $validation, $validation_module, "$validation_module->new failed" )
 		|| return;
 

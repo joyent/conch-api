@@ -19,14 +19,16 @@ my $pgtmp = mk_tmp_db();
 $pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
+use Test::Conch;
+my $t = Test::Conch->new(pg => $pgtmp);
+my $real_validation = Conch::Model::Validation->lookup_by_name_and_version(
+	'product_name',
+	1
+);
+
 my $validation_plan =
 	Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
-
-my $real_validation = Conch::Model::Validation->create(
-	'product_name', 1,
-	'test validation',
-	'Conch::Validation::DeviceProductName'
-);
+$validation_plan->log($t->app->log);
 
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
@@ -167,6 +169,7 @@ subtest 'latest_completed_grouped_states_for_device' => sub {
 
 	my $validation_plan_1 =
 		Conch::Model::ValidationPlan->create( 'test_1', 'test validation plan' );
+	$validation_plan_1->log($t->app->log);
 	$validation_plan_1->add_validation($real_validation);
 	my $new_state =
 		$validation_plan_1->run_with_state(

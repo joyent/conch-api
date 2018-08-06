@@ -19,6 +19,13 @@ my $pgtmp = mk_tmp_db();
 $pgtmp or die;
 my $pg = Conch::Pg->new( $pgtmp->uri );
 
+use Test::Conch;
+my $t = Test::Conch->new(pg => $pgtmp);
+my $real_validation = Conch::Model::Validation->lookup_by_name_and_version(
+	'product_name',
+	1
+);
+
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
 	{ name      => 'test vendor' },
@@ -62,12 +69,6 @@ my $hardware_profile_id = $pg->db->insert(
 )->hash->{id};
 
 my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
-
-my $real_validation = Conch::Model::Validation->create(
-	'product_name', 1,
-	'test validation',
-	'Conch::Validation::DeviceProductName'
-);
 
 
 my $validation_plan;
@@ -132,6 +133,7 @@ subtest "associated validation" => sub {
 };
 
 subtest "run validation plan" => sub {
+	$validation_plan->log($t->app->log);
 	throws_ok(
 		sub {
 			$validation_plan->run_with_state(
