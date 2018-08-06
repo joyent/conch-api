@@ -175,7 +175,6 @@ sub startup {
 		length => 30
 	});
 
-	$self->plugin('Conch::Plugin::Mail');
 	$self->plugin('Conch::Plugin::GitVersion');
 	$self->plugin(NYTProf => $self->config);
 	$self->plugin('Conch::Plugin::JsonValidator');
