@@ -28,24 +28,10 @@ Create new Validation Plan.
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	# FIXME why is this not using the plugin?
-	my $create_schema = JSON::Validator->new->schema(
-		{
-			type     => 'object',
-			required => [ 'name', 'description' ],
-			properties =>
-				{ name => { type => 'string' }, description => { type => 'string' } }
-		}
-	);
-
-	my $body   = $c->req->json;
-	my @errors = $create_schema->validate($body);
-	if(@errors) {
+	my $body = $c->validate_input("CreateValidationPlan");
+	if(not $body) {
 		$c->log->warn("Input failed validation");
-		return $c->status( 400 => {
-			error => "Errors in request body",
-			source => \@errors,
-		});
+		return;
 	}
 
 	my $existing_validation_plan =
