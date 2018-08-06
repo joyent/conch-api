@@ -229,14 +229,6 @@ sub _test_case {
 			. _results_to_string( $validation->failures ) );
 }
 
-sub _pretty_err {
-	my ($err) = @_;
-	my $frame = $@->frames->[0];
-	my $error_loc =
-		$frame->[1] . ':' . $frame->[2] . " (calling " . $frame->[3] . ')';
-	return "'$err' at $error_loc";
-}
-
 # Format the list of validation reusults into a single string, indented and
 # with an incrementing list. Example output:
 #
