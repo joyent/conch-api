@@ -296,3 +296,13 @@ definitions:
         type: string
       description:
         type: string
+  AddValidationToPlan:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        format: uuid
+

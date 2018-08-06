@@ -133,25 +133,10 @@ List all Validations associated with the Validation Plan
 
 sub add_validation ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-
-	# FIXME why is this not using the plugin?
-	my $add_schema = JSON::Validator->new->schema(
-		{
-			type       => 'object',
-			required   => ['id'],
-			properties => { id => { type => 'string' } }
-		}
-	);
-
-	my $body   = $c->req->json;
-	my @errors = $add_schema->validate($body);
-
-	if(@errors) {
+	my $body = $c->validate_input("AddValidationToPlan");
+	if(not $body) {
 		$c->log->warn("Input failed validation");
-		return $c->status( 400 => {
-			error  => "Errors in request body",
-			source => \@errors
-		});
+		return;
 	}
 
 	my $maybe_validation = Conch::Model::Validation->lookup( $body->{id} );
