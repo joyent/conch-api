@@ -72,7 +72,7 @@ C<validation_plan>.
 =cut
 
 sub under ($c) {
-	my $vp_id = $c->param('id');
+	my $vp_id = $c->stash('id');
 	unless ( is_uuid($vp_id) ) {
 		$c->log->warn("ID is not a UUID");
 		$c->status( 400, {
@@ -165,7 +165,7 @@ Remove a Validation associated with the Validation Plan
 sub remove_validation ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $v_id = $c->param('validation_id');
+	my $v_id = $c->stash('validation_id');
 	unless ( is_uuid($v_id) ) {
 		$c->log->warn("ID is not a UUID");
 		return $c->status( 400 => {
