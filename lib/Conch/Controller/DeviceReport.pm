@@ -74,6 +74,7 @@ sub process ($c) {
 	$c->log->debug("Attempting to validation with plan '$validation_name'");
 
 	my $validation_plan = Conch::Model::ValidationPlan->lookup_by_name($validation_name);
+	$validation_plan->log($c->log);
 
 	# [2018-07-16 sungo] - As we grow this logic to be smarter and more
 	# interesting, it will probably be ok to not find a validation plan. For

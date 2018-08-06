@@ -20,6 +20,9 @@ use Conch::Model::ValidationResult;
 my $attrs = [qw( id name version description module created updated)];
 has $attrs;
 
+use Conch::Log;
+has 'log' => sub { return Conch::Log->new };
+
 =head2 new
 
 Create a new Validation.
@@ -215,6 +218,8 @@ sub run_validation_for_device ( $self, $device, $data ) {
 	my $validation =
 		$self->build_device_validation( $device, $hw_product, $location,
 		$settings );
+
+	$validation->log($self->log);
 	$validation->run($data);
 	return $validation->validation_results;
 }

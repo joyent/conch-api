@@ -112,6 +112,8 @@ sub validate ($c) {
 		});
 	}
 
+	$validation->log($c->log);
+
 	my $data = $c->req->json;
 	my $validation_results = $validation->run_validation_for_device(
 		$device,
@@ -144,6 +146,8 @@ sub run_validation_plan ($c) {
 			error => "Validation Plan '$plan_id' not found"
 		});
 	}
+
+	$validation_plan->log($c->log);
 
 	my $data = $c->req->json;
 	my $results = $validation_plan->run_validations( $device, $data );
