@@ -15,6 +15,9 @@ use Conch::Pg;
 my $attrs = [qw( id name description created )];
 has $attrs;
 
+use Conch::Log;
+has 'log' => sub { return Conch::Log->new() };
+
 =head2 TO_JSON
 
 Render as a hashref for output
@@ -196,9 +199,14 @@ sub run_validations ( $self, $device, $data ) {
 
 	my @results;
 	for my $validation ( $self->validations->@* ) {
-		my $validator =
-			$validation->build_device_validation( $device, $hw_product, $location,
-			$settings );
+		my $validator = $validation->build_device_validation(
+			$device,
+			$hw_product,
+			$location,
+			$settings
+		);
+		$validator->log($self->log);
+
 		$validator->run($data);
 		push @results, $validator->validation_results->@*;
 	}
