@@ -403,7 +403,9 @@ subtest 'Validations' => sub {
 
 	$t->post_ok( "/validation_plan",
 		json => { name => 'test_plan', description => 'test plan' } )
-		->status_is(201);
+		->status_is(303);
+
+	$t->get_ok($t->tx->res->headers->location)->status_is(200);
 
 	my $validation_plan_id = $t->tx->res->json->{id};
 

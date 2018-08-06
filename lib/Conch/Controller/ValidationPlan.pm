@@ -49,8 +49,7 @@ sub create ($c) {
 
 	$c->log->debug("Created validation plan ".$validation_plan->id);
 
-	# FIXME why is this not using the same redirect methodology as the rest of the api?
-	$c->status( 201, $validation_plan );
+	$c->status(303 => "/validation_plan/".$validation_plan->id);
 }
 
 =head2 list
