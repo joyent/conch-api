@@ -15,9 +15,8 @@ test_validation(
 
 	cases => [
 		{
-			description => 'No Data',
+			description => 'No Data yields no success',
 			data        => {},
-			dies        => 1
 		},
 		{
 			description =>
@@ -137,7 +136,7 @@ test_validation(
 
 	cases => [
 		{
-			description => 'Dies if rack unit not in slots',
+			description => 'Fails if rack unit not in slots',
 			data        => {
 				interfaces => {
 					eth0 => {
@@ -158,7 +157,7 @@ test_validation(
 					}
 				}
 			},
-			dies => 1
+			success_num => 0,
 		},
 	]
 );
@@ -177,9 +176,8 @@ test_validation(
 
 	cases => [
 		{
-			description => 'No Data',
+			description => 'No Data yields no success',
 			data        => {},
-			dies        => 1
 		},
 		{
 			description =>

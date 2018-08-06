@@ -78,6 +78,7 @@ package Conch::Validation;
 
 use Mojo::Base -base, -signatures;
 use Mojo::Exception;
+use Mojo::JSON;
 use JSON::Validator;
 use Try::Tiny;
 
@@ -169,48 +170,34 @@ Run the Validation with the specified input data.
 
 sub run ( $self, $data ) {
 
-	try { $self->run_unsafe($data) }
+	try {
+		$self->check_against_schema($data);
+		$self->validate($data);
+	}
 	catch {
+		my $err = $_;
+		# FIXME wat
+		if ( not $err->isa('Conch::ValidationError') ) {
+			# remove the 'at $filename line $line_number' from the exception
+			# message. We might not want to reveal Conch's path
+			$err =~ s/ at .+$//;
+			$err = Conch::ValidationError->new($err)->trace(1);
+		}
+
+		$self->log->error("Validation '".$self->name."' threw an exception: ".$err->message);
+		$self->log->debug("Bad data: ". Mojo::JSON::to_json($data));
+
+
 		my $validation_error = $self->{_validation_result_builder}->(
-			message  => $_->message,
+			message  => $err->message,
 			name     => $self->name,
 			status   => STATUS_ERROR,
-			hint     => $_->hint || $_->error_loc,
+			hint     => $err->hint || $err->error_loc,
 			category => $self->category,
 		);
 		push $self->validation_results->@*, $validation_error;
 	};
 	return $self;
-}
-
-=head2 run_unsafe
-
-Run the Validation with the specified input data. Re-throws any exception raised
-during execution as L<Mojo::Exception>
-
-	eval {
-		$validation->run_unsafe($validation_data)
-	};
-	say $@->frames if $@;
-
-=cut
-
-sub run_unsafe ( $self, $data ) {
-	local $SIG{__DIE__} = sub {
-		my $err = shift;
-		if ( $err->isa('Conch::ValidationError') ) {
-			return $err;
-		}
-		else {
-			# remove the 'at $filename line $line_number' from the exception
-			# message. We might not want to reveal Conch's path
-			$err =~ s/ at .+$//;
-			$self->die( $err, level => 2 );
-		}
-	};
-
-	$self->check_against_schema($data);
-	$self->validate($data);
 }
 
 =head2 check_against_schema
@@ -623,7 +610,6 @@ attributes 'level' and 'hint' may be specified.
 =cut
 
 sub die ( $self, $message, %args ) {
-
 	die Conch::ValidationError->new($message)->hint( $args{hint} )
 		->trace( $args{level} || 1 );
 }

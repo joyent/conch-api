@@ -10,12 +10,11 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No Data',
+			description => 'No Data yields no success',
 			data        => {},
-			dies        => 1
 		},
 		{
-			description => 'No interfaces',
+			description => 'No interfaces yields failure',
 			data        => {
 				interfaces => {}
 			},

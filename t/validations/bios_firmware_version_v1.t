@@ -11,14 +11,12 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No data dies',
+			description => 'No data yields no sucesses',
 			data        => {},
-			dies        => 1,
 		},
 		{
 			description => 'bios_version should be string',
 			data        => { bios_version => ['foobar'] },
-			dies        => 1
 		},
 		{
 			description => "bios_version doesn't match hw product definition",

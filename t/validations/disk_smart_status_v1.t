@@ -10,16 +10,14 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No Data',
+			description => 'No Data yields no success',
 			data        => {},
-			dies        => 1
 		},
 		{
-			description => 'No disks',
+			description => 'No disks yields no success',
 			data        => {
 				disks => {}
 			},
-			dies => 1,
 		},
 		{
 			description => 'Disk with OK SMART',

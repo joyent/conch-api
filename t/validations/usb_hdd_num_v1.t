@@ -11,9 +11,8 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No Data',
+			description => 'No Data yields no success',
 			data        => {},
-			dies        => 1
 		},
 		{
 			description => 'No usb num in profile assume 0',

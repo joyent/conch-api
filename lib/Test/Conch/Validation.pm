@@ -40,12 +40,6 @@ Test whether the validation builds.
 Tests whether the validations defines the required C<name>, C<version>,
 and C<description> attributes.
 
-=item
-
-For each case, test whether the validation dies if C<< dies => 1 >> is specified in
-the case, or lives and produces the expected number of successful and failing
-validation results.
-
 =back
 
 The required arguments are the Conch Validation module as a string, keyword
@@ -91,12 +85,6 @@ A test case is specified with a hashref with the attributes:
 
 A hashref of the input data provide to the Validation. An empty hashref will be provided by default.
 
-=item C<dies>
-
-A boolean attribute (0 or 1) to mark that this test case is expected to die
-during validation. A validatino may die due to schema errors, C<< $self->die >>
-or C<die> called in the Validation logic, or other code errors.  Defaults to 0.
-
 =item C<success_num>
 
 The number of expected successful validation results from running the
@@ -127,7 +115,6 @@ Example:
 		cases => [
 			{
 				data        => { hello => 'world' },
-				dies        => 1,
 				success_num => 3,
 				failure_num => 3,
 				description => 'Hello world test case',
@@ -152,6 +139,7 @@ sub test_validation {
 	my $hw_product_profile = Conch::Class::HardwareProductProfile->new(
 		$args{hardware_product}->{profile}->%* )
 		if $args{hardware_product} && $args{hardware_product}->{profile};
+
 	my $hw_product =
 		Conch::Class::HardwareProduct->new( $args{hardware_product}->%*,
 		profile => $hw_product_profile );
@@ -159,6 +147,7 @@ sub test_validation {
 	my $rack = Conch::Class::DatacenterRack->new(
 		$args{device_location}->{datacenter_rack}->%* )
 		if $args{device_location} && $args{device_location}->{datacenter_rack};
+
 	my $device_location =
 		Conch::Class::DeviceLocation->new( $args{device_location}->%*,
 		datacenter_rack => $rack );
@@ -172,14 +161,25 @@ sub test_validation {
 	isa_ok( $validation, $validation_module, "$validation_module->new failed" )
 		|| return;
 
-	ok( defined( $validation->name ),
-		"'name' attribute must be defined for $validation_module" );
-	ok( defined( $validation->version ),
-		"'version' attribute must be defined for $validation_module" );
-	ok( defined( $validation->category ),
-		"'category' attribute should be defined for $validation_module" );
-	ok( defined( $validation->description ),
-		"'description' attribute should be defined for $validation_module" );
+	ok(
+		defined( $validation->name ),
+		"'name' attribute must be defined for $validation_module"
+	);
+
+	ok(
+		defined( $validation->version ),
+		"'version' attribute must be defined for $validation_module"
+	);
+
+	ok(
+		defined( $validation->category ),
+		"'category' attribute should be defined for $validation_module"
+	);
+
+	ok(
+		defined( $validation->description ),
+		"'description' attribute should be defined for $validation_module"
+	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
 		_test_case( $validation, $validation_module, $args{cases}, $case_index );
@@ -193,8 +193,7 @@ sub _test_case {
 	my $debug = $case->{debug};
 
 	my $msg_prefix = 'Case #' . ( $case_index + 1 );
-	$msg_prefix .=
-		$case->{description} ? ' [' . $case->{description} . ']:' : ':';
+	$msg_prefix .= $case->{description} ? ' [' . $case->{description} . ']:' : ':';
 
 	if ($debug) {
 		my $pretty_data = substr( np($data), 2 );
@@ -203,23 +202,7 @@ sub _test_case {
 
 	$validation->clear_results;
 
-	if ( $case->{dies} ) {
-		dies_ok( sub { $validation->run_unsafe($data) },
-			"$msg_prefix Was expecting $validation_module " . "to die." );
-		if ( $debug && $@ ) {
-			my $err_msg = _pretty_err($@);
-			diag("$msg_prefix Exception: $err_msg");
-		}
-	}
-	else {
-
-		lives_ok( sub { $validation->run_unsafe($data) },
-			"$msg_prefix Was expecting $validation_module to not die." );
-		if ( $debug && $@ ) {
-			my $err_msg = _pretty_err($@);
-			diag("$msg_prefix Exception: $err_msg");
-		}
-	}
+	$validation->run($data);
 
 	if ($debug) {
 		diag( "$msg_prefix Successful results:\n"
