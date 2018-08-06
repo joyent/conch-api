@@ -17,6 +17,7 @@ use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
+use Conch::Mail;
 
 with 'Conch::Role::MojoLog';
 
@@ -268,7 +269,8 @@ sub reset_password ($c) {
 				my $pw = $c->random_string();
 				$user->update({ password => $pw });
 
-				$c->mail->send_password_reset_email(
+				$c->log->info('sending password reset mail to user ' . $user->name);
+				Conch::Mail::password_reset_email(
 					{
 						email    => $user->email,
 						password => $pw,
