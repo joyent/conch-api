@@ -20,9 +20,6 @@ use Sys::Hostname;
 
 sub register ($self, $app, $conf) {
 
-	my %features = $app->config('features') ?
-		$app->config('features')->%* : () ;
-
 	my $home = $app->home;
 	my $mode = $app->mode;
 	my $log_dir = $home->child('log');
@@ -46,7 +43,7 @@ sub register ($self, $app, $conf) {
 		level      => 'debug',
     ));
 
-	if($features{rollbar}) {
+	if ($app->feature('rollbar')) {
 		$app->hook(
 			before_render => sub {
 				my ( $c, $args ) = @_;
@@ -114,7 +111,7 @@ sub register ($self, $app, $conf) {
 			}
 		}
 
-		if ($features{'audit'}) {
+		if ($app->feature('audit')) {
 			$log->{req}->{body} = $c->req->body;
 			unless ($c->req->url =~ /login/) {
 				$log->{res}->{body} = $c->res->body;

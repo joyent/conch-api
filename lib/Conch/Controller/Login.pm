@@ -236,8 +236,7 @@ sub session_login ($c) {
 	$c->stash(user_id => $user->id);
 	$c->stash(user => $user);
 
-	my $feature_flags = $c->app->config('feature') || {};
-	unless ( $feature_flags->{stop_conch_cookie_issue} ) {
+	unless ($c->feature('stop_conch_cookie_issue')) {
 		$c->session( 'user' => $user->id );
 	}
 

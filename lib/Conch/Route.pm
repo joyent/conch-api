@@ -38,7 +38,6 @@ Set up the full route structure
 
 sub all_routes {
 	my $root = shift;	# this is the base routing object
-	my $features = shift || {};
 
 	# provides a route to chain to that first checks the user is a global admin.
 	$root->add_shortcut(require_global_admin => sub {
