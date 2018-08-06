@@ -17,6 +17,7 @@ use Mojo::Exception;
 use Conch::UUID qw( is_uuid );
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
+use Conch::Mail;
 
 with 'Conch::Role::MojoLog';
 
@@ -251,7 +252,8 @@ sub reset_user_password ($c) {
 
 	return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
 
-	$c->send_changed_user_password({ email => $user->email, password => $new_password });
+	$c->log->info('sending "password was changed" mail to user ' . $user->name);
+	Conch::Mail::changed_user_password({ email => $user->email, password => $new_password });
 	return $c->status(202);
 }
 
@@ -301,7 +303,8 @@ sub create ($c) {
 	$c->log->info('created user: ' . $user->name . ', email: ' . $user->email . ', id: ' . $user->id);
 
 	if ($c->req->query_params->param('send_invite_mail') // 1) {
-		$c->send_welcome_new_user({
+		$c->log->info('sending "welcome new user" mail to user ' . $user->name);
+		Conch::Mail::welcome_new_user({
 			(map { $_ => $user->$_ } qw(name email)),
 			password => $password,
 		});
