@@ -10,16 +10,10 @@ Validate the reported BIOS firmware version matches the hardware product
 profile
 );
 
-has schema => sub {
-	{
-		bios_version => {
-			type => 'string',
-		}
-	};
-};
-
 sub validate {
 	my ( $self, $data ) = @_;
+
+	$self->die("Missing 'bios_version'") unless $data->{bios_version};
 
 	my $hw_profile = $self->hardware_product_profile;
 

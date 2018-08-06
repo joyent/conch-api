@@ -9,20 +9,16 @@ has 'description' => q(
 Validate the reported number of CPUs match the hardware product profile
 );
 
-has schema => sub {
-	{
-		processor => {
-			type       => 'object',
-			properties => {
-				required => ['count'],
-				count    => { type => 'integer' }
-			}
-		}
-	};
-};
-
 sub validate {
 	my ( $self, $data ) = @_;
+
+	unless(
+		$data->{processor} 
+		and ref $data->{processor} eq 'HASH'
+		and $data->{processor}->{count}
+	){
+		$self->die("Missing processor.count")
+	}
 
 	my $hw_profile = $self->hardware_product_profile;
 

@@ -9,17 +9,13 @@ has description => q(
 Valdidate reported product name matches product name expected in rack layout
 );
 
-has schema => sub {
-	{
-		product_name => {
-			type => 'string'
-		}
-	}
-
-};
 
 sub validate {
 	my ( $self, $data ) = @_;
+
+	unless($data->{product_name}) {
+		$self->die("Missing 'product_name' property");
+	}
 
 	# We do not currently define a Conch or Joyent specific name for
 	# switches. This may change in the future, but currently we continue

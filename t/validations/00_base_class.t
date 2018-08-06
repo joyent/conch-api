@@ -182,32 +182,4 @@ subtest '->register_result' => sub {
 	);
 };
 
-subtest '->check_against_schema' => sub {
-	my $base_validation = Conch::Validation->new;
-
-	lives_ok { $base_validation->check_against_schema( { foo => 'bar' } ) }
-	'Always passes if no schema is defined';
-
-	$base_validation->schema( { foo => { type => 'string' } } );
-	lives_ok { $base_validation->check_against_schema( { foo => 'bar' } ) }
-	'Passes when matches schema';
-
-	$base_validation->schema( { foo => { type => 'string' } } );
-	throws_ok { $base_validation->check_against_schema( { foo => ['bar'] } ); }
-	qr/foo: Expected string - got array./;
-
-	$base_validation->schema(
-		{ required => ['foo'], foo => { type => 'string' } } );
-	throws_ok { $base_validation->check_against_schema( {} ); }
-	qr'/foo: Missing property';
-
-	$base_validation->schema(
-		{ foo => { type => 'string' }, bar => { type => 'number' } } );
-	throws_ok {
-		$base_validation->check_against_schema( { foo => ['a'], bar => 'hello' } );
-	}
-	qr'/bar: Expected number - got string. /foo: Expected string - got array.';
-
-};
-
 done_testing();
