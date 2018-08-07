@@ -26,6 +26,9 @@ Override with your own Test::PostgreSQL object if you want to use a custom datab
 with extra settings or loaded with additional data.  Defaults to the basic database created by
 L<Test::ConchTmpDB/mk_tmp_db>.
 
+This is the attribute to copy if you want multiple Test::Conch objects to be able to talk to
+the same database.
+
 =cut
 
 has 'pg';   # this is generally a Test::PostgreSQL object
