@@ -35,6 +35,7 @@ my $conch_user = $t->schema->resultset('UserAccount')->find({ name => 'conch' })
 ok($conch_user->last_login >= $now, 'user last_login is updated')
 	or diag('last_login not updated: ' . $conch_user->last_login . ' is not updated to ' . $now);
 
+
 subtest 'User' => sub {
 	$t->get_ok("/me")->status_is(204)->content_is("");
 	$t->get_ok("/user/me/settings")->status_is(200)->json_is( '', {} );
@@ -421,7 +422,7 @@ subtest 'JWT authentication' => sub {
 	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token" } )
 		->status_is( 200,
 		"user can provide JWT token with cookie to authenticate" );
-	$t->reset_session;
+	$t->reset_session;	# force JWT to be used to authenticate
 	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token.$jwt_sig" } )
 		->status_is( 200,
 		"user can provide Authentication header with full JWT to authenticate" );
@@ -541,29 +542,55 @@ subtest 'modify another user' => sub {
 		->json_is('/user/name' => 'foo', 'got user name')
 		->json_is('/user/deactivated' => undef, 'got user deactivated date');
 
-	my $t2 = Test::Conch->new;
+	my $t2 = Test::Conch->new(pg => $t->pg);
 	$t2->post_ok(
 		'/login' => json => {
 			user     => 'foo',
 			password => '123'
 		})
 		->status_is(200, 'new user can log in');
+	my $jwt_token = $t2->tx->res->json->{jwt_token};
+	my $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
+
 	$t2->get_ok('/me')->status_is(204);
+
+	my $t3 = Test::Conch->new(pg => $t->pg);	# we will only use this $mojo for basic auth
+	$t3->get_ok($t3->ua->server->url->userinfo('foo:123')->path('/me'))
+		->status_is(204, 'user can also use the app with basic auth');
 
 	$t->post_ok("/user/$new_user_id/revoke")
 		->status_is(204, 'revoked all tokens for the new user');
 
-	$t2->reset_session;
-	$t2->get_ok('/me')->status_is(401, 'new user can no longer log in')
+	$t2->get_ok('/me')->status_is(401, 'new user cannot authenticate with persistent session after session is cleared')
 		->json_is({ error => 'unauthorized' });
+
+	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(401, 'new user cannot authenticate with JWT after tokens are revoked')
+		->json_is({ error => 'unauthorized' });
+
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => '123'
+		})
+		->status_is(200, 'new user can still log in again');
+	$jwt_token = $t2->tx->res->json->{jwt_token};
+	$jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
+
+	$t2->get_ok('/me')->status_is(204, 'session token re-established');
+
+	$t2->reset_session;	# force JWT to be used to authenticate
+	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(204, 'new JWT established');
+
 
 	# in order to get the user's new password, we need to extract it from a method call before
 	# we forget it -- so we pull it out of the call to UserAccount->update.
 	my $orig_update = \&Conch::DB::Result::UserAccount::update;
-	my $new_password;
+	my $_new_password;
 	no warnings 'redefine';
 	local *Conch::DB::Result::UserAccount::update = sub {
-		$new_password = $_[1]->{password};
+		$_new_password = $_[1]->{password} if exists $_[1]->{password};
 		$orig_update->(@_);
 	};
 
@@ -579,8 +606,17 @@ subtest 'modify another user' => sub {
 	$t->delete_ok(
 		'/user/email=FOO@CONCH.JOYENT.US/password?send_password_reset_mail=0')
 		->status_is(204, 'reset the new user\'s password again, using (case insensitive) email lookup');
+	my $insecure_password = $_new_password;
 
-	$t2->reset_session;
+	$t2->get_ok('/me')
+		->status_is(401, 'user can no longer use his saved session after his password is changed')
+		->json_is({ error => 'unauthorized' });
+
+	$t2->reset_session;	# force JWT to be used to authenticate
+	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(401, 'user cannot authenticate with JWT after his password is changed')
+		->json_is({ error => 'unauthorized' });
+
 	$t2->post_ok(
 		'/login' => json => {
 			user     => 'foo',
@@ -589,14 +625,71 @@ subtest 'modify another user' => sub {
 		->status_is(401, 'cannot log in with the old password')
 		->json_is({ 'error' => 'unauthorized' });
 
+	$t3->get_ok($t3->ua->server->url->userinfo('foo:' . $insecure_password)->path('/me'))
+		->status_is(401, 'user cannot use new password with basic auth')
+		->location_is('/user/me/password')
+		->json_is({ error => 'unauthorized' });
+
 	$t2->post_ok(
 		'/login' => json => {
 			user     => 'foo',
-			password => $new_password,
+			password => $insecure_password,
 		})
-		->status_is(200, 'user can log in with new password');
+		->status_is(303, 'user can log in with new password')
+		->location_is('/user/me/password');
+	$jwt_token = $t2->tx->res->json->{jwt_token};
+	$jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
+	cmp_ok($t2->tx->res->cookie('jwt_sig')->expires, '<', time + 11 * 60, 'JWT expires in 10 minutes');
 
-	$t2->get_ok('/me')->status_is(204);
+	$t2->get_ok('/me')
+		->status_is(401, 'user can\'t use his session to do anything else')
+		->location_is('/user/me/password')
+		->json_is({ error => 'unauthorized' });
+
+	$t2->reset_session;	# force JWT to be used to authenticate
+	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(401, 'user can\'t use his JWT to do anything else')
+		->location_is('/user/me/password')
+		->json_is({ error => 'unauthorized' });
+
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => $insecure_password,
+		})
+		->status_is(401, 'user cannot log in with the same insecure password again')
+		->json_is({ error => 'unauthorized' });
+
+	$t2->post_ok(
+		'/user/me/password' => { Authorization => "Bearer $jwt_token.$jwt_sig" }
+			=> json => { password => 'a more secure password' })
+		->status_is(204, 'user finally acquiesced and changed his password');
+
+	my $secure_password = $_new_password;
+	is($secure_password, 'a more secure password', 'provided password was saved to the db');
+
+	$t2->post_ok(
+		'/login' => json => {
+			user     => 'foo',
+			password => $secure_password,
+		})
+		->status_is(200, 'user can log in with new password')
+		->json_has('/jwt_token')
+		->json_hasnt('/message');
+	$jwt_token = $t2->tx->res->json->{jwt_token};
+	$jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
+
+	$t2->get_ok('/me')
+		->status_is(204, 'user can use his saved session again after changing his password');
+	is($t2->tx->res->body, '', '...with no extra response messages');
+
+	$t2->reset_session;	# force JWT to be used to authenticate
+	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(204, 'user authenticate with JWT again after his password is changed');
+	is($t2->tx->res->body, '', '...with no extra response messages');
+
+	$t3->get_ok($t3->ua->server->url->userinfo('foo:' . $secure_password)->path('/me'))
+		->status_is(204, 'after user fixes his password, he can use basic auth again');
 
 
 	$t->delete_ok("/user/foobar")
@@ -611,11 +704,11 @@ subtest 'modify another user' => sub {
 		->status_is(401, 'user cannot log in with saved browser session')
 		->json_is({ 'error' => 'unauthorized' });
 
-	$t2->reset_session;
+	$t2->reset_session;	# force JWT to be used to authenticate
 	$t2->post_ok(
 		'/login' => json => {
 			user     => 'foo',
-			password => $new_password,
+			password => $secure_password,
 		})
 		->status_is(401, 'user can no longer log in with credentials')
 		->json_is({ 'error' => 'unauthorized' });

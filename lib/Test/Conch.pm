@@ -90,6 +90,19 @@ sub new {
     return $self;
 }
 
+=head2 location_is
+
+Stolen from Test::Mojo's examples. I don't know why this isn't just part of the interface!
+
+=cut
+
+sub location_is {
+    my ($t, $value, $desc) = @_;
+    $desc ||= "Location: $value";
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    return $t->success(Test::More->builder->is_eq($t->tx->res->headers->location, $value, $desc));
+}
+
 =head2 json_schema_is
 
 Adds a method 'json_schema_is` to validate the JSON response of

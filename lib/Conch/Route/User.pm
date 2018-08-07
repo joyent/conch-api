@@ -14,11 +14,9 @@ use Mojo::Base -strict;
 use Exporter 'import';
 our @EXPORT_OK = qw(user_routes);
 
-use DDP;
-
 =head2 user_routes
 
-Sets up routes for the /user namespace
+Sets up routes for /user:
 
     POST    /user/me/revoke
     GET     /user/me/settings
@@ -45,23 +43,30 @@ sub user_routes {
         # all these routes are under /user/
         my $user_me = $user->any('/me');
 
+        # POST /user/me/revoke
         $user_me->post('/revoke')->to('#revoke_own_tokens');
 
         {
             my $user_me_settings = $user_me->any('/settings');
 
+            # GET /user/me/settings
             $user_me_settings->get->to('#get_settings');
+            # POST /user/me/settings
             $user_me_settings->post->to('#set_settings');
 
             # 'key' is extracted into the stash
             my $user_me_settings_with_key = $user_me_settings->any('/#key');
 
+            # GET /user/me/settings/#key
             $user_me_settings_with_key->get->to('#get_setting');
+            # POST /user/me/settings/#key
             $user_me_settings_with_key->post->to('#set_setting');
+            # DELETE /user/me/settings/#key
             $user_me_settings_with_key->delete->to('#delete_setting');
         }
 
         # after changing password, (possibly) pass through to logging out too
+        # POST /user/me/password
         $user_me->post('/password')->to('#change_own_password')
             ->under->any->to('login#session_logout');
     }
@@ -71,10 +76,13 @@ sub user_routes {
         # target_user could be a user id or email
         my $user_with_target = $user->require_global_admin->any('/#target_user');
 
+        # POST /user/#target_user/revoke
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
+        # DELETE /user/#target_user/password
         $user_with_target->delete('/password')->to('#reset_user_password');
-
+        # POST /user
         $user->require_global_admin->post('/')->to('#create');
+        # DELETE /user/#target_user
         $user_with_target->delete('/')->to('#deactivate');
     }
 }

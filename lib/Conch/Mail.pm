@@ -17,13 +17,6 @@ use Mail::Sendmail;
 use Data::Printer;
 use Log::Any '$log';
 
-use Exporter 'import';
-our @EXPORT_OK = qw(
-	send_mail_with_template
-	new_user_invite
-	password_reset_email
-);
-
 =head2 send_mail_with_template
 
 Simple email sender.
@@ -32,6 +25,8 @@ Simple email sender.
 
 sub send_mail_with_template {
 	my ($content, $mail_args) = @_;
+
+	# TODO: we should use Mojo::IOLoop->subprocess to send these.
 
 	# TODO: make use of Mojo::Template for more sophisticated content munging.
 
@@ -83,42 +78,6 @@ sub new_user_invite {
 		&& $log->info("New user invite successfully sent to $email.");
 }
 
-=head2 password_reset_email
-
-Template for reseting a existing user's password
-
-=cut
-
-sub password_reset_email {
-	my ($args)   = @_;
-	my $email    = $args->{email};
-	my $password = $args->{password};
-
-	my $headers = {
-		To      => $email,
-		From    => 'noreply@conch.joyent.us',
-		Subject => "Conch Password Reset",
-	};
-
-	my $template = qq{Hello,
-
-    A request was received to reset your password.  A new password has been
-    randomly generated and your old password has been deactivated.
-
-    Please log into https://conch.joyent.us using the following credentials:
-
-    Username: $email
-    Password: $password
-
-
-    Thank you,
-    Joyent Build Ops Team
-    };
-
-	send_mail_with_template($template, $headers)
-		&& $log->info("Existing user invite successfully sent to $email.");
-}
-
 =head2 changed_user_password
 
 Send mail when resetting an existing user's password
@@ -142,7 +101,10 @@ sub changed_user_password {
 	my $template = qq{Hello,
 
     Your password at Joyent Conch has been reset. You should now log
-    into https://conch.joyent.us using the credentials below:
+    into https://conch.joyent.us using the credentials below.
+
+	WARNING!!! You will only be able to use this password once, and
+	must select a new password within 10 minutes after logging in.
 
     Username: $name
     Email:    $email

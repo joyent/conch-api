@@ -76,6 +76,18 @@ __PACKAGE__->table("user_account");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 refuse_session_auth
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
+=head2 force_password_change
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -103,6 +115,10 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "refuse_session_auth",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "force_password_change",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -206,8 +222,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-01 14:34:45
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+qcKfZJc/oa3IWDNp/Q08A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-03 10:49:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H1YZWElkgjg1bvGLKrka5w
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 
