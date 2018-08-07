@@ -17,7 +17,6 @@ use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
-use Conch::Mail;
 use List::Util 'min';
 
 with 'Conch::Role::MojoLog';
