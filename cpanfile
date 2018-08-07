@@ -59,9 +59,6 @@ requires 'Config::General';
 requires 'Lingua::EN::Inflexion';
 
 # logging
-requires 'Log::Any';
-requires 'Log::Any::Adapter::Log4perl';
-requires 'Log::Any::Adapter::Screen';
 requires 'Log::Log4perl';
 requires 'Log::Log4perl::Layout::JSON';
 requires 'Log::Report';

@@ -1896,67 +1896,6 @@ DISTRIBUTIONS
       IPC::Cmd 0
       XSLoader 0.22
       base 0
-  Log-Any-1.706
-    pathname: P/PR/PREACTION/Log-Any-1.706.tar.gz
-    provides:
-      Log::Any 1.706
-      Log::Any::Adapter 1.706
-      Log::Any::Adapter::Base 1.706
-      Log::Any::Adapter::File 1.706
-      Log::Any::Adapter::Null 1.706
-      Log::Any::Adapter::Stderr 1.706
-      Log::Any::Adapter::Stdout 1.706
-      Log::Any::Adapter::Syslog 1.706
-      Log::Any::Adapter::Test 1.706
-      Log::Any::Adapter::Util 1.706
-      Log::Any::Manager 1.706
-      Log::Any::Proxy 1.706
-      Log::Any::Proxy::Null 1.706
-      Log::Any::Proxy::Test 1.706
-      Log::Any::Test 1.706
-    requirements:
-      B 0
-      Carp 0
-      Data::Dumper 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      Fcntl 0
-      File::Basename 0
-      FindBin 0
-      IO::File 0
-      Storable 0
-      Sys::Syslog 0
-      Test::Builder 0
-      constant 0
-      strict 0
-      warnings 0
-  Log-Any-Adapter-Log4perl-0.09
-    pathname: P/PR/PREACTION/Log-Any-Adapter-Log4perl-0.09.tar.gz
-    provides:
-      Log::Any::Adapter::Log4perl 0.09
-    requirements:
-      ExtUtils::MakeMaker 6.17
-      Log::Any::Adapter::Base 0
-      Log::Any::Adapter::Util 1.03
-      Log::Log4perl 1.32
-      base 0
-      perl 5.006
-      strict 0
-      warnings 0
-  Log-Any-Adapter-Screen-0.13
-    pathname: P/PE/PERLANCAR/Log-Any-Adapter-Screen-0.13.tar.gz
-    provides:
-      Log::Any::Adapter::Screen 0.13
-    requirements:
-      ExtUtils::MakeMaker 0
-      Log::Any 0
-      Log::Any::Adapter 0.11
-      Term::ANSIColor 0
-      Time::HiRes 0
-      parent 0
-      perl 5.010001
-      strict 0
-      warnings 0
   Log-Log4perl-1.49
     pathname: M/MS/MSCHILLI/Log-Log4perl-1.49.tar.gz
     provides:
