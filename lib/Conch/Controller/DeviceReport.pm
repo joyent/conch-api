@@ -14,7 +14,6 @@ use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
-use Log::Any '$log';
 
 with 'Conch::Role::MojoLog';
 
@@ -106,6 +105,7 @@ sub _record_device_report {
 	my ( $c, $dr, $raw_report ) = @_;
 
 	my $schema = $c->schema;
+	my $log = $c->log;
 
 	my $hw;
 
@@ -228,7 +228,7 @@ sub _record_device_report {
 			my %inactive_serials = map { $_->serial_number => 1 } @device_disks;
 
 			foreach my $disk ( keys %{ $dr->{disks} } ) {
-				$log->trace("Device $device_id: Recording disk: $disk");
+				$log->debug("Device $device_id: Recording disk: $disk");
 
 				if ( $inactive_serials{$disk} ) {
 					$inactive_serials{$disk} = 0;
@@ -282,7 +282,7 @@ sub _record_device_report {
 
 				my $mac = uc( $dr->{interfaces}->{$nic}->{mac} );
 
-				$log->trace("Device $device_id: Recording NIC: $mac");
+				$log->debug("Device $device_id: Recording NIC: $mac");
 
 				if ( $inactive_macs{$mac} ) {
 					$inactive_macs{$mac} = 0;
