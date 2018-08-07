@@ -1,7 +1,7 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
-use Test::Exception;
+use Test::Fatal;
 use Conch::Pg;
 use Time::HiRes;
 
@@ -95,15 +95,19 @@ subtest 'Test parsing of timestamps' => sub {
 };
 
 my $d;
-lives_ok {
-	$d = Conch::Time->from_epoch(1519922279, 0);
-} "->from_epoch with static input";
+is(
+	exception { $d = Conch::Time->from_epoch(1519922279, 0); },
+	undef,
+	"->from_epoch with static input",
+);
 
 is($d->timestamp, "2018-03-01T16:37:59.000Z", "->_from_epoch output");
 
-lives_ok {
-	$d = Conch::Time->from_epoch(Time::HiRes::gettimeofday);
-} "->from_epoch with gettimeofday";
+is(
+	exception { $d = Conch::Time->from_epoch(Time::HiRes::gettimeofday) },
+	undef,
+	"->from_epoch with gettimeofday",
+);
 
 isnt(Conch::Time->now(), Conch::Time->now(), "Multiple now()s are unique");
 

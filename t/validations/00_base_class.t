@@ -1,7 +1,8 @@
 use Mojo::Base -strict;
 use DDP;
 use Test::More;
-use Test::Exception;
+use Test::Fatal;
+use Test::Deep;
 
 # SUMMARY
 # =======
@@ -15,8 +16,8 @@ use_ok("Conch::Validation");
 new_ok("Conch::Validation");
 
 subtest '->validate' => sub {
-	throws_ok(
-		sub {
+	like(
+		exception {
 			my $base_validation = Conch::Validation->new;
 			$base_validation->validate( {} );
 		},
@@ -37,17 +38,18 @@ subtest '->fail' => sub {
 subtest '->die' => sub {
 	my $base_validation = Conch::Validation->new;
 
-	throws_ok(
-		sub {
-			$base_validation->die( 'Validation dies', hint => 'how to fix' );
-		},
-		'Conch::ValidationError'
+	cmp_deeply(
+		exception { $base_validation->die( 'Validation dies', hint => 'how to fix' ); },
+		all(
+			isa('Conch::ValidationError'),
+			methods(
+				message => 'Validation dies',
+				hint	=> 'how to fix',
+				error_loc => re(qr/Exception raised in 'main' at line \d+/),
+			),
+		),
+		'got the right validation errors',
 	);
-	my $err = $@;
-	is( $err->message, 'Validation dies' );
-	is( $err->hint,    'how to fix' );
-	like( $err->error_loc, qr/Exception raised in 'main' at line \d+/ );
-
 };
 
 subtest '->clear_results' => sub {
@@ -67,22 +69,22 @@ subtest '->clear_results' => sub {
 subtest '->register_result' => sub {
 	my $base_validation = Conch::Validation->new;
 
-	throws_ok { $base_validation->register_result() }
+	like exception { $base_validation->register_result() },
 	qr/'expected' value must be defined/;
 
-	throws_ok {
+	like exception {
 		$base_validation->register_result( got => [ 1, 2 ], expected => 1 )
-	}
+	},
 	qr/must be a scalar/;
 
-	throws_ok {
+	like exception {
 		$base_validation->register_result( got => 1, expected => [ 1, 2 ] )
-	}
+	},
 	qr/must be a scalar when comparing with 'eq'/;
 
-	throws_ok {
+	like exception {
 		$base_validation->register_result( got => 1, expected => { a => 1 } )
-	}
+	},
 	qr/must be a scalar when comparing with 'eq'/;
 
 	$base_validation->clear_results;
