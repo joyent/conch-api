@@ -313,30 +313,11 @@ with their new password.
 
 sub reset_password ($c) {
 	my $body = $c->req->json;
+
 	return $c->status( 400, { error => '"email" required' } )
 		unless $body->{email};
 
-	# check for the user and sent the email non-blocking to prevent timing attacks
-	Mojo::IOLoop->subprocess(
-		sub {
-			my $user = $c->db_user_accounts->lookup_by_email($body->{email});
-
-			if ($user) {
-				my $pw = $c->random_string();
-				$user->update({ password => $pw });
-
-				$c->log->info('sending password reset mail to user ' . $user->name);
-				Conch::Mail::password_reset_email(
-					{
-						email    => $user->email,
-						password => $pw,
-					}
-				);
-			}
-		},
-		sub { }
-	);
-	return $c->status(204);
+	return $c->status(301, "/user/email=$body->{email}/password");
 }
 
 =head2 refresh_token
