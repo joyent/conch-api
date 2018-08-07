@@ -9,7 +9,7 @@ context to the logs
 
 =head1 SYNOPSIS
 
-	use Role::Tiny;
+	use Role::Tiny::With;
 	with 'Conch::Role::MojoLog';
 
 	sub wat ($c) {
