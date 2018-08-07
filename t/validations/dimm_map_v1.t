@@ -6,22 +6,6 @@ use Test::Conch::Validation 'test_validation';
 test_validation(
 	'Conch::Validation::DimmMap',
 	hardware_product => {
-		name    => 'Test Product',
-		profile => {},
-		specification => {}
-	},
-	cases => [
-		{
-			description => 'No Data',
-			data		=> {},
-			dies		=> 1
-		}
-	]
-);
-
-test_validation(
-	'Conch::Validation::DimmMap',
-	hardware_product => {
 		name => 'Test Product',
 		specification => '{
 			"chassis": { "memory":{ "dimms": [

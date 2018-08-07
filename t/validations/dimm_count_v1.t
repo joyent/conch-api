@@ -11,9 +11,8 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No data dies',
+			description => 'No data yields no success',
 			data        => {},
-			dies        => 1
 		},
 		{
 			description => 'Iconrrect DIMM count',

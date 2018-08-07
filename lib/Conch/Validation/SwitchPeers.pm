@@ -11,16 +11,12 @@ Validate the number of peer switches, the number of peer ports, and the
 expected peer port according to the rack layout
 );
 
-has schema => sub {
-	{
-		interfaces => {
-			type => 'object',
-		}
-	};
-};
-
 sub validate {
 	my ( $self, $data ) = @_;
+
+	unless($data->{interfaces}) {
+		$self->die("Missing 'interfaces' property");
+	}
 
 	my $device_location = $self->device_location;
 

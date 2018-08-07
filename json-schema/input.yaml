@@ -285,3 +285,24 @@ definitions:
         type: string
       password:
         type: string
+  CreateValidationPlan:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - description
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+  AddValidationToPlan:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        format: uuid
+

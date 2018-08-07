@@ -28,24 +28,10 @@ Create new Validation Plan.
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	# FIXME why is this not using the plugin?
-	my $create_schema = JSON::Validator->new->schema(
-		{
-			type     => 'object',
-			required => [ 'name', 'description' ],
-			properties =>
-				{ name => { type => 'string' }, description => { type => 'string' } }
-		}
-	);
-
-	my $body   = $c->req->json;
-	my @errors = $create_schema->validate($body);
-	if(@errors) {
+	my $body = $c->validate_input("CreateValidationPlan");
+	if(not $body) {
 		$c->log->warn("Input failed validation");
-		return $c->status( 400 => {
-			error => "Errors in request body",
-			source => \@errors,
-		});
+		return;
 	}
 
 	my $existing_validation_plan =
@@ -63,8 +49,7 @@ sub create ($c) {
 
 	$c->log->debug("Created validation plan ".$validation_plan->id);
 
-	# FIXME why is this not using the same redirect methodology as the rest of the api?
-	$c->status( 201, $validation_plan );
+	$c->status(303 => "/validation_plan/".$validation_plan->id);
 }
 
 =head2 list
@@ -87,7 +72,7 @@ C<validation_plan>.
 =cut
 
 sub under ($c) {
-	my $vp_id = $c->param('id');
+	my $vp_id = $c->stash('id');
 	unless ( is_uuid($vp_id) ) {
 		$c->log->warn("ID is not a UUID");
 		$c->status( 400, {
@@ -147,25 +132,10 @@ List all Validations associated with the Validation Plan
 
 sub add_validation ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-
-	# FIXME why is this not using the plugin?
-	my $add_schema = JSON::Validator->new->schema(
-		{
-			type       => 'object',
-			required   => ['id'],
-			properties => { id => { type => 'string' } }
-		}
-	);
-
-	my $body   = $c->req->json;
-	my @errors = $add_schema->validate($body);
-
-	if(@errors) {
+	my $body = $c->validate_input("AddValidationToPlan");
+	if(not $body) {
 		$c->log->warn("Input failed validation");
-		return $c->status( 400 => {
-			error  => "Errors in request body",
-			source => \@errors
-		});
+		return;
 	}
 
 	my $maybe_validation = Conch::Model::Validation->lookup( $body->{id} );
@@ -195,7 +165,7 @@ Remove a Validation associated with the Validation Plan
 sub remove_validation ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $v_id = $c->param('validation_id');
+	my $v_id = $c->stash('validation_id');
 	unless ( is_uuid($v_id) ) {
 		$c->log->warn("ID is not a UUID");
 		return $c->status( 400 => {

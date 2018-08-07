@@ -9,20 +9,16 @@ has 'description' => q(
 Validate the reported RAM match the hardware product profile
 );
 
-has schema => sub {
-	{
-		memory   => {
-			type       => 'object',
-			required => ['total'],
-			properties => {
-				total    => { type => 'integer' }
-			}
-		}
-	};
-};
-
 sub validate {
 	my ( $self, $data ) = @_;
+
+	unless($data->{memory}) {
+		$self->die("Missing 'memory' property");
+	}
+
+	unless($data->{memory}->{total}) {
+		$self->die("Missing the 'total' property on 'memory'");
+	}
 
 	my $hw_profile = $self->hardware_product_profile;
 

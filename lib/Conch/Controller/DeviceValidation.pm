@@ -112,6 +112,8 @@ sub validate ($c) {
 		});
 	}
 
+	$validation->log($c->log);
+
 	my $data = $c->req->json;
 	my $validation_results = $validation->run_validation_for_device(
 		$device,
@@ -134,7 +136,6 @@ device.
 
 sub run_validation_plan ($c) {
 	my $device    = $c->stash('current_device');
-	my $device_id = $device->id;
 
 	my $plan_id         = $c->param("validation_plan_id");
 	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);
@@ -145,6 +146,8 @@ sub run_validation_plan ($c) {
 			error => "Validation Plan '$plan_id' not found"
 		});
 	}
+
+	$validation_plan->log($c->log);
 
 	my $data = $c->req->json;
 	my $results = $validation_plan->run_validations( $device, $data );

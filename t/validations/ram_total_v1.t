@@ -11,14 +11,12 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No data dies',
+			description => 'No data yields no sucess',
 			data        => {},
-			dies        => 1
 		},
 		{
-			description => 'No memory total dies',
+			description => 'No memory total yields no success',
 			data        => { memory => {} },
-			dies        => 1
 		},
 		{
 			description => 'Wrong memory total fails',

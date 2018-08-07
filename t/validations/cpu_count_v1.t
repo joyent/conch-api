@@ -10,14 +10,8 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No data dies',
-			data        => {},
-			dies        => 1
-		},
-		{
 			description => 'Missing processor count hash',
 			data        => { processor => 'foo' },
-			dies        => 1,
 		},
 		{
 			description => 'Incorrect processor count',

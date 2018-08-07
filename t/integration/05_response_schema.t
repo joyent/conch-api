@@ -163,10 +163,12 @@ subtest "Validations" => sub {
 
 	my $validation_id = $t->tx->res->json->[0]->{id};
 
-	$t->post_ok( "/validation_plan",
-		json => { name => 'test_plan', description => 'test plan' } )->status_is(201)
-		->json_schema_is('ValidationPlan');
+	$t->post_ok( "/validation_plan", json => {
+		name => 'test_plan',
+		description => 'test plan'
+	} )->status_is(303);
 
+	$t->get_ok($t->tx->res->headers->location)->json_schema_is('ValidationPlan');
 	my $validation_plan_id = $t->tx->res->json->{id};
 
 	$t->get_ok("/validation_plan")->status_is(200)

@@ -7,20 +7,16 @@ has 'version'     => 1;
 has 'category'    => 'RAM';
 has 'description' => 'Verify the number of DIMMs reported';
 
-has schema => sub {
-	{
-		memory   => {
-			type       => 'object',
-			properties => {
-				required => ['count'],
-				count    => { type => 'integer' }
-			}
-		}
-	};
-};
-
 sub validate {
 	my ( $self, $data ) = @_;
+
+	unless($data->{memory}) {
+		$self->die("Missing 'memory' property");
+	}
+
+	unless($data->{memory}->{count}) {
+		$self->die("Missing 'count' property on 'memory'");
+	}
 
 	my $hw_profile = $self->hardware_product_profile;
 

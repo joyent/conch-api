@@ -12,22 +12,18 @@ test_validation(
 		{
 			description => 'No data',
 			data        => {},
-			dies        => 1
 		},
 		{
 			description => 'No temperature hash',
 			data        => { temp => 'foo' },
-			dies        => 1,
 		},
 		{
 			description => 'Only one CPU temperature',
 			data        => { temp => { cpu0 => 10 } },
-			dies        => 1,
 		},
 		{
 			description => 'Only one CPU temperature',
 			data        => { temp => { cpu1 => 20 } },
-			dies        => 1,
 		},
 		{
 			description => 'CPU temperatures under threshodl',

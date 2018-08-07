@@ -10,21 +10,16 @@ Validate the reported CPU temperatures are less than the maximum in the
 hardware product profile
 );
 
-has schema => sub {
-	{
-		temp => {
-			type       => 'object',
-			required => [ 'cpu0', 'cpu1' ],
-			properties => {
-				cpu0 => { type => 'number' },
-				cpu1 => { type => 'number' }
-			}
-		}
-	};
-};
-
 sub validate {
 	my ( $self, $data ) = @_;
+
+	unless($data->{temp}) {
+		$self->die("Missing 'temp' field");
+	}
+
+	unless($data->{temp}->{cpu0} and $data->{temp}->{cpu1}) {
+		$self->die("'cpu0' and 'cpu1' entries are required for 'temp'");
+	}
 
 	# Value from device_validate_criteria in legacy validations
 	my $MAX_TEMP = 70;

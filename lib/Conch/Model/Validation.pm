@@ -20,6 +20,9 @@ use Conch::Model::ValidationResult;
 my $attrs = [qw( id name version description module created updated)];
 has $attrs;
 
+use Conch::Log;
+has 'log' => sub { return Conch::Log->new };
+
 =head2 new
 
 Create a new Validation.
@@ -167,8 +170,6 @@ sub build_device_validation ( $self, $device, $hardware_product,
 		unless $hardware_product;
 
 	my $module = $self->module;
-	Mojo::Exception->throw("Unable to create validation '$module'")
-		unless $module->can('new');
 
 	my $order          = 0;
 	my $result_builder = sub {
@@ -217,6 +218,8 @@ sub run_validation_for_device ( $self, $device, $data ) {
 	my $validation =
 		$self->build_device_validation( $device, $hw_product, $location,
 		$settings );
+
+	$validation->log($self->log);
 	$validation->run($data);
 	return $validation->validation_results;
 }

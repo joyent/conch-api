@@ -19,14 +19,16 @@ my $pgtmp = mk_tmp_db();
 $pgtmp or die;
 my $pg    = Conch::Pg->new( $pgtmp->uri );
 
+use Test::Conch;
+my $t = Test::Conch->new(pg => $pgtmp);
+my $real_validation = Conch::Model::Validation->lookup_by_name_and_version(
+	'product_name',
+	1
+);
+
 my $validation_plan =
 	Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
-
-my $real_validation = Conch::Model::Validation->create(
-	'product_name', 1,
-	'test validation',
-	'Conch::Validation::DeviceProductName'
-);
+$validation_plan->log($t->app->log);
 
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
@@ -148,68 +150,14 @@ subtest "validation results" => sub {
 	is_deeply( $validation_state->validation_results, [$result] );
 };
 
-subtest "run validation plan" => sub {
-	throws_ok(
-		sub {
-			Conch::Model::ValidationState->run_validation_plan( 'bad_device',
-				$validation_plan->id, {} );
-		},
-		qr/No device exists/
-	);
-	throws_ok(
-		sub {
-			Conch::Model::ValidationState->run_validation_plan( $device->id,
-				$uuid->create_str, {} );
-		},
-		qr/No Validation Plan found with ID/
-	);
-	throws_ok(
-		sub {
-			Conch::Model::ValidationState->run_validation_plan( $device->id,
-				$validation_plan->id, 'bad' );
-		},
-		qr/Validation data must be a hashref/
-	);
-
-	is( scalar $validation_plan->validations->@*,
-		0, 'Validation plan should have no validations' );
-	my $new_state =
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, {} );
-	ok( $new_state->completed );
-	is( scalar $new_state->validation_results->@*, 0 );
-	is( $new_state->status, 'pass', 'Passes though no results stored' );
-
-	require Conch::Validation::DeviceProductName;
-
-	$validation_plan->add_validation($real_validation);
-
-	my $error_state =
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, {} );
-	is( scalar $error_state->validation_results->@*, 1 );
-	is( $error_state->status, 'error',
-		'Validation state should be error because result errored' );
-
-	my $fail_state =
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, { product_name => 'bad' } );
-	is( scalar $fail_state->validation_results->@*, 1 );
-	is( $fail_state->status, 'fail',
-		'Validation state should be fail because result failed' );
-
-	my $pass_state =
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, { product_name => 'Joyent-G1' } );
-	is( scalar $pass_state->validation_results->@*, 1 );
-	is( $pass_state->status, 'pass',
-		'Validation state should be pass because all results passed' );
-};
+require Conch::Validation::DeviceProductName;
+$validation_plan->add_validation($real_validation);
 
 subtest 'latest_completed_grouped_states_for_device' => sub {
-	my $latest_state =
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan->id, { product_name => 'test hw product' } );
+	my $latest_state = $validation_plan->run_with_state(
+		$device->id,
+		{ product_name => 'test hw product' }
+	);
 	my $groups =
 		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
 		$device->id
@@ -221,10 +169,13 @@ subtest 'latest_completed_grouped_states_for_device' => sub {
 
 	my $validation_plan_1 =
 		Conch::Model::ValidationPlan->create( 'test_1', 'test validation plan' );
+	$validation_plan_1->log($t->app->log);
 	$validation_plan_1->add_validation($real_validation);
 	my $new_state =
-		Conch::Model::ValidationState->run_validation_plan( $device->id,
-		$validation_plan_1->id, {} );
+		$validation_plan_1->run_with_state(
+			$device->id,
+			{}
+		);
 	my $new_results = $new_state->validation_results;
 	$groups =
 		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
