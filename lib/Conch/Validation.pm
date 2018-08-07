@@ -540,6 +540,15 @@ sub register_result ( $self, %attrs ) {
 		hint         => $success ? $attrs{hint} : undef
 	);
 
+	$self->log->debug(join('',
+		"Validation ",
+		$self->name,
+		" had result ",
+		$validation_result->{status},
+		": ",
+		$validation_result->{message}
+	));
+
 	push $self->validation_results->@*, $validation_result;
 	return $self;
 
