@@ -542,7 +542,7 @@ sub register_result ( $self, %attrs ) {
 
 	$self->log->debug(join('',
 		"Validation ",
-		$self->name,
+		$validation_result->{name} // "'unknown'",
 		" had result ",
 		$validation_result->{status},
 		": ",
