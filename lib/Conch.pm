@@ -46,6 +46,7 @@ sub startup {
 	$self->sessions->cookie_name('conch');
 	$self->sessions->default_expiration(2592000);    # 30 days
 
+	$self->plugin('Conch::Plugin::Features', $self->config);
 	$self->plugin('Conch::Plugin::Logging');
 
 	# Initialize singletons
@@ -71,9 +72,6 @@ sub startup {
 			shift->app->schema->resultset($source)
 		});
 	}
-
-	my %features = $self->config('features') ?
-		$self->config('features')->%* : () ;
 
 	$self->hook(
 		before_render => sub {
@@ -167,6 +165,8 @@ sub startup {
 		);
 	}
 
+	# note: we have a leak originating in this plugin.
+	# see https://rt.cpan.org/Ticket/Display.html?id=125981
 	$self->plugin('Util::RandomString' => {
 		alphabet => '2345679bdfhmnprtFGHJLMNPRT*#!@^-_+=',
 		length => 30
@@ -176,16 +176,15 @@ sub startup {
 	$self->plugin(NYTProf => $self->config);
 	$self->plugin('Conch::Plugin::JsonValidator');
 	$self->plugin("Conch::Plugin::AuthHelpers");
+	$self->plugin('Conch::Plugin::Mail');
 
-	if($features{'rollbar'}) {
-		$self->plugin('Conch::Plugin::Rollbar');
-	}
+	$self->plugin('Conch::Plugin::Rollbar') if $self->feature('rollbar');
 
 	push @{$self->commands->namespaces}, 'Conch::Command';
 
 	Conch::ValidationSystem->load_validations( $self->log );
 
-	all_routes($self->routes, \%features);
+	all_routes($self->routes);
 }
 
 1;

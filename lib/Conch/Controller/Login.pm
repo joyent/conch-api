@@ -17,7 +17,6 @@ use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
-use Conch::Mail;
 use List::Util 'min';
 
 with 'Conch::Role::MojoLog';
@@ -74,7 +73,7 @@ Handle the details of authenticating the user, with one of the following options
 
 1. HTTP Basic Auth
 2. JWT split between Authorization Bearer header value and jwt_sig cookie
-3. JWT combined with a Authorizaiton Beaer header using format "$jwt_token.$jwt_sig"
+3. JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
 existing session for the user
 4. Old 'conch' session cookie
 
@@ -236,8 +235,7 @@ sub session_login ($c) {
 	$c->stash(user_id => $user->id);
 	$c->stash(user => $user);
 
-	my $feature_flags = $c->app->config('feature') || {};
-	unless ( $feature_flags->{stop_conch_cookie_issue} ) {
+	unless ($c->feature('stop_conch_cookie_issue')) {
 		$c->session( 'user' => $user->id );
 	}
 

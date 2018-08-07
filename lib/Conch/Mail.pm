@@ -1,3 +1,14 @@
+package Conch::Mail;
+
+use strict;
+use warnings;
+
+use Mail::Sendmail;
+
+use Mojo::Base -base;
+
+has 'log';
+
 =pod
 
 =head1 NAME
@@ -6,17 +17,6 @@ Conch::Mail
 
 =head1 METHODS
 
-=cut
-
-package Conch::Mail;
-
-use strict;
-use warnings;
-
-use Mail::Sendmail;
-use Data::Printer;
-use Log::Any '$log';
-
 =head2 send_mail_with_template
 
 Simple email sender.
@@ -24,15 +24,13 @@ Simple email sender.
 =cut
 
 sub send_mail_with_template {
-	my ($content, $mail_args) = @_;
-
-	# TODO: we should use Mojo::IOLoop->subprocess to send these.
+	my ($self, $content, $mail_args) = @_;
 
 	# TODO: make use of Mojo::Template for more sophisticated content munging.
 
 	# TODO: rewrite from Mail::Sendmail to Email::Simple before rjbs kills us.
 	if (not sendmail(%$mail_args, Message => $content)) {
-		$log->error("Sendmail error: $Mail::Sendmail::error");
+		$self->log->error("Sendmail error: $Mail::Sendmail::error");
 		return;
 	}
 
@@ -46,6 +44,7 @@ Template for the email for inviting a new user
 =cut
 
 sub new_user_invite {
+	my $self = shift;
 	my ($args)   = @_;
 	my $name     = $args->{name};
 	my $email    = $args->{email};
@@ -74,8 +73,8 @@ sub new_user_invite {
     Joyent Build Ops Team
     };
 
-	send_mail_with_template($template, $headers)
-		&& $log->info("New user invite successfully sent to $email.");
+	$self->send_mail_with_template($template, $headers)
+		&& $self->log->info("New user invite successfully sent to $email.");
 }
 
 =head2 changed_user_password
@@ -85,6 +84,7 @@ Send mail when resetting an existing user's password
 =cut
 
 sub changed_user_password {
+	my $self = shift;
 	my ($args)   = @_;
 	my $name     = $args->{name};
 	my $email    = $args->{email};
@@ -114,8 +114,8 @@ sub changed_user_password {
     Joyent Build Ops Team
     };
 
-	send_mail_with_template($template, $headers)
-		&& $log->info("Password reset email sent to $email.");
+	$self->send_mail_with_template($template, $headers)
+		&& $self->log->info("Password reset email sent to $email.");
 }
 
 =head2 welcome_new_user
@@ -125,6 +125,7 @@ Template for the email when a new user has been created
 =cut
 
 sub welcome_new_user {
+	my $self = shift;
 	my ($args)   = @_;
 	my $name     = $args->{name};
 	my $email    = $args->{email};
@@ -153,8 +154,8 @@ sub welcome_new_user {
     Joyent Build Ops Team
     };
 
-	send_mail_with_template($template, $headers)
-		&& $log->info("New user invite successfully sent to $email.");
+	$self->send_mail_with_template($template, $headers)
+		&& $self->log->info("New user invite successfully sent to $email.");
 }
 
 1;

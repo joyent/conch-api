@@ -43,7 +43,7 @@ generate-dbic: dbic
 
 .PHONY: dbic
 dbic: ## Regenerate DBIC schemas
-	@carton exec dbicdump -Ilib schema.conf
+	@carton exec dbicdump -Ilib schema-loader.yaml
 	@make db-schema
 
 migrate-db: ## Apply database migrations

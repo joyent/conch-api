@@ -13,7 +13,6 @@ package Conch::Controller::WorkspaceUser;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
-use Conch::Mail;
 use Conch::Models;
 use Conch::Pg;
 
@@ -84,7 +83,7 @@ sub invite ($c) {
 
 		$c->log->info("User '".$body->{user}."' was created with ID ".$user->id);
 		$c->log->info('sending new user invite mail to user ' . $user->name);
-		Conch::Mail::new_user_invite({
+		$c->send_mail(new_user_invite => {
 			name	=> $user->name,
 			email	=> $user->email,
 			password => $password,

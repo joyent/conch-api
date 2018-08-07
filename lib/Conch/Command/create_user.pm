@@ -19,7 +19,6 @@ create_user - create a new user, optionally sending an email
 
 use Mojo::Base 'Mojolicious::Command';
 use Getopt::Long::Descriptive;
-use Conch::Mail;
 
 has description => 'Create a new user';
 
@@ -62,7 +61,7 @@ sub run {
 
     if ($opt->send_email) {
         say 'sending email to ', $opt->email, '...';
-        Conch::Mail::new_user_invite({ map { $_ => $opt->$_ } qw(name email password) });
+        $self->app->send_mail(new_user_invite => { map { $_ => $opt->$_ } qw(name email password) });
     }
 }
 
