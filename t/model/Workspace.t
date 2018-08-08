@@ -32,7 +32,7 @@ my $new_user = $schema->resultset('UserAccount')->create({
 });
 
 subtest "Add user to Workspace" => sub {
-	is( $ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 1 ),
+	is( $ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 'admin' ),
 		1, "Successfully added user to workspace" );
 };
 
@@ -40,14 +40,13 @@ subtest "Get user Workspace" => sub {
 	my $user_ws = $ws_model->get_user_workspace( $new_user->id, $global_ws->id );
 	isa_ok( $user_ws, 'Conch::Class::Workspace' );
 	is( $user_ws->id,      $global_ws->id );
-	is( $user_ws->role_id, 1, 'has assigned role ID' );
-	is( $user_ws->role,    'Administrator', 'has assigned role name' );
+	is( $user_ws->role,    'admin', 'has assigned role name' );
 };
 
 my $sub_ws;
 subtest "Create subworkspace" => sub {
 	$sub_ws =
-		$ws_model->create_sub_workspace( $new_user->id, $global_ws->id, 1, 'Sub WS',
+		$ws_model->create_sub_workspace( $new_user->id, $global_ws->id, 'admin', 'Sub WS',
 		'Sub Workspace Test' );
 	isa_ok( $sub_ws, 'Conch::Class::Workspace' );
 };
@@ -75,7 +74,7 @@ subtest "List user sub workspaces" => sub {
 	# Create a sub-workspace for the sub-workspace. It should be listed
 	subtest "Get all descendents" => sub {
 		my $sub_ws_attempt =
-			$ws_model->create_sub_workspace( $new_user->id, $sub_ws->id, 1,
+			$ws_model->create_sub_workspace( $new_user->id, $sub_ws->id, 'ro',
 			'Sub-Sub WS', 'Sub Workspace Test' );
 		isa_ok( $sub_ws_attempt, 'Conch::Class::Workspace' );
 		$user_sub_wss =

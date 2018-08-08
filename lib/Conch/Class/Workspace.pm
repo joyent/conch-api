@@ -26,11 +26,9 @@ with 'Conch::Class::Role::ToJson';
 
 =head2 role
 
-=head2 role_id
-
 =cut
 
-has [qw( id name description parent_workspace_id role role_id )];
+has [qw( id name description parent_workspace_id role )];
 
 
 =head2 TO_JSON

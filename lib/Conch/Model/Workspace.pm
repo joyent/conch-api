@@ -35,16 +35,16 @@ Add a user to a workspace with a specified role.
 
 =cut
 
-sub add_user_to_workspace ( $self, $user_id, $ws_id, $role_id ) {
+sub add_user_to_workspace ( $self, $user_id, $ws_id, $role ) {
 
 	# On conflict, set the role for the user
 	Conch::Pg->new->db->query(
 		q{
-      INSERT INTO user_workspace_role (user_id, workspace_id, role_id)
+      INSERT INTO user_workspace_role (user_id, workspace_id, role)
       SELECT ?, ?, ?
       ON CONFLICT (user_id, workspace_id) DO UPDATE
-        SET role_id = excluded.role_id
-    }, $user_id, $ws_id, $role_id
+        SET role = excluded.role
+    }, $user_id, $ws_id, $role
 	)->rows;
 }
 
@@ -55,13 +55,12 @@ parent workspace.
 
 =cut
 
-sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
-	$description )
+sub create_sub_workspace ( $self, $user_id, $parent_id, $role, $name, $description )
 {
 	my $db = Conch::Pg->new->db;
 
 	my $tx = $db->begin;
-	my ( $subws_id, $role_name );
+	my ( $subws_id );
 	try {
 		my $subws = $db->insert(
 			'workspace',
@@ -81,13 +80,9 @@ sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 			{
 				user_id      => $user_id,
 				workspace_id => $subws_id,
-				role_id      => $role_id
+				role         => $role,
 			}
 		);
-		my $role = $db->select( 'role', 'name', { id => $role_id } )->hash;
-		die undef unless $role;
-
-		$role_name = $role->{name};
 	}
 	catch {
 		$tx->rollback;
@@ -100,8 +95,7 @@ sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 			id                  => $subws_id,
 			name                => $name,
 			description         => $description,
-			role                => $role_name,
-			role_id             => $role_id,
+			role                => $role,
 			parent_workspace_id => $parent_id
 		}
 	);
@@ -116,14 +110,12 @@ Retrieve the list of workspaces associated with a user.
 sub get_user_workspaces ( $self, $user_id ) {
 	Conch::Pg->new->db->query(
 		q{
-    SELECT w.*, r.name as role, r.id as role_id
+    SELECT w.*, uwr.role
     FROM workspace w
     JOIN user_workspace_role uwr
     ON w.id = uwr.workspace_id
     JOIN user_account u
     on u.id = uwr.user_id
-    JOIN role r
-    on r.id = uwr.role_id
     WHERE u.id = ?::uuid
     }, $user_id
 	)->hashes->map( sub { Conch::Class::Workspace->new($_) } )->to_array;
@@ -139,14 +131,12 @@ user ID.
 sub get_user_workspace ( $self, $user_id, $ws_id ) {
 	my $ret = Conch::Pg->new->db->query(
 		q{
-          SELECT w.*, r.name as role, r.id as role_id
+          SELECT w.*, uwr.role
           FROM workspace w
           JOIN user_workspace_role uwr
           ON w.id = uwr.workspace_id
           JOIN user_account u
           on u.id = uwr.user_id
-          JOIN role r
-          on r.id = uwr.role_id
           WHERE u.id = ?::uuid
             AND w.id = ?::uuid
           }, $user_id, $ws_id
@@ -174,13 +164,10 @@ sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
         FROM workspace w, subworkspace s
         WHERE w.parent_workspace_id = s.id
     )
-    SELECT subworkspace.*,
-      role.name as role, role.id as role_id
+    SELECT subworkspace.*, uwr.role
     FROM subworkspace
     JOIN user_workspace_role uwr
       ON subworkspace.id = uwr.workspace_id
-    JOIN role
-      ON role.id = uwr.role_id
     WHERE uwr.user_id = ?
   }, $ws_id, $user_id
 	)->hashes->map( sub { Conch::Class::Workspace->new($_) } )->to_array;

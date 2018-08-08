@@ -110,7 +110,7 @@ sub create_sub_workspace ($c) {
 	my $sub_ws_attempt = Conch::Model::Workspace->new->create_sub_workspace(
 		$c->stash('user_id'),
 		$ws->id,
-		$ws->role_id,
+		$ws->role,
 		$body->{name},
 		$body->{description}
 	);

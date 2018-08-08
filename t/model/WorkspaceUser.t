@@ -20,7 +20,7 @@ my $new_user = $schema->resultset('UserAccount')->create({
 my $ws_model = new_ok( "Conch::Model::Workspace" );
 my $global_ws = $ws_model->lookup_by_name('GLOBAL');
 
-$ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 1 );
+$ws_model->add_user_to_workspace( $new_user->id, $global_ws->id, 'ro' );
 
 new_ok('Conch::Model::WorkspaceUser');
 my $ws_user_model = new_ok( "Conch::Model::WorkspaceUser" );

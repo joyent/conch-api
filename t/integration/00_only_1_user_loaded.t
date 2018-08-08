@@ -202,7 +202,7 @@ subtest 'Workspaces' => sub {
 		{
 			id          => $id,
 			name        => "GLOBAL",
-			role        => "Administrator",
+			role        => 'admin',
 			description => "Global workspace. Ancestor of all workspaces.",
 			parent_id   => undef,
 		},
@@ -228,7 +228,7 @@ subtest 'Workspaces' => sub {
 			{
 				name  => "conch",
 				email => 'conch@conch.joyent.us',
-				role  => "Administrator",
+				role  => 'admin',
 			}
 		],
 		"Workspace User Data Contract"
@@ -258,7 +258,7 @@ subtest 'Sub-Workspace' => sub {
 				{
 					id          => $sub_ws,
 					name        => "test",
-					role        => "Administrator",
+					role        => 'admin',
 					description => "also test",
 					parent_id   => $id,
 				}
@@ -272,7 +272,7 @@ subtest 'Sub-Workspace' => sub {
 			{
 				id          => $sub_ws,
 				name        => "test",
-				role        => "Administrator",
+				role        => 'admin',
 				description => "also test",
 				parent_id   => $id,
 			},
