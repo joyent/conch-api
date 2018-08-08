@@ -8,6 +8,7 @@ use Test::ConchTmpDB 'mk_tmp_db';
 use Conch::UUID 'is_uuid';
 use IO::All;
 use JSON::Validator;
+use Path::Tiny;
 
 =pod
 
@@ -87,6 +88,20 @@ sub new {
 
     bless($self, $class);
     $self->pg($pg);
+
+    # load all controllers, to find syntax errors sooner
+    # (hypnotoad does this at startup, but in tests controllers only get loaded as needed)
+    path('lib/Conch/Controller')->visit(
+        sub {
+            my $file = shift;
+            return if not -f $file;
+            return if $file !~ /\.pm$/; # skip swap files
+            $self->app->log->info("loading $file");
+            eval "require './$file'" or die $@;
+        },
+        { recurse => 1 },
+    );
+
     return $self;
 }
 

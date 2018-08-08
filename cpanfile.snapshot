@@ -2619,6 +2619,32 @@ DISTRIBUTIONS
       overload 0
       parent 0
       strict 0
+  Path-Tiny-0.108
+    pathname: D/DA/DAGOLDEN/Path-Tiny-0.108.tar.gz
+    provides:
+      Path::Tiny 0.108
+      Path::Tiny::Error 0.108
+    requirements:
+      Carp 0
+      Cwd 0
+      Digest 1.03
+      Digest::SHA 5.45
+      Encode 0
+      Exporter 5.57
+      ExtUtils::MakeMaker 6.17
+      Fcntl 0
+      File::Copy 0
+      File::Glob 0
+      File::Path 2.07
+      File::Spec 0.86
+      File::Temp 0.19
+      File::stat 0
+      constant 0
+      overload 0
+      perl 5.008001
+      strict 0
+      warnings 0
+      warnings::register 0
   Pod-Coverage-0.23
     pathname: R/RC/RCLAMP/Pod-Coverage-0.23.tar.gz
     provides:

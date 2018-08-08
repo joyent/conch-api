@@ -76,6 +76,7 @@ on 'test' => sub {
     requires 'Test::Warnings';
     requires 'Test::Fatal';
     requires 'Test::Deep';
+    requires 'Path::Tiny';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is
