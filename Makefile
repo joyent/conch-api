@@ -1,4 +1,4 @@
-.PHONY: test run morbo build format deps install-deps generate-dbic watch-perl\
+.PHONY: test run morbo build clean format deps install-deps generate-dbic watch-perl\
 	watch doc migrate-db watch-test
 
 run: build morbo ## Default. Build and run under morbo
@@ -7,6 +7,9 @@ morbo: ## Run under morbo, listening on :5001
 	@carton exec -- morbo -v bin/conch -l http://\*:5001
 
 build: local ## Install deps (TODO: and build docs)
+
+clean:
+	\rm -rf local log public/doc
 
 local: cpanfile.snapshot ## Install perl dependencies
 # '--deployment' installs the same dep versions that are in the lockfile
