@@ -15,10 +15,6 @@ use Conch::Time;
 use Try::Tiny;
 use Conch::UUID qw(is_uuid);
 
-use aliased 'Conch::Class::DatacenterRack';
-use aliased 'Conch::Class::DatacenterRoom';
-use aliased 'Conch::Class::HardwareProduct';
-
 use Conch::Pg;
 
 has [

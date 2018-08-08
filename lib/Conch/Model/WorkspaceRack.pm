@@ -10,8 +10,7 @@ Conch::Model::WorkspaceRack
 package Conch::Model::WorkspaceRack;
 use Mojo::Base -base, -signatures;
 
-use aliased 'Conch::Class::DatacenterRack';
-
+use Conch::Class::DatacenterRack;
 use Conch::Pg;
 
 =head2 lookup
@@ -44,7 +43,7 @@ sub lookup ( $self, $ws_id, $rack_id ) {
     }, $ws_id, $rack_id
 	)->hash;
 	return undef unless $ret;
-	return DatacenterRack->new($ret);
+	return Conch::Class::DatacenterRack->new($ret);
 }
 
 =head2 rack_layout

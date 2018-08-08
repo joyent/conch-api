@@ -11,8 +11,7 @@ package Conch::Model::WorkspaceRelay;
 use Mojo::Base -base, -signatures;
 
 use Conch::Model::Device;
-use aliased 'Conch::Class::WorkspaceRelay';
-
+use Conch::Class::WorkspaceRelay;
 use Conch::Pg;
 
 =head2 list
@@ -124,7 +123,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef, $with_devices = 1 ) {
 		}
 
 		push @res,
-			WorkspaceRelay->new(
+			Conch::Class::WorkspaceRelay->new(
 			id       => $relay->{id},
 			alias    => $relay->{alias},
 			created  => $relay->{created},

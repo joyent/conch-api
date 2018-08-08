@@ -10,7 +10,7 @@ Conch::Model::WorkspaceRole
 package Conch::Model::WorkspaceRole;
 use Mojo::Base -base, -signatures;
 
-use aliased 'Conch::Class::WorkspaceRole';
+use Conch::Class::WorkspaceRole;
 
 use Conch::Pg;
 
@@ -21,7 +21,7 @@ List available workspace roles.
 =cut
 sub list ( $self ) {
 	Conch::Pg->new->db->select( 'role', undef )
-		->hashes->map( sub { WorkspaceRole->new(shift) } )->to_array;
+		->hashes->map( sub { Conch::Class::WorkspaceRole->new(shift) } )->to_array;
 }
 
 =head2 lookup_by_name
@@ -33,7 +33,7 @@ sub lookup_by_name ( $self, $role_name ) {
 	my $ret =
 		Conch::Pg->new->db->select( 'role', undef, { name => $role_name } )->hash;
 	return undef unless $ret;
-	return WorkspaceRole->new($ret);
+	return Conch::Class::WorkspaceRole->new($ret);
 }
 
 1;

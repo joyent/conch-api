@@ -8,7 +8,6 @@ requires 'Data::UUID';
 requires 'Data::Printer';
 requires 'List::Compare';
 requires 'Mail::Sendmail';
-requires 'aliased';
 requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
