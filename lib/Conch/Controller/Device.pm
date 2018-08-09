@@ -13,8 +13,7 @@ package Conch::Controller::Device;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
-
-use aliased 'Conch::Class::DeviceDetailed';
+use Conch::Class::DeviceDetailed;
 
 with 'Conch::Role::MojoLog';
 
@@ -73,7 +72,7 @@ sub get ($c) {
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
 	my $nics           = $device->device_nic_neighbors( $device->id );
 
-	my $detailed_device = DeviceDetailed->new(
+	my $detailed_device = Conch::Class::DeviceDetailed->new(
 		device             => $device,
 		latest_report      => $report,
 		validation_results => $validations,

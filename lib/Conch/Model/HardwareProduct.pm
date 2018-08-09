@@ -10,9 +10,9 @@ Conch::Model::HardwareProduct
 package Conch::Model::HardwareProduct;
 use Mojo::Base -base, -signatures;
 
-use aliased 'Conch::Class::HardwareProduct';
-use aliased 'Conch::Class::HardwareProductProfile';
-use aliased 'Conch::Class::ZpoolProfile';
+use Conch::Class::HardwareProduct;
+use Conch::Class::HardwareProductProfile;
+use Conch::Class::ZpoolProfile;
 
 use Conch::Pg;
 
@@ -157,7 +157,7 @@ sub _build_hardware_product ($hw) {
 
 	my $zpool_profile =
 		$hw->{zpool_id}
-		? ZpoolProfile->new(
+		? Conch::Class::ZpoolProfile->new(
 		id       => $hw->{zpool_id},
 		name     => $hw->{zpool_name},
 		cache    => $hw->{zpool_cache},
@@ -168,7 +168,7 @@ sub _build_hardware_product ($hw) {
 		vdev_t   => $hw->{zpool_vdev_t}
 		)
 		: undef;
-	my $hw_profile = HardwareProductProfile->new(
+	my $hw_profile = Conch::Class::HardwareProductProfile->new(
 		id            => $hw->{hw_profile_id},
 		bios_firmware => $hw->{hw_profile_bios_firmware},
 		cpu_num       => $hw->{hw_profile_cpu_num},
@@ -193,7 +193,7 @@ sub _build_hardware_product ($hw) {
 		zpool         => $zpool_profile
 	);
 
-	return HardwareProduct->new(
+	return Conch::Class::HardwareProduct->new(
 		id                  => $hw->{hw_product_id},
 		alias               => $hw->{hw_product_alias},
 		generation_name     => $hw->{hw_generation_name},

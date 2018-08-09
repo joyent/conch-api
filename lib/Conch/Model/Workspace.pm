@@ -12,9 +12,7 @@ package Conch::Model::Workspace;
 use Mojo::Base -base, -signatures;
 
 use Try::Tiny;
-
-use aliased 'Conch::Class::Workspace';
-
+use Conch::Class::Workspace;
 use Conch::Pg;
 
 =head2 lookup_by_name
@@ -28,7 +26,7 @@ sub lookup_by_name ( $self, $name ) {
 		Conch::Pg->new->db->select( 'workspace', undef, { name => $name } )->hash;
 
 	return undef unless $ret;
-	return Workspace->new($ret);
+	return Conch::Class::Workspace->new($ret);
 }
 
 =head2 add_user_to_workspace
@@ -97,7 +95,7 @@ sub create_sub_workspace ( $self, $user_id, $parent_id, $role_id, $name,
 	};
 	$tx->commit;
 
-	return Workspace->new(
+	return Conch::Class::Workspace->new(
 		{
 			id                  => $subws_id,
 			name                => $name,
@@ -128,7 +126,7 @@ sub get_user_workspaces ( $self, $user_id ) {
     on r.id = uwr.role_id
     WHERE u.id = ?::uuid
     }, $user_id
-	)->hashes->map( sub { Workspace->new($_) } )->to_array;
+	)->hashes->map( sub { Conch::Class::Workspace->new($_) } )->to_array;
 }
 
 =head2 get_user_workspace
@@ -154,7 +152,7 @@ sub get_user_workspace ( $self, $user_id, $ws_id ) {
           }, $user_id, $ws_id
 	)->hash;
 	return undef unless $ret;
-	return Workspace->new($ret);
+	return Conch::Class::Workspace->new($ret);
 }
 
 =head2 get_user_sub_workspaces
@@ -185,7 +183,7 @@ sub get_user_sub_workspaces ( $self, $user_id, $ws_id ) {
       ON role.id = uwr.role_id
     WHERE uwr.user_id = ?
   }, $ws_id, $user_id
-	)->hashes->map( sub { Workspace->new($_) } )->to_array;
+	)->hashes->map( sub { Conch::Class::Workspace->new($_) } )->to_array;
 }
 
 1;

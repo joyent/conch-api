@@ -11,9 +11,7 @@ package Conch::Model::WorkspaceRoom;
 use Mojo::Base -base, -signatures;
 
 use List::Compare;
-
-use aliased 'Conch::Class::DatacenterRoom';
-
+use Conch::Class::DatacenterRoom;
 use Conch::Pg;
 
 =head2 list
@@ -30,7 +28,7 @@ sub list ( $self, $ws_id ) {
         ON dr.id = wdr.datacenter_room_id
       WHERE wdr.workspace_id = ?::uuid
     }, $ws_id
-	)->hashes->map( sub { DatacenterRoom->new($_) } )->to_array;
+	)->hashes->map( sub { Conch::Class::DatacenterRoom->new($_) } )->to_array;
 }
 
 =head2 list_parent_workspace_rooms

@@ -10,11 +10,10 @@ Conch::Model::DeviceLocation
 package Conch::Model::DeviceLocation;
 use Mojo::Base -base, -signatures;
 
-use aliased 'Conch::Class::DatacenterRack';
-use aliased 'Conch::Class::DatacenterRoom';
-use aliased 'Conch::Class::DeviceLocation';
-use aliased 'Conch::Class::HardwareProduct';
-
+use Conch::Class::DatacenterRack;
+use Conch::Class::DatacenterRoom;
+use Conch::Class::DeviceLocation;
+use Conch::Class::HardwareProduct;
 use Conch::Pg;
 
 =head2 lookup
@@ -79,19 +78,19 @@ sub lookup ( $self, $device_id ) {
 }
 
 sub _build_device_location ($loc) {
-	my $datacenter_rack = DatacenterRack->new(
+	my $datacenter_rack = Conch::Class::DatacenterRack->new(
 		id        => $loc->{rack_id},
 		name      => $loc->{rack_name},
 		role_name => $loc->{rack_role_name},
 		slots     => $loc->{rack_slots},
 	);
-	my $datacenter_room = DatacenterRoom->new(
+	my $datacenter_room = Conch::Class::DatacenterRoom->new(
 		id          => $loc->{room_id},
 		az          => $loc->{room_az},
 		alias       => $loc->{room_alias},
 		vendor_name => $loc->{room_vendor_name},
 	);
-	my $hardware_product = HardwareProduct->new(
+	my $hardware_product = Conch::Class::HardwareProduct->new(
 		id                  => $loc->{hw_product_id},
 		name                => $loc->{hw_product_name},
 		alias               => $loc->{hw_product_alias},
@@ -102,7 +101,7 @@ sub _build_device_location ($loc) {
 		generation_name     => $loc->{hw_generation_name},
 		legacy_product_name => $loc->{legacy_product_name},
 	);
-	return DeviceLocation->new(
+	return Conch::Class::DeviceLocation->new(
 		rack_unit               => $loc->{location_rack_unit},
 		datacenter_rack         => $datacenter_rack,
 		datacenter_room         => $datacenter_room,

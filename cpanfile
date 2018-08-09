@@ -6,20 +6,17 @@ requires 'perl', '5.26.0';
 # basics
 requires 'Data::UUID';
 requires 'Data::Printer';
-requires 'DateTime::Format::Strptime';
 requires 'List::Compare';
 requires 'Mail::Sendmail';
-requires 'aliased';
 requires 'Try::Tiny';
 requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
-requires 'IO::Socket::SSL';
 requires 'Submodules';
 requires 'JSON::Validator';
+requires 'IO::All';
 
-# mojolicious
-requires 'Minion';
+# mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
 requires 'Cpanel::JSON::XS';
 requires 'Mojo::Pg';
@@ -28,6 +25,7 @@ requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Bcrypt';
 requires 'Mojolicious::Plugin::Util::RandomString';
 requires 'Mojolicious::Plugin::NYTProf';
+requires 'IO::Socket::SSL';
 
 requires 'Moo';
 requires 'Moo::Role::ToJSON';
@@ -55,7 +53,6 @@ requires 'DBIx::Class::Schema::Loader';
 requires 'DBIx::Class::Helpers';
 requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
-requires 'Config::General';
 requires 'Lingua::EN::Inflexion';
 
 # logging
@@ -67,15 +64,14 @@ requires 'Log::Report';
 on 'test' => sub {
     requires 'Test::More';
     requires 'Test::Exception';
-    requires 'Mock::Quick';
     requires 'Test::PostgreSQL', ">= 1.24";
     requires 'Test::Pod::Coverage';
-    requires 'IO::All';
     requires 'YAML::XS';
     requires 'Test::Pod', '1.41';
     requires 'Test::Warnings';
     requires 'Test::Fatal';
     requires 'Test::Deep';
+    requires 'Path::Tiny';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is

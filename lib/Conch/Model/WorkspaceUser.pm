@@ -10,8 +10,7 @@ Conch::Model::WorkspaceUser
 package Conch::Model::WorkspaceUser;
 use Mojo::Base -base, -signatures;
 
-use aliased 'Conch::Class::WorkspaceUser';
-
+use Conch::Class::WorkspaceUser;
 use Conch::Pg;
 
 =head2 workspace_users
@@ -30,7 +29,7 @@ sub workspace_users ( $self, $ws_id ) {
         on r.id = uwr.role_id
       WHERE uwr.workspace_id = ?::uuid
       }, $ws_id
-	)->hashes->map( sub { WorkspaceUser->new($_) } )->to_array;
+	)->hashes->map( sub { Conch::Class::WorkspaceUser->new($_) } )->to_array;
 }
 
 1;
