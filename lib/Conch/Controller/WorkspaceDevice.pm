@@ -18,13 +18,13 @@ with 'Conch::Role::MojoLog';
 
 =head2 list
 
-Get a list of all devices in the current stashed C<current_workspace>
+Get a list of all devices in the current workspace (as specified by :workspace_id in the path)
 
 =cut
 
 sub list ($c) {
 	my $workspace_devices = Conch::Model::WorkspaceDevice->new->list(
-		$c->stash('current_workspace')->id,
+		$c->stash('workspace_id'),
 
 		# If 'active' query parameter specified, filter devices seen within in
 		# 300 seconds (5 minutes)

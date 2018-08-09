@@ -30,17 +30,13 @@ workspace
 			my ( $c, $role_name ) = @_;
 			return 0 unless $c->stash('user_id');
 
-			my $ws = Conch::Model::Workspace->new->lookup_by_name('GLOBAL');
-			return 0 unless $ws;
+			# FIXME: currently does an exact match. should we return true
+			# if we ask about 'rw' and the user has 'admin?
 
-			my $user_ws = Conch::Model::Workspace->new->get_user_workspace(
-				$c->stash('user_id'),
-				$ws->id,
-			);
-
-			return 0 unless $user_ws;
-			return 0 unless $user_ws->role eq $role_name;
-			return 1;
+			return $c->db_workspaces->search({ 'me.name' => 'GLOBAL' })
+				->search_related('user_workspace_roles',
+					{ user_id => $c->stash('user_id'), role => $role_name })
+				->count;
 		},
 	);
 
@@ -65,16 +61,19 @@ GLOBAL workspace
 	return $c->status(403) unless $c->is_admin;
 
 Verifies that the currently stashed user_id is either a global admin or an
-admin on the currently stashed 'current_workspace'
+admin on the current workspace (as specified by :workspace_id in the path)
 
 =cut
 
 	$app->helper(
 		is_admin => sub ($c) {
 			return 1 if $c->is_global_admin;
-			my $ws = $c->stash("current_workspace");
-			return 0 unless $ws;
-			return 1 if $ws->role eq 'admin';
+
+			my $uwr = $c->stash('user')->search_related('user_workspace_roles',
+				{ workspace_id => $c->stash('workspace_id') },
+			)->single;
+			return 0 unless $uwr;
+			return 1 if $uwr->role eq 'admin';
 			return 0;
 		}
 	);

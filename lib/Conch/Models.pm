@@ -30,7 +30,6 @@ use Conch::Model::Relay;
 use Conch::Model::Validation;
 use Conch::Model::ValidationPlan;
 use Conch::Model::ValidationState;
-use Conch::Model::Workspace;
 use Conch::Model::WorkspaceDevice;
 use Conch::Model::WorkspaceRack;
 use Conch::Model::WorkspaceRelay;

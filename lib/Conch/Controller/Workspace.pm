@@ -14,13 +14,11 @@ use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
-use Conch::Models;
 with 'Conch::Role::MojoLog';
 
 =head2 find_workspace
 
-Chainable action that validates the 'workspace_id' provided in the path
-and looks up the current workspace and stashes it in C<current_workspace>.
+Chainable action that validates the 'workspace_id' provided in the path.
 
 =cut
 
@@ -33,56 +31,102 @@ sub find_workspace ($c) {
 		return $c->status(400, { error => "Workspace ID must be a UUID. Got '$ws_id'." });
 	}
 
-	my $ws = Conch::Model::Workspace->new->get_user_workspace($c->stash('user_id'), $ws_id);
-	return $c->status(404, { error => "Workspace $ws_id not found" }) if not $ws;
+	return $c->status(404, { error => "Workspace $ws_id not found for user " . $c->stash('user_id') })
+		if not $c->db_user_workspace_roles->search(
+			{ workspace_id => $ws_id, user_id => $c->stash('user_id') },
+		)->count;
 
-	$c->stash(current_workspace => $ws);
 	return 1;
 }
 
 =head2 list
 
-Get a list of all workspaces available to current stashed C<user_id>
+Get a list of all workspaces available to the currently authenticated user.
+Returns a listref of hashrefs with keys: id name description role parent_id
 
 =cut
 
 sub list ($c) {
-	my $wss = Conch::Model::Workspace->new->get_user_workspaces(
-		$c->stash('user_id')
-	);
-	$c->status( 200, $wss );
+	my $wss_data = [
+		map {
+			my $uwr = $_;
+			+{
+				(map { $_ => $uwr->workspace->$_ } qw(id name description)),
+				parent_id => $uwr->workspace->parent_workspace_id,
+				role => $uwr->role,
+			}
+		} $c->stash('user')->search_related('user_workspace_roles',
+			undef,
+			{ prefetch => 'workspace' },
+		)->all
+	];
+
+	$c->status(200, $wss_data);
 }
 
 =head2 get
 
-Get the details of the current workspace
+Get the details of the current workspace.
+Returns a hashref with keys: id, name, description, role, parent_id.
 
 =cut
 
 sub get ($c) {
-	$c->status( 200, $c->stash('current_workspace') );
-}
+	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
+		{ workspace_id => $c->stash('workspace_id') },
+		{ prefetch => 'workspace' },
+	)->single;
 
+	# FIXME: this check is already done in find_workspace
+	return $c->status(404, { error => 'Workspace ' . $c->stash('workspace_id') . ' not found' })
+		if not $uwr;
+
+	my $ws_data = +{
+		(map { $_ => $uwr->workspace->$_ } qw(id name description)),
+		parent_id => $uwr->workspace->parent_workspace_id,
+		role => $uwr->role,
+	};
+
+	$c->status(200, $ws_data);
+}
 
 =head2 get_sub_workspaces
 
-Get all sub workspaces for the current stashed C<user_id> and current stashed
-C<current_workspace>
+Get all sub workspaces for the current stashed C<user_id> and current workspace (as specified
+by :workspace_id in the path)
 
 =cut
 
 sub get_sub_workspaces ($c) {
-	my $sub_wss = Conch::Model::Workspace->new->get_user_sub_workspaces(
-		$c->stash('user_id'),
-		$c->stash('current_workspace')->id
-	);
-	$c->status( 200, $sub_wss );
+
+	my $wss_data = [
+		map {
+			my $uwr = $_;
+			+{
+				(map { $_ => $uwr->workspace->$_ } qw(id name description)),
+				parent_id => $uwr->workspace->parent_workspace_id,
+				role => $uwr->role,
+			}
+		}
+		# this is awkward, but we can't start with workspace_recursive and then join
+		# user_workspace_roles to it, due to "Unable to calculate a definitive collapse column
+		# set for WorkspaceRecursive: fetch more unique non-nullable columns"
+		$c->stash('user')->search_related('user_workspace_roles',
+			{ workspace_id => { -in =>
+				$c->db_workspace_recursives->workspaces_beneath($c->stash('workspace_id'))
+					->get_column('id')->as_query } },
+			{ prefetch => 'workspace' },
+		)->all
+	];
+
+	$c->status(200, $wss_data);
 }
 
 
 =head2 create_sub_workspace
 
-Create a new subworkspace for the current stashed C<current_workspace>
+Create a new subworkspace for the current workspace.
+Returns a hashref with keys: id, name, description, role, parent_id.
 
 =cut
 
@@ -93,20 +137,31 @@ sub create_sub_workspace ($c) {
 	return $c->status( 400, { error => '"name" must be defined in request' } )
 		unless $body->{name};
 
-	my $ws = $c->stash('current_workspace');
+	# FIXME: not checking that user has 'rw' permissions on this workspace
 
-	my $sub_ws_attempt = Conch::Model::Workspace->new->create_sub_workspace(
-		$c->stash('user_id'),
-		$ws->id,
-		$ws->role,
-		$body->{name},
-		$body->{description}
+	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
+		{ workspace_id => $c->stash('workspace_id') },
+		{ prefetch => 'workspace' },
+	)->single;
+
+	my $sub_ws = $uwr->workspace->create_related(
+		workspaces => {
+			name => $body->{name},
+			description => $body->{description},
+			user_workspace_roles => [{
+				user_id => $uwr->user_id,
+				role => $uwr->role,
+			}],
+		},
 	);
 
-	return $c->status( 500, { error => 'unable to create a sub-workspace' } )
-		unless $sub_ws_attempt;
+	my $ws_data = +{
+		(map { $_ => $sub_ws->$_ } qw(id name description)),
+		parent_id => $sub_ws->parent_workspace_id,
+		role => $uwr->role,
+	};
 
-	$c->status( 201, $sub_ws_attempt );
+	$c->status(201, $ws_data);
 }
 
 1;

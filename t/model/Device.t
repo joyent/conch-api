@@ -5,7 +5,6 @@ use Test::ConchTmpDB qw(mk_tmp_db);
 use Try::Tiny;
 use IO::All;
 
-use_ok("Conch::Model::Workspace");
 use_ok("Conch::Model::Device");
 
 use Data::UUID;
@@ -20,12 +19,9 @@ my $pg    = Conch::Pg->new($pgtmp->uri);
 
 my $uuid = Data::UUID->new;
 
-my ( $ws_model, $global_ws, $hw_vendor_id, $hw_product_id );
+my ( $hw_vendor_id, $hw_product_id );
 
 try {
-	$ws_model = new_ok( "Conch::Model::Workspace");
-	$global_ws = $ws_model->lookup_by_name('GLOBAL');
-
 	$hw_vendor_id = $pg->db->insert(
 		'hardware_vendor',
 		{ name      => 'test vendor' },

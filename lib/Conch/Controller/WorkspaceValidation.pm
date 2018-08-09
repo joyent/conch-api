@@ -45,7 +45,7 @@ sub workspace_validation_states ($c) {
 
 	my $validation_state_groups =
 		Conch::Model::ValidationState->latest_completed_grouped_states_for_workspace(
-			$c->stash('current_workspace')->id,
+			$c->stash('workspace_id'),
 			@statuses
 		);
 

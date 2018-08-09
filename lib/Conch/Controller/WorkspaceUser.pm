@@ -13,15 +13,13 @@ package Conch::Controller::WorkspaceUser;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
-use Conch::Models;
-use Conch::Pg;
-use List::Util 1.33 'none';
+use List::Util 1.33 qw(none any);
 
 with 'Conch::Role::MojoLog';
 
 =head2 list
 
-Get a list of users for the current stashed C<current_workspace>
+Get a list of users for the current workspace
 Returns a listref of hashrefs with keys: name, email, role.
 TODO: include id?
 
@@ -47,7 +45,7 @@ sub list ($c) {
 
 =head2 invite
 
-Invite a user to the current stashed C<current_workspace>
+Invite a user to the current workspace (as specified by :workspace_id in the path)
 
 =cut
 
@@ -75,8 +73,8 @@ sub invite ($c) {
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
 	# don't have to look up by multiple columns.
-	my $user = $c->db_user_accounts->lookup_by_email($body->{user})
-		|| $c->db_user_accounts->lookup_by_name($body->{user});
+	my $rs = $c->db_user_accounts->search(undef, { prefetch => 'user_workspace_roles' });
+	my $user = $rs->lookup_by_email($body->{user}) || $rs->lookup_by_name($body->{user});
 
 	unless ($user) {
 		$c->log->debug("User '".$body->{user}."' was not found");
@@ -100,12 +98,14 @@ sub invite ($c) {
 		$c->log->warn("Email sent to ".$user->email." containing their PLAINTEXT password");
 	}
 
-	Conch::Model::Workspace->new->add_user_to_workspace(
-		$user->id,
-		$c->stash('current_workspace'),
-		$body->{role},
-	);
-	$c->log->info("Add user ".$user->id." to workspace ".$c->stash('current_workspace')->id);
+	# FIXME! do not downgrade a user's existing access to this workspace.
+	my $workspace_id = $c->stash('workspace_id');
+	$user->create_related('user_workspace_roles' => {
+		workspace_id => $workspace_id,
+		role => $body->{role},
+	}) if not any { $_->workspace_id eq $workspace_id } $user->user_workspace_roles->@*;
+
+	$c->log->info("Add user ".$user->id." to workspace $workspace_id");
 	$c->status(201);
 }
 

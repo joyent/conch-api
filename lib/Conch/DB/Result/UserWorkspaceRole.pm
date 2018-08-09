@@ -132,8 +132,21 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-09 14:14:24
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2k6gvOS1g//6V/o1gHknXw
 
+=head2 workspace_recursive
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::WorkspaceRecursive>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "workspace_recursive",
+  "Conch::DB::Result::WorkspaceRecursive",
+  { id => "workspace_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 1;
 __END__
 
@@ -148,3 +161,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

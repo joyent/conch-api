@@ -3,12 +3,6 @@ use Test::More;
 use Data::UUID;
 use IO::All;
 
-use Data::Printer;
-
-BEGIN {
-	use_ok("Conch::Models");
-}
-
 use Test::Conch::Datacenter;
 
 my $t = Test::Conch::Datacenter->new();
@@ -481,17 +475,17 @@ subtest 'Permissions' => sub {
 	my $ro_email = 'readonly@wat.wat';
 	my $ro_pass = 'password';
 
-	my $ws_model   = new_ok("Conch::Model::Workspace");
-
 	subtest "Read-only" => sub {
 
 		my $ro_user = $t->app->db_user_accounts->create({
 			name => $ro_name,
 			email => $ro_email,
 			password => $ro_pass,
+			user_workspace_roles => [{
+				workspace_id => $id,
+				role => 'ro',
+			}],
 		});
-
-		$ws_model->add_user_to_workspace( $ro_user->id, $id, 'ro' );
 
 		$t->post_ok(
 			"/login" => json => {
@@ -551,8 +545,12 @@ subtest 'Permissions' => sub {
 			name => $name,
 			email => $email,
 			password => $pass,
+			user_workspace_roles => [{
+				workspace_id => $id,
+				role => 'rw',
+			}],
 		});
-		$ws_model->add_user_to_workspace( $user->id, $id, 'rw' );
+
 		$t->post_ok(
 			"/login" => json => {
 				user     => $email,

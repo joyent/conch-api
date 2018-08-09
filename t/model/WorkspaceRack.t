@@ -4,7 +4,6 @@ use Test::ConchTmpDB qw(mk_tmp_db);
 
 use Conch::Pg;
 
-use Conch::Model::Workspace;
 use Conch::Model::WorkspaceRack;
 
 use Data::Printer;
@@ -13,11 +12,11 @@ use Data::UUID;
 my $pgtmp = mk_tmp_db();
 $pgtmp or die;
 Conch::Pg->new( $pgtmp->uri );
+my $schema = Test::ConchTmpDB->schema($pgtmp);
 
 my $uuid = Data::UUID->new;
 
-my $ws_model = Conch::Model::Workspace->new();
-my $global_ws = $ws_model->lookup_by_name('GLOBAL');
+my $global_ws = $schema->resultset('Workspace')->find({ name => 'GLOBAL' });
 
 new_ok('Conch::Model::WorkspaceRack');
 my $ws_rack_model = Conch::Model::WorkspaceRack->new();
