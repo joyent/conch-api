@@ -98,7 +98,7 @@ __PACKAGE__->add_unique_constraint(
 
 =head1 RELATIONS
 
-=head2 user
+=head2 user_account
 
 Type: belongs_to
 
@@ -107,7 +107,7 @@ Related object: L<Conch::DB::Result::UserAccount>
 =cut
 
 __PACKAGE__->belongs_to(
-  "user",
+  "user_account",
   "Conch::DB::Result::UserAccount",
   { id => "user_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
@@ -129,8 +129,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-08 13:16:00
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SBWnVV93k2oHYVyiBcDDAw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-09 14:14:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2k6gvOS1g//6V/o1gHknXw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

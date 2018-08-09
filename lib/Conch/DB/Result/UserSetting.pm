@@ -114,7 +114,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 user
+=head2 user_account
 
 Type: belongs_to
 
@@ -123,15 +123,15 @@ Related object: L<Conch::DB::Result::UserAccount>
 =cut
 
 __PACKAGE__->belongs_to(
-  "user",
+  "user_account",
   "Conch::DB::Result::UserAccount",
   { id => "user_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-31 10:58:50
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dDS/QAPooKsMg54xX4LioQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-09 14:14:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/Lhf/C6HJhaL+Nt96YOxuA
 
 1;
 __END__
