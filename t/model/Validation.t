@@ -13,9 +13,9 @@ use_ok("Conch::Model::Validation");
 
 use Conch::Model::Validation;
 
-my $pgtmp = mk_tmp_db();
-$pgtmp or die;
-my $pg = Conch::Pg->new( $pgtmp->uri );
+use Test::Conch;
+my $t = Test::Conch->new();
+my $pg = Conch::Pg->new( $t->pg );
 
 my $validation;
 
@@ -143,11 +143,8 @@ subtest "build_device_validation" => sub {
 
 
 	require Conch::Validation::DeviceProductName;
-	my $real_validation = Conch::Model::Validation->create(
-		'product_name', 1,
-		'real validation',
-		'Conch::Validation::DeviceProductName'
-	);
+	my $real_validation = Conch::Model::Validation->lookup_by_name_and_version('product_name', 1);
+	$real_validation->log($t->app->log);
 
 	my $device_validation;
 	lives_ok {
@@ -157,6 +154,7 @@ subtest "build_device_validation" => sub {
 	};
 
 	isa_ok( $device_validation, 'Conch::Validation' );
+	$device_validation->log($t->app->log);
 	my $results = $device_validation->run( { product_name => 'Joyent-G1' } )
 			->validation_results;
 	is( scalar @$results, 1 );
