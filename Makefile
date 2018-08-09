@@ -57,14 +57,14 @@ migrate-db: ## Apply database migrations
 db-schema: ## create a dump of current db schema
 	pg_dump -U conch -s conch > sql/schema.sql
 
-validation_docs: docs/validation/BaseValidation.md docs/validation/BaseValidation.md
+.PHONY: validation_docs docs/validation/BaseValidation.md docs/validation/TestValidations.md
+validation_docs: docs/validation/BaseValidation.md docs/validation/BaseValidation.md ## Generate markdown files of the validation docs 
 
-# pod2github is installed with Pod::Github
 docs/validation/BaseValidation.md: lib/Conch/Validation.pm
-	@pod2github lib/Conch/Validation.pm > docs/validation/BaseValidation.md
+	@carton exec pod2github lib/Conch/Validation.pm > docs/validation/BaseValidation.md
 
 docs/validation/TestingValidations.md: lib/Test/Conch/Validation.pm
-	@pod2github lib/Test/Conch/Validation.pm > docs/validation/TestingValidations.md
+	@carton exec pod2github lib/Test/Conch/Validation.pm > docs/validation/TestingValidations.md
 
 .PHONY: help
 help: ## Display this help message
