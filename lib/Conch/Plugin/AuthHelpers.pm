@@ -18,7 +18,7 @@ sub register ($self, $app, $conf) {
 
 =head2 global_auth
 
-	if($c->global_auth("DC Operations")) {}
+	if ($c->global_auth('rw')) { ... }
 
 Verifies if the currently stashed user_id has this auth role on the GLOBAL
 workspace
@@ -49,14 +49,14 @@ workspace
 
 	return $c->status(403) unless $c->is_global_admin
 
-Verifies that the currently stashed user_id has Administrator rights on the
+Verifies that the currently stashed user_id has admin rights on the
 GLOBAL workspace
 
 =cut
 
 	$app->helper(
 		is_global_admin => sub {
-			shift->global_auth('Administrator');
+			shift->global_auth('admin');
 		}
 	);
 
@@ -74,7 +74,7 @@ admin on the currently stashed 'current_workspace'
 			return 1 if $c->is_global_admin;
 			my $ws = $c->stash("current_workspace");
 			return 0 unless $ws;
-			return 1 if $ws->role eq "Administrator";
+			return 1 if $ws->role eq 'admin';
 			return 0;
 		}
 	);

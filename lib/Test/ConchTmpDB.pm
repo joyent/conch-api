@@ -56,10 +56,10 @@ sub mk_tmp_db {
 		my ($storage, $dbh, @args) = @_;
 		$dbh->do(
 			q|
-		insert into user_workspace_role(user_id,workspace_id,role_id) values(
+		insert into user_workspace_role(user_id,workspace_id,role) values(
 		  (select id from user_account where name='conch' limit 1),
 		  (select id from workspace where name='GLOBAL' limit 1),
-		  (select id from role where name='Administrator' limit 1)
+		  'admin'
 		); |
 		) or die;
 	});

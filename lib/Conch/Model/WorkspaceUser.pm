@@ -21,12 +21,10 @@ Retrieve list users assigned to a workspace.
 sub workspace_users ( $self, $ws_id ) {
 	Conch::Pg->new->db->query(
 		q{
-      SELECT u.name, u.email, r.name as role
+      SELECT u.name, u.email, uwr.role
       FROM user_workspace_role uwr
       JOIN user_account u
         ON u.id = uwr.user_id
-      JOIN role r
-        on r.id = uwr.role_id
       WHERE uwr.workspace_id = ?::uuid
       }, $ws_id
 	)->hashes->map( sub { Conch::Class::WorkspaceUser->new($_) } )->to_array;

@@ -178,7 +178,7 @@ Assign the full layout for a rack
 # TODO: This is legacy code that is non-transactional. It should be reworked. --Lane
 # Bulk update a rack layout.
 sub assign_layout ($c) {
-	return $c->status(403) if $c->stash('current_workspace')->role eq 'Read-only';
+	return $c->status(403) if $c->stash('current_workspace')->role eq 'ro';
 	my $rack_id = $c->stash('current_ws_rack')->id;
 
 	my $layout = $c->req->json;

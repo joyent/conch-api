@@ -58,6 +58,19 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
+-- Name: user_workspace_role_enum; Type: TYPE; Schema: public; Owner: conch
+--
+
+CREATE TYPE public.user_workspace_role_enum AS ENUM (
+    'ro',
+    'rw',
+    'admin'
+);
+
+
+ALTER TYPE public.user_workspace_role_enum OWNER TO conch;
+
+--
 -- Name: validation_status_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
@@ -694,40 +707,6 @@ CREATE TABLE public.relay (
 ALTER TABLE public.relay OWNER TO conch;
 
 --
--- Name: role; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.role (
-    id integer NOT NULL,
-    name text NOT NULL,
-    description text
-);
-
-
-ALTER TABLE public.role OWNER TO conch;
-
---
--- Name: role_id_seq; Type: SEQUENCE; Schema: public; Owner: conch
---
-
-CREATE SEQUENCE public.role_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.role_id_seq OWNER TO conch;
-
---
--- Name: role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: conch
---
-
-ALTER SEQUENCE public.role_id_seq OWNED BY public.role.id;
-
-
---
 -- Name: user_account; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -796,7 +775,7 @@ ALTER TABLE public.user_settings OWNER TO conch;
 CREATE TABLE public.user_workspace_role (
     user_id uuid NOT NULL,
     workspace_id uuid NOT NULL,
-    role_id integer NOT NULL
+    role public.user_workspace_role_enum DEFAULT 'ro'::public.user_workspace_role_enum NOT NULL
 );
 
 
@@ -960,13 +939,6 @@ ALTER TABLE public.zpool_profile OWNER TO conch;
 --
 
 ALTER TABLE ONLY public.migration ALTER COLUMN id SET DEFAULT nextval('public.migration_id_seq'::regclass);
-
-
---
--- Name: role id; Type: DEFAULT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.role ALTER COLUMN id SET DEFAULT nextval('public.role_id_seq'::regclass);
 
 
 --
@@ -1295,22 +1267,6 @@ ALTER TABLE ONLY public.migration
 
 ALTER TABLE ONLY public.relay
     ADD CONSTRAINT relay_pkey PRIMARY KEY (id);
-
-
---
--- Name: role role_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.role
-    ADD CONSTRAINT role_name_key UNIQUE (name);
-
-
---
--- Name: role role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.role
-    ADD CONSTRAINT role_pkey PRIMARY KEY (id);
 
 
 --
@@ -1828,14 +1784,6 @@ ALTER TABLE ONLY public.user_session_token
 
 ALTER TABLE ONLY public.user_settings
     ADD CONSTRAINT user_settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
-
-
---
--- Name: user_workspace_role user_workspace_role_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_workspace_role
-    ADD CONSTRAINT user_workspace_role_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.role(id);
 
 
 --

@@ -36,7 +36,7 @@ sub list ($c) {
 =head2 replace_rooms
 
 Replace the room list for the current stashed C<current_workspace>, given that
-workspace is not GLOBAL, and provided that the user is an Administrator (GLOBAL
+workspace is not GLOBAL, and provided that the user has the 'admin' role (GLOBAL
 or local)
 
 =cut

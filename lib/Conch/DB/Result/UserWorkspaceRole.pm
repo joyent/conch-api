@@ -51,10 +51,11 @@ __PACKAGE__->table("user_workspace_role");
   is_nullable: 0
   size: 16
 
-=head2 role_id
+=head2 role
 
-  data_type: 'integer'
-  is_foreign_key: 1
+  data_type: 'enum'
+  default_value: 'ro'
+  extra: {custom_type_name => "user_workspace_role_enum",list => ["ro","rw","admin"]}
   is_nullable: 0
 
 =cut
@@ -64,8 +65,16 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "workspace_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "role_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "role",
+  {
+    data_type => "enum",
+    default_value => "ro",
+    extra => {
+      custom_type_name => "user_workspace_role_enum",
+      list => ["ro", "rw", "admin"],
+    },
+    is_nullable => 0,
+  },
 );
 
 =head1 UNIQUE CONSTRAINTS
@@ -88,21 +97,6 @@ __PACKAGE__->add_unique_constraint(
 );
 
 =head1 RELATIONS
-
-=head2 role
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::Role>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "role",
-  "Conch::DB::Result::Role",
-  { id => "role_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
 
 =head2 user
 
@@ -135,8 +129,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-31 10:58:50
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:T13qk/sjaFqxFk4dDZ3T8g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-08 13:16:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SBWnVV93k2oHYVyiBcDDAw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -541,7 +541,7 @@ Validations are independent and un-ordered within a validation plan. A given
 validation may be in 0 or many validation plans, and a validation plan may have
 0, 1, or many validations associated with it.
 
-Only users who are global admins (i.e., [they have an `Administrator` role for
+Only users who are global admins (i.e., [they have an `admin` role for
 the GLOBAL workspace](https://github.com/joyent/rfd/blob/master/rfd/0134/README.md) may
 create and manage validation plans. However, anyone with a Conch account may
 list and test validation plans.

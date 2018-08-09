@@ -15,6 +15,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
 use Conch::Models;
 use Conch::Pg;
+use List::Util 1.33 'none';
 
 with 'Conch::Role::MojoLog';
 
@@ -51,14 +52,9 @@ sub invite ($c) {
 		});
 	}
 
-	my $maybe_role = Conch::Model::WorkspaceRole->new->lookup_by_name(
-		$body->{role}
-	);
-
-	unless ($maybe_role) {
-		my $role_names = join( ', ',
-			map { $_->name } @{ Conch::Model::WorkspaceRole->new->list }
-		);
+	my @role_names = Conch::DB::Result::UserWorkspaceRole->column_info('role')->{extra}{list}->@*;
+	if (none { $body->{role} eq $_ } @role_names) {
+		my $role_names = join( ', ', @role_names);
 
 		$c->log->debug("Role name '".$body->{role}."' was not one of $role_names");
 		return $c->status( 400 => {
@@ -96,7 +92,7 @@ sub invite ($c) {
 	Conch::Model::Workspace->new->add_user_to_workspace(
 		$user->id,
 		$c->stash('current_workspace'),
-		$maybe_role->id
+		$body->{role},
 	);
 	$c->log->info("Add user ".$user->id." to workspace ".$c->stash('current_workspace')->id);
 	$c->status(201);

@@ -5,7 +5,6 @@ use Test::ConchTmpDB qw(mk_tmp_db);
 use Try::Tiny;
 use IO::All;
 
-use_ok("Conch::Model::WorkspaceRole");
 use_ok("Conch::Model::Workspace");
 use_ok("Conch::Model::Device");
 

@@ -481,12 +481,9 @@ subtest 'Permissions' => sub {
 	my $ro_email = 'readonly@wat.wat';
 	my $ro_pass = 'password';
 
-	my $role_model = new_ok("Conch::Model::WorkspaceRole");
 	my $ws_model   = new_ok("Conch::Model::Workspace");
 
 	subtest "Read-only" => sub {
-
-		my $ro_role = $role_model->lookup_by_name('Read-only');
 
 		my $ro_user = $t->app->db_user_accounts->create({
 			name => $ro_name,
@@ -494,7 +491,7 @@ subtest 'Permissions' => sub {
 			password => $ro_pass,
 		});
 
-		$ws_model->add_user_to_workspace( $ro_user->id, $id, $ro_role->id );
+		$ws_model->add_user_to_workspace( $ro_user->id, $id, 'ro' );
 
 		$t->post_ok(
 			"/login" => json => {
@@ -534,7 +531,7 @@ subtest 'Permissions' => sub {
 				"/workspace/$id/user",
 				json => {
 					user => 'another@wat.wat',
-					role => 'Read-only',
+					role => 'ro',
 				}
 			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
@@ -550,13 +547,12 @@ subtest 'Permissions' => sub {
 		my $email = 'integrator@wat.wat';
 		my $pass = 'password';
 
-		my $role = $role_model->lookup_by_name('Integrator');
 		my $user = $t->app->db_user_accounts->create({
 			name => $name,
 			email => $email,
 			password => $pass,
 		});
-		$ws_model->add_user_to_workspace( $user->id, $id, $role->id );
+		$ws_model->add_user_to_workspace( $user->id, $id, 'rw' );
 		$t->post_ok(
 			"/login" => json => {
 				user     => $email,
@@ -579,7 +575,7 @@ subtest 'Permissions' => sub {
 				"/workspace/$id/user",
 				json => {
 					user => 'another@wat.wat',
-					role => 'Read-only',
+					role => 'ro',
 				}
 			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
