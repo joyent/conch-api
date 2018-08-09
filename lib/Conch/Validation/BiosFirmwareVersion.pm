@@ -1,14 +1,15 @@
 package Conch::Validation::BiosFirmwareVersion;
 
-use Mojo::Base 'Conch::Validation';
+use Mojo::Base -base;
+use Role::Tiny::With;
+with("Conch::Role::Validation");
 
-has 'name'        => 'bios_firmware_version';
-has 'version'     => 1;
-has 'category'    => 'BIOS';
-has 'description' => q(
-Validate the reported BIOS firmware version matches the hardware product
-profile
-);
+use constant {
+	'name'        => 'bios_firmware_version',
+	'version'     => 1,
+	'category'    => 'BIOS',
+	'description' => "Validate the reported BIOS firmware version matches the hardware product profile"
+};
 
 sub validate {
 	my ( $self, $data ) = @_;

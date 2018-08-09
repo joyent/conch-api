@@ -17,6 +17,8 @@ use Submodules;
 use Conch::Model::ValidationState;
 use Conch::Pg;
 
+use Role::Tiny qw();
+
 =head2 load_validations
 
 Load all Conch::Validation::* sub-classes into the database with
@@ -37,11 +39,14 @@ sub load_validations ( $class, $logger ) {
 		my $validation_module = $m->{Module};
 
 		my $validation = $validation_module->new();
-		unless ( $validation->isa('Conch::Validation') ) {
-			$logger->info(
-				"$validation_module must be a sub-class of Conch::Validation. Skipping."
-			);
-			next;
+		
+		if(not $validation->isa('Conch::Validation')) {
+			if(not Role::Tiny::does_role($validation, "Conch::Role::Validation")) {
+				$logger->info(
+					"$validation_module must be a sub-class of Conch::Validation or use the role Conch::Role::Validation. Skipping."
+				);
+				next;
+			}
 		}
 
 		unless ( $validation->name
