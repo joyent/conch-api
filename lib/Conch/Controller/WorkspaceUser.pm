@@ -22,13 +22,24 @@ with 'Conch::Role::MojoLog';
 =head2 list
 
 Get a list of users for the current stashed C<current_workspace>
+Returns a listref of hashrefs with keys: name, email, role.
+TODO: include id?
 
 =cut
 
 sub list ($c) {
-	my $users = Conch::Model::WorkspaceUser->new->workspace_users(
-		$c->stash('current_workspace')->id
-	);
+	my $users = [
+		map {
+			my $uwr = $_;
+			+{
+				(map { $_ => $uwr->user_account->$_ } qw(name email)),
+				role => $uwr->role,
+			}
+		} $c->db_user_workspace_roles->search(
+			{ workspace_id => $c->stash('workspace_id') },
+			{ prefetch => 'user_account' },
+		)->all
+	];
 
 	$c->log->debug("Found ".scalar($users->@*)." users");
 	$c->status( 200, $users );
