@@ -620,55 +620,6 @@ subtest 'Workspace devices' => sub {
 	};
 };
 
-subtest 'Relays' => sub {
-	$t->get_ok("/workspace/$global_ws_id/relay")
-		->status_is(200)
-		->json_schema_is('WorkspaceRelays')
-		->json_cmp_deeply([ {
-			id => 'deadbeef',
-			alias => 'test relay',
-			ipaddr => '127.0.0.1',
-			ssh_port => '22',
-			version => '0.0.1',
-			created => ignore,
-			updated => ignore,
-			location => {
-				rack_id => $rack_id,
-				rack_name => 'Test Rack',		# from sql/test/03-test-datacenter.sql
-				room_name => 'test-region-1a',	# ""
-				role_name => 'TEST_RACK_ROLE',	# ""
-			},
-			devices => [ $devices_data->[0] ],
-		}]);
-
-	my $relays = $t->tx->res->json;
-
-	$t->get_ok("/workspace/$global_ws_id/relay?active=1")
-		->status_is(200)
-		->json_schema_is('WorkspaceRelays')
-		->json_is($relays);
-
-	$t->get_ok("/workspace/$global_ws_id/relay?no_devices=0")
-		->status_is(200)
-		->json_schema_is('WorkspaceRelays')
-		->json_is('', $relays);
-
-	# TODO: should omit this field entirely
-	$relays->[0]{devices} = [];
-	$t->get_ok("/workspace/$global_ws_id/relay?no_devices=1")->status_is(200)
-		->json_schema_is('WorkspaceRelays')
-		->json_is('', $relays);
-
-	delete $relays->[0]{devices};
-	delete $relays->[0]{location};
-
-	$t->get_ok('/relay')
-		->status_is(200)
-		->json_schema_is('Relays')
-		->json_is('', $relays);
-
-};
-
 subtest 'Validations' => sub {
 	$t->get_ok('/validation')
 		->status_is(200)

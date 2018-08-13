@@ -44,33 +44,6 @@ sub new ( $class, %args ) {
 	$class->SUPER::new(%args);
 }
 
-=head2 TO_JSON
-
-Serialize a hash
-
-=cut
-sub TO_JSON ($self) {
-	{
-		asset_tag            => $self->asset_tag,
-		created              => $self->created,
-		graduated            => $self->graduated,
-		hardware_product     => $self->hardware_product_id,     # XXX special
-		health               => $self->health,
-		hostname             => $self->hostname,
-		id                   => $self->id,
-		last_seen            => $self->last_seen,
-		latest_triton_reboot => $self->latest_triton_reboot,
-		state                => $self->state,
-		system_uuid          => $self->system_uuid,
-		triton_setup         => $self->triton_setup,
-		triton_uuid          => $self->triton_uuid,
-		updated              => $self->updated,
-		uptime_since         => $self->uptime_since,
-		validated            => $self->validated,
-		# XXX no 'deactivated'
-	};
-}
-
 1;
 __END__
 
