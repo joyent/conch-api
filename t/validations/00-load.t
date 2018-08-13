@@ -1,13 +1,13 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use Conch::ValidationSystem;
+use Conch::Validations;
 use Conch::Model::Validation;
 
 use Test::Conch;
 
-my $t = Test::Conch->new();
 
+my $t = Test::Conch->new(); # Runs Validations->load() for the first time
 my $logger = $t->app->log;
 
 my $num_validations = 0;
@@ -24,7 +24,7 @@ is(
 	'Number of validations matches number in the system'
 );
 
-my $num_reloaded = Conch::ValidationSystem->load_validations($logger);
+my $num_reloaded = Conch::Validations->load($logger);
 
 is( $num_reloaded, 0, 'No new validations loaded' );
 

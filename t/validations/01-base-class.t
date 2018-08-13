@@ -1,5 +1,4 @@
 use Mojo::Base -strict;
-use DDP;
 use Test::More;
 use Test::Fatal;
 use Test::Deep;
@@ -9,13 +8,6 @@ use Test::Conch;
 my $t = Test::Conch->new();
 my $l = $t->app->log;
 
-# SUMMARY
-# =======
-#
-# These tests are for the core functionality of Conch::Validation. It tests
-# each of the component pieces of the module are working as expected. In
-# general, if Conch::Validation is changed, corresponding tests should be
-# added.
 
 use_ok("Conch::Validation");
 new_ok("Conch::Validation");

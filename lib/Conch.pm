@@ -20,7 +20,7 @@ use Conch::Route qw(all_routes);
 use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
-use Conch::ValidationSystem;
+use Conch::Validations;
 use Conch::Plugin::AuthHelpers;
 use Conch::Plugin::JsonValidator;
 
@@ -203,7 +203,7 @@ sub startup {
 
 	push @{$self->commands->namespaces}, 'Conch::Command';
 
-	Conch::ValidationSystem->load_validations( $self->log );
+	Conch::Validations->load( $self->log );
 
 	all_routes($self->routes);
 }
