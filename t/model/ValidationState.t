@@ -129,7 +129,7 @@ subtest "validation results" => sub {
 	is_deeply( $validation_state->validation_results, [] );
 
 	my $validation =
-		Conch::Model::Validation->create( 'test', 1, 'test validation',
+		Conch::Model::Validation->upsert( 'test', 1, 'test validation',
 		'Test::Validation' );
 
 	my $result = Conch::Model::ValidationResult->new(

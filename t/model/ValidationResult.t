@@ -44,7 +44,7 @@ BAIL_OUT("Could not create a validation plan and device ")
 my $validation_state =
 	Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
 
-my $validation = Conch::Model::Validation->create( 'test', 1, 'test validation',
+my $validation = Conch::Model::Validation->upsert( 'test', 1, 'test validation',
 	'Test::Validation' );
 
 my $result;

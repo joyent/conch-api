@@ -64,7 +64,7 @@ my $hardware_profile_id = $pg->db->insert(
 my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
 
 subtest "Create validation" => sub {
-	$validation = Conch::Model::Validation->create( 'test', 1, 'test validation',
+	$validation = Conch::Model::Validation->upsert( 'test', 1, 'test validation',
 		'Conch::Validation::Test' );
 	isa_ok( $validation, 'Conch::Model::Validation' );
 };

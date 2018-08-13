@@ -36,6 +36,9 @@ Create a new Validation.
 
 All unspecified fields will be 'undef'.
 
+B<NOTE>: There is no way to write data to the database from a regular object.
+To save data to the database, see L<upsert>. #FIXME 
+
 =cut
 
 sub new ( $class, %args ) {
@@ -57,27 +60,6 @@ sub TO_JSON ($self) {
 		created     => Conch::Time->new( $self->created ),
 		updated     => Conch::Time->new( $self->updated )
 	};
-}
-
-=head2 create
-
-Create a new Validation. May throw error if Validation with the same name and version already exist.
-Use C<upsert> to avoid this.
-
-=cut
-
-sub create ( $class, $name, $version, $description, $module ) {
-	my $ret = Conch::Pg->new->db->insert(
-		'validation',
-		{
-			name        => $name,
-			version     => $version,
-			description => $description,
-			module      => $module
-		},
-		{ returning => $attrs }
-	)->hash;
-	return $class->new( $ret->%* );
 }
 
 =head2 upsert

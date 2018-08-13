@@ -96,7 +96,7 @@ subtest "associated validation" => sub {
 	is_deeply( $validation_plan->validation_ids, [],
 		'No associated validations' );
 	my $validation =
-		Conch::Model::Validation->create( 'test', 1, 'test validation',
+		Conch::Model::Validation->upsert( 'test', 1, 'test validation',
 		'Test::Validation' );
 
 	is( $validation_plan->add_validation($validation),
