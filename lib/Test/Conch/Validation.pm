@@ -20,6 +20,8 @@ use Conch::Class::DeviceLocation;
 use Conch::Class::HardwareProduct;
 use Conch::Class::HardwareProductProfile;
 
+use Conch::Models;
+
 use Exporter 'import';
 our @EXPORT_OK = qw( test_validation );
 
@@ -135,24 +137,26 @@ sub test_validation {
 	use_ok($validation_module)
 		|| diag "$validation_module fails to compile" && return;
 
-	my $device = Conch::Model::Device->new( $args{device} )
-		if $args{device};
+	my $device = $args{device} ? Conch::Model::Device->new( $args{device} )
+		: Conch::Model::Device->new();
 
 	my $hw_product_profile = Conch::Class::HardwareProductProfile->new(
-		$args{hardware_product}->{profile}->%* )
-		if $args{hardware_product} && $args{hardware_product}->{profile};
+		$args{hardware_product}->{profile}->%*
+	) if $args{hardware_product} && $args{hardware_product}->{profile};
 
-	my $hw_product =
-		Conch::Class::HardwareProduct->new( $args{hardware_product}->%*,
-		profile => $hw_product_profile );
+	my $hw_product = Conch::Class::HardwareProduct->new(
+		$args{hardware_product}->%*,
+		profile => $hw_product_profile
+	);
 
 	my $rack = Conch::Class::DatacenterRack->new(
-		$args{device_location}->{datacenter_rack}->%* )
-		if $args{device_location} && $args{device_location}->{datacenter_rack};
+		$args{device_location}->{datacenter_rack}->%*
+	) if $args{device_location} && $args{device_location}->{datacenter_rack};
 
-	my $device_location =
-		Conch::Class::DeviceLocation->new( $args{device_location}->%*,
-		datacenter_rack => $rack );
+	my $device_location = Conch::Class::DeviceLocation->new(
+		$args{device_location}->%*,
+		datacenter_rack => $rack
+	);
 
 	my $validation = $validation_module->new(
 		device           => $device,
@@ -160,29 +164,10 @@ sub test_validation {
 		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,
 	);
+
 	$validation->log($log);
 	isa_ok( $validation, $validation_module, "$validation_module->new failed" )
 		|| return;
-
-	ok(
-		defined( $validation->name ),
-		"'name' attribute must be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->version ),
-		"'version' attribute must be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->category ),
-		"'category' attribute should be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->description ),
-		"'description' attribute should be defined for $validation_module"
-	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
 		_test_case( $validation, $validation_module, $args{cases}, $case_index );

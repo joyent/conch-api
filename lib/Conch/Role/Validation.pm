@@ -1,16 +1,57 @@
+=head1 NAME
+
+Conch::Role::Validation
+
+=head1 DESCRIPTION
+
+A Moo role for implementing a Validation interface
+
+=head1 SYNOPSIS
+
+	use Role::Tiny::With;
+	with 'Conch::Role::Validation';
+
+	use constant {
+		name        => '',
+		category    => 'WAT',
+		description => '',
+		version     => 1,
+	};
+
+	sub validate {
+		my ($self, $data) = @_;
+	}
+
+=head1 REQUIREMENTS
+
+=cut
+
 package Conch::Role::Validation;
 
-use Mojo::Base -role, -signatures;
+use strict;
+use warnings;
+use utf8;
+use v5.20;
+
+use Moo::Role;
+use experimental qw(signatures);
+use Type::Tiny;
+use Types::Standard qw(InstanceOf ArrayRef HashRef CodeRef);
 
 use Try::Tiny;
 
-use Conch::Pg;
+use Conch::DB;
 
 use Mojo::Exception;
 use Mojo::JSON;
 
-use Conch::ValidationError;
 use Conch::Log;
+
+use constant {
+	STATUS_ERROR => 'error',
+	STATUS_FAIL  => 'fail',
+	STATUS_PASS  => 'pass'
+};
 
 requires 'name';
 requires 'description';
@@ -20,47 +61,99 @@ requires 'category';
 requires 'validate';
 
 
-has 'log' => sub { Conch::Log->new() };
 
-has 'validation_results' => sub { [] };
+has 'db' => (
+	is => 'lazy',
+);
 
-use constant {
-	STATUS_ERROR => 'error',
-	STATUS_FAIL  => 'fail',
-	STATUS_PASS  => 'pass'
-};
+sub _build_db {
+	my $db = Conch::Pg->new();
+	return Conch::DB->connect(
+		$db->dsn,
+		$db->username,
+		$db->password,
+		{ ReadOnly => 1 },
+	);
+}
 
 
-has 'hardware_product';
-has 'device';
-has 'device_location';
-has 'device_settings';
-has 'result_builder' => sub { sub {return {@_}} };
+has 'log' => (
+	is      => 'rw',
+	isa     => InstanceOf['Mojo::Log'],
+	default => sub { Conch::Log->new() }
+);
 
+has 'validation_results' => (
+	clearer => 1,
+	is => 'lazy',
+	isa => ArrayRef[InstanceOf['Conch::Model::ValidationResults']],
+);
+
+sub _build_validation_results {
+	return []
+}
+
+has 'device' => ( 
+	is => 'rw',
+	isa => InstanceOf["Conch::Model::Device"], # FIXME switch to DBIC
+);
+
+has 'hardware_product' => ( #FIXME replace with DBIC lookup off ->device
+	is => 'rw',
+	isa => InstanceOf['Conch::Class::HardwareProduct'], 
+);
+
+has 'device_settings' => ( # FIXME replace with DBIC lookup off -> device
+	is => 'rw',
+	isa => HashRef,
+	default => sub { {} },
+);
+
+
+has 'result_builder' => ( # FIXME remove
+	is => 'lazy',
+	isa => CodeRef,
+);
+
+sub _build_result_builder {
+	return sub {return {@_}};
+}
 
 sub run ( $self, $data ) {
 	try {
+		Mojo::Exception->throw("Need a device") unless $self->device;
 		$self->validate($data);
 	}
 	catch {
 		my $err = $_;
-		# FIXME wat
-		if ( not $err->isa('Conch::ValidationError') ) {
-			# remove the 'at $filename line $line_number' from the exception
-			# message. We might not want to reveal Conch's path
-			$err =~ s/ at .+$//;
-			$err = Conch::ValidationError->new($err)->trace(1);
+
+		my $hint = "Exception raised";
+		my $msg = 'Unknown';
+
+		if($err->isa("Mojo::Exception")) {
+			$hint = "Exception raised in '".
+				$err->frames->[0]->[0].
+				"' at line ".
+				$err->frames->[0]->[2];
+
+			$msg = $err->message;
+		} elsif($err->isa("DBIx::Class::Exception")) {
+			$msg = "$err";
 		}
 
-		$self->log->error("Validation '".$self->name."' threw an exception: ".$err->message);
+		$self->log->error(
+			"Validation exception: ".
+			$self->name.
+			" - $hint - $msg"
+		);
+
 		$self->log->debug("Bad data: ". Mojo::JSON::to_json($data));
 
-
 		my $validation_error = $self->result_builder->(
-			message  => $err->message,
+			message  => $msg,
 			name     => $self->name,
 			status   => STATUS_ERROR,
-			hint     => $err->hint || $err->error_loc,
+			hint     => $hint,
 			category => $self->category,
 		);
 		push $self->validation_results->@*, $validation_error;
@@ -68,69 +161,31 @@ sub run ( $self, $data ) {
 	return $self;
 }
 
-# FIXME REMOVE ALL OF THESE
-sub hardware_product_name ($self) {
-	$self->hardware_product->name;
-}
-
-sub hardware_legacy_product_name ($self) {
-	$self->hardware_product->legacy_product_name;
-}
-
-
-sub hardware_product_generation ($self) {
-	$self->hardware_product->generation_name;
-}
-
-
-sub hardware_product_sku ($self) {
-	$self->hardware_product->sku;
-}
-
-
-sub hardware_product_specification ($self) {
-	$self->hardware_product->specification;
-}
-
-
-sub hardware_product_vendor ($self) {
-	$self->hardware_product->vendor;
-}
-
-
-sub hardware_product_profile ($self) {
-	$self->hardware_product->profile;
-}
-
-
 sub register_result ( $self, %attrs ) {
 	my $expected = $attrs{expected};
 	my $got      = $attrs{got};
 	my $cmp_op   = $attrs{cmp} || 'eq';
 
-	$self->die( "'expected' value must be defined", level => 2 )
+	$self->die( "'expected' value must be defined")
 		unless defined($expected);
 
 	return $self->fail("'got' value is undefined") unless defined($got);
 
-	$self->die( "'got' value must be a scalar", level => 2 ) if ref($got);
+	$self->die( "'got' value must be a scalar" ) if ref($got);
 
 	if ( $cmp_op eq 'oneOf' ) {
-		$self->die( "'expected' value must be an array when comparing with 'oneOf'",
-			level => 2 )
+		$self->die( "'expected' value must be an array when comparing with 'oneOf'")
 			unless ref($expected) eq 'ARRAY';
 	}
 	elsif ( $cmp_op eq 'like' ) {
 		$self->die(
 			"'expected' value must be a scalar or Regexp when comparing with 'like'",
-			level => 2
 		) unless ref($expected) eq 'Regexp' || ref($expected) eq '';
 	}
 	else {
 		$self->die(
-			"'expected' value must be a scalar when comparing with '$cmp_op'",
-			level => 2 )
-			if ref($expected);
+			"'expected' value must be a scalar when comparing with '$cmp_op'"
+		) if ref($expected);
 	}
 
 	my $cmp_dispatch = {
@@ -196,9 +251,8 @@ sub register_result ( $self, %attrs ) {
 }
 
 
-sub die ( $self, $message, %args ) {
-	die Conch::ValidationError->new($message)->hint( $args{hint} )
-		->trace( $args{level} || 1 );
+sub die ( $self, $message ) {
+	Mojo::Exception->throw($message);
 }
 
 
@@ -232,7 +286,7 @@ sub error ( $self ) {
 
 
 sub clear_results ( $self ) {
-	$self->validation_results( [] );
+	$self->clear_validation_results();
 	return $self;
 }
 

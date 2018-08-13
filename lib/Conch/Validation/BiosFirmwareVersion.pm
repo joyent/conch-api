@@ -1,5 +1,4 @@
 package Conch::Validation::BiosFirmwareVersion;
-
 use Mojo::Base -base;
 use Role::Tiny::With;
 with("Conch::Role::Validation");
@@ -16,7 +15,7 @@ sub validate {
 
 	$self->die("Missing 'bios_version'") unless $data->{bios_version};
 
-	my $hw_profile = $self->hardware_product_profile;
+	my $hw_profile = $self->hardware_product->profile;
 
 	$self->register_result(
 		expected => $hw_profile->bios_firmware,

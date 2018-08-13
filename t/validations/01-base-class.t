@@ -34,24 +34,6 @@ subtest '->fail' => sub {
 	is( scalar $base_validation->successes->@*,          0 );
 };
 
-subtest '->die' => sub {
-	my $base_validation = Conch::Validation->new;
-	$base_validation->log($l);
-
-	cmp_deeply(
-		exception { $base_validation->die( 'Validation dies', hint => 'how to fix' ); },
-		all(
-			isa('Conch::ValidationError'),
-			methods(
-				message => 'Validation dies',
-				hint	=> 'how to fix',
-				error_loc => re(qr/Exception raised in 'main' at line \d+/),
-			),
-		),
-		'got the right validation errors',
-	);
-};
-
 subtest '->clear_results' => sub {
 	my $base_validation = Conch::Validation->new;
 	$base_validation->log($l);
