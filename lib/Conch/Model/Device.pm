@@ -20,7 +20,6 @@ use Conch::Pg;
 has [
 	qw(
 		asset_tag
-		boot_phase
 		created
 		graduated
 		hardware_product
@@ -56,7 +55,6 @@ Serialize a hash
 sub TO_JSON ($self) {
 	{
 		asset_tag            => $self->asset_tag,
-		boot_phase           => $self->boot_phase,
 		created              => $self->created,
 		graduated            => $self->graduated,
 		hardware_product     => $self->hardware_product,
