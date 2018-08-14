@@ -96,7 +96,7 @@ sub invite ($c) {
 
 	Conch::Model::Workspace->new->add_user_to_workspace(
 		$user->id,
-		$c->stash('current_workspace'),
+		$c->stash('current_workspace')->id,
 		$maybe_role->id
 	);
 	$c->log->info("Add user ".$user->id." to workspace ".$c->stash('current_workspace')->id);
