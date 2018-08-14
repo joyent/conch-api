@@ -92,10 +92,7 @@ sub add ($c) {
 		{ error => "Rack ID must be a UUID. Got '$rack_id'." } )
 		unless is_uuid($rack_id);
 
-	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
-		{ workspace_id => $c->stash('workspace_id') },
-		{ prefetch => 'workspace' },
-	)->single;
+	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $uwr->workspace->name eq 'GLOBAL';
@@ -145,10 +142,7 @@ datacenter room assignment
 sub remove ($c) {
 	return $c->status(403) unless $c->is_admin;
 
-	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
-		{ workspace_id => $c->stash('workspace_id') },
-		{ prefetch => 'workspace' },
-	)->single;
+	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $uwr->workspace->name eq 'GLOBAL';
@@ -184,10 +178,7 @@ Assign the full layout for a rack
 # Bulk update a rack layout.
 sub assign_layout ($c) {
 
-	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
-		{ workspace_id => $c->stash('workspace_id') },
-		{ prefetch => 'workspace' },
-	)->single;
+	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
 	return $c->status(403) if $uwr->role eq 'ro';
 	my $rack_id = $c->stash('current_ws_rack')->id;

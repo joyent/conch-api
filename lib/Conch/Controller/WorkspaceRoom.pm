@@ -53,10 +53,7 @@ sub replace_rooms ($c) {
 		});
 	}
 
-	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
-		{ workspace_id => $c->stash('workspace_id') },
-		{ prefetch => 'workspace' },
-	)->single;
+	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
 	if ( $uwr->workspace->name eq 'GLOBAL' ) {
 		$c->log->warn("Attempt to modify GLOBAL workspace's rooms");

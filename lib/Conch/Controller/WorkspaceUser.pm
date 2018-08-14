@@ -33,10 +33,7 @@ sub list ($c) {
 				(map { $_ => $uwr->user_account->$_ } qw(name email)),
 				role => $uwr->role,
 			}
-		} $c->db_user_workspace_roles->search(
-			{ workspace_id => $c->stash('workspace_id') },
-			{ prefetch => 'user_account' },
-		)->all
+		} $c->stash('user_workspace_role_rs')->all
 	];
 
 	$c->log->debug("Found ".scalar($users->@*)." users");

@@ -69,9 +69,7 @@ admin on the current workspace (as specified by :workspace_id in the path)
 		is_admin => sub ($c) {
 			return 1 if $c->is_global_admin;
 
-			my $uwr = $c->stash('user')->search_related('user_workspace_roles',
-				{ workspace_id => $c->stash('workspace_id') },
-			)->single;
+			my $uwr = $c->stash('user_workspace_role_rs')->single;
 			return 0 unless $uwr;
 			return 1 if $uwr->role eq 'admin';
 			return 0;

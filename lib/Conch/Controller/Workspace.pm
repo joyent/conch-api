@@ -18,7 +18,8 @@ with 'Conch::Role::MojoLog';
 
 =head2 find_workspace
 
-Chainable action that validates the 'workspace_id' provided in the path.
+Chainable action that validates the 'workspace_id' provided in the path,
+and stashes the query to get to it in C<user_workspace_role_rs>.
 
 =cut
 
@@ -35,6 +36,14 @@ sub find_workspace ($c) {
 		if not $c->db_user_workspace_roles->search(
 			{ workspace_id => $ws_id, user_id => $c->stash('user_id') },
 		)->count;
+
+	# stash a resultset for easily accessing the current uwr + workspace,
+	# e.g. for calling ->single, or joining to.
+	$c->stash('user_workspace_role_rs',
+		$c->stash('user')->search_related_rs('user_workspace_roles',
+			{ workspace_id => $ws_id },
+			{ prefetch => 'workspace' },
+		));
 
 	return 1;
 }
@@ -72,10 +81,7 @@ Returns a hashref with keys: id, name, description, role, parent_id.
 =cut
 
 sub get ($c) {
-	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
-		{ workspace_id => $c->stash('workspace_id') },
-		{ prefetch => 'workspace' },
-	)->single;
+	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
 	# FIXME: this check is already done in find_workspace
 	return $c->status(404, { error => 'Workspace ' . $c->stash('workspace_id') . ' not found' })
@@ -139,10 +145,7 @@ sub create_sub_workspace ($c) {
 
 	# FIXME: not checking that user has 'rw' permissions on this workspace
 
-	my $uwr = $c->stash('user')->search_related('user_workspace_roles',
-		{ workspace_id => $c->stash('workspace_id') },
-		{ prefetch => 'workspace' },
-	)->single;
+	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
 	my $sub_ws = $uwr->workspace->create_related(
 		workspaces => {
