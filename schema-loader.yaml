@@ -11,3 +11,6 @@ loader_options:
   components:
     - +Conch::DB::InflateColumn::Time
     - Helper::Row::ToJSON
+
+  rel_name_map:
+    user: user_account

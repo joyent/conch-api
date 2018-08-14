@@ -12,64 +12,102 @@ package Conch::Route::Workspace;
 use Mojo::Base -strict;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(
-	workspace_routes
-);
-
+our @EXPORT_OK = qw(workspace_routes);
 
 =head2 workspace_routes
 
-Sets up the routes for /workspace
+Sets up the routes for /workspace:
+
+    GET     /workspace
+    GET     /workspace/:workspace_id
+    GET     /workspace/:workspace_id/child
+    POST    /workspace/:workspace_id/child
+    GET     /workspace/:workspace_id/device
+    GET     /workspace/:workspace_id/device/active
+    GET     /workspace/:workspace_id/problem
+    GET     /workspace/:workspace_id/rack
+    POST    /workspace/:workspace_id/rack
+    GET     /workspace/:workspace_id/rack/:rack_id
+    DELETE  /workspace/:workspace_id/rack/:rack_id
+    GET     /workspace/:workspace_id/room
+    PUT     /workspace/:workspace_id/room
+    GET     /workspace/:workspace_id/user
+    POST    /workspace/:workspace_id/user
+    POST    /workspace/:workspace_id/validation_state
 
 =cut
 
 sub workspace_routes {
-	my $r = shift;
+    my $workspace = shift;    # secured, under /workspace
 
-	$r->get('/workspace')->to('workspace#list');
-	$r->get('/workspace/:id')->to('workspace#get');
+    # GET /workspace
+    $workspace->get('/')->to('workspace#list');
 
-	# routes namespaced under a specific workspace
-	my $in_workspace = $r->under('/workspace/:id')->to('workspace#under');
+    {
+        # chainable action that extracts and looks up workspace_id from the path
+        my $with_workspace = $workspace->any('/:workspace_id')
+            ->to('workspace#find_workspace')->under;
 
-	$in_workspace->get('/child')->to('workspace#get_sub_workspaces');
-	$in_workspace->post('/child')->to('workspace#create_sub_workspace');
+        # GET /workspace/:workspace_id
+        $with_workspace->get('/')->to('workspace#get');
 
-	$in_workspace->get('/device')->to('workspace_device#list');
+        # GET /workspace/:workspace_id/child
+        $with_workspace->get('/child')->to('workspace#get_sub_workspaces');
+        # POST /workspace/:workspace_id/child
+        $with_workspace->post('/child')->to('workspace#create_sub_workspace');
 
-# Redirect /workspace/:id/device/active to use query parameter on /workspace/:id/device
-	$in_workspace->get(
-		'/device/active',
-		sub {
-			my $c    = shift;
-			my @here = @{ $c->url_for->path->parts };
-			pop @here;
-			$c->redirect_to(
-				$c->url_for( join( '/', @here ) )->query( active => 't' )->to_abs );
-		}
-	);
+        # GET /workspace/:workspace_id/device
+        $with_workspace->get('/device')->to('workspace_device#list');
 
-	$in_workspace->get('/problem')->to('workspace_problem#list');
+        # GET /workspace/:workspace_id/device/active -> /workspace/:workspace_id/device?t
+        $with_workspace->get(
+            '/device/active',
+            sub {
+                my $c = shift;
+                $c->redirect_to(
+                    $c->url_for('/workspace/' . $c->stash('workspace_id') . '/device')
+                        ->query(active => 't'));
+            }
+        );
 
-	$in_workspace->get('/rack')->to('workspace_rack#list');
-	$in_workspace->post('/rack')->to('workspace_rack#add');
+        # GET /workspace/:workspace_id/problem
+        $with_workspace->get('/problem')->to('workspace_problem#list');
 
-	my $with_workspace_rack =
-		$in_workspace->under('/rack/:rack_id')->to('workspace_rack#under');
+        # GET /workspace/:workspace_id/rack
+        $with_workspace->get('/rack')->to('workspace_rack#list');
+        # POST /workspace/:workspace_id/rack
+        $with_workspace->post('/rack')->to('workspace_rack#add');
 
-	$with_workspace_rack->get('')->to('workspace_rack#get_layout');
-	$with_workspace_rack->delete('')->to('workspace_rack#remove');
-	$with_workspace_rack->post('/layout')->to('workspace_rack#assign_layout');
+        {
+            my $with_workspace_rack =
+                $with_workspace->any('/rack/:rack_id')->to('workspace_rack#find_rack')->under;
 
-	$in_workspace->get('/room')->to('workspace_room#list');
-	$in_workspace->put('/room')->to('workspace_room#replace_rooms');
+            # GET /workspace/:workspace_id/rack/:rack_id
+            $with_workspace_rack->get('/')->to('workspace_rack#get_layout');
 
-	$in_workspace->get('/relay')->to('workspace_relay#list');
+            # DELETE /workspace/:workspace_id/rack/:rack_id
+            $with_workspace_rack->delete('/')->to('workspace_rack#remove');
 
-	$in_workspace->get('/user')->to('workspace_user#list');
-	$in_workspace->post('/user')->to('workspace_user#invite');
+            # POST /workspace/:workspace_id/rack/:rack_id/layout
+            $with_workspace_rack->post('/layout')->to('workspace_rack#assign_layout');
+        }
 
-	$in_workspace->get('/validation_state')->to('workspace_validation#workspace_validation_states');
+        # GET /workspace/:workspace_id/room
+        $with_workspace->get('/room')->to('workspace_room#list');
+        # PUT /workspace/:workspace_id/room
+        $with_workspace->put('/room')->to('workspace_room#replace_rooms');
+
+        # GET /workspace/:workspace_id/relay
+        $with_workspace->get('/relay')->to('workspace_relay#list');
+
+        # GET /workspace/:workspace_id/user
+        $with_workspace->get('/user')->to('workspace_user#list');
+        # POST /workspace/:workspace_id/user
+        $with_workspace->post('/user')->to('workspace_user#invite');
+
+        # POST /workspace/:workspace_id/validation_state
+        $with_workspace->get('/validation_state')->to('workspace_validation#workspace_validation_states');
+    }
 }
 
 1;
@@ -86,3 +124,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

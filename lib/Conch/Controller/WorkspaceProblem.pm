@@ -26,10 +26,7 @@ Get a list of problems for a workspace, using the Legacy code base
 
 # get_problems needs to be heavily re-worked. For now, use the legacy code using DBIC
 sub list ($c) {
-	my $problems = $c->_get_problems(
-		$c->stash('user_id'),
-		$c->stash('current_workspace')->id
-	);
+	my $problems = $c->_get_problems($c->stash('user_id'), $c->stash('workspace_id'));
 	$c->status( 200, $problems );
 }
 

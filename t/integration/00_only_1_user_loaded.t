@@ -236,7 +236,6 @@ subtest 'Workspaces' => sub {
 
 };
 
-my $sub_ws;
 subtest 'Sub-Workspace' => sub {
 
 	$t->get_ok("/workspace/$id/child")->status_is(200)->json_is( '', [] );
@@ -249,14 +248,14 @@ subtest 'Sub-Workspace' => sub {
 		}
 	)->status_is(201);
 
-	$sub_ws = $t->tx->res->json->{id};
+	my $sub_ws_id = $t->tx->res->json->{id};
 	subtest "Sub-workspace" => sub {
 		$t->get_ok("/workspace/$id/child")->status_is(200);
 		$t->json_is(
 			'',
 			[
 				{
-					id          => $sub_ws,
+					id          => $sub_ws_id,
 					name        => "test",
 					role        => 'admin',
 					description => "also test",
@@ -266,11 +265,11 @@ subtest 'Sub-Workspace' => sub {
 			"Subworkspace List Data Contract"
 		);
 
-		$t->get_ok("/workspace/$sub_ws")->status_is(200);
+		$t->get_ok("/workspace/$sub_ws_id")->status_is(200);
 		$t->json_is(
 			'',
 			{
-				id          => $sub_ws,
+				id          => $sub_ws_id,
 				name        => "test",
 				role        => 'admin',
 				description => "also test",
@@ -279,6 +278,37 @@ subtest 'Sub-Workspace' => sub {
 			"Subworkspace Data Contract"
 		);
 	};
+
+	# now create a sub of the sub and check that the recursive query gets them all.
+	$t->post_ok(
+		"/workspace/$sub_ws_id/child" => json => {
+			name        => "grandchild",
+			description => "two levels of subworkspaces",
+		}
+	)->status_is(201);
+
+	my $grandsub_ws_id = $t->tx->res->json->{id};
+	$t->get_ok("/workspace/$id/child")->status_is(200);
+	$t->json_is(
+		'',
+		[
+			{
+				id          => $sub_ws_id,
+				name        => 'test',
+				role        => 'admin',
+				description => 'also test',
+				parent_id   => $id,
+			},
+			{
+				id          => $grandsub_ws_id,
+				name        => 'grandchild',
+				role        => 'admin',
+				description => 'two levels of subworkspaces',
+				parent_id   => $sub_ws_id,
+			},
+		],
+		'two levels of workspaces fetched with recursive query'
+	);
 };
 
 subtest 'Workspace Rooms' => sub {

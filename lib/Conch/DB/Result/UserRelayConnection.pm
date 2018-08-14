@@ -118,7 +118,7 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 user
+=head2 user_account
 
 Type: belongs_to
 
@@ -127,15 +127,15 @@ Related object: L<Conch::DB::Result::UserAccount>
 =cut
 
 __PACKAGE__->belongs_to(
-  "user",
+  "user_account",
   "Conch::DB::Result::UserAccount",
   { id => "user_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-31 10:58:50
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yWxJDFuOM39o4wlv1A1d4A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-09 14:14:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gGA+NMSYo/x22zDiLShCCA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
