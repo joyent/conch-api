@@ -11,8 +11,9 @@ use strict;
 use warnings;
 use feature ':5.20';
 
+use base qw(Class::StrongSingleton);
+
 use Test::More;
-use Data::Printer;
 
 use Conch::Log;
 use Conch::Class::DatacenterRack;
@@ -25,24 +26,36 @@ use Conch::Models;
 use Exporter 'import';
 our @EXPORT_OK = qw( test_validation );
 
-=head2 test_validation
+use Test::ConchTmpDB;
+
+
+=head2 new
+
+	my $validator = Test::Conch::Validation->new();
+
+Sets up a temporary B<empty> database for use in validation testing.
+
+Creates a singleton so it can be called multiple times with no side effects.
+
+=cut
+
+sub new {
+	my $class = shift;
+	my $db = Test::ConchTmpDB->mk_tmp_db;
+	Conch::Pg->new( $db->uri );
+
+	my $self = bless { db => $db }, $class;
+	$self->_init_StrongSingleton();
+	return $self;
+}
+
+
+
+=head2 test
 
 A function to test a Conch Validation using a collection of provided test cases.
 
 This function performs the following tests:
-
-=over
-
-=item
-
-Test whether the validation builds.
-
-=item
-
-Tests whether the validations defines the required C<name>, C<version>,
-and C<description> attributes.
-
-=back
 
 The required arguments are the Conch Validation module as a string, keyword
 arguments specifying optional models available to the Validation, and a keyword
@@ -51,9 +64,10 @@ argument specifying the cases for the test to use.
 The available models are C<hardware_product>, C<device_location>,
 C<device_settings>, and C<device>. Their attributes are defined with a hashref,
 which will be constructed to the correct classes in the body of
-L<test_validation>. For example:
+L<test>. For example:
 
-	test_validation(
+	my $validator = Test::Conch::Validation->new();
+	$validator->test(
 		'Conch::Validation::TestValidation',
 		hardware_product => {
 			name => 'Product Name',
@@ -112,7 +126,7 @@ cases, but should be removed before committing.
 
 Example:
 
-	test_validation(
+	$validator->test(
 		'Conch::Validation::TestValidation',
 		cases => [
 			{
@@ -127,7 +141,10 @@ Example:
 
 
 =cut
-sub test_validation {
+
+
+sub test {
+	my $self = shift;
 	my $validation_module = shift;
 	my %args              = @_;
 
@@ -216,6 +233,16 @@ sub _test_case {
 			. "\nFailing results:\n"
 			. _results_to_string( $validation->failures ) );
 }
+
+=head2 test_validation
+
+	test_validation(%args);
+
+A non-OO convenience function to support legacy validation testing
+
+=cut
+
+sub test_validation { __PACKAGE__->new()->test(@_) }
 
 # Format the list of validation reusults into a single string, indented and
 # with an incrementing list. Example output:
