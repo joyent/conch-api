@@ -533,6 +533,22 @@ subtest 'Permissions' => sub {
 		subtest "Can't get a relay list" => sub {
 			$t->get_ok("/relay")->status_is(403);
 		};
+
+		$t->get_ok("/workspace/$id/user")
+			->status_is(200, 'get list of users for this workspace')
+			->json_is([
+				{
+					name => 'conch',
+					email => 'conch@conch.joyent.us',
+					role => 'admin',
+				},
+				{
+					name => $ro_name,
+					email => $ro_email,
+					role => 'ro',
+				},
+			]);
+
 		$t->post_ok("/logout")->status_is(204);
 	};
 
@@ -582,8 +598,27 @@ subtest 'Permissions' => sub {
 			$t->get_ok("/relay")->status_is(403);
 		};
 
-		$t->post_ok("/logout")->status_is(204);
+		$t->get_ok("/workspace/$id/user")
+			->status_is(200, 'get list of users for this workspace')
+			->json_is([
+				{
+					name => 'conch',
+					email => 'conch@conch.joyent.us',
+					role => 'admin',
+				},
+				{
+					name => $ro_name,
+					email => $ro_email,
+					role => 'ro',
+				},
+				{
+					name => $name,
+					email => $email,
+					role => 'rw',
+				},
+			]);
 
+		$t->post_ok("/logout")->status_is(204);
 	};
 
 };
