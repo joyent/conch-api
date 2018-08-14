@@ -1,37 +1,19 @@
 package Conch::DB::ResultSet::UserSetting;
-use v5.20;
+use v5.26;
 use warnings;
 use parent 'DBIx::Class::ResultSet';
+
+__PACKAGE__->load_components('+Conch::DB::Deactivatable');
+
+=head1 NAME
+
+Conch::DB::ResultSet::UserSetting
 
 =head1 DESCRIPTION
 
 Interface to queries against the 'user_setting' table.
 
-=head2 active
-
-Chainable resultset to limit results to those that aren't deactivated.
-TODO: move to a role 'Deactivatable'
-
 =cut
-
-sub active {
-    my $self = shift;
-
-    $self->search({ deactivated => undef });
-}
-
-=head2 deactivate
-
-Update all matching rows by setting deactivated = NOW().
-TODO: move to a role 'Deactivatable'
-
-=cut
-
-sub deactivate {
-    my $self = shift;
-
-    $self->update({ deactivated => \'NOW()' });
-}
 
 1;
 __END__

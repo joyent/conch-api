@@ -1,9 +1,15 @@
 package Conch::DB::ResultSet::UserAccount;
-use v5.20;
+use v5.26;
 use warnings;
 use parent 'DBIx::Class::ResultSet';
 
+__PACKAGE__->load_components('+Conch::DB::Deactivatable');
+
 use Conch::UUID 'is_uuid';
+
+=head1 NAME
+
+Conch::DB::ResultSet::UserAccount
 
 =head1 DESCRIPTION
 
@@ -71,32 +77,6 @@ sub lookup_by_email {
 sub lookup_by_name {
     my ($self, $name) = @_;
     $self->active->find({ name => $name });
-}
-
-=head2 active
-
-Chainable resultset to limit results to those that aren't deactivated.
-TODO: move to a role 'Deactivatable'
-
-=cut
-
-sub active {
-    my $self = shift;
-
-    $self->search({ deactivated => undef });
-}
-
-=head2 deactivate
-
-Update all matching rows by setting deactivated = NOW().
-TODO: move to a role 'Deactivatable'
-
-=cut
-
-sub deactivate {
-    my $self = shift;
-
-    $self->update({ deactivated => \'NOW()' });
 }
 
 1;

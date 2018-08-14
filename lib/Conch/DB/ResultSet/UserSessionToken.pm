@@ -1,9 +1,13 @@
 package Conch::DB::ResultSet::UserSessionToken;
-use v5.20;
+use v5.26;
 use warnings;
 use parent 'DBIx::Class::ResultSet';
 
 use Session::Token;
+
+=head1 NAME
+
+Conch::DB::ResultSet::UserSessionToken
 
 =head1 DESCRIPTION
 
