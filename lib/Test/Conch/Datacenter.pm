@@ -19,8 +19,6 @@ use Mojo::Base 'Test::Conch';
 
 use Test::ConchTmpDB;
 use Test::Conch;
-use Conch::Models;
-
 use Conch::Log;
 
 

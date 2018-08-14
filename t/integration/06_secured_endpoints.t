@@ -7,8 +7,6 @@ use Data::UUID;
 use Test::Warnings;
 use Test::Conch;
 
-use Data::Printer;
-
 
 my $uuid = Data::UUID->new;
 

@@ -3,12 +3,6 @@ use Test::More;
 use Test::Warnings;
 use Data::UUID;
 
-use Data::Printer;
-
-BEGIN {
-	use_ok("Conch::Models");
-}
-
 use Test::Conch::Datacenter;
 
 my $t = Test::Conch::Datacenter->new();

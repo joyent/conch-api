@@ -12,8 +12,7 @@ package Conch::Controller::Device;
 
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::UUID 'is_uuid';
-use List::Util 'none', 'any';
+use List::Util 'any';
 
 with 'Conch::Role::MojoLog';
 

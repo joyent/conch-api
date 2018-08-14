@@ -15,7 +15,6 @@ use Mojo::Exception;
 use Submodules;
 
 use Conch::Model::ValidationState;
-use Conch::Pg;
 
 =head2 load_validations
 

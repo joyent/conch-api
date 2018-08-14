@@ -12,7 +12,6 @@ package Conch::Controller::DatacenterRackRole;
 
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::UUID 'is_uuid';
 
 with 'Conch::Role::MojoLog';
 

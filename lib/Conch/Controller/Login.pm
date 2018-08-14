@@ -13,7 +13,6 @@ package Conch::Controller::Login;
 use Role::Tiny::With;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';

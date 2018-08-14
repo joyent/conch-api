@@ -12,7 +12,6 @@ use warnings;
 use feature ':5.20';
 
 use Test::More;
-use Data::Printer;
 
 use Conch::Log;
 use Conch::Class::DatacenterRack;

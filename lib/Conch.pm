@@ -21,8 +21,6 @@ use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
 use Conch::ValidationSystem;
-use Conch::Plugin::AuthHelpers;
-use Conch::Plugin::JsonValidator;
 
 use Conch::DB qw();
 
