@@ -21,13 +21,13 @@ use base 'DBIx::Class::Core';
 
 =item * L<Conch::DB::InflateColumn::Time>
 
-=item * L<DBIx::Class::Helper::Row::ToJSON>
+=item * L<Conch::DB::ToJSON>
 
 =back
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "Helper::Row::ToJSON");
+__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
 
 =head1 TABLE: C<datacenter_rack_role>
 
@@ -159,8 +159,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-31 10:58:50
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AeGmpPofnHLGAJwJmzV7gQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HuZG4MB/Rg9QzUpPFLuHwA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
