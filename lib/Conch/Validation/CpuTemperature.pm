@@ -26,7 +26,7 @@ sub validate {
 
 	for my $cpu (qw/cpu0 cpu1/) {
 		$self->register_result(
-			type     => 'CPU',
+			category => 'CPU',
 			expected => $MAX_TEMP,
 			cmp      => '<',
 			got      => $data->{temp}->{$cpu}

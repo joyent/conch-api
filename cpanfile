@@ -56,10 +56,7 @@ requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';
 
-# logging
-requires 'Log::Log4perl';
-requires 'Log::Log4perl::Layout::JSON';
-requires 'Log::Report';
+requires 'Test2::V0';
 
 
 on 'test' => sub {

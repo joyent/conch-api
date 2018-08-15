@@ -87,11 +87,8 @@ has 'validation_results' => (
 	clearer => 1,
 	is => 'lazy',
 	isa => ArrayRef[InstanceOf['Conch::Model::ValidationResults']],
+	default => sub { [] },
 );
-
-sub _build_validation_results {
-	return []
-}
 
 has 'device' => ( 
 	is => 'rw',
@@ -113,10 +110,18 @@ has 'device_settings' => ( # FIXME replace with DBIC lookup off -> device
 has 'result_builder' => ( # FIXME remove
 	is => 'lazy',
 	isa => CodeRef,
+	default => sub { sub {return {@_}} },
 );
 
-sub _build_result_builder {
-	return sub {return {@_}};
+has 'model' => (
+	is => 'lazy'
+);
+sub _build_model {
+	my $self = shift;
+	return Conch::Model::Validation->lookup_by_name_and_version(
+		$self->name,
+		$self->version
+	);
 }
 
 sub run ( $self, $data ) {
@@ -139,6 +144,9 @@ sub run ( $self, $data ) {
 			$msg = $err->message;
 		} elsif($err->isa("DBIx::Class::Exception")) {
 			$msg = "$err";
+		} else {
+			chomp $err;
+			$msg = $err;
 		}
 
 		$self->log->error(
@@ -161,84 +169,50 @@ sub run ( $self, $data ) {
 	return $self;
 }
 
-sub register_result ( $self, %attrs ) {
-	my $expected = $attrs{expected};
-	my $got      = $attrs{got};
-	my $cmp_op   = $attrs{cmp} || 'eq';
 
-	$self->die( "'expected' value must be defined")
-		unless defined($expected);
+use Test2::API qw/intercept/;
+use Test2::Tools::ClassicCompare qw();
+sub cmp_ok {
+	my $self = shift;
+	my @args = @_;
+	my %extra = $args[4] ? $args[4]->@* : ();
 
-	return $self->fail("'got' value is undefined") unless defined($got);
-
-	$self->die( "'got' value must be a scalar" ) if ref($got);
-
-	if ( $cmp_op eq 'oneOf' ) {
-		$self->die( "'expected' value must be an array when comparing with 'oneOf'")
-			unless ref($expected) eq 'ARRAY';
-	}
-	elsif ( $cmp_op eq 'like' ) {
-		$self->die(
-			"'expected' value must be a scalar or Regexp when comparing with 'like'",
-		) unless ref($expected) eq 'Regexp' || ref($expected) eq '';
-	}
-	else {
-		$self->die(
-			"'expected' value must be a scalar when comparing with '$cmp_op'"
-		) if ref($expected);
-	}
-
-	my $cmp_dispatch = {
-		'=='  => sub { $_[0] == $_[1] },
-		'!='  => sub { $_[0] != $_[1] },
-		'>'   => sub { $_[0] > $_[1] },
-		'>='  => sub { $_[0] >= $_[1] },
-		'<'   => sub { $_[0] < $_[1] },
-		'<='  => sub { $_[0] <= $_[1] },
-		'<='  => sub { $_[0] <= $_[1] },
-		eq    => sub { $_[0] eq $_[1] },
-		ne    => sub { $_[0] ne $_[1] },
-		lt    => sub { $_[0] lt $_[1] },
-		le    => sub { $_[0] le $_[1] },
-		gt    => sub { $_[0] gt $_[1] },
-		ge    => sub { $_[0] ge $_[1] },
-		like  => sub { $_[0] =~ /$_[1]/ },
-		oneOf => sub {
-			scalar( grep { $_[0] eq $_ } $_[1]->@* );
-		}
+	my $events = intercept {
+		Test2::Tools::ClassicCompare::cmp_ok(
+			$args[0],
+			$args[1],
+			$args[2],
+			$args[3] // $self->name,
+		);
 	};
 
-	my $success = $cmp_dispatch->{$cmp_op}->( $got, $expected );
+	my $e = shift $events->@*;
+
 	my $message;
-	if ( $cmp_op eq 'oneOf' ) {
-		$message =
-			  'Expected one of: '
-			. join( ', ', map { "'$_'" } $expected->@* )
-			. ". Got '$got'.";
+	if ($e->pass) {
+		$message = "Expected $args[1] '$args[0]'. Got '$args[2]'. Success.";
+	} else {
+		$message = "Expected a value $args[1] '$args[0]'. Got '$args[2]'. Failed.";
 	}
 
-	# For relational operators, we want to produce messages that do not change
-	# between validation executions as long as the relation is constant.
-	elsif ( grep /$cmp_op/, ( '>', '>=', '<', '<=', 'lt', 'le', 'gt', 'ge' ) ) {
-		$message = "Expected a value $cmp_op '$expected'.";
-		$message .= $success ? ' Passed.' : ' Failed.';
-	}
-	else {
-		$message = "Expected $cmp_op '$expected'. Got '$got'.";
-	}
+	$self->_record_result($e, $message, %extra);
 
+	return $e->pass;
+}
+
+sub _record_result ($self, $event, $message, %attrs) {
 	my $validation_result = $self->result_builder->(
-		message  => $attrs{message}  || $message,
-		name     => $attrs{name}     || $self->name,
+		message  => $message,
+		name     => $self->name,
 		category => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
-		status       => $success ? STATUS_PASS : STATUS_FAIL,
-		hint         => $success ? $attrs{hint} : undef
+		status       => $event->pass ? STATUS_PASS : STATUS_FAIL,
+		hint         => $event->pass ? $attrs{hint} : undef
 	);
 
 	$self->log->debug(join('',
 		"Validation ",
-		$validation_result->{name} // "'unknown'",
+		$self->name,
 		" had result ",
 		$validation_result->{status},
 		": ",
@@ -246,27 +220,13 @@ sub register_result ( $self, %attrs ) {
 	));
 
 	push $self->validation_results->@*, $validation_result;
-	return $self;
-
 }
+
+
 
 
 sub die ( $self, $message ) {
 	Mojo::Exception->throw($message);
-}
-
-
-sub fail ( $self, $message, %attrs ) {
-	my $validation_result = $self->result_builder->(
-		message      => $message,
-		name         => $attrs{name} || $self->name,
-		category     => $attrs{category} || $self->category,
-		component_id => $attrs{component_id},
-		status       => STATUS_FAIL,
-		hint         => $attrs{hint}
-	);
-	push $self->validation_results->@*, $validation_result;
-	return $self;
 }
 
 

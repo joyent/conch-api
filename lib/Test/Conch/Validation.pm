@@ -33,7 +33,7 @@ use Test::ConchTmpDB;
 
 	my $validator = Test::Conch::Validation->new();
 
-Sets up a temporary B<empty> database for use in validation testing.
+Sets up a temporary full database for use in validation testing.
 
 Creates a singleton so it can be called multiple times with no side effects.
 
@@ -41,7 +41,7 @@ Creates a singleton so it can be called multiple times with no side effects.
 
 sub new {
 	my $class = shift;
-	my $db = Test::ConchTmpDB->mk_tmp_db;
+	my $db = Test::ConchTmpDB->make_full_db;
 	Conch::Pg->new( $db->uri );
 
 	my $self = bless { db => $db }, $class;

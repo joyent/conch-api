@@ -1,34 +1,29 @@
 use v5.20;
 use warnings;
-use Test::More;
-use Test::Conch::Validation 'test_validation';
 
-test_validation(
-	'Conch::Validation::BiosFirmwareVersion',
-	hardware_product => {
-		name    => 'Test Product',
-		profile => { bios_firmware => '1.2.3' }
-	},
-	cases => [
-		{
-			description => 'No data yields no sucesses',
-			data        => {},
-		},
-		{
-			description => 'bios_version should be string',
-			data        => { bios_version => ['foobar'] },
-		},
-		{
-			description => "bios_version doesn't match hw product definition",
-			data        => { bios_version => '1.2' },
-			failure_num => 1
-		},
-		{
-			description => "bios_version matches hw product definition",
-			data        => { bios_version => '1.2.3' },
-			success_num => 1,
-		},
-	]
+use Mojo::Log;
+use Conch::Models;
+use Conch::Validations;
+use Test2::Conch::Validations;
+
+my $t = Test2::Conch::Validations->new();
+Conch::Validations->load( Mojo::Log->new() );
+
+my $v = Conch::Validation::BiosFirmwareVersion->new();
+
+my $d = Conch::Model::Device->create(
+	'test_device', 
+	Conch::Model::HardwareProduct->lookup_by_name("65-ssds-2-cpu")->id,
 );
 
-done_testing();
+Conch::Model::DeviceLocation->new()->assign(
+	$d->id,
+	Conch::Model::DatacenterRack->from_name('Test Rack')->id,
+	1
+);
+
+$t->fail($v, $d, { 
+	bios_version => '1.2',
+});
+
+$t->done();

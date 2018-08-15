@@ -17,9 +17,10 @@ sub validate {
 
 	my $hw_profile = $self->hardware_product->profile;
 
-	$self->register_result(
-		expected => $hw_profile->bios_firmware,
-		got      => $data->{bios_version}
+	$self->cmp_ok(
+		$hw_profile->bios_firmware,
+		'eq',
+		$data->{bios_version}
 	);
 
 }
