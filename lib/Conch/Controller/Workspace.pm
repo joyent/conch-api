@@ -107,22 +107,18 @@ sub get_sub_workspaces ($c) {
 
 	my $wss_data = [
 		map {
-			my $uwr = $_;
+			my $ws = $_;
 			+{
-				(map { $_ => $uwr->workspace->$_ } qw(id name description)),
-				parent_id => $uwr->workspace->parent_workspace_id,
-				role => $uwr->role,
+				(map { $_ => $ws->$_ } qw(id name description)),
+				parent_id => $ws->parent_workspace_id,
+				role => ($ws->user_workspace_roles)[0]->role,
 			}
 		}
-		# this is awkward, but we can't start with workspace_recursive and then join
-		# user_workspace_roles to it, due to "Unable to calculate a definitive collapse column
-		# set for WorkspaceRecursive: fetch more unique non-nullable columns"
-		$c->stash('user')->search_related('user_workspace_roles',
-			{ workspace_id => { -in =>
-				$c->db_workspace_recursives->workspaces_beneath($c->stash('workspace_id'))
-					->get_column('id')->as_query } },
-			{ prefetch => 'workspace' },
-		)->all
+		$c->db_workspaces->workspaces_beneath($c->stash('workspace_id'))
+			->search(
+				{ 'user_workspace_roles.user_id' => $c->stash('user_id') },
+				{ prefetch => 'user_workspace_roles' },
+			)->all
 	];
 
 	$c->status(200, $wss_data);
