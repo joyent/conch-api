@@ -48,7 +48,7 @@ __PACKAGE__->table("device");
   is_nullable: 1
   size: 16
 
-=head2 hardware_product
+=head2 hardware_product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -125,7 +125,7 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
-=head2 role
+=head2 device_role_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -139,7 +139,7 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "system_uuid",
   { data_type => "uuid", is_nullable => 1, size => 16 },
-  "hardware_product",
+  "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "state",
   { data_type => "text", is_nullable => 0 },
@@ -177,7 +177,7 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "triton_setup",
   { data_type => "timestamp with time zone", is_nullable => 1 },
-  "role",
+  "device_role_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
 );
 
@@ -329,6 +329,26 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 device_role
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::DeviceRole>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "device_role",
+  "Conch::DB::Result::DeviceRole",
+  { id => "device_role_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
 =head2 device_settings
 
 Type: has_many
@@ -385,28 +405,8 @@ Related object: L<Conch::DB::Result::HardwareProduct>
 __PACKAGE__->belongs_to(
   "hardware_product",
   "Conch::DB::Result::HardwareProduct",
-  { id => "hardware_product" },
+  { id => "hardware_product_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-=head2 role
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DeviceRole>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "role",
-  "Conch::DB::Result::DeviceRole",
-  { id => "role" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
 );
 
 =head2 validation_results
@@ -440,8 +440,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:W8gnvKxoQVgR2N1qoU7nQA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:08:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KSKL4ZfwGQxiOEMTKVkPFQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

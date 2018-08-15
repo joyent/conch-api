@@ -62,7 +62,7 @@ sub list ( $self, $ws_id, $interval_minutes = undef, $with_devices = 1 ) {
         JOIN datacenter_room room
           ON rack.datacenter_room_id = room.id
         JOIN datacenter_rack_role role
-          ON rack.role = role.id
+          ON rack.datacenter_rack_role_id = role.id
         WHERE rack.id = ANY (?)
         AND drc1.last_seen = (
           SELECT max(drc2.last_seen)

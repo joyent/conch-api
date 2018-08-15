@@ -67,13 +67,13 @@ has 'datacenter_room_id' => (
 	required => 1,
 );
 
-=item role
+=item datacenter_rack_role_id
 
 UUID. Required. FK to datacenter_rack_role(id)
 
 =cut
 
-has 'role' => (
+has 'datacenter_rack_role_id' => (
 	is => 'rw',
 	isa => Uuid,
 	required => 1,
@@ -84,16 +84,32 @@ sub _build_serializable_attributes {[qw[
 	id
 	name
 	datacenter_room_id
-	role
+	datacenter_rack_role_id
 	created
 	updated
 ]]}
 
-
-
 =back
 
 =head1 METHODS
+
+=head2 TO_JSON
+
+Serialize a hash
+
+=cut
+sub TO_JSON ($self) {
+	+{
+		( map { $_ => $self->$_ } qw(
+			id
+			name
+			datacenter_room_id
+			created
+			updated
+		)),
+		role => $self->datacenter_rack_role_id,
+	};
+}
 
 =head2 from_id
 

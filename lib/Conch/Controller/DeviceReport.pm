@@ -149,7 +149,7 @@ sub _record_device_report {
 				{
 					id               => $dr->{serial_number},
 					system_uuid      => $dr->{system_uuid},
-					hardware_product => $hw->id,
+					hardware_product_id => $hw->id,
 					state            => $dr->{state},
 					health           => "UNKNOWN",
 					last_seen        => \'NOW()',

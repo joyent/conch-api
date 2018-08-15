@@ -30,7 +30,7 @@ my $room = Conch::Model::DatacenterRoom->new(
 my $rack = Conch::Model::DatacenterRack->new(
 	name               => 'sungo',
 	datacenter_room_id => $room->id,
-	role               => $role->id,
+	datacenter_rack_role_id => $role->id,
 )->save();
 
 my $hardware_vendor_id = $pg->db->insert(

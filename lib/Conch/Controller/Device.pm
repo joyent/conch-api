@@ -236,8 +236,8 @@ If the device has a valid role, 303 to the relevant /role endpoint
 
 sub get_role($c) {
 	my $device = $c->stash('current_device');
-	if ($device->role) {
-		return $c->status(303 => "/device/role/".$device->role);
+	if ($device->device_role_id) {
+		return $c->status(303 => "/device/role/".$device->device_role_id);
 	} else {
 		return $c->status(409 => { error => "device has no role" });
 	}

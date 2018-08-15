@@ -6,7 +6,7 @@ INSERT INTO datacenter (vendor, vendor_name, region, location )
 INSERT INTO datacenter_room (datacenter, az, alias, vendor_name)
     VALUES ( ( SELECT id FROM datacenter WHERE region = 'test-region-1' ), 'test-region-1a', 'TT1', 'TEST1.1');
 
-INSERT INTO datacenter_rack (datacenter_room_id, name, role)
+INSERT INTO datacenter_rack (datacenter_room_id, name, datacenter_rack_role_id)
     VALUES (
         ( SELECT id FROM datacenter_room WHERE az = 'test-region-1a' ),
         'Test Rack',

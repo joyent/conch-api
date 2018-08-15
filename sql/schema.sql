@@ -127,7 +127,7 @@ ALTER FUNCTION public.run_migration(integer, text) OWNER TO conch;
 -- Name: workspace_devices(uuid); Type: FUNCTION; Schema: public; Owner: conch
 --
 
-CREATE FUNCTION public.workspace_devices(workspace_id uuid) RETURNS TABLE(id text, system_uuid uuid, hardware_product uuid, state text, health text, graduated timestamp with time zone, deactivated timestamp with time zone, last_seen timestamp with time zone, created timestamp with time zone, updated timestamp with time zone, uptime_since timestamp with time zone, validated timestamp with time zone, latest_triton_reboot timestamp with time zone, triton_uuid uuid, asset_tag text, triton_setup timestamp with time zone, role uuid)
+CREATE FUNCTION public.workspace_devices(workspace_id uuid) RETURNS TABLE(id text, system_uuid uuid, hardware_product_id uuid, state text, health text, graduated timestamp with time zone, deactivated timestamp with time zone, last_seen timestamp with time zone, created timestamp with time zone, updated timestamp with time zone, uptime_since timestamp with time zone, validated timestamp with time zone, latest_triton_reboot timestamp with time zone, triton_uuid uuid, asset_tag text, triton_setup timestamp with time zone, device_role_id uuid)
     LANGUAGE plpgsql STABLE
     AS $_$
 
@@ -187,7 +187,7 @@ CREATE TABLE public.datacenter_rack (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     datacenter_room_id uuid NOT NULL,
     name text NOT NULL,
-    role uuid NOT NULL,
+    datacenter_rack_role_id uuid NOT NULL,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL
@@ -251,7 +251,7 @@ ALTER TABLE public.datacenter_room OWNER TO conch;
 CREATE TABLE public.device (
     id text NOT NULL,
     system_uuid uuid,
-    hardware_product uuid NOT NULL,
+    hardware_product_id uuid NOT NULL,
     state text NOT NULL,
     health text NOT NULL,
     graduated timestamp with time zone,
@@ -265,7 +265,7 @@ CREATE TABLE public.device (
     triton_uuid uuid,
     asset_tag text,
     triton_setup timestamp with time zone,
-    role uuid
+    device_role_id uuid
 );
 
 
@@ -1527,7 +1527,7 @@ ALTER TABLE ONLY public.datacenter_rack_layout
 --
 
 ALTER TABLE ONLY public.datacenter_rack
-    ADD CONSTRAINT datacenter_rack_role_fkey FOREIGN KEY (role) REFERENCES public.datacenter_rack_role(id);
+    ADD CONSTRAINT datacenter_rack_role_fkey FOREIGN KEY (datacenter_rack_role_id) REFERENCES public.datacenter_rack_role(id);
 
 
 --
@@ -1559,7 +1559,7 @@ ALTER TABLE ONLY public.device_environment
 --
 
 ALTER TABLE ONLY public.device
-    ADD CONSTRAINT device_hardware_product_fkey FOREIGN KEY (hardware_product) REFERENCES public.hardware_product(id);
+    ADD CONSTRAINT device_hardware_product_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
 
 
 --
@@ -1647,7 +1647,7 @@ ALTER TABLE ONLY public.device_report
 --
 
 ALTER TABLE ONLY public.device
-    ADD CONSTRAINT device_role_fkey FOREIGN KEY (role) REFERENCES public.device_role(id);
+    ADD CONSTRAINT device_role_fkey FOREIGN KEY (device_role_id) REFERENCES public.device_role(id);
 
 
 --

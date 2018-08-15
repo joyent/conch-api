@@ -63,6 +63,8 @@ sub under ($c) {
 
 =head2 create
 
+Stores data as a new datacenter_rack row, munging 'role' to 'datacenter_rack_role_id'.
+
 =cut
 
 sub create ($c) {
@@ -80,8 +82,11 @@ sub create ($c) {
 	unless(Conch::Model::DatacenterRackRole->from_id($d->{role})) {
 		return $c->status(400 => { "error" => "Rack role does not exist" });
 	}
-		
-	my $r = Conch::Model::DatacenterRack->new($d->%*)->save();
+
+	my %data = $d->%*;
+	$data{datacenter_rack_role_id} = delete $data{role};
+
+	my $r = Conch::Model::DatacenterRack->new(%data)->save();
 	$c->log->debug("Created datacenter rack ".$r->id);
 
 	$c->status(303 => "/rack/".$r->id);

@@ -154,13 +154,13 @@ Related object: L<Conch::DB::Result::DatacenterRack>
 __PACKAGE__->has_many(
   "datacenter_racks",
   "Conch::DB::Result::DatacenterRack",
-  { "foreign.role" => "self.id" },
+  { "foreign.datacenter_rack_role_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HuZG4MB/Rg9QzUpPFLuHwA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:36:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rC+B5mcISQbPhR5KOEiWEg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

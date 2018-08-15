@@ -56,7 +56,7 @@ __PACKAGE__->table("datacenter_rack");
   data_type: 'text'
   is_nullable: 0
 
-=head2 role
+=head2 datacenter_rack_role_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -96,7 +96,7 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "name",
   { data_type => "text", is_nullable => 0 },
-  "role",
+  "datacenter_rack_role_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
@@ -145,6 +145,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 datacenter_rack_role
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::DatacenterRackRole>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "datacenter_rack_role",
+  "Conch::DB::Result::DatacenterRackRole",
+  { id => "datacenter_rack_role_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 datacenter_room
 
 Type: belongs_to
@@ -175,21 +190,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 role
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DatacenterRackRole>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "role",
-  "Conch::DB::Result::DatacenterRackRole",
-  { id => "role" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
 =head2 workspace_datacenter_racks
 
 Type: has_many
@@ -206,8 +206,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OZg4eMm3OfPdpYnA8JEObg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:36:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v9ueughWqmVQEAQF/OQsNQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
