@@ -38,6 +38,31 @@ SELECT workspace_recursive.id FROM workspace_recursive
     $self->search({ $self->current_source_alias . '.id' => { -in => \[ $query, $workspace_id ] } });
 }
 
+=head2 associated_racks
+
+Chainable resultset (in the Conch::DB::ResultSet::DatacenterRack namespace) that finds all
+racks that are in this workspace (either directly, or via a datacenter_room).
+
+=cut
+
+sub associated_racks {
+    my $self = shift;
+
+    my $workspace_rack_ids = $self->search_related('workspace_datacenter_racks')
+        ->get_column('datacenter_rack_id');
+
+    my $workspace_room_rack_ids = $self->search_related('workspace_datacenter_rooms')
+        ->search_related('datacenter_room')
+        ->search_related('datacenter_racks')->get_column('id');
+
+    $self->result_source->schema->resultset('DatacenterRack')->search({
+        'me.id' => [
+            { -in => $workspace_rack_ids->as_query },
+            { -in => $workspace_room_rack_ids->as_query },
+        ],
+    });
+}
+
 1;
 __END__
 

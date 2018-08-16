@@ -70,6 +70,7 @@ sub TO_JSON ($self) {
 		updated              => $self->updated,
 		uptime_since         => $self->uptime_since,
 		validated            => $self->validated,
+		# XXX no 'deactivated'
 	};
 }
 

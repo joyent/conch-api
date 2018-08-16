@@ -123,41 +123,6 @@ $_$;
 
 ALTER FUNCTION public.run_migration(integer, text) OWNER TO conch;
 
---
--- Name: workspace_devices(uuid); Type: FUNCTION; Schema: public; Owner: conch
---
-
-CREATE FUNCTION public.workspace_devices(workspace_id uuid) RETURNS TABLE(id text, system_uuid uuid, hardware_product_id uuid, state text, health text, graduated timestamp with time zone, deactivated timestamp with time zone, last_seen timestamp with time zone, created timestamp with time zone, updated timestamp with time zone, uptime_since timestamp with time zone, validated timestamp with time zone, latest_triton_reboot timestamp with time zone, triton_uuid uuid, asset_tag text, triton_setup timestamp with time zone, device_role_id uuid)
-    LANGUAGE plpgsql STABLE
-    AS $_$
-
-	BEGIN
-		RETURN QUERY EXECUTE'
-		SELECT device.*
-		FROM device
-		JOIN device_location loc
-		ON loc.device_id = device.id
-		JOIN datacenter_rack rack
-		ON rack.id = loc.rack_id
-		WHERE device.deactivated IS NULL
-		AND (
-			rack.datacenter_room_id IN (
-				SELECT datacenter_room_id
-				FROM workspace_datacenter_room
-				WHERE workspace_id = $1
-			)
-			OR rack.id IN (
-				SELECT datacenter_rack_id
-				FROM workspace_datacenter_rack
-				WHERE workspace_id = $1
-			)
-		);' USING $1;
-	END;
-	$_$;
-
-
-ALTER FUNCTION public.workspace_devices(workspace_id uuid) OWNER TO conch;
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
