@@ -26,7 +26,7 @@ Get a list of problems for a workspace, using the Legacy code base
 
 # get_problems needs to be heavily re-worked. For now, use the legacy code using DBIC
 sub list ($c) {
-	my $problems = $c->_get_problems($c->stash('user_id'), $c->stash('workspace_id'));
+	my $problems = $c->_get_problems($c->stash('user_id'));
 	$c->status( 200, $problems );
 }
 
@@ -39,7 +39,7 @@ Build a collection of failing devices in a workspace
 # The report / validation format is not normalized yet, so this is going to be
 # a giant mess. Sorry. -- bdha
 sub _get_problems {
-	my ( $c, $user_id, $workspace_id ) = @_;
+	my ( $c, $user_id ) = @_;
 
 	my $schema = $c->schema;
 
@@ -48,7 +48,16 @@ sub _get_problems {
 	my @failing_user_devices;
 	my @unreported_user_devices;
 	my @unlocated_user_devices;
-	foreach my $d ( _workspace_devices( $schema, $workspace_id ) ) {
+
+	# TODO: this query could be further modified to also fetch
+	# device_rack_location and latest_device_report at the same time.
+	my @workspace_devices = $c->stash('workspace_rs')
+		->associated_racks
+		->related_resultset('device_locations')
+		->search_related('device', { health => [ qw(FAIL UNKNOWN) ] })
+		->active;
+
+	foreach my $d (@workspace_devices) {
 		if ( $d->health eq 'FAIL' ) {
 			push @failing_user_devices, $d;
 		}
@@ -151,12 +160,6 @@ sub _get_validation_criteria {
 	}
 
 	return $criteria;
-}
-
-sub _workspace_devices {
-	my ( $schema, $workspace_id ) = @_;
-	return $schema->resultset('WorkspaceDevices')
-		->search( {}, { bind => [$workspace_id] } )->all;
 }
 
 sub _unlocated_devices {
