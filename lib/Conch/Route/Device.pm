@@ -56,6 +56,11 @@ sub device_routes {
 
 	$r->post('/device/:id')->to('device_report#process');
 
+	$with_device->post('/report/import')->to("device_report#ct_import");
+	# TODO
+	# $with_device->get('/report/latest')->to("device_report#latest");
+	# $r->get('/report/:id')->to("device_report#get");
+
 	$with_device->post('/graduate')->to('device#graduate');
 	$with_device->post('/triton_setup')->to('device#set_triton_setup');
 	$with_device->post('/triton_uuid')->to('device#set_triton_uuid');

@@ -14,8 +14,124 @@ use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::Models;
+use Mojo::JSON;
 
 with 'Conch::Role::MojoLog';
+
+=head2 ct_import
+
+This is a new way of bringing in device reports, featuring:
+
+=over 2
+
+=item content type based dispatch
+
+=item Ability to specify report format version
+
+=item Ability to dictate which validation plan is run
+
+=back
+
+User POSTs a device report with a content type like 
+
+	Content-Type: application/vnd.joyent.conch.device.report+json;version=1;plan=Legacy Server;
+
+Accepted parameters:
+
+=over 2
+
+=item version - the data format version. The only version known currently is 1
+
+=item plan - the validation plan name to be executed against this report. For instance 'Conch v1 Legacy Plan: Server'
+
+=back
+
+
+=cut
+
+use constant MEDIA_SUB_TYPE => "vnd.joyent.conch.device.report+json";
+
+use Parse::MIME;
+sub ct_import ($c) {
+	my $raw_report = $c->req->body;
+
+	my $device = $c->db_devices->find({
+		id => $c->stash('current_device')->id
+	}); #DBIC4lyfe
+
+	# We should never ever hit this condition since 'under' already found the device
+	# using the Model libraries. But just in case...
+	if(not $device) {
+		return $c->render(status => 500, json => { error => "An error occurred fetching the device from DBIC" });
+	}
+
+
+	my ($media_type, $media_subtype, $params) = Parse::MIME::parse_mime_type(
+		$c->req->headers->content_type
+	);
+
+	$c->log->debug("Content type: ".$c->req->headers->content_type);
+
+	if($media_subtype eq MEDIA_SUB_TYPE) {
+		my %args = $params->%*;
+
+		if($args{version} != 1) {
+			return $c->render(status => 415, json => { error => "Unsupported version" });
+		}
+
+		my $unserialized_report = $c->validate_input('DeviceReport');
+		if(not $unserialized_report) {
+			return; # JSON validator will throw the proper error response
+		}
+
+		my $vp = Conch::Model::ValidationPlan->lookup_by_name($args{plan});
+		if(not $vp) {
+			return $c->render(status => 415, json => { error => "Unknown plan" });
+		}
+
+		$vp->log($c->log);
+		$c->log->debug("Running validation plan ".$vp->id);
+
+		my $state = $vp->run_with_state(
+			$device->id,
+			$unserialized_report,
+		);
+
+		$c->log->debug("Validations ran with result: ".$state->status);
+		$device->update( { health => uc( $state->status ) } );
+
+		if($state->status eq $state->STATUS_ERROR) {
+			$c->log->error("Parsing the report generated an error. Refusing to load into database.");
+			$c->log->debug($raw_report);
+			return $c->render(
+				status => 422,
+				json => {
+					error => "Validation plan threw an unrecoverable error"
+				}
+			);
+		}
+
+		if($args{version} == 1) {
+			$c->log->debug("Recording device report, version ".$args{version});
+			$c->_record_device_report(
+				$unserialized_report,
+				$raw_report
+			);
+		}
+
+		$c->render(status => 204, json => {});
+	} else {
+		return $c->render(
+			status => 415,
+			json => {
+				error => "Unsupported media sub type ".$media_subtype
+			}
+		);
+	}
+
+	# FIXME return a 201 with a Location header pointing to the validation state/results data
+	return;
+}
 
 =head2 process
 
