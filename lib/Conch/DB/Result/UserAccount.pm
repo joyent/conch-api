@@ -225,6 +225,10 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mVW8QcKBqvYOVU42HkfvbQ
 
+__PACKAGE__->add_columns(
+    '+password_hash' => { is_serializable => 0 },
+);
+
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 
 =head1 METHODS

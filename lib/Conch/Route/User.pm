@@ -25,6 +25,8 @@ Sets up routes for /user:
     POST    /user/me/settings/#key
     DELETE  /user/me/settings/#key
     POST    /user/me/password
+
+    GET     /user/#target_user
     POST    /user/#target_user/revoke
     DELETE  /user/#target_user/password
     POST    /user
@@ -75,6 +77,9 @@ sub user_routes {
     {
         # target_user could be a user id or email
         my $user_with_target = $user->require_global_admin->any('/#target_user');
+
+        # GET /user/#target_user
+        $user_with_target->get('/')->to('#get');
 
         # POST /user/#target_user/revoke
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
