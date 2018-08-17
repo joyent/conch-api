@@ -77,6 +77,29 @@ sub lookup_by_name {
     $self->active->find({ name => $name });
 }
 
+=head2 user_devices_without_location
+
+Chainable resultset (in the Conch::DB::ResultSet::Device namespace) that finds
+devices that have sent a device report proxied by a relay using the user's credentials,
+that also do not have a registered location.
+
+=cut
+
+sub user_devices_without_location {
+    my $self = shift;
+
+    $self->related_resultset('user_relay_connections')
+        ->related_resultset('device_relay_connections')
+        ->search_related_rs('device',
+            {
+                # all devices in device_location table
+                'device.id' => {
+                    -not_in => $self->result_source->schema->resultset('DeviceLocation')->get_column('device_id')->as_query
+                 },
+            },
+        );
+}
+
 1;
 __END__
 
