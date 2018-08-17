@@ -272,6 +272,25 @@ sub reset_user_password ($c) {
 	return $c->status(202);
 }
 
+=head2 get
+
+Gets information about a user. Global admin only.
+
+=cut
+
+sub get ($c) {
+
+	my $user_param = $c->stash('target_user');
+	my $user =
+		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
+	  : $user_param =~ /^email\=/ ? $c->db_user_accounts->lookup_by_email($')
+	  : undef;
+
+	return $c->status(404, { error => "user $user_param not found" }) if not $user;
+
+	return $c->status(200, $user);
+}
+
 =head2 create
 
 Creates a user. Global admin only.
