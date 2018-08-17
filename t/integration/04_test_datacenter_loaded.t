@@ -2,6 +2,8 @@ use Mojo::Base -strict;
 use Test::More;
 use Data::UUID;
 use IO::All;
+use Test::Deep;
+use Mojo::JSON 'decode_json';
 
 use Test::Conch::Datacenter;
 
@@ -119,6 +121,13 @@ subtest 'Device Report' => sub {
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
 		->json_is( '/status', 'pass' );
+
+	my $device = $t->app->db_devices->find($t->tx->res->json->{device_id});
+	cmp_deeply(
+		decode_json($device->latest_report->report),
+		decode_json($report),
+		'json blob stored in the db matches report on disk',
+	);
 };
 
 subtest 'Single device' => sub {

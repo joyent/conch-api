@@ -47,11 +47,14 @@ sub _get_problems ($c) {
 	my @unreported_user_devices;
 
 	# TODO: this query could be further modified to also fetch
-	# device_rack_location and latest_device_report at the same time.
+	# device_rack_location at the same time.
 	my @workspace_devices = $c->stash('workspace_rs')
 		->associated_racks
 		->related_resultset('device_locations')
-		->search_related('device', { health => [ qw(FAIL UNKNOWN) ] })
+		->search_related('device',
+			{ health => [ qw(FAIL UNKNOWN) ] },
+			{ prefetch => 'latest_report' },
+		)
 		->active;
 
 	foreach my $d (@workspace_devices) {
@@ -64,7 +67,7 @@ sub _get_problems ($c) {
 	}
 
 	# TODO: this query could be further modified to also fetch
-	# device_rack_location and latest_device_report at the same time.
+	# device_rack_location at the same time.
 	my @unlocated_user_devices = $c->stash('user')
 		->related_resultset('user_relay_connections')
 		->related_resultset('device_relay_connections')
@@ -73,6 +76,7 @@ sub _get_problems ($c) {
 				# all devices in device_location table
 				'device.id' => { -not_in => $c->db_device_locations->get_column('device_id')->as_query },
 			},
+			{ prefetch => 'latest_report' },
 		)
 		->all;
 
@@ -84,7 +88,7 @@ sub _get_problems ($c) {
 		$failing_problems->{$device_id}{location} =
 			_device_rack_location( $schema, $device_id );
 
-		my $report = _latest_device_report( $schema, $device_id );
+		my $report = $device->latest_report;
 		$failing_problems->{$device_id}{report_id} = $report->id;
 		my @failures = _validation_failures( $schema, $criteria, $report->id );
 		$failing_problems->{$device_id}{problems} = \@failures;
@@ -104,8 +108,10 @@ sub _get_problems ($c) {
 		my $device_id = $device->id;
 
 		$unlocated_problems->{$device_id}{health} = $device->health;
-		my $report = _latest_device_report( $schema, $device_id );
+
+		my $report = $device->latest_report;
 		$unlocated_problems->{$device_id}{report_id} = $report->id;
+
 		my @failures = _validation_failures( $schema, $criteria, $report->id );
 		$unlocated_problems->{$device_id}{problems} = \@failures;
 	}
@@ -215,16 +221,6 @@ sub _device_rack_location {
 	}
 
 	return $location;
-}
-
-sub _latest_device_report {
-	my ( $schema, $device_id ) = @_;
-
-	return $schema->resultset('DeviceReport')->search(
-		{ device_id => $device_id },
-		{ order_by => { -desc => 'created' }, rows => 1 },
-	)
-	->single;
 }
 
 1;

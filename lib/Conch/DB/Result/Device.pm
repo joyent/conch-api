@@ -456,6 +456,13 @@ around TO_JSON => sub {
     return $data;
 };
 
+__PACKAGE__->might_have(
+    'latest_report',
+    'Conch::DB::Result::DeviceReport',
+    { 'foreign.device_id' => 'self.id' },
+    { order_by => { -desc => 'created' }, rows => 1 },
+);
+
 1;
 __END__
 
