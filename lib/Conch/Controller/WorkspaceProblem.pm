@@ -238,8 +238,11 @@ sub _get_target_hardware_product {
 sub _latest_device_report {
 	my ( $schema, $device_id ) = @_;
 
-	return $schema->resultset('LatestDeviceReport')
-		->search( {}, { bind => [$device_id] } )->first;
+	return $schema->resultset('DeviceReport')->search(
+		{ device_id => $device_id },
+		{ order_by => { -desc => 'created' }, rows => 1 },
+	)
+	->single;
 }
 
 # Bundle up the validate logs for a given device report.
