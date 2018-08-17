@@ -1,4 +1,4 @@
-package Conch::DB::ResultSet::UserSetting;
+package Conch::DB::ResultSet::Device;
 use v5.26;
 use warnings;
 use parent 'DBIx::Class::ResultSet';
@@ -7,11 +7,13 @@ __PACKAGE__->load_components('+Conch::DB::Deactivatable');
 
 =head1 NAME
 
-Conch::DB::ResultSet::UserSetting
+Conch::DB::ResultSet::Device
 
 =head1 DESCRIPTION
 
-Interface to queries against the 'user_setting' table.
+Interface to queries involving devices.
+
+=head1 METHODS
 
 =cut
 

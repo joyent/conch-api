@@ -36,7 +36,7 @@ has 'pg';   # this is generally a Test::PostgreSQL object
 
 =head2 schema
 
-The Conch::Schema object, used for direct database access. Will (re)connect as needed.
+The Conch::DB object, used for direct database access. Will (re)connect as needed.
 
 =cut
 

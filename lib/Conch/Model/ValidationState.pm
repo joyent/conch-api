@@ -176,9 +176,11 @@ sub latest_completed_grouped_states_for_workspace ( $class, $workspace_id,
 
 	my $status_condition = @statuses ? "and vs.status = any(?)" : "";
 
+	# XXX when translating to DBIC, see query in Conch::Controller::WorkspaceDevice::list
 	return $class->_group_results_by_validation_state(
 		Conch::Pg->new->db->query(
 			qq{
+				WITH target_workspace (id) AS ( values( ?::uuid ))
 				select $state_fields, $result_fields
 				from validation_result result
 				join validation_state_member m
@@ -186,8 +188,24 @@ sub latest_completed_grouped_states_for_workspace ( $class, $workspace_id,
 				join (
 					select distinct on (vs.device_id, vs.validation_plan_id) vs.*
 					from validation_state vs
-					join ( SELECT id FROM workspace_devices(?) ) device (id)
-						on vs.device_id = device.id
+					join (
+						SELECT device.id FROM device
+						JOIN device_location loc ON loc.device_id = device.id
+						JOIN datacenter_rack rack ON rack.id = loc.rack_id
+						WHERE device.deactivated IS NULL
+						AND (
+							rack.datacenter_room_id IN (
+								SELECT datacenter_room_id
+								FROM workspace_datacenter_room
+								WHERE workspace_id = (select id from target_workspace)
+							)
+							OR rack.id IN (
+								SELECT datacenter_rack_id
+								FROM workspace_datacenter_rack
+								WHERE workspace_id = (select id from target_workspace)
+							)
+						)
+					) device (id) on vs.device_id = device.id
 					where
 						vs.completed is not null
 						$status_condition

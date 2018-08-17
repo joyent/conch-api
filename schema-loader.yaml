@@ -10,7 +10,7 @@ loader_options:
   dump_directory: ./lib
   components:
     - +Conch::DB::InflateColumn::Time
-    - Helper::Row::ToJSON
+    - +Conch::DB::ToJSON
 
   rel_name_map:
     user: user_account

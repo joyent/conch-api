@@ -45,7 +45,7 @@ lives_ok {
 	$r = Conch::Model::DatacenterRack->new(
 		name => 'sungo',
 		datacenter_room_id => $dc_room_id,
-		role => $role_id,
+		datacenter_rack_role_id => $role_id,
 	)->save;
 } "->new->save";
 
@@ -90,7 +90,7 @@ lives_ok {
 	$r = Conch::Model::DatacenterRack->new(
 		name => 'sungo',
 		datacenter_room_id => $dc_room_id,
-		role => $role_id,
+		datacenter_rack_role_id => $role_id,
 	)->save;
 } "->new->save";
 

@@ -194,7 +194,7 @@ sub run_validations ( $self, $device, $data ) {
 	my $hw_product_id =
 		  $location
 		? $location->target_hardware_product->id
-		: $device->hardware_product;
+		: $device->hardware_product_id;
 	my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
 
 	my @results;

@@ -52,7 +52,7 @@ subtest "Create new device" => sub {
 	is( $d->id,    $device_serial, "New device ID matches expectations" );
 	is( $d->state, "UNKNOWN",      "New device state matches expectations" );
 
-	is( $d->hardware_product, $hw_product_id,
+	is( $d->hardware_product_id, $hw_product_id,
 		"New device hardware product id matches expectations" );
 
 	my $duplicate =

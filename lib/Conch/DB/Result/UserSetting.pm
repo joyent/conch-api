@@ -21,13 +21,13 @@ use base 'DBIx::Class::Core';
 
 =item * L<Conch::DB::InflateColumn::Time>
 
-=item * L<DBIx::Class::Helper::Row::ToJSON>
+=item * L<Conch::DB::ToJSON>
 
 =back
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "Helper::Row::ToJSON");
+__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
 
 =head1 TABLE: C<user_settings>
 
@@ -130,8 +130,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-09 14:14:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/Lhf/C6HJhaL+Nt96YOxuA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hkTTe+USSZ8cfuxmhrjsug
 
 1;
 __END__

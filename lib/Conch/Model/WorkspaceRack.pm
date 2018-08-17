@@ -25,7 +25,7 @@ sub lookup ( $self, $ws_id, $rack_id ) {
       SELECT rack.*, role.name AS role_name
       FROM datacenter_rack rack
       JOIN datacenter_rack_role role
-        ON rack.role = role.id
+        ON rack.datacenter_rack_role_id = role.id
       WHERE rack.id = ?
       AND rack.deactivated is null
       AND (
@@ -65,7 +65,7 @@ sub rack_layout ( $self, $rack ) {
 	my $res;
 	$res->{id}         = $rack->id;
 	$res->{name}       = $rack->name;
-	$res->{role}       = $rack->role_name;
+	$res->{datacenter_rack_role_id}       = $rack->role_name;
 	$res->{datacenter} = $datacenter_room->{az};
 
 	foreach my $slot (@$rack_slots) {
@@ -196,8 +196,8 @@ sub list ( $self, $ws_id ) {
 		my $rack_res = {};
 		$rack_res->{id}              = $rack->{id};
 		$rack_res->{name}            = $rack->{name};
-		$rack_res->{role}            = $rack_roles->{ $rack->{role} }{name};
-		$rack_res->{size}            = $rack_roles->{ $rack->{role} }{size};
+		$rack_res->{role}            = $rack_roles->{ $rack->{datacenter_rack_role_id} }{name};
+		$rack_res->{size}            = $rack_roles->{ $rack->{datacenter_rack_role_id} }{size};
 		$rack_res->{device_progress} = $rack_progress->{ $rack->{id} } || {};
 		push @{ $rack_groups->{$rack_dc} }, $rack_res;
 	}

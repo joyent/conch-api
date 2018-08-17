@@ -21,13 +21,13 @@ use base 'DBIx::Class::Core';
 
 =item * L<Conch::DB::InflateColumn::Time>
 
-=item * L<DBIx::Class::Helper::Row::ToJSON>
+=item * L<Conch::DB::ToJSON>
 
 =back
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "Helper::Row::ToJSON");
+__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
 
 =head1 TABLE: C<user_account>
 
@@ -222,8 +222,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-03 10:49:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H1YZWElkgjg1bvGLKrka5w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mVW8QcKBqvYOVU42HkfvbQ
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 

@@ -21,13 +21,13 @@ use base 'DBIx::Class::Core';
 
 =item * L<Conch::DB::InflateColumn::Time>
 
-=item * L<DBIx::Class::Helper::Row::ToJSON>
+=item * L<Conch::DB::ToJSON>
 
 =back
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "Helper::Row::ToJSON");
+__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
 
 =head1 TABLE: C<user_workspace_role>
 
@@ -129,23 +129,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-09 14:14:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2k6gvOS1g//6V/o1gHknXw
-
-=head2 workspace_recursive
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::WorkspaceRecursive>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "workspace_recursive",
-  "Conch::DB::Result::WorkspaceRecursive",
-  { id => "workspace_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZpvirPKnyjKsMiUay+5z+g
 
 1;
 __END__

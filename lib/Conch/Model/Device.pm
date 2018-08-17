@@ -20,15 +20,14 @@ use Conch::Pg;
 has [
 	qw(
 		asset_tag
-		boot_phase
 		created
 		graduated
-		hardware_product
+		hardware_product_id
 		health
 		id
 		last_seen
 		latest_triton_reboot
-		role
+		device_role_id
 		state
 		system_uuid
 		triton_setup
@@ -56,15 +55,14 @@ Serialize a hash
 sub TO_JSON ($self) {
 	{
 		asset_tag            => $self->asset_tag,
-		boot_phase           => $self->boot_phase,
 		created              => $self->created,
 		graduated            => $self->graduated,
-		hardware_product     => $self->hardware_product,
+		hardware_product     => $self->hardware_product_id,     # XXX special
 		health               => $self->health,
 		id                   => $self->id,
 		last_seen            => $self->last_seen,
 		latest_triton_reboot => $self->latest_triton_reboot,
-		role                 => $self->role,
+		role                  => $self->device_role_id,         # XXX special
 		state                => $self->state,
 		system_uuid          => $self->system_uuid,
 		triton_setup         => $self->triton_setup,
@@ -72,6 +70,7 @@ sub TO_JSON ($self) {
 		updated              => $self->updated,
 		uptime_since         => $self->uptime_since,
 		validated            => $self->validated,
+		# XXX no 'deactivated'
 	};
 }
 
@@ -92,7 +91,7 @@ sub create (
 			'device',
 			{
 				id               => $id,
-				hardware_product => $hardware_product_id,
+				hardware_product_id => $hardware_product_id,
 				state            => $state,
 				health           => $health
 			},
@@ -353,22 +352,22 @@ sub set_validated ( $self ) {
 
 =head2 set_role
 
-Sets the C<role> attribute
+Sets the C<device_role_id> attribute
 
 =cut
 sub set_role ( $self, $role ) {
 	my $ret = Conch::Pg->new()->db->update(
 		'device',
 		{
-			role    => $role,
+			device_role_id => $role,
 			updated => 'NOW()'
 		},
 		{ id        => $self->id },
-		{ returning => [qw(role updated)] },
+		{ returning => [qw(device_role_id updated)] },
 	)->hash;
 	return undef unless $ret;
 
-	$self->role( $ret->{role} );
+	$self->device_role_id( $ret->{device_role_id} );
 	$self->updated( $ret->{updated} );
 	return 1;
 }

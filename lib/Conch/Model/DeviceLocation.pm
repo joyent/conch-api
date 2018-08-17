@@ -56,7 +56,7 @@ sub lookup ( $self, $device_id ) {
       ON loc.rack_id = rack.id
 
     JOIN datacenter_rack_role rack_role
-      ON rack.role = rack_role.id
+      ON rack.datacenter_rack_role_id = rack_role.id
 
     JOIN datacenter_room room
       ON rack.datacenter_room_id = room.id
