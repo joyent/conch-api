@@ -24,9 +24,8 @@ Get a list of problems for a workspace, using the Legacy code base
 
 =cut
 
-# get_problems needs to be heavily re-worked. For now, use the legacy code using DBIC
 sub list ($c) {
-	my $problems = $c->_get_problems($c->stash('user_id'), $c->stash('workspace_id'));
+	my $problems = $c->_get_problems;
 	$c->status( 200, $problems );
 }
 
@@ -38,8 +37,7 @@ Build a collection of failing devices in a workspace
 =cut
 # The report / validation format is not normalized yet, so this is going to be
 # a giant mess. Sorry. -- bdha
-sub _get_problems {
-	my ( $c, $user_id, $workspace_id ) = @_;
+sub _get_problems ($c) {
 
 	my $schema = $c->schema;
 
@@ -47,8 +45,19 @@ sub _get_problems {
 
 	my @failing_user_devices;
 	my @unreported_user_devices;
-	my @unlocated_user_devices;
-	foreach my $d ( _workspace_devices( $schema, $workspace_id ) ) {
+
+	# TODO: this query could be further modified to also fetch
+	# device_rack_location at the same time.
+	my @workspace_devices = $c->stash('workspace_rs')
+		->associated_racks
+		->related_resultset('device_locations')
+		->search_related('device',
+			{ health => [ qw(FAIL UNKNOWN) ] },
+			{ prefetch => 'latest_report' },
+		)
+		->active;
+
+	foreach my $d (@workspace_devices) {
 		if ( $d->health eq 'FAIL' ) {
 			push @failing_user_devices, $d;
 		}
@@ -57,9 +66,19 @@ sub _get_problems {
 		}
 	}
 
-	foreach my $d ( _unlocated_devices( $schema, $user_id ) ) {
-		push @unlocated_user_devices, $d;
-	}
+	# TODO: this query could be further modified to also fetch
+	# device_rack_location at the same time.
+	my @unlocated_user_devices = $c->stash('user')
+		->related_resultset('user_relay_connections')
+		->related_resultset('device_relay_connections')
+		->search_related_rs('device',
+			{
+				# all devices in device_location table
+				'device.id' => { -not_in => $c->db_device_locations->get_column('device_id')->as_query },
+			},
+			{ prefetch => 'latest_report' },
+		)
+		->all;
 
 	my $failing_problems = {};
 	foreach my $device (@failing_user_devices) {
@@ -69,7 +88,7 @@ sub _get_problems {
 		$failing_problems->{$device_id}{location} =
 			_device_rack_location( $schema, $device_id );
 
-		my $report = _latest_device_report( $schema, $device_id );
+		my $report = $device->latest_report;
 		$failing_problems->{$device_id}{report_id} = $report->id;
 		my @failures = _validation_failures( $schema, $criteria, $report->id );
 		$failing_problems->{$device_id}{problems} = \@failures;
@@ -89,8 +108,10 @@ sub _get_problems {
 		my $device_id = $device->id;
 
 		$unlocated_problems->{$device_id}{health} = $device->health;
-		my $report = _latest_device_report( $schema, $device_id );
+
+		my $report = $device->latest_report;
 		$unlocated_problems->{$device_id}{report_id} = $report->id;
+
 		my @failures = _validation_failures( $schema, $criteria, $report->id );
 		$unlocated_problems->{$device_id}{problems} = \@failures;
 	}
@@ -106,7 +127,11 @@ sub _validation_failures {
 	my ( $schema, $criteria, $report_id ) = @_;
 	my @failures;
 
-	my @validation_report = _device_validation_report( $schema, $report_id );
+	# Bundle up the validate logs for a given device report.
+	my @validation_report =
+		map { decode_json( $_->validation ) }
+		$schema->resultset('DeviceValidate')->search( { report_id => $report_id } );
+
 	foreach my $v (@validation_report) {
 		my $fail = {};
 		if ( $v->{status} eq 0 ) {
@@ -153,31 +178,31 @@ sub _get_validation_criteria {
 	return $criteria;
 }
 
-sub _workspace_devices {
-	my ( $schema, $workspace_id ) = @_;
-	return $schema->resultset('WorkspaceDevices')
-		->search( {}, { bind => [$workspace_id] } )->all;
-}
-
-sub _unlocated_devices {
-	my ( $schema, $user_id ) = @_;
-	return $schema->resultset('UnlocatedUserRelayDevices')
-		->search( {}, { bind => [$user_id] } )->all;
-}
-
 # Gives a hash of Rack and Datacenter location details
 sub _device_rack_location {
 	my ( $schema, $device_id ) = @_;
 
 	my $location;
-	my $device_location = _device_location( $schema, $device_id );
+	my $device_location = $schema->resultset('DeviceLocation')->find( { device_id => $device_id } );
+
 	if ($device_location) {
-		my $rack_info = _get_rack( $schema, $device_location->rack_id );
+
+		# FIXME: this can all be done in one single query.
+		my $rack_info =
+			$schema->resultset('DatacenterRack')
+				->find( { id => $device_location->rack_id, deactivated => { '=', undef } } );
+
 		my $datacenter =
-			_get_datacenter_room( $schema, $rack_info->datacenter_room_id );
-		my $target_hardware =
-			_get_target_hardware_product( $schema, $rack_info->id,
-			$device_location->rack_unit );
+			$schema->resultset('DatacenterRoom')->find( { id => $rack_info->datacenter_room_id } );
+
+		# get the hardware product a device should be by rack location
+		my $target_hardware = $schema->resultset('HardwareProduct')->search(
+			{
+				'datacenter_rack_layouts.rack_id'  => $rack_info->id,
+				'datacenter_rack_layouts.ru_start' => $device_location->rack_unit,
+			},
+			{ join => 'datacenter_rack_layouts' }
+		)->single;
 
 		$location->{rack}{id}   = $device_location->rack_id;
 		$location->{rack}{unit} = $device_location->rack_unit;
@@ -197,62 +222,6 @@ sub _device_rack_location {
 
 	return $location;
 }
-
-sub _device_location {
-	my ( $schema, $device_id ) = @_;
-	my $device =
-		$schema->resultset('DeviceLocation')->find( { device_id => $device_id } );
-	return $device;
-}
-
-sub _get_rack {
-	my ( $schema, $rack_id ) = @_;
-	my $rack = $schema->resultset('DatacenterRack')
-		->find( { id => $rack_id, deactivated => { '=', undef } } );
-	return $rack;
-}
-
-sub _get_datacenter_room {
-	my ( $schema, $room_id ) = @_;
-	my $room = $schema->resultset('DatacenterRoom')->find( { id => $room_id } );
-	return $room;
-}
-
-# get the hardware product a device should be by rack location
-sub _get_target_hardware_product {
-	my ( $schema, $rack_id, $rack_unit ) = @_;
-
-	return $schema->resultset('HardwareProduct')->search(
-		{
-			'datacenter_rack_layouts.rack_id'  => $rack_id,
-			'datacenter_rack_layouts.ru_start' => $rack_unit
-		},
-		{ join => 'datacenter_rack_layouts' }
-	)->single;
-}
-
-sub _latest_device_report {
-	my ( $schema, $device_id ) = @_;
-
-	return $schema->resultset('LatestDeviceReport')
-		->search( {}, { bind => [$device_id] } )->first;
-}
-
-# Bundle up the validate logs for a given device report.
-sub _device_validation_report {
-	my ( $schema, $report_id ) = @_;
-
-	my @validate_report =
-		$schema->resultset('DeviceValidate')->search( { report_id => $report_id } );
-
-	my @reports;
-	foreach my $r (@validate_report) {
-		push @reports, decode_json( $r->validation );
-	}
-
-	return @reports;
-}
-
 
 1;
 __END__
