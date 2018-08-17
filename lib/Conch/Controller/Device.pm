@@ -31,17 +31,47 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
-	my $device = Conch::Model::Device->lookup_for_user(
-		$c->stash('user_id'),
-		$device_id,
+	my $user_workspace_device_rs = $c->db_user_workspace_roles
+		->search({ 'user_workspace_role.user_id' => $c->stash('user_id') }, { alias => 'user_workspace_role' })
+		->related_resultset('workspace')
+		->associated_racks
+		->related_resultset('device_locations')
+		->related_resultset('device')
+		->active;
+
+	my $relay_report_device_rs = $c->db_user_accounts
+		->search({ 'user_account.id' => $c->stash('user_id') }, { alias => 'user_account' })
+		# FIXME: doesn't check ->active?
+		->user_devices_without_location;
+
+	# this resultset will return the one device referenced by :device_id,
+	# while also guaranteeing that the user has permission to access it.
+	my $device_rs = $c->db_devices->search(
+		{
+			-and => [
+				'device.id' => $device_id,
+				-or => [
+					 'device.id' => { -in => $user_workspace_device_rs->get_column('id')->as_query },
+					 'device.id' => { -in => $relay_report_device_rs->get_column('id')->as_query },
+				],
+			],
+		},
+		{ alias => 'device' },
 	);
 
-	if (not $device) {
+	if (not $device_rs->count) {
 		$c->log->debug("Failed to find device $device_id");
 		return $c->status(404, { error => "Device '$device_id' not found" });
 	}
 
-	$c->log->debug('Found device ' . $device->id);
+	$c->log->debug('Found device ' . $device_id);
+
+	# store the simplified query to access the device, now that we've confirmed the user has
+	# permission to access it.
+	# No queries have been made yet, so you can add on more criteria or prefetches.
+	$c->stash('device_rs',
+		$c->db_devices->search_rs({ 'device.id' => $device_id }, { alias => 'device' }));
+
 	return 1;
 }
 

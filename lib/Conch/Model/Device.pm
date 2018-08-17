@@ -120,67 +120,6 @@ sub lookup ( $class, $device_id ) {
 	return $class->new( $ret->%* );
 }
 
-=head2 lookup_for_user
-
-Find a device by ID for a given user, which either:
-
-a) is located in a datacenter rack in one of the user's workspaces
-b) has sent a device report proxied by a relay using the user's credentials
-
-=cut
-sub lookup_for_user ( $class, $user_id, $device_id ) {
-	my $ret = Conch::Pg->new()->db->query(
-		q{
-		WITH target_workspaces(id) AS (
-			SELECT workspace_id
-			FROM user_workspace_role
-			WHERE user_id = ?
-		)
-		SELECT distinct device.*
-		FROM device
-		JOIN device_location loc
-			ON loc.device_id = device.id
-		JOIN datacenter_rack rack
-			ON rack.id = loc.rack_id
-		WHERE device.id = ?
-		AND device.deactivated IS NULL
-		AND (
-			rack.datacenter_room_id IN (
-				SELECT datacenter_room_id
-					FROM workspace_datacenter_room
-					WHERE workspace_id IN (SELECT id FROM target_workspaces)
-			)
-			OR rack.id IN (
-				SELECT datacenter_rack_id
-				FROM workspace_datacenter_rack
-				WHERE workspace_id IN (SELECT id FROM target_workspaces)
-			)
-		)
-	}, $user_id, $device_id
-	)->hash;
-
-	unless ( $ret and $ret->{id} ) {
-		$ret = Conch::Pg->new()->db->query(
-			q{
-			SELECT device.*
-				FROM user_account u
-				INNER JOIN user_relay_connection ur
-					ON u.id = ur.user_id
-				INNER JOIN device_relay_connection dr
-					ON ur.relay_id = dr.relay_id
-				INNER JOIN device
-					ON dr.device_id = device.id
-			WHERE u.id = ?
-				AND device.id = ?
-				AND device.id NOT IN (SELECT device_id FROM device_location)
-		}, $user_id, $device_id
-		)->hash;
-	}
-
-	return undef unless $ret and $ret->{id};
-	return $class->new( $ret->%* );
-}
-
 =head2 device_nic_neighbors
 
 Return a hash of NIC and associated NIC peers details for a device

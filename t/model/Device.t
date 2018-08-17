@@ -70,15 +70,6 @@ subtest "Lookup" => sub {
 		Conch::Model::Device->lookup( 'bad device id' ),
 		undef, "Lookup for bad device fails",
 	);
-
-	$user = $schema->resultset('UserAccount')->create({
-		email => 'foo@bar.com',
-		name => 'foo',
-		password => 'password',
-	});
-	is( Conch::Model::Device->lookup_for_user( $user->id, $d->id ),
-		undef, "brand new user can't find a device" );
-
 };
 
 subtest "Device Modifiers" => sub {
