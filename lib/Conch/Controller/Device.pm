@@ -169,12 +169,12 @@ sub lookup_by_other_attribute ($c) {
 
 =head2 graduate
 
-Sets the C<graduated> field on a device, unless that field has already been set
+Marks the device as "graduated" (VLAN flipped)
 
 =cut
 
 sub graduate($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = $c->stash('device_rs')->single;
 	my $device_id = $device->id;
 
 	# FIXME this shouldn't be an error
@@ -185,7 +185,7 @@ sub graduate($c) {
 		})
 	}
 
-	$device->graduate;
+	$device->update({ graduated => \'NOW()', updated => \'NOW()' });
 	$c->log->debug("Marked $device_id as graduated");
 
 	$c->status(303);
@@ -194,13 +194,13 @@ sub graduate($c) {
 
 =head2 set_triton_reboot
 
-Sets the C<triton_reboot> field on a device
+Sets the C<latest_triton_reboot> field on a device
 
 =cut
 
 sub set_triton_reboot ($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
-	$device->set_triton_reboot;
+	my $device = $c->stash('device_rs')->single;
+	$device->update({ latest_triton_reboot => \'NOW()', updated => \'NOW()' });
 
 	$c->log->debug("Marked ".$device->id." as rebooted into triton");
 
@@ -216,7 +216,7 @@ valid UUID
 =cut
 
 sub set_triton_uuid ($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = $c->stash('device_rs')->single;
 	my $triton_uuid = $c->req->json && $c->req->json->{triton_uuid};
 
 	unless(defined($triton_uuid) && is_uuid($triton_uuid)) {
@@ -226,7 +226,7 @@ sub set_triton_uuid ($c) {
 		});
 	}
 
-	$device->set_triton_uuid($triton_uuid);
+	$device->update({ triton_uuid => $triton_uuid, updated => \'NOW()' });
 	$c->log->debug("Set the triton uuid for device ".$device->id." to $triton_uuid");
 
 	$c->status(303);
@@ -241,7 +241,7 @@ the C<triton_setup> field. Fails if the device has already been marked as such.
 =cut
 
 sub set_triton_setup ($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = $c->stash('device_rs')->single;
 	my $device_id = $device->id;
 
 	unless ( defined( $device->latest_triton_reboot )
@@ -262,7 +262,7 @@ sub set_triton_setup ($c) {
 		})
 	}
 
-	$device->set_triton_setup;
+	$device->update({ triton_setup => \'NOW()', updated => \'NOW()' });
 	$c->log->debug("Device $device_id marked as set up for triton");
 
 	$c->status(303);
@@ -276,7 +276,7 @@ Sets the C<asset_tag> field on a device
 =cut
 
 sub set_asset_tag ($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = $c->stash('device_rs')->single;
 	my $asset_tag = $c->req->json && $c->req->json->{asset_tag};
 
 	unless(defined($asset_tag) && ref($asset_tag) eq '') {
@@ -286,7 +286,7 @@ sub set_asset_tag ($c) {
 		});
 	}
 
-	$device->set_asset_tag($asset_tag);
+	$device->update({ asset_tag => $asset_tag, updated => \'NOW()' });
 	$c->log->debug("Set the asset tag for device ".$device->id." to $asset_tag");
 
 	$c->status(303);
@@ -300,11 +300,11 @@ Sets the C<validated> field on a device unless that field has already been set
 =cut
 
 sub set_validated($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = $c->stash('device_rs')->single;
 	my $device_id = $device->id;
 	return $c->status(204) if defined( $device->validated );
 
-	$device->set_validated();
+	$device->update({ validated => \'NOW()', updated => \'NOW()' });
 	$c->log->debug("Marked the device $device_id as validated");
 
 	$c->status(303);
@@ -319,7 +319,7 @@ If the device has a valid role, 303 to the relevant /role endpoint
 =cut
 
 sub get_role($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = $c->stash('device_rs')->single;
 	if ($device->device_role_id) {
 		return $c->status(303 => "/device/role/".$device->device_role_id);
 	} else {
@@ -337,7 +337,6 @@ Sets the device's C<role> attribute and 303's to the device endpoint
 sub set_role($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	my $device_role_id = $c->req->json && $c->req->json->{role};
 	return $c->status(
 		400, {
@@ -351,8 +350,8 @@ sub set_role($c) {
 			return $c->status(400 => "Role $device_role_id is deactivated");
 		}
 
-		$device->set_role($device_role_id);
-		return $c->status(303 => "/device/".$device->id);
+		$c->stash('device_rs')->update({ device_role_id => $device_role_id, updated => \'NOW()' });
+		return $c->status(303 => "/device/".$c->stash('device_id'));
 	} else {
 		return $c->status(400 => "Role $device_role_id does not exist");
 	}
