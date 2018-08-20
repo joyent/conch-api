@@ -28,7 +28,7 @@ sub set_all ($c) {
 		unless $body;
 
 	Conch::Model::DeviceSettings->new->set_settings(
-		$c->stash('current_device')->id,
+		$c->stash('device_id'),
 		$body
 	);
 	$c->status(200);
@@ -55,7 +55,7 @@ sub set_single ($c) {
 	) unless $setting_value;
 
 	Conch::Model::DeviceSettings->new->set_settings(
-		$c->stash('current_device')->id,
+		$c->stash('device_id'),
 		{ $setting_key => $setting_value }
 	);
 
@@ -71,7 +71,7 @@ Get all settings for a device as a hash
 
 sub get_all ($c) {
 	my $settings = Conch::Model::DeviceSettings->new->get_settings(
-		$c->stash('current_device')->id
+		$c->stash('device_id')
 	);
 	$c->status( 200, $settings );
 }
@@ -86,7 +86,7 @@ Get a single setting from a device
 sub get_single ($c) {
 	my $setting_key = $c->param('key');
 	my $settings = Conch::Model::DeviceSettings->new->get_settings(
-		$c->stash('current_device')->id
+		$c->stash('device_id')
 	);
 
 	return $c->status( 404, { error => "No such setting '$setting_key'" } )
@@ -105,7 +105,7 @@ sub delete_single ($c) {
 	my $setting_key = $c->param('key');
 	unless (
 		Conch::Model::DeviceSettings->new->delete_device_setting(
-			$c->stash('current_device')->id, $setting_key
+			$c->stash('device_id'), $setting_key
 		)
 	){
 		return $c->status( 404, { error => "No such setting '$setting_key'" } );

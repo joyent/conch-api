@@ -26,7 +26,7 @@ object
 =cut
 
 sub get ($c) {
-	my $device_id      = $c->stash('current_device')->id;
+	my $device_id      = $c->stash('device_id');
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device_id);
 	return $c->status( 409,
 		{ error => "Device $device_id is not assigned to a rack" } )
@@ -43,7 +43,7 @@ Sets the location for a device, given a valid rack id and rack unit
 =cut
 
 sub set ($c) {
-	my $device_id = $c->stash('current_device')->id;
+	my $device_id = $c->stash('device_id');
 	my $body      = $c->req->json;
 	return $c->status( 400,
 		{ error => 'rack_id and rack_unit must be defined the the request object' }
@@ -77,7 +77,7 @@ Deletes the location data for a device, provided it has been assigned to a locat
 =cut
 
 sub delete ($c) {
-	my $device_id = $c->stash('current_device')->id;
+	my $device_id = $c->stash('device_id');
 	my $unassign  = Conch::Model::DeviceLocation->new->unassign($device_id);
 	return $c->status( 409,
 		{ error => "Device $device_id is not assigned to a rack" } )

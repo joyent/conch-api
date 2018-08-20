@@ -22,8 +22,7 @@ use Conch::Models;
 
 =head2 find_device
 
-Chainable action that validates the 'device_id' provided in the path
-and looks up the device and stashes it in C<current_device>.
+Chainable action that validates the 'device_id' provided in the path.
 
 =cut
 
@@ -43,7 +42,6 @@ sub find_device ($c) {
 	}
 
 	$c->log->debug('Found device ' . $device->id);
-	$c->stash(current_device => $device);
 	return 1;
 }
 
@@ -55,7 +53,7 @@ Conch::Class::DeviceDetailed
 =cut
 
 sub get ($c) {
-	my $device = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 
 	my $device_report = Conch::Model::DeviceReport->new->latest_device_report( $device->id );
 	my $report        = {};
@@ -142,7 +140,7 @@ Sets the C<graduated> field on a device, unless that field has already been set
 =cut
 
 sub graduate($c) {
-	my $device    = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	my $device_id = $device->id;
 
 	# FIXME this shouldn't be an error
@@ -167,7 +165,7 @@ Sets the C<triton_reboot> field on a device
 =cut
 
 sub set_triton_reboot ($c) {
-	my $device = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	$device->set_triton_reboot;
 
 	$c->log->debug("Marked ".$device->id." as rebooted into triton");
@@ -184,7 +182,7 @@ valid UUID
 =cut
 
 sub set_triton_uuid ($c) {
-	my $device = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	my $triton_uuid = $c->req->json && $c->req->json->{triton_uuid};
 
 	unless(defined($triton_uuid) && is_uuid($triton_uuid)) {
@@ -209,7 +207,7 @@ the C<triton_setup> field. Fails if the device has already been marked as such.
 =cut
 
 sub set_triton_setup ($c) {
-	my $device    = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	my $device_id = $device->id;
 
 	unless ( defined( $device->latest_triton_reboot )
@@ -244,7 +242,7 @@ Sets the C<asset_tag> field on a device
 =cut
 
 sub set_asset_tag ($c) {
-	my $device = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	my $asset_tag = $c->req->json && $c->req->json->{asset_tag};
 
 	unless(defined($asset_tag) && ref($asset_tag) eq '') {
@@ -268,7 +266,7 @@ Sets the C<validated> field on a device unless that field has already been set
 =cut
 
 sub set_validated($c) {
-	my $device    = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	my $device_id = $device->id;
 	return $c->status(204) if defined( $device->validated );
 
@@ -287,7 +285,7 @@ If the device has a valid role, 303 to the relevant /role endpoint
 =cut
 
 sub get_role($c) {
-	my $device = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	if ($device->device_role_id) {
 		return $c->status(303 => "/device/role/".$device->device_role_id);
 	} else {
@@ -305,7 +303,7 @@ Sets the device's C<role> attribute and 303's to the device endpoint
 sub set_role($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $device = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 	my $role = $c->req->json && $c->req->json->{role};
 	return $c->status(
 		400, {
