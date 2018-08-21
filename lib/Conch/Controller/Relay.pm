@@ -1,3 +1,10 @@
+package Conch::Controller::Relay;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
 =pod
 
 =head1 NAME
@@ -5,16 +12,6 @@
 Conch::Controller::Relay
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::Relay;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-
-use Conch::Models;
-with 'Conch::Role::MojoLog';
 
 =head2 register
 
@@ -24,29 +21,27 @@ it if the relay does not already exists
 =cut
 
 sub register ($c) {
-	my $body    = $c->req->json;
-	my $user_id = $c->stash('user_id');
-	my $serial  = $body->{serial};
+    my $input = $c->validate_input('RegisterRelay');
+    return if not $input;
 
-	return $c->status( 400,
-		{ error => "'serial' attribute required in request" } )
-		unless defined($serial);
+    return $c->status(422, { error => 'serial number in path doesn\'t match payload data' })
+        if $c->stash('relay_id') ne $input->{serial};
 
-	Conch::Model::Relay->new->register(
-		$serial,           $body->{version}, $body->{ipaddr},
-		$body->{ssh_port}, $body->{alias},
-	);
+    my $relay_id = delete $input->{serial};
 
-	my $attempt = Conch::Model::Relay->new->connect_user_relay(
-		$user_id,
-		$serial
-	);
+    my $relay = $c->db_relays->update_or_create({
+        id => $relay_id,
+        %$input,
+        updated    => \'now()',
+        deactivated => undef,
+    });
 
-	unless ($attempt) {
-		return $c->status( 500, { error => "unable to register relay '$serial'" } );
-	}
+    $relay->update_or_create_related('user_relay_connections', {
+        user_id => $c->stash('user_id'),
+        last_seen => \'now()',
+    });
 
-	$c->status(204);
+    $c->status(204);
 }
 
 =head2 list
@@ -58,11 +53,9 @@ Response uses the Relays json schema.
 =cut
 
 sub list ($c) {
-	return $c->status(403) unless $c->is_system_admin;
-	$c->status(
-		200,
-		Conch::Model::Relay->new->list
-	);
+    return $c->status(403) unless $c->is_system_admin;
+
+    $c->status(200, [ $c->db_relays->all ]);
 }
 
 1;
@@ -79,3 +72,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

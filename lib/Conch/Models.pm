@@ -18,7 +18,6 @@ use Conch::DB;
 
 use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
-use Conch::Model::Relay;
 use Conch::Model::Validation;
 use Conch::Model::ValidationPlan;
 use Conch::Model::ValidationState;

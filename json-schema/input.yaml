@@ -6,6 +6,9 @@ definitions:
   uuid:
     type: string
     pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
+  relay_id:
+    type: string
+    pattern: ^\S+$
   device_id:
     type: string
     pattern: ^\S+$
@@ -659,5 +662,23 @@ definitions:
     items:
       description: datacenter room ids
       $ref: /definitions/uuid
+  RegisterRelay:
+    type: object
+    additionaProperties: false
+    required:
+      - serial
+    properties:
+      serial:
+        $ref: /definitions/relay_id
+      alias:
+        type: string
+      version:
+        description: usually a git commit SHA
+        type: string
+      ipaddr:
+        description: 'postgres "inet": ipv4 or ipv6, with optional netmask'
+        type: string
+      ssh_port:
+        type: integer
 
 # vim: set sts=2 sw=2 et :
