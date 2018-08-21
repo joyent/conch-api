@@ -134,16 +134,15 @@ sub _record_device_report {
 
 		unless ($hw) {
 			$c->log->debug("Could not find hardware product by SKU, falling back to legacy_product_name");
-			#$hw = Conch::Model::HardwareProduct->lookup_by_legacy_product_name(
-		    $hw = $schema->resultset('HardwareProduct')->find(
-				legacy_product_name => $dr->{product_name}
+			$hw = Conch::Model::HardwareProduct->lookup_by_legacy_product_name(
+				$dr->{product_name}
 			);
 		}
 
 		$hw or die $log->critical("Product $dr->{sku} not found");
 	}
 
-	my $hw_profile = $hw->hardware_product_profile;
+	my $hw_profile = $hw->profile;
 	$hw_profile
 		or die $log->criticalf(
 		"Hardware product '%s' exists but does not have a hardware profile",
