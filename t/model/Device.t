@@ -41,23 +41,14 @@ catch {
 	BAIL_OUT("Setup failed: $_");
 };
 
-my $d;
 my $device_serial = 'c0ff33';
-subtest "Create new device" => sub {
-
-	$d = Conch::Model::Device->create( $device_serial, $hw_product_id );
-
-	isa_ok( $d, "Conch::Model::Device" );
-	is( $d->id,    $device_serial, "New device ID matches expectations" );
-	is( $d->state, "UNKNOWN",      "New device state matches expectations" );
-
-	is( $d->hardware_product_id, $hw_product_id,
-		"New device hardware product id matches expectations" );
-
-	my $duplicate =
-		Conch::Model::Device->create( $device_serial, $hw_product_id );
-	is( $duplicate, undef, "Duplicate creation attempt fails" );
-};
+my $d = $schema->resultset('device')->create({
+	id => $device_serial,
+	hardware_product_id => $hw_product_id,
+	state => 'UNKNOWN',
+	health => 'UNKNOWN',
+});
+$d = Conch::Model::Device->new($d->discard_changes->get_columns);
 
 my $user;
 subtest "Lookup" => sub {

@@ -69,7 +69,12 @@ my $hardware_profile_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
-my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
+my $device = $t->app->db_devices->create({
+	id => 'coffee',
+	hardware_product_id => $hardware_product_id,
+	state => 'UNKNOWN',
+	health => 'UNKNOWN',
+});
 my $device_report = $t->app->db_device_reports->create({ device_id => 'coffee', report => '{}' });
 
 my $validation_plan;

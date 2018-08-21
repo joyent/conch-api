@@ -4,8 +4,6 @@ use Test::Exception;
 use DDP;
 use Data::UUID;
 
-use Conch::Model::Device;
-
 my $uuid = Data::UUID->new;
 
 use_ok("Conch::Model::Validation");
@@ -60,7 +58,12 @@ my $hardware_profile_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
-my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
+my $device = $t->app->db_devices->create({
+	id => 'coffee',
+	hardware_product_id => $hardware_product_id,
+	state => 'UNKNOWN',
+	health => 'UNKNOWN',
+});
 
 subtest "Create validation" => sub {
 	$validation = Conch::Model::Validation->create( 'test', 1, 'test validation',

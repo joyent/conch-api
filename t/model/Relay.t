@@ -2,7 +2,6 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
 
-use_ok("Conch::Model::Device");
 use_ok("Conch::Model::Relay");
 
 use Data::UUID;
@@ -60,10 +59,14 @@ subtest "registering relay" => sub {
 };
 
 subtest "connect device relay" => sub {
-	my $device_model = new_ok( "Conch::Model::Device");
 
-	my $device_id =
-		Conch::Model::Device->create( 'coffee', $hardware_product_id )->id;
+	my $device = $schema->resultset('device')->create({
+		id => 'coffee',
+		hardware_product_id => $hardware_product_id,
+		state => 'UNKNOWN',
+		health => 'UNKNOWN',
+	});
+	my $device_id = $device->id;
 
 	ok( $relay_model->connect_device_relay( $device_id, $relay_serial ) );
 	ok( !$relay_model->connect_device_relay( $device_id, 'bad_serial' ) );
