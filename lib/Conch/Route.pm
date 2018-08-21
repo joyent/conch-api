@@ -86,8 +86,8 @@ sub all_routes {
 
 	workspace_routes($secured->any('/workspace'));
 	device_routes($secured->any('/device'));
-	relay_routes($secured);
-	user_routes( $secured->any('/user') );
+	relay_routes($secured->any('/relay'));
+	user_routes($secured->any('/user'));
 	hardware_product_routes($secured);
 	validation_routes($secured);
 
