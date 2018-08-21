@@ -45,6 +45,14 @@ sub process ($c) {
 			$device_report->{sku}
 		);
 
+		unless ($maybe_hw) {
+			$c->log->debug("Could not find hardware product by SKU, falling back to legacy_product_name");
+			$maybe_hw =
+				Conch::Model::HardwareProduct->lookup_by_legacy_product_name(
+					$device_report->{product_name}
+				);
+		}
+
 		return $c->status(409, {
 			error => "Hardware product SKU '".$device_report->{sku}."' does not exist"
 		}) unless ($maybe_hw);
@@ -123,6 +131,15 @@ sub _record_device_report {
 			sku => $dr->{sku}
 		}
 		);
+
+		unless ($hw) {
+			$c->log->debug("Could not find hardware product by SKU, falling back to legacy_product_name");
+			#$hw = Conch::Model::HardwareProduct->lookup_by_legacy_product_name(
+		    $hw = $schema->resultset('HardwareProduct')->find(
+				legacy_product_name => $dr->{product_name}
+			);
+		}
+
 		$hw or die $log->critical("Product $dr->{sku} not found");
 	}
 
