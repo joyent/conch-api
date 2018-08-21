@@ -26,7 +26,6 @@ as running validations
 
 sub process ($c) {
 	my $raw_report = $c->req->body;
-	my $schema = $c->schema;
 
 	my $unserialized_report = $c->validate_input('DeviceReport');
 	if(not $unserialized_report) {
@@ -34,7 +33,7 @@ sub process ($c) {
 	}
 
 	# Make sure the API and device report agree on who we're talking about
-	if ($c->param('id') ne $unserialized_report->{serial_number}) {
+	if ($c->stash('id') ne $unserialized_report->{serial_number}) {
 		return $c->render(status => 422, json => {
 			error => "Serial number provided to the API does not match the report data."
 		});
@@ -43,18 +42,22 @@ sub process ($c) {
 	my $hw;
 	# Make sure that the remote side is telling us about a hardware product we understand
 	if ($unserialized_report->{device_type} && $unserialized_report->{device_type} eq "switch") {
-		$hw = $schema->resultset('HardwareProduct')->find({
-			name => $unserialized_report->{product_name}
-		});
+		$hw = $c->db_hardware_products->active->search(
+			{ name => $unserialized_report->{product_name} },
+			{ prefetch => 'hardware_product_profile' },
+		)->single;
 	} else {
-		$hw = $schema->resultset('HardwareProduct')->find({
-			sku => $unserialized_report->{sku}
-		});
+		$hw = $c->db_hardware_products->active->search(
+			{ sku => $unserialized_report->{sku} },
+			{ prefetch => 'hardware_product_profile' },
+		)->single;
 
 		if(not $hw) {
-		  	$hw = $schema->resultset('HardwareProduct')->find({
-				legacy_product_name => $unserialized_report->{product_name}
-			});
+			# this will warn if more than one matching row is found
+			$hw = $c->db_hardware_products->active->search(
+				{ legacy_product_name => $unserialized_report->{product_name}, },
+				{ prefetch => 'hardware_product_profile' },
+			)->single;
 		}
 	}
 
@@ -70,19 +73,17 @@ sub process ($c) {
 		});
 	}
 
-	my $existing_device = $schema->resultset('Device')->find({
-		id => $c->param('id')
-	});
+	my $existing_device = $c->db_devices->active->find($c->stash('id'));
 
 	# Update/create the device and create the device report
 	# FIXME [2018-08-23 sungo] we need device report dedup here
-	$c->log->debug("Updating or creating device ".$c->param('id'));
+	$c->log->debug("Updating or creating device ".$c->stash('id'));
 	
 	my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since} : 
 		$existing_device ? $existing_device->uptime_since : undef;
 
-	my $device = $schema->resultset('Device')->update_or_create({
-		id                  => $c->param('id'),
+	my $device = $c->db_devices->update_or_create({
+		id                  => $c->stash('id'),
 		system_uuid         => $unserialized_report->{system_uuid},
 		hardware_product_id => $hw->id,
 		state               => $unserialized_report->{state},
@@ -92,8 +93,7 @@ sub process ($c) {
 	});
 
 	$c->log->debug("Creating device report");
-	my $device_report = $schema->resultset('DeviceReport')->create({
-		device_id => $device->id,
+	my $device_report = $device->create_related('device_reports', {
 		report    => $raw_report,
 	});
 	$c->log->info("Created device report ".$device_report->id);

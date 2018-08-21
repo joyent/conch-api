@@ -59,9 +59,9 @@ subtest 'Relay List' => sub {
 subtest 'Device Report' => sub {
 	my $report =
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
-	$t->post_ok( '/device/TEST', {
-		'Content-Type' => 'application/json'
-	}, $report )->status_is(409);
+	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
+		->status_is(409)
+		->json_is('/error', 'Hardware product does not contain a profile');
 };
 
 subtest 'Hardware Product' => sub {
