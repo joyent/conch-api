@@ -38,7 +38,8 @@ serialized Class::HardwareProduct object
 =cut
 
 sub get ($c) {
-	my $hw_id = $c->param('id');
+	my $hw_id = $c->stash('hardware_product_id');
+
 	return $c->status( 400,
 		{ error => "Hardware Product ID must be a UUID. Got '$hw_id'." } )
 		unless is_uuid($hw_id);

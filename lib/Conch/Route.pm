@@ -88,7 +88,7 @@ sub all_routes {
 	device_routes($secured->any('/device'));
 	relay_routes($secured->any('/relay'));
 	user_routes($secured->any('/user'));
-	hardware_product_routes($secured);
+	hardware_product_routes($secured->any('hardware_product'));
 	validation_routes($secured);
 
 	Conch::Route::Datacenter->routes($secured);
