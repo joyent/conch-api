@@ -258,8 +258,8 @@ subtest 'Single device' => sub {
 		})->status_is(303);
 		$t->get_ok($t->tx->res->headers->location)->status_is(200);
 
-		my $s = Conch::Model::DeviceService->from_id($t->tx->res->json->{id});
-	
+		my $s = $t->app->db_device_services->find($t->tx->res->json->{id});
+
 		$t->get_ok("/device/service")->status_is(200)->json_is([
 			$s->TO_JSON
 		]);

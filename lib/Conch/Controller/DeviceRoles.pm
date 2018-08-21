@@ -153,14 +153,14 @@ sub add_service ($c) {
 		return $c->status(400 => { error => "'service' parameter required"});
 	}
 
-	my $service = Conch::Model::DeviceService->from_id($body->{service});
-	if ($service) {
-		$c->log->debug("Found device service ".$service->id);
+	my $device_service = $c->db_device_services->find($body->{service});
+	if ($device_service) {
+		$c->log->debug("Found device service ".$device_service->id);
 
 		$device_role->update_or_create_related('device_role_services',
 			{ device_role_service_id => $body->{service} });
 
-		$c->log->debug("Added device service ".$service->id." to device role ".$device_role->id);
+		$c->log->debug("Added device service ".$device_service->id." to device role ".$device_role->id);
 		return $c->status(303 => "/device/role/".$device_role->id);
 	} else {
 		$c->log->debug("Failed to find device service ".$body->{service});

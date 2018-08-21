@@ -34,8 +34,6 @@ use Conch::Model::WorkspaceRack;
 use Conch::Model::WorkspaceRelay;
 use Conch::Model::WorkspaceRoom;
 
-use Conch::Model::DeviceService;
-
 1;
 __END__
 

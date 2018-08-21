@@ -3,7 +3,6 @@ package Conch::Controller::DeviceServices;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Conch::Models;
 with 'Conch::Role::MojoLog';
 
 =head2 find_device_service
@@ -13,13 +12,13 @@ Handles looking up the object by id or name depending on the url pattern
 =cut
 
 sub find_device_service ($c) {
-	my $s;
+	my $device_service;
 
 	if($c->stash('device_service_id') =~ /^(.+?)\=(.+)$/) {
 		my ($k, $v) = ($1, $2);
 		if($k eq 'name') {
 			$c->log->debug("Looking up device service by name $v");
-			$s = Conch::Model::DeviceService->from_name($v);
+			$device_service = $c->db_device_services->find({ name => $v });
 		} else {
 			$c->log->warn("Unknown identifier '$k'");
 			$c->status(404 => { error => "Not found" });
@@ -27,18 +26,20 @@ sub find_device_service ($c) {
 		}
 	} else {
 		$c->log->debug("Looking up device service by id ".$c->stash('device_service_id'));
-		$s = Conch::Model::DeviceService->from_id($c->stash('device_service_id'));
+		$device_service = $c->db_device_services->find($c->stash('device_service_id'));
 	}
 
-	if ($s) {
-		$c->log->debug("Found device service ".$s->id);
-		if($s->deactivated) {
-			$c->log->debug("Device service ".$s->id." is deactivated");
-			$c->status(404 => { error => "Not found" });
-			return undef;
-		}
+	if ($device_service) {
+		$c->log->debug("Found device service ".$device_service->id);
 
-		$c->stash('device_service' => $s);
+		# TODO. device_service.deactivated does not exist.
+		# if($device_service->deactivated) {
+		# 	$c->log->debug("Device service ".$device_service->id." is deactivated");
+		# 	$c->status(404 => { error => "Not found" });
+		# 	return undef;
+		# }
+
+		$c->stash('device_service' => $device_service);
 		return 1;
 	} else {
 		$c->log->debug("Failed to find device service");
@@ -56,9 +57,9 @@ Get all device services
 =cut
 
 sub get_all ($c) {
-	my $s = Conch::Model::DeviceService->all();
-	$c->log->debug("Found ".scalar($s->@*)." device services");
-	return $c->status(200 => $s);
+	my @device_services = $c->db_device_services->all;
+	$c->log->debug("Found ".scalar(@device_services)." device services");
+	return $c->status(200 => \@device_services);
 }
 
 
@@ -92,16 +93,16 @@ sub create ($c) {
 		return $c->status(400 => { error => "'name' parameter required"});
 	}
 
-	if(Conch::Model::DeviceService->from_name($body->{name})) {
+	if ($c->db_device_services->find({ name => $body->{name} })) {
 		$c->log->debug("Name conflict on ".$body->{name});
 		return $c->status(400 => {
 			error => "The name ".$body->{name}."is taken"
 		});
 	}
 
-	my $s = Conch::Model::DeviceService->new(name => $body->{name})->save();
-	$c->log->debug("Created device service ".$s->id);
-	$c->status(303 => "/device/service/".$s->id);
+	my $device_service = $c->db_device_services->create({ name => $body->{name} });
+	$c->log->debug("Created device service ".$device_service->id);
+	$c->status(303 => "/device/service/".$device_service->id);
 }
 
 
@@ -113,12 +114,12 @@ Update an existing device service
 
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = $c->stash('device_service');
+	my $device_service = $c->stash('device_service');
 
 	my $body = $c->req->json;
 
-	if($body->{name} and ($body->{name} ne $s->name)) {
-		if(Conch::Model::DeviceService->from_name($body->{name})) {
+	if($body->{name} and ($body->{name} ne $device_service->name)) {
+		if ($c->db_device_services->find({ name => $body->{name} })) {
 			$c->log->debug("Name conflict on ".$body->{name});
 			return $c->status(400 => {
 				error => "A service named '".$body->{name}." already exists"
@@ -126,20 +127,21 @@ sub update ($c) {
 		}
 	}
 
-	$s->update(name => $body->{name})->save;
-	$c->log->debug("Updated device service ".$s->id);
-	$c->status(303 => "/device/service/".$s->id);
+	$device_service->update({ name => $body->{name}, updated => \'NOW()' });
+	$c->log->debug("Updated device service ".$device_service->id);
+	$c->status(303 => "/device/service/".$device_service->id);
 }
 
 
 =head2 delete
 
-"Delete" a service by marking it as deactivated
+Delete a service
 
 =cut
 
 sub delete ($c) {
-	$c->stash('device_service')->burn;
+	# TODO: set 'deactivated' instead of removing entirely?
+	$c->stash('device_service')->delete;
 	$c->log->debug("Deleted device service ".$c->stash('device_service')->id);
 	return $c->status(204);
 }
