@@ -252,7 +252,7 @@ sub session_login ($c) {
 		$c->session(expires => time + 10 * 60);
 
 		# we logged the user in, but he must now change his password (within 10 minutes)
-		$c->res->code(303);
+		$c->res->code(200);
 		$c->res->headers->location($c->url_for('/user/me/password'));
 		my $payload = { jwt_token => $c->_create_jwt($user->id, 10 * 60) };
 		$c->respond_to(
