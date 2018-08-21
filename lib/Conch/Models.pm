@@ -23,7 +23,6 @@ use Conch::Model::DatacenterRack;
 use Conch::Model::DatacenterRackLayout;
 
 use Conch::Model::DeviceLocation;
-use Conch::Model::DeviceSettings;
 use Conch::Model::HardwareProduct;
 use Conch::Model::Relay;
 use Conch::Model::Validation;

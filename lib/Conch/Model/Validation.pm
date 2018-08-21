@@ -12,7 +12,6 @@ package Conch::Model::Validation;
 use Mojo::Base -base, -signatures;
 
 use Conch::Pg;
-use Conch::Model::DeviceSettings;
 use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
 use Conch::Model::ValidationResult;
@@ -207,7 +206,19 @@ product for the Device. Returns the validation results.
 
 sub run_validation_for_device ( $self, $device, $data ) {
 	my $location = Conch::Model::DeviceLocation->lookup( $device->id );
-	my $settings = Conch::Model::DeviceSettings->get_settings( $device->id );
+
+	# see Conch::DB::ResultSet::DeviceSetting::get_settings
+	my $settings = Conch::Pg->new->db->select( 'device_settings', undef,
+		{ deactivated => undef, device_id => $device->id } )
+		->expand->hashes
+		->reduce(
+			sub {
+				$a->{ $b->{name} } = $b->{value};
+				$a;
+			},
+			{}
+		);
+
 
 	my $hw_product_id =
 		  $location
