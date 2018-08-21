@@ -110,6 +110,8 @@ sub create ($c) {
 		}
 	}
 
+	$i->{hardware_vendor_id} = delete $i->{vendor} if exists $i->{vendor};
+
 	my $r = $c->schema->resultset("HardwareProduct")->create($i);
 
 	$c->log->debug("Created hardware product ".$r->id);

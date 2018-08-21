@@ -94,6 +94,15 @@ sub _build_serializable_attributes {[qw[
 
 =head1 METHODS
 
+=cut
+
+around BUILDARGS => sub {
+	my ($orig, $class, %args) = @_;
+
+	$args{product_id} = delete $args{hardware_product_id} if exists $args{hardware_product_id};
+    return $class->$orig(%args);
+};
+
 =head2 from_id
 
 	my $o = Conch::Model::DatacenterRackLayout->from_id($uuid);
@@ -196,6 +205,8 @@ sub save ($self) {
 	}
 
 	$fields{updated} = 'NOW()';
+
+	$fields{hardware_product_id} = delete $fields{product_id};
 
 	my $ret;
 	try {

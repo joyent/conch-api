@@ -44,7 +44,7 @@ sub lookup ( $self, $device_id ) {
       hw_product.name   AS hw_product_name,
       hw_product.alias  AS hw_product_alias,
       hw_product.prefix AS hw_product_prefix,
-      hw_product.vendor AS hw_product_vendor,
+      hw_product.hardware_vendor_id AS hw_product_vendor,
 
       hw_product.specification       AS hw_product_specification,
       hw_product.sku                 AS hw_sku,
@@ -65,10 +65,10 @@ sub lookup ( $self, $device_id ) {
       ON layout.rack_id = rack.id AND layout.ru_start = loc.rack_unit
 
     JOIN hardware_product hw_product
-      ON layout.product_id = hw_product.id
+      ON layout.hardware_product_id = hw_product.id
 
     JOIN hardware_vendor vendor
-      ON hw_product.vendor = vendor.id
+      ON hw_product.hardware_vendor_id = vendor.id
 
     WHERE loc.device_id = ?
   }, $device_id
@@ -123,7 +123,7 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
 
 	my $maybe_slot = $db->select(
 		'datacenter_rack_layout',
-		[ 'id', 'product_id' ],
+		[ 'id', 'hardware_product_id' ],
 		{ rack_id => $rack_id, ru_start => $rack_unit }
 	)->hash;
 

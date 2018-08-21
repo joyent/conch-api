@@ -44,7 +44,7 @@ __PACKAGE__->table("hardware_product_profile");
   is_nullable: 0
   size: 16
 
-=head2 product_id
+=head2 hardware_product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -187,7 +187,7 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "product_id",
+  "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "zpool_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
@@ -267,13 +267,16 @@ __PACKAGE__->set_primary_key("id");
 
 =over 4
 
-=item * L</product_id>
+=item * L</hardware_product_id>
 
 =back
 
 =cut
 
-__PACKAGE__->add_unique_constraint("hardware_product_profile_product_id_key", ["product_id"]);
+__PACKAGE__->add_unique_constraint(
+  "hardware_product_profile_product_id_key",
+  ["hardware_product_id"],
+);
 
 =head1 RELATIONS
 
@@ -288,7 +291,7 @@ Related object: L<Conch::DB::Result::DeviceSpec>
 __PACKAGE__->has_many(
   "device_specs",
   "Conch::DB::Result::DeviceSpec",
-  { "foreign.product_id" => "self.id" },
+  { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -303,8 +306,23 @@ Related object: L<Conch::DB::Result::DeviceValidateCriteria>
 __PACKAGE__->has_many(
   "device_validate_criterias",
   "Conch::DB::Result::DeviceValidateCriteria",
-  { "foreign.product_id" => "self.id" },
+  { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 hardware_product
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::HardwareProduct>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "hardware_product",
+  "Conch::DB::Result::HardwareProduct",
+  { id => "hardware_product_id" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 hardware_profile_settings
@@ -318,23 +336,8 @@ Related object: L<Conch::DB::Result::HardwareProfileSetting>
 __PACKAGE__->has_many(
   "hardware_profile_settings",
   "Conch::DB::Result::HardwareProfileSetting",
-  { "foreign.profile_id" => "self.id" },
+  { "foreign.hardware_product_profile_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 product
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::HardwareProduct>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "product",
-  "Conch::DB::Result::HardwareProduct",
-  { id => "product_id" },
-  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 zpool
@@ -358,8 +361,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iLQSC3Ev1VuTO2ztZyLBWQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 14:04:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:89+BBiaTeiAf9hqD55Gofw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -44,7 +44,7 @@ __PACKAGE__->table("device_validate_criteria");
   is_nullable: 0
   size: 16
 
-=head2 product_id
+=head2 hardware_product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -101,7 +101,7 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "product_id",
+  "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
   "component",
   { data_type => "text", is_nullable => 0 },
@@ -135,7 +135,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 product
+=head2 hardware_product
 
 Type: belongs_to
 
@@ -144,9 +144,9 @@ Related object: L<Conch::DB::Result::HardwareProductProfile>
 =cut
 
 __PACKAGE__->belongs_to(
-  "product",
+  "hardware_product",
   "Conch::DB::Result::HardwareProductProfile",
-  { id => "product_id" },
+  { id => "hardware_product_id" },
   {
     is_deferrable => 0,
     join_type     => "LEFT",
@@ -156,8 +156,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ESh8Tf+GrIeMMdvRj6tmIw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-22 17:58:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sgCqo+vjQqnjz9ckJy14WQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

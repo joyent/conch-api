@@ -132,7 +132,7 @@ Related object: L<Conch::DB::Result::DeviceRoleService>
 __PACKAGE__->has_many(
   "device_role_services",
   "Conch::DB::Result::DeviceRoleService",
-  { "foreign.role_id" => "self.id" },
+  { "foreign.device_role_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -167,8 +167,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:08:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zDBGhJGoJcUpbNmilnAwpA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-21 11:42:45
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H6x1GbpcsSZIN6KMY9MMCA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

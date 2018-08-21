@@ -137,13 +137,13 @@ Related object: L<Conch::DB::Result::DatacenterRoom>
 __PACKAGE__->has_many(
   "datacenter_rooms",
   "Conch::DB::Result::DatacenterRoom",
-  { "foreign.datacenter" => "self.id" },
+  { "foreign.datacenter_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8kXYfZMTsNZewkrJpW0Uew
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 12:46:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:nDozaA7v0DmvQEu/mxrVYw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

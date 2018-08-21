@@ -33,7 +33,7 @@ try {
 		{
 			name   => 'test hw product',
 			alias  => 'alias',
-			vendor => $hw_vendor_id
+			hardware_vendor_id => $hw_vendor_id
 		},
 		{ returning => ['id'] }
 	)->hash->{id};

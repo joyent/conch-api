@@ -191,7 +191,7 @@ sub _record_device_report {
 			my $device_specs = $schema->resultset('DeviceSpec')->update_or_create(
 				{
 					device_id     => $device_id,
-					product_id    => $hw_profile->id,
+					hardware_product_id    => $hw_profile->id,
 					bios_firmware => $dr->{bios_version},
 					cpu_num       => $dr->{processor}->{count},
 					cpu_type      => $dr->{processor}->{type},

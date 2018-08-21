@@ -59,7 +59,7 @@ __PACKAGE__->table("hardware_product");
   data_type: 'text'
   is_nullable: 1
 
-=head2 vendor
+=head2 hardware_vendor_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -121,7 +121,7 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "prefix",
   { data_type => "text", is_nullable => 1 },
-  "vendor",
+  "hardware_vendor_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
@@ -200,7 +200,7 @@ Related object: L<Conch::DB::Result::DatacenterRackLayout>
 __PACKAGE__->has_many(
   "datacenter_rack_layouts",
   "Conch::DB::Result::DatacenterRackLayout",
-  { "foreign.product_id" => "self.id" },
+  { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -245,8 +245,23 @@ Related object: L<Conch::DB::Result::HardwareProductProfile>
 __PACKAGE__->might_have(
   "hardware_product_profile",
   "Conch::DB::Result::HardwareProductProfile",
-  { "foreign.product_id" => "self.id" },
+  { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 hardware_vendor
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::HardwareVendor>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "hardware_vendor",
+  "Conch::DB::Result::HardwareVendor",
+  { id => "hardware_vendor_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 validation_results
@@ -264,49 +279,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 vendor
 
-Type: belongs_to
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 13:47:19
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+Rhf4M0PfVMINqK55tNrbQ
 
-Related object: L<Conch::DB::Result::HardwareVendor>
+use Class::Method::Modifiers;
 
-=cut
+around TO_JSON => sub {
+    my $orig = shift;
+    my $self = shift;
 
-__PACKAGE__->belongs_to(
-  "vendor",
-  "Conch::DB::Result::HardwareVendor",
-  { id => "vendor" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+    my $data = $self->$orig(@_);
+    $data->{vendor} = delete $data->{hardware_vendor_id};
+    return $data;
+};
+
+__PACKAGE__->add_columns(
+    '+deactivated' => { is_serializable => 0 },
 );
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:08:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sCsFRfbsWv0tJzzdFZggCw
-
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
-
-
-my %s;
-foreach (qw[
-	id
-	name
-	alias
-	prefix
-	vendor
-	created
-	updated
-	specification
-	sku
-	generation_name
-	legacy_product_name
-]) {
-	$s{"+$_"} = { is_serializable => 1 }
-}
-
-$s{"+deactivated"} = { is_serializable => 0 };
-
-__PACKAGE__->add_columns(%s);
 
 1;
 __END__
@@ -322,3 +312,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

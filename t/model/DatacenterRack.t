@@ -29,7 +29,7 @@ my $dc_id = $pg->db->insert(
 
 my $dc_room_id = $pg->db->insert(
 	'datacenter_room',
-	{ az => 'sungo', datacenter => $dc_id },
+	{ az => 'sungo', datacenter_id => $dc_id },
 	{ returning => ['id'] },
 )->hash->{id};
 

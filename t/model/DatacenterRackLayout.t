@@ -43,7 +43,7 @@ my $hardware_product_id = $pg->db->insert(
 	{
 		name   => 'test hw product',
 		alias  => 'alias',
-		vendor => $hardware_vendor_id
+		hardware_vendor_id => $hardware_vendor_id
 	},
 	{ returning => ['id'] }
 )->hash->{id};

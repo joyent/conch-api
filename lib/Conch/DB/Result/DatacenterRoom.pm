@@ -44,7 +44,7 @@ __PACKAGE__->table("datacenter_room");
   is_nullable: 0
   size: 16
 
-=head2 datacenter
+=head2 datacenter_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -90,7 +90,7 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "datacenter",
+  "datacenter_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "az",
   { data_type => "text", is_nullable => 0 },
@@ -139,7 +139,7 @@ Related object: L<Conch::DB::Result::Datacenter>
 __PACKAGE__->belongs_to(
   "datacenter",
   "Conch::DB::Result::Datacenter",
-  { id => "datacenter" },
+  { id => "datacenter_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -174,8 +174,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iYm/vF7M0e5trKHQMdfWTQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 12:46:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WMR+xeS8FDHZv5ZKXOj+Eg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

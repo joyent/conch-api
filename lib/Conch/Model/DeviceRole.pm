@@ -119,10 +119,10 @@ sub from_id ($class, $id) {
 	try {
 		$ret = Conch::Pg->new->db->query(q|
 			select r.*, array(
-				select drs.service_id
-				from device_role_services drs
-				where drs.role_id = r.id
-				order by drs.service_id
+				select drs.device_role_service_id
+				from device_role_service drs
+				where drs.device_role_id = r.id
+				order by drs.device_role_service_id
 			) as services
 			from device_role r
 			where r.id = ?
@@ -151,10 +151,10 @@ sub all ($class) {
 	try {
 		$ret = Conch::Pg->new->db->query(q|
 			select r.*, array(
-				select drs.service_id
-				from device_role_services drs
-				where drs.role_id = r.id
-				order by drs.service_id
+				select drs.device_role_service_id
+				from device_role_service drs
+				where drs.device_role_id = r.id
+				order by drs.device_role_service_id
 			) as services
 			from device_role r
 			where r.deactivated is null
@@ -192,7 +192,7 @@ sub add_service ($self, $service_uuid) {
 	my $ret;
 	try {
 		$ret = Conch::Pg->new->db->query(q|
-			insert into device_role_services(role_id, service_id)
+			insert into device_role_service(device_role_id, device_role_service_id)
 			values( ?, ?)
 			on conflict do nothing
 		|, $self->id, $service_uuid);
@@ -226,8 +226,8 @@ sub remove_service ($self, $service_uuid) {
 	my $ret;
 	try {
 		$ret = Conch::Pg->new->db->query(q|
-			delete from device_role_services
-			where role_id = ? and service_id = ?
+			delete from device_role_service
+			where device_role_id = ? and device_role_service_id = ?
 		|, $self->id, $service_uuid);
 	} catch {
 		Mojo::Exception->throw(__PACKAGE__."->remove_service: $_");

@@ -51,7 +51,7 @@ __PACKAGE__->table("datacenter_rack_layout");
   is_nullable: 0
   size: 16
 
-=head2 product_id
+=head2 hardware_product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -89,7 +89,7 @@ __PACKAGE__->add_columns(
   },
   "rack_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "product_id",
+  "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "ru_start",
   { data_type => "integer", is_nullable => 0 },
@@ -142,7 +142,7 @@ __PACKAGE__->add_unique_constraint(
 
 =head1 RELATIONS
 
-=head2 product
+=head2 hardware_product
 
 Type: belongs_to
 
@@ -151,9 +151,9 @@ Related object: L<Conch::DB::Result::HardwareProduct>
 =cut
 
 __PACKAGE__->belongs_to(
-  "product",
+  "hardware_product",
   "Conch::DB::Result::HardwareProduct",
-  { id => "product_id" },
+  { id => "hardware_product_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -173,8 +173,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0wfW2xI8dfglh7Qoo/QMtw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-22 17:47:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uo/aiCKpReIr67au4jKFQw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

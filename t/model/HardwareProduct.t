@@ -20,7 +20,7 @@ my $hardware_product_id = $pg->db->insert(
 	{
 		name   => 'test hw product',
 		alias  => 'alias',
-		vendor => $hardware_vendor_id
+		hardware_vendor_id => $hardware_vendor_id
 	},
 	{ returning => ['id'] }
 )->hash->{id};
@@ -46,7 +46,7 @@ my %hw_profile_values = (
 my $hardware_profile_id = $pg->db->insert(
 	'hardware_product_profile',
 	{
-		product_id => $hardware_product_id,
+		hardware_product_id => $hardware_product_id,
 		zpool_id   => $zpool_profile_id,
 		%hw_profile_values
 	},

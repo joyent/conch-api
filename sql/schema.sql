@@ -168,7 +168,7 @@ ALTER TABLE public.datacenter_rack OWNER TO conch;
 CREATE TABLE public.datacenter_rack_layout (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     rack_id uuid NOT NULL,
-    product_id uuid NOT NULL,
+    hardware_product_id uuid NOT NULL,
     ru_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL
@@ -198,7 +198,7 @@ ALTER TABLE public.datacenter_rack_role OWNER TO conch;
 
 CREATE TABLE public.datacenter_room (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    datacenter uuid NOT NULL,
+    datacenter_id uuid NOT NULL,
     az text NOT NULL,
     alias text,
     vendor_name text,
@@ -433,16 +433,16 @@ CREATE TABLE public.device_role (
 ALTER TABLE public.device_role OWNER TO conch;
 
 --
--- Name: device_role_services; Type: TABLE; Schema: public; Owner: conch
+-- Name: device_role_service; Type: TABLE; Schema: public; Owner: conch
 --
 
-CREATE TABLE public.device_role_services (
-    role_id uuid NOT NULL,
-    service_id uuid NOT NULL
+CREATE TABLE public.device_role_service (
+    device_role_id uuid NOT NULL,
+    device_role_service_id uuid NOT NULL
 );
 
 
-ALTER TABLE public.device_role_services OWNER TO conch;
+ALTER TABLE public.device_role_service OWNER TO conch;
 
 --
 -- Name: device_service; Type: TABLE; Schema: public; Owner: conch
@@ -476,12 +476,12 @@ CREATE TABLE public.device_settings (
 ALTER TABLE public.device_settings OWNER TO conch;
 
 --
--- Name: device_specs; Type: TABLE; Schema: public; Owner: conch
+-- Name: device_spec; Type: TABLE; Schema: public; Owner: conch
 --
 
-CREATE TABLE public.device_specs (
+CREATE TABLE public.device_spec (
     device_id text NOT NULL,
-    product_id uuid NOT NULL,
+    hardware_product_id uuid NOT NULL,
     bios_firmware text NOT NULL,
     hba_firmware text,
     cpu_num integer NOT NULL,
@@ -492,7 +492,7 @@ CREATE TABLE public.device_specs (
 );
 
 
-ALTER TABLE public.device_specs OWNER TO conch;
+ALTER TABLE public.device_spec OWNER TO conch;
 
 --
 -- Name: device_validate; Type: TABLE; Schema: public; Owner: conch
@@ -515,7 +515,7 @@ ALTER TABLE public.device_validate OWNER TO conch;
 
 CREATE TABLE public.device_validate_criteria (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    product_id uuid,
+    hardware_product_id uuid,
     component text NOT NULL,
     condition text NOT NULL,
     vendor text,
@@ -538,7 +538,7 @@ CREATE TABLE public.hardware_product (
     name text NOT NULL,
     alias text NOT NULL,
     prefix text,
-    vendor uuid NOT NULL,
+    hardware_vendor_id uuid NOT NULL,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
@@ -557,7 +557,7 @@ ALTER TABLE public.hardware_product OWNER TO conch;
 
 CREATE TABLE public.hardware_product_profile (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    product_id uuid NOT NULL,
+    hardware_product_id uuid NOT NULL,
     zpool_id uuid,
     rack_unit integer NOT NULL,
     purpose text NOT NULL,
@@ -588,12 +588,12 @@ CREATE TABLE public.hardware_product_profile (
 ALTER TABLE public.hardware_product_profile OWNER TO conch;
 
 --
--- Name: hardware_profile_settings; Type: TABLE; Schema: public; Owner: conch
+-- Name: hardware_profile_setting; Type: TABLE; Schema: public; Owner: conch
 --
 
-CREATE TABLE public.hardware_profile_settings (
+CREATE TABLE public.hardware_profile_setting (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    profile_id uuid NOT NULL,
+    hardware_product_profile_id uuid NOT NULL,
     resource text NOT NULL,
     name text NOT NULL,
     value text NOT NULL,
@@ -603,7 +603,7 @@ CREATE TABLE public.hardware_profile_settings (
 );
 
 
-ALTER TABLE public.hardware_profile_settings OWNER TO conch;
+ALTER TABLE public.hardware_profile_setting OWNER TO conch;
 
 --
 -- Name: hardware_vendor; Type: TABLE; Schema: public; Owner: conch
@@ -1091,11 +1091,11 @@ ALTER TABLE ONLY public.device_role
 
 
 --
--- Name: device_role_services device_role_services_role_id_service_id_key; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_role_service device_role_services_role_id_service_id_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_role_services
-    ADD CONSTRAINT device_role_services_role_id_service_id_key UNIQUE (role_id, service_id);
+ALTER TABLE ONLY public.device_role_service
+    ADD CONSTRAINT device_role_services_role_id_service_id_key UNIQUE (device_role_id, device_role_service_id);
 
 
 --
@@ -1123,10 +1123,10 @@ ALTER TABLE ONLY public.device_settings
 
 
 --
--- Name: device_specs device_specs_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_spec device_specs_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_specs
+ALTER TABLE ONLY public.device_spec
     ADD CONSTRAINT device_specs_pkey PRIMARY KEY (device_id);
 
 
@@ -1183,7 +1183,7 @@ ALTER TABLE ONLY public.hardware_product_profile
 --
 
 ALTER TABLE ONLY public.hardware_product_profile
-    ADD CONSTRAINT hardware_product_profile_product_id_key UNIQUE (product_id);
+    ADD CONSTRAINT hardware_product_profile_product_id_key UNIQUE (hardware_product_id);
 
 
 --
@@ -1195,10 +1195,10 @@ ALTER TABLE ONLY public.hardware_product
 
 
 --
--- Name: hardware_profile_settings hardware_profile_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: hardware_profile_setting hardware_profile_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.hardware_profile_settings
+ALTER TABLE ONLY public.hardware_profile_setting
     ADD CONSTRAINT hardware_profile_settings_pkey PRIMARY KEY (id);
 
 
@@ -1476,7 +1476,7 @@ ALTER TABLE ONLY public.datacenter_rack
 --
 
 ALTER TABLE ONLY public.datacenter_rack_layout
-    ADD CONSTRAINT datacenter_rack_layout_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.hardware_product(id);
+    ADD CONSTRAINT datacenter_rack_layout_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
 
 
 --
@@ -1500,7 +1500,7 @@ ALTER TABLE ONLY public.datacenter_rack
 --
 
 ALTER TABLE ONLY public.datacenter_room
-    ADD CONSTRAINT datacenter_room_datacenter_fkey FOREIGN KEY (datacenter) REFERENCES public.datacenter(id);
+    ADD CONSTRAINT datacenter_room_datacenter_fkey FOREIGN KEY (datacenter_id) REFERENCES public.datacenter(id);
 
 
 --
@@ -1624,19 +1624,19 @@ ALTER TABLE ONLY public.device_role
 
 
 --
--- Name: device_role_services device_role_services_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_role_service device_role_services_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_role_services
-    ADD CONSTRAINT device_role_services_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.device_role(id);
+ALTER TABLE ONLY public.device_role_service
+    ADD CONSTRAINT device_role_services_role_id_fkey FOREIGN KEY (device_role_id) REFERENCES public.device_role(id);
 
 
 --
--- Name: device_role_services device_role_services_service_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_role_service device_role_services_service_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_role_services
-    ADD CONSTRAINT device_role_services_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.device_service(id);
+ALTER TABLE ONLY public.device_role_service
+    ADD CONSTRAINT device_role_services_service_id_fkey FOREIGN KEY (device_role_service_id) REFERENCES public.device_service(id);
 
 
 --
@@ -1648,19 +1648,19 @@ ALTER TABLE ONLY public.device_settings
 
 
 --
--- Name: device_specs device_specs_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_spec device_specs_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_specs
+ALTER TABLE ONLY public.device_spec
     ADD CONSTRAINT device_specs_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
 
 
 --
--- Name: device_specs device_specs_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_spec device_specs_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_specs
-    ADD CONSTRAINT device_specs_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.hardware_product_profile(id);
+ALTER TABLE ONLY public.device_spec
+    ADD CONSTRAINT device_specs_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product_profile(id);
 
 
 --
@@ -1668,7 +1668,7 @@ ALTER TABLE ONLY public.device_specs
 --
 
 ALTER TABLE ONLY public.device_validate_criteria
-    ADD CONSTRAINT device_validate_criteria_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.hardware_product_profile(id);
+    ADD CONSTRAINT device_validate_criteria_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product_profile(id);
 
 
 --
@@ -1692,7 +1692,7 @@ ALTER TABLE ONLY public.device_validate
 --
 
 ALTER TABLE ONLY public.hardware_product_profile
-    ADD CONSTRAINT hardware_product_profile_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.hardware_product(id) ON DELETE CASCADE;
+    ADD CONSTRAINT hardware_product_profile_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id) ON DELETE CASCADE;
 
 
 --
@@ -1708,15 +1708,15 @@ ALTER TABLE ONLY public.hardware_product_profile
 --
 
 ALTER TABLE ONLY public.hardware_product
-    ADD CONSTRAINT hardware_product_vendor_fkey FOREIGN KEY (vendor) REFERENCES public.hardware_vendor(id);
+    ADD CONSTRAINT hardware_product_vendor_fkey FOREIGN KEY (hardware_vendor_id) REFERENCES public.hardware_vendor(id);
 
 
 --
--- Name: hardware_profile_settings hardware_profile_settings_profile_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: hardware_profile_setting hardware_profile_settings_profile_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.hardware_profile_settings
-    ADD CONSTRAINT hardware_profile_settings_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.hardware_product_profile(id);
+ALTER TABLE ONLY public.hardware_profile_setting
+    ADD CONSTRAINT hardware_profile_settings_profile_id_fkey FOREIGN KEY (hardware_product_profile_id) REFERENCES public.hardware_product_profile(id);
 
 
 --
