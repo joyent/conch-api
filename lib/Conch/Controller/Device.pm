@@ -304,23 +304,23 @@ sub set_role($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
 	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
-	my $role = $c->req->json && $c->req->json->{role};
+	my $device_role_id = $c->req->json && $c->req->json->{role};
 	return $c->status(
 		400, {
 			error => "'role' element must be present"
 		}
-	) unless defined($role) && ref($role) eq '';
+	) unless defined($device_role_id) && ref($device_role_id) eq '';
 
-	my $r = Conch::Model::DeviceRole->from_id($role);
+	my $r = $c->db_device_roles->find($device_role_id);
 	if ($r) {
 		if ($r->deactivated) {
-			return $c->status(400 => "Role $role is deactivated");
+			return $c->status(400 => "Role $device_role_id is deactivated");
 		}
 
-		$device->set_role($role);
+		$device->set_role($device_role_id);
 		return $c->status(303 => "/device/".$device->id);
 	} else {
-		return $c->status(400 => "Role $role does not exist");
+		return $c->status(400 => "Role $device_role_id does not exist");
 	}
 }
 

@@ -35,7 +35,6 @@ use Conch::Model::WorkspaceRelay;
 use Conch::Model::WorkspaceRoom;
 
 use Conch::Model::DeviceService;
-use Conch::Model::DeviceRole;
 
 1;
 __END__

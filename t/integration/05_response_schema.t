@@ -198,7 +198,7 @@ subtest 'Device Roles And Services' => sub {
 	$t->get_ok($t->tx->res->headers->location)->status_is(200)
 		->json_schema_is("DeviceRole");
 
-	my $d_role = Conch::Model::DeviceRole->from_id($t->tx->res->json->{id});
+	my $d_role = $t->app->db_device_roles->active->find($t->tx->res->json->{id});
 	$t->get_ok("/device/role")->status_is(200)->json_schema_is("DeviceRoles");
 
 	$t->get_ok("/device/service")->status_is(200)

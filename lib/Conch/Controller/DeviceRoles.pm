@@ -14,12 +14,18 @@ Get all device roles
 =cut
 
 sub get_all ($c) {
-	my $r = Conch::Model::DeviceRole->all();
-	$c->log->debug("Found ".scalar($r->@*)." device roles");
+	my @roles = $c->db_device_roles->active->search(
+		undef,
+		{
+			prefetch => 'device_role_services',
+			order_by => 'device_role_services.device_role_service_id',
+		}
+	);
 
-	return $c->status(200, $r);
+	$c->log->debug("Found ".scalar(@roles)." device roles");
+
+	return $c->status(200, \@roles);
 }
-
 
 =head2 get_one
 
@@ -28,13 +34,20 @@ Get a single device role
 =cut
 
 sub get_one ($c) {
-	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 
-	$c->log->debug("Found device role ".$s->id);
+	my $device_role = $c->db_device_roles->active->find(
+		$c->stash('device_role_id'),
+		{
+			prefetch => 'device_role_services',
+			order_by => 'device_role_services.device_role_service_id',
+		}
+	);
 
-	$c->status(200, $s);
+	return $c->status(404 => { error => "Not found" }) unless $device_role;
+
+	$c->log->debug("Found device role ".$device_role->id);
+
+	$c->status(200, $device_role);
 }
 
 =head2 create
@@ -60,13 +73,13 @@ sub create ($c) {
 		});
 	}
 
-	my $s = Conch::Model::DeviceRole->new(
+	my $device_role = $c->db_device_roles->create({
 		description         => $body->{description},
-		hardware_product_id => $body->{hardware_product_id}
-	)->save();
+		hardware_product_id => $body->{hardware_product_id},
+	});
 
-	$c->log->debug("Created device role ".$s->id);
-	$c->status(303 => "/device/role/".$s->id);
+	$c->log->debug("Created device role ".$device_role->id);
+	$c->status(303 => "/device/role/".$device_role->id);
 }
 
 
@@ -79,25 +92,22 @@ Update an existing device role. Does B<not> allow updating the service list
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
-	$c->log->debug("Found device role ".$s->id);
+	my $device_role = $c->db_device_roles->active->find($c->stash('device_role_id'));
+
+	return $c->status(404 => { error => "Not found" }) unless $device_role;
+	$c->log->debug("Found device role ".$device_role->id);
 
 	my $body = $c->req->json;
 
-	if($body->{description}) {
-		$s->update(description => $body->{description});
-	}
+	$device_role->update({
+		$body->{description} ? ( description => $body->{description} ) : (),
+		$body->{hardware_product_id} ? ( hardware_product_id => $body->{hardware_product_id} ) : (),
+		updated => \'NOW()',
+	});
 
-	if($body->{hardware_product_id}) {
-		$s->update(hardware_product_id => $body->{hardware_product_id});
-	}
+	$c->log->debug("Updated device role ".$device_role->id);
 
-	$s->save;
-	$c->log->debug("Updated device role ".$s->id);
-
-	$c->status(303 => "/device/role/".$s->id);
+	$c->status(303 => "/device/role/".$device_role->id);
 }
 
 
@@ -109,14 +119,15 @@ sub update ($c) {
 
 sub delete ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 
-	$c->log->debug("Found device role ".$s->id);
+	my $device_role = $c->db_device_roles->active->find($c->stash('device_role_id'));
 
-	$s->update(deactivated => Conch::Time->now)->save;
-	$c->log->debug("Deleted device role ".$s->id);
+	return $c->status(404 => { error => "Not found" }) unless $device_role;
+
+	$c->log->debug("Found device role ".$device_role->id);
+
+	$device_role->update({ deactivated => \'NOW()', updated => \'NOW()' });
+	$c->log->debug("Deleted device role ".$device_role->id);
 	return $c->status(204);
 }
 
@@ -129,11 +140,12 @@ Add a service to the role
 
 sub add_service ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
-	
-	$c->log->debug("Found device role ".$s->id);
+
+	my $device_role = $c->db_device_roles->active->find($c->stash('device_role_id'));
+
+	return $c->status(404 => { error => "Not found" }) unless $device_role;
+
+	$c->log->debug("Found device role ".$device_role->id);
 
 	my $body = $c->req->json;
 	unless($body->{service}) {
@@ -145,10 +157,11 @@ sub add_service ($c) {
 	if ($service) {
 		$c->log->debug("Found device service ".$service->id);
 
-		$s->add_service($body->{service});
+		$device_role->update_or_create_related('device_role_services',
+			{ device_role_service_id => $body->{service} });
 
-		$c->log->debug("Added device service ".$service->id." to device role ".$s->id);
-		return $c->status(303 => "/device/role/".$s->id);
+		$c->log->debug("Added device service ".$service->id." to device role ".$device_role->id);
+		return $c->status(303 => "/device/role/".$device_role->id);
 	} else {
 		$c->log->debug("Failed to find device service ".$body->{service});
 		return $c->status(404 => {
@@ -167,20 +180,23 @@ Remove a service from the role
 
 sub remove_service ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
-	return $c->status(404 => { error => "Not found" }) unless $s;
-	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
-	
+
+	my $device_role = $c->db_device_roles->active->find($c->stash('device_role_id'));
+
+	return $c->status(404 => { error => "Not found" }) unless $device_role;
+	return $c->status(404 => { error => "Not found" }) if $device_role->deactivated;
+
 	my $body = $c->req->json;
 	unless($body->{service}) {
 		$c->log->warn("Input failed validation"); # FIXME use the validator
 		return $c->status(400 => { error => "'service' parameter required"});
 	}
 
-	$s->remove_service($body->{service});
+	$device_role->delete_related('device_role_services',
+		{ device_role_service_id => $body->{service} });
 
-	$c->log->debug("Removed device service ".$body->{service}." from device role ".$s->id);
-	$c->status(303 => "/device/role/".$s->id);
+	$c->log->debug("Removed device service ".$body->{service}." from device role ".$device_role->id);
+	$c->status(303 => "/device/role/".$device_role->id);
 }
 
 1;
