@@ -22,9 +22,13 @@ sub validate {
 
 	my $rack_slots = $device_location->datacenter_rack->slots;
 
-	my @eth_nics =
-		map { $data->{interfaces}->{$_} }
-		grep { $_ =~ /eth/ } ( keys $data->{interfaces}->%* );
+	my @eth_nics;
+	foreach my $iface (keys $data->{interfaces}->%*) {
+		next if $iface =~ m/^ipmi/;
+		next if $iface =~ m/^lo/;
+		$self->log->debug("Adding $iface");
+		push @eth_nics, $data->{interfaces}->{$iface};
+	}
 
 	# We assume that all eth_nics are peered with the same device right now.
 	# This should eventually also validate if we are peered to the right
