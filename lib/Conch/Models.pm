@@ -19,7 +19,6 @@ use Conch::DB;
 use Conch::Model::Device;
 use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
-use Conch::Model::Validation;
 
 1;
 __END__

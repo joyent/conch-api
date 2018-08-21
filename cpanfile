@@ -66,7 +66,6 @@ requires 'Text::CSV_XS';
 
 on 'test' => sub {
     requires 'Test::More';
-    requires 'Test::Exception';
     requires 'Test::PostgreSQL', '1.27';
     requires 'Test::Pod::Coverage';
     requires 'YAML::XS';

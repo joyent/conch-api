@@ -3,8 +3,7 @@ use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
 use DDP;
 use Data::UUID;
-
-use Conch::Model::Validation;
+use Conch::Pg;
 
 use_ok("Conch::Model::ValidationResult");
 
@@ -40,14 +39,13 @@ my $device = $t->app->db_devices->create({
 });
 my $device_report = $t->app->db_device_reports->create({ device_id => 'coffee', report => '{}' });
 
-my $validation = Conch::Model::Validation->new(
+my $validation =
 	$t->app->db_validations->create({
 		name => 'test',
 		version => 1,
 		description => 'test validation',
 		module => 'Test::Validation',
-	})->discard_changes->get_columns
-);
+	});
 
 my $result;
 subtest "validation result new " => sub {

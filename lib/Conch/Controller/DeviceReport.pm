@@ -178,7 +178,7 @@ sub process ($c) {
 		log => $c->log,
 	)->run_validation_plan(
 		validation_plan => $validation_plan,
-		device => $device,
+		device => $c->db_ro_devices->find($device->id),
 		device_report => $device_report,
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);

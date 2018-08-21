@@ -235,10 +235,31 @@ sub run_validation_plan ($self, %options) {
 
     my @validation_results;
     while (my $validation = $validation_rs->next) {
-        my $validator = Conch::Model::Validation->new(
-            $validation->get_columns
-        )->build_device_validation($model_device, $hw_product, $location, $device_settings);
-        $validator->log($self->log);
+        my $result_order = 0;
+        my $result_builder = sub {
+            require Conch::Model::ValidationResult;
+            return Conch::Model::ValidationResult->new(
+                @_,
+
+                # each time a ValidationResult is created, increment order value
+                # post-assignment. This allows us to distinguish between multiples
+                # of similar results
+                result_order        => $result_order++,
+                validation_id       => $validation->id,
+                device_id           => $device->id,
+                hardware_product_id => $hw_product_id,
+            );
+        };
+
+        my $validator = $validation->module->new(
+            log              => $self->log,
+            device           => $model_device,
+            device_location  => $location,
+            device_settings  => $device_settings,
+            hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
+            result_builder   => $result_builder
+        );
+
         $validator->run($data);
 
         # Conch::Model::ValidationResult -> Conch::DB::Result::ValidationResult
@@ -297,15 +318,30 @@ sub run_validation ($self, %options) {
         ? $location->target_hardware_product->id
         : $device->hardware_product_id;
 
-    my $validator = Conch::Model::Validation->new(
-        $validation->get_columns
-    )->build_device_validation(
-        Conch::Model::Device->new($device->get_columns),
-        Conch::Model::HardwareProduct->lookup($hw_product_id),
-        $location,
-        +{ $device->device_settings_as_hash },
+    my $result_order = 0;
+    my $result_builder = sub {
+        require Conch::Model::ValidationResult;
+        return Conch::Model::ValidationResult->new(
+            @_,
+
+            # each time a ValidationResult is created, increment order value
+            # post-assignment. This allows us to distinguish between multiples
+            # of similar results
+            result_order        => $result_order++,
+            validation_id       => $validation->id,
+            device_id           => $device->id,
+            hardware_product_id => $hw_product_id,
+        );
+    };
+
+    my $validator = $validation->module->new(
+        log              => $self->log,
+        device           => Conch::Model::Device->new($device->get_columns),
+        device_location  => $location,
+        device_settings  => +{ $device->device_settings_as_hash },
+        hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
+        result_builder   => $result_builder
     );
-    $validator->log($self->log);
     $validator->run($data);
 
     # Conch::Model::ValidationResult -> Conch::DB::Result::ValidationResult
