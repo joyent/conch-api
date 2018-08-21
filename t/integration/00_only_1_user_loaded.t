@@ -679,7 +679,7 @@ subtest 'modify another user' => sub {
 			user     => 'foo',
 			password => $insecure_password,
 		})
-		->status_is(303, 'user can log in with new password')
+		->status_is(200, 'user can log in with new password')
 		->location_is('/user/me/password');
 	$jwt_token = $t2->tx->res->json->{jwt_token};
 	$jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
