@@ -268,7 +268,11 @@ sub reset_user_password ($c) {
 	return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
 
 	$c->log->info('sending "password was changed" mail to user ' . $user->name);
-	$c->send_mail(changed_user_password => { email => $user->email, password => $new_password });
+	$c->send_mail(changed_user_password => {
+		name     => $user->name,
+		email    => $user->email,
+		password => $new_password
+	});
 	return $c->status(202);
 }
 
