@@ -340,8 +340,28 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-26 12:36:12
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lFgHiecg13NFXkk663RxKw
 
+__PACKAGE__->add_columns(
+    '+hardware_product_id' => { is_serializable => 0 },
+    '+zpool_id' => { is_serializable => 0 },
+    '+created' => { is_serializable => 0 },
+    '+updated' => { is_serializable => 0 },
+    '+deactivated' => { is_serializable => 0 },
+);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub TO_JSON {
+    my $self = shift;
+
+    my $data = $self->next::method(@_);
+
+    # include zpool_profile when available.
+    if (my $cached_zpool = $self->related_resultset('zpool_profile')->get_cache) {
+        # the cache is always a listref, if it was prefetched.
+        $data->{zpool} = @$cached_zpool ? $cached_zpool->[0]->TO_JSON : undef;
+    }
+
+    return $data;
+}
+
 1;
 __END__
 
@@ -356,3 +376,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

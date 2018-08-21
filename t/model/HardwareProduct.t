@@ -56,21 +56,6 @@ my $hardware_profile_id = $pg->db->insert(
 new_ok('Conch::Model::HardwareProduct');
 my $hw_product_model = new_ok("Conch::Model::HardwareProduct");
 
-subtest 'list hardware products' => sub {
-	my $hw_products = $hw_product_model->list;
-	isa_ok( $hw_products, 'ARRAY' );
-	is( scalar @$hw_products, 1, 'Contains 1 hardware product' );
-	my $hw_product = $hw_products->[0];
-
-	isa_ok( $hw_product,                 'Conch::Class::HardwareProduct' );
-	isa_ok( $hw_product->profile,        'Conch::Class::HardwareProductProfile' );
-	isa_ok( $hw_product->profile->zpool, 'Conch::Class::ZpoolProfile' );
-
-	is( $hw_product->profile->id, $hardware_profile_id, "Profile IDs match" );
-	is( $hw_product->profile->bios_firmware, "test", "BIOS Firmware" );
-	is( $hw_product->profile->zpool->id, $zpool_profile_id, "Zpool profile ID" );
-};
-
 subtest 'lookup hardware product' => sub {
 	my $hw_product = $hw_product_model->lookup($hardware_product_id);
 	isa_ok( $hw_product,                 'Conch::Class::HardwareProduct' );

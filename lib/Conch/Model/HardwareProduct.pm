@@ -61,27 +61,6 @@ my $fields = q{
 	  zpool.vdev_t AS zpool_vdev_t
 };
 
-=head2 list
-
-Retrieve a list of all hardware products and associated hardware product
-profiles.
-
-=cut
-sub list ($self) {
-	my $hw_product_hashes = Conch::Pg->new->db->query(qq{
-		  SELECT $fields
-		  FROM hardware_product hw_product
-		  JOIN hardware_product_profile hw_profile
-			ON hw_product.id = hw_profile.hardware_product_id
-		  JOIN hardware_vendor vendor
-			ON hw_product.hardware_vendor_id = vendor.id
-		  LEFT JOIN zpool_profile zpool
-			ON hw_profile.zpool_id = zpool.id
-		  WHERE hw_product.deactivated IS NULL
-	})->hashes->to_array;
-	return [ map { _build_hardware_product($_) } @$hw_product_hashes ];
-}
-
 =head2 lookup
 
 Look up a hardware product and associated hardware product
@@ -102,54 +81,6 @@ sub lookup ( $self, $hw_id ) {
 		  AND hw_product.id = ?
       }, $hw_id)->hash;
 	return undef unless $ret;
-	return _build_hardware_product($ret);
-}
-
-=head2 lookup_by_name
-
-Look up a hardware product and associated hardware product
-profile by the hardware product name.
-
-=cut
-sub lookup_by_name ( $self, $name ) {
-	my $ret = Conch::Pg->new->db->query(qq{
-		SELECT $fields
-		FROM hardware_product hw_product
-		JOIN hardware_product_profile hw_profile
-		  ON hw_product.id = hw_profile.hardware_product_id
-		JOIN hardware_vendor vendor
-		  ON hw_product.hardware_vendor_id = vendor.id
-		LEFT JOIN zpool_profile zpool
-		  ON hw_profile.zpool_id = zpool.id
-		WHERE hw_product.deactivated IS NULL
-		  AND hw_product.name = ?
-	}, $name)->hash;
-	return undef unless $ret;
-
-	return _build_hardware_product($ret);
-}
-
-=head2 lookup_by_sku
-
-Look up a hardware product and associated hardware product
-profile by the hardware SKU.
-
-=cut
-sub lookup_by_sku ( $self, $sku ) {
-	my $ret = Conch::Pg->new->db->query(qq{
-		SELECT $fields
-		FROM hardware_product hw_product
-		JOIN hardware_product_profile hw_profile
-		  ON hw_product.id = hw_profile.hardware_product_id
-		JOIN hardware_vendor vendor
-		  ON hw_product.hardware_vendor_id = vendor.id
-		LEFT JOIN zpool_profile zpool
-		  ON hw_profile.zpool_id = zpool.id
-		WHERE hw_product.deactivated IS NULL
-		  AND hw_product.sku = ?
-      }, $sku)->hash;
-	return undef unless $ret;
-
 	return _build_hardware_product($ret);
 }
 

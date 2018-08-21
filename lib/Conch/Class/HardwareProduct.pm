@@ -10,9 +10,6 @@ Conch::Class::HardwareProduct
 
 package Conch::Class::HardwareProduct;
 use Mojo::Base -base, -signatures;
-use Role::Tiny 'with';
-
-with 'Conch::Class::Role::ToJson';
 
 =head2 id
 
@@ -50,27 +47,6 @@ has [
 		vendor
 	)
 ];
-
-
-=head2 TO_JSON
-
-=cut
-
-sub TO_JSON {
-	my $self = shift;
-	{
-		id                  => $self->id,
-		alias               => $self->alias,
-		generation_name     => $self->generation_name,
-		legacy_product_name => $self->legacy_product_name,
-		name                => $self->name,
-		prefix              => $self->prefix,
-		profile             => $self->profile,
-		sku                 => $self->sku,
-		specification       => $self->specification,
-		vendor              => $self->vendor,
-	};
-}
 
 1;
 __END__
