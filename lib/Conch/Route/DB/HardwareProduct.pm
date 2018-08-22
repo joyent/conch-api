@@ -1,3 +1,8 @@
+package Conch::Route::DB::HardwareProduct;
+use Mojo::Base -strict;
+
+=pod
+
 =head1 NAME
 
 Conch::Route::DB::HardwareProduct
@@ -6,26 +11,41 @@ Conch::Route::DB::HardwareProduct
 
 =cut
 
-package Conch::Route::DB::HardwareProduct;
-use Mojo::Base -strict;
-
 =head2 routes
 
-Sets up the routes
+Sets up the routes for /db/hardware_product:
+
+    GET     /hardware_product
+    POST    /hardware_product
+    GET     /hardware_product/:hardware_product_id
+    POST    /hardware_product/:hardware_product_id
+    DELETE  /hardware_product/:hardware_product_id
 
 =cut
 
 sub routes {
-	my ($class, $r) = @_;
+    my ($class, $hardware_product) = @_;    # secured, under /db/hardware_product
 
-	my $hardware_product = $r->any('/hardware_product');
-	$hardware_product->get('/')->to("DB::HardwareProduct#get_all");
-	$hardware_product->post('/')->to("DB::HardwareProduct#create");
+    # all these routes go to the User controller
+    $hardware_product->to({ controller => 'DB::HardwareProduct' });
 
-	my $with_id = $hardware_product->under('/:id')->to("DB::HardwareProduct#under");
-	$with_id->get('/')->to("DB::HardwareProduct#get_one");
-	$with_id->post('/')->to("DB::HardwareProduct#update");
-	$with_id->delete('/')->to("DB::HardwareProduct#delete");
+    # GET   /hardware_product
+    $hardware_product->get('/')->to('#get_all');
+
+    # POST  /hardware_product
+    $hardware_product->post('/')->to('#create');
+
+    {
+        my $with_hardware_product = $hardware_product->under('/:hardware_product_id')
+            ->to('#find_hardware_product');
+
+        # GET   /hardware_product/:hardware_product_id
+        $with_hardware_product->get('/')->to('#get_one');
+        # POST  /hardware_product/:hardware_product_id
+        $with_hardware_product->post('/')->to('#update');
+        # DELETE /hardware_product/:hardware_product_id
+        $with_hardware_product->delete('/')->to('#delete');
+    }
 }
 
 1;
@@ -42,3 +62,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

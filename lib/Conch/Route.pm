@@ -93,7 +93,7 @@ sub all_routes {
 
 	Conch::Route::Datacenter->routes($secured);
 
-	Conch::Route::DB::HardwareProduct->routes($secured->any('/db'));
+	Conch::Route::DB::HardwareProduct->routes($secured->any('/db/hardware_product'));
 }
 
 1;

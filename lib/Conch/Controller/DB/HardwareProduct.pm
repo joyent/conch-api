@@ -5,18 +5,16 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 with 'Conch::Role::MojoLog';
 
-use Conch::Models;
-
-=head2 under
+=head2 find_hardware_product
 
 Handles looking up the object by id or sku depending on the url pattern
 
 =cut
 
-sub under ($c) {
+sub find_hardware_product ($c) {
 	my $h;
 
-	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
+	if($c->stash('hardware_product_id') =~ /^(.+?)\=(.+)$/) {
 		my $k = $1;
 		my $v = $2;
 
@@ -43,9 +41,9 @@ sub under ($c) {
 			return undef;
 		}
 	} else {
-		$c->log->debug("Looking up a HardwareProduct by id ".$c->param('id'));
+		$c->log->debug("Looking up a HardwareProduct by id ".$c->stash('hardware_product_id'));
 		$h = $c->schema->resultset("HardwareProduct")->single({
-			id => $c->param('id'),
+			id => $c->stash('hardware_product_id'),
 			deactivated => undef,
 		});
 	}
