@@ -5,6 +5,8 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 with 'Conch::Role::MojoLog';
 
+use List::Util 'none';
+
 =head2 find_hardware_product
 
 Handles looking up the object by id or sku depending on the url pattern
@@ -12,52 +14,29 @@ Handles looking up the object by id or sku depending on the url pattern
 =cut
 
 sub find_hardware_product ($c) {
-	my $h;
+	my $hardware_product_rs = $c->db_hardware_products->active;
 
-	if($c->stash('hardware_product_id') =~ /^(.+?)\=(.+)$/) {
-		my $k = $1;
-		my $v = $2;
-
-		$c->log->debug("Looking up a HardwareProduct by identifier ($k = $v)");
-
-		if($k eq "sku") {
-			$h = $c->schema->resultset("HardwareProduct")->single({
-				sku => $v,
-				deactivated => undef,
-			});
-		} elsif ($k eq "name") {
-			$h = $c->schema->resultset("HardwareProduct")->single({
-				name => $v,
-				deactivated => undef,
-			});
-		} elsif ($k eq "alias") {
-			$h = $c->schema->resultset("HardwareProduct")->single({
-				alias => $v,
-				deactivated => undef,
-			});
-		} else {
-			$c->log->debug("Unknown identifier '$k' passed to HardwareProduct lookup");
-			$c->status('501');
-			return undef;
+	my ($key, $value) = split(/=/, $c->stash('hardware_product_id'), 2);
+	if ($key and $value) {
+		if (none { $key eq $_ } qw(sku name alias)) {
+			$c->log->debug("Unknown identifier '$key' passed to HardwareProduct lookup");
+			return $c->status('501');
 		}
+
+		$c->log->debug("Looking up a HardwareProduct by identifier ($key = $value)");
+		$hardware_product_rs = $hardware_product_rs->search({ $key => $value });
 	} else {
 		$c->log->debug("Looking up a HardwareProduct by id ".$c->stash('hardware_product_id'));
-		$h = $c->schema->resultset("HardwareProduct")->single({
-			id => $c->stash('hardware_product_id'),
-			deactivated => undef,
-		});
+		$hardware_product_rs = $hardware_product_rs->search({ id => $c->stash('hardware_product_id') });
 	}
 
-	if ($h) {
-		$c->log->debug("Found hardware product ".$h->id);
-		$c->stash('hardware_product' => $h);
-		return 1;
-	} else {
-		$c->log->debug("Could not locate a valid hardware product");
-		$c->status(404 => { error => "Not found" });
-		return undef;
+	if (not $hardware_product_rs->count) {
+		$c->log->debug('Could not locate a valid hardware product');
+		return $c->status(404 => { error => 'Not found' });
 	}
 
+	$c->stash('hardware_product_rs' => scalar $hardware_product_rs);
+	return 1;
 }
 
 
@@ -68,11 +47,9 @@ Response uses the DBHardwareProducts json schema.
 =cut
 
 sub get_all ($c) {
-	my @r = $c->schema->resultset("HardwareProduct")->search({
-		deactivated => undef,
-	})->all;
-	$c->log->debug("Found ".(scalar @r)." hardware products");
-	return $c->status(200, \@r);
+	my @hardware_products = $c->db_hardware_products->active->all;
+	$c->log->debug('Found '.(scalar @hardware_products).' hardware products');
+	return $c->status(200, \@hardware_products);
 }
 
 
@@ -83,7 +60,7 @@ Response uses the DBHardwareProduct json schema.
 =cut
 
 sub get_one ($c) {
-	$c->status(200 => $c->stash('hardware_product'));
+	$c->status(200 => $c->stash('hardware_product_rs')->single);
 }
 
 
@@ -93,31 +70,25 @@ sub get_one ($c) {
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_system_admin;
-	my $i = $c->validate_input('DBHardwareProductCreate');
-	if(not $i) {
-		$c->log->warn("Input failed validation");
-		return;
-	}
+	my $input = $c->validate_input('DBHardwareProductCreate');
+	return if not $input;
 
-	for my $k (qw[name alias sku]) {
-		next unless $i->{$k};
-		my @r = $c->schema->resultset("HardwareProduct")->search({
-			$k => $i->{$k}
-		})->all;
-		if (scalar @r > 0) {
-			$c->log->debug("Failed to create hardware product: unique constraint violation for $k");
+	for my $key (qw[name alias sku]) {
+		next unless $input->{$key};
+		if ($c->db_hardware_products->search({ $key => $input->{$key} }) > 0) {
+			$c->log->debug("Failed to create hardware product: unique constraint violation for $key");
 			return $c->status(400 => {
-				error => "Unique constraint violated on '$k'"
+				error => "Unique constraint violated on '$key'"
 			});
 		}
 	}
 
-	$i->{hardware_vendor_id} = delete $i->{vendor} if exists $i->{vendor};
+	$input->{hardware_vendor_id} = delete $input->{vendor} if exists $input->{vendor};
 
-	my $r = $c->schema->resultset("HardwareProduct")->create($i);
+	my $hardware_product = $c->db_hardware_products->create($input);
 
-	$c->log->debug("Created hardware product ".$r->id);
-	$c->status(303 => "/db/hardware_product/".$r->id);
+	$c->log->debug("Created hardware product ".$hardware_product->id);
+	$c->status(303 => "/db/hardware_product/".$hardware_product->id);
 }
 
 
@@ -128,29 +99,24 @@ sub create ($c) {
 sub update ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 
-	my $i = $c->validate_input('DBHardwareProductUpdate');
-	return if not $i;
+	my $input = $c->validate_input('DBHardwareProductUpdate');
+	return if not $input;
 
-	for my $k (qw[name alias sku]) {
-		next unless $i->{$k};
-		next if $i->{$k} eq $c->stash('hardware_product')->get_column($k);
+	my $hardware_product = $c->stash('hardware_product_rs')->single;
 
-		my @r = $c->schema->resultset("HardwareProduct")->search({
-			$k => $i->{$k}
-		})->all;
+	for my $key (qw[name alias sku]) {
+		next unless defined $input->{$key};
+		next if $input->{$key} eq $hardware_product->$key;
 
-		if (scalar @r > 0) {
-			$c->log->debug("Failed to create hardware product: unique constraint violation for $k");
-			return $c->status(400 => {
-				error => "Unique constraint violated on '$k'"
-			});
+		if ($c->db_hardware_products->search({ $key => $input->{$key} }) > 0) {
+			$c->log->debug("Failed to create hardware product: unique constraint violation for $key");
+			return $c->status(400 => { error => "Unique constraint violated on '$key'" });
 		}
 	}
 
-
-	$c->stash('hardware_product')->update($i);
-	$c->log->debug("Updated hardware product ".$c->stash('hardware_product')->id);
-	$c->status(303 => "/db/hardware_product/".$c->stash('hardware_product')->id);
+	$hardware_product->update({ %$input, updated => \'NOW()' });
+	$c->log->debug('Updated hardware product '.$hardware_product->id);
+	$c->status(303 => '/db/hardware_product/'.$hardware_product->id);
 }
 
 
@@ -160,8 +126,10 @@ sub update ($c) {
 
 sub delete ($c) {
 	return $c->status(403) unless $c->is_system_admin;
-	$c->stash('hardware_product')->update({ deactivated => 'NOW()' });
-	$c->log->debug("Deleted hardware product ".$c->stash('hardware_product')->id);
+
+	my $id = $c->stash('hardware_product_rs')->get_column('id')->single;
+	$c->stash('hardware_product_rs')->deactivate;
+	$c->log->debug("Deleted hardware product $id");
 	return $c->status(204);
 }
 
