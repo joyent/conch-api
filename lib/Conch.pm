@@ -52,17 +52,35 @@ sub startup {
 	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
 
-	# Provide access to DBIx::Class
+	# Provide read/write and read-only access to DBIx::Class
+	# (this will all get a little shorter when we remove Conch::Pg)
 	$self->helper(schema => sub {
 		my $db = Conch::Pg->new();
 		return Conch::DB->connect(
-			$db->dsn,
-			$db->username,
-			$db->password,
+			$db->dsn, $db->username, $db->password,
 		);
+	});
+	$self->helper(rw_schema => $self->renderer->get_helper('schema'));
+
+	$self->helper(ro_schema => sub {
+		my $db = Conch::Pg->new();
+		my ($dsn, $username, $password) = ($db->dsn, $db->username, $db->password);
+		return Conch::DB->connect(sub {
+			DBI->connect(
+				$dsn, $username, $password,
+				{
+					ReadOnly			=> 1,
+					AutoCommit			=> 0,
+					AutoInactiveDestroy => 1,
+					PrintError          => 0,
+					PrintWarn           => 0,
+					RaiseError          => 1,
+				});
+		});
 	});
 
 	# db_user_accounts => $app->schema->resultset('UserAccount'), etc
+	# db_ro_user_accounts => $app->ro_schema->resultset('UserAccount'), etc
 	foreach my $source ($self->schema->sources) {
 		# necessary for now due to RT#125930
 		my @words = split(/_/, decamelize($source));
@@ -70,6 +88,9 @@ sub startup {
 		my $name = join('_', @words);
 		$self->helper('db_'.$name, sub {
 			shift->app->schema->resultset($source)
+		});
+		$self->helper('db_ro_'.$name, sub {
+			shift->app->ro_schema->resultset($source)
 		});
 	}
 
