@@ -234,6 +234,20 @@ subtest 'Workspaces' => sub {
 		"Workspace User Data Contract"
 	);
 
+	$t->post_ok("/workspace/$id/user?send_invite_mail=0" => json => {
+			user => 'test_workspace@conch.joyent.us',
+			role => 'rw',
+		})
+		->status_is(201);
+
+	is(
+		$t->app->db_user_accounts
+			->lookup_by_email('test_workspace@conch.joyent.us')
+			->search_related('user_workspace_roles', { workspace_id => $id })
+			->single->role,
+		'rw',
+		'new user can access this workspace',
+	);
 };
 
 subtest 'Sub-Workspace' => sub {

@@ -60,8 +60,8 @@ sub lookup_by_email {
 
     $self->active->search(
         [ \[ 'lower(email) = lower(?)', $email ] ],
-        { order_by => { -desc => 'created' } },
-    )->single;
+        { order_by => { -desc => 'created' }, rows => 1 },
+    )->first;
 }
 
 =head2 lookup_by_name
