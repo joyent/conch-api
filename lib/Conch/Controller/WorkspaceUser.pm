@@ -47,6 +47,9 @@ sub list ($c) {
 
 Invite a user to the current workspace (as specified by :workspace_id in the path)
 
+Optionally takes a query parameter 'send_invite_mail' (defaulting to true), to send an email
+to the user.
+
 =cut
 
 sub invite ($c) {
@@ -87,12 +90,14 @@ sub invite ($c) {
 		});
 
 		$c->log->info("User '".$body->{user}."' was created with ID ".$user->id);
-		$c->log->info('sending new user invite mail to user ' . $user->name);
-		$c->send_mail(new_user_invite => {
-			name	=> $user->name,
-			email	=> $user->email,
-			password => $password,
-		});
+		if ($c->req->query_params->param('send_invite_mail') // 1) {
+			$c->log->info('sending new user invite mail to user ' . $user->name);
+			$c->send_mail(new_user_invite => {
+				name	=> $user->name,
+				email	=> $user->email,
+				password => $password,
+			});
+		}
 
 		# TODO update this complain when we stop sending plaintext passwords
 		$c->log->warn("Email sent to ".$user->email." containing their PLAINTEXT password");
@@ -103,7 +108,7 @@ sub invite ($c) {
 	$user->create_related('user_workspace_roles' => {
 		workspace_id => $workspace_id,
 		role => $body->{role},
-	}) if not any { $_->workspace_id eq $workspace_id } $user->user_workspace_roles->@*;
+	}) if not any { $_->workspace_id eq $workspace_id } $user->user_workspace_roles;
 
 	$c->log->info("Add user ".$user->id." to workspace $workspace_id");
 	$c->status(201);
