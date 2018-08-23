@@ -68,12 +68,20 @@ has 'db' => (
 
 sub _build_db {
 	my $db = Conch::Pg->new();
-	return Conch::DB->connect(
-		$db->dsn,
-		$db->username,
-		$db->password,
-		{ ReadOnly => 1 },
-	);
+	return Conch::DB->connect(sub {
+		DBI->connect(
+			$db->dsn,
+			$db->username,
+			$db->password,
+			{
+				ReadOnly			=> 1,
+				AutoCommit			=> 0,
+				AutoInactiveDestroy => 1,
+				PrintError          => 0,
+				PrintWarn           => 0,
+				RaiseError          => 1,
+			});
+	});
 }
 
 
