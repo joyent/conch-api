@@ -36,7 +36,7 @@ use v5.20;
 use Moo::Role;
 use experimental qw(signatures);
 use Type::Tiny;
-use Types::Standard qw(InstanceOf ArrayRef HashRef CodeRef);
+use Types::Standard qw(InstanceOf ArrayRef HashRef CodeRef Int);
 
 use Try::Tiny;
 
@@ -55,12 +55,13 @@ use constant {
 
 requires 'name';
 requires 'description';
-requires 'version';
 requires 'category';
 
 requires 'validate';
 
-
+# FIXME version is deprecated and needs to get removed eventually
+# [2018-08-23] sungo
+sub version { 1 }
 
 has 'db' => (
 	is => 'lazy',
