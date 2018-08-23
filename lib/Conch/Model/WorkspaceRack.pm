@@ -75,9 +75,9 @@ sub rack_layout ( $self, $rack ) {
       SELECT hw.*, vendor.name AS vendor, profile.rack_unit as size
       FROM hardware_product hw
       JOIN hardware_vendor vendor
-        ON hw.vendor = vendor.id
+        ON hw.hardware_vendor_id = vendor.id
       JOIN hardware_product_profile profile
-        ON hw.id = profile.product_id
+        ON hw.id = profile.hardware_product_id
       WHERE hw.id = ?
       }, $slot->{product_id}
 		)->hash;

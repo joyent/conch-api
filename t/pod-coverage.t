@@ -10,7 +10,9 @@ my @skip_modules = (
 );
 
 # regexps of sub names that are always trusted
-my @also_private = ();
+my @also_private = qw(
+    BUILDARGS
+);
 
 # module => [ regexps of sub names to be trusted ]
 my %trustme = (

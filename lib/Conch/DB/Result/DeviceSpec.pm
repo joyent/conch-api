@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
 
-=head1 TABLE: C<device_specs>
+=head1 TABLE: C<device_spec>
 
 =cut
 
-__PACKAGE__->table("device_specs");
+__PACKAGE__->table("device_spec");
 
 =head1 ACCESSORS
 
@@ -43,7 +43,7 @@ __PACKAGE__->table("device_specs");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 product_id
+=head2 hardware_product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -90,7 +90,7 @@ __PACKAGE__->table("device_specs");
 __PACKAGE__->add_columns(
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
-  "product_id",
+  "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "bios_firmware",
   { data_type => "text", is_nullable => 0 },
@@ -137,7 +137,7 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 product
+=head2 hardware_product
 
 Type: belongs_to
 
@@ -146,15 +146,15 @@ Related object: L<Conch::DB::Result::HardwareProductProfile>
 =cut
 
 __PACKAGE__->belongs_to(
-  "product",
+  "hardware_product",
   "Conch::DB::Result::HardwareProductProfile",
-  { id => "product_id" },
+  { id => "hardware_product_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hSKb7WpokPvU9QvjIHiZwg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-22 17:58:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oxznkSR0H2zemYTYFYvg9w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

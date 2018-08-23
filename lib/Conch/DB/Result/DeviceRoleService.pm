@@ -29,22 +29,22 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
 
-=head1 TABLE: C<device_role_services>
+=head1 TABLE: C<device_role_service>
 
 =cut
 
-__PACKAGE__->table("device_role_services");
+__PACKAGE__->table("device_role_service");
 
 =head1 ACCESSORS
 
-=head2 role_id
+=head2 device_role_id
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
 
-=head2 service_id
+=head2 device_role_service_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -54,9 +54,9 @@ __PACKAGE__->table("device_role_services");
 =cut
 
 __PACKAGE__->add_columns(
-  "role_id",
+  "device_role_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "service_id",
+  "device_role_service_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
@@ -66,9 +66,9 @@ __PACKAGE__->add_columns(
 
 =over 4
 
-=item * L</role_id>
+=item * L</device_role_id>
 
-=item * L</service_id>
+=item * L</device_role_service_id>
 
 =back
 
@@ -76,12 +76,12 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->add_unique_constraint(
   "device_role_services_role_id_service_id_key",
-  ["role_id", "service_id"],
+  ["device_role_id", "device_role_service_id"],
 );
 
 =head1 RELATIONS
 
-=head2 role
+=head2 device_role
 
 Type: belongs_to
 
@@ -90,13 +90,13 @@ Related object: L<Conch::DB::Result::DeviceRole>
 =cut
 
 __PACKAGE__->belongs_to(
-  "role",
+  "device_role",
   "Conch::DB::Result::DeviceRole",
-  { id => "role_id" },
+  { id => "device_role_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 service
+=head2 device_role_service
 
 Type: belongs_to
 
@@ -105,15 +105,15 @@ Related object: L<Conch::DB::Result::DeviceService>
 =cut
 
 __PACKAGE__->belongs_to(
-  "service",
+  "device_role_service",
   "Conch::DB::Result::DeviceService",
-  { id => "service_id" },
+  { id => "device_role_service_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FTKJ414/weWalT1zdnEraQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-21 11:42:45
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ted6wfW0VdeKGaPPPFs/lA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

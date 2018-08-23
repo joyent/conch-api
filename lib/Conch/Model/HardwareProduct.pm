@@ -72,9 +72,9 @@ sub list ($self) {
 		  SELECT $fields
 		  FROM hardware_product hw_product
 		  JOIN hardware_product_profile hw_profile
-			ON hw_product.id = hw_profile.product_id
+			ON hw_product.id = hw_profile.hardware_product_id
 		  JOIN hardware_vendor vendor
-			ON hw_product.vendor = vendor.id
+			ON hw_product.hardware_vendor_id = vendor.id
 		  LEFT JOIN zpool_profile zpool
 			ON hw_profile.zpool_id = zpool.id
 		  WHERE hw_product.deactivated IS NULL
@@ -93,9 +93,9 @@ sub lookup ( $self, $hw_id ) {
 		SELECT $fields
 		FROM hardware_product hw_product
 		JOIN hardware_product_profile hw_profile
-		  ON hw_product.id = hw_profile.product_id
+		  ON hw_product.id = hw_profile.hardware_product_id
 		JOIN hardware_vendor vendor
-		  ON hw_product.vendor = vendor.id
+		  ON hw_product.hardware_vendor_id = vendor.id
 		LEFT JOIN zpool_profile zpool
 		  ON hw_profile.zpool_id = zpool.id
 		WHERE hw_product.deactivated IS NULL
@@ -116,9 +116,9 @@ sub lookup_by_name ( $self, $name ) {
 		SELECT $fields
 		FROM hardware_product hw_product
 		JOIN hardware_product_profile hw_profile
-		  ON hw_product.id = hw_profile.product_id
+		  ON hw_product.id = hw_profile.hardware_product_id
 		JOIN hardware_vendor vendor
-		  ON hw_product.vendor = vendor.id
+		  ON hw_product.hardware_vendor_id = vendor.id
 		LEFT JOIN zpool_profile zpool
 		  ON hw_profile.zpool_id = zpool.id
 		WHERE hw_product.deactivated IS NULL
@@ -140,9 +140,9 @@ sub lookup_by_sku ( $self, $sku ) {
 		SELECT $fields
 		FROM hardware_product hw_product
 		JOIN hardware_product_profile hw_profile
-		  ON hw_product.id = hw_profile.product_id
+		  ON hw_product.id = hw_profile.hardware_product_id
 		JOIN hardware_vendor vendor
-		  ON hw_product.vendor = vendor.id
+		  ON hw_product.hardware_vendor_id = vendor.id
 		LEFT JOIN zpool_profile zpool
 		  ON hw_profile.zpool_id = zpool.id
 		WHERE hw_product.deactivated IS NULL

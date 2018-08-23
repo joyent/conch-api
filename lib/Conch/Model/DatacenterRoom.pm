@@ -107,6 +107,15 @@ sub _build_serializable_attributes {[qw[
 
 =head1 METHODS
 
+=cut
+
+around BUILDARGS => sub {
+	my ($orig, $class, %args) = @_;
+
+	$args{datacenter} = delete $args{datacenter_id} if exists $args{datacenter_id};
+    return $class->$orig(%args);
+};
+
 =head2 from_id
 
 	my $r = Conch::Model::DatacenterRoom->from_id($uuid);
@@ -173,7 +182,7 @@ sub from_datacenter ($class, $id) {
 			'datacenter_room',
 			undef,
 			{
-				datacenter => $id,
+				datacenter_id => $id,
 			}
 		)->hashes->map(sub {
 			$class->new(_fixup_timestamptzs($_)->%*);
@@ -209,6 +218,8 @@ sub save ($self) {
 	}
 
 	$fields{updated} = 'NOW()';
+
+	$fields{datacenter_id} = delete $fields{datacenter};
 
 	my $ret;
 	try {

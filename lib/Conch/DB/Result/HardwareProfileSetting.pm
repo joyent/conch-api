@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
 
-=head1 TABLE: C<hardware_profile_settings>
+=head1 TABLE: C<hardware_profile_setting>
 
 =cut
 
-__PACKAGE__->table("hardware_profile_settings");
+__PACKAGE__->table("hardware_profile_setting");
 
 =head1 ACCESSORS
 
@@ -44,7 +44,7 @@ __PACKAGE__->table("hardware_profile_settings");
   is_nullable: 0
   size: 16
 
-=head2 profile_id
+=head2 hardware_product_profile_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -95,7 +95,7 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "profile_id",
+  "hardware_product_profile_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "resource",
   { data_type => "text", is_nullable => 0 },
@@ -135,7 +135,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 profile
+=head2 hardware_product_profile
 
 Type: belongs_to
 
@@ -144,15 +144,15 @@ Related object: L<Conch::DB::Result::HardwareProductProfile>
 =cut
 
 __PACKAGE__->belongs_to(
-  "profile",
+  "hardware_product_profile",
   "Conch::DB::Result::HardwareProductProfile",
-  { id => "profile_id" },
+  { id => "hardware_product_profile_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YrJxqsK3q5yoKuVFKRKZ1g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 13:52:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0Q3VBDR1HzZE9FHUXUXwHw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

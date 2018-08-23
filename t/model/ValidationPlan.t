@@ -37,7 +37,7 @@ my $hardware_product_id = $pg->db->insert(
 	{
 		name   => 'test hw product',
 		alias  => 'alias',
-		vendor => $hardware_vendor_id,
+		hardware_vendor_id => $hardware_vendor_id,
 		generation_name => 'Joyent-G1',
 	},
 	{ returning => ['id'] }
@@ -52,7 +52,7 @@ my $zpool_profile_id = $pg->db->insert(
 my $hardware_profile_id = $pg->db->insert(
 	'hardware_product_profile',
 	{
-		product_id    => $hardware_product_id,
+		hardware_product_id    => $hardware_product_id,
 		zpool_id      => $zpool_profile_id,
 		rack_unit     => 1,
 		purpose       => 'test',

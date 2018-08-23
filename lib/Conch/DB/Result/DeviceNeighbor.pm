@@ -134,7 +134,7 @@ __PACKAGE__->set_primary_key("mac");
 
 =head1 RELATIONS
 
-=head2 mac
+=head2 device_nic
 
 Type: belongs_to
 
@@ -143,15 +143,15 @@ Related object: L<Conch::DB::Result::DeviceNic>
 =cut
 
 __PACKAGE__->belongs_to(
-  "mac",
+  "device_nic",
   "Conch::DB::Result::DeviceNic",
   { mac => "mac" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dC7iBZWvTeTdhwiP5uVX0Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 14:03:46
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iUlmXpxPIKB6gjKVJYSvGQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
