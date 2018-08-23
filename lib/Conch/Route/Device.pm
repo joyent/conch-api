@@ -50,11 +50,10 @@ sub device_routes {
 
 
 	$r->get('/device/:id')->to('device#get');
+	$r->post('/device/:id')->to('device_report#process');
 
 	# routes namespaced for a specific device
 	my $with_device = $r->under('/device/:id')->to('device#under');
-
-	$r->post('/device/:id')->to('device_report#process');
 
 	$with_device->post('/graduate')->to('device#graduate');
 	$with_device->post('/triton_setup')->to('device#set_triton_setup');
