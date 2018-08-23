@@ -117,9 +117,10 @@ sub process ($c) {
 		$validation_name = 'Conch v1 Legacy Plan: Switch';
 	}
 
-	$c->log->debug("Attempting to validation with plan '$validation_name'");
+	$c->log->debug("Attempting to validate with plan '$validation_name'");
 
 	my $validation_plan = Conch::Model::ValidationPlan->lookup_by_name($validation_name);
+	return $c->status(500, { error => "failed to find validation plan" }) if not $validation_plan;
 	$validation_plan->log($c->log);
 
 	# [2018-07-16 sungo] - As we grow this logic to be smarter and more
