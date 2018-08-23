@@ -14,3 +14,6 @@ loader_options:
 
   rel_name_map:
     user: user_account
+    device_validate_criterias: device_validate_criteria
+    DeviceNeighbor:
+      mac: device_nic
