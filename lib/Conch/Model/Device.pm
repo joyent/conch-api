@@ -120,39 +120,6 @@ sub lookup ( $class, $device_id ) {
 	return $class->new( $ret->%* );
 }
 
-=head2 device_nic_neighbors
-
-Return a hash of NIC and associated NIC peers details for a device
-
-=cut
-sub device_nic_neighbors ( $self, $device_id ) {
-	my $nics = Conch::Pg->new()->db->query(
-		q{
-		SELECT nic.*, neighbor.*
-		FROM device_nic nic
-		JOIN device_neighbor neighbor
-			ON nic.mac = neighbor.mac
-		WHERE nic.device_id = ?
-			AND deactivated IS NULL
-	}, $device_id
-	)->hashes;
-
-	my @neighbors;
-	for my $nic (@$nics) {
-		push @neighbors,
-			{
-			iface_name   => $nic->{iface_name},
-			iface_type   => $nic->{iface_type},
-			iface_vendor => $nic->{iface_vendor},
-			mac          => $nic->{mac},
-			peer_mac     => $nic->{peer_mac},
-			peer_port    => $nic->{peer_port},
-			peer_switch  => $nic->{peer_switch}
-			};
-	}
-	return \@neighbors;
-}
-
 =head2 graduate
 
 Mark the device as "graduated" (VLAN flipped)

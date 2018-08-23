@@ -13,7 +13,6 @@ package Conch::Controller::Device;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
-use Conch::Class::DeviceDetailed;
 use List::Util 'none';
 
 with 'Conch::Role::MojoLog';
@@ -77,35 +76,40 @@ sub find_device ($c) {
 
 =head2 get
 
-Retrieves details about a single device, returning a serialized
-Conch::Class::DeviceDetailed
+Retrieves details about a single device, returning a json-schema 'DetailedDevice' structure.
 
 =cut
 
 sub get ($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 
-	my $device_report = Conch::Model::DeviceReport->new->latest_device_report( $device->id );
-	my $report        = {};
-	my $validations   = [];
-	if ($device_report) {
-		$validations = Conch::Model::DeviceReport->new
-			->validation_results( $device_report->{id} );
-
-		$report = $device_report->{report};
-		delete $report->{'__CLASS__'};
-	}
+	my $device = $c->stash('device_rs')->find(
+		{},
+		{
+			prefetch => [
+				{ latest_report => 'device_validates' },
+				{ device_nics => 'device_neighbor' },
+			],
+		},
+	);
 
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
-	my $nics           = $device->device_nic_neighbors( $device->id );
 
-	my $detailed_device = Conch::Class::DeviceDetailed->new(
-		device             => $device,
-		latest_report      => $report,
-		validation_results => $validations,
-		nics               => $nics,
-		location           => $maybe_location
-	);
+	# TODO: we can collapse this all down to a self-contained serializer once the
+	# DeviceLocation query has been converted to a prefetchable relationship.
+	my $detailed_device = +{
+		%{ $device->TO_JSON },
+		latest_report => $device->latest_report->report,
+		validations => [ map { $_->validation } $device->latest_report->device_validates ],
+		nics => [ map {
+			my $device_nic = $_;
+			$device_nic->deactivated ? () :
+			+{
+				(map { $_ => $device_nic->$_ } qw(iface_name iface_type iface_vendor)),
+				(map { $_ => $device_nic->device_neighbor->$_ } qw(mac peer_mac peer_port peer_switch)),
+			}
+		} $device->device_nics ],
+		location => $maybe_location,
+	};
 
 	$c->status( 200, $detailed_device );
 }

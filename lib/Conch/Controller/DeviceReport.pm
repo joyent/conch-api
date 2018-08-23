@@ -272,6 +272,7 @@ sub _record_device_configuration {
 			$dr->{disks}
 				and $log->info("Recorded disk info for Device ".$device->id);
 
+			# TODO: $device->device_nics->active->get_column('mac')
 			my @device_nics = $schema->resultset('DeviceNic')->search(
 				{
 					device_id   => $device->id,

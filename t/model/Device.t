@@ -140,9 +140,4 @@ subtest "Device Modifiers" => sub {
 	};
 };
 
-TODO: {
-	local $TODO = "Untested methods";
-	fail("test device_nic_neighbors");
-}
-
 done_testing();
