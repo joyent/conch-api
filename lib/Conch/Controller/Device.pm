@@ -19,16 +19,16 @@ with 'Conch::Role::MojoLog';
 
 use Conch::Models;
 
-=head2 under
+=head2 find_device
 
-All endpoints exist under /device/:id - C<under> looks up the device referenced
-and stashes it in C<current_device> so the action isn't repeated by every
-endpoint
+Chainable action that validates the 'device_id' provided in the path
+and looks up the device and stashes it in C<current_device>.
 
 =cut
 
-sub under ($c) {
-	my $device_id = $c->param('id');
+sub find_device ($c) {
+
+	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
 	my $device = Conch::Model::Device->lookup_for_user(
@@ -36,15 +36,14 @@ sub under ($c) {
 		$device_id,
 	);
 
-	if ($device) {
-		$c->log->debug("Found device ".$device->id);
-		$c->stash( current_device => $device );
-		return 1;
-	} else {
+	if (not $device) {
 		$c->log->debug("Failed to find device $device_id");
-		$c->status( 404, { error => "Device '$device_id' not found" } );
-		return 0;
+		return $c->status(404, { error => "Device '$device_id' not found" });
 	}
+
+	$c->log->debug('Found device ' . $device->id);
+	$c->stash(current_device => $device);
+	return 1;
 }
 
 =head2 get
@@ -55,7 +54,6 @@ Conch::Class::DeviceDetailed
 =cut
 
 sub get ($c) {
-	return unless $c->under;
 	my $device = $c->stash('current_device');
 
 	my $device_report = Conch::Model::DeviceReport->new->latest_device_report( $device->id );

@@ -33,7 +33,7 @@ sub process ($c) {
 	}
 
 	# Make sure the API and device report agree on who we're talking about
-	if ($c->stash('id') ne $unserialized_report->{serial_number}) {
+	if ($c->stash('device_id') ne $unserialized_report->{serial_number}) {
 		return $c->render(status => 422, json => {
 			error => "Serial number provided to the API does not match the report data."
 		});
@@ -73,17 +73,17 @@ sub process ($c) {
 		});
 	}
 
-	my $existing_device = $c->db_devices->active->find($c->stash('id'));
+	my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
 
 	# Update/create the device and create the device report
 	# FIXME [2018-08-23 sungo] we need device report dedup here
-	$c->log->debug("Updating or creating device ".$c->stash('id'));
+	$c->log->debug("Updating or creating device ".$c->stash('device_id'));
 	
 	my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since} : 
 		$existing_device ? $existing_device->uptime_since : undef;
 
 	my $device = $c->db_devices->update_or_create({
-		id                  => $c->stash('id'),
+		id                  => $c->stash('device_id'),
 		system_uuid         => $unserialized_report->{system_uuid},
 		hardware_product_id => $hw->id,
 		state               => $unserialized_report->{state},

@@ -6,17 +6,16 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::Models;
 with 'Conch::Role::MojoLog';
 
-
-=head2 under
+=head2 find_device_service
 
 Handles looking up the object by id or name depending on the url pattern
 
 =cut
 
-sub under ($c) {
+sub find_device_service ($c) {
 	my $s;
 
-	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
+	if($c->stash('device_service_id') =~ /^(.+?)\=(.+)$/) {
 		my ($k, $v) = ($1, $2);
 		if($k eq 'name') {
 			$c->log->debug("Looking up device service by name $v");
@@ -27,8 +26,8 @@ sub under ($c) {
 			return undef;
 		}
 	} else {
-		$c->log->debug("Looking up device service by id ".$c->param('id'));
-		$s = Conch::Model::DeviceService->from_id($c->param('id'));
+		$c->log->debug("Looking up device service by id ".$c->stash('device_service_id'));
+		$s = Conch::Model::DeviceService->from_id($c->stash('device_service_id'));
 	}
 
 	if ($s) {
@@ -39,7 +38,7 @@ sub under ($c) {
 			return undef;
 		}
 
-		$c->stash('deviceservice' => $s);
+		$c->stash('device_service' => $s);
 		return 1;
 	} else {
 		$c->log->debug("Failed to find device service");
@@ -70,7 +69,7 @@ Get a single device service
 =cut
 
 sub get_one ($c) {
-	$c->status(200, $c->stash('deviceservice'));
+	$c->status(200, $c->stash('device_service'));
 }
 
 =head2 create
@@ -114,7 +113,7 @@ Update an existing device service
 
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = $c->stash('deviceservice');
+	my $s = $c->stash('device_service');
 
 	my $body = $c->req->json;
 
@@ -140,8 +139,8 @@ sub update ($c) {
 =cut
 
 sub delete ($c) {
-	$c->stash('deviceservice')->burn;
-	$c->log->debug("Deleted device service ".$c->stash('deviceservice')->id);
+	$c->stash('device_service')->burn;
+	$c->log->debug("Deleted device service ".$c->stash('device_service')->id);
 	return $c->status(204);
 }
 

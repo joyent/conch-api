@@ -85,7 +85,7 @@ sub all_routes {
 	$secured->post('/refresh_token')->to('login#refresh_token');
 
 	workspace_routes($secured->any('/workspace'));
-	device_routes($secured);
+	device_routes($secured->any('/device'));
 	relay_routes($secured);
 	user_routes( $secured->any('/user') );
 	hardware_product_routes($secured);
