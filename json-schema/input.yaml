@@ -125,8 +125,6 @@ definitions:
         required:
           - cpu0
           - cpu1
-          - exhaust
-          - inlet
         properties:
           cpu0:
             type: number

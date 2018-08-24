@@ -45,32 +45,9 @@ Record device report and device details from the report
 =cut
 
 sub record_device_report {
-	my ( $schema, $dr, $raw_report ) = @_;
-
-	my $hw;
-
-	if ($dr->{device_type} && $dr->{device_type} eq "switch")
-	{
-		$hw = $schema->resultset('HardwareProduct')->find(
-		{
-			name => $dr->{product_name}
-		}
-		);
-		$hw or die $log->critical("Product $dr->{product_name} not found");
-	} else {
-		$hw = $schema->resultset('HardwareProduct')->find(
-		{
-			sku => $dr->{sku}
-		}
-		);
-		$hw or die $log->critical("Product $dr->{sku} not found");
-	}
+	my ( $schema, $dr, $raw_report, $hw ) = @_;
 
 	my $hw_profile = $hw->hardware_product_profile;
-	$hw_profile
-		or die $log->criticalf(
-		"Hardware product '%s' exists but does not have a hardware profile",
-		$hw->name );
 
 	$log->info("Ready to record report for Device $dr->{serial_number}");
 
