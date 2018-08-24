@@ -3,8 +3,6 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
-__PACKAGE__->load_components('+Conch::DB::Deactivatable');
-
 =head1 NAME
 
 Conch::DB::ResultSet::Device
