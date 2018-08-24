@@ -20,6 +20,16 @@ sub validate {
 
 	my $dimms     = $data->{dimms};
 	my $hw_spec_j = $self->hardware_product_specification;
+
+	unless ($hw_spec_j) {
+		$self->register_result(
+			expected => 0,
+			got      => 0,
+			message  => "hardware specification requires for this validation",
+		);
+		return;
+	}
+
 	my $hw_spec   = decode_json $hw_spec_j;
 	my $dimm_spec = $hw_spec->{chassis}->{memory}->{dimms};
 
