@@ -1,7 +1,7 @@
 package Conch::DB::ResultSet::UserSessionToken;
 use v5.26;
 use warnings;
-use parent 'DBIx::Class::ResultSet';
+use parent 'Conch::DB::ResultSet';
 
 use Session::Token;
 

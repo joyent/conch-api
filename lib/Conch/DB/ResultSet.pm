@@ -1,19 +1,21 @@
-package Conch::DB::ResultSet::UserSetting;
+package Conch::DB::ResultSet;
 use v5.26;
 use warnings;
-use parent 'Conch::DB::ResultSet';
-
-__PACKAGE__->load_components('+Conch::DB::Deactivatable');
+use parent 'DBIx::Class::ResultSet';
 
 =head1 NAME
 
-Conch::DB::ResultSet::UserSetting
+Conch::DB::ResultSet
 
 =head1 DESCRIPTION
 
-Interface to queries against the 'user_setting' table.
+Base class for our resultsets, to allow us to add on additional functionality from what is
+available in core DBIx::Class.
 
 =cut
+
+__PACKAGE__->load_components(
+);
 
 1;
 __END__

@@ -1,7 +1,7 @@
 package Conch::DB::ResultSet::Device;
 use v5.26;
 use warnings;
-use parent 'DBIx::Class::ResultSet';
+use parent 'Conch::DB::ResultSet';
 
 __PACKAGE__->load_components('+Conch::DB::Deactivatable');
 

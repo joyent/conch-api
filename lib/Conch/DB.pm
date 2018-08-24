@@ -9,14 +9,14 @@ use warnings;
 
 use base 'DBIx::Class::Schema';
 
-__PACKAGE__->load_namespaces;
+__PACKAGE__->load_namespaces(
+    default_resultset_class => "+Conch::DB::ResultSet",
+);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-07-20 14:28:49
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZktCOzhVUM5Jz2oIdYqqhg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-24 15:58:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QkdW/OL4Wq8k9yZp3hGDMg
 
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
 __END__
 
@@ -28,7 +28,7 @@ Conch::DB
 
 =head1 DESCRIPTION
 
-Load up all the DBIx::Class fun
+Base schema class for the Conch application. See L<DBIx::Class::Schema>.
 
 =head1 LICENSING
 
@@ -39,4 +39,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
-
+# vim: set ts=4 sts=4 sw=4 et :

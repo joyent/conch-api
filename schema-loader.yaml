@@ -8,6 +8,9 @@ connect_info:
 # dbic loader options
 loader_options:
   dump_directory: ./lib
+
+  default_resultset_class: +Conch::DB::ResultSet
+
   components:
     - +Conch::DB::InflateColumn::Time
     - +Conch::DB::ToJSON

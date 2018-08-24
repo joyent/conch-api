@@ -1,7 +1,7 @@
 package Conch::DB::ResultSet::Workspace;
 use v5.26;
 use warnings;
-use parent 'DBIx::Class::ResultSet';
+use parent 'Conch::DB::ResultSet';
 
 =head1 NAME
 
