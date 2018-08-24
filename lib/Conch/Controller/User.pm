@@ -158,7 +158,7 @@ sub get_setting ($c) {
 	my $setting = $user->user_settings->active->search(
 		{ name => $key },
 		{ order_by => { -desc => 'created' } },
-	)->first;
+	)->one_row;
 
 	return $c->status( 404, { error => "No such setting '$key'" } )
 		unless $setting;
