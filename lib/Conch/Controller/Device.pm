@@ -14,6 +14,7 @@ use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 use Conch::Class::DeviceDetailed;
+use List::Util 'none';
 
 with 'Conch::Role::MojoLog';
 
@@ -79,6 +80,59 @@ sub get ($c) {
 	);
 
 	$c->status( 200, $detailed_device );
+}
+
+=head2 lookup_by_other_attribute
+
+Looks up a device by query parameter. Supports:
+
+	/device?mac=$macaddr
+	/device?ipaddr=$ipaddr
+
+=cut
+
+sub lookup_by_other_attribute ($c) {
+	my $params = $c->req->query_params->to_hash;
+
+	return $c->status(404) if not keys %$params;
+
+	return $c->status(400, { error =>
+			'ambiguous query: specified multiple keys (' . join(', ', keys %$params) . ')'
+		}) if keys %$params > 1;
+
+	my ($key) = keys %$params;
+	my $value = $params->{$key};
+
+	return $c->status(400, { error => $key . 'parameter not supported' })
+		if none { $key eq $_ } qw(mac ipaddr);
+
+	$c->log->debug('looking up device by ' . $key . ' = ' . $value);
+
+	my $device_rs;
+	if ($key eq 'mac') {
+		$device_rs = $c->db_devices->search(
+			{ 'device_nics.mac' => $value },
+			{ join => 'device_nics' },
+		);
+	}
+	elsif ($key eq 'ipaddr') {
+		$device_rs = $c->db_devices->search(
+			{ 'device_nic_state.ipaddr' => $value },
+			{ join => { device_nics => 'device_nic_state' } },
+		);
+	}
+
+	my $device_id = $device_rs->get_column('id')->single;
+
+	if (not $device_id) {
+		$c->log->debug("Failed to find device $device_id");
+		return $c->status(404, { error => "Device '$device_id' not found" });
+	}
+
+	# continue dispatch to find_device and then get.
+	$c->log->debug("found device_id $device_id");
+	$c->stash('device_id', $device_id);
+	return 1;
 }
 
 =head2 graduate

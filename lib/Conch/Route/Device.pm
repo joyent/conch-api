@@ -30,6 +30,7 @@ Sets up routes for /device:
     POST    /device/service/:device_service_id
     DELETE  /device/service/:device_service_id
 
+    GET     /device/?mac=:mac, ?ipaddr=:ipaddr
     GET     /device/:device_id
     POST    /device/:device_id
     POST    /device/:device_id/graduate
@@ -107,6 +108,11 @@ sub device_routes {
     {
         # POST /device/:device_id
         $device->post('/:device_id')->to('device_report#process');
+
+        # /device?key=:value
+        $device->get('/')->under->to('device#lookup_by_other_attribute')
+            ->get->under->to('device#find_device')
+            ->get->to('device#get');
 
         # chainable action that extracts and looks up device_service_id from the path
         my $with_device = $device->under('/:device_id')->to('device#find_device');
