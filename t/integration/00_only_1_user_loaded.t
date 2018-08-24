@@ -331,8 +331,9 @@ subtest 'Relay List' => sub {
 subtest 'Device Report' => sub {
 	my $report =
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
-	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(409)
-		->json_like( '/error', qr/Hardware product SKU '.+' does not exist/ );
+	$t->post_ok( '/device/TEST', {
+		'Content-Type' => 'application/json'
+	}, $report )->status_is(409);
 
 	$t->post_ok( '/device/TEST', json => { serial_number => 'TEST' } )
 		->status_is(400)->json_like( '/error', qr/Missing property/ );

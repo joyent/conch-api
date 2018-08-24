@@ -28,36 +28,48 @@ sub process ($c) {
 	my $device_report = $c->validate_input('DeviceReport');
 	return if not $device_report;
 	my $raw_report = $c->req->body;
+	my $schema = $c->schema;
 
-	my $maybe_hw;
+	my $hw;
+	if ($device_report->{device_type} && $device_report->{device_type} eq "switch") {
+		$hw = $schema->resultset('HardwareProduct')->find({
+			name => $device_report->{product_name}
+		});
 
-	if ( $device_report->{device_type}
-		&& $device_report->{device_type} eq "switch" )
-	{
-		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_name(
-			$device_report->{product_name}
-		);
-		return $c->status(409, {
+		$hw or return $c->render(status => 409, json => {
 			error => "Hardware product name '".$device_report->{product_name}."' does not exist"
-		}) unless ($maybe_hw);
+		});
 
 	} else {
-		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_sku(
-			$device_report->{sku}
-		);
+		$hw = $schema->resultset('HardwareProduct')->find({
+			sku => $device_report->{sku}
+		});
 
-		return $c->status(409, {
-			error => "Hardware product SKU '".$device_report->{sku}."' does not exist"
-		}) unless ($maybe_hw);
+		if(not $hw) {
+			$c->log->debug("Could not find hardware product by SKU, falling back to legacy_product_name");
+		    $hw = $schema->resultset('HardwareProduct')->find({
+				legacy_product_name => $device_report->{product_name}
+			});
 
+			$hw or return $c->render(status => 409, json => {
+				error => "Hardware product not found by sku '".$device_report->{sku}.
+					"' or by legacy name '".$device_report->{product_name}."'."
+			});
+		}
 	}
+
+	$hw->hardware_product_profile or return $c->render(status => 409, json => {
+		error => "Hardware product '".$hw->name."' exists but does not have a hardware profile",
+	});
+
 
 	# Use the old device report recording and device validation code for now.
 	# This will be removed when OPS-RFD 22 is implemented
 	my ( $device, $report_id ) = record_device_report(
 		$c->schema,
 		$device_report,
-		$raw_report
+		$raw_report,
+		$hw,
 	);
 
 	my $validation_plan;
