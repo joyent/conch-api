@@ -20,26 +20,26 @@ use List::MoreUtils qw(firstval);
 with 'Conch::Role::MojoLog';
 
 
-=head2 under
+=head2 find_datacenter_rack_layout
 
 Supports rack layout lookups by id
 
 =cut
 
-sub under ($c) {
+sub find_datacenter_rack_layout ($c) {
 	unless($c->is_global_admin) {
 		$c->status(403);
 		return undef;
 	}
 
-	my $r = Conch::Model::DatacenterRackLayout->from_id($c->param('id'));
+	my $r = Conch::Model::DatacenterRackLayout->from_id($c->stash('layout_id'));
 
 	if ($r) {
 		$c->log->debug("Found datacenter rack layout ".$r->id);
 		$c->stash('rack_layout' => $r);
 		return 1;
 	} else {
-		$c->log->debug("Could not find datacenter rack layout ".$c->param('id'));
+		$c->log->debug("Could not find datacenter rack layout ".$c->stash('layout_id'));
 		$c->status(404 => { error => "Not found" });
 		return undef;
 	}
