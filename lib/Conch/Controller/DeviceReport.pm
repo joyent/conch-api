@@ -19,54 +19,101 @@ with 'Conch::Role::MojoLog';
 
 =head2 process
 
-Processes the device report using the Legacy report code base
+Processes the device report, turning it into the various device_ tables as well
+as running validations
 
 =cut
 
 sub process ($c) {
-	my $device_report = $c->validate_input('DeviceReport');
-	return if not $device_report;
 	my $raw_report = $c->req->body;
+	my $schema = $c->schema;
 
-	my $maybe_hw;
-
-	if ( $device_report->{device_type}
-		&& $device_report->{device_type} eq "switch" )
-	{
-		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_name(
-			$device_report->{product_name}
-		);
-		return $c->status(409, {
-			error => "Hardware product name '".$device_report->{product_name}."' does not exist"
-		}) unless ($maybe_hw);
-
-	} else {
-		$maybe_hw = Conch::Model::HardwareProduct->lookup_by_sku(
-			$device_report->{sku}
-		);
-
-		return $c->status(409, {
-			error => "Hardware product SKU '".$device_report->{sku}."' does not exist"
-		}) unless ($maybe_hw);
-
+	my $unserialized_report = $c->validate_input('DeviceReport');
+	if(not $unserialized_report) {
+		return; # JSON validator will handle the proper error response
 	}
 
-	# Use the old device report recording and device validation code for now.
-	# This will be removed when OPS-RFD 22 is implemented
-	$c->log->debug("Recording device report");
-	my ( $device, $report_id ) = $c->_record_device_report(
-		$device_report,
-		$raw_report
+	# Make sure the API and device report agree on who we're talking about
+	if ($c->param('id') ne $unserialized_report->{serial_number}) {
+		return $c->render(status => 422, json => {
+			error => "Serial number provided to the API does not match the report data."
+		});
+	}
+
+	my $hw;
+	# Make sure that the remote side is telling us about a hardware product we understand
+	if ($unserialized_report->{device_type} && $unserialized_report->{device_type} eq "switch") {
+		$hw = $schema->resultset('HardwareProduct')->find({
+			name => $unserialized_report->{product_name}
+		});
+	} else {
+		$hw = $schema->resultset('HardwareProduct')->find({
+			sku => $unserialized_report->{sku}
+		});
+
+		if(not $hw) {
+		  	$hw = $schema->resultset('HardwareProduct')->find({
+				legacy_product_name => $unserialized_report->{product_name}
+			});
+		}
+	}
+
+	if(not $hw) {
+		return $c->render(status => 409, json => {
+			error => "Could not locate hardware product"
+		});
+	}
+
+	if(not $hw->hardware_product_profile) {
+		return $c->render(status => 409, json => {
+			error => "Hardware product does not contain a profile"
+		});
+	}
+
+	my $existing_device = $schema->resultset('Device')->find({
+		id => $c->param('id')
+	});
+
+	# Update/create the device and create the device report
+	# FIXME [2018-08-23 sungo] we need device report dedup here
+	$c->log->debug("Updating or creating device ".$c->param('id'));
+	
+	my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since} : 
+		$existing_device ? $existing_device->uptime_since : undef;
+
+	my $device = $schema->resultset('Device')->update_or_create({
+		id                  => $c->param('id'),
+		system_uuid         => $unserialized_report->{system_uuid},
+		hardware_product_id => $hw->id,
+		state               => $unserialized_report->{state},
+		health              => "UNKNOWN",
+		last_seen           => \'NOW()',
+		uptime_since        => $uptime
+	});
+
+	$c->log->debug("Creating device report");
+	my $device_report = $schema->resultset('DeviceReport')->create({
+		device_id => $device->id,
+		report    => $raw_report,
+	});
+	$c->log->info("Created device report ".$device_report->id);
+
+
+	$c->log->debug("Recording device configuration");
+	$c->_record_device_configuration(
+		$existing_device,
+		$device,
+		$unserialized_report,
 	);
 
 
-	my $validation_name;
-	if ( $device_report->{device_type}
-		&& $device_report->{device_type} eq "switch" )
+	# Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
+	my $validation_name = 'Conch v1 Legacy Plan: Server';
+
+	if ( $unserialized_report->{device_type}
+		&& $unserialized_report->{device_type} eq "switch" )
 	{
 		$validation_name = 'Conch v1 Legacy Plan: Switch';
-	} else {
-		$validation_name = 'Conch v1 Legacy Plan: Server';
 	}
 
 	$c->log->debug("Attempting to validation with plan '$validation_name'");
@@ -85,7 +132,7 @@ sub process ($c) {
 	$c->log->debug("Running validation plan ".$validation_plan->id);
 	my $validation_state = $validation_plan->run_with_state(
 		$device->id,
-		$device_report
+		$unserialized_report, # FIXME this needs to be a DBIC object so we can tie the validation results to a the report ID
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
@@ -95,86 +142,42 @@ sub process ($c) {
 	$c->status( 200, $validation_state );
 }
 
-=head2 _record_device_report
+=head2 _record_device_configuration
 
-Record device report and device details from the report
+Uses a device report to populate configuration information about the given device
 
 =cut
 
-sub _record_device_report {
-	my ( $c, $dr, $raw_report ) = @_;
+sub _record_device_configuration {
+	my ( $c, $orig_device, $device, $dr ) = @_;
 
 	my $schema = $c->schema;
 	my $log = $c->log;
 
-	my $hw;
-
-	if ($dr->{device_type} && $dr->{device_type} eq "switch")
-	{
-		$hw = $schema->resultset('HardwareProduct')->find(
-		{
-			name => $dr->{product_name}
-		}
-		);
-		$hw or die $log->critical("Product $dr->{product_name} not found");
-	} else {
-		$hw = $schema->resultset('HardwareProduct')->find(
-		{
-			sku => $dr->{sku}
-		}
-		);
-		$hw or die $log->critical("Product $dr->{sku} not found");
-	}
-
-	my $hw_profile = $hw->hardware_product_profile;
-	$hw_profile
-		or die $log->criticalf(
-		"Hardware product '%s' exists but does not have a hardware profile",
-		$hw->name );
-
-	$log->info("Ready to record report for Device $dr->{serial_number}");
-
-	my $device;
-	my $device_report;
-
 	$schema->txn_do(
 		sub {
-
-			my $prev_device =
-				$schema->resultset('Device')->find( { id => $dr->{serial_number} } );
-
-			my $prev_uptime = $prev_device && $prev_device->uptime_since;
-
-			$device = $schema->resultset('Device')->update_or_create(
-				{
-					id               => $dr->{serial_number},
-					system_uuid      => $dr->{system_uuid},
-					hardware_product_id => $hw->id,
-					state            => $dr->{state},
-					health           => "UNKNOWN",
-					last_seen        => \'NOW()',
-					uptime_since     => $dr->{uptime_since} || $prev_uptime
-				}
-			);
-			my $device_id = $device->id;
-			$log->info("Created Device $device_id");
-
 			# Add a reboot count if there's not a previous uptime but one in this
 			# report (i.e. first uptime reported), or if the previous uptime date is
 			# less than the the current one (i.e. there has been a reboot)
+			my $prev_uptime;
+			if($orig_device) {
+				$prev_uptime = $orig_device->uptime_since;
+			}
 			_add_reboot_count($device)
-				if ( !$prev_uptime && $device->{uptime_since} )
-				|| $device->{uptime_since} && $prev_uptime < $device->{uptime_since};
+				if ( !$prev_uptime && $device->uptime_since )
+				|| $device->uptime_since && $prev_uptime < $device->uptime_since;
 
-			_device_relay_connect( $schema, $device_id, $dr->{relay}{serial} )
-				if $dr->{relay};
-
-			$device_report = $schema->resultset('DeviceReport')->create(
-				{
-					device_id => $device_id,
-					report    => $raw_report,
-				}
-			);
+			if($dr->{relay}) {
+				# 'first_seen' column will only be written on create. It should remain
+				# untouched on updates
+				$schema->resultset('DeviceRelayConnection')->update_or_create(
+					{
+						device_id => $device->id,
+						relay_id  => $dr->{relay}{serial},
+						last_seen => \'NOW()'
+					}
+				);
+			}
 
 			my $nics_num = 0;
 			# switches use the 'media' attribute, and servers use 'interfaces'
@@ -190,18 +193,18 @@ sub _record_device_report {
 
 			my $device_specs = $schema->resultset('DeviceSpec')->update_or_create(
 				{
-					device_id     => $device_id,
-					hardware_product_id    => $hw_profile->id,
-					bios_firmware => $dr->{bios_version},
-					cpu_num       => $dr->{processor}->{count},
-					cpu_type      => $dr->{processor}->{type},
-					nics_num      => $nics_num,
-					dimms_num     => $dr->{memory}->{count},
-					ram_total     => $dr->{memory}->{total},
+					device_id           => $device->id,
+					hardware_product_id => $device->hardware_product->hardware_product_profile->id,
+					bios_firmware       => $dr->{bios_version},
+					cpu_num             => $dr->{processor}->{count},
+					cpu_type            => $dr->{processor}->{type},
+					nics_num            => $nics_num,
+					dimms_num           => $dr->{memory}->{count},
+					ram_total           => $dr->{memory}->{total},
 				}
 			);
 
-			$log->info("Created Device Spec for Device $device_id");
+			$log->info("Created Device Spec for Device ".$device->id);
 
 			$schema->resultset('DeviceEnvironment')->update_or_create(
 				{
@@ -214,11 +217,11 @@ sub _record_device_report {
 			) if $dr->{temp};
 
 			$dr->{temp}
-				and $log->info("Recorded environment for Device $device_id");
+				and $log->info("Recorded environment for Device ".$device->id);
 
 			my @device_disks = $schema->resultset('DeviceDisk')->search(
 				{
-					device_id   => $device_id,
+					device_id   => $device->id,
 					deactivated => { '=', undef }
 				}
 			)->all;
@@ -228,7 +231,7 @@ sub _record_device_report {
 			my %inactive_serials = map { $_->serial_number => 1 } @device_disks;
 
 			foreach my $disk ( keys %{ $dr->{disks} } ) {
-				$log->debug("Device $device_id: Recording disk: $disk");
+				$log->debug("Device ".$device->id.": Recording disk: $disk");
 
 				if ( $inactive_serials{$disk} ) {
 					$inactive_serials{$disk} = 0;
@@ -267,11 +270,11 @@ sub _record_device_report {
 			}
 
 			$dr->{disks}
-				and $log->info("Recorded disk info for Device $device_id");
+				and $log->info("Recorded disk info for Device ".$device->id);
 
 			my @device_nics = $schema->resultset('DeviceNic')->search(
 				{
-					device_id   => $device_id,
+					device_id   => $device->id,
 					deactivated => { '=', undef }
 				}
 			)->all;
@@ -282,7 +285,7 @@ sub _record_device_report {
 
 				my $mac = uc( $dr->{interfaces}->{$nic}->{mac} );
 
-				$log->debug("Device $device_id: Recording NIC: $mac");
+				$log->debug("Device ".$device->id.": Recording NIC: $mac");
 
 				if ( $inactive_macs{$mac} ) {
 					$inactive_macs{$mac} = 0;
@@ -336,14 +339,14 @@ sub _record_device_report {
 
 		}
 	);
-	return ( $device, $device_report->id );
 }
 
 sub _add_reboot_count {
 	my $device = shift;
 
-	my $reboot_count =
-		$device->device_settings->find_or_new( { name => 'reboot_count' } );
+	my $reboot_count = $device->device_settings->find_or_new({
+		name => 'reboot_count'
+	});
 	$reboot_count->updated( \'NOW()' );
 
 	if ( $reboot_count->in_storage ) {
@@ -356,19 +359,7 @@ sub _add_reboot_count {
 	}
 }
 
-sub _device_relay_connect {
-	my ( $schema, $device_id, $relay_id ) = @_;
 
-	# 'first_seen' column will only be written on create. It should remain
-	# untouched on updates
-	$schema->resultset('DeviceRelayConnection')->update_or_create(
-		{
-			device_id => $device_id,
-			relay_id  => $relay_id,
-			last_seen => \'NOW()'
-		}
-	);
-}
 
 
 1;
