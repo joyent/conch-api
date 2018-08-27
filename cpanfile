@@ -15,6 +15,7 @@ requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks 
 requires 'Submodules';
 requires 'JSON::Validator';
 requires 'IO::All';
+requires 'Pod::Github', '>= 0.04';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS

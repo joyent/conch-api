@@ -2570,6 +2570,39 @@ DISTRIBUTIONS
       Pod::Find 0.21
       Pod::Parser 1.13
       Test::More 0
+  Pod-Github-0.04
+    pathname: R/RJ/RJH/Pod-Github-0.04.tar.gz
+    provides:
+      Pod::Github 0.04
+    requirements:
+      Carp 0
+      Encode 0
+      ExtUtils::MakeMaker 0
+      FindBin 0
+      Getopt::Long 0
+      Path::Tiny 0
+      Pod::Markdown 3.005
+      Pod::Usage 0
+      Test::More 0
+      YAML::XS 0
+      parent 0
+      perl 5.008
+  Pod-Markdown-3.101
+    pathname: R/RW/RWSTAUNER/Pod-Markdown-3.101.tar.gz
+    provides:
+      Pod::Markdown 3.101
+      Pod::Perldoc::ToMarkdown 3.101
+    requirements:
+      Encode 0
+      ExtUtils::MakeMaker 0
+      Getopt::Long 0
+      Pod::Simple 3.27
+      Pod::Simple::Methody 0
+      Pod::Usage 0
+      parent 0
+      perl 5.008
+      strict 0
+      warnings 0
   Role-Tiny-2.000006
     pathname: H/HA/HAARG/Role-Tiny-2.000006.tar.gz
     provides:

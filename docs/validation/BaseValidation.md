@@ -13,17 +13,6 @@ Conch::Validation - base class for writing Conch Validations
     has category    => 'CPU';
     has description => q/Description of the validation/;
 
-    # Optional schema to validate $input_data before `validate` is run.
-    # Specified in simplified JSON-schema format.
-    has schema => sub {
-            {
-                    hello => {
-                            world => { type => 'string' },
-                            required => ['world']
-                    }
-            }
-    };
-
     sub validate {
             my ($self, $input_data) = @_;
 
@@ -43,14 +32,6 @@ Conch::Validation - base class for writing Conch Validations
 `Conch::Validation` provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a `validate`
 method.  This method receives the input data (a `HASHREF`) to be validatated.
-This input data hash may be validated by setting the `schema` attribute with a
-schema definition in the [JSON-schema](http://json-schema.org) format.
-
-\_Note\_: A root-level `'object'` type is assumed in the schema. Only top-level
-properties need to be defined. All top-level properties are assumed to be
-required by default, but you may define the exact set of required properties by
-specifying a \`required\` attribute on the top-level with a list of required
-properties names
 
 The validation logic in the `validate` method will evaluate the input data and
 register one or more validation results with the
@@ -70,6 +51,10 @@ and allow you to test the validation logic by running test cases against
 expected results.
 
 ## Methods
+
+### Log
+
+Logger for use in, well, logging. Defaults to a Conch::Log instance
 
 ### Validation\_Results
 
@@ -117,22 +102,6 @@ Run the Validation with the specified input data.
     $validation->run($validation_data);
 ```
 
-### Run\_Unsafe
-
-Run the Validation with the specified input data. Re-throws any exception raised
-during execution as [Mojo::Exception](https://metacpan.org/pod/Mojo::Exception)
-
-```
-    eval {
-            $validation->run_unsafe($validation_data)
-    };
-    say $@->frames if $@;
-```
-
-### Check\_Against\_Schema
-
-Check the Validation input data against JSON schema, if specified.
-
 ### Validate
 
 Contains the validation logic for validations.
@@ -150,45 +119,6 @@ raise an exception.
     }
 ```
 
-### Device
-
-Get the `Conch::Model::Device` object under Validation. Use in validation
-logic to dispatch on Device attributes.
-
-```perl
-    my $device = $self->device;
-    if ($device->trition_setup) {...}
-```
-
-### Device\_Settings
-
-Get device settings assidned to the device under validation. Device settings
-are an unblessed hashref. You can use device setting values to provide
-conditional evaluation in the validation logic.
-
-```perl
-    my $threshold = $self->device_settings->{some_threshold};
-    return if $self->device_settings->{skip_this_validation};
-```
-
-### Has\_Device\_Location
-
-Return a boolean whether the device under validation has been assigned a
-location.
-
-### Device\_Location
-
-Get the `Conch::Class::DeviceLocation` object for the device under validation.
-This is useful in writing validation logic that may depend on the rack or
-location in the rack a device occupies. Throws an error if the device hasn't
-been assigned a location.
-
-```perl
-    my $datacenter_name = $self->device_location->datacenter->name;
-    my $rack_unit = $self->device_location->rack->unit;
-    my $rack_slots = $self->device_location->rack->slots;
-```
-
 ### Hardware\_Product\_Name
 
 Get the expected hardware product name for the device under validation.
@@ -196,6 +126,34 @@ Get the expected hardware product name for the device under validation.
 ```perl
     if ($self->hardware_product_name eq 'Joyent-123') {...}
 ```
+
+### Hardware\_Legacy\_Product\_Name
+
+Get the expected hardware legacy product name for the device under validation.
+
+```perl
+    if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
+```
+
+### Hardware\_Product\_Generation
+
+Get the expected hardware product generation for the device under validation.
+
+```perl
+    if ($self->hardware_product_generation eq 'Joyent-123') {...}
+```
+
+### Hardware\_Product\_Sku
+
+Get the expected hardware product SKU for the device under validation.
+
+```perl
+    if ($self->hardware_product_sku eq 'Joyent-123') {...}
+```
+
+### Hardware\_Product\_Specification
+Get the expected hardware product specification for the device under
+validation. Returns a JSON object.
 
 ### Hardware\_Product\_Vendor
 
