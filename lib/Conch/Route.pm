@@ -84,14 +84,6 @@ sub all_routes {
 	$secured->get( '/me',    sub { shift->status(204) } );
 	$secured->post('/refresh_token')->to('login#refresh_token');
 
-	$secured->post(
-		'/feedback',
-		sub {
-			my $c = shift;
-			$c->app->log->warn( $c->req->body );
-		}
-	);
-
 	workspace_routes($secured->any('/workspace'));
 	device_routes($secured);
 	relay_routes($secured);
