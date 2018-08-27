@@ -1,3 +1,9 @@
+package Conch::Route::User;
+use Mojo::Base -strict;
+
+use Exporter 'import';
+our @EXPORT_OK = qw(user_routes);
+
 =pod
 
 =head1 NAME
@@ -5,14 +11,6 @@
 Conch::Route::User
 
 =head1 METHODS
-
-=cut
-
-package Conch::Route::User;
-use Mojo::Base -strict;
-
-use Exporter 'import';
-our @EXPORT_OK = qw(user_routes);
 
 =head2 user_routes
 
@@ -69,8 +67,8 @@ sub user_routes {
 
         # after changing password, (possibly) pass through to logging out too
         # POST /user/me/password
-        $user_me->post('/password')->to('#change_own_password')
-            ->under->any->to('login#session_logout');
+        $user_me->under('/password')->to('#change_own_password')
+            ->post->to('login#session_logout');
     }
 
     # administrator interfaces for updating a different user's account...

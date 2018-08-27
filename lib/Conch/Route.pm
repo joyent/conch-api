@@ -78,22 +78,22 @@ sub all_routes {
 
 	# all routes after this point require authentication
 
-	my $secured = $root->to('login#authenticate')->under;
+	my $secured = $root->under('/')->to('login#authenticate');
 
 	$secured->get( '/login', sub { shift->status(204) } );
 	$secured->get( '/me',    sub { shift->status(204) } );
 	$secured->post('/refresh_token')->to('login#refresh_token');
 
 	workspace_routes($secured->any('/workspace'));
-	device_routes($secured);
-	relay_routes($secured);
-	user_routes( $secured->any('/user') );
-	hardware_product_routes($secured);
+	device_routes($secured->any('/device'));
+	relay_routes($secured->any('/relay'));
+	user_routes($secured->any('/user'));
+	hardware_product_routes($secured->any('hardware_product'));
 	validation_routes($secured);
 
 	Conch::Route::Datacenter->routes($secured);
 
-	Conch::Route::DB::HardwareProduct->routes($secured->any('/db'));
+	Conch::Route::DB::HardwareProduct->routes($secured->any('/db/hardware_product'));
 }
 
 1;

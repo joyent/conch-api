@@ -64,15 +64,15 @@ sub list ($c) {
 	$c->status( 200, $validation_plans );
 }
 
-=head2 under
+=head2 find_validation_plan
 
 Find the Validation Plan specified by ID and put it in the stash as
 C<validation_plan>.
 
 =cut
 
-sub under ($c) {
-	my $vp_id = $c->stash('id');
+sub find_validation_plan($c) {
+	my $vp_id = $c->stash('validation_plan_id');
 	unless ( is_uuid($vp_id) ) {
 		$c->log->warn("ID is not a UUID");
 		$c->status( 400, {
@@ -99,11 +99,7 @@ Get the Validation Plan specified by ID
 =cut
 
 sub get ($c) {
-	if ( $c->under ) {
-		$c->status( 200, $c->stash('validation_plan') );
-	} else {
-		return 0;
-	}
+	return $c->status( 200, $c->stash('validation_plan') );
 }
 
 =head2 list_validations

@@ -8,13 +8,13 @@ use Conch::Models;
 with 'Conch::Role::MojoLog';
 
 
-=head2 under
+=head2 find_datacenter_room
 
 Handles looking up the object by id or name depending on the url pattern
 
 =cut
 
-sub under ($c) {
+sub find_datacenter_room ($c) {
 	unless($c->is_global_admin) {
 		$c->status(403);
 		return undef;
@@ -22,13 +22,13 @@ sub under ($c) {
 
 	my $s;
 
-	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
+	if($c->stash('datacenter_room_id') =~ /^(.+?)\=(.+)$/) {
 		$c->log->warn("Unsupported identifier '$1'");
 		$c->status(501);
 		return undef;
 	} else {
-		$c->log->debug("Looking up datacenter room ".$c->param('id'));
-		$s = Conch::Model::DatacenterRoom->from_id($c->param('id'));
+		$c->log->debug("Looking up datacenter room ".$c->stash('datacenter_room_id'));
+		$s = Conch::Model::DatacenterRoom->from_id($c->stash('datacenter_room_id'));
 	}
 
 	if ($s) {

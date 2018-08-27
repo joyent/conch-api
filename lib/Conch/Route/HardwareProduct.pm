@@ -1,3 +1,11 @@
+package Conch::Route::HardwareProduct;
+use Mojo::Base -strict;
+
+use Exporter 'import';
+our @EXPORT_OK = qw(
+    hardware_product_routes
+);
+
 =pod
 
 =head1 NAME
@@ -6,29 +14,23 @@ Conch::Route::HardwareProduct
 
 =head1 METHODS
 
-=cut
-
-package Conch::Route::HardwareProduct;
-use Mojo::Base -strict;
-
-use Exporter 'import';
-our @EXPORT_OK = qw(
-	hardware_product_routes
-);
-
-
 =head2 hardware_product_routes
 
-Sets up the routes for /hardware_product
+Sets up the routes for /hardware_product:
+
+    GET /hardware_product
+    GET /hardware_product/:hardware_product_id
 
 =cut
 
 sub hardware_product_routes {
-	my $r = shift;
+    my $hardware_product = shift; # secured, under /hardware_produt
 
-	$r->get('/hardware_product')->to('hardware_product#list');
-	$r->get('/hardware_product/:id')->to('hardware_product#get');
+    # GET /hardware_product
+    $hardware_product->get('/')->to('hardware_product#list');
 
+    # GET /hardware_product/:hardware_product_id
+    $hardware_product->get('/:hardware_product_id')->to('hardware_product#get');
 }
 
 1;
@@ -45,3 +47,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

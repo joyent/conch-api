@@ -62,13 +62,14 @@ sub list_validation_states ($c) {
 =head2 get_validation_state
 
 Get validation states for a device
+FIXME: nothing calls this!
 
 =cut
 
 sub get_validation_state ($c) {
 	my $device = $c->stash('current_device');
 
-	my $validation_state_id = $c->param("validation_state_id");
+	my $validation_state_id = $c->stash("validation_state_id");
 
 	my $validation_state =
 		Conch::Model::ValidationState->lookup_with_device(
@@ -103,7 +104,7 @@ sub validate ($c) {
 	my $device    = $c->stash('current_device');
 	my $device_id = $device->id;
 
-	my $validation_id = $c->param("validation_id");
+	my $validation_id = $c->stash("validation_id");
 	my $validation    = Conch::Model::Validation->lookup($validation_id);
 	unless($validation) {
 		$c->log->debug("Could not find validation $validation_id");
@@ -137,7 +138,7 @@ device.
 sub run_validation_plan ($c) {
 	my $device    = $c->stash('current_device');
 
-	my $plan_id         = $c->param("validation_plan_id");
+	my $plan_id         = $c->stash("validation_plan_id");
 	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);
 
 	unless($validation_plan) {

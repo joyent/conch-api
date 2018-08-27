@@ -19,13 +19,13 @@ use Conch::Models;
 with 'Conch::Role::MojoLog';
 
 
-=head2 under
+=head2 find_rack_role
 
 Supports rack role lookups by uuid and name
 
 =cut
 
-sub under ($c) {
+sub find_rack_role ($c) {
 	unless($c->is_global_admin) {
 		$c->status(403);
 		return undef;
@@ -33,7 +33,7 @@ sub under ($c) {
 
 	my $r;
 
-	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
+	if($c->stash('rack_role_id') =~ /^(.+?)\=(.+)$/) {
 		my ($k, $v) = ($1, $2);
 		if($k eq 'name') {
 			$c->log->debug("Looking up datacenter rack role using identifier '$k'");
@@ -45,7 +45,7 @@ sub under ($c) {
 		}
 	} else {
 		$c->log->debug("looking up datacenter rack role by id");
-		$r = Conch::Model::DatacenterRackRole->from_id($c->param('id'));
+		$r = Conch::Model::DatacenterRackRole->from_id($c->stash('rack_role_id'));
 	}
 
 	if ($r) {

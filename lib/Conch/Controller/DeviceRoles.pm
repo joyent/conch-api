@@ -28,7 +28,7 @@ Get a single device role
 =cut
 
 sub get_one ($c) {
-	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
+	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 
@@ -79,7 +79,7 @@ Update an existing device role. Does B<not> allow updating the service list
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
+	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 	$c->log->debug("Found device role ".$s->id);
@@ -109,7 +109,7 @@ sub update ($c) {
 
 sub delete ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
+	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 
@@ -129,7 +129,7 @@ Add a service to the role
 
 sub add_service ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
+	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 	
@@ -167,7 +167,7 @@ Remove a service from the role
 
 sub remove_service ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $s = Conch::Model::DeviceRole->from_id($c->param('id'));
+	my $s = Conch::Model::DeviceRole->from_id($c->stash('device_role_id'));
 	return $c->status(404 => { error => "Not found" }) unless $s;
 	return $c->status(404 => { error => "Not found" }) if $s->deactivated;
 	

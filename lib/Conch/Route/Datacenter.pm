@@ -1,3 +1,5 @@
+package Conch::Route::Datacenter;
+use Mojo::Base -strict;
 
 =pod
 
@@ -9,67 +11,153 @@ Conch::Route::Datacenter
 
 =cut
 
-package Conch::Route::Datacenter;
-use Mojo::Base -strict;
-
 =head2 routes
 
-Sets up the routes
+Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
+
+    GET     /dc
+    POST    /dc
+    GET     /dc/:datacenter_id
+    POST    /dc/:datacenter_id
+    DELETE  /dc/:datacenter_id
+    GET     /dc/:datacenter_id/rooms
+
+    GET     /room
+    POST    /room
+    GET     /room/:room_id
+    POST    /room/:room_id
+    DELETE  /room/:room_id
+    GET     /room/:room_id/racks
+
+    GET     /rack_role
+    POST    /rack_role
+    GET     /rack_role/:rack_role_id
+    POST    /rack_role/:rack_role_id
+    DELETE  /rack_role/:rack_role_id
+
+    GET     /rack
+    POST    /rack
+    GET     /rack/:rack_id
+    POST    /rack/:rack_id
+    DELETE  /rack/:rack_id
+    GET     /rack/:rack_id/layouts
+
+    GET     /layout
+    POST    /layout
+    GET     /layout/:layout_id
+    POST    /layout/:layout_id
+    DELETE  /layout/:layout_id
 
 =cut
 
 sub routes {
-	my ($class, $r) = @_;
+    my ($class, $r) = @_;
 
-	my $d = $r->any('/dc');
-	$d->get('/')->to("datacenter#get_all");
-	$d->post('/')->to("datacenter#create");
+    # /dc
+    {
+        my $dc = $r->any('/dc');
+        $dc->to({ controller => 'datacenter' });
 
-	my $i = $d->under('/:id')->to("datacenter#under");
-	$i->get('/')->to("datacenter#get_one");
-	$i->post('/')->to("datacenter#update");
-	$i->delete('/')->to("datacenter#delete");
-	$i->get('/rooms')->to("datacenter#get_rooms");
+        # GET /dc
+        $dc->get('/')->to('#get_all');
+        # POST /dc
+        $dc->post('/')->to('#create');
 
-	######
-	$r->get('/room')->to("datacenter_room#get_all");
-	$r->post('/room')->to("datacenter_room#create");
+        my $with_datacenter = $dc->under('/:datacenter_id')->to('#find_datacenter');
 
-	my $roi = $r->under('/room/:id')->to("datacenter_room#under");
-	$roi->get('/')->to("datacenter_room#get_one");
-	$roi->post('/')->to("datacenter_room#update");
-	$roi->delete('/')->to("datacenter_room#delete");
-	$roi->get('/racks')->to("datacenter_room#racks");
+        # GET /dc/:datacenter_id
+        $with_datacenter->get('/')->to('#get_one');
+        # POST /dc/:datacenter_id
+        $with_datacenter->post('/')->to('#update');
+        # DELETE /dc/:datacenter_id
+        $with_datacenter->delete('/')->to('#delete');
+        # GET /dc/:datacenter_id/rooms
+        $with_datacenter->get('/rooms')->to('#get_rooms');
+    }
 
-	######
-	$r->get('/rack_role')->to("datacenter_rack_role#get_all");
-	$r->post('/rack_role')->to("datacenter_rack_role#create");
+    # /room
+    {
+        my $room = $r->any('/room');
+        $room->to({ controller => 'datacenter_room' });
 
-	my $rr = $r->under('/rack_role/:id')->to("datacenter_rack_role#under");
-	$rr->get('/')->to("datacenter_rack_role#get");
-	$rr->post('/')->to("datacenter_rack_role#update");
-	$rr->delete('/')->to("datacenter_rack_role#delete");
+        # GET /room
+        $room->get('/')->to('#get_all');
+        # POST /room
+        $room->post('/')->to('#create');
 
-	######
-	$r->get('/rack')->to("datacenter_rack#get_all");
-	$r->post('/rack')->to("datacenter_rack#create");
+        my $with_datacenter_room = $room->under('/:datacenter_room_id')->to('#find_datacenter_room');
 
-	$rr = $r->under('/rack/:id')->to("datacenter_rack#under");
-	$rr->get('/')->to("datacenter_rack#get");
-	$rr->post('/')->to("datacenter_rack#update");
-	$rr->delete('/')->to("datacenter_rack#delete");
-	$rr->get('/layouts')->to("datacenter_rack#layouts");
+        # GET /room/:room_id
+        $with_datacenter_room->get('/')->to('#get_one');
+        # POST /room/:room_id
+        $with_datacenter_room->post('/')->to('#update');
+        # DELETE /room/:room_id
+        $with_datacenter_room->delete('/')->to('#delete');
+        # GET /room/:room_id/racks
+        $with_datacenter_room->get('/racks')->to('#racks');
+    }
 
+    # /rack_role
+    {
+        my $rack_role = $r->any('/rack_role');
+        $rack_role->to({ controller => 'datacenter_rack_role' });
 
-	######
-	$r->get('/layout')->to("datacenter_rack_layout#get_all");
-	$r->post('/layout')->to("datacenter_rack_layout#create");
+        # GET /rack_role
+        $rack_role->get('/')->to('#get_all');
+        # POST /rack_role
+        $rack_role->post('/')->to('#create');
 
-	$rr = $r->under('/layout/:id')->to("datacenter_rack_layout#under");
-	$rr->get('/')->to("datacenter_rack_layout#get");
-	$rr->post('/')->to("datacenter_rack_layout#update");
-	$rr->delete('/')->to("datacenter_rack_layout#delete");
+        my $with_rack_role = $rack_role->under('/:rack_role_id')->to('#find_rack_role');
 
+        # GET /rack_role/:rack_role_id
+        $with_rack_role->get('/')->to('#get');
+        # POST /rack_role/:rack_role_id
+        $with_rack_role->post('/')->to('#update');
+        # DELETE /rack_role/:rack_role_id
+        $with_rack_role->delete('/')->to('#delete');
+    }
+
+    # /rack
+    {
+        my $rack = $r->any('/rack');
+        $rack->to({ controller => 'datacenter_rack' });
+
+        # GET /rack
+        $rack->get('/')->to('#get_all');
+        # POST /rack
+        $rack->post('/')->to('#create');
+
+        my $with_rack = $rack->under('/:rack_id')->to('#find_rack');
+
+        # GET /rack/:rack_id
+        $with_rack->get('/')->to('#get');
+        # POST /rack/:rack_id
+        $with_rack->post('/')->to('#update');
+        # DELETE /rack/:rack_id
+        $with_rack->delete('/')->to('#delete');
+        # GET /rack/:rack_id/layouts
+        $with_rack->get('/layouts')->to('#layouts');
+    }
+
+    # /layout
+    {
+        my $layout = $r->any('/layout');
+        $layout->to({ controller => 'datacenter_rack_layout' });
+
+        # GET /layout
+        $layout->get('/')->to('#get_all');
+        # POST /layout
+        $layout->post('/')->to('#create');
+
+        my $with_layout = $layout->under('/:layout_id')->to('#find_datacenter_rack_layout');
+
+        # GET /layout/:layout_id
+        $with_layout->get('/')->to('#get');
+        # POST /layout/:layout_id
+        $with_layout->post('/')->to('#update');
+        # DELETE /layout/:layout_id
+        $with_layout->delete('/')->to('#delete');
+    }
 }
 
 1;
@@ -86,3 +174,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

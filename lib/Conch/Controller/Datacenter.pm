@@ -7,13 +7,13 @@ with 'Conch::Role::MojoLog';
 
 use Conch::Models;
 
-=head2 under
+=head2 find_datacenter
 
 Handles looking up the object by id or name depending on the url pattern
 
 =cut
 
-sub under ($c) {
+sub find_datacenter ($c) {
 	unless($c->is_global_admin) {
 		$c->status(403);
 		return undef;
@@ -21,19 +21,19 @@ sub under ($c) {
 
 	my $s;
 
-	if($c->param('id') =~ /^(.+?)\=(.+)$/) {
+	if($c->stash('datacenter_id') =~ /^(.+?)\=(.+)$/) {
 		$c->status('501');
 		return undef;
 	} else {
-		$s = Conch::Model::Datacenter->from_id($c->param('id'));
+		$s = Conch::Model::Datacenter->from_id($c->stash('datacenter_id'));
 	}
 
 	if ($s) {
-		$c->log->debug("Found datacenter ".$c->param('id'));
+		$c->log->debug("Found datacenter ".$c->stash('datacenter_id'));
 		$c->stash('datacenter' => $s);
 		return 1;
 	} else {
-		$c->log->debug("Unable to find datacenter ".$c->param('id'));
+		$c->log->debug("Unable to find datacenter ".$c->stash('datacenter_id'));
 		$c->status(404 => { error => "Not found" });
 		return undef;
 	}
