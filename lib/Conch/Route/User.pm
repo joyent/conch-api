@@ -1,8 +1,6 @@
 package Conch::Route::User;
-use Mojo::Base -strict;
 
-use Exporter 'import';
-our @EXPORT_OK = qw(user_routes);
+use Mojo::Base -strict;
 
 =pod
 
@@ -12,9 +10,9 @@ Conch::Route::User
 
 =head1 METHODS
 
-=head2 user_routes
+=head2 routes
 
-Sets up routes for /user:
+Sets up the routes for /user:
 
     GET     /user/me
     POST    /user/me/revoke
@@ -35,7 +33,8 @@ Sets up routes for /user:
 
 =cut
 
-sub user_routes {
+sub routes {
+    my $class = shift;
     my $user = shift;    # secured, under /user
 
     # all these routes go to the User controller

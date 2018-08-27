@@ -16,7 +16,7 @@ package Conch;
 use Mojo::Base 'Mojolicious';
 
 use Conch::Pg;
-use Conch::Route qw(all_routes);
+use Conch::Route;
 use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
@@ -207,7 +207,7 @@ sub startup {
 
 	Conch::ValidationSystem->load_validations( $self->log );
 
-	all_routes($self->routes);
+	Conch::Route->all_routes($self->routes);
 }
 
 1;

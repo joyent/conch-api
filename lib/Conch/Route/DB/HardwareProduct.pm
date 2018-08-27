@@ -1,4 +1,5 @@
 package Conch::Route::DB::HardwareProduct;
+
 use Mojo::Base -strict;
 
 =pod
@@ -24,9 +25,9 @@ Sets up the routes for /db/hardware_product:
 =cut
 
 sub routes {
-    my ($class, $hardware_product) = @_;    # secured, under /db/hardware_product
+    my $class = shift;
+    my $hardware_product = shift;   # secured, under /db/hardware_product
 
-    # all these routes go to the User controller
     $hardware_product->to({ controller => 'DB::HardwareProduct' });
 
     # GET   /hardware_product

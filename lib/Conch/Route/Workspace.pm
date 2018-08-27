@@ -1,8 +1,6 @@
 package Conch::Route::Workspace;
-use Mojo::Base -strict;
 
-use Exporter 'import';
-our @EXPORT_OK = qw(workspace_routes);
+use Mojo::Base -strict;
 
 =pod
 
@@ -12,7 +10,7 @@ Conch::Route::Workspace
 
 =head1 METHODS
 
-=head2 workspace_routes
+=head2 routes
 
 Sets up the routes for /workspace:
 
@@ -34,7 +32,8 @@ Sets up the routes for /workspace:
 
 =cut
 
-sub workspace_routes {
+sub routes {
+    my $class = shift;
     my $workspace = shift;    # secured, under /workspace
 
     # GET /workspace
