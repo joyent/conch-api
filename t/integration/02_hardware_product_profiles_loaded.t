@@ -94,4 +94,36 @@ subtest 'Hardware Product' => sub {
 	}
 };
 
+subtest 'Hardware Vendors' => sub {
+	$t->get_ok('/hardware_vendor')->status_is(200)
+		->json_schema_is('HardwareVendors');
+
+	my $all_vendors = $t->tx->res->json;
+
+	$t->get_ok("/hardware_vendor/$all_vendors->[0]{name}")->status_is(200)
+		->json_schema_is('HardwareVendor')
+		->json_is($all_vendors->[0]);
+
+	$t->ua->max_redirects(0);
+	$t->post_ok('/hardware_vendor/MyNewVendor')
+		->status_is(303)
+		->location_is('/hardware_vendor/MyNewVendor');
+
+	$t->get_ok('/hardware_vendor/MyNewVendor')->status_is(200)
+		->json_schema_is('HardwareVendor')
+		->json_is('/name', 'MyNewVendor');
+
+	$t->get_ok('/hardware_vendor')->status_is(200);
+	is(scalar($t->tx->res->json->@*), scalar($all_vendors->@*) + 1, 'new vendor in returned list');
+
+	$t->delete_ok('/hardware_vendor/MyNewVendor')->status_is(204);
+	$t->delete_ok('/hardware_vendor/MyNewVendor')->status_is(404);
+
+	$t->get_ok('/hardware_vendor')->status_is(200)
+		->json_schema_is('HardwareVendors')
+		->json_is('', $all_vendors, 'deleted vendor is not in returned list');
+
+	$t->get_ok('/hardware_vendor/MyNewVendor')->status_is(404);
+};
+
 done_testing();
