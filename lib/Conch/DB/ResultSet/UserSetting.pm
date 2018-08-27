@@ -1,9 +1,7 @@
 package Conch::DB::ResultSet::UserSetting;
 use v5.26;
 use warnings;
-use parent 'DBIx::Class::ResultSet';
-
-__PACKAGE__->load_components('+Conch::DB::Deactivatable');
+use parent 'Conch::DB::ResultSet';
 
 =head1 NAME
 

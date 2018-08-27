@@ -1,9 +1,7 @@
 package Conch::DB::ResultSet::UserAccount;
 use v5.26;
 use warnings;
-use parent 'DBIx::Class::ResultSet';
-
-__PACKAGE__->load_components('+Conch::DB::Deactivatable');
+use parent 'Conch::DB::ResultSet';
 
 use Conch::UUID 'is_uuid';
 
@@ -67,7 +65,7 @@ sub lookup_by_email {
     $self->active->search(
         [ \[ 'lower(email) = lower(?)', $email ] ],
         { order_by => { -desc => 'created' }, rows => 1 },
-    )->first;
+    )->one_row;
 }
 
 =head2 lookup_by_name
