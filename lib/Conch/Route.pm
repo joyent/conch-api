@@ -78,7 +78,7 @@ sub all_routes {
 
 	# all routes after this point require authentication
 
-	my $secured = $root->to('login#authenticate')->under;
+	my $secured = $root->under('/')->to('login#authenticate');
 
 	$secured->get( '/login', sub { shift->status(204) } );
 	$secured->get( '/me',    sub { shift->status(204) } );

@@ -1,3 +1,9 @@
+package Conch::Route::Workspace;
+use Mojo::Base -strict;
+
+use Exporter 'import';
+our @EXPORT_OK = qw(workspace_routes);
+
 =pod
 
 =head1 NAME
@@ -5,14 +11,6 @@
 Conch::Route::Workspace
 
 =head1 METHODS
-
-=cut
-
-package Conch::Route::Workspace;
-use Mojo::Base -strict;
-
-use Exporter 'import';
-our @EXPORT_OK = qw(workspace_routes);
 
 =head2 workspace_routes
 
@@ -45,8 +43,8 @@ sub workspace_routes {
 
     {
         # chainable action that extracts and looks up workspace_id from the path
-        my $with_workspace = $workspace->any('/:workspace_id')
-            ->to('workspace#find_workspace')->under;
+        my $with_workspace = $workspace->under('/:workspace_id')
+            ->to('workspace#find_workspace');
 
         # GET /workspace/:workspace_id
         $with_workspace->get('/')->to('workspace#get');
@@ -80,7 +78,7 @@ sub workspace_routes {
 
         {
             my $with_workspace_rack =
-                $with_workspace->any('/rack/:rack_id')->to('workspace_rack#find_rack')->under;
+                $with_workspace->under('/rack/:rack_id')->to('workspace_rack#find_rack');
 
             # GET /workspace/:workspace_id/rack/:rack_id
             $with_workspace_rack->get('/')->to('workspace_rack#get_layout');
