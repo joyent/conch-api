@@ -17,6 +17,7 @@ available in core DBIx::Class.
 __PACKAGE__->load_components(
     '+Conch::DB::InflateColumn::Time',  # inflates 'timestamp with time zone' columns to Conch::Time
     '+Conch::DB::ToJSON',               # provides serialization hooks
+    'Helper::Row::SelfResultSet',       # provides self_rs
 );
 
 1;
