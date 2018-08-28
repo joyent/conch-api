@@ -132,11 +132,28 @@ subtest 'Device Report' => sub {
 
 subtest 'Single device' => sub {
 
-	$t->get_ok('/device/TEST')->status_is(200);
 	$t->get_ok('/device/nonexistant')->status_is(404)
 		->json_like( '/error', qr/not found/ );
 
-	subtest 'Device attributes' => sub {
+	$t->get_ok('/device/TEST')->status_is(200)
+		->json_schema_is('DetailedDevice');
+
+	my $device_id = $t->tx->res->json->{id};
+	my @macs = map { $_->{mac} } $t->tx->res->json->{nics}->@*;
+
+	$t->get_ok('/device/nonexistant')->status_is(404)
+		->json_like( '/error', qr/not found/ );
+
+	subtest 'get by device attributes' => sub {
+		$t->get_ok("/device?mac=$macs[0]")->status_is(200)
+			->json_is( '/id', $device_id, 'got device by mac');
+
+		# device_nics->[2]->device_nic_state has ipaddr' => '172.17.0.173'.
+		$t->get_ok("/device?ipaddr=172.17.0.173")->status_is(200)
+			->json_is( '/id', $device_id, 'got device by ipaddr');
+	};
+
+	subtest 'mutate device attributes' => sub {
 		$t->post_ok('/device/nonexistant/graduate')->status_is(404);
 
 		$t->post_ok('/device/TEST/graduate')->status_is(303)
