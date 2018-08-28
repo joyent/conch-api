@@ -145,8 +145,10 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 13:47:19
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Q7NGUqyibscbrXzM7V3Stg
 
+__PACKAGE__->add_columns(
+    '+deactivated' => { is_serializable => 0 },
+);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
 __END__
 
@@ -161,3 +163,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

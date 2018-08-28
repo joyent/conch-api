@@ -1357,3 +1357,27 @@ definitions:
         type: string
       user:
         $ref: /definitions/User
+  HardwareVendor:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - created
+      - updated
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
+  HardwareVendors:
+    type: array
+    items:
+      $ref: /definitions/HardwareVendor
