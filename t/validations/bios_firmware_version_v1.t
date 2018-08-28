@@ -6,6 +6,9 @@ use Conch::Models;
 use Conch::Validations;
 use Test2::Conch::Validations;
 
+use Test2::V0;
+use Test2::Tools::Exception;
+
 my $t = Test2::Conch::Validations->new();
 Conch::Validations->load( Mojo::Log->new() );
 
@@ -22,8 +25,10 @@ Conch::Model::DeviceLocation->new()->assign(
 	1
 );
 
-$t->fail($v, $d, { 
-	bios_version => '1.2',
-});
+like(
+	dies { $t->test($v, $d, { bios_version => '1.2' }) },
+	qr/Got '1\.2'/,
+	'Rejected bad bios version'
+);
 
 $t->done();

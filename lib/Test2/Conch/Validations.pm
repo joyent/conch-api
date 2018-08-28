@@ -21,43 +21,21 @@ sub new {
 }
 
 use Test2::V0 qw();
-sub pass {
+use Test2::Tools::Exception;
+
+sub test {
 	my ($self, $validation, $device, $args) = @_;
 	my $results = $validation->model->run_validation_for_device($device, $args);
-
-	my $failed;
 	for ($results->@*) {
-		if($_->status eq $_->STATUS_FAIL) {
-			$failed++;
-		} elsif ($_->status eq $_->STATUS_ERROR) {
-			$failed++;
+		if (
+			($_->status eq $_->STATUS_FAIL) ||
+			($_->status eq $_->STATUS_ERROR)
+		) {
+			die $_->message . " - " . ($_->hint // "");
 		}
-	}
-	if($failed) {
-		Test2::V0::fail($validation->name);
-	} else {
-		Test2::V0::pass($validation->name);
 	}
 }
 
-sub fail {
-	my ($self, $validation, $device, $args) = @_;
-	my $results = $validation->model->run_validation_for_device($device, $args);
-
-	my $passed;
-	for ($results->@*) {
-		if($_->status eq $_->STATUS_PASS) {
-			$passed++;
-		} elsif ($_->status eq $_->STATUS_ERROR) {
-			$passed++;
-		}
-	}
-	if($passed) {
-		Test2::V0::fail($validation->name);
-	} else {
-		Test2::V0::pass($validation->name);
-	}
-}
 
 sub done {
 	my $self = shift;
