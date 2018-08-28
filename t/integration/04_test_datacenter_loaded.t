@@ -130,6 +130,18 @@ subtest 'Device Report' => sub {
 	);
 };
 
+subtest 'Assign device to a location' => sub {
+	$t->post_ok(
+		"/workspace/$id/rack/$rack_id/layout",
+		json => {
+			TEST => 1
+		}
+	)->status_is(200);
+
+	$t->get_ok('/device/TEST/location')->status_is(200);
+
+};
+
 subtest 'Single device' => sub {
 
 	$t->get_ok('/device/nonexistant')->status_is(404)
@@ -326,18 +338,6 @@ subtest 'Single device' => sub {
 			->json_is('/id' => $d_role->id);
 		is_deeply($t->tx->res->json, $d_role->TO_JSON);
 	};
-
-};
-
-subtest 'Assigned device' => sub {
-	$t->post_ok(
-		"/workspace/$id/rack/$rack_id/layout",
-		json => {
-			TEST => 1
-		}
-	)->status_is(200);
-
-	$t->get_ok('/device/TEST/location')->status_is(200);
 
 };
 
