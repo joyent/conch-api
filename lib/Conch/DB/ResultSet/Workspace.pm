@@ -43,6 +43,8 @@ SELECT workspace_recursive.id FROM workspace_recursive
 Chainable resultset (in the Conch::DB::ResultSet::DatacenterRack namespace) that finds all
 racks that are in this workspace (either directly, or via a datacenter_room).
 
+To go in the other direction, see L<Conch::DB::ResultSet::DatacenterRack/associated_workspaces>.
+
 =cut
 
 sub associated_racks {

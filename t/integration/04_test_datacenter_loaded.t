@@ -234,14 +234,16 @@ subtest 'Single device' => sub {
 		$t->delete_ok('/device/TEST/settings/fizzle')->status_is(404)
 			->json_like( '/error', qr/fizzle/ );
 
-		$t->post_ok( '/device/TEST/settings/foo.bar',
-			json => { 'foo.bar' => 'bar' } )->status_is(200);
-		$t->get_ok('/device/TEST/settings/foo.bar')->status_is(200)
-			->json_is( '/foo.bar', 'bar', 'Setting was stored' );
-		$t->delete_ok('/device/TEST/settings/foo.bar')->status_is(204)
+		$t->post_ok( '/device/TEST/settings',
+			json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' } )->status_is(200);
+		$t->post_ok( '/device/TEST/settings/tag.bar',
+			json => { 'tag.bar' => 'newbar' } )->status_is(200);
+		$t->get_ok('/device/TEST/settings/tag.bar')->status_is(200)
+			->json_is( '/tag.bar', 'newbar', 'Setting was updated' );
+		$t->delete_ok('/device/TEST/settings/tag.bar')->status_is(204)
 			->content_is('');
-		$t->get_ok('/device/TEST/settings/foo.bar')->status_is(404)
-			->json_like( '/error', qr/foo\.bar/ );
+		$t->get_ok('/device/TEST/settings/tag.bar')->status_is(404)
+			->json_like( '/error', qr/tag\.bar/ );
 	};
 
 	subtest 'Device Roles And Services' => sub {
@@ -483,6 +485,9 @@ subtest 'Device location' => sub {
 		->header_like( Location => qr!/device/TEST/location$! );
 
 	$t->delete_ok('/device/TEST/location')->status_is(204, 'can delete device location');
+
+	$t->post_ok( '/device/TEST/location',
+		json => { rack_id => $rack_id, rack_unit => 3 })->status_is(303, 'add it back');
 };
 
 subtest 'Log out' => sub {
@@ -569,10 +574,19 @@ subtest 'Permissions' => sub {
 				},
 			]);
 
+		subtest 'device settings' => sub {
+			$t->post_ok('/device/TEST/settings', json => { name => 'new value' })
+				->status_is(403)->json_is('/error', 'insufficient permissions');
+			$t->post_ok('/device/TEST/settings/foo', json => { foo => 'new_value' })
+				->status_is(403)->json_is('/error', 'insufficient permissions');
+			$t->delete_ok('/device/TEST/settings/foo')
+				->status_is(403)->json_is('/error', 'insufficient permissions');
+		};
+
 		$t->post_ok("/logout")->status_is(204);
 	};
 
-	subtest "Integrator" => sub {
+	subtest "Read-write" => sub {
 		my $name = 'integrator';
 		my $email = 'integrator@wat.wat';
 		my $pass = 'password';
@@ -638,9 +652,31 @@ subtest 'Permissions' => sub {
 				},
 			]);
 
+		subtest 'device settings' => sub {
+			$t->post_ok('/device/TEST/settings', json => { newkey => 'new value' })
+				->status_is(200, 'writing new key only requires rw');
+			$t->post_ok('/device/TEST/settings/foo', json => { foo => 'new_value' })
+				->status_is(403)->json_is('/error', 'insufficient permissions');
+			$t->delete_ok('/device/TEST/settings/foo')
+				->status_is(403)->json_is('/error', 'insufficient permissions');
+
+			$t->post_ok('/device/TEST/settings', json => { 'foo' => 'foo', 'tag.bar' => 'bar' })
+				->status_is(403)->json_is('/error', 'insufficient permissions');
+			$t->post_ok('/device/TEST/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
+				->status_is(200);
+
+			$t->post_ok('/device/TEST/settings/tag.bar',
+				json => { 'tag.bar' => 'newbar' } )->status_is(200);
+			$t->get_ok('/device/TEST/settings/tag.bar')->status_is(200)
+				->json_is('/tag.bar', 'newbar', 'Setting was updated');
+			$t->delete_ok('/device/TEST/settings/tag.bar')->status_is(204)
+				->content_is('');
+			$t->get_ok('/device/TEST/settings/tag.bar')->status_is(404)
+				->json_is('/error', 'No such setting \'tag.bar\'');
+		};
+
 		$t->post_ok("/logout")->status_is(204);
 	};
-
 };
 
 done_testing();
