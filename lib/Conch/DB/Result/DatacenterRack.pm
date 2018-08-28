@@ -13,21 +13,12 @@ Conch::DB::Result::DatacenterRack
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
 
-=head1 COMPONENTS LOADED
-
-=over 4
-
-=item * L<Conch::DB::InflateColumn::Time>
-
-=item * L<Conch::DB::ToJSON>
-
-=back
+=head1 BASE CLASS: L<Conch::DB::Result>
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
+use base 'Conch::DB::Result';
 
 =head1 TABLE: C<datacenter_rack>
 
@@ -220,8 +211,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-31 14:35:45
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rp54t6OBoORDtrmPo6xVRA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:81rv/emZRzKAJ5ERaa13UA
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

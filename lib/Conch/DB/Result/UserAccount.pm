@@ -13,21 +13,12 @@ Conch::DB::Result::UserAccount
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
 
-=head1 COMPONENTS LOADED
-
-=over 4
-
-=item * L<Conch::DB::InflateColumn::Time>
-
-=item * L<Conch::DB::ToJSON>
-
-=back
+=head1 BASE CLASS: L<Conch::DB::Result>
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
+use base 'Conch::DB::Result';
 
 =head1 TABLE: C<user_account>
 
@@ -196,8 +187,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-30 10:52:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1vfzM3wgxggRB2gZ0JsIQg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Jm+NeLdAhkNdgJi7WGbk0Q
 
 __PACKAGE__->add_columns(
     '+password_hash' => { is_serializable => 0 },

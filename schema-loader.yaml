@@ -13,11 +13,13 @@ loader_options:
 
   default_resultset_class: +Conch::DB::ResultSet
 
-  components:
-    - +Conch::DB::InflateColumn::Time
-    - +Conch::DB::ToJSON
+  result_base_class: Conch::DB::Result
 
   rel_name_map:
     user: user_account
     DeviceNeighbor:
       mac: device_nic
+
+  # this is usually more useful than not, but take care that you don't blow away any changes
+  # not yet in git!
+  overwrite_modifications: 1

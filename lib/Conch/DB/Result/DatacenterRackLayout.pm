@@ -13,21 +13,12 @@ Conch::DB::Result::DatacenterRackLayout
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
 
-=head1 COMPONENTS LOADED
-
-=over 4
-
-=item * L<Conch::DB::InflateColumn::Time>
-
-=item * L<Conch::DB::ToJSON>
-
-=back
+=head1 BASE CLASS: L<Conch::DB::Result>
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
+use base 'Conch::DB::Result';
 
 =head1 TABLE: C<datacenter_rack_layout>
 
@@ -191,8 +182,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-07 11:03:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SIB+Lq+AfaSnC6SVu04/RA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4oddD+l7DyZbcE8VoH0iTA
 
 sub TO_JSON {
     my $self = shift;

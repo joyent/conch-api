@@ -13,21 +13,12 @@ Conch::DB::Result::DatacenterRackRole
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
 
-=head1 COMPONENTS LOADED
-
-=over 4
-
-=item * L<Conch::DB::InflateColumn::Time>
-
-=item * L<Conch::DB::ToJSON>
-
-=back
+=head1 BASE CLASS: L<Conch::DB::Result>
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
+use base 'Conch::DB::Result';
 
 =head1 TABLE: C<datacenter_rack_role>
 
@@ -159,8 +150,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:36:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rC+B5mcISQbPhR5KOEiWEg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sOI9flK9L0dRIv1JoAfx4A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
