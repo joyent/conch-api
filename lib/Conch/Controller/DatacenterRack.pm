@@ -26,39 +26,34 @@ Supports rack lookups by uuid and name
 =cut
 
 sub find_rack ($c) {
-	unless($c->is_global_admin) {
-		$c->status(403);
-		return undef;
-	}
+	return $c->status(403) unless $c->is_global_admin;
 
-	my $r;
+	my $rack;
 
-	if($c->stash('rack_id') =~ /^(.+?)\=(.+)$/) {
-		my $k = $1;
-		my $v = $2;
+	if ($c->stash('datacenter_rack_id_or_name') =~ /^(.+?)\=(.+)$/) {
+		my $key = $1;
+		my $value = $2;
 
-		if($k eq 'name') {
-			$c->log->debug("Looking up a datacenter rack by identifier $k");
-			$r = Conch::Model::DatacenterRack->from_name($v);
+		if ($key eq 'name') {
+			$c->log->debug("Looking up a datacenter rack by name $key");
+			$rack = $c->db_datacenter_racks->find({ name => $value });
 		} else {
-			$c->log->warn("Unsupported identifier '$k' found");
-			$c->status(404 => { error => "Not found" });
-			return undef;
+			$c->log->warn("Unsupported identifier '$key' found");
+			return $c->status(404 => { error => "Not found" });
 		}
 	} else {
-		$c->log->debug("Looking for datacenter rack ".$c->stash('rack_id'));
-		$r = Conch::Model::DatacenterRack->from_id($c->stash('rack_id'));
+		$c->log->debug('Looking for datacenter rack by id: '.$c->stash('datacenter_rack_id_or_name'));
+		$rack = $c->db_datacenter_racks->find($c->stash('datacenter_rack_id_or_name'));
 	}
 
-	if ($r) {
-		$c->log->debug("Found datacenter rack ".$r->id);
-		$c->stash('rack' => $r);
-		return 1;
-	} else {
-		$c->log->debug("Could not find datacenter rack"); 
-		$c->status(404 => { error => "Not found" });
-		return undef;
+	if (not $rack) {
+		$c->log->debug('Could not find datacenter rack');
+		return $c->status(404 => { error => 'Not found' });
 	}
+
+	$c->log->debug("Found datacenter rack ".$rack->id);
+	$c->stash('rack' => $rack);
+	return 1;
 }
 
 =head2 create
@@ -70,7 +65,7 @@ Stores data as a new datacenter_rack row, munging 'role' to 'datacenter_rack_rol
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 	my $input = $c->validate_input('RackCreate');
-	if(not $input) {
+	if (not $input) {
 		$c->log->debug("Input failed validation");
 		return $c->status(400);
 	}
@@ -83,14 +78,12 @@ sub create ($c) {
 		return $c->status(400 => { "error" => "Rack role does not exist" });
 	}
 
-	my %data = $input->%*;
-	$data{datacenter_rack_role_id} = delete $data{role};
+	$input->{datacenter_rack_role_id} = delete $input->{role};
 
-	my $r = Conch::Model::DatacenterRack->new(%data)->save();
-	$c->log->debug("Created datacenter rack ".$r->id);
+	my $rack = $c->db_datacenter_racks->create($input);
+	$c->log->debug("Created datacenter rack ".$rack->id);
 
-	$c->status(303 => "/rack/".$r->id);
-
+	$c->status(303 => "/rack/".$rack->id);
 }
 
 =head2 get
@@ -114,10 +107,10 @@ Get all racks
 sub get_all ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $r = Conch::Model::DatacenterRack->all();
-	$c->log->debug("Found ".scalar($r->@*)." datacenter racks");
+	my @racks = $c->db_datacenter_racks->all;
+	$c->log->debug('Found '.scalar(@racks).' datacenter racks');
 
-	$c->status(200, $r);
+	$c->status(200, \@racks);
 }
 
 =head2 layouts
@@ -140,25 +133,25 @@ sub layouts ($c) {
 =cut
 
 sub update ($c) {
-	my $i = $c->validate_input('RackUpdate');
-	if(not $i) {
+	my $input = $c->validate_input('RackUpdate');
+	if (not $input) {
 		$c->log->debug("Input failed validation");
 		return;
 	}
 
-	if($i->{datacenter_room_id}) {
-		unless ($c->db_datacenter_rooms->search({ id => $i->{datacenter_room_id} })->count) {
+	if ($input->{datacenter_room_id}) {
+		unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->count) {
 			return $c->status(400 => { "error" => "Room does not exist" });
 		}
 	}
 
-	if($i->{role}) {
-		unless(Conch::Model::DatacenterRackRole->from_id($i->{role})) {
+	if ($input->{role}) {
+		unless(Conch::Model::DatacenterRackRole->from_id($input->{role})) {
 			return $c->status(400 => { "error" => "Rack role does not exist" });
 		}
 	}
 
-	$c->stash('rack')->update($i->%*)->save();
+	$c->stash('rack')->update($input);
 	$c->log->debug("Updated datacenter rack ".$c->stash('rack')->id);
 	return $c->status(303 => "/rack/".$c->stash('rack')->id);
 }
@@ -171,7 +164,7 @@ Delete a rack
 =cut
 
 sub delete ($c) {
-	$c->stash('rack')->burn;
+	$c->stash('rack')->delete;
 	$c->log->debug("Deleted datacenter rack ".$c->stash('rack')->id);
 	return $c->status(204);
 }

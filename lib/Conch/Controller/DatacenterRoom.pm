@@ -3,7 +3,6 @@ package Conch::Controller::DatacenterRoom;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Conch::Models;
 
 with 'Conch::Role::MojoLog';
 
@@ -137,14 +136,12 @@ sub delete ($c) {
 sub racks ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $r = Conch::Model::DatacenterRack->from_datacenter_room(
-		$c->stash('datacenter_room')->id
-	);
+	my @racks = $c->db_datacenter_racks->search({ datacenter_room_id => $c->stash('datacenter_room')->id });
 	$c->log->debug(
-		"Found ".scalar($r->@*).
+		"Found ".scalar(@racks).
 		" racks for datacenter room ".$c->stash('datacenter_room')->id
 	);
-	return $c->status(200 => $r);
+	return $c->status(200 => \@racks);
 
 }
 

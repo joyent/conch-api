@@ -53,7 +53,7 @@ sub create ($c) {
 		return $c->status(400);
 	}
 
-	unless(Conch::Model::DatacenterRack->from_id($input->{rack_id})) {
+	unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->count) {
 		$c->log->debug("Could not find datacenter rack ".$input->{rack_id});
 		return $c->status(400 => { "error" => "Rack does not exist" });
 	}
@@ -113,7 +113,7 @@ sub update ($c) {
 	}
 
 	if ($input->{rack_id}) {
-		unless(Conch::Model::DatacenterRack->from_id($input->{rack_id})) {
+		unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->count) {
 			return $c->status(400 => { "error" => "Rack does not exist" });
 		}
 	}
