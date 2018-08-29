@@ -69,21 +69,21 @@ Stores data as a new datacenter_rack row, munging 'role' to 'datacenter_rack_rol
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $d = $c->validate_input('RackCreate');
-	if(not $d) {
+	my $input = $c->validate_input('RackCreate');
+	if(not $input) {
 		$c->log->debug("Input failed validation");
-		return;
+		return $c->status(400);
 	}
 
-	unless(Conch::Model::DatacenterRoom->from_id($d->{datacenter_room_id})) {
+	unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->count) {
 		return $c->status(400 => { "error" => "Room does not exist" });
 	}
 
-	unless(Conch::Model::DatacenterRackRole->from_id($d->{role})) {
+	unless(Conch::Model::DatacenterRackRole->from_id($input->{role})) {
 		return $c->status(400 => { "error" => "Rack role does not exist" });
 	}
 
-	my %data = $d->%*;
+	my %data = $input->%*;
 	$data{datacenter_rack_role_id} = delete $data{role};
 
 	my $r = Conch::Model::DatacenterRack->new(%data)->save();
@@ -148,7 +148,7 @@ sub update ($c) {
 	}
 
 	if($i->{datacenter_room_id}) {
-		unless(Conch::Model::DatacenterRoom->from_id($i->{datacenter_room_id})) {
+		unless ($c->db_datacenter_rooms->search({ id => $i->{datacenter_room_id} })->count) {
 			return $c->status(400 => { "error" => "Room does not exist" });
 		}
 	}

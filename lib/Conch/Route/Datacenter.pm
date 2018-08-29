@@ -24,10 +24,10 @@ Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
 
     GET     /room
     POST    /room
-    GET     /room/:room_id
-    POST    /room/:room_id
-    DELETE  /room/:room_id
-    GET     /room/:room_id/racks
+    GET     /room/:datacenter_room_id_or_name
+    POST    /room/:datacenter_room_id_or_name
+    DELETE  /room/:datacenter_room_id_or_name
+    GET     /room/:datacenter_room_id_or_name/racks
 
     GET     /rack_role
     POST    /rack_role
@@ -85,15 +85,16 @@ sub routes {
         # POST /room
         $room->post('/')->to('#create');
 
-        my $with_datacenter_room = $room->under('/:datacenter_room_id')->to('#find_datacenter_room');
+        my $with_datacenter_room = $room->under('/:datacenter_room_id_or_name')
+            ->to('#find_datacenter_room');
 
-        # GET /room/:room_id
+        # GET /room/:datacenter_room_id_or_name
         $with_datacenter_room->get('/')->to('#get_one');
-        # POST /room/:room_id
+        # POST /room/:datacenter_room_id_or_name
         $with_datacenter_room->post('/')->to('#update');
-        # DELETE /room/:room_id
+        # DELETE /room/:datacenter_room_id_or_name
         $with_datacenter_room->delete('/')->to('#delete');
-        # GET /room/:room_id/racks
+        # GET /room/:datacenter_room_id_or_name/racks
         $with_datacenter_room->get('/racks')->to('#racks');
     }
 

@@ -10,6 +10,8 @@ use Conch::Pg;
 my $pgtmp = mk_tmp_db();
 $pgtmp or die;
 my $pg    = Conch::Pg->new($pgtmp->uri);
+my $schema = Test::ConchTmpDB->schema($pgtmp);
+
 
 my $role = Conch::Model::DatacenterRackRole->new(
 	name      => 'sungo',
@@ -22,10 +24,10 @@ my $dc = Conch::Model::Datacenter->new(
 	location => 'mars',
 )->save();
 
-my $room = Conch::Model::DatacenterRoom->new(
+my $room = $schema->resultset('DatacenterRoom')->create({
 	az         => 'sungo',
-	datacenter => $dc->id,
-)->save();
+    datacenter_id => $dc->id,
+});
 
 my $rack = Conch::Model::DatacenterRack->new(
 	name               => 'sungo',

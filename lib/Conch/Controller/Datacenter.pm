@@ -78,12 +78,11 @@ Get all rooms for the given datacenter
 
 sub get_rooms ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my @r = Conch::Model::DatacenterRoom->from_datacenter(
-		$c->stash('datacenter')->id
-	)->@*;
 
-	$c->log->debug("Found ".scalar(@r)." datacenter rooms");
-	$c->status(200, \@r);
+	my @rooms = $c->db_datacenter_rooms->search({ datacenter_id => $c->stash('datacenter')->id })->all;
+
+	$c->log->debug("Found ".scalar(@rooms)." datacenter rooms");
+	$c->status(200, \@rooms);
 }
 
 =head2 create

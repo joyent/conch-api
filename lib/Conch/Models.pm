@@ -17,7 +17,6 @@ use warnings;
 use Conch::DB;
 
 use Conch::Model::Datacenter;
-use Conch::Model::DatacenterRoom;
 use Conch::Model::DatacenterRackRole;
 use Conch::Model::DatacenterRack;
 use Conch::Model::DatacenterRackLayout;
