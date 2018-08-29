@@ -19,8 +19,6 @@ use Conch::DB;
 use Conch::Model::Datacenter;
 use Conch::Model::DatacenterRackRole;
 use Conch::Model::DatacenterRack;
-use Conch::Model::DatacenterRackLayout;
-
 use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
 use Conch::Model::Relay;

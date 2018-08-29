@@ -126,12 +126,11 @@ sub get_all ($c) {
 
 sub layouts ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $l = Conch::Model::DatacenterRackLayout->from_rack_id(
-		$c->stash('rack')->id
-	);
 
-	$c->log->debug("Found ".scalar($l->@*)." datacenter rack layouts");
-	$c->status(200 => $l);
+	my @layouts = $c->db_datacenter_rack_layouts->search({ rack_id => $c->stash('rack')->id });
+
+	$c->log->debug('Found '.scalar(@layouts).' datacenter rack layouts');
+	$c->status(200 => \@layouts);
 }
 
 
