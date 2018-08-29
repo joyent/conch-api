@@ -89,7 +89,8 @@ sub process ($c) {
 		state               => $unserialized_report->{state},
 		health              => "UNKNOWN",
 		last_seen           => \'NOW()',
-		uptime_since        => $uptime
+		uptime_since        => $uptime,
+		updated             => \'NOW()',
 	});
 
 	$c->log->debug("Creating device report");
@@ -137,7 +138,7 @@ sub process ($c) {
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
 	# this uses the DBIC object from _record_device_report to do the update
-	$device->update( { health => uc( $validation_state->status ) } );
+	$device->update( { health => uc( $validation_state->status ), updated => \'NOW()' } );
 
 	$c->status( 200, $validation_state );
 }
@@ -174,7 +175,7 @@ sub _record_device_configuration {
 					{
 						device_id => $device->id,
 						relay_id  => $dr->{relay}{serial},
-						last_seen => \'NOW()'
+						last_seen => \'NOW()',
 					}
 				);
 			}
@@ -213,6 +214,7 @@ sub _record_device_configuration {
 					cpu1_temp    => $dr->{temp}->{cpu1},
 					inlet_temp   => $dr->{temp}->{inlet},
 					exhaust_temp => $dr->{temp}->{exhaust},
+					updated      => \'NOW()',
 				}
 			) if $dr->{temp};
 
