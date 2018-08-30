@@ -55,12 +55,15 @@ sub associated_racks {
         ->search_related('datacenter_room')
         ->search_related('datacenter_racks')->get_column('id');
 
-    $self->result_source->schema->resultset('DatacenterRack')->search({
-        'me.id' => [
-            { -in => $workspace_rack_ids->as_query },
-            { -in => $workspace_room_rack_ids->as_query },
-        ],
-    });
+    $self->result_source->schema->resultset('DatacenterRack')->search(
+        {
+            'datacenter_rack.id' => [
+                { -in => $workspace_rack_ids->as_query },
+                { -in => $workspace_room_rack_ids->as_query },
+            ],
+        },
+        { alias => 'datacenter_rack' },
+    );
 }
 
 1;

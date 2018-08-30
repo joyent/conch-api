@@ -445,12 +445,15 @@ __PACKAGE__->has_many(
 
 use Class::Method::Modifiers;
 
+__PACKAGE__->add_columns(
+    '+deactivated' => { is_serializable => 0 },
+);
+
 around TO_JSON => sub {
     my $orig = shift;
     my $self = shift;
 
     my $data = $self->$orig(@_);
-    delete $data->{deactivated};
     $data->{role} = delete $data->{device_role_id};
     $data->{hardware_product} = delete $data->{hardware_product_id};
     return $data;

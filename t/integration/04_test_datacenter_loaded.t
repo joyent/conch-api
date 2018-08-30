@@ -243,7 +243,7 @@ subtest 'Single device' => sub {
 		})->status_is(303);
 		$t->get_ok($t->tx->res->headers->location)->status_is(200);
 
-		my $d_role = Conch::Model::DeviceRole->from_id($t->tx->res->json->{id});
+		my $d_role = $t->app->db_device_roles->active->find($t->tx->res->json->{id});
 
 		$t->get_ok("/device/role")->status_is(200)->json_is([
 			$d_role->TO_JSON
@@ -258,8 +258,8 @@ subtest 'Single device' => sub {
 		})->status_is(303);
 		$t->get_ok($t->tx->res->headers->location)->status_is(200);
 
-		my $s = Conch::Model::DeviceService->from_id($t->tx->res->json->{id});
-	
+		my $s = $t->app->db_device_services->find($t->tx->res->json->{id});
+
 		$t->get_ok("/device/service")->status_is(200)->json_is([
 			$s->TO_JSON
 		]);
@@ -278,16 +278,17 @@ subtest 'Single device' => sub {
 			service => $s->id
 		})->status_is(303);
 		$t->get_ok($t->tx->res->headers->location)->status_is(200);
-		is_deeply(
-			Conch::Model::DeviceRole->from_id($d_role->id)->services,
-			[ $s->id ],
+		cmp_deeply(
+			[ $t->app->db_device_roles->active->find($d_role->id)->device_role_services ],
+			[ methods(device_role_service_id => $s->id) ],
 		);
+
 		$t->post_ok('/device/role/'.$d_role->id.'/remove_service', json => {
 			service => $s->id
 		})->status_is(303);
 		$t->get_ok($t->tx->res->headers->location)->status_is(200);
-		is_deeply(
-			Conch::Model::DeviceRole->from_id($d_role->id)->services,
+		cmp_deeply(
+			[ $t->app->db_device_roles->active->find($d_role->id)->device_role_services ],
 			[ ],
 		);
 		########
@@ -304,7 +305,7 @@ subtest 'Single device' => sub {
 			hardware_product_id => $hardware_products[0]->{id},
 		})->status_is(303);
 		$t->get_ok($t->tx->res->headers->location)->status_is(200);
-		$d_role = Conch::Model::DeviceRole->from_id($t->tx->res->json->{id});
+		$d_role = $t->app->db_device_roles->active->find($t->tx->res->json->{id});
 
 
 		$t->get_ok('/device/role/'.$d_role->id)->status_is(200);

@@ -12,9 +12,9 @@ package Conch::Controller::DeviceSettings;
 
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::Models;
 
 with 'Conch::Role::MojoLog';
+use List::Util 'pairmap';
 
 =head2 set_all
 
@@ -27,10 +27,18 @@ sub set_all ($c) {
 	return $c->status( 400, { error => 'Payload required' } )
 		unless $body;
 
-	Conch::Model::DeviceSettings->new->set_settings(
-		$c->stash('current_device')->id,
-		$body
-	);
+	# we cannot do device_rs->related_resultset, or ->create loses device_id
+	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
+
+	# deactivate existing settings with the same keys
+	$settings_rs->search({ name => { -in => [ keys %$body ] } })
+		->active
+		->deactivate;
+
+	# store new settings
+	$settings_rs->create($_) foreach
+		pairmap { +{ name => $a, value => $b } } $body->%*;
+
 	$c->status(200);
 }
 
@@ -44,20 +52,20 @@ overwritten
 
 sub set_single ($c) {
 	my $body          = $c->req->json;
-	my $setting_key   = $c->param('key');
+	my $setting_key   = $c->stash('key');
 	my $setting_value = $body->{$setting_key};
-	return $c->status(
-		400,
-		{
-			error =>
-"Setting key in request object must match name in the URL ('$setting_key')"
-		}
-	) unless $setting_value;
 
-	Conch::Model::DeviceSettings->new->set_settings(
-		$c->stash('current_device')->id,
-		{ $setting_key => $setting_value }
-	);
+	return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
+		unless $setting_value;
+
+	# we cannot do device_rs->related_resultset, or ->create loses device_id
+	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
+
+	$settings_rs->search({ name => $setting_key })
+		->active
+		->deactivate;
+
+	$settings_rs->create({ name => $setting_key, value => $setting_value });
 
 	$c->status(200);
 }
@@ -70,10 +78,12 @@ Get all settings for a device as a hash
 =cut
 
 sub get_all ($c) {
-	my $settings = Conch::Model::DeviceSettings->new->get_settings(
-		$c->stash('current_device')->id
-	);
-	$c->status( 200, $settings );
+
+	my %settings = $c->stash('device_rs')
+		->related_resultset('device_settings')
+		->get_settings;
+
+	$c->status( 200, \%settings );
 }
 
 
@@ -84,14 +94,20 @@ Get a single setting from a device
 =cut
 
 sub get_single ($c) {
-	my $setting_key = $c->param('key');
-	my $settings = Conch::Model::DeviceSettings->new->get_settings(
-		$c->stash('current_device')->id
-	);
+	my $setting_key = $c->stash('key');
+
+	my $setting = $c->stash('device_rs')
+		->related_resultset('device_settings')
+		->active
+		->search(
+			{ name => $setting_key },
+			{ order_by => { -desc => 'created' }, rows => 1 },
+		)->single;
 
 	return $c->status( 404, { error => "No such setting '$setting_key'" } )
-		unless $settings->{$setting_key};
-	$c->status( 200, { $setting_key => $settings->{$setting_key} } );
+		unless $setting;
+
+	$c->status(200, { $setting_key => $setting->value });
 }
 
 
@@ -102,17 +118,20 @@ Delete a single setting from a device, provide that setting was previously set
 =cut
 
 sub delete_single ($c) {
-	my $setting_key = $c->param('key');
+	my $setting_key = $c->stash('key');
+
 	unless (
-		Conch::Model::DeviceSettings->new->delete_device_setting(
-			$c->stash('current_device')->id, $setting_key
-		)
-	){
+		# 0 rows updated -> 0E0 which is boolean truth, not false
+		$c->stash('device_rs')
+			->related_resultset('device_settings')
+			->active
+			->search({ name => $setting_key })
+			->deactivate > 0
+	) {
 		return $c->status( 404, { error => "No such setting '$setting_key'" } );
 	}
-	else {
-		return $c->status(204);
-	}
+
+	return $c->status(204);
 }
 
 1;

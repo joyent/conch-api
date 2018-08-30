@@ -13,7 +13,6 @@ package Conch::Controller::Device;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
-use Conch::Class::DeviceDetailed;
 use List::Util 'none';
 
 with 'Conch::Role::MojoLog';
@@ -22,8 +21,7 @@ use Conch::Models;
 
 =head2 find_device
 
-Chainable action that validates the 'device_id' provided in the path
-and looks up the device and stashes it in C<current_device>.
+Chainable action that validates the 'device_id' provided in the path.
 
 =cut
 
@@ -32,52 +30,86 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
-	my $device = Conch::Model::Device->lookup_for_user(
-		$c->stash('user_id'),
-		$device_id,
+	my $user_workspace_device_rs = $c->db_user_workspace_roles
+		->search({ 'user_workspace_role.user_id' => $c->stash('user_id') }, { alias => 'user_workspace_role' })
+		->related_resultset('workspace')
+		->associated_racks
+		->related_resultset('device_locations')
+		->related_resultset('device')
+		->active;
+
+	my $relay_report_device_rs = $c->db_user_accounts
+		->search({ 'user_account.id' => $c->stash('user_id') }, { alias => 'user_account' })
+		# FIXME: doesn't check ->active?
+		->user_devices_without_location;
+
+	# this resultset will return the one device referenced by :device_id,
+	# while also guaranteeing that the user has permission to access it.
+	my $device_rs = $c->db_devices->search(
+		{
+			-and => [
+				'device.id' => $device_id,
+				-or => [
+					 'device.id' => { -in => $user_workspace_device_rs->get_column('id')->as_query },
+					 'device.id' => { -in => $relay_report_device_rs->get_column('id')->as_query },
+				],
+			],
+		},
+		{ alias => 'device' },
 	);
 
-	if (not $device) {
+	if (not $device_rs->count) {
 		$c->log->debug("Failed to find device $device_id");
 		return $c->status(404, { error => "Device '$device_id' not found" });
 	}
 
-	$c->log->debug('Found device ' . $device->id);
-	$c->stash(current_device => $device);
+	$c->log->debug('Found device ' . $device_id);
+
+	# store the simplified query to access the device, now that we've confirmed the user has
+	# permission to access it.
+	# No queries have been made yet, so you can add on more criteria or prefetches.
+	$c->stash('device_rs',
+		$c->db_devices->search_rs({ 'device.id' => $device_id }, { alias => 'device' }));
+
 	return 1;
 }
 
 =head2 get
 
-Retrieves details about a single device, returning a serialized
-Conch::Class::DeviceDetailed
+Retrieves details about a single device, returning a json-schema 'DetailedDevice' structure.
 
 =cut
 
 sub get ($c) {
-	my $device = $c->stash('current_device');
 
-	my $device_report = Conch::Model::DeviceReport->new->latest_device_report( $device->id );
-	my $report        = {};
-	my $validations   = [];
-	if ($device_report) {
-		$validations = Conch::Model::DeviceReport->new
-			->validation_results( $device_report->{id} );
-
-		$report = $device_report->{report};
-		delete $report->{'__CLASS__'};
-	}
+	my $device = $c->stash('device_rs')->find(
+		{},
+		{
+			prefetch => [
+				{ latest_report => 'device_validates' },
+				{ device_nics => 'device_neighbor' },
+			],
+		},
+	);
 
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
-	my $nics           = $device->device_nic_neighbors( $device->id );
 
-	my $detailed_device = Conch::Class::DeviceDetailed->new(
-		device             => $device,
-		latest_report      => $report,
-		validation_results => $validations,
-		nics               => $nics,
-		location           => $maybe_location
-	);
+	# TODO: we can collapse this all down to a self-contained serializer once the
+	# DeviceLocation query has been converted to a prefetchable relationship.
+	my $detailed_device = +{
+		%{ $device->TO_JSON },
+		latest_report => $device->latest_report->report,
+		validations => [ map { $_->validation } $device->latest_report->device_validates ],
+		nics => [ map {
+			my $device_nic = $_;
+			$device_nic->deactivated ? () :
+			+{
+				(map { $_ => $device_nic->$_ } qw(iface_name iface_type iface_vendor)),
+				(map { $_ => $device_nic->device_neighbor->$_ } qw(mac peer_mac peer_port peer_switch)),
+			}
+		} $device->device_nics ],
+		location => $maybe_location,
+	};
 
 	$c->status( 200, $detailed_device );
 }
@@ -137,12 +169,12 @@ sub lookup_by_other_attribute ($c) {
 
 =head2 graduate
 
-Sets the C<graduated> field on a device, unless that field has already been set
+Marks the device as "graduated" (VLAN flipped)
 
 =cut
 
 sub graduate($c) {
-	my $device    = $c->stash('current_device');
+	my $device = $c->stash('device_rs')->single;
 	my $device_id = $device->id;
 
 	# FIXME this shouldn't be an error
@@ -153,7 +185,7 @@ sub graduate($c) {
 		})
 	}
 
-	$device->graduate;
+	$device->update({ graduated => \'NOW()', updated => \'NOW()' });
 	$c->log->debug("Marked $device_id as graduated");
 
 	$c->status(303);
@@ -162,13 +194,13 @@ sub graduate($c) {
 
 =head2 set_triton_reboot
 
-Sets the C<triton_reboot> field on a device
+Sets the C<latest_triton_reboot> field on a device
 
 =cut
 
 sub set_triton_reboot ($c) {
-	my $device = $c->stash('current_device');
-	$device->set_triton_reboot;
+	my $device = $c->stash('device_rs')->single;
+	$device->update({ latest_triton_reboot => \'NOW()', updated => \'NOW()' });
 
 	$c->log->debug("Marked ".$device->id." as rebooted into triton");
 
@@ -184,7 +216,7 @@ valid UUID
 =cut
 
 sub set_triton_uuid ($c) {
-	my $device = $c->stash('current_device');
+	my $device = $c->stash('device_rs')->single;
 	my $triton_uuid = $c->req->json && $c->req->json->{triton_uuid};
 
 	unless(defined($triton_uuid) && is_uuid($triton_uuid)) {
@@ -194,7 +226,7 @@ sub set_triton_uuid ($c) {
 		});
 	}
 
-	$device->set_triton_uuid($triton_uuid);
+	$device->update({ triton_uuid => $triton_uuid, updated => \'NOW()' });
 	$c->log->debug("Set the triton uuid for device ".$device->id." to $triton_uuid");
 
 	$c->status(303);
@@ -209,7 +241,7 @@ the C<triton_setup> field. Fails if the device has already been marked as such.
 =cut
 
 sub set_triton_setup ($c) {
-	my $device    = $c->stash('current_device');
+	my $device = $c->stash('device_rs')->single;
 	my $device_id = $device->id;
 
 	unless ( defined( $device->latest_triton_reboot )
@@ -230,7 +262,7 @@ sub set_triton_setup ($c) {
 		})
 	}
 
-	$device->set_triton_setup;
+	$device->update({ triton_setup => \'NOW()', updated => \'NOW()' });
 	$c->log->debug("Device $device_id marked as set up for triton");
 
 	$c->status(303);
@@ -244,7 +276,7 @@ Sets the C<asset_tag> field on a device
 =cut
 
 sub set_asset_tag ($c) {
-	my $device = $c->stash('current_device');
+	my $device = $c->stash('device_rs')->single;
 	my $asset_tag = $c->req->json && $c->req->json->{asset_tag};
 
 	unless(defined($asset_tag) && ref($asset_tag) eq '') {
@@ -254,7 +286,7 @@ sub set_asset_tag ($c) {
 		});
 	}
 
-	$device->set_asset_tag($asset_tag);
+	$device->update({ asset_tag => $asset_tag, updated => \'NOW()' });
 	$c->log->debug("Set the asset tag for device ".$device->id." to $asset_tag");
 
 	$c->status(303);
@@ -268,11 +300,11 @@ Sets the C<validated> field on a device unless that field has already been set
 =cut
 
 sub set_validated($c) {
-	my $device    = $c->stash('current_device');
+	my $device = $c->stash('device_rs')->single;
 	my $device_id = $device->id;
 	return $c->status(204) if defined( $device->validated );
 
-	$device->set_validated();
+	$device->update({ validated => \'NOW()', updated => \'NOW()' });
 	$c->log->debug("Marked the device $device_id as validated");
 
 	$c->status(303);
@@ -287,7 +319,7 @@ If the device has a valid role, 303 to the relevant /role endpoint
 =cut
 
 sub get_role($c) {
-	my $device = $c->stash('current_device');
+	my $device = $c->stash('device_rs')->single;
 	if ($device->device_role_id) {
 		return $c->status(303 => "/device/role/".$device->device_role_id);
 	} else {
@@ -305,24 +337,23 @@ Sets the device's C<role> attribute and 303's to the device endpoint
 sub set_role($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $device = $c->stash('current_device');
-	my $role = $c->req->json && $c->req->json->{role};
+	my $device_role_id = $c->req->json && $c->req->json->{role};
 	return $c->status(
 		400, {
 			error => "'role' element must be present"
 		}
-	) unless defined($role) && ref($role) eq '';
+	) unless defined($device_role_id) && ref($device_role_id) eq '';
 
-	my $r = Conch::Model::DeviceRole->from_id($role);
+	my $r = $c->db_device_roles->find($device_role_id);
 	if ($r) {
 		if ($r->deactivated) {
-			return $c->status(400 => "Role $role is deactivated");
+			return $c->status(400 => "Role $device_role_id is deactivated");
 		}
 
-		$device->set_role($role);
-		return $c->status(303 => "/device/".$device->id);
+		$c->stash('device_rs')->update({ device_role_id => $device_role_id, updated => \'NOW()' });
+		return $c->status(303 => "/device/".$c->stash('device_id'));
 	} else {
-		return $c->status(400 => "Role $role does not exist");
+		return $c->status(400 => "Role $device_role_id does not exist");
 	}
 }
 

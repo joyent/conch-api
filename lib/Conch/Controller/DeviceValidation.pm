@@ -45,11 +45,11 @@ sub list_validation_states ($c) {
 		});
 	}
 
-	my $device = $c->stash('current_device');
+	my $device_id = $c->stash('device_id');
 
 	my $validation_state_groups =
 		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
-		$device->id, @statuses );
+		$device_id, @statuses );
 
 	my @output = map {
 		{ $_->{state}->TO_JSON->%*, results => $_->{results} };
@@ -67,18 +67,18 @@ FIXME: nothing calls this!
 =cut
 
 sub get_validation_state ($c) {
-	my $device = $c->stash('current_device');
+	my $device_id = $c->stash('device_id');
 
 	my $validation_state_id = $c->stash("validation_state_id");
 
 	my $validation_state =
 		Conch::Model::ValidationState->lookup_with_device(
 			$validation_state_id,
-			$device->id
+			$device_id
 		);
 
 	unless($validation_state) {
-		$c->log->debug("No Validation State ID $validation_state_id is associated with device ".$device->id);
+		$c->log->debug("No Validation State ID $validation_state_id is associated with device ".$device_id);
 
 		# FIXME should this really be a 404?
 		return $c->status(404 => {
@@ -101,8 +101,7 @@ device.
 =cut
 
 sub validate ($c) {
-	my $device    = $c->stash('current_device');
-	my $device_id = $device->id;
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 
 	my $validation_id = $c->stash("validation_id");
 	my $validation    = Conch::Model::Validation->lookup($validation_id);
@@ -136,7 +135,7 @@ device.
 =cut
 
 sub run_validation_plan ($c) {
-	my $device    = $c->stash('current_device');
+	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
 
 	my $plan_id         = $c->stash("validation_plan_id");
 	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);

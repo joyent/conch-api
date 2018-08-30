@@ -47,7 +47,8 @@ sub find_workspace ($c) {
 
 	# ...and a resultset for accessing the workspace itself, for when we don't need to check
 	# the permissions
-	$c->stash('workspace_rs', $c->db_workspaces->search_rs({ 'me.id' => $ws_id }));
+	$c->stash('workspace_rs',
+		$c->db_workspaces->search_rs({ 'workspace.id' => $ws_id }, { alias => 'workspace' }));
 
 	return 1;
 }

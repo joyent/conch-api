@@ -68,14 +68,11 @@ sub _get_problems ($c) {
 
 	# TODO: this query could be further modified to also fetch
 	# device_rack_location at the same time.
-	my @unlocated_user_devices = $c->stash('user')
-		->related_resultset('user_relay_connections')
-		->related_resultset('device_relay_connections')
-		->search_related_rs('device',
-			{
-				# all devices in device_location table
-				'device.id' => { -not_in => $c->db_device_locations->get_column('device_id')->as_query },
-			},
+	my @unlocated_user_devices = $c->db_user_accounts
+		->search({ 'user_account.id' => $c->stash('user_id') }, { alias => 'user_account' })
+		->user_devices_without_location
+		->search(
+			{},
 			{ prefetch => 'latest_report' },
 		)
 		->all;
