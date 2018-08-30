@@ -99,8 +99,6 @@ sub get ($c) {
 	my $detailed_device = +{
 		%{ $device->TO_JSON },
 		latest_report => $device->latest_report->report,
-		# this is a separate query, but we're about to nuke device_validate anyway
-		validations => [ map { $_->validation } $device->latest_report->device_validates ],
 		nics => [ map {
 			my $device_nic = $_;
 			$device_nic->deactivated ? () :

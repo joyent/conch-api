@@ -41,8 +41,6 @@ sub _get_problems ($c) {
 
 	my $schema = $c->schema;
 
-	my $criteria = _get_validation_criteria($schema);
-
 	my @failing_user_devices;
 	my @unreported_user_devices;
 
@@ -87,8 +85,6 @@ sub _get_problems ($c) {
 
 		my $report = $device->latest_report;
 		$failing_problems->{$device_id}{report_id} = $report->id;
-		my @failures = _validation_failures( $schema, $criteria, $report->id );
-		$failing_problems->{$device_id}{problems} = \@failures;
 	}
 
 	my $unreported_problems = {};
@@ -108,9 +104,6 @@ sub _get_problems ($c) {
 
 		my $report = $device->latest_report;
 		$unlocated_problems->{$device_id}{report_id} = $report->id;
-
-		my @failures = _validation_failures( $schema, $criteria, $report->id );
-		$unlocated_problems->{$device_id}{problems} = \@failures;
 	}
 
 	return {
@@ -118,61 +111,6 @@ sub _get_problems ($c) {
 		unreported => $unreported_problems,
 		unlocated  => $unlocated_problems
 	};
-}
-
-sub _validation_failures {
-	my ( $schema, $criteria, $report_id ) = @_;
-	my @failures;
-
-	# Bundle up the validate logs for a given device report.
-	my @validation_report =
-		map { decode_json( $_->validation ) }
-		$schema->resultset('DeviceValidate')->search( { report_id => $report_id } );
-
-	foreach my $v (@validation_report) {
-		my $fail = {};
-		if ( $v->{status} eq 0 ) {
-			$fail->{criteria}{id} = $v->{criteria_id} || undef;
-			$fail->{criteria}{component} =
-				$criteria->{ $v->{criteria_id} }{component} || undef;
-			$fail->{criteria}{condition} =
-				$criteria->{ $v->{criteria_id} }{condition} || undef;
-			$fail->{criteria}{min}  = $criteria->{ $v->{criteria_id} }{min}  || undef;
-			$fail->{criteria}{warn} = $criteria->{ $v->{criteria_id} }{warn} || undef;
-			$fail->{criteria}{crit} = $criteria->{ $v->{criteria_id} }{crit} || undef;
-
-			$fail->{component_id}   = $v->{component_id}   || undef;
-			$fail->{component_name} = $v->{component_name} || undef;
-			$fail->{component_type} = $v->{component_type} || undef;
-			$fail->{log}            = $v->{log}            || undef;
-			$fail->{metric}         = $v->{metric}         || undef;
-
-			push @failures, $fail;
-		}
-	}
-
-	return @failures;
-}
-
-sub _get_validation_criteria {
-	my ($schema) = @_;
-
-	my $criteria = {};
-
-	my @rs = $schema->resultset('DeviceValidateCriteria')->search( {} )->all;
-	foreach my $c (@rs) {
-		$criteria->{ $c->id }{product_id} = $c->product_id || undef;
-		$criteria->{ $c->id }{component}  = $c->component  || undef;
-		$criteria->{ $c->id }{condition}  = $c->condition  || undef;
-		$criteria->{ $c->id }{vendor}     = $c->vendor     || undef;
-		$criteria->{ $c->id }{model}      = $c->model      || undef;
-		$criteria->{ $c->id }{string}     = $c->string     || undef;
-		$criteria->{ $c->id }{min}        = $c->min        || undef;
-		$criteria->{ $c->id }{warn}       = $c->warn       || undef;
-		$criteria->{ $c->id }{crit}       = $c->crit       || undef;
-	}
-
-	return $criteria;
 }
 
 # Gives a hash of Rack and Datacenter location details
