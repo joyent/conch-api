@@ -303,4 +303,13 @@ definitions:
       id:
         type: string
         format: uuid
+  WorkspaceAddRack:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        format: uuid
 

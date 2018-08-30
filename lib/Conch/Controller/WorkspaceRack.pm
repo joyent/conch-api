@@ -78,19 +78,15 @@ already assigned via a datacenter room assignment
 =cut
 
 sub add ($c) {
-	my $body = $c->req->json;
 	return $c->status(403) unless $c->is_admin;
 
-	unless($body && $body->{id}) {
-		return $c->status( 400 => {
-			error => 'JSON object with "id" Rack ID field required'
-		});
-	}	
-	my $rack_id = $body->{id};
+	my $input = $c->validate_input('WorkspaceAddRack');
+	if (not $input) {
+		$c->log->warn("Input failed validation");
+		return $c->status(400);
+	}
 
-	return $c->status( 400,
-		{ error => "Rack ID must be a UUID. Got '$rack_id'." } )
-		unless is_uuid($rack_id);
+	my $rack_id = $input->{id};
 
 	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
