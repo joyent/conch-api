@@ -30,7 +30,6 @@ requires 'Mojolicious::Plugin::NYTProf';
 requires 'IO::Socket::SSL';
 
 requires 'Moo';
-requires 'Moo::Role::ToJSON';
 requires 'Type::Tiny';
 requires 'Types::Standard';
 requires 'Types::UUID';
