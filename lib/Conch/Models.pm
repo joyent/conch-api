@@ -21,7 +21,6 @@ use Conch::Model::HardwareProduct;
 use Conch::Model::Validation;
 use Conch::Model::ValidationPlan;
 use Conch::Model::ValidationState;
-use Conch::Model::WorkspaceRack;
 use Conch::Model::WorkspaceRelay;
 use Conch::Model::WorkspaceRoom;
 

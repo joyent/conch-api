@@ -22,10 +22,5 @@ is(
 	"Datacenter Room ID value check"
 );
 
-TODO: {
-	local $TODO = "We never actually use TO_JSON in the codebase";
-	is_deeply( $rack->TO_JSON, \%attrs );
-}
-
 done_testing();
 
