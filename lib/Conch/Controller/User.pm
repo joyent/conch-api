@@ -317,14 +317,8 @@ sub create ($c) {
 	# this would cause horrible clashes with our /user routes!
 	return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
 
-	# we don't use lookup_by_* because they only search active users.
-	if (my $user = $c->db_user_accounts->search({
-			-or => [
-				{ name => $name },
-				\[ 'lower(email) = lower(?)', $email ],
-			]
-		})->first)
-	{
+	if (my $user = $c->db_user_accounts->lookup_by_email($email)
+			|| $c->db_user_accounts->lookup_by_name($name)) {
 		return $c->status(409, {
 			error => 'duplicate user found',
 			user => { map { $_ => $user->$_ } qw(id email name created deactivated) },

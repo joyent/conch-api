@@ -779,6 +779,20 @@ subtest 'modify another user' => sub {
 		->json_is('/user/id' => $new_user_id, 'got user id')
 		->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
 		->json_is('/user/name' => 'foo', 'got user name');
+
+	$new_user->discard_changes;
+	ok($new_user->deactivated, 'user still exists, but is marked deactivated');
+
+	$t->post_ok(
+		'/user?send_invite_mail=0',
+		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
+		->status_is(201, 'created user "again"');
+	my $second_new_user_id = $t->tx->res->json->{id};
+
+	isnt($second_new_user_id, $new_user_id, 'created user with a new id');
+	my $second_new_user = $t->app->db_user_accounts->lookup_by_id($second_new_user_id);
+	is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
+	is($second_new_user->name, $new_user->name, '...but the names are the same');
 };
 
 done_testing();
