@@ -31,9 +31,9 @@ Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
 
     GET     /rack_role
     POST    /rack_role
-    GET     /rack_role/:rack_role_id
-    POST    /rack_role/:rack_role_id
-    DELETE  /rack_role/:rack_role_id
+    GET     /rack_role/:rack_role_id_or_name
+    POST    /rack_role/:rack_role_id_or_name
+    DELETE  /rack_role/:rack_role_id_or_name
 
     GET     /rack
     POST    /rack
@@ -108,13 +108,13 @@ sub routes {
         # POST /rack_role
         $rack_role->post('/')->to('#create');
 
-        my $with_rack_role = $rack_role->under('/:rack_role_id')->to('#find_rack_role');
+        my $with_rack_role = $rack_role->under('/:rack_role_id_or_name')->to('#find_rack_role');
 
-        # GET /rack_role/:rack_role_id
+        # GET /rack_role/:rack_role_id_or_name
         $with_rack_role->get('/')->to('#get');
-        # POST /rack_role/:rack_role_id
+        # POST /rack_role/:rack_role_id_or_name
         $with_rack_role->post('/')->to('#update');
-        # DELETE /rack_role/:rack_role_id
+        # DELETE /rack_role/:rack_role_id_or_name
         $with_rack_role->delete('/')->to('#delete');
     }
 

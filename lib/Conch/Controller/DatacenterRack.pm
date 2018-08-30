@@ -14,8 +14,6 @@ use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 
-use Conch::Models;
-
 with 'Conch::Role::MojoLog';
 
 
@@ -74,7 +72,7 @@ sub create ($c) {
 		return $c->status(400 => { "error" => "Room does not exist" });
 	}
 
-	unless(Conch::Model::DatacenterRackRole->from_id($input->{role})) {
+	unless ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->count) {
 		return $c->status(400 => { "error" => "Rack role does not exist" });
 	}
 
@@ -146,7 +144,7 @@ sub update ($c) {
 	}
 
 	if ($input->{role}) {
-		unless(Conch::Model::DatacenterRackRole->from_id($input->{role})) {
+		unless ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->count) {
 			return $c->status(400 => { "error" => "Rack role does not exist" });
 		}
 	}
