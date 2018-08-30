@@ -196,8 +196,12 @@ __PACKAGE__->might_have(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-31 08:36:51
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5c5curiRphx6kzhdwsYxwQ
 
+__PACKAGE__->add_columns(
+    '+created' => { is_serializable => 0 },
+    '+updated' => { is_serializable => 0 },
+    '+deactivated' => { is_serializable => 0 },
+);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
 __END__
 
@@ -212,3 +216,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

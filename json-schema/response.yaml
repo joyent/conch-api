@@ -116,7 +116,7 @@ definitions:
         anyOf:
           - $ref: "#/definitions/DeviceLocation"
           - type: null
-      nics:
+      nics: # NOTE: see also DeviceNic
         type: array
         items:
           type: object
@@ -241,6 +241,68 @@ definitions:
         anyOf:
           - type: string
             format: date-time
+          - type: null
+
+  DeviceNics:
+    type: array
+    items:
+      $ref: /definitions/DeviceNic
+  DeviceNic:
+    type: object
+    additionalProperties: false
+    required:
+      - device_id
+      - mac
+      - iface_name
+      - iface_vendor
+      - iface_driver
+      - state
+      - speed
+      - ipaddr
+      - mtu
+    properties:
+      device_id:
+        type: string
+      mac:
+        type: string
+      iface_name:
+        type: string
+      iface_vendor:
+        type: string
+      iface_type:
+        type: string
+      iface_driver:
+        type: string
+      peer_mac:
+        anyOf:
+          - type: string
+          - type: null
+      peer_port:
+        anyOf:
+          - type: string
+          - type: null
+      peer_switch:
+        anyOf:
+          - type: string
+          - type: null
+      state:
+        anyOf:
+          - type: string
+          - type: null
+      speed:
+        anyOf:
+          - type: string
+          - type: null
+      ipaddr:
+        anyOf:
+          - type: string
+            format: ipv4
+          - type: string
+            format: ipv6
+          - type: null
+      mtu:
+        anyOf:
+          - type: integer
           - type: null
   DeviceReport:
     type: object

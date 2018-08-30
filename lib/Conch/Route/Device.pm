@@ -54,6 +54,9 @@ Sets up routes for /device:
     GET     /device/:device_id/role
     POST    /device/:device_id/role
 
+    GET     /device/:device_id/interface
+    GET     /device/:device_id/interface/:interface_name
+    GET     /device/:device_id/interface/:interface_name/:field
 =cut
 
 sub device_routes {
@@ -172,6 +175,23 @@ sub device_routes {
         $with_device->get('/role')->to('device#get_role');
         # POST /device/:device_id/role
         $with_device->post('/role')->to('device#set_role');
+
+        {
+            # chainable action that extracts and looks up device_service_id from the path
+            my $with_device_interface = $with_device->any('/interface');
+            $with_device_interface->to({ controller => 'device_interface' });
+
+            # GET /device/:device_id/interface
+            $with_device_interface->get('/')->to('#get_all');
+
+            my $with_interface_name = $with_device_interface->under('/:interface_name')->to('#find_device_interface');
+
+            # GET /device/:device_id/interface/:interface_name
+            $with_interface_name->get('/')->to('#get_one');
+
+            # GET /device/:device_id/interface/:interface_name/:field
+            $with_interface_name->get('/:field_name')->to('#get_one_field');
+        }
     }
 }
 

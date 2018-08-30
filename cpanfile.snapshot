@@ -813,6 +813,19 @@ DISTRIBUTIONS
     requirements:
       Digest::MD5 0
       ExtUtils::MakeMaker 0
+  Data-Validate-IP-0.27
+    pathname: D/DR/DROLSKY/Data-Validate-IP-0.27.tar.gz
+    provides:
+      Data::Validate::IP 0.27
+    requirements:
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      NetAddr::IP 4
+      Scalar::Util 0
+      base 0
+      perl 5.008
+      strict 0
+      warnings 0
   DateTime-1.49
     pathname: D/DR/DROLSKY/DateTime-1.49.tar.gz
     provides:
@@ -2400,6 +2413,19 @@ DISTRIBUTIONS
       MIME::Base64 0
       Test::More 0.60_01
       perl 5.005
+  NetAddr-IP-4.079
+    pathname: M/MI/MIKER/NetAddr-IP-4.079.tar.gz
+    provides:
+      NetAddr::IP 4.079
+      NetAddr::IP::InetBase 0.08
+      NetAddr::IP::Lite 1.57
+      NetAddr::IP::Util 1.53
+      NetAddr::IP::UtilPP 1.09
+      NetAddr::IP::UtilPolluted 1.53
+      NetAddr::IP::Util_IS 1
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
   Package-DeprecationManager-0.17
     pathname: D/DR/DROLSKY/Package-DeprecationManager-0.17.tar.gz
     provides:
