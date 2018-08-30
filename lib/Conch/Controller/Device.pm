@@ -86,7 +86,7 @@ sub get ($c) {
 		{},
 		{
 			prefetch => [
-				{ latest_report => 'device_validates' },
+				'latest_report',
 				{ device_nics => 'device_neighbor' },
 			],
 		},
@@ -99,6 +99,7 @@ sub get ($c) {
 	my $detailed_device = +{
 		%{ $device->TO_JSON },
 		latest_report => $device->latest_report->report,
+		# this is a separate query, but we're about to nuke device_validate anyway
 		validations => [ map { $_->validation } $device->latest_report->device_validates ],
 		nics => [ map {
 			my $device_nic = $_;
