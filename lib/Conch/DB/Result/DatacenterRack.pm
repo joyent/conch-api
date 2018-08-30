@@ -82,6 +82,16 @@ __PACKAGE__->table("datacenter_rack");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 serial_number
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 asset_tag
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -114,6 +124,10 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "serial_number",
+  { data_type => "text", is_nullable => 1 },
+  "asset_tag",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -206,8 +220,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:36:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v9ueughWqmVQEAQF/OQsNQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-31 14:35:45
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rp54t6OBoORDtrmPo6xVRA
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

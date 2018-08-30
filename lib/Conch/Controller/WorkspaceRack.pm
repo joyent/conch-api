@@ -87,7 +87,7 @@ sub add ($c) {
 		return $c->status(400);
 	}
 
-	my $rack_id = $input->{id};
+	my $rack_id = delete $input->{id};
 
 	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
@@ -123,6 +123,9 @@ sub add ($c) {
 	}
 
 	Conch::Model::WorkspaceRack->new->add_to_workspace($c->stash('workspace_id'), $rack_id );
+
+	# update rack with additional info, if provided.
+	$c->db_datacenter_racks->search({ id => $rack_id })->update($input) if keys %$input;
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for->to_abs . "/$rack_id" );

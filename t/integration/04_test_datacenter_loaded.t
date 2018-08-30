@@ -80,7 +80,11 @@ subtest 'Workspace Racks' => sub {
 	subtest 'Add rack to workspace' => sub {
 		$t->post_ok("/workspace/$sub_ws/rack")
 			->status_is( 400, 'Requires request body' )->json_like( '/error', qr// );
-		$t->post_ok( "/workspace/$sub_ws/rack", json => { id => $rack_id } )
+		$t->post_ok( "/workspace/$sub_ws/rack", json => {
+				id => $rack_id,
+				serial_number => 'abc',
+				asset_tag => 'deadbeef',
+			})
 			->status_is(303)
 			->header_like( Location => qr!/workspace/$sub_ws/rack/$rack_id! );
 		$t->get_ok("/workspace/$sub_ws/rack")
