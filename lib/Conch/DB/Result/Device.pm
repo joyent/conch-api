@@ -386,21 +386,6 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_validates
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::DeviceValidate>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_validates",
-  "Conch::DB::Result::DeviceValidate",
-  { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 hardware_product
 
 Type: belongs_to
@@ -447,8 +432,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-04 14:42:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5OKKgPUp+o/OFFVDYN1NWg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-05 11:42:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RlXWtn9xro/dC9P18/8Iyw
 
 use Class::Method::Modifiers;
 

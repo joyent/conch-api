@@ -114,24 +114,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 device_validates
 
-Type: has_many
-
-Related object: L<Conch::DB::Result::DeviceValidate>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_validates",
-  "Conch::DB::Result::DeviceValidate",
-  { "foreign.report_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OILerl9MY+FGa+Ty7mAy+A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-05 11:42:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EjnnwoQa9POKGwZgosddRw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
