@@ -30,6 +30,16 @@ sub set_all ($c) {
 	# we cannot do device_rs->related_resultset, or ->create loses device_id
 	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
+	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
+	my @non_tags = grep { !/^tag\./ } keys %$body;
+	my $perm_needed =
+		@non_tags && $settings_rs->search({ name => \@non_tags })->count ? 'admin' : 'rw';
+
+	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+		$c->log->debug("failed permission check (required $perm_needed)");
+		return $c->status(403, { error => 'insufficient permissions' });
+	}
+
 	# deactivate existing settings with the same keys
 	$settings_rs->search({ name => { -in => [ keys %$body ] } })
 		->active
@@ -55,11 +65,19 @@ sub set_single ($c) {
 	my $setting_key   = $c->stash('key');
 	my $setting_value = $body->{$setting_key};
 
-	return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
-		unless $setting_value;
-
 	# we cannot do device_rs->related_resultset, or ->create loses device_id
 	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
+
+	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
+	my $perm_needed =
+		$setting_key !~ /^tag\./ && $settings_rs->search({ name => $setting_key })->count ? 'admin' : 'rw';
+	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+		$c->log->debug("failed permission check (required $perm_needed)");
+		return $c->status(403, { error => 'insufficient permissions' });
+	}
+
+	return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
+		unless $setting_value;
 
 	$settings_rs->search({ name => $setting_key })
 		->active
@@ -79,6 +97,8 @@ Get all settings for a device as a hash
 
 sub get_all ($c) {
 
+	# no need to check 'ro' perms - find_device() already checked the workspace
+
 	my %settings = $c->stash('device_rs')
 		->related_resultset('device_settings')
 		->get_settings;
@@ -95,6 +115,8 @@ Get a single setting from a device
 
 sub get_single ($c) {
 	my $setting_key = $c->stash('key');
+
+	# no need to check 'ro' perms - find_device() already checked the workspace
 
 	my $setting = $c->stash('device_rs')
 		->related_resultset('device_settings')
@@ -119,6 +141,13 @@ Delete a single setting from a device, provide that setting was previously set
 
 sub delete_single ($c) {
 	my $setting_key = $c->stash('key');
+
+	my $perm_needed = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
+
+	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+		$c->log->debug("failed permission check (required $perm_needed)");
+		return $c->status(403, { error => 'insufficient permissions' });
+	}
 
 	unless (
 		# 0 rows updated -> 0E0 which is boolean truth, not false
