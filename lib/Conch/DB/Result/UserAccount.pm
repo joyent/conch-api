@@ -133,32 +133,6 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<user_account_email_key>
-
-=over 4
-
-=item * L</email>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("user_account_email_key", ["email"]);
-
-=head2 C<user_account_name_key>
-
-=over 4
-
-=item * L</name>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("user_account_name_key", ["name"]);
-
 =head1 RELATIONS
 
 =head2 user_relay_connections
@@ -222,8 +196,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mVW8QcKBqvYOVU42HkfvbQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-30 10:52:38
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1vfzM3wgxggRB2gZ0JsIQg
 
 __PACKAGE__->add_columns(
     '+password_hash' => { is_serializable => 0 },

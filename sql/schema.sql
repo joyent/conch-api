@@ -1235,22 +1235,6 @@ ALTER TABLE ONLY public.relay
 
 
 --
--- Name: user_account user_account_email_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_account
-    ADD CONSTRAINT user_account_email_key UNIQUE (email);
-
-
---
--- Name: user_account user_account_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_account
-    ADD CONSTRAINT user_account_name_key UNIQUE (name);
-
-
---
 -- Name: user_account user_account_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1405,6 +1389,20 @@ CREATE UNIQUE INDEX device_settings_device_id_name_idx ON public.device_settings
 --
 
 CREATE INDEX device_validate_report_id_idx ON public.device_validate USING btree (report_id);
+
+
+--
+-- Name: user_account_email_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX user_account_email_key ON public.user_account USING btree (email) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: user_account_name_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX user_account_name_key ON public.user_account USING btree (name) WHERE (deactivated IS NULL);
 
 
 --
