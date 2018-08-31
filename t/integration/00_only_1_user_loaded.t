@@ -22,7 +22,7 @@ my $now = Conch::Time->now;
 
 $t->post_ok(
 	"/login" => json => {
-		user     => 'conch',
+		user     => 'conch@conch.joyent.us',
 		password => 'conch'
 	}
 )->status_is(200);
@@ -161,14 +161,14 @@ subtest 'User' => sub {
 
 	$t->post_ok(
 		'/login' => json => {
-			user     => 'conch',
+			user     => 'conch@conch.joyent.us',
 			password => 'conch'
 		}
 	)->status_is(401, 'cannot use old password after changing it');
 
 	$t->post_ok(
 		'/login' => json => {
-			user     => 'conch',
+			user     => 'conch@conch.joyent.us',
 			password => 'ohhai'
 		}
 	)->status_is(200, 'logged in using new password');
@@ -178,7 +178,7 @@ subtest 'User' => sub {
 
 	$t->post_ok(
 		'/login' => json => {
-			user     => 'conch',
+			user     => 'conch@conch.joyent.us',
 			password => 'conch'
 		}
 	)->status_is(200, 'logged in using original password');
@@ -455,7 +455,7 @@ subtest 'Log out' => sub {
 subtest 'JWT authentication' => sub {
 	$t->post_ok(
 		"/login" => json => {
-			user     => 'conch',
+			user     => 'conch@conch.joyent.us',
 			password => 'conch'
 		}
 	)->status_is(200)->json_has('/jwt_token');
@@ -495,7 +495,7 @@ subtest 'JWT authentication' => sub {
 
 	$t->post_ok(
 		"/login" => json => {
-			user     => 'conch',
+			user     => 'conch@conch.joyent.us',
 			password => 'conch'
 		}
 	)->status_is(200);
@@ -604,7 +604,7 @@ subtest 'modify another user' => sub {
 	my $t2 = Test::Conch->new(pg => $t->pg);
 	$t2->post_ok(
 		'/login' => json => {
-			user     => 'foo',
+			user     => 'foo@conch.joyent.us',
 			password => '123'
 		})
 		->status_is(200, 'new user can log in');
@@ -629,7 +629,7 @@ subtest 'modify another user' => sub {
 
 	$t2->post_ok(
 		'/login' => json => {
-			user     => 'foo',
+			user     => 'foo@conch.joyent.us',
 			password => '123'
 		})
 		->status_is(200, 'new user can still log in again');
@@ -678,7 +678,7 @@ subtest 'modify another user' => sub {
 
 	$t2->post_ok(
 		'/login' => json => {
-			user     => 'foo',
+			user     => 'foo@conch.joyent.us',
 			password => 'foo',
 		})
 		->status_is(401, 'cannot log in with the old password')
@@ -691,7 +691,7 @@ subtest 'modify another user' => sub {
 
 	$t2->post_ok(
 		'/login' => json => {
-			user     => 'foo',
+			user     => 'foo@conch.joyent.us',
 			password => $insecure_password,
 		})
 		->status_is(200, 'user can log in with new password')
@@ -713,7 +713,7 @@ subtest 'modify another user' => sub {
 
 	$t2->post_ok(
 		'/login' => json => {
-			user     => 'foo',
+			user     => 'foo@conch.joyent.us',
 			password => $insecure_password,
 		})
 		->status_is(401, 'user cannot log in with the same insecure password again')
@@ -729,7 +729,7 @@ subtest 'modify another user' => sub {
 
 	$t2->post_ok(
 		'/login' => json => {
-			user     => 'foo',
+			user     => 'foo@conch.joyent.us',
 			password => $secure_password,
 		})
 		->status_is(200, 'user can log in with new password')
@@ -766,7 +766,7 @@ subtest 'modify another user' => sub {
 	$t2->reset_session;	# force JWT to be used to authenticate
 	$t2->post_ok(
 		'/login' => json => {
-			user     => 'foo',
+			user     => 'foo@conch.joyent.us',
 			password => $secure_password,
 		})
 		->status_is(401, 'user can no longer log in with credentials')
