@@ -365,28 +365,15 @@ CREATE TABLE public.device_nic (
     iface_driver text,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    state text,
+    speed text,
+    ipaddr inet,
+    mtu integer
 );
 
 
 ALTER TABLE public.device_nic OWNER TO conch;
-
---
--- Name: device_nic_state; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_nic_state (
-    mac macaddr NOT NULL,
-    state text,
-    speed text,
-    ipaddr inet,
-    mtu integer,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.device_nic_state OWNER TO conch;
 
 --
 -- Name: device_relay_connection; Type: TABLE; Schema: public; Owner: conch
@@ -1051,14 +1038,6 @@ ALTER TABLE ONLY public.device_nic
 
 
 --
--- Name: device_nic_state device_nic_state_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_nic_state
-    ADD CONSTRAINT device_nic_state_pkey PRIMARY KEY (mac);
-
-
---
 -- Name: device device_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1571,14 +1550,6 @@ ALTER TABLE ONLY public.device_neighbor
 
 ALTER TABLE ONLY public.device_nic
     ADD CONSTRAINT device_nic_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
-
-
---
--- Name: device_nic_state device_nic_state_mac_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_nic_state
-    ADD CONSTRAINT device_nic_state_mac_fkey FOREIGN KEY (mac) REFERENCES public.device_nic(mac);
 
 
 --

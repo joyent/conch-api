@@ -300,18 +300,12 @@ sub _record_device_configuration {
 						iface_type   => $dr->{interfaces}->{$nic}->{product},
 						iface_vendor => $dr->{interfaces}->{$nic}->{vendor},
 						iface_driver => '',
-						updated      => \'NOW()',
-						deactivated  => undef
-					}
-				);
-
-				my $nic_state = $schema->resultset('DeviceNicState')->update_or_create(
-					{
-						mac     => $mac,
 						state   => $dr->{interfaces}->{$nic}->{state},
 						ipaddr  => $dr->{interfaces}->{$nic}->{ipaddr},
 						mtu     => $dr->{interfaces}->{$nic}->{mtu},
-						updated => \'NOW()'
+						updated      => \'NOW()',
+						deactivated  => undef
+						# TODO: 'speed' is never set!
 					}
 				);
 

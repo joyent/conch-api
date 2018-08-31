@@ -160,7 +160,7 @@ subtest 'Single device' => sub {
 		$t->get_ok("/device?mac=$macs[0]")->status_is(200)
 			->json_is( '/id', $device_id, 'got device by mac');
 
-		# device_nics->[2]->device_nic_state has ipaddr' => '172.17.0.173'.
+		# device_nics->[2] has ipaddr' => '172.17.0.173'.
 		$t->get_ok("/device?ipaddr=172.17.0.173")->status_is(200)
 			->json_is( '/id', $device_id, 'got device by ipaddr');
 	};
