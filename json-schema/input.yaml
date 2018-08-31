@@ -94,6 +94,13 @@ definitions:
             type: number
           count:
             type: number
+      os:
+        type: object
+        required:
+          - hostname
+        properties:
+          hostname:
+            type: string
       processor:
         type: object
         required:

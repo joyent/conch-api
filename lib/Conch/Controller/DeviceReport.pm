@@ -29,7 +29,8 @@ sub process ($c) {
 
 	my $unserialized_report = $c->validate_input('DeviceReport');
 	if(not $unserialized_report) {
-		return; # JSON validator will handle the proper error response
+		$c->log->debug('Device report input failed validation');
+		return $c->status(400);
 	}
 
 	# Make sure the API and device report agree on who we're talking about
@@ -90,6 +91,7 @@ sub process ($c) {
 		health              => "UNKNOWN",
 		last_seen           => \'NOW()',
 		uptime_since        => $uptime,
+		hostname            => $unserialized_report->{os}{hostname},
 		updated             => \'NOW()',
 	});
 

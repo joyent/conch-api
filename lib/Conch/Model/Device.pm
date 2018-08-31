@@ -24,6 +24,7 @@ has [
 		graduated
 		hardware_product_id
 		health
+		hostname
 		id
 		last_seen
 		latest_triton_reboot
@@ -59,6 +60,7 @@ sub TO_JSON ($self) {
 		graduated            => $self->graduated,
 		hardware_product     => $self->hardware_product_id,     # XXX special
 		health               => $self->health,
+		hostname             => $self->hostname,
 		id                   => $self->id,
 		last_seen            => $self->last_seen,
 		latest_triton_reboot => $self->latest_triton_reboot,

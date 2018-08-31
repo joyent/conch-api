@@ -167,6 +167,10 @@ subtest 'Single device' => sub {
 		->json_like( '/error', qr/not found/ );
 
 	subtest 'get by device attributes' => sub {
+
+		$t->get_ok('/device?hostname=elfo')->status_is(200)
+			->json_is( '/id', $device_id, 'got device by hostname');
+
 		$t->get_ok("/device?mac=$macs[0]")->status_is(200)
 			->json_is( '/id', $device_id, 'got device by mac');
 

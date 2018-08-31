@@ -24,6 +24,7 @@ definitions:
       - created
       - hardware_product
       - health
+      - hostname
       - id
       - graduated
       - last_seen
@@ -57,6 +58,10 @@ definitions:
         format: uuid
       health:
         type: string
+      hostname:
+        anyOf:
+          - type: string
+          - type: null
       id:
         type: string
       graduated:
@@ -161,6 +166,7 @@ definitions:
       - created
       - hardware_product
       - health
+      - hostname
       - id
       - graduated
       - last_seen
@@ -190,6 +196,10 @@ definitions:
         format: uuid
       health:
         type: string
+      hostname:
+        anyOf:
+          - type: string
+          - type: null
       id:
         type: string
       graduated:
