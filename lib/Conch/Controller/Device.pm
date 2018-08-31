@@ -13,7 +13,7 @@ package Conch::Controller::Device;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
-use List::Util 'none';
+use List::Util 'none', 'any';
 
 with 'Conch::Role::MojoLog';
 
@@ -139,19 +139,10 @@ sub lookup_by_other_attribute ($c) {
 
 	$c->log->debug('looking up device by ' . $key . ' = ' . $value);
 
-	my $device_rs;
-	if ($key eq 'mac') {
-		$device_rs = $c->db_devices->search(
-			{ 'device_nics.mac' => $value },
-			{ join => 'device_nics' },
-		);
-	}
-	elsif ($key eq 'ipaddr') {
-		$device_rs = $c->db_devices->search(
-			{ 'device_nic_state.ipaddr' => $value },
-			{ join => { device_nics => 'device_nic_state' } },
-		);
-	}
+	my $device_rs = $c->db_devices->search(
+		{ "device_nics.$key" => $value },
+		{ join => 'device_nics' },
+	);
 
 	my $device_id = $device_rs->get_column('id')->single;
 

@@ -87,6 +87,26 @@ __PACKAGE__->table("device_nic");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 state
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 speed
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 ipaddr
+
+  data_type: 'inet'
+  is_nullable: 1
+
+=head2 mtu
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -118,6 +138,14 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "state",
+  { data_type => "text", is_nullable => 1 },
+  "speed",
+  { data_type => "text", is_nullable => 1 },
+  "ipaddr",
+  { data_type => "inet", is_nullable => 1 },
+  "mtu",
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -164,24 +192,9 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_nic_state
 
-Type: might_have
-
-Related object: L<Conch::DB::Result::DeviceNicState>
-
-=cut
-
-__PACKAGE__->might_have(
-  "device_nic_state",
-  "Conch::DB::Result::DeviceNicState",
-  { "foreign.mac" => "self.mac" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EGvcmBIizUaI4q5uOU4QJA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-31 08:36:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5c5curiRphx6kzhdwsYxwQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
