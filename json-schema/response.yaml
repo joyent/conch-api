@@ -273,18 +273,6 @@ definitions:
         type: string
       iface_driver:
         type: string
-      peer_mac:
-        anyOf:
-          - type: string
-          - type: null
-      peer_port:
-        anyOf:
-          - type: string
-          - type: null
-      peer_switch:
-        anyOf:
-          - type: string
-          - type: null
       state:
         anyOf:
           - type: string
