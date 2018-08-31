@@ -37,7 +37,6 @@ definitions:
       - updated
       - uptime_since
       - validated
-      - validations
       - location
       - nics
     properties:
@@ -112,12 +111,6 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: null
-      validations:
-        anyOf:
-          - type: array
-            items:
-              type: object
           - type: null
       location:
         anyOf:

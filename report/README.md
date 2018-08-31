@@ -9,11 +9,6 @@ jobs on the raw data.
 
 ## `/bin`
 
-* `device_validation_result_dump.pl` -- perl script to dump all validation
-  results from the database into a directory of files split by day (UTC). See
-  `bin/device-validation-result-dump.pl --help` for command-line options and
-  more details
-
 * `upload_dir_to_manta.sh` -- script to upload a directory to manta. Given a
   path to a directory as the first argument, it creates a GZIPed tarball and
   uploads it to Manta. It then creates a Manta job to decompress and un-tar the
@@ -37,20 +32,3 @@ will be uploaded to Manta, and assets can be used in a Manta phase with the
 `"assets"` property in `job.json`.
 
 
-* `time_to_earliest_remediation` -- processes the output of
-  `device_validation_result_dump.pl`. For each device component that resulted
-  in a validation failure, it finds the earliest failure and the earliest
-  remediation of that failure. The JSON output is structured as follows:
-
-  ```
-  {
-    "<device id>" : {
-        "<component_name>": {
-            "first_fail": <validation_result_object>,
-            "first_pass": <validation_result_object | null>
-        },
-        ...
-    },
-    ...
-  }
-  ```
