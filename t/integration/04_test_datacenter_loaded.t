@@ -491,15 +491,6 @@ subtest 'Validations' => sub {
 		->content_is( '[]' );
 	$t->get_ok("/device/TEST/validation_state?status=pass,bar")->status_is(400)
 		->json_like( '/error', qr/query parameter must be any of/ );
-
-	$t->get_ok("/workspace/$id/validation_state")->status_is(200)
-		->json_is( '/0/status', 'pass' );
-	$t->get_ok("/workspace/$id/validation_state?status=fail")->status_is(200)
-		->content_is( '[]' );
-	$t->get_ok("/workspace/$id/validation_state?status=fail,pass,error")->status_is(200)
-		->json_is( '/0/status', 'pass' );
-	$t->get_ok("/workspace/$id/validation_state?status=pass,bar")->status_is(400)
-		->json_like( '/error', qr/query parameter must be any of/ );
 };
 
 subtest 'Device location' => sub {

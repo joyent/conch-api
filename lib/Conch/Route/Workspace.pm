@@ -31,7 +31,6 @@ Sets up the routes for /workspace:
     PUT     /workspace/:workspace_id/room
     GET     /workspace/:workspace_id/user
     POST    /workspace/:workspace_id/user
-    POST    /workspace/:workspace_id/validation_state
 
 =cut
 
@@ -102,9 +101,6 @@ sub workspace_routes {
         $with_workspace->get('/user')->to('workspace_user#list');
         # POST /workspace/:workspace_id/user
         $with_workspace->post('/user')->to('workspace_user#invite');
-
-        # POST /workspace/:workspace_id/validation_state
-        $with_workspace->get('/validation_state')->to('workspace_validation#workspace_validation_states');
     }
 }
 
