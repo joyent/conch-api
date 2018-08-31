@@ -67,6 +67,7 @@ subtest 'Workspace Racks' => sub {
 "Variance: /rack in returns a hash keyed by datacenter room AZ instead of an array"
 	);
 	$t->get_ok("/workspace/$id/rack")->status_is(200)
+		->json_schema_is('WorkspaceRackSummary')
 		->json_is( '/test-region-1a/0/name', 'Test Rack',
 		'Has test datacenter rack' );
 
@@ -82,7 +83,9 @@ subtest 'Workspace Racks' => sub {
 		$t->post_ok( "/workspace/$sub_ws/rack", json => { id => $rack_id } )
 			->status_is(303)
 			->header_like( Location => qr!/workspace/$sub_ws/rack/$rack_id! );
-		$t->get_ok("/workspace/$sub_ws/rack")->status_is(200);
+		$t->get_ok("/workspace/$sub_ws/rack")
+			->status_is(200)
+			->json_schema_is('WorkspaceRackSummary');
 		$t->get_ok("/workspace/$sub_ws/rack/$rack_id")
 			->status_is(200)
 			->json_schema_is('WorkspaceRack');

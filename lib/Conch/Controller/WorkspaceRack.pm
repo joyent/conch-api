@@ -19,7 +19,8 @@ with 'Conch::Role::MojoLog';
 
 =head2 list
 
-Get a list of racks for the current workspace (as specified by :workspace_id in the path)
+Get a list of racks for the current workspace (as specified by :workspace_id in the path).
+Returns data matching the WorkspaceRackSummary json schema.
 
 =cut
 
