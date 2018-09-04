@@ -79,7 +79,7 @@ sub rack_layout ( $self, $rack ) {
       JOIN hardware_product_profile profile
         ON hw.id = profile.hardware_product_id
       WHERE hw.id = ?
-      }, $slot->{product_id}
+      }, $slot->{hardware_product_id}
 		)->hash;
 
 		my $device = $db->query(
