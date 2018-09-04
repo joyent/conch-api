@@ -117,6 +117,7 @@ sub get ($c) {
 
 Looks up a device by query parameter. Supports:
 
+	/device?hostname=$hostname
 	/device?mac=$macaddr
 	/device?ipaddr=$ipaddr
 
@@ -135,14 +136,20 @@ sub lookup_by_other_attribute ($c) {
 	my $value = $params->{$key};
 
 	return $c->status(400, { error => $key . 'parameter not supported' })
-		if none { $key eq $_ } qw(mac ipaddr);
+		if none { $key eq $_ } qw(hostname mac ipaddr);
 
 	$c->log->debug('looking up device by ' . $key . ' = ' . $value);
 
-	my $device_rs = $c->db_devices->search(
-		{ "device_nics.$key" => $value },
-		{ join => 'device_nics' },
-	);
+	my $device_rs;
+	if ($key eq 'hostname') {
+		$device_rs = $c->db_devices->search({ $key => $value });
+	}
+	elsif (any { $key eq $_ } qw(mac ipaddr)) {
+		$device_rs = $c->db_devices->search(
+			{ "device_nics.$key" => $value },
+			{ join => 'device_nics' },
+		);
+	}
 
 	my $device_id = $device_rs->get_column('id')->single;
 

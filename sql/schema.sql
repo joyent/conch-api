@@ -232,7 +232,8 @@ CREATE TABLE public.device (
     triton_uuid uuid,
     asset_tag text,
     triton_setup timestamp with time zone,
-    device_role_id uuid
+    device_role_id uuid,
+    hostname text
 );
 
 

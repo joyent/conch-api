@@ -29,7 +29,8 @@ sub process ($c) {
 
 	my $unserialized_report = $c->validate_input('DeviceReport');
 	if(not $unserialized_report) {
-		return; # JSON validator will handle the proper error response
+		$c->log->debug('Device report input failed validation');
+		return $c->status(400);
 	}
 
 	# Make sure the API and device report agree on who we're talking about
@@ -89,7 +90,9 @@ sub process ($c) {
 		state               => $unserialized_report->{state},
 		health              => "UNKNOWN",
 		last_seen           => \'NOW()',
-		uptime_since        => $uptime
+		uptime_since        => $uptime,
+		hostname            => $unserialized_report->{os}{hostname},
+		updated             => \'NOW()',
 	});
 
 	$c->log->debug("Creating device report");
@@ -116,9 +119,10 @@ sub process ($c) {
 		$validation_name = 'Conch v1 Legacy Plan: Switch';
 	}
 
-	$c->log->debug("Attempting to validation with plan '$validation_name'");
+	$c->log->debug("Attempting to validate with plan '$validation_name'");
 
 	my $validation_plan = Conch::Model::ValidationPlan->lookup_by_name($validation_name);
+	return $c->status(500, { error => "failed to find validation plan" }) if not $validation_plan;
 	$validation_plan->log($c->log);
 
 	# [2018-07-16 sungo] - As we grow this logic to be smarter and more
@@ -137,7 +141,7 @@ sub process ($c) {
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
 	# this uses the DBIC object from _record_device_report to do the update
-	$device->update( { health => uc( $validation_state->status ) } );
+	$device->update( { health => uc( $validation_state->status ), updated => \'NOW()' } );
 
 	$c->status( 200, $validation_state );
 }
@@ -174,7 +178,7 @@ sub _record_device_configuration {
 					{
 						device_id => $device->id,
 						relay_id  => $dr->{relay}{serial},
-						last_seen => \'NOW()'
+						last_seen => \'NOW()',
 					}
 				);
 			}
@@ -213,6 +217,7 @@ sub _record_device_configuration {
 					cpu1_temp    => $dr->{temp}->{cpu1},
 					inlet_temp   => $dr->{temp}->{inlet},
 					exhaust_temp => $dr->{temp}->{exhaust},
+					updated      => \'NOW()',
 				}
 			) if $dr->{temp};
 

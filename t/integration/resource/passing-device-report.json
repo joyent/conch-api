@@ -327,5 +327,6 @@
   "product_name": "Joyent-S1",
   "sku": "550-552-003",
   "relay": { "serial": "deadbeef" },
-  "system_uuid": "4C4C4544-0035-4D10-8032-B4C04F4E4432"
+  "system_uuid": "4C4C4544-0035-4D10-8032-B4C04F4E4432",
+  "os": {"hostname": "elfo"}
 }

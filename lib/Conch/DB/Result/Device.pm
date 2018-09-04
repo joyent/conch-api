@@ -132,6 +132,11 @@ __PACKAGE__->table("device");
   is_nullable: 1
   size: 16
 
+=head2 hostname
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -179,6 +184,8 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "device_role_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  "hostname",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -440,8 +447,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:08:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KSKL4ZfwGQxiOEMTKVkPFQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-04 14:42:21
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5OKKgPUp+o/OFFVDYN1NWg
 
 use Class::Method::Modifiers;
 
