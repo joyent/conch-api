@@ -570,35 +570,37 @@ definitions:
                   vdev_t:
                     type: string
               - type: null
-
   WorkspaceRackSummary:
     type: object
-    items:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        role:
-          type: string
-        size:
-          type: integer
-        device_progress:
+    additionalProperties: false
+    patternProperties:
+      ^[\w-]+$:  # key is actually a room az name
+        type: array
+        items:
           type: object
           additionalProperties: false
           properties:
-            PASS:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            role:
+              type: string
+            size:
               type: integer
-            FAIL:
-              type: integer
-            UNKNOWN:
-              type: integer
-            ERROR:
-              type: integer
-
+            device_progress:
+              type: object
+              additionalProperties: false
+              properties:
+                PASS:
+                  type: integer
+                FAIL:
+                  type: integer
+                UNKNOWN:
+                  type: integer
+                ERROR:
+                  type: integer
   WorkspaceRack:
     type: object
     additionalProperties: false
@@ -620,38 +622,40 @@ definitions:
         type: string
       slots:
         type: object
-        items:
-          type: object
-          additionalProperties: false
-          required:
-            - alias
-            - id
-            - name
-            - size
-            - vendor
-            - occupant
-          properties:
-            alias:
-              type: string
-              description: Hardware product alias
-            id:
-              type: string
-              format: uuid
-              description: Hardware product ID
-            name:
-              type: string
-              description: Hardware product name
-            size:
-              type: integer
-              description: Number of RUs for slot
-            vendor:
-              type: string
-              description: Hardware product vendor
-            occupant:
-              description: Device assigned to this slot or null
-              anyOf:
-                - $ref: "#/definitions/Device"
-                - type: null
+        additionalProperties: false
+        patternProperties:
+          ^[0-9]+$:
+            type: object
+            additionalProperties: false
+            required:
+              - alias
+              - id
+              - name
+              - size
+              - vendor
+              - occupant
+            properties:
+              alias:
+                type: string
+                description: Hardware product alias
+              id:
+                type: string
+                format: uuid
+                description: Hardware product ID
+              name:
+                type: string
+                description: Hardware product name
+              size:
+                type: integer
+                description: Number of RUs for slot
+              vendor:
+                type: string
+                description: Hardware product vendor
+              occupant:
+                description: Device assigned to this slot or null
+                anyOf:
+                  - $ref: "#/definitions/Device"
+                  - type: null
   Validations:
     type: array
     items:
@@ -889,16 +893,28 @@ definitions:
     properties:
       failing:
         type: object
-        items:
-          $ref: "#/definitions/Problem"
+        additionalProperties: false
+        patternProperties:
+          ^[0-9]+$:
+            type: object
+            additionalProperties: false
+            $ref: "#/definitions/Problem"
       unreported:
         type: object
-        items:
-          $ref: "#/definitions/Problem"
+        additionalProperties: false
+        patternProperties:
+          ^[0-9]+$:
+            type: object
+            additionalProperties: false
+            $ref: "#/definitions/Problem"
       unlocated:
         type: object
-        items:
-          $ref: "#/definitions/Problem"
+        additionalProperties: false
+        patternProperties:
+          ^[0-9]+$:
+            type: object
+            additionalProperties: false
+            $ref: "#/definitions/Problem"
   Problem:
     type: object
     additionalProperties: false
