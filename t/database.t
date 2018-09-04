@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Test::Conch;
 use Test::Fatal;
+use Test::Warnings;
 
 subtest 'read-only database handle' => sub {
     my $t = Test::Conch->new;
