@@ -82,7 +82,9 @@ subtest 'Workspace Racks' => sub {
 			->status_is(303)
 			->header_like( Location => qr!/workspace/$sub_ws/rack/$rack_id! );
 		$t->get_ok("/workspace/$sub_ws/rack")->status_is(200);
-		$t->get_ok("/workspace/$sub_ws/rack/$rack_id")->status_is(200);
+		$t->get_ok("/workspace/$sub_ws/rack/$rack_id")
+			->status_is(200)
+			->json_schema_is('WorkspaceRack');
 
 		subtest 'Cannot modify GLOBAL workspace' => sub {
 			$t->post_ok( "/workspace/$id/rack", json => { id => $rack_id } )
