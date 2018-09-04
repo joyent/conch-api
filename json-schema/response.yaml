@@ -538,6 +538,12 @@ definitions:
   WorkspaceRack:
     type: object
     additionalProperties: false
+    required:
+      - id
+      - name
+      - role
+      - datacenter
+      - slots
     properties:
       id:
         type: string
@@ -546,8 +552,6 @@ definitions:
         type: string
       role:
         type: string
-      size:
-        type: integer
       datacenter:
         type: string
       slots:
@@ -555,6 +559,13 @@ definitions:
         items:
           type: object
           additionalProperties: false
+          required:
+            - alias
+            - id
+            - name
+            - size
+            - vendor
+            - occupant
           properties:
             alias:
               type: string
