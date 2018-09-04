@@ -2,6 +2,7 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
 use Test::Fatal;
+use Test::Warnings;
 use Conch::Pg;
 use Time::HiRes;
 

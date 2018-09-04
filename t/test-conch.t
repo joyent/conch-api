@@ -3,6 +3,7 @@ use warnings;
 use v5.26;
 
 use Test::More;
+use Test::Warnings;
 use Test::Conch;
 
 subtest 'multiple Test::Conches talking to the same db' => sub {
