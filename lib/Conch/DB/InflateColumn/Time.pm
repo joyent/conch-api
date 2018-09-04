@@ -6,6 +6,8 @@ use warnings;
 
 use parent 'DBIx::Class::InflateColumn::TimeMoment';
 
+use Conch::Time;
+
 =pod
 
 =head1 DESCRIPTION

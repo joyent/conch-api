@@ -3,7 +3,6 @@ package Conch::Controller::DatacenterRoom;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Conch::Models;
 
 with 'Conch::Role::MojoLog';
 
@@ -20,27 +19,22 @@ sub find_datacenter_room ($c) {
 		return undef;
 	}
 
-	my $s;
-
-	if($c->stash('datacenter_room_id') =~ /^(.+?)\=(.+)$/) {
+	if ($c->stash('datacenter_room_id_or_name') =~ /^(.+?)\=(.+)$/) {
 		$c->log->warn("Unsupported identifier '$1'");
-		$c->status(501);
-		return undef;
-	} else {
-		$c->log->debug("Looking up datacenter room ".$c->stash('datacenter_room_id'));
-		$s = Conch::Model::DatacenterRoom->from_id($c->stash('datacenter_room_id'));
+		return $c->status(501);
 	}
 
-	if ($s) {
-		$c->log->debug("Found datacenter room");
-		$c->stash('datacenter_room' => $s);
-		return 1;
-	} else {
+	$c->log->debug("Looking up datacenter room ".$c->stash('datacenter_room_id_or_name'));
+	my $room = $c->db_datacenter_rooms->find($c->stash('datacenter_room_id_or_name'));
+
+	if (not $room) {
 		$c->log->debug("Could not find datacenter room");
-		$c->status(404 => { error => "Not found" });
-		return undef;
+		return $c->status(404 => { error => "Not found" });
 	}
 
+	$c->log->debug("Found datacenter room");
+	$c->stash('datacenter_room' => $room);
+	return 1;
 }
 
 
@@ -53,10 +47,10 @@ Get all datacenter rooms
 sub get_all ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $r = Conch::Model::DatacenterRoom->all();
-	$c->log->debug("Found ".scalar($r->@*)." datacenter rooms");
+	my @rooms = $c->db_datacenter_rooms->all;
+	$c->log->debug('Found ' . scalar(@rooms) . ' datacenter rooms');
 
-	return $c->status(200 => $r);
+	return $c->status(200 => \@rooms);
 }
 
 
@@ -79,15 +73,17 @@ Create a new datacenter room
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $i = $c->validate_input('DatacenterRoomCreate');
-	if(not $i) {
+	my $input = $c->validate_input('DatacenterRoomCreate');
+	if (not $input) {
 		$c->log->warn("Input failed validation");
-		return;
+		return $c->status('400');
 	}
 
-	my $r = Conch::Model::DatacenterRoom->new($i->%*)->save;
-	$c->log->debug("Created datacenter room ".$r->id);
-	$c->status(303 => "/room/".$r->id);
+	$input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
+
+	my $room = $c->db_datacenter_rooms->create($input);
+	$c->log->debug("Created datacenter room ".$room->id);
+	$c->status(303 => '/room/'.$room->id);
 }
 
 
@@ -99,27 +95,35 @@ Update an existing room
 
 sub update ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	my $i = $c->validate_input('DatacenterRoomUpdate');
-	if(not $i) {
+	my $input = $c->validate_input('DatacenterRoomUpdate');
+	if (not $input) {
 		$c->log->warn("Input failed validation");
-		return;
+		return $c->status(400);
 	}
 
-	$c->stash('datacenter_room')->update($i->%*)->save();
-	$c->log->debug("Updated datacenter room ".$c->stash('datacenter_room')->id);
+	$input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
+
+	$c->stash('datacenter_room')->update({ %$input, updated => \'NOW()' });
+	$c->log->debug("Updated datacenter room ".$c->stash('datacenter_room_id_or_name'));
 	$c->status(303 => "/room/".$c->stash('datacenter_room')->id);
 }
 
 
 =head2 delete
 
-Permanently delete a datacenter room
+Permanently delete a datacenter room.
+
+Also removes the room from all workspaces.
 
 =cut
 
 sub delete ($c) {
 	return $c->status(403) unless $c->is_global_admin;
-	$c->stash('datacenter_room')->burn;
+	# FIXME: if we have cascade_copy => 1 set on this rel,
+	# then we don't have to do this... and we don't have to worry about rack updates either.
+	# But for now, we have a dangling reference to the deleted room in datacenter_rack!
+	$c->stash('datacenter_room')->delete_related('workspace_datacenter_rooms');
+	$c->stash('datacenter_room')->delete;
 	$c->log->debug("Deleted datacenter room ".$c->stash('datacenter_room')->id);
 	return $c->status(204);
 }
@@ -132,14 +136,12 @@ sub delete ($c) {
 sub racks ($c) {
 	return $c->status(403) unless $c->is_global_admin;
 
-	my $r = Conch::Model::DatacenterRack->from_datacenter_room(
-		$c->stash('datacenter_room')->id
-	);
+	my @racks = $c->db_datacenter_racks->search({ datacenter_room_id => $c->stash('datacenter_room')->id });
 	$c->log->debug(
-		"Found ".scalar($r->@*).
+		"Found ".scalar(@racks).
 		" racks for datacenter room ".$c->stash('datacenter_room')->id
 	);
-	return $c->status(200 => $r);
+	return $c->status(200 => \@racks);
 
 }
 

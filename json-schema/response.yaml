@@ -588,8 +588,17 @@ definitions:
           type: integer
         device_progress:
           type: object
-          items:
-            type: integer
+          additionalProperties: false
+          properties:
+            PASS:
+              type: integer
+            FAIL:
+              type: integer
+            UNKNOWN:
+              type: integer
+            ERROR:
+              type: integer
+
   WorkspaceRack:
     type: object
     additionalProperties: false
@@ -1255,6 +1264,8 @@ definitions:
       - name
       - datacenter_room_id
       - role
+      - serial_number
+      - asset_tag
       - created
       - updated
     properties:
@@ -1269,6 +1280,14 @@ definitions:
       role:
         type: string
         format: uuid
+      serial_number:
+        anyOf:
+          - type: string
+          - type: null
+      asset_tag:
+        anyOf:
+          - type: string
+          - type: null
       created:
         type: string
         format: date-time

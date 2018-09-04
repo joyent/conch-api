@@ -155,7 +155,9 @@ CREATE TABLE public.datacenter_rack (
     datacenter_rack_role_id uuid NOT NULL,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    serial_number text,
+    asset_tag text
 );
 
 

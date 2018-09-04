@@ -177,8 +177,17 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 12:46:05
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WMR+xeS8FDHZv5ZKXOj+Eg
 
+use Class::Method::Modifiers;
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+around TO_JSON => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    my $data = $self->$orig(@_);
+    $data->{datacenter} = delete $data->{datacenter_id};
+    return $data;
+};
+
 1;
 __END__
 
@@ -193,3 +202,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

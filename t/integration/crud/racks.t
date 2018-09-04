@@ -71,6 +71,8 @@ my $idr = $t->tx->res->json->{id};
 
 $t->post_ok("/rack/$idr", json => {
 	name => 'rack',
+	serial_number => 'abc',
+	asset_tag => 'deadbeef',
 })->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)->status_is(200)

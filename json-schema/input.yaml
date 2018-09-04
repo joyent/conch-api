@@ -164,6 +164,10 @@ definitions:
       role:
         type: string
         format: uuid
+      serial_number:
+        type: string
+      asset_tag:
+        type: string
   RackRoleCreate:
     type: object
     additionalProperties: false
@@ -303,4 +307,17 @@ definitions:
       id:
         type: string
         format: uuid
+  WorkspaceAddRack:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        format: uuid
+      serial_number:
+        type: string
+      asset_tag:
+        type: string
 

@@ -19,7 +19,8 @@ with 'Conch::Role::MojoLog';
 
 =head2 list
 
-Get a list of racks for the current workspace (as specified by :workspace_id in the path)
+Get a list of racks for the current workspace (as specified by :workspace_id in the path).
+Returns data matching the WorkspaceRackSummary json schema.
 
 =cut
 
@@ -78,19 +79,15 @@ already assigned via a datacenter room assignment
 =cut
 
 sub add ($c) {
-	my $body = $c->req->json;
 	return $c->status(403) unless $c->is_admin;
 
-	unless($body && $body->{id}) {
-		return $c->status( 400 => {
-			error => 'JSON object with "id" Rack ID field required'
-		});
-	}	
-	my $rack_id = $body->{id};
+	my $input = $c->validate_input('WorkspaceAddRack');
+	if (not $input) {
+		$c->log->warn("Input failed validation");
+		return $c->status(400);
+	}
 
-	return $c->status( 400,
-		{ error => "Rack ID must be a UUID. Got '$rack_id'." } )
-		unless is_uuid($rack_id);
+	my $rack_id = delete $input->{id};
 
 	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
@@ -126,6 +123,9 @@ sub add ($c) {
 	}
 
 	Conch::Model::WorkspaceRack->new->add_to_workspace($c->stash('workspace_id'), $rack_id );
+
+	# update rack with additional info, if provided.
+	$c->db_datacenter_racks->search({ id => $rack_id })->update($input) if keys %$input;
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for->to_abs . "/$rack_id" );
