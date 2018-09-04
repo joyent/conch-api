@@ -3,6 +3,7 @@ use Test::More;
 use Data::UUID;
 use IO::All;
 use Test::Deep;
+use Test::Warnings;
 use Mojo::JSON 'decode_json';
 
 use Test::Conch::Datacenter;

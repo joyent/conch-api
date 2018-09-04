@@ -1,6 +1,7 @@
 use Mojo::Base -strict;
 use Mojo::Util 'monkey_patch';
 use Test::More;
+use Test::Warnings;
 use Data::UUID;
 use Conch::UUID 'is_uuid';
 use IO::All;

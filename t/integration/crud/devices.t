@@ -2,6 +2,7 @@ use v5.26;
 use warnings;
 
 use Test::More;
+use Test::Warnings;
 use Test::Conch::Datacenter;
 use Path::Tiny;
 

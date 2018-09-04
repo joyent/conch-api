@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Warnings;
 use Test::Pod::Coverage 1.00;
 use List::Util 'any';
 
