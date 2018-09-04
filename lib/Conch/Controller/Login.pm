@@ -211,24 +211,24 @@ Handles the act of logging in, given a user and password in the form. Returns a 
 =cut
 
 sub session_login ($c) {
-	my $body = $c->req->json;
-
-	return $c->status( 400, { error => '"user" and "password" required' } )
-		unless $body->{user} and $body->{password};
+	my $input = $c->validate_input('Login');
+	if (not $input) {
+		$c->log->debug('session login failed validation');
+		return $c->status(400);
+	}
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
 	# don't have to look up by all columns.
-	my $user = $c->db_user_accounts->lookup_by_id($body->{user})
-		|| $c->db_user_accounts->lookup_by_name($body->{user})
-		|| $c->db_user_accounts->lookup_by_email($body->{user});
+	my $user = $c->db_user_accounts->lookup_by_id($input->{user})
+		|| $c->db_user_accounts->lookup_by_email($input->{user});
 
 	if (not $user) {
-		$c->log->debug("user lookup for $body->{user} failed");
+		$c->log->debug("user lookup for $input->{user} failed");
 		return $c->status(401, { error => 'unauthorized' });
 	}
 
-	if (not $user->validate_password($body->{password})) {
-		$c->log->debug("password validation for $body->{user} failed");
+	if (not $user->validate_password($input->{password})) {
+		$c->log->debug("password validation for $input->{user} failed");
 		return $c->status(401, { error => 'unauthorized' });
 	}
 

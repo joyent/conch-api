@@ -17,7 +17,7 @@ my $uuid = Data::UUID->new;
 
 $t->post_ok(
 	"/login" => json => {
-		user     => 'conch',
+		user     => 'conch@conch.joyent.us',
 		password => 'conch'
 	}
 )->status_is(200)->json_schema_is('Login');

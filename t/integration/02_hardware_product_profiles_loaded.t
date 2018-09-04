@@ -34,7 +34,7 @@ $t->get_ok("/version")->status_is(200);
 
 $t->post_ok(
 	"/login" => json => {
-		user     => 'conch',
+		user     => 'conch@conch.joyent.us',
 		password => 'conch'
 	}
 )->status_is(200);
