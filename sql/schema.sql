@@ -485,41 +485,6 @@ CREATE TABLE public.device_spec (
 ALTER TABLE public.device_spec OWNER TO conch;
 
 --
--- Name: device_validate; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_validate (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    report_id uuid NOT NULL,
-    device_id text NOT NULL,
-    validation jsonb NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.device_validate OWNER TO conch;
-
---
--- Name: device_validate_criteria; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_validate_criteria (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    hardware_product_id uuid,
-    component text NOT NULL,
-    condition text NOT NULL,
-    vendor text,
-    model text,
-    string text,
-    min integer,
-    warn integer,
-    crit integer
-);
-
-
-ALTER TABLE public.device_validate_criteria OWNER TO conch;
-
---
 -- Name: hardware_product; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -1121,22 +1086,6 @@ ALTER TABLE ONLY public.device
 
 
 --
--- Name: device_validate_criteria device_validate_criteria_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_validate_criteria
-    ADD CONSTRAINT device_validate_criteria_pkey PRIMARY KEY (id);
-
-
---
--- Name: device_validate device_validate_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_validate
-    ADD CONSTRAINT device_validate_pkey PRIMARY KEY (id);
-
-
---
 -- Name: hardware_product hardware_product_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1364,13 +1313,6 @@ CREATE INDEX device_report_device_id_created_idx ON public.device_report USING b
 --
 
 CREATE UNIQUE INDEX device_settings_device_id_name_idx ON public.device_settings USING btree (device_id, name) WHERE (deactivated IS NULL);
-
-
---
--- Name: device_validate_report_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX device_validate_report_id_idx ON public.device_validate USING btree (report_id);
 
 
 --
@@ -1633,30 +1575,6 @@ ALTER TABLE ONLY public.device_spec
 
 ALTER TABLE ONLY public.device_spec
     ADD CONSTRAINT device_specs_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product_profile(id);
-
-
---
--- Name: device_validate_criteria device_validate_criteria_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_validate_criteria
-    ADD CONSTRAINT device_validate_criteria_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product_profile(id);
-
-
---
--- Name: device_validate device_validate_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_validate
-    ADD CONSTRAINT device_validate_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
-
-
---
--- Name: device_validate device_validate_report_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_validate
-    ADD CONSTRAINT device_validate_report_id_fkey FOREIGN KEY (report_id) REFERENCES public.device_report(id);
 
 
 --
