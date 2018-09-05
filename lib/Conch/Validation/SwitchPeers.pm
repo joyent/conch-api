@@ -52,7 +52,7 @@ sub validate {
 	}
 
 	my @peer_ports = $self->_calculate_switch_peer_ports(
-		$device_location->rack_unit,
+		$device_location->rack_unit,	# TODO: Conch::DB::Result::DeviceLocation calls this rack_unit_start
 		$rack_slots,
 		$peer_vendor,
 	);
@@ -102,9 +102,9 @@ sub validate {
 }
 
 sub _calculate_switch_peer_ports {
-	my ( $self, $rack_unit, $rack_slots, $peer_vendor ) = @_;
+	my ( $self, $rack_unit_start, $rack_slots, $peer_vendor ) = @_;
 
-	my $rack_index = first { $rack_slots->[$_] == $rack_unit } 0 .. $rack_slots->$#*;
+	my $rack_index = first { $rack_slots->[$_] == $rack_unit_start } 0 .. $rack_slots->$#*;
 
 	defined $rack_index
 		or $self->die('Device assigned to rack unit not in rack layout');

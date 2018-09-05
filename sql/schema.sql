@@ -171,7 +171,7 @@ CREATE TABLE public.datacenter_rack_layout (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     rack_id uuid NOT NULL,
     hardware_product_id uuid NOT NULL,
-    ru_start integer NOT NULL,
+    rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -292,7 +292,7 @@ ALTER TABLE public.device_environment OWNER TO conch;
 CREATE TABLE public.device_location (
     device_id text NOT NULL,
     rack_id uuid NOT NULL,
-    rack_unit integer NOT NULL,
+    rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -878,19 +878,11 @@ ALTER TABLE ONLY public.datacenter_rack_layout
 
 
 --
--- Name: datacenter_rack_layout datacenter_rack_layout_rack_id_ru_start_key; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: datacenter_rack_layout datacenter_rack_layout_rack_id_rack_unit_start_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.datacenter_rack_layout
-    ADD CONSTRAINT datacenter_rack_layout_rack_id_ru_start_key UNIQUE (rack_id, ru_start);
-
-
---
--- Name: datacenter_rack_layout datacenter_rack_layout_rack_id_ru_start_key1; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack_layout
-    ADD CONSTRAINT datacenter_rack_layout_rack_id_ru_start_key1 UNIQUE (rack_id, ru_start);
+    ADD CONSTRAINT datacenter_rack_layout_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start);
 
 
 --
@@ -966,11 +958,11 @@ ALTER TABLE ONLY public.device_location
 
 
 --
--- Name: device_location device_location_rack_id_rack_unit_key; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_location device_location_rack_id_rack_unit_start_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.device_location
-    ADD CONSTRAINT device_location_rack_id_rack_unit_key UNIQUE (rack_id, rack_unit);
+    ADD CONSTRAINT device_location_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start);
 
 
 --
@@ -1406,6 +1398,14 @@ ALTER TABLE ONLY public.datacenter_rack_layout
 
 ALTER TABLE ONLY public.datacenter_rack_layout
     ADD CONSTRAINT datacenter_rack_layout_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.datacenter_rack(id);
+
+
+--
+-- Name: device_location datacenter_rack_layout_rack_id_rack_unit_start_key; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.device_location
+    ADD CONSTRAINT datacenter_rack_layout_rack_id_rack_unit_start_key FOREIGN KEY (rack_id, rack_unit_start) REFERENCES public.datacenter_rack_layout(rack_id, rack_unit_start);
 
 
 --

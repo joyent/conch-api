@@ -1337,7 +1337,7 @@ definitions:
       product_id:
         type: string
         format: uuid
-      ru_start:
+      ru_start: # TODO: this really should be rack_unit_start
         type: integer
       created:
         type: string

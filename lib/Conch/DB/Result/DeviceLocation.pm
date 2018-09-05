@@ -50,9 +50,10 @@ __PACKAGE__->table("device_location");
   is_nullable: 0
   size: 16
 
-=head2 rack_unit
+=head2 rack_unit_start
 
   data_type: 'integer'
+  is_foreign_key: 1
   is_nullable: 0
 
 =head2 created
@@ -76,8 +77,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "rack_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "rack_unit",
-  { data_type => "integer", is_nullable => 0 },
+  "rack_unit_start",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -108,24 +109,39 @@ __PACKAGE__->set_primary_key("device_id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<device_location_rack_id_rack_unit_key>
+=head2 C<device_location_rack_id_rack_unit_start_key>
 
 =over 4
 
 =item * L</rack_id>
 
-=item * L</rack_unit>
+=item * L</rack_unit_start>
 
 =back
 
 =cut
 
 __PACKAGE__->add_unique_constraint(
-  "device_location_rack_id_rack_unit_key",
-  ["rack_id", "rack_unit"],
+  "device_location_rack_id_rack_unit_start_key",
+  ["rack_id", "rack_unit_start"],
 );
 
 =head1 RELATIONS
+
+=head2 datacenter_rack_layout
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::DatacenterRackLayout>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "datacenter_rack_layout",
+  "Conch::DB::Result::DatacenterRackLayout",
+  { rack_id => "rack_id", rack_unit_start => "rack_unit_start" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
 
 =head2 device
 
@@ -158,8 +174,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5MliEY3BFtW3yP2osb89vw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-07 11:03:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:LpNt7rqcrIhdvmOF3uEl8A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

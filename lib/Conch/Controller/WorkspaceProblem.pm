@@ -131,16 +131,18 @@ sub _device_rack_location {
 			$schema->resultset('DatacenterRoom')->find( { id => $rack_info->datacenter_room_id } );
 
 		# get the hardware product a device should be by rack location
+		# TODO: can just search for this directly via
+		# rack->datacenter_rack_layouts->hardware_product
 		my $target_hardware = $schema->resultset('HardwareProduct')->search(
 			{
 				'datacenter_rack_layouts.rack_id'  => $rack_info->id,
-				'datacenter_rack_layouts.ru_start' => $device_location->rack_unit,
+				'datacenter_rack_layouts.rack_unit_start' => $device_location->rack_unit_start,
 			},
 			{ join => 'datacenter_rack_layouts' }
 		)->single;
 
 		$location->{rack}{id}   = $device_location->rack_id;
-		$location->{rack}{unit} = $device_location->rack_unit;
+		$location->{rack}{unit} = $device_location->rack_unit_start;
 		$location->{rack}{name} = $rack_info->name;
 		$location->{rack}{role} = $rack_info->role->name;
 

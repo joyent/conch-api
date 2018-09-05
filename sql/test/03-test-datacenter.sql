@@ -13,21 +13,21 @@ INSERT INTO datacenter_rack (datacenter_room_id, name, datacenter_rack_role_id)
         ( SELECT id FROM datacenter_rack_role WHERE name =  'TEST_RACK_ROLE' )
     );
 
-INSERT INTO datacenter_rack_layout (rack_id, hardware_product_id, ru_start)
+INSERT INTO datacenter_rack_layout (rack_id, hardware_product_id, rack_unit_start)
     VALUES (
         ( SELECT id FROM datacenter_rack WHERE name = 'Test Rack' ),
         ( SELECT id FROM hardware_product WHERE name = '2-ssds-1-cpu'),
         1
     );
 
-INSERT INTO datacenter_rack_layout (rack_id, hardware_product_id, ru_start)
+INSERT INTO datacenter_rack_layout (rack_id, hardware_product_id, rack_unit_start)
     VALUES (
         ( SELECT id FROM datacenter_rack WHERE name = 'Test Rack' ),
         ( SELECT id FROM hardware_product WHERE name = '2-ssds-1-cpu'),
         3
     );
 
-INSERT INTO datacenter_rack_layout (rack_id, hardware_product_id, ru_start)
+INSERT INTO datacenter_rack_layout (rack_id, hardware_product_id, rack_unit_start)
     VALUES (
         ( SELECT id FROM datacenter_rack WHERE name = 'Test Rack' ),
         ( SELECT id FROM hardware_product WHERE name = '65-ssds-2-cpu'),

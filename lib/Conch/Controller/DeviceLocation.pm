@@ -45,6 +45,7 @@ Sets the location for a device, given a valid rack id and rack unit
 sub set ($c) {
 	my $device_id = $c->stash('device_id');
 	my $body      = $c->req->json;
+	# FIXME: validate incoming data against json schema
 	return $c->status( 400,
 		{ error => 'rack_id and rack_unit must be defined the the request object' }
 	) unless $body->{rack_id} && $body->{rack_unit};
