@@ -133,7 +133,9 @@ sub update ($c) {
 		}
 	}
 
+	$input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
 	$c->stash('rack_layout')->update({ %$input, updated => \'NOW()' });
+
 	return $c->status(303 => "/layout/".$c->stash('rack_layout')->id);
 }
 
