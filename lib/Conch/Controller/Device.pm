@@ -86,7 +86,6 @@ sub get ($c) {
 		{},
 		{
 			prefetch => [
-				'latest_report',
 				{ device_nics => 'device_neighbor' },
 			],
 		},
@@ -94,11 +93,14 @@ sub get ($c) {
 
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
 
+	# this bit of the query is SLOW, so we don't add it to the prefetch list.
+	my $latest_report = $device->latest_report;
+
 	# TODO: we can collapse this all down to a self-contained serializer once the
 	# DeviceLocation query has been converted to a prefetchable relationship.
 	my $detailed_device = +{
 		%{ $device->TO_JSON },
-		latest_report => $device->latest_report->report,
+		latest_report => ($latest_report ? $latest_report->report : undef),
 		nics => [ map {
 			my $device_nic = $_;
 			$device_nic->deactivated ? () :
