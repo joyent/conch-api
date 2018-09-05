@@ -150,6 +150,13 @@ subtest 'Assign device to a location' => sub {
 
 	$t->get_ok('/device/TEST/location')->status_is(200);
 
+	$t->get_ok("/workspace/$id/rack/$rack_id")
+		->status_is(200)
+		->json_schema_is('WorkspaceRack')
+		->json_is(
+			'/slots/0/rack_unit_start', 1,
+			'/slots/0/occupant/id', 'TEST',
+		);
 };
 
 subtest 'Single device' => sub {

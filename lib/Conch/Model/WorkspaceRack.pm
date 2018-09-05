@@ -68,6 +68,8 @@ sub rack_layout ( $self, $rack ) {
 	$res->{role}       = $rack->role_name;
 	$res->{datacenter} = $datacenter_room->{az};
 
+	my @slots;
+
 	foreach my $slot (@$rack_slots) {
 		my $rack_unit_start = $slot->{rack_unit_start};
 		my $hw       = $db->query(
@@ -92,19 +94,26 @@ sub rack_layout ( $self, $rack ) {
       }, $rack->id, $rack_unit_start
 		)->hash;
 
+		my $slot = { rack_unit_start => $rack_unit_start };
+
 		if ($device) {
-			$res->{slots}{$rack_unit_start}{occupant} = $device;
+			$slot->{occupant} = $device;
 		}
 		else {
-			$res->{slots}{$rack_unit_start}{occupant} = undef;
+			$slot->{occupant} = undef;
 		}
 
-		$res->{slots}{$rack_unit_start}{id}     = $hw->{id};
-		$res->{slots}{$rack_unit_start}{alias}  = $hw->{alias};
-		$res->{slots}{$rack_unit_start}{name}   = $hw->{name};
-		$res->{slots}{$rack_unit_start}{vendor} = $hw->{vendor};
-		$res->{slots}{$rack_unit_start}{size}   = $hw->{size};
+		$slot->{id}     = $hw->{id};
+		$slot->{alias}  = $hw->{alias};
+		$slot->{name}   = $hw->{name};
+		$slot->{vendor} = $hw->{vendor};
+		$slot->{size}   = $hw->{size};
+
+		push @slots, $slot;
 	}
+
+	@slots = sort { $a->{rack_unit_start} <=> $b->{rack_unit_start} } @slots;
+	$res->{slots} = \@slots;
 
 	return $res;
 }
