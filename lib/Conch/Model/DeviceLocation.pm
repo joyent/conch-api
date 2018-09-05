@@ -155,7 +155,7 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
 				id               => $device_id,
 				health           => "UNKNOWN",
 				state            => "UNKNOWN",
-				hardware_product => $maybe_slot->{hardware_product_id},
+				hardware_product_id => $maybe_slot->{hardware_product_id},
 			}
 		);
 	}
