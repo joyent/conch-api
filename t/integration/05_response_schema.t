@@ -88,6 +88,10 @@ subtest 'Set up a test device' => sub {
 		io->file('t/integration/resource/passing-device-report.json')->slurp;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
 		->json_schema_is( 'ValidationState' );
+
+	$t->get_ok("/workspace/$id/problem")->status_is(200)
+		->json_schema_is('Problems')
+		->json_is('/unlocated/TEST/health', 'PASS', 'device is listed as unlocated');
 };
 
 # Set the various timestamps on a device so we can validate them
@@ -110,6 +114,10 @@ $t->post_ok(
 		TEST => 1
 	}
 )->status_is(200);
+
+$t->get_ok("/workspace/$id/problem")->status_is(200)
+	->json_schema_is('Problems')
+	->json_hasnt('/unlocated/TEST', 'device is no longer unlocated');
 
 $t->get_ok('/device/TEST/location')->status_is(200)
 	->json_schema_is('DeviceLocation');
