@@ -591,6 +591,8 @@ definitions:
               type: object
               additionalProperties: false
               properties:
+                VALID:
+                  type: integer
                 PASS:
                   type: integer
                 FAIL:
