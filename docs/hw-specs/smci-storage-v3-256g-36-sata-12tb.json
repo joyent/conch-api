@@ -82,14 +82,14 @@
 		},
 		"memory": {
 			"dimms": [
-				{ "slot": "P1_DIMMA1", "bank": 1, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
-				{ "slot": "P1_DIMMA2", "bank": 1, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
-				{ "slot": "P1_DIMMC1", "bank": 2, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
-				{ "slot": "P1_DIMMC2", "bank": 2, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
-				{ "slot": "P1_DIMME1", "bank": 3, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
-				{ "slot": "P1_DIMME2", "bank": 3, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
-				{ "slot": "P1_DIMMG1", "bank": 4, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
-				{ "slot": "P1_DIMMG2", "bank": 4, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 }
+				{ "slot": "P1-DIMMA1", "bank": 1, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1-DIMMB1", "bank": 1, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1-DIMMD1", "bank": 2, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P1-DIMME1", "bank": 2, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P2-DIMMA1", "bank": 3, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P2-DIMMB1", "bank": 3, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P2-DIMMD1", "bank": 4, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 },
+				{ "slot": "P2-DIMME1", "bank": 4, "vendor": "Samsung", "model": "M393A4K40CB1-CRC", "speed": 2400, "type": "DDR4", "size": 32 }
 			]
 		},
 		"zpool": {
