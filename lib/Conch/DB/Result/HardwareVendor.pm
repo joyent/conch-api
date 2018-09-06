@@ -110,20 +110,6 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<hardware_vendor_name_key>
-
-=over 4
-
-=item * L</name>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("hardware_vendor_name_key", ["name"]);
-
 =head1 RELATIONS
 
 =head2 hardware_products
@@ -142,8 +128,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 13:47:19
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Q7NGUqyibscbrXzM7V3Stg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-06 12:39:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0lFsTVCHhSuzj3ZdPyUL6w
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
