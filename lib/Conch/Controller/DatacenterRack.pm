@@ -143,8 +143,10 @@ sub update ($c) {
 		}
 	}
 
-	if ($input->{role}) {
-		unless ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->count) {
+	if (exists $input->{role}) {
+		if ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->count) {
+			$input->{datacenter_rack_role_id} = delete $input->{role};
+		} else {
 			return $c->status(400 => { "error" => "Rack role does not exist" });
 		}
 	}
