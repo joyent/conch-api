@@ -1134,14 +1134,6 @@ ALTER TABLE ONLY public.hardware_profile_setting
 
 
 --
--- Name: hardware_vendor hardware_vendor_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_vendor
-    ADD CONSTRAINT hardware_vendor_name_key UNIQUE (name);
-
-
---
 -- Name: hardware_vendor hardware_vendor_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1313,6 +1305,13 @@ CREATE INDEX device_report_device_id_created_idx ON public.device_report USING b
 --
 
 CREATE UNIQUE INDEX device_settings_device_id_name_idx ON public.device_settings USING btree (device_id, name) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: hardware_vendor_name_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX hardware_vendor_name_key ON public.hardware_vendor USING btree (name) WHERE (deactivated IS NULL);
 
 
 --
