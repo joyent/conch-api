@@ -13,6 +13,7 @@ package Conch::Controller::WorkspaceRack;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
+use Text::CSV_XS;
 
 use Conch::Models;
 with 'Conch::Role::MojoLog';
@@ -63,11 +64,71 @@ Get the RackLayout for the current stashed C<current_ws_rack>
 =cut
 
 sub get_layout ($c) {
-	my $layout = Conch::Model::WorkspaceRack->new->rack_layout(
-		$c->stash('current_ws_rack')
-	);
-	$c->log->debug("Found rack layout ".$layout->{id});
-	$c->status( 200, $layout );
+
+	my $format = $c->accepts('json', 'csv');
+
+	if ($format eq 'json') {
+		my $layout = Conch::Model::WorkspaceRack->new->rack_layout(
+			$c->stash('current_ws_rack')
+		);
+		$c->log->debug('Found rack layouts for datacenter_rack id '.$layout->{id});
+		$c->status(200, $layout);
+
+	} elsif ($format eq 'csv') {
+
+		my $layout_rs = $c->db_datacenter_racks
+			->search(
+				{ 'datacenter_rack.id' => $c->stash('rack_id') },
+				{
+					columns => {
+						az => 'datacenter_room.az',
+						rack_name => 'datacenter_rack.name',
+						rack_unit_start => 'datacenter_rack_layouts.rack_unit_start',
+						hardware_name => 'hardware_product.name',
+						device_asset_tag => 'device.asset_tag',
+						device_serial_number => 'device.id',
+					},
+					join => [
+						'datacenter_room',
+						{ datacenter_rack_layouts => [
+							'hardware_product',
+							{ device_location => 'device' },
+						  ] },
+					],
+					order_by => { -desc => 'datacenter_rack_layouts.rack_unit_start' },
+					alias => 'datacenter_rack',
+				},
+			);
+
+		# TODO: at a future time, this will be moved to a utility class
+		# which will take in a resultset and list of header names and
+		# generate a csv response.
+
+		my @raw_data = $layout_rs->hri->all;
+
+		# specify the desired order of the columns
+		my @headers = qw(az rack_name rack_unit_start hardware_name device_asset_tag device_serial_number);
+
+		my $csv_content;
+		open my $fh, '>:encoding(UTF-8)', \$csv_content
+			or die "could not open fh for writing to scalarref: $!";
+		my $csv = Text::CSV_XS->new({ binary => 1, eol => $/ });
+		$csv->column_names(@headers);
+		$csv->print($fh, \@headers);
+		$csv->print_hr($fh, $_) for @raw_data;
+		close $fh or die "could not close $fh: $!";
+
+		$c->log->debug('Found rack layouts for datacenter_rack id '.$c->stash('rack_id'));
+
+		$c->res->code(200);
+		$c->respond_to(
+			csv => { text => $csv_content },
+		);
+		return;
+	}
+	else {
+		return $c->status(400, { error => "requested unknown format $format" });
+	}
 }
 
 =head2 add

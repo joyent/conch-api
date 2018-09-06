@@ -157,6 +157,11 @@ subtest 'Assign device to a location' => sub {
 			'/slots/0/rack_unit_start', 1,
 			'/slots/0/occupant/id', 'TEST',
 		);
+
+	$t->get_ok("/workspace/$id/rack/$rack_id" => { Accept => 'text/csv' })
+		->status_is(200)
+		->content_like(qr/^az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number$/m)
+		->content_like(qr/^test-region-1a,"Test Rack",1,2-ssds-1-cpu,,TEST$/m);
 };
 
 subtest 'Single device' => sub {
