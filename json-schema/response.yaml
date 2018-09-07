@@ -591,6 +591,8 @@ definitions:
               type: object
               additionalProperties: false
               properties:
+                VALID:
+                  type: integer
                 PASS:
                   type: integer
                 FAIL:
@@ -888,28 +890,12 @@ definitions:
   Problems:
     type: object
     additionalProperties: false
-    properties:
-      failing:
+    patternProperties:
+      ^(failing|unreported|unlocated):
         type: object
         additionalProperties: false
         patternProperties:
-          ^[0-9]+$:
-            type: object
-            additionalProperties: false
-            $ref: "#/definitions/Problem"
-      unreported:
-        type: object
-        additionalProperties: false
-        patternProperties:
-          ^[0-9]+$:
-            type: object
-            additionalProperties: false
-            $ref: "#/definitions/Problem"
-      unlocated:
-        type: object
-        additionalProperties: false
-        patternProperties:
-          ^[0-9]+$:
+          ^[\w-]+$:  # key is actually a device name
             type: object
             additionalProperties: false
             $ref: "#/definitions/Problem"
@@ -917,10 +903,8 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - location
       - health
       - report_id
-      - problems
     properties:
       location:
         anyOf:
@@ -932,12 +916,6 @@ definitions:
         anyOf:
           - type: string
             format: uuid
-          - type: null
-      problems:
-        anyOf:
-          - type: array
-            items:
-              type: object
           - type: null
   Workspaces:
     type: array
