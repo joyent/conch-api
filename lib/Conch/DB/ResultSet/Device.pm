@@ -30,7 +30,7 @@ sub user_has_permission {
         if none { $permission eq $_ } qw(ro rw admin);
 
     $self->related_resultset('device_location')
-        ->related_resultset('rack')
+        ->related_resultset('datacenter_rack')
         ->associated_workspaces
         ->related_resultset('user_workspace_roles')
         ->user_has_permission($user_id, $permission);

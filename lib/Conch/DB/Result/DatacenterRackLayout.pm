@@ -133,6 +133,21 @@ __PACKAGE__->add_unique_constraint(
 
 =head1 RELATIONS
 
+=head2 datacenter_rack
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::DatacenterRack>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "datacenter_rack",
+  "Conch::DB::Result::DatacenterRack",
+  { id => "rack_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 device_location
 
 Type: might_have
@@ -166,24 +181,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 rack
 
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DatacenterRack>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "rack",
-  "Conch::DB::Result::DatacenterRack",
-  { id => "rack_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4oddD+l7DyZbcE8VoH0iTA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-25 12:35:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OOd0Jw7sMZ5C5v/MRVfX7Q
 
 sub TO_JSON {
     my $self = shift;
