@@ -89,11 +89,12 @@ sub authenticate ($c) {
 	}
 
 	# basic auth: look for user:password in the URL
-	my $abs_url = $c->req->url->to_abs;
+	my $url = $c->req->url->to_abs;
+	if ($url->userinfo) {
 
-	if ( $abs_url->userinfo ) {
 		$c->log->debug('attempting to authenticate with user:password...');
-		my ($name, $password) = ($abs_url->username, $abs_url->password);
+		my ($name, $password) = ($url->username, $url->password);
+
 		$c->log->debug('looking up user by name ' . $name . '...');
 		my $user = $c->db_user_accounts->lookup_by_name($name);
 

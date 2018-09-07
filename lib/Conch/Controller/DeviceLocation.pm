@@ -66,7 +66,7 @@ sub set ($c) {
 	) unless $assign;
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for("/device/$device_id/location")->to_abs );
+	$c->redirect_to($c->url_for("/device/$device_id/location"));
 }
 
 

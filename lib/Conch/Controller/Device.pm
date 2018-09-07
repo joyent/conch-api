@@ -188,7 +188,7 @@ sub graduate($c) {
 	$c->log->debug("Marked $device_id as graduated");
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
+	$c->redirect_to($c->url_for("/device/$device_id"));
 }
 
 =head2 set_triton_reboot
@@ -204,7 +204,7 @@ sub set_triton_reboot ($c) {
 	$c->log->debug("Marked ".$device->id." as rebooted into triton");
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
+	$c->redirect_to($c->url_for('/device/' . $device->id));
 }
 
 =head2 set_triton_uuid
@@ -229,7 +229,7 @@ sub set_triton_uuid ($c) {
 	$c->log->debug("Set the triton uuid for device ".$device->id." to $triton_uuid");
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
+	$c->redirect_to($c->url_for('/device/' . $device->id));
 }
 
 =head2 set_triton_setup
@@ -265,7 +265,7 @@ sub set_triton_setup ($c) {
 	$c->log->debug("Device $device_id marked as set up for triton");
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
+	$c->redirect_to($c->url_for("/device/$device_id"));
 }
 
 =head2 set_asset_tag
@@ -289,7 +289,7 @@ sub set_asset_tag ($c) {
 	$c->log->debug("Set the asset tag for device ".$device->id." to $asset_tag");
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
+	$c->redirect_to($c->url_for('/device/' . $device->id));
 }
 
 =head2 set_validated
@@ -307,7 +307,7 @@ sub set_validated($c) {
 	$c->log->debug("Marked the device $device_id as validated");
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
+	$c->redirect_to($c->url_for("/device/$device_id"));
 }
 
 1;
