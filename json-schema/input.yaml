@@ -205,10 +205,10 @@ definitions:
       rack_id:
         type: string
         format: uuid
-      product_id:
+      product_id: # TODO: this really should be hardware_product_id
         type: string
         format: uuid
-      ru_start:
+      ru_start: # TODO: this really should be rack_unit_start
         type: integer
   RackLayoutUpdate:
     type: object
@@ -217,10 +217,10 @@ definitions:
       rack_id:
         type: string
         format: uuid
-      product_id:
+      product_id: # TODO: this really should be hardware_product_id
         type: string
         format: uuid
-      ru_start:
+      ru_start: # TODO: this really should be rack_unit_start
         type: integer
   DBHardwareProductCreate:
     type: object

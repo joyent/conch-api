@@ -25,14 +25,14 @@ sub lookup ( $self, $device_id ) {
 	my $ret = Conch::Pg->new->db->query(
 		q{
     SELECT
-      loc.rack_unit AS location_rack_unit,
+      loc.rack_unit_start AS location_rack_unit_start,
 
       rack.id           AS rack_id,
       rack.name         AS rack_name,
       rack_role.name    AS rack_role_name,
-      ARRAY(SELECT ru_start FROM datacenter_rack_layout
+      ARRAY(SELECT rack_unit_start FROM datacenter_rack_layout
          WHERE rack_id = rack.id
-         ORDER BY ru_start)
+         ORDER BY rack_unit_start)
                         AS rack_slots,
 
       room.id           AS room_id,
@@ -62,7 +62,7 @@ sub lookup ( $self, $device_id ) {
       ON rack.datacenter_room_id = room.id
 
     JOIN datacenter_rack_layout layout
-      ON layout.rack_id = rack.id AND layout.ru_start = loc.rack_unit
+      ON layout.rack_id = rack.id AND layout.rack_unit_start = loc.rack_unit_start
 
     JOIN hardware_product hw_product
       ON layout.hardware_product_id = hw_product.id
@@ -102,7 +102,7 @@ sub _build_device_location ($loc) {
 		legacy_product_name => $loc->{legacy_product_name},
 	);
 	return Conch::Class::DeviceLocation->new(
-		rack_unit               => $loc->{location_rack_unit},
+		rack_unit               => $loc->{location_rack_unit_start},
 		datacenter_rack         => $datacenter_rack,
 		datacenter_room         => $datacenter_room,
 		target_hardware_product => $hardware_product
@@ -117,14 +117,14 @@ a) the datacenter rack doesn't exist
 b) the rack unit in the rack layout doesn't exist
 
 =cut
-sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
+sub assign ( $self, $device_id, $rack_id, $rack_unit_start ) {
 	my $db = Conch::Pg->new->db;
 	my $tx = $db->begin;
 
 	my $maybe_slot = $db->select(
 		'datacenter_rack_layout',
 		[ 'id', 'hardware_product_id' ],
-		{ rack_id => $rack_id, ru_start => $rack_unit }
+		{ rack_id => $rack_id, rack_unit_start => $rack_unit_start }
 	)->hash;
 
 	return undef unless $maybe_slot;
@@ -134,7 +134,7 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
 		['device_id'],
 		{
 			rack_id   => $rack_id,
-			rack_unit => $rack_unit
+			rack_unit_start => $rack_unit_start
 		}
 	)->hash;
 
@@ -162,12 +162,12 @@ sub assign ( $self, $device_id, $rack_id, $rack_unit ) {
 
 	$db->query(
 		q{
-    INSERT INTO device_location (device_id, rack_id, rack_unit)
+    INSERT INTO device_location (device_id, rack_id, rack_unit_start)
     VALUES (?, ?, ?)
     ON CONFLICT (device_id) DO UPDATE SET
-    rack_id = excluded.rack_id, rack_unit = excluded.rack_unit,
+    rack_id = excluded.rack_id, rack_unit_start = excluded.rack_unit_start,
     updated = current_timestamp
-  }, $device_id, $rack_id, $rack_unit
+  }, $device_id, $rack_id, $rack_unit_start
 	);
 
 	$tx->commit;

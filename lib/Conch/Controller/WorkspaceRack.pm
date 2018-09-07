@@ -182,23 +182,23 @@ sub assign_layout ($c) {
 
 	return $c->status(403) if $uwr->role eq 'ro';
 	my $rack_id = $c->stash('current_ws_rack')->id;
-
+	# FIXME: validate incoming data against json schema
 	my $layout = $c->req->json;
 	my @errors;
 	my @updates;
 	foreach my $device_id ( keys %{$layout} ) {
-		my $rack_unit = $layout->{$device_id};
+		my $rack_unit_start = $layout->{$device_id};
 		my $loc = Conch::Model::DeviceLocation->new->assign(
 			$device_id,
 			$rack_id,
-			$rack_unit
+			$rack_unit_start,
 		);
 		if ($loc) {
 			push @updates, $device_id;
 		}
 		else {
 			push @errors,
-				"Slot $rack_unit does not exist in the layout for rack $rack_id";
+				"Slot $rack_unit_start does not exist in the layout for rack $rack_id";
 		}
 	}
 

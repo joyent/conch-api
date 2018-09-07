@@ -58,7 +58,7 @@ __PACKAGE__->table("datacenter_rack_layout");
   is_nullable: 0
   size: 16
 
-=head2 ru_start
+=head2 rack_unit_start
 
   data_type: 'integer'
   is_nullable: 0
@@ -91,7 +91,7 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "ru_start",
+  "rack_unit_start",
   { data_type => "integer", is_nullable => 0 },
   "created",
   {
@@ -123,24 +123,42 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<datacenter_rack_layout_rack_id_ru_start_key>
+=head2 C<datacenter_rack_layout_rack_id_rack_unit_start_key>
 
 =over 4
 
 =item * L</rack_id>
 
-=item * L</ru_start>
+=item * L</rack_unit_start>
 
 =back
 
 =cut
 
 __PACKAGE__->add_unique_constraint(
-  "datacenter_rack_layout_rack_id_ru_start_key",
-  ["rack_id", "ru_start"],
+  "datacenter_rack_layout_rack_id_rack_unit_start_key",
+  ["rack_id", "rack_unit_start"],
 );
 
 =head1 RELATIONS
+
+=head2 device_location
+
+Type: might_have
+
+Related object: L<Conch::DB::Result::DeviceLocation>
+
+=cut
+
+__PACKAGE__->might_have(
+  "device_location",
+  "Conch::DB::Result::DeviceLocation",
+  {
+    "foreign.rack_id"         => "self.rack_id",
+    "foreign.rack_unit_start" => "self.rack_unit_start",
+  },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
 
 =head2 hardware_product
 
@@ -173,8 +191,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-22 17:47:15
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uo/aiCKpReIr67au4jKFQw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-07 11:03:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SIB+Lq+AfaSnC6SVu04/RA
 
 use Class::Method::Modifiers;
 
@@ -184,6 +202,7 @@ around TO_JSON => sub {
 
     my $data = $self->$orig(@_);
     $data->{product_id} = delete $data->{hardware_product_id};
+    $data->{ru_start} = delete $data->{rack_unit_start};
     return $data;
 };
 

@@ -68,8 +68,10 @@ sub rack_layout ( $self, $rack ) {
 	$res->{role}       = $rack->role_name;
 	$res->{datacenter} = $datacenter_room->{az};
 
+	my @slots;
+
 	foreach my $slot (@$rack_slots) {
-		my $ru_start = $slot->{ru_start};
+		my $rack_unit_start = $slot->{rack_unit_start};
 		my $hw       = $db->query(
 			q{
       SELECT hw.*, vendor.name AS vendor, profile.rack_unit as size
@@ -88,23 +90,30 @@ sub rack_layout ( $self, $rack ) {
       FROM device
       JOIN device_location loc on device.id = loc.device_id
       WHERE loc.rack_id = ?
-        AND loc.rack_unit = ?
-      }, $rack->id, $ru_start
+        AND loc.rack_unit_start = ?
+      }, $rack->id, $rack_unit_start
 		)->hash;
 
+		my $slot = { rack_unit_start => $rack_unit_start };
+
 		if ($device) {
-			$res->{slots}{$ru_start}{occupant} = $device;
+			$slot->{occupant} = $device;
 		}
 		else {
-			$res->{slots}{$ru_start}{occupant} = undef;
+			$slot->{occupant} = undef;
 		}
 
-		$res->{slots}{$ru_start}{id}     = $hw->{id};
-		$res->{slots}{$ru_start}{alias}  = $hw->{alias};
-		$res->{slots}{$ru_start}{name}   = $hw->{name};
-		$res->{slots}{$ru_start}{vendor} = $hw->{vendor};
-		$res->{slots}{$ru_start}{size}   = $hw->{size};
+		$slot->{id}     = $hw->{id};
+		$slot->{alias}  = $hw->{alias};
+		$slot->{name}   = $hw->{name};
+		$slot->{vendor} = $hw->{vendor};
+		$slot->{size}   = $hw->{size};
+
+		push @slots, $slot;
 	}
+
+	@slots = sort { $a->{rack_unit_start} <=> $b->{rack_unit_start} } @slots;
+	$res->{slots} = \@slots;
 
 	return $res;
 }

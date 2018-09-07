@@ -621,41 +621,43 @@ definitions:
       datacenter:
         type: string
       slots:
-        type: object
-        additionalProperties: false
-        patternProperties:
-          ^[0-9]+$:
-            type: object
-            additionalProperties: false
-            required:
-              - alias
-              - id
-              - name
-              - size
-              - vendor
-              - occupant
-            properties:
-              alias:
-                type: string
-                description: Hardware product alias
-              id:
-                type: string
-                format: uuid
-                description: Hardware product ID
-              name:
-                type: string
-                description: Hardware product name
-              size:
-                type: integer
-                description: Number of RUs for slot
-              vendor:
-                type: string
-                description: Hardware product vendor
-              occupant:
-                description: Device assigned to this slot or null
-                anyOf:
-                  - $ref: "#/definitions/Device"
-                  - type: null
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - rack_unit_start
+            - alias
+            - id
+            - name
+            - size
+            - vendor
+            - occupant
+          properties:
+            rack_unit_start:
+              type: integer
+              description: Starting RU slot position
+            alias:
+              type: string
+              description: Hardware product alias
+            id:
+              type: string
+              format: uuid
+              description: Hardware product ID
+            name:
+              type: string
+              description: Hardware product name
+            size:
+              type: integer
+              description: Number of RUs for slot
+            vendor:
+              type: string
+              description: Hardware product vendor
+            occupant:
+              description: Device assigned to this slot or null
+              anyOf:
+                - $ref: "#/definitions/Device"
+                - type: null
   Validations:
     type: array
     items:
@@ -1337,7 +1339,7 @@ definitions:
       product_id:
         type: string
         format: uuid
-      ru_start:
+      ru_start: # TODO: this really should be rack_unit_start
         type: integer
       created:
         type: string

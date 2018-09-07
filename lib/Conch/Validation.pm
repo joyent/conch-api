@@ -252,8 +252,8 @@ location in the rack a device occupies. Throws an error if the device hasn't
 been assigned a location.
 
 	my $datacenter_name = $self->device_location->datacenter->name;
-	my $rack_unit = $self->device_location->rack->unit;
-	my $rack_slots = $self->device_location->rack->slots;
+	my $rack_unit_start = $self->device_location->rack_unit;	# TODO Conch::DB::Result::DeviceLocation calls this rack_unit_start
+	my $rack_available_slots = $self->device_location->datacenter_rack->slots;
 
 =cut
 
