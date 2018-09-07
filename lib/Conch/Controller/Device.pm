@@ -31,7 +31,7 @@ sub find_device ($c) {
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
 	my $user_workspace_device_rs = $c->db_user_workspace_roles
-		->search({ 'user_workspace_role.user_id' => $c->stash('user_id') }, { alias => 'user_workspace_role' })
+		->search({ 'user_workspace_role.user_id' => $c->stash('user_id') })
 		->related_resultset('workspace')
 		->associated_racks
 		->related_resultset('device_locations')
@@ -39,7 +39,7 @@ sub find_device ($c) {
 		->active;
 
 	my $relay_report_device_rs = $c->db_user_accounts
-		->search({ 'user_account.id' => $c->stash('user_id') }, { alias => 'user_account' })
+		->search({ 'user_account.id' => $c->stash('user_id') })
 		# FIXME: doesn't check ->active?
 		->user_devices_without_location;
 
@@ -55,7 +55,6 @@ sub find_device ($c) {
 				],
 			],
 		},
-		{ alias => 'device' },
 	);
 
 	if (not $device_rs->count) {
@@ -69,7 +68,7 @@ sub find_device ($c) {
 	# permission to access it.
 	# No queries have been made yet, so you can add on more criteria or prefetches.
 	$c->stash('device_rs',
-		$c->db_devices->search_rs({ 'device.id' => $device_id }, { alias => 'device' }));
+		$c->db_devices->search_rs({ 'device.id' => $device_id }));
 
 	return 1;
 }

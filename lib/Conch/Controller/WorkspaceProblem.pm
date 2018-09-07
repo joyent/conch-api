@@ -67,7 +67,7 @@ sub _get_problems ($c) {
 	# TODO: this query could be further modified to also fetch
 	# device_rack_location at the same time.
 	my @unlocated_user_devices = $c->db_user_accounts
-		->search({ 'user_account.id' => $c->stash('user_id') }, { alias => 'user_account' })
+		->search({ 'user_account.id' => $c->stash('user_id') })
 		->user_devices_without_location
 		->search(
 			{},
