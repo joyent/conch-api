@@ -86,7 +86,7 @@ subtest 'Workspace Racks' => sub {
 				asset_tag => 'deadbeef',
 			})
 			->status_is(303)
-			->header_like( Location => qr!/workspace/$sub_ws_id/rack/$rack_id! );
+			->location_is("/workspace/$sub_ws_id/rack/$rack_id");
 		$t->get_ok("/workspace/$sub_ws_id/rack")
 			->status_is(200)
 			->json_schema_is('WorkspaceRackSummary');
@@ -196,14 +196,14 @@ subtest 'Single device' => sub {
 		$t->post_ok('/device/nonexistant/graduate')->status_is(404);
 
 		$t->post_ok('/device/TEST/graduate')->status_is(303)
-			->header_like( Location => qr!/device/TEST$! );
+			->location_is('/device/TEST');
 
 		$t->post_ok('/device/TEST/triton_setup')->status_is(409)
 			->json_like( '/error',
 			qr/must be marked .+ before it can be .+ set up for Triton/ );
 
 		$t->post_ok('/device/TEST/triton_reboot')->status_is(303)
-			->header_like( Location => qr!/device/TEST$! );
+			->location_is('/device/TEST');
 
 		$t->post_ok('/device/TEST/triton_uuid')
 			->status_is( 400, 'Request body required' );
@@ -214,20 +214,20 @@ subtest 'Single device' => sub {
 
 		$t->post_ok( '/device/TEST/triton_uuid',
 			json => { triton_uuid => $uuid->create_str() } )->status_is(303)
-			->header_like( Location => qr!/device/TEST$! );
+			->location_is('/device/TEST');
 
 		$t->post_ok('/device/TEST/triton_setup')->status_is(303)
-			->header_like( Location => qr!/device/TEST$! );
+			->location_is('/device/TEST');
 
 		$t->post_ok('/device/TEST/asset_tag')
 			->status_is( 400, 'Request body required' );
 
 		$t->post_ok( '/device/TEST/asset_tag',
 			json => { asset_tag => 'asset tag' } )->status_is(303)
-			->header_like( Location => qr!/device/TEST$! );
+			->location_is('/device/TEST');
 
 		$t->post_ok('/device/TEST/validated')->status_is(303)
-			->header_like( Location => qr!/device/TEST$! );
+			->location_is('/device/TEST');
 		$t->post_ok('/device/TEST/validated')->status_is(204)
 			->content_is('');
 	};
@@ -408,7 +408,7 @@ subtest 'Device location' => sub {
 
 	$t->post_ok( '/device/TEST/location',
 		json => { rack_id => $rack_id, rack_unit => 3 } )->status_is(303)
-		->header_like( Location => qr!/device/TEST/location$! );
+		->location_is('/device/TEST/location');
 
 	$t->delete_ok('/device/TEST/location')->status_is(204, 'can delete device location');
 

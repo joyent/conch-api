@@ -183,7 +183,7 @@ sub add ($c) {
 	$c->db_datacenter_racks->search({ id => $rack_id })->update($input) if keys %$input;
 
 	$c->status(303);
-	$c->redirect_to( $c->url_for->to_abs . "/$rack_id" );
+	$c->redirect_to($c->url_for('/workspace/'.$c->stash('workspace_id')."/rack/$rack_id"));
 }
 
 
