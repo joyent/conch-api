@@ -50,12 +50,12 @@ To go in the other direction, see L<Conch::DB::ResultSet::DatacenterRack/associa
 sub associated_racks {
     my $self = shift;
 
-    my $workspace_rack_ids = $self->search_related('workspace_datacenter_racks')
+    my $workspace_rack_ids = $self->related_resultset('workspace_datacenter_racks')
         ->get_column('datacenter_rack_id');
 
-    my $workspace_room_rack_ids = $self->search_related('workspace_datacenter_rooms')
-        ->search_related('datacenter_room')
-        ->search_related('datacenter_racks')->get_column('id');
+    my $workspace_room_rack_ids = $self->related_resultset('workspace_datacenter_rooms')
+        ->related_resultset('datacenter_room')
+        ->related_resultset('datacenter_racks')->get_column('id');
 
     $self->result_source->schema->resultset('DatacenterRack')->search(
         {
