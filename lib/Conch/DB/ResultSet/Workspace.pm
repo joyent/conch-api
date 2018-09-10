@@ -22,17 +22,19 @@ Chainable resultset that finds all sub-workspaces beneath the provided workspace
 sub workspaces_beneath {
     my ($self, $workspace_id) = @_;
 
+    Carp::croak('missing workspace_id') if not defined $workspace_id;
+
     my $query = q{
-WITH RECURSIVE workspace_recursive (id, parent_workspace_id) AS (
-  SELECT workspace.id, workspace.parent_workspace_id
+WITH RECURSIVE workspace_children (id) AS (
+  SELECT id
     FROM workspace
-    WHERE workspace.parent_workspace_id = ?
+    WHERE parent_workspace_id = ?
   UNION
-    SELECT child.id, child.parent_workspace_id
-    FROM workspace child, workspace_recursive parent
+    SELECT child.id
+    FROM workspace child, workspace_children parent
     WHERE child.parent_workspace_id = parent.id
 )
-SELECT workspace_recursive.id FROM workspace_recursive
+SELECT workspace_children.id FROM workspace_children
 };
 
     $self->search({ $self->current_source_alias . '.id' => { -in => \[ $query, $workspace_id ] } });
