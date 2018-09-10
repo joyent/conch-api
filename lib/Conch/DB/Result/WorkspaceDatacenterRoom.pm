@@ -41,23 +41,23 @@ __PACKAGE__->table("workspace_datacenter_room");
 
   data_type: 'uuid'
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
   size: 16
 
 =head2 datacenter_room_id
 
   data_type: 'uuid'
   is_foreign_key: 1
-  is_nullable: 1
+  is_nullable: 0
   size: 16
 
 =cut
 
 __PACKAGE__->add_columns(
   "workspace_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "datacenter_room_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 UNIQUE CONSTRAINTS
@@ -93,12 +93,7 @@ __PACKAGE__->belongs_to(
   "datacenter_room",
   "Conch::DB::Result::DatacenterRoom",
   { id => "datacenter_room_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 workspace
@@ -113,17 +108,12 @@ __PACKAGE__->belongs_to(
   "workspace",
   "Conch::DB::Result::Workspace",
   { id => "workspace_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ECipzEgeptBNiE3JQpZ12w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-10 12:42:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:r649ScOmXCpeg5x+5L3+Ig
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
