@@ -28,7 +28,6 @@ has [
 		id
 		last_seen
 		latest_triton_reboot
-		device_role_id
 		state
 		system_uuid
 		triton_setup
@@ -64,7 +63,6 @@ sub TO_JSON ($self) {
 		id                   => $self->id,
 		last_seen            => $self->last_seen,
 		latest_triton_reboot => $self->latest_triton_reboot,
-		role                  => $self->device_role_id,         # XXX special
 		state                => $self->state,
 		system_uuid          => $self->system_uuid,
 		triton_setup         => $self->triton_setup,

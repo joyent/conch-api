@@ -30,7 +30,6 @@ definitions:
       - last_seen
       - latest_report
       - latest_triton_reboot
-      - role
       - state
       - system_uuid
       - triton_setup
@@ -83,11 +82,6 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: null
-      role:
-        anyOf:
-          - type: string
-            format: uuid
           - type: null
       state:
         type: string
@@ -171,7 +165,6 @@ definitions:
       - graduated
       - last_seen
       - latest_triton_reboot
-      - role
       - state
       - system_uuid
       - triton_uuid
@@ -216,11 +209,6 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: null
-      role:
-        anyOf:
-          - type: string
-            format: uuid
           - type: null
       state:
         type: string
@@ -1186,66 +1174,6 @@ definitions:
       workflow_step_id:
         type: string
         format: uuid
-  DeviceRole:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - created
-      - updated
-      - description
-      - hardware_product_id
-      - services
-    properties:
-      id:
-        type: string
-        format: uuid
-      created:
-        type: string
-        format: date-time
-      updated:
-        type: string
-        format: date-time
-      description:
-        anyOf:
-          - type: string
-          - type: null
-      hardware_product_id:
-        type: string
-        format: uuid
-      services:
-        type: array
-        items:
-          type: string
-          format: uuid
-  DeviceRoles:
-    type: array
-    items:
-      $ref: "#/definitions/DeviceRole"
-  DeviceService:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - name
-      - created
-      - updated
-    properties:
-      id:
-        type: string
-        format: uuid
-      name:
-        type: string
-      created:
-        type: string
-        format: date-time
-      updated:
-        type: string
-        format: date-time
-  DeviceServices:
-    type: array
-    items:
-      $ref: "#/definitions/DeviceService"
   Racks:
     type: array
     items:

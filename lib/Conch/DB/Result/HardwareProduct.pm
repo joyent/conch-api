@@ -204,21 +204,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_roles
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::DeviceRole>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_roles",
-  "Conch::DB::Result::DeviceRole",
-  { "foreign.hardware_product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 devices
 
 Type: has_many
@@ -280,8 +265,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 13:47:19
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+Rhf4M0PfVMINqK55tNrbQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-11 10:48:50
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5qBRhcqOj3Wo9blYxaYA3g
 
 use Class::Method::Modifiers;
 
