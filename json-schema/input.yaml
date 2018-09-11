@@ -338,3 +338,4 @@ definitions:
       asset_tag:
         type: string
 
+# vim: set sts=2 sw=2 et :
