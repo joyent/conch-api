@@ -160,66 +160,6 @@ sub latest_completed_grouped_states_for_device ( $class, $device_id, @statuses )
 	);
 }
 
-=head2 latest_completed_grouped_states_for_workspace
-
-Return all latest completed states for devices in a workspace, grouped with the
-results of each state.
-
-=cut
-
-sub latest_completed_grouped_states_for_workspace ( $class, $workspace_id,
-	@statuses )
-{
-	my $state_fields = join( ', ', map { "state.$_ as state_$_" } @$attrs );
-	my $result_fields = join( ', ',
-		map { "result.$_ as result_$_" } @$Conch::Model::ValidationResult::attrs );
-
-	my $status_condition = @statuses ? "and vs.status = any(?)" : "";
-
-	# XXX when translating to DBIC, see query in Conch::Controller::WorkspaceDevice::list
-	return $class->_group_results_by_validation_state(
-		Conch::Pg->new->db->query(
-			qq{
-				WITH target_workspace (id) AS ( values( ?::uuid ))
-				select $state_fields, $result_fields
-				from validation_result result
-				join validation_state_member m
-					on m.validation_result_id = result.id
-				join (
-					select distinct on (vs.device_id, vs.validation_plan_id) vs.*
-					from validation_state vs
-					join (
-						SELECT device.id FROM device
-						JOIN device_location loc ON loc.device_id = device.id
-						JOIN datacenter_rack rack ON rack.id = loc.rack_id
-						WHERE device.deactivated IS NULL
-						AND (
-							rack.datacenter_room_id IN (
-								SELECT datacenter_room_id
-								FROM workspace_datacenter_room
-								WHERE workspace_id = (select id from target_workspace)
-							)
-							OR rack.id IN (
-								SELECT datacenter_rack_id
-								FROM workspace_datacenter_rack
-								WHERE workspace_id = (select id from target_workspace)
-							)
-						)
-					) device (id) on vs.device_id = device.id
-					where
-						vs.completed is not null
-						$status_condition
-					order by
-						vs.device_id,
-						vs.validation_plan_id,
-						vs.completed desc
-				) state
-					on state.id = m.validation_state_id
-			}, ( $workspace_id, @statuses ? \@statuses : () )
-		)->hashes
-	);
-}
-
 sub _group_results_by_validation_state ( $class, $hashes ) {
 	my %groups;
 	$hashes->map(

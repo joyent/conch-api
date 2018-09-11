@@ -190,8 +190,6 @@ subtest "Validations" => sub {
 
 	$t->get_ok("/device/TEST/validation_state")->status_is(200)
 		->json_schema_is( 'ValidationStatesWithResults' );
-	$t->get_ok("/workspace/$id/validation_state")->status_is(200)
-		->json_schema_is('ValidationStatesWithResults');
 };
 
 subtest 'Device Roles And Services' => sub {
