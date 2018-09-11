@@ -19,13 +19,6 @@ my $device_loc_model = new_ok( "Conch::Model::DeviceLocation");
 my $attempt = $device_loc_model->lookup('deadbeef');
 is( $attempt, undef, "Bad loookup returns undef" );
 
-my $assign_attempt =
-	$device_loc_model->assign( 'deadbeef', $uuid->create_str, 20 );
-is( $assign_attempt, undef, "Bad assign returns undef" );
-
-my $unassign_attempt = $device_loc_model->unassign('deadbeef');
-is( $unassign_attempt, 0 );
-
 TODO: {
 	local $TODO = "DeviceLocation needs datacenters, rooms, and racks";
 

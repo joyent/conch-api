@@ -303,10 +303,7 @@ subtest 'Assign device to a location' => sub {
 		"/workspace/$global_ws_id/rack/$rack_id/layout",
 		json => { TEST => 42 })
 	->status_is(409)
-	->json_is({
-			updated => [],
-			errors => [ "Slot 42 does not exist in the layout for rack $rack_id" ],
-		});
+	->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
 
 	$t->post_ok(
 		"/workspace/$global_ws_id/rack/$rack_id/layout",
@@ -903,7 +900,7 @@ subtest 'Device location' => sub {
 
 	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 42 })
 		->status_is(409)
-		->json_is({ error => "Slot 42 does not exist in the layout for rack $rack_id" });
+		->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
 
 	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
 		->status_is(303)

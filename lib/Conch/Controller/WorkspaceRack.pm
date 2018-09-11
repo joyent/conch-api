@@ -7,6 +7,7 @@ with 'Conch::Role::MojoLog';
 
 use Conch::UUID 'is_uuid';
 use Text::CSV_XS;
+use Try::Tiny;
 
 =pod
 
@@ -318,38 +319,48 @@ Assign the full layout for a rack
 
 Response returns the list of devices that were updated.
 
-TODO: this endpoint is untested!
+Response uses the WorkspaceRackLayoutUpdateResponse json schema.
 
 =cut
 
-# TODO: This is legacy code that is non-transactional. It should be reworked. --Lane
-# Bulk update a rack layout.
 sub assign_layout ($c) {
+    my $input = $c->validate_input('WorkspaceRackLayoutUpdate');
+    return if not $input;
 
-	my $rack_id = $c->stash('rack_id');
-	# FIXME: validate incoming data against json schema
-	my $layout = $c->req->json;
-	my @errors;
-	my @updates;
-	foreach my $device_id ( keys %{$layout} ) {
-		my $rack_unit_start = $layout->{$device_id};
-		my $loc = Conch::Model::DeviceLocation->new->assign(
-			$device_id,
-			$rack_id,
-			$rack_unit_start,
-		);
-		if ($loc) {
-			push @updates, $device_id;
-		}
-		else {
-			push @errors,
-				"Slot $rack_unit_start does not exist in the layout for rack $rack_id";
-		}
-	}
+    my $rack_id = $c->stash('rack_id');
+    my @errors;
 
-	return $c->status( 409, { updated => \@updates, errors => \@errors } )
-		if scalar @errors;
-	$c->status( 200, { updated => \@updates } );
+    try {
+        $c->schema->txn_do(sub {
+            foreach my $device_id (keys %$input) {
+                try {
+                    $c->db_device_locations->assign_device_location(
+                        $device_id,
+                        $rack_id,
+                        $input->{$device_id},   # rack_unit_start
+                    );
+                }
+                catch {
+                    push @errors, $_;
+                };
+            }
+
+            chomp @errors;
+            die join('; ', @errors) if @errors;
+        });
+    }
+    catch {
+        if ($_ =~ /Rollback failed/) {
+            local $@ = $_;
+            die;    # propagate the error
+        }
+        $c->log->debug('aborted assign_layout transaction: ' . $_);
+    };
+
+    return $c->status(409, { error => join('; ', @errors) }) if @errors;
+
+    # return the list of device_ids that were assigned
+    $c->status(200, { updated => [ keys %$input ] });
 }
 
 1;
