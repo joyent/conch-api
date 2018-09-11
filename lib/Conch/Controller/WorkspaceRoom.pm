@@ -1,3 +1,12 @@
+package Conch::Controller::WorkspaceRoom;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use List::Compare;
+
 =pod
 
 =head1 NAME
@@ -5,18 +14,6 @@
 Conch::Controller::WorkspaceRoom
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::WorkspaceRoom;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use List::Compare;
-
-use Conch::Models;
-
-with 'Conch::Role::MojoLog';
 
 =head2 list
 
@@ -27,11 +24,16 @@ Response uses the Rooms json schema.
 =cut
 
 sub list ($c) {
-	my $rooms = Conch::Model::WorkspaceRoom->new->list($c->stash('workspace_id'));
-	$c->log->debug("Found ".scalar($rooms->@*)." workspace rooms");
-	$c->status( 200, $rooms );
-}
+    my @rooms = $c->stash('workspace_rs')
+        ->related_resultset('workspace_datacenter_rooms')
+        ->related_resultset('datacenter_room')
+        ->columns([ qw(id az alias vendor_name) ])
+        ->hri
+        ->all;
 
+    $c->log->debug('Found '.scalar(@rooms).' workspace rooms');
+    $c->status(200, \@rooms);
+}
 
 =head2 replace_rooms
 
@@ -45,46 +47,68 @@ Response uses the Rooms json schema.
 =cut
 
 sub replace_rooms ($c) {
-	return $c->status(403) unless $c->is_workspace_admin;
+    return $c->status(403) unless $c->is_workspace_admin;
 
-	my $body      = $c->req->json;
+    my $input = $c->validate_input('WorkspaceRoomReplace');
+    return if not $input;
 
-	unless ( $body && ref($body) eq 'ARRAY' ) {
-		$c->log->warn("Input failed validation"); # FIXME use the validator
+    if ($c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL') {
+        $c->log->warn("Attempt to modify GLOBAL workspace's rooms");
+        return $c->status(400 => {
+            error => 'Cannot modify GLOBAL workspace' # [2018-07-30 sungo] why not?
+        });
+    }
 
-		return $c->status( 400 => {
-			error => 'Array of datacenter room IDs required in request'
-		});
-	}
+    # rooms in the parent workspace
+    my @parent_room_ids = $c->stash('workspace_rs')
+        ->related_resultset('parent_workspace')
+        ->related_resultset('workspace_datacenter_rooms')
+        ->get_column('datacenter_room_id')
+        ->all;
 
-	if ($c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL') {
-		$c->log->warn("Attempt to modify GLOBAL workspace's rooms");
-		return $c->status( 400 => {
-			error => 'Cannot modify GLOBAL workspace' # [2018-07-30 sungo] why not?
-		});
-	}
+    if (my @invalid_room_ids = List::Compare->new($input, \@parent_room_ids)->get_Lonly) {
+        my $invalid_room_ids = join(', ', @invalid_room_ids );
+        $c->log->debug("These datacenter rooms are not a member of the parent workspace: $invalid_room_ids");
 
-	my $parent_rooms = Conch::Model::WorkspaceRoom->new
-		->list_parent_workspace_rooms( $c->stash('workspace_id') );
+        return $c->status(409 => {
+            error => "Datacenter room IDs must be members of the parent workspace: $invalid_room_ids"
+        });
+    }
 
-	my @invalid_room_ids = List::Compare->new( $body, $parent_rooms )->get_unique;
-	if (@invalid_room_ids) {
-		my $s = join( ', ', @invalid_room_ids );
-		$c->log->debug("These datacenter rooms are not a member of the paernt workspace: $s");
+    my @current_room_ids = $c->stash('workspace_rs')
+        ->related_resultset('workspace_datacenter_rooms')
+        ->get_column('datacenter_room_id')
+        ->all;
 
-		return $c->status(409 => {
-			error => "Datacenter room IDs must be members of the parent workspace: $s"
-		});
-	}
+    my @ids_to_remove = List::Compare->new(\@current_room_ids, $input)->get_Lonly;
+    my @ids_to_add = List::Compare->new(\@current_room_ids, $input)->get_Ronly;
 
-	my $room_attempt =
-		Conch::Model::WorkspaceRoom->new->replace_workspace_rooms(
-			$c->stash('workspace_id'),
-			$body
-		);
-	$c->log->debug("Replaced the rooms in workspace ".$c->stash('workspace_id'));
+    $c->txn_wrapper(sub ($c) {
+        # remove room IDs from workspace and all children workspaces
+        $c->db_workspaces
+                ->and_workspaces_beneath($c->stash('workspace_id'))
+                ->search_related('workspace_datacenter_rooms',
+                    { datacenter_room_id => { -in => \@ids_to_remove } })
+                ->delete
+            if @ids_to_remove;
 
-	return $c->status( 200, $room_attempt );
+        # add new room IDs to workspace only, not children
+        $c->db_workspace_datacenter_rooms
+                ->search({ workspace_id => $c->stash('workspace_id') })
+                ->populate([ map { +{ datacenter_room_id => $_ } } $input->@* ])
+            if @ids_to_add;
+
+        $c->log->debug('Replaced the rooms in workspace '.$c->stash('workspace_id'));
+    });
+
+    my @rooms = $c->stash('workspace_rs')
+        ->related_resultset('workspace_datacenter_rooms')
+        ->related_resultset('datacenter_room')
+        ->columns([ qw(id az alias vendor_name) ])
+        ->hri
+        ->all;
+
+    $c->status(200, \@rooms);
 }
 
 1;
@@ -101,3 +125,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :
