@@ -17,6 +17,7 @@ available in core DBIx::Class.
 __PACKAGE__->load_components(
     '+Conch::DB::Deactivatable',    # provides active, deactivate
     'Helper::ResultSet::OneRow',    # provides one_row
+    'Helper::ResultSet::Shortcut::HRI', # provides hri: raw unblessed + uninflated data
 );
 
 1;

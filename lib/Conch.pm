@@ -52,6 +52,11 @@ sub startup {
 	# Initialize singletons
 	Conch::Pg->new($self->config('pg'));
 
+	# specify which MIME types we can handle
+	$self->types->type(json => 'application/json');
+	$self->types->type(csv => 'text/csv');
+
+
 	# Provide read/write and read-only access to DBIx::Class
 	# (this will all get a little shorter when we remove Conch::Pg)
 	$self->helper(schema => sub {

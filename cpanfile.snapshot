@@ -3075,6 +3075,16 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0
+  Text-CSV_XS-1.36
+    pathname: H/HM/HMBRAND/Text-CSV_XS-1.36.tgz
+    provides:
+      Text::CSV_XS 1.36
+    requirements:
+      Config 0
+      ExtUtils::MakeMaker 0
+      IO::Handle 0
+      Test::More 0
+      XSLoader 0
   Text-Diff-1.45
     pathname: N/NE/NEILB/Text-Diff-1.45.tar.gz
     provides:

@@ -47,7 +47,7 @@ requires 'Getopt::Long::Descriptive';
 # it at 0.04 or greater.
 requires 'String::CamelCase', '>= 0.04';
 
-# database
+# database and rendering
 requires 'DBD::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
@@ -55,6 +55,7 @@ requires 'DBIx::Class::Helpers';
 requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';
+requires 'Text::CSV_XS';
 
 # logging
 requires 'Log::Log4perl';
