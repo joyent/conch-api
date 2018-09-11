@@ -310,52 +310,6 @@ sub set_validated($c) {
 	$c->redirect_to( $c->url_for("/device/$device_id")->to_abs );
 }
 
-
-=head2 get_role
-
-If the device has a valid role, 303 to the relevant /role endpoint
-
-=cut
-
-sub get_role($c) {
-	my $device = $c->stash('device_rs')->single;
-	if ($device->device_role_id) {
-		return $c->status(303 => "/device/role/".$device->device_role_id);
-	} else {
-		return $c->status(409 => { error => "device has no role" });
-	}
-}
-
-
-=head2 set_role
-
-Sets the device's C<role> attribute and 303's to the device endpoint
-
-=cut
-
-sub set_role($c) {
-	return $c->status(403) unless $c->is_global_admin;
-
-	my $device_role_id = $c->req->json && $c->req->json->{role};
-	return $c->status(
-		400, {
-			error => "'role' element must be present"
-		}
-	) unless defined($device_role_id) && ref($device_role_id) eq '';
-
-	my $r = $c->db_device_roles->find($device_role_id);
-	if ($r) {
-		if ($r->deactivated) {
-			return $c->status(400 => "Role $device_role_id is deactivated");
-		}
-
-		$c->stash('device_rs')->update({ device_role_id => $device_role_id, updated => \'NOW()' });
-		return $c->status(303 => "/device/".$c->stash('device_id'));
-	} else {
-		return $c->status(400 => "Role $device_role_id does not exist");
-	}
-}
-
 1;
 __END__
 

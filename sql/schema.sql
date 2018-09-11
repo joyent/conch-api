@@ -232,7 +232,6 @@ CREATE TABLE public.device (
     triton_uuid uuid,
     asset_tag text,
     triton_setup timestamp with time zone,
-    device_role_id uuid,
     hostname text
 );
 
@@ -405,48 +404,6 @@ CREATE TABLE public.device_report (
 
 
 ALTER TABLE public.device_report OWNER TO conch;
-
---
--- Name: device_role; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_role (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    description text,
-    hardware_product_id uuid NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL,
-    deactivated timestamp with time zone
-);
-
-
-ALTER TABLE public.device_role OWNER TO conch;
-
---
--- Name: device_role_service; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_role_service (
-    device_role_id uuid NOT NULL,
-    device_role_service_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.device_role_service OWNER TO conch;
-
---
--- Name: device_service; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_service (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name text NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.device_service OWNER TO conch;
 
 --
 -- Name: device_settings; Type: TABLE; Schema: public; Owner: conch
@@ -1022,38 +979,6 @@ ALTER TABLE ONLY public.device_report
 
 
 --
--- Name: device_role device_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_role
-    ADD CONSTRAINT device_role_pkey PRIMARY KEY (id);
-
-
---
--- Name: device_role_service device_role_services_role_id_service_id_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_role_service
-    ADD CONSTRAINT device_role_services_role_id_service_id_key UNIQUE (device_role_id, device_role_service_id);
-
-
---
--- Name: device_service device_service_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_service
-    ADD CONSTRAINT device_service_name_key UNIQUE (name);
-
-
---
--- Name: device_service device_service_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_service
-    ADD CONSTRAINT device_service_pkey PRIMARY KEY (id);
-
-
---
 -- Name: device_settings device_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1518,38 +1443,6 @@ ALTER TABLE ONLY public.device_relay_connection
 
 ALTER TABLE ONLY public.device_report
     ADD CONSTRAINT device_report_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
-
-
---
--- Name: device device_role_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device
-    ADD CONSTRAINT device_role_fkey FOREIGN KEY (device_role_id) REFERENCES public.device_role(id);
-
-
---
--- Name: device_role device_role_hardware_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_role
-    ADD CONSTRAINT device_role_hardware_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
-
-
---
--- Name: device_role_service device_role_services_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_role_service
-    ADD CONSTRAINT device_role_services_role_id_fkey FOREIGN KEY (device_role_id) REFERENCES public.device_role(id);
-
-
---
--- Name: device_role_service device_role_services_service_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_role_service
-    ADD CONSTRAINT device_role_services_service_id_fkey FOREIGN KEY (device_role_service_id) REFERENCES public.device_service(id);
 
 
 --

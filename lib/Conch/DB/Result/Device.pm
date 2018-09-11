@@ -125,13 +125,6 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
-=head2 device_role_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 1
-  size: 16
-
 =head2 hostname
 
   data_type: 'text'
@@ -182,8 +175,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "triton_setup",
   { data_type => "timestamp with time zone", is_nullable => 1 },
-  "device_role_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
   "hostname",
   { data_type => "text", is_nullable => 1 },
 );
@@ -336,26 +327,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_role
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DeviceRole>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "device_role",
-  "Conch::DB::Result::DeviceRole",
-  { id => "device_role_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
-
 =head2 device_settings
 
 Type: has_many
@@ -432,8 +403,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-05 11:42:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RlXWtn9xro/dC9P18/8Iyw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-11 10:48:50
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ijn9d8WDVkKqiVdlgCLNog
 
 use Class::Method::Modifiers;
 
@@ -446,7 +417,6 @@ around TO_JSON => sub {
     my $self = shift;
 
     my $data = $self->$orig(@_);
-    $data->{role} = delete $data->{device_role_id};
     $data->{hardware_product} = delete $data->{hardware_product_id};
     return $data;
 };

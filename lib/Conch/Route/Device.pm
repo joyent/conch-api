@@ -16,20 +16,6 @@ Conch::Route::Device
 
 Sets up routes for /device:
 
-    GET     /device/role
-    POST    /device/role
-    GET     /device/role/:device_role_id
-    POST    /device/role/:device_role_id
-    DELETE  /device/role/:device_role_id
-    POST    /device/role/:device_role_id/add_service
-    POST    /device/role/:device_role_id/remove_service
-
-    GET     /device/service
-    POST    /device/service
-    GET     /device/service/:device_service_id
-    POST    /device/service/:device_service_id
-    DELETE  /device/service/:device_service_id
-
     GET     /device/?mac=:mac, ?ipaddr=:ipaddr
     GET     /device/:device_id
     POST    /device/:device_id
@@ -51,8 +37,6 @@ Sets up routes for /device:
     POST    /device/:device_id/validation_plan/#validation_plan_id
     GET     /device/:device_id/validation_state
     GET     /device/:device_id/validation_result
-    GET     /device/:device_id/role
-    POST    /device/:device_id/role
 
     GET     /device/:device_id/interface
     GET     /device/:device_id/interface/:interface_name
@@ -61,51 +45,6 @@ Sets up routes for /device:
 
 sub device_routes {
     my $device = shift; # secured, under /device
-
-    {
-        my $dr = $device->any('/role');
-
-        # GET /device/role
-        $dr->get('/')->to('device_roles#get_all');
-        # POST /device/role
-        $dr->post('/')->to('device_roles#create');
-
-        {
-            my $dri = $dr->any('/:device_role_id');
-
-            # GET /device/role/:device_role_id
-            $dri->get('/')->to('device_roles#get_one');
-            # POST /device/role/:device_role_id
-            $dri->post('/')->to('device_roles#update');
-            # DELETE /device/role/:device_role_id
-            $dri->delete('/')->to('device_roles#delete');
-            # POST /device/role/:device_role_id/add_service
-            $dri->post('/add_service')->to('device_roles#add_service');
-            # POST /device/role/:device_role_id/remove_service
-            $dri->post('/remove_service')->to('device_roles#remove_service');
-        }
-    }
-
-    {
-        my $drs = $device->any('/service');
-
-        # GET /device/service
-        $drs->get('/')->to('device_services#get_all');
-        # POST /device/service
-        $drs->post('/')->to('device_services#create');
-
-        {
-            # chainable action that extracts and looks up id (of various types) from the path
-            my $drsi = $drs->under('/:device_service_id')->to('device_services#find_device_service');
-
-            # GET /device/service/:device_service_id
-            $drsi->get('/')->to('device_services#get_one');
-            # POST /device/service/:device_service_id
-            $drsi->post('/')->to('device_services#update');
-            # DELETE /device/service/:device_service_id
-            $drsi->delete('/')->to('device_services#delete');
-        }
-    }
 
     # routes namespaced for a specific device
     {
@@ -117,7 +56,7 @@ sub device_routes {
             ->get->under->to('device#find_device')
             ->get->to('device#get');
 
-        # chainable action that extracts and looks up device_service_id from the path
+        # chainable action that extracts and looks up device_id from the path
         my $with_device = $device->under('/:device_id')->to('device#find_device');
 
         # GET /device/:device_id
@@ -171,19 +110,14 @@ sub device_routes {
         # GET /device/:device_id/validation_result
         $with_device->get('/validation_result')->to('device_validation#list_validation_results');
 
-        # GET /device/:device_id/role
-        $with_device->get('/role')->to('device#get_role');
-        # POST /device/:device_id/role
-        $with_device->post('/role')->to('device#set_role');
-
         {
-            # chainable action that extracts and looks up device_service_id from the path
             my $with_device_interface = $with_device->any('/interface');
             $with_device_interface->to({ controller => 'device_interface' });
 
             # GET /device/:device_id/interface
             $with_device_interface->get('/')->to('#get_all');
 
+            # chainable action that extracts and looks up interface_name from the path
             my $with_interface_name = $with_device_interface->under('/:interface_name')->to('#find_device_interface');
 
             # GET /device/:device_id/interface/:interface_name
