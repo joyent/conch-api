@@ -1,71 +1,66 @@
 # Conch API Server
 
-Datacenter build and management service
+Conch helps you build and manage datacenters.
 
-# Setup
+Conch's goal is to provide an end-to-end solution for full datacenter resource
+lifecycle: from design to initial power-on to end-of-life for all components of
+all devices.
+
+Conch is open source, licensed under MPL2.
+
+## Caveat Emptor
+
+At the time of writing, the API is not considered to be stable. While we do our
+best to prevent breakage, the core is in considerable flux and we do not
+guarantee fit or function right now. The [conch
+shell](https://github.com/joyent/conch-shell) is our current stable interface.
+
+## Installation
+
+### Operating System Support
+
+We currently support SmartOS 17.4 and FreeBSD 11.2. Being a Perl app, the API
+should run most anywhere but the code is only actively tested on SmartOS and
+FreeBSD.
+
+### Perl Support
+
+The API is only certified to run against Perl 5.26.
+
+### Setup
 
 Conch uses [`carton`](https://metacpan.org/pod/Carton) to manage Perl
-dependencies and `npm` for nodejs depdencies.  Both are required for building and
-running the project.
+dependencies
 
 Below is a list of useful Make commands that can be used to build and run the
 project. All of these should be run in the top level directory.
 
-* `make build` -- Install dependencies and build Perl and Javascript Source
 * `make run` -- Build the project and run it
-* `make watch` -- Continuously build and run the code, using [`entr`](http://entrproject.org).
-* `make format` -- Auto-format source code
 * `make test` -- Run tests
 * `make migrate-db` -- Run database migrations
 
-# API
+#### Needed Packages
 
-The Conch API is documented at [here](https://conch.joyent.us/doc).
+* PostgreSQL 9.6
+* Git
+* Perl, 5.26 or above
+* A compiler suite that is supported by Perl
 
-# Installation
+#### Configuration
 
-## NOTE
+Copy `conch.conf.dist` to `conch.conf`, modifying for any local parameters,
+including database connectivity information.
 
-Currently there is a bug in the `HTTP::XSCookie` module, making it non-portable
-on illumos. Please use an LX zone over an OS zone.
+### Starting Conch
 
-## Linux install
+* `make run`
 
-```
-# apt-get install -y build-essential git carton perl-doc postgresql-server-dev-9.5 \
-   postgresql-client-common postgresql-client-9.5
+## Licensing
 
-# git clone git@github.com:joyent/conch.git
-# cd conch
+Copyright Joyent, Inc.
 
-# carton install
-Installing modules using /root/src/conch/cpanfile
-...
-208 distributions installed
-Complete! Modules were installed into /root/src/conch/local
+This Source Code Form is subject to the terms of the Mozilla Public License,
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
 
-```
 
-## Configuration
-
-Copy `environments/development.yml.dist` to `environments/development.yml`.
-
-Edit the database connection info in `environments/development.yml`:
-
-```
-plugins:
-  DBIC:
-    default:
-      dsn: dbi:Pg:dbname=conch;host=1.2.3.4
-      user: conch
-      password: SECRET
-      schema_class: Conch::Schema
-```
-
-# Starting Conch
-
-```
-# carton exec plackup -p 5000 bin/app.psgi
-trace: switching to run mode 3 for Log::Report::Dispatcher::Callback, accept ALL
-HTTP::Server::PSGI: Accepting connections at http://0:5000/
-```
