@@ -1418,6 +1418,10 @@ definitions:
                 - ro
                 - rw
                 - admin
+  UsersDetailed:
+    type: array
+    items:
+       $ref: /definitions/UserDetailed
   HardwareVendor:
     type: object
     additionalProperties: false

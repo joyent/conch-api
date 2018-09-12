@@ -256,6 +256,10 @@ subtest 'Workspaces' => sub {
 		->json_is('/workspaces/0/id' => $id)
 		->json_is('/workspaces/0/name' => 'GLOBAL')
 		->json_is('/workspaces/0/role' => 'rw');
+
+	$t->get_ok('/user/')
+		->status_is(200)
+		->json_schema_is('UsersDetailed');
 };
 
 subtest 'Sub-Workspace' => sub {

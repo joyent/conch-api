@@ -299,6 +299,21 @@ sub get ($c) {
 	return $c->status(200, $user);
 }
 
+=head2 list
+
+List all users and their workspaces. Global admin only.
+
+=cut
+
+sub list ($c) {
+
+	my $user_rs = $c->db_user_accounts
+		->active
+		->search({}, { prefetch => { user_workspace_roles => 'workspace' } });
+
+	return $c->status(200, [ $user_rs->all ]);
+}
+
 =head2 create
 
 Creates a user. Global admin only.
