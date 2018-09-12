@@ -201,11 +201,45 @@ __PACKAGE__->has_many(
 
 __PACKAGE__->add_columns(
     '+password_hash' => { is_serializable => 0 },
+    '+deactivated' => { is_serializable => 0 },
 );
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
+use Class::Method::Modifiers;
 
 =head1 METHODS
+
+=head2 TO_JSON
+
+Include information about the user's workspaces, if available.
+
+=cut
+
+around TO_JSON => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    my $data = $self->$orig(@_);
+
+    # Mojo::JSON renders \0, \1 as json booleans
+    $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change);
+
+    # add workspace data, if it has been prefetched
+    my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache;
+    $data->{workspaces} = [
+        map {
+            my $workspace = $_->related_resultset('workspace')->get_cache;
+            +{
+                role => $_->role,
+                # cache is always an arrayref, even for a 1:1 relationship
+                ( map { $_ => $workspace->[0]->$_ } qw(id name) ),
+            }
+        }
+        $cached_uwrs->@*
+    ] if $cached_uwrs;
+
+    return $data;
+};
 
 =head2 new
 

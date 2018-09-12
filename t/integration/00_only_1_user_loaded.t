@@ -248,6 +248,14 @@ subtest 'Workspaces' => sub {
 		'rw',
 		'new user can access this workspace',
 	);
+
+	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
+		->status_is(200)
+		->json_schema_is('UserDetailed')
+		->json_is('/email' => 'test_workspace@conch.joyent.us')
+		->json_is('/workspaces/0/id' => $id)
+		->json_is('/workspaces/0/name' => 'GLOBAL')
+		->json_is('/workspaces/0/role' => 'rw');
 };
 
 subtest 'Sub-Workspace' => sub {
@@ -578,6 +586,7 @@ subtest 'modify another user' => sub {
 
 	$t->get_ok("/user/$new_user_id")
 		->status_is(200)
+		->json_schema_is('UserDetailed')
 		->json_like('/created', qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/, 'timestamp in RFC3339')
 		->json_is('', {
 			id => $new_user_id,
@@ -585,9 +594,9 @@ subtest 'modify another user' => sub {
 			email => 'foo@conch.joyent.us',
 			created => $new_user->created,
 			last_login => undef,
-			deactivated => undef,
-			refuse_session_auth => 0,
-			force_password_change => 0,
+			refuse_session_auth => JSON::PP::false,
+			force_password_change => JSON::PP::false,
+			workspaces => [],
 		}, 'returned all the right fields (and not the password)');
 
 	$t->post_ok(
