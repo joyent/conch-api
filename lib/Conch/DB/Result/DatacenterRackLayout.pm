@@ -194,17 +194,14 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-07 11:03:51
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SIB+Lq+AfaSnC6SVu04/RA
 
-use Class::Method::Modifiers;
-
-around TO_JSON => sub {
-    my $orig = shift;
+sub TO_JSON {
     my $self = shift;
 
-    my $data = $self->$orig(@_);
+    my $data = $self->next::method(@_);
     $data->{product_id} = delete $data->{hardware_product_id};
     $data->{ru_start} = delete $data->{rack_unit_start};
     return $data;
-};
+}
 
 1;
 __END__
