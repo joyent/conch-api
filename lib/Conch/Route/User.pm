@@ -27,6 +27,7 @@ Sets up routes for /user:
     GET     /user/#target_user
     POST    /user/#target_user/revoke
     DELETE  /user/#target_user/password
+    GET     /user
     POST    /user
     DELETE  /user/#target_user
 
@@ -83,6 +84,9 @@ sub user_routes {
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
         # DELETE /user/#target_user/password
         $user_with_target->delete('/password')->to('#reset_user_password');
+
+        # GET /user
+        $user->require_global_admin->get('/')->to('#list');
         # POST /user
         $user->require_global_admin->post('/')->to('#create');
         # DELETE /user/#target_user

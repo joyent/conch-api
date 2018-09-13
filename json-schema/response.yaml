@@ -950,6 +950,7 @@ definitions:
           type: string
         email:
           type: string
+          format: email
         role:
           type: string
   Rooms:
@@ -1340,6 +1341,7 @@ definitions:
         format: uuid
       email:
         type: string
+        format: email
       name:
         type: string
       created:
@@ -1352,7 +1354,6 @@ definitions:
             format: date-time
           -
             type: null
-
   UserError:
     type: object
     additionalProperties: false
@@ -1364,6 +1365,63 @@ definitions:
         type: string
       user:
         $ref: /definitions/User
+  UserDetailed:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - email
+      - created
+      - last_login
+      - refuse_session_auth
+      - force_password_change
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      email:
+        type: string
+        format: email
+      created:
+        type: string
+        format: date-time
+      last_login:
+        anyOf:
+          - type: null
+          - type: string
+            format: date-time
+      refuse_session_auth:
+        type: boolean
+      force_password_change:
+        type: boolean
+      workspaces:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - name
+            - role
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            role:
+              type: string
+              enum:
+                - ro
+                - rw
+                - admin
+  UsersDetailed:
+    type: array
+    items:
+       $ref: /definitions/UserDetailed
   HardwareVendor:
     type: object
     additionalProperties: false
@@ -1388,3 +1446,4 @@ definitions:
     type: array
     items:
       $ref: /definitions/HardwareVendor
+# vim: set sts=2 sw=2 et :
