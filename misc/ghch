@@ -1,0 +1,80 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use v5.20;
+
+use Mojo::JSON qw(decode_json);
+use LWP::UserAgent;
+
+sub get {
+	my $short = shift;
+	my $url = "https://api.github.com$short";
+	if($ENV{TOKEN}) {
+		$url .= "?access_token=$ENV{TOKEN}";
+	}
+	my $res = LWP::UserAgent->new->get($url);
+	if($res->is_success) {
+		return decode_json($res->decoded_content);
+	} else {
+		die $url." - ".$res->status_line."\n".$res->decoded_content;
+	}
+}
+
+
+my $start = $ARGV[0] // `git tag --sort version:refname | tail -n 1`;
+chomp $start;
+
+my $end = $ARGV[1] // 'HEAD';
+chomp $end;
+
+foreach my $line (reverse `git --no-pager log --oneline --merges --no-decorate $start...$end`) {
+	$line =~ /^(.+?) Merge pull request #(\d+) / or next;
+	my $hash = $1;
+	my $pr = $2;
+
+	my $j = get "/repos/joyent/conch/pulls/$pr";
+
+	my $author = "[$j->{user}->{login}]($j->{user}->{html_url})";
+	my $merger = "[$j->{merged_by}->{login}]($j->{merged_by}->{html_url})";
+
+	my $labels = join(", ", map { $_->{name} } $j->{labels}->@*);
+
+	my $body;
+	if ($j->{body}) {
+		foreach (split("\n", $j->{body})) {
+			$body .= "> $_\n";
+		}
+	}
+
+	say <<EOF;
+[PR #$pr]($j->{html_url}) - `$j->{title}`
+===
+* Branch: $j->{head}->{ref}
+* Revision: $hash
+* Labels: $labels
+EOF
+
+	say $body if $body;
+
+	say <<EOF;
+People
+---
+* Author: $author
+* Merged By: $merger
+* Merged: $j->{merged_at}
+EOF
+
+
+	say "Commits\n---\n";
+
+	$j = get "/repos/joyent/conch/pulls/$pr/commits";
+	for my $commit ($j->@*) {
+		my $h = substr($commit->{sha},0,6);
+		my @bits = split("\n", $commit->{commit}->{message});
+
+		say "* [$h]($commit->{html_url}) - \`$bits[0]\`";
+	}
+	say "\n- - -\n";
+}
+
