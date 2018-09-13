@@ -16,31 +16,6 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 sub register ($self, $app, $conf) {
 
-=head2 global_auth
-
-	if ($c->global_auth('rw')) { ... }
-
-Verifies if the currently stashed user_id has this auth role on the GLOBAL
-workspace
-
-=cut
-
-	$app->helper(
-		global_auth => sub {
-			my ( $c, $role_name ) = @_;
-			return 0 unless $c->stash('user_id');
-
-			# FIXME: currently does an exact match. should we return true
-			# if we ask about 'rw' and the user has 'admin?
-
-			return $c->db_workspaces->search({ 'workspace.name' => 'GLOBAL' })
-				->search_related('user_workspace_roles',
-					{ user_id => $c->stash('user_id'), role => $role_name })
-				->count;
-		},
-	);
-
-
 =head2 is_global_admin
 
 	return $c->status(403) unless $c->is_global_admin
@@ -51,9 +26,14 @@ GLOBAL workspace
 =cut
 
 	$app->helper(
-		is_global_admin => sub {
-			shift->global_auth('admin');
-		}
+		is_global_admin => sub ($c) {
+			return 0 unless $c->stash('user_id');
+
+			return $c->db_workspaces->search({ 'workspace.name' => 'GLOBAL' })
+				->search_related('user_workspace_roles',
+					{ user_id => $c->stash('user_id'), role => 'admin' })
+				->count;
+		},
 	);
 
 =head2 is_admin
