@@ -55,7 +55,7 @@ migrate-db: ## Apply database migrations
 
 .PHONY: db-schema
 db-schema: ## create a dump of current db schema
-	pg_dump -U conch -s conch > sql/schema.sql
+	pg_dump --username conch --schema-only --file sql/schema.sql conch
 
 .PHONY: validation_docs docs/validation/BaseValidation.md docs/validation/TestValidations.md
 validation_docs: docs/validation/BaseValidation.md docs/validation/BaseValidation.md ## Generate markdown files of the validation docs 

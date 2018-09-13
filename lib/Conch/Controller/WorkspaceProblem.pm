@@ -64,15 +64,18 @@ sub _get_problems ($c) {
 		}
 	}
 
+	# find devices that have sent a device report proxied by a relay using the user's
+	# credentials, that also do not have a registered location.
 	# TODO: this query could be further modified to also fetch
 	# device_rack_location at the same time.
 	my @unlocated_user_devices = $c->db_user_accounts
-		->search({ 'user_account.id' => $c->stash('user_id') }, { alias => 'user_account' })
-		->user_devices_without_location
-		->search(
-			{},
-			{ prefetch => 'latest_report' },
-		)
+		->search({ 'user_account.id' => $c->stash('user_id') })
+		->related_resultset('user_relay_connections')
+		->related_resultset('relay')
+		->related_resultset('device_relay_connections')
+		->related_resultset('device')
+		->devices_without_location
+		->search({}, { prefetch => 'latest_report' })
 		->all;
 
 	my $failing_problems = {};

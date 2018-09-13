@@ -26,11 +26,11 @@ To go in the other direction, see L<Conch::DB::ResultSet::Workspace/associated_r
 sub associated_workspaces {
     my $self = shift;
 
-    my $rack_workspace_ids = $self->search_related('workspace_datacenter_racks')
+    my $rack_workspace_ids = $self->related_resultset('workspace_datacenter_racks')
         ->get_column('workspace_id');
 
-    my $rack_room_workspace_ids = $self->search_related('datacenter_room')
-        ->search_related('workspace_datacenter_rooms')
+    my $rack_room_workspace_ids = $self->related_resultset('datacenter_room')
+        ->related_resultset('workspace_datacenter_rooms')
         ->get_column('workspace_id');
 
     $self->result_source->schema->resultset('Workspace')->search(

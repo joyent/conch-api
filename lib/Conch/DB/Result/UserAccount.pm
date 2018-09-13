@@ -205,7 +205,6 @@ __PACKAGE__->add_columns(
 );
 
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
-use Class::Method::Modifiers;
 
 =head1 METHODS
 
@@ -215,11 +214,10 @@ Include information about the user's workspaces, if available.
 
 =cut
 
-around TO_JSON => sub {
-    my $orig = shift;
+sub TO_JSON {
     my $self = shift;
 
-    my $data = $self->$orig(@_);
+    my $data = $self->next::method(@_);
 
     # Mojo::JSON renders \0, \1 as json booleans
     $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change);
@@ -239,7 +237,7 @@ around TO_JSON => sub {
     ] if $cached_uwrs;
 
     return $data;
-};
+}
 
 =head2 new
 
@@ -254,9 +252,7 @@ sub new {
     $args->{password_hash} = _hash_password(delete $args->{password})
         if exists $args->{password};
 
-    $self = $self->next::method($args);
-
-    return $self;
+    return $self->next::method($args);
 }
 
 =head2 update
@@ -272,7 +268,7 @@ sub update {
     $args->{password_hash} = _hash_password(delete $args->{password})
         if exists $args->{password};
 
-    $self = $self->next::method($args);
+    return $self->next::method($args);
 }
 
 =head2 validate_password

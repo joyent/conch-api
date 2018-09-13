@@ -33,7 +33,7 @@ workspace
 			# FIXME: currently does an exact match. should we return true
 			# if we ask about 'rw' and the user has 'admin?
 
-			return $c->db_workspaces->search({ 'me.name' => 'GLOBAL' })
+			return $c->db_workspaces->search({ 'workspace.name' => 'GLOBAL' })
 				->search_related('user_workspace_roles',
 					{ user_id => $c->stash('user_id'), role => $role_name })
 				->count;

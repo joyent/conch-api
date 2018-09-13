@@ -71,7 +71,7 @@ sub set_settings ($c) {
 		unless $user;
 
 	# deactivate *all* settings first
-	$user->search_related('user_settings')->active->deactivate;
+	$user->related_resultset('user_settings')->active->deactivate;
 
 	# store new settings
 	$user->create_related('user_settings', $_) foreach

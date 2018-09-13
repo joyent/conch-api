@@ -137,13 +137,6 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-15 16:00:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4qDobImznzLPv9gJEe0GDw
 
-__PACKAGE__->has_many(
-  "device_relay_connections",
-  "Conch::DB::Result::DeviceRelayConnection",
-  { "foreign.relay_id" => "self.relay_id" },
-  { on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
 1;
 __END__
 

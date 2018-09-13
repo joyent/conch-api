@@ -406,20 +406,17 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-11 10:48:50
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ijn9d8WDVkKqiVdlgCLNog
 
-use Class::Method::Modifiers;
-
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
 );
 
-around TO_JSON => sub {
-    my $orig = shift;
+sub TO_JSON {
     my $self = shift;
 
-    my $data = $self->$orig(@_);
+    my $data = $self->next::method(@_);
     $data->{hardware_product} = delete $data->{hardware_product_id};
     return $data;
-};
+}
 
 __PACKAGE__->might_have(
     'latest_report',

@@ -86,16 +86,18 @@ sub startup {
 
 	# db_user_accounts => $app->schema->resultset('UserAccount'), etc
 	# db_ro_user_accounts => $app->ro_schema->resultset('UserAccount'), etc
-	foreach my $source ($self->schema->sources) {
+	foreach my $source_name ($self->schema->sources) {
 		# necessary for now due to RT#125930
-		my @words = split(/_/, decamelize($source));
+		my @words = split(/_/, decamelize($source_name));
 		$words[-1] = noun($words[-1])->plural;
 		my $name = join('_', @words);
 		$self->helper('db_'.$name, sub {
-			shift->app->schema->resultset($source)
+			my $source = $_[0]->app->schema->source($source_name);
+			$source->resultset->search({}, { alias => $source->from });
 		});
 		$self->helper('db_ro_'.$name, sub {
-			shift->app->ro_schema->resultset($source)
+			my $ro_source = $_[0]->app->ro_schema->source($source_name);
+			$ro_source->resultset->search({}, { alias => $ro_source->from });
 		});
 	}
 

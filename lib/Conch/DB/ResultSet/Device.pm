@@ -36,6 +36,23 @@ sub user_has_permission {
         ->user_has_permission($user_id, $permission);
 }
 
+=head2 devices_without_location
+
+Restrict results to those that do not have a registered location.
+
+=cut
+
+sub devices_without_location {
+    my $self = shift;
+
+    $self->search({
+        # all devices in device_location table
+        $self->current_source_alias . '.id' => {
+            -not_in => $self->result_source->schema->resultset('DeviceLocation')->get_column('device_id')->as_query
+         },
+    });
+}
+
 1;
 __END__
 

@@ -771,8 +771,8 @@ ALTER TABLE public.workspace OWNER TO conch;
 --
 
 CREATE TABLE public.workspace_datacenter_rack (
-    workspace_id uuid,
-    datacenter_rack_id uuid
+    workspace_id uuid NOT NULL,
+    datacenter_rack_id uuid NOT NULL
 );
 
 
@@ -783,8 +783,8 @@ ALTER TABLE public.workspace_datacenter_rack OWNER TO conch;
 --
 
 CREATE TABLE public.workspace_datacenter_room (
-    workspace_id uuid,
-    datacenter_room_id uuid
+    workspace_id uuid NOT NULL,
+    datacenter_room_id uuid NOT NULL
 );
 
 

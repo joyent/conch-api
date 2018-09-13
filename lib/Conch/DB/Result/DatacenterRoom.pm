@@ -177,16 +177,13 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-23 12:46:05
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WMR+xeS8FDHZv5ZKXOj+Eg
 
-use Class::Method::Modifiers;
-
-around TO_JSON => sub {
-    my $orig = shift;
+sub TO_JSON {
     my $self = shift;
 
-    my $data = $self->$orig(@_);
+    my $data = $self->next::method(@_);
     $data->{datacenter} = delete $data->{datacenter_id};
     return $data;
-};
+}
 
 1;
 __END__

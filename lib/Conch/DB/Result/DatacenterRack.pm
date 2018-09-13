@@ -227,16 +227,13 @@ __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
 );
 
-use Class::Method::Modifiers;
-
-around TO_JSON => sub {
-    my $orig = shift;
+sub TO_JSON {
     my $self = shift;
 
-    my $data = $self->$orig(@_);
+    my $data = $self->next::method(@_);
     $data->{role} = delete $data->{datacenter_rack_role_id};
     return $data;
-};
+}
 
 1;
 __END__
