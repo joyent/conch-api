@@ -22,6 +22,7 @@ with 'Conch::Role::MojoLog';
 Get a list of users for the current workspace
 Returns a listref of hashrefs with keys: name, email, role.
 TODO: include id?
+TODO: restrict to workspace admins?
 
 =cut
 

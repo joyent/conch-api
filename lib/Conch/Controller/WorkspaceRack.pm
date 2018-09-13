@@ -153,8 +153,6 @@ sub add ($c) {
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $uwr->workspace->name eq 'GLOBAL';
 
-	# FIXME: not checking that user has 'rw' permissions on this workspace
-
 	unless ( Conch::Model::WorkspaceRack->rack_in_parent_workspace(
 		$c->stash('workspace_id'),
 		$rack_id
@@ -196,17 +194,16 @@ sub add ($c) {
 Remove a rack from a workspace, unless it was implicitly assigned via a
 datacenter room assignment
 
+Requires 'admin' permissions on the workspace.
+
 =cut
 
 sub remove ($c) {
-	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
 		if $uwr->workspace->name eq 'GLOBAL';
-
-	# FIXME: not checking that user has 'rw' permissions on this workspace
 
 	my $remove_attempt = Conch::Model::WorkspaceRack->new->remove_from_workspace(
 		$c->stash('workspace_id'),
@@ -237,9 +234,6 @@ Assign the full layout for a rack
 # Bulk update a rack layout.
 sub assign_layout ($c) {
 
-	my $uwr = $c->stash('user_workspace_role_rs')->single;
-
-	return $c->status(403) if $uwr->role eq 'ro';
 	my $rack_id = $c->stash('current_ws_rack')->id;
 	# FIXME: validate incoming data against json schema
 	my $layout = $c->req->json;
