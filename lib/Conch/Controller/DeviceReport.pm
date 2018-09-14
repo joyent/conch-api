@@ -344,14 +344,16 @@ sub _record_device_configuration {
 sub _add_reboot_count {
 	my $device = shift;
 
-	my $reboot_count = $device->device_settings->find_or_new({
+	my $reboot_count = $device->find_or_new_related('device_settings', {
+		deactivated => undef,
 		name => 'reboot_count'
 	});
-	$reboot_count->updated( \'NOW()' );
 
 	if ( $reboot_count->in_storage ) {
-		$reboot_count->value( 1 + $reboot_count->value );
-		$reboot_count->update;
+		$reboot_count->update({
+			value => 1 + $reboot_count->value,
+			updated => \'NOW()',
+		});
 	}
 	else {
 		$reboot_count->value(0);
