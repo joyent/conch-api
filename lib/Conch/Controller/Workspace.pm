@@ -24,8 +24,6 @@ and stashes the query to get to it in C<user_workspace_role_rs>.
 =cut
 
 sub find_workspace ($c) {
-	my $self = shift;
-
 	my $ws_id = $c->stash('workspace_id');
 
 	if (not is_uuid($ws_id)) {

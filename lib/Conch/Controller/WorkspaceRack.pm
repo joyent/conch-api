@@ -38,8 +38,6 @@ database, stashing it as 'current_ws_rack'.
 =cut
 
 sub find_rack ($c) {
-	my $self = shift;
-
 	my $rack_id = $c->stash('rack_id');
 
 	if (not is_uuid($rack_id)) {
