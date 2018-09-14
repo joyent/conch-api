@@ -1225,13 +1225,6 @@ CREATE UNIQUE INDEX device_settings_device_id_name_idx ON public.device_settings
 
 
 --
--- Name: device_settings_name_key; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE UNIQUE INDEX device_settings_name_key ON public.device_settings USING btree (device_id, name) WHERE (deactivated IS NULL);
-
-
---
 -- Name: hardware_vendor_name_key; Type: INDEX; Schema: public; Owner: conch
 --
 
