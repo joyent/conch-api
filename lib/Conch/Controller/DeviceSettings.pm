@@ -18,7 +18,8 @@ use List::Util 'pairmap';
 
 =head2 set_all
 
-Overrides all settings for a device with the given payload
+Overrides all settings for a device with the given payload.
+Existing settings are deactivated even if they are not being replaced with new ones.
 
 =cut
 
@@ -33,7 +34,7 @@ sub set_all ($c) {
 	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
 	my @non_tags = grep { !/^tag\./ } keys %$body;
 	my $perm_needed =
-		@non_tags && $settings_rs->search({ name => \@non_tags })->count ? 'admin' : 'rw';
+		@non_tags && $settings_rs->active->search({ name => \@non_tags })->count ? 'admin' : 'rw';
 
 	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
 		$c->log->debug("failed permission check (required $perm_needed)");
@@ -56,7 +57,7 @@ sub set_all ($c) {
 =head2 set_single
 
 Sets a single setting on a device. If the setting already exists, it is
-overwritten
+overwritten, unless the value is unchanged.
 
 =cut
 
@@ -65,23 +66,25 @@ sub set_single ($c) {
 	my $setting_key   = $c->stash('key');
 	my $setting_value = $body->{$setting_key};
 
+	return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
+		unless $setting_value;
+
 	# we cannot do device_rs->related_resultset, or ->create loses device_id
 	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
+	my $existing_setting = $settings_rs->active->find({ name => $setting_key });
+
+	# return early if the setting exists and is not being altered
+	return $c->status(204) if $existing_setting and $existing_setting->value eq $setting_value;
+
 	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-	my $perm_needed =
-		$setting_key !~ /^tag\./ && $settings_rs->search({ name => $setting_key })->count ? 'admin' : 'rw';
+	my $perm_needed = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
 		$c->log->debug("failed permission check (required $perm_needed)");
 		return $c->status(403, { error => 'insufficient permissions' });
 	}
 
-	return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
-		unless $setting_value;
-
-	$settings_rs->search({ name => $setting_key })
-		->active
-		->deactivate;
+	$existing_setting->update({ deactivated => \'NOW()' }) if $existing_setting;
 
 	$settings_rs->create({ name => $setting_key, value => $setting_value });
 

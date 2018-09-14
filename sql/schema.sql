@@ -1218,6 +1218,13 @@ CREATE INDEX device_report_device_id_created_idx ON public.device_report USING b
 
 
 --
+-- Name: device_settings_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_settings_device_id_idx ON public.device_settings USING btree (device_id);
+
+
+--
 -- Name: device_settings_device_id_name_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
