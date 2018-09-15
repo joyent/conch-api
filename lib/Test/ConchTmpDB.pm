@@ -5,7 +5,7 @@ use warnings;
 use Test::PostgreSQL;
 use DBI;
 use Conch::DB;
-use IO::All;
+use Path::Tiny;
 
 use Exporter 'import';
 our @EXPORT_OK = qw( mk_tmp_db pg_dump );	 # TODO: do not export OO methods
@@ -40,9 +40,8 @@ sub mk_tmp_db {
 		$dbh->do('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";') or die;
 		$dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";') or die;
 
-		for my $file ( io->dir("sql/migrations")->sort->glob("*.sql") ) {
-			$dbh->do( $file->all ) or die;
-		}
+		$dbh->do($_->slurp_utf8) or BAIL_OUT("Test SQL load failed in $_")
+			foreach sort (path('sql/migrations')->children(qr/\.sql/));
 	});
 
 	# Add a user so we can log in. User: conch; Password: conch;
@@ -87,9 +86,8 @@ sub make_full_db {
 
 	$schema->storage->dbh_do(sub {
 		my ($storage, $dbh, @args) = @_;
-		for my $file ( io->dir($path)->sort->glob("*.sql") ) {
-			$dbh->do($file->all) or die "Failed to load sql file: $file";
-		}
+		$dbh->do($_->slurp_utf8) or die "Failed to load sql file: $_"
+			foreach sort (path($path)->children(qr/\.sql/));
 	});
 
 	# TODO: return a DBIx::Class::Schema instead.

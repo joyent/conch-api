@@ -1,7 +1,7 @@
 use Mojo::Base -strict;
 use Test::More;
 use Data::UUID;
-use IO::All;
+use Path::Tiny;
 use Test::Warnings;
 use Test::Conch;
 
@@ -11,15 +11,7 @@ use Data::Printer;
 my $uuid = Data::UUID->new;
 my $t = Test::Conch->new;
 
-$t->schema->storage->dbh_do(sub {
-	my ($storage, $dbh, @args) = @_;
-
-	my @test_sql_files = qw( 00-hardware.sql );
-	for my $file ( map { io->file("sql/test/$_") } @test_sql_files ) {
-		$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
-	}
-});
-
+$t->load_test_sql('00-hardware.sql');
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 $t->get_ok("/version")->status_is(200);
@@ -59,7 +51,7 @@ subtest 'Relay List' => sub {
 
 subtest 'Device Report' => sub {
 	my $report =
-		io->file('t/integration/resource/passing-device-report.json')->slurp;
+		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
 		->status_is(409)
 		->json_is('/error', 'Hardware product does not contain a profile');

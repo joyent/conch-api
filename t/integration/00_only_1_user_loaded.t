@@ -4,7 +4,7 @@ use utf8;
 
 use Test::More;
 use Data::UUID;
-use IO::All;
+use Path::Tiny;
 use Test::Warnings;
 use Test::Conch;
 
@@ -387,7 +387,7 @@ subtest 'Relay List' => sub {
 
 subtest 'Device Report' => sub {
 	my $report =
-		io->file('t/integration/resource/passing-device-report.json')->slurp;
+		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
 		->status_is(409)
 		->json_is('/error', 'Could not locate hardware product');

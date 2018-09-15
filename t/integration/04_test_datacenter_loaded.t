@@ -1,7 +1,7 @@
 use Mojo::Base -strict;
 use Test::More;
 use Data::UUID;
-use IO::All;
+use Path::Tiny;
 use Test::Deep;
 use Test::Warnings;
 use Mojo::JSON 'decode_json';
@@ -128,7 +128,7 @@ subtest 'Register relay' => sub {
 
 subtest 'Device Report' => sub {
 	my $report =
-		io->file('t/integration/resource/passing-device-report.json')->slurp;
+		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
 		->json_is( '/status', 'pass' );
 

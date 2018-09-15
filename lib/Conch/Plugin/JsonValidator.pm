@@ -44,7 +44,6 @@ package Conch::Plugin::JsonValidator;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use IO::All;
 use JSON::Validator;
 use Conch::UUID 'is_uuid';
 

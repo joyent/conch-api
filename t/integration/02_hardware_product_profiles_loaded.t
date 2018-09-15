@@ -1,7 +1,7 @@
 use Mojo::Base -strict;
 use Test::More;
 use Data::UUID;
-use IO::All;
+use Path::Tiny;
 use Test::Warnings;
 use Test::Conch;
 
@@ -20,14 +20,7 @@ Test::Conch->load_validation_plans(
 	$t->app->log,
 );
 
-$t->schema->storage->dbh_do(sub {
-	my ($storage, $dbh, @args) = @_;
-
-	my @test_sql_files = qw( 00-hardware.sql 01-hardware-profiles.sql );
-	for my $file ( map { io->file("sql/test/$_") } @test_sql_files ) {
-		$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
-	}
-});
+$t->load_test_sql(qw( 00-hardware.sql 01-hardware-profiles.sql ));
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 $t->get_ok("/version")->status_is(200);
@@ -67,7 +60,7 @@ subtest 'Relay List' => sub {
 
 subtest 'Device Report' => sub {
 	my $report =
-		io->file('t/integration/resource/passing-device-report.json')->slurp;
+		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is( 200,
 'Device reports process despite hardware profiles not having a zpool profile'
 	)->json_is( '/status', 'pass' );
