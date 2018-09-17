@@ -149,10 +149,10 @@ sub lookup_by_other_attribute ($c) {
 
 	my $device_rs;
 	if ($key eq 'hostname') {
-		$device_rs = $c->db_devices->search({ $key => $value });
+		$device_rs = $c->db_devices->active->search({ $key => $value });
 	}
 	elsif (any { $key eq $_ } qw(mac ipaddr)) {
-		$device_rs = $c->db_devices->search(
+		$device_rs = $c->db_devices->active->search(
 			{ "device_nics.$key" => $value },
 			{ join => 'device_nics' },
 		);
