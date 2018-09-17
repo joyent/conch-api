@@ -1446,4 +1446,74 @@ definitions:
     type: array
     items:
       $ref: /definitions/HardwareVendor
+  DeviceTotals:
+    type: object
+    additionalProperties: false
+    required:
+      - all
+      - compute
+      - servers
+      - storage
+      - switches
+    patternProperties:
+      .:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - alias
+            - health
+            - count
+          properties:
+            alias:
+              type: string
+            health:
+              type: string
+              enum:
+                - PASS
+                - FAIL
+                - UNKNOWN
+                - ERROR
+            count:
+              type: integer
+  DeviceTotalsCirconus:
+    type: object
+    properties:
+      storage:
+        type: object
+        additionalProperties: false
+        required:
+          - count
+        properties:
+          count:
+            type: integer
+      compute:
+        type: object
+        additionalProperties: false
+        required:
+          - count
+        properties:
+          count:
+            type: integer
+    additionalProperties:  # additional keys will be hardware product aliases
+      type: object
+      additionalProperties: false
+      required:
+        - health
+        - count
+      properties:
+        health:
+          type: object
+          additionalProperties: false
+          required:
+            - PASS
+            - FAIL
+            - UNKNOWN
+          patternProperties:
+            ^(PASS|FAIL|UNKNOWN|ERROR)$:
+              type: integer
+        count:
+          type: integer
+
 # vim: set sts=2 sw=2 et :
