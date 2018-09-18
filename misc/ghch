@@ -5,7 +5,7 @@ use strict;
 use v5.20;
 
 use Mojo::JSON qw(decode_json);
-use LWP::UserAgent;
+use HTTP::Tiny;
 
 sub get {
 	my $short = shift;
@@ -13,11 +13,11 @@ sub get {
 	if($ENV{TOKEN}) {
 		$url .= "?access_token=$ENV{TOKEN}";
 	}
-	my $res = LWP::UserAgent->new->get($url);
-	if($res->is_success) {
-		return decode_json($res->decoded_content);
+	my $res = HTTP::Tiny->new->get($url);
+	if($res->{success}) {
+		return decode_json($res->{content});
 	} else {
-		die $url." - ".$res->status_line."\n".$res->decoded_content;
+		die $url.' - '.$res->{status}.' '.$res->{reason}."\n".$res->{content};
 	}
 }
 
