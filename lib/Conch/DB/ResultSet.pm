@@ -15,9 +15,10 @@ available in core DBIx::Class.
 =cut
 
 __PACKAGE__->load_components(
-    '+Conch::DB::Deactivatable',    # provides active, deactivate
-    'Helper::ResultSet::OneRow',    # provides one_row
-    'Helper::ResultSet::Shortcut::HRI', # provides hri: raw unblessed + uninflated data
+    '+Conch::DB::Deactivatable',                # provides active, deactivate
+    'Helper::ResultSet::OneRow',                # provides one_row
+    'Helper::ResultSet::Shortcut::HRI',         # provides hri: raw unblessed + uninflated data
+    'Helper::ResultSet::Shortcut::Prefetch',    # provides prefetch
 );
 
 1;

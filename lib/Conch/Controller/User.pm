@@ -287,7 +287,7 @@ sub get ($c) {
 	my $user_param = $c->stash('target_user');
 
 	my $user_rs = $c->db_user_accounts
-		->search({}, { prefetch => { user_workspace_roles => 'workspace' } });
+		->prefetch({ user_workspace_roles => 'workspace' });
 
 	my $user =
 		is_uuid($user_param) ? $user_rs->lookup_by_id($user_param)
@@ -309,7 +309,7 @@ sub list ($c) {
 
 	my $user_rs = $c->db_user_accounts
 		->active
-		->search({}, { prefetch => { user_workspace_roles => 'workspace' } });
+		->prefetch({ user_workspace_roles => 'workspace' });
 
 	return $c->status(200, [ $user_rs->all ]);
 }
@@ -391,7 +391,7 @@ sub deactivate ($c) {
 	}
 
 	my $workspaces = join(', ', map { $_->workspace->name . ' (' . $_->role . ')' }
-		$user->search_related('user_workspace_roles',{}, { join => 'workspace' }));
+		$user->related_resultset('user_workspace_roles')->prefetch('workspace')->all);
 
 	$c->log->warn('user ' . $c->stash('user')->name . ' deactivating user ' . $user->name
 		. ($workspaces ? ", member of workspaces: $workspaces" : ''));

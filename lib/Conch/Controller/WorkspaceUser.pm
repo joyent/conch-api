@@ -34,10 +34,11 @@ sub list ($c) {
 				(map { $_ => $uwr->user_account->$_ } qw(name email)),
 				role => $uwr->role,
 			}
-		} $c->db_user_workspace_roles->search(
-			{ workspace_id => $c->stash('workspace_id') },
-			{ prefetch => 'user_account' },
-		)->all
+		}
+		$c->db_user_workspace_roles
+			->search({ workspace_id => $c->stash('workspace_id') })
+			->prefetch('user_account')
+			->all
 	];
 
 	$c->log->debug("Found ".scalar($users->@*)." users");
@@ -61,7 +62,7 @@ sub invite ($c) {
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
 	# don't have to look up by multiple columns.
-	my $rs = $c->db_user_accounts->search(undef, { prefetch => 'user_workspace_roles' });
+	my $rs = $c->db_user_accounts->prefetch('user_workspace_roles');
 	my $user = $rs->lookup_by_email($input->{user}) || $rs->lookup_by_name($input->{user});
 
 	unless ($user) {
