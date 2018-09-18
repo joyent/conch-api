@@ -35,7 +35,7 @@ Verifies that the currently stashed user has the 'is_admin' flag set
 	return $c->status(403) unless $c->is_workspace_admin;
 
 Verifies that the currently stashed user_id has 'admin' permission on the current workspace (as
-specified by :workspace_id in the path).
+specified by :workspace_id in the path) or one of its ancestors.
 
 =cut
 
@@ -61,7 +61,8 @@ are present.
 
 			return 1 if $c->is_system_admin;
 
-			$c->db_workspaces->search({ 'workspace.id' => $workspace_id })
+			$c->db_workspaces
+				->and_workspaces_above($workspace_id)
 				->related_resultset('user_workspace_roles')
 				->user_has_permission($c->stash('user_id'), $role_name);
 		},
