@@ -161,8 +161,8 @@ sub lookup_by_other_attribute ($c) {
 	my $device_id = $device_rs->get_column('id')->single;
 
 	if (not $device_id) {
-		$c->log->debug("Failed to find device $device_id");
-		return $c->status(404, { error => "Device '$device_id' not found" });
+		$c->log->debug("Failed to find device matching $key=$value.");
+		return $c->status(404, { error => 'Device not found' });
 	}
 
 	# continue dispatch to find_device and then get.
