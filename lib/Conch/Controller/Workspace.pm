@@ -136,7 +136,7 @@ Returns a hashref with keys: id, name, description, role, parent_id.
 =cut
 
 sub create_sub_workspace ($c) {
-	return $c->status(403) unless $c->is_admin;
+	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $input = $c->validate_input('WorkspaceCreate');
 	return if not $input;

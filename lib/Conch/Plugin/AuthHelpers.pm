@@ -36,9 +36,9 @@ GLOBAL workspace
 		},
 	);
 
-=head2 is_admin
+=head2 is_workspace_admin
 
-	return $c->status(403) unless $c->is_admin;
+	return $c->status(403) unless $c->is_workspace_admin;
 
 Verifies that the currently stashed user_id is either a global admin or an
 admin on the current workspace (as specified by :workspace_id in the path)
@@ -46,7 +46,7 @@ admin on the current workspace (as specified by :workspace_id in the path)
 =cut
 
 	$app->helper(
-		is_admin => sub ($c) {
+		is_workspace_admin => sub ($c) {
 			return 1 if $c->is_global_admin;
 
 			my $uwr = $c->stash('user_workspace_role_rs')->single;

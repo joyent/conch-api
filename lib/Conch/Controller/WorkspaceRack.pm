@@ -138,7 +138,7 @@ already assigned via a datacenter room assignment
 =cut
 
 sub add ($c) {
-	return $c->status(403) unless $c->is_admin;
+	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $input = $c->validate_input('WorkspaceAddRack');
 	if (not $input) {
@@ -199,7 +199,7 @@ datacenter room assignment
 =cut
 
 sub remove ($c) {
-	return $c->status(403) unless $c->is_admin;
+	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $uwr = $c->stash('user_workspace_role_rs')->single;
 

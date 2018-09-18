@@ -53,7 +53,7 @@ to the user.
 =cut
 
 sub invite ($c) {
-	return $c->status(403) unless $c->is_admin;
+	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $input = $c->validate_input('WorkspaceInvite');
 	return if not $input;
