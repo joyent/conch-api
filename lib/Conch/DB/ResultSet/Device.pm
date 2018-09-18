@@ -19,7 +19,7 @@ Interface to queries involving devices.
 =head2 user_has_permission
 
 Checks that the provided user_id has (at least) the specified permission in at least one
-workspace associated with the specified device(s).
+workspace associated with the specified device(s), including parent workspaces.
 
 =cut
 
@@ -29,9 +29,12 @@ sub user_has_permission {
     Carp::croak('permission must be one of: ro, rw, admin')
         if none { $permission eq $_ } qw(ro rw admin);
 
-    $self->related_resultset('device_location')
+    my $device_workspaces_rs = $self->related_resultset('device_location')
         ->related_resultset('datacenter_rack')
-        ->associated_workspaces
+        ->associated_workspaces;
+
+    $self->result_source->schema->resultset('Workspace')
+        ->and_workspaces_above($device_workspaces_rs->get_column('id')->as_query)
         ->related_resultset('user_workspace_roles')
         ->user_has_permission($user_id, $permission);
 }

@@ -30,42 +30,54 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
-	my $user_workspace_device_rs = $c->db_user_workspace_roles
-		->search({ 'user_workspace_role.user_id' => $c->stash('user_id') })
-		->related_resultset('workspace')
+	my $user_workspace_roles = $c->db_user_workspace_roles
+		->search({ user_id => $c->stash('user_id') });
+
+	# first, look for the device in all the user's workspaces
+	$c->log->debug("looking for device $device_id in user's workspaces");
+	my $user_workspace_device_rs = $c->db_workspaces
+		->and_workspaces_beneath($user_workspace_roles->get_column('workspace_id')->as_query)
 		->associated_racks
 		->related_resultset('device_locations')
 		->related_resultset('device')
 		->active;
 
-	# find devices that have sent a device report proxied by a relay using the user's
-	# credentials, that also do not have a registered location.
-	my $relay_report_device_rs = $c->db_user_accounts
-		->search({ 'user_account.id' => $c->stash('user_id') })
-		->related_resultset('user_relay_connections')
-		->related_resultset('relay')
-		->related_resultset('device_relay_connections')
-		->related_resultset('device')
-		# FIXME: doesn't check ->active?
-		->devices_without_location;
-
-	# this resultset will return the one device referenced by :device_id,
-	# while also guaranteeing that the user has permission to access it.
 	my $device_rs = $c->db_devices->search(
 		{
 			-and => [
 				'device.id' => $device_id,
-				-or => [
-					 'device.id' => { -in => $user_workspace_device_rs->get_column('id')->as_query },
-					 'device.id' => { -in => $relay_report_device_rs->get_column('id')->as_query },
-				],
+				'device.id' => { -in => $user_workspace_device_rs->get_column('id')->as_query },
 			],
 		},
 	);
 
 	if (not $device_rs->count) {
-		$c->log->debug("Failed to find device $device_id");
-		return $c->status(404, { error => "Device '$device_id' not found" });
+		# next, look for the device in those that have sent a device report proxied by a relay
+		# using the user's credentials, that also do not have a registered location.
+		$c->log->debug("looking for device $device_id associated with relay reports");
+		my $relay_report_device_rs = $c->db_user_accounts
+			->search({ 'user_account.id' => $c->stash('user_id') })
+			->related_resultset('user_relay_connections')
+			->related_resultset('relay')
+			->related_resultset('device_relay_connections')
+			->related_resultset('device')
+			# FIXME: doesn't check ->active?
+			->devices_without_location;
+
+		$device_rs = $c->db_devices->search(
+			{
+				-and => [
+					'device.id' => $device_id,
+					'device.id' => { -in => $relay_report_device_rs->get_column('id')->as_query },
+				],
+			},
+		);
+
+		# still not found? give up!
+		if (not $device_rs->count) {
+			$c->log->debug("Failed to find device $device_id");
+			return $c->status(404, { error => "Device '$device_id' not found" });
+		}
 	}
 
 	$c->log->debug('Found device ' . $device_id);
@@ -73,8 +85,7 @@ sub find_device ($c) {
 	# store the simplified query to access the device, now that we've confirmed the user has
 	# permission to access it.
 	# No queries have been made yet, so you can add on more criteria or prefetches.
-	$c->stash('device_rs',
-		$c->db_devices->search_rs({ 'device.id' => $device_id }));
+	$c->stash('device_rs', $c->db_devices->search_rs({ 'device.id' => $device_id }));
 
 	return 1;
 }
