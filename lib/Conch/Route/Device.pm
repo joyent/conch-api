@@ -16,7 +16,7 @@ Conch::Route::Device
 
 Sets up routes for /device:
 
-    GET     /device/?mac=:mac, ?ipaddr=:ipaddr
+    GET     /device/?hostname=:host, ?mac=:mac, ?ipaddr=:ipaddr, ?:setting_key=:setting_value
     GET     /device/:device_id
     POST    /device/:device_id
     POST    /device/:device_id/graduate

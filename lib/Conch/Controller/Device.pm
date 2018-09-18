@@ -127,6 +127,7 @@ Looks up a device by query parameter. Supports:
 	/device?hostname=$hostname
 	/device?mac=$macaddr
 	/device?ipaddr=$ipaddr
+	/device?$setting_key=$setting_value
 
 =cut
 
@@ -142,27 +143,30 @@ sub lookup_by_other_attribute ($c) {
 	my ($key) = keys %$params;
 	my $value = $params->{$key};
 
-	return $c->status(400, { error => $key . 'parameter not supported' })
-		if none { $key eq $_ } qw(hostname mac ipaddr);
-
 	$c->log->debug('looking up device by ' . $key . ' = ' . $value);
 
 	my $device_rs;
 	if ($key eq 'hostname') {
-		$device_rs = $c->db_devices->search({ $key => $value });
+		$device_rs = $c->db_devices->active->search({ $key => $value });
 	}
 	elsif (any { $key eq $_ } qw(mac ipaddr)) {
-		$device_rs = $c->db_devices->search(
+		$device_rs = $c->db_devices->active->search(
 			{ "device_nics.$key" => $value },
 			{ join => 'device_nics' },
 		);
+	}
+	else {
+		# for any other key, look for it in device_settings.
+		$device_rs = $c->db_device_settings->active
+			->search({ name => $key, value => $value })
+			->related_resultset('device')->active;
 	}
 
 	my $device_id = $device_rs->get_column('id')->single;
 
 	if (not $device_id) {
-		$c->log->debug("Failed to find device $device_id");
-		return $c->status(404, { error => "Device '$device_id' not found" });
+		$c->log->debug("Failed to find device matching $key=$value.");
+		return $c->status(404, { error => 'Device not found' });
 	}
 
 	# continue dispatch to find_device and then get.
