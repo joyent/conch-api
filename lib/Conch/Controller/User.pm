@@ -394,7 +394,7 @@ sub deactivate ($c) {
 		$user->related_resultset('user_workspace_roles')->prefetch('workspace')->all);
 
 	$c->log->warn('user ' . $c->stash('user')->name . ' deactivating user ' . $user->name
-		. ($workspaces ? ", member of workspaces: $workspaces" : ''));
+		. ($workspaces ? ", direct member of workspaces: $workspaces" : ''));
 	$user->update({ password => $c->random_string, deactivated => \'NOW()' });
 
 	if ($c->req->query_params->param('clear_tokens') // 1) {
