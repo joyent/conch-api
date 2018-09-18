@@ -44,7 +44,7 @@ definitions:
         anyOf:
           - type: string
           - type: null
-      # this field is deprecated and will no longer be present.
+        description: this field is deprecated and will no longer be present.
       boot_phase:
         anyOf:
           - type: string
@@ -176,7 +176,7 @@ definitions:
         anyOf:
           - type: string
           - type: null
-      # this field is deprecated and will no longer be present.
+        deprecated: this field is deprecated and will no longer be present.
       boot_phase:
         anyOf:
           - type: string
@@ -473,8 +473,8 @@ definitions:
               - type: string
               - type: null
           id:
-              type: string
-              format: uuid
+            type: string
+            format: uuid
           nics_num:
             type: integer
           psu_total:
@@ -560,7 +560,7 @@ definitions:
     type: object
     additionalProperties: false
     patternProperties:
-      ^[\w-]+$:  # key is actually a room az name
+      ^[\w-]+$:   # key is a room az name
         type: array
         items:
           type: object
@@ -881,11 +881,11 @@ definitions:
     type: object
     additionalProperties: false
     patternProperties:
-      ^(failing|unreported|unlocated):
+      ^(failing|unreported|unlocated)$:
         type: object
         additionalProperties: false
         patternProperties:
-          ^[\w-]+$:  # key is actually a device name
+          ^[\w-]+$:  # key is a device_id
             type: object
             additionalProperties: false
             $ref: "#/definitions/Problem"
@@ -918,6 +918,7 @@ definitions:
       - id
       - name
       - description
+      - parent_id
       - role
     properties:
       id:
@@ -929,13 +930,17 @@ definitions:
         anyOf:
           - type: string
           - type: null
-      role:
-        type: string
       parent_id:
         anyOf:
-            - type: string
-              format: uuid
-            - type: null
+          - type: string
+            format: uuid
+          - type: null
+      role:
+        type: string
+        enum:
+          - ro
+          - rw
+          - admin
   WorkspaceUsers:
     type: array
     items:
