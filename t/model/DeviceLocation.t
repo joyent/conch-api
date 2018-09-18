@@ -2,8 +2,6 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
 
-use IO::All;
-
 use_ok("Conch::Model::DeviceLocation");
 
 use Data::UUID;
@@ -30,11 +28,6 @@ is( $unassign_attempt, 0 );
 
 TODO: {
 	local $TODO = "DeviceLocation needs datacenters, rooms, and racks";
-
-	my $dbh = DBI->connect( $pgtmp->dsn );
-	for my $file ( io->dir("sql/test/")->sort->glob("*.sql") ) {
-		$dbh->do( $file->all ) or BAIL_OUT("Test SQL load failed");
-	}
 
 	fail("Can't test DeviceLocation fully yet");
 }

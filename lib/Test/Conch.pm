@@ -6,7 +6,6 @@ use Mojo::Base 'Test::Mojo';
 use Test::More ();
 use Test::ConchTmpDB 'mk_tmp_db';
 use Conch::UUID 'is_uuid';
-use IO::All;
 use JSON::Validator;
 use Path::Tiny;
 
@@ -52,7 +51,7 @@ has 'schema' => sub {
 has 'validator' => sub {
     my $spec_file = "json-schema/response.yaml";
     die("OpenAPI spec file '$spec_file' doesn't exist.")
-        unless io->file($spec_file)->exists;
+        unless -e $spec_file;
 
     my $validator = JSON::Validator->new;
     $validator->schema($spec_file);
@@ -220,6 +219,23 @@ sub load_validation_plans {
 	return @plans;
 }
 
+=head2 load_test_sql
+
+Given one or more filenames of F<.sql> content, loads them into the current test database.
+
+=cut
+
+sub load_test_sql {
+    my ($self, @test_sql_files) = @_;
+    $self->schema->storage->dbh_do(sub {
+        my ($storage, $dbh) = @_;
+
+        for my $file (map { path('sql/test')->child($_) } @test_sql_files) {
+            Test::More::note("loading $file...");
+            $dbh->do($file->slurp_utf8) or BAIL_OUT("Test SQL load failed in $file");
+        }
+    });
+}
 
 1;
 __END__

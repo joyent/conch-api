@@ -3,7 +3,6 @@ use Test::More;
 use Test::ConchTmpDB qw(mk_tmp_db);
 
 use Try::Tiny;
-use IO::All;
 
 use_ok("Conch::Model::Device");
 

@@ -4,7 +4,7 @@ use Test::More;
 use Test::Warnings;
 use Data::UUID;
 use Conch::UUID 'is_uuid';
-use IO::All;
+use Path::Tiny;
 use JSON::Validator;
 
 use Data::Printer;
@@ -85,7 +85,7 @@ subtest 'Set up a test device' => sub {
 	)->status_is(204)->content_is('');
 
 	my $report =
-		io->file('t/integration/resource/passing-device-report.json')->slurp;
+		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
 		->json_schema_is( 'ValidationState' );
 

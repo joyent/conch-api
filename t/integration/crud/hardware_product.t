@@ -2,7 +2,6 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Data::UUID;
-use IO::All;
 
 use Data::Printer;
 
