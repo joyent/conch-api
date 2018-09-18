@@ -15,6 +15,8 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 with 'Conch::Role::MojoLog';
 
+use Conch::UUID 'is_uuid';
+
 =head2 list
 
 Get a list of all devices in the current workspace (as specified by :workspace_id in the path)
@@ -55,6 +57,97 @@ sub list ($c) {
 
 	$c->status( 200, \@devices );
 }
+
+=head2 device_totals
+
+Ported from 'conch-stats'.
+
+Output conforms to the 'DeviceTotals' and 'DeviceTotalsCirconus' json schemas.
+Add '.circ' to the end of the URL to select the data format customized for Circonus.
+
+Note that this is an unauthenticated endpoint.
+
+=cut
+
+sub device_totals ($c) {
+	my $workspace_param = $c->stash('workspace');
+
+	my $workspace;
+	if ( $workspace_param =~ /^name\=(.*)$/ ) {
+		$workspace = $c->db_workspaces->find({ name => $1 });
+	}
+	elsif ( is_uuid($workspace_param) ) {
+		$workspace = $c->db_workspaces->find({ id => $workspace_param });
+	}
+	return $c->reply->not_found unless $workspace;
+
+	my %switch_aliases = map { ( $_ => 1 ) } $c->config->{switch_aliases}->@*;
+	my %storage_aliases = map { ( $_ => 1 ) } $c->config->{storage_aliases}->@*;
+	my %compute_aliases = map { ( $_ => 1 ) } $c->config->{compute_aliases}->@*;
+
+	my @counts = $workspace->self_rs
+		->associated_racks
+		->related_resultset('device_locations')
+		->related_resultset('device')
+		->active
+		->search(
+			{},
+			{
+				columns => { alias => 'hardware_product.alias', health => 'device.health' },
+				select => [ { count => '*', -as => 'count' } ],
+				group_by => [ 'hardware_product.alias', 'device.health' ],
+				order_by => [ 'hardware_product.alias', 'device.health' ],
+				join => 'hardware_product',
+			},
+		)->hri->all;
+
+	my @switch_counts = grep { $switch_aliases{ $_->{alias} } } @counts;
+	my @server_counts = grep { !$switch_aliases{ $_->{alias} } } @counts;
+	my @storage_counts = grep { $storage_aliases{ $_->{alias} } } @counts;
+	my @compute_counts = grep { $compute_aliases{ $_->{alias} } } @counts;
+
+	my %circ;
+
+	for (@storage_counts) {
+		$circ{storage}{count} += $_->{count};
+	}
+
+	for (@compute_counts) {
+		$circ{compute}{count} += $_->{count};
+	}
+
+	for (@counts) {
+		if($circ{ $_->{alias}}) {
+			$circ{ $_->{alias} }{count} += $_->{count};
+			if( $circ{ $_->{alias} }{health}{ $_->{health} } ) {
+				$circ{ $_->{alias} }{health}{ $_->{health} } += $_->{count};
+			} else {
+				$circ{ $_->{alias} }{health}{ $_->{health} } = $_->{count};
+			}
+		} else {
+			$circ{ $_->{alias} } = {
+				count => $_->{count},
+				health => {
+					FAIL => 0,
+					PASS => 0,
+					UNKNOWN => 0,
+				}
+			};
+			$circ{ $_->{alias} }{health}{ $_->{health} } = $_->{count};
+		}
+	}
+
+	return $c->respond_to(
+		any => { json => {
+			all      => \@counts,
+			servers  => \@server_counts,
+			switches => \@switch_counts,
+			storage  => \@storage_counts,
+			compute  => \@compute_counts,
+		}},
+		circ => { json => \%circ },
+	);
+};
 
 1;
 __END__

@@ -13,21 +13,12 @@ Conch::DB::Result::Device
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
 
-=head1 COMPONENTS LOADED
-
-=over 4
-
-=item * L<Conch::DB::InflateColumn::Time>
-
-=item * L<Conch::DB::ToJSON>
-
-=back
+=head1 BASE CLASS: L<Conch::DB::Result>
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
+use base 'Conch::DB::Result';
 
 =head1 TABLE: C<device>
 
@@ -403,8 +394,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-11 10:48:50
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ijn9d8WDVkKqiVdlgCLNog
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4V3uuMhmsA47LT8AHUR7hw
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

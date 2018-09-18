@@ -13,21 +13,12 @@ Conch::DB::Result::DeviceNic
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
 
-=head1 COMPONENTS LOADED
-
-=over 4
-
-=item * L<Conch::DB::InflateColumn::Time>
-
-=item * L<Conch::DB::ToJSON>
-
-=back
+=head1 BASE CLASS: L<Conch::DB::Result>
 
 =cut
 
-__PACKAGE__->load_components("+Conch::DB::InflateColumn::Time", "+Conch::DB::ToJSON");
+use base 'Conch::DB::Result';
 
 =head1 TABLE: C<device_nic>
 
@@ -193,8 +184,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-31 08:36:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5c5curiRphx6kzhdwsYxwQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3IUBSxX6sn0jXd5M8JyA2w
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },
