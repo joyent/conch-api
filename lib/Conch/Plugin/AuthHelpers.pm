@@ -20,19 +20,13 @@ sub register ($self, $app, $conf) {
 
 	return $c->status(403) unless $c->is_global_admin
 
-Verifies that the currently stashed user_id has admin rights on the
-GLOBAL workspace
+Verifies that the currently stashed user has the 'is_admin' flag set
 
 =cut
 
 	$app->helper(
 		is_global_admin => sub ($c) {
-			return 0 unless $c->stash('user_id');
-
-			return $c->db_workspaces->search({ 'workspace.name' => 'GLOBAL' })
-				->search_related('user_workspace_roles',
-					{ user_id => $c->stash('user_id'), role => 'admin' })
-				->count;
+			$c->stash('user') && $c->stash('user')->is_admin;
 		},
 	);
 
@@ -55,6 +49,9 @@ specified by :workspace_id in the path).
 
 Verifies that the currently stashed user_id has (at least) this auth role on the specified
 workspace (as indicated by :workspace_id in the path).
+
+Users with the admin flag set will always return true, even if no user_workspace_role records
+are present.
 
 =cut
 

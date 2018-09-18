@@ -607,6 +607,7 @@ subtest 'modify another user' => sub {
 			last_login => undef,
 			refuse_session_auth => JSON::PP::false,
 			force_password_change => JSON::PP::false,
+			is_admin => JSON::PP::false,
 			workspaces => [],
 		}, 'returned all the right fields (and not the password)');
 

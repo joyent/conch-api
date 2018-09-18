@@ -318,8 +318,10 @@ sub list ($c) {
 
 Creates a user. Global admin only.
 
-Optionally takes a query parameter 'send_invite_mail' (defaulting to true), to send an email
-to the user with the new password.
+Optionally takes a query parameters:
+
+* 'send_invite_mail' (defaulting to true), to send an email to the user with the new password
+* 'is_admin' (defaulting to false), to set the is_admin flag.
 
 =cut
 
@@ -350,6 +352,7 @@ sub create ($c) {
 		name => $name,
 		email => $email,
 		password => $password,	# will be hashed in constructor
+		$c->req->query_params->param('is_admin') ? ( is_admin => 1 ) : (),
 	});
 	$c->log->info('created user: ' . $user->name . ', email: ' . $user->email . ', id: ' . $user->id);
 
