@@ -270,6 +270,9 @@ subtest 'Single device' => sub {
 			->content_is('');
 		$t->get_ok('/device/TEST/settings/tag.bar')->status_is(404)
 			->json_like( '/error', qr/tag\.bar/ );
+
+		$t->get_ok('/device?foo=bar')->status_is(200)
+			->json_is('/id', 'TEST', 'got device by arbitrary setting key');
 	};
 
 };

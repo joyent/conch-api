@@ -127,6 +127,7 @@ Looks up a device by query parameter. Supports:
 	/device?hostname=$hostname
 	/device?mac=$macaddr
 	/device?ipaddr=$ipaddr
+	/device?$setting_key=$setting_value
 
 =cut
 
@@ -142,9 +143,6 @@ sub lookup_by_other_attribute ($c) {
 	my ($key) = keys %$params;
 	my $value = $params->{$key};
 
-	return $c->status(400, { error => $key . 'parameter not supported' })
-		if none { $key eq $_ } qw(hostname mac ipaddr);
-
 	$c->log->debug('looking up device by ' . $key . ' = ' . $value);
 
 	my $device_rs;
@@ -156,6 +154,12 @@ sub lookup_by_other_attribute ($c) {
 			{ "device_nics.$key" => $value },
 			{ join => 'device_nics' },
 		);
+	}
+	else {
+		# for any other key, look for it in device_settings.
+		$device_rs = $c->db_device_settings->active
+			->search({ name => $key, value => $value })
+			->related_resultset('device')->active;
 	}
 
 	my $device_id = $device_rs->get_column('id')->single;
