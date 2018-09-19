@@ -35,7 +35,7 @@ sub revoke_own_tokens ($c) {
 
 =head2 revoke_user_tokens
 
-Revoke a specified user's session tokens. Global admin only.
+Revoke a specified user's session tokens. System admin only.
 
 =cut
 
@@ -225,7 +225,7 @@ sub change_own_password ($c) {
 
 =head2 reset_user_password
 
-Generates a new random password for a user. Global admin only.
+Generates a new random password for a user. System admin only.
 
 Optionally takes a query parameter 'send_password_reset_mail' (defaulting to true), to send an
 email to the user with the new password.
@@ -278,7 +278,7 @@ sub reset_user_password ($c) {
 
 =head2 get
 
-Gets information about a user. Global admin only.
+Gets information about a user. System admin only.
 
 =cut
 
@@ -301,7 +301,7 @@ sub get ($c) {
 
 =head2 list
 
-List all users and their workspaces. Global admin only.
+List all users and their workspaces. System admin only.
 
 =cut
 
@@ -316,7 +316,7 @@ sub list ($c) {
 
 =head2 create
 
-Creates a user. Global admin only.
+Creates a user. System admin only.
 
 Optionally takes a query parameters:
 
@@ -369,7 +369,7 @@ sub create ($c) {
 
 =head2 deactivate
 
-Deactivates a user. Global admin only.
+Deactivates a user. System admin only.
 
 =cut
 

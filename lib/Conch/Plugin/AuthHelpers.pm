@@ -16,16 +16,16 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 sub register ($self, $app, $conf) {
 
-=head2 is_global_admin
+=head2 is_system_admin
 
-	return $c->status(403) unless $c->is_global_admin
+	return $c->status(403) unless $c->is_system_admin;
 
 Verifies that the currently stashed user has the 'is_admin' flag set
 
 =cut
 
 	$app->helper(
-		is_global_admin => sub ($c) {
+		is_system_admin => sub ($c) {
 			$c->stash('user') && $c->stash('user')->is_admin;
 		},
 	);
@@ -59,7 +59,7 @@ are present.
 		user_has_workspace_auth => sub ($c, $workspace_id, $role_name) {
 			return 0 unless $c->stash('user_id');
 
-			return 1 if $c->is_global_admin;
+			return 1 if $c->is_system_admin;
 
 			$c->db_workspaces->search({ 'workspace.id' => $workspace_id })
 				->related_resultset('user_workspace_roles')

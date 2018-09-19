@@ -26,7 +26,7 @@ Supports rack layout lookups by id
 =cut
 
 sub find_datacenter_rack_layout ($c) {
-	unless($c->is_global_admin) {
+	unless($c->is_system_admin) {
 		return $c->status(403);
 	}
 
@@ -46,7 +46,7 @@ sub find_datacenter_rack_layout ($c) {
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('RackLayoutCreate');
 	if (not $input) {
 		$c->log->debug("Input failed validation");
@@ -95,7 +95,7 @@ sub get ($c) {
 =cut
 
 sub get_all ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @layouts = $c->db_datacenter_rack_layouts->all;
 	$c->log->debug("Found ".scalar(@layouts)." datacenter rack layouts");

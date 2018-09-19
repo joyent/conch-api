@@ -6,7 +6,7 @@
 
 	jwt => {
 		# time in seconds for a JWT to be valid before requiring refresh or re-auth
-		global_admin_expiry => 2592000, # 30 days
+		system_admin_expiry => 2592000, # 30 days
 		normal_expiry => 86400, # 1 day
 	},
 

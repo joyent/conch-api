@@ -40,16 +40,16 @@ Set up the full route structure
 sub all_routes {
 	my $root = shift;	# this is the base routing object
 
-	# provides a route to chain to that first checks the user is a global admin.
-	$root->add_shortcut(require_global_admin => sub {
+	# provides a route to chain to that first checks the user is a system admin.
+	$root->add_shortcut(require_system_admin => sub {
 		my ($r, $path) = @_;
 		$r->any(sub {
 			my $c = shift;
 			return $c->status(401, { error => 'unauthorized' })
 				unless $c->stash('user') and $c->stash('user_id');
 
-			return $c->status(403, { error => 'Must be global admin' })
-				unless $c->is_global_admin;
+			return $c->status(403, { error => 'Must be system admin' })
+				unless $c->is_system_admin;
 
 			return 1;
 		})->under;

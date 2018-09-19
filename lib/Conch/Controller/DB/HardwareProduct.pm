@@ -88,7 +88,7 @@ sub get_one ($c) {
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $i = $c->validate_input('DBHardwareProductCreate');
 	if(not $i) {
 		$c->log->warn("Input failed validation");
@@ -122,7 +122,7 @@ sub create ($c) {
 =cut
 
 sub update ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my $i = $c->validate_input('DBHardwareProductUpdate');
 	return if not $i;
@@ -155,7 +155,7 @@ sub update ($c) {
 =cut
 
 sub delete ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	$c->stash('hardware_product')->update({ deactivated => 'NOW()' });
 	$c->log->debug("Deleted hardware product ".$c->stash('hardware_product')->id);
 	return $c->status(204);

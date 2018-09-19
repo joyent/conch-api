@@ -36,8 +36,8 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 
 	my $expires_abs = time + (
 		defined $expires_delta ? $expires_delta
-			# global admin default: 30 days
-	  : $c->is_global_admin ? ($jwt_config->{global_admin_expiry} || 2592000)
+			# system admin default: 30 days
+	  : $c->is_system_admin ? ($jwt_config->{system_admin_expiry} || 2592000)
 			# normal default: 1 day
 	  : ($jwt_config->{normal_expiry} || 86400));
 

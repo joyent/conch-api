@@ -14,7 +14,7 @@ Handles looking up the object by id or name depending on the url pattern
 =cut
 
 sub find_datacenter_room ($c) {
-	unless($c->is_global_admin) {
+	unless($c->is_system_admin) {
 		$c->status(403);
 		return undef;
 	}
@@ -45,7 +45,7 @@ Get all datacenter rooms
 =cut
 
 sub get_all ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @rooms = $c->db_datacenter_rooms->all;
 	$c->log->debug('Found ' . scalar(@rooms) . ' datacenter rooms');
@@ -61,7 +61,7 @@ Get a single datacenter room
 =cut
 
 sub get_one ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	$c->status(200, $c->stash('datacenter_room'));
 }
 
@@ -72,7 +72,7 @@ Create a new datacenter room
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('DatacenterRoomCreate');
 	if (not $input) {
 		$c->log->warn("Input failed validation");
@@ -94,7 +94,7 @@ Update an existing room
 =cut
 
 sub update ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('DatacenterRoomUpdate');
 	if (not $input) {
 		$c->log->warn("Input failed validation");
@@ -118,7 +118,7 @@ Also removes the room from all workspaces.
 =cut
 
 sub delete ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	# FIXME: if we have cascade_copy => 1 set on this rel,
 	# then we don't have to do this... and we don't have to worry about rack updates either.
 	# But for now, we have a dangling reference to the deleted room in datacenter_rack!
@@ -134,7 +134,7 @@ sub delete ($c) {
 =cut
 
 sub racks ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @racks = $c->db_datacenter_racks->search({ datacenter_room_id => $c->stash('datacenter_room')->id });
 	$c->log->debug(

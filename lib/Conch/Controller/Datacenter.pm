@@ -12,7 +12,7 @@ Handles looking up the object by id or name depending on the url pattern
 =cut
 
 sub find_datacenter ($c) {
-	unless($c->is_global_admin) {
+	unless($c->is_system_admin) {
 		$c->status(403);
 		return undef;
 	}
@@ -41,7 +41,7 @@ Get all datacenters
 =cut
 
 sub get_all ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @datacenters = $c->db_datacenters->all;
 	$c->log->debug("Found ".scalar(@datacenters)." datacenters");
@@ -56,7 +56,7 @@ Get a single datacenter
 =cut
 
 sub get_one ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	$c->status(200, $c->stash('datacenter'));
 }
 
@@ -69,7 +69,7 @@ Get all rooms for the given datacenter
 =cut
 
 sub get_rooms ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @rooms = $c->db_datacenter_rooms->search({ datacenter_id => $c->stash('datacenter')->id })->all;
 
@@ -84,7 +84,7 @@ Create a new datacenter
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('DatacenterCreate');
 	if (not $input) {
 		$c->log->debug("Input failed validation");
@@ -104,7 +104,7 @@ Update an existing datacenter
 =cut
 
 sub update ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('DatacenterUpdate');
 	if (not $input) {
 		$c->log->debug("Input failed validation");
@@ -124,7 +124,7 @@ Permanently delete a datacenter
 =cut
 
 sub delete ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	$c->stash('datacenter')->delete;
 	$c->log->debug("Deleted datacenter ".$c->stash('datacenter')->id);
 	return $c->status(204);

@@ -24,7 +24,7 @@ Supports rack lookups by uuid and name
 =cut
 
 sub find_rack ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my $rack;
 
@@ -61,7 +61,7 @@ Stores data as a new datacenter_rack row, munging 'role' to 'datacenter_rack_rol
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('RackCreate');
 	if (not $input) {
 		$c->log->debug("Input failed validation");
@@ -103,7 +103,7 @@ Get all racks
 =cut
 
 sub get_all ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @racks = $c->db_datacenter_racks->all;
 	$c->log->debug('Found '.scalar(@racks).' datacenter racks');
@@ -116,7 +116,7 @@ sub get_all ($c) {
 =cut
 
 sub layouts ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @layouts = $c->db_datacenter_rack_layouts->search({ rack_id => $c->stash('rack')->id });
 
