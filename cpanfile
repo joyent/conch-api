@@ -5,7 +5,7 @@ requires 'perl', '5.26.0';
 
 # basics
 requires 'Data::UUID';
-requires 'Data::Printer';
+requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
 requires 'List::Compare';
 requires 'Mail::Sendmail';
 requires 'Try::Tiny';

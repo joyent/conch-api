@@ -218,17 +218,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Storable 0
       perl 5.008001
-  Clone-PP-1.07
-    pathname: N/NE/NEILB/Clone-PP-1.07.tar.gz
-    provides:
-      Clone::PP 1.07
-    requirements:
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      perl 5.006
-      strict 0
-      vars 0
-      warnings 0
   Config-Any-0.32
     pathname: H/HA/HAARG/Config-Any-0.32.tar.gz
     provides:
@@ -783,28 +772,42 @@ DISTRIBUTIONS
       Class::Accessor::Chained::Fast 0
       Test::Exception 0
       Test::More 0
-  Data-Printer-0.40
-    pathname: G/GA/GARU/Data-Printer-0.40.tar.gz
+  Data-Printer-0.99_019
+    pathname: G/GA/GARU/Data-Printer-0.99_019.tar.gz
     provides:
       DDP undef
-      Data::Printer 0.40
+      Data::Printer 0.99_019
+      Data::Printer::Common undef
+      Data::Printer::Config undef
       Data::Printer::Filter undef
+      Data::Printer::Filter::ARRAY undef
+      Data::Printer::Filter::CODE undef
+      Data::Printer::Filter::ContentType undef
       Data::Printer::Filter::DB undef
       Data::Printer::Filter::DateTime undef
       Data::Printer::Filter::Digest undef
+      Data::Printer::Filter::FORMAT undef
+      Data::Printer::Filter::GLOB undef
+      Data::Printer::Filter::GenericClass undef
+      Data::Printer::Filter::HASH undef
+      Data::Printer::Filter::REF undef
+      Data::Printer::Filter::Regexp undef
+      Data::Printer::Filter::SCALAR undef
+      Data::Printer::Filter::VSTRING undef
+      Data::Printer::Filter::Web undef
+      Data::Printer::Object undef
+      Data::Printer::Theme undef
+      Data::Printer::Theme::Classic undef
+      Data::Printer::Theme::Material undef
+      Data::Printer::Theme::Monokai undef
+      Data::Printer::Theme::Solarized undef
     requirements:
-      Carp 0
-      Clone::PP 0
       ExtUtils::MakeMaker 0
       Fcntl 0
-      File::HomeDir 0.91
       File::Spec 0
       File::Temp 0
-      Package::Stash 0.3
       Scalar::Util 0
-      Sort::Naturally 0
-      Term::ANSIColor 3
-      Test::More 0.88
+      Test::More 0
       version 0.77
   Data-UUID-1.221
     pathname: R/RJ/RJBS/Data-UUID-1.221.tar.gz
@@ -1487,31 +1490,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  File-HomeDir-1.004
-    pathname: R/RE/REHSACK/File-HomeDir-1.004.tar.gz
-    provides:
-      File::HomeDir 1.004
-      File::HomeDir::Darwin 1.004
-      File::HomeDir::Darwin::Carbon 1.004
-      File::HomeDir::Darwin::Cocoa 1.004
-      File::HomeDir::Driver 1.004
-      File::HomeDir::FreeDesktop 1.004
-      File::HomeDir::MacOS9 1.004
-      File::HomeDir::Test 1.004
-      File::HomeDir::Unix 1.004
-      File::HomeDir::Windows 1.004
-    requirements:
-      Carp 0
-      Cwd 3
-      ExtUtils::MakeMaker 0
-      File::Basename 0
-      File::Path 2.01
-      File::Spec 3
-      File::Temp 0.19
-      File::Which 0.05
-      Mac::SystemDirectory 0.04
-      POSIX 0
-      perl 5.008003
   File-ShareDir-1.116
     pathname: R/RE/REHSACK/File-ShareDir-1.116.tar.gz
     provides:
@@ -1983,17 +1961,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006
-  Mac-SystemDirectory-0.10
-    pathname: E/ET/ETHER/Mac-SystemDirectory-0.10.tar.gz
-    provides:
-      Mac::SystemDirectory 0.10
-    requirements:
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      XSLoader 0
-      perl 5.006
-      strict 0
-      warnings 0
   Mail-Sendmail-0.80
     pathname: N/NE/NEILB/Mail-Sendmail-0.80.tar.gz
     provides:
@@ -2651,13 +2618,6 @@ DISTRIBUTIONS
       Lingua::Stem::Snowball::Se 1.2
     requirements:
       Test::More 0.42
-  Sort-Naturally-1.03
-    pathname: B/BI/BINGOS/Sort-Naturally-1.03.tar.gz
-    provides:
-      Sort::Naturally 1.03
-    requirements:
-      ExtUtils::MakeMaker 0
-      perl 5
   Specio-0.42
     pathname: D/DR/DROLSKY/Specio-0.42.tar.gz
     provides:
