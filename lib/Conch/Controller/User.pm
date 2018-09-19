@@ -279,6 +279,7 @@ sub reset_user_password ($c) {
 =head2 get
 
 Gets information about a user. System admin only.
+Response uses the UserDetailed json schema.
 
 =cut
 
@@ -302,6 +303,7 @@ sub get ($c) {
 =head2 list
 
 List all users and their workspaces. System admin only.
+Response uses the UsersDetailed json schema.
 
 =cut
 

@@ -123,6 +123,31 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:p9qNxtAg/+xQTSSB9KCHTA
 
+=head2 role_cmp
+
+Acts like the C<cmp> operator, returning -1, 0 or 1 depending on whether the first role is less
+than, the same as, or greater than the second role.
+
+If only one role argument is passed, the role in the current row is compared to the passed-in
+role.
+
+=cut
+
+{
+    my $i = 0;
+    my %role_to_int = map { $_ => ++$i } __PACKAGE__->column_info('role')->{extra}{list}->@*;
+
+    sub role_cmp {
+        my $self = shift;
+        my ($role1, $role2) =
+            @_ == 2 ? (shift, shift)
+          : @_ == 1 ? ($self->role, shift)
+          : die 'insufficient arguments';
+
+        $role_to_int{$role1} <=> $role_to_int{$role2};
+    }
+}
+
 1;
 __END__
 

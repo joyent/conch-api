@@ -182,8 +182,50 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EanLDWK51qjrTjllNz0tYQ
 
+=head2 TO_JSON
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+Include information about the user's permissions, if available.
+
+=cut
+
+sub TO_JSON {
+    my $self = shift;
+
+    my $data = $self->next::method(@_);
+    $data->{parent_id} = delete $data->{parent_workspace_id};
+
+    # check for column that would have been added via
+    # Conch::DB::ResultSet::Workspace::with_role_via_data_for_user
+    if (my $user_id = $self->user_id_for_role) {
+        my $role_via = $self->result_source->resultset->role_via_for_user($self->id, $user_id);
+        Carp::croak('tried to get permission data for a user that has no permissions for this workspace: workspace_id ', $self->id, ', user_id ', $user_id) if not $role_via;
+
+        $data->{role} = $role_via->role;
+        $data->{role_via} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;
+    }
+
+    return $data;
+}
+
+=head2 user_id_for_role
+
+Accessor for informational column, which is used by the serializer to signal we should fetch
+and include inherited role data.
+
+=cut
+
+sub user_id_for_role {
+    my $self = shift;
+
+    if (@_) {
+        # DBIC has no public way of setting this outside of the constructor :/
+        $self->{_column_data}{user_id_for_role} = shift;
+    }
+    else {
+        $self->has_column_loaded('user_id_for_role') && $self->get_column('user_id_for_role');
+    }
+}
+
 1;
 __END__
 
@@ -198,3 +240,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

@@ -53,9 +53,7 @@ sub replace_rooms ($c) {
 		});
 	}
 
-	my $uwr = $c->stash('user_workspace_role_rs')->single;
-
-	if ( $uwr->workspace->name eq 'GLOBAL' ) {
+	if ($c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL') {
 		$c->log->warn("Attempt to modify GLOBAL workspace's rooms");
 		return $c->status( 400 => {
 			error => 'Cannot modify GLOBAL workspace' # [2018-07-30 sungo] why not?

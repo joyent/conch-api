@@ -20,7 +20,7 @@ with 'Conch::Role::MojoLog';
 =head2 find_workspace
 
 Chainable action that validates the 'workspace_id' provided in the path,
-and stashes the query to get to it in C<user_workspace_role_rs>.
+and stashes the query to get to it in C<workspace_rs>.
 
 =cut
 
@@ -53,16 +53,9 @@ sub find_workspace ($c) {
 	return $c->status(403)
 		unless $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_permission);
 
-	# stash a resultset for easily accessing the current uwr + workspace,
-	# e.g. for calling ->single, or joining to.
-	$c->stash('user_workspace_role_rs',
-		$c->stash('user')->search_related_rs('user_workspace_roles',
-			{ workspace_id => $ws_id },
-			{ prefetch => 'workspace' },
-		));
-
-	# ...and a resultset for accessing the workspace itself, for when we don't need to check
-	# the permissions
+	# stash a resultset for easily accessing the workspace, e.g. for calling ->single, or
+	# joining to.
+	# No queries have been made yet, so you can add on more criteria or prefetches.
 	$c->stash('workspace_rs',
 		$c->db_workspaces->search_rs({ 'workspace.id' => $ws_id }));
 
@@ -72,50 +65,39 @@ sub find_workspace ($c) {
 =head2 list
 
 Get a list of all workspaces available to the currently authenticated user.
-Returns a listref of hashrefs with keys: id name description role parent_id
+
+Response uses the WorkspacesAndRoles json schema.
 
 =cut
 
 sub list ($c) {
-	my $wss_data = [
-		map {
-			my $uwr = $_;
-			+{
-				(map { $_ => $uwr->workspace->$_ } qw(id name description)),
-				parent_id => $uwr->workspace->parent_workspace_id,
-				role => $uwr->role,
-			}
-		}
-		$c->stash('user')
-			->related_resultset('user_workspace_roles')
-			->prefetch('workspace')
-			->all
-	];
 
-	$c->status(200, $wss_data);
+	my $direct_workspace_ids_rs = $c->stash('user')
+		->related_resultset('user_workspace_roles')
+		->get_column('workspace_id');
+
+	my $workspaces_rs = $c->db_workspaces
+		->and_workspaces_beneath($direct_workspace_ids_rs->as_query)
+		->with_role_via_data_for_user($c->stash('user_id'));
+
+	$c->status(200, [ $workspaces_rs->all ]);
 }
 
 =head2 get
 
 Get the details of the current workspace.
-Returns a hashref with keys: id, name, description, role, parent_id.
+
+Response uses the WorkspaceAndRole json schema.
 
 =cut
 
 sub get ($c) {
-	my $uwr = $c->stash('user_workspace_role_rs')->single;
 
-	# FIXME: this check is already done in find_workspace
-	return $c->status(404, { error => 'Workspace ' . $c->stash('workspace_id') . ' not found' })
-		if not $uwr;
+	my $workspace = $c->stash('workspace_rs')
+		->with_role_via_data_for_user($c->stash('user_id'))
+		->single;
 
-	my $ws_data = +{
-		(map { $_ => $uwr->workspace->$_ } qw(id name description)),
-		parent_id => $uwr->workspace->parent_workspace_id,
-		role => $uwr->role,
-	};
-
-	$c->status(200, $ws_data);
+	$c->status(200, $workspace);
 }
 
 =head2 get_sub_workspaces
@@ -123,34 +105,25 @@ sub get ($c) {
 Get all sub workspaces for the current stashed C<user_id> and current workspace (as specified
 by :workspace_id in the path)
 
+Response uses the WorkspacesAndRoles json schema.
+
 =cut
 
 sub get_sub_workspaces ($c) {
 
-	my $wss_data = [
-		map {
-			my $ws = $_;
-			+{
-				(map { $_ => $ws->$_ } qw(id name description)),
-				parent_id => $ws->parent_workspace_id,
-				role => ($ws->user_workspace_roles)[0]->role,
-			}
-		}
-		$c->db_workspaces->workspaces_beneath($c->stash('workspace_id'))
-			->search(
-				{ 'user_workspace_roles.user_id' => $c->stash('user_id') },
-				{ prefetch => 'user_workspace_roles' },
-			)->all
-	];
+	my $workspaces_rs = $c->db_workspaces
+		->workspaces_beneath($c->stash('workspace_id'))
+		->with_role_via_data_for_user($c->stash('user_id'));
 
-	$c->status(200, $wss_data);
+	$c->status(200, [ $workspaces_rs->all ]);
 }
 
 
 =head2 create_sub_workspace
 
 Create a new subworkspace for the current workspace.
-Returns a hashref with keys: id, name, description, role, parent_id.
+
+Response uses the WorkspaceAndRole json schema.
 
 =cut
 
@@ -163,26 +136,14 @@ sub create_sub_workspace ($c) {
 	return $c->status(400, { error => "workspace '$input->{name}' already exists" })
 		if $c->db_workspaces->search({ name => $input->{name} })->count;
 
-	my $uwr = $c->stash('user_workspace_role_rs')->single;
+	my $sub_ws = $c->db_workspaces
+		# we should do create_related, but due to a DBIC bug the parent_workspace_id is lost
+		->create({ %$input, parent_workspace_id => $c->stash('workspace_id') });
 
-	my $sub_ws = $uwr->workspace->create_related(
-		workspaces => {
-			name => $input->{name},
-			description => $input->{description},
-			user_workspace_roles => [{
-				user_id => $uwr->user_id,
-				role => $uwr->role,
-			}],
-		},
-	);
+	# signal to serializer to include role data
+	$sub_ws->user_id_for_role($c->stash('user_id'));
 
-	my $ws_data = +{
-		(map { $_ => $sub_ws->$_ } qw(id name description)),
-		parent_id => $sub_ws->parent_workspace_id,
-		role => $uwr->role,
-	};
-
-	$c->status(201, $ws_data);
+	$c->status(201, $sub_ws);
 }
 
 1;

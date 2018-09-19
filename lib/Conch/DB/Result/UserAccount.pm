@@ -222,18 +222,32 @@ sub TO_JSON {
     $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change is_admin);
 
     # add workspace data, if it has been prefetched
-    my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache;
-    $data->{workspaces} = [
-        map {
-            my $workspace = $_->related_resultset('workspace')->get_cache;
-            +{
-                role => $_->role,
-                # cache is always an arrayref, even for a 1:1 relationship
-                ( map { $_ => $workspace->[0]->$_ } qw(id name) ),
-            }
-        }
-        $cached_uwrs->@*
-    ] if $cached_uwrs;
+    if (my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache) {
+        my %seen_workspaces;
+        $data->{workspaces} = [
+            # we process the direct uwr+workspace entries first so we do not produce redundant rows
+            (map {
+                my $workspace = $_->workspace;
+                ++$seen_workspaces{$workspace->id};
+                +{
+                    $workspace->TO_JSON->%*,
+                    role => $_->role,
+                },
+            } $cached_uwrs->@*),
+
+            (map {
+                map {
+                    # $_ is a workspace where the user inherits a role
+                    $seen_workspaces{$_->id} ? () : do {
+                        ++$seen_workspaces{$_->id};
+                        $_->user_id_for_role($self->id);
+                        $_->TO_JSON
+                    }
+                } $self->result_source->schema->resultset('Workspace')
+                    ->workspaces_beneath($_->workspace_id)
+            } $cached_uwrs->@*),
+        ];
+    }
 
     return $data;
 }

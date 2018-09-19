@@ -129,7 +129,6 @@ C<< $resultset->as_query >>, which must return a single column of workspace_id(s
 sub and_workspaces_above {
     my ($self, $workspace_id) = @_;
 
-    # move to subfunction if carp_not doesn't include @ISA
     Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{attrs}{cond};
 
@@ -149,6 +148,56 @@ SELECT DISTINCT workspace_and_parents.id FROM workspace_and_parents
 };
 
     $self->search({ $self->current_source_alias . '.id' => { -in => \[ $query, @binds ] } });
+}
+
+=head2 with_role_via_data_for_user
+
+Query for workspace(s) with an extra field attached to the query which will signal the
+workspace serializer to include the "role" and "via" columns, containing information about the
+effective permissions the user has for the workspace.
+
+Only one user_id can be calculated at a time.  If you need to generate workspace-and-role data
+for multiple users at once, you can manually do:
+
+    $workspace->user_id_for_role($user_id);
+
+before serializing the workspace object.
+
+=cut
+
+sub with_role_via_data_for_user {
+    my ($self, $user_id) = @_;
+
+    # this just adds the user_id_for_role column to the result we get back. See
+    # role_via_for_user for the actual role-via query.
+    $self->search({}, {
+        '+select' => [ \[ '?::uuid as user_id_for_role', $user_id ] ],
+        '+as' => [ 'user_id_for_role' ],
+    });
+}
+
+=head2 role_via_for_user
+
+For a given workspace_id and user_id, find the user_workspace_role row that is responsible for
+providing the user access to the workspace (the user_workspace_role with the greatest
+permission that is attached to an ancestor workspace).
+
+=cut
+
+sub role_via_for_user {
+    my ($self, $workspace_id, $user_id) = @_;
+
+    Carp::croak('missing workspace_id') if not defined $workspace_id;
+    Carp::croak('missing user_id') if not defined $user_id;
+    Carp::croak('resultset should not have conditions') if $self->{attrs}{cond};
+
+    # because we check for duplicate role entries when creating user_workspace_role rows,
+    # we "should" only have *one* row with the highest permission in the entire heirarchy...
+    $self->and_workspaces_above($workspace_id)
+        ->search_related('user_workspace_roles',
+            { 'user_workspace_roles.user_id' => $user_id },
+            { order_by => { -desc => 'role' }, rows => 1 },
+        )->single;
 }
 
 =head2 associated_racks
