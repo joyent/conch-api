@@ -218,17 +218,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Storable 0
       perl 5.008001
-  Clone-PP-1.07
-    pathname: N/NE/NEILB/Clone-PP-1.07.tar.gz
-    provides:
-      Clone::PP 1.07
-    requirements:
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      perl 5.006
-      strict 0
-      vars 0
-      warnings 0
   Config-Any-0.32
     pathname: H/HA/HAARG/Config-Any-0.32.tar.gz
     provides:
@@ -241,7 +230,20 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
+      Config::General 2.47
       Module::Pluggable::Object 3.6
+  Config-General-2.63
+    pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
+    provides:
+      Config::General 2.63
+      Config::General::Extended 2.07
+      Config::General::Interpolated 2.15
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Glob 0
+      File::Spec::Functions 0
+      FileHandle 0
+      IO::File 0
   Context-Preserve-0.03
     pathname: E/ET/ETHER/Context-Preserve-0.03.tar.gz
     provides:
@@ -770,28 +772,42 @@ DISTRIBUTIONS
       Class::Accessor::Chained::Fast 0
       Test::Exception 0
       Test::More 0
-  Data-Printer-0.40
-    pathname: G/GA/GARU/Data-Printer-0.40.tar.gz
+  Data-Printer-0.99_019
+    pathname: G/GA/GARU/Data-Printer-0.99_019.tar.gz
     provides:
       DDP undef
-      Data::Printer 0.40
+      Data::Printer 0.99_019
+      Data::Printer::Common undef
+      Data::Printer::Config undef
       Data::Printer::Filter undef
+      Data::Printer::Filter::ARRAY undef
+      Data::Printer::Filter::CODE undef
+      Data::Printer::Filter::ContentType undef
       Data::Printer::Filter::DB undef
       Data::Printer::Filter::DateTime undef
       Data::Printer::Filter::Digest undef
+      Data::Printer::Filter::FORMAT undef
+      Data::Printer::Filter::GLOB undef
+      Data::Printer::Filter::GenericClass undef
+      Data::Printer::Filter::HASH undef
+      Data::Printer::Filter::REF undef
+      Data::Printer::Filter::Regexp undef
+      Data::Printer::Filter::SCALAR undef
+      Data::Printer::Filter::VSTRING undef
+      Data::Printer::Filter::Web undef
+      Data::Printer::Object undef
+      Data::Printer::Theme undef
+      Data::Printer::Theme::Classic undef
+      Data::Printer::Theme::Material undef
+      Data::Printer::Theme::Monokai undef
+      Data::Printer::Theme::Solarized undef
     requirements:
-      Carp 0
-      Clone::PP 0
       ExtUtils::MakeMaker 0
       Fcntl 0
-      File::HomeDir 0.91
       File::Spec 0
       File::Temp 0
-      Package::Stash 0.3
       Scalar::Util 0
-      Sort::Naturally 0
-      Term::ANSIColor 3
-      Test::More 0.88
+      Test::More 0
       version 0.77
   Data-UUID-1.221
     pathname: R/RJ/RJBS/Data-UUID-1.221.tar.gz
@@ -1399,15 +1415,6 @@ DISTRIBUTIONS
       base 0
       strict 0
       warnings 0
-  Encode-Locale-1.05
-    pathname: G/GA/GAAS/Encode-Locale-1.05.tar.gz
-    provides:
-      Encode::Locale 1.05
-    requirements:
-      Encode 2
-      Encode::Alias 0
-      ExtUtils::MakeMaker 0
-      perl 5.008
   Eval-Closure-0.14
     pathname: D/DO/DOY/Eval-Closure-0.14.tar.gz
     provides:
@@ -1483,43 +1490,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  File-HomeDir-1.004
-    pathname: R/RE/REHSACK/File-HomeDir-1.004.tar.gz
-    provides:
-      File::HomeDir 1.004
-      File::HomeDir::Darwin 1.004
-      File::HomeDir::Darwin::Carbon 1.004
-      File::HomeDir::Darwin::Cocoa 1.004
-      File::HomeDir::Driver 1.004
-      File::HomeDir::FreeDesktop 1.004
-      File::HomeDir::MacOS9 1.004
-      File::HomeDir::Test 1.004
-      File::HomeDir::Unix 1.004
-      File::HomeDir::Windows 1.004
-    requirements:
-      Carp 0
-      Cwd 3.12
-      ExtUtils::MakeMaker 0
-      File::Basename 0
-      File::Path 2.01
-      File::Spec 3.12
-      File::Temp 0.19
-      File::Which 0.05
-      POSIX 0
-      perl 5.008003
-  File-Listing-6.04
-    pathname: G/GA/GAAS/File-Listing-6.04.tar.gz
-    provides:
-      File::Listing 6.04
-      File::Listing::apache 6.04
-      File::Listing::dosftp 6.04
-      File::Listing::netware 6.04
-      File::Listing::unix 6.04
-      File::Listing::vms 6.04
-    requirements:
-      ExtUtils::MakeMaker 0
-      HTTP::Date 6
-      perl 5.006002
   File-ShareDir-1.116
     pathname: R/RE/REHSACK/File-ShareDir-1.116.tar.gz
     provides:
@@ -1608,92 +1578,6 @@ DISTRIBUTIONS
       HTML::Tagset 3.20
     requirements:
       ExtUtils::MakeMaker 0
-  HTTP-Cookies-6.04
-    pathname: O/OA/OALDERS/HTTP-Cookies-6.04.tar.gz
-    provides:
-      HTTP::Cookies 6.04
-      HTTP::Cookies::Microsoft 6.04
-      HTTP::Cookies::Netscape 6.04
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 0
-      HTTP::Date 6
-      HTTP::Headers::Util 6
-      HTTP::Request 0
-      Time::Local 0
-      locale 0
-      perl 5.008001
-      strict 0
-      vars 0
-  HTTP-Daemon-6.01
-    pathname: G/GA/GAAS/HTTP-Daemon-6.01.tar.gz
-    provides:
-      HTTP::Daemon 6.01
-      HTTP::Daemon::ClientConn 6.01
-    requirements:
-      ExtUtils::MakeMaker 0
-      HTTP::Date 6
-      HTTP::Request 6
-      HTTP::Response 6
-      HTTP::Status 6
-      IO::Socket 0
-      LWP::MediaTypes 6
-      Sys::Hostname 0
-      perl 5.008001
-  HTTP-Date-6.02
-    pathname: G/GA/GAAS/HTTP-Date-6.02.tar.gz
-    provides:
-      HTTP::Date 6.02
-    requirements:
-      ExtUtils::MakeMaker 0
-      Time::Local 0
-      perl 5.006002
-  HTTP-Message-6.18
-    pathname: O/OA/OALDERS/HTTP-Message-6.18.tar.gz
-    provides:
-      HTTP::Config 6.18
-      HTTP::Headers 6.18
-      HTTP::Headers::Auth 6.18
-      HTTP::Headers::ETag 6.18
-      HTTP::Headers::Util 6.18
-      HTTP::Message 6.18
-      HTTP::Request 6.18
-      HTTP::Request::Common 6.18
-      HTTP::Response 6.18
-      HTTP::Status 6.18
-    requirements:
-      Carp 0
-      Compress::Raw::Zlib 0
-      Encode 2.21
-      Encode::Locale 1
-      Exporter 5.57
-      ExtUtils::MakeMaker 0
-      HTTP::Date 6
-      IO::Compress::Bzip2 2.021
-      IO::Compress::Deflate 0
-      IO::Compress::Gzip 0
-      IO::HTML 0
-      IO::Uncompress::Bunzip2 2.021
-      IO::Uncompress::Gunzip 0
-      IO::Uncompress::Inflate 0
-      IO::Uncompress::RawInflate 0
-      LWP::MediaTypes 6
-      MIME::Base64 2.1
-      MIME::QuotedPrint 0
-      Storable 0
-      URI 1.10
-      base 0
-      perl 5.008001
-      strict 0
-      warnings 0
-  HTTP-Negotiate-6.01
-    pathname: G/GA/GAAS/HTTP-Negotiate-6.01.tar.gz
-    provides:
-      HTTP::Negotiate 6.01
-    requirements:
-      ExtUtils::MakeMaker 0
-      HTTP::Headers 6
-      perl 5.008001
   Hash-Merge-0.300
     pathname: R/RE/REHSACK/Hash-Merge-0.300.tar.gz
     provides:
@@ -1703,15 +1587,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.64
       Scalar::Util 0
       perl 5.008001
-  IO-HTML-1.001
-    pathname: C/CJ/CJM/IO-HTML-1.001.tar.gz
-    provides:
-      IO::HTML 1.001
-    requirements:
-      Carp 0
-      Encode 2.10
-      Exporter 5.57
-      ExtUtils::MakeMaker 6.30
   IO-Socket-SSL-2.056
     pathname: S/SU/SULLR/IO-Socket-SSL-2.056.tar.gz
     provides:
@@ -1752,13 +1627,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Mojolicious 7.28
-  LWP-MediaTypes-6.02
-    pathname: G/GA/GAAS/LWP-MediaTypes-6.02.tar.gz
-    provides:
-      LWP::MediaTypes 6.02
-    requirements:
-      ExtUtils::MakeMaker 0
-      perl 5.006002
   Lingua-EN-FindNumber-1.32
     pathname: N/NE/NEILB/Lingua-EN-FindNumber-1.32.tar.gz
     provides:
@@ -2463,25 +2331,6 @@ DISTRIBUTIONS
       Sub::Defer 2.003001
       Sub::Quote 2.003001
       perl 5.006
-  Net-HTTP-6.18
-    pathname: O/OA/OALDERS/Net-HTTP-6.18.tar.gz
-    provides:
-      Net::HTTP 6.18
-      Net::HTTP::Methods 6.18
-      Net::HTTP::NB 6.18
-      Net::HTTPS 6.18
-    requirements:
-      Carp 0
-      Compress::Raw::Zlib 0
-      ExtUtils::MakeMaker 0
-      IO::Socket::INET 0
-      IO::Uncompress::Gunzip 0
-      URI 0
-      base 0
-      perl 5.006002
-      strict 0
-      vars 0
-      warnings 0
   Net-SSLeay-1.85
     pathname: M/MI/MIKEM/Net-SSLeay-1.85.tar.gz
     provides:
@@ -2769,13 +2618,6 @@ DISTRIBUTIONS
       Lingua::Stem::Snowball::Se 1.2
     requirements:
       Test::More 0.42
-  Sort-Naturally-1.03
-    pathname: B/BI/BINGOS/Sort-Naturally-1.03.tar.gz
-    provides:
-      Sort::Naturally 1.03
-    requirements:
-      ExtUtils::MakeMaker 0
-      perl 5
   Specio-0.42
     pathname: D/DR/DROLSKY/Specio-0.42.tar.gz
     provides:
@@ -3335,70 +3177,6 @@ DISTRIBUTIONS
       Type::Tiny 1.000000
       UUID::Tiny 1.02
       perl 5.008
-  URI-1.74
-    pathname: E/ET/ETHER/URI-1.74.tar.gz
-    provides:
-      URI 1.74
-      URI::Escape 3.31
-      URI::Heuristic 4.20
-      URI::IRI 1.74
-      URI::QueryParam 1.74
-      URI::Split 1.74
-      URI::URL 5.04
-      URI::WithBase 2.20
-      URI::data 1.74
-      URI::file 4.21
-      URI::file::Base 1.74
-      URI::file::FAT 1.74
-      URI::file::Mac 1.74
-      URI::file::OS2 1.74
-      URI::file::QNX 1.74
-      URI::file::Unix 1.74
-      URI::file::Win32 1.74
-      URI::ftp 1.74
-      URI::gopher 1.74
-      URI::http 1.74
-      URI::https 1.74
-      URI::ldap 1.74
-      URI::ldapi 1.74
-      URI::ldaps 1.74
-      URI::mailto 1.74
-      URI::mms 1.74
-      URI::news 1.74
-      URI::nntp 1.74
-      URI::pop 1.74
-      URI::rlogin 1.74
-      URI::rsync 1.74
-      URI::rtsp 1.74
-      URI::rtspu 1.74
-      URI::sftp 1.74
-      URI::sip 1.74
-      URI::sips 1.74
-      URI::snews 1.74
-      URI::ssh 1.74
-      URI::telnet 1.74
-      URI::tn3270 1.74
-      URI::urn 1.74
-      URI::urn::isbn 1.74
-      URI::urn::oid 1.74
-    requirements:
-      Carp 0
-      Cwd 0
-      Data::Dumper 0
-      Encode 0
-      Exporter 5.57
-      ExtUtils::MakeMaker 0
-      MIME::Base64 2
-      Net::Domain 0
-      Scalar::Util 0
-      constant 0
-      integer 0
-      overload 0
-      parent 0
-      perl 5.008001
-      strict 0
-      utf8 0
-      warnings 0
   UUID-Tiny-1.04
     pathname: C/CA/CAUGUSTIN/UUID-Tiny-1.04.tar.gz
     provides:
@@ -3443,18 +3221,6 @@ DISTRIBUTIONS
       base 0
       lib 0
       perl 5.008
-  WWW-RobotRules-6.02
-    pathname: G/GA/GAAS/WWW-RobotRules-6.02.tar.gz
-    provides:
-      WWW::RobotRules 6.02
-      WWW::RobotRules::AnyDBM_File 6.00
-      WWW::RobotRules::InCore 6.02
-    requirements:
-      AnyDBM_File 0
-      ExtUtils::MakeMaker 0
-      Fcntl 0
-      URI 1.10
-      perl 5.008001
   YAML-LibYAML-0.72
     pathname: T/TI/TINITA/YAML-LibYAML-0.72.tar.gz
     provides:
@@ -3472,68 +3238,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006
-  libwww-perl-6.35
-    pathname: E/ET/ETHER/libwww-perl-6.35.tar.gz
-    provides:
-      LWP 6.35
-      LWP::Authen::Basic 6.35
-      LWP::Authen::Digest 6.35
-      LWP::Authen::Ntlm 6.35
-      LWP::ConnCache 6.35
-      LWP::Debug 6.35
-      LWP::Debug::TraceHTTP 6.35
-      LWP::DebugFile 6.35
-      LWP::MemberMixin 6.35
-      LWP::Protocol 6.35
-      LWP::Protocol::cpan 6.35
-      LWP::Protocol::data 6.35
-      LWP::Protocol::file 6.35
-      LWP::Protocol::ftp 6.35
-      LWP::Protocol::gopher 6.35
-      LWP::Protocol::http 6.35
-      LWP::Protocol::loopback 6.35
-      LWP::Protocol::mailto 6.35
-      LWP::Protocol::nntp 6.35
-      LWP::Protocol::nogo 6.35
-      LWP::RobotUA 6.35
-      LWP::Simple 6.35
-      LWP::UserAgent 6.35
-      libwww::perl undef
-    requirements:
-      CPAN::Meta::Requirements 2.120620
-      Digest::MD5 0
-      Encode 2.12
-      Encode::Locale 0
-      ExtUtils::MakeMaker 0
-      File::Copy 0
-      File::Listing 6
-      Getopt::Long 0
-      HTML::Entities 0
-      HTML::HeadParser 0
-      HTTP::Cookies 6
-      HTTP::Daemon 6
-      HTTP::Date 6
-      HTTP::Negotiate 6
-      HTTP::Request 6
-      HTTP::Request::Common 6
-      HTTP::Response 6
-      HTTP::Status 6.18
-      IO::Select 0
-      IO::Socket 0
-      LWP::MediaTypes 6
-      MIME::Base64 2.1
-      Module::Metadata 0
-      Net::FTP 2.58
-      Net::HTTP 6.07
-      Scalar::Util 0
-      Try::Tiny 0
-      URI 1.10
-      URI::Escape 0
-      WWW::RobotRules 6
-      base 0
-      perl 5.008001
-      strict 0
-      warnings 0
   namespace-autoclean-0.28
     pathname: E/ET/ETHER/namespace-autoclean-0.28.tar.gz
     provides:
