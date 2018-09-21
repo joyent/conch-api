@@ -49,10 +49,7 @@ sub _get_problems ($c) {
 	my @workspace_devices = $c->stash('workspace_rs')
 		->associated_racks
 		->related_resultset('device_locations')
-		->search_related('device',
-			{ health => [ qw(FAIL UNKNOWN) ] },
-			{ prefetch => 'latest_report' },
-		)
+		->search_related('device', { health => [ qw(FAIL UNKNOWN) ] })
 		->active;
 
 	foreach my $d (@workspace_devices) {
@@ -75,7 +72,6 @@ sub _get_problems ($c) {
 		->related_resultset('device_relay_connections')
 		->related_resultset('device')
 		->devices_without_location
-		->search({}, { prefetch => 'latest_report' })
 		->all;
 
 	my $failing_problems = {};
