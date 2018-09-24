@@ -138,11 +138,13 @@ Returns a hashref with keys: id, name, description, role, parent_id.
 =cut
 
 sub create_sub_workspace ($c) {
-	my $body = $c->req->json;
 	return $c->status(403) unless $c->is_admin;
 
-	return $c->status( 400, { error => '"name" must be defined in request' } )
-		unless $body->{name};
+	my $input = $c->validate_input('WorkspaceCreate');
+	return if not $input;
+
+	return $c->status(400, { error => "workspace '$input->{name}' already exists" })
+		if $c->db_workspaces->search({ name => $input->{name} })->count;
 
 	# FIXME: not checking that user has 'rw' permissions on this workspace
 
@@ -150,8 +152,8 @@ sub create_sub_workspace ($c) {
 
 	my $sub_ws = $uwr->workspace->create_related(
 		workspaces => {
-			name => $body->{name},
-			description => $body->{description},
+			name => $input->{name},
+			description => $input->{description},
 			user_workspace_roles => [{
 				user_id => $uwr->user_id,
 				role => $uwr->role,

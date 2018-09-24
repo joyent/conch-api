@@ -265,8 +265,15 @@ subtest 'Workspaces' => sub {
 subtest 'Sub-Workspace' => sub {
 
 	$t->get_ok("/workspace/$id/child")->status_is(200)->json_is( '', [] );
+
 	$t->post_ok("/workspace/$id/child")
-		->status_is( 400, 'No body is bad request' );
+		->status_is(400, 'No body is bad request')
+		->json_like('/error', qr/Expected object/);
+
+	$t->post_ok("/workspace/$id/child" => json => { name => 'GLOBAL' })
+		->status_is(400, 'Cannot create duplicate workspace')
+		->json_is('', { error => "workspace 'GLOBAL' already exists" });
+
 	$t->post_ok(
 		"/workspace/$id/child" => json => {
 			name        => "test",

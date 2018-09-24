@@ -53,43 +53,27 @@ to the user.
 =cut
 
 sub invite ($c) {
-	my $body = $c->req->json;
 	return $c->status(403) unless $c->is_admin;
 
-	unless($body->{user} and $body->{role}) {
-		# FIXME actually use the validator
-		$c->log->warn("Input failed validation");
-		return $c->status( 400, { 
-			error => '"user" and "role " fields required'
-		});
-	}
-
-	my @role_names = Conch::DB::Result::UserWorkspaceRole->column_info('role')->{extra}{list}->@*;
-	if (none { $body->{role} eq $_ } @role_names) {
-		my $role_names = join( ', ', @role_names);
-
-		$c->log->debug("Role name '".$body->{role}."' was not one of $role_names");
-		return $c->status( 400 => {
-				error => '"role" must be one of: ' . $role_names 
-		});
-	}
+	my $input = $c->validate_input('WorkspaceInvite');
+	return if not $input;
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
 	# don't have to look up by multiple columns.
 	my $rs = $c->db_user_accounts->search(undef, { prefetch => 'user_workspace_roles' });
-	my $user = $rs->lookup_by_email($body->{user}) || $rs->lookup_by_name($body->{user});
+	my $user = $rs->lookup_by_email($input->{user}) || $rs->lookup_by_name($input->{user});
 
 	unless ($user) {
-		$c->log->debug("User '".$body->{user}."' was not found");
+		$c->log->debug("User '".$input->{user}."' was not found");
 
 		my $password = $c->random_string();
 		$user = $c->db_user_accounts->create({
-			email    => $body->{user},
-			name     => $body->{user}, # FIXME: we should always have a name.
+			email    => $input->{user},
+			name     => $input->{user}, # FIXME: we should always have a name.
 			password => $password,     # will be hashed in constructor
 		});
 
-		$c->log->info("User '".$body->{user}."' was created with ID ".$user->id);
+		$c->log->info("User '".$input->{user}."' was created with ID ".$user->id);
 		if ($c->req->query_params->param('send_invite_mail') // 1) {
 			$c->log->info('sending new user invite mail to user ' . $user->name);
 			$c->send_mail(new_user_invite => {
@@ -107,7 +91,7 @@ sub invite ($c) {
 	my $workspace_id = $c->stash('workspace_id');
 	$user->create_related('user_workspace_roles' => {
 		workspace_id => $workspace_id,
-		role => $body->{role},
+		role => $input->{role},
 	}) if not any { $_->workspace_id eq $workspace_id } $user->user_workspace_roles;
 
 	$c->log->info("Add user ".$user->id." to workspace $workspace_id");
