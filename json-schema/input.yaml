@@ -338,5 +338,33 @@ definitions:
         type: string
       asset_tag:
         type: string
+  WorkspaceCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      description:
+        anyOf:
+          - type: null
+          - type: string
+  WorkspaceInvite:
+    type: object
+    additionalProperties: false
+    required:
+      - user
+      - role
+    properties:
+      user:
+        description: user name or email
+        type: string
+      role:
+        type: string
+        enum:
+          - ro
+          - rw
+          - admin
 
 # vim: set sts=2 sw=2 et :
