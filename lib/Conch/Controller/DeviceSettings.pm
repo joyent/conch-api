@@ -47,8 +47,7 @@ sub set_all ($c) {
 		->deactivate;
 
 	# store new settings
-	$settings_rs->create($_) foreach
-		pairmap { +{ name => $a, value => $b } } $body->%*;
+	$settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $body->%* ]);
 
 	$c->status(200);
 }
