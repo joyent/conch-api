@@ -49,6 +49,7 @@ sub mk_tmp_db {
         name => 'conch',
         email => 'conch@conch.joyent.us',
         password_hash => '{CRYPT}$2a$04$h963P26i4rTMaVogvA2U7ePcZTYm2o0gfSHyxaUCZSuthkpg47Zbi',
+        is_admin => 1,
     }) or die;
 
 	$schema->storage->dbh_do(sub {

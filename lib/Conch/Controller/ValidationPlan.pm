@@ -26,7 +26,7 @@ Create new Validation Plan.
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my $body = $c->validate_input("CreateValidationPlan");
 	if(not $body) {
@@ -127,7 +127,7 @@ List all Validations associated with the Validation Plan
 =cut
 
 sub add_validation ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $body = $c->validate_input("AddValidationToPlan");
 	if(not $body) {
 		$c->log->warn("Input failed validation");
@@ -159,7 +159,7 @@ Remove a Validation associated with the Validation Plan
 =cut
 
 sub remove_validation ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my $v_id = $c->stash('validation_id');
 	unless ( is_uuid($v_id) ) {

@@ -13,6 +13,7 @@ package Conch::Controller::Workspace;
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
+use List::Util 'any';
 
 with 'Conch::Role::MojoLog';
 
@@ -24,18 +25,33 @@ and stashes the query to get to it in C<user_workspace_role_rs>.
 =cut
 
 sub find_workspace ($c) {
-	my $self = shift;
-
 	my $ws_id = $c->stash('workspace_id');
 
 	if (not is_uuid($ws_id)) {
 		return $c->status(400, { error => "Workspace ID must be a UUID. Got '$ws_id'." });
 	}
 
-	return $c->status(404, { error => "Workspace $ws_id not found for user " . $c->stash('user_id') })
-		if not $c->db_user_workspace_roles->search(
-			{ workspace_id => $ws_id, user_id => $c->stash('user_id') },
-		)->count;
+	# only check if the workspace exists if user is admin on GLOBAL.
+	return $c->status(404)
+		if not $c->db_workspaces->search({ id => $ws_id })->count
+			and $c->db_workspaces->search(
+				{
+					'workspace.name' => 'GLOBAL',
+					'user_workspace_roles.user_id' => $c->stash('user_id'),
+					'user_workspace_roles.role' => 'admin',
+				},
+				{ join => 'user_workspace_roles' },
+			)->count;
+
+	# HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
+	my $method = $c->tx->req->method;
+	my $requires_permission =
+		(any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+	  : (any { $method eq $_ } qw(POST PUT)) ? 'rw'
+	  : $method eq 'DELETE'                  ? 'admin'
+	  : die "need handling for $method method";
+	return $c->status(403)
+		unless $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_permission);
 
 	# stash a resultset for easily accessing the current uwr + workspace,
 	# e.g. for calling ->single, or joining to.
@@ -138,15 +154,13 @@ Returns a hashref with keys: id, name, description, role, parent_id.
 =cut
 
 sub create_sub_workspace ($c) {
-	return $c->status(403) unless $c->is_admin;
+	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $input = $c->validate_input('WorkspaceCreate');
 	return if not $input;
 
 	return $c->status(400, { error => "workspace '$input->{name}' already exists" })
 		if $c->db_workspaces->search({ name => $input->{name} })->count;
-
-	# FIXME: not checking that user has 'rw' permissions on this workspace
 
 	my $uwr = $c->stash('user_workspace_role_rs')->single;
 

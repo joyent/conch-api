@@ -24,7 +24,7 @@ Supports rack role lookups by uuid and name
 =cut
 
 sub find_rack_role ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my $rack_role;
 
@@ -57,7 +57,7 @@ sub find_rack_role ($c) {
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('RackRoleCreate');
 	if (not $input) {
 		$c->log->warn("Input failed validation");
@@ -81,7 +81,7 @@ Get a single rack role
 =cut
 
 sub get ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	$c->status(200, $c->stash('rack_role'));
 }
 
@@ -94,7 +94,7 @@ Get all rack roles
 =cut
 
 sub get_all ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 
 	my @rack_roles = $c->db_datacenter_rack_roles->all;
 	$c->log->debug('Found '.scalar(@rack_roles).' datacenter rack roles');

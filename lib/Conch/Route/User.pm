@@ -75,7 +75,7 @@ sub user_routes {
     # administrator interfaces for updating a different user's account...
     {
         # target_user could be a user id or email
-        my $user_with_target = $user->require_global_admin->any('/#target_user');
+        my $user_with_target = $user->require_system_admin->any('/#target_user');
 
         # GET /user/#target_user
         $user_with_target->get('/')->to('#get');
@@ -86,9 +86,9 @@ sub user_routes {
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user
-        $user->require_global_admin->get('/')->to('#list');
+        $user->require_system_admin->get('/')->to('#list');
         # POST /user
-        $user->require_global_admin->post('/')->to('#create');
+        $user->require_system_admin->post('/')->to('#create');
         # DELETE /user/#target_user
         $user_with_target->delete('/')->to('#deactivate');
     }

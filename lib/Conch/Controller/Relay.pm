@@ -52,12 +52,12 @@ sub register ($c) {
 
 =head2 list
 
-If the user is a global admin, retrieve a list of all relays in the database
+If the user is a system admin, retrieve a list of all relays in the database
 
 =cut
 
 sub list ($c) {
-	return $c->status(403) unless $c->is_global_admin;
+	return $c->status(403) unless $c->is_system_admin;
 	$c->status(
 		200,
 		Conch::Model::Relay->new->list

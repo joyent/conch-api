@@ -1381,6 +1381,7 @@ definitions:
       - last_login
       - refuse_session_auth
       - force_password_change
+      - is_admin
     properties:
       id:
         type: string
@@ -1401,6 +1402,8 @@ definitions:
       refuse_session_auth:
         type: boolean
       force_password_change:
+        type: boolean
+      is_admin:
         type: boolean
       workspaces:
         type: array

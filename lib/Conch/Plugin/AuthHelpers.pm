@@ -16,64 +16,55 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 sub register ($self, $app, $conf) {
 
-=head2 global_auth
+=head2 is_system_admin
 
-	if ($c->global_auth('rw')) { ... }
+	return $c->status(403) unless $c->is_system_admin;
 
-Verifies if the currently stashed user_id has this auth role on the GLOBAL
-workspace
+Verifies that the currently stashed user has the 'is_admin' flag set
 
 =cut
 
 	$app->helper(
-		global_auth => sub {
-			my ( $c, $role_name ) = @_;
-			return 0 unless $c->stash('user_id');
-
-			# FIXME: currently does an exact match. should we return true
-			# if we ask about 'rw' and the user has 'admin?
-
-			return $c->db_workspaces->search({ 'workspace.name' => 'GLOBAL' })
-				->search_related('user_workspace_roles',
-					{ user_id => $c->stash('user_id'), role => $role_name })
-				->count;
+		is_system_admin => sub ($c) {
+			$c->stash('user') && $c->stash('user')->is_admin;
 		},
 	);
 
+=head2 is_workspace_admin
 
-=head2 is_global_admin
+	return $c->status(403) unless $c->is_workspace_admin;
 
-	return $c->status(403) unless $c->is_global_admin
-
-Verifies that the currently stashed user_id has admin rights on the
-GLOBAL workspace
+Verifies that the currently stashed user_id has 'admin' permission on the current workspace (as
+specified by :workspace_id in the path).
 
 =cut
 
 	$app->helper(
-		is_global_admin => sub {
-			shift->global_auth('admin');
-		}
+		is_workspace_admin => sub ($c) {
+			return $c->user_has_workspace_auth($c->stash('workspace_id'), 'admin');
+		},
 	);
 
-=head2 is_admin
+=head2 user_has_workspace_auth
 
-	return $c->status(403) unless $c->is_admin;
+Verifies that the currently stashed user_id has (at least) this auth role on the specified
+workspace (as indicated by :workspace_id in the path).
 
-Verifies that the currently stashed user_id is either a global admin or an
-admin on the current workspace (as specified by :workspace_id in the path)
+Users with the admin flag set will always return true, even if no user_workspace_role records
+are present.
 
 =cut
 
 	$app->helper(
-		is_admin => sub ($c) {
-			return 1 if $c->is_global_admin;
+		user_has_workspace_auth => sub ($c, $workspace_id, $role_name) {
+			return 0 unless $c->stash('user_id');
 
-			my $uwr = $c->stash('user_workspace_role_rs')->single;
-			return 0 unless $uwr;
-			return 1 if $uwr->role eq 'admin';
-			return 0;
-		}
+			return 1 if $c->is_system_admin;
+
+			$c->db_workspaces->search({ 'workspace.id' => $workspace_id })
+				->related_resultset('user_workspace_roles')
+				->user_has_permission($c->stash('user_id'), $role_name);
+		},
 	);
 
 }

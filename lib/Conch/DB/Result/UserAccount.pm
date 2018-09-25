@@ -79,6 +79,12 @@ __PACKAGE__->table("user_account");
   default_value: false
   is_nullable: 0
 
+=head2 is_admin
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -109,6 +115,8 @@ __PACKAGE__->add_columns(
   "refuse_session_auth",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "force_password_change",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "is_admin",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
 );
 
@@ -187,8 +195,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Jm+NeLdAhkNdgJi7WGbk0Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-18 11:14:52
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iTfN8qDvzBsoGQS162cx9g
 
 __PACKAGE__->add_columns(
     '+password_hash' => { is_serializable => 0 },
@@ -211,7 +219,7 @@ sub TO_JSON {
     my $data = $self->next::method(@_);
 
     # Mojo::JSON renders \0, \1 as json booleans
-    $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change);
+    $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change is_admin);
 
     # add workspace data, if it has been prefetched
     my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache;

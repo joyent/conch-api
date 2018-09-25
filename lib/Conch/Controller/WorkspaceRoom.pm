@@ -41,7 +41,7 @@ or local)
 =cut
 
 sub replace_rooms ($c) {
-	return $c->status(403) unless $c->is_admin;
+	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $body      = $c->req->json;
 
