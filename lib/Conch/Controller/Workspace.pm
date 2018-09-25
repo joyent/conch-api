@@ -85,10 +85,11 @@ sub list ($c) {
 				parent_id => $uwr->workspace->parent_workspace_id,
 				role => $uwr->role,
 			}
-		} $c->stash('user')->search_related('user_workspace_roles',
-			undef,
-			{ prefetch => 'workspace' },
-		)->all
+		}
+		$c->stash('user')
+			->related_resultset('user_workspace_roles')
+			->prefetch('workspace')
+			->all
 	];
 
 	$c->status(200, $wss_data);

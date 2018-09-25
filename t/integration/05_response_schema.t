@@ -39,33 +39,33 @@ $t->get_ok("/user/me/settings")->status_is(200)
 
 $t->get_ok('/workspace')->status_is(200)->json_schema_is('Workspaces');
 
-my $id = $t->tx->res->json->[0]{id};
-BAIL_OUT("No workspace ID") unless $id;
+my $global_ws_id = $t->tx->res->json->[0]{id};
+BAIL_OUT("No workspace ID") unless $global_ws_id;
 
-$t->get_ok("/workspace/$id")->status_is(200)->json_schema_is('Workspace');
+$t->get_ok("/workspace/$global_ws_id")->status_is(200)->json_schema_is('Workspace');
 
-$t->get_ok("/workspace/$id/user")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/user")->status_is(200)
 	->json_schema_is('WorkspaceUsers');
 
-$t->get_ok("/workspace/$id/problem")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/problem")->status_is(200)
 	->json_schema_is('Problems');
 
 $t->post_ok(
-	"/workspace/$id/child" => json => {
+	"/workspace/$global_ws_id/child" => json => {
 		name        => "test",
 		description => "also test",
 	}
 )->status_is(201)->json_schema_is('Workspace');
 
-$t->get_ok("/workspace/$id/child")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/child")->status_is(200)
 	->json_schema_is('Workspaces');
 
 $t->get_ok("/me")->status_is(204)->content_is("");
 
-$t->get_ok("/workspace/$id/room")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/room")->status_is(200)
 	->json_is( '/0/az', "test-region-1a" )->json_schema_is('Rooms');
 
-$t->get_ok("/workspace/$id/rack")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/rack")->status_is(200)
 	->json_is( '/test-region-1a/0/name', 'Test Rack', 'Has test datacenter rack' )
 	->json_schema_is('WorkspaceRackSummary');
 
@@ -89,7 +89,7 @@ subtest 'Set up a test device' => sub {
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
 		->json_schema_is( 'ValidationState' );
 
-	$t->get_ok("/workspace/$id/problem")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/problem")->status_is(200)
 		->json_schema_is('Problems')
 		->json_is('/unlocated/TEST/health', 'PASS', 'device is listed as unlocated');
 };
@@ -109,13 +109,13 @@ subtest 'Set up a test device' => sub {
 $t->get_ok('/device/TEST')->status_is(200)->json_schema_is('DetailedDevice');
 
 $t->post_ok(
-	"/workspace/$id/rack/$rack_id/layout",
+	"/workspace/$global_ws_id/rack/$rack_id/layout",
 	json => {
 		TEST => 1
 	}
 )->status_is(200);
 
-$t->get_ok("/workspace/$id/problem")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/problem")->status_is(200)
 	->json_schema_is('Problems')
 	->json_hasnt('/unlocated/TEST', 'device is no longer unlocated');
 
@@ -134,27 +134,27 @@ $t->post_ok(
 $t->get_ok("/device/TEST/settings")->status_is(200)
 	->json_schema_is( { type => 'object' } );
 
-$t->get_ok("/workspace/$id/device")->status_is(200)->json_is( '/0/id', 'TEST' )
+$t->get_ok("/workspace/$global_ws_id/device")->status_is(200)->json_is( '/0/id', 'TEST' )
 	->json_schema_is('Devices');
 
-$t->get_ok("/workspace/$id/device?active=t")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/device?active=t")->status_is(200)
 	->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
 
-$t->get_ok("/workspace/$id/device?graduated=t")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/device?graduated=t")->status_is(200)
 	->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
 
-$t->get_ok("/workspace/$id/device?health=pass")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/device?health=pass")->status_is(200)
 	->json_is( '/0/id', 'TEST' )->json_schema_is('Devices');
 
-$t->get_ok("/workspace/$id/relay")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/relay")->status_is(200)
 	->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
 	->json_schema_is('WorkspaceRelays');
 
-$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/relay?active=1")->status_is(200)
 	->json_is( '/0/id', 'deadbeef', 'Has active relay' )
 	->json_schema_is('WorkspaceRelays');
 
-$t->get_ok("/workspace/$id/device?ids_only=1")->status_is(200)
+$t->get_ok("/workspace/$global_ws_id/device?ids_only=1")->status_is(200)
 	->json_schema_is( { type => 'array', items => { type => 'string' } } );
 
 $t->get_ok("/hardware_product")->status_is(200)

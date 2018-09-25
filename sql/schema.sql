@@ -1303,6 +1303,13 @@ CREATE INDEX workspace_datacenter_room_workspace_id_idx ON public.workspace_data
 
 
 --
+-- Name: workspace_parent_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX workspace_parent_id_idx ON public.workspace USING btree (((parent_workspace_id IS NULL))) WHERE (parent_workspace_id IS NULL);
+
+
+--
 -- Name: datacenter_room all_rooms_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
 --
 

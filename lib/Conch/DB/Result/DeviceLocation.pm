@@ -119,6 +119,21 @@ __PACKAGE__->add_unique_constraint(
 
 =head1 RELATIONS
 
+=head2 datacenter_rack
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::DatacenterRack>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "datacenter_rack",
+  "Conch::DB::Result::DatacenterRack",
+  { id => "rack_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 datacenter_rack_layout
 
 Type: belongs_to
@@ -149,24 +164,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 rack
 
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DatacenterRack>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "rack",
-  "Conch::DB::Result::DatacenterRack",
-  { id => "rack_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:l+e5FWX4O5rbKCxIndx5EQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-25 12:35:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3xAQAIa80SkxrqIVgC6eyA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

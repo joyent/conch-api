@@ -26,37 +26,37 @@ BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
 $t->get_ok('/workspace')->status_is(200)->json_is( '/0/name', 'GLOBAL' );
-my $id = $t->tx->res->json->[0]{id};
-BAIL_OUT("No workspace ID") unless $id;
+my $global_ws_id = $t->tx->res->json->[0]{id};
+BAIL_OUT("No workspace ID") unless $global_ws_id;
 
 $t->post_ok(
-	"/workspace/$id/child" => json => {
+	"/workspace/$global_ws_id/child" => json => {
 		name        => "test",
 		description => "also test",
 	}
 )->status_is(201);
 
-my $sub_ws = $t->tx->res->json->{id};
-BAIL_OUT("Could not create sub-workspace.") unless $sub_ws;
+my $sub_ws_id = $t->tx->res->json->{id};
+BAIL_OUT("Could not create sub-workspace.") unless $sub_ws_id;
 
 subtest 'Workspace Rooms' => sub {
 
-	$t->get_ok("/workspace/$id/room")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/room")->status_is(200)
 		->json_is( '/0/az', "test-region-1a" );
 
 	my $room_id = $t->tx->res->json->[0]->{id};
 
-	$t->put_ok( "/workspace/$id/room", json => [$room_id] )
+	$t->put_ok( "/workspace/$global_ws_id/room", json => [$room_id] )
 		->status_is( 400, 'Cannot modify GLOBAL' )
 		->json_like( '/error' => qr/Cannot modify GLOBAL/ );
 
-	$t->put_ok( "/workspace/$sub_ws/room", json => [$room_id] )
+	$t->put_ok( "/workspace/$sub_ws_id/room", json => [$room_id] )
 		->status_is( 200, 'Replaced datacenter rooms' )
 		->json_is( '/0/id', $room_id );
 
-	$t->get_ok("/workspace/$sub_ws/room")->status_is(200)
+	$t->get_ok("/workspace/$sub_ws_id/room")->status_is(200)
 		->json_is( '/0/id', $room_id );
-	$t->put_ok( "/workspace/$sub_ws/room", json => [] )
+	$t->put_ok( "/workspace/$sub_ws_id/room", json => [] )
 		->status_is( 200, 'Remove datacenter rooms' )->json_is( '', [] );
 };
 
@@ -66,47 +66,47 @@ subtest 'Workspace Racks' => sub {
 	note(
 "Variance: /rack in returns a hash keyed by datacenter room AZ instead of an array"
 	);
-	$t->get_ok("/workspace/$id/rack")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/rack")->status_is(200)
 		->json_schema_is('WorkspaceRackSummary')
 		->json_is( '/test-region-1a/0/name', 'Test Rack',
 		'Has test datacenter rack' );
 
 	$rack_id = $t->tx->res->json->{'test-region-1a'}->[0]->{id};
 
-	$t->get_ok("/workspace/$id/rack/notauuid")->status_is(400)
+	$t->get_ok("/workspace/$global_ws_id/rack/notauuid")->status_is(400)
 		->json_like( '/error', qr/must be a UUID/ );
-	$t->get_ok( "/workspace/$id/rack/" . $uuid->create_str() )->status_is(404);
+	$t->get_ok( "/workspace/$global_ws_id/rack/" . $uuid->create_str() )->status_is(404);
 
 	subtest 'Add rack to workspace' => sub {
-		$t->post_ok("/workspace/$sub_ws/rack")
+		$t->post_ok("/workspace/$sub_ws_id/rack")
 			->status_is( 400, 'Requires request body' )->json_like( '/error', qr// );
-		$t->post_ok( "/workspace/$sub_ws/rack", json => {
+		$t->post_ok( "/workspace/$sub_ws_id/rack", json => {
 				id => $rack_id,
 				serial_number => 'abc',
 				asset_tag => 'deadbeef',
 			})
 			->status_is(303)
-			->header_like( Location => qr!/workspace/$sub_ws/rack/$rack_id! );
-		$t->get_ok("/workspace/$sub_ws/rack")
+			->header_like( Location => qr!/workspace/$sub_ws_id/rack/$rack_id! );
+		$t->get_ok("/workspace/$sub_ws_id/rack")
 			->status_is(200)
 			->json_schema_is('WorkspaceRackSummary');
-		$t->get_ok("/workspace/$sub_ws/rack/$rack_id")
+		$t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
 			->status_is(200)
 			->json_schema_is('WorkspaceRack');
 
 		subtest 'Cannot modify GLOBAL workspace' => sub {
-			$t->post_ok( "/workspace/$id/rack", json => { id => $rack_id } )
+			$t->post_ok( "/workspace/$global_ws_id/rack", json => { id => $rack_id } )
 				->status_is(400)->json_is( '/error', 'Cannot modify GLOBAL workspace' );
 		};
 	};
 
 	subtest 'Remove rack from workspace' => sub {
-		$t->delete_ok("/workspace/$sub_ws/rack/$rack_id")->status_is(204);
-		$t->get_ok("/workspace/$sub_ws/rack/$rack_id")->status_is(404)
+		$t->delete_ok("/workspace/$sub_ws_id/rack/$rack_id")->status_is(204);
+		$t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")->status_is(404)
 			->json_like( '/error', qr/not found/ );
 
 		subtest 'Cannot modify GLOBAL workspace' => sub {
-			$t->post_ok( "/workspace/$id/rack", json => { id => $rack_id } )
+			$t->post_ok( "/workspace/$global_ws_id/rack", json => { id => $rack_id } )
 				->status_is(400)->json_is( '/error', 'Cannot modify GLOBAL workspace' );
 		};
 	};
@@ -142,7 +142,7 @@ subtest 'Device Report' => sub {
 
 subtest 'Assign device to a location' => sub {
 	$t->post_ok(
-		"/workspace/$id/rack/$rack_id/layout",
+		"/workspace/$global_ws_id/rack/$rack_id/layout",
 		json => {
 			TEST => 1
 		}
@@ -150,7 +150,7 @@ subtest 'Assign device to a location' => sub {
 
 	$t->get_ok('/device/TEST/location')->status_is(200);
 
-	$t->get_ok("/workspace/$id/rack/$rack_id")
+	$t->get_ok("/workspace/$global_ws_id/rack/$rack_id")
 		->status_is(200)
 		->json_schema_is('WorkspaceRack')
 		->json_is(
@@ -158,7 +158,7 @@ subtest 'Assign device to a location' => sub {
 			'/slots/0/occupant/id', 'TEST',
 		);
 
-	$t->get_ok("/workspace/$id/rack/$rack_id" => { Accept => 'text/csv' })
+	$t->get_ok("/workspace/$global_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
 		->status_is(200)
 		->content_like(qr/^az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number$/m)
 		->content_like(qr/^test-region-1a,"Test Rack",1,2-ssds-1-cpu,,TEST$/m);
@@ -279,68 +279,68 @@ subtest 'Single device' => sub {
 
 subtest 'Workspace devices' => sub {
 
-	$t->get_ok("/workspace/$id/device")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device")->status_is(200)
 		->json_is( '/0/id', 'TEST' );
 
-	$t->get_ok("/workspace/$id/device?graduated=f")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=f")->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$id/device?graduated=F")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=F")->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$id/device?graduated=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=t")->status_is(200)
 		->json_is( '/0/id', 'TEST' );
-	$t->get_ok("/workspace/$id/device?graduated=T")->status_is(200)
-		->json_is( '/0/id', 'TEST' );
-
-	$t->get_ok("/workspace/$id/device?health=fail")->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$id/device?health=FAIL")->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$id/device?health=pass")->status_is(200)
-		->json_is( '/0/id', 'TEST' );
-	$t->get_ok("/workspace/$id/device?health=PASS")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=T")->status_is(200)
 		->json_is( '/0/id', 'TEST' );
 
-	$t->get_ok("/workspace/$id/device?health=pass&graduated=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?health=fail")->status_is(200)
+		->json_is( '', [] );
+	$t->get_ok("/workspace/$global_ws_id/device?health=FAIL")->status_is(200)
+		->json_is( '', [] );
+	$t->get_ok("/workspace/$global_ws_id/device?health=pass")->status_is(200)
 		->json_is( '/0/id', 'TEST' );
-	$t->get_ok("/workspace/$id/device?health=pass&graduated=f")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?health=PASS")->status_is(200)
+		->json_is( '/0/id', 'TEST' );
+
+	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")->status_is(200)
+		->json_is( '/0/id', 'TEST' );
+	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")->status_is(200)
 		->json_is( '', [] );
 
-	$t->get_ok("/workspace/$id/device?ids_only=1")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1")->status_is(200)
 		->content_is('["TEST"]');
-	$t->get_ok("/workspace/$id/device?ids_only=1&health=pass")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")->status_is(200)
 		->content_is('["TEST"]');
 
-	$t->get_ok("/workspace/$id/device?active=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?active=t")->status_is(200)
 		->json_is( '/0/id', 'TEST' );
-	$t->get_ok("/workspace/$id/device?active=t&graduated=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")->status_is(200)
 		->json_is( '/0/id', 'TEST' );
 
 	# /device/active redirects to /device so first make sure there is a redirect,
 	# then follow it and verify the results
 	subtest 'Redirect /workspace/:id/device/active' => sub {
-		$t->get_ok("/workspace/$id/device/active")->status_is(302);
+		$t->get_ok("/workspace/$global_ws_id/device/active")->status_is(302);
 		my $temp = $t->ua->max_redirects;
 		$t->ua->max_redirects(1);
-		$t->get_ok("/workspace/$id/device/active")->status_is(200)
+		$t->get_ok("/workspace/$global_ws_id/device/active")->status_is(200)
 			->json_is( '/0/id', 'TEST' );
 		$t->ua->max_redirects($temp);
 	};
 };
 
 subtest 'Relays' => sub {
-	$t->get_ok("/workspace/$id/relay")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/relay")->status_is(200)
 		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
 		->json_is( '/0/devices/0/id', 'TEST', 'Associated with reporting device' );
-	$t->get_ok("/workspace/$id/relay?active=1")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/relay?active=1")->status_is(200)
 		->json_is( '/0/id', 'deadbeef', 'Has active relay' );
 
 	$t->get_ok('/relay')->status_is(200)->json_is( '/0/id' => 'deadbeef' );
 
-	$t->get_ok("/workspace/$id/relay?no_devices=0")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/relay?no_devices=0")->status_is(200)
 		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
 		->json_is( '/0/devices/0/id', 'TEST', 'Associated with reporting device' );
 
-	$t->get_ok("/workspace/$id/relay?no_devices=1")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/relay?no_devices=1")->status_is(200)
 		->json_is( '/0/id', 'deadbeef' )
 		->json_is( '/0/devices', [] )
 
@@ -432,7 +432,7 @@ subtest 'Permissions' => sub {
 			email => $ro_email,
 			password => $ro_pass,
 			user_workspace_roles => [{
-				workspace_id => $id,
+				workspace_id => $global_ws_id,
 				role => 'ro',
 			}],
 		});
@@ -449,7 +449,7 @@ subtest 'Permissions' => sub {
 
 		subtest "Can't create a subworkspace" => sub {
 			$t->post_ok(
-				"/workspace/$id/child" => json => {
+				"/workspace/$global_ws_id/child" => json => {
 					name        => "test",
 					description => "also test",
 				}
@@ -457,13 +457,13 @@ subtest 'Permissions' => sub {
 		};
 
 		subtest "Can't add a rack" => sub {
-			$t->post_ok( "/workspace/$id/rack", json => { id => $rack_id } )
+			$t->post_ok( "/workspace/$global_ws_id/rack", json => { id => $rack_id } )
 				->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
 		subtest "Can't set a rack layout" => sub {
 			$t->post_ok(
-				"/workspace/$id/rack/$rack_id/layout",
+				"/workspace/$global_ws_id/rack/$rack_id/layout",
 				json => {
 					TEST => 1
 				}
@@ -472,7 +472,7 @@ subtest 'Permissions' => sub {
 
 		subtest "Can't invite a user" => sub {
 			$t->post_ok(
-				"/workspace/$id/user",
+				"/workspace/$global_ws_id/user",
 				json => {
 					user => 'another@wat.wat',
 					role => 'ro',
@@ -484,7 +484,7 @@ subtest 'Permissions' => sub {
 			$t->get_ok("/relay")->status_is(403);
 		};
 
-		$t->get_ok("/workspace/$id/user")
+		$t->get_ok("/workspace/$global_ws_id/user")
 			->status_is(200, 'get list of users for this workspace')
 			->json_is([
 				{
@@ -521,7 +521,7 @@ subtest 'Permissions' => sub {
 			email => $email,
 			password => $pass,
 			user_workspace_roles => [{
-				workspace_id => $id,
+				workspace_id => $global_ws_id,
 				role => 'rw',
 			}],
 		});
@@ -536,7 +536,7 @@ subtest 'Permissions' => sub {
 		$t->get_ok('/workspace')->status_is(200)->json_is( '/0/name', 'GLOBAL' );
 		subtest "Can't create a subworkspace" => sub {
 			$t->post_ok(
-				"/workspace/$id/child" => json => {
+				"/workspace/$global_ws_id/child" => json => {
 					name        => "test",
 					description => "also test",
 				}
@@ -545,7 +545,7 @@ subtest 'Permissions' => sub {
 
 		subtest "Can't invite a user" => sub {
 			$t->post_ok(
-				"/workspace/$id/user",
+				"/workspace/$global_ws_id/user",
 				json => {
 					user => 'another@wat.wat',
 					role => 'ro',
@@ -557,7 +557,7 @@ subtest 'Permissions' => sub {
 			$t->get_ok("/relay")->status_is(403);
 		};
 
-		$t->get_ok("/workspace/$id/user")
+		$t->get_ok("/workspace/$global_ws_id/user")
 			->status_is(200, 'get list of users for this workspace')
 			->json_is([
 				{

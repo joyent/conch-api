@@ -87,14 +87,9 @@ Retrieves details about a single device, returning a json-schema 'DetailedDevice
 
 sub get ($c) {
 
-	my $device = $c->stash('device_rs')->find(
-		{},
-		{
-			prefetch => [
-				{ device_nics => 'device_neighbor' },
-			],
-		},
-	);
+	my $device = $c->stash('device_rs')
+		->prefetch({ device_nics => 'device_neighbor' })
+		->find({});
 
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
 

@@ -8,6 +8,7 @@ use Test::ConchTmpDB 'mk_tmp_db';
 use Conch::UUID 'is_uuid';
 use JSON::Validator;
 use Path::Tiny;
+use Test::Deep ();
 
 =pod
 
@@ -159,6 +160,19 @@ sub json_schema_is {
     );
 }
 
+=head2 json_cmp_deeply
+
+Like json_is, but uses Test::Deep::cmp_deeply for the comparison instead of Test::More::is_deep.
+This allows for more flexibility in how we test various parts of the data.
+
+=cut
+
+sub json_cmp_deeply {
+    my $self = shift;
+    my ($p, $data) = @_ > 1 ? (shift, shift) : ('', shift);
+    my $desc = Test::Mojo::_desc(shift, qq{cmp_deeply match for JSON Pointer "$p"});
+    return $self->_test('Test::Deep::cmp_deeply', $self->tx->res->json($p), $data, $desc);
+}
 
 =head2 load_validation_plans
 

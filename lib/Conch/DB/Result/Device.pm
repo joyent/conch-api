@@ -409,6 +409,8 @@ sub TO_JSON {
     return $data;
 }
 
+# be careful! this is an expensive query, so think twice before adding it to a prefetch on a
+# query for many devices.
 __PACKAGE__->might_have(
     'latest_report',
     'Conch::DB::Result::DeviceReport',
