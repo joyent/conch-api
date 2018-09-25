@@ -42,6 +42,8 @@ sub find_datacenter_room ($c) {
 
 Get all datacenter rooms
 
+Response uses the DatacenterRoomsDetailed json schema.
+
 =cut
 
 sub get_all ($c) {
@@ -57,6 +59,8 @@ sub get_all ($c) {
 =head2 get_one
 
 Get a single datacenter room
+
+Response uses the DatacenterRoomDetailed json schema.
 
 =cut
 

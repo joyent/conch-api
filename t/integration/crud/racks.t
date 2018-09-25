@@ -25,7 +25,10 @@ BAIL_OUT("Login failed") if $t->tx->res->code != 200;
 
 my $fake_id = $uuid->create_str();
 
-$t->get_ok("/room")->status_is(200);
+$t->get_ok("/room")
+	->status_is(200)
+	->json_schema_is('DatacenterRoomsDetailed');
+
 my $room_id = $t->tx->res->json->[0]->{id};
 
 $t->get_ok('/rack_role')->status_is(200);
