@@ -241,11 +241,16 @@ subtest 'Workspaces' => sub {
 	is($t->app->db_user_workspace_roles->count, 1,
 		'currently one user_workspace_role entry');
 
-	$t->post_ok("/workspace/$global_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok('/user?send_invite_mail=0',
+		json => { email => 'test_workspace@conch.joyent.us', name => 'test_workspace', password => '123' })
+		->status_is(201, 'created new user test_workspace')
+		->json_schema_is('User');
+
+	$t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'rw',
 		})
-		->status_is(201);
+		->status_is(201, 'added the user to the GLOBAL workspace');
 
 	is($t->app->db_user_workspace_roles->count, 2,
 		'now there is another user_workspace_role entry');
@@ -259,21 +264,21 @@ subtest 'Workspaces' => sub {
 		'new user can access this workspace',
 	);
 
-	$t->post_ok("/workspace/$global_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'rw',
 		})
-		->status_is(200, 'redundant invitations do nothing');
+		->status_is(200, 'redundant add requests do nothing');
 
 	is($t->app->db_user_workspace_roles->count, 2,
 		'still just two user_workspace_role entries');
 
-	$t->post_ok("/workspace/$global_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'ro',
 		})
 		->status_is(400)
-		->json_is({ error => "user test_workspace\@conch.joyent.us already has rw access to workspace $global_ws_id: cannot downgrade role to ro" });
+		->json_is({ error => "user test_workspace already has rw access to workspace $global_ws_id: cannot downgrade role to ro" });
 
 	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
 		->status_is(200)
@@ -312,7 +317,7 @@ subtest 'Workspaces' => sub {
 			},
 			{
 				id    => $test_user_id,
-				name  => 'test_workspace@conch.joyent.us',
+				name  => 'test_workspace',
 				email => 'test_workspace@conch.joyent.us',
 				role  => 'rw',
 			}
@@ -466,7 +471,7 @@ subtest 'Sub-Workspace' => sub {
 			},
 			{
 				id    => $test_user_id,
-				name  => 'test_workspace@conch.joyent.us',
+				name  => 'test_workspace',
 				email => 'test_workspace@conch.joyent.us',
 				role  => 'rw',
 				role_via => $global_ws_id,
@@ -486,30 +491,30 @@ subtest 'Sub-Workspace' => sub {
 			},
 			{
 				id    => $test_user_id,
-				name  => 'test_workspace@conch.joyent.us',
+				name  => 'test_workspace',
 				email => 'test_workspace@conch.joyent.us',
 				role  => 'rw',
 				role_via => $global_ws_id,
 			},
 		), 'data for users who can access grandchild workspace');
 
-	$t->post_ok("/workspace/$grandsub_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$grandsub_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'rw',
 		})
-		->status_is(200, 'redundant invitations do nothing');
+		->status_is(200, 'redundant add requests do nothing');
 
 	is($t->app->db_user_workspace_roles->count, 2,
 		'still just two user_workspace_role entries');
 
-	$t->post_ok("/workspace/$grandsub_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$grandsub_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'ro',
 		})
 		->status_is(400)
-		->json_is({ error => "user test_workspace\@conch.joyent.us already has rw access to workspace $grandsub_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
+		->json_is({ error => "user test_workspace already has rw access to workspace $grandsub_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
 
-	$t->post_ok("/workspace/$grandsub_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$grandsub_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'admin',
 		})
@@ -520,23 +525,23 @@ subtest 'Sub-Workspace' => sub {
 
 	# now let's try manipulating permissions on the workspace in the middle of the heirarchy
 
-	$t->post_ok("/workspace/$sub_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$sub_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'rw',
 		})
-		->status_is(200, 'redundant invitations do nothing');
+		->status_is(200, 'redundant add requests do nothing');
 
-	$t->post_ok("/workspace/$sub_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$sub_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'ro',
 		})
 		->status_is(400)
-		->json_is({ error => "user test_workspace\@conch.joyent.us already has rw access to workspace $sub_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
+		->json_is({ error => "user test_workspace already has rw access to workspace $sub_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
 
 	is($t->app->db_user_workspace_roles->count, 3,
 		'still just three user_workspace_role entries');
 
-	$t->post_ok("/workspace/$sub_ws_id/user?send_invite_mail=0" => json => {
+	$t->post_ok("/workspace/$sub_ws_id/user?send_mail=0" => json => {
 			user => 'test_workspace@conch.joyent.us',
 			role => 'admin',
 		})

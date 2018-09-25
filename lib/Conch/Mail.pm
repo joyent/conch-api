@@ -37,18 +37,18 @@ sub send_mail_with_template {
 	return 1;
 }
 
-=head2 new_user_invite
+=head2 workspace_add_user
 
-Template for the email for inviting a new user
+Template for the email sent when adding a user to a workspace
 
 =cut
 
-sub new_user_invite {
+sub workspace_add_user {
 	my $self = shift;
 	my ($args)   = @_;
 	my $name     = $args->{name};
 	my $email    = $args->{email};
-	my $password = $args->{password};
+	my $workspace = $args->{workspace};
 
 	my $to = $email;
 	$to = "$name <$to>" if $name ne $email;
@@ -61,20 +61,14 @@ sub new_user_invite {
 
 	my $template = qq{Hello,
 
-    You have been invited to join Joyent Conch. An account has been created for
-    you. Please log into https://conch.joyent.us using the credentials
-    below:
+You have been added to the "$workspace" workspace at Joyent Conch.
 
-    Username: $name
-    Email:    $email
-    Password: $password
-
-    Thank you,
-    Joyent Build Ops Team
-    };
+Thank you,
+Joyent Build Ops Team
+};
 
 	$self->send_mail_with_template($template, $headers)
-		&& $self->log->info("New user invite successfully sent to $email.");
+		&& $self->log->info("User-added-to-workspace email successfully sent to $email.");
 }
 
 =head2 changed_user_password

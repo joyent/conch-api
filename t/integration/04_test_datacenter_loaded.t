@@ -471,7 +471,7 @@ subtest 'Permissions' => sub {
 			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
-		subtest "Can't invite a user" => sub {
+		subtest "Can't add a user to workspace" => sub {
 			$t->post_ok(
 				"/workspace/$global_ws_id/user",
 				json => {
@@ -546,7 +546,7 @@ subtest 'Permissions' => sub {
 			)->status_is(403)->json_is( "/error", "Forbidden" );
 		};
 
-		subtest "Can't invite a user" => sub {
+		subtest "Can't add a user to workspace" => sub {
 			$t->post_ok(
 				"/workspace/$global_ws_id/user",
 				json => {
