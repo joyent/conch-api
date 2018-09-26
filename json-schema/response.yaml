@@ -43,12 +43,12 @@ definitions:
       asset_tag:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
         description: this field is deprecated and will no longer be present.
       boot_phase:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       created:
         type: string
         format: date-time
@@ -60,19 +60,19 @@ definitions:
       hostname:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       id:
         type: string
       graduated:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       last_seen:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       latest_report:
         anyOf:
           - $ref: /definitions/DeviceReport
@@ -81,7 +81,7 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       state:
         type: string
       system_uuid:
@@ -91,12 +91,12 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       triton_uuid:
         anyOf:
           - type: string
             format: uuid
-          - type: null
+          - type: 'null'
       updated:
         type: string
         format: date-time
@@ -104,16 +104,16 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       validated:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       location:
         anyOf:
           - $ref: "#/definitions/DeviceLocation"
-          - type: null
+          - type: 'null'
       nics: # NOTE: see also DeviceNic
         type: array
         items:
@@ -138,15 +138,15 @@ definitions:
             peer_mac:
               anyOf:
                 - type: string
-                - type: null
+                - type: 'null'
             peer_port:
               anyOf:
                 - type: string
-                - type: null
+                - type: 'null'
             peer_switch:
               anyOf:
                 - type: string
-                - type: null
+                - type: 'null'
   Devices:
     type: array
     items:
@@ -174,12 +174,12 @@ definitions:
       asset_tag:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
         deprecated: this field is deprecated and will no longer be present.
       boot_phase:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       created:
         type: string
         format: date-time
@@ -191,41 +191,41 @@ definitions:
       hostname:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       id:
         type: string
       graduated:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       last_seen:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       latest_triton_reboot:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       state:
         type: string
       system_uuid:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
             format: uuid
       triton_uuid:
         anyOf:
           - type: string
             format: uuid
-          - type: null
+          - type: 'null'
       triton_setup:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       updated:
         type: string
         format: date-time
@@ -233,12 +233,12 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
       validated:
         anyOf:
           - type: string
             format: date-time
-          - type: null
+          - type: 'null'
 
   DeviceNics:
     type: array
@@ -273,22 +273,22 @@ definitions:
       state:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       speed:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       ipaddr:
         anyOf:
           - type: string
             format: ipv4
           - type: string
             format: ipv6
-          - type: null
+          - type: 'null'
       mtu:
         anyOf:
           - type: integer
-          - type: null
+          - type: 'null'
   DeviceReport:
     type: object
     required:
@@ -415,20 +415,20 @@ definitions:
       generation_name:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       legacy_product_name:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       sku:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
 
       specification:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       profile:
         type: object
         additionalProperties: false
@@ -459,7 +459,7 @@ definitions:
           bios_firmware:
             anyOf:
               - type: string
-              - type: null
+              - type: 'null'
           cpu_num:
             type: integer
           cpu_type:
@@ -469,7 +469,7 @@ definitions:
           hba_firmware:
             anyOf:
               - type: string
-              - type: null
+              - type: 'null'
           id:
             type: string
             format: uuid
@@ -486,49 +486,50 @@ definitions:
           sas_num:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           sas_size:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           sas_slots:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           sata_num:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           sata_size:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           sata_slots:
             anyOf:
               - type: string
-              - type: null
+              - type: 'null'
           ssd_num:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           ssd_size:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           ssd_slots:
             anyOf:
               - type: string
-              - type: null
+              - type: 'null'
           usb_num:
             anyOf:
               - type: integer
-              - type: null
+              - type: 'null'
           zpool:
             anyOf:
               - type: object
                 additionalProperties: false
                 required:
                   - id
+                  - name
                   - cache
                   - log
                   - disk_per
@@ -539,6 +540,10 @@ definitions:
                   id:
                     type: string
                     format: uuid
+                  name:
+                    anyOf:
+                      - type: string
+                      - type: 'null'
                   cache:
                     type: integer
                   log:
@@ -546,14 +551,14 @@ definitions:
                   disk_per:
                     anyOf:
                       - type: integer
-                      - type: null
+                      - type: 'null'
                   spare:
                     type: integer
                   vdev_n:
                     type: integer
                   vdev_t:
                     type: string
-              - type: null
+              - type: 'null'
   WorkspaceRackSummary:
     type: object
     additionalProperties: false
@@ -640,10 +645,10 @@ definitions:
               type: string
               description: Hardware product vendor
             occupant:
-              description: Device assigned to this slot or null
+              description: Device assigned to this slot, if any
               anyOf:
                 - $ref: "#/definitions/Device"
-                - type: null
+                - type: 'null'
   Validations:
     type: array
     items:
@@ -719,7 +724,7 @@ definitions:
         type: string
       component_id:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
       device_id:
         type: string
@@ -728,7 +733,7 @@ definitions:
         format: uuid
       hint:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
       message:
         type: string
@@ -759,7 +764,7 @@ definitions:
         format: uuid
       completed:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
             format: date-time
       created:
@@ -797,7 +802,7 @@ definitions:
         format: uuid
       completed:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
             format: date-time
       created:
@@ -839,7 +844,7 @@ definitions:
       alias:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       created:
         type: string
         format: date-time
@@ -854,7 +859,7 @@ definitions:
       ipaddr:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       location:
         type: object
         additionalProperties: false
@@ -897,14 +902,14 @@ definitions:
       location:
         anyOf:
           - $ref: "#/definitions/DeviceLocation"
-          - type: null
+          - type: 'null'
       health:
         type: string
       report_id:
         anyOf:
           - type: string
             format: uuid
-          - type: null
+          - type: 'null'
   WorkspaceAndRole:
     type: object
     additionalProperties: false
@@ -923,12 +928,12 @@ definitions:
       description:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       parent_id:
         anyOf:
           - type: string
             format: uuid
-          - type: null
+          - type: 'null'
       role:
         type: string
         enum:
@@ -985,7 +990,7 @@ definitions:
       alias:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       vendor_name:
         type: string
   Relays:
@@ -1007,7 +1012,7 @@ definitions:
       alias:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       created:
         type: string
         format: date-time
@@ -1016,18 +1021,18 @@ definitions:
       ipaddr:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       ssh_port:
         anyOf:
           - type: number
-          - type: null
+          - type: 'null'
       updated:
         type: string
         format: date-time
       version:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
   Ping:
     type: object
     additionalProperties: false
@@ -1110,7 +1115,7 @@ definitions:
         type: number
       steps:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: array
             items:
                 type: string
@@ -1217,11 +1222,11 @@ definitions:
       serial_number:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       asset_tag:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       created:
         type: string
         format: date-time
@@ -1321,23 +1326,23 @@ definitions:
       specification:
         anyOf:
           - type: object
-          - type: null
+          - type: 'null'
       sku:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       generation_name:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       legacy_product_name:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
       prefix:
         anyOf:
           - type: string
-          - type: null
+          - type: 'null'
 
   User:
     type: object
@@ -1364,7 +1369,7 @@ definitions:
             type: string
             format: date-time
           -
-            type: null
+            type: 'null'
   UserError:
     type: object
     additionalProperties: false
@@ -1403,7 +1408,7 @@ definitions:
         format: date-time
       last_login:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
             format: date-time
       refuse_session_auth:

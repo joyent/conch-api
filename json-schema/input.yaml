@@ -348,7 +348,7 @@ definitions:
         type: string
       description:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
   WorkspaceInvite:
     type: object
