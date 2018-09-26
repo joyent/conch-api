@@ -14,6 +14,7 @@ use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Data::Printer;
 use List::Util 1.33 qw(none any);
+use Conch::UUID 'is_uuid';
 
 with 'Conch::Role::MojoLog';
 
@@ -131,6 +132,43 @@ sub invite ($c) {
 
 	$c->log->info('Added user '.$user->id." to workspace $workspace_id");
 	$c->status(201);
+}
+
+=head2 remove
+
+Removes the indicated user from the workspace, as well as all sub-workspaces.
+Requires 'admin' permissions on the workspace.
+
+Note this may not have the desired effect if the user is getting access to the workspace via
+a parent workspace. When in doubt, check at C<< GET /user/<id or name> >>.
+
+=cut
+
+sub remove ($c) {
+	my $user_param = $c->stash('target_user');
+
+	my $user =
+		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
+	  : $user_param =~ s/^email\=// ? $c->db_user_accounts->lookup_by_email($user_param)
+	  : undef;
+
+	return $c->status(404, { error => "user $user_param not found" })
+		unless $user;
+
+	my $rs = $c->db_workspaces
+		->and_workspaces_beneath($c->stash('workspace_id'))
+		->search_related('user_workspace_roles', { user_id => $user->id });
+
+	my $num_rows = $rs->count;
+	return $c->status(201) if not $num_rows;
+
+	$c->log->debug('removing user ' . $user->name . ' from workspace '
+		. $c->stash('workspace_rs')->get_column('name')->single
+		. ' and all sub-workspaces (' . $num_rows . 'rows in total)');
+
+	$rs->delete;
+
+	return $c->status(201);
 }
 
 1;

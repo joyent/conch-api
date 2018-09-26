@@ -567,6 +567,22 @@ subtest 'Sub-Workspace' => sub {
 		->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
 		->json_is('/1/email', 'test_workspace@conch.joyent.us')
 		->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_workspace}->@*));
+
+	$t->delete_ok("/workspace/$sub_ws_id/user/email=test_workspace\@conch.joyent.us")
+		->status_is(201, 'extra permissions for user are removed from the sub workspace and its children');
+
+	$workspace_data{test_workspace}[1]->@{qw(role role_via)} = ('rw', $global_ws_id);
+	$workspace_data{test_workspace}[2]->@{qw(role role_via)} = ('rw', $global_ws_id);
+
+	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
+		->status_is(200)
+		->json_schema_is('UserDetailed')
+		->json_is('/email' => 'test_workspace@conch.joyent.us')
+		->json_cmp_deeply('/workspaces' => $workspace_data{test_workspace},
+			'test user now only has rw access to everything again (via GLOBAL)');
+
+	$t->delete_ok("/workspace/$sub_ws_id/user/email=test_workspace\@conch.joyent.us")
+		->status_is(201, 'deleting again is a no-op');
 };
 
 subtest 'Workspace Rooms' => sub {
