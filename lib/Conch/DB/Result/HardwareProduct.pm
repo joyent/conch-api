@@ -259,16 +259,13 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WE00FsIieOu8a63Gx+SgUQ
 
-use Class::Method::Modifiers;
-
-around TO_JSON => sub {
-    my $orig = shift;
+sub TO_JSON {
     my $self = shift;
 
-    my $data = $self->$orig(@_);
+    my $data = $self->next::method(@_);
     $data->{vendor} = delete $data->{hardware_vendor_id};
     return $data;
-};
+}
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
