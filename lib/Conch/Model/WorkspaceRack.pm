@@ -97,7 +97,7 @@ sub rack_layout ( $self, $rack ) {
 		my $slot = { rack_unit_start => $rack_unit_start };
 
 		if ($device) {
-			$slot->{occupant} = $device;
+			$slot->{occupant} = Conch::Model::Device->new($device->%*);
 		}
 		else {
 			$slot->{occupant} = undef;

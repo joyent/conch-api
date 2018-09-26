@@ -28,7 +28,10 @@ $t->get_ok("/dc")->status_is(200)->json_is('/0/region', 'test-region-1');
 my $dc_id = $t->tx->res->json->[0]->{id};
 $t->get_ok("/dc/$dc_id")->status_is(200)->json_is('/region', 'test-region-1');
 
-$t->get_ok("/dc/$dc_id/rooms")->status_is(200)->json_is('/0/az', 'test-region-1a');
+$t->get_ok("/dc/$dc_id/rooms")
+	->status_is(200)
+	->json_schema_is('DatacenterRoomsDetailed')
+	->json_is('/0/az', 'test-region-1a');
 
 
 #########
@@ -57,11 +60,16 @@ $t->get_ok("/dc/$idd")->status_is(404);
 
 ###########
 
-$t->get_ok("/room")->status_is(200)->json_is('/0/az', 'test-region-1a');
+$t->get_ok("/room")
+	->status_is(200)
+	->json_schema_is('DatacenterRoomsDetailed')
+	->json_is('/0/az', 'test-region-1a');
 my $room_id = $t->tx->res->json->[0]->{id};
 
 $t->get_ok("/room/". $room_id)
-	->status_is(200)->json_is('/az', 'test-region-1a');
+	->status_is(200)
+	->json_schema_is('DatacenterRoomDetailed')
+	->json_is('/az', 'test-region-1a');
 
 $t->get_ok("/room/$room_id/racks")->status_is(200)
 	->json_is('/0/name', 'Test Rack')

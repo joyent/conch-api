@@ -1,5 +1,8 @@
 ---
 definitions:
+  uuid:
+    type: string
+    pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
   DatacenterCreate:
     type: object
     additionalProperties: false
@@ -21,8 +24,7 @@ definitions:
     additionalProperties: false
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       vendor:
         type: string
       region:
@@ -39,8 +41,7 @@ definitions:
       - az
     properties:
       datacenter:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       az:
         type: string
       alias:
@@ -52,8 +53,7 @@ definitions:
     additionalProperties: false
     properties:
       datacenter:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       az:
         type: string
       alias:
@@ -125,8 +125,7 @@ definitions:
       state:
         type: string
       system_uuid:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       temp:
         type: object
         required:
@@ -154,11 +153,9 @@ definitions:
       name:
         type: string
       datacenter_room_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       role:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   RackUpdate:
     type: object
     additionalProperties: false
@@ -166,11 +163,9 @@ definitions:
       name:
         type: string
       datacenter_room_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       role:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       serial_number:
         type: string
       asset_tag:
@@ -203,11 +198,9 @@ definitions:
       - ru_start
     properties:
       rack_id:    # TODO: this really should be datacenter_rack_id
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       product_id: # TODO: this really should be hardware_product_id
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       ru_start: # TODO: this really should be rack_unit_start
         type: integer
   RackLayoutUpdate:
@@ -215,11 +208,9 @@ definitions:
     additionalProperties: false
     properties:
       rack_id:    # TODO: this really should be datacenter_rack_id
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       product_id: # TODO: this really should be hardware_product_id
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       ru_start: # TODO: this really should be rack_unit_start
         type: integer
   DBHardwareProductCreate:
@@ -237,8 +228,7 @@ definitions:
       prefix:
         type: string
       vendor:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       specification:
         type: string
       sku:
@@ -254,8 +244,7 @@ definitions:
       - id
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       alias:
@@ -263,8 +252,7 @@ definitions:
       prefix:
         type: string
       vendor:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       specification:
         type: string
       sku:
@@ -323,8 +311,7 @@ definitions:
       - id
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   WorkspaceAddRack:
     type: object
     additionalProperties: false
@@ -332,8 +319,7 @@ definitions:
       - id
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       serial_number:
         type: string
       asset_tag:
@@ -348,7 +334,7 @@ definitions:
         type: string
       description:
         anyOf:
-          - type: null
+          - type: 'null'
           - type: string
   WorkspaceInvite:
     type: object
