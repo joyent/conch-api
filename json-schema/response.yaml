@@ -1,5 +1,8 @@
 ---
 definitions:
+  uuid:
+    type: string
+    pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
   Error:
     type: object
     additionalProperties: false
@@ -53,8 +56,7 @@ definitions:
         type: string
         format: date-time
       hardware_product:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       health:
         type: string
       hostname:
@@ -85,8 +87,7 @@ definitions:
       state:
         type: string
       system_uuid:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       triton_setup:
         anyOf:
           - type: string
@@ -94,8 +95,7 @@ definitions:
           - type: 'null'
       triton_uuid:
         anyOf:
-          - type: string
-            format: uuid
+          - $ref: /definitions/uuid
           - type: 'null'
       updated:
         type: string
@@ -184,8 +184,7 @@ definitions:
         type: string
         format: date-time
       hardware_product:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       health:
         type: string
       hostname:
@@ -214,12 +213,10 @@ definitions:
       system_uuid:
         anyOf:
           - type: 'null'
-          - type: string
-            format: uuid
+          - $ref: /definitions/uuid
       triton_uuid:
         anyOf:
-          - type: string
-            format: uuid
+          - $ref: /definitions/uuid
           - type: 'null'
       triton_setup:
         anyOf:
@@ -305,8 +302,7 @@ definitions:
       serial_number:
         type: string
       system_uuid:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       state:
         type: string
       bios_version:
@@ -332,8 +328,7 @@ definitions:
           - vendor_name
         properties:
           id:
-            type: string
-            format: uuid
+            $ref: /definitions/uuid
           name:
             type: string
           vendor_name:
@@ -348,8 +343,7 @@ definitions:
           - unit
         properties:
           id:
-            type: string
-            format: uuid
+            $ref: /definitions/uuid
           name:
             type: string
           role:
@@ -369,8 +363,7 @@ definitions:
           - vendor
         properties:
           id:
-            type: string
-            format: uuid
+            $ref: /definitions/uuid
             description: Hardware product ID
           name:
             type: string
@@ -401,8 +394,7 @@ definitions:
       - specification
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       alias:
@@ -471,8 +463,7 @@ definitions:
               - type: string
               - type: 'null'
           id:
-            type: string
-            format: uuid
+            $ref: /definitions/uuid
           nics_num:
             type: integer
           psu_total:
@@ -538,8 +529,7 @@ definitions:
                   - vdev_t
                 properties:
                   id:
-                    type: string
-                    format: uuid
+                    $ref: /definitions/uuid
                   name:
                     anyOf:
                       - type: string
@@ -570,8 +560,7 @@ definitions:
           additionalProperties: false
           properties:
             id:
-              type: string
-              format: uuid
+              $ref: /definitions/uuid
             name:
               type: string
             role:
@@ -603,8 +592,7 @@ definitions:
       - slots
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       role:
@@ -632,8 +620,7 @@ definitions:
               type: string
               description: Hardware product alias
             id:
-              type: string
-              format: uuid
+              $ref: /definitions/uuid
               description: Hardware product ID
             name:
               type: string
@@ -665,8 +652,7 @@ definitions:
       - updated
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       version:
@@ -693,8 +679,7 @@ definitions:
       - created
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       description:
@@ -718,8 +703,7 @@ definitions:
       - validation_id
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       category:
         type: string
       component_id:
@@ -729,8 +713,7 @@ definitions:
       device_id:
         type: string
       hardware_product_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       hint:
         anyOf:
           - type: 'null'
@@ -746,8 +729,7 @@ definitions:
           - fail
           - pass
       validation_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   ValidationState:
     type: object
     additionalProperties: false
@@ -760,8 +742,7 @@ definitions:
       - validation_plan_id
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       completed:
         anyOf:
           - type: 'null'
@@ -779,8 +760,7 @@ definitions:
           - fail
           - pass
       validation_plan_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   ValidationStatesWithResults:
     type: array
     items:
@@ -798,8 +778,7 @@ definitions:
       - validation_plan_id
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       completed:
         anyOf:
           - type: 'null'
@@ -821,8 +800,7 @@ definitions:
           - fail
           - pass
       validation_plan_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   WorkspaceRelays:
     type: array
     items:
@@ -865,8 +843,7 @@ definitions:
         additionalProperties: false
         properties:
           rack_id:
-            type: string
-            format: uuid
+            $ref: /definitions/uuid
           rack_name:
             type: string
           role_name:
@@ -907,8 +884,7 @@ definitions:
         type: string
       report_id:
         anyOf:
-          - type: string
-            format: uuid
+          - $ref: /definitions/uuid
           - type: 'null'
   WorkspaceAndRole:
     type: object
@@ -921,8 +897,7 @@ definitions:
       - role
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       description:
@@ -931,8 +906,7 @@ definitions:
           - type: 'null'
       parent_id:
         anyOf:
-          - type: string
-            format: uuid
+          - $ref: /definitions/uuid
           - type: 'null'
       role:
         type: string
@@ -942,8 +916,7 @@ definitions:
           - admin
       role_via:
         description: the id of the workspace where the permissions came from
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   WorkspacesAndRoles:
     type: array
     items:
@@ -967,8 +940,7 @@ definitions:
           type: string
         role_via:
           description: this is the id of the workspace where the permissions came from
-          type: string
-          format: uuid
+          $ref: /definitions/uuid
   Rooms:
     type: array
     items:
@@ -983,8 +955,7 @@ definitions:
       - vendor_name
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       az:
         type: string
       alias:
@@ -1067,8 +1038,7 @@ definitions:
           type: string
           format: date-time
         id:
-          type: string
-          format: uuid
+          $ref: /definitions/uuid
         max_retries:
           type: number
         name:
@@ -1081,11 +1051,9 @@ definitions:
           type: string
           format: date-time
         validation_plan_id:
-          type: string
-          format: uuid
+          $ref: /definitions/uuid
         workflow_id:
-          type: string
-          format: uuid
+          $ref: /definitions/uuid
   Workflow:
     type: object
     additionalProperties: false
@@ -1099,8 +1067,7 @@ definitions:
       - preflight
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       created:
@@ -1118,8 +1085,7 @@ definitions:
           - type: 'null'
           - type: array
             items:
-                type: string
-                format: uuid
+              $ref: /definitions/uuid
   WorkflowStatus:
     type: object
     additionalProperties: false
@@ -1133,16 +1099,14 @@ definitions:
       device_id:
         type: string
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       status:
         type: string
       created:
         type: string
         format: date-time
       workflow_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   Workflows:
     type: array
     items:
@@ -1175,8 +1139,7 @@ definitions:
       force_retry:
         type: number
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       overridden:
         type: number
       retry_count:
@@ -1184,13 +1147,11 @@ definitions:
       state:
         type: string
       validation_state_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       validation_status:
         type: string
       workflow_step_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
   Racks:
     type: array
     items:
@@ -1209,16 +1170,13 @@ definitions:
       - updated
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       datacenter_room_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       role:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       serial_number:
         anyOf:
           - type: string
@@ -1244,8 +1202,7 @@ definitions:
       - updated
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       rack_size:
@@ -1276,14 +1233,11 @@ definitions:
       - updated
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       rack_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       product_id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       ru_start: # TODO: this really should be rack_unit_start
         type: integer
       created:
@@ -1308,15 +1262,13 @@ definitions:
       - updated
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       alias:
         type: string
       vendor:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       created:
         type: string
         format: date-time
@@ -1353,8 +1305,7 @@ definitions:
       - name
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       email:
         type: string
         format: email
@@ -1396,8 +1347,7 @@ definitions:
       - workspaces
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       email:
@@ -1435,8 +1385,7 @@ definitions:
       - updated
     properties:
       id:
-        type: string
-        format: uuid
+        $ref: /definitions/uuid
       name:
         type: string
       created:

@@ -5,7 +5,6 @@ use Mojo::Base 'Test::Mojo';
 
 use Test::More ();
 use Test::ConchTmpDB 'mk_tmp_db';
-use Conch::UUID 'is_uuid';
 use JSON::Validator;
 use Path::Tiny;
 use Test::Deep ();
@@ -57,10 +56,6 @@ has 'validator' => sub {
     my $validator = JSON::Validator->new;
     $validator->schema($spec_file);
 
-    # add UUID validation
-    my $valid_formats = $validator->formats;
-    $valid_formats->{uuid} = \&is_uuid;
-    $validator->formats($valid_formats);
     $validator;
 };
 
