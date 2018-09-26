@@ -19,30 +19,38 @@ with 'Conch::Role::MojoLog';
 
 =head2 list
 
-Get a list of users for the current workspace
-Returns a listref of hashrefs with keys: name, email, role.
-TODO: include id?
-TODO: restrict to workspace admins?
+Get a list of users for the current workspace.
+
+Response uses the WorkspaceUsers json schema.
 
 =cut
 
 sub list ($c) {
-	my $users = [
+	# TODO: restrict to workspace admins?
+
+	my $workspace_id = $c->stash('workspace_id');
+
+	# users who can access any ancestor of this workspace
+	my $users_rs = $c->db_workspaces
+		->and_workspaces_above($workspace_id)
+		->related_resultset('user_workspace_roles')
+		->related_resultset('user_account');
+
+	my $user_data = [
 		map {
-			my $uwr = $_;
+			my $user = $_;
+			my $role_via = $c->db_workspaces->role_via_for_user($workspace_id, $user->id);
 			+{
-				(map { $_ => $uwr->user_account->$_ } qw(name email)),
-				role => $uwr->role,
+				(map { $_ => $user->$_ } qw(name email)),
+				role => $role_via->role,
+				$role_via->workspace_id ne $workspace_id ? ( role_via => $role_via->workspace_id ) : (),
 			}
 		}
-		$c->db_user_workspace_roles
-			->search({ workspace_id => $c->stash('workspace_id') })
-			->prefetch('user_account')
-			->all
+		$users_rs->all
 	];
 
-	$c->log->debug("Found ".scalar($users->@*)." users");
-	$c->status( 200, $users );
+	$c->log->debug('Found '.scalar($user_data->@*).' users');
+	$c->status(200, $user_data);
 }
 
 =head2 invite
@@ -62,10 +70,36 @@ sub invite ($c) {
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
 	# don't have to look up by multiple columns.
-	my $rs = $c->db_user_accounts->prefetch('user_workspace_roles');
+	my $rs = $c->db_user_accounts;
 	my $user = $rs->lookup_by_email($input->{user}) || $rs->lookup_by_name($input->{user});
 
-	unless ($user) {
+	if ($user) {
+		# check if the user already has access to this workspace
+		if (my $existing_role_via = $c->db_workspaces
+			->role_via_for_user($c->stash('workspace_id'), $user->id)) {
+
+			if ($existing_role_via->role eq $input->{role}) {
+				$c->log->debug('user ' . $user->name
+					. " already has $input->{role} access to workspace " . $c->stash('workspace_id')
+					. ' via workspace ' . $existing_role_via->workspace_id
+					. ': invitation not necessary');
+				my $workspace = $c->stash('workspace_rs')
+					->with_role_via_data_for_user($user->id)
+					->single;
+				return $c->status(200, $workspace);
+			}
+
+			if ($existing_role_via->role_cmp($input->{role}) > 0) {
+				return $c->status(400, { error =>
+						'user ' . $user->name . ' already has ' . $existing_role_via->role
+					. ' access to workspace ' . $c->stash('workspace_id')
+					. ($existing_role_via->workspace_id ne $c->stash('workspace_id')
+						? (' via workspace ' . $existing_role_via->workspace_id) : '')
+					. ": cannot downgrade role to $input->{role}" });
+			}
+		}
+	}
+	else {
 		$c->log->debug("User '".$input->{user}."' was not found");
 
 		my $password = $c->random_string();
@@ -89,14 +123,13 @@ sub invite ($c) {
 		$c->log->warn("Email sent to ".$user->email." containing their PLAINTEXT password");
 	}
 
-	# FIXME! do not downgrade a user's existing access to this workspace.
 	my $workspace_id = $c->stash('workspace_id');
-	$user->create_related('user_workspace_roles' => {
+	$user->update_or_create_related('user_workspace_roles' => {
 		workspace_id => $workspace_id,
 		role => $input->{role},
-	}) if not any { $_->workspace_id eq $workspace_id } $user->user_workspace_roles;
+	});
 
-	$c->log->info("Add user ".$user->id." to workspace $workspace_id");
+	$c->log->info('Added user '.$user->id." to workspace $workspace_id");
 	$c->status(201);
 }
 

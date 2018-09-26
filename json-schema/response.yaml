@@ -907,11 +907,7 @@ definitions:
           - type: string
             format: uuid
           - type: null
-  Workspaces:
-    type: array
-    items:
-      $ref: "#/definitions/Workspace"
-  Workspace:
+  WorkspaceAndRole:
     type: object
     additionalProperties: false
     required:
@@ -941,6 +937,14 @@ definitions:
           - ro
           - rw
           - admin
+      role_via:
+        description: the id of the workspace where the permissions came from
+        type: string
+        format: uuid
+  WorkspacesAndRoles:
+    type: array
+    items:
+      $ref: /definitions/WorkspaceAndRole
   WorkspaceUsers:
     type: array
     items:
@@ -958,6 +962,10 @@ definitions:
           format: email
         role:
           type: string
+        role_via:
+          description: this is the id of the workspace where the permissions came from
+          type: string
+          format: uuid
   Rooms:
     type: array
     items:
@@ -1382,6 +1390,7 @@ definitions:
       - refuse_session_auth
       - force_password_change
       - is_admin
+      - workspaces
     properties:
       id:
         type: string
@@ -1408,24 +1417,7 @@ definitions:
       workspaces:
         type: array
         items:
-          type: object
-          additionalProperties: false
-          required:
-            - id
-            - name
-            - role
-          properties:
-            id:
-              type: string
-              format: uuid
-            name:
-              type: string
-            role:
-              type: string
-              enum:
-                - ro
-                - rw
-                - admin
+          $ref: /definitions/WorkspaceAndRole
   UsersDetailed:
     type: array
     items:

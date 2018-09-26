@@ -148,10 +148,8 @@ sub add ($c) {
 
 	my $rack_id = delete $input->{id};
 
-	my $uwr = $c->stash('user_workspace_role_rs')->single;
-
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
-		if $uwr->workspace->name eq 'GLOBAL';
+		if $c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL';
 
 	unless ( Conch::Model::WorkspaceRack->rack_in_parent_workspace(
 		$c->stash('workspace_id'),
@@ -200,10 +198,8 @@ Requires 'admin' permissions on the workspace.
 
 sub remove ($c) {
 
-	my $uwr = $c->stash('user_workspace_role_rs')->single;
-
 	return $c->status( 400, { error => "Cannot modify GLOBAL workspace" } )
-		if $uwr->workspace->name eq 'GLOBAL';
+		if $c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL';
 
 	my $remove_attempt = Conch::Model::WorkspaceRack->new->remove_from_workspace(
 		$c->stash('workspace_id'),

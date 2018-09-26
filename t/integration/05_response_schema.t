@@ -37,12 +37,14 @@ $t->post_ok(
 $t->get_ok("/user/me/settings")->status_is(200)
 	->json_schema_is( { type => 'object' } );
 
-$t->get_ok('/workspace')->status_is(200)->json_schema_is('Workspaces');
+$t->get_ok('/workspace')->status_is(200)->json_schema_is('WorkspacesAndRoles');
 
 my $global_ws_id = $t->tx->res->json->[0]{id};
 BAIL_OUT("No workspace ID") unless $global_ws_id;
 
-$t->get_ok("/workspace/$global_ws_id")->status_is(200)->json_schema_is('Workspace');
+$t->get_ok("/workspace/$global_ws_id")
+	->status_is(200)
+	->json_schema_is('WorkspaceAndRole');
 
 $t->get_ok("/workspace/$global_ws_id/user")->status_is(200)
 	->json_schema_is('WorkspaceUsers');
@@ -55,10 +57,11 @@ $t->post_ok(
 		name        => "test",
 		description => "also test",
 	}
-)->status_is(201)->json_schema_is('Workspace');
+)->status_is(201)->json_schema_is('WorkspaceAndRole');
 
-$t->get_ok("/workspace/$global_ws_id/child")->status_is(200)
-	->json_schema_is('Workspaces');
+$t->get_ok("/workspace/$global_ws_id/child")
+	->status_is(200)
+	->json_schema_is('WorkspacesAndRoles');
 
 $t->get_ok("/me")->status_is(204)->content_is("");
 

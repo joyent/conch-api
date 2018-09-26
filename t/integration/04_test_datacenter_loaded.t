@@ -486,7 +486,7 @@ subtest 'Permissions' => sub {
 
 		$t->get_ok("/workspace/$global_ws_id/user")
 			->status_is(200, 'get list of users for this workspace')
-			->json_is([
+			->json_cmp_deeply(bag(
 				{
 					name => 'conch',
 					email => 'conch@conch.joyent.us',
@@ -497,7 +497,7 @@ subtest 'Permissions' => sub {
 					email => $ro_email,
 					role => 'ro',
 				},
-			]);
+			));
 
 		subtest 'device settings' => sub {
 			$t->post_ok('/device/TEST/settings', json => { name => 'new value' })
@@ -559,7 +559,7 @@ subtest 'Permissions' => sub {
 
 		$t->get_ok("/workspace/$global_ws_id/user")
 			->status_is(200, 'get list of users for this workspace')
-			->json_is([
+			->json_cmp_deeply(bag(
 				{
 					name => 'conch',
 					email => 'conch@conch.joyent.us',
@@ -575,7 +575,7 @@ subtest 'Permissions' => sub {
 					email => $email,
 					role => 'rw',
 				},
-			]);
+			));
 
 		subtest 'device settings' => sub {
 			$t->post_ok('/device/TEST/settings', json => { newkey => 'new value' })

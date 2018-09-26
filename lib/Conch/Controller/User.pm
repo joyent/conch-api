@@ -279,6 +279,7 @@ sub reset_user_password ($c) {
 =head2 get
 
 Gets information about a user. System admin only.
+Response uses the UserDetailed json schema.
 
 =cut
 
@@ -302,6 +303,7 @@ sub get ($c) {
 =head2 list
 
 List all users and their workspaces. System admin only.
+Response uses the UsersDetailed json schema.
 
 =cut
 
@@ -394,7 +396,7 @@ sub deactivate ($c) {
 		$user->related_resultset('user_workspace_roles')->prefetch('workspace')->all);
 
 	$c->log->warn('user ' . $c->stash('user')->name . ' deactivating user ' . $user->name
-		. ($workspaces ? ", member of workspaces: $workspaces" : ''));
+		. ($workspaces ? ", direct member of workspaces: $workspaces" : ''));
 	$user->update({ password => $c->random_string, deactivated => \'NOW()' });
 
 	if ($c->req->query_params->param('clear_tokens') // 1) {
