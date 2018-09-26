@@ -82,8 +82,12 @@ sub _get_problems ($c) {
 		$failing_problems->{$device_id}{location} =
 			_device_rack_location( $schema, $device_id );
 
-		my $report = $device->latest_report;
-		$failing_problems->{$device_id}{report_id} = $report->id;
+		$failing_problems->{$device_id}{report_id} =
+			$device->related_resultset('device_reports')
+				->order_by({ -desc => 'created' })
+				->rows(1)
+				->get_column('id')
+				->single;
 	}
 
 	my $unreported_problems = {};
@@ -101,8 +105,12 @@ sub _get_problems ($c) {
 
 		$unlocated_problems->{$device_id}{health} = $device->health;
 
-		my $report = $device->latest_report;
-		$unlocated_problems->{$device_id}{report_id} = $report->id;
+		$unlocated_problems->{$device_id}{report_id} =
+			$device->related_resultset('device_reports')
+				->order_by({ -desc => 'created' })
+				->rows(1)
+				->get_column('id')
+				->single;
 	}
 
 	return {

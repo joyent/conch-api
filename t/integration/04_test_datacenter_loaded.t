@@ -134,7 +134,7 @@ subtest 'Device Report' => sub {
 
 	my $device = $t->app->db_devices->find($t->tx->res->json->{device_id});
 	cmp_deeply(
-		decode_json($device->latest_report->report),
+		$device->latest_report,
 		decode_json($report),
 		'json blob stored in the db matches report on disk',
 	);
@@ -170,7 +170,8 @@ subtest 'Single device' => sub {
 		->json_like( '/error', qr/not found/ );
 
 	$t->get_ok('/device/TEST')->status_is(200)
-		->json_schema_is('DetailedDevice');
+		->json_schema_is('DetailedDevice')
+		->json_is('/latest_report/product_name' => 'Joyent-S1');
 
 	my $device_id = $t->tx->res->json->{id};
 	my @macs = map { $_->{mac} } $t->tx->res->json->{nics}->@*;
