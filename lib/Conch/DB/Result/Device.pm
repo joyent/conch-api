@@ -409,14 +409,25 @@ sub TO_JSON {
     return $data;
 }
 
-# be careful! this is an expensive query, so think twice before adding it to a prefetch on a
-# query for many devices.
-__PACKAGE__->might_have(
-    'latest_report',
-    'Conch::DB::Result::DeviceReport',
-    { 'foreign.device_id' => 'self.id' },
-    { order_by => { -desc => 'created' }, rows => 1 },
-);
+use Mojo::JSON 'from_json';
+
+=head2 latest_report
+
+Returns the JSON-decoded content from the most recent device report.
+
+=cut
+
+sub latest_report {
+    my $self = shift;
+
+    my $json = $self->related_resultset('device_reports')
+        ->order_by({ -desc => 'created' })
+        ->rows(1)
+        ->get_column('report')
+        ->single;
+
+    defined $json ? from_json($json) : undef;
+}
 
 1;
 __END__

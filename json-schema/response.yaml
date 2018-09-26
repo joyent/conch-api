@@ -75,9 +75,8 @@ definitions:
           - type: null
       latest_report:
         anyOf:
-          - type: string
-            format: uuid
-          - type: null
+          - $ref: /definitions/DeviceReport
+          - type: 'null'
       latest_triton_reboot:
         anyOf:
           - type: string
@@ -292,7 +291,6 @@ definitions:
           - type: null
   DeviceReport:
     type: object
-    additionalProperties: false
     required:
       - product_name
       - serial_number

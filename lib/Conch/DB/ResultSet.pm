@@ -19,6 +19,8 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::OneRow',                # provides one_row
     'Helper::ResultSet::Shortcut::HRI',         # provides hri: raw unblessed + uninflated data
     'Helper::ResultSet::Shortcut::Prefetch',    # provides prefetch
+    'Helper::ResultSet::Shortcut::OrderBy',     # provides order_by
+    'Helper::ResultSet::Shortcut::Rows',        # provides rows
 );
 
 1;
