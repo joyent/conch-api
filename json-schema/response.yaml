@@ -294,6 +294,7 @@ definitions:
       - system_uuid
       - state
       - bios_version
+      - os
       - processor
       - memory
     properties:
@@ -307,6 +308,13 @@ definitions:
         type: string
       bios_version:
         type: string
+      os:
+        type: object
+        required:
+          - hostname
+        properties:
+          hostname:
+            type: string
       processor:
         type: object
       memory:
