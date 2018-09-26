@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<device_settings>
+=head1 TABLE: C<device_setting>
 
 =cut
 
-__PACKAGE__->table("device_settings");
+__PACKAGE__->table("device_setting");
 
 =head1 ACCESSORS
 
@@ -44,7 +44,7 @@ __PACKAGE__->table("device_settings");
 =head2 value
 
   data_type: 'text'
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 created
 
@@ -83,7 +83,7 @@ __PACKAGE__->add_columns(
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "value",
-  { data_type => "text", is_nullable => 0 },
+  { data_type => "text", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -134,8 +134,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oIqHRhi1AxLO+g4r7lJxRg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-26 10:01:16
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:LaRE1Irq/Z9Jat1H1QJByg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
