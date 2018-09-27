@@ -29,12 +29,14 @@ sub user_has_permission {
     Carp::croak('permission must be one of: ro, rw, admin')
         if none { $permission eq $_ } qw(ro rw admin);
 
-    my $device_workspaces_rs = $self->related_resultset('device_location')
+    my $device_workspaces_ids_rs = $self->related_resultset('device_location')
         ->related_resultset('datacenter_rack')
-        ->associated_workspaces;
+        ->associated_workspaces
+        ->distinct
+        ->get_column('id');
 
     $self->result_source->schema->resultset('Workspace')
-        ->and_workspaces_above($device_workspaces_rs->get_column('id')->as_query)
+        ->and_workspaces_above($device_workspaces_ids_rs->as_query)
         ->related_resultset('user_workspace_roles')
         ->user_has_permission($user_id, $permission);
 }

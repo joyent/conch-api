@@ -74,6 +74,7 @@ sub list ($c) {
 
 	my $direct_workspace_ids_rs = $c->stash('user')
 		->related_resultset('user_workspace_roles')
+		->distinct
 		->get_column('workspace_id');
 
 	my $workspaces_rs = $c->db_workspaces

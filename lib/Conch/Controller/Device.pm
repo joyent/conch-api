@@ -30,13 +30,15 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
-	my $user_workspace_roles = $c->db_user_workspace_roles
-		->search({ user_id => $c->stash('user_id') });
+	my $direct_workspace_ids_rs = $c->stash('user')
+		->related_resultset('user_workspace_roles')
+		->distinct
+		->get_column('workspace_id');
 
 	# first, look for the device in all the user's workspaces
 	$c->log->debug("looking for device $device_id in user's workspaces");
 	my $user_workspace_device_rs = $c->db_workspaces
-		->and_workspaces_beneath($user_workspace_roles->get_column('workspace_id')->as_query)
+		->and_workspaces_beneath($direct_workspace_ids_rs->as_query)
 		->associated_racks
 		->related_resultset('device_locations')
 		->related_resultset('device')

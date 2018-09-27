@@ -25,6 +25,9 @@ A parent workspace is "above" a given workspace; its children are "beneath".
 
 Chainable resultset that finds all sub-workspaces beneath the provided workspace id.
 
+The resultset does *not* include the original workspace itself -- see
+L</and_workspaces_beneath> for that.
+
 =cut
 
 sub workspaces_beneath {
@@ -53,8 +56,9 @@ SELECT workspace_children.id FROM workspace_children
 
 As L<workspaces_beneath>, but also includes the original workspace.
 
-C<$workspace_id> can be a single workspace_id, an arrayref of multiple ids, or a subquery (via
-C<< $resultset->as_query >>, which must return a single column of workspace_id(s)).
+C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
+or a subquery (via C<< $resultset->as_query >>, which must return a single column of distinct
+workspace_id(s)).
 
 =cut
 
@@ -86,6 +90,7 @@ SELECT DISTINCT workspace_and_children.id FROM workspace_and_children
 
 Chainable resultset that finds all workspaces above the provided workspace id (that is, all
 parent workspaces, up to the root).
+
 The resultset does *not* include the original workspace itself -- see
 L</and_workspaces_above> for that.
 
@@ -116,13 +121,11 @@ SELECT workspace_parents.id FROM workspace_parents
 
 =head2 and_workspaces_above
 
-Chainable resultset that finds all workspaces above the provided workspace id (that is, all
-parent workspaces, up to the root).
+As L<workspaces_above>, but also includes the original workspace.
 
-The resultset includes the original workspace itself.
-
-C<$workspace_id> can be a single workspace_id, an arrayref of multiple ids, or a subquery (via
-C<< $resultset->as_query >>, which must return a single column of workspace_id(s)).
+C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
+or a subquery (via C<< $resultset->as_query >>, which must return a single column of distinct
+workspace_id(s)).
 
 =cut
 
@@ -236,8 +239,9 @@ Generate values for inserting into a recursive query.
 The first value is a string to be added after C<< WHERE <column> >>; the remainder are bind
 values to be used in C<< \[ $query_string, @binds ] >>.
 
-C<$workspace_id> can be a single workspace_id, an arrayref of multiple ids, or a subquery (via
-C<< $resultset->as_query >>, which must return a single column of workspace_id(s)).
+C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
+or a subquery (via C<< $resultset->as_query >>, which must return a single column of distinct
+workspace_id(s)).
 
 =cut
 
