@@ -136,20 +136,19 @@ sub welcome_new_user {
 
 	my $template = qq{Hello,
 
-    You have been invited to join Joyent Conch. An account has been created for
-    you. Please log into https://conch.joyent.us using the credentials
-    below:
+An account has been created for you in Joyent Conch.
+Please log into https://conch.joyent.us using the credentials below:
 
     Username: $name
     Email:    $email
     Password: $password
 
-    Thank you,
-    Joyent Build Ops Team
-    };
+Thank you,
+Joyent Build Ops Team
+};
 
 	$self->send_mail_with_template($template, $headers)
-		&& $self->log->info("New user invite successfully sent to $email.");
+		&& $self->log->info("New user email successfully sent to $email.");
 }
 
 1;

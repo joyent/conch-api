@@ -241,7 +241,7 @@ subtest 'Workspaces' => sub {
 	is($t->app->db_user_workspace_roles->count, 1,
 		'currently one user_workspace_role entry');
 
-	$t->post_ok('/user?send_invite_mail=0',
+	$t->post_ok('/user?send_mail=0',
 		json => { email => 'test_workspace@conch.joyent.us', name => 'test_workspace', password => '123' })
 		->status_is(201, 'created new user test_workspace')
 		->json_schema_is('User');
@@ -789,13 +789,13 @@ subtest 'JWT authentication' => sub {
 subtest 'modify another user' => sub {
 
 	$t->post_ok(
-		'/user?send_invite_mail=0',
+		'/user?send_mail=0',
 		json => { name => 'me', email => 'foo@conch.joyent.us' })
 		->status_is(400, 'user name "me" is prohibited')
 		->json_is({ error => 'user name "me" is prohibited' });
 
 	$t->post_ok(
-		'/user?send_invite_mail=0',
+		'/user?send_mail=0',
 		json => { name => 'conch', email => 'foo@conch.joyent.us' })
 		->status_is(409, 'cannot create user with a duplicate name')
 		->json_schema_is('UserError')
@@ -811,7 +811,7 @@ subtest 'modify another user' => sub {
 			});
 
 	$t->post_ok(
-		'/user?send_invite_mail=0',
+		'/user?send_mail=0',
 		json => { name => 'foo', email => 'conch@conch.joyent.us' })
 		->status_is(409, 'cannot create user with a duplicate email address')
 		->json_schema_is('UserError')
@@ -827,7 +827,7 @@ subtest 'modify another user' => sub {
 			});
 
 	$t->post_ok(
-		'/user?send_invite_mail=0',
+		'/user?send_mail=0',
 		json => { name => 'conch', email => 'CONCH@conch.JOYENT.us' })
 		->status_is(409, 'emails are not case sensitive when checking for duplicate users')
 		->json_schema_is('UserError')
@@ -843,7 +843,7 @@ subtest 'modify another user' => sub {
 			});
 
 	$t->post_ok(
-		'/user?send_invite_mail=0',
+		'/user?send_mail=0',
 		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
 		->status_is(201, 'created new user foo')
 		->json_schema_is('User')
@@ -871,7 +871,7 @@ subtest 'modify another user' => sub {
 		}, 'returned all the right fields (and not the password)');
 
 	$t->post_ok(
-		'/user?send_invite_mail=0',
+		'/user?send_mail=0',
 		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
 		->status_is(409, 'cannot create the same user again')
 		->json_schema_is('UserError')
@@ -1064,7 +1064,7 @@ subtest 'modify another user' => sub {
 	ok($new_user->deactivated, 'user still exists, but is marked deactivated');
 
 	$t->post_ok(
-		'/user?send_invite_mail=0',
+		'/user?send_mail=0',
 		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
 		->status_is(201, 'created user "again"');
 	my $second_new_user_id = $t->tx->res->json->{id};

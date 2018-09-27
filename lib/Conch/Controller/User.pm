@@ -322,7 +322,7 @@ Creates a user. System admin only.
 
 Optionally takes a query parameters:
 
-* 'send_invite_mail' (defaulting to true), to send an email to the user with the new password
+* 'send_mail' (defaulting to true), to send an email to the user with the new password
 * 'is_admin' (defaulting to false), to set the is_admin flag.
 
 =cut
@@ -358,7 +358,7 @@ sub create ($c) {
 	});
 	$c->log->info('created user: ' . $user->name . ', email: ' . $user->email . ', id: ' . $user->id);
 
-	if ($c->req->query_params->param('send_invite_mail') // 1) {
+	if ($c->req->query_params->param('send_mail') // 1) {
 		$c->log->info('sending "welcome new user" mail to user ' . $user->name);
 		$c->send_mail(welcome_new_user => {
 			(map { $_ => $user->$_ } qw(name email)),
