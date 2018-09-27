@@ -489,11 +489,13 @@ subtest 'Permissions' => sub {
 			->status_is(200, 'get list of users for this workspace')
 			->json_cmp_deeply(bag(
 				{
+					id => ignore,
 					name => 'conch',
 					email => 'conch@conch.joyent.us',
 					role => 'admin',
 				},
 				{
+					id => $ro_user->id,
 					name => $ro_name,
 					email => $ro_email,
 					role => 'ro',
@@ -562,16 +564,19 @@ subtest 'Permissions' => sub {
 			->status_is(200, 'get list of users for this workspace')
 			->json_cmp_deeply(bag(
 				{
+					id => ignore,
 					name => 'conch',
 					email => 'conch@conch.joyent.us',
 					role => 'admin',
 				},
 				{
+					id => ignore,
 					name => $ro_name,
 					email => $ro_email,
 					role => 'ro',
 				},
 				{
+					id => $user->id,
 					name => $name,
 					email => $email,
 					role => 'rw',
