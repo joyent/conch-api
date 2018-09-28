@@ -10,10 +10,6 @@ Conch::Class::DeviceLocation
 
 package Conch::Class::DeviceLocation;
 use Mojo::Base -base, -signatures;
-use Role::Tiny 'with';
-
-with 'Conch::Class::Role::ToJson';
-
 
 
 =head2 rack_unit
@@ -34,34 +30,6 @@ has [
 		target_hardware_product
 		)
 ];
-
-
-=head2 TO_JSON
-
-=cut
-
-sub TO_JSON {
-	my $self = shift;
-	return {
-		datacenter => {
-			id          => $self->datacenter_room->id,
-			name        => $self->datacenter_room->az,
-			vendor_name => $self->datacenter_room->vendor_name,
-		},
-		rack => {
-			id   => $self->datacenter_rack->id,
-			unit => $self->rack_unit,
-			name => $self->datacenter_rack->name,
-			role => $self->datacenter_rack->role_name,
-		},
-		target_hardware_product => {
-			id     => $self->target_hardware_product->id,
-			name   => $self->target_hardware_product->name,
-			alias  => $self->target_hardware_product->alias,
-			vendor => $self->target_hardware_product->vendor,
-		},
-	};
-}
 
 1;
 __END__

@@ -67,6 +67,44 @@ sub assign_device_location {
     });
 }
 
+=head2 get_detailed
+
+Returns a resultset that will produce hashref(s) of related location and rack data, matching
+the DeviceLocation json schema (one hashref per matching device_location).
+
+=cut
+
+sub get_detailed {
+    my $self = shift;
+
+    my $me = $self->current_source_alias;
+    $self->search(
+        {
+            'datacenter_rack_layouts.rack_unit_start' => { '=' => \"$me.rack_unit_start" },
+        },
+        {
+            columns => {
+                ( map {; "datacenter.$_" => "datacenter_room.$_" } qw(id vendor_name) ),
+                'datacenter.name' => 'datacenter_room.az',
+
+                ( map {; "rack.$_" => "datacenter_rack.$_" } qw(id name) ),
+                'rack.unit' => 'device_location.rack_unit_start',
+                'rack.role' => 'datacenter_rack_role.name',
+
+                ( map {; "target_hardware_product.$_" => "hardware_product.$_" } qw(id name alias) ),
+                'target_hardware_product.vendor'  => 'hardware_product.hardware_vendor_id',
+            },
+            join => {
+                'datacenter_rack' => [
+                    'datacenter_rack_role',
+                    'datacenter_room',
+                    { 'datacenter_rack_layouts' => { 'hardware_product' => 'hardware_vendor' } },
+                ],
+            },
+        }
+    )->hri;
+}
+
 1;
 __END__
 

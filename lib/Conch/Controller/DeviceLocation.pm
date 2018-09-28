@@ -24,13 +24,16 @@ Response uses the DeviceLocation json schema.
 =cut
 
 sub get ($c) {
-	my $device_id      = $c->stash('device_id');
-	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device_id);
-	return $c->status( 409,
-		{ error => "Device $device_id is not assigned to a rack" } )
-		unless $maybe_location;
+    my $location = $c->stash('device_rs')
+        ->related_resultset('device_location')
+        ->get_detailed
+        ->single;
 
-	$c->status( 200, $maybe_location );
+    return $c->status(409, { error =>
+        'Device '.$c->stash('device_id').' is not assigned to a rack'
+    }) unless $location;
+
+    $c->status(200, $location);
 }
 
 =head2 set
@@ -88,3 +91,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :
