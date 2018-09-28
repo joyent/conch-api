@@ -45,7 +45,7 @@ sub _print_workspace_and_children ($ws, $depth = 0) {
 
     my $children_rs = $ws->workspaces;
     while (my $child = $children_rs->next) {
-        print_workspace_and_children($child, $depth + 1);
+        _print_workspace_and_children($child, $depth + 1);
     }
 }
 
