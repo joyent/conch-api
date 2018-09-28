@@ -61,7 +61,7 @@ sub run {
 
     if ($opt->send_email) {
         say 'sending email to ', $opt->email, '...';
-        $self->app->send_mail(new_user_invite => { map { $_ => $opt->$_ } qw(name email password) });
+        $self->app->send_mail(welcome_new_user => { map { $_ => $opt->$_ } qw(name email password) });
     }
 }
 

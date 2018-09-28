@@ -12,10 +12,9 @@ Conch::Plugin::Mail - Sets up a helper to send emails
 
 Provides the helper sub 'send_mail' to the app and controllers:
 
-	$c->send_mail('new_user_invite', {
+	$c->send_mail('workspace_add_user', {
 		name => 'bob',
 		email => 'bob@conch.joyent.us',
-		password => 'whargarbl',
 	});
 
 =cut

@@ -336,7 +336,7 @@ definitions:
         anyOf:
           - type: 'null'
           - type: string
-  WorkspaceInvite:
+  WorkspaceAddUser:
     type: object
     additionalProperties: false
     required:

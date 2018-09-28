@@ -54,19 +54,19 @@ sub list ($c) {
 	$c->status(200, $user_data);
 }
 
-=head2 invite
+=head2 add_user
 
-Invite a user to the current workspace (as specified by :workspace_id in the path)
+Adds a user to the current workspace (as specified by :workspace_id in the path)
 
-Optionally takes a query parameter 'send_invite_mail' (defaulting to true), to send an email
+Optionally takes a query parameter 'send_mail' (defaulting to true), to send an email
 to the user.
 
 =cut
 
-sub invite ($c) {
+sub add_user ($c) {
 	return $c->status(403) unless $c->is_workspace_admin;
 
-	my $input = $c->validate_input('WorkspaceInvite');
+	my $input = $c->validate_input('WorkspaceAddUser');
 	return if not $input;
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
@@ -74,54 +74,41 @@ sub invite ($c) {
 	my $rs = $c->db_user_accounts;
 	my $user = $rs->lookup_by_email($input->{user}) || $rs->lookup_by_name($input->{user});
 
-	if ($user) {
-		# check if the user already has access to this workspace
-		if (my $existing_role_via = $c->db_workspaces
-			->role_via_for_user($c->stash('workspace_id'), $user->id)) {
+	return $c->status(404, { error => "user $input->{user} not found" })
+		unless $user;
 
-			if ($existing_role_via->role eq $input->{role}) {
-				$c->log->debug('user ' . $user->name
-					. " already has $input->{role} access to workspace " . $c->stash('workspace_id')
-					. ' via workspace ' . $existing_role_via->workspace_id
-					. ': invitation not necessary');
-				my $workspace = $c->stash('workspace_rs')
-					->with_role_via_data_for_user($user->id)
-					->single;
-				return $c->status(200, $workspace);
-			}
+	# check if the user already has access to this workspace
+	if (my $existing_role_via = $c->db_workspaces
+		->role_via_for_user($c->stash('workspace_id'), $user->id)) {
 
-			if ($existing_role_via->role_cmp($input->{role}) > 0) {
-				return $c->status(400, { error =>
-						'user ' . $user->name . ' already has ' . $existing_role_via->role
-					. ' access to workspace ' . $c->stash('workspace_id')
-					. ($existing_role_via->workspace_id ne $c->stash('workspace_id')
-						? (' via workspace ' . $existing_role_via->workspace_id) : '')
-					. ": cannot downgrade role to $input->{role}" });
-			}
+		if ($existing_role_via->role eq $input->{role}) {
+			$c->log->debug('user ' . $user->name
+				. " already has $input->{role} access to workspace " . $c->stash('workspace_id')
+				. ' via workspace ' . $existing_role_via->workspace_id
+				. ': nothing to do');
+			my $workspace = $c->stash('workspace_rs')
+				->with_role_via_data_for_user($user->id)
+				->single;
+			return $c->status(200, $workspace);
+		}
+
+		if ($existing_role_via->role_cmp($input->{role}) > 0) {
+			return $c->status(400, { error =>
+					'user ' . $user->name . ' already has ' . $existing_role_via->role
+				. ' access to workspace ' . $c->stash('workspace_id')
+				. ($existing_role_via->workspace_id ne $c->stash('workspace_id')
+					? (' via workspace ' . $existing_role_via->workspace_id) : '')
+				. ": cannot downgrade role to $input->{role}" });
 		}
 	}
-	else {
-		$c->log->debug("User '".$input->{user}."' was not found");
 
-		my $password = $c->random_string();
-		$user = $c->db_user_accounts->create({
-			email    => $input->{user},
-			name     => $input->{user}, # FIXME: we should always have a name.
-			password => $password,     # will be hashed in constructor
+	if ($c->req->query_params->param('send_mail') // 1) {
+		$c->log->info('sending welcome mail to user ' . $user->name);
+		$c->send_mail(workspace_add_user => {
+			name	=> $user->name,
+			email	=> $user->email,
+			workspace => $c->stash('workspace_rs')->get_column('name')->single,
 		});
-
-		$c->log->info("User '".$input->{user}."' was created with ID ".$user->id);
-		if ($c->req->query_params->param('send_invite_mail') // 1) {
-			$c->log->info('sending new user invite mail to user ' . $user->name);
-			$c->send_mail(new_user_invite => {
-				name	=> $user->name,
-				email	=> $user->email,
-				password => $password,
-			});
-		}
-
-		# TODO update this complain when we stop sending plaintext passwords
-		$c->log->warn("Email sent to ".$user->email." containing their PLAINTEXT password");
 	}
 
 	my $workspace_id = $c->stash('workspace_id');
