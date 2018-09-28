@@ -164,9 +164,19 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 workspaces
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VnQpwZpWW/1+atS/OY+twA
+Type: many_to_many
+
+Composing rels: L</workspace_datacenter_rooms> -> workspace
+
+=cut
+
+__PACKAGE__->many_to_many("workspaces", "workspace_datacenter_rooms", "workspace");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rGtYTqa7p0o1Ag2PPqRQ3Q
 
 sub TO_JSON {
     my $self = shift;

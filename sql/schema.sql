@@ -1108,11 +1108,19 @@ ALTER TABLE ONLY public.user_settings
 
 
 --
--- Name: user_workspace_role user_workspace_role_user_id_workspace_id_key; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: user_workspace_role user_workspace_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.user_workspace_role
-    ADD CONSTRAINT user_workspace_role_user_id_workspace_id_key UNIQUE (user_id, workspace_id);
+    ADD CONSTRAINT user_workspace_role_pkey PRIMARY KEY (user_id, workspace_id);
+
+
+--
+-- Name: user_workspace_role user_workspace_role_user_id_workspace_id_role_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.user_workspace_role
+    ADD CONSTRAINT user_workspace_role_user_id_workspace_id_role_key UNIQUE (user_id, workspace_id, role);
 
 
 --
@@ -1172,19 +1180,19 @@ ALTER TABLE ONLY public.validation_state
 
 
 --
--- Name: workspace_datacenter_rack workspace_datacenter_rack_workspace_id_datacenter_rack_id_key; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: workspace_datacenter_rack workspace_datacenter_rack_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.workspace_datacenter_rack
-    ADD CONSTRAINT workspace_datacenter_rack_workspace_id_datacenter_rack_id_key UNIQUE (workspace_id, datacenter_rack_id);
+    ADD CONSTRAINT workspace_datacenter_rack_pkey PRIMARY KEY (workspace_id, datacenter_rack_id);
 
 
 --
--- Name: workspace_datacenter_room workspace_datacenter_room_workspace_id_datacenter_room_id_key; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: workspace_datacenter_room workspace_datacenter_room_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.workspace_datacenter_room
-    ADD CONSTRAINT workspace_datacenter_room_workspace_id_datacenter_room_id_key UNIQUE (workspace_id, datacenter_room_id);
+    ADD CONSTRAINT workspace_datacenter_room_pkey PRIMARY KEY (workspace_id, datacenter_room_id);
 
 
 --
@@ -1275,6 +1283,13 @@ CREATE INDEX user_workspace_role_user_id_idx ON public.user_workspace_role USING
 
 
 --
+-- Name: user_workspace_role_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX user_workspace_role_workspace_id_idx ON public.user_workspace_role USING btree (workspace_id);
+
+
+--
 -- Name: validation_module_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1293,6 +1308,27 @@ CREATE UNIQUE INDEX validation_plan_name_idx ON public.validation_plan USING btr
 --
 
 CREATE INDEX validation_state_member_validation_state_id_idx ON public.validation_state_member USING btree (validation_state_id);
+
+
+--
+-- Name: workspace_datacenter_rack_datacenter_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX workspace_datacenter_rack_datacenter_rack_id_idx ON public.workspace_datacenter_rack USING btree (datacenter_rack_id);
+
+
+--
+-- Name: workspace_datacenter_rack_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX workspace_datacenter_rack_workspace_id_idx ON public.workspace_datacenter_rack USING btree (workspace_id);
+
+
+--
+-- Name: workspace_datacenter_room_datacenter_room_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX workspace_datacenter_room_datacenter_room_id_idx ON public.workspace_datacenter_room USING btree (datacenter_room_id);
 
 
 --
