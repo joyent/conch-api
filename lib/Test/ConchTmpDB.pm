@@ -41,7 +41,7 @@ sub mk_tmp_db {
 		$dbh->do('CREATE EXTENSION IF NOT EXISTS "pgcrypto";') or die;
 
 		$dbh->do($_->slurp_utf8) or BAIL_OUT("Test SQL load failed in $_")
-			foreach sort (path('sql/migrations')->children(qr/\.sql/));
+			foreach sort (path('sql/migrations')->children(qr/\.sql$/));
 	});
 
 	# Add a user so we can log in. User: conch; Password: conch;
@@ -88,7 +88,7 @@ sub make_full_db {
 	$schema->storage->dbh_do(sub {
 		my ($storage, $dbh, @args) = @_;
 		$dbh->do($_->slurp_utf8) or die "Failed to load sql file: $_"
-			foreach sort (path($path)->children(qr/\.sql/));
+			foreach sort (path($path)->children(qr/\.sql$/));
 	});
 
 	# TODO: return a DBIx::Class::Schema instead.
