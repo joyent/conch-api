@@ -3,6 +3,12 @@ definitions:
   uuid:
     type: string
     pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
+  device_id:
+    type: string
+    pattern: ^\S+$
+  device_asset_tag:
+    type: string
+    pattern: ^\S+$
   Error:
     type: object
     additionalProperties: false
@@ -45,7 +51,7 @@ definitions:
     properties:
       asset_tag:
         anyOf:
-          - type: string
+          - $ref: /definitions/device_asset_tag
           - type: 'null'
         description: this field is deprecated and will no longer be present.
       boot_phase:
@@ -64,7 +70,7 @@ definitions:
           - type: string
           - type: 'null'
       id:
-        type: string
+        $ref: /definitions/device_id
       graduated:
         anyOf:
           - type: string
@@ -173,7 +179,7 @@ definitions:
     properties:
       asset_tag:
         anyOf:
-          - type: string
+          - $ref: /definitions/device_asset_tag
           - type: 'null'
         deprecated: this field is deprecated and will no longer be present.
       boot_phase:
@@ -192,7 +198,7 @@ definitions:
           - type: string
           - type: 'null'
       id:
-        type: string
+        $ref: /definitions/device_id
       graduated:
         anyOf:
           - type: string
@@ -256,7 +262,7 @@ definitions:
       - mtu
     properties:
       device_id:
-        type: string
+        $ref: /definitions/device_id
       mac:
         type: string
       iface_name:
@@ -301,7 +307,7 @@ definitions:
       product_name:
         type: string
       serial_number:
-        type: string
+        $ref: /definitions/device_id
       system_uuid:
         $ref: /definitions/uuid
       state:
@@ -719,7 +725,7 @@ definitions:
           - type: 'null'
           - type: string
       device_id:
-        type: string
+        $ref: /definitions/device_id
       hardware_product_id:
         $ref: /definitions/uuid
       hint:
@@ -760,7 +766,7 @@ definitions:
         type: string
         format: date-time
       device_id:
-        type: string
+        $ref: /definitions/device_id
       status:
         type: string
         enum:
@@ -796,7 +802,7 @@ definitions:
         type: string
         format: date-time
       device_id:
-        type: string
+        $ref: /definitions/device_id
       results:
         type: array
         items:
@@ -1143,7 +1149,7 @@ definitions:
       - workflow_id
     properties:
       device_id:
-        type: string
+        $ref: /definitions/device_id
       id:
         $ref: /definitions/uuid
       status:
@@ -1181,7 +1187,7 @@ definitions:
         type: string
         format: date-time
       device_id:
-        type: string
+        $ref: /definitions/device_id
       force_retry:
         type: number
       id:
@@ -1229,7 +1235,7 @@ definitions:
           - type: 'null'
       asset_tag:
         anyOf:
-          - type: string
+          - $ref: /definitions/device_asset_tag
           - type: 'null'
       created:
         type: string

@@ -230,17 +230,12 @@ valid UUID
 
 sub set_triton_uuid ($c) {
 	my $device = $c->stash('device_rs')->single;
-	my $triton_uuid = $c->req->json && $c->req->json->{triton_uuid};
 
-	unless(defined($triton_uuid) && is_uuid($triton_uuid)) {
-		$c->log->warn("Input failed validation"); # FIXME use the validator
-		return $c->status(400 => {
-			error => "'triton_uuid' attribute must be present in JSON object and a UUID"
-		});
-	}
+	my $input = $c->validate_input('DeviceTritonUuid');
+	return if not $input;
 
-	$device->update({ triton_uuid => $triton_uuid, updated => \'NOW()' });
-	$c->log->debug("Set the triton uuid for device ".$device->id." to $triton_uuid");
+	$device->update({ triton_uuid => $input->{triton_uuid}, updated => \'NOW()' });
+	$c->log->debug("Set the triton uuid for device ".$device->id." to $input->{triton_uuid}");
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );
@@ -289,18 +284,13 @@ Sets the C<asset_tag> field on a device
 =cut
 
 sub set_asset_tag ($c) {
+	my $input = $c->validate_input('DeviceAssetTag');
+	return if not $input;
+
 	my $device = $c->stash('device_rs')->single;
-	my $asset_tag = $c->req->json && $c->req->json->{asset_tag};
 
-	unless(defined($asset_tag) && ref($asset_tag) eq '') {
-		$c->log->warn("Input failed validation"); #FIXME use the validator
-		return $c->status(400 => {
-			error => "'asset_tag' attribute must be present and in JSON object a string value"
-		});
-	}
-
-	$device->update({ asset_tag => $asset_tag, updated => \'NOW()' });
-	$c->log->debug("Set the asset tag for device ".$device->id." to $asset_tag");
+	$device->update({ asset_tag => $input->{asset_tag}, updated => \'NOW()' });
+	$c->log->debug("Set the asset tag for device ".$device->id." to $input->{asset_tag}");
 
 	$c->status(303);
 	$c->redirect_to( $c->url_for( '/device/' . $device->id )->to_abs );

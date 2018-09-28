@@ -208,27 +208,35 @@ subtest 'Single device' => sub {
 		$t->post_ok('/device/TEST/triton_uuid')
 			->status_is( 400, 'Request body required' );
 
-		$t->post_ok( '/device/TEST/triton_uuid',
-			json => { triton_uuid => 'not a UUID' } )->status_is(400)
-			->json_like( '/error', qr/a UUID/ );
+		$t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => 'not a UUID' })
+			->status_is(400)
+			->json_like('/error', qr/String does not match/);
 
-		$t->post_ok( '/device/TEST/triton_uuid',
-			json => { triton_uuid => $uuid->create_str() } )->status_is(303)
+		$t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => $uuid->create_str() })
+			->status_is(303)
 			->header_like( Location => qr!/device/TEST$! );
 
-		$t->post_ok('/device/TEST/triton_setup')->status_is(303)
+		$t->post_ok('/device/TEST/triton_setup')
+			->status_is(303)
 			->header_like( Location => qr!/device/TEST$! );
 
 		$t->post_ok('/device/TEST/asset_tag')
 			->status_is( 400, 'Request body required' );
 
-		$t->post_ok( '/device/TEST/asset_tag',
-			json => { asset_tag => 'asset tag' } )->status_is(303)
+		$t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset tag' })
+			->status_is(400)
+			->json_like('/error', qr/String does not match/);
+
+		$t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
+			->status_is(303)
 			->header_like( Location => qr!/device/TEST$! );
 
-		$t->post_ok('/device/TEST/validated')->status_is(303)
+		$t->post_ok('/device/TEST/validated')
+			->status_is(303)
 			->header_like( Location => qr!/device/TEST$! );
-		$t->post_ok('/device/TEST/validated')->status_is(204)
+
+		$t->post_ok('/device/TEST/validated')
+			->status_is(204)
 			->content_is('');
 	};
 
