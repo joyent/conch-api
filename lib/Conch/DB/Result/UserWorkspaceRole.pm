@@ -68,9 +68,7 @@ __PACKAGE__->add_columns(
   },
 );
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<user_workspace_role_user_id_workspace_id_key>
+=head1 PRIMARY KEY
 
 =over 4
 
@@ -82,9 +80,27 @@ __PACKAGE__->add_columns(
 
 =cut
 
+__PACKAGE__->set_primary_key("user_id", "workspace_id");
+
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<user_workspace_role_user_id_workspace_id_role_key>
+
+=over 4
+
+=item * L</user_id>
+
+=item * L</workspace_id>
+
+=item * L</role>
+
+=back
+
+=cut
+
 __PACKAGE__->add_unique_constraint(
-  "user_workspace_role_user_id_workspace_id_key",
-  ["user_id", "workspace_id"],
+  "user_workspace_role_user_id_workspace_id_role_key",
+  ["user_id", "workspace_id", "role"],
 );
 
 =head1 RELATIONS
@@ -120,8 +136,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:p9qNxtAg/+xQTSSB9KCHTA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hs71O1DNkAntlZaQf80Fng
 
 =head2 role_cmp
 

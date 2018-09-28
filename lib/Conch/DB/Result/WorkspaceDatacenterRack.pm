@@ -51,9 +51,7 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<workspace_datacenter_rack_workspace_id_datacenter_rack_id_key>
+=head1 PRIMARY KEY
 
 =over 4
 
@@ -65,10 +63,7 @@ __PACKAGE__->add_columns(
 
 =cut
 
-__PACKAGE__->add_unique_constraint(
-  "workspace_datacenter_rack_workspace_id_datacenter_rack_id_key",
-  ["workspace_id", "datacenter_rack_id"],
-);
+__PACKAGE__->set_primary_key("workspace_id", "datacenter_rack_id");
 
 =head1 RELATIONS
 
@@ -103,8 +98,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H3iBzFcjRcpUxquRQlFxaw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JUR0mEIM5z2wlNy0t+J4HQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
