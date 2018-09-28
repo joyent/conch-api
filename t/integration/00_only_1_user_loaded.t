@@ -229,8 +229,9 @@ subtest 'Workspaces' => sub {
 	$t->get_ok("/workspace/$global_ws_id/user")
 		->status_is(200)
 		->json_schema_is('WorkspaceUsers')
-		->json_is('', [
+		->json_cmp_deeply('', [
 			{
+				id    => ignore,
 				name  => "conch",
 				email => 'conch@conch.joyent.us',
 				role  => 'admin',
@@ -296,16 +297,21 @@ subtest 'Workspaces' => sub {
 		->json_is('/1/email', 'test_workspace@conch.joyent.us')
 		->json_is('/1/workspaces' => [ $workspace_data{test_workspace}[0] ]);
 
+	my $main_user_id = $t->tx->res->json->[0]{id};
+	my $test_user_id = $t->tx->res->json->[1]{id};
+
 	$t->get_ok("/workspace/$global_ws_id/user")
 		->status_is(200)
 		->json_schema_is('WorkspaceUsers')
 		->json_cmp_deeply('', bag(
 			{
+				id    => $main_user_id,
 				name  => 'conch',
 				email => 'conch@conch.joyent.us',
 				role  => 'admin',
 			},
 			{
+				id    => $test_user_id,
 				name  => 'test_workspace@conch.joyent.us',
 				email => 'test_workspace@conch.joyent.us',
 				role  => 'rw',
@@ -444,17 +450,22 @@ subtest 'Sub-Workspace' => sub {
 		->json_is('/1/email', 'test_workspace@conch.joyent.us')
 		->json_is('/1/workspaces' => $workspace_data{test_workspace});
 
+	my $main_user_id = $t->tx->res->json->[0]{id};
+	my $test_user_id = $t->tx->res->json->[1]{id};
+
 	$t->get_ok("/workspace/$sub_ws_id/user")
 		->status_is(200)
 		->json_schema_is('WorkspaceUsers')
 		->json_cmp_deeply('', bag(
 			{
+				id    => $main_user_id,
 				name  => 'conch',
 				email => 'conch@conch.joyent.us',
 				role  => 'admin',
 				role_via => $global_ws_id,
 			},
 			{
+				id    => $test_user_id,
 				name  => 'test_workspace@conch.joyent.us',
 				email => 'test_workspace@conch.joyent.us',
 				role  => 'rw',
@@ -467,12 +478,14 @@ subtest 'Sub-Workspace' => sub {
 		->json_schema_is('WorkspaceUsers')
 		->json_cmp_deeply('', bag(
 			{
+				id    => $main_user_id,
 				name  => 'conch',
 				email => 'conch@conch.joyent.us',
 				role  => 'admin',
 				role_via => $global_ws_id,
 			},
 			{
+				id    => $test_user_id,
 				name  => 'test_workspace@conch.joyent.us',
 				email => 'test_workspace@conch.joyent.us',
 				role  => 'rw',

@@ -42,7 +42,7 @@ sub list ($c) {
 			my $user = $_;
 			my $role_via = $c->db_workspaces->role_via_for_user($workspace_id, $user->id);
 			+{
-				(map { $_ => $user->$_ } qw(name email)),
+				(map { $_ => $user->$_ } qw(id name email)),
 				role => $role_via->role,
 				$role_via->workspace_id ne $workspace_id ? ( role_via => $role_via->workspace_id ) : (),
 			}

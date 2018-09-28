@@ -935,10 +935,13 @@ definitions:
       type: object
       additionalProperties: false
       required:
+        - id
         - name
         - email
         - role
       properties:
+        id:
+          $ref: /definitions/uuid
         name:
           type: string
         email:
