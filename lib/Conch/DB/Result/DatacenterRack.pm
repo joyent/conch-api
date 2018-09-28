@@ -210,9 +210,19 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 workspaces
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:81rv/emZRzKAJ5ERaa13UA
+Type: many_to_many
+
+Composing rels: L</workspace_datacenter_racks> -> workspace
+
+=cut
+
+__PACKAGE__->many_to_many("workspaces", "workspace_datacenter_racks", "workspace");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:e7KR0yeDiZbe2VZiOALn7g
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
