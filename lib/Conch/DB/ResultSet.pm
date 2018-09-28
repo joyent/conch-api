@@ -21,6 +21,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::Prefetch',    # provides prefetch
     'Helper::ResultSet::Shortcut::OrderBy',     # provides order_by
     'Helper::ResultSet::Shortcut::Rows',        # provides rows
+    'Helper::ResultSet::Shortcut::Distinct',    # provides distinct
 );
 
 1;
