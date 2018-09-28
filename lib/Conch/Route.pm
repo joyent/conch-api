@@ -58,14 +58,17 @@ sub all_routes {
 	# CORS preflight check
 	$root->options('*', sub{ shift->status(204) });
 
+    # GET /doc
 	$root->get( '/doc',
 		sub { shift->reply->static('public/doc/index.html') } );
 
+    # GET /ping
 	$root->get(
 		'/ping',
 		sub { shift->status( 200, { status => 'ok' } ) },
 	);
 
+    # GET /version
 	$root->get(
 		'/version' => sub {
 			my $c = shift;
@@ -73,8 +76,13 @@ sub all_routes {
 		}
 	);
 
+    # POST /login
 	$root->post('/login')->to('login#session_login');
+
+    # POST /logout
 	$root->post('/logout')->to('login#session_logout');
+
+    # POST /reset_password
 	$root->post('/reset_password')->to('login#reset_password');
 
 	# GET /workspace/:workspace/device-totals
@@ -86,6 +94,8 @@ sub all_routes {
 
 	$secured->get( '/login', sub { shift->status(204) } );
 	$secured->get( '/me',    sub { shift->status(204) } );
+
+    # POST /refresh_token
 	$secured->post('/refresh_token')->to('login#refresh_token');
 
 	workspace_routes($secured->any('/workspace'));
