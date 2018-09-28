@@ -3,6 +3,12 @@ definitions:
   uuid:
     type: string
     pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
+  device_id:
+    type: string
+    pattern: ^\S+$
+  device_asset_tag:
+    type: string
+    pattern: ^\S+$
   DatacenterCreate:
     type: object
     additionalProperties: false
@@ -121,7 +127,7 @@ definitions:
           serial:
             type: string
       serial_number:
-        type: string
+        $ref: /definitions/device_id
       state:
         type: string
       system_uuid:
@@ -352,5 +358,21 @@ definitions:
           - ro
           - rw
           - admin
+  DeviceAssetTag:
+    type: object
+    additionalProperties: false
+    required:
+      - asset_tag
+    properties:
+      asset_tag:
+        $ref: /definitions/device_asset_tag
+  DeviceTritonUuid:
+    type: object
+    additionalProperties: false
+    required:
+      - triton_uuid
+    properties:
+      triton_uuid:
+        $ref: /definitions/uuid
 
 # vim: set sts=2 sw=2 et :
