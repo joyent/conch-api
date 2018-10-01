@@ -17,7 +17,6 @@ use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
-use List::Util 'min';
 
 with 'Conch::Role::MojoLog';
 
@@ -57,7 +56,7 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 	$c->cookie(
 		jwt_sig => $sig,
 		{
-			expires => min($expires_abs, time + 3600),
+			expires => $expires_abs,
 			secure => $c->req->is_secure,
 			httponly => 1,
 		},
