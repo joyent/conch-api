@@ -16,6 +16,7 @@ Conch::Route::User
 
 Sets up routes for /user:
 
+    GET     /user/me
     POST    /user/me/revoke
     GET     /user/me/settings
     POST    /user/me/settings
@@ -43,6 +44,9 @@ sub user_routes {
     {
         # all these routes are under /user/
         my $user_me = $user->any('/me');
+
+        # GET /user/me
+        $user_me->get('/')->to('#get_me');
 
         # POST /user/me/revoke
         $user_me->post('/revoke')->to('#revoke_own_tokens');

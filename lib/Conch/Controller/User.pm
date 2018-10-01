@@ -300,6 +300,19 @@ sub get ($c) {
 	return $c->status(200, $user);
 }
 
+=head2 get_me
+
+Just like 'get', only for the logged-in user.
+Response uses the UserDetailed json schema.
+
+=cut
+
+sub get_me ($c) {
+	my $user = $c->stash('user')
+		->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
+	return $c->status(200, $user);
+}
+
 =head2 list
 
 List all users and their workspaces. System admin only.
