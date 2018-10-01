@@ -414,6 +414,17 @@ subtest 'Sub-Workspace' => sub {
 			],
 			'main user has access to all workspaces via GLOBAL');
 
+	$t->get_ok('/user/me')
+		->status_is(200)
+		->json_schema_is('UserDetailed')
+		->json_is('/email' => 'conch@conch.joyent.us')
+		->json_is('/workspaces' => [
+				$workspace_data{conch}[0],
+				$workspace_data{conch}[1],
+				$workspace_data{conch}[2],
+			],
+			'/user/me returns the same data');
+
 	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
 		->status_is(200)
 		->json_schema_is('UserDetailed')
