@@ -406,13 +406,13 @@ CREATE TABLE public.device_report (
 ALTER TABLE public.device_report OWNER TO conch;
 
 --
--- Name: device_settings; Type: TABLE; Schema: public; Owner: conch
+-- Name: device_setting; Type: TABLE; Schema: public; Owner: conch
 --
 
-CREATE TABLE public.device_settings (
+CREATE TABLE public.device_setting (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     device_id text NOT NULL,
-    value text NOT NULL,
+    value text,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     deactivated timestamp with time zone,
@@ -420,7 +420,7 @@ CREATE TABLE public.device_settings (
 );
 
 
-ALTER TABLE public.device_settings OWNER TO conch;
+ALTER TABLE public.device_setting OWNER TO conch;
 
 --
 -- Name: device_spec; Type: TABLE; Schema: public; Owner: conch
@@ -631,10 +631,10 @@ CREATE TABLE public.user_session_token (
 ALTER TABLE public.user_session_token OWNER TO conch;
 
 --
--- Name: user_settings; Type: TABLE; Schema: public; Owner: conch
+-- Name: user_setting; Type: TABLE; Schema: public; Owner: conch
 --
 
-CREATE TABLE public.user_settings (
+CREATE TABLE public.user_setting (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     name text NOT NULL,
@@ -644,7 +644,7 @@ CREATE TABLE public.user_settings (
 );
 
 
-ALTER TABLE public.user_settings OWNER TO conch;
+ALTER TABLE public.user_setting OWNER TO conch;
 
 --
 -- Name: user_workspace_role; Type: TABLE; Schema: public; Owner: conch
@@ -980,11 +980,11 @@ ALTER TABLE ONLY public.device_report
 
 
 --
--- Name: device_settings device_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_setting device_setting_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_settings
-    ADD CONSTRAINT device_settings_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.device_setting
+    ADD CONSTRAINT device_setting_pkey PRIMARY KEY (id);
 
 
 --
@@ -1100,11 +1100,11 @@ ALTER TABLE ONLY public.user_session_token
 
 
 --
--- Name: user_settings user_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+-- Name: user_setting user_setting_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.user_settings
-    ADD CONSTRAINT user_settings_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.user_setting
+    ADD CONSTRAINT user_setting_pkey PRIMARY KEY (id);
 
 
 --
@@ -1227,17 +1227,17 @@ CREATE INDEX device_report_device_id_created_idx ON public.device_report USING b
 
 
 --
--- Name: device_settings_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+-- Name: device_setting_device_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE INDEX device_settings_device_id_idx ON public.device_settings USING btree (device_id);
+CREATE INDEX device_setting_device_id_idx ON public.device_setting USING btree (device_id);
 
 
 --
--- Name: device_settings_device_id_name_idx; Type: INDEX; Schema: public; Owner: conch
+-- Name: device_setting_device_id_name_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE UNIQUE INDEX device_settings_device_id_name_idx ON public.device_settings USING btree (device_id, name) WHERE (deactivated IS NULL);
+CREATE UNIQUE INDEX device_setting_device_id_name_idx ON public.device_setting USING btree (device_id, name) WHERE (deactivated IS NULL);
 
 
 --
@@ -1269,10 +1269,10 @@ CREATE INDEX user_session_token_expires_idx ON public.user_session_token USING b
 
 
 --
--- Name: user_settings_user_id_name_idx; Type: INDEX; Schema: public; Owner: conch
+-- Name: user_setting_user_id_name_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE UNIQUE INDEX user_settings_user_id_name_idx ON public.user_settings USING btree (user_id, name) WHERE (deactivated IS NULL);
+CREATE UNIQUE INDEX user_setting_user_id_name_idx ON public.user_setting USING btree (user_id, name) WHERE (deactivated IS NULL);
 
 
 --
@@ -1497,11 +1497,11 @@ ALTER TABLE ONLY public.device_report
 
 
 --
--- Name: device_settings device_settings_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: device_setting device_setting_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_settings
-    ADD CONSTRAINT device_settings_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
+ALTER TABLE ONLY public.device_setting
+    ADD CONSTRAINT device_setting_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
 
 
 --
@@ -1577,11 +1577,11 @@ ALTER TABLE ONLY public.user_session_token
 
 
 --
--- Name: user_settings user_settings_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: user_setting user_setting_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.user_settings
-    ADD CONSTRAINT user_settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
+ALTER TABLE ONLY public.user_setting
+    ADD CONSTRAINT user_setting_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
 
 
 --

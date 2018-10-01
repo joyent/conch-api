@@ -191,7 +191,7 @@ sub run_validations ( $self, $device, $data ) {
 	my $location = Conch::Model::DeviceLocation->lookup( $device->id );
 
 	# see Conch::DB::ResultSet::DeviceSetting::get_settings
-	my $settings = Conch::Pg->new->db->select( 'device_settings', undef,
+	my $settings = Conch::Pg->new->db->select( 'device_setting', undef,
 		{ deactivated => undef, device_id => $device->id } )
 		->expand->hashes
 		->reduce(

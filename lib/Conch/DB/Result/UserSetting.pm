@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<user_settings>
+=head1 TABLE: C<user_setting>
 
 =cut
 
-__PACKAGE__->table("user_settings");
+__PACKAGE__->table("user_setting");
 
 =head1 ACCESSORS
 
@@ -121,8 +121,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZtmRL/vAb58KypeokO46+A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-26 10:01:16
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RAOb81ZOmMUp2a9w5/Yc8Q
 
 1;
 __END__
