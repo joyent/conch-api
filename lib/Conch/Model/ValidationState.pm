@@ -94,14 +94,14 @@ sub mark_completed ( $self, $status ) {
 	return $self;
 }
 
-=head2 latest_completed_for_device_plan
+=head2 latest_for_device_plan
 
-Find the latest completed validation state for a given Device and Validation
+Find the latest validation state for a given Device and Validation
 Plan, or return undef
 
 =cut
 
-sub latest_completed_for_device_plan ( $class, $device_id, $plan_id ) {
+sub latest_for_device_plan ( $class, $device_id, $plan_id ) {
 	my $fields = join( ', ', @$attrs );
 	my $ret = Conch::Pg->new->db->query(
 		qq{
@@ -109,9 +109,8 @@ sub latest_completed_for_device_plan ( $class, $device_id, $plan_id ) {
 		from validation_state
 		where
 			device_id = ? and
-			completed is not null and
 			validation_plan_id = ?
-		order by completed desc
+		order by created desc
 		limit 1
 		},
 		$device_id, $plan_id
@@ -254,6 +253,7 @@ sub update ($self, $new_results = []) {
 			$self->validation_results->@*;
 
 	my $state = $self;
+	# this code should never execute - the caller has always created the record first.
 	if (not $self->status) {
 		$state = Conch::Model::ValidationState->create(
 			$self->device_id,
