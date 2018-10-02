@@ -1004,6 +1004,14 @@ ALTER TABLE ONLY public.device
 
 
 --
+-- Name: hardware_product hardware_product_alias_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.hardware_product
+    ADD CONSTRAINT hardware_product_alias_key UNIQUE (alias);
+
+
+--
 -- Name: hardware_product hardware_product_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1220,10 +1228,115 @@ ALTER TABLE ONLY public.zpool_profile
 
 
 --
+-- Name: datacenter_rack_datacenter_rack_role_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX datacenter_rack_datacenter_rack_role_id_idx ON public.datacenter_rack USING btree (datacenter_rack_role_id);
+
+
+--
+-- Name: datacenter_rack_datacenter_room_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX datacenter_rack_datacenter_room_id_idx ON public.datacenter_rack USING btree (datacenter_room_id);
+
+
+--
+-- Name: datacenter_rack_layout_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX datacenter_rack_layout_rack_id_idx ON public.datacenter_rack_layout USING btree (rack_id);
+
+
+--
+-- Name: datacenter_room_datacenter_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX datacenter_room_datacenter_id_idx ON public.datacenter_room USING btree (datacenter_id);
+
+
+--
+-- Name: device_disk_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_disk_device_id_idx ON public.device_disk USING btree (device_id);
+
+
+--
+-- Name: device_hardware_product_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_hardware_product_id_idx ON public.device USING btree (hardware_product_id);
+
+
+--
+-- Name: device_hostname_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_hostname_idx ON public.device USING btree (hostname);
+
+
+--
+-- Name: device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_id_idx ON public.device USING btree (id) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: device_location_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_location_device_id_idx ON public.device_location USING btree (device_id);
+
+
+--
+-- Name: device_log_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_log_device_id_idx ON public.device_log USING btree (device_id);
+
+
+--
+-- Name: device_memory_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_memory_device_id_idx ON public.device_memory USING btree (device_id);
+
+
+--
+-- Name: device_nic_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_nic_device_id_idx ON public.device_nic USING btree (device_id);
+
+
+--
+-- Name: device_nic_iface_name_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_nic_iface_name_idx ON public.device_nic USING btree (iface_name);
+
+
+--
+-- Name: device_nic_ipaddr_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_nic_ipaddr_idx ON public.device_nic USING btree (ipaddr);
+
+
+--
 -- Name: device_report_device_id_created_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE INDEX device_report_device_id_created_idx ON public.device_report USING btree (device_id, created DESC);
+
+
+--
+-- Name: device_report_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_report_device_id_idx ON public.device_report USING btree (device_id);
 
 
 --
@@ -1238,6 +1351,34 @@ CREATE INDEX device_setting_device_id_idx ON public.device_setting USING btree (
 --
 
 CREATE UNIQUE INDEX device_setting_device_id_name_idx ON public.device_setting USING btree (device_id, name) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: device_spec_hardware_product_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_spec_hardware_product_id_idx ON public.device_spec USING btree (hardware_product_id);
+
+
+--
+-- Name: hardware_product_hardware_vendor_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX hardware_product_hardware_vendor_id_idx ON public.hardware_product USING btree (hardware_vendor_id);
+
+
+--
+-- Name: hardware_product_profile_zpool_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX hardware_product_profile_zpool_id_idx ON public.hardware_product_profile USING btree (zpool_id);
+
+
+--
+-- Name: hardware_profile_setting_hardware_product_profile_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX hardware_profile_setting_hardware_product_profile_id_idx ON public.hardware_profile_setting USING btree (hardware_product_profile_id);
 
 
 --
@@ -1297,6 +1438,13 @@ CREATE UNIQUE INDEX validation_module_idx ON public.validation USING btree (modu
 
 
 --
+-- Name: validation_plan_member_validation_plan_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_plan_member_validation_plan_id_idx ON public.validation_plan_member USING btree (validation_plan_id);
+
+
+--
 -- Name: validation_plan_name_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1304,10 +1452,31 @@ CREATE UNIQUE INDEX validation_plan_name_idx ON public.validation_plan USING btr
 
 
 --
+-- Name: validation_state_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_device_id_idx ON public.validation_state USING btree (device_id);
+
+
+--
+-- Name: validation_state_device_id_validation_plan_id_completed_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC) WHERE (completed IS NOT NULL);
+
+
+--
 -- Name: validation_state_member_validation_state_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE INDEX validation_state_member_validation_state_id_idx ON public.validation_state_member USING btree (validation_state_id);
+
+
+--
+-- Name: validation_state_validation_plan_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_validation_plan_id_idx ON public.validation_state USING btree (validation_plan_id);
 
 
 --
@@ -1343,6 +1512,13 @@ CREATE INDEX workspace_datacenter_room_workspace_id_idx ON public.workspace_data
 --
 
 CREATE UNIQUE INDEX workspace_parent_id_idx ON public.workspace USING btree (((parent_workspace_id IS NULL))) WHERE (parent_workspace_id IS NULL);
+
+
+--
+-- Name: workspace_parent_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX workspace_parent_workspace_id_idx ON public.workspace USING btree (parent_workspace_id);
 
 
 --
