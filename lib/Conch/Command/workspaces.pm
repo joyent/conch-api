@@ -41,7 +41,7 @@ sub run ($self) {
 sub _print_workspace_and_children ($ws, $depth = 0) {
 
     my $indent = ' ' x (2 * $depth);
-    say $indent, $ws->name;
+    say $indent, $ws->name, (' ' x (30 - 2*$depth - length($ws->name))), '  ', $ws->id;
 
     my $children_rs = $ws->workspaces;
     while (my $child = $children_rs->next) {
