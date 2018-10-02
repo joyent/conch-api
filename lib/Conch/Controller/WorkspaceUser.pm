@@ -35,7 +35,8 @@ sub list ($c) {
 	my $users_rs = $c->db_workspaces
 		->and_workspaces_above($workspace_id)
 		->related_resultset('user_workspace_roles')
-		->related_resultset('user_account');
+		->related_resultset('user_account')
+		->active;
 
 	my $user_data = [
 		map {
