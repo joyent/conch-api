@@ -203,8 +203,26 @@ __PACKAGE__->many_to_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-10 16:06:16
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gkC6RKtvMTPS5Y1V8IlugA
 
+sub TO_JSON {
+    my $self = shift;
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+    my $data = $self->next::method(@_);
+
+    # add validation_results data, if it has been prefetched
+    if (my $cached_members = $self->related_resultset('validation_state_members')->get_cache) {
+        $data->{results} = [
+            map {
+                my $cached_result = $_->related_resultset('validation_result')->get_cache;
+                # cache is always a listref even for a belongs_to relationship
+                $cached_result ? $cached_result->[0]->TO_JSON : ()
+            }
+            $cached_members->@*
+        ];
+    }
+
+    return $data;
+}
+
 1;
 __END__
 
@@ -219,3 +237,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

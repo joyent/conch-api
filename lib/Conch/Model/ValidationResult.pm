@@ -106,19 +106,6 @@ sub comparison_hash($self) {
 	return md5_base64(@attr_values);
 }
 
-=head2 lookup
-
-Lookup a validation result by ID or return undef
-
-=cut
-
-sub lookup ( $class, $id ) {
-	my $ret =
-		Conch::Pg->new->db->select( 'validation_result', $attrs, { id => $id } )
-		->hash;
-	return $class->new( $ret->%* ) if $ret;
-}
-
 1;
 __END__
 

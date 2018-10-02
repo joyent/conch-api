@@ -41,43 +41,6 @@ sub new ( $class, %args ) {
 	$class->SUPER::new( %args{@$attrs, 'log'} );
 }
 
-=head2 TO_JSON
-
-Render as a hashref for output
-
-=cut
-
-sub TO_JSON ($self) {
-	{
-		id          => $self->id,
-		name        => $self->name,
-		version     => $self->version,
-		description => $self->description,
-		created     => Conch::Time->new( $self->created ),
-		updated     => Conch::Time->new( $self->updated )
-	};
-}
-
-=head2 create
-
-Create a new Validation. May throw error if Validation with the same name and version already exist.
-
-=cut
-
-sub create ( $class, $name, $version, $description, $module ) {
-	my $ret = Conch::Pg->new->db->insert(
-		'validation',
-		{
-			name        => $name,
-			version     => $version,
-			description => $description,
-			module      => $module
-		},
-		{ returning => $attrs }
-	)->hash;
-	return $class->new( $ret->%* );
-}
-
 =head2 lookup
 
 Lookup a validation by ID
@@ -89,30 +52,6 @@ sub lookup ( $class, $id ) {
 		Conch::Pg->new->db->select( 'validation', $attrs,
 		{ id => $id, deactivated => undef } )->hash;
 	return $class->new( $ret->%* ) if $ret;
-}
-
-=head2 lookup_by_name_and_version
-
-Lookup a validation by name and version
-
-=cut
-
-sub lookup_by_name_and_version ( $class, $name, $version ) {
-	my $ret =
-		Conch::Pg->new->db->select( 'validation', $attrs,
-		{ name => $name, version => $version, deactivated => undef } )->hash;
-	return $class->new( $ret->%* ) if $ret;
-}
-
-=head2 list
-
-List all active Validations
-
-=cut
-
-sub list ( $class ) {
-	Conch::Pg->new->db->select( 'validation', $attrs, { deactivated => undef } )
-		->hashes->map( sub { $class->new( shift->%* ) } )->to_array;
 }
 
 =head2 build_device_validation

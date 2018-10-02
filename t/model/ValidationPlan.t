@@ -79,8 +79,14 @@ my $device_report = $t->app->db_device_reports->create({ device_id => 'coffee', 
 
 my $validation_plan;
 subtest "Create validation plan" => sub {
-	$validation_plan =
-		Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
+	# formerly Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
+	$validation_plan = Conch::Model::ValidationPlan->new(
+		$t->app->db_validation_plans->create({
+			name => 'test',
+			description => 'test validation plan',
+		})->discard_changes->get_columns
+	);
+
 	isa_ok( $validation_plan, 'Conch::Model::ValidationPlan' );
 	ok( $validation_plan->id );
 	is( $validation_plan->name,        'test' );
@@ -88,54 +94,34 @@ subtest "Create validation plan" => sub {
 };
 
 subtest "lookup validation plan" => sub {
-	my $maybe_validation_plan =
-		Conch::Model::ValidationPlan->lookup( $uuid->create_str );
+
+	my $data = $t->app->db_validation_plans->hri->search({ id => $uuid->create_str })->single;
+	my $maybe_validation_plan = $data ? Conch::Model::ValidationPlan->new($data) : undef;
 	is( $maybe_validation_plan, undef, 'unfound validation plan is undef' );
 
-	$maybe_validation_plan =
-		Conch::Model::ValidationPlan->lookup( $validation_plan->id );
+	$data = $t->app->db_validation_plans->hri->search({ id => $validation_plan->id })->single;
+	$maybe_validation_plan = $data ? Conch::Model::ValidationPlan->new($data) : undef;
 	is_deeply( $maybe_validation_plan, $validation_plan,
 		'found validation plan is same as created' );
 };
 
 subtest "associated validation" => sub {
-	is_deeply( $validation_plan->validation_ids, [],
+	# formerly $validation_plan->validation_ids
+	is_deeply(
+		[ $t->app->db_validation_plan_members->search({ validation_plan_id => $validation_plan->id })->get_column('validation_id')->all ],
+		[],
 		'No associated validations' );
-	my $validation =
-		Conch::Model::Validation->create( 'test', 1, 'test validation',
-		'Test::Validation' );
-
-	is( $validation_plan->add_validation($validation),
-		$validation_plan, 'add validation; fluid interface' );
-	is_deeply(
-		$validation_plan->validation_ids,
-		[ $validation->id ],
-		'associated validation IDs'
+	my $validation = Conch::Model::Validation->new(
+		$t->app->db_validations->create({
+			name => 'test',
+			version => 1,
+			description => 'test validation',
+			module => 'Conch::Validation::Test',
+		})->get_columns
 	);
 
-	is_deeply( $validation_plan->validations,
-		[$validation], 'associated validation' );
-
-	is( $validation_plan->add_validation( $validation->id ),
-		$validation_plan, 'can also use ID' );
-
-	is( $validation_plan->remove_validation($validation),
-		$validation_plan, 'remove validation; fluid interface' );
-
-	is_deeply( $validation_plan->validation_ids, [], 'associated validation' );
-
-	is( $validation_plan->add_validation( $validation->id ),
-		$validation_plan, 'can also use ID' );
-	is_deeply(
-		$validation_plan->validation_ids,
-		[ $validation->id ],
-		'associated validation'
-	);
-
-	is( $validation_plan->drop_validations,
-		$validation_plan, 'drop all validation associations; fluid interface' );
-
-	is_deeply( $validation_plan->validation_ids, [], 'no associated validation' );
+	# formerly $validation_plan->drop_validations
+	$t->app->db_validation_plans->search({ id => $validation->id })->delete;
 };
 
 subtest "run validation plan" => sub {
@@ -173,7 +159,9 @@ subtest "run validation plan" => sub {
 	is( $new_state->status, 'pass', 'Passes though no results stored' );
 
 
-	$validation_plan->add_validation($real_validation);
+	# formerly $validation_plan->add_validation($real_validation)
+	$t->app->db_validation_plans->find($validation_plan->id)
+		->find_or_create_related('validation_plan_members', { validation_id => $real_validation->id });
 
 	my $error_state = $validation_plan->run_with_state(
 		$device,

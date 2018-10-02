@@ -26,8 +26,13 @@ my $real_validation = Conch::Model::Validation->new(
 	$t->load_validation('Conch::Validation::DeviceProductName')->get_columns
 );
 
-my $validation_plan =
-	Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
+# formerly Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
+my $validation_plan = Conch::Model::ValidationPlan->new(
+	$t->app->db_validation_plans->create({
+		name => 'test',
+		description => 'test validation plan',
+	})->discard_changes->get_columns
+);
 $validation_plan->log($t->app->log);
 
 my $hardware_vendor_id = $pg->db->insert(
@@ -95,17 +100,6 @@ subtest "Create validation state" => sub {
 	ok( !$validation_state->completed );
 };
 
-subtest "lookup validation state" => sub {
-	my $maybe_validation_state =
-		Conch::Model::ValidationState->lookup( $uuid->create_str );
-	is( $maybe_validation_state, undef, 'unfound validation state is undef' );
-
-	$maybe_validation_state =
-		Conch::Model::ValidationState->lookup( $validation_state->id );
-	is_deeply( $maybe_validation_state, $validation_state,
-		'found validation state is same as created' );
-};
-
 subtest "modify validation state" => sub {
 	is( $validation_state->completed,
 		undef, 'Validation state does not have a completed value' );
@@ -134,9 +128,14 @@ subtest "latest validation state" => sub {
 subtest "validation results" => sub {
 	is_deeply( $validation_state->validation_results, [] );
 
-	my $validation =
-		Conch::Model::Validation->create( 'test', 1, 'test validation',
-		'Test::Validation' );
+	my $validation = Conch::Model::Validation->new(
+		$t->app->db_validations->create({
+			name => 'test',
+			version => 1,
+			description => 'test validation',
+			module => 'Test::Validation',
+		})->TO_JSON->%*
+	);
 
 	my $result = Conch::Model::ValidationResult->new(
 		device_id           => $device->id,
@@ -157,7 +156,9 @@ subtest "validation results" => sub {
 };
 
 require Conch::Validation::DeviceProductName;
-$validation_plan->add_validation($real_validation);
+# formerly $validation_plan->add_validation($real_validation)
+$t->app->db_validation_plans->find($validation_plan->id)
+	->find_or_create_related('validation_plan_members', { validation_id => $real_validation->id });
 
 subtest 'latest_completed_grouped_states_for_device' => sub {
 	my $latest_state = $validation_plan->run_with_state(
@@ -165,19 +166,45 @@ subtest 'latest_completed_grouped_states_for_device' => sub {
 		$device_report->id,
 		{ product_name => 'test hw product' }
 	);
-	my $groups =
-		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
-		$device->id
-	);
+	# formerly Conch::Model::ValidationState->latest_completed_grouped_states_for_device($device->id);
+	my $groups = [
+		map {
+			my $state = $_;
+			+{
+				state => Conch::Model::ValidationState->new($state->get_columns),
+				results => [
+					map {
+						Conch::Model::ValidationResult->new($_->validation_result->get_columns)
+					} $state->validation_state_members
+				],
+			}
+		}
+		$t->app->db_devices->search({ 'device.id' => $device->id })
+			->search_related('validation_states')
+			->latest_completed_state_per_plan
+			->prefetch({ validation_state_members => 'validation_result' })
+			->all
+	];
+
 	my $results = $latest_state->validation_results;
 	is( scalar $groups->@*, 1 );
 	is_deeply( $groups->[0]->{state},   $latest_state );
 	is_deeply( $groups->[0]->{results}, $results );
 
-	my $validation_plan_1 =
-		Conch::Model::ValidationPlan->create( 'test_1', 'test validation plan' );
+	# formerly Conch::Model::ValidationPlan->create( 'test_1', 'test validation plan' );
+	my $validation_plan_1 = Conch::Model::ValidationPlan->new(
+		$t->app->db_validation_plans->create({
+			name => 'test_1',
+			description => 'test validation plan',
+		})->discard_changes->get_columns
+	);
+
 	$validation_plan_1->log($t->app->log);
-	$validation_plan_1->add_validation($real_validation);
+
+	# formerly $validation_plan_1->add_validation($real_validation)
+	$t->app->db_validation_plans->find($validation_plan_1->id)
+		->find_or_create_related('validation_plan_members', { validation_id => $real_validation->id });
+
 	my $new_state =
 		$validation_plan_1->run_with_state(
 			$device,
@@ -185,9 +212,25 @@ subtest 'latest_completed_grouped_states_for_device' => sub {
 			{}
 		);
 	my $new_results = $new_state->validation_results;
-	$groups =
-		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
-			$device->id );
+	$groups = [
+		map {
+			my $state = $_;
+			+{
+				state => Conch::Model::ValidationState->new($state->get_columns),
+				results => [
+					map {
+						Conch::Model::ValidationResult->new($_->validation_result->get_columns)
+					} $state->validation_state_members
+				],
+			}
+		}
+		$t->app->db_devices->search({ 'device.id' => $device->id })
+			->search_related('validation_states')
+			->latest_completed_state_per_plan
+			->prefetch({ validation_state_members => 'validation_result' })
+			->all
+	];
+
 	is( scalar $groups->@*, 2 );
 	is_deeply(
 		$groups,
