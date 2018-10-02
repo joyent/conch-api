@@ -154,6 +154,18 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
+=head2 C<hardware_product_alias_key>
+
+=over 4
+
+=item * L</alias>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("hardware_product_alias_key", ["alias"]);
+
 =head2 C<hardware_product_name_key>
 
 =over 4
@@ -256,8 +268,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WE00FsIieOu8a63Gx+SgUQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-02 10:57:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4MIDrBx9IoeWllXpwtkimA
 
 sub TO_JSON {
     my $self = shift;
