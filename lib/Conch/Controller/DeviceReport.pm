@@ -138,7 +138,8 @@ sub process ($c) {
 	$c->log->debug("Running validation plan ".$validation_plan->id);
 	my $validation_state = $validation_plan->run_with_state(
 		$device->id,
-		$unserialized_report, # FIXME this needs to be a DBIC object so we can tie the validation results to a the report ID
+		$device_report->id,
+		$unserialized_report,
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 

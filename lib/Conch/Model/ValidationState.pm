@@ -17,7 +17,7 @@ use constant {
 	STATUS_PASS  => 'pass'
 };
 
-my $attrs = [qw( id device_id validation_plan_id status created completed )];
+my $attrs = [qw( id device_id validation_plan_id status created completed device_report_id)];
 has $attrs;
 
 =head2 TO_JSON
@@ -31,7 +31,8 @@ sub TO_JSON ($self) {
 		validation_plan_id => $self->validation_plan_id,
 		status             => $self->status,
 		created            => Conch::Time->new( $self->created ),
-		completed => $self->completed && Conch::Time->new( $self->completed )
+		completed => $self->completed && Conch::Time->new( $self->completed ),
+		device_report_id   => $self->device_report_id,
 	};
 }
 
@@ -41,10 +42,10 @@ Create a new validation state
 
 =cut
 
-sub create ( $class, $device_id, $validation_plan_id ) {
+sub create ( $class, $device_id, $device_report_id, $validation_plan_id ) {
 	my $ret = Conch::Pg->new->db->insert(
 		'validation_state',
-		{ device_id => $device_id, validation_plan_id => $validation_plan_id },
+		{ device_id => $device_id, device_report_id => $device_report_id, validation_plan_id => $validation_plan_id },
 		{ returning => $attrs }
 	)->hash;
 	return $class->new( $ret->%* );
@@ -253,13 +254,7 @@ sub update ($self, $new_results = []) {
 			$self->validation_results->@*;
 
 	my $state = $self;
-	# this code should never execute - the caller has always created the record first.
-	if (not $self->status) {
-		$state = Conch::Model::ValidationState->create(
-			$self->device_id,
-			$self->validation_plan_id,
-		);
-	}
+	die 'validation_state not yet created in the db' if not $state->status;
 
 	my @results;
 

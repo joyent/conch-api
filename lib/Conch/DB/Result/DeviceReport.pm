@@ -105,9 +105,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 validation_states
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BKyeGmASKyOXjdG8sMvCnA
+Type: has_many
+
+Related object: L<Conch::DB::Result::ValidationState>
+
+=cut
+
+__PACKAGE__->has_many(
+  "validation_states",
+  "Conch::DB::Result::ValidationState",
+  { "foreign.device_report_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-02 12:48:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SCMwf87pfqnuE5416rVt8g
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

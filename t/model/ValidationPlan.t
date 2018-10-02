@@ -69,7 +69,7 @@ my $hardware_profile_id = $pg->db->insert(
 )->hash->{id};
 
 my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
-
+my $device_report = $t->app->db_device_reports->create({ device_id => 'coffee', report => '{}' });
 
 my $validation_plan;
 subtest "Create validation plan" => sub {
@@ -138,6 +138,7 @@ subtest "run validation plan" => sub {
 		sub {
 			$validation_plan->run_with_state(
 				'bad_device',
+				$device_report->id,
 				{}
 			);
 		},
@@ -147,6 +148,7 @@ subtest "run validation plan" => sub {
 		sub {
 			$validation_plan->run_with_state(
 				$device->id,
+				$device_report->id,
 				'bad'
 			);
 		},
@@ -157,6 +159,7 @@ subtest "run validation plan" => sub {
 		0, 'Validation plan should have no validations' );
 	my $new_state = $validation_plan->run_with_state(
 		$device->id,
+		$device_report->id,
 		{}
 	);
 	ok( $new_state->completed );
@@ -168,6 +171,7 @@ subtest "run validation plan" => sub {
 
 	my $error_state = $validation_plan->run_with_state(
 		$device->id,
+		$device_report->id,
 		{}
 	);
 	is( scalar $error_state->validation_results->@*, 1 );
@@ -176,6 +180,7 @@ subtest "run validation plan" => sub {
 
 	my $fail_state = $validation_plan->run_with_state(
 		$device->id,
+		$device_report->id,
 		{ product_name => 'bad' }
 	);
 	is( scalar $fail_state->validation_results->@*, 1 );
@@ -184,6 +189,7 @@ subtest "run validation plan" => sub {
 
 	my $pass_state = $validation_plan->run_with_state(
 		$device->id,
+		$device_report->id,
 		{ product_name => 'Joyent-G1' }
 	);
 	is( scalar $pass_state->validation_results->@*, 1 );

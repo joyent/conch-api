@@ -171,7 +171,12 @@ subtest 'Device Report' => sub {
 		->json_schema_is('ValidationState')
 		->json_is( '/status', 'pass' );
 
+	my $validation_state = $t->app->db_validation_states->find($t->tx->res->json->{id});
 	my $device = $t->app->db_devices->find($t->tx->res->json->{device_id});
+
+	is($validation_state->device_report->device_id, $device->id,
+		'validation_state links to the device_report_id just uploaded');
+
 	cmp_deeply(
 		$device->latest_report,
 		decode_json($report),
@@ -584,6 +589,7 @@ subtest 'Validations' => sub {
 		->json_is('', []);
 
 	my $device = $t->app->db_devices->find('TEST');
+	my $device_report = $t->app->db_device_reports->rows(1)->order_by({ -desc => 'created' })->single;
 	my $validation = $t->app->db_validations
 		->search({ id => { '!=' => $validation_id } })
 		->rows(1)->single;	# other random validation
@@ -594,6 +600,7 @@ subtest 'Validations' => sub {
 	my $validation_state = $t->app->db_validation_states->create({
 		device_id => 'TEST',
 		validation_plan_id => $validation_plan_id,
+		device_report_id => $device_report->id,
 		status => 'fail',
 		completed => \'NOW()',
 		validation_state_members => [{
@@ -614,6 +621,7 @@ subtest 'Validations' => sub {
 	$t->app->db_validation_states->create({
 		device_id => 'TEST',
 		validation_plan_id => $validation_plan_id,
+		device_report_id => $device_report->id,
 		status => 'fail',
 		completed => '2001-01-01',
 		validation_state_members => [{
@@ -639,6 +647,7 @@ subtest 'Validations' => sub {
 				id => ignore,
 				validation_plan_id => ignore,
 				device_id => 'TEST',
+				device_report_id => $device_report->id,
 				completed => ignore,
 				created => ignore,
 				status => 'pass',	# we force-validated this device earlier
@@ -648,6 +657,7 @@ subtest 'Validations' => sub {
 				id => $validation_state->id,
 				validation_plan_id => $validation_plan_id,
 				device_id => 'TEST',
+				device_report_id => $device_report->id,
 				completed => ignore,
 				created => ignore,
 				status => 'fail',
