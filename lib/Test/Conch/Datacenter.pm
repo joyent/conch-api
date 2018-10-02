@@ -38,13 +38,12 @@ sub new {
 		pg => Test::ConchTmpDB->make_full_db,
 	);
 
-	Test::Conch->load_validation_plans(
+	$self->load_validation_plans(
 		[{
 			name        => 'Conch v1 Legacy Plan: Server',
 			description => 'Test Plan',
 			validations => [ { name => 'product_name', version => 1 } ]
 		}],
-		$self->app->log,
 	);
 
 	bless($self, $class);

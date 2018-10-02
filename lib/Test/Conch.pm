@@ -205,7 +205,7 @@ I<Note: This is mostly used by the test harness>
 use Conch::Models;
 
 sub load_validation_plans {
-    my ($class, $plans, $logger) = @_;
+    my ($self, $plans) = @_;
 	my @plans;
 	for my $p ( $plans->@* ) {
 		my $plan = Conch::Model::ValidationPlan->lookup_by_name( $p->{name} );
@@ -213,7 +213,7 @@ sub load_validation_plans {
 		unless ($plan) {
 			$plan =
 				Conch::Model::ValidationPlan->create( $p->{name}, $p->{description}, );
-			$logger->info( "Created validation plan " . $plan->name );
+			$self->app->log->info('Created validation plan ' . $plan->name);
 		}
 		$plan->drop_validations;
 		for my $v ( $p->{validations}->@* ) {
@@ -224,13 +224,12 @@ sub load_validation_plans {
 				$plan->add_validation($validation);
 			}
 			else {
-				$logger->info(
+				$self->app->log->info(
 					"Could not find Validation name $v->{name}, version $v->{version}"
-						. " to load for "
-						. $plan->name );
+						. ' to load for ' . $plan->name);
 			}
 		}
-		$logger->info( "Loaded validation plan " . $plan->name );
+		$self->app->log->info('Loaded validation plan ' . $plan->name);
 		push @plans, $plan;
 	}
 	return @plans;
