@@ -254,7 +254,7 @@ sub update ($self, $new_results = []) {
 			$self->validation_results->@*;
 
 	my $state = $self;
-	if($self->status) {
+	if (not $self->status) {
 		$state = Conch::Model::ValidationState->create(
 			$self->device_id,
 			$self->validation_plan_id,

@@ -170,23 +170,26 @@ subtest "run validation plan" => sub {
 		$device->id,
 		{}
 	);
-	is( scalar $error_state->validation_results->@*, 1 );
+	is( scalar( grep { $_->status eq 'error' } $error_state->validation_results->@* ), 1 );
 	is( $error_state->status, 'error',
 		'Validation state should be error because result errored' );
 
+	# note this is actually the same db row as $error_state
 	my $fail_state = $validation_plan->run_with_state(
 		$device->id,
 		{ product_name => 'bad' }
 	);
-	is( scalar $fail_state->validation_results->@*, 1 );
+	is( scalar( grep { $_->status eq 'fail' } $fail_state->validation_results->@* ), 1 );
+
 	is( $fail_state->status, 'fail',
 		'Validation state should be fail because result failed' );
 
+	# note this is actually the same db row as $error_state and $fail_state
 	my $pass_state = $validation_plan->run_with_state(
 		$device->id,
 		{ product_name => 'Joyent-G1' }
 	);
-	is( scalar $pass_state->validation_results->@*, 1 );
+	is( scalar( grep { $_->status eq 'pass' } $fail_state->validation_results->@* ), 1 );
 	is( $pass_state->status, 'pass',
 		'Validation state should be pass because all results passed' );
 };
