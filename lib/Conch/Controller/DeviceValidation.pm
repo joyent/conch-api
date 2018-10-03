@@ -63,36 +63,6 @@ sub list_validation_states ($c) {
 	$c->status( 200, \@output );
 }
 
-=head2 get_validation_state
-
-Get validation states for a device
-FIXME: nothing calls this!
-
-=cut
-
-sub get_validation_state ($c) {
-	my $device_id = $c->stash('device_id');
-
-	my $validation_state_id = $c->stash("validation_state_id");
-
-	my $validation_state =
-		Conch::Model::ValidationState->lookup_with_device(
-			$validation_state_id,
-			$device_id
-		);
-
-	unless($validation_state) {
-		$c->log->debug("No Validation State ID $validation_state_id is associated with device ".$device_id);
-
-		# FIXME should this really be a 404?
-		return $c->status(404 => {
-			error => "No Validation State ID $validation_state_id is associated with Device"
-		});
-	}
-
-	$c->status( 200, $validation_state );
-}
-
 =head2 validate
 
 Validate the device gainst the specified validation.

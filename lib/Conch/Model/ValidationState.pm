@@ -64,19 +64,6 @@ sub lookup ( $class, $id ) {
 	return $class->new( $ret->%* ) if $ret;
 }
 
-=head2 lookup_with_device
-
-Lookup a validation state by ID and Device ID or return undef
-
-=cut
-
-sub lookup_with_device ( $class, $id, $device_id ) {
-	my $ret =
-		Conch::Pg->new->db->select( 'validation_state', $attrs,
-		{ id => $id, device_id => $id } )->hash;
-	return $class->new( $ret->%* ) if $ret;
-}
-
 =head2 mark_completed
 
 Mark the Validation State as completed with a status
