@@ -20,7 +20,11 @@ with 'Conch::Role::MojoLog';
 
 =head2 list_validation_states
 
-Get latest validation states for a device
+Get latest validation states for a device. Accepts the query parameter 'status',
+indicating the desired status(es) (comma-separated) to search for -- one or more of:
+pass, fail, error.
+
+Response uses the ValidationStateWithResults json schema.
 
 =cut
 
@@ -98,6 +102,8 @@ B<DOES NOT STORE VALIDATION RESULTS>.
 This is useful for testing and evaluating Validation Plans against a given
 device.
 
+Response uses the ValidationResults json schema.
+
 =cut
 
 sub validate ($c) {
@@ -131,6 +137,8 @@ B<DOES NOT STORE VALIDATION RESULTS>.
 
 This is useful for testing and evaluating Validation Plans against a given
 device.
+
+Response uses the ValidationResults json schema.
 
 =cut
 

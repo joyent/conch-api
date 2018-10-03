@@ -70,4 +70,12 @@ $t->delete_ok("/db/hardware_product/$id")->status_is(204);
 $t->get_ok("/db/hardware_product/$id")->status_is(404);
 
 
+$t->get_ok("/hardware_product")
+	->status_is(200)
+	->json_schema_is('HardwareProducts');
+
+$t->get_ok("/hardware_product/$hw_id")
+	->status_is(200)
+	->json_schema_is('HardwareProduct');
+
 done_testing();

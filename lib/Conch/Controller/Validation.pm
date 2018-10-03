@@ -19,7 +19,9 @@ with 'Conch::Role::MojoLog';
 
 =head2 list
 
-List all available Validations
+List all available Validations.
+
+Response uses the Validations json schema.
 
 =cut
 

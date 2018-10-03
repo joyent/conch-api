@@ -20,8 +20,9 @@ with 'Conch::Role::MojoLog';
 
 =head2 get
 
-Retrieves the location for the current device, via a serialized DeviceLocation
-object
+Retrieves location data for the current device.
+
+Response uses the DeviceLocation json schema.
 
 =cut
 
@@ -43,9 +44,11 @@ Sets the location for a device, given a valid rack id and rack unit
 =cut
 
 sub set ($c) {
+	my $input = $c->validate_input('DeviceLocationUpdate');
+	return if not $input;
+
 	my $device_id = $c->stash('device_id');
-	my $body      = $c->req->json;
-	# FIXME: validate incoming data against json schema
+	my $body      = $input;
 	return $c->status( 400,
 		{ error => 'rack_id and rack_unit must be defined the the request object' }
 	) unless $body->{rack_id} && $body->{rack_unit};

@@ -54,6 +54,8 @@ sub register ($c) {
 
 If the user is a system admin, retrieve a list of all relays in the database
 
+Response uses the Relays json schema.
+
 =cut
 
 sub list ($c) {

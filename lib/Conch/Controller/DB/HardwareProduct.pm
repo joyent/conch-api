@@ -63,6 +63,8 @@ sub find_hardware_product ($c) {
 
 =head2 get_all
 
+Response uses the DBHardwareProducts json schema.
+
 =cut
 
 sub get_all ($c) {
@@ -75,6 +77,8 @@ sub get_all ($c) {
 
 
 =head2 get_one
+
+Response uses the DBHardwareProduct json schema.
 
 =cut
 

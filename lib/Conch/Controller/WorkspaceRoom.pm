@@ -20,7 +20,9 @@ with 'Conch::Role::MojoLog';
 
 =head2 list
 
-Get a list of rooms for the current workspace (as specified by :workspace_id in the path)
+Get a list of rooms for the current workspace (as specified by :workspace_id in the path).
+
+Response uses the Rooms json schema.
 
 =cut
 
@@ -33,10 +35,12 @@ sub list ($c) {
 
 =head2 replace_rooms
 
-Replace the room list for the current workspace (as specified by :workspace_id in the path),
-given that
-workspace is not GLOBAL, and provided that the user has the 'admin' role (GLOBAL
-or local)
+Replace the room list for the current workspace (as specified by :workspace_id in the path).
+Does not permit modifying the GLOBAL workspace's rooms.
+
+Requires 'admin' permissions on the workspace.
+
+Response uses the Rooms json schema.
 
 =cut
 

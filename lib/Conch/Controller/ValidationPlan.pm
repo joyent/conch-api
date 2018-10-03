@@ -54,7 +54,9 @@ sub create ($c) {
 
 =head2 list
 
-List all available Validation Plans
+List all available Validation Plans.
+
+Response uses the ValidationPlans json schema.
 
 =cut
 
@@ -94,7 +96,9 @@ sub find_validation_plan($c) {
 
 =head2 get
 
-Get the Validation Plan specified by ID
+Get the Validation Plan specified by ID.
+
+Response uses the ValidationPlan json schema.
 
 =cut
 
@@ -104,7 +108,9 @@ sub get ($c) {
 
 =head2 list_validations
 
-List all Validations associated with the Validation Plan
+List all Validations associated with the Validation Plan.
+
+Response uses the Validations json schema.
 
 =cut
 
@@ -122,7 +128,7 @@ sub list_validations ($c) {
 
 =head2 add_validation
 
-List all Validations associated with the Validation Plan
+Add a validation to a validation plan.
 
 =cut
 

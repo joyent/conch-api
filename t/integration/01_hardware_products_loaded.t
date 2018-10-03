@@ -31,30 +31,12 @@ $t->get_ok('/workspace')->status_is(200)->json_is( '/0/name', 'GLOBAL' );
 my $id = $t->tx->res->json->[0]{id};
 BAIL_OUT("No workspace ID") unless $id;
 
-subtest 'Register relay' => sub {
-	$t->post_ok(
-		'/relay/deadbeef/register',
-		json => {
-			serial   => 'deadbeef',
-			version  => '0.0.1',
-			idaddr   => '127.0.0.1',
-			ssh_port => '22',
-			alias    => 'test relay'
-		}
-	)->status_is(204);
-};
-
-subtest 'Relay List' => sub {
-	$t->get_ok('/relay')->status_is(200);
-	$t->json_is('/0/id' => 'deadbeef');
-};
-
 subtest 'Device Report' => sub {
 	my $report =
 		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
 		->status_is(409)
-		->json_is('/error', 'Hardware product does not contain a profile');
+		->json_is({ error => 'Hardware product does not contain a profile' });
 };
 
 subtest 'Hardware Product' => sub {

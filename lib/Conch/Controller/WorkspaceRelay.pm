@@ -20,6 +20,8 @@ with 'Conch::Role::MojoLog';
 
 List all relays for the current workspace (as specified by :workspace_id in the path)
 
+Response uses the WorkspaceRelays json schema.
+
 =cut
 
 sub list ($c) {

@@ -13,21 +13,21 @@ my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
 
-$t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
-$t->get_ok("/version")->status_is(200);
+$t->get_ok('/ping')->status_is(200)->json_is('/status' => 'ok');
+$t->get_ok('/version')->status_is(200);
 
-$t->get_ok("/me")->status_is(401)->json_is( '/error' => 'unauthorized' );
-$t->get_ok("/login")->status_is(401)->json_is( '/error' => 'unauthorized' );
+$t->get_ok('/me')->status_is(401)->json_is({ error => 'unauthorized' });
+$t->get_ok('/login')->status_is(401)->json_is({ error => 'unauthorized' });
 
 my $now = Conch::Time->now;
 
 $t->post_ok(
-	"/login" => json => {
+	'/login' => json => {
 		user     => 'conch@conch.joyent.us',
 		password => 'conch'
 	}
 )->status_is(200);
-BAIL_OUT("Login failed") if $t->tx->res->code != 200;
+BAIL_OUT('Login failed') if $t->tx->res->code != 200;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
@@ -38,127 +38,103 @@ ok($conch_user->last_login >= $now, 'user last_login is updated')
 
 
 subtest 'User' => sub {
-	$t->get_ok("/me")->status_is(204)->content_is("");
-	$t->get_ok("/user/me/settings")->status_is(200)->json_is( '', {} );
-	$t->get_ok("/user/me/settings/BAD")->status_is(404)->json_is(
-		'',
-		{
-			error => "No such setting 'BAD'",
-		}
-	);
-	$t->post_ok(
-		"/user/me/settings/TEST" => json => {
-			"NOTTEST" => "test",
-		}
-		)->status_is(400)->json_is(
-		{
-			error =>
-				"Setting key in request object must match name in the URL ('TEST')",
-		}
-		);
+	$t->get_ok('/me')
+		->status_is(204)
+		->content_is('');
+
+	$t->get_ok('/user/me/settings')
+		->status_is(200)
+		->json_is('', {});
+
+	$t->get_ok('/user/me/settings/BAD')
+		->status_is(404)
+		->json_is('', { error => "No such setting 'BAD'" });
 
 	$t->post_ok(
-		"/user/me/settings/TEST" => json => {
-			"TEST" => "TEST",
-		}
-	)->status_is(200)->content_is('');
+		'/user/me/settings/TEST' => json => { 'NOTTEST' => 'test' })
+		->status_is(400)
+		->json_is({ error => "Setting key in request object must match name in the URL ('TEST')", });
 
-	$t->get_ok("/user/me/settings/TEST")->status_is(200)->json_is(
-		'',
-		{
-			"TEST" => "TEST",
-		}
-	);
+	$t->post_ok('/user/me/settings/TEST' => json => { 'TEST' => 'TEST' })
+		->status_is(200)
+		->content_is('');
 
-	$t->get_ok("/user/me/settings")->status_is(200)->json_is(
-		'',
-		{
-			"TEST" => "TEST"
-		}
-	);
+	$t->get_ok('/user/me/settings/TEST')
+		->status_is(200)
+		->json_is('', { 'TEST' => 'TEST' });
 
-	$t->post_ok(
-		"/user/me/settings/TEST2" => json => {
-			"TEST2" => "test",
-		}
-	)->status_is(200)->content_is('');
+	$t->get_ok('/user/me/settings')
+		->status_is(200)
+		->json_is('', { 'TEST' => 'TEST' });
 
-	$t->get_ok("/user/me/settings/TEST2")->status_is(200)->json_is(
-		'',
-		{
-			"TEST2" => "test",
-		}
-	);
+	$t->post_ok('/user/me/settings/TEST2' => json => { 'TEST2' => 'test' })
+		->status_is(200)
+		->content_is('');
 
-	$t->get_ok("/user/me/settings")->status_is(200)->json_is(
-		'',
-		{
-			"TEST"  => "TEST",
-			"TEST2" => "test",
-		}
-	);
+	$t->get_ok('/user/me/settings/TEST2')
+		->status_is(200)
+		->json_is('', { 'TEST2' => 'test' });
 
-	$t->delete_ok("/user/me/settings/TEST")->status_is(204)->content_is('');
-	$t->get_ok("/user/me/settings")->status_is(200)->json_is(
-		'',
-		{
-			"TEST2" => "test",
-		}
-	);
+	$t->get_ok('/user/me/settings')
+		->status_is(200)
+		->json_is('', {
+			'TEST'  => 'TEST',
+			'TEST2' => 'test',
+		});
 
-	$t->delete_ok("/user/me/settings/TEST2")->status_is(204)->content_is('');
+	$t->delete_ok('/user/me/settings/TEST')
+		->status_is(204)
+		->content_is('');
+	$t->get_ok('/user/me/settings')
+		->status_is(200)
+		->json_is('', { 'TEST2' => 'test' });
 
-	$t->get_ok("/user/me/settings")->status_is(200)->json_is( '', {} );
-	$t->get_ok("/user/me/settings/TEST")->status_is(404)->json_is(
-		'',
-		{
-			error => "No such setting 'TEST'",
-		}
-	);
+	$t->delete_ok('/user/me/settings/TEST2')
+		->status_is(204)
+		->content_is('');
 
-	$t->post_ok(
-		"/user/me/settings/dot.setting" => json => {
-			"dot.setting" => "set",
-		}
-	)->status_is(200)->content_is('');
+	$t->get_ok('/user/me/settings')
+		->status_is(200)
+		->json_is('', {});
+	$t->get_ok('/user/me/settings/TEST')
+		->status_is(404)
+		->json_is('', { error => "No such setting 'TEST'" });
 
-	$t->get_ok("/user/me/settings/dot.setting")->status_is(200)->json_is(
-		'',
-		{
-			"dot.setting" => "set",
-		}
-	);
-	$t->delete_ok("/user/me/settings/dot.setting")->status_is(204)
+	$t->post_ok('/user/me/settings/dot.setting' => json => { 'dot.setting' => 'set' })
+		->status_is(200)
+		->content_is('');
+
+	$t->get_ok('/user/me/settings/dot.setting')
+		->status_is(200)
+		->json_is('', { 'dot.setting' => 'set' });
+
+	$t->delete_ok('/user/me/settings/dot.setting')
+		->status_is(204)
 		->content_is('');
 
 	# everything should be deactivated now.
 	# starting over, let's see if set_settings overwrites everything...
 
-	$t->post_ok('/user/me/settings' => json => {
-			TEST1 => 'TEST',
-			TEST2 => 'ohhai',
-		}
-	)->status_is(200)->content_is('');
+	$t->post_ok('/user/me/settings' => json => { TEST1 => 'TEST', TEST2 => 'ohhai', })
+		->status_is(200)
+		->content_is('');
 
-	$t->post_ok('/user/me/settings' => json => {
+	$t->post_ok('/user/me/settings' => json => { TEST1 => 'test1', TEST3 => 'test3', })
+		->status_is(200)
+		->content_is('');
+
+	$t->get_ok('/user/me/settings')
+		->status_is(200)
+		->json_is('', {
 			TEST1 => 'test1',
 			TEST3 => 'test3',
-		}
-	)->status_is(200)->content_is('');
+		});
 
-	$t->get_ok('/user/me/settings')->status_is(200) ->json_is(
-		'',
-		{
-			TEST1 => 'test1',
-			TEST3 => 'test3',
-		}
-	);
+	$t->post_ok('/user/me/password' => json => { password => 'ohhai' })
+		->status_is(204, 'changed password');
 
-	$t->post_ok(
-		'/user/me/password' => json => { password => 'ohhai' }
-	)->status_is(204, 'changed password');
-
-	$t->get_ok('/user/me/settings')->status_is(401, 'session tokens revoked too');
+	$t->get_ok('/user/me/settings')
+		->status_is(401, 'session tokens revoked too');
 
 	$t->post_ok(
 		'/login' => json => {
@@ -183,7 +159,8 @@ subtest 'User' => sub {
 			password => 'conch'
 		}
 	)->status_is(200, 'logged in using original password');
-	$t->get_ok('/user/me/settings')->status_is(200, 'original password works again');
+	$t->get_ok('/user/me/settings')
+		->status_is(200, 'original password works again');
 };
 
 my $global_ws_id = $t->app->db_workspaces->get_column('id')->single;
@@ -191,7 +168,8 @@ my %workspace_data;
 
 subtest 'Workspaces' => sub {
 
-	$t->get_ok("/workspace/notauuid")->status_is(400)
+	$t->get_ok('/workspace/notauuid')
+		->status_is(400)
 		->json_like( '/error', qr/must be a UUID/ );
 
 	$t->get_ok('/workspace')
@@ -201,7 +179,7 @@ subtest 'Workspaces' => sub {
 			id          => $global_ws_id,
 			name        => 'GLOBAL',
 			role        => 'admin',
-			description => "Global workspace. Ancestor of all workspaces.",
+			description => 'Global workspace. Ancestor of all workspaces.',
 			parent_id   => undef,
 		} ]);
 
@@ -212,7 +190,8 @@ subtest 'Workspaces' => sub {
 		->json_schema_is('WorkspaceAndRole')
 		->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace');
 
-	$t->get_ok( "/workspace/" . $uuid->create_str() )->status_is(404);
+	$t->get_ok('/workspace/' . $uuid->create_str())
+		->status_is(404);
 
 	$t->get_ok("/workspace/$global_ws_id/problem")
 		->status_is(200)
@@ -223,7 +202,7 @@ subtest 'Workspaces' => sub {
 				unlocated  => {},
 				unreported => {},
 			},
-			"Workspace Problem (empty) Data Contract"
+			'Workspace Problem (empty) Data Contract'
 		);
 
 	$t->get_ok("/workspace/$global_ws_id/user")
@@ -232,7 +211,7 @@ subtest 'Workspaces' => sub {
 		->json_cmp_deeply('', [
 			{
 				id    => ignore,
-				name  => "conch",
+				name  => 'conch',
 				email => 'conch@conch.joyent.us',
 				role  => 'admin',
 			}
@@ -615,7 +594,9 @@ subtest 'Sub-Workspace' => sub {
 };
 
 subtest 'Workspace Rooms' => sub {
-	$t->get_ok("/workspace/$global_ws_id/room")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/room")
+		->status_is(200)
+		->json_schema_is('Rooms')
 		->json_is( '', [], 'No datacenter rooms available' );
 };
 
@@ -624,42 +605,85 @@ subtest 'Workspace Racks' => sub {
 	note(
 "Variance: /rack in returns a hash keyed by datacenter room AZ instead of an array"
 	);
-	$t->get_ok("/workspace/$global_ws_id/rack")->status_is(200)
-		->json_is( '', {}, 'No racks available' );
+	$t->get_ok("/workspace/$global_ws_id/rack")
+		->status_is(200)
+		->json_is('', {}, 'No racks available');
 };
 
-subtest 'Register relay' => sub {
+subtest 'Relays' => sub {
 	$t->post_ok(
 		'/relay/deadbeef/register',
 		json => {
 			serial   => 'deadbeef',
 			version  => '0.0.1',
-			idaddr   => '127.0.0.1',
+			ipaddr   => '127.0.0.1',
 			ssh_port => '22',
-			alias    => 'test relay'
+			alias    => 'test relay',
 		}
 	)->status_is(204);
-};
 
-subtest 'Relay List' => sub {
-	$t->get_ok('/relay')->status_is(200)->json_is( '/0/id' => 'deadbeef' )
-		->json_is( '/0/version', '0.0.1' );
-	subtest 'Update relay' => sub {
+	my $relay = $t->app->db_relays->find('deadbeef');
+	cmp_deeply(
+		[ $relay->user_relay_connections ],
+		[
+			methods(
+				first_seen => bool(1),
+				last_seen => bool(1),
+			),
+		],
+		'user_relay_connection timestamps are set',
+	);
 
-		$t->post_ok(
-			'/relay/deadbeef/register',
-			json => {
-				serial   => 'deadbeef',
-				version  => '0.0.2',
-				idaddr   => '127.0.0.1',
+	$t->get_ok('/relay')
+		->status_is(200)
+		->json_schema_is('Relays')
+		->json_is([
+			{
+				id => 'deadbeef',
+				version  => '0.0.1',
+				ipaddr   => '127.0.0.1',
 				ssh_port => '22',
-				alias    => 'test relay'
+				alias    => 'test relay',
+				created  => $relay->created,
+				updated  => $relay->updated,
 			}
-		)->status_is(204);
+		]);
 
-		$t->get_ok('/relay')->status_is(200)->json_is( '/0/id', 'deadbeef' )
-			->json_is( '/0/version', '0.0.2', 'Version updated' );
-	};
+	$relay->user_relay_connections->update({
+		first_seen => '1999-01-01',
+		last_seen => '1999-01-01',
+	});
+
+	$t->post_ok(
+		'/relay/deadbeef/register',
+		json => {
+			serial   => 'deadbeef',
+			version  => '0.0.2',
+			ipaddr   => '127.0.0.1',
+			ssh_port => '22',
+			alias    => 'test relay',
+		}
+	)->status_is(204);
+
+	$relay->discard_changes;	# reload from db
+
+	$t->get_ok('/relay')
+		->status_is(200)
+		->json_schema_is('Relays')
+		->json_is('', [
+			{
+				id => 'deadbeef',
+				version  => '0.0.2',
+				ipaddr   => '127.0.0.1',
+				ssh_port => '22',
+				alias    => 'test relay',
+				created  => $relay->created,
+				updated  => $relay->updated,
+			}
+		], 'version was updated');
+	my $y2000 = Conch::Time->new(year=> 2000);
+	cmp_ok(($relay->user_relay_connections)[0]->first_seen, '<', $y2000, 'first_seen was not updated');
+	cmp_ok(($relay->user_relay_connections)[0]->last_seen, '>', $y2000, 'last_seen was updated');
 };
 
 subtest 'Device Report' => sub {
@@ -667,78 +691,102 @@ subtest 'Device Report' => sub {
 		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
 		->status_is(409)
-		->json_is('/error', 'Could not locate hardware product');
+		->json_is({ error => 'Could not locate hardware product' });
 
 	$t->post_ok( '/device/TEST', json => { serial_number => 'TEST' } )
 		->status_is(400)->json_like( '/error', qr/Missing property/ );
 };
 
 subtest 'Single device' => sub {
-	$t->get_ok('/device/TEST')->status_is(404);
+	$t->get_ok('/device/TEST')
+		->status_is(404);
 };
 
 subtest 'Workspace devices' => sub {
 
-	$t->get_ok("/workspace/$global_ws_id/device")->status_is(200)->json_is( '', [] );
+	$t->get_ok("/workspace/$global_ws_id/device")
+		->status_is(200)
+		->json_is('', []);
 
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=f")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=f")
+		->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=F")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=F")
+		->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=t")
+		->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=T")->status_is(200)
-		->json_is( '', [] );
-
-	$t->get_ok("/workspace/$global_ws_id/device?health=fail")->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=FAIL")->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=pass")->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=PASS")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?graduated=T")
+		->status_is(200)
 		->json_is( '', [] );
 
-	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?health=fail")
+		->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?health=FAIL")
+		->status_is(200)
+		->json_is( '', [] );
+	$t->get_ok("/workspace/$global_ws_id/device?health=pass")
+		->status_is(200)
+		->json_is( '', [] );
+	$t->get_ok("/workspace/$global_ws_id/device?health=PASS")
+		->status_is(200)
 		->json_is( '', [] );
 
-	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")
+		->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")
+		->status_is(200)
 		->json_is( '', [] );
 
-	$t->get_ok("/workspace/$global_ws_id/device?active=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
+		->status_is(200)
 		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")->status_is(200)
+	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
+		->status_is(200)
+		->json_is( '', [] );
+
+	$t->get_ok("/workspace/$global_ws_id/device?active=t")
+		->status_is(200)
+		->json_is( '', [] );
+	$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
+		->status_is(200)
 		->json_is( '', [] );
 
 	# /device/active redirects to /device so first make sure there is a redirect,
 	# then follow it and verify the results
 	subtest 'Redirect /workspace/:id/device/active' => sub {
-		$t->get_ok("/workspace/$global_ws_id/device/active")->status_is(302);
+		$t->get_ok("/workspace/$global_ws_id/device/active")
+			->status_is(302);
 		$t->ua->max_redirects(1);
-		$t->get_ok("/workspace/$global_ws_id/device/active")->status_is(200)
+		$t->get_ok("/workspace/$global_ws_id/device/active")
+			->status_is(200)
 			->json_is( '', [], 'got empty list of workspaces' );
 		$t->ua->max_redirects(0);
 	};
 };
 
 subtest 'Relays' => sub {
-	$t->get_ok("/workspace/$global_ws_id/relay")->status_is(200)
-		->json_is( '', [], 'No reporting relays' );
+	$t->get_ok("/workspace/$global_ws_id/relay")
+		->status_is(200)
+		->json_schema_is('WorkspaceRelays')
+		->json_is('', [], 'No reporting relays');
 };
 
 subtest 'Hardware Product' => sub {
-	$t->get_ok("/hardware_product")->status_is(200)
+	$t->get_ok("/hardware_product")
+		->status_is(200)
 		->json_is( '', [], 'No hardware products loaded' );
 };
 
 subtest 'Log out' => sub {
-	$t->post_ok("/logout")->status_is(204);
-	$t->get_ok("/workspace")->status_is(401)
-		->json_is( '/error' => 'unauthorized' );
+	$t->post_ok("/logout")
+		->status_is(204);
+	$t->get_ok("/workspace")
+		->status_is(401)
+		->json_is({ error => 'unauthorized' });
 };
 
 subtest 'JWT authentication' => sub {
@@ -760,8 +808,8 @@ subtest 'JWT authentication' => sub {
 		->status_is( 200,
 		"user can provide Authentication header with full JWT to authenticate" );
 
-	$t->post_ok( '/refresh_token',
-		{ Authorization => "Bearer $jwt_token.$jwt_sig" } )->status_is(200)
+	$t->post_ok('/refresh_token', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+		->status_is(200)
 		->json_has('/jwt_token');
 
 	my $new_jwt_token = $t->tx->res->json->{jwt_token};
@@ -911,7 +959,8 @@ subtest 'modify another user' => sub {
 	$t->post_ok("/user/$new_user_id/revoke")
 		->status_is(204, 'revoked all tokens for the new user');
 
-	$t2->get_ok('/me')->status_is(401, 'new user cannot authenticate with persistent session after session is cleared')
+	$t2->get_ok('/me')
+		->status_is(401, 'new user cannot authenticate with persistent session after session is cleared')
 		->json_is({ error => 'unauthorized' });
 
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
