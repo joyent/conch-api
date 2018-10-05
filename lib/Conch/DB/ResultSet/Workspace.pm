@@ -253,7 +253,7 @@ sub _workspaces_subquery {
     }
 
     if (ref $workspace_id eq 'ARRAY') {
-        return ('= ANY(?)', $workspace_id);
+        return ('IN(?)', $workspace_id);
     }
 
     if (ref $workspace_id eq 'REF' and ref $workspace_id->$* eq 'ARRAY') {
