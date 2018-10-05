@@ -248,6 +248,8 @@ subtest 'Assign device to a location' => sub {
 		->json_is('/test-region-1a/0/name', 'Test Rack', 'Has test datacenter rack');
 };
 
+my $detailed_device;
+
 subtest 'Single device' => sub {
 
 	$t->get_ok('/device/nonexistant')
@@ -259,8 +261,10 @@ subtest 'Single device' => sub {
 		->json_schema_is('DetailedDevice')
 		->json_is('/latest_report/product_name' => 'Joyent-S1');
 
-	my $device_id = $t->tx->res->json->{id};
-	my @macs = map { $_->{mac} } $t->tx->res->json->{nics}->@*;
+	$detailed_device = $t->tx->res->json;
+
+	my $device_id = $detailed_device->{id};
+	my @macs = map { $_->{mac} } $detailed_device->{nics}->@*;
 
 	$t->get_ok('/device/nonexistant')
 		->status_is(404)
@@ -271,18 +275,18 @@ subtest 'Single device' => sub {
 		$t->get_ok('/device?hostname=elfo')
 			->status_is(200)
 			->json_schema_is('DetailedDevice')
-			->json_is( '/id', $device_id, 'got device by hostname');
+			->json_is('', $detailed_device, 'got device by hostname');
 
 		$t->get_ok("/device?mac=$macs[0]")
 			->status_is(200)
 			->json_schema_is('DetailedDevice')
-			->json_is( '/id', $device_id, 'got device by mac');
+			->json_is('', $detailed_device, 'got device by mac');
 
 		# device_nics->[2] has ipaddr' => '172.17.0.173'.
 		$t->get_ok("/device?ipaddr=172.17.0.173")
 			->status_is(200)
 			->json_schema_is('DetailedDevice')
-			->json_is( '/id', $device_id, 'got device by ipaddr');
+			->json_is('', $detailed_device, 'got device by ipaddr');
 	};
 
 	subtest 'mutate device attributes' => sub {
@@ -335,6 +339,11 @@ subtest 'Single device' => sub {
 		$t->post_ok('/device/TEST/validated')
 			->status_is(204)
 			->content_is('');
+
+		$t->get_ok('/device/TEST')
+			->status_is(200)
+			->json_schema_is('DetailedDevice');
+		$detailed_device = $t->tx->res->json;
 	};
 
 	subtest 'Device settings' => sub {
@@ -401,20 +410,27 @@ subtest 'Single device' => sub {
 			->json_like( '/error', qr/tag\.bar/ );
 
 		$t->get_ok('/device?foo=bar')->status_is(200)
-			->json_is('/id', 'TEST', 'got device by arbitrary setting key');
+			->json_is('', $detailed_device, 'got device by arbitrary setting key');
 	};
 
 };
 
+my $devices_data;
+
 subtest 'Workspace devices' => sub {
 
-	$t->get_ok("/workspace/$global_ws_id/device")->status_is(200)
-		->json_is( '/0/id', 'TEST' );
+	$t->get_ok("/workspace/$global_ws_id/device")
+		->status_is(200)
+		->json_schema_is('Devices')
+		->json_is('/0/id', 'TEST');
+
+	$devices_data = $t->tx->res->json;
 
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=f")
 		->status_is(200)
 		->json_schema_is('Devices')
 		->json_is( '', [] );
+
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=F")
 		->status_is(200)
 		->json_schema_is('Devices')
@@ -423,11 +439,12 @@ subtest 'Workspace devices' => sub {
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '/0/id', 'TEST' );
+		->json_is('', $devices_data);
+
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=T")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '/0/id', 'TEST' );
+		->json_is('', $devices_data);
 
 	$t->get_ok("/workspace/$global_ws_id/device?health=fail")
 		->status_is(200)
@@ -442,17 +459,18 @@ subtest 'Workspace devices' => sub {
 	$t->get_ok("/workspace/$global_ws_id/device?health=pass")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '/0/id', 'TEST' );
+		->json_is('', $devices_data);
 
 	$t->get_ok("/workspace/$global_ws_id/device?health=PASS")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '/0/id', 'TEST' );
+		->json_is('', $devices_data);
 
 	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '/0/id', 'TEST' );
+		->json_is('', $devices_data);
+
 	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")
 		->status_is(200)
 		->json_schema_is('Devices')
@@ -469,12 +487,12 @@ subtest 'Workspace devices' => sub {
 	$t->get_ok("/workspace/$global_ws_id/device?active=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '/0/id', 'TEST' );
+		->json_is('', $devices_data);
 
 	$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '/0/id', 'TEST' );
+		->json_is('', $devices_data);
 
 	# /device/active redirects to /device so first make sure there is a redirect,
 	# then follow it and verify the results
@@ -487,7 +505,8 @@ subtest 'Workspace devices' => sub {
 
 		$t->get_ok("/workspace/$global_ws_id/device/active")
 			->status_is(200)
-			->json_is( '/0/id', 'TEST' );
+			->json_schema_is('Devices')
+			->json_is('', $devices_data);
 
 		$t->ua->max_redirects($temp);
 	};
@@ -497,29 +516,48 @@ subtest 'Relays' => sub {
 	$t->get_ok("/workspace/$global_ws_id/relay")
 		->status_is(200)
 		->json_schema_is('WorkspaceRelays')
-		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
-		->json_is( '/0/devices/0/id', 'TEST', 'Associated with reporting device' );
+		->json_cmp_deeply([ {
+			id => 'deadbeef',
+			alias => 'test relay',
+			ipaddr => '127.0.0.1',
+			ssh_port => '22',
+			version => '0.0.1',
+			created => ignore,
+			updated => ignore,
+			location => {
+				rack_id => $rack_id,
+				rack_name => 'Test Rack',		# from sql/test/03-test-datacenter.sql
+				room_name => 'test-region-1a',	# ""
+				role_name => 'TEST_RACK_ROLE',	# ""
+			},
+			devices => $devices_data,
+		}]);
+
+	my $relays = $t->tx->res->json;
 
 	$t->get_ok("/workspace/$global_ws_id/relay?active=1")
 		->status_is(200)
 		->json_schema_is('WorkspaceRelays')
-		->json_is( '/0/id', 'deadbeef', 'Has active relay' );
-
-	$t->get_ok('/relay')
-		->status_is(200)
-		->json_schema_is('Relays')
-		->json_is( '/0/id' => 'deadbeef' );
+		->json_is($relays);
 
 	$t->get_ok("/workspace/$global_ws_id/relay?no_devices=0")
 		->status_is(200)
 		->json_schema_is('WorkspaceRelays')
-		->json_is( '/0/id', 'deadbeef', 'Has relay from reporting device' )
-		->json_is( '/0/devices/0/id', 'TEST', 'Associated with reporting device' );
+		->json_is('', $relays);
 
+	# TODO: should omit this field entirely
+	$relays->[0]{devices} = [];
 	$t->get_ok("/workspace/$global_ws_id/relay?no_devices=1")->status_is(200)
 		->json_schema_is('WorkspaceRelays')
-		->json_is( '/0/id', 'deadbeef' )
-		->json_is( '/0/devices', [] );
+		->json_is('', $relays);
+
+	delete $relays->[0]{devices};
+	delete $relays->[0]{location};
+
+	$t->get_ok('/relay')
+		->status_is(200)
+		->json_schema_is('Relays')
+		->json_is('', $relays);
 
 };
 
