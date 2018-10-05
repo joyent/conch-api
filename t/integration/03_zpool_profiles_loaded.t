@@ -46,7 +46,7 @@ subtest 'Register relay' => sub {
 		json => {
 			serial   => 'deadbeef',
 			version  => '0.0.1',
-			idaddr   => '127.0.0.1',
+			ipaddr   => '127.0.0.1',
 			ssh_port => '22',
 			alias    => 'test relay'
 		}
@@ -59,9 +59,10 @@ subtest 'Relay List' => sub {
 };
 
 subtest 'Device Report' => sub {
-	my $report =
-		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )->status_is(200)
+	my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
+		->status_is(200)
+		->json_schema_is('ValidationState')
 		->json_is( '/status', 'pass' );
 };
 

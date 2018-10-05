@@ -346,7 +346,9 @@ definitions:
           name:
             type: string
           vendor_name:
-            type: string
+            anyOf:
+              - type: null
+              - type: string
       rack:
         type: object
         additionalProperties: false
@@ -368,7 +370,7 @@ definitions:
         type: object
         description: >
           Details of the hardware product the device is expected to be based
-          on it's current position and the rack layout.
+          on its current position and the rack layout.
         additionalProperties: false
         required:
           - id
@@ -401,11 +403,11 @@ definitions:
       - alias
       - prefix
       - vendor
-      - profile
       - generation_name
       - legacy_product_name
       - sku
       - specification
+      - profile
     properties:
       id:
         $ref: /definitions/uuid
@@ -612,6 +614,7 @@ definitions:
       role:
         type: string
       datacenter:
+        description: datacenter room AZ
         type: string
       slots:
         type: array
@@ -650,6 +653,20 @@ definitions:
               anyOf:
                 - $ref: "#/definitions/Device"
                 - type: 'null'
+  WorkspaceRackLayoutUpdateResponse:
+    type: object
+    additionalProperties: false
+    required:
+      - updated
+    properties:
+      updated:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          description: device_id
+          type: string
+          pattern: ^[\w-]+$
   Validations:
     type: array
     items:
@@ -717,7 +734,9 @@ definitions:
       - validation_id
     properties:
       id:
-        $ref: /definitions/uuid
+        anyOf:
+          - type: 'null'
+          - $ref: /definitions/uuid
       category:
         type: string
       component_id:
@@ -744,6 +763,10 @@ definitions:
           - pass
       validation_id:
         $ref: /definitions/uuid
+  ValidationResults:
+    type: array
+    items:
+      $ref: /definitions/ValidationResult
   ValidationState:
     type: object
     additionalProperties: false
@@ -1015,7 +1038,9 @@ definitions:
           - type: string
           - type: 'null'
       vendor_name:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
   Relays:
     type: array
     items:

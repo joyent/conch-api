@@ -19,8 +19,9 @@ with 'Conch::Role::MojoLog';
 
 =head2 list
 
-Get a list of all available hardware products, as serialized
-Class::HardwareProduct objects
+Get a list of all available hardware products.
+
+Response uses the HardwareProducts json schema.
 
 =cut
 
@@ -32,8 +33,9 @@ sub list ($c) {
 
 =head2 get
 
-Get the details of a single hardware product, given a valid UUID, as a
-serialized Class::HardwareProduct object
+Get the details of a single hardware product, given a valid UUID
+
+Response uses the HardwareProduct json schema.
 
 =cut
 

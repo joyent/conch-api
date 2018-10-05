@@ -22,6 +22,8 @@ with 'Conch::Role::MojoLog';
 Processes the device report, turning it into the various device_ tables as well
 as running validations
 
+Response uses the ValidationState json schema.
+
 =cut
 
 sub process ($c) {

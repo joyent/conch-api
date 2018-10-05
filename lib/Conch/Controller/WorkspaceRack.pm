@@ -21,7 +21,8 @@ with 'Conch::Role::MojoLog';
 =head2 list
 
 Get a list of racks for the current workspace (as specified by :workspace_id in the path).
-Returns data matching the WorkspaceRackSummary json schema.
+
+Response uses the WorkspaceRackSummary json schema.
 
 =cut
 
@@ -57,7 +58,10 @@ sub find_rack ($c) {
 
 =head2 get_layout
 
-Get the RackLayout for the current stashed C<current_ws_rack>
+Get the layout of the current datacenter_rack (as specified by :rack_id in the path).
+Supports json, csv formats.
+
+Response uses the WorkspaceRack json schema.
 
 =cut
 
