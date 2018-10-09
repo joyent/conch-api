@@ -17,6 +17,7 @@ requires 'JSON::Validator';
 requires 'Pod::Github', '>= 0.04';
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
+requires 'Safe::Isa';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS

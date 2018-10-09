@@ -36,7 +36,7 @@ sub user_has_permission {
         ->get_column('id');
 
     $self->result_source->schema->resultset('Workspace')
-        ->and_workspaces_above($device_workspaces_ids_rs->as_query)
+        ->and_workspaces_above($device_workspaces_ids_rs)
         ->related_resultset('user_workspace_roles')
         ->user_has_permission($user_id, $permission);
 }
