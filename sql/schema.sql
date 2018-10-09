@@ -738,7 +738,7 @@ CREATE TABLE public.validation_state (
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum DEFAULT 'processing'::public.validation_status_enum NOT NULL,
     completed timestamp with time zone,
-    device_report_id uuid
+    device_report_id uuid NOT NULL
 );
 
 
