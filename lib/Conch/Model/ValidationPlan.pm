@@ -243,14 +243,18 @@ sub run_with_state($self, $device_id, $data) {
 	my $device = Conch::Model::Device->lookup($device_id);
 	Mojo::Exception->throw("No device exists with ID $device_id") unless $device;
 
-	my $state = Conch::Model::ValidationState->latest_completed_for_device_plan(
+	# find the latest validation_state record for this device, to see if
+	# we should just re-use it...
+	my $state = Conch::Model::ValidationState->latest_for_device_plan(
 		$device->id,
 		$self->id
 	);
 
 	my $new_results = $self->run_validations( $device, $data );
 
-	unless($state) {
+	# if the most recent validation_state is completed, we should create a
+	# new record to capture the latest validation results..
+	if (not $state or $state->completed) {
 		$state = Conch::Model::ValidationState->create(
 			$device->id,
 			$self->id
