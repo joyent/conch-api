@@ -48,6 +48,13 @@ sub run {
         say 'considering workspace ', $uwr->workspace->name, ' for user ', $uwr->user_account->name,
             ' with permission ', $uwr->role, '...';
 
+        my $delete;
+
+        if ($uwr->user_account->deactivated) {
+            print '--> ', $uwr->role, ' permission found for deactivated user. ';
+            $delete = 1;
+        }
+
         if (my $role_via = $self->app->db_workspaces
                 ->workspaces_above($uwr->workspace_id)
                 ->search_related('user_workspace_roles',
@@ -63,7 +70,10 @@ sub run {
 
             print '--> ', $role_via->role, ' permission found ',
                 'in parent workspace ', $role_via->workspace->name, '. ';
+            $delete = 1;
+        }
 
+        if ($delete) {
             ++$deleted;
 
             if ($opt->dry_run) {

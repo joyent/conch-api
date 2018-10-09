@@ -386,6 +386,8 @@ sub create ($c) {
 
 Deactivates a user. System admin only.
 
+All workspace permissions are removed and are not recoverable.
+
 =cut
 
 sub deactivate ($c) {
@@ -411,6 +413,8 @@ sub deactivate ($c) {
 	$c->log->warn('user ' . $c->stash('user')->name . ' deactivating user ' . $user->name
 		. ($workspaces ? ", direct member of workspaces: $workspaces" : ''));
 	$user->update({ password => $c->random_string, deactivated => \'NOW()' });
+
+	$user->delete_related('user_workspace_roles');
 
 	if ($c->req->query_params->param('clear_tokens') // 1) {
 		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for for user ' . $user->name);
