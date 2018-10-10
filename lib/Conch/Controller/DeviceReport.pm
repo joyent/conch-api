@@ -78,8 +78,40 @@ sub process ($c) {
 
 	my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
 
+	if ($existing_device
+		and $existing_device->latest_report_matches($raw_report)) {
+
+		$existing_device->self_rs->latest_device_report->update({
+			last_received => \'now()',
+			received_count => \'received_count + 1',
+		});
+
+		if ($unserialized_report->{relay}) {
+			$existing_device
+				->search_related('device_relay_connections',
+					{ relay_id => $unserialized_report->{relay}{serial} })
+				->update_or_create({ last_seen => \'NOW()' });
+		} else {
+			$c->log->warn('received report without relay id (device_id '. $existing_device->id.')');
+		}
+
+		# this magically DTRT, without having to inject a ->as_subselect_rs,
+		# because DBIx::Class::ResultSet::_chain_relationship understands how to wrap
+		# joins using order by/limit into a subquery
+		my $validation_state = $existing_device->self_rs->latest_device_report
+			->related_resultset('validation_states')
+			->order_by({ -desc => 'validation_states.created' })
+			->rows(1)
+			->single;
+
+		$c->log->debug('Duplicate device report detected (device_report_id '
+			. $validation_state->device_report_id
+			. '; returning previous validation_state (id ' . $validation_state->id .')');
+
+		return $c->status(200, $validation_state);
+	}
+
 	# Update/create the device and create the device report
-	# FIXME [2018-08-23 sungo] we need device report dedup here
 	$c->log->debug("Updating or creating device ".$c->stash('device_id'));
 	
 	my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since} : 
@@ -100,6 +132,7 @@ sub process ($c) {
 	$c->log->debug("Creating device report");
 	my $device_report = $device->create_related('device_reports', {
 		report    => $raw_report,
+		# created, last_received, received_count all use defaults.
 	});
 	$c->log->info("Created device report ".$device_report->id);
 
@@ -184,6 +217,9 @@ sub _record_device_configuration {
 						last_seen => \'NOW()',
 					}
 				);
+			}
+			else {
+				$c->log->warn('received report without relay id (device_id '. $device->id.')');
 			}
 
 			my $nics_num = 0;

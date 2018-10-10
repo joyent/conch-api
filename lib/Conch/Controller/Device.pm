@@ -110,7 +110,7 @@ sub get ($c) {
 	# DeviceLocation query has been converted to a prefetchable relationship.
 	my $detailed_device = +{
 		%{ $device->TO_JSON },
-		latest_report => $device->latest_report,
+		latest_report => $device->latest_report_data,
 		nics => [ map {
 			my $device_nic = $_;
 			$device_nic->deactivated ? () :

@@ -399,7 +399,9 @@ CREATE TABLE public.device_report (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     device_id text NOT NULL,
     report jsonb NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    last_received timestamp with time zone DEFAULT now() NOT NULL,
+    received_count integer DEFAULT 1 NOT NULL
 );
 
 

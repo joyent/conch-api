@@ -4,7 +4,7 @@ use Data::UUID;
 use Path::Tiny;
 use Test::Deep;
 use Test::Warnings;
-use Mojo::JSON 'decode_json';
+use Mojo::JSON qw(decode_json encode_json);
 
 use Test::Conch::Datacenter;
 
@@ -171,16 +171,40 @@ subtest 'Device Report' => sub {
 		->json_schema_is('ValidationState')
 		->json_is( '/status', 'pass' );
 
-	my $validation_state = $t->app->db_validation_states->find($t->tx->res->json->{id});
-	my $device = $t->app->db_devices->find($t->tx->res->json->{device_id});
+	my $validation_state_response = $t->tx->res->json;
+
+	my $validation_state = $t->app->db_validation_states->find($validation_state_response->{id});
+	my $device = $t->app->db_devices->find($validation_state_response->{device_id});
 
 	is($validation_state->device_report->device_id, $device->id,
 		'validation_state links to the device_report_id just uploaded');
 
 	cmp_deeply(
-		$device->latest_report,
+		$device->latest_report_data,
 		decode_json($report),
 		'json blob stored in the db matches report on disk',
+	);
+
+	is($device->related_resultset('device_reports')->count, 1, 'one device_report row created');
+	is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
+	is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
+
+	my $dupe_report = encode_json(decode_json($report));
+	isnt($report, $dupe_report, 're-encoded report is not string-identical (whitespace was removed)');
+
+	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $dupe_report)
+		->status_is(200)
+		->json_schema_is('ValidationState')
+		->json_is('', $validation_state_response, 'duplicate report detected, older state returned');
+
+	is($device->related_resultset('device_reports')->count, 1, 'still just one device_report row');
+	is($device->related_resultset('validation_states')->count, 1, 'still just one validation_state row');
+	is($device->related_resultset('device_relay_connections')->count, 1, 'still just one device_relay_connection');
+
+	is(
+		$device->related_resultset('device_reports')->rows(1)->get_column('received_count')->single,
+		2,
+		'received_count is incremented',
 	);
 
 	$t->get_ok("/workspace/$global_ws_id/problem")->status_is(200)

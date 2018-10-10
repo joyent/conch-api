@@ -53,6 +53,19 @@ __PACKAGE__->table("device_report");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 last_received
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+  original: {default_value => \"now()"}
+
+=head2 received_count
+
+  data_type: 'integer'
+  default_value: 1
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -74,6 +87,15 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "last_received",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+    original      => { default_value => \"now()" },
+  },
+  "received_count",
+  { data_type => "integer", default_value => 1, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -121,8 +143,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-02 12:48:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SCMwf87pfqnuE5416rVt8g
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-10 16:00:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BI5mc8aaPtXrJKY4EdtlVw
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
