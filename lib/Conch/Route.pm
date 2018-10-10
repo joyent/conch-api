@@ -62,11 +62,6 @@ sub all_routes {
 		sub { shift->reply->static('public/doc/index.html') } );
 
 	$root->get(
-		'/ping',
-		sub { shift->status( 200, { status => 'ok' } ) },
-	);
-
-	$root->get(
 		'/version' => sub {
 			my $c = shift;
 			$c->status( 200, { version => $c->version_tag } );

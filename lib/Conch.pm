@@ -205,6 +205,7 @@ sub startup {
 	$self->plugin('Conch::Plugin::JsonValidator');
 	$self->plugin("Conch::Plugin::AuthHelpers");
 	$self->plugin('Conch::Plugin::Mail');
+	$self->plugin('Conch::Plugin::ApiVersion');
 
 	$self->plugin('Conch::Plugin::Rollbar') if $self->feature('rollbar');
 
