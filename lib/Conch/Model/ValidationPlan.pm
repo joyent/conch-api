@@ -235,34 +235,24 @@ validation state. Associated validation results will be stored.
 # where the "device" is dbic and thus way more helpful than our usual Model.
 # Specifically, it resolves ids to the real object, throwing later code for a
 # fit
-sub run_with_state($self, $device_id, $data) {
+sub run_with_state($self, $device_id, $device_report_id, $data) {
     Mojo::Exception->throw("Device ID must be defined") unless $device_id;
+    Mojo::Exception->throw("Device Report ID must be defined") unless $device_report_id;
     Mojo::Exception->throw("Validation data must be a hashref")
         unless ref($data) eq 'HASH';
 
 	my $device = Conch::Model::Device->lookup($device_id);
 	Mojo::Exception->throw("No device exists with ID $device_id") unless $device;
 
-	# find the latest validation_state record for this device, to see if
-	# we should just re-use it...
-	my $state = Conch::Model::ValidationState->latest_for_device_plan(
+	my $new_results = $self->run_validations( $device, $data );
+
+	my $state = Conch::Model::ValidationState->create(
 		$device->id,
+		$device_report_id,
 		$self->id
 	);
 
-	my $new_results = $self->run_validations( $device, $data );
-
-	# if the most recent validation_state is completed, we should create a
-	# new record to capture the latest validation results..
-	if (not $state or $state->completed) {
-		$state = Conch::Model::ValidationState->create(
-			$device->id,
-			$self->id
-		);
-	}
-
 	return $state->update($new_results);
-
 }
 
 1;

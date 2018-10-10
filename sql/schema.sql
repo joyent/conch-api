@@ -735,7 +735,8 @@ CREATE TABLE public.validation_state (
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum DEFAULT 'processing'::public.validation_status_enum NOT NULL,
-    completed timestamp with time zone
+    completed timestamp with time zone,
+    device_report_id uuid
 );
 
 
@@ -1326,6 +1327,13 @@ CREATE INDEX device_nic_ipaddr_idx ON public.device_nic USING btree (ipaddr);
 
 
 --
+-- Name: device_report_created_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_report_created_idx ON public.device_report USING btree (created);
+
+
+--
 -- Name: device_report_device_id_created_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1452,6 +1460,20 @@ CREATE UNIQUE INDEX validation_plan_name_idx ON public.validation_plan USING btr
 
 
 --
+-- Name: validation_state_completed_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_completed_idx ON public.validation_state USING btree (completed);
+
+
+--
+-- Name: validation_state_created_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_created_idx ON public.validation_state USING btree (created);
+
+
+--
 -- Name: validation_state_device_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1463,6 +1485,13 @@ CREATE INDEX validation_state_device_id_idx ON public.validation_state USING btr
 --
 
 CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC) WHERE (completed IS NOT NULL);
+
+
+--
+-- Name: validation_state_device_report_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_device_report_id_idx ON public.validation_state USING btree (device_report_id);
 
 
 --
@@ -1822,6 +1851,14 @@ ALTER TABLE ONLY public.validation_result
 
 ALTER TABLE ONLY public.validation_state
     ADD CONSTRAINT validation_state_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
+
+
+--
+-- Name: validation_state validation_state_device_report_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state
+    ADD CONSTRAINT validation_state_device_report_id_fkey FOREIGN KEY (device_report_id) REFERENCES public.device_report(id);
 
 
 --

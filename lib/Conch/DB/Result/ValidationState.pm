@@ -67,6 +67,13 @@ __PACKAGE__->table("validation_state");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 device_report_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 1
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -100,6 +107,8 @@ __PACKAGE__->add_columns(
   },
   "completed",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "device_report_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -129,6 +138,26 @@ __PACKAGE__->belongs_to(
   "Conch::DB::Result::Device",
   { id => "device_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+=head2 device_report
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::DeviceReport>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "device_report",
+  "Conch::DB::Result::DeviceReport",
+  { id => "device_report_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 =head2 validation_plan
@@ -176,8 +205,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:20uQOHmwWHrYgjGvOZWeaQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-02 12:48:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TttSipbS2r7dPvfEg6Bk2A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

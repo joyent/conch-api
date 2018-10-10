@@ -777,6 +777,7 @@ definitions:
       - device_id
       - status
       - validation_plan_id
+      - device_report_id
     properties:
       id:
         $ref: /definitions/uuid
@@ -798,6 +799,10 @@ definitions:
           - pass
       validation_plan_id:
         $ref: /definitions/uuid
+      device_report_id:
+        anyOf:
+          - type: 'null'  # XXX temporary! will be not-nullable later.
+          - $ref: /definitions/uuid
   ValidationStatesWithResults:
     type: array
     items:
@@ -813,6 +818,7 @@ definitions:
       - results
       - status
       - validation_plan_id
+      - device_report_id
     properties:
       id:
         $ref: /definitions/uuid
@@ -837,6 +843,8 @@ definitions:
           - fail
           - pass
       validation_plan_id:
+        $ref: /definitions/uuid
+      device_report_id:
         $ref: /definitions/uuid
   WorkspaceRelays:
     type: array

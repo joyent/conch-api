@@ -73,6 +73,7 @@ my $hardware_profile_id = $pg->db->insert(
 )->hash->{id};
 
 my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
+my $device_report = $t->app->db_device_reports->create({ device_id => 'coffee', report => '{}' });
 
 BAIL_OUT("Could not create a validation plan and device ")
 	unless $validation_plan->id && $device->id;
@@ -80,7 +81,7 @@ BAIL_OUT("Could not create a validation plan and device ")
 my $validation_state;
 subtest "Create validation state" => sub {
 	$validation_state =
-		Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
+		Conch::Model::ValidationState->create( $device->id, $device_report->id, $validation_plan->id );
 	isa_ok( $validation_state, 'Conch::Model::ValidationState' );
 	ok( $validation_state->id );
 	is( $validation_state->device_id,          $device->id );
@@ -116,7 +117,7 @@ subtest "latest validation state" => sub {
 	isa_ok( $latest, 'Conch::Model::ValidationState' );
 
 	my $new_state =
-		Conch::Model::ValidationState->create( $device->id, $validation_plan->id );
+		Conch::Model::ValidationState->create( $device->id, $device_report->id, $validation_plan->id );
 	$new_state->mark_completed('pass');
 
 	my $new_latest =
@@ -156,6 +157,7 @@ $validation_plan->add_validation($real_validation);
 subtest 'latest_completed_grouped_states_for_device' => sub {
 	my $latest_state = $validation_plan->run_with_state(
 		$device->id,
+		$device_report->id,
 		{ product_name => 'test hw product' }
 	);
 	my $groups =
@@ -174,6 +176,7 @@ subtest 'latest_completed_grouped_states_for_device' => sub {
 	my $new_state =
 		$validation_plan_1->run_with_state(
 			$device->id,
+			$device_report->id,
 			{}
 		);
 	my $new_results = $new_state->validation_results;
