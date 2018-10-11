@@ -156,11 +156,9 @@ sub update ($c) {
             return $c->status(400 => { error => 'Rack role does not exist' });
         }
 
-        my %assigned_rack_units = map { $_ => 1 }
-            $c->stash('rack')->self_rs->assigned_rack_units;
-        my @assigned_rack_units = sort { $a <=> $b } keys %assigned_rack_units;
+        my @assigned_rack_units = $c->stash('rack')->self_rs->assigned_rack_units;
 
-        if (my @out_of_range = grep { $_ > $rack_role->rack_size } @assigned_rack_units) {
+        if (my @out_of_range = grep $_ > $rack_role->rack_size, @assigned_rack_units) {
             $c->log->debug('found layout used by rack id '.$c->stash('rack')->id
                 .' that has assigned rack_units greater requested new rack_size of '
                 .$rack_role->rack_size.': ', join(', ', @out_of_range));
