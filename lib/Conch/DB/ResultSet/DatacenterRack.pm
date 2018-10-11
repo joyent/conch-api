@@ -33,7 +33,7 @@ sub associated_workspaces {
         ->related_resultset('workspace_datacenter_rooms')
         ->get_column('workspace_id');
 
-    $self->result_source->schema->resultset('Workspace')->search(
+    $self->result_source->schema->resultset('workspace')->search(
         {
             'workspace.id' => [
                 { -in => $rack_workspace_ids->as_query },

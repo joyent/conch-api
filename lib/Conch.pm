@@ -28,7 +28,6 @@ use Conch::DB qw();
 
 use Mojo::JSON;
 use Lingua::EN::Inflexion 'noun';
-use Mojo::Util 'decamelize';
 
 =head2 startup
 
@@ -84,18 +83,16 @@ sub startup {
 		});
 	});
 
-	# db_user_accounts => $app->schema->resultset('UserAccount'), etc
-	# db_ro_user_accounts => $app->ro_schema->resultset('UserAccount'), etc
+	# db_user_accounts => $app->schema->resultset('user_account'), etc
+	# db_ro_user_accounts => $app->ro_schema->resultset('user_account'), etc
 	foreach my $source_name ($self->schema->sources) {
-		# necessary for now due to RT#125930
-		my @words = split(/_/, decamelize($source_name));
-		$words[-1] = noun($words[-1])->plural;
-		my $name = join('_', @words);
-		$self->helper('db_'.$name, sub {
+		my $plural = noun($source_name)->plural;
+		$self->helper('db_'.$plural, sub {
 			my $source = $_[0]->app->schema->source($source_name);
+			# note that $source_name eq $source->from unless we screwed up.
 			$source->resultset->search({}, { alias => $source->from });
 		});
-		$self->helper('db_ro_'.$name, sub {
+		$self->helper('db_ro_'.$plural, sub {
 			my $ro_source = $_[0]->app->ro_schema->source($source_name);
 			$ro_source->resultset->search({}, { alias => $ro_source->from });
 		});

@@ -31,7 +31,7 @@ BAIL_OUT('Login failed') if $t->tx->res->code != 200;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
-my $conch_user = $t->schema->resultset('UserAccount')->find({ name => 'conch' });
+my $conch_user = $t->app->db_user_accounts->find({ name => 'conch' });
 
 ok($conch_user->last_login >= $now, 'user last_login is updated')
 	or diag('last_login not updated: ' . $conch_user->last_login . ' is not updated to ' . $now);

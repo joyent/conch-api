@@ -16,7 +16,7 @@ my $schema = Test::ConchTmpDB->schema($pgtmp);
 
 my $uuid = Data::UUID->new;
 
-my $global_ws = $schema->resultset('Workspace')->find({ name => 'GLOBAL' });
+my $global_ws = $schema->resultset('workspace')->find({ name => 'GLOBAL' });
 
 new_ok('Conch::Model::WorkspaceRack');
 my $ws_rack_model = Conch::Model::WorkspaceRack->new();

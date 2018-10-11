@@ -221,7 +221,7 @@ sub associated_racks {
         ->related_resultset('datacenter_room')
         ->related_resultset('datacenter_racks')->get_column('id');
 
-    $self->result_source->schema->resultset('DatacenterRack')->search(
+    $self->result_source->schema->resultset('datacenter_rack')->search(
         {
             'datacenter_rack.id' => [
                 { -in => $workspace_rack_ids->as_query },

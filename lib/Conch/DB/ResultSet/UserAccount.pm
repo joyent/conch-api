@@ -18,7 +18,7 @@ Interface to queries against the 'user_account' table.
 This method is built in to all resultsets.  In Conch::DB::Result::UserAccount we have overrides
 allowing us to receive the 'password' key, which we hash into 'password_hash'.
 
-    $c->schema->resultset('UserAccount') or $c->db_user_accounts
+    $c->schema->resultset('user_account') or $c->db_user_accounts
     ->create({
         name => ...,        # required, but usually the same as email :/
         email => ...,       # required
@@ -32,7 +32,7 @@ allowing us to receive the 'password' key, which we hash into 'password_hash'.
 This method is built in to all resultsets.  In Conch::DB::Result::UserAccount we have overrides
 allowing us to receive the 'password' key, which we hash into 'password_hash'.
 
-    $c->schema->resultset('UserAccount') or $c->db_user_accounts
+    $c->schema->resultset('user_account') or $c->db_user_accounts
     ->update({
         password => ...,
         ... possibly other things

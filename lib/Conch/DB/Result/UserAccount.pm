@@ -243,7 +243,7 @@ sub TO_JSON {
                         $_->user_id_for_role($self->id);
                         $_->TO_JSON
                     }
-                } $self->result_source->schema->resultset('Workspace')
+                } $self->result_source->schema->resultset('workspace')
                     ->workspaces_beneath($_->workspace_id)
             } $cached_uwrs->@*),
         ];
