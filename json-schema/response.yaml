@@ -900,35 +900,6 @@ definitions:
         format: date-time
       version:
         type: string
-  Problems:
-    type: object
-    additionalProperties: false
-    patternProperties:
-      ^(failing|unreported|unlocated)$:
-        type: object
-        additionalProperties: false
-        patternProperties:
-          ^[\w-]+$:  # key is a device_id
-            type: object
-            additionalProperties: false
-            $ref: "#/definitions/Problem"
-  Problem:
-    type: object
-    additionalProperties: false
-    required:
-      - health
-      - report_id
-    properties:
-      location:
-        anyOf:
-          - $ref: "#/definitions/DeviceLocation"
-          - type: 'null'
-      health:
-        type: string
-      report_id:
-        anyOf:
-          - $ref: /definitions/uuid
-          - type: 'null'
   WorkspaceAndRole:
     type: object
     additionalProperties: false

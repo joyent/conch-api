@@ -207,9 +207,11 @@ subtest 'Device Report' => sub {
 		'received_count is incremented',
 	);
 
-	$t->get_ok("/workspace/$global_ws_id/problem")->status_is(200)
-		->json_schema_is('Problems')
-		->json_is('/unlocated/TEST/health', 'PASS', 'device is listed as unlocated');
+	cmp_deeply(
+		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
+		[ 'TEST' ],
+		'device is unlocated',
+	);
 };
 
 subtest 'Assign device to a location' => sub {
@@ -220,10 +222,11 @@ subtest 'Assign device to a location' => sub {
 	->json_schema_is('WorkspaceRackLayoutUpdateResponse')
 	->json_is({ updated => [ 'TEST' ] });
 
-	$t->get_ok("/workspace/$global_ws_id/problem")
-		->status_is(200)
-		->json_schema_is('Problems')
-		->json_hasnt('/unlocated/TEST', 'device is no longer unlocated');
+	cmp_deeply(
+		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
+		[ ],
+		'device now located',
+	);
 
 	$t->get_ok('/device/TEST/location')
 		->status_is(200)

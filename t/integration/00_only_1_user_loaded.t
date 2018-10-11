@@ -193,18 +193,6 @@ subtest 'Workspaces' => sub {
 	$t->get_ok('/workspace/' . $uuid->create_str())
 		->status_is(404);
 
-	$t->get_ok("/workspace/$global_ws_id/problem")
-		->status_is(200)
-		->json_schema_is('Problems')
-		->json_is('',
-			{
-				failing    => {},
-				unlocated  => {},
-				unreported => {},
-			},
-			'Workspace Problem (empty) Data Contract'
-		);
-
 	$t->get_ok("/workspace/$global_ws_id/user")
 		->status_is(200)
 		->json_schema_is('WorkspaceUsers')
