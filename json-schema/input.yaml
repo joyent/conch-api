@@ -9,6 +9,15 @@ definitions:
   device_asset_tag:
     type: string
     pattern: ^\S+$
+  ipaddr:
+    anyOf:
+      - type: string
+        format: ipv4
+      - type: string
+        format: ipv6
+  macaddr:
+    type: string
+    pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
   DatacenterCreate:
     type: object
     additionalProperties: false
@@ -88,6 +97,39 @@ definitions:
           - switch
       interfaces:
         type: object
+        patternProperties:
+          ^\S+$:
+            description: interface name
+            type: object
+            required:
+              - mac
+              - product
+              - vendor
+            properties:
+              mac:
+                $ref: /definitions/macaddr
+              product:
+                type: string
+              vendor:
+                type: string
+              state:
+                anyOf:
+                  - type: string
+                  - type: 'null'
+              # note: no speed yet?
+              ipaddr:
+                anyOf:
+                  - $ref: /definitions/ipaddr
+                  - type: 'null'
+              mtu:
+                anyOf:
+                  - type: integer
+                  - type: 'null'
+              peer_mac:
+                anyOf:
+                  - $ref: /definitions/macaddr
+                  - type: 'null'
+              # peer_text, peer_switch, peer_port, all optional with no constraints
       media:
         type: object
       memory:
@@ -97,9 +139,9 @@ definitions:
           - count
         properties:
           total:
-            type: number
+            type: integer
           count:
-            type: number
+            type: integer
       os:
         type: object
         required:
@@ -116,7 +158,7 @@ definitions:
           type:
             type: string
           count:
-            type: number
+            type: integer
       product_name:
         type: string
       relay:
