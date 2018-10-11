@@ -411,22 +411,35 @@ sub TO_JSON {
 
 use Mojo::JSON 'from_json';
 
-=head2 latest_report
+=head2 latest_report_data
 
 Returns the JSON-decoded content from the most recent device report.
 
 =cut
 
-sub latest_report {
+sub latest_report_data {
     my $self = shift;
 
-    my $json = $self->related_resultset('device_reports')
-        ->order_by({ -desc => 'created' })
-        ->rows(1)
-        ->get_column('report')
-        ->single;
+    my $json = $self->self_rs->latest_device_report->get_column('report')->single;
 
     defined $json ? from_json($json) : undef;
+}
+
+=head2 latest_report_matches
+
+Checks if the latest report's json matches the passed-in json-encoded content (comparing using
+native jsonb operators).
+
+=cut
+
+sub latest_report_matches {
+    my ($self, $jsonb) = @_;
+
+    $self->self_rs
+        ->latest_device_report
+        ->as_subselect_rs
+        ->search({ report => \[ '= ?::jsonb', $jsonb ] })
+        ->count;
 }
 
 1;
