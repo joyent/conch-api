@@ -121,8 +121,7 @@ sub update ($c) {
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it
     if ($input->{rack_size}) {
-        my $rack_rs = $rack_role->self_rs
-            ->related_resultset('racks');
+        my $rack_rs = $rack_role->related_resultset('racks');
 
         while (my $rack = $rack_rs->next) {
             my %assigned_rack_units = map +($_ => 1),

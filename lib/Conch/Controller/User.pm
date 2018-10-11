@@ -144,7 +144,7 @@ sub get_settings ($c) {
     # newer entries overwriting older ones
     my %output = map
         +($_->name => from_json($_->value)),
-        $user->user_settings->active->search(undef, { order_by => 'created' });
+        $user->user_settings->active->order_by('created');
 
     $c->status(200, \%output);
 }
@@ -162,10 +162,11 @@ sub get_setting ($c) {
     Mojo::Exception->throw('Could not find previously stashed user')
         unless $user;
 
-    my $setting = $user->user_settings->active->search(
-        { name => $key },
-        { order_by => { -desc => 'created' } },
-    )->one_row;
+    my $setting = $user
+        ->search_related('user_settings', { name => $key })
+        ->active
+        ->order_by({ -desc => 'created' })
+        ->one_row;
 
     return $c->status(404) if not $setting;
     $c->status(200, { $key => from_json($setting->value) });

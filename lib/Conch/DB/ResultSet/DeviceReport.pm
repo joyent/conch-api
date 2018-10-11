@@ -30,10 +30,12 @@ sub with_report_status ($self) {
     $self->search(
         undef,
         {
-            '+select' => [ {
+            '+columns' => {
+                status => {
                     '' => \qq{case when $me.invalid_report is not null then 'error' else coalesce(min(validation_states.status),'pass') end},
                     -as => 'status',
-                } ],
+                }
+            },
             join => 'validation_states',
             group_by => "$me.id",
         },
