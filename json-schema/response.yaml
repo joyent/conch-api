@@ -800,9 +800,7 @@ definitions:
       validation_plan_id:
         $ref: /definitions/uuid
       device_report_id:
-        anyOf:
-          - type: 'null'  # XXX temporary! will be not-nullable later.
-          - $ref: /definitions/uuid
+        $ref: /definitions/uuid
   ValidationStatesWithResults:
     type: array
     items:
