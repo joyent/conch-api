@@ -191,10 +191,9 @@ Uses a device report to populate configuration information about the given devic
 sub _record_device_configuration {
 	my ( $c, $orig_device, $device, $dr ) = @_;
 
-	my $schema = $c->schema;
 	my $log = $c->log;
 
-	$schema->txn_do(
+	$c->schema->txn_do(
 		sub {
 			# Add a reboot count if there's not a previous uptime but one in this
 			# report (i.e. first uptime reported), or if the previous uptime date is
@@ -210,13 +209,9 @@ sub _record_device_configuration {
 			if($dr->{relay}) {
 				# 'first_seen' column will only be written on create. It should remain
 				# untouched on updates
-				$schema->resultset('DeviceRelayConnection')->update_or_create(
-					{
-						device_id => $device->id,
-						relay_id  => $dr->{relay}{serial},
-						last_seen => \'NOW()',
-					}
-				);
+				$device->search_related('device_relay_connections',
+						{ relay_id => $dr->{relay}{serial} })
+					->update_or_create({ last_seen => \'NOW()' });
 			}
 			else {
 				$c->log->warn('received report without relay id (device_id '. $device->id.')');
@@ -234,9 +229,8 @@ sub _record_device_configuration {
 				$nics_num = scalar( keys %{ $dr->{interfaces} } );
 			}
 
-			my $device_specs = $schema->resultset('DeviceSpec')->update_or_create(
+			my $device_specs = $device->related_resultset('device_spec')->update_or_create(
 				{
-					device_id           => $device->id,
 					hardware_product_id => $device->hardware_product->hardware_product_profile->id,
 					bios_firmware       => $dr->{bios_version},
 					cpu_num             => $dr->{processor}->{count},
@@ -244,87 +238,72 @@ sub _record_device_configuration {
 					nics_num            => $nics_num,
 					dimms_num           => $dr->{memory}->{count},
 					ram_total           => $dr->{memory}->{total},
+					# TODO: not setting hba_firmware
 				}
 			);
 
 			$log->info("Created Device Spec for Device ".$device->id);
 
-			$schema->resultset('DeviceEnvironment')->update_or_create(
-				{
-					device_id    => $device->id,
+			if ($dr->{temp}) {
+				$device->related_resultset('device_environment')->update_or_create({
 					cpu0_temp    => $dr->{temp}->{cpu0},
 					cpu1_temp    => $dr->{temp}->{cpu1},
 					inlet_temp   => $dr->{temp}->{inlet},
 					exhaust_temp => $dr->{temp}->{exhaust},
+					# TODO: not setting psu0_voltage, psu1_voltage
 					updated      => \'NOW()',
-				}
-			) if $dr->{temp};
-
-			$dr->{temp}
-				and $log->info("Recorded environment for Device ".$device->id);
-
-			my @device_disks = $schema->resultset('DeviceDisk')->search(
-				{
-					device_id   => $device->id,
-					deactivated => { '=', undef }
-				}
-			)->all;
+				});
+				$c->log->info("Recorded environment for Device ".$device->id);
+			}
 
 			# Keep track of which disk serials have been previously recorded in the
 			# DB but are no longer being reported due to a disk swap, etc.
-			my %inactive_serials = map { $_->serial_number => 1 } @device_disks;
+			my @device_disk_serials = $device->related_resultset('device_disks')
+				->active->get_column('serial_number')->all;
+			my %inactive_serials;
+			@inactive_serials{@device_disk_serials} = ();
 
 			foreach my $disk ( keys %{ $dr->{disks} } ) {
 				$log->debug("Device ".$device->id.": Recording disk: $disk");
 
-				if ( $inactive_serials{$disk} ) {
-					$inactive_serials{$disk} = 0;
-				}
+				delete $inactive_serials{$disk};
 
-				my $disk_rs = $schema->resultset('DeviceDisk')->update_or_create(
+				# if disk already exists on a different device, it will be relocated
+				$device->related_resultset('device_disks')->update_or_create(
 					{
-						device_id     => $device->id,
 						serial_number => $disk,
-						slot          => $dr->{disks}->{$disk}->{slot},
-						hba           => $dr->{disks}->{$disk}->{hba},
-						enclosure     => $dr->{disks}->{$disk}->{enclosure},
-						vendor        => $dr->{disks}->{$disk}->{vendor},
-						health        => $dr->{disks}->{$disk}->{health},
-						size          => $dr->{disks}->{$disk}->{size},
-						model         => $dr->{disks}->{$disk}->{model},
-						temp          => $dr->{disks}->{$disk}->{temp},
-						drive_type    => $dr->{disks}->{$disk}->{drive_type},
-						transport     => $dr->{disks}->{$disk}->{transport},
-						firmware      => $dr->{disks}->{$disk}->{firmware},
+						$dr->{disks}{$disk}->%{qw(
+							slot
+							hba
+							enclosure
+							vendor
+							health
+							size
+							model
+							temp
+							drive_type
+							transport
+							firmware
+						)},
 						deactivated   => undef,
 						updated       => \'NOW()'
-					}
+					},
 				);
 			}
 
-			my @inactive_serials =
-				grep { $inactive_serials{$_} } keys %inactive_serials;
+			my @inactive_serials = keys %inactive_serials;
 
-			# Deactivate all disks that were previously recorded but are no longer
+			# deactivate all disks that were previously recorded but are no longer
 			# reported in the device report
-			if ( scalar @inactive_serials ) {
-				$schema->resultset('DeviceDisk')
-					->search_rs( { serial_number => { -in => \@inactive_serials } } )
-					->update( { deactivated => \'NOW()', updated => \'NOW()' } );
+			if (@inactive_serials) {
+				$c->db_device_disks->search({ serial_number => { -in => \@inactive_serials } })->deactivate;
 			}
 
 			$dr->{disks}
 				and $log->info("Recorded disk info for Device ".$device->id);
 
-			# TODO: $device->device_nics->active->get_column('mac')
-			my @device_nics = $schema->resultset('DeviceNic')->search(
-				{
-					device_id   => $device->id,
-					deactivated => { '=', undef }
-				}
-			)->all;
-
-			my %inactive_macs = map { uc( $_->mac ) => 1 } @device_nics;
+			my @device_nic_macs = $device->device_nics->active->get_column('mac')->all;
+			my %inactive_macs; @inactive_macs{@device_nic_macs} = ();
 
 			foreach my $nic ( keys %{ $dr->{interfaces} } ) {
 
@@ -332,28 +311,26 @@ sub _record_device_configuration {
 
 				$log->debug("Device ".$device->id.": Recording NIC: $mac");
 
-				if ( $inactive_macs{$mac} ) {
-					$inactive_macs{$mac} = 0;
-				}
+				delete $inactive_macs{$mac};
 
-				my $nic_rs = $schema->resultset('DeviceNic')->update_or_create(
+				# if nic already exists on a different device, it will be relocated
+				$device->related_resultset('device_nics')->update_or_create(
 					{
 						mac          => $mac,
-						device_id    => $device->id,
 						iface_name   => $nic,
+						iface_driver => '',
 						iface_type   => $dr->{interfaces}->{$nic}->{product},
 						iface_vendor => $dr->{interfaces}->{$nic}->{vendor},
-						iface_driver => '',
-						state   => $dr->{interfaces}->{$nic}->{state},
-						ipaddr  => $dr->{interfaces}->{$nic}->{ipaddr},
-						mtu     => $dr->{interfaces}->{$nic}->{mtu},
+						state        => $dr->{interfaces}->{$nic}->{state},
+						ipaddr       => $dr->{interfaces}->{$nic}->{ipaddr},
+						mtu          => $dr->{interfaces}->{$nic}->{mtu},
 						updated      => \'NOW()',
-						deactivated  => undef
+						deactivated  => undef,
 						# TODO: 'speed' is never set!
-					}
+					},
 				);
 
-				my $nic_peers = $schema->resultset('DeviceNeighbor')->update_or_create(
+				my $nic_peers = $c->db_device_neighbors->update_or_create(
 					{
 						mac         => $mac,
 						raw_text    => $dr->{interfaces}->{$nic}->{peer_text},
@@ -361,19 +338,17 @@ sub _record_device_configuration {
 						peer_port   => $dr->{interfaces}->{$nic}->{peer_port},
 						peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac},
 						updated     => \'NOW()'
+						# TODO: not setting want_port, want_switch
 					}
 				);
 			}
 
-			my @inactive_macs =
-				grep { $inactive_macs{$_} } keys %inactive_macs;
+			my @inactive_macs = keys %inactive_macs;
 
-			# Deactivate all nics that were previously recorded but are no longer
+			# deactivate all nics that were previously recorded but are no longer
 			# reported in the device report
-			if ( scalar @inactive_macs ) {
-				$schema->resultset('DeviceNic')
-					->search_rs( { mac => { -in => \@inactive_macs } } )
-					->update( { deactivated => \'NOW()', updated => \'NOW()' } );
+			if (@inactive_macs) {
+				$c->db_device_nics->search({ mac => { -in => \@inactive_macs } })->deactivate;
 			}
 
 		}
