@@ -1409,7 +1409,7 @@ CREATE UNIQUE INDEX user_account_email_key ON public.user_account USING btree (e
 -- Name: user_account_name_key; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE UNIQUE INDEX user_account_name_key ON public.user_account USING btree (name) WHERE (deactivated IS NULL);
+CREATE INDEX user_account_name_key ON public.user_account USING btree (name);
 
 
 --

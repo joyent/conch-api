@@ -70,10 +70,8 @@ sub add_user ($c) {
 	my $input = $c->validate_input('WorkspaceAddUser');
 	return if not $input;
 
-	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
-	# don't have to look up by multiple columns.
 	my $rs = $c->db_user_accounts;
-	my $user = $rs->lookup_by_email($input->{user}) || $rs->lookup_by_name($input->{user});
+	my $user = $rs->lookup_by_email($input->{user});
 
 	return $c->status(404, { error => "user $input->{user} not found" })
 		unless $user;

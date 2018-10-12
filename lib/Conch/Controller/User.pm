@@ -353,8 +353,7 @@ sub create ($c) {
 	# this would cause horrible clashes with our /user routes!
 	return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
 
-	if (my $user = $c->db_user_accounts->lookup_by_email($email)
-			|| $c->db_user_accounts->lookup_by_name($name)) {
+	if (my $user = $c->db_user_accounts->lookup_by_email($email)) {
 		return $c->status(409, {
 			error => 'duplicate user found',
 			user => { map { $_ => $user->$_ } qw(id email name created deactivated) },
