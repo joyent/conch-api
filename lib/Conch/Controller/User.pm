@@ -74,8 +74,8 @@ sub set_settings ($c) {
 	$user->related_resultset('user_settings')->active->deactivate;
 
 	# store new settings
-	$user->create_related('user_settings', $_) foreach
-		pairmap { +{ name => $a, value => to_json($b) } } $body->%*;
+	$user->related_resultset('user_settings')
+		->populate([ pairmap { +{ name => $a, value => to_json($b) } } $body->%* ]);
 
 	$c->status(200);
 }

@@ -45,7 +45,7 @@ sub mk_tmp_db {
 	});
 
 	# Add a user so we can log in. User: conch; Password: conch;
-    $schema->resultset('UserAccount')->create({
+    $schema->resultset('user_account')->create({
         name => 'conch',
         email => 'conch@conch.joyent.us',
         password_hash => '{CRYPT}$2a$04$h963P26i4rTMaVogvA2U7ePcZTYm2o0gfSHyxaUCZSuthkpg47Zbi',

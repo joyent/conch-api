@@ -71,7 +71,7 @@ subtest "connect device relay" => sub {
 
 subtest "connect user relay" => sub {
 
-	my $user = $schema->resultset('UserAccount')->create({
+	my $user = $schema->resultset('user_account')->create({
 		name => 'foo',
 		email => 'foo@bar.com',
 		password => 'password',

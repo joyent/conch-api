@@ -78,7 +78,7 @@ sub list ($c) {
 		->get_column('workspace_id');
 
 	my $workspaces_rs = $c->db_workspaces
-		->and_workspaces_beneath($direct_workspace_ids_rs->as_query)
+		->and_workspaces_beneath($direct_workspace_ids_rs)
 		->with_role_via_data_for_user($c->stash('user_id'));
 
 	$c->status(200, [ $workspaces_rs->all ]);

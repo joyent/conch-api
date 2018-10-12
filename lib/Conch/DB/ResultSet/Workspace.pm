@@ -4,6 +4,7 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use Conch::UUID 'is_uuid';
+use Safe::Isa;
 
 =head1 NAME
 
@@ -57,8 +58,7 @@ SELECT workspace_children.id FROM workspace_children
 As L<workspaces_beneath>, but also includes the original workspace.
 
 C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
-or a subquery (via C<< $resultset->as_query >>, which must return a single column of distinct
-workspace_id(s)).
+or a resultset, which must return a single column of distinct workspace_id(s)).
 
 =cut
 
@@ -124,8 +124,7 @@ SELECT workspace_parents.id FROM workspace_parents
 As L<workspaces_above>, but also includes the original workspace.
 
 C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
-or a subquery (via C<< $resultset->as_query >>, which must return a single column of distinct
-workspace_id(s)).
+or a resultset, which must return a single column of distinct workspace_id(s)).
 
 =cut
 
@@ -222,7 +221,7 @@ sub associated_racks {
         ->related_resultset('datacenter_room')
         ->related_resultset('datacenter_racks')->get_column('id');
 
-    $self->result_source->schema->resultset('DatacenterRack')->search(
+    $self->result_source->schema->resultset('datacenter_rack')->search(
         {
             'datacenter_rack.id' => [
                 { -in => $workspace_rack_ids->as_query },
@@ -240,8 +239,7 @@ The first value is a string to be added after C<< WHERE <column> >>; the remaind
 values to be used in C<< \[ $query_string, @binds ] >>.
 
 C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
-or a subquery (via C<< $resultset->as_query >>, which must return a single column of distinct
-workspace_id(s)).
+a resultset (which must return a single column of distinct workspace_id(s)).
 
 =cut
 
@@ -253,9 +251,15 @@ sub _workspaces_subquery {
     }
 
     if (ref $workspace_id eq 'ARRAY') {
-        return ('= ANY(?)', $workspace_id);
+        return ('IN(?)', $workspace_id);
     }
 
+    if ($workspace_id->$_isa('DBIx::Class::ResultSetColumn')
+            or $workspace_id->$_isa('DBIx::Class::ResultSet')) {
+        $workspace_id = $workspace_id->as_query;
+    }
+
+    # $rs->as_query produces this: an sql query and list of bind parameters
     if (ref $workspace_id eq 'REF' and ref $workspace_id->$* eq 'ARRAY') {
         return (
             'IN ' . $workspace_id->$*->[0],

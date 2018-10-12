@@ -17,6 +17,14 @@ __PACKAGE__->load_namespaces(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-08-24 15:58:59
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QkdW/OL4Wq8k9yZp3hGDMg
 
+# register sources as <table_name>, rather than <TableName>, for nicer grepping...
+# that is, you should do $schema->resultset('user_account'), not ->resultset('UserAccount').
+foreach my $old_source_name (__PACKAGE__->sources) {
+    my $source = __PACKAGE__->source($old_source_name);
+    __PACKAGE__->unregister_source($old_source_name);
+    __PACKAGE__->register_source($source->from, $source);
+}
+
 1;
 __END__
 

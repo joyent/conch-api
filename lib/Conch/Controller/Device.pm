@@ -38,7 +38,7 @@ sub find_device ($c) {
 	# first, look for the device in all the user's workspaces
 	$c->log->debug("looking for device $device_id in user's workspaces");
 	my $user_workspace_device_rs = $c->db_workspaces
-		->and_workspaces_beneath($direct_workspace_ids_rs->as_query)
+		->and_workspaces_beneath($direct_workspace_ids_rs)
 		->associated_racks
 		->related_resultset('device_locations')
 		->related_resultset('device')

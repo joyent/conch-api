@@ -125,22 +125,22 @@ sub _device_rack_location {
 	my ( $schema, $device_id ) = @_;
 
 	my $location;
-	my $device_location = $schema->resultset('DeviceLocation')->find( { device_id => $device_id } );
+	my $device_location = $schema->resultset('device_location')->find( { device_id => $device_id } );
 
 	if ($device_location) {
 
 		# FIXME: this can all be done in one single query.
 		my $rack_info =
-			$schema->resultset('DatacenterRack')
+			$schema->resultset('datacenter_rack')
 				->find( { id => $device_location->rack_id, deactivated => { '=', undef } } );
 
 		my $datacenter =
-			$schema->resultset('DatacenterRoom')->find( { id => $rack_info->datacenter_room_id } );
+			$schema->resultset('datacenter_room')->find( { id => $rack_info->datacenter_room_id } );
 
 		# get the hardware product a device should be by rack location
 		# TODO: can just search for this directly via
 		# rack->datacenter_rack_layouts->hardware_product
-		my $target_hardware = $schema->resultset('HardwareProduct')->search(
+		my $target_hardware = $schema->resultset('hardware_product')->search(
 			{
 				'datacenter_rack_layouts.rack_id'  => $rack_info->id,
 				'datacenter_rack_layouts.rack_unit_start' => $device_location->rack_unit_start,

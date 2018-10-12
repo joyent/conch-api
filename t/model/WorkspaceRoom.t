@@ -10,7 +10,7 @@ $pgtmp or die;
 Conch::Pg->new( $pgtmp->uri );
 my $schema = Test::ConchTmpDB->schema($pgtmp);
 
-my $global_ws = $schema->resultset('Workspace')->find({ name => 'GLOBAL' });
+my $global_ws = $schema->resultset('workspace')->find({ name => 'GLOBAL' });
 
 new_ok('Conch::Model::WorkspaceRoom');
 my $ws_room_model = new_ok( "Conch::Model::WorkspaceRoom" );

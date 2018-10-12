@@ -35,8 +35,8 @@ sub user_has_permission {
         ->distinct
         ->get_column('id');
 
-    $self->result_source->schema->resultset('Workspace')
-        ->and_workspaces_above($device_workspaces_ids_rs->as_query)
+    $self->result_source->schema->resultset('workspace')
+        ->and_workspaces_above($device_workspaces_ids_rs)
         ->related_resultset('user_workspace_roles')
         ->user_has_permission($user_id, $permission);
 }
@@ -53,7 +53,7 @@ sub devices_without_location {
     $self->search({
         # all devices in device_location table
         $self->current_source_alias . '.id' => {
-            -not_in => $self->result_source->schema->resultset('DeviceLocation')->get_column('device_id')->as_query
+            -not_in => $self->result_source->schema->resultset('device_location')->get_column('device_id')->as_query
          },
     });
 }
