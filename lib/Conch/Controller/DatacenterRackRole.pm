@@ -75,6 +75,8 @@ sub create ($c) {
 
 Get a single rack role
 
+Response uses the RackRole json schema.
+
 =cut
 
 sub get ($c) {
@@ -87,6 +89,8 @@ sub get ($c) {
 =head2 get_all
 
 Get all rack roles
+
+Response uses the RackRoles json schema.
 
 =cut
 

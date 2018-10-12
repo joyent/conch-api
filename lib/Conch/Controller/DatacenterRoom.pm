@@ -129,6 +129,8 @@ sub delete ($c) {
 
 =head2 racks
 
+Response uses the Racks json schema.
+
 =cut
 
 sub racks ($c) {

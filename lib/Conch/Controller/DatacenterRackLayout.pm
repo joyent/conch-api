@@ -78,6 +78,8 @@ sub create ($c) {
 
 =head2 get
 
+Response uses the RackLayout json schema.
+
 =cut
 
 sub get ($c) {
@@ -88,6 +90,9 @@ sub get ($c) {
 
 =head2 get_all
 
+Gets *all* rack layouts.
+
+Response uses the RackLayouts json schema.
 
 =cut
 

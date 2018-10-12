@@ -225,6 +225,10 @@ sub remove ($c) {
 
 Assign the full layout for a rack
 
+Response returns the list of devices that were updated.
+
+TODO: this endpoint is untested!
+
 =cut
 
 # TODO: This is legacy code that is non-transactional. It should be reworked. --Lane

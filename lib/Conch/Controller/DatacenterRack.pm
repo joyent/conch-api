@@ -85,6 +85,8 @@ sub create ($c) {
 
 Get a single rack
 
+Response uses the Rack json schema.
+
 =cut
 
 sub get ($c) {
@@ -96,6 +98,8 @@ sub get ($c) {
 =head2 get_all
 
 Get all racks
+
+Response uses the Racks json schema.
 
 =cut
 
@@ -109,6 +113,10 @@ sub get_all ($c) {
 }
 
 =head2 layouts
+
+Gets all the layouts for the specified rack.
+
+Response uses the RackLayouts json schema.
 
 =cut
 
