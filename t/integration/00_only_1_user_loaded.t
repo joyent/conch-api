@@ -901,6 +901,8 @@ subtest 'modify another user' => sub {
 			workspaces => [],
 		}, 'returned all the right fields (and not the password)');
 
+	my $new_user_data = $t->tx->res->json;
+
 	$t->post_ok(
 		'/user?send_mail=0',
 		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
@@ -911,6 +913,15 @@ subtest 'modify another user' => sub {
 		->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
 		->json_is('/user/name' => 'foo', 'got user name')
 		->json_is('/user/deactivated' => undef, 'got user deactivated date');
+
+	$t->post_ok('/user/email=foo@conch.joyent.us' => json => { name => 'FOO', is_admin => 1 })
+		->status_is(200)
+		->json_schema_is('UserDetailed')
+		->json_is('', {
+			%$new_user_data,
+			name => 'FOO',
+			is_admin => JSON::PP::true,
+		});
 
 	my $t2 = Test::Conch->new(pg => $t->pg);
 	$t2->post_ok(
@@ -1090,14 +1101,14 @@ subtest 'modify another user' => sub {
 		->json_is('/error' => 'user was already deactivated')
 		->json_is('/user/id' => $new_user_id, 'got user id')
 		->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
-		->json_is('/user/name' => 'foo', 'got user name');
+		->json_is('/user/name' => 'FOO', 'got user name');
 
 	$new_user->discard_changes;
 	ok($new_user->deactivated, 'user still exists, but is marked deactivated');
 
 	$t->post_ok(
 		'/user?send_mail=0',
-		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
+		json => { email => 'foo@conch.joyent.us', name => 'FOO', password => '123' })
 		->status_is(201, 'created user "again"');
 	my $second_new_user_id = $t->tx->res->json->{id};
 

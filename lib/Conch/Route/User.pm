@@ -26,6 +26,7 @@ Sets up routes for /user:
     POST    /user/me/password
 
     GET     /user/#target_user_id
+    POST    /user/#target_user_id
     DELETE  /user/#target_user_id
     POST    /user/#target_user_id/revoke
     DELETE  /user/#target_user_id/password
@@ -84,6 +85,8 @@ sub user_routes {
 
         # GET /user/#target_user_id
         $user_with_target->get('/')->to('#get');
+        # POST /user/#target_user_id
+        $user_with_target->post('/')->to('#update');
         # DELETE /user/#target_user_id
         $user_with_target->delete('/')->to('#deactivate');
 
