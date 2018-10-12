@@ -214,7 +214,7 @@ sub session_login ($c) {
 	my $input = $c->validate_input('Login');
 	if (not $input) {
 		$c->log->debug('session login failed validation');
-		return $c->status(400);
+		return;
 	}
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we

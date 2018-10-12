@@ -63,10 +63,7 @@ Stores data as a new datacenter_rack row, munging 'role' to 'datacenter_rack_rol
 sub create ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('RackCreate');
-	if (not $input) {
-		$c->log->debug("Input failed validation");
-		return $c->status(400);
-	}
+	return if not $input;
 
 	unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->count) {
 		return $c->status(400 => { "error" => "Room does not exist" });
@@ -132,10 +129,7 @@ sub layouts ($c) {
 
 sub update ($c) {
 	my $input = $c->validate_input('RackUpdate');
-	if (not $input) {
-		$c->log->debug("Input failed validation");
-		return;
-	}
+	return if not $input;
 
 	if ($input->{datacenter_room_id}) {
 		unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->count) {

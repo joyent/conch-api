@@ -87,11 +87,9 @@ Create a new datacenter
 
 sub create ($c) {
 	return $c->status(403) unless $c->is_system_admin;
+
 	my $input = $c->validate_input('DatacenterCreate');
-	if (not $input) {
-		$c->log->debug("Input failed validation");
-		return;
-	}	
+	return if not $input;
 
 	my $datacenter = $c->db_datacenters->create($input);
 	$c->log->debug("Created datacenter ".$datacenter->id);
@@ -108,10 +106,7 @@ Update an existing datacenter
 sub update ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('DatacenterUpdate');
-	if (not $input) {
-		$c->log->debug("Input failed validation");
-		return;
-	}
+	return if not $input;
 
 	$c->stash('datacenter')->update($input);
 	$c->log->debug("Updated datacenter ".$c->stash('datacenter')->id);

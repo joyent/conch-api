@@ -29,10 +29,7 @@ sub create ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 
 	my $body = $c->validate_input("CreateValidationPlan");
-	if(not $body) {
-		$c->log->warn("Input failed validation");
-		return;
-	}
+	return if not $body;
 
 	my $existing_validation_plan =
 		Conch::Model::ValidationPlan->lookup_by_name( $body->{name} );
@@ -135,10 +132,7 @@ Add a validation to a validation plan.
 sub add_validation ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 	my $body = $c->validate_input("AddValidationToPlan");
-	if(not $body) {
-		$c->log->warn("Input failed validation");
-		return;
-	}
+	return if not $body;
 
 	my $maybe_validation = Conch::Model::Validation->lookup( $body->{id} );
 	unless($maybe_validation) {

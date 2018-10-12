@@ -32,7 +32,7 @@ sub process ($c) {
 	my $unserialized_report = $c->validate_input('DeviceReport');
 	if(not $unserialized_report) {
 		$c->log->debug('Device report input failed validation');
-		return $c->status(400);
+		return;
 	}
 
 	# Make sure the API and device report agree on who we're talking about

@@ -78,10 +78,7 @@ Create a new datacenter room
 sub create ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('DatacenterRoomCreate');
-	if (not $input) {
-		$c->log->warn("Input failed validation");
-		return $c->status('400');
-	}
+	return if not $input;
 
 	$input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
@@ -100,10 +97,7 @@ Update an existing room
 sub update ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('DatacenterRoomUpdate');
-	if (not $input) {
-		$c->log->warn("Input failed validation");
-		return $c->status(400);
-	}
+	return if not $input;
 
 	$input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
