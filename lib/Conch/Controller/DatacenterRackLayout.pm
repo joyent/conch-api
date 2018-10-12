@@ -48,10 +48,7 @@ sub find_datacenter_rack_layout ($c) {
 sub create ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('RackLayoutCreate');
-	if (not $input) {
-		$c->log->debug("Input failed validation");
-		return $c->status(400);
-	}
+	return if not $input;
 
 	unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->count) {
 		$c->log->debug("Could not find datacenter rack ".$input->{rack_id});
@@ -81,6 +78,8 @@ sub create ($c) {
 
 =head2 get
 
+Response uses the RackLayout json schema.
+
 =cut
 
 sub get ($c) {
@@ -91,6 +90,9 @@ sub get ($c) {
 
 =head2 get_all
 
+Gets *all* rack layouts.
+
+Response uses the RackLayouts json schema.
 
 =cut
 
@@ -108,10 +110,7 @@ sub get_all ($c) {
 
 sub update ($c) {
 	my $input = $c->validate_input('RackLayoutUpdate');
-	if (not $input) {
-		$c->log->debug("Input failed validation");
-		return $c->status(400);
-	}
+	return if not $input;
 
 	if ($input->{rack_id}) {
 		unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->count) {

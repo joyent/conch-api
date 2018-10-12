@@ -9,6 +9,15 @@ definitions:
   device_asset_tag:
     type: string
     pattern: ^\S+$
+  ipaddr:
+    anyOf:
+      - type: string
+        format: ipv4
+      - type: string
+        format: ipv6
+  macaddr:
+    type: string
+    pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
   Error:
     type: object
     additionalProperties: false
@@ -134,7 +143,7 @@ definitions:
             - peer_switch
           properties:
             mac:
-              type: string
+              $ref: /definitions/macaddr
             iface_name:
               type: string
             iface_vendor:
@@ -264,7 +273,7 @@ definitions:
       device_id:
         $ref: /definitions/device_id
       mac:
-        type: string
+        $ref: /definitions/macaddr
       iface_name:
         type: string
       iface_vendor:
@@ -283,10 +292,7 @@ definitions:
           - type: 'null'
       ipaddr:
         anyOf:
-          - type: string
-            format: ipv4
-          - type: string
-            format: ipv6
+          - $ref: /definitions/ipaddr
           - type: 'null'
       mtu:
         anyOf:
@@ -879,7 +885,7 @@ definitions:
         type: string
       ipaddr:
         anyOf:
-          - type: string
+          - $ref: /definitions/ipaddr
           - type: 'null'
       location:
         type: object
@@ -900,35 +906,6 @@ definitions:
         format: date-time
       version:
         type: string
-  Problems:
-    type: object
-    additionalProperties: false
-    patternProperties:
-      ^(failing|unreported|unlocated)$:
-        type: object
-        additionalProperties: false
-        patternProperties:
-          ^[\w-]+$:  # key is a device_id
-            type: object
-            additionalProperties: false
-            $ref: "#/definitions/Problem"
-  Problem:
-    type: object
-    additionalProperties: false
-    required:
-      - health
-      - report_id
-    properties:
-      location:
-        anyOf:
-          - $ref: "#/definitions/DeviceLocation"
-          - type: 'null'
-      health:
-        type: string
-      report_id:
-        anyOf:
-          - $ref: /definitions/uuid
-          - type: 'null'
   WorkspaceAndRole:
     type: object
     additionalProperties: false
@@ -1074,7 +1051,7 @@ definitions:
         type: string
       ipaddr:
         anyOf:
-          - type: string
+          - $ref: /definitions/ipaddr
           - type: 'null'
       ssh_port:
         anyOf:

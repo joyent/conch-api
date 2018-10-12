@@ -145,10 +145,7 @@ sub add ($c) {
 	return $c->status(403) unless $c->is_workspace_admin;
 
 	my $input = $c->validate_input('WorkspaceAddRack');
-	if (not $input) {
-		$c->log->warn("Input failed validation");
-		return $c->status(400);
-	}
+	return if not $input;
 
 	my $rack_id = delete $input->{id};
 
@@ -227,6 +224,10 @@ sub remove ($c) {
 =head2 assign_layout
 
 Assign the full layout for a rack
+
+Response returns the list of devices that were updated.
+
+TODO: this endpoint is untested!
 
 =cut
 

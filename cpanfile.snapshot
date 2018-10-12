@@ -179,17 +179,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0.47
-  Class-Tiny-1.006
-    pathname: D/DA/DAGOLDEN/Class-Tiny-1.006.tar.gz
-    provides:
-      Class::Tiny 1.006
-      Class::Tiny::Object 1.006
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 6.17
-      perl 5.006
-      strict 0
-      warnings 0
   Class-Unload-0.11
     pathname: I/IL/ILMARI/Class-Unload-0.11.tar.gz
     provides:
@@ -1825,135 +1814,6 @@ DISTRIBUTIONS
       IPC::Cmd 0
       XSLoader 0.22
       base 0
-  Log-Log4perl-1.49
-    pathname: M/MS/MSCHILLI/Log-Log4perl-1.49.tar.gz
-    provides:
-      L4pResurrectable 0.01
-      Log::Log4perl 1.49
-      Log::Log4perl::Appender undef
-      Log::Log4perl::Appender::Buffer undef
-      Log::Log4perl::Appender::DBI undef
-      Log::Log4perl::Appender::File undef
-      Log::Log4perl::Appender::Limit undef
-      Log::Log4perl::Appender::RRDs undef
-      Log::Log4perl::Appender::Screen undef
-      Log::Log4perl::Appender::ScreenColoredLevels undef
-      Log::Log4perl::Appender::Socket undef
-      Log::Log4perl::Appender::String undef
-      Log::Log4perl::Appender::Synchronized undef
-      Log::Log4perl::Appender::TestArrayBuffer undef
-      Log::Log4perl::Appender::TestBuffer undef
-      Log::Log4perl::Appender::TestFileCreeper undef
-      Log::Log4perl::Catalyst undef
-      Log::Log4perl::Config undef
-      Log::Log4perl::Config::BaseConfigurator undef
-      Log::Log4perl::Config::DOMConfigurator 0.03
-      Log::Log4perl::Config::PropertyConfigurator undef
-      Log::Log4perl::Config::Watch undef
-      Log::Log4perl::DateFormat undef
-      Log::Log4perl::Filter undef
-      Log::Log4perl::Filter::Boolean undef
-      Log::Log4perl::Filter::LevelMatch undef
-      Log::Log4perl::Filter::LevelRange undef
-      Log::Log4perl::Filter::MDC undef
-      Log::Log4perl::Filter::StringMatch undef
-      Log::Log4perl::InternalDebug undef
-      Log::Log4perl::JavaMap undef
-      Log::Log4perl::JavaMap::ConsoleAppender undef
-      Log::Log4perl::JavaMap::FileAppender undef
-      Log::Log4perl::JavaMap::JDBCAppender undef
-      Log::Log4perl::JavaMap::NTEventLogAppender undef
-      Log::Log4perl::JavaMap::RollingFileAppender undef
-      Log::Log4perl::JavaMap::SyslogAppender undef
-      Log::Log4perl::JavaMap::TestBuffer undef
-      Log::Log4perl::Layout undef
-      Log::Log4perl::Layout::NoopLayout undef
-      Log::Log4perl::Layout::PatternLayout undef
-      Log::Log4perl::Layout::PatternLayout::Multiline undef
-      Log::Log4perl::Layout::SimpleLayout undef
-      Log::Log4perl::Level undef
-      Log::Log4perl::Logger undef
-      Log::Log4perl::MDC undef
-      Log::Log4perl::NDC undef
-      Log::Log4perl::Resurrector undef
-      Log::Log4perl::Util undef
-      Log::Log4perl::Util::Semaphore undef
-      Log::Log4perl::Util::TimeTracker undef
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Path 2.0606
-      File::Spec 0.82
-      Test::More 0.45
-  Log-Log4perl-Layout-JSON-0.54
-    pathname: M/MS/MSCHOUT/Log-Log4perl-Layout-JSON-0.54.tar.gz
-    provides:
-      Log::Log4perl::Layout::JSON 0.54
-    requirements:
-      Carp 0
-      Class::Tiny 0
-      ExtUtils::MakeMaker 0
-      JSON::MaybeXS 0
-      Log::Log4perl 0
-      Log::Log4perl::Layout 0
-      Log::Log4perl::Layout::PatternLayout 0
-      Log::Log4perl::Level 0
-      parent 0
-      perl 5.008
-      strict 0
-      warnings 0
-  Log-Report-1.27
-    pathname: M/MA/MARKOV/Log-Report-1.27.tar.gz
-    provides:
-      Dancer2::Logger::LogReport 1.27
-      Dancer2::Plugin::LogReport 1.27
-      Dancer2::Plugin::LogReport::Message 1.27
-      Dancer::Logger::LogReport 1.27
-      Log::Report 1.27
-      Log::Report::DBIC::Profiler 1.27
-      Log::Report::Die 1.27
-      Log::Report::Dispatcher 1.27
-      Log::Report::Dispatcher::Callback 1.27
-      Log::Report::Dispatcher::File 1.27
-      Log::Report::Dispatcher::Log4perl 1.27
-      Log::Report::Dispatcher::LogDispatch 1.27
-      Log::Report::Dispatcher::Perl 1.27
-      Log::Report::Dispatcher::Syslog 1.27
-      Log::Report::Dispatcher::Try 1.27
-      Log::Report::Domain 1.27
-      Log::Report::Exception 1.27
-      Log::Report::Message 1.27
-      Log::Report::Translator 1.27
-      MojoX::Log::Report 1.27
-    requirements:
-      Devel::GlobalDestruction 0.09
-      Encode 2.00
-      ExtUtils::MakeMaker 0
-      Log::Report::Optional 1.03
-      Scalar::Util 0
-      String::Print 0.91
-      Sys::Syslog 0.27
-      Test::More 0.86
-  Log-Report-Optional-1.06
-    pathname: M/MA/MARKOV/Log-Report-Optional-1.06.tar.gz
-    provides:
-      Log::Report::Minimal 1.06
-      Log::Report::Minimal::Domain 1.06
-      Log::Report::Optional 1.06
-      Log::Report::Util 1.06
-    requirements:
-      ExtUtils::MakeMaker 0
-      String::Print 0.91
-      Test::More 0.86
-  MIME-Charset-1.012.2
-    pathname: N/NE/NEZUMI/MIME-Charset-1.012.2.tar.gz
-    provides:
-      MIME::Charset v1.12.2
-    requirements:
-      CPAN 0
-      Encode 1.98
-      ExtUtils::MakeMaker 6.42
-      Test::More 0
-      perl 5.005
   MRO-Compat-0.13
     pathname: H/HA/HAARG/MRO-Compat-0.13.tar.gz
     provides:
@@ -2687,24 +2547,6 @@ DISTRIBUTIONS
       strict 0
       version 0.83
       warnings 0
-  String-CamelCase-0.04
-    pathname: H/HI/HIO/String-CamelCase-0.04.tar.gz
-    provides:
-      String::CamelCase 0.04
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0
-  String-Print-0.93
-    pathname: M/MA/MARKOV/String-Print-0.93.tar.gz
-    provides:
-      String::Print 0.93
-    requirements:
-      Date::Parse 2.3
-      Encode 0
-      ExtUtils::MakeMaker 0
-      HTML::Entities 0
-      Test::More 0.86
-      Unicode::GCString 0
   String-ToIdentifier-EN-0.12
     pathname: R/RK/RKITOVER/String-ToIdentifier-EN-0.12.tar.gz
     provides:
@@ -3190,18 +3032,6 @@ DISTRIBUTIONS
       POSIX 0
       Test::More 0
       Time::HiRes 0
-  Unicode-LineBreak-2018.003
-    pathname: N/NE/NEZUMI/Unicode-LineBreak-2018.003.tar.gz
-    provides:
-      Text::LineFold 2016.00702
-      Unicode::GCString 2013.10
-      Unicode::LineBreak 2018.003
-    requirements:
-      Encode 1.98
-      ExtUtils::MakeMaker 6.26
-      MIME::Charset v1.6.2
-      Test::More 0.45
-      perl 5.008
   Variable-Magic-0.62
     pathname: V/VP/VPIT/Variable-Magic-0.62.tar.gz
     provides:

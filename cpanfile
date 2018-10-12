@@ -39,14 +39,6 @@ requires 'List::MoreUtils';
 requires 'List::MoreUtils::XS';
 requires 'Getopt::Long::Descriptive';
 
-### Legacy Deps
-#
-# String::CamelCase 0.03 had a broken META file that prevents the toolchain
-# from being able to figure out its version, thus breaking 'carton install
-# --deployment'. The issue was resolved in 0.04
-# All our dependencies rely on 0.02 and up, but just to be careful, we'll pin
-# it at 0.04 or greater.
-requires 'String::CamelCase', '>= 0.04';
 
 # database and rendering
 requires 'DBD::Pg';
@@ -57,11 +49,6 @@ requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';
 requires 'Text::CSV_XS';
-
-# logging
-requires 'Log::Log4perl';
-requires 'Log::Log4perl::Layout::JSON';
-requires 'Log::Report';
 
 
 on 'test' => sub {

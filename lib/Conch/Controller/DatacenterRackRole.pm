@@ -59,10 +59,7 @@ sub find_rack_role ($c) {
 sub create ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 	my $input = $c->validate_input('RackRoleCreate');
-	if (not $input) {
-		$c->log->warn("Input failed validation");
-		return $c->status(400);
-	}
+	return if not $input;
 
 	if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->count) {
 		$c->log->debug("Name conflict on '".$input->{name}."'");
@@ -78,6 +75,8 @@ sub create ($c) {
 
 Get a single rack role
 
+Response uses the RackRole json schema.
+
 =cut
 
 sub get ($c) {
@@ -90,6 +89,8 @@ sub get ($c) {
 =head2 get_all
 
 Get all rack roles
+
+Response uses the RackRoles json schema.
 
 =cut
 
@@ -110,10 +111,7 @@ sub get_all ($c) {
 
 sub update ($c) {
 	my $input = $c->validate_input('RackRoleUpdate');
-	if (not $input) {
-		$c->log->warn("Input failed validation");
-		return $c->status(400);
-	}
+	return if not $input;
 
 	if ($input->{name}) {
 		if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->count) {
