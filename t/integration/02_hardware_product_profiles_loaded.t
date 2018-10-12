@@ -4,6 +4,7 @@ use Data::UUID;
 use Path::Tiny;
 use Test::Warnings;
 use Test::Conch;
+use Test::Deep;
 
 my $uuid = Data::UUID->new;
 
@@ -65,34 +66,49 @@ subtest 'Device Report' => sub {
 };
 
 subtest 'Hardware Product' => sub {
-	$t->get_ok("/hardware_product")->status_is(200);
-	my @hardware_products = $t->tx->res->json->@*;
-	is( scalar @hardware_products, 3 );
-	my @hardware_product_names = sort map { $_->{name} } @hardware_products;
-	is_deeply(
-		\@hardware_product_names,
-		[
-			'2-ssds-1-cpu', '65-ssds-2-cpu',
-			'Switch'
-		]
-	);
-	for my $hardware_product (@hardware_products) {
-		ok(
-			!defined( $hardware_product->{profile}->{zpool} ),
-			'No product has zpool profile defined'
+	$t->get_ok('/hardware_product')
+		->status_is(200)
+		->json_schema_is('HardwareProducts')
+		->json_cmp_deeply('',
+			bag(
+				superhashof({
+					name => '2-ssds-1-cpu',
+					profile => superhashof({
+						zpool => undef,
+					}),
+				}),
+				superhashof({
+					name => '65-ssds-2-cpu',
+					profile => superhashof({
+						zpool => undef,
+					}),
+				}),
+				superhashof({
+					name => 'Switch',
+					profile => superhashof({
+						zpool => undef,
+					}),
+				}),
+			),
 		);
-		$t->get_ok( "/hardware_product/" . $hardware_product->{id} )
-			->status_is(200)->json_is( '', $hardware_product );
+
+	for my $hardware_product ($t->tx->res->json->@*) {
+		$t->get_ok("/hardware_product/" . $hardware_product->{id} )
+			->status_is(200)
+			->json_schema_is('HardwareProduct')
+			->json_is('', $hardware_product);
 	}
 };
 
 subtest 'Hardware Vendors' => sub {
-	$t->get_ok('/hardware_vendor')->status_is(200)
+	$t->get_ok('/hardware_vendor')
+		->status_is(200)
 		->json_schema_is('HardwareVendors');
 
 	my $all_vendors = $t->tx->res->json;
 
-	$t->get_ok("/hardware_vendor/$all_vendors->[0]{name}")->status_is(200)
+	$t->get_ok("/hardware_vendor/$all_vendors->[0]{name}")
+		->status_is(200)
 		->json_schema_is('HardwareVendor')
 		->json_is($all_vendors->[0]);
 
@@ -111,7 +127,8 @@ subtest 'Hardware Vendors' => sub {
 	$t->delete_ok('/hardware_vendor/MyNewVendor')->status_is(204);
 	$t->delete_ok('/hardware_vendor/MyNewVendor')->status_is(404);
 
-	$t->get_ok('/hardware_vendor')->status_is(200)
+	$t->get_ok('/hardware_vendor')
+		->status_is(200)
 		->json_schema_is('HardwareVendors')
 		->json_is('', $all_vendors, 'deleted vendor is not in returned list');
 
