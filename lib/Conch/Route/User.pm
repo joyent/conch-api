@@ -26,11 +26,11 @@ Sets up routes for /user:
     POST    /user/me/password
 
     GET     /user/#target_user_id
+    DELETE  /user/#target_user_id
     POST    /user/#target_user_id/revoke
     DELETE  /user/#target_user_id/password
     GET     /user
     POST    /user
-    DELETE  /user/#target_user
 
 =cut
 
@@ -84,6 +84,8 @@ sub user_routes {
 
         # GET /user/#target_user_id
         $user_with_target->get('/')->to('#get');
+        # DELETE /user/#target_user_id
+        $user_with_target->delete('/')->to('#deactivate');
 
         # POST /user/#target_user_id/revoke
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
@@ -94,9 +96,6 @@ sub user_routes {
         $user->require_system_admin->get('/')->to('#list');
         # POST /user
         $user->require_system_admin->post('/')->to('#create');
-
-        # DELETE /user/#target_user
-        $user->require_system_admin->delete('/#target_user')->to('#deactivate');
     }
 }
 

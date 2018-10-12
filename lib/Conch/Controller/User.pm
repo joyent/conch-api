@@ -273,13 +273,14 @@ and stashes the corresponding user row in C<target_user>.
 sub find_user ($c) {
 	my $user_param = $c->stash('target_user_id');
 
-	$c->log->debug('looking up user '.$user_param);
-
 	my $user_rs = $c->db_user_accounts;
-	my $user =
-		is_uuid($user_param) ? $user_rs->lookup_by_id($user_param)
-	  : $user_param =~ /^email\=/ ? $user_rs->lookup_by_email($')
-	  : undef;
+
+	# when deactivating users or removing users from a workspace, we want to find
+	# already-deactivated users too.
+	$user_rs = $user_rs->active if $c->tx->req->method ne 'DELETE';
+
+	$c->log->debug('looking up user '.$user_param);
+	my $user = $user_rs->lookup_by_id_or_email($user_param);
 
 	return $c->status(404, { error => "user $user_param not found" }) if not $user;
 
@@ -353,7 +354,7 @@ sub create ($c) {
 	# this would cause horrible clashes with our /user routes!
 	return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
 
-	if (my $user = $c->db_user_accounts->lookup_by_email($email)) {
+	if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email("email=$email")) {
 		return $c->status(409, {
 			error => 'duplicate user found',
 			user => { map { $_ => $user->$_ } qw(id email name created deactivated) },
@@ -390,13 +391,7 @@ All workspace permissions are removed and are not recoverable.
 =cut
 
 sub deactivate ($c) {
-	my $user_param = $c->stash('target_user');
-	my $user =
-		is_uuid($user_param) ? $c->db_user_accounts->find({ id => $user_param })
-	  : $user_param =~ /^email\=/ ? $c->db_user_accounts->find({ email => $' })
-	  : undef;
-
-	return $c->status(404, { error => "user $user_param not found" }) if not $user;
+	my $user = $c->stash('target_user');
 
 	if ($user->deactivated) {
 		return $c->status(410, {

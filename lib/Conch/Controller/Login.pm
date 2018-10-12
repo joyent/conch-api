@@ -96,7 +96,7 @@ sub authenticate ($c) {
 		my ($email, $password) = ($url->username, $url->password);
 
 		$c->log->debug('looking up user by email ' . $email . '...');
-		my $user = $c->db_user_accounts->lookup_by_email($email);
+		my $user = $c->db_user_accounts->active->lookup_by_id_or_email("email=$email");
 
 		unless ($user) {
 			$c->log->debug('basic auth failed: user not found');
@@ -162,7 +162,7 @@ sub authenticate ($c) {
 
 	if ($user_id and is_uuid($user_id)) {
 		$c->log->debug('looking up user by id ' . $user_id . '...');
-		if (my $user = $c->db_user_accounts->lookup_by_id($user_id)) {
+		if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email($user_id)) {
 
 			$c->stash('token_id' => $jwt->{jti}) if $jwt;
 
@@ -219,8 +219,9 @@ sub session_login ($c) {
 
 	# TODO: it would be nice to be sure of which type of data we were being passed here, so we
 	# don't have to look up by all columns.
-	my $user = $c->db_user_accounts->lookup_by_id($input->{user})
-		|| $c->db_user_accounts->lookup_by_email($input->{user});
+	my $user_rs = $c->db_user_accounts->active;
+	my $user = $user_rs->lookup_by_id_or_email($input->{user})
+		|| $user_rs->lookup_by_id_or_email("email=$input->{user}");
 
 	if (not $user) {
 		$c->log->debug("user lookup for $input->{user} failed");

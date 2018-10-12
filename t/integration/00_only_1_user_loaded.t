@@ -224,7 +224,7 @@ subtest 'Workspaces' => sub {
 
 	is(
 		$t->app->db_user_accounts
-			->lookup_by_email('test_workspace@conch.joyent.us')
+			->find({ email => 'test_workspace@conch.joyent.us' })
 			->search_related('user_workspace_roles', { workspace_id => $global_ws_id })
 			->count,
 		1,
@@ -883,7 +883,7 @@ subtest 'modify another user' => sub {
 		->json_is('/name' => 'foo', 'got name');
 
 	my $new_user_id = $t->tx->res->json->{id};
-	my $new_user = $t->app->db_user_accounts->lookup_by_id($new_user_id);
+	my $new_user = $t->app->db_user_accounts->find($new_user_id);
 
 	$t->get_ok("/user/$new_user_id")
 		->status_is(200)
@@ -1102,7 +1102,7 @@ subtest 'modify another user' => sub {
 	my $second_new_user_id = $t->tx->res->json->{id};
 
 	isnt($second_new_user_id, $new_user_id, 'created user with a new id');
-	my $second_new_user = $t->app->db_user_accounts->lookup_by_id($second_new_user_id);
+	my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);
 	is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
 	is($second_new_user->name, $new_user->name, '...but the names are the same');
 };
