@@ -40,14 +40,7 @@ Revoke a specified user's session tokens. System admin only.
 =cut
 
 sub revoke_user_tokens ($c) {
-	my $user_param = $c->stash('target_user');
-	my $user =
-		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
-	  : $user_param =~ s/^email\=// ? $c->db_user_accounts->lookup_by_email($user_param)
-	  : undef;
-
-	return $c->status( 404, { error => "user $user_param not found" } )
-		unless $user;
+	my $user = $c->stash('target_user');
 
 	$c->log->debug('revoking session tokens for user ' . $user->name . ', forcing them to /login again');
 	$user->delete_related('user_session_tokens');
@@ -237,13 +230,7 @@ password after logging in, as they will not be able to log in with it again.
 =cut
 
 sub reset_user_password ($c) {
-	my $user_param = $c->stash('target_user');
-	my $user =
-		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
-	  : $user_param =~ /^email\=/ ? $c->db_user_accounts->lookup_by_email($')
-	  : undef;
-
-	return $c->status(404, { error => "user $user_param not found" }) if not $user;
+	my $user = $c->stash('target_user');
 
 	my $new_password = $c->random_string();
 	$c->log->warn('user ' . $c->stash('user')->name . ' resetting password for user ' . $user->name);
@@ -276,6 +263,30 @@ sub reset_user_password ($c) {
 	return $c->status(202);
 }
 
+=head2 find_user
+
+Chainable action that validates the user_id or email address provided in the path,
+and stashes the corresponding user row in C<target_user>.
+
+=cut
+
+sub find_user ($c) {
+	my $user_param = $c->stash('target_user_id');
+
+	$c->log->debug('looking up user '.$user_param);
+
+	my $user_rs = $c->db_user_accounts;
+	my $user =
+		is_uuid($user_param) ? $user_rs->lookup_by_id($user_param)
+	  : $user_param =~ /^email\=/ ? $user_rs->lookup_by_email($')
+	  : undef;
+
+	return $c->status(404, { error => "user $user_param not found" }) if not $user;
+
+	$c->stash('target_user', $user);
+	return 1;
+}
+
 =head2 get
 
 Gets information about a user. System admin only.
@@ -284,19 +295,8 @@ Response uses the UserDetailed json schema.
 =cut
 
 sub get ($c) {
-
-	my $user_param = $c->stash('target_user');
-
-	my $user_rs = $c->db_user_accounts
-		->prefetch({ user_workspace_roles => 'workspace' });
-
-	my $user =
-		is_uuid($user_param) ? $user_rs->lookup_by_id($user_param)
-	  : $user_param =~ /^email\=/ ? $user_rs->lookup_by_email($')
-	  : undef;
-
-	return $c->status(404, { error => "user $user_param not found" }) if not $user;
-
+	my $user = $c->stash('target_user')
+		->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
 	return $c->status(200, $user);
 }
 
@@ -390,7 +390,6 @@ All workspace permissions are removed and are not recoverable.
 =cut
 
 sub deactivate ($c) {
-
 	my $user_param = $c->stash('target_user');
 	my $user =
 		is_uuid($user_param) ? $c->db_user_accounts->find({ id => $user_param })

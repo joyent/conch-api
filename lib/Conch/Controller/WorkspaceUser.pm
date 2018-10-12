@@ -131,15 +131,7 @@ a parent workspace. When in doubt, check at C<< GET /user/<id or name> >>.
 =cut
 
 sub remove ($c) {
-	my $user_param = $c->stash('target_user');
-
-	my $user =
-		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
-	  : $user_param =~ s/^email\=// ? $c->db_user_accounts->lookup_by_email($user_param)
-	  : undef;
-
-	return $c->status(404, { error => "user $user_param not found" })
-		unless $user;
+	my $user = $c->stash('target_user');
 
 	my $rs = $c->db_workspaces
 		->and_workspaces_beneath($c->stash('workspace_id'))

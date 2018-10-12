@@ -25,9 +25,9 @@ Sets up routes for /user:
     DELETE  /user/me/settings/#key
     POST    /user/me/password
 
-    GET     /user/#target_user
-    POST    /user/#target_user/revoke
-    DELETE  /user/#target_user/password
+    GET     /user/#target_user_id
+    POST    /user/#target_user_id/revoke
+    DELETE  /user/#target_user_id/password
     GET     /user
     POST    /user
     DELETE  /user/#target_user
@@ -78,23 +78,25 @@ sub user_routes {
 
     # administrator interfaces for updating a different user's account...
     {
-        # target_user could be a user id or email
-        my $user_with_target = $user->require_system_admin->any('/#target_user');
+        # target_user_id could be a user id or email
+        my $user_with_target = $user->require_system_admin->under('/#target_user_id')
+            ->to('#find_user');
 
-        # GET /user/#target_user
+        # GET /user/#target_user_id
         $user_with_target->get('/')->to('#get');
 
-        # POST /user/#target_user/revoke
+        # POST /user/#target_user_id/revoke
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
-        # DELETE /user/#target_user/password
+        # DELETE /user/#target_user_id/password
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user
         $user->require_system_admin->get('/')->to('#list');
         # POST /user
         $user->require_system_admin->post('/')->to('#create');
+
         # DELETE /user/#target_user
-        $user_with_target->delete('/')->to('#deactivate');
+        $user->require_system_admin->delete('/#target_user')->to('#deactivate');
     }
 }
 
