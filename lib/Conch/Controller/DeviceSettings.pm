@@ -101,9 +101,12 @@ sub get_all ($c) {
 
 	# no need to check 'ro' perms - find_device() already checked the workspace
 
-	my %settings = $c->stash('device_rs')
+	my %settings = map {
+		$_->name => $_->value
+	} $c->stash('device_rs')
 		->related_resultset('device_settings')
-		->get_settings;
+		->active
+		->order_by('created');
 
 	$c->status( 200, \%settings );
 }
