@@ -430,16 +430,22 @@ sub latest_report_data {
 Checks if the latest report's json matches the passed-in json-encoded content (comparing using
 native jsonb operators).
 
+Optionally ignores time-series data points.
+
 =cut
 
 sub latest_report_matches {
-    my ($self, $jsonb) = @_;
+    my ($self, $jsonb, $ignore_tsdb) = @_;
 
-    $self->self_rs
+    my $rs = $self->self_rs
         ->latest_device_report
-        ->as_subselect_rs
-        ->search({ report => \[ '= ?::jsonb', $jsonb ] })
-        ->exists;
+        ->as_subselect_rs;
+
+    $rs = $ignore_tsdb
+        ? $rs->matches($jsonb)
+        : $rs->search({ report => \[ '= ?::jsonb', $jsonb ] });
+
+    return $rs->exists;
 }
 
 1;

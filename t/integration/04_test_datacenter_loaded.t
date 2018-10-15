@@ -192,7 +192,7 @@ subtest 'Device Report' => sub {
 	is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
 	my $dupe_report = to_json(from_json($good_report));
-	isnt($good_report, $dupe_report, 're-encoded report is not string-identical (whitespace was removed)');
+	isnt($dupe_report, $good_report, 're-encoded report is not string-identical (whitespace was removed)');
 
 	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $dupe_report)
 		->status_is(200)
@@ -285,6 +285,31 @@ subtest 'Device Report' => sub {
 		->json_is('/invalid_report' => undef)
 		->json_is('/health' => 'PASS')
 		->json_is('/latest_report_is_invalid' => JSON::PP::false);
+
+
+TODO: {
+	local $TODO = 'not currently ignoring time series data when checking for report equivalence';
+
+	# now alter the device report so temperature is different and submit again.
+	my $report_data = from_json($good_report);
+	$report_data->{temp}{cpu0} += 100;
+	$report_data->{disks}{ (keys $report_data->{disks}->%*)[0] }{temp} += 100;
+
+	$t->post_ok('/device/TEST', json => $report_data)
+		->status_is(200)
+		->json_schema_is('ValidationState')
+		->json_is('', $validation_state_response, 'duplicate report detected, older state returned');
+
+	is($device->related_resultset('device_reports')->count, 1, 'still just one device_report row');
+	is($device->related_resultset('validation_states')->count, 1, 'still just one validation_state row');
+	is($device->related_resultset('device_relay_connections')->count, 1, 'still just one device_relay_connection');
+
+	is(
+		$device->related_resultset('device_reports')->rows(1)->get_column('received_count')->single,
+		3,
+		'received_count is incremented',
+	);
+};
 
 	cmp_deeply(
 		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],

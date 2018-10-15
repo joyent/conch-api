@@ -121,6 +121,7 @@ definitions:
               drive_type:
                 type: string
               temp:
+                # TODO: move to different endpoint
                 $ref: /definitions/int_or_stringy_int
               enclosure:
                 type: string
@@ -219,6 +220,7 @@ definitions:
       system_uuid:
         $ref: /definitions/uuid
       temp:
+        # TODO: move to different endpoint
         type: object
         required:
           - cpu0

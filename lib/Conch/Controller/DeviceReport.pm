@@ -89,6 +89,7 @@ sub process ($c) {
 	my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
 
 	if ($existing_device
+		# Note! currently comparing reports *without* ignoring time series data.
 		and $existing_device->latest_report_matches($raw_report)) {
 
 		$existing_device->self_rs->latest_device_report->update({
