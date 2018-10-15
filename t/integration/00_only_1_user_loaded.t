@@ -843,22 +843,6 @@ subtest 'modify another user' => sub {
 
 	$t->post_ok(
 		'/user?send_mail=0',
-		json => { name => 'conch', email => 'foo@conch.joyent.us' })
-		->status_is(409, 'cannot create user with a duplicate name')
-		->json_schema_is('UserError')
-		->json_is({
-				error => 'duplicate user found',
-				user => {
-					id => $conch_user->id,
-					email => 'conch@conch.joyent.us',
-					name => 'conch',
-					created => $conch_user->created,
-					deactivated => undef,
-				}
-			});
-
-	$t->post_ok(
-		'/user?send_mail=0',
 		json => { name => 'foo', email => 'conch@conch.joyent.us' })
 		->status_is(409, 'cannot create user with a duplicate email address')
 		->json_schema_is('UserError')
@@ -941,7 +925,7 @@ subtest 'modify another user' => sub {
 	$t2->get_ok('/me')->status_is(204);
 
 	my $t3 = Test::Conch->new(pg => $t->pg);	# we will only use this $mojo for basic auth
-	$t3->get_ok($t3->ua->server->url->userinfo('foo:123')->path('/me'))
+	$t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
 		->status_is(204, 'user can also use the app with basic auth');
 
 	$t->post_ok("/user/$new_user_id/revoke")
@@ -1012,7 +996,7 @@ subtest 'modify another user' => sub {
 		->status_is(401, 'cannot log in with the old password')
 		->json_is({ 'error' => 'unauthorized' });
 
-	$t3->get_ok($t3->ua->server->url->userinfo('foo:' . $insecure_password)->path('/me'))
+	$t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:' . $insecure_password)->path('/me'))
 		->status_is(401, 'user cannot use new password with basic auth')
 		->location_is('/user/me/password')
 		->json_is({ error => 'unauthorized' });
@@ -1075,7 +1059,7 @@ subtest 'modify another user' => sub {
 		->status_is(204, 'user authenticate with JWT again after his password is changed');
 	is($t2->tx->res->body, '', '...with no extra response messages');
 
-	$t3->get_ok($t3->ua->server->url->userinfo('foo:' . $secure_password)->path('/me'))
+	$t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:' . $secure_password)->path('/me'))
 		->status_is(204, 'after user fixes his password, he can use basic auth again');
 
 

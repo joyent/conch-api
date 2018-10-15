@@ -411,8 +411,8 @@ definitions:
       - role
     properties:
       user:
-        description: user name or email
         type: string
+        format: email
       role:
         type: string
         enum:

@@ -92,11 +92,11 @@ sub authenticate ($c) {
 	my $url = $c->req->url->to_abs;
 	if ($url->userinfo) {
 
-		$c->log->debug('attempting to authenticate with user:password...');
-		my ($name, $password) = ($url->username, $url->password);
+		$c->log->debug('attempting to authenticate with email:password...');
+		my ($email, $password) = ($url->username, $url->password);
 
-		$c->log->debug('looking up user by name ' . $name . '...');
-		my $user = $c->db_user_accounts->lookup_by_name($name);
+		$c->log->debug('looking up user by email ' . $email . '...');
+		my $user = $c->db_user_accounts->lookup_by_email($email);
 
 		unless ($user) {
 			$c->log->debug('basic auth failed: user not found');
@@ -115,7 +115,7 @@ sub authenticate ($c) {
 		}
 
 		# pass through to whatever action the user was trying to reach
-		$c->log->debug('user ' . $user->name . ' accepted using basic auth');
+		$c->log->debug('user '.$user->name.' ('.$user->email.') accepted using basic auth');
 		$c->stash(user_id => $user->id);
 		$c->stash(user    => $user);
 		return 1;

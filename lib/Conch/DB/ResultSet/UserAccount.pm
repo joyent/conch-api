@@ -68,15 +68,6 @@ sub lookup_by_email {
     )->one_row;
 }
 
-=head2 lookup_by_name
-
-=cut
-
-sub lookup_by_name {
-    my ($self, $name) = @_;
-    $self->active->find({ name => $name });
-}
-
 1;
 __END__
 
