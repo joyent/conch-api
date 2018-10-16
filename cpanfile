@@ -28,6 +28,7 @@ requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Bcrypt';
 requires 'Mojolicious::Plugin::Util::RandomString';
 requires 'Mojolicious::Plugin::NYTProf';
+requires 'Mozilla::CA'; # not used directly, but IO::Socket::SSL sometimes demands it
 requires 'IO::Socket::SSL';
 
 requires 'Moo';
