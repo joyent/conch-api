@@ -22,11 +22,11 @@ Sets up the routes for /netbox:
 =cut
 
 sub netbox_routes {
-  my $nb = shift; # secured, under /relay
-  # GET /netbox/devices/?device_id=a12345
-  $nb->get('/devices')->to('netbox#getDevices');
-  # GET /netbox/interfaces/?device_id=a12345&name=ipmi1&mac_address=11:22:11:22:11
-  $nb->get('/interfaces')->to('netbox#getInterfaces');
+  my $nb = shift; # secured, under /netbox
+  # GET /netbox/ipmi/a12345
+  $nb->get('/ipmi/:device_id')->to('netbox#getIPMI');
+  # GET /netbox/<netbox api path>
+  $nb->get('/dcim/:path')->to('netbox#getDCIM');
 }
 
 1;

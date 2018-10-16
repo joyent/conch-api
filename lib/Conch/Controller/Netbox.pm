@@ -25,79 +25,84 @@ with 'Conch::Role::MojoLog';
 
 use Conch::Models;
 
-=head2 getInterfaces
+=head2 getAny
 
-pull interfaces for a named device with the option of adding a specific interface
+pull any netbox api path e.g. /dcmi/devices/?name=test
 
 =cut
 
-sub getInterfaces($c){
-  my $params = $c->req->query_params;
-  my $path='/dcim/interfaces/?'.$params;
+sub getDCIM($c){
+  my $path='/dcim/'.$c->stash('path').'/?'.$c->req->query_params;
+  #return $c->render(status => 200,text => $path);
   my $ret_hash=getNetbox($path);
-  my $retstatus=404;
-  if($ret_hash->{count}<1){
-    $ret_hash=decode_json('{"error":"nothing matched your search for '.$path.'"}');
-  }elsif($ret_hash->{count}>0){
-    my $i=0;
+  my $retstatus=200;
+  $retstatus=404 if $ret_hash->{error};
+  return $c->render(json => $ret_hash);
+}
+
+sub getIPMI($c){
+  my $device=$c->stash('device_id');
+  my $path='/dcim/interfaces/?device='.$device;
+  my $ret_hash=getNetbox($path);
+  if($ret_hash->{error}){
+    return $c->render(json => $ret_hash);
+  }else{
+    my $ipmi;
     for(@{$ret_hash->{results}}){
-      my $address=getIPAddress($_->{id});
-      if($address){
-        $ret_hash->{'results'}[$i]{'address'}=$address;
+      my $int=$_;
+      if($int->{name} =~ /ipmi/){
+        $ipmi=$int->{address};
       }
-      $i++;
     }
-    $retstatus=200;
-  }
-  return $c->render(status => $retstatus,text => encode_json($ret_hash));
-}
-
-=head2 getDevice
-
-pull device information for a specific device
-
-=cut
-
-sub getDevice($c){
-  return $c->status(200,"It's not plugged in yet!");
-}
-
-=head2 getIPAddress
-
-pull ip address from interface ID
-
-=cut
-
-sub getIPAddress{
-  my $ret_hash=getNetbox('/ipam/ip-addresses/?interface_id='.$_[0]);
-  if($ret_hash->{count}==1){
-    return $ret_hash->{results}[0]{address};
+    if($ipmi){
+      return $c->render(text => '{"ipmi":"'.$ipmi.'"}');
+    }else{
+      return $c->render(text => '{"error":"No IPMI found for '.$device.'"}');
+    }
   }
 }
 
 =head2 getNetbox
 
-Interact with netbox dependent on auth file being in place
+Interact with netbox
+This currently requires that the necessary auth file is present in /opt/netbox/auth.json
+and follows the following format
+{"dcimname":{"server":"server name or ip","token":"token value"}}
+There is probably a more suitable place for this but this will suffice until
+I can get input from the team
 
 =cut
 
 sub getNetbox{
   my $nb='dev';
+  my $path=$_[0];
   my $creds=hashFromFile('/opt/netbox/auth.json');
   my $server=$creds->{$nb}->{server};
   my $token=$creds->{$nb}->{token};
-  my $url='https://'.$server.'/api'.$_[0];
+  my $url='https://'.$server.'/api'.$path;
   my %headers=("Accept"=>"application/json","Authorization"=>"Token $token");
   my %options=('headers'=>\%headers);
   my $http=HTTP::Tiny->new;
   my $request=$http->request('GET',$url,\%options);
   my $content=$request->{content};
   my $json_out = eval { decode_json($content) };
+  $json_out->{netboxAPIurl}=$url;
   if($@){
-    return decode_json('{"error":"'.$@.'"}');
-  }else{
-    return $json_out
+    $json_out = decode_json('{"error":"No JSON Returned for:'.$path.'"}');
+  }elsif($json_out->{count}<1){
+    $json_out->{error}="nothing matched your search";
+  }elsif($path=~/\/interfaces\//){
+    my $i=0;
+    for(@{$json_out->{results}}){
+      my $ret_hash=getNetbox('/ipam/ip-addresses/?interface_id='.$_->{id});
+      my $address=$ret_hash->{results}[0]{address};
+      if($address){
+        $json_out->{'results'}[$i]{'address'}=$address;
+      }
+      $i++;
+    }
   }
+  return $json_out;
 }
 
 sub hashFromFile{
