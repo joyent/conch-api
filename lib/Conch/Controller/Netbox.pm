@@ -25,7 +25,7 @@ with 'Conch::Role::MojoLog';
 
 use Conch::Models;
 
-=head2 getAny
+=head2 getDCIM
 
 pull any netbox api path e.g. /dcmi/devices/?name=test
 
@@ -39,6 +39,12 @@ sub getDCIM($c){
   $retstatus=404 if $ret_hash->{error};
   return $c->render(json => $ret_hash);
 }
+
+=head2 getIPMI
+
+pull IPMI address from interface
+
+=cut
 
 sub getIPMI($c){
   my $device=$c->stash('device_id');
@@ -65,17 +71,12 @@ sub getIPMI($c){
 =head2 getNetbox
 
 Interact with netbox
-This currently requires that the necessary auth file is present in /opt/netbox/auth.json
-and follows the following format
-{"dcimname":{"server":"server name or ip","token":"token value"}}
-There is probably a more suitable place for this but this will suffice until
-I can get input from the team
+This currently requires that the necessary auth is present in conch.conf
 
 =cut
 
 sub getNetbox{
   my ($c,$path)=@_;
-  my $creds=hashFromFile('/opt/netbox/auth.json');
   my $server=$c->app->config('netbox_server');
   my $token=$c->app->config('netbox_token');
   my $url='https://'.$server.'/api'.$path;
@@ -103,18 +104,6 @@ sub getNetbox{
   }
   return $json_out;
 }
-
-sub hashFromFile{
-  my ($file)=@_;
-  my $hash=();
-  my $fp = path($file);
-  if ( -f $file ) {
-    my $json = $fp->slurp_utf8;
-    $hash = decode_json $json;
-  }
-  return $hash;
-}
-
 
 1;
 __END__
