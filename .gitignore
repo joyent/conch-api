@@ -35,3 +35,9 @@ deploy/staging
 deploy/production
 deploy/.vault_pass
 
+#test script
+bin/netbox.pl
+
+#misc
+.remote-sync.json
+

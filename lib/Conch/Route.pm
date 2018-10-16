@@ -26,6 +26,8 @@ use Conch::Route::Datacenter;
 use Conch::Route::DB::HardwareProduct;
 use Conch::Route::HardwareVendor;
 
+use Conch::Route::Netbox 'netbox_routes';
+
 use Exporter 'import';
 our @EXPORT_OK = qw(
 	all_routes
@@ -47,7 +49,6 @@ sub all_routes {
 			my $c = shift;
 			return $c->status(401, { error => 'unauthorized' })
 				unless $c->stash('user') and $c->stash('user_id');
-
 			return $c->status(403, { error => 'Must be system admin' })
 				unless $c->is_system_admin;
 
@@ -92,6 +93,7 @@ sub all_routes {
 	device_routes($secured->any('/device'));
 	relay_routes($secured->any('/relay'));
 	user_routes($secured->any('/user'));
+	netbox_routes($secured->any('/netbox'));
 	hardware_product_routes($secured->any('hardware_product'));
 	validation_routes($secured);
 
