@@ -34,7 +34,7 @@ pull any netbox api path e.g. /dcmi/devices/?name=test
 sub getDCIM($c){
   my $path='/dcim/'.$c->stash('path').'/?'.$c->req->query_params;
   #return $c->render(status => 200,text => $path);
-  my $ret_hash=getNetbox($path);
+  my $ret_hash=getNetbox($c,$path);
   my $retstatus=200;
   $retstatus=404 if $ret_hash->{error};
   return $c->render(json => $ret_hash);
@@ -43,7 +43,7 @@ sub getDCIM($c){
 sub getIPMI($c){
   my $device=$c->stash('device_id');
   my $path='/dcim/interfaces/?device='.$device;
-  my $ret_hash=getNetbox($path);
+  my $ret_hash=getNetbox($c,$path);
   if($ret_hash->{error}){
     return $c->render(json => $ret_hash);
   }else{
@@ -74,11 +74,10 @@ I can get input from the team
 =cut
 
 sub getNetbox{
-  my $nb='dev';
-  my $path=$_[0];
+  my ($c,$path)=@_;
   my $creds=hashFromFile('/opt/netbox/auth.json');
-  my $server=$creds->{$nb}->{server};
-  my $token=$creds->{$nb}->{token};
+  my $server=$c->app->config('netbox_server');
+  my $token=$c->app->config('netbox_token');
   my $url='https://'.$server.'/api'.$path;
   my %headers=("Accept"=>"application/json","Authorization"=>"Token $token");
   my %options=('headers'=>\%headers);
@@ -86,15 +85,15 @@ sub getNetbox{
   my $request=$http->request('GET',$url,\%options);
   my $content=$request->{content};
   my $json_out = eval { decode_json($content) };
-  $json_out->{netboxAPIurl}=$url;
+  $json_out->{netboxurl}=$url;
   if($@){
-    $json_out = decode_json('{"error":"No JSON Returned for:'.$path.'"}');
+    $json_out = decode_json('{"error":"No JSON Returned for:'.$url.'"}');
   }elsif($json_out->{count}<1){
     $json_out->{error}="nothing matched your search";
   }elsif($path=~/\/interfaces\//){
     my $i=0;
     for(@{$json_out->{results}}){
-      my $ret_hash=getNetbox('/ipam/ip-addresses/?interface_id='.$_->{id});
+      my $ret_hash=getNetbox($c,'/ipam/ip-addresses/?interface_id='.$_->{id});
       my $address=$ret_hash->{results}[0]{address};
       if($address){
         $json_out->{'results'}[$i]{'address'}=$address;
