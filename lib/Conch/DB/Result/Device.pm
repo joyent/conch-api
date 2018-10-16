@@ -442,7 +442,7 @@ sub latest_report_matches {
         ->as_subselect_rs;
 
     $rs = $ignore_tsdb
-        ? $rs->matches($jsonb)
+        ? $rs->matches_jsonb($jsonb)
         : $rs->search({ report => \[ '= ?::jsonb', $jsonb ] });
 
     return $rs->exists;
