@@ -30,7 +30,7 @@ Sets up the routes for /workspace:
     PUT     /workspace/:workspace_id/room
     GET     /workspace/:workspace_id/user
     POST    /workspace/:workspace_id/user
-    DELETE  /workspace/:workspace_id/user/#target_user
+    DELETE  /workspace/:workspace_id/user/#target_user_id
 
 =cut
 
@@ -99,8 +99,9 @@ sub workspace_routes {
         $with_workspace->get('/user')->to('workspace_user#list');
         # POST /workspace/:workspace_id/user
         $with_workspace->post('/user')->to('workspace_user#add_user');
-        # DELETE /workspace/:workspace_id/user/#target_user
-        $with_workspace->delete('/user/#target_user')->to('workspace_user#remove');
+        # DELETE /workspace/:workspace_id/user/#target_user_id
+        $with_workspace->under('/user/#target_user_id')->to('user#find_user')
+            ->delete('/')->to('workspace_user#remove');
     }
 }
 

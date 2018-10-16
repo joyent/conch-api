@@ -360,6 +360,17 @@ definitions:
         format: email
       password:
         type: string
+  UpdateUser:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+        format: email
+      is_admin:
+        type: boolean
   CreateValidationPlan:
     type: object
     additionalProperties: false

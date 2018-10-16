@@ -224,7 +224,7 @@ subtest 'Workspaces' => sub {
 
 	is(
 		$t->app->db_user_accounts
-			->lookup_by_email('test_workspace@conch.joyent.us')
+			->find({ email => 'test_workspace@conch.joyent.us' })
 			->search_related('user_workspace_roles', { workspace_id => $global_ws_id })
 			->count,
 		1,
@@ -883,7 +883,7 @@ subtest 'modify another user' => sub {
 		->json_is('/name' => 'foo', 'got name');
 
 	my $new_user_id = $t->tx->res->json->{id};
-	my $new_user = $t->app->db_user_accounts->lookup_by_id($new_user_id);
+	my $new_user = $t->app->db_user_accounts->find($new_user_id);
 
 	$t->get_ok("/user/$new_user_id")
 		->status_is(200)
@@ -901,6 +901,8 @@ subtest 'modify another user' => sub {
 			workspaces => [],
 		}, 'returned all the right fields (and not the password)');
 
+	my $new_user_data = $t->tx->res->json;
+
 	$t->post_ok(
 		'/user?send_mail=0',
 		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
@@ -911,6 +913,15 @@ subtest 'modify another user' => sub {
 		->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
 		->json_is('/user/name' => 'foo', 'got user name')
 		->json_is('/user/deactivated' => undef, 'got user deactivated date');
+
+	$t->post_ok('/user/email=foo@conch.joyent.us' => json => { name => 'FOO', is_admin => 1 })
+		->status_is(200)
+		->json_schema_is('UserDetailed')
+		->json_is('', {
+			%$new_user_data,
+			name => 'FOO',
+			is_admin => JSON::PP::true,
+		});
 
 	my $t2 = Test::Conch->new(pg => $t->pg);
 	$t2->post_ok(
@@ -1090,19 +1101,19 @@ subtest 'modify another user' => sub {
 		->json_is('/error' => 'user was already deactivated')
 		->json_is('/user/id' => $new_user_id, 'got user id')
 		->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
-		->json_is('/user/name' => 'foo', 'got user name');
+		->json_is('/user/name' => 'FOO', 'got user name');
 
 	$new_user->discard_changes;
 	ok($new_user->deactivated, 'user still exists, but is marked deactivated');
 
 	$t->post_ok(
 		'/user?send_mail=0',
-		json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
+		json => { email => 'foo@conch.joyent.us', name => 'FOO', password => '123' })
 		->status_is(201, 'created user "again"');
 	my $second_new_user_id = $t->tx->res->json->{id};
 
 	isnt($second_new_user_id, $new_user_id, 'created user with a new id');
-	my $second_new_user = $t->app->db_user_accounts->lookup_by_id($second_new_user_id);
+	my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);
 	is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
 	is($second_new_user->name, $new_user->name, '...but the names are the same');
 };

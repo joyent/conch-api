@@ -40,32 +40,33 @@ allowing us to receive the 'password' key, which we hash into 'password_hash'.
 
 =cut
 
-=head2 lookup_by_id
+=head2 lookup_by_id_or_email
 
-=cut
+Queries for user by (case-insensitive) email if string matches C</^email=/>, otherwise queries
+by user id.
 
-sub lookup_by_id {
-    my ($self, $user_id) = @_;
-    return if not is_uuid($user_id);    # avoid pg exception "invalid input syntax for uuid"
-    $self->active->find({ id => $user_id });
-}
-
-=head2 lookup_by_email
-
-Returns the user with the (case-insensitively) matching email.
-
-If more than one is found, we return the one created most recently, and a warning will be
+If more than one user is found, we return the one created most recently, and a warning will be
 logged (via DBIx::Class::ResultSet::single).
 
+If you want to search only for *active* users, apply the C<< ->active >> resultset to the
+caller first.
+
 =cut
 
-sub lookup_by_email {
-    my ($self, $email) = @_;
+sub lookup_by_id_or_email {
+    my ($self, $identifier) = @_;
 
-    $self->active->search(
-        [ \[ 'lower(email) = lower(?)', $email ] ],
-        { order_by => { -desc => 'created' }, rows => 1 },
-    )->one_row;
+    if ($identifier =~ /^email=/) {
+        return $self
+            ->search(\[ 'lower(email) = lower(?)', $' ])
+            ->order_by({ -desc => 'created' })
+            ->rows(1)
+            ->one_row;
+    }
+
+    if (is_uuid($identifier)) {  # avoid pg exception "invalid input syntax for uuid"
+        return $self->find($identifier);
+    }
 }
 
 1;

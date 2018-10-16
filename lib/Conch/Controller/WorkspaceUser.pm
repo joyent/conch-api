@@ -70,8 +70,7 @@ sub add_user ($c) {
 	my $input = $c->validate_input('WorkspaceAddUser');
 	return if not $input;
 
-	my $rs = $c->db_user_accounts;
-	my $user = $rs->lookup_by_email($input->{user});
+	my $user = $c->db_user_accounts->active->lookup_by_id_or_email("email=$input->{user}");
 
 	return $c->status(404, { error => "user $input->{user} not found" })
 		unless $user;
@@ -131,15 +130,7 @@ a parent workspace. When in doubt, check at C<< GET /user/<id or name> >>.
 =cut
 
 sub remove ($c) {
-	my $user_param = $c->stash('target_user');
-
-	my $user =
-		is_uuid($user_param) ? $c->db_user_accounts->lookup_by_id($user_param)
-	  : $user_param =~ s/^email\=// ? $c->db_user_accounts->lookup_by_email($user_param)
-	  : undef;
-
-	return $c->status(404, { error => "user $user_param not found" })
-		unless $user;
+	my $user = $c->stash('target_user');
 
 	my $rs = $c->db_workspaces
 		->and_workspaces_beneath($c->stash('workspace_id'))
