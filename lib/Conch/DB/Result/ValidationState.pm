@@ -152,7 +152,7 @@ __PACKAGE__->belongs_to(
   "device_report",
   "Conch::DB::Result::DeviceReport",
   { id => "device_report_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 validation_plan
@@ -200,8 +200,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-10 16:06:16
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gkC6RKtvMTPS5Y1V8IlugA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-16 13:17:28
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:igN8sWgHS98xZZsbqBdZNQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

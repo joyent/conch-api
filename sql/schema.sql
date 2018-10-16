@@ -1945,7 +1945,7 @@ ALTER TABLE ONLY public.validation_state
 --
 
 ALTER TABLE ONLY public.validation_state
-    ADD CONSTRAINT validation_state_device_report_id_fkey FOREIGN KEY (device_report_id) REFERENCES public.device_report(id);
+    ADD CONSTRAINT validation_state_device_report_id_fkey FOREIGN KEY (device_report_id) REFERENCES public.device_report(id) ON DELETE CASCADE;
 
 
 --
@@ -1961,7 +1961,7 @@ ALTER TABLE ONLY public.validation_state_member
 --
 
 ALTER TABLE ONLY public.validation_state_member
-    ADD CONSTRAINT validation_state_member_validation_state_id_fkey FOREIGN KEY (validation_state_id) REFERENCES public.validation_state(id);
+    ADD CONSTRAINT validation_state_member_validation_state_id_fkey FOREIGN KEY (validation_state_id) REFERENCES public.validation_state(id) ON DELETE CASCADE;
 
 
 --

@@ -94,12 +94,12 @@ __PACKAGE__->belongs_to(
   "validation_state",
   "Conch::DB::Result::ValidationState",
   { id => "validation_state_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3aEz5aEgtuv96u7AJIl+Lg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-16 13:17:28
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:waeVK0lJGoJZbkd640IX7A
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
