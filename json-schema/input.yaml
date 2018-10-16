@@ -18,6 +18,12 @@ definitions:
   macaddr:
     type: string
     pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
+  int_or_stringy_int:
+    description: an integer that may be presented as a json string
+    anyOf:
+      - type: integer
+      - type: string
+        pattern: "^[0-9]+$"
   DatacenterCreate:
     type: object
     additionalProperties: false
@@ -90,12 +96,41 @@ definitions:
         type: string
       disks:
         type: object
+        patternProperties:
+          ^\S+$:
+            description: device_disk.serial_number
+            type: object
+            properties:
+              slot:
+                $ref: /definitions/int_or_stringy_int
+              size:
+                type: integer
+              vendor:
+                type: string
+              model:
+                type: string
+              firmware:
+                type: string
+              transport:
+                type: string
+              health:
+                type: string  # TODO: enum?
+              drive_type:
+                type: string
+              temp:
+                $ref: /definitions/int_or_stringy_int
+              enclosure:
+                type: string
+              hba:
+                type: string
+              # any additional fields are not currently used.
       device_type:
         type: string
         enum:
           - server
           - switch
       interfaces:
+        # TODO: this is required for servers
         type: object
         patternProperties:
           ^\S+$:
@@ -123,7 +158,7 @@ definitions:
                   - type: 'null'
               mtu:
                 anyOf:
-                  - type: integer
+                  - $ref: /definitions/int_or_stringy_int
                   - type: 'null'
               peer_mac:
                 anyOf:
@@ -131,7 +166,12 @@ definitions:
                   - type: 'null'
               # peer_text, peer_switch, peer_port, all optional with no constraints
       media:
+        # TODO: this is required for switches
         type: object
+        patternProperties:
+          ^\S$:
+            description: port
+            # type: unknown and not used.
       memory:
         type: object
         required:
@@ -139,9 +179,9 @@ definitions:
           - count
         properties:
           total:
-            type: integer
+            $ref: /definitions/int_or_stringy_int
           count:
-            type: integer
+            $ref: /definitions/int_or_stringy_int
       os:
         type: object
         required:
@@ -160,6 +200,7 @@ definitions:
           count:
             type: integer
       product_name:
+        # TODO: required for switches, and also for non-switches when 'sku' is not present.
         type: string
       relay:
         type: object
@@ -181,13 +222,13 @@ definitions:
           - cpu1
         properties:
           cpu0:
-            type: number
+            $ref: /definitions/int_or_stringy_int
           cpu1:
-            type: number
+            $ref: /definitions/int_or_stringy_int
           exhaust:
-            type: number
-          intlet:
-            type: number
+            $ref: /definitions/int_or_stringy_int
+          inlet:
+            $ref: /definitions/int_or_stringy_int
       uptime_since:
         type: string
   RackCreate:

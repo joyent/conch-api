@@ -274,16 +274,16 @@ sub _record_device_configuration {
 						serial_number => $disk,
 						$dr->{disks}{$disk}->%{qw(
 							slot
-							hba
-							enclosure
-							vendor
-							health
 							size
+							vendor
 							model
-							temp
-							drive_type
-							transport
 							firmware
+							transport
+							health
+							drive_type
+							temp
+							enclosure
+							hba
 						)},
 						deactivated   => undef,
 						updated       => \'NOW()'
