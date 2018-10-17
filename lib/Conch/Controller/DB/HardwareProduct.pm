@@ -30,7 +30,7 @@ sub find_hardware_product ($c) {
 		$hardware_product_rs = $hardware_product_rs->search({ id => $c->stash('hardware_product_id') });
 	}
 
-	if (not $hardware_product_rs->count) {
+	if (not $hardware_product_rs->exists) {
 		$c->log->debug('Could not locate a valid hardware product');
 		return $c->status(404 => { error => 'Not found' });
 	}

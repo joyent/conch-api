@@ -65,11 +65,11 @@ sub create ($c) {
 	my $input = $c->validate_input('RackCreate');
 	return if not $input;
 
-	unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->count) {
+	unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
 		return $c->status(400 => { "error" => "Room does not exist" });
 	}
 
-	unless ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->count) {
+	unless ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->exists) {
 		return $c->status(400 => { "error" => "Rack role does not exist" });
 	}
 
@@ -140,13 +140,13 @@ sub update ($c) {
 	return if not $input;
 
 	if ($input->{datacenter_room_id}) {
-		unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->count) {
+		unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
 			return $c->status(400 => { "error" => "Room does not exist" });
 		}
 	}
 
 	if (exists $input->{role}) {
-		if ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->count) {
+		if ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->exists) {
 			$input->{datacenter_rack_role_id} = delete $input->{role};
 		} else {
 			return $c->status(400 => { "error" => "Rack role does not exist" });

@@ -50,7 +50,7 @@ sub create ($c) {
 	my $input = $c->validate_input('RackLayoutCreate');
 	return if not $input;
 
-	unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->count) {
+	unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
 		$c->log->debug("Could not find datacenter rack ".$input->{rack_id});
 		return $c->status(400 => { "error" => "Rack does not exist" });
 	}
@@ -113,7 +113,7 @@ sub update ($c) {
 	return if not $input;
 
 	if ($input->{rack_id}) {
-		unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->count) {
+		unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
 			return $c->status(400 => { "error" => "Rack does not exist" });
 		}
 	}
@@ -127,7 +127,7 @@ sub update ($c) {
 	if ($input->{ru_start} && ($input->{ru_start} != $c->stash('rack_layout')->rack_unit_start)) {
 		if ($c->db_datacenter_rack_layouts->search(
 					{ rack_id => $c->stash('rack_layout')->rack_id, rack_unit_start => $input->{ru_start} }
-				)->count) {
+				)->exists) {
 			$c->log->debug('Conflict with ru_start value of '.$input->{ru_start});
 			return $c->status(400 => { error => 'ru_start conflict' });
 		}

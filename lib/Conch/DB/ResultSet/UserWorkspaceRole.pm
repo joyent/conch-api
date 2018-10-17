@@ -18,8 +18,8 @@ Interface to queries involving user/workspace permissions.
 
 =head2 user_has_permission
 
-Returns a count of the number of specified user_workspace_role rows that grant the specified
-permission level.  (Normally you'd treat this as a boolean check.)
+Returns a boolean indicating whether there exists a user_workspace_role row that grant the
+specified permission level.
 
 =cut
 
@@ -32,7 +32,7 @@ sub user_has_permission {
     $self->search({
         user_id => $user_id,
         role => { '>=' => \[ q{?::user_workspace_role_enum}, $permission ] },
-    })->count;
+    })->exists;
 }
 
 1;

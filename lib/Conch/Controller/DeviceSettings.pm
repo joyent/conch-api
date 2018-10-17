@@ -34,7 +34,7 @@ sub set_all ($c) {
 	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
 	my @non_tags = grep { !/^tag\./ } keys %$body;
 	my $perm_needed =
-		@non_tags && $settings_rs->active->search({ name => \@non_tags })->count ? 'admin' : 'rw';
+		@non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 
 	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
 		$c->log->debug("failed permission check (required $perm_needed)");

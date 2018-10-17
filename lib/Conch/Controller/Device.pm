@@ -53,7 +53,7 @@ sub find_device ($c) {
 		},
 	);
 
-	if (not $device_rs->count) {
+	if (not $device_rs->exists) {
 		# next, look for the device in those that have sent a device report proxied by a relay
 		# using the user's credentials, that also do not have a registered location.
 		$c->log->debug("looking for device $device_id associated with relay reports");
@@ -76,7 +76,7 @@ sub find_device ($c) {
 		);
 
 		# still not found? give up!
-		if (not $device_rs->count) {
+		if (not $device_rs->exists) {
 			$c->log->debug("Failed to find device $device_id");
 			return $c->status(404, { error => "Device '$device_id' not found" });
 		}

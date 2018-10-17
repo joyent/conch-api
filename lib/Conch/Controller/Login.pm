@@ -147,7 +147,7 @@ sub authenticate ($c) {
 
 		unless ( $jwt
 			and $jwt->{exp} > time
-			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->count )
+			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->exists)
 		{
 			$c->log->debug('JWT auth failed');
 			return $c->status(401, { error => 'unauthorized' });
