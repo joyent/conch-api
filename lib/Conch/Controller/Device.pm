@@ -30,6 +30,12 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
+	# check if the device even exists, and then we can skip the rest of the rigamarole.
+	if (not $c->db_devices->search({ id => $device_id })->exists) {
+		$c->log->debug("Failed to find device $device_id");
+		return $c->status(404, { error => "Device '$device_id' not found" });
+	}
+
 	my $direct_workspace_ids_rs = $c->stash('user')
 		->related_resultset('user_workspace_roles')
 		->distinct
