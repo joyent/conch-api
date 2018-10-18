@@ -24,6 +24,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::Distinct',    # provides distinct
     '+Conch::DB::ResultsExist',                 # provides exists
     'Helper::ResultSet::Shortcut::Columns',     # provides columns
+    'Helper::ResultSet::Shortcut::Page',        # provides page
 );
 
 1;
