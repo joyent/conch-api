@@ -1,8 +1,6 @@
 package Conch::Route::Validation;
-use Mojo::Base -strict;
 
-use Exporter 'import';
-our @EXPORT_OK = qw( validation_routes );
+use Mojo::Base -strict;
 
 =pod
 
@@ -12,9 +10,9 @@ Conch::Route::Validation
 
 =head1 METHODS
 
-=head2 validation_routes
+=head2 routes
 
-Sets up routes for /validation and /validation_plan:
+Sets up the routes for /validation and /validation_plan:
 
     GET     /validation
     POST    /validation_plan
@@ -27,7 +25,8 @@ Sets up routes for /validation and /validation_plan:
 
 =cut
 
-sub validation_routes {
+sub routes {
+    my $class = shift;
     my $r = shift;  # secured, under /
 
     # GET /validation

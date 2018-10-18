@@ -34,7 +34,7 @@ sub set_all ($c) {
 	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
 	my @non_tags = grep { !/^tag\./ } keys %$body;
 	my $perm_needed =
-		@non_tags && $settings_rs->active->search({ name => \@non_tags })->count ? 'admin' : 'rw';
+		@non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 
 	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
 		$c->log->debug("failed permission check (required $perm_needed)");
@@ -101,9 +101,12 @@ sub get_all ($c) {
 
 	# no need to check 'ro' perms - find_device() already checked the workspace
 
-	my %settings = $c->stash('device_rs')
+	my %settings = map {
+		$_->name => $_->value
+	} $c->stash('device_rs')
 		->related_resultset('device_settings')
-		->get_settings;
+		->active
+		->order_by('created');
 
 	$c->status( 200, \%settings );
 }

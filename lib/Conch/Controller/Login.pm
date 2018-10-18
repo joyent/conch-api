@@ -13,7 +13,6 @@ package Conch::Controller::Login;
 use Role::Tiny::With;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Mojo::IOLoop;
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
@@ -147,7 +146,7 @@ sub authenticate ($c) {
 
 		unless ( $jwt
 			and $jwt->{exp} > time
-			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->count )
+			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->exists)
 		{
 			$c->log->debug('JWT auth failed');
 			return $c->status(401, { error => 'unauthorized' });

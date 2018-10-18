@@ -12,9 +12,6 @@ package Conch::Controller::WorkspaceUser;
 
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Data::Printer;
-use List::Util 1.33 qw(none any);
-use Conch::UUID 'is_uuid';
 
 with 'Conch::Role::MojoLog';
 

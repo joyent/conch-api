@@ -1,10 +1,6 @@
 package Conch::Route::HardwareProduct;
-use Mojo::Base -strict;
 
-use Exporter 'import';
-our @EXPORT_OK = qw(
-    hardware_product_routes
-);
+use Mojo::Base -strict;
 
 =pod
 
@@ -14,7 +10,7 @@ Conch::Route::HardwareProduct
 
 =head1 METHODS
 
-=head2 hardware_product_routes
+=head2 routes
 
 Sets up the routes for /hardware_product:
 
@@ -23,14 +19,17 @@ Sets up the routes for /hardware_product:
 
 =cut
 
-sub hardware_product_routes {
-    my $hardware_product = shift; # secured, under /hardware_produt
+sub routes {
+    my $class = shift;
+    my $hardware_product = shift; # secured, under /hardware_product
+
+    $hardware_product->to({ controller => 'hardware_product' });
 
     # GET /hardware_product
-    $hardware_product->get('/')->to('hardware_product#list');
+    $hardware_product->get('/')->to('#list');
 
     # GET /hardware_product/:hardware_product_id
-    $hardware_product->get('/:hardware_product_id')->to('hardware_product#get');
+    $hardware_product->get('/:hardware_product_id')->to('#get');
 }
 
 1;

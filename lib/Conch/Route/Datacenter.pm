@@ -1,4 +1,5 @@
 package Conch::Route::Datacenter;
+
 use Mojo::Base -strict;
 
 =pod
@@ -8,8 +9,6 @@ use Mojo::Base -strict;
 Conch::Route::Datacenter
 
 =head1 METHODS
-
-=cut
 
 =head2 routes
 
@@ -51,7 +50,8 @@ Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
 =cut
 
 sub routes {
-    my ($class, $r) = @_;
+    my $class = shift;
+    my $r = shift;      # secured, under /
 
     # /dc
     {

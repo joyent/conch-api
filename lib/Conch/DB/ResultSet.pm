@@ -22,6 +22,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::OrderBy',     # provides order_by
     'Helper::ResultSet::Shortcut::Rows',        # provides rows
     'Helper::ResultSet::Shortcut::Distinct',    # provides distinct
+    '+Conch::DB::ResultsExist',                 # provides exists
 );
 
 1;

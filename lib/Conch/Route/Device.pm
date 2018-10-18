@@ -1,8 +1,6 @@
 package Conch::Route::Device;
-use Mojo::Base -strict;
 
-use Exporter 'import';
-our @EXPORT_OK = qw(device_routes);
+use Mojo::Base -strict;
 
 =pod
 
@@ -12,9 +10,9 @@ Conch::Route::Device
 
 =head1 METHODS
 
-=head2 device_routes
+=head2 routes
 
-Sets up routes for /device:
+Sets up the routes for /device:
 
     GET     /device/?hostname=:host, ?mac=:mac, ?ipaddr=:ipaddr, ?:setting_key=:setting_value
     GET     /device/:device_id
@@ -25,14 +23,17 @@ Sets up routes for /device:
     POST    /device/:device_id/triton_reboot
     POST    /device/:device_id/asset_tag
     POST    /device/:device_id/validated
+
     GET     /device/:device_id/location
     POST    /device/:device_id/location
     DELETE  /device/:device_id/location
+
     GET     /device/:device_id/settings
     POST    /device/:device_id/settings
     GET     /device/:device_id/settings/#key
     POST    /device/:device_id/settings/#key
     DELETE  /device/:device_id/settings/#key
+
     POST    /device/:device_id/validation/#validation_id
     POST    /device/:device_id/validation_plan/#validation_plan_id
     GET     /device/:device_id/validation_state
@@ -41,9 +42,11 @@ Sets up routes for /device:
     GET     /device/:device_id/interface
     GET     /device/:device_id/interface/:interface_name
     GET     /device/:device_id/interface/:interface_name/:field
+
 =cut
 
-sub device_routes {
+sub routes {
+    my $class = shift;
     my $device = shift; # secured, under /device
 
     # routes namespaced for a specific device
@@ -77,28 +80,32 @@ sub device_routes {
 
         {
             my $with_device_location = $with_device->any('/location');
+            $with_device_location->to({ controller => 'device_location' });
+
             # GET /device/:device_id/location
-            $with_device_location->get('/')->to('device_location#get');
+            $with_device_location->get('/')->to('#get');
             # POST /device/:device_id/location
-            $with_device_location->post('/')->to('device_location#set');
+            $with_device_location->post('/')->to('#set');
             # DELETE /device/:device_id/location
-            $with_device_location->delete('/')->to('device_location#delete');
+            $with_device_location->delete('/')->to('#delete');
         }
 
         {
             my $with_device_settings = $with_device->any('/settings');
+            $with_device_settings->to({ controller => 'device_settings' });
+
             # GET /device/:device_id/settings
-            $with_device_settings->get('/')->to('device_settings#get_all');
+            $with_device_settings->get('/')->to('#get_all');
             # POST /device/:device_id/settings
-            $with_device_settings->post('/')->to('device_settings#set_all');
+            $with_device_settings->post('/')->to('#set_all');
 
             my $with_device_settings_with_key = $with_device_settings->any('/#key');
             # GET /device/:device_id/settings/#key
-            $with_device_settings_with_key->get('/')->to('device_settings#get_single');
+            $with_device_settings_with_key->get('/')->to('#get_single');
             # POST /device/:device_id/settings/#key
-            $with_device_settings_with_key->post('/')->to('device_settings#set_single');
+            $with_device_settings_with_key->post('/')->to('#set_single');
             # DELETE /device/:device_id/settings/#key
-            $with_device_settings_with_key->delete('/')->to('device_settings#delete_single');
+            $with_device_settings_with_key->delete('/')->to('#delete_single');
         }
 
         # POST /device/:device_id/validation/#validation_id

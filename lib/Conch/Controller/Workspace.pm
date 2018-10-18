@@ -33,7 +33,7 @@ sub find_workspace ($c) {
 
 	# only check if the workspace exists if user is admin on GLOBAL.
 	return $c->status(404)
-		if not $c->db_workspaces->search({ id => $ws_id })->count
+		if not $c->db_workspaces->search({ id => $ws_id })->exists
 			and $c->db_workspaces->search(
 				{
 					'workspace.name' => 'GLOBAL',
@@ -41,7 +41,7 @@ sub find_workspace ($c) {
 					'user_workspace_roles.role' => 'admin',
 				},
 				{ join => 'user_workspace_roles' },
-			)->count;
+			)->exists;
 
 	# HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
 	my $method = $c->tx->req->method;
@@ -135,7 +135,7 @@ sub create_sub_workspace ($c) {
 	return if not $input;
 
 	return $c->status(400, { error => "workspace '$input->{name}' already exists" })
-		if $c->db_workspaces->search({ name => $input->{name} })->count;
+		if $c->db_workspaces->search({ name => $input->{name} })->exists;
 
 	my $sub_ws = $c->db_workspaces
 		# we should do create_related, but due to a DBIC bug the parent_workspace_id is lost

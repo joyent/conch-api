@@ -1,6 +1,7 @@
 package Conch::Plugin::Mail;
 
 use v5.26;
+use warnings;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Conch::Mail;
 

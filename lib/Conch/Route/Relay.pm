@@ -2,9 +2,6 @@ package Conch::Route::Relay;
 
 use Mojo::Base -strict;
 
-use Exporter 'import';
-our @EXPORT_OK = qw(relay_routes);
-
 =pod
 
 =head1 NAME
@@ -13,23 +10,26 @@ Conch::Route::Relay
 
 =head1 METHODS
 
-=head2 relay_routes
+=head2 routes
 
-Set up the routes for /relay:
+Sets up the routes for /relay:
 
     POST  /relay/:relay_id/register
     GET   /relay
 
 =cut
 
-sub relay_routes {
+sub routes {
+    my $class = shift;
     my $relay = shift; # secured, under /relay
 
+    $relay->to({ controller => 'relay' });
+
     # POST /relay/:relay_id/register
-    $relay->post('/:relay_id/register')->to('relay#register');
+    $relay->post('/:relay_id/register')->to('#register');
 
     # GET /relay
-    $relay->get('/')->to('relay#list');
+    $relay->get('/')->to('#list');
 }
 
 1;

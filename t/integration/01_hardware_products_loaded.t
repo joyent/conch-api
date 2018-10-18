@@ -5,8 +5,6 @@ use Path::Tiny;
 use Test::Warnings;
 use Test::Conch;
 
-use Data::Printer;
-
 
 my $uuid = Data::UUID->new;
 my $t = Test::Conch->new;

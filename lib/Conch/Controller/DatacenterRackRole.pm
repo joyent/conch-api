@@ -12,7 +12,6 @@ package Conch::Controller::DatacenterRackRole;
 
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::UUID 'is_uuid';
 
 with 'Conch::Role::MojoLog';
 
@@ -61,7 +60,7 @@ sub create ($c) {
 	my $input = $c->validate_input('RackRoleCreate');
 	return if not $input;
 
-	if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->count) {
+	if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->exists) {
 		$c->log->debug("Name conflict on '".$input->{name}."'");
 		return $c->status(400 => { error => 'name is already taken' });
 	}
@@ -114,7 +113,7 @@ sub update ($c) {
 	return if not $input;
 
 	if ($input->{name}) {
-		if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->count) {
+		if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->exists) {
 			$c->log->debug("Name conflict on '".$input->{name}."'");
 			return $c->status(400 => { error => 'name is already taken' });
 		}

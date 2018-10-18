@@ -40,7 +40,7 @@ sub run {
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );
 
-    if ($self->app->db_user_accounts->active->search(\[ 'lower(email) = lower(?)', $opt->email ])->count) {
+    if ($self->app->db_user_accounts->active->search(\[ 'lower(email) = lower(?)', $opt->email ])->exists) {
         say 'cannot create user: email ' . $opt->email . ' already exists';
         return;
     }

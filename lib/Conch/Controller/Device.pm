@@ -12,8 +12,7 @@ package Conch::Controller::Device;
 
 use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::UUID 'is_uuid';
-use List::Util 'none', 'any';
+use List::Util 'any';
 
 with 'Conch::Role::MojoLog';
 
@@ -29,6 +28,12 @@ sub find_device ($c) {
 
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
+
+	# check if the device even exists, and then we can skip the rest of the rigamarole.
+	if (not $c->db_devices->search({ id => $device_id })->exists) {
+		$c->log->debug("Failed to find device $device_id");
+		return $c->status(404, { error => "Device '$device_id' not found" });
+	}
 
 	my $direct_workspace_ids_rs = $c->stash('user')
 		->related_resultset('user_workspace_roles')
@@ -53,7 +58,7 @@ sub find_device ($c) {
 		},
 	);
 
-	if (not $device_rs->count) {
+	if (not $device_rs->exists) {
 		# next, look for the device in those that have sent a device report proxied by a relay
 		# using the user's credentials, that also do not have a registered location.
 		$c->log->debug("looking for device $device_id associated with relay reports");
@@ -76,7 +81,7 @@ sub find_device ($c) {
 		);
 
 		# still not found? give up!
-		if (not $device_rs->count) {
+		if (not $device_rs->exists) {
 			$c->log->debug("Failed to find device $device_id");
 			return $c->status(404, { error => "Device '$device_id' not found" });
 		}
