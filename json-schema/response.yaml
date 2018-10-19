@@ -408,12 +408,14 @@ definitions:
       - name
       - alias
       - prefix
-      - vendor
+      - hardware_vendor_id
       - generation_name
       - legacy_product_name
       - sku
       - specification
-      - profile
+      - hardware_product_profile
+      - created
+      - updated
     properties:
       id:
         $ref: /definitions/uuid
@@ -425,9 +427,9 @@ definitions:
         anyOf:
           - type: string
           - type: 'null'
-      vendor:
-        type: string
-        description: Hardware product vendor name
+      hardware_vendor_id:
+        description: Hardware product vendor id
+        $ref: /definitions/uuid
       generation_name:
         anyOf:
           - type: string
@@ -445,8 +447,16 @@ definitions:
         anyOf:
           - type: string
           - type: 'null'
-      profile:
-        $ref: /definitions/HardwareProductProfile
+      hardware_product_profile:
+        anyOf:
+          - $ref: /definitions/HardwareProductProfile
+          - type: 'null'
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
   HardwareProductProfile:
     type: object
     additionalProperties: false
@@ -472,7 +482,7 @@ definitions:
       - ssd_size
       - ssd_slots
       - usb_num
-      - zpool
+      - zpool_profile
     properties:
       bios_firmware:
         type: string
@@ -538,7 +548,7 @@ definitions:
           - type: 'null'
       usb_num:
         type: integer
-      zpool:
+      zpool_profile:
         anyOf:
           - type: 'null'
           - $ref: /definitions/ZpoolProfile
@@ -1320,55 +1330,6 @@ definitions:
       updated:
         type: string
         format: date-time
-  DBHardwareProducts:
-    type: array
-    items:
-      $ref: "#/definitions/DBHardwareProduct"
-  DBHardwareProduct:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - name
-      - vendor
-      - alias
-      - created
-      - updated
-    properties:
-      id:
-        $ref: /definitions/uuid
-      name:
-        type: string
-      alias:
-        type: string
-      vendor:
-        $ref: /definitions/uuid
-      created:
-        type: string
-        format: date-time
-      updated:
-        type: string
-        format: date-time
-      specification:
-        anyOf:
-          - type: object
-          - type: 'null'
-      sku:
-        anyOf:
-          - type: string
-          - type: 'null'
-      generation_name:
-        anyOf:
-          - type: string
-          - type: 'null'
-      legacy_product_name:
-        anyOf:
-          - type: string
-          - type: 'null'
-      prefix:
-        anyOf:
-          - type: string
-          - type: 'null'
   User:
     type: object
     additionalProperties: false

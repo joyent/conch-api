@@ -356,7 +356,7 @@ sub TO_JSON {
     # include zpool_profile when available.
     if (my $cached_zpool = $self->related_resultset('zpool_profile')->get_cache) {
         # the cache is always a listref, if it was prefetched.
-        $data->{zpool} = @$cached_zpool ? $cached_zpool->[0]->TO_JSON : undef;
+        $data->{zpool_profile} = @$cached_zpool ? $cached_zpool->[0]->TO_JSON : undef;
     }
 
     return $data;

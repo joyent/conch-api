@@ -9,7 +9,6 @@ use Conch::Route::User;
 use Conch::Route::HardwareProduct;
 use Conch::Route::Validation;
 use Conch::Route::Datacenter;
-use Conch::Route::DB::HardwareProduct;
 use Conch::Route::HardwareVendor;
 
 =pod
@@ -87,14 +86,12 @@ sub all_routes (
     Conch::Route::Device->routes($secured->any('/device'));
     Conch::Route::Relay->routes($secured->any('/relay'));
     Conch::Route::User->routes($secured->any('/user'));
-    Conch::Route::HardwareProduct->routes($secured->any('hardware_product'));
+    Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
     Conch::Route::Validation->routes($secured);
 
     Conch::Route::Datacenter->routes($secured);
 
-    Conch::Route::DB::HardwareProduct->routes($secured->any('/db/hardware_product'));
-
-    Conch::Route::HardwareVendor->routes($secured->any('hardware_vendor'));
+    Conch::Route::HardwareVendor->routes($secured->any('/hardware_vendor'));
 }
 
 1;

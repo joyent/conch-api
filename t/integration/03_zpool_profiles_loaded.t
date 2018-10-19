@@ -73,20 +73,20 @@ subtest 'Hardware Product' => sub {
 			bag(
 				superhashof({
 					name => '2-ssds-1-cpu',
-					profile => superhashof({
-						zpool => superhashof({}),
+					hardware_product_profile => superhashof({
+						zpool_profile => superhashof({}),
 					}),
 				}),
 				superhashof({
 					name => '65-ssds-2-cpu',
-					profile => superhashof({
-						zpool => superhashof({}),
+					hardware_product_profile => superhashof({
+						zpool_profile => superhashof({}),
 					}),
 				}),
 				superhashof({
 					name => 'Switch',
-					profile => superhashof({
-						zpool => undef,
+					hardware_product_profile => superhashof({
+						zpool_profile => undef,
 					}),
 				}),
 			),
