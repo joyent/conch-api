@@ -6,6 +6,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 with 'Conch::Role::MojoLog';
 
 use List::Util 'none';
+use Conch::UUID 'is_uuid';
 
 =head2 find_hardware_product
 
@@ -27,6 +28,7 @@ sub find_hardware_product ($c) {
 		$hardware_product_rs = $hardware_product_rs->search({ $key => $value });
 	} else {
 		$c->log->debug("Looking up a HardwareProduct by id ".$c->stash('hardware_product_id'));
+		return $c->status(404 => { error => 'Not found' }) if not is_uuid($c->stash('hardware_product_id'));
 		$hardware_product_rs = $hardware_product_rs->search({ id => $c->stash('hardware_product_id') });
 	}
 
