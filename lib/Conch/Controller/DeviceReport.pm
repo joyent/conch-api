@@ -255,13 +255,14 @@ sub _record_device_configuration {
 
 			$log->info("Created Device Spec for Device ".$device->id);
 
+			# TODO: stop doing this, and send all temp data to /device/:id/environment instead.
 			if ($dr->{temp}) {
 				$device->related_resultset('device_environment')->update_or_create({
 					cpu0_temp    => $dr->{temp}->{cpu0},
 					cpu1_temp    => $dr->{temp}->{cpu1},
 					inlet_temp   => $dr->{temp}->{inlet},
 					exhaust_temp => $dr->{temp}->{exhaust},
-					# TODO: not setting psu0_voltage, psu1_voltage
+					# note: not setting psu0_voltage, psu1_voltage
 					updated      => \'NOW()',
 				});
 				$c->log->info("Recorded environment for Device ".$device->id);

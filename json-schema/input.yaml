@@ -84,7 +84,35 @@ definitions:
         type: string
       vendor_name:
         type: string
-
+  EnvironmentData:
+    properties:
+      temp:
+        type: object
+        required:
+          - cpu0
+          - cpu1
+        properties:
+          cpu0:
+            type: integer
+          cpu1:
+            type: integer
+          exhaust:
+            type: integer
+          inlet:
+            type: integer
+          disks:
+            type: object
+            patternProperties:
+              ^\S+$:
+                description: key = device_disk.serial_number
+                type: integer
+      voltage:
+        type: object
+        properties:
+          psu0:
+            type: number
+          psu1:
+            type: number
   DeviceReport:
     required:
       - bios_version
@@ -121,7 +149,7 @@ definitions:
               drive_type:
                 type: string
               temp:
-                # TODO: move to different endpoint
+                # TODO: remove, once /device/:id/environment endpoint starts getting used
                 $ref: /definitions/int_or_stringy_int
               enclosure:
                 type: string
@@ -220,7 +248,7 @@ definitions:
       system_uuid:
         $ref: /definitions/uuid
       temp:
-        # TODO: move to different endpoint
+        # TODO: remove, once /device/:id/environment endpoint starts getting used
         type: object
         required:
           - cpu0

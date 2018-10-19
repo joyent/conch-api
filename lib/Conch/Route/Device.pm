@@ -43,6 +43,8 @@ Sets up the routes for /device:
     GET     /device/:device_id/interface/:interface_name
     GET     /device/:device_id/interface/:interface_name/:field
 
+    POST    /device/:device_id/environment
+
 =cut
 
 sub routes {
@@ -133,6 +135,9 @@ sub routes {
             # GET /device/:device_id/interface/:interface_name/:field
             $with_interface_name->get('/:field_name')->to('#get_one_field');
         }
+
+        # POST /device/:device_id/environment
+        $with_device->post('/environment')->to('device_environment#process');
     }
 }
 
