@@ -44,6 +44,33 @@ sub associated_workspaces {
     );
 }
 
+=head2 occupied_rack_units
+
+Returns a list of rack_unit positions that are occupied by current layouts (including positions
+occupied by hardware that start at an earlier position) at the specified rack.  (Will return
+merged results when passed a resultset referencing multiple racks, so don't do that.)
+
+This is used for identifying potential conflicts when adjusting layouts.
+
+=cut
+
+sub occupied_rack_units {
+    my $self = shift;
+
+    my @layout_data = $self->search_related('datacenter_rack_layouts', undef, {
+        columns => {
+            rack_unit_start => 'datacenter_rack_layouts.rack_unit_start',
+            rack_unit_size => 'hardware_product_profile.rack_unit',
+        },
+        join => { 'hardware_product' => 'hardware_product_profile' },
+        order_by => 'rack_unit_start',
+    })->hri->all;
+
+    return map {
+        ($_->{rack_unit_start}) .. ($_->{rack_unit_start} + $_->{rack_unit_size} - 1)
+    } @layout_data;
+}
+
 1;
 __END__
 

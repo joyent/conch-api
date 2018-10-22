@@ -23,12 +23,13 @@ $t->get_ok('/layout')
     ->status_is(200)
     ->json_schema_is('RackLayouts');
 
-my $layouts = $t->tx->res->json;
+my $initial_layouts = $t->tx->res->json;
+my $layout_width_4 = $initial_layouts->[2];    # start 7, width 4.
 
-$t->get_ok("/layout/$layouts->[0]{id}")
+$t->get_ok("/layout/$initial_layouts->[0]{id}")
     ->status_is(200)
     ->json_schema_is('RackLayout')
-    ->json_is('', $layouts->[0]);
+    ->json_is('', $initial_layouts->[0]);
 
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400);
@@ -87,12 +88,36 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts');
 
-$t->post_ok("/layout/$layout_id", json => { ru_start => 43 })
-    ->status_is(303);
+# at the moment, we have these occupied slots:
+# start 1, width 2
+# start 3, width 2
+# start 7, width 4
+# start 42, width 1
+
+# can't put something into an occupied position
+$t->post_ok("/layout/$layout_id", json => { ru_start => 7 })
+    ->status_is(400)
+    ->json_is({ error => 'ru_start conflict' });
+
+# the start of this product will overlap with occupied slots (need 8-11, 7-10 are occupied)
+$t->post_ok("/layout/$layout_id", json => { ru_start => 8 })
+    ->status_is(400)
+    ->json_is({ error => 'ru_start conflict' });
+
+# the end of this product will overlap with occupied slots (need 6-9, 7-10 are occupied)
+$t->post_ok("/layout/$layout_id",
+        json => { ru_start => 6, product_id => $layout_width_4->{product_id} })
+    ->status_is(400)
+    ->json_is({ error => 'ru_start conflict' });
+
+$t->post_ok("/layout/$layout_id",
+        json => { ru_start => 19, product_id => $layout_width_4->{product_id} })
+    ->status_is(303)
+    ->location_is("/layout/$layout_id");
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
-    ->json_is('/ru_start' => 43)
+    ->json_is('/ru_start' => 19)
     ->json_schema_is('RackLayout');
 
 $t->post_ok("/layout/$layout_id", json => { rack_id => $fake_id })

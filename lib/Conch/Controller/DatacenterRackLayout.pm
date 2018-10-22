@@ -1,3 +1,12 @@
+package Conch::Controller::DatacenterRackLayout;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use List::Util 'any';
+
 =pod
 
 =head1 NAME
@@ -5,17 +14,6 @@
 Conch::Controller::DatacenterRackLayout
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::DatacenterRackLayout;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::Models;
-
-with 'Conch::Role::MojoLog';
-
 
 =head2 find_datacenter_rack_layout
 
@@ -41,37 +39,48 @@ sub find_datacenter_rack_layout ($c) {
 
 =head2 create
 
+Creates a new datacenter_rack_layout entry according to the passed-in specification.
+
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_system_admin;
-	my $input = $c->validate_input('RackLayoutCreate');
-	return if not $input;
+    return $c->status(403) unless $c->is_system_admin;
+    my $input = $c->validate_input('RackLayoutCreate');
+    return if not $input;
 
-	unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
-		$c->log->debug("Could not find datacenter rack ".$input->{rack_id});
-		return $c->status(400 => { "error" => "Rack does not exist" });
-	}
+    unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
+        $c->log->debug('Could not find datacenter rack '.$input->{rack_id});
+        return $c->status(400 => { error => 'Rack does not exist' });
+    }
 
-	unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
-		$c->log->debug("Could not find hardware product ".$input->{product_id});
-		return $c->status(400 => { "error" => "Hardware product does not exist" });
-	}
+    unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
+        $c->log->debug('Could not find hardware product '.$input->{product_id});
+        return $c->status(400 => { error => 'Hardware product does not exist' });
+    }
 
-	if ($c->db_datacenter_rack_layouts->search(
-				{ rack_id => $input->{rack_id}, rack_unit_start => $input->{ru_start} },
-			)->count) {
-		$c->log->debug('Conflict with ru_start value of '.$input->{ru_start});
-		return $c->status(400 => { error => 'ru_start conflict' });
-	}
+    my %occupied_rack_units = map { $_ => 1 }
+        $c->db_datacenter_racks->search({ 'datacenter_rack.id' => $input->{rack_id} })
+        ->occupied_rack_units;
 
-	$input->{hardware_product_id} = delete $input->{product_id};
-	$input->{rack_unit_start} = delete $input->{ru_start};
+    my $new_rack_unit_size = $c->db_hardware_products
+        ->search({ 'hardware_product.id' => $input->{product_id} })
+        ->related_resultset('hardware_product_profile')
+        ->get_column('rack_unit')->single;
 
-	my $layout = $c->db_datacenter_rack_layouts->create($input);
-	$c->log->debug('Created datacenter rack layout '.$layout->id);
+    my @desired_positions = $input->{ru_start} .. ($input->{ru_start} + $new_rack_unit_size - 1);
 
-	$c->status(303 => '/layout/'.$layout->id);
+    if (any { $occupied_rack_units{$_} } @desired_positions) {
+        $c->log->debug('Rack unit position '.$input->{ru_start} . ' is already occupied');
+        return $c->status(400 => { error => 'ru_start conflict' });
+    }
+
+    $input->{hardware_product_id} = delete $input->{product_id};
+    $input->{rack_unit_start} = delete $input->{ru_start};
+
+    my $layout = $c->db_datacenter_rack_layouts->create($input);
+    $c->log->debug('Created datacenter rack layout '.$layout->id);
+
+    $c->status(303 => '/layout/'.$layout->id);
 }
 
 =head2 get
@@ -97,6 +106,9 @@ Response uses the RackLayouts json schema.
 sub get_all ($c) {
 	return $c->status(403) unless $c->is_system_admin;
 
+	# TODO: to be more helpful to the UI, we should include the width of the hardware that will
+	# occupy each rack_unit(s).
+
 	my @layouts = $c->db_datacenter_rack_layouts->all;
 	$c->log->debug("Found ".scalar(@layouts)." datacenter rack layouts");
 	$c->status(200 => \@layouts);
@@ -104,39 +116,72 @@ sub get_all ($c) {
 
 =head2 update
 
+Updates a rack layout to specify that a certain hardware product should reside at a certain
+rack starting position.
+
 =cut
 
 sub update ($c) {
-	my $input = $c->validate_input('RackLayoutUpdate');
-	return if not $input;
+    my $input = $c->validate_input('RackLayoutUpdate');
+    return if not $input;
 
-	if ($input->{rack_id}) {
-		unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
-			return $c->status(400 => { "error" => "Rack does not exist" });
-		}
-	}
+    if ($input->{rack_id}) {
+        unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
+            return $c->status(400 => { error => 'Rack does not exist' });
+        }
+    }
 
-	if ($input->{product_id}) {
-		unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
-			return $c->status(400 => { "error" => "Hardware product does not exist" });
-		}
-	}
+    if ($input->{product_id}) {
+        unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
+            return $c->status(400 => { error => 'Hardware product does not exist' });
+        }
+    }
 
-	if ($input->{ru_start} && ($input->{ru_start} != $c->stash('rack_layout')->rack_unit_start)) {
-		if ($c->db_datacenter_rack_layouts->search(
-					{ rack_id => $c->stash('rack_layout')->rack_id, rack_unit_start => $input->{ru_start} }
-				)->exists) {
-			$c->log->debug('Conflict with ru_start value of '.$input->{ru_start});
-			return $c->status(400 => { error => 'ru_start conflict' });
-		}
-	}
+    if ($input->{ru_start} && ($input->{ru_start} != $c->stash('rack_layout')->rack_unit_start)) {
+        if ($c->db_datacenter_rack_layouts->search(
+                    { rack_id => $c->stash('rack_layout')->rack_id, rack_unit_start => $input->{ru_start} }
+                )->exists) {
+            $c->log->debug('Conflict with ru_start value of '.$input->{ru_start});
+            return $c->status(400 => { error => 'ru_start conflict' });
+        }
+    }
 
-	$input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
-	$input->{rack_unit_start} = delete $input->{ru_start} if exists $input->{ru_start};
+    # determine occupied slots, not counting the slots currently occupied by this layout
 
-	$c->stash('rack_layout')->update({ %$input, updated => \'NOW()' });
+    my %occupied_rack_units = map { $_ => 1 } $c->stash('rack_layout')
+        ->related_resultset('datacenter_rack')->occupied_rack_units;
 
-	return $c->status(303 => "/layout/".$c->stash('rack_layout')->id);
+    my $current_rack_unit_size = $c->db_hardware_products->search(
+        { 'hardware_product.id' => $c->stash('rack_layout')->hardware_product_id })
+        ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single;
+
+    delete @occupied_rack_units{
+        $c->stash('rack_layout')->rack_unit_start ..
+        ($c->stash('rack_layout')->rack_unit_start + $current_rack_unit_size - 1)
+    };
+
+    my $new_rack_unit_size = $input->{product_id}
+        ? $c->db_hardware_products->search({ 'hardware_product.id' => $input->{product_id} })
+            ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single
+        : $current_rack_unit_size;
+
+    my @desired_positions =
+        ($input->{ru_start} // $c->stash('rack_layout')->rack_unit_start)
+        ..
+        (($input->{ru_start} // $c->stash('rack_layout')->rack_unit_start) + $new_rack_unit_size - 1);
+
+    if (any { $occupied_rack_units{$_} } @desired_positions) {
+        $c->log->debug('Rack unit position '.$input->{ru_start} . ' is already occupied');
+        return $c->status(400 => { error => 'ru_start conflict' });
+    }
+
+
+    $input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
+    $input->{rack_unit_start} = delete $input->{ru_start} if exists $input->{ru_start};
+
+    $c->stash('rack_layout')->update({ %$input, updated => \'now()' });
+
+    return $c->status(303 => '/layout/'.$c->stash('rack_layout')->id);
 }
 
 
