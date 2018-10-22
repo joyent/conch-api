@@ -338,6 +338,7 @@ definitions:
       vendor:
         $ref: /definitions/uuid
       specification:
+        description: json blob of additional data
         type: string
       sku:
         type: string

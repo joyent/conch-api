@@ -353,7 +353,7 @@ definitions:
             type: string
           vendor_name:
             anyOf:
-              - type: null
+              - type: 'null'
               - type: string
       rack:
         type: object
@@ -422,7 +422,9 @@ definitions:
       alias:
         type: string
       prefix:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       vendor:
         type: string
         description: Hardware product vendor name
@@ -438,8 +440,8 @@ definitions:
         anyOf:
           - type: string
           - type: 'null'
-
       specification:
+        description: json blob of additional data
         anyOf:
           - type: string
           - type: 'null'
@@ -473,9 +475,7 @@ definitions:
       - zpool
     properties:
       bios_firmware:
-        anyOf:
-          - type: string
-          - type: 'null'
+        type: string
       cpu_num:
         type: integer
       cpu_type:
@@ -491,7 +491,9 @@ definitions:
       nics_num:
         type: integer
       psu_total:
-        type: integer
+        anyOf:
+          - type: integer
+          - type: 'null'
       purpose:
         type: string
       rack_unit:
@@ -508,7 +510,7 @@ definitions:
           - type: 'null'
       sas_slots:
         anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
       sata_num:
         anyOf:
@@ -535,9 +537,7 @@ definitions:
           - type: string
           - type: 'null'
       usb_num:
-        anyOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       zpool:
         anyOf:
           - type: 'null'
@@ -562,19 +562,29 @@ definitions:
           - type: string
           - type: 'null'
       cache:
-        type: integer
+        anyOf:
+          - type: integer
+          - type: 'null'
       log:
-        type: integer
+        anyOf:
+          - type: integer
+          - type: 'null'
       disk_per:
         anyOf:
           - type: integer
           - type: 'null'
       spare:
-        type: integer
+        anyOf:
+          - type: integer
+          - type: 'null'
       vdev_n:
-        type: integer
+        anyOf:
+          - type: integer
+          - type: 'null'
       vdev_t:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
   WorkspaceRackSummary:
     type: object
     additionalProperties: false
@@ -1359,7 +1369,6 @@ definitions:
         anyOf:
           - type: string
           - type: 'null'
-
   User:
     type: object
     additionalProperties: false
