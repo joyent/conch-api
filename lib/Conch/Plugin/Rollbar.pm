@@ -1,3 +1,11 @@
+package Conch::Plugin::Rollbar;
+
+use Mojo::Base 'Mojolicious::Plugin', -signatures;
+use Sys::Hostname;
+use Data::UUID;
+
+use constant ROLLBAR_ENDPOINT => 'https://api.rollbar.com/api/1/item/';
+
 =pod
 
 =head1 NAME
@@ -10,30 +18,24 @@ Mojo plugin to send exceptions to L<Rollbar|https://rollbar.com>
 
 =head1 METHODS
 
-=cut
-
-package Conch::Plugin::Rollbar;
-
-use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use Sys::Hostname;
-
-use constant ROLLBAR_ENDPOINT => 'https://api.rollbar.com/api/1/item/';
-
 =head2 register
 
 Adds `send_exception_to_rollbar` to Mojolicious app
 
 =cut
 
-sub register ( $self, $app, $conf ) {
-	$app->helper( send_exception_to_rollbar => sub { _record_exception(@_) } );
+sub register ($self, $app, @) {
+	$app->helper(send_exception_to_rollbar => \&_record_exception);
 }
 
 # asynchronously send exception details to Rollbar if 'rollbar_access_token' is
-# specified in the commit
-sub _record_exception ( $c, $exception ) {
-	my $access_token = $c->app->config('rollbar_access_token') || return;
-	my $environment  = $c->app->config('rollbar_environment')  || 'development';
+# configured
+sub _record_exception ($c, $exception, @) {
+	my $access_token = $c->config('rollbar_access_token');
+	if (not $access_token) {
+		$c->app->log->warn('Unable to send exception to Rollbar - no access token configured');
+		return;
+	}
 
 	my @frames = map {
 		{
@@ -44,29 +46,27 @@ sub _record_exception ( $c, $exception ) {
 		}
 	} $exception->frames->@*;
 
-	my $context = {
-		context => {
-			pre  => $exception->lines_before,
-			post => $exception->lines_after
-		}
+	# we only have context for the first frame.
+	# Mojo::Exception data contains line numbers as well.
+	$frames[0]->{code} = $exception->line->[1];
+	$frames[0]->{context} = {
+		pre  => [ map { $_->[1] } $exception->lines_before->@* ],
+		post => [ map { $_->[1] } $exception->lines_after->@* ],
 	};
 
-	# We only have context for the first frame
-	$frames[0]->{context} = $context;
+	# keep value from stash more compact
+	$exception->verbose(0);
 
-	my $user   = $c->stash('user');
-	my @person = (
-		person => {
-			id    => $user->id,
-			email => $user->email
-		}
-	) if $user;
+	my $user = $c->stash('user');
+
+	my $headers = $c->req->headers->to_hash(1);
+	delete $headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
 
 	# Payload documented at https://rollbar.com/docs/api/items_post/
 	my $exception_payload = {
 		access_token => $access_token,
 		data         => {
-			environment => $environment,
+			environment => $c->config('rollbar_environment') || 'development',
 			body        => {
 				trace => {
 					frames    => \@frames,
@@ -78,17 +78,35 @@ sub _record_exception ( $c, $exception ) {
 			},
 			timestamp    => time(),
 			code_version => $c->version_hash,
-			platform     => $^O,
-			request      => {
-				url     => $c->req->url->to_abs,
+			platform    => $c->tx->original_remote_address eq '127.0.0.1' ? 'client' : 'browser',
+			language    => 'perl',
+			request		=> {
+				url     => $c->req->url->to_abs->to_string,
 				user_ip => $c->tx->original_remote_address,
-				method  => $c->req->method
+				method  => $c->req->method,
+				headers	=> $headers,
+				query_string => $c->req->query_params->to_string,
+				body	=> $c->req->body,
 			},
 			server => {
 				host => hostname(),
 				root => $c->app->home->child('lib')->to_string
 			},
-			@person,
+			$user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),
+
+			custom => {
+				request_id => $c->req->request_id,
+
+				# some of these things are objects, so we just go one level deep for now.
+				stash => +{
+					map { $_ => ($c->stash($_) // '') . '' } keys $c->stash->%*
+				},
+			},
+
+			# see https://docs.rollbar.com/docs/grouping-algorithm
+			fingerprint => join(':', map { join(',', $_->@{qw(filename method lineno)}) } @frames),
+
+			uuid => Data::UUID->new->create_str,
 		}
 	};
 
