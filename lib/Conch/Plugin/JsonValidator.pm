@@ -1,3 +1,14 @@
+package Conch::Plugin::JsonValidator;
+
+use Mojo::Base 'Mojolicious::Plugin', -signatures;
+
+use JSON::Validator;
+
+use constant OUTPUT_SCHEMA_FILE => "json-schema/response.yaml";
+use constant INPUT_SCHEMA_FILE => "json-schema/input.yaml";
+
+=pod
+
 =head1 NAME
 
 Conch::Plugin::JsonValidator
@@ -15,7 +26,6 @@ Conch::Plugin::JsonValidator
 
         $c->status_with_validation(200, MyOutputDefinition => $ret);
     }
-
 
 =head1 DESCRIPTION
 
@@ -37,17 +47,6 @@ C<Mojo::Exception> is thrown, returning a 500 to the user.
 C<validate_input> validates data against the C<json-schema/input.yaml> file.
 
 =head1 METHODS
-
-=cut
-
-package Conch::Plugin::JsonValidator;
-
-use Mojo::Base 'Mojolicious::Plugin', -signatures;
-
-use JSON::Validator;
-
-use constant OUTPUT_SCHEMA_FILE => "json-schema/response.yaml";
-use constant INPUT_SCHEMA_FILE => "json-schema/input.yaml";
 
 =head2 register
 

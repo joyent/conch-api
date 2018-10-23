@@ -5,6 +5,8 @@ use warnings;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Conch::Mail;
 
+=pod
+
 =head1 NAME
 
 Conch::Plugin::Mail - Sets up a helper to send emails
