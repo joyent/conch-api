@@ -1458,6 +1458,15 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0
       perl 5.004
+  Dir-Self-0.11
+    pathname: M/MA/MAUKE/Dir-Self-0.11.tar.gz
+    provides:
+      Dir::Self 0.11
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.48
+      File::Spec 0
+      strict 0
   Dist-CheckConflicts-0.11
     pathname: D/DO/DOY/Dist-CheckConflicts-0.11.tar.gz
     provides:

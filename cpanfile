@@ -19,6 +19,7 @@ requires 'HTTP::Tiny';
 requires 'Safe::Isa';
 requires 'Encode', '2.98';
 requires 'Capture::Tiny';
+requires 'Dir::Self';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
