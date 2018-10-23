@@ -30,7 +30,7 @@ Create a JWT and sets it up to be returned in the response in two parts:
 =cut
 
 sub _create_jwt ($c, $user_id, $expires_delta = undef) {
-	my $jwt_config = $c->app->config('jwt') || {};
+	my $jwt_config = $c->config('jwt') || {};
 
 	my $expires_abs = time + (
 		defined $expires_delta ? $expires_delta

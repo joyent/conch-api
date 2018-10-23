@@ -49,7 +49,7 @@ sub find_workspace ($c) {
 	}
 
 	# HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
-	my $method = $c->tx->req->method;
+	my $method = $c->req->method;
 	my $requires_permission =
 		(any { $method eq $_ } qw(HEAD GET)) ? 'ro'
 	  : (any { $method eq $_ } qw(POST PUT)) ? 'rw'

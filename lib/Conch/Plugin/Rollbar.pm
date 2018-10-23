@@ -113,7 +113,7 @@ sub _record_exception ($c, $exception, @) {
 	};
 
 	# asynchronously post to Rollbar, log if the request fails
-	$c->app->ua->post(
+	$c->ua->post(
 		ROLLBAR_ENDPOINT,
 		json => $exception_payload,
 		sub ($ua, $tx) {

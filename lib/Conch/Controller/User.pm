@@ -276,7 +276,7 @@ sub find_user ($c) {
 
 	# when deactivating users or removing users from a workspace, we want to find
 	# already-deactivated users too.
-	$user_rs = $user_rs->active if $c->tx->req->method ne 'DELETE';
+	$user_rs = $user_rs->active if $c->req->method ne 'DELETE';
 
 	$c->log->debug('looking up user '.$user_param);
 	my $user = $user_rs->lookup_by_id_or_email($user_param);
