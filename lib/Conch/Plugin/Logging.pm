@@ -70,7 +70,7 @@ sub register ($self, $app, $conf) {
 			$c->stash('user')->email . " (".$c->stash('user')->id.")" :
 			'NOT AUTHED';
 
-		my $req_headers = $c->tx->req->headers->to_hash;
+		my $req_headers = $c->tx->req->headers->to_hash(1);
 		for (qw(Authorization Cookie jwt_token jwt_sig)) {
 			delete $req_headers->{$_};
 		}
@@ -98,7 +98,7 @@ sub register ($self, $app, $conf) {
 			},
 		};
 
-		my $res_headers = $c->tx->res->headers->to_hash;
+		my $res_headers = $c->tx->res->headers->to_hash(1);
 		for (qw(Set-Cookie)) {
 			delete $res_headers->{$_};
 		}
