@@ -31,17 +31,9 @@ sub find_workspace ($c) {
 		return $c->status(400, { error => "Workspace ID must be a UUID. Got '$ws_id'." });
 	}
 
-	# only check if the workspace exists if user is admin on GLOBAL.
+	# only check if the workspace exists if user is a system admin
 	return $c->status(404)
-		if not $c->db_workspaces->search({ id => $ws_id })->exists
-			and $c->db_workspaces->search(
-				{
-					'workspace.name' => 'GLOBAL',
-					'user_workspace_roles.user_id' => $c->stash('user_id'),
-					'user_workspace_roles.role' => 'admin',
-				},
-				{ join => 'user_workspace_roles' },
-			)->exists;
+		if $c->is_system_admin and not $c->db_workspaces->search({ id => $ws_id })->exists;
 
 	# HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
 	my $method = $c->tx->req->method;
