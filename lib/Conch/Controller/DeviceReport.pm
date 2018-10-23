@@ -302,7 +302,7 @@ sub _record_device_configuration {
 			$dr->{disks}
 				and $log->info("Recorded disk info for Device ".$device->id);
 
-			my @device_nic_macs = $device->device_nics->active->get_column('mac')->all;
+			my @device_nic_macs = map uc $device->device_nics->active->get_column('mac')->all;
 			my %inactive_macs; @inactive_macs{@device_nic_macs} = ();
 
 			foreach my $nic ( keys %{ $dr->{interfaces} } ) {
