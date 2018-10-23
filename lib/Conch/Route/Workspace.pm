@@ -1,6 +1,6 @@
 package Conch::Route::Workspace;
 
-use Mojo::Base -strict;
+use Mojo::Base -strict, -signatures;
 
 =pod
 
@@ -69,8 +69,7 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?t
         $with_workspace->get(
             '/device/active',
-            sub {
-                my $c = shift;
+            sub ($c) {
                 $c->redirect_to(
                     $c->url_for('/workspace/' . $c->stash('workspace_id') . '/device')
                         ->query(active => 't'));

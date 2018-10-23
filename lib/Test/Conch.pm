@@ -99,8 +99,7 @@ sub new {
     # load all controllers, to find syntax errors sooner
     # (hypnotoad does this at startup, but in tests controllers only get loaded as needed)
     path('lib/Conch/Controller')->visit(
-        sub {
-            my $file = shift;
+        sub ($file, $) {
             return if not -f $file;
             return if $file !~ /\.pm$/; # skip swap files
             $self->app->log->info("loading $file");
@@ -147,8 +146,7 @@ sub init_db ($class) {
 
     Test::More::note('initializing database with sql/schema.sql...');
 
-    $schema->storage->dbh_do(sub {
-        my ($storage, $dbh, @args) = @_;
+    $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
         $dbh->do('CREATE ROLE conch LOGIN');
         $dbh->do('CREATE DATABASE conch OWNER conch');
         $dbh->do(path('sql/schema.sql')->slurp_utf8) or BAIL_OUT("Test SQL load failed in $_");

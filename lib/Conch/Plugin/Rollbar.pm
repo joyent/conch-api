@@ -115,8 +115,7 @@ sub _record_exception ($c, $exception, @) {
 	$c->app->ua->post(
 		ROLLBAR_ENDPOINT,
 		json => $exception_payload,
-		sub {
-			my ( $ua, $tx ) = @_;
+		sub ($ua, $tx) {
 			if ( my $err = $tx->error ) {
 				$c->app->log->error( "Unable to send exception to Rollbar."
 						. " HTTP $err->{code} '$err->{message} " );

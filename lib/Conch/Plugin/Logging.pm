@@ -60,8 +60,7 @@ sub register ($self, $app, $config) {
 		);
 	}
 
-	$app->hook(after_dispatch => sub {
-		my $c = shift;
+	$app->hook(after_dispatch => sub ($c) {
 
 		my $u_str = $c->stash('user') ?
 			$c->stash('user')->email . " (".$c->stash('user')->id.")" :
