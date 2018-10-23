@@ -2950,49 +2950,6 @@ DISTRIBUTIONS
       Time::HiRes 0
       XSLoader 0.02
       perl 5.008001
-  TimeDate-2.30
-    pathname: G/GB/GBARR/TimeDate-2.30.tar.gz
-    provides:
-      Date::Format 2.24
-      Date::Format::Generic 2.24
-      Date::Language 1.10
-      Date::Language::Afar 0.99
-      Date::Language::Amharic 1.00
-      Date::Language::Austrian 1.01
-      Date::Language::Brazilian 1.01
-      Date::Language::Bulgarian 1.01
-      Date::Language::Chinese 1.00
-      Date::Language::Chinese_GB 1.01
-      Date::Language::Czech 1.01
-      Date::Language::Danish 1.01
-      Date::Language::Dutch 1.02
-      Date::Language::English 1.01
-      Date::Language::Finnish 1.01
-      Date::Language::French 1.04
-      Date::Language::Gedeo 0.99
-      Date::Language::German 1.02
-      Date::Language::Greek 1.00
-      Date::Language::Hungarian 1.01
-      Date::Language::Icelandic 1.01
-      Date::Language::Italian 1.01
-      Date::Language::Norwegian 1.01
-      Date::Language::Oromo 0.99
-      Date::Language::Romanian 1.01
-      Date::Language::Russian 1.01
-      Date::Language::Russian_cp1251 1.01
-      Date::Language::Russian_koi8r 1.01
-      Date::Language::Sidama 0.99
-      Date::Language::Somali 0.99
-      Date::Language::Spanish 1.00
-      Date::Language::Swedish 1.01
-      Date::Language::Tigrinya 1.00
-      Date::Language::TigrinyaEritrean 1.00
-      Date::Language::TigrinyaEthiopian 1.00
-      Date::Language::Turkish 1.0
-      Date::Parse 2.30
-      Time::Zone 2.24
-    requirements:
-      ExtUtils::MakeMaker 0
   Try-Tiny-0.30
     pathname: E/ET/ETHER/Try-Tiny-0.30.tar.gz
     provides:
