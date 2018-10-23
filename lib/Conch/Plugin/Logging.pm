@@ -45,15 +45,14 @@ sub register ($self, $app, $conf) {
 
 	if ($app->feature('rollbar')) {
 		$app->hook(
-			before_render => sub {
-				my ( $c, $args ) = @_;
+			before_render => sub ($c, $args) {
 				my $template = $args->{template};
-				return if not $template;
-				if ( $template =~ /exception/ ) {
-					my $exception = $c->stash('exception') // $args->{exception};
-					$exception->verbose(1);
 
-					$app->send_exception_to_rollbar($exception);
+				if (my $exception = $c->stash('exception')
+						or ($template and $template =~ /exception/)) {
+					$exception //= $args->{exception};
+					$exception->verbose(1);
+					$c->send_exception_to_rollbar($exception);
 				}
 			}
 		);
