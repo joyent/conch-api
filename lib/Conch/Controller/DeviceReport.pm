@@ -137,6 +137,7 @@ sub process ($c) {
 		uptime_since        => $uptime,
 		hostname            => $unserialized_report->{os}{hostname},
 		updated             => \'NOW()',
+		deactivated         => undef,
 	});
 
 	$c->log->debug("Creating device report");
