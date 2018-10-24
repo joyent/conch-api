@@ -22,7 +22,6 @@ context to the logs
 
 package Conch::Role::MojoLog;
 use Mojo::Base -role;
-use Role::Tiny;
 
 =head2 log
 
