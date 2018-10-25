@@ -116,6 +116,8 @@ sub update ($c) {
 		}
 	}
 
+	$input->{hardware_vendor_id} = delete $input->{vendor} if exists $input->{vendor};
+
 	$hardware_product->update({ %$input, updated => \'NOW()' });
 	$c->log->debug('Updated hardware product '.$hardware_product->id);
 	$c->status(303 => '/db/hardware_product/'.$hardware_product->id);
