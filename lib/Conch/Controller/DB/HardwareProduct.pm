@@ -143,6 +143,7 @@ sub update ($c) {
 		}
 	}
 
+	$i->{hardware_vendor_id} = delete $i->{vendor} if exists $i->{vendor};
 
 	$c->stash('hardware_product')->update($i);
 	$c->log->debug("Updated hardware product ".$c->stash('hardware_product')->id);
