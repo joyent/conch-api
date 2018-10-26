@@ -13,7 +13,7 @@ requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'Submodules';
-requires 'JSON::Validator';
+requires 'JSON::Validator', '2.14';
 requires 'Pod::Github', '>= 0.04';
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
