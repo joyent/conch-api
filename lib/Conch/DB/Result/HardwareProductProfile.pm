@@ -316,7 +316,7 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 zpool
+=head2 zpool_profile
 
 Type: belongs_to
 
@@ -325,7 +325,7 @@ Related object: L<Conch::DB::Result::ZpoolProfile>
 =cut
 
 __PACKAGE__->belongs_to(
-  "zpool",
+  "zpool_profile",
   "Conch::DB::Result::ZpoolProfile",
   { id => "zpool_id" },
   {
@@ -337,8 +337,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JBNrQzItI96VKDeO0wUm3A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-26 12:36:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lFgHiecg13NFXkk663RxKw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
