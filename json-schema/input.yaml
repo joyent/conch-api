@@ -339,20 +339,109 @@ definitions:
       alias:
         type: string
       prefix:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       vendor:
         $ref: /definitions/uuid
       hardware_vendor_id:
         $ref: /definitions/uuid
       specification:
         description: json blob of additional data
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       sku:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       generation_name:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       legacy_product_name:
+        anyOf:
+          - type: string
+          - type: 'null'
+      hardware_product_profile:
+        $ref: /definitions/HardwareProductProfileCreate
+  HardwareProductProfileUpdate:
+    type: object
+    additionalProperties: false
+    not:
+      required:
+        # cannot have zpool_id *and* zpool_profile together.
+        - zpool_id
+        - zpool_profile
+    properties:
+      rack_unit:
+        type: integer
+      purpose:
         type: string
+      bios_firmware:
+        type: string
+      hba_firmware:
+        anyOf:
+          - type: string
+          - type: 'null'
+      cpu_num:
+        type: integer
+      cpu_type:
+        type: string
+      dimms_num:
+        type: integer
+      ram_total:
+        type: integer
+      nics_num:
+        type: integer
+      sata_num:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sata_size:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sata_slots:
+        anyOf:
+          - type: string
+          - type: 'null'
+      sas_num:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sas_size:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sas_slots:
+        anyOf:
+          - type: string
+          - type: 'null'
+      ssd_num:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      ssd_size:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      ssd_slots:
+        anyOf:
+          - type: string
+          - type: 'null'
+      psu_total:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      usb_num:
+        type: integer
+      zpool_id:
+        anyOf:
+          - type: 'null'
+          - $ref: /definitions/uuid
+      zpool_profile:
+        $ref: /definitions/ZpoolProfileCreate
   HardwareProductUpdate:
     type: object
     additionalProperties: false
@@ -371,20 +460,78 @@ definitions:
       alias:
         type: string
       prefix:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       hardware_vendor_id:
         $ref: /definitions/uuid
       vendor:
         description: for backcompat only.
         $ref: /definitions/uuid
       specification:
-        type: string
+        description: json blob of additional data
+        anyOf:
+          - type: string
+          - type: 'null'
       sku:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       generation_name:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       legacy_product_name:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
+      hardware_product_profile:
+        $ref: /definitions/HardwareProductProfileUpdate
+  ZpoolProfileCreate:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        anyOf:
+          - type: string
+          - type: 'null'
+      vdev_t:
+        anyOf:
+          - type: string
+          - type: 'null'
+      vdev_n:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      disk_per:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      spare:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      log:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      cache:
+        anyOf:
+          - type: integer
+          - type: 'null'
+  HardwareProductProfileCreate:
+    allOf:
+      - $ref: /definitions/HardwareProductProfileUpdate
+      - required:
+        - rack_unit
+        - purpose
+        - bios_firmware
+        - cpu_num
+        - cpu_type
+        - dimms_num
+        - ram_total
+        - nics_num
+        - usb_num
   Login:
     type: object
     additionalProperties: false
