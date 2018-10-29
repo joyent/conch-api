@@ -64,6 +64,7 @@ on 'test' => sub {
     requires 'Test::Deep';
     requires 'Path::Tiny';
     requires 'Test::Memory::Cycle';
+    requires 'Module::CPANfile';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is
