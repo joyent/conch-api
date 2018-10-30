@@ -1630,6 +1630,13 @@ CREATE INDEX workspace_parent_workspace_id_idx ON public.workspace USING btree (
 
 
 --
+-- Name: zpool_profile_name_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX zpool_profile_name_key ON public.zpool_profile USING btree (name) WHERE (deactivated IS NULL);
+
+
+--
 -- Name: datacenter_room all_rooms_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
 --
 
