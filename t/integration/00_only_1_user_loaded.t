@@ -5,9 +5,10 @@ use utf8;
 use Test::More;
 use Data::UUID;
 use Path::Tiny;
-use Test::Warnings;
+use Test::Warnings ':all';
 use Test::Conch;
 use Test::Deep;
+use Test::Memory::Cycle;
 
 my $uuid = Data::UUID->new;
 
@@ -1116,6 +1117,14 @@ subtest 'modify another user' => sub {
 	my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);
 	is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
 	is($second_new_user->name, $new_user->name, '...but the names are the same');
+
+	warnings(sub {
+		memory_cycle_ok($t2, 'no leaks in the Test::Conch object');
+	});
 };
+
+warnings(sub {
+	memory_cycle_ok($t, 'no leaks in the Test::Conch object');
+});
 
 done_testing();

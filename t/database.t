@@ -3,7 +3,8 @@ use warnings;
 use Test::More;
 use Test::Conch;
 use Test::Fatal;
-use Test::Warnings;
+use Test::Warnings ':all';
+use Test::Memory::Cycle;
 
 subtest 'read-only database handle' => sub {
     my $t = Test::Conch->new;
@@ -41,6 +42,10 @@ subtest 'read-only database handle' => sub {
         undef,
         'no exception querying for a user using the read-only db handle',
     );
+
+    warnings(sub {
+        memory_cycle_ok($t, 'no leaks in the Test::Conch object');
+    });
 };
 
 
