@@ -33,17 +33,6 @@ the same database.
 
 has 'pg';   # this is generally a Test::PostgreSQL object
 
-=head2 schema
-
-The Conch::DB object, used for direct database access. Will (re)connect as needed.
-
-=cut
-
-has 'schema' => sub {
-    my $self = shift;
-    Test::ConchTmpDB->schema($self->pg);
-};
-
 =head2 validator
 
 =cut
@@ -243,7 +232,7 @@ Given one or more filenames of F<.sql> content, loads them into the current test
 
 sub load_test_sql {
     my ($self, @test_sql_files) = @_;
-    $self->schema->storage->dbh_do(sub {
+    $self->app->schema->storage->dbh_do(sub {
         my ($storage, $dbh) = @_;
 
         for my $file (map { path('sql/test')->child($_) } @test_sql_files) {
