@@ -100,6 +100,14 @@ sub new {
     return $self;
 }
 
+sub DESTROY {
+    my $self = shift;
+
+    # ensure that a new Test::Conch instance creates a brand new Mojo::Pg connection (with a
+    # possibly-different dsn) rather than using the old one to a now-dead postgres instance
+    Conch::Pg->DESTROY;
+}
+
 =head2 location_is
 
 Stolen from Test::Mojo's examples. I don't know why this isn't just part of the interface!
