@@ -2821,20 +2821,19 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Test-PostgreSQL-1.26
-    pathname: T/TJ/TJC/Test-PostgreSQL-1.26.tar.gz
+  Test-PostgreSQL-1.27
+    pathname: T/TJ/TJC/Test-PostgreSQL-1.27.tar.gz
     provides:
-      Test::PostgreSQL 1.26
+      Test::PostgreSQL 1.27
     requirements:
       DBD::Pg 0
       DBI 0
-      ExtUtils::MakeMaker 6.59
       File::Spec 0
       File::Which 0
       Function::Parameters 0
+      Module::Build::Tiny 0.035
       Moo 0
       POSIX 0
-      Test::SharedFork 0.06
       Tie::Hash::Method 0
       Try::Tiny 0
       Types::Standard 0
@@ -2849,20 +2848,6 @@ DISTRIBUTIONS
       Test::Builder::Module 0
       Test::More 0.47
       perl 5.006
-  Test-SharedFork-0.35
-    pathname: E/EX/EXODIST/Test-SharedFork-0.35.tar.gz
-    provides:
-      Test::SharedFork 0.35
-      Test::SharedFork::Array undef
-      Test::SharedFork::Scalar undef
-      Test::SharedFork::Store undef
-    requirements:
-      ExtUtils::MakeMaker 6.64
-      File::Temp 0
-      Test::Builder 0.32
-      Test::Builder::Module 0
-      Test::More 0.88
-      perl 5.008_001
   Test-Warn-0.36
     pathname: B/BI/BIGJ/Test-Warn-0.36.tar.gz
     provides:
