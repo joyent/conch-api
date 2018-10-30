@@ -26,7 +26,7 @@ requires 'Mojo::Pg';
 requires 'Mojo::Server::PSGI';
 requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Bcrypt';
-requires 'Mojolicious::Plugin::Util::RandomString';
+requires 'Mojolicious::Plugin::Util::RandomString', '0.07'; # memory leak: https://rt.cpan.org/Ticket/Display.html?id=125981
 requires 'Mojolicious::Plugin::NYTProf';
 requires 'Mozilla::CA'; # not used directly, but IO::Socket::SSL sometimes demands it
 requires 'IO::Socket::SSL';
