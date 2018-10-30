@@ -1347,6 +1347,14 @@ DISTRIBUTIONS
       perl 5.008004
       strict 0
       warnings 0
+  Devel-Cycle-1.12
+    pathname: L/LD/LDS/Devel-Cycle-1.12.tar.gz
+    provides:
+      Devel::Cycle 1.12
+    requirements:
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      Test::More 0
   Devel-GlobalDestruction-0.14
     pathname: H/HA/HAARG/Devel-GlobalDestruction-0.14.tar.gz
     provides:
@@ -2291,14 +2299,15 @@ DISTRIBUTIONS
       Test::More 0
       Time::HiRes 1.9719
       perl 5.010001
-  Mojolicious-Plugin-Util-RandomString-0.06
-    pathname: A/AK/AKRON/Mojolicious-Plugin-Util-RandomString-0.06.tar.gz
+  Mojolicious-Plugin-Util-RandomString-0.07
+    pathname: A/AK/AKRON/Mojolicious-Plugin-Util-RandomString-0.07.tar.gz
     provides:
-      Mojolicious::Plugin::Util::RandomString 0.06
+      Mojolicious::Plugin::Util::RandomString 0.07
     requirements:
       ExtUtils::MakeMaker 0
       Mojolicious 3.93
       Session::Token 1.502
+      Test::Memory::Cycle 1.06
       Test::More 0
       perl 5.010001
   Moo-2.003004
@@ -2398,6 +2407,13 @@ DISTRIBUTIONS
       XSLoader 0
       strict 0
       warnings 0
+  PadWalker-2.3
+    pathname: R/RO/ROBIN/PadWalker-2.3.tar.gz
+    provides:
+      PadWalker 2.3
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   Params-Classify-0.015
     pathname: Z/ZE/ZEFRAM/Params-Classify-0.015.tar.gz
     provides:
@@ -2897,6 +2913,19 @@ DISTRIBUTIONS
       Try::Tiny 0.07
       strict 0
       warnings 0
+  Test-Memory-Cycle-1.06
+    pathname: P/PE/PETDANCE/Test-Memory-Cycle-1.06.tar.gz
+    provides:
+      Test::Memory::Cycle 1.06
+    requirements:
+      Devel::Cycle 1.07
+      ExtUtils::MakeMaker 0
+      Getopt::Long 0
+      PadWalker 0
+      Test::Builder 0
+      Test::Builder::Tester 0
+      Test::More 0
+      Test::Simple 0.62
   Test-Number-Delta-1.06
     pathname: D/DA/DAGOLDEN/Test-Number-Delta-1.06.tar.gz
     provides:
