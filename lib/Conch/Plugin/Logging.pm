@@ -110,7 +110,7 @@ sub register ($self, $app, $conf) {
 			}
 		}
 
-		if ($app->feature('audit')) {
+		if ($c->feature('audit')) {
 			$log->{req}->{body} = $c->req->body;
 			unless ($c->req->url =~ /login/) {
 				$log->{res}->{body} = $c->res->body;
