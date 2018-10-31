@@ -24,30 +24,25 @@ Sets up the database and provides convenient accessors to it.
 sub register ($self, $app, $config) {
 
     # legacy database access; will be removed soon.
-    my $db = Conch::Pg->new($config->{pg});
-    my ($dsn, $username, $password) = ($db->dsn, $db->username, $db->password);
-
-    # cache the schema objects so we share connections between multiple $c->schema calls,
-    # e.g. for transaction management.  These are closed over in the subs below, so they
-    # persist for the lifetime of the $app.
-    my ($_rw_schema, $_ro_schema);
+    my $pg = Conch::Pg->new($config->{pg});
+    my ($dsn, $username, $password) = ($pg->dsn, $pg->username, $pg->password);
 
 =head2 schema
 
-Provides read/write access to the database via L<DBIx::Class>.  Returns a L<Conch::DB> object.
+Provides read/write access to the database via L<DBIx::Class>.  Returns a L<Conch::DB> object
+that persists for the lifetime of the application.
 
 =cut
 
     $app->helper(schema => sub {
-        return $_rw_schema if $_rw_schema;
-        $_rw_schema = Conch::DB->connect(
+        state $_rw_schema = Conch::DB->connect(
             $dsn, $username, $password,
         );
     });
 
 =head2 rw_schema
 
-See L</schema>.
+See L</schema>; can be used interchangeably with it.
 
 =cut
 
@@ -56,7 +51,7 @@ See L</schema>.
 =head2 ro_schema
 
 Provides (guaranteed) read-only access to the database via L<DBIx::Class>.  Returns a
-L<Conch::DB> object.
+L<Conch::DB> object that persists for the lifetime of the application.
 
 Note that because of the use of C<< AutoCommit => 0 >>, database errors must be explicitly
 cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
@@ -64,8 +59,7 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 =cut
 
     $app->helper(ro_schema => sub {
-        return $_ro_schema if $_ro_schema;
-        $_ro_schema = Conch::DB->connect(sub {
+        state $_ro_schema = Conch::DB->connect(sub {
             DBI->connect(
                 $dsn, $username, $password,
                 {
@@ -90,11 +84,13 @@ the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
     # db_ro_user_accounts => $app->ro_schema->resultset('user_account'), etc
     foreach my $source_name ($app->schema->sources) {
         my $plural = noun($source_name)->plural;
+
         $app->helper('db_'.$plural, sub {
             my $source = $_[0]->app->schema->source($source_name);
             # note that $source_name eq $source->from unless we screwed up.
             $source->resultset->search({}, { alias => $source->from });
         });
+
         $app->helper('db_ro_'.$plural, sub {
             my $ro_source = $_[0]->app->ro_schema->source($source_name);
             $ro_source->resultset->search({}, { alias => $ro_source->from });
