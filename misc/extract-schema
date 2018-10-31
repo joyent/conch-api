@@ -4,7 +4,6 @@ use experimental 'signatures';
 
 use Getopt::Long;
 use Pod::Usage;
-use YAML::XS qw(LoadFile);
 use JSON::MaybeXS ();
 use Mojo::File qw(path);
 use JSON::Validator;

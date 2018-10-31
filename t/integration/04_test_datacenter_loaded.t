@@ -5,7 +5,6 @@ use utf8;
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Test::More;
-use Data::UUID;
 use Path::Tiny;
 use Test::Deep;
 use Test::Deep::JSON;
@@ -21,8 +20,6 @@ $t->load_validation_plans([{
     description => 'Test Plan',
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
-
-my $uuid = Data::UUID->new;
 
 $t->authenticate;
 

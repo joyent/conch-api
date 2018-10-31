@@ -16,9 +16,7 @@ package Conch;
 use Mojo::Base 'Mojolicious', -signatures;
 
 use Conch::Route;
-use Mojolicious::Plugin::Bcrypt;
 use Conch::ValidationSystem;
-use Mojo::JSON;
 
 =head2 startup
 

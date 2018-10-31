@@ -1,5 +1,4 @@
 use Mojo::Base -strict;
-use DDP;
 use Test::More;
 use Test::Fatal;
 use Test::Deep;

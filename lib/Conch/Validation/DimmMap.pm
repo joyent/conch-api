@@ -3,7 +3,6 @@ package Conch::Validation::DimmMap;
 use Mojo::Base 'Conch::Validation';
 
 use List::Compare;
-use Mojo::Log;
 use JSON::PP;
 
 use constant name        => 'dimm_map';
