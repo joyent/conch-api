@@ -47,27 +47,33 @@ sub startup {
 	$self->plugin('Conch::Plugin::Logging');
 
 	# Initialize singletons
-	Conch::Pg->new($self->config('pg'));
+	my $db = Conch::Pg->new($self->config('pg'));
+	my ($dsn, $username, $password) = ($db->dsn, $db->username, $db->password);
 
 	# specify which MIME types we can handle
 	$self->types->type(json => 'application/json');
 	$self->types->type(csv => 'text/csv');
 
+	# cache the schema objects so we share connections between multiple $c->schema calls,
+	# e.g. for transaction management.  These are closed over in the subs below, so they
+	# persist for the lifetime of the $app.
+	my ($_rw_schema, $_ro_schema);
 
 	# Provide read/write and read-only access to DBIx::Class
 	# (this will all get a little shorter when we remove Conch::Pg)
 	$self->helper(schema => sub {
-		my $db = Conch::Pg->new();
-		return Conch::DB->connect(
-			$db->dsn, $db->username, $db->password,
+		return $_rw_schema if $_rw_schema;
+		$_rw_schema = Conch::DB->connect(
+			$dsn, $username, $password,
 		);
 	});
 	$self->helper(rw_schema => $self->renderer->get_helper('schema'));
 
+	# note that because of AutoCommit => 0, database errors must be explicitly
+	# cleared with ->txn_rollback.  see L<DBD::Pg/"ReadOnly-(boolean)">
 	$self->helper(ro_schema => sub {
-		my $db = Conch::Pg->new();
-		my ($dsn, $username, $password) = ($db->dsn, $db->username, $db->password);
-		return Conch::DB->connect(sub {
+		return $_ro_schema if $_ro_schema;
+		$_ro_schema = Conch::DB->connect(sub {
 			DBI->connect(
 				$dsn, $username, $password,
 				{
