@@ -5,6 +5,7 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Conch::Pg;
 use Conch::DB ();
 use Lingua::EN::Inflexion 'noun';
+use Try::Tiny;
 
 =pod
 
@@ -99,6 +100,36 @@ the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
             $ro_source->resultset->search({}, { alias => $ro_source->from });
         });
     }
+
+=head2 txn_wrapper
+
+Wraps the provided subref in a database transaction, rolling back in case of an exception.
+Any provided arguments are passed to the sub, along with the invocant controller.
+
+If the exception is not C<'rollback'> (which signals an intentional premature bailout), the
+exception will be logged, and a response will be set up as an error response with the first
+line of the exception.
+
+=cut
+
+    $app->helper(txn_wrapper => sub ($c, $subref, @args) {
+        try {
+            # we don't do anything else here, so as to preserve context and the return value
+            # for the original caller.
+            $c->schema->txn_do($subref, $c, @args);
+        }
+        catch {
+            my $exception = $_;
+            $c->app->log->debug('rolled back transaction');
+            if ($exception !~ /^rollback/) {
+                $c->app->log->error($_);
+                my ($error) = split(/\n/, $exception, 2);
+                $c->status($c->res->code // 400, { error => $error });
+            }
+            $c->rendered(400) if not $c->res->code;
+            return;
+        };
+    });
 
 }
 
