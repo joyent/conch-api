@@ -15,17 +15,12 @@ Conch - Setup and helpers for Conch Mojo app
 package Conch;
 use Mojo::Base 'Mojolicious';
 
-use Conch::Pg;
 use Conch::Route;
 use Mojolicious::Plugin::Bcrypt;
 
 use Conch::Models;
 use Conch::ValidationSystem;
-
-use Conch::DB qw();
-
 use Mojo::JSON;
-use Lingua::EN::Inflexion 'noun';
 
 =head2 startup
 
@@ -45,62 +40,12 @@ sub startup {
 
 	$self->plugin('Conch::Plugin::Features', $self->config);
 	$self->plugin('Conch::Plugin::Logging');
-
-	# Initialize singletons
-	my $db = Conch::Pg->new($self->config('pg'));
-	my ($dsn, $username, $password) = ($db->dsn, $db->username, $db->password);
+	$self->plugin('Conch::Plugin::Database', $self->config);
 
 	# specify which MIME types we can handle
 	$self->types->type(json => 'application/json');
 	$self->types->type(csv => 'text/csv');
 
-	# cache the schema objects so we share connections between multiple $c->schema calls,
-	# e.g. for transaction management.  These are closed over in the subs below, so they
-	# persist for the lifetime of the $app.
-	my ($_rw_schema, $_ro_schema);
-
-	# Provide read/write and read-only access to DBIx::Class
-	# (this will all get a little shorter when we remove Conch::Pg)
-	$self->helper(schema => sub {
-		return $_rw_schema if $_rw_schema;
-		$_rw_schema = Conch::DB->connect(
-			$dsn, $username, $password,
-		);
-	});
-	$self->helper(rw_schema => $self->renderer->get_helper('schema'));
-
-	# note that because of AutoCommit => 0, database errors must be explicitly
-	# cleared with ->txn_rollback.  see L<DBD::Pg/"ReadOnly-(boolean)">
-	$self->helper(ro_schema => sub {
-		return $_ro_schema if $_ro_schema;
-		$_ro_schema = Conch::DB->connect(sub {
-			DBI->connect(
-				$dsn, $username, $password,
-				{
-					ReadOnly			=> 1,
-					AutoCommit			=> 0,
-					AutoInactiveDestroy => 1,
-					PrintError          => 0,
-					PrintWarn           => 0,
-					RaiseError          => 1,
-				});
-		});
-	});
-
-	# db_user_accounts => $app->schema->resultset('user_account'), etc
-	# db_ro_user_accounts => $app->ro_schema->resultset('user_account'), etc
-	foreach my $source_name ($self->schema->sources) {
-		my $plural = noun($source_name)->plural;
-		$self->helper('db_'.$plural, sub {
-			my $source = $_[0]->app->schema->source($source_name);
-			# note that $source_name eq $source->from unless we screwed up.
-			$source->resultset->search({}, { alias => $source->from });
-		});
-		$self->helper('db_ro_'.$plural, sub {
-			my $ro_source = $_[0]->app->ro_schema->source($source_name);
-			$ro_source->resultset->search({}, { alias => $ro_source->from });
-		});
-	}
 
 	$self->hook(
 		before_render => sub {
