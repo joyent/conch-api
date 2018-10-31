@@ -15,6 +15,10 @@ local: cpanfile.snapshot ## Install perl dependencies
 # '--deployment' installs the same dep versions that are in the lockfile
 	@carton install --deployment && touch local
 
+.PHONY: forcebuild
+forcebuild: ## Always run carton
+	carton install --deployment
+
 test: local ## Run tests
 	@carton exec prove -lpr t/
 
@@ -56,6 +60,13 @@ docs/validation/BaseValidation.md: lib/Conch/Validation.pm
 
 docs/validation/TestingValidations.md: lib/Test/Conch/Validation.pm
 	@carton exec pod2github lib/Test/Conch/Validation.pm > docs/validation/TestingValidations.md
+
+docker_test:
+	@echo "============================"
+	@echo "This so very experimental."
+	@echo "============================"
+	@echo "============================"
+	bash docker/dev_test.bash
 
 .PHONY: help
 help: ## Display this help message
