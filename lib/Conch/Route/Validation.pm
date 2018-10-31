@@ -54,9 +54,6 @@ sub routes {
         # POST /validation_plan/#validation_plan_id/validation
         $with_plan->post('/validation')->to('#add_validation');
 
-        # GET /validation_plan/#validation_plan_id/validation/#validation_id
-        $with_plan->get('/validation/#validation_id')->to('#get_validation');
-
         # DELETE /validation_plan/#validation_plan_id/validation/#validation_id
         $with_plan->delete('/validation/#validation_id')->to('#remove_validation');
     }
