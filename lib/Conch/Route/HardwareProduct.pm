@@ -14,8 +14,12 @@ Conch::Route::HardwareProduct
 
 Sets up the routes for /hardware_product:
 
-    GET /hardware_product
-    GET /hardware_product/:hardware_product_id
+    GET     /hardware_product
+    POST    /hardware_product
+
+    GET     /hardware_product/:hardware_product_id
+    POST    /hardware_product/:hardware_product_id
+    DELETE  /hardware_product/:hardware_product_id
 
 =cut
 
@@ -28,8 +32,22 @@ sub routes {
     # GET /hardware_product
     $hardware_product->get('/')->to('#list');
 
-    # GET /hardware_product/:hardware_product_id
-    $hardware_product->get('/:hardware_product_id')->to('#get');
+    # POST /hardware_product
+    $hardware_product->post('/')->to('#create');
+
+    {
+        my $with_hardware_product = $hardware_product->under('/:hardware_product_id')
+            ->to('#find_hardware_product');
+
+        # GET /hardware_product/:hardware_product_id
+        $with_hardware_product->get('/')->to('#get');
+
+        # POST /hardware_product/:hardware_product_id
+        $with_hardware_product->post('/')->to('#update');
+
+        # DELETE /hardware_product/:hardware_product_id
+        $with_hardware_product->delete('/')->to('#delete');
+    }
 }
 
 1;

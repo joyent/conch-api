@@ -1611,10 +1611,10 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-2.08
-    pathname: J/JH/JHTHORSEN/JSON-Validator-2.08.tar.gz
+  JSON-Validator-2.14
+    pathname: J/JH/JHTHORSEN/JSON-Validator-2.14.tar.gz
     provides:
-      JSON::Validator 2.08
+      JSON::Validator 2.14
       JSON::Validator::Error undef
       JSON::Validator::Joi undef
       JSON::Validator::OpenAPI undef
@@ -1623,7 +1623,7 @@ DISTRIBUTIONS
       JSON::Validator::Ref undef
     requirements:
       ExtUtils::MakeMaker 0
-      Mojolicious 7.28
+      Mojolicious 8.00
   Lingua-EN-FindNumber-1.32
     pathname: N/NE/NEILB/Lingua-EN-FindNumber-1.32.tar.gz
     provides:
@@ -1932,6 +1932,19 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Module-CPANfile-1.1004
+    pathname: M/MI/MIYAGAWA/Module-CPANfile-1.1004.tar.gz
+    provides:
+      Module::CPANfile 1.1004
+      Module::CPANfile::Environment undef
+      Module::CPANfile::Prereq undef
+      Module::CPANfile::Prereqs undef
+      Module::CPANfile::Requirement undef
+    requirements:
+      CPAN::Meta 2.12091
+      CPAN::Meta::Prereqs 2.12091
+      ExtUtils::MakeMaker 0
+      parent 0
   Module-Find-0.13
     pathname: C/CR/CRENZ/Module-Find-0.13.tar.gz
     provides:
@@ -2007,8 +2020,8 @@ DISTRIBUTIONS
       Mojolicious 7.53
       SQL::Abstract 1.85
       perl 5.010001
-  Mojolicious-7.88
-    pathname: S/SR/SRI/Mojolicious-7.88.tar.gz
+  Mojolicious-8.04
+    pathname: S/SR/SRI/Mojolicious-8.04.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2028,6 +2041,7 @@ DISTRIBUTIONS
       Mojo::DOM::CSS undef
       Mojo::DOM::HTML undef
       Mojo::Date undef
+      Mojo::DynamicMethods undef
       Mojo::EventEmitter undef
       Mojo::Exception undef
       Mojo::File undef
@@ -2039,10 +2053,6 @@ DISTRIBUTIONS
       Mojo::IOLoop::Delay undef
       Mojo::IOLoop::Server undef
       Mojo::IOLoop::Stream undef
-      Mojo::IOLoop::Stream::HTTPClient undef
-      Mojo::IOLoop::Stream::HTTPServer undef
-      Mojo::IOLoop::Stream::WebSocketClient undef
-      Mojo::IOLoop::Stream::WebSocketServer undef
       Mojo::IOLoop::Subprocess undef
       Mojo::IOLoop::TLS undef
       Mojo::JSON undef
@@ -2081,23 +2091,22 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 7.88
+      Mojolicious 8.04
       Mojolicious::Command undef
+      Mojolicious::Command::Author::cpanify undef
+      Mojolicious::Command::Author::generate undef
+      Mojolicious::Command::Author::generate::app undef
+      Mojolicious::Command::Author::generate::lite_app undef
+      Mojolicious::Command::Author::generate::makefile undef
+      Mojolicious::Command::Author::generate::plugin undef
+      Mojolicious::Command::Author::inflate undef
       Mojolicious::Command::cgi undef
-      Mojolicious::Command::cpanify undef
       Mojolicious::Command::daemon undef
       Mojolicious::Command::eval undef
-      Mojolicious::Command::generate undef
-      Mojolicious::Command::generate::app undef
-      Mojolicious::Command::generate::lite_app undef
-      Mojolicious::Command::generate::makefile undef
-      Mojolicious::Command::generate::plugin undef
       Mojolicious::Command::get undef
-      Mojolicious::Command::inflate undef
       Mojolicious::Command::prefork undef
       Mojolicious::Command::psgi undef
       Mojolicious::Command::routes undef
-      Mojolicious::Command::test undef
       Mojolicious::Command::version undef
       Mojolicious::Commands undef
       Mojolicious::Controller undef
@@ -2129,6 +2138,7 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       IO::Socket::IP 0.37
       JSON::PP 2.27103
+      List::Util 1.41
       Pod::Simple 3.09
       Time::Local 1.2
       perl 5.010001
@@ -2950,49 +2960,6 @@ DISTRIBUTIONS
       Time::HiRes 0
       XSLoader 0.02
       perl 5.008001
-  TimeDate-2.30
-    pathname: G/GB/GBARR/TimeDate-2.30.tar.gz
-    provides:
-      Date::Format 2.24
-      Date::Format::Generic 2.24
-      Date::Language 1.10
-      Date::Language::Afar 0.99
-      Date::Language::Amharic 1.00
-      Date::Language::Austrian 1.01
-      Date::Language::Brazilian 1.01
-      Date::Language::Bulgarian 1.01
-      Date::Language::Chinese 1.00
-      Date::Language::Chinese_GB 1.01
-      Date::Language::Czech 1.01
-      Date::Language::Danish 1.01
-      Date::Language::Dutch 1.02
-      Date::Language::English 1.01
-      Date::Language::Finnish 1.01
-      Date::Language::French 1.04
-      Date::Language::Gedeo 0.99
-      Date::Language::German 1.02
-      Date::Language::Greek 1.00
-      Date::Language::Hungarian 1.01
-      Date::Language::Icelandic 1.01
-      Date::Language::Italian 1.01
-      Date::Language::Norwegian 1.01
-      Date::Language::Oromo 0.99
-      Date::Language::Romanian 1.01
-      Date::Language::Russian 1.01
-      Date::Language::Russian_cp1251 1.01
-      Date::Language::Russian_koi8r 1.01
-      Date::Language::Sidama 0.99
-      Date::Language::Somali 0.99
-      Date::Language::Spanish 1.00
-      Date::Language::Swedish 1.01
-      Date::Language::Tigrinya 1.00
-      Date::Language::TigrinyaEritrean 1.00
-      Date::Language::TigrinyaEthiopian 1.00
-      Date::Language::Turkish 1.0
-      Date::Parse 2.30
-      Time::Zone 2.24
-    requirements:
-      ExtUtils::MakeMaker 0
   Try-Tiny-0.30
     pathname: E/ET/ETHER/Try-Tiny-0.30.tar.gz
     provides:

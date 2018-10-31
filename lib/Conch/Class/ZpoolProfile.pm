@@ -10,9 +10,6 @@ Conch::Class::ZpoolProfile
 
 package Conch::Class::ZpoolProfile;
 use Mojo::Base -base, -signatures;
-use Role::Tiny 'with';
-
-with 'Conch::Class::Role::ToJson';
 
 =head2 id
 

@@ -53,7 +53,7 @@ sub create ($c) {
 		return $c->status(400 => { "error" => "Rack does not exist" });
 	}
 
-	unless(Conch::Model::HardwareProduct->lookup($input->{product_id})) {
+	unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
 		$c->log->debug("Could not find hardware product ".$input->{product_id});
 		return $c->status(400 => { "error" => "Hardware product does not exist" });
 	}
@@ -117,7 +117,7 @@ sub update ($c) {
 	}
 
 	if ($input->{product_id}) {
-		unless(Conch::Model::HardwareProduct->lookup($input->{product_id})) {
+		unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
 			return $c->status(400 => { "error" => "Hardware product does not exist" });
 		}
 	}

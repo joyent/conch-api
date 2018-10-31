@@ -37,12 +37,6 @@ subtest 'Device Report' => sub {
 		->json_is({ error => 'Hardware product does not contain a profile' });
 };
 
-subtest 'Hardware Product' => sub {
-	$t->get_ok("/hardware_product")->status_is(200)
-		->json_is( '', [],
-		'No hardware products because hardware product profiles are missing' );
-};
-
 $t->get_ok("/dc")->status_is(200)->json_is('', []);
 $t->get_ok("/room")->status_is(200)->json_is('', []);
 $t->get_ok("/rack_role")->status_is(200)->json_is('', []);

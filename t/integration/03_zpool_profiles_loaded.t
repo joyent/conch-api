@@ -4,6 +4,7 @@ use Data::UUID;
 use Path::Tiny;
 use Test::Warnings;
 use Test::Conch;
+use Test::Deep;
 
 my $uuid = Data::UUID->new;
 
@@ -65,37 +66,37 @@ subtest 'Device Report' => sub {
 };
 
 subtest 'Hardware Product' => sub {
+	$t->get_ok('/hardware_product')
+		->status_is(200)
+		->json_schema_is('HardwareProducts')
+		->json_cmp_deeply('',
+			bag(
+				superhashof({
+					name => '2-ssds-1-cpu',
+					hardware_product_profile => superhashof({
+						zpool_profile => superhashof({}),
+					}),
+				}),
+				superhashof({
+					name => '65-ssds-2-cpu',
+					hardware_product_profile => superhashof({
+						zpool_profile => superhashof({}),
+					}),
+				}),
+				superhashof({
+					name => 'Switch',
+					hardware_product_profile => superhashof({
+						zpool_profile => undef,
+					}),
+				}),
+			),
+		);
 
-	$t->get_ok("/hardware_product")->status_is(200);
-	my @hardware_products = $t->tx->res->json->@*;
-	is( scalar @hardware_products, 3 );
-	my %hardware_product_hash = map { $_->{name} => $_ } @hardware_products;
-	my @hardware_product_names = sort keys %hardware_product_hash;
-	is_deeply(
-		\@hardware_product_names,
-		[
-			'2-ssds-1-cpu', '65-ssds-2-cpu',
-			'Switch'
-		]
-	);
-	ok(
-		defined(
-			$hardware_product_hash{'2-ssds-1-cpu'}->{profile}->{zpool}
-		),
-		'Compute has zpool profile'
-	);
-	ok(
-		defined(
-			$hardware_product_hash{'65-ssds-2-cpu'}->{profile}->{zpool}
-		),
-		'Storage has zpool profile'
-	);
-	ok( !defined( $hardware_product_hash{'Switch'}->{profile}->{zpool} ),
-		'Switch does not have zpool profile' );
-
-	for my $hardware_product (@hardware_products) {
-		$t->get_ok( "/hardware_product/" . $hardware_product->{id} )
-			->status_is(200)->json_is( '', $hardware_product );
+	for my $hardware_product ($t->tx->res->json->@*) {
+		$t->get_ok("/hardware_product/" . $hardware_product->{id} )
+			->status_is(200)
+			->json_schema_is('HardwareProduct')
+			->json_is('', $hardware_product);
 	}
 };
 
