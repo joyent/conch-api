@@ -19,14 +19,14 @@ use Conch::Model::ValidationResult;
 my $attrs = [qw( id name version description module created updated)];
 has $attrs;
 
-use Conch::Log;
-has 'log' => sub { return Conch::Log->new };
+has 'log' => sub { Carp::croak('missing logger') };
 
 =head2 new
 
 Create a new Validation.
 	
 	Conch::Model::Validation->new (
+		log         => $logger,      # main logger object from mojo app or controller
 		name        => 'example_validation',
 		version     => 1,
 		description => 'Example Validation',
@@ -38,7 +38,7 @@ All unspecified fields will be 'undef'.
 =cut
 
 sub new ( $class, %args ) {
-	$class->SUPER::new( %args{@$attrs} );
+	$class->SUPER::new( %args{@$attrs, 'log'} );
 }
 
 =head2 TO_JSON
@@ -187,6 +187,7 @@ sub build_device_validation ( $self, $device, $hardware_product,
 	};
 
 	my $validation = $module->new(
+		log              => $self->log,
 		device           => $device,
 		device_location  => $device_location,
 		device_settings  => $device_settings,
@@ -230,7 +231,6 @@ sub run_validation_for_device ( $self, $device, $data ) {
 		$self->build_device_validation( $device, $hw_product, $location,
 		$settings );
 
-	$validation->log($self->log);
 	$validation->run($data);
 	return $validation->validation_results;
 }

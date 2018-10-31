@@ -64,14 +64,13 @@ use JSON::Validator;
 use Try::Tiny;
 
 use Conch::ValidationError;
-use Conch::Log;
 
 has 'name';
 has 'version';
 has 'description';
 has 'category';
 
-has 'log' => sub { return Conch::Log->new() };
+has 'log' => sub { Carp::croak('missing logger') };
 
 =head2 validation_results
 
@@ -130,12 +129,13 @@ list of attributes and values (Attributes are 'message', 'name', 'category',
 sub new ( $class, %attrs ) {
 
 	bless {
-		_device                    => $attrs{device},
-		_device_location           => $attrs{device_location},
-		_hardware_product          => $attrs{hardware_product},
-		_device_settings           => $attrs{device_settings} || {},
-		_validation_result_builder => $attrs{result_builder} || sub { return {@_} },
-		validation_results         => []
+		_device                    => delete $attrs{device},
+		_device_location           => delete $attrs{device_location},
+		_hardware_product          => delete $attrs{hardware_product},
+		_device_settings           => delete $attrs{device_settings} || {},
+		_validation_result_builder => delete $attrs{result_builder} || sub { return {@_} },
+		validation_results         => [],
+		%attrs,
 	}, $class;
 
 }
