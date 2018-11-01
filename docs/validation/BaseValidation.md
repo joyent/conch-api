@@ -54,7 +54,7 @@ expected results.
 
 ### Log
 
-Logger for use in, well, logging. Defaults to a Conch::Log instance
+Required.
 
 ### Validation\_Results
 
