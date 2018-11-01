@@ -20,28 +20,33 @@ use Sys::Hostname;
 
 sub register ($self, $app, $conf) {
 
-	my $home = $app->home;
-	my $mode = $app->mode;
-	my $log_dir = $home->child('log');
+	my %log_args = (
+		level => 'debug',
+	);
 
-	if(-d $log_dir) {
-		unless(-w $log_dir) {
-			return Mojo::Exception->throw("Cannot write to $log_dir");
+	if(not $app->feature('log_to_stderr')) {
+		my $mode = $app->mode;
+		my $home = $app->home;
+
+		my $log_dir = $home->child('log');
+
+		if(-d $log_dir) {
+			unless(-w $log_dir) {
+				return Mojo::Exception->throw("Cannot write to $log_dir");
+			}
+		} else {
+			if(-w $home->path) {
+				$app->log->info("Creating log dir $log_dir");
+				$home->make_path($log_dir);
+			} else { 
+				return Mojo::Exception->throw("Cannot create $log_dir");
+			}
 		}
-	} else {
-		if(-w $home->path) {
-			$app->log->info("Creating log dir $log_dir");
-			$home->make_path($log_dir);
-		} else { 
-			return Mojo::Exception->throw("Cannot create $log_dir");
-		}
+
+		$log_args{path} = $home->child('log', "$mode.log");
+
 	}
-	my $log_path = $home->child('log', "$mode.log");
-
-	$app->log(Conch::Log->new(
-		path       => $log_path,
-		level      => 'debug',
-    ));
+	$app->log(Conch::Log->new(%log_args));
 
 	if ($app->feature('rollbar')) {
 		$app->hook(
@@ -139,10 +144,7 @@ sub register ($self, $app, $conf) {
 			};
 		}
 
-		my $l = Conch::Log->new(
-			path  => $log_path,
-			level => 'debug',
-		);
+		my $l = Conch::Log->new(%log_args);
 
 		$l->request_id($c->req->request_id);
 		$l->payload($log);
