@@ -1,3 +1,12 @@
+package Conch::Controller::DeviceReport;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Mojo::JSON 'to_json';
+
 =pod
 
 =head1 NAME
@@ -5,17 +14,6 @@
 Conch::Controller::DeviceReport
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::DeviceReport;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-
-use Conch::Models;
-
-with 'Conch::Role::MojoLog';
 
 =head2 process
 
@@ -27,11 +25,23 @@ Response uses the ValidationState json schema.
 =cut
 
 sub process ($c) {
-	my $raw_report = $c->req->body;
+	my $raw_report = $c->req->text;
 
 	my $unserialized_report = $c->validate_input('DeviceReport');
-	if(not $unserialized_report) {
+	if (not $unserialized_report) {
 		$c->log->debug('Device report input failed validation');
+
+		if (not $c->db_devices->active->search({ id => $c->stash('device_id') })->exists) {
+			$c->log->debug('Device id '.$c->stash('device_id').' does not exist; cannot store bad report');
+			return;
+		}
+
+		# the "report" may not even be valid json, so we cannot store it in a jsonb field.
+		my $device_report = $c->db_device_reports->create({
+			device_id => $c->stash('device_id'),
+			invalid_report => $raw_report,
+		});
+		$c->log->debug('Stored invalid device report for device id '.$c->stash('device_id'));
 		return;
 	}
 
@@ -132,7 +142,7 @@ sub process ($c) {
 	$c->log->debug("Creating device report");
 	my $device_report = $device->create_related('device_reports', {
 		report    => $raw_report,
-		# created, last_received, received_count all use defaults.
+		# invalid, created, last_received, received_count all use defaults.
 	});
 	$c->log->info("Created device report ".$device_report->id);
 
@@ -176,7 +186,6 @@ sub process ($c) {
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
-	# this uses the DBIC object from _record_device_report to do the update
 	$device->update( { health => uc( $validation_state->status ), updated => \'NOW()' } );
 
 	$c->status( 200, $validation_state );

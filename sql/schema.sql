@@ -398,10 +398,11 @@ ALTER TABLE public.device_relay_connection OWNER TO conch;
 CREATE TABLE public.device_report (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     device_id text NOT NULL,
-    report jsonb NOT NULL,
+    report jsonb,
     created timestamp with time zone DEFAULT now() NOT NULL,
     last_received timestamp with time zone DEFAULT now() NOT NULL,
-    received_count integer DEFAULT 1 NOT NULL
+    received_count integer DEFAULT 1 NOT NULL,
+    invalid_report text
 );
 
 
