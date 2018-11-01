@@ -23,6 +23,7 @@
 	features => {
 		audit          => 0,
 		rollbar        => 0,
+		nytprof        => 0,
 
 		# Stop issuing 'conch' cookies. This does not prevent existing conch
 		# cookies from being validated (as long as the secrets are the same).
