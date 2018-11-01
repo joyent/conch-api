@@ -23,13 +23,14 @@ Provides the helper sub 'send_mail' to the app and controllers:
 sub register ($self, $app, $config) {
     $app->helper(send_mail => sub ($c, $template_name, @args) {
 
+        my $log = $c->can('log') ? $c->log : $c->app->log;
         Mojo::IOLoop->subprocess(
             sub ($subprocess) {
-                Conch::Mail->new(log => $c->log)->$template_name(@args);
+                Conch::Mail->new(log => $log)->$template_name(@args);
             },
             sub ($subprocess, $err, @results) {
                 if ($err) {
-                    $c->log->warn($template_name . ' email errored: ' . $err);
+                    $log->warn($template_name . ' email errored: ' . $err);
                 }
             },
         );
