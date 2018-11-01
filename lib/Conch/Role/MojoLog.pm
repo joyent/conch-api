@@ -34,11 +34,15 @@ has log => sub {
 	my $home = $c->app->home;
 	my $mode = $c->app->mode;
 
-    return Conch::Log->new(
-        request_id => $c->req->request_id,
-		path       => $home->child('log', "$mode.log"),
+	my %args = (
+		request_id => $c->req->request_id,
 		level      => 'debug',
-    );
+	);
+	if (not $c->feature('log_to_stderr')) {
+		$args{path} = $home->child('log', "$mode.log"),
+	}
+
+    return Conch::Log->new(%args);
 };
 
 1;
