@@ -202,11 +202,11 @@ sub startup {
 	});
 
 	$self->plugin('Conch::Plugin::GitVersion');
-	$self->plugin(NYTProf => $self->config);
 	$self->plugin('Conch::Plugin::JsonValidator');
 	$self->plugin("Conch::Plugin::AuthHelpers");
 	$self->plugin('Conch::Plugin::Mail');
 
+	$self->plugin(NYTProf => $self->config) if $self->feature('nytprof');
 	$self->plugin('Conch::Plugin::Rollbar') if $self->feature('rollbar');
 
 	push @{$self->commands->namespaces}, 'Conch::Command';
