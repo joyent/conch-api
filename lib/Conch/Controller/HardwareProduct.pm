@@ -87,6 +87,12 @@ sub get ($c) {
 
 =head2 create
 
+Creates a new hardware_product, and possibly also a hardware_product_profile and zpool_profile.
+
+Missing zpool_profile fields will default to null when creating new rows, but if an existing
+row can be matched up to the fields provided, that entry will be re-used rather than creating a
+new one.
+
 =cut
 
 sub create ($c) {
@@ -108,13 +114,31 @@ sub create ($c) {
     # backcompat only
     $input->{hardware_vendor_id} = delete $input->{vendor} if exists $input->{vendor};
 
-    my $hardware_product = $c->db_hardware_products->create($input);
+    # create profiles and/or zpool entries as well, as needed.
+    # Note that if a zpool already exists and can be uniquely identified without conflict, its
+    # id is used instead of creating a new entry!
+    my $hardware_product = $c->txn_wrapper(sub ($c) {
+        $c->db_hardware_products->create($input);
+    });
 
-    $c->log->debug("Created hardware product ".$hardware_product->id);
+    # if the result code was already set, we errored and rolled back the db..
+    return if $c->res->code;
+
+    $c->log->debug('Created hardware product id '.$hardware_product->id.
+        ($input->{hardware_product_profile}
+          ? (' and hardware product profile id '.$hardware_product->hardware_product_profile->id .
+            ($input->{hardware_product_profile}{zpool_profile}
+              ? (' and zpool profile id '.$hardware_product->hardware_product_profile->zpool_id)
+              : ''))
+          : '')
+    );
     $c->status(303 => "/hardware_product/".$hardware_product->id);
 }
 
 =head2 update
+
+Updates an existing hardware_product, possibly updating or creating a hardware_product_profile
+and zpool_profile as needed.
 
 =cut
 
@@ -124,7 +148,14 @@ sub update ($c) {
     my $input = $c->validate_input('HardwareProductUpdate');
     return if not $input;
 
-    my $hardware_product = $c->stash('hardware_product_rs')->single;
+    my $hardware_product = $c->stash('hardware_product_rs')
+        ->prefetch('hardware_product_profile')
+        ->single;
+
+    if ($hardware_product->id ne delete $input->{id}) {
+        $c->log->debug('hardware product identified by the path does not match the id in the payload.');
+        return $c->status(400 => { error => 'mismatch between path and payload' });
+    }
 
     for my $key (qw[name alias sku]) {
         next unless defined $input->{$key};
@@ -139,8 +170,57 @@ sub update ($c) {
     # backcompat only
     $input->{hardware_vendor_id} = delete $input->{vendor} if exists $input->{vendor};
 
-    $hardware_product->update({ %$input, updated => \'NOW()' });
-    $c->log->debug('Updated hardware product '.$hardware_product->id);
+    $c->txn_wrapper(sub ($c) {
+        $c->log->debug('start of transaction...');
+
+        my $profile = delete $input->{hardware_product_profile};
+        if ($profile and keys %$profile) {
+
+            # we don't really need to do this check, as the db will check the foreign key
+            # constraint for us, die and force a rollback, but let's be nice...
+            if ($profile->{zpool_id}
+                    and not $c->db_zpool_profiles->active
+                        ->search({ id => $profile->{zpool_id} })->exists) {
+                $c->log->debug("Failed to update hardware product: zpool_id $profile->{zpool_id} does not exist");
+                $c->status(400 => { error => "zpool_id $profile->{zpool_id} does not exist" });
+                die 'rollback';
+            }
+
+            if (my $zpool = delete $profile->{zpool_profile}) {
+                # we don't update existing zpools because other profiles could be using it.
+                # Instead, we attempt to create a new one -- which is ok as long as there
+                # is no name conflict.
+                my $zpool_profile = $c->db_zpool_profiles->find_or_create($zpool);
+                $profile->{zpool_id} = $zpool_profile->id;
+                $c->log->debug('Assigned zpool_profile id '.$zpool_profile->id.'to hardware_product_profile for hardware product '.$hardware_product->id);
+            }
+
+            if (keys %$profile) {
+                if ($hardware_product->hardware_product_profile) {
+                    $hardware_product->hardware_product_profile->update({ %$profile, updated => \'now()', deactivated => undef });
+                    $c->log->debug('Updated hardware_product_profile for hardware product '.$hardware_product->id);
+                }
+                else {
+                    # when creating a new hardware product profile, we apply a stricter
+                    # schema to the input
+                    die 'rollback'
+                        if not $c->validate_input('HardwareProductProfileCreate', $profile);
+
+                    $hardware_product->create_related('hardware_product_profile' => $profile);
+                    $c->log->debug('Created new hardware_product_profile for hardware product '.$hardware_product->id);
+                }
+            }
+        }
+
+        $hardware_product->update({ %$input, updated => \'now()' }) if keys %$input;
+        $c->log->debug('Updated hardware product '.$hardware_product->id);
+
+        $c->log->debug('transaction ended successfully');
+    });
+
+    # if the result code was already set, we errored and rolled back the db..
+    return if $c->res->code;
+
     $c->status(303 => '/hardware_product/'.$hardware_product->id);
 }
 
@@ -153,7 +233,15 @@ sub delete ($c) {
 
     my $id = $c->stash('hardware_product_rs')->get_column('id')->single;
     $c->stash('hardware_product_rs')->deactivate;
-    $c->log->debug("Deleted hardware product $id");
+
+    # delete the profile too, since they are 1:1.
+    my $profile_rs = $c->stash('hardware_product_rs')->related_resultset('hardware_product_profile');
+    my $hardware_product_profile_id = $profile_rs->get_column('id')->single;
+    $profile_rs->deactivate;
+
+    $c->log->debug("Deleted hardware product $id"
+        . ($hardware_product_profile_id
+            ? " and its related hardware product profile id $hardware_product_profile_id" : ''));
     return $c->status(204);
 }
 
