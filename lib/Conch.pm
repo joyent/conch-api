@@ -13,7 +13,7 @@ Conch - Setup and helpers for Conch Mojo app
 =cut
 
 package Conch;
-use Mojo::Base 'Mojolicious';
+use Mojo::Base 'Mojolicious', -signatures;
 
 use Conch::Route;
 use Mojolicious::Plugin::Bcrypt;
@@ -138,6 +138,15 @@ sub startup {
 			}
 		);
 	}
+
+	$self->hook(
+		after_dispatch => sub ($c) {
+			my $headers = $c->res->headers;
+			my $request_id = $c->req->request_id;
+			$headers->header('Request-Id' => $request_id);
+			$headers->header('X-Request-ID' => $request_id);
+		}
+	);
 
 	# note: we have a leak originating in this plugin.
 	# see https://rt.cpan.org/Ticket/Display.html?id=125981
