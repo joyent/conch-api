@@ -64,8 +64,8 @@ definitions:
         anyOf:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
-        description: this field is deprecated and will no longer be present.
       boot_phase:
+        description: this field is deprecated and will no longer be present.
         anyOf:
           - type: string
           - type: 'null'
@@ -76,6 +76,11 @@ definitions:
         $ref: /definitions/uuid
       health:
         type: string
+        enum:
+          - PASS
+          - FAIL
+          - UNKNOWN
+          - ERROR
       hostname:
         anyOf:
           - type: string
@@ -129,6 +134,7 @@ definitions:
           - type: 'null'
       nics: # NOTE: see also DeviceNic
         type: array
+        uniqueItems: true
         items:
           type: object
           additionalProperties: false
@@ -173,6 +179,7 @@ definitions:
           - type: 'null'
   Devices:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/Device"
   Device:
@@ -194,13 +201,14 @@ definitions:
       - updated
       - uptime_since
       - validated
+      - triton_setup
     properties:
       asset_tag:
         anyOf:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
-        deprecated: this field is deprecated and will no longer be present.
       boot_phase:
+        description: this field is deprecated and will no longer be present.
         anyOf:
           - type: string
           - type: 'null'
@@ -211,6 +219,11 @@ definitions:
         $ref: /definitions/uuid
       health:
         type: string
+        enum:
+          - PASS
+          - FAIL
+          - UNKNOWN
+          - ERROR
       hostname:
         anyOf:
           - type: string
@@ -263,6 +276,7 @@ definitions:
 
   DeviceNics:
     type: array
+    uniqueItems: true
     items:
       $ref: /definitions/DeviceNic
   DeviceNic:
@@ -407,6 +421,7 @@ definitions:
             description: Hardware product vendor name
   HardwareProducts:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/HardwareProduct"
   HardwareProduct:
@@ -610,6 +625,7 @@ definitions:
     patternProperties:
       ^[\w-]+$:   # key is a room az name
         type: array
+        uniqueItems: true
         items:
           type: object
           additionalProperties: false
@@ -657,6 +673,7 @@ definitions:
         type: string
       slots:
         type: array
+        uniqueItems: true
         items:
           type: object
           additionalProperties: false
@@ -737,6 +754,7 @@ definitions:
         format: date-time
   ValidationPlans:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/ValidationPlan"
   ValidationPlan:
@@ -804,6 +822,7 @@ definitions:
         $ref: /definitions/uuid
   ValidationResults:
     type: array
+    uniqueItems: true
     items:
       $ref: /definitions/ValidationResult
   ValidationState:
@@ -842,6 +861,7 @@ definitions:
         $ref: /definitions/uuid
   ValidationStatesWithResults:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/ValidationStateWithResults"
   ValidationStateWithResults:
@@ -871,6 +891,7 @@ definitions:
         $ref: /definitions/device_id
       results:
         type: array
+        uniqueItems: true
         items:
           $ref: "#/definitions/ValidationResult"
       status:
@@ -885,6 +906,7 @@ definitions:
         $ref: /definitions/uuid
   WorkspaceRelays:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/WorkspaceRelay"
   WorkspaceRelay:
@@ -912,6 +934,7 @@ definitions:
         description: >
           Array of devices that have reported through this relay device
         type: array
+        uniqueItems: true
         items:
           $ref: "#/definitions/Device"
       id:
@@ -933,12 +956,16 @@ definitions:
           room_name:
             type: string
       ssh_port:
-        type: number
+        anyOf:
+          - type: integer
+          - type: 'null'
       updated:
         type: string
         format: date-time
       version:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
   WorkspaceAndRole:
     type: object
     additionalProperties: false
@@ -972,10 +999,12 @@ definitions:
         $ref: /definitions/uuid
   WorkspacesAndRoles:
     type: array
+    uniqueItems: true
     items:
       $ref: /definitions/WorkspaceAndRole
   WorkspaceUsers:
     type: array
+    uniqueItems: true
     items:
       type: object
       additionalProperties: false
@@ -999,6 +1028,7 @@ definitions:
           $ref: /definitions/uuid
   DatacenterRoomsDetailed:
     type: array
+    uniqueItems: true
     items:
       $ref: /definitions/DatacenterRoomDetailed
   DatacenterRoomDetailed:
@@ -1034,6 +1064,7 @@ definitions:
         format: date-time
   Rooms:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/Room"
   Room:
@@ -1059,6 +1090,7 @@ definitions:
           - type: 'null'
   Relays:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/Relay"
   Relay:
@@ -1088,7 +1120,7 @@ definitions:
           - type: 'null'
       ssh_port:
         anyOf:
-          - type: number
+          - type: integer
           - type: 'null'
       updated:
         type: string
@@ -1177,6 +1209,7 @@ definitions:
         anyOf:
           - type: 'null'
           - type: array
+            uniqueItems: true
             items:
               $ref: /definitions/uuid
   WorkflowStatus:
@@ -1202,6 +1235,7 @@ definitions:
         $ref: /definitions/uuid
   Workflows:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/Workflow"
   WorkflowStepStatus:
@@ -1247,6 +1281,7 @@ definitions:
         $ref: /definitions/uuid
   Racks:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/Rack"
   Rack:
@@ -1308,10 +1343,12 @@ definitions:
         format: date-time
   RackRoles:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/RackRole"
   RackLayouts:
     type: array
+    uniqueItems: true
     items:
       $ref: "#/definitions/RackLayout"
   RackLayout:
@@ -1412,10 +1449,12 @@ definitions:
         type: boolean
       workspaces:
         type: array
+        uniqueItems: true
         items:
           $ref: /definitions/WorkspaceAndRole
   UsersDetailed:
     type: array
+    uniqueItems: true
     items:
        $ref: /definitions/UserDetailed
   HardwareVendor:
@@ -1439,6 +1478,7 @@ definitions:
         format: date-time
   HardwareVendors:
     type: array
+    uniqueItems: true
     items:
       $ref: /definitions/HardwareVendor
   DeviceTotals:
@@ -1453,6 +1493,7 @@ definitions:
     patternProperties:
       .:
         type: array
+        uniqueItems: true
         items:
           type: object
           additionalProperties: false
