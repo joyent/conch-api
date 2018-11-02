@@ -11,7 +11,8 @@ docker run \
 	--name ${PREFIX}_${BUILDNUMBER} \
 	--rm \
 	${PREFIX}/conch-api:${LABEL} \
-	sh -c 'make test' \
+	--entrypoint=make \
+	test \
 && \
 docker push ${PREFIX}/conch-api:${LABEL}
 

@@ -9,6 +9,5 @@ docker/remove_old_images.bash
 docker run \
 	--mount type=volume,src=${PREFIX}-api-test-carton,dst=/app/conch/local \
 	--rm \
-	${PREFIX}/conch-api \
-	sh -c 'make forcebuild test'
+	${PREFIX}/conch-api
 

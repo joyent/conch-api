@@ -10,7 +10,7 @@ LABEL org.label-schema.vcs-url "https://github.com/joyent/conch.git"
 # magic dance to get 9.6 for ourselves, since bionic ships 10.
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg1 ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg2 ca-certificates
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE 1 
 RUN wget -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
@@ -53,4 +53,5 @@ ENV MOJO_CONFIG /app/conch/etc/conch.conf
 ENV MOJO_LISTEN http://0.0.0.0:5000
 EXPOSE 5000
 
-CMD [ "carton", "exec", "hypnotoad", "-f", "bin/conch" ]
+ENTRYPOINT ["carton", "exec"]
+CMD ["bin/conch", "daemon"]

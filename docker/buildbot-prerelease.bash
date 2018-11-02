@@ -13,6 +13,5 @@ docker run \
 	--mount type=volume,src=${PREFIX}-conch-api-carton,dst=/app/conch/local \
 	--rm \
 	--name ${PREFIX}_${BUILDNUMBER} \
-	${PREFIX}/conch-api:${LABEL} \
-	sh -c 'make forcebuild test'
+	${PREFIX}/conch-api:${LABEL}
 
