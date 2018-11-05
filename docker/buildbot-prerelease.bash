@@ -7,6 +7,10 @@
 LABEL=$(echo "${LABEL}" | sed 's/\//_/g')
 
 docker volume create ${PREFIX}-conch-api-carton
+
+set -euo pipefail
+IFS=$'\n\t'
+
 PREFIX=${PREFIX} LABEL=${LABEL} docker/builder.sh --file Dockerfile.dev .
 
 docker run \
@@ -15,3 +19,4 @@ docker run \
 	--name ${PREFIX}_${BUILDNUMBER} \
 	${PREFIX}/conch-api:${LABEL}
 
+docker rmi ${PREFIX}/conch-api:${LABEL}
