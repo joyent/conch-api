@@ -107,19 +107,14 @@ sub register ($self, $app, $conf) {
 			headers => $res_headers,
 		};
 
-		if($c->tx->res->code) {
-			$log->{res}->{statusCode} = $c->tx->res->code;
-
-			if($c->tx->res->code >= 400) {
-				$log->{res}->{body} = $c->res->body;
-			}
+		if ($c->res->code) {
+			$log->{res}{statusCode} = $c->res->code;
+			$log->{res}{body} = $c->res->text if $c->res->code >= 400;
 		}
 
 		if ($c->feature('audit')) {
-			$log->{req}->{body} = $c->req->body;
-			unless ($c->req->url =~ /login/) {
-				$log->{res}->{body} = $c->res->body;
-			}
+			$log->{req}{body} = $c->req->text;
+			$log->{res}{body} //= $c->res->text if $c->req->url !~ /login/;
 		}
 
 		if(my $e = $c->stash('exception')) {

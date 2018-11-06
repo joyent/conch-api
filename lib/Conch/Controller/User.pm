@@ -313,7 +313,7 @@ sub update ($c) {
 	return if not $input;
 
 	my $user = $c->stash('target_user');
-	$c->log->debug('updating user '.$user->email.': '.$c->req->body);
+	$c->log->debug('updating user '.$user->email.': '.$c->req->text);
 	$user->update($input);
 
 	$user->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
