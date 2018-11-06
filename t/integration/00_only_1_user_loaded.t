@@ -1,6 +1,7 @@
 use strict;
-use warnings;
+use warnings FATAL => 'utf8';
 use utf8;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Test::More;
 use Data::UUID;
@@ -136,7 +137,7 @@ subtest 'User' => sub {
 			TEST3 => 'test3',
 		});
 
-	$t->post_ok('/user/me/password' => json => { password => 'ohhai' })
+	$t->post_ok('/user/me/password' => json => { password => 'øƕḩẳȋ' })
 		->status_is(204, 'changed password');
 
 	$t->get_ok('/user/me/settings')
@@ -152,7 +153,7 @@ subtest 'User' => sub {
 	$t->post_ok(
 		'/login' => json => {
 			user     => 'conch@conch.joyent.us',
-			password => 'ohhai'
+			password => 'øƕḩẳȋ'
 		}
 	)->status_is(200, 'logged in using new password');
 	$t->post_ok(
