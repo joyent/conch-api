@@ -49,16 +49,15 @@ sub routes {
     my $class = shift;
     my $device = shift; # secured, under /device
 
-    # routes namespaced for a specific device
+    # POST /device/:device_id
+    $device->post('/:device_id')->to('device_report#process');
+
+    # /device?key=:value
+    $device->get('/')->under->to('device#lookup_by_other_attribute')
+        ->get->under->to('device#find_device')
+        ->get->to('device#get');
+
     {
-        # POST /device/:device_id
-        $device->post('/:device_id')->to('device_report#process');
-
-        # /device?key=:value
-        $device->get('/')->under->to('device#lookup_by_other_attribute')
-            ->get->under->to('device#find_device')
-            ->get->to('device#get');
-
         # chainable action that extracts and looks up device_id from the path
         my $with_device = $device->under('/:device_id')->to('device#find_device');
 
