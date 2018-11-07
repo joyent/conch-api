@@ -44,7 +44,7 @@ __PACKAGE__->table("device_report");
 =head2 report
 
   data_type: 'jsonb'
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 created
 
@@ -66,6 +66,11 @@ __PACKAGE__->table("device_report");
   default_value: 1
   is_nullable: 0
 
+=head2 invalid_report
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -79,7 +84,7 @@ __PACKAGE__->add_columns(
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "report",
-  { data_type => "jsonb", is_nullable => 0 },
+  { data_type => "jsonb", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -96,6 +101,8 @@ __PACKAGE__->add_columns(
   },
   "received_count",
   { data_type => "integer", default_value => 1, is_nullable => 0 },
+  "invalid_report",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -143,8 +150,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-10 16:00:59
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BI5mc8aaPtXrJKY4EdtlVw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-05 16:57:29
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:c9QN/7Wi12rFMh5GqBENNQ
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

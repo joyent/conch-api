@@ -46,7 +46,6 @@ definitions:
       - id
       - graduated
       - last_seen
-      - latest_report
       - latest_triton_reboot
       - state
       - system_uuid
@@ -57,6 +56,9 @@ definitions:
       - validated
       - location
       - nics
+      - latest_report_is_invalid
+      - latest_report
+      - invalid_report
     properties:
       asset_tag:
         anyOf:
@@ -89,10 +91,6 @@ definitions:
         anyOf:
           - type: string
             format: date-time
-          - type: 'null'
-      latest_report:
-        anyOf:
-          - $ref: /definitions/DeviceReport
           - type: 'null'
       latest_triton_reboot:
         anyOf:
@@ -162,6 +160,17 @@ definitions:
               anyOf:
                 - type: string
                 - type: 'null'
+      latest_report_is_invalid:
+        type: boolean
+      latest_report:
+        anyOf:
+          - $ref: /definitions/DeviceReport
+          - type: 'null'
+      invalid_report:
+        description: this could be anything, from encoded json to random junk
+        anyOf:
+          - type: string
+          - type: 'null'
   Devices:
     type: array
     items:

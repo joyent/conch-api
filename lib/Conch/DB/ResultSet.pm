@@ -23,6 +23,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::Rows',        # provides rows
     'Helper::ResultSet::Shortcut::Distinct',    # provides distinct
     '+Conch::DB::ResultsExist',                 # provides exists
+    'Helper::ResultSet::Shortcut::Columns',     # provides columns
 );
 
 1;

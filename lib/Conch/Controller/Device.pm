@@ -1,3 +1,14 @@
+package Conch::Controller::Device;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Conch::Models;
+use List::Util 'any';
+use Mojo::JSON 'from_json';
+
 =pod
 
 =head1 NAME
@@ -5,18 +16,6 @@
 Conch::Controller::Device
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::Device;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use List::Util 'any';
-
-with 'Conch::Role::MojoLog';
-
-use Conch::Models;
 
 =head2 find_device
 
@@ -111,11 +110,19 @@ sub get ($c) {
 
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
 
+	my $latest_report = $c->stash('device_rs')
+		->latest_device_report
+		->columns([qw(report invalid_report)])
+		->single;
+
 	# TODO: we can collapse this all down to a self-contained serializer once the
 	# DeviceLocation query has been converted to a prefetchable relationship.
 	my $detailed_device = +{
 		%{ $device->TO_JSON },
-		latest_report => $device->latest_report_data,
+		latest_report_is_invalid => \($latest_report->invalid_report ? 1 : 0),
+		latest_report => $latest_report->report ? from_json($latest_report->report) : undef,
+		# if not null, this is text - maybe json-encoded, maybe random junk
+		invalid_report => $latest_report->invalid_report,
 		nics => [ map {
 			my $device_nic = $_;
 			$device_nic->deactivated ? () :

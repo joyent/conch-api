@@ -1,10 +1,12 @@
 use Mojo::Base -strict;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+use warnings FATAL => 'utf8';
 use Test::More;
 use Data::UUID;
 use Path::Tiny;
 use Test::Deep;
 use Test::Warnings;
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(from_json to_json);
 
 use Test::Conch::Datacenter;
 
@@ -165,8 +167,8 @@ subtest 'Register relay' => sub {
 };
 
 subtest 'Device Report' => sub {
-	my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
+	my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
 		->status_is(200)
 		->json_schema_is('ValidationState')
 		->json_is( '/status', 'pass' );
@@ -181,7 +183,7 @@ subtest 'Device Report' => sub {
 
 	cmp_deeply(
 		$device->latest_report_data,
-		decode_json($report),
+		from_json($good_report),
 		'json blob stored in the db matches report on disk',
 	);
 
@@ -189,8 +191,8 @@ subtest 'Device Report' => sub {
 	is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
 	is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
-	my $dupe_report = encode_json(decode_json($report));
-	isnt($report, $dupe_report, 're-encoded report is not string-identical (whitespace was removed)');
+	my $dupe_report = to_json(from_json($good_report));
+	isnt($good_report, $dupe_report, 're-encoded report is not string-identical (whitespace was removed)');
 
 	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $dupe_report)
 		->status_is(200)
@@ -206,6 +208,83 @@ subtest 'Device Report' => sub {
 		2,
 		'received_count is incremented',
 	);
+
+
+	my $invalid_json_1 = '{"this": 1s n0t v@l,d ǰsøƞ';
+	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+			Encode::encode('UTF-8', $invalid_json_1))
+		->status_is(400);
+
+	my $corrupt_report = $device->self_rs->latest_device_report->single;
+	cmp_deeply(
+		$corrupt_report,
+		methods(
+			device_id => 'TEST',
+			report => undef,
+			invalid_report => $invalid_json_1,
+		),
+		'stored the invalid report in raw form',
+	);
+
+	$t->get_ok('/device/TEST')
+		->status_is(200)
+		->json_schema_is('DetailedDevice')
+		->json_is('/health' => 'PASS')
+		->json_is('/latest_report_is_invalid' => JSON::PP::true)
+		->json_is('/latest_report' => undef)
+		->json_is('/invalid_report' => $invalid_json_1);
+
+
+	my $invalid_json_2 = to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' });
+	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+			json => { foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' })
+		->status_is(400);
+
+	my $invalid_report = $device->self_rs->latest_device_report->single;
+	cmp_deeply(
+		$invalid_report,
+		methods(
+			device_id => 'TEST',
+			invalid_report => $invalid_json_2,
+		),
+		'stored the invalid report in raw form',
+	);
+
+	$t->get_ok('/device/TEST')
+		->status_is(200)
+		->json_schema_is('DetailedDevice')
+		->json_is('/health' => 'PASS')
+		->json_is('/latest_report_is_invalid' => JSON::PP::true)
+		->json_is('/latest_report' => undef)
+		->json_is('/invalid_report' => $invalid_json_2);
+
+
+	my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
+	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
+		->status_is(200)
+		->json_schema_is('ValidationState')
+		->json_is('/status', 'error');
+
+	$t->get_ok('/device/TEST')
+		->status_is(200)
+		->json_schema_is('DetailedDevice')
+		->json_is('/health' => 'ERROR')
+		->json_is('/latest_report_is_invalid' => JSON::PP::false);
+
+
+	# return device to a good state
+	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+		->status_is(200)
+		->json_schema_is('ValidationState')
+		->json_is('/status', 'pass');
+
+	$t->get_ok('/device/TEST')
+		->status_is(200)
+		->json_schema_is('DetailedDevice')
+		->json_is('/latest_report/product_name' => 'Joyent-S1')
+		->json_is('/invalid_report' => undef)
+		->json_is('/health' => 'PASS')
+		->json_is('/latest_report_is_invalid' => JSON::PP::false);
 
 	cmp_deeply(
 		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
@@ -262,6 +341,8 @@ subtest 'Single device' => sub {
 	$t->get_ok('/device/TEST')
 		->status_is(200)
 		->json_schema_is('DetailedDevice')
+		->json_is('/health' => 'PASS')
+		->json_is('/latest_report_is_invalid' => JSON::PP::false)
 		->json_is('/latest_report/product_name' => 'Joyent-S1');
 
 	$detailed_device = $t->tx->res->json;
@@ -345,7 +426,10 @@ subtest 'Single device' => sub {
 
 		$t->get_ok('/device/TEST')
 			->status_is(200)
-			->json_schema_is('DetailedDevice');
+			->json_schema_is('DetailedDevice')
+			->json_is('/id', 'TEST')
+			->json_is('/health' => 'PASS')
+			->json_is('/latest_report_is_invalid' => JSON::PP::false);
 		$detailed_device = $t->tx->res->json;
 	};
 
@@ -756,7 +840,29 @@ subtest 'Validations' => sub {
 	$t->get_ok('/device/TEST/validation_state?status=error')
 		->status_is(200)
 		->json_schema_is('ValidationStatesWithResults')
-		->json_is('', []);
+		->json_cmp_deeply([
+			{
+				id => ignore,
+				validation_plan_id => ignore,
+				device_id => 'TEST',
+				device_report_id => ignore,
+				completed => ignore,
+				created => ignore,
+				status => 'error',
+				results => [ {
+					id => ignore,
+					device_id => 'TEST',
+					hardware_product_id => $device->hardware_product_id,
+					validation_id => ignore,
+					component_id => undef,
+					message => 'Missing \'product_name\' property',
+					hint => ignore,
+					status => 'error',
+					category => 'BIOS',
+					order => 0,
+				} ],
+			},
+		]);
 
 	$t->get_ok('/device/TEST/validation_state?status=pass,fail')
 		->status_is(200)

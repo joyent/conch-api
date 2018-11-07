@@ -62,7 +62,19 @@ sub devices_without_location {
 
 Returns a resultset that finds the most recent device report matching the device(s). This is
 not a window function, so only one report is returned for all matching devices, not one report
-per device! (We probably never need to do the latter.)
+per device! (We probably never need to do the latter. *)
+
+* but if we did, you'd want something like:
+
+    $self->search(undef, {
+        '+columns' => {
+            $col => $self->correlate('device_reports')
+                ->columns($col)
+                ->order_by({ -desc => 'device_reports.created' })
+                ->rows(1)
+                ->as_query
+        },
+    });
 
 =cut
 
