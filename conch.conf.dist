@@ -11,7 +11,7 @@
 	},
 
 	# URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
-	pg => 'postgresql://conch@/conch',
+	pg => 'postgresql://conch@/conch?client_encoding=UTF-8',
 
 	# Rollbar access token. Must be a token with write permissions
 	# rollbar_access_token => '00000000000000000000000000000000',

@@ -23,9 +23,11 @@ Sets up the database and provides convenient accessors to it.
 
 sub register ($self, $app, $config) {
 
-    # legacy database access; will be removed soon.
-    my $pg = Conch::Pg->new($config->{pg});
-    my ($dsn, $username, $password) = ($pg->dsn, $pg->username, $pg->password);
+    # Conch::Pg = legacy database access; will be removed soon.
+    # for now we use Mojo::Pg to parse the pg connection uri.
+    my $mojo_pg = Conch::Pg->new($config->{pg})->{pg};
+    my ($dsn, $username, $password, $options) = map { $mojo_pg->$_ } qw(dsn username password options);
+
 
 =head2 schema
 
@@ -36,7 +38,7 @@ that persists for the lifetime of the application.
 
     $app->helper(schema => sub {
         state $_rw_schema = Conch::DB->connect(
-            $dsn, $username, $password,
+            $dsn, $username, $password, $options,
         );
     });
 
@@ -63,12 +65,9 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
             DBI->connect(
                 $dsn, $username, $password,
                 {
+                    $options->%*,
                     ReadOnly            => 1,
                     AutoCommit          => 0,
-                    AutoInactiveDestroy => 1,
-                    PrintError          => 0,
-                    PrintWarn           => 0,
-                    RaiseError          => 1,
                 });
         });
     });
