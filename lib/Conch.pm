@@ -46,9 +46,10 @@ sub startup {
 	$self->plugin('Conch::Plugin::Features', $self->config);
 	$self->plugin('Conch::Plugin::Logging');
 
-	# Initialize singletons
-	my $db = Conch::Pg->new($self->config('pg'));
-	my ($dsn, $username, $password) = ($db->dsn, $db->username, $db->password);
+	# Conch::Pg = legacy database access; will be removed soon.
+	# for now we use Mojo::Pg to parse the pg connection uri.
+	my $mojo_pg = Conch::Pg->new($self->config('pg'))->{pg};
+	my ($dsn, $username, $password, $options) = map { $mojo_pg->$_ } qw(dsn username password options);
 
 	# specify which MIME types we can handle
 	$self->types->type(json => 'application/json');
@@ -64,7 +65,7 @@ sub startup {
 	$self->helper(schema => sub {
 		return $_rw_schema if $_rw_schema;
 		$_rw_schema = Conch::DB->connect(
-			$dsn, $username, $password,
+			$dsn, $username, $password, $options,
 		);
 	});
 	$self->helper(rw_schema => $self->renderer->get_helper('schema'));
@@ -77,12 +78,9 @@ sub startup {
 			DBI->connect(
 				$dsn, $username, $password,
 				{
+					$options->%*,
 					ReadOnly			=> 1,
 					AutoCommit			=> 0,
-					AutoInactiveDestroy => 1,
-					PrintError          => 0,
-					PrintWarn           => 0,
-					RaiseError          => 1,
 				});
 		});
 	});
