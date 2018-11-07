@@ -203,6 +203,7 @@ __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
 );
 
+use Encode ();
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 
 =head1 METHODS
@@ -291,7 +292,7 @@ Check whether the given password text has a hash matching the stored password ha
 =cut
 
 sub validate_password {
-    my ($self, $p) = @_;
+    my ($self, $password) = @_;
 
     # handle legacy Dancer passwords (TODO: remove all remaining CRYPT constructs from
     # passwords in the database using a migration script.)
@@ -299,17 +300,18 @@ sub validate_password {
 
     return Mojo::Util::secure_compare(
         $password_hash,
-        bcrypt($p, $password_hash),
+        bcrypt(Encode::encode('UTF-8', $password), $password_hash),
     );
 }
 
 use constant _BCRYPT_COST => 4; # dancer2 legacy
 
 sub _hash_password {
-    my $p = shift;
-    my $cost = sprintf( '%02d', _BCRYPT_COST || 6 );
-    my $settings = join( '$', '$2a', $cost, _bcrypt_salt() );
-    return bcrypt( $p, $settings );
+    my $password = shift;
+    return bcrypt(
+        Encode::encode('UTF-8', $password),
+        join('$', '$2a', sprintf('%02d', _BCRYPT_COST || 6), _bcrypt_salt()),
+    );
 }
 
 sub _bcrypt_salt {

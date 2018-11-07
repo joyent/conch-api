@@ -17,8 +17,10 @@ create_user - create a new user, optionally sending an email
 
 =cut
 
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 use Mojo::Base 'Mojolicious::Command';
 use Getopt::Long::Descriptive;
+use Encode ();
 
 has description => 'Create a new user';
 
@@ -28,6 +30,10 @@ sub run {
     my $self = shift;
 
     local @ARGV = @_;
+
+    # decode command line arguments
+    @ARGV = map { Encode::decode('UTF-8', $_) } @ARGV if grep /\P{ASCII}/, @ARGV;
+
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $opt->usage
