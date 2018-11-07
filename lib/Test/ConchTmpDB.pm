@@ -30,7 +30,7 @@ TODO: move this to Test::Conch?
 sub mk_tmp_db {
 	my $class = shift // __PACKAGE__;
 
-	my $pgtmp = Test::PostgreSQL->new();
+	my $pgtmp = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
 	die $Test::PostgreSQL::errstr if not $pgtmp;
 
 	my $schema = $class->schema($pgtmp);
