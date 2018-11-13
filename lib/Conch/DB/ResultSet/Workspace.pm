@@ -35,7 +35,7 @@ sub workspaces_beneath {
     my ($self, $workspace_id) = @_;
 
     Carp::croak('missing workspace_id') if not defined $workspace_id;
-    Carp::croak('resultset should not have conditions') if $self->{attrs}{cond};
+    Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my $query = q{
 WITH RECURSIVE workspace_children (id) AS (
@@ -66,7 +66,7 @@ sub and_workspaces_beneath {
     my ($self, $workspace_id) = @_;
 
     Carp::croak('missing workspace_id') if not defined $workspace_id;
-    Carp::croak('resultset should not have conditions') if $self->{attrs}{cond};
+    Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my ($workspace_id_clause, @binds) = $self->_workspaces_subquery($workspace_id);
 
@@ -100,7 +100,7 @@ sub workspaces_above {
     my ($self, $workspace_id) = @_;
 
     Carp::croak('missing workspace_id') if not defined $workspace_id;
-    Carp::croak('resultset should not have conditions') if $self->{attrs}{cond};
+    Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my $query = qq{
 WITH RECURSIVE workspace_parents (id, parent_workspace_id) AS (
@@ -132,7 +132,7 @@ sub and_workspaces_above {
     my ($self, $workspace_id) = @_;
 
     Carp::croak('missing workspace_id') if not defined $workspace_id;
-    Carp::croak('resultset should not have conditions') if $self->{attrs}{cond};
+    Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my ($workspace_id_clause, @binds) = $self->_workspaces_subquery($workspace_id);
 
@@ -191,7 +191,7 @@ sub role_via_for_user {
 
     Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('missing user_id') if not defined $user_id;
-    Carp::croak('resultset should not have conditions') if $self->{attrs}{cond};
+    Carp::croak('resultset should not have conditions') if $self->{cond};
 
     # because we check for duplicate role entries when creating user_workspace_role rows,
     # we "should" only have *one* row with the highest permission in the entire heirarchy...
