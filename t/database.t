@@ -8,6 +8,40 @@ use Test::Memory::Cycle;
 use Test::Deep;
 use Data::UUID;
 
+subtest 'db connection without Conch, legacy mode, and data preservation' => sub {
+    my ($pgsql, $schema) = Test::Conch->init_db;
+
+    is(
+        $schema->resultset('user_account')->count,
+        0,
+        'without Conch: new database contains no users',
+    );
+
+    my $user = $schema->resultset('user_account')->create({
+        name => 'new user',
+        email => 'test0@conch.joyent.us',
+        password => 'whargarbl',
+    });
+
+    cmp_deeply(
+        [ Test::Conch->new(legacy_db => 1)->app->db_user_accounts->get_column('name')->all ],
+        [ 'conch' ],
+        'Conch app with legacy db gets a database instance with the conch user',
+    );
+
+    is(
+        Test::Conch->new(legacy_db => 0)->app->db_user_accounts->count,
+        0,
+        'Conch app with no legacy db gets a new database instance with no users',
+    );
+
+    cmp_deeply(
+        [ Test::Conch->new(pg => $pgsql)->app->db_user_accounts->get_column('name')->all ],
+        [ 'new user' ],
+        'with Conch: connecting with first database handle finds the newly-created user',
+    );
+};
+
 subtest 'read-only database handle' => sub {
     my $t = Test::Conch->new;
 

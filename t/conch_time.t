@@ -1,9 +1,9 @@
 use Mojo::Base -strict;
 use Test::More;
-use Test::ConchTmpDB qw(mk_tmp_db);
+use Test::PostgreSQL;
 use Test::Fatal;
 use Test::Warnings;
-use Conch::Pg;
+use Mojo::Pg;
 use Time::HiRes;
 
 use_ok("Conch::Time");
@@ -16,9 +16,9 @@ use constant PG_TIMESTAMP_FORMAT => qr/
 /x;
 
 
-my $pgtmp = mk_tmp_db();
+my $pgtmp = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
 $pgtmp or die;
-my $pg = Conch::Pg->new( $pgtmp->uri );
+my $pg = Mojo::Pg->new($pgtmp->uri);
 
 subtest 'Test timestamps from real DB' => sub {
 	my $now = $pg->db->query('SELECT NOW()::timestamptz as now ')->hash->{now};

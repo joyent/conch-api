@@ -4,7 +4,8 @@ use v5.26;
 use Mojo::Base 'Test::Mojo', -signatures;
 
 use Test::More ();
-use Test::ConchTmpDB 'mk_tmp_db';
+use Test::ConchTmpDB ();
+use Conch::DB;
 use JSON::Validator;
 use Path::Tiny;
 use Test::Deep ();
@@ -53,6 +54,9 @@ has 'validator' => sub {
 Constructor. Takes the following arguments:
 
   * pg (optional). uses this as the postgres db.
+  * legacy_db (optional, defaults to true). use Test::ConchTmpDB::mk_tmp_db to set up database
+    (uses migration files, creates a conch user).
+    When false, adds no data and starts off with sql/schema.sql.
 
 =cut
 
@@ -60,12 +64,12 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-    my $pg = $args->{pg} // mk_tmp_db();
+    my $pg = $args->{pg} // (($args->{legacy_db} // 1) ? Test::ConchTmpDB::mk_tmp_db() : $class->init_db);
     $pg or Test::More::BAIL_OUT("failed to create test database");
 
     my $self = Test::Mojo->new(
         Conch => {
-            pg      => $pg->uri,
+            pg      => $pg->uri,    # TODO: pass dsn instead of uri
             secrets => ["********"]
         }
     );
@@ -94,6 +98,45 @@ sub DESTROY ($self) {
     # ensure that a new Test::Conch instance creates a brand new Mojo::Pg connection (with a
     # possibly-different dsn) rather than using the old one to a now-dead postgres instance
     Conch::Pg->DESTROY;
+}
+
+=head2 init_db
+
+Sets up the database for testing, using the final schema rather than running migrations.
+No data is added -- you must load all desired fixtures.
+
+Note that the Test::PostgreSQL object must stay in scope for the duration of your tests.
+Returns the Conch::DB object as well when called in list context.
+
+=cut
+
+sub init_db ($class) {
+    my $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
+    die $Test::PostgreSQL::errstr if not $pgsql;
+
+    my $schema = Conch::DB->connect(
+        $pgsql->dsn, 'postgres', '',
+        {
+            # same as from Mojo::Pg->new($uri)->options
+            AutoCommit          => 1,
+            AutoInactiveDestroy => 1,
+            PrintError          => 0,
+            PrintWarn           => 0,
+            RaiseError          => 1,
+        },
+    );
+
+    Test::More::note('initializing database with sql/schema.sql...');
+
+    $schema->storage->dbh_do(sub {
+        my ($storage, $dbh, @args) = @_;
+        $dbh->do('CREATE ROLE conch LOGIN');
+        $dbh->do('CREATE DATABASE conch OWNER conch');
+        $dbh->do(path('sql/schema.sql')->slurp_utf8) or BAIL_OUT("Test SQL load failed in $_");
+        $dbh->do('RESET search_path');  # go back to "$user", public
+    });
+
+    return wantarray ? ($pgsql, $schema) : $pgsql;
 }
 
 =head2 location_is
