@@ -6,6 +6,7 @@ use Mojo::Base 'Test::Mojo', -signatures;
 use Test::More ();
 use Test::ConchTmpDB ();
 use Conch::DB;
+use Test::Conch::Fixtures;
 use JSON::Validator;
 use Path::Tiny;
 use Test::Deep ();
@@ -49,6 +50,21 @@ has 'validator' => sub {
     $validator;
 };
 
+=head2 fixtures
+
+Provides access to the fixtures defined in Test::Conch::Fixtures.
+See L</load_fixture>.
+
+=cut
+
+has fixtures => sub ($self) {
+    Test::Conch::Fixtures->new(
+        schema => $self->app->schema,
+        no_transactions => 1,   # we need to use multiple db connections at once
+        # currently no hooks from Test::Conch::new for adding new definitions; see add_fixture.
+    );
+};
+
 =head2 new
 
 Constructor. Takes the following arguments:
@@ -56,7 +72,7 @@ Constructor. Takes the following arguments:
   * pg (optional). uses this as the postgres db.
   * legacy_db (optional, defaults to true). use Test::ConchTmpDB::mk_tmp_db to set up database
     (uses migration files, creates a conch user).
-    When false, adds no data and starts off with sql/schema.sql.
+    When false, adds no data and starts off with sql/schema.sql and lets you apply fixtures.
 
 =cut
 
@@ -262,6 +278,7 @@ sub load_validation_plans ($self, $plans) {
 =head2 load_test_sql
 
 Given one or more filenames of F<.sql> content, loads them into the current test database.
+For most purposes you should use fixtures instead.
 
 =cut
 
@@ -274,6 +291,27 @@ sub load_test_sql ($self, @test_sql_files) {
             $dbh->do($file->slurp_utf8) or BAIL_OUT("Test SQL load failed in $file");
         }
     });
+}
+
+=head2 load_fixture
+
+Populate the database with one or more fixtures.
+
+=cut
+
+sub load_fixture ($self, @fixture_names) {
+    $self->fixtures->load(@fixture_names);
+}
+
+=head2 add_fixture
+
+Add one or more fixture definition(s), and populate the database with it.
+
+=cut
+
+sub add_fixture ($self, %fixture_definitions) {
+    $self->fixtures->add_definition(%fixture_definitions);
+    $self->fixtures->load(keys %fixture_definitions);
 }
 
 1;
