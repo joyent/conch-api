@@ -4,10 +4,9 @@ Test::Conch::Datacenter
 
 =head1 DESCRIPTION
 
-Does all the work to standup a test db, test harness, and all the other magic
-necessary to test against a full datacenter worth of test data.
+Test::Conch, plus a "full datacenter" worth of test data and validation definitions.
 
-Includes JSON validation ability via L<Test::Conch>.
+For legacy tests only; use fixtures instead for new tests.
 
 =head1 METHODS
 
@@ -19,8 +18,7 @@ use Mojo::Base 'Test::Conch';
 
 use Test::ConchTmpDB;
 use Test::Conch;
-use Conch::Log;
-
+use Path::Tiny;
 
 =head2 new
 
@@ -33,9 +31,19 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
+	# create a test database
+	my $pg = Test::ConchTmpDB->mk_tmp_db;
+
+	# load all sql files in sql/test
+	Test::ConchTmpDB->schema($pg)->storage->dbh_do(sub {
+		my ($storage, $dbh, @args) = @_;
+		$dbh->do($_->slurp_utf8) or die "Failed to load sql file: $_"
+			foreach sort (path('sql/test')->children(qr/\.sql$/));
+	});
+
 	my $self = Test::Conch->new(
 		%$args,
-		pg => Test::ConchTmpDB->make_full_db,
+		pg => $pg,
 	);
 
 	$self->load_validation_plans(

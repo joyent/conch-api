@@ -68,36 +68,9 @@ sub mk_tmp_db {
 	return $pgtmp;
 }
 
-=head2 make_full_db
-
-	my $pg = Test::ConchTmpDB->make_full_db($path);
-
-Generate a test database using all sql files in the given path. Path defaults to C<sql/test/>
-
-TODO: move this to Test::Conch::Datacenter?
-
-=cut
-
-sub make_full_db {
-	my $class = shift;
-	my $path = shift || "sql/test/";
-
-	my $pg = $class->mk_tmp_db;
-	my $schema = $class->schema($pg);
-
-	$schema->storage->dbh_do(sub {
-		my ($storage, $dbh, @args) = @_;
-		$dbh->do($_->slurp_utf8) or die "Failed to load sql file: $_"
-			foreach sort (path($path)->children(qr/\.sql$/));
-	});
-
-	# TODO: return a DBIx::Class::Schema instead.
-	return $pg;
-}
-
 =head2 schema
 
-Given the return value from C<mk_tmp_db> or C<make_full_db>, returns a DBIx::Class::Schema
+Given a Test::PostgreSQL object, returns a L<DBIx::Class::Schema>
 object just like C<< $c->schema >> or C<< $conch->schema >> in the application.
 
 =cut
