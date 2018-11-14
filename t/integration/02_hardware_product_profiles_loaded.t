@@ -9,16 +9,15 @@ use Test::Deep;
 my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
+$t->load_fixture('conch_user_global_workspace', '00-hardware', '01-hardware-profiles');
+$t->load_validation_plans([{
+    name        => 'Conch v1 Legacy Plan: Server',
+    description => 'Test Plan',
+    validations => [ { name => 'product_name', version => 1 } ],
+}]);
 
-$t->load_validation_plans(
-	[{
-		name        => 'Conch v1 Legacy Plan: Server',
-		description => 'Test Plan',
-		validations => [ { name => 'product_name', version => 1 } ]
-	}],
-);
-
-$t->load_test_sql(qw( 00-hardware.sql 01-hardware-profiles.sql ));
+# delete all zpools from hardware product profiles
+$t->app->db_hardware_product_profiles->update({ zpool_id => undef });
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 $t->get_ok("/version")->status_is(200);

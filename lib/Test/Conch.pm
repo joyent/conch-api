@@ -70,9 +70,10 @@ has fixtures => sub ($self) {
 Constructor. Takes the following arguments:
 
   * pg (optional). uses this as the postgres db.
-  * legacy_db (optional, defaults to true). use Test::ConchTmpDB::mk_tmp_db to set up database
-    (uses migration files, creates a conch user).
-    When false, adds no data and starts off with sql/schema.sql and lets you apply fixtures.
+  * legacy_db (optional, defaults to false).
+    When false, adds no data and starts off with sql/schema.sql.
+    When true, use Test::ConchTmpDB::mk_tmp_db to set up database (uses migration files,
+    creates a conch user).
 
 =cut
 
@@ -80,7 +81,7 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-    my $pg = $args->{pg} // (($args->{legacy_db} // 1) ? Test::ConchTmpDB::mk_tmp_db() : $class->init_db);
+    my $pg = $args->{pg} // ($args->{legacy_db} ? Test::ConchTmpDB::mk_tmp_db() : $class->init_db);
     $pg or Test::More::BAIL_OUT("failed to create test database");
 
     my $self = Test::Mojo->new(
@@ -273,24 +274,6 @@ sub load_validation_plans ($self, $plans) {
 		push @plans, $plan;
 	}
 	return @plans;
-}
-
-=head2 load_test_sql
-
-Given one or more filenames of F<.sql> content, loads them into the current test database.
-For most purposes you should use fixtures instead.
-
-=cut
-
-sub load_test_sql ($self, @test_sql_files) {
-    $self->app->schema->storage->dbh_do(sub {
-        my ($storage, $dbh) = @_;
-
-        for my $file (map { path('sql/test')->child($_) } @test_sql_files) {
-            Test::More::note("loading $file...");
-            $dbh->do($file->slurp_utf8) or BAIL_OUT("Test SQL load failed in $file");
-        }
-    });
 }
 
 =head2 load_fixture

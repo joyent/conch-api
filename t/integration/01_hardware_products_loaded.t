@@ -5,11 +5,10 @@ use Path::Tiny;
 use Test::Warnings;
 use Test::Conch;
 
-
 my $uuid = Data::UUID->new;
-my $t = Test::Conch->new;
 
-$t->load_test_sql('00-hardware.sql');
+my $t = Test::Conch->new;
+$t->load_fixture('conch_user_global_workspace', '00-hardware');
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 $t->get_ok("/version")->status_is(200);

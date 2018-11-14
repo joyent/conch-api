@@ -14,6 +14,7 @@ use Test::Memory::Cycle;
 my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
+$t->load_fixture('conch_user_global_workspace');
 
 $t->get_ok('/ping')->status_is(200)
 	->json_is('/status' => 'ok')

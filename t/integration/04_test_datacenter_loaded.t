@@ -7,10 +7,15 @@ use Path::Tiny;
 use Test::Deep;
 use Test::Warnings;
 use Mojo::JSON qw(from_json to_json);
+use Test::Conch;
 
-use Test::Conch::Datacenter;
-
-my $t = Test::Conch::Datacenter->new();
+my $t = Test::Conch->new;
+$t->load_fixture('legacy_datacenter');
+$t->load_validation_plans([{
+    name        => 'Conch v1 Legacy Plan: Server',
+    description => 'Test Plan',
+    validations => [ { name => 'product_name', version => 1 } ],
+}]);
 
 my $uuid = Data::UUID->new;
 

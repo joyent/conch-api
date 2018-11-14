@@ -3,9 +3,10 @@ use warnings;
 
 use Test::More;
 use Test::Warnings;
-use Test::Conch::Datacenter;
+use Test::Conch;
 
-my $t = Test::Conch::Datacenter->new();
+my $t = Test::Conch->new;
+$t->load_fixture('legacy_datacenter');
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
 $t->get_ok("/version")->status_is(200);

@@ -13,7 +13,7 @@ use_ok("Conch::Model::Validation");
 use Conch::Model::Validation;
 
 use Test::Conch;
-my $t = Test::Conch->new();
+my $t = Test::Conch->new(legacy_db => 1);
 my $pg = Conch::Pg->new( $t->pg );
 
 my $validation;

@@ -2,10 +2,10 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Data::UUID;
+use Test::Conch;
 
-use Test::Conch::Datacenter;
-
-my $t = Test::Conch::Datacenter->new();
+my $t = Test::Conch->new;
+$t->load_fixture('legacy_datacenter');
 
 my $uuid = Data::UUID->new;
 
