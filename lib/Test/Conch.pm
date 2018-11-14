@@ -1,7 +1,7 @@
 package Test::Conch;
 
 use v5.26;
-use Mojo::Base 'Test::Mojo';
+use Mojo::Base 'Test::Mojo', -signatures;
 
 use Test::More ();
 use Test::ConchTmpDB 'mk_tmp_db';
@@ -89,8 +89,7 @@ sub new {
     return $self;
 }
 
-sub DESTROY {
-    my $self = shift;
+sub DESTROY ($self) {
 
     # ensure that a new Test::Conch instance creates a brand new Mojo::Pg connection (with a
     # possibly-different dsn) rather than using the old one to a now-dead postgres instance
@@ -103,9 +102,7 @@ Stolen from Test::Mojo's examples. I don't know why this isn't just part of the 
 
 =cut
 
-sub location_is {
-    my ($t, $value, $desc) = @_;
-    $desc ||= "Location: $value";
+sub location_is ($t, $value, $desc = 'location header') {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $t->success(Test::More->builder->is_eq($t->tx->res->headers->location, $value, $desc));
 }
@@ -119,9 +116,7 @@ the hash as the schema to validate.
 
 =cut
 
-sub json_schema_is {
-    my ( $self, $schema ) = @_;
-
+sub json_schema_is ($self, $schema) {
     my @errors;
     return $self->_test( 'fail', 'No request has been made' ) unless $self->tx;
     my $json = $self->tx->res->json;
@@ -191,8 +186,7 @@ Returns the list of validations plan objects.
 
 use Conch::Models;
 
-sub load_validation_plans {
-    my ($self, $plans) = @_;
+sub load_validation_plans ($self, $plans) {
 	my @plans;
 	for my $p ( $plans->@* ) {
 		my $plan = Conch::Model::ValidationPlan->lookup_by_name( $p->{name} );
@@ -228,8 +222,7 @@ Given one or more filenames of F<.sql> content, loads them into the current test
 
 =cut
 
-sub load_test_sql {
-    my ($self, @test_sql_files) = @_;
+sub load_test_sql ($self, @test_sql_files) {
     $self->app->schema->storage->dbh_do(sub {
         my ($storage, $dbh) = @_;
 
