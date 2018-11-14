@@ -333,6 +333,18 @@ sub add_fixture ($self, %fixture_definitions) {
     $self->fixtures->load(keys %fixture_definitions);
 }
 
+=head2 load_fixture_set
+
+Generates a set of fixtures by name and optional arguments, then loads them into the database.
+See L<Test::Conch::Fixtures/generate_set> for available sets.
+
+=cut
+
+sub load_fixture_set ($self, $fixture_set_name, @args) {
+    my @fixture_names = $self->fixtures->generate_set($fixture_set_name, @args);
+    $self->fixtures->load(@fixture_names);
+}
+
 1;
 __END__
 

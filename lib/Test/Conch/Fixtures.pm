@@ -322,6 +322,110 @@ my %canned_definitions = (
     },
 );
 
+=head1 METHODS
+
+=head2 generate_set
+
+Generates new fixture definition(s).  Does not load them to the database.
+
+Available sets:
+
+* workspace_room_rack_layout - a new workspace under GLOBAL, with a datacenter_room,
+datacenter_rack, and a layout suitable for various hardware. Takes a single integer for uniqueness.
+
+=cut
+
+sub generate_set {
+    my ($self, $set_name, @args) = @_;
+
+    my %definitions;
+
+    if ($set_name eq 'workspace_room_rack_layout') {
+        my $num = shift(@args) // die 'need a unique integer';
+        %definitions = (
+            "sub_workspace_$num" => {
+                new => 'workspace',
+                using => { name => "sub_ws_$num" },
+                requires => { global_workspace => { our => 'parent_workspace_id', their => 'id' } },
+            },
+            "conch_user_sub_workspace_${num}_ro" => {
+                new => 'user_workspace_role',
+                using => { role => 'ro' },
+                requires => {
+                    conch_user => { our => 'user_id', their => 'id' },
+                    "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
+                },
+            },
+            "room_${num}a" => {
+                new => 'datacenter_room',
+                using => {
+                    az => "room-${num}a",
+                    alias => "room ${num}a",
+                },
+                requires => {
+                    legacy_datacenter_region_1 => { our => 'datacenter_id', their => 'id' },
+                },
+            },
+            "workspace_room_$num" => {
+                new => 'workspace_datacenter_room',
+                using => {},
+                requires => {
+                    "room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
+                    "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
+                },
+            },
+            "rack_${num}a" => {
+                new => 'datacenter_rack',
+                using => { name => "rack ${num}a" },
+                requires => {
+                    "room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
+                    legacy_datacenter_rack_role_10u => { our => 'datacenter_rack_role_id', their => 'id' },
+                },
+            },
+            "datacenter_rack_${num}a_layout_1_2" => {
+                new => 'datacenter_rack_layout',
+                using => {
+                    rack_unit_start => 1,
+                },
+                requires => {
+                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
+                    hardware_product_server_compute => { our => 'hardware_product_id', their => 'id' },
+                },
+            },
+            "datacenter_rack_${num}a_layout_3_6" => {
+                new => 'datacenter_rack_layout',
+                using => {
+                    rack_unit_start => 3,
+                },
+                requires => {
+                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    hardware_product_server_compute => { our => 'hardware_product_id', their => 'id' },
+                },
+            },
+            "datacenter_rack_${num}a_layout_7_10" => {
+                new => 'datacenter_rack_layout',
+                using => {
+                    rack_unit_start => 7,
+                },
+                requires => {
+                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    hardware_product_server_storage => { our => 'hardware_product_id', their => 'id' },
+                },
+            },
+        );
+    }
+    else {
+        die "unrecognized fixture set name $set_name";
+    }
+
+    # add the definitions, if they do not yet exist.
+    foreach my $fixture_name (keys %definitions) {
+        $self->add_definition($fixture_name => $definitions{$fixture_name})
+            if not $self->_has_definition($fixture_name);
+    }
+    return keys %definitions;
+}
+
 # initialize definitions with those passed in, folded together with our defaults.
 around BUILDARGS => sub {
     my $orig = shift;
