@@ -18,14 +18,21 @@ Sets up the routes for /workspace:
     GET     /workspace/:workspace_id
     GET     /workspace/:workspace_id/child
     POST    /workspace/:workspace_id/child
+
     GET     /workspace/:workspace_id/device
     GET     /workspace/:workspace_id/device/active
+
     GET     /workspace/:workspace_id/rack
     POST    /workspace/:workspace_id/rack
     GET     /workspace/:workspace_id/rack/:rack_id
     DELETE  /workspace/:workspace_id/rack/:rack_id
+    POST    /workspace/:workspace_id/rack/:rack_id/layout
+
     GET     /workspace/:workspace_id/room
     PUT     /workspace/:workspace_id/room
+
+    GET     /workspace/:workspace_id/relay
+
     GET     /workspace/:workspace_id/user
     POST    /workspace/:workspace_id/user
     DELETE  /workspace/:workspace_id/user/#target_user_id

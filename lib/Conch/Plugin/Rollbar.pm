@@ -86,7 +86,8 @@ sub _record_exception ($c, $exception, @) {
 				method  => $c->req->method,
 				headers	=> $headers,
 				query_string => $c->req->query_params->to_string,
-				body	=> $c->req->body,
+				charset => $c->req->content->charset || $c->req->default_charset,
+				body	=> $c->req->text,
 			},
 			server => {
 				host => hostname(),

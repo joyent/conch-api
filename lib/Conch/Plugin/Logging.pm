@@ -70,7 +70,7 @@ sub register ($self, $app, $conf) {
 			$c->stash('user')->email . " (".$c->stash('user')->id.")" :
 			'NOT AUTHED';
 
-		my $req_headers = $c->tx->req->headers->to_hash;
+		my $req_headers = $c->tx->req->headers->to_hash(1);
 		for (qw(Authorization Cookie jwt_token jwt_sig)) {
 			delete $req_headers->{$_};
 		}
@@ -98,7 +98,7 @@ sub register ($self, $app, $conf) {
 			},
 		};
 
-		my $res_headers = $c->tx->res->headers->to_hash;
+		my $res_headers = $c->tx->res->headers->to_hash(1);
 		for (qw(Set-Cookie)) {
 			delete $res_headers->{$_};
 		}
@@ -107,19 +107,14 @@ sub register ($self, $app, $conf) {
 			headers => $res_headers,
 		};
 
-		if($c->tx->res->code) {
-			$log->{res}->{statusCode} = $c->tx->res->code;
-
-			if($c->tx->res->code >= 400) {
-				$log->{res}->{body} = $c->res->body;
-			}
+		if ($c->res->code) {
+			$log->{res}{statusCode} = $c->res->code;
+			$log->{res}{body} = $c->res->text if $c->res->code >= 400;
 		}
 
 		if ($c->feature('audit')) {
-			$log->{req}->{body} = $c->req->body;
-			unless ($c->req->url =~ /login/) {
-				$log->{res}->{body} = $c->res->body;
-			}
+			$log->{req}{body} = $c->req->text;
+			$log->{res}{body} //= $c->res->text if $c->req->url !~ /login/;
 		}
 
 		if(my $e = $c->stash('exception')) {
