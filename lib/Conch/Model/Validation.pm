@@ -61,7 +61,6 @@ sub TO_JSON ($self) {
 =head2 create
 
 Create a new Validation. May throw error if Validation with the same name and version already exist.
-Use C<upsert> to avoid this.
 
 =cut
 
@@ -77,36 +76,6 @@ sub create ( $class, $name, $version, $description, $module ) {
 		{ returning => $attrs }
 	)->hash;
 	return $class->new( $ret->%* );
-}
-
-=head2 upsert
-
-Create or update a Validation if it already exists and has changed.
-
-Returns undef if the Validation matches exactly an existing Validation.
-
-=cut
-
-sub upsert ( $class, $name, $version, $description, $module ) {
-	my $returning = join ', ', $attrs->@*;
-	my $ret = Conch::Pg->new->db->query(
-		qq{
-			INSERT INTO validation AS v
-				(name, version, description, module)
-			VALUES (?, ?, ?, ?)
-			ON CONFLICT (name, version)
-			DO UPDATE SET
-				description = EXCLUDED.description,
-				module      = EXCLUDED.module,
-				updated     = current_timestamp
-			WHERE
-				v.description != EXCLUDED.description OR
-				v.module      != EXCLUDED.module
-			RETURNING $returning
-		},
-		$name, $version, $description, $module
-	)->hash;
-	return $class->new( $ret->%* ) if $ret;
 }
 
 =head2 lookup

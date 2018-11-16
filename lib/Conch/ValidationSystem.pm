@@ -1,3 +1,12 @@
+package Conch::ValidationSystem;
+
+use Mojo::Base -base, -signatures;
+use Submodules;
+use Mojo::Util 'trim';
+
+has 'schema';
+has 'log';
+
 =pod
 
 =head1 NAME
@@ -6,27 +15,16 @@ Conch::ValidationSystem
 
 =head1 METHODS
 
-=cut
-
-package Conch::ValidationSystem;
-
-use Mojo::Base -base, -signatures;
-use Mojo::Exception;
-use Submodules;
-
-use Conch::Model::ValidationState;
-
 =head2 load_validations
 
-Load all Conch::Validation::* sub-classes into the database with
-Conch::Model::Validation. This uses upsert, so existing Validation models will
-only be modified if attributes change.
+Load all Conch::Validation::* sub-classes into the database.
+Existing validation records will only be modified if attributes change.
 
 Returns the number of new or changed validations loaded.
 
 =cut
 
-sub load_validations ( $class, $logger ) {
+sub load_validations ($self) {
 	my $num_loaded_validations = 0;
 	for my $m ( Submodules->find('Conch::Validation') ) {
 		next if $m->{Module} eq 'Conch::Validation';
@@ -37,7 +35,7 @@ sub load_validations ( $class, $logger ) {
 
 		my $validation = $validation_module->new();
 		unless ( $validation->isa('Conch::Validation') ) {
-			$logger->info(
+			$self->log->info(
 				"$validation_module must be a sub-class of Conch::Validation. Skipping."
 			);
 			next;
@@ -47,29 +45,38 @@ sub load_validations ( $class, $logger ) {
 			&& $validation->version
 			&& $validation->description )
 		{
-			$logger->info(
+			$self->log->info(
 				"$validation_module must define the 'name', 'version, and 'description'"
 					. " attributes with values. Skipping." );
 			next;
 		}
 
-		$validation->log(sub { return $logger });
-
-		my $trimmed_description = $validation->description;
-		$trimmed_description =~ s/^\s+//;
-		$trimmed_description =~ s/\s+$//;
-
-		my $v = Conch::Model::Validation->upsert(
-			$validation->name,
-			$validation->version,
-			$trimmed_description,
-			$validation_module,
-		);
-		if($v) {
+		if (my $validation_row = $self->schema->resultset('validation')->find({
+				name => $validation->name,
+				version => $validation->version,
+			})) {
+			$validation_row->set_columns({
+				description => trim($validation->description),
+				module => $validation_module,
+			});
+			if ($validation_row->is_changed) {
+				$validation_row->update({ updated => \'now()' });
+				$num_loaded_validations++;
+				$self->log->info("Updated entry for $validation_module");
+			}
+		}
+		else {
+			$self->schema->resultset('validation')->create({
+				name => $validation->name,
+				version => $validation->version,
+				description => trim($validation->description),
+				module => $validation_module,
+			});
 			$num_loaded_validations++;
-			$logger->info("Loaded $validation_module");
+			$self->log->info("Created entry for $validation_module");
 		}
 	}
+
 	return $num_loaded_validations;
 }
 

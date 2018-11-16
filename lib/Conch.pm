@@ -163,7 +163,7 @@ sub startup {
 
 	push @{$self->commands->namespaces}, 'Conch::Command';
 
-	Conch::ValidationSystem->load_validations( $self->log );
+	Conch::ValidationSystem->new(log => $self->log, schema => $self->schema)->load_validations;
 
 	Conch::Route->all_routes($self->routes);
 }

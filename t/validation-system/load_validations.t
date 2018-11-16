@@ -11,17 +11,17 @@ my $logger = Mojo::Log->new(handle => $log_fh);
 sub reset_log { $fake_log = ''; seek $log_fh, 0, 0; }
 
 my ($pg, $schema) = Test::Conch->init_db;
-Conch::Pg->new($pg->uri);   # temporary
 
+my $validation_system = Conch::ValidationSystem->new(log => $logger, schema => $schema);
 my $validation_rs = $schema->resultset('validation');
 
 my @validation_modules = grep { $_->{Module} ne 'Conch::Validation' } Submodules->find('Conch::Validation');
 
 subtest 'insert new validation rows' => sub {
-    my $num_updates = Conch::ValidationSystem->load_validations($logger);
+    my $num_updates = $validation_system->load_validations;
     note "inserted $num_updates validation rows";
 
-    like($fake_log, qr/Loaded $_/, "logged something for $_")
+    like($fake_log, qr/Created entry for $_/, "logged something for $_")
         foreach @validation_modules;
 
     is($num_updates, scalar @validation_modules, 'all validation rows were inserted into the database');
@@ -34,7 +34,7 @@ subtest 'insert new validation rows' => sub {
 };
 
 subtest 'try loading again' => sub {
-    is(Conch::ValidationSystem->load_validations($logger), 0, 'No new validations loaded');
+    is($validation_system->load_validations, 0, 'No new validations loaded');
 };
 
 subtest 'update an existing validation' => sub {
@@ -42,9 +42,9 @@ subtest 'update an existing validation' => sub {
     *Conch::Validation::DeviceProductName::description = sub { '  this is better than before!' };
     reset_log;
 
-    is(Conch::ValidationSystem->load_validations($logger), 1, 'Updated validation loaded into the database');
+    is($validation_system->load_validations, 1, 'Updated validation loaded into the database');
 
-    like($fake_log, qr/Loaded Conch::Validation::DeviceProductName/, 'logged the update');
+    like($fake_log, qr/Updated entry for Conch::Validation::DeviceProductName/, 'logged the update');
 
     cmp_deeply(
         $validation_rs->search({ module => 'Conch::Validation::DeviceProductName' })->single,
@@ -63,9 +63,9 @@ subtest 'deactivate a validation and update its version (presumably the code cha
     *Conch::Validation::DeviceProductName::version = sub { 2 };
     reset_log;
 
-    is(Conch::ValidationSystem->load_validations($logger), 1, 'New version of validation loaded into the database');
+    is($validation_system->load_validations, 1, 'New version of validation loaded into the database');
 
-    like($fake_log, qr/Loaded Conch::Validation::DeviceProductName/, 'logged the insert');
+    like($fake_log, qr/Created entry for Conch::Validation::DeviceProductName/, 'logged the insert');
 
     cmp_deeply(
         $validation_rs->search({
