@@ -5,7 +5,8 @@ use Mojo::Util 'trim';
 use Path::Tiny;
 use Try::Tiny;
 use Module::Runtime 'require_module';
-use List::Util 'all';
+use List::Util qw(all reduce);
+use Mojo::JSON 'from_json';
 
 has 'schema';
 has 'log';
@@ -181,6 +182,91 @@ sub load_validations ($self) {
     path('lib/Conch/Validation')->visit($iterator, { recurse => 1 });
 
     return $num_loaded_validations;
+}
+
+=head2 run_validation_plan
+
+Runs the provided validation_plan against the provided device.
+
+All provided data objects can and should be read-only (fetched with a ro db handle).
+
+If C<< no_save_db => 1 >> is passed, the validation records are returned, without writing them
+to the database.  Otherwise, a validation_state record is created and validation_result records
+saved with de-duplication logic applied.
+
+Takes options as a hash:
+
+    validation_plan => $plan,       # required, a Conch::DB::Result::ValidationPlan object
+    device => $device,              # required, a Conch::DB::Result::Device object
+    device_report => $report,       # optional, a Conch::DB::Result::DeviceReport object
+                                    # (required if no_save_db is false)
+    data => $data,                  # optional, a hashref of device report data; required if
+                                    # device_report is not provided
+    no_save_db => 0|1               # optional, defaults to false
+
+=cut
+
+sub run_validation_plan ($self, %options) {
+    my $validation_plan = delete $options{validation_plan} || Carp::croak('missing validation plan');
+    my $device = delete $options{device} || Carp::croak('missing device');
+
+    my $device_report = delete $options{device_report};
+    Carp::croak('missing device report') if not $device_report and not $options{no_save_db};
+
+    my $data = delete $options{data};
+    $data //= from_json($device_report->report) if $device_report;
+    Carp::croak('missing data or device report') if not $data;
+
+
+    # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
+    my $model_device = Conch::Model::Device->new($device->get_columns);
+    my $location = Conch::Model::DeviceLocation->lookup($device->id);
+    my $hw_product_id =
+          $location
+        ? $location->target_hardware_product->id
+        : $device->hardware_product_id;
+    my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
+    my $device_settings = +{ $device->device_settings_as_hash };
+
+    my $validation_rs = $validation_plan
+        ->related_resultset('validation_plan_members')
+        ->related_resultset('validation')
+        ->active;
+
+    my @validation_results;
+    while (my $validation = $validation_rs->next) {
+        my $validator = Conch::Model::Validation->new(
+            $validation->get_columns
+        )->build_device_validation($model_device, $hw_product, $location, $device_settings);
+        $validator->log($self->log);
+        $validator->run($data);
+
+        # Conch::Model::ValidationResult -> Conch::DB::Result::ValidationResult
+        push @validation_results, map {
+            my $result = $_;
+            $self->schema->resultset('validation_result')->new_result({
+                map { $_ => $result->$_ } qw(device_id hardware_product_id validation_id message hint status category component_id result_order),
+            });
+        } $validator->validation_results->@*;
+    }
+
+    return @validation_results if $options{no_save_db};
+
+    my $status = reduce {
+        $a eq 'error' || $b eq 'error' ? 'error'
+      : $a eq 'fail' || $b eq 'fail' ? 'fail'
+      : $a eq 'processing' || $b eq 'processing' ? 'processing'
+      : $a; # pass
+    } map { $_->status } @validation_results;
+
+    return $self->schema->resultset('validation_state')->create({
+        device_id => $device->id,
+        device_report_id => $device_report->id,
+        validation_plan_id => $validation_plan->id,
+        status => $status,
+        completed => \'now()',
+        validation_state_members => [ map { +{ validation_result => $_ } } @validation_results ],
+    });
 }
 
 =head2 run_validation

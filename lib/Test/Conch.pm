@@ -283,9 +283,7 @@ sub load_validation_plans ($self, $plans) {
 
         $plan->delete_related('validation_plan_members');
         foreach my $module ($plan_data->{validations}->@*) {
-            my $validation = $self->app->db_validations->active->find({ module => $module })
-                // $self->load_validation($module);
-
+            my $validation = $self->load_validation($module);
             $plan->add_to_validations($validation);
         }
         $self->app->log->info('Loaded validation plan ' . $plan->name);
@@ -296,15 +294,18 @@ sub load_validation_plans ($self, $plans) {
 
 =head2 load_validation
 
-Add data for a validator module to the database.
+Add data for a validator module to the database, if it does not already exist.
 
 =cut
 
 sub load_validation ($self, $module) {
+    my $validation = $self->app->db_ro_validations->active->search({ module => $module })->single;
+    return $validation if $validation;
+
     require_module($module);
     my $validator = $module->new;
 
-    my $validation = $self->app->db_validations->create({
+    $validation = $self->app->db_validations->create({
         name => $validator->name,
         version => $validator->version,
         description => trim($validator->description),

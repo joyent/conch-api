@@ -203,6 +203,11 @@ __PACKAGE__->many_to_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-10 16:06:16
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gkC6RKtvMTPS5Y1V8IlugA
 
+__PACKAGE__->add_columns(
+    '+created' => { retrieve_on_insert => 1 },
+    '+completed' => { retrieve_on_insert => 1 },
+);
+
 sub TO_JSON {
     my $self = shift;
 
