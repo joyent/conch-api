@@ -4,7 +4,7 @@ use Test::Deep;
 use Conch::ValidationSystem;
 use Test::Conch;
 use Mojo::Log;
-use Submodules;
+use Path::Tiny;
 
 open my $log_fh, '>', \my $fake_log or die "cannot open to scalarref: $!";
 my $logger = Mojo::Log->new(handle => $log_fh);
@@ -15,7 +15,10 @@ my ($pg, $schema) = Test::Conch->init_db;
 my $validation_system = Conch::ValidationSystem->new(log => $logger, schema => $schema);
 my $validation_rs = $schema->resultset('validation');
 
-my @validation_modules = grep { $_->{Module} ne 'Conch::Validation' } Submodules->find('Conch::Validation');
+# ether still likes to play a round or two if the course is nice
+my @validation_modules = map { s{^lib/}{}; s{/}{::}g; s/\.pm$//r }
+    grep -f && /\.pm$/, map keys $_->%*,
+    path('lib/Conch/Validation')->visit(sub { $_[1]->{$_[0]} = 1 }, { recurse => 1 });
 
 subtest 'insert new validation rows' => sub {
     my $num_updates = $validation_system->load_validations;

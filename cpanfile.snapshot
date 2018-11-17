@@ -2786,18 +2786,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Submodules-1.0014
-    pathname: Z/ZA/ZARABOZO/Submodules-1.0014.tar.gz
-    provides:
-      Submodules 1.0014
-      Submodules::Result 1.0014
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Basename 0
-      File::Find 0
-      File::Spec 0
-      Test::More 0
-      perl 5.006
   Test-Deep-1.128
     pathname: R/RJ/RJBS/Test-Deep-1.128.tar.gz
     provides:

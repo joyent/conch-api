@@ -1,8 +1,8 @@
 package Conch::ValidationSystem;
 
 use Mojo::Base -base, -signatures;
-use Submodules;
 use Mojo::Util 'trim';
+use Path::Tiny;
 
 has 'schema';
 has 'log';
@@ -25,59 +25,62 @@ Returns the number of new or changed validations loaded.
 =cut
 
 sub load_validations ($self) {
-	my $num_loaded_validations = 0;
-	for my $m ( Submodules->find('Conch::Validation') ) {
-		next if $m->{Module} eq 'Conch::Validation';
+    my $num_loaded_validations = 0;
 
-		$m->require;
+    $self->log->debug('loading modules under lib/Conch/Validation/');
 
-		my $validation_module = $m->{Module};
+    my $iterator = sub {
+        my $filename = shift;
+        return if not -f $filename;
+        return if $filename !~ /\.pm$/; # skip swap files
 
-		my $validation = $validation_module->new();
-		unless ( $validation->isa('Conch::Validation') ) {
-			$self->log->info(
-				"$validation_module must be a sub-class of Conch::Validation. Skipping."
-			);
-			next;
-		}
+        my $relative = $filename->relative('lib');
+        my ($module) = $relative =~ s{/}{::}gr;
+        $module =~ s/\.pm$//;
+        $self->log->info("loading $module");
+        require $relative;
 
-		unless ( $validation->name
-			&& $validation->version
-			&& $validation->description )
-		{
-			$self->log->info(
-				"$validation_module must define the 'name', 'version, and 'description'"
-					. " attributes with values. Skipping." );
-			next;
-		}
+        if (not $module->isa('Conch::Validation')) {
+            $self->log->fatal("$module must be a sub-class of Conch::Validation");
+            return;
+        }
 
-		if (my $validation_row = $self->schema->resultset('validation')->find({
-				name => $validation->name,
-				version => $validation->version,
-			})) {
-			$validation_row->set_columns({
-				description => trim($validation->description),
-				module => $validation_module,
-			});
-			if ($validation_row->is_changed) {
-				$validation_row->update({ updated => \'now()' });
-				$num_loaded_validations++;
-				$self->log->info("Updated entry for $validation_module");
-			}
-		}
-		else {
-			$self->schema->resultset('validation')->create({
-				name => $validation->name,
-				version => $validation->version,
-				description => trim($validation->description),
-				module => $validation_module,
-			});
-			$num_loaded_validations++;
-			$self->log->info("Created entry for $validation_module");
-		}
-	}
+        my $validator = $module->new;
 
-	return $num_loaded_validations;
+        if (not ($validator->name and $validator->version and $validator->description)) {
+            $self->log->fatal("$module must define the 'name', 'version, and 'description' attributes");
+            return;
+        }
+
+        if (my $validation_row = $self->schema->resultset('validation')->find({
+                name => $validator->name,
+                version => $validator->version,
+            })) {
+            $validation_row->set_columns({
+                description => trim($validator->description),
+                module => $module,
+            });
+            if ($validation_row->is_changed) {
+                $validation_row->update({ updated => \'now()' });
+                $num_loaded_validations++;
+                $self->log->info("Updated entry for $module");
+            }
+        }
+        else {
+            $self->schema->resultset('validation')->create({
+                name => $validator->name,
+                version => $validator->version,
+                description => trim($validator->description),
+                module => $module,
+            });
+            $num_loaded_validations++;
+            $self->log->info("Created entry for $module");
+        }
+    };
+
+    path('lib/Conch/Validation')->visit($iterator, { recurse => 1 });
+
+    return $num_loaded_validations;
 }
 
 1;
@@ -94,3 +97,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :
