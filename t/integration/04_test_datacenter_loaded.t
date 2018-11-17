@@ -14,7 +14,7 @@ $t->load_fixture('legacy_datacenter');
 $t->load_validation_plans([{
     name        => 'Conch v1 Legacy Plan: Server',
     description => 'Test Plan',
-    validations => [ { name => 'product_name', version => 1 } ],
+    validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
 my $uuid = Data::UUID->new;
@@ -745,9 +745,7 @@ subtest 'Validations' => sub {
 
 	my $device = $t->app->db_devices->find('TEST');
 	my $device_report = $t->app->db_device_reports->rows(1)->order_by({ -desc => 'created' })->single;
-	my $validation = $t->app->db_validations
-		->search({ id => { '!=' => $validation_id } })
-		->rows(1)->single;	# other random validation
+	my $validation = $t->load_validation('Conch::Validation::BiosFirmwareVersion');
 
 	# manually create a failing validation result... ew ew ew.
 	# this uses the new validation plan, which is guaranteed to be different from the passing

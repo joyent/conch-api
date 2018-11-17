@@ -10,6 +10,8 @@ use Test::Conch::Fixtures;
 use JSON::Validator;
 use Path::Tiny;
 use Test::Deep ();
+use Mojo::Util 'trim';
+use Module::Runtime 'require_module';
 
 =pod
 
@@ -252,15 +254,16 @@ sub json_cmp_deeply {
 Takes an array ref of structured hash refs and creates a validation plan (if it doesn't
 exist) and adds specified validation plans for each of the structured hashes.
 
-Each hash has the structure
+Each hash has the structure:
 
-	{
-		name        => 'Validation plan name',
-		description => 'Validation plan description',
-		validations => [
-			{ name => 'validation_name', version => 1 }
-		]
-	}
+    {
+        name        => 'Validation plan name',
+        description => 'Validation plan description',
+        validations => [
+            'Conch::Validation::Foo',
+            'Conch::Validation::Bar',
+        ]
+    }
 
 If a validation plan by the name already exists, all associations to
 validations are dropped before the specified validations are added. This allows
@@ -270,36 +273,45 @@ Returns the list of validations plan objects.
 
 =cut
 
-use Conch::Models;
-
 sub load_validation_plans ($self, $plans) {
-	my @plans;
-	for my $p ( $plans->@* ) {
-		my $plan = Conch::Model::ValidationPlan->lookup_by_name( $p->{name} );
+    my @plans;
 
-		unless ($plan) {
-			$plan =
-				Conch::Model::ValidationPlan->create( $p->{name}, $p->{description}, );
-			$self->app->log->info('Created validation plan ' . $plan->name);
-		}
-		$plan->drop_validations;
-		for my $v ( $p->{validations}->@* ) {
-			my $validation =
-				Conch::Model::Validation->lookup_by_name_and_version( $v->{name},
-				$v->{version} );
-			if ($validation) {
-				$plan->add_validation($validation);
-			}
-			else {
-				$self->app->log->info(
-					"Could not find Validation name $v->{name}, version $v->{version}"
-						. ' to load for ' . $plan->name);
-			}
-		}
-		$self->app->log->info('Loaded validation plan ' . $plan->name);
-		push @plans, $plan;
-	}
-	return @plans;
+    for my $plan_data ($plans->@*) {
+        my $plan = $self->app->db_validation_plans->active->find({ name => $plan_data->{name} });
+        unless ($plan) {
+            $plan = $self->app->db_validation_plans->create({ $plan_data->%{qw(name description)} });
+            $self->app->log->info('Created validation plan ' . $plan->name);
+        }
+
+        $plan->delete_related('validation_plan_members');
+        foreach my $module ($plan_data->{validations}->@*) {
+            my $validation = $self->app->db_validations->active->find({ module => $module })
+                // $self->load_validation($module);
+
+            $plan->add_to_validations($validation);
+        }
+        $self->app->log->info('Loaded validation plan ' . $plan->name);
+        push @plans, $plan;
+    }
+    return @plans;
+}
+
+=head2 load_validation
+
+Add data for a validator module to the database.
+
+=cut
+
+sub load_validation ($self, $module) {
+    require_module($module);
+    my $validator = $module->new;
+
+    $self->app->db_validations->create({
+        name => $validator->name,
+        version => $validator->version,
+        description => trim($validator->description),
+        module => $module,
+    });
 }
 
 =head2 load_fixture

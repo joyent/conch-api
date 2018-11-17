@@ -105,9 +105,10 @@ subtest "build_device_validation" => sub {
 		qr/Hardware product must be defined/
 	);
 
-
-	require Conch::Validation::DeviceProductName;
-	my $real_validation = Conch::Model::Validation->lookup_by_name_and_version('product_name', 1);
+	# formerly: Conch::Model::Validation->lookup_by_name_and_version('product_name', 1);
+	my $real_validation = Conch::Model::Validation->new(
+		$t->load_validation('Conch::Validation::DeviceProductName')->get_columns
+	);
 	$real_validation->log($t->app->log);
 
 	my $device_validation;
