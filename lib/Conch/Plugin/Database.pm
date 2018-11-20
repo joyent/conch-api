@@ -61,15 +61,20 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 =cut
 
     $app->helper(ro_schema => sub {
-        state $_ro_schema = Conch::DB->connect(sub {
-            DBI->connect(
-                $dsn, $username, $password,
-                {
-                    $options->%*,
-                    ReadOnly            => 1,
-                    AutoCommit          => 0,
-                });
-        });
+        state $_ro_schema = Conch::DB->connect(
+            # we wrap up the DBI connection attributes in a subref so
+            # DBIx::Class doesn't warn about AutoCommit => 0 being a bad idea.
+            sub {
+                DBI->connect(
+                    $dsn, $username, $password,
+                    {
+                        $options->%*,
+                        ReadOnly        => 1,
+                        AutoCommit      => 0,
+                    },
+                );
+            },
+        );
     });
 
 =head2 db_<table>s, db_ro_<table>s

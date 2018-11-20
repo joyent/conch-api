@@ -156,6 +156,32 @@ sub init_db ($class) {
     return wantarray ? ($pgsql, $schema) : $pgsql;
 }
 
+=head2 ro_schema
+
+Returns a read-only connection to a Test::PostgreSQL instance.
+
+=cut
+
+sub ro_schema ($class, $pgsql) {
+    Conch::DB->connect(
+        # we wrap up the DBI connection attributes in a subref so
+        # DBIx::Class doesn't warn about AutoCommit => 0 being a bad idea.
+        sub {
+            DBI->connect(
+                $pgsql->dsn, 'postgres', '',
+                {
+                    AutoCommit          => 0,
+                    AutoInactiveDestroy => 1,
+                    PrintError          => 0,
+                    PrintWarn           => 0,
+                    RaiseError          => 1,
+                    ReadOnly            => 1,
+                },
+            );
+        },
+    );
+}
+
 =head2 location_is
 
 Stolen from Test::Mojo's examples. I don't know why this isn't just part of the interface!
