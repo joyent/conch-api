@@ -3,6 +3,8 @@ package Conch::ValidationSystem;
 use Mojo::Base -base, -signatures;
 use Mojo::Util 'trim';
 use Path::Tiny;
+use Try::Tiny;
+use Module::Runtime 'require_module';
 
 has 'schema';
 has 'log';
@@ -14,6 +16,95 @@ has 'log';
 Conch::ValidationSystem
 
 =head1 METHODS
+
+=head2 check_validation_plans
+
+Verifies that all validations mentioned in validation plans correspond to modules we actually
+have available in Conch::Validation::*.
+
+Validations not referenced by an active plan are ignored.
+
+=cut
+
+sub check_validation_plans ($self) {
+    $self->log->debug('verifying all active validation plans');
+    my $validation_plan_rs = $self->schema->resultset('validation_plan')
+        ->active
+        ->prefetch({ validation_plan_members => 'validation' });
+
+    my %validation_modules;
+    while (my $validation_plan = $validation_plan_rs->next) {
+        ++$validation_modules{$_} foreach
+            $self->check_validation_plan($validation_plan);
+    }
+
+    $self->log->debug('found '.scalar(keys %validation_modules).' valid validation modules');
+    return scalar keys %validation_modules;
+}
+
+=head2 check_validation_plan
+
+Verifies that a validation plan and its validations are all correct (correct
+parent class, module attributes match database fields, etc).
+
+Returns the name of all modules successfully loaded.
+
+=cut
+
+sub check_validation_plan ($self, $validation_plan) {
+    my %validation_modules;
+    my $valid_plan = 1;
+    foreach my $validation ($validation_plan->validations) {
+        if ($validation->deactivated) {
+            $self->log->warn('validation id '.$validation->id
+                .' "'.$validation->name.'" is inactive but is referenced by an active plan ("'
+                .$validation_plan->name.'")');
+            next;
+        }
+
+        my $module = $validation->module;
+
+        try {
+            require_module($module);
+            if (not $module->isa('Conch::Validation')) {
+                $self->log->error("$module must be a sub-class of Conch::Validation");
+                $valid_plan = 0;
+                return;
+            }
+
+            my $validator = $module->new;
+            my $failed;
+
+            foreach my $field (qw(version name description)) {
+                if ($validation->$field ne trim($validator->$field)) {
+                    $self->log->warn('"'.$field.'" field for validation id '.$validation->id
+                        .' does not match value in '.$module
+                        .' ("'.$validation->$field.'" vs "'.$validator->$field.'")');
+                    $valid_plan = 0;
+                    ++$failed;
+                }
+            }
+
+            ++$validation_modules{$module} if not $failed;
+        }
+        catch {
+            my $e = $_;
+            $self->log->error('could not load '.$module
+                .', used in validation plan "'.$validation_plan->name.'": '.$e);
+            $valid_plan = 0;
+        };
+    }
+
+    my $str = 'Validation plan id '.$validation_plan->id.' "'.$validation_plan->name.'" is ';
+    if ($valid_plan) {
+        $self->log->info($str.'valid');
+    }
+    else {
+        $self->log->warn($str.'not valid');
+    }
+
+    return keys %validation_modules;
+}
 
 =head2 load_validations
 
