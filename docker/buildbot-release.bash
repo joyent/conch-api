@@ -10,8 +10,10 @@ PREFIX=${PREFIX} LABEL=${LABEL} docker/builder.sh --file Dockerfile .
 docker run \
 	--name ${PREFIX}_${BUILDNUMBER} \
 	--rm \
+	--entrypoint=make \
 	${PREFIX}/conch-api:${LABEL} \
-	sh -c 'make test' \
+	test \
 && \
 docker push ${PREFIX}/conch-api:${LABEL}
 
+docker rmi ${PREFIX}/conch-api:${LABEL}
