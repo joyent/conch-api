@@ -22,18 +22,31 @@ with 'Conch::Role::MojoLog';
 Chainable action that validates the 'workspace_id' provided in the path,
 and stashes the query to get to it in C<workspace_rs>.
 
+The placeholder might actually be a workspace *name*, in which case we look up the
+corresponding id and stash it for future usage.
+
 =cut
 
 sub find_workspace ($c) {
-	my $ws_id = $c->stash('workspace_id');
+	my $identifier = $c->stash('workspace_id_or_name');
 
-	if (not is_uuid($ws_id)) {
-		return $c->status(400, { error => "Workspace ID must be a UUID. Got '$ws_id'." });
+	if (is_uuid($identifier)) {
+		$c->stash('workspace_id', $identifier);
+	}
+	else {
+		$c->stash('workspace_name', $identifier);
+		$c->stash('workspace_id', $c->db_workspaces->search({ name => $identifier })->get_column('id')->single);
 	}
 
 	# only check if the workspace exists if user is a system admin
-	return $c->status(404)
-		if $c->is_system_admin and not $c->db_workspaces->search({ id => $ws_id })->exists;
+	if ($c->is_system_admin) {
+		# if we have no id at this point, we already know the workspace doesn't exist
+		# if we already turned a name -> id, we already know the workspace exists
+		return $c->status(404)
+			if not $c->stash('workspace_id')
+				or (not $c->stash('workspace_name')
+					and not $c->db_workspaces->search({ id => $c->stash('workspace_id') })->exists);
+	}
 
 	# HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
 	my $method = $c->tx->req->method;
@@ -43,13 +56,13 @@ sub find_workspace ($c) {
 	  : $method eq 'DELETE'                  ? 'admin'
 	  : die "need handling for $method method";
 	return $c->status(403)
-		unless $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_permission);
+		if not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_permission);
 
 	# stash a resultset for easily accessing the workspace, e.g. for calling ->single, or
 	# joining to.
 	# No queries have been made yet, so you can add on more criteria or prefetches.
 	$c->stash('workspace_rs',
-		$c->db_workspaces->search_rs({ 'workspace.id' => $ws_id }));
+		$c->db_workspaces->search_rs({ 'workspace.id' => $c->stash('workspace_id') }));
 
 	return 1;
 }

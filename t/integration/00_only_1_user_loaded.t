@@ -176,8 +176,7 @@ my %workspace_data;
 subtest 'Workspaces' => sub {
 
 	$t->get_ok('/workspace/notauuid')
-		->status_is(400)
-		->json_like( '/error', qr/must be a UUID/ );
+		->status_is(404);
 
 	$t->get_ok('/workspace')
 		->status_is(200)
@@ -195,7 +194,12 @@ subtest 'Workspaces' => sub {
 	$t->get_ok("/workspace/$global_ws_id")
 		->status_is(200)
 		->json_schema_is('WorkspaceAndRole')
-		->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace');
+		->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace, by id');
+
+	$t->get_ok('/workspace/GLOBAL')
+		->status_is(200)
+		->json_schema_is('WorkspaceAndRole')
+		->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace, by name');
 
 	$t->get_ok('/workspace/' . $uuid->create_str())
 		->status_is(404);
@@ -335,12 +339,22 @@ subtest 'Sub-Workspace' => sub {
 	$t->get_ok("/workspace/$global_ws_id/child")
 		->status_is(200)
 		->json_schema_is('WorkspacesAndRoles')
-		->json_is('', [ $workspace_data{conch}[1] ], 'data for workspaces under GLOBAL');
+		->json_is('', [ $workspace_data{conch}[1] ], 'data for workspaces under GLOBAL, by id');
+
+	$t->get_ok('/workspace/GLOBAL/child')
+		->status_is(200)
+		->json_schema_is('WorkspacesAndRoles')
+		->json_is('', [ $workspace_data{conch}[1] ], 'data for workspaces under GLOBAL, by name');
 
 	$t->get_ok("/workspace/$sub_ws_id")
 		->status_is(200)
 		->json_schema_is('WorkspaceAndRole')
-		->json_is('', $workspace_data{conch}[1], 'data for subworkspace');
+		->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by id');
+
+	$t->get_ok('/workspace/test')
+		->status_is(200)
+		->json_schema_is('WorkspaceAndRole')
+		->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by name');
 
 	$t->post_ok(
 		"/workspace/$sub_ws_id/child" => json => {

@@ -57,7 +57,8 @@ are present.
 
 	$app->helper(
 		user_has_workspace_auth => sub ($c, $workspace_id, $role_name) {
-			return 0 unless $c->stash('user_id');
+			return 0 if not $c->stash('user_id');
+			return 0 if not $workspace_id;
 
 			return 1 if $c->is_system_admin;
 
