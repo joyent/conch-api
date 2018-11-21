@@ -15,27 +15,30 @@ Conch::Route::Workspace
 Sets up the routes for /workspace:
 
     GET     /workspace
-    GET     /workspace/:workspace_id
-    GET     /workspace/:workspace_id/child
-    POST    /workspace/:workspace_id/child
+    GET     /workspace/:workspace_id_or_name
+    GET     /workspace/:workspace_id_or_name/child
+    POST    /workspace/:workspace_id_or_name/child
 
-    GET     /workspace/:workspace_id/device
-    GET     /workspace/:workspace_id/device/active
+    GET     /workspace/:workspace_id_or_name/device
+    GET     /workspace/:workspace_id_or_name/device/active
 
-    GET     /workspace/:workspace_id/rack
-    POST    /workspace/:workspace_id/rack
-    GET     /workspace/:workspace_id/rack/:rack_id
-    DELETE  /workspace/:workspace_id/rack/:rack_id
-    POST    /workspace/:workspace_id/rack/:rack_id/layout
+    GET     /workspace/:workspace_id_or_name/rack
+    POST    /workspace/:workspace_id_or_name/rack
+    GET     /workspace/:workspace_id_or_name/rack/:rack_id
+    DELETE  /workspace/:workspace_id_or_name/rack/:rack_id
+    POST    /workspace/:workspace_id_or_name/rack/:rack_id/layout
 
-    GET     /workspace/:workspace_id/room
-    PUT     /workspace/:workspace_id/room
+    GET     /workspace/:workspace_id_or_name/room
+    PUT     /workspace/:workspace_id_or_name/room
 
-    GET     /workspace/:workspace_id/relay
+    GET     /workspace/:workspace_id_or_name/relay
 
-    GET     /workspace/:workspace_id/user
-    POST    /workspace/:workspace_id/user
-    DELETE  /workspace/:workspace_id/user/#target_user_id
+    GET     /workspace/:workspace_id_or_name/user
+    POST    /workspace/:workspace_id_or_name/user
+    DELETE  /workspace/:workspace_id_or_name/user/#target_user_id
+
+Note that in all routes using C<:workspace_id_or_name>, the stash for C<workspace_id> will be
+populated, as well as C<workspace_name> if the identifier was not a UUID.
 
 =cut
 
@@ -49,21 +52,21 @@ sub routes {
     {
         # chainable action that extracts and looks up workspace_id from the path
         # and performs basic permission checking for the workspace
-        my $with_workspace = $workspace->under('/:workspace_id')
+        my $with_workspace = $workspace->under('/:workspace_id_or_name')
             ->to('workspace#find_workspace');
 
-        # GET /workspace/:workspace_id
+        # GET /workspace/:workspace_id_or_name
         $with_workspace->get('/')->to('workspace#get');
 
-        # GET /workspace/:workspace_id/child
+        # GET /workspace/:workspace_id_or_name/child
         $with_workspace->get('/child')->to('workspace#get_sub_workspaces');
-        # POST /workspace/:workspace_id/child
+        # POST /workspace/:workspace_id_or_name/child
         $with_workspace->post('/child')->to('workspace#create_sub_workspace');
 
-        # GET /workspace/:workspace_id/device
+        # GET /workspace/:workspace_id_or_name/device
         $with_workspace->get('/device')->to('workspace_device#list');
 
-        # GET /workspace/:workspace_id/device/active -> /workspace/:workspace_id/device?t
+        # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?t
         $with_workspace->get(
             '/device/active',
             sub {
@@ -74,38 +77,38 @@ sub routes {
             }
         );
 
-        # GET /workspace/:workspace_id/rack
+        # GET /workspace/:workspace_id_or_name/rack
         $with_workspace->get('/rack')->to('workspace_rack#list');
-        # POST /workspace/:workspace_id/rack
+        # POST /workspace/:workspace_id_or_name/rack
         $with_workspace->post('/rack')->to('workspace_rack#add');
 
         {
             my $with_workspace_rack =
                 $with_workspace->under('/rack/:rack_id')->to('workspace_rack#find_rack');
 
-            # GET /workspace/:workspace_id/rack/:rack_id
+            # GET /workspace/:workspace_id_or_name/rack/:rack_id
             $with_workspace_rack->get('/')->to('workspace_rack#get_layout');
 
-            # DELETE /workspace/:workspace_id/rack/:rack_id
+            # DELETE /workspace/:workspace_id_or_name/rack/:rack_id
             $with_workspace_rack->delete('/')->to('workspace_rack#remove');
 
-            # POST /workspace/:workspace_id/rack/:rack_id/layout
+            # POST /workspace/:workspace_id_or_name/rack/:rack_id/layout
             $with_workspace_rack->post('/layout')->to('workspace_rack#assign_layout');
         }
 
-        # GET /workspace/:workspace_id/room
+        # GET /workspace/:workspace_id_or_name/room
         $with_workspace->get('/room')->to('workspace_room#list');
-        # PUT /workspace/:workspace_id/room
+        # PUT /workspace/:workspace_id_or_name/room
         $with_workspace->put('/room')->to('workspace_room#replace_rooms');
 
-        # GET /workspace/:workspace_id/relay
+        # GET /workspace/:workspace_id_or_name/relay
         $with_workspace->get('/relay')->to('workspace_relay#list');
 
-        # GET /workspace/:workspace_id/user
+        # GET /workspace/:workspace_id_or_name/user
         $with_workspace->get('/user')->to('workspace_user#list');
-        # POST /workspace/:workspace_id/user
+        # POST /workspace/:workspace_id_or_name/user
         $with_workspace->post('/user')->to('workspace_user#add_user');
-        # DELETE /workspace/:workspace_id/user/#target_user_id
+        # DELETE /workspace/:workspace_id_or_name/user/#target_user_id
         $with_workspace->under('/user/#target_user_id')->to('user#find_user')
             ->delete('/')->to('workspace_user#remove');
     }
