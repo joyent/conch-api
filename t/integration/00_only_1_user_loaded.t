@@ -220,12 +220,12 @@ subtest 'Workspaces' => sub {
 		'currently one user_workspace_role entry');
 
 	$t->post_ok('/user?send_mail=0',
-		json => { email => 'test_workspace@conch.joyent.us', name => 'test_workspace', password => '123' })
-		->status_is(201, 'created new user test_workspace')
+		json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
+		->status_is(201, 'created new user test_user')
 		->json_schema_is('User');
 
 	$t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+			user => 'test_user@conch.joyent.us',
 			role => 'rw',
 		})
 		->status_is(201, 'added the user to the GLOBAL workspace');
@@ -235,7 +235,7 @@ subtest 'Workspaces' => sub {
 
 	is(
 		$t->app->db_user_accounts
-			->find({ email => 'test_workspace@conch.joyent.us' })
+			->find({ email => 'test_user@conch.joyent.us' })
 			->search_related('user_workspace_roles', { workspace_id => $global_ws_id })
 			->count,
 		1,
@@ -243,7 +243,7 @@ subtest 'Workspaces' => sub {
 	);
 
 	$t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+			user => 'test_user@conch.joyent.us',
 			role => 'rw',
 		})
 		->status_is(200, 'redundant add requests do nothing');
@@ -252,16 +252,16 @@ subtest 'Workspaces' => sub {
 		'still just two user_workspace_role entries');
 
 	$t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+			user => 'test_user@conch.joyent.us',
 			role => 'ro',
 		})
 		->status_is(400)
-		->json_is({ error => "user test_workspace already has rw access to workspace $global_ws_id: cannot downgrade role to ro" });
+		->json_is({ error => "user test user already has rw access to workspace $global_ws_id: cannot downgrade role to ro" });
 
-	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
+	$t->get_ok('/user/email=test_user@conch.joyent.us')
 		->status_is(200)
 		->json_schema_is('UserDetailed')
-		->json_is('/email' => 'test_workspace@conch.joyent.us')
+		->json_is('/email' => 'test_user@conch.joyent.us')
 		->json_is('/workspaces' => [ {
 				id => $global_ws_id,
 				name => 'GLOBAL',
@@ -270,15 +270,15 @@ subtest 'Workspaces' => sub {
 				parent_id => undef,
 			} ]);
 
-	$workspace_data{test_workspace} = $t->tx->res->json->{workspaces};
+	$workspace_data{test_user} = $t->tx->res->json->{workspaces};
 
 	$t->get_ok('/user/')
 		->status_is(200)
 		->json_schema_is('UsersDetailed')
 		->json_is('/0/email', 'conch@conch.joyent.us')
 		->json_is('/0/workspaces' => [ $workspace_data{conch}[0] ])
-		->json_is('/1/email', 'test_workspace@conch.joyent.us')
-		->json_is('/1/workspaces' => [ $workspace_data{test_workspace}[0] ]);
+		->json_is('/1/email', 'test_user@conch.joyent.us')
+		->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
 
 	my $main_user_id = $t->tx->res->json->[0]{id};
 	my $test_user_id = $t->tx->res->json->[1]{id};
@@ -295,8 +295,8 @@ subtest 'Workspaces' => sub {
 			},
 			{
 				id    => $test_user_id,
-				name  => 'test_workspace',
-				email => 'test_workspace@conch.joyent.us',
+				name  => 'test user',
+				email => 'test_user@conch.joyent.us',
 				role  => 'rw',
 			}
 		), 'data for users who can access GLOBAL');
@@ -317,23 +317,22 @@ subtest 'Sub-Workspace' => sub {
 		->status_is(400, 'Cannot create duplicate workspace')
 		->json_is('', { error => "workspace 'GLOBAL' already exists" });
 
-	$t->post_ok(
-		"/workspace/$global_ws_id/child" => json => {
-			name        => "test",
-			description => "also test",
+	$t->post_ok("/workspace/$global_ws_id/child" => json => {
+			name        => 'child_ws',
+			description => 'one level of workspaces',
 		})
 		->status_is(201)
 		->json_schema_is('WorkspaceAndRole')
 		->json_cmp_deeply({
 			id          => ignore,
-			name        => 'test',
-			description => 'also test',
+			name        => 'child_ws',
+			description => 'one level of workspaces',
 			parent_id   => $global_ws_id,
 			role        => 'admin',
 			role_via    => $global_ws_id,
 		});
 
-	my $sub_ws_id = $t->tx->res->json->{id};
+	my $child_ws_id = $t->tx->res->json->{id};
 	$workspace_data{conch}[1] = $t->tx->res->json;
 
 	$t->get_ok("/workspace/$global_ws_id/child")
@@ -346,32 +345,31 @@ subtest 'Sub-Workspace' => sub {
 		->json_schema_is('WorkspacesAndRoles')
 		->json_is('', [ $workspace_data{conch}[1] ], 'data for workspaces under GLOBAL, by name');
 
-	$t->get_ok("/workspace/$sub_ws_id")
+	$t->get_ok("/workspace/$child_ws_id")
 		->status_is(200)
 		->json_schema_is('WorkspaceAndRole')
 		->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by id');
 
-	$t->get_ok('/workspace/test')
+	$t->get_ok('/workspace/child_ws')
 		->status_is(200)
 		->json_schema_is('WorkspaceAndRole')
 		->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by name');
 
-	$t->post_ok(
-		"/workspace/$sub_ws_id/child" => json => {
-			name        => 'grandchild',
+	$t->post_ok("/workspace/$child_ws_id/child" => json => {
+			name        => 'grandchild_ws',
 			description => 'two levels of subworkspaces',
 		})->status_is(201, 'created a grandchild workspace')
 		->json_schema_is('WorkspaceAndRole')
 		->json_cmp_deeply({
 			id          => ignore,
-			name        => 'grandchild',
+			name        => 'grandchild_ws',
 			description => 'two levels of subworkspaces',
-			parent_id   => $sub_ws_id,
+			parent_id   => $child_ws_id,
 			role        => 'admin',
 			role_via    => $global_ws_id,
 		});
 
-	my $grandsub_ws_id = $t->tx->res->json->{id};
+	my $grandchild_ws_id = $t->tx->res->json->{id};
 	$workspace_data{conch}[2] = $t->tx->res->json;
 
 	$t->get_ok("/workspace/$global_ws_id/child")
@@ -413,10 +411,10 @@ subtest 'Sub-Workspace' => sub {
 			],
 			'/user/me returns the same data');
 
-	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
+	$t->get_ok('/user/email=test_user@conch.joyent.us')
 		->status_is(200)
 		->json_schema_is('UserDetailed')
-		->json_is('/email' => 'test_workspace@conch.joyent.us')
+		->json_is('/email' => 'test_user@conch.joyent.us')
 		->json_is('/workspaces' => [
 				{
 					id => $global_ws_id,
@@ -426,38 +424,38 @@ subtest 'Sub-Workspace' => sub {
 					role => 'rw',
 				},
 				{
-					id => $sub_ws_id,
-					name => 'test',
-					description => 'also test',
+					id => $child_ws_id,
+					name => 'child_ws',
+					description => 'one level of workspaces',
 					parent_id => $global_ws_id,
 					role => 'rw',
 					role_via => $global_ws_id,
 				},
 				{
-					id => $grandsub_ws_id,
-					name => 'grandchild',
+					id => $grandchild_ws_id,
+					name => 'grandchild_ws',
 					description => 'two levels of subworkspaces',
-					parent_id => $sub_ws_id,
+					parent_id => $child_ws_id,
 					role => 'rw',
 					role_via => $global_ws_id,
 				},
 			],
 			'new user has access to all workspaces via GLOBAL');
 
-	$workspace_data{test_workspace} = $t->tx->res->json->{workspaces};
+	$workspace_data{test_user} = $t->tx->res->json->{workspaces};
 
 	$t->get_ok('/user')
 		->status_is(200, 'data for all users, all workspaces')
 		->json_schema_is('UsersDetailed')
 		->json_is('/0/email', 'conch@conch.joyent.us')
 		->json_is('/0/workspaces' => $workspace_data{conch})
-		->json_is('/1/email', 'test_workspace@conch.joyent.us')
-		->json_is('/1/workspaces' => $workspace_data{test_workspace});
+		->json_is('/1/email', 'test_user@conch.joyent.us')
+		->json_is('/1/workspaces' => $workspace_data{test_user});
 
 	my $main_user_id = $t->tx->res->json->[0]{id};
 	my $test_user_id = $t->tx->res->json->[1]{id};
 
-	$t->get_ok("/workspace/$sub_ws_id/user")
+	$t->get_ok("/workspace/$child_ws_id/user")
 		->status_is(200)
 		->json_schema_is('WorkspaceUsers')
 		->json_cmp_deeply('', bag(
@@ -470,14 +468,14 @@ subtest 'Sub-Workspace' => sub {
 			},
 			{
 				id    => $test_user_id,
-				name  => 'test_workspace',
-				email => 'test_workspace@conch.joyent.us',
+				name  => 'test user',
+				email => 'test_user@conch.joyent.us',
 				role  => 'rw',
 				role_via => $global_ws_id,
 			},
 		), 'data for users who can access subworkspace');
 
-	$t->get_ok("/workspace/$grandsub_ws_id/user")
+	$t->get_ok("/workspace/$grandchild_ws_id/user")
 		->status_is(200)
 		->json_schema_is('WorkspaceUsers')
 		->json_cmp_deeply('', bag(
@@ -490,15 +488,15 @@ subtest 'Sub-Workspace' => sub {
 			},
 			{
 				id    => $test_user_id,
-				name  => 'test_workspace',
-				email => 'test_workspace@conch.joyent.us',
+				name  => 'test user',
+				email => 'test_user@conch.joyent.us',
 				role  => 'rw',
 				role_via => $global_ws_id,
 			},
 		), 'data for users who can access grandchild workspace');
 
-	$t->post_ok("/workspace/$grandsub_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+	$t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0" => json => {
+			user => 'test_user@conch.joyent.us',
 			role => 'rw',
 		})
 		->status_is(200, 'redundant add requests do nothing');
@@ -506,15 +504,15 @@ subtest 'Sub-Workspace' => sub {
 	is($t->app->db_user_workspace_roles->count, 2,
 		'still just two user_workspace_role entries');
 
-	$t->post_ok("/workspace/$grandsub_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+	$t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0" => json => {
+			user => 'test_user@conch.joyent.us',
 			role => 'ro',
 		})
 		->status_is(400)
-		->json_is({ error => "user test_workspace already has rw access to workspace $grandsub_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
+		->json_is({ error => "user test user already has rw access to workspace $grandchild_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
 
-	$t->post_ok("/workspace/$grandsub_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+	$t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0" => json => {
+			user => 'test_user@conch.joyent.us',
 			role => 'admin',
 		})
 		->status_is(201, 'can upgrade existing permission');
@@ -524,24 +522,24 @@ subtest 'Sub-Workspace' => sub {
 
 	# now let's try manipulating permissions on the workspace in the middle of the heirarchy
 
-	$t->post_ok("/workspace/$sub_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+	$t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
+			user => 'test_user@conch.joyent.us',
 			role => 'rw',
 		})
 		->status_is(200, 'redundant add requests do nothing');
 
-	$t->post_ok("/workspace/$sub_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+	$t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
+			user => 'test_user@conch.joyent.us',
 			role => 'ro',
 		})
 		->status_is(400)
-		->json_is({ error => "user test_workspace already has rw access to workspace $sub_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
+		->json_is({ error => "user test user already has rw access to workspace $child_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
 
 	is($t->app->db_user_workspace_roles->count, 3,
 		'still just three user_workspace_role entries');
 
-	$t->post_ok("/workspace/$sub_ws_id/user?send_mail=0" => json => {
-			user => 'test_workspace@conch.joyent.us',
+	$t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
+			user => 'test_user@conch.joyent.us',
 			role => 'admin',
 		})
 		->status_is(201, 'can upgrade existing permission');
@@ -550,10 +548,10 @@ subtest 'Sub-Workspace' => sub {
 		'now there are four user_workspace_role entries');
 
 	# update our idea of what all the permissions should look like:
-	$workspace_data{test_workspace}[1]{role} = 'admin';
-	delete $workspace_data{test_workspace}[1]{role_via};
-	$workspace_data{test_workspace}[2]{role} = 'admin';
-	delete $workspace_data{test_workspace}[2]{role_via};
+	$workspace_data{test_user}[1]{role} = 'admin';
+	delete $workspace_data{test_user}[1]{role_via};
+	$workspace_data{test_user}[2]{role} = 'admin';
+	delete $workspace_data{test_user}[2]{role_via};
 
 	$t->get_ok('/user/email=conch@conch.joyent.us')
 		->status_is(200)
@@ -566,14 +564,14 @@ subtest 'Sub-Workspace' => sub {
 			],
 			'main user has access to all workspaces via GLOBAL');
 
-	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
+	$t->get_ok('/user/email=test_user@conch.joyent.us')
 		->status_is(200)
 		->json_schema_is('UserDetailed')
-		->json_is('/email' => 'test_workspace@conch.joyent.us')
+		->json_is('/email' => 'test_user@conch.joyent.us')
 		->json_cmp_deeply('/workspaces' => bag(
-				$workspace_data{test_workspace}[0],
-				$workspace_data{test_workspace}[1],
-				$workspace_data{test_workspace}[2],
+				$workspace_data{test_user}[0],
+				$workspace_data{test_user}[1],
+				$workspace_data{test_user}[2],
 			),
 			'test user now has direct access to all workspaces');
 
@@ -582,23 +580,23 @@ subtest 'Sub-Workspace' => sub {
 		->json_schema_is('UsersDetailed')
 		->json_is('/0/email', 'conch@conch.joyent.us')
 		->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
-		->json_is('/1/email', 'test_workspace@conch.joyent.us')
-		->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_workspace}->@*));
+		->json_is('/1/email', 'test_user@conch.joyent.us')
+		->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
 
-	$t->delete_ok("/workspace/$sub_ws_id/user/email=test_workspace\@conch.joyent.us")
+	$t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
 		->status_is(201, 'extra permissions for user are removed from the sub workspace and its children');
 
-	$workspace_data{test_workspace}[1]->@{qw(role role_via)} = ('rw', $global_ws_id);
-	$workspace_data{test_workspace}[2]->@{qw(role role_via)} = ('rw', $global_ws_id);
+	$workspace_data{test_user}[1]->@{qw(role role_via)} = ('rw', $global_ws_id);
+	$workspace_data{test_user}[2]->@{qw(role role_via)} = ('rw', $global_ws_id);
 
-	$t->get_ok('/user/email=test_workspace@conch.joyent.us')
+	$t->get_ok('/user/email=test_user@conch.joyent.us')
 		->status_is(200)
 		->json_schema_is('UserDetailed')
-		->json_is('/email' => 'test_workspace@conch.joyent.us')
-		->json_cmp_deeply('/workspaces' => $workspace_data{test_workspace},
+		->json_is('/email' => 'test_user@conch.joyent.us')
+		->json_cmp_deeply('/workspaces' => $workspace_data{test_user},
 			'test user now only has rw access to everything again (via GLOBAL)');
 
-	$t->delete_ok("/workspace/$sub_ws_id/user/email=test_workspace\@conch.joyent.us")
+	$t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
 		->status_is(201, 'deleting again is a no-op');
 };
 
