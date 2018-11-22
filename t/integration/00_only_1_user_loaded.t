@@ -568,7 +568,110 @@ subtest 'Sub-Workspace' => sub {
 
 	$t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
 		->status_is(201, 'deleting again is a no-op');
+
+
+	$t->post_ok('/user?send_mail=0',
+		json => { email => 'untrusted_user@conch.joyent.us', name => 'untrusted user', password => '123' })
+		->status_is(201, 'created new untrusted user')
+		->json_schema_is('User');
+
+	$t->post_ok('/workspace/child_ws/user?send_mail=0' => json => {
+			user => 'untrusted_user@conch.joyent.us',
+			role => 'ro',
+		})
+		->status_is(201, 'added the user to the child workspace');
+
+	$t->get_ok('/workspace/GLOBAL/user')
+		->status_is(200)
+		->json_schema_is('WorkspaceUsers')
+		->json_cmp_deeply('', bag($users{GLOBAL}->@*), 'no change to users who can access GLOBAL');
+
+	push $users{child_ws}->@*, {
+		id    => ignore,
+		name  => 'untrusted user',
+		email => 'untrusted_user@conch.joyent.us',
+		role  => 'ro',
+	};
+	push $users{grandchild_ws}->@*, {
+		$users{child_ws}[2]->%*,
+		role_via => $child_ws_id,
+	};
+
+	$t->get_ok('/workspace/child_ws/user')
+		->status_is(200)
+		->json_schema_is('WorkspaceUsers')
+		->json_cmp_deeply('', bag($users{child_ws}->@*), 'updated data for users who can access child ws');
+
+	$t->get_ok('/workspace/grandchild_ws/user')
+		->status_is(200)
+		->json_schema_is('WorkspaceUsers')
+		->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'updated data for users who can access grandchild ws');
+
+	$workspace_data{untrusted_user} = [
+		{
+			$workspace_data{conch}[1]->%{qw(id name description parent_id)},
+			role => 'ro',
+		},
+		{
+			$workspace_data{conch}[2]->%{qw(id name description parent_id)},
+			role => 'ro',
+			role_via => $child_ws_id,
+		},
+	];
+
+	$t->get_ok('/user/')
+		->status_is(200)
+		->json_schema_is('UsersDetailed')
+		->json_is('/0/email', 'conch@conch.joyent.us')
+		->json_is('/0/workspaces' => $workspace_data{conch})
+		->json_is('/1/email', 'test_user@conch.joyent.us')
+		->json_is('/1/workspaces' => $workspace_data{test_user})
+		->json_is('/2/email', 'untrusted_user@conch.joyent.us')
+		->json_is('/2/workspaces' => $workspace_data{untrusted_user});
+
+
+	my $untrusted = Test::Conch->new(pg => $t->pg);
+	$untrusted->post_ok('/login' => json => { user => 'untrusted_user@conch.joyent.us', password => '123' })
+		->status_is(200, 'untrusted user can log in');
+
+	# this user cannot be shown the GLOBAL workspace or its id
+	undef $workspace_data{untrusted_user}[0]{parent_id};
+	delete $users{GLOBAL};
+
+	$untrusted->get_ok('/workspace/GLOBAL')
+		->status_is(403, 'new user not authorized to view GLOBAL');
+
+	$untrusted->get_ok('/workspace/child_ws')
+		->status_is(200)
+		->json_schema_is('WorkspaceAndRole')
+		->json_is('', $workspace_data{untrusted_user}[0], 'data for child workspace');
+
+	$untrusted->get_ok('/workspace/grandchild_ws')
+		->status_is(200)
+		->json_schema_is('WorkspaceAndRole')
+		->json_is('', $workspace_data{untrusted_user}[1], 'data for grandchild workspace');
+
+	$untrusted->get_ok('/user')
+		->status_is(403, 'system admin privs required for this endpoint');
+
+	$untrusted->get_ok('/workspace/GLOBAL/user')
+		->status_is(403, 'new user not authorized to view GLOBAL');
+
+	$untrusted->get_ok('/workspace/child_ws/user')
+		->status_is(200)
+		->json_schema_is('WorkspaceUsers')
+		->json_cmp_deeply('', bag($users{child_ws}->@*), 'user gets the same list of users who can access child ws');
+
+	$untrusted->get_ok('/workspace/grandchild_ws/user')
+		->status_is(200)
+		->json_schema_is('WorkspaceUsers')
+		->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'user gets the same list of users who can access grandchild ws');
 };
+
+# XXX temporary, because Conch::Pg is awful...
+# $untrusted->DESTROY tore down the Conch::Pg singleton, so reconnect it now with the uri from
+# $t so remaining calls through Conch::Model::* still work.
+Conch::Pg->new($t->pg->uri);
 
 subtest 'Workspace Rooms' => sub {
 	$t->get_ok("/workspace/$global_ws_id/room")
