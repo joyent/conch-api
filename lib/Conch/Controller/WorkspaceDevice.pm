@@ -21,13 +21,15 @@ use Conch::UUID 'is_uuid';
 
 Get a list of all devices in the current workspace (as specified by :workspace_id in the path)
 
-Supports these query parameters to constrain results:
+Supports these query parameters to constrain results (which are ANDed together, not ORed):
 
 	graduated=T     only devices with graduated set
 	graduated=F     only devices with graduated not set
 	health=<value>  only devices with health matching provided value (case-insensitive)
 	active=1        only devices last seen within 5 minutes
 	ids_only=1      only return device ids, not full data
+
+Response uses the Devices json schema.
 
 =cut
 
@@ -36,7 +38,8 @@ sub list ($c) {
 		->associated_racks
 		->related_resultset('device_locations')
 		->related_resultset('device')
-		->active;
+		->active
+		->order_by('device.created');
 
 	$devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })
 		if defined $c->param('graduated') and uc $c->param('graduated') eq 'T';
