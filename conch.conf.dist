@@ -84,6 +84,10 @@
 		# config options should probably be used with some care
 		pre_hook  => 'before_routes',
 		post_hook => 'around_dispatch',
-		}
+	},
+
+    # directory where all logs will be placed.
+    # if not absolute, will be relative to the root of the application.
+    # log_dir => 'log',
 
 }
