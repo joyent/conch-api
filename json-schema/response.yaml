@@ -56,6 +56,7 @@ definitions:
       - validated
       - location
       - nics
+      - disks
       - latest_report_is_invalid
       - latest_report
       - invalid_report
@@ -166,6 +167,82 @@ definitions:
               anyOf:
                 - type: string
                 - type: 'null'
+      disks:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - serial_number
+            - slot
+            - size
+            - vendor
+            - model
+            - firmware
+            - transport
+            - health
+            - drive_type
+            - temp
+            - enclosure
+            - created
+            - updated
+          properties:
+            id:
+              $ref: /definitions/uuid
+            serial_number:
+              type: string
+            slot:
+              anyOf:
+                - type: integer
+                - type: 'null'
+            size:
+              anyOf:
+                - type: integer
+                - type: 'null'
+            vendor:
+              anyOf:
+                - type: string
+                - type: 'null'
+            model:
+              anyOf:
+                - type: string
+                - type: 'null'
+            firmware:
+              anyOf:
+                - type: string
+                - type: 'null'
+            transport:
+              anyOf:
+                - type: string
+                - type: 'null'
+            health:
+              anyOf:
+                - type: string
+                - type: 'null'
+            drive_type:
+              anyOf:
+                - type: string
+                - type: 'null'
+            temp:
+              anyOf:
+                - type: integer
+                - type: 'null'
+            enclosure:
+              anyOf:
+                - type: string
+                - type: 'null'
+            hba:
+              anyOf:
+                - type: string
+                - type: 'null'
+            created:
+              type: string
+              format: date-time
+            updated:
+              type: string
+              format: date-time
       latest_report_is_invalid:
         type: boolean
       latest_report:

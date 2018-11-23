@@ -343,7 +343,8 @@ subtest 'Single device' => sub {
 		->json_schema_is('DetailedDevice')
 		->json_is('/health' => 'PASS')
 		->json_is('/latest_report_is_invalid' => JSON::PP::false)
-		->json_is('/latest_report/product_name' => 'Joyent-S1');
+		->json_is('/latest_report/product_name' => 'Joyent-S1')
+		->json_cmp_deeply('/disks/0/serial_number' => 'BTHC640405WM1P6PGN');
 
 	$detailed_device = $t->tx->res->json;
 

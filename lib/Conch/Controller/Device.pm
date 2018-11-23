@@ -105,7 +105,8 @@ Retrieves details about a single device, returning a json-schema 'DetailedDevice
 sub get ($c) {
 
 	my $device = $c->stash('device_rs')
-		->prefetch({ device_nics => 'device_neighbor' })
+		->prefetch([ { device_nics => 'device_neighbor' }, 'device_disks' ])
+		->order_by([ qw(iface_name serial_number) ])
 		->find({});
 
 	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
@@ -132,6 +133,7 @@ sub get ($c) {
 			}
 		} $device->device_nics ],
 		location => $maybe_location,
+		disks => [ map { $_->deactivated ? () : +{ $_->TO_JSON->%* } } $device->device_disks ],
 	};
 
 	$c->status( 200, $detailed_device );
