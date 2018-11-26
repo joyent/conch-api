@@ -103,6 +103,9 @@ sub get ($c) {
 		->with_role_via_data_for_user($c->stash('user_id'))
 		->single;
 
+	$workspace->parent_workspace_id(undef)
+		if not $c->user_has_workspace_auth($workspace->parent_workspace_id, 'ro');
+
 	$c->status(200, $workspace);
 }
 
@@ -121,7 +124,13 @@ sub get_sub_workspaces ($c) {
 		->workspaces_beneath($c->stash('workspace_id'))
 		->with_role_via_data_for_user($c->stash('user_id'));
 
-	$c->status(200, [ $workspaces_rs->all ]);
+	my @workspaces = $workspaces_rs->all;
+	foreach my $workspace (@workspaces) {
+		$workspace->parent_workspace_id(undef)
+			if not $c->user_has_workspace_auth($workspace->parent_workspace_id, 'ro');
+	}
+
+	$c->status(200, \@workspaces);
 }
 
 
