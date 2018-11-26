@@ -1,51 +1,48 @@
+package Conch::Plugin::Logging;
+
+use Mojo::Base 'Mojolicious::Plugin', -signatures;
+use Conch::Log;
+use Sys::Hostname;
+use Mojo::File 'path';
+
+=pod
+
 =head1 NAME
 
 Conch::Plugin::Logging - Sets up logging for the application
 
 =head1 METHODS
 
-=cut
-
-package Conch::Plugin::Logging;
-
-use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use Mojo::Log;
-use Conch::Log;
-
-use Mojo::JSON;
-use Sys::Hostname;
-
 =head2 register
+
+Initializes the logger object, and sets up hooks in various places to log request data and
+process exceptions.
+
 =cut
 
-sub register ($self, $app, $conf) {
+sub register ($self, $app, $config) {
+
+	my $log_dir = $config->{log_dir} // 'log';
 
 	my %log_args = (
 		level => 'debug',
 	);
 
+	# without 'path' option, Mojo::Log defaults to *STDERR
 	if(not $app->feature('log_to_stderr')) {
-		my $mode = $app->mode;
-		my $home = $app->home;
+		$log_dir = path($log_dir);
+		$log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
 
-		my $log_dir = $home->child('log');
-
-		if(-d $log_dir) {
-			unless(-w $log_dir) {
-				return Mojo::Exception->throw("Cannot write to $log_dir");
-			}
+		if (-d $log_dir) {
+			return Mojo::Exception->throw("Cannot write to $log_dir") if not -w $log_dir;
 		} else {
-			if(-w $home->path) {
-				$app->log->info("Creating log dir $log_dir");
-				$home->make_path($log_dir);
-			} else { 
-				return Mojo::Exception->throw("Cannot create $log_dir");
-			}
+			print STDERR "Creating log dir $log_dir\n";
+			$log_dir->dirname->make_path($log_dir);
 		}
 
-		$log_args{path} = $home->child('log', "$mode.log");
-
+		$log_args{path} = $log_dir->child($app->mode . '.log');
 	}
+
 	$app->log(Conch::Log->new(%log_args));
 
 	if ($app->feature('rollbar')) {

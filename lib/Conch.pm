@@ -39,7 +39,7 @@ sub startup {
 	$self->sessions->default_expiration(2592000);    # 30 days
 
 	$self->plugin('Conch::Plugin::Features', $self->config);
-	$self->plugin('Conch::Plugin::Logging');
+	$self->plugin('Conch::Plugin::Logging', $self->config);
 	$self->plugin('Conch::Plugin::Database', $self->config);
 
 	# specify which MIME types we can handle
