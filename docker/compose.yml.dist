@@ -1,0 +1,24 @@
+# vim: se syn=yaml shiftwidth=2 et ts=2:
+# 
+# Purely as an example. One will need to edit the config name at the very
+# least, and almost certainly the image version
+---
+version: '3.7'
+configs:
+  "conch-api-prod":
+    external: true
+networks:
+  default:
+    name: overlay
+services:
+  api:
+    image: joyentbuildops/conch-api:v2.19.6
+    ports:
+      - "5000:5000"
+    configs:
+      - source: "conch-api-prod"
+        target: /app/conch/etc/conch.conf
+        mode: 0440
+    deploy:
+      mode: global
+
