@@ -45,6 +45,7 @@ Creates a new rack_layout entry according to the passed-in specification.
 
 sub create ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
     my $input = $c->validate_input('RackLayoutCreate');
     return if not $input;
 
@@ -92,7 +93,7 @@ sub create ($c) {
     my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already assigned');
+        $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
         return $c->status(400 => { error => 'ru_start conflict' });
     }
 
@@ -232,7 +233,7 @@ sub update ($c) {
     my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already assigned');
+        $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
         return $c->status(400 => { error => 'ru_start conflict' });
     }
 

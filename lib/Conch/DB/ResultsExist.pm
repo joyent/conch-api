@@ -36,7 +36,7 @@ Returns a value that you can treat as a boolean.
 sub exists ($self) {
     my $inner = $self->search(undef, { select => [ \1 ] })->as_query;
 
-    my $statement = 'select exists ' . $inner->$*->[0];
+    my $statement = 'select exists '.$inner->$*->[0];
     my @binds = map { $_->[1] } $inner->$*->@[1 .. $inner->$*->$#*];
 
     my ($exists) = $self->result_source->schema->storage->dbh_do(sub ($storage, $dbh) {

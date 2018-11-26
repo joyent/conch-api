@@ -10,18 +10,18 @@ Validate the reported number of NICs match the hardware product profile
 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Input data must include 'interfaces' hash")
-		unless $data->{interfaces} && ref( $data->{interfaces} ) eq 'HASH';
-	my $hw_profile = $self->hardware_product_profile;
+    $self->die("Input data must include 'interfaces' hash")
+        unless $data->{interfaces} && ref($data->{interfaces}) eq 'HASH';
+    my $hw_profile = $self->hardware_product_profile;
 
-	my $nics_count = scalar( keys $data->{interfaces}->%* );
+    my $nics_count = scalar(keys $data->{interfaces}->%*);
 
-	$self->register_result(
-		expected => $hw_profile->nics_num,
-		got      => $nics_count,
-	);
+    $self->register_result(
+        expected => $hw_profile->nics_num,
+        got      => $nics_count,
+    );
 }
 
 1;

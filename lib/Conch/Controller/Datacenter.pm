@@ -106,6 +106,7 @@ Update an existing datacenter.
 
 sub update ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
     my $input = $c->validate_input('DatacenterUpdate');
     return if not $input;
 

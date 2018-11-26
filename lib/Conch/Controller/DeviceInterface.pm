@@ -22,16 +22,15 @@ Chainable action that looks up the device interface by its id or name.
 =cut
 
 sub find_device_interface ($c) {
-
     my $interface_name = $c->stash('interface_name');
 
-    $c->log->debug('Looking up interface ' . $interface_name
-        . ' for device_id ' . $c->stash('device_id'));
+    $c->log->debug('Looking up interface '.$interface_name
+        .' for device_id '.$c->stash('device_id'));
 
     my $nic_rs = $c->stash('device_rs')
         ->search_related('device_nics', { iface_name => $interface_name });
     if (not $nic_rs->exists) {
-        $c->log->debug("Failed to find interface $interface_name for device " . $c->stash('device_id'));
+        $c->log->debug("Failed to find interface $interface_name for device ".$c->stash('device_id'));
         return $c->status(404);
     }
 
@@ -73,7 +72,6 @@ Retrieves all device_nic records for the specified device.
 =cut
 
 sub get_all ($c) {
-
     my $rs = $c->stash('device_rs')->related_resultset('device_nics');
     return $c->status(200, [ $rs->all ]);
 }

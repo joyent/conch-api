@@ -48,7 +48,7 @@ optimizations for the API can largely be determined in-house.
   [buildops-infra](https://github.com/joyent/buildops-infra) Github repo).
 
 * The release manager sends out an email announcing the deployment and
-  summarizing the changes. 
+  summarizing the changes.
 
 * The code stays in staging for a few days to a week, depending on the
   number of changes and the team's comfort level.
@@ -65,7 +65,7 @@ optimizations for the API can largely be determined in-house.
   staging branch (`release/v2.46` in this example) and redeployed into staging
 
 This usually happens over the course of a couple of days. All going well, the
-release is branched on Monday and deployed to production on Wednesday. 
+release is branched on Monday and deployed to production on Wednesday.
 
 In general, we prefer a two week deploy cadence. v2.45.0 goes into
 staging on Monday and we begin accepting PRs for v2.46. Two weeks later,
@@ -80,7 +80,7 @@ feature or fix.
 
 Further, given that we are also the developers of the conch shell and
 conch ui, we are also usually issuing new releases of those applications
-to coincide with the new features in the API. 
+to coincide with the new features in the API.
 
 ## Summary
 

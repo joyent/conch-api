@@ -49,7 +49,8 @@ $t->post_ok('/rack_role', json => { name => 'foo.bar' })
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 2 })
     ->status_is(303);
 
-$t->get_ok($t->tx->res->headers->location)->status_is(200)
+$t->get_ok($t->tx->res->headers->location)
+    ->status_is(200)
     ->json_schema_is('RackRole')
     ->json_cmp_deeply(superhashof({ name => 'r0le', rack_size => 2 }));
 my $idr = $t->tx->res->json->{id};

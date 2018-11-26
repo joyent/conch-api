@@ -27,7 +27,6 @@ has description => 'Create a new user';
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
 sub run ($self, @opts) {
-
     local @ARGV = @opts;
 
     # decode command line arguments
@@ -46,7 +45,7 @@ sub run ($self, @opts) {
     );
 
     if ($self->app->db_user_accounts->active->search(\[ 'lower(email) = lower(?)', $opt->email ])->exists) {
-        say 'cannot create user: email ' . $opt->email . ' already exists';
+        say 'cannot create user: email '.$opt->email.' already exists';
         return;
     }
 

@@ -70,7 +70,7 @@ sub routes {
             '/device/active',
             sub ($c) {
                 $c->redirect_to(
-                    $c->url_for('/workspace/' . $c->stash('workspace_id') . '/device')
+                    $c->url_for('/workspace/'.$c->stash('workspace_id').'/device')
                         ->query(active => 't'));
             }
         );

@@ -36,7 +36,6 @@ sub assign_device_location ($self, $device_id, $rack_id, $rack_unit_start) {
     );
 
     $schema->txn_do(sub {
-
         die "slot $rack_unit_start does not exist in the layout for rack $rack_id\n"
             if not $layout_rs->exists;
 

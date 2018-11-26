@@ -39,14 +39,15 @@ my $new_device = $t->app->db_devices->create($_) foreach (
 $t->authenticate;
 
 $t->post_ok('/relay/deadbeef/register',
-    json => {
-        serial   => 'deadbeef',
-        version  => '0.0.1',
-        ipaddr   => '127.0.0.1',
-        ssh_port => 22,
-        alias    => 'test relay',
-    }
-)->status_is(204)->content_is('');
+        json => {
+            serial   => 'deadbeef',
+            version  => '0.0.1',
+            ipaddr   => '127.0.0.1',
+            ssh_port => 22,
+            alias    => 'test relay',
+        })
+    ->status_is(204)
+    ->content_is('');
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)

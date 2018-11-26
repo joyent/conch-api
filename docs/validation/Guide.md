@@ -167,15 +167,15 @@ has 'description' => q(A basic example of a validation.);
 sub validate {
 	my ($self, $data) = @_;
 	my $power = $data->{power};
-	
+
 	$self->die("'power' key is required in the input data") unless defined($power);
 	$self->die("'power' value must be a hash") unless ref($power) eq 'HASH';
-	
+
 	my $gigawatts = $power->{gigawatts};
-	
+
 	$self->die("'gigawatts' is required in the input data") unless defined($gigawatts);
 	$self->die("'gigawatts' must be a number') unless ( $gigawatts =~ /\d+(\.\d+)?/ );
-	
+
 	$self->register_result(
 		expected => 1.21,
 		got      => $gigawatts,
@@ -243,7 +243,7 @@ sub validate {
 	my ($self, $data) = @_;
 	# we can safely assume this hash path is present because it was verified with the schema
 	my $gigawatts = $data->{power}->{gigawatts};
-	
+
 	my $expected_gigawatts;
 	if ($self->hardware_product_name eq 'DMC-12') {
 		$expected_gigawatts = 1.21 * $self->hardware_product_profile->psu_total;

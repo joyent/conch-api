@@ -26,31 +26,31 @@ sub set_all ($c) {
     my $input = $c->validate_input('DeviceSettings');
     return if not $input;
 
-	# we cannot do device_rs->related_resultset, or ->create loses device_id
-	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
+    # we cannot do device_rs->related_resultset, or ->create loses device_id
+    my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
-	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-	my @non_tags = grep { !/^tag\./ } keys $input->%*;
-	my $perm_needed =
-		@non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
+    # overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
+    my @non_tags = grep { !/^tag\./ } keys $input->%*;
+    my $perm_needed =
+        @non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 
-	# 'rw' already checked by find_device
-	if ($perm_needed eq 'admin') {
-		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-			$c->log->debug("failed permission check (required $perm_needed)");
-			return $c->status(403);
-		}
-	}
+    # 'rw' already checked by find_device
+    if ($perm_needed eq 'admin') {
+        if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+            $c->log->debug("failed permission check (required $perm_needed)");
+            return $c->status(403);
+        }
+    }
 
-	# deactivate existing settings with the same keys
-	$settings_rs->search({ name => { -in => [ keys $input->%* ] } })
-		->active
-		->deactivate;
+    # deactivate existing settings with the same keys
+    $settings_rs->search({ name => { -in => [ keys $input->%* ] } })
+        ->active
+        ->deactivate;
 
-	# store new settings
-	$settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
+    # store new settings
+    $settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
 
-	$c->status(200);
+    $c->status(200);
 }
 
 =head2 set_single
@@ -64,36 +64,35 @@ sub set_single ($c) {
     my $input = $c->validate_input('DeviceSetting');
     return if not $input;
 
-	my $setting_key   = $c->stash('key');
-	my $setting_value = $input->{$setting_key};
+    my $setting_key   = $c->stash('key');
+    my $setting_value = $input->{$setting_key};
 
-	return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
-		unless $setting_value;
+    return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
+        unless $setting_value;
 
-	# we cannot do device_rs->related_resultset, or ->create loses device_id
-	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
+    # we cannot do device_rs->related_resultset, or ->create loses device_id
+    my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
-	my $existing_setting = $settings_rs->active->search({ name => $setting_key })->single;
+    my $existing_setting = $settings_rs->active->search({ name => $setting_key })->single;
 
-	# return early if the setting exists and is not being altered
-	return $c->status(204) if $existing_setting and $existing_setting->value eq $setting_value;
+    # return early if the setting exists and is not being altered
+    return $c->status(204) if $existing_setting and $existing_setting->value eq $setting_value;
 
-	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-	my $perm_needed = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
+    # overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
+    my $perm_needed = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
-	# 'rw' already checked by find_device
-	if ($perm_needed eq 'admin') {
-		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-			$c->log->debug("failed permission check (required $perm_needed)");
-			return $c->status(403);
-		}
-	}
+    # 'rw' already checked by find_device
+    if ($perm_needed eq 'admin') {
+        if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+            $c->log->debug("failed permission check (required $perm_needed)");
+            return $c->status(403);
+        }
+    }
 
-	$existing_setting->update({ deactivated => \'NOW()' }) if $existing_setting;
+    $existing_setting->update({ deactivated => \'NOW()' }) if $existing_setting;
+    $settings_rs->create({ name => $setting_key, value => $setting_value });
 
-	$settings_rs->create({ name => $setting_key, value => $setting_value });
-
-	$c->status(200);
+    $c->status(200);
 }
 
 =head2 get_all
@@ -114,21 +113,20 @@ Get a single setting from a device
 =cut
 
 sub get_single ($c) {
-	my $setting_key = $c->stash('key');
+    my $setting_key = $c->stash('key');
 
-	# no need to check 'ro' perms - find_device() already checked the workspace
+    # no need to check 'ro' perms - find_device() already checked the workspace
 
-	my $setting = $c->stash('device_rs')
-		->related_resultset('device_settings')
-		->active
-		->search(
-			{ name => $setting_key },
-			{ order_by => { -desc => 'created' }, rows => 1 },
-		)->single;
+    my $setting = $c->stash('device_rs')
+        ->related_resultset('device_settings')
+        ->active
+        ->search(
+            { name => $setting_key },
+            { order_by => { -desc => 'created' }, rows => 1 },
+        )->single;
 
-	return $c->status(404) unless $setting;
-
-	$c->status(200, { $setting_key => $setting->value });
+    return $c->status(404) unless $setting;
+    $c->status(200, { $setting_key => $setting->value });
 }
 
 =head2 delete_single
@@ -138,31 +136,30 @@ Delete a single setting from a device, provide that setting was previously set
 =cut
 
 sub delete_single ($c) {
-	my $setting_key = $c->stash('key');
+    my $setting_key = $c->stash('key');
+    my $perm_needed = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
-	my $perm_needed = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
+    # 'rw' already checked by find_device
+    if ($perm_needed eq 'admin') {
+        if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+            $c->log->debug("failed permission check (required $perm_needed)");
+            return $c->status(403);
+        }
+    }
 
-	# 'rw' already checked by find_device
-	if ($perm_needed eq 'admin') {
-		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-			$c->log->debug("failed permission check (required $perm_needed)");
-			return $c->status(403);
-		}
-	}
+    unless (
+        # 0 rows updated -> 0E0 which is boolean truth, not false
+        $c->stash('device_rs')
+            ->related_resultset('device_settings')
+            ->active
+            ->search({ name => $setting_key })
+            ->deactivate > 0
+    ) {
+        $c->log->debug("No such setting '$setting_key'");
+        return $c->status(404);
+    }
 
-	unless (
-		# 0 rows updated -> 0E0 which is boolean truth, not false
-		$c->stash('device_rs')
-			->related_resultset('device_settings')
-			->active
-			->search({ name => $setting_key })
-			->deactivate > 0
-	) {
-		$c->log->debug("No such setting '$setting_key'");
-		return $c->status(404);
-	}
-
-	return $c->status(204);
+    return $c->status(204);
 }
 
 1;
@@ -179,3 +176,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

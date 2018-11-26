@@ -75,7 +75,7 @@ sub run ($self, @opts) {
                     local $@ = $_;
                     die;    # propagate the error
                 }
-                print STDERR "\n", 'aborted processing of device ' . $device->id . ': ', $_, "\n";
+                print STDERR "\n", 'aborted processing of device '.$device->id.': ', $_, "\n";
             };
         }
     }

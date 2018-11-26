@@ -24,34 +24,34 @@ which will be constructed to the correct classes in the body of
 ["test\_validation"](#test_validation). For example:
 
 ```perl
-    test_validation(
-            'Conch::Validation::TestValidation',
-            hardware_product => {
-                    name => 'Product Name',
-                    vendor => 'Product Vendor',
-                    hardware_product_profile => {
-                            num_cpu => 2
-                    }
-            },
-            device_location => {
-                    rack_unit       => 2,
-                    rack => {
-                            rack_layouts => [
-                                    { rack_unit_start => 1 },
-                                    { rack_unit_start => 2 },
-                                    { rack_unit_start => 3 },
-                            ],
-                    },
-            },
-            device_settings => {
-                    foo => 'bar'
-            },
-            device => {
-                    triton_setup => 1,
-            },
+test_validation(
+    'Conch::Validation::TestValidation',
+    hardware_product => {
+        name => 'Product Name',
+        vendor => 'Product Vendor',
+        hardware_product_profile => {
+            num_cpu => 2
+        }
+    },
+    device_location => {
+        rack_unit       => 2,
+        rack => {
+            rack_layouts => [
+                { rack_unit_start => 1 },
+                { rack_unit_start => 2 },
+                { rack_unit_start => 3 },
+            ],
+        },
+    },
+    device_settings => {
+        foo => 'bar'
+    },
+    device => {
+        triton_setup => 1,
+    },
 
-            cases => [ ... ]
-    );
+    cases => [ ... ]
+);
 ```
 
 `cases` is a list of hashrefs defining each of the test cases. Each case
@@ -92,18 +92,18 @@ A test case is specified with a hashref with the attributes:
 Example:
 
 ```perl
-    test_validation(
-            'Conch::Validation::TestValidation',
-            cases => [
-                    {
-                            data        => { hello => 'world' },
-                            success_num => 3,
-                            failure_num => 3,
-                            description => 'Hello world test case',
-                            debug       => 1
-                    }
-            ]
-    );
+test_validation(
+    'Conch::Validation::TestValidation',
+    cases => [
+        {
+            data        => { hello => 'world' },
+            success_num => 3,
+            failure_num => 3,
+            description => 'Hello world test case',
+            debug       => 1
+        }
+    ]
+);
 ```
 
 # LICENSING

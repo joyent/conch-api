@@ -206,28 +206,28 @@ the hash as the schema to validate.
 
 sub json_schema_is ($self, $schema, $message = undef) {
     my @errors;
-    return $self->_test( 'fail', 'No request has been made' ) unless $self->tx;
+    return $self->_test('fail', 'No request has been made') unless $self->tx;
     my $json = $self->tx->res->json;
-    return $self->_test( 'fail', 'No JSON in response' ) unless $json;
+    return $self->_test('fail', 'No JSON in response') unless $json;
 
-    if ( ref $schema eq 'HASH' ) {
-        @errors = $self->validator->validate( $json, $schema );
+    if (ref $schema eq 'HASH') {
+        @errors = $self->validator->validate($json, $schema);
     }
     else {
         my $component_schema = $self->validator->get("/definitions/$schema");
         die "Component schema '$schema' is not defined in JSON schema" if not $component_schema;
-        @errors = $self->validator->validate( $json, $component_schema );
+        @errors = $self->validator->validate($json, $component_schema);
     }
 
     my $error_count = @errors;
-    my $req         = $self->tx->req->method . ' ' . $self->tx->req->url->path;
+    my $req         = $self->tx->req->method.' '.$self->tx->req->url->path;
 
     return $self->_test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
         ->or(sub {
-            Test::More::diag( $error_count
-                    . " Error(s) occurred when validating $req with schema "
-                    . "$schema':\n\t"
-                    . join( "\n\t", @errors ) );
+            Test::More::diag($error_count
+                    ." Error(s) occurred when validating $req with schema "
+                    ."$schema':\n\t"
+                    .join("\n\t", @errors));
             0;
         }
     );
@@ -278,7 +278,7 @@ sub load_validation_plans ($self, $plans) {
         my $plan = $self->app->db_validation_plans->active->search({ name => $plan_data->{name} })->single;
         unless ($plan) {
             $plan = $self->app->db_validation_plans->create({ $plan_data->%{qw(name description)} });
-            $self->app->log->info('Created validation plan ' . $plan->name);
+            $self->app->log->info('Created validation plan '.$plan->name);
         }
 
         $plan->delete_related('validation_plan_members');
@@ -286,7 +286,7 @@ sub load_validation_plans ($self, $plans) {
             my $validation = $self->load_validation($module);
             $plan->add_to_validations($validation);
         }
-        $self->app->log->info('Loaded validation plan ' . $plan->name);
+        $self->app->log->info('Loaded validation plan '.$plan->name);
         push @plans, $self->app->db_ro_validation_plans->find($plan->id);
     }
     return @plans;

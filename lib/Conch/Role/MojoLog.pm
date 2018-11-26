@@ -9,12 +9,12 @@ context to the logs
 
 =head1 SYNOPSIS
 
-	use Role::Tiny::With;
-	with 'Conch::Role::MojoLog';
+    use Role::Tiny::With;
+    with 'Conch::Role::MojoLog';
 
-	sub wat ($c) {
-		$c->log->debug('message');
-	}
+    sub wat ($c) {
+        $c->log->debug('message');
+    }
 
 =head1 METHODS
 
@@ -28,19 +28,19 @@ use Mojo::Base -role;
 The logger itself. The usual levels are available, like debug, warn, etc.
 
 =cut
-	
+
 has log => sub {
     my $c = shift;
-	my $home = $c->app->home;
-	my $mode = $c->app->mode;
+    my $home = $c->app->home;
+    my $mode = $c->app->mode;
 
-	my %args = (
-		request_id => $c->req->request_id,
-		level      => 'debug',
-	);
-	if (not $c->feature('log_to_stderr')) {
-		$args{path} = $home->child('log', "$mode.log"),
-	}
+    my %args = (
+        request_id => $c->req->request_id,
+        level      => 'debug',
+    );
+    if (not $c->feature('log_to_stderr')) {
+        $args{path} = $home->child('log', "$mode.log"),
+    }
 
     return Conch::Log->new(%args);
 };
@@ -59,3 +59,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

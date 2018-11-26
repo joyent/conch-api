@@ -25,7 +25,6 @@ Response uses the WorkspaceRelays json schema.
 =cut
 
 sub list ($c) {
-
     my $active_minutes = $c->param('active_within');
 
     my $latest_relay_connections = $c->db_device_relay_connections
@@ -102,7 +101,6 @@ Response uses the Devices json schema.
 =cut
 
 sub get_relay_devices ($c) {
-
     my $devices_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')

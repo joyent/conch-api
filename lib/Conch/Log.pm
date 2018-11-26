@@ -7,7 +7,7 @@ See also: Mojo::Log, Mojo::Log::More, and node-bunyan
 
 =head1 SYNOPSIS
 
-	$app->log(Conch::Log->new)
+    $app->log(Conch::Log->new)
 
 =head1 METHODS
 
@@ -36,63 +36,61 @@ use Sys::Hostname;
 use Conch::Time;
 
 sub new {
-	my $class = shift;
-	my $self = $class->SUPER::new(@_);
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
 
-	$self->unsubscribe('message');
-	$self->on(message => '_message');
-	return $self;
+    $self->unsubscribe('message');
+    $self->on(message => '_message');
+    return $self;
 }
 
 has 'request_id';
 has 'payload';
-
 has 'name' => 'conch-api';
- 
+
 
 sub _message {
-	my $self = shift;
-	my ($level, $msg) = @_;
+    my $self = shift;
+    my ($level, $msg) = @_;
 
-	return unless $self->is_level($level);
+    return unless $self->is_level($level);
 
-	if($self->payload) {
-		$self->append(Mojo::JSON::to_json($self->payload)."\n");
-		return;
-	}
+    if ($self->payload) {
+        $self->append(Mojo::JSON::to_json($self->payload)."\n");
+        return;
+    }
 
-	my @caller = caller(3);
+    my @caller = caller(3);
 
-	my ($package, $filepath, $line, $filename);
+    my ($package, $filepath, $line, $filename);
 
-	if (scalar @caller) {
-		($package, $filepath, $line) = ($caller[0], $caller[1], $caller[2]);
-		$filename = (File::Spec->splitpath($filepath))[2];
-	} else {
-		($package, $line, $filename) = ("unknown", 0, 'unknown');
-	}
+    if (scalar @caller) {
+        ($package, $filepath, $line) = ($caller[0], $caller[1], $caller[2]);
+        $filename = (File::Spec->splitpath($filepath))[2];
+    }
+    else {
+        ($package, $line, $filename) = ("unknown", 0, 'unknown');
+    }
 
+    my $log = {
+        v        => 1,
+        pid      => $$,
+        hostname => hostname,
+        time     => Conch::Time->now->iso8601,
+        level    => $level,
+        msg      => $msg,
+        name     => $self->name,
+        req_id   => $self->request_id,
+        src      => {
+            func => $package,
+            file => $filename,
+            line => $line,
+        },
+    };
 
-	my $log = {
-		v        => 1,
-		pid      => $$,
-		hostname => hostname,
-		time     => Conch::Time->now->iso8601,
-		level    => $level,
-		msg      => $msg,
-		name     => $self->name,
-		req_id   => $self->request_id,
-		src      => {
-			func => $package,
-			file => $filename,
-			line => $line,
-		},
-	};
-
-	$self->append(Mojo::JSON::to_json($log)."\n");
+    $self->append(Mojo::JSON::to_json($log)."\n");
 }
- 
- 
+
 1;
 __END__
 
@@ -109,3 +107,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

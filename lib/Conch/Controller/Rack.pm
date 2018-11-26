@@ -56,6 +56,7 @@ Stores data as a new rack row, munging 'role' to 'rack_role_id'.
 
 sub create ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
     my $input = $c->validate_input('RackCreate');
     return if not $input;
 

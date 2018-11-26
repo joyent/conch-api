@@ -6,31 +6,31 @@ Conch::Validation - base class for writing Conch Validations
 
 =head1 SYNOPSIS
 
-	package Conch::Validation::DeviceValidation;
-	# either:
-	    use Mojo::Base 'Conch::Validation';
-	# or, if you want to use Moo features:
-	    use Moo;
-	    use strictures 2;
-	    extends 'Conch::Validation';
+    package Conch::Validation::DeviceValidation;
+    # either:
+        use Mojo::Base 'Conch::Validation';
+    # or, if you want to use Moo features:
+        use Moo;
+        use strictures 2;
+        extends 'Conch::Validation';
 
-	use constant name        => 'device_validation';
-	use constant version     => 1;
-	use constant category    => 'CPU';
-	use constant description => q/Description of the validation/;
+    use constant name        => 'device_validation';
+    use constant version     => 1;
+    use constant category    => 'CPU';
+    use constant description => q/Description of the validation/;
 
-	sub validate {
-		my ($self, $input_data) = @_;
+    sub validate {
+        my ($self, $input_data) = @_;
 
-		my $device           = $self->device;
-		my $device_settings  = $self->device_settings;
-		my $device_location  = $self->device_location;
-		my $hardware_vendor  = $self->hardware_product_vendor;
-		my $hardware_name    = $self->hardware_product_name;
-		my $hardware_profile = $self->hardware_product_profile;
+        my $device           = $self->device;
+        my $device_settings  = $self->device_settings;
+        my $device_location  = $self->device_location;
+        my $hardware_vendor  = $self->hardware_product_vendor;
+        my $hardware_name    = $self->hardware_product_name;
+        my $hardware_profile = $self->hardware_product_profile;
 
-		$self->register_result( expected => 'hello', got => $input_data->{hello} );
-	}
+        $self->register_result(expected => 'hello', got => $input_data->{hello});
+    }
 
 
 =head1 DESCRIPTION
@@ -186,25 +186,25 @@ the data will *not* be permitted.
 
 Get the expected hardware product name for the device under validation.
 
-	if ($self->hardware_product_name eq 'Joyent-123') {...}
+    if ($self->hardware_product_name eq 'Joyent-123') {...}
 
 =head2 hardware_legacy_product_name
 
 Get the expected hardware legacy product name for the device under validation.
 
-	if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
+    if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
 
 =head2 hardware_product_generation
 
 Get the expected hardware product generation for the device under validation.
 
-	if ($self->hardware_product_generation eq 'Joyent-123') {...}
+    if ($self->hardware_product_generation eq 'Joyent-123') {...}
 
 =head2 hardware_product_sku
 
 Get the expected hardware product SKU for the device under validation.
 
-	if ($self->hardware_product_sku eq 'Joyent-123') {...}
+    if ($self->hardware_product_sku eq 'Joyent-123') {...}
 
 =head2 hardware_product_specification
 
@@ -215,16 +215,16 @@ validation. Returns a JSON string (for now).
 
 Get the expected hardware product vendor name for the device under validation.
 
-	if ($self->hardware_product_vendor eq 'Dell') {...}
+    if ($self->hardware_product_vendor eq 'Dell') {...}
 
 =head2 hardware_product_profile
 
 Get the expected hardware product profile for the device under validation.
 It is a L<Conch::DB::Result::HardwareProductProfile> object.
 
-	my $expected_ram = self->hardware_product_profile->ram_total;
-	my $expected_ssd = self->hardware_product_profile->ssd_num;
-	my $expected_firmware = self->hardware_product_profile->bios_firmware;
+    my $expected_ram = self->hardware_product_profile->ram_total;
+    my $expected_ssd = self->hardware_product_profile->ssd_num;
+    my $expected_firmware = self->hardware_product_profile->bios_firmware;
 
 =cut
 
@@ -321,43 +321,43 @@ has _validation_results => (
 
 Run the Validation with the specified input data.
 
-	$validation->run($validation_data);
+    $validation->run($validation_data);
 
 =cut
 
-sub run ( $self, $data ) {
-	try {
-		$self->validate($data);
-	}
-	catch {
-		my $err = $_;
+sub run ($self, $data) {
+    try {
+        $self->validate($data);
+    }
+    catch {
+        my $err = $_;
 
-		my ($message, $hint);
-		if ($err->isa('Conch::ValidationError')) {
-			$message = $err->message;
-			$hint = $err->hint || $err->error_loc;
-		}
-		# remove the 'at $filename line $line_number' from the exception
-		# message. We might not want to reveal Conch's path
-		else {
-			($message) = $err =~ /^(.+) at/;
-			$hint = first { path($_)->is_relative }
-				map s/^.* at (.+ line \d+)\.?$/$1/mr, split /\R/, $err;
-		}
+        my ($message, $hint);
+        if ($err->isa('Conch::ValidationError')) {
+            $message = $err->message;
+            $hint = $err->hint || $err->error_loc;
+        }
+        # remove the 'at $filename line $line_number' from the exception
+        # message. We might not want to reveal Conch's path
+        else {
+            ($message) = $err =~ /^(.+) at/;
+            $hint = first { path($_)->is_relative }
+                map s/^.* at (.+ line \d+)\.?$/$1/mr, split /\R/, $err;
+        }
 
-		$self->log->error("Validation '".$self->name."' threw an exception: ".$message);
-		$self->log->debug("Bad data: ". Mojo::JSON::to_json($data));
+        $self->log->error("Validation '".$self->name."' threw an exception: ".$message);
+        $self->log->debug("Bad data: ". Mojo::JSON::to_json($data));
 
-		my $validation_error = {
-			message  => $message,
-			name     => $self->name,
-			status   => _STATUS_ERROR,
-			hint     => $hint,
-			category => $self->category,
-		};
-		$self->_push_validation_result($validation_error);
-	};
-	return $self;
+        my $validation_error = {
+            message  => $message,
+            name     => $self->name,
+            status   => _STATUS_ERROR,
+            hint     => $hint,
+            category => $self->category,
+        };
+        $self->_push_validation_result($validation_error);
+    };
+    return $self;
 }
 
 =head2 validate
@@ -367,19 +367,19 @@ Contains the validation logic for validations.
 This method must be re-defined in sub-classes of L<Conch::Validation> or it will
 raise an exception.
 
-	package MyValidation;
-	use Mojo::Base 'Conch::Validation';
+    package MyValidation;
+    use Mojo::Base 'Conch::Validation';
 
-	sub validate {
-		my ($self, $data) = @_;
-		$self->register_result({ expected => 1, got => $data->{pass} });
-	}
+    sub validate {
+        my ($self, $data) = @_;
+        $self->register_result({ expected => 1, got => $data->{pass} });
+    }
 
 =cut
 
-sub validate ( $self, $data ) {
-	$self->die( 'Validations must implement the `validate` method in subclass!',
-		level => 2 );
+sub validate ($self, $data) {
+    $self->die('Validations must implement the `validate` method in subclass!',
+        level => 2);
 }
 
 =head2 register_result
@@ -392,25 +392,25 @@ logic, provide an 'expected' value, the 'got' value, and a comparison operator.
 This declarative syntax allows for result deduplication and consistent messages.
 
 
-	# direct comparison
-	$self->register_result( expected => 'hello', got => 'hello' );
-	$self->register_result( expected => 42, got => 42 );
+    # direct comparison
+    $self->register_result(expected => 'hello', got => 'hello');
+    $self->register_result(expected => 42, got => 42);
 
-	# specified comparison operator
-	$self->register_result( expected => 1, got => 2, cmp => '>=' );
-	$self->register_result( expected => 'second', got => 'first', cmp => 'lt' );
+    # specified comparison operator
+    $self->register_result(expected => 1, got => 2, cmp => '>=');
+    $self->register_result(expected => 'second', got => 'first', cmp => 'lt');
 
-	# using 'like' to match with a regex
-	$self->register_result( expected => qr/.+bar.+/, got => 'foobarbaz', cmpself => 'like' );
+    # using 'like' to match with a regex
+    $self->register_result(expected => qr/.+bar.+/, got => 'foobarbaz', cmpself => 'like');
 
-	# using 'oneOf' to select one of multiple values
-	$self->register_result( expected => ['a', 'b', 'c' ], got => 'b', cmp => 'oneOf' );
+    # using 'oneOf' to select one of multiple values
+    $self->register_result(expected => ['a', 'b', 'c' ], got => 'b', cmp => 'oneOf');
 
 The default operator is 'eq'. The available comparison operators are:
 
-	'==', '!=', '>', '>=', '<', '<=', '<=',
-	'eq', 'ne', 'lt', 'le', 'gt', 'ge',
-	'like' (regex comparison), 'oneOf' (list membership comparison)
+    '==', '!=', '>', '>=', '<', '<=', '<=',
+    'eq', 'ne', 'lt', 'le', 'gt', 'ge',
+    'like' (regex comparison), 'oneOf' (list membership comparison)
 
 You may also provide the following attributes to override validation results
 
@@ -425,11 +425,11 @@ attribute.
 This value is not stored in the database. To disambiguate multiple results in the database, use
 C<component_id>.
 
-	$self->register_result(
-		expected => 'hello',
-		got      => 'hello',
-		name     => 'hello_validation'
-	);
+    $self->register_result(
+        expected => 'hello',
+        got      => 'hello',
+        name     => 'hello_validation'
+    );
 
 =item C<message>
 
@@ -437,11 +437,11 @@ The default message stored in the validation result has the form, "Expected
 $operator '$expected_value'. Got '$got_value'.". You may override this message
 by specifying the C<message> attribute.
 
-	$self->register_result(
-		expected => 'hello',
-		got      => 'hello',
-		message  => 'Hello world!'
-	);
+    $self->register_result(
+        expected => 'hello',
+        got      => 'hello',
+        message  => 'Hello world!'
+    );
 
 =item C<category>
 
@@ -449,22 +449,22 @@ By default, the validation result stores the C<category> attribute of the
 Validation class. You may override the validation result category with this
 attribute.
 
-	$self->register_result(
-		expected => 'hello',
-		got      => 'hello',
-		category => 'BIOS'
-	);
+    $self->register_result(
+        expected => 'hello',
+        got      => 'hello',
+        category => 'BIOS'
+    );
 
 =item C<component_id>
 
 You may specify the optional string attribute C<component_id> to set an
 identifier to help identify a specific component under test.
 
-	$self->register_result(
-		expected     => 'OK',
-		got          => $disk->{health},
-		component_id => $disk->{serial_number}
-	);
+    $self->register_result(
+        expected     => 'OK',
+        got          => $disk->{health},
+        component_id => $disk->{serial_number}
+    );
 
 =item C<hint>
 
@@ -473,105 +473,105 @@ the validation fails. This string should help identify to a user how to fix the
 validation failure. If the validation succeeds, the hint string is not stored
 in the validation result.
 
-	$self->register_result(
-		expected  => 'hello',
-		got       => 'bye',
-		hint      => "Try saying 'hello' instead"
-	);
+    $self->register_result(
+        expected  => 'hello',
+        got       => 'bye',
+        hint      => "Try saying 'hello' instead"
+    );
 
 =back
 
 =cut
 
-sub register_result ( $self, %attrs ) {
-	my $expected = $attrs{expected};
-	my $got      = $attrs{got};
-	my $cmp_op   = $attrs{cmp} || 'eq';
+sub register_result ($self, %attrs) {
+    my $expected = $attrs{expected};
+    my $got      = $attrs{got};
+    my $cmp_op   = $attrs{cmp} || 'eq';
 
-	$self->die( "'expected' value must be defined", level => 2 )
-		unless defined($expected);
+    $self->die("'expected' value must be defined", level => 2)
+        unless defined($expected);
 
-	return $self->fail("'got' value is undefined") unless defined($got);
+    return $self->fail("'got' value is undefined") unless defined($got);
 
-	$self->die( "'got' value must be a scalar", level => 2 ) if ref($got);
+    $self->die("'got' value must be a scalar", level => 2) if ref($got);
 
-	if ( $cmp_op eq 'oneOf' ) {
-		$self->die( "'expected' value must be an array when comparing with 'oneOf'",
-			level => 2 )
-			unless ref($expected) eq 'ARRAY';
-	}
-	elsif ( $cmp_op eq 'like' ) {
-		$self->die(
-			"'expected' value must be a scalar or Regexp when comparing with 'like'",
-			level => 2
-		) unless ref($expected) eq 'Regexp' || ref($expected) eq '';
-	}
-	else {
-		$self->die(
-			"'expected' value must be a scalar when comparing with '$cmp_op'",
-			level => 2 )
-			if ref($expected);
-	}
+    if ($cmp_op eq 'oneOf') {
+        $self->die("'expected' value must be an array when comparing with 'oneOf'",
+            level => 2)
+            unless ref($expected) eq 'ARRAY';
+    }
+    elsif ($cmp_op eq 'like') {
+        $self->die(
+            "'expected' value must be a scalar or Regexp when comparing with 'like'",
+            level => 2
+        ) unless ref($expected) eq 'Regexp' || ref($expected) eq '';
+    }
+    else {
+        $self->die(
+            "'expected' value must be a scalar when comparing with '$cmp_op'",
+            level => 2)
+            if ref($expected);
+    }
 
-	my $cmp_dispatch = {
-		'=='  => sub { $_[0] == $_[1] },
-		'!='  => sub { $_[0] != $_[1] },
-		'>'   => sub { $_[0] > $_[1] },
-		'>='  => sub { $_[0] >= $_[1] },
-		'<'   => sub { $_[0] < $_[1] },
-		'<='  => sub { $_[0] <= $_[1] },
-		'<='  => sub { $_[0] <= $_[1] },
-		eq    => sub { $_[0] eq $_[1] },
-		ne    => sub { $_[0] ne $_[1] },
-		lt    => sub { $_[0] lt $_[1] },
-		le    => sub { $_[0] le $_[1] },
-		gt    => sub { $_[0] gt $_[1] },
-		ge    => sub { $_[0] ge $_[1] },
-		like  => sub { $_[0] =~ /$_[1]/ },
-		oneOf => sub {
-			scalar( grep { $_[0] eq $_ } $_[1]->@* );
-		}
-	};
+    my $cmp_dispatch = {
+        '=='  => sub { $_[0] == $_[1] },
+        '!='  => sub { $_[0] != $_[1] },
+        '>'   => sub { $_[0] > $_[1] },
+        '>='  => sub { $_[0] >= $_[1] },
+        '<'   => sub { $_[0] < $_[1] },
+        '<='  => sub { $_[0] <= $_[1] },
+        '<='  => sub { $_[0] <= $_[1] },
+        eq    => sub { $_[0] eq $_[1] },
+        ne    => sub { $_[0] ne $_[1] },
+        lt    => sub { $_[0] lt $_[1] },
+        le    => sub { $_[0] le $_[1] },
+        gt    => sub { $_[0] gt $_[1] },
+        ge    => sub { $_[0] ge $_[1] },
+        like  => sub { $_[0] =~ /$_[1]/ },
+        oneOf => sub {
+            scalar(grep { $_[0] eq $_ } $_[1]->@*);
+        }
+    };
 
-	my $success = $cmp_dispatch->{$cmp_op}->( $got, $expected );
-	my $message;
-	if ( $cmp_op eq 'oneOf' ) {
-		$message =
-			  'Expected one of: '
-			. join( ', ', map { "'$_'" } $expected->@* )
-			. ". Got '$got'.";
-	}
+    my $success = $cmp_dispatch->{$cmp_op}->($got, $expected);
+    my $message;
+    if ($cmp_op eq 'oneOf') {
+        $message =
+              'Expected one of: '
+            .join(', ', map { "'$_'" } $expected->@*)
+            .". Got '$got'.";
+    }
 
-	# For relational operators, we want to produce messages that do not change
-	# between validation executions as long as the relation is constant.
-	elsif ( grep /$cmp_op/, ( '>', '>=', '<', '<=', 'lt', 'le', 'gt', 'ge' ) ) {
-		$message = "Expected a value $cmp_op '$expected'.";
-		$message .= $success ? ' Passed.' : ' Failed.';
-	}
-	else {
-		$message = "Expected $cmp_op '$expected'. Got '$got'.";
-	}
+    # For relational operators, we want to produce messages that do not change
+    # between validation executions as long as the relation is constant.
+    elsif (grep /$cmp_op/, ('>', '>=', '<', '<=', 'lt', 'le', 'gt', 'ge')) {
+        $message = "Expected a value $cmp_op '$expected'.";
+        $message .= $success ? ' Passed.' : ' Failed.';
+    }
+    else {
+        $message = "Expected $cmp_op '$expected'. Got '$got'.";
+    }
 
-	my $validation_result = {
-		message  => $attrs{message}  || $message,
-		name     => $attrs{name}     || $self->name,
-		category => $attrs{category} || $self->category,
-		component_id => $attrs{component_id},
-		status       => $success ? _STATUS_PASS : _STATUS_FAIL,
-		hint         => $success ? undef : $attrs{hint},
-	};
+    my $validation_result = {
+        message  => $attrs{message}  || $message,
+        name     => $attrs{name}     || $self->name,
+        category => $attrs{category} || $self->category,
+        component_id => $attrs{component_id},
+        status       => $success ? _STATUS_PASS : _STATUS_FAIL,
+        hint         => $success ? undef : $attrs{hint},
+    };
 
-	$self->log->debug(join('',
-		"Validation ",
-		$validation_result->{name} // "'unknown'",
-		" had result ",
-		$validation_result->{status},
-		": ",
-		$validation_result->{message}
-	));
+    $self->log->debug(join('',
+        "Validation ",
+        $validation_result->{name} // "'unknown'",
+        " had result ",
+        $validation_result->{status},
+        ": ",
+        $validation_result->{message}
+    ));
 
-	$self->_push_validation_result($validation_result);
-	return $self;
+    $self->_push_validation_result($validation_result);
+    return $self;
 
 }
 
@@ -606,15 +606,15 @@ sub register_result_cmp_details ($self, $got, $expected, $message) {
 Stop execution of the Validation immediately and record an error. The
 attributes 'level' and 'hint' may be specified.
 
-	$self->die('This validation cannot continue!') if $bad_condition;
-	$self->die('This validation cannot continue!', hint => 'Here's how to fix it' );
-	$self->die('This exception happend 3 frames up', level => 3 );
+    $self->die('This validation cannot continue!') if $bad_condition;
+    $self->die('This validation cannot continue!', hint => 'Here's how to fix it');
+    $self->die('This exception happend 3 frames up', level => 3);
 
 =cut
 
-sub die ( $self, $message, %args ) {
-	die Conch::ValidationError->new($message)->hint( $args{hint} )
-		->trace( $args{level} || 1 );
+sub die ($self, $message, %args) {
+    die Conch::ValidationError->new($message)->hint($args{hint})
+        ->trace($args{level} || 1);
 }
 
 =head2 fail
@@ -624,30 +624,30 @@ may be useful if you cannot validate some part of the input data but want to
 continue validating other parts of the data.
 
 
-	$self->fail('This validation fails but validation evaluation will continue')
-		unless defined( $data->{required_value} );
+    $self->fail('This validation fails but validation evaluation will continue')
+        unless defined($data->{required_value});
 
 The attributes C<name>, C<category>, C<component_id>, and C<hint> may be
 specified like with L</register_result>.
 
-	$self->fail('I fail!',
-		name => 'some_component_validation',
-		hint => 'How to fix this failure...'
-	);
+    $self->fail('I fail!',
+        name => 'some_component_validation',
+        hint => 'How to fix this failure...'
+    );
 
 =cut
 
-sub fail ( $self, $message, %attrs ) {
-	my $validation_result = {
-		message      => $message,
-		name         => $attrs{name} || $self->name,
-		category     => $attrs{category} || $self->category,
-		component_id => $attrs{component_id},
-		status       => _STATUS_FAIL,
-		hint         => $attrs{hint}
-	};
-	$self->_push_validation_result($validation_result);
-	return $self;
+sub fail ($self, $message, %attrs) {
+    my $validation_result = {
+        message      => $message,
+        name         => $attrs{name} || $self->name,
+        category     => $attrs{category} || $self->category,
+        component_id => $attrs{component_id},
+        status       => _STATUS_FAIL,
+        hint         => $attrs{hint}
+    };
+    $self->_push_validation_result($validation_result);
+    return $self;
 }
 
 1;

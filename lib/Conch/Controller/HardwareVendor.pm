@@ -22,14 +22,13 @@ Handles looking up the object by id or name.
 =cut
 
 sub find_hardware_vendor ($c) {
-
     my $hardware_vendor_rs = $c->db_hardware_vendors->active;
     if (is_uuid($c->stash('hardware_vendor_id_or_name'))) {
-        $c->log->debug('Looking up a hardware_vendor by id (' . $c->stash('hardware_vendor_id_or_name') . ')');
+        $c->log->debug('Looking up a hardware_vendor by id ('.$c->stash('hardware_vendor_id_or_name').')');
         $hardware_vendor_rs = $hardware_vendor_rs->search({ id => $c->stash('hardware_vendor_id_or_name') });
     }
     else {
-        $c->log->debug('Looking up a hardware_vendor by name ('.$c->stash('hardware_vendor_id_or_name') . ')');
+        $c->log->debug('Looking up a hardware_vendor by name ('.$c->stash('hardware_vendor_id_or_name').')');
         $hardware_vendor_rs = $hardware_vendor_rs->search({ name => $c->stash('hardware_vendor_id_or_name') });
     }
 
@@ -40,7 +39,7 @@ sub find_hardware_vendor ($c) {
         return $c->status(404);
     }
 
-    $c->log->debug('Found hardware vendor ' . $hardware_vendor->id);
+    $c->log->debug('Found hardware vendor '.$hardware_vendor->id);
     $c->stash('hardware_vendor' => $hardware_vendor);
     return 1;
 }
@@ -85,8 +84,8 @@ sub create ($c) {
 
     my $hardware_vendor = $c->db_hardware_vendors->create({ name => $c->stash('hardware_vendor_name') });
 
-    $c->log->debug('Created hardware vendor ' . $c->stash('hardware_vendor_name'));
-    $c->status(303 => '/hardware_vendor/' . $c->stash('hardware_vendor_name'));
+    $c->log->debug('Created hardware vendor '.$c->stash('hardware_vendor_name'));
+    $c->status(303 => '/hardware_vendor/'.$c->stash('hardware_vendor_name'));
 }
 
 =head2 delete
@@ -94,7 +93,7 @@ sub create ($c) {
 =cut
 
 sub delete($c) {
-    $c->log->debug('Deleting hardware vendor ' . $c->stash('hardware_vendor')->id);
+    $c->log->debug('Deleting hardware vendor '.$c->stash('hardware_vendor')->id);
     $c->stash('hardware_vendor')->update({ deactivated => \'NOW()', updated => \'NOW()' });
     return $c->status(204);
 }

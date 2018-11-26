@@ -9,33 +9,32 @@ use constant category    => 'DISK';
 use constant description => q( Validate expected number of SATA SSDs );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Input data must include 'disks' hash")
-		unless $data->{disks} && ref( $data->{disks} ) eq 'HASH';
+    $self->die("Input data must include 'disks' hash")
+        unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-	my $hw_profile = $self->hardware_product_profile;
+    my $hw_profile = $self->hardware_product_profile;
 
-	my $sata_ssd_count =
-		grep { $_->{drive_type} && fc( $_->{drive_type} ) eq fc('SATA_SSD') }
-		( values $data->{disks}->%* );
+    my $sata_ssd_count =
+        grep { $_->{drive_type} && fc($_->{drive_type}) eq fc('SATA_SSD') }
+        (values $data->{disks}->%*);
 
-	my $sata_ssd_want = $hw_profile->sata_ssd_num || 0;
+    my $sata_ssd_want = $hw_profile->sata_ssd_num || 0;
 
-	# Joyent-Compute-Platform-3302 special case. HCs can have 8 or 16
-	# Intel SATA SSDs and there's no other identifier. Here, we want
-	# to avoid missing failed/missing disks, so we jump through a couple
-	# extra hoops.
-	if ( $self->hardware_product_name eq "Joyent-Compute-Platform-3302" ) {
-		if ( $sata_ssd_count <= 8 ) { $sata_ssd_want = 8; }
-		if ( $sata_ssd_count > 8 )  { $sata_ssd_want = 16; }
-	}
+    # Joyent-Compute-Platform-3302 special case. HCs can have 8 or 16
+    # Intel SATA SSDs and there's no other identifier. Here, we want
+    # to avoid missing failed/missing disks, so we jump through a couple
+    # extra hoops.
+    if ($self->hardware_product_name eq "Joyent-Compute-Platform-3302") {
+        if ($sata_ssd_count <= 8) { $sata_ssd_want = 8; }
+        if ($sata_ssd_count > 8)  { $sata_ssd_want = 16; }
+    }
 
-	$self->register_result(
-		expected => $sata_ssd_want,
-		got      => $sata_ssd_count,
-	);
-
+    $self->register_result(
+        expected => $sata_ssd_want,
+        got      => $sata_ssd_count,
+    );
 }
 
 1;

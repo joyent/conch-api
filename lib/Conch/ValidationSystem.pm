@@ -152,7 +152,7 @@ sub load_validations ($self) {
         my @fields = qw(name version description category);
         if (not all { $module->$_ } @fields) {
             $self->log->fatal("$module must define the " .
-                join(', ', map { "'$_'" } @fields) . ' attributes');
+                join(', ', map { "'$_'" } @fields).' attributes');
             return;
         }
 

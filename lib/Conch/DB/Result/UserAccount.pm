@@ -316,8 +316,8 @@ sub _hash_password {
 
 sub _bcrypt_salt {
     my $num = 999999;
-    my $cr = crypt( rand($num), rand($num) ) . crypt( rand($num), rand($num) );
-    en_base64( substr( $cr, 4, 16 ) );
+    my $cr = crypt(rand($num), rand($num)) . crypt(rand($num), rand($num));
+    en_base64(substr($cr, 4, 16));
 }
 
 1;

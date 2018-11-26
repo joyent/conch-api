@@ -6,12 +6,12 @@ Conch::Time - format timestamps as RFC 3337 UTC timestamps
 
 =head1 SYNOPSIS
 
-	use Conch::Time;
+    use Conch::Time;
 
-	my $postgres_timestamp = '2018-01-26 12:24:18.893874-07';
-	my $time = Conch::Time->new($postgres_timestamp);
+    my $postgres_timestamp = '2018-01-26 12:24:18.893874-07';
+    my $time = Conch::Time->new($postgres_timestamp);
 
-	$time eq $time; # 1
+    $time eq $time; # 1
 
 =head1 METHODS
 
@@ -29,25 +29,25 @@ use parent 'Time::Moment';
 
 Overloads the constructor to use C<< ->from_string >> when a single argument is passed.
 
-	Conch::Time->new($pg_timestamptz);
+    Conch::Time->new($pg_timestamptz);
 
-	... and any other constructor modes supported by Time::Moment
+    ... and any other constructor modes supported by Time::Moment
 
 =cut
 
 sub new {
-	my $class = shift;
+    my $class = shift;
 
-	if (@_ == 1) {
-		return bless(Time::Moment->from_string($_[0], lenient => 1), $class);
-	}
+    if (@_ == 1) {
+        return bless(Time::Moment->from_string($_[0], lenient => 1), $class);
+    }
 
-	return $class->SUPER::new(@_);
+    return $class->SUPER::new(@_);
 }
 
 =head2 now
 
-	my $t = Conch::Time->now();
+    my $t = Conch::Time->now();
 
 Return an object based on the current time.
 
@@ -58,11 +58,11 @@ nanosecond.
 
 =head2 from_epoch
 
-	Conch::Time->from_epoch(time());
+    Conch::Time->from_epoch(time());
 
-	Conch::Time->from_epoch(Time::HiRes::gettimeofday);
+    Conch::Time->from_epoch(Time::HiRes::gettimeofday);
 
-	Conch::Time->from_epoch(1234567890, 123);
+    Conch::Time->from_epoch(1234567890, 123);
 
 See also L<Time::Moment/from_epoch>.
 
@@ -78,8 +78,8 @@ Sub-second precision will use 3, 6 or 9 digits as necessary.
 =cut
 
 sub rfc3339 {
-	my $self = shift;
-	return $self->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
+    my $self = shift;
+    return $self->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
 }
 
 =head3 timestamp
@@ -90,7 +90,6 @@ Return an RFC3339 compatible string.
 
 sub timestamp { goto &rfc3339 }
 
-
 =head3 to_string
 
 Render the timestamp as a RFC 3339 timestamp string. Used to
@@ -100,7 +99,6 @@ overload string coercion.
 
 sub to_string { goto &rfc3339 }
 
-
 =head3 TO_JSON
 
 Renderer for Mojo, as a RFC 3339 timestamp string
@@ -109,7 +107,6 @@ Renderer for Mojo, as a RFC 3339 timestamp string
 
 sub TO_JSON { goto &rfc3339 }
 
-
 =head3 timestamptz
 
 Render a string in PostgreSQL's timestamptz style
@@ -117,9 +114,8 @@ Render a string in PostgreSQL's timestamptz style
 =cut
 
 sub timestamptz {
-	return shift->strftime('%Y-%m-%d %H:%M:%S%f%z');
+    return shift->strftime('%Y-%m-%d %H:%M:%S%f%z');
 }
-
 
 =head3 iso8601
 
@@ -128,7 +124,7 @@ Render the timestamp as an ISO8601 extended format, in UTC
 =cut
 
 sub iso8601 {
-	return shift->at_utc->strftime('%Y-%m-%dT%H:%M:%S%f%Z');
+    return shift->at_utc->strftime('%Y-%m-%dT%H:%M:%S%f%Z');
 }
 
 1;
@@ -145,3 +141,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

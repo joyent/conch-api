@@ -56,22 +56,17 @@ sub all_routes (
 
 
     # GET /doc
-    $root->get( '/doc',
-        sub { shift->reply->static('public/doc/index.html') } );
+    $root->get('/doc',
+        sub { shift->reply->static('public/doc/index.html') });
 
     # GET /ping
-    $root->get(
-        '/ping',
-        sub { shift->status( 200, { status => 'ok' } ) },
-    );
+    $root->get('/ping', sub { shift->status(200, { status => 'ok' }) });
 
     # GET /version
-    $root->get(
-        '/version' => sub {
-            my $c = shift;
-            $c->status( 200, { version => $c->version_tag } );
-        }
-    );
+    $root->get('/version' => sub {
+        my $c = shift;
+        $c->status(200, { version => $c->version_tag });
+    });
 
     # POST /login
     $root->post('/login')->to('login#session_login');
@@ -83,8 +78,8 @@ sub all_routes (
     $root->post('/reset_password')->to('login#reset_password');
 
     # GET /schema/:input_or_response/:schema_name
-    $root->get( '/schema/:request_or_response/:name' =>
-        [ request_or_response => [qw(request response)] ] )->to('schema#get');
+    $root->get('/schema/:request_or_response/:name' =>
+        [ request_or_response => [qw(request response)] ])->to('schema#get');
 
     # GET /workspace/:workspace/device-totals
     $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals');
@@ -93,8 +88,8 @@ sub all_routes (
 
     my $secured = $root->under('/')->to('login#authenticate');
 
-    $secured->get( '/login', sub { shift->status(204) } );
-    $secured->get( '/me',    sub { shift->status(204) } );
+    $secured->get('/login', sub { shift->status(204) });
+    $secured->get('/me',    sub { shift->status(204) });
     $secured->post('/refresh_token')->to('login#refresh_token');
 
     Conch::Route::Workspace->routes($secured->any('/workspace'));

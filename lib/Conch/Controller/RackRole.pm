@@ -32,7 +32,8 @@ sub find_rack_role ($c) {
 
         $c->log->debug("Looking up rack role using identifier '$key'");
         $rack_role = $c->db_rack_roles->find({ name => $value }, { key => 'rack_role_name_key' });
-    } else {
+    }
+    else {
         $c->log->debug('looking up rack role by id');
         $rack_role = $c->db_rack_roles->find($c->stash('rack_role_id_or_name'));
     }
@@ -55,6 +56,7 @@ Create a new rack role.
 
 sub create ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
     my $input = $c->validate_input('RackRoleCreate');
     return if not $input;
 

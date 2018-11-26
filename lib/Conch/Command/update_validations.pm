@@ -23,7 +23,6 @@ has description => 'update database validation entries to match Conch::Validatio
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
 sub run ($self, @opts) {
-
     local @ARGV = @opts;
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but

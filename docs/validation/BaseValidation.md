@@ -5,31 +5,31 @@ Conch::Validation - base class for writing Conch Validations
 # SYNOPSIS
 
 ```perl
-    package Conch::Validation::DeviceValidation;
-    # either:
-        use Mojo::Base 'Conch::Validation';
-    # or, if you want to use Moo features:
-        use Moo;
-        use strictures 2;
-        extends 'Conch::Validation';
+package Conch::Validation::DeviceValidation;
+# either:
+    use Mojo::Base 'Conch::Validation';
+# or, if you want to use Moo features:
+    use Moo;
+    use strictures 2;
+    extends 'Conch::Validation';
 
-    use constant name        => 'device_validation';
-    use constant version     => 1;
-    use constant category    => 'CPU';
-    use constant description => q/Description of the validation/;
+use constant name        => 'device_validation';
+use constant version     => 1;
+use constant category    => 'CPU';
+use constant description => q/Description of the validation/;
 
-    sub validate {
-            my ($self, $input_data) = @_;
+sub validate {
+    my ($self, $input_data) = @_;
 
-            my $device           = $self->device;
-            my $device_settings  = $self->device_settings;
-            my $device_location  = $self->device_location;
-            my $hardware_vendor  = $self->hardware_product_vendor;
-            my $hardware_name    = $self->hardware_product_name;
-            my $hardware_profile = $self->hardware_product_profile;
+    my $device           = $self->device;
+    my $device_settings  = $self->device_settings;
+    my $device_location  = $self->device_location;
+    my $hardware_vendor  = $self->hardware_product_vendor;
+    my $hardware_name    = $self->hardware_product_name;
+    my $hardware_profile = $self->hardware_product_profile;
 
-            $self->register_result( expected => 'hello', got => $input_data->{hello} );
-    }
+    $self->register_result(expected => 'hello', got => $input_data->{hello});
+}
 ```
 
 # DESCRIPTION
@@ -126,7 +126,7 @@ the data will \*not\* be permitted.
 Get the expected hardware product name for the device under validation.
 
 ```perl
-    if ($self->hardware_product_name eq 'Joyent-123') {...}
+if ($self->hardware_product_name eq 'Joyent-123') {...}
 ```
 
 ## hardware\_legacy\_product\_name
@@ -134,7 +134,7 @@ Get the expected hardware product name for the device under validation.
 Get the expected hardware legacy product name for the device under validation.
 
 ```perl
-    if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
+if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
 ```
 
 ## hardware\_product\_generation
@@ -142,7 +142,7 @@ Get the expected hardware legacy product name for the device under validation.
 Get the expected hardware product generation for the device under validation.
 
 ```perl
-    if ($self->hardware_product_generation eq 'Joyent-123') {...}
+if ($self->hardware_product_generation eq 'Joyent-123') {...}
 ```
 
 ## hardware\_product\_sku
@@ -150,7 +150,7 @@ Get the expected hardware product generation for the device under validation.
 Get the expected hardware product SKU for the device under validation.
 
 ```perl
-    if ($self->hardware_product_sku eq 'Joyent-123') {...}
+if ($self->hardware_product_sku eq 'Joyent-123') {...}
 ```
 
 ## hardware\_product\_specification
@@ -163,7 +163,7 @@ validation. Returns a JSON string (for now).
 Get the expected hardware product vendor name for the device under validation.
 
 ```perl
-    if ($self->hardware_product_vendor eq 'Dell') {...}
+if ($self->hardware_product_vendor eq 'Dell') {...}
 ```
 
 ## hardware\_product\_profile
@@ -172,9 +172,9 @@ Get the expected hardware product profile for the device under validation.
 It is a [Conch::DB::Result::HardwareProductProfile](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProductProfile.pm) object.
 
 ```perl
-    my $expected_ram = self->hardware_product_profile->ram_total;
-    my $expected_ssd = self->hardware_product_profile->ssd_num;
-    my $expected_firmware = self->hardware_product_profile->bios_firmware;
+my $expected_ram = self->hardware_product_profile->ram_total;
+my $expected_ssd = self->hardware_product_profile->ssd_num;
+my $expected_firmware = self->hardware_product_profile->bios_firmware;
 ```
 
 ## device\_settings
@@ -214,7 +214,7 @@ Clear the stored validation results.
 Run the Validation with the specified input data.
 
 ```
-    $validation->run($validation_data);
+$validation->run($validation_data);
 ```
 
 ## validate
@@ -225,13 +225,13 @@ This method must be re-defined in sub-classes of [Conch::Validation](https://git
 raise an exception.
 
 ```perl
-    package MyValidation;
-    use Mojo::Base 'Conch::Validation';
+package MyValidation;
+use Mojo::Base 'Conch::Validation';
 
-    sub validate {
-            my ($self, $data) = @_;
-            $self->register_result({ expected => 1, got => $data->{pass} });
-    }
+sub validate {
+    my ($self, $data) = @_;
+    $self->register_result({ expected => 1, got => $data->{pass} });
+}
 ```
 
 ## register\_result
@@ -244,27 +244,27 @@ logic, provide an 'expected' value, the 'got' value, and a comparison operator.
 This declarative syntax allows for result deduplication and consistent messages.
 
 ```perl
-    # direct comparison
-    $self->register_result( expected => 'hello', got => 'hello' );
-    $self->register_result( expected => 42, got => 42 );
+# direct comparison
+$self->register_result(expected => 'hello', got => 'hello');
+$self->register_result(expected => 42, got => 42);
 
-    # specified comparison operator
-    $self->register_result( expected => 1, got => 2, cmp => '>=' );
-    $self->register_result( expected => 'second', got => 'first', cmp => 'lt' );
+# specified comparison operator
+$self->register_result(expected => 1, got => 2, cmp => '>=');
+$self->register_result(expected => 'second', got => 'first', cmp => 'lt');
 
-    # using 'like' to match with a regex
-    $self->register_result( expected => qr/.+bar.+/, got => 'foobarbaz', cmpself => 'like' );
+# using 'like' to match with a regex
+$self->register_result(expected => qr/.+bar.+/, got => 'foobarbaz', cmpself => 'like');
 
-    # using 'oneOf' to select one of multiple values
-    $self->register_result( expected => ['a', 'b', 'c' ], got => 'b', cmp => 'oneOf' );
+# using 'oneOf' to select one of multiple values
+$self->register_result(expected => ['a', 'b', 'c' ], got => 'b', cmp => 'oneOf');
 ```
 
 The default operator is 'eq'. The available comparison operators are:
 
 ```
-    '==', '!=', '>', '>=', '<', '<=', '<=',
-    'eq', 'ne', 'lt', 'le', 'gt', 'ge',
-    'like' (regex comparison), 'oneOf' (list membership comparison)
+'==', '!=', '>', '>=', '<', '<=', '<=',
+'eq', 'ne', 'lt', 'le', 'gt', 'ge',
+'like' (regex comparison), 'oneOf' (list membership comparison)
 ```
 
 You may also provide the following attributes to override validation results
@@ -279,11 +279,11 @@ You may also provide the following attributes to override validation results
     `component_id`.
 
     ```perl
-        $self->register_result(
-                expected => 'hello',
-                got      => 'hello',
-                name     => 'hello_validation'
-        );
+    $self->register_result(
+        expected => 'hello',
+        got      => 'hello',
+        name     => 'hello_validation'
+    );
     ```
 
 - `message`
@@ -293,11 +293,11 @@ You may also provide the following attributes to override validation results
     by specifying the `message` attribute.
 
     ```perl
-        $self->register_result(
-                expected => 'hello',
-                got      => 'hello',
-                message  => 'Hello world!'
-        );
+    $self->register_result(
+        expected => 'hello',
+        got      => 'hello',
+        message  => 'Hello world!'
+    );
     ```
 
 - `category`
@@ -307,11 +307,11 @@ You may also provide the following attributes to override validation results
     attribute.
 
     ```perl
-        $self->register_result(
-                expected => 'hello',
-                got      => 'hello',
-                category => 'BIOS'
-        );
+    $self->register_result(
+        expected => 'hello',
+        got      => 'hello',
+        category => 'BIOS'
+    );
     ```
 
 - `component_id`
@@ -320,11 +320,11 @@ You may also provide the following attributes to override validation results
     identifier to help identify a specific component under test.
 
     ```perl
-        $self->register_result(
-                expected     => 'OK',
-                got          => $disk->{health},
-                component_id => $disk->{serial_number}
-        );
+    $self->register_result(
+        expected     => 'OK',
+        got          => $disk->{health},
+        component_id => $disk->{serial_number}
+    );
     ```
 
 - `hint`
@@ -335,11 +335,11 @@ You may also provide the following attributes to override validation results
     in the validation result.
 
     ```perl
-        $self->register_result(
-                expected  => 'hello',
-                got       => 'bye',
-                hint      => "Try saying 'hello' instead"
-        );
+    $self->register_result(
+        expected  => 'hello',
+        got       => 'bye',
+        hint      => "Try saying 'hello' instead"
+    );
     ```
 
 ## register\_result\_cmp\_details
@@ -354,9 +354,9 @@ Stop execution of the Validation immediately and record an error. The
 attributes 'level' and 'hint' may be specified.
 
 ```perl
-    $self->die('This validation cannot continue!') if $bad_condition;
-    $self->die('This validation cannot continue!', hint => 'Here's how to fix it' );
-    $self->die('This exception happend 3 frames up', level => 3 );
+$self->die('This validation cannot continue!') if $bad_condition;
+$self->die('This validation cannot continue!', hint => 'Here's how to fix it');
+$self->die('This exception happend 3 frames up', level => 3);
 ```
 
 ## fail
@@ -366,18 +366,18 @@ may be useful if you cannot validate some part of the input data but want to
 continue validating other parts of the data.
 
 ```perl
-    $self->fail('This validation fails but validation evaluation will continue')
-            unless defined( $data->{required_value} );
+$self->fail('This validation fails but validation evaluation will continue')
+    unless defined($data->{required_value});
 ```
 
 The attributes `name`, `category`, `component_id`, and `hint` may be
 specified like with ["register\_result"](#register_result).
 
 ```perl
-    $self->fail('I fail!',
-            name => 'some_component_validation',
-            hint => 'How to fix this failure...'
-    );
+$self->fail('I fail!',
+    name => 'some_component_validation',
+    hint => 'How to fix this failure...'
+);
 ```
 
 # LICENSING

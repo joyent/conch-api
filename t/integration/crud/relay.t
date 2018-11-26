@@ -88,7 +88,6 @@ $relays[1]->create_related('device_relay_connections', $_) foreach (
 );
 
 subtest list => sub {
-
     # the global workspace can see all relays, by virtue of all rooms being in the global workspace.
     $t->get_ok("/workspace/$global_ws_id/relay")
         ->status_is(200)
@@ -155,7 +154,6 @@ subtest list => sub {
 };
 
 subtest get_relay_devices => sub {
-
     $t->get_ok("/workspace/$global_ws_id/relay/relay0/device")
         ->status_is(200)
         ->json_schema_is('Devices')

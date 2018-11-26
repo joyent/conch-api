@@ -539,12 +539,12 @@ subtest 'Device PXE' => sub {
         hardware_product_id => $layout->hardware_product_id,
         state => 'UNKNOWN',
         health => 'unknown',
-        device_relay_connections => [ {
+        device_relay_connections => [{
             relay => {
                 id => 'relay_id',
                 user_relay_connections => [ { user_id => $t->load_fixture('conch_user')->id } ],
             }
-        } ],
+        }],
         device_nics => [
             {
                 state => 'up',

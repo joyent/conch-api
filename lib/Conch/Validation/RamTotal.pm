@@ -11,22 +11,22 @@ Validate the reported RAM match the hardware product profile
 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	unless(exists $data->{dimms} && $data->{dimms}->@*) {
-		$self->die("Missing 'dimms' property");
-	}
+    unless(exists $data->{dimms} && $data->{dimms}->@*) {
+        $self->die("Missing 'dimms' property");
+    }
 
 
-	my $hw_profile = $self->hardware_product_profile;
+    my $hw_profile = $self->hardware_product_profile;
 
-	my $ram_total = sum map { $_->{'memory-size'} // 0 } $data->{dimms}->@*;
-	my $ram_want  = $hw_profile->ram_total;
+    my $ram_total = sum map { $_->{'memory-size'} // 0 } $data->{dimms}->@*;
+    my $ram_want  = $hw_profile->ram_total;
 
-	$self->register_result(
-		expected => $ram_want,
-		got      => $ram_total,
-	);
+    $self->register_result(
+        expected => $ram_want,
+        got      => $ram_total,
+    );
 }
 
 1;

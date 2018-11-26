@@ -25,7 +25,7 @@ Adds `send_exception_to_rollbar` to Mojolicious app
 =cut
 
 sub register ($self, $app, $config) {
-	$app->helper(send_exception_to_rollbar => \&_record_exception);
+    $app->helper(send_exception_to_rollbar => \&_record_exception);
 }
 
 =head2 send_exception_to_rollbar
@@ -37,105 +37,105 @@ Rollbar entry thus created.
 =cut
 
 sub _record_exception ($c, $exception, @) {
-	my $access_token = $c->config('rollbar_access_token');
-	if (not $access_token) {
-		my $log = $c->can('log') ? $c->log : $c->app->log;
-		$log->warn('Unable to send exception to Rollbar - no access token configured');
-		return;
-	}
+    my $access_token = $c->config('rollbar_access_token');
+    if (not $access_token) {
+        my $log = $c->can('log') ? $c->log : $c->app->log;
+        $log->warn('Unable to send exception to Rollbar - no access token configured');
+        return;
+    }
 
-	my @frames = map {
-		{
-			class_name => $_->[0],
-			filename   => $_->[1],
-			lineno     => $_->[2],
-			method     => $_->[3],
-		}
-	} $exception->frames->@*;
+    my @frames = map {
+        {
+            class_name => $_->[0],
+            filename   => $_->[1],
+            lineno     => $_->[2],
+            method     => $_->[3],
+        }
+    } $exception->frames->@*;
 
-	# we only have context for the first frame.
-	# Mojo::Exception data contains line numbers as well.
-	$frames[0]->{code} = $exception->line->[1];
-	$frames[0]->{context} = {
-		pre  => [ map { $_->[1] } $exception->lines_before->@* ],
-		post => [ map { $_->[1] } $exception->lines_after->@* ],
-	};
+    # we only have context for the first frame.
+    # Mojo::Exception data contains line numbers as well.
+    $frames[0]->{code} = $exception->line->[1];
+    $frames[0]->{context} = {
+        pre  => [ map { $_->[1] } $exception->lines_before->@* ],
+        post => [ map { $_->[1] } $exception->lines_after->@* ],
+    };
 
-	# keep value from stash more compact
-	$exception->verbose(0);
+    # keep value from stash more compact
+    $exception->verbose(0);
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('user');
 
-	my $headers = $c->req->headers->to_hash(1);
-	delete $headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
+    my $headers = $c->req->headers->to_hash(1);
+    delete $headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
 
     my $rollbar_id = Data::UUID->new->create_str;
 
-	# Payload documented at https://rollbar.com/docs/api/items_post/
-	my $exception_payload = {
-		access_token => $access_token,
-		data         => {
-			environment => $c->config('rollbar_environment') || 'development',
-			body        => {
-				trace => {
-					frames    => \@frames,
-					exception => {
-						class   => ref($exception),
-						message => $exception->message
-					}
-				},
-			},
-			timestamp    => time(),
-			code_version => $c->version_hash,
-			platform    => $c->tx->original_remote_address eq '127.0.0.1' ? 'client' : 'browser',
-			language    => 'perl',
-			request		=> {
-				url     => $c->req->url->to_abs->to_string,
-				user_ip => $c->tx->original_remote_address,
-				method  => $c->req->method,
-				headers	=> $headers,
-				query_string => $c->req->query_params->to_string,
-				charset => $c->req->content->charset || $c->req->default_charset,
-				body	=> $c->req->text,
-			},
-			server => {
-				host => hostname(),
-				root => $c->app->home->child('lib')->to_string
-			},
-			$user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),
+    # Payload documented at https://rollbar.com/docs/api/items_post/
+    my $exception_payload = {
+        access_token => $access_token,
+        data         => {
+            environment => $c->config('rollbar_environment') || 'development',
+            body        => {
+                trace => {
+                    frames    => \@frames,
+                    exception => {
+                        class   => ref($exception),
+                        message => $exception->message
+                    }
+                },
+            },
+            timestamp    => time(),
+            code_version => $c->version_hash,
+            platform    => $c->tx->original_remote_address eq '127.0.0.1' ? 'client' : 'browser',
+            language    => 'perl',
+            request        => {
+                url     => $c->req->url->to_abs->to_string,
+                user_ip => $c->tx->original_remote_address,
+                method  => $c->req->method,
+                headers    => $headers,
+                query_string => $c->req->query_params->to_string,
+                charset => $c->req->content->charset || $c->req->default_charset,
+                body    => $c->req->text,
+            },
+            server => {
+                host => hostname(),
+                root => $c->app->home->child('lib')->to_string
+            },
+            $user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),
 
-			custom => {
-				request_id => $c->req->request_id,
-				stash => +{
-					# we only go one level deep for most things, to avoid leaking
-					# potentially secret data.
-					map {
-						my $val = $c->stash($_);
-						$_ => $val eq 'mojo' || !ref $val ? $val : ($val.'');
-					}
-					keys $c->stash->%*,
-				},
-			},
+            custom => {
+                request_id => $c->req->request_id,
+                stash => +{
+                    # we only go one level deep for most things, to avoid leaking
+                    # potentially secret data.
+                    map {
+                        my $val = $c->stash($_);
+                        $_ => $val eq 'mojo' || !ref $val ? $val : ($val.'');
+                    }
+                    keys $c->stash->%*,
+                },
+            },
 
-			# see https://docs.rollbar.com/docs/grouping-algorithm
-			fingerprint => join(':', map { join(',', $_->@{qw(filename method lineno)}) } @frames),
+            # see https://docs.rollbar.com/docs/grouping-algorithm
+            fingerprint => join(':', map { join(',', $_->@{qw(filename method lineno)}) } @frames),
 
-			uuid => $rollbar_id,
-		}
-	};
+            uuid => $rollbar_id,
+        }
+    };
 
-	# asynchronously post to Rollbar, log if the request fails
-	$c->ua->post(
-		ROLLBAR_ENDPOINT,
-		json => $exception_payload,
-		sub ($ua, $tx) {
-			if ( my $err = $tx->error ) {
-				my $log = $c->can('log') ? $c->log : $c->app->log;
-				$log->error('Unable to send exception to Rollbar.'
-						. " HTTP $err->{code} '$err->{message} " );
-			}
-		}
-	);
+    # asynchronously post to Rollbar, log if the request fails
+    $c->ua->post(
+        ROLLBAR_ENDPOINT,
+        json => $exception_payload,
+        sub ($ua, $tx) {
+            if (my $err = $tx->error) {
+                my $log = $c->can('log') ? $c->log : $c->app->log;
+                $log->error('Unable to send exception to Rollbar.'
+                    ." HTTP $err->{code} '$err->{message} ");
+            }
+        }
+    );
 
     return $rollbar_id;
 }
@@ -154,3 +154,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

@@ -8,17 +8,18 @@ use Mojo::JSON qw(decode_json);
 use HTTP::Tiny;
 
 sub get {
-	my $short = shift;
-	my $url = "https://api.github.com$short";
-	if (my $token = $ENV{TOKEN} // $ENV{GITHUB_OAUTH_TOKEN}) {
-		$url .= "?access_token=$token";
-	}
-	my $res = HTTP::Tiny->new->get($url);
-	if($res->{success}) {
-		return decode_json($res->{content});
-	} else {
-		die $url.' - '.$res->{status}.' '.$res->{reason}."\n".$res->{content};
-	}
+    my $short = shift;
+    my $url = "https://api.github.com$short";
+    if (my $token = $ENV{TOKEN} // $ENV{GITHUB_OAUTH_TOKEN}) {
+        $url .= "?access_token=$token";
+    }
+    my $res = HTTP::Tiny->new->get($url);
+    if ($res->{success}) {
+        return decode_json($res->{content});
+    }
+    else {
+        die $url.' - '.$res->{status}.' '.$res->{reason}."\n".$res->{content};
+    }
 }
 
 chomp(my $end = $ARGV[1] // 'HEAD');
@@ -33,17 +34,17 @@ my @lines = (`git --no-pager log --oneline --merges --no-decorate $start...$end`
 
 my $lines_used = 0;
 foreach my $line (reverse @lines) {
-	$line =~ /^(.+?) Merge pull request #(\d+) / or next;
-	++$lines_used;
+    $line =~ /^(.+?) Merge pull request #(\d+) / or next;
+    ++$lines_used;
 
-	my $hash = $1;
-	my $pr = $2;
+    my $hash = $1;
+    my $pr = $2;
 
-	my $pull_data = get "/repos/joyent/conch/pulls/$pr";
+    my $pull_data = get "/repos/joyent/conch/pulls/$pr";
 
-	my $labels = join(", ", map { $_->{name} } $pull_data->{labels}->@*);
+    my $labels = join(", ", map { $_->{name} } $pull_data->{labels}->@*);
 
-	say <<EOF;
+    say <<EOF;
 [PR #$pr]($pull_data->{html_url}) - `$pull_data->{title}`
 ===
 * Branch: $pull_data->{head}->{ref}
@@ -51,13 +52,13 @@ foreach my $line (reverse @lines) {
 * Labels: $labels
 EOF
 
-	my $body = join('', map "> $_\n", split "\n", ($pull_data->{body} // ''));
-	say $body if $body;
+    my $body = join('', map "> $_\n", split "\n", ($pull_data->{body} // ''));
+    say $body if $body;
 
-	my $review_data = get "/repos/joyent/conch/pulls/$pr/reviews";
-	my $reviews = join("\n", map "* Reviewed By: [$_->{user}{login} - $_->{state}]($_->{html_url})", $review_data->@*);
+    my $review_data = get "/repos/joyent/conch/pulls/$pr/reviews";
+    my $reviews = join("\n", map "* Reviewed By: [$_->{user}{login} - $_->{state}]($_->{html_url})", $review_data->@*);
 
-	say <<EOF;
+    say <<EOF;
 People
 ---
 * Author: [$pull_data->{user}{login}]($pull_data->{user}{html_url})
@@ -66,16 +67,16 @@ $reviews
 * Merged: $pull_data->{merged_at}
 EOF
 
-	say "Commits\n---\n";
+    say "Commits\n---\n";
 
-	my $commit_data = get "/repos/joyent/conch/pulls/$pr/commits";
-	for my $commit ($commit_data->@*) {
-		my $h = substr($commit->{sha},0,6);
-		my @bits = split("\n", $commit->{commit}->{message});
+    my $commit_data = get "/repos/joyent/conch/pulls/$pr/commits";
+    for my $commit ($commit_data->@*) {
+        my $h = substr($commit->{sha},0,6);
+        my @bits = split("\n", $commit->{commit}->{message});
 
-		say "* [$h]($commit->{html_url}) - \`$bits[0]\`";
-	}
-	say "\n- - -\n";
+        say "* [$h]($commit->{html_url}) - \`$bits[0]\`";
+    }
+    say "\n- - -\n";
 }
 
 # if this is a release that doesn't contain pull requests but rather cherry-picks, we need to
@@ -85,14 +86,14 @@ exit if $lines_used;
 @lines = (`git --no-pager log --oneline --no-decorate $start...$end`);
 say "Commits\n---\n";
 foreach my $line (reverse @lines) {
-	my ($hash, $rest) = split(/ /, $line, 2);
+    my ($hash, $rest) = split(/ /, $line, 2);
 
-	my $commit = get "/repos/joyent/conch/commits/$hash";
+    my $commit = get "/repos/joyent/conch/commits/$hash";
 
-	my $h = substr($commit->{sha},0,6);
-	my @bits = split("\n", $commit->{commit}->{message});
+    my $h = substr($commit->{sha},0,6);
+    my @bits = split("\n", $commit->{commit}->{message});
 
-	say "* [$h]($commit->{html_url}) - \`$bits[0]\`";
+    say "* [$h]($commit->{html_url}) - \`$bits[0]\`";
 }
 say "\n- - -\n";
 

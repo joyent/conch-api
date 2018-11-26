@@ -28,7 +28,8 @@ sub user_has_permission ($self, $user_id, $permission) {
     Carp::croak('permission must be one of: ro, rw, admin')
         if none { $permission eq $_ } qw(ro rw admin);
 
-    my $device_workspaces_ids_rs = $self->related_resultset('device_location')
+    my $device_workspaces_ids_rs = $self
+        ->related_resultset('device_location')
         ->related_resultset('rack')
         ->related_resultset('workspace_racks')
         ->related_resultset('workspace')
@@ -50,7 +51,7 @@ Restrict results to those that do not have a registered location.
 sub devices_without_location ($self) {
     $self->search({
         # all devices in device_location table
-        $self->current_source_alias . '.id' => {
+        $self->current_source_alias.'.id' => {
             -not_in => $self->result_source->schema->resultset('device_location')->get_column('device_id')->as_query
          },
     });

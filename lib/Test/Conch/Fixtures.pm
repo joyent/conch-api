@@ -446,7 +446,7 @@ sub generate_set ($self, $set_name, @args) {
                     rack_unit_start => 3,
                 },
                 requires => {
-                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
@@ -456,7 +456,7 @@ sub generate_set ($self, $set_name, @args) {
                     rack_unit_start => 11,
                 },
                 requires => {
-                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },

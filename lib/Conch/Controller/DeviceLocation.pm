@@ -81,7 +81,6 @@ Deletes the location data for a device, provided it has been assigned to a locat
 =cut
 
 sub delete ($c) {
-
     return $c->status(409, { error => 'Device '.$c->stash('device_id').' is not assigned to a rack' })
         # 0 rows updated -> 0E0 which is boolean truth, not false
         unless $c->stash('device_rs')->related_resultset('device_location')->delete > 0;

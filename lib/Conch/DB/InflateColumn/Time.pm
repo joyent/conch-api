@@ -22,7 +22,7 @@ Time::Moment object into Conch::Time, and work around the bug in RT#125975.
 =cut
 
 sub _post_inflate_timemoment {
-    my ( $self, $dt ) = @_;
+    my ($self, $dt) = @_;
 
     # _inflate_to_timemoment gave us a Time::Moment.
     # now we turn that into a Conch::Time.
@@ -30,7 +30,7 @@ sub _post_inflate_timemoment {
 }
 
 sub register_column {
-    my ( $self, $column, $info, @rest ) = @_;
+    my ($self, $column, $info, @rest) = @_;
 
     return $self->next::method($column, $info, @rest)
         if $info->{data_type} ne 'timestamp with time zone';

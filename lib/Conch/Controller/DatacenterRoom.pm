@@ -48,7 +48,7 @@ sub get_all ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
     my @rooms = $c->db_datacenter_rooms->all;
-    $c->log->debug('Found ' . scalar(@rooms) . ' datacenter rooms');
+    $c->log->debug('Found '.scalar(@rooms).' datacenter rooms');
 
     return $c->status(200 => \@rooms);
 }
@@ -74,6 +74,7 @@ Create a new datacenter room.
 
 sub create ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
     my $input = $c->validate_input('DatacenterRoomCreate');
     return if not $input;
 
@@ -92,6 +93,7 @@ Update an existing room.
 
 sub update ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
     my $input = $c->validate_input('DatacenterRoomUpdate');
     return if not $input;
 

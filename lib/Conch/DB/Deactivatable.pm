@@ -30,7 +30,7 @@ sub active ($self) {
             ' does not have a \'deactivated\' column')
         if not $self->result_source->has_column('deactivated');
 
-    $self->search({ $self->current_source_alias . '.deactivated' => undef });
+    $self->search({ $self->current_source_alias.'.deactivated' => undef });
 }
 
 =head2 deactivate

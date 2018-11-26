@@ -24,13 +24,12 @@ Response uses the HardwareProducts json schema.
 =cut
 
 sub list ($c) {
-
     my @hardware_products_raw = $c->db_hardware_products
         ->active
         ->prefetch('hardware_product_profile')
         ->all;
 
-    $c->status( 200, \@hardware_products_raw);
+    $c->status(200, \@hardware_products_raw);
 }
 
 =head2 find_hardware_product
@@ -101,9 +100,7 @@ sub create ($c) {
         next unless $input->{$key};
         if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
-            return $c->status(400 => {
-                error => "Unique constraint violated on '$key'"
-            });
+            return $c->status(400 => { error => "Unique constraint violated on '$key'" });
         }
     }
 
@@ -206,7 +203,7 @@ sub delete ($c) {
     $profile_rs->deactivate;
 
     $c->log->debug("Deleted hardware product $id"
-        . ($hardware_product_profile_id
+        .($hardware_product_profile_id
             ? " and its related hardware product profile id $hardware_product_profile_id" : ''));
     return $c->status(204);
 }

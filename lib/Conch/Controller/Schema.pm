@@ -57,7 +57,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
     my %refs;
     my %source;
     my $definitions;
-    my @topics = ([ { schema => $top_schema }, my $target = {}]);
+    my @topics = ([{ schema => $top_schema }, my $target = {}]);
     my $cloner = sub ($from) {
         if (ref $from eq 'HASH' and my $tied = tied %$from) {
             # this is a hashref which quacks like { '$ref' => $target }

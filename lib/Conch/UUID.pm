@@ -14,7 +14,7 @@ Conch::UUID - Functions for working with UUIDs in Conch
 
 =head1 SYNOPSIS
 
-    use Conch::UUID qw( is_uuid );
+    use Conch::UUID qw(is_uuid);
 
 =head1 DESCRIPTION
 

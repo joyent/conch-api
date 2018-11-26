@@ -48,7 +48,7 @@ ARG VCS_REF="master"
 ARG VERSION="v0.0.0-dirty"
 
 LABEL org.label-schema.vcs-ref $VCS_REF
-LABEL org.label-schema.version $VERSION 
+LABEL org.label-schema.version $VERSION
 
 ENV HARNESS_OPTIONS j6:c
 RUN make forcebuild && rm -r local/cache && rm -r ~/.cpanm

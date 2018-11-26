@@ -11,33 +11,33 @@ Validate the reported disk temperatures are under the maximum threshold
 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Input data must include 'disks' hash")
-		unless $data->{disks} && ref( $data->{disks} ) eq 'HASH';
+    $self->die("Input data must include 'disks' hash")
+        unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-	$self->die("'disks' hash is empty")
-		unless $data->{disks}->%*;
+    $self->die("'disks' hash is empty")
+        unless $data->{disks}->%*;
 
-	while ( my ( $disk_sn, $disk ) = ( each $data->{disks}->%* ) ) {
-		next if !$disk->{transport} ||
-			fc( $disk->{transport} ) eq fc( 'usb' ) ||
-			fc( $disk->{drive_type} ) eq fc( 'RAID_LUN' );
+    while (my ($disk_sn, $disk) = (each $data->{disks}->%*)) {
+        next if !$disk->{transport} ||
+            fc($disk->{transport}) eq fc('usb') ||
+            fc($disk->{drive_type}) eq fc('RAID_LUN');
 
-		$self->fail("No temperature reported for disk $disk_sn") && next
-			unless defined( $disk->{temp} );
+        $self->fail("No temperature reported for disk $disk_sn") && next
+            unless defined($disk->{temp});
 
-		# from legacy validation
-		my $MAX_TEMP = 51;
-		$MAX_TEMP = 60 if $disk->{drive_type} eq 'SAS_HDD';
+        # from legacy validation
+        my $MAX_TEMP = 51;
+        $MAX_TEMP = 60 if $disk->{drive_type} eq 'SAS_HDD';
 
-		$self->register_result(
-			expected     => $MAX_TEMP,
-			got          => $disk->{temp},
-			cmp          => '<',
-			component_id => $disk_sn,
-		);
-	}
+        $self->register_result(
+            expected     => $MAX_TEMP,
+            got          => $disk->{temp},
+            cmp          => '<',
+            component_id => $disk_sn,
+        );
+    }
 }
 
 1;

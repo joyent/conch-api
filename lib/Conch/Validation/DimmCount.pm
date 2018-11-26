@@ -8,22 +8,22 @@ use constant category    => 'RAM';
 use constant description => 'Verify the number of DIMMs reported';
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	unless($data->{dimms}) {
-		$self->die("Missing 'dimms' property");
-	}
+    unless($data->{dimms}) {
+        $self->die("Missing 'dimms' property");
+    }
 
-	my $hw_profile = $self->hardware_product_profile;
+    my $hw_profile = $self->hardware_product_profile;
 
-	my $dimms_num  = scalar grep $_->{'memory-size'} || $_->{'memory-type'},
-		$data->{dimms}->@*;
-	my $dimms_want = $hw_profile->dimms_num;
+    my $dimms_num  = scalar grep $_->{'memory-size'} || $_->{'memory-type'},
+        $data->{dimms}->@*;
+    my $dimms_want = $hw_profile->dimms_num;
 
-	$self->register_result(
-		expected => $dimms_want,
-		got      => $dimms_num,
-	);
+    $self->register_result(
+        expected => $dimms_want,
+        got      => $dimms_num,
+    );
 }
 
 1;

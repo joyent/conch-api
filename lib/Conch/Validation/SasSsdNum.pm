@@ -9,27 +9,26 @@ use constant category    => 'DISK';
 use constant description => q( Validate expected number of SAS SSDs );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Input data must include 'disks' hash")
-		unless $data->{disks} && ref( $data->{disks} ) eq 'HASH';
+    $self->die("Input data must include 'disks' hash")
+        unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-	my $hw_profile = $self->hardware_product_profile;
+    my $hw_profile = $self->hardware_product_profile;
 
-	my @disks_with_drive_type =
-		grep { $_->{drive_type} } ( values $data->{disks}->%* );
+    my @disks_with_drive_type =
+        grep { $_->{drive_type} } (values $data->{disks}->%*);
 
-	my $sas_ssd_count = grep {
-		fc( $_->{drive_type} ) eq fc('SAS_SSD')
-	} @disks_with_drive_type;
+    my $sas_ssd_count = grep {
+        fc($_->{drive_type}) eq fc('SAS_SSD')
+    } @disks_with_drive_type;
 
-	my $sas_ssd_want = $hw_profile->sas_ssd_num || 0;
+    my $sas_ssd_want = $hw_profile->sas_ssd_num || 0;
 
-	$self->register_result(
-		expected => $sas_ssd_want,
-		got      => $sas_ssd_count,
-	);
-
+    $self->register_result(
+        expected => $sas_ssd_want,
+        got      => $sas_ssd_count,
+    );
 }
 
 1;
