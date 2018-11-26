@@ -127,5 +127,18 @@ subtest 'transactions' => sub {
     is($t->app->db_user_accounts->count, $user_count + 1, 'one user was successfully created');
 };
 
+subtest 'multiple application instances talking to the same db' => sub {
+    my $t = Test::Conch->new;
+    my $new_user = $t->app->db_user_accounts->create({
+        name => 'foo',
+        email => 'foo@conch.joyent.us',
+        password => $t->app->random_string,
+    });
+
+    my $t2 = Test::Conch->new(pg => $t->pg);
+    my $new_user_copy = $t2->app->db_user_accounts->find({ name => 'foo' });
+    is($new_user->id, $new_user_copy->id, 'can obtain the user from the second test instance');
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :
