@@ -34,8 +34,8 @@ Sets up the routes for /device:
     POST    /device/:device_id/settings/#key
     DELETE  /device/:device_id/settings/#key
 
-    POST    /device/:device_id/validation/#validation_id
-    POST    /device/:device_id/validation_plan/#validation_plan_id
+    POST    /device/:device_id/validation/:validation_id
+    POST    /device/:device_id/validation_plan/:validation_plan_id
     GET     /device/:device_id/validation_state
 
     GET     /device/:device_id/interface
@@ -106,10 +106,10 @@ sub routes {
             $with_device_settings_with_key->delete('/')->to('#delete_single');
         }
 
-        # POST /device/:device_id/validation/#validation_id
-        $with_device->post('/validation/#validation_id')->to('device_validation#validate');
-        # POST /device/:device_id/validation_plan/#validation_plan_id
-        $with_device->post('/validation_plan/#validation_plan_id')->to('device_validation#run_validation_plan');
+        # POST /device/:device_id/validation/:validation_id
+        $with_device->post('/validation/:validation_id')->to('device_validation#validate');
+        # POST /device/:device_id/validation_plan/:validation_plan_id
+        $with_device->post('/validation_plan/:validation_plan_id')->to('device_validation#run_validation_plan');
         # GET /device/:device_id/validation_state
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 
