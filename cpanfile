@@ -67,7 +67,7 @@ on 'test' => sub {
     requires 'Path::Tiny';
     requires 'Test::Memory::Cycle';
     requires 'Module::CPANfile';
-    requires 'DBIx::Class::EasyFixture';
+    requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose
     requires 'Moo';
     requires 'MooX::HandlesVia';
 };
