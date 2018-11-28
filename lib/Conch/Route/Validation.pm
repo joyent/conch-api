@@ -20,7 +20,6 @@ Sets up the routes for /validation and /validation_plan:
     GET     /validation_plan/#validation_plan_id
     GET     /validation_plan/#validation_plan_id/validation
     POST    /validation_plan/#validation_plan_id/validation
-    GET     /validation_plan/#validation_plan_id/validation/#validation_id
     DELETE  /validation_plan/#validation_plan_id/validation/#validation_id
 
 =cut

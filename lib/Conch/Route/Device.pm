@@ -37,7 +37,6 @@ Sets up the routes for /device:
     POST    /device/:device_id/validation/#validation_id
     POST    /device/:device_id/validation_plan/#validation_plan_id
     GET     /device/:device_id/validation_state
-    GET     /device/:device_id/validation_result
 
     GET     /device/:device_id/interface
     GET     /device/:device_id/interface/:interface_name
@@ -113,8 +112,6 @@ sub routes {
         $with_device->post('/validation_plan/#validation_plan_id')->to('device_validation#run_validation_plan');
         # GET /device/:device_id/validation_state
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
-        # GET /device/:device_id/validation_result
-        $with_device->get('/validation_result')->to('device_validation#list_validation_results');
 
         {
             my $with_device_interface = $with_device->any('/interface');
