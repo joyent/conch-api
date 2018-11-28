@@ -3,10 +3,16 @@ use warnings;
 
 use Test::More;
 use Test::Warnings;
-use Test::Conch::Datacenter;
 use Path::Tiny;
+use Test::Conch;
 
-my $t = Test::Conch::Datacenter->new();
+my $t = Test::Conch->new;
+$t->load_fixture('conch_user_global_workspace', '00-hardware', '01-hardware-profiles');
+$t->load_validation_plans([{
+    name        => 'Conch v1 Legacy Plan: Server',
+    description => 'Test Plan',
+    validations => [ { name => 'product_name', version => 1 } ],
+}]);
 
 $t->post_ok(
     '/login' => json => {

@@ -2,6 +2,7 @@ package Test::ConchTmpDB;
 use v5.20;
 use warnings;
 
+use Test::More ();
 use Test::PostgreSQL;
 use DBI;
 use Conch::DB;
@@ -12,7 +13,7 @@ our @EXPORT_OK = qw( mk_tmp_db pg_dump );	 # TODO: do not export OO methods
 
 =head1 NAME
 
-Test::ConchTmpDB
+Test::ConchTmpDB - legacy test database setup
 
 =over
 
@@ -21,7 +22,7 @@ Test::ConchTmpDB
 Create a new ephemeral Postgres instance and load extensions, the base schema,
 and all migrations. Returns the object from L<Test::PostgreSQL>.
 
-TODO: move this to Test::Conch?
+Legacy only: do not use in new code!
 
 =back
 
@@ -34,6 +35,8 @@ sub mk_tmp_db {
 	die $Test::PostgreSQL::errstr if not $pgtmp;
 
 	my $schema = $class->schema($pgtmp);
+
+	Test::More::note('initializing database with empty database plus sql/migrations/*.sql...');
 
 	$schema->storage->dbh_do(sub {
 		my ($storage, $dbh, @args) = @_;
@@ -68,36 +71,9 @@ sub mk_tmp_db {
 	return $pgtmp;
 }
 
-=head2 make_full_db
-
-	my $pg = Test::ConchTmpDB->make_full_db($path);
-
-Generate a test database using all sql files in the given path. Path defaults to C<sql/test/>
-
-TODO: move this to Test::Conch::Datacenter?
-
-=cut
-
-sub make_full_db {
-	my $class = shift;
-	my $path = shift || "sql/test/";
-
-	my $pg = $class->mk_tmp_db;
-	my $schema = $class->schema($pg);
-
-	$schema->storage->dbh_do(sub {
-		my ($storage, $dbh, @args) = @_;
-		$dbh->do($_->slurp_utf8) or die "Failed to load sql file: $_"
-			foreach sort (path($path)->children(qr/\.sql$/));
-	});
-
-	# TODO: return a DBIx::Class::Schema instead.
-	return $pg;
-}
-
 =head2 schema
 
-Given the return value from C<mk_tmp_db> or C<make_full_db>, returns a DBIx::Class::Schema
+Given a Test::PostgreSQL object, returns a L<DBIx::Class::Schema>
 object just like C<< $c->schema >> or C<< $conch->schema >> in the application.
 
 =cut
@@ -107,7 +83,6 @@ sub schema {
 	my $pgsql = shift;	# this is generally a Test::PostgreSQL
 
 	my $schema = Conch::DB->connect(sub {
-		# we could Mojo::Pg->new(..), but we don't have the pg_uri it wants.
 		DBI->connect($pgsql->dsn, undef, undef, {
 			# defaults used in Mojo::Pg
 			AutoCommit          => 1,

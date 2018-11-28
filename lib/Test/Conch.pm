@@ -1,10 +1,12 @@
 package Test::Conch;
 
 use v5.26;
-use Mojo::Base 'Test::Mojo';
+use Mojo::Base 'Test::Mojo', -signatures;
 
 use Test::More ();
-use Test::ConchTmpDB 'mk_tmp_db';
+use Test::ConchTmpDB ();
+use Conch::DB;
+use Test::Conch::Fixtures;
 use JSON::Validator;
 use Path::Tiny;
 use Test::Deep ();
@@ -33,17 +35,6 @@ the same database.
 
 has 'pg';   # this is generally a Test::PostgreSQL object
 
-=head2 schema
-
-The Conch::DB object, used for direct database access. Will (re)connect as needed.
-
-=cut
-
-has 'schema' => sub {
-    my $self = shift;
-    Test::ConchTmpDB->schema($self->pg);
-};
-
 =head2 validator
 
 =cut
@@ -59,11 +50,30 @@ has 'validator' => sub {
     $validator;
 };
 
+=head2 fixtures
+
+Provides access to the fixtures defined in Test::Conch::Fixtures.
+See L</load_fixture>.
+
+=cut
+
+has fixtures => sub ($self) {
+    Test::Conch::Fixtures->new(
+        schema => $self->app->schema,
+        no_transactions => 1,   # we need to use multiple db connections at once
+        # currently no hooks from Test::Conch::new for adding new definitions; see add_fixture.
+    );
+};
+
 =head2 new
 
 Constructor. Takes the following arguments:
 
   * pg (optional). uses this as the postgres db.
+  * legacy_db (optional, defaults to false).
+    When false, adds no data and starts off with sql/schema.sql.
+    When true, use Test::ConchTmpDB::mk_tmp_db to set up database (uses migration files,
+    creates a conch user).
 
 =cut
 
@@ -71,12 +81,12 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-    my $pg = $args->{pg} // mk_tmp_db();
+    my $pg = $args->{pg} // ($args->{legacy_db} ? Test::ConchTmpDB::mk_tmp_db() : $class->init_db);
     $pg or Test::More::BAIL_OUT("failed to create test database");
 
     my $self = Test::Mojo->new(
         Conch => {
-            pg      => $pg->uri,
+            pg      => $pg->uri,    # TODO: pass dsn instead of uri
             secrets => ["********"]
         }
     );
@@ -100,12 +110,50 @@ sub new {
     return $self;
 }
 
-sub DESTROY {
-    my $self = shift;
+sub DESTROY ($self) {
 
     # ensure that a new Test::Conch instance creates a brand new Mojo::Pg connection (with a
     # possibly-different dsn) rather than using the old one to a now-dead postgres instance
     Conch::Pg->DESTROY;
+}
+
+=head2 init_db
+
+Sets up the database for testing, using the final schema rather than running migrations.
+No data is added -- you must load all desired fixtures.
+
+Note that the Test::PostgreSQL object must stay in scope for the duration of your tests.
+Returns the Conch::DB object as well when called in list context.
+
+=cut
+
+sub init_db ($class) {
+    my $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
+    die $Test::PostgreSQL::errstr if not $pgsql;
+
+    my $schema = Conch::DB->connect(
+        $pgsql->dsn, 'postgres', '',
+        {
+            # same as from Mojo::Pg->new($uri)->options
+            AutoCommit          => 1,
+            AutoInactiveDestroy => 1,
+            PrintError          => 0,
+            PrintWarn           => 0,
+            RaiseError          => 1,
+        },
+    );
+
+    Test::More::note('initializing database with sql/schema.sql...');
+
+    $schema->storage->dbh_do(sub {
+        my ($storage, $dbh, @args) = @_;
+        $dbh->do('CREATE ROLE conch LOGIN');
+        $dbh->do('CREATE DATABASE conch OWNER conch');
+        $dbh->do(path('sql/schema.sql')->slurp_utf8) or BAIL_OUT("Test SQL load failed in $_");
+        $dbh->do('RESET search_path');  # go back to "$user", public
+    });
+
+    return wantarray ? ($pgsql, $schema) : $pgsql;
 }
 
 =head2 location_is
@@ -114,9 +162,7 @@ Stolen from Test::Mojo's examples. I don't know why this isn't just part of the 
 
 =cut
 
-sub location_is {
-    my ($t, $value, $desc) = @_;
-    $desc ||= "Location: $value";
+sub location_is ($t, $value, $desc = 'location header') {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $t->success(Test::More->builder->is_eq($t->tx->res->headers->location, $value, $desc));
 }
@@ -130,9 +176,7 @@ the hash as the schema to validate.
 
 =cut
 
-sub json_schema_is {
-    my ( $self, $schema ) = @_;
-
+sub json_schema_is ($self, $schema) {
     my @errors;
     return $self->_test( 'fail', 'No request has been made' ) unless $self->tx;
     my $json = $self->tx->res->json;
@@ -198,14 +242,11 @@ modifying the membership of the validation plans.
 
 Returns the list of validations plan objects.
 
-I<Note: This is mostly used by the test harness>
-
 =cut
 
 use Conch::Models;
 
-sub load_validation_plans {
-    my ($class, $plans, $logger) = @_;
+sub load_validation_plans ($self, $plans) {
 	my @plans;
 	for my $p ( $plans->@* ) {
 		my $plan = Conch::Model::ValidationPlan->lookup_by_name( $p->{name} );
@@ -213,7 +254,7 @@ sub load_validation_plans {
 		unless ($plan) {
 			$plan =
 				Conch::Model::ValidationPlan->create( $p->{name}, $p->{description}, );
-			$logger->info( "Created validation plan " . $plan->name );
+			$self->app->log->info('Created validation plan ' . $plan->name);
 		}
 		$plan->drop_validations;
 		for my $v ( $p->{validations}->@* ) {
@@ -224,34 +265,36 @@ sub load_validation_plans {
 				$plan->add_validation($validation);
 			}
 			else {
-				$logger->info(
+				$self->app->log->info(
 					"Could not find Validation name $v->{name}, version $v->{version}"
-						. " to load for "
-						. $plan->name );
+						. ' to load for ' . $plan->name);
 			}
 		}
-		$logger->info( "Loaded validation plan " . $plan->name );
+		$self->app->log->info('Loaded validation plan ' . $plan->name);
 		push @plans, $plan;
 	}
 	return @plans;
 }
 
-=head2 load_test_sql
+=head2 load_fixture
 
-Given one or more filenames of F<.sql> content, loads them into the current test database.
+Populate the database with one or more fixtures.
 
 =cut
 
-sub load_test_sql {
-    my ($self, @test_sql_files) = @_;
-    $self->schema->storage->dbh_do(sub {
-        my ($storage, $dbh) = @_;
+sub load_fixture ($self, @fixture_names) {
+    $self->fixtures->load(@fixture_names);
+}
 
-        for my $file (map { path('sql/test')->child($_) } @test_sql_files) {
-            Test::More::note("loading $file...");
-            $dbh->do($file->slurp_utf8) or BAIL_OUT("Test SQL load failed in $file");
-        }
-    });
+=head2 add_fixture
+
+Add one or more fixture definition(s), and populate the database with it.
+
+=cut
+
+sub add_fixture ($self, %fixture_definitions) {
+    $self->fixtures->add_definition(%fixture_definitions);
+    $self->fixtures->load(keys %fixture_definitions);
 }
 
 1;

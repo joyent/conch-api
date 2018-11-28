@@ -67,6 +67,9 @@ on 'test' => sub {
     requires 'Path::Tiny';
     requires 'Test::Memory::Cycle';
     requires 'Module::CPANfile';
+    requires 'DBIx::Class::EasyFixture';
+    requires 'Moo';
+    requires 'MooX::HandlesVia';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is

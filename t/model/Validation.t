@@ -1,7 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::Exception;
-use Test::ConchTmpDB qw(mk_tmp_db);
 use DDP;
 use Data::UUID;
 
@@ -14,7 +13,7 @@ use_ok("Conch::Model::Validation");
 use Conch::Model::Validation;
 
 use Test::Conch;
-my $t = Test::Conch->new();
+my $t = Test::Conch->new(legacy_db => 1);
 my $pg = Conch::Pg->new( $t->pg );
 
 my $validation;
