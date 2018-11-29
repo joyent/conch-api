@@ -1,15 +1,7 @@
-=pod
-
-=head1 NAME
-
-Test::Conch::Validation - Test Conch Validations
-
-=cut
-
 package Test::Conch::Validation;
 use strict;
 use warnings;
-use feature ':5.20';
+use v5.26;
 
 use Test::More;
 
@@ -21,6 +13,14 @@ use Conch::Class::HardwareProductProfile;
 
 use Exporter 'import';
 our @EXPORT_OK = qw( test_validation );
+
+=pod
+
+=head1 NAME
+
+Test::Conch::Validation - Test Conch Validations
+
+=head2 METHODS
 
 =head2 test_validation
 
@@ -122,42 +122,44 @@ Example:
 		]
 	);
 
-
 =cut
+
 sub test_validation {
 	my $validation_module = shift;
 	my %args              = @_;
 
 	my $log = Conch::Log->new(path => 'log/development.log');
 
-
 	use_ok($validation_module)
 		|| diag "$validation_module fails to compile" && return;
 
-	my $device = Conch::Model::Device->new( $args{device} )
-		if $args{device};
+	my $device = $args{device} ? Conch::Model::Device->new($args{device}) : undef;
 
-	my $hw_product_profile = Conch::Class::HardwareProductProfile->new(
-		$args{hardware_product}->{profile}->%* )
-		if $args{hardware_product} && $args{hardware_product}->{profile};
+	my $hw_product_profile =
+		  $args{hardware_product} && $args{hardware_product}->{profile}
+		? Conch::Class::HardwareProductProfile->new($args{hardware_product}->{profile}->%*)
+		: undef;
 
-	my $hw_product =
-		Conch::Class::HardwareProduct->new( $args{hardware_product}->%*,
-		profile => $hw_product_profile );
+	my $hw_product = Conch::Class::HardwareProduct->new(
+		$args{hardware_product}->%*,
+		profile => $hw_product_profile,
+	);
 
-	my $rack = Conch::Class::DatacenterRack->new(
-		$args{device_location}->{datacenter_rack}->%* )
-		if $args{device_location} && $args{device_location}->{datacenter_rack};
+	my $rack =
+		  $args{device_location} && $args{device_location}{datacenter_rack}
+		? Conch::Class::DatacenterRack->new($args{device_location}->{datacenter_rack}->%*)
+		: undef;
 
-	my $device_location =
-		Conch::Class::DeviceLocation->new( $args{device_location}->%*,
-		datacenter_rack => $rack );
+	my $device_location = Conch::Class::DeviceLocation->new(
+		$args{device_location}->%*,
+		datacenter_rack => $rack,
+	);
 
 	my $validation = $validation_module->new(
-		device           => $device,
-		device_location  => $device_location,
+		device           => $device,            # this is a Conch::Model::Device
+		device_location  => $device_location,   # this is a Conch::Class::DeviceLocation
 		device_settings  => $args{device_settings} || {},
-		hardware_product => $hw_product,
+		hardware_product => $hw_product,        # this is a Conch::Class::HardwareProduct
 	);
 	$validation->log($log);
 	isa_ok( $validation, $validation_module, "$validation_module->new failed" )
