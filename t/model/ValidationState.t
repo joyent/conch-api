@@ -21,9 +21,10 @@ my $pg    = Conch::Pg->new( $pgtmp->uri );
 
 use Test::Conch;
 my $t = Test::Conch->new(pg => $pgtmp);
-my $real_validation = Conch::Model::Validation->lookup_by_name_and_version(
-	'product_name',
-	1
+
+# formerly: Conch::Model::Validation->lookup_by_name_and_version('product_name', 1);
+my $real_validation = Conch::Model::Validation->new(
+	$t->load_validation('Conch::Validation::DeviceProductName')->get_columns
 );
 
 my $validation_plan =

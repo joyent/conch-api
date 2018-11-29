@@ -13,7 +13,7 @@ $t->load_fixture('conch_user_global_workspace', '00-hardware', '01-hardware-prof
 $t->load_validation_plans([{
     name        => 'Conch v1 Legacy Plan: Server',
     description => 'Test Plan',
-    validations => [ { name => 'product_name', version => 1 } ],
+    validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
 $t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );

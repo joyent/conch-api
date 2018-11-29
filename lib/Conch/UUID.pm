@@ -1,3 +1,11 @@
+package Conch::UUID;
+
+use Mojo::Base -signatures;
+use Exporter 'import';
+our @EXPORT_OK = qw(is_uuid);
+
+use constant UUID_FORMAT => qr/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ia;
+
 =pod
 
 =head1 NAME
@@ -32,35 +40,21 @@ https://tools.ietf.org/html/rfc4122#section-3
 
 UUID version and variant ('reserved') hex digit standards are ignored.
 
-=cut
-
-package Conch::UUID;
-
-use strict;
-use warnings;
-
-use Exporter 'import';
-our @EXPORT_OK = qw( is_uuid );
-
-use constant UUID_FORMAT => qr/
-	^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
-/ix;
-
 =head1 FUNCTIONS
 
 =head2 is_uuid
 
 Return a true or false value based on whether a string is a formatted as a UUID.
 
-	if (is_uuid "D8DC809C-935E-41B8-9E5F-B356A6BFBCA1") {...}
-	unless (is_uuid "BAD-ID") {...}
+    if (is_uuid('D8DC809C-935E-41B8-9E5F-B356A6BFBCA1')) {...}
+    unless (is_uuid('BAD-ID')) {...}
 
 Case insensitive.
 
 =cut
 
 sub is_uuid ($) {
-    return ( shift =~ UUID_FORMAT );
+    return (shift =~ qr/^${\UUID_FORMAT()}$/);
 }
 
 1;
@@ -77,3 +71,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :
