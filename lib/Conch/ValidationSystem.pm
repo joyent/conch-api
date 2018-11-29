@@ -183,6 +183,57 @@ sub load_validations ($self) {
     return $num_loaded_validations;
 }
 
+=head2 run_validation
+
+Runs the provided validation record against the provided device.
+Creates and returns validation_result records, without writing them to the database.
+
+All provided data objects can and should be read-only (fetched with a ro db handle).
+
+Takes options as a hash:
+
+    validation => $validation,      # required, a Conch::DB::Result::Validation object
+    device => $device,              # required, a Conch::DB::Result::Device object
+    data => $data,                  # required, a hashref of device report data
+
+=cut
+
+sub run_validation ($self, %options) {
+    my $validation = delete $options{validation} || Carp::croak('missing validation');
+    my $device = delete $options{device} || Carp::croak('missing device');
+    my $data = delete $options{data} || Carp::croak('missing data');
+
+    # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
+    my $location = Conch::Model::DeviceLocation->lookup($device->id);
+    # FIXME: do we really allow running validations on unlocated hardware?
+    my $hw_product_id =
+          $location
+        ? $location->target_hardware_product->id
+        : $device->hardware_product_id;
+
+    my $validator = Conch::Model::Validation->new(
+        $validation->get_columns
+    )->build_device_validation(
+        Conch::Model::Device->new($device->get_columns),
+        Conch::Model::HardwareProduct->lookup($hw_product_id),
+        $location,
+        +{ $device->device_settings_as_hash },
+    );
+    $validator->log($self->log);
+    $validator->run($data);
+
+    # Conch::Model::ValidationResult -> Conch::DB::Result::ValidationResult
+    my $validation_result_rs = $self->schema->resultset('validation_result');
+    my @validation_results = map {
+        my $result = $_;
+        $validation_result_rs->new_result({
+            map { $_ => $result->$_ } qw(device_id hardware_product_id validation_id message hint status category component_id result_order),
+        });
+    } $validator->validation_results->@*;
+
+    return @validation_results;
+}
+
 1;
 __END__
 

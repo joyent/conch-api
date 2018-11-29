@@ -61,26 +61,26 @@ Response uses the ValidationResults json schema.
 =cut
 
 sub validate ($c) {
-	my $device = Conch::Model::Device->new($c->stash('device_rs')->hri->single->%*);
+    my $validation_id = $c->stash('validation_id');
+    my $validation = $c->db_ro_validations->active->find($validation_id);
+    if (not $validation) {
+        $c->log->debug("Could not find validation $validation_id");
+        return $c->status(404 => { error => "Validation $validation_id not found" });
+    }
 
-	my $validation_id = $c->stash("validation_id");
-	my $validation    = Conch::Model::Validation->lookup($validation_id);
-	unless($validation) {
-		$c->log->debug("Could not find validation $validation_id");
-		return $c->status(404 => {
-			error => "Validation $validation_id not found"
-		});
-	}
+    # note, we aren't validating this data against the DeviceReport schema, although we should.
+    my $data = $c->req->json;
 
-	$validation->log($c->log);
+    my @validation_results = Conch::ValidationSystem->new(
+        schema => $c->ro_schema,
+        log => $c->log,
+    )->run_validation(
+        validation => $validation,
+        device => $c->db_ro_devices->active->find($c->stash('device_id')),
+        data => $data,
+    );
 
-	my $data = $c->req->json;
-	my $validation_results = $validation->run_validation_for_device(
-		$device,
-		$data,
-	);
-
-	$c->status( 200, $validation_results );
+    $c->status(200, \@validation_results);
 }
 
 =head2 run_validation_plan

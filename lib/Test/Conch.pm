@@ -316,6 +316,7 @@ sub load_validation ($self, $module) {
 =head2 load_fixture
 
 Populate the database with one or more fixtures.
+Returns the objects that were explicitly requested.
 
 =cut
 

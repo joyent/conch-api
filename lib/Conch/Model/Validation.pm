@@ -41,19 +41,6 @@ sub new ( $class, %args ) {
 	$class->SUPER::new( %args{@$attrs, 'log'} );
 }
 
-=head2 lookup
-
-Lookup a validation by ID
-
-=cut
-
-sub lookup ( $class, $id ) {
-	my $ret =
-		Conch::Pg->new->db->select( 'validation', $attrs,
-		{ id => $id, deactivated => undef } )->hash;
-	return $class->new( $ret->%* ) if $ret;
-}
-
 =head2 build_device_validation
 
 Build a L<Conch::Validation> sub-class object with the given device
@@ -103,44 +90,6 @@ sub build_device_validation ( $self, $device, $hardware_product,
 		result_builder   => $result_builder
 	);
 	return $validation;
-}
-
-=head2 run_validation_for_device
-
-Run the L<Conch::Validation> sub-class with the given device
-(L<Conch::Model::Device>). Finds the location, settings, and expected hardware
-product for the Device. Returns the validation results.
-
-=cut
-
-sub run_validation_for_device ( $self, $device, $data ) {
-	my $location = Conch::Model::DeviceLocation->lookup( $device->id );
-
-	# see Conch::DB::ResultSet::DeviceSetting::get_settings
-	my $settings = Conch::Pg->new->db->select( 'device_setting', undef,
-		{ deactivated => undef, device_id => $device->id } )
-		->expand->hashes
-		->reduce(
-			sub {
-				$a->{ $b->{name} } = $b->{value};
-				$a;
-			},
-			{}
-		);
-
-
-	my $hw_product_id =
-		  $location
-		? $location->target_hardware_product->id
-		: $device->hardware_product_id;
-	my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
-
-	my $validation =
-		$self->build_device_validation( $device, $hw_product, $location,
-		$settings );
-
-	$validation->run($data);
-	return $validation->validation_results;
 }
 
 1;

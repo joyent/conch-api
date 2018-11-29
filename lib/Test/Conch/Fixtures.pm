@@ -320,6 +320,18 @@ my %canned_definitions = (
             hardware_product_server_storage => { our => 'hardware_product_id', their => 'id' },
         },
     },
+
+    device_HAL => {
+        new => 'device',
+        using => {
+            id => 'HAL',
+            state => 'UNKNOWN',
+            health => 'UNKNOWN',
+        },
+        requires => {
+            hardware_product_profile_compute => 'hardware_product_id',
+        },
+    },
 );
 
 =head1 METHODS

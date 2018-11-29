@@ -3,6 +3,7 @@ use Test::More;
 use Test::Exception;
 use DDP;
 use Data::UUID;
+use Test::Deep;
 
 my $uuid = Data::UUID->new;
 
@@ -78,10 +79,8 @@ subtest "Create validation" => sub {
 };
 
 subtest "lookup validation" => sub {
-	my $maybe_validation = Conch::Model::Validation->lookup( $uuid->create_str );
-	is( $maybe_validation, undef, 'unfound validation is undef' );
-
-	$maybe_validation = Conch::Model::Validation->lookup( $validation->id );
+	my $data = $t->app->db_validations->hri->search({ id => $validation->id })->single;
+	my $maybe_validation = $data ? Conch::Model::Validation->new($data->%*) : undef;
 	is_deeply( $maybe_validation, $validation,
 		'found validation is same as created' );
 };
@@ -121,16 +120,22 @@ subtest "build_device_validation" => sub {
 			->validation_results;
 	is( scalar @$results, 1 );
 
-	# 'run_validation_for_device' is a convenience function for building and
-	# running a single validation and returning results with a given device
-	subtest "run_validation_for_device" => sub {
-		my $run_results;
-		lives_ok {
-			$run_results = $real_validation->run_validation_for_device( $device,
-				{ product_name => 'Joyent-G1' } );
-		};
-		is_deeply( $run_results, $results, 'Results should be the same' );
-	};
+	cmp_deeply(
+		$results,
+		[
+			methods(
+				[ isa => 'Conch::Model::ValidationResult' ] => bool(1),
+				id => undef,
+				device_id => $device->id,
+				hardware_product_id => $device->hardware_product_id,
+				validation_id => $real_validation->id,
+				category => 'BIOS',
+				status => 'pass',
+				result_order => 0,
+			),
+		],
+		'Conch::Model::Validation->run results look good',
+	);
 };
 
 done_testing();
