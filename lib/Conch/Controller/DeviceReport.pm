@@ -183,6 +183,11 @@ sub process ($c) {
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
+	# calculate the device health based on the validation results.
+	# currently, since there is just one (hardcoded) plan per device, we can simply copy it
+	# from the validation_state, but in the future we should query for the most recent
+	# validation_state of each plan type and use the cumulative results to determine health.
+
 	$device->update( { health => uc( $validation_state->status ), updated => \'NOW()' } );
 
 	$c->status( 200, $validation_state );
