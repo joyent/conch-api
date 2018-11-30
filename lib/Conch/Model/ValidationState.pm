@@ -69,30 +69,6 @@ sub mark_completed ( $self, $status ) {
 	return $self;
 }
 
-=head2 latest_for_device_plan
-
-Find the latest validation state for a given Device and Validation
-Plan, or return undef
-
-=cut
-
-sub latest_for_device_plan ( $class, $device_id, $plan_id ) {
-	my $fields = join( ', ', @$attrs );
-	my $ret = Conch::Pg->new->db->query(
-		qq{
-		select $fields
-		from validation_state
-		where
-			device_id = ? and
-			validation_plan_id = ?
-		order by created desc
-		limit 1
-		},
-		$device_id, $plan_id
-	)->hash;
-	return $class->new( $ret->%* ) if $ret;
-}
-
 =head2 add_validation_result
 
 Assoicate a validation result with the validation state. Returns the validation
