@@ -17,17 +17,16 @@ create_user - create a new user, optionally sending an email
 
 =cut
 
-use Mojo::Base 'Mojolicious::Command';
+use Mojo::Base 'Mojolicious::Command', -signatures;
 use Getopt::Long::Descriptive;
 
 has description => 'Create a new user';
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
-sub run {
-    my $self = shift;
+sub run ($self, @opts) {
 
-    local @ARGV = @_;
+    local @ARGV = @opts;
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $opt->usage
