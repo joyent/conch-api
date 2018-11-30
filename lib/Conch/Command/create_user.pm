@@ -18,7 +18,7 @@ create_user - create a new user, optionally sending an email
 =cut
 
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
-use Mojo::Base 'Mojolicious::Command';
+use Mojo::Base 'Mojolicious::Command', -signatures;
 use Getopt::Long::Descriptive;
 use Encode ();
 
@@ -26,10 +26,9 @@ has description => 'Create a new user';
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
-sub run {
-    my $self = shift;
+sub run ($self, @opts) {
 
-    local @ARGV = @_;
+    local @ARGV = @opts;
 
     # decode command line arguments
     @ARGV = map { Encode::decode('UTF-8', $_) } @ARGV if grep /\P{ASCII}/, @ARGV;

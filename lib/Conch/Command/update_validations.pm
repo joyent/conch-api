@@ -22,10 +22,9 @@ has description => 'update database validation entries to match Conch::Validatio
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
-sub run {
-    my $self = shift;
+sub run ($self, @opts) {
 
-    local @ARGV = @_;
+    local @ARGV = @opts;
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
