@@ -115,13 +115,6 @@ The expected L<Conch::Class::HardwareProduct> object for the device being valida
 A key-value C<HASHREF> of device settings stored for the device being
 validated. Empty C<HAHSREF> if unspecified.
 
-=item C<result_builder>
-
-An optional C<CODEREF> to construct validation results. If unspecified,
-validation results are built as C<HASHREF>s. The C<CODEREF> will be passed a
-list of attributes and values (Attributes are 'message', 'name', 'category',
-'status', and 'hint') whenever a validation result is created.
-
 =back
 
 =cut
@@ -133,7 +126,6 @@ sub new ( $class, %attrs ) {
 		_device_location           => delete $attrs{device_location},
 		_hardware_product          => delete $attrs{hardware_product},
 		_device_settings           => delete $attrs{device_settings} || {},
-		_validation_result_builder => delete $attrs{result_builder} || sub { return {@_} },
 		validation_results         => [],
 		%attrs,
 	}, $class;
@@ -166,14 +158,13 @@ sub run ( $self, $data ) {
 		$self->log->error("Validation '".$self->name."' threw an exception: ".$err->message);
 		$self->log->debug("Bad data: ". Mojo::JSON::to_json($data));
 
-
-		my $validation_error = $self->{_validation_result_builder}->(
+		my $validation_error = {
 			message  => $err->message,
 			name     => $self->name,
 			status   => STATUS_ERROR,
 			hint     => $err->hint || $err->error_loc,
 			category => $self->category,
-		);
+		};
 		push $self->validation_results->@*, $validation_error;
 	};
 	return $self;
@@ -400,9 +391,12 @@ You may also provide the following attributes to override validation results
 
 =item C<name>
 
-By default, the validation result stores the C<name> attribute of the
+By default, the validation result logs the C<name> attribute of the
 Validation class. You may override the validation result name with this
 attribute.
+
+This value is not stored in the database. To disambiguate multiple results in the database, use
+C<component_id>.
 
 	$self->register_result(
 		expected => 'hello',
@@ -531,14 +525,14 @@ sub register_result ( $self, %attrs ) {
 		$message = "Expected $cmp_op '$expected'. Got '$got'.";
 	}
 
-	my $validation_result = $self->{_validation_result_builder}->(
+	my $validation_result = {
 		message  => $attrs{message}  || $message,
 		name     => $attrs{name}     || $self->name,
 		category => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
 		status       => $success ? STATUS_PASS : STATUS_FAIL,
 		hint         => $success ? undef : $attrs{hint},
-	);
+	};
 
 	$self->log->debug(join('',
 		"Validation ",
@@ -591,14 +585,14 @@ specified like with C<register_result>.
 =cut
 
 sub fail ( $self, $message, %attrs ) {
-	my $validation_result = $self->{_validation_result_builder}->(
+	my $validation_result = {
 		message      => $message,
 		name         => $attrs{name} || $self->name,
 		category     => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
 		status       => STATUS_FAIL,
 		hint         => $attrs{hint}
-	);
+	};
 	push $self->validation_results->@*, $validation_result;
 	return $self;
 }

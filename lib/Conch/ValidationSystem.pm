@@ -234,13 +234,21 @@ sub run_validation_plan ($self, %options) {
         ->active;
 
     my @validation_results;
+    my $validation_result_rs = $self->schema->resultset('validation_result');
     while (my $validation = $validation_rs->next) {
-        my $result_order = 0;
-        my $result_builder = sub {
-            require Conch::Model::ValidationResult;
-            return Conch::Model::ValidationResult->new(
-                @_,
+        my $validator = $validation->module->new(
+            log              => $self->log,
+            device           => $model_device,
+            device_location  => $location,
+            device_settings  => $device_settings,
+            hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
+        );
 
+        $validator->run($data);
+
+        my $result_order = 0;
+        push @validation_results, map {
+            $validation_result_rs->new_result({
                 # each time a ValidationResult is created, increment order value
                 # post-assignment. This allows us to distinguish between multiples
                 # of similar results
@@ -248,25 +256,7 @@ sub run_validation_plan ($self, %options) {
                 validation_id       => $validation->id,
                 device_id           => $device->id,
                 hardware_product_id => $hw_product_id,
-            );
-        };
-
-        my $validator = $validation->module->new(
-            log              => $self->log,
-            device           => $model_device,
-            device_location  => $location,
-            device_settings  => $device_settings,
-            hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
-            result_builder   => $result_builder
-        );
-
-        $validator->run($data);
-
-        # Conch::Model::ValidationResult -> Conch::DB::Result::ValidationResult
-        push @validation_results, map {
-            my $result = $_;
-            $self->schema->resultset('validation_result')->new_result({
-                map { $_ => $result->$_ } qw(device_id hardware_product_id validation_id message hint status category component_id result_order),
+                $_->%{qw(message hint status category component_id)},
             });
         } $validator->validation_results->@*;
     }
@@ -318,12 +308,19 @@ sub run_validation ($self, %options) {
         ? $location->target_hardware_product->id
         : $device->hardware_product_id;
 
-    my $result_order = 0;
-    my $result_builder = sub {
-        require Conch::Model::ValidationResult;
-        return Conch::Model::ValidationResult->new(
-            @_,
+    my $validator = $validation->module->new(
+        log              => $self->log,
+        device           => Conch::Model::Device->new($device->get_columns),
+        device_location  => $location,
+        device_settings  => +{ $device->device_settings_as_hash },
+        hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
+    );
+    $validator->run($data);
 
+    my $result_order = 0;
+    my $validation_result_rs = $self->schema->resultset('validation_result');
+    my @validation_results = map {
+        $validation_result_rs->new_result({
             # each time a ValidationResult is created, increment order value
             # post-assignment. This allows us to distinguish between multiples
             # of similar results
@@ -331,25 +328,7 @@ sub run_validation ($self, %options) {
             validation_id       => $validation->id,
             device_id           => $device->id,
             hardware_product_id => $hw_product_id,
-        );
-    };
-
-    my $validator = $validation->module->new(
-        log              => $self->log,
-        device           => Conch::Model::Device->new($device->get_columns),
-        device_location  => $location,
-        device_settings  => +{ $device->device_settings_as_hash },
-        hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
-        result_builder   => $result_builder
-    );
-    $validator->run($data);
-
-    # Conch::Model::ValidationResult -> Conch::DB::Result::ValidationResult
-    my $validation_result_rs = $self->schema->resultset('validation_result');
-    my @validation_results = map {
-        my $result = $_;
-        $validation_result_rs->new_result({
-            map { $_ => $result->$_ } qw(device_id hardware_product_id validation_id message hint status category component_id result_order),
+            $_->%{qw(message hint status category component_id)},
         });
     } $validator->validation_results->@*;
 
