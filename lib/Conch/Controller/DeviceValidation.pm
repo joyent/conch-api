@@ -77,7 +77,7 @@ Response uses the ValidationResults json schema.
 =cut
 
 sub validate ($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = Conch::Model::Device->new($c->stash('device_rs')->hri->single->%*);
 
 	my $validation_id = $c->stash("validation_id");
 	my $validation    = Conch::Model::Validation->lookup($validation_id);
@@ -113,7 +113,7 @@ Response uses the ValidationResults json schema.
 =cut
 
 sub run_validation_plan ($c) {
-	my $device = Conch::Model::Device->lookup($c->stash('device_id'));
+	my $device = Conch::Model::Device->new($c->stash('device_rs')->hri->single->%*);
 
 	my $plan_id         = $c->stash("validation_plan_id");
 	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);

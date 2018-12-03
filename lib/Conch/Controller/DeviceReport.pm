@@ -181,7 +181,7 @@ sub process ($c) {
 
 	$c->log->debug("Running validation plan ".$validation_plan->id);
 	my $validation_state = $validation_plan->run_with_state(
-		$device->id,
+		Conch::Model::Device->new($device->discard_changes->get_columns),
 		$device_report->id,
 		$unserialized_report,
 	);

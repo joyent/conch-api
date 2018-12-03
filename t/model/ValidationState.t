@@ -161,7 +161,7 @@ $validation_plan->add_validation($real_validation);
 
 subtest 'latest_completed_grouped_states_for_device' => sub {
 	my $latest_state = $validation_plan->run_with_state(
-		$device->id,
+		$device,
 		$device_report->id,
 		{ product_name => 'test hw product' }
 	);
@@ -180,7 +180,7 @@ subtest 'latest_completed_grouped_states_for_device' => sub {
 	$validation_plan_1->add_validation($real_validation);
 	my $new_state =
 		$validation_plan_1->run_with_state(
-			$device->id,
+			$device,
 			$device_report->id,
 			{}
 		);

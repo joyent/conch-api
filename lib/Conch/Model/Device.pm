@@ -14,8 +14,6 @@ use Mojo::Base -base, -signatures;
 use Conch::Time;
 use Conch::UUID qw(is_uuid);
 
-use Conch::Pg;
-
 has [
 	qw(
 		asset_tag
@@ -71,24 +69,6 @@ sub TO_JSON ($self) {
 		validated            => $self->validated,
 		# XXX no 'deactivated'
 	};
-}
-
-=head2 lookup
-
-Find a device by ID (sometimes also called "serial number") or return undef.
-Does not consider user access restrictions.
-
-=cut
-sub lookup ( $class, $device_id ) {
-	my $ret = Conch::Pg->new()->db->select(
-		'device', undef,
-		{
-			id          => $device_id,
-			deactivated => undef
-		}
-	)->hash;
-	return undef unless $ret and $ret->{id};
-	return $class->new( $ret->%* );
 }
 
 1;

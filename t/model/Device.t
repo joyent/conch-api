@@ -50,16 +50,4 @@ my $d = $schema->resultset('device')->create({
 });
 $d = Conch::Model::Device->new($d->discard_changes->get_columns);
 
-my $user;
-subtest "Lookup" => sub {
-	my $d2 = Conch::Model::Device->lookup( $d->id );
-	isa_ok( $d2, "Conch::Model::Device" );
-	is_deeply( $d2, $d, "Looked-up device matches expectations" );
-
-	is(
-		Conch::Model::Device->lookup( 'bad device id' ),
-		undef, "Lookup for bad device fails",
-	);
-};
-
 done_testing();

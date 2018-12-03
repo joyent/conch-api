@@ -226,23 +226,16 @@ sub run_validations ( $self, $device, $data ) {
 
 =head2 run_with_state
 
-Process a validation plan with a device ID and input data. Returns a completed
+Process a validation plan with a device and input data. Returns a completed
 validation state. Associated validation results will be stored.
 
 =cut
 
-# FIXME we need the device id here because this code is called from places
-# where the "device" is dbic and thus way more helpful than our usual Model.
-# Specifically, it resolves ids to the real object, throwing later code for a
-# fit
-sub run_with_state($self, $device_id, $device_report_id, $data) {
-    Mojo::Exception->throw("Device ID must be defined") unless $device_id;
+sub run_with_state($self, $device, $device_report_id, $data) {
+    Mojo::Exception->throw("Device must be defined") unless $device;
     Mojo::Exception->throw("Device Report ID must be defined") unless $device_report_id;
     Mojo::Exception->throw("Validation data must be a hashref")
         unless ref($data) eq 'HASH';
-
-	my $device = Conch::Model::Device->lookup($device_id);
-	Mojo::Exception->throw("No device exists with ID $device_id") unless $device;
 
 	my $new_results = $self->run_validations( $device, $data );
 

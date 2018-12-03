@@ -143,17 +143,17 @@ subtest "run validation plan" => sub {
 	throws_ok(
 		sub {
 			$validation_plan->run_with_state(
-				'bad_device',
+				undef,
 				$device_report->id,
 				{}
 			);
 		},
-		qr/No device exists/
+		qr/Device must be defined/
 	);
 	throws_ok(
 		sub {
 			$validation_plan->run_with_state(
-				$device->id,
+				$device,
 				$device_report->id,
 				'bad'
 			);
@@ -164,7 +164,7 @@ subtest "run validation plan" => sub {
 	is( scalar $validation_plan->validations->@*,
 		0, 'Validation plan should have no validations' );
 	my $new_state = $validation_plan->run_with_state(
-		$device->id,
+		$device,
 		$device_report->id,
 		{}
 	);
@@ -176,7 +176,7 @@ subtest "run validation plan" => sub {
 	$validation_plan->add_validation($real_validation);
 
 	my $error_state = $validation_plan->run_with_state(
-		$device->id,
+		$device,
 		$device_report->id,
 		{}
 	);
@@ -185,7 +185,7 @@ subtest "run validation plan" => sub {
 		'Validation state should be error because result errored' );
 
 	my $fail_state = $validation_plan->run_with_state(
-		$device->id,
+		$device,
 		$device_report->id,
 		{ product_name => 'bad' }
 	);
@@ -194,7 +194,7 @@ subtest "run validation plan" => sub {
 		'Validation state should be fail because result failed' );
 
 	my $pass_state = $validation_plan->run_with_state(
-		$device->id,
+		$device,
 		$device_report->id,
 		{ product_name => 'Joyent-G1' }
 	);
