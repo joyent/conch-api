@@ -5,6 +5,7 @@ use Mojo::Util 'trim';
 use Path::Tiny;
 use Try::Tiny;
 use Module::Runtime 'require_module';
+use List::Util 'all';
 
 has 'schema';
 has 'log';
@@ -69,7 +70,7 @@ sub check_validation_plan ($self, $validation_plan) {
             if (not $module->isa('Conch::Validation')) {
                 $self->log->error("$module must be a sub-class of Conch::Validation");
                 $valid_plan = 0;
-                return;
+                return; # from try sub
             }
 
             my $validator = $module->new;
@@ -83,6 +84,12 @@ sub check_validation_plan ($self, $validation_plan) {
                     $valid_plan = 0;
                     ++$failed;
                 }
+            }
+
+            if (not $validator->category) {
+                $self->log->warn("$module does not set a category");
+                $valid_plan = 0;
+                ++$failed;
             }
 
             ++$validation_modules{$module} if not $failed;
@@ -138,8 +145,10 @@ sub load_validations ($self) {
 
         my $validator = $module->new;
 
-        if (not ($validator->name and $validator->version and $validator->description)) {
-            $self->log->fatal("$module must define the 'name', 'version, and 'description' attributes");
+        my @fields = qw(name version description category);
+        if (not all { $validator->$_ } @fields) {
+            $self->log->fatal("$module must define the " .
+                join(', ', map { "'$_'" } @fields) . ' attributes');
             return;
         }
 
