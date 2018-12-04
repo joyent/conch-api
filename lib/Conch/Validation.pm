@@ -537,7 +537,7 @@ sub register_result ( $self, %attrs ) {
 		category => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
 		status       => $success ? STATUS_PASS : STATUS_FAIL,
-		hint         => $success ? $attrs{hint} : undef
+		hint         => $success ? undef : $attrs{hint},
 	);
 
 	$self->log->debug(join('',
