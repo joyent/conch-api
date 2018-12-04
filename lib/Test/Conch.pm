@@ -289,7 +289,7 @@ sub load_validation_plans ($self, $plans) {
             $plan->add_to_validations($validation);
         }
         $self->app->log->info('Loaded validation plan ' . $plan->name);
-        push @plans, $plan;
+        push @plans, $self->app->db_ro_validation_plans->find($plan->id);
     }
     return @plans;
 }
@@ -304,12 +304,13 @@ sub load_validation ($self, $module) {
     require_module($module);
     my $validator = $module->new;
 
-    $self->app->db_validations->create({
+    my $validation = $self->app->db_validations->create({
         name => $validator->name,
         version => $validator->version,
         description => trim($validator->description),
         module => $module,
     });
+    return $self->app->db_ro_validations->find($validation->id);
 }
 
 =head2 load_fixture
