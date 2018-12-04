@@ -99,50 +99,82 @@ subtest '->register_result' => sub {
 
 	$base_validation->clear_results;
 
-	$base_validation->register_result( expected => 'test', got => 'test' );
-	is( scalar $base_validation->successes->@*, 1, 'Successful result' );
-	is(
-		$base_validation->successes->[0]->{message},
-		"Expected eq 'test'. Got 'test'."
+	$base_validation->register_result( expected => 'test', got => 'test', hint => 'hi' );
+
+	cmp_deeply(
+		$base_validation->successes,
+		[
+			superhashof({
+				message => "Expected eq 'test'. Got 'test'.",
+				hint => undef,
+			}),
+		],
+		'Successful result',
 	);
 
-	$base_validation->register_result( expected => 'test', got => 'bad' );
-	is( scalar $base_validation->failures->@*, 1, 'Failed result' );
-	is( $base_validation->failures->[0]->{message},
-		"Expected eq 'test'. Got 'bad'." );
+	$base_validation->register_result( expected => 'test', got => 'bad', hint => 'hi' );
+	cmp_deeply(
+		$base_validation->failures,
+		[
+			superhashof({
+				message => "Expected eq 'test'. Got 'bad'.",
+				hint => 'hi',
+			}),
+		],
+		'Failed result',
+	);
 
 	$base_validation->register_result(
 		expected => 'test',
 		got      => 'good',
-		cmp      => 'ne'
-	);
-	is( scalar $base_validation->successes->@*, 2, 'Successful result' );
-	is(
-		$base_validation->successes->[1]->{message},
-		"Expected ne 'test'. Got 'good'."
+		cmp      => 'ne',
+		hint     => 'hi',
+	),
+	cmp_deeply(
+		$base_validation->successes,
+		[
+			ignore,
+			superhashof({
+				message => "Expected ne 'test'. Got 'good'.",
+				hint => undef,
+			}),
+		],
+		'Successful result',
 	);
 	$base_validation->clear_results;
 
 	$base_validation->register_result(
 		expected => 20,
 		got      => 40,
-		cmp      => '>'
+		cmp      => '>',
+		hint     => 'hi',
 	);
-	is( scalar $base_validation->successes->@*, 1, 'Successful comparison result' );
-	is(
-		$base_validation->successes->[0]->{message},
-		"Expected a value > '20'. Passed."
+	cmp_deeply(
+		$base_validation->successes,
+		[
+			superhashof({
+				message => "Expected a value > '20'. Passed.",
+				hint => undef,
+			}),
+		],
+		'Successful comparison result',
 	);
 
 	$base_validation->register_result(
 		expected => 20,
 		got      => 40,
-		cmp      => '<'
+		cmp      => '<',
+		hint     => 'hi',
 	);
-	is( scalar $base_validation->failures->@*, 1, 'Failing comparison result' );
-	is(
-		$base_validation->failures->[0]->{message},
-		"Expected a value < '20'. Failed."
+	cmp_deeply(
+		$base_validation->failures,
+		[
+			superhashof({
+				message => "Expected a value < '20'. Failed.",
+				hint => 'hi',
+			}),
+		],
+		'Failing comparison result',
 	);
 
 	$base_validation->clear_results;
@@ -150,23 +182,35 @@ subtest '->register_result' => sub {
 	$base_validation->register_result(
 		expected => [ 'a', 'b', 'c' ],
 		got      => 'b',
-		cmp      => 'oneOf'
+		cmp      => 'oneOf',
+		hint     => 'hi',
 	);
-	is( scalar $base_validation->successes->@*, 1, 'Successful oneOf result' );
-	is(
-		$base_validation->successes->[0]->{message},
-		"Expected one of: 'a', 'b', 'c'. Got 'b'."
+	cmp_deeply(
+		$base_validation->successes,
+		[
+			superhashof({
+				message => "Expected one of: 'a', 'b', 'c'. Got 'b'.",
+				hint => undef,
+			}),
+		],
+		'Successful oneOf result',
 	);
 
 	$base_validation->register_result(
 		expected => [ 'a', 'b', 'c' ],
 		got      => 'bad',
-		cmp      => 'oneOf'
+		cmp      => 'oneOf',
+		hint     => 'hi',
 	);
-	is( scalar $base_validation->failures->@*, 1, 'Failing oneOf result' );
-	is(
-		$base_validation->failures->[0]->{message},
-		"Expected one of: 'a', 'b', 'c'. Got 'bad'."
+	cmp_deeply(
+		$base_validation->failures,
+		[
+			superhashof({
+				message => "Expected one of: 'a', 'b', 'c'. Got 'bad'.",
+				hint => 'hi',
+			}),
+		],
+		'Failing oneOf result',
 	);
 
 	$base_validation->clear_results;
@@ -174,23 +218,35 @@ subtest '->register_result' => sub {
 	$base_validation->register_result(
 		expected => qr/\w{3}\d{3}/,
 		got      => 'foo123',
-		cmp      => 'like'
+		cmp      => 'like',
+		hint     => 'hi',
 	);
-	is( scalar $base_validation->successes->@*, 1, 'Successful like result' );
-	is(
-		$base_validation->successes->[0]->{message},
-		'Expected like \'(?^:\w{3}\d{3})\'. Got \'foo123\'.'
+	cmp_deeply(
+		$base_validation->successes,
+		[
+			superhashof({
+				message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'foo123\'.',
+				hint => undef,
+			}),
+		],
+		'Successful like result',
 	);
 
 	$base_validation->register_result(
 		expected => qr/\w{3}\d{3}/,
 		got      => 'bad42',
-		cmp      => 'like'
+		cmp      => 'like',
+		hint     => 'hi',
 	);
-	is( scalar $base_validation->failures->@*, 1, 'Failing like result' );
-	is(
-		$base_validation->failures->[0]->{message},
-		'Expected like \'(?^:\w{3}\d{3})\'. Got \'bad42\'.'
+	cmp_deeply(
+		$base_validation->failures,
+		[
+			superhashof({
+				message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'bad42\'.',
+				hint => 'hi',
+			}),
+		],
+		'Failing like result',
 	);
 };
 
