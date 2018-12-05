@@ -3,11 +3,9 @@ use DDP;
 use Test::More;
 use Test::Fatal;
 use Test::Deep;
+use Conch::Log;
 
-use Test::Conch;
-
-my $t = Test::Conch->new();
-my $l = $t->app->log;
+my $l = Conch::Log->new(path => 'log/t-00_base_class.log');
 
 # SUMMARY
 # =======
