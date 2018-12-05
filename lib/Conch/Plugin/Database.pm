@@ -120,9 +120,10 @@ line of the exception.
         }
         catch {
             my $exception = $_;
-            $c->app->log->debug('rolled back transaction');
+            my $log = $c->can('log') ? $c->log : $c->app->log;
+            $log->debug('rolled back transaction');
             if ($exception !~ /^rollback/) {
-                $c->app->log->error($_);
+                $log->error($_);
                 my ($error) = split(/\n/, $exception, 2);
                 $c->status($c->res->code // 400, { error => $error });
             }

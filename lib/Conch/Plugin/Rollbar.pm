@@ -33,7 +33,8 @@ sub register ($self, $app, @) {
 sub _record_exception ($c, $exception, @) {
 	my $access_token = $c->config('rollbar_access_token');
 	if (not $access_token) {
-		$c->app->log->warn('Unable to send exception to Rollbar - no access token configured');
+		my $log = $c->can('log') ? $c->log : $c->app->log;
+		$log->warn('Unable to send exception to Rollbar - no access token configured');
 		return;
 	}
 
@@ -112,13 +113,13 @@ sub _record_exception ($c, $exception, @) {
 	};
 
 	# asynchronously post to Rollbar, log if the request fails
-	$c->app->ua->post(
+	$c->ua->post(
 		ROLLBAR_ENDPOINT,
 		json => $exception_payload,
-		sub {
-			my ( $ua, $tx ) = @_;
+		sub ($ua, $tx) {
 			if ( my $err = $tx->error ) {
-				$c->app->log->error( "Unable to send exception to Rollbar."
+				my $log = $c->can('log') ? $c->log : $c->app->log;
+				$log->error('Unable to send exception to Rollbar.'
 						. " HTTP $err->{code} '$err->{message} " );
 			}
 		}

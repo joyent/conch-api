@@ -65,11 +65,6 @@ definitions:
         anyOf:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
-      boot_phase:
-        description: this field is deprecated and will no longer be present.
-        anyOf:
-          - type: string
-          - type: 'null'
       created:
         type: string
         format: date-time
@@ -283,11 +278,6 @@ definitions:
       asset_tag:
         anyOf:
           - $ref: /definitions/device_asset_tag
-          - type: 'null'
-      boot_phase:
-        description: this field is deprecated and will no longer be present.
-        anyOf:
-          - type: string
           - type: 'null'
       created:
         type: string

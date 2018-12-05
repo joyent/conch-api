@@ -60,14 +60,13 @@ sub register ($self, $app, $config) {
 		);
 	}
 
-	$app->hook(after_dispatch => sub {
-		my $c = shift;
+	$app->hook(after_dispatch => sub ($c) {
 
 		my $u_str = $c->stash('user') ?
 			$c->stash('user')->email . " (".$c->stash('user')->id.")" :
 			'NOT AUTHED';
 
-		my $req_headers = $c->tx->req->headers->to_hash(1);
+		my $req_headers = $c->req->headers->to_hash(1);
 		for (qw(Authorization Cookie jwt_token jwt_sig)) {
 			delete $req_headers->{$_};
 		}
@@ -95,7 +94,7 @@ sub register ($self, $app, $config) {
 			},
 		};
 
-		my $res_headers = $c->tx->res->headers->to_hash(1);
+		my $res_headers = $c->res->headers->to_hash(1);
 		for (qw(Set-Cookie)) {
 			delete $res_headers->{$_};
 		}

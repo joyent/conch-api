@@ -25,7 +25,7 @@ Register C<version_tag> and C<version_hash>.
 sub register ($self, $app, $conf) {
 
     my ($git_tag, $git_tag_stderr, undef) = capture {
-        system(qw(git describe));
+        system(qw(git describe --always --long));
     };
     chomp($git_tag ||= 'unknown');
     $app->log->fatal('git error: ' . $git_tag_stderr) if $git_tag_stderr;

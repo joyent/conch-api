@@ -1,3 +1,14 @@
+package Conch::Controller::User;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Mojo::Exception;
+use List::Util 'pairmap';
+use Mojo::JSON qw(to_json from_json);
+
 =pod
 
 =head1 NAME
@@ -5,19 +16,6 @@
 Conch::Controller::User
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::User;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Mojo::Exception;
-
-use List::Util 'pairmap';
-use Mojo::JSON qw(to_json from_json);
-
-with 'Conch::Role::MojoLog';
 
 =head2 revoke_own_tokens
 
@@ -231,15 +229,18 @@ password after logging in, as they will not be able to log in with it again.
 sub reset_user_password ($c) {
 	my $user = $c->stash('target_user');
 
-	my $new_password = $c->random_string();
-	$c->log->warn('user ' . $c->stash('user')->name . ' resetting password for user ' . $user->name);
-	$user->update({ password => $new_password });
+	my $new_password = $c->random_string;
+	my %update = (
+		password => $c->random_string(),
+	);
 
 	if ($c->req->query_params->param('clear_tokens') // 1) {
 		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for for user ' . $user->name);
 		$user->delete_related('user_session_tokens');
 
-		$user->update({
+		%update = (
+			%update,
+
 			# subsequent attempts to authenticate with the browser session or JWT will return
 			# 401 unauthorized, except for the /user/me/password endpoint
 			refuse_session_auth => 1,
@@ -248,8 +249,11 @@ sub reset_user_password ($c) {
 			# a reminder to the user to change their password,
 			# and the session expiration will be reduced to 10 min
 			force_password_change => 1,
-		});
+		);
 	}
+
+	$c->log->warn('user ' . $c->stash('user')->name . ' resetting password for user ' . $user->name);
+	$user->update(\%update);
 
 	return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
 
@@ -276,7 +280,7 @@ sub find_user ($c) {
 
 	# when deactivating users or removing users from a workspace, we want to find
 	# already-deactivated users too.
-	$user_rs = $user_rs->active if $c->tx->req->method ne 'DELETE';
+	$user_rs = $user_rs->active if $c->req->method ne 'DELETE';
 
 	$c->log->debug('looking up user '.$user_param);
 	my $user = $user_rs->lookup_by_id_or_email($user_param);

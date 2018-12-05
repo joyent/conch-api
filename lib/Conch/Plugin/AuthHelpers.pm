@@ -1,3 +1,9 @@
+package Conch::Plugin::AuthHelpers;
+
+use Mojo::Base 'Mojolicious::Plugin', -signatures;
+
+=pod
+
 =head1 NAME
 
 Conch::Plugin::AuthHelpers
@@ -9,10 +15,6 @@ Contains all convenience handlers for authentication
 =head1 HELPERS
 
 =cut
-
-package Conch::Plugin::AuthHelpers;
-
-use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 sub register ($self, $app, $conf) {
 

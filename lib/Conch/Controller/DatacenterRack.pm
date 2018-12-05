@@ -1,3 +1,10 @@
+package Conch::Controller::DatacenterRack;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
 =pod
 
 =head1 NAME
@@ -5,16 +12,6 @@
 Conch::Controller::DatacenterRack
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::DatacenterRack;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-
-with 'Conch::Role::MojoLog';
-
 
 =head2 find_rack
 

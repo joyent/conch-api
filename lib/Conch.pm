@@ -48,8 +48,7 @@ sub startup {
 
 
 	$self->hook(
-		before_render => sub {
-			my ( $c, $args ) = @_;
+		before_render => sub ($c, $args) {
 			my $template = $args->{template};
 			return if not $template;
 
@@ -65,8 +64,7 @@ sub startup {
 
 
 	$self->helper(
-		status => sub {
-			my ( $c, $code, $payload ) = @_;
+		status => sub ($c, $code, $payload = undef) {
 
 			$payload //= { error => "Forbidden" } if $code == 403;
 			$payload //= { error => "Unimplemented" } if $code == 501;
@@ -100,8 +98,7 @@ sub startup {
 		# and text/plain Content Types without triggering CORS checks in the browser.
 		# Appropriate CORS headers must still be added by the serving proxy
 		# to be effective against CSRF.
-		before_routes => sub {
-			my $c = shift;
+		before_routes => sub ($c) {
 			my $headers = $c->req->headers;
 
 			# Check only applies to requests with payloads (Content-Length
@@ -125,8 +122,7 @@ sub startup {
 	# apps locally, this is a necessary evil.
 	if ($self->mode eq 'development') {
 		$self->hook(
-			after_dispatch => sub {
-				my $c = shift;
+			after_dispatch => sub ($c) {
 				my $origin = $c->req->headers->origin || '*';
 				$c->res->headers->header( 'Access-Control-Allow-Origin' => $origin );
 				$c->res->headers->header(

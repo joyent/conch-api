@@ -1,9 +1,17 @@
 package Conch::Controller::Datacenter;
 
-use Role::Tiny::With;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
+
+=pod
+
+=head1 NAME
+
+Conch::Controller::Datacenter
+
+=head1 METHODS
 
 =head2 find_datacenter
 

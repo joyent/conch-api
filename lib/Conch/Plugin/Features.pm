@@ -3,6 +3,8 @@ package Conch::Plugin::Features;
 use v5.26;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
+=pod
+
 =head1 NAME
 
 Conch::Plugin::Features - Sets up a helper to access configured features
