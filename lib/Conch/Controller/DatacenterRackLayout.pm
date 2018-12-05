@@ -48,13 +48,16 @@ sub create ($c) {
     my $input = $c->validate_input('RackLayoutCreate');
     return if not $input;
 
+    $input->{hardware_product_id} = delete $input->{product_id};
+    $input->{rack_unit_start} = delete $input->{ru_start};
+
     unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
         $c->log->debug('Could not find datacenter rack '.$input->{rack_id});
         return $c->status(400 => { error => 'Rack does not exist' });
     }
 
-    unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
-        $c->log->debug('Could not find hardware product '.$input->{product_id});
+    unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
+        $c->log->debug('Could not find hardware product '.$input->{hardware_product_id});
         return $c->status(400 => { error => 'Hardware product does not exist' });
     }
 
@@ -63,19 +66,16 @@ sub create ($c) {
         ->occupied_rack_units;
 
     my $new_rack_unit_size = $c->db_hardware_products
-        ->search({ 'hardware_product.id' => $input->{product_id} })
+        ->search({ 'hardware_product.id' => $input->{hardware_product_id} })
         ->related_resultset('hardware_product_profile')
         ->get_column('rack_unit')->single;
 
-    my @desired_positions = $input->{ru_start} .. ($input->{ru_start} + $new_rack_unit_size - 1);
+    my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
     if (any { $occupied_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{ru_start} . ' is already occupied');
+        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already occupied');
         return $c->status(400 => { error => 'ru_start conflict' });
     }
-
-    $input->{hardware_product_id} = delete $input->{product_id};
-    $input->{rack_unit_start} = delete $input->{ru_start};
 
     my $layout = $c->db_datacenter_rack_layouts->create($input);
     $c->log->debug('Created datacenter rack layout '.$layout->id);
@@ -125,24 +125,27 @@ sub update ($c) {
     my $input = $c->validate_input('RackLayoutUpdate');
     return if not $input;
 
+    $input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
+    $input->{rack_unit_start} = delete $input->{ru_start} if exists $input->{ru_start};
+
     if ($input->{rack_id}) {
         unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
             return $c->status(400 => { error => 'Rack does not exist' });
         }
     }
 
-    if ($input->{product_id}) {
-        unless ($c->db_hardware_products->active->search({ id => $input->{product_id} })->exists) {
+    if ($input->{hardware_product_id}) {
+        unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
             return $c->status(400 => { error => 'Hardware product does not exist' });
         }
     }
 
-    if ($input->{ru_start} and $input->{ru_start} != $c->stash('rack_layout')->rack_unit_start) {
+    if ($input->{rack_unit_start} and $input->{rack_unit_start} != $c->stash('rack_layout')->rack_unit_start) {
         if ($c->db_datacenter_rack_layouts->search({
                     rack_id => $c->stash('rack_layout')->rack_id,
-                    rack_unit_start => $input->{ru_start},
+                    rack_unit_start => $input->{rack_unit_start},
                 })->exists) {
-            $c->log->debug('Conflict with ru_start value of '.$input->{ru_start});
+            $c->log->debug('Conflict with ru_start value of '.$input->{rack_unit_start});
             return $c->status(400 => { error => 'ru_start conflict' });
         }
     }
@@ -161,23 +164,20 @@ sub update ($c) {
         ($c->stash('rack_layout')->rack_unit_start + $current_rack_unit_size - 1)
     };
 
-    my $new_rack_unit_size = $input->{product_id}
-        ? $c->db_hardware_products->search({ 'hardware_product.id' => $input->{product_id} })
+    my $new_rack_unit_size = $input->{hardware_product_id}
+        ? $c->db_hardware_products->search({ 'hardware_product.id' => $input->{hardware_product_id} })
             ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single
         : $current_rack_unit_size;
 
     my @desired_positions =
-        ($input->{ru_start} // $c->stash('rack_layout')->rack_unit_start)
+        ($input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start)
         ..
-        (($input->{ru_start} // $c->stash('rack_layout')->rack_unit_start) + $new_rack_unit_size - 1);
+        (($input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start) + $new_rack_unit_size - 1);
 
     if (any { $occupied_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{ru_start} . ' is already occupied');
+        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already occupied');
         return $c->status(400 => { error => 'ru_start conflict' });
     }
-
-    $input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
-    $input->{rack_unit_start} = delete $input->{ru_start} if exists $input->{ru_start};
 
     $c->stash('rack_layout')->update({ %$input, updated => \'now()' });
 
