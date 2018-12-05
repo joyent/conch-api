@@ -1381,6 +1381,18 @@ DISTRIBUTIONS
       perl 5.008004
       strict 0
       warnings 0
+  Devel-Confess-0.009004
+    pathname: H/HA/HAARG/Devel-Confess-0.009004.tar.gz
+    provides:
+      Devel::Confess 0.009004
+      Devel::Confess::Builtin 0.009004
+      Devel::Confess::Source undef
+      Devel::Confess::_Util undef
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      perl 5.006
   Devel-Cycle-1.12
     pathname: L/LD/LDS/Devel-Cycle-1.12.tar.gz
     provides:

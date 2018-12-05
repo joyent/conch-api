@@ -10,7 +10,6 @@ requires 'perl', '5.026';
 requires 'Cpanel::JSON::XS';
 requires 'List::MoreUtils::XS';         # make List::MoreUtils faster
 requires 'Data::UUID';
-requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
 requires 'List::Compare';
 requires 'Mail::Sendmail';
 requires 'Try::Tiny';
@@ -44,6 +43,9 @@ requires 'Types::UUID';
 requires 'Role::Tiny';
 requires 'Getopt::Long::Descriptive';
 
+# debugging aids
+requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
+requires 'Devel::Confess';
 
 # database and rendering
 requires 'DBD::Pg';
