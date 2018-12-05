@@ -6,7 +6,7 @@ use Data::UUID;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture_set('workspace_room_rack_layout', 0);  # contains compute, storage products
+$t->load_fixture_set('workspace_room_rack_layout', $_) for 0..1; # contains compute, storage products
 $t->load_fixture('hardware_product_switch', 'hardware_product_profile_switch');
 
 my $hw_product_switch = $t->load_fixture('hardware_product_switch');    # rack_unit_size 1
@@ -35,11 +35,13 @@ my $rack_id = $t->load_fixture('datacenter_rack_0a')->id;
 $t->get_ok('/layout')
     ->status_is(200)
     ->json_schema_is('RackLayouts')
-    ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, ru_start => 1, product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 3, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
-    ]);
+    ->json_cmp_deeply(bag(
+      map {
+        superhashof({ rack_id => $_, ru_start => 1, product_id => $hw_product_compute->id }),
+        superhashof({ rack_id => $_, ru_start => 3, product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $_, ru_start => 11, product_id => $hw_product_storage->id }),
+      } $rack_id, $t->load_fixture('datacenter_rack_1a')->id
+    ));
 
 my $initial_layouts = $t->tx->res->json;
 my $layout_width_4 = $initial_layouts->[2];    # start 11, width 4.
@@ -52,8 +54,6 @@ $t->get_ok("/layout/$initial_layouts->[0]{id}")
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('Error');
-
-my $rack_id = $t->load_fixture('datacenter_rack_0a')->id;
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
@@ -120,6 +120,12 @@ $t->get_ok("/rack/$rack_id/layouts")
 
 my $layout_3_6 = $t->load_fixture('datacenter_rack_0a_layout_3_6');
 
+# can't move a layout to a new rack
+$t->post_ok('/layout/'.$layout_3_6->id,
+        json => { rack_id => $t->load_fixture('datacenter_rack_1a')->id })
+    ->status_is(400)
+    ->json_is({ error => 'cannot change rack_id' });
+
 # can't put something into an assigned position
 $t->post_ok('/layout/'.$layout_3_6->id, json => { ru_start => 11 })
     ->status_is(400)
@@ -165,11 +171,6 @@ $t->get_ok("/rack/$rack_id/layouts")
         superhashof({ rack_id => $rack_id, ru_start => 19, product_id => $hw_product_storage->id }),
         superhashof({ rack_id => $rack_id, ru_start => 42, product_id => $hw_product_switch->id }),
     ]);
-
-$t->post_ok('/layout/'.$layout_19_22->id, json => { rack_id => $fake_id })
-    ->status_is(400)
-    ->json_schema_is('Error')
-    ->json_is({ error => 'Rack does not exist' });
 
 $t->post_ok('/layout/'.$layout_19_22->id, json => { product_id => $fake_id })
     ->status_is(400)

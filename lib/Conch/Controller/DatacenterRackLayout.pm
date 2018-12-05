@@ -136,10 +136,10 @@ sub update ($c) {
     $input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
     $input->{rack_unit_start} = delete $input->{ru_start} if exists $input->{ru_start};
 
-    if ($input->{rack_id}) {
-        unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
-            return $c->status(400 => { error => 'Rack does not exist' });
-        }
+    # if changing rack...
+    if ($input->{rack_id} and $input->{rack_id} ne $c->stash('rack_layout')->rack_id) {
+        $c->log->debug('Cannot move a layout to a new rack. Delete this layout and create a new one at the new location');
+        return $c->status(400 => { error => 'cannot change rack_id' });
     }
 
     if ($input->{hardware_product_id}) {
