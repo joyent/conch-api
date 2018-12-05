@@ -36,6 +36,7 @@ requires 'Mojolicious::Plugin::NYTProf';
 requires 'Mozilla::CA'; # not used directly, but IO::Socket::SSL sometimes demands it
 requires 'IO::Socket::SSL';
 
+requires 'Path::Tiny';
 requires 'Moo';
 requires 'Type::Tiny';
 requires 'Types::Standard';
@@ -68,7 +69,6 @@ on 'test' => sub {
     requires 'Test::Warnings';
     requires 'Test::Fatal';
     requires 'Test::Deep';
-    requires 'Path::Tiny';
     requires 'Test::Memory::Cycle';
     requires 'Module::CPANfile';
     requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose
