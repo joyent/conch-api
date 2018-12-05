@@ -1,11 +1,15 @@
-# vim: set ts=8 sts=4 sw=4 et :
+# vim: set ft=perl ts=8 sts=4 sw=4 et :
 
-requires 'perl', '5.26.0';
+print "Installing dependencies for conch, using $^X at version $]\n";
+print "PERL5LIB=$ENV{PERL5LIB}\n\n";
+
+requires 'perl', '5.026';
 
 
 # basics
+requires 'Cpanel::JSON::XS';
+requires 'List::MoreUtils::XS';         # make List::MoreUtils faster
 requires 'Data::UUID';
-requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
 requires 'List::Compare';
 requires 'Mail::Sendmail';
 requires 'Try::Tiny';
@@ -19,10 +23,13 @@ requires 'HTTP::Tiny';
 requires 'Safe::Isa';
 requires 'Encode', '2.98';
 requires 'Capture::Tiny';
+requires 'Dir::Self';
+requires 'Carp';
+requires 'Crypt::Eksblowfish::Bcrypt';
+requires 'Module::Runtime';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
-requires 'Cpanel::JSON::XS';
 requires 'Mojo::Pg';
 requires 'Mojo::Server::PSGI';
 requires 'Mojo::JWT';
@@ -32,15 +39,19 @@ requires 'Mojolicious::Plugin::NYTProf';
 requires 'Mozilla::CA'; # not used directly, but IO::Socket::SSL sometimes demands it
 requires 'IO::Socket::SSL';
 
+requires 'Path::Tiny';
 requires 'Moo';
 requires 'Type::Tiny';
 requires 'Types::Standard';
 requires 'Types::UUID';
 requires 'Role::Tiny';
-requires 'List::MoreUtils';
-requires 'List::MoreUtils::XS';
 requires 'Getopt::Long::Descriptive';
+requires 'Session::Token';
+requires 'Sys::Hostname';
 
+# debugging aids
+requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
+requires 'Devel::Confess';
 
 # database and rendering
 requires 'DBD::Pg';
@@ -63,7 +74,6 @@ on 'test' => sub {
     requires 'Test::Warnings';
     requires 'Test::Fatal';
     requires 'Test::Deep';
-    requires 'Path::Tiny';
     requires 'Test::Memory::Cycle';
     requires 'Module::CPANfile';
     requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose

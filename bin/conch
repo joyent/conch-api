@@ -15,8 +15,11 @@ Start script for conch Mojo app
 use strict;
 use warnings;
 
-use FindBin;
-use lib "$FindBin::Bin/../lib";
+use Dir::Self;
+use lib __DIR__ =~ s{/bin}{}r . '/lib';
+
+die '. is in %INC: this is not safe' if grep { $_ eq '.' } @INC or $ENV{PERL_USE_UNSAFE_INC};
+
 use Mojolicious::Commands;
 
 # Start command line interface for application
