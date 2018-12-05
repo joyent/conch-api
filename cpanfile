@@ -24,6 +24,9 @@ requires 'Safe::Isa';
 requires 'Encode', '2.98';
 requires 'Capture::Tiny';
 requires 'Dir::Self';
+requires 'Carp';
+requires 'Crypt::Eksblowfish::Bcrypt';
+requires 'Module::Runtime';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
@@ -43,6 +46,8 @@ requires 'Types::Standard';
 requires 'Types::UUID';
 requires 'Role::Tiny';
 requires 'Getopt::Long::Descriptive';
+requires 'Session::Token';
+requires 'Sys::Hostname';
 
 # debugging aids
 requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
