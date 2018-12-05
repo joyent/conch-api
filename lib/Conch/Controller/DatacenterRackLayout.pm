@@ -22,19 +22,19 @@ Supports rack layout lookups by id
 =cut
 
 sub find_datacenter_rack_layout ($c) {
-	unless($c->is_system_admin) {
-		return $c->status(403);
-	}
+    unless($c->is_system_admin) {
+        return $c->status(403);
+    }
 
-	my $layout = $c->db_datacenter_rack_layouts->find($c->stash('layout_id'));
-	if (not $layout) {
-		$c->log->debug("Could not find datacenter rack layout ".$c->stash('layout_id'));
-		return $c->status(404 => { error => "Not found" });
-	}
+    my $layout = $c->db_datacenter_rack_layouts->find($c->stash('layout_id'));
+    if (not $layout) {
+        $c->log->debug('Could not find datacenter rack layout '.$c->stash('layout_id'));
+        return $c->status(404 => { error => 'Not found' });
+    }
 
-	$c->log->debug("Found datacenter rack layout ".$layout->id);
-	$c->stash('rack_layout' => $layout);
-	return 1;
+    $c->log->debug('Found datacenter rack layout '.$layout->id);
+    $c->stash('rack_layout' => $layout);
+    return 1;
 }
 
 =head2 create
@@ -85,15 +85,15 @@ sub create ($c) {
 
 =head2 get
 
+Gets one specific rack layout.
+
 Response uses the RackLayout json schema.
 
 =cut
 
 sub get ($c) {
-	$c->status(200, $c->stash('rack_layout'));
+    $c->status(200, $c->stash('rack_layout'));
 }
-
-
 
 =head2 get_all
 
@@ -104,14 +104,14 @@ Response uses the RackLayouts json schema.
 =cut
 
 sub get_all ($c) {
-	return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) unless $c->is_system_admin;
 
-	# TODO: to be more helpful to the UI, we should include the width of the hardware that will
-	# occupy each rack_unit(s).
+    # TODO: to be more helpful to the UI, we should include the width of the hardware that will
+    # occupy each rack_unit(s).
 
-	my @layouts = $c->db_datacenter_rack_layouts->all;
-	$c->log->debug("Found ".scalar(@layouts)." datacenter rack layouts");
-	$c->status(200 => \@layouts);
+    my @layouts = $c->db_datacenter_rack_layouts->all;
+    $c->log->debug('Found '.scalar(@layouts).' datacenter rack layouts');
+    $c->status(200 => \@layouts);
 }
 
 =head2 update
@@ -137,10 +137,11 @@ sub update ($c) {
         }
     }
 
-    if ($input->{ru_start} && ($input->{ru_start} != $c->stash('rack_layout')->rack_unit_start)) {
-        if ($c->db_datacenter_rack_layouts->search(
-                    { rack_id => $c->stash('rack_layout')->rack_id, rack_unit_start => $input->{ru_start} }
-                )->exists) {
+    if ($input->{ru_start} and $input->{ru_start} != $c->stash('rack_layout')->rack_unit_start) {
+        if ($c->db_datacenter_rack_layouts->search({
+                    rack_id => $c->stash('rack_layout')->rack_id,
+                    rack_unit_start => $input->{ru_start},
+                })->exists) {
             $c->log->debug('Conflict with ru_start value of '.$input->{ru_start});
             return $c->status(400 => { error => 'ru_start conflict' });
         }
@@ -175,7 +176,6 @@ sub update ($c) {
         return $c->status(400 => { error => 'ru_start conflict' });
     }
 
-
     $input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
     $input->{rack_unit_start} = delete $input->{ru_start} if exists $input->{ru_start};
 
@@ -184,18 +184,17 @@ sub update ($c) {
     return $c->status(303 => '/layout/'.$c->stash('rack_layout')->id);
 }
 
-
 =head2 delete
 
+Deletes the specified rack layout.
 
 =cut
 
 sub delete ($c) {
-	$c->stash('rack_layout')->delete;
-	$c->log->debug("Deleted datacenter rack layout ".$c->stash('rack_layout')->id);
-	return $c->status(204);
+    $c->stash('rack_layout')->delete;
+    $c->log->debug('Deleted datacenter rack layout '.$c->stash('rack_layout')->id);
+    return $c->status(204);
 }
-
 
 1;
 __END__
@@ -211,3 +210,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

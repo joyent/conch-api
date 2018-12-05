@@ -12,7 +12,7 @@ my $uuid = Data::UUID->new;
 $t->post_ok(
     '/login' => json => {
         user     => 'conch@conch.joyent.us',
-        password => 'conch'
+        password => 'conch',
     }
 )->status_is(200);
 BAIL_OUT('Login failed') if $t->tx->res->code != 200;
