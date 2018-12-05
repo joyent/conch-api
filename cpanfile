@@ -7,6 +7,8 @@ requires 'perl', '5.026';
 
 
 # basics
+requires 'Cpanel::JSON::XS';
+requires 'List::MoreUtils::XS';         # make List::MoreUtils faster
 requires 'Data::UUID';
 requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
 requires 'List::Compare';
@@ -26,7 +28,6 @@ requires 'Dir::Self';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
-requires 'Cpanel::JSON::XS';
 requires 'Mojo::Pg';
 requires 'Mojo::Server::PSGI';
 requires 'Mojo::JWT';
@@ -41,8 +42,6 @@ requires 'Type::Tiny';
 requires 'Types::Standard';
 requires 'Types::UUID';
 requires 'Role::Tiny';
-requires 'List::MoreUtils';
-requires 'List::MoreUtils::XS';
 requires 'Getopt::Long::Descriptive';
 
 
