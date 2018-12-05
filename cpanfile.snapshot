@@ -231,20 +231,7 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
-      Config::General 2.47
       Module::Pluggable::Object 3.6
-  Config-General-2.63
-    pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
-    provides:
-      Config::General 2.63
-      Config::General::Extended 2.07
-      Config::General::Interpolated 2.15
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Glob 0
-      File::Spec::Functions 0
-      FileHandle 0
-      IO::File 0
   Context-Preserve-0.03
     pathname: E/ET/ETHER/Context-Preserve-0.03.tar.gz
     provides:
