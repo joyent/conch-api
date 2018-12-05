@@ -15,12 +15,12 @@ Conch::Route::Validation
 Sets up the routes for /validation and /validation_plan:
 
     GET     /validation
-    POST    /validation_plan
+    POST    /validation_plan                                                DISABLED
     GET     /validation_plan
     GET     /validation_plan/:validation_plan_id
     GET     /validation_plan/:validation_plan_id/validation
-    POST    /validation_plan/:validation_plan_id/validation
-    DELETE  /validation_plan/:validation_plan_id/validation/:validation_id
+    POST    /validation_plan/:validation_plan_id/validation                 DISABLED
+    DELETE  /validation_plan/:validation_plan_id/validation/:validation_id  DISABLED
 
 =cut
 
@@ -35,7 +35,7 @@ sub routes {
     my $vp = $r->any('/validation_plan');
     $vp->to({ controller => 'validation_plan' });
 
-    # POST /validation_plan
+    # POST /validation_plan (DISABLED)
     $vp->post('/')->to('#create');
 
     # GET /validation_plan
@@ -50,10 +50,10 @@ sub routes {
         # GET /validation_plan/:validation_plan_id/validation
         $with_plan->get('/validation')->to('#list_validations');
 
-        # POST /validation_plan/:validation_plan_id/validation
+        # POST /validation_plan/:validation_plan_id/validation (DISABLED)
         $with_plan->post('/validation')->to('#add_validation');
 
-        # DELETE /validation_plan/:validation_plan_id/validation/:validation_id
+        # DELETE /validation_plan/:validation_plan_id/validation/:validation_id (DISABLED)
         $with_plan->delete('/validation/:validation_id')->to('#remove_validation');
     }
 }

@@ -26,6 +26,9 @@ Create new Validation Plan.
 sub create ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
+    # this endpoint is temporarily disabled
+    return $c->status(404);
+
     my $input = $c->validate_input('CreateValidationPlan');
     return if not $input;
 
@@ -120,6 +123,9 @@ Add a validation to a validation plan.
 sub add_validation ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
+    # this endpoint is temporarily disabled
+    return $c->status(404);
+
     my $input = $c->validate_input('AddValidationToPlan');
     return if not $input;
 
@@ -145,6 +151,9 @@ Remove a Validation associated with the Validation Plan
 
 sub remove_validation ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
+    # this endpoint is temporarily disabled
+    return $c->status(404);
 
     my $validation_id = $c->stash('validation_id');
     unless (is_uuid($validation_id)) {
