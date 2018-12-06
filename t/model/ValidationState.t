@@ -6,7 +6,6 @@ use Test::ConchTmpDB qw(mk_tmp_db);
 use DDP;
 use Data::UUID;
 
-use Conch::Model::Device;
 use Conch::Model::ValidationPlan;
 use Conch::Model::Validation;
 
@@ -73,7 +72,12 @@ my $hardware_profile_id = $pg->db->insert(
 	{ returning => ['id'] }
 )->hash->{id};
 
-my $device = Conch::Model::Device->create( 'coffee', $hardware_product_id );
+my $device = $t->app->db_devices->create({
+	id => 'coffee',
+	hardware_product_id => $hardware_product_id,
+	state => 'UNKNOWN',
+	health => 'UNKNOWN',
+});
 my $device_report = $t->app->db_device_reports->create({ device_id => 'coffee', report => '{}' });
 
 BAIL_OUT("Could not create a validation plan and device ")
@@ -157,7 +161,7 @@ $validation_plan->add_validation($real_validation);
 
 subtest 'latest_completed_grouped_states_for_device' => sub {
 	my $latest_state = $validation_plan->run_with_state(
-		$device->id,
+		$device,
 		$device_report->id,
 		{ product_name => 'test hw product' }
 	);
@@ -176,7 +180,7 @@ subtest 'latest_completed_grouped_states_for_device' => sub {
 	$validation_plan_1->add_validation($real_validation);
 	my $new_state =
 		$validation_plan_1->run_with_state(
-			$device->id,
+			$device,
 			$device_report->id,
 			{}
 		);

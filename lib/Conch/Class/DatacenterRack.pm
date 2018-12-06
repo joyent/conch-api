@@ -10,9 +10,6 @@ Conch::Class::DatacenterRack
 
 package Conch::Class::DatacenterRack;
 use Mojo::Base -base, -signatures;
-use Role::Tiny 'with';
-
-with 'Conch::Class::Role::ToJson';
 
 =head2 id
 
@@ -29,20 +26,6 @@ List of available slots defined by the rack layout
 =cut
 
 has [qw( id name role_name datacenter_room_id slots)];
-
-=head2 TO_JSON
-
-=cut
-
-sub TO_JSON {
-	my $self = shift;
-	return {
-		id => $self->id,
-		name => $self->name,
-		role_name => $self->name,
-		datacenter_room_id => $self->datacenter_room_id
-	};
-}
 
 1;
 __END__

@@ -30,7 +30,7 @@ subtest 'Set up a test device' => sub {
         json => {
             serial   => 'deadbeef',
             version  => '0.0.1',
-            idaddr   => '127.0.0.1',
+            ipaddr   => '127.0.0.1',
             ssh_port => '22',
             alias    => 'test relay',
         }

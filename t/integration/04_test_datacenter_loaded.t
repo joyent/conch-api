@@ -301,10 +301,16 @@ subtest 'Device Report' => sub {
 subtest 'Assign device to a location' => sub {
 	$t->post_ok(
 		"/workspace/$global_ws_id/rack/$rack_id/layout",
-		json => { TEST => 1 })
+		json => { TEST => 42 })
+	->status_is(409)
+	->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
+
+	$t->post_ok(
+		"/workspace/$global_ws_id/rack/$rack_id/layout",
+		json => { TEST => 1, NEW_DEVICE => 3 })
 	->status_is(200)
 	->json_schema_is('WorkspaceRackLayoutUpdateResponse')
-	->json_is({ updated => [ 'TEST' ] });
+	->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
 
 	cmp_deeply(
 		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
@@ -322,6 +328,8 @@ subtest 'Assign device to a location' => sub {
 		->json_is(
 			'/slots/0/rack_unit_start', 1,
 			'/slots/0/occupant/id', 'TEST',
+			'/slots/1/rack_unit_start', 3,
+			'/slots/1/occupant/id', 'NEW_DEVICE',
 		);
 
 	$t->get_ok("/workspace/$global_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
@@ -515,29 +523,30 @@ subtest 'Workspace devices' => sub {
 	$t->get_ok("/workspace/$global_ws_id/device")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('/0/id', 'TEST');
+		->json_is('/0/id', 'TEST')
+		->json_is('/1/id', 'NEW_DEVICE');
 
 	$devices_data = $t->tx->res->json;
 
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=f")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '', [] );
+		->json_is('', [ $devices_data->[1] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=F")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '', [] );
+		->json_is('', [ $devices_data->[1] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('', $devices_data);
+		->json_is('', [ $devices_data->[0] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=T")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('', $devices_data);
+		->json_is('', [ $devices_data->[0] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?health=fail")
 		->status_is(200)
@@ -552,46 +561,52 @@ subtest 'Workspace devices' => sub {
 	$t->get_ok("/workspace/$global_ws_id/device?health=pass")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('', $devices_data);
+		->json_is('', [ $devices_data->[0] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?health=PASS")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('', $devices_data);
+		->json_is('', [ $devices_data->[0] ]);
+
+	$t->get_ok("/workspace/$global_ws_id/device?health=unknown")
+		->status_is(200)
+		->json_schema_is('Devices')
+		->json_is('', [ $devices_data->[1] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('', $devices_data);
+		->json_is('', [ $devices_data->[0] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is( '', [] );
+		->json_is('', []);
 
 	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
 		->status_is(200)
-		->content_is('["TEST"]');
+		->json_is(['TEST', 'NEW_DEVICE']);
 
 	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
 		->status_is(200)
-		->content_is('["TEST"]');
+		->json_is(['TEST']);
 
 	$t->get_ok("/workspace/$global_ws_id/device?active=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('', $devices_data);
+		->json_is('', [ $devices_data->[0] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
 		->status_is(200)
 		->json_schema_is('Devices')
-		->json_is('', $devices_data);
+		->json_is('', [ $devices_data->[0] ]);
 
 	# /device/active redirects to /device so first make sure there is a redirect,
 	# then follow it and verify the results
 	subtest 'Redirect /workspace/:id/device/active' => sub {
 		$t->get_ok("/workspace/$global_ws_id/device/active")
-			->status_is(302);
+			->status_is(302)
+			->location_is("/workspace/$global_ws_id/device?active=t");
 
 		my $temp = $t->ua->max_redirects;
 		$t->ua->max_redirects(1);
@@ -599,7 +614,7 @@ subtest 'Workspace devices' => sub {
 		$t->get_ok("/workspace/$global_ws_id/device/active")
 			->status_is(200)
 			->json_schema_is('Devices')
-			->json_is('', $devices_data);
+			->json_is('', [ $devices_data->[0] ]);
 
 		$t->ua->max_redirects($temp);
 	};
@@ -623,7 +638,7 @@ subtest 'Relays' => sub {
 				room_name => 'test-region-1a',	# ""
 				role_name => 'TEST_RACK_ROLE',	# ""
 			},
-			devices => $devices_data,
+			devices => [ $devices_data->[0] ],
 		}]);
 
 	my $relays = $t->tx->res->json;
@@ -883,14 +898,19 @@ subtest 'Device location' => sub {
 		->status_is(400, 'requires body')
 		->json_like('/error', qr/Expected object/);
 
-	$t->post_ok( '/device/TEST/location',
-		json => { rack_id => $rack_id, rack_unit => 3 } )->status_is(303)
+	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 42 })
+		->status_is(409)
+		->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
+
+	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
+		->status_is(303)
 		->location_is('/device/TEST/location');
 
-	$t->delete_ok('/device/TEST/location')->status_is(204, 'can delete device location');
+	$t->delete_ok('/device/TEST/location')
+		->status_is(204, 'can delete device location');
 
-	$t->post_ok( '/device/TEST/location',
-		json => { rack_id => $rack_id, rack_unit => 3 })->status_is(303, 'add it back');
+	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
+		->status_is(303, 'add it back');
 };
 
 subtest 'Log out' => sub {

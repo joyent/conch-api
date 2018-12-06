@@ -10,9 +10,6 @@ Conch::Class::DatacenterRoom
 
 package Conch::Class::DatacenterRoom;
 use Mojo::Base -base, -signatures;
-use Role::Tiny 'with';
-
-with 'Conch::Class::Role::ToJson';
 
 =head2 id
 
@@ -25,22 +22,6 @@ with 'Conch::Class::Role::ToJson';
 =cut
 
 has [qw( id az alias vendor_name )];
-
-
-
-=head2 TO_JSON
-
-=cut
-
-sub TO_JSON {
-	my $self = shift;
-	{
-		id          => $self->id,
-		az          => $self->az,
-		alias       => $self->alias,
-		vendor_name => $self->vendor_name
-	};
-}
 
 1;
 __END__

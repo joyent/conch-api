@@ -5,7 +5,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
-use Conch::Models;
 use List::Util 'any';
 use Mojo::JSON 'from_json';
 
@@ -109,17 +108,18 @@ sub get ($c) {
 		->order_by([ qw(iface_name serial_number) ])
 		->find({});
 
-	my $maybe_location = Conch::Model::DeviceLocation->new->lookup($device->id);
+	my $location = $c->stash('device_rs')
+		->related_resultset('device_location')
+		->get_detailed
+		->single;
 
 	my $latest_report = $c->stash('device_rs')
 		->latest_device_report
 		->columns([qw(report invalid_report)])
 		->single;
 
-	# TODO: we can collapse this all down to a self-contained serializer once the
-	# DeviceLocation query has been converted to a prefetchable relationship.
 	my $detailed_device = +{
-		%{ $device->TO_JSON },
+		$device->TO_JSON->%*,
 		latest_report_is_invalid => \($latest_report->invalid_report ? 1 : 0),
 		latest_report => $latest_report->report ? from_json($latest_report->report) : undef,
 		# if not null, this is text - maybe json-encoded, maybe random junk
@@ -132,8 +132,8 @@ sub get ($c) {
 				(map { $_ => $device_nic->device_neighbor->$_ } qw(mac peer_mac peer_port peer_switch)),
 			}
 		} $device->device_nics ],
-		location => $maybe_location,
-		disks => [ map { $_->deactivated ? () : +{ $_->TO_JSON->%* } } $device->device_disks ],
+		location => $location,
+		disks => [ map { $_->deactivated ? () : $_->TO_JSON } $device->device_disks ],
 	};
 
 	$c->status( 200, $detailed_device );
