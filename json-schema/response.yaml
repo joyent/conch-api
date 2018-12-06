@@ -975,64 +975,70 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/WorkspaceRelay"
-  WorkspaceRelay:
-    type: object
-    additionalProperties: false
-    required:
-      - alias
-      - created
-      - devices
-      - id
-      - ipaddr
-      - location
-      - ssh_port
-      - updated
-      - version
-    properties:
-      alias:
-        anyOf:
-          - type: string
-          - type: 'null'
-      created:
-        type: string
-        format: date-time
-      devices:
-        description: >
-          Array of devices that have reported through this relay device
-        type: array
-        uniqueItems: true
-        items:
-          $ref: "#/definitions/Device"
-      id:
-        type: string
-      ipaddr:
-        anyOf:
-          - $ref: /definitions/ipaddr
-          - type: 'null'
-      location:
-        type: object
-        additionalProperties: false
-        properties:
-          rack_id:
-            $ref: /definitions/uuid
-          rack_name:
-            type: string
-          role_name:
-            type: string
-          room_name:
-            type: string
-      ssh_port:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      updated:
-        type: string
-        format: date-time
-      version:
-        anyOf:
-          - type: string
-          - type: 'null'
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - alias
+        - version
+        - ipaddr
+        - ssh_port
+        - created
+        - updated
+        - location
+        - last_seen
+        - num_devices
+      properties:
+        id:
+          type: string
+        alias:
+          anyOf:
+            - type: string
+            - type: 'null'
+        version:
+          anyOf:
+            - type: string
+            - type: 'null'
+        ipaddr:
+          anyOf:
+            - $ref: /definitions/ipaddr
+            - type: 'null'
+        ssh_port:
+          anyOf:
+            - type: integer
+            - type: 'null'
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        location:
+          description: Last reported location of the relay
+          type: object
+          additionalProperties: false
+          required:
+            - rack_id
+            - rack_name
+            - rack_unit_start
+            - role_name
+            - az
+          properties:
+            rack_id:
+              $ref: /definitions/uuid
+            rack_name:
+              type: string
+            rack_unit_start:
+              type: integer
+            role_name:
+              type: string
+            az:
+              type: string
+        last_seen:
+          type: string
+          format: date-time
+        num_devices:
+          type: integer
   WorkspaceAndRole:
     type: object
     additionalProperties: false

@@ -16,12 +16,12 @@ use warnings;
 
 use Conch::DB;
 
+use Conch::Model::Device;
 use Conch::Model::DeviceLocation;
 use Conch::Model::HardwareProduct;
 use Conch::Model::Validation;
 use Conch::Model::ValidationPlan;
 use Conch::Model::ValidationState;
-use Conch::Model::WorkspaceRelay;
 
 1;
 __END__
