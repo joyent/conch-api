@@ -283,38 +283,41 @@ sub load_validation_plans ($self, $plans) {
 
         $plan->delete_related('validation_plan_members');
         foreach my $module ($plan_data->{validations}->@*) {
-            my $validation = $self->app->db_validations->active->find({ module => $module })
-                // $self->load_validation($module);
-
+            my $validation = $self->load_validation($module);
             $plan->add_to_validations($validation);
         }
         $self->app->log->info('Loaded validation plan ' . $plan->name);
-        push @plans, $plan;
+        push @plans, $self->app->db_ro_validation_plans->find($plan->id);
     }
     return @plans;
 }
 
 =head2 load_validation
 
-Add data for a validator module to the database.
+Add data for a validator module to the database, if it does not already exist.
 
 =cut
 
 sub load_validation ($self, $module) {
+    my $validation = $self->app->db_ro_validations->active->search({ module => $module })->single;
+    return $validation if $validation;
+
     require_module($module);
     my $validator = $module->new;
 
-    $self->app->db_validations->create({
+    $validation = $self->app->db_validations->create({
         name => $validator->name,
         version => $validator->version,
         description => trim($validator->description),
         module => $module,
     });
+    return $self->app->db_ro_validations->find($validation->id);
 }
 
 =head2 load_fixture
 
 Populate the database with one or more fixtures.
+Returns the objects that were explicitly requested.
 
 =cut
 

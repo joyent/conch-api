@@ -95,17 +95,8 @@ Get all settings for a device as a hash
 =cut
 
 sub get_all ($c) {
-
-	# no need to check 'ro' perms - find_device() already checked the workspace
-
-	my %settings = map {
-		$_->name => $_->value
-	} $c->stash('device_rs')
-		->related_resultset('device_settings')
-		->active
-		->order_by('created');
-
-	$c->status( 200, \%settings );
+    my %settings = $c->stash('device_rs')->single->device_settings_as_hash;
+    $c->status(200, \%settings);
 }
 
 =head2 get_single

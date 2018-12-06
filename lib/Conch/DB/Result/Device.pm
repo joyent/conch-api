@@ -442,6 +442,26 @@ sub latest_report_matches {
         ->exists;
 }
 
+=head2 device_settings_as_hash
+
+Returns a hash of all (active) device settings.
+
+=cut
+
+sub device_settings_as_hash {
+    my $self = shift;
+
+    # fold all rows into a hash, newer rows overriding older.
+    my %settings = map {
+        $_->name => $_->value
+    } $self
+        ->related_resultset('device_settings')
+        ->active
+        ->order_by('created');
+
+    return %settings;
+}
+
 1;
 __END__
 

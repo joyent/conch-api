@@ -5,6 +5,8 @@ use Mojo::Util 'trim';
 use Path::Tiny;
 use Try::Tiny;
 use Module::Runtime 'require_module';
+use List::Util qw(all reduce);
+use Mojo::JSON 'from_json';
 
 has 'schema';
 has 'log';
@@ -69,7 +71,7 @@ sub check_validation_plan ($self, $validation_plan) {
             if (not $module->isa('Conch::Validation')) {
                 $self->log->error("$module must be a sub-class of Conch::Validation");
                 $valid_plan = 0;
-                return;
+                return; # from try sub
             }
 
             my $validator = $module->new;
@@ -83,6 +85,12 @@ sub check_validation_plan ($self, $validation_plan) {
                     $valid_plan = 0;
                     ++$failed;
                 }
+            }
+
+            if (not $validator->category) {
+                $self->log->warn("$module does not set a category");
+                $valid_plan = 0;
+                ++$failed;
             }
 
             ++$validation_modules{$module} if not $failed;
@@ -138,8 +146,10 @@ sub load_validations ($self) {
 
         my $validator = $module->new;
 
-        if (not ($validator->name and $validator->version and $validator->description)) {
-            $self->log->fatal("$module must define the 'name', 'version, and 'description' attributes");
+        my @fields = qw(name version description category);
+        if (not all { $validator->$_ } @fields) {
+            $self->log->fatal("$module must define the " .
+                join(', ', map { "'$_'" } @fields) . ' attributes');
             return;
         }
 
@@ -172,6 +182,157 @@ sub load_validations ($self) {
     path('lib/Conch/Validation')->visit($iterator, { recurse => 1 });
 
     return $num_loaded_validations;
+}
+
+=head2 run_validation_plan
+
+Runs the provided validation_plan against the provided device.
+
+All provided data objects can and should be read-only (fetched with a ro db handle).
+
+If C<< no_save_db => 1 >> is passed, the validation records are returned, without writing them
+to the database.  Otherwise, a validation_state record is created and validation_result records
+saved with de-duplication logic applied.
+
+Takes options as a hash:
+
+    validation_plan => $plan,       # required, a Conch::DB::Result::ValidationPlan object
+    device => $device,              # required, a Conch::DB::Result::Device object
+    device_report => $report,       # optional, a Conch::DB::Result::DeviceReport object
+                                    # (required if no_save_db is false)
+    data => $data,                  # optional, a hashref of device report data; required if
+                                    # device_report is not provided
+    no_save_db => 0|1               # optional, defaults to false
+
+=cut
+
+sub run_validation_plan ($self, %options) {
+    my $validation_plan = delete $options{validation_plan} || Carp::croak('missing validation plan');
+    my $device = delete $options{device} || Carp::croak('missing device');
+
+    my $device_report = delete $options{device_report};
+    Carp::croak('missing device report') if not $device_report and not $options{no_save_db};
+
+    my $data = delete $options{data};
+    $data //= from_json($device_report->report) if $device_report;
+    Carp::croak('missing data or device report') if not $data;
+
+
+    # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
+    my $model_device = Conch::Model::Device->new($device->get_columns);
+    my $location = Conch::Model::DeviceLocation->lookup($device->id);
+    my $hw_product_id =
+          $location
+        ? $location->target_hardware_product->id
+        : $device->hardware_product_id;
+    my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
+    my $device_settings = +{ $device->device_settings_as_hash };
+
+    my $validation_rs = $validation_plan
+        ->related_resultset('validation_plan_members')
+        ->related_resultset('validation')
+        ->active;
+
+    my @validation_results;
+    my $validation_result_rs = $self->schema->resultset('validation_result');
+    while (my $validation = $validation_rs->next) {
+        my $validator = $validation->module->new(
+            log              => $self->log,
+            device           => $model_device,
+            device_location  => $location,
+            device_settings  => $device_settings,
+            hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
+        );
+
+        $validator->run($data);
+
+        my $result_order = 0;
+        push @validation_results, map {
+            $validation_result_rs->new_result({
+                # each time a ValidationResult is created, increment order value
+                # post-assignment. This allows us to distinguish between multiples
+                # of similar results
+                result_order        => $result_order++,
+                validation_id       => $validation->id,
+                device_id           => $device->id,
+                hardware_product_id => $hw_product_id,
+                $_->%{qw(message hint status category component_id)},
+            });
+        } $validator->validation_results->@*;
+    }
+
+    return @validation_results if $options{no_save_db};
+
+    my $status = reduce {
+        $a eq 'error' || $b eq 'error' ? 'error'
+      : $a eq 'fail' || $b eq 'fail' ? 'fail'
+      : $a eq 'processing' || $b eq 'processing' ? 'processing'
+      : $a; # pass
+    } map { $_->status } @validation_results;
+
+    return $self->schema->resultset('validation_state')->create({
+        device_id => $device->id,
+        device_report_id => $device_report->id,
+        validation_plan_id => $validation_plan->id,
+        status => $status,
+        completed => \'now()',
+        validation_state_members => [ map { +{ validation_result => $_ } } @validation_results ],
+    });
+}
+
+=head2 run_validation
+
+Runs the provided validation record against the provided device.
+Creates and returns validation_result records, without writing them to the database.
+
+All provided data objects can and should be read-only (fetched with a ro db handle).
+
+Takes options as a hash:
+
+    validation => $validation,      # required, a Conch::DB::Result::Validation object
+    device => $device,              # required, a Conch::DB::Result::Device object
+    data => $data,                  # required, a hashref of device report data
+
+=cut
+
+sub run_validation ($self, %options) {
+    my $validation = delete $options{validation} || Carp::croak('missing validation');
+    my $device = delete $options{device} || Carp::croak('missing device');
+    my $data = delete $options{data} || Carp::croak('missing data');
+
+    # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
+    my $location = Conch::Model::DeviceLocation->lookup($device->id);
+    # FIXME: do we really allow running validations on unlocated hardware?
+    my $hw_product_id =
+          $location
+        ? $location->target_hardware_product->id
+        : $device->hardware_product_id;
+
+    my $validator = $validation->module->new(
+        log              => $self->log,
+        device           => Conch::Model::Device->new($device->get_columns),
+        device_location  => $location,
+        device_settings  => +{ $device->device_settings_as_hash },
+        hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
+    );
+    $validator->run($data);
+
+    my $result_order = 0;
+    my $validation_result_rs = $self->schema->resultset('validation_result');
+    my @validation_results = map {
+        $validation_result_rs->new_result({
+            # each time a ValidationResult is created, increment order value
+            # post-assignment. This allows us to distinguish between multiples
+            # of similar results
+            result_order        => $result_order++,
+            validation_id       => $validation->id,
+            device_id           => $device->id,
+            hardware_product_id => $hw_product_id,
+            $_->%{qw(message hint status category component_id)},
+        });
+    } $validator->validation_results->@*;
+
+    return @validation_results;
 }
 
 1;

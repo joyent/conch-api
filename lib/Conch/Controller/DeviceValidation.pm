@@ -61,26 +61,26 @@ Response uses the ValidationResults json schema.
 =cut
 
 sub validate ($c) {
-	my $device = Conch::Model::Device->new($c->stash('device_rs')->hri->single->%*);
+    my $validation_id = $c->stash('validation_id');
+    my $validation = $c->db_ro_validations->active->find($validation_id);
+    if (not $validation) {
+        $c->log->debug("Could not find validation $validation_id");
+        return $c->status(404 => { error => "Validation $validation_id not found" });
+    }
 
-	my $validation_id = $c->stash("validation_id");
-	my $validation    = Conch::Model::Validation->lookup($validation_id);
-	unless($validation) {
-		$c->log->debug("Could not find validation $validation_id");
-		return $c->status(404 => {
-			error => "Validation $validation_id not found"
-		});
-	}
+    # note, we aren't validating this data against the DeviceReport schema, although we should.
+    my $data = $c->req->json;
 
-	$validation->log($c->log);
+    my @validation_results = Conch::ValidationSystem->new(
+        schema => $c->ro_schema,
+        log => $c->log,
+    )->run_validation(
+        validation => $validation,
+        device => $c->db_ro_devices->active->find($c->stash('device_id')),
+        data => $data,
+    );
 
-	my $data = $c->req->json;
-	my $validation_results = $validation->run_validation_for_device(
-		$device,
-		$data,
-	);
-
-	$c->status( 200, $validation_results );
+    $c->status(200, \@validation_results);
 }
 
 =head2 run_validation_plan
@@ -97,28 +97,27 @@ Response uses the ValidationResults json schema.
 =cut
 
 sub run_validation_plan ($c) {
-	my $device = Conch::Model::Device->new($c->stash('device_rs')->hri->single->%*);
+    my $validation_plan_id = $c->stash('validation_plan_id');
+    my $validation_plan = $c->db_ro_validation_plans->active->find($validation_plan_id);
+    if (not $validation_plan) {
+        $c->log->debug("Could not find validation plan $validation_plan_id");
+        return $c->status(404 => { error => "Validation plan $validation_plan_id not found" });
+    }
 
-	my $plan_id         = $c->stash("validation_plan_id");
-	my $validation_plan = do {
-		# note! this finds inactive plans too!
-		my $data = $c->db_validation_plans->hri->search({ id => $plan_id })->single;
-		$data ? Conch::Model::ValidationPlan->new($data) : undef;
-	};
+    # note, we aren't validating this data against the DeviceReport schema, although we should.
+    my $data = $c->req->json;
 
-	unless($validation_plan) {
-		$c->log->debug("Validation plan $plan_id not found");
-		return $c->status( 404 => {
-			error => "Validation Plan '$plan_id' not found"
-		});
-	}
+    my @validation_results = Conch::ValidationSystem->new(
+        schema => $c->ro_schema,
+        log => $c->log,
+    )->run_validation_plan(
+        validation_plan => $validation_plan,
+        device => $c->db_ro_devices->active->find($c->stash('device_id')),
+        data => $data,
+        no_save_db => 1,
+    );
 
-	$validation_plan->log($c->log);
-
-	my $data = $c->req->json;
-	my $results = $validation_plan->run_validations( $device, $data );
-
-	$c->status( 200, $results );
+    $c->status(200, \@validation_results);
 }
 
 1;
@@ -135,3 +134,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

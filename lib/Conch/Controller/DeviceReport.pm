@@ -167,30 +167,26 @@ sub process ($c) {
 
 	$c->log->debug("Attempting to validate with plan '$validation_name'");
 
-	my $validation_plan = do {
-		# we have to search for active plans only or we may get more than one result
-		my $data = $c->db_validation_plans->active->hri->search({ name => $validation_name })->single;
-		$data ? Conch::Model::ValidationPlan->new($data) : undef;
-	};
+	my $validation_plan = $c->db_ro_validation_plans->active->search({ name => $validation_name })->single;
 
 	return $c->status(500, { error => "failed to find validation plan" }) if not $validation_plan;
-	$validation_plan->log($c->log);
-
-	# [2018-07-16 sungo] - As we grow this logic to be smarter and more
-	# interesting, it will probably be ok to not find a validation plan. For
-	# now, everything needs to validate using one of the legacy plans. It's a
-	# super big problem if they don't exist so we explode.
-	unless($validation_plan) {
-		Mojo::Exception->throw(__PACKAGE__.": Could not find a validation plan");
-	}
 
 	$c->log->debug("Running validation plan ".$validation_plan->id);
-	my $validation_state = $validation_plan->run_with_state(
-		Conch::Model::Device->new($device->discard_changes->get_columns),
-		$device_report->id,
-		$unserialized_report,
+
+	my $validation_state = Conch::ValidationSystem->new(
+		schema => $c->schema,
+		log => $c->log,
+	)->run_validation_plan(
+		validation_plan => $validation_plan,
+		device => $c->db_ro_devices->find($device->id),
+		device_report => $device_report,
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
+
+	# calculate the device health based on the validation results.
+	# currently, since there is just one (hardcoded) plan per device, we can simply copy it
+	# from the validation_state, but in the future we should query for the most recent
+	# validation_state of each plan type and use the cumulative results to determine health.
 
 	$device->update( { health => uc( $validation_state->status ), updated => \'NOW()' } );
 

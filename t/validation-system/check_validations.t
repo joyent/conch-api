@@ -186,6 +186,38 @@ foreach my $field (qw(version name description)) {
     };
 }
 
+subtest 'missing category' => sub {
+    my $validation_plan = $rw_schema->resultset('validation_plan')->create({
+        name => 'plan with module with missing category',
+        description => '',
+        validation_plan_members => [
+            {
+                validation => {
+                    name => 'missing category',
+                    version => 1,
+                    description => 'validation with missing category',
+                    module => 'Conch::Validation::MissingCategory',
+                },
+            },
+        ],
+    });
+
+    reset_log;
+    my @modules = $validation_system->check_validation_plan($validation_plan);
+    is(scalar @modules, 0, 'no valid validations in this plan');
+
+    like(
+        $fake_log,
+        qr/Conch::Validation::MissingCategory does not set a category/,
+        'logged for validation module with missing category',
+    );
+    like(
+        $fake_log,
+        qr/Validation plan id $uuid_re "plan with module with missing category" is not valid/,
+        'logged validation plan failure',
+    );
+};
+
 # clear out bad plans and validations from the db...
 $rw_schema->resultset('validation_plan_member')->delete;
 $rw_schema->resultset('validation_plan')->delete;
