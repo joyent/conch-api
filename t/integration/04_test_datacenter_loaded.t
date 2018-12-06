@@ -628,6 +628,8 @@ subtest 'Validations' => sub {
 	my $validation_id = $t->tx->res->json->[0]->{id};
 	my @validations = $t->tx->res->json->@*;
 
+  SKIP: {
+    skip 'endpoints that mutate validation plans have been disabled', 57;
 	$t->post_ok('/validation_plan', json => { name => 'my_test_plan', description => 'another test plan' })
 		->status_is(303);
 
@@ -842,6 +844,7 @@ subtest 'Validations' => sub {
 	$t->get_ok('/device/TEST/validation_state?status=pass,bar')
 		->status_is(400)
 		->json_is({ error => "'status' query parameter must be any of 'pass', 'fail', or 'error'." });
+  } # end SKIP
 };
 
 subtest 'Device location' => sub {
