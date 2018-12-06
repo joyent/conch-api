@@ -83,6 +83,7 @@ definitions:
         type: string
 
   DeviceReport:
+    type: object
     required:
       - bios_version
       - memory
@@ -94,6 +95,23 @@ definitions:
     properties:
       bios_version:
         type: string
+      cpus:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+      dimms:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          required:
+            - memory-locator
+          properties:
+            memory-locator:
+              type: string
+            memory-serial-number:
+              type: string
       disks:
         type: object
         patternProperties:
