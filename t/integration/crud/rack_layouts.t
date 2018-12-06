@@ -32,7 +32,8 @@ $t->get_ok("/layout/$initial_layouts->[0]{id}")
     ->json_is('', $initial_layouts->[0]);
 
 $t->post_ok('/layout', json => { wat => 'wat' })
-    ->status_is(400);
+    ->status_is(400)
+    ->json_schema_is('Error');
 
 $t->get_ok('/rack')
     ->status_is(200)
@@ -54,7 +55,8 @@ $t->post_ok('/layout', json => {
         ru_start => 42,
     })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Rack does not exist' });
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
@@ -62,7 +64,8 @@ $t->post_ok('/layout', json => {
         ru_start => 42,
     })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Hardware product does not exist' });
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
@@ -82,7 +85,8 @@ $t->post_ok('/layout', json => {
         ru_start => 42
     })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start conflict' });
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
@@ -122,11 +126,13 @@ $t->get_ok($t->tx->res->headers->location)
 
 $t->post_ok("/layout/$layout_id", json => { rack_id => $fake_id })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Rack does not exist' });
 
 $t->post_ok("/layout/$layout_id", json => { product_id => $fake_id })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Hardware product does not exist' });
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
@@ -137,7 +143,8 @@ $t->post_ok('/layout', json => {
 
 $t->post_ok("/layout/$layout_id", json => { ru_start => 42 })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start conflict' });
 
 $t->delete_ok("/layout/$layout_id")
     ->status_is(204);

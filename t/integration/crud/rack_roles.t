@@ -33,7 +33,8 @@ $t->get_ok("/rack_role/name=$name")
     ->json_schema_is('RackRole');
 
 $t->post_ok('/rack_role', json => { wat => 'wat' })
-    ->status_is(400);
+    ->status_is(400)
+    ->json_schema_is('Error');
 
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 2 })
     ->status_is(303);
@@ -45,7 +46,8 @@ my $idr = $t->tx->res->json->{id};
 
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 2 })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'name is already taken' });
 
 $t->post_ok("/rack_role/$idr", json => { name => 'role' })
     ->status_is(303);

@@ -45,7 +45,16 @@ $t->get_ok("/rack/name=$name")
     ->json_schema_is('Rack');
 
 $t->post_ok('/rack', json => { wat => 'wat' })
-    ->status_is(400);
+    ->status_is(400)
+    ->json_schema_is('Error');
+
+$t->post_ok('/rack', json => { name => 'r4ck', datacenter_room_id => $fake_id })
+    ->status_is(400)
+    ->json_schema_is('Error');
+
+$t->post_ok('/rack', json => { name => 'r4ck', role => $fake_id })
+    ->status_is(400)
+    ->json_schema_is('Error');
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',
@@ -53,7 +62,8 @@ $t->post_ok('/rack', json => {
         role => $role_id,
     })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Room does not exist' });
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',
@@ -61,7 +71,8 @@ $t->post_ok('/rack', json => {
         role => $fake_id,
     })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Rack role does not exist' });
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',
@@ -84,16 +95,8 @@ $t->post_ok("/rack/$idr", json => {
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
-    ->json_is('/name' => 'rack')
-    ->json_schema_is('Rack');
-
-$t->post_ok('/rack', json => { datacenter_room_id => $fake_id })
-    ->status_is(400)
-    ->json_schema_is('Error');
-
-$t->post_ok('/rack', json => { role => $fake_id })
-    ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply(superhashof({ name => 'rack', serial_number => 'abc', asset_tag => 'deadbeef' }));
 
 $t->delete_ok("/rack/$idr")
     ->status_is(204);
