@@ -1,3 +1,12 @@
+package Conch::Controller::ValidationPlan;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -8,17 +17,6 @@ Controller for managing Validation Plans
 
 =head1 METHODS
 
-=cut
-
-package Conch::Controller::ValidationPlan;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Conch::UUID 'is_uuid';
-use Conch::Models;
-
-with 'Conch::Role::MojoLog';
-
 =head2 create
 
 Create new Validation Plan.
@@ -26,27 +24,23 @@ Create new Validation Plan.
 =cut
 
 sub create ($c) {
-	return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) unless $c->is_system_admin;
 
-	my $body = $c->validate_input("CreateValidationPlan");
-	return if not $body;
+    my $input = $c->validate_input('CreateValidationPlan');
+    return if not $input;
 
-	my $existing_validation_plan =
-		Conch::Model::ValidationPlan->lookup_by_name( $body->{name} );
+    if (my $existing_validation_plan = $c->db_validation_plans->active->find({ name => $input->{name} })) {
+        $c->log->debug("Name conflict on '$input->{name}'");
+        return $c->status(409 => {
+            error => "A Validation Plan already exists with the name '$input->{name}'"
+        });
+    }
 
-	if($existing_validation_plan) {
-		$c->log->debug("Name conflict on '".$body->{name}."'");
-		return $c->status( 409 => {
-			error => "A Validation Plan already exists with the name '$body->{name}'"
-		});
-	}	
+    my $validation_plan = $c->db_validation_plans->create($input);
 
-	my $validation_plan =
-		Conch::Model::ValidationPlan->create( $body->{name}, $body->{description} );
+    $c->log->debug('Created validation plan '.$validation_plan->id);
 
-	$c->log->debug("Created validation plan ".$validation_plan->id);
-
-	$c->status(303 => "/validation_plan/".$validation_plan->id);
+    $c->status(303 => '/validation_plan/'.$validation_plan->id);
 }
 
 =head2 list
@@ -58,9 +52,9 @@ Response uses the ValidationPlans json schema.
 =cut
 
 sub list ($c) {
-	my $validation_plans = Conch::Model::ValidationPlan->list;
-	$c->log->debug("Found ".scalar($validation_plans->@*)." validation plans");
-	$c->status( 200, $validation_plans );
+    my @validation_plans = $c->db_validation_plans->active->all;
+    $c->log->debug('Found '.scalar(@validation_plans).' validation plans');
+    $c->status(200, \@validation_plans);
 }
 
 =head2 find_validation_plan
@@ -71,24 +65,22 @@ C<validation_plan>.
 =cut
 
 sub find_validation_plan($c) {
-	my $vp_id = $c->stash('validation_plan_id');
-	unless ( is_uuid($vp_id) ) {
-		$c->log->warn("ID is not a UUID");
-		$c->status( 400, {
-			error => "Validation Plan ID must be a UUID. Got '$vp_id'."
-		});
-		return 0;
-	}
-	my $vp = Conch::Model::ValidationPlan->lookup($vp_id);
-	if ($vp) {
-		$c->log->debug("Found validation plan ".$vp->id);
-		$c->stash( validation_plan => $vp );
-		return 1;
-	} else {
-		$c->log->debug("Failed to find validation plan $vp_id");
-		$c->status( 404, { error => "Validation Plan $vp_id not found" } );
-		return 0;
-	}
+    my $vp_id = $c->stash('validation_plan_id');
+    unless (is_uuid($vp_id)) {
+        $c->log->warn("$vp_id is not a UUID");
+        $c->status(400, { error => "Validation Plan ID must be a UUID. Got '$vp_id'." });
+        return 0;
+    }
+
+    my $validation_plan = $c->db_validation_plans->active->find($vp_id);
+    if (not $validation_plan) {
+        $c->log->debug("Failed to find validation plan $vp_id");
+        return $c->status(404, { error => "Validation Plan $vp_id not found" });
+    }
+
+    $c->log->debug('Found validation plan '.$validation_plan->id);
+    $c->stash(validation_plan => $validation_plan);
+    return 1;
 }
 
 =head2 get
@@ -100,7 +92,7 @@ Response uses the ValidationPlan json schema.
 =cut
 
 sub get ($c) {
-	return $c->status( 200, $c->stash('validation_plan') );
+    return $c->status(200, $c->stash('validation_plan'));
 }
 
 =head2 list_validations
@@ -112,15 +104,11 @@ Response uses the Validations json schema.
 =cut
 
 sub list_validations ($c) {
-	my $validations = $c->stash('validation_plan')->validations;
+    my @validations = $c->stash('validation_plan')->validations;
 
-	$c->log->debug(
-		"Found ".scalar($validations->@*).
-		" validations for validation plan ".
-		$c->stash('validation_plan')->id
-	);
+    $c->log->debug('Found '.scalar(@validations).' validations for validation plan '.$c->stash('validation_plan')->id);
 
-	$c->status( 200, $validations );
+    $c->status(200, \@validations);
 }
 
 =head2 add_validation
@@ -130,26 +118,23 @@ Add a validation to a validation plan.
 =cut
 
 sub add_validation ($c) {
-	return $c->status(403) unless $c->is_system_admin;
-	my $body = $c->validate_input("AddValidationToPlan");
-	return if not $body;
+    return $c->status(403) unless $c->is_system_admin;
 
-	my $maybe_validation = Conch::Model::Validation->lookup( $body->{id} );
-	unless($maybe_validation) {
-		$c->log->debug("Failed to find validation ".$body->{id});
-		return $c->status( 409 => {
-			error => "Validation with ID '$body->{id}' doesn't exist"
-		});
-	}
+    my $input = $c->validate_input('AddValidationToPlan');
+    return if not $input;
 
-	$c->stash('validation_plan')->add_validation($maybe_validation);
+    my $validation = $c->db_validations->active->find($input->{id});
+    if (not $validation) {
+        $c->log->debug("Failed to find validation $input->{id}");
+        return $c->status(409 => { error => "Validation with ID '$input->{id}' doesn't exist" });
+    }
 
-	$c->log->debug(
-		"Added validation ".$maybe_validation->id." to validation plan".
-		$c->stash('validation_plan')->id
-	);
+    $c->stash('validation_plan')
+        ->find_or_create_related('validation_plan_members', { validation_id => $validation->id });
 
-	$c->status(204);
+    $c->log->debug('Added validation '.$validation->id.' to validation plan'.$c->stash('validation_plan')->id);
+
+    $c->status(204);
 }
 
 =head2 remove_validation
@@ -159,33 +144,26 @@ Remove a Validation associated with the Validation Plan
 =cut
 
 sub remove_validation ($c) {
-	return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) unless $c->is_system_admin;
 
-	my $v_id = $c->stash('validation_id');
-	unless ( is_uuid($v_id) ) {
-		$c->log->warn("ID is not a UUID");
-		return $c->status( 400 => {
-			error => "Validation ID must be a UUID. Got '$v_id'."
-		});
-	}
+    my $validation_id = $c->stash('validation_id');
+    unless (is_uuid($validation_id)) {
+        $c->log->warn("$validation_id is not a UUID");
+        return $c->status(400 => { error => "Validation ID must be a UUID. Got '$validation_id'." });
+    }
 
-	my $validation_plan = $c->stash('validation_plan');
-	my $is_member = grep /$v_id/, $validation_plan->validation_ids->@*;
+    my $validation_plan = $c->stash('validation_plan');
+    if (not $validation_plan->search_related('validation_plan_members', { validation_id => $validation_id })) {
+        $c->log->debug("Validation with ID '$validation_id' isn't a member of the Validation Plan");
+        return $c->status(409 => {
+            error => "Validation with ID '$validation_id' isn't a member of the Validation Plan"
+        });
+    }
 
-	unless($is_member) {
-		$c->log->debug("Validation with ID '$v_id' isn't a member of the Validation Plan");
-		return $c->status(409 => {
-			error => "Validation with ID '$v_id' isn't a member of the Validation Plan"
-		});
-	}
+    $validation_plan->delete_related('validation_plan_members', { validation_id => $validation_id });
+    $c->log->debug("Removed validation $validation_id from validation plan".$c->stash('validation_plan')->id);
 
-	$c->stash('validation_plan')->remove_validation($v_id);
-	$c->log->debug(
-		"Removed validation $v_id from validation plan".
-		$c->stash('validation_plan')->id
-	);
-
-	$c->status(204);
+    $c->status(204);
 }
 
 1;
@@ -202,3 +180,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

@@ -167,7 +167,12 @@ sub process ($c) {
 
 	$c->log->debug("Attempting to validate with plan '$validation_name'");
 
-	my $validation_plan = Conch::Model::ValidationPlan->lookup_by_name($validation_name);
+	my $validation_plan = do {
+		# we have to search for active plans only or we may get more than one result
+		my $data = $c->db_validation_plans->active->hri->search({ name => $validation_name })->single;
+		$data ? Conch::Model::ValidationPlan->new($data) : undef;
+	};
+
 	return $c->status(500, { error => "failed to find validation plan" }) if not $validation_plan;
 	$validation_plan->log($c->log);
 

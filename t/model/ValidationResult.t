@@ -19,8 +19,13 @@ my $pg    = Conch::Pg->new( $pgtmp->uri );
 use Test::Conch;
 my $t = Test::Conch->new(pg => $pgtmp);
 
-my $validation_plan =
-	Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
+# formerly Conch::Model::ValidationPlan->create( 'test', 'test validation plan' );
+my $validation_plan = Conch::Model::ValidationPlan->new(
+	$t->app->db_validation_plans->create({
+		name => 'test',
+		description => 'test validation plan',
+	})->discard_changes->get_columns
+);
 
 my $hardware_vendor_id = $pg->db->insert(
 	'hardware_vendor',
@@ -52,8 +57,14 @@ BAIL_OUT("Could not create a validation plan and device ")
 my $validation_state =
 	Conch::Model::ValidationState->create( $device->id, $device_report->id, $validation_plan->id );
 
-my $validation = Conch::Model::Validation->create( 'test', 1, 'test validation',
-	'Test::Validation' );
+my $validation = Conch::Model::Validation->new(
+	$t->app->db_validations->create({
+		name => 'test',
+		version => 1,
+		description => 'test validation',
+		module => 'Test::Validation',
+	})->discard_changes->get_columns
+);
 
 my $result;
 subtest "validation result new " => sub {
@@ -75,11 +86,6 @@ subtest "validation result record" => sub {
 	ok( defined( $result->id ) );
 };
 
-subtest "validation result lookup" => sub {
-	ok( my $result1 = Conch::Model::ValidationResult->lookup( $result->id) );
-	is_deeply($result, $result1);
-};
-
 subtest "validation result comparison_hash" => sub {
 
 	my $result2 = Conch::Model::ValidationResult->new(
@@ -94,9 +100,10 @@ subtest "validation result comparison_hash" => sub {
 	is( $result->comparison_hash, $result2->comparison_hash );
 	$result2->record;
 
+	my $rs = $t->app->db_validation_results;
 	is(
-		Conch::Model::ValidationResult->lookup( $result->id )->comparison_hash,
-		Conch::Model::ValidationResult->lookup( $result2->id )->comparison_hash
+		Conch::Model::ValidationResult->new( $rs->find($result->id)->discard_changes->get_columns )->comparison_hash,
+		Conch::Model::ValidationResult->new( $rs->find($result2->id)->discard_changes->get_columns )->comparison_hash
 	);
 
 	my $result3 = Conch::Model::ValidationResult->new(

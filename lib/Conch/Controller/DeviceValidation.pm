@@ -1,3 +1,12 @@
+package Conch::Controller::DeviceValidation;
+
+use Mojo::Base 'Mojolicious::Controller', -signatures;
+
+use Role::Tiny::With;
+with 'Conch::Role::MojoLog';
+
+use List::Util qw(all any);
+
 =pod
 
 =head1 NAME
@@ -5,18 +14,6 @@
 Conch::Controller::DeviceValidation
 
 =head1 METHODS
-
-=cut
-
-package Conch::Controller::DeviceValidation;
-
-use Role::Tiny::With;
-use Mojo::Base 'Mojolicious::Controller', -signatures;
-
-use Conch::Models;
-use List::Util qw(notall any);
-
-with 'Conch::Role::MojoLog';
 
 =head2 list_validation_states
 
@@ -29,38 +26,25 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub list_validation_states ($c) {
-	my @statuses;
-	@statuses = map { lc($_) } split /,\s*/, $c->param('status')
-		if $c->param('status');
 
-	if (
-		@statuses
-		&& notall {
-			my $a = $_;
-			any { $_ eq $a } qw( pass fail error )
-		}
-		@statuses
-		)
-	{
+    my @statuses = split /,/, $c->param('status') // '';
+    if (not all { my $status = $_; any { $status eq $_ } qw(pass fail error) } @statuses) {
+        $c->log->debug('Status params of '.$c->param('status') ." contains something other than 'pass', 'fail', or 'error'");
+        return $c->status(400 => {
+            error => "'status' query parameter must be any of 'pass', 'fail', or 'error'."
+        });
+    }
 
-		$c->log->debug("Status params of ".$c->param('status') ." contains something other than 'pass', 'fail', or 'error'");
-		return $c->status(400 => {
-			error => "'status' query parameter must be any of 'pass', 'fail', or 'error'."
-		});
-	}
+    my @validation_states = $c->stash('device_rs')
+        ->search_related('validation_states',
+            @statuses ? { 'validation_states.status' => { -in => \@statuses } } : ())
+        ->latest_completed_state_per_plan
+        ->prefetch({ validation_state_members => 'validation_result' })
+        ->all;
 
-	my $device_id = $c->stash('device_id');
+    $c->log->debug('Found '.scalar(@validation_states).' records');
 
-	my $validation_state_groups =
-		Conch::Model::ValidationState->latest_completed_grouped_states_for_device(
-		$device_id, @statuses );
-
-	my @output = map {
-		{ $_->{state}->TO_JSON->%*, results => $_->{results} };
-	} @$validation_state_groups;
-
-	$c->log->debug("Found ".scalar(@output)." records");
-	$c->status( 200, \@output );
+    $c->status(200, \@validation_states);
 }
 
 =head2 validate
@@ -116,7 +100,11 @@ sub run_validation_plan ($c) {
 	my $device = Conch::Model::Device->new($c->stash('device_rs')->hri->single->%*);
 
 	my $plan_id         = $c->stash("validation_plan_id");
-	my $validation_plan = Conch::Model::ValidationPlan->lookup($plan_id);
+	my $validation_plan = do {
+		# note! this finds inactive plans too!
+		my $data = $c->db_validation_plans->hri->search({ id => $plan_id })->single;
+		$data ? Conch::Model::ValidationPlan->new($data) : undef;
+	};
 
 	unless($validation_plan) {
 		$c->log->debug("Validation plan $plan_id not found");

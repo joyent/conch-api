@@ -51,19 +51,6 @@ sub create ( $class, $device_id, $device_report_id, $validation_plan_id ) {
 	return $class->new( $ret->%* );
 }
 
-=head2 lookup
-
-Lookup a validation state by ID or return undef
-
-=cut
-
-sub lookup ( $class, $id ) {
-	my $ret =
-		Conch::Pg->new->db->select( 'validation_state', $attrs, { id => $id } )
-		->hash;
-	return $class->new( $ret->%* ) if $ret;
-}
-
 =head2 mark_completed
 
 Mark the Validation State as completed with a status
@@ -80,99 +67,6 @@ sub mark_completed ( $self, $status ) {
 	$self->completed( $state->{completed} );
 	$self->status( $state->{status} );
 	return $self;
-}
-
-=head2 latest_for_device_plan
-
-Find the latest validation state for a given Device and Validation
-Plan, or return undef
-
-=cut
-
-sub latest_for_device_plan ( $class, $device_id, $plan_id ) {
-	my $fields = join( ', ', @$attrs );
-	my $ret = Conch::Pg->new->db->query(
-		qq{
-		select $fields
-		from validation_state
-		where
-			device_id = ? and
-			validation_plan_id = ?
-		order by created desc
-		limit 1
-		},
-		$device_id, $plan_id
-	)->hash;
-	return $class->new( $ret->%* ) if $ret;
-}
-
-=head2 latest_completed_grouped_states_for_device
-
-Return all latest completed states for a device, grouped with the
-results of each state.
-
-=cut
-
-sub latest_completed_grouped_states_for_device ( $class, $device_id, @statuses )
-{
-	my $state_fields = join( ', ', map { "state.$_ as state_$_" } @$attrs );
-	my $result_fields = join( ', ',
-		map { "result.$_ as result_$_" } @$Conch::Model::ValidationResult::attrs );
-
-	my $status_condition = @statuses ? "and status = any(?)" : "";
-
-	my %groups;
-
-	return $class->_group_results_by_validation_state(
-		Conch::Pg->new->db->query(
-			qq{
-				select $state_fields, $result_fields
-				from validation_result result
-				join validation_state_member m
-					on m.validation_result_id = result.id
-				join (
-					select distinct on (vs.validation_plan_id) vs.*
-					from validation_state vs
-					where
-						vs.completed is not null
-						and vs.device_id = ?
-						$status_condition
-					order by
-						vs.validation_plan_id,
-						vs.completed desc
-				) state
-					on state.id = m.validation_state_id
-			}, ( $device_id, @statuses ? \@statuses : () )
-		)->hashes
-	);
-}
-
-sub _group_results_by_validation_state ( $class, $hashes ) {
-	my %groups;
-	$hashes->map(
-		sub {
-			my %ret = shift->%*;
-			my %state_values;
-			my %result_values;
-			while ( my ( $k, $v ) = each %ret ) {
-				if ( $k =~ s/^state_// ) {
-					$state_values{$k} = $v;
-				}
-				elsif ( $k =~ s/^result_// ) {
-					$result_values{$k} = $v;
-				}
-			}
-			my $state_id = $state_values{id};
-			unless ( defined $groups{$state_id} ) {
-				$groups{$state_id}->{state} = $class->new(%state_values);
-			}
-			push @{ $groups{$state_id}->{results} },
-				Conch::Model::ValidationResult->new(%result_values);
-			1;
-		}
-	);
-	return [ sort { $b->{state}->completed cmp $a->{state}->completed }
-			values %groups ];
 }
 
 =head2 add_validation_result
