@@ -17,7 +17,7 @@ check_layouts - check for rack layout conflicts
 
 =cut
 
-has description => 'Check for occupancy conflicts in existing rack layouts';
+has description => 'Check for conflicts in existing rack layouts';
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
@@ -37,14 +37,14 @@ sub run ($self, @opts) {
         my $rack_rs = $workspace->self_rs->associated_racks;
 
         while (my $rack = $rack_rs->next) {
-            my %occupied;
-            ++$occupied{$_} foreach $rack->self_rs->occupied_rack_units;
+            my %assigned;
+            ++$assigned{$_} foreach $rack->self_rs->assigned_rack_units;
 
-            foreach my $rack_unit (sort { $a <=> $b } keys %occupied) {
-                if ($occupied{$rack_unit} > 1) {
+            foreach my $rack_unit (sort { $a <=> $b } keys %assigned) {
+                if ($assigned{$rack_unit} > 1) {
                     print '# for workspace ', $workspace->id, ' (', $workspace->name,
                         '), datacenter_rack_id ', $rack->id, ' (', $rack->name, '), found ',
-                        "$occupied{$rack_unit} occupants at rack_unit $rack_unit!\n";
+                        "$assigned{$rack_unit} assignees at rack_unit $rack_unit!\n";
                 }
             }
         }

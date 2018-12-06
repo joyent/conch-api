@@ -44,17 +44,17 @@ sub associated_workspaces {
     );
 }
 
-=head2 occupied_rack_units
+=head2 assigned_rack_units
 
-Returns a list of rack_unit positions that are occupied by current layouts (including positions
-occupied by hardware that start at an earlier position) at the specified rack.  (Will return
+Returns a list of rack_unit positions that are assigned to current layouts (including positions
+assigned to hardware that start at an earlier position) at the specified rack.  (Will return
 merged results when passed a resultset referencing multiple racks, so don't do that.)
 
 This is used for identifying potential conflicts when adjusting layouts.
 
 =cut
 
-sub occupied_rack_units {
+sub assigned_rack_units {
     my $self = shift;
 
     my @layout_data = $self->search_related('datacenter_rack_layouts', undef, {

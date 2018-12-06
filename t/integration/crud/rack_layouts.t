@@ -88,23 +88,23 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts');
 
-# at the moment, we have these occupied slots:
+# at the moment, we have these assigned slots:
 # start 1, width 2
 # start 3, width 2
 # start 7, width 4
 # start 42, width 1
 
-# can't put something into an occupied position
+# can't put something into an assigned position
 $t->post_ok("/layout/$layout_id", json => { ru_start => 7 })
     ->status_is(400)
     ->json_is({ error => 'ru_start conflict' });
 
-# the start of this product will overlap with occupied slots (need 8-11, 7-10 are occupied)
+# the start of this product will overlap with assigned slots (need 8-11, 7-10 are assigned)
 $t->post_ok("/layout/$layout_id", json => { ru_start => 8 })
     ->status_is(400)
     ->json_is({ error => 'ru_start conflict' });
 
-# the end of this product will overlap with occupied slots (need 6-9, 7-10 are occupied)
+# the end of this product will overlap with assigned slots (need 6-9, 7-10 are assigned)
 $t->post_ok("/layout/$layout_id",
         json => { ru_start => 6, product_id => $layout_width_4->{product_id} })
     ->status_is(400)

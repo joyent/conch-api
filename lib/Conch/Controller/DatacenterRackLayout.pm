@@ -61,9 +61,9 @@ sub create ($c) {
         return $c->status(400 => { error => 'Hardware product does not exist' });
     }
 
-    my %occupied_rack_units = map { $_ => 1 }
+    my %assigned_rack_units = map { $_ => 1 }
         $c->db_datacenter_racks->search({ 'datacenter_rack.id' => $input->{rack_id} })
-        ->occupied_rack_units;
+        ->assigned_rack_units;
 
     my $new_rack_unit_size = $c->db_hardware_products
         ->search({ 'hardware_product.id' => $input->{hardware_product_id} })
@@ -72,8 +72,8 @@ sub create ($c) {
 
     my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
-    if (any { $occupied_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already occupied');
+    if (any { $assigned_rack_units{$_} } @desired_positions) {
+        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already assigned');
         return $c->status(400 => { error => 'ru_start conflict' });
     }
 
@@ -106,8 +106,8 @@ Response uses the RackLayouts json schema.
 sub get_all ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
-    # TODO: to be more helpful to the UI, we should include the width of the hardware that will
-    # occupy each rack_unit(s).
+    # TODO: to be more helpful to the UI, we should include the width of the hardware that is
+    # assigned to each rack_unit(s).
 
     my @layouts = $c->db_datacenter_rack_layouts
         #->search(undef, {
@@ -158,16 +158,17 @@ sub update ($c) {
         }
     }
 
-    # determine occupied slots, not counting the slots currently occupied by this layout
+    # determine assigned slots, not counting the slots currently assigned to this layout (which
+    # we will be giving up)
 
-    my %occupied_rack_units = map { $_ => 1 } $c->stash('rack_layout')
-        ->related_resultset('datacenter_rack')->occupied_rack_units;
+    my %assigned_rack_units = map { $_ => 1 } $c->stash('rack_layout')
+        ->related_resultset('datacenter_rack')->assigned_rack_units;
 
     my $current_rack_unit_size = $c->db_hardware_products->search(
         { 'hardware_product.id' => $c->stash('rack_layout')->hardware_product_id })
         ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single;
 
-    delete @occupied_rack_units{
+    delete @assigned_rack_units{
         $c->stash('rack_layout')->rack_unit_start ..
         ($c->stash('rack_layout')->rack_unit_start + $current_rack_unit_size - 1)
     };
@@ -182,8 +183,8 @@ sub update ($c) {
         ..
         (($input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start) + $new_rack_unit_size - 1);
 
-    if (any { $occupied_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already occupied');
+    if (any { $assigned_rack_units{$_} } @desired_positions) {
+        $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already assigned');
         return $c->status(400 => { error => 'ru_start conflict' });
     }
 
