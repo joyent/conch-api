@@ -115,6 +115,7 @@ sub get_all ($c) {
         #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
         #    collapse => 1,
         #})
+        ->order_by([ qw(rack_id rack_unit_start) ])
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' datacenter rack layouts');
