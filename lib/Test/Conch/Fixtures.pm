@@ -179,6 +179,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_product_switch => { our => 'hardware_product_id', their => 'id' },
+            # note, no zpool for this switch.
         },
     },
     hardware_product_profile_storage => {
@@ -370,6 +371,14 @@ sub generate_set {
                     "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },
+            "datacenter_$num" => {
+                new => 'datacenter',
+                using => {
+                    vendor => 'Acme Corp',
+                    region => "region_$num",
+                    location => 'Earth',
+                },
+            },
             "datacenter_room_${num}a" => {
                 new => 'datacenter_room',
                 using => {
@@ -377,7 +386,7 @@ sub generate_set {
                     alias => "room ${num}a",
                 },
                 requires => {
-                    legacy_datacenter_region_1 => { our => 'datacenter_id', their => 'id' },
+                    "datacenter_$num" => { our => 'datacenter_id', their => 'id' },
                 },
             },
             "workspace_room_${num}a" => {
@@ -413,19 +422,23 @@ sub generate_set {
                 },
                 requires => {
                     "datacenter_rack_${num}a"=> { our => 'rack_id', their => 'id' },
-                    hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
+                    hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
-            "datacenter_rack_${num}a_layout_7_10" => {
+            "datacenter_rack_${num}a_layout_11_14" => {
                 new => 'datacenter_rack_layout',
                 using => {
-                    rack_unit_start => 7,
+                    rack_unit_start => 11,
                 },
                 requires => {
                     "datacenter_rack_${num}a"=> { our => 'rack_id', their => 'id' },
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
+            "__additional_deps_workspace_room_rack_layout_${num}a" => [
+                'hardware_product_profile_compute',
+                'hardware_product_profile_storage',
+            ],
         );
     }
     else {

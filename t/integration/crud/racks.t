@@ -1,11 +1,12 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
+use Test::Deep;
 use Data::UUID;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture('legacy_datacenter');
+$t->load_fixture_set('workspace_room_rack_layout', 0);
 
 my $uuid = Data::UUID->new;
 
@@ -19,30 +20,22 @@ BAIL_OUT('Login failed') if $t->tx->res->code != 200;
 
 my $fake_id = $uuid->create_str();
 
-$t->get_ok('/room')
-    ->status_is(200)
-    ->json_schema_is('DatacenterRoomsDetailed');
-
-my $room_id = $t->tx->res->json->[0]->{id};
-
-$t->get_ok('/rack_role')
-    ->status_is(200);
-my $role_id = $t->tx->res->json->[0]{id};
+my $rack = $t->load_fixture('datacenter_rack_0a');
 
 $t->get_ok('/rack')
     ->status_is(200)
-    ->json_schema_is('Racks');
+    ->json_schema_is('Racks')
+    ->json_cmp_deeply([ superhashof({ name => 'rack 0a' }) ]);
 
-my $id = $t->tx->res->json->[0]{id};
-my $name = $t->tx->res->json->[0]{name};
-
-$t->get_ok("/rack/$id")
+$t->get_ok('/rack/'.$rack->id)
     ->status_is(200)
-    ->json_schema_is('Rack');
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply(superhashof({ name => 'rack 0a' }));
 
-$t->get_ok("/rack/name=$name")
+$t->get_ok('/rack/name='.$rack->name)
     ->status_is(200)
-    ->json_schema_is('Rack');
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply(superhashof({ name => 'rack 0a' }));
 
 $t->post_ok('/rack', json => { wat => 'wat' })
     ->status_is(400)
@@ -59,7 +52,7 @@ $t->post_ok('/rack', json => { name => 'r4ck', role => $fake_id })
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $fake_id,
-        role => $role_id,
+        role => $rack->datacenter_rack_role_id,
     })
     ->status_is(400)
     ->json_schema_is('Error')
@@ -67,7 +60,7 @@ $t->post_ok('/rack', json => {
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',
-        datacenter_room_id => $room_id,
+        datacenter_room_id => $rack->datacenter_room_id,
         role => $fake_id,
     })
     ->status_is(400)
@@ -76,14 +69,15 @@ $t->post_ok('/rack', json => {
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',
-        datacenter_room_id => $room_id,
-        role => $role_id,
+        datacenter_room_id => $rack->datacenter_room_id,
+        role => $rack->datacenter_rack_role_id,
     })
     ->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
-    ->json_schema_is('Rack');
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply(superhashof({ name => 'r4ck' }));
 my $idr = $t->tx->res->json->{id};
 
 $t->post_ok("/rack/$idr", json => {
