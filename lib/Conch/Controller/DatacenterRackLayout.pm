@@ -109,7 +109,14 @@ sub get_all ($c) {
     # TODO: to be more helpful to the UI, we should include the width of the hardware that will
     # occupy each rack_unit(s).
 
-    my @layouts = $c->db_datacenter_rack_layouts->all;
+    my @layouts = $c->db_datacenter_rack_layouts
+        #->search(undef, {
+        #    join => { 'hardware_product' => 'hardware_product_profile' },
+        #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
+        #    collapse => 1,
+        #})
+        ->all;
+
     $c->log->debug('Found '.scalar(@layouts).' datacenter rack layouts');
     $c->status(200 => \@layouts);
 }

@@ -117,7 +117,17 @@ Response uses the RackLayouts json schema.
 sub layouts ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
-    my @layouts = $c->db_datacenter_rack_layouts->search({ rack_id => $c->stash('rack')->id });
+    # TODO: to be more helpful to the UI, we should include the width of the hardware that will
+    # occupy each rack_unit(s).
+
+    my @layouts = $c->stash('rack')
+        ->related_resultset('datacenter_rack_layouts')
+        #->search(undef, {
+        #    join => { 'hardware_product' => 'hardware_product_profile' },
+        #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
+        #    collapse => 1,
+        #})
+        ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' datacenter rack layouts');
     $c->status(200 => \@layouts);
