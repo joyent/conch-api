@@ -178,10 +178,8 @@ sub update ($c) {
             ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single
         : $current_rack_unit_size;
 
-    my @desired_positions =
-        ($input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start)
-        ..
-        (($input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start) + $new_rack_unit_size - 1);
+    my $new_rack_unit_start = $input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start;
+    my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
         $c->log->debug('Rack unit position '.$input->{rack_unit_start} . ' is already assigned');
