@@ -61,6 +61,16 @@ sub create ($c) {
         return $c->status(400 => { error => 'Hardware product does not exist' });
     }
 
+    my $rack_size = $c->db_datacenter_rack_roles->search(
+        { 'datacenter_racks.id' => $input->{rack_id} },
+        { join => 'datacenter_racks' },
+    )->get_column('rack_size')->single;
+
+    if ($input->{rack_unit_start} > $rack_size) {
+        $c->log->debug("ru_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
+        return $c->status(400 => { error => 'ru_start beyond maximum' });
+    }
+
     my %assigned_rack_units = map { $_ => 1 }
         $c->db_datacenter_racks->search({ 'datacenter_rack.id' => $input->{rack_id} })
         ->assigned_rack_units;
@@ -72,6 +82,12 @@ sub create ($c) {
 
     return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$input->{hardware_product_id} })
         if not $new_rack_unit_size;
+
+    if ($input->{rack_unit_start} + $new_rack_unit_size - 1 > $rack_size) {
+        $c->log->debug('layout ends at rack unit '.($input->{rack_unit_start} + $new_rack_unit_size - 1)
+            .", beyond the end of the rack (size $rack_size)");
+        return $c->status(400 => { error => 'ru_start+rack_unit_size beyond maximum' });
+    }
 
     my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
@@ -151,6 +167,11 @@ sub update ($c) {
         }
     }
 
+    my $rack_size = $c->db_datacenter_rack_roles->search(
+        { 'datacenter_racks.id' => $c->stash('rack_layout')->rack_id },
+        { join => 'datacenter_racks' },
+    )->get_column('rack_size')->single;
+
     if ($input->{rack_unit_start} and $input->{rack_unit_start} != $c->stash('rack_layout')->rack_unit_start) {
         if ($c->db_datacenter_rack_layouts->search({
                     rack_id => $c->stash('rack_layout')->rack_id,
@@ -158,6 +179,11 @@ sub update ($c) {
                 })->exists) {
             $c->log->debug('Conflict with ru_start value of '.$input->{rack_unit_start});
             return $c->status(400 => { error => 'ru_start conflict' });
+        }
+
+        if ($input->{rack_unit_start} > $rack_size) {
+            $c->log->debug("ru_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
+            return $c->status(400 => { error => 'ru_start beyond maximum' });
         }
     }
 
@@ -188,6 +214,13 @@ sub update ($c) {
         if not $new_rack_unit_size;
 
     my $new_rack_unit_start = $input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start;
+
+    if ($new_rack_unit_start + $new_rack_unit_size - 1 > $rack_size) {
+        $c->log->debug('layout ends at rack unit '.($new_rack_unit_start + $new_rack_unit_size - 1)
+            .", beyond the end of the rack (size $rack_size)");
+        return $c->status(400 => { error => 'ru_start+rack_unit_size beyond maximum' });
+    }
+
     my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {

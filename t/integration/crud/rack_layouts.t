@@ -64,6 +64,17 @@ $t->get_ok("/rack/$rack_id/layouts")
         superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
     ]);
 
+my $layout_1_2 = $t->load_fixture('datacenter_rack_0a_layout_1_2');
+$t->post_ok('/layout/'.$layout_1_2->id, json => { ru_start => 43 })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start beyond maximum' });
+
+$t->post_ok('/layout/'.$layout_1_2->id, json => { ru_start => 42 })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start+rack_unit_size beyond maximum' });
+
 $t->post_ok('/layout', json => {
         rack_id => $fake_id,
         product_id => $hw_product_compute->id,
@@ -81,6 +92,24 @@ $t->post_ok('/layout', json => {
     ->status_is(400)
     ->json_schema_is('Error')
     ->json_is({ error => 'Hardware product does not exist' });
+
+$t->post_ok('/layout', json => {
+        rack_id => $rack_id,
+        product_id => $hw_product_switch->id,
+        ru_start => 43,
+    })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start beyond maximum' });
+
+$t->post_ok('/layout', json => {
+        rack_id => $rack_id,
+        product_id => $hw_product_storage->id,
+        ru_start => 42,
+    })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start+rack_unit_size beyond maximum' });
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
@@ -137,7 +166,6 @@ $t->post_ok('/layout/'.$layout_3_6->id, json => { ru_start => 12 })
     ->json_is({ error => 'ru_start conflict' });
 
 # the end of this product will overlap with assigned slots (need 10-13, 11-14 are assigned)
-my $layout_1_2 = $t->load_fixture('datacenter_rack_0a_layout_1_2');
 $t->post_ok('/layout/'.$layout_1_2->id,
         json => { ru_start => 10, product_id => $hw_product_storage->id })
     ->status_is(400)

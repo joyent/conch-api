@@ -38,18 +38,30 @@ sub run ($self, @opts) {
     $workspace_rs = $workspace_rs->search({ name => $opt->workspace }) if $opt->workspace;
 
     while (my $workspace = $workspace_rs->next) {
-        my $rack_rs = $workspace->self_rs->associated_racks;
+        my $rack_rs = $workspace->self_rs->associated_racks
+            ->prefetch('datacenter_rack_role');
 
         while (my $rack = $rack_rs->next) {
             my %assigned;
             ++$assigned{$_} foreach $rack->self_rs->assigned_rack_units;
 
-            foreach my $rack_unit (sort { $a <=> $b } keys %assigned) {
+            my @assigned_rack_units = sort { $a <=> $b } keys %assigned;
+            foreach my $rack_unit (@assigned_rack_units) {
+                # check for slot overlaps
                 if ($assigned{$rack_unit} > 1) {
                     print '# for workspace ', $workspace->id, ' (', $workspace->name,
                         '), datacenter_rack_id ', $rack->id, ' (', $rack->name, '), found ',
                         "$assigned{$rack_unit} assignees at rack_unit $rack_unit!\n";
                 }
+            }
+
+            # check slot ranges against datacenter_rack_role.rack_size
+            my $rack_size = $rack->datacenter_rack_role->rack_size;
+            if (my @out_of_range = grep { $_ > $rack_size } @assigned_rack_units) {
+                    print '# for workspace ', $workspace->id, ' (', $workspace->name,
+                        '), datacenter_rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                        'assigned rack_units beyond the specified rack_size of ',
+                        "$rack_size: @out_of_range!\n";
             }
         }
     }

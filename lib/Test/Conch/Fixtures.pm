@@ -397,12 +397,19 @@ sub generate_set {
                     "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },
+            datacenter_rack_role_42u => {
+                new => 'datacenter_rack_role',
+                using => {
+                    name => 'rack_role 42U',
+                    rack_size => 42,
+                },
+            },
             "datacenter_rack_${num}a" => {
                 new => 'datacenter_rack',
                 using => { name => "rack ${num}a" },
                 requires => {
                     "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
-                    legacy_datacenter_rack_role_10u => { our => 'datacenter_rack_role_id', their => 'id' },
+                    datacenter_rack_role_42u => { our => 'datacenter_rack_role_id', their => 'id' },
                 },
             },
             "datacenter_rack_${num}a_layout_1_2" => {
