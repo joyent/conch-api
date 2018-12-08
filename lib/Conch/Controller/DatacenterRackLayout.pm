@@ -70,6 +70,9 @@ sub create ($c) {
         ->related_resultset('hardware_product_profile')
         ->get_column('rack_unit')->single;
 
+    return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$input->{hardware_product_id} })
+        if not $new_rack_unit_size;
+
     my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
@@ -168,6 +171,9 @@ sub update ($c) {
         { 'hardware_product.id' => $c->stash('rack_layout')->hardware_product_id })
         ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single;
 
+    return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$c->stash('rack_layout')->hardware_product_id })
+        if not $current_rack_unit_size;
+
     delete @assigned_rack_units{
         $c->stash('rack_layout')->rack_unit_start ..
         ($c->stash('rack_layout')->rack_unit_start + $current_rack_unit_size - 1)
@@ -177,6 +183,9 @@ sub update ($c) {
         ? $c->db_hardware_products->search({ 'hardware_product.id' => $input->{hardware_product_id} })
             ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single
         : $current_rack_unit_size;
+
+    return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$input->{hardware_product_id} })
+        if not $new_rack_unit_size;
 
     my $new_rack_unit_start = $input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start;
     my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);

@@ -67,7 +67,7 @@ sub assigned_rack_units {
     })->hri->all;
 
     return map {
-        ($_->{rack_unit_start}) .. ($_->{rack_unit_start} + $_->{rack_unit_size} - 1)
+        ($_->{rack_unit_start}) .. ($_->{rack_unit_start} + ($_->{rack_unit_size} // 1) - 1)
     } @layout_data;
 }
 
