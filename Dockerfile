@@ -50,8 +50,9 @@ ENV LANG C.UTF-8
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 ENV MOJO_CONFIG /app/conch/etc/conch.conf
 
-ENV MOJO_LISTEN http://0.0.0.0:5000
+# The port hypnotoad listens on is defined in its config so the exposed port
+# may need to be changed at runtime to match that config.
 EXPOSE 5000
 
 ENTRYPOINT ["carton", "exec"]
-CMD ["bin/conch", "daemon"]
+CMD ["hypnotoad", "-f", "bin/conch"]
