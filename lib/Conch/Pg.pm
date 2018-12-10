@@ -38,6 +38,8 @@ sub new {
 	my $self = {};
 
 	$self->{pg} = Mojo::Pg->new($pg_uri);
+	$self->{pg}->options->{InactiveDestroy} = 1; # we are sharing with DBIC
+
 	bless($self, $class);
 
 	$self->_init_StrongSingleton();
