@@ -161,7 +161,8 @@ sub update ($c) {
         return $c->status(400 => { error => 'cannot change rack_id' });
     }
 
-    if ($input->{hardware_product_id}) {
+    # if changing hardware_product_id...
+    if ($input->{hardware_product_id} and $input->{hardware_product_id} ne $c->stash('rack_layout')->hardware_product_id) {
         unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
             return $c->status(400 => { error => 'Hardware product does not exist' });
         }
@@ -172,6 +173,7 @@ sub update ($c) {
         { join => 'datacenter_racks' },
     )->get_column('rack_size')->single;
 
+    # if changing rack location...
     if ($input->{rack_unit_start} and $input->{rack_unit_start} != $c->stash('rack_layout')->rack_unit_start) {
         if ($c->db_datacenter_rack_layouts->search({
                     rack_id => $c->stash('rack_layout')->rack_id,
