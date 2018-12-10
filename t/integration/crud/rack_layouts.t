@@ -131,6 +131,30 @@ $t->post_ok('/layout', json => {
     ->json_schema_is('Error')
     ->json_is({ error => 'ru_start conflict' });
 
+# the start of this product will overlap with assigned slots (need 12-15, 11-14 are assigned)
+$t->post_ok('/layout', json => {
+        rack_id => $rack_id,
+        product_id => $hw_product_storage->id,
+        ru_start => 12,
+    })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start conflict' });
+
+# the end of this product will overlap with assigned slots (need 10-13, 11-14 are assigned)
+$t->post_ok('/layout', json => {
+        rack_id => $rack_id,
+        product_id => $hw_product_storage->id,
+        ru_start => 10,
+    })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'ru_start conflict' });
+
+$t->get_ok("/rack/$rack_id/layouts")
+    ->status_is(200)
+    ->json_schema_is('RackLayouts');
+
 # at the moment, we have these assigned slots:
 # start 1, width 2
 # start 3, width 4
@@ -228,6 +252,32 @@ $t->get_ok("/rack/$rack_id/layouts")
         superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
         superhashof({ rack_id => $rack_id, ru_start => 19, product_id => $hw_product_storage->id }),
         superhashof({ rack_id => $rack_id, ru_start => 42, product_id => $hw_product_switch->id }),
+    ]);
+
+# slide a layout forward, overlapping with itself
+$t->post_ok('/layout/'.$layout_19_22->id, json => { ru_start => 20 })
+    ->status_is(303)
+    ->location_is('/layout/'.$layout_19_22->id);
+
+my $layout_20_23 = $layout_19_22;
+undef $layout_19_22;
+
+# now we have these assigned slots:
+# start 1, width 2
+# start 3, width 4
+# start 11, width 4
+# start 20, width 4     originally start 1, width 2
+# start 42, width 1
+
+$t->get_ok("/rack/$rack_id/layouts")
+    ->status_is(200)
+    ->json_schema_is('RackLayouts')
+    ->json_cmp_deeply([
+        superhashof({ ru_start => 1, product_id => $hw_product_compute->id }),
+        superhashof({ ru_start => 3, product_id => $hw_product_storage->id }),
+        superhashof({ ru_start => 11, product_id => $hw_product_storage->id }),
+        superhashof({ ru_start => 20, product_id => $hw_product_storage->id }),
+        superhashof({ ru_start => 42, product_id => $hw_product_switch->id }),
     ]);
 
 $t->delete_ok('/layout/'.$layout_3_6->id)
