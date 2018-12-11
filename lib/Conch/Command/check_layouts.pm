@@ -63,6 +63,31 @@ sub run ($self, @opts) {
                         'assigned rack_units beyond the specified rack_size of ',
                         "$rack_size: @out_of_range!\n";
             }
+
+            my $occupied_layout_rs = $rack->self_rs->related_resultset('datacenter_rack_layouts')
+                ->search(
+                    { 'device_location.device_id' => { '!=' => undef } },
+                    { prefetch => [
+                            'hardware_product',
+                            { 'device_location' => { 'device' => 'hardware_product' } },
+                        ] },
+                );
+            while (my $layout = $occupied_layout_rs->next) {
+                # check for hardware_product_id mismatches.
+                # this is also checked, sort of, in Conch::Validation::DeviceProductName
+                if ($layout->hardware_product_id
+                        ne $layout->device_location->device->hardware_product_id) {
+                    print '# for workspace ', $workspace->id, ' (', $workspace->name,
+                        '), datacenter_rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                        'occupied layout at rack_unit_start ', $layout->rack_unit_start,
+                        ' with device with hardware_product_id ',
+                        $layout->device_location->device->hardware_product_id, ' (',
+                        $layout->device_location->device->hardware_product->alias, ') ',
+                        'but layout expects hardware_product_id ',
+                        $layout->hardware_product_id, ' (',
+                        $layout->hardware_product->alias, ")!\n";
+                }
+            }
         }
     }
 }
