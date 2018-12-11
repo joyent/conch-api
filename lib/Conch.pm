@@ -136,11 +136,11 @@ sub startup {
 	}
 
 	$self->hook(
-		after_dispatch => sub ($c) {
+		before_dispatch => sub ($c) {
 			my $headers = $c->res->headers;
 			my $request_id = $c->req->request_id;
 			$headers->header('Request-Id' => $request_id);
-			$headers->header('X-Request-ID' => $request_id);
+			$headers->header('X-Request-Id' => $request_id);
 		}
 	);
 
