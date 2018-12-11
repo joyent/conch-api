@@ -13,7 +13,8 @@ check_layouts - check for rack layout conflicts
 
     check_layouts [long options...]
 
-        --help  print usage message and exit
+        --ws --workspace  workspace name
+        --help            print usage message and exit
 
 =cut
 
@@ -28,11 +29,14 @@ sub run ($self, @opts) {
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
         'check_layouts %o',
+        [ 'workspace|ws=s', 'workspace name' ],
         [],
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );
 
     my $workspace_rs = $self->app->db_workspaces;
+    $workspace_rs = $workspace_rs->search({ name => $opt->workspace }) if $opt->workspace;
+
     while (my $workspace = $workspace_rs->next) {
         my $rack_rs = $workspace->self_rs->associated_racks;
 
