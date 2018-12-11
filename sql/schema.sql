@@ -1271,10 +1271,10 @@ CREATE INDEX device_id_idx ON public.device USING btree (id) WHERE (deactivated 
 
 
 --
--- Name: device_location_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+-- Name: device_location_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE INDEX device_location_device_id_idx ON public.device_location USING btree (device_id);
+CREATE INDEX device_location_rack_id_idx ON public.device_location USING btree (rack_id);
 
 
 --
