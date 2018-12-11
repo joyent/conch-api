@@ -90,6 +90,11 @@ $t->get_ok('/rack_role')
         superhashof({ name => 'role', rack_size => 10 }),
     ));
 
+$t->delete_ok('/rack_role/'.$role->id)
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot delete a datacenter_rack_role when a detacenter_rack is referencing it' });
+
 $t->delete_ok("/rack_role/$idr")
     ->status_is(204);
 
