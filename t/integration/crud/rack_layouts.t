@@ -280,6 +280,26 @@ $t->get_ok("/rack/$rack_id/layouts")
         superhashof({ ru_start => 42, product_id => $hw_product_switch->id }),
     ]);
 
+
+my $device = $hw_product_storage->create_related('devices', {
+    id  => 'my device',
+    state => 'I wish I were an enum',
+    health => 'I wish I were an enum',
+});
+
+$t->app->db_device_locations->assign_device_location($device->id, $rack_id, 20);
+
+# try to move layout from 20-23 back to 19-22
+$t->post_ok('/layout/'.$layout_20_23->id, json => { ru_start => 19 })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot update a layout with a device occupying it' });
+
+$t->delete_ok('/layout/'.$layout_20_23->id)
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot delete a layout with a device occupying it' });
+
 $t->delete_ok('/layout/'.$layout_3_6->id)
     ->status_is(204);
 $t->get_ok('/layout/'.$layout_3_6->id)

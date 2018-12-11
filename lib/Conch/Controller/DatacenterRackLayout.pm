@@ -161,6 +161,12 @@ sub update ($c) {
         return $c->status(400 => { error => 'cannot change rack_id' });
     }
 
+    # cannot alter an occupied layout
+    if (my $device_location = $c->stash('rack_layout')->device_location) {
+        $c->log->debug('Cannot update layout: occupied by device id '.$device_location->device_id);
+        return $c->status(400 => { error => 'cannot update a layout with a device occupying it' });
+    }
+
     # if changing hardware_product_id...
     if ($input->{hardware_product_id} and $input->{hardware_product_id} ne $c->stash('rack_layout')->hardware_product_id) {
         unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
@@ -242,6 +248,11 @@ Deletes the specified rack layout.
 =cut
 
 sub delete ($c) {
+    if (my $device_location = $c->stash('rack_layout')->device_location) {
+        $c->log->debug('Cannot delete layout: occupied by device id '.$device_location->device_id);
+        return $c->status(400 => { error => 'cannot delete a layout with a device occupying it' });
+    }
+
     $c->stash('rack_layout')->delete;
     $c->log->debug('Deleted datacenter rack layout '.$c->stash('rack_layout')->id);
     return $c->status(204);
