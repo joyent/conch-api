@@ -114,6 +114,26 @@ sub update ($c) {
             return $c->status(400 => { error => 'name is already taken' });
         }
     }
+
+    # prohibit shrinking rack_size if there are layouts that extend beyond it
+    if ($input->{rack_size}) {
+        my $rack_rs = $c->stash('rack_role')->self_rs
+            ->related_resultset('datacenter_racks');
+
+        while (my $rack = $rack_rs->next) {
+            my %assigned_rack_units = map { $_ => 1 }
+                $rack->self_rs->assigned_rack_units;
+            my @assigned_rack_units = sort { $a <=> $b } keys %assigned_rack_units;
+
+            if (my @out_of_range = grep { $_ > $input->{rack_size} } @assigned_rack_units) {
+                $c->log->debug('found layout used by rack_role id '.$c->stash('rack_role')->id
+                    .' that has assigned rack_units greater requested new rack_size of '
+                    .$input->{rack_size}.': ', join(', ', @out_of_range));
+                return $c->status(400 => { error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
+            }
+        }
+    }
+
     $c->stash('rack_role')->update($input);
     $c->log->debug('Updated datacenter rack role '.$c->stash('rack_role')->id);
     $c->status(303 => '/rack_role/'.$c->stash('rack_role')->id);

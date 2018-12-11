@@ -69,6 +69,27 @@ $t->get_ok("/rack_role/$idr")
     ->json_schema_is('RackRole')
     ->json_cmp_deeply(superhashof({ name => 'role', rack_size => 10 }));
 
+$t->post_ok('/rack_role/'.$role->id, json => { rack_size => 13 })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
+
+$t->post_ok('/rack_role/'.$role->id, json => { rack_size => 14 })
+    ->status_is(303);
+
+$t->get_ok('/rack_role/'.$role->id)
+    ->status_is(200)
+    ->json_schema_is('RackRole')
+    ->json_cmp_deeply(superhashof({ name => 'rack_role 42U', rack_size => 14 }));
+
+$t->get_ok('/rack_role')
+    ->status_is(200)
+    ->json_schema_is('RackRoles')
+    ->json_cmp_deeply(bag(
+        superhashof({ name => 'rack_role 42U', rack_size => 14 }),
+        superhashof({ name => 'role', rack_size => 10 }),
+    ));
+
 $t->delete_ok("/rack_role/$idr")
     ->status_is(204);
 
@@ -79,7 +100,7 @@ $t->get_ok('/rack_role')
     ->status_is(200)
     ->json_schema_is('RackRoles')
     ->json_cmp_deeply([
-        superhashof({ name => 'rack_role 42U', rack_size => 42 }),
+        superhashof({ name => 'rack_role 42U', rack_size => 14 }),
     ]);
 
 done_testing();
