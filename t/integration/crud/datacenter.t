@@ -67,6 +67,11 @@ $t->get_ok($t->tx->res->headers->location)
         superhashof({ vendor => 'vendor', region => 'regi0n', location => 'locati0n' }),
     );
 
+$t->delete_ok('/dc/'.$datacenter->id)
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot delete a datacenter when a detacenter_room is referencing it' });
+
 $t->delete_ok("/dc/$idd")
     ->status_is(204);
 

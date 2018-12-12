@@ -128,6 +128,12 @@ Permanently delete a datacenter.
 
 sub delete ($c) {
     return $c->status(403) unless $c->is_system_admin;
+
+    if ($c->stash('datacenter')->related_resultset('datacenter_rooms')->exists) {
+        $c->log->debug('Cannot delete datacenter: in use by one or more datacenter_rooms');
+        return $c->status(400 => { error => 'cannot delete a datacenter when a detacenter_room is referencing it' });
+    }
+
     $c->stash('datacenter')->delete;
     $c->log->debug('Deleted datacenter '.$c->stash('datacenter')->id);
     return $c->status(204);
