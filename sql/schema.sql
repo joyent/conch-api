@@ -1008,22 +1008,6 @@ ALTER TABLE ONLY public.device
 
 
 --
--- Name: hardware_product hardware_product_alias_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_product
-    ADD CONSTRAINT hardware_product_alias_key UNIQUE (alias);
-
-
---
--- Name: hardware_product hardware_product_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_product
-    ADD CONSTRAINT hardware_product_name_key UNIQUE (name);
-
-
---
 -- Name: hardware_product hardware_product_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1045,14 +1029,6 @@ ALTER TABLE ONLY public.hardware_product_profile
 
 ALTER TABLE ONLY public.hardware_product_profile
     ADD CONSTRAINT hardware_product_profile_product_id_key UNIQUE (hardware_product_id);
-
-
---
--- Name: hardware_product hardware_product_sku_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_product
-    ADD CONSTRAINT hardware_product_sku_key UNIQUE (sku);
 
 
 --
@@ -1393,6 +1369,13 @@ CREATE INDEX device_spec_hardware_product_id_idx ON public.device_spec USING btr
 
 
 --
+-- Name: hardware_product_alias_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX hardware_product_alias_key ON public.hardware_product USING btree (alias) WHERE (deactivated IS NULL);
+
+
+--
 -- Name: hardware_product_hardware_vendor_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1400,10 +1383,24 @@ CREATE INDEX hardware_product_hardware_vendor_id_idx ON public.hardware_product 
 
 
 --
+-- Name: hardware_product_name_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX hardware_product_name_key ON public.hardware_product USING btree (name) WHERE (deactivated IS NULL);
+
+
+--
 -- Name: hardware_product_profile_zpool_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE INDEX hardware_product_profile_zpool_id_idx ON public.hardware_product_profile USING btree (zpool_id);
+
+
+--
+-- Name: hardware_product_sku_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX hardware_product_sku_key ON public.hardware_product USING btree (sku) WHERE (deactivated IS NULL);
 
 
 --

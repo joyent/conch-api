@@ -152,44 +152,6 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<hardware_product_alias_key>
-
-=over 4
-
-=item * L</alias>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("hardware_product_alias_key", ["alias"]);
-
-=head2 C<hardware_product_name_key>
-
-=over 4
-
-=item * L</name>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("hardware_product_name_key", ["name"]);
-
-=head2 C<hardware_product_sku_key>
-
-=over 4
-
-=item * L</sku>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("hardware_product_sku_key", ["sku"]);
-
 =head1 RELATIONS
 
 =head2 datacenter_rack_layouts
@@ -268,8 +230,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-02 10:57:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4MIDrBx9IoeWllXpwtkimA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-12 12:47:39
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1G5ydUPuFlREZbyLA8idag
 
 sub TO_JSON {
     my $self = shift;
