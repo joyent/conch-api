@@ -101,9 +101,9 @@ sub create ($c) {
     my $input = $c->validate_input('HardwareProductCreate');
     return if not $input;
 
-    for my $key (qw[name alias sku]) {
+    for my $key (qw(name alias sku)) {
         next unless $input->{$key};
-        if ($c->db_hardware_products->search({ $key => $input->{$key} })->exists) {
+        if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
             return $c->status(400 => {
                 error => "Unique constraint violated on '$key'"
@@ -157,11 +157,11 @@ sub update ($c) {
         return $c->status(400 => { error => 'mismatch between path and payload' });
     }
 
-    for my $key (qw[name alias sku]) {
+    for my $key (qw(name alias sku)) {
         next unless defined $input->{$key};
         next if $input->{$key} eq $hardware_product->$key;
 
-        if ($c->db_hardware_products->search({ $key => $input->{$key} })->exists) {
+        if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
             return $c->status(400 => { error => "Unique constraint violated on '$key'" });
         }
