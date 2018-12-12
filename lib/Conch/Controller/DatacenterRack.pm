@@ -15,30 +15,15 @@ Conch::Controller::DatacenterRack
 
 =head2 find_rack
 
-Supports rack lookups by uuid and name
+Supports rack lookups by uuid.
 
 =cut
 
 sub find_rack ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
-    my $rack;
-
-    if ($c->stash('datacenter_rack_id_or_name') =~ /^(.+?)\=(.+)$/) {
-        my $key = $1;
-        my $value = $2;
-
-        if ($key eq 'name') {
-            $c->log->debug("Looking up a datacenter rack by name $key");
-            $rack = $c->db_datacenter_racks->find({ name => $value });
-        } else {
-            $c->log->warn("Unsupported identifier '$key' found");
-            return $c->status(404 => { error => "Not found" });
-        }
-    } else {
-        $c->log->debug('Looking for datacenter rack by id: '.$c->stash('datacenter_rack_id_or_name'));
-        $rack = $c->db_datacenter_racks->find($c->stash('datacenter_rack_id_or_name'));
-    }
+    $c->log->debug('Looking for datacenter rack by id: '.$c->stash('datacenter_rack_id'));
+    my $rack = $c->db_datacenter_racks->find($c->stash('datacenter_rack_id'));
 
     if (not $rack) {
         $c->log->debug('Could not find datacenter rack');
