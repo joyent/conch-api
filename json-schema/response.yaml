@@ -1125,7 +1125,9 @@ definitions:
           - type: string
           - type: 'null'
       vendor_name:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       datacenter:
         description: datacenter id
         $ref: /definitions/uuid
