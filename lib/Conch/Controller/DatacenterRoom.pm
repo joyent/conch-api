@@ -5,6 +5,8 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -15,23 +17,21 @@ Conch::Controller::DatacenterRoom
 
 =head2 find_datacenter_room
 
-Handles looking up the object by id or name depending on the url pattern
+Handles looking up the object by id.
 
 =cut
 
 sub find_datacenter_room ($c) {
-    unless($c->is_system_admin) {
-        $c->status(403);
-        return undef;
+    return $c->status(403) if not $c->is_system_admin;
+
+    my $room_id = $c->stash('datacenter_room_id');
+    if (not is_uuid($room_id)) {
+        $c->log->warn('input failed validation');
+        return $c->status(400 => { error => "Datacenter Room ID must be a UUID. Got '$room_id'." });
     }
 
-    if ($c->stash('datacenter_room_id_or_name') =~ /^(.+?)\=(.+)$/) {
-        $c->log->warn("Unsupported identifier '$1'");
-        return $c->status(501);
-    }
-
-    $c->log->debug('Looking up datacenter room '.$c->stash('datacenter_room_id_or_name'));
-    my $room = $c->db_datacenter_rooms->find($c->stash('datacenter_room_id_or_name'));
+    $c->log->debug('Looking up datacenter room '.$room_id);
+    my $room = $c->db_datacenter_rooms->find($room_id);
 
     if (not $room) {
         $c->log->debug('Could not find datacenter room');
@@ -105,7 +105,7 @@ sub update ($c) {
     $input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
     $c->stash('datacenter_room')->update({ %$input, updated => \'now()' });
-    $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id_or_name'));
+    $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id'));
     $c->status(303 => '/room/'.$c->stash('datacenter_room')->id);
 }
 

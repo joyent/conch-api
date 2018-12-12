@@ -5,6 +5,8 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -15,28 +17,27 @@ Conch::Controller::Datacenter
 
 =head2 find_datacenter
 
-Handles looking up the object by id or name depending on the url pattern
+Handles looking up the object by id.
 
 =cut
 
 sub find_datacenter ($c) {
-    unless($c->is_system_admin) {
-        $c->status(403);
-        return undef;
+    return $c->status(403) if not $c->is_system_admin;
+
+    my $datacenter_id = $c->stash('datacenter_id');
+    if (not is_uuid($datacenter_id)) {
+        $c->log->warn('input failed validation');
+        return $c->status(400 => { error => "Datacenter ID must be a UUID. Got '$datacenter_id'." });
     }
 
-    if ($c->stash('datacenter_id') =~ /^(.+?)\=(.+)$/) {
-        return $c->status('501');
-    }
-
-    my $datacenter = $c->db_datacenters->find($c->stash('datacenter_id'));
+    my $datacenter = $c->db_datacenters->find($datacenter_id);
 
     if (not $datacenter) {
-        $c->log->debug('Unable to find datacenter '.$c->stash('datacenter_id'));
+        $c->log->debug('Unable to find datacenter '.$datacenter_id);
         return $c->status(404 => { error => 'Not found' });
     }
 
-    $c->log->debug('Found datacenter '.$c->stash('datacenter_id'));
+    $c->log->debug('Found datacenter '.$datacenter_id);
     $c->stash('datacenter' => $datacenter);
     return 1;
 }
