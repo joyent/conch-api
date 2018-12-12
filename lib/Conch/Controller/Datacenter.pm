@@ -45,6 +45,8 @@ sub find_datacenter ($c) {
 
 Get all datacenters.
 
+Response uses the Datacenters json schema.
+
 =cut
 
 sub get_all ($c) {
@@ -57,7 +59,9 @@ sub get_all ($c) {
 
 =head2 get_one
 
-Get a single datacenter
+Get a single datacenter.
+
+Response uses the Datacenter json schema.
 
 =cut
 
