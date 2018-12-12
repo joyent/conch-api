@@ -1,4 +1,6 @@
 use Mojo::Base -strict;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+
 use Test::More;
 use Test::Warnings;
 use Data::UUID;
@@ -42,7 +44,9 @@ $t->post_ok('/hardware_product', json => {
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
     })
-    ->status_is(400, 'cannot provide both vendor and hardware_vendor_id');
+    ->status_is(400, 'cannot provide both vendor and hardware_vendor_id')
+    ->json_schema_is('Error')
+    ->json_cmp_deeply({ error => re(qr/oneOf rules/i) });
 
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',
@@ -91,7 +95,9 @@ $t->post_ok("/hardware_product/$new_hw_id", json => {
         vendor => $vendor_id,
         hardware_vendor_id => $vendor_id,
     })
-    ->status_is(400, 'cannot provide both vendor and hardware_vendor_id');
+    ->status_is(400, 'cannot provide both vendor and hardware_vendor_id')
+    ->json_schema_is('Error')
+    ->json_cmp_deeply({ error => re(qr/should not match/i) });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => {
         id => $new_hw_id,
@@ -131,7 +137,9 @@ subtest 'create profile on existing product' => sub {
             id => $new_hw_id,
             hardware_product_profile => { rack_unit => 1 },
         })
-        ->status_is(400, 'missing fields when creating a new hardware product profile');
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/missing property/i) });
 
     $new_hw_profile = {
         rack_unit => 2,
@@ -190,13 +198,17 @@ subtest 'update some fields in an existing profile and product' => sub {
                 zpool_profile => { name => 'Luci' },
             },
         })
-        ->status_is(400, 'cannot provide both zpool_id and zpool_profile');
+        ->status_is(400, 'cannot provide both zpool_id and zpool_profile')
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/should not match/i) });
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             id => $new_hw_id,
             hardware_product_profile => { zpool_id => $uuid->create_str },
         })
-        ->status_is(400, 'unrecognized zpool_id');
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/zpool_id .* does not exist/) });
 };
 
 subtest 'create a new zpool for an existing profile/product' => sub {
@@ -207,7 +219,9 @@ subtest 'create a new zpool for an existing profile/product' => sub {
                 zpool_profile => { foo => 'Luci' },
             },
         })
-        ->status_is(400, 'invalid fields when creating a new zpool profile');
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/properties not allowed/i) });
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             id => $new_hw_id,
@@ -243,6 +257,7 @@ subtest 'create a new zpool for an existing profile/product' => sub {
             },
         })
         ->status_is(400)
+        ->json_schema_is('Error')
         ->json_cmp_deeply({ error => re(qr/duplicate key value violates unique constraint/) });
 
     my $zog_zpool = $t->app->db_zpool_profiles->create({
@@ -279,7 +294,9 @@ subtest 'create a profile and zpool at the same time in an existing product' => 
                 zpool_profile => { foo => 'Bean' },
             },
         })
-        ->status_is(400, 'invalid fields when creating a new zpool profile');
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/properties not allowed/i) });
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             id => $new_hw_id,
@@ -288,7 +305,9 @@ subtest 'create a profile and zpool at the same time in an existing product' => 
                 rack_unit => 1,
             },
         })
-        ->status_is(400, 'missing fields when creating a hew hardware product profile');
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/missing property/i) });
 
     is($t->app->db_ro_zpool_profiles->count, $zpool_count, 'any newly created zpools were rolled back');
 
@@ -323,7 +342,9 @@ subtest 'create a hardware product, hardware product profile and zpool profile a
             alias => 'ether',
             hardware_product_profile => { rack_unit => 1 },
         })
-        ->status_is(400, 'missing fields when creating a new hardware product profile');
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/missing property/i) });
 
     $new_hw_profile = {
         rack_unit => 2,
@@ -348,7 +369,9 @@ subtest 'create a hardware product, hardware product profile and zpool profile a
                 zpool_profile => { name => 'Luci' },
             },
         })
-        ->status_is(400, 'cannot provide both zpool_id and zpool_profile');
+        ->status_is(400, 'cannot provide both zpool_id and zpool_profile')
+        ->json_schema_is('Error')
+        ->json_cmp_deeply({ error => re(qr/should not match/i) });
 
     $t->post_ok('/hardware_product', json => {
             name => 'ether2',
@@ -362,7 +385,11 @@ subtest 'create a hardware product, hardware product profile and zpool profile a
                 },
             },
         })
-        ->status_is(400, 'zpool_profile name is duplicated');
+        ->status_is(400, 'zpool_profile name is duplicated')
+        ->json_schema_is('Error')
+        # yes, we're letting the db catch this unique constraint, because we can't be bothered
+        # to write lots of code for all the various cases of creating/updating nested entries
+        ->json_cmp_deeply({ error => re(qr/unique constraint.*zpool_profile/i) });
 
     $t->post_ok('/hardware_product', json => {
             name => 'ether2',
