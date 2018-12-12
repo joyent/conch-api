@@ -158,11 +158,6 @@ sub update ($c) {
         ->prefetch('hardware_product_profile')
         ->single;
 
-    if ($hardware_product->id ne delete $input->{id}) {
-        $c->log->debug('hardware product identified by the path does not match the id in the payload.');
-        return $c->status(400 => { error => 'mismatch between path and payload' });
-    }
-
     for my $key (qw(name alias sku)) {
         next unless defined $input->{$key};
         next if $input->{$key} eq $hardware_product->$key;
