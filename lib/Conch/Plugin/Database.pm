@@ -132,15 +132,16 @@ line of the exception.
         };
     });
 
+
     # verify that we are running the version of postgres we expect...
-    my $version = $app->schema->storage->dbh_do(sub ($storage, $dbh) {
+    my $pgsql_version = $app->schema->storage->dbh_do(sub ($storage, $dbh) {
         my ($v) = $dbh->selectrow_array('select version()');
         return $v;
     });
 
-    $app->log->debug("Running $version");
-    $app->log->fatal("Running $version, expected 9.6!") and die
-        if $version !~ /PostgreSQL 9\.6/;
+    $app->log->debug("Running $pgsql_version");
+    $app->log->fatal("Running $pgsql_version, expected 9.6!") and die
+        if $pgsql_version !~ /PostgreSQL 9\.6/;
 
 }
 
