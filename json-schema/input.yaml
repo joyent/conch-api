@@ -412,41 +412,69 @@ definitions:
         type: integer
       nics_num:
         type: integer
-      sata_num:
+      sata_hdd_num:
         anyOf:
           - type: integer
           - type: 'null'
-      sata_size:
+      sata_hdd_size:
         anyOf:
           - type: integer
           - type: 'null'
-      sata_slots:
+      sata_hdd_slots:
         anyOf:
           - type: string
           - type: 'null'
-      sas_num:
+      sas_hdd_num:
         anyOf:
           - type: integer
           - type: 'null'
-      sas_size:
+      sas_hdd_size:
         anyOf:
           - type: integer
           - type: 'null'
-      sas_slots:
+      sas_hdd_slots:
         anyOf:
           - type: string
           - type: 'null'
-      ssd_num:
+      sata_ssd_num:
         anyOf:
           - type: integer
           - type: 'null'
-      ssd_size:
+      sata_ssd_size:
         anyOf:
           - type: integer
           - type: 'null'
-      ssd_slots:
+      sata_ssd_slots:
         anyOf:
           - type: string
+          - type: 'null'
+      sas_ssd_num:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sas_ssd_size:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sas_ssd_slots:
+        anyOf:
+          - type: string
+          - type: 'null'
+      nvme_ssd_num:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      nvme_ssd_size:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      nvme_ssd_slots:
+        anyOf:
+          - type: string
+          - type: 'null'
+      raid_lun_num:
+        anyOf:
+          - type: integer
           - type: 'null'
       psu_total:
         anyOf:

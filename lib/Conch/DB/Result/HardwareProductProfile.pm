@@ -94,49 +94,84 @@ __PACKAGE__->table("hardware_product_profile");
   data_type: 'integer'
   is_nullable: 0
 
-=head2 sata_num
+=head2 sata_hdd_num
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 sata_size
+=head2 sata_hdd_size
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 sata_slots
+=head2 sata_hdd_slots
 
   data_type: 'text'
   is_nullable: 1
 
-=head2 sas_num
+=head2 sas_hdd_num
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 sas_size
+=head2 sas_hdd_size
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 sas_slots
+=head2 sas_hdd_slots
 
   data_type: 'text'
   is_nullable: 1
 
-=head2 ssd_num
+=head2 sata_ssd_num
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 ssd_size
+=head2 sata_ssd_size
 
   data_type: 'integer'
   is_nullable: 1
 
-=head2 ssd_slots
+=head2 sata_ssd_slots
 
   data_type: 'text'
+  is_nullable: 1
+
+=head2 sas_ssd_num
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 sas_ssd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 sas_ssd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 nvme_ssd_num
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 nvme_ssd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 nvme_ssd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 raid_lun_num
+
+  data_type: 'integer'
   is_nullable: 1
 
 =head2 psu_total
@@ -200,24 +235,38 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 0 },
   "nics_num",
   { data_type => "integer", is_nullable => 0 },
-  "sata_num",
+  "sata_hdd_num",
   { data_type => "integer", is_nullable => 1 },
-  "sata_size",
+  "sata_hdd_size",
   { data_type => "integer", is_nullable => 1 },
-  "sata_slots",
+  "sata_hdd_slots",
   { data_type => "text", is_nullable => 1 },
-  "sas_num",
+  "sas_hdd_num",
   { data_type => "integer", is_nullable => 1 },
-  "sas_size",
+  "sas_hdd_size",
   { data_type => "integer", is_nullable => 1 },
-  "sas_slots",
+  "sas_hdd_slots",
   { data_type => "text", is_nullable => 1 },
-  "ssd_num",
+  "sata_ssd_num",
   { data_type => "integer", is_nullable => 1 },
-  "ssd_size",
+  "sata_ssd_size",
   { data_type => "integer", is_nullable => 1 },
-  "ssd_slots",
+  "sata_ssd_slots",
   { data_type => "text", is_nullable => 1 },
+  "sas_ssd_num",
+  { data_type => "integer", is_nullable => 1 },
+  "sas_ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "sas_ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "nvme_ssd_num",
+  { data_type => "integer", is_nullable => 1 },
+  "nvme_ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "nvme_ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "raid_lun_num",
+  { data_type => "integer", is_nullable => 1 },
   "psu_total",
   { data_type => "integer", is_nullable => 1 },
   "deactivated",
