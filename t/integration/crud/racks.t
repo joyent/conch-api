@@ -75,6 +75,13 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_cmp_deeply(superhashof({ name => 'r4ck' }));
 my $idr = $t->tx->res->json->{id};
 
+my $small_rack_role = $t->app->db_datacenter_rack_roles->create({ name => '10U', rack_size => 10 });
+
+$t->post_ok('/rack/'.$rack->id, json => { role => $small_rack_role->id })
+    ->status_is(400)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
+
 $t->post_ok("/rack/$idr", json => {
         name => 'rack',
         serial_number => 'abc',

@@ -129,16 +129,32 @@ sub update ($c) {
     my $input = $c->validate_input('RackUpdate');
     return if not $input;
 
-    if ($input->{datacenter_room_id}) {
+    if ($input->{datacenter_room_id}
+            and $input->{datacenter_room_id} ne $c->stash('rack')->datacenter_room_id) {
         unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
             return $c->status(400 => { error => 'Room does not exist' });
         }
     }
 
-    if (exists $input->{role}) {
-        if (not $c->db_datacenter_rack_roles->search({ id => $input->{role} })->exists) {
+    # prohibit shrinking rack_size if there are layouts that extend beyond it
+    if (exists $input->{role} and $input->{role} ne $c->stash('rack')->datacenter_rack_role_id) {
+        my $rack_role = $c->db_datacenter_rack_roles->find($input->{role});
+        if (not $rack_role) {
             return $c->status(400 => { error => 'Rack role does not exist' });
         }
+
+        my %assigned_rack_units = map { $_ => 1 }
+            $c->stash('rack')->self_rs->assigned_rack_units;
+        my @assigned_rack_units = sort { $a <=> $b } keys %assigned_rack_units;
+
+        if (my @out_of_range = grep { $_ > $rack_role->rack_size } @assigned_rack_units) {
+            $c->log->debug('found layout used by rack id '.$c->stash('rack')->id
+                .' that has assigned rack_units greater requested new rack_size of '
+                .$rack_role->rack_size.': ', join(', ', @out_of_range));
+            return $c->status(400 => { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
+        }
+
+        $input->{datacenter_rack_role_id} = delete $input->{role};
     }
 
     $c->stash('rack')->update($input);
