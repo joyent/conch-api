@@ -1,12 +1,13 @@
 package Conch::Validation::DiskSmartStatus;
 
 use Mojo::Base 'Conch::Validation';
+use v5.20;
 
 has 'name'     => 'disk_smart_status';
 has 'version'  => 1;
 has 'category' => 'DISK';
 has 'description' =>
-	q( Validate that all non-USB disks report 'OK' SMART status);
+	q( Validate that all real disks report 'OK' SMART status);
 
 sub validate {
 	my ( $self, $data ) = @_;
@@ -17,10 +18,12 @@ sub validate {
 	$self->die("'disks' hash is empty")
 		unless $data->{disks}->%*;
 
-	# Check for a not-OK, non-USB drive using its SMART data.
+	# Check for a not-OK, non-USB/RAID drive using its SMART data.
 	# This is provided on the host by smartctl -a <dev>
 	while ( my ( $disk_sn, $disk ) = each $data->{disks}->%* ) {
-		next if $disk->{transport} =~ /usb/;
+		next if !$disk->{transport} ||
+			fc( $disk->{transport} ) eq fc( 'usb' ) ||
+			fc( $disk->{drive_type} ) eq fc( 'RAID_LUN' );
 
 		$self->fail("No health reported for disk $disk_sn") && next
 			unless defined( $disk->{health} );

@@ -4,7 +4,7 @@ use Test::More;
 use Test::Conch::Validation 'test_validation';
 
 test_validation(
-	'Conch::Validation::UsbHddNum',
+	'Conch::Validation::RaidLunNum',
 	hardware_product => {
 		name    => 'Test Product',
 		profile => {}
@@ -15,7 +15,7 @@ test_validation(
 			data        => {},
 		},
 		{
-			description => 'No usb num in profile assume 0',
+			description => 'No hdd num in profile assume 0',
 			data        => {
 				disks => {}
 			},
@@ -25,42 +25,42 @@ test_validation(
 );
 
 test_validation(
-	'Conch::Validation::UsbHddNum',
+	'Conch::Validation::RaidLunNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => { usb_num => 2 }
+		profile => { raid_lun_num => 2 }
 	},
 	cases => [
 		{
-			description => 'Failure when no USB disks and usb_num in profile',
+			description => 'Failure when no RAID LUNs but raid_lun_num in profile',
 			data        => {
 				disks => {}
 			},
 			failure_num => 1
 		},
 		{
-			description => 'Success when enough USB disks',
+			description => 'Success when enough RAID LUNs',
 			data        => {
 				disks => {
-					DEADBEEF => {
-						transport => "usb",
+					LUN1 => {
+						drive_type => 'RAID_LUN'
 					},
-					COFFEE => {
-						transport => "usb",
+					LUN2 => {
+						drive_type => 'RAID_LUN'
 					},
 				}
 			},
 			success_num => 1
 		},
 		{
-			description => 'Failure when not enough USB disks',
+			description => 'Failure when not enough RAID LUNs',
 			data        => {
 				disks => {
-					DEADBEEF => {
-						transport => "usb",
+					DISK1 => {
+						drive_type => 'RAID_LUN'
 					},
-					COFFEE => {
-						transport => "sas",
+					BADDISK => {
+						drive_type => 'SAS_HDD'
 					},
 				}
 			},
@@ -68,5 +68,4 @@ test_validation(
 		},
 	]
 );
-
 done_testing();

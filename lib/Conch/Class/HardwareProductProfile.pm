@@ -33,23 +33,37 @@ use Mojo::Base -base, -signatures;
 
 =head2 ram_total
 
-=head2 sas_num
+=head2 sas_hdd_num
 
-=head2 sas_size
+=head2 sas_hdd_size
 
-=head2 sas_slots
+=head2 sas_hdd_slots
 
-=head2 sata_num
+=head2 sas_ssd_num
 
-=head2 sata_size
+=head2 sas_ssd_size
 
-=head2 sata_slots
+=head2 sas_ssd_slots
 
-=head2 ssd_num
+=head2 sata_hdd_num
 
-=head2 ssd_size
+=head2 sata_hdd_size
 
-=head2 ssd_slots
+=head2 sata_hdd_slots
+
+=head2 sata_ssd_num
+
+=head2 sata_ssd_size
+
+=head2 sata_ssd_slots
+
+=head2 nvme_ssd_num
+
+=head2 nvme_ssd_size
+
+=head2 nvme_ssd_slots
+
+=head2 raid_lun_num
 
 =head2 usb_num
 
@@ -70,15 +84,22 @@ has [
 		purpose
 		rack_unit
 		ram_total
-		sas_num
-		sas_size
-		sas_slots
-		sata_num
-		sata_size
-		sata_slots
-		ssd_num
-		ssd_size
-		ssd_slots
+		sas_hdd_num
+		sas_hdd_size
+		sas_hdd_slots
+		sas_ssd_num
+		sas_ssd_size
+		sas_ssd_slots
+		sata_hdd_num
+		sata_hdd_size
+		sata_hdd_slots
+		sata_ssd_num
+		sata_ssd_size
+		sata_ssd_slots
+		nvme_ssd_num
+		nvme_ssd_size
+		nvme_ssd_slots
+		raid_lun_num
 		usb_num
 		zpool
 		)

@@ -6,7 +6,7 @@ use v5.20;
 has 'name'        => 'sas_ssd_num';
 has 'version'     => 1;
 has 'category'    => 'DISK';
-has 'description' => q( Validate expected number of SSDs );
+has 'description' => q( Validate expected number of SAS SSDs );
 
 sub validate {
 	my ( $self, $data ) = @_;
@@ -19,24 +19,15 @@ sub validate {
 	my @disks_with_drive_type =
 		grep { $_->{drive_type} } ( values $data->{disks}->%* );
 
-	my $ssd_num = grep {
+	my $sas_ssd_count = grep {
 		fc( $_->{drive_type} ) eq fc('SAS_SSD')
-			|| fc( $_->{drive_type} ) eq fc('SATA_SSD')
 	} @disks_with_drive_type;
 
-	my $ssd_want = $hw_profile->ssd_num || 0;
-
-	# Joyent-Compute-Platform-3302 special case.  HCs can have 8 or 16 SSD and
-	# there's no other identifier. Here, we want to avoid missing
-	# failed/missing disks, so we jump through a couple extra hoops.
-	if ( $self->hardware_product_name eq "Joyent-Compute-Platform-3302" ) {
-		if ( $ssd_num <= 8 ) { $ssd_want = 8; }
-		if ( $ssd_num > 8 )  { $ssd_want = 16; }
-	}
+	my $sas_ssd_want = $hw_profile->sas_ssd_num || 0;
 
 	$self->register_result(
-		expected => $ssd_want,
-		got      => $ssd_num,
+		expected => $sas_ssd_want,
+		got      => $sas_ssd_count,
 	);
 
 }
