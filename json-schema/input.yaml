@@ -50,8 +50,6 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      id:
-        $ref: /definitions/uuid
       vendor:
         type: string
       region:
