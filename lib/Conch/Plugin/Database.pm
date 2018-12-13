@@ -6,6 +6,7 @@ use Conch::Pg;
 use Conch::DB ();
 use Lingua::EN::Inflexion 'noun';
 use Try::Tiny;
+use List::Util 'maxstr';
 
 =pod
 
@@ -143,6 +144,16 @@ line of the exception.
     $app->log->fatal("Running $pgsql_version, expected 9.6!") and die
         if $pgsql_version !~ /PostgreSQL 9\.6/;
 
+
+    my $latest_migration = $app->schema->storage->dbh_do(sub ($storage, $dbh) {
+        my ($m) = $dbh->selectrow_array('select max(id) from migration');
+        return $m // 0;
+    });
+    my $expected_latest_migration = maxstr(map { m{^sql/migrations/(\d+)-}g } glob('sql/migrations/*.sql'));
+
+    $app->log->debug("Latest database migration number: $latest_migration");
+    $app->log->fatal("Latest migration that has been run is $latest_migration, but latest on disk is $expected_latest_migration!") and die
+        if $latest_migration != $expected_latest_migration;
 }
 
 1;

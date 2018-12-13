@@ -12,6 +12,7 @@ use Path::Tiny;
 use Test::Deep ();
 use Mojo::Util 'trim';
 use Module::Runtime 'require_module';
+use List::Util 'maxstr';
 
 =pod
 
@@ -151,6 +152,9 @@ sub init_db ($class) {
         $dbh->do('CREATE DATABASE conch OWNER conch');
         $dbh->do(path('sql/schema.sql')->slurp_utf8) or BAIL_OUT("Test SQL load failed in $_");
         $dbh->do('RESET search_path');  # go back to "$user", public
+
+        state $migration = maxstr(map { m{^sql/migrations/(\d+)-}g } glob('sql/migrations/*.sql'));
+        $dbh->do('insert into migration (id) values (?)', {}, $migration);
     });
 
     return wantarray ? ($pgsql, $schema) : $pgsql;
