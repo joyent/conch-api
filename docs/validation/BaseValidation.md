@@ -6,7 +6,7 @@ Conch::Validation - base class for writing Conch Validations
 
 ```perl
     package Conch::Validation::DeviceValidation;
-    use Mojo::Base 'Conch::Validation';
+    use Mojo::Base 'Conch::Validation', -signatures;
 
     has name        => 'device_validation';
     has version     => 1;

@@ -89,8 +89,6 @@ Writing and testing new validations is documented
 The APIs are written in Perl's [Mojolicious framework](https://mojolicious.org/), and are available
 [here](https://github.com/joyent/conch).
 
-A basic workspace-aware stats framework is available [here](https://github.com/joyent/conch-stats).
-
 ### UI
 
 The Conch UI is rapidly evolving. Its initial design was targeted at hardware
