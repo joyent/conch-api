@@ -451,16 +451,12 @@ definitions:
   HardwareProductUpdate:
     type: object
     additionalProperties: false
-    required:
-      - id
     not:
       required:
         # cannot have hardware_vendor_id *and* vendor together.
         - hardware_vendor_id
         - vendor
     properties:
-      id:
-        $ref: /definitions/uuid
       name:
         type: string
       alias:

@@ -101,9 +101,9 @@ sub create ($c) {
     my $input = $c->validate_input('HardwareProductCreate');
     return if not $input;
 
-    for my $key (qw[name alias sku]) {
+    for my $key (qw(name alias sku)) {
         next unless $input->{$key};
-        if ($c->db_hardware_products->search({ $key => $input->{$key} })->exists) {
+        if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
             return $c->status(400 => {
                 error => "Unique constraint violated on '$key'"
@@ -118,6 +118,12 @@ sub create ($c) {
     # Note that if a zpool already exists and can be uniquely identified without conflict, its
     # id is used instead of creating a new entry!
     my $hardware_product = $c->txn_wrapper(sub ($c) {
+        if (exists $input->{hardware_product_profile}
+                and my $zpool = delete $input->{hardware_product_profile}{zpool_profile}) {
+            my $zpool_profile = $c->_find_or_create_zpool_profile($zpool);
+            $input->{hardware_product_profile}{zpool_id} = $zpool_profile->id;
+        }
+
         $c->db_hardware_products->create($input);
     });
 
@@ -152,16 +158,11 @@ sub update ($c) {
         ->prefetch('hardware_product_profile')
         ->single;
 
-    if ($hardware_product->id ne delete $input->{id}) {
-        $c->log->debug('hardware product identified by the path does not match the id in the payload.');
-        return $c->status(400 => { error => 'mismatch between path and payload' });
-    }
-
-    for my $key (qw[name alias sku]) {
+    for my $key (qw(name alias sku)) {
         next unless defined $input->{$key};
         next if $input->{$key} eq $hardware_product->$key;
 
-        if ($c->db_hardware_products->search({ $key => $input->{$key} })->exists) {
+        if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
             return $c->status(400 => { error => "Unique constraint violated on '$key'" });
         }
@@ -187,10 +188,7 @@ sub update ($c) {
             }
 
             if (my $zpool = delete $profile->{zpool_profile}) {
-                # we don't update existing zpools because other profiles could be using it.
-                # Instead, we attempt to create a new one -- which is ok as long as there
-                # is no name conflict.
-                my $zpool_profile = $c->db_zpool_profiles->find_or_create($zpool);
+                my $zpool_profile = $c->_find_or_create_zpool_profile($zpool);
                 $profile->{zpool_id} = $zpool_profile->id;
                 $c->log->debug('Assigned zpool_profile id '.$zpool_profile->id.'to hardware_product_profile for hardware product '.$hardware_product->id);
             }
@@ -243,6 +241,34 @@ sub delete ($c) {
         . ($hardware_product_profile_id
             ? " and its related hardware product profile id $hardware_product_profile_id" : ''));
     return $c->status(204);
+}
+
+=head2 _find_or_create_zpool_profile
+
+Shared logic between 'create' and 'update' endpoints concerning zpool_profile management
+
+Sharing existing zpool_profiles is permitted as long as no fields are being altered, because
+other profiles could be using it. Instead, we attempt to create a new one, which is okay as
+long as there is no name conflict.
+
+=cut
+
+sub _find_or_create_zpool_profile ($c, $zpool_data) {
+    my $zpool_profile;
+    if ($zpool_data->{name}) {
+        $zpool_profile = $c->db_zpool_profiles->active
+            ->search({ name => $zpool_data->{name} })->single;
+        if ($zpool_profile
+            and $zpool_profile->set_columns($zpool_data)
+            and $zpool_profile->get_dirty_columns
+        ) {
+            $c->log->debug("Failed to update hardware product: zpool_profile with name '$zpool_data->{name}' already exists");
+            $c->status(400 => { error => "zpool_profile with name '$zpool_data->{name}' already exists" });
+            die 'rollback';
+        }
+    }
+
+    $zpool_profile //= $c->db_zpool_profiles->create($zpool_data);
 }
 
 1;
