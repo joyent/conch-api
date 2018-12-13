@@ -271,21 +271,6 @@ __PACKAGE__->add_unique_constraint(
 
 =head1 RELATIONS
 
-=head2 device_specs
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::DeviceSpec>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_specs",
-  "Conch::DB::Result::DeviceSpec",
-  { "foreign.hardware_product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 hardware_product
 
 Type: belongs_to
@@ -337,8 +322,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-26 12:36:12
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lFgHiecg13NFXkk663RxKw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-13 14:20:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Bc75KNzfejry4HjRqrAzGA
 
 __PACKAGE__->add_columns(
     '+hardware_product_id' => { is_serializable => 0 },

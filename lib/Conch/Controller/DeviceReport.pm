@@ -260,7 +260,6 @@ sub _record_device_configuration {
 
 			my $device_specs = $device->related_resultset('device_spec')->update_or_create(
 				{
-					hardware_product_id => $device->hardware_product->hardware_product_profile->id,
 					bios_firmware       => $dr->{bios_version},
 					cpu_num             => $dr->{processor}->{count},
 					cpu_type            => $dr->{processor}->{type},

@@ -415,7 +415,6 @@ ALTER TABLE public.device_setting OWNER TO conch;
 
 CREATE TABLE public.device_spec (
     device_id text NOT NULL,
-    hardware_product_id uuid NOT NULL,
     bios_firmware text NOT NULL,
     hba_firmware text,
     cpu_num integer NOT NULL,
@@ -1331,13 +1330,6 @@ CREATE UNIQUE INDEX device_setting_device_id_name_idx ON public.device_setting U
 
 
 --
--- Name: device_spec_hardware_product_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX device_spec_hardware_product_id_idx ON public.device_spec USING btree (hardware_product_id);
-
-
---
 -- Name: hardware_product_alias_key; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1760,14 +1752,6 @@ ALTER TABLE ONLY public.device_setting
 
 ALTER TABLE ONLY public.device_spec
     ADD CONSTRAINT device_specs_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
-
-
---
--- Name: device_spec device_specs_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_spec
-    ADD CONSTRAINT device_specs_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product_profile(id);
 
 
 --
