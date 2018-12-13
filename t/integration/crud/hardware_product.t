@@ -258,7 +258,7 @@ subtest 'create a new zpool for an existing profile/product' => sub {
         })
         ->status_is(400)
         ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/duplicate key value violates unique constraint/) });
+        ->json_is({ error => 'zpool_profile with name \'Luci\' already exists' });
 
     my $zog_zpool = $t->app->db_zpool_profiles->create({
         name => 'Zøg',
@@ -387,9 +387,7 @@ subtest 'create a hardware product, hardware product profile and zpool profile a
         })
         ->status_is(400, 'zpool_profile name is duplicated')
         ->json_schema_is('Error')
-        # yes, we're letting the db catch this unique constraint, because we can't be bothered
-        # to write lots of code for all the various cases of creating/updating nested entries
-        ->json_cmp_deeply({ error => re(qr/unique constraint.*zpool_profile/i) });
+        ->json_is({ error => 'zpool_profile with name \'Luci\' already exists' });
 
     $t->post_ok('/hardware_product', json => {
             name => 'ether2',
