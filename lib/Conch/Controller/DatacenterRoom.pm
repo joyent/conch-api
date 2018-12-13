@@ -118,6 +118,11 @@ Also removes the room from all workspaces.
 =cut
 
 sub delete ($c) {
+    if ($c->stash('datacenter_room')->related_resultset('datacenter_racks')->exists) {
+        $c->log->debug('Cannot delete datacenter_room: in use by one or more datacenter_racks');
+        return $c->status(400 => { error => 'cannot delete a datacenter_room when a detacenter_rack is referencing it' });
+    }
+
     return $c->status(403) unless $c->is_system_admin;
     # FIXME: if we have cascade_copy => 1 set on this rel,
     # then we don't have to do this... and we don't have to worry about rack updates either.
