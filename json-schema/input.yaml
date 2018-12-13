@@ -50,8 +50,6 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      id:
-        $ref: /definitions/uuid
       vendor:
         type: string
       region:
@@ -302,6 +300,7 @@ definitions:
     type: object
     additionalProperties: false
     properties:
+      # this field is deprecated: cannot change rack_id in an existing layout
       rack_id:    # TODO: this really should be datacenter_rack_id
         $ref: /definitions/uuid
       product_id: # TODO: this really should be hardware_product_id

@@ -1099,6 +1099,41 @@ definitions:
         role_via:
           description: this is the id of the workspace where the permissions came from
           $ref: /definitions/uuid
+  Datacenters:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/Datacenter
+  Datacenter:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - vendor
+      - vendor_name
+      - region
+      - location
+      - created
+      - updated
+    properties:
+      id:
+        $ref: /definitions/uuid
+      vendor:
+        type: string
+      vendor_name:
+        anyOf:
+          - type: string
+          - type: 'null'
+      region:
+        type: string
+      location:
+        type: string
+      created:
+        type: string
+        format: date-time
+      updated:
+        type: string
+        format: date-time
   DatacenterRoomsDetailed:
     type: array
     uniqueItems: true
@@ -1125,7 +1160,9 @@ definitions:
           - type: string
           - type: 'null'
       vendor_name:
-        type: string
+        anyOf:
+          - type: string
+          - type: 'null'
       datacenter:
         description: datacenter id
         $ref: /definitions/uuid

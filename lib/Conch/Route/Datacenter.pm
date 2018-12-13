@@ -23,10 +23,10 @@ Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
 
     GET     /room
     POST    /room
-    GET     /room/:datacenter_room_id_or_name
-    POST    /room/:datacenter_room_id_or_name
-    DELETE  /room/:datacenter_room_id_or_name
-    GET     /room/:datacenter_room_id_or_name/racks
+    GET     /room/:datacenter_room_id
+    POST    /room/:datacenter_room_id
+    DELETE  /room/:datacenter_room_id
+    GET     /room/:datacenter_room_id/racks
 
     GET     /rack_role
     POST    /rack_role
@@ -36,10 +36,10 @@ Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
 
     GET     /rack
     POST    /rack
-    GET     /rack/:datacenter_rack_id_or_name
-    POST    /rack/:datacenter_rack_id_or_name
-    DELETE  /rack/:datacenter_rack_id_or_name
-    GET     /rack/:datacenter_rack_id_or_name/layouts
+    GET     /rack/:datacenter_rack_id
+    POST    /rack/:datacenter_rack_id
+    DELETE  /rack/:datacenter_rack_id
+    GET     /rack/:datacenter_rack_id/layouts
 
     GET     /layout
     POST    /layout
@@ -85,16 +85,16 @@ sub routes {
         # POST /room
         $room->post('/')->to('#create');
 
-        my $with_datacenter_room = $room->under('/:datacenter_room_id_or_name')
+        my $with_datacenter_room = $room->under('/:datacenter_room_id')
             ->to('#find_datacenter_room');
 
-        # GET /room/:datacenter_room_id_or_name
+        # GET /room/:datacenter_room_id
         $with_datacenter_room->get('/')->to('#get_one');
-        # POST /room/:datacenter_room_id_or_name
+        # POST /room/:datacenter_room_id
         $with_datacenter_room->post('/')->to('#update');
-        # DELETE /room/:datacenter_room_id_or_name
+        # DELETE /room/:datacenter_room_id
         $with_datacenter_room->delete('/')->to('#delete');
-        # GET /room/:datacenter_room_id_or_name/racks
+        # GET /room/:datacenter_room_id/racks
         $with_datacenter_room->get('/racks')->to('#racks');
     }
 
@@ -128,15 +128,15 @@ sub routes {
         # POST /rack
         $rack->post('/')->to('#create');
 
-        my $with_rack = $rack->under('/:datacenter_rack_id_or_name')->to('#find_rack');
+        my $with_rack = $rack->under('/:datacenter_rack_id')->to('#find_rack');
 
-        # GET /rack/:datacenter_rack_id_or_name
+        # GET /rack/:datacenter_rack_id
         $with_rack->get('/')->to('#get');
-        # POST /rack/:datacenter_rack_id_or_name
+        # POST /rack/:datacenter_rack_id
         $with_rack->post('/')->to('#update');
-        # DELETE /rack/:datacenter_rack_id_or_name
+        # DELETE /rack/:datacenter_rack_id
         $with_rack->delete('/')->to('#delete');
-        # GET /rack/:datacenter_rack_id_or_name/layouts
+        # GET /rack/:datacenter_rack_id/layouts
         $with_rack->get('/layouts')->to('#layouts');
     }
 

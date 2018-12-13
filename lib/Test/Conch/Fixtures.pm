@@ -47,8 +47,8 @@ my %canned_definitions = (
         hardware_vendor_0
         hardware_vendor_1
         hardware_product_switch
-        hardware_product_server_compute
-        hardware_product_server_storage
+        hardware_product_compute
+        hardware_product_storage
     )],
     '01-hardware-profiles' => [qw(
         hardware_product_profile_switch
@@ -132,7 +132,8 @@ my %canned_definitions = (
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
         },
     },
-    hardware_product_server_compute => {
+    # this is a server, not a switch.
+    hardware_product_compute => {
         new => 'hardware_product',
         using => {
             name => '2-ssds-1-cpu',
@@ -146,7 +147,8 @@ my %canned_definitions = (
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
         },
     },
-    hardware_product_server_storage => {
+    # this is a server, not a switch.
+    hardware_product_storage => {
         new => 'hardware_product',
         using => {
             name => '65-ssds-2-cpu',
@@ -177,6 +179,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_product_switch => { our => 'hardware_product_id', their => 'id' },
+            # note, no zpool for this switch.
         },
     },
     hardware_product_profile_storage => {
@@ -199,7 +202,7 @@ my %canned_definitions = (
             usb_num => 1,
         },
         requires => {
-            hardware_product_server_storage => { our => 'hardware_product_id', their => 'id' },
+            hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
             zpool_profile_storage => { our => 'zpool_id', their => 'id' },
         },
     },
@@ -223,7 +226,7 @@ my %canned_definitions = (
             usb_num => 1,
         },
         requires => {
-            hardware_product_server_compute => { our => 'hardware_product_id', their => 'id' },
+            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
             zpool_profile_compute => { our => 'zpool_id', their => 'id' },
         },
     },
@@ -297,7 +300,7 @@ my %canned_definitions = (
         },
         requires => {
             legacy_datacenter_rack => { our => 'rack_id', their => 'id' },
-            hardware_product_server_compute => { our => 'hardware_product_id', their => 'id' },
+            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
         },
     },
     legacy_datacenter_rack_layout_3_6 => {
@@ -307,7 +310,7 @@ my %canned_definitions = (
         },
         requires => {
             legacy_datacenter_rack => { our => 'rack_id', their => 'id' },
-            hardware_product_server_compute => { our => 'hardware_product_id', their => 'id' },
+            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
         },
     },
     legacy_datacenter_rack_layout_7_10 => {
@@ -317,7 +320,7 @@ my %canned_definitions = (
         },
         requires => {
             legacy_datacenter_rack => { our => 'rack_id', their => 'id' },
-            hardware_product_server_storage => { our => 'hardware_product_id', their => 'id' },
+            hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
         },
     },
 
@@ -368,30 +371,45 @@ sub generate_set {
                     "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },
-            "room_${num}a" => {
+            "datacenter_$num" => {
+                new => 'datacenter',
+                using => {
+                    vendor => 'Acme Corp',
+                    region => "region_$num",
+                    location => 'Earth',
+                },
+            },
+            "datacenter_room_${num}a" => {
                 new => 'datacenter_room',
                 using => {
                     az => "room-${num}a",
                     alias => "room ${num}a",
                 },
                 requires => {
-                    legacy_datacenter_region_1 => { our => 'datacenter_id', their => 'id' },
+                    "datacenter_$num" => { our => 'datacenter_id', their => 'id' },
                 },
             },
-            "workspace_room_$num" => {
+            "workspace_room_${num}a" => {
                 new => 'workspace_datacenter_room',
                 using => {},
                 requires => {
-                    "room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
+                    "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
                     "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },
-            "rack_${num}a" => {
+            datacenter_rack_role_42u => {
+                new => 'datacenter_rack_role',
+                using => {
+                    name => 'rack_role 42U',
+                    rack_size => 42,
+                },
+            },
+            "datacenter_rack_${num}a" => {
                 new => 'datacenter_rack',
                 using => { name => "rack ${num}a" },
                 requires => {
-                    "room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
-                    legacy_datacenter_rack_role_10u => { our => 'datacenter_rack_role_id', their => 'id' },
+                    "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
+                    datacenter_rack_role_42u => { our => 'datacenter_rack_role_id', their => 'id' },
                 },
             },
             "datacenter_rack_${num}a_layout_1_2" => {
@@ -400,8 +418,8 @@ sub generate_set {
                     rack_unit_start => 1,
                 },
                 requires => {
-                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
-                    hardware_product_server_compute => { our => 'hardware_product_id', their => 'id' },
+                    "datacenter_rack_${num}a" => { our => 'rack_id', their => 'id' },
+                    hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
                 },
             },
             "datacenter_rack_${num}a_layout_3_6" => {
@@ -410,20 +428,24 @@ sub generate_set {
                     rack_unit_start => 3,
                 },
                 requires => {
-                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
-                    hardware_product_server_compute => { our => 'hardware_product_id', their => 'id' },
+                    "datacenter_rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
-            "datacenter_rack_${num}a_layout_7_10" => {
+            "datacenter_rack_${num}a_layout_11_14" => {
                 new => 'datacenter_rack_layout',
                 using => {
-                    rack_unit_start => 7,
+                    rack_unit_start => 11,
                 },
                 requires => {
-                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
-                    hardware_product_server_storage => { our => 'hardware_product_id', their => 'id' },
+                    "datacenter_rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
+            "__additional_deps_workspace_room_rack_layout_${num}a" => [
+                'hardware_product_profile_compute',
+                'hardware_product_profile_storage',
+            ],
         );
     }
     else {
