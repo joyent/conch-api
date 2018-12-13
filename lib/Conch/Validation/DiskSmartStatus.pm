@@ -20,7 +20,9 @@ sub validate {
 	# Check for a not-OK, non-USB drive using its SMART data.
 	# This is provided on the host by smartctl -a <dev>
 	while ( my ( $disk_sn, $disk ) = each $data->{disks}->%* ) {
-		next if $disk->{transport} =~ /usb/;
+		next if !$disk->{transport} ||
+			fc( $disk->{transport} ) eq fc( 'usb' ) ||
+			fc( $disk->{drive_type} ) eq fc( 'RAID_LUN' );
 
 		$self->fail("No health reported for disk $disk_sn") && next
 			unless defined( $disk->{health} );
