@@ -139,7 +139,8 @@ line of the exception.
     });
 
     $app->log->debug("Running $version");
-    $app->log->fatal("Running $version, expected 9.6!") if $version !~ /PostgreSQL 9\.6/;
+    $app->log->fatal("Running $version, expected 9.6!") and die
+        if $version !~ /PostgreSQL 9\.6/;
 
 }
 

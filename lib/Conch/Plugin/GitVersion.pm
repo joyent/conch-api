@@ -28,13 +28,15 @@ sub register ($self, $app, $conf) {
         system(qw(git describe --always --long));
     };
     chomp($git_tag ||= 'unknown');
-    $app->log->fatal('git error: ' . $git_tag_stderr) if $git_tag_stderr;
+    $app->log->fatal('git error: ' . $git_tag_stderr) and die
+        if $git_tag_stderr;
 
     my ($git_hash, $git_hash_stderr, undef) = capture {
         system(qw(git rev-parse HEAD));
     };
     chomp($git_hash ||= 'unknown');
-    $app->log->fatal('git error: ' . $git_hash_stderr) if $git_hash_stderr;
+    $app->log->fatal('git error: ' . $git_hash_stderr) and die
+        if $git_hash_stderr;
 
     $app->helper(
         version_tag  => sub { $git_tag }
