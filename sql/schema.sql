@@ -300,22 +300,6 @@ CREATE TABLE public.device_location (
 ALTER TABLE public.device_location OWNER TO conch;
 
 --
--- Name: device_log; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_log (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
-    component_type text NOT NULL,
-    component_id uuid,
-    log text NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.device_log OWNER TO conch;
-
---
 -- Name: device_memory; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -928,14 +912,6 @@ ALTER TABLE ONLY public.device_location
 
 
 --
--- Name: device_log device_log_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_log
-    ADD CONSTRAINT device_log_pkey PRIMARY KEY (id);
-
-
---
 -- Name: device_memory device_memory_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1275,13 +1251,6 @@ CREATE INDEX device_id_idx ON public.device USING btree (id) WHERE (deactivated 
 --
 
 CREATE INDEX device_location_rack_id_idx ON public.device_location USING btree (rack_id);
-
-
---
--- Name: device_log_device_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX device_log_device_id_idx ON public.device_log USING btree (device_id);
 
 
 --
@@ -1727,14 +1696,6 @@ ALTER TABLE ONLY public.device_location
 
 ALTER TABLE ONLY public.device_location
     ADD CONSTRAINT device_location_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.datacenter_rack(id);
-
-
---
--- Name: device_log device_log_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_log
-    ADD CONSTRAINT device_log_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
 
 
 --
