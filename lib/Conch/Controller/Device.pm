@@ -141,12 +141,14 @@ sub get ($c) {
 
 =head2 lookup_by_other_attribute
 
-Looks up a device by query parameter. Supports:
+Looks up one or more devices by query parameter. Supports:
 
 	/device?hostname=$hostname
 	/device?mac=$macaddr
 	/device?ipaddr=$ipaddr
 	/device?$setting_key=$setting_value
+
+Response uses the Devices json schema.
 
 =cut
 
@@ -181,17 +183,15 @@ sub lookup_by_other_attribute ($c) {
 			->related_resultset('device')->active;
 	}
 
-	my $device_id = $device_rs->get_column('id')->single;
+	my @devices = $device_rs->all;
 
-	if (not $device_id) {
-		$c->log->debug("Failed to find device matching $key=$value.");
-		return $c->status(404, { error => 'Device not found' });
+	if (not @devices) {
+		$c->log->debug("Failed to find devices matching $key=$value.");
+		return $c->status(404, { error => 'Devices not found' });
 	}
 
-	# continue dispatch to find_device and then get.
-	$c->log->debug("found device_id $device_id");
-	$c->stash('device_id', $device_id);
-	return 1;
+	$c->log->debug(scalar(@devices).' devices found');
+	return $c->status(200, \@devices);
 }
 
 =head2 graduate

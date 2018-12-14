@@ -368,23 +368,26 @@ subtest 'Single device' => sub {
 		->status_is(404)
 		->json_like( '/error', qr/not found/ );
 
+	my $undetailed_device = { $detailed_device->%* };
+	delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
+
 	subtest 'get by device attributes' => sub {
 
 		$t->get_ok('/device?hostname=elfo')
 			->status_is(200)
-			->json_schema_is('DetailedDevice')
-			->json_is('', $detailed_device, 'got device by hostname');
+			->json_schema_is('Devices')
+			->json_is('', [ $undetailed_device ], 'got device by hostname');
 
 		$t->get_ok("/device?mac=$macs[0]")
 			->status_is(200)
-			->json_schema_is('DetailedDevice')
-			->json_is('', $detailed_device, 'got device by mac');
+			->json_schema_is('Devices')
+			->json_is('', [ $undetailed_device ], 'got device by mac');
 
 		# device_nics->[2] has ipaddr' => '172.17.0.173'.
 		$t->get_ok("/device?ipaddr=172.17.0.173")
 			->status_is(200)
-			->json_schema_is('DetailedDevice')
-			->json_is('', $detailed_device, 'got device by ipaddr');
+			->json_schema_is('Devices')
+			->json_is('', [ $undetailed_device ], 'got device by ipaddr');
 	};
 
 	subtest 'mutate device attributes' => sub {
@@ -510,8 +513,13 @@ subtest 'Single device' => sub {
 		$t->get_ok('/device/TEST/settings/tag.bar')->status_is(404)
 			->json_like( '/error', qr/tag\.bar/ );
 
-		$t->get_ok('/device?foo=bar')->status_is(200)
-			->json_is('', $detailed_device, 'got device by arbitrary setting key');
+		my $undetailed_device = { $detailed_device->%* };
+		delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
+
+		$t->get_ok('/device?foo=bar')
+			->status_is(200)
+			->json_schema_is('Devices')
+			->json_is('', [ $undetailed_device ], 'got device by arbitrary setting key');
 	};
 
 };

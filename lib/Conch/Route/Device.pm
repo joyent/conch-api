@@ -51,10 +51,8 @@ sub routes {
     # POST /device/:device_id
     $device->post('/:device_id')->to('device_report#process');
 
-    # /device?key=:value
-    $device->get('/')->under->to('device#lookup_by_other_attribute')
-        ->get->under->to('device#find_device')
-        ->get->to('device#get');
+    # GET /device?key=:value
+    $device->get('/')->to('device#lookup_by_other_attribute');
 
     {
         # chainable action that extracts and looks up device_id from the path
