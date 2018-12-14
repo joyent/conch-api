@@ -11,8 +11,16 @@
 	},
 
     database => {
-        # URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
-        uri => 'postgresql://conch@/conch?client_encoding=UTF-8',
+        # dsn is as defined in https://metacpan.org/pod/DBI#connect
+        # and https://metacpan.org/pod/DBD::Pg#connect:
+        # dbi:DriverName:dbname=database_name[;host=hostname[;port=port]]
+        dsn => 'dbi:Pg:dbname=conch;host=localhost',
+        username => 'conch',
+        password => 'conch',
+        options => {
+            'client_encoding' => 'UTF-8',
+        },
+
     },
 
 	# Rollbar access token. Must be a token with write permissions

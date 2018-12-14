@@ -25,17 +25,25 @@ Sets up the database and provides convenient accessors to it.
 sub register ($self, $app, $config) {
 
     my $database_config = $config->{database};
+    my ($dsn, $username, $password) = $database_config->@{qw(dsn username password)};
 
-    if (not $database_config->{uri}) {
+    if (not $dsn) {
         my $message = 'Your conch.conf is out of date. Please update it following the format in conch.conf.dist';
         $app->log->fatal($message);
         die $message;
     }
 
+    my $options = {
+        AutoCommit          => 1,
+        AutoInactiveDestroy => 1,
+        PrintError          => 0,
+        PrintWarn           => 0,
+        RaiseError          => 1,
+        ($database_config->{options} // {})->%*,
+    };
+
     # Conch::Pg = legacy database access; will be removed soon.
-    # for now we use Mojo::Pg to parse the pg connection uri.
-    my $mojo_pg = Conch::Pg->new($database_config->{uri})->{pg};
-    my ($dsn, $username, $password, $options) = map { $mojo_pg->$_ } qw(dsn username password options);
+    Conch::Pg->new({ $database_config->%{qw(dsn username password)}, options => $options });
 
 
 =head2 schema

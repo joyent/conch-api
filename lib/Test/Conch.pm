@@ -47,7 +47,7 @@ the same database.
 
 =cut
 
-has 'pg';   # this is generally a Test::PostgreSQL object
+has 'pg';   # Test::PostgreSQL object
 
 =head2 validator
 
@@ -100,7 +100,11 @@ sub new {
 
     my $self = Test::Mojo->new(
         Conch => {
-            database => { uri => $pg->uri },    # TODO: pass dsn instead of uri
+            database => {
+                dsn => $pg->dsn,
+                username => $pg->dbowner,
+            },
+
             secrets => ["********"],
         }
     );
@@ -145,7 +149,7 @@ sub init_db ($class) {
     die $Test::PostgreSQL::errstr if not $pgsql;
 
     my $schema = Conch::DB->connect(
-        $pgsql->dsn, 'postgres', '',
+        $pgsql->dsn, $pgsql->dbowner, undef,
         {
             # same as from Mojo::Pg->new($uri)->options
             AutoCommit          => 1,
@@ -183,7 +187,7 @@ sub ro_schema ($class, $pgsql) {
         # DBIx::Class doesn't warn about AutoCommit => 0 being a bad idea.
         sub {
             DBI->connect(
-                $pgsql->dsn, 'postgres', '',
+                $pgsql->dsn, $pgsql->dbowner, undef,
                 {
                     AutoCommit          => 0,
                     AutoInactiveDestroy => 1,

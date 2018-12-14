@@ -28,16 +28,23 @@ use Mojo::Pg;
 
 =head2 new
 
-Create a new object. Pass in a postgres URI the first time the class is used.
-Afterwards, parameters are not necessary and will be ignored.
+Create a new object. Pass in a hashref of connection options (or a postgres URI) the first time
+the class is used.  Afterwards, parameters are not necessary and will be ignored.
 
 =cut
 
 sub new {
-	my ($class, $pg_uri) = @_;
+	my ($class, $pg_options) = @_;
 	my $self = {};
 
-	$self->{pg} = Mojo::Pg->new($pg_uri);
+	if (ref $pg_options eq 'HASH') {
+		$self->{pg} = Mojo::Pg->new;
+		$self->{pg}->$_($pg_options->{$_}) foreach keys %$pg_options;
+	}
+	else {
+		# use old-style pguri
+		$self->{pg} = Mojo::Pg->new($pg_options);
+	}
 	$self->{pg}->options->{InactiveDestroy} = 1; # we are sharing with DBIC
 
 	bless($self, $class);
