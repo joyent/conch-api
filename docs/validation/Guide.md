@@ -55,14 +55,8 @@ repository.
 Clone the repository locally and set its path to your working directory. All
 file paths in this tutorial are relative to the root of the repository.
 
-To build and run Conch locally, Perl version 5.26.0,
-[Carton](http://search.cpan.org/~miyagawa/Carton-v1.0.28/lib/Carton.pm), and
-[yarn](https://yarnpkg.com) are all required to be installed on your system.
+See README.md for more about running Conch.
 
-To build conch, run `make build` in the top level directory. `make test` runs all tests,
-including validation tests. To run the Conch server, run `make run` in the top level directory.
-All valid Conch Validations are automatically loaded when the Conch server is started.
-	
 Creating a new Validation
 -------------------------
 
@@ -466,14 +460,10 @@ The validation will be deployed in the next [versioned
 release](https://github.com/joyent/conch/releases) after it has been merged
 into master.
 
-*NOTE*: As of 2018-04-18, device reports are validated during ingest against
-one of two validation plans, named `Conch v1 Legacy Plan: Switch` and `Conch v1
-Legacy Plan: Server`. [The validations associated with these plans are configured
-in the Conch configuration file](https://github.com/joyent/conch/blob/master/conch.conf.dist#L37-L73).
-These validations plans may be modified via the API, but the plans will be
-reset to the specified configuration every time the Conch service is restarted.
-To include your new validation permanently as part of one of these plans, the
-configuration file must be updated in configuration management and deployed.
+However, your validation won't actually be included in one of the active validation plans.
+To get it included, create an issue on GitHub requesting that it be added to
+the switch and/or server plan(s).
+
 
 Using Validations with the Conch Shell
 --------------------------------------

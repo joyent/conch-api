@@ -29,9 +29,6 @@ The API is only certified to run against Perl 5.26.
 
 ### Setup
 
-Conch uses [`carton`](https://metacpan.org/pod/Carton) to manage Perl
-dependencies
-
 Below is a list of useful Make commands that can be used to build and run the
 project. All of these should be run in the top level directory.
 
@@ -41,10 +38,10 @@ project. All of these should be run in the top level directory.
 
 #### Needed Packages
 
-* PostgreSQL 9.6
+* PostgreSQL 9.6.x
 * Git
-* Perl, 5.26 or above
-* A compiler suite that is supported by Perl
+* Perl, 5.26 or above (e.g. via [perlbrew](https://perlbrew.pl/))
+* [Carton](https://metacpan.org/dist/Carton)
 
 #### Configuration
 

@@ -374,14 +374,10 @@ definitions:
         anyOf:
           - type: string
           - type: 'null'
-      sku:
-        anyOf:
-          - type: string
-          - type: 'null'
-      generation_name:
-        anyOf:
-          - type: string
-          - type: 'null'
+      sku:              # nullable in the db, but required for new entries
+        type: string
+      generation_name:  # nullable in the db, but required for new entries
+        type: string
       legacy_product_name:
         anyOf:
           - type: string
@@ -493,13 +489,9 @@ definitions:
           - type: string
           - type: 'null'
       sku:
-        anyOf:
-          - type: string
-          - type: 'null'
+        type: string
       generation_name:
-        anyOf:
-          - type: string
-          - type: 'null'
+        type: string
       legacy_product_name:
         anyOf:
           - type: string
