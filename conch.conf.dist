@@ -10,8 +10,10 @@
 		normal_expiry => 86400, # 1 day
 	},
 
-	# URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
-	pg => 'postgresql://conch@/conch?client_encoding=UTF-8',
+    database => {
+        # URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+        uri => 'postgresql://conch@/conch?client_encoding=UTF-8',
+    },
 
 	# Rollbar access token. Must be a token with write permissions
 	# rollbar_access_token => '00000000000000000000000000000000',
@@ -86,8 +88,10 @@
 		post_hook => 'around_dispatch',
 	},
 
-    # directory where all logs will be placed.
-    # if not absolute, will be relative to the root of the application.
-    # log_dir => 'log',
+    # logging => {
+    #     # directory where all logs will be placed.
+    #     # if not absolute, will be relative to the root of the application.
+    #     dir => 'log',
+    # },
 
 }

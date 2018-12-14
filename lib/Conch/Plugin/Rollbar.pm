@@ -24,7 +24,7 @@ Adds `send_exception_to_rollbar` to Mojolicious app
 
 =cut
 
-sub register ($self, $app, @) {
+sub register ($self, $app, $config) {
 	$app->helper(send_exception_to_rollbar => \&_record_exception);
 }
 

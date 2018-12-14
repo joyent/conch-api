@@ -22,7 +22,8 @@ process exceptions.
 
 sub register ($self, $app, $config) {
 
-	my $log_dir = $config->{log_dir} // 'log';
+	my $plugin_config = $config->{logging} // {};
+	my $log_dir = $plugin_config->{dir} // 'log';
 
 	my %log_args = (
 		level => 'debug',

@@ -54,7 +54,7 @@ Load the plugin into Mojo. Called by Mojo directly
 
 =cut
 
-sub register ($self, $app, $conf) {
+sub register ($self, $app, $config) {
 
     my $validator = JSON::Validator->new();
     $validator->schema(INPUT_SCHEMA_FILE);

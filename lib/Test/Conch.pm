@@ -100,8 +100,8 @@ sub new {
 
     my $self = Test::Mojo->new(
         Conch => {
-            pg      => $pg->uri,    # TODO: pass dsn instead of uri
-            secrets => ["********"]
+            database => { uri => $pg->uri },    # TODO: pass dsn instead of uri
+            secrets => ["********"],
         }
     );
 
