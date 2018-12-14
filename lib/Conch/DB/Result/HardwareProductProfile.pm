@@ -286,21 +286,6 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
-=head2 hardware_profile_settings
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::HardwareProfileSetting>
-
-=cut
-
-__PACKAGE__->has_many(
-  "hardware_profile_settings",
-  "Conch::DB::Result::HardwareProfileSetting",
-  { "foreign.hardware_product_profile_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 zpool_profile
 
 Type: belongs_to
@@ -322,8 +307,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-13 14:20:03
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Bc75KNzfejry4HjRqrAzGA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-14 13:17:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Njz2ETrnyHNkqkl6ys4TIw
 
 __PACKAGE__->add_columns(
     '+hardware_product_id' => { is_serializable => 0 },

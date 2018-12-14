@@ -486,24 +486,6 @@ CREATE TABLE public.hardware_product_profile (
 ALTER TABLE public.hardware_product_profile OWNER TO conch;
 
 --
--- Name: hardware_profile_setting; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.hardware_profile_setting (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    hardware_product_profile_id uuid NOT NULL,
-    resource text NOT NULL,
-    name text NOT NULL,
-    value text NOT NULL,
-    deactivated timestamp with time zone,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.hardware_profile_setting OWNER TO conch;
-
---
 -- Name: hardware_vendor; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -1007,14 +989,6 @@ ALTER TABLE ONLY public.hardware_product_profile
 
 
 --
--- Name: hardware_profile_setting hardware_profile_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_profile_setting
-    ADD CONSTRAINT hardware_profile_settings_pkey PRIMARY KEY (id);
-
-
---
 -- Name: hardware_vendor hardware_vendor_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1362,13 +1336,6 @@ CREATE INDEX hardware_product_profile_zpool_id_idx ON public.hardware_product_pr
 --
 
 CREATE UNIQUE INDEX hardware_product_sku_key ON public.hardware_product USING btree (sku) WHERE (deactivated IS NULL);
-
-
---
--- Name: hardware_profile_setting_hardware_product_profile_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX hardware_profile_setting_hardware_product_profile_id_idx ON public.hardware_profile_setting USING btree (hardware_product_profile_id);
 
 
 --
@@ -1776,14 +1743,6 @@ ALTER TABLE ONLY public.hardware_product_profile
 
 ALTER TABLE ONLY public.hardware_product
     ADD CONSTRAINT hardware_product_vendor_fkey FOREIGN KEY (hardware_vendor_id) REFERENCES public.hardware_vendor(id);
-
-
---
--- Name: hardware_profile_setting hardware_profile_settings_profile_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_profile_setting
-    ADD CONSTRAINT hardware_profile_settings_profile_id_fkey FOREIGN KEY (hardware_product_profile_id) REFERENCES public.hardware_product_profile(id);
 
 
 --
