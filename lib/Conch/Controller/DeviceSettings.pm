@@ -30,13 +30,10 @@ sub set_all ($c) {
 	# we cannot do device_rs->related_resultset, or ->create loses device_id
 	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
-	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-	my @non_tags = grep { !/^tag\./ } keys %$body;
-	my $perm_needed =
-		@non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
+	# TODO: make device#find_device check permissions, via POST->rw like with workspaces
 
-	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-		$c->log->debug("failed permission check (required $perm_needed)");
+	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), 'rw')) {
+		$c->log->debug("failed permission check (required rw)");
 		return $c->status(403, { error => 'insufficient permissions' });
 	}
 
@@ -74,10 +71,10 @@ sub set_single ($c) {
 	# return early if the setting exists and is not being altered
 	return $c->status(204) if $existing_setting and $existing_setting->value eq $setting_value;
 
-	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-	my $perm_needed = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
-	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-		$c->log->debug("failed permission check (required $perm_needed)");
+	# TODO: make device#find_device check permissions, via POST->rw like with workspaces
+
+	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), 'rw')) {
+		$c->log->debug("failed permission check (required rw)");
 		return $c->status(403, { error => 'insufficient permissions' });
 	}
 
@@ -133,10 +130,10 @@ Delete a single setting from a device, provide that setting was previously set
 sub delete_single ($c) {
 	my $setting_key = $c->stash('key');
 
-	my $perm_needed = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
+	# TODO: make device#find_device check permissions, via DELETE->rw like with workspaces
 
-	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-		$c->log->debug("failed permission check (required $perm_needed)");
+	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), 'rw')) {
+		$c->log->debug("failed permission check (required rw)");
 		return $c->status(403, { error => 'insufficient permissions' });
 	}
 
