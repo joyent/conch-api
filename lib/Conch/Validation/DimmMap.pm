@@ -18,7 +18,6 @@ sub validate {
 	my $hint;
 	my $error;
 
-	my $dimms     = $data->{dimms};
 	my $hw_spec_j = $self->hardware_product_specification;
 	my $hw_spec   = decode_json $hw_spec_j;
 	my $dimm_spec = $hw_spec->{chassis}->{memory}->{dimms};
@@ -33,7 +32,7 @@ sub validate {
 	# Build array of reported DIMMs keyed off bank locators from report
 	my @populated_slots;
 	my @empty_slots;
-	foreach my $dimm ($dimms->@*) {
+	foreach my $dimm ($data->{dimms}->@*) {
 		my $slot = $dimm->{'memory-locator'};
 
 		if ($dimm->{'memory-serial-number'}) {
