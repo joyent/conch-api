@@ -27,6 +27,7 @@ requires 'Dir::Self';
 requires 'Carp';
 requires 'Crypt::Eksblowfish::Bcrypt';
 requires 'Module::Runtime';
+requires 'Email::Valid';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS

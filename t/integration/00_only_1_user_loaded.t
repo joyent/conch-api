@@ -1035,10 +1035,17 @@ subtest 'modify another user' => sub {
 		$orig_update->(@_);
 	};
 
-	$t->delete_ok(
-		"/user/foobar/password?send_password_reset_mail=0")
+	$t->delete_ok('/user/foobar/password?send_password_reset_mail=0')
+		->status_is(400, 'bad format')
+		->json_is({ error => 'invalid identifier format for foobar' });
+
+	$t->delete_ok('/user/email=foobar/password?send_password_reset_mail=0')
+		->status_is(400, 'bad format')
+		->json_is({ error => 'invalid identifier format for email=foobar' });
+
+	$t->delete_ok('/user/email=foobar@conch.joyent.us/password?send_password_reset_mail=0')
 		->status_is(404, 'attempted to reset the password for a non-existent user')
-		->json_is({ error => "user foobar not found" });
+		->json_is({ error => 'user email=foobar@conch.joyent.us not found' });
 
 	$t->delete_ok(
 		"/user/$new_user_id/password?send_password_reset_mail=0")
@@ -1133,9 +1140,9 @@ subtest 'modify another user' => sub {
 		->status_is(204, 'after user fixes his password, he can use basic auth again');
 
 
-	$t->delete_ok("/user/foobar")
+	$t->delete_ok('/user/email=foobar@joyent.conch.us')
 		->status_is(404, 'attempted to deactivate a non-existent user')
-		->json_is({ error => "user foobar not found" });
+		->json_is({ error => 'user email=foobar@joyent.conch.us not found' });
 
 	$t->delete_ok("/user/$new_user_id")
 		->status_is(204, 'new user is deactivated');

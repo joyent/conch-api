@@ -578,6 +578,7 @@ definitions:
       - password
     properties:
       user:
+        description: either a uuid, or email=<email address>
         $ref: /definitions/non_empty_string
       password:
         $ref: /definitions/non_empty_string

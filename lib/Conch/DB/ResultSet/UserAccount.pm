@@ -4,6 +4,7 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use Conch::UUID 'is_uuid';
+use Email::Valid;
 
 =head1 NAME
 
@@ -64,9 +65,14 @@ sub lookup_by_id_or_email {
             ->one_row;
     }
 
-    if (is_uuid($identifier)) {  # avoid pg exception "invalid input syntax for uuid"
+    # avoid pg exception "invalid input syntax for uuid"
+    if (is_uuid($identifier)) {
         return $self->find($identifier);
     }
+
+    warn 'invalid identifier format for '.$identifier
+        if not Email::Valid->address($identifier);
+    return;
 }
 
 1;
