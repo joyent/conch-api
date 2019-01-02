@@ -16,13 +16,11 @@ my $uuid = Data::UUID->new;
 my $t = Test::Conch->new;
 $t->load_fixture('conch_user_global_workspace');
 
-$t->get_ok('/ping')->status_is(200)
-	->json_is('/status' => 'ok')
+$t->get_ok('/ping')
+	->status_is(200)
+	->json_is({ status => 'ok' })
 	->header_isnt('Request-Id' => undef)
 	->header_isnt('X-Request-ID' => undef);
-
-$t->get_ok('/version')
-	->status_is(200);
 
 $t->get_ok('/me')->status_is(401)->json_is({ error => 'unauthorized' });
 $t->get_ok('/login')->status_is(401)->json_is({ error => 'unauthorized' });

@@ -19,9 +19,6 @@ $t->load_validation_plans([{
 # delete all zpools from hardware product profiles
 $t->app->db_hardware_product_profiles->update({ zpool_id => undef });
 
-$t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
-$t->get_ok("/version")->status_is(200);
-
 $t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );

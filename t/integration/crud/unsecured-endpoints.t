@@ -3,13 +3,19 @@ use warnings;
 
 use Test::More;
 use Test::Warnings;
+use Test::Deep;
 use Test::Conch;
 
 my $t = Test::Conch->new;
 $t->load_fixture('legacy_datacenter');
 
-$t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
-$t->get_ok("/version")->status_is(200);
+$t->get_ok('/ping')
+    ->status_is(200)
+    ->json_is({ status => 'ok' });
+
+$t->get_ok('/version')
+    ->status_is(200)
+    ->json_cmp_deeply({ version => re(qr/^v/) });
 
 
 subtest 'device totals' => sub {
