@@ -12,9 +12,7 @@ my $uuid = Data::UUID->new;
 my $t = Test::Conch->new;
 $t->load_fixture(qw(conch_user_global_workspace hardware_vendor_0));
 
-$t->post_ok('/login' => json => { user => 'conch@conch.joyent.us', password => 'conch' })
-    ->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
+$t->authenticate;
 
 $t->get_ok('/hardware_vendor')
     ->status_is(200)

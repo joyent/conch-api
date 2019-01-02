@@ -10,13 +10,7 @@ $t->load_fixture_set('workspace_room_rack_layout', 0);
 
 my $uuid = Data::UUID->new;
 
-$t->post_ok(
-    '/login' => json => {
-        user     => 'conch@conch.joyent.us',
-        password => 'conch',
-    }
-)->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
+$t->authenticate;
 
 $t->get_ok('/dc')
     ->status_is(200)

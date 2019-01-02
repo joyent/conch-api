@@ -14,14 +14,7 @@ $t->load_validation_plans([{
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
-$t->post_ok(
-    '/login' => json => {
-        user     => 'conch@conch.joyent.us',
-        password => 'conch'
-    }
-)->status_is(200);
-fail('Login failed'), exit if $t->tx->res->code != 200;
-
+$t->authenticate;
 
 subtest 'Set up a test device' => sub {
 

@@ -26,13 +26,7 @@ $t->get_ok('/version')
 	->status_is(200)
 	->json_cmp_deeply({ version => re(qr/^v/) });
 
-$t->post_ok(
-	'/login' => json => {
-		user     => 'conch@conch.joyent.us',
-		password => 'conch'
-	}
-)->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
+$t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
@@ -941,13 +935,7 @@ subtest 'Permissions' => sub {
 			}],
 		});
 
-		$t->post_ok(
-			"/login" => json => {
-				user     => $ro_email,
-				password => $ro_pass,
-			}
-		)->status_is(200);
-		BAIL_OUT("Login failed") if $t->tx->res->code != 200;
+		$t->authenticate(user => $ro_email, password => $ro_pass);
 
 		$t->get_ok('/workspace')
 			->status_is(200)
@@ -1001,8 +989,8 @@ subtest 'Permissions' => sub {
 			->json_cmp_deeply(bag(
 				{
 					id => ignore,
-					name => 'conch',
-					email => 'conch@conch.joyent.us',
+					name => $t->CONCH_USER,
+					email => $t->CONCH_EMAIL,
 					role => 'admin',
 				},
 				{
@@ -1043,12 +1031,7 @@ subtest 'Permissions' => sub {
 			}],
 		});
 
-		$t->post_ok(
-			"/login" => json => {
-				user     => $email,
-				password => $pass,
-			}
-		)->status_is(200);
+		$t->authenticate(user => $email, password => $pass);
 
 		$t->get_ok('/workspace')
 			->status_is(200)
@@ -1086,8 +1069,8 @@ subtest 'Permissions' => sub {
 			->json_cmp_deeply(bag(
 				{
 					id => ignore,
-					name => 'conch',
-					email => 'conch@conch.joyent.us',
+					name => $t->CONCH_USER,
+					email => $t->CONCH_EMAIL,
 					role => 'admin',
 				},
 				{

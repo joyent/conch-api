@@ -11,10 +11,7 @@ use Test::Conch;
 my $t = Test::Conch->new;
 $t->load_fixture('conch_user_global_workspace');
 
-$t->post_ok('/login' => json => { user => 'conch@conch.joyent.us', password => 'conch' })
-    ->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
-
+$t->authenticate;
 
 # two workspaces under GLOBAL, each with a room,rack and layout.
 $t->load_fixture_set('workspace_room_rack_layout', $_) for 0..1;

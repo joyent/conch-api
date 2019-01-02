@@ -25,7 +25,7 @@ subtest 'db connection without Conch, legacy mode, and data preservation' => sub
 
     cmp_deeply(
         [ Test::Conch->new(legacy_db => 1)->app->db_user_accounts->get_column('name')->all ],
-        [ 'conch' ],
+        [ Test::Conch->CONCH_USER ],
         'Conch app with legacy db gets a database instance with the conch user',
     );
 
