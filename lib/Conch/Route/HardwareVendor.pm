@@ -15,9 +15,9 @@ Conch::Route::HardwareVendor
 Sets up the routes for /hardware_vendor:
 
     GET     /hardware_vendor
-    GET     /hardware_vendor/:hardware_vendor_name
+    GET     /hardware_vendor/:hardware_vendor_id_or_name
     POST    /hardware_vendor/:hardware_vendor_name
-    DELETE  /hardware_vendor/:hardware_vendor_name
+    DELETE  /hardware_vendor/:hardware_vendor_id_or_name
 
 =cut
 
@@ -31,13 +31,13 @@ sub routes {
     $hv->get('/')->to('#get_all');
 
     {
-        my $with_hv = $hv->under('/:hardware_vendor_name')
+        my $with_hv = $hv->under('/:hardware_vendor_id_or_name')
             ->to('#find_hardware_vendor');
 
-        # GET /hardware_vendor/:hardware_vendor_name
+        # GET /hardware_vendor/:hardware_vendor_id_or_name
         $with_hv->get('/')->to('#get_one');
 
-        # DELETE /hardware_vendor/:hardware_vendor_name
+        # DELETE /hardware_vendor/:hardware_vendor_id_or_name
         $with_hv->delete('/')->to('#delete');
     }
 
