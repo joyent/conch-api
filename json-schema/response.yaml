@@ -101,7 +101,9 @@ definitions:
       state:
         type: string
       system_uuid:
-        $ref: /definitions/uuid
+        anyOf:
+          - type: 'null'
+          - $ref: /definitions/uuid
       triton_setup:
         anyOf:
           - type: string
