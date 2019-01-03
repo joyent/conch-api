@@ -27,8 +27,8 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
-	# check if the device even exists, and then we can skip the rest of the rigamarole.
-	if (not $c->db_devices->search({ id => $device_id })->exists) {
+	# first check if the device even exists (and is not deleted)
+	if (not $c->db_devices->search({ id => $device_id })->active->exists) {
 		$c->log->debug("Failed to find device $device_id");
 		return $c->status(404, { error => 'Not found' });
 	}
@@ -44,8 +44,7 @@ sub find_device ($c) {
 		->and_workspaces_beneath($direct_workspace_ids_rs)
 		->associated_racks
 		->related_resultset('device_locations')
-		->related_resultset('device')
-		->active;
+		->related_resultset('device');
 
 	my $device_rs = $c->db_devices->search(
 		{
@@ -66,7 +65,6 @@ sub find_device ($c) {
 			->related_resultset('relay')
 			->related_resultset('device_relay_connections')
 			->related_resultset('device')
-			# FIXME: doesn't check ->active?
 			->devices_without_location;
 
 		$device_rs = $c->db_devices->search(
