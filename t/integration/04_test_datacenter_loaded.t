@@ -943,13 +943,13 @@ subtest 'Permissions' => sub {
 		subtest 'device settings' => sub {
 			$t->post_ok('/device/TEST/settings', json => { name => 'new value' })
 				->status_is(403)
-				->json_is({ error => 'insufficient permissions' });
+				->json_is({ error => 'Forbidden' });
 			$t->post_ok('/device/TEST/settings/foo', json => { foo => 'new_value' })
 				->status_is(403)
-				->json_is({ error => 'insufficient permissions' });
+				->json_is({ error => 'Forbidden' });
 			$t->delete_ok('/device/TEST/settings/foo')
 				->status_is(403)
-				->json_is({ error => 'insufficient permissions' });
+				->json_is({ error => 'Forbidden' });
 		};
 
 		$t->post_ok("/logout")->status_is(204);
