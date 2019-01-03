@@ -3,6 +3,7 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
 use Carp ();
 use List::Util 'none';
 
@@ -23,9 +24,7 @@ specified permission level.
 
 =cut
 
-sub user_has_permission {
-    my ($self, $user_id, $permission) = @_;
-
+sub user_has_permission ($self, $user_id, $permission) {
     Carp::croak('permission must be one of: ro, rw, admin')
         if none { $permission eq $_ } qw(ro rw admin);
 

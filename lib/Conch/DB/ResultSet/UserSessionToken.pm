@@ -3,6 +3,7 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
 use Session::Token;
 
 =head1 NAME
@@ -21,9 +22,7 @@ Chainable resultset to limit results to session tokens that are expired.
 
 =cut
 
-sub expired {
-    my $self = shift;
-
+sub expired ($self) {
     $self->search({ expires => { '<=' => \'now()' } });
 }
 
@@ -33,9 +32,7 @@ Chainable resultset to limit results to session tokens that are not expired.
 
 =cut
 
-sub active {
-    my $self = shift;
-
+sub active ($self) {
     $self->search({ expires => { '>' => \'now()' } });
 }
 
@@ -46,9 +43,7 @@ This does *not* check the expires field: chain with 'active' if this is desired.
 
 =cut
 
-sub search_for_user_token {
-    my ($self, $user_id, $token) = @_;
-
+sub search_for_user_token ($self, $user_id, $token) {
     warn 'user_id is null' if not $user_id;
     warn 'token is null' if not $token;
 
@@ -65,9 +60,7 @@ Mark the matching token(s) as expired. (Returns the number of rows updated.)
 
 =cut
 
-sub expire {
-    my $self = shift;
-
+sub expire ($self) {
     $self->update({ expires => \'now()' });
 }
 
@@ -78,9 +71,7 @@ Returns the token that was generated.
 
 =cut
 
-sub generate_for_user {
-    my ($self, $user_id, $expires) = @_;
-
+sub generate_for_user ($self, $user_id, $expires) {
     warn 'user_id is null' if not $user_id;
     warn 'expires is not set' if not $expires;
 

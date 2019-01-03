@@ -3,6 +3,8 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
+
 =head1 NAME
 
 Conch::DB::ResultSet::DatacenterRack
@@ -23,9 +25,7 @@ To go in the other direction, see L<Conch::DB::ResultSet::Workspace/associated_r
 
 =cut
 
-sub associated_workspaces {
-    my $self = shift;
-
+sub associated_workspaces ($self) {
     my $rack_workspace_ids = $self->related_resultset('workspace_datacenter_racks')
         ->get_column('workspace_id');
 
@@ -54,9 +54,7 @@ This is used for identifying potential conflicts when adjusting layouts.
 
 =cut
 
-sub assigned_rack_units {
-    my $self = shift;
-
+sub assigned_rack_units ($self) {
     my @layout_data = $self->search_related('datacenter_rack_layouts', undef, {
         columns => {
             rack_unit_start => 'datacenter_rack_layouts.rack_unit_start',

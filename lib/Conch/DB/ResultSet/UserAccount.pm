@@ -3,6 +3,7 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
 use Conch::UUID 'is_uuid';
 use Email::Valid;
 
@@ -54,9 +55,7 @@ caller first.
 
 =cut
 
-sub lookup_by_id_or_email {
-    my ($self, $identifier) = @_;
-
+sub lookup_by_id_or_email ($self, $identifier) {
     if ($identifier =~ /^email=/) {
         return $self
             ->search(\[ 'lower(email) = lower(?)', $' ])

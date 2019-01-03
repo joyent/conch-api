@@ -3,6 +3,7 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
 use Conch::UUID 'is_uuid';
 use Safe::Isa;
 
@@ -31,9 +32,7 @@ L</and_workspaces_beneath> for that.
 
 =cut
 
-sub workspaces_beneath {
-    my ($self, $workspace_id) = @_;
-
+sub workspaces_beneath ($self, $workspace_id) {
     Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
@@ -62,9 +61,7 @@ or a resultset, which must return a single column of distinct workspace_id(s)).
 
 =cut
 
-sub and_workspaces_beneath {
-    my ($self, $workspace_id) = @_;
-
+sub and_workspaces_beneath ($self, $workspace_id) {
     Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
@@ -96,9 +93,7 @@ L</and_workspaces_above> for that.
 
 =cut
 
-sub workspaces_above {
-    my ($self, $workspace_id) = @_;
-
+sub workspaces_above ($self, $workspace_id) {
     Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
@@ -128,9 +123,7 @@ or a resultset, which must return a single column of distinct workspace_id(s)).
 
 =cut
 
-sub and_workspaces_above {
-    my ($self, $workspace_id) = @_;
-
+sub and_workspaces_above ($self, $workspace_id) {
     Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
@@ -167,9 +160,7 @@ before serializing the workspace object.
 
 =cut
 
-sub with_role_via_data_for_user {
-    my ($self, $user_id) = @_;
-
+sub with_role_via_data_for_user ($self, $user_id) {
     # this just adds the user_id_for_role column to the result we get back. See
     # role_via_for_user for the actual role-via query.
     $self->search({}, {
@@ -186,9 +177,7 @@ permission that is attached to an ancestor workspace).
 
 =cut
 
-sub role_via_for_user {
-    my ($self, $workspace_id, $user_id) = @_;
-
+sub role_via_for_user ($self, $workspace_id, $user_id) {
     Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('missing user_id') if not defined $user_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
@@ -211,9 +200,7 @@ To go in the other direction, see L<Conch::DB::ResultSet::DatacenterRack/associa
 
 =cut
 
-sub associated_racks {
-    my $self = shift;
-
+sub associated_racks ($self) {
     my $workspace_rack_ids = $self->related_resultset('workspace_datacenter_racks')
         ->get_column('datacenter_rack_id');
 
@@ -243,9 +230,7 @@ a resultset (which must return a single column of distinct workspace_id(s)).
 
 =cut
 
-sub _workspaces_subquery {
-    my ($self, $workspace_id) = @_;
-
+sub _workspaces_subquery ($self, $workspace_id) {
     if (not ref $workspace_id and is_uuid($workspace_id)) {
         return ('= ?', $workspace_id);
     }
