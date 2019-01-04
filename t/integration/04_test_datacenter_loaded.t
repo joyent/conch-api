@@ -377,10 +377,9 @@ subtest 'Assign device to a location' => sub {
 my $detailed_device;
 
 subtest 'Single device' => sub {
-
-	$t->get_ok('/device/nonexistant')
+	$t->get_ok('/device/nonexistent')
 		->status_is(404)
-		->json_like( '/error', qr/not found/ );
+		->json_is({ error => 'Not found' });
 
 	$t->get_ok('/device/TEST')
 		->status_is(200)
@@ -394,10 +393,6 @@ subtest 'Single device' => sub {
 
 	my $device_id = $detailed_device->{id};
 	my @macs = map { $_->{mac} } $detailed_device->{nics}->@*;
-
-	$t->get_ok('/device/nonexistant')
-		->status_is(404)
-		->json_like( '/error', qr/not found/ );
 
 	my $undetailed_device = { $detailed_device->%* };
 	delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
@@ -422,8 +417,9 @@ subtest 'Single device' => sub {
 	};
 
 	subtest 'mutate device attributes' => sub {
-		$t->post_ok('/device/nonexistant/graduate')
-			->status_is(404);
+		$t->post_ok('/device/nonexistent/graduate')
+			->status_is(404)
+			->json_is({ error => 'Not found' });
 
 		$t->post_ok('/device/TEST/graduate')
 			->status_is(303)
@@ -487,7 +483,8 @@ subtest 'Single device' => sub {
 			->content_is('{}');
 
 		$t->get_ok('/device/TEST/settings/foo')
-			->status_is(404);
+			->status_is(404)
+			->json_is({ error => 'No such setting \'foo\'' });
 
 		$t->post_ok('/device/TEST/settings')
 			->status_is( 400, 'Requires body' )
@@ -523,11 +520,11 @@ subtest 'Single device' => sub {
 
 		$t->get_ok('/device/TEST/settings/fizzle')
 			->status_is(404)
-			->json_like( '/error', qr/fizzle/ );
+			->json_is({ error => 'No such setting \'fizzle\'' });
 
 		$t->delete_ok('/device/TEST/settings/fizzle')
 			->status_is(404)
-			->json_like( '/error', qr/fizzle/ );
+			->json_is({ error => 'No such setting \'fizzle\'' });
 
 		$t->post_ok( '/device/TEST/settings',
 			json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' } )->status_is(200);
@@ -541,8 +538,9 @@ subtest 'Single device' => sub {
 		$t->delete_ok('/device/TEST/settings/tag.bar')->status_is(204)
 			->content_is('');
 
-		$t->get_ok('/device/TEST/settings/tag.bar')->status_is(404)
-			->json_like( '/error', qr/tag\.bar/ );
+		$t->get_ok('/device/TEST/settings/tag.bar')
+			->status_is(404)
+			->json_is({ error => 'No such setting \'tag.bar\'' });
 
 		my $undetailed_device = { $detailed_device->%* };
 		delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};

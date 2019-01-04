@@ -30,7 +30,7 @@ sub find_device ($c) {
 	# check if the device even exists, and then we can skip the rest of the rigamarole.
 	if (not $c->db_devices->search({ id => $device_id })->exists) {
 		$c->log->debug("Failed to find device $device_id");
-		return $c->status(404, { error => "Device '$device_id' not found" });
+		return $c->status(404, { error => 'Not found' });
 	}
 
 	my $direct_workspace_ids_rs = $c->stash('user')
@@ -81,7 +81,7 @@ sub find_device ($c) {
 		# still not found? give up!
 		if (not $device_rs->exists) {
 			$c->log->debug("Failed to find device $device_id");
-			return $c->status(404, { error => "Device '$device_id' not found" });
+			return $c->status(404, { error => 'Not found' });
 		}
 	}
 

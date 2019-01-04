@@ -21,6 +21,11 @@ my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 
 $t->authenticate;
 
+$t->get_ok('/device/nonexistent')
+    ->status_is(404)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Not found' });
+
 subtest 'unlocated device' => sub {
     $t->post_ok(
         '/relay/deadbeef/register',
