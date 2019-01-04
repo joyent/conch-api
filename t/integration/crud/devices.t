@@ -1,5 +1,5 @@
 use v5.26;
-use warnings;
+use Mojo::Base -strict, -signatures;
 
 use Test::More;
 use Test::Warnings;
@@ -96,6 +96,15 @@ subtest 'located device' => sub {
             nics => [],
             disks => [],
         });
+
+    $t->txn_local('remove device from its workspace', sub ($t) {
+        $t->app->db_workspace_datacenter_racks->delete;
+        $t->app->db_workspace_datacenter_rooms->delete;
+        $t->get_ok('/device/LOCATED_DEVICE')
+            ->status_is(404)
+            ->json_schema_is('Error')
+            ->json_is('', { error => 'Not found' }, 'device isn\'t in a workspace anymore');
+    });
 };
 
 subtest 'device network interfaces' => sub {
