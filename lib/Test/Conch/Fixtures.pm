@@ -281,6 +281,7 @@ my %canned_definitions = (
         },
         requires => {
             legacy_datacenter_region_1 => { our => 'datacenter_id', their => 'id' },
+            # TODO: indicate a dependency on 'global_workspace'
         },
     },
     legacy_datacenter_rack => {
@@ -387,6 +388,8 @@ sub generate_set {
                 },
                 requires => {
                     "datacenter_$num" => { our => 'datacenter_id', their => 'id' },
+                    # this is a hack: should be able to specify requirements without copying values.
+                    global_workspace => { our => 'vendor_name', their => 'name' },
                 },
             },
             "workspace_room_${num}a" => {
