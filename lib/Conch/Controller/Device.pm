@@ -27,45 +27,62 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
-	# first check if the device even exists (and is not deleted)
-	if (not $c->db_devices->search({ id => $device_id })->active->exists) {
-		$c->log->debug("Failed to find device $device_id");
-		return $c->status(404, { error => 'Not found' });
-	}
+    # fetch for device existence and location in one query
+    my $device_check = $c->db_devices
+        ->search(
+            { id => $device_id },
+            {
+                join => 'device_location',
+                select => [
+                    { '' => \1, -as => 'exists' },
+                    { '' => \'device_location.rack_id is not null', -as => 'has_location' },
+                ],
+            },
+        )
+        ->active
+        ->hri
+        ->single;
 
-	my $direct_workspace_ids_rs = $c->stash('user')
-		->related_resultset('user_workspace_roles')
-		->distinct
-		->get_column('workspace_id');
+    # if the device doesn't exist, we can bail out right now
+    if (not $device_check->{exists}) {
+        $c->log->debug("Failed to find device $device_id");
+        return $c->status(404, { error => 'Not found' });
+    }
 
-	# first, look for the device in all the user's workspaces
-	$c->log->debug("looking for device $device_id in user's workspaces");
-	my $user_workspace_device_rs = $c->db_workspaces
-		->and_workspaces_beneath($direct_workspace_ids_rs)
-		->associated_racks
-		->related_resultset('device_locations')
-		->related_resultset('device');
+    my $device_rs;
+    if ($device_check->{has_location}) {
+        my $direct_workspace_ids_rs = $c->stash('user')
+            ->related_resultset('user_workspace_roles')
+            ->distinct
+            ->get_column('workspace_id');
 
-	my $device_rs = $c->db_devices->search(
-		{
-			-and => [
-				'device.id' => $device_id,
-				'device.id' => { -in => $user_workspace_device_rs->get_column('id')->as_query },
-			],
-		},
-	);
+        # look for the device in all the user's workspaces
+        $c->log->debug("looking for device $device_id in user's workspaces");
+        my $user_workspace_device_rs = $c->db_workspaces
+            ->and_workspaces_beneath($direct_workspace_ids_rs)
+            ->associated_racks
+            ->related_resultset('device_locations')
+            ->related_resultset('device');
 
-	if (not $device_rs->exists) {
-		# next, look for the device in those that have sent a device report proxied by a relay
-		# using the user's credentials, that also do not have a registered location.
+        $device_rs = $c->db_devices->search(
+            {
+                -and => [
+                    'device.id' => $device_id,
+                    'device.id' => { -in => $user_workspace_device_rs->get_column('id')->as_query },
+                ],
+            },
+        );
+    }
+    else {
+        # look for unlocated devices among those that have sent a device report proxied by a
+        # relay using the user's credentials
 		$c->log->debug("looking for device $device_id associated with relay reports");
 		my $relay_report_device_rs = $c->db_user_accounts
 			->search({ 'user_account.id' => $c->stash('user_id') })
 			->related_resultset('user_relay_connections')
 			->related_resultset('relay')
 			->related_resultset('device_relay_connections')
-			->related_resultset('device')
-			->devices_without_location;
+			->related_resultset('device');
 
 		$device_rs = $c->db_devices->search(
 			{
@@ -75,13 +92,12 @@ sub find_device ($c) {
 				],
 			},
 		);
+    }
 
-		# still not found? give up!
-		if (not $device_rs->exists) {
-			$c->log->debug("Failed to find device $device_id");
-			return $c->status(404, { error => 'Not found' });
-		}
-	}
+    if (not $device_rs->exists) {
+        $c->log->debug('User lacks permission to access device '.$device_id);
+        return $c->status(404, { error => 'Not found' });
+    }
 
 	$c->log->debug('Found device ' . $device_id);
 
