@@ -126,10 +126,11 @@ sub get ($c) {
 		invalid_report => $latest_report ? $latest_report->invalid_report : undef,
 		nics => [ map {
 			my $device_nic = $_;
+			my $device_neighbor = $device_nic->device_neighbor;
 			$device_nic->deactivated ? () :
 			+{
-				(map { $_ => $device_nic->$_ } qw(iface_name iface_type iface_vendor)),
-				(map { $_ => $device_nic->device_neighbor->$_ } qw(mac peer_mac peer_port peer_switch)),
+				(map { $_ => $device_nic->$_ } qw(mac iface_name iface_type iface_vendor)),
+				(map { $_ => $device_neighbor && $device_neighbor->$_ } qw(peer_mac peer_port peer_switch)),
 			}
 		} $device->device_nics ],
 		location => $location,
