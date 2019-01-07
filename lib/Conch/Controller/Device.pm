@@ -76,22 +76,14 @@ sub find_device ($c) {
     else {
         # look for unlocated devices among those that have sent a device report proxied by a
         # relay using the user's credentials
-		$c->log->debug("looking for device $device_id associated with relay reports");
-		my $relay_report_device_rs = $c->db_user_accounts
-			->search({ 'user_account.id' => $c->stash('user_id') })
-			->related_resultset('user_relay_connections')
-			->related_resultset('relay')
-			->related_resultset('device_relay_connections')
-			->related_resultset('device');
+        $c->log->debug("looking for device $device_id associated with relay reports");
 
-		$device_rs = $c->db_devices->search(
-			{
-				-and => [
-					'device.id' => $device_id,
-					'device.id' => { -in => $relay_report_device_rs->get_column('id')->as_query },
-				],
-			},
-		);
+        $device_rs = $c->db_devices
+            ->search({ 'device.id' => $device_id })
+            ->related_resultset('device_relay_connections')
+            ->related_resultset('relay')
+            ->related_resultset('user_relay_connections')
+            ->search({ 'user_relay_connections.user_id' => $c->stash('user_id') });
     }
 
     if (not $device_rs->exists) {
