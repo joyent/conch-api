@@ -42,6 +42,9 @@ requires 'IO::Socket::SSL';
 
 requires 'Path::Tiny';
 requires 'Moo';
+requires 'MooX::HandlesVia';
+requires 'strictures', '2';
+requires 'namespace::clean';
 requires 'Type::Tiny';
 requires 'Types::Standard';
 requires 'Types::UUID';

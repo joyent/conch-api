@@ -18,13 +18,16 @@ sub validate ($self, $data) {
 }
 
 sub _has_no_device ($self, $data) {
-    # this throws an exception
-    my $device = $self->device;
+    $self->register_result_cmp_details(
+        $self->device,
+        undef,
+        'no device -> accessor returns undef',
+    );
 }
 
 sub _has_no_hardware_product ($self, $data) {
     $self->register_result_cmp_details(
-        $self->{_hardware_product},
+        $self->hardware_product,
         undef,
         'no hardware_product provided',
     );
@@ -76,7 +79,7 @@ sub _device_inflation ($self, $data) {
 
 sub _hardware_product_inflation ($self, $data) {
     $self->register_result_cmp_details(
-        $self->{_hardware_product},
+        $self->hardware_product,
         all(
             isa('Conch::Class::HardwareProduct'),
             methods(
@@ -98,7 +101,7 @@ sub _hardware_product_profile_inflation ($self, $data) {
         $self->hardware_product_profile,
         all(
             isa('Conch::Class::HardwareProductProfile'),
-            $self->{_hardware_product}->profile,
+            $self->hardware_product->profile,
             methods(
                 id => re(Conch::UUID::UUID_FORMAT),
                 $data->{hardware_product_profile_rack_unit} ? ( rack_unit => $data->{hardware_product_profile_rack_unit} ) : (),

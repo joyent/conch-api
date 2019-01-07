@@ -225,7 +225,7 @@ $rw_schema->resultset('validation')->delete;
 
 subtest 'a real validator' => sub {
     require Conch::Validation::DeviceProductName;
-    my $validator = Conch::Validation::DeviceProductName->new;
+    my $validator = Conch::Validation::DeviceProductName->new(log => $logger);
 
     my $validation_plan = $rw_schema->resultset('validation_plan')->create({
         name => 'a plan with a real validation',

@@ -2,6 +2,7 @@ package Test::Conch::Validation;
 use strict;
 use warnings;
 use v5.26;
+use experimental 'signatures';
 
 use Test::More;
 use Data::Printer; # for 'np'
@@ -177,12 +178,11 @@ sub test_validation {
 
 	my $validation = $validation_module->new(
 		log => $t->app->log,
-		device => ($device ? Conch::Model::Device->new($device->get_columns) : undef),
-		device_location  => $device_location,   # this is a Conch::Class::DeviceLocation
+		$device ? ( device => Conch::Model::Device->new($device->get_columns) ) : (),
+		$device_location ? ( device_location => $device_location ) : (),
 		device_settings  => $args{device_settings} || {},
-		hardware_product => $hw_product,        # this is a Conch::Class::HardwareProduct
+		$hw_product ? ( hardware_product => $hw_product ) : (),
 	);
-	isa_ok($validation, $validation_module) or return;
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
 		my $case = $args{cases}->[$case_index];
@@ -211,7 +211,7 @@ sub _test_case {
 
 	$validation->run($data);
 
-	my $success_count = scalar $validation->successes->@*;
+	my $success_count = scalar $validation->successes;
 	my $success_expect = $case->{success_num} || 0;
 	is( $success_count, $success_expect,
 			$msg_prefix.'Was expecting validation to register '
@@ -223,7 +223,7 @@ sub _test_case {
 			. _results_to_string( $validation->successes ) );
 	}
 
-	my $failure_count = scalar $validation->failures->@*;
+	my $failure_count = scalar $validation->failures;
 	my $failure_expect = $case->{failure_num} || 0;
 
 	is( $failure_count, $failure_expect,
@@ -235,7 +235,7 @@ sub _test_case {
 			. _results_to_string( $validation->failures ) );
 	}
 
-	my $error_count = scalar $validation->error->@*;
+	my $error_count = scalar $validation->error;
 	my $error_expect = $case->{error_num} // ($success_expect + $failure_expect ? 0 : 1);
 	is($error_count, $error_expect,
 			$msg_prefix.'Was expecting validation to register '
@@ -249,7 +249,7 @@ sub _test_case {
 	if (not Test::Builder->new->is_passing) {
 		require Data::Dumper;
 		diag 'all results: ',
-			Data::Dumper->new([ $validation->validation_results ])->Indent(1)->Terse(1)->Dump;
+			Data::Dumper->new([ [ $validation->validation_results ] ])->Indent(1)->Terse(1)->Dump;
 	}
 }
 
@@ -259,17 +259,16 @@ sub _test_case {
 #	1. Expected eq 'foo', got 'foo'.
 #	2. Expected == '1', got '1'.
 #	3. Expected ne 'baz', got 'bar'.
-sub _results_to_string ($) {
-	my $results = shift;
-	return "\tNone." unless $results->@*;
+sub _results_to_string (@results) {
+	return "\tNone." unless @results;
 
 	return join(
 		"\n",
 		map {
 			my $i = $_ + 1;
-			"\t$i. " . $results->[$_]->{name} . ': ' . $results->[$_]->{message}
-			.($results->[$_]->{hint} ? (' ('.$results->[$_]->{hint}.')') : '')
-		} ( 0 .. $results->$#* )
+			"\t$i. " . $results[$_]->{name} . ': ' . $results[$_]->{message}
+			.($results[$_]->{hint} ? (' ('.$results[$_]->{hint}.')') : '')
+		} ( 0 .. $#results )
 	);
 }
 

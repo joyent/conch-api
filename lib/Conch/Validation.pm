@@ -7,7 +7,12 @@ Conch::Validation - base class for writing Conch Validations
 =head1 SYNOPSIS
 
 	package Conch::Validation::DeviceValidation;
-	use Mojo::Base 'Conch::Validation';
+	# either:
+	    use Mojo::Base 'Conch::Validation';
+	# or, if you want to use Moo features:
+	    use Moo;
+	    use strictures 2;
+	    extends 'Conch::Validation';
 
 	use constant name        => 'device_validation';
 	use constant version     => 1;
@@ -55,14 +60,19 @@ expected results.
 
 package Conch::Validation;
 
-use Mojo::Base -base, -signatures;
+use Moo;
+no Moo::sification;
+use strictures 2;
+use experimental 'signatures';
+use Types::Standard qw(Str ArrayRef HashRef InstanceOf);
 use Mojo::JSON;
 use JSON::Validator;
 use Try::Tiny;
-
 use Conch::ValidationError;
 use Path::Tiny;
 use List::Util 'first';
+use MooX::HandlesVia;
+use namespace::clean;
 
 =head1 CONSTANTS
 
@@ -90,12 +100,12 @@ sub description { die 'description required' }
 sub category ($self) { die ref($self) || $self, ' does not set a category' }
 
 use constant {
-	STATUS_ERROR => 'error',
-	STATUS_FAIL  => 'fail',
-	STATUS_PASS  => 'pass'
+    _STATUS_ERROR => 'error',
+    _STATUS_FAIL  => 'fail',
+    _STATUS_PASS  => 'pass'
 };
 
-=head1 ATTRIBUTES
+=head1 METHODS
 
 =head2 log
 
@@ -103,63 +113,184 @@ A logging object.
 
 =cut
 
-has 'log' => sub { Carp::croak('missing logger') };
+has log => (
+    is => 'ro',
+    isa => InstanceOf['Mojo::Log'],
+    required => 1,
+);
+
+=head2 device
+
+L<Conch::Model::Device> object under validation.  Use in validation
+logic to dispatch on Device attributes.
+
+    my $device = $self->device;
+    if ($device->triton_setup) {...}
+
+=cut
+
+has device => (
+    is => 'ro',
+    isa => InstanceOf['Conch::Model::Device'],
+    # TODO required => 1,
+);
+
+=head2 device_location
+
+L<Conch::Class::DeviceLocation> object for the device being validated.
+
+This is useful in writing validation logic that may depend on the rack or
+location in the rack a device occupies.
+
+	my $datacenter_name = $self->device_location->datacenter->name;
+	my $rack_unit_start = $self->device_location->rack_unit;   # TODO Conch::DB::Result::DeviceLocation calls this rack_unit_start
+	my $rack_available_slots = $self->device_location->datacenter_rack->slots;
+
+=head2 has_device_location
+
+Returns a boolean whether the device under validation has been assigned a
+location.
+
+=cut
+
+has device_location => (
+    is => 'ro',
+    isa => InstanceOf['Conch::Class::DeviceLocation'],
+    predicate => 'has_device_location',
+);
+
+around device_location => sub ($orig, $self, @args) {
+	my $location = $self->$orig(@args);
+	$self->die(
+		"Device must be assigned a location.",
+		hint  => "Assign this device to a rack slot before running this validation",
+		level => 2
+	) unless $location;
+	return $location;
+};
+
+=head2 hardware_product
+
+The expected L<Conch::Class::HardwareProduct> object for the device being validated.
+
+=head2 hardware_product_name
+
+Get the expected hardware product name for the device under validation.
+
+	if ($self->hardware_product_name eq 'Joyent-123') {...}
+
+=head2 hardware_legacy_product_name
+
+Get the expected hardware legacy product name for the device under validation.
+
+	if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
+
+=head2 hardware_product_generation
+
+Get the expected hardware product generation for the device under validation.
+
+	if ($self->hardware_product_generation eq 'Joyent-123') {...}
+
+=head2 hardware_product_sku
+
+Get the expected hardware product SKU for the device under validation.
+
+	if ($self->hardware_product_sku eq 'Joyent-123') {...}
+
+=head2 hardware_product_specification
+
+Get the expected hardware product specification for the device under
+validation. Returns a JSON string (for now).
+
+=head2 hardware_product_vendor
+
+Get the expected hardware product vendor name for the device under validation.
+
+	if ($self->hardware_product_vendor eq 'Dell') {...}
+
+=head2 hardware_product_profile
+
+Get the expected hardware product profile for the device under validation.
+It is a L<Conch::Class::HardwareProductProfile> object.
+
+	my $expected_ram = self->hardware_product_profile->ram_total;
+	my $expected_ssd = self->hardware_product_profile->ssd_num;
+	my $expected_firmware = self->hardware_product_profile->bios_firmware;
+
+=cut
+
+has hardware_product => (
+    is => 'ro',
+    isa => InstanceOf['Conch::Class::HardwareProduct'],
+    handles => {
+        hardware_product_name => 'name',
+        hardware_legacy_product_name => 'legacy_product_name',
+        hardware_product_generation => 'generation_name',
+        hardware_product_sku => 'sku',
+        hardware_product_specification => 'specification',
+        hardware_product_vendor => 'vendor',
+        hardware_product_profile => 'profile',
+    },
+);
+
+=head2 device_settings
+
+A key-value unblessed hashref of device settings stored for the device being validated.
+
+=cut
+
+has device_settings => (
+    is => 'ro',
+    isa => HashRef[Str],
+);
 
 =head2 validation_results
 
 Get the list of all validation results.
 
-=cut
+=head2 validation_result
 
-has 'validation_results';
+Get a validation result by (0-based) index.
 
-=head1 METHODS
+=head2 failures
 
-=head2 new
+Get the list of validation results that were failures
 
-Construct a Validation object.
+=head2 successes
 
-All attributes are optional, but executing validation with L</run> will create
-an error validation result if . For example, if L</hardware_product_profile> is
-used in the definition of L</validate> but the L</hardware_product> attribute is
-unspecified during construction with L</new>, the validation will halt and an
-error validation result will be created.
+Get the list of validation results that were successful
 
-=over
+=head2 error
 
-=item C<device>
+Get the list of validation results that have error status (halted execution).
 
-L<Conch::Model::Device> object under validation.
+I<NOTE:> Unless L</run> is called multiple times on the same validation object
+without calling L</clear_results> between, there should be at most 1 error
+validation because execution is halted.
 
-=item C<device_location>
+=head2 clear_results
 
-L<Conch::Class::DeviceLocation> object for the device being validated.
-
-=item C<hardware_product>
-
-The expected L<Conch::Class::HardwareProduct> object for the device being validated.
-
-=item C<device_settings>
-
-A key-value C<HASHREF> of device settings stored for the device being
-validated. Empty C<HAHSREF> if unspecified.
-
-=back
+Clear the stored validation results.
 
 =cut
 
-sub new ( $class, %attrs ) {
-
-	bless {
-		_device                    => delete $attrs{device},
-		_device_location           => delete $attrs{device_location},
-		_hardware_product          => delete $attrs{hardware_product},
-		_device_settings           => delete $attrs{device_settings} || {},
-		validation_results         => [],
-		%attrs,
-	}, $class;
-
-}
+has _validation_results => (
+    is => 'bare',
+    init_arg => undef,  # cannot be provided at construction time
+    isa => ArrayRef[HashRef[Str]],
+    lazy => 1,
+    default => sub { [] },
+    handles_via => 'Array',
+    handles => {
+        validation_results => 'elements',
+        validation_result => 'get',
+        _push_validation_result => 'push',
+        failures => [ grep => sub { $_->{status} eq _STATUS_FAIL } ],
+        successes => [ grep => sub { $_->{status} eq _STATUS_PASS } ],
+        error => [ grep => sub { $_->{status} eq _STATUS_ERROR } ],
+        clear_results => 'clear',
+    },
+);
 
 =head2 run
 
@@ -195,11 +326,11 @@ sub run ( $self, $data ) {
 		my $validation_error = {
 			message  => $message,
 			name     => $self->name,
-			status   => STATUS_ERROR,
+			status   => _STATUS_ERROR,
 			hint     => $hint,
 			category => $self->category,
 		};
-		push $self->validation_results->@*, $validation_error;
+		$self->_push_validation_result($validation_error);
 	};
 	return $self;
 }
@@ -224,169 +355,6 @@ raise an exception.
 sub validate ( $self, $data ) {
 	$self->die( 'Validations must implement the `validate` method in subclass!',
 		level => 2 );
-}
-
-=head2 device
-
-Get the L<Conch::Model::Device> object under Validation. Use in validation
-logic to dispatch on Device attributes.
-
-	my $device = $self->device;
-	if ($device->trition_setup) {...}
-
-=cut
-
-sub device ($self) {
-	$self->die( "No Device specified for validation", level => 2 )
-		unless $self->{_device};
-	return $self->{_device};
-}
-
-=head2 device_settings
-
-Get device settings assigned to the device under validation. Device settings
-are an unblessed hashref. You can use device setting values to provide
-conditional evaluation in the validation logic.
-
-
-	my $threshold = $self->device_settings->{some_threshold};
-	return if $self->device_settings->{skip_this_validation};
-
-=cut
-
-sub device_settings ($self) {
-	return $self->{_device_settings};
-}
-
-=head2 has_device_location
-
-Return a boolean whether the device under validation has been assigned a
-location.
-
-=cut
-
-sub has_device_location ($self) {
-	return defined( $self->{_device_location} );
-}
-
-=head2 device_location
-
-Get the L<Conch::Class::DeviceLocation> object for the device under validation.
-This is useful in writing validation logic that may depend on the rack or
-location in the rack a device occupies. Throws an error if the device hasn't
-been assigned a location.
-
-	my $datacenter_name = $self->device_location->datacenter->name;
-	my $rack_unit_start = $self->device_location->rack_unit;	# TODO Conch::DB::Result::DeviceLocation calls this rack_unit_start
-	my $rack_available_slots = $self->device_location->datacenter_rack->slots;
-
-=cut
-
-sub device_location ($self) {
-	$self->die(
-		"Device must be assigned a location.",
-		hint  => "Assign this device to a rack slot before running this validation",
-		level => 2
-	) unless $self->{_device_location};
-	return $self->{_device_location};
-}
-
-=head2 hardware_product_name
-
-Get the expected hardware product name for the device under validation.
-
-	if ($self->hardware_product_name eq 'Joyent-123') {...}
-
-=cut
-
-sub hardware_product_name ($self) {
-	$self->die( "Validation must have an expected hardware product", level => 2 )
-		unless $self->{_hardware_product};
-	return $self->{_hardware_product}->name;
-}
-
-=head2 hardware_legacy_product_name
-
-Get the expected hardware legacy product name for the device under validation.
-
-	if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
-
-=cut
-
-sub hardware_legacy_product_name ($self) {
-	$self->die( "Validation must have an expected hardware product", level => 2 )
-		unless $self->{_hardware_product};
-	return $self->{_hardware_product}->legacy_product_name;
-}
-
-
-=head2 hardware_product_generation
-
-Get the expected hardware product generation for the device under validation.
-
-	if ($self->hardware_product_generation eq 'Joyent-123') {...}
-
-=cut
-sub hardware_product_generation ($self) {
-	$self->die( "Validation must have an expected hardware product", level => 2 )
-		unless $self->{_hardware_product};
-	return $self->{_hardware_product}->generation_name;
-}
-
-=head2 hardware_product_sku
-
-Get the expected hardware product SKU for the device under validation.
-
-	if ($self->hardware_product_sku eq 'Joyent-123') {...}
-
-=cut
-
-sub hardware_product_sku ($self) {
-	$self->die( "Validation must have an expected hardware product", level => 2 )
-		unless $self->{_hardware_product};
-	return $self->{_hardware_product}->sku;
-}
-
-=head2 hardware_product_specification
-Get the expected hardware product specification for the device under
-validation. Returns a JSON object.
-=cut
-
-sub hardware_product_specification ($self) {
-	$self->die( "Validation must have an expected hardware product", level => 2 )
-		unless $self->{_hardware_product};
-	return $self->{_hardware_product}->specification;
-}
-
-=head2 hardware_product_vendor
-
-Get the expected hardware product vendor name for the device under validation.
-
-	if ($self->hardware_product_vendor eq 'Dell') {...}
-
-=cut
-
-sub hardware_product_vendor ($self) {
-	$self->die( "Validation must have an expected hardware product", level => 2 )
-		unless $self->{_hardware_product};
-	return $self->{_hardware_product}->vendor;
-}
-
-=head2 hardware_product_profile
-
-Get the expected hardware product profile for the device under validation. In
-production, the product profile is a L<Conch::Class::HardwareProductProfile> object.
-
-	my $expected_ram = self->hardware_product_profile->ram_total;
-	my $expected_ssd = self->hardware_product_profile->ssd_num;
-	my $expected_firmware = self->hardware_product_profile->bios_firmware;
-
-=cut
-
-sub hardware_product_profile ($self) {
-	$self->die( "Validation must have an expected hardware product", level => 2 )
-		unless $self->{_hardware_product};
-	return $self->{_hardware_product}->profile;
 }
 
 =head2 register_result
@@ -564,7 +532,7 @@ sub register_result ( $self, %attrs ) {
 		name     => $attrs{name}     || $self->name,
 		category => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
-		status       => $success ? STATUS_PASS : STATUS_FAIL,
+		status       => $success ? _STATUS_PASS : _STATUS_FAIL,
 		hint         => $success ? undef : $attrs{hint},
 	};
 
@@ -577,7 +545,7 @@ sub register_result ( $self, %attrs ) {
 		$validation_result->{message}
 	));
 
-	push $self->validation_results->@*, $validation_result;
+	$self->_push_validation_result($validation_result);
 	return $self;
 
 }
@@ -598,13 +566,13 @@ sub register_result_cmp_details ($self, $got, $expected, $message) {
         message  => $message,
         name     => $self->name,
         category => $self->category,
-        status       => $ok ? STATUS_PASS : STATUS_FAIL,
+        status       => $ok ? _STATUS_PASS : _STATUS_FAIL,
         hint         => $ok ? undef : Test::Deep::deep_diag($stack),
     };
 
     $self->log->debug('Validation '.$self->name." had result $validation_result->{status}: $message");
 
-    push $self->validation_results->@*, $validation_result;
+    $self->_push_validation_result($validation_result);
     return $self;
 }
 
@@ -650,55 +618,10 @@ sub fail ( $self, $message, %attrs ) {
 		name         => $attrs{name} || $self->name,
 		category     => $attrs{category} || $self->category,
 		component_id => $attrs{component_id},
-		status       => STATUS_FAIL,
+		status       => _STATUS_FAIL,
 		hint         => $attrs{hint}
 	};
-	push $self->validation_results->@*, $validation_result;
-	return $self;
-}
-
-=head2 failures
-
-Get the list of validation results that were failures
-
-=cut
-
-sub failures ( $self ) {
-	[ grep { $_->{status} eq STATUS_FAIL } $self->validation_results->@* ];
-}
-
-=head2 successes
-
-Get the list of validation results that were successful
-
-=cut
-
-sub successes ( $self ) {
-	[ grep { $_->{status} eq STATUS_PASS } $self->validation_results->@* ];
-}
-
-=head2 error
-
-Get the list of validation results that have error status (halted execution).
-
-I<NOTE:> Unless L</run> is called multiple times on the same validation object
-without calling L</clear_results> between, there should be at most 1 error
-validation because execution is halted.
-
-=cut
-
-sub error ( $self ) {
-	[ grep { $_->{status} eq STATUS_ERROR } $self->validation_results->@* ];
-}
-
-=head2 clear_results
-
-Clear the stored validation results.
-
-=cut
-
-sub clear_results ( $self ) {
-	$self->validation_results( [] );
+	$self->_push_validation_result($validation_result);
 	return $self;
 }
 

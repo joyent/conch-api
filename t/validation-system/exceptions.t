@@ -30,7 +30,7 @@ subtest '->run, local exception' => sub {
     $validator->run({});
 
     cmp_deeply(
-        $validator->validation_results,
+        [ $validator->validation_results ],
         [
             {
                 name => 'local_exception',
@@ -66,7 +66,7 @@ my $exception_test = sub ($use_stack_traces = 0) {
     $validator->run({});
 
     cmp_deeply(
-        $validator->validation_results,
+        [ $validator->validation_results ],
         [
             {
                 name => 'external exception',

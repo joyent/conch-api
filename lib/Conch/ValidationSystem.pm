@@ -236,7 +236,7 @@ sub run_validation_plan ($self, %options) {
         my $validator = $validation->module->new(
             log              => $self->log,
             device           => $model_device,
-            device_location  => $location,
+            $location ? ( device_location => $location ) : (),
             device_settings  => $device_settings,
             hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
         );
@@ -255,7 +255,7 @@ sub run_validation_plan ($self, %options) {
                 hardware_product_id => $hw_product_id,
                 $_->%{qw(message hint status category component_id)},
             });
-        } $validator->validation_results->@*;
+        } $validator->validation_results;
     }
 
     return @validation_results if $options{no_save_db};
@@ -308,7 +308,7 @@ sub run_validation ($self, %options) {
     my $validator = $validation->module->new(
         log              => $self->log,
         device           => Conch::Model::Device->new($device->get_columns),
-        device_location  => $location,
+        $location ? ( device_location => $location ) : (),
         device_settings  => +{ $device->device_settings_as_hash },
         hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
     );
@@ -327,7 +327,7 @@ sub run_validation ($self, %options) {
             hardware_product_id => $hw_product_id,
             $_->%{qw(message hint status category component_id)},
         });
-    } $validator->validation_results->@*;
+    } $validator->validation_results;
 
     return @validation_results;
 }

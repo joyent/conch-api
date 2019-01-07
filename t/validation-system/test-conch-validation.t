@@ -17,7 +17,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_has_no_device' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'did not request hardware_product',
@@ -80,7 +80,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_has_no_device' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'hardware_product inflation',
@@ -110,7 +110,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_has_no_device' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'hardware_product inflation',
@@ -141,7 +141,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_has_no_device' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'did not request hardware_product',
@@ -175,7 +175,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_has_no_device' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'did not request hardware_product',
@@ -208,7 +208,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_has_no_device' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'did not request hardware_product',

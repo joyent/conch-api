@@ -4,6 +4,7 @@ use Test::More;
 use Test::Fatal;
 use Test::Deep;
 use Conch::Log;
+use Conch::Validation;
 
 my $l = Conch::Log->new(path => 'log/t-00_base_class.log');
 
@@ -15,8 +16,6 @@ my $l = Conch::Log->new(path => 'log/t-00_base_class.log');
 # general, if Conch::Validation is changed, corresponding tests should be
 # added.
 
-use_ok("Conch::Validation");
-new_ok("Conch::Validation");
 
 {
 	package Conch::Validation::Core;
@@ -40,11 +39,11 @@ subtest '->validate' => sub {
 subtest '->fail' => sub {
 	my $base_validation = Conch::Validation::Core->new(log => $l);
 	$base_validation->fail('Validation failure');
-	is( $base_validation->validation_results->[0]->{message},
+	is( $base_validation->validation_result(0)->{message},
 		'Validation failure' );
-	is( scalar $base_validation->validation_results->@*, 1 );
-	is( scalar $base_validation->failures->@*,           1 );
-	is( scalar $base_validation->successes->@*,          0 );
+	is( scalar $base_validation->validation_results, 1 );
+	is( scalar $base_validation->failures,           1 );
+	is( scalar $base_validation->successes,          0 );
 };
 
 subtest '->die' => sub {
@@ -68,14 +67,14 @@ subtest '->clear_results' => sub {
 	my $base_validation = Conch::Validation::Core->new(log => $l);
 	$base_validation->fail('Validation fail 1');
 	$base_validation->fail('Validation fail 2');
-	is( scalar $base_validation->validation_results->@*, 2, 'Results collect' );
-	is( scalar $base_validation->failures->@*,           2 );
-	is( scalar $base_validation->successes->@*,          0 );
+	is( scalar $base_validation->validation_results, 2, 'Results collect' );
+	is( scalar $base_validation->failures,           2 );
+	is( scalar $base_validation->successes,          0 );
 
 	$base_validation->clear_results;
-	is( scalar $base_validation->validation_results->@*, 0, 'Results clear' );
-	is( scalar $base_validation->failures->@*,           0 );
-	is( scalar $base_validation->successes->@*,          0 );
+	is( scalar $base_validation->validation_results, 0, 'Results clear' );
+	is( scalar $base_validation->failures,           0 );
+	is( scalar $base_validation->successes,          0 );
 };
 
 subtest '->register_result' => sub {
@@ -104,7 +103,7 @@ subtest '->register_result' => sub {
 	$base_validation->register_result( expected => 'test', got => 'test', hint => 'hi' );
 
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => "Expected eq 'test'. Got 'test'.",
@@ -116,7 +115,7 @@ subtest '->register_result' => sub {
 
 	$base_validation->register_result( expected => 'test', got => 'bad', hint => 'hi' );
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => "Expected eq 'test'. Got 'bad'.",
@@ -133,7 +132,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	),
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			ignore,
 			superhashof({
@@ -152,7 +151,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => "Expected a value > '20'. Passed.",
@@ -169,7 +168,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => "Expected a value < '20'. Failed.",
@@ -188,7 +187,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => "Expected one of: 'a', 'b', 'c'. Got 'b'.",
@@ -205,7 +204,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => "Expected one of: 'a', 'b', 'c'. Got 'bad'.",
@@ -224,7 +223,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'foo123\'.',
@@ -241,7 +240,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'bad42\'.',
