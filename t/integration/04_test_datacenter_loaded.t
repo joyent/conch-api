@@ -1064,12 +1064,15 @@ subtest 'Permissions' => sub {
 			$t->post_ok('/device/TEST/settings', json => { newkey => 'new value' })
 				->status_is(200, 'writing new key only requires rw');
 			$t->post_ok('/device/TEST/settings/foo', json => { foo => 'new_value' })
-				->status_is(200, 'changing existing key now only requires rw');
+				->status_is(403)
+				->json_is({ error => 'insufficient permissions' });
 			$t->delete_ok('/device/TEST/settings/foo')
-				->status_is(204, 'deleting existing key now only requires rw');
+				->status_is(403)
+				->json_is({ error => 'insufficient permissions' });
 
 			$t->post_ok('/device/TEST/settings', json => { 'foo' => 'foo', 'tag.bar' => 'bar' })
-				->status_is(200, 'writing new tag key now only requires rw');
+				->status_is(403)
+				->json_is({ error => 'insufficient permissions' });
 			$t->post_ok('/device/TEST/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
 				->status_is(200);
 
