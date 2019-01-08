@@ -170,12 +170,12 @@ sub test_validation {
 		: ();
 
 	my $validation = $validation_module->new(
+		log => $log,
 		device           => $device,            # this is a Conch::Model::Device
 		device_location  => $device_location,   # this is a Conch::Class::DeviceLocation
 		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,        # this is a Conch::Class::HardwareProduct
 	);
-	$validation->log($log);
 	isa_ok($validation, $validation_module) or return;
 
 	ok(

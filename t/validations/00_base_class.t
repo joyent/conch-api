@@ -21,8 +21,7 @@ new_ok("Conch::Validation");
 subtest '->validate' => sub {
 	like(
 		exception {
-			my $base_validation = Conch::Validation->new;
-			$base_validation->log($l);
+			my $base_validation = Conch::Validation->new(log => $l);
 			$base_validation->validate( {} );
 		},
 		qr/Validations must implement the `validate` method in subclass/
@@ -30,8 +29,7 @@ subtest '->validate' => sub {
 };
 
 subtest '->fail' => sub {
-	my $base_validation = Conch::Validation->new;
-	$base_validation->log($l);
+	my $base_validation = Conch::Validation->new(log => $l);
 	$base_validation->fail('Validation failure');
 	is( $base_validation->validation_results->[0]->{message},
 		'Validation failure' );
@@ -41,8 +39,7 @@ subtest '->fail' => sub {
 };
 
 subtest '->die' => sub {
-	my $base_validation = Conch::Validation->new;
-	$base_validation->log($l);
+	my $base_validation = Conch::Validation->new(log => $l);
 
 	cmp_deeply(
 		exception { $base_validation->die( 'Validation dies', hint => 'how to fix' ); },
@@ -59,8 +56,7 @@ subtest '->die' => sub {
 };
 
 subtest '->clear_results' => sub {
-	my $base_validation = Conch::Validation->new;
-	$base_validation->log($l);
+	my $base_validation = Conch::Validation->new(log => $l);
 	$base_validation->fail('Validation fail 1');
 	$base_validation->fail('Validation fail 2');
 	is( scalar $base_validation->validation_results->@*, 2, 'Results collect' );
@@ -74,8 +70,7 @@ subtest '->clear_results' => sub {
 };
 
 subtest '->register_result' => sub {
-	my $base_validation = Conch::Validation->new;
-	$base_validation->log($l);
+	my $base_validation = Conch::Validation->new(log => $l);
 
 	like exception { $base_validation->register_result() },
 	qr/'expected' value must be defined/;
