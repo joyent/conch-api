@@ -74,20 +74,19 @@ sub check_validation_plan ($self, $validation_plan) {
                 return; # from try sub
             }
 
-            my $validator = $module->new;
             my $failed;
 
             foreach my $field (qw(version name description)) {
-                if ($validation->$field ne trim($validator->$field)) {
+                if ($validation->$field ne trim($module->$field)) {
                     $self->log->warn('"'.$field.'" field for validation id '.$validation->id
                         .' does not match value in '.$module
-                        .' ("'.$validation->$field.'" vs "'.$validator->$field.'")');
+                        .' ("'.$validation->$field.'" vs "'.$module->$field.'")');
                     $valid_plan = 0;
                     ++$failed;
                 }
             }
 
-            if (not $validator->category) {
+            if (not $module->category) {
                 $self->log->warn("$module does not set a category");
                 $valid_plan = 0;
                 ++$failed;
@@ -144,21 +143,19 @@ sub load_validations ($self) {
             return;
         }
 
-        my $validator = $module->new;
-
         my @fields = qw(name version description category);
-        if (not all { $validator->$_ } @fields) {
+        if (not all { $module->$_ } @fields) {
             $self->log->fatal("$module must define the " .
                 join(', ', map { "'$_'" } @fields) . ' attributes');
             return;
         }
 
         if (my $validation_row = $self->schema->resultset('validation')->search({
-                name => $validator->name,
-                version => $validator->version,
+                name => $module->name,
+                version => $module->version,
             })->single) {
             $validation_row->set_columns({
-                description => trim($validator->description),
+                description => trim($module->description),
                 module => $module,
             });
             if ($validation_row->is_changed) {
@@ -169,9 +166,9 @@ sub load_validations ($self) {
         }
         else {
             $self->schema->resultset('validation')->create({
-                name => $validator->name,
-                version => $validator->version,
-                description => trim($validator->description),
+                name => $module->name,
+                version => $module->version,
+                description => trim($module->description),
                 module => $module,
             });
             $num_loaded_validations++;

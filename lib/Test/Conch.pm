@@ -323,12 +323,11 @@ sub load_validation ($self, $module) {
     return $validation if $validation;
 
     require_module($module);
-    my $validator = $module->new;
 
     $validation = $self->app->db_validations->create({
-        name => $validator->name,
-        version => $validator->version,
-        description => trim($validator->description),
+        name => $module->name,
+        version => $module->version,
+        description => trim($module->description),
         module => $module,
     });
     return $self->app->db_ro_validations->find($validation->id);
