@@ -42,7 +42,7 @@ subtest 'try loading again' => sub {
 
 subtest 'update an existing validation' => sub {
     no warnings 'once', 'redefine';
-    *Conch::Validation::DeviceProductName::description = sub { '  this is better than before!' };
+    *Conch::Validation::DeviceProductName::description = sub () { '  this is better than before!' };
     reset_log;
 
     is($validation_system->load_validations, 1, 'Updated validation loaded into the database');
@@ -63,7 +63,7 @@ subtest 'update an existing validation' => sub {
 subtest 'deactivate a validation and update its version (presumably the code changed too)' => sub {
     $validation_rs->search({ module => 'Conch::Validation::DeviceProductName' })->deactivate;
     no warnings 'once', 'redefine';
-    *Conch::Validation::DeviceProductName::version = sub { 2 };
+    *Conch::Validation::DeviceProductName::version = sub () { 2 };
     reset_log;
 
     is($validation_system->load_validations, 1, 'New version of validation loaded into the database');

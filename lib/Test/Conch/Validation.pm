@@ -184,26 +184,6 @@ sub test_validation {
 	);
 	isa_ok($validation, $validation_module) or return;
 
-	ok(
-		defined( $validation->name ),
-		"'name' attribute must be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->version ),
-		"'version' attribute must be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->category ),
-		"'category' attribute should be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->description ),
-		"'description' attribute should be defined for $validation_module"
-	);
-
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
 		my $case = $args{cases}->[$case_index];
 		subtest(

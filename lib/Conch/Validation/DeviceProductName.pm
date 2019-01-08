@@ -2,10 +2,10 @@ package Conch::Validation::DeviceProductName;
 
 use Mojo::Base 'Conch::Validation';
 
-has name        => 'product_name';
-has version     => 1;
-has 'category'  => 'BIOS';
-has description => q(Validate reported product name matches product name expected in rack layout);
+use constant name        => 'product_name';
+use constant version     => 1;
+use constant category    => 'BIOS';
+use constant description => q(Validate reported product name matches product name expected in rack layout);
 
 
 sub validate {

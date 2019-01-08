@@ -8,10 +8,10 @@ Conch::Validation - base class for writing Conch Validations
     package Conch::Validation::DeviceValidation;
     use Mojo::Base 'Conch::Validation';
 
-    has name        => 'device_validation';
-    has version     => 1;
-    has category    => 'CPU';
-    has description => q/Description of the validation/;
+    use constant name        => 'device_validation';
+    use constant version     => 1;
+    use constant category    => 'CPU';
+    use constant description => q/Description of the validation/;
 
     sub validate {
             my ($self, $input_data) = @_;
@@ -50,11 +50,35 @@ functions tests that Validations define the required attributes and methods,
 and allow you to test the validation logic by running test cases against
 expected results.
 
-# METHODS
+# CONSTANTS
+
+## name
+
+The validator name, provided by the validator module.
+
+## version
+
+The validator version, provided by the validator module.
+
+## description
+
+The validator description, provided by the validator module.
+
+## category
+
+The validator category, provided by the validator module.
+
+# ATTRIBUTES
+
+## log
+
+A logging object.
 
 ## validation\_results
 
 Get the list of all validation results.
+
+# METHODS
 
 ## new
 

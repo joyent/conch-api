@@ -9,10 +9,10 @@ Conch::Validation - base class for writing Conch Validations
 	package Conch::Validation::DeviceValidation;
 	use Mojo::Base 'Conch::Validation';
 
-	has name        => 'device_validation';
-	has version     => 1;
-	has category    => 'CPU';
-	has description => q/Description of the validation/;
+	use constant name        => 'device_validation';
+	use constant version     => 1;
+	use constant category    => 'CPU';
+	use constant description => q/Description of the validation/;
 
 	sub validate {
 		my ($self, $input_data) = @_;
@@ -51,8 +51,6 @@ functions tests that Validations define the required attributes and methods,
 and allow you to test the validation logic by running test cases against
 expected results.
 
-=head1 METHODS
-
 =cut
 
 package Conch::Validation;
@@ -65,10 +63,44 @@ use Try::Tiny;
 
 use Conch::ValidationError;
 
-has 'name';
-has 'version';
-has 'description';
-has 'category';
+=head1 CONSTANTS
+
+=head2 name
+
+The validator name, provided by the validator module.
+
+=head2 version
+
+The validator version, provided by the validator module.
+
+=head2 description
+
+The validator description, provided by the validator module.
+
+=head2 category
+
+The validator category, provided by the validator module.
+
+=cut
+
+sub name { die 'name required' }
+sub version { die 'version required' }
+sub description { die 'description required' }
+sub category ($self) { die ref($self) || $self, ' does not set a category' }
+
+use constant {
+	STATUS_ERROR => 'error',
+	STATUS_FAIL  => 'fail',
+	STATUS_PASS  => 'pass'
+};
+
+=head1 ATTRIBUTES
+
+=head2 log
+
+A logging object.
+
+=cut
 
 has 'log' => sub { Carp::croak('missing logger') };
 
@@ -80,11 +112,7 @@ Get the list of all validation results.
 
 has 'validation_results';
 
-use constant {
-	STATUS_ERROR => 'error',
-	STATUS_FAIL  => 'fail',
-	STATUS_PASS  => 'pass'
-};
+=head1 METHODS
 
 =head2 new
 

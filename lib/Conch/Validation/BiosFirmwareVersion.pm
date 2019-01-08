@@ -2,10 +2,10 @@ package Conch::Validation::BiosFirmwareVersion;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'        => 'bios_firmware_version';
-has 'version'     => 1;
-has 'category'    => 'BIOS';
-has 'description' => q(
+use constant name        => 'bios_firmware_version';
+use constant version     => 1;
+use constant category    => 'BIOS';
+use constant description => q(
 Validate the reported BIOS firmware version matches the hardware product
 profile
 );

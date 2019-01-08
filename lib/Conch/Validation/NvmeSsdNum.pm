@@ -3,10 +3,10 @@ package Conch::Validation::NvmeSsdNum;
 use Mojo::Base 'Conch::Validation';
 use v5.20;
 
-has 'name'        => 'nvme_ssd_num';
-has 'version'     => 1;
-has 'category'    => 'DISK';
-has 'description' => q( Validate expected number of NVMe SSDs );
+use constant name        => 'nvme_ssd_num';
+use constant version     => 1;
+use constant category    => 'DISK';
+use constant description => q( Validate expected number of NVMe SSDs );
 
 sub validate {
 	my ( $self, $data ) = @_;

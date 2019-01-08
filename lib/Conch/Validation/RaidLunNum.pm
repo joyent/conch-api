@@ -3,10 +3,10 @@ package Conch::Validation::RaidLunNum;
 use Mojo::Base 'Conch::Validation';
 use v5.20;
 
-has 'name'        => 'raid_lun_num';
-has 'version'     => 1;
-has 'category'    => 'DISK';
-has 'description' => q( Validate expected number of RAID LUNs );
+use constant name        => 'raid_lun_num';
+use constant version     => 1;
+use constant category    => 'DISK';
+use constant description => q( Validate expected number of RAID LUNs );
 
 sub validate {
 	my ( $self, $data ) = @_;

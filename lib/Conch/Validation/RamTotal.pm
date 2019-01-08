@@ -3,10 +3,10 @@ package Conch::Validation::RamTotal;
 use Mojo::Base 'Conch::Validation';
 use List::Util qw(sum);
 
-has 'name'        => 'ram_total';
-has 'version'     => 2;
-has 'category'    => 'RAM';
-has 'description' => q(
+use constant name        => 'ram_total';
+use constant version     => 2;
+use constant category    => 'RAM';
+use constant description => q(
 Validate the reported RAM match the hardware product profile
 );
 

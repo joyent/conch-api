@@ -2,10 +2,10 @@ package Conch::Validation::CpuTemperature;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'        => 'cpu_temperature';
-has 'version'     => 1;
-has 'category'    => 'CPU';
-has 'description' => q(
+use constant name        => 'cpu_temperature';
+use constant version     => 1;
+use constant category    => 'CPU';
+use constant description => q(
 Validate the reported CPU temperatures are less than the maximum in the
 hardware product profile
 );

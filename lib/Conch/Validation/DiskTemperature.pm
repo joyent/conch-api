@@ -3,10 +3,10 @@ package Conch::Validation::DiskTemperature;
 use Mojo::Base 'Conch::Validation';
 use v5.20;
 
-has 'name'        => 'disk_temperature';
-has 'version'     => 1;
-has 'category'    => 'DISK';
-has 'description' => q(
+use constant name        => 'disk_temperature';
+use constant version     => 1;
+use constant category    => 'DISK';
+use constant description => q(
 Validate the reported disk temperatures are under the maximum threshold
 );
 

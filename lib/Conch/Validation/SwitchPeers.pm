@@ -3,10 +3,10 @@ package Conch::Validation::SwitchPeers;
 use Mojo::Base 'Conch::Validation';
 use List::Util 'first';
 
-has 'name'        => 'switch_peers';
-has 'version'     => 1;
-has 'category'    => 'NET';
-has 'description' => q(
+use constant name        => 'switch_peers';
+use constant version     => 1;
+use constant category    => 'NET';
+use constant description => q(
 Validate the number of peer switches, the number of peer ports, and the
 expected peer port according to the rack layout
 );
