@@ -186,7 +186,7 @@ sub test_validation {
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
-		subtest(('Case #' . ( $case_index + 1 )),
+		subtest(('Case ' . ( $case_index + 1 )),
 			\&_test_case => ($validation, $validation_module, $args{cases}, $case_index));
 	}
 }
@@ -197,7 +197,7 @@ sub _test_case {
 	my $data  = $case->{data} || {};
 	my $debug = $case->{debug};
 
-	my $msg_prefix = 'Case #' . ( $case_index + 1 );
+	my $msg_prefix = 'Case ' . ( $case_index + 1 );
 	$msg_prefix .= $case->{description} ? ' [' . $case->{description} . ']:' : ':';
 
 	if ($debug) {
