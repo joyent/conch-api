@@ -438,7 +438,7 @@ sub latest_report_matches {
     $self->self_rs
         ->latest_device_report
         ->as_subselect_rs
-        ->search({ report => \[ '= ?::jsonb', $jsonb ] })
+        ->matches_jsonb($jsonb)
         ->exists;
 }
 
