@@ -186,7 +186,8 @@ sub test_validation {
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
-		_test_case( $validation, $validation_module, $args{cases}, $case_index );
+		subtest(('Case #' . ( $case_index + 1 )),
+			\&_test_case => ($validation, $validation_module, $args{cases}, $case_index));
 	}
 }
 
