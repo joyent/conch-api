@@ -101,7 +101,6 @@ definitions:
         type: string
       cpus:
         type: array
-        uniqueItems: true
         items:
           type: object
       dimms:
