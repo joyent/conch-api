@@ -67,6 +67,11 @@ A test case is specified with a hashref with the attributes:
     The number of expected failing validation results from running the Validation
     with the provided `data`. Defaults to 0
 
+- `error_num`
+
+    The number of expected 'error' validation results from running the Validation
+    with the provided `data`. Defaults to 0.
+
 - `description`
 
     Optional description of the test case. Provides documentation and adds the

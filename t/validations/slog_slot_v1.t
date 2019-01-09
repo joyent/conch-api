@@ -35,6 +35,7 @@ test_validation(
 			},
 			success_num => 0,
 			failure_num => 0,
+			error_num => 0,
 		},
 		{
 			description => 'Single SSD disk in slot 0',
@@ -102,6 +103,7 @@ test_validation(
 			},
 			success_num => 0,
 			failure_num => 0,
+			error_num => 0,
 		},
 	]
 );

@@ -94,6 +94,11 @@ Validation with the provided C<data>. Defaults to 0.
 The number of expected failing validation results from running the Validation
 with the provided C<data>. Defaults to 0
 
+=item C<error_num>
+
+The number of expected 'error' validation results from running the Validation
+with the provided C<data>. Defaults to 0.
+
 =item C<description>
 
 Optional description of the test case. Provides documentation and adds the
@@ -231,6 +236,17 @@ sub _test_case {
 	if ($debug and $failure_count == $failure_expect) {
 		diag( "$msg_prefix Failing results:\n"
 			. _results_to_string( $validation->failures ) );
+	}
+
+	my $error_count = scalar $validation->error->@*;
+	my $error_expect = $case->{error_num} // ($success_expect + $failure_expect ? 0 : 1);
+	is($error_count, $error_expect,
+			"$msg_prefix Was expecting validation to register "
+			. "$error_expect error results, got $error_count.")
+		or diag("\nError results:\n"._results_to_string($validation->error));
+	if ($debug and $error_count == $error_expect) {
+		diag( "$msg_prefix Error results:\n"
+			. _results_to_string( $validation->error ) );
 	}
 }
 
