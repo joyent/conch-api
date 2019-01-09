@@ -298,8 +298,9 @@ sub _record_device_configuration {
 				delete $inactive_serials{$disk};
 
 				# if disk already exists on a different device, it will be relocated
-				$device->related_resultset('device_disks')->update_or_create(
+				$c->db_device_disks->update_or_create(
 					{
+						device_id => $device->id,
 						serial_number => $disk,
 						$dr->{disks}{$disk}->%{qw(
 							slot
@@ -343,8 +344,9 @@ sub _record_device_configuration {
 				delete $inactive_macs{$mac};
 
 				# if nic already exists on a different device, it will be relocated
-				$device->related_resultset('device_nics')->update_or_create(
+				$c->db_device_nics->update_or_create(
 					{
+						device_id    => $device->id,
 						mac          => $mac,
 						iface_name   => $nic,
 						iface_driver => '',
