@@ -4,7 +4,7 @@ use warnings;
 use v5.26;
 
 use Test::More;
-
+use Data::Printer; # for 'np'
 use Conch::Log;
 use Conch::Class::DatacenterRack;
 use Conch::Class::DeviceLocation;
