@@ -114,6 +114,24 @@ sub process ($c) {
 			->rows(1)
 			->single;
 
+		if (not $validation_state) {
+			# normally we should always find an associated validation_state record, because all
+			# incoming device reports (that get stored) have validations run against them.
+			$c->log->warn('Duplicate device report detected (device_report_id '
+				. $validation_state->device_report_id
+				. ' but could not find an associated validation_state record to return');
+
+			# but we can try harder to find *something* to return, in most cases...
+			$validation_state = $c->db_device_reports
+				->search({ report => \[ '= ?::jsonb', $raw_report ] })
+				->related_resultset('validation_states')
+				->order_by({ -desc => 'validation_states.created' })
+				->rows(1)
+				->single;
+
+			return $c->status(400, { error => 'duplicate report; could not find relevant validation_state record to return from matching reports' }) if not $validation_state;
+		}
+
 		$c->log->debug('Duplicate device report detected (device_report_id '
 			. $validation_state->device_report_id
 			. '; returning previous validation_state (id ' . $validation_state->id .')');
