@@ -207,6 +207,27 @@ subtest 'Device Report' => sub {
 		'received_count is incremented',
 	);
 
+    my $dupe_report_2 = Mojo::JSON::to_json(+{
+		Mojo::JSON::from_json($report)->%*,
+        report_id => 'I am here just to trip you up',
+    });
+
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $dupe_report_2)
+        ->status_is(200)
+        ->json_schema_is('ValidationState')
+        ->json_is('', $validation_state_response, 'duplicate report detected, older state returned');
+
+    is($device->related_resultset('device_reports')->count, 1, 'still just one device_report row');
+    is($device->related_resultset('validation_states')->count, 1, 'still just one validation_state row');
+    is($device->related_resultset('device_relay_connections')->count, 1, 'still just one device_relay_connection');
+
+    is(
+        $device->related_resultset('device_reports')->rows(1)->get_column('received_count')->single,
+        3,
+        'received_count is incremented',
+    );
+
+
 	cmp_deeply(
 		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
 		[ 'TEST' ],

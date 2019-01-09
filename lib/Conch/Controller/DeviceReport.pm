@@ -113,7 +113,7 @@ sub process ($c) {
 
 			# but we can try harder to find *something* to return, in most cases...
 			$validation_state = $c->db_device_reports
-				->search({ report => \[ '= ?::jsonb', $raw_report ] })
+				->matches_jsonb($raw_report)
 				->related_resultset('validation_states')
 				->order_by({ -desc => 'validation_states.created' })
 				->rows(1)
