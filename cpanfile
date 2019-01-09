@@ -53,6 +53,9 @@ requires 'Sys::Hostname';
 requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
 requires 'Devel::Confess';
 
+# misc scripts
+requires 'Data::Visitor::Tiny';
+
 # database and rendering
 requires 'DBD::Pg';
 requires 'DBIx::Class';

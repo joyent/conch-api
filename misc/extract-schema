@@ -1,0 +1,79 @@
+#!/usr/bin/env perl
+use 5.26.1;
+use experimental 'signatures';
+
+use Getopt::Long;
+use Pod::Usage;
+use YAML::XS qw(LoadFile);
+use Mojo::JSON qw(encode_json);
+use Mojo::File qw(path);
+use Data::Visitor::Tiny qw(visit);
+use Dir::Self;
+
+my $schema_file = __DIR__.'/../json-schema/input.yaml';
+
+GetOptions(
+	'file|f:s' => \$schema_file,
+	'help|h'   => \my $help,
+    'output|to:s' => \my $to,
+);
+pod2usage(1) if $help;
+
+my %schemas = LoadFile($schema_file)->{definitions}->%*;
+
+sub inline_ref ( $ref, $schema ) {
+
+	# #/definitions/ValidationStateWithResults
+	my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
+	$schema->{definitions}{$other} = $schemas{$other};
+}
+
+sub output_json_schema ( $name, $schema ) {
+    if ($to) {
+	path("$to/$name.schema.json")->spurt( encode_json($schema) );
+    } else {
+        say "$name.schema.json";
+        say encode_json($schema);
+        say;
+    }
+}
+
+for my $name ( keys %schemas ) {
+	my $schema = $schemas{$name};
+	visit $schema => sub ( $key, $ref, @ ) {
+		inline_ref( $_ => $schema ) if $key eq '$ref';
+		if ( !defined $_ && $key eq "type" ) {
+			$$ref = "null";
+		}
+	};
+	$schema->{title} //= $name;
+	$schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
+	$schema->{'$id'}     = "urn:$name.schema.json";
+
+	output_json_schema $name, $schema;
+}
+
+__END__
+
+=head1 NAME
+
+extract-schema - extracts an embedded JSON schema from a combined (YAML) schema
+
+=head1 SYNOPSIS
+
+    extract-schema [-f FILE] [-h]
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-f FILE>
+
+Provide a base file for extracting from, defaults to the C<json-schema/input.yaml> in this repository.
+
+=item B<-h>
+
+Provide this help text.
+
+=back
+

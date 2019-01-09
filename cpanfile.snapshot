@@ -866,6 +866,17 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
+  Data-Visitor-Tiny-0.001
+    pathname: D/DA/DAGOLDEN/Data-Visitor-Tiny-0.001.tar.gz
+    provides:
+      Data::Visitor::Tiny 0.001
+    requirements:
+      Carp 0
+      Exporter 5.57
+      ExtUtils::MakeMaker 6.17
+      perl 5.010
+      strict 0
+      warnings 0
   DateTime-1.50
     pathname: D/DR/DROLSKY/DateTime-1.50.tar.gz
     provides:
@@ -1715,6 +1726,7 @@ DISTRIBUTIONS
       IO::Socket::SSL::Utils 2.014
     requirements:
       ExtUtils::MakeMaker 0
+      Mozilla::CA 0
       Net::SSLeay 1.46
       Scalar::Util 0
   JSON-MaybeXS-1.004000

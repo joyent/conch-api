@@ -1,0 +1,68 @@
+#!/usr/bin/env perl
+use 5.12.1;
+use warnings;
+
+use Dir::Self;
+use Getopt::Long;
+use JSON::Validator;
+use Mojo::File qw(path);
+use Mojo::JSON qw(decode_json);
+use Pod::Usage;
+
+my $schema_file = __DIR__ . '/../json-schema/input.yaml';
+my $name        = 'DeviceReport';
+
+GetOptions(
+	'file|f:s'   => \$schema_file,
+	'schema|s:s' => \$name,
+	'report|r:s' => \my $report,
+	'help|h'     => \my $help,
+);
+
+pod2usage(1) if $help;
+
+my $validator = JSON::Validator->new;
+$validator->schema($schema_file);
+$validator->coerce(1);
+
+$report = defined $report ? path($report)->slurp : do { local $/; <> };
+
+my $schema = $validator->get($name);
+if ( my @errors = $validator->validate( $report, $schema ) ) {
+	say STDERR $_ for @errors;
+	die;
+}
+
+say 'ok';
+
+__END__
+
+=head1 NAME
+
+validate - validate a device report (or other json document) against conch json schemas
+
+=head1 SYNOPSIS
+
+    validate [-s SCHEMA] [-f FILE] [-h] REPORT
+
+=head1 OPTIONS
+
+=over 4
+
+=item <-f FILE>
+
+A file containing the schmema to validate against. Defaults to C<json-schema/input.yaml>.
+
+=item <-s SCHEMA>
+
+Name of the embedded schema to validate against. Defaults to C<DeviceReport>.
+
+=item <-r REPORT>
+
+File name of the report data to validate against. Defaults to STDIN.
+
+=item <-h>
+
+This help text.
+
+=back
