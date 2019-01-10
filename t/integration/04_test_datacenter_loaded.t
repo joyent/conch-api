@@ -228,11 +228,10 @@ subtest 'Device Report' => sub {
     );
 
 
-	cmp_deeply(
-		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
-		[ 'TEST' ],
-		'device is unlocated',
-	);
+    ok(
+        $t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        'device is unlocated',
+    );
 };
 
 subtest 'Assign device to a location' => sub {
@@ -243,11 +242,10 @@ subtest 'Assign device to a location' => sub {
 	->json_schema_is('WorkspaceRackLayoutUpdateResponse')
 	->json_is({ updated => [ 'TEST' ] });
 
-	cmp_deeply(
-		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
-		[ ],
-		'device now located',
-	);
+    ok(
+        !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        'device is now located',
+    );
 
 	$t->get_ok('/device/TEST/location')
 		->status_is(200)
