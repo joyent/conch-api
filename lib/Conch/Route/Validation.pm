@@ -15,12 +15,12 @@ Conch::Route::Validation
 Sets up the routes for /validation and /validation_plan:
 
     GET     /validation
-    POST    /validation_plan                                                DISABLED
+    POST    /validation_plan                                                        DISABLED
     GET     /validation_plan
-    GET     /validation_plan/:validation_plan_id
-    GET     /validation_plan/:validation_plan_id/validation
-    POST    /validation_plan/:validation_plan_id/validation                 DISABLED
-    DELETE  /validation_plan/:validation_plan_id/validation/:validation_id  DISABLED
+    GET     /validation_plan/:validation_plan_id_or_name
+    GET     /validation_plan/:validation_plan_id_or_name/validation
+    POST    /validation_plan/:validation_plan_id_or_name/validation                 DISABLED
+    DELETE  /validation_plan/:validation_plan_id_or_name/validation/:validation_id  DISABLED
 
 =cut
 
@@ -42,18 +42,18 @@ sub routes {
     $vp->get('/')->to('#list');
 
     {
-        my $with_plan = $vp->under('/:validation_plan_id')->to('#find_validation_plan');
+        my $with_plan = $vp->under('/:validation_plan_id_or_name')->to('#find_validation_plan');
 
-        # GET /validation_plan/:validation_plan_id
+        # GET /validation_plan/:validation_plan_id_or_name
         $with_plan->get('/')->to('#get');
 
-        # GET /validation_plan/:validation_plan_id/validation
+        # GET /validation_plan/:validation_plan_id_or_name/validation
         $with_plan->get('/validation')->to('#list_validations');
 
-        # POST /validation_plan/:validation_plan_id/validation (DISABLED)
+        # POST /validation_plan/:validation_plan_id_or_name/validation (DISABLED)
         $with_plan->post('/validation')->to('#add_validation');
 
-        # DELETE /validation_plan/:validation_plan_id/validation/:validation_id (DISABLED)
+        # DELETE /validation_plan/:validation_plan_id_or_name/validation/:validation_id (DISABLED)
         $with_plan->delete('/validation/:validation_id')->to('#remove_validation');
     }
 }
