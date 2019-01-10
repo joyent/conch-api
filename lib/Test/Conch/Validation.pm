@@ -173,7 +173,7 @@ sub test_validation {
 
 	my $validation = $validation_module->new(
 		log => $t->app->log,
-		device => Conch::Model::Device->new($device->get_columns),
+		device => $t->app->db_ro_devices->find($device->id),
 		$device_location ? ( device_location => $device_location ) : (),
 		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,

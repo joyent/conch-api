@@ -262,7 +262,7 @@ device under validation, such as the device hardware product, device location,
 and device settings. The `$self` reference provides methods for accessing
 details for the device under validation
 
-* `$self->device`: the `Conch::Model::Device` object representing the device
+* `$self->device`: the `Conch::DB::Result::Device` object representing the device
   under validation
 * `$self->device_settings`: a hash ref of the device settings currently stored
   for the device under validation

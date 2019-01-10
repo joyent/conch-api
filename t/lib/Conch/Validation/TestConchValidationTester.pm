@@ -9,6 +9,7 @@ sub category { 'test' }
 
 use Conch::UUID;
 use Test::Deep;
+use Test::Fatal;
 
 sub validate ($self, $data) {
     # dispatch to subroutine if provided one
@@ -47,16 +48,23 @@ sub _device_inflation ($self, $data) {
     $self->register_result_cmp_details(
         $self->device,
         all(
-            isa('Conch::Model::Device'),
+            isa('Conch::DB::Result::Device'),
             methods(
                 id => $data->{device_id} // re(qr/^DEVICE_\d+$/),
                 state => 'UNKNOWN',
                 health => 'UNKNOWN',
                 hardware_product_id => re(Conch::UUID::UUID_FORMAT),
+                in_storage => bool(1),
             ),
         ),
-        'device inflated to Conch::Model::Device, with a real hardware_product_id',
+        'device inflated to Conch::DB::Result::Device',
     );
+    $self->register_result_cmp_details(
+        [ exception { $self->device->update({ asset_tag => 'ohhai' }) } ],
+        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        'cannot modify the device',
+    );
+    $self->device->result_source->schema->txn_rollback;
 }
 
 sub _hardware_product_inflation ($self, $data) {

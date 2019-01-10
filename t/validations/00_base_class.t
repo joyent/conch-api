@@ -6,11 +6,10 @@ use Test::Deep;
 use Conch::Log;
 use Conch::Validation;
 use Conch::DB;
-use Conch::Models;
 
 my $l = Conch::Log->new(path => 'log/t-00_base_class.log');
 
-my $device = Conch::Model::Device->new;
+my $device = Conch::DB::Result::Device->new;
 
 # SUMMARY
 # =======

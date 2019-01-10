@@ -81,13 +81,17 @@ A logging object.
 
 ## device
 
-[Conch::Model::Device](https://github.com/joyent/conch/blob/master/lib/Conch/Model/Device.pm) object under validation.  Use in validation
+[Conch::DB::Result::Device](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Device.pm) object under validation.  Use in validation
 logic to dispatch on Device attributes.
 
 ```perl
 my $device = $self->device;
 if ($device->triton_setup) {...}
 ```
+
+Any additional data related to devices may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class) interfaces.
+The result object is built using a read-only database handle, so attempts to alter the data
+will \*not\* be permitted.
 
 ## device\_location
 

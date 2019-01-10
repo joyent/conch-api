@@ -9,7 +9,6 @@ use Test::Conch;
 use Mojo::Log;
 use Path::Tiny;
 use Mojo::Util 'trim';
-use Conch::Models;
 
 use lib 't/lib';
 
@@ -228,7 +227,7 @@ subtest 'a real validator' => sub {
     require Conch::Validation::DeviceProductName;
     my $validator = Conch::Validation::DeviceProductName->new(
         log => $logger,
-        device => Conch::Model::Device->new,
+        device => $ro_schema->resultset('device')->new_result({}),
     );
 
     my $validation_plan = $rw_schema->resultset('validation_plan')->create({

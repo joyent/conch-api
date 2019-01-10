@@ -12,6 +12,7 @@ use lib 't/lib';
 my $t = Test::Conch->new;
 
 my $device = $t->load_fixture('device_HAL');
+$device = $t->app->db_ro_devices->find($device->id);
 
 open my $log_fh, '>', \my $fake_log or die "cannot open to scalarref: $!";
 my $logger = Mojo::Log->new(handle => $log_fh);
@@ -24,7 +25,7 @@ subtest '->run, local exception' => sub {
     require Conch::Validation::LocalException;
     my $validator = Conch::Validation::LocalException->new(
         log              => $logger,
-        device           => Conch::Model::Device->new($device->get_columns),
+        device           => $device,
     );
     $validator->run({});
 
@@ -59,7 +60,7 @@ my $exception_test = sub ($use_stack_traces = 0) {
     require Conch::Validation::ExternalException;
     my $validator = Conch::Validation::ExternalException->new(
         log              => $logger,
-        device           => Conch::Model::Device->new($device->get_columns),
+        device           => $device,
     );
     $validator->run({});
 

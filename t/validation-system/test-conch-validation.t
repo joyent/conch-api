@@ -17,7 +17,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_device_inflation' },
-                success_num => 1,
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product',
@@ -50,7 +50,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'device inflation',
                 data => { subname => '_device_inflation', device_id => 'my device' },
-                success_num => 1,
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product',
@@ -78,7 +78,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_device_inflation' },
-                success_num => 1,
+                success_num => 2,
             },
             {
                 description => 'hardware_product inflation',
@@ -108,7 +108,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_device_inflation' },
-                success_num => 1,
+                success_num => 2,
             },
             {
                 description => 'hardware_product inflation',
@@ -139,7 +139,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_device_inflation' },
-                success_num => 1,
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product',
@@ -172,7 +172,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_device_inflation' },
-                success_num => 1,
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product',
@@ -204,7 +204,7 @@ subtest 'database object construction' => sub {
             {
                 description => 'did not request device',
                 data => { subname => '_device_inflation' },
-                success_num => 1,
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product',

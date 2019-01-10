@@ -216,7 +216,6 @@ sub run_validation_plan ($self, %options) {
 
 
     # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
-    my $model_device = Conch::Model::Device->new($device->get_columns);
     my $location = Conch::Model::DeviceLocation->lookup($device->id);
     my $device_settings = +{ $device->device_settings_as_hash };
 
@@ -230,7 +229,7 @@ sub run_validation_plan ($self, %options) {
     while (my $validation = $validation_rs->next) {
         my $validator = $validation->module->new(
             log              => $self->log,
-            device           => $model_device,
+            device           => $device,
             $location ? ( device_location => $location ) : (),
             device_settings  => $device_settings,
         );
@@ -296,7 +295,7 @@ sub run_validation ($self, %options) {
 
     my $validator = $validation->module->new(
         log              => $self->log,
-        device           => Conch::Model::Device->new($device->get_columns),
+        device           => $device,
         $location ? ( device_location => $location ) : (),
         device_settings  => +{ $device->device_settings_as_hash },
     );
