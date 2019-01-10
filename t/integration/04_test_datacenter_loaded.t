@@ -311,11 +311,36 @@ subtest 'Device Report' => sub {
 		->json_is('/health' => 'PASS')
 		->json_is('/latest_report_is_invalid' => JSON::PP::false);
 
-	cmp_deeply(
-		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
-		[ 'TEST' ],
-		'device is unlocated',
-	);
+    subtest 'relocate a disk' => sub {
+        # move one of the device's disks to a different device (and change another field so it
+        # needs to be updated)...
+        my $report_data = from_json($good_report);
+        my $disk_serial = (keys $report_data->{disks}->%*)[0];
+        $report_data->{disks}{$disk_serial}{size} += 100;    # ugh! make report not-unique
+        my $new_device = $t->app->db_devices->create({
+            id => 'ANOTHER_DEVICE',
+            hardware_product_id => $device->hardware_product_id,
+            state => 'UNKNOWN',
+            health => 'UNKNOWN',
+        });
+        my $disk = $t->app->db_device_disks->search({ serial_number => $disk_serial })->single;
+        $disk->update({ device_id => $new_device->id, vendor => 'King Zøg' });
+
+        # then submit the report again and observe it moving back.
+        $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
+            ->status_is(200)
+            ->json_schema_is('ValidationState')
+            ->json_is('/status', 'pass');
+
+        $disk->discard_changes;
+        is($disk->device_id, $device->id, 'an existing disk is relocated to the latest device reporting it');
+    };
+
+
+    ok(
+        $t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        'device is unlocated',
+    );
 };
 
 subtest 'Assign device to a location' => sub {
@@ -332,11 +357,10 @@ subtest 'Assign device to a location' => sub {
 	->json_schema_is('WorkspaceRackLayoutUpdateResponse')
 	->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
 
-	cmp_deeply(
-		[ $t->app->db_devices->devices_without_location->get_column('id')->all ],
-		[ ],
-		'device now located',
-	);
+    ok(
+        !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        'device is now located',
+    );
 
 	$t->get_ok('/device/TEST/location')
 		->status_is(200)
