@@ -667,8 +667,32 @@ subtest 'Validations' => sub {
 	my $validation_id = $t->tx->res->json->[0]->{id};
 	my @validations = $t->tx->res->json->@*;
 
+    $t->get_ok('/validation_plan')
+        ->status_is(200)
+        ->json_schema_is('ValidationPlans')
+        ->json_cmp_deeply([
+            {
+                id => ignore,
+                name => 'Conch v1 Legacy Plan: Server',
+                description => 'Test Plan',
+                created => ignore,
+            },
+        ]);
+
+    my $validation_plan_id = $t->tx->res->json->[0]->{id};
+    my @validation_plans = $t->tx->res->json->@*;
+
   SKIP: {
-    skip 'endpoints that mutate validation plans have been disabled', 57;
+    # while we are skipping these tests,
+    # create a new validation plan containing our validation so subsequent tests still pass...
+    my $validation_plan = $t->app->db_validation_plans->create({
+        name => 'my_test_plan',
+        description => 'another test plan',
+    });
+    $validation_plan_id = $validation_plan->id;
+    $validation_plan->find_or_create_related('validation_plan_members', { validation_id => $validation_id });
+
+    skip 'endpoints that mutate validation plans have been disabled', 21;
 	$t->post_ok('/validation_plan', json => { name => 'my_test_plan', description => 'another test plan' })
 		->status_is(303);
 
@@ -676,18 +700,13 @@ subtest 'Validations' => sub {
 		->status_is(200)
 		->json_schema_is('ValidationPlan');
 
-	my $validation_plan_id = $t->tx->res->json->{id};
+	$validation_plan_id = $t->tx->res->json->{id};
 
 	$t->get_ok('/validation_plan')
 		->status_is(200)
 		->json_schema_is('ValidationPlans')
 		->json_cmp_deeply([
-			{
-				id => ignore,
-				name => 'Conch v1 Legacy Plan: Server',
-				description => 'Test Plan',
-				created => ignore,
-			},
+			@validation_plans,
 			{
 				id => $validation_plan_id,
 				name => 'my_test_plan',
@@ -725,6 +744,7 @@ subtest 'Validations' => sub {
 		->status_is(200)
 		->json_schema_is('Validations')
 		->json_is([ $validations[0] ]);
+  } # end SKIP
 
 	subtest 'test validating a device' => sub {
 		$t->post_ok("/device/TEST/validation/$validation_id", json => {})
@@ -743,12 +763,15 @@ subtest 'Validations' => sub {
 			->json_is($validation_results);
 	};
 
+  SKIP: {
+    skip 'endpoints that mutate validation plans have been disabled', 5;
 	$t->delete_ok("/validation_plan/$validation_plan_id/validation/$validation_id")
 		->status_is(204);
 
 	$t->get_ok("/validation_plan/$validation_plan_id/validation")
 		->status_is(200)
 		->json_is('', []);
+  } # end SKIP
 
 	my $device = $t->app->db_devices->find('TEST');
 	my $device_report = $t->app->db_device_reports->rows(1)->order_by({ -desc => 'created' })->single;
@@ -883,7 +906,6 @@ subtest 'Validations' => sub {
 	$t->get_ok('/device/TEST/validation_state?status=pass,bar')
 		->status_is(400)
 		->json_is({ error => "'status' query parameter must be any of 'pass', 'fail', or 'error'." });
-  } # end SKIP
 };
 
 subtest 'Device location' => sub {
