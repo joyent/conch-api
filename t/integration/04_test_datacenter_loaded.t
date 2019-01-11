@@ -670,7 +670,14 @@ subtest 'Validations' => sub {
     $validation_plan->find_or_create_related('validation_plan_members', { validation_id => $validation_id });
 
 	subtest 'test validating a device' => sub {
+		my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+
 		$t->post_ok("/device/TEST/validation/$validation_id", json => {})
+			->status_is(400)
+			->json_schema_is('Error');
+
+		$t->post_ok("/device/TEST/validation/$validation_id",
+				{ 'Content-Type' => 'application/json' }, $good_report)
 			->status_is(200)
 			->json_schema_is('ValidationResults')
 			->json_cmp_deeply([ superhashof({
@@ -681,6 +688,11 @@ subtest 'Validations' => sub {
 		my $validation_results = $t->tx->res->json;
 
 		$t->post_ok("/device/TEST/validation_plan/$validation_plan_id", json => {})
+			->status_is(400)
+			->json_schema_is('Error');
+
+		$t->post_ok("/device/TEST/validation_plan/$validation_plan_id",
+				{ 'Content-Type' => 'application/json' }, $good_report)
 			->status_is(200)
 			->json_schema_is('ValidationResults')
 			->json_is($validation_results);
