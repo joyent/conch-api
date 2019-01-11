@@ -15,6 +15,8 @@ Conch::Route::Validation
 Sets up the routes for /validation and /validation_plan:
 
     GET     /validation
+    GET     /validation/:validation_id_or_name
+
     POST    /validation_plan                                                        DISABLED
     GET     /validation_plan
     GET     /validation_plan/:validation_plan_id_or_name
@@ -28,8 +30,20 @@ sub routes {
     my $class = shift;
     my $r = shift;  # secured, under /
 
+    # all these /validation routes go to the Validation controller
+    my $v = $r->any('/validation');
+    $v->to({ controller => 'validation' });
+
     # GET /validation
-    $r->get('/validation')->to('validation#list');
+    $v->get('/')->to('#list');
+
+    {
+        my $with_validation = $v->under('/:validation_id_or_name')->to('#find_validation');
+
+        # GET /validation/:validation_id_or_name
+        $with_validation->get('/')->to('#get');
+    }
+
 
     # all these /validation_plan routes go to the ValidationPlan controller
     my $vp = $r->any('/validation_plan');

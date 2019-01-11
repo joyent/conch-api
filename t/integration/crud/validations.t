@@ -58,6 +58,16 @@ $t->get_ok('/validation_plan/Conch v1 Legacy Plan: Server/validation')
     ->json_schema_is('Validations')
     ->json_is([ $validations[0] ]);
 
+$t->get_ok('/validation/'.$validation_id)
+    ->status_is(200)
+    ->json_schema_is('Validation')
+    ->json_is($validations[0]);
+
+$t->get_ok('/validation/'.$validations[0]->{name})
+    ->status_is(200)
+    ->json_schema_is('Validation')
+    ->json_is($validations[0]);
+
 
 SKIP: {
     skip 'endpoints that mutate validation plans have been disabled', 26;
