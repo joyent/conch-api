@@ -56,12 +56,13 @@ expected results.
 package Conch::Validation;
 
 use Mojo::Base -base, -signatures;
-use Mojo::Exception;
 use Mojo::JSON;
 use JSON::Validator;
 use Try::Tiny;
 
 use Conch::ValidationError;
+use Path::Tiny;
+use List::Util 'first';
 
 =head1 CONSTANTS
 
@@ -169,28 +170,33 @@ Run the Validation with the specified input data.
 =cut
 
 sub run ( $self, $data ) {
-
 	try {
 		$self->validate($data);
 	}
 	catch {
 		my $err = $_;
-		# FIXME wat
-		if ( not $err->isa('Conch::ValidationError') ) {
-			# remove the 'at $filename line $line_number' from the exception
-			# message. We might not want to reveal Conch's path
-			$err =~ s/ at .+$//;
-			$err = Conch::ValidationError->new($err)->trace(1);
+
+		my ($message, $hint);
+		if ($err->isa('Conch::ValidationError')) {
+			$message = $err->message;
+			$hint = $err->hint || $err->error_loc;
+		}
+		# remove the 'at $filename line $line_number' from the exception
+		# message. We might not want to reveal Conch's path
+		else {
+			($message) = $err =~ /^(.+) at/;
+			$hint = first { path($_)->is_relative }
+				map s/^.* at (.+ line \d+)\.?$/$1/mr, split /\R/, $err;
 		}
 
-		$self->log->error("Validation '".$self->name."' threw an exception: ".$err->message);
+		$self->log->error("Validation '".$self->name."' threw an exception: ".$message);
 		$self->log->debug("Bad data: ". Mojo::JSON::to_json($data));
 
 		my $validation_error = {
-			message  => $err->message,
+			message  => $message,
 			name     => $self->name,
 			status   => STATUS_ERROR,
-			hint     => $err->hint || $err->error_loc,
+			hint     => $hint,
 			category => $self->category,
 		};
 		push $self->validation_results->@*, $validation_error;
