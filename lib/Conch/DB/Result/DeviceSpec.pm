@@ -34,13 +34,6 @@ __PACKAGE__->table("device_spec");
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 hardware_product_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 0
-  size: 16
-
 =head2 bios_firmware
 
   data_type: 'text'
@@ -81,8 +74,6 @@ __PACKAGE__->table("device_spec");
 __PACKAGE__->add_columns(
   "device_id",
   { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
-  "hardware_product_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "bios_firmware",
   { data_type => "text", is_nullable => 0 },
   "hba_firmware",
@@ -128,24 +119,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 hardware_product
 
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::HardwareProductProfile>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "hardware_product",
-  "Conch::DB::Result::HardwareProductProfile",
-  { id => "hardware_product_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rqbEbPjxEubPHX8XjtXPdA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-08 10:55:52
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rjkQdKXeT2IR+CN9VhBFrA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
