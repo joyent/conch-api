@@ -52,6 +52,7 @@ ENV MOJO_LISTEN http://0.0.0.0:5000
 EXPOSE 5000
 
 ENTRYPOINT ["make"]
+ENV HARNESS_OPTIONS j6:c
 CMD [ "forcebuild", "test"]
 
 # vim: se syn=dockerfile:
