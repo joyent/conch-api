@@ -7,13 +7,7 @@ use Test::Conch;
 my $t = Test::Conch->new;
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 
-$t->post_ok(
-    '/login' => json => {
-        user     => 'conch@conch.joyent.us',
-        password => 'conch',
-    }
-)->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
+$t->authenticate;
 
 $t->get_ok('/room')
     ->status_is(200)

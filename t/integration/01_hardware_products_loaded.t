@@ -10,16 +10,7 @@ my $uuid = Data::UUID->new;
 my $t = Test::Conch->new;
 $t->load_fixture('conch_user_global_workspace', '00-hardware');
 
-$t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
-$t->get_ok("/version")->status_is(200);
-
-$t->post_ok(
-	"/login" => json => {
-		user     => 'conch@conch.joyent.us',
-		password => 'conch'
-	}
-)->status_is(200);
-BAIL_OUT("Login failed") if $t->tx->res->code != 200;
+$t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 

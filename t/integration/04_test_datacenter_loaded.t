@@ -19,20 +19,7 @@ $t->load_validation_plans([{
 
 my $uuid = Data::UUID->new;
 
-$t->get_ok('/ping')
-	->status_is(200)
-	->json_is({ status => 'ok' });
-$t->get_ok('/version')
-	->status_is(200)
-	->json_cmp_deeply({ version => re(qr/^v/) });
-
-$t->post_ok(
-	'/login' => json => {
-		user     => 'conch@conch.joyent.us',
-		password => 'conch'
-	}
-)->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
+$t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
@@ -306,7 +293,7 @@ subtest 'Device Report' => sub {
 	$t->get_ok('/device/TEST')
 		->status_is(200)
 		->json_schema_is('DetailedDevice')
-		->json_is('/latest_report/product_name' => 'Joyent-S1')
+		->json_is('/latest_report/product_name' => 'Joyent-G1')
 		->json_is('/invalid_report' => undef)
 		->json_is('/health' => 'PASS')
 		->json_is('/latest_report_is_invalid' => JSON::PP::false);
@@ -400,7 +387,7 @@ subtest 'Single device' => sub {
 		->json_schema_is('DetailedDevice')
 		->json_is('/health' => 'PASS')
 		->json_is('/latest_report_is_invalid' => JSON::PP::false)
-		->json_is('/latest_report/product_name' => 'Joyent-S1')
+		->json_is('/latest_report/product_name' => 'Joyent-G1')
 		->json_cmp_deeply('/disks/0/serial_number' => 'BTHC640405WM1P6PGN');
 
 	$detailed_device = $t->tx->res->json;
@@ -941,13 +928,7 @@ subtest 'Permissions' => sub {
 			}],
 		});
 
-		$t->post_ok(
-			"/login" => json => {
-				user     => $ro_email,
-				password => $ro_pass,
-			}
-		)->status_is(200);
-		BAIL_OUT("Login failed") if $t->tx->res->code != 200;
+		$t->authenticate(user => $ro_email, password => $ro_pass);
 
 		$t->get_ok('/workspace')
 			->status_is(200)
@@ -1001,8 +982,8 @@ subtest 'Permissions' => sub {
 			->json_cmp_deeply(bag(
 				{
 					id => ignore,
-					name => 'conch',
-					email => 'conch@conch.joyent.us',
+					name => $t->CONCH_USER,
+					email => $t->CONCH_EMAIL,
 					role => 'admin',
 				},
 				{
@@ -1043,12 +1024,7 @@ subtest 'Permissions' => sub {
 			}],
 		});
 
-		$t->post_ok(
-			"/login" => json => {
-				user     => $email,
-				password => $pass,
-			}
-		)->status_is(200);
+		$t->authenticate(user => $email, password => $pass);
 
 		$t->get_ok('/workspace')
 			->status_is(200)
@@ -1086,8 +1062,8 @@ subtest 'Permissions' => sub {
 			->json_cmp_deeply(bag(
 				{
 					id => ignore,
-					name => 'conch',
-					email => 'conch@conch.joyent.us',
+					name => $t->CONCH_USER,
+					email => $t->CONCH_EMAIL,
 					role => 'admin',
 				},
 				{

@@ -20,13 +20,7 @@ my $uuid = Data::UUID->new;
 # start 3, width 4
 # start 11, width 4
 
-$t->post_ok(
-    '/login' => json => {
-        user     => 'conch@conch.joyent.us',
-        password => 'conch',
-    }
-)->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
+$t->authenticate;
 
 my $fake_id = $uuid->create_str();
 

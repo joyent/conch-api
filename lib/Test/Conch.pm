@@ -25,6 +25,17 @@ Includes JSON validation ability via L<Test::MojoSchema>.
     my $t = Test::Conch->new();
     $t->get_ok("/")->status_is(200)->json_schema_is("Whatever");
 
+=head1 CONSTANTS
+
+=cut
+
+# see also the 'conch_user' fixture in Test::Conch::Fixtures
+use constant CONCH_USER => 'conch';
+use constant CONCH_EMAIL => 'conch@conch.joyent.us';
+use constant CONCH_PASSWORD => 'conch';
+
+=head1 METHODS
+
 =head2 pg
 
 Override with your own Test::PostgreSQL object if you want to use a custom database, perhaps
@@ -350,6 +361,31 @@ See L<Test::Conch::Fixtures/generate_set> for available sets.
 sub load_fixture_set ($self, $fixture_set_name, @args) {
     my @fixture_names = $self->fixtures->generate_set($fixture_set_name, @args);
     $self->fixtures->load(@fixture_names);
+}
+
+=head2 authenticate
+
+Authenticates a user in the current test instance. Uses default credentials if not provided.
+Optionally will bail out of *all* tests on failure.
+
+=cut
+
+sub authenticate ($self, %args) {
+    $args{bailout} //= 1 if not $args{user};
+    $args{user} //= CONCH_EMAIL;
+    $args{password} //= CONCH_PASSWORD;
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $self->post_ok('/login', json => { %args{qw(user password)} })
+        ->status_is(200, $args{message});
+
+    if ($self->tx->res->code != 200) {
+        my $message = 'Login failed for '.$args{user};
+        Test::More::BAIL_OUT($message) if $args{bailout};
+        Test::More::plan(skip_all => $message) if not $args{bailout};
+    }
+
+    return $self;
 }
 
 1;

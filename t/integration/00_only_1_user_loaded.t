@@ -16,30 +16,22 @@ my $uuid = Data::UUID->new;
 my $t = Test::Conch->new;
 $t->load_fixture('conch_user_global_workspace');
 
-$t->get_ok('/ping')->status_is(200)
-	->json_is('/status' => 'ok')
+$t->get_ok('/ping')
+	->status_is(200)
+	->json_is({ status => 'ok' })
 	->header_isnt('Request-Id' => undef)
 	->header_isnt('X-Request-ID' => undef);
-
-$t->get_ok('/version')
-	->status_is(200);
 
 $t->get_ok('/me')->status_is(401)->json_is({ error => 'unauthorized' });
 $t->get_ok('/login')->status_is(401)->json_is({ error => 'unauthorized' });
 
 my $now = Conch::Time->now;
 
-$t->post_ok(
-	'/login' => json => {
-		user     => 'conch@conch.joyent.us',
-		password => 'conch'
-	}
-)->status_is(200);
-BAIL_OUT('Login failed') if $t->tx->res->code != 200;
+$t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
-my $conch_user = $t->app->db_user_accounts->find({ name => 'conch' });
+my $conch_user = $t->app->db_user_accounts->find({ name => $t->CONCH_USER });
 
 ok($conch_user->last_login >= $now, 'user last_login is updated')
 	or diag('last_login not updated: ' . $conch_user->last_login . ' is not updated to ' . $now);
@@ -144,29 +136,18 @@ subtest 'User' => sub {
 	$t->get_ok('/user/me/settings')
 		->status_is(401, 'session tokens revoked too');
 
-	$t->post_ok(
-		'/login' => json => {
-			user     => 'conch@conch.joyent.us',
-			password => 'conch'
-		}
-	)->status_is(401, 'cannot use old password after changing it');
+	$t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
+		->status_is(401, 'cannot use old password after changing it');
 
-	$t->post_ok(
-		'/login' => json => {
-			user     => 'conch@conch.joyent.us',
-			password => 'øƕḩẳȋ'
-		}
-	)->status_is(200, 'logged in using new password');
-	$t->post_ok(
-		'/user/me/password' => json => { password => 'conch' }
-	)->status_is(204, 'changed password back');
+	$t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => 'øƕḩẳȋ' })
+		->status_is(200, 'logged in using new password');
 
-	$t->post_ok(
-		'/login' => json => {
-			user     => 'conch@conch.joyent.us',
-			password => 'conch'
-		}
-	)->status_is(200, 'logged in using original password');
+	$t->post_ok('/user/me/password', json => { password => $t->CONCH_PASSWORD })
+		->status_is(204, 'changed password back');
+
+	$t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
+		->status_is(200, 'logged in using original password');
+
 	$t->get_ok('/user/me/settings')
 		->status_is(200, 'original password works again');
 };
@@ -212,8 +193,8 @@ subtest 'Workspaces' => sub {
 		->json_cmp_deeply('', [
 			{
 				id    => ignore,
-				name  => 'conch',
-				email => 'conch@conch.joyent.us',
+				name  => $t->CONCH_USER,
+				email => $t->CONCH_EMAIL,
 				role  => 'admin',
 			}
 		], 'data for users who can access GLOBAL');
@@ -279,7 +260,7 @@ subtest 'Workspaces' => sub {
 	$t->get_ok('/user/')
 		->status_is(200)
 		->json_schema_is('UsersDetailed')
-		->json_is('/0/email', 'conch@conch.joyent.us')
+		->json_is('/0/email', $t->CONCH_EMAIL)
 		->json_is('/0/workspaces' => [ $workspace_data{conch}[0] ])
 		->json_is('/1/email', 'test_user@conch.joyent.us')
 		->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
@@ -387,10 +368,10 @@ subtest 'Sub-Workspace' => sub {
 				$workspace_data{conch}[2],
 			], 'data for all workspaces with recursive query');
 
-	$t->get_ok('/user/email=conch@conch.joyent.us')
+	$t->get_ok('/user/email='.$t->CONCH_EMAIL)
 		->status_is(200)
 		->json_schema_is('UserDetailed')
-		->json_is('/email' => 'conch@conch.joyent.us')
+		->json_is('/email' => $t->CONCH_EMAIL)
 		->json_is('/workspaces' => [
 				$workspace_data{conch}[0],
 				$workspace_data{conch}[1],
@@ -401,7 +382,7 @@ subtest 'Sub-Workspace' => sub {
 	$t->get_ok('/user/me')
 		->status_is(200)
 		->json_schema_is('UserDetailed')
-		->json_is('/email' => 'conch@conch.joyent.us')
+		->json_is('/email' => $t->CONCH_EMAIL)
 		->json_is('/workspaces' => [
 				$workspace_data{conch}[0],
 				$workspace_data{conch}[1],
@@ -445,7 +426,7 @@ subtest 'Sub-Workspace' => sub {
 	$t->get_ok('/user')
 		->status_is(200, 'data for all users, all workspaces')
 		->json_schema_is('UsersDetailed')
-		->json_is('/0/email', 'conch@conch.joyent.us')
+		->json_is('/0/email', $t->CONCH_EMAIL)
 		->json_is('/0/workspaces' => $workspace_data{conch})
 		->json_is('/1/email', 'test_user@conch.joyent.us')
 		->json_is('/1/workspaces' => $workspace_data{test_user});
@@ -524,10 +505,10 @@ subtest 'Sub-Workspace' => sub {
 	$workspace_data{test_user}[2]{role} = 'admin';
 	delete $workspace_data{test_user}[2]{role_via};
 
-	$t->get_ok('/user/email=conch@conch.joyent.us')
+	$t->get_ok('/user/email='.$t->CONCH_EMAIL)
 		->status_is(200)
 		->json_schema_is('UserDetailed')
-		->json_is('/email' => 'conch@conch.joyent.us')
+		->json_is('/email' => $t->CONCH_EMAIL)
 		->json_is('/workspaces' => [
 				$workspace_data{conch}[0],
 				$workspace_data{conch}[1],
@@ -549,7 +530,7 @@ subtest 'Sub-Workspace' => sub {
 	$t->get_ok('/user')
 		->status_is(200, 'data for all users, all workspaces')
 		->json_schema_is('UsersDetailed')
-		->json_is('/0/email', 'conch@conch.joyent.us')
+		->json_is('/0/email', $t->CONCH_EMAIL)
 		->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
 		->json_is('/1/email', 'test_user@conch.joyent.us')
 		->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
@@ -623,7 +604,7 @@ subtest 'Sub-Workspace' => sub {
 	$t->get_ok('/user/')
 		->status_is(200)
 		->json_schema_is('UsersDetailed')
-		->json_is('/0/email', 'conch@conch.joyent.us')
+		->json_is('/0/email', $t->CONCH_EMAIL)
 		->json_is('/0/workspaces' => $workspace_data{conch})
 		->json_is('/1/email', 'test_user@conch.joyent.us')
 		->json_is('/1/workspaces' => $workspace_data{test_user})
@@ -632,8 +613,7 @@ subtest 'Sub-Workspace' => sub {
 
 
 	my $untrusted = Test::Conch->new(pg => $t->pg);
-	$untrusted->post_ok('/login' => json => { user => 'untrusted_user@conch.joyent.us', password => '123' })
-		->status_is(200, 'untrusted user can log in');
+	$untrusted->authenticate(user => 'untrusted_user@conch.joyent.us', password => '123');
 
 	# this user cannot be shown the GLOBAL workspace or its id
 	undef $workspace_data{untrusted_user}[0]{parent_id};
@@ -871,12 +851,7 @@ subtest 'Log out' => sub {
 };
 
 subtest 'JWT authentication' => sub {
-	$t->post_ok(
-		"/login" => json => {
-			user     => 'conch@conch.joyent.us',
-			password => 'conch'
-		}
-	)->status_is(200)->json_has('/jwt_token');
+	$t->authenticate(bailout => 0)->json_has('/jwt_token');
 
 	my $jwt_token = $t->tx->res->json->{jwt_token};
 	my $jwt_sig   = $t->tx->res->cookie('jwt_sig')->value;
@@ -902,21 +877,15 @@ subtest 'JWT authentication' => sub {
 		{ Authorization => "Bearer $jwt_token.$jwt_sig" } )
 		->status_is( 401, "Cannot reuse token with old JWT" );
 
-	$t->post_ok(
-		'/user/email=conch@conch.joyent.us/revoke',
-		{ Authorization => "Bearer $new_jwt_token" }
-	)->status_is( 204, "Revoke all tokens for user" );
+	$t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke',
+			{ Authorization => "Bearer $new_jwt_token" })
+		->status_is(204, 'Revoke all tokens for user');
 	$t->get_ok( "/workspace", { Authorization => "Bearer $new_jwt_token" } )
 		->status_is( 401, "Cannot use after user revocation" );
 	$t->post_ok( '/refresh_token', { Authorization => "Bearer $new_jwt_token" } )
 		->status_is( 401, "Cannot after user revocation" );
 
-	$t->post_ok(
-		"/login" => json => {
-			user     => 'conch@conch.joyent.us',
-			password => 'conch'
-		}
-	)->status_is(200);
+	$t->authenticate(bailout => 0);
 	my $jwt_token_2 = $t->tx->res->json->{jwt_token};
 	$t->post_ok(
 		'/user/me/revoke',
@@ -934,33 +903,30 @@ subtest 'modify another user' => sub {
 		->status_is(400, 'user name "me" is prohibited')
 		->json_is({ error => 'user name "me" is prohibited' });
 
-	$t->post_ok(
-		'/user?send_mail=0',
-		json => { name => 'foo', email => 'conch@conch.joyent.us' })
+	$t->post_ok('/user?send_mail=0', json => { name => 'foo', email => $t->CONCH_EMAIL })
 		->status_is(409, 'cannot create user with a duplicate email address')
 		->json_schema_is('UserError')
 		->json_is({
 				error => 'duplicate user found',
 				user => {
 					id => $conch_user->id,
-					email => 'conch@conch.joyent.us',
-					name => 'conch',
+					email => $t->CONCH_EMAIL,
+					name => $t->CONCH_USER,
 					created => $conch_user->created,
 					deactivated => undef,
 				}
 			});
 
-	$t->post_ok(
-		'/user?send_mail=0',
-		json => { name => 'conch', email => 'CONCH@conch.JOYENT.us' })
+	$t->post_ok('/user?send_mail=0',
+		json => { name => $t->CONCH_USER, email => uc($t->CONCH_EMAIL) })
 		->status_is(409, 'emails are not case sensitive when checking for duplicate users')
 		->json_schema_is('UserError')
 		->json_is({
 				error => 'duplicate user found',
 				user => {
 					id => $conch_user->id,
-					email => 'conch@conch.joyent.us',
-					name => 'conch',
+					email => $t->CONCH_EMAIL,
+					name => $t->CONCH_USER,
 					created => $conch_user->created,
 					deactivated => undef,
 				}

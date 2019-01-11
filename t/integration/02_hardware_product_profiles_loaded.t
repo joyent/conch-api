@@ -19,16 +19,7 @@ $t->load_validation_plans([{
 # delete all zpools from hardware product profiles
 $t->app->db_hardware_product_profiles->update({ zpool_id => undef });
 
-$t->get_ok("/ping")->status_is(200)->json_is( '/status' => 'ok' );
-$t->get_ok("/version")->status_is(200);
-
-$t->post_ok(
-	"/login" => json => {
-		user     => 'conch@conch.joyent.us',
-		password => 'conch'
-	}
-)->status_is(200);
-BAIL_OUT("Login failed") if $t->tx->res->code != 200;
+$t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
