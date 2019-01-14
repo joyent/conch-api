@@ -10,8 +10,8 @@ use HTTP::Tiny;
 sub get {
 	my $short = shift;
 	my $url = "https://api.github.com$short";
-	if($ENV{TOKEN}) {
-		$url .= "?access_token=$ENV{TOKEN}";
+	if (my $token = $ENV{TOKEN} // $ENV{GITHUB_OAUTH_TOKEN}) {
+		$url .= "?access_token=$token";
 	}
 	my $res = HTTP::Tiny->new->get($url);
 	if($res->{success}) {
@@ -21,14 +21,17 @@ sub get {
 	}
 }
 
-
-my $start = $ARGV[0] // `git tag --sort version:refname | tail -n 1`;
-chomp $start;
-
-my $end = $ARGV[1] // 'HEAD';
+chomp(my $end = $ARGV[1] // 'HEAD');
 chomp $end;
 
-foreach my $line (reverse `git --no-pager log --oneline --merges --no-decorate $start...$end`) {
+chomp(my $start = $ARGV[0] // `git tag --merged $end --sort version:refname | tail -n 1`);
+
+print "# using start: $start\n";
+print "# using end: $end\n";
+
+my @lines = (`git --no-pager log --oneline --merges --no-decorate $start...$end`);
+
+foreach my $line (reverse @lines) {
 	$line =~ /^(.+?) Merge pull request #(\d+) / or next;
 	my $hash = $1;
 	my $pr = $2;
@@ -40,13 +43,6 @@ foreach my $line (reverse `git --no-pager log --oneline --merges --no-decorate $
 
 	my $labels = join(", ", map { $_->{name} } $j->{labels}->@*);
 
-	my $body;
-	if ($j->{body}) {
-		foreach (split("\n", $j->{body})) {
-			$body .= "> $_\n";
-		}
-	}
-
 	say <<EOF;
 [PR #$pr]($j->{html_url}) - `$j->{title}`
 ===
@@ -55,6 +51,7 @@ foreach my $line (reverse `git --no-pager log --oneline --merges --no-decorate $
 * Labels: $labels
 EOF
 
+	my $body = join('', map "> $_\n", split "\n", $j->{body}) if $j->{body};
 	say $body if $body;
 
 	say <<EOF;
@@ -64,7 +61,6 @@ People
 * Merged By: $merger
 * Merged: $j->{merged_at}
 EOF
-
 
 	say "Commits\n---\n";
 
@@ -77,4 +73,22 @@ EOF
 	}
 	say "\n- - -\n";
 }
+
+# if this is a release that doesn't contain pull requests but rather cherry-picks, we need to
+# do something different...
+exit if @lines;
+
+@lines = (`git --no-pager log --oneline --no-decorate $start...$end`);
+say "Commits\n---\n";
+foreach my $line (reverse @lines) {
+	my ($hash, $rest) = split(/ /, $line, 2);
+
+	my $commit = get "/repos/joyent/conch/commits/$hash";
+
+	my $h = substr($commit->{sha},0,6);
+	my @bits = split("\n", $commit->{commit}->{message});
+
+	say "* [$h]($commit->{html_url}) - \`$bits[0]\`";
+}
+say "\n- - -\n";
 
