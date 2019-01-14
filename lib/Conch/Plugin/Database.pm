@@ -140,9 +140,13 @@ line of the exception.
         return $v;
     });
 
-    $app->log->debug("Running $pgsql_version");
-    $app->log->fatal("Running $pgsql_version, expected 9.6!") and die
-        if $pgsql_version !~ /PostgreSQL 9\.6/;
+
+    # at present we do all testing on 9.6 so that is the most preferred configuration, but we
+    # are not aware of any issues on PostgreSQL 10.x.
+    $app->log->info("Running $pgsql_version");
+    my ($major, $minor) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)\.?/;
+    $minor //= 0;
+    $app->log->warn("Running $pgsql_version, expected at least 9.6!") if "$major.$minor" < 9.6;
 
 
     my $latest_migration = $app->schema->storage->dbh_do(sub ($storage, $dbh) {
