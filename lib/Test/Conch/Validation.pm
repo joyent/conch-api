@@ -209,29 +209,29 @@ sub _test_case {
 
 	$validation->run($data);
 
-	if ($debug) {
-		diag( "$msg_prefix Successful results:\n"
-				. _results_to_string( $validation->successes ) );
-		diag( "$msg_prefix Failing results:\n"
-				. _results_to_string( $validation->failures ) );
-	}
-
 	my $success_count = scalar $validation->successes->@*;
 	my $success_expect = $case->{success_num} || 0;
 	is( $success_count, $success_expect,
-		    "$msg_prefix Was expecting validation to register "
-			. "$success_expect successful results, got $success_count."
-			. "\nSuccessful results:\n"
+			"$msg_prefix Was expecting validation to register "
+			. "$success_expect successful results, got $success_count.")
+		or diag("\nSuccessful results:\n"._results_to_string($validation->successes));
+
+	if ($debug and $success_count == $success_expect) {
+		diag( "$msg_prefix Successful results:\n"
 			. _results_to_string( $validation->successes ) );
+	}
 
 	my $failure_count = scalar $validation->failures->@*;
 	my $failure_expect = $case->{failure_num} || 0;
 
 	is( $failure_count, $failure_expect,
-		    "$msg_prefix Was expecting validation to register "
-			. "$failure_expect failing results, got $failure_count."
-			. "\nFailing results:\n"
+			"$msg_prefix Was expecting validation to register "
+			. "$failure_expect failing results, got $failure_count.")
+		or diag("\nFailing results:\n"._results_to_string($validation->failures));
+	if ($debug and $failure_count == $failure_expect) {
+		diag( "$msg_prefix Failing results:\n"
 			. _results_to_string( $validation->failures ) );
+	}
 }
 
 # Format the list of validation reusults into a single string, indented and
