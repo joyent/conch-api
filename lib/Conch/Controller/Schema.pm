@@ -21,37 +21,37 @@ Get the json-schema in JSON format.
 =cut
 
 sub get ($c) {
-	my $type = $c->stash('request_or_response');
-	my $name = camelize $c->stash('name');
+    my $type = $c->stash('request_or_response');
+    my $name = camelize $c->stash('name');
 
-	my $validator = JSON::Validator->new();
+    my $validator = JSON::Validator->new();
 
-	if ( lc($type) eq 'response' ) {
-		$validator->schema(Conch::Plugin::JsonValidator::OUTPUT_SCHEMA_FILE);
+    if ( lc($type) eq 'response' ) {
+        $validator->schema(Conch::Plugin::JsonValidator::OUTPUT_SCHEMA_FILE);
 
-	}
-	elsif ( lc($type) eq 'request' ) {
-		$validator->schema(Conch::Plugin::JsonValidator::INPUT_SCHEMA_FILE);
-	}
+    }
+    elsif ( lc($type) eq 'request' ) {
+        $validator->schema(Conch::Plugin::JsonValidator::INPUT_SCHEMA_FILE);
+    }
 
-	my $schema = $validator->get("/definitions/$name");
+    my $schema = $validator->get("/definitions/$name");
 
-	my sub inline_ref ( $ref, $schema ) {
-		my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
-		$schema->{definitions}{$other} = $validator->get($ref);
-	}
+    my sub inline_ref ( $ref, $schema ) {
+        my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
+        $schema->{definitions}{$other} = $validator->get($ref);
+    }
 
-	visit $schema => sub ( $key, $ref, @ ) {
-		inline_ref( $_ => $schema ) if $key eq '$ref';
-		if ( !defined $_ && $key eq "type" ) {
-			$$ref = "null";
-		}
-	};
-	$schema->{title} //= $name;
-	$schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
-	$schema->{'$id'}     = "urn:$name.schema.json";
+    visit $schema => sub ( $key, $ref, @ ) {
+        inline_ref( $_ => $schema ) if $key eq '$ref';
+        if ( !defined $_ && $key eq "type" ) {
+            $$ref = "null";
+        }
+    };
+    $schema->{title} //= $name;
+    $schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
+    $schema->{'$id'}     = "urn:$name.schema.json";
 
-	return $c->status( 200, $schema );
+    return $c->status( 200, $schema );
 }
 
 1;
