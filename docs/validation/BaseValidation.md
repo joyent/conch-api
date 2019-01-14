@@ -110,6 +110,9 @@ location.
 ## hardware\_product
 
 The expected [Conch::Class::HardwareProduct](https://github.com/joyent/conch/blob/master/lib/Conch/Class/HardwareProduct.pm) object for the device being validated.
+Note that this is **either** the hardware\_product associated with the rack and slot the device
+is located in, **or** the hardware\_product associated with the device itself (when the device is
+not located in a rack yet). When this distinction is important, check ["has\_device\_location"](#has_device_location).
 
 ## hardware\_product\_name
 

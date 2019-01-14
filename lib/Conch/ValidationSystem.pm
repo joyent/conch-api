@@ -218,11 +218,6 @@ sub run_validation_plan ($self, %options) {
     # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
     my $model_device = Conch::Model::Device->new($device->get_columns);
     my $location = Conch::Model::DeviceLocation->lookup($device->id);
-    my $hw_product_id =
-          $location
-        ? $location->target_hardware_product->id
-        : $device->hardware_product_id;
-    my $hw_product = Conch::Model::HardwareProduct->lookup($hw_product_id);
     my $device_settings = +{ $device->device_settings_as_hash };
 
     my $validation_rs = $validation_plan
@@ -238,7 +233,6 @@ sub run_validation_plan ($self, %options) {
             device           => $model_device,
             $location ? ( device_location => $location ) : (),
             device_settings  => $device_settings,
-            hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
         );
 
         $validator->run($data);
@@ -252,7 +246,7 @@ sub run_validation_plan ($self, %options) {
                 result_order        => $result_order++,
                 validation_id       => $validation->id,
                 device_id           => $device->id,
-                hardware_product_id => $hw_product_id,
+                hardware_product_id => $validator->hardware_product->id,
                 $_->%{qw(message hint status category component_id)},
             });
         } $validator->validation_results;
@@ -299,18 +293,12 @@ sub run_validation ($self, %options) {
 
     # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
     my $location = Conch::Model::DeviceLocation->lookup($device->id);
-    # FIXME: do we really allow running validations on unlocated hardware?
-    my $hw_product_id =
-          $location
-        ? $location->target_hardware_product->id
-        : $device->hardware_product_id;
 
     my $validator = $validation->module->new(
         log              => $self->log,
         device           => Conch::Model::Device->new($device->get_columns),
         $location ? ( device_location => $location ) : (),
         device_settings  => +{ $device->device_settings_as_hash },
-        hardware_product => Conch::Model::HardwareProduct->lookup($hw_product_id),
     );
     $validator->run($data);
 
@@ -324,7 +312,7 @@ sub run_validation ($self, %options) {
             result_order        => $result_order++,
             validation_id       => $validation->id,
             device_id           => $device->id,
-            hardware_product_id => $hw_product_id,
+            hardware_product_id => $validator->hardware_product->id,
             $_->%{qw(message hint status category component_id)},
         });
     } $validator->validation_results;

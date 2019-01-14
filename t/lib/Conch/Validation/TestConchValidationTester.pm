@@ -17,29 +17,11 @@ sub validate ($self, $data) {
     }
 }
 
-sub _has_no_device ($self, $data) {
-    $self->register_result_cmp_details(
-        $self->device,
-        undef,
-        'no device -> accessor returns undef',
-    );
-}
-
-sub _has_no_hardware_product ($self, $data) {
-    $self->register_result_cmp_details(
-        $self->hardware_product,
-        undef,
-        'no hardware_product provided',
-    );
-    # this generates an error: hardware_product should always be provided
-    my $product_name = $self->hardware_product_name;
-}
-
 sub _has_no_hardware_product_profile ($self, $data) {
     $self->register_result_cmp_details(
         $self->hardware_product_profile,
         undef,
-        'no hardware_product means no hardware_product_profile',
+        'no hardware_product_profile data requested -> not populated into the db',
     );
 }
 
@@ -89,6 +71,7 @@ sub _hardware_product_inflation ($self, $data) {
         ),
         'hardware_product inflated to Conch::Class::HardwareProduct with a real id',
     );
+
     $self->register_result_cmp_details(
         $self->hardware_product_name,
         $data->{hardware_product_name} // re(qr/^hardware_product_\d+$/),

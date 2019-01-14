@@ -25,7 +25,6 @@ subtest '->run, local exception' => sub {
     my $validator = Conch::Validation::LocalException->new(
         log              => $logger,
         device           => Conch::Model::Device->new($device->get_columns),
-        hardware_product => Conch::Model::HardwareProduct->lookup($device->hardware_product_id),
     );
     $validator->run({});
 
@@ -61,7 +60,6 @@ my $exception_test = sub ($use_stack_traces = 0) {
     my $validator = Conch::Validation::ExternalException->new(
         log              => $logger,
         device           => Conch::Model::Device->new($device->get_columns),
-        hardware_product => Conch::Model::HardwareProduct->lookup($device->hardware_product_id),
     );
     $validator->run({});
 

@@ -144,14 +144,13 @@ sub test_validation {
 		|| diag "$validation_module fails to compile" && return;
 
 	my @objects = $t->generate_fixtures(
+		device => {},	# always create a device, even if generic
 		%args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device) }
 	);
 
 	my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } @objects;
 
-	my $device = $args{device}
-		? first { $_->isa('Conch::DB::Result::Device') } @objects
-		: undef;
+	my $device = first { $_->isa('Conch::DB::Result::Device') } @objects;
 
 	# Note: we are not currently considering the case where both a device_location
 	# and hardware_product are specified, and whether that hardware_product is different from
@@ -159,17 +158,13 @@ sub test_validation {
 	# so this should be fixed when DeviceProductName is rewritten and more sophisticated test
 	# cases are written for it.
 
-	my $hw_product_profile =
-		  $args{hardware_product} && $args{hardware_product}->{hardware_product_profile}
+	my $hw_product_profile = $hardware_product->hardware_product_profile
 		? Conch::Class::HardwareProductProfile->new($hardware_product->hardware_product_profile->get_columns)
 		: undef;
-
-	my $hw_product = ($args{hardware_product} && keys $args{hardware_product}->%*) || $hw_product_profile
-		? Conch::Class::HardwareProduct->new(
-			$hardware_product->get_columns,
-			profile => $hw_product_profile,
-		)
-		: ();
+	my $hw_product = Conch::Class::HardwareProduct->new(
+		$hardware_product->get_columns,
+		$hw_product_profile ? ( profile => $hw_product_profile ) : (),
+	);
 
 	my $device_location = $args{device_location}
 		? Conch::Model::DeviceLocation->lookup(
@@ -178,10 +173,10 @@ sub test_validation {
 
 	my $validation = $validation_module->new(
 		log => $t->app->log,
-		$device ? ( device => Conch::Model::Device->new($device->get_columns) ) : (),
+		device => Conch::Model::Device->new($device->get_columns),
 		$device_location ? ( device_location => $device_location ) : (),
 		device_settings  => $args{device_settings} || {},
-		$hw_product ? ( hardware_product => $hw_product ) : (),
+		hardware_product => $hw_product,
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {

@@ -16,19 +16,18 @@ subtest 'database object construction' => sub {
             },
             {
                 description => 'did not request device',
-                data => { subname => '_has_no_device' },
+                data => { subname => '_device_inflation' },
                 success_num => 1,
             },
             {
                 description => 'did not request hardware_product',
-                data => { subname => '_has_no_hardware_product' },
-                success_num => 1,
-                error_num => 1,
+                data => { subname => '_hardware_product_inflation' },
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product_profile',
                 data => { subname => '_has_no_hardware_product_profile' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'did not request device_location',
@@ -55,14 +54,13 @@ subtest 'database object construction' => sub {
             },
             {
                 description => 'did not request hardware_product',
-                data => { subname => '_has_no_hardware_product' },
-                success_num => 1,
-                error_num => 1,
+                data => { subname => '_hardware_product_inflation' },
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product_profile',
                 data => { subname => '_has_no_hardware_product_profile' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'did not request device_location',
@@ -79,7 +77,7 @@ subtest 'database object construction' => sub {
         cases => [
             {
                 description => 'did not request device',
-                data => { subname => '_has_no_device' },
+                data => { subname => '_device_inflation' },
                 success_num => 1,
             },
             {
@@ -109,7 +107,7 @@ subtest 'database object construction' => sub {
         cases => [
             {
                 description => 'did not request device',
-                data => { subname => '_has_no_device' },
+                data => { subname => '_device_inflation' },
                 success_num => 1,
             },
             {
@@ -140,19 +138,18 @@ subtest 'database object construction' => sub {
         cases => [
             {
                 description => 'did not request device',
-                data => { subname => '_has_no_device' },
+                data => { subname => '_device_inflation' },
                 success_num => 1,
             },
             {
                 description => 'did not request hardware_product',
-                data => { subname => '_has_no_hardware_product' },
-                success_num => 1,
-                error_num => 1,
+                data => { subname => '_hardware_product_inflation' },
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product_profile',
                 data => { subname => '_has_no_hardware_product_profile' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'device_location inflation',
@@ -174,19 +171,18 @@ subtest 'database object construction' => sub {
         cases => [
             {
                 description => 'did not request device',
-                data => { subname => '_has_no_device' },
+                data => { subname => '_device_inflation' },
                 success_num => 1,
             },
             {
                 description => 'did not request hardware_product',
-                data => { subname => '_has_no_hardware_product' },
-                success_num => 1,
-                error_num => 1,
+                data => { subname => '_hardware_product_inflation' },
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product_profile',
                 data => { subname => '_has_no_hardware_product_profile' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'device_location inflation',
@@ -207,19 +203,18 @@ subtest 'database object construction' => sub {
         cases => [
             {
                 description => 'did not request device',
-                data => { subname => '_has_no_device' },
+                data => { subname => '_device_inflation' },
                 success_num => 1,
             },
             {
                 description => 'did not request hardware_product',
-                data => { subname => '_has_no_hardware_product' },
-                success_num => 1,
-                error_num => 1,
+                data => { subname => '_hardware_product_inflation' },
+                success_num => 2,
             },
             {
                 description => 'did not request hardware_product_profile',
                 data => { subname => '_has_no_hardware_product_profile' },
-                error_num => 1,
+                success_num => 1,
             },
             {
                 description => 'did not request device_location',

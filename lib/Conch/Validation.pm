@@ -132,7 +132,7 @@ logic to dispatch on Device attributes.
 has device => (
     is => 'ro',
     isa => InstanceOf['Conch::Model::Device'],
-    # TODO required => 1,
+    required => 1,
 );
 
 =head2 device_location
@@ -172,6 +172,9 @@ around device_location => sub ($orig, $self, @args) {
 =head2 hardware_product
 
 The expected L<Conch::Class::HardwareProduct> object for the device being validated.
+Note that this is B<either> the hardware_product associated with the rack and slot the device
+is located in, B<or> the hardware_product associated with the device itself (when the device is
+not located in a rack yet). When this distinction is important, check L</has_device_location>.
 
 =head2 hardware_product_name
 
@@ -222,6 +225,14 @@ It is a L<Conch::Class::HardwareProductProfile> object.
 has hardware_product => (
     is => 'ro',
     isa => InstanceOf['Conch::Class::HardwareProduct'],
+    lazy => 1,
+    default => sub ($self) {
+        my $hw_product_id =
+              $self->has_device_location
+            ? $self->device_location->target_hardware_product->id
+            : $self->device->hardware_product_id;
+        Conch::Model::HardwareProduct->lookup($hw_product_id);
+    },
     handles => {
         hardware_product_name => 'name',
         hardware_legacy_product_name => 'legacy_product_name',
