@@ -265,6 +265,7 @@ sub _results_to_string ($) {
 		map {
 			my $i = $_ + 1;
 			"\t$i. " . $results->[$_]->{name} . ': ' . $results->[$_]->{message}
+			.($results->[$_]->{hint} ? (' ('.$results->[$_]->{hint}.')') : '')
 		} ( 0 .. $results->$#* )
 	);
 }
