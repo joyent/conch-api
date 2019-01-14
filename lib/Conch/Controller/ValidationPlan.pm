@@ -62,23 +62,21 @@ sub list ($c) {
 
 =head2 find_validation_plan
 
-Find the Validation Plan specified by ID and put it in the stash as
+Find the Validation Plan specified by uuid or name and put it in the stash as
 C<validation_plan>.
 
 =cut
 
 sub find_validation_plan($c) {
-    my $vp_id = $c->stash('validation_plan_id');
-    unless (is_uuid($vp_id)) {
-        $c->log->warn("$vp_id is not a UUID");
-        $c->status(400, { error => "Validation Plan ID must be a UUID. Got '$vp_id'." });
-        return 0;
-    }
+    my $identifier = $c->stash('validation_plan_id_or_name');
 
-    my $validation_plan = $c->db_validation_plans->active->find($vp_id);
+    my $validation_plan = $c->db_validation_plans->active->search({
+        (is_uuid($identifier) ? 'id' : 'name') => $identifier,
+    })->single;
+
     if (not $validation_plan) {
-        $c->log->debug("Failed to find validation plan $vp_id");
-        return $c->status(404, { error => "Validation Plan $vp_id not found" });
+        $c->log->debug("Failed to find validation plan for '$identifier'");
+        return $c->status(404, { error => 'Not found' });
     }
 
     $c->log->debug('Found validation plan '.$validation_plan->id);
@@ -88,7 +86,7 @@ sub find_validation_plan($c) {
 
 =head2 get
 
-Get the Validation Plan specified by ID.
+Get the Validation Plan specified by uuid or name.
 
 Response uses the ValidationPlan json schema.
 

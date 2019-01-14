@@ -68,8 +68,11 @@ sub validate ($c) {
         return $c->status(404 => { error => "Validation $validation_id not found" });
     }
 
-    # note, we aren't validating this data against the DeviceReport schema, although we should.
-    my $data = $c->req->json;
+    my $data = $c->validate_input('DeviceReport');
+    if (not $data) {
+        $c->log->debug('Device report input failed validation');
+        return;
+    }
 
     my @validation_results = Conch::ValidationSystem->new(
         schema => $c->ro_schema,
@@ -104,8 +107,11 @@ sub run_validation_plan ($c) {
         return $c->status(404 => { error => "Validation plan $validation_plan_id not found" });
     }
 
-    # note, we aren't validating this data against the DeviceReport schema, although we should.
-    my $data = $c->req->json;
+    my $data = $c->validate_input('DeviceReport');
+    if (not $data) {
+        $c->log->debug('Device report input failed validation');
+        return;
+    }
 
     my @validation_results = Conch::ValidationSystem->new(
         schema => $c->ro_schema,
