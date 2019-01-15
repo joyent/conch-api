@@ -310,6 +310,12 @@ You may also provide the following attributes to override validation results
         );
     ```
 
+## register\_result\_cmp\_details
+
+EXPERIMENTAL. A new way of registering validation results. Pass arguments as you would to
+["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test::Deep#cmp_deeply), and a validation result is registered with the result and diagnostics
+as appropriate.
+
 ## die
 
 Stop execution of the Validation immediately and record an error. The

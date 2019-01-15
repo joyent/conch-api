@@ -6,6 +6,7 @@ use v5.26;
 use Test::More;
 use Data::Printer; # for 'np'
 use Conch::Log;
+use Conch::Models;
 use Conch::Class::DatacenterRack;
 use Conch::Class::DeviceLocation;
 use Conch::Class::HardwareProduct;
@@ -142,27 +143,31 @@ sub test_validation {
 	use_ok($validation_module)
 		|| diag "$validation_module fails to compile" && return;
 
-	my $device = $args{device} ? Conch::Model::Device->new($args{device}) : undef;
+	my $device = $args{device} ? Conch::Model::Device->new($args{device}->%*) : undef;
 
 	my $hw_product_profile =
 		  $args{hardware_product} && $args{hardware_product}->{profile}
 		? Conch::Class::HardwareProductProfile->new($args{hardware_product}->{profile}->%*)
 		: undef;
 
-	my $hw_product = Conch::Class::HardwareProduct->new(
-		$args{hardware_product}->%*,
-		profile => $hw_product_profile,
-	);
+	my $hw_product = ($args{hardware_product} && keys $args{hardware_product}->%*) || $hw_product_profile
+		? Conch::Class::HardwareProduct->new(
+			$args{hardware_product}->%*,
+			profile => $hw_product_profile,
+		)
+		: ();
 
 	my $rack =
 		  $args{device_location} && $args{device_location}{datacenter_rack}
 		? Conch::Class::DatacenterRack->new($args{device_location}->{datacenter_rack}->%*)
 		: undef;
 
-	my $device_location = Conch::Class::DeviceLocation->new(
-		$args{device_location}->%*,
-		datacenter_rack => $rack,
-	);
+	my $device_location = ($args{device_location} && keys $args{device_location}->%*) || $rack
+		? Conch::Class::DeviceLocation->new(
+			$args{device_location}->%*,
+			datacenter_rack => $rack,
+		)
+		: ();
 
 	my $validation = $validation_module->new(
 		device           => $device,            # this is a Conch::Model::Device

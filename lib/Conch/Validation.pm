@@ -548,6 +548,32 @@ sub register_result ( $self, %attrs ) {
 
 }
 
+=head2 register_result_cmp_details
+
+EXPERIMENTAL. A new way of registering validation results. Pass arguments as you would to
+L<Test::Deep/cmp_deeply>, and a validation result is registered with the result and diagnostics
+as appropriate.
+
+=cut
+
+sub register_result_cmp_details ($self, $got, $expected, $message) {
+    require Test::Deep;
+    my ($ok, $stack) = Test::Deep::cmp_details($got, $expected, $message);
+
+    my $validation_result = {
+        message  => $message,
+        name     => $self->name,
+        category => $self->category,
+        status       => $ok ? STATUS_PASS : STATUS_FAIL,
+        hint         => $ok ? undef : Test::Deep::deep_diag($stack),
+    };
+
+    $self->log->debug('Validation '.$self->name." had result $validation_result->{status}: $message");
+
+    push $self->validation_results->@*, $validation_result;
+    return $self;
+}
+
 =head2 die
 
 Stop execution of the Validation immediately and record an error. The
