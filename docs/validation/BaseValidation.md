@@ -31,7 +31,7 @@ Conch::Validation - base class for writing Conch Validations
 
 `Conch::Validation` provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a `validate`
-method.  This method receives the input data (a `HASHREF`) to be validatated.
+method.  This method receives the input data (a `HASHREF`) to be validated.
 
 The validation logic in the `validate` method will evaluate the input data and
 register one or more validation results with the
@@ -166,7 +166,7 @@ Get the expected hardware product vendor name for the device under validation.
 ### Hardware\_Product\_Profile
 
 Get the expected hardware product profile for the device under validation. In
-production, the product profile is a `Conch::Class:HardareProductProfile` object.
+production, the product profile is a `Conch::Class::HardwareProductProfile` object.
 
 ```perl
     my $expected_ram = self->hardware_product_profile->ram_total;

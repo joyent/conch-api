@@ -255,7 +255,7 @@ sub add ($c) {
     return $c->status(400, { error => 'Cannot modify GLOBAL workspace' })
         if $c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL';
 
-    # note this only checks one layer up, rather than all the way up the heirarchy.
+    # note this only checks one layer up, rather than all the way up the hierarchy.
     if (not $c->stash('workspace_rs')
             ->related_resultset('parent_workspace')
             ->associated_racks->active->search({ id => $rack_id })->exists) {

@@ -183,7 +183,7 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
     # because we check for duplicate role entries when creating user_workspace_role rows,
-    # we "should" only have *one* row with the highest permission in the entire heirarchy...
+    # we "should" only have *one* row with the highest permission in the entire hierarchy...
     $self->and_workspaces_above($workspace_id)
         ->search_related('user_workspace_roles',
             { 'user_workspace_roles.user_id' => $user_id },

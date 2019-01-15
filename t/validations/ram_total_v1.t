@@ -11,7 +11,7 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'No data yields no sucess',
+			description => 'No data yields no success',
 			data        => {},
 		},
 		{

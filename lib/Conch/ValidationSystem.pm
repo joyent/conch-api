@@ -192,7 +192,7 @@ All provided data objects can and should be read-only (fetched with a ro db hand
 
 If C<< no_save_db => 1 >> is passed, the validation records are returned, without writing them
 to the database.  Otherwise, a validation_state record is created and validation_result records
-saved with de-duplication logic applied.
+saved with deduplication logic applied.
 
 Takes options as a hash:
 

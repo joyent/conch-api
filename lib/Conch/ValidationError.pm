@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Conch::ValidationError - Internal error respresentation for L<Conch::Validation>
+Conch::ValidationError - Internal error representation for L<Conch::Validation>
 
 =head1 DESCRIPTION
 
@@ -20,7 +20,7 @@ has 'hint';
 
 =head2 error_loc
 
-Return a description of where the error occured. Provides the module name and
+Return a description of where the error occurred. Provides the module name and
 line number, but not the filepath, so it doesn't expose where the file lives.
 
 =cut

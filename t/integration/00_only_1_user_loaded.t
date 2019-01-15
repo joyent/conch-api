@@ -472,7 +472,7 @@ subtest 'Sub-Workspace' => sub {
 	is($t->app->db_user_workspace_roles->count, 3,
 		'now there are three user_workspace_role entries');
 
-	# now let's try manipulating permissions on the workspace in the middle of the heirarchy
+	# now let's try manipulating permissions on the workspace in the middle of the hierarchy
 
 	$t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
 			user => 'test_user@conch.joyent.us',

@@ -32,7 +32,7 @@ Conch::Validation - base class for writing Conch Validations
 
 C<Conch::Validation> provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a C<validate>
-method.  This method receives the input data (a C<HASHREF>) to be validatated.
+method.  This method receives the input data (a C<HASHREF>) to be validated.
 
 The validation logic in the C<validate> method will evaluate the input data and
 register one or more validation results with the
@@ -210,7 +210,7 @@ sub device ($self) {
 
 =head2 device_settings
 
-Get device settings assidned to the device under validation. Device settings
+Get device settings assigned to the device under validation. Device settings
 are an unblessed hashref. You can use device setting values to provide
 conditional evaluation in the validation logic.
 
@@ -341,7 +341,7 @@ sub hardware_product_vendor ($self) {
 =head2 hardware_product_profile
 
 Get the expected hardware product profile for the device under validation. In
-production, the product profile is a C<Conch::Class:HardareProductProfile> object.
+production, the product profile is a C<Conch::Class::HardwareProductProfile> object.
 
 	my $expected_ram = self->hardware_product_profile->ram_total;
 	my $expected_ssd = self->hardware_product_profile->ssd_num;
@@ -362,7 +362,7 @@ called as many times as desired in a C<validate> method.
 
 Instead of calculating whether a result should pass or fail in the validation
 logic, provide an 'expected' value, the 'got' value, and a comparison operator.
-This declarative syntax allows for result de-duplication and consistent messages.
+This declarative syntax allows for result deduplication and consistent messages.
 
 
 	# direct comparison

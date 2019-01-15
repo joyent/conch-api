@@ -193,6 +193,17 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0.47
+  Class-Tiny-1.006
+    pathname: D/DA/DAGOLDEN/Class-Tiny-1.006.tar.gz
+    provides:
+      Class::Tiny 1.006
+      Class::Tiny::Object 1.006
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.17
+      perl 5.006
+      strict 0
+      warnings 0
   Class-Unload-0.11
     pathname: I/IL/ILMARI/Class-Unload-0.11.tar.gz
     provides:
@@ -1750,6 +1761,14 @@ DISTRIBUTIONS
       Mozilla::CA 0
       Net::SSLeay 1.46
       Scalar::Util 0
+  IPC-Run3-0.048
+    pathname: R/RJ/RJBS/IPC-Run3-0.048.tar.gz
+    provides:
+      IPC::Run3 0.048
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0.31
+      Time::HiRes 0
   JSON-MaybeXS-1.004000
     pathname: H/HA/HAARG/JSON-MaybeXS-1.004000.tar.gz
     provides:
@@ -2766,6 +2785,29 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
+  Pod-Spell-1.20
+    pathname: D/DO/DOLMEN/Pod-Spell-1.20.tar.gz
+    provides:
+      Pod::Spell 1.20
+      Pod::Wordlist 1.20
+    requirements:
+      Carp 0
+      Class::Tiny 0
+      ExtUtils::MakeMaker 0
+      File::ShareDir 0
+      File::ShareDir::Install 0.06
+      Lingua::EN::Inflect 0
+      POSIX 0
+      Path::Tiny 0
+      Pod::Escapes 0
+      Pod::Parser 0
+      Text::Wrap 0
+      constant 0
+      locale 0
+      parent 0
+      perl 5.008
+      strict 0
+      warnings 0
   Role-Tiny-2.000006
     pathname: H/HA/HAARG/Role-Tiny-2.000006.tar.gz
     provides:
@@ -3150,6 +3192,17 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.64
       Test::Builder::Module 0
       Test::More 0.47
+      perl 5.006
+  Test-Spelling-0.20
+    pathname: S/SA/SARTAK/Test-Spelling-0.20.tar.gz
+    provides:
+      Test::Spelling 0.20
+    requirements:
+      ExtUtils::MakeMaker 6.59
+      IPC::Run3 0.044
+      Pod::Spell 1.01
+      Test::More 0.88
+      Test::Tester 0
       perl 5.006
   Test-Warn-0.36
     pathname: B/BI/BIGJ/Test-Warn-0.36.tar.gz

@@ -82,6 +82,8 @@ on 'test' => sub {
     requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose
     requires 'Moo';
     requires 'MooX::HandlesVia';
+    local $ENV{PERL_USE_UNSAFE_INC} = 1;
+    recommends 'Test::Spelling';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is
