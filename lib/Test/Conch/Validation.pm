@@ -191,23 +191,23 @@ sub test_validation {
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
-		subtest('Case '.$case_index,
-			\&_test_case => ($validation, $validation_module, $args{cases}, $case_index));
+		my $case = $args{cases}->[$case_index];
+		subtest(
+			join(': ', "Case $case_index", $case->{description}),
+			\&_test_case => ($validation, $validation_module, $case));
 	}
 }
 
 sub _test_case {
-	my ( $validation, $validation_module, $cases, $case_index ) = @_;
-	my $case  = $cases->[$case_index];
+	my ( $validation, $validation_module, $case ) = @_;
 	my $data  = $case->{data} || {};
 	my $debug = $case->{debug};
 
-	my $msg_prefix = 'Case '.$case_index;
-	$msg_prefix .= $case->{description} ? ' [' . $case->{description} . ']:' : ':';
+	my $msg_prefix = $case->{description} ? " [$case->{description}]: " : '';
 
 	if ($debug) {
 		my $pretty_data = substr( np($data), 2 );
-		diag("$msg_prefix input data: $pretty_data");
+		diag($msg_prefix."input data: $pretty_data");
 	}
 
 	$validation->clear_results;
@@ -217,12 +217,12 @@ sub _test_case {
 	my $success_count = scalar $validation->successes->@*;
 	my $success_expect = $case->{success_num} || 0;
 	is( $success_count, $success_expect,
-			"$msg_prefix Was expecting validation to register "
+			$msg_prefix.'Was expecting validation to register '
 			. "$success_expect successful results, got $success_count.")
 		or diag("\nSuccessful results:\n"._results_to_string($validation->successes));
 
 	if ($debug and $success_count == $success_expect) {
-		diag( "$msg_prefix Successful results:\n"
+		diag($msg_prefix."Successful results:\n"
 			. _results_to_string( $validation->successes ) );
 	}
 
@@ -230,22 +230,22 @@ sub _test_case {
 	my $failure_expect = $case->{failure_num} || 0;
 
 	is( $failure_count, $failure_expect,
-			"$msg_prefix Was expecting validation to register "
+			$msg_prefix.'Was expecting validation to register '
 			. "$failure_expect failing results, got $failure_count.")
 		or diag("\nFailing results:\n"._results_to_string($validation->failures));
 	if ($debug and $failure_count == $failure_expect) {
-		diag( "$msg_prefix Failing results:\n"
+		diag($msg_prefix."Failing results:\n"
 			. _results_to_string( $validation->failures ) );
 	}
 
 	my $error_count = scalar $validation->error->@*;
 	my $error_expect = $case->{error_num} // ($success_expect + $failure_expect ? 0 : 1);
 	is($error_count, $error_expect,
-			"$msg_prefix Was expecting validation to register "
+			$msg_prefix.'Was expecting validation to register '
 			. "$error_expect error results, got $error_count.")
 		or diag("\nError results:\n"._results_to_string($validation->error));
 	if ($debug and $error_count == $error_expect) {
-		diag( "$msg_prefix Error results:\n"
+		diag($msg_prefix."Error results:\n"
 			. _results_to_string( $validation->error ) );
 	}
 }
