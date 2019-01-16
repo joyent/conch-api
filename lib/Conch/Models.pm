@@ -16,8 +16,6 @@ use warnings;
 
 use Conch::DB;
 
-use Conch::Model::DeviceLocation;
-
 1;
 __END__
 

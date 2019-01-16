@@ -35,7 +35,13 @@ which will be constructed to the correct classes in the body of
             },
             device_location => {
                     rack_unit       => 2,
-                    datacenter_rack => { slots => [ 1, 2, 3 ] }
+                    datacenter_rack => {
+                            datacenter_rack_layouts => [
+                                    { rack_unit_start => 1 },
+                                    { rack_unit_start => 2 },
+                                    { rack_unit_start => 3 },
+                            ],
+                    },
             },
             device_settings => {
                     foo => 'bar'

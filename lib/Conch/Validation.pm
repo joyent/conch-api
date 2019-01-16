@@ -141,14 +141,25 @@ has device => (
 
 =head2 device_location
 
-L<Conch::Class::DeviceLocation> object for the device being validated.
+L<Conch::DB::Result::DeviceLocation> object for the device being validated.
 
 This is useful in writing validation logic that may depend on the rack or
 location in the rack a device occupies.
 
-	my $datacenter_name = $self->device_location->datacenter->name;
-	my $rack_unit_start = $self->device_location->rack_unit;   # TODO Conch::DB::Result::DeviceLocation calls this rack_unit_start
-	my $rack_available_slots = $self->device_location->datacenter_rack->slots;
+    my $datacenter_name = $self->device_location->datacenter_rack->datacenter->name;
+    my $rack_unit_start = $self->device_location->rack_unit_start;
+
+=cut
+
+sub device_location ($self) {
+    my $location = $self->device->device_location;
+    $self->die(
+        "Device must be assigned a location.",
+        hint  => "Assign this device to a rack slot before running this validation",
+        level => 2
+    ) unless $location;
+    return $location;
+}
 
 =head2 has_device_location
 
@@ -157,21 +168,9 @@ location.
 
 =cut
 
-has device_location => (
-    is => 'ro',
-    isa => InstanceOf['Conch::Class::DeviceLocation'],
-    predicate => 'has_device_location',
-);
-
-around device_location => sub ($orig, $self, @args) {
-	my $location = $self->$orig(@args);
-	$self->die(
-		"Device must be assigned a location.",
-		hint  => "Assign this device to a rack slot before running this validation",
-		level => 2
-	) unless $location;
-	return $location;
-};
+sub has_device_location ($self) {
+    $self->device->device_location ? 1 : 0
+}
 
 =head2 hardware_product
 
@@ -237,9 +236,9 @@ has hardware_product => (
     lazy => 1,
     default => sub ($self) {
         my $device = $self->device;
-        $self->has_device_location
-          ? $device->result_source->schema->resultset('hardware_product')
-                ->find($self->device_location->target_hardware_product->id)
+        my $device_location = $device->device_location;
+        $device_location
+          ? $device_location->datacenter_rack_layout->hardware_product
           : $device->hardware_product;
     },
     handles => {

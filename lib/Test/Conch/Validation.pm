@@ -7,9 +7,6 @@ use experimental 'signatures';
 use Test::More;
 use Data::Printer; # for 'np'
 use Test::Conch;
-use Conch::Models;
-use Conch::Class::HardwareProduct;
-use Conch::Class::HardwareProductProfile;
 use Test::Warnings 'had_no_warnings';
 use List::Util 'first';
 
@@ -63,7 +60,13 @@ L</test_validation>. For example:
 		},
 		device_location => {
 			rack_unit       => 2,
-			datacenter_rack => { slots => [ 1, 2, 3 ] }
+			datacenter_rack => {
+				datacenter_rack_layouts => [
+					{ rack_unit_start => 1 },
+					{ rack_unit_start => 2 },
+					{ rack_unit_start => 3 },
+				],
+			},
 		},
 		device_settings => {
 			foo => 'bar'
@@ -156,15 +159,9 @@ sub test_validation {
 	# so this should be fixed when DeviceProductName is rewritten and more sophisticated test
 	# cases are written for it.
 
-	my $device_location = $args{device_location}
-		? Conch::Model::DeviceLocation->lookup(
-			(first { $_->isa('Conch::DB::Result::DeviceLocation') } @objects)->device_id)
-		: ();
-
 	my $validation = $validation_module->new(
 		log => $t->app->log,
 		device => $t->app->db_ro_devices->find($device->id),
-		$device_location ? ( device_location => $device_location ) : (),
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {

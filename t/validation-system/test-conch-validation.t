@@ -154,8 +154,11 @@ subtest 'database object construction' => sub {
             {
                 description => 'device_location inflation',
                 data => { subname => '_device_location_inflation', rack_unit_start => 2 },
-                success_num => 2,
+                success_num => 3,
             },
+            # Note that in this case, hardware_product comes from the device_location, not device,
+            # but with the current fixture design, this comes out all the same anyway.
+            # Write a test where there are two different hardware_products!
         ],
     );
 
@@ -187,12 +190,12 @@ subtest 'database object construction' => sub {
             {
                 description => 'device_location inflation',
                 data => { subname => '_device_location_inflation', rack_unit_start => 3 },
-                success_num => 2,
+                success_num => 3,
             },
             {
                 description => 'datacenter_rack inflation',
                 data => { subname => '_datacenter_rack_inflation', rack_unit_start => 3, datacenter_rack_name => 'my rack' },
-                success_num => 1,
+                success_num => 2,
             },
         ],
     );

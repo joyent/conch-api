@@ -95,15 +95,14 @@ will \*not\* be permitted.
 
 ## device\_location
 
-[Conch::Class::DeviceLocation](https://github.com/joyent/conch/blob/master/lib/Conch/Class/DeviceLocation.pm) object for the device being validated.
+[Conch::DB::Result::DeviceLocation](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceLocation.pm) object for the device being validated.
 
 This is useful in writing validation logic that may depend on the rack or
 location in the rack a device occupies.
 
 ```perl
-    my $datacenter_name = $self->device_location->datacenter->name;
-    my $rack_unit_start = $self->device_location->rack_unit;   # TODO Conch::DB::Result::DeviceLocation calls this rack_unit_start
-    my $rack_available_slots = $self->device_location->datacenter_rack->slots;
+my $datacenter_name = $self->device_location->datacenter_rack->datacenter->name;
+my $rack_unit_start = $self->device_location->rack_unit_start;
 ```
 
 ## has\_device\_location

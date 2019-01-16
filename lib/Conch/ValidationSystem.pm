@@ -214,10 +214,6 @@ sub run_validation_plan ($self, %options) {
     $data //= from_json($device_report->report) if $device_report;
     Carp::croak('missing data or device report') if not $data;
 
-
-    # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
-    my $location = Conch::Model::DeviceLocation->lookup($device->id);
-
     my $validation_rs = $validation_plan
         ->related_resultset('validation_plan_members')
         ->related_resultset('validation')
@@ -229,7 +225,6 @@ sub run_validation_plan ($self, %options) {
         my $validator = $validation->module->new(
             log              => $self->log,
             device           => $device,
-            $location ? ( device_location => $location ) : (),
         );
 
         $validator->run($data);
@@ -288,13 +283,9 @@ sub run_validation ($self, %options) {
     my $device = delete $options{device} || Carp::croak('missing device');
     my $data = delete $options{data} || Carp::croak('missing data');
 
-    # FIXME! this is all awful and validators need to be rewritten to accept ro DBIC objects.
-    my $location = Conch::Model::DeviceLocation->lookup($device->id);
-
     my $validator = $validation->module->new(
         log              => $self->log,
         device           => $device,
-        $location ? ( device_location => $location ) : (),
     );
     $validator->run($data);
 

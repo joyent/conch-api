@@ -125,31 +125,42 @@ sub _device_location_inflation ($self, $data) {
     $self->register_result_cmp_details(
         $self->device_location,
         all(
-            isa('Conch::Class::DeviceLocation'),
+            isa('Conch::DB::Result::DeviceLocation'),
             methods(
-                rack_unit => $data->{rack_unit_start},
-                datacenter_rack => isa('Conch::Class::DatacenterRack'),
-                datacenter_room => isa('Conch::Class::DatacenterRoom'),
-                target_hardware_product => isa('Conch::Class::HardwareProduct'),
+                device_id => $data->{device_id} // re(qr/^DEVICE_\d+$/),
+                rack_unit_start => $data->{rack_unit_start},
+                in_storage => bool(1),
             ),
         ),
-        'device_location inflated to Conch::Model::DeviceLocation with real data and related rows',
+        'device_location is a real result row with a real id',
     );
+    $self->register_result_cmp_details(
+        [ exception { $self->device_location->update({ updated => \'now()' }) } ],
+        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        'cannot modify the device_location',
+    );
+    $self->device_location->result_source->schema->txn_rollback;
 }
 
 sub _datacenter_rack_inflation ($self, $data) {
     $self->register_result_cmp_details(
         $self->device_location->datacenter_rack,
         all(
-            isa('Conch::Class::DatacenterRack'),
+            isa('Conch::DB::Result::DatacenterRack'),
             methods(
                 id => re(Conch::UUID::UUID_FORMAT),
                 name => $data->{datacenter_rack_name} // re(qr/^datacenter_rack_\d+$/),
-                slots => [ $data->{rack_unit_start} ],
+                in_storage => bool(1),
             ),
         ),
         'real datacenter_rack row created when requested',
     );
+    $self->register_result_cmp_details(
+        [ exception { $self->device_location->datacenter_rack->update({ name => 'ohhai' }) } ],
+        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        'cannot modify the datacenter_rack',
+    );
+    $self->device_location->datacenter_rack->result_source->schema->txn_rollback;
 }
 
 sub _device_settings_storage ($self, $data) {
