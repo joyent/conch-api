@@ -1,8 +1,10 @@
-## Name
+# NAME
 
 Test::Conch::Validation - Test Conch Validations
 
-### Test\_Validation
+## METHODS
+
+## test\_validation
 
 A function to test a Conch Validation using a collection of provided test cases.
 
@@ -11,9 +13,6 @@ This function performs the following tests:
 - Test whether the validation builds.
 - Tests whether the validations defines the required `name`, `version`,
 and `description` attributes.
-- For each case, test whether the validation dies if `dies => 1` is specified in
-the case, or lives and produces the expected number of successful and failing
-validation results.
 
 The required arguments are the Conch Validation module as a string, keyword
 arguments specifying optional models available to the Validation, and a keyword
@@ -22,7 +21,7 @@ argument specifying the cases for the test to use.
 The available models are `hardware_product`, `device_location`,
 `device_settings`, and `device`. Their attributes are defined with a hashref,
 which will be constructed to the correct classes in the body of
-[test\_validation](https://metacpan.org/pod/test_validation). For example:
+["test\_validation"](#test_validation). For example:
 
 ```perl
     test_validation(
@@ -58,12 +57,6 @@ A test case is specified with a hashref with the attributes:
 
     A hashref of the input data provide to the Validation. An empty hashref will be provided by default.
 
-- `dies`
-
-    A boolean attribute (0 or 1) to mark that this test case is expected to die
-    during validation. A validatino may die due to schema errors, `$self->die`
-    or `die` called in the Validation logic, or other code errors.  Defaults to 0.
-
 - `success_num`
 
     The number of expected successful validation results from running the
@@ -82,7 +75,7 @@ A test case is specified with a hashref with the attributes:
 - `debug`
 
     Optional boolean flag to provide additional diagnostic information when running
-    the case using [Test::More::diag](https://metacpan.org/pod/Test::More::diag). This is helpful during development of test
+    the case using ["diag" in Test::More](https://metacpan.org/pod/Test::More#diag). This is helpful during development of test
     cases, but should be removed before committing.
 
 Example:
@@ -93,7 +86,6 @@ Example:
             cases => [
                     {
                             data        => { hello => 'world' },
-                            dies        => 1,
                             success_num => 3,
                             failure_num => 3,
                             description => 'Hello world test case',
@@ -103,7 +95,7 @@ Example:
     );
 ```
 
-## Licensing
+# LICENSING
 
 Copyright Joyent, Inc.
 
