@@ -248,6 +248,12 @@ sub _test_case {
 		diag($msg_prefix."Error results:\n"
 			. _results_to_string( $validation->error ) );
 	}
+
+	if (not Test::Builder->new->is_passing) {
+		require Data::Dumper;
+		diag 'all results: ',
+			Data::Dumper->new([ $validation->validation_results ])->Indent(1)->Terse(1)->Dump;
+	}
 }
 
 # Format the list of validation reusults into a single string, indented and
