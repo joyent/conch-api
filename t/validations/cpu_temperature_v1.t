@@ -6,7 +6,7 @@ use Test::Conch::Validation 'test_validation';
 test_validation(
 	'Conch::Validation::CpuTemperature',
 	hardware_product => {
-		profile => { cpu_num => 2 }
+		hardware_product_profile => { cpu_num => 2 }
 	},
 	cases => [
 		{

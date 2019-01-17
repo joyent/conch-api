@@ -29,7 +29,7 @@ which will be constructed to the correct classes in the body of
             hardware_product => {
                     name => 'Product Name',
                     vendor => 'Product Vendor',
-                    profile => {
+                    hardware_product_profile => {
                             num_cpu => 2
                     }
             },

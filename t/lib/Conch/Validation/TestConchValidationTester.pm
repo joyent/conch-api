@@ -7,6 +7,7 @@ sub name { 'self tester' }
 sub description { 'Test::Conch::Validation tester' }
 sub category { 'test' }
 
+use Conch::UUID;
 use Test::Deep;
 
 sub validate ($self, $data) {
@@ -62,9 +63,14 @@ sub _device_inflation ($self, $data) {
         $self->device,
         all(
             isa('Conch::Model::Device'),
-            methods(id => 'my device'),
+            methods(
+                id => $data->{device_id} // re(qr/^DEVICE_\d+$/),
+                state => 'UNKNOWN',
+                health => 'UNKNOWN',
+                hardware_product_id => re(Conch::UUID::UUID_FORMAT),
+            ),
         ),
-        'device inflated to Conch::Model::Device',
+        'device inflated to Conch::Model::Device, with a real hardware_product_id',
     );
 }
 
@@ -74,14 +80,15 @@ sub _hardware_product_inflation ($self, $data) {
         all(
             isa('Conch::Class::HardwareProduct'),
             methods(
-                name => $data->{hardware_product_name},
+                id => re(Conch::UUID::UUID_FORMAT),
+                name => $data->{hardware_product_name} // re(qr/^hardware_product_\d+$/),
             ),
         ),
-        'hardware_product inflated to Conch::Class::HardwareProduct',
+        'hardware_product inflated to Conch::Class::HardwareProduct with a real id',
     );
     $self->register_result_cmp_details(
         $self->hardware_product_name,
-        $data->{hardware_product_name},
+        $data->{hardware_product_name} // re(qr/^hardware_product_\d+$/),
         'hardware_product name is retrievable',
     );
 }
@@ -93,10 +100,11 @@ sub _hardware_product_profile_inflation ($self, $data) {
             isa('Conch::Class::HardwareProductProfile'),
             $self->{_hardware_product}->profile,
             methods(
-                rack_unit => $data->{hardware_product_profile_rack_unit},
+                id => re(Conch::UUID::UUID_FORMAT),
+                $data->{hardware_product_profile_rack_unit} ? ( rack_unit => $data->{hardware_product_profile_rack_unit} ) : (),
             ),
         ),
-        'profile inflated to Conch::Class::HardwareProductProfile, joined to hardware_product',
+        'profile inflated to Conch::Class::HardwareProductProfile with a real id, joined to hardware_product',
     );
 }
 
@@ -112,9 +120,12 @@ sub _device_location_inflation ($self, $data) {
             isa('Conch::Class::DeviceLocation'),
             methods(
                 rack_unit => $data->{rack_unit_start},
+                datacenter_rack => isa('Conch::Class::DatacenterRack'),
+                datacenter_room => isa('Conch::Class::DatacenterRoom'),
+                target_hardware_product => isa('Conch::Class::HardwareProduct'),
             ),
         ),
-        'device_location inflated to Conch::Model::DeviceLocation',
+        'device_location inflated to Conch::Model::DeviceLocation with real data and related rows',
     );
 }
 
@@ -124,11 +135,12 @@ sub _datacenter_rack_inflation ($self, $data) {
         all(
             isa('Conch::Class::DatacenterRack'),
             methods(
-                name => $data->{datacenter_rack_name},
+                id => re(Conch::UUID::UUID_FORMAT),
+                name => $data->{datacenter_rack_name} // re(qr/^datacenter_rack_\d+$/),
                 slots => [ $data->{rack_unit_start} ],
             ),
         ),
-        'datacenter_rack data created when requested',
+        'real datacenter_rack row created when requested',
     );
 }
 

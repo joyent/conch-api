@@ -5,13 +5,12 @@ use v5.26;
 
 use Test::More;
 use Data::Printer; # for 'np'
-use Conch::Log;
+use Test::Conch;
 use Conch::Models;
-use Conch::Class::DatacenterRack;
-use Conch::Class::DeviceLocation;
 use Conch::Class::HardwareProduct;
 use Conch::Class::HardwareProductProfile;
 use Test::Warnings 'had_no_warnings';
+use List::Util 'first';
 
 use Exporter 'import';
 our @EXPORT_OK = qw( test_validation );
@@ -57,7 +56,7 @@ L</test_validation>. For example:
 		hardware_product => {
 			name => 'Product Name',
 			vendor => 'Product Vendor',
-			profile => {
+			hardware_product_profile => {
 				num_cpu => 2
 			}
 		},
@@ -138,40 +137,47 @@ sub test_validation {
     state $test_count = 0;
     subtest $test_count++.": $validation_module (".scalar($args{cases}->@*).' cases)', sub {
 
-	my $log = Conch::Log->new(path => 'log/development.log');
+	my $t = Test::Conch->new;
 
 	use_ok($validation_module)
 		|| diag "$validation_module fails to compile" && return;
 
-	my $device = $args{device} ? Conch::Model::Device->new($args{device}->%*) : undef;
+	my @objects = $t->generate_fixtures(
+		%args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device) }
+	);
+
+	my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } @objects;
+
+	my $device = $args{device}
+		? first { $_->isa('Conch::DB::Result::Device') } @objects
+		: undef;
+
+	# Note: we are not currently considering the case where both a device_location
+	# and hardware_product are specified, and whether that hardware_product is different from
+	# the device's hardware_product. No tests yet rely upon this assumption, but they should
+	# so this should be fixed when DeviceProductName is rewritten and more sophisticated test
+	# cases are written for it.
 
 	my $hw_product_profile =
-		  $args{hardware_product} && $args{hardware_product}->{profile}
-		? Conch::Class::HardwareProductProfile->new($args{hardware_product}->{profile}->%*)
+		  $args{hardware_product} && $args{hardware_product}->{hardware_product_profile}
+		? Conch::Class::HardwareProductProfile->new($hardware_product->hardware_product_profile->get_columns)
 		: undef;
 
 	my $hw_product = ($args{hardware_product} && keys $args{hardware_product}->%*) || $hw_product_profile
 		? Conch::Class::HardwareProduct->new(
-			$args{hardware_product}->%*,
+			$hardware_product->get_columns,
 			profile => $hw_product_profile,
 		)
 		: ();
 
-	my $rack =
-		  $args{device_location} && $args{device_location}{datacenter_rack}
-		? Conch::Class::DatacenterRack->new($args{device_location}->{datacenter_rack}->%*)
-		: undef;
-
-	my $device_location = ($args{device_location} && keys $args{device_location}->%*) || $rack
-		? Conch::Class::DeviceLocation->new(
-			$args{device_location}->%*,
-			datacenter_rack => $rack,
-		)
+	my $device_location = $args{device_location}
+		? Conch::Model::DeviceLocation->lookup(
+			(first { $_->isa('Conch::DB::Result::DeviceLocation') } @objects)->device_id)
 		: ();
 
 	my $validation = $validation_module->new(
-		log => $log,
-		device           => $device,            # this is a Conch::Model::Device
+		log => $t->app->log,
+		device => ($device ? Conch::Model::Device->new($device->get_columns) : undef),
 		device_location  => $device_location,   # this is a Conch::Class::DeviceLocation
 		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,        # this is a Conch::Class::HardwareProduct

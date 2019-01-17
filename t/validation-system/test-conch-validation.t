@@ -104,7 +104,7 @@ subtest 'database object construction' => sub {
     test_validation(
         'Conch::Validation::TestConchValidationTester',
         hardware_product => {
-            profile => { rack_unit => 4 },
+            hardware_product_profile => { rack_unit => 4 },
         },
         cases => [
             {
@@ -134,7 +134,8 @@ subtest 'database object construction' => sub {
     test_validation(
         'Conch::Validation::TestConchValidationTester',
         device_location => {
-            rack_unit => 2,
+            rack_unit_start => 2,
+            datacenter_rack_layouts => [ { rack_unit_start => 2 } ],
         },
         cases => [
             {
@@ -164,11 +165,11 @@ subtest 'database object construction' => sub {
     test_validation(
         'Conch::Validation::TestConchValidationTester',
         device_location => {
-            rack_unit => 3,
+            rack_unit_start => 3,
             datacenter_rack => {
                 name => 'my rack',
-                slots => [ 3 ],
             },
+            datacenter_rack_layouts => [ { rack_unit_start => 3 } ],
         },
         cases => [
             {

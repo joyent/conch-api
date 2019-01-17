@@ -9,8 +9,12 @@ test_validation(
 		name => 'Test Product',
 	},
 	device_location => {
-		rack_unit       => 2,
-		datacenter_rack => { slots => [ 1, 2, 3 ] }
+		rack_unit_start => 2,
+		datacenter_rack_layouts => [
+			{ rack_unit_start => 1 },
+			{ rack_unit_start => 2 },
+			{ rack_unit_start => 3 },
+		],
 	},
 
 	cases => [
@@ -124,44 +128,6 @@ test_validation(
 	]
 );
 
-test_validation(
-	'Conch::Validation::SwitchPeers',
-	hardware_product => {
-		name => 'Test Product',
-	},
-	device_location => {
-		rack_unit       => 5,
-		datacenter_rack => { slots => [ 1, 2, 3 ] }
-	},
-
-	cases => [
-		{
-			description => 'Fails if rack unit not in slots',
-			data        => {
-				interfaces => {
-					eth0 => {
-						peer_port => '1/2',
-						peer_mac  => 'de:ad:be:ef:00:00',
-					},
-					eth1 => {
-						peer_port => '1/21',
-						peer_mac  => 'de:ad:be:ef:00:00',
-					},
-					eth3 => {
-						peer_port => '1/2',
-						peer_mac  => 'co:ff:ee:b0:d1::35',
-					},
-					eth4 => {
-						peer_port => '1/21',
-						peer_mac  => 'co:ff:ee:b0:d1::35',
-					}
-				}
-			},
-			success_num => 0,
-		},
-	]
-);
-
 my $descr = "Arista Networks EOS version 1.23.4A running on an Arista Networks DCS-1234-56AB7";
 
 test_validation(
@@ -170,8 +136,12 @@ test_validation(
 		name => 'Test Product',
 	},
 	device_location => {
-		rack_unit       => 2,
-		datacenter_rack => { slots => [ 1, 2, 3 ] }
+		rack_unit_start => 2,
+		datacenter_rack_layouts => [
+			{ rack_unit_start => 1 },
+			{ rack_unit_start => 2 },
+			{ rack_unit_start => 3 },
+		],
 	},
 
 	cases => [
@@ -306,8 +276,12 @@ test_validation(
 		name => 'Test Product',
 	},
 	device_location => {
-		rack_unit       => 2,
-		datacenter_rack => { slots => [ 1, 2, 3 ] }
+		rack_unit_start => 2,
+		datacenter_rack_layouts => [
+			{ rack_unit_start => 1 },
+			{ rack_unit_start => 2 },
+			{ rack_unit_start => 3 },
+		],
 	},
 
 	cases => [
