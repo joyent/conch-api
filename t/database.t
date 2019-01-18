@@ -71,11 +71,6 @@ subtest 'read-only database handle' => sub {
         'cannot create a user using the read-only db handle',
     );
 
-    # clear the transaction, because we have AutoCommit => 0 for this connection.
-    # (as an alternative, we can turn the ReadOnly flag off, and use the read-only
-    # credentials to connect to the server.. but it is better to have this safety here.)
-    $t->app->ro_schema->txn_rollback;
-
     is(
         exception {
             $t->app->db_ro_user_accounts->find($user1->id);

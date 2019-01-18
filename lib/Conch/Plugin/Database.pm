@@ -81,7 +81,17 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 
     my $_ro_schema;
     $app->helper(ro_schema => sub {
-        return $_ro_schema if $_ro_schema;
+        if ($_ro_schema) {
+            # clear the transaction of any errors, which accumulate because we have
+            # AutoCommit => 0 for this connection.  Otherwise, we will get:
+            # "current transaction is aborted, commands ignored until end of transaction block"
+            # (as an alternative, we can turn the ReadOnly and AutoCommit flags off, and use
+            # the read-only credentials to connect to the server.. but it is better to have
+            # this safety here.)
+            $_ro_schema->txn_rollback;
+            return $_ro_schema;
+        }
+
         # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
         local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
         $_ro_schema = Conch::DB->connect(
