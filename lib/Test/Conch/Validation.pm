@@ -167,8 +167,7 @@ sub test_validation {
 		hardware_product => $hw_product,        # this is a Conch::Class::HardwareProduct
 	);
 	$validation->log($log);
-	isa_ok( $validation, $validation_module, "$validation_module->new failed" )
-		|| return;
+	isa_ok($validation, $validation_module) or return;
 
 	ok(
 		defined( $validation->name ),
