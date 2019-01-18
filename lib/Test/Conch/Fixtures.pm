@@ -1,11 +1,10 @@
 package Test::Conch::Fixtures;
-use v5.26;
-use warnings;
 
 use Moo;
 no Moo::sification;
 extends 'DBIx::Class::EasyFixture';
 
+use experimental 'signatures';
 use MooX::HandlesVia;
 use namespace::autoclean;
 
@@ -351,9 +350,7 @@ datacenter_rack, and a layout suitable for various hardware. Takes a single inte
 
 =cut
 
-sub generate_set {
-    my ($self, $set_name, @args) = @_;
-
+sub generate_set ($self, $set_name, @args) {
     my %definitions;
 
     if ($set_name eq 'workspace_room_rack_layout') {
@@ -464,11 +461,8 @@ sub generate_set {
 }
 
 # initialize definitions with those passed in, folded together with our defaults.
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $class = shift;
-
-    my $args = $class->$orig(@_);
+around BUILDARGS => sub ($orig, $class, @args) {
+    my $args = $class->$orig(@args);
 
     return +{
         definitions => {
@@ -505,8 +499,7 @@ has definitions => (
     required => 1,
 );
 
-before get_definition => sub {
-    my ($self, $name) = @_;
+before get_definition => sub ($self, $name) {
     die "missing fixture definition for $name" if not $self->_has_definition($name);
 };
 
