@@ -74,7 +74,6 @@ my %canned_definitions = (
 
     # individual definitions
 
-    # also created via Test::ConchTmpDB::mk_tmp_db
     conch_user => {
         new => 'user_account',
         using => {
@@ -94,7 +93,6 @@ my %canned_definitions = (
         },
     },
 
-    # also created via Test::ConchTmpDB::mk_tmp_db
     conch_user_global_workspace => {
         new => 'user_workspace_role',
         using => {

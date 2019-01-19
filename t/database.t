@@ -8,7 +8,7 @@ use Test::Memory::Cycle;
 use Test::Deep;
 use Data::UUID;
 
-subtest 'db connection without Conch, legacy mode, and data preservation' => sub {
+subtest 'db connection without Conch, and data preservation' => sub {
     my ($pgsql, $schema) = Test::Conch->init_db;
 
     is(
@@ -23,16 +23,10 @@ subtest 'db connection without Conch, legacy mode, and data preservation' => sub
         password => 'whargarbl',
     });
 
-    cmp_deeply(
-        [ Test::Conch->new(legacy_db => 1)->app->db_user_accounts->get_column('name')->all ],
-        [ Test::Conch->CONCH_USER ],
-        'Conch app with legacy db gets a database instance with the conch user',
-    );
-
     is(
-        Test::Conch->new(legacy_db => 0)->app->db_user_accounts->count,
+        Test::Conch->new->app->db_user_accounts->count,
         0,
-        'Conch app with no legacy db gets a new database instance with no users',
+        'Conch app with no custom options gets a new database instance with no users',
     );
 
     cmp_deeply(
