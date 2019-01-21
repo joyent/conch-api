@@ -82,6 +82,8 @@ on 'test' => sub {
     requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose
     requires 'Moo';
     requires 'MooX::HandlesVia';
+    requires 'Storable';
+
     local $ENV{PERL_USE_UNSAFE_INC} = 1;
     recommends 'Test::Spelling';
 };

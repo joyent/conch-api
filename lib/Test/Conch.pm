@@ -368,6 +368,35 @@ sub load_fixture_set ($self, $fixture_set_name, @args) {
     $self->fixtures->load(@fixture_names);
 }
 
+=head2 generate_fixtures
+
+Generate fixture definition(s) using generic data, and any necessary dependencies, and populate
+the database with them.
+
+Not-nullable fields are filled in with sensible defaults, but all may be overridden.
+
+e.g.:
+
+    $t->generate_fixture_definitions(
+        device_location => { rack_unit => 3 },
+        datacenter_rack_layouts => [
+            { rack_unit_start => 1 },
+            { rack_unit_start => 2 },
+            { rack_unit_start => 3 },
+        ],
+    );
+
+See L<Test::Conch::Fixtures/_generate_definition> for the list of recognized types.
+
+=cut
+
+sub generate_fixtures ($self, %specification) {
+    state $unique_num = 1000;
+    my @fixture_names = $self->fixtures->generate_definitions($unique_num++, %specification);
+    return if not @fixture_names;
+    $self->fixtures->load(@fixture_names);
+}
+
 =head2 authenticate
 
 Authenticates a user in the current test instance. Uses default credentials if not provided.
