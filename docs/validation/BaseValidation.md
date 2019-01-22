@@ -113,10 +113,14 @@ location.
 
 ## hardware\_product
 
-The expected [Conch::Class::HardwareProduct](https://github.com/joyent/conch/blob/master/lib/Conch/Class/HardwareProduct.pm) object for the device being validated.
+The expected [Conch::DB::Result::HardwareProduct](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProduct.pm) object for the device being validated.
 Note that this is **either** the hardware\_product associated with the rack and slot the device
 is located in, **or** the hardware\_product associated with the device itself (when the device is
 not located in a rack yet). When this distinction is important, check ["has\_device\_location"](#has_device_location).
+
+Any additional data related to hardware\_products may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class)
+interfaces.  The result object is built using a read-only database handle, so attempts to alter
+the data will \*not\* be permitted.
 
 ## hardware\_product\_name
 
@@ -166,7 +170,7 @@ Get the expected hardware product vendor name for the device under validation.
 ## hardware\_product\_profile
 
 Get the expected hardware product profile for the device under validation.
-It is a [Conch::Class::HardwareProductProfile](https://github.com/joyent/conch/blob/master/lib/Conch/Class/HardwareProductProfile.pm) object.
+It is a [Conch::DB::Result::HardwareProductProfile](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProductProfile.pm) object.
 
 ```perl
     my $expected_ram = self->hardware_product_profile->ram_total;

@@ -71,14 +71,21 @@ sub _hardware_product_inflation ($self, $data) {
     $self->register_result_cmp_details(
         $self->hardware_product,
         all(
-            isa('Conch::Class::HardwareProduct'),
+            isa('Conch::DB::Result::HardwareProduct'),
             methods(
                 id => re(Conch::UUID::UUID_FORMAT),
                 name => $data->{hardware_product_name} // re(qr/^hardware_product_\d+$/),
+                in_storage => bool(1),
             ),
         ),
-        'hardware_product inflated to Conch::Class::HardwareProduct with a real id',
+        'hardware_product is a real result row with a real id',
     );
+    $self->register_result_cmp_details(
+        [ exception { $self->hardware_product->update({ alias => 'ohhai' }) } ],
+        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        'cannot modify the hardware_product',
+    );
+    $self->hardware_product->result_source->schema->txn_rollback;
 
     $self->register_result_cmp_details(
         $self->hardware_product_name,
@@ -91,15 +98,22 @@ sub _hardware_product_profile_inflation ($self, $data) {
     $self->register_result_cmp_details(
         $self->hardware_product_profile,
         all(
-            isa('Conch::Class::HardwareProductProfile'),
-            $self->hardware_product->profile,
+            isa('Conch::DB::Result::HardwareProductProfile'),
+            $self->hardware_product->hardware_product_profile,
             methods(
                 id => re(Conch::UUID::UUID_FORMAT),
                 $data->{hardware_product_profile_rack_unit} ? ( rack_unit => $data->{hardware_product_profile_rack_unit} ) : (),
+                in_storage => bool(1),
             ),
         ),
-        'profile inflated to Conch::Class::HardwareProductProfile with a real id, joined to hardware_product',
+        'hardware_product_profile is a real result row with a real id, joined to hardware_product',
     );
+    $self->register_result_cmp_details(
+        [ exception { $self->hardware_product_profile->update({ purpose => 'ohhai' }) } ],
+        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        'cannot modify the hardware_product_profile',
+    );
+    $self->hardware_product_profile->result_source->schema->txn_rollback;
 }
 
 sub _device_location_inflation ($self, $data) {

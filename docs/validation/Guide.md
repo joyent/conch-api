@@ -268,11 +268,14 @@ details for the device under validation
   for the device under validation
 * `$self->device_location`: the `Conch::Class::DeviceLocation` object
   representing the location of the device under validation
-* `$self->hardware_product_vendor`: a string of hardware product vendor name of
-  the expected hardware product for the device
-* `$self->hardware_product_name`: a string of the hardware product name of the
-  expected hardware product for the device
-* `$self->hardware_product_profile`: the `Conch::Class::HardwareProductProfile`
+* `$self->hardware_product`: the `Conch::DB::Result::HardwareProduct`
+  object representing the hardware product of the expected hardware
+  product for the device
+* `$self->hardware_product_vendor`: a shortcut to the string containing the hardware
+  product vendor name of the expected hardware product for the device
+* `$self->hardware_product_name`: a shortcut to the string containing the hardware
+  product name of the expected hardware product for the device
+* `$self->hardware_product_profile`: the `Conch::DB::Result::HardwareProductProfile`
   object representing the hardware product profile of the expected hardware
   product for the device
 

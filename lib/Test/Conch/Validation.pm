@@ -148,8 +148,6 @@ sub test_validation {
 		%args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device) }
 	);
 
-	my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } @objects;
-
 	my $device = first { $_->isa('Conch::DB::Result::Device') } @objects;
 
 	# Note: we are not currently considering the case where both a device_location
@@ -157,14 +155,6 @@ sub test_validation {
 	# the device's hardware_product. No tests yet rely upon this assumption, but they should
 	# so this should be fixed when DeviceProductName is rewritten and more sophisticated test
 	# cases are written for it.
-
-	my $hw_product_profile = $hardware_product->hardware_product_profile
-		? Conch::Class::HardwareProductProfile->new($hardware_product->hardware_product_profile->get_columns)
-		: undef;
-	my $hw_product = Conch::Class::HardwareProduct->new(
-		$hardware_product->get_columns,
-		$hw_product_profile ? ( profile => $hw_product_profile ) : (),
-	);
 
 	my $device_location = $args{device_location}
 		? Conch::Model::DeviceLocation->lookup(
@@ -175,7 +165,6 @@ sub test_validation {
 		log => $t->app->log,
 		device => $t->app->db_ro_devices->find($device->id),
 		$device_location ? ( device_location => $device_location ) : (),
-		hardware_product => $hw_product,
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {

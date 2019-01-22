@@ -175,10 +175,14 @@ around device_location => sub ($orig, $self, @args) {
 
 =head2 hardware_product
 
-The expected L<Conch::Class::HardwareProduct> object for the device being validated.
+The expected L<Conch::DB::Result::HardwareProduct> object for the device being validated.
 Note that this is B<either> the hardware_product associated with the rack and slot the device
 is located in, B<or> the hardware_product associated with the device itself (when the device is
 not located in a rack yet). When this distinction is important, check L</has_device_location>.
+
+Any additional data related to hardware_products may be read as normal using L<DBIx::Class>
+interfaces.  The result object is built using a read-only database handle, so attempts to alter
+the data will *not* be permitted.
 
 =head2 hardware_product_name
 
@@ -218,7 +222,7 @@ Get the expected hardware product vendor name for the device under validation.
 =head2 hardware_product_profile
 
 Get the expected hardware product profile for the device under validation.
-It is a L<Conch::Class::HardwareProductProfile> object.
+It is a L<Conch::DB::Result::HardwareProductProfile> object.
 
 	my $expected_ram = self->hardware_product_profile->ram_total;
 	my $expected_ssd = self->hardware_product_profile->ssd_num;
@@ -228,14 +232,15 @@ It is a L<Conch::Class::HardwareProductProfile> object.
 
 has hardware_product => (
     is => 'ro',
-    isa => InstanceOf['Conch::Class::HardwareProduct'],
+    init_arg => undef,  # cannot be provided at construction time
+    isa => InstanceOf['Conch::DB::Result::HardwareProduct'],
     lazy => 1,
     default => sub ($self) {
-        my $hw_product_id =
-              $self->has_device_location
-            ? $self->device_location->target_hardware_product->id
-            : $self->device->hardware_product_id;
-        Conch::Model::HardwareProduct->lookup($hw_product_id);
+        my $device = $self->device;
+        $self->has_device_location
+          ? $device->result_source->schema->resultset('hardware_product')
+                ->find($self->device_location->target_hardware_product->id)
+          : $device->hardware_product;
     },
     handles => {
         hardware_product_name => 'name',
@@ -243,8 +248,8 @@ has hardware_product => (
         hardware_product_generation => 'generation_name',
         hardware_product_sku => 'sku',
         hardware_product_specification => 'specification',
-        hardware_product_vendor => 'vendor',
-        hardware_product_profile => 'profile',
+        hardware_product_vendor => 'hardware_vendor',
+        hardware_product_profile => 'hardware_product_profile',
     },
 );
 

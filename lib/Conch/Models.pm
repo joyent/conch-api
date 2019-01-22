@@ -17,7 +17,6 @@ use warnings;
 use Conch::DB;
 
 use Conch::Model::DeviceLocation;
-use Conch::Model::HardwareProduct;
 
 1;
 __END__
