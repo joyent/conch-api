@@ -175,7 +175,6 @@ sub test_validation {
 		log => $t->app->log,
 		device => $t->app->db_ro_devices->find($device->id),
 		$device_location ? ( device_location => $device_location ) : (),
-		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,
 	);
 

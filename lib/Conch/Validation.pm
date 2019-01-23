@@ -256,7 +256,14 @@ A key-value unblessed hashref of device settings stored for the device being val
 
 has device_settings => (
     is => 'ro',
+    init_arg => undef,  # cannot be provided at construction time
     isa => HashRef[Str],
+    lazy => 1,
+    default => sub ($self) {
+        my $device = $self->device;
+        return +{} if not $device;
+        +{ $device->device_settings_as_hash };
+    },
 );
 
 =head2 validation_results
