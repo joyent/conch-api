@@ -53,7 +53,7 @@ db-schema: ## create a dump of current db schema
 	pg_dump --username conch --schema-only --file sql/schema.sql conch
 
 .PHONY: validation_docs docs/validation/BaseValidation.md docs/validation/TestValidations.md
-validation_docs: docs/validation/BaseValidation.md docs/validation/BaseValidation.md ## Generate markdown files of the validation docs 
+validation_docs: docs/validation/BaseValidation.md docs/validation/TestingValidations.md ## Generate markdown files of the validation docs
 
 docs/validation/BaseValidation.md: lib/Conch/Validation.pm
 	@carton exec pod2github lib/Conch/Validation.pm \
