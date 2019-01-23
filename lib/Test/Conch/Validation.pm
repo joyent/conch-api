@@ -133,6 +133,9 @@ sub test_validation {
 	my $validation_module = shift;
 	my %args              = @_;
 
+    state $test_count = 0;
+    subtest $test_count++.": $validation_module (".scalar($args{cases}->@*).' cases)', sub {
+
 	my $log = Conch::Log->new(path => 'log/development.log');
 
 	use_ok($validation_module)
@@ -195,6 +198,7 @@ sub test_validation {
 			join(': ', "Case $case_index", $case->{description}),
 			\&_test_case => ($validation, $validation_module, $case));
 	}
+    };
 }
 
 sub _test_case {
