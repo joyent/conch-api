@@ -56,10 +56,14 @@ db-schema: ## create a dump of current db schema
 validation_docs: docs/validation/BaseValidation.md docs/validation/BaseValidation.md ## Generate markdown files of the validation docs 
 
 docs/validation/BaseValidation.md: lib/Conch/Validation.pm
-	@carton exec pod2github lib/Conch/Validation.pm > docs/validation/BaseValidation.md
+	@carton exec pod2github lib/Conch/Validation.pm \
+		| perl -p -e's{https://metacpan.org/pod/((?:Test::)?Conch[^)]+)}{"https://github.com/joyent/conch/blob/master/lib/".join("/",split(/::/,$$1)).".pm"}e' \
+		> docs/validation/BaseValidation.md
 
 docs/validation/TestingValidations.md: lib/Test/Conch/Validation.pm
-	@carton exec pod2github lib/Test/Conch/Validation.pm > docs/validation/TestingValidations.md
+	@carton exec pod2github lib/Test/Conch/Validation.pm \
+		| perl -p -e's{https://metacpan.org/pod/((?:Test::)?Conch[^)]+)}{"https://github.com/joyent/conch/blob/master/lib/".join("/",split(/::/,$$1)).".pm"}e' \
+		> docs/validation/TestingValidations.md
 
 docker_test:
 	@echo "============================"
