@@ -30,13 +30,13 @@ Conch::Validation - base class for writing Conch Validations
 
 =head1 DESCRIPTION
 
-C<Conch::Validation> provides the base class to define and execute Conch
-Validations. Validations extend this class by implementing a C<validate>
+L<Conch::Validation> provides the base class to define and execute Conch
+Validations. Validations extend this class by implementing a L</validate>
 method.  This method receives the input data (a C<HASHREF>) to be validated.
 
-The validation logic in the C<validate> method will evaluate the input data and
+The validation logic in the L</validate> method will evaluate the input data and
 register one or more validation results with the
-L<register_result|"register_result"> method. The logic may use device, device
+L</register_result> method. The logic may use device, device
 settings, hardware product name, hardware product vendor, and hardware product
 profile details to dispatch conditions and evaluation.
 
@@ -46,7 +46,7 @@ identification of the validation and validation result storage in the
 Validation System infrastructure.
 
 Testing Conch Validations should be done with
-C<Test::Conch::Validation::test_validation> with TAP-based tests. This
+L<Test::Conch::Validation/test_validation> with TAP-based tests. This
 functions tests that Validations define the required attributes and methods,
 and allow you to test the validation logic by running test cases against
 expected results.
@@ -90,10 +90,10 @@ use constant {
 
 Construct a Validation object.
 
-All attributes are optional, but executing validation with L<run> will create
-an error validation result if . For example, if L<hardware_product_profile> is
-used in the definition of L<validate> but the C<hardware_product> attribute is
-unspecified during construction with L<new>, the validation will halt and an
+All attributes are optional, but executing validation with L</run> will create
+an error validation result if . For example, if L</hardware_product_profile> is
+used in the definition of L</validate> but the L</hardware_product> attribute is
+unspecified during construction with L</new>, the validation will halt and an
 error validation result will be created.
 
 =over
@@ -174,7 +174,7 @@ sub run ( $self, $data ) {
 
 Contains the validation logic for validations.
 
-This method must be re-defined in sub-classes of C<Conch::Validation> or it will
+This method must be re-defined in sub-classes of L<Conch::Validation> or it will
 raise an exception.
 
 	package MyValidation;
@@ -194,7 +194,7 @@ sub validate ( $self, $data ) {
 
 =head2 device
 
-Get the C<Conch::Model::Device> object under Validation. Use in validation
+Get the L<Conch::Model::Device> object under Validation. Use in validation
 logic to dispatch on Device attributes.
 
 	my $device = $self->device;
@@ -237,7 +237,7 @@ sub has_device_location ($self) {
 
 =head2 device_location
 
-Get the C<Conch::Class::DeviceLocation> object for the device under validation.
+Get the L<Conch::Class::DeviceLocation> object for the device under validation.
 This is useful in writing validation logic that may depend on the rack or
 location in the rack a device occupies. Throws an error if the device hasn't
 been assigned a location.
@@ -341,7 +341,7 @@ sub hardware_product_vendor ($self) {
 =head2 hardware_product_profile
 
 Get the expected hardware product profile for the device under validation. In
-production, the product profile is a C<Conch::Class::HardwareProductProfile> object.
+production, the product profile is a L<Conch::Class::HardwareProductProfile> object.
 
 	my $expected_ram = self->hardware_product_profile->ram_total;
 	my $expected_ssd = self->hardware_product_profile->ssd_num;
@@ -357,8 +357,8 @@ sub hardware_product_profile ($self) {
 
 =head2 register_result
 
-Register a Validation Result in the validation logic. C<register_result> may be
-called as many times as desired in a C<validate> method.
+Register a Validation Result in the validation logic. L</register_result> may be
+called as many times as desired in a L</validate> method.
 
 Instead of calculating whether a result should pass or fail in the validation
 logic, provide an 'expected' value, the 'got' value, and a comparison operator.
@@ -575,7 +575,7 @@ continue validating other parts of the data.
 		unless defined( $data->{required_value} );
 
 The attributes C<name>, C<category>, C<component_id>, and C<hint> may be
-specified like with C<register_result>.
+specified like with L</register_result>.
 
 	$self->fail('I fail!',
 		name => 'some_component_validation',
@@ -621,8 +621,8 @@ sub successes ( $self ) {
 
 Get the list of validation results that have error status (halted execution).
 
-I<NOTE:> Unless C<run> is called multiple times on the same validation object
-without calling C<clear_results> between, there should be at most 1 error
+I<NOTE:> Unless L</run> is called multiple times on the same validation object
+without calling L</clear_results> between, there should be at most 1 error
 validation because execution is halted.
 
 =cut

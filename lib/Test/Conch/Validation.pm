@@ -48,7 +48,7 @@ argument specifying the cases for the test to use.
 The available models are C<hardware_product>, C<device_location>,
 C<device_settings>, and C<device>. Their attributes are defined with a hashref,
 which will be constructed to the correct classes in the body of
-L<test_validation>. For example:
+L</test_validation>. For example:
 
 	test_validation(
 		'Conch::Validation::TestValidation',
@@ -102,7 +102,7 @@ description to test failure messages.
 =item C<debug>
 
 Optional boolean flag to provide additional diagnostic information when running
-the case using L<Test::More::diag>. This is helpful during development of test
+the case using L<Test::More/diag>. This is helpful during development of test
 cases, but should be removed before committing.
 
 =back
