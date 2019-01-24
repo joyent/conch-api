@@ -290,7 +290,7 @@ sub load_validation_plans ($self, $plans) {
     my @plans;
 
     for my $plan_data ($plans->@*) {
-        my $plan = $self->app->db_validation_plans->active->find({ name => $plan_data->{name} });
+        my $plan = $self->app->db_validation_plans->active->search({ name => $plan_data->{name} })->single;
         unless ($plan) {
             $plan = $self->app->db_validation_plans->create({ $plan_data->%{qw(name description)} });
             $self->app->log->info('Created validation plan ' . $plan->name);

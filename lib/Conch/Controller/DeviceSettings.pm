@@ -69,7 +69,7 @@ sub set_single ($c) {
 	# we cannot do device_rs->related_resultset, or ->create loses device_id
 	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
-	my $existing_setting = $settings_rs->active->find({ name => $setting_key });
+	my $existing_setting = $settings_rs->active->search({ name => $setting_key })->single;
 
 	# return early if the setting exists and is not being altered
 	return $c->status(204) if $existing_setting and $existing_setting->value eq $setting_value;

@@ -317,6 +317,7 @@ sub _record_device_configuration {
 						deactivated   => undef,
 						updated       => \'NOW()'
 					},
+					{ key => 'device_disk_serial_number_key' },
 				);
 			}
 

@@ -31,7 +31,7 @@ $t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
-my $conch_user = $t->app->db_user_accounts->find({ name => $t->CONCH_USER });
+my $conch_user = $t->app->db_user_accounts->search({ name => $t->CONCH_USER })->single;
 
 ok($conch_user->last_login >= $now, 'user last_login is updated')
 	or diag('last_login not updated: ' . $conch_user->last_login . ' is not updated to ' . $now);
@@ -220,7 +220,7 @@ subtest 'Workspaces' => sub {
 
 	is(
 		$t->app->db_user_accounts
-			->find({ email => 'test_user@conch.joyent.us' })
+			->search({ email => 'test_user@conch.joyent.us' })
 			->search_related('user_workspace_roles', { workspace_id => $global_ws_id })
 			->count,
 		1,

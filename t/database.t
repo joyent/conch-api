@@ -170,7 +170,7 @@ subtest 'multiple application instances talking to the same db' => sub {
     });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
-    my $new_user_copy = $t2->app->db_user_accounts->find({ name => 'foo' });
+    my $new_user_copy = $t2->app->db_user_accounts->active->search({ name => 'foo' })->single;
     is($new_user->id, $new_user_copy->id, 'can obtain the user from the second test instance');
 };
 

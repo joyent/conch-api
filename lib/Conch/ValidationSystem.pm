@@ -153,10 +153,10 @@ sub load_validations ($self) {
             return;
         }
 
-        if (my $validation_row = $self->schema->resultset('validation')->find({
+        if (my $validation_row = $self->schema->resultset('validation')->search({
                 name => $validator->name,
                 version => $validator->version,
-            })) {
+            })->single) {
             $validation_row->set_columns({
                 description => trim($validator->description),
                 module => $module,

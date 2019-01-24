@@ -32,7 +32,7 @@ sub create ($c) {
     my $input = $c->validate_input('CreateValidationPlan');
     return if not $input;
 
-    if (my $existing_validation_plan = $c->db_validation_plans->active->find({ name => $input->{name} })) {
+    if (my $existing_validation_plan = $c->db_validation_plans->active->search({ name => $input->{name} })->single) {
         $c->log->debug("Name conflict on '$input->{name}'");
         return $c->status(409 => {
             error => "A Validation Plan already exists with the name '$input->{name}'"

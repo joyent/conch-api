@@ -75,10 +75,10 @@ sub device_totals ($c) {
 
 	my $workspace;
 	if ( $workspace_param =~ /^name\=(.*)$/ ) {
-		$workspace = $c->db_workspaces->find({ name => $1 });
+		$workspace = $c->db_workspaces->find({ name => $1 }, { key => 'workspace_name_key' });
 	}
 	elsif ( is_uuid($workspace_param) ) {
-		$workspace = $c->db_workspaces->find({ id => $workspace_param });
+		$workspace = $c->db_workspaces->find($workspace_param);
 	}
 	return $c->reply->not_found unless $workspace;
 
