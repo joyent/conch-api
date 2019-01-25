@@ -139,6 +139,35 @@ __PACKAGE__->table("hardware_product_profile");
   data_type: 'text'
   is_nullable: 1
 
+=head2 psu_total
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 deactivated
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
+=head2 created
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+  original: {default_value => \"now()"}
+
+=head2 updated
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+  original: {default_value => \"now()"}
+
+=head2 usb_num
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =head2 sas_ssd_num
 
   data_type: 'integer'
@@ -173,35 +202,6 @@ __PACKAGE__->table("hardware_product_profile");
 
   data_type: 'integer'
   is_nullable: 1
-
-=head2 psu_total
-
-  data_type: 'integer'
-  is_nullable: 1
-
-=head2 deactivated
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
-
-=head2 created
-
-  data_type: 'timestamp with time zone'
-  default_value: current_timestamp
-  is_nullable: 0
-  original: {default_value => \"now()"}
-
-=head2 updated
-
-  data_type: 'timestamp with time zone'
-  default_value: current_timestamp
-  is_nullable: 0
-  original: {default_value => \"now()"}
-
-=head2 usb_num
-
-  data_type: 'integer'
-  is_nullable: 0
 
 =cut
 
@@ -253,20 +253,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 1 },
   "sata_ssd_slots",
   { data_type => "text", is_nullable => 1 },
-  "sas_ssd_num",
-  { data_type => "integer", is_nullable => 1 },
-  "sas_ssd_size",
-  { data_type => "integer", is_nullable => 1 },
-  "sas_ssd_slots",
-  { data_type => "text", is_nullable => 1 },
-  "nvme_ssd_num",
-  { data_type => "integer", is_nullable => 1 },
-  "nvme_ssd_size",
-  { data_type => "integer", is_nullable => 1 },
-  "nvme_ssd_slots",
-  { data_type => "text", is_nullable => 1 },
-  "raid_lun_num",
-  { data_type => "integer", is_nullable => 1 },
   "psu_total",
   { data_type => "integer", is_nullable => 1 },
   "deactivated",
@@ -287,6 +273,20 @@ __PACKAGE__->add_columns(
   },
   "usb_num",
   { data_type => "integer", is_nullable => 0 },
+  "sas_ssd_num",
+  { data_type => "integer", is_nullable => 1 },
+  "sas_ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "sas_ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "nvme_ssd_num",
+  { data_type => "integer", is_nullable => 1 },
+  "nvme_ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "nvme_ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "raid_lun_num",
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -356,8 +356,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-14 13:17:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Njz2ETrnyHNkqkl6ys4TIw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-25 09:24:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MZkjCfhMJGjoq19YSuppMw
 
 __PACKAGE__->add_columns(
     '+hardware_product_id' => { is_serializable => 0 },

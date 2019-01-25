@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.9
--- Dumped by pg_dump version 9.6.9
+-- Dumped from database version 9.6.11
+-- Dumped by pg_dump version 9.6.11
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -475,18 +475,18 @@ CREATE TABLE public.hardware_product_profile (
     sata_ssd_num integer,
     sata_ssd_size integer,
     sata_ssd_slots text,
+    psu_total integer,
+    deactivated timestamp with time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    usb_num integer NOT NULL,
     sas_ssd_num integer,
     sas_ssd_size integer,
     sas_ssd_slots text,
     nvme_ssd_num integer,
     nvme_ssd_size integer,
     nvme_ssd_slots text,
-    raid_lun_num integer,
-    psu_total integer,
-    deactivated timestamp with time zone,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL,
-    usb_num integer NOT NULL
+    raid_lun_num integer
 );
 
 
