@@ -4,7 +4,7 @@ use Mojo::Base 'Conch::Validation';
 use v5.20;
 
 has 'name'     => 'disk_smart_status';
-has 'version'  => 1;
+has 'version'  => 2;
 has 'category' => 'DISK';
 has 'description' =>
 	q( Validate that all real disks report 'OK' SMART status);

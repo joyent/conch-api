@@ -4,7 +4,7 @@ use Mojo::Base 'Conch::Validation';
 use v5.20;
 
 has 'name'        => 'sas_ssd_num';
-has 'version'     => 1;
+has 'version'     => 2;
 has 'category'    => 'DISK';
 has 'description' => q( Validate expected number of SAS SSDs );
 
