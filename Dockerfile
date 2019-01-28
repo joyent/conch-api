@@ -10,28 +10,33 @@ LABEL org.label-schema.vcs-url "https://github.com/joyent/conch.git"
 # magic dance to get 9.6 for ourselves, since bionic ships 10.
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg2 ca-certificates
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends \
+		build-essential \
+		ca-certificates \
+		carton \
+		git \
+		libssl-dev \
+		libzip-dev \
+		unzip \
+	&& apt-get clean
 
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE 1 
-RUN wget -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends \
+		curl \
+		gnupg2 \
+		software-properties-common \
+	&& apt-get clean
 
-RUN apt-get update \
-&& apt-get upgrade -y --no-install-recommends \
-&& apt-get install -y --no-install-recommends \
-	software-properties-common \
-	build-essential \
-	carton \
-	git \
-	libssl-dev \
-	libzip-dev \
-	unzip \
-&& add-apt-repository "deb https://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" \
-&& apt-get update \
-&& apt-get install -y --no-install-recommends \
-	postgresql-9.6 \
-	postgresql-contrib-9.6 \
-	libpq-dev \
-&& rm -rf /var/lib/apt/lists/*
+RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+RUN add-apt-repository "deb https://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" && \
+	apt-get update && \
+	apt-get install -y --no-install-recommends \
+		postgresql-9.6 \
+		postgresql-contrib-9.6 \
+		libpq-dev \
+	&& apt-get clean
 
 RUN mkdir -p /app/conch
 WORKDIR /app/conch
@@ -44,7 +49,8 @@ ARG VERSION="v0.0.0-dirty"
 LABEL org.label-schema.vcs-ref $VCS_REF
 LABEL org.label-schema.version $VERSION 
 
-RUN make forcebuild
+ENV HARNESS_OPTIONS j6:c
+RUN make forcebuild && rm -r local/cache && rm -r ~/.cpanm
 
 ENV LANG C.UTF-8
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
