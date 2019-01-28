@@ -71,6 +71,24 @@ test_validation(
 			success_num => 1
 		},
 		{
+			description => 'RAID LUN not checked',
+			data        => {
+				disks => {
+					DEADBEEF => {
+						device     => "sda",
+						drive_type => "SAS_SSD",
+						health     => "OK",
+						transport  => "sas",
+					},
+					COFFEE => {
+						device     => "sdb",
+						drive_type => "RAID_LUN",
+					},
+				}
+			},
+			success_num => 1
+		},
+		{
 			description => 'Disk without SMART health attribute',
 			data        => {
 				disks => {

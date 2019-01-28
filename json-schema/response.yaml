@@ -563,15 +563,22 @@ definitions:
       - purpose
       - rack_unit
       - ram_total
-      - sas_num
-      - sas_size
-      - sas_slots
-      - sata_num
-      - sata_size
-      - sata_slots
-      - ssd_num
-      - ssd_size
-      - ssd_slots
+      - sas_hdd_num
+      - sas_hdd_size
+      - sas_hdd_slots
+      - sata_hdd_num
+      - sata_hdd_size
+      - sata_hdd_slots
+      - sata_ssd_num
+      - sata_ssd_size
+      - sata_ssd_slots
+      - sas_ssd_num
+      - sas_ssd_size
+      - sas_ssd_slots
+      - nvme_ssd_num
+      - nvme_ssd_size
+      - nvme_ssd_slots
+      - raid_lun_num
       - usb_num
       - zpool_profile
     properties:
@@ -601,41 +608,69 @@ definitions:
         type: integer
       ram_total:
         type: integer
-      sas_num:
+      sas_hdd_num:
         anyOf:
           - type: integer
           - type: 'null'
-      sas_size:
+      sas_hdd_size:
         anyOf:
           - type: integer
           - type: 'null'
-      sas_slots:
+      sas_hdd_slots:
         anyOf:
           - type: string
           - type: 'null'
-      sata_num:
+      sata_hdd_num:
         anyOf:
           - type: integer
           - type: 'null'
-      sata_size:
+      sata_hdd_size:
         anyOf:
           - type: integer
           - type: 'null'
-      sata_slots:
+      sata_hdd_slots:
         anyOf:
           - type: string
           - type: 'null'
-      ssd_num:
+      sata_ssd_num:
         anyOf:
           - type: integer
           - type: 'null'
-      ssd_size:
+      sata_ssd_size:
         anyOf:
           - type: integer
           - type: 'null'
-      ssd_slots:
+      sata_ssd_slots:
         anyOf:
           - type: string
+          - type: 'null'
+      sas_ssd_num:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sas_ssd_size:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      sas_ssd_slots:
+        anyOf:
+          - type: string
+          - type: 'null'
+      nvme_ssd_num:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      nvme_ssd_size:
+        anyOf:
+          - type: integer
+          - type: 'null'
+      nvme_ssd_slots:
+        anyOf:
+          - type: string
+          - type: 'null'
+      raid_lun_num:
+        anyOf:
+          - type: integer
           - type: 'null'
       usb_num:
         type: integer

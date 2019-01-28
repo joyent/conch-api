@@ -1,12 +1,12 @@
-package Conch::Validation::SasHddNum;
+package Conch::Validation::RaidLunNum;
 
 use Mojo::Base 'Conch::Validation';
 use v5.20;
 
-has 'name'        => 'sas_hdd_num';
+has 'name'        => 'raid_lun_num';
 has 'version'     => 1;
 has 'category'    => 'DISK';
-has 'description' => q( Validate expected number of SAS HDDs );
+has 'description' => q( Validate expected number of RAID LUNs );
 
 sub validate {
 	my ( $self, $data ) = @_;
@@ -16,13 +16,13 @@ sub validate {
 
 	my $hw_profile = $self->hardware_product_profile;
 
-	my $sas_hdd_count =
-		grep { $_->{drive_type} && fc( $_->{drive_type} ) eq fc('SAS_HDD') }
+	my $raid_lun_count =
+		grep { $_->{drive_type} && fc( $_->{drive_type} ) eq fc('RAID_LUN') }
 		( values $data->{disks}->%* );
 
 	$self->register_result(
-		expected => $hw_profile->sas_hdd_num || 0,
-		got      => $sas_hdd_count,
+		expected => $hw_profile->raid_lun_num || 0,
+		got      => $raid_lun_count,
 	);
 
 }

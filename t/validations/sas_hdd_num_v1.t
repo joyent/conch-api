@@ -15,7 +15,7 @@ test_validation(
 			data        => {},
 		},
 		{
-			description => 'No hdd num in profile assume 0',
+			description => 'No sas_hdd_num in profile. Assume 0',
 			data        => {
 				disks => {}
 			},
@@ -28,18 +28,18 @@ test_validation(
 	'Conch::Validation::SasHddNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => { sas_num => 2 }
+		profile => { sas_hdd_num => 2 }
 	},
 	cases => [
 		{
-			description => 'Failure when no SAS disks but sas_num in profile',
+			description => 'Failure when no SAS HDDs and sas_hdd_num in profile',
 			data        => {
 				disks => {}
 			},
 			failure_num => 1
 		},
 		{
-			description => 'success when enough SAS disks',
+			description => 'Success when enough SAS HDDs',
 			data        => {
 				disks => {
 					DISK1 => {
@@ -53,14 +53,14 @@ test_validation(
 			success_num => 1
 		},
 		{
-			description => 'failure when not enough SAS disks',
+			description => 'Failure when not enough SAS HDDs',
 			data        => {
 				disks => {
 					DISK1 => {
 						drive_type => 'SAS_HDD'
 					},
 					BADDISK => {
-						drive_type => 'SATA_HDD'
+						drive_type => 'RAID_LUN'
 					},
 				}
 			},
