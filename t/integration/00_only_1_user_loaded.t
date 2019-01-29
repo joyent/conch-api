@@ -31,7 +31,7 @@ $t->authenticate;
 
 isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
 
-my $conch_user = $t->app->db_user_accounts->find({ name => $t->CONCH_USER });
+my $conch_user = $t->app->db_user_accounts->search({ name => $t->CONCH_USER })->single;
 
 ok($conch_user->last_login >= $now, 'user last_login is updated')
 	or diag('last_login not updated: ' . $conch_user->last_login . ' is not updated to ' . $now);
@@ -220,7 +220,7 @@ subtest 'Workspaces' => sub {
 
 	is(
 		$t->app->db_user_accounts
-			->find({ email => 'test_user@conch.joyent.us' })
+			->search({ email => 'test_user@conch.joyent.us' })
 			->search_related('user_workspace_roles', { workspace_id => $global_ws_id })
 			->count,
 		1,
@@ -472,7 +472,7 @@ subtest 'Sub-Workspace' => sub {
 	is($t->app->db_user_workspace_roles->count, 3,
 		'now there are three user_workspace_role entries');
 
-	# now let's try manipulating permissions on the workspace in the middle of the heirarchy
+	# now let's try manipulating permissions on the workspace in the middle of the hierarchy
 
 	$t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
 			user => 'test_user@conch.joyent.us',
@@ -1035,10 +1035,17 @@ subtest 'modify another user' => sub {
 		$orig_update->(@_);
 	};
 
-	$t->delete_ok(
-		"/user/foobar/password?send_password_reset_mail=0")
+	$t->delete_ok('/user/foobar/password?send_password_reset_mail=0')
+		->status_is(400, 'bad format')
+		->json_is({ error => 'invalid identifier format for foobar' });
+
+	$t->delete_ok('/user/email=foobar/password?send_password_reset_mail=0')
+		->status_is(400, 'bad format')
+		->json_is({ error => 'invalid identifier format for email=foobar' });
+
+	$t->delete_ok('/user/email=foobar@conch.joyent.us/password?send_password_reset_mail=0')
 		->status_is(404, 'attempted to reset the password for a non-existent user')
-		->json_is({ error => "user foobar not found" });
+		->json_is({ error => 'user email=foobar@conch.joyent.us not found' });
 
 	$t->delete_ok(
 		"/user/$new_user_id/password?send_password_reset_mail=0")
@@ -1133,9 +1140,9 @@ subtest 'modify another user' => sub {
 		->status_is(204, 'after user fixes his password, he can use basic auth again');
 
 
-	$t->delete_ok("/user/foobar")
+	$t->delete_ok('/user/email=foobar@joyent.conch.us')
 		->status_is(404, 'attempted to deactivate a non-existent user')
-		->json_is({ error => "user foobar not found" });
+		->json_is({ error => 'user email=foobar@joyent.conch.us not found' });
 
 	$t->delete_ok("/user/$new_user_id")
 		->status_is(204, 'new user is deactivated');

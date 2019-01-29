@@ -73,7 +73,7 @@ sub all_routes (
 
     # GET /schema/:input_or_response/:schema_name
     $root->get( '/schema/:request_or_response/:name' =>
-				[ request_or_response => [qw(request response)] ] )->to('schema#get');
+        [ request_or_response => [qw(request response)] ] )->to('schema#get');
 
     # GET /workspace/:workspace/device-totals
     $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals');

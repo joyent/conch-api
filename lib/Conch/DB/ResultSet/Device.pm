@@ -3,6 +3,7 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
 use Carp ();
 use List::Util 'none';
 
@@ -23,9 +24,7 @@ workspace associated with the specified device(s), including parent workspaces.
 
 =cut
 
-sub user_has_permission {
-    my ($self, $user_id, $permission) = @_;
-
+sub user_has_permission ($self, $user_id, $permission) {
     Carp::croak('permission must be one of: ro, rw, admin')
         if none { $permission eq $_ } qw(ro rw admin);
 
@@ -47,9 +46,7 @@ Restrict results to those that do not have a registered location.
 
 =cut
 
-sub devices_without_location {
-    my $self = shift;
-
+sub devices_without_location ($self) {
     $self->search({
         # all devices in device_location table
         $self->current_source_alias . '.id' => {
@@ -78,8 +75,7 @@ per device! (We probably never need to do the latter. *)
 
 =cut
 
-sub latest_device_report {
-    my $self = shift;
+sub latest_device_report ($self) {
     $self->related_resultset('device_reports')
         ->order_by({ -desc => 'device_reports.created' })
         ->rows(1);

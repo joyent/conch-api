@@ -27,6 +27,7 @@ requires 'Dir::Self';
 requires 'Carp';
 requires 'Crypt::Eksblowfish::Bcrypt';
 requires 'Module::Runtime';
+requires 'Email::Valid';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
@@ -81,6 +82,8 @@ on 'test' => sub {
     requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose
     requires 'Moo';
     requires 'MooX::HandlesVia';
+    local $ENV{PERL_USE_UNSAFE_INC} = 1;
+    recommends 'Test::Spelling';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is

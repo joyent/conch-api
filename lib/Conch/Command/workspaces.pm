@@ -4,7 +4,7 @@ package Conch::Command::workspaces;
 
 =head1 NAME
 
-workspaces - view the workspace heirarchy
+workspaces - view the workspace hierarchy
 
 =head1 SYNOPSIS
 

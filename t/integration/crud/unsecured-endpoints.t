@@ -23,8 +23,9 @@ subtest 'device totals' => sub {
     # TODO: DBIx::Class::EasyFixture can make this nicer across lots of tests.
 
     my $global_ws_id = $t->app->db_workspaces->search({ name => 'GLOBAL' })->get_column('id')->single;
-    my $farce = $t->app->db_hardware_products->hri->find({ alias => 'Farce 10' });
-    my $test_compute = $t->app->db_hardware_products->hri->find({ alias => 'Test Compute' });
+    my $hardware_product_rs = $t->app->db_hardware_products->active->hri;
+    my $farce = $hardware_product_rs->search({ alias => 'Farce 10' })->single;
+    my $test_compute = $hardware_product_rs->search({ alias => 'Test Compute' })->single;
 
     # find a rack
     my $datacenter_rack = $t->app->db_datacenter_racks->search({}, { rows => 1 })->single;
@@ -33,7 +34,8 @@ subtest 'device totals' => sub {
     $datacenter_rack->create_related('workspace_datacenter_racks' => { workspace_id => $global_ws_id });
 
     # create/update some rack layouts
-    $datacenter_rack->update_or_create_related('datacenter_rack_layouts', $_) foreach (
+    $datacenter_rack->update_or_create_related('datacenter_rack_layouts', $_, { key => 'datacenter_rack_layout_rack_id_rack_unit_start_key' })
+    foreach (
         {
             hardware_product_id => $farce->{id},
             rack_unit_start => 1,

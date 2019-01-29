@@ -72,7 +72,7 @@ File name of the report data to validate against. Defaults to STDIN.
 
 =item <-f FILE>
 
-A file containing the schmema to validate against.
+A file containing the schema to validate against.
 
 =item <-h>
 

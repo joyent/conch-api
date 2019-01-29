@@ -4,7 +4,7 @@ package Conch::Command::update_validation_states;
 
 =head1 NAME
 
-update_validation_states - view the workspace heirarchy
+update_validation_states - view the workspace hierarchy
 
 =head1 SYNOPSIS
 

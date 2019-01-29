@@ -31,7 +31,7 @@ sub find_rack_role ($c) {
         }
 
         $c->log->debug("Looking up datacenter rack role using identifier '$key'");
-        $rack_role = $c->db_datacenter_rack_roles->find({ name => $value });
+        $rack_role = $c->db_datacenter_rack_roles->find({ name => $value }, { key => 'datacenter_rack_role_name_key' });
     } else {
         $c->log->debug('looking up datacenter rack role by id');
         $rack_role = $c->db_datacenter_rack_roles->find($c->stash('rack_role_id_or_name'));

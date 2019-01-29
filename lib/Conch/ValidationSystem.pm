@@ -153,10 +153,10 @@ sub load_validations ($self) {
             return;
         }
 
-        if (my $validation_row = $self->schema->resultset('validation')->find({
+        if (my $validation_row = $self->schema->resultset('validation')->search({
                 name => $validator->name,
                 version => $validator->version,
-            })) {
+            })->single) {
             $validation_row->set_columns({
                 description => trim($validator->description),
                 module => $module,
@@ -192,7 +192,7 @@ All provided data objects can and should be read-only (fetched with a ro db hand
 
 If C<< no_save_db => 1 >> is passed, the validation records are returned, without writing them
 to the database.  Otherwise, a validation_state record is created and validation_result records
-saved with de-duplication logic applied.
+saved with deduplication logic applied.
 
 Takes options as a hash:
 

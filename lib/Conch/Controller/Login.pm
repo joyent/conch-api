@@ -73,7 +73,7 @@ Handle the details of authenticating the user, with one of the following options
 existing session for the user
 4. Old 'conch' session cookie
 
-Does not terminate the connection if authentication is sucessful, allowing for chaining to
+Does not terminate the connection if authentication is successful, allowing for chaining to
 subsequent routes and actions.
 
 =cut

@@ -98,10 +98,14 @@ sub _record_exception ($c, $exception, @) {
 
 			custom => {
 				request_id => $c->req->request_id,
-
-				# some of these things are objects, so we just go one level deep for now.
 				stash => +{
-					map { $_ => ($c->stash($_) // '') . '' } keys $c->stash->%*
+					# we only go one level deep for most things, to avoid leaking
+					# potentially secret data.
+					map {
+						my $val = $c->stash($_);
+						$_ => $val eq 'mojo' || !ref $val ? $val : ($val.'');
+					}
+					keys $c->stash->%*,
 				},
 			},
 

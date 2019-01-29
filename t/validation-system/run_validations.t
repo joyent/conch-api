@@ -29,7 +29,7 @@ my $device_report = $device->create_related(device_reports => {
     }),
 });
 
-subtest 'run_valiaation_plan, missing arguments' => sub {
+subtest 'run_validation_plan, missing arguments' => sub {
     my $validation_system = Conch::ValidationSystem->new(
         log => $t->app->log,
         schema => $t->app->ro_schema,

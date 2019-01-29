@@ -3,6 +3,8 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
+
 =head1 NAME
 
 Conch::DB::ResultSet::DeviceLocation
@@ -23,9 +25,7 @@ Atomically assign a device to the provided datacenter rack and rack unit start p
 
 =cut
 
-sub assign_device_location {
-    my ($self, $device_id, $rack_id, $rack_unit_start) = @_;
-
+sub assign_device_location ($self, $device_id, $rack_id, $rack_unit_start) {
     my $schema = $self->result_source->schema;
     my $layout_rs = $schema->resultset('datacenter_rack_layout')->search(
         {
@@ -74,9 +74,7 @@ the DeviceLocation json schema (one hashref per matching device_location).
 
 =cut
 
-sub get_detailed {
-    my $self = shift;
-
+sub get_detailed ($self) {
     my $me = $self->current_source_alias;
     $self->search(
         {

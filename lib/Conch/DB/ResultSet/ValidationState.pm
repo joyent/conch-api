@@ -3,6 +3,8 @@ use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
 
+use experimental 'signatures';
+
 =head1 NAME
 
 Conch::DB::ResultSet::ValidationState
@@ -24,9 +26,7 @@ method.
 
 =cut
 
-sub latest_completed_state_per_plan {
-    my $self = shift;
-
+sub latest_completed_state_per_plan ($self) {
     my $me = $self->current_source_alias;
     $self->search(
         { "$me.completed" => { '!=' => undef } },

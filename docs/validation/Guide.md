@@ -272,7 +272,7 @@ details for the device under validation
   the expected hardware product for the device
 * `$self->hardware_product_name`: a string of the hardware product name of the
   expected hardware product for the device
-* `$self->hardware_product_profile`: the `Conch::Class:HardareProductProfile`
+* `$self->hardware_product_profile`: the `Conch::Class::HardwareProductProfile`
   object representing the hardware product profile of the expected hardware
   product for the device
 

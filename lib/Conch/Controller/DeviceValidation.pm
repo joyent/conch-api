@@ -49,7 +49,7 @@ sub list_validation_states ($c) {
 
 =head2 validate
 
-Validate the device gainst the specified validation.
+Validate the device against the specified validation.
 
 B<DOES NOT STORE VALIDATION RESULTS>.
 
@@ -88,7 +88,7 @@ sub validate ($c) {
 
 =head2 run_validation_plan
 
-Validate the device gainst the specified Validation Plan.
+Validate the device against the specified Validation Plan.
 
 B<DOES NOT STORE VALIDATION RESULTS>.
 
