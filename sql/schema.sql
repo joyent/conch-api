@@ -410,24 +410,6 @@ CREATE TABLE public.device_setting (
 ALTER TABLE public.device_setting OWNER TO conch;
 
 --
--- Name: device_spec; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_spec (
-    device_id text NOT NULL,
-    bios_firmware text NOT NULL,
-    hba_firmware text,
-    cpu_num integer NOT NULL,
-    cpu_type text NOT NULL,
-    nics_num integer NOT NULL,
-    dimms_num integer NOT NULL,
-    ram_total integer NOT NULL
-);
-
-
-ALTER TABLE public.device_spec OWNER TO conch;
-
---
 -- Name: hardware_product; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -953,14 +935,6 @@ ALTER TABLE ONLY public.device_report
 
 ALTER TABLE ONLY public.device_setting
     ADD CONSTRAINT device_setting_pkey PRIMARY KEY (id);
-
-
---
--- Name: device_spec device_specs_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_spec
-    ADD CONSTRAINT device_specs_pkey PRIMARY KEY (device_id);
 
 
 --
@@ -1718,14 +1692,6 @@ ALTER TABLE ONLY public.device_report
 
 ALTER TABLE ONLY public.device_setting
     ADD CONSTRAINT device_setting_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
-
-
---
--- Name: device_spec device_specs_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_spec
-    ADD CONSTRAINT device_specs_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
 
 
 --
