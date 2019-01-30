@@ -649,11 +649,6 @@ subtest 'Sub-Workspace' => sub {
 		->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'user gets the same list of users who can access grandchild ws');
 };
 
-# XXX temporary, because Conch::Pg is awful...
-# $untrusted->DESTROY tore down the Conch::Pg singleton, so reconnect it now with the uri from
-# $t so remaining calls through Conch::Model::* still work.
-Conch::Pg->new($t->pg->uri);
-
 subtest 'Workspace Rooms' => sub {
 	$t->get_ok("/workspace/$global_ws_id/room")
 		->status_is(200)

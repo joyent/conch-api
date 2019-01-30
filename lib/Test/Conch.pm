@@ -125,11 +125,6 @@ sub new {
 }
 
 sub DESTROY ($self) {
-
-    # ensure that a new Test::Conch instance creates a brand new Mojo::Pg connection (with a
-    # possibly-different dsn) rather than using the old one to a now-dead postgres instance
-    Conch::Pg->DESTROY;
-
     # explicitly disconnect before terminating the server, to avoid exceptions like:
     # "DBI Exception: DBD::Pg::st DESTROY failed: FATAL:  terminating connection due to administrator command"
     do { $_->disconnect if $_->connected }
