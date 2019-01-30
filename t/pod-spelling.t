@@ -61,6 +61,7 @@ schemas
 sku
 subref
 subselect
+subtest
 subworkspace
 timestamptz
 validator

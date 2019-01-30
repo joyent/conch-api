@@ -35,9 +35,12 @@ sub set_all ($c) {
 	my $perm_needed =
 		@non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 
-	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-		$c->log->debug("failed permission check (required $perm_needed)");
-		return $c->status(403, { error => 'insufficient permissions' });
+	# 'rw' already checked by find_device
+	if ($perm_needed eq 'admin') {
+		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+			$c->log->debug("failed permission check (required $perm_needed)");
+			return $c->status(403, { error => 'insufficient permissions' });
+		}
 	}
 
 	# deactivate existing settings with the same keys
@@ -76,9 +79,13 @@ sub set_single ($c) {
 
 	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
 	my $perm_needed = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
-	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-		$c->log->debug("failed permission check (required $perm_needed)");
-		return $c->status(403, { error => 'insufficient permissions' });
+
+	# 'rw' already checked by find_device
+	if ($perm_needed eq 'admin') {
+		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+			$c->log->debug("failed permission check (required $perm_needed)");
+			return $c->status(403, { error => 'insufficient permissions' });
+		}
 	}
 
 	$existing_setting->update({ deactivated => \'NOW()' }) if $existing_setting;
@@ -135,9 +142,12 @@ sub delete_single ($c) {
 
 	my $perm_needed = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
-	if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-		$c->log->debug("failed permission check (required $perm_needed)");
-		return $c->status(403, { error => 'insufficient permissions' });
+	# 'rw' already checked by find_device
+	if ($perm_needed eq 'admin') {
+		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
+			$c->log->debug("failed permission check (required $perm_needed)");
+			return $c->status(403, { error => 'insufficient permissions' });
+		}
 	}
 
 	unless (

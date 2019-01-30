@@ -27,63 +27,59 @@ sub find_device ($c) {
 	my $device_id = $c->stash('device_id');
 	$c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
 
-	# check if the device even exists, and then we can skip the rest of the rigamarole.
-	if (not $c->db_devices->search({ id => $device_id })->exists) {
-		$c->log->debug("Failed to find device $device_id");
-		return $c->status(404, { error => "Device '$device_id' not found" });
-	}
+    # fetch for device existence and location in one query
+    my $device_check = $c->db_devices
+        ->search(
+            { id => $device_id },
+            {
+                join => 'device_location',
+                select => [
+                    { '' => \1, -as => 'exists' },
+                    { '' => \'device_location.rack_id is not null', -as => 'has_location' },
+                ],
+            },
+        )
+        ->active
+        ->hri
+        ->single;
 
-	my $direct_workspace_ids_rs = $c->stash('user')
-		->related_resultset('user_workspace_roles')
-		->distinct
-		->get_column('workspace_id');
+    # if the device doesn't exist, we can bail out right now
+    if (not $device_check->{exists}) {
+        $c->log->debug("Failed to find device $device_id");
+        return $c->status(404, { error => 'Not found' });
+    }
 
-	# first, look for the device in all the user's workspaces
-	$c->log->debug("looking for device $device_id in user's workspaces");
-	my $user_workspace_device_rs = $c->db_workspaces
-		->and_workspaces_beneath($direct_workspace_ids_rs)
-		->associated_racks
-		->related_resultset('device_locations')
-		->related_resultset('device')
-		->active;
+    if ($device_check->{has_location}) {
+        # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
+        my $method = $c->req->method;
+        my $requires_permission =
+            (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+          : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
+          : die "need handling for $method method";
 
-	my $device_rs = $c->db_devices->search(
-		{
-			-and => [
-				'device.id' => $device_id,
-				'device.id' => { -in => $user_workspace_device_rs->get_column('id')->as_query },
-			],
-		},
-	);
+        if (not $c->db_devices->search({ 'device.id' => $device_id })
+                ->user_has_permission($c->stash('user_id'), $requires_permission)) {
+            $c->log->debug('User lacks permission to access device '.$device_id);
+            return $c->status(403, { error => 'Forbidden' });
+        }
+    }
+    else {
+        # look for unlocated devices among those that have sent a device report proxied by a
+        # relay using the user's credentials
+        $c->log->debug("looking for device $device_id associated with relay reports");
 
-	if (not $device_rs->exists) {
-		# next, look for the device in those that have sent a device report proxied by a relay
-		# using the user's credentials, that also do not have a registered location.
-		$c->log->debug("looking for device $device_id associated with relay reports");
-		my $relay_report_device_rs = $c->db_user_accounts
-			->search({ 'user_account.id' => $c->stash('user_id') })
-			->related_resultset('user_relay_connections')
-			->related_resultset('relay')
-			->related_resultset('device_relay_connections')
-			->related_resultset('device')
-			# FIXME: doesn't check ->active?
-			->devices_without_location;
+        my $device_rs = $c->db_devices
+            ->search({ 'device.id' => $device_id })
+            ->related_resultset('device_relay_connections')
+            ->related_resultset('relay')
+            ->related_resultset('user_relay_connections')
+            ->search({ 'user_relay_connections.user_id' => $c->stash('user_id') });
 
-		$device_rs = $c->db_devices->search(
-			{
-				-and => [
-					'device.id' => $device_id,
-					'device.id' => { -in => $relay_report_device_rs->get_column('id')->as_query },
-				],
-			},
-		);
-
-		# still not found? give up!
-		if (not $device_rs->exists) {
-			$c->log->debug("Failed to find device $device_id");
-			return $c->status(404, { error => "Device '$device_id' not found" });
-		}
-	}
+        if (not $device_rs->exists) {
+            $c->log->debug('User lacks permission to access device '.$device_id);
+            return $c->status(403, { error => 'Forbidden' });
+        }
+    }
 
 	$c->log->debug('Found device ' . $device_id);
 
@@ -120,16 +116,17 @@ sub get ($c) {
 
 	my $detailed_device = +{
 		$device->TO_JSON->%*,
-		latest_report_is_invalid => \($latest_report->invalid_report ? 1 : 0),
-		latest_report => $latest_report->report ? from_json($latest_report->report) : undef,
+		latest_report_is_invalid => \($latest_report && $latest_report->invalid_report ? 1 : 0),
+		latest_report => $latest_report && $latest_report->report ? from_json($latest_report->report) : undef,
 		# if not null, this is text - maybe json-encoded, maybe random junk
-		invalid_report => $latest_report->invalid_report,
+		invalid_report => $latest_report ? $latest_report->invalid_report : undef,
 		nics => [ map {
 			my $device_nic = $_;
+			my $device_neighbor = $device_nic->device_neighbor;
 			$device_nic->deactivated ? () :
 			+{
-				(map { $_ => $device_nic->$_ } qw(iface_name iface_type iface_vendor)),
-				(map { $_ => $device_nic->device_neighbor->$_ } qw(mac peer_mac peer_port peer_switch)),
+				(map { $_ => $device_nic->$_ } qw(mac iface_name iface_type iface_vendor)),
+				(map { $_ => $device_neighbor && $device_neighbor->$_ } qw(peer_mac peer_port peer_switch)),
 			}
 		} $device->device_nics ],
 		location => $location,
@@ -160,6 +157,9 @@ sub lookup_by_other_attribute ($c) {
 	return $c->status(400, { error =>
 			'ambiguous query: specified multiple keys (' . join(', ', keys %$params) . ')'
 		}) if keys %$params > 1;
+
+    # TODO: not checking if the user has permissions to view this device.
+    # need to get workspace(s) containing each device and filter them out.
 
 	my ($key) = keys %$params;
 	my $value = $params->{$key};

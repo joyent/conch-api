@@ -388,6 +388,23 @@ sub authenticate ($self, %args) {
     return $self;
 }
 
+=head2 txn_local
+
+Given a subref, execute the code inside a transaction that is rolled back at the end. Useful
+for testing with mutated data that should not affect other tests.  The subref is called as a
+subtest and is invoked with the test object as well as any additional provided arguments.
+
+=cut
+
+sub txn_local ($self, $test_name, $subref, @args) {
+    $self->app->schema->txn_begin;
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    Test::More::subtest($test_name => $subref, $self, @args);
+
+    $self->app->schema->txn_rollback;
+}
+
 1;
 __END__
 
