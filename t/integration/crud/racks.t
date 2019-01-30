@@ -97,7 +97,7 @@ $t->get_ok("/rack/$new_rack_id/assignment")
 $t->delete_ok('/rack/'.$rack->id)
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'cannot delete a datacenter_rack when a detacenter_rack_layout is referencing it' });
+    ->json_is({ error => 'cannot delete a datacenter_rack when a datacenter_rack_layout is referencing it' });
 
 $t->delete_ok("/rack/$new_rack_id")
     ->status_is(204);

@@ -151,7 +151,7 @@ Delete a rack role.
 sub delete ($c) {
     if ($c->stash('rack_role')->related_resultset('datacenter_racks')->exists) {
         $c->log->debug('Cannot delete rack_role: in use by one or more datacenter_racks');
-        return $c->status(400 => { error => 'cannot delete a datacenter_rack_role when a detacenter_rack is referencing it' });
+        return $c->status(400 => { error => 'cannot delete a datacenter_rack_role when a datacenter_rack is referencing it' });
     }
 
     $c->stash('rack_role')->delete;

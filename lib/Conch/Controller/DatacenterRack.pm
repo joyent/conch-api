@@ -185,7 +185,7 @@ Delete a rack.
 sub delete ($c) {
     if ($c->stash('rack_rs')->related_resultset('datacenter_rack_layouts')->exists) {
         $c->log->debug('Cannot delete datacenter_rack: in use by one or more datacenter_rack_layouts');
-        return $c->status(400 => { error => 'cannot delete a datacenter_rack when a detacenter_rack_layout is referencing it' });
+        return $c->status(400 => { error => 'cannot delete a datacenter_rack when a datacenter_rack_layout is referencing it' });
     }
 
     $c->stash('rack_rs')->delete;

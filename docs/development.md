@@ -51,7 +51,7 @@ optimizations for the API can largely be determined in-house.
   summarizing the changes. 
 
 * The code stays in staging for a few days to a week, depending on the
-  number of changes and the team's comfortability. 
+  number of changes and the team's comfort level.
 
 * Any bug fixes are applied both to `master` and the `release/v2.45`
   branch. They are then tagged as a minor version like `v2.45.1` and
