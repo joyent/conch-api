@@ -318,21 +318,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_spec
-
-Type: might_have
-
-Related object: L<Conch::DB::Result::DeviceSpec>
-
-=cut
-
-__PACKAGE__->might_have(
-  "device_spec",
-  "Conch::DB::Result::DeviceSpec",
-  { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 hardware_product
 
 Type: belongs_to
@@ -379,8 +364,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-13 12:17:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vqXXz4bbkzaVpjiS2TPw+A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-29 13:29:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0fLI75MeNdnjtpFpB+FSIg
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

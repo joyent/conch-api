@@ -258,20 +258,6 @@ sub _record_device_configuration {
 				$nics_num = scalar( keys %{ $dr->{interfaces} } );
 			}
 
-			my $device_specs = $device->related_resultset('device_spec')->update_or_create(
-				{
-					bios_firmware       => $dr->{bios_version},
-					cpu_num             => $dr->{processor}->{count},
-					cpu_type            => $dr->{processor}->{type},
-					nics_num            => $nics_num,
-					dimms_num           => $dr->{memory}->{count},
-					ram_total           => $dr->{memory}->{total},
-					# TODO: not setting hba_firmware
-				}
-			);
-
-			$log->info("Created Device Spec for Device ".$device->id);
-
 			if ($dr->{temp}) {
 				$device->related_resultset('device_environment')->update_or_create({
 					cpu0_temp    => $dr->{temp}->{cpu0},
