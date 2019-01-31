@@ -17,6 +17,8 @@
         dsn => 'dbi:Pg:dbname=conch;host=localhost',
         username => 'conch',
         password => 'conch',
+        # ro_username, ro_password are used for ro connection when available.
+
         options => {
             'client_encoding' => 'UTF-8',
         },

@@ -33,6 +33,12 @@ sub register ($self, $app, $config) {
         die $message;
     }
 
+    my ($ro_username, $ro_password) = $database_config->@{qw(ro_username ro_password)};
+    if (not $ro_username or not $ro_password) {
+        $app->log->info('read-only database credentials not provided; falling back to main credentials');
+        ($ro_username, $ro_password) = ($username, $password);
+    }
+
     my $options = {
         AutoCommit          => 1,
         AutoInactiveDestroy => 1,
@@ -95,7 +101,7 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
         # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
         local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
         $_ro_schema = Conch::DB->connect(
-            $dsn, $username, $password,
+            $dsn, $ro_username, $ro_password,
             +{
                 $options->%*,
                 ReadOnly    => 1,
