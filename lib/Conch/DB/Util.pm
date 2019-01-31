@@ -5,7 +5,9 @@ use warnings;
 use experimental 'signatures';
 
 use Path::Tiny;
-use List::Util 'maxstr';
+use List::Util qw(maxstr uniqnum);
+use Mojo::Log;
+use Conch::ValidationSystem;
 
 =pod
 
@@ -17,9 +19,8 @@ Conch::DB:::Util - utility functions for working with the Conch database
 
 =head2 get_credentials
 
-Given a database configuration hashref (such as that extracted from F<conch.conf> at the
-appropriate hash key), return the credentials and connection options suitable for passing to
-L<Conch::DB> for both read-write and read-only connections.
+Return the credentials and connection options suitable for passing to L<Conch::DB> for both
+read-write and read-only connections, containing keys:
 
 returns a hashref containing keys:
 
@@ -37,25 +38,17 @@ Overrides are accepted from the following environment variables:
     POSTGRES_USER
     POSTGRES_PASSWORD
 
+If not all credentials can be determined from environment variables, the C<$config> is read
+from. It should be a database configuration hashref (such as that extracted from F<conch.conf>
+at the appropriate hash key), or a subref that returns the hashref.
+
 =cut
 
 sub get_credentials ($config, $log = Mojo::Log->new) {
-    my ($dsn, $username, $password) = $config->@{qw(dsn username password)};
 
-    if (not $dsn) {
-        my $message = 'Your conch.conf is out of date. Please update it following the format in conch.conf.dist';
-        $log->fatal($message);
-        die $message;
-    }
+    # look for overrides from the environment first
 
-    my ($ro_username, $ro_password) = $config->@{qw(ro_username ro_password)};
-    if (not $ro_username) {
-        $log->info('read-only database credentials not provided; falling back to main credentials');
-        ($ro_username, $ro_password) = ($username, $password);
-    }
-
-    # allow overrides from the environment
-
+    my $dsn;
     if ($ENV{POSTGRES_DB} or $ENV{POSTGRES_HOST}) {
         # dsn is as defined in https://metacpan.org/pod/DBI#connect
         # and https://metacpan.org/pod/DBD::Pg#connect:
@@ -65,19 +58,45 @@ sub get_credentials ($config, $log = Mojo::Log->new) {
         $dsn = 'dbi:Pg:dbname='.$db.';host='.$host;
     }
 
-    $username = $ENV{POSTGRES_USER} // $username;
-    $password = $ENV{POSTGRES_PASSWORD} // $password;
-    $ro_username = $ENV{POSTGRES_USER} // $ro_username;
-    $ro_password = $ENV{POSTGRES_PASSWORD} // $ro_password;
-
+    my $username = $ENV{POSTGRES_USER};
+    my $password = $ENV{POSTGRES_PASSWORD};
     my $options = {
         AutoCommit          => 1,
         AutoInactiveDestroy => 1,
         PrintError          => 0,
         PrintWarn           => 0,
         RaiseError          => 1,
-        ($config->{options} // {})->%*,
     };
+
+    my ($ro_username, $ro_password);
+
+    # fall back to config hash if needed (password is permitted to be undef)
+
+    if (not $dsn or not $username) {
+        $config = $config->() if ref $config eq 'CODE';
+
+        if (not $config->{dsn}) {
+            my $message = 'Your conch.conf is out of date. Please update it following the format in conch.conf.dist';
+            $log->fatal($message);
+            die $message;
+        }
+
+        $dsn //= $config->{dsn};
+        $username //= $config->{username};
+        $password //= $config->{password};
+
+        ($ro_username, $ro_password) = $config->@{qw(ro_username ro_password)};
+
+        $options = {
+            $options->%*,
+            ($config->{options} // {})->%*,
+        };
+    }
+
+    if (not defined $ro_username) {
+        $log->info('read-only database credentials not provided; falling back to main credentials');
+        ($ro_username, $ro_password) = ($username, $password);
+    }
 
     return +{
         dsn => $dsn,
@@ -135,10 +154,87 @@ sub initialize_db ($schema) {
         say STDERR 'loading sql/schema.sql' if $debug;
         $dbh->do(path('sql/schema.sql')->slurp_utf8) or die 'SQL load failed in sql/schema.sql';
         $dbh->$do('RESET search_path');  # go back to "$user", public
-
-        state $migration = maxstr(map m{^sql/migrations/(\d+)-}g, glob('sql/migrations/*.sql'));
-        $dbh->$do('insert into migration (id) values (?)', {}, $migration);
     });
+
+    $schema->resultset('migration')->populate([
+        map +{ id => $_ },
+            uniqnum map m{^sql/migrations/(\d+)-}g, glob('sql/migrations/*.sql')
+    ]);
+}
+
+=head2 migrate_db
+
+Bring the Conch database up to the latest migration.
+
+=cut
+
+sub migrate_db ($schema, $log = Mojo::Log->new) {
+    my $m = $schema->resultset('migration')->get_column('id')->all;
+    my %already_run; @already_run{@$m} = (1) x @$m;
+
+    $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
+        foreach my $file (sort (path('sql/migrations')->children(qr/\.sql$/))) {
+            my ($num) = $file->basename =~ m/^(\d+)-/;
+            next if $already_run{$num} or $already_run{0+$num};
+
+            $log->info('executing '.$file.'...');
+            $dbh->do($file->slurp_utf8) or die "SQL load failed in $file";
+        }
+    });
+}
+
+=head2 create_validation_plans
+
+Sets up the static validation plans currently in use by Conch.
+
+=cut
+
+sub create_validation_plans ($schema, $log = Mojo::Log->new) {
+    # create validation records from modules on disk
+    Conch::ValidationSystem->new(
+        schema => $schema,
+        log => $log,
+    )->load_validations;
+
+    # create plans with stock validations
+    $schema->resultset('validation_plan')->create($_) foreach (
+        {
+            name => 'Conch v1 Legacy Plan: Server',
+            description => 'Validation plan containing all validations run in Conch v1 on servers',
+            validation_plan_members => [
+                map +{ validation => { module => $_, deactivated => undef } },
+                    qw(
+                        Conch::Validation::CpuCount
+                        Conch::Validation::CpuTemperature
+                        Conch::Validation::DimmCount
+                        Conch::Validation::DiskSmartStatus
+                        Conch::Validation::DiskTemperature
+                        Conch::Validation::FirmwareCurrent
+                        Conch::Validation::LinksUp
+                        Conch::Validation::NicsNum
+                        Conch::Validation::DeviceProductName
+                        Conch::Validation::RamTotal
+                        Conch::Validation::SasHddNum
+                        Conch::Validation::SasSsdNum
+                        Conch::Validation::SlogSlot
+                        Conch::Validation::SwitchPeers
+                        Conch::Validation::UsbHddNum
+                    )
+            ],
+        },
+        {
+            name => 'Conch v1 Legacy Plan: Switch',
+            description => 'Validation plan containing all validations run in Conch v1 on switches',
+            validation_plan_members => [
+                map +{ validation => { module => $_, deactivated => undef } },
+                    qw(
+                        Conch::Validation::BiosFirmwareVersion
+                        Conch::Validation::CpuTemperature
+                        Conch::Validation::DeviceProductName
+                    )
+            ],
+        },
+    );
 }
 
 1;
