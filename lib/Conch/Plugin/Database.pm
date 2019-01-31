@@ -6,6 +6,7 @@ use Conch::DB ();
 use Lingua::EN::Inflexion 'noun';
 use Try::Tiny;
 use List::Util 'maxstr';
+use Conch::DB::Util;
 
 =pod
 
@@ -23,35 +24,8 @@ Sets up the database and provides convenient accessors to it.
 
 sub register ($self, $app, $config) {
 
-    my $database_config = $config->{database};
-    my ($dsn, $username, $password) = $database_config->@{qw(dsn username password)};
-
-    if (not $dsn) {
-        my $message = 'Your conch.conf is out of date. Please update it following the format in conch.conf.dist';
-        $app->log->fatal($message);
-        die $message;
-    }
-
-    my ($ro_username, $ro_password) = $database_config->@{qw(ro_username ro_password)};
-    if (not $ro_username or not $ro_password) {
-        $app->log->info('read-only database credentials not provided; falling back to main credentials');
-        ($ro_username, $ro_password) = ($username, $password);
-    }
-
-    # allow overrides from the environment
-    $username = $ENV{POSTGRES_USER} // $username;
-    $password = $ENV{POSTGRES_PASSWORD} // $password;
-    $ro_username = $ENV{POSTGRES_USER} // $ro_username;
-    $ro_password = $ENV{POSTGRES_PASSWORD} // $ro_password;
-
-    my $options = {
-        AutoCommit          => 1,
-        AutoInactiveDestroy => 1,
-        PrintError          => 0,
-        PrintWarn           => 0,
-        RaiseError          => 1,
-        ($database_config->{options} // {})->%*,
-    };
+    # hashref containing dsn, username, password, options, ro_username, ro_password
+    my $db_credentials = Conch::DB::Util::get_credentials($config->{database}, $app->log);
 
 
 =head2 schema
@@ -65,7 +39,7 @@ that persists for the lifetime of the application.
     $app->helper(schema => sub {
         return $_rw_schema if $_rw_schema;
         $_rw_schema = Conch::DB->connect(
-            $dsn, $username, $password, $options,
+            $db_credentials->@{qw(dsn username password options)},
         );
     });
 
@@ -103,9 +77,9 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
         # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
         local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
         $_ro_schema = Conch::DB->connect(
-            $dsn, $ro_username, $ro_password,
+            $db_credentials->@{qw(dsn ro_username ro_password)},
             +{
-                $options->%*,
+                $db_credentials->{options}->%*,
                 ReadOnly    => 1,
                 AutoCommit  => 0,
             },
@@ -169,29 +143,23 @@ line of the exception.
 
 
     # verify that we are running the version of postgres we expect...
-    my $pgsql_version = $app->schema->storage->dbh_do(sub ($storage, $dbh) {
-        my ($v) = $dbh->selectrow_array('select version()');
-        return $v;
-    });
-
+    my $pgsql_version = Conch::DB::Util::get_postgres_version($app->schema);
+    $app->log->info("Running $pgsql_version");
 
     # at present we do all testing on 9.6 so that is the most preferred configuration, but we
     # are not aware of any issues on PostgreSQL 10.x.
-    $app->log->info("Running $pgsql_version");
     my ($major, $minor) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)\.?/;
     $minor //= 0;
-    $app->log->warn("Running $pgsql_version, expected at least 9.6!") if "$major.$minor" < 9.6;
+    $app->log->warn("Running $major.$minor, expected at least 9.6!") if "$major.$minor" < 9.6;
 
 
-    my $latest_migration = $app->schema->storage->dbh_do(sub ($storage, $dbh) {
-        my ($m) = $dbh->selectrow_array('select max(id) from migration');
-        return $m // 0;
-    });
-    my $expected_latest_migration = maxstr(map { m{^sql/migrations/(\d+)-}g } glob('sql/migrations/*.sql'));
-
+    my ($latest_migration, $expected_latest_migration) = Conch::DB::Util::get_migration_level($app->schema);
     $app->log->debug("Latest database migration number: $latest_migration");
-    $app->log->fatal("Latest migration that has been run is $latest_migration, but latest on disk is $expected_latest_migration!") and die
-        if $latest_migration != $expected_latest_migration;
+    if ($latest_migration != $expected_latest_migration) {
+        my $message = "Latest migration that has been run is $latest_migration, but latest on disk is $expected_latest_migration!";
+        $app->log->fatal($message);
+        die $message;
+    }
 }
 
 1;

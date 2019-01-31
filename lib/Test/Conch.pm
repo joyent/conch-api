@@ -13,6 +13,7 @@ use Test::Deep ();
 use Mojo::Util 'trim';
 use Module::Runtime 'require_module';
 use List::Util 'maxstr';
+use Conch::DB::Util;
 
 =pod
 
@@ -134,6 +135,7 @@ sub DESTROY ($self) {
 =head2 init_db
 
 Sets up the database for testing, using the final schema rather than running migrations.
+Mirrors functionality in L<Conch::DB::Util/initialize_db>.
 No data is added -- you must load all desired fixtures.
 
 Note that the Test::PostgreSQL object must stay in scope for the duration of your tests.
@@ -158,16 +160,7 @@ sub init_db ($class) {
     );
 
     Test::More::note('initializing database with sql/schema.sql...');
-
-    $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
-        $dbh->do('CREATE ROLE conch LOGIN');
-        $dbh->do('CREATE DATABASE conch OWNER conch');
-        $dbh->do(path('sql/schema.sql')->slurp_utf8) or BAIL_OUT('SQL load failed in sql/schema.sql');
-        $dbh->do('RESET search_path');  # go back to "$user", public
-
-        state $migration = maxstr(map { m{^sql/migrations/(\d+)-}g } glob('sql/migrations/*.sql'));
-        $dbh->do('insert into migration (id) values (?)', {}, $migration);
-    });
+    Conch::DB::Util::initialize_db($schema);
 
     return wantarray ? ($pgsql, $schema) : $pgsql;
 }
