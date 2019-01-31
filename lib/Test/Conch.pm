@@ -182,21 +182,17 @@ Returns a read-only connection to a Test::PostgreSQL instance.
 =cut
 
 sub ro_schema ($class, $pgsql) {
+    # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
+    local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
     Conch::DB->connect(
-        # we wrap up the DBI connection attributes in a subref so
-        # DBIx::Class doesn't warn about AutoCommit => 0 being a bad idea.
-        sub {
-            DBI->connect(
-                $pgsql->dsn, $pgsql->dbowner, undef,
-                {
-                    AutoCommit          => 0,
-                    AutoInactiveDestroy => 1,
-                    PrintError          => 0,
-                    PrintWarn           => 0,
-                    RaiseError          => 1,
-                    ReadOnly            => 1,
-                },
-            );
+        $pgsql->dsn, $pgsql->dbowner, undef,
+        +{
+            AutoCommit          => 0,
+            AutoInactiveDestroy => 1,
+            PrintError          => 0,
+            PrintWarn           => 0,
+            RaiseError          => 1,
+            ReadOnly            => 1,
         },
     );
 }

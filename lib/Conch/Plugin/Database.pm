@@ -78,18 +78,14 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 =cut
 
     $app->helper(ro_schema => sub {
+        # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
+        local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
         state $_ro_schema = Conch::DB->connect(
-            # we wrap up the DBI connection attributes in a subref so
-            # DBIx::Class doesn't warn about AutoCommit => 0 being a bad idea.
-            sub {
-                DBI->connect(
-                    $dsn, $username, $password,
-                    {
-                        $options->%*,
-                        ReadOnly        => 1,
-                        AutoCommit      => 0,
-                    },
-                );
+            $dsn, $username, $password,
+            +{
+                $options->%*,
+                ReadOnly    => 1,
+                AutoCommit  => 0,
             },
         );
     });
