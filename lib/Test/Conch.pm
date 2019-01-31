@@ -162,7 +162,7 @@ sub init_db ($class) {
     $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
         $dbh->do('CREATE ROLE conch LOGIN');
         $dbh->do('CREATE DATABASE conch OWNER conch');
-        $dbh->do(path('sql/schema.sql')->slurp_utf8) or BAIL_OUT("Test SQL load failed in $_");
+        $dbh->do(path('sql/schema.sql')->slurp_utf8) or BAIL_OUT('SQL load failed in sql/schema.sql');
         $dbh->do('RESET search_path');  # go back to "$user", public
 
         state $migration = maxstr(map { m{^sql/migrations/(\d+)-}g } glob('sql/migrations/*.sql'));
