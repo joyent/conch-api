@@ -53,8 +53,10 @@ that persists for the lifetime of the application.
 
 =cut
 
+    my $_rw_schema;
     $app->helper(schema => sub {
-        state $_rw_schema = Conch::DB->connect(
+        return $_rw_schema if $_rw_schema;
+        $_rw_schema = Conch::DB->connect(
             $dsn, $username, $password, $options,
         );
     });
@@ -77,10 +79,12 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 
 =cut
 
+    my $_ro_schema;
     $app->helper(ro_schema => sub {
+        return $_ro_schema if $_ro_schema;
         # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
         local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
-        state $_ro_schema = Conch::DB->connect(
+        $_ro_schema = Conch::DB->connect(
             $dsn, $username, $password,
             +{
                 $options->%*,
