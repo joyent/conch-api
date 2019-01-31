@@ -39,6 +39,12 @@ sub register ($self, $app, $config) {
         ($ro_username, $ro_password) = ($username, $password);
     }
 
+    # allow overrides from the environment
+    $username = $ENV{POSTGRES_USER} // $username;
+    $password = $ENV{POSTGRES_PASSWORD} // $password;
+    $ro_username = $ENV{POSTGRES_USER} // $ro_username;
+    $ro_password = $ENV{POSTGRES_PASSWORD} // $ro_password;
+
     my $options = {
         AutoCommit          => 1,
         AutoInactiveDestroy => 1,
@@ -49,7 +55,12 @@ sub register ($self, $app, $config) {
     };
 
     # Conch::Pg = legacy database access; will be removed soon.
-    Conch::Pg->new({ $database_config->%{qw(dsn username password)}, options => $options });
+    Conch::Pg->new({
+        $database_config->%{qw(dsn username password)},
+        $ENV{POSTGRES_USER} ? ( username => $ENV{POSTGRES_USER} ) : (),
+        $ENV{POSTGRES_PASSWORD} ? ( password => $ENV{POSTGRES_PASSWORD} ) : (),
+        options => $options,
+    });
 
 
 =head2 schema
