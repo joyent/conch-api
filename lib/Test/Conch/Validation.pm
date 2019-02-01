@@ -10,6 +10,7 @@ use Conch::Class::DatacenterRack;
 use Conch::Class::DeviceLocation;
 use Conch::Class::HardwareProduct;
 use Conch::Class::HardwareProductProfile;
+use Test::Warnings 'had_no_warnings';
 
 use Exporter 'import';
 our @EXPORT_OK = qw( test_validation );
@@ -198,6 +199,8 @@ sub test_validation {
 			join(': ', "Case $case_index", $case->{description}),
 			\&_test_case => ($validation, $validation_module, $case));
 	}
+
+	had_no_warnings();
     };
 }
 
