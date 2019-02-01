@@ -16,16 +16,37 @@ test_validation(
 		},
 		{
 			description => 'No memory total yields no success',
-			data        => { memory => {} },
+			data        => { dimms => [] },
 		},
 		{
 			description => 'Wrong memory total fails',
-			data        => { memory => { total => 64 } },
+            data => {
+				dimms => [
+					{
+						'memory-locator'       => "P1-DIMMA1",
+						'memory-serial-number' => '12345',
+                        'memory-size'          => 64,
+					}
+				]
+			},
 			failure_num => 1
 		},
 		{
 			description => 'Correct memory total success',
-			data        => { memory => { total => 128 } },
+            data => {
+				dimms => [
+					{
+						'memory-locator'       => "P1-DIMMA1",
+						'memory-serial-number' => '12345',
+                        'memory-size'          => 64,
+					},
+					{
+						'memory-locator'       => "P1-DIMMB1",
+						'memory-serial-number' => '67890',
+                        'memory-size'          => 64,
+					}
+				]
+			},
 			success_num => 1
 		},
 	]
