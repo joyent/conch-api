@@ -36,36 +36,37 @@ foreach my $line (reverse @lines) {
 	my $hash = $1;
 	my $pr = $2;
 
-	my $j = get "/repos/joyent/conch/pulls/$pr";
+	my $pull_data = get "/repos/joyent/conch/pulls/$pr";
 
-	my $author = "[$j->{user}->{login}]($j->{user}->{html_url})";
-	my $merger = "[$j->{merged_by}->{login}]($j->{merged_by}->{html_url})";
-
-	my $labels = join(", ", map { $_->{name} } $j->{labels}->@*);
+	my $labels = join(", ", map { $_->{name} } $pull_data->{labels}->@*);
 
 	say <<EOF;
-[PR #$pr]($j->{html_url}) - `$j->{title}`
+[PR #$pr]($pull_data->{html_url}) - `$pull_data->{title}`
 ===
-* Branch: $j->{head}->{ref}
+* Branch: $pull_data->{head}->{ref}
 * Revision: $hash
 * Labels: $labels
 EOF
 
-	my $body = join('', map "> $_\n", split "\n", $j->{body}) if $j->{body};
+	my $body = join('', map "> $_\n", split "\n", ($pull_data->{body} // ''));
 	say $body if $body;
+
+	my $review_data = get "/repos/joyent/conch/pulls/$pr/reviews";
+	my $reviews = join("\n", map "* Reviewed By: [$_->{user}{login} - $_->{state}]($_->{html_url})", $review_data->@*);
 
 	say <<EOF;
 People
 ---
-* Author: $author
-* Merged By: $merger
-* Merged: $j->{merged_at}
+* Author: [$pull_data->{user}{login}]($pull_data->{user}{html_url})
+$reviews
+* Merged By: [$pull_data->{merged_by}{login}]($pull_data->{merged_by}{html_url})
+* Merged: $pull_data->{merged_at}
 EOF
 
 	say "Commits\n---\n";
 
-	$j = get "/repos/joyent/conch/pulls/$pr/commits";
-	for my $commit ($j->@*) {
+	my $commit_data = get "/repos/joyent/conch/pulls/$pr/commits";
+	for my $commit ($commit_data->@*) {
 		my $h = substr($commit->{sha},0,6);
 		my @bits = split("\n", $commit->{commit}->{message});
 
