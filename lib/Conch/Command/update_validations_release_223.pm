@@ -1,14 +1,14 @@
-package Conch::Command::add_drive_validations;
+package Conch::Command::update_validations_release_223;
 
 =pod
 
 =head1 NAME
 
-add_drive_validations - A one-time command to add new drive validations to the Server validation plan.
+update_validations_release_223 - A one-time command to update validations to the Server validation plan for release 2.23.
 
 =head1 SYNOPSIS
 
-    add_drive_validations [long options...]
+    update_validations_release_223 [long options...]
 
         --help  print usage message and exit
 
@@ -17,7 +17,7 @@ add_drive_validations - A one-time command to add new drive validations to the S
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Getopt::Long::Descriptive;
 
-has description => 'add new drive validations to the Server validation plan';
+has description => 'add new validations to the Server validation plan';
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
@@ -27,17 +27,17 @@ sub run ($self, @opts) {
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
-        'add_drive_validations %o',
+        'update_validations_release_223 %o',
         [],
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );
 
     # deactivating old validations whose versions are incrementing
     $self->app->db_validations->search({
-        name => { -in => [ qw(disk_smart_status sas_ssd_num) ] },
+        name => { -in => [ qw(disk_smart_status sas_ssd_num cpu_count dimm_count ram_total) ] },
     })->deactivate;
 
-    $self->app->log->info('Adding new drive validation rows...');
+    $self->app->log->info('Adding new validation rows...');
 
     # make sure all updates have been applied for existing validations, and create new
     # validation rows
@@ -46,20 +46,20 @@ sub run ($self, @opts) {
         schema => $self->app->schema,
     )->load_validations;
 
-    $self->app->log->info('Adding new drive validations to Server plan...');
+    $self->app->log->info('Adding new validations to Server plan...');
 
     my $validation_plan = $self->app->db_validation_plans->find({ name => 'Conch v1 Legacy Plan: Server' });
     die 'Failed to find validation plan in database' if not $validation_plan;
 
-    my @new_drive_validations = $self->app->db_validations->active->search(
-        { name => { -in => [ qw(disk_smart_status sas_ssd_num sata_hdd_num sata_ssd_num nvme_ssd_num raid_lun_num) ] } });
-    die 'Failed to find new drive validations (got '.scalar(@new_drive_validations).')' if @new_drive_validations != 6;
+    my @new_validations = $self->app->db_validations->active->search(
+        { name => { -in => [ qw(disk_smart_status sas_ssd_num sata_hdd_num sata_ssd_num nvme_ssd_num raid_lun_num cpu_count dimm_count ram_total) ] } });
+    die 'Failed to find new validations (got '.scalar(@new_validations).')' if @new_validations != 6;
 
     $validation_plan->create_related('validation_plan_members',
             { validation_plan_id => $validation_plan->id, validation_id => $_->id })
-        foreach @new_drive_validations;
+        foreach @new_validations;
 
-    $self->app->log->info('Done adding new drive validations to Server plan');
+    $self->app->log->info('Done adding new validations to Server plan');
 }
 
 1;
