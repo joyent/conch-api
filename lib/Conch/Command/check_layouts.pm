@@ -11,7 +11,7 @@ check_layouts - check for rack layout conflicts
 
 =head1 SYNOPSIS
 
-    check_layouts [long options...]
+    bin/conch check_layouts [long options...]
 
         --ws --workspace  workspace name
         --help            print usage message and exit
