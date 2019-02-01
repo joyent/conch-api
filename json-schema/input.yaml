@@ -90,8 +90,6 @@ definitions:
     type: object
     required:
       - bios_version
-      - memory
-      - processor
       - product_name
       - serial_number
       - state
@@ -115,6 +113,8 @@ definitions:
               type: string
             memory-serial-number:
               type: string
+            memory-size:
+              $ref: /definitions/int_or_stringy_int
       disks:
         type: object
         patternProperties:
@@ -193,16 +193,6 @@ definitions:
           ^\S$:
             description: port
             # type: unknown and not used.
-      memory:
-        type: object
-        required:
-          - total
-          - count
-        properties:
-          total:
-            $ref: /definitions/int_or_stringy_int
-          count:
-            $ref: /definitions/int_or_stringy_int
       os:
         type: object
         required:
@@ -210,16 +200,6 @@ definitions:
         properties:
           hostname:
             type: string
-      processor:
-        type: object
-        required:
-          - type
-          - count
-        properties:
-          type:
-            type: string
-          count:
-            type: integer
       product_name:
         # TODO: required for switches, and also for non-switches when 'sku' is not present.
         type: string
