@@ -10,17 +10,17 @@ test_validation(
 	},
 	cases => [
 		{
-			description => 'Missing processor count hash',
-			data        => { processor => 'foo' },
+			description => 'Missing cpus',
+			data        => {},
 		},
 		{
 			description => 'Incorrect processor count',
-			data        => { processor => { count => 1 } },
+			data        => { cpus => [ { core_id => '0' } ] },
 			failure_num => 1,
 		},
 		{
 			description => 'Correct processor count',
-			data        => { processor => { count => 2 } },
+			data        => { cpus => [ { core_id => '0' }, { core_id => '1' } ] },
 			success_num => 1,
 		},
 	]
