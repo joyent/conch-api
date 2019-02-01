@@ -3,7 +3,7 @@ package Conch::Validation::CpuCount;
 use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'cpu_count';
-has 'version'     => 1;
+has 'version'     => 2;
 has 'category'    => 'CPU';
 has 'description' => q(
 Validate the reported number of CPUs match the hardware product profile
@@ -12,19 +12,15 @@ Validate the reported number of CPUs match the hardware product profile
 sub validate {
 	my ( $self, $data ) = @_;
 
-	unless(
-		$data->{processor} 
-		and ref $data->{processor} eq 'HASH'
-		and $data->{processor}->{count}
-	){
-		$self->die("Missing processor.count")
+	unless ($data->{cpus}) {
+		$self->die("Missing cpus property")
 	}
 
 	my $hw_profile = $self->hardware_product_profile;
 
 	$self->register_result(
 		expected => $hw_profile->cpu_num,
-		got      => $data->{processor}->{count},
+		got      => scalar $data->{cpus}->@*,
 	);
 
 }

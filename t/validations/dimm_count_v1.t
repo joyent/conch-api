@@ -7,21 +7,40 @@ test_validation(
 	'Conch::Validation::DimmCount',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => { dimms_num => 8 }
+		profile => { dimms_num => 2 }
 	},
 	cases => [
 		{
 			description => 'No data yields no success',
 			data        => {},
+
 		},
 		{
 			description => 'Iconrrect DIMM count',
-			data        => { 'memory' => { count => 1 } },
+	        data => {
+				dimms => [
+					{
+						'memory-locator'       => "P1-DIMMA1",
+						'memory-serial-number' => '12345'
+					}
+				]
+			},
 			failure_num => 1
 		},
 		{
 			description => 'Correct DIMM count',
-			data        => { 'memory' => { count => 8 } },
+            data => {
+				dimms => [
+					{
+						'memory-locator'       => "P1-DIMMA1",
+						'memory-serial-number' => '12345'
+					},
+					{
+						'memory-locator'       => "P1-DIMMB1",
+						'memory-serial-number' => '67890'
+					}
+				]
+			},
 			success_num => 1
 		},
 	]

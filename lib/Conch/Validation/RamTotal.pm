@@ -1,9 +1,10 @@
 package Conch::Validation::RamTotal;
 
 use Mojo::Base 'Conch::Validation';
+use List::Util qw(sum);
 
 has 'name'        => 'ram_total';
-has 'version'     => 1;
+has 'version'     => 2;
 has 'category'    => 'RAM';
 has 'description' => q(
 Validate the reported RAM match the hardware product profile
@@ -12,17 +13,14 @@ Validate the reported RAM match the hardware product profile
 sub validate {
 	my ( $self, $data ) = @_;
 
-	unless($data->{memory}) {
-		$self->die("Missing 'memory' property");
+	unless(exists $data->{dimms} && $data->{dimms}->@*) {
+		$self->die("Missing 'dimms' property");
 	}
 
-	unless($data->{memory}->{total}) {
-		$self->die("Missing the 'total' property on 'memory'");
-	}
 
 	my $hw_profile = $self->hardware_product_profile;
 
-	my $ram_total = $data->{memory}->{total};
+	my $ram_total = sum map { $_->{'memory-size'} // 0 } $data->{dimms}->@*;
 	my $ram_want  = $hw_profile->ram_total;
 
 	$self->register_result(

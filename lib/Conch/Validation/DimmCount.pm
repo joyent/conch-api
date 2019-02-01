@@ -3,24 +3,20 @@ package Conch::Validation::DimmCount;
 use Mojo::Base 'Conch::Validation';
 
 has 'name'        => 'dimm_count';
-has 'version'     => 1;
+has 'version'     => 2;
 has 'category'    => 'RAM';
 has 'description' => 'Verify the number of DIMMs reported';
 
 sub validate {
 	my ( $self, $data ) = @_;
 
-	unless($data->{memory}) {
-		$self->die("Missing 'memory' property");
-	}
-
-	unless($data->{memory}->{count}) {
-		$self->die("Missing 'count' property on 'memory'");
+	unless($data->{dimms}) {
+		$self->die("Missing 'dimms' property");
 	}
 
 	my $hw_profile = $self->hardware_product_profile;
 
-	my $dimms_num  = $data->{memory}->{count};
+	my $dimms_num  = scalar $data->{dimms}->@*;
 	my $dimms_want = $hw_profile->dimms_num;
 
 	$self->register_result(
