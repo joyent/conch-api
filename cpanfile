@@ -79,6 +79,7 @@ on 'test' => sub {
     requires 'Test::Warnings';
     requires 'Test::Fatal';
     requires 'Test::Deep';
+    requires 'Test::Deep::JSON';
     requires 'Test::Memory::Cycle';
     requires 'Module::CPANfile';
     requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose

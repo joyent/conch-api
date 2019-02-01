@@ -384,9 +384,8 @@ CREATE TABLE public.device_report (
     device_id text NOT NULL,
     report jsonb,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    last_received timestamp with time zone DEFAULT now() NOT NULL,
-    received_count integer DEFAULT 1 NOT NULL,
-    invalid_report text
+    invalid_report text,
+    retain boolean
 );
 
 

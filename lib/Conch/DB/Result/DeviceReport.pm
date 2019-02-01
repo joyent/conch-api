@@ -53,22 +53,14 @@ __PACKAGE__->table("device_report");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 last_received
-
-  data_type: 'timestamp with time zone'
-  default_value: current_timestamp
-  is_nullable: 0
-  original: {default_value => \"now()"}
-
-=head2 received_count
-
-  data_type: 'integer'
-  default_value: 1
-  is_nullable: 0
-
 =head2 invalid_report
 
   data_type: 'text'
+  is_nullable: 1
+
+=head2 retain
+
+  data_type: 'boolean'
   is_nullable: 1
 
 =cut
@@ -92,17 +84,10 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
-  "last_received",
-  {
-    data_type     => "timestamp with time zone",
-    default_value => \"current_timestamp",
-    is_nullable   => 0,
-    original      => { default_value => \"now()" },
-  },
-  "received_count",
-  { data_type => "integer", default_value => 1, is_nullable => 0 },
   "invalid_report",
   { data_type => "text", is_nullable => 1 },
+  "retain",
+  { data_type => "boolean", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -150,8 +135,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-11-05 16:57:29
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:c9QN/7Wi12rFMh5GqBENNQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-12 15:36:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+QPeM7zTnRVpPfuHsLXs8A
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
