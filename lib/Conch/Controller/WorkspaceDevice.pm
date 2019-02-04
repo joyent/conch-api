@@ -101,7 +101,7 @@ sub device_totals ($c) {
 		->related_resultset('device')
 		->active
 		->search(
-			{},
+			undef,
 			{
 				columns => { alias => 'hardware_product.alias', health => 'device.health' },
 				select => [ { count => '*', -as => 'count' } ],

@@ -28,7 +28,7 @@ subtest 'device totals' => sub {
     my $test_compute = $hardware_product_rs->search({ alias => 'Test Compute' })->single;
 
     # find a rack
-    my $datacenter_rack = $t->app->db_datacenter_racks->search({}, { rows => 1 })->single;
+    my $datacenter_rack = $t->app->db_datacenter_racks->search(undef, { rows => 1 })->single;
 
     # add the rack to the global workspace
     $datacenter_rack->create_related('workspace_datacenter_racks' => { workspace_id => $global_ws_id });

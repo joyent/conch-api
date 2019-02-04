@@ -163,7 +163,7 @@ before serializing the workspace object.
 sub with_role_via_data_for_user ($self, $user_id) {
     # this just adds the user_id_for_role column to the result we get back. See
     # role_via_for_user for the actual role-via query.
-    $self->search({}, {
+    $self->search(undef, {
         '+select' => [ \[ '?::uuid as user_id_for_role', $user_id ] ],
         '+as' => [ 'user_id_for_role' ],
     });

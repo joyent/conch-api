@@ -131,8 +131,7 @@ sub get_layout ($c) {
 	if ($format eq 'json') {
 
         my $layout_rs = $c->stash('rack_rs')
-            ->search(
-                {},
+            ->search(undef,
                 {
                     columns => {
                         ( map {; $_ => "datacenter_rack.$_" } qw(id name) ),
@@ -183,8 +182,7 @@ sub get_layout ($c) {
 	} elsif ($format eq 'csv') {
 
 		my $layout_rs = $c->stash('rack_rs')
-			->search(
-				{},
+			->search(undef,
 				{
 					columns => {
 						az => 'datacenter_room.az',
