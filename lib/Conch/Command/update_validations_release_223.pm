@@ -34,6 +34,7 @@ sub run ($self, @opts) {
 
     # deactivating old validations whose versions are incrementing
     $self->app->db_validations->search({
+        version => 1,
         name => { -in => [ qw(disk_smart_status sas_ssd_num cpu_count dimm_count ram_total) ] },
     })->deactivate;
 
