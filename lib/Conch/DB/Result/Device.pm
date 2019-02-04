@@ -454,12 +454,8 @@ sub device_settings_as_hash {
     my $self = shift;
 
     # fold all rows into a hash, newer rows overriding older.
-    my %settings = map {
-        $_->name => $_->value
-    } $self
-        ->related_resultset('device_settings')
-        ->active
-        ->order_by('created');
+    my %settings = map +($_->name => $_->value),
+        $self->related_resultset('device_settings')->active->order_by('created');
 
     return %settings;
 }

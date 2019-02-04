@@ -36,9 +36,9 @@ sub assigned_rack_units ($self) {
         order_by => 'rack_unit_start',
     })->hri->all;
 
-    return map {
-        ($_->{rack_unit_start}) .. ($_->{rack_unit_start} + ($_->{rack_unit_size} // 1) - 1)
-    } @layout_data;
+    return map
+        +(($_->{rack_unit_start}) .. ($_->{rack_unit_start} + ($_->{rack_unit_size} // 1) - 1)),
+        @layout_data;
 }
 
 =head2 user_has_permission

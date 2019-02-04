@@ -529,7 +529,7 @@ sub register_result ($self, %attrs) {
         ge    => sub { $_[0] ge $_[1] },
         like  => sub { $_[0] =~ /$_[1]/ },
         oneOf => sub {
-            scalar(grep { $_[0] eq $_ } $_[1]->@*);
+            scalar(grep $_[0] eq $_, $_[1]->@*);
         }
     };
 
@@ -538,7 +538,7 @@ sub register_result ($self, %attrs) {
     if ($cmp_op eq 'oneOf') {
         $message =
               'Expected one of: '
-            .join(', ', map { "'$_'" } $expected->@*)
+            .join(', ', map "'$_'", $expected->@*)
             .". Got '$got'.";
     }
 
@@ -572,7 +572,6 @@ sub register_result ($self, %attrs) {
 
     $self->_push_validation_result($validation_result);
     return $self;
-
 }
 
 =head2 register_result_cmp_details

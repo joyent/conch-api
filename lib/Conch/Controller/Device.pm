@@ -130,8 +130,8 @@ sub get ($c) {
             my $device_nic = $_;
             my $device_neighbor = $device_nic->device_neighbor;
             +{
-                (map { $_ => $device_nic->$_ } qw(mac iface_name iface_type iface_vendor)),
-                (map { $_ => $device_neighbor && $device_neighbor->$_ } qw(peer_mac peer_port peer_switch)),
+                (map +($_ => $device_nic->$_), qw(mac iface_name iface_type iface_vendor)),
+                (map +($_ => $device_neighbor && $device_neighbor->$_), qw(peer_mac peer_port peer_switch)),
             }
         } $device->active_device_nics ],
         location => $rack ? +{

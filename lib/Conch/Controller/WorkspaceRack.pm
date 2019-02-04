@@ -127,14 +127,14 @@ sub get_layout ($c) {
             ->search(undef,
                 {
                     columns => {
-                        (map {; $_ => 'rack.'.$_ } qw(id name phase)),
+                        (map +($_ => 'rack.'.$_), qw(id name phase)),
                         role => 'rack_role.name',
                         datacenter => 'datacenter_room.az',
                         'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
-                        (map {; 'layout.'.$_ => 'hardware_product.'.$_ } qw(alias id name)),
+                        (map +('layout.'.$_ => 'hardware_product.'.$_), qw(alias id name)),
                         'layout.vendor' => 'hardware_vendor.name',
                         'layout.size' => 'hardware_product_profile.rack_unit',
-                        (map {; 'layout.device.'.$_ => 'device.'.$_ } $c->schema->source('device')->columns),
+                        (map +('layout.device.'.$_ => 'device.'.$_), $c->schema->source('device')->columns),
                     },
                     join => [
                         'rack_role',
@@ -153,7 +153,7 @@ sub get_layout ($c) {
         my $rsrc = $c->schema->source('device');
 
         my $layout = {
-            (map { $_ => $raw_data[0]->{$_} } qw(id name role datacenter phase)),
+            (map +($_ => $raw_data[0]->{$_}), qw(id name role datacenter phase)),
             slots => [
                 map {
                     my $device = delete $_->{layout}{device};

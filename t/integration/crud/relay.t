@@ -43,7 +43,7 @@ my @rack_layouts = map {
 
 # create two relays
 my @relays = $t->app->db_relays->populate([
-    map { +{
+    map +{
         id => "relay$_",
         alias => "relay_number_$_",
         version => "v1.$_",
@@ -51,7 +51,7 @@ my @relays = $t->app->db_relays->populate([
         ssh_port => 123,
         created => '2000-01-01',
         updated => '2018-02-01',
-    } } (0..1)
+    }, (0..1)
 ]);
 
 # now register the relays on various devices in both workspace racks...

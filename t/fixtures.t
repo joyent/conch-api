@@ -61,7 +61,7 @@ subtest 'generate_fixture_definitions wrapper' => sub {
     cmp_deeply(
         \@objects,
         bag(
-            map { isa('Conch::DB::Result::'.$_) } qw(
+            map isa('Conch::DB::Result::'.$_), qw(
                 DeviceLocation
                 RackLayout
                 RackLayout

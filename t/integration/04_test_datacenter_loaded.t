@@ -489,7 +489,7 @@ subtest 'Validations' => sub {
                 device_report_id => $device_report->id,
                 completed => ignore,
                 created => ignore,
-                status => 'pass', # we force-validated this device earlier
+                status => 'pass',   # we force-validated this device earlier
                 results => [ ignore ],
             },
             {
@@ -520,12 +520,12 @@ subtest 'Validations' => sub {
     $t->get_ok('/device/TEST/validation_state?status=pass')
         ->status_is(200)
         ->json_schema_is('ValidationStatesWithResults')
-        ->json_is([ grep { $_->{status} eq 'pass' } $validation_states->@* ]);
+        ->json_is([ grep $_->{status} eq 'pass', $validation_states->@* ]);
 
     $t->get_ok('/device/TEST/validation_state?status=fail')
         ->status_is(200)
         ->json_schema_is('ValidationStatesWithResults')
-        ->json_is([ grep { $_->{status} eq 'fail' } $validation_states->@* ]);
+        ->json_is([ grep $_->{status} eq 'fail', $validation_states->@* ]);
 
     $t->get_ok('/device/TEST/validation_state?status=error')
         ->status_is(200)

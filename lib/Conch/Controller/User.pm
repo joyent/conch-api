@@ -130,9 +130,9 @@ sub get_settings ($c) {
 
     # turn user_setting db rows into name => value entries,
     # newer entries overwriting older ones
-    my %output = map {
-        $_->name => from_json($_->value)
-    } $user->user_settings->active->search(undef, { order_by => 'created' });
+    my %output = map
+        +($_->name => from_json($_->value)),
+        $user->user_settings->active->search(undef, { order_by => 'created' });
 
     $c->status(200, \%output);
 }
@@ -399,7 +399,7 @@ sub create ($c) {
     if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$email)) {
         return $c->status(409, {
             error => 'duplicate user found',
-            user => { map { $_ => $user->$_ } qw(id email name created deactivated) },
+            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
         });
     }
 
@@ -416,12 +416,12 @@ sub create ($c) {
     if ($c->req->query_params->param('send_mail') // 1) {
         $c->log->info('sending "welcome new user" mail to user '.$user->name);
         $c->send_mail(welcome_new_user => {
-            (map { $_ => $user->$_ } qw(name email)),
+            (map +($_ => $user->$_), qw(name email)),
             password => $password,
         });
     }
 
-    return $c->status(201, { map { $_ => $user->$_ } qw(id email name) });
+    return $c->status(201, { map +($_ => $user->$_), qw(id email name) });
 }
 
 =head2 deactivate
@@ -441,11 +441,11 @@ sub deactivate ($c) {
     if ($user->deactivated) {
         return $c->status(410, {
             error => 'user was already deactivated',
-            user => { map { $_ => $user->$_ } qw(id email name created deactivated) },
+            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
         });
     }
 
-    my $workspaces = join(', ', map { $_->workspace->name.' ('.$_->role.')' }
+    my $workspaces = join(', ', map $_->workspace->name.' ('.$_->role.')',
         $user->related_resultset('user_workspace_roles')->prefetch('workspace')->all);
 
     $c->log->warn('user '.$c->stash('user')->name.' deactivating user '.$user->name

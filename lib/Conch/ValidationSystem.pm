@@ -152,7 +152,7 @@ sub load_validations ($self) {
         my @fields = qw(name version description category);
         if (not all { $module->$_ } @fields) {
             $self->log->fatal("$module must define the " .
-                join(', ', map { "'$_'" } @fields).' attributes');
+                join(', ', map "'$_'", @fields).' attributes');
             return;
         }
 
@@ -236,7 +236,7 @@ sub run_validation_plan ($self, %options) {
         $validator->run($data);
 
         my $result_order = 0;
-        push @validation_results, map {
+        push @validation_results, map
             $validation_result_rs->new_result({
                 # each time a ValidationResult is created, increment order value
                 # post-assignment. This allows us to distinguish between multiples
@@ -246,8 +246,8 @@ sub run_validation_plan ($self, %options) {
                 device_id           => $device->id,
                 hardware_product_id => $validator->hardware_product->id,
                 $_->%{qw(message hint status category component_id)},
-            });
-        } $validator->validation_results;
+            }),
+            $validator->validation_results;
     }
 
     # maybe no validations ran? this is a problem.
@@ -261,7 +261,7 @@ sub run_validation_plan ($self, %options) {
       : $a eq 'fail' || $b eq 'fail' ? 'fail'
       : $a eq 'processing' || $b eq 'processing' ? 'processing'
       : $a; # pass
-    } map { $_->status } @validation_results;
+    } map $_->status, @validation_results;
 
     return ($status, @validation_results) if $options{no_save_db};
 
@@ -305,7 +305,7 @@ sub run_validation ($self, %options) {
 
     my $result_order = 0;
     my $validation_result_rs = $self->schema->resultset('validation_result');
-    my @validation_results = map {
+    my @validation_results = map
         $validation_result_rs->new_result({
             # each time a ValidationResult is created, increment order value
             # post-assignment. This allows us to distinguish between multiples
@@ -315,8 +315,8 @@ sub run_validation ($self, %options) {
             device_id           => $device->id,
             hardware_product_id => $validator->hardware_product->id,
             $_->%{qw(message hint status category component_id)},
-        });
-    } $validator->validation_results;
+        }),
+        $validator->validation_results;
 
     return @validation_results;
 }

@@ -20,7 +20,7 @@ sub validate {
 
     my $hw_profile = $self->hardware_product_profile;
 
-    my $ram_total = sum map { $_->{'memory-size'} // 0 } $data->{dimms}->@*;
+    my $ram_total = sum map $_->{'memory-size'} // 0, $data->{dimms}->@*;
     my $ram_want  = $hw_profile->ram_total;
 
     $self->register_result(

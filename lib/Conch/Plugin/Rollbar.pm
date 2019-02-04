@@ -44,21 +44,20 @@ sub _record_exception ($c, $exception, @) {
         return;
     }
 
-    my @frames = map {
-        {
-            class_name => $_->[0],
-            filename   => $_->[1],
-            lineno     => $_->[2],
-            method     => $_->[3],
-        }
-    } $exception->frames->@*;
+    my @frames = map +{
+        class_name => $_->[0],
+        filename   => $_->[1],
+        lineno     => $_->[2],
+        method     => $_->[3],
+    },
+    $exception->frames->@*;
 
     # we only have context for the first frame.
     # Mojo::Exception data contains line numbers as well.
     $frames[0]->{code} = $exception->line->[1];
     $frames[0]->{context} = {
-        pre  => [ map { $_->[1] } $exception->lines_before->@* ],
-        post => [ map { $_->[1] } $exception->lines_after->@* ],
+        pre  => [ map $_->[1], $exception->lines_before->@* ],
+        post => [ map $_->[1], $exception->lines_after->@* ],
     };
 
     # keep value from stash more compact
@@ -118,7 +117,7 @@ sub _record_exception ($c, $exception, @) {
             },
 
             # see https://docs.rollbar.com/docs/grouping-algorithm
-            fingerprint => join(':', map { join(',', $_->@{qw(filename method lineno)}) } @frames),
+            fingerprint => join(':', map join(',', $_->@{qw(filename method lineno)}), @frames),
 
             uuid => $rollbar_id,
         }

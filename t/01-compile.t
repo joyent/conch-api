@@ -63,7 +63,7 @@ foreach my $file (@scripts)
     @switches = (@switches, split(' ', $1)) if $1;
 
     close $fh and skip("$file uses -T; not testable with PERL5LIB", 1)
-        if grep { $_ eq '-T' } @switches and $ENV{PERL5LIB};
+        if grep $_ eq '-T', @switches and $ENV{PERL5LIB};
 
     my $stderr = IO::Handle->new;
 

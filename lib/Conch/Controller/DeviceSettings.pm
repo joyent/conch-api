@@ -30,7 +30,7 @@ sub set_all ($c) {
     my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
     # overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-    my @non_tags = grep { !/^tag\./ } keys $input->%*;
+    my @non_tags = grep !/^tag\./, keys $input->%*;
     my $perm_needed =
         @non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 

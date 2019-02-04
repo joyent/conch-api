@@ -505,8 +505,8 @@ subtest 'Sub-Workspace' => sub {
     my $main_user_id = $t->tx->res->json->[0]{id};
     my $test_user_id = $t->tx->res->json->[1]{id};
 
-    $users{child_ws} = [ map {; +{ $_->%*, role_via => $global_ws_id } } $users{GLOBAL}->@* ];
-    $users{grandchild_ws} = [ map {; +{ $_->%*, role_via => $global_ws_id } } $users{GLOBAL}->@* ];
+    $users{child_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
+    $users{grandchild_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
 
     $t->get_ok("/workspace/$child_ws_id/user")
         ->status_is(200)

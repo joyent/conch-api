@@ -42,7 +42,7 @@ foreach my $line (reverse @lines) {
 
     my $pull_data = get "/repos/joyent/conch/pulls/$pr";
 
-    my $labels = join(", ", map { $_->{name} } $pull_data->{labels}->@*);
+    my $labels = join(", ", map $_->{name}, $pull_data->{labels}->@*);
 
     say <<EOF;
 [PR #$pr]($pull_data->{html_url}) - `$pull_data->{title}`

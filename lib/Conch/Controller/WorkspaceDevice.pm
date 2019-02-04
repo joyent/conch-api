@@ -146,9 +146,9 @@ sub device_totals ($c) {
     }
     return $c->reply->not_found unless $workspace;
 
-    my %switch_aliases = map { ($_ => 1) } $c->config->{switch_aliases}->@*;
-    my %storage_aliases = map { ($_ => 1) } $c->config->{storage_aliases}->@*;
-    my %compute_aliases = map { ($_ => 1) } $c->config->{compute_aliases}->@*;
+    my %switch_aliases = map +($_ => 1), $c->config->{switch_aliases}->@*;
+    my %storage_aliases = map +($_ => 1), $c->config->{storage_aliases}->@*;
+    my %compute_aliases = map +($_ => 1), $c->config->{compute_aliases}->@*;
 
     my @counts = $workspace
         ->related_resultset('workspace_racks')
@@ -167,10 +167,10 @@ sub device_totals ($c) {
             },
         )->hri->all;
 
-    my @switch_counts = grep { $switch_aliases{$_->{alias}} } @counts;
-    my @server_counts = grep { !$switch_aliases{$_->{alias}} } @counts;
-    my @storage_counts = grep { $storage_aliases{$_->{alias}} } @counts;
-    my @compute_counts = grep { $compute_aliases{$_->{alias}} } @counts;
+    my @switch_counts = grep $switch_aliases{$_->{alias}}, @counts;
+    my @server_counts = grep !$switch_aliases{$_->{alias}}, @counts;
+    my @storage_counts = grep $storage_aliases{$_->{alias}}, @counts;
+    my @compute_counts = grep $compute_aliases{$_->{alias}}, @counts;
 
     my %circ;
 

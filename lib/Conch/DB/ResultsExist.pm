@@ -37,11 +37,11 @@ sub exists ($self) {
     my $inner = $self->search(undef, { select => [ \1 ] })->as_query;
 
     my $statement = 'select exists '.$inner->$*->[0];
-    my @binds = map { $_->[1] } $inner->$*->@[1 .. $inner->$*->$#*];
+    my @binds = map +($_->[1]), $inner->$*->@[1 .. $inner->$*->$#*];
 
     my ($exists) = $self->result_source->schema->storage->dbh_do(sub ($storage, $dbh) {
         # cribbed from DBIx::Class::Storage::DBI::_format_for_trace
-        $storage->debugobj->query_start($statement, map { defined($_) ? qq{'$_'} : q{NULL} } @binds)
+        $storage->debugobj->query_start($statement, map +(defined($_) ? qq{'$_'} : q{NULL}), @binds)
             if $storage->debug;
 
         $dbh->selectrow_array($statement, undef, @binds);
