@@ -16,7 +16,7 @@ Contains all convenience handlers for authentication
 
 =cut
 
-sub register ($self, $app, $conf) {
+sub register ($self, $app, $config) {
 
 =head2 is_system_admin
 

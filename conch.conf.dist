@@ -10,8 +10,20 @@
 		normal_expiry => 86400, # 1 day
 	},
 
-	# URI format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
-	pg => 'postgresql://conch@/conch?client_encoding=UTF-8',
+    database => {
+        # dsn is as defined in https://metacpan.org/pod/DBI#connect
+        # and https://metacpan.org/pod/DBD::Pg#connect:
+        # dbi:DriverName:dbname=database_name[;host=hostname[;port=port]]
+        dsn => 'dbi:Pg:dbname=conch;host=localhost',
+        username => 'conch',
+        password => 'conch',
+        # ro_username, ro_password are used for ro connection when available.
+
+        options => {
+            'client_encoding' => 'UTF-8',
+        },
+
+    },
 
 	# Rollbar access token. Must be a token with write permissions
 	# rollbar_access_token => '00000000000000000000000000000000',
@@ -86,8 +98,10 @@
 		post_hook => 'around_dispatch',
 	},
 
-    # directory where all logs will be placed.
-    # if not absolute, will be relative to the root of the application.
-    # log_dir => 'log',
+    # logging => {
+    #     # directory where all logs will be placed.
+    #     # if not absolute, will be relative to the root of the application.
+    #     dir => 'log',
+    # },
 
 }

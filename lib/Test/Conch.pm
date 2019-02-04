@@ -47,7 +47,7 @@ the same database.
 
 =cut
 
-has 'pg';   # this is generally a Test::PostgreSQL object
+has 'pg';   # Test::PostgreSQL object
 
 =head2 validator
 
@@ -100,8 +100,12 @@ sub new {
 
     my $self = Test::Mojo->new(
         Conch => {
-            pg      => $pg->uri,    # TODO: pass dsn instead of uri
-            secrets => ["********"]
+            database => {
+                dsn => $pg->dsn,
+                username => $pg->dbowner,
+            },
+
+            secrets => ["********"],
         }
     );
 
@@ -128,6 +132,11 @@ sub DESTROY ($self) {
     # ensure that a new Test::Conch instance creates a brand new Mojo::Pg connection (with a
     # possibly-different dsn) rather than using the old one to a now-dead postgres instance
     Conch::Pg->DESTROY;
+
+    # explicitly disconnect before terminating the server, to avoid exceptions like:
+    # "DBI Exception: DBD::Pg::st DESTROY failed: FATAL:  terminating connection due to administrator command"
+    do { $_->disconnect if $_->connected }
+        foreach $self->app->rw_schema->storage, $self->app->ro_schema->storage;
 }
 
 =head2 init_db
@@ -145,7 +154,7 @@ sub init_db ($class) {
     die $Test::PostgreSQL::errstr if not $pgsql;
 
     my $schema = Conch::DB->connect(
-        $pgsql->dsn, 'postgres', '',
+        $pgsql->dsn, $pgsql->dbowner, undef,
         {
             # same as from Mojo::Pg->new($uri)->options
             AutoCommit          => 1,
@@ -178,21 +187,17 @@ Returns a read-only connection to a Test::PostgreSQL instance.
 =cut
 
 sub ro_schema ($class, $pgsql) {
+    # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
+    local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
     Conch::DB->connect(
-        # we wrap up the DBI connection attributes in a subref so
-        # DBIx::Class doesn't warn about AutoCommit => 0 being a bad idea.
-        sub {
-            DBI->connect(
-                $pgsql->dsn, 'postgres', '',
-                {
-                    AutoCommit          => 0,
-                    AutoInactiveDestroy => 1,
-                    PrintError          => 0,
-                    PrintWarn           => 0,
-                    RaiseError          => 1,
-                    ReadOnly            => 1,
-                },
-            );
+        $pgsql->dsn, $pgsql->dbowner, undef,
+        +{
+            AutoCommit          => 0,
+            AutoInactiveDestroy => 1,
+            PrintError          => 0,
+            PrintWarn           => 0,
+            RaiseError          => 1,
+            ReadOnly            => 1,
         },
     );
 }

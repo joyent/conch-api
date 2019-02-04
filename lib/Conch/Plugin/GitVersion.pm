@@ -22,7 +22,7 @@ Register C<version_tag> and C<version_hash>.
 
 =cut
 
-sub register ($self, $app, $conf) {
+sub register ($self, $app, $config) {
 
     my ($git_tag, $git_tag_stderr, undef) = capture {
         system(qw(git describe --always --long));
