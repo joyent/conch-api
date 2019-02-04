@@ -32,35 +32,38 @@ sub run ($self, @opts) {
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );
 
-    # deactivating old validations whose versions are incrementing
-    $self->app->db_validations->search({
-        version => 1,
-        name => { -in => [ qw(disk_smart_status sas_ssd_num cpu_count dimm_count ram_total) ] },
-    })->deactivate;
+    $self->app->schema->txn_do(sub ($app) {
+        # deactivating old validations whose versions are incrementing
+        $app->db_validations->search({
+            version => 1,
+            name => { -in => [ qw(disk_smart_status sas_ssd_num cpu_count dimm_count ram_total) ] },
+        })->deactivate;
 
-    $self->app->log->info('Adding new validation rows...');
+        $app->log->info('Adding new validation rows...');
 
-    # make sure all updates have been applied for existing validations, and create new
-    # validation rows
-    Conch::ValidationSystem->new(
-        log => $self->app->log,
-        schema => $self->app->schema,
-    )->load_validations;
+        # make sure all updates have been applied for existing validations, and create new
+        # validation rows
+        Conch::ValidationSystem->new(
+            log => $app->log,
+            schema => $app->schema,
+        )->load_validations;
 
-    $self->app->log->info('Adding new validations to Server plan...');
+        $app->log->info('Adding new validations to Server plan...');
 
-    my $validation_plan = $self->app->db_validation_plans->find({ name => 'Conch v1 Legacy Plan: Server' });
-    die 'Failed to find validation plan in database' if not $validation_plan;
+        my $validation_plan = $app->db_validation_plans->find({ name => 'Conch v1 Legacy Plan: Server' });
+        die 'Failed to find validation plan in database' if not $validation_plan;
 
-    my @new_validations = $self->app->db_validations->active->search(
-        { name => { -in => [ qw(disk_smart_status sas_ssd_num sata_hdd_num sata_ssd_num nvme_ssd_num raid_lun_num cpu_count dimm_count ram_total) ] } });
-    die 'Failed to find new validations (got '.scalar(@new_validations).')' if @new_validations != 9;
+        my @new_validations = $app->db_validations->active->search(
+            { name => { -in => [ qw(disk_smart_status sas_ssd_num sata_hdd_num sata_ssd_num nvme_ssd_num raid_lun_num cpu_count dimm_count ram_total) ] } });
+        die 'Failed to find new validations (got '.scalar(@new_validations).')' if @new_validations != 9;
 
-    $validation_plan->create_related('validation_plan_members',
-            { validation_plan_id => $validation_plan->id, validation_id => $_->id })
-        foreach @new_validations;
+        $validation_plan->create_related('validation_plan_members',
+                { validation_plan_id => $validation_plan->id, validation_id => $_->id })
+            foreach @new_validations;
 
-    $self->app->log->info('Done adding new validations to Server plan');
+        $app->log->info('Done adding new validations to Server plan');
+
+    }, $self->app);
 }
 
 1;
