@@ -53,7 +53,7 @@ sub run ($self, @opts) {
 
     my @new_validations = $self->app->db_validations->active->search(
         { name => { -in => [ qw(disk_smart_status sas_ssd_num sata_hdd_num sata_ssd_num nvme_ssd_num raid_lun_num cpu_count dimm_count ram_total) ] } });
-    die 'Failed to find new validations (got '.scalar(@new_validations).')' if @new_validations != 6;
+    die 'Failed to find new validations (got '.scalar(@new_validations).')' if @new_validations != 9;
 
     $validation_plan->create_related('validation_plan_members',
             { validation_plan_id => $validation_plan->id, validation_id => $_->id })
