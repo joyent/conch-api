@@ -118,7 +118,7 @@ sub process ($c) {
 			# normally we should always find an associated validation_state record, because all
 			# incoming device reports (that get stored) have validations run against them.
 			$c->log->warn('Duplicate device report detected (device_report_id '
-				. $validation_state->device_report_id
+				. $existing_device->self_rs->latest_device_report->get_column('id')->single
 				. ' but could not find an associated validation_state record to return');
 
 			# but we can try harder to find *something* to return, in most cases...
