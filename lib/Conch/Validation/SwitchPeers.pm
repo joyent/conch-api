@@ -104,6 +104,7 @@ sub validate {
 sub _calculate_switch_peer_ports {
 	my ( $self, $rack_unit_start, $rack_slots, $peer_vendor ) = @_;
 
+	# Note this failure is no longer possible given the foreign key constraint added in v2.19 (a4549d4a)
 	my $rack_index = first { $rack_slots->[$_] == $rack_unit_start } 0 .. $rack_slots->$#*;
 
 	defined $rack_index

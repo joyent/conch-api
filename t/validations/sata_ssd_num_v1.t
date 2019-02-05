@@ -7,7 +7,7 @@ test_validation(
 	'Conch::Validation::SataSsdNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => {}
+		hardware_product_profile => {}
 	},
 	cases => [
 		{
@@ -28,7 +28,7 @@ test_validation(
 	'Conch::Validation::SataSsdNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => { sata_ssd_num => 2 }
+		hardware_product_profile => { sata_ssd_num => 2 }
 	},
 	cases => [
 		{
@@ -75,7 +75,7 @@ test_validation(
 	'Conch::Validation::SataSsdNum',
 	hardware_product => {
 		name    => 'Joyent-Compute-Platform-3302',
-		profile => { sata_ssd_num => 2 }
+		hardware_product_profile => { sata_ssd_num => 2 }
 	},
 	cases => [
 		{

@@ -7,7 +7,7 @@ test_validation(
 	'Conch::Validation::SasHddNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => {}
+		hardware_product_profile => {}
 	},
 	cases => [
 		{
@@ -28,7 +28,7 @@ test_validation(
 	'Conch::Validation::SasHddNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => { sas_hdd_num => 2 }
+		hardware_product_profile => { sas_hdd_num => 2 }
 	},
 	cases => [
 		{

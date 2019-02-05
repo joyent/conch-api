@@ -7,7 +7,7 @@ test_validation(
 	'Conch::Validation::NvmeSsdNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => {}
+		hardware_product_profile => {}
 	},
 	cases => [
 		{
@@ -28,7 +28,7 @@ test_validation(
 	'Conch::Validation::NvmeSsdNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => { nvme_ssd_num => 2 }
+		hardware_product_profile => { nvme_ssd_num => 2 }
 	},
 	cases => [
 		{

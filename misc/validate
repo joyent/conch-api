@@ -60,7 +60,7 @@ validate - validate a device report (or other json document) against conch json 
 
 =item <-u URL>
 
-A URL for the JSON Schema to validate against. Defaults to C<https://conch.joyent.us/schema/request/>
+A URL for the JSON Schema to validate against. Defaults to L<https://conch.joyent.us/schema/request/>
 
 =item <-s SCHEMA>
 

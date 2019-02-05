@@ -4,12 +4,13 @@ use warnings;
 use v5.26;
 
 use Test::More;
-
-use Conch::Log;
-use Conch::Class::DatacenterRack;
-use Conch::Class::DeviceLocation;
+use Data::Printer; # for 'np'
+use Test::Conch;
+use Conch::Models;
 use Conch::Class::HardwareProduct;
 use Conch::Class::HardwareProductProfile;
+use Test::Warnings 'had_no_warnings';
+use List::Util 'first';
 
 use Exporter 'import';
 our @EXPORT_OK = qw( test_validation );
@@ -48,14 +49,14 @@ argument specifying the cases for the test to use.
 The available models are C<hardware_product>, C<device_location>,
 C<device_settings>, and C<device>. Their attributes are defined with a hashref,
 which will be constructed to the correct classes in the body of
-L<test_validation>. For example:
+L</test_validation>. For example:
 
 	test_validation(
 		'Conch::Validation::TestValidation',
 		hardware_product => {
 			name => 'Product Name',
 			vendor => 'Product Vendor',
-			profile => {
+			hardware_product_profile => {
 				num_cpu => 2
 			}
 		},
@@ -94,6 +95,11 @@ Validation with the provided C<data>. Defaults to 0.
 The number of expected failing validation results from running the Validation
 with the provided C<data>. Defaults to 0
 
+=item C<error_num>
+
+The number of expected 'error' validation results from running the Validation
+with the provided C<data>. Defaults to 0.
+
 =item C<description>
 
 Optional description of the test case. Provides documentation and adds the
@@ -102,7 +108,7 @@ description to test failure messages.
 =item C<debug>
 
 Optional boolean flag to provide additional diagnostic information when running
-the case using L<Test::More::diag>. This is helpful during development of test
+the case using L<Test::More/diag>. This is helpful during development of test
 cases, but should be removed before committing.
 
 =back
@@ -128,42 +134,55 @@ sub test_validation {
 	my $validation_module = shift;
 	my %args              = @_;
 
-	my $log = Conch::Log->new(path => 'log/development.log');
+    state $test_count = 0;
+    subtest $test_count++.": $validation_module (".scalar($args{cases}->@*).' cases)', sub {
+
+	my $t = Test::Conch->new;
 
 	use_ok($validation_module)
 		|| diag "$validation_module fails to compile" && return;
 
-	my $device = $args{device} ? Conch::Model::Device->new($args{device}) : undef;
+	my @objects = $t->generate_fixtures(
+		%args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device) }
+	);
+
+	my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } @objects;
+
+	my $device = $args{device}
+		? first { $_->isa('Conch::DB::Result::Device') } @objects
+		: undef;
+
+	# Note: we are not currently considering the case where both a device_location
+	# and hardware_product are specified, and whether that hardware_product is different from
+	# the device's hardware_product. No tests yet rely upon this assumption, but they should
+	# so this should be fixed when DeviceProductName is rewritten and more sophisticated test
+	# cases are written for it.
 
 	my $hw_product_profile =
-		  $args{hardware_product} && $args{hardware_product}->{profile}
-		? Conch::Class::HardwareProductProfile->new($args{hardware_product}->{profile}->%*)
+		  $args{hardware_product} && $args{hardware_product}->{hardware_product_profile}
+		? Conch::Class::HardwareProductProfile->new($hardware_product->hardware_product_profile->get_columns)
 		: undef;
 
-	my $hw_product = Conch::Class::HardwareProduct->new(
-		$args{hardware_product}->%*,
-		profile => $hw_product_profile,
-	);
+	my $hw_product = ($args{hardware_product} && keys $args{hardware_product}->%*) || $hw_product_profile
+		? Conch::Class::HardwareProduct->new(
+			$hardware_product->get_columns,
+			profile => $hw_product_profile,
+		)
+		: ();
 
-	my $rack =
-		  $args{device_location} && $args{device_location}{datacenter_rack}
-		? Conch::Class::DatacenterRack->new($args{device_location}->{datacenter_rack}->%*)
-		: undef;
-
-	my $device_location = Conch::Class::DeviceLocation->new(
-		$args{device_location}->%*,
-		datacenter_rack => $rack,
-	);
+	my $device_location = $args{device_location}
+		? Conch::Model::DeviceLocation->lookup(
+			(first { $_->isa('Conch::DB::Result::DeviceLocation') } @objects)->device_id)
+		: ();
 
 	my $validation = $validation_module->new(
-		device           => $device,            # this is a Conch::Model::Device
+		log => $t->app->log,
+		device => ($device ? Conch::Model::Device->new($device->get_columns) : undef),
 		device_location  => $device_location,   # this is a Conch::Class::DeviceLocation
 		device_settings  => $args{device_settings} || {},
 		hardware_product => $hw_product,        # this is a Conch::Class::HardwareProduct
 	);
-	$validation->log($log);
-	isa_ok( $validation, $validation_module, "$validation_module->new failed" )
-		|| return;
+	isa_ok($validation, $validation_module) or return;
 
 	ok(
 		defined( $validation->name ),
@@ -186,51 +205,72 @@ sub test_validation {
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
-		_test_case( $validation, $validation_module, $args{cases}, $case_index );
+		my $case = $args{cases}->[$case_index];
+		subtest(
+			join(': ', "Case $case_index", $case->{description}),
+			\&_test_case => ($validation, $validation_module, $case));
 	}
+
+	had_no_warnings();
+    };
 }
 
 sub _test_case {
-	my ( $validation, $validation_module, $cases, $case_index ) = @_;
-	my $case  = $cases->[$case_index];
+	my ( $validation, $validation_module, $case ) = @_;
 	my $data  = $case->{data} || {};
 	my $debug = $case->{debug};
 
-	my $msg_prefix = 'Case #' . ( $case_index + 1 );
-	$msg_prefix .= $case->{description} ? ' [' . $case->{description} . ']:' : ':';
+	my $msg_prefix = $case->{description} ? " [$case->{description}]: " : '';
 
 	if ($debug) {
 		my $pretty_data = substr( np($data), 2 );
-		diag("$msg_prefix input data: $pretty_data");
+		diag($msg_prefix."input data: $pretty_data");
 	}
 
 	$validation->clear_results;
 
 	$validation->run($data);
 
-	if ($debug) {
-		diag( "$msg_prefix Successful results:\n"
-				. _results_to_string( $validation->successes ) );
-		diag( "$msg_prefix Failing results:\n"
-				. _results_to_string( $validation->failures ) );
-	}
-
 	my $success_count = scalar $validation->successes->@*;
 	my $success_expect = $case->{success_num} || 0;
 	is( $success_count, $success_expect,
-		    "$msg_prefix Was expecting validation to register "
-			. "$success_expect successful results, got $success_count."
-			. "\nSuccessful results:\n"
+			$msg_prefix.'Was expecting validation to register '
+			. "$success_expect successful results, got $success_count.")
+		or diag("\nSuccessful results:\n"._results_to_string($validation->successes));
+
+	if ($debug and $success_count == $success_expect) {
+		diag($msg_prefix."Successful results:\n"
 			. _results_to_string( $validation->successes ) );
+	}
 
 	my $failure_count = scalar $validation->failures->@*;
 	my $failure_expect = $case->{failure_num} || 0;
 
 	is( $failure_count, $failure_expect,
-		    "$msg_prefix Was expecting validation to register "
-			. "$failure_expect failing results, got $failure_count."
-			. "\nFailing results:\n"
+			$msg_prefix.'Was expecting validation to register '
+			. "$failure_expect failing results, got $failure_count.")
+		or diag("\nFailing results:\n"._results_to_string($validation->failures));
+	if ($debug and $failure_count == $failure_expect) {
+		diag($msg_prefix."Failing results:\n"
 			. _results_to_string( $validation->failures ) );
+	}
+
+	my $error_count = scalar $validation->error->@*;
+	my $error_expect = $case->{error_num} // ($success_expect + $failure_expect ? 0 : 1);
+	is($error_count, $error_expect,
+			$msg_prefix.'Was expecting validation to register '
+			. "$error_expect error results, got $error_count.")
+		or diag("\nError results:\n"._results_to_string($validation->error));
+	if ($debug and $error_count == $error_expect) {
+		diag($msg_prefix."Error results:\n"
+			. _results_to_string( $validation->error ) );
+	}
+
+	if (not Test::Builder->new->is_passing) {
+		require Data::Dumper;
+		diag 'all results: ',
+			Data::Dumper->new([ $validation->validation_results ])->Indent(1)->Terse(1)->Dump;
+	}
 }
 
 # Format the list of validation reusults into a single string, indented and
@@ -248,6 +288,7 @@ sub _results_to_string ($) {
 		map {
 			my $i = $_ + 1;
 			"\t$i. " . $results->[$_]->{name} . ': ' . $results->[$_]->{message}
+			.($results->[$_]->{hint} ? (' ('.$results->[$_]->{hint}.')') : '')
 		} ( 0 .. $results->$#* )
 	);
 }

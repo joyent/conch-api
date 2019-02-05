@@ -1,12 +1,14 @@
 package Test::Conch::Fixtures;
-use v5.26;
-use warnings;
 
 use Moo;
 no Moo::sification;
 extends 'DBIx::Class::EasyFixture';
 
+use experimental 'signatures';
 use MooX::HandlesVia;
+use List::Util 'any';
+use Scalar::Util 'blessed';
+use Storable 'dclone';
 use namespace::autoclean;
 
 =pod
@@ -331,9 +333,9 @@ my %canned_definitions = (
             id => 'HAL',
             state => 'UNKNOWN',
             health => 'UNKNOWN',
-        },
-        requires => {
-            hardware_product_profile_compute => 'hardware_product_id',
+            # copy hardware_product_profile_compute.hardware_product_id to me.hardware_product_id
+            # (this ensures we get a hardware_product_profile as well as a hardware_product)
+            hardware_product_id => \'hardware_product_profile_compute',
         },
     },
 );
@@ -342,7 +344,8 @@ my %canned_definitions = (
 
 =head2 generate_set
 
-Generates new fixture definition(s).  Does not load them to the database.
+Generates new fixture definition(s).  Adds them to the internal definition list, but does not
+load them to the database.
 
 Available sets:
 
@@ -351,13 +354,14 @@ datacenter_rack, and a layout suitable for various hardware. Takes a single inte
 
 =cut
 
-sub generate_set {
-    my ($self, $set_name, @args) = @_;
-
+sub generate_set ($self, $set_name, @args) {
     my %definitions;
 
     if ($set_name eq 'workspace_room_rack_layout') {
         my $num = shift(@args) // die 'need a unique integer';
+        # XXX TODO: rewrite this using $self->generate_definitions(
+        #   ...
+        # );
         %definitions = (
             "sub_workspace_$num" => {
                 new => 'workspace',
@@ -463,12 +467,258 @@ sub generate_set {
     return keys %definitions;
 }
 
-# initialize definitions with those passed in, folded together with our defaults.
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $class = shift;
+=head2 generate_definitions
 
-    my $args = $class->$orig(@_);
+Generates fixture definition(s) using generic data, and any necessary dependencies.  Uses a
+unique number to generate unique fixture names.  Not-nullable fields are filled in with
+sensible defaults, but all may be overridden.
+
+Requires data format:
+
+    fixture_type => { field data.. },
+    ...,
+
+C<fixture_type> is usually a table name, but might be pluralized or be something special. See
+L</_generate_definition>.
+
+=cut
+
+sub generate_definitions ($self, $unique_num, %specification) {
+    %specification = (dclone \%specification)->%*;
+    my @requested = keys %specification;
+    my (%definitions, @processed);
+
+    # this list will be progressively added to, so we do not use foreach.
+    while (my $name = shift @requested) {
+        next if any { $name eq $_ } @processed;
+
+        # find hashrefs, arrayrefs in the specification and make them first-class
+        # specifications. This overwrites any existing specification data, which may need to be
+        # fixed later.  (This does not yet work for fixture specifications that are arrayrefs,
+        # e.g. datacenter_rack_layouts.)
+        if (ref $specification{$name} eq 'HASH'
+            and my @ref_keys = grep {
+                    ref $specification{$name}->{$_} and not blessed $specification{$name}->{$_}
+                } keys $specification{$name}->%*) {
+            @specification{@ref_keys} = delete $specification{$name}->@{@ref_keys};
+            push @requested, @ref_keys;
+        }
+
+        my ($definition, @dependencies) = $self->_generate_definition($name, $unique_num, $specification{$name});
+
+        @definitions{keys $definition->%*} = values $definition->%*;
+        push @requested, @dependencies;
+        push @processed, $name;
+    }
+
+    # add the definitions, if they do not yet exist.
+    foreach my $fixture_name (keys %definitions) {
+        $self->add_definition($fixture_name => $definitions{$fixture_name})
+            if not $self->_has_definition($fixture_name);
+    }
+    return keys %definitions;
+}
+
+=head2 _generate_definition
+
+Data used in L</generate_definitions>. Returns a fixture definition as well as a list of other
+recognized fixture types that must also be turned into fixtures to satisfy dependencies.
+
+C<num> must be a value that is unique to the set of fixtures being generated; many fixtures
+will refer to each other using this number as part of their name.
+
+C<specification> is usually a hashref but might be a listref depending on the fixture type.
+
+=cut
+
+sub _generate_definition ($self, $fixture_type, $num, $specification) {
+    if ($fixture_type eq 'device_settings') {
+        my $letter = 'a';
+        return +{
+            map {
+                "device_setting_$num".$letter++ => +{
+                    new => 'device_setting',
+                    using => {
+                        name => $_,
+                        value => $specification->{$_},
+                    },
+                    requires => { "device_$num" => { our => 'device_id', their => 'id' } },
+                }
+            } keys $specification->%*
+        },
+        'device';
+    }
+    elsif ($fixture_type eq 'device') {
+        return +{
+            "device_$num" => {
+                new => 'device',
+                using => {
+                    id => "DEVICE_$num",
+                    state => 'UNKNOWN',
+                    health => 'UNKNOWN',
+                    ($specification // {})->%*,
+                },
+                requires => {
+                    "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
+                },
+            },
+        },
+        'hardware_product';
+    }
+    elsif ($fixture_type eq 'device_location') {
+        my $rack_unit_start = delete $specification->{rack_unit_start};
+        return +{
+            "device_location_$num" => {
+                new => 'device_location',
+                using => {
+                    ($specification // {})->%*,
+                },
+                requires => {
+                    "device_$num" => { our => 'device_id', their => 'id' },
+                    "datacenter_rack_$num" => { our => 'rack_id', their => 'id' },
+                    "datacenter_rack_layout_${num}_ru$rack_unit_start" => { our => 'rack_unit_start', their => 'rack_unit_start' },
+                },
+            },
+        },
+        # NOTE: datacenter_rack requires additional data (rack_layouts with hardware_product
+        # etc), so it must be defined separately (probably via datacenter_rack_layouts) before
+        # loading the fixture!
+        'device', 'datacenter_rack';
+    }
+    elsif ($fixture_type eq 'datacenter_rack_layouts') {
+        return +{
+            map {
+                "datacenter_rack_layout_${num}_ru".$_->{rack_unit_start} => +{
+                    new => 'datacenter_rack_layout',
+                    using => $_,
+                    # TODO: current limitation: all layouts use the same hardware_product.
+                    # in the future we can check for hardware_product_id in provided field list.
+                    requires => {
+                        "datacenter_rack_$num" => { our => 'rack_id', their => 'id' },
+                        "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
+                    },
+                }
+            } $specification->@*
+        },
+        'datacenter_rack', 'hardware_product';
+    }
+    elsif ($fixture_type eq 'datacenter_rack') {
+        return +{
+            "datacenter_rack_$num" => {
+                new => 'datacenter_rack',
+                using => {
+                    name => "datacenter_rack_$num",
+                    ($specification // {})->%*,
+                },
+                requires => {
+                    "datacenter_room_$num" => { our => 'datacenter_room_id', their => 'id' },
+                    "datacenter_rack_role_$num" => { our => 'datacenter_rack_role_id', their => 'id' },
+                },
+            },
+        },
+        'datacenter_room', 'datacenter_rack_role';
+    }
+    elsif ($fixture_type eq 'hardware_product') {
+        return +{
+            "hardware_product_$num" => {
+                new => 'hardware_product',
+                using => {
+                    name => "hardware_product_$num",
+                    alias => "hardware_product_$num",
+                    ($specification // {})->%*,
+                },
+                requires => {
+                     "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
+                },
+            },
+        },
+        'hardware_vendor';
+    }
+    elsif ($fixture_type eq 'hardware_product_profile') {
+        return +{
+            "hardware_product_profile_$num" => {
+                new => 'hardware_product_profile',
+                using => {
+                    rack_unit => 42,
+                    purpose => 'none',
+                    bios_firmware => 'none',
+                    cpu_num => 0,
+                    cpu_type => 'blue',
+                    dimms_num => 0,
+                    ram_total => 0,
+                    nics_num => 0,
+                    usb_num => 0,
+                    ($specification // {})->%*,
+                },
+                requires => {
+                    "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
+                },
+            },
+        },
+        'hardware_product';
+    }
+    elsif ($fixture_type eq 'datacenter_room') {
+        return +{
+            "datacenter_room_$num" => {
+                new => 'datacenter_room',
+                using => {
+                    az => "datacenter_room_$num",
+                    ($specification // {})->%*,
+                },
+                requires => {
+                    "datacenter_$num" => { our => 'datacenter_id', their => 'id' },
+                    # this is a hack: should be able to specify requirements without copying values.
+                    global_workspace => { our => 'vendor_name', their => 'name' },
+                },
+            },
+        },
+        'datacenter';
+    }
+    elsif ($fixture_type eq 'datacenter_rack_role') {
+        return +{
+            "datacenter_rack_role_$num" => {
+                new => 'datacenter_rack_role',
+                using => {
+                    name => "datacenter_rack_role_$num",
+                    rack_size => 42,
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    elsif ($fixture_type eq 'datacenter') {
+        return +{
+            "datacenter_$num" => {
+                new => 'datacenter',
+                using => {
+                    vendor => 'vendor',
+                    region => 'region',
+                    location => 'location',
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    elsif ($fixture_type eq 'hardware_vendor') {
+        return +{
+            "hardware_vendor_$num" => {
+                new => 'hardware_vendor',
+                using => {
+                    name => "hardware_vendor_$num",
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    else {
+        die 'unrecognized fixture type '.$fixture_type;
+    }
+}
+
+
+# initialize definitions with those passed in, folded together with our defaults.
+around BUILDARGS => sub ($orig, $class, @args) {
+    my $args = $class->$orig(@args);
 
     return +{
         definitions => {
@@ -505,8 +755,7 @@ has definitions => (
     required => 1,
 );
 
-before get_definition => sub {
-    my ($self, $name) = @_;
+before get_definition => sub ($self, $name) {
     die "missing fixture definition for $name" if not $self->_has_definition($name);
 };
 

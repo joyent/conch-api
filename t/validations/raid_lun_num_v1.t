@@ -7,7 +7,7 @@ test_validation(
 	'Conch::Validation::RaidLunNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => {}
+		hardware_product_profile => {}
 	},
 	cases => [
 		{
@@ -28,7 +28,7 @@ test_validation(
 	'Conch::Validation::RaidLunNum',
 	hardware_product => {
 		name    => 'Test Product',
-		profile => { raid_lun_num => 2 }
+		hardware_product_profile => { raid_lun_num => 2 }
 	},
 	cases => [
 		{

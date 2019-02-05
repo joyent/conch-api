@@ -17,7 +17,7 @@ requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'JSON::Validator', '2.14';
-requires 'Pod::Github', '>= 0.04';
+requires 'Pod::Markdown::Github';
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
 requires 'Safe::Isa';
@@ -82,6 +82,8 @@ on 'test' => sub {
     requires 'DBIx::Class::EasyFixture', '0.13';    # Moo not Moose
     requires 'Moo';
     requires 'MooX::HandlesVia';
+    requires 'Storable';
+
     local $ENV{PERL_USE_UNSAFE_INC} = 1;
     recommends 'Test::Spelling';
 };
