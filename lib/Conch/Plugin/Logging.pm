@@ -88,7 +88,7 @@ sub register ($self, $app, $config) {
 				user         => $u_str,
 				method       => $c->req->method,
 				url          => $c->req->url,
-				remoteAdress => $c->tx->original_remote_address,
+				remoteAddress => $c->tx->original_remote_address,
 				remotePort   => $c->tx->remote_port,
 				headers      => $req_headers,
 				params       => $c->req->params->to_hash,
