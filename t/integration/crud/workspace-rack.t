@@ -23,13 +23,19 @@ my $uuid = Data::UUID->new;
 # remove room from the sub-workspace
 $t->load_fixture('workspace_room_0a')->delete;
 
+# this rack is reachable through GLOBAL (via the room) but not through the sub-workspace.
+my $rack2 = $rack->datacenter_room->add_to_datacenter_racks({
+    name => 'second rack',
+    datacenter_rack_role_id => $rack->datacenter_rack_role_id,
+});
+
 $t->authenticate;
 
 $t->get_ok("/workspace/$global_ws_id/rack")
     ->status_is(200)
     ->json_schema_is('WorkspaceRackSummary')
-    ->json_is({
-        'room-0a' => [
+    ->json_cmp_deeply({
+        'room-0a' => bag(
             {
                 id => $rack_id,
                 name => 'rack 0a',
@@ -37,7 +43,14 @@ $t->get_ok("/workspace/$global_ws_id/rack")
                 size => 42,
                 device_progress => {},
             },
-         ],
+            {
+                id => $rack2->id,
+                name => 'second rack',
+                role => 'rack_role 42U',
+                size => 42,
+                device_progress => {},
+            },
+         ),
     });
 
 $t->get_ok("/workspace/$global_ws_id/rack/notauuid")
@@ -132,25 +145,12 @@ CSV
     };
 };
 
-subtest 'Remove rack from workspace' => sub {
-    $t->delete_ok("/workspace/$sub_ws_id/rack/$rack_id")
-        ->status_is(204);
-
-    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
-        ->status_is(404)
-        ->json_cmp_deeply({ error => re(qr/not found/) });
-
-    $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
-        ->status_is(400)
-        ->json_is({ error => 'Cannot modify GLOBAL workspace' });
-};
-
 subtest 'Assign device to a location' => sub {
-    $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout", json => { TEST => 42 })
+    $t->post_ok("/workspace/$sub_ws_id/rack/$rack_id/layout", json => { TEST => 42 })
         ->status_is(409)
         ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
 
-    $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout",
+    $t->post_ok("/workspace/$sub_ws_id/rack/$rack_id/layout",
             json => { TEST => 1, NEW_DEVICE => 3 })
         ->status_is(200)
         ->json_schema_is('WorkspaceRackLayoutUpdateResponse')
@@ -165,7 +165,7 @@ subtest 'Assign device to a location' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceLocation');
 
-    $t->get_ok("/workspace/$global_ws_id/rack/$rack_id")
+    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
         ->status_is(200)
         ->json_schema_is('WorkspaceRack')
         ->json_cmp_deeply({
@@ -205,7 +205,7 @@ subtest 'Assign device to a location' => sub {
             ],
         });
 
-    $t->get_ok("/workspace/$global_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
+    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
         ->status_is(200)
         ->content_is(<<CSV);
 az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number
@@ -214,7 +214,7 @@ room-0a,"rack 0a",3,${\ $hardware_product_storage->name},,NEW_DEVICE
 room-0a,"rack 0a",11,${\ $hardware_product_storage->name},,
 CSV
 
-    $t->get_ok("/workspace/$global_ws_id/rack")
+    $t->get_ok("/workspace/$sub_ws_id/rack")
         ->status_is(200)
         ->json_schema_is('WorkspaceRackSummary')
         ->json_is({
@@ -228,6 +228,19 @@ CSV
                 }
              ]
         });
+};
+
+subtest 'Remove rack from workspace' => sub {
+    $t->delete_ok("/workspace/$sub_ws_id/rack/$rack_id")
+        ->status_is(204);
+
+    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
+        ->status_is(404)
+        ->json_cmp_deeply({ error => re(qr/not found/) });
+
+    $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
+        ->status_is(400)
+        ->json_is({ error => 'Cannot modify GLOBAL workspace' });
 };
 
 done_testing;
