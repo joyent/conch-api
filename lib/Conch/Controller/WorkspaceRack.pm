@@ -8,6 +8,7 @@ with 'Conch::Role::MojoLog';
 use Conch::UUID 'is_uuid';
 use Text::CSV_XS;
 use Try::Tiny;
+use List::Util 'reduce';
 
 =pod
 
@@ -54,34 +55,29 @@ sub list ($c) {
         $device_progress{$entry->{rack_id}}{$entry->{status} // 'VALID'} += $entry->{count};
     }
 
-    my @rack_data = $racks_rs->search_related('datacenter_room', {},
+    my @rack_data = $racks_rs->search(undef,
         {
             columns => {
-                room_id => 'datacenter_room.id',    # needed for collapse
                 az => 'datacenter_room.az',
-                'datacenter_racks.datacenter_room_id' => 'datacenter_racks.datacenter_room_id', # needed for collapse
-                'datacenter_racks.id' => 'datacenter_racks.id',
-                'datacenter_racks.name' => 'datacenter_racks.name',
-                'datacenter_racks.role' => 'datacenter_rack_role.name',
-                'datacenter_racks.size' => 'datacenter_rack_role.rack_size',
+                id => 'datacenter_rack.id',
+                name => 'datacenter_rack.name',
+                role => 'datacenter_rack_role.name',
+                size => 'datacenter_rack_role.rack_size',
             },
-            join => { datacenter_racks => 'datacenter_rack_role' },
+            join => [ qw(datacenter_room datacenter_rack_role) ],
             collapse => 1,
         },
     )->hri->all;
 
-    # now munge all the data together into the desired format.
-    my %final_rack_data = map {
-        $_->{az} => [ map {
-            my $rack_data = $_;
-            +{
-                $_->%{ qw(id name role size) },
-                device_progress => $device_progress{$_->{id}} // {},
-            },
-        } $_->{datacenter_racks}->@* ],
-    } @rack_data;
+    my $final_rack_data = reduce {
+        push $a->{ delete $b->{az} }->@*, +{
+            $b->%*,
+            device_progress => $device_progress{ $b->{id} } // {},
+        };
+        $a;
+    } +{}, @rack_data;
 
-    $c->status(200, \%final_rack_data);
+    $c->status(200, $final_rack_data);
 }
 
 =head2 find_rack
