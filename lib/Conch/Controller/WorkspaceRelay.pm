@@ -106,6 +106,7 @@ sub get_relay_devices ($c) {
         ->related_resultset('device')
         ->active
         ->search({ relay_id => $c->stash('relay_id') }, { join => 'device_relay_connections' })
+        ->prefetch('device_location')
         ->order_by('device.created');
 
     my @devices = $devices_rs->all;

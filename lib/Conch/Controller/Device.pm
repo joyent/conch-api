@@ -166,12 +166,12 @@ sub lookup_by_other_attribute ($c) {
 
 	$c->log->debug('looking up device by ' . $key . ' = ' . $value);
 
-	my $device_rs;
+	my $device_rs = $c->db_devices->prefetch('device_location')->active;
 	if ($key eq 'hostname') {
-		$device_rs = $c->db_devices->active->search({ $key => $value });
+		$device_rs = $device_rs->search({ $key => $value });
 	}
 	elsif (any { $key eq $_ } qw(mac ipaddr)) {
-		$device_rs = $c->db_devices->active->search(
+		$device_rs = $device_rs->search(
 			{ "device_nics.$key" => $value },
 			{ join => 'device_nics' },
 		);
@@ -180,7 +180,9 @@ sub lookup_by_other_attribute ($c) {
 		# for any other key, look for it in device_settings.
 		$device_rs = $c->db_device_settings->active
 			->search({ name => $key, value => $value })
-			->related_resultset('device')->active;
+			->related_resultset('device')
+			->prefetch('device_location')
+			->active;
 	}
 
 	my @devices = $device_rs->all;

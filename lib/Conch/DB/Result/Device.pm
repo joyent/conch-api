@@ -376,6 +376,14 @@ sub TO_JSON {
 
     my $data = $self->next::method(@_);
     $data->{hardware_product} = delete $data->{hardware_product_id};
+
+    # include location information, when available
+    if (my $cached_location = $self->related_resultset('device_location')->get_cache) {
+        # the cache is always a listref, if it was prefetched.
+        $data->{rack_id} = @$cached_location ? $cached_location->[0]->rack_id : undef;
+        $data->{rack_unit_start} = @$cached_location ? $cached_location->[0]->rack_unit_start : undef;
+    }
+
     return $data;
 }
 

@@ -167,7 +167,11 @@ sub get_layout ($c) {
                     my $device = delete $_->{layout}{device};
                     +{
                         $_->{layout}->%*,
-                        occupant => $device ? $device_class->inflate_result($rsrc, $device) : undef,
+                        occupant => $device ? +{
+                            $device_class->inflate_result($rsrc, $device)->TO_JSON->%*,
+                            rack_id => $c->stash('rack_id'),
+                            rack_unit_start => $_->{layout}{rack_unit_start},
+                        } : undef,
                     }
                 } @raw_data
             ],
