@@ -30,7 +30,7 @@ sub list ($c) {
     my $racks_rs = $c->stash('workspace_rs')->associated_racks->active;
 
     my $device_health_rs = $racks_rs->search(
-        {},
+        { 'device.id' => { '!=' => undef } },
         {
             columns => { rack_id => 'datacenter_rack.id' },
             select => [ { count => '*', -as => 'count' } ],
@@ -201,7 +201,7 @@ sub get_layout ($c) {
 							{ device_location => 'device' },
 						  ] },
 					],
-					order_by => { -desc => 'datacenter_rack_layouts.rack_unit_start' },
+					order_by => 'datacenter_rack_layouts.rack_unit_start',
 				},
 			);
 
