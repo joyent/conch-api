@@ -120,10 +120,10 @@ sub get ($c) {
 
 	my $detailed_device = +{
 		$device->TO_JSON->%*,
-		latest_report_is_invalid => \($latest_report->invalid_report ? 1 : 0),
-		latest_report => $latest_report->report ? from_json($latest_report->report) : undef,
+		latest_report_is_invalid => \($latest_report && $latest_report->invalid_report ? 1 : 0),
+		latest_report => $latest_report && $latest_report->report ? from_json($latest_report->report) : undef,
 		# if not null, this is text - maybe json-encoded, maybe random junk
-		invalid_report => $latest_report->invalid_report,
+		invalid_report => $latest_report ? $latest_report->invalid_report : undef,
 		nics => [ map {
 			my $device_nic = $_;
 			$device_nic->deactivated ? () :
