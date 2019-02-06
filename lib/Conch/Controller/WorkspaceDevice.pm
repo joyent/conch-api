@@ -72,7 +72,7 @@ sub list ($c) {
 
 Ported from 'conch-stats'.
 
-Output conforms to the 'DeviceTotals' and 'DeviceTotalsCirconus' json schemas.
+Response uses the 'DeviceTotals' and 'DeviceTotalsCirconus' json schemas.
 Add '.circ' to the end of the URL to select the data format customized for Circonus.
 
 Note that this is an unauthenticated endpoint.

@@ -315,7 +315,7 @@ sub remove ($c) {
 
 =head2 assign_layout
 
-Assign the full layout for a rack
+Assign a full or partial layout for a rack
 
 Response returns the list of devices that were updated.
 

@@ -75,7 +75,7 @@ sub get_one ($c) {
 
 Get all rooms for the given datacenter.
 
-Response matches the DatacenterRoomsDetailed json schema.
+Response uses the DatacenterRoomsDetailed json schema.
 
 =cut
 
