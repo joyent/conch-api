@@ -12,9 +12,11 @@ $t->load_fixture_set('workspace_room_rack_layout', 0);
 
 my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
 my $sub_ws_id = $t->load_fixture('sub_workspace_0')->id;
-my $rack_id = $t->load_fixture('datacenter_rack_0a')->id;
-my $hardware_product_compute_name = $t->load_fixture('hardware_product_compute')->name;
-my $hardware_product_storage_name = $t->load_fixture('hardware_product_storage')->name;
+my $rack = $t->load_fixture('datacenter_rack_0a');
+my $rack_id = $rack->id;
+my $room = $t->load_fixture('datacenter_room_0a');
+my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
+my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
 
 my $uuid = Data::UUID->new;
 
@@ -25,18 +27,30 @@ $t->authenticate;
 
 $t->get_ok("/workspace/$global_ws_id/rack")
     ->status_is(200)
-    ->json_schema_is('WorkspaceRackSummary');
+    ->json_schema_is('WorkspaceRackSummary')
+    ->json_is({
+        'room-0a' => [
+            {
+                id => $rack_id,
+                name => 'rack 0a',
+                role => 'rack_role 42U',
+                size => 42,
+                device_progress => {},
+            },
+         ],
+    });
 
 $t->get_ok("/workspace/$global_ws_id/rack/notauuid")
     ->status_is(400)
-    ->json_like('/error', qr/must be a UUID/);
+    ->json_cmp_deeply({ error => re(qr/must be a UUID/) });
+
 $t->get_ok("/workspace/$global_ws_id/rack/" . $uuid->create_str())
     ->status_is(404);
 
 subtest 'Add rack to workspace' => sub {
     $t->post_ok("/workspace/$sub_ws_id/rack")
         ->status_is(400, 'Requires request body')
-        ->json_like('/error', qr/Expected object/);
+        ->json_cmp_deeply({ error => re(qr/Expected object/) });
 
     $t->post_ok("/workspace/$sub_ws_id/rack", json => {
             id => $rack_id,
@@ -48,11 +62,68 @@ subtest 'Add rack to workspace' => sub {
 
     $t->get_ok("/workspace/$sub_ws_id/rack")
         ->status_is(200)
-        ->json_schema_is('WorkspaceRackSummary');
+        ->json_schema_is('WorkspaceRackSummary')
+        ->json_is({
+            'room-0a' => [
+                {
+                    id => $rack_id,
+                    name => 'rack 0a',
+                    role => 'rack_role 42U',
+                    size => 42,
+                    device_progress => {},
+                },
+             ],
+        });
 
     $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
         ->status_is(200)
-        ->json_schema_is('WorkspaceRack');
+        ->json_schema_is('WorkspaceRack')
+        ->json_cmp_deeply({
+            id => $rack_id,
+            name => 'rack 0a',
+            role => 'rack_role 42U',
+            # TODO? size => 42,
+            datacenter => $room->az,
+            slots => [
+                {
+                    id => ignore,
+                    name => $hardware_product_compute->name,
+                    alias => $hardware_product_compute->alias,
+                    vendor => $hardware_product_compute->hardware_vendor->name,
+                    rack_unit_start => 1,
+                    size => 2,
+                    occupant => undef,
+                },
+                {
+                    id => ignore,
+                    name => $hardware_product_storage->name,
+                    alias => $hardware_product_storage->alias,
+                    vendor => $hardware_product_storage->hardware_vendor->name,
+                    rack_unit_start => 3,
+                    size => 4,
+                    occupant => undef,
+                },
+                {
+                    id => ignore,
+                    name => $hardware_product_storage->name,
+                    alias => $hardware_product_storage->alias,
+                    vendor => $hardware_product_storage->hardware_vendor->name,
+                    rack_unit_start => 11,
+                    size => 4,
+                    occupant => undef,
+                },
+            ],
+        });
+
+    $t->get_ok("/workspace/$global_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
+        ->status_is(200)
+        ->content_is(<<CSV);
+az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number
+room-0a,"rack 0a",1,${\ $hardware_product_compute->name},,
+room-0a,"rack 0a",3,${\ $hardware_product_storage->name},,
+room-0a,"rack 0a",11,${\ $hardware_product_storage->name},,
+CSV
+
 
     subtest 'Cannot modify GLOBAL workspace' => sub {
         $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
@@ -67,7 +138,7 @@ subtest 'Remove rack from workspace' => sub {
 
     $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
         ->status_is(404)
-        ->json_like('/error', qr/not found/);
+        ->json_cmp_deeply({ error => re(qr/not found/) });
 
     $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
         ->status_is(400)
@@ -97,19 +168,51 @@ subtest 'Assign device to a location' => sub {
     $t->get_ok("/workspace/$global_ws_id/rack/$rack_id")
         ->status_is(200)
         ->json_schema_is('WorkspaceRack')
-        ->json_is(
-            '/slots/0/rack_unit_start', 1,
-            '/slots/0/occupant/id', 'TEST',
-            '/slots/1/rack_unit_start', 3,
-            '/slots/1/occupant/id', 'NEW_DEVICE',
-        );
+        ->json_cmp_deeply({
+            id => $rack_id,
+            name => 'rack 0a',
+            role => 'rack_role 42U',
+            # TODO? size => 42,
+            datacenter => $room->az,
+            slots => [
+                {
+                    id => ignore,
+                    name => $hardware_product_compute->name,
+                    alias => $hardware_product_compute->alias,
+                    vendor => $hardware_product_compute->hardware_vendor->name,
+                    rack_unit_start => 1,
+                    size => 2,
+                    occupant => superhashof({ id => 'TEST' }),
+                },
+                {
+                    id => ignore,
+                    name => $hardware_product_storage->name,
+                    alias => $hardware_product_storage->alias,
+                    vendor => $hardware_product_storage->hardware_vendor->name,
+                    rack_unit_start => 3,
+                    size => 4,
+                    occupant => superhashof({ id => 'NEW_DEVICE' }),
+                },
+                {
+                    id => ignore,
+                    name => $hardware_product_storage->name,
+                    alias => $hardware_product_storage->alias,
+                    vendor => $hardware_product_storage->hardware_vendor->name,
+                    rack_unit_start => 11,
+                    size => 4,
+                    occupant => undef,
+                },
+            ],
+        });
 
     $t->get_ok("/workspace/$global_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
         ->status_is(200)
-        ->content_like(qr/^az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number$/m)
-        ->content_like(qr/^room-0a,"rack 0a",1,$hardware_product_compute_name,,TEST$/m)
-        ->content_like(qr/^room-0a,"rack 0a",3,$hardware_product_storage_name,,NEW_DEVICE$/m)
-        ->content_like(qr/^room-0a,"rack 0a",11,$hardware_product_storage_name,,$/m);
+        ->content_is(<<CSV);
+az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number
+room-0a,"rack 0a",1,${\ $hardware_product_compute->name},,TEST
+room-0a,"rack 0a",3,${\ $hardware_product_storage->name},,NEW_DEVICE
+room-0a,"rack 0a",11,${\ $hardware_product_storage->name},,
+CSV
 
     $t->get_ok("/workspace/$global_ws_id/rack")
         ->status_is(200)
