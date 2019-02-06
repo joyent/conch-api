@@ -96,68 +96,6 @@ subtest 'Workspace Rooms' => sub {
 		->json_is('', []);
 };
 
-my $rack_id;
-subtest 'Workspace Racks' => sub {
-
-	note(
-"Variance: /rack in returns a hash keyed by datacenter room AZ instead of an array"
-	);
-	$t->get_ok("/workspace/$global_ws_id/rack")
-		->status_is(200)
-		->json_schema_is('WorkspaceRackSummary')
-		->json_is('/test-region-1a/0/name', 'Test Rack', 'Has test datacenter rack');
-
-	$rack_id = $t->tx->res->json->{'test-region-1a'}->[0]->{id};
-
-	$t->get_ok("/workspace/$global_ws_id/rack/notauuid")
-		->status_is(400)
-		->json_like( '/error', qr/must be a UUID/ );
-	$t->get_ok("/workspace/$global_ws_id/rack/" . $uuid->create_str())
-		->status_is(404);
-
-	subtest 'Add rack to workspace' => sub {
-		$t->post_ok("/workspace/$sub_ws_id/rack")
-			->status_is(400, 'Requires request body')
-			->json_like('/error', qr/Expected object/);
-
-		$t->post_ok("/workspace/$sub_ws_id/rack", json => {
-				id => $rack_id,
-				serial_number => 'abc',
-				asset_tag => 'deadbeef',
-			})
-			->status_is(303)
-			->location_is("/workspace/$sub_ws_id/rack/$rack_id");
-
-		$t->get_ok("/workspace/$sub_ws_id/rack")
-			->status_is(200)
-			->json_schema_is('WorkspaceRackSummary');
-
-		$t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
-			->status_is(200)
-			->json_schema_is('WorkspaceRack');
-
-		subtest 'Cannot modify GLOBAL workspace' => sub {
-			$t->post_ok( "/workspace/$global_ws_id/rack", json => { id => $rack_id } )
-				->status_is(400)
-				->json_is({ error => 'Cannot modify GLOBAL workspace' });
-		};
-	};
-
-	subtest 'Remove rack from workspace' => sub {
-		$t->delete_ok("/workspace/$sub_ws_id/rack/$rack_id")
-			->status_is(204);
-
-		$t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
-			->status_is(404)
-			->json_like( '/error', qr/not found/ );
-
-		$t->post_ok( "/workspace/$global_ws_id/rack", json => { id => $rack_id } )
-			->status_is(400)
-			->json_is({ error => 'Cannot modify GLOBAL workspace' });
-	};
-
-};
-
 subtest 'Register relay' => sub {
 	$t->post_ok(
 		'/relay/deadbeef/register',
@@ -343,50 +281,6 @@ subtest 'Device Report' => sub {
     );
 };
 
-subtest 'Assign device to a location' => sub {
-	$t->post_ok(
-		"/workspace/$global_ws_id/rack/$rack_id/layout",
-		json => { TEST => 42 })
-	->status_is(409)
-	->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
-
-	$t->post_ok(
-		"/workspace/$global_ws_id/rack/$rack_id/layout",
-		json => { TEST => 1, NEW_DEVICE => 3 })
-	->status_is(200)
-	->json_schema_is('WorkspaceRackLayoutUpdateResponse')
-	->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
-
-    ok(
-        !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
-        'device is now located',
-    );
-
-	$t->get_ok('/device/TEST/location')
-		->status_is(200)
-		->json_schema_is('DeviceLocation');
-
-	$t->get_ok("/workspace/$global_ws_id/rack/$rack_id")
-		->status_is(200)
-		->json_schema_is('WorkspaceRack')
-		->json_is(
-			'/slots/0/rack_unit_start', 1,
-			'/slots/0/occupant/id', 'TEST',
-			'/slots/1/rack_unit_start', 3,
-			'/slots/1/occupant/id', 'NEW_DEVICE',
-		);
-
-	$t->get_ok("/workspace/$global_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
-		->status_is(200)
-		->content_like(qr/^az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number$/m)
-		->content_like(qr/^test-region-1a,"Test Rack",1,2-ssds-1-cpu,,TEST$/m);
-
-	$t->get_ok("/workspace/$global_ws_id/rack")
-		->status_is(200)
-		->json_schema_is('WorkspaceRackSummary')
-		->json_is('/test-region-1a/0/name', 'Test Rack', 'Has test datacenter rack');
-};
-
 my $detailed_device;
 
 subtest 'Single device' => sub {
@@ -493,6 +387,21 @@ subtest 'Single device' => sub {
 			->json_is('/latest_report_is_invalid' => JSON::PP::false);
 		$detailed_device = $t->tx->res->json;
 	};
+
+	my $rack_id = $t->load_fixture('legacy_datacenter_rack')->id;
+
+	# device settings that check for 'admin' permission need the device to have a location
+	$t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout",
+			json => { TEST => 1, NEW_DEVICE => 3 })
+		->status_is(200)
+		->json_schema_is('WorkspaceRackLayoutUpdateResponse')
+		->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
+
+    ok(
+        !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        'device is now located',
+    );
+
 
 	subtest 'Device settings' => sub {
 		$t->get_ok('/device/TEST/settings')
@@ -904,6 +813,8 @@ subtest 'Device location' => sub {
 		->status_is(400, 'requires body')
 		->json_like('/error', qr/Expected object/);
 
+	my $rack_id = $t->load_fixture('legacy_datacenter_rack')->id;
+
 	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 42 })
 		->status_is(409)
 		->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
@@ -929,8 +840,9 @@ subtest 'Permissions' => sub {
 	my $ro_email = 'readonly@wat.wat';
 	my $ro_pass = 'password';
 
-	subtest "Read-only" => sub {
+	my $rack_id = $t->load_fixture('legacy_datacenter_rack')->id;
 
+	subtest 'Read-only' => sub {
 		my $ro_user = $t->app->db_user_accounts->create({
 			name => $ro_name,
 			email => $ro_email,
