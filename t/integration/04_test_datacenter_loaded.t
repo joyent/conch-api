@@ -470,7 +470,23 @@ subtest 'Workspace devices' => sub {
 		->status_is(200)
 		->json_schema_is('Devices')
 		->json_is('/0/id', 'TEST')
-		->json_is('/1/id', 'NEW_DEVICE');
+		->json_is('/1/id', 'NEW_DEVICE')
+		->json_cmp_deeply([
+			superhashof({
+				id => 'TEST',
+				graduated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+				validated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+				last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+				health => 'PASS',
+			}),
+			superhashof({
+				id => 'NEW_DEVICE',
+				graduated => undef,
+				validated => undef,
+				last_seen => undef,
+				health => 'UNKNOWN',
+			}),
+		]);
 
 	$devices_data = $t->tx->res->json;
 
@@ -490,6 +506,26 @@ subtest 'Workspace devices' => sub {
 		->json_is('', [ $devices_data->[0] ]);
 
 	$t->get_ok("/workspace/$global_ws_id/device?graduated=T")
+		->status_is(200)
+		->json_schema_is('Devices')
+		->json_is('', [ $devices_data->[0] ]);
+
+	$t->get_ok("/workspace/$global_ws_id/device?validated=f")
+		->status_is(200)
+		->json_schema_is('Devices')
+		->json_is('', [ $devices_data->[1] ]);
+
+	$t->get_ok("/workspace/$global_ws_id/device?validated=F")
+		->status_is(200)
+		->json_schema_is('Devices')
+		->json_is('', [ $devices_data->[1] ]);
+
+	$t->get_ok("/workspace/$global_ws_id/device?validated=t")
+		->status_is(200)
+		->json_schema_is('Devices')
+		->json_is('', [ $devices_data->[0] ]);
+
+	$t->get_ok("/workspace/$global_ws_id/device?validated=T")
 		->status_is(200)
 		->json_schema_is('Devices')
 		->json_is('', [ $devices_data->[0] ]);

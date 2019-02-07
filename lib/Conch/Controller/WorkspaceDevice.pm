@@ -23,6 +23,8 @@ Supports these query parameters to constrain results (which are ANDed together, 
 
 	graduated=T     only devices with graduated set
 	graduated=F     only devices with graduated not set
+	validated=T     only devices with validated set
+	validated=F     only devices with validated not set
 	health=<value>  only devices with health matching provided value (case-insensitive)
 	active=1        only devices last seen within 5 minutes
 	ids_only=1      only return device ids, not full data
@@ -44,6 +46,12 @@ sub list ($c) {
 
 	$devices_rs = $devices_rs->search({ graduated => undef })
 		if defined $c->param('graduated') and uc $c->param('graduated') eq 'F';
+
+	$devices_rs = $devices_rs->search({ validated => { '!=' => undef } })
+		if defined $c->param('validated') and uc $c->param('validated') eq 'T';
+
+	$devices_rs = $devices_rs->search({ validated => undef })
+		if defined $c->param('validated') and uc $c->param('validated') eq 'F';
 
 	$devices_rs = $devices_rs->search(\[ 'upper(health) = ?', uc $c->param('health') ])
 		if defined $c->param('health');
