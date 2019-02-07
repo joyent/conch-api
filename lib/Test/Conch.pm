@@ -4,7 +4,7 @@ use v5.26;
 use Mojo::Base 'Test::Mojo', -signatures;
 
 use Test::More ();
-use Test::ConchTmpDB ();
+use Test::PostgreSQL;
 use Conch::DB;
 use Test::Conch::Fixtures;
 use JSON::Validator;
@@ -39,8 +39,7 @@ use constant CONCH_PASSWORD => 'conch';
 =head2 pg
 
 Override with your own Test::PostgreSQL object if you want to use a custom database, perhaps
-with extra settings or loaded with additional data.  Defaults to the basic database created by
-L<Test::ConchTmpDB/mk_tmp_db>.
+with extra settings or loaded with additional data.
 
 This is the attribute to copy if you want multiple Test::Conch objects to be able to talk to
 the same database.
@@ -84,10 +83,8 @@ has fixtures => sub ($self) {
 Constructor. Takes the following arguments:
 
   * pg (optional). uses this as the postgres db.
-  * legacy_db (optional, defaults to false).
-    When false, adds no data and starts off with sql/schema.sql.
-    When true, use Test::ConchTmpDB::mk_tmp_db to set up database (uses migration files,
-    creates a conch user).
+
+An empty database is created, using the schema in sql/schema.sql.
 
 =cut
 
@@ -95,7 +92,7 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-    my $pg = $args->{pg} // ($args->{legacy_db} ? Test::ConchTmpDB::mk_tmp_db() : $class->init_db);
+    my $pg = $args->{pg} // $class->init_db;
     $pg or Test::More::BAIL_OUT("failed to create test database");
 
     my $self = Test::Mojo->new(
@@ -128,11 +125,6 @@ sub new {
 }
 
 sub DESTROY ($self) {
-
-    # ensure that a new Test::Conch instance creates a brand new Mojo::Pg connection (with a
-    # possibly-different dsn) rather than using the old one to a now-dead postgres instance
-    Conch::Pg->DESTROY;
-
     # explicitly disconnect before terminating the server, to avoid exceptions like:
     # "DBI Exception: DBD::Pg::st DESTROY failed: FATAL:  terminating connection due to administrator command"
     do { $_->disconnect if $_->connected }

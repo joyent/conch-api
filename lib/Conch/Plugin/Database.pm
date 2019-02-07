@@ -2,7 +2,6 @@ package Conch::Plugin::Database;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use Conch::Pg;
 use Conch::DB ();
 use Lingua::EN::Inflexion 'noun';
 use Try::Tiny;
@@ -53,14 +52,6 @@ sub register ($self, $app, $config) {
         RaiseError          => 1,
         ($database_config->{options} // {})->%*,
     };
-
-    # Conch::Pg = legacy database access; will be removed soon.
-    Conch::Pg->new({
-        $database_config->%{qw(dsn username password)},
-        $ENV{POSTGRES_USER} ? ( username => $ENV{POSTGRES_USER} ) : (),
-        $ENV{POSTGRES_PASSWORD} ? ( password => $ENV{POSTGRES_PASSWORD} ) : (),
-        options => $options,
-    });
 
 
 =head2 schema

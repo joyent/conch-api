@@ -11,7 +11,6 @@ use Conch::ValidationSystem;
 use lib 't/lib';
 
 my $t = Test::Conch->new;
-my $pg = Conch::Pg->new($t->pg); # temporary: wire up Conch::Model::* to the same db instance
 
 my $device = $t->load_fixture('device_HAL');
 $device = $t->app->db_ro_devices->find($device->id);

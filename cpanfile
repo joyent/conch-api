@@ -13,7 +13,6 @@ requires 'Data::UUID';
 requires 'List::Compare';
 requires 'Mail::Sendmail';
 requires 'Try::Tiny';
-requires 'Class::StrongSingleton';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'JSON::Validator', '2.14';
