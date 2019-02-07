@@ -2,3 +2,81 @@
 %project=conch
 %uri=https://github.com/joyent/conch
 
+base-schema 2019-02-07T20:29:03Z Chris Prather <chris@prather.org> # migrate base-schema from old system
+add-relay-to-device-and-user [base-schema] 2019-02-07T20:29:03Z Chris Prather <chris@prather.org> # migrate add-relay-to-device-and-user from old system
+add-unique-constraint-to-rack-layout [add-relay-to-device-and-user] 2019-02-07T20:29:04Z Chris Prather <chris@prather.org> # migrate add-unique-constraint-to-rack-layout from old system
+device-settings-deactivate [add-unique-constraint-to-rack-layout] 2019-02-07T20:29:05Z Chris Prather <chris@prather.org> # migrate device-settings-deactivate from old system
+less-restricted-device-settings [device-settings-deactivate] 2019-02-07T20:29:06Z Chris Prather <chris@prather.org> # migrate less-restricted-device-settings from old system
+peer-mac-neighbor [less-restricted-device-settings] 2019-02-07T20:29:06Z Chris Prather <chris@prather.org> # migrate peer-mac-neighbor from old system
+device-uptime-since [peer-mac-neighbor] 2019-02-07T20:29:07Z Chris Prather <chris@prather.org> # migrate device-uptime-since from old system
+device-validation-report-id-index [device-uptime-since] 2019-02-07T20:29:08Z Chris Prather <chris@prather.org> # migrate device-validation-report-id-index from old system
+user-settings [device-validation-report-id-index] 2019-02-07T20:29:08Z Chris Prather <chris@prather.org> # migrate user-settings from old system
+device-validated-column [user-settings] 2019-02-07T20:29:09Z Chris Prather <chris@prather.org> # migrate device-validated-column from old system
+device-report-device-id-index [device-validated-column] 2019-02-07T20:29:10Z Chris Prather <chris@prather.org> # migrate device-report-device-id-index from old system
+device-report-latest-report-idx [device-report-device-id-index] 2019-02-07T20:29:11Z Chris Prather <chris@prather.org> # migrate device-report-latest-report-idx from old system
+workspaces [device-report-latest-report-idx] 2019-02-07T20:29:11Z Chris Prather <chris@prather.org> # migrate workspaces from old system
+triton-device [workspaces] 2019-02-07T20:29:12Z Chris Prather <chris@prather.org> # migrate triton-device from old system
+workspace-rack [triton-device] 2019-02-07T20:29:13Z Chris Prather <chris@prather.org> # migrate workspace-rack from old system
+device-asset-tag [workspace-rack] 2019-02-07T20:29:14Z Chris Prather <chris@prather.org> # migrate device-asset-tag from old system
+drop-hw-prefix-unique [device-asset-tag] 2019-02-07T20:29:14Z Chris Prather <chris@prather.org> # migrate drop-hw-prefix-unique from old system
+add-enclosures [drop-hw-prefix-unique] 2019-02-07T20:29:15Z Chris Prather <chris@prather.org> # migrate add-enclosures from old system
+add-device-triton-setup [add-enclosures] 2019-02-07T20:29:16Z Chris Prather <chris@prather.org> # migrate add-device-triton-setup from old system
+add-usb_num [add-device-triton-setup] 2019-02-07T20:29:17Z Chris Prather <chris@prather.org> # migrate add-usb_num from old system
+drop-unused-resource-id-device-settings [add-usb_num] 2019-02-07T20:29:17Z Chris Prather <chris@prather.org> # migrate drop-unused-resource-id-device-settings from old system
+make-email-required [drop-unused-resource-id-device-settings] 2019-02-07T20:29:18Z Chris Prather <chris@prather.org> # migrate make-email-required from old system
+validation-system [make-email-required] 2019-02-07T20:29:19Z Chris Prather <chris@prather.org> # migrate validation-system from old system
+orchestration [validation-system] 2019-02-07T20:29:20Z Chris Prather <chris@prather.org> # migrate orchestration from old system
+device-roles [orchestration] 2019-02-07T20:29:20Z Chris Prather <chris@prather.org> # migrate device-roles from old system
+orc-lifecycles [device-roles] 2019-02-07T20:29:21Z Chris Prather <chris@prather.org> # migrate orc-lifecycles from old system
+validation-results [orc-lifecycles] 2019-02-07T20:29:22Z Chris Prather <chris@prather.org> # migrate validation-results from old system
+orc-simplification [validation-results] 2019-02-07T20:29:23Z Chris Prather <chris@prather.org> # migrate orc-simplification from old system
+more-orc [orc-simplification] 2019-02-07T20:29:23Z Chris Prather <chris@prather.org> # migrate more-orc from old system
+validate-state-member-index [more-orc] 2019-02-07T20:29:24Z Chris Prather <chris@prather.org> # migrate validate-state-member-index from old system
+user-session-token [validate-state-member-index] 2019-02-07T20:29:25Z Chris Prather <chris@prather.org> # migrate user-session-token from old system
+workspace-devices-fn [user-session-token] 2019-02-07T20:29:25Z Chris Prather <chris@prather.org> # migrate workspace-devices-fn from old system
+remove-orc [workspace-devices-fn] 2019-02-07T20:29:26Z Chris Prather <chris@prather.org> # migrate remove-orc from old system
+datacenter-crud-cleanup [remove-orc] 2019-02-07T20:29:27Z Chris Prather <chris@prather.org> # migrate datacenter-crud-cleanup from old system
+datacenter-rack-role-cleanup [datacenter-crud-cleanup] 2019-02-07T20:29:28Z Chris Prather <chris@prather.org> # migrate datacenter-rack-role-cleanup from old system
+hw-prod-spec-sku [datacenter-rack-role-cleanup] 2019-02-07T20:29:28Z Chris Prather <chris@prather.org> # migrate hw-prod-spec-sku from old system
+user_account-deactivate [hw-prod-spec-sku] 2019-02-07T20:29:29Z Chris Prather <chris@prather.org> # migrate user_account-deactivate from old system
+user-account-email-citext [user_account-deactivate] 2019-02-07T20:29:30Z Chris Prather <chris@prather.org> # migrate user-account-email-citext from old system
+force-password-change [user-account-email-citext] 2019-02-07T20:29:31Z Chris Prather <chris@prather.org> # migrate force-password-change from old system
+remove-role-table [force-password-change] 2019-02-07T20:29:31Z Chris Prather <chris@prather.org> # migrate remove-role-table from old system
+disambiguate-columns [remove-role-table] 2019-02-07T20:29:32Z Chris Prather <chris@prather.org> # migrate disambiguate-columns from old system
+rename-devicerole-columns [disambiguate-columns] 2019-02-07T20:29:33Z Chris Prather <chris@prather.org> # migrate rename-devicerole-columns from old system
+user_account-email-uniqueness [rename-devicerole-columns] 2019-02-07T20:29:34Z Chris Prather <chris@prather.org> # migrate user_account-email-uniqueness from old system
+drop-user_account_bak_v2_15 [user_account-email-uniqueness] 2019-02-07T20:29:34Z Chris Prather <chris@prather.org> # migrate drop-user_account_bak_v2_15 from old system
+collapse-device_nic_state [drop-user_account_bak_v2_15] 2019-02-07T20:29:35Z Chris Prather <chris@prather.org> # migrate collapse-device_nic_state from old system
+datacenter_rack-columns [collapse-device_nic_state] 2019-02-07T20:29:36Z Chris Prather <chris@prather.org> # migrate datacenter_rack-columns from old system
+device-hostname [datacenter_rack-columns] 2019-02-07T20:29:37Z Chris Prather <chris@prather.org> # migrate device-hostname from old system
+drop-device_validate [device-hostname] 2019-02-07T20:29:37Z Chris Prather <chris@prather.org> # migrate drop-device_validate from old system
+hardware_vendor-name-unique [drop-device_validate] 2019-02-07T20:29:38Z Chris Prather <chris@prather.org> # migrate hardware_vendor-name-unique from old system
+rack-unit-size-position [hardware_vendor-name-unique] 2019-02-07T20:29:39Z Chris Prather <chris@prather.org> # migrate rack-unit-size-position from old system
+burn-device_role-and-service [rack-unit-size-position] 2019-02-07T20:29:40Z Chris Prather <chris@prather.org> # migrate burn-device_role-and-service from old system
+not-nullable-fks [burn-device_role-and-service] 2019-02-07T20:29:41Z Chris Prather <chris@prather.org> # migrate not-nullable-fks from old system
+device_settings-index [not-nullable-fks] 2019-02-07T20:29:41Z Chris Prather <chris@prather.org> # migrate device_settings-index from old system
+user-account-admin-flag [device_settings-index] 2019-02-07T20:29:42Z Chris Prather <chris@prather.org> # migrate user-account-admin-flag from old system
+one-workspace-root [user-account-admin-flag] 2019-02-07T20:29:43Z Chris Prather <chris@prather.org> # migrate one-workspace-root from old system
+recursive-permission-cleanup [one-workspace-root] 2019-02-07T20:29:44Z Chris Prather <chris@prather.org> # migrate recursive-permission-cleanup from old system
+join-tables-primary-key [recursive-permission-cleanup] 2019-02-07T20:29:44Z Chris Prather <chris@prather.org> # migrate join-tables-primary-key from old system
+user-device_settings [join-tables-primary-key] 2019-02-07T20:29:45Z Chris Prather <chris@prather.org> # migrate user-device_settings from old system
+validation_state-to-device_report [user-device_settings] 2019-02-07T20:29:46Z Chris Prather <chris@prather.org> # migrate validation_state-to-device_report from old system
+remove-deactivated-user-permissions [validation_state-to-device_report] 2019-02-07T20:29:47Z Chris Prather <chris@prather.org> # migrate remove-deactivated-user-permissions from old system
+validation_state-device_report_id [remove-deactivated-user-permissions] 2019-02-07T20:29:48Z Chris Prather <chris@prather.org> # migrate validation_state-device_report_id from old system
+device_report-received_count [validation_state-device_report_id] 2019-02-07T20:29:48Z Chris Prather <chris@prather.org> # migrate device_report-received_count from old system
+device_report_id-not-nullable [device_report-received_count] 2019-02-07T20:29:49Z Chris Prather <chris@prather.org> # migrate device_report_id-not-nullable from old system
+user_account-name-not-unique [device_report_id-not-nullable] 2019-02-07T20:29:50Z Chris Prather <chris@prather.org> # migrate user_account-name-not-unique from old system
+more-missing-indexes [user_account-name-not-unique] 2019-02-07T20:29:51Z Chris Prather <chris@prather.org> # migrate more-missing-indexes from old system
+zpool_profile-name-unique [more-missing-indexes] 2019-02-07T20:29:51Z Chris Prather <chris@prather.org> # migrate zpool_profile-name-unique from old system
+invalid-device_reports [zpool_profile-name-unique] 2019-02-07T20:29:52Z Chris Prather <chris@prather.org> # migrate invalid-device_reports from old system
+hardware_product-unique [invalid-device_reports] 2019-02-07T20:29:53Z Chris Prather <chris@prather.org> # migrate hardware_product-unique from old system
+device_location [hardware_product-unique] 2019-02-07T20:29:54Z Chris Prather <chris@prather.org> # migrate device_location from old system
+drop-device_log [device_location] 2019-02-07T20:29:54Z Chris Prather <chris@prather.org> # migrate drop-device_log from old system
+rename-device_spec-hardware_product_id-key [drop-device_log] 2019-02-07T20:29:55Z Chris Prather <chris@prather.org> # migrate rename-device_spec-hardware_product_id-key from old system
+drop-hardware_profile_setting [rename-device_spec-hardware_product_id-key] 2019-02-07T20:29:56Z Chris Prather <chris@prather.org> # migrate drop-hardware_profile_setting from old system
+hardware_product_profile-drive-types [drop-hardware_profile_setting] 2019-02-07T20:29:57Z Chris Prather <chris@prather.org> # migrate hardware_product_profile-drive-types from old system
+drop-device_spec [hardware_product_profile-drive-types] 2019-02-07T20:29:57Z Chris Prather <chris@prather.org> # migrate drop-device_spec from old system
+device_report-cascade-delete [drop-device_spec] 2019-02-19T17:43:16Z Chris Prather <chris@prather.org> # add device-report-cascade-delete
+validation_status_enum [device_report-cascade-delete] 2019-02-19T17:45:58Z Chris Prather <chris@prather.org> # add validation_status_enum
+device_report-retain [validation_status_enum] 2019-02-19T17:47:45Z Chris Prather <chris@prather.org> # add device_report-retain
+drop-zpool_profile [device_report-retain] 2019-02-20T19:22:40Z Chris Prather <chris@prather.org> # add drop-zpool_profile.sql
