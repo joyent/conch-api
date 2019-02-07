@@ -288,7 +288,10 @@ subtest 'Single device' => sub {
 	my $device_id = $detailed_device->{id};
 	my @macs = map { $_->{mac} } $detailed_device->{nics}->@*;
 
-	my $undetailed_device = { $detailed_device->%* };
+	my $undetailed_device = {
+		$detailed_device->%*,
+		($t->app->db_device_locations->search({ device_id => 'TEST' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+	};
 	delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
 
 	subtest 'get by device attributes' => sub {
@@ -451,7 +454,10 @@ subtest 'Single device' => sub {
 			->status_is(404)
 			->json_is({ error => 'No such setting \'tag.bar\'' });
 
-		my $undetailed_device = { $detailed_device->%* };
+		my $undetailed_device = {
+			$detailed_device->%*,
+			($t->app->db_device_locations->search({ device_id => 'TEST' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+		};
 		delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
 
 		$t->get_ok('/device?foo=bar')

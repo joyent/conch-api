@@ -39,6 +39,7 @@ sub list ($c) {
 		->related_resultset('device_locations')
 		->related_resultset('device')
 		->active
+		->prefetch('device_location')
 		->order_by('device.created');
 
 	$devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })

@@ -276,6 +276,8 @@ definitions:
       - uptime_since
       - validated
       - triton_setup
+      - rack_id
+      - rack_unit_start
     properties:
       asset_tag:
         anyOf:
@@ -341,6 +343,14 @@ definitions:
         anyOf:
           - type: string
             format: date-time
+          - type: 'null'
+      rack_id:
+        anyOf:
+          - $ref: /definitions/uuid
+          - type: 'null'
+      rack_unit_start:
+        anyOf:
+          - type: integer
           - type: 'null'
 
   DeviceNics:
