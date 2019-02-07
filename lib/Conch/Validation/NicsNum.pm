@@ -2,10 +2,10 @@ package Conch::Validation::NicsNum;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'        => 'nics_num';
-has 'version'     => 1;
-has 'category'    => 'NET';
-has 'description' => q(
+use constant name        => 'nics_num';
+use constant version     => 1;
+use constant category    => 'NET';
+use constant description => q(
 Validate the reported number of NICs match the hardware product profile
 );
 

@@ -3,10 +3,10 @@ package Conch::Validation::SwitchPeers;
 use Mojo::Base 'Conch::Validation';
 use List::Util 'first';
 
-has 'name'        => 'switch_peers';
-has 'version'     => 1;
-has 'category'    => 'NET';
-has 'description' => q(
+use constant name        => 'switch_peers';
+use constant version     => 1;
+use constant category    => 'NET';
+use constant description => q(
 Validate the number of peer switches, the number of peer ports, and the
 expected peer port according to the rack layout
 );
@@ -17,10 +17,6 @@ sub validate {
 	unless($data->{interfaces}) {
 		$self->die("Missing 'interfaces' property");
 	}
-
-	my $device_location = $self->device_location;
-
-	my $rack_slots = $device_location->datacenter_rack->slots;
 
 	my @eth_nics =
 		map { $data->{interfaces}->{$_} }
@@ -51,9 +47,18 @@ sub validate {
 		last if $peer_vendor;
 	}
 
+	my @rack_unit_starts = map $_->{rack_unit_start},
+		$self->device_location
+			->search_related('datacenter_rack')
+			->search_related('datacenter_rack_layouts', undef, {
+				columns => { rack_unit_start => 'datacenter_rack_layouts.rack_unit_start' },
+				order_by => 'rack_unit_start',
+			})
+			->hri->all;
+
 	my @peer_ports = $self->_calculate_switch_peer_ports(
-		$device_location->rack_unit,	# TODO: Conch::DB::Result::DeviceLocation calls this rack_unit_start
-		$rack_slots,
+		$self->device_location->rack_unit_start,
+		\@rack_unit_starts,
 		$peer_vendor,
 	);
 

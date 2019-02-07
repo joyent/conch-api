@@ -2,10 +2,10 @@ package Conch::Validation::FirmwareCurrent;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'        => 'firmware_current';
-has 'version'     => 1;
-has 'category'    => 'BIOS';
-has 'description' => q(
+use constant name        => 'firmware_current';
+use constant version     => 1;
+use constant category    => 'BIOS';
+use constant description => q(
 Validate that firmware is 'current' in device settings
 );
 

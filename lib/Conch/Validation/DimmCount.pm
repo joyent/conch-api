@@ -2,10 +2,10 @@ package Conch::Validation::DimmCount;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'        => 'dimm_count';
-has 'version'     => 2;
-has 'category'    => 'RAM';
-has 'description' => 'Verify the number of DIMMs reported';
+use constant name        => 'dimm_count';
+use constant version     => 2;
+use constant category    => 'RAM';
+use constant description => 'Verify the number of DIMMs reported';
 
 sub validate {
 	my ( $self, $data ) = @_;

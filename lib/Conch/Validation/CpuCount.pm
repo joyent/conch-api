@@ -2,10 +2,10 @@ package Conch::Validation::CpuCount;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'        => 'cpu_count';
-has 'version'     => 2;
-has 'category'    => 'CPU';
-has 'description' => q(
+use constant name        => 'cpu_count';
+use constant version     => 2;
+use constant category    => 'CPU';
+use constant description => q(
 Validate the reported number of CPUs match the hardware product profile
 );
 

@@ -260,19 +260,23 @@ Dispatching on Device Attributes
 Your validation may need to evaluate differently based on attributes of the
 device under validation, such as the device hardware product, device location,
 and device settings. The `$self` reference provides methods for accessing
-details for the device under validation
+details for the device under validation.  (You can also reach any other objects
+in the database by following the relationship methods provided on these.)
 
-* `$self->device`: the `Conch::Model::Device` object representing the device
+* `$self->device`: the `Conch::DB::Result::Device` object representing the device
   under validation
 * `$self->device_settings`: a hash ref of the device settings currently stored
   for the device under validation
-* `$self->device_location`: the `Conch::Class::DeviceLocation` object
+* `$self->device_location`: the `Conch::DB::Result::DeviceLocation` object
   representing the location of the device under validation
-* `$self->hardware_product_vendor`: a string of hardware product vendor name of
-  the expected hardware product for the device
-* `$self->hardware_product_name`: a string of the hardware product name of the
-  expected hardware product for the device
-* `$self->hardware_product_profile`: the `Conch::Class::HardwareProductProfile`
+* `$self->hardware_product`: the `Conch::DB::Result::HardwareProduct`
+  object representing the hardware product of the expected hardware
+  product for the device
+* `$self->hardware_product_vendor`: a shortcut to the string containing the hardware
+  product vendor name of the expected hardware product for the device
+* `$self->hardware_product_name`: a shortcut to the string containing the hardware
+  product name of the expected hardware product for the device
+* `$self->hardware_product_profile`: the `Conch::DB::Result::HardwareProductProfile`
   object representing the hardware product profile of the expected hardware
   product for the device
 

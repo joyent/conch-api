@@ -3,10 +3,10 @@ package Conch::Validation::DiskSmartStatus;
 use Mojo::Base 'Conch::Validation';
 use v5.20;
 
-has 'name'     => 'disk_smart_status';
-has 'version'  => 2;
-has 'category' => 'DISK';
-has 'description' =>
+use constant name     => 'disk_smart_status';
+use constant version  => 2;
+use constant category => 'DISK';
+use constant description =>
 	q( Validate that all real disks report 'OK' SMART status);
 
 sub validate {

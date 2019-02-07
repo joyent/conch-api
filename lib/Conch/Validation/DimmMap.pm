@@ -6,10 +6,10 @@ use List::Compare;
 use Mojo::Log;
 use JSON::PP;
 
-has 'name'        => 'dimm_map';
-has 'version'     => 1;
-has 'category'    => 'RAM';
-has 'description' => 'Identify any missing or misbehaving DIMMs';
+use constant name        => 'dimm_map';
+use constant version     => 1;
+use constant category    => 'RAM';
+use constant description => 'Identify any missing or misbehaving DIMMs';
 
 sub validate {
 	my ( $self, $data ) = @_;

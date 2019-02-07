@@ -2,13 +2,11 @@ package Test::Conch::Validation;
 use strict;
 use warnings;
 use v5.26;
+use experimental 'signatures';
 
 use Test::More;
 use Data::Printer; # for 'np'
 use Test::Conch;
-use Conch::Models;
-use Conch::Class::HardwareProduct;
-use Conch::Class::HardwareProductProfile;
 use Test::Warnings 'had_no_warnings';
 use List::Util 'first';
 
@@ -62,7 +60,13 @@ L</test_validation>. For example:
 		},
 		device_location => {
 			rack_unit       => 2,
-			datacenter_rack => { slots => [ 1, 2, 3 ] }
+			datacenter_rack => {
+				datacenter_rack_layouts => [
+					{ rack_unit_start => 1 },
+					{ rack_unit_start => 2 },
+					{ rack_unit_start => 3 },
+				],
+			},
 		},
 		device_settings => {
 			foo => 'bar'
@@ -143,14 +147,11 @@ sub test_validation {
 		|| diag "$validation_module fails to compile" && return;
 
 	my @objects = $t->generate_fixtures(
+		device => {},	# always create a device, even if generic
 		%args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device) }
 	);
 
-	my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } @objects;
-
-	my $device = $args{device}
-		? first { $_->isa('Conch::DB::Result::Device') } @objects
-		: undef;
+	my $device = first { $_->isa('Conch::DB::Result::Device') } @objects;
 
 	# Note: we are not currently considering the case where both a device_location
 	# and hardware_product are specified, and whether that hardware_product is different from
@@ -158,50 +159,9 @@ sub test_validation {
 	# so this should be fixed when DeviceProductName is rewritten and more sophisticated test
 	# cases are written for it.
 
-	my $hw_product_profile =
-		  $args{hardware_product} && $args{hardware_product}->{hardware_product_profile}
-		? Conch::Class::HardwareProductProfile->new($hardware_product->hardware_product_profile->get_columns)
-		: undef;
-
-	my $hw_product = ($args{hardware_product} && keys $args{hardware_product}->%*) || $hw_product_profile
-		? Conch::Class::HardwareProduct->new(
-			$hardware_product->get_columns,
-			profile => $hw_product_profile,
-		)
-		: ();
-
-	my $device_location = $args{device_location}
-		? Conch::Model::DeviceLocation->lookup(
-			(first { $_->isa('Conch::DB::Result::DeviceLocation') } @objects)->device_id)
-		: ();
-
 	my $validation = $validation_module->new(
 		log => $t->app->log,
-		device => ($device ? Conch::Model::Device->new($device->get_columns) : undef),
-		device_location  => $device_location,   # this is a Conch::Class::DeviceLocation
-		device_settings  => $args{device_settings} || {},
-		hardware_product => $hw_product,        # this is a Conch::Class::HardwareProduct
-	);
-	isa_ok($validation, $validation_module) or return;
-
-	ok(
-		defined( $validation->name ),
-		"'name' attribute must be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->version ),
-		"'version' attribute must be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->category ),
-		"'category' attribute should be defined for $validation_module"
-	);
-
-	ok(
-		defined( $validation->description ),
-		"'description' attribute should be defined for $validation_module"
+		device => $t->app->db_ro_devices->find($device->id),
 	);
 
 	for my $case_index ( 0 .. $args{cases}->$#* ) {
@@ -231,7 +191,7 @@ sub _test_case {
 
 	$validation->run($data);
 
-	my $success_count = scalar $validation->successes->@*;
+	my $success_count = scalar $validation->successes;
 	my $success_expect = $case->{success_num} || 0;
 	is( $success_count, $success_expect,
 			$msg_prefix.'Was expecting validation to register '
@@ -243,7 +203,7 @@ sub _test_case {
 			. _results_to_string( $validation->successes ) );
 	}
 
-	my $failure_count = scalar $validation->failures->@*;
+	my $failure_count = scalar $validation->failures;
 	my $failure_expect = $case->{failure_num} || 0;
 
 	is( $failure_count, $failure_expect,
@@ -255,7 +215,7 @@ sub _test_case {
 			. _results_to_string( $validation->failures ) );
 	}
 
-	my $error_count = scalar $validation->error->@*;
+	my $error_count = scalar $validation->error;
 	my $error_expect = $case->{error_num} // ($success_expect + $failure_expect ? 0 : 1);
 	is($error_count, $error_expect,
 			$msg_prefix.'Was expecting validation to register '
@@ -269,7 +229,7 @@ sub _test_case {
 	if (not Test::Builder->new->is_passing) {
 		require Data::Dumper;
 		diag 'all results: ',
-			Data::Dumper->new([ $validation->validation_results ])->Indent(1)->Terse(1)->Dump;
+			Data::Dumper->new([ [ $validation->validation_results ] ])->Indent(1)->Terse(1)->Dump;
 	}
 }
 
@@ -279,17 +239,16 @@ sub _test_case {
 #	1. Expected eq 'foo', got 'foo'.
 #	2. Expected == '1', got '1'.
 #	3. Expected ne 'baz', got 'bar'.
-sub _results_to_string ($) {
-	my $results = shift;
-	return "\tNone." unless $results->@*;
+sub _results_to_string (@results) {
+	return "\tNone." unless @results;
 
 	return join(
 		"\n",
 		map {
 			my $i = $_ + 1;
-			"\t$i. " . $results->[$_]->{name} . ': ' . $results->[$_]->{message}
-			.($results->[$_]->{hint} ? (' ('.$results->[$_]->{hint}.')') : '')
-		} ( 0 .. $results->$#* )
+			"\t$i. " . $results[$_]->{name} . ': ' . $results[$_]->{message}
+			.($results[$_]->{hint} ? (' ('.$results[$_]->{hint}.')') : '')
+		} ( 0 .. $#results )
 	);
 }
 

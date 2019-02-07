@@ -3,10 +3,10 @@ package Conch::Validation::SasHddNum;
 use Mojo::Base 'Conch::Validation';
 use v5.20;
 
-has 'name'        => 'sas_hdd_num';
-has 'version'     => 1;
-has 'category'    => 'DISK';
-has 'description' => q( Validate expected number of SAS HDDs );
+use constant name        => 'sas_hdd_num';
+use constant version     => 1;
+use constant category    => 'DISK';
+use constant description => q( Validate expected number of SAS HDDs );
 
 sub validate {
 	my ( $self, $data ) = @_;

@@ -2,10 +2,10 @@ package Conch::Validation::LinksUp;
 
 use Mojo::Base 'Conch::Validation';
 
-has 'name'        => 'links_up';
-has 'version'     => 1;
-has 'category'    => 'NET';
-has 'description' => q(
+use constant name        => 'links_up';
+use constant version     => 1;
+use constant category    => 'NET';
+use constant description => q(
 Validate that there are at least 4 NICs in the 'up' state
 );
 

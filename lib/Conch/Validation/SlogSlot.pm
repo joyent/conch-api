@@ -3,10 +3,10 @@ package Conch::Validation::SlogSlot;
 use Mojo::Base 'Conch::Validation';
 use v5.20;
 
-has 'name'        => 'slog_slot';
-has 'version'     => 1;
-has 'category'    => 'DISK';
-has 'description' => q( Validate ZFS SLOG is in slot 0 );
+use constant name        => 'slog_slot';
+use constant version     => 1;
+use constant category    => 'DISK';
+use constant description => q( Validate ZFS SLOG is in slot 0 );
 
 sub validate {
 	my ( $self, $data ) = @_;

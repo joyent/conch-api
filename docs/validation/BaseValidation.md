@@ -6,12 +6,17 @@ Conch::Validation - base class for writing Conch Validations
 
 ```perl
     package Conch::Validation::DeviceValidation;
-    use Mojo::Base 'Conch::Validation';
+    # either:
+        use Mojo::Base 'Conch::Validation';
+    # or, if you want to use Moo features:
+        use Moo;
+        use strictures 2;
+        extends 'Conch::Validation';
 
-    has name        => 'device_validation';
-    has version     => 1;
-    has category    => 'CPU';
-    has description => q/Description of the validation/;
+    use constant name        => 'device_validation';
+    use constant version     => 1;
+    use constant category    => 'CPU';
+    use constant description => q/Description of the validation/;
 
     sub validate {
             my ($self, $input_data) = @_;
@@ -50,102 +55,71 @@ functions tests that Validations define the required attributes and methods,
 and allow you to test the validation logic by running test cases against
 expected results.
 
+# CONSTANTS
+
+## name
+
+The validator name, provided by the validator module.
+
+## version
+
+The validator version, provided by the validator module.
+
+## description
+
+The validator description, provided by the validator module.
+
+## category
+
+The validator category, provided by the validator module.
+
 # METHODS
 
-## validation\_results
+## log
 
-Get the list of all validation results.
-
-## new
-
-Construct a Validation object.
-
-All attributes are optional, but executing validation with ["run"](#run) will create
-an error validation result if . For example, if ["hardware\_product\_profile"](#hardware_product_profile) is
-used in the definition of ["validate"](#validate) but the ["hardware\_product"](#hardware_product) attribute is
-unspecified during construction with ["new"](#new), the validation will halt and an
-error validation result will be created.
-
-- `device`
-
-    [Conch::Model::Device](https://github.com/joyent/conch/blob/master/lib/Conch/Model/Device.pm) object under validation.
-
-- `device_location`
-
-    [Conch::Class::DeviceLocation](https://github.com/joyent/conch/blob/master/lib/Conch/Class/DeviceLocation.pm) object for the device being validated.
-
-- `hardware_product`
-
-    The expected [Conch::Class::HardwareProduct](https://github.com/joyent/conch/blob/master/lib/Conch/Class/HardwareProduct.pm) object for the device being validated.
-
-- `device_settings`
-
-    A key-value `HASHREF` of device settings stored for the device being
-    validated. Empty `HAHSREF` if unspecified.
-
-## run
-
-Run the Validation with the specified input data.
-
-```
-    $validation->run($validation_data);
-```
-
-## validate
-
-Contains the validation logic for validations.
-
-This method must be re-defined in sub-classes of [Conch::Validation](https://github.com/joyent/conch/blob/master/lib/Conch/Validation.pm) or it will
-raise an exception.
-
-```perl
-    package MyValidation;
-    use Mojo::Base 'Conch::Validation';
-
-    sub validate {
-            my ($self, $data) = @_;
-            $self->register_result({ expected => 1, got => $data->{pass} });
-    }
-```
+A logging object.
 
 ## device
 
-Get the [Conch::Model::Device](https://github.com/joyent/conch/blob/master/lib/Conch/Model/Device.pm) object under Validation. Use in validation
+[Conch::DB::Result::Device](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Device.pm) object under validation.  Use in validation
 logic to dispatch on Device attributes.
 
 ```perl
-    my $device = $self->device;
-    if ($device->trition_setup) {...}
+my $device = $self->device;
+if ($device->triton_setup) {...}
 ```
 
-## device\_settings
+Any additional data related to devices may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class) interfaces.
+The result object is built using a read-only database handle, so attempts to alter the data
+will \*not\* be permitted.
 
-Get device settings assigned to the device under validation. Device settings
-are an unblessed hashref. You can use device setting values to provide
-conditional evaluation in the validation logic.
+## device\_location
+
+[Conch::DB::Result::DeviceLocation](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceLocation.pm) object for the device being validated.
+
+This is useful in writing validation logic that may depend on the rack or
+location in the rack a device occupies.
 
 ```perl
-    my $threshold = $self->device_settings->{some_threshold};
-    return if $self->device_settings->{skip_this_validation};
+my $datacenter_name = $self->device_location->datacenter_rack->datacenter->name;
+my $rack_unit_start = $self->device_location->rack_unit_start;
 ```
 
 ## has\_device\_location
 
-Return a boolean whether the device under validation has been assigned a
+Returns a boolean whether the device under validation has been assigned a
 location.
 
-## device\_location
+## hardware\_product
 
-Get the [Conch::Class::DeviceLocation](https://github.com/joyent/conch/blob/master/lib/Conch/Class/DeviceLocation.pm) object for the device under validation.
-This is useful in writing validation logic that may depend on the rack or
-location in the rack a device occupies. Throws an error if the device hasn't
-been assigned a location.
+The expected [Conch::DB::Result::HardwareProduct](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProduct.pm) object for the device being validated.
+Note that this is **either** the hardware\_product associated with the rack and slot the device
+is located in, **or** the hardware\_product associated with the device itself (when the device is
+not located in a rack yet). When this distinction is important, check ["has\_device\_location"](#has_device_location).
 
-```perl
-    my $datacenter_name = $self->device_location->datacenter->name;
-    my $rack_unit_start = $self->device_location->rack_unit;        # TODO Conch::DB::Result::DeviceLocation calls this rack_unit_start
-    my $rack_available_slots = $self->device_location->datacenter_rack->slots;
-```
+Any additional data related to hardware\_products may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class)
+interfaces.  The result object is built using a read-only database handle, so attempts to alter
+the data will \*not\* be permitted.
 
 ## hardware\_product\_name
 
@@ -180,8 +154,9 @@ Get the expected hardware product SKU for the device under validation.
 ```
 
 ## hardware\_product\_specification
+
 Get the expected hardware product specification for the device under
-validation. Returns a JSON object.
+validation. Returns a JSON string (for now).
 
 ## hardware\_product\_vendor
 
@@ -193,13 +168,70 @@ Get the expected hardware product vendor name for the device under validation.
 
 ## hardware\_product\_profile
 
-Get the expected hardware product profile for the device under validation. In
-production, the product profile is a [Conch::Class::HardwareProductProfile](https://github.com/joyent/conch/blob/master/lib/Conch/Class/HardwareProductProfile.pm) object.
+Get the expected hardware product profile for the device under validation.
+It is a [Conch::DB::Result::HardwareProductProfile](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProductProfile.pm) object.
 
 ```perl
     my $expected_ram = self->hardware_product_profile->ram_total;
     my $expected_ssd = self->hardware_product_profile->ssd_num;
     my $expected_firmware = self->hardware_product_profile->bios_firmware;
+```
+
+## device\_settings
+
+A key-value unblessed hashref of device settings stored for the device being validated.
+
+## validation\_results
+
+Get the list of all validation results.
+
+## validation\_result
+
+Get a validation result by (0-based) index.
+
+## failures
+
+Get the list of validation results that were failures
+
+## successes
+
+Get the list of validation results that were successful
+
+## error
+
+Get the list of validation results that have error status (halted execution).
+
+_NOTE:_ Unless ["run"](#run) is called multiple times on the same validation object
+without calling ["clear\_results"](#clear_results) between, there should be at most 1 error
+validation because execution is halted.
+
+## clear\_results
+
+Clear the stored validation results.
+
+## run
+
+Run the Validation with the specified input data.
+
+```
+    $validation->run($validation_data);
+```
+
+## validate
+
+Contains the validation logic for validations.
+
+This method must be re-defined in sub-classes of [Conch::Validation](https://github.com/joyent/conch/blob/master/lib/Conch/Validation.pm) or it will
+raise an exception.
+
+```perl
+    package MyValidation;
+    use Mojo::Base 'Conch::Validation';
+
+    sub validate {
+            my ($self, $data) = @_;
+            $self->register_result({ expected => 1, got => $data->{pass} });
+    }
 ```
 
 ## register\_result
@@ -347,26 +379,6 @@ specified like with ["register\_result"](#register_result).
             hint => 'How to fix this failure...'
     );
 ```
-
-## failures
-
-Get the list of validation results that were failures
-
-## successes
-
-Get the list of validation results that were successful
-
-## error
-
-Get the list of validation results that have error status (halted execution).
-
-_NOTE:_ Unless ["run"](#run) is called multiple times on the same validation object
-without calling ["clear\_results"](#clear_results) between, there should be at most 1 error
-validation because execution is halted.
-
-## clear\_results
-
-Clear the stored validation results.
 
 # LICENSING
 

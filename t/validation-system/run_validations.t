@@ -14,6 +14,8 @@ my $t = Test::Conch->new;
 my $pg = Conch::Pg->new($t->pg); # temporary: wire up Conch::Model::* to the same db instance
 
 my $device = $t->load_fixture('device_HAL');
+$device = $t->app->db_ro_devices->find($device->id);
+
 my ($validation_plan) = $t->load_validation_plans([{
     name        => 'Conch v1 Legacy Plan: Server',
     description => 'Test Plan',
@@ -22,7 +24,8 @@ my ($validation_plan) = $t->load_validation_plans([{
 my $validation_product = $t->load_validation('Conch::Validation::DeviceProductName');
 my $validation_bios = $t->load_validation('Conch::Validation::BiosFirmwareVersion');
 
-my $device_report = $device->create_related(device_reports => {
+my $device_report = $t->app->db_device_reports->create({
+    device_id => $device->id,
     report => to_json({
         product_name => $device->hardware_product->generation_name,
         bios_version => $device->hardware_product->hardware_product_profile->bios_firmware,

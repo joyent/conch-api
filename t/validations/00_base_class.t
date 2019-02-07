@@ -4,8 +4,12 @@ use Test::More;
 use Test::Fatal;
 use Test::Deep;
 use Conch::Log;
+use Conch::Validation;
+use Conch::DB;
 
 my $l = Conch::Log->new(path => 'log/t-00_base_class.log');
+
+my $device = Conch::DB::Result::Device->new;
 
 # SUMMARY
 # =======
@@ -15,13 +19,20 @@ my $l = Conch::Log->new(path => 'log/t-00_base_class.log');
 # general, if Conch::Validation is changed, corresponding tests should be
 # added.
 
-use_ok("Conch::Validation");
-new_ok("Conch::Validation");
+
+{
+	package Conch::Validation::Core;
+	use Mojo::Base 'Conch::Validation';
+	use constant name => 'name';
+	use constant version => 'version';
+	use constant description => 'description';
+	use constant category => 'category';
+}
 
 subtest '->validate' => sub {
 	like(
 		exception {
-			my $base_validation = Conch::Validation->new(log => $l);
+			my $base_validation = Conch::Validation::Core->new(log => $l, device => $device);
 			$base_validation->validate( {} );
 		},
 		qr/Validations must implement the `validate` method in subclass/
@@ -29,17 +40,17 @@ subtest '->validate' => sub {
 };
 
 subtest '->fail' => sub {
-	my $base_validation = Conch::Validation->new(log => $l);
+	my $base_validation = Conch::Validation::Core->new(log => $l, device => $device);
 	$base_validation->fail('Validation failure');
-	is( $base_validation->validation_results->[0]->{message},
+	is( $base_validation->validation_result(0)->{message},
 		'Validation failure' );
-	is( scalar $base_validation->validation_results->@*, 1 );
-	is( scalar $base_validation->failures->@*,           1 );
-	is( scalar $base_validation->successes->@*,          0 );
+	is( scalar $base_validation->validation_results, 1 );
+	is( scalar $base_validation->failures,           1 );
+	is( scalar $base_validation->successes,          0 );
 };
 
 subtest '->die' => sub {
-	my $base_validation = Conch::Validation->new(log => $l);
+	my $base_validation = Conch::Validation::Core->new(log => $l, device => $device);
 
 	cmp_deeply(
 		exception { $base_validation->die( 'Validation dies', hint => 'how to fix' ); },
@@ -56,21 +67,21 @@ subtest '->die' => sub {
 };
 
 subtest '->clear_results' => sub {
-	my $base_validation = Conch::Validation->new(log => $l);
+	my $base_validation = Conch::Validation::Core->new(log => $l, device => $device);
 	$base_validation->fail('Validation fail 1');
 	$base_validation->fail('Validation fail 2');
-	is( scalar $base_validation->validation_results->@*, 2, 'Results collect' );
-	is( scalar $base_validation->failures->@*,           2 );
-	is( scalar $base_validation->successes->@*,          0 );
+	is( scalar $base_validation->validation_results, 2, 'Results collect' );
+	is( scalar $base_validation->failures,           2 );
+	is( scalar $base_validation->successes,          0 );
 
 	$base_validation->clear_results;
-	is( scalar $base_validation->validation_results->@*, 0, 'Results clear' );
-	is( scalar $base_validation->failures->@*,           0 );
-	is( scalar $base_validation->successes->@*,          0 );
+	is( scalar $base_validation->validation_results, 0, 'Results clear' );
+	is( scalar $base_validation->failures,           0 );
+	is( scalar $base_validation->successes,          0 );
 };
 
 subtest '->register_result' => sub {
-	my $base_validation = Conch::Validation->new(log => $l);
+	my $base_validation = Conch::Validation::Core->new(log => $l, device => $device);
 
 	like exception { $base_validation->register_result() },
 	qr/'expected' value must be defined/;
@@ -95,7 +106,7 @@ subtest '->register_result' => sub {
 	$base_validation->register_result( expected => 'test', got => 'test', hint => 'hi' );
 
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => "Expected eq 'test'. Got 'test'.",
@@ -107,7 +118,7 @@ subtest '->register_result' => sub {
 
 	$base_validation->register_result( expected => 'test', got => 'bad', hint => 'hi' );
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => "Expected eq 'test'. Got 'bad'.",
@@ -124,7 +135,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	),
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			ignore,
 			superhashof({
@@ -143,7 +154,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => "Expected a value > '20'. Passed.",
@@ -160,7 +171,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => "Expected a value < '20'. Failed.",
@@ -179,7 +190,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => "Expected one of: 'a', 'b', 'c'. Got 'b'.",
@@ -196,7 +207,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => "Expected one of: 'a', 'b', 'c'. Got 'bad'.",
@@ -215,7 +226,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->successes,
+		[ $base_validation->successes ],
 		[
 			superhashof({
 				message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'foo123\'.',
@@ -232,7 +243,7 @@ subtest '->register_result' => sub {
 		hint     => 'hi',
 	);
 	cmp_deeply(
-		$base_validation->failures,
+		[ $base_validation->failures ],
 		[
 			superhashof({
 				message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'bad42\'.',
