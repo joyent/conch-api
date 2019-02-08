@@ -80,3 +80,4 @@ device_report-cascade-delete [drop-device_spec] 2019-02-19T17:43:16Z Chris Prath
 validation_status_enum [device_report-cascade-delete] 2019-02-19T17:45:58Z Chris Prather <chris@prather.org> # add validation_status_enum
 device_report-retain [validation_status_enum] 2019-02-19T17:47:45Z Chris Prather <chris@prather.org> # add device_report-retain
 drop-zpool_profile [device_report-retain] 2019-02-20T19:22:40Z Chris Prather <chris@prather.org> # add drop-zpool_profile.sql
+drop-run-migrations 2019-02-08T21:15:45Z Chris Prather <chris@prather.org> # drop the run_migrations script from the old migrations\n\nThis also puts a line in the sane between migrations we can cleanly\nrevert and those we can't.
