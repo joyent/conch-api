@@ -1,0 +1,4 @@
+#!/bin/sh -x
+
+vim -O sql/deploy/$1.sql  sql/revert/$1.sql sql/verify/$1
+
