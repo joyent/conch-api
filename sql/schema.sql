@@ -437,7 +437,6 @@ ALTER TABLE public.hardware_product OWNER TO conch;
 CREATE TABLE public.hardware_product_profile (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     hardware_product_id uuid NOT NULL,
-    zpool_id uuid,
     rack_unit integer NOT NULL,
     purpose text NOT NULL,
     bios_firmware text NOT NULL,
@@ -747,27 +746,6 @@ CREATE TABLE public.workspace_datacenter_room (
 
 
 ALTER TABLE public.workspace_datacenter_room OWNER TO conch;
-
---
--- Name: zpool_profile; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.zpool_profile (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name text,
-    vdev_t text,
-    vdev_n integer,
-    disk_per integer,
-    spare integer,
-    log integer,
-    cache integer,
-    deactivated timestamp with time zone,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.zpool_profile OWNER TO conch;
 
 --
 -- Name: migration id; Type: DEFAULT; Schema: public; Owner: conch
@@ -1129,14 +1107,6 @@ ALTER TABLE ONLY public.workspace
 
 
 --
--- Name: zpool_profile zpool_profile_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.zpool_profile
-    ADD CONSTRAINT zpool_profile_pkey PRIMARY KEY (id);
-
-
---
 -- Name: datacenter_rack_datacenter_rack_role_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1302,13 +1272,6 @@ CREATE INDEX hardware_product_hardware_vendor_id_idx ON public.hardware_product 
 --
 
 CREATE UNIQUE INDEX hardware_product_name_key ON public.hardware_product USING btree (name) WHERE (deactivated IS NULL);
-
-
---
--- Name: hardware_product_profile_zpool_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX hardware_product_profile_zpool_id_idx ON public.hardware_product_profile USING btree (zpool_id);
 
 
 --
@@ -1536,13 +1499,6 @@ CREATE INDEX workspace_parent_workspace_id_idx ON public.workspace USING btree (
 
 
 --
--- Name: zpool_profile_name_key; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE UNIQUE INDEX zpool_profile_name_key ON public.zpool_profile USING btree (name) WHERE (deactivated IS NULL);
-
-
---
 -- Name: datacenter_room all_rooms_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
 --
 
@@ -1699,14 +1655,6 @@ ALTER TABLE ONLY public.device_setting
 
 ALTER TABLE ONLY public.hardware_product_profile
     ADD CONSTRAINT hardware_product_profile_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id) ON DELETE CASCADE;
-
-
---
--- Name: hardware_product_profile hardware_product_profile_zpool_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_product_profile
-    ADD CONSTRAINT hardware_product_profile_zpool_id_fkey FOREIGN KEY (zpool_id) REFERENCES public.zpool_profile(id);
 
 
 --

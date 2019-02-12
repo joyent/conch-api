@@ -238,7 +238,7 @@ sub TO_JSON {
 
     my $data = $self->next::method(@_);
 
-    # include hardware_product_profile and zpool_profile when available.
+    # include hardware_product_profile when available.
     if (my $cached_profile = $self->related_resultset('hardware_product_profile')->get_cache) {
         # the cache is always a listref, if it was prefetched.
         $data->{hardware_product_profile} = @$cached_profile ? $cached_profile->[0]->TO_JSON : undef;

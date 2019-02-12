@@ -592,7 +592,6 @@ definitions:
       - nvme_ssd_slots
       - raid_lun_num
       - usb_num
-      - zpool_profile
     properties:
       bios_firmware:
         type: string
@@ -686,53 +685,6 @@ definitions:
           - type: 'null'
       usb_num:
         type: integer
-      zpool_profile:
-        anyOf:
-          - type: 'null'
-          - $ref: /definitions/ZpoolProfile
-  ZpoolProfile:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - name
-      - cache
-      - log
-      - disk_per
-      - spare
-      - vdev_n
-      - vdev_t
-    properties:
-      id:
-        $ref: /definitions/uuid
-      name:
-        anyOf:
-          - type: string
-          - type: 'null'
-      cache:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      log:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      disk_per:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      spare:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      vdev_n:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      vdev_t:
-        anyOf:
-          - type: string
-          - type: 'null'
   WorkspaceRackSummary:
     type: object
     additionalProperties: false

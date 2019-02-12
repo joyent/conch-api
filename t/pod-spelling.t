@@ -70,4 +70,3 @@ validator
 VLAN
 workspace
 workspaces
-zpool

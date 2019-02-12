@@ -366,11 +366,6 @@ definitions:
   HardwareProductProfileUpdate:
     type: object
     additionalProperties: false
-    not:
-      required:
-        # cannot have zpool_id *and* zpool_profile together.
-        - zpool_id
-        - zpool_profile
     properties:
       rack_unit:
         type: integer
@@ -462,12 +457,6 @@ definitions:
           - type: 'null'
       usb_num:
         type: integer
-      zpool_id:
-        anyOf:
-          - type: 'null'
-          - $ref: /definitions/uuid
-      zpool_profile:
-        $ref: /definitions/ZpoolProfileCreate
   HardwareProductUpdate:
     type: object
     additionalProperties: false
@@ -505,38 +494,6 @@ definitions:
           - type: 'null'
       hardware_product_profile:
         $ref: /definitions/HardwareProductProfileUpdate
-  ZpoolProfileCreate:
-    type: object
-    additionalProperties: false
-    properties:
-      name:
-        anyOf:
-          - type: string
-          - type: 'null'
-      vdev_t:
-        anyOf:
-          - type: string
-          - type: 'null'
-      vdev_n:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      disk_per:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      spare:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      log:
-        anyOf:
-          - type: integer
-          - type: 'null'
-      cache:
-        anyOf:
-          - type: integer
-          - type: 'null'
   HardwareProductProfileCreate:
     allOf:
       - $ref: /definitions/HardwareProductProfileUpdate

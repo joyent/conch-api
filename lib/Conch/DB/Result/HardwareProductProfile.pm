@@ -42,13 +42,6 @@ __PACKAGE__->table("hardware_product_profile");
   is_nullable: 0
   size: 16
 
-=head2 zpool_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 1
-  size: 16
-
 =head2 rack_unit
 
   data_type: 'integer'
@@ -215,8 +208,6 @@ __PACKAGE__->add_columns(
   },
   "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "zpool_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
   "rack_unit",
   { data_type => "integer", is_nullable => 0 },
   "purpose",
@@ -335,51 +326,16 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
-=head2 zpool_profile
 
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::ZpoolProfile>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "zpool_profile",
-  "Conch::DB::Result::ZpoolProfile",
-  { id => "zpool_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-25 09:24:40
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MZkjCfhMJGjoq19YSuppMw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-12 15:57:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:35Fj4oXqqLgKviBKufQi/A
 
 __PACKAGE__->add_columns(
     '+hardware_product_id' => { is_serializable => 0 },
-    '+zpool_id' => { is_serializable => 0 },
     '+created' => { is_serializable => 0 },
     '+updated' => { is_serializable => 0 },
     '+deactivated' => { is_serializable => 0 },
 );
-
-sub TO_JSON {
-    my $self = shift;
-
-    my $data = $self->next::method(@_);
-
-    # include zpool_profile when available.
-    if (my $cached_zpool = $self->related_resultset('zpool_profile')->get_cache) {
-        # the cache is always a listref, if it was prefetched.
-        $data->{zpool_profile} = @$cached_zpool ? $cached_zpool->[0]->TO_JSON : undef;
-    }
-
-    return $data;
-}
 
 1;
 __END__

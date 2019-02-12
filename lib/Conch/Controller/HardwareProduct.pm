@@ -28,7 +28,7 @@ sub list ($c) {
 
     my @hardware_products_raw = $c->db_hardware_products
         ->active
-        ->prefetch({ 'hardware_product_profile' => 'zpool_profile' })
+        ->prefetch('hardware_product_profile')
         ->all;
 
     $c->status( 200, \@hardware_products_raw);
@@ -80,18 +80,14 @@ Response uses the HardwareProduct json schema.
 
 sub get ($c) {
     my $rs = $c->stash('hardware_product_rs')
-        ->prefetch({ 'hardware_product_profile' => 'zpool_profile' });
+        ->prefetch('hardware_product_profile');
 
     $c->status(200 => $rs->single);
 }
 
 =head2 create
 
-Creates a new hardware_product, and possibly also a hardware_product_profile and zpool_profile.
-
-Missing zpool_profile fields will default to null when creating new rows, but if an existing
-row can be matched up to the fields provided, that entry will be re-used rather than creating a
-new one.
+Creates a new hardware_product, and possibly also a hardware_product_profile.
 
 =cut
 
@@ -114,16 +110,8 @@ sub create ($c) {
     # backcompat only
     $input->{hardware_vendor_id} = delete $input->{vendor} if exists $input->{vendor};
 
-    # create profiles and/or zpool entries as well, as needed.
-    # Note that if a zpool already exists and can be uniquely identified without conflict, its
-    # id is used instead of creating a new entry!
+    # create hardware_product_profile entries as well, as needed.
     my $hardware_product = $c->txn_wrapper(sub ($c) {
-        if (exists $input->{hardware_product_profile}
-                and my $zpool = delete $input->{hardware_product_profile}{zpool_profile}) {
-            my $zpool_profile = $c->_find_or_create_zpool_profile($zpool);
-            $input->{hardware_product_profile}{zpool_id} = $zpool_profile->id;
-        }
-
         $c->db_hardware_products->create($input);
     });
 
@@ -132,10 +120,7 @@ sub create ($c) {
 
     $c->log->debug('Created hardware product id '.$hardware_product->id.
         ($input->{hardware_product_profile}
-          ? (' and hardware product profile id '.$hardware_product->hardware_product_profile->id .
-            ($input->{hardware_product_profile}{zpool_profile}
-              ? (' and zpool profile id '.$hardware_product->hardware_product_profile->zpool_id)
-              : ''))
+          ? (' and hardware product profile id '.$hardware_product->hardware_product_profile->id)
           : '')
     );
     $c->status(303 => "/hardware_product/".$hardware_product->id);
@@ -144,7 +129,7 @@ sub create ($c) {
 =head2 update
 
 Updates an existing hardware_product, possibly updating or creating a hardware_product_profile
-and zpool_profile as needed.
+as needed.
 
 =cut
 
@@ -176,23 +161,6 @@ sub update ($c) {
 
         my $profile = delete $input->{hardware_product_profile};
         if ($profile and keys %$profile) {
-
-            # we don't really need to do this check, as the db will check the foreign key
-            # constraint for us, die and force a rollback, but let's be nice...
-            if ($profile->{zpool_id}
-                    and not $c->db_zpool_profiles->active
-                        ->search({ id => $profile->{zpool_id} })->exists) {
-                $c->log->debug("Failed to update hardware product: zpool_id $profile->{zpool_id} does not exist");
-                $c->status(400 => { error => "zpool_id $profile->{zpool_id} does not exist" });
-                die 'rollback';
-            }
-
-            if (my $zpool = delete $profile->{zpool_profile}) {
-                my $zpool_profile = $c->_find_or_create_zpool_profile($zpool);
-                $profile->{zpool_id} = $zpool_profile->id;
-                $c->log->debug('Assigned zpool_profile id '.$zpool_profile->id.'to hardware_product_profile for hardware product '.$hardware_product->id);
-            }
-
             if (keys %$profile) {
                 if ($hardware_product->hardware_product_profile) {
                     $hardware_product->hardware_product_profile->update({ %$profile, updated => \'now()', deactivated => undef });
@@ -241,34 +209,6 @@ sub delete ($c) {
         . ($hardware_product_profile_id
             ? " and its related hardware product profile id $hardware_product_profile_id" : ''));
     return $c->status(204);
-}
-
-=head2 _find_or_create_zpool_profile
-
-Shared logic between 'create' and 'update' endpoints concerning zpool_profile management
-
-Sharing existing zpool_profiles is permitted as long as no fields are being altered, because
-other profiles could be using it. Instead, we attempt to create a new one, which is okay as
-long as there is no name conflict.
-
-=cut
-
-sub _find_or_create_zpool_profile ($c, $zpool_data) {
-    my $zpool_profile;
-    if ($zpool_data->{name}) {
-        $zpool_profile = $c->db_zpool_profiles->active
-            ->search({ name => $zpool_data->{name} })->single;
-        if ($zpool_profile
-            and $zpool_profile->set_columns($zpool_data)
-            and $zpool_profile->get_dirty_columns
-        ) {
-            $c->log->debug("Failed to update hardware product: zpool_profile with name '$zpool_data->{name}' already exists");
-            $c->status(400 => { error => "zpool_profile with name '$zpool_data->{name}' already exists" });
-            die 'rollback';
-        }
-    }
-
-    $zpool_profile //= $c->db_zpool_profiles->create($zpool_data);
 }
 
 1;
