@@ -76,9 +76,9 @@ ALTER TYPE public.user_workspace_role_enum OWNER TO conch;
 
 CREATE TYPE public.validation_status_enum AS ENUM (
     'error',
-    'pass',
     'fail',
-    'processing'
+    'processing',
+    'pass'
 );
 
 
@@ -691,7 +691,7 @@ CREATE TABLE public.validation_state (
     device_id text NOT NULL,
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    status public.validation_status_enum DEFAULT 'processing'::public.validation_status_enum NOT NULL,
+    status public.validation_status_enum NOT NULL,
     completed timestamp with time zone,
     device_report_id uuid NOT NULL
 );
