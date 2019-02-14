@@ -5,7 +5,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
-use List::Util 'any';
+use List::Util qw(any none first);
 
 =pod
 
@@ -189,6 +189,157 @@ sub delete ($c) {
 
     $c->stash('rack_rs')->delete;
     $c->log->debug('Deleted datacenter rack '.$c->stash('datacenter_rack_id'));
+    return $c->status(204);
+}
+
+=head2 get_assignment
+
+Gets all the rack layout assignments (including occupying devices) for the specified rack.
+
+Response uses the RackAssignments json schema.
+
+=cut
+
+sub get_assignment ($c) {
+    my @assignments = $c->stash('rack_rs')
+        ->related_resultset('datacenter_rack_layouts')
+        ->columns([ 'rack_unit_start' ])
+        ->search(undef, {
+            join => [
+                { device_location => 'device' },
+                { hardware_product => 'hardware_product_profile' },
+            ],
+            '+columns' => {
+                device_id => 'device.id',
+                device_asset_tag => 'device.asset_tag',
+                hardware_product => 'hardware_product.name',
+                # TODO: this should be renamed in the db itself.
+                rack_unit_size =>  'hardware_product_profile.rack_unit',
+            },
+            collapse => 1,
+        })
+        ->order_by('rack_unit_start')
+        ->hri
+        ->all;
+
+    $c->log->debug('Found '.scalar(@assignments).' device-rack assignments');
+    $c->status(200 => \@assignments);
+}
+
+=head2 set_assignment
+
+Assigns devices to rack layouts, also optionally updating asset_tags.
+
+=cut
+
+sub set_assignment ($c) {
+    my $input = $c->validate_input('RackAssignmentUpdates');
+    return if not $input;
+
+    my @layouts = $c->stash('rack_rs')->search_related('datacenter_rack_layouts',
+            { 'datacenter_rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
+        ->prefetch('device_location')
+        ->order_by('datacenter_rack_layouts.rack_unit_start');
+
+    if (@layouts != $input->@*) {
+        my @missing = grep {
+            my $ru = $_;
+            none { $ru == $_->rack_unit_start } @layouts;
+        } map $_->{rack_unit_start}, $input->@*;
+        return $c->status(400 => { error => 'missing layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing) });
+    }
+
+    if (my @occupied = grep $_->device_location, @layouts) {
+        return $c->status(400 => { error => 'already occupied: rack_unit_start '
+            .join(', ', map $_->rack_unit_start, @occupied) });
+    }
+
+    if (my @located = $c->db_device_locations->search({ device_id => { -in => [ map $_->{device_id}, $input->@* ] } })) {
+        return $c->status(400 => { error => 'device'.(@located > 1 ? 's ' : ' ')
+            .join(', ', map $_->device_id, @located).' already '
+            .(@located > 1 ? 'have assigned locations' : 'has an assigned location') });
+    }
+
+    foreach my $entry ($input->@*) {
+        my $layout = first { $_->rack_unit_start == $entry->{rack_unit_start} } @layouts;
+        if (my $device = $c->db_devices->find($entry->{device_id})) {
+            if (exists $entry->{device_asset_tag}) {
+                $device->asset_tag($entry->{device_asset_tag});
+                $device->update({ updated => \'now()' }) if $device->is_changed;
+            }
+            # we'll allow this as it will be caught by a validation later on,
+            # but it's probably user error of some kind.
+            $c->log->warn('locating device id '.$device->id
+                    .' in slot with incorrect hardware: expecting hardware_product_id '
+                    .$layout->hardware_product_id.', but instead it has hardware_product_id '
+                    .$device->hardware_product_id)
+                if $device->hardware_product_id ne $layout->hardware_product_id;
+        }
+        else {
+            my $device = $c->db_devices->create({
+                id => $entry->{device_id},
+                asset_tag => $entry->{device_asset_tag},
+                hardware_product_id => $layout->hardware_product_id,
+                health => 'UNKNOWN',
+                state => 'UNKNOWN',
+            });
+        }
+
+        $layout->create_related('device_location', { device_id => $entry->{device_id} });
+    }
+
+    $c->log->debug('Updated device assignments for datacenter rack '.$c->stash('datacenter_rack_id'));
+    $c->status(303 => '/rack/'.$c->stash('datacenter_rack_id').'/assignment');
+}
+
+=head2 delete_assignment
+
+=cut
+
+sub delete_assignment ($c) {
+    my $input = $c->validate_input('RackAssignmentDeletes');
+    return if not $input;
+
+    my @layouts = $c->stash('rack_rs')->search_related('datacenter_rack_layouts',
+            { 'datacenter_rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
+        ->prefetch('device_location')
+        ->order_by('datacenter_rack_layouts.rack_unit_start');
+
+    if (@layouts != $input->@*) {
+        my @missing = grep {
+            my $ru = $_;
+            none { $ru == $_->rack_unit_start } @layouts;
+        } map $_->{rack_unit_start}, $input->@*;
+        $c->log->debug('cannot delete nonexistent layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing));
+        return $c->status(404);
+    }
+
+    if (my @unoccupied = grep !$_->device_location, @layouts) {
+        $c->log->debug('cannot delete assignments for unoccupied slot'.
+            (@unoccupied > 1 ? 's' : '').': rack_unit_start '
+            .join(', ', map $_->rack_unit_start, @unoccupied));
+        return $c->status(404);
+    }
+
+    foreach my $entry ($input->@*) {
+        my $layout = first { $_->rack_unit_start == $entry->{rack_unit_start} } @layouts;
+        if ($layout->device_location->device_id ne $entry->{device_id}) {
+            $c->log->debug('rack_unit_start '.$layout->rack_unit_start
+                .' occupied by device_id '.$layout->device_location->device_id
+                .' but was expecting device_id '.$entry->{device_id});
+            $c->status(404);
+        }
+    }
+
+    return if $c->res->code;
+
+    my $deleted = $c->stash('rack_rs')->search_related('datacenter_rack_layouts',
+            { 'datacenter_rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
+        ->related_resultset('device_location')
+        ->delete;
+
+    $c->log->debug('deleted '.$deleted.' device-rack assignment'.($deleted > 1 ? 's' : ''));
+
     return $c->status(204);
 }
 

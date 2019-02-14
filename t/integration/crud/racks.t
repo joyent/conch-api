@@ -68,7 +68,7 @@ $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('Rack')
     ->json_cmp_deeply(superhashof({ name => 'r4ck' }));
-my $idr = $t->tx->res->json->{id};
+my $new_rack_id = $t->tx->res->json->{id};
 
 my $small_rack_role = $t->app->db_datacenter_rack_roles->create({ name => '10U', rack_size => 10 });
 
@@ -77,7 +77,7 @@ $t->post_ok('/rack/'.$rack->id, json => { role => $small_rack_role->id })
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
 
-$t->post_ok("/rack/$idr", json => {
+$t->post_ok("/rack/$new_rack_id", json => {
         name => 'rack',
         serial_number => 'abc',
         asset_tag => 'deadbeef',
@@ -89,16 +89,134 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_schema_is('Rack')
     ->json_cmp_deeply(superhashof({ name => 'rack', serial_number => 'abc', asset_tag => 'deadbeef' }));
 
+$t->get_ok("/rack/$new_rack_id/assignment")
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is([]);
+
 $t->delete_ok('/rack/'.$rack->id)
     ->status_is(400)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot delete a datacenter_rack when a detacenter_rack_layout is referencing it' });
 
-$t->delete_ok("/rack/$idr")
+$t->delete_ok("/rack/$new_rack_id")
     ->status_is(204);
 
-$t->get_ok("/rack/$idr")
+$t->get_ok("/rack/$new_rack_id")
     ->status_is(404);
+
+my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
+my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
+
+
+$t->get_ok('/rack/'.$rack->id.'/assignment')
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is([
+        {
+            rack_unit_start => 1,
+            rack_unit_size => 2,
+            device_id => undef,
+            device_asset_tag => undef,
+            hardware_product => $hardware_product_compute->name,
+        },
+        {
+            rack_unit_start => 3,
+            rack_unit_size => 4,
+            device_id => undef,
+            device_asset_tag => undef,
+            hardware_product => $hardware_product_storage->name,
+        },
+        {
+            rack_unit_start => 11,
+            rack_unit_size => 4,
+            device_id => undef,
+            device_asset_tag => undef,
+            hardware_product => $hardware_product_storage->name,
+        },
+    ]);
+my $assignments = $t->tx->res->json;
+
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => 'FOO',
+            rack_unit_start => 2,
+        },
+    ])
+    ->status_is(400)
+    ->json_is({ error => 'missing layout for rack_unit_start 2' });
+
+my ($device) = $t->generate_fixtures(device => { hardware_product_id => $hardware_product_storage->id });
+
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => 'FOO', # new device
+            device_asset_tag => 'ohhai',
+            rack_unit_start => 1,
+        },
+        {
+            device_id => $device->id, # existing device
+            device_asset_tag => 'hello',
+            rack_unit_start => 3,
+        },
+    ])
+    ->status_is(303);
+
+$assignments->[0]->@{qw(device_id device_asset_tag)} = ('FOO','ohhai');
+$assignments->[1]->@{qw(device_id device_asset_tag)} = ($device->id,'hello');
+
+$t->get_ok($t->tx->res->headers->location)
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is($assignments);
+
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => 'FOO',
+            rack_unit_start => 11,
+        },
+    ])
+    ->status_is(400)
+    ->json_is({ error => 'device FOO already has an assigned location' });
+
+$t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => 'FOO',
+            rack_unit_start => 2,   # this rack_unit_start doesn't exist
+        },
+    ])
+    ->status_is(404);
+
+$t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => 'FOO',
+            rack_unit_start => 11,   # this slot isn't occupied
+        },
+    ])
+    ->status_is(404);
+
+$t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => 'FOO',
+            rack_unit_start => 3,   # wrong slot for this device
+        },
+    ])
+    ->status_is(404);
+
+$t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => 'FOO',
+            rack_unit_start => 1,
+        },
+    ])
+    ->status_is(204);
+
+$assignments->[0]->@{qw(device_id device_asset_tag)} = ();
+
+$t->get_ok('/rack/'.$rack->id.'/assignment')
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is($assignments);
 
 done_testing();
 # vim: set ts=4 sts=4 sw=4 et :

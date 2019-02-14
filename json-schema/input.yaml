@@ -260,6 +260,44 @@ definitions:
         type: string
       asset_tag:
         type: string
+  RackAssignmentUpdates:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/RackAssignmentUpdate
+  RackAssignmentUpdate:
+    type: object
+    additionalProperties: false
+    required:
+      - device_id
+      - rack_unit_start
+    properties:
+      device_id:
+        $ref: /definitions/device_id
+      rack_unit_start:
+        type: integer
+        description: Starting RU slot position
+      device_asset_tag:
+        oneOf:
+          - $ref: /definitions/device_asset_tag
+          - type: 'null'
+  RackAssignmentDeletes:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/RackAssignmentDelete
+  RackAssignmentDelete:
+    type: object
+    additionalProperties: false
+    required:
+      - device_id
+      - rack_unit_start
+    properties:
+      device_id:
+        $ref: /definitions/device_id
+      rack_unit_start:
+        type: integer
+        description: Starting RU slot position
   RackRoleCreate:
     type: object
     additionalProperties: false
