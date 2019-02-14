@@ -5,6 +5,8 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
+use List::Util 'any';
+
 =pod
 
 =head1 NAME
@@ -20,17 +22,29 @@ Supports rack lookups by uuid.
 =cut
 
 sub find_rack ($c) {
-    return $c->status(403) unless $c->is_system_admin;
-
     $c->log->debug('Looking for datacenter rack by id: '.$c->stash('datacenter_rack_id'));
-    my $rack = $c->db_datacenter_racks->find($c->stash('datacenter_rack_id'));
+    my $rack_rs = $c->db_datacenter_racks
+        ->search({ 'datacenter_rack.id' => $c->stash('datacenter_rack_id') });
 
-    if (not $rack) {
-        $c->log->debug('Could not find datacenter rack');
+    if (not $rack_rs->exists) {
+        $c->log->debug('Could not find datacenter rack ',$c->stash('datacenter_rack_id'));
         return $c->status(404 => { error => 'Not found' });
     }
 
-    $c->log->debug('Found datacenter rack '.$rack->id);
+    # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
+    my $method = $c->req->method;
+    my $requires_permission =
+        (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+      : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
+      : die "need handling for $method method";
+
+    if (not $rack_rs->user_has_permission($c->stash('user_id'), $requires_permission)) {
+        $c->log->debug('User lacks permission to access rack'.$c->stash('datacenter_rack_id'));
+        return $c->status(403, { error => 'Forbidden' });
+    }
+
+    $c->log->debug('Found datacenter rack '.$c->stash('datacenter_rack_id'));
+    my $rack = $rack_rs->single;
     $c->stash('rack' => $rack);
     return 1;
 }
@@ -83,6 +97,7 @@ Response uses the Racks json schema.
 =cut
 
 sub get_all ($c) {
+    # TODO: instead of sysadmin privs, filter out results by workspace permissions
     return $c->status(403) unless $c->is_system_admin;
 
     my @racks = $c->db_datacenter_racks->all;
@@ -100,8 +115,6 @@ Response uses the RackLayouts json schema.
 =cut
 
 sub layouts ($c) {
-    return $c->status(403) unless $c->is_system_admin;
-
     # TODO: to be more helpful to the UI, we should include the width of the hardware that will
     # occupy each rack_unit(s).
 

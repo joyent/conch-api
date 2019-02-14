@@ -6,6 +6,7 @@ use Data::UUID;
 use Test::Conch;
 
 my $t = Test::Conch->new;
+$t->load_fixture('conch_user_global_workspace');
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 
 my $uuid = Data::UUID->new;
