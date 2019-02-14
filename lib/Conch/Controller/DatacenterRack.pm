@@ -44,8 +44,7 @@ sub find_rack ($c) {
     }
 
     $c->log->debug('Found datacenter rack '.$c->stash('datacenter_rack_id'));
-    my $rack = $rack_rs->single;
-    $c->stash('rack' => $rack);
+    $c->stash('rack_rs', scalar $rack_rs);
     return 1;
 }
 
@@ -85,7 +84,7 @@ Response uses the Rack json schema.
 =cut
 
 sub get ($c) {
-    $c->status(200, $c->stash('rack'));
+    $c->status(200, $c->stash('rack_rs')->single);
 }
 
 =head2 get_all
@@ -118,7 +117,7 @@ sub layouts ($c) {
     # TODO: to be more helpful to the UI, we should include the width of the hardware that will
     # occupy each rack_unit(s).
 
-    my @layouts = $c->stash('rack')
+    my @layouts = $c->stash('rack_rs')
         ->related_resultset('datacenter_rack_layouts')
         #->search(undef, {
         #    join => { 'hardware_product' => 'hardware_product_profile' },
@@ -142,24 +141,27 @@ sub update ($c) {
     my $input = $c->validate_input('RackUpdate');
     return if not $input;
 
+    my $rack_rs = $c->stash('rack_rs');
+    my $rack = $rack_rs->single;
+
     if ($input->{datacenter_room_id}
-            and $input->{datacenter_room_id} ne $c->stash('rack')->datacenter_room_id) {
+            and $input->{datacenter_room_id} ne $rack->datacenter_room_id) {
         unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
             return $c->status(400 => { error => 'Room does not exist' });
         }
     }
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it
-    if (exists $input->{role} and $input->{role} ne $c->stash('rack')->datacenter_rack_role_id) {
+    if (exists $input->{role} and $input->{role} ne $rack->datacenter_rack_role_id) {
         my $rack_role = $c->db_datacenter_rack_roles->find($input->{role});
         if (not $rack_role) {
             return $c->status(400 => { error => 'Rack role does not exist' });
         }
 
-        my @assigned_rack_units = $c->stash('rack')->self_rs->assigned_rack_units;
+        my @assigned_rack_units = $rack_rs->assigned_rack_units;
 
         if (my @out_of_range = grep $_ > $rack_role->rack_size, @assigned_rack_units) {
-            $c->log->debug('found layout used by rack id '.$c->stash('rack')->id
+            $c->log->debug('found layout used by rack id '.$c->stash('datacenter_rack_id')
                 .' that has assigned rack_units greater requested new rack_size of '
                 .$rack_role->rack_size.': ', join(', ', @out_of_range));
             return $c->status(400 => { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
@@ -168,9 +170,9 @@ sub update ($c) {
         $input->{datacenter_rack_role_id} = delete $input->{role};
     }
 
-    $c->stash('rack')->update($input);
-    $c->log->debug('Updated datacenter rack '.$c->stash('rack')->id);
-    return $c->status(303 => '/rack/'.$c->stash('rack')->id);
+    $rack->update($input);
+    $c->log->debug('Updated datacenter rack '.$c->stash('datacenter_rack_id'));
+    return $c->status(303 => '/rack/'.$c->stash('datacenter_rack_id'));
 }
 
 =head2 delete
@@ -180,13 +182,13 @@ Delete a rack.
 =cut
 
 sub delete ($c) {
-    if ($c->stash('rack')->related_resultset('datacenter_rack_layouts')->exists) {
+    if ($c->stash('rack_rs')->related_resultset('datacenter_rack_layouts')->exists) {
         $c->log->debug('Cannot delete datacenter_rack: in use by one or more datacenter_rack_layouts');
         return $c->status(400 => { error => 'cannot delete a datacenter_rack when a detacenter_rack_layout is referencing it' });
     }
 
-    $c->stash('rack')->delete;
-    $c->log->debug('Deleted datacenter rack '.$c->stash('rack')->id);
+    $c->stash('rack_rs')->delete;
+    $c->log->debug('Deleted datacenter rack '.$c->stash('datacenter_rack_id'));
     return $c->status(204);
 }
 
