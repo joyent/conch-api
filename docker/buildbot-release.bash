@@ -5,7 +5,7 @@
 : ${BUILDNUMBER:=0}
 
 LABEL=$(echo "${LABEL}" | sed 's/\//_/g')
-PREFIX=${PREFIX} LABEL=${LABEL} docker/builder.sh --file Dockerfile .
+PREFIX=${PREFIX} LABEL=${LABEL} docker/builder.sh --no-cache --file Dockerfile .
 
 docker run \
 	--name ${PREFIX}_${BUILDNUMBER} \
