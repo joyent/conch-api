@@ -62,7 +62,7 @@ my %canned_definitions = (
         legacy_datacenter_room_1a
         legacy_datacenter_rack
         legacy_datacenter_rack_layout_1_2
-        legacy_datacenter_rack_layout_3_6
+        legacy_datacenter_rack_layout_3_4
         legacy_datacenter_rack_layout_7_10
     )],
 
@@ -271,7 +271,7 @@ my %canned_definitions = (
             hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
         },
     },
-    legacy_datacenter_rack_layout_3_6 => {
+    legacy_datacenter_rack_layout_3_4 => {
         new => 'datacenter_rack_layout',
         using => {
             rack_unit_start => 3,
