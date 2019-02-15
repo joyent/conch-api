@@ -1,6 +1,7 @@
 package Conch::DB::ResultsExist;
 use v5.26;
 use warnings;
+use experimental 'signatures';
 
 =head1 NAME
 
@@ -32,17 +33,13 @@ Returns a value that you can treat as a boolean.
 
 =cut
 
-sub exists {
-    my $self = shift;
-
+sub exists ($self) {
     my $inner = $self->search(undef, { select => [ \1 ] })->as_query;
 
     my $statement = 'select exists ' . $inner->$*->[0];
     my @binds = map { $_->[1] } $inner->$*->@[1 .. $inner->$*->$#*];
 
-    my ($exists) = $self->result_source->schema->storage->dbh_do(sub {
-        my ($storage, $dbh) = @_;
-
+    my ($exists) = $self->result_source->schema->storage->dbh_do(sub ($storage, $dbh) {
         # cribbed from DBIx::Class::Storage::DBI::_format_for_trace
         $storage->debugobj->query_start($statement, map { defined($_) ? qq{'$_'} : q{NULL} } @binds)
             if $storage->debug;
