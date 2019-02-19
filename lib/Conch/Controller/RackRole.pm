@@ -1,4 +1,4 @@
-package Conch::Controller::DatacenterRackRole;
+package Conch::Controller::RackRole;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
@@ -9,7 +9,7 @@ with 'Conch::Role::MojoLog';
 
 =head1 NAME
 
-Conch::Controller::DatacenterRackRole
+Conch::Controller::RackRole
 
 =head1 METHODS
 
@@ -30,19 +30,19 @@ sub find_rack_role ($c) {
             return $c->status(404 => { error => 'Not found' });
         }
 
-        $c->log->debug("Looking up datacenter rack role using identifier '$key'");
-        $rack_role = $c->db_datacenter_rack_roles->find({ name => $value }, { key => 'datacenter_rack_role_name_key' });
+        $c->log->debug("Looking up rack role using identifier '$key'");
+        $rack_role = $c->db_rack_roles->find({ name => $value }, { key => 'rack_role_name_key' });
     } else {
-        $c->log->debug('looking up datacenter rack role by id');
-        $rack_role = $c->db_datacenter_rack_roles->find($c->stash('rack_role_id_or_name'));
+        $c->log->debug('looking up rack role by id');
+        $rack_role = $c->db_rack_roles->find($c->stash('rack_role_id_or_name'));
     }
 
     if (not $rack_role) {
-        $c->log->debug('Failed to find datacenter rack role');
+        $c->log->debug('Failed to find rack role');
         return $c->status(404 => { error => 'Not found' });
     }
 
-    $c->log->debug('Found datacenter rack role '.$rack_role->id);
+    $c->log->debug('Found rack role '.$rack_role->id);
     $c->stash('rack_role' => $rack_role);
     return 1;
 }
@@ -58,13 +58,13 @@ sub create ($c) {
     my $input = $c->validate_input('RackRoleCreate');
     return if not $input;
 
-    if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->exists) {
+    if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
         $c->log->debug("Name conflict on '".$input->{name}."'");
         return $c->status(400 => { error => 'name is already taken' });
     }
 
-    my $rack_role = $c->db_datacenter_rack_roles->create($input);
-    $c->log->debug('Created datacenter rack role '.$rack_role->id);
+    my $rack_role = $c->db_rack_roles->create($input);
+    $c->log->debug('Created rack role '.$rack_role->id);
     $c->status(303 => '/rack_role/'.$rack_role->id);
 }
 
@@ -92,8 +92,8 @@ Response uses the RackRoles json schema.
 sub get_all ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
-    my @rack_roles = $c->db_datacenter_rack_roles->all;
-    $c->log->debug('Found '.scalar(@rack_roles).' datacenter rack roles');
+    my @rack_roles = $c->db_rack_roles->all;
+    $c->log->debug('Found '.scalar(@rack_roles).' rack roles');
 
     $c->status(200 => \@rack_roles);
 }
@@ -109,7 +109,7 @@ sub update ($c) {
     return if not $input;
 
     if ($input->{name}) {
-        if ($c->db_datacenter_rack_roles->search({ name => $input->{name} })->exists) {
+        if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
             $c->log->debug("Name conflict on '".$input->{name}."'");
             return $c->status(400 => { error => 'name is already taken' });
         }
@@ -120,7 +120,7 @@ sub update ($c) {
     # prohibit shrinking rack_size if there are layouts that extend beyond it
     if ($input->{rack_size}) {
         my $rack_rs = $rack_role->self_rs
-            ->related_resultset('datacenter_racks');
+            ->related_resultset('racks');
 
         while (my $rack = $rack_rs->next) {
             my %assigned_rack_units = map { $_ => 1 }
@@ -138,7 +138,7 @@ sub update ($c) {
 
     $rack_role->set_columns($input);
     $rack_role->update({ updated => \'now()' }) if $rack_role->is_changed;
-    $c->log->debug('Updated datacenter rack role '.$rack_role->id);
+    $c->log->debug('Updated rack role '.$rack_role->id);
     $c->status(303 => '/rack_role/'.$rack_role->id);
 }
 
@@ -149,13 +149,13 @@ Delete a rack role.
 =cut
 
 sub delete ($c) {
-    if ($c->stash('rack_role')->related_resultset('datacenter_racks')->exists) {
-        $c->log->debug('Cannot delete rack_role: in use by one or more datacenter_racks');
-        return $c->status(400 => { error => 'cannot delete a datacenter_rack_role when a datacenter_rack is referencing it' });
+    if ($c->stash('rack_role')->related_resultset('racks')->exists) {
+        $c->log->debug('Cannot delete rack_role: in use by one or more racks');
+        return $c->status(400 => { error => 'cannot delete a rack_role when a rack is referencing it' });
     }
 
     $c->stash('rack_role')->delete;
-    $c->log->debug('Deleted datacenter rack role '.$c->stash('rack_role')->id);
+    $c->log->debug('Deleted rack role '.$c->stash('rack_role')->id);
     return $c->status(204);
 }
 

@@ -1,12 +1,12 @@
 use utf8;
-package Conch::DB::Result::DatacenterRackLayout;
+package Conch::DB::Result::RackLayout;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::DB::Result::DatacenterRackLayout
+Conch::DB::Result::RackLayout
 
 =cut
 
@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<datacenter_rack_layout>
+=head1 TABLE: C<rack_layout>
 
 =cut
 
-__PACKAGE__->table("datacenter_rack_layout");
+__PACKAGE__->table("rack_layout");
 
 =head1 ACCESSORS
 
@@ -114,7 +114,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<datacenter_rack_layout_rack_id_rack_unit_start_key>
+=head2 C<rack_layout_rack_id_rack_unit_start_key>
 
 =over 4
 
@@ -127,26 +127,11 @@ __PACKAGE__->set_primary_key("id");
 =cut
 
 __PACKAGE__->add_unique_constraint(
-  "datacenter_rack_layout_rack_id_rack_unit_start_key",
+  "rack_layout_rack_id_rack_unit_start_key",
   ["rack_id", "rack_unit_start"],
 );
 
 =head1 RELATIONS
-
-=head2 datacenter_rack
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DatacenterRack>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "datacenter_rack",
-  "Conch::DB::Result::DatacenterRack",
-  { id => "rack_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
 
 =head2 device_location
 
@@ -181,9 +166,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 rack
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-25 12:35:59
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OOd0Jw7sMZ5C5v/MRVfX7Q
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::Rack>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "rack",
+  "Conch::DB::Result::Rack",
+  { id => "rack_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-20 11:21:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:T8uDZZw98qUk1liy7Tf6Ng
 
 sub TO_JSON {
     my $self = shift;

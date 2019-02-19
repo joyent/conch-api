@@ -133,21 +133,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 workspace_datacenter_racks
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::WorkspaceDatacenterRack>
-
-=cut
-
-__PACKAGE__->has_many(
-  "workspace_datacenter_racks",
-  "Conch::DB::Result::WorkspaceDatacenterRack",
-  { "foreign.workspace_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 workspace_datacenter_rooms
 
 Type: has_many
@@ -159,6 +144,21 @@ Related object: L<Conch::DB::Result::WorkspaceDatacenterRoom>
 __PACKAGE__->has_many(
   "workspace_datacenter_rooms",
   "Conch::DB::Result::WorkspaceDatacenterRoom",
+  { "foreign.workspace_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 workspace_racks
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::WorkspaceRack>
+
+=cut
+
+__PACKAGE__->has_many(
+  "workspace_racks",
+  "Conch::DB::Result::WorkspaceRack",
   { "foreign.workspace_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -178,20 +178,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 datacenter_racks
-
-Type: many_to_many
-
-Composing rels: L</workspace_datacenter_racks> -> datacenter_rack
-
-=cut
-
-__PACKAGE__->many_to_many(
-  "datacenter_racks",
-  "workspace_datacenter_racks",
-  "datacenter_rack",
-);
-
 =head2 datacenter_rooms
 
 Type: many_to_many
@@ -206,9 +192,19 @@ __PACKAGE__->many_to_many(
   "datacenter_room",
 );
 
+=head2 racks
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1/dl2sM58txAKheeKvNVHw
+Type: many_to_many
+
+Composing rels: L</workspace_racks> -> rack
+
+=cut
+
+__PACKAGE__->many_to_many("racks", "workspace_racks", "rack");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-19 14:50:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:99ko2O507mqLvrpJMACRnA
 
 =head2 TO_JSON
 

@@ -29,7 +29,7 @@ my $device_num = 0;
 my @rack_layouts = map {
     my @_layouts = $workspaces_rs->search({ 'workspaces.id' => $_ })
         ->associated_racks
-        ->related_resultset('datacenter_rack_layouts')
+        ->related_resultset('rack_layouts')
         ->order_by('rack_unit_start')->hri->all;
     $t->app->db_device_locations->assign_device_location(
         'DEVICE'.$device_num++, $_->{rack_id}, $_->{rack_unit_start}

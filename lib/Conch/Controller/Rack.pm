@@ -1,4 +1,4 @@
-package Conch::Controller::DatacenterRack;
+package Conch::Controller::Rack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
@@ -11,7 +11,7 @@ use List::Util qw(any none first);
 
 =head1 NAME
 
-Conch::Controller::DatacenterRack
+Conch::Controller::Rack
 
 =head1 METHODS
 
@@ -22,12 +22,12 @@ Supports rack lookups by uuid.
 =cut
 
 sub find_rack ($c) {
-    $c->log->debug('Looking for datacenter rack by id: '.$c->stash('datacenter_rack_id'));
-    my $rack_rs = $c->db_datacenter_racks
-        ->search({ 'datacenter_rack.id' => $c->stash('datacenter_rack_id') });
+    $c->log->debug('Looking for rack by id: '.$c->stash('rack_id'));
+    my $rack_rs = $c->db_racks
+        ->search({ 'rack.id' => $c->stash('rack_id') });
 
     if (not $rack_rs->exists) {
-        $c->log->debug('Could not find datacenter rack ',$c->stash('datacenter_rack_id'));
+        $c->log->debug('Could not find rack ',$c->stash('rack_id'));
         return $c->status(404 => { error => 'Not found' });
     }
 
@@ -39,18 +39,18 @@ sub find_rack ($c) {
       : die "need handling for $method method";
 
     if (not $rack_rs->user_has_permission($c->stash('user_id'), $requires_permission)) {
-        $c->log->debug('User lacks permission to access rack'.$c->stash('datacenter_rack_id'));
+        $c->log->debug('User lacks permission to access rack'.$c->stash('rack_id'));
         return $c->status(403, { error => 'Forbidden' });
     }
 
-    $c->log->debug('Found datacenter rack '.$c->stash('datacenter_rack_id'));
+    $c->log->debug('Found rack '.$c->stash('rack_id'));
     $c->stash('rack_rs', scalar $rack_rs);
     return 1;
 }
 
 =head2 create
 
-Stores data as a new datacenter_rack row, munging 'role' to 'datacenter_rack_role_id'.
+Stores data as a new rack row, munging 'role' to 'rack_role_id'.
 
 =cut
 
@@ -63,14 +63,14 @@ sub create ($c) {
         return $c->status(400 => { error => 'Room does not exist' });
     }
 
-    unless ($c->db_datacenter_rack_roles->search({ id => $input->{role} })->exists) {
+    unless ($c->db_rack_roles->search({ id => $input->{role} })->exists) {
         return $c->status(400 => { error => 'Rack role does not exist' });
     }
 
-    $input->{datacenter_rack_role_id} = delete $input->{role};
+    $input->{rack_role_id} = delete $input->{role};
 
-    my $rack = $c->db_datacenter_racks->create($input);
-    $c->log->debug('Created datacenter rack '.$rack->id);
+    my $rack = $c->db_racks->create($input);
+    $c->log->debug('Created rack '.$rack->id);
 
     $c->status(303 => '/rack/'.$rack->id);
 }
@@ -99,8 +99,8 @@ sub get_all ($c) {
     # TODO: instead of sysadmin privs, filter out results by workspace permissions
     return $c->status(403) unless $c->is_system_admin;
 
-    my @racks = $c->db_datacenter_racks->all;
-    $c->log->debug('Found '.scalar(@racks).' datacenter racks');
+    my @racks = $c->db_racks->all;
+    $c->log->debug('Found '.scalar(@racks).' racks');
 
     $c->status(200, \@racks);
 }
@@ -118,7 +118,7 @@ sub layouts ($c) {
     # occupy each rack_unit(s).
 
     my @layouts = $c->stash('rack_rs')
-        ->related_resultset('datacenter_rack_layouts')
+        ->related_resultset('rack_layouts')
         #->search(undef, {
         #    join => { 'hardware_product' => 'hardware_product_profile' },
         #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
@@ -127,7 +127,7 @@ sub layouts ($c) {
         ->order_by([ qw(rack_unit_start) ])
         ->all;
 
-    $c->log->debug('Found '.scalar(@layouts).' datacenter rack layouts');
+    $c->log->debug('Found '.scalar(@layouts).' rack layouts');
     $c->status(200 => \@layouts);
 }
 
@@ -152,8 +152,8 @@ sub update ($c) {
     }
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it
-    if (exists $input->{role} and $input->{role} ne $rack->datacenter_rack_role_id) {
-        my $rack_role = $c->db_datacenter_rack_roles->find($input->{role});
+    if (exists $input->{role} and $input->{role} ne $rack->rack_role_id) {
+        my $rack_role = $c->db_rack_roles->find($input->{role});
         if (not $rack_role) {
             return $c->status(400 => { error => 'Rack role does not exist' });
         }
@@ -161,18 +161,18 @@ sub update ($c) {
         my @assigned_rack_units = $rack_rs->assigned_rack_units;
 
         if (my @out_of_range = grep $_ > $rack_role->rack_size, @assigned_rack_units) {
-            $c->log->debug('found layout used by rack id '.$c->stash('datacenter_rack_id')
+            $c->log->debug('found layout used by rack id '.$c->stash('rack_id')
                 .' that has assigned rack_units greater requested new rack_size of '
                 .$rack_role->rack_size.': ', join(', ', @out_of_range));
             return $c->status(400 => { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
         }
 
-        $input->{datacenter_rack_role_id} = delete $input->{role};
+        $input->{rack_role_id} = delete $input->{role};
     }
 
     $rack->set_columns($input);
     $rack->update({ updated => \'now()' }) if $rack->is_changed;
-    $c->log->debug('Updated datacenter rack '.$rack->id);
+    $c->log->debug('Updated rack '.$rack->id);
     return $c->status(303 => '/rack/'.$rack->id);
 }
 
@@ -183,13 +183,13 @@ Delete a rack.
 =cut
 
 sub delete ($c) {
-    if ($c->stash('rack_rs')->related_resultset('datacenter_rack_layouts')->exists) {
-        $c->log->debug('Cannot delete datacenter_rack: in use by one or more datacenter_rack_layouts');
-        return $c->status(400 => { error => 'cannot delete a datacenter_rack when a datacenter_rack_layout is referencing it' });
+    if ($c->stash('rack_rs')->related_resultset('rack_layouts')->exists) {
+        $c->log->debug('Cannot delete rack: in use by one or more rack_layouts');
+        return $c->status(400 => { error => 'cannot delete a rack when a rack_layout is referencing it' });
     }
 
     $c->stash('rack_rs')->delete;
-    $c->log->debug('Deleted datacenter rack '.$c->stash('datacenter_rack_id'));
+    $c->log->debug('Deleted rack '.$c->stash('rack_id'));
     return $c->status(204);
 }
 
@@ -203,7 +203,7 @@ Response uses the RackAssignments json schema.
 
 sub get_assignment ($c) {
     my @assignments = $c->stash('rack_rs')
-        ->related_resultset('datacenter_rack_layouts')
+        ->related_resultset('rack_layouts')
         ->columns([ 'rack_unit_start' ])
         ->search(undef, {
             join => [
@@ -237,10 +237,10 @@ sub set_assignment ($c) {
     my $input = $c->validate_input('RackAssignmentUpdates');
     return if not $input;
 
-    my @layouts = $c->stash('rack_rs')->search_related('datacenter_rack_layouts',
-            { 'datacenter_rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
+    my @layouts = $c->stash('rack_rs')->search_related('rack_layouts',
+            { 'rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
         ->prefetch('device_location')
-        ->order_by('datacenter_rack_layouts.rack_unit_start');
+        ->order_by('rack_layouts.rack_unit_start');
 
     if (@layouts != $input->@*) {
         my @missing = grep {
@@ -289,8 +289,8 @@ sub set_assignment ($c) {
         $layout->create_related('device_location', { device_id => $entry->{device_id} });
     }
 
-    $c->log->debug('Updated device assignments for datacenter rack '.$c->stash('datacenter_rack_id'));
-    $c->status(303 => '/rack/'.$c->stash('datacenter_rack_id').'/assignment');
+    $c->log->debug('Updated device assignments for rack '.$c->stash('rack_id'));
+    $c->status(303 => '/rack/'.$c->stash('rack_id').'/assignment');
 }
 
 =head2 delete_assignment
@@ -301,10 +301,10 @@ sub delete_assignment ($c) {
     my $input = $c->validate_input('RackAssignmentDeletes');
     return if not $input;
 
-    my @layouts = $c->stash('rack_rs')->search_related('datacenter_rack_layouts',
-            { 'datacenter_rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
+    my @layouts = $c->stash('rack_rs')->search_related('rack_layouts',
+            { 'rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
         ->prefetch('device_location')
-        ->order_by('datacenter_rack_layouts.rack_unit_start');
+        ->order_by('rack_layouts.rack_unit_start');
 
     if (@layouts != $input->@*) {
         my @missing = grep {
@@ -334,8 +334,8 @@ sub delete_assignment ($c) {
 
     return if $c->res->code;
 
-    my $deleted = $c->stash('rack_rs')->search_related('datacenter_rack_layouts',
-            { 'datacenter_rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
+    my $deleted = $c->stash('rack_rs')->search_related('rack_layouts',
+            { 'rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
         ->related_resultset('device_location')
         ->delete;
 

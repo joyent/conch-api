@@ -1,12 +1,12 @@
 use utf8;
-package Conch::DB::Result::DatacenterRackRole;
+package Conch::DB::Result::RackRole;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::DB::Result::DatacenterRackRole
+Conch::DB::Result::RackRole
 
 =cut
 
@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<datacenter_rack_role>
+=head1 TABLE: C<rack_role>
 
 =cut
 
-__PACKAGE__->table("datacenter_rack_role");
+__PACKAGE__->table("rack_role");
 
 =head1 ACCESSORS
 
@@ -103,7 +103,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<datacenter_rack_role_name_key>
+=head2 C<rack_role_name_key>
 
 =over 4
 
@@ -113,9 +113,9 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("datacenter_rack_role_name_key", ["name"]);
+__PACKAGE__->add_unique_constraint("rack_role_name_key", ["name"]);
 
-=head2 C<datacenter_rack_role_name_rack_size_key>
+=head2 C<rack_role_name_rack_size_key>
 
 =over 4
 
@@ -127,31 +127,28 @@ __PACKAGE__->add_unique_constraint("datacenter_rack_role_name_key", ["name"]);
 
 =cut
 
-__PACKAGE__->add_unique_constraint(
-  "datacenter_rack_role_name_rack_size_key",
-  ["name", "rack_size"],
-);
+__PACKAGE__->add_unique_constraint("rack_role_name_rack_size_key", ["name", "rack_size"]);
 
 =head1 RELATIONS
 
-=head2 datacenter_racks
+=head2 racks
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::DatacenterRack>
+Related object: L<Conch::DB::Result::Rack>
 
 =cut
 
 __PACKAGE__->has_many(
-  "datacenter_racks",
-  "Conch::DB::Result::DatacenterRack",
-  { "foreign.datacenter_rack_role_id" => "self.id" },
+  "racks",
+  "Conch::DB::Result::Rack",
+  { "foreign.rack_role_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sOI9flK9L0dRIv1JoAfx4A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-19 15:10:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0MbitDa0p73zJAWuOJwAVQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

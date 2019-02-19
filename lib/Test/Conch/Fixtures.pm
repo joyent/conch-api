@@ -57,13 +57,13 @@ my %canned_definitions = (
         hardware_product_profile_compute
     )],
     '03-test-datacenter' => [qw(
-        legacy_datacenter_rack_role_10u
+        legacy_rack_role_10u
         legacy_datacenter_region_1
         legacy_datacenter_room_1a
-        legacy_datacenter_rack
-        legacy_datacenter_rack_layout_1_2
-        legacy_datacenter_rack_layout_3_4
-        legacy_datacenter_rack_layout_7_10
+        legacy_rack
+        legacy_rack_layout_1_2
+        legacy_rack_layout_3_4
+        legacy_rack_layout_7_10
     )],
 
 
@@ -223,8 +223,8 @@ my %canned_definitions = (
         },
     },
 
-    legacy_datacenter_rack_role_10u => {
-        new => 'datacenter_rack_role',
+    legacy_rack_role_10u => {
+        new => 'rack_role',
         using => {
             name => 'TEST_RACK_ROLE',
             rack_size => 10,
@@ -251,43 +251,43 @@ my %canned_definitions = (
             # TODO: indicate a dependency on 'global_workspace'
         },
     },
-    legacy_datacenter_rack => {
-        new => 'datacenter_rack',
+    legacy_rack => {
+        new => 'rack',
         using => {
             name => 'Test Rack',
         },
         requires => {
             legacy_datacenter_room_1a => { our => 'datacenter_room_id', their => 'id' },
-            legacy_datacenter_rack_role_10u => { our => 'datacenter_rack_role_id', their => 'id' },
+            legacy_rack_role_10u => { our => 'rack_role_id', their => 'id' },
         },
     },
-    legacy_datacenter_rack_layout_1_2 => {
-        new => 'datacenter_rack_layout',
+    legacy_rack_layout_1_2 => {
+        new => 'rack_layout',
         using => {
             rack_unit_start => 1,
         },
         requires => {
-            legacy_datacenter_rack => { our => 'rack_id', their => 'id' },
+            legacy_rack => { our => 'rack_id', their => 'id' },
             hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
         },
     },
-    legacy_datacenter_rack_layout_3_4 => {
-        new => 'datacenter_rack_layout',
+    legacy_rack_layout_3_4 => {
+        new => 'rack_layout',
         using => {
             rack_unit_start => 3,
         },
         requires => {
-            legacy_datacenter_rack => { our => 'rack_id', their => 'id' },
+            legacy_rack => { our => 'rack_id', their => 'id' },
             hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
         },
     },
-    legacy_datacenter_rack_layout_7_10 => {
-        new => 'datacenter_rack_layout',
+    legacy_rack_layout_7_10 => {
+        new => 'rack_layout',
         using => {
             rack_unit_start => 7,
         },
         requires => {
-            legacy_datacenter_rack => { our => 'rack_id', their => 'id' },
+            legacy_rack => { our => 'rack_id', their => 'id' },
             hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
         },
     },
@@ -315,7 +315,7 @@ load them to the database.
 Available sets:
 
 * workspace_room_rack_layout - a new workspace under GLOBAL, with a datacenter_room,
-datacenter_rack, and a layout suitable for various hardware. Takes a single integer for uniqueness.
+rack, and a layout suitable for various hardware. Takes a single integer for uniqueness.
 
 =cut
 
@@ -369,48 +369,48 @@ sub generate_set ($self, $set_name, @args) {
                     "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },
-            datacenter_rack_role_42u => {
-                new => 'datacenter_rack_role',
+            rack_role_42u => {
+                new => 'rack_role',
                 using => {
                     name => 'rack_role 42U',
                     rack_size => 42,
                 },
             },
-            "datacenter_rack_${num}a" => {
-                new => 'datacenter_rack',
+            "rack_${num}a" => {
+                new => 'rack',
                 using => { name => "rack ${num}a" },
                 requires => {
                     "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
-                    datacenter_rack_role_42u => { our => 'datacenter_rack_role_id', their => 'id' },
+                    rack_role_42u => { our => 'rack_role_id', their => 'id' },
                 },
             },
-            "datacenter_rack_${num}a_layout_1_2" => {
-                new => 'datacenter_rack_layout',
+            "rack_${num}a_layout_1_2" => {
+                new => 'rack_layout',
                 using => {
                     rack_unit_start => 1,
                 },
                 requires => {
-                    "datacenter_rack_${num}a" => { our => 'rack_id', their => 'id' },
+                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
                     hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
                 },
             },
-            "datacenter_rack_${num}a_layout_3_6" => {
-                new => 'datacenter_rack_layout',
+            "rack_${num}a_layout_3_6" => {
+                new => 'rack_layout',
                 using => {
                     rack_unit_start => 3,
                 },
                 requires => {
-                    "datacenter_rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
-            "datacenter_rack_${num}a_layout_11_14" => {
-                new => 'datacenter_rack_layout',
+            "rack_${num}a_layout_11_14" => {
+                new => 'rack_layout',
                 using => {
                     rack_unit_start => 11,
                 },
                 requires => {
-                    "datacenter_rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
@@ -460,7 +460,7 @@ sub generate_definitions ($self, $unique_num, %specification) {
         # find hashrefs, arrayrefs in the specification and make them first-class
         # specifications. This overwrites any existing specification data, which may need to be
         # fixed later.  (This does not yet work for fixture specifications that are arrayrefs,
-        # e.g. datacenter_rack_layouts.)
+        # e.g. rack_layouts.)
         if (ref $specification{$name} eq 'HASH'
             and my @ref_keys = grep {
                     ref $specification{$name}->{$_} and not blessed $specification{$name}->{$_}
@@ -541,48 +541,48 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
                 requires => {
                     "device_$num" => { our => 'device_id', their => 'id' },
-                    "datacenter_rack_$num" => { our => 'rack_id', their => 'id' },
-                    "datacenter_rack_layout_${num}_ru$rack_unit_start" => { our => 'rack_unit_start', their => 'rack_unit_start' },
+                    "rack_$num" => { our => 'rack_id', their => 'id' },
+                    "rack_layout_${num}_ru$rack_unit_start" => { our => 'rack_unit_start', their => 'rack_unit_start' },
                 },
             },
         },
-        # NOTE: datacenter_rack requires additional data (rack_layouts with hardware_product
-        # etc), so it must be defined separately (probably via datacenter_rack_layouts) before
+        # NOTE: rack requires additional data (rack_layouts with hardware_product
+        # etc), so it must be defined separately (probably via rack_layouts) before
         # loading the fixture!
-        'device', 'datacenter_rack';
+        'device', 'rack';
     }
-    elsif ($fixture_type eq 'datacenter_rack_layouts') {
+    elsif ($fixture_type eq 'rack_layouts') {
         return +{
             map {
-                "datacenter_rack_layout_${num}_ru".$_->{rack_unit_start} => +{
-                    new => 'datacenter_rack_layout',
+                "rack_layout_${num}_ru".$_->{rack_unit_start} => +{
+                    new => 'rack_layout',
                     using => $_,
                     # TODO: current limitation: all layouts use the same hardware_product.
                     # in the future we can check for hardware_product_id in provided field list.
                     requires => {
-                        "datacenter_rack_$num" => { our => 'rack_id', their => 'id' },
+                        "rack_$num" => { our => 'rack_id', their => 'id' },
                         "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
                     },
                 }
             } $specification->@*
         },
-        'datacenter_rack', 'hardware_product';
+        'rack', 'hardware_product';
     }
-    elsif ($fixture_type eq 'datacenter_rack') {
+    elsif ($fixture_type eq 'rack') {
         return +{
-            "datacenter_rack_$num" => {
-                new => 'datacenter_rack',
+            "rack_$num" => {
+                new => 'rack',
                 using => {
-                    name => "datacenter_rack_$num",
+                    name => "rack_$num",
                     ($specification // {})->%*,
                 },
                 requires => {
                     "datacenter_room_$num" => { our => 'datacenter_room_id', their => 'id' },
-                    "datacenter_rack_role_$num" => { our => 'datacenter_rack_role_id', their => 'id' },
+                    "rack_role_$num" => { our => 'rack_role_id', their => 'id' },
                 },
             },
         },
-        'datacenter_room', 'datacenter_rack_role';
+        'datacenter_room', 'rack_role';
     }
     elsif ($fixture_type eq 'hardware_product') {
         return +{
@@ -641,12 +641,12 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
         },
         'datacenter';
     }
-    elsif ($fixture_type eq 'datacenter_rack_role') {
+    elsif ($fixture_type eq 'rack_role') {
         return +{
-            "datacenter_rack_role_$num" => {
-                new => 'datacenter_rack_role',
+            "rack_role_$num" => {
+                new => 'rack_role',
                 using => {
-                    name => "datacenter_rack_role_$num",
+                    name => "rack_role_$num",
                     rack_size => 42,
                     ($specification // {})->%*,
                 },

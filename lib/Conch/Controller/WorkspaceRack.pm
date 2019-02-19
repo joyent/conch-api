@@ -33,7 +33,7 @@ sub list ($c) {
     my $device_health_rs = $racks_rs->search(
         { 'device.id' => { '!=' => undef } },
         {
-            columns => { rack_id => 'datacenter_rack.id' },
+            columns => { rack_id => 'rack.id' },
             select => [ { count => '*', -as => 'count' } ],
             join => { device_locations => 'device' },
             distinct => 1,  # group by all columns in final resultset
@@ -59,12 +59,12 @@ sub list ($c) {
         {
             columns => {
                 az => 'datacenter_room.az',
-                id => 'datacenter_rack.id',
-                name => 'datacenter_rack.name',
-                role => 'datacenter_rack_role.name',
-                size => 'datacenter_rack_role.rack_size',
+                id => 'rack.id',
+                name => 'rack.name',
+                role => 'rack_role.name',
+                size => 'rack_role.rack_size',
             },
-            join => [ qw(datacenter_room datacenter_rack_role) ],
+            join => [ qw(datacenter_room rack_role) ],
             collapse => 1,
         },
     )->hri->all;
@@ -92,13 +92,13 @@ sub find_rack ($c) {
 
     if (not is_uuid($rack_id)) {
         $c->log->warn('Input failed validation');
-        return $c->status(400 => { error => "Datacenter Rack ID must be a UUID. Got '$rack_id'." });
+        return $c->status(400 => { error => "Rack ID must be a UUID. Got '$rack_id'." });
     }
 
     my $rack_rs = $c->stash('workspace_rs')
         ->associated_racks
         ->active
-        ->search({ 'datacenter_rack.id' => $rack_id });
+        ->search({ 'rack.id' => $rack_id });
 
     if (not $rack_rs->exists) {
         $c->log->debug("Could not find rack $rack_id");
@@ -109,7 +109,7 @@ sub find_rack ($c) {
     # permission to access it.
     # No queries have been made yet, so you can add on more criteria or prefetches.
     $c->stash('rack_rs',
-        $c->db_datacenter_racks->search_rs({ 'datacenter_rack.id' => $rack_id }));
+        $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
 
     $c->log->debug("Found rack $rack_id");
     return 1;
@@ -117,7 +117,7 @@ sub find_rack ($c) {
 
 =head2 get_layout
 
-Get the layout of the current datacenter_rack (as specified by :rack_id in the path).
+Get the layout of the current rack (as specified by :rack_id in the path).
 Supports json, csv formats.
 
 Response uses the WorkspaceRack json schema.
@@ -134,24 +134,24 @@ sub get_layout ($c) {
             ->search(undef,
                 {
                     columns => {
-                        ( map {; $_ => "datacenter_rack.$_" } qw(id name) ),
-                        role => 'datacenter_rack_role.name',
+                        ( map {; $_ => "rack.$_" } qw(id name) ),
+                        role => 'rack_role.name',
                         datacenter => 'datacenter_room.az',
-                        'layout.rack_unit_start' => 'datacenter_rack_layouts.rack_unit_start',
+                        'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
                         ( map {; "layout.$_" => "hardware_product.$_" } qw(alias id name) ),
                         'layout.vendor' => 'hardware_vendor.name',
                         'layout.size' => 'hardware_product_profile.rack_unit',
                         ( map {; "layout.device.$_" => "device.$_" } $c->schema->source('device')->columns ),
                     },
                     join => [
-                        'datacenter_rack_role',
+                        'rack_role',
                         'datacenter_room',
-                        { datacenter_rack_layouts => [
+                        { rack_layouts => [
                             { device_location => 'device' },
                             { hardware_product => [ 'hardware_vendor', 'hardware_product_profile' ] },
                           ] },
                     ],
-                    order_by => 'datacenter_rack_layouts.rack_unit_start',
+                    order_by => 'rack_layouts.rack_unit_start',
                 },
             );
 
@@ -176,7 +176,7 @@ sub get_layout ($c) {
             ],
         };
 
-        $c->log->debug('Found rack layouts for datacenter_rack id '.$layout->{id});
+        $c->log->debug('Found rack layouts for rack id '.$layout->{id});
         return $c->status(200, $layout);
 
 	} elsif ($format eq 'csv') {
@@ -186,20 +186,20 @@ sub get_layout ($c) {
 				{
 					columns => {
 						az => 'datacenter_room.az',
-						rack_name => 'datacenter_rack.name',
-						rack_unit_start => 'datacenter_rack_layouts.rack_unit_start',
+						rack_name => 'rack.name',
+						rack_unit_start => 'rack_layouts.rack_unit_start',
 						hardware_name => 'hardware_product.name',
 						device_asset_tag => 'device.asset_tag',
 						device_serial_number => 'device.id',
 					},
 					join => [
 						'datacenter_room',
-						{ datacenter_rack_layouts => [
+						{ rack_layouts => [
 							'hardware_product',
 							{ device_location => 'device' },
 						  ] },
 					],
-					order_by => 'datacenter_rack_layouts.rack_unit_start',
+					order_by => 'rack_layouts.rack_unit_start',
 				},
 			);
 
@@ -221,7 +221,7 @@ sub get_layout ($c) {
 		$csv->print_hr($fh, $_) for @raw_data;
 		close $fh or die "could not close $fh: $!";
 
-		$c->log->debug('Found rack layouts for datacenter_rack id '.$c->stash('rack_id'));
+		$c->log->debug('Found rack layouts for rack id '.$c->stash('rack_id'));
 
 		$c->res->code(200);
 		$c->respond_to(
@@ -265,21 +265,21 @@ sub add ($c) {
     if ($c->stash('workspace_rs')
             ->related_resultset('workspace_datacenter_rooms')
             ->related_resultset('datacenter_room')
-            ->search_related('datacenter_racks', { 'datacenter_racks.id' => $rack_id })->exists) {
+            ->search_related('racks', { 'racks.id' => $rack_id })->exists) {
 
         return $c->status(409, { error =>
             "Rack '$rack_id' is already assigned to this workspace via datacenter room assignment"
         });
     }
 
-    $c->db_workspace_datacenter_racks->update_or_create({
+    $c->db_workspace_racks->update_or_create({
         workspace_id => $c->stash('workspace_id'),
-        datacenter_rack_id => $rack_id,
+        rack_id => $rack_id,
     });
 
     # update rack with additional info, if provided.
     if (keys %$input) {
-        my $rack = $c->db_datacenter_racks->find($rack_id);
+        my $rack = $c->db_racks->find($rack_id);
         $rack->set_columns($input);
         $rack->update({ updated => \'now()' }) if $rack->is_changed;
     }
@@ -303,8 +303,8 @@ sub remove ($c) {
 
     my $rows_deleted = $c->db_workspaces
         ->and_workspaces_beneath($c->stash('workspace_id'))
-        ->search_related('workspace_datacenter_racks',
-            { datacenter_rack_id => $c->stash('rack_id') })
+        ->search_related('workspace_racks',
+            { rack_id => $c->stash('rack_id') })
         ->delete;
 
     # 0 rows deleted -> 0E0 which is boolean truth, not false

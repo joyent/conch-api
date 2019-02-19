@@ -10,7 +10,7 @@ my $t = Test::Conch->new;
 
 my %fixtures = (
     device_location => { rack_unit_start => 3 },
-    datacenter_rack_layouts => [
+    rack_layouts => [
         { rack_unit_start => 1 },
         { rack_unit_start => 2 },
         { rack_unit_start => 3 },
@@ -24,12 +24,12 @@ subtest 'generate_definition' => sub {
         \@definitions,
         bag(
             'device_location_99',
-            'datacenter_rack_layout_99_ru1',
-            'datacenter_rack_layout_99_ru2',
-            'datacenter_rack_layout_99_ru3',
+            'rack_layout_99_ru1',
+            'rack_layout_99_ru2',
+            'rack_layout_99_ru3',
             'device_99',
-            'datacenter_rack_99',
-            'datacenter_rack_role_99',
+            'rack_99',
+            'rack_role_99',
             'datacenter_99',
             'datacenter_room_99',
             'hardware_product_99',
@@ -45,12 +45,12 @@ subtest 'generate_definition' => sub {
 
     is(
         $device_location->device->hardware_product_id,
-        $device_location->datacenter_rack_layout->hardware_product_id,
+        $device_location->rack_layout->hardware_product_id,
         'device hardware_product matches rack_layout hardware_product',
     );
 
     is(
-        $device_location->datacenter_rack_layout->rack_id,
+        $device_location->rack_layout->rack_id,
         $device_location->rack_id,
         'device_location rack_layout rack_id matches device_location rack_id',
     );
@@ -63,12 +63,12 @@ subtest 'generate_fixture_definitions wrapper' => sub {
         bag(
             map { isa('Conch::DB::Result::'.$_) } qw(
                 DeviceLocation
-                DatacenterRackLayout
-                DatacenterRackLayout
-                DatacenterRackLayout
+                RackLayout
+                RackLayout
+                RackLayout
                 Device
-                DatacenterRack
-                DatacenterRackRole
+                Rack
+                RackRole
                 Datacenter
                 DatacenterRoom
                 HardwareProduct
@@ -84,12 +84,12 @@ subtest 'generate_fixture_definitions wrapper' => sub {
 
     is(
         $device->hardware_product_id,
-        $device->device_location->datacenter_rack_layout->hardware_product_id,
+        $device->device_location->rack_layout->hardware_product_id,
         'device hardware_product matches rack_layout hardware_product',
     );
 
     is(
-        $device->device_location->datacenter_rack_layout->rack_id,
+        $device->device_location->rack_layout->rack_id,
         $device->device_location->rack_id,
         'device_location rack_layout rack_id matches device_location rack_id',
     );

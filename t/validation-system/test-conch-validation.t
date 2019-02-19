@@ -133,7 +133,7 @@ subtest 'database object construction' => sub {
         'Conch::Validation::TestConchValidationTester',
         device_location => {
             rack_unit_start => 2,
-            datacenter_rack_layouts => [ { rack_unit_start => 2 } ],
+            rack_layouts => [ { rack_unit_start => 2 } ],
         },
         cases => [
             {
@@ -166,10 +166,10 @@ subtest 'database object construction' => sub {
         'Conch::Validation::TestConchValidationTester',
         device_location => {
             rack_unit_start => 3,
-            datacenter_rack => {
+            rack => {
                 name => 'my rack',
             },
-            datacenter_rack_layouts => [ { rack_unit_start => 3 } ],
+            rack_layouts => [ { rack_unit_start => 3 } ],
         },
         cases => [
             {
@@ -193,8 +193,8 @@ subtest 'database object construction' => sub {
                 success_num => 3,
             },
             {
-                description => 'datacenter_rack inflation',
-                data => { subname => '_datacenter_rack_inflation', rack_unit_start => 3, datacenter_rack_name => 'my rack' },
+                description => 'rack inflation',
+                data => { subname => '_rack_inflation', rack_unit_start => 3, rack_name => 'my rack' },
                 success_num => 2,
             },
         ],

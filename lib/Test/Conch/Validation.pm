@@ -60,8 +60,8 @@ L</test_validation>. For example:
 		},
 		device_location => {
 			rack_unit       => 2,
-			datacenter_rack => {
-				datacenter_rack_layouts => [
+			rack => {
+				rack_layouts => [
 					{ rack_unit_start => 1 },
 					{ rack_unit_start => 2 },
 					{ rack_unit_start => 3 },

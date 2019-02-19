@@ -118,15 +118,15 @@ Also removes the room from all workspaces.
 =cut
 
 sub delete ($c) {
-    if ($c->stash('datacenter_room')->related_resultset('datacenter_racks')->exists) {
-        $c->log->debug('Cannot delete datacenter_room: in use by one or more datacenter_racks');
-        return $c->status(400 => { error => 'cannot delete a datacenter_room when a datacenter_rack is referencing it' });
+    if ($c->stash('datacenter_room')->related_resultset('racks')->exists) {
+        $c->log->debug('Cannot delete datacenter_room: in use by one or more racks');
+        return $c->status(400 => { error => 'cannot delete a datacenter_room when a rack is referencing it' });
     }
 
     return $c->status(403) unless $c->is_system_admin;
     # FIXME: if we have cascade_copy => 1 set on this rel,
     # then we don't have to do this... and we don't have to worry about rack updates either.
-    # But for now, we have a dangling reference to the deleted room in datacenter_rack!
+    # But for now, we have a dangling reference to the deleted room in rack!
     $c->stash('datacenter_room')->delete_related('workspace_datacenter_rooms');
     $c->stash('datacenter_room')->delete;
     $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room')->id);
@@ -142,7 +142,7 @@ Response uses the Racks json schema.
 sub racks ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
-    my @racks = $c->stash('datacenter_room')->related_resultset('datacenter_racks')->all;
+    my @racks = $c->stash('datacenter_room')->related_resultset('racks')->all;
     $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room')->id);
     return $c->status(200 => \@racks);
 }

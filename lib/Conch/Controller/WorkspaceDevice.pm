@@ -88,7 +88,7 @@ sub get_pxe_devices ($c) {
                 id => 'device.id',
                 'location.datacenter.name' => 'datacenter.region',
                 'location.datacenter.vendor_name' => 'datacenter.vendor_name',
-                'location.rack.name' => 'datacenter_rack.name',
+                'location.rack.name' => 'rack.name',
                 'location.rack.rack_unit_start' => 'device_location.rack_unit_start',
                 # pxe = the first (sorted by name) interface that is status=up
                 'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
@@ -96,7 +96,7 @@ sub get_pxe_devices ($c) {
                 'ipmi_mac_ip' => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
             },
             collapse => 1,
-            join => { device_location => { datacenter_rack => { datacenter_room => 'datacenter' } } },
+            join => { device_location => { rack => { datacenter_room => 'datacenter' } } },
         })
         ->order_by('device.created')
         ->hri

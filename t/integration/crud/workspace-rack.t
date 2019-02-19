@@ -12,7 +12,7 @@ $t->load_fixture_set('workspace_room_rack_layout', 0);
 
 my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
 my $sub_ws_id = $t->load_fixture('sub_workspace_0')->id;
-my $rack = $t->load_fixture('datacenter_rack_0a');
+my $rack = $t->load_fixture('rack_0a');
 my $rack_id = $rack->id;
 my $room = $t->load_fixture('datacenter_room_0a');
 my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
@@ -24,9 +24,9 @@ my $uuid = Data::UUID->new;
 $t->load_fixture('workspace_room_0a')->delete;
 
 # this rack is reachable through GLOBAL (via the room) but not through the sub-workspace.
-my $rack2 = $rack->datacenter_room->add_to_datacenter_racks({
+my $rack2 = $rack->datacenter_room->add_to_racks({
     name => 'second rack',
-    datacenter_rack_role_id => $rack->datacenter_rack_role_id,
+    rack_role_id => $rack->rack_role_id,
 });
 
 $t->authenticate;

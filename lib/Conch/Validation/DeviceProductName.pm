@@ -17,7 +17,7 @@ sub validate {
 
 	# TODO: be more vigorous in the checking:
 	# verify that $device->hardware_product_id
-	# eq $device->device_location->datacenter_rack_layout->hardware_product_id
+	# eq $device->device_location->rack_layout->hardware_product_id
 
 	# We do not currently define a Conch or Joyent specific name for
 	# switches. This may change in the future, but currently we continue

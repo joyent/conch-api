@@ -1,4 +1,4 @@
-package Conch::DB::ResultSet::DatacenterRack;
+package Conch::DB::ResultSet::Rack;
 use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
@@ -8,7 +8,7 @@ use List::Util 'none';
 
 =head1 NAME
 
-Conch::DB::ResultSet::DatacenterRack
+Conch::DB::ResultSet::Rack
 
 =head1 DESCRIPTION
 
@@ -27,7 +27,7 @@ To go in the other direction, see L<Conch::DB::ResultSet::Workspace/associated_r
 =cut
 
 sub associated_workspaces ($self) {
-    my $rack_workspace_ids = $self->related_resultset('workspace_datacenter_racks')
+    my $rack_workspace_ids = $self->related_resultset('workspace_racks')
         ->get_column('workspace_id');
 
     my $rack_room_workspace_ids = $self->related_resultset('datacenter_room')
@@ -56,9 +56,9 @@ This is used for identifying potential conflicts when adjusting layouts.
 =cut
 
 sub assigned_rack_units ($self) {
-    my @layout_data = $self->search_related('datacenter_rack_layouts', undef, {
+    my @layout_data = $self->search_related('rack_layouts', undef, {
         columns => {
-            rack_unit_start => 'datacenter_rack_layouts.rack_unit_start',
+            rack_unit_start => 'rack_layouts.rack_unit_start',
             rack_unit_size => 'hardware_product_profile.rack_unit',
         },
         join => { 'hardware_product' => 'hardware_product_profile' },

@@ -365,7 +365,7 @@ subtest 'Device Report' => sub {
 };
 
 subtest 'Single device' => sub {
-	my $rack_id = $t->load_fixture('legacy_datacenter_rack')->id;
+	my $rack_id = $t->load_fixture('legacy_rack')->id;
 
 	# device settings that check for 'admin' permission need the device to have a location
 	$t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout",
@@ -560,7 +560,7 @@ subtest 'Device location' => sub {
 		->status_is(400, 'requires body')
 		->json_like('/error', qr/Expected object/);
 
-	my $rack_id = $t->load_fixture('legacy_datacenter_rack')->id;
+	my $rack_id = $t->load_fixture('legacy_rack')->id;
 
 	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 42 })
 		->status_is(409)
@@ -587,7 +587,7 @@ subtest 'Permissions' => sub {
 	my $ro_email = 'readonly@wat.wat';
 	my $ro_pass = 'password';
 
-	my $rack_id = $t->load_fixture('legacy_datacenter_rack')->id;
+	my $rack_id = $t->load_fixture('legacy_rack')->id;
 
 	subtest 'Read-only' => sub {
 		my $ro_user = $t->app->db_user_accounts->create({

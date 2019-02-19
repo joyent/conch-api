@@ -17,7 +17,7 @@ $t->load_validation_plans([{
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
-my $rack_id = $t->load_fixture('datacenter_rack_0a')->id;
+my $rack_id = $t->load_fixture('rack_0a')->id;
 my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 my $user_workspace_role = $t->load_fixture('conch_user_global_workspace');
 
@@ -104,7 +104,7 @@ subtest 'located device' => sub {
         });
 
     $t->txn_local('remove device from its workspace', sub ($t) {
-        $t->app->db_workspace_datacenter_racks->delete;
+        $t->app->db_workspace_racks->delete;
         $t->app->db_workspace_datacenter_rooms->delete;
         $t->get_ok('/device/LOCATED_DEVICE')
             ->status_is(403)
@@ -393,7 +393,7 @@ subtest 'Device settings' => sub {
 };
 
 subtest 'Device PXE' => sub {
-    my $layout = $t->load_fixture('datacenter_rack_0a_layout_3_6');
+    my $layout = $t->load_fixture('rack_0a_layout_3_6');
 
     my $device_pxe = $t->app->db_devices->create({
         id => 'PXE_TEST',
@@ -463,7 +463,7 @@ subtest 'Device PXE' => sub {
                     vendor_name => $datacenter->vendor_name,
                 },
                 rack => {
-                    name => $layout->datacenter_rack->name,
+                    name => $layout->rack->name,
                     rack_unit_start => $layout->rack_unit_start,
                 },
             },

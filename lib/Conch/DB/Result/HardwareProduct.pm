@@ -154,21 +154,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 datacenter_rack_layouts
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::DatacenterRackLayout>
-
-=cut
-
-__PACKAGE__->has_many(
-  "datacenter_rack_layouts",
-  "Conch::DB::Result::DatacenterRackLayout",
-  { "foreign.hardware_product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 devices
 
 Type: has_many
@@ -214,6 +199,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 rack_layouts
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::RackLayout>
+
+=cut
+
+__PACKAGE__->has_many(
+  "rack_layouts",
+  "Conch::DB::Result::RackLayout",
+  { "foreign.hardware_product_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 validation_results
 
 Type: has_many
@@ -230,8 +230,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-12-12 12:47:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1G5ydUPuFlREZbyLA8idag
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-19 12:09:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bV+RoGDiBpOGivp+NZjVWg
 
 sub TO_JSON {
     my $self = shift;

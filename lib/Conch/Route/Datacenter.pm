@@ -36,13 +36,13 @@ Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
 
     GET     /rack
     POST    /rack
-    GET     /rack/:datacenter_rack_id
-    POST    /rack/:datacenter_rack_id
-    DELETE  /rack/:datacenter_rack_id
-    GET     /rack/:datacenter_rack_id/layouts
-    GET     /rack/:datacenter_rack_id/assignment
-    POST    /rack/:datacenter_rack_id/assignment
-    DELETE  /rack/:datacenter_rack_id/assignment
+    GET     /rack/:rack_id
+    POST    /rack/:rack_id
+    DELETE  /rack/:rack_id
+    GET     /rack/:rack_id/layouts
+    GET     /rack/:rack_id/assignment
+    POST    /rack/:rack_id/assignment
+    DELETE  /rack/:rack_id/assignment
 
     GET     /layout
     POST    /layout
@@ -104,7 +104,7 @@ sub routes {
     # /rack_role
     {
         my $rack_role = $r->any('/rack_role');
-        $rack_role->to({ controller => 'datacenter_rack_role' });
+        $rack_role->to({ controller => 'rack_role' });
 
         # GET /rack_role
         $rack_role->get('/')->to('#get_all');
@@ -124,43 +124,43 @@ sub routes {
     # /rack
     {
         my $rack = $r->any('/rack');
-        $rack->to({ controller => 'datacenter_rack' });
+        $rack->to({ controller => 'rack' });
 
         # GET /rack
         $rack->get('/')->to('#get_all');
         # POST /rack
         $rack->post('/')->to('#create');
 
-        my $with_rack = $rack->under('/:datacenter_rack_id')->to('#find_rack');
+        my $with_rack = $rack->under('/:rack_id')->to('#find_rack');
 
-        # GET /rack/:datacenter_rack_id
+        # GET /rack/:rack_id
         $with_rack->get('/')->to('#get');
-        # POST /rack/:datacenter_rack_id
+        # POST /rack/:rack_id
         $with_rack->post('/')->to('#update');
-        # DELETE /rack/:datacenter_rack_id
+        # DELETE /rack/:rack_id
         $with_rack->delete('/')->to('#delete');
-        # GET /rack/:datacenter_rack_id/layouts
+        # GET /rack/:rack_id/layouts
         $with_rack->get('/layouts')->to('#layouts');
 
-        # GET /rack/:datacenter_rack_id/assignment
+        # GET /rack/:rack_id/assignment
         $with_rack->get('/assignment')->to('#get_assignment');
-        # POST /rack/:datacenter_rack_id/assignment
+        # POST /rack/:rack_id/assignment
         $with_rack->post('/assignment')->to('#set_assignment');
-        # DELETE /rack/:datacenter_rack_id/assignment
+        # DELETE /rack/:rack_id/assignment
         $with_rack->delete('/assignment')->to('#delete_assignment');
     }
 
     # /layout
     {
         my $layout = $r->any('/layout');
-        $layout->to({ controller => 'datacenter_rack_layout' });
+        $layout->to({ controller => 'rack_layout' });
 
         # GET /layout
         $layout->get('/')->to('#get_all');
         # POST /layout
         $layout->post('/')->to('#create');
 
-        my $with_layout = $layout->under('/:layout_id')->to('#find_datacenter_rack_layout');
+        my $with_layout = $layout->under('/:layout_id')->to('#find_rack_layout');
 
         # GET /layout/:layout_id
         $with_layout->get('/')->to('#get');

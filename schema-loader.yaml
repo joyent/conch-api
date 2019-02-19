@@ -19,10 +19,6 @@ loader_options:
     user: user_account
     DeviceNeighbor:
       mac: device_nic
-    DatacenterRackLayout:
-      rack: datacenter_rack
-    DeviceLocation:
-      rack: datacenter_rack
 
   # this is usually more useful than not, but take care that you don't blow away any changes
   # not yet in git!

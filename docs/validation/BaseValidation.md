@@ -101,7 +101,7 @@ This is useful in writing validation logic that may depend on the rack or
 location in the rack a device occupies.
 
 ```perl
-my $datacenter_name = $self->device_location->datacenter_rack->datacenter->name;
+my $datacenter_name = $self->device_location->rack->datacenter->name;
 my $rack_unit_start = $self->device_location->rack_unit_start;
 ```
 

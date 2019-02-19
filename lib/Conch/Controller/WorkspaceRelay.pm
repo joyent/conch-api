@@ -61,12 +61,12 @@ sub list ($c) {
             {
                 prefetch => 'relay',
                 join => { device => { device_location => {
-                            datacenter_rack => [ 'datacenter_rack_role', 'datacenter_room' ] } } },
+                            rack => [ 'rack_role', 'datacenter_room' ] } } },
                 '+columns' => {
                     'rack_id' => 'device_location.rack_id',
-                    'rack_name' => 'datacenter_rack.name',
+                    'rack_name' => 'rack.name',
                     'rack_unit_start' => 'device_location.rack_unit_start',
-                    'role_name' => 'datacenter_rack_role.name',
+                    'role_name' => 'rack_role.name',
                     'az' => 'datacenter_room.az',
                     'num_devices' => $num_devices_rs->as_query,
                 },

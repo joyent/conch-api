@@ -39,7 +39,7 @@ sub run ($self, @opts) {
 
     while (my $workspace = $workspace_rs->next) {
         my $rack_rs = $workspace->self_rs->associated_racks
-            ->prefetch('datacenter_rack_role');
+            ->prefetch('rack_role');
 
         while (my $rack = $rack_rs->next) {
             my %assigned;
@@ -50,21 +50,21 @@ sub run ($self, @opts) {
                 # check for slot overlaps
                 if ($assigned{$rack_unit} > 1) {
                     print '# for workspace ', $workspace->id, ' (', $workspace->name,
-                        '), datacenter_rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                        '), rack_id ', $rack->id, ' (', $rack->name, '), found ',
                         "$assigned{$rack_unit} assignees at rack_unit $rack_unit!\n";
                 }
             }
 
-            # check slot ranges against datacenter_rack_role.rack_size
-            my $rack_size = $rack->datacenter_rack_role->rack_size;
-            if (my @out_of_range = grep { $_ > $rack_size } @assigned_rack_units) {
+            # check slot ranges against rack_role.rack_size
+            my $rack_size = $rack->rack_role->rack_size;
+            if (my @out_of_range = grep $_ > $rack_size, @assigned_rack_units) {
                     print '# for workspace ', $workspace->id, ' (', $workspace->name,
-                        '), datacenter_rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                        '), rack_id ', $rack->id, ' (', $rack->name, '), found ',
                         'assigned rack_units beyond the specified rack_size of ',
                         "$rack_size: @out_of_range!\n";
             }
 
-            my $occupied_layout_rs = $rack->self_rs->related_resultset('datacenter_rack_layouts')
+            my $occupied_layout_rs = $rack->self_rs->related_resultset('rack_layouts')
                 ->search(
                     { 'device_location.device_id' => { '!=' => undef } },
                     { prefetch => [
@@ -78,7 +78,7 @@ sub run ($self, @opts) {
                 if ($layout->hardware_product_id
                         ne $layout->device_location->device->hardware_product_id) {
                     print '# for workspace ', $workspace->id, ' (', $workspace->name,
-                        '), datacenter_rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                        '), rack_id ', $rack->id, ' (', $rack->name, '), found ',
                         'occupied layout at rack_unit_start ', $layout->rack_unit_start,
                         ' with device with hardware_product_id ',
                         $layout->device_location->device->hardware_product_id, ' (',
