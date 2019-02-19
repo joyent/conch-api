@@ -16,7 +16,7 @@ definitions:
     type: string
     pattern: ^\S+$
   ipaddr:
-    anyOf:
+    oneOf:
       - type: string
         format: ipv4
       - type: string
@@ -169,20 +169,20 @@ definitions:
               vendor:
                 type: string
               state:
-                anyOf:
+                oneOf:
                   - type: string
                   - type: 'null'
               # note: no speed yet?
               ipaddr:
-                anyOf:
+                oneOf:
                   - $ref: /definitions/ipaddr
                   - type: 'null'
               mtu:
-                anyOf:
+                oneOf:
                   - $ref: /definitions/int_or_stringy_int
                   - type: 'null'
               peer_mac:
-                anyOf:
+                oneOf:
                   - $ref: /definitions/macaddr
                   - type: 'null'
               # peer_text, peer_switch, peer_port, all optional with no constraints
@@ -379,7 +379,7 @@ definitions:
       alias:
         type: string
       prefix:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       vendor:
@@ -388,7 +388,7 @@ definitions:
         $ref: /definitions/uuid
       specification:
         description: json blob of additional data
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sku:              # nullable in the db, but required for new entries
@@ -396,7 +396,7 @@ definitions:
       generation_name:  # nullable in the db, but required for new entries
         type: string
       legacy_product_name:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       hardware_product_profile:
@@ -412,7 +412,7 @@ definitions:
       bios_firmware:
         type: string
       hba_firmware:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       cpu_num:
@@ -426,71 +426,71 @@ definitions:
       nics_num:
         type: integer
       sata_hdd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_hdd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_hdd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sas_hdd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_hdd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_hdd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sata_ssd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_ssd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_ssd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sas_ssd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_ssd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_ssd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       nvme_ssd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       nvme_ssd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       nvme_ssd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       raid_lun_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       psu_total:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       usb_num:
@@ -509,7 +509,7 @@ definitions:
       alias:
         type: string
       prefix:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       hardware_vendor_id:
@@ -519,7 +519,7 @@ definitions:
         $ref: /definitions/uuid
       specification:
         description: json blob of additional data
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sku:
@@ -527,7 +527,7 @@ definitions:
       generation_name:
         type: string
       legacy_product_name:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       hardware_product_profile:
@@ -631,7 +631,7 @@ definitions:
       name:
         $ref: /definitions/non_empty_string
       description:
-        anyOf:
+        oneOf:
           - type: 'null'
           - $ref: /definitions/non_empty_string
   WorkspaceAddUser:
