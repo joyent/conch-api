@@ -58,8 +58,7 @@ __PACKAGE__->table("validation_state");
 =head2 status
 
   data_type: 'enum'
-  default_value: 'processing'
-  extra: {custom_type_name => "validation_status_enum",list => ["error","pass","fail","processing"]}
+  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","processing","pass"]}
   is_nullable: 0
 
 =head2 completed
@@ -98,10 +97,9 @@ __PACKAGE__->add_columns(
   "status",
   {
     data_type => "enum",
-    default_value => "processing",
     extra => {
       custom_type_name => "validation_status_enum",
-      list => ["error", "pass", "fail", "processing"],
+      list => ["error", "fail", "processing", "pass"],
     },
     is_nullable => 0,
   },
@@ -152,7 +150,7 @@ __PACKAGE__->belongs_to(
   "device_report",
   "Conch::DB::Result::DeviceReport",
   { id => "device_report_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 validation_plan
@@ -200,8 +198,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-10 16:06:16
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gkC6RKtvMTPS5Y1V8IlugA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-12 15:14:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:62AGs6yNbvUQTQWAr0xhCA
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },

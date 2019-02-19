@@ -259,7 +259,9 @@ sub run_validation_plan ($self, %options) {
         validation_plan_id => $validation_plan->id,
         status => $status,
         completed => \'now()',
-        validation_state_members => [ map { +{ validation_result => $_ } } @validation_results ],
+        # provided column data is used to determine if these result(s) already exist in the db,
+        # and they are reused if so, otherwise they are inserted
+        validation_state_members => [ map +{ validation_result => $_ }, @validation_results ],
     });
 }
 

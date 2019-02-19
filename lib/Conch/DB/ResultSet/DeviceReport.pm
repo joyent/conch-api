@@ -32,6 +32,31 @@ sub matches_jsonb ($self, $jsonb) {
     $self->search(\[ "($me.report - $ignore_fields) = (?::jsonb - $ignore_fields)", $jsonb ]);
 }
 
+=head2 with_report_status
+
+Given a resultset indicating one or more report(s), adds a column to the result indicating
+the cumulative status of all the validation state record(s) associated with it (that is, if all
+pass, then return 'pass', otherwise consider if any were 'error' or 'fail').
+
+Reports with no validation results are considered to be a 'pass'.
+
+=cut
+
+sub with_report_status ($self) {
+    my $me = $self->current_source_alias;
+    $self->search(
+        undef,
+        {
+            '+select' => [ {
+                    '' => \qq{case when $me.invalid_report is not null then 'error' else coalesce(min(validation_states.status),'pass') end},
+                    -as => 'status',
+                } ],
+            join => 'validation_states',
+            group_by => "$me.id",
+        },
+    );
+}
+
 1;
 __END__
 

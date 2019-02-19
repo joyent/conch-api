@@ -76,9 +76,9 @@ ALTER TYPE public.user_workspace_role_enum OWNER TO conch;
 
 CREATE TYPE public.validation_status_enum AS ENUM (
     'error',
-    'pass',
     'fail',
-    'processing'
+    'processing',
+    'pass'
 );
 
 
@@ -384,9 +384,8 @@ CREATE TABLE public.device_report (
     device_id text NOT NULL,
     report jsonb,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    last_received timestamp with time zone DEFAULT now() NOT NULL,
-    received_count integer DEFAULT 1 NOT NULL,
-    invalid_report text
+    invalid_report text,
+    retain boolean
 );
 
 
@@ -691,7 +690,7 @@ CREATE TABLE public.validation_state (
     device_id text NOT NULL,
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    status public.validation_status_enum DEFAULT 'processing'::public.validation_status_enum NOT NULL,
+    status public.validation_status_enum NOT NULL,
     completed timestamp with time zone,
     device_report_id uuid NOT NULL
 );
@@ -1819,7 +1818,7 @@ ALTER TABLE ONLY public.validation_state
 --
 
 ALTER TABLE ONLY public.validation_state
-    ADD CONSTRAINT validation_state_device_report_id_fkey FOREIGN KEY (device_report_id) REFERENCES public.device_report(id);
+    ADD CONSTRAINT validation_state_device_report_id_fkey FOREIGN KEY (device_report_id) REFERENCES public.device_report(id) ON DELETE CASCADE;
 
 
 --
@@ -1835,7 +1834,7 @@ ALTER TABLE ONLY public.validation_state_member
 --
 
 ALTER TABLE ONLY public.validation_state_member
-    ADD CONSTRAINT validation_state_member_validation_state_id_fkey FOREIGN KEY (validation_state_id) REFERENCES public.validation_state(id);
+    ADD CONSTRAINT validation_state_member_validation_state_id_fkey FOREIGN KEY (validation_state_id) REFERENCES public.validation_state(id) ON DELETE CASCADE;
 
 
 --

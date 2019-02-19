@@ -1583,6 +1583,16 @@ DISTRIBUTIONS
       perl 5.008001
       strict 0
       warnings 0
+  Exporter-Lite-0.08
+    pathname: N/NE/NEILB/Exporter-Lite-0.08.tar.gz
+    provides:
+      Exporter::Lite 0.08
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.3
+      perl 5.006
+      strict 0
+      warnings 0
   Exporter-Tiny-1.002001
     pathname: T/TO/TOBYINK/Exporter-Tiny-1.002001.tar.gz
     provides:
@@ -3070,6 +3080,17 @@ DISTRIBUTIONS
       List::Util 1.09
       Scalar::Util 1.09
       Test::Builder 0
+  Test-Deep-JSON-0.05
+    pathname: M/MO/MOTEMEN/Test-Deep-JSON-0.05.tar.gz
+    provides:
+      Test::Deep::JSON 0.05
+    requirements:
+      Exporter::Lite 0
+      ExtUtils::MakeMaker 6.59
+      JSON::MaybeXS 0
+      Module::Build::Tiny 0.035
+      Test::Deep 0
+      perl 5.008001
   Test-Differences-0.64
     pathname: D/DC/DCANTRELL/Test-Differences-0.64.tar.gz
     provides:

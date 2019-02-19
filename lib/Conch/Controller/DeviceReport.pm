@@ -88,56 +88,19 @@ sub process ($c) {
 
 	my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
 
-	if ($existing_device
-		and $existing_device->latest_report_matches($raw_report)) {
-
-		$existing_device->self_rs->latest_device_report->update({
-			last_received => \'now()',
-			received_count => \'received_count + 1',
-		});
-
-		if ($unserialized_report->{relay}) {
-			$existing_device
-				->search_related('device_relay_connections',
-					{ relay_id => $unserialized_report->{relay}{serial} })
-				->update_or_create({ last_seen => \'NOW()' });
-		} else {
-			$c->log->warn('received report without relay id (device_id '. $existing_device->id.')');
-		}
-
-		# this magically DTRT, without having to inject a ->as_subselect_rs,
-		# because DBIx::Class::ResultSet::_chain_relationship understands how to wrap
-		# joins using order by/limit into a subquery
-		my $validation_state = $existing_device->self_rs->latest_device_report
-			->related_resultset('validation_states')
-			->order_by({ -desc => 'validation_states.created' })
-			->rows(1)
-			->single;
-
-		if (not $validation_state) {
-			# normally we should always find an associated validation_state record, because all
-			# incoming device reports (that get stored) have validations run against them.
-			$c->log->warn('Duplicate device report detected (device_report_id '
-				. $existing_device->self_rs->latest_device_report->get_column('id')->single
-				. ' but could not find an associated validation_state record to return');
-
-			# but we can try harder to find *something* to return, in most cases...
-			$validation_state = $c->db_device_reports
-				->matches_jsonb($raw_report)
-				->related_resultset('validation_states')
-				->order_by({ -desc => 'validation_states.created' })
-				->rows(1)
-				->single;
-
-			return $c->status(400, { error => 'duplicate report; could not find relevant validation_state record to return from matching reports' }) if not $validation_state;
-		}
-
-		$c->log->debug('Duplicate device report detected (device_report_id '
-			. $validation_state->device_report_id
-			. '; returning previous validation_state (id ' . $validation_state->id .')');
-
-		return $c->status(200, $validation_state);
-	}
+    # capture information about the last report before we store the new one
+    # state can be: error, fail, processing, pass, where no validations on a valid report is
+    # considered to be a pass.
+    my ($previous_report_id, $previous_report_status);
+    if ($existing_device) {
+        ($previous_report_id, $previous_report_status) =
+            $existing_device->self_rs->latest_device_report
+                ->columns('device_reports.id')
+                ->with_report_status
+                ->hri
+                ->single
+                ->@{qw(id status)};
+    }
 
 	# Update/create the device and create the device report
 	$c->log->debug("Updating or creating device ".$c->stash('device_id'));
@@ -161,7 +124,10 @@ sub process ($c) {
 	$c->log->debug("Creating device report");
 	my $device_report = $device->create_related('device_reports', {
 		report    => $raw_report,
-		# invalid, created, last_received, received_count all use defaults.
+		# we will always keep this report if the previous report failed, or this is the first
+		# report (in its phase).
+		!$previous_report_status || $previous_report_status ne 'pass' ? ( retain => 1 ) : (),
+		# invalid, created use defaults.
 	});
 	$c->log->info("Created device report ".$device_report->id);
 
@@ -207,6 +173,28 @@ sub process ($c) {
 	# validation_state of each plan type and use the cumulative results to determine health.
 
 	$device->update( { health => uc( $validation_state->status ), updated => \'NOW()' } );
+
+    # save some state about this report that will help us out next time, when we consider
+    # deleting it...  we always keep all failing reports (we also keep the first report after a
+    # failure)
+    $device_report->update({ retain => 1 })
+        if $validation_state->status ne 'pass' and not $device_report->retain;
+
+    # now delete that previous report, if we can
+    if ($previous_report_id and $previous_report_status eq 'pass') {
+        if ($c->db_device_reports
+            ->search({ id => $previous_report_id, retain => \'is not TRUE' })
+            ->delete > 0)
+        {
+            $c->log->debug('deleted previous device report id '.$previous_report_id);
+            # deleting device_report cascaded to validation_state and validation_state_member;
+            # now clean up orphaned results
+            $device->search_related('validation_results',
+                { 'validation_state_members.validation_state_id' => undef },
+                { join => 'validation_state_members' },
+            )->delete;
+        }
+    }
 
 	$c->status( 200, $validation_state );
 }
