@@ -42,7 +42,6 @@ my %canned_definitions = (
         'conch_user_global_workspace',
         '00-hardware',
         '01-hardware-profiles',
-        '02-zpool-profiles',
         '03-test-datacenter',
     ],
     '00-hardware' => [qw(
@@ -56,10 +55,6 @@ my %canned_definitions = (
         hardware_product_profile_switch
         hardware_product_profile_storage
         hardware_product_profile_compute
-    )],
-    '02-zpool-profiles' => [qw(
-        zpool_profile_compute
-        zpool_profile_storage
     )],
     '03-test-datacenter' => [qw(
         legacy_datacenter_rack_role_10u
@@ -179,7 +174,6 @@ my %canned_definitions = (
         },
         requires => {
             hardware_product_switch => { our => 'hardware_product_id', their => 'id' },
-            # note, no zpool for this switch.
         },
     },
     hardware_product_profile_storage => {
@@ -203,7 +197,6 @@ my %canned_definitions = (
         },
         requires => {
             hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
-            zpool_profile_storage => { our => 'zpool_id', their => 'id' },
         },
     },
     hardware_product_profile_compute => {
@@ -227,32 +220,6 @@ my %canned_definitions = (
         },
         requires => {
             hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
-            zpool_profile_compute => { our => 'zpool_id', their => 'id' },
-        },
-    },
-
-    zpool_profile_compute => {
-        new => 'zpool_profile',
-        using => {
-            name => '2-ssds-1-cpu',
-            vdev_t => 'mirror',
-            vdev_n => 7,
-            disk_per => 2,
-            spare => 1,
-            log => 1,
-            cache => 0,
-        },
-    },
-    zpool_profile_storage => {
-        new => 'zpool_profile',
-        using => {
-            name => '65-ssds-2-cpu',
-            vdev_t => 'raidz2',
-            vdev_n => 3,
-            disk_per => 11,
-            spare => 2,
-            log => 1,
-            cache => 0,
         },
     },
 

@@ -169,110 +169,14 @@ subtest 'update some fields in an existing profile and product' => sub {
         ->status_is(200)
         ->json_schema_is('HardwareProduct')
         ->json_cmp_deeply($new_product);
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                zpool_id => $uuid->create_str,
-                zpool_profile => { name => 'Luci' },
-            },
-        })
-        ->status_is(400, 'cannot provide both zpool_id and zpool_profile')
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/should not match/i) });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => { zpool_id => $uuid->create_str },
-        })
-        ->status_is(400)
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/zpool_id .* does not exist/) });
 };
 
-subtest 'create a new zpool for an existing profile/product' => sub {
+subtest 'create a new hardware_product_profile in an existing product' => sub {
 
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                zpool_profile => { foo => 'Luci' },
-            },
-        })
-        ->status_is(400)
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/properties not allowed/i) });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                zpool_profile => {
-                    name => 'Luci',
-                    disk_per => 1,
-                },
-            },
-        })
-        ->status_is(303);
-
-    $new_product->{hardware_product_profile}{zpool_profile} = {
-        id => ignore,
-        name => 'Luci',
-        vdev_t => undef,
-        vdev_n => undef,
-        disk_per => 1,
-        spare => undef,
-        log => undef,
-        cache => undef,
-    };
-
-    $t->get_ok("/hardware_product/$new_hw_id")
-        ->status_is(200)
-        ->json_schema_is('HardwareProduct')
-        ->json_cmp_deeply($new_product);
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                zpool_profile => { name => 'Luci', disk_per => 2 },
-            },
-        })
-        ->status_is(400)
-        ->json_schema_is('Error')
-        ->json_is({ error => 'zpool_profile with name \'Luci\' already exists' });
-
-    my $zog_zpool = $t->app->db_zpool_profiles->create({
-        name => 'Zøg',
-        disk_per => 11,
-    });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                zpool_profile => { name => 'Zøg' },
-            },
-        })
-        ->status_is(303, 'switched zpool profiles, by referencing its name');
-
-    $new_product->{hardware_product_profile}{zpool_profile}->@{qw(id name disk_per)} = ($zog_zpool->id,'Zøg',11);
-
-    $t->get_ok("/hardware_product/$new_hw_id")
-        ->status_is(200)
-        ->json_schema_is('HardwareProduct')
-        ->json_cmp_deeply($new_product);
-};
-
-subtest 'create a profile and zpool at the same time in an existing product' => sub {
-
-    $t->app->db_zpool_profiles->search({ id => $new_product->{hardware_product_profile}{zpool_id} })->delete;
     $t->app->db_hardware_product_profiles->search({ id => $new_product->{hardware_product_profile}{id} })->delete;
 
-    my $zpool_count = $t->app->db_zpool_profiles->count;
-
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             hardware_product_profile => {
-                zpool_profile => { foo => 'Bean' },
-            },
-        })
-        ->status_is(400)
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/properties not allowed/i) });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                zpool_profile => { name => 'Bean' },
                 rack_unit => 1,
             },
         })
@@ -280,21 +184,14 @@ subtest 'create a profile and zpool at the same time in an existing product' => 
         ->json_schema_is('Error')
         ->json_cmp_deeply({ error => re(qr/missing property/i) });
 
-    is($t->app->db_ro_zpool_profiles->count, $zpool_count, 'any newly created zpools were rolled back');
-
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             hardware_product_profile => {
                 %$new_hw_profile,
-                zpool_profile => {
-                    name => 'Bean',
-                    disk_per => 2,
-                },
             },
         })
         ->status_is(303);
 
     $new_product->{hardware_product_profile}->@{qw(id rack_unit psu_total)} = (ignore,2,1);
-    $new_product->{hardware_product_profile}{zpool_profile}->@{qw(id name disk_per)} = (ignore,'Bean',2);
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(200)
@@ -305,7 +202,7 @@ subtest 'create a profile and zpool at the same time in an existing product' => 
 my $another_new_hw_id;
 my $new_hw_profile_id;
 
-subtest 'create a hardware product, hardware product profile and zpool profile all together' => sub {
+subtest 'create a hardware product and hardware product profile all together' => sub {
     $t->post_ok('/hardware_product', json => {
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
@@ -335,40 +232,6 @@ subtest 'create a hardware product, hardware product profile and zpool profile a
             alias => 'ether',
             hardware_product_profile => {
                 %$new_hw_profile,
-                zpool_id => $uuid->create_str,
-                zpool_profile => { name => 'Luci' },
-            },
-        })
-        ->status_is(400, 'cannot provide both zpool_id and zpool_profile')
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/should not match/i) });
-
-    $t->post_ok('/hardware_product', json => {
-            name => 'ether2',
-            hardware_vendor_id => $vendor_id,
-            alias => 'ether',
-            hardware_product_profile => {
-                %$new_hw_profile,
-                zpool_profile => {
-                    name => 'Luci',
-                    disk_per => 3,
-                },
-            },
-        })
-        ->status_is(400, 'zpool_profile name is duplicated')
-        ->json_schema_is('Error')
-        ->json_is({ error => 'zpool_profile with name \'Luci\' already exists' });
-
-    $t->post_ok('/hardware_product', json => {
-            name => 'ether2',
-            hardware_vendor_id => $vendor_id,
-            alias => 'ether',
-            hardware_product_profile => {
-                %$new_hw_profile,
-                zpool_profile => {
-                    name => 'Elfo',
-                    disk_per => 3,
-                },
             },
         })
         ->status_is(303);
@@ -408,16 +271,6 @@ subtest 'create a hardware product, hardware product profile and zpool profile a
                 nvme_ssd_size => undef,
                 nvme_ssd_slots => undef,
                 raid_lun_num => undef,
-                zpool_profile => {
-                    id => ignore,
-                    name => 'Elfo',
-                    vdev_t => undef,
-                    vdev_n => undef,
-                    disk_per => 3,
-                    spare => undef,
-                    log => undef,
-                    cache => undef,
-                },
             }
         });
 

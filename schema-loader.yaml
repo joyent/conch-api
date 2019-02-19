@@ -23,8 +23,6 @@ loader_options:
       rack: datacenter_rack
     DeviceLocation:
       rack: datacenter_rack
-    HardwareProductProfile:
-      zpool: zpool_profile
 
   # this is usually more useful than not, but take care that you don't blow away any changes
   # not yet in git!
