@@ -36,8 +36,8 @@ sub list ($c) {
 
 =head2 find_hardware_product
 
-Chainable action that looks up the object by id or sku depending on the url pattern,
-stashing the query to get to it in C<hardware_product_rs>.
+Chainable action that looks up the object by id, sku, name or alias depending on the url
+pattern, stashing the query to get to it in C<hardware_product_rs>.
 
 =cut
 

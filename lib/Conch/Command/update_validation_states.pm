@@ -4,11 +4,11 @@ package Conch::Command::update_validation_states;
 
 =head1 NAME
 
-update_validation_states - view the workspace hierarchy
+update_validation_states - set validation_state.device_report_id
 
 =head1 SYNOPSIS
 
-    update_validation_states [long options...]
+    bin/conch update_validation_states [long options...]
 
         --help  print usage message and exit
 

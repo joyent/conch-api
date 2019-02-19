@@ -8,7 +8,7 @@ workspaces - view the workspace hierarchy
 
 =head1 SYNOPSIS
 
-    workspaces [long options...]
+    bin/conch workspaces [long options...]
 
         --help  print usage message and exit
 

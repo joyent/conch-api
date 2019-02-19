@@ -8,7 +8,7 @@ clean_permissions - clean up unnecessary user_workspace_role entries
 
 =head1 SYNOPSIS
 
-    clean_permissions [-nv] [long options...]
+    bin/conch clean_permissions [-nv] [long options...]
         -n --dry-run  dry-run (no changes are made)
         -v --verbose  verbose
 

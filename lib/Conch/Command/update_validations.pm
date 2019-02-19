@@ -8,7 +8,7 @@ update_validations - Update validation entries in the database to match Conch::V
 
 =head1 SYNOPSIS
 
-    update_validations [long options...]
+    bin/conch update_validations [long options...]
 
         --help  print usage message and exit
 

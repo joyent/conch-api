@@ -8,7 +8,7 @@ update_validations_release_223 - A one-time command to update validations to the
 
 =head1 SYNOPSIS
 
-    update_validations_release_223 [long options...]
+    bin/conch update_validations_release_223 [long options...]
 
         --help  print usage message and exit
 

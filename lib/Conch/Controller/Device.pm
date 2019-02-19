@@ -93,7 +93,7 @@ sub find_device ($c) {
 
 =head2 get
 
-Retrieves details about a single device, returning a json-schema 'DetailedDevice' structure.
+Retrieves details about a single device.  Response uses the DetailedDevice json schema.
 
 =cut
 

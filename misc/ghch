@@ -31,8 +31,11 @@ print "# using end: $end\n";
 
 my @lines = (`git --no-pager log --oneline --merges --no-decorate $start...$end`);
 
+my $lines_used = 0;
 foreach my $line (reverse @lines) {
 	$line =~ /^(.+?) Merge pull request #(\d+) / or next;
+	++$lines_used;
+
 	my $hash = $1;
 	my $pr = $2;
 
@@ -77,7 +80,7 @@ EOF
 
 # if this is a release that doesn't contain pull requests but rather cherry-picks, we need to
 # do something different...
-exit if @lines;
+exit if $lines_used;
 
 @lines = (`git --no-pager log --oneline --no-decorate $start...$end`);
 say "Commits\n---\n";

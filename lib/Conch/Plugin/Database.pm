@@ -124,15 +124,15 @@ the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
     foreach my $source_name ($app->schema->sources) {
         my $plural = noun($source_name)->plural;
 
-        $app->helper('db_'.$plural, sub {
-            my $source = $_[0]->app->schema->source($source_name);
+        $app->helper('db_'.$plural, sub ($c) {
+            my $source = $c->app->schema->source($source_name);
             # note that $source_name eq $source->from unless we screwed up.
-            $source->resultset->search({}, { alias => $source->from });
+            $source->resultset->search(undef, { alias => $source->from });
         });
 
-        $app->helper('db_ro_'.$plural, sub {
-            my $ro_source = $_[0]->app->ro_schema->source($source_name);
-            $ro_source->resultset->search({}, { alias => $ro_source->from });
+        $app->helper('db_ro_'.$plural, sub ($c) {
+            my $ro_source = $c->app->ro_schema->source($source_name);
+            $ro_source->resultset->search(undef, { alias => $ro_source->from });
         });
     }
 

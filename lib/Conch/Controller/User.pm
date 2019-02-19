@@ -129,7 +129,7 @@ sub get_settings ($c) {
 	# newer entries overwriting older ones
 	my %output = map {
 		$_->name => from_json($_->value)
-	} $user->user_settings->active->search({}, { order_by => 'created' });
+	} $user->user_settings->active->search(undef, { order_by => 'created' });
 
 	$c->status( 200, \%output );
 }
