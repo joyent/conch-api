@@ -133,21 +133,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 workspace_datacenter_rooms
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::WorkspaceDatacenterRoom>
-
-=cut
-
-__PACKAGE__->has_many(
-  "workspace_datacenter_rooms",
-  "Conch::DB::Result::WorkspaceDatacenterRoom",
-  { "foreign.workspace_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 workspace_racks
 
 Type: has_many
@@ -178,20 +163,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 datacenter_rooms
-
-Type: many_to_many
-
-Composing rels: L</workspace_datacenter_rooms> -> datacenter_room
-
-=cut
-
-__PACKAGE__->many_to_many(
-  "datacenter_rooms",
-  "workspace_datacenter_rooms",
-  "datacenter_room",
-);
-
 =head2 racks
 
 Type: many_to_many
@@ -203,8 +174,8 @@ Composing rels: L</workspace_racks> -> rack
 __PACKAGE__->many_to_many("racks", "workspace_racks", "rack");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-19 14:50:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:99ko2O507mqLvrpJMACRnA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 12:50:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XPeRYrFMA7VfFHuKwOS8Sw
 
 =head2 TO_JSON
 

@@ -29,9 +29,6 @@ Sets up the routes for /workspace:
     DELETE  /workspace/:workspace_id_or_name/rack/:rack_id
     POST    /workspace/:workspace_id_or_name/rack/:rack_id/layout
 
-    GET     /workspace/:workspace_id_or_name/room
-    PUT     /workspace/:workspace_id_or_name/room
-
     GET     /workspace/:workspace_id_or_name/relay
     GET     /workspace/:workspace_id_or_name/relay/:relay_id/device
 
@@ -100,10 +97,10 @@ sub routes {
             $with_workspace_rack->post('/layout')->to('workspace_rack#assign_layout');
         }
 
-        # GET /workspace/:workspace_id_or_name/room
-        $with_workspace->get('/room')->to('workspace_room#list');
-        # PUT /workspace/:workspace_id_or_name/room
-        $with_workspace->put('/room')->to('workspace_room#replace_rooms');
+        # GET /workspace/:workspace_id_or_name/room -> GONE
+        $with_workspace->get('/room', sub { shift->status(410) });
+        # PUT /workspace/:workspace_id_or_name/room -> GONE
+        $with_workspace->put('/room', sub { shift->status(410) });
 
         # GET /workspace/:workspace_id_or_name/relay
         $with_workspace->get('/relay')->to('workspace_relay#list');

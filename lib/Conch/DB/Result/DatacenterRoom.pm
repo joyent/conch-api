@@ -149,34 +149,9 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 workspace_datacenter_rooms
 
-Type: has_many
-
-Related object: L<Conch::DB::Result::WorkspaceDatacenterRoom>
-
-=cut
-
-__PACKAGE__->has_many(
-  "workspace_datacenter_rooms",
-  "Conch::DB::Result::WorkspaceDatacenterRoom",
-  { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 workspaces
-
-Type: many_to_many
-
-Composing rels: L</workspace_datacenter_rooms> -> workspace
-
-=cut
-
-__PACKAGE__->many_to_many("workspaces", "workspace_datacenter_rooms", "workspace");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 11:45:03
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:G2IXSCcIFBAJVTB+jtv86w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 12:50:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Jxvra6KwThH/4lQ+F1IJIw
 
 sub TO_JSON {
     my $self = shift;

@@ -194,29 +194,16 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
 =head2 associated_racks
 
 Chainable resultset (in the Conch::DB::ResultSet::Rack namespace) that finds all
-racks that are in this workspace (either directly, or via a datacenter_room).
+racks that are in this workspace.
 
 To go in the other direction, see L<Conch::DB::ResultSet::Rack/associated_workspaces>.
 
 =cut
 
 sub associated_racks ($self) {
-    my $workspace_rack_ids = $self->related_resultset('workspace_racks')
-        ->get_column('rack_id');
-
-    my $workspace_room_rack_ids = $self->related_resultset('workspace_datacenter_rooms')
-        ->related_resultset('datacenter_room')
-        ->related_resultset('racks')->get_column('id');
-
-    $self->result_source->schema->resultset('rack')->search(
-        {
-            'rack.id' => [
-                { -in => $workspace_rack_ids->as_query },
-                { -in => $workspace_room_rack_ids->as_query },
-            ],
-        },
-        { alias => 'rack' },
-    );
+    $self
+        ->related_resultset('workspace_racks')
+        ->related_resultset('rack');
 }
 
 =head2 _workspaces_subquery

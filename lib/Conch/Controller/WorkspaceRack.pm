@@ -55,7 +55,7 @@ sub list ($c) {
         $device_progress{$entry->{rack_id}}{$entry->{status} // 'VALID'} += $entry->{count};
     }
 
-    my @rack_data = $racks_rs->search(undef,
+    my @rack_data = $racks_rs->as_subselect_rs->search(undef,
         {
             columns => {
                 az => 'datacenter_room.az',
@@ -237,8 +237,7 @@ sub get_layout ($c) {
 =head2 add
 
 Add a rack to a workspace, unless it is the GLOBAL workspace, provided the rack
-is assigned to the parent workspace of this one, and provided the rack is not
-already assigned via a datacenter room assignment
+is assigned to the parent workspace of this one.
 
 =cut
 
@@ -256,20 +255,10 @@ sub add ($c) {
     # note this only checks one layer up, rather than all the way up the hierarchy.
     if (not $c->stash('workspace_rs')
             ->related_resultset('parent_workspace')
-            ->associated_racks->active->search({ id => $rack_id })->exists) {
+            ->associated_racks->active->search({ 'rack.id' => $rack_id })->exists) {
         return $c->status(409,
             { error => "Rack '$rack_id' must be assigned in parent workspace to be assignable." },
         );
-    }
-
-    if ($c->stash('workspace_rs')
-            ->related_resultset('workspace_datacenter_rooms')
-            ->related_resultset('datacenter_room')
-            ->search_related('racks', { 'racks.id' => $rack_id })->exists) {
-
-        return $c->status(409, { error =>
-            "Rack '$rack_id' is already assigned to this workspace via datacenter room assignment"
-        });
     }
 
     $c->db_workspace_racks->update_or_create({

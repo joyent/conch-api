@@ -361,19 +361,19 @@ sub generate_set ($self, $set_name, @args) {
                     global_workspace => { our => 'vendor_name', their => 'name' },
                 },
             },
-            "workspace_room_${num}a" => {
-                new => 'workspace_datacenter_room',
-                using => {},
-                requires => {
-                    "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
-                    "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
-                },
-            },
             rack_role_42u => {
                 new => 'rack_role',
                 using => {
                     name => 'rack_role 42U',
                     rack_size => 42,
+                },
+            },
+            "workspace_rack_${num}a" => {
+                new => 'workspace_rack',
+                using => {},
+                requires => {
+                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
+                    "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },
             "rack_${num}a" => {
@@ -382,6 +382,9 @@ sub generate_set ($self, $set_name, @args) {
                 requires => {
                     "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
                     rack_role_42u => { our => 'rack_role_id', their => 'id' },
+                    # declare dependency for the all_racks_in_global_workspace trigger to run
+                    # This is a hack: should be able to specify requirements without copying values.
+                    global_workspace => { our => 'asset_tag', their => 'name' },
                 },
             },
             "rack_${num}a_layout_1_2" => {
@@ -579,6 +582,9 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 requires => {
                     "datacenter_room_$num" => { our => 'datacenter_room_id', their => 'id' },
                     "rack_role_$num" => { our => 'rack_role_id', their => 'id' },
+                    # declare dependency for the all_racks_in_global_workspace trigger to run
+                    # This is a hack: should be able to specify requirements without copying values.
+                    global_workspace => { our => 'asset_tag', their => 'name' },
                 },
             },
         },
@@ -634,8 +640,6 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
                 requires => {
                     "datacenter_$num" => { our => 'datacenter_id', their => 'id' },
-                    # this is a hack: should be able to specify requirements without copying values.
-                    global_workspace => { our => 'vendor_name', their => 'name' },
                 },
             },
         },

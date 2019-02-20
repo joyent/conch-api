@@ -30,9 +30,6 @@ subtest 'device totals' => sub {
     # find a rack
     my $rack = $t->app->db_racks->search(undef, { rows => 1 })->single;
 
-    # add the rack to the global workspace
-    $rack->create_related('workspace_racks' => { workspace_id => $global_ws_id });
-
     # create/update some rack layouts
     $rack->update_or_create_related('rack_layouts', $_, { key => 'rack_layout_rack_id_rack_unit_start_key' })
     foreach (

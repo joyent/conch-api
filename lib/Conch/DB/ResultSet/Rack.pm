@@ -19,30 +19,16 @@ Interface to queries involving racks.
 =head2 associated_workspaces
 
 Chainable resultset (in the Conch::DB::ResultSet::Workspace namespace) that finds all
-workspaces that are associated with the specified rack(s) (either directly, or via a
-datacenter_room).
+workspaces that are associated with the specified rack(s).
 
 To go in the other direction, see L<Conch::DB::ResultSet::Workspace/associated_racks>.
 
 =cut
 
 sub associated_workspaces ($self) {
-    my $rack_workspace_ids = $self->related_resultset('workspace_racks')
-        ->get_column('workspace_id');
-
-    my $rack_room_workspace_ids = $self->related_resultset('datacenter_room')
-        ->related_resultset('workspace_datacenter_rooms')
-        ->get_column('workspace_id');
-
-    $self->result_source->schema->resultset('workspace')->search(
-        {
-            'workspace.id' => [
-                { -in => $rack_workspace_ids->as_query },
-                { -in => $rack_room_workspace_ids->as_query },
-            ],
-        },
-        { alias => 'workspace' },
-    );
+    $self
+        ->related_resultset('workspace_racks')
+        ->related_resultset('workspace');
 }
 
 =head2 assigned_rack_units

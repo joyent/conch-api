@@ -649,13 +649,6 @@ subtest 'Sub-Workspace' => sub {
 		->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'user gets the same list of users who can access grandchild ws');
 };
 
-subtest 'Workspace Rooms' => sub {
-	$t->get_ok("/workspace/$global_ws_id/room")
-		->status_is(200)
-		->json_schema_is('Rooms')
-		->json_is( '', [], 'No datacenter rooms available' );
-};
-
 subtest 'Workspace Racks' => sub {
 
 	note(

@@ -43,49 +43,6 @@ $t->post_ok(
 my $sub_ws_id = $t->tx->res->json->{id};
 BAIL_OUT("Could not create sub-workspace.") unless $sub_ws_id;
 
-subtest 'Workspace Rooms' => sub {
-
-	$t->get_ok("/workspace/$global_ws_id/room")
-		->status_is(200)
-		->json_schema_is('Rooms')
-		->json_is('/0/az', 'test-region-1a');
-
-	my $room_id = $t->tx->res->json->[0]->{id};
-	my $room = $t->app->db_datacenter_rooms->find($room_id);
-	my $new_room = $t->app->db_datacenter_rooms->create({
-		datacenter_id => $room->datacenter_id,
-		az => $room->az,
-		alias => 'my new room',
-	});
-	my $new_room_id = $new_room->id;
-
-	$t->put_ok( "/workspace/$global_ws_id/room", json => [$room_id, $new_room_id])
-		->status_is(400, 'Cannot modify GLOBAL' )
-		->json_is({ error => 'Cannot modify GLOBAL workspace' });
-
-	my $bad_room_id = $uuid->create_str;
-	$t->put_ok( "/workspace/$sub_ws_id/room", json => [$bad_room_id, $new_room_id])
-		->status_is(409, 'bad room ids')
-		->json_is({ error => "Datacenter room IDs must be members of the parent workspace: $bad_room_id" });
-
-	$t->put_ok("/workspace/$sub_ws_id/room", json => [$room_id, $new_room_id])
-		->status_is( 200, 'Replaced datacenter rooms' )
-		->json_schema_is('Rooms')
-		->json_is('/0/id', $room_id)
-		->json_is('/1/id', $new_room_id);
-
-	$t->get_ok("/workspace/$sub_ws_id/room")
-		->status_is(200)
-		->json_schema_is('Rooms')
-		->json_is('/0/id', $room_id)
-		->json_is('/1/id', $new_room_id);
-
-	$t->put_ok("/workspace/$sub_ws_id/room", json => [])
-		->json_schema_is('Rooms')
-		->status_is(200, 'Remove datacenter rooms')
-		->json_is('', []);
-};
-
 subtest 'Device Report' => sub {
 	# register the relay referenced by the report
 	$t->post_ok('/relay/deadbeef/register',

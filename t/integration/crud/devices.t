@@ -105,7 +105,6 @@ subtest 'located device' => sub {
 
     $t->txn_local('remove device from its workspace', sub ($t) {
         $t->app->db_workspace_racks->delete;
-        $t->app->db_workspace_datacenter_rooms->delete;
         $t->get_ok('/device/LOCATED_DEVICE')
             ->status_is(403)
             ->json_schema_is('Error')

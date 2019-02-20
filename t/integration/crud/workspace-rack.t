@@ -20,9 +20,6 @@ my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
 
 my $uuid = Data::UUID->new;
 
-# remove room from the sub-workspace
-$t->load_fixture('workspace_room_0a')->delete;
-
 # this rack is reachable through GLOBAL (via the room) but not through the sub-workspace.
 my $rack2 = $rack->datacenter_room->add_to_racks({
     name => 'second rack',

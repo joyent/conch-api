@@ -113,8 +113,6 @@ sub update ($c) {
 
 Permanently delete a datacenter room.
 
-Also removes the room from all workspaces.
-
 =cut
 
 sub delete ($c) {
@@ -124,10 +122,6 @@ sub delete ($c) {
     }
 
     return $c->status(403) unless $c->is_system_admin;
-    # FIXME: if we have cascade_copy => 1 set on this rel,
-    # then we don't have to do this... and we don't have to worry about rack updates either.
-    # But for now, we have a dangling reference to the deleted room in rack!
-    $c->stash('datacenter_room')->delete_related('workspace_datacenter_rooms');
     $c->stash('datacenter_room')->delete;
     $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room')->id);
     return $c->status(204);

@@ -85,24 +85,24 @@ CREATE TYPE public.validation_status_enum AS ENUM (
 ALTER TYPE public.validation_status_enum OWNER TO conch;
 
 --
--- Name: add_room_to_global_workspace(); Type: FUNCTION; Schema: public; Owner: conch
+-- Name: add_rack_to_global_workspace(); Type: FUNCTION; Schema: public; Owner: conch
 --
 
-CREATE FUNCTION public.add_room_to_global_workspace() RETURNS trigger
+CREATE FUNCTION public.add_rack_to_global_workspace() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-  BEGIN
-    INSERT INTO workspace_datacenter_room (workspace_id, datacenter_room_id)
-    SELECT workspace.id, NEW.id
-    FROM workspace
-    WHERE workspace.name = 'GLOBAL'
-    ON CONFLICT (workspace_id, datacenter_room_id) DO NOTHING;
-    return NEW;
-  END;
-  $$;
+      begin
+        insert into workspace_rack (workspace_id, rack_id)
+            select workspace.id, NEW.id
+            from workspace
+            where workspace.name = 'GLOBAL'
+            on conflict (workspace_id, rack_id) do nothing;
+        return NEW;
+      end;
+      $$;
 
 
-ALTER FUNCTION public.add_room_to_global_workspace() OWNER TO conch;
+ALTER FUNCTION public.add_rack_to_global_workspace() OWNER TO conch;
 
 --
 -- Name: run_migration(integer, text); Type: FUNCTION; Schema: public; Owner: conch
@@ -724,18 +724,6 @@ CREATE TABLE public.workspace (
 ALTER TABLE public.workspace OWNER TO conch;
 
 --
--- Name: workspace_datacenter_room; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.workspace_datacenter_room (
-    workspace_id uuid NOT NULL,
-    datacenter_room_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.workspace_datacenter_room OWNER TO conch;
-
---
 -- Name: workspace_rack; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -1072,14 +1060,6 @@ ALTER TABLE ONLY public.validation_state_member
 
 ALTER TABLE ONLY public.validation_state
     ADD CONSTRAINT validation_state_pkey PRIMARY KEY (id);
-
-
---
--- Name: workspace_datacenter_room workspace_datacenter_room_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_room
-    ADD CONSTRAINT workspace_datacenter_room_pkey PRIMARY KEY (workspace_id, datacenter_room_id);
 
 
 --
@@ -1464,20 +1444,6 @@ CREATE INDEX validation_state_validation_plan_id_idx ON public.validation_state 
 
 
 --
--- Name: workspace_datacenter_room_datacenter_room_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_datacenter_room_datacenter_room_id_idx ON public.workspace_datacenter_room USING btree (datacenter_room_id);
-
-
---
--- Name: workspace_datacenter_room_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_datacenter_room_workspace_id_idx ON public.workspace_datacenter_room USING btree (workspace_id);
-
-
---
 -- Name: workspace_parent_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1506,10 +1472,10 @@ CREATE INDEX workspace_rack_workspace_id_idx ON public.workspace_rack USING btre
 
 
 --
--- Name: datacenter_room all_rooms_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
+-- Name: rack all_racks_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
 --
 
-CREATE TRIGGER all_rooms_in_global_workspace AFTER INSERT ON public.datacenter_room FOR EACH ROW EXECUTE PROCEDURE public.add_room_to_global_workspace();
+CREATE TRIGGER all_racks_in_global_workspace AFTER INSERT ON public.rack FOR EACH ROW EXECUTE PROCEDURE public.add_rack_to_global_workspace();
 
 
 --
@@ -1798,22 +1764,6 @@ ALTER TABLE ONLY public.validation_state_member
 
 ALTER TABLE ONLY public.validation_state
     ADD CONSTRAINT validation_state_validation_plan_id_fkey FOREIGN KEY (validation_plan_id) REFERENCES public.validation_plan(id);
-
-
---
--- Name: workspace_datacenter_room workspace_datacenter_room_datacenter_room_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_room
-    ADD CONSTRAINT workspace_datacenter_room_datacenter_room_id_fkey FOREIGN KEY (datacenter_room_id) REFERENCES public.datacenter_room(id);
-
-
---
--- Name: workspace_datacenter_room workspace_datacenter_room_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_room
-    ADD CONSTRAINT workspace_datacenter_room_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
 
 
 --
