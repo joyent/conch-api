@@ -1,0 +1,158 @@
+#!/usr/bin/env perl
+
+=pod
+
+=head1 NAME
+
+conch-db - commands to administrate a database
+
+=head1 SYNOPSIS
+
+    bin/conch-db [long options...]
+
+=head1 DESCRIPTION
+
+Work with the Conch database.  Run C<bin/conch-db --help> for a list of options.
+
+=cut
+
+use v5.26;
+use warnings;
+use utf8;
+use experimental 'signatures';
+use open ':std', ':encoding(UTF-8)';
+
+use Getopt::Long::Descriptive;
+use Dir::Self;
+use List::Util 'any';
+use lib __DIR__ =~ s{/bin}{}r . '/lib';
+use Conch::DB;
+use Conch::DB::Util;
+
+my ($opt, $usage) = describe_options(
+    <<'PREAMBLE',
+%c [subcommand subcommand...] %o
+
+initialize:              initialize a new Conch database and its tables
+create-validations:      create validation plans for the Conch application
+create-global-workspace: create the GLOBAL workspace
+create-admin-user:       create a user with admin privileges
+migrate:                 run outstanding migrations on a Conch database (no effect with 'all')
+all:                     alias for initialize create-valiations create-admin-user
+
+The environment variables POSTGRES_DB, POSTGRES_HOST, POSTGRES_USER and POSTGRES_PASSWORD are
+used if set.  Otherwise, the config file will be used to find database credentials.
+PREAMBLE
+
+    [ 'help|h',     'print usage message and exit', { shortcircuit => 1 } ],
+    [ 'dry-run|n',  'use a test database instead of credentials you provide' ],
+    [ 'verbose|v',  'print the queries that are executed' ],
+    [],
+    [ 'config=s',   'configuration file', { default => 'conch.conf' } ],
+    [ 'username=s', 'the new admin user\'s name', { default => 'admin' } ],
+    [ 'email=s',    'the new admin user\'s email address (required for create-admin-user)' ],
+    [ 'password=s', 'the new admin user\'s password (or one will be randomly generated)' ],
+
+    { show_defaults => 1 },
+);
+
+print($usage->text), exit if $opt->help or not @ARGV;
+
+# order matters, so we don't just shove the handlers into a dispatch hash table.
+
+if (any { $_ eq 'all' } @ARGV) {
+     unshift @ARGV, qw(initialize create-validations create-admin-user);
+}
+
+if (any { $_ eq 'create-admin-user' } @ARGV) {
+    print("--email option is required for create-admin-user\n\n", $usage->text), exit
+        if not $opt->email;
+}
+
+$ENV{DBIC_TRACE} = 1 if $opt->verbose;
+
+my $log = Mojo::Log->new;
+my $db_credentials;
+
+if ($opt->dry_run) {
+    require Test::PostgreSQL;
+    state $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
+    local @ENV{qw(POSTGRES_DB POSTGRES_HOST POSTGRES_USER POSTGRES_PASSWORD)};
+    $db_credentials = Conch::DB::Util::get_credentials({
+        dsn => $pgsql->dsn,
+        username => $pgsql->dbowner,
+        ro_username => '',  # prevents spurious log message
+    }, $log);
+}
+else {
+    # environment variables are used first, if set
+    $db_credentials = Conch::DB::Util::get_credentials(sub {
+        $log->info('loading config from ', $opt->config, '...');
+        require Mojolicious::Plugin::Config;
+        my $config = Mojolicious::Plugin::Config->load($opt->config, undef, +{});
+        return $config->{database};
+    }, $log);
+}
+
+$log->info('connecting to '.$db_credentials->{dsn}.'...');
+my $schema = Conch::DB->connect($db_credentials->@{qw(dsn username password options)});
+
+if (any { $_ eq 'initialize' } @ARGV) {
+    Conch::DB::Util::initialize_db($schema);
+}
+
+if (any { $_ eq 'create-validations' } @ARGV) {
+    Conch::DB::Util::create_validation_plans($schema, $log);
+}
+
+if (any { $_ eq 'global-workspace' } @ARGV) {
+    $schema->resultset('workspace')->create({
+        name => 'GLOBAL',
+        description => 'Global workspace',
+        parent_workspace_id => undef,
+    });
+}
+
+if (any { $_ eq 'migrate' } @ARGV) {
+    Conch::DB::Util::migrate_db($schema, $log);
+}
+
+if (any { $_ eq 'create-admin-user' } @ARGV) {
+    my $password = $opt->password // do {
+        require Session::Token;
+        Session::Token->new(length => 32)->get;
+    };
+
+    $schema->resultset('user_account')->create({
+        name => $opt->username,
+        email => $opt->email,
+        password => $password, # will be hashed in constructor
+        is_admin => 1,
+        user_workspace_roles => [{
+            workspace => {
+                name => 'GLOBAL',
+                description => 'Global workspace',
+                parent_workspace_id => undef,
+            },
+            role => 'admin',    # this really ought to be 'ro'.
+        }],
+    });
+
+    $log->info('created user with email "'.$opt->email.'"'
+        .($opt->password ? '' : (' and password "'.$password.'"')));
+}
+
+__END__
+
+=pod
+
+=head1 LICENSING
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License,
+v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
+one at http://mozilla.org/MPL/2.0/.
+
+=cut
+# vim: set ts=4 sts=4 sw=4 et :
