@@ -32,6 +32,8 @@ returns a hashref containing keys:
 
 Overrides are accepted from the following environment variables:
 
+    POSTGRES_DB
+    POSTGRES_HOST
     POSTGRES_USER
     POSTGRES_PASSWORD
 
@@ -53,6 +55,16 @@ sub get_credentials ($config, $log = Mojo::Log->new) {
     }
 
     # allow overrides from the environment
+
+    if ($ENV{POSTGRES_DB} or $ENV{POSTGRES_HOST}) {
+        # dsn is as defined in https://metacpan.org/pod/DBI#connect
+        # and https://metacpan.org/pod/DBD::Pg#connect:
+        # dbi:DriverName:dbname=database_name[;host=hostname[;port=port]]
+        my $db = $ENV{POSTGRES_DB} // 'conch';
+        my $host = $ENV{POSTGRES_HOST} // 'localhost';
+        $dsn = 'dbi:Pg:dbname='.$db.';host='.$host;
+    }
+
     $username = $ENV{POSTGRES_USER} // $username;
     $password = $ENV{POSTGRES_PASSWORD} // $password;
     $ro_username = $ENV{POSTGRES_USER} // $ro_username;
