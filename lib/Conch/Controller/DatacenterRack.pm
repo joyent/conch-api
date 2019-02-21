@@ -170,9 +170,10 @@ sub update ($c) {
         $input->{datacenter_rack_role_id} = delete $input->{role};
     }
 
-    $rack->update($input);
-    $c->log->debug('Updated datacenter rack '.$c->stash('datacenter_rack_id'));
-    return $c->status(303 => '/rack/'.$c->stash('datacenter_rack_id'));
+    $rack->set_columns($input);
+    $rack->update({ updated => \'now()' }) if $rack->is_changed;
+    $c->log->debug('Updated datacenter rack '.$rack->id);
+    return $c->status(303 => '/rack/'.$rack->id);
 }
 
 =head2 delete

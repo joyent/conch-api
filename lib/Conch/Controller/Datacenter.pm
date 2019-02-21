@@ -116,9 +116,12 @@ sub update ($c) {
     my $input = $c->validate_input('DatacenterUpdate');
     return if not $input;
 
-    $c->stash('datacenter')->update($input);
-    $c->log->debug('Updated datacenter '.$c->stash('datacenter')->id);
-    $c->status(303 => '/dc/'.$c->stash('datacenter')->id);
+    my $datacenter = $c->stash('datacenter');
+    $datacenter->set_columns($input);
+    $datacenter->update({ updated => \'now()' }) if $datacenter->is_changed;
+
+    $c->log->debug('Updated datacenter '.$datacenter->id);
+    $c->status(303 => '/dc/'.$datacenter->id);
 }
 
 =head2 delete
