@@ -68,6 +68,52 @@ sub list ($c) {
 	$c->status( 200, \@devices );
 }
 
+=head2 get_pxe_devices
+
+Response uses the WorkspaceDevicePXEs json schema.
+
+=cut
+
+sub get_pxe_devices ($c) {
+    my $device_rs = $c->stash('workspace_rs')
+        ->associated_racks
+        ->related_resultset('device_locations')
+        ->as_subselect_rs  # avoids earlier device_locations from interfering with subqueries
+        ->related_resultset('device')
+        ->active;
+
+    my @devices = $device_rs->search(undef,
+        {
+            columns => {
+                id => 'device.id',
+                'location.datacenter.name' => 'datacenter.region',
+                'location.datacenter.vendor_name' => 'datacenter.vendor_name',
+                'location.rack.name' => 'datacenter_rack.name',
+                'location.rack.rack_unit_start' => 'device_location.rack_unit_start',
+                # pxe = the first (sorted by name) interface that is status=up
+                'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
+                # ipmi = the (newest) interface named ipmi1.
+                'ipmi_mac_ip' => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
+            },
+            collapse => 1,
+            join => { device_location => { datacenter_rack => { datacenter_room => 'datacenter' } } },
+        })
+        ->order_by('device.created')
+        ->hri
+        ->all;
+
+    foreach my $device (@devices) {
+        # DBIC collapse is inconsistent here with handling the lack of a datacenter_room->datacenter
+        $device->{location}{datacenter} = undef
+            if $device->{location} and not defined $device->{location}{datacenter}{name};
+
+        my $ipmi = delete $device->{ipmi_mac_ip};
+        $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;
+    }
+
+    $c->status(200, \@devices);
+}
+
 =head2 device_totals
 
 Ported from 'conch-stats'.

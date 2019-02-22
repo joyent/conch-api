@@ -352,7 +352,6 @@ definitions:
         oneOf:
           - type: integer
           - type: 'null'
-
   DeviceNics:
     type: array
     uniqueItems: true
@@ -400,6 +399,149 @@ definitions:
         oneOf:
           - type: integer
           - type: 'null'
+  DevicePXE:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - location
+      - ipmi
+      - pxe
+    properties:
+      id:
+        $ref: /definitions/device_id
+      location:
+        oneOf:
+          - type: 'null'
+          - type: object
+            additionalProperties: false
+            required:
+              - datacenter
+              - rack
+            properties:
+              datacenter:
+                type: object
+                additionalProperties: false
+                required:
+                  - name
+                  - vendor_name
+                properties:
+                  name:
+                    type: string
+                    description: datacenter.region
+                  vendor_name:
+                    oneOf:
+                      - type: 'null'
+                      - type: string
+                    description: datacenter.vendor_name
+              rack:
+                type: object
+                additionalProperties: false
+                required:
+                  - name
+                  - rack_unit_start
+                properties:
+                  name:
+                    type: string
+                  rack_unit_start:
+                    type: integer
+      ipmi:
+        oneOf:
+          - type: 'null'
+          - type: object
+            additionalProperties: false
+            required:
+              - mac
+              - ip
+            properties:
+              mac:
+                $ref: /definitions/macaddr
+              ip:
+                oneOf:
+                  - type: 'null'
+                  - $ref: /definitions/ipaddr
+      pxe:
+        oneOf:
+          - type: 'null'
+          - type: object
+            additionalProperties: false
+            required:
+              - mac
+            properties:
+              mac:
+                $ref: /definitions/macaddr
+  WorkspaceDevicePXEs:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - location
+        - ipmi
+        - pxe
+      properties:
+        id:
+          $ref: /definitions/device_id
+        location:
+          type: object
+          additionalProperties: false
+          required:
+            - datacenter
+            - rack
+          properties:
+            datacenter:
+              type: object
+              additionalProperties: false
+              required:
+                - name
+                - vendor_name
+              properties:
+                name:
+                  type: string
+                  description: datacenter.region
+                vendor_name:
+                  oneOf:
+                    - type: 'null'
+                    - type: string
+                  description: datacenter.vendor_name
+            rack:
+              type: object
+              additionalProperties: false
+              required:
+                - name
+                - rack_unit_start
+              properties:
+                name:
+                  type: string
+                rack_unit_start:
+                  type: integer
+        ipmi:
+          oneOf:
+            - type: 'null'
+            - type: object
+              additionalProperties: false
+              required:
+                - mac
+                - ip
+              properties:
+                mac:
+                  $ref: /definitions/macaddr
+                ip:
+                  oneOf:
+                    - type: 'null'
+                    - $ref: /definitions/ipaddr
+        pxe:
+          oneOf:
+            - type: 'null'
+            - type: object
+              additionalProperties: false
+              required:
+                - mac
+              properties:
+                mac:
+                  $ref: /definitions/macaddr
   DeviceReport:
     type: object
     required:

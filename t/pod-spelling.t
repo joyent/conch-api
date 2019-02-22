@@ -35,6 +35,7 @@ deduplication
 dsn
 filepath
 hba
+ipmi
 ISO
 iso8601
 Joyent
@@ -47,9 +48,9 @@ MPL
 mtu
 nullable
 ORed
-Postgres
 postgres
 PROXYED
+pxe
 rebless
 rels
 renderer

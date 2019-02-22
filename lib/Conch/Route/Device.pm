@@ -16,6 +16,7 @@ Sets up the routes for /device:
 
     GET     /device/?hostname=:host, ?mac=:mac, ?ipaddr=:ipaddr, ?:setting_key=:setting_value
     GET     /device/:device_id
+    GET     /device/:device_id/pxe
     POST    /device/:device_id
     POST    /device/:device_id/graduate
     POST    /device/:device_id/triton_setup
@@ -60,6 +61,9 @@ sub routes {
 
         # GET /device/:device_id
         $with_device->get('/')->to('device#get');
+
+        # GET /device/:device_id/pxe
+        $with_device->get('/pxe')->to('device#get_pxe');
 
         # POST /device/:device_id/graduate
         $with_device->post('/graduate')->to('device#graduate');

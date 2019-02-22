@@ -17,7 +17,7 @@ $t->load_validation_plans([{
 }]);
 
 my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
-my @layouts = $t->load_fixture(qw(rack_0a_layout_1_2 rack_0a_layout_3_6));
+my @layouts = $t->load_fixture(map 'datacenter_rack_0a_layout_'.$_, '1_2', '3_6');
 
 my $new_device = $t->app->db_devices->create($_) foreach (
     {
@@ -190,6 +190,83 @@ subtest 'Redirect /workspace/:id/device/active' => sub {
         ->json_is('', [ $devices_data->[0] ]);
 
     $t->ua->max_redirects($temp);
+};
+
+subtest 'Devices with PXE data' => sub {
+    $t->app->db_device_neighbors->delete;
+    $t->app->db_device_nics->delete;
+    $t->app->db_device_nics->create($_) foreach (
+        {
+            device_id => 'TEST',
+            state => 'up',
+            iface_name => 'milhouse',
+            iface_type => 'human',
+            iface_vendor => 'Groening',
+            mac => '00:00:00:00:00:aa',
+            ipaddr => '0.0.0.1',
+        },
+        {
+            device_id => 'TEST',
+            state => 'up',
+            iface_name => 'ned',
+            iface_type => 'human',
+            iface_vendor => 'Groening',
+            mac => '00:00:00:00:00:bb',
+            ipaddr => '0.0.0.2',
+        },
+        {
+            device_id => 'TEST',
+            state => undef,
+            iface_name => 'ipmi1',
+            iface_type => 'human',
+            iface_vendor => 'Groening',
+            mac => '00:00:00:00:00:cc',
+            ipaddr => '0.0.0.3',
+        },
+    );
+
+    my $datacenter = $t->load_fixture('datacenter_0');
+
+    $t->get_ok('/workspace/'.$global_ws_id.'/device/pxe')
+        ->status_is(200)
+        ->json_schema_is('WorkspaceDevicePXEs')
+        ->json_cmp_deeply(bag(
+            {
+                id => 'TEST',
+                location => {
+                    datacenter => {
+                        name => $datacenter->region,
+                        vendor_name => $datacenter->vendor_name,
+                    },
+                    rack => {
+                        name => $layouts[0]->datacenter_rack->name,
+                        rack_unit_start => $layouts[0]->rack_unit_start,
+                    },
+                },
+                ipmi => {
+                    mac => '00:00:00:00:00:cc',
+                    ip => '0.0.0.3',
+                },
+                pxe => {
+                    mac => '00:00:00:00:00:aa',
+                },
+            },
+            {
+                id => 'NEW_DEVICE',
+                location => {
+                    datacenter => {
+                        name => $datacenter->region,
+                        vendor_name => $datacenter->vendor_name,
+                    },
+                    rack => {
+                        name => $layouts[1]->datacenter_rack->name,
+                        rack_unit_start => $layouts[1]->rack_unit_start,
+                    },
+                },
+                ipmi => undef,
+                pxe => undef,
+            },
+        ));
 };
 
 done_testing;

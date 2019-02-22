@@ -25,6 +25,7 @@ __PACKAGE__->load_components(
     '+Conch::DB::ResultsExist',                 # provides exists
     'Helper::ResultSet::Shortcut::Columns',     # provides columns
     'Helper::ResultSet::Shortcut::Page',        # provides page
+    'Helper::ResultSet::CorrelateRelationship', # provides correlate
 );
 
 1;
