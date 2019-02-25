@@ -35,7 +35,7 @@ subtest 'unlocated device' => sub {
             serial   => 'deadbeef',
             version  => '0.0.1',
             ipaddr   => '127.0.0.1',
-            ssh_port => '22',
+            ssh_port => 22,
             alias    => 'test relay',
         }
     )->status_is(204)->content_is('');

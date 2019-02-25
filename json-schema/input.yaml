@@ -26,7 +26,8 @@ definitions:
     pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
   int_or_stringy_int:
     description: an integer that may be presented as a json string
-    anyOf:
+    # note that when JSON::Validator has 'coerce' mode on, both of these rules will match.
+    oneOf:
       - type: integer
       - type: string
         pattern: "^[0-9]+$"
