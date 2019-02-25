@@ -403,23 +403,6 @@ sub latest_report_data {
     defined $json ? from_json($json) : undef;
 }
 
-=head2 latest_report_matches
-
-Checks if the latest report's json matches the passed-in json-encoded content (comparing using
-native jsonb operators).
-
-=cut
-
-sub latest_report_matches {
-    my ($self, $jsonb) = @_;
-
-    $self->self_rs
-        ->latest_device_report
-        ->as_subselect_rs
-        ->matches_jsonb($jsonb)
-        ->exists;
-}
-
 =head2 device_settings_as_hash
 
 Returns a hash of all (active) device settings.
