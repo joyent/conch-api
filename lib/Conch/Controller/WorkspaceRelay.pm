@@ -53,7 +53,11 @@ sub list ($c) {
         { alias => "${me}_corr" },
     )->count_rs;
 
-    my $workspace_racks = $c->stash('workspace_rs')->associated_racks->active->get_column('id');
+    my $workspace_racks = $c->stash('workspace_rs')
+        ->related_resultset('workspace_racks')
+        ->related_resultset('rack')
+        ->active
+        ->get_column('id');
 
     my $workspace_relays_with_location = $latest_relay_connections
         ->search(
@@ -101,7 +105,8 @@ Response uses the Devices json schema.
 sub get_relay_devices ($c) {
 
     my $devices_rs = $c->stash('workspace_rs')
-        ->associated_racks
+        ->related_resultset('workspace_racks')
+        ->related_resultset('rack')
         ->related_resultset('device_locations')
         ->related_resultset('device')
         ->active

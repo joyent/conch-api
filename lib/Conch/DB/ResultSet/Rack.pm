@@ -16,21 +16,6 @@ Interface to queries involving racks.
 
 =head1 METHODS
 
-=head2 associated_workspaces
-
-Chainable resultset (in the Conch::DB::ResultSet::Workspace namespace) that finds all
-workspaces that are associated with the specified rack(s).
-
-To go in the other direction, see L<Conch::DB::ResultSet::Workspace/associated_racks>.
-
-=cut
-
-sub associated_workspaces ($self) {
-    $self
-        ->related_resultset('workspace_racks')
-        ->related_resultset('workspace');
-}
-
 =head2 assigned_rack_units
 
 Returns a list of rack_unit positions that are assigned to current layouts (including positions
@@ -68,7 +53,8 @@ sub user_has_permission ($self, $user_id, $permission) {
         if none { $permission eq $_ } qw(ro rw admin);
 
     my $rack_workspaces_ids_rs = $self
-        ->associated_workspaces
+        ->related_resultset('workspace_racks')
+        ->related_resultset('workspace')
         ->distinct
         ->get_column('id');
 

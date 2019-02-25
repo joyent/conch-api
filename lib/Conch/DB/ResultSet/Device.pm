@@ -30,7 +30,8 @@ sub user_has_permission ($self, $user_id, $permission) {
 
     my $device_workspaces_ids_rs = $self->related_resultset('device_location')
         ->related_resultset('rack')
-        ->associated_workspaces
+        ->related_resultset('workspace_racks')
+        ->related_resultset('workspace')
         ->distinct
         ->get_column('id');
 

@@ -38,7 +38,9 @@ sub run ($self, @opts) {
     $workspace_rs = $workspace_rs->search({ name => $opt->workspace }) if $opt->workspace;
 
     while (my $workspace = $workspace_rs->next) {
-        my $rack_rs = $workspace->self_rs->associated_racks
+        my $rack_rs = $workspace
+            ->related_resultset('workspace_racks')
+            ->related_resultset('rack')
             ->prefetch('rack_role');
 
         while (my $rack = $rack_rs->next) {

@@ -191,21 +191,6 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
         )->single;
 }
 
-=head2 associated_racks
-
-Chainable resultset (in the Conch::DB::ResultSet::Rack namespace) that finds all
-racks that are in this workspace.
-
-To go in the other direction, see L<Conch::DB::ResultSet::Rack/associated_workspaces>.
-
-=cut
-
-sub associated_racks ($self) {
-    $self
-        ->related_resultset('workspace_racks')
-        ->related_resultset('rack');
-}
-
 =head2 _workspaces_subquery
 
 Generate values for inserting into a recursive query.
