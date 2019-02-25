@@ -523,12 +523,13 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     health => 'UNKNOWN',
                     ($specification // {})->%*,
                 },
+                exists $specification->{hardware_product_id} ? () : (
                 requires => {
                     "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
-                },
+                }),
             },
         },
-        'hardware_product';
+        exists $specification->{hardware_product_id} ? () : 'hardware_product';
     }
     elsif ($fixture_type eq 'device_location') {
         my $rack_unit_start = delete $specification->{rack_unit_start};

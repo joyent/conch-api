@@ -4,6 +4,7 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use experimental 'signatures';
+use List::Util 'none';
 
 =head1 NAME
 
@@ -67,6 +68,28 @@ sub assigned_rack_units ($self) {
     return map {
         ($_->{rack_unit_start}) .. ($_->{rack_unit_start} + ($_->{rack_unit_size} // 1) - 1)
     } @layout_data;
+}
+
+=head2 user_has_permission
+
+Checks that the provided user_id has (at least) the specified permission in at least one
+workspace associated with the specified rack(s), including parent workspaces.
+
+=cut
+
+sub user_has_permission ($self, $user_id, $permission) {
+    Carp::croak('permission must be one of: ro, rw, admin')
+        if none { $permission eq $_ } qw(ro rw admin);
+
+    my $rack_workspaces_ids_rs = $self
+        ->associated_workspaces
+        ->distinct
+        ->get_column('id');
+
+    $self->result_source->schema->resultset('workspace')
+        ->and_workspaces_above($rack_workspaces_ids_rs)
+        ->related_resultset('user_workspace_roles')
+        ->user_has_permission($user_id, $permission);
 }
 
 1;

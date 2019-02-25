@@ -1343,6 +1343,38 @@ definitions:
       updated:
         type: string
         format: date-time
+  RackAssignments:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/RackAssignment
+  RackAssignment:
+    type: object
+    additionalProperties: false
+    required:
+      - device_id
+      - device_asset_tag
+      - hardware_product
+      - rack_unit_start
+      - rack_unit_size
+    properties:
+      device_id:
+        oneOf:
+          - $ref: /definitions/device_id
+          - type: 'null'
+      device_asset_tag:
+        oneOf:
+          - $ref: /definitions/device_asset_tag
+          - type: 'null'
+      hardware_product:
+        type: string
+        description: name of the hardware_product designated for that slot
+      rack_unit_start:
+        type: integer
+        description: Starting RU slot position
+      rack_unit_size:
+        type: integer
+        description: number of slots (expected to be) occupied by the hardware
   User:
     type: object
     additionalProperties: false
