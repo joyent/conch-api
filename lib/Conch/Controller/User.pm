@@ -363,10 +363,9 @@ sub list ($c) {
 
 Creates a user. System admin only.
 
-Optionally takes a query parameters:
+Optionally takes a query parameter:
 
 * 'send_mail' (defaulting to true), to send an email to the user with the new password
-* 'is_admin' (defaulting to false), to set the is_admin flag.
 
 =cut
 
@@ -396,7 +395,7 @@ sub create ($c) {
 		name => $name,
 		email => $email,
 		password => $password,	# will be hashed in constructor
-		$c->req->query_params->param('is_admin') ? ( is_admin => 1 ) : (),
+		is_admin => ($body->{is_admin} ? 1 : 0),
 	});
 	$c->log->info('created user: ' . $user->name . ', email: ' . $user->email . ', id: ' . $user->id);
 
