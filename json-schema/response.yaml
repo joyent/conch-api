@@ -10,7 +10,7 @@ definitions:
     type: string
     pattern: ^\S+$
   ipaddr:
-    anyOf:
+    oneOf:
       - type: string
         format: ipv4
       - type: string
@@ -62,7 +62,7 @@ definitions:
       - invalid_report
     properties:
       asset_tag:
-        anyOf:
+        oneOf:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
       created:
@@ -78,56 +78,56 @@ definitions:
           - UNKNOWN
           - ERROR
       hostname:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       id:
         $ref: /definitions/device_id
       graduated:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       last_seen:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       latest_triton_reboot:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       state:
         type: string
       system_uuid:
-        anyOf:
+        oneOf:
           - type: 'null'
           - $ref: /definitions/uuid
       triton_setup:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       triton_uuid:
-        anyOf:
+        oneOf:
           - $ref: /definitions/uuid
           - type: 'null'
       updated:
         type: string
         format: date-time
       uptime_since:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       validated:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       location:
-        anyOf:
+        oneOf:
           - $ref: "#/definitions/DeviceLocation"
           - type: 'null'
       nics: # NOTE: see also DeviceNic
@@ -153,15 +153,15 @@ definitions:
             iface_type:
               type: string
             peer_mac:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             peer_port:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             peer_switch:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
       disks:
@@ -191,47 +191,47 @@ definitions:
             serial_number:
               type: string
             slot:
-              anyOf:
+              oneOf:
                 - type: integer
                 - type: 'null'
             size:
-              anyOf:
+              oneOf:
                 - type: integer
                 - type: 'null'
             vendor:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             model:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             firmware:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             transport:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             health:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             drive_type:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             temp:
-              anyOf:
+              oneOf:
                 - type: integer
                 - type: 'null'
             enclosure:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             hba:
-              anyOf:
+              oneOf:
                 - type: string
                 - type: 'null'
             created:
@@ -243,12 +243,12 @@ definitions:
       latest_report_is_invalid:
         type: boolean
       latest_report:
-        anyOf:
+        oneOf:
           - $ref: /definitions/DeviceReport
           - type: 'null'
       invalid_report:
         description: this could be anything, from encoded json to random junk
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
   Devices:
@@ -280,7 +280,7 @@ definitions:
       - rack_unit_start
     properties:
       asset_tag:
-        anyOf:
+        oneOf:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
       created:
@@ -296,38 +296,38 @@ definitions:
           - UNKNOWN
           - ERROR
       hostname:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       id:
         $ref: /definitions/device_id
       graduated:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       last_seen:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       latest_triton_reboot:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       state:
         type: string
       system_uuid:
-        anyOf:
+        oneOf:
           - type: 'null'
           - $ref: /definitions/uuid
       triton_uuid:
-        anyOf:
+        oneOf:
           - $ref: /definitions/uuid
           - type: 'null'
       triton_setup:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
@@ -335,21 +335,21 @@ definitions:
         type: string
         format: date-time
       uptime_since:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       validated:
-        anyOf:
+        oneOf:
           - type: string
             format: date-time
           - type: 'null'
       rack_id:
-        anyOf:
+        oneOf:
           - $ref: /definitions/uuid
           - type: 'null'
       rack_unit_start:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
 
@@ -385,19 +385,19 @@ definitions:
       iface_driver:
         type: string
       state:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       speed:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       ipaddr:
-        anyOf:
+        oneOf:
           - $ref: /definitions/ipaddr
           - type: 'null'
       mtu:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
   DeviceReport:
@@ -454,7 +454,7 @@ definitions:
           name:
             type: string
           vendor_name:
-            anyOf:
+            oneOf:
               - type: 'null'
               - type: string
       rack:
@@ -527,31 +527,31 @@ definitions:
       alias:
         type: string
       prefix:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       hardware_vendor_id:
         description: Hardware product vendor id
         $ref: /definitions/uuid
       generation_name:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       legacy_product_name:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sku:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       specification:
         description: json blob of additional data
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       hardware_product_profile:
-        anyOf:
+        oneOf:
           - $ref: /definitions/HardwareProductProfile
           - type: 'null'
       created:
@@ -602,7 +602,7 @@ definitions:
       dimms_num:
         type: integer
       hba_firmware:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       id:
@@ -610,7 +610,7 @@ definitions:
       nics_num:
         type: integer
       psu_total:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       purpose:
@@ -620,67 +620,67 @@ definitions:
       ram_total:
         type: integer
       sas_hdd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_hdd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_hdd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sata_hdd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_hdd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_hdd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sata_ssd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_ssd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sata_ssd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       sas_ssd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_ssd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       sas_ssd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       nvme_ssd_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       nvme_ssd_size:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       nvme_ssd_slots:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       raid_lun_num:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       usb_num:
@@ -772,7 +772,7 @@ definitions:
               description: Hardware product vendor
             occupant:
               description: Device assigned to this slot, if any
-              anyOf:
+              oneOf:
                 - $ref: "#/definitions/Device"
                 - type: 'null'
   WorkspaceRackLayoutUpdateResponse:
@@ -857,13 +857,13 @@ definitions:
       - validation_id
     properties:
       id:
-        anyOf:
+        oneOf:
           - type: 'null'
           - $ref: /definitions/uuid
       category:
         type: string
       component_id:
-        anyOf:
+        oneOf:
           - type: 'null'
           - type: string
       device_id:
@@ -871,7 +871,7 @@ definitions:
       hardware_product_id:
         $ref: /definitions/uuid
       hint:
-        anyOf:
+        oneOf:
           - type: 'null'
           - type: string
       message:
@@ -906,7 +906,7 @@ definitions:
       id:
         $ref: /definitions/uuid
       completed:
-        anyOf:
+        oneOf:
           - type: 'null'
           - type: string
             format: date-time
@@ -946,7 +946,7 @@ definitions:
       id:
         $ref: /definitions/uuid
       completed:
-        anyOf:
+        oneOf:
           - type: 'null'
           - type: string
             format: date-time
@@ -991,19 +991,19 @@ definitions:
         id:
           type: string
         alias:
-          anyOf:
+          oneOf:
             - type: string
             - type: 'null'
         version:
-          anyOf:
+          oneOf:
             - type: string
             - type: 'null'
         ipaddr:
-          anyOf:
+          oneOf:
             - $ref: /definitions/ipaddr
             - type: 'null'
         ssh_port:
-          anyOf:
+          oneOf:
             - type: integer
             - type: 'null'
         created:
@@ -1053,11 +1053,11 @@ definitions:
       name:
         type: string
       description:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       parent_id:
-        anyOf:
+        oneOf:
           - $ref: /definitions/uuid
           - type: 'null'
       role:
@@ -1120,7 +1120,7 @@ definitions:
       vendor:
         type: string
       vendor_name:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       region:
@@ -1155,11 +1155,11 @@ definitions:
       az:
         type: string
       alias:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       vendor_name:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       datacenter:
@@ -1190,11 +1190,11 @@ definitions:
       az:
         type: string
       alias:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       vendor_name:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
   Relays:
@@ -1215,7 +1215,7 @@ definitions:
       - version
     properties:
       alias:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       created:
@@ -1224,18 +1224,18 @@ definitions:
       id:
         type: string
       ipaddr:
-        anyOf:
+        oneOf:
           - $ref: /definitions/ipaddr
           - type: 'null'
       ssh_port:
-        anyOf:
+        oneOf:
           - type: integer
           - type: 'null'
       updated:
         type: string
         format: date-time
       version:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
   Version:
@@ -1273,11 +1273,11 @@ definitions:
       role:
         $ref: /definitions/uuid
       serial_number:
-        anyOf:
+        oneOf:
           - type: string
           - type: 'null'
       asset_tag:
-        anyOf:
+        oneOf:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
       created:
@@ -1394,12 +1394,10 @@ definitions:
         type: string
         format: date-time
       deactivated:
-        anyOf:
-          -
-            type: string
+        oneOf:
+          - type: string
             format: date-time
-          -
-            type: 'null'
+          - type: 'null'
   UserError:
     type: object
     additionalProperties: false
@@ -1436,7 +1434,7 @@ definitions:
         type: string
         format: date-time
       last_login:
-        anyOf:
+        oneOf:
           - type: 'null'
           - type: string
             format: date-time

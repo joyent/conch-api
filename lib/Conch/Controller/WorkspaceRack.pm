@@ -278,7 +278,11 @@ sub add ($c) {
     });
 
     # update rack with additional info, if provided.
-    $c->db_datacenter_racks->search({ id => $rack_id })->update($input) if keys %$input;
+    if (keys %$input) {
+        my $rack = $c->db_datacenter_racks->find($rack_id);
+        $rack->set_columns($input);
+        $rack->update({ updated => \'now()' }) if $rack->is_changed;
+    }
 
     $c->status(303);
     $c->redirect_to($c->url_for('/workspace/'.$c->stash('workspace_id')."/rack/$rack_id"));

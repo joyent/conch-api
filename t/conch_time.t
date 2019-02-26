@@ -70,7 +70,7 @@ subtest 'Test parsing of timestamps' => sub {
 		{
 			input    => '2018-01-02 00:00:00+01',
 			expected => '2018-01-02T00:00:00.000+01:00',
-			message  => 'Appends :00 to postive timezones that do not specify minutes'
+			message  => 'Appends :00 to positive timezones that do not specify minutes'
 		},
 		{
 			input    => '2018-01-02 00:00:00-01',

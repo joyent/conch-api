@@ -170,9 +170,10 @@ sub update ($c) {
         $input->{datacenter_rack_role_id} = delete $input->{role};
     }
 
-    $rack->update($input);
-    $c->log->debug('Updated datacenter rack '.$c->stash('datacenter_rack_id'));
-    return $c->status(303 => '/rack/'.$c->stash('datacenter_rack_id'));
+    $rack->set_columns($input);
+    $rack->update({ updated => \'now()' }) if $rack->is_changed;
+    $c->log->debug('Updated datacenter rack '.$rack->id);
+    return $c->status(303 => '/rack/'.$rack->id);
 }
 
 =head2 delete
@@ -184,7 +185,7 @@ Delete a rack.
 sub delete ($c) {
     if ($c->stash('rack_rs')->related_resultset('datacenter_rack_layouts')->exists) {
         $c->log->debug('Cannot delete datacenter_rack: in use by one or more datacenter_rack_layouts');
-        return $c->status(400 => { error => 'cannot delete a datacenter_rack when a detacenter_rack_layout is referencing it' });
+        return $c->status(400 => { error => 'cannot delete a datacenter_rack when a datacenter_rack_layout is referencing it' });
     }
 
     $c->stash('rack_rs')->delete;

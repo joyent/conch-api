@@ -30,8 +30,6 @@ if ($schema_file){
     $validator->load_and_validate_schema("$schema_url/$name");
 }
 
-$validator->coerce(1);
-
 $report = decode_json(
 	defined $report ? path($report)->slurp : do { local $/; <> }
 );

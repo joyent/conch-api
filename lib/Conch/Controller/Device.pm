@@ -99,10 +99,10 @@ Retrieves details about a single device.  Response uses the DetailedDevice json 
 
 sub get ($c) {
 
-	my $device = $c->stash('device_rs')
+	my ($device) = $c->stash('device_rs')
 		->prefetch([ { device_nics => 'device_neighbor' }, 'device_disks' ])
 		->order_by([ qw(iface_name serial_number) ])
-		->one_row;
+		->all;
 
 	my $location = $c->stash('device_rs')
 		->related_resultset('device_location')

@@ -116,9 +116,12 @@ sub update ($c) {
     my $input = $c->validate_input('DatacenterUpdate');
     return if not $input;
 
-    $c->stash('datacenter')->update($input);
-    $c->log->debug('Updated datacenter '.$c->stash('datacenter')->id);
-    $c->status(303 => '/dc/'.$c->stash('datacenter')->id);
+    my $datacenter = $c->stash('datacenter');
+    $datacenter->set_columns($input);
+    $datacenter->update({ updated => \'now()' }) if $datacenter->is_changed;
+
+    $c->log->debug('Updated datacenter '.$datacenter->id);
+    $c->status(303 => '/dc/'.$datacenter->id);
 }
 
 =head2 delete
@@ -132,7 +135,7 @@ sub delete ($c) {
 
     if ($c->stash('datacenter')->related_resultset('datacenter_rooms')->exists) {
         $c->log->debug('Cannot delete datacenter: in use by one or more datacenter_rooms');
-        return $c->status(400 => { error => 'cannot delete a datacenter when a detacenter_room is referencing it' });
+        return $c->status(400 => { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });
     }
 
     $c->stash('datacenter')->delete;

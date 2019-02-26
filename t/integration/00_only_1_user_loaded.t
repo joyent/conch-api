@@ -673,7 +673,7 @@ subtest 'Relays' => sub {
 			serial   => 'deadbeef',
 			version  => '0.0.1',
 			ipaddr   => '127.0.0.1',
-			ssh_port => '22',
+			ssh_port => 22,
 			alias    => 'test relay',
 		}
 	)->status_is(204);
@@ -698,7 +698,7 @@ subtest 'Relays' => sub {
 				id => 'deadbeef',
 				version  => '0.0.1',
 				ipaddr   => '127.0.0.1',
-				ssh_port => '22',
+				ssh_port => 22,
 				alias    => 'test relay',
 				created  => $relay->created,
 				updated  => $relay->updated,
@@ -716,7 +716,7 @@ subtest 'Relays' => sub {
 			serial   => 'deadbeef',
 			version  => '0.0.2',
 			ipaddr   => '127.0.0.1',
-			ssh_port => '22',
+			ssh_port => 22,
 			alias    => 'test relay',
 		}
 	)->status_is(204);
@@ -731,7 +731,7 @@ subtest 'Relays' => sub {
 				id => 'deadbeef',
 				version  => '0.0.2',
 				ipaddr   => '127.0.0.1',
-				ssh_port => '22',
+				ssh_port => 22,
 				alias    => 'test relay',
 				created  => $relay->created,
 				updated  => $relay->updated,
@@ -968,7 +968,7 @@ subtest 'modify another user' => sub {
 		->json_is('/user/name' => 'foo', 'got user name')
 		->json_is('/user/deactivated' => undef, 'got user deactivated date');
 
-	$t->post_ok('/user/email=foo@conch.joyent.us' => json => { name => 'FOO', is_admin => 1 })
+	$t->post_ok('/user/email=foo@conch.joyent.us', json => { name => 'FOO', is_admin => JSON::PP::true })
 		->status_is(200)
 		->json_schema_is('UserDetailed')
 		->json_is('', {
