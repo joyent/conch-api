@@ -68,6 +68,7 @@ requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';
 requires 'Text::CSV_XS';
+requires 'App::Sqitch';
 
 
 on 'test' => sub {
