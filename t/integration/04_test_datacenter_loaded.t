@@ -351,112 +351,7 @@ subtest 'Device Report' => sub {
     );
 };
 
-my $detailed_device;
-
 subtest 'Single device' => sub {
-	$t->get_ok('/device/nonexistent')
-		->status_is(404)
-		->json_is({ error => 'Not found' });
-
-	$t->get_ok('/device/TEST')
-		->status_is(200)
-		->json_schema_is('DetailedDevice')
-		->json_is('/health' => 'PASS')
-		->json_is('/latest_report_is_invalid' => JSON::PP::false)
-		->json_is('/latest_report/product_name' => 'Joyent-G1')
-		->json_cmp_deeply('/disks/0/serial_number' => 'BTHC640405WM1P6PGN');
-
-	$detailed_device = $t->tx->res->json;
-
-	my $device_id = $detailed_device->{id};
-	my @macs = map { $_->{mac} } $detailed_device->{nics}->@*;
-
-	my $undetailed_device = {
-		$detailed_device->%*,
-		($t->app->db_device_locations->search({ device_id => 'TEST' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
-	};
-	delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
-
-	subtest 'get by device attributes' => sub {
-
-		$t->get_ok('/device?hostname=elfo')
-			->status_is(200)
-			->json_schema_is('Devices')
-			->json_is('', [ $undetailed_device ], 'got device by hostname');
-
-		$t->get_ok("/device?mac=$macs[0]")
-			->status_is(200)
-			->json_schema_is('Devices')
-			->json_is('', [ $undetailed_device ], 'got device by mac');
-
-		# device_nics->[2] has ipaddr' => '172.17.0.173'.
-		$t->get_ok("/device?ipaddr=172.17.0.173")
-			->status_is(200)
-			->json_schema_is('Devices')
-			->json_is('', [ $undetailed_device ], 'got device by ipaddr');
-	};
-
-	subtest 'mutate device attributes' => sub {
-		$t->post_ok('/device/nonexistent/graduate')
-			->status_is(404)
-			->json_is({ error => 'Not found' });
-
-		$t->post_ok('/device/TEST/graduate')
-			->status_is(303)
-			->location_is('/device/TEST');
-
-		$t->post_ok('/device/TEST/triton_setup')
-			->status_is(409)
-			->json_like( '/error',
-			qr/must be marked .+ before it can be .+ set up for Triton/ );
-
-		$t->post_ok('/device/TEST/triton_reboot')
-			->status_is(303)
-			->location_is('/device/TEST');
-
-		$t->post_ok('/device/TEST/triton_uuid')
-			->status_is( 400, 'Request body required' );
-
-		$t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => 'not a UUID' })
-			->status_is(400)
-			->json_like('/error', qr/String does not match/);
-
-		$t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => $uuid->create_str() })
-			->status_is(303)
-			->location_is('/device/TEST');
-
-		$t->post_ok('/device/TEST/triton_setup')
-			->status_is(303)
-			->location_is('/device/TEST');
-
-		$t->post_ok('/device/TEST/asset_tag')
-			->status_is( 400, 'Request body required' );
-
-		$t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset tag' })
-			->status_is(400)
-			->json_like('/error', qr/String does not match/);
-
-		$t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
-			->status_is(303)
-			->location_is('/device/TEST');
-
-		$t->post_ok('/device/TEST/validated')
-			->status_is(303)
-			->location_is('/device/TEST');
-
-		$t->post_ok('/device/TEST/validated')
-			->status_is(204)
-			->content_is('');
-
-		$t->get_ok('/device/TEST')
-			->status_is(200)
-			->json_schema_is('DetailedDevice')
-			->json_is('/id', 'TEST')
-			->json_is('/health' => 'PASS')
-			->json_is('/latest_report_is_invalid' => JSON::PP::false);
-		$detailed_device = $t->tx->res->json;
-	};
-
 	my $rack_id = $t->load_fixture('legacy_datacenter_rack')->id;
 
 	# device settings that check for 'admin' permission need the device to have a location
@@ -470,90 +365,16 @@ subtest 'Single device' => sub {
         !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
         'device is now located',
     );
-
-
-	subtest 'Device settings' => sub {
-		$t->get_ok('/device/TEST/settings')
-			->status_is(200)
-			->content_is('{}');
-
-		$t->get_ok('/device/TEST/settings/foo')
-			->status_is(404)
-			->json_is({ error => 'No such setting \'foo\'' });
-
-		$t->post_ok('/device/TEST/settings')
-			->status_is( 400, 'Requires body' )
-			->json_like( '/error', qr/required/ );
-
-		$t->post_ok( '/device/TEST/settings', json => { foo => 'bar' } )
-			->status_is(200)
-			->content_is('');
-
-		$t->get_ok('/device/TEST/settings')
-			->status_is(200)
-			->json_is( '/foo', 'bar', 'Setting was stored' );
-
-		$t->get_ok('/device/TEST/settings/foo')
-			->status_is(200)
-			->json_is( '/foo', 'bar', 'Setting was stored' );
-
-		$t->post_ok( '/device/TEST/settings/fizzle',
-			json => { no_match => 'gibbet' } )
-			->status_is( 400, 'Fail if parameter and key do not match' );
-
-		$t->post_ok( '/device/TEST/settings/fizzle',
-			json => { fizzle => 'gibbet' } )
-			->status_is(200);
-
-		$t->get_ok('/device/TEST/settings/fizzle')
-			->status_is(200)
-			->json_is( '/fizzle', 'gibbet' );
-
-		$t->delete_ok('/device/TEST/settings/fizzle')
-			->status_is(204)
-			->content_is('');
-
-		$t->get_ok('/device/TEST/settings/fizzle')
-			->status_is(404)
-			->json_is({ error => 'No such setting \'fizzle\'' });
-
-		$t->delete_ok('/device/TEST/settings/fizzle')
-			->status_is(404)
-			->json_is({ error => 'No such setting \'fizzle\'' });
-
-		$t->post_ok( '/device/TEST/settings',
-			json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' } )->status_is(200);
-
-		$t->post_ok( '/device/TEST/settings/tag.bar',
-			json => { 'tag.bar' => 'newbar' } )->status_is(200);
-
-		$t->get_ok('/device/TEST/settings/tag.bar')->status_is(200)
-			->json_is( '/tag.bar', 'newbar', 'Setting was updated' );
-
-		$t->delete_ok('/device/TEST/settings/tag.bar')->status_is(204)
-			->content_is('');
-
-		$t->get_ok('/device/TEST/settings/tag.bar')
-			->status_is(404)
-			->json_is({ error => 'No such setting \'tag.bar\'' });
-
-		my $undetailed_device = {
-			$detailed_device->%*,
-			($t->app->db_device_locations->search({ device_id => 'TEST' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
-		};
-		delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
-
-		$t->get_ok('/device?foo=bar')
-			->status_is(200)
-			->json_schema_is('Devices')
-			->json_is('', [ $undetailed_device ], 'got device by arbitrary setting key');
-	};
-
 };
 
 my $devices_data;
 
 subtest 'Workspace devices' => sub {
+    foreach my $query ('/device/TEST/graduate', '/device/TEST/validated') {
+        $t->post_ok($query)
+            ->status_is(303)
+            ->location_is('/device/TEST');
+    }
 
 	$t->get_ok("/workspace/$global_ws_id/device")
 		->status_is(200)
@@ -1064,16 +885,16 @@ subtest 'Permissions' => sub {
 			));
 
 		subtest 'device settings' => sub {
-			$t->post_ok('/device/TEST/settings', json => { newkey => 'new value' })
+			$t->post_ok('/device/TEST/settings', json => { key => 'value' })
 				->status_is(200, 'writing new key only requires rw');
-			$t->post_ok('/device/TEST/settings/foo', json => { foo => 'new_value' })
+			$t->post_ok('/device/TEST/settings/key', json => { key => 'new value' })
 				->status_is(403)
 				->json_is({ error => 'insufficient permissions' });
 			$t->delete_ok('/device/TEST/settings/foo')
 				->status_is(403)
 				->json_is({ error => 'insufficient permissions' });
 
-			$t->post_ok('/device/TEST/settings', json => { 'foo' => 'foo', 'tag.bar' => 'bar' })
+			$t->post_ok('/device/TEST/settings', json => { key => 'new value', 'tag.bar' => 'bar' })
 				->status_is(403)
 				->json_is({ error => 'insufficient permissions' });
 			$t->post_ok('/device/TEST/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })

@@ -29,8 +29,7 @@ $t->get_ok('/device/nonexistent')
     ->json_is({ error => 'Not found' });
 
 subtest 'unlocated device' => sub {
-    $t->post_ok(
-        '/relay/deadbeef/register',
+    $t->post_ok('/relay/deadbeef/register',
         json => {
             serial   => 'deadbeef',
             version  => '0.0.1',
@@ -41,8 +40,9 @@ subtest 'unlocated device' => sub {
     )->status_is(204)->content_is('');
 
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)->status_is(200)
-        ->json_schema_is( 'ValidationState' );
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(200)
+        ->json_schema_is('ValidationState');
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -53,10 +53,8 @@ subtest 'unlocated device' => sub {
             state => ignore,
             hostname => 'elfo',
             system_uuid => ignore,
-            last_seen => ignore,
-            do { my %X; %X{qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)} },
-            created => ignore,
-            updated => ignore,
+            (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
+            (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product => $hardware_product_id,
             location => undef,
             latest_report_is_invalid => JSON::PP::false,
@@ -78,9 +76,8 @@ subtest 'located device' => sub {
             id => 'LOCATED_DEVICE',
             health => 'UNKNOWN',
             state => 'UNKNOWN',
-            do { my %X; %X{qw(asset_tag graduated hostname last_seen latest_triton_reboot system_uuid triton_setup triton_uuid uptime_since validated)} },
-            created => ignore,
-            updated => ignore,
+            (map +($_ => undef), qw(asset_tag graduated hostname last_seen latest_triton_reboot system_uuid triton_setup triton_uuid uptime_since validated)),
+            (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
             hardware_product => $hardware_product_id,
             location => {
                 rack => {
@@ -198,6 +195,191 @@ subtest 'device network interfaces' => sub {
     $t->get_ok('/device/TEST/interface/ipmi1/ipaddr')
         ->status_is(200)
         ->json_is({ ipaddr => '10.72.160.146' });
+};
+
+$t->get_ok('/device/TEST')
+    ->status_is(200)
+    ->json_schema_is('DetailedDevice');
+
+my $detailed_device = $t->tx->res->json;
+my @macs = map $_->{mac}, $detailed_device->{nics}->@*;
+
+my $undetailed_device = {
+    $detailed_device->%*,
+    ($t->app->db_device_locations->search({ device_id => 'TEST' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+};
+delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
+
+subtest 'get by device attributes' => sub {
+    $t->get_ok('/device?hostname=elfo')
+        ->status_is(200)
+        ->json_schema_is('Devices')
+        ->json_is('', [ $undetailed_device ], 'got device by hostname');
+
+    $t->get_ok("/device?mac=$macs[0]")
+        ->status_is(200)
+        ->json_schema_is('Devices')
+        ->json_is('', [ $undetailed_device ], 'got device by mac');
+
+    # device_nics->[2] has ipaddr' => '172.17.0.173'.
+    $t->get_ok('/device?ipaddr=172.17.0.173')
+        ->status_is(200)
+        ->json_schema_is('Devices')
+        ->json_is('', [ $undetailed_device ], 'got device by ipaddr');
+};
+
+subtest 'mutate device attributes' => sub {
+    $t->post_ok('/device/nonexistent/graduate')
+        ->status_is(404)
+        ->json_is({ error => 'Not found' });
+
+    $t->post_ok('/device/TEST/graduate')
+        ->status_is(303)
+        ->location_is('/device/TEST');
+    $detailed_device->{graduated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->post_ok('/device/TEST/triton_setup')
+        ->status_is(409)
+        ->json_like('/error', qr/must be marked .+ before it can be .+ set up for Triton/);
+
+    $t->post_ok('/device/TEST/triton_reboot')
+        ->status_is(303)
+        ->location_is('/device/TEST');
+    $detailed_device->{latest_triton_reboot} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->post_ok('/device/TEST/triton_uuid')
+        ->status_is(400, 'Request body required');
+
+    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => 'not a UUID' })
+        ->status_is(400)
+        ->json_like('/error', qr/String does not match/);
+
+    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str() })
+        ->status_is(303)
+        ->location_is('/device/TEST');
+    $detailed_device->{triton_uuid} = re(Conch::UUID::UUID_FORMAT);
+
+    $t->post_ok('/device/TEST/triton_setup')
+        ->status_is(303)
+        ->location_is('/device/TEST');
+    $detailed_device->{triton_setup} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->post_ok('/device/TEST/asset_tag')
+        ->status_is(400, 'Request body required');
+
+    $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset tag' })
+        ->status_is(400)
+        ->json_like('/error', qr/String does not match/);
+
+    $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
+        ->status_is(303)
+        ->location_is('/device/TEST');
+    $detailed_device->{asset_tag} = 'asset_tag';
+
+    $t->post_ok('/device/TEST/validated')
+        ->status_is(303)
+        ->location_is('/device/TEST');
+    $detailed_device->{validated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->post_ok('/device/TEST/validated')
+        ->status_is(204)
+        ->content_is('');
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply({
+            $detailed_device->%*,
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+};
+
+subtest 'Device settings' => sub {
+    # device settings that check for 'admin' permission need the device to have a location
+    my $user_workspace_role = $t->reload_fixture('conch_user_global_workspace');
+
+    $t->app->db_device_settings->search({ device_id => 'LOCATED_DEVICE' })->delete;
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(200)
+        ->content_is('{}');
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
+        ->status_is(404)
+        ->json_is({ error => 'No such setting \'foo\'' });
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(400, 'Requires body')
+        ->json_like('/error', qr/required/);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
+        ->status_is(200)
+        ->content_is('');
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(200)
+        ->json_is('/foo', 'bar', 'Setting was stored');
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
+        ->status_is(200)
+        ->json_is('/foo', 'bar', 'Setting was stored');
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { no_match => 'gibbet' })
+        ->status_is(400, 'Fail if parameter and key do not match');
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { fizzle => 'gibbet' })
+        ->status_is(200);
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings/fizzle')
+        ->status_is(200)
+        ->json_is('/fizzle', 'gibbet');
+
+    $t->delete_ok('/device/LOCATED_DEVICE/settings/fizzle')
+        ->status_is(204)
+        ->content_is('');
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings/fizzle')
+        ->status_is(404)
+        ->json_is({ error => 'No such setting \'fizzle\'' });
+
+    $t->delete_ok('/device/LOCATED_DEVICE/settings/fizzle')
+        ->status_is(404)
+        ->json_is({ error => 'No such setting \'fizzle\'' });
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
+        ->status_is(200);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/tag.bar', json => { 'tag.bar' => 'newbar' })
+        ->status_is(200);
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
+        ->status_is(200)
+        ->json_is('/tag.bar', 'newbar', 'Setting was updated');
+
+    $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.bar')
+        ->status_is(204)
+        ->content_is('');
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
+        ->status_is(404)
+        ->json_is({ error => 'No such setting \'tag.bar\'' });
+
+    $t->get_ok('/device/LOCATED_DEVICE')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice');
+
+    my $detailed_device = $t->tx->res->json;
+
+    my $undetailed_device = {
+        $detailed_device->%*,
+        ($t->app->db_device_locations->search({ device_id => 'LOCATED_DEVICE' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+    };
+    delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
+
+    $t->get_ok('/device?foo=bar')
+        ->status_is(200)
+        ->json_schema_is('Devices')
+        ->json_is('', [ $undetailed_device ], 'got device by arbitrary setting key');
 };
 
 done_testing;
