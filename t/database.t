@@ -168,10 +168,8 @@ subtest 'get_migration_level' => sub {
     my ($pgsql, $schema) = Test::Conch->init_db;
     my ($latest_migration, $expected_latest_migration) = Conch::DB::Util::get_migration_level($schema);
 
-    like($expected_latest_migration, qr/^00\d\d$/, 'migration level from disk retains leading zeros');
-
-    cmp_ok($latest_migration, '==', $expected_latest_migration,
-        'migration level (numerically) matches the latest disk file because we inserted that value manually into the db');
+    cmp_ok($latest_migration, 'eq', $expected_latest_migration,
+        'migration level matches the latest in the plan file because we inserted that value manually into the db');
 };
 
 done_testing;

@@ -8,6 +8,10 @@ use Path::Tiny;
 use List::Util qw(maxstr uniqnum);
 use Mojo::Log;
 use Conch::ValidationSystem;
+use App::Sqitch;
+use App::Sqitch::Config;
+use App::Sqitch::Command;
+use Try::Tiny;
 
 =pod
 
@@ -121,21 +125,6 @@ sub get_postgres_version ($schema) {
     });
 }
 
-=head2 get_migration_level
-
-Returns as a tuple the number of the latest database migration that has been applied, and the
-latest migration file found on disk.
-
-Note that the migration level retrieved from the database does *not* have leading zeroes.
-
-=cut
-
-sub get_migration_level ($schema) {
-    my $latest_migration = $schema->resultset('migration')->get_column('id')->max // 0;
-    my $expected_latest_migration = maxstr(map m{^sql/migrations/(\d+)-}g, glob('sql/migrations/*.sql'));
-    return ($latest_migration, $expected_latest_migration);
-}
-
 =head2 initialize_db
 
 Initialize an empty database with the conch user and role and create empty tables.
@@ -156,10 +145,56 @@ sub initialize_db ($schema) {
         $dbh->$do('RESET search_path');  # go back to "$user", public
     });
 
-    $schema->resultset('migration')->populate([
-        map +{ id => $_ },
-            uniqnum map m{^sql/migrations/(\d+)-}g, glob('sql/migrations/*.sql')
-    ]);
+    _run_sqitch_command($schema, 'deploy', ['--log-only']);
+}
+
+sub _uri_from_schema ($schema) {
+	my ( $dsn, $user, $password, $conf ) = $schema->storage->connect_info->@*;
+    # DBI:Pg:dbname=test;host=127.0.0.1;port=15432;user=postgres
+	$dsn =~ /dbi:(?<engine>[^:]+):dbname=(?<dbname>[^;]+)
+                                         (?:;host=(?<host>[^;]+))?
+                                         (?:;port=(?<port>[^;]+))?
+                                         (?:;user=(?<user>[^;]+))?
+            /xi;
+	return "db:$+{engine}://$+{user}\@$+{host}:$+{port}/$+{dbname}";
+}
+
+sub _run_sqitch_command ( $schema, $cmd, $args = [], $log = Mojo::Log->new ) {
+	$ENV{SQITCH_TARGET} = _uri_from_schema($schema);
+	my $config    = App::Sqitch::Config->new();
+	my $sqitch    = App::Sqitch->new( { config => $config } );
+	my $cmd_class = App::Sqitch::Command->class_for( $sqitch, $cmd );
+	my $command = $cmd_class->create(
+		{
+			sqitch => $sqitch,
+			config => $config,
+			args   => $args,
+		}
+	);
+	try {
+		$command->execute(@$args);
+	}
+	catch {
+		$log->error($_);
+	};
+}
+
+=head2 get_migration_level
+
+Returns as a tuple the id of the latest database migration that has been applied, and the
+latest migration found in the sqitch plan
+
+=cut
+
+sub get_migration_level ($schema) {
+	$ENV{SQITCH_TARGET} = _uri_from_schema($schema);
+	my $config    = App::Sqitch::Config->new();
+	my $sqitch    = App::Sqitch->new( { config => $config } );
+    my $target = App::Sqitch::Target->new(sqitch => $sqitch);
+	return (
+		$target->engine->latest_change_id,
+		$target->plan->last->id,
+	);
 }
 
 =head2 migrate_db
@@ -169,18 +204,7 @@ Bring the Conch database up to the latest migration.
 =cut
 
 sub migrate_db ($schema, $log = Mojo::Log->new) {
-    my $m = $schema->resultset('migration')->get_column('id')->all;
-    my %already_run; @already_run{@$m} = (1) x @$m;
-
-    $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
-        foreach my $file (sort (path('sql/migrations')->children(qr/\.sql$/))) {
-            my ($num) = $file->basename =~ m/^(\d+)-/;
-            next if $already_run{$num} or $already_run{0+$num};
-
-            $log->info('executing '.$file.'...');
-            $dbh->do($file->slurp_utf8) or die "SQL load failed in $file";
-        }
-    });
+    _run_sqitch_command($schema, 'deploy', [], $log);
 }
 
 =head2 create_validation_plans

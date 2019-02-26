@@ -155,7 +155,7 @@ line of the exception.
 
     my ($latest_migration, $expected_latest_migration) = Conch::DB::Util::get_migration_level($app->schema);
     $app->log->debug("Latest database migration number: $latest_migration");
-    if ($latest_migration != $expected_latest_migration) {
+    if ($latest_migration ne $expected_latest_migration) {
         my $message = "Latest migration that has been run is $latest_migration, but latest on disk is $expected_latest_migration!";
         $app->log->fatal($message);
         die $message;
