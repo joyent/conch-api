@@ -4,7 +4,7 @@ print "Installing dependencies for conch, using $^X at version $]\n";
 print "PERL5LIB=$ENV{PERL5LIB}\n\n";
 
 requires 'perl', '5.026';
-
+die "Your perl is too old! Requires 5.026, but this is $]" if "$]" < '5.026';
 
 # basics
 requires 'Cpanel::JSON::XS';
