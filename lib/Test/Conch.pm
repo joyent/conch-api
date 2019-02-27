@@ -329,6 +329,18 @@ sub load_fixture ($self, @fixture_names) {
     $self->fixtures->load(@fixture_names);
 }
 
+=head2 reload_fixture
+
+Loads the fixture again. Will die if it already exists (you should use L</load_fixture> unless
+you are sure it has since been deleted).
+
+=cut
+
+sub reload_fixture ($self, @fixture_names) {
+    delete $self->fixtures->_cache->@{@fixture_names};
+    $self->fixtures->load(@fixture_names);
+}
+
 =head2 add_fixture
 
 Add one or more fixture definition(s), and populate the database with it.

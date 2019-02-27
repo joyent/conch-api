@@ -258,9 +258,13 @@ definitions:
       role:
         $ref: /definitions/uuid
       serial_number:
-        type: string
+        oneOf:
+          - type: 'null'
+          - type: string
       asset_tag:
-        type: string
+        oneOf:
+          - type: 'null'
+          - type: string
   RackAssignmentUpdates:
     type: array
     uniqueItems: true
@@ -658,7 +662,9 @@ definitions:
       - asset_tag
     properties:
       asset_tag:
-        $ref: /definitions/device_asset_tag
+        oneOf:
+          - $ref: /definitions/device_asset_tag
+          - type: 'null'
   DeviceTritonUuid:
     type: object
     additionalProperties: false
