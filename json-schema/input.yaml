@@ -658,7 +658,9 @@ definitions:
       - asset_tag
     properties:
       asset_tag:
-        $ref: /definitions/device_asset_tag
+        oneOf:
+          - $ref: /definitions/device_asset_tag
+          - type: 'null'
   DeviceTritonUuid:
     type: object
     additionalProperties: false

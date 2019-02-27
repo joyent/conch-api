@@ -306,7 +306,7 @@ sub set_asset_tag ($c) {
 	my $device = $c->stash('device_rs')->single;
 
 	$device->update({ asset_tag => $input->{asset_tag}, updated => \'NOW()' });
-	$c->log->debug("Set the asset tag for device ".$device->id." to $input->{asset_tag}");
+	$c->log->debug('Set the asset tag for device '.$device->id.' to '.($input->{asset_tag} // 'null'));
 
 	$c->status(303);
 	$c->redirect_to($c->url_for('/device/' . $device->id));

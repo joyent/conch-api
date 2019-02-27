@@ -274,7 +274,10 @@ subtest 'mutate device attributes' => sub {
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
         ->status_is(303)
         ->location_is('/device/TEST');
-    $detailed_device->{asset_tag} = 'asset_tag';
+
+    $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => undef })
+        ->status_is(303)
+        ->location_is('/device/TEST');
 
     $t->post_ok('/device/TEST/validated')
         ->status_is(303)
