@@ -258,9 +258,13 @@ definitions:
       role:
         $ref: /definitions/uuid
       serial_number:
-        type: string
+        oneOf:
+          - type: 'null'
+          - type: string
       asset_tag:
-        type: string
+        oneOf:
+          - type: 'null'
+          - type: string
   RackAssignmentUpdates:
     type: array
     uniqueItems: true
