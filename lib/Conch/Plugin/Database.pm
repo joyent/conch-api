@@ -105,7 +105,7 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
             # (as an alternative, we can turn the ReadOnly and AutoCommit flags off, and use
             # the read-only credentials to connect to the server.. but it is better to have
             # this safety here.)
-            $_ro_schema->txn_rollback;
+            $_ro_schema->txn_rollback if $_ro_schema->storage->connected;
             return $_ro_schema;
         }
 
