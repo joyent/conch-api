@@ -35,12 +35,12 @@ sub run ($self, @opts) {
 
     my $start_time = time;
     my $not_found = 0;
+    my $rows_created = 0;
     my $infile = shift @ARGV or die $opt->usage;
 
-    # do work inside a transaction, in case there is a problem...
     my $schema = $self->app->schema;
 
-    my $rows_created = $schema->txn_do(sub {
+    {
         my $csv = Text::CSV_XS->new({ binary => 1, eol => $/ });
         open my $fh, $infile or die "cannot open $infile for reading: $!";
 
@@ -51,7 +51,6 @@ sub run ($self, @opts) {
         my $device_report_rs = $schema->resultset('device_report');
         my $validation_state_rs = $schema->resultset('validation_state');
 
-        my $rows_created = 0;
         my %exists_report_ids;
         my %not_exists_report_ids;
 
@@ -61,7 +60,10 @@ sub run ($self, @opts) {
         });
         my $validation_plan_id = $validation_plan->id;
 
+        my $rows_total = 0;
+
         while (my $row = $csv->getline($fh)) {
+            print '.' if (++$rows_total % 1000) == 0;
             my ($report_id, $device_id, $bool_status, $timestamp) = $row->@*;
 
             # we will only create one validation_state record per report, using the
@@ -122,8 +124,7 @@ sub run ($self, @opts) {
         }
 
         close $fh;
-        return $rows_created;
-    });
+    }
 
     my $end_time = time;
     my $elapsed = int($end_time - $start_time);
