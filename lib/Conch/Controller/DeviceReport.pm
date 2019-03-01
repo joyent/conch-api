@@ -93,13 +93,14 @@ sub process ($c) {
     # considered to be a pass.
     my ($previous_report_id, $previous_report_status);
     if ($existing_device) {
-        ($previous_report_id, $previous_report_status) =
+        my $previous_report =
             $existing_device->self_rs->latest_device_report
                 ->columns('device_reports.id')
                 ->with_report_status
                 ->hri
-                ->single
-                ->@{qw(id status)};
+                ->single;
+        ($previous_report_id, $previous_report_status) = $previous_report->@{qw(id status)}
+            if $previous_report;
     }
 
 	# Update/create the device and create the device report
