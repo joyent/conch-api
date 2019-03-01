@@ -18,5 +18,3 @@ docker run \
 	--rm \
 	--name ${PREFIX}_${BUILDNUMBER} \
 	${PREFIX}/conch-api:${LABEL}
-
-docker rmi ${PREFIX}/conch-api:${LABEL}

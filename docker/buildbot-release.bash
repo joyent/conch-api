@@ -16,4 +16,3 @@ docker run \
 && \
 docker push ${PREFIX}/conch-api:${LABEL}
 
-docker rmi ${PREFIX}/conch-api:${LABEL}
