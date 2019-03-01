@@ -190,7 +190,6 @@ __PACKAGE__->many_to_many(
 
 __PACKAGE__->add_columns(
     '+module' => { is_serializable => 0 },
-    '+deactivated' => { is_serializable => 0 },
 );
 
 1;
