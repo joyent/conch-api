@@ -19,39 +19,37 @@ Controller for managing Validations, B<NOT> executing them.
 
 =head2 list
 
-List all available Validations.
+List all Validations.
 
-Response uses the Validations json schema.
+Response uses the Validations json schema (including deactivated ones).
 
 =cut
 
 sub list ($c) {
-    my @validations = $c->db_validations->active->all;
-
+    my @validations = $c->db_validations->all;
     $c->status(200, \@validations);
 }
 
 =head2 find_validation
 
-Find the Validation specified by uuid or name and put it in the stash as
-C<validation>.
+Find the Validation specified by uuid or name, and stashes the query to get to it in
+C<validation_rs>.
 
 =cut
 
 sub find_validation($c) {
     my $identifier = $c->stash('validation_id_or_name');
 
-    my $validation = $c->db_validations->active->search({
+    my $validation_rs = $c->db_validations->search({
         (is_uuid($identifier) ? 'id' : 'name') => $identifier,
-    })->single;
+    });
 
-    if (not $validation) {
+    if (not $validation_rs->exists) {
         $c->log->debug("Failed to find validation for '$identifier'");
         return $c->status(404, { error => 'Not found' });
     }
 
-    $c->log->debug('Found validation '.$validation->id);
-    $c->stash(validation => $validation);
+    $c->stash('validation_rs', scalar $validation_rs);
     return 1;
 }
 
@@ -64,7 +62,9 @@ Response uses the Validation json schema.
 =cut
 
 sub get ($c) {
-    return $c->status(200, $c->stash('validation'));
+    my $validation = $c->stash('validation_rs')->single;
+    $c->log->debug('Found validation '.$validation->id);
+    return $c->status(200, $validation);
 }
 
 1;
