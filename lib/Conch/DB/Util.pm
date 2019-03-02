@@ -169,8 +169,8 @@ Bring the Conch database up to the latest migration.
 =cut
 
 sub migrate_db ($schema, $log = Mojo::Log->new) {
-    my $m = $schema->resultset('migration')->get_column('id')->all;
-    my %already_run; @already_run{@$m} = (1) x @$m;
+    my @m = $schema->resultset('migration')->get_column('id')->all;
+    my %already_run; @already_run{@m} = (1) x @m;
 
     $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
         foreach my $file (sort (path('sql/migrations')->children(qr/\.sql$/))) {
