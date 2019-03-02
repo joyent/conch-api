@@ -202,7 +202,7 @@ CREATE TABLE public.datacenter_room (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     datacenter_id uuid NOT NULL,
     az text NOT NULL,
-    alias text,
+    alias text NOT NULL,
     vendor_name text,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL
