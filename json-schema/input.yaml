@@ -65,6 +65,7 @@ definitions:
     required:
       - datacenter
       - az
+      - alias
     properties:
       datacenter:
         $ref: /definitions/uuid

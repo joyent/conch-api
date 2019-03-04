@@ -54,6 +54,7 @@ subtest 'Workspace Rooms' => sub {
 	my $new_room = $t->app->db_datacenter_rooms->create({
 		datacenter_id => $room->datacenter_id,
 		az => $room->az,
+		alias => 'my new room',
 	});
 	my $new_room_id = $new_room->id;
 

@@ -1161,9 +1161,7 @@ definitions:
       az:
         type: string
       alias:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: string
       vendor_name:
         oneOf:
           - type: string
@@ -1196,9 +1194,7 @@ definitions:
       az:
         type: string
       alias:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: string
       vendor_name:
         oneOf:
           - type: string

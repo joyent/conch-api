@@ -629,6 +629,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 new => 'datacenter_room',
                 using => {
                     az => "datacenter_room_$num",
+                    alias => "room $num",
                     ($specification // {})->%*,
                 },
                 requires => {

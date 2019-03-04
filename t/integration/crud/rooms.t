@@ -33,22 +33,31 @@ $t->post_ok('/room', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('Error');
 
-$t->post_ok('/room', json => { datacenter => $datacenter->id, az => 'sungo-test-1' })
+$t->post_ok('/room', json => { datacenter => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
     ->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('DatacenterRoomDetailed')
-    ->json_cmp_deeply(superhashof({ az => 'sungo-test-1', alias => undef }));
+    ->json_cmp_deeply(superhashof({
+        az => 'sungo-test-1',
+        alias => 'me',
+        vendor_name => undef,
+    }));
+
 my $idr = $t->tx->res->json->{id};
 
-$t->post_ok("/room/$idr", json => { vendor_name => 'sungo' })
+$t->post_ok("/room/$idr", json => { vendor_name => 'sungo', alias => 'you' })
     ->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('DatacenterRoomDetailed')
-    ->json_cmp_deeply(superhashof({ az => 'sungo-test-1', alias => undef }));
+    ->json_cmp_deeply(superhashof({
+        az => 'sungo-test-1',
+        alias => 'you',
+        vendor_name => 'sungo',
+    }));
 
 $t->delete_ok('/room/'.$room->id)
     ->status_is(400)

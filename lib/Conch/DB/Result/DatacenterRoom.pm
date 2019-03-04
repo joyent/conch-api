@@ -50,7 +50,7 @@ __PACKAGE__->table("datacenter_room");
 =head2 alias
 
   data_type: 'text'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 vendor_name
 
@@ -86,7 +86,7 @@ __PACKAGE__->add_columns(
   "az",
   { data_type => "text", is_nullable => 0 },
   "alias",
-  { data_type => "text", is_nullable => 1 },
+  { data_type => "text", is_nullable => 0 },
   "vendor_name",
   { data_type => "text", is_nullable => 1 },
   "created",
@@ -175,8 +175,8 @@ Composing rels: L</workspace_datacenter_rooms> -> workspace
 __PACKAGE__->many_to_many("workspaces", "workspace_datacenter_rooms", "workspace");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rGtYTqa7p0o1Ag2PPqRQ3Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-01 17:08:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ni3tUlJIenaCZf9Y1PhUJQ
 
 sub TO_JSON {
     my $self = shift;
