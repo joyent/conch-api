@@ -3,7 +3,7 @@ package Conch::Validation::DimmCount;
 use Mojo::Base 'Conch::Validation';
 
 use constant name        => 'dimm_count';
-use constant version     => 2;
+use constant version     => 3;
 use constant category    => 'RAM';
 use constant description => 'Verify the number of DIMMs reported';
 
@@ -16,7 +16,8 @@ sub validate {
 
 	my $hw_profile = $self->hardware_product_profile;
 
-	my $dimms_num  = scalar $data->{dimms}->@*;
+	my $dimms_num  = scalar grep $_->{'memory-size'} || $_->{'memory-type'},
+		$data->{dimms}->@*;
 	my $dimms_want = $hw_profile->dimms_num;
 
 	$self->register_result(
