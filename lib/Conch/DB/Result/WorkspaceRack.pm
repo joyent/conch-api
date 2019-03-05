@@ -79,7 +79,7 @@ __PACKAGE__->belongs_to(
   "rack",
   "Conch::DB::Result::Rack",
   { id => "rack_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 workspace
@@ -98,8 +98,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-19 14:50:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9HXgmbBvf8uEobma3W+TmQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 14:43:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:q+qVX8Y4tqU5p4jmLIZiSw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

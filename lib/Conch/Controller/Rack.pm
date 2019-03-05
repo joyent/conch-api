@@ -188,6 +188,7 @@ sub delete ($c) {
         return $c->status(400 => { error => 'cannot delete a rack when a rack_layout is referencing it' });
     }
 
+    # deletions will cascade to workspace_rack.
     $c->stash('rack_rs')->delete;
     $c->log->debug('Deleted rack '.$c->stash('rack_id'));
     return $c->status(204);

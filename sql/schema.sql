@@ -1829,7 +1829,7 @@ ALTER TABLE ONLY public.workspace
 --
 
 ALTER TABLE ONLY public.workspace_rack
-    ADD CONSTRAINT workspace_rack_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.rack(id);
+    ADD CONSTRAINT workspace_rack_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.rack(id) ON DELETE CASCADE;
 
 
 --
