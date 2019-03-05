@@ -8,7 +8,7 @@ conch-db - commands to administrate a database
 
 =head1 SYNOPSIS
 
-    bin/conch-db [long options...]
+    bin/conch-db [long options...] [arguments]
 
 =head1 DESCRIPTION
 
@@ -31,14 +31,15 @@ use Conch::DB::Util;
 
 my ($opt, $usage) = describe_options(
     <<'PREAMBLE',
-%c [subcommand subcommand...] %o
+%c [subcommand subcommand...] %o [arguments]
 
-initialize:              initialize a new Conch database and its tables
-create-validations:      create validation plans for the Conch application
-create-global-workspace: create the GLOBAL workspace
-create-admin-user:       create a user with admin privileges
-migrate:                 run outstanding migrations on a Conch database (no effect with 'all')
-all:                     alias for initialize create-valiations create-admin-user
+initialize               initialize a new Conch database and its tables
+create-validations       create validation plans for the Conch application
+create-global-workspace  create the GLOBAL workspace
+create-admin-user        create a user with admin privileges
+migrate                  run outstanding migrations on a Conch database (no effect with 'all')
+apply-dump-migration [n] generate new DBIC result classes, schema.sql after applying a migration(s)
+all                      alias for initialize create-valiations create-admin-user
 
 The environment variables POSTGRES_DB, POSTGRES_HOST, POSTGRES_USER and POSTGRES_PASSWORD are
 used if set.  Otherwise, the config file will be used to find database credentials.
@@ -64,6 +65,13 @@ if (any { $_ eq 'all' } @ARGV) {
      unshift @ARGV, qw(initialize create-validations create-admin-user);
 }
 
+my $use_test_db;
+if (any { $_ eq 'apply-dump-migration' } @ARGV) {
+    $use_test_db = 1;
+    print("need one or more migration numbers for apply-dump-migration\n\n", $usage->text), exit
+        if not grep /^\d+$/, @ARGV;
+}
+
 if (any { $_ eq 'create-admin-user' } @ARGV) {
     print("--email option is required for create-admin-user\n\n", $usage->text), exit
         if not $opt->email;
@@ -74,9 +82,10 @@ $ENV{DBIC_TRACE} = 1 if $opt->verbose;
 my $log = Mojo::Log->new;
 my $db_credentials;
 
-if ($opt->dry_run) {
+my $pgsql;
+if ($opt->dry_run or $use_test_db) {
     require Test::PostgreSQL;
-    state $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
+    $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
     local @ENV{qw(POSTGRES_DB POSTGRES_HOST POSTGRES_USER POSTGRES_PASSWORD)};
     $db_credentials = Conch::DB::Util::get_credentials({
         dsn => $pgsql->dsn,
@@ -140,6 +149,46 @@ if (any { $_ eq 'create-admin-user' } @ARGV) {
 
     $log->info('created user with email "'.$opt->email.'"'
         .($opt->password ? '' : (' and password "'.$password.'"')));
+}
+
+if (any { $_ eq 'apply-dump-migration' } @ARGV) {
+    # apply sql/schema.sql to test db, and pretend that all migration files were run
+    Conch::DB::Util::initialize_db($schema);
+    # remove record that these migrations were "run"
+    $schema->resultset('migration')->search({ id => { -in => [ grep /^\d+$/, @ARGV ] } })->delete;
+    # ..so now they will be run for real
+    Conch::DB::Util::migrate_db($schema);
+
+    my @args = (
+        '--schema-only',
+        '--file', 'sql/schema.sql',
+        '--username', $pgsql->dbowner,
+        '--host', $pgsql->host,
+        '--port', $pgsql->port,
+        $pgsql->dbname,
+    );
+    system('pg_dump', @args);
+
+    # regenerate DBIC files
+    require Config::Any;
+    my $loader_config = Config::Any->load_files({
+        use_ext => 1,
+        flatten_to_hash => 1,
+        files => ['schema-loader.yaml']
+    })->{'schema-loader.yaml'};
+    require DBIx::Class::Schema::Loader;
+    DBIx::Class::Schema::Loader::make_schema_at(
+        $loader_config->{schema_class},
+        $loader_config->{loader_options},
+        $schema->storage->connect_info,
+    );
+}
+
+
+END {
+    Conch::DB->storage->disconnect if Conch::DB->storage and Conch::DB->storage->connected;
+    undef $schema;
+    undef $pgsql;
 }
 
 __END__

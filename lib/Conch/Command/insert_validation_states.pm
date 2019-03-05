@@ -61,9 +61,10 @@ sub run ($self, @opts) {
         my $validation_plan_id = $validation_plan->id;
 
         my $rows_total = 0;
+        $| = 1; # make my pipes nice and hot
 
         while (my $row = $csv->getline($fh)) {
-            print '.' if (++$rows_total % 1000) == 0;
+            print '.' if (++$rows_total % 10000) == 0;
             my ($report_id, $device_id, $bool_status, $timestamp) = $row->@*;
 
             # we will only create one validation_state record per report, using the
@@ -128,8 +129,8 @@ sub run ($self, @opts) {
 
     my $end_time = time;
     my $elapsed = int($end_time - $start_time);
-    my $hours = $elapsed / 60 / 60;
-    my $minutes = $elapsed - ($hours * 60 * 60) / 60;
+    my $hours = int($elapsed / 60 / 60);
+    my $minutes = int(($elapsed - ($hours * 60 * 60)) / 60);
     my $seconds = $elapsed - ($hours * 60 * 60) - ($minutes * 60);
 
     say 'done. device_report entries not found: '.$not_found,

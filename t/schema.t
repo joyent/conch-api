@@ -13,6 +13,10 @@ my $json_schema =
 
 my $t = Test::Conch->new;
 
+$t->get_ok('/schema/request/hello')
+    ->status_is(404)
+    ->json_is({ error => 'Not found' });
+
 $t->get_ok('/schema/response/Login')
     ->status_is(200)
     ->json_schema_is($json_schema)
