@@ -66,7 +66,6 @@ use strictures 2;
 use experimental 'signatures';
 use Types::Standard qw(Str ArrayRef HashRef InstanceOf);
 use Mojo::JSON;
-use JSON::Validator;
 use Try::Tiny;
 use Conch::ValidationError;
 use Path::Tiny;
