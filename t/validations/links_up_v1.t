@@ -27,7 +27,7 @@ test_validation(
 					eth0 => { state => 'up' },
 					eth1 => { state => 'up' },
 					eth2 => { state => 'up' },
-					eth3 => { state => 'up' },
+					impi1 => { state => 'up' },
 				}
 			},
 			success_num => 1,
@@ -69,13 +69,13 @@ test_validation(
 			success_num => 1,
 		},
 		{
-			description => "Don't count impi1",
+			description => "Don't count ipmi1",
 			data        => {
 				interfaces => {
 					eth0  => { state => 'up' },
 					eth1  => { state => 'up' },
 					eth2  => { state => 'up' },
-					impi1 => { state => 'up' },
+					ipmi1 => { state => 'up' },
 				}
 			},
 			failure_num => 1,
