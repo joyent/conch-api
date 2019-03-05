@@ -35,6 +35,7 @@ sub get ($c) {
     }
 
     my $schema = $validator->get("/definitions/$name");
+    return $c->status(404, { error => 'Not found' }) if not $schema;
 
     my sub inline_ref ( $ref, $schema ) {
         my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
