@@ -85,7 +85,7 @@ my $db_credentials;
 my $pgsql;
 if ($opt->dry_run or $use_test_db) {
     require Test::PostgreSQL;
-    $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
+    $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8', dbowner => 'conch');
     local @ENV{qw(POSTGRES_DB POSTGRES_HOST POSTGRES_USER POSTGRES_PASSWORD)};
     $db_credentials = Conch::DB::Util::get_credentials({
         dsn => $pgsql->dsn,
@@ -167,6 +167,7 @@ if (any { $_ eq 'apply-dump-migration' } @ARGV) {
         '--port', $pgsql->port,
         $pgsql->dbname,
     );
+    $log->info('running: '.join(' ', 'pg_dump', @args));
     system('pg_dump', @args);
 
     # regenerate DBIC files

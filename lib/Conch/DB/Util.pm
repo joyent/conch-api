@@ -149,7 +149,8 @@ sub initialize_db ($schema) {
         : sub { shift->do(@_) };
 
     $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
-        $dbh->$do('CREATE ROLE conch LOGIN');
+        # generally we don't execute this command, as the user already exists (we logged in as it)
+        # $dbh->$do('CREATE ROLE conch LOGIN');
         $dbh->$do('CREATE DATABASE conch OWNER conch');
         say STDERR 'loading sql/schema.sql' if $debug;
         $dbh->do(path('sql/schema.sql')->slurp_utf8) or die 'SQL load failed in sql/schema.sql';

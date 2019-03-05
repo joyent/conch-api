@@ -144,7 +144,7 @@ Returns the Conch::DB object as well when called in list context.
 =cut
 
 sub init_db ($class) {
-    my $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
+    my $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8', dbowner => 'conch');
     die $Test::PostgreSQL::errstr if not $pgsql;
 
     my $schema = Conch::DB->connect(
