@@ -1191,6 +1191,13 @@ CREATE INDEX device_nic_device_id_idx ON public.device_nic USING btree (device_i
 
 
 --
+-- Name: device_nic_device_id_iface_name_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX device_nic_device_id_iface_name_key ON public.device_nic USING btree (device_id, iface_name) WHERE (deactivated IS NULL);
+
+
+--
 -- Name: device_nic_iface_name_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
