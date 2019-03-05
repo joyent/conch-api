@@ -307,8 +307,16 @@ sub _record_device_configuration {
 			$dr->{disks}
 				and $log->info("Recorded disk info for Device ".$device->id);
 
+
 			my @device_nic_macs = map uc, $device->device_nics->active->get_column('mac')->all;
 			my %inactive_macs; @inactive_macs{@device_nic_macs} = ();
+
+			# deactivate all the nics that are currently located with other devices,
+			# so we can relocate them to this device
+			$c->db_device_nics->active->search({
+				device_id => { '!=' => $device->id },
+				mac => { -in => [ map $_->{mac}, values $dr->{interfaces}->%* ] },
+			})->deactivate;
 
 			foreach my $nic ( keys %{ $dr->{interfaces} } ) {
 
