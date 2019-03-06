@@ -229,7 +229,7 @@ sub get_pxe ($c) {
                 # pxe = the first (sorted by name) interface that is status=up
                 'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
                 # ipmi = the (newest) interface named ipmi1.
-                'ipmi_mac_ip' => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
+                ipmi_mac_ip => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
             },
             collapse => 1,
             join => { device_location => { rack => { datacenter_room => 'datacenter' } } },

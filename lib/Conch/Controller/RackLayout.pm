@@ -131,7 +131,7 @@ sub get_all ($c) {
 
     my @layouts = $c->db_rack_layouts
         #->search(undef, {
-        #    join => { 'hardware_product' => 'hardware_product_profile' },
+        #    join => { hardware_product => 'hardware_product_profile' },
         #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
         #    collapse => 1,
         #})

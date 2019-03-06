@@ -121,7 +121,7 @@ sub layouts ($c) {
     my @layouts = $c->stash('rack_rs')
         ->related_resultset('rack_layouts')
         #->search(undef, {
-        #    join => { 'hardware_product' => 'hardware_product_profile' },
+        #    join => { hardware_product => 'hardware_product_profile' },
         #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
         #    collapse => 1,
         #})

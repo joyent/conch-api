@@ -240,7 +240,7 @@ sub session_login ($c) {
     $c->stash(user => $user);
 
     unless ($c->feature('stop_conch_cookie_issue')) {
-        $c->session('user' => $user->id);
+        $c->session(user => $user->id);
     }
 
     # clear out all expired session tokens

@@ -70,7 +70,7 @@ sub run ($self, @opts) {
                     { 'device_location.device_id' => { '!=' => undef } },
                     { prefetch => [
                             'hardware_product',
-                            { 'device_location' => { 'device' => 'hardware_product' } },
+                            { device_location => { device => 'hardware_product' } },
                         ] },
                 );
             while (my $layout = $occupied_layout_rs->next) {

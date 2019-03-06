@@ -51,36 +51,36 @@ subtest 'User' => sub {
     $t->get_ok('/user/me/settings/BAD')
         ->status_is(404);
 
-    $t->post_ok('/user/me/settings/TEST' => json => { 'NOTTEST' => 'test' })
+    $t->post_ok('/user/me/settings/TEST' => json => { NOTTEST => 'test' })
         ->status_is(400)
         ->json_is({ error => "Setting key in request object must match name in the URL ('TEST')", });
 
     $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
         ->status_is(404);
 
-    $t->post_ok('/user/me/settings/TEST' => json => { 'TEST' => 'TEST' })
+    $t->post_ok('/user/me/settings/TEST' => json => { TEST => 'TEST' })
         ->status_is(200)
         ->content_is('');
 
     $t->get_ok('/user/me/settings/TEST')
         ->status_is(200)
-        ->json_is('', { 'TEST' => 'TEST' });
+        ->json_is('', { TEST => 'TEST' });
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', { 'TEST' => 'TEST' });
+        ->json_is('', { TEST => 'TEST' });
 
-    $t->post_ok('/user/me/settings/TEST2' => json => { 'TEST2' => { foo => 'bar' } })
+    $t->post_ok('/user/me/settings/TEST2' => json => { TEST2 => { foo => 'bar' } })
         ->status_is(200)
         ->content_is('');
 
     $t->get_ok('/user/me/settings/TEST2')
         ->status_is(200)
-        ->json_is('', { 'TEST2' => { foo => 'bar' } });
+        ->json_is('', { TEST2 => { foo => 'bar' } });
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', { 'TEST' => 'TEST', 'TEST2' => { foo => 'bar' }, });
+        ->json_is('', { TEST => 'TEST', TEST2 => { foo => 'bar' }, });
 
     $t->delete_ok('/user/me/settings/TEST')
         ->status_is(204)
@@ -88,7 +88,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', { 'TEST2' => { foo => 'bar' } });
+        ->json_is('', { TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST2')
         ->status_is(204)

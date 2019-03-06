@@ -65,12 +65,12 @@ sub list ($c) {
                 join => { device => { device_location => {
                             rack => [ 'rack_role', 'datacenter_room' ] } } },
                 '+columns' => {
-                    'rack_id' => 'device_location.rack_id',
-                    'rack_name' => 'rack.name',
-                    'rack_unit_start' => 'device_location.rack_unit_start',
-                    'role_name' => 'rack_role.name',
-                    'az' => 'datacenter_room.az',
-                    'num_devices' => $num_devices_rs->as_query,
+                    rack_id => 'device_location.rack_id',
+                    rack_name => 'rack.name',
+                    rack_unit_start => 'device_location.rack_unit_start',
+                    role_name => 'rack_role.name',
+                    az => 'datacenter_room.az',
+                    num_devices => $num_devices_rs->as_query,
                 },
             },
         );
