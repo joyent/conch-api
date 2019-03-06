@@ -20,7 +20,7 @@ Conch::Controller::DeviceReport
 Processes the device report, turning it into the various device_ tables as well
 as running validations
 
-Response uses the ValidationState json schema.
+Response uses the ValidationStateWithResults json schema.
 
 =cut
 
@@ -167,6 +167,15 @@ sub process ($c) {
 		device_report => $device_report,
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
+
+    # prime the resultset cache for the serializer
+    # (this is gross because has-multi accessors always go to the db, so there is no
+    # non-private way of extracting related rows from the result)
+    for my $members ($validation_state->{_relationship_data}{validation_state_members}) {
+        $_->related_resultset('validation_result')->set_cache([ $_->validation_result ])
+            foreach $members->@*;
+        $validation_state->related_resultset('validation_state_members')->set_cache($members);
+    }
 
 	# calculate the device health based on the validation results.
 	# currently, since there is just one (hardcoded) plan per device, we can simply copy it
