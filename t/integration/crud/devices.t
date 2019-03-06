@@ -42,7 +42,7 @@ subtest 'unlocated device' => sub {
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(200)
-        ->json_schema_is('ValidationState');
+        ->json_schema_is('ValidationStateWithResults');
 
     $t->get_ok('/device/TEST')
         ->status_is(200)

@@ -110,11 +110,18 @@ subtest 'Device Report' => sub {
 	my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
 		->status_is(200)
-		->json_schema_is('ValidationState')
+		->json_schema_is('ValidationStateWithResults')
 		->json_cmp_deeply(superhashof({
 			device_id => 'TEST',
 			status => 'pass',
 			completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+			results => [
+				superhashof({
+					device_id => 'TEST',
+					order => 0,
+					status => 'pass',
+				}),
+			],
 		}));
 
     my (@device_report_ids, @validation_state_ids);
@@ -143,7 +150,7 @@ subtest 'Device Report' => sub {
     # submit another passing report...
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
-        ->json_schema_is('ValidationState')
+        ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => 'TEST',
             status => 'pass',
@@ -161,7 +168,7 @@ subtest 'Device Report' => sub {
     # submit another passing report (this makes 3)
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
-        ->json_schema_is('ValidationState')
+        ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => 'TEST',
             status => 'pass',
@@ -246,7 +253,7 @@ subtest 'Device Report' => sub {
     # submit another passing report...
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
-        ->json_schema_is('ValidationState')
+        ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => 'TEST',
             status => 'pass',
@@ -276,7 +283,7 @@ subtest 'Device Report' => sub {
 	my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
 	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
 		->status_is(200)
-		->json_schema_is('ValidationState')
+		->json_schema_is('ValidationStateWithResults')
 		->json_is('/status', 'error');
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -296,7 +303,7 @@ subtest 'Device Report' => sub {
 	# return device to a good state
 	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
 		->status_is(200)
-		->json_schema_is('ValidationState')
+		->json_schema_is('ValidationStateWithResults')
 		->json_is('/status', 'pass');
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -338,7 +345,7 @@ subtest 'Device Report' => sub {
         # then submit the report again and observe it moving back.
         $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
             ->status_is(200)
-            ->json_schema_is('ValidationState')
+            ->json_schema_is('ValidationStateWithResults')
             ->json_is('/status', 'pass');
 
         $disk->discard_changes;
