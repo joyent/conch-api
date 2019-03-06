@@ -17,6 +17,7 @@ thin_device_reports - remove unwanted device reports
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Getopt::Long::Descriptive;
 use Try::Tiny;
+use Data::Page;
 
 has description => 'remove unwanted device reports';
 
@@ -177,9 +178,18 @@ sub _process_device ($self, $device) {
         # this may also cause cascade deletes on validation_state, validation_state_member.
         say 'deleting ', scalar(@delete_report_ids), ' reports for device id ', $device->id,
             ' out of ', $report_count, ' examined...';
-        $device_reports_deleted = $device
-            ->search_related('device_reports', { id => { -in => \@delete_report_ids } })
-            ->delete;
+
+        # delete reports 100 records at a time
+        my $pager = Data::Page->new(scalar @delete_report_ids, 100);
+        for ($pager->first_page .. $pager->last_page) {
+            my @ids = $pager->splice(\@delete_report_ids);
+            last if not @ids;
+            $pager->current_page($pager->current_page + 1);
+
+            $device_reports_deleted += $device
+                ->search_related('device_reports', { id => { -in => \@ids } })
+                ->delete;
+        }
 
         # delete all newly-orphaned validation_result rows for this device
         $validation_results_deleted = $device->search_related('validation_results',

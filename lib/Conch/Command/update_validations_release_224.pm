@@ -33,11 +33,8 @@ sub run ($self, @opts) {
     );
 
     $self->app->schema->txn_do(sub ($app) {
-        # deactivating old validations whose versions are incrementing
-        $app->db_validations->search({
-            version => 1,
-            name => { -in => [ qw(dimm_count) ] },
-        })->deactivate;
+        # deactivate old validations whose versions are incrementing
+        $app->db_validations->active->search({ name => 'dimm_count' })->deactivate;
 
         $app->log->info('Adding new validation rows...');
 

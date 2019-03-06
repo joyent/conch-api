@@ -188,12 +188,8 @@ sub process ($c) {
             ->delete > 0)
         {
             $c->log->debug('deleted previous device report id '.$previous_report_id);
-            # deleting device_report cascaded to validation_state and validation_state_member;
-            # now clean up orphaned results
-            $device->search_related('validation_results',
-                { 'validation_state_members.validation_state_id' => undef },
-                { join => 'validation_state_members' },
-            )->delete;
+            # deleting device_report cascaded to validation_state and validation_state_member,
+            # but we leave orphaned validation_result rows behind for performance reasons.
         }
     }
 
