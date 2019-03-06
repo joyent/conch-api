@@ -12,7 +12,7 @@ Conch::Route::Validation
 
 =head2 routes
 
-Sets up the routes for /validation and /validation_plan:
+Sets up the routes for /validation, /validation_plan and /validation_state:
 
     GET     /validation
     GET     /validation/:validation_id_or_name
@@ -23,6 +23,8 @@ Sets up the routes for /validation and /validation_plan:
     GET     /validation_plan/:validation_plan_id_or_name/validation
     POST    /validation_plan/:validation_plan_id_or_name/validation                 DISABLED
     DELETE  /validation_plan/:validation_plan_id_or_name/validation/:validation_id  DISABLED
+
+    GET     /validation_state/:validation_state_id
 
 =cut
 
@@ -69,6 +71,14 @@ sub routes {
 
         # DELETE /validation_plan/:validation_plan_id_or_name/validation/:validation_id (DISABLED)
         $with_plan->delete('/validation/:validation_id')->to('#remove_validation');
+    }
+
+    {
+        my $vs = $r->any('/validation_state');
+        $vs->to({ controller => 'validation_state' });
+
+        # GET /validation_state/:validation_state_id
+        $vs->get('/:validation_state_id')->to('#get');
     }
 }
 
