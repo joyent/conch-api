@@ -70,9 +70,6 @@ sub create ($c) {
         return $c->status(400, { error => 'ru_start beyond maximum' });
     }
 
-    my %assigned_rack_units = map +($_ => 1),
-        $c->db_racks->search({ 'rack.id' => $input->{rack_id} })->assigned_rack_units;
-
     my $new_rack_unit_size = $c->db_hardware_products
         ->search({ 'hardware_product.id' => $input->{hardware_product_id} })
         ->related_resultset('hardware_product_profile')
@@ -86,6 +83,9 @@ sub create ($c) {
             .", beyond the end of the rack (size $rack_size)");
         return $c->status(400, { error => 'ru_start+rack_unit_size beyond maximum' });
     }
+
+    my %assigned_rack_units = map +($_ => 1),
+        $c->db_racks->search({ 'rack.id' => $input->{rack_id} })->assigned_rack_units;
 
     my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
@@ -196,20 +196,12 @@ sub update ($c) {
     # determine assigned slots, not counting the slots currently assigned to this layout (which
     # we will be giving up)
 
-    my %assigned_rack_units = map +($_ => 1), $c->stash('rack_layout')
-        ->related_resultset('rack')->assigned_rack_units;
-
     my $current_rack_unit_size = $c->db_hardware_products->search(
         { 'hardware_product.id' => $c->stash('rack_layout')->hardware_product_id })
         ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single;
 
     return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$c->stash('rack_layout')->hardware_product_id })
         if not $current_rack_unit_size;
-
-    delete @assigned_rack_units{
-        $c->stash('rack_layout')->rack_unit_start ..
-        ($c->stash('rack_layout')->rack_unit_start + $current_rack_unit_size - 1)
-    };
 
     my $new_rack_unit_size = $input->{hardware_product_id}
         ? $c->db_hardware_products->search({ 'hardware_product.id' => $input->{hardware_product_id} })
@@ -226,6 +218,14 @@ sub update ($c) {
             .", beyond the end of the rack (size $rack_size)");
         return $c->status(400, { error => 'ru_start+rack_unit_size beyond maximum' });
     }
+
+    my %assigned_rack_units = map +($_ => 1), $c->stash('rack_layout')
+        ->related_resultset('rack')->assigned_rack_units;
+
+    delete @assigned_rack_units{
+        $c->stash('rack_layout')->rack_unit_start ..
+        ($c->stash('rack_layout')->rack_unit_start + $current_rack_unit_size - 1)
+    };
 
     my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
 
