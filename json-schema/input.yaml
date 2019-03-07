@@ -143,9 +143,9 @@ definitions:
               temp:
                 $ref: /definitions/int_or_stringy_int
               enclosure:
-                type: string
+                $ref: /definitions/int_or_stringy_int
               hba:
-                type: string
+                $ref: /definitions/int_or_stringy_int
               # any additional fields are not currently used.
       device_type:
         type: string

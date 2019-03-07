@@ -16,7 +16,8 @@
       "transport": "sas",
       "temp": "26",
       "slot": "5",
-      "hba": "2",
+      "hba": 2,
+      "enclosure": -1,
       "device": "sdg",
       "firmware": "DL2B"
     },
