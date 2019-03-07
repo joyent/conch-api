@@ -27,11 +27,9 @@ Response uses the WorkspaceRackSummary json schema.
 =cut
 
 sub list ($c) {
-
     my $racks_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
-        ->related_resultset('rack')
-        ->active;
+        ->related_resultset('rack');
 
     my $device_health_rs = $racks_rs->search(
         { 'device.id' => { '!=' => undef } },
@@ -101,7 +99,6 @@ sub find_rack ($c) {
     my $rack_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')
-        ->active
         ->search({ 'rack.id' => $rack_id });
 
     if (not $rack_rs->exists) {
@@ -261,7 +258,7 @@ sub add ($c) {
             ->related_resultset('parent_workspace')
             ->related_resultset('workspace_racks')
             ->related_resultset('rack')
-            ->active->search({ 'rack.id' => $rack_id })->exists) {
+            ->search({ 'rack.id' => $rack_id })->exists) {
         return $c->status(409,
             { error => "Rack '$rack_id' must be assigned in parent workspace to be assignable." },
         );

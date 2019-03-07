@@ -56,7 +56,6 @@ sub list ($c) {
     my $workspace_racks = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')
-        ->active
         ->get_column('id');
 
     my $workspace_relays_with_location = $latest_relay_connections

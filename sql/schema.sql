@@ -479,7 +479,6 @@ CREATE TABLE public.rack (
     datacenter_room_id uuid NOT NULL,
     name text NOT NULL,
     rack_role_id uuid NOT NULL,
-    deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     serial_number text,

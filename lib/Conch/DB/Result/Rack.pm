@@ -54,11 +54,6 @@ __PACKAGE__->table("rack");
   is_nullable: 0
   size: 16
 
-=head2 deactivated
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
-
 =head2 created
 
   data_type: 'timestamp with time zone'
@@ -99,8 +94,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "rack_role_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "deactivated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -221,12 +214,8 @@ Composing rels: L</workspace_racks> -> workspace
 __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-19 14:50:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EKp357Er7WggrAANbsU8Cg
-
-__PACKAGE__->add_columns(
-    '+deactivated' => { is_serializable => 0 },
-);
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-07 10:14:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:G50OZHxFNQDcAfKEuYUX+w
 
 sub TO_JSON {
     my $self = shift;
