@@ -208,8 +208,8 @@ CREATE TABLE public.device_disk (
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
-    enclosure text,
-    hba text
+    enclosure integer,
+    hba integer
 );
 
 
