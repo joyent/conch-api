@@ -21,6 +21,7 @@ Sets up the routes for /workspace:
 
     GET     /workspace/:workspace_id_or_name/device
     GET     /workspace/:workspace_id_or_name/device/active
+    GET     /workspace/:workspace_id_or_name/device/pxe
 
     GET     /workspace/:workspace_id_or_name/rack
     POST    /workspace/:workspace_id_or_name/rack
@@ -76,6 +77,9 @@ sub routes {
                         ->query(active => 't'));
             }
         );
+
+        # GET /workspace/:workspace_id_or_name/device/pxe
+        $with_workspace->get('/device/pxe')->to('workspace_device#get_pxe_devices');
 
         # GET /workspace/:workspace_id_or_name/rack
         $with_workspace->get('/rack')->to('workspace_rack#list');

@@ -196,6 +196,42 @@ sub lookup_by_other_attribute ($c) {
 	return $c->status(200, \@devices);
 }
 
+=head2 get_pxe
+
+Gets PXE-specific information about a device.
+
+Response uses the DevicePXE json schema.
+
+=cut
+
+sub get_pxe ($c) {
+    my $device_rs = $c->stash('device_rs');
+    my ($device) = $device_rs->search(
+        undef,
+        {
+            columns => {
+                id => 'device.id',
+                'location.datacenter.name' => 'datacenter.region',
+                'location.datacenter.vendor_name' => 'datacenter.vendor_name',
+                'location.rack.name' => 'datacenter_rack.name',
+                'location.rack.rack_unit_start' => 'device_location.rack_unit_start',
+                # pxe = the first (sorted by name) interface that is status=up
+                'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
+                # ipmi = the (newest) interface named ipmi1.
+                'ipmi_mac_ip' => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
+            },
+            collapse => 1,
+            join => { device_location => { datacenter_rack => { datacenter_room => 'datacenter' } } },
+        })
+        ->hri
+        ->all;
+
+    my $ipmi = delete $device->{ipmi_mac_ip};
+    $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;
+
+    $c->status(200, $device);
+}
+
 =head2 graduate
 
 Marks the device as "graduated" (VLAN flipped)

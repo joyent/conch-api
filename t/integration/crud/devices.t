@@ -385,5 +385,104 @@ subtest 'Device settings' => sub {
         ->json_is('', [ $undetailed_device ], 'got device by arbitrary setting key');
 };
 
+subtest 'Device PXE' => sub {
+    my $layout = $t->load_fixture('datacenter_rack_0a_layout_3_6');
+
+    my $device_pxe = $t->app->db_devices->create({
+        id => 'PXE_TEST',
+        hardware_product_id => $layout->hardware_product_id,
+        state => 'UNKNOWN',
+        health => 'UNKNOWN',
+        device_relay_connections => [ {
+            relay => {
+                id => 'relay_id',
+                user_relay_connections => [ { user_id => $t->load_fixture('conch_user')->id } ],
+            }
+        } ],
+        device_nics => [
+            {
+                state => 'up',
+                iface_name => 'milhouse',
+                iface_type => 'human',
+                iface_vendor => 'Groening',
+                mac => '00:00:00:00:00:aa',
+                ipaddr => '0.0.0.1',
+            },
+            {
+                state => 'up',
+                iface_name => 'ned',
+                iface_type => 'human',
+                iface_vendor => 'Groening',
+                mac => '00:00:00:00:00:bb',
+                ipaddr => '0.0.0.2',
+            },
+            {
+                state => undef,
+                iface_name => 'ipmi1',
+                iface_type => 'human',
+                iface_vendor => 'Groening',
+                mac => '00:00:00:00:00:cc',
+                ipaddr => '0.0.0.3',
+            },
+        ],
+    });
+
+    $t->get_ok('/device/PXE_TEST/pxe')
+        ->status_is(200)
+        ->json_schema_is('DevicePXE')
+        ->json_is({
+            id => 'PXE_TEST',
+            location => undef,
+            ipmi => {
+                mac => '00:00:00:00:00:cc',
+                ip => '0.0.0.3',
+            },
+            pxe => {
+                mac => '00:00:00:00:00:aa',
+            },
+        });
+
+    $layout->create_related('device_location', { device_id => 'PXE_TEST' });
+    my $datacenter = $t->load_fixture('datacenter_0');
+
+    $t->get_ok('/device/PXE_TEST/pxe')
+        ->status_is(200)
+        ->json_schema_is('DevicePXE')
+        ->json_is({
+            id => 'PXE_TEST',
+            location => {
+                datacenter => {
+                    name => $datacenter->region,
+                    vendor_name => $datacenter->vendor_name,
+                },
+                rack => {
+                    name => $layout->datacenter_rack->name,
+                    rack_unit_start => $layout->rack_unit_start,
+                },
+            },
+            ipmi => {
+                mac => '00:00:00:00:00:cc',
+                ip => '0.0.0.3',
+            },
+            pxe => {
+                mac => '00:00:00:00:00:aa',
+            },
+        });
+
+
+    $device_pxe->delete_related('device_location');
+    $device_pxe->delete_related('device_nics');
+
+    $t->get_ok('/device/PXE_TEST/pxe')
+        ->status_is(200)
+        ->json_schema_is('DevicePXE')
+        ->json_is({
+            id => 'PXE_TEST',
+            location => undef,
+            ipmi => undef,
+            pxe => undef,
+        });
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :
