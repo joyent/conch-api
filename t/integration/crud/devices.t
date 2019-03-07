@@ -208,6 +208,22 @@ $t->get_ok('/device/TEST')
     ->json_schema_is('DetailedDevice');
 
 my $detailed_device = $t->tx->res->json;
+
+$t->app->db_device_nics->create({
+    mac => '00:00:00:00:00:0'.$_,
+    device_id => 'TEST',
+    iface_name => $_,
+    iface_type => 'foo',
+    iface_vendor => 'bar',
+    iface_driver => 'baz',
+    deactivated => \'now()',
+}) foreach (7..9);
+
+$t->get_ok('/device/TEST')
+    ->status_is(200)
+    ->json_schema_is('DetailedDevice')
+    ->json_is($detailed_device);
+
 my @macs = map $_->{mac}, $detailed_device->{nics}->@*;
 
 my $undetailed_device = {

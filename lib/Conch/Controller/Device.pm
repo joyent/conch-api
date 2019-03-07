@@ -101,6 +101,7 @@ sub get ($c) {
 
 	my ($device) = $c->stash('device_rs')
 		->prefetch([ { device_nics => 'device_neighbor' }, 'device_disks' ])
+		->active(qw(device_nics device_disks))
 		->order_by([ qw(iface_name serial_number) ])
 		->all;
 
@@ -123,14 +124,13 @@ sub get ($c) {
 		nics => [ map {
 			my $device_nic = $_;
 			my $device_neighbor = $device_nic->device_neighbor;
-			$device_nic->deactivated ? () :
 			+{
 				(map { $_ => $device_nic->$_ } qw(mac iface_name iface_type iface_vendor)),
 				(map { $_ => $device_neighbor && $device_neighbor->$_ } qw(peer_mac peer_port peer_switch)),
 			}
 		} $device->device_nics ],
 		location => $location,
-		disks => [ map { $_->deactivated ? () : $_->TO_JSON } $device->device_disks ],
+		disks => [ $device->device_disks ],
 	};
 
 	$c->status( 200, $detailed_device );
