@@ -9,6 +9,7 @@ use Test::Deep::JSON;
 use Test::Warnings;
 use Mojo::JSON qw(from_json to_json);
 use Test::Conch;
+use Storable 'dclone';
 
 my $t = Test::Conch->new;
 $t->load_fixture('legacy_datacenter');
@@ -147,8 +148,12 @@ subtest 'Device Report' => sub {
 	is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
 
-    # submit another passing report...
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+    # submit another passing report, this time swapping around some iface_names...
+    my $altered_report = from_json($good_report);
+    ($altered_report->{interfaces}{eth5}{mac}, $altered_report->{interfaces}{eth1}{mac}) =
+        ($altered_report->{interfaces}{eth1}{mac}, $altered_report->{interfaces}{eth5}{mac});
+
+    $t->post_ok('/device/TEST', json => $altered_report)
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
