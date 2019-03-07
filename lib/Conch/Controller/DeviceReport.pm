@@ -331,6 +331,14 @@ sub _record_device_configuration {
 
 				delete $inactive_macs{$mac};
 
+				# deactivate this iface_name where mac is different,
+				# so we can assign it the new mac.
+				$c->db_device_nics->active->search({
+					device_id => $device->id,
+					iface_name => $nic,
+					mac => { '!=' => $mac },
+				})->deactivate;
+
 				# if nic already exists on a different device, it will be relocated
 				$c->db_device_nics->update_or_create(
 					{
