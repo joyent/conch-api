@@ -243,21 +243,6 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_memories
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::DeviceMemory>
-
-=cut
-
-__PACKAGE__->has_many(
-  "device_memories",
-  "Conch::DB::Result::DeviceMemory",
-  { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 device_nics
 
 Type: has_many
@@ -364,8 +349,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-29 13:29:41
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0fLI75MeNdnjtpFpB+FSIg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-08 11:20:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ws5Zq0vtQJWLiJbnJtY+Vw
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
