@@ -208,9 +208,7 @@ __PACKAGE__->add_columns(
 
 use experimental 'signatures';
 
-sub TO_JSON {
-    my $self = shift;
-
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
     # add validation_results data, if it has been prefetched

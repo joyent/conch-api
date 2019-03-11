@@ -176,13 +176,11 @@ Uses a device report to populate configuration information about the given devic
 
 =cut
 
-sub _record_device_configuration {
-    my ($c, $orig_device, $device, $dr) = @_;
-
+sub _record_device_configuration ($c, $orig_device, $device, $dr) {
     my $log = $c->log;
 
     $c->schema->txn_do(
-        sub {
+        sub () {
             # Add a reboot count if there's not a previous uptime but one in this
             # report (i.e. first uptime reported), or if the previous uptime date is
             # less than the the current one (i.e. there has been a reboot)
@@ -345,9 +343,7 @@ sub _record_device_configuration {
     );
 }
 
-sub _add_reboot_count {
-    my $device = shift;
-
+sub _add_reboot_count ($device) {
     my $reboot_count = $device->find_or_new_related('device_settings', {
         deactivated => undef,
         name => 'reboot_count'

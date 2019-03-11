@@ -233,9 +233,9 @@ __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },
 );
 
-sub TO_JSON {
-    my $self = shift;
+use experimental 'signatures';
 
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
     $data->{order} = delete $data->{result_order};
 

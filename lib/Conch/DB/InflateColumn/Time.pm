@@ -1,9 +1,8 @@
 package Conch::DB::InflateColumn::Time;
 
 use v5.26;
-use strict;
 use warnings;
-
+use experimental 'signatures';
 use parent 'DBIx::Class::InflateColumn::TimeMoment';
 
 use Conch::Time;
@@ -21,17 +20,13 @@ Time::Moment object into Conch::Time, and work around the bug in RT#125975.
 
 =cut
 
-sub _post_inflate_timemoment {
-    my ($self, $dt) = @_;
-
+sub _post_inflate_timemoment ($self, $dt, $info) {
     # _inflate_to_timemoment gave us a Time::Moment.
     # now we turn that into a Conch::Time.
     return bless($dt, 'Conch::Time');
 }
 
-sub register_column {
-    my ($self, $column, $info, @rest) = @_;
-
+sub register_column ($self, $column, $info, @rest) {
     return $self->next::method($column, $info, @rest)
         if $info->{data_type} ne 'timestamp with time zone';
 

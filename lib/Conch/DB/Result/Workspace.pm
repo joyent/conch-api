@@ -177,15 +177,15 @@ __PACKAGE__->many_to_many("racks", "workspace_racks", "rack");
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 12:50:12
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XPeRYrFMA7VfFHuKwOS8Sw
 
+use experimental 'signatures';
+
 =head2 TO_JSON
 
 Include information about the user's permissions, if available.
 
 =cut
 
-sub TO_JSON {
-    my $self = shift;
-
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
     $data->{parent_id} = delete $data->{parent_workspace_id};
 
