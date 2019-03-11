@@ -3,10 +3,10 @@ package Conch::Validation::LinksUp;
 use Mojo::Base 'Conch::Validation';
 
 use constant name        => 'links_up';
-use constant version     => 1;
+use constant version     => 2;
 use constant category    => 'NET';
 use constant description => q(
-Validate that there are at least 4 NICs in the 'up' state
+Validate that there are at least 4 NICs in the 'up' state, not counting ipmi1
 );
 
 sub validate {
@@ -17,7 +17,7 @@ sub validate {
 
 	my $links_up = 0;
 	while ( my ( $name, $nic ) = each $data->{interfaces}->%* ) {
-		next if $name eq 'impi1';
+		next if $name eq 'ipmi1';
 		$links_up++ if ($nic->{state} && $nic->{state} eq 'up');
 	}
 
