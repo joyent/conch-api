@@ -1072,6 +1072,13 @@ ALTER TABLE ONLY public.workspace_rack
 
 
 --
+-- Name: datacenter_room_alias_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX datacenter_room_alias_key ON public.datacenter_room USING btree (alias);
+
+
+--
 -- Name: datacenter_room_datacenter_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
