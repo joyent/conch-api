@@ -44,6 +44,8 @@ subtest 'unlocated device' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults');
 
+    my $validation_state = $t->tx->res->json;
+
     $t->get_ok('/device/TEST')
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
@@ -63,6 +65,11 @@ subtest 'unlocated device' => sub {
             nics => supersetof(),
             disks => supersetof(superhashof({ serial_number => 'BTHC640405WM1P6PGN' })),
         });
+
+    $t->get_ok('/validation_state/'.$validation_state->{id})
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_is($validation_state);
 };
 
 subtest 'located device' => sub {
