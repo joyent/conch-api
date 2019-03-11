@@ -3,7 +3,6 @@ package Conch::Controller::Schema;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Data::Visitor::Tiny qw(visit);
-use Conch::Plugin::JsonValidator;
 use Mojo::Util qw(camelize);
 
 =pod
@@ -21,18 +20,13 @@ Get the json-schema in JSON format.
 =cut
 
 sub get ($c) {
-    my $type = $c->stash('request_or_response');
+    my $type = lc $c->stash('request_or_response');
     my $name = camelize $c->stash('name');
 
-    my $validator = JSON::Validator->new();
-
-    if ( lc($type) eq 'response' ) {
-        $validator->schema(Conch::Plugin::JsonValidator::OUTPUT_SCHEMA_FILE);
-
-    }
-    elsif ( lc($type) eq 'request' ) {
-        $validator->schema(Conch::Plugin::JsonValidator::INPUT_SCHEMA_FILE);
-    }
+    my $validator = $type eq 'response' ? $c->get_response_validator
+        : $type eq 'request' ? $c->get_input_validator
+        : undef;
+    return $c->status(404, { error => 'Not found' }) if not $validator;
 
     my $schema = $validator->get("/definitions/$name");
     return $c->status(404, { error => 'Not found' }) if not $schema;

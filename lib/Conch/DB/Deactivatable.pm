@@ -2,6 +2,8 @@ package Conch::DB::Deactivatable;
 use v5.26;
 use warnings;
 
+use experimental 'signatures';
+
 =head1 NAME
 
 Conch::DB::Deactivatable
@@ -20,17 +22,16 @@ to provide common query functionality.
 =head2 active
 
 Chainable resultset to limit results to those that aren't deactivated.
+Optional argument specifies the source alias(es) to use on the 'deactivated' constraint.
 
 =cut
 
-sub active {
-    my $self = shift;
+sub active ($self, @rels) {
+    # insufficient info to get rel -> result_source at this level; let the db server die instead on error
+    Carp::croak($self->result_source->result_class->table, ' does not have a \'deactivated\' column')
+        if not @rels and not $self->result_source->has_column('deactivated');
 
-    Carp::croak($self->result_source->result_class->table,
-            ' does not have a \'deactivated\' column')
-        if not $self->result_source->has_column('deactivated');
-
-    $self->search({ $self->current_source_alias . '.deactivated' => undef });
+    return $self->search({ map +($_.'.deactivated' => undef), (@rels ? @rels : $self->current_source_alias) });
 }
 
 =head2 deactivate

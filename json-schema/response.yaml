@@ -228,11 +228,11 @@ definitions:
                 - type: 'null'
             enclosure:
               oneOf:
-                - type: string
+                - type: integer
                 - type: 'null'
             hba:
               oneOf:
-                - type: string
+                - type: integer
                 - type: 'null'
             created:
               type: string

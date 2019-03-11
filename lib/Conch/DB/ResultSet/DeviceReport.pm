@@ -15,23 +15,6 @@ Interface to queries involving device reports.
 
 =head1 METHODS
 
-=head2 matches_jsonb
-
-Search for reports that match the the passed-in json blob.
-
-Current fields ignored in the comparisons:
-
-    * report_id
-
-=cut
-
-sub matches_jsonb ($self, $jsonb) {
-    my $ignore_fields = join(' - ', map { "'$_'" } qw(report_id));
-
-    my $me = $self->current_source_alias;
-    $self->search(\[ "($me.report - $ignore_fields) = (?::jsonb - $ignore_fields)", $jsonb ]);
-}
-
 =head2 with_report_status
 
 Given a resultset indicating one or more report(s), adds a column to the result indicating

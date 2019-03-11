@@ -112,12 +112,12 @@ __PACKAGE__->table("device_disk");
 
 =head2 enclosure
 
-  data_type: 'text'
+  data_type: 'integer'
   is_nullable: 1
 
 =head2 hba
 
-  data_type: 'text'
+  data_type: 'integer'
   is_nullable: 1
 
 =cut
@@ -169,9 +169,9 @@ __PACKAGE__->add_columns(
     original      => { default_value => \"now()" },
   },
   "enclosure",
-  { data_type => "text", is_nullable => 1 },
+  { data_type => "integer", is_nullable => 1 },
   "hba",
-  { data_type => "text", is_nullable => 1 },
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -218,8 +218,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ITWGPAqyFE1N7TaJtekWQw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-11 12:50:48
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fyW7v8ejtONdS6AEVOBvUA
 
 __PACKAGE__->add_columns(
     '+device_id' => { is_serializable => 0 },

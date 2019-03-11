@@ -46,36 +46,64 @@ C<Mojo::Exception> is thrown, returning a 500 to the user.
 
 C<validate_input> validates data against the C<json-schema/input.yaml> file.
 
-=head1 METHODS
-
-=head2 register
-
-Load the plugin into Mojo. Called by Mojo directly
+=head1 HELPERS
 
 =cut
 
 sub register ($self, $app, $config) {
 
-    my $validator = JSON::Validator->new();
-    $validator->schema(INPUT_SCHEMA_FILE);
 
-    $app->helper(validate_input => sub ($c, $schema_name_or_definition, $json = $c->req->json) {
-        my $schema =
-            ref $schema_name_or_definition ? $schema_name_or_definition
-          : $validator->get("/definitions/$schema_name_or_definition");
+=head2 validate_input
+
+Given a json schema name validate the provided input against it, and prepare a HTTP 400
+response if validation failed; returns validated input on success.
+
+=cut
+
+    $app->helper(validate_input => sub ($c, $schema_name, $input = $c->req->json) {
+        my $validator = JSON::Validator->new;
+        $validator->schema(INPUT_SCHEMA_FILE);
+
+        my $schema = $validator->get('/definitions/'.$schema_name);
 
         if (not $schema) {
             Mojo::Exception->throw("unable to locate schema $schema");
             return;
         }
 
-        if (my @errors = $validator->validate($json, $schema)) {
-            $c->log->error("FAILED data validation for schema $schema_name_or_definition: ".join(' // ', @errors));
+        if (my @errors = $validator->validate($input, $schema)) {
+            $c->log->error("FAILED data validation for schema $schema_name".join(' // ', @errors));
             return $c->status(400 => { error => join("\n",@errors) });
         }
 
-        $c->log->debug("Passed data validation for input schema $schema_name_or_definition");
-        return $json;
+        $c->log->debug("Passed data validation for input schema $schema_name");
+        return $input;
+    });
+
+
+=head2 get_input_validator
+
+Returns a JSON::Validator object suitable for validating an endpoint input.
+
+=cut
+
+    $app->helper(get_input_validator => sub ($c) {
+        my $validator = JSON::Validator->new;
+        $validator->schema(INPUT_SCHEMA_FILE);
+        return $validator;
+    });
+
+
+=head2 get_response_validator
+
+Returns a JSON::Validator object suitable for validating an endpoint response.
+
+=cut
+
+    $app->helper(get_response_validator => sub ($c) {
+        my $validator = JSON::Validator->new;
+        $validator->schema(OUTPUT_SCHEMA_FILE);
+        return $validator;
     });
 }
 

@@ -17,12 +17,9 @@ Sets up the routes for /validation, /validation_plan and /validation_state:
     GET     /validation
     GET     /validation/:validation_id_or_name
 
-    POST    /validation_plan                                                        DISABLED
     GET     /validation_plan
     GET     /validation_plan/:validation_plan_id_or_name
     GET     /validation_plan/:validation_plan_id_or_name/validation
-    POST    /validation_plan/:validation_plan_id_or_name/validation                 DISABLED
-    DELETE  /validation_plan/:validation_plan_id_or_name/validation/:validation_id  DISABLED
 
     GET     /validation_state/:validation_state_id
 
@@ -51,7 +48,7 @@ sub routes {
     my $vp = $r->any('/validation_plan');
     $vp->to({ controller => 'validation_plan' });
 
-    # POST /validation_plan (DISABLED)
+    # POST /validation_plan -> GONE
     $vp->post('/')->to('#create');
 
     # GET /validation_plan
@@ -66,10 +63,10 @@ sub routes {
         # GET /validation_plan/:validation_plan_id_or_name/validation
         $with_plan->get('/validation')->to('#list_validations');
 
-        # POST /validation_plan/:validation_plan_id_or_name/validation (DISABLED)
+        # POST /validation_plan/:validation_plan_id_or_name/validation -> GONE
         $with_plan->post('/validation')->to('#add_validation');
 
-        # DELETE /validation_plan/:validation_plan_id_or_name/validation/:validation_id (DISABLED)
+        # DELETE /validation_plan/:validation_plan_id_or_name/validation/:validation_id -> GONE
         $with_plan->delete('/validation/:validation_id')->to('#remove_validation');
     }
 
