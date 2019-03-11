@@ -1,4 +1,4 @@
-package Conch::Controller::DatacenterRackLayout;
+package Conch::Controller::RackLayout;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
@@ -11,35 +11,35 @@ use List::Util 'any';
 
 =head1 NAME
 
-Conch::Controller::DatacenterRackLayout
+Conch::Controller::RackLayout
 
 =head1 METHODS
 
-=head2 find_datacenter_rack_layout
+=head2 find_rack_layout
 
 Supports rack layout lookups by id
 
 =cut
 
-sub find_datacenter_rack_layout ($c) {
+sub find_rack_layout ($c) {
     unless($c->is_system_admin) {
         return $c->status(403);
     }
 
-    my $layout = $c->db_datacenter_rack_layouts->find($c->stash('layout_id'));
+    my $layout = $c->db_rack_layouts->find($c->stash('layout_id'));
     if (not $layout) {
-        $c->log->debug('Could not find datacenter rack layout '.$c->stash('layout_id'));
+        $c->log->debug('Could not find rack layout '.$c->stash('layout_id'));
         return $c->status(404 => { error => 'Not found' });
     }
 
-    $c->log->debug('Found datacenter rack layout '.$layout->id);
+    $c->log->debug('Found rack layout '.$layout->id);
     $c->stash('rack_layout' => $layout);
     return 1;
 }
 
 =head2 create
 
-Creates a new datacenter_rack_layout entry according to the passed-in specification.
+Creates a new rack_layout entry according to the passed-in specification.
 
 =cut
 
@@ -51,8 +51,8 @@ sub create ($c) {
     $input->{hardware_product_id} = delete $input->{product_id};
     $input->{rack_unit_start} = delete $input->{ru_start};
 
-    unless ($c->db_datacenter_racks->search({ id => $input->{rack_id} })->exists) {
-        $c->log->debug('Could not find datacenter rack '.$input->{rack_id});
+    unless ($c->db_racks->search({ id => $input->{rack_id} })->exists) {
+        $c->log->debug('Could not find rack '.$input->{rack_id});
         return $c->status(400 => { error => 'Rack does not exist' });
     }
 
@@ -61,9 +61,9 @@ sub create ($c) {
         return $c->status(400 => { error => 'Hardware product does not exist' });
     }
 
-    my $rack_size = $c->db_datacenter_rack_roles->search(
-        { 'datacenter_racks.id' => $input->{rack_id} },
-        { join => 'datacenter_racks' },
+    my $rack_size = $c->db_rack_roles->search(
+        { 'racks.id' => $input->{rack_id} },
+        { join => 'racks' },
     )->get_column('rack_size')->single;
 
     if ($input->{rack_unit_start} > $rack_size) {
@@ -72,7 +72,7 @@ sub create ($c) {
     }
 
     my %assigned_rack_units = map { $_ => 1 }
-        $c->db_datacenter_racks->search({ 'datacenter_rack.id' => $input->{rack_id} })
+        $c->db_racks->search({ 'rack.id' => $input->{rack_id} })
         ->assigned_rack_units;
 
     my $new_rack_unit_size = $c->db_hardware_products
@@ -96,8 +96,8 @@ sub create ($c) {
         return $c->status(400 => { error => 'ru_start conflict' });
     }
 
-    my $layout = $c->db_datacenter_rack_layouts->create($input);
-    $c->log->debug('Created datacenter rack layout '.$layout->id);
+    my $layout = $c->db_rack_layouts->create($input);
+    $c->log->debug('Created rack layout '.$layout->id);
 
     $c->status(303 => '/layout/'.$layout->id);
 }
@@ -128,7 +128,7 @@ sub get_all ($c) {
     # TODO: to be more helpful to the UI, we should include the width of the hardware that is
     # assigned to each rack_unit(s).
 
-    my @layouts = $c->db_datacenter_rack_layouts
+    my @layouts = $c->db_rack_layouts
         #->search(undef, {
         #    join => { 'hardware_product' => 'hardware_product_profile' },
         #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
@@ -137,7 +137,7 @@ sub get_all ($c) {
         ->order_by([ qw(rack_id rack_unit_start) ])
         ->all;
 
-    $c->log->debug('Found '.scalar(@layouts).' datacenter rack layouts');
+    $c->log->debug('Found '.scalar(@layouts).' rack layouts');
     $c->status(200 => \@layouts);
 }
 
@@ -174,14 +174,14 @@ sub update ($c) {
         }
     }
 
-    my $rack_size = $c->db_datacenter_rack_roles->search(
-        { 'datacenter_racks.id' => $c->stash('rack_layout')->rack_id },
-        { join => 'datacenter_racks' },
+    my $rack_size = $c->db_rack_roles->search(
+        { 'racks.id' => $c->stash('rack_layout')->rack_id },
+        { join => 'racks' },
     )->get_column('rack_size')->single;
 
     # if changing rack location...
     if ($input->{rack_unit_start} and $input->{rack_unit_start} != $c->stash('rack_layout')->rack_unit_start) {
-        if ($c->db_datacenter_rack_layouts->search({
+        if ($c->db_rack_layouts->search({
                     rack_id => $c->stash('rack_layout')->rack_id,
                     rack_unit_start => $input->{rack_unit_start},
                 })->exists) {
@@ -199,7 +199,7 @@ sub update ($c) {
     # we will be giving up)
 
     my %assigned_rack_units = map { $_ => 1 } $c->stash('rack_layout')
-        ->related_resultset('datacenter_rack')->assigned_rack_units;
+        ->related_resultset('rack')->assigned_rack_units;
 
     my $current_rack_unit_size = $c->db_hardware_products->search(
         { 'hardware_product.id' => $c->stash('rack_layout')->hardware_product_id })
@@ -254,7 +254,7 @@ sub delete ($c) {
     }
 
     $c->stash('rack_layout')->delete;
-    $c->log->debug('Deleted datacenter rack layout '.$c->stash('rack_layout')->id);
+    $c->log->debug('Deleted rack layout '.$c->stash('rack_layout')->id);
     return $c->status(204);
 }
 

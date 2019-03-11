@@ -142,25 +142,25 @@ sub _device_location_inflation ($self, $data) {
     $self->device_location->result_source->schema->txn_rollback;
 }
 
-sub _datacenter_rack_inflation ($self, $data) {
+sub _rack_inflation ($self, $data) {
     $self->register_result_cmp_details(
-        $self->device_location->datacenter_rack,
+        $self->device_location->rack,
         all(
-            isa('Conch::DB::Result::DatacenterRack'),
+            isa('Conch::DB::Result::Rack'),
             methods(
                 id => re(Conch::UUID::UUID_FORMAT),
-                name => $data->{datacenter_rack_name} // re(qr/^datacenter_rack_\d+$/),
+                name => $data->{rack_name} // re(qr/^rack_\d+$/),
                 in_storage => bool(1),
             ),
         ),
-        'real datacenter_rack row created when requested',
+        'real rack row created when requested',
     );
     $self->register_result_cmp_details(
-        [ exception { $self->device_location->datacenter_rack->update({ name => 'ohhai' }) } ],
+        [ exception { $self->device_location->rack->update({ name => 'ohhai' }) } ],
         [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
-        'cannot modify the datacenter_rack',
+        'cannot modify the rack',
     );
-    $self->device_location->datacenter_rack->result_source->schema->txn_rollback;
+    $self->device_location->rack->result_source->schema->txn_rollback;
 }
 
 sub _device_settings_storage ($self, $data) {

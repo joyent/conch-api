@@ -49,9 +49,9 @@ sub validate {
 
 	my @rack_unit_starts = map $_->{rack_unit_start},
 		$self->device_location
-			->search_related('datacenter_rack')
-			->search_related('datacenter_rack_layouts', undef, {
-				columns => { rack_unit_start => 'datacenter_rack_layouts.rack_unit_start' },
+			->search_related('rack')
+			->search_related('rack_layouts', undef, {
+				columns => { rack_unit_start => 'rack_layouts.rack_unit_start' },
 				order_by => 'rack_unit_start',
 			})
 			->hri->all;

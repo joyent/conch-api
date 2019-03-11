@@ -1,12 +1,12 @@
 use utf8;
-package Conch::DB::Result::WorkspaceDatacenterRoom;
+package Conch::DB::Result::WorkspaceRack;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::DB::Result::WorkspaceDatacenterRoom
+Conch::DB::Result::WorkspaceRack
 
 =cut
 
@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<workspace_datacenter_room>
+=head1 TABLE: C<workspace_rack>
 
 =cut
 
-__PACKAGE__->table("workspace_datacenter_room");
+__PACKAGE__->table("workspace_rack");
 
 =head1 ACCESSORS
 
@@ -35,7 +35,7 @@ __PACKAGE__->table("workspace_datacenter_room");
   is_nullable: 0
   size: 16
 
-=head2 datacenter_room_id
+=head2 rack_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -47,7 +47,7 @@ __PACKAGE__->table("workspace_datacenter_room");
 __PACKAGE__->add_columns(
   "workspace_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "datacenter_room_id",
+  "rack_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
@@ -57,29 +57,29 @@ __PACKAGE__->add_columns(
 
 =item * L</workspace_id>
 
-=item * L</datacenter_room_id>
+=item * L</rack_id>
 
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("workspace_id", "datacenter_room_id");
+__PACKAGE__->set_primary_key("workspace_id", "rack_id");
 
 =head1 RELATIONS
 
-=head2 datacenter_room
+=head2 rack
 
 Type: belongs_to
 
-Related object: L<Conch::DB::Result::DatacenterRoom>
+Related object: L<Conch::DB::Result::Rack>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "datacenter_room",
-  "Conch::DB::Result::DatacenterRoom",
-  { id => "datacenter_room_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  "rack",
+  "Conch::DB::Result::Rack",
+  { id => "rack_id" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 workspace
@@ -98,8 +98,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/KDHWmqYbiNxRsFr6HKfFA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 14:43:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:q+qVX8Y4tqU5p4jmLIZiSw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

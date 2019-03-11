@@ -85,24 +85,24 @@ CREATE TYPE public.validation_status_enum AS ENUM (
 ALTER TYPE public.validation_status_enum OWNER TO conch;
 
 --
--- Name: add_room_to_global_workspace(); Type: FUNCTION; Schema: public; Owner: conch
+-- Name: add_rack_to_global_workspace(); Type: FUNCTION; Schema: public; Owner: conch
 --
 
-CREATE FUNCTION public.add_room_to_global_workspace() RETURNS trigger
+CREATE FUNCTION public.add_rack_to_global_workspace() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-  BEGIN
-    INSERT INTO workspace_datacenter_room (workspace_id, datacenter_room_id)
-    SELECT workspace.id, NEW.id
-    FROM workspace
-    WHERE workspace.name = 'GLOBAL'
-    ON CONFLICT (workspace_id, datacenter_room_id) DO NOTHING;
-    return NEW;
-  END;
-  $$;
+      begin
+        insert into workspace_rack (workspace_id, rack_id)
+            select workspace.id, NEW.id
+            from workspace
+            where workspace.name = 'GLOBAL'
+            on conflict (workspace_id, rack_id) do nothing;
+        return NEW;
+      end;
+      $$;
 
 
-ALTER FUNCTION public.add_room_to_global_workspace() OWNER TO conch;
+ALTER FUNCTION public.add_rack_to_global_workspace() OWNER TO conch;
 
 --
 -- Name: run_migration(integer, text); Type: FUNCTION; Schema: public; Owner: conch
@@ -143,56 +143,6 @@ CREATE TABLE public.datacenter (
 
 
 ALTER TABLE public.datacenter OWNER TO conch;
-
---
--- Name: datacenter_rack; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.datacenter_rack (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    datacenter_room_id uuid NOT NULL,
-    name text NOT NULL,
-    datacenter_rack_role_id uuid NOT NULL,
-    deactivated timestamp with time zone,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL,
-    serial_number text,
-    asset_tag text
-);
-
-
-ALTER TABLE public.datacenter_rack OWNER TO conch;
-
---
--- Name: datacenter_rack_layout; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.datacenter_rack_layout (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    rack_id uuid NOT NULL,
-    hardware_product_id uuid NOT NULL,
-    rack_unit_start integer NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.datacenter_rack_layout OWNER TO conch;
-
---
--- Name: datacenter_rack_role; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.datacenter_rack_role (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name text NOT NULL,
-    rack_size integer NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.datacenter_rack_role OWNER TO conch;
 
 --
 -- Name: datacenter_room; Type: TABLE; Schema: public; Owner: conch
@@ -521,6 +471,55 @@ ALTER SEQUENCE public.migration_id_seq OWNED BY public.migration.id;
 
 
 --
+-- Name: rack; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.rack (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    datacenter_room_id uuid NOT NULL,
+    name text NOT NULL,
+    rack_role_id uuid NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    serial_number text,
+    asset_tag text
+);
+
+
+ALTER TABLE public.rack OWNER TO conch;
+
+--
+-- Name: rack_layout; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.rack_layout (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    rack_id uuid NOT NULL,
+    hardware_product_id uuid NOT NULL,
+    rack_unit_start integer NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.rack_layout OWNER TO conch;
+
+--
+-- Name: rack_role; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.rack_role (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name text NOT NULL,
+    rack_size integer NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.rack_role OWNER TO conch;
+
+--
 -- Name: relay; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -724,28 +723,16 @@ CREATE TABLE public.workspace (
 ALTER TABLE public.workspace OWNER TO conch;
 
 --
--- Name: workspace_datacenter_rack; Type: TABLE; Schema: public; Owner: conch
+-- Name: workspace_rack; Type: TABLE; Schema: public; Owner: conch
 --
 
-CREATE TABLE public.workspace_datacenter_rack (
+CREATE TABLE public.workspace_rack (
     workspace_id uuid NOT NULL,
-    datacenter_rack_id uuid NOT NULL
+    rack_id uuid NOT NULL
 );
 
 
-ALTER TABLE public.workspace_datacenter_rack OWNER TO conch;
-
---
--- Name: workspace_datacenter_room; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.workspace_datacenter_room (
-    workspace_id uuid NOT NULL,
-    datacenter_room_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.workspace_datacenter_room OWNER TO conch;
+ALTER TABLE public.workspace_rack OWNER TO conch;
 
 --
 -- Name: migration id; Type: DEFAULT; Schema: public; Owner: conch
@@ -760,54 +747,6 @@ ALTER TABLE ONLY public.migration ALTER COLUMN id SET DEFAULT nextval('public.mi
 
 ALTER TABLE ONLY public.datacenter
     ADD CONSTRAINT datacenter_pkey PRIMARY KEY (id);
-
-
---
--- Name: datacenter_rack_layout datacenter_rack_layout_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack_layout
-    ADD CONSTRAINT datacenter_rack_layout_pkey PRIMARY KEY (id);
-
-
---
--- Name: datacenter_rack_layout datacenter_rack_layout_rack_id_rack_unit_start_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack_layout
-    ADD CONSTRAINT datacenter_rack_layout_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start);
-
-
---
--- Name: datacenter_rack datacenter_rack_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack
-    ADD CONSTRAINT datacenter_rack_pkey PRIMARY KEY (id);
-
-
---
--- Name: datacenter_rack_role datacenter_rack_role_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack_role
-    ADD CONSTRAINT datacenter_rack_role_name_key UNIQUE (name);
-
-
---
--- Name: datacenter_rack_role datacenter_rack_role_name_rack_size_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack_role
-    ADD CONSTRAINT datacenter_rack_role_name_rack_size_key UNIQUE (name, rack_size);
-
-
---
--- Name: datacenter_rack_role datacenter_rack_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack_role
-    ADD CONSTRAINT datacenter_rack_role_pkey PRIMARY KEY (id);
 
 
 --
@@ -963,6 +902,54 @@ ALTER TABLE ONLY public.migration
 
 
 --
+-- Name: rack_layout rack_layout_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack_layout
+    ADD CONSTRAINT rack_layout_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rack_layout rack_layout_rack_id_rack_unit_start_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack_layout
+    ADD CONSTRAINT rack_layout_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start);
+
+
+--
+-- Name: rack rack_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack
+    ADD CONSTRAINT rack_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rack_role rack_role_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack_role
+    ADD CONSTRAINT rack_role_name_key UNIQUE (name);
+
+
+--
+-- Name: rack_role rack_role_name_rack_size_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack_role
+    ADD CONSTRAINT rack_role_name_rack_size_key UNIQUE (name, rack_size);
+
+
+--
+-- Name: rack_role rack_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack_role
+    ADD CONSTRAINT rack_role_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: relay relay_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1075,22 +1062,6 @@ ALTER TABLE ONLY public.validation_state
 
 
 --
--- Name: workspace_datacenter_rack workspace_datacenter_rack_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_rack
-    ADD CONSTRAINT workspace_datacenter_rack_pkey PRIMARY KEY (workspace_id, datacenter_rack_id);
-
-
---
--- Name: workspace_datacenter_room workspace_datacenter_room_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_room
-    ADD CONSTRAINT workspace_datacenter_room_pkey PRIMARY KEY (workspace_id, datacenter_room_id);
-
-
---
 -- Name: workspace workspace_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1107,31 +1078,11 @@ ALTER TABLE ONLY public.workspace
 
 
 --
--- Name: datacenter_rack_datacenter_rack_role_id_idx; Type: INDEX; Schema: public; Owner: conch
+-- Name: workspace_rack workspace_rack_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
-CREATE INDEX datacenter_rack_datacenter_rack_role_id_idx ON public.datacenter_rack USING btree (datacenter_rack_role_id);
-
-
---
--- Name: datacenter_rack_datacenter_room_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX datacenter_rack_datacenter_room_id_idx ON public.datacenter_rack USING btree (datacenter_room_id);
-
-
---
--- Name: datacenter_rack_layout_hardware_product_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX datacenter_rack_layout_hardware_product_id_idx ON public.datacenter_rack_layout USING btree (hardware_product_id);
-
-
---
--- Name: datacenter_rack_layout_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX datacenter_rack_layout_rack_id_idx ON public.datacenter_rack_layout USING btree (rack_id);
+ALTER TABLE ONLY public.workspace_rack
+    ADD CONSTRAINT workspace_rack_pkey PRIMARY KEY (workspace_id, rack_id);
 
 
 --
@@ -1293,6 +1244,34 @@ CREATE UNIQUE INDEX hardware_product_sku_key ON public.hardware_product USING bt
 --
 
 CREATE UNIQUE INDEX hardware_vendor_name_key ON public.hardware_vendor USING btree (name) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: rack_datacenter_room_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX rack_datacenter_room_id_idx ON public.rack USING btree (datacenter_room_id);
+
+
+--
+-- Name: rack_layout_hardware_product_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX rack_layout_hardware_product_id_idx ON public.rack_layout USING btree (hardware_product_id);
+
+
+--
+-- Name: rack_layout_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX rack_layout_rack_id_idx ON public.rack_layout USING btree (rack_id);
+
+
+--
+-- Name: rack_rack_role_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX rack_rack_role_id_idx ON public.rack USING btree (rack_role_id);
 
 
 --
@@ -1464,34 +1443,6 @@ CREATE INDEX validation_state_validation_plan_id_idx ON public.validation_state 
 
 
 --
--- Name: workspace_datacenter_rack_datacenter_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_datacenter_rack_datacenter_rack_id_idx ON public.workspace_datacenter_rack USING btree (datacenter_rack_id);
-
-
---
--- Name: workspace_datacenter_rack_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_datacenter_rack_workspace_id_idx ON public.workspace_datacenter_rack USING btree (workspace_id);
-
-
---
--- Name: workspace_datacenter_room_datacenter_room_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_datacenter_room_datacenter_room_id_idx ON public.workspace_datacenter_room USING btree (datacenter_room_id);
-
-
---
--- Name: workspace_datacenter_room_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_datacenter_room_workspace_id_idx ON public.workspace_datacenter_room USING btree (workspace_id);
-
-
---
 -- Name: workspace_parent_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1506,50 +1457,24 @@ CREATE INDEX workspace_parent_workspace_id_idx ON public.workspace USING btree (
 
 
 --
--- Name: datacenter_room all_rooms_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
+-- Name: workspace_rack_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE TRIGGER all_rooms_in_global_workspace AFTER INSERT ON public.datacenter_room FOR EACH ROW EXECUTE PROCEDURE public.add_room_to_global_workspace();
-
-
---
--- Name: datacenter_rack datacenter_rack_datacenter_room_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack
-    ADD CONSTRAINT datacenter_rack_datacenter_room_id_fkey FOREIGN KEY (datacenter_room_id) REFERENCES public.datacenter_room(id);
+CREATE INDEX workspace_rack_rack_id_idx ON public.workspace_rack USING btree (rack_id);
 
 
 --
--- Name: datacenter_rack_layout datacenter_rack_layout_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: workspace_rack_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.datacenter_rack_layout
-    ADD CONSTRAINT datacenter_rack_layout_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
-
-
---
--- Name: datacenter_rack_layout datacenter_rack_layout_rack_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack_layout
-    ADD CONSTRAINT datacenter_rack_layout_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.datacenter_rack(id);
+CREATE INDEX workspace_rack_workspace_id_idx ON public.workspace_rack USING btree (workspace_id);
 
 
 --
--- Name: device_location datacenter_rack_layout_rack_id_rack_unit_start_key; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: rack all_racks_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
 --
 
-ALTER TABLE ONLY public.device_location
-    ADD CONSTRAINT datacenter_rack_layout_rack_id_rack_unit_start_key FOREIGN KEY (rack_id, rack_unit_start) REFERENCES public.datacenter_rack_layout(rack_id, rack_unit_start);
-
-
---
--- Name: datacenter_rack datacenter_rack_role_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.datacenter_rack
-    ADD CONSTRAINT datacenter_rack_role_fkey FOREIGN KEY (datacenter_rack_role_id) REFERENCES public.datacenter_rack_role(id);
+CREATE TRIGGER all_racks_in_global_workspace AFTER INSERT ON public.rack FOR EACH ROW EXECUTE PROCEDURE public.add_rack_to_global_workspace();
 
 
 --
@@ -1597,7 +1522,7 @@ ALTER TABLE ONLY public.device_location
 --
 
 ALTER TABLE ONLY public.device_location
-    ADD CONSTRAINT device_location_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.datacenter_rack(id);
+    ADD CONSTRAINT device_location_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.rack(id);
 
 
 --
@@ -1670,6 +1595,46 @@ ALTER TABLE ONLY public.hardware_product_profile
 
 ALTER TABLE ONLY public.hardware_product
     ADD CONSTRAINT hardware_product_vendor_fkey FOREIGN KEY (hardware_vendor_id) REFERENCES public.hardware_vendor(id);
+
+
+--
+-- Name: rack rack_datacenter_room_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack
+    ADD CONSTRAINT rack_datacenter_room_id_fkey FOREIGN KEY (datacenter_room_id) REFERENCES public.datacenter_room(id);
+
+
+--
+-- Name: rack_layout rack_layout_hardware_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack_layout
+    ADD CONSTRAINT rack_layout_hardware_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
+
+
+--
+-- Name: rack_layout rack_layout_rack_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack_layout
+    ADD CONSTRAINT rack_layout_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.rack(id);
+
+
+--
+-- Name: device_location rack_layout_rack_id_rack_unit_start_key; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.device_location
+    ADD CONSTRAINT rack_layout_rack_id_rack_unit_start_key FOREIGN KEY (rack_id, rack_unit_start) REFERENCES public.rack_layout(rack_id, rack_unit_start);
+
+
+--
+-- Name: rack rack_role_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack
+    ADD CONSTRAINT rack_role_fkey FOREIGN KEY (rack_role_id) REFERENCES public.rack_role(id);
 
 
 --
@@ -1801,43 +1766,27 @@ ALTER TABLE ONLY public.validation_state
 
 
 --
--- Name: workspace_datacenter_rack workspace_datacenter_rack_datacenter_rack_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_rack
-    ADD CONSTRAINT workspace_datacenter_rack_datacenter_rack_id_fkey FOREIGN KEY (datacenter_rack_id) REFERENCES public.datacenter_rack(id);
-
-
---
--- Name: workspace_datacenter_rack workspace_datacenter_rack_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_rack
-    ADD CONSTRAINT workspace_datacenter_rack_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
-
-
---
--- Name: workspace_datacenter_room workspace_datacenter_room_datacenter_room_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_room
-    ADD CONSTRAINT workspace_datacenter_room_datacenter_room_id_fkey FOREIGN KEY (datacenter_room_id) REFERENCES public.datacenter_room(id);
-
-
---
--- Name: workspace_datacenter_room workspace_datacenter_room_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_datacenter_room
-    ADD CONSTRAINT workspace_datacenter_room_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
-
-
---
 -- Name: workspace workspace_parent_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.workspace
     ADD CONSTRAINT workspace_parent_workspace_id_fkey FOREIGN KEY (parent_workspace_id) REFERENCES public.workspace(id);
+
+
+--
+-- Name: workspace_rack workspace_rack_rack_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.workspace_rack
+    ADD CONSTRAINT workspace_rack_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.rack(id) ON DELETE CASCADE;
+
+
+--
+-- Name: workspace_rack workspace_rack_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.workspace_rack
+    ADD CONSTRAINT workspace_rack_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
 
 
 --

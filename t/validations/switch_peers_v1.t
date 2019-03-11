@@ -10,7 +10,7 @@ test_validation(
 	},
 	device_location => {
 		rack_unit_start => 2,
-		datacenter_rack_layouts => [
+		rack_layouts => [
 			{ rack_unit_start => 1 },
 			{ rack_unit_start => 2 },
 			{ rack_unit_start => 3 },

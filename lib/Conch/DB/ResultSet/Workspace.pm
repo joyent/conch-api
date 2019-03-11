@@ -191,34 +191,6 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
         )->single;
 }
 
-=head2 associated_racks
-
-Chainable resultset (in the Conch::DB::ResultSet::DatacenterRack namespace) that finds all
-racks that are in this workspace (either directly, or via a datacenter_room).
-
-To go in the other direction, see L<Conch::DB::ResultSet::DatacenterRack/associated_workspaces>.
-
-=cut
-
-sub associated_racks ($self) {
-    my $workspace_rack_ids = $self->related_resultset('workspace_datacenter_racks')
-        ->get_column('datacenter_rack_id');
-
-    my $workspace_room_rack_ids = $self->related_resultset('workspace_datacenter_rooms')
-        ->related_resultset('datacenter_room')
-        ->related_resultset('datacenter_racks')->get_column('id');
-
-    $self->result_source->schema->resultset('datacenter_rack')->search(
-        {
-            'datacenter_rack.id' => [
-                { -in => $workspace_rack_ids->as_query },
-                { -in => $workspace_room_rack_ids->as_query },
-            ],
-        },
-        { alias => 'datacenter_rack' },
-    );
-}
-
 =head2 _workspaces_subquery
 
 Generate values for inserting into a recursive query.

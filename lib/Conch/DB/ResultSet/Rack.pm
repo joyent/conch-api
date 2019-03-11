@@ -1,4 +1,4 @@
-package Conch::DB::ResultSet::DatacenterRack;
+package Conch::DB::ResultSet::Rack;
 use v5.26;
 use warnings;
 use parent 'Conch::DB::ResultSet';
@@ -8,42 +8,13 @@ use List::Util 'none';
 
 =head1 NAME
 
-Conch::DB::ResultSet::DatacenterRack
+Conch::DB::ResultSet::Rack
 
 =head1 DESCRIPTION
 
 Interface to queries involving racks.
 
 =head1 METHODS
-
-=head2 associated_workspaces
-
-Chainable resultset (in the Conch::DB::ResultSet::Workspace namespace) that finds all
-workspaces that are associated with the specified rack(s) (either directly, or via a
-datacenter_room).
-
-To go in the other direction, see L<Conch::DB::ResultSet::Workspace/associated_racks>.
-
-=cut
-
-sub associated_workspaces ($self) {
-    my $rack_workspace_ids = $self->related_resultset('workspace_datacenter_racks')
-        ->get_column('workspace_id');
-
-    my $rack_room_workspace_ids = $self->related_resultset('datacenter_room')
-        ->related_resultset('workspace_datacenter_rooms')
-        ->get_column('workspace_id');
-
-    $self->result_source->schema->resultset('workspace')->search(
-        {
-            'workspace.id' => [
-                { -in => $rack_workspace_ids->as_query },
-                { -in => $rack_room_workspace_ids->as_query },
-            ],
-        },
-        { alias => 'workspace' },
-    );
-}
 
 =head2 assigned_rack_units
 
@@ -56,9 +27,9 @@ This is used for identifying potential conflicts when adjusting layouts.
 =cut
 
 sub assigned_rack_units ($self) {
-    my @layout_data = $self->search_related('datacenter_rack_layouts', undef, {
+    my @layout_data = $self->search_related('rack_layouts', undef, {
         columns => {
-            rack_unit_start => 'datacenter_rack_layouts.rack_unit_start',
+            rack_unit_start => 'rack_layouts.rack_unit_start',
             rack_unit_size => 'hardware_product_profile.rack_unit',
         },
         join => { 'hardware_product' => 'hardware_product_profile' },
@@ -82,7 +53,8 @@ sub user_has_permission ($self, $user_id, $permission) {
         if none { $permission eq $_ } qw(ro rw admin);
 
     my $rack_workspaces_ids_rs = $self
-        ->associated_workspaces
+        ->related_resultset('workspace_racks')
+        ->related_resultset('workspace')
         ->distinct
         ->get_column('id');
 

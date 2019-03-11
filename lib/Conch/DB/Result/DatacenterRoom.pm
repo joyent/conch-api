@@ -134,49 +134,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 datacenter_racks
+=head2 racks
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::DatacenterRack>
+Related object: L<Conch::DB::Result::Rack>
 
 =cut
 
 __PACKAGE__->has_many(
-  "datacenter_racks",
-  "Conch::DB::Result::DatacenterRack",
+  "racks",
+  "Conch::DB::Result::Rack",
   { "foreign.datacenter_room_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 workspace_datacenter_rooms
 
-Type: has_many
-
-Related object: L<Conch::DB::Result::WorkspaceDatacenterRoom>
-
-=cut
-
-__PACKAGE__->has_many(
-  "workspace_datacenter_rooms",
-  "Conch::DB::Result::WorkspaceDatacenterRoom",
-  { "foreign.datacenter_room_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 workspaces
-
-Type: many_to_many
-
-Composing rels: L</workspace_datacenter_rooms> -> workspace
-
-=cut
-
-__PACKAGE__->many_to_many("workspaces", "workspace_datacenter_rooms", "workspace");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-01 17:08:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ni3tUlJIenaCZf9Y1PhUJQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 12:50:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Jxvra6KwThH/4lQ+F1IJIw
 
 sub TO_JSON {
     my $self = shift;

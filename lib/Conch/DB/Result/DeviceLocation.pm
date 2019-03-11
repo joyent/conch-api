@@ -119,36 +119,6 @@ __PACKAGE__->add_unique_constraint(
 
 =head1 RELATIONS
 
-=head2 datacenter_rack
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DatacenterRack>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "datacenter_rack",
-  "Conch::DB::Result::DatacenterRack",
-  { id => "rack_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-=head2 datacenter_rack_layout
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DatacenterRackLayout>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "datacenter_rack_layout",
-  "Conch::DB::Result::DatacenterRackLayout",
-  { rack_id => "rack_id", rack_unit_start => "rack_unit_start" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
 =head2 device
 
 Type: belongs_to
@@ -164,9 +134,39 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 rack
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-25 12:35:59
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3xAQAIa80SkxrqIVgC6eyA
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::Rack>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "rack",
+  "Conch::DB::Result::Rack",
+  { id => "rack_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+=head2 rack_layout
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::RackLayout>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "rack_layout",
+  "Conch::DB::Result::RackLayout",
+  { rack_id => "rack_id", rack_unit_start => "rack_unit_start" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 11:45:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2LwKjxdteXjQjTwSlFiNcg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

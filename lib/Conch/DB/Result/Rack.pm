@@ -1,12 +1,12 @@
 use utf8;
-package Conch::DB::Result::DatacenterRack;
+package Conch::DB::Result::Rack;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::DB::Result::DatacenterRack
+Conch::DB::Result::Rack
 
 =cut
 
@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<datacenter_rack>
+=head1 TABLE: C<rack>
 
 =cut
 
-__PACKAGE__->table("datacenter_rack");
+__PACKAGE__->table("rack");
 
 =head1 ACCESSORS
 
@@ -47,17 +47,12 @@ __PACKAGE__->table("datacenter_rack");
   data_type: 'text'
   is_nullable: 0
 
-=head2 datacenter_rack_role_id
+=head2 rack_role_id
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
-
-=head2 deactivated
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
 
 =head2 created
 
@@ -97,10 +92,8 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "name",
   { data_type => "text", is_nullable => 0 },
-  "datacenter_rack_role_id",
+  "rack_role_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "deactivated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -135,36 +128,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 datacenter_rack_layouts
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::DatacenterRackLayout>
-
-=cut
-
-__PACKAGE__->has_many(
-  "datacenter_rack_layouts",
-  "Conch::DB::Result::DatacenterRackLayout",
-  { "foreign.rack_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 datacenter_rack_role
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::DatacenterRackRole>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "datacenter_rack_role",
-  "Conch::DB::Result::DatacenterRackRole",
-  { id => "datacenter_rack_role_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
 =head2 datacenter_room
 
 Type: belongs_to
@@ -195,18 +158,48 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 workspace_datacenter_racks
+=head2 rack_layouts
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::WorkspaceDatacenterRack>
+Related object: L<Conch::DB::Result::RackLayout>
 
 =cut
 
 __PACKAGE__->has_many(
-  "workspace_datacenter_racks",
-  "Conch::DB::Result::WorkspaceDatacenterRack",
-  { "foreign.datacenter_rack_id" => "self.id" },
+  "rack_layouts",
+  "Conch::DB::Result::RackLayout",
+  { "foreign.rack_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 rack_role
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::RackRole>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "rack_role",
+  "Conch::DB::Result::RackRole",
+  { id => "rack_role_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+=head2 workspace_racks
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::WorkspaceRack>
+
+=cut
+
+__PACKAGE__->has_many(
+  "workspace_racks",
+  "Conch::DB::Result::WorkspaceRack",
+  { "foreign.rack_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
@@ -214,25 +207,21 @@ __PACKAGE__->has_many(
 
 Type: many_to_many
 
-Composing rels: L</workspace_datacenter_racks> -> workspace
+Composing rels: L</workspace_racks> -> workspace
 
 =cut
 
-__PACKAGE__->many_to_many("workspaces", "workspace_datacenter_racks", "workspace");
+__PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:e7KR0yeDiZbe2VZiOALn7g
-
-__PACKAGE__->add_columns(
-    '+deactivated' => { is_serializable => 0 },
-);
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-07 10:14:51
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:G50OZHxFNQDcAfKEuYUX+w
 
 sub TO_JSON {
     my $self = shift;
 
     my $data = $self->next::method(@_);
-    $data->{role} = delete $data->{datacenter_rack_role_id};
+    $data->{role} = delete $data->{rack_role_id};
     return $data;
 }
 

@@ -17,7 +17,7 @@ $t->load_validation_plans([{
 }]);
 
 my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
-my @layouts = $t->load_fixture(map 'datacenter_rack_0a_layout_'.$_, '1_2', '3_6');
+my @layouts = $t->load_fixture(map 'rack_0a_layout_'.$_, '1_2', '3_6');
 
 my $new_device = $t->app->db_devices->create($_) foreach (
     {
@@ -239,7 +239,7 @@ subtest 'Devices with PXE data' => sub {
                         vendor_name => $datacenter->vendor_name,
                     },
                     rack => {
-                        name => $layouts[0]->datacenter_rack->name,
+                        name => $layouts[0]->rack->name,
                         rack_unit_start => $layouts[0]->rack_unit_start,
                     },
                 },
@@ -259,7 +259,7 @@ subtest 'Devices with PXE data' => sub {
                         vendor_name => $datacenter->vendor_name,
                     },
                     rack => {
-                        name => $layouts[1]->datacenter_rack->name,
+                        name => $layouts[1]->rack->name,
                         rack_unit_start => $layouts[1]->rack_unit_start,
                     },
                 },

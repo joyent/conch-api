@@ -24,7 +24,7 @@ $t->authenticate;
 
 my $fake_id = $uuid->create_str();
 
-my $rack_id = $t->load_fixture('datacenter_rack_0a')->id;
+my $rack_id = $t->load_fixture('rack_0a')->id;
 
 $t->get_ok('/layout')
     ->status_is(200)
@@ -34,7 +34,7 @@ $t->get_ok('/layout')
         superhashof({ rack_id => $_, ru_start => 1, product_id => $hw_product_compute->id }),
         superhashof({ rack_id => $_, ru_start => 3, product_id => $hw_product_storage->id }),
         superhashof({ rack_id => $_, ru_start => 11, product_id => $hw_product_storage->id }),
-      } $rack_id, $t->load_fixture('datacenter_rack_1a')->id
+      } $rack_id, $t->load_fixture('rack_1a')->id
     ));
 
 my $initial_layouts = $t->tx->res->json;
@@ -58,7 +58,7 @@ $t->get_ok("/rack/$rack_id/layouts")
         superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
     ]);
 
-my $layout_1_2 = $t->load_fixture('datacenter_rack_0a_layout_1_2');
+my $layout_1_2 = $t->load_fixture('rack_0a_layout_1_2');
 $t->post_ok('/layout/'.$layout_1_2->id, json => { ru_start => 43 })
     ->status_is(400)
     ->json_schema_is('Error')
@@ -165,11 +165,11 @@ $t->get_ok("/rack/$rack_id/layouts")
         superhashof({ rack_id => $rack_id, ru_start => 42, product_id => $hw_product_switch->id }),
     ]);
 
-my $layout_3_6 = $t->load_fixture('datacenter_rack_0a_layout_3_6');
+my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');
 
 # can't move a layout to a new rack
 $t->post_ok('/layout/'.$layout_3_6->id,
-        json => { rack_id => $t->load_fixture('datacenter_rack_1a')->id })
+        json => { rack_id => $t->load_fixture('rack_1a')->id })
     ->status_is(400)
     ->json_is({ error => 'cannot change rack_id' });
 

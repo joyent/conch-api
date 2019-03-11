@@ -7,7 +7,7 @@ use Test::Conch;
 
 my $t = Test::Conch->new;
 $t->load_fixture_set('workspace_room_rack_layout', 0);
-my $role = $t->load_fixture('datacenter_rack_role_42u');
+my $role = $t->load_fixture('rack_role_42u');
 
 my $uuid = Data::UUID->new;
 
@@ -87,7 +87,7 @@ $t->get_ok('/rack_role')
 $t->delete_ok('/rack_role/'.$role->id)
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'cannot delete a datacenter_rack_role when a datacenter_rack is referencing it' });
+    ->json_is({ error => 'cannot delete a rack_role when a rack is referencing it' });
 
 $t->delete_ok("/rack_role/$idr")
     ->status_is(204);

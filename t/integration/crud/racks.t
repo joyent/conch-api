@@ -15,7 +15,7 @@ $t->authenticate;
 
 my $fake_id = $uuid->create_str();
 
-my $rack = $t->load_fixture('datacenter_rack_0a');
+my $rack = $t->load_fixture('rack_0a');
 
 $t->get_ok('/rack')
     ->status_is(200)
@@ -42,7 +42,7 @@ $t->post_ok('/rack', json => { name => 'r4ck', role => $fake_id })
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $fake_id,
-        role => $rack->datacenter_rack_role_id,
+        role => $rack->rack_role_id,
     })
     ->status_is(400)
     ->json_schema_is('Error')
@@ -60,7 +60,7 @@ $t->post_ok('/rack', json => {
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
-        role => $rack->datacenter_rack_role_id,
+        role => $rack->rack_role_id,
     })
     ->status_is(303);
 
@@ -70,7 +70,7 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_cmp_deeply(superhashof({ name => 'r4ck' }));
 my $new_rack_id = $t->tx->res->json->{id};
 
-my $small_rack_role = $t->app->db_datacenter_rack_roles->create({ name => '10U', rack_size => 10 });
+my $small_rack_role = $t->app->db_rack_roles->create({ name => '10U', rack_size => 10 });
 
 $t->post_ok('/rack/'.$rack->id, json => { role => $small_rack_role->id })
     ->status_is(400)
@@ -97,7 +97,7 @@ $t->get_ok("/rack/$new_rack_id/assignment")
 $t->delete_ok('/rack/'.$rack->id)
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'cannot delete a datacenter_rack when a datacenter_rack_layout is referencing it' });
+    ->json_is({ error => 'cannot delete a rack when a rack_layout is referencing it' });
 
 $t->delete_ok("/rack/$new_rack_id")
     ->status_is(204);

@@ -29,8 +29,9 @@ sub user_has_permission ($self, $user_id, $permission) {
         if none { $permission eq $_ } qw(ro rw admin);
 
     my $device_workspaces_ids_rs = $self->related_resultset('device_location')
-        ->related_resultset('datacenter_rack')
-        ->associated_workspaces
+        ->related_resultset('rack')
+        ->related_resultset('workspace_racks')
+        ->related_resultset('workspace')
         ->distinct
         ->get_column('id');
 

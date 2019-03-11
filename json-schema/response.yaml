@@ -1317,30 +1317,6 @@ definitions:
       updated:
         type: string
         format: date-time
-  Rooms:
-    type: array
-    uniqueItems: true
-    items:
-      $ref: "#/definitions/Room"
-  Room:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - az
-      - alias
-      - vendor_name
-    properties:
-      id:
-        $ref: /definitions/uuid
-      az:
-        type: string
-      alias:
-        type: string
-      vendor_name:
-        oneOf:
-          - type: string
-          - type: 'null'
   Relays:
     type: array
     uniqueItems: true

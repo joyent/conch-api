@@ -35,7 +35,8 @@ Response uses the Devices json schema.
 
 sub list ($c) {
 	my $devices_rs = $c->stash('workspace_rs')
-		->associated_racks
+		->related_resultset('workspace_racks')
+		->related_resultset('rack')
 		->related_resultset('device_locations')
 		->related_resultset('device')
 		->active
@@ -76,7 +77,8 @@ Response uses the WorkspaceDevicePXEs json schema.
 
 sub get_pxe_devices ($c) {
     my $device_rs = $c->stash('workspace_rs')
-        ->associated_racks
+        ->related_resultset('workspace_racks')
+        ->related_resultset('rack')
         ->related_resultset('device_locations')
         ->as_subselect_rs  # avoids earlier device_locations from interfering with subqueries
         ->related_resultset('device')
@@ -88,7 +90,7 @@ sub get_pxe_devices ($c) {
                 id => 'device.id',
                 'location.datacenter.name' => 'datacenter.region',
                 'location.datacenter.vendor_name' => 'datacenter.vendor_name',
-                'location.rack.name' => 'datacenter_rack.name',
+                'location.rack.name' => 'rack.name',
                 'location.rack.rack_unit_start' => 'device_location.rack_unit_start',
                 # pxe = the first (sorted by name) interface that is status=up
                 'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
@@ -96,7 +98,7 @@ sub get_pxe_devices ($c) {
                 'ipmi_mac_ip' => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
             },
             collapse => 1,
-            join => { device_location => { datacenter_rack => { datacenter_room => 'datacenter' } } },
+            join => { device_location => { rack => { datacenter_room => 'datacenter' } } },
         })
         ->order_by('device.created')
         ->hri
@@ -141,8 +143,9 @@ sub device_totals ($c) {
 	my %storage_aliases = map { ( $_ => 1 ) } $c->config->{storage_aliases}->@*;
 	my %compute_aliases = map { ( $_ => 1 ) } $c->config->{compute_aliases}->@*;
 
-	my @counts = $workspace->self_rs
-		->associated_racks
+	my @counts = $workspace
+		->related_resultset('workspace_racks')
+		->related_resultset('rack')
 		->related_resultset('device_locations')
 		->related_resultset('device')
 		->active

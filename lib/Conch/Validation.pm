@@ -146,7 +146,7 @@ L<Conch::DB::Result::DeviceLocation> object for the device being validated.
 This is useful in writing validation logic that may depend on the rack or
 location in the rack a device occupies.
 
-    my $datacenter_name = $self->device_location->datacenter_rack->datacenter->name;
+    my $datacenter_name = $self->device_location->rack->datacenter->name;
     my $rack_unit_start = $self->device_location->rack_unit_start;
 
 =cut
@@ -238,7 +238,7 @@ has hardware_product => (
         my $device = $self->device;
         my $device_location = $device->device_location;
         $device_location
-          ? $device_location->datacenter_rack_layout->hardware_product
+          ? $device_location->rack_layout->hardware_product
           : $device->hardware_product;
     },
     handles => {

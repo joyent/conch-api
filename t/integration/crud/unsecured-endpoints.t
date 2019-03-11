@@ -28,13 +28,10 @@ subtest 'device totals' => sub {
     my $test_compute = $hardware_product_rs->search({ alias => 'Test Compute' })->single;
 
     # find a rack
-    my $datacenter_rack = $t->app->db_datacenter_racks->search(undef, { rows => 1 })->single;
-
-    # add the rack to the global workspace
-    $datacenter_rack->create_related('workspace_datacenter_racks' => { workspace_id => $global_ws_id });
+    my $rack = $t->app->db_racks->search(undef, { rows => 1 })->single;
 
     # create/update some rack layouts
-    $datacenter_rack->update_or_create_related('datacenter_rack_layouts', $_, { key => 'datacenter_rack_layout_rack_id_rack_unit_start_key' })
+    $rack->update_or_create_related('rack_layouts', $_, { key => 'rack_layout_rack_id_rack_unit_start_key' })
     foreach (
         {
             hardware_product_id => $farce->{id},
@@ -53,14 +50,14 @@ subtest 'device totals' => sub {
             hardware_product_id => $farce->{id},
             state => 'ignore',
             health => 'FAIL',
-            device_location => { rack_id => $datacenter_rack->id, rack_unit_start => 1 },
+            device_location => { rack_id => $rack->id, rack_unit_start => 1 },
         },
         {
             id => 'test compute',
             hardware_product_id => $test_compute->{id},
             state => 'ignore',
             health => 'PASS',
-            device_location => { rack_id => $datacenter_rack->id, rack_unit_start => 5 },
+            device_location => { rack_id => $rack->id, rack_unit_start => 5 },
         },
     );
 

@@ -17,7 +17,7 @@ Interface to queries involving device locations.
 
 =head2 assign_device_location
 
-Atomically assign a device to the provided datacenter rack and rack unit start position.
+Atomically assign a device to the provided rack and rack unit start position.
 
 - checks that the rack layout exists (dying otherwise)
 - removes the current occupant of the location
@@ -27,12 +27,12 @@ Atomically assign a device to the provided datacenter rack and rack unit start p
 
 sub assign_device_location ($self, $device_id, $rack_id, $rack_unit_start) {
     my $schema = $self->result_source->schema;
-    my $layout_rs = $schema->resultset('datacenter_rack_layout')->search(
+    my $layout_rs = $schema->resultset('rack_layout')->search(
         {
-            'datacenter_rack_layout.rack_id' => $rack_id,
-            'datacenter_rack_layout.rack_unit_start' => $rack_unit_start,
+            'rack_layout.rack_id' => $rack_id,
+            'rack_layout.rack_unit_start' => $rack_unit_start,
         },
-        { alias => 'datacenter_rack_layout' },
+        { alias => 'rack_layout' },
     );
 
     $schema->txn_do(sub {
@@ -78,25 +78,25 @@ sub get_detailed ($self) {
     my $me = $self->current_source_alias;
     $self->search(
         {
-            'datacenter_rack_layouts.rack_unit_start' => { '=' => \"$me.rack_unit_start" },
+            'rack_layouts.rack_unit_start' => { '=' => \"$me.rack_unit_start" },
         },
         {
             columns => {
                 ( map {; "datacenter.$_" => "datacenter_room.$_" } qw(id vendor_name) ),
                 'datacenter.name' => 'datacenter_room.az',
 
-                ( map {; "rack.$_" => "datacenter_rack.$_" } qw(id name) ),
+                ( map {; "rack.$_" => "rack.$_" } qw(id name) ),
                 'rack.unit' => 'device_location.rack_unit_start',
-                'rack.role' => 'datacenter_rack_role.name',
+                'rack.role' => 'rack_role.name',
 
                 ( map {; "target_hardware_product.$_" => "hardware_product.$_" } qw(id name alias) ),
                 'target_hardware_product.vendor'  => 'hardware_product.hardware_vendor_id',
             },
             join => {
-                'datacenter_rack' => [
-                    'datacenter_rack_role',
+                'rack' => [
+                    'rack_role',
                     'datacenter_room',
-                    { 'datacenter_rack_layouts' => { 'hardware_product' => 'hardware_vendor' } },
+                    { 'rack_layouts' => { 'hardware_product' => 'hardware_vendor' } },
                 ],
             },
         }
