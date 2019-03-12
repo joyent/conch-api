@@ -50,7 +50,7 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
             id => 'TEST',
-            health => 'PASS',
+            health => 'pass',
             state => ignore,
             hostname => 'elfo',
             system_uuid => ignore,
@@ -94,7 +94,7 @@ subtest 'located device' => sub {
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
             id => 'LOCATED_DEVICE',
-            health => 'UNKNOWN',
+            health => 'unknown',
             state => 'UNKNOWN',
             (map +($_ => undef), qw(asset_tag graduated hostname last_seen latest_triton_reboot system_uuid triton_setup triton_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
@@ -437,7 +437,7 @@ subtest 'Device PXE' => sub {
         id => 'PXE_TEST',
         hardware_product_id => $layout->hardware_product_id,
         state => 'UNKNOWN',
-        health => 'UNKNOWN',
+        health => 'unknown',
         device_relay_connections => [ {
             relay => {
                 id => 'relay_id',

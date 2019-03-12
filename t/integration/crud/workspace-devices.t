@@ -24,14 +24,14 @@ my $new_device = $t->app->db_devices->create($_) foreach (
         id => 'TEST',
         hardware_product_id => $layouts[0]->hardware_product_id,
         state => 'UNKNOWN',
-        health => 'PASS',
+        health => 'pass',
         device_location => { map +($_ => $layouts[0]->$_), qw(rack_id rack_unit_start) },
     },
     {
         id => 'NEW_DEVICE',
         hardware_product_id => $layouts[1]->hardware_product_id,
         state => 'UNKNOWN',
-        health => 'UNKNOWN',
+        health => 'unknown',
         device_location => { map +($_ => $layouts[1]->$_), qw(rack_id rack_unit_start) },
     },
 );
@@ -68,14 +68,14 @@ $t->get_ok("/workspace/$global_ws_id/device")
             graduated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             validated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            health => 'PASS',
+            health => 'pass',
         }),
         superhashof({
             id => 'NEW_DEVICE',
             graduated => undef,
             validated => undef,
             last_seen => undef,
-            health => 'UNKNOWN',
+            health => 'unknown',
         }),
     ]);
 
@@ -145,6 +145,11 @@ $t->get_ok("/workspace/$global_ws_id/device?health=unknown")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is('', [ $devices_data->[1] ]);
+
+$t->get_ok("/workspace/$global_ws_id/device?health=bunk")
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is('', []);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")
     ->status_is(200)

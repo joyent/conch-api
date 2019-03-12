@@ -340,7 +340,7 @@ my %canned_definitions = (
         using => {
             id => 'HAL',
             state => 'UNKNOWN',
-            health => 'UNKNOWN',
+            health => 'unknown',
             # copy hardware_product_profile_compute.hardware_product_id to me.hardware_product_id
             # (this ensures we get a hardware_product_profile as well as a hardware_product)
             hardware_product_id => \'hardware_product_profile_compute',
@@ -566,7 +566,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 using => {
                     id => "DEVICE_$num",
                     state => 'UNKNOWN',
-                    health => 'UNKNOWN',
+                    health => 'unknown',
                     ($specification // {})->%*,
                 },
                 exists $specification->{hardware_product_id} ? () : (

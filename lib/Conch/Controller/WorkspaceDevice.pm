@@ -6,6 +6,7 @@ use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
 use Conch::UUID 'is_uuid';
+use List::Util 'none';
 
 =pod
 
@@ -55,8 +56,13 @@ sub list ($c) {
 	$devices_rs = $devices_rs->search({ validated => undef })
 		if defined $c->param('validated') and uc $c->param('validated') eq 'F';
 
-	$devices_rs = $devices_rs->search(\[ 'upper(health) = ?', uc $c->param('health') ])
-		if defined $c->param('health');
+    if (defined $c->param('health')) {
+        # requested health parameter is incompatible with device_health_enum
+        return $c->status(200, [])
+            if none { lc $c->param('health') eq $_ } $devices_rs->result_source->column_info('health')->{extra}{list}->@*;
+
+        $devices_rs = $devices_rs->search({ health => lc $c->param('health') });
+    }
 
 	$devices_rs = $devices_rs->search({ last_seen => { '>' => \q{NOW() - interval '300 second'}} })
 		if defined $c->param('active');
@@ -178,10 +184,10 @@ sub device_totals ($c) {
 	for (@counts) {
 		if($circ{ $_->{alias}}) {
 			$circ{ $_->{alias} }{count} += $_->{count};
-			if( $circ{ $_->{alias} }{health}{ $_->{health} } ) {
-				$circ{ $_->{alias} }{health}{ $_->{health} } += $_->{count};
+			if( $circ{ $_->{alias} }{health}{ uc $_->{health} } ) {
+				$circ{ $_->{alias} }{health}{ uc $_->{health} } += $_->{count};
 			} else {
-				$circ{ $_->{alias} }{health}{ $_->{health} } = $_->{count};
+				$circ{ $_->{alias} }{health}{ uc $_->{health} } = $_->{count};
 			}
 		} else {
 			$circ{ $_->{alias} } = {
@@ -192,7 +198,7 @@ sub device_totals ($c) {
 					UNKNOWN => 0,
 				}
 			};
-			$circ{ $_->{alias} }{health}{ $_->{health} } = $_->{count};
+			$circ{ $_->{alias} }{health}{ uc $_->{health} } = $_->{count};
 		}
 	}
 

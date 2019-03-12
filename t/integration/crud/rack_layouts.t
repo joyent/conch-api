@@ -278,7 +278,7 @@ $t->get_ok("/rack/$rack_id/layouts")
 my $device = $hw_product_storage->create_related('devices', {
     id  => 'my device',
     state => 'I wish I were an enum',
-    health => 'I wish I were an enum',
+    health => 'unknown',
 });
 
 $t->app->db_device_locations->assign_device_location($device->id, $rack_id, 20);

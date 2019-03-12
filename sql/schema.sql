@@ -58,6 +58,20 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
+-- Name: device_health_enum; Type: TYPE; Schema: public; Owner: conch
+--
+
+CREATE TYPE public.device_health_enum AS ENUM (
+    'error',
+    'fail',
+    'unknown',
+    'pass'
+);
+
+
+ALTER TYPE public.device_health_enum OWNER TO conch;
+
+--
 -- Name: user_workspace_role_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
@@ -170,7 +184,7 @@ CREATE TABLE public.device (
     system_uuid uuid,
     hardware_product_id uuid NOT NULL,
     state text NOT NULL,
-    health text NOT NULL,
+    health public.device_health_enum NOT NULL,
     graduated timestamp with time zone,
     deactivated timestamp with time zone,
     last_seen timestamp with time zone,

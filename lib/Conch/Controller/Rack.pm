@@ -282,7 +282,7 @@ sub set_assignment ($c) {
                 id => $entry->{device_id},
                 asset_tag => $entry->{device_asset_tag},
                 hardware_product_id => $layout->hardware_product_id,
-                health => 'UNKNOWN',
+                health => 'unknown',
                 state => 'UNKNOWN',
             });
         }

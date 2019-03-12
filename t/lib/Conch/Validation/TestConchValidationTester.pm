@@ -52,7 +52,7 @@ sub _device_inflation ($self, $data) {
             methods(
                 id => $data->{device_id} // re(qr/^DEVICE_\d+$/),
                 state => 'UNKNOWN',
-                health => 'UNKNOWN',
+                health => 'unknown',
                 hardware_product_id => re(Conch::UUID::UUID_FORMAT),
                 in_storage => bool(1),
             ),

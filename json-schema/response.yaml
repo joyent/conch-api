@@ -26,6 +26,13 @@ definitions:
       - fail
       - processing
       - pass
+  device_health:
+    type: string
+    enum:
+      - error
+      - fail
+      - unknown
+      - pass
   Error:
     type: object
     additionalProperties: false
@@ -79,12 +86,7 @@ definitions:
       hardware_product:
         $ref: /definitions/uuid
       health:
-        type: string
-        enum:
-          - PASS
-          - FAIL
-          - UNKNOWN
-          - ERROR
+        $ref: /definitions/device_health
       hostname:
         oneOf:
           - type: string
@@ -297,12 +299,7 @@ definitions:
       hardware_product:
         $ref: /definitions/uuid
       health:
-        type: string
-        enum:
-          - PASS
-          - FAIL
-          - UNKNOWN
-          - ERROR
+        $ref: /definitions/device_health
       hostname:
         oneOf:
           - type: string
@@ -858,6 +855,8 @@ definitions:
               type: object
               additionalProperties: false
               properties:
+                # see also device_health
+                # TODO: no longer upper-case these in responses
                 VALID:
                   type: integer
                 PASS:
@@ -1618,12 +1617,7 @@ definitions:
             alias:
               type: string
             health:
-              type: string
-              enum:
-                - PASS
-                - FAIL
-                - UNKNOWN
-                - ERROR
+              $ref: /definitions/device_health
             count:
               type: integer
   DeviceTotalsCirconus:
@@ -1660,6 +1654,8 @@ definitions:
             - FAIL
             - UNKNOWN
           patternProperties:
+            # these are the values of /definitions/device_health, but uppercased.
+            # TODO: no longer upper-case these in responses
             ^(PASS|FAIL|UNKNOWN|ERROR)$:
               type: integer
         count:

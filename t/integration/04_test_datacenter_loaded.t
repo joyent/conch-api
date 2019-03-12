@@ -176,7 +176,7 @@ subtest 'Device Report' => sub {
 	$t->get_ok('/device/TEST')
 		->status_is(200)
 		->json_schema_is('DetailedDevice')
-		->json_is('/health' => 'PASS')
+		->json_is('/health' => 'pass')
 		->json_is('/latest_report_is_invalid' => JSON::PP::true)
 		->json_is('/latest_report' => undef)
 		->json_is('/invalid_report' => $invalid_json_1);
@@ -206,7 +206,7 @@ subtest 'Device Report' => sub {
 	$t->get_ok('/device/TEST')
 		->status_is(200)
 		->json_schema_is('DetailedDevice')
-		->json_is('/health' => 'PASS')
+		->json_is('/health' => 'pass')
 		->json_is('/latest_report_is_invalid' => JSON::PP::true)
 		->json_is('/latest_report' => undef)
 		->json_is('/invalid_report' => $invalid_json_2);
@@ -258,7 +258,7 @@ subtest 'Device Report' => sub {
 	$t->get_ok('/device/TEST')
 		->status_is(200)
 		->json_schema_is('DetailedDevice')
-		->json_is('/health' => 'ERROR')
+		->json_is('/health' => 'error')
 		->json_is('/latest_report_is_invalid' => JSON::PP::false);
 
 
@@ -299,7 +299,7 @@ subtest 'Device Report' => sub {
             id => 'ANOTHER_DEVICE',
             hardware_product_id => $device->hardware_product_id,
             state => 'UNKNOWN',
-            health => 'UNKNOWN',
+            health => 'unknown',
         });
         my $disk = $t->app->db_device_disks->search({ serial_number => $disk_serial })->single;
         $disk->update({ device_id => $new_device->id, vendor => 'King Zøg' });
