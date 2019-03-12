@@ -18,6 +18,14 @@ definitions:
   macaddr:
     type: string
     pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
+  validation_status:
+    type: string
+    enum:
+      # TODO: remove antiquated 'processing'
+      - error
+      - fail
+      - processing
+      - pass
   Error:
     type: object
     additionalProperties: false
@@ -1027,11 +1035,7 @@ definitions:
       order:
         type: integer
       status:
-        type: string
-        enum:
-          - error
-          - fail
-          - pass
+        $ref: /definitions/validation_status
       validation_id:
         $ref: /definitions/uuid
   ValidationResults:
@@ -1064,11 +1068,7 @@ definitions:
       device_id:
         $ref: /definitions/device_id
       status:
-        type: string
-        enum:
-          - error
-          - fail
-          - pass
+        $ref: /definitions/validation_status
       validation_plan_id:
         $ref: /definitions/uuid
       device_report_id:
@@ -1109,11 +1109,7 @@ definitions:
         items:
           $ref: "#/definitions/ValidationResult"
       status:
-        type: string
-        enum:
-          - error
-          - fail
-          - pass
+        $ref: /definitions/validation_status
       validation_plan_id:
         $ref: /definitions/uuid
       device_report_id:
