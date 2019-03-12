@@ -7,12 +7,17 @@ use Test::Conch;
 
 my $t = Test::Conch->new;
 $t->load_fixture('conch_user_global_workspace');
-$t->load_fixture_set('workspace_room_rack_layout', 0);
-
-my $uuid = Data::UUID->new;
 
 $t->authenticate;
 
+$t->get_ok('/rack')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_is([]);
+
+$t->load_fixture_set('workspace_room_rack_layout', 0);
+
+my $uuid = Data::UUID->new;
 my $fake_id = $uuid->create_str();
 
 my $rack = $t->load_fixture('rack_0a');

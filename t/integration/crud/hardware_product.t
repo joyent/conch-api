@@ -3,16 +3,20 @@ use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Test::More;
 use Test::Warnings;
-use Data::UUID;
 use Test::Deep;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture('conch_user_global_workspace', '00-hardware', '01-hardware-profiles');
-
-my $uuid = Data::UUID->new;
+$t->load_fixture('conch_user_global_workspace');
 
 $t->authenticate;
+
+$t->get_ok('/hardware_product')
+    ->status_is(200)
+    ->json_schema_is('HardwareProducts')
+    ->json_is([]);
+
+$t->load_fixture('00-hardware', '01-hardware-profiles');
 
 $t->get_ok('/hardware_product')
     ->status_is(200)

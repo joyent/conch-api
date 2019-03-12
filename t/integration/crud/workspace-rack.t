@@ -8,9 +8,17 @@ use Test::Conch;
 use Data::UUID;
 
 my $t = Test::Conch->new;
+my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
+
+$t->authenticate;
+
+$t->get_ok('/workspace/'.$global_ws_id.'/rack')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceRackSummary')
+    ->json_is({});
+
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 
-my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
 my $sub_ws_id = $t->load_fixture('sub_workspace_0')->id;
 my $rack = $t->load_fixture('rack_0a');
 my $rack_id = $rack->id;
@@ -25,8 +33,6 @@ my $rack2 = $rack->datacenter_room->add_to_racks({
     name => 'second rack',
     rack_role_id => $rack->rack_role_id,
 });
-
-$t->authenticate;
 
 $t->get_ok("/workspace/$global_ws_id/rack")
     ->status_is(200)

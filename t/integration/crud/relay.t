@@ -9,14 +9,17 @@ use Test::Deep;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture('conch_user_global_workspace');
+my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
 
 $t->authenticate;
 
+$t->get_ok('/workspace/'.$global_ws_id.'/relay')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceRelays')
+    ->json_is([]);
+
 # two workspaces under GLOBAL, each with a room,rack and layout.
 $t->load_fixture_set('workspace_room_rack_layout', $_) for 0..1;
-
-my $global_ws_id = $t->app->db_workspaces->search({ name => 'GLOBAL' })->get_column('id')->single;
 
 my $workspaces_rs = $t->app->db_workspaces->search({ 'workspace.name' => 'GLOBAL' })
     ->related_resultset('workspaces')->order_by('workspaces.name');

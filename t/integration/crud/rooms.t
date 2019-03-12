@@ -5,9 +5,16 @@ use Test::Deep;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture_set('workspace_room_rack_layout', 0);
+$t->load_fixture('conch_user_global_workspace');
 
 $t->authenticate;
+
+$t->get_ok('/room')
+    ->status_is(200)
+    ->json_schema_is('DatacenterRoomsDetailed')
+    ->json_is([]);
+
+$t->load_fixture_set('workspace_room_rack_layout', 0);
 
 $t->get_ok('/room')
     ->status_is(200)
