@@ -56,7 +56,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
     };
 
     $schema->{title} //= $schema_name;
-    $schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
+    $schema->{'$schema'} = $document->get('/$schema');
     $schema->{'$id'}     = 'urn:'.$schema_name.'.schema.json';
 
     return $schema;
