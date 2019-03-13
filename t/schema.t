@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 
 use Test::Conch;
 use Test::More;
@@ -6,10 +7,11 @@ use Test::Warnings;
 use JSON::Validator;
 use Mojo::JSON qw(decode_json);
 use Mojo::File qw(path);
+use Test::Deep;
 
-my $json_schema =
-    JSON::Validator->new->schema('http://json-schema.org/draft-04/schema#')
-    ->schema->data;
+my $_validator = JSON::Validator->new;
+$_validator->schema('http://json-schema.org/draft-07/schema#');
+my $json_spec_schema = $_validator->schema->data;
 
 my $t = Test::Conch->new;
 
@@ -18,45 +20,54 @@ $t->get_ok('/schema/request/hello')
 
 $t->get_ok('/schema/response/Login')
     ->status_is(200)
-    ->json_schema_is($json_schema)
-    ->json_is( '/type' => 'object' )
-    ->json_is( '/properties/jwt_token/type' => 'string' );
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply(superhashof({
+        type => 'object',
+        properties => { jwt_token => { type => 'string' } },
+    }));
+
 
 $t->get_ok('/schema/request/Login')
     ->status_is(200)
-    ->json_schema_is($json_schema)
-    ->json_is( '/type' => 'object' )
-    ->json_is( '/properties/user/$ref'     => '/definitions/non_empty_string' )
-    ->json_is( '/properties/password/$ref' => '/definitions/non_empty_string' )
-    ->json_cmp_deeply('/definitions/non_empty_string' => { type => 'string', minLength => 1 } );
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply(superhashof({
+        type => 'object',
+        properties => {
+            user => { '$ref' => '/definitions/non_empty_string' },
+            password => { '$ref' => '/definitions/non_empty_string' },
+        },
+        definitions => {
+            non_empty_string => { type => 'string', minLength => 1 },
+        },
+    }));
 
 
 $t->get_ok('/schema/request/device_report')
     ->status_is(200)
-    ->json_schema_is($json_schema);
+    ->json_schema_is($json_spec_schema);
 
 # ensure that one of the schemas can validate some data
 {
-    my $report =
-        decode_json path('t/integration/resource/passing-device-report.json')
-        ->slurp;
+    my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
     my $schema = $t->get_ok('/schema/request/device_report')->tx->res->json;
-    my $jv     = JSON::Validator->new()->load_and_validate_schema($schema);
+    my $jv     = JSON::Validator->new;
+    $jv->load_and_validate_schema($schema);
     my @errors = $jv->validate($report);
-    is scalar @errors, 0, 'no errors';
+    is(scalar @errors, 0, 'no errors');
 }
 
 $t->get_ok('/schema/request/device_report')
     ->status_is(200)
-    ->json_schema_is($json_schema);
+    ->json_schema_is($json_spec_schema);
 
 # ensure that one of the schemas can validate some data
 {
-    my $report = decode_json path('t/integration/resource/passing-device-report.json')->slurp;
+    my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
     my $schema = $t->get_ok('/schema/request/device_report')->tx->res->json;
-    my $jv = JSON::Validator->new()->load_and_validate_schema($schema);
+    my $jv = JSON::Validator->new;
+    $jv->load_and_validate_schema($schema);
     my @errors = $jv->validate($report);
-    is scalar @errors, 0, 'no errors';
+    is(scalar @errors, 0, 'no errors');
 }
 
 done_testing;
