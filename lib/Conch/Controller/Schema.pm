@@ -53,9 +53,6 @@ sub _extract_schema_definition ($validator, $schema_name) {
 
     visit $schema => sub ($key, $ref, @) {
         inline_ref($_ => $schema) if $key eq '$ref';
-        if ( !defined $_ && $key eq "type" ) {
-            $$ref = "null";
-        }
     };
 
     $schema->{title} //= $schema_name;
