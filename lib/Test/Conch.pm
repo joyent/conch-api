@@ -33,7 +33,7 @@ Includes JSON validation ability via L<Test::MojoSchema>.
 # see also the 'conch_user' fixture in Test::Conch::Fixtures
 use constant CONCH_USER => 'conch';
 use constant CONCH_EMAIL => 'conch@conch.joyent.us';
-use constant CONCH_PASSWORD => 'conch';
+use constant CONCH_PASSWORD => CONCH_EMAIL;
 
 =head1 METHODS
 
@@ -396,14 +396,15 @@ sub generate_fixtures ($self, %specification) {
 =head2 authenticate
 
 Authenticates a user in the current test instance. Uses default credentials if not provided.
-Optionally will bail out of *all* tests on failure.
+Optionally will bail out of *all* tests on failure.  This will set 'user' in the session
+(C<< $t->app->session('user') >>).
 
 =cut
 
 sub authenticate ($self, %args) {
     $args{bailout} //= 1 if not $args{user};
     $args{user} //= CONCH_EMAIL;
-    $args{password} //= CONCH_PASSWORD;
+    $args{password} //= $args{user};  # convention for test accounts
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     $self->post_ok('/login', json => { %args{qw(user password)} })

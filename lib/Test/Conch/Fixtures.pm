@@ -74,8 +74,35 @@ my %canned_definitions = (
         using => {
             name => 'conch',
             email => 'conch@conch.joyent.us',
-            password_hash => '{CRYPT}$2a$04$h963P26i4rTMaVogvA2U7ePcZTYm2o0gfSHyxaUCZSuthkpg47Zbi',
+            password => 'conch@conch.joyent.us',  # convention for test accounts
             is_admin => 1,
+        },
+    },
+    null_user => {
+        new => 'user_account',
+        using => {
+            name => 'null_user',
+            email => 'null_user@conch.joyent.us',
+            password => 'null_user@conch.joyent.us',  # convention for test accounts
+            is_admin => 0,
+        },
+    },
+    ro_user => {
+        new => 'user_account',
+        using => {
+            name => 'ro_user',
+            email => 'ro_user@conch.joyent.us',
+            password => 'ro_user@conch.joyent.us',  # convention for test accounts
+            is_admin => 0,
+        },
+    },
+    rw_user => {
+        new => 'user_account',
+        using => {
+            name => 'rw_user',
+            email => 'rw_user@conch.joyent.us',
+            password => 'rw_user@conch.joyent.us',  # convention for test accounts
+            is_admin => 0,
         },
     },
 
@@ -98,6 +125,22 @@ my %canned_definitions = (
         },
         requires => {
             conch_user => { our => 'user_id', their => 'id' },
+            global_workspace => { our => 'workspace_id', their => 'id' },
+        },
+    },
+    ro_user_global_workspace => {
+        new => 'user_workspace_role',
+        using => { role => 'ro' },
+        requires => {
+            ro_user => { our => 'user_id', their => 'id' },
+            global_workspace => { our => 'workspace_id', their => 'id' },
+        },
+    },
+    rw_user_global_workspace => {
+        new => 'user_workspace_role',
+        using => { role => 'rw' },
+        requires => {
+            rw_user => { our => 'user_id', their => 'id' },
             global_workspace => { our => 'workspace_id', their => 'id' },
         },
     },
