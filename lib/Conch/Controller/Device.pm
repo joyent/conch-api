@@ -49,7 +49,10 @@ sub find_device ($c) {
         return $c->status(404, { error => 'Not found' });
     }
 
-    if ($device_check->{has_location}) {
+    if ($c->is_system_admin) {
+        $c->log->debug('User has system admin privileges to access device '.$device_id);
+    }
+    elsif ($device_check->{has_location}) {
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
         my $method = $c->req->method;
         my $requires_permission =

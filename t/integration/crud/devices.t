@@ -24,6 +24,7 @@ my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 # perform most tests as a user with read only access to the GLOBAL workspace
 my $null_user = $t->load_fixture('null_user');
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
+my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
 $t->authenticate(user => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
@@ -74,6 +75,12 @@ subtest 'unlocated device with a registered relay' => sub {
         ->status_is(403)
         ->json_schema_is('Error')
         ->json_is('', { error => 'Forbidden' }, 'cannot see device without the relay connection');
+
+    $null_user->update({ is_admin => 1 });
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
+    $null_user->update({ is_admin => 0 });
 
     $t->authenticate(user => $ro_user->email);
 };
@@ -190,6 +197,13 @@ subtest 'located device' => sub {
                 ->json_schema_is('Error')
                 ->json_is({ error => 'Forbidden' });
         }
+
+        $ro_user->update({ is_admin => 1 });
+        foreach my $query (@queries) {
+            $t->get_ok($query)
+                ->status_is(200);
+        }
+        $ro_user->update({ is_admin => 0 });
     };
 };
 
