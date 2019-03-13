@@ -86,6 +86,12 @@ sub process ($c) {
 		});
 	}
 
+    if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
+        # TODO: relay id should be a uuid
+        return $c->status(400, { error => 'relay serial '.$relay_serial.' is not registered' })
+            if not $c->db_relays->active->search({ id => $relay_serial })->exists;
+    }
+
 	my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
 
     # capture information about the last report before we store the new one

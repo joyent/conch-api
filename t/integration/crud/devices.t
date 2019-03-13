@@ -33,6 +33,31 @@ $t->get_ok('/device/nonexistent')
     ->json_is({ error => 'Not found' });
 
 
+subtest 'unlocated device, no registered relay' => sub {
+    my $report_data = from_json(path('t/integration/resource/passing-device-report.json')->slurp_utf8);
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'relay serial deadbeef is not registered' });
+
+    delete $report_data->{relay};
+
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults');
+
+    $t->get_ok('/device/TEST')
+        ->status_is(403)
+        ->json_schema_is('Error')
+        ->json_is('', { error => 'Forbidden' }, 'unlocated device isn\'t visible to a ro user');
+
+    $t->authenticate(user => $admin_user->email);
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
+    $t->authenticate(user => $ro_user->email);
+};
+
 subtest 'unlocated device with a registered relay' => sub {
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
         ->status_is(204)

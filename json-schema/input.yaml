@@ -211,7 +211,7 @@ definitions:
           - serial
         properties:
           serial:
-            type: string
+            $ref: /definitions/non_empty_string
       serial_number:
         $ref: /definitions/device_id
       state:
