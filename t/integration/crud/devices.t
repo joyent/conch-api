@@ -7,6 +7,7 @@ use Path::Tiny;
 use Test::Deep;
 use Test::Conch;
 use Data::UUID;
+use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
 $t->load_fixture_set('workspace_room_rack_layout', 0);
@@ -19,25 +20,22 @@ $t->load_validation_plans([{
 
 my $rack_id = $t->load_fixture('rack_0a')->id;
 my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
-my $user_workspace_role = $t->load_fixture('conch_user_global_workspace');
 
-$t->authenticate;
+# perform most tests as a user with read only access to the GLOBAL workspace
+my $null_user = $t->load_fixture('null_user');
+my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
+$t->authenticate(user => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
     ->status_is(404)
     ->json_schema_is('Error')
     ->json_is({ error => 'Not found' });
 
-subtest 'unlocated device' => sub {
-    $t->post_ok('/relay/deadbeef/register',
-        json => {
-            serial   => 'deadbeef',
-            version  => '0.0.1',
-            ipaddr   => '127.0.0.1',
-            ssh_port => 22,
-            alias    => 'test relay',
-        }
-    )->status_is(204)->content_is('');
+
+subtest 'unlocated device with a registered relay' => sub {
+    $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
+        ->status_is(204)
+        ->content_is('');
 
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
@@ -70,6 +68,14 @@ subtest 'unlocated device' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults')
         ->json_is($validation_state);
+
+    $t->authenticate(user => $null_user->email);
+    $t->get_ok('/device/TEST')
+        ->status_is(403)
+        ->json_schema_is('Error')
+        ->json_is('', { error => 'Forbidden' }, 'cannot see device without the relay connection');
+
+    $t->authenticate(user => $ro_user->email);
 };
 
 subtest 'located device' => sub {
@@ -122,14 +128,16 @@ subtest 'located device' => sub {
             '/device/LOCATED_DEVICE/validated',
         );
 
+        $t->authenticate(user => $t->load_fixture('rw_user_global_workspace')->user_account->email);
+
         foreach my $query (@queries) {
             $t->post_ok(ref $query ? $query->@* : $query)
                 ->status_is(303)
                 ->location_is('/device/LOCATED_DEVICE');
         }
 
-        $user_workspace_role->update({ role => 'ro' });
-
+        # now switch back to ro_user...
+        $t->authenticate(user => $ro_user->email);
         foreach my $query (@queries) {
             $t->post_ok(ref $query ? $query->@* : $query)
                 ->status_is(403)
@@ -322,6 +330,7 @@ subtest 'mutate device attributes' => sub {
 subtest 'Device settings' => sub {
     # device settings that check for 'admin' permission need the device to have a location
     my $user_workspace_role = $t->reload_fixture('conch_user_global_workspace');
+    $t->authenticate(user => $user_workspace_role->user_account->email);
 
     $t->app->db_device_settings->search({ device_id => 'LOCATED_DEVICE' })->delete;
 
