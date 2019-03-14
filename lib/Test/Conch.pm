@@ -33,7 +33,7 @@ Includes JSON validation ability via L<Test::MojoSchema>.
 # see also the 'conch_user' fixture in Test::Conch::Fixtures
 use constant CONCH_USER => 'conch';
 use constant CONCH_EMAIL => 'conch@conch.joyent.us';
-use constant CONCH_PASSWORD => 'conch';
+use constant CONCH_PASSWORD => CONCH_EMAIL;
 
 =head1 METHODS
 
@@ -207,7 +207,7 @@ the hash as the schema to validate.
 
 =cut
 
-sub json_schema_is ($self, $schema) {
+sub json_schema_is ($self, $schema, $message = undef) {
     my @errors;
     return $self->_test( 'fail', 'No request has been made' ) unless $self->tx;
     my $json = $self->tx->res->json;
@@ -218,17 +218,15 @@ sub json_schema_is ($self, $schema) {
     }
     else {
         my $component_schema = $self->validator->get("/definitions/$schema");
-        return $self->_test( 'fail',
-            "Component schema '$schema' is not defined in JSON schema " )
-            unless $component_schema;
+        die "Component schema '$schema' is not defined in JSON schema" if not $component_schema;
         @errors = $self->validator->validate( $json, $component_schema );
     }
 
     my $error_count = @errors;
     my $req         = $self->tx->req->method . ' ' . $self->tx->req->url->path;
-    return $self->_test( 'ok', !$error_count,
-        'JSON response has no schema validation errors' )->or(
-        sub {
+
+    return $self->_test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
+        ->or(sub {
             Test::More::diag( $error_count
                     . " Error(s) occurred when validating $req with schema "
                     . "$schema':\n\t"
@@ -396,14 +394,15 @@ sub generate_fixtures ($self, %specification) {
 =head2 authenticate
 
 Authenticates a user in the current test instance. Uses default credentials if not provided.
-Optionally will bail out of *all* tests on failure.
+Optionally will bail out of *all* tests on failure.  This will set 'user' in the session
+(C<< $t->app->session('user') >>).
 
 =cut
 
 sub authenticate ($self, %args) {
     $args{bailout} //= 1 if not $args{user};
     $args{user} //= CONCH_EMAIL;
-    $args{password} //= CONCH_PASSWORD;
+    $args{password} //= $args{user};  # convention for test accounts
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     $self->post_ok('/login', json => { %args{qw(user password)} })
