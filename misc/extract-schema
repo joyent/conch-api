@@ -57,19 +57,31 @@ __END__
 
 =head1 NAME
 
-extract-schema - extracts an embedded JSON schema from a combined (YAML) schema
+extract-schema - extracts embedded JSON schemas from a combined (YAML) schema
 
 =head1 SYNOPSIS
 
-    extract-schema [-f FILE] [-h]
+    extract-schema [-f FILE] [-o DIR] [-h]
+
+=head1 DESCRIPTION
+
+Given a single YAML file containing a number of JSON schema definitions, creates a separate
+C<$name.schema.json> file for each definition, conforming to the same JSON specification
+as the original file.
 
 =head1 OPTIONS
 
 =over 4
 
-=item B<-f FILE>
+=item B<--file|-f FILE>
 
-Provide a base file for extracting from, defaults to the C<json-schema/input.yaml> in this repository.
+The base file for extracting from; defaulting to the C<json-schema/input.yaml> in this
+repository.
+
+=item B<--output|--to DIR>
+
+The directory in which to create the json files.  If not provided, all content is emitted to
+STDOUT, preceded by each definition's filename.
 
 =item B<-h>
 
