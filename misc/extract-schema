@@ -7,28 +7,23 @@ use Pod::Usage;
 use YAML::XS qw(LoadFile);
 use JSON::MaybeXS ();
 use Mojo::File qw(path);
-use Data::Visitor::Tiny qw(visit);
+use JSON::Validator;
+
 use Dir::Self;
+use lib __DIR__ =~ s{/misc}{}r . '/lib';
+
+use Conch::Controller::Schema;
 
 my $schema_file = __DIR__.'/../json-schema/input.yaml';
 
 GetOptions(
-	'file|f:s' => \$schema_file,
-	'help|h'   => \my $help,
+    'file|f:s' => \$schema_file,
+    'help|h'   => \my $help,
     'output|to:s' => \my $to,
 );
 pod2usage(1) if $help;
 
-my %schemas = LoadFile($schema_file)->{definitions}->%*;
-
-sub inline_ref ( $ref, $schema ) {
-
-	# #/definitions/ValidationStateWithResults
-	my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
-	$schema->{definitions}{$other} = $schemas{$other};
-}
-
-sub output_json_schema ( $name, $schema ) {
+sub output_json_schema ($name, $schema) {
     my $json = JSON::MaybeXS->new(pretty => 1, canonical => 1);
     if ($to) {
         path($to)->make_path;
@@ -40,19 +35,13 @@ sub output_json_schema ( $name, $schema ) {
     }
 }
 
-for my $name (sort keys %schemas) {
-	my $schema = $schemas{$name};
-	visit $schema => sub ( $key, $ref, @ ) {
-		inline_ref( $_ => $schema ) if $key eq '$ref';
-		if ( !defined $_ && $key eq "type" ) {
-			$$ref = "null";
-		}
-	};
-	$schema->{title} //= $name;
-	$schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
-	$schema->{'$id'}     = "urn:$name.schema.json";
+my $validator = JSON::Validator->new;
+# TODO: do not pass 'schema' arg - just depend on JV <nextversion>
+$validator->load_and_validate_schema($schema_file, { schema => 'http://json-schema.org/draft-07/schema#' });
 
-	output_json_schema $name, $schema;
+for my $schema_name (sort keys $validator->schema->data->{definitions}->%*) {
+    my $schema = Conch::Controller::Schema::_extract_schema_definition($validator, $schema_name);
+    output_json_schema($schema_name, $schema);
 }
 
 __END__

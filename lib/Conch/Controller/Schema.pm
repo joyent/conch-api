@@ -28,25 +28,41 @@ sub get ($c) {
         : undef;
     return $c->status(400, { error => 'Cannot find validator' }) if not $validator;
 
-    my $schema = $validator->get("/definitions/$name");
+    my $schema = _extract_schema_definition($validator, $name);
     return $c->status(404) if not $schema;
 
-    my sub inline_ref ( $ref, $schema ) {
+    return $c->status(200, $schema);
+}
+
+=head2 _extract_schema_definition
+
+Given a JSON::Validator object containing a schema definition, extract the requested portion
+out of the "definitions" section, including any named references, and add some standard
+headers.
+
+=cut
+
+sub _extract_schema_definition ($validator, $schema_name) {
+    my $schema = $validator->schema->get('/definitions/'.$schema_name);
+    return if not $schema;
+
+    my sub inline_ref ($ref, $schema) {
         my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
         $schema->{definitions}{$other} = $validator->get($ref);
     }
 
-    visit $schema => sub ( $key, $ref, @ ) {
-        inline_ref( $_ => $schema ) if $key eq '$ref';
+    visit $schema => sub ($key, $ref, @) {
+        inline_ref($_ => $schema) if $key eq '$ref';
         if ( !defined $_ && $key eq "type" ) {
             $$ref = "null";
         }
     };
-    $schema->{title} //= $name;
-    $schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
-    $schema->{'$id'}     = "urn:$name.schema.json";
 
-    return $c->status( 200, $schema );
+    $schema->{title} //= $schema_name;
+    $schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
+    $schema->{'$id'}     = 'urn:'.$schema_name.'.schema.json';
+
+    return $schema;
 }
 
 1;
