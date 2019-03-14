@@ -65,7 +65,7 @@ sub validate ($c) {
     my $validation = $c->db_ro_validations->active->find($validation_id);
     if (not $validation) {
         $c->log->debug("Could not find validation $validation_id");
-        return $c->status(404 => { error => "Validation $validation_id not found" });
+        return $c->status(404);
     }
 
     my $data = $c->validate_input('DeviceReport');
@@ -104,7 +104,7 @@ sub run_validation_plan ($c) {
     my $validation_plan = $c->db_ro_validation_plans->active->find($validation_plan_id);
     if (not $validation_plan) {
         $c->log->debug("Could not find validation plan $validation_plan_id");
-        return $c->status(404 => { error => "Validation plan $validation_plan_id not found" });
+        return $c->status(404);
     }
 
     my $data = $c->validate_input('DeviceReport');

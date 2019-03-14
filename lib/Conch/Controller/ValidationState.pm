@@ -28,7 +28,7 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub get ($c) {
-    return $c->status(404 => { error => 'Not found' })
+    return $c->status(404)
         if not is_uuid($c->stash('validation_state_id'));
 
     my ($validation_state) = $c->db_validation_states
@@ -38,7 +38,7 @@ sub get ($c) {
 
     if (not $validation_state) {
         $c->log->debug('Failed to find validation for \''.$c->stash('validation_state_id').'\'');
-        return $c->status(404, { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->log->debug('Found validation '.$validation_state->id);

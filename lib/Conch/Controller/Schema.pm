@@ -26,10 +26,10 @@ sub get ($c) {
     my $validator = $type eq 'response' ? $c->get_response_validator
         : $type eq 'request' ? $c->get_input_validator
         : undef;
-    return $c->status(404, { error => 'Not found' }) if not $validator;
+    return $c->status(404) if not $validator;
 
     my $schema = $validator->get("/definitions/$name");
-    return $c->status(404, { error => 'Not found' }) if not $schema;
+    return $c->status(404) if not $schema;
 
     my sub inline_ref ( $ref, $schema ) {
         my ($other) = $ref =~ m|#?/definitions/(\w+)$|;

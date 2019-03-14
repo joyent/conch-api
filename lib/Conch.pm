@@ -64,7 +64,9 @@ sub startup {
 	$self->helper(
 		status => sub ($c, $code, $payload = undef) {
 
+			$payload //= { error => 'Unauthorized' } if $code == 401;
 			$payload //= { error => "Forbidden" } if $code == 403;
+			$payload //= { error => 'Not Found' } if $code == 404;
 			$payload //= { error => "Unimplemented" } if $code == 501;
 
 			if (not $payload) {

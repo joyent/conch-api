@@ -76,7 +76,7 @@ sub find_validation_plan($c) {
 
     if (not $validation_plan) {
         $c->log->debug("Failed to find validation plan for '$identifier'");
-        return $c->status(404, { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->log->debug('Found validation plan '.$validation_plan->id);

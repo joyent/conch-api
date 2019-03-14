@@ -39,7 +39,7 @@ sub all_routes (
         my ($r, $path) = @_;
         $r->any(sub {
             my $c = shift;
-            return $c->status(401, { error => 'unauthorized' })
+            return $c->status(401)
                 unless $c->stash('user') and $c->stash('user_id');
 
             return $c->status(403, { error => 'Must be system admin' })

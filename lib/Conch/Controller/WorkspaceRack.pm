@@ -104,7 +104,7 @@ sub find_rack ($c) {
 
     if (not $rack_rs->exists) {
         $c->log->debug("Could not find rack $rack_id");
-        return $c->status(404, { error => "Rack $rack_id not found" });
+        return $c->status(404);
     }
 
     # store the simplified query to access the device, now that we've confirmed the user has

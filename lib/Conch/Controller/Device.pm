@@ -46,7 +46,7 @@ sub find_device ($c) {
     # if the device doesn't exist, we can bail out right now
     if (not $device_check->{exists}) {
         $c->log->debug("Failed to find device $device_id");
-        return $c->status(404, { error => 'Not found' });
+        return $c->status(404);
     }
 
     if ($c->is_system_admin) {
@@ -63,7 +63,7 @@ sub find_device ($c) {
         if (not $c->db_devices->search({ 'device.id' => $device_id })
                 ->user_has_permission($c->stash('user_id'), $requires_permission)) {
             $c->log->debug('User lacks permission to access device '.$device_id);
-            return $c->status(403, { error => 'Forbidden' });
+            return $c->status(403);
         }
     }
     else {
@@ -80,7 +80,7 @@ sub find_device ($c) {
 
         if (not $device_rs->exists) {
             $c->log->debug('User lacks permission to access device '.$device_id);
-            return $c->status(403, { error => 'Forbidden' });
+            return $c->status(403);
         }
     }
 
@@ -192,7 +192,7 @@ sub lookup_by_other_attribute ($c) {
 
 	if (not @devices) {
 		$c->log->debug("Failed to find devices matching $key=$value.");
-		return $c->status(404, { error => 'Devices not found' });
+		return $c->status(404);
 	}
 
 	$c->log->debug(scalar(@devices).' devices found');

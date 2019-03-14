@@ -97,18 +97,18 @@ sub authenticate ($c) {
 
 		unless ($user) {
 			$c->log->debug('basic auth failed: user not found');
-			return $c->status(401, { error => 'unauthorized' });
+			return $c->status(401);
 		}
 
 		if (not $user->validate_password($password)) {
 			$c->log->debug('basic auth failed: incorrect password');
-			return $c->status(401, { error => 'unauthorized' });
+			return $c->status(401);
 		}
 
 		if ($user->force_password_change) {
 			$c->log->debug('basic auth failed: password correct, but force_password_change was set');
 			$c->res->headers->location($c->url_for('/user/me/password'));
-			return $c->status(401, { error => 'unauthorized' });
+			return $c->status(401);
 		}
 
 		# pass through to whatever action the user was trying to reach
@@ -147,7 +147,7 @@ sub authenticate ($c) {
 			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->exists)
 		{
 			$c->log->debug('JWT auth failed');
-			return $c->status(401, { error => 'unauthorized' });
+			return $c->status(401);
 		}
 
 		$user_id = $jwt->{uid};
@@ -182,12 +182,12 @@ sub authenticate ($c) {
 							->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $jwt;
 
 						$c->res->headers->location($c->url_for('/user/me/password'));
-						return $c->status(401, { error => 'unauthorized' });
+						return $c->status(401);
 					}
 				}
 				else {
 					$c->log->debug('user\'s tokens were revoked - they must /login again');
-					return $c->status(401, { error => 'unauthorized' });
+					return $c->status(401);
 				}
 			}
 
@@ -198,7 +198,7 @@ sub authenticate ($c) {
 	}
 
 	$c->log->debug('auth failed: no credentials provided');
-	return $c->status(401, { error => 'unauthorized' });
+	return $c->status(401);
 }
 
 =head2 session_login

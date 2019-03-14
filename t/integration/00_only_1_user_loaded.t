@@ -22,8 +22,8 @@ $t->get_ok('/ping')
 	->header_isnt('Request-Id' => undef)
 	->header_isnt('X-Request-ID' => undef);
 
-$t->get_ok('/me')->status_is(401)->json_is({ error => 'unauthorized' });
-$t->get_ok('/login')->status_is(401)->json_is({ error => 'unauthorized' });
+$t->get_ok('/me')->status_is(401);
+$t->get_ok('/login')->status_is(401);
 
 my $now = Conch::Time->now;
 
@@ -47,8 +47,7 @@ subtest 'User' => sub {
 		->json_is('', {});
 
 	$t->get_ok('/user/me/settings/BAD')
-		->status_is(404)
-		->json_is('', { error => "No such setting 'BAD'" });
+		->status_is(404);
 
 	$t->post_ok(
 		'/user/me/settings/TEST' => json => { 'NOTTEST' => 'test' })
@@ -97,8 +96,7 @@ subtest 'User' => sub {
 		->status_is(200)
 		->json_is('', {});
 	$t->get_ok('/user/me/settings/TEST')
-		->status_is(404)
-		->json_is('', { error => "No such setting 'TEST'" });
+		->status_is(404);
 
 	$t->post_ok('/user/me/settings/dot.setting' => json => { 'dot.setting' => 'set' })
 		->status_is(200)
@@ -834,8 +832,7 @@ subtest 'Log out' => sub {
 	$t->post_ok("/logout")
 		->status_is(204);
 	$t->get_ok("/workspace")
-		->status_is(401)
-		->json_is({ error => 'unauthorized' });
+		->status_is(401);
 };
 
 subtest 'JWT authentication' => sub {
@@ -990,12 +987,10 @@ subtest 'modify another user' => sub {
 		->status_is(204, 'revoked all tokens for the new user');
 
 	$t2->get_ok('/me')
-		->status_is(401, 'new user cannot authenticate with persistent session after session is cleared')
-		->json_is({ error => 'unauthorized' });
+		->status_is(401, 'new user cannot authenticate with persistent session after session is cleared');
 
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
-		->status_is(401, 'new user cannot authenticate with JWT after tokens are revoked')
-		->json_is({ error => 'unauthorized' });
+		->status_is(401, 'new user cannot authenticate with JWT after tokens are revoked');
 
 	$t2->post_ok(
 		'/login' => json => {
@@ -1032,8 +1027,7 @@ subtest 'modify another user' => sub {
 		->json_is({ error => 'invalid identifier format for email=foobar' });
 
 	$t->delete_ok('/user/email=foobar@conch.joyent.us/password?send_password_reset_mail=0')
-		->status_is(404, 'attempted to reset the password for a non-existent user')
-		->json_is({ error => 'user email=foobar@conch.joyent.us not found' });
+		->status_is(404, 'attempted to reset the password for a non-existent user');
 
 	$t->delete_ok(
 		"/user/$new_user_id/password?send_password_reset_mail=0")
@@ -1045,26 +1039,22 @@ subtest 'modify another user' => sub {
 	my $insecure_password = $_new_password;
 
 	$t2->get_ok('/me')
-		->status_is(401, 'user can no longer use his saved session after his password is changed')
-		->json_is({ error => 'unauthorized' });
+		->status_is(401, 'user can no longer use his saved session after his password is changed');
 
 	$t2->reset_session;	# force JWT to be used to authenticate
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
-		->status_is(401, 'user cannot authenticate with JWT after his password is changed')
-		->json_is({ error => 'unauthorized' });
+		->status_is(401, 'user cannot authenticate with JWT after his password is changed');
 
 	$t2->post_ok(
 		'/login' => json => {
 			user     => 'foo@conch.joyent.us',
 			password => 'foo',
 		})
-		->status_is(401, 'cannot log in with the old password')
-		->json_is({ 'error' => 'unauthorized' });
+		->status_is(401, 'cannot log in with the old password');
 
 	$t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:' . $insecure_password)->path('/me'))
 		->status_is(401, 'user cannot use new password with basic auth')
-		->location_is('/user/me/password')
-		->json_is({ error => 'unauthorized' });
+		->location_is('/user/me/password');
 
 	$t2->post_ok(
 		'/login' => json => {
@@ -1079,22 +1069,19 @@ subtest 'modify another user' => sub {
 
 	$t2->get_ok('/me')
 		->status_is(401, 'user can\'t use his session to do anything else')
-		->location_is('/user/me/password')
-		->json_is({ error => 'unauthorized' });
+		->location_is('/user/me/password');
 
 	$t2->reset_session;	# force JWT to be used to authenticate
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
 		->status_is(401, 'user can\'t use his JWT to do anything else')
-		->location_is('/user/me/password')
-		->json_is({ error => 'unauthorized' });
+		->location_is('/user/me/password');
 
 	$t2->post_ok(
 		'/login' => json => {
 			user     => 'foo@conch.joyent.us',
 			password => $insecure_password,
 		})
-		->status_is(401, 'user cannot log in with the same insecure password again')
-		->json_is({ error => 'unauthorized' });
+		->status_is(401, 'user cannot log in with the same insecure password again');
 
 	$t2->post_ok(
 		'/user/me/password' => { Authorization => "Bearer $jwt_token.$jwt_sig" }
@@ -1129,16 +1116,14 @@ subtest 'modify another user' => sub {
 
 
 	$t->delete_ok('/user/email=foobar@joyent.conch.us')
-		->status_is(404, 'attempted to deactivate a non-existent user')
-		->json_is({ error => 'user email=foobar@joyent.conch.us not found' });
+		->status_is(404, 'attempted to deactivate a non-existent user');
 
 	$t->delete_ok("/user/$new_user_id")
 		->status_is(204, 'new user is deactivated');
 
 	# we haven't cleared the user's session yet...
 	$t2->get_ok('/me')
-		->status_is(401, 'user cannot log in with saved browser session')
-		->json_is({ 'error' => 'unauthorized' });
+		->status_is(401, 'user cannot log in with saved browser session');
 
 	$t2->reset_session;	# force JWT to be used to authenticate
 	$t2->post_ok(
@@ -1146,8 +1131,7 @@ subtest 'modify another user' => sub {
 			user     => 'foo@conch.joyent.us',
 			password => $secure_password,
 		})
-		->status_is(401, 'user can no longer log in with credentials')
-		->json_is({ 'error' => 'unauthorized' });
+		->status_is(401, 'user can no longer log in with credentials');
 
 	$t->delete_ok("/user/$new_user_id")
 		->status_is(410, 'new user was already deactivated')
