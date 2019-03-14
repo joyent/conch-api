@@ -5,7 +5,7 @@ use experimental 'signatures';
 use Getopt::Long;
 use Pod::Usage;
 use YAML::XS qw(LoadFile);
-use Mojo::JSON qw(encode_json);
+use JSON::MaybeXS ();
 use Mojo::File qw(path);
 use Data::Visitor::Tiny qw(visit);
 use Dir::Self;
@@ -29,17 +29,18 @@ sub inline_ref ( $ref, $schema ) {
 }
 
 sub output_json_schema ( $name, $schema ) {
+    my $json = JSON::MaybeXS->new(pretty => 1, canonical => 1);
     if ($to) {
         path($to)->make_path;
-	path("$to/$name.schema.json")->spurt( encode_json($schema) );
+        path("$to/$name.schema.json")->spurt($json->encode($schema));
     } else {
         say "$name.schema.json";
-        say encode_json($schema);
+        say $json->encode($schema);
         say;
     }
 }
 
-for my $name ( keys %schemas ) {
+for my $name (sort keys %schemas) {
 	my $schema = $schemas{$name};
 	visit $schema => sub ( $key, $ref, @ ) {
 		inline_ref( $_ => $schema ) if $key eq '$ref';
