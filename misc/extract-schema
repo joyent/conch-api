@@ -30,6 +30,7 @@ sub inline_ref ( $ref, $schema ) {
 
 sub output_json_schema ( $name, $schema ) {
     if ($to) {
+        path($to)->make_path;
 	path("$to/$name.schema.json")->spurt( encode_json($schema) );
     } else {
         say "$name.schema.json";
