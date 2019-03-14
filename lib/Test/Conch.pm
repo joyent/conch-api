@@ -7,7 +7,6 @@ use Test::More ();
 use Test::PostgreSQL;
 use Conch::DB;
 use Test::Conch::Fixtures;
-use JSON::Validator;
 use Path::Tiny;
 use Test::Deep ();
 use Mojo::Util 'trim';
@@ -53,15 +52,8 @@ has 'pg';   # Test::PostgreSQL object
 
 =cut
 
-has 'validator' => sub {
-    my $spec_file = "json-schema/response.yaml";
-    die("OpenAPI spec file '$spec_file' doesn't exist.")
-        unless -e $spec_file;
-
-    my $validator = JSON::Validator->new;
-    $validator->schema($spec_file);
-
-    $validator;
+has validator => sub ($self) {
+    $self->app->get_response_validator;
 };
 
 =head2 fixtures
