@@ -2,7 +2,6 @@ package Conch::Controller::Schema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Data::Visitor::Tiny qw(visit);
 use Mojo::Util qw(camelize);
 
 =pod
@@ -43,23 +42,65 @@ headers.
 =cut
 
 sub _extract_schema_definition ($validator, $schema_name) {
-    my $schema = $validator->schema->get('/definitions/'.$schema_name);
-    return if not $schema;
+    my $top_schema = $validator->schema->get('/definitions/'.$schema_name);
+    return if not $top_schema;
 
-    my sub inline_ref ($ref, $schema) {
-        my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
-        $schema->{definitions}{$other} = $validator->get($ref);
-    }
+    my %refs;
+    my %source;
+    my $definitions;
+    my @topics = ([ { schema => $top_schema }, my $target = {}]);
+    my $cloner = sub ($from) {
+        if (ref $from eq 'HASH' and my $tied = tied %$from) {
+            # this is a hashref which quacks like { '$ref' => $target }
+            my ($location, $path) = split /#/, $tied->fqn, 2;
+            (my $name = $path) =~ s!^/definitions/!!;
 
-    visit $schema => sub ($key, $ref, @) {
-        inline_ref($_ => $schema) if $key eq '$ref';
+            if (not $refs{$tied->fqn}++) {
+                if ($name ne $schema_name and exists $source{$name}) {
+                    die 'namespace collision: '.$tied->fqn.' but already have a /definitions/'.$name
+                        .' from '.$source{$name}->fqn;
+                }
+
+                $source{$name} = $tied;
+                push @topics, [$tied->schema, $definitions->{$name} = {}];
+            }
+
+            ++$refs{'/traversed_definitions/'.$name};
+            tie my %ref, 'JSON::Validator::Ref', $tied->schema, '/definitions/'.$name;
+            return \%ref;
+        }
+
+        my $to = ref $from eq 'ARRAY' ? [] : ref $from eq 'HASH' ? {} : $from;
+        push @topics, [$from, $to] if ref $from;
+        return $to;
     };
 
-    $schema->{title} //= $schema_name;
-    $schema->{'$schema'} = $document->get('/$schema');
-    $schema->{'$id'}     = 'urn:'.$schema_name.'.schema.json';
+    while (@topics) {
+        my ($from, $to) = @{shift @topics};
+        if (ref $from eq 'ARRAY') {
+            push @$to, $cloner->($_) foreach @$from;
+        }
+        elsif (ref $from eq 'HASH') {
+            $to->{$_} = $cloner->($from->{$_}) foreach keys %$from;
+        }
+    }
 
-    return $schema;
+    $target = $target->{schema};
+
+    # cannot return a $ref at the top level (sibling keys disallowed) - inline the $ref.
+    while (my $tied = tied %$target) {
+        (my $name = $tied->fqn) =~ s!^/definitions/!!;
+        $target = $definitions->{$name};
+        delete $definitions->{$name} if $refs{'/traversed_definitions/'.$name} == 1;
+    }
+
+    return {
+        title => $schema_name,
+        '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
+        '$id' => 'urn:'.$schema_name.'.schema.json',
+        keys $definitions->%* ? ( definitions => $definitions ) : (),
+        $target->%*,
+    };
 }
 
 1;

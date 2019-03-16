@@ -870,17 +870,6 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
-  Data-Visitor-Tiny-0.001
-    pathname: D/DA/DAGOLDEN/Data-Visitor-Tiny-0.001.tar.gz
-    provides:
-      Data::Visitor::Tiny 0.001
-    requirements:
-      Carp 0
-      Exporter 5.57
-      ExtUtils::MakeMaker 6.17
-      perl 5.010
-      strict 0
-      warnings 0
   DateTime-1.50
     pathname: D/DR/DROLSKY/DateTime-1.50.tar.gz
     provides:
@@ -1798,19 +1787,18 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-2.18
-    pathname: J/JH/JHTHORSEN/JSON-Validator-2.18.tar.gz
+  JSON-Validator-3.06
+    pathname: J/JH/JHTHORSEN/JSON-Validator-3.06.tar.gz
     provides:
-      JSON::Validator 2.18
+      JSON::Validator 3.06
       JSON::Validator::Error undef
+      JSON::Validator::Formats undef
       JSON::Validator::Joi undef
-      JSON::Validator::OpenAPI undef
-      JSON::Validator::OpenAPI::Dancer2 undef
-      JSON::Validator::OpenAPI::Mojolicious undef
       JSON::Validator::Ref undef
     requirements:
       ExtUtils::MakeMaker 0
       Mojolicious 7.28
+      perl 5.010001
   Lingua-EN-FindNumber-1.32
     pathname: N/NE/NEILB/Lingua-EN-FindNumber-1.32.tar.gz
     provides:
