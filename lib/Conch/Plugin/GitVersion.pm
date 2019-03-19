@@ -1,8 +1,9 @@
 package Conch::Plugin::GitVersion;
 
+use v5.26;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use Capture::Tiny 'capture';
+use IPC::System::Simple 'capturex';
 
 =pod
 
@@ -23,27 +24,14 @@ Register C<version_tag> and C<version_hash>.
 =cut
 
 sub register ($self, $app, $config) {
+    chomp(my $git_tag = capturex(qw(git describe --always --long)));
+    $app->log->fatal('git error') and die 'git error' if not $git_tag;
 
-    my ($git_tag, $git_tag_stderr, undef) = capture {
-        system(qw(git describe --always --long));
-    };
-    chomp($git_tag ||= 'unknown');
-    $app->log->fatal('git error: ' . $git_tag_stderr) and die
-        if $git_tag_stderr;
+    chomp(my $git_hash = capturex(qw(git rev-parse HEAD)));
+    $app->log->fatal('git error') and die 'git error' if not $git_hash;
 
-    my ($git_hash, $git_hash_stderr, undef) = capture {
-        system(qw(git rev-parse HEAD));
-    };
-    chomp($git_hash ||= 'unknown');
-    $app->log->fatal('git error: ' . $git_hash_stderr) and die
-        if $git_hash_stderr;
-
-    $app->helper(
-        version_tag  => sub { $git_tag }
-    );
-    $app->helper(
-        version_hash => sub { $git_hash }
-    );
+    $app->helper(version_tag => sub ($) { $git_tag });
+    $app->helper(version_hash => sub ($) { $git_hash });
 }
 
 1;

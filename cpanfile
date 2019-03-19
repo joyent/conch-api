@@ -21,7 +21,7 @@ requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv
 requires 'HTTP::Tiny';
 requires 'Safe::Isa';
 requires 'Encode', '2.98';
-requires 'Capture::Tiny';
+requires 'IPC::System::Simple';
 requires 'Dir::Self';
 requires 'Carp';
 requires 'Crypt::Eksblowfish::Bcrypt';
