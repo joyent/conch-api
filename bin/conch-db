@@ -39,7 +39,7 @@ create-global-workspace  create the GLOBAL workspace
 create-admin-user        create a user with admin privileges
 migrate                  run outstanding migrations on a Conch database (no effect with 'all')
 apply-dump-migration [n] generate new DBIC result classes, schema.sql after applying a migration(s)
-all                      alias for initialize create-valiations create-admin-user
+all                      alias for initialize create-validations create-admin-user
 
 The environment variables POSTGRES_DB, POSTGRES_HOST, POSTGRES_USER and POSTGRES_PASSWORD are
 used if set.  Otherwise, the config file will be used to find database credentials.
