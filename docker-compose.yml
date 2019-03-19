@@ -17,8 +17,11 @@ services:
     image: joyentbuildops/conch-api:latest
     container_name: conch_api
     restart: always
+    read_only: true
+
     entrypoint: ["carton", "exec"]
     command: ["hypnotoad", "-f", "bin/conch" ]
+
     environment:
       POSTGRES_USER: conch
       POSTGRES_PASSWORD: conch
@@ -27,6 +30,10 @@ services:
     ports:
       - 5000:5000
     volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 1000
       - type: bind
         source: ./log
         target: /app/conch/log

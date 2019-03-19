@@ -36,6 +36,10 @@
 		audit          => 0,
 		rollbar        => 0,
 		nytprof        => 0,
+
+		# For docker, this should probably be set to 1. If not, logs will be
+		# written to /app/conch/log inside the container and a volume will need
+		# to be mounted there.
 		log_to_stderr  => 0,
 
 		# Stop issuing 'conch' cookies. This does not prevent existing conch
@@ -50,6 +54,10 @@
 	# See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
 	hypnotoad => {
 		listen => ['http://*:5000'],
+		
+		# For docker, if a read_only container is desired, uncomment this and
+		# set /tmp to tmpfs
+		# pid_file => "/tmp/hypnotoad.pid",
 
 		# operates behind a reverse proxy
 		proxy => 1,
