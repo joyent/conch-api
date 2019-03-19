@@ -16,6 +16,7 @@ RUN apt-get update && \
 		git \
 		libssl-dev \
 		libzip-dev \
+		perl-doc \
 		unzip \
 	&& apt-get clean
 

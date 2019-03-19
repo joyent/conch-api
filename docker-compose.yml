@@ -1,0 +1,47 @@
+# vim: se syn=yaml shiftwidth=2 et ts=2:
+---
+version: '3.3'
+services:
+  postgres:
+    image: postgres:9.6
+    container_name: conch_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: conch
+      POSTGRES_PASSWORD: conch
+      POSTGRES_DB: conch
+    volumes:
+      - ./postgres:/var/lib/postgresql/data 
+
+  web:
+    image: joyentbuildops/conch-api:latest
+    container_name: conch_api
+    restart: always
+    read_only: true
+    user: nobody
+
+    entrypoint: ["carton", "exec"]
+    command: ["hypnotoad", "-f", "bin/conch" ]
+
+    environment:
+      POSTGRES_USER: conch
+      POSTGRES_PASSWORD: conch
+      POSTGRES_DB: conch
+      POSTGRES_HOST: postgres
+    ports:
+      - 5000:5000
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 1000
+      - type: bind
+        source: ./log
+        target: /app/conch/log
+      - type: bind
+        source: ./conch.conf
+        target: /app/conch/etc/conch.conf
+        read_only: true
+    depends_on:
+      - postgres
+
