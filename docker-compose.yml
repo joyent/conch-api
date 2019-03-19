@@ -18,6 +18,7 @@ services:
     container_name: conch_api
     restart: always
     read_only: true
+    user: nobody
 
     entrypoint: ["carton", "exec"]
     command: ["hypnotoad", "-f", "bin/conch" ]
