@@ -19,9 +19,9 @@ shell](https://github.com/joyent/conch-shell) is our current stable interface.
 
 ### Operating System Support
 
-We currently support SmartOS 17.4 and FreeBSD 11.2. Being a Perl app, the API
+We currently support SmartOS 17.4 and Docker/Ubuntu. Being a Perl app, the API
 should run most anywhere but the code is only actively tested on SmartOS and
-FreeBSD.
+Docker/Ubuntu.
 
 ### Perl Support
 
@@ -52,6 +52,63 @@ including database connectivity information.
 
 * `make run`
 
+## Docker
+
+### Images
+
+For every release, the Joyent test infrastructure publishes a docker image to
+hub.docker.com . These images are available at
+https://hub.docker.com/r/joyentbuildops/conch-api/tags and it is wise to
+consult the Github release page ( https://github.com/joyent/conch/releases ) to
+determine if the release is a staging or production image.
+
+The 'latest' image is not supported and is rebuilt manually and infrequently.
+*Always* use a release tag.
+
+### Compose
+
+The most simple way to get going with the Conch API is to use Docker Compose.
+
+#### First Run
+
+Copy `conch.conf.dist` to `conch.conf`, modifying for any local parameters.
+Specifically search for 'docker' in the comments. Ignore the database
+parameters.
+
+
+```
+# Edit compose file for desired release
+docker-compose up -d postgres # initialize the postgres database
+docker-compose run --rm web bin/conch-db all --username conch --email conch@example.com --password kaewee3hipheem8BaiHoo6waed7pha
+docker-compose run --rm web bin/conch-db create-global-workspace
+docker-compose up -d
+```
+
+#### Upgrading
+
+```
+docker-compose down
+# Edit compose file for desired release
+docker-compose pull
+docker-compose up -d postgres
+docker-compose run --rm web bin/conch-db migrate
+docker-compose up -d
+```
+
+There may be extra commands to run, depending on the specific release. In that
+case, the upgrade will look something like:
+
+```
+docker-compose down
+# Edit compose file for desired release
+docker-compose pull
+docker-compose up -d postgres
+docker-compose run --rm web bin/conch-db migrate
+docker-compose run --rm web bin/conch upgrade_release_225
+docker-compose up -d
+```
+
+
 ## Licensing
 
 Copyright Joyent, Inc.
@@ -59,5 +116,4 @@ Copyright Joyent, Inc.
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
-
 
