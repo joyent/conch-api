@@ -147,6 +147,7 @@ sub init_db ($class) {
     my $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8', dbowner => 'conch');
     die $Test::PostgreSQL::errstr if not $pgsql;
 
+    Test::More::note('connecting to ',$pgsql->dsn) if $ENV{DBIC_TRACE};
     my $schema = Conch::DB->connect(
         $pgsql->dsn, $pgsql->dbowner, undef,
         {
@@ -174,6 +175,7 @@ Returns a read-only connection to a Test::PostgreSQL instance.
 sub ro_schema ($class, $pgsql) {
     # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
     local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
+    Test::More::note('connecting to ',$pgsql->dsn) if $ENV{DBIC_TRACE};
     Conch::DB->connect(
         $pgsql->dsn, $pgsql->dbowner, undef,
         +{

@@ -151,7 +151,10 @@ sub initialize_db ($schema) {
     $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
         # generally we don't execute this command, as the user already exists (we logged in as it)
         # $dbh->$do('CREATE ROLE conch LOGIN');
-        $dbh->$do('CREATE DATABASE conch OWNER conch');
+        # nor do we generally need to do this, as we have "a" database already, and will just
+        # create tables in the default database
+        # $dbh->$do('CREATE DATABASE conch OWNER conch');
+
         say STDERR 'loading sql/schema.sql' if $debug;
         $dbh->do(path('sql/schema.sql')->slurp_utf8) or die 'SQL load failed in sql/schema.sql';
         $dbh->$do('RESET search_path');  # go back to "$user", public
