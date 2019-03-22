@@ -114,7 +114,7 @@ sub process ($c) {
 		system_uuid         => $unserialized_report->{system_uuid},
 		hardware_product_id => $hw->id,
 		state               => $unserialized_report->{state},
-		health              => "UNKNOWN",
+		health              => 'unknown',
 		last_seen           => \'NOW()',
 		uptime_since        => $uptime,
 		hostname            => $unserialized_report->{os}{hostname},
@@ -182,7 +182,7 @@ sub process ($c) {
 	# from the validation_state, but in the future we should query for the most recent
 	# validation_state of each plan type and use the cumulative results to determine health.
 
-	$device->update( { health => uc( $validation_state->status ), updated => \'NOW()' } );
+	$device->update({ health => $validation_state->status, updated => \'now()' });
 
     # save some state about this report that will help us out next time, when we consider
     # deleting it...  we always keep all failing reports (we also keep the first report after a

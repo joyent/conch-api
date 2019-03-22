@@ -53,7 +53,8 @@ __PACKAGE__->table("device");
 
 =head2 health
 
-  data_type: 'text'
+  data_type: 'enum'
+  extra: {custom_type_name => "device_health_enum",list => ["error","fail","unknown","pass"]}
   is_nullable: 0
 
 =head2 graduated
@@ -133,7 +134,14 @@ __PACKAGE__->add_columns(
   "state",
   { data_type => "text", is_nullable => 0 },
   "health",
-  { data_type => "text", is_nullable => 0 },
+  {
+    data_type => "enum",
+    extra => {
+      custom_type_name => "device_health_enum",
+      list => ["error", "fail", "unknown", "pass"],
+    },
+    is_nullable => 0,
+  },
   "graduated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "deactivated",
@@ -349,8 +357,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-08 11:20:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ws5Zq0vtQJWLiJbnJtY+Vw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-12 13:33:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:M2j4oOof/SgTrd7S/tcVqQ
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

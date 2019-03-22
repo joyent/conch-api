@@ -49,14 +49,14 @@ subtest 'device totals' => sub {
             id => 'test farce',
             hardware_product_id => $farce->{id},
             state => 'ignore',
-            health => 'FAIL',
+            health => 'fail',
             device_location => { rack_id => $rack->id, rack_unit_start => 1 },
         },
         {
             id => 'test compute',
             hardware_product_id => $test_compute->{id},
             state => 'ignore',
-            health => 'PASS',
+            health => 'pass',
             device_location => { rack_id => $rack->id, rack_unit_start => 5 },
         },
     );
@@ -73,26 +73,28 @@ subtest 'device totals' => sub {
     $t->get_ok("/workspace/123/device-totals")
         ->status_is(404);
 
+    # note this response type uses lower-cased health values.
     $t->get_ok("/workspace/$global_ws_id/device-totals")
         ->status_is(200)
         ->json_schema_is('DeviceTotals')
         ->json_is({
             all => [
-                { alias => 'Farce 10', count => 1, health => 'FAIL' },
-                { alias => 'Test Compute', count => 1, health => 'PASS' }
+                { alias => 'Farce 10', count => 1, health => 'fail' },
+                { alias => 'Test Compute', count => 1, health => 'pass' }
             ],
             switches => [
-                { alias => 'Farce 10', count => 1, health => 'FAIL' },
+                { alias => 'Farce 10', count => 1, health => 'fail' },
             ],
             servers => [
-                { alias => 'Test Compute', count => 1, health => 'PASS' }
+                { alias => 'Test Compute', count => 1, health => 'pass' }
             ],
             storage => [],
             compute => [
-                { alias => 'Test Compute', count => 1, health => 'PASS' }
+                { alias => 'Test Compute', count => 1, health => 'pass' }
             ],
         });
 
+    # note this response type uses upper-cased health values.
     $t->get_ok("/workspace/$global_ws_id/device-totals.circ")
         ->status_is(200)
         ->json_schema_is('DeviceTotalsCirconus')

@@ -45,7 +45,7 @@ sub assign_device_location ($self, $device_id, $rack_id, $rack_unit_start) {
             $schema->resultset('device')->create({
                 id      => $device_id,
                 hardware_product_id => $layout_rs->get_column('hardware_product_id')->as_query,
-                health  => 'UNKNOWN',
+                health  => 'unknown',
                 state   => 'UNKNOWN',
             });
         }
