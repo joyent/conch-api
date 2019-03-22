@@ -49,14 +49,17 @@ sub all_routes (
         })->under;
     });
 
+    # GET /doc
     $root->get( '/doc',
         sub { shift->reply->static('public/doc/index.html') } );
 
+    # GET /ping
     $root->get(
         '/ping',
         sub { shift->status( 200, { status => 'ok' } ) },
     );
 
+    # GET /version
     $root->get(
         '/version' => sub {
             my $c = shift;
@@ -64,8 +67,13 @@ sub all_routes (
         }
     );
 
+    # POST /login
     $root->post('/login')->to('login#session_login');
+
+    # POST /logout
     $root->post('/logout')->to('login#session_logout');
+
+    # POST /reset_password
     $root->post('/reset_password')->to('login#reset_password');
 
     # GET /schema/:input_or_response/:schema_name
