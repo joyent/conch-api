@@ -54,6 +54,12 @@ Returns the name of all modules successfully loaded.
 =cut
 
 sub check_validation_plan ($self, $validation_plan) {
+    if ($validation_plan->deactivated) {
+        $self->log->warn('validation plan id '.$validation_plan->id
+            .' "'.$validation_plan->name.'" is inactive');
+        return;
+    }
+
     my %validation_modules;
     my $valid_plan = 1;
     foreach my $validation ($validation_plan->validations) {
