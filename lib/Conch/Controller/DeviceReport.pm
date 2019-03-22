@@ -6,12 +6,17 @@ use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
 use Mojo::JSON 'to_json';
+use Conch::UUID 'is_uuid';
 
 =pod
 
 =head1 NAME
 
 Conch::Controller::DeviceReport
+
+=head1 DESCRIPTION
+
+Controller for processing and managing device reports.
 
 =head1 METHODS
 
@@ -408,8 +413,45 @@ sub _add_reboot_count {
 	}
 }
 
+=head2 find_device_report
 
+Chainable action that validates the 'device_report_id' provided in the path.
+Stores the device_id and device_report resultset to the stash for later retrieval.
 
+Permissions checks are done in the next controller action in the chain.
+
+=cut
+
+sub find_device_report ($c) {
+    return $c->status(404) if not is_uuid($c->stash('device_report_id'));
+
+    my $device_report_rs = $c->db_device_reports
+        ->search_rs({ 'device_report.id' => $c->stash('device_report_id') });
+
+    my $device_id = $device_report_rs->get_column('device_id')->single;
+    if (not $device_id) {
+        $c->log->debug('Failed to find device_report id \''.$c->stash('device_report_id').'\'');
+        return $c->status(404);
+    }
+
+    $c->stash('device_id', $device_id);
+    $c->stash('device_report_rs', scalar $device_report_rs);
+
+    return 1;
+}
+
+=head2 get
+
+Get the device_report record specified by uuid.
+A permissions check has already been done by device#find_device.
+
+Response uses the DeviceReportRow json schema.
+
+=cut
+
+sub get ($c) {
+    return $c->status(200, $c->stash('device_report_rs')->single);
+}
 
 1;
 __END__

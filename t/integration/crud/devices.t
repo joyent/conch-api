@@ -44,16 +44,31 @@ subtest 'unlocated device, no registered relay' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults');
 
+    my $device_report_id = $t->tx->res->json->{device_report_id};
+
     $t->get_ok('/device/TEST')
         ->status_is(403)
         ->json_schema_is('Error')
         ->json_is('', { error => 'Forbidden' }, 'unlocated device isn\'t visible to a ro user');
 
-    $t->authenticate(user => $admin_user->email);
-    $t->get_ok('/device/TEST')
-        ->status_is(200)
-        ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
-    $t->authenticate(user => $ro_user->email);
+    $t->get_ok('/device_report/'.$device_report_id)
+        ->status_is(403)
+        ->json_schema_is('Error')
+        ->json_is('', { error => 'Forbidden' }, 'unlocated device report isn\'t visible to a ro user');
+
+    {
+        $t->authenticate(user => $admin_user->email);
+
+        $t->get_ok('/device/TEST')
+            ->status_is(200)
+            ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
+
+        $t->get_ok('/device_report/'.$device_report_id)
+            ->status_is(200)
+            ->json_schema_is('DeviceReportRow', 'device reports are always visible to a sysadmin user');
+
+        $t->authenticate(user => $ro_user->email);
+    }
 };
 
 subtest 'unlocated device with a registered relay' => sub {
@@ -67,6 +82,17 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('ValidationStateWithResults');
 
     my $validation_state = $t->tx->res->json;
+
+    $t->get_ok('/device_report/'.$validation_state->{device_report_id})
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $validation_state->{device_report_id},
+            device_id => 'TEST',
+            report => from_json($report),
+            invalid_report => undef,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -82,7 +108,7 @@ subtest 'unlocated device with a registered relay' => sub {
             hardware_product => $hardware_product_id,
             location => undef,
             latest_report_is_invalid => JSON::PP::false,
-            latest_report => superhashof({ product_name => 'Joyent-G1' }),
+            latest_report => from_json($report),
             invalid_report => undef,
             nics => supersetof(),
             disks => supersetof(superhashof({ serial_number => 'BTHC640405WM1P6PGN' })),
@@ -99,13 +125,26 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('Error')
         ->json_is('', { error => 'Forbidden' }, 'cannot see device without the relay connection');
 
-    $null_user->update({ is_admin => 1 });
-    $t->get_ok('/device/TEST')
-        ->status_is(200)
-        ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
-    $null_user->update({ is_admin => 0 });
+    $t->get_ok('/device_report/'.$validation_state->{device_report_id})
+        ->status_is(403)
+        ->json_schema_is('Error')
+        ->json_is('', { error => 'Forbidden' }, 'cannot see device report without the relay connection');
 
-    $t->authenticate(user => $ro_user->email);
+    {
+        $null_user->update({ is_admin => 1 });
+
+        $t->get_ok('/device/TEST')
+            ->status_is(200)
+            ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
+
+        $t->get_ok('/device_report/'.$validation_state->{device_report_id})
+            ->status_is(200)
+            ->json_schema_is('DeviceReportRow', 'device reports are always visible to a sysadmin user');
+
+        $null_user->update({ is_admin => 0 });
+
+        $t->authenticate(user => $ro_user->email);
+    }
 };
 
 subtest 'located device' => sub {

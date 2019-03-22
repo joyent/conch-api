@@ -4,6 +4,7 @@ use Mojo::Base -strict, -signatures;
 
 use Conch::Route::Workspace;
 use Conch::Route::Device;
+use Conch::Route::DeviceReport;
 use Conch::Route::Relay;
 use Conch::Route::User;
 use Conch::Route::HardwareProduct;
@@ -93,6 +94,7 @@ sub all_routes (
 
     Conch::Route::Workspace->routes($secured->any('/workspace'));
     Conch::Route::Device->routes($secured->any('/device'));
+    Conch::Route::DeviceReport->routes($secured->any('/device_report'));
     Conch::Route::Relay->routes($secured->any('/relay'));
     Conch::Route::User->routes($secured->any('/user'));
     Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
