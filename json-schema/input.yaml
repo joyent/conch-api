@@ -2,36 +2,21 @@
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   non_empty_string:
-    type: string
-    minLength: 1
+    $ref: common.yaml#/definitions/non_empty_string
   uuid:
-    type: string
-    pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
+    $ref: common.yaml#/definitions/uuid
   relay_id:
-    type: string
-    pattern: ^\S+$
+    $ref: common.yaml#/definitions/relay_id
   device_id:
-    type: string
-    pattern: ^\S+$
+    $ref: common.yaml#/definitions/device_id
   device_asset_tag:
-    type: string
-    pattern: ^\S+$
+    $ref: common.yaml#/definitions/device_asset_tag
   ipaddr:
-    oneOf:
-      - type: string
-        format: ipv4
-      - type: string
-        format: ipv6
+    $ref: common.yaml#/definitions/ipaddr
   macaddr:
-    type: string
-    pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
+    $ref: common.yaml#/definitions/macaddr
   int_or_stringy_int:
-    description: an integer that may be presented as a json string
-    # note that when JSON::Validator has 'coerce' mode on, both of these rules will match.
-    oneOf:
-      - type: integer
-      - type: string
-        pattern: "^[0-9]+$"
+    $ref: common.yaml#/definitions/int_or_stringy_int
   DatacenterCreate:
     type: object
     additionalProperties: false
@@ -88,153 +73,8 @@ definitions:
         type: string
       vendor_name:
         type: string
-
   DeviceReport:
-    type: object
-    required:
-      - bios_version
-      - product_name
-      - serial_number
-      - state
-      - system_uuid
-    properties:
-      bios_version:
-        type: string
-      cpus:
-        type: array
-        items:
-          type: object
-      dimms:
-        type: array
-        uniqueItems: true
-        items:
-          type: object
-          required:
-            - memory-locator
-          properties:
-            memory-locator:
-              type: string
-            memory-serial-number:
-              type: string
-            memory-size:
-              $ref: /definitions/int_or_stringy_int
-      disks:
-        type: object
-        patternProperties:
-          ^\S+$:
-            description: device_disk.serial_number
-            type: object
-            properties:
-              slot:
-                $ref: /definitions/int_or_stringy_int
-              size:
-                type: integer
-              vendor:
-                type: string
-              model:
-                type: string
-              firmware:
-                type: string
-              transport:
-                type: string
-              health:
-                type: string  # TODO: enum?
-              drive_type:
-                type: string
-              temp:
-                $ref: /definitions/int_or_stringy_int
-              enclosure:
-                $ref: /definitions/int_or_stringy_int
-              hba:
-                $ref: /definitions/int_or_stringy_int
-              # any additional fields are not currently used.
-      device_type:
-        type: string
-        enum:
-          - server
-          - switch
-      interfaces:
-        # TODO: this is required for servers
-        type: object
-        patternProperties:
-          ^\S+$:
-            description: interface name
-            type: object
-            required:
-              - mac
-              - product
-              - vendor
-            properties:
-              mac:
-                $ref: /definitions/macaddr
-              product:
-                type: string
-              vendor:
-                type: string
-              state:
-                oneOf:
-                  - type: string
-                  - type: 'null'
-              # note: no speed yet?
-              ipaddr:
-                oneOf:
-                  - $ref: /definitions/ipaddr
-                  - type: 'null'
-              mtu:
-                oneOf:
-                  - $ref: /definitions/int_or_stringy_int
-                  - type: 'null'
-              peer_mac:
-                oneOf:
-                  - $ref: /definitions/macaddr
-                  - type: 'null'
-              # peer_text, peer_switch, peer_port, all optional with no constraints
-      media:
-        # TODO: this is required for switches
-        type: object
-        patternProperties:
-          ^\S$:
-            description: port
-            # type: unknown and not used.
-      os:
-        type: object
-        required:
-          - hostname
-        properties:
-          hostname:
-            type: string
-      product_name:
-        # TODO: required for switches, and also for non-switches when 'sku' is not present.
-        type: string
-      relay:
-        type: object
-        required:
-          - serial
-        properties:
-          serial:
-            $ref: /definitions/non_empty_string
-      serial_number:
-        $ref: /definitions/device_id
-      state:
-        type: string
-      system_uuid:
-        $ref: /definitions/uuid
-      temp:
-        type: object
-        required:
-          - cpu0
-          - cpu1
-        properties:
-          cpu0:
-            $ref: /definitions/int_or_stringy_int
-          cpu1:
-            $ref: /definitions/int_or_stringy_int
-          exhaust:
-            $ref: /definitions/int_or_stringy_int
-          inlet:
-            $ref: /definitions/int_or_stringy_int
-      uptime_since:
-        type: string
+    $ref: device_report.yaml#/definitions/DeviceReport_v2.24
   RackCreate:
     type: object
     additionalProperties: false

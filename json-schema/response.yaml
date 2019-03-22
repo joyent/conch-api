@@ -2,26 +2,17 @@
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   uuid:
-    type: string
-    pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
+    $ref: common.yaml#/definitions/uuid
   relay_id:
-    type: string
-    pattern: ^\S+$
+    $ref: common.yaml#/definitions/relay_id
   device_id:
-    type: string
-    pattern: ^\S+$
+    $ref: common.yaml#/definitions/device_id
   device_asset_tag:
-    type: string
-    pattern: ^\S+$
+    $ref: common.yaml#/definitions/device_asset_tag
   ipaddr:
-    oneOf:
-      - type: string
-        format: ipv4
-      - type: string
-        format: ipv6
+    $ref: common.yaml#/definitions/ipaddr
   macaddr:
-    type: string
-    pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
+    $ref: common.yaml#/definitions/macaddr
   validation_status:
     type: string
     enum:
@@ -257,9 +248,11 @@ definitions:
       latest_report_is_invalid:
         type: boolean
       latest_report:
-        oneOf:
-          - $ref: /definitions/DeviceReport
+        description: the contents of the device report. Given its age we cannot provide a schema.
+        anyOf:
           - type: 'null'
+          - $ref: device_report.yaml#/definitions/DeviceReport_v2.24
+          - type: object  # TODO: remove this loose alternative when we purge historical db records
       invalid_report:
         description: this could be anything, from encoded json to random junk
         oneOf:
@@ -551,39 +544,6 @@ definitions:
               properties:
                 mac:
                   $ref: /definitions/macaddr
-  DeviceReport:
-    type: object
-    required:
-      - product_name
-      - serial_number
-      - system_uuid
-      - state
-      - bios_version
-      - os
-      - processor
-      - memory
-    properties:
-      product_name:
-        type: string
-      serial_number:
-        $ref: /definitions/device_id
-      system_uuid:
-        $ref: /definitions/uuid
-      state:
-        type: string
-      bios_version:
-        type: string
-      os:
-        type: object
-        required:
-          - hostname
-        properties:
-          hostname:
-            type: string
-      processor:
-        type: object
-      memory:
-        type: object
   DeviceLocation:
     type: object
     additionalProperties: false
