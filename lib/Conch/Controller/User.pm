@@ -231,7 +231,6 @@ password after logging in, as they will not be able to log in with it again.
 sub reset_user_password ($c) {
 	my $user = $c->stash('target_user');
 
-	my $new_password = $c->random_string;
 	my %update = (
 		password => $c->random_string(),
 	);
@@ -263,7 +262,7 @@ sub reset_user_password ($c) {
 	$c->send_mail(changed_user_password => {
 		name     => $user->name,
 		email    => $user->email,
-		password => $new_password
+		password => $update{password},
 	});
 	return $c->status(202);
 }
