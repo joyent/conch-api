@@ -49,9 +49,6 @@ sub all_routes (
         })->under;
     });
 
-    # CORS preflight check
-    $root->options('*', sub{ shift->status(204) });
-
     $root->get( '/doc',
         sub { shift->reply->static('public/doc/index.html') } );
 

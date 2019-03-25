@@ -93,11 +93,6 @@ sub startup {
 
 
 	$self->hook(
-		# Preventative check against CSRF. Cross-origin requests can only
-		# specify application/x-www-form-urlencoded, multipart/form-data,
-		# and text/plain Content Types without triggering CORS checks in the browser.
-		# Appropriate CORS headers must still be added by the serving proxy
-		# to be effective against CSRF.
 		before_routes => sub ($c) {
 			my $headers = $c->req->headers;
 
@@ -113,27 +108,6 @@ sub startup {
 			}
 		}
 	);
-
-
-	# This sets CORS headers suitable for development. More restrictive headers
-	# *should* be added by a reverse-proxy for production deployments.
-	# This will set 'Access-Control-Allow-Origin' to the request Origin, which
-	# means it's vulnerable to CSRF attacks. However, for developing browser
-	# apps locally, this is a necessary evil.
-	if ($self->mode eq 'development') {
-		$self->hook(
-			after_dispatch => sub ($c) {
-				my $origin = $c->req->headers->origin || '*';
-				$c->res->headers->header( 'Access-Control-Allow-Origin' => $origin );
-				$c->res->headers->header(
-					'Access-Control-Allow-Methods' => 'GET, PUT, POST, DELETE, OPTIONS' );
-				$c->res->headers->header( 'Access-Control-Max-Age' => 3600 );
-				$c->res->headers->header( 'Access-Control-Allow-Headers' =>
-						'Content-Type, Authorization, X-Requested-With' );
-				$c->res->headers->header( 'Access-Control-Allow-Credentials' => 'true' );
-			}
-		);
-	}
 
 	$self->hook(
 		before_dispatch => sub ($c) {
