@@ -256,7 +256,7 @@ definitions:
         type: string
       datacenter_room_id:
         $ref: /definitions/uuid
-      role:
+      role: # TODO: this really should be rack_role_id
         $ref: /definitions/uuid
       serial_number:
         oneOf:
