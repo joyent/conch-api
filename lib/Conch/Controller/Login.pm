@@ -116,8 +116,8 @@ sub authenticate ($c) {
 
         # pass through to whatever action the user was trying to reach
         $c->log->debug('user '.$user->name.' ('.$user->email.') accepted using basic auth');
-        $c->stash(user_id => $user->id);
-        $c->stash(user    => $user);
+        $c->stash('user_id', $user->id);
+        $c->stash('user', $user);
         return 1;
     }
 
@@ -197,8 +197,8 @@ sub authenticate ($c) {
                 }
             }
 
-            $c->stash(user_id => $user_id);
-            $c->stash(user    => $user);
+            $c->stash('user_id', $user_id);
+            $c->stash('user', $user);
             return 1;
         }
     }
@@ -236,8 +236,8 @@ sub session_login ($c) {
         return $c->status(401);
     }
 
-    $c->stash(user_id => $user->id);
-    $c->stash(user => $user);
+    $c->stash('user_id', $user->id);
+    $c->stash('user', $user);
 
     unless ($c->feature('stop_conch_cookie_issue')) {
         $c->session(user => $user->id);

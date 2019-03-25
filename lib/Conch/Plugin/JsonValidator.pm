@@ -71,7 +71,7 @@ response if validation failed; returns validated input on success.
 
         if (my @errors = $validator->validate($input, $schema)) {
             $c->log->error("FAILED data validation for schema $schema_name".join(' // ', @errors));
-            return $c->status(400 => { error => join("\n",@errors) });
+            return $c->status(400, { error => join("\n",@errors) });
         }
 
         $c->log->debug("Passed data validation for input schema $schema_name");

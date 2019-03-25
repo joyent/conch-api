@@ -63,7 +63,7 @@ sub all_routes (
     $root->get('/ping', sub { shift->status(200, { status => 'ok' }) });
 
     # GET /version
-    $root->get('/version' => sub {
+    $root->get('/version', sub {
         my $c = shift;
         $c->status(200, { version => $c->version_tag });
     });
@@ -78,7 +78,7 @@ sub all_routes (
     $root->post('/reset_password')->to('login#reset_password');
 
     # GET /schema/:input_or_response/:schema_name
-    $root->get('/schema/:request_or_response/:name' =>
+    $root->get('/schema/:request_or_response/:name',
         [ request_or_response => [qw(request response)] ])->to('schema#get');
 
     # GET /workspace/:workspace/device-totals

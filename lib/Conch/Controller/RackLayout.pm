@@ -33,7 +33,7 @@ sub find_rack_layout ($c) {
     }
 
     $c->log->debug('Found rack layout '.$layout->id);
-    $c->stash('rack_layout' => $layout);
+    $c->stash('rack_layout', $layout);
     return 1;
 }
 
@@ -54,12 +54,12 @@ sub create ($c) {
 
     unless ($c->db_racks->search({ id => $input->{rack_id} })->exists) {
         $c->log->debug('Could not find rack '.$input->{rack_id});
-        return $c->status(400 => { error => 'Rack does not exist' });
+        return $c->status(400, { error => 'Rack does not exist' });
     }
 
     unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
         $c->log->debug('Could not find hardware product '.$input->{hardware_product_id});
-        return $c->status(400 => { error => 'Hardware product does not exist' });
+        return $c->status(400, { error => 'Hardware product does not exist' });
     }
 
     my $rack_size = $c->db_rack_roles->search(
@@ -69,7 +69,7 @@ sub create ($c) {
 
     if ($input->{rack_unit_start} > $rack_size) {
         $c->log->debug("ru_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
-        return $c->status(400 => { error => 'ru_start beyond maximum' });
+        return $c->status(400, { error => 'ru_start beyond maximum' });
     }
 
     my %assigned_rack_units = map { $_ => 1 }
@@ -87,20 +87,20 @@ sub create ($c) {
     if ($input->{rack_unit_start} + $new_rack_unit_size - 1 > $rack_size) {
         $c->log->debug('layout ends at rack unit '.($input->{rack_unit_start} + $new_rack_unit_size - 1)
             .", beyond the end of the rack (size $rack_size)");
-        return $c->status(400 => { error => 'ru_start+rack_unit_size beyond maximum' });
+        return $c->status(400, { error => 'ru_start+rack_unit_size beyond maximum' });
     }
 
     my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
         $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
-        return $c->status(400 => { error => 'ru_start conflict' });
+        return $c->status(400, { error => 'ru_start conflict' });
     }
 
     my $layout = $c->db_rack_layouts->create($input);
     $c->log->debug('Created rack layout '.$layout->id);
 
-    $c->status(303 => '/layout/'.$layout->id);
+    $c->status(303, '/layout/'.$layout->id);
 }
 
 =head2 get
@@ -139,7 +139,7 @@ sub get_all ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');
-    $c->status(200 => \@layouts);
+    $c->status(200, \@layouts);
 }
 
 =head2 update
@@ -159,19 +159,19 @@ sub update ($c) {
     # if changing rack...
     if ($input->{rack_id} and $input->{rack_id} ne $c->stash('rack_layout')->rack_id) {
         $c->log->debug('Cannot move a layout to a new rack. Delete this layout and create a new one at the new location');
-        return $c->status(400 => { error => 'cannot change rack_id' });
+        return $c->status(400, { error => 'cannot change rack_id' });
     }
 
     # cannot alter an occupied layout
     if (my $device_location = $c->stash('rack_layout')->device_location) {
         $c->log->debug('Cannot update layout: occupied by device id '.$device_location->device_id);
-        return $c->status(400 => { error => 'cannot update a layout with a device occupying it' });
+        return $c->status(400, { error => 'cannot update a layout with a device occupying it' });
     }
 
     # if changing hardware_product_id...
     if ($input->{hardware_product_id} and $input->{hardware_product_id} ne $c->stash('rack_layout')->hardware_product_id) {
         unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
-            return $c->status(400 => { error => 'Hardware product does not exist' });
+            return $c->status(400, { error => 'Hardware product does not exist' });
         }
     }
 
@@ -187,12 +187,12 @@ sub update ($c) {
                     rack_unit_start => $input->{rack_unit_start},
                 })->exists) {
             $c->log->debug('Conflict with ru_start value of '.$input->{rack_unit_start});
-            return $c->status(400 => { error => 'ru_start conflict' });
+            return $c->status(400, { error => 'ru_start conflict' });
         }
 
         if ($input->{rack_unit_start} > $rack_size) {
             $c->log->debug("ru_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
-            return $c->status(400 => { error => 'ru_start beyond maximum' });
+            return $c->status(400, { error => 'ru_start beyond maximum' });
         }
     }
 
@@ -227,19 +227,19 @@ sub update ($c) {
     if ($new_rack_unit_start + $new_rack_unit_size - 1 > $rack_size) {
         $c->log->debug('layout ends at rack unit '.($new_rack_unit_start + $new_rack_unit_size - 1)
             .", beyond the end of the rack (size $rack_size)");
-        return $c->status(400 => { error => 'ru_start+rack_unit_size beyond maximum' });
+        return $c->status(400, { error => 'ru_start+rack_unit_size beyond maximum' });
     }
 
     my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
         $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
-        return $c->status(400 => { error => 'ru_start conflict' });
+        return $c->status(400, { error => 'ru_start conflict' });
     }
 
     $c->stash('rack_layout')->update({ %$input, updated => \'now()' });
 
-    return $c->status(303 => '/layout/'.$c->stash('rack_layout')->id);
+    return $c->status(303, '/layout/'.$c->stash('rack_layout')->id);
 }
 
 =head2 delete
@@ -251,7 +251,7 @@ Deletes the specified rack layout.
 sub delete ($c) {
     if (my $device_location = $c->stash('rack_layout')->device_location) {
         $c->log->debug('Cannot delete layout: occupied by device id '.$device_location->device_id);
-        return $c->status(400 => { error => 'cannot delete a layout with a device occupying it' });
+        return $c->status(400, { error => 'cannot delete a layout with a device occupying it' });
     }
 
     $c->stash('rack_layout')->delete;

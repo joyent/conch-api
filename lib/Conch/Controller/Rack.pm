@@ -61,11 +61,11 @@ sub create ($c) {
     return if not $input;
 
     unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
-        return $c->status(400 => { error => 'Room does not exist' });
+        return $c->status(400, { error => 'Room does not exist' });
     }
 
     unless ($c->db_rack_roles->search({ id => $input->{role} })->exists) {
-        return $c->status(400 => { error => 'Rack role does not exist' });
+        return $c->status(400, { error => 'Rack role does not exist' });
     }
 
     $input->{rack_role_id} = delete $input->{role};
@@ -73,7 +73,7 @@ sub create ($c) {
     my $rack = $c->db_racks->create($input);
     $c->log->debug('Created rack '.$rack->id);
 
-    $c->status(303 => '/rack/'.$rack->id);
+    $c->status(303, '/rack/'.$rack->id);
 }
 
 =head2 get
@@ -129,7 +129,7 @@ sub layouts ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');
-    $c->status(200 => \@layouts);
+    $c->status(200, \@layouts);
 }
 
 =head2 update
@@ -148,7 +148,7 @@ sub update ($c) {
     if ($input->{datacenter_room_id}
             and $input->{datacenter_room_id} ne $rack->datacenter_room_id) {
         unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
-            return $c->status(400 => { error => 'Room does not exist' });
+            return $c->status(400, { error => 'Room does not exist' });
         }
     }
 
@@ -157,7 +157,7 @@ sub update ($c) {
             and ($input->{rack_role_id} = delete $input->{role}) ne $rack->rack_role_id) {
         my $rack_role = $c->db_rack_roles->find($input->{rack_role_id});
         if (not $rack_role) {
-            return $c->status(400 => { error => 'Rack role does not exist' });
+            return $c->status(400, { error => 'Rack role does not exist' });
         }
 
         my @assigned_rack_units = $rack_rs->assigned_rack_units;
@@ -166,14 +166,14 @@ sub update ($c) {
             $c->log->debug('found layout used by rack id '.$c->stash('rack_id')
                 .' that has assigned rack_units greater requested new rack_size of '
                 .$rack_role->rack_size.': ', join(', ', @out_of_range));
-            return $c->status(400 => { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
+            return $c->status(400, { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
         }
     }
 
     $rack->set_columns($input);
     $rack->update({ updated => \'now()' }) if $rack->is_changed;
     $c->log->debug('Updated rack '.$rack->id);
-    return $c->status(303 => '/rack/'.$rack->id);
+    return $c->status(303, '/rack/'.$rack->id);
 }
 
 =head2 delete
@@ -185,7 +185,7 @@ Delete a rack.
 sub delete ($c) {
     if ($c->stash('rack_rs')->related_resultset('rack_layouts')->exists) {
         $c->log->debug('Cannot delete rack: in use by one or more rack_layouts');
-        return $c->status(400 => { error => 'cannot delete a rack when a rack_layout is referencing it' });
+        return $c->status(400, { error => 'cannot delete a rack when a rack_layout is referencing it' });
     }
 
     # deletions will cascade to workspace_rack.
@@ -225,7 +225,7 @@ sub get_assignment ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@assignments).' device-rack assignments');
-    $c->status(200 => \@assignments);
+    $c->status(200, \@assignments);
 }
 
 =head2 set_assignment
@@ -248,16 +248,16 @@ sub set_assignment ($c) {
             my $ru = $_;
             none { $ru == $_->rack_unit_start } @layouts;
         } map $_->{rack_unit_start}, $input->@*;
-        return $c->status(400 => { error => 'missing layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing) });
+        return $c->status(400, { error => 'missing layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing) });
     }
 
     if (my @occupied = grep $_->device_location, @layouts) {
-        return $c->status(400 => { error => 'already occupied: rack_unit_start '
+        return $c->status(400, { error => 'already occupied: rack_unit_start '
             .join(', ', map $_->rack_unit_start, @occupied) });
     }
 
     if (my @located = $c->db_device_locations->search({ device_id => { -in => [ map $_->{device_id}, $input->@* ] } })) {
-        return $c->status(400 => { error => 'device'.(@located > 1 ? 's ' : ' ')
+        return $c->status(400, { error => 'device'.(@located > 1 ? 's ' : ' ')
             .join(', ', map $_->device_id, @located).' already '
             .(@located > 1 ? 'have assigned locations' : 'has an assigned location') });
     }
@@ -291,7 +291,7 @@ sub set_assignment ($c) {
     }
 
     $c->log->debug('Updated device assignments for rack '.$c->stash('rack_id'));
-    $c->status(303 => '/rack/'.$c->stash('rack_id').'/assignment');
+    $c->status(303, '/rack/'.$c->stash('rack_id').'/assignment');
 }
 
 =head2 delete_assignment

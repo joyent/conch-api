@@ -103,7 +103,7 @@ sub add_user ($c) {
     }
 
     my $workspace_id = $c->stash('workspace_id');
-    $user->update_or_create_related('user_workspace_roles' => {
+    $user->update_or_create_related('user_workspace_roles', {
         workspace_id => $workspace_id,
         role => $input->{role},
     });

@@ -33,7 +33,7 @@ $t->get_ok('/workspace')
 my $global_ws_id = $t->tx->res->json->[0]{id};
 BAIL_OUT("No workspace ID") unless $global_ws_id;
 
-$t->post_ok("/workspace/$global_ws_id/child" =>
+$t->post_ok("/workspace/$global_ws_id/child",
         json => { name => "test", description => "also test" })
     ->status_is(201);
 
@@ -619,7 +619,7 @@ subtest 'Permissions' => sub {
             ->json_is('/0/name', 'GLOBAL');
 
         subtest "Can't create a subworkspace" => sub {
-            $t->post_ok("/workspace/$global_ws_id/child" =>
+            $t->post_ok("/workspace/$global_ws_id/child",
                     json => { name => "test", description => "also test", })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });
@@ -706,7 +706,7 @@ subtest 'Permissions' => sub {
             ->json_is('/0/name', 'GLOBAL');
 
         subtest "Can't create a subworkspace" => sub {
-            $t->post_ok("/workspace/$global_ws_id/child" =>
+            $t->post_ok("/workspace/$global_ws_id/child",
                     json => { name => "test", description => "also test", })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });

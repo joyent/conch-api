@@ -44,7 +44,7 @@ sub find_rack_role ($c) {
     }
 
     $c->log->debug('Found rack role '.$rack_role->id);
-    $c->stash('rack_role' => $rack_role);
+    $c->stash('rack_role', $rack_role);
     return 1;
 }
 
@@ -62,12 +62,12 @@ sub create ($c) {
 
     if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
         $c->log->debug("Name conflict on '".$input->{name}."'");
-        return $c->status(400 => { error => 'name is already taken' });
+        return $c->status(400, { error => 'name is already taken' });
     }
 
     my $rack_role = $c->db_rack_roles->create($input);
     $c->log->debug('Created rack role '.$rack_role->id);
-    $c->status(303 => '/rack_role/'.$rack_role->id);
+    $c->status(303, '/rack_role/'.$rack_role->id);
 }
 
 =head2 get
@@ -97,7 +97,7 @@ sub get_all ($c) {
     my @rack_roles = $c->db_rack_roles->all;
     $c->log->debug('Found '.scalar(@rack_roles).' rack roles');
 
-    $c->status(200 => \@rack_roles);
+    $c->status(200, \@rack_roles);
 }
 
 =head2 update
@@ -113,7 +113,7 @@ sub update ($c) {
     if ($input->{name}) {
         if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
             $c->log->debug("Name conflict on '".$input->{name}."'");
-            return $c->status(400 => { error => 'name is already taken' });
+            return $c->status(400, { error => 'name is already taken' });
         }
     }
 
@@ -133,7 +133,7 @@ sub update ($c) {
                 $c->log->debug('found layout used by rack_role id '.$rack_role->id
                     .' that has assigned rack_units greater requested new rack_size of '
                     .$input->{rack_size}.': ', join(', ', @out_of_range));
-                return $c->status(400 => { error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
+                return $c->status(400, { error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
             }
         }
     }
@@ -141,7 +141,7 @@ sub update ($c) {
     $rack_role->set_columns($input);
     $rack_role->update({ updated => \'now()' }) if $rack_role->is_changed;
     $c->log->debug('Updated rack role '.$rack_role->id);
-    $c->status(303 => '/rack_role/'.$rack_role->id);
+    $c->status(303, '/rack_role/'.$rack_role->id);
 }
 
 =head2 delete
@@ -153,7 +153,7 @@ Delete a rack role.
 sub delete ($c) {
     if ($c->stash('rack_role')->related_resultset('racks')->exists) {
         $c->log->debug('Cannot delete rack_role: in use by one or more racks');
-        return $c->status(400 => { error => 'cannot delete a rack_role when a rack is referencing it' });
+        return $c->status(400, { error => 'cannot delete a rack_role when a rack is referencing it' });
     }
 
     $c->stash('rack_role')->delete;

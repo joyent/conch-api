@@ -51,14 +51,14 @@ subtest 'User' => sub {
     $t->get_ok('/user/me/settings/BAD')
         ->status_is(404);
 
-    $t->post_ok('/user/me/settings/TEST' => json => { NOTTEST => 'test' })
+    $t->post_ok('/user/me/settings/TEST', json => { NOTTEST => 'test' })
         ->status_is(400)
         ->json_is({ error => "Setting key in request object must match name in the URL ('TEST')", });
 
     $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
         ->status_is(404);
 
-    $t->post_ok('/user/me/settings/TEST' => json => { TEST => 'TEST' })
+    $t->post_ok('/user/me/settings/TEST', json => { TEST => 'TEST' })
         ->status_is(200)
         ->content_is('');
 
@@ -70,7 +70,7 @@ subtest 'User' => sub {
         ->status_is(200)
         ->json_is('', { TEST => 'TEST' });
 
-    $t->post_ok('/user/me/settings/TEST2' => json => { TEST2 => { foo => 'bar' } })
+    $t->post_ok('/user/me/settings/TEST2', json => { TEST2 => { foo => 'bar' } })
         ->status_is(200)
         ->content_is('');
 
@@ -101,7 +101,7 @@ subtest 'User' => sub {
     $t->get_ok('/user/me/settings/TEST')
         ->status_is(404);
 
-    $t->post_ok('/user/me/settings/dot.setting' => json => { 'dot.setting' => 'set' })
+    $t->post_ok('/user/me/settings/dot.setting', json => { 'dot.setting' => 'set' })
         ->status_is(200)
         ->content_is('');
 
@@ -116,11 +116,11 @@ subtest 'User' => sub {
     # everything should be deactivated now.
     # starting over, let's see if set_settings overwrites everything...
 
-    $t->post_ok('/user/me/settings' => json => { TEST1 => 'TEST', TEST2 => 'ohhai', })
+    $t->post_ok('/user/me/settings', json => { TEST1 => 'TEST', TEST2 => 'ohhai', })
         ->status_is(200)
         ->content_is('');
 
-    $t->post_ok('/user/me/settings' => json => { TEST1 => 'test1', TEST3 => 'test3', })
+    $t->post_ok('/user/me/settings', json => { TEST1 => 'test1', TEST3 => 'test3', })
         ->status_is(200)
         ->content_is('');
 
@@ -164,7 +164,7 @@ subtest 'User' => sub {
         ->status_is(201);
     my $api_token = $t->tx->res->json->{token};
 
-    $t->post_ok('/user/me/password' => json => { password => 'øƕḩẳȋ' })
+    $t->post_ok('/user/me/password', json => { password => 'øƕḩẳȋ' })
         ->status_is(204, 'changed password');
 
     $t->get_ok('/user/me/settings')
@@ -195,7 +195,7 @@ subtest 'User' => sub {
     $t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => 'øƕḩẳȋ' })
         ->status_is(200, 'logged in using new password');
 
-    $t->post_ok('/user/me/password?clear_tokens=all' => json => { password => 'another password' })
+    $t->post_ok('/user/me/password?clear_tokens=all', json => { password => 'another password' })
         ->status_is(204, 'changed password again');
 
     {
@@ -273,7 +273,7 @@ subtest 'Workspaces' => sub {
         ->status_is(201, 'created new user test_user')
         ->json_schema_is('User');
 
-    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
@@ -291,7 +291,7 @@ subtest 'Workspaces' => sub {
         'new user can access this workspace',
     );
 
-    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
@@ -300,7 +300,7 @@ subtest 'Workspaces' => sub {
     is($t->app->db_user_workspace_roles->count, 2,
         'still just two user_workspace_role entries');
 
-    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'ro',
         })
@@ -363,11 +363,11 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(400)
         ->json_cmp_deeply({ error => re(qr/name: .*does not match/) });
 
-    $t->post_ok("/workspace/$global_ws_id/child" => json => { name => 'GLOBAL' })
+    $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'GLOBAL' })
         ->status_is(400, 'Cannot create duplicate workspace')
         ->json_is('', { error => "workspace 'GLOBAL' already exists" });
 
-    $t->post_ok("/workspace/$global_ws_id/child" => json => {
+    $t->post_ok("/workspace/$global_ws_id/child", json => {
             name        => 'child_ws',
             description => 'one level of workspaces',
         })
@@ -405,7 +405,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_schema_is('WorkspaceAndRole')
         ->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by name');
 
-    $t->post_ok("/workspace/$child_ws_id/child" =>
+    $t->post_ok("/workspace/$child_ws_id/child",
             json => { name => 'grandchild_ws', description => 'two levels of subworkspaces', })
         ->status_is(201, 'created a grandchild workspace')
         ->json_schema_is('WorkspaceAndRole')
@@ -517,7 +517,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'data for users who can access grandchild workspace');
 
-    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
@@ -526,14 +526,14 @@ subtest 'Sub-Workspace' => sub {
     is($t->app->db_user_workspace_roles->count, 2,
         'still just two user_workspace_role entries');
 
-    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'ro',
         })
         ->status_is(400)
         ->json_is({ error => "user test user already has rw access to workspace $grandchild_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
 
-    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'admin',
         })
@@ -544,13 +544,13 @@ subtest 'Sub-Workspace' => sub {
 
     # now let's try manipulating permissions on the workspace in the middle of the hierarchy
 
-    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
         ->status_is(200, 'redundant add requests do nothing');
 
-    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'ro',
         })
@@ -560,7 +560,7 @@ subtest 'Sub-Workspace' => sub {
     is($t->app->db_user_workspace_roles->count, 3,
         'still just three user_workspace_role entries');
 
-    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0" => json => {
+    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0", json => {
             user => 'test_user@conch.joyent.us',
             role => 'admin',
         })
@@ -636,7 +636,7 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(201, 'created new untrusted user')
         ->json_schema_is('User');
 
-    $t->post_ok('/workspace/child_ws/user?send_mail=0' => json => {
+    $t->post_ok('/workspace/child_ws/user?send_mail=0', json => {
             user => 'untrusted_user@conch.joyent.us',
             role => 'ro',
         })
@@ -952,7 +952,7 @@ subtest 'modify another user' => sub {
         });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
-    $t2->post_ok('/login' => json => { user => 'foo@conch.joyent.us', password => '123' })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => '123' })
         ->status_is(200, 'new user can log in');
     my $jwt_token = $t2->tx->res->json->{jwt_token};
     my $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
@@ -985,7 +985,7 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me', { Authorization => "Bearer $api_token" })
         ->status_is(401, 'new user cannot authenticate with the api token after api tokens are revoked');
 
-    $t2->post_ok('/login' => json => { user => 'foo@conch.joyent.us', password => '123' })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => '123' })
         ->status_is(200, 'new user can still log in again');
     $jwt_token = $t2->tx->res->json->{jwt_token};
     $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
@@ -1041,14 +1041,14 @@ subtest 'modify another user' => sub {
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'foo@conch.joyent.us');
 
-    $t2->post_ok('/login' => json => { user => 'foo@conch.joyent.us', password => 'foo', })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => 'foo', })
         ->status_is(401, 'cannot log in with the old password');
 
     $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:'.$insecure_password)->path('/me'))
         ->status_is(401, 'user cannot use new password with basic auth to go anywhere else')
         ->location_is('/user/me/password');
 
-    $t2->post_ok('/login' => json => { user => 'foo@conch.joyent.us', password => $insecure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password, })
         ->status_is(200, 'user can log in with new password')
         ->location_is('/user/me/password');
     $jwt_token = $t2->tx->res->json->{jwt_token};
@@ -1064,17 +1064,17 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user can\'t use his JWT to do anything else')
         ->location_is('/user/me/password');
 
-    $t2->post_ok('/login' => json => { user => 'foo@conch.joyent.us', password => $insecure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password, })
         ->status_is(401, 'user cannot log in with the same insecure password again');
 
-    $t2->post_ok('/user/me/password' => { Authorization => "Bearer $jwt_token.$jwt_sig" }
-            => json => { password => 'a more secure password' })
+    $t2->post_ok('/user/me/password' => { Authorization => "Bearer $jwt_token.$jwt_sig" },
+            json => { password => 'a more secure password' })
         ->status_is(204, 'user finally acquiesced and changed his password');
 
     my $secure_password = $_new_password;
     is($secure_password, 'a more secure password', 'provided password was saved to the db');
 
-    $t2->post_ok('/login' => json => { user => 'foo@conch.joyent.us', password => $secure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password, })
         ->status_is(200, 'user can log in with new password')
         ->json_has('/jwt_token')
         ->json_hasnt('/message');
@@ -1105,7 +1105,7 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user cannot log in with saved browser session');
 
     $t2->reset_session; # force JWT to be used to authenticate
-    $t2->post_ok('/login' => json => { user => 'foo@conch.joyent.us', password => $secure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password, })
         ->status_is(401, 'user can no longer log in with credentials');
 
     $t->delete_ok("/user/$new_user_id")

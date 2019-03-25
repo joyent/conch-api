@@ -65,7 +65,7 @@ sub find_hardware_product ($c) {
         return $c->status(404);
     }
 
-    $c->stash('hardware_product_rs' => scalar $hardware_product_rs);
+    $c->stash('hardware_product_rs', scalar $hardware_product_rs);
     return 1;
 }
 
@@ -81,7 +81,7 @@ sub get ($c) {
     my $rs = $c->stash('hardware_product_rs')
         ->prefetch('hardware_product_profile');
 
-    $c->status(200 => $rs->single);
+    $c->status(200, $rs->single);
 }
 
 =head2 create
@@ -100,7 +100,7 @@ sub create ($c) {
         next unless $input->{$key};
         if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
-            return $c->status(400 => { error => "Unique constraint violated on '$key'" });
+            return $c->status(400, { error => "Unique constraint violated on '$key'" });
         }
     }
 
@@ -120,7 +120,7 @@ sub create ($c) {
           ? (' and hardware product profile id '.$hardware_product->hardware_product_profile->id)
           : '')
     );
-    $c->status(303 => "/hardware_product/".$hardware_product->id);
+    $c->status(303, "/hardware_product/".$hardware_product->id);
 }
 
 =head2 update
@@ -146,7 +146,7 @@ sub update ($c) {
 
         if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
-            return $c->status(400 => { error => "Unique constraint violated on '$key'" });
+            return $c->status(400, { error => "Unique constraint violated on '$key'" });
         }
     }
 
@@ -169,7 +169,7 @@ sub update ($c) {
                     die 'rollback'
                         if not $c->validate_input('HardwareProductProfileCreate', $profile);
 
-                    $hardware_product->create_related('hardware_product_profile' => $profile);
+                    $hardware_product->create_related('hardware_product_profile', $profile);
                     $c->log->debug('Created new hardware_product_profile for hardware product '.$hardware_product->id);
                 }
             }
@@ -184,7 +184,7 @@ sub update ($c) {
     # if the result code was already set, we errored and rolled back the db..
     return if $c->res->code;
 
-    $c->status(303 => '/hardware_product/'.$hardware_product->id);
+    $c->status(303, '/hardware_product/'.$hardware_product->id);
 }
 
 =head2 delete

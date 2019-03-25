@@ -31,7 +31,7 @@ sub find_datacenter ($c) {
     }
 
     $c->log->debug('Found datacenter '.$datacenter_id);
-    $c->stash('datacenter' => $datacenter);
+    $c->stash('datacenter', $datacenter);
     return 1;
 }
 
@@ -95,7 +95,7 @@ sub create ($c) {
 
     my $datacenter = $c->db_datacenters->create($input);
     $c->log->debug('Created datacenter '.$datacenter->id);
-    $c->status(303 => '/dc/'.$datacenter->id);
+    $c->status(303, '/dc/'.$datacenter->id);
 }
 
 =head2 update
@@ -115,7 +115,7 @@ sub update ($c) {
     $datacenter->update({ updated => \'now()' }) if $datacenter->is_changed;
 
     $c->log->debug('Updated datacenter '.$datacenter->id);
-    $c->status(303 => '/dc/'.$datacenter->id);
+    $c->status(303, '/dc/'.$datacenter->id);
 }
 
 =head2 delete
@@ -129,7 +129,7 @@ sub delete ($c) {
 
     if ($c->stash('datacenter')->related_resultset('datacenter_rooms')->exists) {
         $c->log->debug('Cannot delete datacenter: in use by one or more datacenter_rooms');
-        return $c->status(400 => { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });
+        return $c->status(400, { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });
     }
 
     $c->stash('datacenter')->delete;

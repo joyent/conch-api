@@ -34,7 +34,7 @@ sub create ($c) {
 
     if (my $existing_validation_plan = $c->db_validation_plans->active->search({ name => $input->{name} })->single) {
         $c->log->debug("Name conflict on '$input->{name}'");
-        return $c->status(409 => {
+        return $c->status(409, {
             error => "A Validation Plan already exists with the name '$input->{name}'"
         });
     }
@@ -43,7 +43,7 @@ sub create ($c) {
 
     $c->log->debug('Created validation plan '.$validation_plan->id);
 
-    $c->status(303 => '/validation_plan/'.$validation_plan->id);
+    $c->status(303, '/validation_plan/'.$validation_plan->id);
 }
 
 =head2 list
@@ -80,7 +80,7 @@ sub find_validation_plan($c) {
     }
 
     $c->log->debug('Found validation plan '.$validation_plan->id);
-    $c->stash(validation_plan => $validation_plan);
+    $c->stash('validation_plan', $validation_plan);
     return 1;
 }
 
@@ -130,7 +130,7 @@ sub add_validation ($c) {
     my $validation = $c->db_validations->active->find($input->{id});
     if (not $validation) {
         $c->log->debug("Failed to find validation $input->{id}");
-        return $c->status(409 => { error => "Validation with ID '$input->{id}' doesn't exist" });
+        return $c->status(409, { error => "Validation with ID '$input->{id}' doesn't exist" });
     }
 
     $c->stash('validation_plan')
@@ -157,7 +157,7 @@ sub remove_validation ($c) {
     my $validation_plan = $c->stash('validation_plan');
     if (not $validation_plan->search_related('validation_plan_members', { validation_id => $validation_id })) {
         $c->log->debug("Validation with ID '$validation_id' isn't a member of the Validation Plan");
-        return $c->status(409 => {
+        return $c->status(409, {
             error => "Validation with ID '$validation_id' isn't a member of the Validation Plan"
         });
     }
