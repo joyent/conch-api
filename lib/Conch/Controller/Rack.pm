@@ -152,8 +152,9 @@ sub update ($c) {
     }
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it
-    if (exists $input->{role} and $input->{role} ne $rack->rack_role_id) {
-        my $rack_role = $c->db_rack_roles->find($input->{role});
+    if (exists $input->{role}
+            and ($input->{rack_role_id} = delete $input->{role}) ne $rack->rack_role_id) {
+        my $rack_role = $c->db_rack_roles->find($input->{rack_role_id});
         if (not $rack_role) {
             return $c->status(400 => { error => 'Rack role does not exist' });
         }
@@ -166,8 +167,6 @@ sub update ($c) {
                 .$rack_role->rack_size.': ', join(', ', @out_of_range));
             return $c->status(400 => { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
         }
-
-        $input->{rack_role_id} = delete $input->{role};
     }
 
     $rack->set_columns($input);

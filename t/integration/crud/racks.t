@@ -84,6 +84,12 @@ $t->post_ok("/rack/$new_rack_id", json => {
     })
     ->status_is(303);
 
+$t->post_ok("/rack/$new_rack_id", json => { role => $small_rack_role->id })
+    ->status_is(303);
+
+$t->post_ok("/rack/$new_rack_id", json => { role => $small_rack_role->id })
+    ->status_is(303);
+
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('Rack')
