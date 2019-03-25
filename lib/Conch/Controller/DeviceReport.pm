@@ -96,10 +96,10 @@ sub process ($c) {
         hardware_product_id => $hw->id,
         state               => $unserialized_report->{state},
         health              => 'unknown',
-        last_seen           => \'NOW()',
+        last_seen           => \'now()',
         uptime_since        => $uptime,
         hostname            => $unserialized_report->{os}{hostname},
-        updated             => \'NOW()',
+        updated             => \'now()',
         deactivated         => undef,
     });
 
@@ -199,7 +199,7 @@ sub _record_device_configuration {
                 # untouched on updates
                 $device->search_related('device_relay_connections',
                         { relay_id => $dr->{relay}{serial} })
-                    ->update_or_create({ last_seen => \'NOW()' });
+                    ->update_or_create({ last_seen => \'now()' });
             }
             else {
                 $c->log->warn('received report without relay id (device_id '. $device->id.')');
@@ -225,7 +225,7 @@ sub _record_device_configuration {
                     inlet_temp   => $dr->{temp}->{inlet},
                     exhaust_temp => $dr->{temp}->{exhaust},
                     # TODO: not setting psu0_voltage, psu1_voltage
-                    updated      => \'NOW()',
+                    updated      => \'now()',
                 });
                 $c->log->info('Recorded environment for Device '.$device->id);
             }
@@ -261,7 +261,7 @@ sub _record_device_configuration {
                             hba
                         )},
                         deactivated   => undef,
-                        updated       => \'NOW()'
+                        updated       => \'now()'
                     },
                     { key => 'device_disk_serial_number_key' },
                 );
@@ -315,7 +315,7 @@ sub _record_device_configuration {
                         state        => $dr->{interfaces}->{$nic}->{state},
                         ipaddr       => $dr->{interfaces}->{$nic}->{ipaddr},
                         mtu          => $dr->{interfaces}->{$nic}->{mtu},
-                        updated      => \'NOW()',
+                        updated      => \'now()',
                         deactivated  => undef,
                         # TODO: 'speed' is never set!
                     },
@@ -328,7 +328,7 @@ sub _record_device_configuration {
                         peer_switch => $dr->{interfaces}->{$nic}->{peer_switch},
                         peer_port   => $dr->{interfaces}->{$nic}->{peer_port},
                         peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac},
-                        updated     => \'NOW()'
+                        updated     => \'now()'
                         # TODO: not setting want_port, want_switch
                     }
                 );
@@ -356,7 +356,7 @@ sub _add_reboot_count {
     if ($reboot_count->in_storage) {
         $reboot_count->update({
             value => 1 + $reboot_count->value,
-            updated => \'NOW()',
+            updated => \'now()',
         });
     }
     else {

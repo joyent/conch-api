@@ -259,7 +259,7 @@ sub graduate ($c) {
         return $c->status(409, { error => 'Device '.$device_id.' has already been graduated' });
     }
 
-    $device->update({ graduated => \'NOW()', updated => \'NOW()' });
+    $device->update({ graduated => \'now()', updated => \'now()' });
     $c->log->debug('Marked '.$device_id.' as graduated');
 
     $c->status(303);
@@ -274,7 +274,7 @@ Sets the C<latest_triton_reboot> field on a device
 
 sub set_triton_reboot ($c) {
     my $device = $c->stash('device_rs')->single;
-    $device->update({ latest_triton_reboot => \'NOW()', updated => \'NOW()' });
+    $device->update({ latest_triton_reboot => \'now()', updated => \'now()' });
 
     $c->log->debug('Marked '.$device->id.' as rebooted into triton');
 
@@ -295,7 +295,7 @@ sub set_triton_uuid ($c) {
     my $input = $c->validate_input('DeviceTritonUuid');
     return if not $input;
 
-    $device->update({ triton_uuid => $input->{triton_uuid}, updated => \'NOW()' });
+    $device->update({ triton_uuid => $input->{triton_uuid}, updated => \'now()' });
     $c->log->debug('Set the triton uuid for device '.$device->id.' to '.$input->{triton_uuid});
 
     $c->status(303);
@@ -326,7 +326,7 @@ sub set_triton_setup ($c) {
         return $c->status(409, { error => 'Device '.$device_id.' has already been marked as set up for Triton' });
     }
 
-    $device->update({ triton_setup => \'NOW()', updated => \'NOW()' });
+    $device->update({ triton_setup => \'now()', updated => \'now()' });
     $c->log->debug('Device '.$device_id.' marked as set up for triton');
 
     $c->status(303);
@@ -345,7 +345,7 @@ sub set_asset_tag ($c) {
 
     my $device = $c->stash('device_rs')->single;
 
-    $device->update({ asset_tag => $input->{asset_tag}, updated => \'NOW()' });
+    $device->update({ asset_tag => $input->{asset_tag}, updated => \'now()' });
     $c->log->debug('Set the asset tag for device '.$device->id.' to '.($input->{asset_tag} // 'null'));
 
     $c->status(303);
@@ -363,7 +363,7 @@ sub set_validated ($c) {
     my $device_id = $device->id;
     return $c->status(204) if defined($device->validated);
 
-    $device->update({ validated => \'NOW()', updated => \'NOW()' });
+    $device->update({ validated => \'now()', updated => \'now()' });
     $c->log->debug('Marked the device '.$device_id.' as validated');
 
     $c->status(303);

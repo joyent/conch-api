@@ -249,7 +249,7 @@ sub session_login ($c) {
     if ($user->force_password_change) {
         $c->log->info('user '.$user->name.' logging in with one-time insecure password');
         $user->update({
-            last_login => \'NOW()',
+            last_login => \'now()',
             password => $c->random_string,    # ensure password cannot be used again
         });
         # password must be reset within 10 minutes
@@ -268,7 +268,7 @@ sub session_login ($c) {
 
     # allow the user to use session auth again
     $user->update({
-        last_login => \'NOW()',
+        last_login => \'now()',
         refuse_session_auth => 0,
     });
 

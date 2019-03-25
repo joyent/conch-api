@@ -35,7 +35,7 @@ sub active ($self) {
 
 =head2 deactivate
 
-Update all matching rows by setting deactivated = NOW().
+Update all matching rows by setting deactivated = now().
 
 =cut
 
@@ -47,8 +47,8 @@ sub deactivate {
         if not $self->result_source->has_column('deactivated');
 
     $self->update({
-        deactivated => \'NOW()',
-        $self->result_source->has_column('updated') ? ( updated => \'NOW()' ) : (),
+        deactivated => \'now()',
+        $self->result_source->has_column('updated') ? ( updated => \'now()' ) : (),
     });
 }
 

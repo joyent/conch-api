@@ -89,7 +89,7 @@ sub set_single ($c) {
         }
     }
 
-    $existing_setting->update({ deactivated => \'NOW()' }) if $existing_setting;
+    $existing_setting->update({ deactivated => \'now()' }) if $existing_setting;
     $settings_rs->create({ name => $setting_key, value => $setting_value });
 
     $c->status(200);

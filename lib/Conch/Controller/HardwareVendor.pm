@@ -94,7 +94,7 @@ sub create ($c) {
 
 sub delete($c) {
     $c->log->debug('Deleting hardware vendor '.$c->stash('hardware_vendor')->id);
-    $c->stash('hardware_vendor')->update({ deactivated => \'NOW()', updated => \'NOW()' });
+    $c->stash('hardware_vendor')->update({ deactivated => \'now()', updated => \'now()' });
     return $c->status(204);
 }
 

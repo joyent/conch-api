@@ -21,7 +21,7 @@ $pgtmp or die;
 my $pg = Mojo::Pg->new($pgtmp->uri);
 
 subtest 'Test timestamps from real DB' => sub {
-    my $now = $pg->db->query('SELECT NOW()::timestamptz as now ')->hash->{now};
+    my $now = $pg->db->query('SELECT now()::timestamptz as now ')->hash->{now};
     ok(my $conch_time = Conch::Time->new($now));
 
     my $dt = $pg->db->query("SELECT '2018-01-02T12:34:56.123'::timestamptz as datetime")

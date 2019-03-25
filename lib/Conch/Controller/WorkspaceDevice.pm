@@ -65,7 +65,7 @@ sub list ($c) {
         $devices_rs = $devices_rs->search({ health => lc $c->param('health') });
     }
 
-    $devices_rs = $devices_rs->search({ last_seen => { '>' => \q{NOW() - interval '300 second'}} })
+    $devices_rs = $devices_rs->search({ last_seen => { '>' => \q{now() - interval '300 second'}} })
         if defined $c->param('active');
 
     $devices_rs = $devices_rs->get_column('id')
