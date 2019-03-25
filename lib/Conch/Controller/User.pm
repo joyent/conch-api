@@ -236,7 +236,7 @@ sub reset_user_password ($c) {
 	);
 
 	if ($c->req->query_params->param('clear_tokens') // 1) {
-		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for for user ' . $user->name);
+		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for user ' . $user->name);
 		$user->delete_related('user_session_tokens');
 
 		%update = (
@@ -437,7 +437,7 @@ sub deactivate ($c) {
 	$user->delete_related('user_workspace_roles');
 
 	if ($c->req->query_params->param('clear_tokens') // 1) {
-		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for for user ' . $user->name);
+		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for user ' . $user->name);
 		$user->delete_related('user_session_tokens');
 	}
 
