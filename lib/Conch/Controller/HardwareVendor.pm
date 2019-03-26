@@ -37,7 +37,7 @@ sub find_hardware_vendor ($c) {
 
     if (not $hardware_vendor) {
         $c->log->debug('Could not locate a valid hardware vendor');
-        return $c->status(404 => { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->log->debug('Found hardware vendor ' . $hardware_vendor->id);

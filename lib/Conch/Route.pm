@@ -39,7 +39,7 @@ sub all_routes (
         my ($r, $path) = @_;
         $r->any(sub {
             my $c = shift;
-            return $c->status(401, { error => 'unauthorized' })
+            return $c->status(401)
                 unless $c->stash('user') and $c->stash('user_id');
 
             return $c->status(403, { error => 'Must be system admin' })
@@ -49,17 +49,17 @@ sub all_routes (
         })->under;
     });
 
-    # CORS preflight check
-    $root->options('*', sub{ shift->status(204) });
-
+    # GET /doc
     $root->get( '/doc',
         sub { shift->reply->static('public/doc/index.html') } );
 
+    # GET /ping
     $root->get(
         '/ping',
         sub { shift->status( 200, { status => 'ok' } ) },
     );
 
+    # GET /version
     $root->get(
         '/version' => sub {
             my $c = shift;
@@ -67,8 +67,13 @@ sub all_routes (
         }
     );
 
+    # POST /login
     $root->post('/login')->to('login#session_login');
+
+    # POST /logout
     $root->post('/logout')->to('login#session_logout');
+
+    # POST /reset_password
     $root->post('/reset_password')->to('login#reset_password');
 
     # GET /schema/:input_or_response/:schema_name

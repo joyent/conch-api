@@ -232,8 +232,7 @@ subtest 'Remove rack from workspace' => sub {
         ->status_is(204);
 
     $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
-        ->status_is(404)
-        ->json_cmp_deeply({ error => re(qr/not found/) });
+        ->status_is(404);
 
     $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
         ->status_is(400)

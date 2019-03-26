@@ -3,6 +3,9 @@ definitions:
   uuid:
     type: string
     pattern: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
+  relay_id:
+    type: string
+    pattern: ^\S+$
   device_id:
     type: string
     pattern: ^\S+$
@@ -1337,7 +1340,7 @@ definitions:
         type: string
         format: date-time
       id:
-        type: string
+        $ref: /definitions/relay_id
       ipaddr:
         oneOf:
           - $ref: /definitions/ipaddr

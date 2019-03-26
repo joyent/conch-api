@@ -152,8 +152,7 @@ sub get_setting ($c) {
 		{ order_by => { -desc => 'created' } },
 	)->one_row;
 
-	return $c->status( 404, { error => "No such setting '$key'" } )
-		unless $setting;
+	return $c->status(404) unless $setting;
 
 	$c->status( 200, { $key => from_json($setting->value) } );
 }
@@ -173,8 +172,7 @@ sub delete_setting ($c) {
 
 	my $count = $user->search_related('user_settings', { name => $key })->active->deactivate;
 
-	return $c->status( 404, { error => "No such setting '$key'" } )
-		unless $count;
+	return $c->status(404) unless $count;
 
 	return $c->status(204);
 }
@@ -290,7 +288,7 @@ sub find_user ($c) {
 	$c->log->debug('looking up user '.$user_param);
 	my $user = $user_rs->lookup_by_id_or_email($user_param);
 
-	return $c->status(404, { error => "user $user_param not found" }) if not $user;
+	return $c->status(404) if not $user;
 
 	$c->stash('target_user', $user);
 	return 1;

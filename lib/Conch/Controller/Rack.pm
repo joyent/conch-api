@@ -28,7 +28,7 @@ sub find_rack ($c) {
 
     if (not $rack_rs->exists) {
         $c->log->debug('Could not find rack ',$c->stash('rack_id'));
-        return $c->status(404 => { error => 'Not found' });
+        return $c->status(404);
     }
 
     # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
@@ -40,7 +40,7 @@ sub find_rack ($c) {
 
     if (not $rack_rs->user_has_permission($c->stash('user_id'), $requires_permission)) {
         $c->log->debug('User lacks permission to access rack'.$c->stash('rack_id'));
-        return $c->status(403, { error => 'Forbidden' });
+        return $c->status(403);
     }
 
     $c->log->debug('Found rack '.$c->stash('rack_id'));

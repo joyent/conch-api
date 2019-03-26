@@ -34,7 +34,7 @@ sub find_datacenter ($c) {
 
     if (not $datacenter) {
         $c->log->debug('Unable to find datacenter '.$datacenter_id);
-        return $c->status(404 => { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->log->debug('Found datacenter '.$datacenter_id);

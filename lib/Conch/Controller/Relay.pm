@@ -46,7 +46,7 @@ sub register ($c) {
 
 =head2 list
 
-If the user is a system admin, retrieve a list of all relays in the database
+If the user is a system admin, retrieve a list of all active relays in the database
 
 Response uses the Relays json schema.
 
@@ -55,7 +55,7 @@ Response uses the Relays json schema.
 sub list ($c) {
     return $c->status(403) unless $c->is_system_admin;
 
-    $c->status(200, [ $c->db_relays->all ]);
+    $c->status(200, [ $c->db_relays->active->all ]);
 }
 
 1;

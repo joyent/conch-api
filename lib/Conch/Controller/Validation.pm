@@ -46,7 +46,7 @@ sub find_validation($c) {
 
     if (not $validation_rs->exists) {
         $c->log->debug("Failed to find validation for '$identifier'");
-        return $c->status(404, { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->stash('validation_rs', scalar $validation_rs);

@@ -7,7 +7,7 @@ requires 'perl', '5.026';
 die "Your perl is too old! Requires 5.026, but this is $]" if "$]" < '5.026';
 
 # basics
-requires 'Cpanel::JSON::XS';
+requires 'Cpanel::JSON::XS', '4.10';
 requires 'List::MoreUtils::XS';         # make List::MoreUtils faster
 requires 'Data::UUID';
 requires 'List::Compare';
@@ -16,7 +16,6 @@ requires 'Try::Tiny';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'JSON::Validator', '2.14';
-requires 'Pod::Markdown::Github';
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
 requires 'Safe::Isa';
@@ -57,6 +56,9 @@ requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz
 requires 'Devel::Confess';
 
 # misc scripts
+requires 'Pod::Usage';
+requires 'Pod::Markdown::Github';
+requires 'Getopt::Long';
 requires 'Data::Visitor::Tiny';
 
 # database and rendering

@@ -28,10 +28,33 @@ my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
 $t->authenticate(user => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
-    ->status_is(404)
-    ->json_schema_is('Error')
-    ->json_is({ error => 'Not found' });
+    ->status_is(404);
 
+
+subtest 'unlocated device, no registered relay' => sub {
+    my $report_data = from_json(path('t/integration/resource/passing-device-report.json')->slurp_utf8);
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(400)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'relay serial deadbeef is not registered' });
+
+    delete $report_data->{relay};
+
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults');
+
+    $t->get_ok('/device/TEST')
+        ->status_is(403)
+        ->json_schema_is('Error')
+        ->json_is('', { error => 'Forbidden' }, 'unlocated device isn\'t visible to a ro user');
+
+    $t->authenticate(user => $admin_user->email);
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
+    $t->authenticate(user => $ro_user->email);
+};
 
 subtest 'unlocated device with a registered relay' => sub {
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
@@ -274,8 +297,7 @@ subtest 'get by device attributes' => sub {
 
 subtest 'mutate device attributes' => sub {
     $t->post_ok('/device/nonexistent/graduate')
-        ->status_is(404)
-        ->json_is({ error => 'Not found' });
+        ->status_is(404);
 
     $t->post_ok('/device/TEST/graduate')
         ->status_is(303)
@@ -353,8 +375,7 @@ subtest 'Device settings' => sub {
         ->content_is('{}');
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
-        ->status_is(404)
-        ->json_is({ error => 'No such setting \'foo\'' });
+        ->status_is(404);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(400, 'Requires body')
@@ -387,12 +408,10 @@ subtest 'Device settings' => sub {
         ->content_is('');
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/fizzle')
-        ->status_is(404)
-        ->json_is({ error => 'No such setting \'fizzle\'' });
+        ->status_is(404);
 
     $t->delete_ok('/device/LOCATED_DEVICE/settings/fizzle')
-        ->status_is(404)
-        ->json_is({ error => 'No such setting \'fizzle\'' });
+        ->status_is(404);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
         ->status_is(200);
@@ -409,8 +428,7 @@ subtest 'Device settings' => sub {
         ->content_is('');
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
-        ->status_is(404)
-        ->json_is({ error => 'No such setting \'tag.bar\'' });
+        ->status_is(404);
 
     $t->get_ok('/device/LOCATED_DEVICE')
         ->status_is(200)

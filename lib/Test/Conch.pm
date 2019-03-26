@@ -116,8 +116,9 @@ sub new {
         sub ($file, $) {
             return if not -f $file;
             return if $file !~ /\.pm$/; # skip swap files
-            $self->app->log->info("loading $file");
-            eval "require './$file'" or die $@;
+            my $module = 'Conch::Controller::'. ($file->basename =~ s/\.pm$//r);
+            $self->app->log->info("loading $module");
+            eval "require $module" or die $@;
         },
         { recurse => 1 },
     );

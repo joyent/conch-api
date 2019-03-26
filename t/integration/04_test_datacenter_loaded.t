@@ -713,15 +713,12 @@ subtest 'Permissions' => sub {
 			$t->post_ok('/device/TEST/settings', json => { key => 'value' })
 				->status_is(200, 'writing new key only requires rw');
 			$t->post_ok('/device/TEST/settings/key', json => { key => 'new value' })
-				->status_is(403)
-				->json_is({ error => 'insufficient permissions' });
+				->status_is(403);
 			$t->delete_ok('/device/TEST/settings/foo')
-				->status_is(403)
-				->json_is({ error => 'insufficient permissions' });
+				->status_is(403);
 
 			$t->post_ok('/device/TEST/settings', json => { key => 'new value', 'tag.bar' => 'bar' })
-				->status_is(403)
-				->json_is({ error => 'insufficient permissions' });
+				->status_is(403);
 			$t->post_ok('/device/TEST/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
 				->status_is(200);
 
@@ -731,8 +728,8 @@ subtest 'Permissions' => sub {
 				->json_is('/tag.bar', 'newbar', 'Setting was updated');
 			$t->delete_ok('/device/TEST/settings/tag.bar')->status_is(204)
 				->content_is('');
-			$t->get_ok('/device/TEST/settings/tag.bar')->status_is(404)
-				->json_is({ error => 'No such setting \'tag.bar\'' });
+			$t->get_ok('/device/TEST/settings/tag.bar')
+				->status_is(404);
 		};
 
 		$t->post_ok("/logout")->status_is(204);

@@ -67,8 +67,7 @@ sub add_user ($c) {
 
 	my $user = $c->db_user_accounts->active->lookup_by_id_or_email("email=$input->{user}");
 
-	return $c->status(404, { error => "user $input->{user} not found" })
-		unless $user;
+	return $c->status(404) unless $user;
 
 	# check if the user already has access to this workspace
 	if (my $existing_role_via = $c->db_workspaces

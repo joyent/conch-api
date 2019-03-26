@@ -29,7 +29,7 @@ sub find_rack_layout ($c) {
     my $layout = $c->db_rack_layouts->find($c->stash('layout_id'));
     if (not $layout) {
         $c->log->debug('Could not find rack layout '.$c->stash('layout_id'));
-        return $c->status(404 => { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->log->debug('Found rack layout '.$layout->id);

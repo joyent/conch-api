@@ -39,7 +39,7 @@ sub set_all ($c) {
 	if ($perm_needed eq 'admin') {
 		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
 			$c->log->debug("failed permission check (required $perm_needed)");
-			return $c->status(403, { error => 'insufficient permissions' });
+			return $c->status(403);
 		}
 	}
 
@@ -84,7 +84,7 @@ sub set_single ($c) {
 	if ($perm_needed eq 'admin') {
 		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
 			$c->log->debug("failed permission check (required $perm_needed)");
-			return $c->status(403, { error => 'insufficient permissions' });
+			return $c->status(403);
 		}
 	}
 
@@ -125,8 +125,7 @@ sub get_single ($c) {
 			{ order_by => { -desc => 'created' }, rows => 1 },
 		)->single;
 
-	return $c->status( 404, { error => "No such setting '$setting_key'" } )
-		unless $setting;
+	return $c->status(404) unless $setting;
 
 	$c->status(200, { $setting_key => $setting->value });
 }
@@ -146,7 +145,7 @@ sub delete_single ($c) {
 	if ($perm_needed eq 'admin') {
 		if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
 			$c->log->debug("failed permission check (required $perm_needed)");
-			return $c->status(403, { error => 'insufficient permissions' });
+			return $c->status(403);
 		}
 	}
 
@@ -158,7 +157,8 @@ sub delete_single ($c) {
 			->search({ name => $setting_key })
 			->deactivate > 0
 	) {
-		return $c->status( 404, { error => "No such setting '$setting_key'" } );
+		$c->log->debug("No such setting '$setting_key'");
+		return $c->status(404);
 	}
 
 	return $c->status(204);

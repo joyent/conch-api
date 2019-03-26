@@ -56,14 +56,14 @@ sub find_hardware_product ($c) {
             ->search({ "hardware_product.$key" => $value });
     } else {
         $c->log->debug("Looking up a HardwareProduct by id ".$c->stash('hardware_product_id'));
-        return $c->status(404 => { error => 'Not found' }) if not is_uuid($c->stash('hardware_product_id'));
+        return $c->status(404) if not is_uuid($c->stash('hardware_product_id'));
         $hardware_product_rs = $hardware_product_rs
             ->search({ 'hardware_product.id' => $c->stash('hardware_product_id') });
     }
 
     if (not $hardware_product_rs->exists) {
         $c->log->debug('Could not locate a valid hardware product');
-        return $c->status(404 => { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->stash('hardware_product_rs' => scalar $hardware_product_rs);

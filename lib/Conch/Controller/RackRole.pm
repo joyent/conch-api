@@ -27,7 +27,7 @@ sub find_rack_role ($c) {
         my ($key, $value) = ($1, $2);
         if ($key ne 'name') {
             $c->log->warn("Unknown identifier '$key'");
-            return $c->status(404 => { error => 'Not found' });
+            return $c->status(404);
         }
 
         $c->log->debug("Looking up rack role using identifier '$key'");
@@ -39,7 +39,7 @@ sub find_rack_role ($c) {
 
     if (not $rack_role) {
         $c->log->debug('Failed to find rack role');
-        return $c->status(404 => { error => 'Not found' });
+        return $c->status(404);
     }
 
     $c->log->debug('Found rack role '.$rack_role->id);

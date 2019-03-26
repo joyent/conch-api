@@ -21,14 +21,10 @@ $t->get_ok('/hardware_vendor')
 my $vendors = $t->tx->res->json;
 
 $t->get_ok('/hardware_vendor/'.$uuid->create_str)
-    ->status_is(404)
-    ->json_schema_is('Error')
-    ->json_is({ error => 'Not found' });
+    ->status_is(404);
 
 $t->get_ok('/hardware_vendor/foo')
-    ->status_is(404)
-    ->json_schema_is('Error')
-    ->json_is({ error => 'Not found' });
+    ->status_is(404);
 
 $t->get_ok('/hardware_vendor/'.$vendors->[0]{id})
     ->status_is(200)
