@@ -1663,5 +1663,32 @@ definitions:
               type: integer
         count:
           type: integer
+  DeviceReportRow:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - device_id
+      - report
+      - created
+      - invalid_report
+    properties:
+      id:
+        $ref: /definitions/uuid
+      device_id:
+        $ref: /definitions/device_id
+      report:
+        description: the contents of the device report. Given its age we cannot provide a schema.
+        oneOf:
+          - type: 'null'
+          - type: object
+      created:
+        type: string
+        format: date-time
+      invalid_report:
+        description: this could be anything, from encoded json to random junk
+        oneOf:
+          - type: string
+          - type: 'null'
 
 # vim: set sts=2 sw=2 et :

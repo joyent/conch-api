@@ -99,6 +99,17 @@ subtest 'Device Report' => sub {
         'stored the report in raw form',
     );
 
+    $t->get_ok('/device_report/'.$device_report_ids[0])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[0],
+            device_id => 'TEST',
+            report => from_json($good_report),
+            invalid_report => undef,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
 	is($device->related_resultset('device_reports')->count, 1, 'one device_report row created');
 	is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
 	is($t->app->db_validation_results->count, 1, 'one validation result row created');
@@ -169,6 +180,17 @@ subtest 'Device Report' => sub {
     # the device report was saved, but no validations run.
     push @device_report_ids, $t->app->db_device_reports->order_by({ -desc => 'created' })->rows(1)->get_column('id')->single;
 
+    $t->get_ok('/device_report/'.$device_report_ids[-1])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[-1],
+            device_id => 'TEST',
+            report => undef,
+            invalid_report => $invalid_json_1,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
     is($device->related_resultset('device_reports')->count, 3, 'now three device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
     is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
@@ -180,6 +202,17 @@ subtest 'Device Report' => sub {
 		->json_is('/latest_report_is_invalid' => JSON::PP::true)
 		->json_is('/latest_report' => undef)
 		->json_is('/invalid_report' => $invalid_json_1);
+
+    $t->get_ok('/device_report/'.$device_report_ids[0])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[0],
+            device_id => 'TEST',
+            report => from_json($good_report),
+            invalid_report => undef,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
 
 
 	my $invalid_json_2 = to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' });
@@ -198,6 +231,17 @@ subtest 'Device Report' => sub {
 
     # the device report was saved, but no validations run.
     push @device_report_ids, $t->app->db_device_reports->order_by({ -desc => 'created' })->rows(1)->get_column('id')->single;
+
+    $t->get_ok('/device_report/'.$device_report_ids[-1])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[-1],
+            device_id => 'TEST',
+            report => undef,
+            invalid_report => to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' }),
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
 
     is($device->related_resultset('device_reports')->count, 4, 'now four device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
@@ -250,6 +294,17 @@ subtest 'Device Report' => sub {
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
     push @validation_state_ids, $t->tx->res->json->{id};
+
+    $t->get_ok('/device_report/'.$device_report_ids[-1])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[-1],
+            device_id => 'TEST',
+            report => from_json($error_report),
+            invalid_report => undef,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
 
     is($device->related_resultset('device_reports')->count, 6, 'now six device_report rows exist');
     is($device->related_resultset('validation_states')->count, 4, 'now another validation_state row exists');
