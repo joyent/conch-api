@@ -49,9 +49,7 @@ sub process ($c) {
 
     # Make sure the API and device report agree on who we're talking about
     if ($c->stash('device_id') ne $unserialized_report->{serial_number}) {
-        return $c->render(status => 422, json => {
-            error => 'Serial number provided to the API does not match the report data.'
-        });
+        return $c->status(422, { error => 'Serial number provided to the API does not match the report data.' });
     }
 
     # Make sure that the remote side is telling us about a hardware product we understand
