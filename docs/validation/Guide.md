@@ -187,73 +187,6 @@ sub validate {
 1;
 ```
 
-Validating input
-----------------
-
-As you might notice in the example, it can be quite tedious to validate every
-field in the input data hash and call `$self->die` if it's not present.
-Instead, you may optionally define a 'schema' field. If `schema` is defined
-will validate the input data against the schema before calling `validate` if
-the data is valid. Any schema errors will be registered as validation results
-with 'error' status.
-
-The schema is defined using [JSON-Schema](http://json-schema.org), written with
-a Perl hash instead of a JSON string. You can find [an easy JSON-Schema
-tutorial here](http://json-schema.org/example1.html). It covers everything you
-should need to write a schema for a Conch Validation.
-
-**NOTE:** As the input data is required to be a hash, the root-level `{ type =>
-'object', properties => {...} }` is omitted when defining validation schemas.
-All top-level keys in the `schema` hash are assumed to be properties of the
-hash. All top-level keys are also marked as `required`.
-
-We can re-write our example validation using a schema like so:
-
-
-```perl
-package Conch::Validation::MyValidation;
-
-use Mojo::Base 'Conch::Validation';
-
-has 'name' => 'my_validation_name';
-has 'version' => 1;
-has 'category' => 'EXAMPLE';
-has 'description' => q(A basic example of a validation.);
-
-# NOTICE the 'sub {}' wrapping the hash!
-# Mojo::Base requires non-scalar fields be defined this way.
-has 'schema' => sub {
-	{
-		power => {
-			type       => 'object',
-			required   => ['gigawatts'],
-			properties => {
-				gigawatts => { type => 'number' }
-			}
-		}
-	}
-};
-
-sub validate {
-	my ($self, $data) = @_;
-	# we can safely assume this hash path is present because it was verified with the schema
-	my $gigawatts = $data->{power}->{gigawatts};
-	
-	$self->register_result(
-		expected => 1.21,
-		got      => $gigawatts,
-		cmp      => '>=',
-		hint     => 'We require at least 1.21 gigawatts of power for this device'
-	);
-}
-
-1;
-```
-
-If the input data does not satisfy the schema, a validation result with status
-'error' will be recorded describing all schema errors and the `validate` method
-will not be executed.
-
 Dispatching on Device Attributes
 --------------------------------
 
@@ -305,20 +238,6 @@ has 'name' => 'my_validation_name';
 has 'version' => 1;
 has 'category' => 'EXAMPLE';
 has 'description' => q(A basic example of a validation.);
-
-# NOTICE the 'sub {}' wrapping the hash!
-# Mojo::Base requires non-scalar fields be defined this way.
-has 'schema' => sub {
-	{
-		power => {
-			type     => 'object',
-			required => ['gigawatts'],
-			properties => {
-				gigawatts => { type => 'number' }
-			}
-		}
-	}
-};
 
 sub validate {
 	my ($self, $data) = @_;
@@ -535,28 +454,13 @@ Validations are independent and un-ordered within a validation plan. A given
 validation may be in 0 or many validation plans, and a validation plan may have
 0, 1, or many validations associated with it.
 
-Only users who are system admins (i.e., [they have the `is_admin` flag set
-on their user account](https://github.com/joyent/rfd/blob/master/rfd/0134/README.md) may
-create and manage validation plans. However, anyone with a Conch account may
-list and test validation plans.
+Anyone with a Conch account may list and test validation plans.
 
 `conch validation-plans get` lists all available validation plans. Like
 validation IDs, you may shorten the UUID to the first 8 characters in commands.
 
-`conch validation-plans create --name NAME_OF_NEW_VALIDATION_PLAN --description
-DESCRIPTION_OF_PLAN` creates a new validation plan. A new validation plan will
-have no validations associated with it.
-
 `conch validation-plan PLAN_ID validations` lists all validations associated
 with the plan.
-
-`conch validation-plan PLAN_ID add-validation VALIDATION_ID` associates a
-validation with the validation plan. You may use a short ID for the
-`VALIDATION_ID` field.
-
-`conch validation-plan PLAN_ID remove-validation VALIDATION_ID` removes an
-associated validation from the validation plan. You may use a short ID for the
-`VALIDATION_ID` field.
 
 ### Testing validation plans
 
