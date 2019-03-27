@@ -179,15 +179,6 @@ sub process ($c) {
 	);
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
-    # prime the resultset cache for the serializer
-    # (this is gross because has-multi accessors always go to the db, so there is no
-    # non-private way of extracting related rows from the result)
-    for my $members ($validation_state->{_relationship_data}{validation_state_members}) {
-        $_->related_resultset('validation_result')->set_cache([ $_->validation_result ])
-            foreach $members->@*;
-        $validation_state->related_resultset('validation_state_members')->set_cache($members);
-    }
-
 	# calculate the device health based on the validation results.
 	# currently, since there is just one (hardcoded) plan per device, we can simply copy it
 	# from the validation_state, but in the future we should query for the most recent
@@ -212,6 +203,9 @@ sub process ($c) {
             # but we leave orphaned validation_result rows behind for performance reasons.
         }
     }
+
+    # prime the resultset cache for the serializer
+    $validation_state->prefetch_validation_results;
 
 	$c->status( 200, $validation_state );
 }
