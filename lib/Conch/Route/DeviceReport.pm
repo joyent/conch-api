@@ -14,6 +14,7 @@ Conch::Route::DeviceReport
 
 Sets up the routes for /device_report:
 
+    POST    /device_report
     GET     /device_report/:device_report_id
 
 =cut
@@ -21,6 +22,8 @@ Sets up the routes for /device_report:
 sub routes {
     my $class = shift;
     my $device_report = shift; # secured, under /device_report
+
+    $device_report->post('/')->to('device_report#validate_report');
 
     # chainable action that extracts and looks up device_report_id from the path
     # and device_id from the device_report

@@ -1054,6 +1054,23 @@ definitions:
         $ref: /definitions/uuid
       device_report_id:
         $ref: /definitions/uuid
+  ReportValidationResults:
+    type: object
+    additionalProperties: false
+    required:
+      - device_id
+      - validation_plan_id
+      - status
+      - results
+    properties:
+      device_id:
+        $ref: /definitions/device_id
+      validation_plan_id:
+        $ref: /definitions/uuid
+      status:
+        $ref: /definitions/validation_status
+      results:
+        $ref: /definitions/ValidationResults
   WorkspaceRelays:
     type: array
     uniqueItems: true

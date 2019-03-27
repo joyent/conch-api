@@ -32,7 +32,7 @@ Response uses the ValidationStateWithResults json schema.
 sub process ($c) {
 	my $unserialized_report = $c->validate_input('DeviceReport');
 	if (not $unserialized_report) {
-		$c->log->debug('Device report input failed validation');
+		$c->log->debug('Device report input did not match json schema specification');
 
 		if (not $c->db_devices->active->search({ id => $c->stash('device_id') })->exists) {
 			$c->log->debug('Device id '.$c->stash('device_id').' does not exist; cannot store bad report');
@@ -137,6 +137,7 @@ sub process ($c) {
 		device => $c->db_ro_devices->find($device->id),
 		device_report => $device_report,
 	);
+    return $c->status(400, { error => 'no validations ran' }) if not $validation_state;
 	$c->log->debug("Validations ran with result: ".$validation_state->status);
 
 	# calculate the device health based on the validation results.
@@ -405,6 +406,72 @@ Response uses the DeviceReportRow json schema.
 
 sub get ($c) {
     return $c->status(200, $c->stash('device_report_rs')->single);
+}
+
+=head2 validate_report
+
+Process a device report without writing anything to the database; otherwise behaves like
+L</process>. The described device does not have to exist.
+
+Response uses the ReportValidationResults json schema.
+
+=cut
+
+sub validate_report ($c) {
+    my $unserialized_report = $c->validate_input('DeviceReport');
+    if (not $unserialized_report) {
+        $c->log->debug('Device report input did not match json schema specification');
+        return;
+    }
+
+    my $hw = $c->_get_hardware_product($unserialized_report);
+    return $c->status(409, { error => 'Could not locate hardware product' }) if not $hw;
+    return $c->status(409, { error => 'Hardware product does not contain a profile' })
+        if not $hw->hardware_product_profile;
+
+    my $validation_plan = $c->_get_validation_plan($unserialized_report);
+    return $c->status(500, { error => 'failed to find validation plan' }) if not $validation_plan;
+    $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
+
+    my ($status, @validation_results);
+    $c->txn_wrapper(sub ($c) {
+        my $device = $c->db_devices->update_or_create({
+            id                  => $unserialized_report->{serial_number},
+            system_uuid         => $unserialized_report->{system_uuid},
+            hardware_product_id => $hw->id,
+            state               => $unserialized_report->{state},
+            health              => 'unknown',
+            last_seen           => \'now()',
+            uptime_since        => $unserialized_report->{uptime_since},
+            hostname            => $unserialized_report->{os}{hostname},
+            updated             => \'now()',
+            deactivated         => undef,
+        });
+
+        # we do not call _record_device_configuration, because no validations
+        # should be using that information, instead choosing to respect the report data.
+
+        ($status, @validation_results) = Conch::ValidationSystem->new(
+            schema => $c->ro_schema,
+            log => $c->log,
+        )->run_validation_plan(
+            validation_plan => $validation_plan,
+            device => $device,
+            data => $unserialized_report,
+            no_save_db => 1,
+        );
+
+        die 'rollback: device used for report validation should not be persisted';
+    });
+
+    return $c->status(400, { error => 'no validations ran' }) if not @validation_results;
+
+    $c->status(200, {
+        device_id => $unserialized_report->{serial_number},
+        validation_plan_id => $validation_plan->id,
+        status => $status,
+        results => \@validation_results,
+    });
 }
 
 =head2 _get_hardware_product
