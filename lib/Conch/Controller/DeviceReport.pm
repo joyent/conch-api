@@ -30,8 +30,6 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub process ($c) {
-	my $raw_report = $c->req->text;
-
 	my $unserialized_report = $c->validate_input('DeviceReport');
 	if (not $unserialized_report) {
 		$c->log->debug('Device report input failed validation');
@@ -44,7 +42,7 @@ sub process ($c) {
 		# the "report" may not even be valid json, so we cannot store it in a jsonb field.
 		my $device_report = $c->db_device_reports->create({
 			device_id => $c->stash('device_id'),
-			invalid_report => $raw_report,
+			invalid_report => $c->req->text,
 		});
 		$c->log->debug('Stored invalid device report for device id '.$c->stash('device_id'));
 		return;
@@ -135,7 +133,7 @@ sub process ($c) {
 
 	$c->log->debug("Creating device report");
 	my $device_report = $device->create_related('device_reports', {
-		report    => $raw_report,
+		report    => $c->req->text, # this is the raw json string
 		# we will always keep this report if the previous report failed, or this is the first
 		# report (in its phase).
 		!$previous_report_status || $previous_report_status ne 'pass' ? ( retain => 1 ) : (),
