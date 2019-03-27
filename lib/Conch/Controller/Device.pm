@@ -108,10 +108,14 @@ sub get ($c) {
 		->order_by([ qw(iface_name serial_number) ])
 		->all;
 
-	my $location = $c->stash('device_rs')
-		->related_resultset('device_location')
-		->get_detailed
-		->single;
+    my $device_location_rs = $c->stash('device_rs')
+        ->related_resultset('device_location');
+
+    # fetch rack, room and datacenter in one query
+    my $rack = $device_location_rs
+        ->related_resultset('rack')
+        ->prefetch({ datacenter_room => 'datacenter' })
+        ->single;
 
 	my $latest_report = $c->stash('device_rs')
 		->latest_device_report
@@ -132,7 +136,12 @@ sub get ($c) {
 				(map { $_ => $device_neighbor && $device_neighbor->$_ } qw(peer_mac peer_port peer_switch)),
 			}
 		} $device->device_nics ],
-		location => $location,
+        location => $rack ? +{
+            rack => $rack,
+            datacenter_room => $rack->datacenter_room,
+            datacenter => $rack->datacenter_room->datacenter,
+            target_hardware_product => $device_location_rs->target_hardware_product->single,
+        } : undef,
 		disks => [ $device->device_disks ],
 	};
 

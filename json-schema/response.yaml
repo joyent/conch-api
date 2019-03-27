@@ -588,42 +588,16 @@ definitions:
     additionalProperties: false
     required:
       - datacenter
+      - datacenter_room
       - rack
       - target_hardware_product
     properties:
       datacenter:
-        type: object
-        additionalProperties: false
-        required:
-          - id
-          - name
-          - vendor_name
-        properties:
-          id:
-            $ref: /definitions/uuid
-          name:
-            type: string
-          vendor_name:
-            oneOf:
-              - type: 'null'
-              - type: string
+          $ref: /definitions/Datacenter
+      datacenter_room:
+          $ref: /definitions/DatacenterRoomDetailed
       rack:
-        type: object
-        additionalProperties: false
-        required:
-          - id
-          - name
-          - role
-          - unit
-        properties:
-          id:
-            $ref: /definitions/uuid
-          name:
-            type: string
-          role:
-            type: string
-          unit:
-            type: integer
+          $ref: /definitions/Rack
       target_hardware_product:
         type: object
         description: >
@@ -850,7 +824,7 @@ definitions:
               $ref: /definitions/uuid
             name:
               type: string
-            role:
+            role: # TODO: this really should be rack_role_id
               type: string
             size:
               type: integer
@@ -884,7 +858,7 @@ definitions:
         $ref: /definitions/uuid
       name:
         type: string
-      role:
+      role: # TODO: this really should be rack_role_id
         type: string
       datacenter:
         description: datacenter room AZ
@@ -1388,7 +1362,7 @@ definitions:
         type: string
       datacenter_room_id:
         $ref: /definitions/uuid
-      role:
+      role: # TODO: this really should be rack_role_id
         $ref: /definitions/uuid
       serial_number:
         oneOf:

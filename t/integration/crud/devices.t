@@ -18,7 +18,8 @@ $t->load_validation_plans([{
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
-my $rack_id = $t->load_fixture('rack_0a')->id;
+my $rack = $t->load_fixture('rack_0a');
+my $rack_id = $rack->id;
 my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 
 # perform most tests as a user with read only access to the GLOBAL workspace
@@ -163,13 +164,13 @@ subtest 'located device' => sub {
             hardware_product => $hardware_product_id,
             location => {
                 rack => {
-                    id => $rack_id,
-                    unit => 1,
-                    name => 'rack 0a',
-                    role => 'rack_role 42U',
+                    (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag)),
+                    role => $rack->rack_role_id,
+                    (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
                 },
-                datacenter => superhashof({ name => 'room-0a' }),
-                target_hardware_product => superhashof({ 'alias' => 'Test Compute' }),
+                datacenter => ignore,
+                datacenter_room => superhashof({ az => 'room-0a' }),
+                target_hardware_product => superhashof({ alias => 'Test Compute' }),
             },
             latest_report_is_invalid => JSON::PP::false,
             latest_report => undef,
