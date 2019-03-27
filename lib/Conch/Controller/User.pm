@@ -295,7 +295,7 @@ in the path, and stashes the corresponding user row in C<target_user>.
 =cut
 
 sub find_user ($c) {
-	my $user_param = $c->stash('target_user_id');
+    my $user_param = $c->stash('target_user_id_or_email');
 
 	return $c->status(400, { error => 'invalid identifier format for '.$user_param })
 		if not is_uuid($user_param)

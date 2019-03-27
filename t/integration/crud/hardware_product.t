@@ -107,6 +107,9 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply($new_product);
 
+$t->get_ok('/hardware_product/foo=sungo')
+    ->status_is(404);
+
 $t->get_ok('/hardware_product/name=sungo')
     ->status_is(404);
 

@@ -5,7 +5,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
-use Conch::UUID 'is_uuid';
 use Text::CSV_XS;
 use Try::Tiny;
 use List::Util 'reduce';
@@ -91,12 +90,6 @@ database, stashing a resultset to access it as 'rack_rs'.
 
 sub find_rack ($c) {
     my $rack_id = $c->stash('rack_id');
-
-    if (not is_uuid($rack_id)) {
-        $c->log->warn('Input failed validation');
-        return $c->status(400 => { error => "Rack ID must be a UUID. Got '$rack_id'." });
-    }
-
     my $rack_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')

@@ -5,8 +5,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
-use Conch::UUID 'is_uuid';
-
 =pod
 
 =head1 NAME
@@ -25,11 +23,6 @@ sub find_datacenter ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
     my $datacenter_id = $c->stash('datacenter_id');
-    if (not is_uuid($datacenter_id)) {
-        $c->log->warn('input failed validation');
-        return $c->status(400 => { error => "Datacenter ID must be a UUID. Got '$datacenter_id'." });
-    }
-
     my $datacenter = $c->db_datacenters->find($datacenter_id);
 
     if (not $datacenter) {

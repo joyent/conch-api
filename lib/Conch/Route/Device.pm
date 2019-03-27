@@ -116,9 +116,9 @@ sub routes {
         }
 
         # POST /device/:device_id/validation/:validation_id
-        $with_device->post('/validation/:validation_id')->to('device_validation#validate');
+        $with_device->post('/validation/<validation_id:uuid>')->to('device_validation#validate');
         # POST /device/:device_id/validation_plan/:validation_plan_id
-        $with_device->post('/validation_plan/:validation_plan_id')->to('device_validation#run_validation_plan');
+        $with_device->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
         # GET /device/:device_id/validation_state
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 

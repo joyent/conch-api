@@ -27,7 +27,7 @@ sub routes {
 
     # chainable action that extracts and looks up device_report_id from the path
     # and device_id from the device_report
-    my $with_device_report = $device_report->under('/:device_report_id')
+    my $with_device_report = $device_report->under('/<device_report_id:uuid>')
         ->to('device_report#find_device_report');
 
     # chainable action that checks the device from the stashed device_id

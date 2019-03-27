@@ -6,7 +6,6 @@ use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
 use List::Util 'none';
-use Conch::UUID 'is_uuid';
 
 =pod
 
@@ -44,25 +43,26 @@ pattern, stashing the query to get to it in C<hardware_product_rs>.
 sub find_hardware_product ($c) {
     my $hardware_product_rs = $c->db_hardware_products->active;
 
-    my ($key, $value) = split(/=/, $c->stash('hardware_product_id'), 2);
-    if ($key and $value) {
-        if (none { $key eq $_ } qw(sku name alias)) {
-            $c->log->debug("Unknown identifier '$key' passed to HardwareProduct lookup");
-            return $c->status('501');
-        }
-
+    # route restricts key to: sku, name, alias
+    if (my $key = $c->stash('hardware_product_key')
+            and my $value = $c->stash('hardware_product_value')) {
         $c->log->debug("Looking up a HardwareProduct by identifier ($key = $value)");
         $hardware_product_rs = $hardware_product_rs
             ->search({ "hardware_product.$key" => $value });
-    } else {
-        $c->log->debug("Looking up a HardwareProduct by id ".$c->stash('hardware_product_id'));
-        return $c->status(404) if not is_uuid($c->stash('hardware_product_id'));
+    }
+    elsif ($c->stash('hardware_product_id')) {
+        $c->log->debug('Looking up a HardwareProduct by id '.$c->stash('hardware_product_id'));
         $hardware_product_rs = $hardware_product_rs
             ->search({ 'hardware_product.id' => $c->stash('hardware_product_id') });
     }
+    else {
+        return $c->status(500);
+    }
 
     if (not $hardware_product_rs->exists) {
-        $c->log->debug('Could not locate a valid hardware product');
+        $c->log->debug('Could not locate a valid hardware product with '
+            .($c->stash('hardware_product_id') ? ('id '.$c->stash('hardware_product_id'))
+                : ($c->stash('hardware_product_key').' '.$c->stash('hardware_product_value'))));
         return $c->status(404);
     }
 

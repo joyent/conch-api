@@ -67,7 +67,7 @@ sub routes {
         $with_plan->post('/validation')->to('#add_validation');
 
         # DELETE /validation_plan/:validation_plan_id_or_name/validation/:validation_id -> GONE
-        $with_plan->delete('/validation/:validation_id')->to('#remove_validation');
+        $with_plan->delete('/validation/<validation_id:uuid>')->to('#remove_validation');
     }
 
     {
@@ -75,7 +75,7 @@ sub routes {
         $vs->to({ controller => 'validation_state' });
 
         # GET /validation_state/:validation_state_id
-        $vs->get('/:validation_state_id')->to('#get');
+        $vs->get('/<validation_state_id:uuid>')->to('#get');
     }
 }
 

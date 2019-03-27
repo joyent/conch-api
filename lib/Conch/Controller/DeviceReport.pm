@@ -6,7 +6,6 @@ use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
 use Mojo::JSON 'to_json';
-use Conch::UUID 'is_uuid';
 
 =pod
 
@@ -378,8 +377,6 @@ Permissions checks are done in the next controller action in the chain.
 =cut
 
 sub find_device_report ($c) {
-    return $c->status(404) if not is_uuid($c->stash('device_report_id'));
-
     my $device_report_rs = $c->db_device_reports
         ->search_rs({ 'device_report.id' => $c->stash('device_report_id') });
 

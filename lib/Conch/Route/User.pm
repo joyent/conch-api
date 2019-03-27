@@ -28,11 +28,12 @@ Sets up the routes for /user:
     GET     /user/me/token/:token_name
     DELETE  /user/me/token/:token_name
 
-    GET     /user/#target_user_id
-    POST    /user/#target_user_id
-    DELETE  /user/#target_user_id?clear_tokens=<0|1>
-    POST    /user/#target_user_id/revoke
-    DELETE  /user/#target_user_id/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
+    GET     /user/#target_user_id_or_email
+    POST    /user/#target_user_id_or_email
+    DELETE  /user/#target_user_id_or_email?clear_tokens=<0|1>
+    POST    /user/#target_user_id_or_email/revoke
+    DELETE  /user/#target_user_id_or_email/password
+    DELETE  /user/#target_user_id_or_email/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
     GET     /user
     POST    /user?send_mail=<0|1>
 
@@ -100,20 +101,20 @@ sub routes {
 
     # administrator interfaces for updating a different user's account...
     {
-        # target_user_id could be a user id or email
-        my $user_with_target = $user->require_system_admin->under('/#target_user_id')
+        # syntax: <uuid> or email=<email address>
+        my $user_with_target = $user->require_system_admin->under('/#target_user_id_or_email')
             ->to('#find_user');
 
-        # GET /user/#target_user_id
+        # GET /user/#target_user_id_or_email
         $user_with_target->get('/')->to('#get');
-        # POST /user/#target_user_id
+        # POST /user/#target_user_id_or_email
         $user_with_target->post('/')->to('#update');
-        # DELETE /user/#target_user_id?clear_tokens=<0|1>
+        # DELETE /user/#target_user_id_or_email?clear_tokens=<0|1>
         $user_with_target->delete('/')->to('#deactivate');
 
-        # POST /user/#target_user_id/revoke
+        # POST /user/#target_user_id_or_email/revoke
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
-        # DELETE /user/#target_user_id/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
+        # DELETE /user/#target_user_id_or_email/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user

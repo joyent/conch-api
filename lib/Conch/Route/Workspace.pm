@@ -34,7 +34,7 @@ Sets up the routes for /workspace:
 
     GET     /workspace/:workspace_id_or_name/user
     POST    /workspace/:workspace_id_or_name/user?send_mail=<0|1>
-    DELETE  /workspace/:workspace_id_or_name/user/#target_user_id
+    DELETE  /workspace/:workspace_id_or_name/user/#target_user_id_or_email
 
 Note that in all routes using C<:workspace_id_or_name>, the stash for C<workspace_id> will be
 populated, as well as C<workspace_name> if the identifier was not a UUID.
@@ -85,7 +85,7 @@ sub routes {
 
         {
             my $with_workspace_rack =
-                $with_workspace->under('/rack/:rack_id')->to('workspace_rack#find_rack');
+                $with_workspace->under('/rack/<rack_id:uuid>')->to('workspace_rack#find_rack');
 
             # GET /workspace/:workspace_id_or_name/rack/:rack_id
             $with_workspace_rack->get('/')->to('workspace_rack#get_layout');
@@ -111,8 +111,8 @@ sub routes {
         $with_workspace->get('/user')->to('workspace_user#list');
         # POST /workspace/:workspace_id_or_name/user?send_mail=<0|1>
         $with_workspace->post('/user')->to('workspace_user#add_user');
-        # DELETE /workspace/:workspace_id_or_name/user/#target_user_id
-        $with_workspace->under('/user/#target_user_id')->to('user#find_user')
+        # DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email
+        $with_workspace->under('/user/#target_user_id_or_email')->to('user#find_user')
             ->delete('/')->to('workspace_user#remove');
     }
 }
