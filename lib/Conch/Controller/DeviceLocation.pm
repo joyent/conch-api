@@ -24,14 +24,24 @@ Response uses the DeviceLocation json schema.
 =cut
 
 sub get ($c) {
-    my $location = $c->stash('device_rs')
-        ->related_resultset('device_location')
-        ->get_detailed
+    my $device_location_rs = $c->stash('device_rs')
+        ->related_resultset('device_location');
+
+    my $rack = $device_location_rs
+        ->related_resultset('rack')
+        ->prefetch({ datacenter_room => 'datacenter' })
         ->single;
 
     return $c->status(409, { error =>
         'Device '.$c->stash('device_id').' is not assigned to a rack'
-    }) unless $location;
+    }) unless $rack;
+
+    my $location = +{
+        rack => $rack,
+        datacenter_room => $rack->datacenter_room,
+        datacenter => $rack->datacenter_room->datacenter,
+        target_hardware_product => $device_location_rs->target_hardware_product->single,
+    };
 
     $c->status(200, $location);
 }

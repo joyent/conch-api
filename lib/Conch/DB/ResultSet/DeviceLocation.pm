@@ -67,14 +67,14 @@ sub assign_device_location ($self, $device_id, $rack_id, $rack_unit_start) {
     });
 }
 
-=head2 get_detailed
+=head2 target_hardware_product
 
-Returns a resultset that will produce hashref(s) of related location and rack data, matching
-the DeviceLocation json schema (one hashref per matching device_location).
+Returns a resultset that will produce the 'target_hardware_product' portion of the
+DeviceLocation json schema (one hashref per matching device_location).
 
 =cut
 
-sub get_detailed ($self) {
+sub target_hardware_product ($self) {
     my $me = $self->current_source_alias;
     $self->search(
         {
@@ -82,22 +82,11 @@ sub get_detailed ($self) {
         },
         {
             columns => {
-                ( map {; "datacenter.$_" => "datacenter_room.$_" } qw(id vendor_name) ),
-                'datacenter.name' => 'datacenter_room.az',
-
-                ( map {; "rack.$_" => "rack.$_" } qw(id name) ),
-                'rack.unit' => 'device_location.rack_unit_start',
-                'rack.role' => 'rack_role.name',
-
-                ( map {; "target_hardware_product.$_" => "hardware_product.$_" } qw(id name alias) ),
-                'target_hardware_product.vendor'  => 'hardware_product.hardware_vendor_id',
+                (map +($_ => 'hardware_product.'.$_), qw(id name alias)),
+                vendor => 'hardware_product.hardware_vendor_id',
             },
             join => {
-                'rack' => [
-                    'rack_role',
-                    'datacenter_room',
-                    { 'rack_layouts' => { 'hardware_product' => 'hardware_vendor' } },
-                ],
+                rack => { rack_layouts => { hardware_product => 'hardware_vendor' } },
             },
         }
     )->hri;
