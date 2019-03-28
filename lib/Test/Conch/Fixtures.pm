@@ -148,13 +148,13 @@ my %canned_definitions = (
     hardware_vendor_0 => {
         new => 'hardware_vendor',
         using => {
-            name => 'DellBell',
+            name => 'Hardware Vendor 0',
         },
     },
     hardware_vendor_1 => {
         new => 'hardware_vendor',
         using => {
-            name => 'SuperDuperMicro',
+            name => 'Hardware Vendor 1',
         },
     },
 
@@ -162,7 +162,7 @@ my %canned_definitions = (
         new => 'hardware_product',
         using => {
             name => 'Switch',
-            alias => 'Farce 10',
+            alias => 'Switch Vendor',
             prefix => 'F10',
             legacy_product_name => 'FuerzaDiaz',
         },
