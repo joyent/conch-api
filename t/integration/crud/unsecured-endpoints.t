@@ -24,7 +24,7 @@ subtest 'device totals' => sub {
 
     my $global_ws_id = $t->app->db_workspaces->search({ name => 'GLOBAL' })->get_column('id')->single;
     my $hardware_product_rs = $t->app->db_hardware_products->active->hri;
-    my $farce = $hardware_product_rs->search({ alias => 'Farce 10' })->single;
+    my $switch_vendor = $hardware_product_rs->search({ alias => 'Switch Vendor' })->single;
     my $test_compute = $hardware_product_rs->search({ alias => 'Test Compute' })->single;
 
     # find a rack
@@ -34,7 +34,7 @@ subtest 'device totals' => sub {
     $rack->update_or_create_related('rack_layouts', $_, { key => 'rack_layout_rack_id_rack_unit_start_key' })
     foreach (
         {
-            hardware_product_id => $farce->{id},
+            hardware_product_id => $switch_vendor->{id},
             rack_unit_start => 1,
         },
         {
@@ -46,8 +46,8 @@ subtest 'device totals' => sub {
     # create a few devices and locate them in this rack
     $t->app->db_devices->create($_) foreach (
         {
-            id => 'test farce',
-            hardware_product_id => $farce->{id},
+            id => 'test switch',
+            hardware_product_id => $switch_vendor->{id},
             state => 'ignore',
             health => 'fail',
             device_location => { rack_id => $rack->id, rack_unit_start => 1 },
@@ -64,7 +64,7 @@ subtest 'device totals' => sub {
     # doctor the configs so they match the hw products we already have in the test data.
     $t->app->stash('config')->%* = (
         $t->app->stash('config')->%*,
-        switch_aliases => [ 'Farce 10' ],
+        switch_aliases => [ 'Switch Vendor' ],
         server_aliases => [],
         storage_aliases => [ 'Test Storage' ],
         compute_aliases => [ 'Test Compute' ],
@@ -79,11 +79,11 @@ subtest 'device totals' => sub {
         ->json_schema_is('DeviceTotals')
         ->json_is({
             all => [
-                { alias => 'Farce 10', count => 1, health => 'fail' },
+                { alias => 'Switch Vendor', count => 1, health => 'fail' },
                 { alias => 'Test Compute', count => 1, health => 'pass' }
             ],
             switches => [
-                { alias => 'Farce 10', count => 1, health => 'fail' },
+                { alias => 'Switch Vendor', count => 1, health => 'fail' },
             ],
             servers => [
                 { alias => 'Test Compute', count => 1, health => 'pass' }
@@ -99,7 +99,7 @@ subtest 'device totals' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceTotalsCirconus')
         ->json_is({
-            'Farce 10' => {
+            'Switch Vendor' => {
                 health => { PASS => 0, FAIL => 1, UNKNOWN => 0 },
                 count => 1,
             },
