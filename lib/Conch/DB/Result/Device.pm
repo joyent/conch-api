@@ -352,6 +352,32 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-08 11:20:53
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ws5Zq0vtQJWLiJbnJtY+Vw
 
+__PACKAGE__->has_many(
+  "active_device_disks",
+  "Conch::DB::Result::DeviceDisk",
+  sub {
+    my $args = shift;
+    return {
+      "$args->{foreign_alias}.device_id" => { -ident => "$args->{self_alias}.id" },
+      "$args->{foreign_alias}.deactivated" => { '=' => undef },
+    };
+  },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+__PACKAGE__->has_many(
+  "active_device_nics",
+  "Conch::DB::Result::DeviceNic",
+  sub {
+    my $args = shift;
+    return {
+      "$args->{foreign_alias}.device_id" => { -ident => "$args->{self_alias}.id" },
+      "$args->{foreign_alias}.deactivated" => { '=' => undef },
+    };
+  },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
 );
