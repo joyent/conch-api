@@ -54,7 +54,7 @@ sub list ($c) {
     my %device_progress;
     foreach my $entry ($invalid_rs->hri->all, $valid_rs->hri->all) {
         # TODO: don't upper-case status values.
-        $device_progress{$entry->{rack_id}}{uc $entry->{status} // 'VALID'} += $entry->{count};
+        $device_progress{$entry->{rack_id}}{uc($entry->{status} // 'VALID')} += $entry->{count};
     }
 
     my @rack_data = $racks_rs->as_subselect_rs->search(undef,

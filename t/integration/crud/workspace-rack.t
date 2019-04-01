@@ -211,13 +211,16 @@ room-0a,"rack 0a",3,${\ $hardware_product_storage->name},,NEW_DEVICE
 room-0a,"rack 0a",11,${\ $hardware_product_storage->name},,
 CSV
 
+    $t->post_ok('/device/NEW_DEVICE/validated')
+        ->status_is(303);
+
     $t->get_ok("/workspace/$sub_ws_id/rack")
         ->status_is(200)
         ->json_schema_is('WorkspaceRackSummary')
         ->json_is({
             'room-0a' => [
                 {
-                    device_progress => { UNKNOWN => 2 },
+                    device_progress => { UNKNOWN => 1, VALID => 1 },
                     id => $rack_id,
                     name => 'rack 0a',
                     role => 'rack_role 42U',
