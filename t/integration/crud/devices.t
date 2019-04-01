@@ -115,6 +115,27 @@ subtest 'unlocated device with a registered relay' => sub {
             disks => supersetof(superhashof({ serial_number => 'BTHC640405WM1P6PGN' })),
         });
 
+    $t->app->db_device_disks->deactivate;
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply({
+            id => 'TEST',
+            health => 'pass',
+            state => ignore,
+            hostname => 'elfo',
+            system_uuid => ignore,
+            (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
+            (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
+            hardware_product => $hardware_product_id,
+            location => undef,
+            latest_report_is_invalid => JSON::PP::false,
+            latest_report => superhashof({ product_name => 'Joyent-G1' }),
+            invalid_report => undef,
+            nics => supersetof(),
+            disks => [],
+        });
+
     $t->get_ok('/validation_state/'.$validation_state->{id})
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults')

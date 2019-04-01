@@ -103,8 +103,7 @@ Retrieves details about a single device.  Response uses the DetailedDevice json 
 sub get ($c) {
 
 	my ($device) = $c->stash('device_rs')
-		->prefetch([ { device_nics => 'device_neighbor' }, 'device_disks' ])
-		->active(qw(device_nics device_disks))
+		->prefetch([ { active_device_nics => 'device_neighbor' }, 'active_device_disks' ])
 		->order_by([ qw(iface_name serial_number) ])
 		->all;
 
@@ -135,14 +134,14 @@ sub get ($c) {
 				(map { $_ => $device_nic->$_ } qw(mac iface_name iface_type iface_vendor)),
 				(map { $_ => $device_neighbor && $device_neighbor->$_ } qw(peer_mac peer_port peer_switch)),
 			}
-		} $device->device_nics ],
+		} $device->active_device_nics ],
         location => $rack ? +{
             rack => $rack,
             datacenter_room => $rack->datacenter_room,
             datacenter => $rack->datacenter_room->datacenter,
             target_hardware_product => $device_location_rs->target_hardware_product->single,
         } : undef,
-		disks => [ $device->device_disks ],
+		disks => [ $device->active_device_disks ],
 	};
 
 	$c->status( 200, $detailed_device );
