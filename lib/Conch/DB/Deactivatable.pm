@@ -22,16 +22,15 @@ to provide common query functionality.
 =head2 active
 
 Chainable resultset to limit results to those that aren't deactivated.
-Optional argument specifies the source alias(es) to use on the 'deactivated' constraint.
 
 =cut
 
-sub active ($self, @rels) {
-    # insufficient info to get rel -> result_source at this level; let the db server die instead on error
-    Carp::croak($self->result_source->result_class->table, ' does not have a \'deactivated\' column')
-        if not @rels and not $self->result_source->has_column('deactivated');
+sub active ($self) {
+    Carp::croak($self->result_source->result_class->table,
+            ' does not have a \'deactivated\' column')
+        if not $self->result_source->has_column('deactivated');
 
-    return $self->search({ map +($_.'.deactivated' => undef), (@rels ? @rels : $self->current_source_alias) });
+    $self->search({ $self->current_source_alias . '.deactivated' => undef });
 }
 
 =head2 deactivate
