@@ -55,39 +55,11 @@ sub process ($c) {
 		});
 	}
 
-	my $hw;
 	# Make sure that the remote side is telling us about a hardware product we understand
-	if ($unserialized_report->{device_type} && $unserialized_report->{device_type} eq "switch") {
-		$hw = $c->db_hardware_products->active->search(
-			{ name => $unserialized_report->{product_name} },
-			{ prefetch => 'hardware_product_profile' },
-		)->single;
-	} else {
-		$hw = $c->db_hardware_products->active->search(
-			{ sku => $unserialized_report->{sku} },
-			{ prefetch => 'hardware_product_profile' },
-		)->single;
-
-		if(not $hw) {
-			# this will warn if more than one matching row is found
-			$hw = $c->db_hardware_products->active->search(
-				{ legacy_product_name => $unserialized_report->{product_name}, },
-				{ prefetch => 'hardware_product_profile' },
-			)->single;
-		}
-	}
-
-	if(not $hw) {
-		return $c->render(status => 409, json => {
-			error => "Could not locate hardware product"
-		});
-	}
-
-	if(not $hw->hardware_product_profile) {
-		return $c->render(status => 409, json => {
-			error => "Hardware product does not contain a profile"
-		});
-	}
+    my $hw = $c->_get_hardware_product($unserialized_report);
+    return $c->status(409, { error => 'Could not locate hardware product' }) if not $hw;
+    return $c->status(409, { error => 'Hardware product does not contain a profile' })
+        if not $hw->hardware_product_profile;
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
         # TODO: relay id should be a uuid
@@ -151,21 +123,9 @@ sub process ($c) {
 
 
 	# Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
-	my $validation_name = 'Conch v1 Legacy Plan: Server';
-
-	if ( $unserialized_report->{device_type}
-		&& $unserialized_report->{device_type} eq "switch" )
-	{
-		$validation_name = 'Conch v1 Legacy Plan: Switch';
-	}
-
-	$c->log->debug("Attempting to validate with plan '$validation_name'");
-
-	my $validation_plan = $c->db_ro_validation_plans->active->search({ name => $validation_name })->single;
-
-	return $c->status(500, { error => "failed to find validation plan" }) if not $validation_plan;
-
-	$c->log->debug("Running validation plan ".$validation_plan->id);
+    my $validation_plan = $c->_get_validation_plan($unserialized_report);
+    return $c->status(500, { error => 'failed to find validation plan' }) if not $validation_plan;
+    $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
 	my $validation_state = Conch::ValidationSystem->new(
 		schema => $c->schema,
@@ -443,6 +403,50 @@ Response uses the DeviceReportRow json schema.
 
 sub get ($c) {
     return $c->status(200, $c->stash('device_report_rs')->single);
+}
+
+=head2 _get_hardware_product
+
+Find the hardware product for the device referenced by the report.
+
+=cut
+
+sub _get_hardware_product ($c, $unserialized_report) {
+    if ($unserialized_report->{device_type} and $unserialized_report->{device_type} eq 'switch') {
+        return $c->db_hardware_products->active
+            ->search({ name => $unserialized_report->{product_name} })
+            ->prefetch('hardware_product_profile')
+            ->single;
+    }
+
+    # search by sku first
+    my $hw = $c->db_hardware_products->active
+        ->search({ sku => $unserialized_report->{sku} })
+        ->prefetch('hardware_product_profile')
+        ->single;
+    return $hw if $hw;
+
+    # fall back to legacy_product_name - this will warn if more than one matching row is found
+    return $c->db_hardware_products->active
+        ->search({ legacy_product_name => $unserialized_report->{product_name} })
+        ->prefetch('hardware_product_profile')
+        ->single;
+}
+
+=head2 _get_validation_plan
+
+Find the validation plan that should be used to validate the the device referenced by the
+report.
+
+=cut
+
+sub _get_validation_plan ($c, $unserialized_report) {
+    my $validation_name =
+        $unserialized_report->{device_type} && $unserialized_report->{device_type} eq 'switch'
+            ? 'Conch v1 Legacy Plan: Switch'
+            : 'Conch v1 Legacy Plan: Server';
+
+    return $c->db_ro_validation_plans->active->search({ name => $validation_name })->single;
 }
 
 1;
