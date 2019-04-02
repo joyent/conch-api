@@ -117,6 +117,20 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<datacenter_room_alias_key>
+
+=over 4
+
+=item * L</alias>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("datacenter_room_alias_key", ["alias"]);
+
 =head1 RELATIONS
 
 =head2 datacenter
@@ -150,8 +164,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 12:50:12
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Jxvra6KwThH/4lQ+F1IJIw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-11 11:44:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oC1BogSO+ZQvnjShg4y+TQ
 
 sub TO_JSON {
     my $self = shift;
