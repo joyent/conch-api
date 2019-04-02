@@ -114,6 +114,7 @@ sub get ($c) {
     my $rack = $device_location_rs
         ->related_resultset('rack')
         ->prefetch({ datacenter_room => 'datacenter' })
+        ->add_columns({ rack_unit_start => 'device_location.rack_unit_start' })
         ->single;
 
 	my $latest_report = $c->stash('device_rs')
@@ -137,6 +138,7 @@ sub get ($c) {
 		} $device->active_device_nics ],
         location => $rack ? +{
             rack => $rack,
+            rack_unit_start => $rack->get_column('rack_unit_start'),
             datacenter_room => $rack->datacenter_room,
             datacenter => $rack->datacenter_room->datacenter,
             target_hardware_product => $device_location_rs->target_hardware_product->single,
