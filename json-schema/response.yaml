@@ -590,14 +590,17 @@ definitions:
       - datacenter
       - datacenter_room
       - rack
+      - rack_unit_start
       - target_hardware_product
     properties:
       datacenter:
-          $ref: /definitions/Datacenter
+        $ref: /definitions/Datacenter
       datacenter_room:
-          $ref: /definitions/DatacenterRoomDetailed
+        $ref: /definitions/DatacenterRoomDetailed
       rack:
-          $ref: /definitions/Rack
+        $ref: /definitions/Rack
+      rack_unit_start:
+        type: integer
       target_hardware_product:
         type: object
         description: >

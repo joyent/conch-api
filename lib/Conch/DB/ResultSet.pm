@@ -26,6 +26,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::Columns',     # provides columns
     'Helper::ResultSet::Shortcut::Page',        # provides page
     'Helper::ResultSet::CorrelateRelationship', # provides correlate
+    'Helper::ResultSet::Shortcut::AddColumns',  # provides add_columns
 );
 
 1;

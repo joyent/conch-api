@@ -189,6 +189,7 @@ subtest 'located device' => sub {
                     role => $rack->rack_role_id,
                     (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
                 },
+                rack_unit_start => 1,
                 datacenter => ignore,
                 datacenter_room => superhashof({ az => 'room-0a' }),
                 target_hardware_product => superhashof({ alias => 'Test Compute' }),
