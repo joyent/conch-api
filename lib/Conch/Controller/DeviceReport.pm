@@ -132,6 +132,8 @@ sub process ($c) {
 		log => $c->log,
 	)->run_validation_plan(
 		validation_plan => $validation_plan,
+        # TODO: to eliminate needless db queries, we should prefetch all the relationships
+        # that various validations will request, e.g. device_location, hardware_product etc
 		device => $c->db_ro_devices->find($device->id),
 		device_report => $device_report,
 	);
