@@ -61,9 +61,7 @@ response if validation failed; returns validated input on success.
 =cut
 
     $app->helper(validate_input => sub ($c, $schema_name, $input = $c->req->json) {
-        my $validator = JSON::Validator->new;
-        $validator->schema(INPUT_SCHEMA_FILE);
-
+        my $validator = $c->get_input_validator;
         my $schema = $validator->get('/definitions/'.$schema_name);
 
         if (not $schema) {
@@ -87,10 +85,13 @@ Returns a JSON::Validator object suitable for validating an endpoint input.
 
 =cut
 
+    my $_input_validator;
     $app->helper(get_input_validator => sub ($c) {
-        my $validator = JSON::Validator->new;
-        $validator->schema(INPUT_SCHEMA_FILE);
-        return $validator;
+        return $_input_validator if $_input_validator;
+        $_input_validator = JSON::Validator->new;
+        # FIXME: JSON::Validator should be picking this up out of the schema on its own.
+        $_input_validator->load_and_validate_schema(INPUT_SCHEMA_FILE, { schema => 'http://json-schema.org/draft-07/schema#' });
+        return $_input_validator;
     });
 
 
@@ -100,10 +101,13 @@ Returns a JSON::Validator object suitable for validating an endpoint response.
 
 =cut
 
+    my $_response_validator;
     $app->helper(get_response_validator => sub ($c) {
-        my $validator = JSON::Validator->new;
-        $validator->schema(OUTPUT_SCHEMA_FILE);
-        return $validator;
+        return $_response_validator if $_response_validator;
+        my $_response_validator = JSON::Validator->new;
+        # FIXME: JSON::Validator should be picking this up out of the schema on its own.
+        $_response_validator->load_and_validate_schema(OUTPUT_SCHEMA_FILE, { schema => 'http://json-schema.org/draft-07/schema#' });
+        return $_response_validator;
     });
 }
 

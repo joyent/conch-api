@@ -15,7 +15,7 @@ requires 'Mail::Sendmail';
 requires 'Try::Tiny';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
-requires 'JSON::Validator', '2.14';
+requires 'JSON::Validator', '3.04';
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
 requires 'Safe::Isa';
@@ -59,7 +59,6 @@ requires 'Devel::Confess';
 requires 'Pod::Usage';
 requires 'Pod::Markdown::Github';
 requires 'Getopt::Long';
-requires 'Data::Visitor::Tiny';
 
 # database and rendering
 requires 'DBD::Pg';

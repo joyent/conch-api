@@ -2,7 +2,6 @@ package Conch::Controller::Schema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Data::Visitor::Tiny qw(visit);
 use Mojo::Util qw(camelize);
 
 =pod
@@ -20,33 +19,88 @@ Get the json-schema in JSON format.
 =cut
 
 sub get ($c) {
-    my $type = lc $c->stash('request_or_response');
+    my $type = $c->stash('request_or_response');
     my $name = camelize $c->stash('name');
 
     my $validator = $type eq 'response' ? $c->get_response_validator
         : $type eq 'request' ? $c->get_input_validator
         : undef;
-    return $c->status(404) if not $validator;
+    return $c->status(400, { error => 'Cannot find validator' }) if not $validator;
 
-    my $schema = $validator->get("/definitions/$name");
+    my $schema = _extract_schema_definition($validator, $name);
     return $c->status(404) if not $schema;
 
-    my sub inline_ref ( $ref, $schema ) {
-        my ($other) = $ref =~ m|#?/definitions/(\w+)$|;
-        $schema->{definitions}{$other} = $validator->get($ref);
+    return $c->status(200, $schema);
+}
+
+=head2 _extract_schema_definition
+
+Given a JSON::Validator object containing a schema definition, extract the requested portion
+out of the "definitions" section, including any named references, and add some standard
+headers.
+
+=cut
+
+sub _extract_schema_definition ($validator, $schema_name) {
+    my $top_schema = $validator->schema->get('/definitions/'.$schema_name);
+    return if not $top_schema;
+
+    my %refs;
+    my %source;
+    my $definitions;
+    my @topics = ([ { schema => $top_schema }, my $target = {}]);
+    my $cloner = sub ($from) {
+        if (ref $from eq 'HASH' and my $tied = tied %$from) {
+            # this is a hashref which quacks like { '$ref' => $target }
+            my ($location, $path) = split /#/, $tied->fqn, 2;
+            (my $name = $path) =~ s!^/definitions/!!;
+
+            if (not $refs{$tied->fqn}++) {
+                if ($name ne $schema_name and exists $source{$name}) {
+                    die 'namespace collision: '.$tied->fqn.' but already have a /definitions/'.$name
+                        .' from '.$source{$name}->fqn;
+                }
+
+                $source{$name} = $tied;
+                push @topics, [$tied->schema, $definitions->{$name} = {}];
+            }
+
+            ++$refs{'/traversed_definitions/'.$name};
+            tie my %ref, 'JSON::Validator::Ref', $tied->schema, '/definitions/'.$name;
+            return \%ref;
+        }
+
+        my $to = ref $from eq 'ARRAY' ? [] : ref $from eq 'HASH' ? {} : $from;
+        push @topics, [$from, $to] if ref $from;
+        return $to;
+    };
+
+    while (@topics) {
+        my ($from, $to) = @{shift @topics};
+        if (ref $from eq 'ARRAY') {
+            push @$to, $cloner->($_) foreach @$from;
+        }
+        elsif (ref $from eq 'HASH') {
+            $to->{$_} = $cloner->($from->{$_}) foreach keys %$from;
+        }
     }
 
-    visit $schema => sub ( $key, $ref, @ ) {
-        inline_ref( $_ => $schema ) if $key eq '$ref';
-        if ( !defined $_ && $key eq "type" ) {
-            $$ref = "null";
-        }
-    };
-    $schema->{title} //= $name;
-    $schema->{'$schema'} = 'http://json-schema.org/draft-07/schema#';
-    $schema->{'$id'}     = "urn:$name.schema.json";
+    $target = $target->{schema};
 
-    return $c->status( 200, $schema );
+    # cannot return a $ref at the top level (sibling keys disallowed) - inline the $ref.
+    while (my $tied = tied %$target) {
+        (my $name = $tied->fqn) =~ s!^/definitions/!!;
+        $target = $definitions->{$name};
+        delete $definitions->{$name} if $refs{'/traversed_definitions/'.$name} == 1;
+    }
+
+    return {
+        title => $schema_name,
+        '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
+        '$id' => 'urn:'.$schema_name.'.schema.json',
+        keys $definitions->%* ? ( definitions => $definitions ) : (),
+        $target->%*,
+    };
 }
 
 1;
