@@ -69,12 +69,14 @@ subtest 'run_validation_plan, without saving state' => sub {
         schema => $t->app->ro_schema,
     );
 
-    my @validation_results = $validation_system->run_validation_plan(
+    my ($status, @validation_results) = $validation_system->run_validation_plan(
         validation_plan => $validation_plan,
         device => $device,
         device_report => $device_report,
         no_save_db => 1,
     );
+
+    is($status, 'pass', 'calculated the overall result from the plan');
 
     cmp_deeply(
         \@validation_results,

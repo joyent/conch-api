@@ -193,9 +193,9 @@ Runs the provided validation_plan against the provided device.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
-If C<< no_save_db => 1 >> is passed, the validation records are returned, without writing them
-to the database.  Otherwise, a validation_state record is created and validation_result records
-saved with deduplication logic applied.
+If C<< no_save_db => 1 >> is passed, the validation records are returned (along with the
+overall result status), without writing them to the database.  Otherwise, a validation_state
+record is created and validation_result records saved with deduplication logic applied.
 
 Takes options as a hash:
 
@@ -250,7 +250,11 @@ sub run_validation_plan ($self, %options) {
         } $validator->validation_results;
     }
 
-    return @validation_results if $options{no_save_db};
+    # maybe no validations ran? this is a problem.
+    if (not @validation_results) {
+        $self->log->warn('validations did not produce a result');
+        return;
+    }
 
     my $status = reduce {
         $a eq 'error' || $b eq 'error' ? 'error'
@@ -258,6 +262,8 @@ sub run_validation_plan ($self, %options) {
       : $a eq 'processing' || $b eq 'processing' ? 'processing'
       : $a; # pass
     } map { $_->status } @validation_results;
+
+    return ($status, @validation_results) if $options{no_save_db};
 
     return $self->schema->resultset('validation_state')->create({
         device_id => $device->id,
