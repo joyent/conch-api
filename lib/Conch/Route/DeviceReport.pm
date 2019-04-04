@@ -31,7 +31,7 @@ sub routes {
         ->to('device_report#find_device_report');
 
     # chainable action that checks the device from the stashed device_id
-    my $with_device_report_and_device = $with_device_report->get->under('/')
+    my $with_device_report_and_device = $with_device_report->get('/')->under
         ->to('device#find_device');
 
     # GET /device_report/:device_report_id

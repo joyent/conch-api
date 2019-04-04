@@ -61,25 +61,25 @@ sub routes {
             my $user_me_settings = $user_me->any('/settings');
 
             # GET /user/me/settings
-            $user_me_settings->get->to('#get_settings');
+            $user_me_settings->get('/')->to('#get_settings');
             # POST /user/me/settings
-            $user_me_settings->post->to('#set_settings');
+            $user_me_settings->post('/')->to('#set_settings');
 
             # 'key' is extracted into the stash
             my $user_me_settings_with_key = $user_me_settings->any('/#key');
 
             # GET /user/me/settings/#key
-            $user_me_settings_with_key->get->to('#get_setting');
+            $user_me_settings_with_key->get('/')->to('#get_setting');
             # POST /user/me/settings/#key
-            $user_me_settings_with_key->post->to('#set_setting');
+            $user_me_settings_with_key->post('/')->to('#set_setting');
             # DELETE /user/me/settings/#key
-            $user_me_settings_with_key->delete->to('#delete_setting');
+            $user_me_settings_with_key->delete('/')->to('#delete_setting');
         }
 
         # after changing password, (possibly) pass through to logging out too
         # POST /user/me/password?clear_tokens=<0|login_only|all>
         $user_me->under('/password')->to('#change_own_password')
-            ->post->to('login#session_logout');
+            ->post('/')->to('login#session_logout');
 
         {
             my $user_me_token = $user_me->any('/token');
