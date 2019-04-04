@@ -55,8 +55,8 @@ Override the settings for a user with the provided payload
 =cut
 
 sub set_settings ($c) {
-	my $body = $c->req->json;
-	return $c->status( 400, { error => 'Payload required' } ) unless $body;
+    my $input = $c->validate_input('UserSettings');
+    return if not $input;
 
 	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
@@ -67,7 +67,7 @@ sub set_settings ($c) {
 
 	# store new settings
 	$user->related_resultset('user_settings')
-		->populate([ pairmap { +{ name => $a, value => to_json($b) } } $body->%* ]);
+		->populate([ pairmap { +{ name => $a, value => to_json($b) } } $input->%* ]);
 
 	$c->status(200);
 }
@@ -81,9 +81,11 @@ FIXME: the key name is repeated in the URL and the payload :(
 =cut
 
 sub set_setting ($c) {
-	my $body  = $c->req->json;
+    my $input = $c->validate_input('DeviceSetting');
+    return if not $input;
+
 	my $key   = $c->stash('key');
-	my $value = $body->{$key};
+	my $value = $input->{$key};
 	return $c->status(
 		400,
 		{

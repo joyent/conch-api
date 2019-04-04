@@ -318,12 +318,9 @@ with their new password.
 =cut
 
 sub reset_password ($c) {
-	my $body = $c->req->json;
-
-	return $c->status( 400, { error => '"email" required' } )
-		unless $body->{email};
-
-	return $c->status(301, "/user/email=$body->{email}/password");
+    my $input = $c->validate_input('ResetPassword');
+    return if not $input;
+    return $c->status(301, '/user/email='.$input->{email}.'/password');
 }
 
 =head2 refresh_token

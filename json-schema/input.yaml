@@ -406,6 +406,15 @@ definitions:
         $ref: /definitions/non_empty_string
       password:
         $ref: /definitions/non_empty_string
+  ResetPassword:
+    type: object
+    additionalProperties: false
+    required:
+      - email
+    properties:
+      email:
+        type: string
+        format: email
   UserPassword:
     type: object
     additionalProperties: false
@@ -440,6 +449,13 @@ definitions:
         format: email
       is_admin:
         type: boolean
+  UserSetting:
+    type: object
+    minProperties: 1
+    maxProperties: 1
+  UserSettings:
+    type: object
+    minProperties: 1
   NewUserToken:
     type: object
     additionalProperties: false
@@ -533,6 +549,13 @@ definitions:
     properties:
       phase:
         $ref: /definitions/device_phase
+  DeviceSetting:
+    type: object
+    minProperties: 1
+    maxProperties: 1
+  DeviceSettings:
+    type: object
+    minProperties: 1
   WorkspaceRoomReplace:
     type: array
     uniqueItems: true
