@@ -122,6 +122,13 @@ __PACKAGE__->table("device");
   data_type: 'text'
   is_nullable: 1
 
+=head2 phase
+
+  data_type: 'enum'
+  default_value: 'integration'
+  extra: {custom_type_name => "device_phase_enum",list => ["integration","production","diagnostics","decommissioned"]}
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -176,6 +183,16 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "hostname",
   { data_type => "text", is_nullable => 1 },
+  "phase",
+  {
+    data_type => "enum",
+    default_value => "integration",
+    extra => {
+      custom_type_name => "device_phase_enum",
+      list => ["integration", "production", "diagnostics", "decommissioned"],
+    },
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -357,8 +374,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-12 13:33:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:M2j4oOof/SgTrd7S/tcVqQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-04-04 11:36:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VmWasWcAAR+F8+QYjmPCTQ
 
 __PACKAGE__->has_many(
   "active_device_disks",

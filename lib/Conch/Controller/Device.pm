@@ -379,6 +379,31 @@ sub set_validated($c) {
 	$c->redirect_to($c->url_for("/device/$device_id"));
 }
 
+=head2 get_phase
+
+Gets just the device's phase.  Response uses the DevicePhase json schema.
+
+=cut
+
+sub get_phase ($c) {
+    return $c->status(200, $c->stash('device_rs')->columns([qw(id phase)])->hri->single);
+}
+
+=head2 set_phase
+
+=cut
+
+sub set_phase ($c) {
+    my $input = $c->validate_input('DevicePhase');
+    return if not $input;
+
+    $c->stash('device_rs')->update({ phase => $input->{phase}, updated => \'now()' });
+    $c->log->debug('Set the phase for device '.$c->stash('device_id').' to '.$input->{phase});
+
+    $c->status(303);
+    $c->redirect_to($c->url_for('/device/'.$c->stash('device_id')));
+}
+
 1;
 __END__
 

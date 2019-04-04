@@ -9,6 +9,8 @@ definitions:
     $ref: common.yaml#/definitions/device_id
   device_asset_tag:
     $ref: common.yaml#/definitions/device_asset_tag
+  device_phase:
+    $ref: common.yaml#/definitions/device_phase
   ipaddr:
     $ref: common.yaml#/definitions/ipaddr
   macaddr:
@@ -64,6 +66,7 @@ definitions:
       - updated
       - uptime_since
       - validated
+      - phase
       - location
       - nics
       - disks
@@ -131,6 +134,8 @@ definitions:
           - type: string
             format: date-time
           - type: 'null'
+      phase:
+        $ref: /definitions/device_phase
       location:
         oneOf:
           - $ref: "#/definitions/DeviceLocation"
@@ -283,6 +288,7 @@ definitions:
       - uptime_since
       - validated
       - triton_setup
+      - phase
       - rack_id
       - rack_unit_start
     properties:
@@ -346,6 +352,8 @@ definitions:
           - type: string
             format: date-time
           - type: 'null'
+      phase:
+        $ref: /definitions/device_phase
       rack_id:
         oneOf:
           - $ref: /definitions/uuid
@@ -472,6 +480,17 @@ definitions:
             properties:
               mac:
                 $ref: /definitions/macaddr
+  DevicePhase:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - phase
+    properties:
+      id:
+        $ref: /definitions/device_id
+      phase:
+        $ref: /definitions/device_phase
   WorkspaceDevicePXEs:
     type: array
     uniqueItems: true

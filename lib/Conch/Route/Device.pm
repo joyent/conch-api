@@ -65,6 +65,9 @@ sub routes {
         # GET /device/:device_id/pxe
         $with_device->get('/pxe')->to('device#get_pxe');
 
+        # GET /device/:device_id/phase
+        $with_device->get('/phase')->to('device#get_phase');
+
         # POST /device/:device_id/graduate
         $with_device->post('/graduate')->to('device#graduate');
         # POST /device/:device_id/triton_setup
@@ -77,6 +80,8 @@ sub routes {
         $with_device->post('/asset_tag')->to('device#set_asset_tag');
         # POST /device/:device_id/validated
         $with_device->post('/validated')->to('device#set_validated');
+        # POST /device/:device_id/phase
+        $with_device->post('/phase')->to('device#set_phase');
 
         {
             my $with_device_location = $with_device->any('/location');

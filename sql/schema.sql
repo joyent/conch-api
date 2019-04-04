@@ -72,6 +72,20 @@ CREATE TYPE public.device_health_enum AS ENUM (
 ALTER TYPE public.device_health_enum OWNER TO conch;
 
 --
+-- Name: device_phase_enum; Type: TYPE; Schema: public; Owner: conch
+--
+
+CREATE TYPE public.device_phase_enum AS ENUM (
+    'integration',
+    'production',
+    'diagnostics',
+    'decommissioned'
+);
+
+
+ALTER TYPE public.device_phase_enum OWNER TO conch;
+
+--
 -- Name: user_workspace_role_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
@@ -196,7 +210,8 @@ CREATE TABLE public.device (
     triton_uuid uuid,
     asset_tag text,
     triton_setup timestamp with time zone,
-    hostname text
+    hostname text,
+    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL
 );
 
 

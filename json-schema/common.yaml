@@ -22,6 +22,13 @@ definitions:
   device_asset_tag:
     type: string
     pattern: ^\S+$
+  device_phase:
+    type: string
+    enum:
+      - integration
+      - production
+      - diagnostics
+      - decommissioned
   int_or_stringy_int:
     description: an integer that may be presented as a json string
     # note that when JSON::Validator has 'coerce' mode on, both of these rules will match.
