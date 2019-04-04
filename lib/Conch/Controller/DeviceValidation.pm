@@ -113,7 +113,7 @@ sub run_validation_plan ($c) {
         return;
     }
 
-    my @validation_results = Conch::ValidationSystem->new(
+    my ($status, @validation_results) = Conch::ValidationSystem->new(
         schema => $c->ro_schema,
         log => $c->log,
     )->run_validation_plan(

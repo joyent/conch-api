@@ -206,6 +206,8 @@ __PACKAGE__->add_columns(
     '+completed' => { retrieve_on_insert => 1 },
 );
 
+use experimental 'signatures';
+
 sub TO_JSON {
     my $self = shift;
 
@@ -224,6 +226,24 @@ sub TO_JSON {
     }
 
     return $data;
+}
+
+=head2 prefetch_validation_results
+
+Add validation_state_members, validation_result rows to the resultset cache. This allows those
+rows to be included in serialized data (see L</TO_JSON>).
+
+The implementation is gross because has-multi accessors always go to the db, so there is no
+non-private way of extracting related rows from the result.
+
+=cut
+
+sub prefetch_validation_results ($self) {
+    for my $members ($self->{_relationship_data}{validation_state_members}) {
+        $_->related_resultset('validation_result')->set_cache([ $_->validation_result ])
+            foreach $members->@*;
+        $self->related_resultset('validation_state_members')->set_cache($members);
+    }
 }
 
 1;
