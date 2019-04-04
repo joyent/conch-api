@@ -39,6 +39,15 @@ Given a JSON::Validator object containing a schema definition, extract the reque
 out of the "definitions" section, including any named references, and add some standard
 headers.
 
+TODO: this (plus addition of the header fields) could mostly be replaced with just:
+
+    my $new_defs = $jv->bundle({
+        schema => $jv->get('/definitions/'.$title),
+        ref_key => 'definitions',
+    });
+
+..except circular refs are not handled there, and the definition renaming leaks local path info.
+
 =cut
 
 sub _extract_schema_definition ($validator, $schema_name) {
@@ -56,6 +65,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
             (my $name = $path) =~ s!^/definitions/!!;
 
             if (not $refs{$tied->fqn}++) {
+                # TODO: use a heuristic to find a new name for the conflicting definition
                 if ($name ne $schema_name and exists $source{$name}) {
                     die 'namespace collision: '.$tied->fqn.' but already have a /definitions/'.$name
                         .' from '.$source{$name}->fqn;
