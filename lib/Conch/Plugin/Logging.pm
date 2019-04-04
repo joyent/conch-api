@@ -55,7 +55,8 @@ sub register ($self, $app, $config) {
 						or ($template and $template =~ /exception/)) {
 					$exception //= $args->{exception};
 					$exception->verbose(1);
-					$c->send_exception_to_rollbar($exception);
+                    my $rollbar_id = $c->send_exception_to_rollbar($exception);
+                    $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
 				}
 			}
 		);
