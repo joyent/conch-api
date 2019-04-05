@@ -285,7 +285,7 @@ sub session_logout ($c) {
 	if ($c->stash('user_id') and $c->stash('token_id')) {
 		$c->db_user_session_tokens
 			->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
-			->active
+			->unexpired
 			->expire;
 	}
 
@@ -333,7 +333,7 @@ sub refresh_token ($c) {
 	# expire this token
 	my $token_valid = $c->db_user_session_tokens
 		->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
-		->active->expire;
+		->unexpired->expire;
 
 	# clear out all expired session tokens
 	$c->db_user_session_tokens->expired->delete;
