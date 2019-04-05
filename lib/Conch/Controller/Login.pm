@@ -37,7 +37,11 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 			# normal default: 1 day
 	  : ($jwt_config->{normal_expiry} || 86400));
 
-	my $token = $c->db_user_session_tokens->generate_for_user($user_id, $expires_abs);
+    my ($new_token_row, $token) = $c->db_user_session_tokens->generate_for_user(
+        $user_id,
+        $expires_abs,
+        'login_jwt_'.int(time), # reasonably unique name
+    );
 
 	my $jwt = Mojo::JWT->new(
 		claims => {
@@ -144,7 +148,10 @@ sub authenticate ($c) {
 
 		unless ( $jwt
 			and $jwt->{exp} > time
-			and $c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})->exists)
+            and $c->db_user_session_tokens
+                ->unexpired
+                ->search_for_user_token($jwt->{uid}, $jwt->{jti})
+                ->update({ last_used => \'now()' }) > 0)
 		{
 			$c->log->debug('JWT auth failed');
 			return $c->status(401);

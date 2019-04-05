@@ -9,6 +9,7 @@ use Path::Tiny;
 use Test::Warnings ':all';
 use Test::Conch;
 use Test::Deep;
+use Test::Deep::NumberTolerant;
 use Test::Memory::Cycle;
 
 my $uuid = Data::UUID->new;
@@ -1158,6 +1159,106 @@ subtest 'modify another user' => sub {
 	warnings(sub {
 		memory_cycle_ok($t2, 'no leaks in the Test::Conch object');
 	});
+};
+
+subtest 'user tokens' => sub {
+    $t->get_ok('/user/me/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_cmp_deeply([
+            {
+                # JWT created earlier in the login process
+                name => re(qr/^login_jwt_\d+$/),
+                expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_used => ignore,
+            },
+        ]);
+
+    my @existing_jwts = $t->tx->res->json->@*;
+
+    $t->post_ok('/user/me/token', json => { name => 'my first token' })
+        ->status_is(201)
+        ->json_schema_is('NewUserToken')
+        ->location_is(Mojo::URL->new('/user/me/token/my first token'))
+        ->json_cmp_deeply({
+            name => 'my first token',
+            token => re(qr/^[^.]+\.[^.]+\.[^.]+$/), # full jwt with signature
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_used => undef,
+        });
+    my ($created, $expires, $token) = $t->tx->res->json->@{qw(created expires token)};
+
+    cmp_deeply(
+        Conch::Time->new($expires)->epoch,
+        within_tolerance(time + 60*60*24*365*5, plus_or_minus => 10),
+        'token expires approximately 5 years in the future',
+    );
+
+    $t->get_ok('/user/me/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_is([
+            @existing_jwts,
+            {
+                name => 'my first token',
+                created => $created,
+                last_used => undef,
+                expires => $expires,
+            },
+        ]);
+
+    $t->get_ok('/user/me/token/my first token')
+        ->status_is(200)
+        ->json_schema_is('UserToken')
+        ->json_is({
+            name => 'my first token',
+            created => $created,
+            last_used => undef,
+            expires => $expires,
+        });
+
+    my $t2 = Test::Conch->new(pg => $t->pg);
+    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$token })
+        ->status_is(200)
+        ->json_schema_is('UserDetailed')
+        ->json_is('/email' => $t2->CONCH_EMAIL);
+    undef $t2;
+
+    $t->delete_ok('/user/me/token/my first token')
+        ->status_is(204)
+        ->content_is('');
+
+    $t->get_ok('/user/me/token/my first token')
+        ->status_is(404);
+
+    my $last_used = $t->app->db_user_session_tokens
+        ->search(
+            { name => 'my first token' },
+            { select => { '' => \'extract(epoch from last_used)', -as => 'last_used' } },
+        )->get_column('last_used')->single;
+
+    cmp_deeply(
+        $last_used,
+        within_tolerance(time, plus_or_minus => 10),
+        'token was last used approximately now',
+    );
+
+    $t->get_ok('/user/me/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_is(\@existing_jwts);
+
+    $t->get_ok('/user/me/token/my first token')
+        ->status_is(404);
+
+    $t->delete_ok('/user/me/token/my first token')
+        ->status_is(404);
+
+    $t2 = Test::Conch->new(pg => $t->pg);
+    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$token })
+        ->status_is(401);
 };
 
 warnings(sub {

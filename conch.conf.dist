@@ -8,6 +8,7 @@
 		# time in seconds for a JWT to be valid before requiring refresh or re-auth
 		system_admin_expiry => 2592000, # 30 days
 		normal_expiry => 86400, # 1 day
+        custom_token_expiry => 86400*365*5, # 5 years
 	},
 
     database => {

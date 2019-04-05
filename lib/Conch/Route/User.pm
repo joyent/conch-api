@@ -23,6 +23,11 @@ Sets up the routes for /user:
     DELETE  /user/me/settings/#key
     POST    /user/me/password
 
+    GET     /user/me/token
+    POST    /user/me/token
+    GET     /user/me/token/:token_name
+    DELETE  /user/me/token/:token_name
+
     GET     /user/#target_user_id
     POST    /user/#target_user_id
     DELETE  /user/#target_user_id
@@ -74,6 +79,23 @@ sub routes {
         # POST /user/me/password
         $user_me->under('/password')->to('#change_own_password')
             ->post->to('login#session_logout');
+
+        {
+            my $user_me_token = $user_me->any('/token');
+
+            # GET /user/me/token (?with_expired=1)
+            $user_me_token->get('/')->to('#get_tokens');
+            # POST /user/me/token
+            $user_me_token->post('/')->to('#create_token');
+
+            my $with_token = $user_me_token->under('/:token_name')->to('#find_token');
+
+            # GET /user/me/token/:token_name
+            $with_token->get('/')->to('#get_token');
+
+            # DELETE /user/me/token/:token_name
+            $with_token->delete('/')->to('#expire_token');
+        }
     }
 
     # administrator interfaces for updating a different user's account...

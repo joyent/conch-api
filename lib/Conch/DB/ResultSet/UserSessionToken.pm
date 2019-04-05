@@ -73,23 +73,26 @@ sub expire ($self) {
 =head2 generate_for_user
 
 Generates a session token for the user and stores it in the database.
-Returns the token that was generated.
+'expires' is an epoch time.
+
+Returns the db row inserted, and the token string that we generated.
 
 =cut
 
-sub generate_for_user ($self, $user_id, $expires) {
+sub generate_for_user ($self, $user_id, $expires, $name) {
     warn 'user_id is null' if not $user_id;
     warn 'expires is not set' if not $expires;
 
     my $token = Session::Token->new->get;
 
-    $self->create({
+    my $row = $self->create({
         user_id => $user_id,
+        name => $name,
         token_hash => \[ q{digest(?, 'sha256')}, $token ],
         expires => \[ q{to_timestamp(?)::timestamptz}, $expires ],
     });
 
-    return $token;
+    return ($row, $token);
 }
 
 1;
