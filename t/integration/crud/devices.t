@@ -104,6 +104,7 @@ subtest 'unlocated device with a registered relay' => sub {
             state => ignore,
             hostname => 'elfo',
             system_uuid => ignore,
+            phase => 'integration',
             (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product => $hardware_product_id,
@@ -125,6 +126,7 @@ subtest 'unlocated device with a registered relay' => sub {
             state => ignore,
             hostname => 'elfo',
             system_uuid => ignore,
+            phase => 'integration',
             (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product => $hardware_product_id,
@@ -180,6 +182,7 @@ subtest 'located device' => sub {
             id => 'LOCATED_DEVICE',
             health => 'unknown',
             state => 'UNKNOWN',
+            phase => 'integration',
             (map +($_ => undef), qw(asset_tag graduated hostname last_seen latest_triton_reboot system_uuid triton_setup triton_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
             hardware_product => $hardware_product_id,
@@ -218,6 +221,7 @@ subtest 'located device' => sub {
             [ '/device/LOCATED_DEVICE/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str } ],
             '/device/LOCATED_DEVICE/triton_setup',
             '/device/LOCATED_DEVICE/validated',
+            [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
         );
 
         $t->authenticate(user => $t->load_fixture('rw_user_global_workspace')->user_account->email);
@@ -263,6 +267,7 @@ subtest 'located device' => sub {
             '/device/LOCATED_DEVICE/settings/hello',
             '/device/LOCATED_DEVICE/validation_state',
             '/device/LOCATED_DEVICE/interface',
+            '/device/LOCATED_DEVICE/phase',
             # TODO: filter search results for permissions
             #'/device?hostname=Luci',
             #'/device?mac=00:00:00:00:00:00',
@@ -415,6 +420,16 @@ subtest 'mutate device attributes' => sub {
     $t->post_ok('/device/TEST/validated')
         ->status_is(204)
         ->content_is('');
+
+    $t->post_ok('/device/TEST/phase', json => { phase => 'decommissioned' })
+        ->status_is(303)
+        ->location_is('/device/TEST');
+    $detailed_device->{phase} = 'decommissioned';
+
+    $t->get_ok('/device/TEST/phase')
+        ->status_is(200)
+        ->json_schema_is('DevicePhase')
+        ->json_is({ id => 'TEST', phase => 'decommissioned' });
 
     $t->get_ok('/device/TEST')
         ->status_is(200)

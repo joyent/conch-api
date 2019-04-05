@@ -11,6 +11,8 @@ definitions:
     $ref: common.yaml#/definitions/device_id
   device_asset_tag:
     $ref: common.yaml#/definitions/device_asset_tag
+  device_phase:
+    $ref: common.yaml#/definitions/device_phase
   ipaddr:
     $ref: common.yaml#/definitions/ipaddr
   macaddr:
@@ -515,6 +517,14 @@ definitions:
     properties:
       triton_uuid:
         $ref: /definitions/uuid
+  DevicePhase:
+    type: object
+    additionaProperties: false
+    required:
+      - phase
+    properties:
+      phase:
+        $ref: /definitions/device_phase
   WorkspaceRoomReplace:
     type: array
     uniqueItems: true
