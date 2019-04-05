@@ -17,6 +17,7 @@ Sets up the routes for /device:
     GET     /device/?hostname=:host, ?mac=:mac, ?ipaddr=:ipaddr, ?:setting_key=:setting_value
     GET     /device/:device_id
     GET     /device/:device_id/pxe
+    GET     /device/:device_id/phase
     POST    /device/:device_id
     POST    /device/:device_id/graduate
     POST    /device/:device_id/triton_setup
@@ -24,6 +25,7 @@ Sets up the routes for /device:
     POST    /device/:device_id/triton_reboot
     POST    /device/:device_id/asset_tag
     POST    /device/:device_id/validated
+    POST    /device/:device_id/phase
 
     GET     /device/:device_id/location
     POST    /device/:device_id/location
