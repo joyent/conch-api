@@ -1192,11 +1192,8 @@ subtest 'user tokens' => sub {
     $t->get_ok('/user/me/token/my first token')
         ->status_is(404);
 
-    my $last_used = $t->app->db_user_session_tokens
-        ->search(
-            { name => 'my first token' },
-            { select => { '' => \'extract(epoch from last_used)', -as => 'last_used' } },
-        )->get_column('last_used')->single;
+    my $last_used = $t->app->db_user_session_tokens->search({ name => 'my first token' })
+        ->as_epoch('last_used')->get_column('last_used')->single;
 
     cmp_deeply(
         $last_used,
