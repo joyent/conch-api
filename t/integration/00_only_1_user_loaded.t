@@ -1135,7 +1135,7 @@ subtest 'user tokens' => sub {
     $t->post_ok('/user/me/token', json => { name => 'my first token' })
         ->status_is(201)
         ->json_schema_is('NewUserToken')
-        ->location_is(Mojo::URL->new('/user/me/token/my first token'))
+        ->location_is('/user/me/token/my first token')
         ->json_cmp_deeply({
             name => 'my first token',
             token => re(qr/^[^.]+\.[^.]+\.[^.]+$/), # full jwt with signature
