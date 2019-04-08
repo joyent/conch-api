@@ -14,16 +14,14 @@ Conch::DB::ResultSet::UserSessionToken
 
 Interface to queries against the 'user_session_token' table.
 
-=cut
-
 =head2 expired
 
-Chainable resultset to limit results to session tokens that are expired.
+Chainable resultset to limit results to those that are expired.
 
 =cut
 
 sub expired ($self) {
-    $self->search({ expires => { '<=' => \'now()' } });
+    $self->search({ $self->current_source_alias.'.expires' => { '<=' => \'now()' } });
 }
 
 =head2 active
@@ -32,14 +30,22 @@ Chainable resultset to limit results to session tokens that are not expired.
 
 =cut
 
-sub active ($self) {
-    $self->search({ expires => { '>' => \'now()' } });
+sub active ($self) { $self->unexpired }
+
+=head2 unexpired
+
+Chainable resultset to limit results to those that aren't expired.
+
+=cut
+
+sub unexpired ($self) {
+    $self->search({ $self->current_source_alias.'.expires' => { '>' => \'now()' } });
 }
 
 =head2 search_for_user_token
 
 Chainable resultset to search for matching tokens.
-This does *not* check the expires field: chain with 'active' if this is desired.
+This does *not* check the expires field: chain with 'unexpired' if this is desired.
 
 =cut
 
@@ -56,7 +62,7 @@ sub search_for_user_token ($self, $user_id, $token) {
 
 =head2 expire
 
-Mark the matching token(s) as expired. (Returns the number of rows updated.)
+Update all matching rows by setting expires = now(). (Returns the number of rows updated.)
 
 =cut
 
@@ -67,23 +73,26 @@ sub expire ($self) {
 =head2 generate_for_user
 
 Generates a session token for the user and stores it in the database.
-Returns the token that was generated.
+'expires' is an epoch time.
+
+Returns the db row inserted, and the token string that we generated.
 
 =cut
 
-sub generate_for_user ($self, $user_id, $expires) {
+sub generate_for_user ($self, $user_id, $expires, $name) {
     warn 'user_id is null' if not $user_id;
     warn 'expires is not set' if not $expires;
 
     my $token = Session::Token->new->get;
 
-    $self->create({
+    my $row = $self->create({
         user_id => $user_id,
+        name => $name,
         token_hash => \[ q{digest(?, 'sha256')}, $token ],
         expires => \[ q{to_timestamp(?)::timestamptz}, $expires ],
     });
 
-    return $token;
+    return ($row, $token);
 }
 
 1;

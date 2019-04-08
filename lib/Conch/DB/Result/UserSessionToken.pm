@@ -45,6 +45,23 @@ __PACKAGE__->table("user_session_token");
   data_type: 'timestamp with time zone'
   is_nullable: 0
 
+=head2 name
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 created
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+  original: {default_value => \"now()"}
+
+=head2 last_used
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -54,6 +71,17 @@ __PACKAGE__->add_columns(
   { data_type => "bytea", is_nullable => 0 },
   "expires",
   { data_type => "timestamp with time zone", is_nullable => 0 },
+  "name",
+  { data_type => "text", is_nullable => 0 },
+  "created",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+    original      => { default_value => \"now()" },
+  },
+  "last_used",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -69,6 +97,22 @@ __PACKAGE__->add_columns(
 =cut
 
 __PACKAGE__->set_primary_key("user_id", "token_hash");
+
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<user_session_token_user_id_name_key>
+
+=over 4
+
+=item * L</user_id>
+
+=item * L</name>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("user_session_token_user_id_name_key", ["user_id", "name"]);
 
 =head1 RELATIONS
 
@@ -88,11 +132,16 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3duPGO9UY9pz/5QRI2IGiQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-04-05 15:32:11
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+xDuJqLgRoUqLgtnqPeTUw
 
+__PACKAGE__->add_columns(
+    '+user_id' => { is_serializable => 0 },
+    '+token_hash' => { is_serializable => 0 },
+    '+created' => { retrieve_on_insert => 1 },
+    '+expires' => { retrieve_on_insert => 1 },
+);
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
 __END__
 

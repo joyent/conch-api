@@ -87,6 +87,7 @@ on 'test' => sub {
     requires 'Moo';
     requires 'MooX::HandlesVia';
     requires 'Storable';
+    requires 'Test::Deep::NumberTolerant';
 
     local $ENV{PERL_USE_UNSAFE_INC} = 1;
     recommends 'Test::Spelling';

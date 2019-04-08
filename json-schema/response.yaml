@@ -1546,6 +1546,58 @@ definitions:
     uniqueItems: true
     items:
        $ref: /definitions/UserDetailed
+  UserTokens:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/UserToken
+  UserToken:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - created
+      - last_used
+      - expires
+    properties:
+      name:
+        type: string
+      created:
+        type: string
+        format: date-time
+      last_used:
+        oneOf:
+          - type: 'null'
+          - type: string
+            format: date-time
+      expires:
+        type: string
+        format: date-time
+  NewUserToken:
+    type: object
+    additionalProperties: false
+    required:
+      - token
+      - created
+      - last_used
+      - expires
+      - name
+    properties:
+      token:
+        type: string
+      created:
+        type: string
+        format: date-time
+      last_used:
+        oneOf:
+          - type: 'null'
+          - type: string
+            format: date-time
+      expires:
+        type: string
+        format: date-time
+      name:
+        type: string
   HardwareVendor:
     type: object
     additionalProperties: false

@@ -442,6 +442,99 @@ sub deactivate ($c) {
 	return $c->status(204);
 }
 
+=head2 get_tokens
+
+Get a list of unexpired user tokens.
+
+Response uses the UserTokens json schema.
+
+=cut
+
+sub get_tokens ($c) {
+    my $rs = $c->db_user_session_tokens->unexpired->order_by('name');
+    return $c->status(200, [ $rs->all ]);
+}
+
+=head2 create_token
+
+Create a new token, creating a JWT from it.  Response uses the NewUserToken json schema.
+
+=cut
+
+sub create_token ($c) {
+    my $input = $c->validate_input('NewUserToken');
+    return if not $input;
+
+    return $c->status(400, { error => 'name "'.$input->{name}.'" is already in use' })
+        if $c->db_user_session_tokens
+            ->search({ user_id => $c->stash('user_id'), name => $input->{name} })->exists;
+
+    # default expiration: 5 years
+    my $expires_abs = time + (($c->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
+
+    # TODO: ew ew ew, some duplication with Conch::Controller::Login::_create_jwt.
+    my ($new_db_row, $token) = $c->db_user_session_tokens->generate_for_user(
+        $c->stash('user_id'), $expires_abs, $input->{name});
+
+    my $jwt = Mojo::JWT->new(
+        claims => { uid => $c->stash('user_id'), jti => $token },
+        secret => $c->config('secrets')->[0],
+        expires => $expires_abs,
+    )->encode;
+
+    $c->res->headers->location($c->url_for('/user/me/token/'.$input->{name}));
+    return $c->status(201, {
+        token => $jwt,
+        $new_db_row->TO_JSON->%*,
+    });
+}
+
+=head2 find_token
+
+Chainable action that takes the 'token_name' provided in the path and looks it up in the
+database, stashing a resultset to access it as 'token_rs'.
+
+Only the current user may access the token.
+
+=cut
+
+sub find_token ($c) {
+    my $token_rs = $c->db_user_session_tokens
+        ->unexpired
+        ->search({ user_id => $c->stash('user_id'), name => $c->stash('token_name') });
+
+    if (not $token_rs->exists) {
+        $c->log->debug('Could not find token named "'.$c->stash('token_name').' for user_id '.$c->stash('user_id'));
+        return $c->status(404);
+    }
+
+    $c->stash('token_rs', $token_rs);
+    return 1;
+}
+
+=head2 get_token
+
+Get information about the specified token.
+
+Response uses the UserToken json schema.
+
+=cut
+
+sub get_token ($c) {
+    return $c->status(200, $c->stash('token_rs')->single);
+}
+
+=head2 expire_token
+
+Deactivates a token from future use.
+
+=cut
+
+sub expire_token ($c) {
+    $c->stash('token_rs')->expire;
+    return $c->status(204);
+}
+
 1;
 __END__
 

@@ -2581,6 +2581,27 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0
+  Number-Tolerant-1.708
+    pathname: R/RJ/RJBS/Number-Tolerant-1.708.tar.gz
+    provides:
+      Number::Tolerant 1.708
+      Number::Tolerant::Constant 1.708
+      Number::Tolerant::Type 1.708
+      Number::Tolerant::Union 1.708
+      Test::Tolerant 1.708
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Math::BigFloat 0
+      Math::BigRat 0
+      Scalar::Util 0
+      Sub::Exporter 0.950
+      Sub::Exporter::Util 0
+      Test::Builder 0
+      overload 0
+      parent 0
+      strict 0
+      warnings 0
   Package-DeprecationManager-0.17
     pathname: D/DR/DROLSKY/Package-DeprecationManager-0.17.tar.gz
     provides:
@@ -3094,6 +3115,19 @@ DISTRIBUTIONS
       Module::Build::Tiny 0.035
       Test::Deep 0
       perl 5.008001
+  Test-Deep-NumberTolerant-0.002
+    pathname: E/ET/ETHER/Test-Deep-NumberTolerant-0.002.tar.gz
+    provides:
+      Test::Deep::NumberTolerant 0.002
+    requirements:
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      Number::Tolerant 0
+      Test::Deep::Cmp 0
+      parent 0
+      perl 5.006
+      strict 0
+      warnings 0
   Test-Differences-0.64
     pathname: D/DC/DCANTRELL/Test-Differences-0.64.tar.gz
     provides:

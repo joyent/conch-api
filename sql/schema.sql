@@ -587,7 +587,10 @@ ALTER TABLE public.user_relay_connection OWNER TO conch;
 CREATE TABLE public.user_session_token (
     user_id uuid NOT NULL,
     token_hash bytea NOT NULL,
-    expires timestamp with time zone NOT NULL
+    expires timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    last_used timestamp with time zone
 );
 
 
@@ -1315,6 +1318,13 @@ CREATE INDEX user_session_token_expires_idx ON public.user_session_token USING b
 --
 
 CREATE INDEX user_session_token_user_id_idx ON public.user_session_token USING btree (user_id);
+
+
+--
+-- Name: user_session_token_user_id_name_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX user_session_token_user_id_name_key ON public.user_session_token USING btree (user_id, name);
 
 
 --

@@ -440,6 +440,14 @@ definitions:
         format: email
       is_admin:
         type: boolean
+  NewUserToken:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+    properties:
+      name:
+        type: string
   CreateValidationPlan:
     type: object
     additionalProperties: false
