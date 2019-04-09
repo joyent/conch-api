@@ -77,6 +77,7 @@ ALTER TYPE public.device_health_enum OWNER TO conch;
 
 CREATE TYPE public.device_phase_enum AS ENUM (
     'integration',
+    'installation',
     'production',
     'diagnostics',
     'decommissioned'
