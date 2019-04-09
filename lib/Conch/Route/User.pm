@@ -21,7 +21,7 @@ Sets up the routes for /user:
     GET     /user/me/settings/#key
     POST    /user/me/settings/#key
     DELETE  /user/me/settings/#key
-    POST    /user/me/password?clear_tokens=<0|1>
+    POST    /user/me/password?clear_tokens=<0|login_only|all>
 
     GET     /user/me/token
     POST    /user/me/token
@@ -76,7 +76,7 @@ sub routes {
         }
 
         # after changing password, (possibly) pass through to logging out too
-        # POST /user/me/password?clear_tokens=<0|1>
+        # POST /user/me/password?clear_tokens=<0|login_only|all>
         $user_me->under('/password')->to('#change_own_password')
             ->post->to('login#session_logout');
 

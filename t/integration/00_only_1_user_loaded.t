@@ -129,6 +129,20 @@ subtest 'User' => sub {
 			TEST3 => 'test3',
 		});
 
+    $t->authenticate;
+    my $login_token = $t->tx->res->json->{jwt_token}.'.'.$t->tx->res->cookie('jwt_sig')->value;
+    {
+        my $t2 = Test::Conch->new(pg => $t->pg);
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token })
+            ->status_is(200, 'login token works without cookies etc')
+            ->json_schema_is('UserDetailed')
+            ->json_is('/email' => $t2->CONCH_EMAIL);
+    }
+
+    $t->post_ok('/user/me/token', json => { name => 'an api token' })
+        ->status_is(201);
+    my $api_token = $t->tx->res->json->{token};
+
 	$t->post_ok('/user/me/password' => json => { password => 'øƕḩẳȋ' })
 		->status_is(204, 'changed password');
 
@@ -138,11 +152,37 @@ subtest 'User' => sub {
 	$t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
 		->status_is(401, 'cannot use old password after changing it');
 
+    {
+        my $t2 = Test::Conch->new(pg => $t->pg);
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token })
+            ->status_is(401, 'main login token no longer works after changing password');
+    }
+
+    {
+        my $t2 = Test::Conch->new(pg => $t->pg);
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
+            ->status_is(200, 'api token still works after changing password')
+            ->json_schema_is('UserDetailed')
+            ->json_is('/email' => $t2->CONCH_EMAIL);
+    }
+
 	$t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => 'øƕḩẳȋ' })
 		->status_is(200, 'logged in using new password');
 
+    $t->post_ok('/user/me/password?clear_tokens=all' => json => { password => 'another password' })
+        ->status_is(204, 'changed password again');
+
+    {
+        my $t2 = Test::Conch->new(pg => $t->pg);
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
+            ->status_is(401, 'api login token no longer works either');
+    }
+
+    $t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => 'another password' })
+        ->status_is(200, 'logged in using second new password');
+
 	$t->post_ok('/user/me/password', json => { password => $t->CONCH_PASSWORD })
-		->status_is(204, 'changed password back');
+		->status_is(204, 'changed password back to original');
 
 	$t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
 		->status_is(200, 'logged in using original password');

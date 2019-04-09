@@ -21,7 +21,7 @@ Conch::Controller::User
 
 =head2 revoke_own_tokens
 
-Revoke the user's own session tokens.
+Revoke all the user's own session tokens.
 B<NOTE>: This will cause the next request to fail authentication.
 
 =cut
@@ -181,14 +181,22 @@ sub delete_setting ($c) {
 
 Stores a new password for the current user.
 
-Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke session
-tokens for the user, forcing all tools to log in again.
+Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
+forcing the user to log in again.  Possible options are:
+
+  * 0, no, false
+  * login_only (default) (for backcompat, '1' is treated as login_only)
+  * all - also affects all APIs and tools
 
 =cut
 
 sub change_own_password ($c) {
 	my $body =  $c->validate_input('UserPassword');
 	return if not $body;
+
+    my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
+    return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
+        if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
 
 	my $new_password = $body->{password};
 
@@ -204,10 +212,11 @@ sub change_own_password ($c) {
 
 	$c->log->debug('updated password for user ' . $user->name . ' at their request');
 
-	return $c->status(204)
-		unless $c->req->query_params->param('clear_tokens') // 1;
+    return $c->status(204) if not $clear_tokens or $clear_tokens eq 'no' or $clear_tokens eq 'false';
 
-	$c->stash('user')->delete_related('user_session_tokens');
+    my $rs = $c->stash('user')->user_session_tokens;
+    $rs = $rs->login_only if $clear_tokens ne 'all';
+    $rs->delete;
 
 	# processing continues with Conch::Controller::Login::session_logout
 	return 1;
