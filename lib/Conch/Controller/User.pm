@@ -21,7 +21,7 @@ Conch::Controller::User
 
 =head2 revoke_own_tokens
 
-Revoke the user's own session tokens.
+Revoke all the user's own session tokens.
 B<NOTE>: This will cause the next request to fail authentication.
 
 =cut
@@ -34,7 +34,7 @@ sub revoke_own_tokens ($c) {
 
 =head2 revoke_user_tokens
 
-Revoke a specified user's session tokens. System admin only.
+Revoke *all* of a specified user's session tokens. System admin only.
 
 =cut
 
@@ -181,14 +181,22 @@ sub delete_setting ($c) {
 
 Stores a new password for the current user.
 
-Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke session
-tokens for the user, forcing all tools to log in again.
+Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
+forcing the user to log in again.  Possible options are:
+
+  * 0, no, false
+  * login_only (default) (for backcompat, '1' is treated as login_only)
+  * all - also affects all APIs and tools
 
 =cut
 
 sub change_own_password ($c) {
 	my $body =  $c->validate_input('UserPassword');
 	return if not $body;
+
+    my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
+    return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
+        if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
 
 	my $new_password = $body->{password};
 
@@ -204,10 +212,11 @@ sub change_own_password ($c) {
 
 	$c->log->debug('updated password for user ' . $user->name . ' at their request');
 
-	return $c->status(204)
-		unless $c->req->query_params->param('clear_tokens') // 1;
+    return $c->status(204) if not $clear_tokens or $clear_tokens eq 'no' or $clear_tokens eq 'false';
 
-	$c->stash('user')->delete_related('user_session_tokens');
+    my $rs = $c->stash('user')->user_session_tokens;
+    $rs = $rs->login_only if $clear_tokens ne 'all';
+    $rs->delete;
 
 	# processing continues with Conch::Controller::Login::session_logout
 	return 1;
@@ -220,27 +229,40 @@ Generates a new random password for a user. System admin only.
 Optionally takes a query parameter 'send_password_reset_mail' (defaulting to true), to send an
 email to the user with the new password.
 
-Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke session
-tokens for the user, forcing all their tools to log in again. The user must also change their
-password after logging in, as they will not be able to log in with it again.
+Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
+forcing the user to log in again.  Possible options are:
+
+  * 0, no, false
+  * login_only (default) (for backcompat, '1' is treated as login_only)
+  * all - also affects all APIs and tools
+
+If all tokens are revoked, the user must also change their password after logging in, as they
+will not be able to log in with it again.
 
 =cut
 
 sub reset_user_password ($c) {
-	my $user = $c->stash('target_user');
+    my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
+    return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
+        if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
 
+    my $user = $c->stash('target_user');
 	my %update = (
 		password => $c->random_string(),
 	);
 
-	if ($c->req->query_params->param('clear_tokens') // 1) {
-		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for user ' . $user->name);
-		$user->delete_related('user_session_tokens');
+    if ($clear_tokens and $clear_tokens ne 'no' and $clear_tokens ne 'false') {
+        my $rs = $user->user_session_tokens;
+        $rs = $rs->login_only if $clear_tokens ne 'all';
+        my $count = $rs->delete;
+        $c->log->warn('user '.$c->stash('user')->name.' deleted '.$count
+            .($clear_tokens eq 'all' ? ' all' : ' (primary only)')
+            .' user session tokens for user ' . $user->name);
 
 		%update = (
 			%update,
 
-			# subsequent attempts to authenticate with the browser session or JWT will return
+			# subsequent attempts to authenticate with the browser session will return
 			# 401 unauthorized, except for the /user/me/password endpoint
 			refuse_session_auth => 1,
 
@@ -411,6 +433,9 @@ sub create ($c) {
 
 Deactivates a user. System admin only.
 
+Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke all
+session tokens for the user, forcing all tools to log in again.
+
 All workspace permissions are removed and are not recoverable.
 
 =cut
@@ -435,7 +460,7 @@ sub deactivate ($c) {
 	$user->delete_related('user_workspace_roles');
 
 	if ($c->req->query_params->param('clear_tokens') // 1) {
-		$c->log->warn('user ' . $c->stash('user')->name . ' deleting user session tokens for user ' . $user->name);
+		$c->log->warn('user ' . $c->stash('user')->name . ' deleting all user session tokens for user ' . $user->name);
 		$user->delete_related('user_session_tokens');
 	}
 
@@ -464,6 +489,10 @@ Create a new token, creating a JWT from it.  Response uses the NewUserToken json
 sub create_token ($c) {
     my $input = $c->validate_input('NewUserToken');
     return if not $input;
+
+    # we use this naming convention to indicate login tokens
+    return $c->status(400, { error => 'name "'.$input->{name}.'" is reserved' })
+        if $input->{name} =~ /^login_jwt_/;
 
     return $c->status(400, { error => 'name "'.$input->{name}.'" is already in use' })
         if $c->db_user_session_tokens

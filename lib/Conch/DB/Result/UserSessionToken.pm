@@ -142,6 +142,20 @@ __PACKAGE__->add_columns(
     '+expires' => { retrieve_on_insert => 1 },
 );
 
+use experimental 'signatures';
+
+=head1 METHODS
+
+=head2 is_login
+
+Boolean indicating whether this token was created via the main /login flow.
+
+=cut
+
+sub is_login ($self) {
+    $self->name =~ /^login_jwt_\d+$/;
+}
+
 1;
 __END__
 

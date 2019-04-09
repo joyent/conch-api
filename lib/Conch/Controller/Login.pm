@@ -122,7 +122,7 @@ sub authenticate ($c) {
 		return 1;
 	}
 
-	my ($user_id, $jwt, $jwt_sig);
+	my ($user_id, $jwt, $jwt_sig, $session_token);
 	if ( $c->req->headers->authorization
 		&& $c->req->headers->authorization =~ /^Bearer (.+)/ )
 	{
@@ -148,16 +148,17 @@ sub authenticate ($c) {
 
 		unless ( $jwt
 			and $jwt->{exp} > time
-            and $c->db_user_session_tokens
+            and $session_token = $c->db_user_session_tokens
                 ->unexpired
-                ->search_for_user_token($jwt->{uid}, $jwt->{jti})
-                ->update({ last_used => \'now()' }) > 0)
+                ->search_for_user_token($jwt->{uid}, $jwt->{jti})->single)
 		{
 			$c->log->debug('JWT auth failed');
 			return $c->status(401);
 		}
 
+        $session_token->update({ last_used => \'now()' });
 		$user_id = $jwt->{uid};
+        $c->stash('token_id', $jwt->{jti});
 	}
 
 	# did we manage to authenticate the user, or find session info indicating we did so
@@ -167,9 +168,6 @@ sub authenticate ($c) {
 	if ($user_id and is_uuid($user_id)) {
 		$c->log->debug('looking up user by id ' . $user_id . '...');
 		if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email($user_id)) {
-
-			$c->stash('token_id' => $jwt->{jti}) if $jwt;
-
 			if ($user_id and $jwt_sig) {
 				$c->log->debug('setting jwt_sig in cookie');
 				$c->cookie(
@@ -178,15 +176,17 @@ sub authenticate ($c) {
 				);
 			}
 
-			if ($user->refuse_session_auth) {
+            # api tokens are exempt from this check
+            if ((not $session_token or $session_token->is_login)
+                    and $user->refuse_session_auth) {
 				if ($user->force_password_change) {
 					if ($c->req->url ne '/user/me/password') {
 						$c->log->debug('attempt to authenticate before changing insecure password');
 
-						# ensure session and JWT expire in no more than 10 minutes
+						# ensure session and and all login JWTs expire in no more than 10 minutes
 						$c->session(expiration => 10 * 60);
-						$c->db_user_session_tokens->search_for_user_token($jwt->{uid}, $jwt->{jti})
-							->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $jwt;
+                        $user->user_session_tokens->login_only
+                            ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
 						$c->res->headers->location($c->url_for('/user/me/password'));
 						return $c->status(401);
