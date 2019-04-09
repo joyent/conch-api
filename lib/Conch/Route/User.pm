@@ -21,7 +21,7 @@ Sets up the routes for /user:
     GET     /user/me/settings/#key
     POST    /user/me/settings/#key
     DELETE  /user/me/settings/#key
-    POST    /user/me/password
+    POST    /user/me/password?clear_tokens=<0|1>
 
     GET     /user/me/token
     POST    /user/me/token
@@ -30,11 +30,11 @@ Sets up the routes for /user:
 
     GET     /user/#target_user_id
     POST    /user/#target_user_id
-    DELETE  /user/#target_user_id
+    DELETE  /user/#target_user_id?clear_tokens=<0|1>
     POST    /user/#target_user_id/revoke
-    DELETE  /user/#target_user_id/password
+    DELETE  /user/#target_user_id/password?clear_tokens=<0|1>&send_password_reset_mail=<0|1>
     GET     /user
-    POST    /user
+    POST    /user?send_mail=<0|1>
 
 =cut
 
@@ -76,14 +76,14 @@ sub routes {
         }
 
         # after changing password, (possibly) pass through to logging out too
-        # POST /user/me/password
+        # POST /user/me/password?clear_tokens=<0|1>
         $user_me->under('/password')->to('#change_own_password')
             ->post->to('login#session_logout');
 
         {
             my $user_me_token = $user_me->any('/token');
 
-            # GET /user/me/token (?with_expired=1)
+            # GET /user/me/token
             $user_me_token->get('/')->to('#get_tokens');
             # POST /user/me/token
             $user_me_token->post('/')->to('#create_token');
@@ -108,17 +108,17 @@ sub routes {
         $user_with_target->get('/')->to('#get');
         # POST /user/#target_user_id
         $user_with_target->post('/')->to('#update');
-        # DELETE /user/#target_user_id
+        # DELETE /user/#target_user_id?clear_tokens=<0|1>
         $user_with_target->delete('/')->to('#deactivate');
 
         # POST /user/#target_user_id/revoke
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
-        # DELETE /user/#target_user_id/password
+        # DELETE /user/#target_user_id/password?clear_tokens=<0|1>&send_password_reset_mail=<0|1>
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user
         $user->require_system_admin->get('/')->to('#list');
-        # POST /user
+        # POST /user?send_mail=<0|1>
         $user->require_system_admin->post('/')->to('#create');
     }
 }
