@@ -26,6 +26,7 @@ definitions:
     type: string
     enum:
       - integration
+      - installation
       - production
       - diagnostics
       - decommissioned
