@@ -1177,6 +1177,10 @@ subtest 'user tokens' => sub {
 
     my @existing_jwts = $t->tx->res->json->@*;
 
+    $t->post_ok('/user/me/token', json => { name => 'login_jwt_1234' })
+        ->status_is(400)
+        ->json_is({ error => 'name "login_jwt_1234" is reserved' });
+
     $t->post_ok('/user/me/token', json => { name => 'my first token' })
         ->status_is(201)
         ->json_schema_is('NewUserToken')
@@ -1218,6 +1222,10 @@ subtest 'user tokens' => sub {
             last_used => undef,
             expires => $expires,
         });
+
+    $t->post_ok('/user/me/token', json => { name => 'my first token' })
+        ->status_is(400)
+        ->json_is({ error => 'name "my first token" is already in use' });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$token })

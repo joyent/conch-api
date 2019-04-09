@@ -465,6 +465,10 @@ sub create_token ($c) {
     my $input = $c->validate_input('NewUserToken');
     return if not $input;
 
+    # we use this naming convention to indicate login tokens
+    return $c->status(400, { error => 'name "'.$input->{name}.'" is reserved' })
+        if $input->{name} =~ /^login_jwt_/;
+
     return $c->status(400, { error => 'name "'.$input->{name}.'" is already in use' })
         if $c->db_user_session_tokens
             ->search({ user_id => $c->stash('user_id'), name => $input->{name} })->exists;
