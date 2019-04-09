@@ -96,7 +96,7 @@ sub find_device ($c) {
 
 =head2 get
 
-Retrieves details about a single device.  Response uses the DetailedDevice json schema.
+Retrieves details about a single (active) device.  Response uses the DetailedDevice json schema.
 
 =cut
 

@@ -366,7 +366,7 @@ sub get_me ($c) {
 
 =head2 list
 
-List all users and their workspaces. System admin only.
+List all active users and their workspaces. System admin only.
 Response uses the UsersDetailed json schema.
 
 =cut
@@ -545,7 +545,7 @@ sub find_token ($c) {
 
 =head2 get_token
 
-Get information about the specified token.
+Get information about the specified (unexpired) token.
 
 Response uses the UserToken json schema.
 

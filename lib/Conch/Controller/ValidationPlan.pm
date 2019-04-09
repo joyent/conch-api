@@ -86,7 +86,7 @@ sub find_validation_plan($c) {
 
 =head2 get
 
-Get the Validation Plan specified by uuid or name.
+Get the (active) Validation Plan specified by uuid or name.
 
 Response uses the ValidationPlan json schema.
 
@@ -98,7 +98,7 @@ sub get ($c) {
 
 =head2 list_validations
 
-List all Validations associated with the Validation Plan.
+List all Validations associated with the Validation Plan, both active and deactivated.
 
 Response uses the Validations json schema.
 

@@ -47,6 +47,8 @@ sub find_hardware_vendor ($c) {
 
 =head2 get_all
 
+Retrieves all active hardware vendors.
+
 Response uses the HardwareVendors json schema.
 
 =cut
@@ -58,6 +60,8 @@ sub get_all ($c) {
 }
 
 =head2 get_one
+
+Gets one (active) hardware vendor.
 
 Response uses the HardwareVendor json schema.
 
