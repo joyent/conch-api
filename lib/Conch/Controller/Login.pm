@@ -244,6 +244,9 @@ sub session_login ($c) {
 		$c->session( 'user' => $user->id );
 	}
 
+    # expire and delete any old session login JWTs for this user (there should only be one!)
+    $user->user_session_tokens->login_only->unexpired->expire;
+
 	# clear out all expired session tokens
 	$c->db_user_session_tokens->expired->delete;
 
