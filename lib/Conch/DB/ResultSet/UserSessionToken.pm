@@ -60,6 +60,16 @@ sub search_for_user_token ($self, $user_id, $token) {
     });
 }
 
+=head2 login_only
+
+Chainable resultset to search for login tokens (created via the main /login flow).
+
+=cut
+
+sub login_only ($self) {
+    $self->search({ name => { '-similar to' => 'login_jwt_[0-9]+' } });
+}
+
 =head2 expire
 
 Update all matching rows by setting expires = now(). (Returns the number of rows updated.)

@@ -401,13 +401,8 @@ sub authenticate ($self, %args) {
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     $self->post_ok('/login', json => { %args{qw(user password)} })
-        ->status_is(200, $args{message});
-
-    if ($self->tx->res->code != 200) {
-        my $message = 'Login failed for '.$args{user};
-        Test::More::BAIL_OUT($message) if $args{bailout};
-        Test::More::plan(skip_all => $message) if not $args{bailout};
-    }
+        ->status_is(200, $args{message} // 'logged in as '.$args{user})
+            or $args{bailout} and Test::More::BAIL_OUT('Failed to log in as '.$args{user});
 
     return $self;
 }
