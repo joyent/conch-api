@@ -32,7 +32,7 @@ Sets up the routes for /user:
     POST    /user/#target_user_id
     DELETE  /user/#target_user_id?clear_tokens=<0|1>
     POST    /user/#target_user_id/revoke
-    DELETE  /user/#target_user_id/password?clear_tokens=<0|1>&send_password_reset_mail=<0|1>
+    DELETE  /user/#target_user_id/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
     GET     /user
     POST    /user?send_mail=<0|1>
 
@@ -113,7 +113,7 @@ sub routes {
 
         # POST /user/#target_user_id/revoke
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
-        # DELETE /user/#target_user_id/password?clear_tokens=<0|1>&send_password_reset_mail=<0|1>
+        # DELETE /user/#target_user_id/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user

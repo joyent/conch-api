@@ -1020,6 +1020,10 @@ subtest 'modify another user' => sub {
 
 	$t2->get_ok('/me')->status_is(204);
 
+    $t2->post_ok('/user/me/token', json => { name => 'my api token' })
+        ->status_is(201);
+    my $api_token = $t2->tx->res->json->{token};
+
 	my $t3 = Test::Conch->new(pg => $t->pg);	# we will only use this $mojo for basic auth
 	$t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
 		->status_is(204, 'user can also use the app with basic auth');
@@ -1031,7 +1035,10 @@ subtest 'modify another user' => sub {
 		->status_is(401, 'new user cannot authenticate with persistent session after session is cleared');
 
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
-		->status_is(401, 'new user cannot authenticate with JWT after tokens are revoked');
+		->status_is(401, 'new user cannot authenticate with JWT after the login token is revoked');
+
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$api_token })
+        ->status_is(401, 'new user cannot use an api token either');
 
 	$t2->post_ok(
 		'/login' => json => {
@@ -1043,6 +1050,10 @@ subtest 'modify another user' => sub {
 	$jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
 
 	$t2->get_ok('/me')->status_is(204, 'session token re-established');
+
+    $t2->post_ok('/user/me/token', json => { name => 'my api token' })
+        ->status_is(201, 'got a new api token');
+    $api_token = $t2->tx->res->json->{token};
 
 	$t2->reset_session;	# force JWT to be used to authenticate
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
@@ -1084,7 +1095,12 @@ subtest 'modify another user' => sub {
 
 	$t2->reset_session;	# force JWT to be used to authenticate
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
-		->status_is(401, 'user cannot authenticate with JWT after his password is changed');
+		->status_is(401, 'user cannot authenticate with login JWT after his password is changed');
+
+    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
+        ->status_is(200, 'but the api token still works after his password is changed')
+        ->json_schema_is('UserDetailed')
+        ->json_is('/email' => 'foo@conch.joyent.us');
 
 	$t2->post_ok(
 		'/login' => json => {
@@ -1094,7 +1110,7 @@ subtest 'modify another user' => sub {
 		->status_is(401, 'cannot log in with the old password');
 
 	$t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:' . $insecure_password)->path('/me'))
-		->status_is(401, 'user cannot use new password with basic auth')
+		->status_is(401, 'user cannot use new password with basic auth to go anywhere else')
 		->location_is('/user/me/password');
 
 	$t2->post_ok(
