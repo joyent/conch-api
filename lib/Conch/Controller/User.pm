@@ -193,14 +193,14 @@ forcing the user to log in again.  Possible options are:
 =cut
 
 sub change_own_password ($c) {
-	my $body =  $c->validate_input('UserPassword');
-	return if not $body;
+    my $input = $c->validate_input('UserPassword');
+    return if not $input;
 
     my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
     return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
         if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
 
-	my $new_password = $body->{password};
+    my $new_password = $input->{password};
 
 	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
@@ -391,14 +391,11 @@ Optionally takes a query parameter:
 =cut
 
 sub create ($c) {
-	my $body =  $c->validate_input('NewUser');
-	if (not $body) {
-		$c->log->warn('missing body parameters when attempting to create new user');
-		return;
-	}
+    my $input = $c->validate_input('NewUser');
+    return if not $input;
 
-	my $name = $body->{name} // $body->{email};
-	my $email = $body->{email};
+    my $name = $input->{name} // $input->{email};
+    my $email = $input->{email};
 
 	# this would cause horrible clashes with our /user routes!
 	return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
@@ -410,13 +407,13 @@ sub create ($c) {
 		});
 	}
 
-	my $password = $body->{password} // $c->random_string;
+	my $password = $input->{password} // $c->random_string;
 
 	my $user = $c->db_user_accounts->create({
 		name => $name,
 		email => $email,
 		password => $password,	# will be hashed in constructor
-		is_admin => ($body->{is_admin} ? 1 : 0),
+		is_admin => ($input->{is_admin} ? 1 : 0),
 	});
 	$c->log->info('created user: ' . $user->name . ', email: ' . $user->email . ', id: ' . $user->id);
 
