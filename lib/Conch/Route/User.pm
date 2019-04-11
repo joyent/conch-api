@@ -1,6 +1,6 @@
 package Conch::Route::User;
 
-use Mojo::Base -strict;
+use Mojo::Base -strict, -signatures;
 
 =pod
 
@@ -48,18 +48,19 @@ sub routes {
 
     # interfaces for user updating their own account...
     {
-        # all these routes are under /user/
-        my $user_me = $user->any('/me');
+        # all /user/me routes operate with the target user set to ourselves
+        my $user_me = $user->under('/me')
+            ->to(cb => sub ($c) { $c->stash('target_user', $c->stash('user')); return 1 });
 
         # GET /user/me
-        $user_me->get('/')->to('#get_me');
+        $user_me->get('/')->to('#get');
 
         # POST /user/me/revoke
-        $user_me->post('/revoke')->to('#revoke_own_tokens');
+        $user_me->post('/revoke')->to('#revoke_user_tokens');
 
         # POST /user/me/password?clear_tokens=<login_only|0|all>
         # (after changing password, (possibly) pass through to logging out too)
-        $user_me->under('/password')->to('#change_own_password')
+        $user->under('/me/password')->to('#change_own_password')
             ->post('/')->to('login#session_logout');
 
         {
@@ -89,7 +90,7 @@ sub routes {
             # POST /user/me/token
             $user_me_token->post('/')->to('#create_token');
             # DELETE /user/me/token (same as POST /user/me/revoke)
-            $user_me_token->delete('/')->to('#revoke_own_tokens');
+            $user_me_token->delete('/')->to('#revoke_user_tokens');
 
             my $with_token = $user_me_token->under('/:token_name')->to('#find_token');
 

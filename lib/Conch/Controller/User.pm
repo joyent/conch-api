@@ -19,22 +19,12 @@ Conch::Controller::User
 
 =head1 METHODS
 
-=head2 revoke_own_tokens
-
-Revoke all the user's own session tokens.
-B<NOTE>: This will cause the next request to fail authentication.
-
-=cut
-
-sub revoke_own_tokens ($c) {
-	$c->log->debug('revoking user token for user ' . $c->stash('user')->name . ' at their request');
-	$c->stash('user')->delete_related('user_session_tokens');
-	$c->status(204);
-}
-
 =head2 revoke_user_tokens
 
-Revoke *all* of a specified user's session tokens. System admin only.
+Revoke *all* of a specified user's session tokens and prevents future session authentication,
+forcing the user to /login again.
+
+System admin only (unless reached via /user/me).
 
 =cut
 
@@ -58,7 +48,7 @@ sub set_settings ($c) {
     my $input = $c->validate_input('UserSettings');
     return if not $input;
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -74,7 +64,7 @@ sub set_settings ($c) {
 
 =head2 set_setting
 
-Set the value of a single setting for the user
+Set the value of a single setting for the target user.
 
 FIXME: the key name is repeated in the URL and the payload :(
 
@@ -94,7 +84,7 @@ sub set_setting ($c) {
 		}
 	) unless $value;
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -118,12 +108,12 @@ sub set_setting ($c) {
 
 =head2 get_settings
 
-Get the key/values of every setting for a User
+Get the key/values of every setting for a user.
 
 =cut
 
 sub get_settings ($c) {
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -138,14 +128,14 @@ sub get_settings ($c) {
 
 =head2 get_setting
 
-Get the individual key/value pair for a setting for the User
+Get the individual key/value pair for a setting for the target user.
 
 =cut
 
 sub get_setting ($c) {
 	my $key = $c->stash('key');
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -161,14 +151,14 @@ sub get_setting ($c) {
 
 =head2 delete_setting
 
-Delete a single setting for a user, provided it was set previously
+Delete a single setting for a user, provided it was set previously.
 
 =cut
 
 sub delete_setting ($c) {
 	my $key = $c->stash('key');
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -320,7 +310,7 @@ sub find_user ($c) {
 
 =head2 get
 
-Gets information about a user. System admin only.
+Gets information about a user. System admin only (unless reached via /user/me).
 Response uses the UserDetailed json schema.
 
 =cut
@@ -348,19 +338,6 @@ sub update ($c) {
 	$user->update($input);
 
 	$user->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
-	return $c->status(200, $user);
-}
-
-=head2 get_me
-
-Just like 'get', only for the logged-in user.
-Response uses the UserDetailed json schema.
-
-=cut
-
-sub get_me ($c) {
-	my $user = $c->stash('user')
-		->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
 	return $c->status(200, $user);
 }
 
@@ -468,14 +445,14 @@ sub deactivate ($c) {
 
 =head2 get_tokens
 
-Get a list of unexpired user tokens.
+Get a list of unexpired user tokens for the user.
 
 Response uses the UserTokens json schema.
 
 =cut
 
 sub get_tokens ($c) {
-    my $rs = $c->db_user_session_tokens->unexpired->order_by('name');
+    my $rs = $c->stash('target_user')->user_session_tokens->unexpired->order_by('name');
     return $c->status(200, [ $rs->all ]);
 }
 
@@ -493,24 +470,27 @@ sub create_token ($c) {
     return $c->status(400, { error => 'name "'.$input->{name}.'" is reserved' })
         if $input->{name} =~ /^login_jwt_/;
 
+    my $user = $c->stash('target_user');
+
     return $c->status(400, { error => 'name "'.$input->{name}.'" is already in use' })
-        if $c->db_user_session_tokens
-            ->search({ user_id => $c->stash('user_id'), name => $input->{name} })->exists;
+        if $user->user_session_tokens->search({ name => $input->{name} })->exists;
 
     # default expiration: 5 years
     my $expires_abs = time + (($c->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
 
     # TODO: ew ew ew, some duplication with Conch::Controller::Login::_create_jwt.
     my ($new_db_row, $token) = $c->db_user_session_tokens->generate_for_user(
-        $c->stash('user_id'), $expires_abs, $input->{name});
+        $user->id, $expires_abs, $input->{name});
 
     my $jwt = Mojo::JWT->new(
-        claims => { uid => $c->stash('user_id'), jti => $token },
+        claims => { uid => $user->id, jti => $token },
         secret => $c->config('secrets')->[0],
         expires => $expires_abs,
     )->encode;
 
-    $c->res->headers->location($c->url_for('/user/me/token/'.$input->{name}));
+    $c->res->headers->location($c->url_for('/user/'
+        .($user->id eq $c->stash('user_id') ? 'me' : $user->id)
+        .'/token/'.$input->{name}));
     return $c->status(201, {
         token => $jwt,
         $new_db_row->TO_JSON->%*,
@@ -522,17 +502,17 @@ sub create_token ($c) {
 Chainable action that takes the 'token_name' provided in the path and looks it up in the
 database, stashing a resultset to access it as 'token_rs'.
 
-Only the current user may access the token.
-
 =cut
 
 sub find_token ($c) {
-    my $token_rs = $c->db_user_session_tokens
+    my $token_rs = $c->stash('target_user')
+        ->user_session_tokens
         ->unexpired
-        ->search({ user_id => $c->stash('user_id'), name => $c->stash('token_name') });
+        ->search({ name => $c->stash('token_name') });
 
     if (not $token_rs->exists) {
-        $c->log->debug('Could not find token named "'.$c->stash('token_name').' for user_id '.$c->stash('user_id'));
+        $c->log->debug('Could not find token named "'.$c->stash('token_name')
+            .' for user_id '.$c->stash('target_user')->id);
         return $c->status(404);
     }
 
