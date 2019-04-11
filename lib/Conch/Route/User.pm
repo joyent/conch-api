@@ -33,6 +33,11 @@ Sets up the routes for /user:
     DELETE  /user/#target_user_id_or_email?clear_tokens=<1|0>
     POST    /user/#target_user_id_or_email/revoke
     DELETE  /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
+
+    GET     /user/#target_user_id_or_email/token
+    GET     /user/#target_user_id_or_email/token/:token_name
+    DELETE  /user/#target_user_id_or_email/token/:token_name
+
     GET     /user
     POST    /user?send_mail=<1|0>
 
@@ -121,6 +126,21 @@ sub routes {
         $user->require_system_admin->get('/')->to('#list');
         # POST /user?send_mail=<1|0>
         $user->require_system_admin->post('/')->to('#create');
+
+        {
+            my $user_with_target_token = $user_with_target->any('/token');
+
+            # GET /user/#target_user_id_or_email/token
+            $user_with_target_token->get('/')->to('#get_api_tokens');
+
+            my $with_token = $user_with_target_token->under('/:token_name')->to('#find_api_token');
+
+            # GET /user/#target_user_id_or_email/token/:token_name
+            $with_token->get('/')->to('#get_api_token');
+
+            # DELETE /user/#target_user_id_or_email/token/:token_name
+            $with_token->delete('/')->to('#expire_api_token');
+        }
     }
 }
 

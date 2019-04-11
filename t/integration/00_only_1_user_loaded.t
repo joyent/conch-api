@@ -10,6 +10,7 @@ use Test::Warnings ':all';
 use Test::Conch;
 use Test::Deep;
 use Test::Deep::NumberTolerant;
+use Time::HiRes 'time'; # time() now has µs precision
 use Test::Memory::Cycle;
 
 my $uuid = Data::UUID->new;
@@ -1138,7 +1139,7 @@ subtest 'modify another user' => sub {
 	});
 };
 
-subtest 'user tokens' => sub {
+subtest 'user tokens (our own)' => sub {
     $t->authenticate;   # make sure we have an unexpired JWT
 
     $t->get_ok('/user/me/token')
@@ -1240,6 +1241,145 @@ subtest 'user tokens' => sub {
 
     # session was wiped; need to re-auth.
     $t->authenticate;
+};
+
+subtest 'user tokens (someone else\'s)' => sub {
+    my ($email, $password) = ('foo@conch.joyent.us', 'neupassword');
+
+    $t->get_ok('/user/email='.$email.'/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_is([]);
+
+    # password was set to something random when the user was (re)created
+    $t->app->db_user_accounts->active->find({ email => $email })->update({ password => $password });
+
+    my $t_other_user = Test::Conch->new(pg => $t->pg);
+    $t_other_user->authenticate(user => $email, password => $password);
+
+    $t_other_user->post_ok('/user/me/token', json => { name => 'my first token' })
+        ->status_is(201)
+        ->json_schema_is('NewUserToken')
+        ->location_is('/user/me/token/my first token');
+    my @jwts = $t_other_user->tx->res->json->{token};
+
+    $t->get_ok('/user/email='.$email.'/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_cmp_deeply([
+            {
+                name => 'my first token',
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_used => ignore,
+                expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            },
+        ]);
+    my @tokens = $t->tx->res->json->@*;
+
+    $t->get_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+        ->status_is(200)
+        ->json_schema_is('UserToken')
+        ->json_is($tokens[0]);
+
+    # can't use the sysadmin endpoints, even to ask about ourself
+    $t_other_user->get_ok('/user/email='.$email.'/token')
+        ->status_is(403);
+    $t_other_user->get_ok('/user/email='.$email.'/token/foo')
+        ->status_is(403);
+    $t_other_user->delete_ok('/user/email='.$email.'/token/foo')
+        ->status_is(403);
+
+    $t_other_user->post_ok('/user/me/token', json => { name => 'my second token' })
+        ->status_is(201)
+        ->json_schema_is('NewUserToken')
+        ->location_is('/user/me/token/my second token');
+    push @jwts, $t_other_user->tx->res->json->{token};
+
+    $t->get_ok('/user/email='.$email.'/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_cmp_deeply([
+            @tokens,
+            {
+                name => 'my second token',
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_used => ignore,
+                expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            },
+        ]);
+    @tokens = $t->tx->res->json->@*;
+
+    $t->delete_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+        ->status_is(204);
+
+    $t->get_ok('/user/email='.$email.'/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_is([ $tokens[1] ]);
+
+    $t->get_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+        ->status_is(404);
+
+    $t_other_user->reset_session; # force JWT to be used to authenticate
+
+    $t_other_user->get_ok('/user/me/token', { Authorization => 'Bearer '.$jwts[0] })
+        ->status_is(401, 'first token is gone');
+
+    $t_other_user->get_ok('/user/me/token', { Authorization => 'Bearer '.$jwts[1] })
+        ->status_is(200, 'second token is still ok')
+        ->json_schema_is('UserTokens')
+        ->json_cmp_deeply([
+            {
+                $tokens[1]->%*,
+                last_used => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            },
+        ]);
+
+    $t_other_user->get_ok('/user/me/token/'.$tokens[0]->{name}, { Authorization => 'Bearer '.$jwts[1] })
+        ->status_is(404);
+
+    $t->post_ok('/user/email='.$email.'/revoke')
+        ->status_is(204);
+
+    cmp_deeply(
+        [ $t->app->db_user_accounts->active->search({ email => $email })
+                ->related_resultset('user_session_tokens')
+                ->api_only
+                ->columns(['name'])
+                ->as_epoch('expires')
+                ->hri ],
+        [
+            {
+                name => $tokens[1]->{name},
+                expires => within_tolerance(less_than => time),
+            },
+        ],
+        'first token has already been deleted; second token still remains, but is expired',
+    );
+
+    $t->delete_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+        ->status_is(404);
+
+    $t->delete_ok('/user/email='.$email.'/token/'.$tokens[1]->{name})
+        ->status_is(404);
+
+    $t->get_ok('/user/email='.$email.'/token')
+        ->status_is(200)
+        ->json_schema_is('UserTokens')
+        ->json_is([]);
+
+    $t_other_user->get_ok('/user/me', { Authorization => 'Bearer '.$jwts[0] })
+        ->status_is(401, 'first token is gone');
+
+    $t_other_user->get_ok('/user/me', { Authorization => 'Bearer '.$jwts[1] })
+        ->status_is(401, 'second token is gone');
+
+    is(
+        $t->app->db_user_accounts->active->search({ email => $email })
+            ->related_resultset('user_session_tokens')->count,
+        0,
+        'both tokens are now deleted',
+    );
 };
 
 warnings(sub {

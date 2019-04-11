@@ -546,6 +546,8 @@ Deactivates an api token from future use.
 =cut
 
 sub expire_api_token ($c) {
+    $c->log->warn('user '.$c->stash('user')->name.' expired user session token "'
+        .$c->stash('token_name').'" for user '.$c->stash('target_user')->name);
     $c->stash('token_rs')->expire;
     return $c->status(204);
 }
