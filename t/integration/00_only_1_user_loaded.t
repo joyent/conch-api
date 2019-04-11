@@ -130,11 +130,30 @@ subtest 'User' => sub {
 		});
 
     $t->authenticate;
-    my $login_token = $t->tx->res->json->{jwt_token}.'.'.$t->tx->res->cookie('jwt_sig')->value;
+    my @login_token = ($t->tx->res->json->{jwt_token}.'.'.$t->tx->res->cookie('jwt_sig')->value);
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
-        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token })
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
             ->status_is(200, 'login token works without cookies etc')
+            ->json_schema_is('UserDetailed')
+            ->json_is('/email' => $t2->CONCH_EMAIL);
+    }
+
+    # get another JWT
+    $t->authenticate;
+    push @login_token, $t->tx->res->json->{jwt_token}.'.'.$t->tx->res->cookie('jwt_sig')->value;
+    {
+        my $t2 = Test::Conch->new(pg => $t->pg);
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[1] })
+            ->status_is(200, 'second login token works without cookies etc')
+            ->json_schema_is('UserDetailed')
+            ->json_is('/email' => $t2->CONCH_EMAIL);
+    }
+
+    {
+        my $t2 = Test::Conch->new(pg => $t->pg);
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
+            ->status_is(200, 'and first login token still works')
             ->json_schema_is('UserDetailed')
             ->json_is('/email' => $t2->CONCH_EMAIL);
     }
@@ -154,8 +173,13 @@ subtest 'User' => sub {
 
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
-        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token })
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
             ->status_is(401, 'main login token no longer works after changing password');
+    }
+    {
+        my $t2 = Test::Conch->new(pg => $t->pg);
+        $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[1] })
+            ->status_is(401, 'second login token no longer works after changing password');
     }
 
     {
@@ -1119,7 +1143,7 @@ subtest 'user tokens' => sub {
         ->json_cmp_deeply([
             {
                 # JWT created earlier in the login process
-                name => re(qr/^login_jwt_\d+$/),
+                name => re(qr/^login_jwt_[\d_]+$/),
                 expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_used => ignore,
