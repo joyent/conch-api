@@ -1236,6 +1236,9 @@ subtest 'user tokens' => sub {
     $t->delete_ok('/user/me/token/my first token')
         ->status_is(404);
 
+    $t->delete_ok('/user/me/token')
+        ->status_is(204);
+
     $t2 = Test::Conch->new(pg => $t->pg);
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$token })
         ->status_is(401);

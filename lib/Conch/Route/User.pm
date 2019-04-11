@@ -25,6 +25,7 @@ Sets up the routes for /user:
 
     GET     /user/me/token
     POST    /user/me/token
+    DELETE  /user/me/token (same as POST /user/me/revoke)
     GET     /user/me/token/:token_name
     DELETE  /user/me/token/:token_name
 
@@ -87,6 +88,8 @@ sub routes {
             $user_me_token->get('/')->to('#get_tokens');
             # POST /user/me/token
             $user_me_token->post('/')->to('#create_token');
+            # DELETE /user/me/token (same as POST /user/me/revoke)
+            $user_me_token->delete('/')->to('#revoke_own_tokens');
 
             my $with_token = $user_me_token->under('/:token_name')->to('#find_token');
 
