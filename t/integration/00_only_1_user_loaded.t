@@ -838,6 +838,8 @@ subtest 'JWT authentication' => sub {
 	)->status_is( 204, "Revoke tokens for self" );
 	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token_2" } )
 		->status_is( 401, "Cannot use after self revocation" );
+
+    $t->authenticate;
 };
 
 subtest 'modify another user' => sub {
@@ -1235,6 +1237,9 @@ subtest 'user tokens' => sub {
     $t2 = Test::Conch->new(pg => $t->pg);
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$jwt })
         ->status_is(401);
+
+    # session was wiped; need to re-auth.
+    $t->authenticate;
 };
 
 warnings(sub {
