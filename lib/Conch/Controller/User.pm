@@ -32,7 +32,7 @@ sub revoke_user_tokens ($c) {
 	my $user = $c->stash('target_user');
 
 	$c->log->debug('revoking session tokens for user ' . $user->name . ', forcing them to /login again');
-	$user->delete_related('user_session_tokens');
+    $user->user_session_tokens->unexpired->expire;
 	$user->update({ refuse_session_auth => 1 });
 
 	$c->status(204);
