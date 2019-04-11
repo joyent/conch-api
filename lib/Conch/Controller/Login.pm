@@ -229,12 +229,12 @@ sub session_login ($c) {
 
 	if (not $user) {
 		$c->log->debug("user lookup for $input->{user} failed");
-		return $c->status(401, { error => 'unauthorized' });
+		return $c->status(401);
 	}
 
 	if (not $user->validate_password($input->{password})) {
 		$c->log->debug("password validation for $input->{user} failed");
-		return $c->status(401, { error => 'unauthorized' });
+		return $c->status(401);
 	}
 
 	$c->stash(user_id => $user->id);
