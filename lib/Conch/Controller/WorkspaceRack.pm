@@ -225,7 +225,7 @@ sub get_layout ($c) {
 		return;
 	}
 	else {
-		return $c->status(400, { error => "requested unknown format $format" });
+		return $c->status(406, { error => "requested unknown format $format" });
 	}
 }
 
