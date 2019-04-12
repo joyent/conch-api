@@ -71,11 +71,11 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 
 Handle the details of authenticating the user, with one of the following options:
 
-1. HTTP Basic Auth
-2. JWT split between Authorization Bearer header value and jwt_sig cookie
-3. JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
-existing session for the user
-4. Old 'conch' session cookie
+ * HTTP Basic Auth
+ * existing session for the user
+ * JWT split between Authorization Bearer header value and jwt_sig cookie
+ * JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
+ * Old 'conch' session cookie
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
 subsequent routes and actions.
