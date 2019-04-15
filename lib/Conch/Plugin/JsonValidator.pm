@@ -81,7 +81,7 @@ response if validation failed; returns validated input on success.
 
 =head2 get_input_validator
 
-Returns a JSON::Validator object suitable for validating an endpoint input.
+Returns a L<JSON::Validator> object suitable for validating an endpoint input.
 
 =cut
 
@@ -97,7 +97,7 @@ Returns a JSON::Validator object suitable for validating an endpoint input.
 
 =head2 get_response_validator
 
-Returns a JSON::Validator object suitable for validating an endpoint response.
+Returns a L<JSON::Validator> object suitable for validating an endpoint response.
 
 =cut
 

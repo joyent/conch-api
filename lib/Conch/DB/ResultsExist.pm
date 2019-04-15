@@ -9,7 +9,7 @@ Conch::DB::ResultsExist
 
 =head1 DESCRIPTION
 
-A component for Conch::DB::ResultSet classes that provides the 'exists' method.
+A component for Conch::DB::ResultSet classes that provides the C<exists> method.
 
 See also L<DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist>, which is not usable in its
 present form due to L<https://github.com/frioux/DBIx-Class-Helpers/issues/54>.

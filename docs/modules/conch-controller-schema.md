@@ -10,7 +10,7 @@ Get the json-schema in JSON format.
 
 ## \_extract\_schema\_definition
 
-Given a JSON::Validator object containing a schema definition, extract the requested portion
+Given a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object containing a schema definition, extract the requested portion
 out of the "definitions" section, including any named references, and add some standard
 headers.
 

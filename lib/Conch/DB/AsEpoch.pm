@@ -9,7 +9,7 @@ Conch::DB::AsEpoch
 
 =head1 DESCRIPTION
 
-A component for Conch::DB::ResultSet classes that provides the 'as_epoch' method.
+A component for Conch::DB::ResultSet classes that provides the C<as_epoch> method.
 
 This code is postgres-specific.
 
@@ -25,7 +25,7 @@ Adds to a resultset a selection list for a timestamp column as a unix epoch time
 If the column already existed in the selection list (presumably using the default time format),
 it is replaced.
 
-In this example, a 'created' column will be included in the result, containing a value in unix
+In this example, a C<created> column will be included in the result, containing a value in unix
 epoch time format (number of seconds since 1970-01-01 00:00:00 UTC).
 
     $rs = $rs->as_epoch('created');

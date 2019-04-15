@@ -10,7 +10,7 @@ Conch::DB::Result
 =head1 DESCRIPTION
 
 Base class for our result classes, to allow us to add on additional functionality from what is
-available in core DBIx::Class.
+available in core L<DBIx::Class>.
 
 =cut
 

@@ -46,11 +46,11 @@ response if validation failed; returns validated input on success.
 
 ## get\_input\_validator
 
-Returns a JSON::Validator object suitable for validating an endpoint input.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint input.
 
 ## get\_response\_validator
 
-Returns a JSON::Validator object suitable for validating an endpoint response.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint response.
 
 # LICENSING
 

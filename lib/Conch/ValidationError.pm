@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-Conch::ValidationError - Internal error representation for L<Conch::Validation>
+Conch::ValidationError - Internal error representation for Conch::Validation
 
 =head1 DESCRIPTION
 
-Extends 'Mojo::Exception' to store a 'hint' attribute. Intended for use in
+Extends L<Mojo::Exception> to store a C<hint> attribute. Intended for use in
 L<Conch::Validation>.
 
 =head1 METHODS

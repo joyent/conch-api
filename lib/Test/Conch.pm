@@ -21,7 +21,7 @@ use Scalar::Util 'weaken';
 
 =head1 DESCRIPTION
 
-Takes care of setting up a Test::Mojo with the Conch application pre-configured.
+Takes care of setting up a L<Test::Mojo> with the Conch application pre-configured.
 
 Includes JSON validation ability via L<Test::MojoSchema>.
 
@@ -43,7 +43,7 @@ $ENV{EMAIL_SENDER_TRANSPORT} = 'Test';  # see Email::Sender::Manual::QuickStart
 
 =head2 pg
 
-Override with your own Test::PostgreSQL object if you want to use a custom database, perhaps
+Override with your own L<Test::PostgreSQL> object if you want to use a custom database, perhaps
 with extra settings or loaded with additional data.
 
 This is the attribute to copy if you want multiple Test::Conch objects to be able to talk to
@@ -142,7 +142,7 @@ Sets up the database for testing, using the final schema rather than running mig
 Mirrors functionality in L<Conch::DB::Util/initialize_db>.
 No data is added -- you must load all desired fixtures.
 
-Note that the Test::PostgreSQL object must stay in scope for the duration of your tests.
+Note that the L<Test::PostgreSQL> object must stay in scope for the duration of your tests.
 Returns the Conch::DB object as well when called in list context.
 
 =cut
@@ -172,7 +172,7 @@ sub init_db ($class) {
 
 =head2 ro_schema
 
-Returns a read-only connection to a Test::PostgreSQL instance.
+Returns a read-only connection to an existing L<Test::PostgreSQL> instance.
 
 =cut
 
@@ -195,7 +195,7 @@ sub ro_schema ($class, $pgsql) {
 
 =head2 location_is
 
-Stolen from Test::Mojo's examples. I don't know why this isn't just part of the interface!
+Stolen from L<Test::Mojo>'s examples. I don't know why this isn't just part of the interface!
 
 =cut
 
@@ -244,8 +244,9 @@ sub json_schema_is ($self, $schema, $message = undef) {
 
 =head2 json_cmp_deeply
 
-Like json_is, but uses Test::Deep::cmp_deeply for the comparison instead of Test::More::is_deep.
-This allows for more flexibility in how we test various parts of the data.
+Like L<Test::Mojo/json_is>, but uses L<Test::Deep/cmp_deeply> for the comparison instead of
+L<Test::More/is_deep>.  This allows for more flexibility in how we test various parts of the
+data.
 
 =cut
 
