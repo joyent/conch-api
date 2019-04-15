@@ -819,17 +819,22 @@ subtest 'JWT authentication' => sub {
 		->status_is( 200, "Can authenticate with new token" );
 	$t->get_ok( "/workspace", { Authorization => "Bearer $jwt_token.$jwt_sig" } )
 		->status_is( 401, "Cannot use old token" );
-	$t->post_ok( '/refresh_token',
-		{ Authorization => "Bearer $jwt_token.$jwt_sig" } )
-		->status_is( 401, "Cannot reuse token with old JWT" );
 
+    $t->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+        ->status_is(401, 'Cannot reuse old JWT');
+
+    $t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke?api_only=1',
+            { Authorization => 'Bearer '.$new_jwt_token })
+        ->status_is(204, 'Revoke api tokens for user');
+    $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
+        ->status_is(200, 'user can still use the login token');
 	$t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke',
 			{ Authorization => "Bearer $new_jwt_token" })
 		->status_is(204, 'Revoke all tokens for user');
 	$t->get_ok( "/workspace", { Authorization => "Bearer $new_jwt_token" } )
 		->status_is( 401, "Cannot use after user revocation" );
 	$t->post_ok( '/refresh_token', { Authorization => "Bearer $new_jwt_token" } )
-		->status_is( 401, "Cannot after user revocation" );
+		->status_is( 401, "Cannot use after user revocation" );
 
 	$t->authenticate(bailout => 0);
 	my $jwt_token_2 = $t->tx->res->json->{jwt_token};
@@ -950,17 +955,23 @@ subtest 'modify another user' => sub {
 	$t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
 		->status_is(204, 'user can also use the app with basic auth');
 
-	$t->post_ok("/user/$new_user_id/revoke")
-		->status_is(204, 'revoked all tokens for the new user');
+    $t->post_ok("/user/$new_user_id/revoke?login_only=1")
+        ->status_is(204, 'revoked login tokens for the new user');
 
 	$t2->get_ok('/me')
-		->status_is(401, 'new user cannot authenticate with persistent session after session is cleared');
+        ->status_is(401, 'persistent session cleared when login tokens are revoked');
 
 	$t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
-		->status_is(401, 'new user cannot authenticate with JWT after the login token is revoked');
+        ->status_is(401, 'new user cannot authenticate with the login JWT after login tokens are revoked');
 
     $t2->get_ok('/me', { Authorization => 'Bearer '.$api_token })
-        ->status_is(401, 'new user cannot use an api token either');
+        ->status_is(204, 'new user can still use the api token');
+
+    $t->post_ok("/user/$new_user_id/revoke?api_only=1")
+        ->status_is(204, 'revoked api tokens for the new user');
+
+    $t2->get_ok('/me', { Authorization => "Bearer $api_token" })
+        ->status_is(401, 'new user cannot authenticate with the api token after api tokens are revoked');
 
 	$t2->post_ok(
 		'/login' => json => {

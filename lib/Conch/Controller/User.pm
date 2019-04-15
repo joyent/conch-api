@@ -21,19 +21,37 @@ Conch::Controller::User
 
 =head2 revoke_user_tokens
 
-Revoke *all* of a specified user's session tokens and prevents future session authentication,
-forcing the user to /login again.
+Revoke a specified user's tokens and prevents future token authentication,
+forcing the user to /login again. By default *all* of a user's tokens are deleted,
+but this can be adjusted with query parameters:
+
+ * ?login_only=1    login tokens are removed; api tokens are left alone
+ * ?api_only=1      login tokens are left alone; api tokens are removed
+
+If login tokens are affected, C<user_session_auth> is also set for the user, which forces the
+user to change his password as soon as a login token is used again (but use of any existing api
+tokens is allowed).
 
 System admin only (unless reached via /user/me).
 
 =cut
 
 sub revoke_user_tokens ($c) {
-	my $user = $c->stash('target_user');
+    my $login_only = $c->req->query_params->param('login_only') // 0;
+    my $api_only = $c->req->query_params->param('api_only') // 0;
 
+    # logically this would yield a null result
+    return $c->status(400, { error => 'cannot use login_only and api_only together' })
+        if $login_only and $api_only;
+
+    my $user = $c->stash('target_user');
 	$c->log->debug('revoking session tokens for user ' . $user->name . ', forcing them to /login again');
-    $user->user_session_tokens->unexpired->expire;
-	$user->update({ refuse_session_auth => 1 });
+    my $rs = $user->user_session_tokens->unexpired;
+    $rs = $rs->login_only if $login_only;
+    $rs = $rs->api_only if $api_only;
+    $rs->expire;
+
+    $user->update({ refuse_session_auth => 1 }) if $login_only;
 
 	$c->status(204);
 }
