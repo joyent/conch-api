@@ -17,8 +17,8 @@ Interface to queries against the C<user_account> table.
 
 =head2 create
 
-This method is built in to all resultsets.  In Conch::DB::Result::UserAccount we have overrides
-allowing us to receive the C<password> key, which we hash into C<password_hash>.
+This method is built in to all resultsets.  In L<Conch::DB::Result::UserAccount> we have
+overrides allowing us to receive the C<password> key, which we hash into C<password_hash>.
 
     $schema->resultset('user_account') or $c->db_user_accounts
       ->create({
@@ -31,8 +31,8 @@ allowing us to receive the C<password> key, which we hash into C<password_hash>.
 
 =head2 update
 
-This method is built in to all resultsets.  In Conch::DB::Result::UserAccount we have overrides
-allowing us to receive the C<password> key, which we hash into C<password_hash>.
+This method is built in to all resultsets.  In L<Conch::DB::Result::UserAccount> we have
+overrides allowing us to receive the C<password> key, which we hash into C<password_hash>.
 
     $schema->resultset('user_account') or $c->db_user_accounts
       ->update({

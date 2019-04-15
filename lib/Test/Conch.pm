@@ -63,7 +63,7 @@ has validator => sub ($self) {
 
 =head2 fixtures
 
-Provides access to the fixtures defined in Test::Conch::Fixtures.
+Provides access to the fixtures defined in L<Test::Conch::Fixtures>.
 See L</load_fixture>.
 
 =cut
@@ -142,7 +142,7 @@ Mirrors functionality in L<Conch::DB::Util/initialize_db>.
 No data is added -- you must load all desired fixtures.
 
 Note that the L<Test::PostgreSQL> object must stay in scope for the duration of your tests.
-Returns the Conch::DB object as well when called in list context.
+Returns the L<Conch::DB> object as well when called in list context.
 
 =cut
 
