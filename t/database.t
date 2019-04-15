@@ -141,7 +141,7 @@ subtest 'transactions' => sub {
 
     $t->get_ok('/test_txn_wrapper?id=bad_id')
         ->status_is(400)
-        ->json_cmp_deeply('', { error => re(qr/invalid input syntax for (?:type )?uuid: "bad_id"/) });
+        ->json_cmp_deeply({ error => re(qr/invalid input syntax for (?:type )?uuid: "bad_id"/) });
 
     is($t->app->db_user_accounts->count, $user_count, 'no new user was created');
 

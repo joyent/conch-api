@@ -46,7 +46,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', {});
+        ->json_is({});
 
     $t->get_ok('/user/me/settings/BAD')
         ->status_is(404);
@@ -64,11 +64,11 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings/TEST')
         ->status_is(200)
-        ->json_is('', { TEST => 'TEST' });
+        ->json_is({ TEST => 'TEST' });
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', { TEST => 'TEST' });
+        ->json_is({ TEST => 'TEST' });
 
     $t->post_ok('/user/me/settings/TEST2', json => { TEST2 => { foo => 'bar' } })
         ->status_is(200)
@@ -76,11 +76,11 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings/TEST2')
         ->status_is(200)
-        ->json_is('', { TEST2 => { foo => 'bar' } });
+        ->json_is({ TEST2 => { foo => 'bar' } });
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', { TEST => 'TEST', TEST2 => { foo => 'bar' } });
+        ->json_is({ TEST => 'TEST', TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST')
         ->status_is(204)
@@ -88,7 +88,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', { TEST2 => { foo => 'bar' } });
+        ->json_is({ TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST2')
         ->status_is(204)
@@ -96,7 +96,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', {});
+        ->json_is({});
 
     $t->get_ok('/user/me/settings/TEST')
         ->status_is(404);
@@ -107,7 +107,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings/dot.setting')
         ->status_is(200)
-        ->json_is('', { 'dot.setting' => 'set' });
+        ->json_is({ 'dot.setting' => 'set' });
 
     $t->delete_ok('/user/me/settings/dot.setting')
         ->status_is(204)
@@ -126,7 +126,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', {
+        ->json_is({
             TEST1 => 'test1',
             TEST3 => 'test3',
         });
@@ -228,7 +228,7 @@ subtest 'Workspaces' => sub {
     $t->get_ok('/workspace')
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is('', [{
+        ->json_is([{
             id          => $global_ws_id,
             name        => 'GLOBAL',
             role        => 'admin',
@@ -349,7 +349,7 @@ subtest 'Sub-Workspace' => sub {
     $t->get_ok("/workspace/$global_ws_id/child")
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is('', []);
+        ->json_is([]);
 
     $t->post_ok("/workspace/$global_ws_id/child")
         ->status_is(400, 'No body is bad request')
@@ -365,7 +365,7 @@ subtest 'Sub-Workspace' => sub {
 
     $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'GLOBAL' })
         ->status_is(400, 'Cannot create duplicate workspace')
-        ->json_is('', { error => "workspace 'GLOBAL' already exists" });
+        ->json_is({ error => "workspace 'GLOBAL' already exists" });
 
     $t->post_ok("/workspace/$global_ws_id/child", json => {
             name        => 'child_ws',
@@ -945,7 +945,7 @@ subtest 'modify another user' => sub {
             json => { name => 'FOO', is_admin => JSON::PP::true })
         ->status_is(200)
         ->json_schema_is('UserDetailed')
-        ->json_is('', {
+        ->json_is({
             %$new_user_data,
             name => 'FOO',
             is_admin => JSON::PP::true,

@@ -50,7 +50,7 @@ my $layout_width_4 = $initial_layouts->[2];    # start 11, width 4.
 $t->get_ok("/layout/$initial_layouts->[0]{id}")
     ->status_is(200)
     ->json_schema_is('RackLayout')
-    ->json_is('', $initial_layouts->[0]);
+    ->json_is($initial_layouts->[0]);
 
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400)

@@ -85,82 +85,82 @@ my $devices_data = $t->tx->res->json;
 $t->get_ok("/workspace/$global_ws_id/device?graduated=f")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[1] ]);
+    ->json_is([ $devices_data->[1] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?graduated=F")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[1] ]);
+    ->json_is([ $devices_data->[1] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?graduated=t")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?graduated=T")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?validated=f")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[1] ]);
+    ->json_is([ $devices_data->[1] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?validated=F")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[1] ]);
+    ->json_is([ $devices_data->[1] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?validated=t")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?validated=T")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=fail")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', []);
+    ->json_is([]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=FAIL")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', []);
+    ->json_is([]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=pass")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=PASS")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=unknown")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[1] ]);
+    ->json_is([ $devices_data->[1] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=bunk")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', []);
+    ->json_is([]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', []);
+    ->json_is([]);
 
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
     ->status_is(200)
@@ -173,12 +173,12 @@ $t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
 $t->get_ok("/workspace/$global_ws_id/device?active=t")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is('', [ $devices_data->[0] ]);
+    ->json_is([ $devices_data->[0] ]);
 
 # /device/active redirects to /device so first make sure there is a redirect,
 # then follow it and verify the results
@@ -193,7 +193,7 @@ subtest 'Redirect /workspace/:id/device/active' => sub {
     $t->get_ok("/workspace/$global_ws_id/device/active")
         ->status_is(200)
         ->json_schema_is('Devices')
-        ->json_is('', [ $devices_data->[0] ]);
+        ->json_is([ $devices_data->[0] ]);
 
     $t->ua->max_redirects($temp);
 };
