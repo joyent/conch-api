@@ -12,8 +12,38 @@ my $t = Test::Conch->new;
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 $t->authenticate(user => $ro_user->email);
 
+my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+
+subtest preliminaries => sub {
+    $t->post_ok('/device/foo', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(422)
+        ->json_is({ error => 'Serial number provided to the API does not match the report data.' });
+
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(409)
+        ->json_is({ error => 'Could not locate hardware product' });
+
+    $t->load_fixture('hardware_product_compute');
+
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(409)
+        ->json_is({ error => 'Hardware product does not contain a profile' });
+
+    $t->load_fixture('hardware_product_profile_compute');
+
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(400)
+        ->json_is({ error => 'relay serial deadbeef is not registered' });
+
+    $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
+        ->status_is(204);
+
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(500)
+        ->json_is({ error => 'failed to find validation plan' });
+};
+
 # matches report's product_name = Joyent-G1
-$t->load_fixture('hardware_product_profile_compute');
 my $hardware_product = $t->load_fixture('hardware_product_compute');
 
 # create a validation plan with all current validations in it
@@ -26,7 +56,6 @@ my ($validation_plan) = $t->load_validation_plans([{
 }]);
 
 subtest 'run report without an existing device' => sub {
-    my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')

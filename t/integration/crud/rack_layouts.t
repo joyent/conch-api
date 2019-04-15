@@ -6,6 +6,15 @@ use Data::UUID;
 use Test::Conch;
 
 my $t = Test::Conch->new;
+$t->load_fixture('conch_user_global_workspace');
+
+$t->authenticate;
+
+$t->get_ok('/layout')
+    ->status_is(200)
+    ->json_schema_is('RackLayouts')
+    ->json_is([]);
+
 $t->load_fixture_set('workspace_room_rack_layout', $_) for 0..1; # contains compute, storage products
 $t->load_fixture('hardware_product_switch', 'hardware_product_profile_switch');
 
@@ -19,8 +28,6 @@ my $uuid = Data::UUID->new;
 # start 1, width 2
 # start 3, width 4
 # start 11, width 4
-
-$t->authenticate;
 
 my $fake_id = $uuid->create_str();
 

@@ -688,16 +688,6 @@ subtest 'Sub-Workspace' => sub {
 		->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'user gets the same list of users who can access grandchild ws');
 };
 
-subtest 'Workspace Racks' => sub {
-
-	note(
-"Variance: /rack in returns a hash keyed by datacenter room AZ instead of an array"
-	);
-	$t->get_ok("/workspace/$global_ws_id/rack")
-		->status_is(200)
-		->json_is('', {}, 'No racks available');
-};
-
 subtest 'Relays' => sub {
 	$t->post_ok(
 		'/relay/deadbeef/register',
@@ -772,101 +762,6 @@ subtest 'Relays' => sub {
 	my $y2000 = Conch::Time->new(year=> 2000);
 	cmp_ok(($relay->user_relay_connections)[0]->first_seen, '<', $y2000, 'first_seen was not updated');
 	cmp_ok(($relay->user_relay_connections)[0]->last_seen, '>', $y2000, 'last_seen was updated');
-};
-
-subtest 'Device Report' => sub {
-	my $report =
-		path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-	$t->post_ok( '/device/TEST', { 'Content-Type' => 'application/json' }, $report )
-		->status_is(409)
-		->json_is({ error => 'Could not locate hardware product' });
-
-	$t->post_ok( '/device/TEST', json => { serial_number => 'TEST' } )
-		->status_is(400)->json_like( '/error', qr/Missing property/ );
-};
-
-subtest 'Single device' => sub {
-	$t->get_ok('/device/TEST')
-		->status_is(404);
-};
-
-subtest 'Workspace devices' => sub {
-
-	$t->get_ok("/workspace/$global_ws_id/device")
-		->status_is(200)
-		->json_is('', []);
-
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=f")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=F")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=t")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?graduated=T")
-		->status_is(200)
-		->json_is( '', [] );
-
-	$t->get_ok("/workspace/$global_ws_id/device?health=fail")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=FAIL")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=pass")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=PASS")
-		->status_is(200)
-		->json_is( '', [] );
-
-	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")
-		->status_is(200)
-		->json_is( '', [] );
-
-	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
-		->status_is(200)
-		->json_is( '', [] );
-
-	$t->get_ok("/workspace/$global_ws_id/device?active=t")
-		->status_is(200)
-		->json_is( '', [] );
-	$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
-		->status_is(200)
-		->json_is( '', [] );
-
-	# /device/active redirects to /device so first make sure there is a redirect,
-	# then follow it and verify the results
-	subtest 'Redirect /workspace/:id/device/active' => sub {
-		$t->get_ok("/workspace/$global_ws_id/device/active")
-			->status_is(302);
-		$t->ua->max_redirects(1);
-		$t->get_ok("/workspace/$global_ws_id/device/active")
-			->status_is(200)
-			->json_is( '', [], 'got empty list of workspaces' );
-		$t->ua->max_redirects(0);
-	};
-};
-
-subtest 'Relays' => sub {
-	$t->get_ok("/workspace/$global_ws_id/relay")
-		->status_is(200)
-		->json_schema_is('WorkspaceRelays')
-		->json_is('', [], 'No reporting relays');
-};
-
-subtest 'Hardware Product' => sub {
-	$t->get_ok("/hardware_product")
-		->status_is(200)
-		->json_is( '', [], 'No hardware products loaded' );
 };
 
 subtest 'Log out' => sub {
@@ -1240,7 +1135,7 @@ subtest 'user tokens' => sub {
     $t->post_ok('/user/me/token', json => { name => 'my first token' })
         ->status_is(201)
         ->json_schema_is('NewUserToken')
-        ->location_is(Mojo::URL->new('/user/me/token/my first token'))
+        ->location_is('/user/me/token/my first token')
         ->json_cmp_deeply({
             name => 'my first token',
             token => re(qr/^[^.]+\.[^.]+\.[^.]+$/), # full jwt with signature
@@ -1297,11 +1192,8 @@ subtest 'user tokens' => sub {
     $t->get_ok('/user/me/token/my first token')
         ->status_is(404);
 
-    my $last_used = $t->app->db_user_session_tokens
-        ->search(
-            { name => 'my first token' },
-            { select => { '' => \'extract(epoch from last_used)', -as => 'last_used' } },
-        )->get_column('last_used')->single;
+    my $last_used = $t->app->db_user_session_tokens->search({ name => 'my first token' })
+        ->as_epoch('last_used')->get_column('last_used')->single;
 
     cmp_deeply(
         $last_used,

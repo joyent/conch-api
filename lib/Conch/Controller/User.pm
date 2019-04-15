@@ -55,8 +55,8 @@ Override the settings for a user with the provided payload
 =cut
 
 sub set_settings ($c) {
-	my $body = $c->req->json;
-	return $c->status( 400, { error => 'Payload required' } ) unless $body;
+    my $input = $c->validate_input('UserSettings');
+    return if not $input;
 
 	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
@@ -67,7 +67,7 @@ sub set_settings ($c) {
 
 	# store new settings
 	$user->related_resultset('user_settings')
-		->populate([ pairmap { +{ name => $a, value => to_json($b) } } $body->%* ]);
+		->populate([ pairmap { +{ name => $a, value => to_json($b) } } $input->%* ]);
 
 	$c->status(200);
 }
@@ -81,9 +81,11 @@ FIXME: the key name is repeated in the URL and the payload :(
 =cut
 
 sub set_setting ($c) {
-	my $body  = $c->req->json;
+    my $input = $c->validate_input('DeviceSetting');
+    return if not $input;
+
 	my $key   = $c->stash('key');
-	my $value = $body->{$key};
+	my $value = $input->{$key};
 	return $c->status(
 		400,
 		{
@@ -191,14 +193,14 @@ forcing the user to log in again.  Possible options are:
 =cut
 
 sub change_own_password ($c) {
-	my $body =  $c->validate_input('UserPassword');
-	return if not $body;
+    my $input = $c->validate_input('UserPassword');
+    return if not $input;
 
     my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
     return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
         if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
 
-	my $new_password = $body->{password};
+    my $new_password = $input->{password};
 
 	my $user = $c->stash('user');
 	Mojo::Exception->throw('Could not find previously stashed user')
@@ -295,7 +297,7 @@ in the path, and stashes the corresponding user row in C<target_user>.
 =cut
 
 sub find_user ($c) {
-	my $user_param = $c->stash('target_user_id');
+    my $user_param = $c->stash('target_user_id_or_email');
 
 	return $c->status(400, { error => 'invalid identifier format for '.$user_param })
 		if not is_uuid($user_param)
@@ -364,7 +366,7 @@ sub get_me ($c) {
 
 =head2 list
 
-List all users and their workspaces. System admin only.
+List all active users and their workspaces. System admin only.
 Response uses the UsersDetailed json schema.
 
 =cut
@@ -389,14 +391,11 @@ Optionally takes a query parameter:
 =cut
 
 sub create ($c) {
-	my $body =  $c->validate_input('NewUser');
-	if (not $body) {
-		$c->log->warn('missing body parameters when attempting to create new user');
-		return;
-	}
+    my $input = $c->validate_input('NewUser');
+    return if not $input;
 
-	my $name = $body->{name} // $body->{email};
-	my $email = $body->{email};
+    my $name = $input->{name} // $input->{email};
+    my $email = $input->{email};
 
 	# this would cause horrible clashes with our /user routes!
 	return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
@@ -408,13 +407,13 @@ sub create ($c) {
 		});
 	}
 
-	my $password = $body->{password} // $c->random_string;
+	my $password = $input->{password} // $c->random_string;
 
 	my $user = $c->db_user_accounts->create({
 		name => $name,
 		email => $email,
 		password => $password,	# will be hashed in constructor
-		is_admin => ($body->{is_admin} ? 1 : 0),
+		is_admin => ($input->{is_admin} ? 1 : 0),
 	});
 	$c->log->info('created user: ' . $user->name . ', email: ' . $user->email . ', id: ' . $user->id);
 
@@ -543,7 +542,7 @@ sub find_token ($c) {
 
 =head2 get_token
 
-Get information about the specified token.
+Get information about the specified (unexpired) token.
 
 Response uses the UserToken json schema.
 

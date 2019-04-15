@@ -23,15 +23,14 @@ Existing settings are deactivated even if they are not being replaced with new o
 =cut
 
 sub set_all ($c) {
-	my $body = $c->req->json;
-	return $c->status( 400, { error => 'Payload required' } )
-		unless $body;
+    my $input = $c->validate_input('DeviceSettings');
+    return if not $input;
 
 	# we cannot do device_rs->related_resultset, or ->create loses device_id
 	my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
 	# overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-	my @non_tags = grep { !/^tag\./ } keys %$body;
+	my @non_tags = grep { !/^tag\./ } keys $input->%*;
 	my $perm_needed =
 		@non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 
@@ -44,12 +43,12 @@ sub set_all ($c) {
 	}
 
 	# deactivate existing settings with the same keys
-	$settings_rs->search({ name => { -in => [ keys %$body ] } })
+	$settings_rs->search({ name => { -in => [ keys $input->%* ] } })
 		->active
 		->deactivate;
 
 	# store new settings
-	$settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $body->%* ]);
+	$settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
 
 	$c->status(200);
 }
@@ -62,9 +61,11 @@ overwritten, unless the value is unchanged.
 =cut
 
 sub set_single ($c) {
-	my $body          = $c->req->json;
+    my $input = $c->validate_input('DeviceSetting');
+    return if not $input;
+
 	my $setting_key   = $c->stash('key');
-	my $setting_value = $body->{$setting_key};
+	my $setting_value = $input->{$setting_key};
 
 	return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
 		unless $setting_value;

@@ -1,6 +1,6 @@
 package Conch::UUID;
 
-use Mojo::Base -signatures;
+use Mojo::Base -strict, -signatures;
 use Exporter 'import';
 our @EXPORT_OK = qw(is_uuid);
 
@@ -53,8 +53,8 @@ Case insensitive.
 
 =cut
 
-sub is_uuid ($) {
-    return (shift =~ qr/^${\UUID_FORMAT()}$/);
+sub is_uuid ($uuid) {
+    return ($uuid =~ qr/^${\UUID_FORMAT()}$/);
 }
 
 1;

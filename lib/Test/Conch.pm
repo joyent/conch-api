@@ -13,6 +13,8 @@ use Mojo::Util 'trim';
 use Module::Runtime 'require_module';
 use List::Util 'maxstr';
 use Conch::DB::Util;
+use Scalar::Util 'blessed';
+use Mojo::URL;
 
 =pod
 
@@ -189,7 +191,7 @@ Stolen from Test::Mojo's examples. I don't know why this isn't just part of the 
 =cut
 
 sub location_is ($t, $value, $desc = 'location header') {
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $value = Mojo::URL->new($value) if not blessed($value);
     return $t->success(Test::More->builder->is_eq($t->tx->res->headers->location, $value, $desc));
 }
 

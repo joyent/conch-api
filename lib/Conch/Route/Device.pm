@@ -17,6 +17,7 @@ Sets up the routes for /device:
     GET     /device/?hostname=:host, ?mac=:mac, ?ipaddr=:ipaddr, ?:setting_key=:setting_value
     GET     /device/:device_id
     GET     /device/:device_id/pxe
+    GET     /device/:device_id/phase
     POST    /device/:device_id
     POST    /device/:device_id/graduate
     POST    /device/:device_id/triton_setup
@@ -24,6 +25,7 @@ Sets up the routes for /device:
     POST    /device/:device_id/triton_reboot
     POST    /device/:device_id/asset_tag
     POST    /device/:device_id/validated
+    POST    /device/:device_id/phase
 
     GET     /device/:device_id/location
     POST    /device/:device_id/location
@@ -114,9 +116,9 @@ sub routes {
         }
 
         # POST /device/:device_id/validation/:validation_id
-        $with_device->post('/validation/:validation_id')->to('device_validation#validate');
+        $with_device->post('/validation/<validation_id:uuid>')->to('device_validation#validate');
         # POST /device/:device_id/validation_plan/:validation_plan_id
-        $with_device->post('/validation_plan/:validation_plan_id')->to('device_validation#run_validation_plan');
+        $with_device->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
         # GET /device/:device_id/validation_state
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 

@@ -66,7 +66,7 @@ sub routes {
         # POST /dc
         $dc->post('/')->to('#create');
 
-        my $with_datacenter = $dc->under('/:datacenter_id')->to('#find_datacenter');
+        my $with_datacenter = $dc->under('/<datacenter_id:uuid>')->to('#find_datacenter');
 
         # GET /dc/:datacenter_id
         $with_datacenter->get('/')->to('#get_one');
@@ -88,7 +88,7 @@ sub routes {
         # POST /room
         $room->post('/')->to('#create');
 
-        my $with_datacenter_room = $room->under('/:datacenter_room_id')
+        my $with_datacenter_room = $room->under('/<datacenter_room_id:uuid>')
             ->to('#find_datacenter_room');
 
         # GET /room/:datacenter_room_id
@@ -131,7 +131,7 @@ sub routes {
         # POST /rack
         $rack->post('/')->to('#create');
 
-        my $with_rack = $rack->under('/:rack_id')->to('#find_rack');
+        my $with_rack = $rack->under('/<rack_id:uuid>')->to('#find_rack');
 
         # GET /rack/:rack_id
         $with_rack->get('/')->to('#get');
@@ -160,7 +160,7 @@ sub routes {
         # POST /layout
         $layout->post('/')->to('#create');
 
-        my $with_layout = $layout->under('/:layout_id')->to('#find_rack_layout');
+        my $with_layout = $layout->under('/<layout_id:uuid>')->to('#find_rack_layout');
 
         # GET /layout/:layout_id
         $with_layout->get('/')->to('#get');

@@ -18,7 +18,8 @@ Conch::Controller::WorkspaceDevice
 
 =head2 list
 
-Get a list of all devices in the current workspace (as specified by :workspace_id in the path)
+Get a list of all active devices in the current workspace (as specified by :workspace_id in the
+path).
 
 Supports these query parameters to constrain results (which are ANDed together, not ORed):
 
@@ -27,7 +28,7 @@ Supports these query parameters to constrain results (which are ANDed together, 
 	validated=T     only devices with validated set
 	validated=F     only devices with validated not set
 	health=<value>  only devices with health matching provided value (case-insensitive)
-	active=1        only devices last seen within 5 minutes
+	active=1        only devices last seen within 5 minutes (FIXME: ambiguous name)
 	ids_only=1      only return device ids, not full data
 
 Response uses the Devices json schema.

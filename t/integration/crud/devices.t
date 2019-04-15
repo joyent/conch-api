@@ -455,8 +455,7 @@ subtest 'Device settings' => sub {
         ->status_is(404);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings')
-        ->status_is(400, 'Requires body')
-        ->json_like('/error', qr/required/);
+        ->status_is(400, 'Requires body');
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
         ->status_is(200)

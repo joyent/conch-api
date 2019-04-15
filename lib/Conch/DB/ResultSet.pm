@@ -16,6 +16,7 @@ available in core DBIx::Class.
 
 __PACKAGE__->load_components(
     '+Conch::DB::Deactivatable',                # provides active, deactivate
+    'Helper::ResultSet::RemoveColumns',         # provides remove_columns (must be applied early!)
     'Helper::ResultSet::OneRow',                # provides one_row
     'Helper::ResultSet::Shortcut::HRI',         # provides hri: raw unblessed + uninflated data
     'Helper::ResultSet::Shortcut::Prefetch',    # provides prefetch
@@ -27,6 +28,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::Page',        # provides page
     'Helper::ResultSet::CorrelateRelationship', # provides correlate
     'Helper::ResultSet::Shortcut::AddColumns',  # provides add_columns
+    '+Conch::DB::AsEpoch',                      # provides as_epoch
 );
 
 1;

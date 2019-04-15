@@ -17,9 +17,13 @@ Sets up the routes for /hardware_product:
     GET     /hardware_product
     POST    /hardware_product
 
+            key is one of: name, alias, sku
     GET     /hardware_product/:hardware_product_id
+    GET     /hardware_product/:hardware_product_key=value
     POST    /hardware_product/:hardware_product_id
+    POST    /hardware_product/:hardware_product_key=value
     DELETE  /hardware_product/:hardware_product_id
+    DELETE  /hardware_product/:hardware_product_key=value
 
 =cut
 
@@ -36,17 +40,29 @@ sub routes {
     $hardware_product->post('/')->to('#create');
 
     {
-        my $with_hardware_product = $hardware_product->under('/:hardware_product_id')
+        # /hardware_product/:hardware_product_id
+        my $with_hardware_product_id = $hardware_product->under('/<hardware_product_id:uuid>')
             ->to('#find_hardware_product');
 
-        # GET /hardware_product/:hardware_product_id
-        $with_hardware_product->get('/')->to('#get');
+        # /hardware_product/<name=:hardware_product_name
+        # /hardware_product/alias=:hardware_product_alias
+        # /hardware_product/sku=:hardware_product_sku
+        my $with_hardware_product_key_and_value =
+            $hardware_product
+                ->under('/<:hardware_product_key>=<:hardware_product_value>'
+                    => [ hardware_product_key => [qw(name alias sku)] ])
+                ->to('#find_hardware_product');
 
-        # POST /hardware_product/:hardware_product_id
-        $with_hardware_product->post('/')->to('#update');
+        foreach ($with_hardware_product_id, $with_hardware_product_key_and_value) {
+            # GET /hardware_product/<:identifier>
+            $_->get('/')->to('#get');
 
-        # DELETE /hardware_product/:hardware_product_id
-        $with_hardware_product->delete('/')->to('#delete');
+            # POST /hardware_product/<:identifier>
+            $_->post('/')->to('#update');
+
+            # DELETE /hardware_product/<:identifier>
+            $_->delete('/')->to('#delete');
+        }
     }
 }
 

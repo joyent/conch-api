@@ -5,8 +5,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
-use Conch::UUID 'is_uuid';
-
 =pod
 
 =head1 NAME
@@ -28,9 +26,6 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub get ($c) {
-    return $c->status(404)
-        if not is_uuid($c->stash('validation_state_id'));
-
     my ($validation_state) = $c->db_validation_states
         ->search({ 'validation_state.id' => $c->stash('validation_state_id') })
         ->prefetch({ validation_state_members => 'validation_result' })

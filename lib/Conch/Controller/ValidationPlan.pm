@@ -86,7 +86,7 @@ sub find_validation_plan($c) {
 
 =head2 get
 
-Get the Validation Plan specified by uuid or name.
+Get the (active) Validation Plan specified by uuid or name.
 
 Response uses the ValidationPlan json schema.
 
@@ -98,7 +98,7 @@ sub get ($c) {
 
 =head2 list_validations
 
-List all Validations associated with the Validation Plan.
+List all Validations associated with the Validation Plan, both active and deactivated.
 
 Response uses the Validations json schema.
 
@@ -154,11 +154,6 @@ sub remove_validation ($c) {
     return $c->status(410);
 
     my $validation_id = $c->stash('validation_id');
-    unless (is_uuid($validation_id)) {
-        $c->log->warn("$validation_id is not a UUID");
-        return $c->status(400 => { error => "Validation ID must be a UUID. Got '$validation_id'." });
-    }
-
     my $validation_plan = $c->stash('validation_plan');
     if (not $validation_plan->search_related('validation_plan_members', { validation_id => $validation_id })) {
         $c->log->debug("Validation with ID '$validation_id' isn't a member of the Validation Plan");

@@ -28,8 +28,14 @@ sub register ($self, $app, $config) {
 	$app->helper(send_exception_to_rollbar => \&_record_exception);
 }
 
-# asynchronously send exception details to Rollbar if 'rollbar_access_token' is
-# configured
+=head2 send_exception_to_rollbar
+
+Asynchronously send exception details to Rollbar if 'rollbar_access_token' is
+configured. Returns a unique uuid suitable for logging, to correlate with the
+Rollbar entry thus created.
+
+=cut
+
 sub _record_exception ($c, $exception, @) {
 	my $access_token = $c->config('rollbar_access_token');
 	if (not $access_token) {
@@ -62,6 +68,8 @@ sub _record_exception ($c, $exception, @) {
 
 	my $headers = $c->req->headers->to_hash(1);
 	delete $headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
+
+    my $rollbar_id = Data::UUID->new->create_str;
 
 	# Payload documented at https://rollbar.com/docs/api/items_post/
 	my $exception_payload = {
@@ -112,7 +120,7 @@ sub _record_exception ($c, $exception, @) {
 			# see https://docs.rollbar.com/docs/grouping-algorithm
 			fingerprint => join(':', map { join(',', $_->@{qw(filename method lineno)}) } @frames),
 
-			uuid => Data::UUID->new->create_str,
+			uuid => $rollbar_id,
 		}
 	};
 
@@ -128,6 +136,8 @@ sub _record_exception ($c, $exception, @) {
 			}
 		}
 	);
+
+    return $rollbar_id;
 }
 
 1;

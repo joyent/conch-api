@@ -2,6 +2,7 @@ package Conch::Route;
 
 use Mojo::Base -strict, -signatures;
 
+use Conch::UUID;
 use Conch::Route::Workspace;
 use Conch::Route::Device;
 use Conch::Route::DeviceReport;
@@ -49,6 +50,10 @@ sub all_routes (
             return 1;
         })->under;
     });
+
+    # allow routes to be specified as, e.g. ->get('/<device_id:uuid>')->to(...)
+    $root->add_type(uuid => Conch::UUID::UUID_FORMAT);
+
 
     # GET /doc
     $root->get( '/doc',

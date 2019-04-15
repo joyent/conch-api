@@ -71,11 +71,11 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 
 Handle the details of authenticating the user, with one of the following options:
 
-1. HTTP Basic Auth
-2. JWT split between Authorization Bearer header value and jwt_sig cookie
-3. JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
-existing session for the user
-4. Old 'conch' session cookie
+ * HTTP Basic Auth
+ * existing session for the user
+ * JWT split between Authorization Bearer header value and jwt_sig cookie
+ * JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
+ * Old 'conch' session cookie
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
 subsequent routes and actions.
@@ -229,12 +229,12 @@ sub session_login ($c) {
 
 	if (not $user) {
 		$c->log->debug("user lookup for $input->{user} failed");
-		return $c->status(401, { error => 'unauthorized' });
+		return $c->status(401);
 	}
 
 	if (not $user->validate_password($input->{password})) {
 		$c->log->debug("password validation for $input->{user} failed");
-		return $c->status(401, { error => 'unauthorized' });
+		return $c->status(401);
 	}
 
 	$c->stash(user_id => $user->id);
@@ -318,12 +318,9 @@ with their new password.
 =cut
 
 sub reset_password ($c) {
-	my $body = $c->req->json;
-
-	return $c->status( 400, { error => '"email" required' } )
-		unless $body->{email};
-
-	return $c->status(301, "/user/email=$body->{email}/password");
+    my $input = $c->validate_input('ResetPassword');
+    return if not $input;
+    return $c->status(301, '/user/email='.$input->{email}.'/password');
 }
 
 =head2 refresh_token

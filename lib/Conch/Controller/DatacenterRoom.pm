@@ -5,8 +5,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
-use Conch::UUID 'is_uuid';
-
 =pod
 
 =head1 NAME
@@ -25,11 +23,6 @@ sub find_datacenter_room ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
     my $room_id = $c->stash('datacenter_room_id');
-    if (not is_uuid($room_id)) {
-        $c->log->warn('input failed validation');
-        return $c->status(400 => { error => "Datacenter Room ID must be a UUID. Got '$room_id'." });
-    }
-
     $c->log->debug('Looking up datacenter room '.$room_id);
     my $room = $c->db_datacenter_rooms->find($room_id);
 

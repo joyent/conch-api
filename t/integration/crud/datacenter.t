@@ -2,15 +2,19 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Data::UUID;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture_set('workspace_room_rack_layout', 0);
-
-my $uuid = Data::UUID->new;
+$t->load_fixture('conch_user_global_workspace');
 
 $t->authenticate;
+
+$t->get_ok('/dc')
+    ->status_is(200)
+    ->json_schema_is('Datacenters')
+    ->json_is([]);
+
+$t->load_fixture_set('workspace_room_rack_layout', 0);
 
 $t->get_ok('/dc')
     ->status_is(200)
