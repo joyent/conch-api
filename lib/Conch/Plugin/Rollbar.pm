@@ -131,8 +131,8 @@ sub _record_exception ($c, $exception, @) {
         sub ($ua, $tx) {
             if (my $err = $tx->error) {
                 my $log = $c->can('log') ? $c->log : $c->app->log;
-                $log->error('Unable to send exception to Rollbar.'
-                    ." HTTP $err->{code} '$err->{message} ");
+                $log->error('Unable to send exception to Rollbar. HTTP '
+                    .$err->{code}." '$err->{message}'");
             }
         }
     );

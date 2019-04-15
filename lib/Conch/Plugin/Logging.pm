@@ -34,7 +34,7 @@ sub register ($self, $app, $config) {
         $log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
 
         if (-d $log_dir) {
-            return Mojo::Exception->throw("Cannot write to $log_dir") if not -w $log_dir;
+            return Mojo::Exception->throw('Cannot write to '.$log_dir) if not -w $log_dir;
         }
         else {
             print STDERR "Creating log dir $log_dir\n";
@@ -64,7 +64,7 @@ sub register ($self, $app, $config) {
 
     $app->hook(after_dispatch => sub ($c) {
         my $u_str = $c->stash('user')
-          ? $c->stash('user')->email." (".$c->stash('user')->id.")"
+          ? $c->stash('user')->email.' ('.$c->stash('user')->id.')'
           : 'NOT AUTHED';
 
         my $req_headers = $c->req->headers->to_hash(1);

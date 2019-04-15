@@ -65,7 +65,7 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
     );
 
     # this should be returned in the json payload under the 'jwt_token' key.
-    return "$header.$payload";
+    return $header.'.'.$payload;
 }
 
 =head2 authenticate
@@ -96,7 +96,7 @@ sub authenticate ($c) {
         my ($email, $password) = ($url->username, $url->password);
 
         $c->log->debug('looking up user by email '.$email.'...');
-        my $user = $c->db_user_accounts->active->lookup_by_id_or_email("email=$email");
+        my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$email);
 
         unless ($user) {
             $c->log->debug('basic auth failed: user not found');
@@ -129,7 +129,7 @@ sub authenticate ($c) {
         my $token = $1;
         $jwt_sig = $c->cookie('jwt_sig');
         if ($jwt_sig) {
-            $token = "$token.$jwt_sig";
+            $token = $token.'.'.$jwt_sig;
         }
 
         # Attempt to decode with every configured secret, in case JWT token was
@@ -224,15 +224,15 @@ sub session_login ($c) {
     # don't have to look up by all columns.
     my $user_rs = $c->db_user_accounts->active;
     my $user = $user_rs->lookup_by_id_or_email($input->{user})
-        || $user_rs->lookup_by_id_or_email("email=$input->{user}");
+        || $user_rs->lookup_by_id_or_email('email='.$input->{user});
 
     if (not $user) {
-        $c->log->debug("user lookup for $input->{user} failed");
+        $c->log->debug('user lookup for '.$input->{user}.' failed');
         return $c->status(401);
     }
 
     if (not $user->validate_password($input->{password})) {
-        $c->log->debug("password validation for $input->{user} failed");
+        $c->log->debug('password validation for '.$input->{user}.' failed');
         return $c->status(401);
     }
 

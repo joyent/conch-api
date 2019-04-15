@@ -65,7 +65,7 @@ sub add_user ($c) {
     my $input = $c->validate_input('WorkspaceAddUser');
     return if not $input;
 
-    my $user = $c->db_user_accounts->active->lookup_by_id_or_email("email=$input->{user}");
+    my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$input->{user});
     return $c->status(404) unless $user;
 
     # check if the user already has access to this workspace
@@ -74,7 +74,7 @@ sub add_user ($c) {
 
         if ($existing_role_via->role eq $input->{role}) {
             $c->log->debug('user '.$user->name
-                ." already has $input->{role} access to workspace ".$c->stash('workspace_id')
+                .' already has '.$input->{role}.' access to workspace '.$c->stash('workspace_id')
                 .' via workspace '.$existing_role_via->workspace_id
                 .': nothing to do');
             my $workspace = $c->stash('workspace_rs')
@@ -89,7 +89,7 @@ sub add_user ($c) {
                 .' access to workspace '.$c->stash('workspace_id')
                 .($existing_role_via->workspace_id ne $c->stash('workspace_id')
                     ? (' via workspace '.$existing_role_via->workspace_id) : '')
-                .": cannot downgrade role to $input->{role}" });
+                .': cannot downgrade role to '.$input->{role} });
         }
     }
 
@@ -108,7 +108,7 @@ sub add_user ($c) {
         role => $input->{role},
     });
 
-    $c->log->info('Added user '.$user->id." to workspace $workspace_id");
+    $c->log->info('Added user '.$user->id.' to workspace '.$workspace_id);
     $c->status(201);
 }
 

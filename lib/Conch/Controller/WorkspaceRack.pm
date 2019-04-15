@@ -96,7 +96,7 @@ sub find_rack ($c) {
         ->search({ 'rack.id' => $rack_id });
 
     if (not $rack_rs->exists) {
-        $c->log->debug("Could not find rack $rack_id");
+        $c->log->debug('Could not find rack '.$rack_id);
         return $c->status(404);
     }
 
@@ -106,7 +106,7 @@ sub find_rack ($c) {
     $c->stash('rack_rs',
         $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
 
-    $c->log->debug("Found rack $rack_id");
+    $c->log->debug('Found rack '.$rack_id);
     return 1;
 }
 
@@ -127,14 +127,14 @@ sub get_layout ($c) {
             ->search(undef,
                 {
                     columns => {
-                        (map {; $_ => "rack.$_" } qw(id name phase)),
+                        (map {; $_ => 'rack.'.$_ } qw(id name phase)),
                         role => 'rack_role.name',
                         datacenter => 'datacenter_room.az',
                         'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
-                        (map {; "layout.$_" => "hardware_product.$_" } qw(alias id name)),
+                        (map {; 'layout.'.$_ => 'hardware_product.'.$_ } qw(alias id name)),
                         'layout.vendor' => 'hardware_vendor.name',
                         'layout.size' => 'hardware_product_profile.rack_unit',
-                        (map {; "layout.device.$_" => "device.$_" } $c->schema->source('device')->columns),
+                        (map {; 'layout.device.'.$_ => 'device.'.$_ } $c->schema->source('device')->columns),
                     },
                     join => [
                         'rack_role',
@@ -220,7 +220,7 @@ sub get_layout ($c) {
         return;
     }
     else {
-        return $c->status(406, { error => "requested unknown format $format" });
+        return $c->status(406, { error => 'requested unknown format '.$format });
     }
 }
 
@@ -266,7 +266,7 @@ sub add ($c) {
     }
 
     $c->status(303);
-    $c->redirect_to($c->url_for('/workspace/'.$c->stash('workspace_id')."/rack/$rack_id"));
+    $c->redirect_to($c->url_for('/workspace/'.$c->stash('workspace_id').'/rack/'.$rack_id));
 }
 
 =head2 remove

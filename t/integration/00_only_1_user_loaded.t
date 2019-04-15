@@ -781,7 +781,7 @@ subtest 'Relays' => sub {
             })
         ->status_is(204);
 
-    $relay->discard_changes;  # reload from db
+    $relay->discard_changes;    # reload from db
 
     $t->get_ok('/relay')
         ->status_is(200)
@@ -803,9 +803,9 @@ subtest 'Relays' => sub {
 };
 
 subtest 'Log out' => sub {
-    $t->post_ok("/logout")
+    $t->post_ok('/logout')
         ->status_is(204);
-    $t->get_ok("/workspace")
+    $t->get_ok('/workspace')
         ->status_is(401);
 };
 
@@ -815,21 +815,21 @@ subtest 'JWT authentication' => sub {
     my $jwt_token = $t->tx->res->json->{jwt_token};
     my $jwt_sig   = $t->tx->res->cookie('jwt_sig')->value;
 
-    $t->get_ok("/workspace", { Authorization => "Bearer $jwt_token" })
-        ->status_is(200, "user can provide JWT token with cookie to authenticate");
+    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token" })
+        ->status_is(200, 'user can provide JWT token with cookie to authenticate');
     $t->reset_session;  # force JWT to be used to authenticate
-    $t->get_ok("/workspace", { Authorization => "Bearer $jwt_token.$jwt_sig" })
-        ->status_is(200, "user can provide Authentication header with full JWT to authenticate");
+    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+        ->status_is(200, 'user can provide Authentication header with full JWT to authenticate');
 
     $t->post_ok('/refresh_token', { Authorization => "Bearer $jwt_token.$jwt_sig" })
         ->status_is(200)
         ->json_has('/jwt_token');
 
     my $new_jwt_token = $t->tx->res->json->{jwt_token};
-    $t->get_ok("/workspace", { Authorization => "Bearer $new_jwt_token" })
-        ->status_is(200, "Can authenticate with new token");
-    $t->get_ok("/workspace", { Authorization => "Bearer $jwt_token.$jwt_sig" })
-        ->status_is(401, "Cannot use old token");
+    $t->get_ok('/workspace', { Authorization => "Bearer $new_jwt_token" })
+        ->status_is(200, 'Can authenticate with new token');
+    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+        ->status_is(401, 'Cannot use old token');
 
     $t->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
         ->status_is(401, 'Cannot reuse old JWT');
@@ -842,17 +842,17 @@ subtest 'JWT authentication' => sub {
     $t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke',
             { Authorization => "Bearer $new_jwt_token" })
         ->status_is(204, 'Revoke all tokens for user');
-    $t->get_ok("/workspace", { Authorization => "Bearer $new_jwt_token" })
-        ->status_is(401, "Cannot use after user revocation");
+    $t->get_ok('/workspace', { Authorization => "Bearer $new_jwt_token" })
+        ->status_is(401, 'Cannot use after user revocation');
     $t->post_ok('/refresh_token', { Authorization => "Bearer $new_jwt_token" })
-        ->status_is(401, "Cannot use after user revocation");
+        ->status_is(401, 'Cannot use after user revocation');
 
     $t->authenticate(bailout => 0);
     my $jwt_token_2 = $t->tx->res->json->{jwt_token};
     $t->post_ok('/user/me/revoke', { Authorization => "Bearer $jwt_token_2" })
-        ->status_is(204, "Revoke tokens for self");
-    $t->get_ok("/workspace", { Authorization => "Bearer $jwt_token_2" })
-        ->status_is(401, "Cannot use after self revocation");
+        ->status_is(204, 'Revoke tokens for self');
+    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token_2" })
+        ->status_is(401, 'Cannot use after self revocation');
 
     $t->authenticate;
 };

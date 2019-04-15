@@ -36,7 +36,7 @@ sub find_rack ($c) {
     my $requires_permission =
         (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
       : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
-      : die "need handling for $method method";
+      : die 'need handling for '.$method.' method';
 
     if (not $rack_rs->user_has_permission($c->stash('user_id'), $requires_permission)) {
         $c->log->debug('User lacks permission to access rack'.$c->stash('rack_id'));

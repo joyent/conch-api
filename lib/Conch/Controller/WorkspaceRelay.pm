@@ -44,12 +44,12 @@ sub list ($c) {
     my $me = $latest_relay_connections->current_source_alias;
 
     $latest_relay_connections = $latest_relay_connections
-            ->search({ "$me.last_seen" => { '>=' => \"now() - interval '$active_minutes minutes'" } })
+            ->search({ $me.'.last_seen' => { '>=' => \"now() - interval '$active_minutes minutes'" } })
         if $active_minutes;
 
     my $num_devices_rs = $c->db_device_relay_connections->search(
-        { "${me}_corr.relay_id" => { '=' => \"$me.relay_id" } },
-        { alias => "${me}_corr" },
+        { $me.'_corr.relay_id' => { '=' => \"$me.relay_id" } },
+        { alias => ${me}.'_corr' },
     )->count_rs;
 
     my $workspace_racks = $c->stash('workspace_rs')

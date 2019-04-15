@@ -24,7 +24,7 @@ Chainable action that validates the 'device_id' provided in the path.
 
 sub find_device ($c) {
     my $device_id = $c->stash('device_id');
-    $c->log->debug("Looking up device $device_id for user ".$c->stash('user_id'));
+    $c->log->debug('Looking up device '.$device_id.' for user '.$c->stash('user_id'));
 
     # fetch for device existence and location in one query
     my $device_check = $c->db_devices
@@ -44,7 +44,7 @@ sub find_device ($c) {
 
     # if the device doesn't exist, we can bail out right now
     if (not $device_check->{exists}) {
-        $c->log->debug("Failed to find device $device_id");
+        $c->log->debug('Failed to find device '.$device_id);
         return $c->status(404);
     }
 
@@ -57,7 +57,7 @@ sub find_device ($c) {
         my $requires_permission =
             (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
           : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
-          : die "need handling for $method method";
+          : die 'need handling for '.$method.' method';
 
         if (not $c->db_devices->search({ 'device.id' => $device_id })
                 ->user_has_permission($c->stash('user_id'), $requires_permission)) {
@@ -68,7 +68,7 @@ sub find_device ($c) {
     else {
         # look for unlocated devices among those that have sent a device report proxied by a
         # relay using the user's credentials
-        $c->log->debug("looking for device $device_id associated with relay reports");
+        $c->log->debug('looking for device '.$device_id.' associated with relay reports');
 
         my $device_rs = $c->db_devices
             ->search({ 'device.id' => $device_id })
@@ -183,7 +183,7 @@ sub lookup_by_other_attribute ($c) {
     }
     elsif (any { $key eq $_ } qw(mac ipaddr)) {
         $device_rs = $device_rs->search(
-            { "device_nics.$key" => $value },
+            { 'device_nics.'.$key => $value },
             { join => 'device_nics' },
         );
     }
@@ -199,7 +199,7 @@ sub lookup_by_other_attribute ($c) {
     my @devices = $device_rs->all;
 
     if (not @devices) {
-        $c->log->debug("Failed to find devices matching $key=$value.");
+        $c->log->debug('Failed to find devices matching '.$key.'='.$value);
         return $c->status(404);
     }
 
@@ -255,15 +255,15 @@ sub graduate ($c) {
 
     # FIXME this shouldn't be an error
     if (defined($device->graduated)) {
-        $c->log->debug("Device $device_id has already been graduated");
-        return $c->status(409, { error => "Device $device_id has already been graduated" })
+        $c->log->debug('Device '.$device_id.' has already been graduated');
+        return $c->status(409, { error => 'Device '.$device_id.' has already been graduated' })
     }
 
     $device->update({ graduated => \'NOW()', updated => \'NOW()' });
-    $c->log->debug("Marked $device_id as graduated");
+    $c->log->debug('Marked '.$device_id.' as graduated');
 
     $c->status(303);
-    $c->redirect_to($c->url_for("/device/$device_id"));
+    $c->redirect_to($c->url_for('/device/'.$device_id));
 }
 
 =head2 set_triton_reboot
@@ -276,7 +276,7 @@ sub set_triton_reboot ($c) {
     my $device = $c->stash('device_rs')->single;
     $device->update({ latest_triton_reboot => \'NOW()', updated => \'NOW()' });
 
-    $c->log->debug("Marked ".$device->id." as rebooted into triton");
+    $c->log->debug('Marked '.$device->id.' as rebooted into triton');
 
     $c->status(303);
     $c->redirect_to($c->url_for('/device/'.$device->id));
@@ -296,7 +296,7 @@ sub set_triton_uuid ($c) {
     return if not $input;
 
     $device->update({ triton_uuid => $input->{triton_uuid}, updated => \'NOW()' });
-    $c->log->debug("Set the triton uuid for device ".$device->id." to $input->{triton_uuid}");
+    $c->log->debug('Set the triton uuid for device '.$device->id.' to '.$input->{triton_uuid});
 
     $c->status(303);
     $c->redirect_to($c->url_for('/device/'.$device->id));
@@ -314,23 +314,23 @@ sub set_triton_setup ($c) {
     my $device_id = $device->id;
 
     unless (defined($device->latest_triton_reboot) && defined($device->triton_uuid)) {
-        $c->log->warn("Input failed validation");
+        $c->log->warn('Input failed validation');
         return $c->status(409, {
-            error => "Device $device_id must be marked as rebooted into Triton and the Trition UUID set before it can be marked as set up for Triton"
+            error => 'Device '.$device_id.' must be marked as rebooted into Triton and the Trition UUID set before it can be marked as set up for Triton'
         });
     }
 
     # FIXME this should not be an error
     if (defined($device->triton_setup)) {
-        $c->log->debug("Device $device_id has already been marked as set up for Triton");
-        return $c->status(409, { error => "Device $device_id has already been marked as set up for Triton" })
+        $c->log->debug('Device '.$device_id.' has already been marked as set up for Triton');
+        return $c->status(409, { error => 'Device '.$device_id.' has already been marked as set up for Triton' })
     }
 
     $device->update({ triton_setup => \'NOW()', updated => \'NOW()' });
-    $c->log->debug("Device $device_id marked as set up for triton");
+    $c->log->debug('Device '.$device_id.' marked as set up for triton');
 
     $c->status(303);
-    $c->redirect_to($c->url_for("/device/$device_id"));
+    $c->redirect_to($c->url_for('/device/'.$device_id));
 }
 
 =head2 set_asset_tag
@@ -364,10 +364,10 @@ sub set_validated ($c) {
     return $c->status(204) if defined($device->validated);
 
     $device->update({ validated => \'NOW()', updated => \'NOW()' });
-    $c->log->debug("Marked the device $device_id as validated");
+    $c->log->debug('Marked the device '.$device_id.' as validated');
 
     $c->status(303);
-    $c->redirect_to($c->url_for("/device/$device_id"));
+    $c->redirect_to($c->url_for('/device/'.$device_id));
 }
 
 =head2 get_phase

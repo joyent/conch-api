@@ -50,7 +50,7 @@ sub process ($c) {
     # Make sure the API and device report agree on who we're talking about
     if ($c->stash('device_id') ne $unserialized_report->{serial_number}) {
         return $c->render(status => 422, json => {
-            error => "Serial number provided to the API does not match the report data."
+            error => 'Serial number provided to the API does not match the report data.'
         });
     }
 
@@ -84,7 +84,7 @@ sub process ($c) {
     }
 
     # Update/create the device and create the device report
-    $c->log->debug("Updating or creating device ".$c->stash('device_id'));
+    $c->log->debug('Updating or creating device '.$c->stash('device_id'));
 
     my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since}
                : $existing_device ? $existing_device->uptime_since
@@ -103,7 +103,7 @@ sub process ($c) {
         deactivated         => undef,
     });
 
-    $c->log->debug("Creating device report");
+    $c->log->debug('Creating device report');
     my $device_report = $device->create_related('device_reports', {
         report    => $c->req->text, # this is the raw json string
         # we will always keep this report if the previous report failed, or this is the first
@@ -111,10 +111,10 @@ sub process ($c) {
         !$previous_report_status || $previous_report_status ne 'pass' ? ( retain => 1 ) : (),
         # invalid, created use defaults.
     });
-    $c->log->info("Created device report ".$device_report->id);
+    $c->log->info('Created device report '.$device_report->id);
 
 
-    $c->log->debug("Recording device configuration");
+    $c->log->debug('Recording device configuration');
     $c->_record_device_configuration(
         $existing_device,
         $device,
@@ -138,7 +138,7 @@ sub process ($c) {
         device_report => $device_report,
     );
     return $c->status(400, { error => 'no validations ran' }) if not $validation_state;
-    $c->log->debug("Validations ran with result: ".$validation_state->status);
+    $c->log->debug('Validations ran with result: '.$validation_state->status);
 
     # calculate the device health based on the validation results.
     # currently, since there is just one (hardcoded) plan per device, we can simply copy it
@@ -227,7 +227,7 @@ sub _record_device_configuration {
                     # TODO: not setting psu0_voltage, psu1_voltage
                     updated      => \'NOW()',
                 });
-                $c->log->info("Recorded environment for Device ".$device->id);
+                $c->log->info('Recorded environment for Device '.$device->id);
             }
 
             # Keep track of which disk serials have been previously recorded in the
@@ -238,7 +238,7 @@ sub _record_device_configuration {
             @inactive_serials{@device_disk_serials} = ();
 
             foreach my $disk (keys %{$dr->{disks}}) {
-                $log->debug("Device ".$device->id.": Recording disk: $disk");
+                $log->debug('Device '.$device->id.': Recording disk: '.$disk);
 
                 delete $inactive_serials{$disk};
 
@@ -276,7 +276,7 @@ sub _record_device_configuration {
             }
 
             $dr->{disks}
-                and $log->info("Recorded disk info for Device ".$device->id);
+                and $log->info('Recorded disk info for Device '.$device->id);
 
 
             my @device_nic_macs = map uc, $device->device_nics->active->get_column('mac')->all;
@@ -292,7 +292,7 @@ sub _record_device_configuration {
             foreach my $nic (keys %{ $dr->{interfaces}}) {
                 my $mac = uc($dr->{interfaces}->{$nic}->{mac});
 
-                $log->debug("Device ".$device->id.": Recording NIC: $mac");
+                $log->debug('Device '.$device->id.': Recording NIC: '.$mac);
                 delete $inactive_macs{$mac};
 
                 # deactivate this iface_name where mac is different,

@@ -37,7 +37,7 @@ sub set_all ($c) {
     # 'rw' already checked by find_device
     if ($perm_needed eq 'admin') {
         if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-            $c->log->debug("failed permission check (required $perm_needed)");
+            $c->log->debug('failed permission check (required '.$perm_needed.')');
             return $c->status(403);
         }
     }
@@ -84,7 +84,7 @@ sub set_single ($c) {
     # 'rw' already checked by find_device
     if ($perm_needed eq 'admin') {
         if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-            $c->log->debug("failed permission check (required $perm_needed)");
+            $c->log->debug('failed permission check (required '.$perm_needed.')');
             return $c->status(403);
         }
     }
@@ -142,7 +142,7 @@ sub delete_single ($c) {
     # 'rw' already checked by find_device
     if ($perm_needed eq 'admin') {
         if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-            $c->log->debug("failed permission check (required $perm_needed)");
+            $c->log->debug('failed permission check (required '.$perm_needed.')');
             return $c->status(403);
         }
     }

@@ -63,7 +63,7 @@ sub validate ($c) {
     my $validation_id = $c->stash('validation_id');
     my $validation = $c->db_ro_validations->active->find($validation_id);
     if (not $validation) {
-        $c->log->debug("Could not find validation $validation_id");
+        $c->log->debug('Could not find validation '.$validation_id);
         return $c->status(404);
     }
 
@@ -102,7 +102,7 @@ sub run_validation_plan ($c) {
     my $validation_plan_id = $c->stash('validation_plan_id');
     my $validation_plan = $c->db_ro_validation_plans->active->find($validation_plan_id);
     if (not $validation_plan) {
-        $c->log->debug("Could not find validation plan $validation_plan_id");
+        $c->log->debug('Could not find validation plan '.$validation_plan_id);
         return $c->status(404);
     }
 

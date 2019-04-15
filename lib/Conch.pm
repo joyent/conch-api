@@ -51,7 +51,7 @@ sub startup {
             return if not $template;
 
             if ($template =~ /exception/) {
-                return $args->{json} = { error => "An exception occurred" };
+                return $args->{json} = { error => 'An exception occurred' };
             }
             if ($args->{template} =~ /not_found/) {
                 return $args->{json} = { error => 'Not Found' };
@@ -63,9 +63,9 @@ sub startup {
     $self->helper(
         status => sub ($c, $code, $payload = undef) {
             $payload //= { error => 'Unauthorized' } if $code == 401;
-            $payload //= { error => "Forbidden" } if $code == 403;
+            $payload //= { error => 'Forbidden' } if $code == 403;
             $payload //= { error => 'Not Found' } if $code == 404;
-            $payload //= { error => "Unimplemented" } if $code == 501;
+            $payload //= { error => 'Unimplemented' } if $code == 501;
 
             if (not $payload) {
                 # no content - hopefully we set a 204 response code

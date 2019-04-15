@@ -25,7 +25,7 @@ Takes care of setting up a Test::Mojo with the Conch application pre-configured.
 Includes JSON validation ability via L<Test::MojoSchema>.
 
     my $t = Test::Conch->new();
-    $t->get_ok("/")->status_is(200)->json_schema_is("Whatever");
+    $t->get_ok('/')->status_is(200)->json_schema_is('Whatever');
 
 =head1 CONSTANTS
 
@@ -88,7 +88,7 @@ sub new {
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
     my $pg = $args->{pg} // $class->init_db;
-    $pg or Test::More::BAIL_OUT("failed to create test database");
+    $pg or Test::More::BAIL_OUT('failed to create test database');
 
     my $self = Test::Mojo->new(
         Conch => {
@@ -97,7 +97,7 @@ sub new {
                 username => $pg->dbowner,
             },
 
-            secrets => ["********"],
+            secrets => ['********'],
         }
     );
 

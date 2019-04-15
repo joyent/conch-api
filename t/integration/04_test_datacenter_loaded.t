@@ -31,14 +31,14 @@ $t->get_ok('/workspace')
     ->json_is('/0/name', 'GLOBAL');
 
 my $global_ws_id = $t->tx->res->json->[0]{id};
-BAIL_OUT("No workspace ID") unless $global_ws_id;
+BAIL_OUT('No workspace ID') unless $global_ws_id;
 
 $t->post_ok("/workspace/$global_ws_id/child",
-        json => { name => "test", description => "also test" })
+        json => { name => 'test', description => 'also test' })
     ->status_is(201);
 
 my $sub_ws_id = $t->tx->res->json->{id};
-BAIL_OUT("Could not create sub-workspace.") unless $sub_ws_id;
+BAIL_OUT('Could not create sub-workspace.') unless $sub_ws_id;
 
 subtest 'Device Report' => sub {
     # register the relay referenced by the report
@@ -587,9 +587,9 @@ subtest 'Device location' => sub {
 };
 
 subtest 'Log out' => sub {
-    $t->post_ok("/logout")
+    $t->post_ok('/logout')
         ->status_is(204);
-    $t->get_ok("/workspace")
+    $t->get_ok('/workspace')
         ->status_is(401);
 };
 
@@ -620,7 +620,7 @@ subtest 'Permissions' => sub {
 
         subtest "Can't create a subworkspace" => sub {
             $t->post_ok("/workspace/$global_ws_id/child",
-                    json => { name => "test", description => "also test", })
+                    json => { name => 'test', description => 'also test', })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });
         };
@@ -645,7 +645,7 @@ subtest 'Permissions' => sub {
         };
 
         subtest "Can't get a relay list" => sub {
-            $t->get_ok("/relay")
+            $t->get_ok('/relay')
                 ->status_is(403);
         };
 
@@ -679,11 +679,11 @@ subtest 'Permissions' => sub {
                 ->json_is({ error => 'Forbidden' });
         };
 
-        $t->post_ok("/logout")
+        $t->post_ok('/logout')
             ->status_is(204);
     };
 
-    subtest "Read-write" => sub {
+    subtest 'Read-write' => sub {
         my $name = 'integrator';
         my $email = 'integrator@wat.wat';
         my $pass = 'password';
@@ -707,7 +707,7 @@ subtest 'Permissions' => sub {
 
         subtest "Can't create a subworkspace" => sub {
             $t->post_ok("/workspace/$global_ws_id/child",
-                    json => { name => "test", description => "also test", })
+                    json => { name => 'test', description => 'also test', })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });
         };
@@ -720,7 +720,7 @@ subtest 'Permissions' => sub {
         };
 
         subtest "Can't get a relay list" => sub {
-            $t->get_ok("/relay")
+            $t->get_ok('/relay')
                 ->status_is(403);
         };
 
@@ -773,7 +773,7 @@ subtest 'Permissions' => sub {
                 ->status_is(404);
         };
 
-        $t->post_ok("/logout")
+        $t->post_ok('/logout')
             ->status_is(204);
     };
 };

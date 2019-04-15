@@ -95,7 +95,7 @@ sub set_setting ($c) {
 
     my $key = $c->stash('key');
     my $value = $input->{$key};
-    return $c->status(400, { error => "Setting key in request object must match name in the URL ('$key')" }) unless $value;
+    return $c->status(400, { error => 'Setting key in request object must match name in the URL (\''.$key.'\')' }) if not $value;
 
     my $user = $c->stash('target_user');
     Mojo::Exception->throw('Could not find previously stashed user')
@@ -113,7 +113,7 @@ sub set_setting ($c) {
         return $c->status(200);
     }
     else {
-        return $c->status(500, "Failed to set setting");
+        return $c->status(500, 'Failed to set setting');
     }
 }
 
@@ -396,7 +396,7 @@ sub create ($c) {
     # this would cause horrible clashes with our /user routes!
     return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
 
-    if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email("email=$email")) {
+    if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$email)) {
         return $c->status(409, {
             error => 'duplicate user found',
             user => { map { $_ => $user->$_ } qw(id email name created deactivated) },
@@ -449,7 +449,7 @@ sub deactivate ($c) {
         $user->related_resultset('user_workspace_roles')->prefetch('workspace')->all);
 
     $c->log->warn('user '.$c->stash('user')->name.' deactivating user '.$user->name
-        .($workspaces ? ", direct member of workspaces: $workspaces" : ''));
+        .($workspaces ? ', direct member of workspaces: '.$workspaces : ''));
     $user->update({ password => $c->random_string, deactivated => \'NOW()' });
 
     $user->delete_related('user_workspace_roles');

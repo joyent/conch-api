@@ -45,9 +45,9 @@ sub find_hardware_product ($c) {
     # route restricts key to: sku, name, alias
     if (my $key = $c->stash('hardware_product_key')
             and my $value = $c->stash('hardware_product_value')) {
-        $c->log->debug("Looking up a HardwareProduct by identifier ($key = $value)");
+        $c->log->debug('Looking up a HardwareProduct by identifier ('.$key.' = '.$value.')');
         $hardware_product_rs = $hardware_product_rs
-            ->search({ "hardware_product.$key" => $value });
+            ->search({ 'hardware_product.'.$key => $value });
     }
     elsif ($c->stash('hardware_product_id')) {
         $c->log->debug('Looking up a HardwareProduct by id '.$c->stash('hardware_product_id'));
@@ -99,7 +99,7 @@ sub create ($c) {
     for my $key (qw(name alias sku)) {
         next unless $input->{$key};
         if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
-            $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
+            $c->log->debug('Failed to create hardware product: unique constraint violation for '.$key);
             return $c->status(400, { error => "Unique constraint violated on '$key'" });
         }
     }
@@ -120,7 +120,7 @@ sub create ($c) {
           ? (' and hardware product profile id '.$hardware_product->hardware_product_profile->id)
           : '')
     );
-    $c->status(303, "/hardware_product/".$hardware_product->id);
+    $c->status(303, '/hardware_product/'.$hardware_product->id);
 }
 
 =head2 update
@@ -145,7 +145,7 @@ sub update ($c) {
         next if $input->{$key} eq $hardware_product->$key;
 
         if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
-            $c->log->debug("Failed to create hardware product: unique constraint violation for $key");
+            $c->log->debug('Failed to create hardware product: unique constraint violation for '.$key);
             return $c->status(400, { error => "Unique constraint violated on '$key'" });
         }
     }
@@ -202,9 +202,9 @@ sub delete ($c) {
     my $hardware_product_profile_id = $profile_rs->get_column('id')->single;
     $profile_rs->deactivate;
 
-    $c->log->debug("Deleted hardware product $id"
+    $c->log->debug('Deleted hardware product '.$id
         .($hardware_product_profile_id
-            ? " and its related hardware product profile id $hardware_product_profile_id" : ''));
+            ? ' and its related hardware product profile id '.$hardware_product_profile_id : ''));
     return $c->status(204);
 }
 

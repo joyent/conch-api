@@ -69,7 +69,7 @@ sub _message {
         $filename = (File::Spec->splitpath($filepath))[2];
     }
     else {
-        ($package, $line, $filename) = ("unknown", 0, 'unknown');
+        ($package, $line, $filename) = ('unknown', 0, 'unknown');
     }
 
     my $log = {

@@ -20,7 +20,7 @@ Conch::Plugin::JsonValidator
     [ ... in a controller ]
 
     sub endpoint ($c) {
-        my $body = $c->validate_input("MyInputDefinition");
+        my $body = $c->validate_input('MyInputDefinition');
 
         [ ... ]
 
