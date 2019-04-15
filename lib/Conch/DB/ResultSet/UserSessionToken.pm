@@ -70,6 +70,17 @@ sub login_only ($self) {
     $self->search({ name => { '-similar to' => 'login_jwt_[0-9_]+' } });
 }
 
+=head2 api_only
+
+Chainable resultset to search for api tokens (NOT created via the main /login flow).
+
+=cut
+
+sub api_only ($self) {
+    my $me = $self->current_source_alias;
+    $self->search({ $me.'.name' => { '-not similar to' => 'login_jwt_[0-9_]+' } });
+}
+
 =head2 expire
 
 Update all matching rows by setting expires = now(). (Returns the number of rows updated.)

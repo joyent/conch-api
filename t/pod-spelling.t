@@ -22,6 +22,7 @@ all_pod_files_spelling_ok(qw(lib t misc));
 
 __DATA__
 ANDed
+api
 auth
 az
 bunyan

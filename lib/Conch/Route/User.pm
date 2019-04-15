@@ -15,7 +15,7 @@ Conch::Route::User
 Sets up the routes for /user:
 
     GET     /user/me
-    POST    /user/me/revoke
+    POST    /user/me/revoke?login_only=<0|1> or ?api_only=<0|1>
     POST    /user/me/password?clear_tokens=<login_only|0|all>
     GET     /user/me/settings
     POST    /user/me/settings
@@ -25,18 +25,18 @@ Sets up the routes for /user:
 
     GET     /user/me/token
     POST    /user/me/token
-    DELETE  /user/me/token (same as POST /user/me/revoke)
+    DELETE  /user/me/token?login_only=<0|1> or ?api_only=<0|1> (same as POST /user/me/revoke)
     GET     /user/me/token/:token_name
     DELETE  /user/me/token/:token_name
 
     GET     /user/#target_user_id_or_email
     POST    /user/#target_user_id_or_email
     DELETE  /user/#target_user_id_or_email?clear_tokens=<1|0>
-    POST    /user/#target_user_id_or_email/revoke
+    POST    /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
     DELETE  /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
 
     GET     /user/#target_user_id_or_email/token
-    DELETE  /user/#target_user_id_or_email/token (same as POST /user/#target_user_id_or_email/revoke)
+    DELETE  /user/#target_user_id_or_email/token?login_only=<0|1> or ?api_only=<0|1> (same as POST /user/#target_user_id_or_email/revoke)
     GET     /user/#target_user_id_or_email/token/:token_name
     DELETE  /user/#target_user_id_or_email/token/:token_name
 
@@ -61,7 +61,7 @@ sub routes {
         # GET /user/me
         $user_me->get('/')->to('#get');
 
-        # POST /user/me/revoke
+        # POST /user/me/revoke?login_only=<0|1> or ?api_only=<0|1>
         $user_me->post('/revoke')->to('#revoke_user_tokens');
 
         # POST /user/me/password?clear_tokens=<login_only|0|all>
@@ -95,7 +95,7 @@ sub routes {
             $user_me_token->get('/')->to('#get_tokens');
             # POST /user/me/token
             $user_me_token->post('/')->to('#create_token');
-            # DELETE /user/me/token (same as POST /user/me/revoke)
+            # DELETE /user/me/token?login_only=<0|1> or ?api_only=<0|1> (same as POST /user/me/revoke)
             $user_me_token->delete('/')->to('#revoke_user_tokens');
 
             my $with_token = $user_me_token->under('/:token_name')->to('#find_token');
@@ -121,7 +121,7 @@ sub routes {
         # DELETE /user/#target_user_id_or_email?clear_tokens=<1|0>
         $user_with_target->delete('/')->to('#deactivate');
 
-        # POST /user/#target_user_id_or_email/revoke
+        # POST /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
         # DELETE /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
         $user_with_target->delete('/password')->to('#reset_user_password');
@@ -136,7 +136,8 @@ sub routes {
 
             # GET /user/#target_user_id_or_email/token
             $user_with_target_token->get('/')->to('#get_tokens');
-            # DELETE /user/#target_user_id_or_email/token (same as POST /user/#target_user_id_or_email/revoke)
+            # DELETE /user/#target_user_id_or_email/token?login_only=<0|1> or ?api_only=<0|1>
+            # (same as POST /user/#target_user_id_or_email/revoke)
             $user_with_target_token->delete('/')->to('#revoke_user_tokens');
 
             my $with_token = $user_with_target_token->under('/:token_name')->to('#find_token');
