@@ -148,9 +148,9 @@ line of the exception.
 
     # at present we do all testing on 9.6 so that is the most preferred configuration, but we
     # are not aware of any issues on PostgreSQL 10.x.
-    my ($major, $minor) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)\.?/;
+    my ($major, $minor, $rest) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)(\.\d+)?\b/;
     $minor //= 0;
-    $app->log->warn("Running $major.$minor, expected at least 9.6!") if "$major.$minor" < 9.6;
+    $app->log->warn("Running $major.$minor$rest, expected at least 9.6!") if "$major.$minor" < 9.6;
 
 
     my ($latest_migration, $expected_latest_migration) = Conch::DB::Util::get_migration_level($app->schema);
