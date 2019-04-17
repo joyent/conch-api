@@ -33,7 +33,7 @@ Sets up the routes for /workspace:
     GET     /workspace/:workspace_id_or_name/relay/:relay_id/device
 
     GET     /workspace/:workspace_id_or_name/user
-    POST    /workspace/:workspace_id_or_name/user?send_mail=<0|1>
+    POST    /workspace/:workspace_id_or_name/user?send_mail=<1|0>
     DELETE  /workspace/:workspace_id_or_name/user/#target_user_id_or_email
 
 Note that in all routes using C<:workspace_id_or_name>, the stash for C<workspace_id> will be
@@ -109,7 +109,7 @@ sub routes {
 
         # GET /workspace/:workspace_id_or_name/user
         $with_workspace->get('/user')->to('workspace_user#list');
-        # POST /workspace/:workspace_id_or_name/user?send_mail=<0|1>
+        # POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>
         $with_workspace->post('/user')->to('workspace_user#add_user');
         # DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email
         $with_workspace->under('/user/#target_user_id_or_email')->to('user#find_user')
