@@ -125,7 +125,7 @@ sub layouts ($c) {
         #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
         #    collapse => 1,
         #})
-        ->order_by([ qw(rack_unit_start) ])
+        ->order_by('rack_unit_start')
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');

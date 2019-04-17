@@ -2,7 +2,7 @@ package Conch::Controller::Schema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Mojo::Util qw(camelize);
+use Mojo::Util 'camelize';
 
 =pod
 

@@ -1,7 +1,7 @@
 package Conch::Validation::RamTotal;
 
 use Mojo::Base 'Conch::Validation';
-use List::Util qw(sum);
+use List::Util 'sum';
 
 use constant name        => 'ram_total';
 use constant version     => 2;

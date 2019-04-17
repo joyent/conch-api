@@ -5,7 +5,7 @@ use experimental 'signatures';
 use Getopt::Long;
 use Pod::Usage;
 use JSON::MaybeXS ();
-use Mojo::File qw(path);
+use Mojo::File 'path';
 use JSON::Validator;
 
 use Dir::Self;
