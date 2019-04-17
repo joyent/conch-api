@@ -18,7 +18,7 @@ Work with the Conch database.  Run C<bin/conch-db --help> for a list of options.
 
 use v5.26;
 use warnings;
-use utf8;
+use utf8;   # yes there really are non-ascii chars in this file
 use experimental 'signatures';
 use open ':std', ':encoding(UTF-8)';
 
