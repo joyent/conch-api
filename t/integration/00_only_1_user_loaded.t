@@ -53,7 +53,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me/settings/TEST', json => { NOTTEST => 'test' })
         ->status_is(400)
-        ->json_is({ error => "Setting key in request object must match name in the URL ('TEST')", });
+        ->json_is({ error => "Setting key in request object must match name in the URL ('TEST')" });
 
     $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
         ->status_is(404);
@@ -80,7 +80,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
-        ->json_is('', { TEST => 'TEST', TEST2 => { foo => 'bar' }, });
+        ->json_is('', { TEST => 'TEST', TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST')
         ->status_is(204)
@@ -116,11 +116,11 @@ subtest 'User' => sub {
     # everything should be deactivated now.
     # starting over, let's see if set_settings overwrites everything...
 
-    $t->post_ok('/user/me/settings', json => { TEST1 => 'TEST', TEST2 => 'ohhai', })
+    $t->post_ok('/user/me/settings', json => { TEST1 => 'TEST', TEST2 => 'ohhai' })
         ->status_is(200)
         ->content_is('');
 
-    $t->post_ok('/user/me/settings', json => { TEST1 => 'test1', TEST3 => 'test3', })
+    $t->post_ok('/user/me/settings', json => { TEST1 => 'test1', TEST3 => 'test3' })
         ->status_is(200)
         ->content_is('');
 
@@ -406,7 +406,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by name');
 
     $t->post_ok("/workspace/$child_ws_id/child",
-            json => { name => 'grandchild_ws', description => 'two levels of subworkspaces', })
+            json => { name => 'grandchild_ws', description => 'two levels of subworkspaces' })
         ->status_is(201, 'created a grandchild workspace')
         ->json_schema_is('WorkspaceAndRole')
         ->json_cmp_deeply({
@@ -1041,14 +1041,14 @@ subtest 'modify another user' => sub {
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'foo@conch.joyent.us');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => 'foo', })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => 'foo' })
         ->status_is(401, 'cannot log in with the old password');
 
     $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:'.$insecure_password)->path('/me'))
         ->status_is(401, 'user cannot use new password with basic auth to go anywhere else')
         ->location_is('/user/me/password');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password })
         ->status_is(200, 'user can log in with new password')
         ->location_is('/user/me/password');
     $jwt_token = $t2->tx->res->json->{jwt_token};
@@ -1064,7 +1064,7 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user can\'t use his JWT to do anything else')
         ->location_is('/user/me/password');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password })
         ->status_is(401, 'user cannot log in with the same insecure password again');
 
     $t2->post_ok('/user/me/password' => { Authorization => "Bearer $jwt_token.$jwt_sig" },
@@ -1074,7 +1074,7 @@ subtest 'modify another user' => sub {
     my $secure_password = $_new_password;
     is($secure_password, 'a more secure password', 'provided password was saved to the db');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password })
         ->status_is(200, 'user can log in with new password')
         ->json_has('/jwt_token')
         ->json_hasnt('/message');
@@ -1105,7 +1105,7 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user cannot log in with saved browser session');
 
     $t2->reset_session; # force JWT to be used to authenticate
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password, })
+    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password })
         ->status_is(401, 'user can no longer log in with credentials');
 
     $t->delete_ok("/user/$new_user_id")

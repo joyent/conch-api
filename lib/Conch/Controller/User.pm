@@ -394,7 +394,7 @@ sub create ($c) {
     my $email = $input->{email};
 
     # this would cause horrible clashes with our /user routes!
-    return $c->status(400, { error => 'user name "me" is prohibited', }) if $name eq 'me';
+    return $c->status(400, { error => 'user name "me" is prohibited' }) if $name eq 'me';
 
     if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$email)) {
         return $c->status(409, {

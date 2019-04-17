@@ -216,7 +216,7 @@ sub get_layout ($c) {
         $c->log->debug('Found rack layouts for rack id '.$c->stash('rack_id'));
 
         $c->res->code(200);
-        $c->respond_to(csv => { text => $csv_content },);
+        $c->respond_to(csv => { text => $csv_content });
         return;
     }
     else {

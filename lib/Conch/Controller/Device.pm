@@ -256,7 +256,7 @@ sub graduate ($c) {
     # FIXME this shouldn't be an error
     if (defined($device->graduated)) {
         $c->log->debug('Device '.$device_id.' has already been graduated');
-        return $c->status(409, { error => 'Device '.$device_id.' has already been graduated' })
+        return $c->status(409, { error => 'Device '.$device_id.' has already been graduated' });
     }
 
     $device->update({ graduated => \'NOW()', updated => \'NOW()' });
@@ -323,7 +323,7 @@ sub set_triton_setup ($c) {
     # FIXME this should not be an error
     if (defined($device->triton_setup)) {
         $c->log->debug('Device '.$device_id.' has already been marked as set up for Triton');
-        return $c->status(409, { error => 'Device '.$device_id.' has already been marked as set up for Triton' })
+        return $c->status(409, { error => 'Device '.$device_id.' has already been marked as set up for Triton' });
     }
 
     $device->update({ triton_setup => \'NOW()', updated => \'NOW()' });

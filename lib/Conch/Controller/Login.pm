@@ -272,7 +272,7 @@ sub session_login ($c) {
         refuse_session_auth => 0,
     });
 
-    return $c->status(200, { jwt_token => $c->_create_jwt($user->id), });
+    return $c->status(200, { jwt_token => $c->_create_jwt($user->id) });
 }
 
 =head2 session_logout

@@ -620,7 +620,7 @@ subtest 'Permissions' => sub {
 
         subtest "Can't create a subworkspace" => sub {
             $t->post_ok("/workspace/$global_ws_id/child",
-                    json => { name => 'test', description => 'also test', })
+                    json => { name => 'test', description => 'also test' })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });
         };
@@ -639,7 +639,7 @@ subtest 'Permissions' => sub {
 
         subtest "Can't add a user to workspace" => sub {
             $t->post_ok("/workspace/$global_ws_id/user",
-                    json => { user => 'another@wat.wat', role => 'ro', })
+                    json => { user => 'another@wat.wat', role => 'ro' })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });
         };
@@ -707,14 +707,14 @@ subtest 'Permissions' => sub {
 
         subtest "Can't create a subworkspace" => sub {
             $t->post_ok("/workspace/$global_ws_id/child",
-                    json => { name => 'test', description => 'also test', })
+                    json => { name => 'test', description => 'also test' })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });
         };
 
         subtest "Can't add a user to workspace" => sub {
             $t->post_ok("/workspace/$global_ws_id/user",
-                    json => { user => 'another@wat.wat', role => 'ro', })
+                    json => { user => 'another@wat.wat', role => 'ro' })
                 ->status_is(403)
                 ->json_is({ error => 'Forbidden' });
         };

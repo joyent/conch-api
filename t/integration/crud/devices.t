@@ -277,7 +277,7 @@ subtest 'located device' => sub {
         foreach my $query (@queries) {
             $t->get_ok($query)
                 ->status_is(200);
-        };
+        }
 
         $t->app->db_user_workspace_roles->delete;
 
