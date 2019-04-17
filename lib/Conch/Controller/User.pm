@@ -125,17 +125,8 @@ sub set_setting ($c) {
     # FIXME? we should have a unique constraint on user_id+name
     # rather than creating additional rows.
     $user->search_related('user_settings', { name => $key })->active->deactivate;
-    my $setting = $user->create_related('user_settings', {
-        name => $key,
-        value => to_json($value),
-    });
-
-    if ($setting) {
-        return $c->status(200);
-    }
-    else {
-        return $c->status(500, 'Failed to set setting');
-    }
+    $user->create_related('user_settings', { name => $key, value => to_json($value) });
+    return $c->status(200);
 }
 
 =head2 get_settings
