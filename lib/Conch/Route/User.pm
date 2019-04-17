@@ -23,7 +23,7 @@ Sets up the routes for /user:
     POST    /user/me/settings/#key
     DELETE  /user/me/settings/#key
 
-    GET     /user/me/token
+    GET     /user/me/token?login=<0|1>&api=<1|0>
     POST    /user/me/token
     DELETE  /user/me/token?login_only=<0|1> or ?api_only=<0|1> (same as POST /user/me/revoke)
     GET     /user/me/token/:token_name
@@ -35,7 +35,7 @@ Sets up the routes for /user:
     POST    /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
     DELETE  /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
 
-    GET     /user/#target_user_id_or_email/token
+    GET     /user/#target_user_id_or_email/token?login=<0|1>&api=<1|0>
     DELETE  /user/#target_user_id_or_email/token?login_only=<0|1> or ?api_only=<0|1> (same as POST /user/#target_user_id_or_email/revoke)
     GET     /user/#target_user_id_or_email/token/:token_name
     DELETE  /user/#target_user_id_or_email/token/:token_name
@@ -91,7 +91,7 @@ sub routes {
         {
             my $user_me_token = $user_me->any('/token');
 
-            # GET /user/me/token
+            # GET /user/me/token?login=<0|1>&api=<1|0>
             $user_me_token->get('/')->to('#get_tokens');
             # POST /user/me/token
             $user_me_token->post('/')->to('#create_token');
@@ -134,7 +134,7 @@ sub routes {
         {
             my $user_with_target_token = $user_with_target->any('/token');
 
-            # GET /user/#target_user_id_or_email/token
+            # GET /user/#target_user_id_or_email/token?login=<0|1>&api=<1|0>
             $user_with_target_token->get('/')->to('#get_tokens');
             # DELETE /user/#target_user_id_or_email/token?login_only=<0|1> or ?api_only=<0|1>
             # (same as POST /user/#target_user_id_or_email/revoke)

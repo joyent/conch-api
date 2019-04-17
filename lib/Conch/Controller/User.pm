@@ -465,12 +465,26 @@ sub deactivate ($c) {
 
 Get a list of unexpired user tokens for the user.
 
+By default this returns api tokens only, but this can be adjusted with query parameters:
+
+ * ?login=1   (default: 0)
+ * ?api=1     (default: 1)
+
 Response uses the UserTokens json schema.
 
 =cut
 
 sub get_tokens ($c) {
+    my $login = $c->req->query_params->param('login') // 0;
+    my $api = $c->req->query_params->param('api') // 1;
+
+    # logically this would yield a null result
+    return $c->status(404) if not $login and not $api;
+
     my $rs = $c->stash('target_user')->user_session_tokens->unexpired->order_by('name');
+    $rs = $rs->login_only if $login and not $api;
+    $rs = $rs->api_only if not $login and $api;
+
     return $c->status(200, [ $rs->all ]);
 }
 
