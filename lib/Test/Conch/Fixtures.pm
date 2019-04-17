@@ -739,7 +739,7 @@ around BUILDARGS => sub ($orig, $class, @args) {
             %canned_definitions,
             (delete $args->{definitions} // +{})->%*,
         },
-        %$args,
+        $args->%*,
     },
 };
 

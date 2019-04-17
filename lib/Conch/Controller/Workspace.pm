@@ -148,7 +148,7 @@ sub create_sub_workspace ($c) {
 
     my $sub_ws = $c->db_workspaces
         # we should do create_related, but due to a DBIC bug the parent_workspace_id is lost
-        ->create({ %$input, parent_workspace_id => $c->stash('workspace_id') });
+        ->create({ $input->%*, parent_workspace_id => $c->stash('workspace_id') });
 
     # signal to serializer to include role data
     $sub_ws->user_id_for_role($c->stash('user_id'));

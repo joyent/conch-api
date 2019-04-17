@@ -163,16 +163,16 @@ Response uses the Devices json schema.
 sub lookup_by_other_attribute ($c) {
     my $params = $c->req->query_params->to_hash;
 
-    return $c->status(404) if not keys %$params;
+    return $c->status(404) if not keys $params->%*;
 
     return $c->status(400, { error =>
-            'ambiguous query: specified multiple keys ('.join(', ', keys %$params).')'
-        }) if keys %$params > 1;
+            'ambiguous query: specified multiple keys ('.join(', ', keys $params->%*).')'
+        }) if keys $params->%* > 1;
 
     # TODO: not checking if the user has permissions to view this device.
     # need to get workspace(s) containing each device and filter them out.
 
-    my ($key) = keys %$params;
+    my ($key) = keys $params->%*;
     my $value = $params->{$key};
 
     $c->log->debug('looking up device by '.$key.' = '.$value);

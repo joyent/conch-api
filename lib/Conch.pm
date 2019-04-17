@@ -127,7 +127,7 @@ sub startup {
     $self->plugin(NYTProf => $self->config) if $self->feature('nytprof');
     $self->plugin('Conch::Plugin::Rollbar', $self->config) if $self->feature('rollbar');
 
-    push @{$self->commands->namespaces}, 'Conch::Command';
+    push $self->commands->namespaces->@*, 'Conch::Command';
 
     Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)
         ->check_validation_plans;

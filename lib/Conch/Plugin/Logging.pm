@@ -68,9 +68,7 @@ sub register ($self, $app, $config) {
           : 'NOT AUTHED';
 
         my $req_headers = $c->req->headers->to_hash(1);
-        for (qw(Authorization Cookie jwt_token jwt_sig)) {
-            delete $req_headers->{$_};
-        }
+        delete $req_headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
 
         my $log = {
             v        => 1,
@@ -96,9 +94,7 @@ sub register ($self, $app, $config) {
         };
 
         my $res_headers = $c->res->headers->to_hash(1);
-        for (qw(Set-Cookie)) {
-            delete $res_headers->{$_};
-        }
+        delete $res_headers->@{qw(Set-Cookie)};
 
         $log->{res} = {
             headers => $res_headers,

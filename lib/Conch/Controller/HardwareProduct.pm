@@ -157,10 +157,10 @@ sub update ($c) {
         $c->log->debug('start of transaction...');
 
         my $profile = delete $input->{hardware_product_profile};
-        if ($profile and keys %$profile) {
-            if (keys %$profile) {
+        if ($profile and keys $profile->%*) {
+            if (keys $profile->%*) {
                 if ($hardware_product->hardware_product_profile) {
-                    $hardware_product->hardware_product_profile->update({ %$profile, updated => \'now()', deactivated => undef });
+                    $hardware_product->hardware_product_profile->update({ $profile->%*, updated => \'now()', deactivated => undef });
                     $c->log->debug('Updated hardware_product_profile for hardware product '.$hardware_product->id);
                 }
                 else {
@@ -175,7 +175,7 @@ sub update ($c) {
             }
         }
 
-        $hardware_product->update({ %$input, updated => \'now()' }) if keys %$input;
+        $hardware_product->update({ $input->%*, updated => \'now()' }) if keys $input->%*;
         $c->log->debug('Updated hardware product '.$hardware_product->id);
 
         $c->log->debug('transaction ended successfully');

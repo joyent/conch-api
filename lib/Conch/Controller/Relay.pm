@@ -31,7 +31,7 @@ sub register ($c) {
 
     my $relay = $c->db_relays->update_or_create({
         id => $relay_id,
-        %$input,
+        $input->%*,
         updated    => \'now()',
         deactivated => undef,
     });

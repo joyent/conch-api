@@ -237,7 +237,7 @@ sub update ($c) {
         return $c->status(400, { error => 'ru_start conflict' });
     }
 
-    $c->stash('rack_layout')->update({ %$input, updated => \'now()' });
+    $c->stash('rack_layout')->update({ $input->%*, updated => \'now()' });
 
     return $c->status(303, '/layout/'.$c->stash('rack_layout')->id);
 }

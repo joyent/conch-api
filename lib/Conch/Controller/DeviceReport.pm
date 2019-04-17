@@ -208,14 +208,14 @@ sub _record_device_configuration {
             my $nics_num = 0;
             # switches use the 'media' attribute, and servers use 'interfaces'
             if ($dr->{media}) {
-                for my $port (keys %{$dr->{media}}) {
-                    for my $nic (keys %{ $dr->{media}->{$port}}) {
+                for my $port (keys $dr->{media}->%*) {
+                    for my $nic (keys $dr->{media}{$port}->%*) {
                         $nics_num++;
                     }
                 }
             }
             else {
-                $nics_num = scalar(keys %{$dr->{interfaces}});
+                $nics_num = scalar keys $dr->{interfaces}->%*;
             }
 
             if ($dr->{temp}) {
@@ -237,7 +237,7 @@ sub _record_device_configuration {
             my %inactive_serials;
             @inactive_serials{@device_disk_serials} = ();
 
-            foreach my $disk (keys %{$dr->{disks}}) {
+            foreach my $disk (keys $dr->{disks}->%*) {
                 $log->debug('Device '.$device->id.': Recording disk: '.$disk);
 
                 delete $inactive_serials{$disk};
@@ -289,8 +289,8 @@ sub _record_device_configuration {
                 mac => { -in => [ map $_->{mac}, values $dr->{interfaces}->%* ] },
             })->deactivate;
 
-            foreach my $nic (keys %{ $dr->{interfaces}}) {
-                my $mac = uc($dr->{interfaces}->{$nic}->{mac});
+            foreach my $nic (keys $dr->{interfaces}->%*) {
+                my $mac = uc $dr->{interfaces}{$nic}{mac};
 
                 $log->debug('Device '.$device->id.': Recording NIC: '.$mac);
                 delete $inactive_macs{$mac};

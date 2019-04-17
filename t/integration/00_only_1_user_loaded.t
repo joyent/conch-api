@@ -947,7 +947,7 @@ subtest 'modify another user' => sub {
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is({
-            %$new_user_data,
+            $new_user_data->%*,
             name => 'FOO',
             is_admin => JSON::PP::true,
         });

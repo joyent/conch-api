@@ -29,7 +29,7 @@ sub send_mail_with_template {
     # TODO: make use of Mojo::Template for more sophisticated content munging.
 
     # TODO: rewrite from Mail::Sendmail to Email::Simple before rjbs kills us.
-    if (not sendmail(%$mail_args, Message => $content)) {
+    if (not sendmail($mail_args->%*, Message => $content)) {
         $self->log->error("Sendmail error: $Mail::Sendmail::error");
         return;
     }

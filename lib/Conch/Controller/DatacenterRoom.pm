@@ -99,7 +99,7 @@ sub update ($c) {
 
     $input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
-    $c->stash('datacenter_room')->update({ %$input, updated => \'now()' });
+    $c->stash('datacenter_room')->update({ $input->%*, updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id'));
     $c->status(303, '/room/'.$c->stash('datacenter_room')->id);
 }

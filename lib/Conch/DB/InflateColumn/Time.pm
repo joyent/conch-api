@@ -38,7 +38,7 @@ sub register_column {
     # fool ::TimeMoment into thinking we can serialize this.
     # see https://rt.cpan.org/Ticket/Display.html?id=125975
     my %patched_info = (
-        %$info,
+        $info->%*,
         data_type => 'datetime',
     );
 

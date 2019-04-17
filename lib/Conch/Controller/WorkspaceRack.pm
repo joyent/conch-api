@@ -259,7 +259,7 @@ sub add ($c) {
     });
 
     # update rack with additional info, if provided.
-    if (keys %$input) {
+    if (keys $input->%*) {
         my $rack = $c->db_racks->find($rack_id);
         $rack->set_columns($input);
         $rack->update({ updated => \'now()' }) if $rack->is_changed;
@@ -308,7 +308,7 @@ sub assign_layout ($c) {
 
     try {
         $c->schema->txn_do(sub {
-            foreach my $device_id (keys %$input) {
+            foreach my $device_id (keys $input->%*) {
                 try {
                     $c->db_device_locations->assign_device_location(
                         $device_id,
@@ -336,7 +336,7 @@ sub assign_layout ($c) {
     return $c->status(409, { error => join('; ', @errors) }) if @errors;
 
     # return the list of device_ids that were assigned
-    $c->status(200, { updated => [ keys %$input ] });
+    $c->status(200, { updated => [ keys $input->%* ] });
 }
 
 1;
