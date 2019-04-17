@@ -615,7 +615,7 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
-        ->json_cmp_deeply('/workspaces' => $workspace_data{test_user},
+        ->json_is('/workspaces' => $workspace_data{test_user},
             'test user now only has rw access to everything again (via GLOBAL)');
 
     $t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")

@@ -449,7 +449,7 @@ subtest 'Device settings' => sub {
 
     $t->get_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(200)
-        ->content_is('{}');
+        ->json_is({});
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
         ->status_is(404);
