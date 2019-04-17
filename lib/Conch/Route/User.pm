@@ -16,12 +16,12 @@ Sets up the routes for /user:
 
     GET     /user/me
     POST    /user/me/revoke
+    POST    /user/me/password?clear_tokens=<login_only|0|all>
     GET     /user/me/settings
     POST    /user/me/settings
     GET     /user/me/settings/#key
     POST    /user/me/settings/#key
     DELETE  /user/me/settings/#key
-    POST    /user/me/password?clear_tokens=<login_only|0|all>
 
     GET     /user/me/token
     POST    /user/me/token
@@ -57,6 +57,11 @@ sub routes {
         # POST /user/me/revoke
         $user_me->post('/revoke')->to('#revoke_own_tokens');
 
+        # POST /user/me/password?clear_tokens=<login_only|0|all>
+        # (after changing password, (possibly) pass through to logging out too)
+        $user_me->under('/password')->to('#change_own_password')
+            ->post('/')->to('login#session_logout');
+
         {
             my $user_me_settings = $user_me->any('/settings');
 
@@ -75,11 +80,6 @@ sub routes {
             # DELETE /user/me/settings/#key
             $user_me_settings_with_key->delete('/')->to('#delete_setting');
         }
-
-        # after changing password, (possibly) pass through to logging out too
-        # POST /user/me/password?clear_tokens=<login_only|0|all>
-        $user_me->under('/password')->to('#change_own_password')
-            ->post('/')->to('login#session_logout');
 
         {
             my $user_me_token = $user_me->any('/token');
