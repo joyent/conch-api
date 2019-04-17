@@ -50,8 +50,7 @@ sub assign_device_location ($self, $device_id, $rack_id, $rack_unit_start) {
         }
 
         # remove current occupant if it exists
-        my $device_location_rs = $layout_rs->related_resultset('device_location');
-        $device_location_rs->delete if $device_location_rs->exists;
+        $layout_rs->related_resultset('device_location')->delete;
 
         # create device_location entry, moving the device's location if it already had one
         $self->update_or_create(
