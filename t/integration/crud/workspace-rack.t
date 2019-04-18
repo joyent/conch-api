@@ -99,6 +99,7 @@ subtest 'Add rack to workspace' => sub {
             role => 'rack_role 42U',
             # TODO? size => 42,
             datacenter => $room->az,
+            phase => 'integration',
             slots => [
                 {
                     id => ignore,
@@ -176,6 +177,7 @@ subtest 'Assign device to a location' => sub {
             role => 'rack_role 42U',
             # TODO? size => 42,
             datacenter => $room->az,
+            phase => 'integration',
             slots => [
                 {
                     id => ignore,

@@ -344,6 +344,34 @@ sub delete_assignment ($c) {
     return $c->status(204);
 }
 
+=head2 set_phase
+
+Updates the phase of this rack, and optionally all devices located in this rack.
+
+Use the C<rack_only> query parameter to specify whether to only update the rack's phase, or all
+located devices' phases as well.
+
+=cut
+
+sub set_phase ($c) {
+    my $input = $c->validate_input('RackPhase');
+    return if not $input;
+
+    $c->stash('rack_rs')->update({ phase => $input->{phase}, updated => \'now()' });
+    $c->log->debug('set the phase for rack '.$c->stash('rack_id').' to '.$input->{phase});
+
+    if (not $c->req->query_params->param('rack_only') // 0) {
+        $c->stash('rack_rs')
+            ->related_resultset('device_locations')
+            ->related_resultset('device')
+            ->update({ phase => $input->{phase}, updated => \'now()' });
+
+        $c->log->debug('set the phase for all devices in rack '.$c->stash('rack_id').' to '.$input->{phase});
+    }
+
+    $c->status(204);
+}
+
 1;
 __END__
 

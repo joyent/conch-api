@@ -129,7 +129,7 @@ sub get_layout ($c) {
             ->search(undef,
                 {
                     columns => {
-                        ( map {; $_ => "rack.$_" } qw(id name) ),
+                        ( map {; $_ => "rack.$_" } qw(id name phase) ),
                         role => 'rack_role.name',
                         datacenter => 'datacenter_room.az',
                         'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
@@ -155,7 +155,7 @@ sub get_layout ($c) {
         my $rsrc = $c->schema->source('device');
 
         my $layout = {
-            ( map { $_ => $raw_data[0]->{$_} } qw(id name role datacenter) ),
+            ( map { $_ => $raw_data[0]->{$_} } qw(id name role datacenter phase) ),
             slots => [
                 map {
                     my $device = delete $_->{layout}{device};

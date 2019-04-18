@@ -43,6 +43,7 @@ Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
     GET     /rack/:rack_id/assignment
     POST    /rack/:rack_id/assignment
     DELETE  /rack/:rack_id/assignment
+    POST    /rack/:rack_id/phase?rack_only=<0|1>
 
     GET     /layout
     POST    /layout
@@ -148,6 +149,9 @@ sub routes {
         $with_rack->post('/assignment')->to('#set_assignment');
         # DELETE /rack/:rack_id/assignment
         $with_rack->delete('/assignment')->to('#delete_assignment');
+
+        # POST /rack/:rack_id/phase?rack_only=<0|1>
+        $with_rack->post('/phase')->to('#set_phase');
     }
 
     # /layout

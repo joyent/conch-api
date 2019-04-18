@@ -835,6 +835,7 @@ definitions:
       - name
       - role
       - datacenter
+      - phase
       - slots
     properties:
       id:
@@ -846,6 +847,8 @@ definitions:
       datacenter:
         description: datacenter room AZ
         type: string
+      phase:
+        $ref: /definitions/device_phase
       slots:
         type: array
         uniqueItems: true
@@ -1353,6 +1356,7 @@ definitions:
       - role
       - serial_number
       - asset_tag
+      - phase
       - created
       - updated
     properties:
@@ -1372,6 +1376,8 @@ definitions:
         oneOf:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
+      phase:
+        $ref: /definitions/device_phase
       created:
         type: string
         format: date-time
