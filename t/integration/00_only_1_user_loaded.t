@@ -926,6 +926,17 @@ subtest 'modify another user' => sub {
 		->json_is('/user/name' => 'foo', 'got user name')
 		->json_is('/user/deactivated' => undef, 'got user deactivated date');
 
+    $t->post_ok('/user/email=foo@conch.joyent.us', json => { email => 'test_user@conch.joyent.us' })
+        ->status_is(409)
+        ->json_cmp_deeply({
+            error => 'duplicate user found',
+            user => superhashof({
+                email => 'test_user@conch.joyent.us',
+                name => 'test user',
+                deactivated => undef,
+            }),
+        });
+
 	$t->post_ok('/user/email=foo@conch.joyent.us', json => { name => 'FOO', is_admin => JSON::PP::true })
 		->status_is(200)
 		->json_schema_is('UserDetailed')
