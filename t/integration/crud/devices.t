@@ -48,14 +48,10 @@ subtest 'unlocated device, no registered relay' => sub {
     my $device_report_id = $t->tx->res->json->{device_report_id};
 
     $t->get_ok('/device/TEST')
-        ->status_is(403)
-        ->json_schema_is('Error')
-        ->json_is('', { error => 'Forbidden' }, 'unlocated device isn\'t visible to a ro user');
+        ->status_is(403, 'unlocated device isn\'t visible to a ro user');
 
     $t->get_ok('/device_report/'.$device_report_id)
-        ->status_is(403)
-        ->json_schema_is('Error')
-        ->json_is('', { error => 'Forbidden' }, 'unlocated device report isn\'t visible to a ro user');
+        ->status_is(403, 'unlocated device report isn\'t visible to a ro user');
 
     {
         $t->authenticate(user => $admin_user->email);
@@ -145,14 +141,10 @@ subtest 'unlocated device with a registered relay' => sub {
 
     $t->authenticate(user => $null_user->email);
     $t->get_ok('/device/TEST')
-        ->status_is(403)
-        ->json_schema_is('Error')
-        ->json_is('', { error => 'Forbidden' }, 'cannot see device without the relay connection');
+        ->status_is(403, 'cannot see device without the relay connection');
 
     $t->get_ok('/device_report/'.$validation_state->{device_report_id})
-        ->status_is(403)
-        ->json_schema_is('Error')
-        ->json_is('', { error => 'Forbidden' }, 'cannot see device report without the relay connection');
+        ->status_is(403, 'cannot see device report without the relay connection');
 
     {
         $null_user->update({ is_admin => 1 });
@@ -207,9 +199,7 @@ subtest 'located device' => sub {
     $t->txn_local('remove device from its workspace', sub ($t) {
         $t->app->db_workspace_racks->delete;
         $t->get_ok('/device/LOCATED_DEVICE')
-            ->status_is(403)
-            ->json_schema_is('Error')
-            ->json_is('', { error => 'Forbidden' }, 'device isn\'t in a workspace anymore');
+            ->status_is(403, 'device isn\'t in a workspace anymore');
     });
 
     # TODO: permissions for PUT, DELETE queries
@@ -236,9 +226,7 @@ subtest 'located device' => sub {
         $t->authenticate(user => $ro_user->email);
         foreach my $query (@queries) {
             $t->post_ok(ref $query ? $query->@* : $query)
-                ->status_is(403)
-                ->json_schema_is('Error')
-                ->json_is({ error => 'Forbidden' });
+                ->status_is(403);
         }
     };
 
@@ -283,9 +271,7 @@ subtest 'located device' => sub {
 
         foreach my $query (@queries) {
             $t->get_ok($query)
-                ->status_is(403)
-                ->json_schema_is('Error')
-                ->json_is({ error => 'Forbidden' });
+                ->status_is(403);
         }
 
         $ro_user->update({ is_admin => 1 });
