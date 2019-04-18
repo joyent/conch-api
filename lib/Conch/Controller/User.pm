@@ -468,14 +468,17 @@ sub deactivate ($c) {
 
 =head2 get_tokens
 
-Get a list of unexpired user tokens.
+Get a list of unexpired tokens for the user.
 
 Response uses the UserTokens json schema.
 
 =cut
 
 sub get_tokens ($c) {
-    my $rs = $c->db_user_session_tokens->unexpired->order_by('name');
+    my $rs = $c->stash('user')
+        ->user_session_tokens
+        ->unexpired
+        ->order_by('name');
     return $c->status(200, [ $rs->all ]);
 }
 
@@ -494,8 +497,7 @@ sub create_token ($c) {
         if $input->{name} =~ /^login_jwt_/;
 
     return $c->status(400, { error => 'name "'.$input->{name}.'" is already in use' })
-        if $c->db_user_session_tokens
-            ->search({ user_id => $c->stash('user_id'), name => $input->{name} })->exists;
+        if $c->stash('user')->user_session_tokens->search({ name => $input->{name} })->exists;
 
     # default expiration: 5 years
     my $expires_abs = time + (($c->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
@@ -527,7 +529,8 @@ Only the current user may access the token.
 =cut
 
 sub find_token ($c) {
-    my $token_rs = $c->db_user_session_tokens
+    my $token_rs = $c->stash('user')
+        ->user_session_tokens
         ->unexpired
         ->search({ user_id => $c->stash('user_id'), name => $c->stash('token_name') });
 
