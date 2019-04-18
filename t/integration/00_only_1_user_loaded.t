@@ -1137,20 +1137,14 @@ subtest 'modify another user' => sub {
 };
 
 subtest 'user tokens' => sub {
+    $t->authenticate;   # make sure we have an unexpired JWT
+
     $t->get_ok('/user/me/token')
         ->status_is(200)
         ->json_schema_is('UserTokens')
-        ->json_cmp_deeply([
-            {
-                # JWT created earlier in the login process
-                name => re(qr/^login_jwt_[\d_]+$/),
-                expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                last_used => ignore,
-            },
-        ]);
+        ->json_cmp_deeply([]);
 
-    my @existing_jwts = $t->tx->res->json->@*;
+    my @login_tokens = $conch_user->user_session_tokens->login_only->unexpired->all;
 
     $t->post_ok('/user/me/token', json => { name => 'login_jwt_1234' })
         ->status_is(400)
@@ -1164,10 +1158,10 @@ subtest 'user tokens' => sub {
             name => 'my first token',
             token => re(qr/^[^.]+\.[^.]+\.[^.]+$/), # full jwt with signature
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_used => undef,
+            expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         });
-    my ($created, $expires, $token) = $t->tx->res->json->@{qw(created expires token)};
+    my ($created, $expires, $jwt) = $t->tx->res->json->@{qw(created expires token)};
 
     cmp_deeply(
         Conch::Time->new($expires)->epoch,
@@ -1179,7 +1173,6 @@ subtest 'user tokens' => sub {
         ->status_is(200)
         ->json_schema_is('UserTokens')
         ->json_is([
-            @existing_jwts,
             {
                 name => 'my first token',
                 created => $created,
@@ -1187,6 +1180,9 @@ subtest 'user tokens' => sub {
                 expires => $expires,
             },
         ]);
+
+    $t->get_ok('/user/me/token/'.$login_tokens[0]->name)
+        ->status_is(404, 'cannot retrieve login tokens');
 
     $t->get_ok('/user/me/token/my first token')
         ->status_is(200)
@@ -1203,7 +1199,7 @@ subtest 'user tokens' => sub {
         ->json_is({ error => 'name "my first token" is already in use' });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
-    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$token })
+    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$jwt })
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => $t2->CONCH_EMAIL);
@@ -1228,7 +1224,7 @@ subtest 'user tokens' => sub {
     $t->get_ok('/user/me/token')
         ->status_is(200)
         ->json_schema_is('UserTokens')
-        ->json_is(\@existing_jwts);
+        ->json_is([]);
 
     $t->get_ok('/user/me/token/my first token')
         ->status_is(404);
@@ -1237,7 +1233,7 @@ subtest 'user tokens' => sub {
         ->status_is(404);
 
     $t2 = Test::Conch->new(pg => $t->pg);
-    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$token })
+    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$jwt })
         ->status_is(401);
 };
 

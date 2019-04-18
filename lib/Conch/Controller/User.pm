@@ -466,29 +466,30 @@ sub deactivate ($c) {
 	return $c->status(204);
 }
 
-=head2 get_tokens
+=head2 get_api_tokens
 
-Get a list of unexpired tokens for the user.
+Get a list of unexpired tokens for the user (api only).
 
 Response uses the UserTokens json schema.
 
 =cut
 
-sub get_tokens ($c) {
+sub get_api_tokens ($c) {
     my $rs = $c->stash('user')
         ->user_session_tokens
+        ->api_only
         ->unexpired
         ->order_by('name');
     return $c->status(200, [ $rs->all ]);
 }
 
-=head2 create_token
+=head2 create_api_token
 
 Create a new token, creating a JWT from it.  Response uses the NewUserToken json schema.
 
 =cut
 
-sub create_token ($c) {
+sub create_api_token ($c) {
     my $input = $c->validate_input('NewUserToken');
     return if not $input;
 
@@ -519,16 +520,17 @@ sub create_token ($c) {
     });
 }
 
-=head2 find_token
+=head2 find_api_token
 
 Chainable action that takes the 'token_name' provided in the path and looks it up in the
 database, stashing a resultset to access it as 'token_rs'.
 
-Only the current user may access the token.
+Only the current user may access the token. Only api tokens may be retrieved by this flow.
 
 =cut
 
-sub find_token ($c) {
+sub find_api_token ($c) {
+    return $c->status(404) if $c->stash('token_name') =~ /^login_jwt_/;
     my $token_rs = $c->stash('user')
         ->user_session_tokens
         ->unexpired
@@ -543,25 +545,25 @@ sub find_token ($c) {
     return 1;
 }
 
-=head2 get_token
+=head2 get_api_token
 
-Get information about the specified (unexpired) token.
+Get information about the specified (unexpired) api token.
 
 Response uses the UserToken json schema.
 
 =cut
 
-sub get_token ($c) {
+sub get_api_token ($c) {
     return $c->status(200, $c->stash('token_rs')->single);
 }
 
-=head2 expire_token
+=head2 expire_api_token
 
-Deactivates a token from future use.
+Deactivates an api token from future use.
 
 =cut
 
-sub expire_token ($c) {
+sub expire_api_token ($c) {
     $c->stash('token_rs')->expire;
     return $c->status(204);
 }

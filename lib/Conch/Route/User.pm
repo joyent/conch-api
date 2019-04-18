@@ -84,17 +84,17 @@ sub routes {
             my $user_me_token = $user_me->any('/token');
 
             # GET /user/me/token
-            $user_me_token->get('/')->to('#get_tokens');
+            $user_me_token->get('/')->to('#get_api_tokens');
             # POST /user/me/token
-            $user_me_token->post('/')->to('#create_token');
+            $user_me_token->post('/')->to('#create_api_token');
 
-            my $with_token = $user_me_token->under('/:token_name')->to('#find_token');
+            my $with_token = $user_me_token->under('/:token_name')->to('#find_api_token');
 
             # GET /user/me/token/:token_name
-            $with_token->get('/')->to('#get_token');
+            $with_token->get('/')->to('#get_api_token');
 
             # DELETE /user/me/token/:token_name
-            $with_token->delete('/')->to('#expire_token');
+            $with_token->delete('/')->to('#expire_api_token');
         }
     }
 
