@@ -67,7 +67,8 @@ Chainable resultset to search for login tokens (created via the main /login flow
 =cut
 
 sub login_only ($self) {
-    $self->search({ name => { '-similar to' => 'login_jwt_[0-9_]+' } });
+    my $me = $self->current_source_alias;
+    $self->search({ $me.'.name' => { '-similar to' => 'login_jwt_[0-9_]+' } });
 }
 
 =head2 expire
