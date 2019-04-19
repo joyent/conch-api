@@ -170,8 +170,7 @@ sub delete_setting ($c) {
         ->active
         ->deactivate;
 
-    return $c->status(404) if not $count;
-    return $c->status(204);
+    return $c->status($count ? 204 : 404);
 }
 
 =head2 change_own_password
