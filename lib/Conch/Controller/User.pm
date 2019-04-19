@@ -281,12 +281,12 @@ sub reset_user_password ($c) {
 
     return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
 
-    $c->log->info('sending "password was changed" mail to user '.$user->name);
-    $c->send_mail(changed_user_password => {
-        name     => $user->name,
-        email    => $user->email,
+    $c->send_mail(
+        template_file => 'changed_user_password',
+        From => 'noreply@conch.joyent.us',
+        Subject => 'Your Conch password has changed.',
         password => $update{password},
-    });
+    );
     return $c->status(202);
 }
 
@@ -384,11 +384,13 @@ sub create ($c) {
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 
     if ($c->req->query_params->param('send_mail') // 1) {
-        $c->log->info('sending "welcome new user" mail to user '.$user->name);
-        $c->send_mail(welcome_new_user => {
-            (map +($_ => $user->$_), qw(name email)),
+        $c->stash('target_user', $user);
+        $c->send_mail(
+            template_file => 'new_user_account',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Welcome to Conch!',
             password => $password,
-        });
+        );
     }
 
     return $c->status(201, { map +($_ => $user->$_), qw(id email name) });

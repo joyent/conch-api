@@ -1497,6 +1497,113 @@ DISTRIBUTIONS
       base 0
       strict 0
       warnings 0
+  Email-Abstract-3.008
+    pathname: R/RJ/RJBS/Email-Abstract-3.008.tar.gz
+    provides:
+      Email::Abstract 3.008
+      Email::Abstract::EmailMIME 3.008
+      Email::Abstract::EmailSimple 3.008
+      Email::Abstract::MIMEEntity 3.008
+      Email::Abstract::MailInternet 3.008
+      Email::Abstract::MailMessage 3.008
+      Email::Abstract::Plugin 3.008
+    requirements:
+      Carp 0
+      Email::Simple 1.998
+      ExtUtils::MakeMaker 0
+      MRO::Compat 0
+      Module::Pluggable 1.5
+      Scalar::Util 0
+      perl 5.006
+      strict 0
+      warnings 0
+  Email-Address-1.912
+    pathname: R/RJ/RJBS/Email-Address-1.912.tar.gz
+    provides:
+      Email::Address 1.912
+    requirements:
+      ExtUtils::MakeMaker 0
+      overload 0
+      strict 0
+      warnings 0
+  Email-Date-Format-1.005
+    pathname: R/RJ/RJBS/Email-Date-Format-1.005.tar.gz
+    provides:
+      Email::Date::Format 1.005
+    requirements:
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      Time::Local 0
+      strict 0
+      warnings 0
+  Email-Sender-1.300031
+    pathname: R/RJ/RJBS/Email-Sender-1.300031.tar.gz
+    provides:
+      Email::Sender 1.300031
+      Email::Sender::Failure 1.300031
+      Email::Sender::Failure::Multi 1.300031
+      Email::Sender::Failure::Permanent 1.300031
+      Email::Sender::Failure::Temporary 1.300031
+      Email::Sender::Manual 1.300031
+      Email::Sender::Manual::QuickStart 1.300031
+      Email::Sender::Role::CommonSending 1.300031
+      Email::Sender::Role::HasMessage 1.300031
+      Email::Sender::Simple 1.300031
+      Email::Sender::Success 1.300031
+      Email::Sender::Success::Partial 1.300031
+      Email::Sender::Transport 1.300031
+      Email::Sender::Transport::DevNull 1.300031
+      Email::Sender::Transport::Failable 1.300031
+      Email::Sender::Transport::Maildir 1.300031
+      Email::Sender::Transport::Mbox 1.300031
+      Email::Sender::Transport::Print 1.300031
+      Email::Sender::Transport::SMTP 1.300031
+      Email::Sender::Transport::SMTP::Persistent 1.300031
+      Email::Sender::Transport::Sendmail 1.300031
+      Email::Sender::Transport::Test 1.300031
+      Email::Sender::Transport::Wrapper 1.300031
+      Email::Sender::Util 1.300031
+    requirements:
+      Carp 0
+      Email::Abstract 3.006
+      Email::Address 0
+      Email::Simple 1.998
+      ExtUtils::MakeMaker 0
+      Fcntl 0
+      File::Basename 0
+      File::Path 2.06
+      File::Spec 0
+      IO::File 1.11
+      IO::Handle 0
+      List::Util 1.45
+      Module::Runtime 0
+      Moo 2.000000
+      Moo::Role 0
+      MooX::Types::MooseLike 0.15
+      MooX::Types::MooseLike::Base 0
+      Net::SMTP 3.07
+      Scalar::Util 0
+      Sub::Exporter 0
+      Sub::Exporter::Util 0
+      Sys::Hostname 0
+      Throwable::Error 0.200003
+      Try::Tiny 0
+      strict 0
+      utf8 0
+      warnings 0
+  Email-Simple-2.216
+    pathname: R/RJ/RJBS/Email-Simple-2.216.tar.gz
+    provides:
+      Email::Simple 2.216
+      Email::Simple::Creator 2.216
+      Email::Simple::Header 2.216
+    requirements:
+      Carp 0
+      Email::Date::Format 0
+      ExtUtils::MakeMaker 0
+      perl 5.008
+      strict 0
+      warnings 0
   Email-Valid-1.202
     pathname: R/RJ/RJBS/Email-Valid-1.202.tar.gz
     provides:
@@ -2004,23 +2111,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006
-  Mail-Sendmail-0.80
-    pathname: N/NE/NEILB/Mail-Sendmail-0.80.tar.gz
-    provides:
-      Mail::Sendmail 0.80
-    requirements:
-      Digest::MD5 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      MIME::Base64 0
-      Socket 0
-      Sys::Hostname 0
-      Time::Local 0
-      parent 0
-      perl 5.006
-      strict 0
-      vars 0
-      warnings 0
   MailTools-2.20
     pathname: M/MA/MARKOV/MailTools-2.20.tar.gz
     provides:
@@ -2434,6 +2524,14 @@ DISTRIBUTIONS
       Module::Runtime 0
       Moo 1.003000
       Role::Tiny 0
+  MooX-Types-MooseLike-0.29
+    pathname: M/MA/MATEU/MooX-Types-MooseLike-0.29.tar.gz
+    provides:
+      MooX::Types::MooseLike 0.29
+      MooX::Types::MooseLike::Base 0.29
+    requirements:
+      ExtUtils::MakeMaker 0
+      Module::Runtime 0.014
   Mozilla-CA-20180117
     pathname: A/AB/ABH/Mozilla-CA-20180117.tar.gz
     provides:
@@ -3325,6 +3423,22 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008
+  Throwable-0.200013
+    pathname: R/RJ/RJBS/Throwable-0.200013.tar.gz
+    provides:
+      StackTrace::Auto 0.200013
+      Throwable 0.200013
+      Throwable::Error 0.200013
+    requirements:
+      Carp 0
+      Devel::StackTrace 1.32
+      ExtUtils::MakeMaker 0
+      Module::Runtime 0.002
+      Moo 1.000001
+      Moo::Role 0
+      Scalar::Util 0
+      Sub::Quote 0
+      overload 0
   Tie-Hash-Method-0.02
     pathname: Y/YV/YVES/Tie-Hash-Method-0.02.tar.gz
     provides:

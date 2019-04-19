@@ -166,7 +166,8 @@ subtest 'User' => sub {
     my $api_token = $t->tx->res->json->{token};
 
     $t->post_ok('/user/me/password', json => { password => 'øƕḩẳȋ' })
-        ->status_is(204, 'changed password');
+        ->status_is(204, 'changed password')
+        ->email_not_sent;
 
     $t->get_ok('/user/me/settings')
         ->status_is(401, 'session tokens revoked too');
@@ -269,16 +270,28 @@ subtest 'Workspaces' => sub {
     is($t->app->db_user_workspace_roles->count, 1,
         'currently one user_workspace_role entry');
 
-    $t->post_ok('/user?send_mail=0',
+    $t->post_ok('/user',
             json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
         ->status_is(201, 'created new user test_user')
-        ->json_schema_is('User');
+        ->json_schema_is('User')
+        ->email_cmp_deeply({
+            To => '"test user" <test_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Welcome to Conch!',
+            body => re(qr/\R\R^\s*Username:\s+test user\R^\s*Email:\s+test_user\@conch\.joyent\.us\R^\s*Password:\s+123\R\R/m),
+        });
 
-    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$global_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(201, 'added the user to the GLOBAL workspace');
+        ->status_is(201, 'added the user to the GLOBAL workspace')
+        ->email_cmp_deeply({
+            To => '"test user" <test_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Welcome to Conch!',
+            body => re(qr/^You have been added to the "GLOBAL" workspace at Joyent Conch\./m),
+        });
 
     is($t->app->db_user_workspace_roles->count, 2,
         'now there is another user_workspace_role entry');
@@ -518,7 +531,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'data for users who can access grandchild workspace');
 
-    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
@@ -527,7 +540,7 @@ subtest 'Sub-Workspace' => sub {
     is($t->app->db_user_workspace_roles->count, 2,
         'still just two user_workspace_role entries');
 
-    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'ro',
         })
@@ -545,13 +558,13 @@ subtest 'Sub-Workspace' => sub {
 
     # now let's try manipulating permissions on the workspace in the middle of the hierarchy
 
-    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$child_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
         ->status_is(200, 'redundant add requests do nothing');
 
-    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$child_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'ro',
         })
@@ -625,17 +638,20 @@ subtest 'Sub-Workspace' => sub {
     $t->post_ok('/user',
             json => { email => 'untrusted/user@conch.joyent.us', name => 'me', password => '123' })
         ->status_is(400)
-        ->json_cmp_deeply({ error => re(qr/email: .*does not match/) });
+        ->json_cmp_deeply({ error => re(qr/email: .*does not match/) })
+        ->email_not_sent;
 
     $t->post_ok('/user',
             json => { email => 'untrusted_user@conch.joyent.us', name => 'me', password => '123' })
         ->status_is(400)
-        ->json_is({ error => 'user name "me" is prohibited' });
+        ->json_is({ error => 'user name "me" is prohibited' })
+        ->email_not_sent;
 
     $t->post_ok('/user?send_mail=0',
             json => { email => 'untrusted_user@conch.joyent.us', name => 'untrusted user', password => '123' })
         ->status_is(201, 'created new untrusted user')
-        ->json_schema_is('User');
+        ->json_schema_is('User')
+        ->email_not_sent;
 
     $t->post_ok('/workspace/child_ws/user?send_mail=0', json => {
             user => 'untrusted_user@conch.joyent.us',
@@ -863,7 +879,7 @@ subtest 'modify another user' => sub {
         ->status_is(400, 'user name "me" is prohibited')
         ->json_is({ error => 'user name "me" is prohibited' });
 
-    $t->post_ok('/user?send_mail=0', json => { name => 'foo', email => $t->CONCH_EMAIL })
+    $t->post_ok('/user', json => { name => 'foo', email => $t->CONCH_EMAIL })
         ->status_is(409, 'cannot create user with a duplicate email address')
         ->json_schema_is('UserError')
         ->json_is({
@@ -875,9 +891,10 @@ subtest 'modify another user' => sub {
                     created => $conch_user->created,
                     deactivated => undef,
                 }
-            });
+            })
+        ->email_not_sent;
 
-    $t->post_ok('/user?send_mail=0',
+    $t->post_ok('/user',
             json => { name => $t->CONCH_USER, email => uc($t->CONCH_EMAIL) })
         ->status_is(409, 'emails are not case sensitive when checking for duplicate users')
         ->json_schema_is('UserError')
@@ -890,7 +907,8 @@ subtest 'modify another user' => sub {
                     created => $conch_user->created,
                     deactivated => undef,
                 }
-            });
+            })
+        ->email_not_sent;
 
     $t->post_ok('/user?send_mail=0',
             json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
@@ -898,7 +916,8 @@ subtest 'modify another user' => sub {
         ->json_schema_is('User')
         ->json_has('/id', 'got user id')
         ->json_is('/email' => 'foo@conch.joyent.us', 'got email')
-        ->json_is('/name' => 'foo', 'got name');
+        ->json_is('/name' => 'foo', 'got name')
+        ->email_not_sent;
 
     my $new_user_id = $t->tx->res->json->{id};
     my $new_user = $t->app->db_user_accounts->find($new_user_id);
@@ -1012,22 +1031,34 @@ subtest 'modify another user' => sub {
         $orig_update->(@_);
     };
 
-    $t->delete_ok('/user/foobar/password?send_password_reset_mail=0')
+    $t->delete_ok('/user/foobar/password')
         ->status_is(400, 'bad format')
         ->json_is({ error => 'invalid identifier format for foobar' });
 
-    $t->delete_ok('/user/email=foobar/password?send_password_reset_mail=0')
+    $t->delete_ok('/user/email=foobar/password')
         ->status_is(400, 'bad format')
         ->json_is({ error => 'invalid identifier format for email=foobar' });
 
-    $t->delete_ok('/user/email=foobar@conch.joyent.us/password?send_password_reset_mail=0')
+    $t->delete_ok('/user/email=foobar@conch.joyent.us/password')
         ->status_is(404, 'attempted to reset the password for a non-existent user');
 
-    $t->delete_ok("/user/$new_user_id/password?send_password_reset_mail=0")
-        ->status_is(204, 'reset the new user\'s password');
+    $t->delete_ok("/user/$new_user_id/password")
+        ->status_is(202, 'reset the new user\'s password')
+        ->email_cmp_deeply({
+            To => '"FOO" <foo@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch password has changed.',
+            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    foo\@conch.joyent.us\R    Password: .*\R/ms),
+        });
 
-    $t->delete_ok('/user/email=FOO@CONCH.JOYENT.US/password?send_password_reset_mail=0')
-        ->status_is(204, 'reset the new user\'s password again, using (case insensitive) email lookup');
+    $t->delete_ok('/user/email=FOO@CONCH.JOYENT.US/password')
+        ->status_is(202, 'reset the new user\'s password again, with case insensitive email lookup')
+        ->email_cmp_deeply({
+            To => '"FOO" <foo@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch password has changed.',
+            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    foo\@conch.joyent.us\R    Password: .*\R\R/ms),
+        });
     my $insecure_password = $_new_password;
 
     $t2->get_ok('/me')

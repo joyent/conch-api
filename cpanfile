@@ -11,7 +11,6 @@ requires 'Cpanel::JSON::XS', '4.10';
 requires 'List::MoreUtils::XS';         # make List::MoreUtils faster
 requires 'Data::UUID';
 requires 'List::Compare';
-requires 'Mail::Sendmail';
 requires 'Try::Tiny';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
@@ -26,6 +25,9 @@ requires 'Carp';
 requires 'Crypt::Eksblowfish::Bcrypt';
 requires 'Module::Runtime';
 requires 'Email::Valid';
+requires 'Email::Simple';
+requires 'Email::Sender::Simple';
+requires 'Email::Sender::Transport::SMTP';
 
 # mojolicious and networking
 requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS

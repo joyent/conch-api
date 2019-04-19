@@ -15,6 +15,7 @@ use List::Util 'maxstr';
 use Conch::DB::Util;
 use Scalar::Util 'blessed';
 use Mojo::URL;
+use Scalar::Util 'weaken';
 
 =pod
 
@@ -35,6 +36,8 @@ Includes JSON validation ability via L<Test::MojoSchema>.
 use constant CONCH_USER => 'conch';
 use constant CONCH_EMAIL => 'conch@conch.joyent.us';
 use constant CONCH_PASSWORD => CONCH_EMAIL;
+
+$ENV{EMAIL_SENDER_TRANSPORT} = 'Test';  # see Email::Sender::Manual::QuickStart
 
 =head1 METHODS
 
@@ -116,6 +119,12 @@ sub new {
         },
         { recurse => 1 },
     );
+
+    weaken(my $t = $self);
+    $self->app->plugins->on(mail_composed => sub ($, $email, @) {
+        Test::More::note 'mail composed with Subject: '.$email->header('Subject');
+        push $t->{_mail_composed}->@*, $email;
+    });
 
     return $self;
 }
@@ -424,6 +433,72 @@ sub txn_local ($self, $test_name, $subref, @args) {
     Test::More::subtest($test_name => $subref, $self, @args);
 
     $self->app->schema->txn_rollback;
+}
+
+=head2 email_cmp_deeply
+
+Wrapper around L<Test::Deep/cmp_deeply> to test the email(s) that were "sent".
+C<$got> should contain a hashref, or an arrayref of hashrefs, containing the headers and
+content of the message(s), allowing you to test any portion of these that you like using
+cmp_deeply constructs.
+
+    $t->email_cmp_deeply({
+        To => '"Foo" <foo@conch.us>',
+        From => '"Admin' <admin@conch.us>',
+        Subject => 'About your new account',
+        body => re(qr/^An account has been created for you.*Username:\s+foo.*Email:\s+foo@conch.us\s+Password:/ms),
+    });
+
+A default 'From' header corresponding to the main test user is added as a default to your
+C<$expected> messages if you don't provide one.
+
+Remember: "Line endings in the body will normalized to CRLF." (see L<Email::Simple/create>)
+
+=cut
+
+sub email_cmp_deeply ($self, $expected, $test_name = 'email was sent correctly') {
+    return $self->_test('fail', 'an email was delivered')
+        if not $self->{_mail_composed} or not $self->{_mail_composed}->@*;
+
+    $self->_test(
+        'Test::Deep::cmp_deeply',
+        [
+            map +{
+                To => $_->header('To'),
+                From => $_->header('From'),
+                Subject => $_->header('Subject'),
+                body => $_->body,
+            },
+            $self->{_mail_composed}->@*
+        ],
+        [
+            map +{
+                From => '"'.$self->CONCH_USER.'" <'.$self->CONCH_EMAIL.'>', # overridable default
+                $_->%*,
+            },
+            ref $expected eq 'ARRAY' ? $expected->@* : $expected
+        ],
+        $test_name,
+    );
+}
+
+=head2 email_not_sent
+
+Tests that *no* email was sent as a result of the last request.
+
+=cut
+
+sub email_not_sent ($self) {
+    return $self->_test(
+        'ok',
+        (!$self->{_mail_composed} || !$self->{_mail_composed}->@*),
+        'no email was sent',
+    );
+}
+
+sub _request_ok ($self, @args) {
+    undef $self->{_mail_composed};
+    $self->next::method(@args);
 }
 
 1;

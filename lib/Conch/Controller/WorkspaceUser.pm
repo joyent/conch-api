@@ -94,12 +94,12 @@ sub add_user ($c) {
     }
 
     if ($c->req->query_params->param('send_mail') // 1) {
-        $c->log->info('sending welcome mail to user '.$user->name);
-        $c->send_mail(workspace_add_user => {
-            name    => $user->name,
-            email    => $user->email,
+        $c->send_mail(
+            template_file => 'workspace_add_user',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Welcome to Conch!',
             workspace => $c->stash('workspace_rs')->get_column('name')->single,
-        });
+        );
     }
 
     my $workspace_id = $c->stash('workspace_id');
