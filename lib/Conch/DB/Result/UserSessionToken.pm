@@ -153,7 +153,7 @@ Boolean indicating whether this token was created via the main /login flow.
 =cut
 
 sub is_login ($self) {
-    $self->name =~ /^login_jwt_\d+$/;
+    $self->name =~ /^login_jwt_[\d_]+$/;
 }
 
 1;

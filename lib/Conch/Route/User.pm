@@ -1,6 +1,6 @@
 package Conch::Route::User;
 
-use Mojo::Base -strict;
+use Mojo::Base -strict, -signatures;
 
 =pod
 
@@ -15,13 +15,13 @@ Conch::Route::User
 Sets up the routes for /user:
 
     GET     /user/me
-    POST    /user/me/revoke
+    POST    /user/me/revoke?login_only=<0|1> or ?api_only=<0|1>
+    POST    /user/me/password?clear_tokens=<login_only|0|all>
     GET     /user/me/settings
     POST    /user/me/settings
     GET     /user/me/settings/#key
     POST    /user/me/settings/#key
     DELETE  /user/me/settings/#key
-    POST    /user/me/password?clear_tokens=<0|login_only|all>
 
     GET     /user/me/token
     POST    /user/me/token
@@ -30,12 +30,16 @@ Sets up the routes for /user:
 
     GET     /user/#target_user_id_or_email
     POST    /user/#target_user_id_or_email
-    DELETE  /user/#target_user_id_or_email?clear_tokens=<0|1>
-    POST    /user/#target_user_id_or_email/revoke
-    DELETE  /user/#target_user_id_or_email/password
-    DELETE  /user/#target_user_id_or_email/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
+    DELETE  /user/#target_user_id_or_email?clear_tokens=<1|0>
+    POST    /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
+    DELETE  /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
+
+    GET     /user/#target_user_id_or_email/token
+    GET     /user/#target_user_id_or_email/token/:token_name
+    DELETE  /user/#target_user_id_or_email/token/:token_name
+
     GET     /user
-    POST    /user?send_mail=<0|1>
+    POST    /user?send_mail=<1|0>
 
 =cut
 
@@ -48,14 +52,20 @@ sub routes {
 
     # interfaces for user updating their own account...
     {
-        # all these routes are under /user/
-        my $user_me = $user->any('/me');
+        # all /user/me routes operate with the target user set to ourselves
+        my $user_me = $user->under('/me')
+            ->to(cb => sub ($c) { $c->stash('target_user', $c->stash('user')); return 1 });
 
         # GET /user/me
-        $user_me->get('/')->to('#get_me');
+        $user_me->get('/')->to('#get');
 
-        # POST /user/me/revoke
-        $user_me->post('/revoke')->to('#revoke_own_tokens');
+        # POST /user/me/revoke?login_only=<0|1> or ?api_only=<0|1>
+        $user_me->post('/revoke')->to('#revoke_user_tokens');
+
+        # POST /user/me/password?clear_tokens=<login_only|0|all>
+        # (after changing password, (possibly) pass through to logging out too)
+        $user->under('/me/password')->to('#change_own_password')
+            ->post('/')->to('login#session_logout');
 
         {
             my $user_me_settings = $user_me->any('/settings');
@@ -76,26 +86,21 @@ sub routes {
             $user_me_settings_with_key->delete('/')->to('#delete_setting');
         }
 
-        # after changing password, (possibly) pass through to logging out too
-        # POST /user/me/password?clear_tokens=<0|login_only|all>
-        $user_me->under('/password')->to('#change_own_password')
-            ->post('/')->to('login#session_logout');
-
         {
             my $user_me_token = $user_me->any('/token');
 
             # GET /user/me/token
-            $user_me_token->get('/')->to('#get_tokens');
+            $user_me_token->get('/')->to('#get_api_tokens');
             # POST /user/me/token
-            $user_me_token->post('/')->to('#create_token');
+            $user_me_token->post('/')->to('#create_api_token');
 
-            my $with_token = $user_me_token->under('/:token_name')->to('#find_token');
+            my $with_token = $user_me_token->under('/:token_name')->to('#find_api_token');
 
             # GET /user/me/token/:token_name
-            $with_token->get('/')->to('#get_token');
+            $with_token->get('/')->to('#get_api_token');
 
             # DELETE /user/me/token/:token_name
-            $with_token->delete('/')->to('#expire_token');
+            $with_token->delete('/')->to('#expire_api_token');
         }
     }
 
@@ -109,18 +114,33 @@ sub routes {
         $user_with_target->get('/')->to('#get');
         # POST /user/#target_user_id_or_email
         $user_with_target->post('/')->to('#update');
-        # DELETE /user/#target_user_id_or_email?clear_tokens=<0|1>
+        # DELETE /user/#target_user_id_or_email?clear_tokens=<1|0>
         $user_with_target->delete('/')->to('#deactivate');
 
-        # POST /user/#target_user_id_or_email/revoke
+        # POST /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
-        # DELETE /user/#target_user_id_or_email/password?clear_tokens=<0|login_only|all>&send_password_reset_mail=<0|1>
+        # DELETE /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user
         $user->require_system_admin->get('/')->to('#list');
-        # POST /user?send_mail=<0|1>
+        # POST /user?send_mail=<1|0>
         $user->require_system_admin->post('/')->to('#create');
+
+        {
+            my $user_with_target_token = $user_with_target->any('/token');
+
+            # GET /user/#target_user_id_or_email/token
+            $user_with_target_token->get('/')->to('#get_api_tokens');
+
+            my $with_token = $user_with_target_token->under('/:token_name')->to('#find_api_token');
+
+            # GET /user/#target_user_id_or_email/token/:token_name
+            $with_token->get('/')->to('#get_api_token');
+
+            # DELETE /user/#target_user_id_or_email/token/:token_name
+            $with_token->delete('/')->to('#expire_api_token');
+        }
     }
 }
 

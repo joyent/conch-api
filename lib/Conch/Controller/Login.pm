@@ -8,6 +8,7 @@ with 'Conch::Role::MojoLog';
 use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
+use Time::HiRes ();
 
 =pod
 
@@ -40,7 +41,7 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
     my ($new_token_row, $token) = $c->db_user_session_tokens->generate_for_user(
         $user_id,
         $expires_abs,
-        'login_jwt_'.int(time), # reasonably unique name
+        'login_jwt_'.join('_', Time::HiRes::gettimeofday), # reasonably unique name
     );
 
 	my $jwt = Mojo::JWT->new(
@@ -243,9 +244,6 @@ sub session_login ($c) {
 	unless ($c->feature('stop_conch_cookie_issue')) {
 		$c->session( 'user' => $user->id );
 	}
-
-    # expire and delete any old session login JWTs for this user (there should only be one!)
-    $user->user_session_tokens->login_only->unexpired->expire;
 
 	# clear out all expired session tokens
 	$c->db_user_session_tokens->expired->delete;

@@ -19,31 +19,39 @@ Conch::Controller::User
 
 =head1 METHODS
 
-=head2 revoke_own_tokens
-
-Revoke all the user's own session tokens.
-B<NOTE>: This will cause the next request to fail authentication.
-
-=cut
-
-sub revoke_own_tokens ($c) {
-	$c->log->debug('revoking user token for user ' . $c->stash('user')->name . ' at their request');
-	$c->stash('user')->delete_related('user_session_tokens');
-	$c->status(204);
-}
-
 =head2 revoke_user_tokens
 
-Revoke *all* of a specified user's session tokens. System admin only.
+Revoke a specified user's tokens and prevents future token authentication,
+forcing the user to /login again. By default *all* of a user's tokens are deleted,
+but this can be adjusted with query parameters:
+
+ * ?login_only=1    login tokens are removed; api tokens are left alone
+ * ?api_only=1      login tokens are left alone; api tokens are removed
+
+If login tokens are affected, C<user_session_auth> is also set for the user, which forces the
+user to change his password as soon as a login token is used again (but use of any existing api
+tokens is allowed).
+
+System admin only (unless reached via /user/me).
 
 =cut
 
 sub revoke_user_tokens ($c) {
-	my $user = $c->stash('target_user');
+    my $login_only = $c->req->query_params->param('login_only') // 0;
+    my $api_only = $c->req->query_params->param('api_only') // 0;
 
+    # logically this would yield a null result
+    return $c->status(400, { error => 'cannot use login_only and api_only together' })
+        if $login_only and $api_only;
+
+    my $user = $c->stash('target_user');
 	$c->log->debug('revoking session tokens for user ' . $user->name . ', forcing them to /login again');
-	$user->delete_related('user_session_tokens');
-	$user->update({ refuse_session_auth => 1 });
+    my $rs = $user->user_session_tokens->unexpired;
+    $rs = $rs->login_only if $login_only;
+    $rs = $rs->api_only if $api_only;
+    $rs->expire;
+
+    $user->update({ refuse_session_auth => 1 }) if $login_only;
 
 	$c->status(204);
 }
@@ -58,7 +66,7 @@ sub set_settings ($c) {
     my $input = $c->validate_input('UserSettings');
     return if not $input;
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -74,7 +82,7 @@ sub set_settings ($c) {
 
 =head2 set_setting
 
-Set the value of a single setting for the user
+Set the value of a single setting for the target user.
 
 FIXME: the key name is repeated in the URL and the payload :(
 
@@ -94,7 +102,7 @@ sub set_setting ($c) {
 		}
 	) unless $value;
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -118,12 +126,12 @@ sub set_setting ($c) {
 
 =head2 get_settings
 
-Get the key/values of every setting for a User
+Get the key/values of every setting for a user.
 
 =cut
 
 sub get_settings ($c) {
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -138,14 +146,14 @@ sub get_settings ($c) {
 
 =head2 get_setting
 
-Get the individual key/value pair for a setting for the User
+Get the individual key/value pair for a setting for the target user.
 
 =cut
 
 sub get_setting ($c) {
 	my $key = $c->stash('key');
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -161,14 +169,14 @@ sub get_setting ($c) {
 
 =head2 delete_setting
 
-Delete a single setting for a user, provided it was set previously
+Delete a single setting for a user, provided it was set previously.
 
 =cut
 
 sub delete_setting ($c) {
 	my $key = $c->stash('key');
 
-	my $user = $c->stash('user');
+    my $user = $c->stash('target_user');
 	Mojo::Exception->throw('Could not find previously stashed user')
 		unless $user;
 
@@ -320,7 +328,7 @@ sub find_user ($c) {
 
 =head2 get
 
-Gets information about a user. System admin only.
+Gets information about a user. System admin only (unless reached via /user/me).
 Response uses the UserDetailed json schema.
 
 =cut
@@ -348,19 +356,6 @@ sub update ($c) {
 	$user->update($input);
 
 	$user->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
-	return $c->status(200, $user);
-}
-
-=head2 get_me
-
-Just like 'get', only for the logged-in user.
-Response uses the UserDetailed json schema.
-
-=cut
-
-sub get_me ($c) {
-	my $user = $c->stash('user')
-		->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
 	return $c->status(200, $user);
 }
 
@@ -466,26 +461,30 @@ sub deactivate ($c) {
 	return $c->status(204);
 }
 
-=head2 get_tokens
+=head2 get_api_tokens
 
-Get a list of unexpired user tokens.
+Get a list of unexpired tokens for the user (api only).
 
 Response uses the UserTokens json schema.
 
 =cut
 
-sub get_tokens ($c) {
-    my $rs = $c->db_user_session_tokens->unexpired->order_by('name');
+sub get_api_tokens ($c) {
+    my $rs = $c->stash('target_user')
+        ->user_session_tokens
+        ->api_only
+        ->unexpired
+        ->order_by('name');
     return $c->status(200, [ $rs->all ]);
 }
 
-=head2 create_token
+=head2 create_api_token
 
 Create a new token, creating a JWT from it.  Response uses the NewUserToken json schema.
 
 =cut
 
-sub create_token ($c) {
+sub create_api_token ($c) {
     my $input = $c->validate_input('NewUserToken');
     return if not $input;
 
@@ -493,46 +492,52 @@ sub create_token ($c) {
     return $c->status(400, { error => 'name "'.$input->{name}.'" is reserved' })
         if $input->{name} =~ /^login_jwt_/;
 
+    my $user = $c->stash('target_user');
+
     return $c->status(400, { error => 'name "'.$input->{name}.'" is already in use' })
-        if $c->db_user_session_tokens
-            ->search({ user_id => $c->stash('user_id'), name => $input->{name} })->exists;
+        if $user->user_session_tokens->search({ name => $input->{name} })->exists;
 
     # default expiration: 5 years
     my $expires_abs = time + (($c->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
 
     # TODO: ew ew ew, some duplication with Conch::Controller::Login::_create_jwt.
     my ($new_db_row, $token) = $c->db_user_session_tokens->generate_for_user(
-        $c->stash('user_id'), $expires_abs, $input->{name});
+        $user->id, $expires_abs, $input->{name});
 
     my $jwt = Mojo::JWT->new(
-        claims => { uid => $c->stash('user_id'), jti => $token },
+        claims => { uid => $user->id, jti => $token },
         secret => $c->config('secrets')->[0],
         expires => $expires_abs,
     )->encode;
 
-    $c->res->headers->location($c->url_for('/user/me/token/'.$input->{name}));
+    $c->res->headers->location($c->url_for('/user/'
+        .($user->id eq $c->stash('user_id') ? 'me' : $user->id)
+        .'/token/'.$input->{name}));
     return $c->status(201, {
         token => $jwt,
         $new_db_row->TO_JSON->%*,
     });
 }
 
-=head2 find_token
+=head2 find_api_token
 
 Chainable action that takes the 'token_name' provided in the path and looks it up in the
 database, stashing a resultset to access it as 'token_rs'.
 
-Only the current user may access the token.
+Only api tokens may be retrieved by this flow.
 
 =cut
 
-sub find_token ($c) {
-    my $token_rs = $c->db_user_session_tokens
+sub find_api_token ($c) {
+    return $c->status(404) if $c->stash('token_name') =~ /^login_jwt_/;
+    my $token_rs = $c->stash('target_user')
+        ->user_session_tokens
         ->unexpired
-        ->search({ user_id => $c->stash('user_id'), name => $c->stash('token_name') });
+        ->search({ name => $c->stash('token_name') });
 
     if (not $token_rs->exists) {
-        $c->log->debug('Could not find token named "'.$c->stash('token_name').' for user_id '.$c->stash('user_id'));
+        $c->log->debug('Could not find token named "'.$c->stash('token_name')
+            .' for user_id '.$c->stash('target_user')->id);
         return $c->status(404);
     }
 
@@ -540,25 +545,27 @@ sub find_token ($c) {
     return 1;
 }
 
-=head2 get_token
+=head2 get_api_token
 
-Get information about the specified (unexpired) token.
+Get information about the specified (unexpired) api token.
 
 Response uses the UserToken json schema.
 
 =cut
 
-sub get_token ($c) {
+sub get_api_token ($c) {
     return $c->status(200, $c->stash('token_rs')->single);
 }
 
-=head2 expire_token
+=head2 expire_api_token
 
-Deactivates a token from future use.
+Deactivates an api token from future use.
 
 =cut
 
-sub expire_token ($c) {
+sub expire_api_token ($c) {
+    $c->log->warn('user '.$c->stash('user')->name.' expired user session token "'
+        .$c->stash('token_name').'" for user '.$c->stash('target_user')->name);
     $c->stash('token_rs')->expire;
     return $c->status(204);
 }
