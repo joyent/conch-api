@@ -188,7 +188,7 @@ subtest 'located device' => sub {
             hardware_product => $hardware_product_id,
             location => {
                 rack => {
-                    (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag)),
+                    (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag phase)),
                     role => $rack->rack_role_id,
                     (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
                 },

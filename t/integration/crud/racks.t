@@ -72,7 +72,17 @@ $t->post_ok('/rack', json => {
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('Rack')
-    ->json_cmp_deeply(superhashof({ name => 'r4ck' }));
+    ->json_cmp_deeply({
+        id => re(Conch::UUID::UUID_FORMAT),
+        name => 'r4ck',
+        datacenter_room_id => $rack->datacenter_room_id,
+        role => $rack->rack_role_id,
+        serial_number => undef,
+        asset_tag => undef,
+        phase => 'integration',
+        created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+    });
 my $new_rack_id = $t->tx->res->json->{id};
 
 my $small_rack_role = $t->app->db_rack_roles->create({ name => '10U', rack_size => 10 });
@@ -180,6 +190,50 @@ $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('RackAssignments')
     ->json_is($assignments);
+
+subtest 'rack phases' => sub {
+    my $device_phase_rs = $t->app->db_devices
+        ->search({ id => { -in => [ grep defined, map $_->{device_id}, $assignments->@* ] } })
+        ->columns([qw(id phase)])->hri;
+
+    cmp_deeply(
+        [ $device_phase_rs->all ],
+        bag(
+            { id => 'FOO', phase => 'integration' },
+            { id => $device->id, phase => 'integration' },
+        ),
+        'all assigned devices are initially in the integration phase',
+    );
+
+    $t->post_ok('/rack/'.$rack->id.'/phase?rack_only=1', json => { phase => 'production' })
+        ->status_is(204);
+
+    $t->get_ok('/rack/'.$rack->id)
+        ->status_is(200)
+        ->json_schema_is('Rack')
+        ->json_is('/phase', 'production');
+
+    cmp_deeply(
+        [ $device_phase_rs->all ],
+        bag(
+            { id => 'FOO', phase => 'integration' },
+            { id => $device->id, phase => 'integration' },
+        ),
+        'all assigned devices are still in the integration phase',
+    );
+
+    $t->post_ok('/rack/'.$rack->id.'/phase', json => { phase => 'production' })
+        ->status_is(204);
+
+    cmp_deeply(
+        [ $device_phase_rs->all ],
+        bag(
+            { id => 'FOO', phase => 'production' },
+            { id => $device->id, phase => 'production' },
+        ),
+        'all assigned devices are moved to the production phase',
+    );
+};
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {

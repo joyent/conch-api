@@ -492,7 +492,8 @@ CREATE TABLE public.rack (
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     serial_number text,
-    asset_tag text
+    asset_tag text,
+    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL
 );
 
 

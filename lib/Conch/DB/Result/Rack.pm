@@ -78,6 +78,13 @@ __PACKAGE__->table("rack");
   data_type: 'text'
   is_nullable: 1
 
+=head2 phase
+
+  data_type: 'enum'
+  default_value: 'integration'
+  extra: {custom_type_name => "device_phase_enum",list => ["integration","installation","production","diagnostics","decommissioned"]}
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -112,6 +119,22 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "asset_tag",
   { data_type => "text", is_nullable => 1 },
+  "phase",
+  {
+    data_type => "enum",
+    default_value => "integration",
+    extra => {
+      custom_type_name => "device_phase_enum",
+      list => [
+        "integration",
+        "installation",
+        "production",
+        "diagnostics",
+        "decommissioned",
+      ],
+    },
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -214,8 +237,12 @@ Composing rels: L</workspace_racks> -> workspace
 __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-07 10:14:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:G50OZHxFNQDcAfKEuYUX+w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-04-18 13:31:36
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gsU10g932Bm/rPRdxIykyA
+
+__PACKAGE__->add_columns(
+    '+phase' => { retrieve_on_insert => 1 },
+);
 
 sub TO_JSON {
     my $self = shift;

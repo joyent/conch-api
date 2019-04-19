@@ -91,6 +91,8 @@ definitions:
         $ref: /definitions/uuid
       role:
         $ref: /definitions/uuid
+      phase:
+        $ref: /definitions/device_phase
   RackUpdate:
     type: object
     additionalProperties: false
@@ -109,6 +111,8 @@ definitions:
         oneOf:
           - type: 'null'
           - type: string
+      phase:
+        $ref: /definitions/device_phase
   RackAssignmentUpdates:
     type: array
     uniqueItems: true
@@ -147,6 +151,14 @@ definitions:
       rack_unit_start:
         type: integer
         description: Starting RU slot position
+  RackPhase:
+    type: object
+    additionaProperties: false
+    required:
+      - phase
+    properties:
+      phase:
+        $ref: /definitions/device_phase
   RackRoleCreate:
     type: object
     additionalProperties: false
