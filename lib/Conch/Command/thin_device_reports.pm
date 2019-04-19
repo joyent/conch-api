@@ -71,7 +71,7 @@ sub run ($self, @opts) {
                 $validation_results_deleted += $deleted[1];
             }
             catch {
-                if ($_ =~ /Rollback failed/) {
+                if (/Rollback failed/) {
                     local $@ = $_;
                     die;    # propagate the error
                 }

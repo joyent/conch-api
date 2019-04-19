@@ -326,7 +326,7 @@ sub assign_layout ($c) {
         });
     }
     catch {
-        if ($_ =~ /Rollback failed/) {
+        if (/Rollback failed/) {
             local $@ = $_;
             die;    # propagate the error
         }
