@@ -351,6 +351,14 @@ sub update ($c) {
 	my $input = $c->validate_input('UpdateUser');
 	return if not $input;
 
+    if (exists $input->{email}
+            and my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$input->{email})) {
+        return $c->status(409, {
+            error => 'duplicate user found',
+            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
+        });
+    }
+
 	my $user = $c->stash('target_user');
 	$c->log->debug('updating user '.$user->email.': '.$c->req->text);
 	$user->update($input);
