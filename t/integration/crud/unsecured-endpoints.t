@@ -15,6 +15,7 @@ $t->get_ok('/ping')
 
 $t->get_ok('/version')
     ->status_is(200)
+    ->json_schema_is('Version')
     ->json_cmp_deeply({ version => re(qr/^v/) });
 
 
