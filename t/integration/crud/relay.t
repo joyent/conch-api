@@ -41,46 +41,104 @@ my @rack_layouts = map {
     \@_layouts
 } @workspace_ids;
 
-# create two relays
-my @relays = $t->app->db_relays->populate([
-    map +{
-        id => "relay$_",
-        alias => "relay_number_$_",
-        version => "v1.$_",
-        ipaddr => "192.168.${_}.2",
-        ssh_port => 123,
-        created => '2000-01-01',
-        updated => '2018-02-01',
-    }, (0..1)
-]);
+$t->post_ok('/relay/relay'.$_.'/register',
+        json => {
+            serial => 'relay'.$_,
+            alias => 'relay_number_'.$_,
+            version => 'v1.'.$_,
+            ipaddr => '192.168.'.$_.'.2',
+            ssh_port => 123,
+        })
+    ->status_is(204)
+foreach (0..1);
+
+my $relay0 = $t->app->db_relays->find('relay0');
+cmp_deeply(
+    [ $relay0->user_relay_connections ],
+    [
+        methods(
+            user_id => $t->app->db_user_accounts->search({ email => $t->CONCH_EMAIL })->get_column('id')->single,
+            first_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        ),
+    ],
+    'user_relay_connection timestamps are set',
+);
+
+$t->get_ok('/relay')
+    ->status_is(200)
+    ->json_schema_is('Relays')
+    ->json_cmp_deeply([
+        map +{
+            id => 'relay'.$_,
+            alias => 'relay_number_'.$_,
+            version => 'v1.'.$_,
+            ipaddr => '192.168.'.$_.'.2',
+            ssh_port => 123,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        }, (0..1)
+    ]);
+
+$relay0->user_relay_connections->update({
+    first_seen => '1999-01-01',
+    last_seen => '1999-01-01',
+});
+
+$t->post_ok('/relay/relay0/register',
+        json => {
+            serial => 'relay0',
+            version => 'v2.0',
+        })
+    ->status_is(204);
+
+$relay0->discard_changes;    # reload from db
+
+$t->get_ok('/relay')
+    ->status_is(200)
+    ->json_schema_is('Relays')
+    ->json_cmp_deeply('', superbagof(superhashof({
+            id => 'relay0',
+            version => 'v2.0',
+        })), 'version was updated');
+
+my $y2000 = Conch::Time->new(year => 2000);
+cmp_ok(($relay0->user_relay_connections)[0]->first_seen, '<', $y2000, 'first_seen was not updated');
+cmp_ok(($relay0->user_relay_connections)[0]->last_seen, '>', $y2000, 'last_seen was updated');
+
 
 # now register the relays on various devices in both workspace racks...
 
-$relays[0]->create_related('device_relay_connections', $_) foreach (
+$t->app->db_device_relay_connections->create($_) foreach (
     {
+        relay_id => 'relay0',
         device_id => 'DEVICE0',         # workspace 0, layout 0
         first_seen => '2001-01-01',
         last_seen => '2018-01-01',
     },
     {
+        relay_id => 'relay0',
         device_id => 'DEVICE5',         # workspace 1, layout 2
         first_seen => '2001-01-01',
         last_seen => '2018-01-02',      # <-- latest known location for relay0
     },
 );
 
-$relays[1]->create_related('device_relay_connections', $_) foreach (
+$t->app->db_device_relay_connections->create($_) foreach (
     {
+        relay_id => 'relay1',
         device_id => 'DEVICE2',         # workspace 0, layout 2
         first_seen => '2001-01-01',
         last_seen => '2018-01-02',
     },
     {
+        relay_id => 'relay1',
         device_id => 'DEVICE4',         # workspace 1, layout 1
         first_seen => '2001-01-01',
         last_seen => '2018-01-03',
     },
     {
+        relay_id => 'relay1',
         device_id => 'DEVICE0',         # workspace 0, layout 0
         first_seen => '2001-01-01',
         last_seen => '2018-01-04',      # <-- latest known location for relay1
@@ -92,15 +150,15 @@ subtest list => sub {
     $t->get_ok("/workspace/$global_ws_id/relay")
         ->status_is(200)
         ->json_schema_is('WorkspaceRelays')
-        ->json_is([
+        ->json_cmp_deeply([
             {
                 id      => 'relay0',
                 alias   => 'relay_number_0',
-                version => 'v1.0',
+                version => 'v2.0',
                 ipaddr  => '192.168.0.2',
                 ssh_port => 123,
-                created => '2000-01-01T00:00:00.000Z',
-                updated => '2018-02-01T00:00:00.000Z',
+                created => ignore,
+                updated => ignore,
                 location => {
                     $rack_layouts[1][2]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 1a',
@@ -116,8 +174,8 @@ subtest list => sub {
                 version => 'v1.1',
                 ipaddr  => '192.168.1.2',
                 ssh_port => 123,
-                created => '2000-01-01T00:00:00.000Z',
-                updated => '2018-02-01T00:00:00.000Z',
+                created => ignore,
+                updated => ignore,
                 location => {
                     $rack_layouts[0][0]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 0a',
