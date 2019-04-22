@@ -284,7 +284,7 @@ sub reset_user_password ($c) {
 	}
 
 	$c->log->warn('user ' . $c->stash('user')->name . ' resetting password for user ' . $user->name);
-	$user->update(\%update);
+	$user->update({ %update });
 
 	return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
 
