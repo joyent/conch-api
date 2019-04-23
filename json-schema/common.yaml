@@ -40,3 +40,16 @@ definitions:
   non_empty_string:
     type: string
     minLength: 1
+  # see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders
+  mojo_standard_placeholder:
+    type: string
+    pattern: "^[^/.]+$"
+  # see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders
+  mojo_relaxed_placeholder:
+    type: string
+    pattern: "^[^/]+$"
+  email_address:
+    allOf:
+      - type: string
+        format: email
+      - $ref: /definitions/mojo_relaxed_placeholder

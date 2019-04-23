@@ -19,6 +19,8 @@ definitions:
     $ref: common.yaml#/definitions/macaddr
   int_or_stringy_int:
     $ref: common.yaml#/definitions/int_or_stringy_int
+  email_address:
+    $ref: common.yaml#/definitions/email_address
   DatacenterCreate:
     type: object
     additionalProperties: false
@@ -425,8 +427,7 @@ definitions:
       - email
     properties:
       email:
-        type: string
-        format: email
+        $ref: /definitions/email_address
   UserPassword:
     type: object
     additionalProperties: false
@@ -444,8 +445,7 @@ definitions:
       name:
         type: string
       email:
-        type: string
-        format: email
+        $ref: /definitions/email_address
       password:
         type: string
       is_admin:
@@ -457,8 +457,7 @@ definitions:
       name:
         type: string
       email:
-        type: string
-        format: email
+        $ref: /definitions/email_address
       is_admin:
         type: boolean
   UserSetting:
@@ -527,8 +526,7 @@ definitions:
       - role
     properties:
       user:
-        type: string
-        format: email
+        $ref: /definitions/email_address
       role:
         type: string
         enum:

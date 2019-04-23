@@ -615,6 +615,15 @@ subtest 'Sub-Workspace' => sub {
 	$t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
 		->status_is(201, 'deleting again is a no-op');
 
+    $t->post_ok('/user',
+            json => { email => 'untrusted/user@conch.joyent.us', name => 'me', password => '123' })
+        ->status_is(400)
+        ->json_cmp_deeply({ error => re(qr/email: .*does not match/) });
+
+    $t->post_ok('/user',
+            json => { email => 'untrusted_user@conch.joyent.us', name => 'me', password => '123' })
+        ->status_is(400)
+        ->json_is({ error => 'user name "me" is prohibited' });
 
 	$t->post_ok('/user?send_mail=0',
 		json => { email => 'untrusted_user@conch.joyent.us', name => 'untrusted user', password => '123' })
