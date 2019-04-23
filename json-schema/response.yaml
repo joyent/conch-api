@@ -52,12 +52,12 @@ definitions:
     type: object
     additionalProperties: false
     required:
+      - id
       - asset_tag
       - created
       - hardware_product
       - health
       - hostname
-      - id
       - graduated
       - last_seen
       - latest_triton_reboot
@@ -76,6 +76,8 @@ definitions:
       - latest_report
       - invalid_report
     properties:
+      id:
+        $ref: /definitions/device_id
       asset_tag:
         oneOf:
           - $ref: /definitions/device_asset_tag
@@ -91,8 +93,6 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
-      id:
-        $ref: /definitions/device_id
       graduated:
         oneOf:
           - type: string
@@ -140,7 +140,7 @@ definitions:
         $ref: /definitions/device_phase
       location:
         oneOf:
-          - $ref: "#/definitions/DeviceLocation"
+          - $ref: /definitions/DeviceLocation
           - type: 'null'
       nics: # NOTE: see also DeviceNic
         type: array
@@ -269,17 +269,17 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Device"
+      $ref: /definitions/Device
   Device:
     type: object
     additionalProperties: false
     required:
+      - id
       - asset_tag
       - created
       - hardware_product
       - health
       - hostname
-      - id
       - graduated
       - last_seen
       - latest_triton_reboot
@@ -294,6 +294,8 @@ definitions:
       - rack_id
       - rack_unit_start
     properties:
+      id:
+        $ref: /definitions/device_id
       asset_tag:
         oneOf:
           - $ref: /definitions/device_asset_tag
@@ -309,8 +311,6 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
-      id:
-        $ref: /definitions/device_id
       graduated:
         oneOf:
           - type: string
@@ -439,13 +439,13 @@ definitions:
                   - vendor_name
                 properties:
                   name:
-                    type: string
                     description: datacenter.region
+                    type: string
                   vendor_name:
+                    description: datacenter.vendor_name
                     oneOf:
                       - type: 'null'
                       - type: string
-                    description: datacenter.vendor_name
               rack:
                 type: object
                 additionalProperties: false
@@ -522,13 +522,13 @@ definitions:
                 - vendor_name
               properties:
                 name:
-                  type: string
                   description: datacenter.region
+                  type: string
                 vendor_name:
+                  description: datacenter.vendor_name
                   oneOf:
                     - type: 'null'
                     - type: string
-                  description: datacenter.vendor_name
             rack:
               type: object
               additionalProperties: false
@@ -584,10 +584,8 @@ definitions:
       rack_unit_start:
         type: integer
       target_hardware_product:
+        description: Details of the hardware product the device is expected to be based on its current position and the rack layout.
         type: object
-        description: >
-          Details of the hardware product the device is expected to be based
-          on its current position and the rack layout.
         additionalProperties: false
         required:
           - id
@@ -596,22 +594,23 @@ definitions:
           - vendor
         properties:
           id:
-            $ref: /definitions/uuid
-            description: Hardware product ID
+            allOf:
+              - description: hardware product ID
+              - $ref: /definitions/uuid
           name:
-            type: string
             description: Hardware product name
+            type: string
           alias:
-            type: string
             description: Hardware product alias
-          vendor:
             type: string
+          vendor:
             description: Hardware product vendor name
+            type: string
   HardwareProducts:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/HardwareProduct"
+      $ref: /definitions/HardwareProduct
   HardwareProduct:
     type: object
     additionalProperties: false
@@ -640,8 +639,9 @@ definitions:
           - type: string
           - type: 'null'
       hardware_vendor_id:
-        description: Hardware product vendor id
-        $ref: /definitions/uuid
+        allOf:
+          - description: Hardware product vendor id
+          - $ref: /definitions/uuid
       generation_name:
         oneOf:
           - type: string
@@ -673,12 +673,12 @@ definitions:
     type: object
     additionalProperties: false
     required:
+      - id
       - bios_firmware
       - cpu_num
       - cpu_type
       - dimms_num
       - hba_firmware
-      - id
       - nics_num
       - psu_total
       - purpose
@@ -702,6 +702,8 @@ definitions:
       - raid_lun_num
       - usb_num
     properties:
+      id:
+        $ref: /definitions/uuid
       bios_firmware:
         type: string
       cpu_num:
@@ -714,8 +716,6 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
-      id:
-        $ref: /definitions/uuid
       nics_num:
         type: integer
       psu_total:
@@ -858,36 +858,37 @@ definitions:
           type: object
           additionalProperties: false
           required:
+            - id
             - rack_unit_start
             - alias
-            - id
             - name
             - size
             - vendor
             - occupant
           properties:
-            rack_unit_start:
-              type: integer
-              description: Starting RU slot position
-            alias:
-              type: string
-              description: Hardware product alias
             id:
-              $ref: /definitions/uuid
-              description: Hardware product ID
-            name:
-              type: string
-              description: Hardware product name
-            size:
+              allOf:
+                - description: Hardware product ID
+                - $ref: /definitions/uuid
+            rack_unit_start:
+              description: Starting RU slot position
               type: integer
-              description: Number of RUs for slot
-            vendor:
+            alias:
+              description: Hardware product alias
               type: string
+            name:
+              description: Hardware product name
+              type: string
+            size:
+              description: Number of RUs for slot
+              type: integer
+            vendor:
               description: Hardware product vendor
+              type: string
             occupant:
               description: Device assigned to this slot, if any
               oneOf:
-                - $ref: "#/definitions/Device"
+                - $ref: /definitions/Device
                 - type: 'null'
   WorkspaceRackLayoutUpdateResponse:
     type: object
@@ -906,7 +907,7 @@ definitions:
   Validations:
     type: array
     items:
-      $ref: "#/definitions/Validation"
+      $ref: /definitions/Validation
   Validation:
     type: object
     additionalProperties: false
@@ -942,7 +943,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/ValidationPlan"
+      $ref: /definitions/ValidationPlan
   ValidationPlan:
     type: object
     additionalProperties: false
@@ -1041,7 +1042,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/ValidationStateWithResults"
+      $ref: /definitions/ValidationStateWithResults
   ValidationStateWithResults:
     type: object
     additionalProperties: false
@@ -1071,7 +1072,7 @@ definitions:
         type: array
         uniqueItems: true
         items:
-          $ref: "#/definitions/ValidationResult"
+          $ref: /definitions/ValidationResult
       status:
         $ref: /definitions/validation_status
       validation_plan_id:
@@ -1192,8 +1193,9 @@ definitions:
           - rw
           - admin
       role_via:
-        description: the id of the workspace where the permissions came from
-        $ref: /definitions/uuid
+        allOf:
+          - description: the id of the workspace where the permissions came from
+          - $ref: /definitions/uuid
   WorkspacesAndRoles:
     type: array
     uniqueItems: true
@@ -1220,8 +1222,9 @@ definitions:
         role:
           type: string
         role_via:
-          description: this is the id of the workspace where the permissions came from
-          $ref: /definitions/uuid
+          allOf:
+            - description: this is the id of the workspace where the permissions came from
+            - $ref: /definitions/uuid
   Datacenters:
     type: array
     uniqueItems: true
@@ -1285,8 +1288,9 @@ definitions:
           - type: string
           - type: 'null'
       datacenter:
-        description: datacenter id
-        $ref: /definitions/uuid
+        allOf:
+          - description: datacenter id
+          - $ref: /definitions/uuid
       created:
         type: string
         format: date-time
@@ -1297,19 +1301,21 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Relay"
+      $ref: /definitions/Relay
   Relay:
     type: object
     additionalProperties: false
     required:
+      - id
       - alias
       - created
-      - id
       - ipaddr
       - ssh_port
       - updated
       - version
     properties:
+      id:
+        $ref: /definitions/relay_id
       alias:
         oneOf:
           - type: string
@@ -1317,8 +1323,6 @@ definitions:
       created:
         type: string
         format: date-time
-      id:
-        $ref: /definitions/relay_id
       ipaddr:
         oneOf:
           - $ref: /definitions/ipaddr
@@ -1346,7 +1350,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Rack"
+      $ref: /definitions/Rack
   Rack:
     type: object
     additionalProperties: false
@@ -1411,12 +1415,12 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/RackRole"
+      $ref: /definitions/RackRole
   RackLayouts:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/RackLayout"
+      $ref: /definitions/RackLayout
   RackLayout:
     type: object
     additionalProperties: false
@@ -1466,14 +1470,14 @@ definitions:
           - $ref: /definitions/device_asset_tag
           - type: 'null'
       hardware_product:
-        type: string
         description: name of the hardware_product designated for that slot
+        type: string
       rack_unit_start:
-        type: integer
         description: Starting RU slot position
-      rack_unit_size:
         type: integer
+      rack_unit_size:
         description: number of slots (expected to be) occupied by the hardware
+        type: integer
   User:
     type: object
     additionalProperties: false

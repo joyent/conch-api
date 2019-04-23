@@ -308,7 +308,7 @@ $t->get_ok('/schema/request/Login')
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         type => 'object',
         properties => {
-            user => { '$ref' => '/definitions/non_empty_string' },
+            user => { allOf => supersetof({'$ref' => '/definitions/non_empty_string'}) },
             password => { '$ref' => '/definitions/non_empty_string' },
         },
         definitions => {
