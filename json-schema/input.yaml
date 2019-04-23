@@ -19,6 +19,8 @@ definitions:
     $ref: common.yaml#/definitions/macaddr
   int_or_stringy_int:
     $ref: common.yaml#/definitions/int_or_stringy_int
+  email_address:
+    $ref: common.yaml#/definitions/email_address
   DatacenterCreate:
     type: object
     additionalProperties: false
@@ -167,7 +169,7 @@ definitions:
       - rack_size
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       rack_size:
         type: integer
   RackRoleUpdate:
@@ -425,8 +427,7 @@ definitions:
       - email
     properties:
       email:
-        type: string
-        format: email
+        $ref: /definitions/email_address
   UserPassword:
     type: object
     additionalProperties: false
@@ -444,8 +445,7 @@ definitions:
       name:
         type: string
       email:
-        type: string
-        format: email
+        $ref: /definitions/email_address
       password:
         type: string
       is_admin:
@@ -457,17 +457,19 @@ definitions:
       name:
         type: string
       email:
-        type: string
-        format: email
+        $ref: /definitions/email_address
       is_admin:
         type: boolean
   UserSetting:
-    type: object
-    minProperties: 1
-    maxProperties: 1
+    allOf:
+      - $ref: /definitions/UserSettings
+      - type: object
+        maxProperties: 1
   UserSettings:
     type: object
     minProperties: 1
+    propertyNames:
+      $ref: common.yaml#/definitions/mojo_relaxed_placeholder
   NewUserToken:
     type: object
     additionalProperties: false
@@ -514,7 +516,9 @@ definitions:
       - name
     properties:
       name:
-        $ref: /definitions/non_empty_string
+        allOf:
+          - $ref: /definitions/non_empty_string
+          - $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         oneOf:
           - type: 'null'
@@ -527,8 +531,7 @@ definitions:
       - role
     properties:
       user:
-        type: string
-        format: email
+        $ref: /definitions/email_address
       role:
         type: string
         enum:
@@ -562,12 +565,17 @@ definitions:
       phase:
         $ref: /definitions/device_phase
   DeviceSetting:
-    type: object
-    minProperties: 1
-    maxProperties: 1
+    allOf:
+      - $ref: /definitions/DeviceSettings
+      - type: object
+        maxProperties: 1
   DeviceSettings:
     type: object
+    additionalProperties:
+      type: string
     minProperties: 1
+    propertyNames:
+      $ref: common.yaml#/definitions/mojo_relaxed_placeholder
   WorkspaceRoomReplace:
     type: array
     uniqueItems: true

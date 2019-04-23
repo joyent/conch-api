@@ -457,6 +457,9 @@ subtest 'Device settings' => sub {
     $t->post_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(400, 'Requires body');
 
+    $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
+        ->status_is(404);
+
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
         ->status_is(200)
         ->content_is('');
@@ -468,6 +471,10 @@ subtest 'Device settings' => sub {
     $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
         ->status_is(200)
         ->json_is('/foo', 'bar', 'Setting was stored');
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => { bar => 'baz' } })
+        ->status_is(400)
+        ->json_cmp_deeply({ error => re(qr/foo: /) });  # validation failure
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { no_match => 'gibbet' })
         ->status_is(400, 'Fail if parameter and key do not match');

@@ -89,7 +89,7 @@ FIXME: the key name is repeated in the URL and the payload :(
 =cut
 
 sub set_setting ($c) {
-    my $input = $c->validate_input('DeviceSetting');
+    my $input = $c->validate_input('UserSetting');
     return if not $input;
 
 	my $key   = $c->stash('key');
