@@ -571,6 +571,8 @@ definitions:
         maxProperties: 1
   DeviceSettings:
     type: object
+    additionalProperties:
+      type: string
     minProperties: 1
     propertyNames:
       $ref: common.yaml#/definitions/mojo_relaxed_placeholder
