@@ -457,6 +457,9 @@ subtest 'Device settings' => sub {
     $t->post_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(400, 'Requires body');
 
+    $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
+        ->status_is(404);
+
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
         ->status_is(200)
         ->content_is('');

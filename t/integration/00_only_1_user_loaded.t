@@ -56,6 +56,9 @@ subtest 'User' => sub {
 		->status_is(400)
 		->json_is({ error => "Setting key in request object must match name in the URL ('TEST')", });
 
+    $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
+        ->status_is(404);
+
 	$t->post_ok('/user/me/settings/TEST' => json => { 'TEST' => 'TEST' })
 		->status_is(200)
 		->content_is('');
@@ -68,19 +71,19 @@ subtest 'User' => sub {
 		->status_is(200)
 		->json_is('', { 'TEST' => 'TEST' });
 
-	$t->post_ok('/user/me/settings/TEST2' => json => { 'TEST2' => 'test' })
+	$t->post_ok('/user/me/settings/TEST2' => json => { 'TEST2' => { foo => 'bar' } })
 		->status_is(200)
 		->content_is('');
 
 	$t->get_ok('/user/me/settings/TEST2')
 		->status_is(200)
-		->json_is('', { 'TEST2' => 'test' });
+		->json_is('', { 'TEST2' => { foo => 'bar' } });
 
 	$t->get_ok('/user/me/settings')
 		->status_is(200)
 		->json_is('', {
 			'TEST'  => 'TEST',
-			'TEST2' => 'test',
+			'TEST2' => { foo => 'bar' },
 		});
 
 	$t->delete_ok('/user/me/settings/TEST')
@@ -88,7 +91,7 @@ subtest 'User' => sub {
 		->content_is('');
 	$t->get_ok('/user/me/settings')
 		->status_is(200)
-		->json_is('', { 'TEST2' => 'test' });
+		->json_is('', { 'TEST2' => { foo => 'bar' } });
 
 	$t->delete_ok('/user/me/settings/TEST2')
 		->status_is(204)
@@ -355,6 +358,14 @@ subtest 'Sub-Workspace' => sub {
 	$t->post_ok("/workspace/$global_ws_id/child")
 		->status_is(400, 'No body is bad request')
 		->json_like('/error', qr/Expected object/);
+
+    $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'foo/bar' })
+        ->status_is(400)
+        ->json_cmp_deeply({ error => re(qr/name: .*does not match/) });
+
+    $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'foo.bar' })
+        ->status_is(400)
+        ->json_cmp_deeply({ error => re(qr/name: .*does not match/) });
 
 	$t->post_ok("/workspace/$global_ws_id/child" => json => { name => 'GLOBAL' })
 		->status_is(400, 'Cannot create duplicate workspace')
