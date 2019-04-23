@@ -1175,12 +1175,12 @@ subtest 'user tokens (our own)' => sub {
         ->status_is(400)
         ->json_is({ error => 'name "login_jwt_1234" is reserved' });
 
-    $t->post_ok('/user/me/token', json => { name => 'my first token' })
+    $t->post_ok('/user/me/token', json => { name => 'my first 💩 // to.ken @@' })
         ->status_is(201)
         ->json_schema_is('NewUserToken')
-        ->location_is('/user/me/token/my first token')
+        ->location_is('/user/me/token/my first 💩 // to.ken @@')
         ->json_cmp_deeply({
-            name => 'my first token',
+            name => 'my first 💩 // to.ken @@',
             token => re(qr/^[^.]+\.[^.]+\.[^.]+$/), # full jwt with signature
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_used => undef,
@@ -1199,7 +1199,7 @@ subtest 'user tokens (our own)' => sub {
         ->json_schema_is('UserTokens')
         ->json_is([
             {
-                name => 'my first token',
+                name => 'my first 💩 // to.ken @@',
                 created => $created,
                 last_used => undef,
                 expires => $expires,
@@ -1209,19 +1209,19 @@ subtest 'user tokens (our own)' => sub {
     $t->get_ok('/user/me/token/'.$login_tokens[0]->name)
         ->status_is(404, 'cannot retrieve login tokens');
 
-    $t->get_ok('/user/me/token/my first token')
+    $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(200)
         ->json_schema_is('UserToken')
         ->json_is({
-            name => 'my first token',
+            name => 'my first 💩 // to.ken @@',
             created => $created,
             last_used => undef,
             expires => $expires,
         });
 
-    $t->post_ok('/user/me/token', json => { name => 'my first token' })
+    $t->post_ok('/user/me/token', json => { name => 'my first 💩 // to.ken @@' })
         ->status_is(400)
-        ->json_is({ error => 'name "my first token" is already in use' });
+        ->json_is({ error => 'name "my first 💩 // to.ken @@" is already in use' });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$jwt })
@@ -1230,14 +1230,14 @@ subtest 'user tokens (our own)' => sub {
         ->json_is('/email' => $t2->CONCH_EMAIL);
     undef $t2;
 
-    $t->delete_ok('/user/me/token/my first token')
+    $t->delete_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(204)
         ->content_is('');
 
-    $t->get_ok('/user/me/token/my first token')
+    $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(404);
 
-    my $last_used = $t->app->db_user_session_tokens->search({ name => 'my first token' })
+    my $last_used = $t->app->db_user_session_tokens->search({ name => 'my first 💩 // to.ken @@' })
         ->as_epoch('last_used')->get_column('last_used')->single;
 
     cmp_deeply(
@@ -1251,10 +1251,10 @@ subtest 'user tokens (our own)' => sub {
         ->json_schema_is('UserTokens')
         ->json_is([]);
 
-    $t->get_ok('/user/me/token/my first token')
+    $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(404);
 
-    $t->delete_ok('/user/me/token/my first token')
+    $t->delete_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(404);
 
     $t2 = Test::Conch->new(pg => $t->pg);
@@ -1279,10 +1279,10 @@ subtest 'user tokens (someone else\'s)' => sub {
     my $t_other_user = Test::Conch->new(pg => $t->pg);
     $t_other_user->authenticate(user => $email, password => $password);
 
-    $t_other_user->post_ok('/user/me/token', json => { name => 'my first token' })
+    $t_other_user->post_ok('/user/me/token', json => { name => 'my first 💩 // to.ken @@' })
         ->status_is(201)
         ->json_schema_is('NewUserToken')
-        ->location_is('/user/me/token/my first token');
+        ->location_is('/user/me/token/my first 💩 // to.ken @@');
     my @jwts = $t_other_user->tx->res->json->{token};
 
     $t->get_ok('/user/email='.$email.'/token')
@@ -1290,7 +1290,7 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->json_schema_is('UserTokens')
         ->json_cmp_deeply([
             {
-                name => 'my first token',
+                name => 'my first 💩 // to.ken @@',
                 created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_used => ignore,
                 expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),

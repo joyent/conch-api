@@ -25,8 +25,8 @@ Sets up the routes for /user:
 
     GET     /user/me/token
     POST    /user/me/token
-    GET     /user/me/token/:token_name
-    DELETE  /user/me/token/:token_name
+    GET     /user/me/token/*token_name
+    DELETE  /user/me/token/*token_name
 
     GET     /user/#target_user_id_or_email
     POST    /user/#target_user_id_or_email
@@ -35,8 +35,8 @@ Sets up the routes for /user:
     DELETE  /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
 
     GET     /user/#target_user_id_or_email/token
-    GET     /user/#target_user_id_or_email/token/:token_name
-    DELETE  /user/#target_user_id_or_email/token/:token_name
+    GET     /user/#target_user_id_or_email/token/*token_name
+    DELETE  /user/#target_user_id_or_email/token/*token_name
 
     GET     /user
     POST    /user?send_mail=<1|0>
@@ -94,12 +94,14 @@ sub routes {
             # POST /user/me/token
             $user_me_token->post('/')->to('#create_api_token');
 
-            my $with_token = $user_me_token->under('/:token_name')->to('#find_api_token');
+            # note: because we use a wildcard placeholder for token_name, nothing else
+            # can be added to the route after the name.
+            my $with_token = $user_me_token->under('/*token_name')->to('#find_api_token');
 
-            # GET /user/me/token/:token_name
+            # GET /user/me/token/*token_name
             $with_token->get('/')->to('#get_api_token');
 
-            # DELETE /user/me/token/:token_name
+            # DELETE /user/me/token/*token_name
             $with_token->delete('/')->to('#expire_api_token');
         }
     }
@@ -133,12 +135,14 @@ sub routes {
             # GET /user/#target_user_id_or_email/token
             $user_with_target_token->get('/')->to('#get_api_tokens');
 
-            my $with_token = $user_with_target_token->under('/:token_name')->to('#find_api_token');
+            # note: because we use a wildcard placeholder for token_name, nothing else
+            # can be added to the route after the name.
+            my $with_token = $user_with_target_token->under('/*token_name')->to('#find_api_token');
 
-            # GET /user/#target_user_id_or_email/token/:token_name
+            # GET /user/#target_user_id_or_email/token/*token_name
             $with_token->get('/')->to('#get_api_token');
 
-            # DELETE /user/#target_user_id_or_email/token/:token_name
+            # DELETE /user/#target_user_id_or_email/token/*token_name
             $with_token->delete('/')->to('#expire_api_token');
         }
     }
