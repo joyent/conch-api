@@ -289,8 +289,8 @@ subtest 'Workspaces' => sub {
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Welcome to Conch!',
-            body => re(qr/^You have been added to the "GLOBAL" workspace at Joyent Conch\./m),
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^You have been added to the "GLOBAL" workspace at Joyent Conch with "rw" permissions\./m),
         });
 
     is($t->app->db_user_workspace_roles->count, 2,
@@ -305,21 +305,23 @@ subtest 'Workspaces' => sub {
         'new user can access this workspace',
     );
 
-    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$global_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(200, 'redundant add requests do nothing');
+        ->status_is(200, 'redundant add requests do nothing')
+        ->email_not_sent;
 
     is($t->app->db_user_workspace_roles->count, 2,
         'still just two user_workspace_role entries');
 
-    $t->post_ok("/workspace/$global_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$global_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'ro',
         })
         ->status_is(400)
-        ->json_is({ error => "user test user already has rw access to workspace $global_ws_id: cannot downgrade role to ro" });
+        ->json_is({ error => "user test user already has rw access to workspace $global_ws_id: cannot downgrade role to ro" })
+        ->email_not_sent;
 
     $t->get_ok('/user/email=test_user@conch.joyent.us')
         ->status_is(200)
@@ -535,7 +537,8 @@ subtest 'Sub-Workspace' => sub {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(200, 'redundant add requests do nothing');
+        ->status_is(200, 'redundant add requests do nothing')
+        ->email_not_sent;
 
     is($t->app->db_user_workspace_roles->count, 2,
         'still just two user_workspace_role entries');
@@ -545,13 +548,20 @@ subtest 'Sub-Workspace' => sub {
             role => 'ro',
         })
         ->status_is(400)
-        ->json_is({ error => "user test user already has rw access to workspace $grandchild_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
+        ->json_is({ error => "user test user already has rw access to workspace $grandchild_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
+        ->email_not_sent;
 
-    $t->post_ok("/workspace/$grandchild_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'admin',
         })
-        ->status_is(201, 'can upgrade existing permission');
+        ->status_is(201, 'can upgrade existing permission')
+        ->email_cmp_deeply({
+            To => '"test user" <test_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your access to the "grandchild_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
+        });
 
     is($t->app->db_user_workspace_roles->count, 3,
         'now there are three user_workspace_role entries');
@@ -562,23 +572,32 @@ subtest 'Sub-Workspace' => sub {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(200, 'redundant add requests do nothing');
+        ->status_is(200, 'redundant add requests do nothing')
+        ->email_not_sent;
 
     $t->post_ok("/workspace/$child_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'ro',
         })
         ->status_is(400)
-        ->json_is({ error => "user test user already has rw access to workspace $child_ws_id via workspace $global_ws_id: cannot downgrade role to ro" });
+        ->json_is({ error => "user test user already has rw access to workspace $child_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
+        ->email_not_sent;
 
     is($t->app->db_user_workspace_roles->count, 3,
         'still just three user_workspace_role entries');
 
-    $t->post_ok("/workspace/$child_ws_id/user?send_mail=0", json => {
+    $t->post_ok("/workspace/$child_ws_id/user", json => {
             user => 'test_user@conch.joyent.us',
             role => 'admin',
         })
-        ->status_is(201, 'can upgrade existing permission');
+        ->status_is(201, 'can upgrade existing permission that exists in a parent workspace')
+        ->email_cmp_deeply({
+            To => '"test user" <test_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
+        });
+
 
     is($t->app->db_user_workspace_roles->count, 4,
         'now there are four user_workspace_role entries');
@@ -620,7 +639,13 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
 
     $t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
-        ->status_is(201, 'extra permissions for user are removed from the sub workspace and its children');
+        ->status_is(201, 'extra permissions for user are removed from the sub workspace and its children')
+        ->email_cmp_deeply({
+            To => '"test user" <test_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch workspaces have been updated.',
+            body => re(qr/^You have been removed from the "child_ws" workspace at Joyent Conch\./m),
+        });
 
     $workspace_data{test_user}[1]->@{qw(role role_via)} = ('rw', $global_ws_id);
     $workspace_data{test_user}[2]->@{qw(role role_via)} = ('rw', $global_ws_id);
@@ -633,7 +658,8 @@ subtest 'Sub-Workspace' => sub {
             'test user now only has rw access to everything again (via GLOBAL)');
 
     $t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
-        ->status_is(201, 'deleting again is a no-op');
+        ->status_is(201, 'deleting again is a no-op')
+        ->email_not_sent;
 
     $t->post_ok('/user',
             json => { email => 'untrusted/user@conch.joyent.us', name => 'me', password => '123' })
@@ -653,11 +679,17 @@ subtest 'Sub-Workspace' => sub {
         ->json_schema_is('User')
         ->email_not_sent;
 
-    $t->post_ok('/workspace/child_ws/user?send_mail=0', json => {
+    $t->post_ok('/workspace/child_ws/user', json => {
             user => 'untrusted_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(201, 'added the user to the child workspace');
+        ->status_is(201, 'added the user to the child workspace')
+        ->email_cmp_deeply({
+            To => '"untrusted user" <untrusted_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^You have been added to the "child_ws" workspace at Joyent Conch with "ro" permissions\./m),
+        });
 
     $t->get_ok('/workspace/GLOBAL/user')
         ->status_is(200)
@@ -743,6 +775,19 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'user gets the same list of users who can access grandchild ws');
+
+
+    $t->post_ok('/workspace/child_ws/user', json => {
+            user => 'untrusted_user@conch.joyent.us',
+            role => 'rw',
+        })
+        ->status_is(201, 'can upgrade existing permission that exists in this workspace')
+        ->email_cmp_deeply({
+            To => '"untrusted user" <untrusted_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "rw"\./m),
+        });
 };
 
 subtest 'Relays' => sub {
@@ -853,12 +898,17 @@ subtest 'JWT authentication' => sub {
 
     $t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke?api_only=1',
             { Authorization => 'Bearer '.$new_jwt_token })
-        ->status_is(204, 'Revoke api tokens for user');
+        ->status_is(204, 'Revoke api tokens for user')
+        ->email_not_sent;
+
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(200, 'user can still use the login token');
+
     $t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke',
             { Authorization => "Bearer $new_jwt_token" })
-        ->status_is(204, 'Revoke all tokens for user');
+        ->status_is(204, 'Revoke all tokens for user')
+        ->email_not_sent;
+
     $t->get_ok('/workspace', { Authorization => "Bearer $new_jwt_token" })
         ->status_is(401, 'Cannot use after user revocation');
     $t->post_ok('/refresh_token', { Authorization => "Bearer $new_jwt_token" })
@@ -867,7 +917,8 @@ subtest 'JWT authentication' => sub {
     $t->authenticate(bailout => 0);
     my $jwt_token_2 = $t->tx->res->json->{jwt_token};
     $t->post_ok('/user/me/revoke', { Authorization => "Bearer $jwt_token_2" })
-        ->status_is(204, 'Revoke tokens for self');
+        ->status_is(204, 'Revoke tokens for self')
+        ->email_not_sent;
     $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token_2" })
         ->status_is(401, 'Cannot use after self revocation');
 
@@ -875,9 +926,10 @@ subtest 'JWT authentication' => sub {
 };
 
 subtest 'modify another user' => sub {
-    $t->post_ok('/user?send_mail=0', json => { name => 'me', email => 'foo@conch.joyent.us' })
+    $t->post_ok('/user', json => { name => 'me', email => 'foo@conch.joyent.us' })
         ->status_is(400, 'user name "me" is prohibited')
-        ->json_is({ error => 'user name "me" is prohibited' });
+        ->json_is({ error => 'user name "me" is prohibited' })
+        ->email_not_sent;
 
     $t->post_ok('/user', json => { name => 'foo', email => $t->CONCH_EMAIL })
         ->status_is(409, 'cannot create user with a duplicate email address')
@@ -959,7 +1011,8 @@ subtest 'modify another user' => sub {
                 name => 'test user',
                 deactivated => undef,
             }),
-        });
+        })
+        ->email_not_sent;
 
     $t->post_ok('/user/email=foo@conch.joyent.us',
             json => { name => 'FOO', is_admin => JSON::PP::true })
@@ -969,6 +1022,12 @@ subtest 'modify another user' => sub {
             $new_user_data->%*,
             name => 'FOO',
             is_admin => JSON::PP::true,
+        })
+        ->email_cmp_deeply({
+            To => '"FOO" <foo@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch account has been updated.',
+            body => re(qr/^Your account at Joyent Conch has been updated:\R\R {4}is_admin: false -> true\R {8}name: foo -> FOO\R\R/m),
         });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
@@ -983,12 +1042,21 @@ subtest 'modify another user' => sub {
         ->status_is(201);
     my $api_token = $t2->tx->res->json->{token};
 
+    $t2->post_ok('/user/me/token', json => { name => 'my second api token' })
+        ->status_is(201);
+
     my $t3 = Test::Conch->new(pg => $t->pg); # we will only use this $mojo for basic auth
     $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
         ->status_is(204, 'user can also use the app with basic auth');
 
     $t->post_ok("/user/$new_user_id/revoke?login_only=1")
-        ->status_is(204, 'revoked login tokens for the new user');
+        ->status_is(204, 'revoked login tokens for the new user')
+        ->email_cmp_deeply({
+            To => '"FOO" <foo@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch tokens have been revoked.',
+            body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    1 login token\R\R/m),
+        });
 
     $t2->get_ok('/me')
         ->status_is(401, 'persistent session cleared when login tokens are revoked');
@@ -999,8 +1067,15 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me', { Authorization => 'Bearer '.$api_token })
         ->status_is(204, 'new user can still use the api token');
 
+
     $t->post_ok("/user/$new_user_id/revoke?api_only=1")
-        ->status_is(204, 'revoked api tokens for the new user');
+        ->status_is(204, 'revoked api tokens for the new user')
+        ->email_cmp_deeply({
+            To => '"FOO" <foo@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch tokens have been revoked.',
+            body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    my api token\R    my second api token\R/m),
+        });
 
     $t2->get_ok('/me', { Authorization => "Bearer $api_token" })
         ->status_is(401, 'new user cannot authenticate with the api token after api tokens are revoked');
@@ -1366,7 +1441,13 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->status_is(404);
 
     $t->post_ok('/user/email='.$email.'/revoke')
-        ->status_is(204);
+        ->status_is(204)
+        ->email_cmp_deeply({
+            To => '"FOO" <'.$email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch tokens have been revoked.',
+            body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    my second token\R    1 login token\R\R/m),
+        });
 
     cmp_deeply(
         [ $t->app->db_user_accounts->active->search({ email => $email })

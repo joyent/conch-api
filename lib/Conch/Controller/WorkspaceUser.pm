@@ -52,7 +52,8 @@ sub list ($c) {
 
 =head2 add_user
 
-Adds a user to the current workspace (as specified by :workspace_id in the path)
+Adds a user to the current workspace (as specified by :workspace_id in the path), or upgrades an
+existing permission to a workspace.
 
 Optionally takes a query parameter 'send_mail' (defaulting to true), to send an email
 to the user.
@@ -68,13 +69,14 @@ sub add_user ($c) {
     return if not $c->find_user('email='.$input->{user});
     my $user = $c->stash('target_user');
 
+    my $workspace_id = $c->stash('workspace_id');
+
     # check if the user already has access to this workspace
     if (my $existing_role_via = $c->db_workspaces
-        ->role_via_for_user($c->stash('workspace_id'), $user->id)) {
-
+            ->role_via_for_user($workspace_id, $user->id)) {
         if ($existing_role_via->role eq $input->{role}) {
             $c->log->debug('user '.$user->name
-                .' already has '.$input->{role}.' access to workspace '.$c->stash('workspace_id')
+                .' already has '.$input->{role}.' access to workspace '.$workspace_id
                 .' via workspace '.$existing_role_via->workspace_id
                 .': nothing to do');
             my $workspace = $c->stash('workspace_rs')
@@ -86,29 +88,50 @@ sub add_user ($c) {
         if ($existing_role_via->role_cmp($input->{role}) > 0) {
             return $c->status(400, { error =>
                     'user '.$user->name.' already has '.$existing_role_via->role
-                .' access to workspace '.$c->stash('workspace_id')
-                .($existing_role_via->workspace_id ne $c->stash('workspace_id')
+                .' access to workspace '.$workspace_id
+                .($existing_role_via->workspace_id ne $workspace_id
                     ? (' via workspace '.$existing_role_via->workspace_id) : '')
                 .': cannot downgrade role to '.$input->{role} });
         }
-    }
 
-    if ($c->req->query_params->param('send_mail') // 1) {
+        my $rs = $user->search_related('user_workspace_roles', { workspace_id => $workspace_id });
+        if ($rs->exists) {
+            $rs->update({ role => $input->{role} });
+        }
+        else {
+            $user->create_related('user_workspace_roles', {
+                workspace_id => $workspace_id,
+                role => $input->{role},
+            });
+        }
+
+        $c->log->info('Upgraded user '.$user->id.' in workspace '.$workspace_id.' to '.$input->{role});
+
         $c->send_mail(
-            template_file => 'workspace_add_user',
+            template_file => 'workspace_change_access',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Welcome to Conch!',
+            Subject => 'Your Conch access has changed',
             workspace => $c->stash('workspace_rs')->get_column('name')->single,
-        );
+            permission => $input->{role},
+        ) if $c->req->query_params->param('send_mail') // 1;
+
+        return $c->status(201);
     }
 
-    my $workspace_id = $c->stash('workspace_id');
-    $user->update_or_create_related('user_workspace_roles', {
+    $user->create_related('user_workspace_roles', {
         workspace_id => $workspace_id,
         role => $input->{role},
     });
+    $c->log->info('Added user '.$user->id.' to workspace '.$workspace_id.' at '.$input->{role}.' permission');
 
-    $c->log->info('Added user '.$user->id.' to workspace '.$workspace_id);
+    $c->send_mail(
+        template_file => 'workspace_add_user',
+        From => 'noreply@conch.joyent.us',
+        Subject => 'Your Conch access has changed',
+        workspace => $c->stash('workspace_rs')->get_column('name')->single,
+        permission => $input->{role},
+    ) if $c->req->query_params->param('send_mail') // 1;
+
     $c->status(201);
 }
 
@@ -119,6 +142,9 @@ Requires 'admin' permissions on the workspace.
 
 Note this may not have the desired effect if the user is getting access to the workspace via
 a parent workspace. When in doubt, check at C<< GET /user/<id or name> >>.
+
+Optionally takes a query parameter 'send_mail' (defaulting to true), to send an email
+to the user.
 
 =cut
 
@@ -132,11 +158,19 @@ sub remove ($c) {
     my $num_rows = $rs->count;
     return $c->status(201) if not $num_rows;
 
-    $c->log->debug('removing user '.$user->name.' from workspace '
-        .$c->stash('workspace_rs')->get_column('name')->single
-        .' and all sub-workspaces ('.$num_rows.'rows in total)');
+    my $workspace_name = $c->stash('workspace_rs')->get_column('name')->single;
 
-    $rs->delete;
+    $c->log->debug('removing user '.$user->name.' from workspace '
+        .$workspace_name.' and all sub-workspaces ('.$num_rows.'rows in total)');
+
+    my $deleted = $rs->delete;
+
+    $c->send_mail(
+        template_file => 'workspace_remove_user',
+        From => 'noreply@conch.joyent.us',
+        Subject => 'Your Conch workspaces have been updated.',
+        workspace => $workspace_name,
+    ) if $deleted > 0 and $c->req->query_params->param('send_mail') // 1;
 
     return $c->status(201);
 }

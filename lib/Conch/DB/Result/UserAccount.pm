@@ -272,7 +272,7 @@ Overrides original to move 'password' to 'password_hash'.
 
 =cut
 
-sub update ($self, $args) {
+sub update ($self, $args = {}) {
     # extract non-column data to store in the right place
     $args->{password_hash} = _hash_password(delete $args->{password})
         if exists $args->{password};

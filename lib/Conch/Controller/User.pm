@@ -32,6 +32,9 @@ tokens is allowed).
 
 System admin only (unless reached via /user/me).
 
+Sends an email to the affected user, unless C<?send_mail=0> is included in the query (or
+revoking for oneself).
+
 =cut
 
 sub revoke_user_tokens ($c) {
@@ -45,10 +48,30 @@ sub revoke_user_tokens ($c) {
     my $user = $c->stash('target_user');
     $c->log->debug('revoking session tokens for user '.$user->name.', forcing them to /login again');
 
+    my $send_mail = $user->id ne $c->stash('user_id') && ($c->req->query_params->param('send_mail') // 1);
+
     my $rs = $user->user_session_tokens->unexpired;
     $rs = $rs->login_only if $login_only;
     $rs = $rs->api_only if $api_only;
+    my @token_names = $send_mail ? $rs->order_by('name')->get_column('name')->all : ();
     $rs->expire;
+
+    if (@token_names and $send_mail) {
+        my @removed_login_tokens = grep /^login_jwt_/, @token_names;
+        @token_names = (
+            (grep !/^login_jwt_/, @token_names),
+            @removed_login_tokens
+                ? scalar(@removed_login_tokens).' login token'.(@removed_login_tokens > 1 ? 's' : '')
+                : (),
+        );
+
+        $c->send_mail(
+            template_file => 'revoked_user_tokens',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch tokens have been revoked.',
+            token_names => \@token_names,
+        );
+    }
 
     $user->update({ refuse_session_auth => 1 }) if $login_only;
 
@@ -306,6 +329,7 @@ sub get ($c) {
 =head2 update
 
 Updates user attributes. System admin only.
+Sends an email to the affected user, unless C<?send_mail=0> is included in the query.
 
 Response uses the UserDetailed json schema.
 
@@ -324,8 +348,28 @@ sub update ($c) {
     }
 
     my $user = $c->stash('target_user');
+    my %orig_columns = $user->get_columns;
+    $user->set_columns($input);
+
+    if ($c->req->query_params->param('send_mail') // 1) {
+        my %dirty_columns = $user->get_dirty_columns;
+        %orig_columns = %orig_columns{keys %dirty_columns};
+
+        if (exists $dirty_columns{is_admin}) {
+            $_ = $_ ? 'true' : 'false' foreach $orig_columns{is_admin}, $dirty_columns{is_admin};
+        }
+
+        $c->send_mail(
+            template_file => 'updated_user_account',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch account has been updated.',
+            orig_data => \%orig_columns,
+            new_data => \%dirty_columns,
+        );
+    }
+
     $c->log->debug('updating user '.$user->email.': '.$c->req->text);
-    $user->update($input);
+    $user->update;
 
     $user->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
     return $c->status(200, $user);
