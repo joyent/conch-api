@@ -276,8 +276,7 @@ sub add ($c) {
 
 =head2 remove
 
-Remove a rack from a workspace, unless it was implicitly assigned via a
-datacenter room assignment
+Remove a rack from a workspace.
 
 Requires 'admin' permissions on the workspace.
 
@@ -287,18 +286,12 @@ sub remove ($c) {
     return $c->status(400, { error => 'Cannot modify GLOBAL workspace' })
         if $c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL';
 
-    my $rows_deleted = $c->db_workspaces
+    $c->db_workspaces
         ->and_workspaces_beneath($c->stash('workspace_id'))
-        ->search_related('workspace_racks',
-            { rack_id => $c->stash('rack_id') })
+        ->search_related('workspace_racks', { rack_id => $c->stash('rack_id') })
         ->delete;
 
-    # 0 rows deleted -> 0E0 which is boolean truth, not false
-    return $c->status(204) if $rows_deleted > 0;
-
-    return $c->status(409, { error => 'Rack \''.$c->stash('rack_id')
-        .'\' is not explicitly assigned to the workspace. It is assigned implicitly via a datacenter room assignment.',
-    });
+    return $c->status(204);
 }
 
 =head2 assign_layout
