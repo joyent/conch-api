@@ -111,12 +111,13 @@ Permanently delete a datacenter room.
 =cut
 
 sub delete ($c) {
+    return $c->status(403) if not $c->is_system_admin;
+
     if ($c->stash('datacenter_room')->related_resultset('racks')->exists) {
         $c->log->debug('Cannot delete datacenter_room: in use by one or more racks');
         return $c->status(400, { error => 'cannot delete a datacenter_room when a rack is referencing it' });
     }
 
-    return $c->status(403) if not $c->is_system_admin;
     $c->stash('datacenter_room')->delete;
     $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room')->id);
     return $c->status(204);
