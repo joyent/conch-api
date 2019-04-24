@@ -53,7 +53,7 @@ sub _message {
     my $self = shift;
     my ($level, $msg) = @_;
 
-    return unless $self->is_level($level);
+    return if not $self->is_level($level);
 
     if ($self->payload) {
         $self->append(Mojo::JSON::to_json($self->payload)."\n");

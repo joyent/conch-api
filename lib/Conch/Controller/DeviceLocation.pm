@@ -35,7 +35,7 @@ sub get ($c) {
 
     return $c->status(409, { error =>
         'Device '.$c->stash('device_id').' is not assigned to a rack'
-    }) unless $rack;
+    }) if not $rack;
 
     my $location = +{
         rack => $rack,
@@ -83,7 +83,7 @@ Deletes the location data for a device, provided it has been assigned to a locat
 sub delete ($c) {
     return $c->status(409, { error => 'Device '.$c->stash('device_id').' is not assigned to a rack' })
         # 0 rows updated -> 0E0 which is boolean truth, not false
-        unless $c->stash('device_rs')->related_resultset('device_location')->delete > 0;
+        if $c->stash('device_rs')->related_resultset('device_location')->delete <= 0;
 
     $c->status(204);
 }

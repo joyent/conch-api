@@ -60,13 +60,13 @@ to the user.
 =cut
 
 sub add_user ($c) {
-    return $c->status(403) unless $c->is_workspace_admin;
+    return $c->status(403) if not $c->is_workspace_admin;
 
     my $input = $c->validate_input('WorkspaceAddUser');
     return if not $input;
 
     my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$input->{user});
-    return $c->status(404) unless $user;
+    return $c->status(404) if not $user;
 
     # check if the user already has access to this workspace
     if (my $existing_role_via = $c->db_workspaces

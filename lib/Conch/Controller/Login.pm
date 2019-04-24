@@ -98,7 +98,7 @@ sub authenticate ($c) {
         $c->log->debug('looking up user by email '.$email.'...');
         my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$email);
 
-        unless ($user) {
+        if (not $user) {
             $c->log->debug('basic auth failed: user not found');
             return $c->status(401);
         }
@@ -239,9 +239,7 @@ sub session_login ($c) {
     $c->stash('user_id', $user->id);
     $c->stash('user', $user);
 
-    unless ($c->feature('stop_conch_cookie_issue')) {
-        $c->session(user => $user->id);
-    }
+    $c->session(user => $user->id) if not $c->feature('stop_conch_cookie_issue');
 
     # clear out all expired session tokens
     $c->db_user_session_tokens->expired->delete;
@@ -340,7 +338,7 @@ sub refresh_token ($c) {
     $c->db_user_session_tokens->expired->delete;
 
     return $c->status(403, { error => 'Invalid token ID' })
-        unless $token_valid;
+        if not $token_valid;
 
     return $c->status(200, { jwt_token => $c->_create_jwt($c->stash('user_id')) });
 }

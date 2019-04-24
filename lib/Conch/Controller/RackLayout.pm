@@ -22,9 +22,7 @@ Supports rack layout lookups by id
 =cut
 
 sub find_rack_layout ($c) {
-    unless($c->is_system_admin) {
-        return $c->status(403);
-    }
+    return $c->status(403) if not $c->is_system_admin;
 
     my $layout = $c->db_rack_layouts->find($c->stash('layout_id'));
     if (not $layout) {
@@ -44,7 +42,7 @@ Creates a new rack_layout entry according to the passed-in specification.
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my $input = $c->validate_input('RackLayoutCreate');
     return if not $input;
@@ -52,12 +50,12 @@ sub create ($c) {
     $input->{hardware_product_id} = delete $input->{product_id};
     $input->{rack_unit_start} = delete $input->{ru_start};
 
-    unless ($c->db_racks->search({ id => $input->{rack_id} })->exists) {
+    if (not $c->db_racks->search({ id => $input->{rack_id} })->exists) {
         $c->log->debug('Could not find rack '.$input->{rack_id});
         return $c->status(400, { error => 'Rack does not exist' });
     }
 
-    unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
+    if (not $c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
         $c->log->debug('Could not find hardware product '.$input->{hardware_product_id});
         return $c->status(400, { error => 'Hardware product does not exist' });
     }
@@ -123,7 +121,7 @@ Response uses the RackLayouts json schema.
 =cut
 
 sub get_all ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     # TODO: to be more helpful to the UI, we should include the width of the hardware that is
     # assigned to each rack_unit(s).
@@ -169,7 +167,7 @@ sub update ($c) {
 
     # if changing hardware_product_id...
     if ($input->{hardware_product_id} and $input->{hardware_product_id} ne $c->stash('rack_layout')->hardware_product_id) {
-        unless ($c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
+        if (not $c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
             return $c->status(400, { error => 'Hardware product does not exist' });
         }
     }

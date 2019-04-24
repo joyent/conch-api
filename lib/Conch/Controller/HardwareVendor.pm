@@ -75,7 +75,7 @@ sub get_one ($c) {
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     if ($c->db_hardware_vendors->active->search({ name => $c->stash('hardware_vendor_name') }) > 0) {
         $c->log->debug('Failed to create hardware vendor: unique constraint violation for name');

@@ -68,7 +68,7 @@ sub set_single ($c) {
     my $setting_value = $input->{$setting_key};
 
     return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
-        unless $setting_value;
+        if not $setting_value;
 
     # we cannot do device_rs->related_resultset, or ->create loses device_id
     my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
@@ -125,7 +125,7 @@ sub get_single ($c) {
             { order_by => { -desc => 'created' }, rows => 1 },
         )->single;
 
-    return $c->status(404) unless $setting;
+    return $c->status(404) if not $setting;
     $c->status(200, { $setting_key => $setting->value });
 }
 
@@ -147,14 +147,12 @@ sub delete_single ($c) {
         }
     }
 
-    unless (
-        # 0 rows updated -> 0E0 which is boolean truth, not false
-        $c->stash('device_rs')
+    # 0 rows updated -> 0E0 which is boolean truth, not false
+    if ($c->stash('device_rs')
             ->related_resultset('device_settings')
             ->active
             ->search({ name => $setting_key })
-            ->deactivate > 0
-    ) {
+            ->deactivate <= 0) {
         $c->log->debug("No such setting '$setting_key'");
         return $c->status(404);
     }

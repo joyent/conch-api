@@ -24,7 +24,7 @@ Create new Validation Plan.
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     # this endpoint is temporarily (?) disabled
     return $c->status(410);
@@ -119,7 +119,7 @@ Add a validation to a validation plan.
 =cut
 
 sub add_validation ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     # this endpoint is temporarily (?) disabled
     return $c->status(410);
@@ -148,7 +148,7 @@ Remove a Validation associated with the Validation Plan
 =cut
 
 sub remove_validation ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     # this endpoint is temporarily (?) disabled
     return $c->status(410);

@@ -144,7 +144,7 @@ sub device_totals ($c) {
     elsif (is_uuid($workspace_param)) {
         $workspace = $c->db_workspaces->find($workspace_param);
     }
-    return $c->reply->not_found unless $workspace;
+    return $c->reply->not_found if not $workspace;
 
     my %switch_aliases = map +($_ => 1), $c->config->{switch_aliases}->@*;
     my %storage_aliases = map +($_ => 1), $c->config->{storage_aliases}->@*;

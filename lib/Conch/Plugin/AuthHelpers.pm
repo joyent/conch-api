@@ -20,7 +20,7 @@ sub register ($self, $app, $config) {
 
 =head2 is_system_admin
 
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
 Verifies that the currently stashed user has the 'is_admin' flag set
 
@@ -34,7 +34,7 @@ Verifies that the currently stashed user has the 'is_admin' flag set
 
 =head2 is_workspace_admin
 
-    return $c->status(403) unless $c->is_workspace_admin;
+    return $c->status(403) if not $c->is_workspace_admin;
 
 Verifies that the currently stashed user_id has 'admin' permission on the current workspace (as
 specified by :workspace_id in the path) or one of its ancestors.

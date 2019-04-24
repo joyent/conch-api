@@ -41,10 +41,10 @@ sub all_routes (
         my ($r, $path) = @_;
         $r->any(sub ($c) {
             return $c->status(401)
-                unless $c->stash('user') and $c->stash('user_id');
+                if not $c->stash('user') or not $c->stash('user_id');
 
             return $c->status(403, { error => 'Must be system admin' })
-                unless $c->is_system_admin;
+                if not $c->is_system_admin;
 
             return 1;
         })->under;

@@ -53,7 +53,7 @@ Response uses the Relays json schema.
 =cut
 
 sub list ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
     $c->status(200, [ $c->db_relays->active->all ]);
 }
 

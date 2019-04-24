@@ -155,7 +155,7 @@ sub get_setting ($c) {
         { order_by => { -desc => 'created' } },
     )->one_row;
 
-    return $c->status(404) unless $setting;
+    return $c->status(404) if not $setting;
     $c->status(200, { $key => from_json($setting->value) });
 }
 
@@ -177,7 +177,7 @@ sub delete_setting ($c) {
         ->active
         ->deactivate;
 
-    return $c->status(404) unless $count;
+    return $c->status(404) if not $count;
     return $c->status(204);
 }
 

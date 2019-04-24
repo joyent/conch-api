@@ -55,16 +55,16 @@ Stores data as a new rack row, munging 'role' to 'rack_role_id'.
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my $input = $c->validate_input('RackCreate');
     return if not $input;
 
-    unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
+    if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
         return $c->status(400, { error => 'Room does not exist' });
     }
 
-    unless ($c->db_rack_roles->search({ id => $input->{role} })->exists) {
+    if (not $c->db_rack_roles->search({ id => $input->{role} })->exists) {
         return $c->status(400, { error => 'Rack role does not exist' });
     }
 
@@ -98,7 +98,7 @@ Response uses the Racks json schema.
 
 sub get_all ($c) {
     # TODO: instead of sysadmin privs, filter out results by workspace permissions
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my @racks = $c->db_racks->all;
     $c->log->debug('Found '.scalar(@racks).' racks');
@@ -147,7 +147,7 @@ sub update ($c) {
 
     if ($input->{datacenter_room_id}
             and $input->{datacenter_room_id} ne $rack->datacenter_room_id) {
-        unless ($c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
+        if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
             return $c->status(400, { error => 'Room does not exist' });
         }
     }

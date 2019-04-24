@@ -47,7 +47,7 @@ UUID version and variant ('reserved') hex digit standards are ignored.
 Return a true or false value based on whether a string is a formatted as a UUID.
 
     if (is_uuid('D8DC809C-935E-41B8-9E5F-B356A6BFBCA1')) {...}
-    unless (is_uuid('BAD-ID')) {...}
+    if (not is_uuid('BAD-ID')) {...}
 
 Case insensitive.
 

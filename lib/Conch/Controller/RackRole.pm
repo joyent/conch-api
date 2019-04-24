@@ -20,7 +20,7 @@ Supports rack role lookups by uuid and name.
 =cut
 
 sub find_rack_role ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my $rack_role;
     if ($c->stash('rack_role_id_or_name') =~ /^(.+?)\=(.+)$/) {
@@ -55,7 +55,7 @@ Create a new rack role.
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my $input = $c->validate_input('RackRoleCreate');
     return if not $input;
@@ -79,7 +79,7 @@ Response uses the RackRole json schema.
 =cut
 
 sub get ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
     $c->status(200, $c->stash('rack_role'));
 }
 
@@ -92,7 +92,7 @@ Response uses the RackRoles json schema.
 =cut
 
 sub get_all ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my @rack_roles = $c->db_rack_roles->all;
     $c->log->debug('Found '.scalar(@rack_roles).' rack roles');

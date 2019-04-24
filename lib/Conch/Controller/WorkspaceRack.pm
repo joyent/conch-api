@@ -232,7 +232,7 @@ is assigned to the parent workspace of this one.
 =cut
 
 sub add ($c) {
-    return $c->status(403) unless $c->is_workspace_admin;
+    return $c->status(403) if not $c->is_workspace_admin;
 
     my $input = $c->validate_input('WorkspaceAddRack');
     return if not $input;
