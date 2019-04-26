@@ -30,7 +30,7 @@ requires 'Email::Sender::Simple';
 requires 'Email::Sender::Transport::SMTP';
 
 # mojolicious and networking
-requires 'Mojolicious', '7.87'; # for Mojo::JSON's bootstrapping of Cpanel::JSON::XS
+requires 'Mojolicious', '8.15';
 requires 'Mojo::Pg';
 requires 'Mojo::Server::PSGI';
 requires 'Mojo::JWT';
