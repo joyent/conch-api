@@ -25,7 +25,6 @@ Response uses the WorkspaceRelays json schema.
 =cut
 
 sub list ($c) {
-
     my $active_minutes = $c->param('active_within');
 
     my $latest_relay_connections = $c->db_device_relay_connections
@@ -45,12 +44,12 @@ sub list ($c) {
     my $me = $latest_relay_connections->current_source_alias;
 
     $latest_relay_connections = $latest_relay_connections
-            ->search({ "$me.last_seen" => { '>=' => \"now() - interval '$active_minutes minutes'" } })
+            ->search({ $me.'.last_seen' => { '>=' => \"now() - interval '$active_minutes minutes'" } })
         if $active_minutes;
 
     my $num_devices_rs = $c->db_device_relay_connections->search(
-        { "${me}_corr.relay_id" => { '=' => \"$me.relay_id" } },
-        { alias => "${me}_corr" },
+        { $me.'_corr.relay_id' => { '=' => \"$me.relay_id" } },
+        { alias => ${me}.'_corr' },
     )->count_rs;
 
     my $workspace_racks = $c->stash('workspace_rs')
@@ -66,12 +65,12 @@ sub list ($c) {
                 join => { device => { device_location => {
                             rack => [ 'rack_role', 'datacenter_room' ] } } },
                 '+columns' => {
-                    'rack_id' => 'device_location.rack_id',
-                    'rack_name' => 'rack.name',
-                    'rack_unit_start' => 'device_location.rack_unit_start',
-                    'role_name' => 'rack_role.name',
-                    'az' => 'datacenter_room.az',
-                    'num_devices' => $num_devices_rs->as_query,
+                    rack_id => 'device_location.rack_id',
+                    rack_name => 'rack.name',
+                    rack_unit_start => 'device_location.rack_unit_start',
+                    role_name => 'rack_role.name',
+                    az => 'datacenter_room.az',
+                    num_devices => $num_devices_rs->as_query,
                 },
             },
         );
@@ -102,7 +101,6 @@ Response uses the Devices json schema.
 =cut
 
 sub get_relay_devices ($c) {
-
     my $devices_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')

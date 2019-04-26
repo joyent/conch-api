@@ -141,11 +141,11 @@ subtest 'transactions' => sub {
 
     $t->get_ok('/test_txn_wrapper?id=bad_id')
         ->status_is(400)
-        ->json_cmp_deeply('', { error => re(qr/invalid input syntax for (?:type )?uuid: "bad_id"/) });
+        ->json_cmp_deeply({ error => re(qr/invalid input syntax for (?:type )?uuid: "bad_id"/) });
 
     is($t->app->db_user_accounts->count, $user_count, 'no new user was created');
 
-    $t->get_ok('/test_txn_wrapper?id=' . Data::UUID->new->create_str)
+    $t->get_ok('/test_txn_wrapper?id='.Data::UUID->new->create_str)
         ->status_is(200);
 
     is($t->app->db_user_accounts->count, $user_count + 1, 'one user was successfully created');

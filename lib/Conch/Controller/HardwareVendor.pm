@@ -22,14 +22,13 @@ Handles looking up the object by id or name.
 =cut
 
 sub find_hardware_vendor ($c) {
-
     my $hardware_vendor_rs = $c->db_hardware_vendors->active;
     if (is_uuid($c->stash('hardware_vendor_id_or_name'))) {
-        $c->log->debug('Looking up a hardware_vendor by id (' . $c->stash('hardware_vendor_id_or_name') . ')');
+        $c->log->debug('Looking up a hardware_vendor by id ('.$c->stash('hardware_vendor_id_or_name').')');
         $hardware_vendor_rs = $hardware_vendor_rs->search({ id => $c->stash('hardware_vendor_id_or_name') });
     }
     else {
-        $c->log->debug('Looking up a hardware_vendor by name ('.$c->stash('hardware_vendor_id_or_name') . ')');
+        $c->log->debug('Looking up a hardware_vendor by name ('.$c->stash('hardware_vendor_id_or_name').')');
         $hardware_vendor_rs = $hardware_vendor_rs->search({ name => $c->stash('hardware_vendor_id_or_name') });
     }
 
@@ -40,8 +39,8 @@ sub find_hardware_vendor ($c) {
         return $c->status(404);
     }
 
-    $c->log->debug('Found hardware vendor ' . $hardware_vendor->id);
-    $c->stash('hardware_vendor' => $hardware_vendor);
+    $c->log->debug('Found hardware vendor '.$hardware_vendor->id);
+    $c->stash('hardware_vendor', $hardware_vendor);
     return 1;
 }
 
@@ -68,7 +67,7 @@ Response uses the HardwareVendor json schema.
 =cut
 
 sub get_one ($c) {
-    $c->status(200 => $c->stash('hardware_vendor'));
+    $c->status(200, $c->stash('hardware_vendor'));
 }
 
 =head2 create
@@ -76,17 +75,17 @@ sub get_one ($c) {
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     if ($c->db_hardware_vendors->active->search({ name => $c->stash('hardware_vendor_name') }) > 0) {
-        $c->log->debug("Failed to create hardware vendor: unique constraint violation for name");
-        return $c->status(400 => { error => "Unique constraint violated on 'name'" });
+        $c->log->debug('Failed to create hardware vendor: unique constraint violation for name');
+        return $c->status(400, { error => 'Unique constraint violated on \'name\'' });
     }
 
     my $hardware_vendor = $c->db_hardware_vendors->create({ name => $c->stash('hardware_vendor_name') });
 
-    $c->log->debug('Created hardware vendor ' . $c->stash('hardware_vendor_name'));
-    $c->status(303 => '/hardware_vendor/' . $c->stash('hardware_vendor_name'));
+    $c->log->debug('Created hardware vendor '.$c->stash('hardware_vendor_name'));
+    $c->status(303, '/hardware_vendor/'.$c->stash('hardware_vendor_name'));
 }
 
 =head2 delete
@@ -94,8 +93,8 @@ sub create ($c) {
 =cut
 
 sub delete($c) {
-    $c->log->debug('Deleting hardware vendor ' . $c->stash('hardware_vendor')->id);
-    $c->stash('hardware_vendor')->update({ deactivated => \'NOW()', updated => \'NOW()' });
+    $c->log->debug('Deleting hardware vendor '.$c->stash('hardware_vendor')->id);
+    $c->stash('hardware_vendor')->update({ deactivated => \'now()', updated => \'now()' });
     return $c->status(204);
 }
 

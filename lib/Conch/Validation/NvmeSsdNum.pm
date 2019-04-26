@@ -9,22 +9,21 @@ use constant category    => 'DISK';
 use constant description => q( Validate expected number of NVMe SSDs );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Input data must include 'disks' hash")
-		unless $data->{disks} && ref( $data->{disks} ) eq 'HASH';
+    $self->die("Input data must include 'disks' hash")
+        unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-	my $hw_profile = $self->hardware_product_profile;
+    my $hw_profile = $self->hardware_product_profile;
 
-	my $nvme_ssd_count =
-		grep { $_->{drive_type} && fc( $_->{drive_type} ) eq fc('NVME_SSD') }
-		( values $data->{disks}->%* );
+    my $nvme_ssd_count =
+        grep { $_->{drive_type} && fc($_->{drive_type}) eq fc('NVME_SSD') }
+        (values $data->{disks}->%*);
 
-	$self->register_result(
-		expected => $hw_profile->nvme_ssd_num || 0,
-		got      => $nvme_ssd_count,
-	);
-
+    $self->register_result(
+        expected => $hw_profile->nvme_ssd_num || 0,
+        got      => $nvme_ssd_count,
+    );
 }
 
 1;

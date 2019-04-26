@@ -151,7 +151,7 @@ subtest 'create profile on existing product' => sub {
         ->status_is(200)
         ->json_schema_is('HardwareProduct')
         ->json_cmp_deeply({
-            %$new_product,
+            $new_product->%*,
             hardware_product_profile => superhashof($new_hw_profile),
         });
 
@@ -191,11 +191,8 @@ subtest 'create a new hardware_product_profile in an existing product' => sub {
         ->json_schema_is('Error')
         ->json_cmp_deeply({ error => re(qr/missing property/i) });
 
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                %$new_hw_profile,
-            },
-        })
+    $t->post_ok("/hardware_product/$new_hw_id",
+            json => { hardware_product_profile => $new_hw_profile })
         ->status_is(303);
 
     $new_product->{hardware_product_profile}->@{qw(id rack_unit psu_total)} = (ignore,2,1);
@@ -237,9 +234,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
             alias => 'ether',
-            hardware_product_profile => {
-                %$new_hw_profile,
-            },
+            hardware_product_profile => $new_hw_profile,
         })
         ->status_is(303);
 
@@ -259,7 +254,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             generation_name => undef,
             legacy_product_name => undef,
             hardware_product_profile => {
-                %$new_hw_profile,
+                $new_hw_profile->%*,
                 id => ignore,
                 hba_firmware => undef,
                 sata_hdd_num => undef,

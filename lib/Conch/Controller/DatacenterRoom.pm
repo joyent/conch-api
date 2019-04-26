@@ -32,7 +32,7 @@ sub find_datacenter_room ($c) {
     }
 
     $c->log->debug('Found datacenter room');
-    $c->stash('datacenter_room' => $room);
+    $c->stash('datacenter_room', $room);
     return 1;
 }
 
@@ -45,12 +45,12 @@ Response uses the DatacenterRoomsDetailed json schema.
 =cut
 
 sub get_all ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my @rooms = $c->db_datacenter_rooms->all;
-    $c->log->debug('Found ' . scalar(@rooms) . ' datacenter rooms');
+    $c->log->debug('Found '.scalar(@rooms).' datacenter rooms');
 
-    return $c->status(200 => \@rooms);
+    return $c->status(200, \@rooms);
 }
 
 =head2 get_one
@@ -62,7 +62,7 @@ Response uses the DatacenterRoomDetailed json schema.
 =cut
 
 sub get_one ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
     $c->status(200, $c->stash('datacenter_room'));
 }
 
@@ -73,7 +73,8 @@ Create a new datacenter room.
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
+
     my $input = $c->validate_input('DatacenterRoomCreate');
     return if not $input;
 
@@ -81,7 +82,7 @@ sub create ($c) {
 
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
-    $c->status(303 => '/room/'.$room->id);
+    $c->status(303, '/room/'.$room->id);
 }
 
 =head2 update
@@ -91,15 +92,16 @@ Update an existing room.
 =cut
 
 sub update ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
+
     my $input = $c->validate_input('DatacenterRoomUpdate');
     return if not $input;
 
     $input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
-    $c->stash('datacenter_room')->update({ %$input, updated => \'now()' });
+    $c->stash('datacenter_room')->update({ $input->%*, updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id'));
-    $c->status(303 => '/room/'.$c->stash('datacenter_room')->id);
+    $c->status(303, '/room/'.$c->stash('datacenter_room')->id);
 }
 
 =head2 delete
@@ -111,10 +113,10 @@ Permanently delete a datacenter room.
 sub delete ($c) {
     if ($c->stash('datacenter_room')->related_resultset('racks')->exists) {
         $c->log->debug('Cannot delete datacenter_room: in use by one or more racks');
-        return $c->status(400 => { error => 'cannot delete a datacenter_room when a rack is referencing it' });
+        return $c->status(400, { error => 'cannot delete a datacenter_room when a rack is referencing it' });
     }
 
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
     $c->stash('datacenter_room')->delete;
     $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room')->id);
     return $c->status(204);
@@ -127,11 +129,11 @@ Response uses the Racks json schema.
 =cut
 
 sub racks ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my @racks = $c->stash('datacenter_room')->related_resultset('racks')->all;
     $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room')->id);
-    return $c->status(200 => \@racks);
+    return $c->status(200, \@racks);
 }
 
 1;

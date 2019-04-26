@@ -10,19 +10,18 @@ Validate the reported number of CPUs match the hardware product profile
 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	unless ($data->{cpus}) {
-		$self->die("Missing cpus property")
-	}
+    unless ($data->{cpus}) {
+        $self->die("Missing cpus property")
+    }
 
-	my $hw_profile = $self->hardware_product_profile;
+    my $hw_profile = $self->hardware_product_profile;
 
-	$self->register_result(
-		expected => $hw_profile->cpu_num,
-		got      => scalar $data->{cpus}->@*,
-	);
-
+    $self->register_result(
+        expected => $hw_profile->cpu_num,
+        got      => scalar $data->{cpus}->@*,
+    );
 }
 
 1;

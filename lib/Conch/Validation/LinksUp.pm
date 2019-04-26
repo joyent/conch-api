@@ -10,22 +10,22 @@ Validate that there are at least 4 NICs in the 'up' state, not counting ipmi1
 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Input data must include 'interfaces' hash")
-		unless $data->{interfaces} && ref( $data->{interfaces} ) eq 'HASH';
+    $self->die("Input data must include 'interfaces' hash")
+        unless $data->{interfaces} && ref($data->{interfaces}) eq 'HASH';
 
-	my $links_up = 0;
-	while ( my ( $name, $nic ) = each $data->{interfaces}->%* ) {
-		next if $name eq 'ipmi1';
-		$links_up++ if ($nic->{state} && $nic->{state} eq 'up');
-	}
+    my $links_up = 0;
+    while (my ($name, $nic) = each $data->{interfaces}->%*) {
+        next if $name eq 'ipmi1';
+        $links_up++ if ($nic->{state} && $nic->{state} eq 'up');
+    }
 
-	$self->register_result(
-		expected => 4,
-		cmp      => '>=',
-		got      => $links_up
-	);
+    $self->register_result(
+        expected => 4,
+        cmp      => '>=',
+        got      => $links_up
+    );
 }
 
 1;

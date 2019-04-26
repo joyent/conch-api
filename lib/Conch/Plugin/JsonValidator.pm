@@ -20,7 +20,7 @@ Conch::Plugin::JsonValidator
     [ ... in a controller ]
 
     sub endpoint ($c) {
-        my $body = $c->validate_input("MyInputDefinition");
+        my $body = $c->validate_input('MyInputDefinition');
 
         [ ... ]
 
@@ -71,7 +71,7 @@ response if validation failed; returns validated input on success.
 
         if (my @errors = $validator->validate($input, $schema)) {
             $c->log->error("FAILED data validation for schema $schema_name".join(' // ', @errors));
-            return $c->status(400 => { error => join("\n",@errors) });
+            return $c->status(400, { error => join("\n",@errors) });
         }
 
         $c->log->debug("Passed data validation for input schema $schema_name");

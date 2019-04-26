@@ -203,6 +203,7 @@ __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
 );
 
+use experimental 'signatures';
 use Encode ();
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 
@@ -214,9 +215,7 @@ Include information about the user's workspaces, if available.
 
 =cut
 
-sub TO_JSON {
-    my $self = shift;
-
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
     # Mojo::JSON renders \0, \1 as json booleans
@@ -259,9 +258,7 @@ Overrides original to move 'password' to 'password_hash'.
 
 =cut
 
-sub new {
-    my ($self, $args) = @_;
-
+sub new ($self, $args) {
     # extract non-column data to store in the right place
     $args->{password_hash} = _hash_password(delete $args->{password})
         if exists $args->{password};
@@ -275,9 +272,7 @@ Overrides original to move 'password' to 'password_hash'.
 
 =cut
 
-sub update {
-    my ($self, $args) = @_;
-
+sub update ($self, $args) {
     # extract non-column data to store in the right place
     $args->{password_hash} = _hash_password(delete $args->{password})
         if exists $args->{password};
@@ -291,9 +286,7 @@ Check whether the given password text has a hash matching the stored password ha
 
 =cut
 
-sub validate_password {
-    my ($self, $password) = @_;
-
+sub validate_password ($self, $password) {
     # handle legacy Dancer passwords (TODO: remove all remaining CRYPT constructs from
     # passwords in the database using a migration script.)
     (my $password_hash = $self->password_hash) =~ s/^{CRYPT}//;
@@ -306,18 +299,17 @@ sub validate_password {
 
 use constant _BCRYPT_COST => 4; # dancer2 legacy
 
-sub _hash_password {
-    my $password = shift;
+sub _hash_password ($password) {
     return bcrypt(
         Encode::encode('UTF-8', $password),
         join('$', '$2a', sprintf('%02d', _BCRYPT_COST || 6), _bcrypt_salt()),
     );
 }
 
-sub _bcrypt_salt {
+sub _bcrypt_salt () {
     my $num = 999999;
-    my $cr = crypt( rand($num), rand($num) ) . crypt( rand($num), rand($num) );
-    en_base64( substr( $cr, 4, 16 ) );
+    my $cr = crypt(rand($num), rand($num)) . crypt(rand($num), rand($num));
+    en_base64(substr($cr, 4, 16));
 }
 
 1;

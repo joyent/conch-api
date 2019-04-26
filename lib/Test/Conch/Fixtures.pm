@@ -446,7 +446,7 @@ sub generate_set ($self, $set_name, @args) {
                     rack_unit_start => 3,
                 },
                 requires => {
-                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
@@ -456,7 +456,7 @@ sub generate_set ($self, $set_name, @args) {
                     rack_unit_start => 11,
                 },
                 requires => {
-                    "rack_${num}a"=> { our => 'rack_id', their => 'id' },
+                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
@@ -508,9 +508,9 @@ sub generate_definitions ($self, $unique_num, %specification) {
         # fixed later.  (This does not yet work for fixture specifications that are arrayrefs,
         # e.g. rack_layouts.)
         if (ref $specification{$name} eq 'HASH'
-            and my @ref_keys = grep {
-                    ref $specification{$name}->{$_} and not blessed $specification{$name}->{$_}
-                } keys $specification{$name}->%*) {
+            and my @ref_keys = grep
+                +(ref $specification{$name}->{$_} and not blessed $specification{$name}->{$_}),
+                keys $specification{$name}->%*) {
             @specification{@ref_keys} = delete $specification{$name}->@{@ref_keys};
             push @requested, @ref_keys;
         }
@@ -546,7 +546,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
     if ($fixture_type eq 'device_settings') {
         my $letter = 'a';
         return +{
-            map {
+            map +(
                 "device_setting_$num".$letter++ => +{
                     new => 'device_setting',
                     using => {
@@ -555,7 +555,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     },
                     requires => { "device_$num" => { our => 'device_id', their => 'id' } },
                 }
-            } keys $specification->%*
+            ), keys $specification->%*
         },
         'device';
     }
@@ -599,7 +599,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
     }
     elsif ($fixture_type eq 'rack_layouts') {
         return +{
-            map {
+            map +(
                 "rack_layout_${num}_ru".$_->{rack_unit_start} => +{
                     new => 'rack_layout',
                     using => $_,
@@ -610,7 +610,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                         "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
                     },
                 }
-            } $specification->@*
+            ), $specification->@*
         },
         'rack', 'hardware_product';
     }
@@ -739,7 +739,7 @@ around BUILDARGS => sub ($orig, $class, @args) {
             %canned_definitions,
             (delete $args->{definitions} // +{})->%*,
         },
-        %$args,
+        $args->%*,
     },
 };
 

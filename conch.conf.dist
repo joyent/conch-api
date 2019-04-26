@@ -1,15 +1,15 @@
 {
-	# Secrets used for HMAC-signed (not encrypted!) cookies. Only the first is
-	# used to create new signatures, but all of them for verification. This
-	# is for rotating in new passphrases and rotating out old ones.
-	secrets => ["hunter2"],
+    # Secrets used for HMAC-signed (not encrypted!) cookies. Only the first is
+    # used to create new signatures, but all of them for verification. This
+    # is for rotating in new passphrases and rotating out old ones.
+    secrets => ["hunter2"],
 
-	jwt => {
-		# time in seconds for a JWT to be valid before requiring refresh or re-auth
-		system_admin_expiry => 2592000, # 30 days
-		normal_expiry => 86400, # 1 day
+    jwt => {
+        # time in seconds for a JWT to be valid before requiring refresh or re-auth
+        system_admin_expiry => 2592000, # 30 days
+        normal_expiry => 86400, # 1 day
         custom_token_expiry => 86400*365*5, # 5 years
-	},
+    },
 
     database => {
         # dsn is as defined in https://metacpan.org/pod/DBI#connect
@@ -26,86 +26,86 @@
 
     },
 
-	# Rollbar access token. Must be a token with write permissions
-	# rollbar_access_token => '00000000000000000000000000000000',
+    # Rollbar access token. Must be a token with write permissions
+    # rollbar_access_token => '00000000000000000000000000000000',
 
-	# Optional environment string override for rollbar exceptions. If not
-	# present, uses the value of $app->mode ('production' with Hypnotoad).
-	# rollbar_environment => 'staging',
+    # Optional environment string override for rollbar exceptions. If not
+    # present, uses the value of $app->mode ('production' with Hypnotoad).
+    # rollbar_environment => 'staging',
 
-	features => {
-		audit          => 0,
-		rollbar        => 0,
-		nytprof        => 0,
+    features => {
+        audit          => 0,
+        rollbar        => 0,
+        nytprof        => 0,
 
-		# For docker, this should probably be set to 1. If not, logs will be
-		# written to /app/conch/log inside the container and a volume will need
-		# to be mounted there.
-		log_to_stderr  => 0,
+        # For docker, this should probably be set to 1. If not, logs will be
+        # written to /app/conch/log inside the container and a volume will need
+        # to be mounted there.
+        log_to_stderr  => 0,
 
-		# Stop issuing 'conch' cookies. This does not prevent existing conch
-		# cookies from being validated (as long as the secrets are the same).
-		# Once all conch clients have been migrated, this should be set to 1.
-		# After a month (the expiry time for conch cookies) all existing
-		# 'conch' cookie code should be removed
-		stop_conch_cookie_issue => 0,
-	},
+        # Stop issuing 'conch' cookies. This does not prevent existing conch
+        # cookies from being validated (as long as the secrets are the same).
+        # Once all conch clients have been migrated, this should be set to 1.
+        # After a month (the expiry time for conch cookies) all existing
+        # 'conch' cookie code should be removed
+        stop_conch_cookie_issue => 0,
+    },
 
 
-	# See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
-	hypnotoad => {
-		listen => ['http://*:5000'],
-		
-		# For docker, if a read_only container is desired, uncomment this and
-		# set /tmp to tmpfs
-		# pid_file => "/tmp/hypnotoad.pid",
+    # See all settings at https://metacpan.org/pod/Mojo::Server::Hypnotoad#SETTINGS
+    hypnotoad => {
+        listen => ['http://*:5000'],
 
-		# operates behind a reverse proxy
-		proxy => 1,
-	},
+        # For docker, if a read_only container is desired, uncomment this and
+        # set /tmp to tmpfs
+        # pid_file => "/tmp/hypnotoad.pid",
 
-	nytprof => {
+        # operates behind a reverse proxy
+        proxy => 1,
+    },
 
-		# path to your nytprofhtml script (installed as part of Devel::NYTProf
-		# distribution). the plugin will do its best to try to find this so this
-		# is optional, just set if you have a none standard path
-		nytprofhtml_path => 'local/bin/nytprofhtml',
+    nytprof => {
 
-		# path to store Devel::NYTProf output profiles and generated html pages.
-		# options, defaults to "/path/to/your/app/root/dir/nytprof"
-		profiles_dir => 'nytprof/',
+        # path to your nytprofhtml script (installed as part of Devel::NYTProf
+        # distribution). the plugin will do its best to try to find this so this
+        # is optional, just set if you have a none standard path
+        nytprofhtml_path => 'local/bin/nytprofhtml',
 
-		# set this to true to allow the plugin to run when in production mode
-		# the default value is 0 so you can deploy your app to prod without
-		# having to make any changes to config/plugin register
-		allow_production => 1,
+        # path to store Devel::NYTProf output profiles and generated html pages.
+        # options, defaults to "/path/to/your/app/root/dir/nytprof"
+        profiles_dir => 'nytprof/',
 
-		# Devel::NYTProf environment options, see the documentation at
-		# https://metacpan.org/pod/Devel::NYTProf#NYTPROF-ENVIRONMENT-VARIABLE
-		# for a complete list. N.B. you can't supply start or file as these
-		# are used internally in the plugin so will be ignored if passed
-		env => {
-			blocks => 1
-		},
+        # set this to true to allow the plugin to run when in production mode
+        # the default value is 0 so you can deploy your app to prod without
+        # having to make any changes to config/plugin register
+        allow_production => 1,
 
-		# when to enable Devel::NYTProf profiling - the pre_hook will run
-		# to enable_profile and the post_hook will run to disable_profile
-		# and finish_profile. the values show here are the defaults so you
-		# do not need to provide these options
-		#
-		# bear in mind the caveats in the Mojolicious docs regarding hooks
-		# and that they may not fire in the order you expect - this can
-		# affect the NYTProf output and cause some things not to appear
-		# (or appear in the wrong order). the defaults below should be
-		# sufficient for profiling your code, however you can change these
-		#
-		# N.B. there is nothing stopping you reversing the order of the
-		# hooks, which would cause the Mojolicious framework code to be
-		# profiled, or providing hooks that are the same or even invalid. these
-		# config options should probably be used with some care
-		pre_hook  => 'before_routes',
-		post_hook => 'around_dispatch',
-	},
+        # Devel::NYTProf environment options, see the documentation at
+        # https://metacpan.org/pod/Devel::NYTProf#NYTPROF-ENVIRONMENT-VARIABLE
+        # for a complete list. N.B. you can't supply start or file as these
+        # are used internally in the plugin so will be ignored if passed
+        env => {
+            blocks => 1
+        },
+
+        # when to enable Devel::NYTProf profiling - the pre_hook will run
+        # to enable_profile and the post_hook will run to disable_profile
+        # and finish_profile. the values show here are the defaults so you
+        # do not need to provide these options
+        #
+        # bear in mind the caveats in the Mojolicious docs regarding hooks
+        # and that they may not fire in the order you expect - this can
+        # affect the NYTProf output and cause some things not to appear
+        # (or appear in the wrong order). the defaults below should be
+        # sufficient for profiling your code, however you can change these
+        #
+        # N.B. there is nothing stopping you reversing the order of the
+        # hooks, which would cause the Mojolicious framework code to be
+        # profiled, or providing hooks that are the same or even invalid. these
+        # config options should probably be used with some care
+        pre_hook  => 'before_routes',
+        post_hook => 'around_dispatch',
+    },
 
     # logging => {
     #     # directory where all logs will be placed.

@@ -49,7 +49,7 @@ WITH RECURSIVE workspace_children (id) AS (
 SELECT workspace_children.id FROM workspace_children
 };
 
-    $self->search({ $self->current_source_alias . '.id' => { -in => \[ $query, $workspace_id ] } });
+    $self->search({ $self->current_source_alias.'.id' => { -in => \[ $query, $workspace_id ] } });
 }
 
 =head2 and_workspaces_beneath
@@ -80,7 +80,7 @@ WITH RECURSIVE workspace_and_children (id) AS (
 SELECT DISTINCT workspace_and_children.id FROM workspace_and_children
 };
 
-    $self->search({ $self->current_source_alias . '.id' => { -in => \[ $query, @binds ] } });
+    $self->search({ $self->current_source_alias.'.id' => { -in => \[ $query, @binds ] } });
 }
 
 =head2 workspaces_above
@@ -111,7 +111,7 @@ WITH RECURSIVE workspace_parents (id, parent_workspace_id) AS (
 SELECT workspace_parents.id FROM workspace_parents
 };
 
-    $self->search({ $self->current_source_alias . '.id' => { -in => \[ $query, $workspace_id ] } });
+    $self->search({ $self->current_source_alias.'.id' => { -in => \[ $query, $workspace_id ] } });
 }
 
 =head2 and_workspaces_above
@@ -142,7 +142,7 @@ WITH RECURSIVE workspace_and_parents (id, parent_workspace_id) AS (
 SELECT DISTINCT workspace_and_parents.id FROM workspace_and_parents
 };
 
-    $self->search({ $self->current_source_alias . '.id' => { -in => \[ $query, @binds ] } });
+    $self->search({ $self->current_source_alias.'.id' => { -in => \[ $query, @binds ] } });
 }
 
 =head2 with_role_via_data_for_user
@@ -219,7 +219,7 @@ sub _workspaces_subquery ($self, $workspace_id) {
     # $rs->as_query produces this: an sql query and list of bind parameters
     if (ref $workspace_id eq 'REF' and ref $workspace_id->$* eq 'ARRAY') {
         return (
-            'IN ' . $workspace_id->$*->[0],
+            'IN '.$workspace_id->$*->[0],
             $workspace_id->$*->@[1 .. $workspace_id->$*->$#*],
         );
     }

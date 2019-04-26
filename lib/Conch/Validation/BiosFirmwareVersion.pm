@@ -11,17 +11,16 @@ profile
 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Missing 'bios_version'") unless $data->{bios_version};
+    $self->die("Missing 'bios_version'") unless $data->{bios_version};
 
-	my $hw_profile = $self->hardware_product_profile;
+    my $hw_profile = $self->hardware_product_profile;
 
-	$self->register_result(
-		expected => $hw_profile->bios_firmware,
-		got      => $data->{bios_version}
-	);
-
+    $self->register_result(
+        expected => $hw_profile->bios_firmware,
+        got      => $data->{bios_version}
+    );
 }
 
 1;

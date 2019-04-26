@@ -43,7 +43,7 @@ my @rack_layouts = map {
 
 # create two relays
 my @relays = $t->app->db_relays->populate([
-    map { +{
+    map +{
         id => "relay$_",
         alias => "relay_number_$_",
         version => "v1.$_",
@@ -51,7 +51,7 @@ my @relays = $t->app->db_relays->populate([
         ssh_port => 123,
         created => '2000-01-01',
         updated => '2018-02-01',
-    } } (0..1)
+    }, (0..1)
 ]);
 
 # now register the relays on various devices in both workspace racks...
@@ -88,7 +88,6 @@ $relays[1]->create_related('device_relay_connections', $_) foreach (
 );
 
 subtest list => sub {
-
     # the global workspace can see all relays, by virtue of all rooms being in the global workspace.
     $t->get_ok("/workspace/$global_ws_id/relay")
         ->status_is(200)
@@ -155,7 +154,6 @@ subtest list => sub {
 };
 
 subtest get_relay_devices => sub {
-
     $t->get_ok("/workspace/$global_ws_id/relay/relay0/device")
         ->status_is(200)
         ->json_schema_is('Devices')

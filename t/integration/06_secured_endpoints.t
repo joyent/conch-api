@@ -1,19 +1,16 @@
 use strict;
 use warnings;
-use utf8;
 
 use Test::More;
 use Data::UUID;
 use Test::Warnings;
 use Test::Conch;
 
-
 my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
 
 $t->get_ok('/me')->status_is(401);
-
 $t->get_ok('/login')->status_is(401);
 
 $t->get_ok('/workspace')->status_is(401);

@@ -26,10 +26,9 @@ line number, but not the filepath, so it doesn't expose where the file lives.
 =cut
 
 sub error_loc {
-	my $frame = shift->frames->[0];
+    my $frame = shift->frames->[0];
 
-	my $error_loc =
-		'Exception raised in \'' . $frame->[0] . '\' at line ' . $frame->[2];
+    my $error_loc = 'Exception raised in \''.$frame->[0].'\' at line '.$frame->[2];
 }
 
 1;

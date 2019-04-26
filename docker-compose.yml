@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: conch
       POSTGRES_DB: conch
     volumes:
-      - ./postgres:/var/lib/postgresql/data 
+      - ./postgres:/var/lib/postgresql/data
 
   web:
     image: joyentbuildops/conch-api:latest

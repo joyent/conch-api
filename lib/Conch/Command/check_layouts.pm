@@ -23,7 +23,6 @@ has description => 'Check for conflicts in existing rack layouts';
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
 sub run ($self, @opts) {
-
     local @ARGV = @opts;
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
@@ -71,7 +70,7 @@ sub run ($self, @opts) {
                     { 'device_location.device_id' => { '!=' => undef } },
                     { prefetch => [
                             'hardware_product',
-                            { 'device_location' => { 'device' => 'hardware_product' } },
+                            { device_location => { device => 'hardware_product' } },
                         ] },
                 );
             while (my $layout = $occupied_layout_rs->next) {

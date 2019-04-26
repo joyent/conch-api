@@ -71,11 +71,11 @@ sub run ($self, @opts) {
                 $validation_results_deleted += $deleted[1];
             }
             catch {
-                if ($_ =~ /Rollback failed/) {
+                if (/Rollback failed/) {
                     local $@ = $_;
                     die;    # propagate the error
                 }
-                print STDERR "\n", 'aborted processing of device ' . $device->id . ': ', $_, "\n";
+                print STDERR "\n", 'aborted processing of device '.$device->id.': ', $_, "\n";
             };
         }
     }

@@ -142,11 +142,10 @@ __PACKAGE__->add_columns(
     '+retain' => { is_serializable => 0 },
 );
 
+use experimental 'signatures';
 use Mojo::JSON 'from_json';
 
-sub TO_JSON {
-    my $self = shift;
-
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
     $data->{report} = from_json($data->{report}) if defined $data->{report};
 

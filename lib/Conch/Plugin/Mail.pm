@@ -15,16 +15,15 @@ Conch::Plugin::Mail - Sets up a helper to send emails
 
 Provides the helper sub 'send_mail' to the app and controllers:
 
-	$c->send_mail('workspace_add_user', {
-		name => 'bob',
-		email => 'bob@conch.joyent.us',
-	});
+    $c->send_mail('workspace_add_user', {
+        name => 'bob',
+        email => 'bob@conch.joyent.us',
+    });
 
 =cut
 
 sub register ($self, $app, $config) {
     $app->helper(send_mail => sub ($c, $template_name, @args) {
-
         my $log = $c->can('log') ? $c->log : $c->app->log;
         Mojo::IOLoop->subprocess(
             sub ($subprocess) {
@@ -32,7 +31,7 @@ sub register ($self, $app, $config) {
             },
             sub ($subprocess, $err, @results) {
                 if ($err) {
-                    $log->warn($template_name . ' email errored: ' . $err);
+                    $log->warn($template_name.' email errored: '.$err);
                 }
             },
         );

@@ -413,9 +413,10 @@ __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
 );
 
-sub TO_JSON {
-    my $self = shift;
+use experimental 'signatures';
+use Mojo::JSON 'from_json';
 
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
     $data->{hardware_product} = delete $data->{hardware_product_id};
 
@@ -428,8 +429,6 @@ sub TO_JSON {
 
     return $data;
 }
-
-use Mojo::JSON 'from_json';
 
 =head2 latest_report_data
 
@@ -455,12 +454,8 @@ sub device_settings_as_hash {
     my $self = shift;
 
     # fold all rows into a hash, newer rows overriding older.
-    my %settings = map {
-        $_->name => $_->value
-    } $self
-        ->related_resultset('device_settings')
-        ->active
-        ->order_by('created');
+    my %settings = map +($_->name => $_->value),
+        $self->related_resultset('device_settings')->active->order_by('created');
 
     return %settings;
 }

@@ -185,9 +185,9 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-20 11:21:49
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:T8uDZZw98qUk1liy7Tf6Ng
 
-sub TO_JSON {
-    my $self = shift;
+use experimental 'signatures';
 
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
     $data->{product_id} = delete $data->{hardware_product_id};
     $data->{ru_start} = delete $data->{rack_unit_start};

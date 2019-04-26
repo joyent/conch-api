@@ -21,130 +21,124 @@ process exceptions.
 =cut
 
 sub register ($self, $app, $config) {
+    my $plugin_config = $config->{logging} // {};
+    my $log_dir = $plugin_config->{dir} // 'log';
 
-	my $plugin_config = $config->{logging} // {};
-	my $log_dir = $plugin_config->{dir} // 'log';
+    my %log_args = (
+        level => 'debug',
+    );
 
-	my %log_args = (
-		level => 'debug',
-	);
+    # without 'path' option, Mojo::Log defaults to *STDERR
+    if (not $app->feature('log_to_stderr')) {
+        $log_dir = path($log_dir);
+        $log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
 
-	# without 'path' option, Mojo::Log defaults to *STDERR
-	if(not $app->feature('log_to_stderr')) {
-		$log_dir = path($log_dir);
-		$log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
+        if (-d $log_dir) {
+            return Mojo::Exception->throw('Cannot write to '.$log_dir) if not -w $log_dir;
+        }
+        else {
+            print STDERR "Creating log dir $log_dir\n";
+            $log_dir->dirname->make_path($log_dir);
+        }
 
-		if (-d $log_dir) {
-			return Mojo::Exception->throw("Cannot write to $log_dir") if not -w $log_dir;
-		} else {
-			print STDERR "Creating log dir $log_dir\n";
-			$log_dir->dirname->make_path($log_dir);
-		}
+        $log_args{path} = $log_dir->child($app->mode.'.log');
+    }
 
-		$log_args{path} = $log_dir->child($app->mode . '.log');
-	}
+    $app->log(Conch::Log->new(%log_args));
 
-	$app->log(Conch::Log->new(%log_args));
+    if ($app->feature('rollbar')) {
+        $app->hook(
+            before_render => sub ($c, $args) {
+                my $template = $args->{template};
 
-	if ($app->feature('rollbar')) {
-		$app->hook(
-			before_render => sub ($c, $args) {
-				my $template = $args->{template};
-
-				if (my $exception = $c->stash('exception')
-						or ($template and $template =~ /exception/)) {
-					$exception //= $args->{exception};
-					$exception->verbose(1);
+                if (my $exception = $c->stash('exception')
+                        or ($template and $template =~ /exception/)) {
+                    $exception //= $args->{exception};
+                    $exception->verbose(1);
                     my $rollbar_id = $c->send_exception_to_rollbar($exception);
                     $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
-				}
-			}
-		);
-	}
+                }
+            }
+        );
+    }
 
-	$app->hook(after_dispatch => sub ($c) {
+    $app->hook(after_dispatch => sub ($c) {
+        my $u_str = $c->stash('user')
+          ? $c->stash('user')->email.' ('.$c->stash('user')->id.')'
+          : 'NOT AUTHED';
 
-		my $u_str = $c->stash('user') ?
-			$c->stash('user')->email . " (".$c->stash('user')->id.")" :
-			'NOT AUTHED';
+        my $req_headers = $c->req->headers->to_hash(1);
+        delete $req_headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
 
-		my $req_headers = $c->req->headers->to_hash(1);
-		for (qw(Authorization Cookie jwt_token jwt_sig)) {
-			delete $req_headers->{$_};
-		}
+        my $log = {
+            v        => 1,
+            pid      => $$,
+            hostname => hostname,
+            time     => Conch::Time->now->iso8601,
+            level    => 'info',
+            msg      => 'dispatch',
+            name     => 'conch-api',
+            req_id   => $c->req->request_id,
+            src      => {
+                func => __PACKAGE__,
+            },
+            req => {
+                user         => $u_str,
+                method       => $c->req->method,
+                url          => $c->req->url,
+                remoteAddress => $c->tx->original_remote_address,
+                remotePort   => $c->tx->remote_port,
+                headers      => $req_headers,
+                params       => $c->req->params->to_hash,
+            },
+        };
 
-		my $log = {
-			v        => 1,
-			pid      => $$,
-			hostname => hostname,
-			time     => Conch::Time->now->iso8601,
-			level    => 'info',
-			msg      => 'dispatch',
-			name     => 'conch-api',
-			req_id   => $c->req->request_id,
-			src      => {
-				func => __PACKAGE__,
-			},
-			req => {
-				user         => $u_str,
-				method       => $c->req->method,
-				url          => $c->req->url,
-				remoteAddress => $c->tx->original_remote_address,
-				remotePort   => $c->tx->remote_port,
-				headers      => $req_headers,
-				params       => $c->req->params->to_hash,
-			},
-		};
+        my $res_headers = $c->res->headers->to_hash(1);
+        delete $res_headers->@{qw(Set-Cookie)};
 
-		my $res_headers = $c->res->headers->to_hash(1);
-		for (qw(Set-Cookie)) {
-			delete $res_headers->{$_};
-		}
+        $log->{res} = {
+            headers => $res_headers,
+        };
 
-		$log->{res} = {
-			headers => $res_headers,
-		};
+        if ($c->res->code) {
+            $log->{res}{statusCode} = $c->res->code;
+            $log->{res}{body} = $c->res->text if $c->res->code >= 400;
+        }
 
-		if ($c->res->code) {
-			$log->{res}{statusCode} = $c->res->code;
-			$log->{res}{body} = $c->res->text if $c->res->code >= 400;
-		}
+        if ($c->feature('audit')) {
+            $log->{req}{body} = $c->req->text;
+            $log->{res}{body} //= $c->res->text if $c->req->url !~ /login/;
+        }
 
-		if ($c->feature('audit')) {
-			$log->{req}{body} = $c->req->text;
-			$log->{res}{body} //= $c->res->text if $c->req->url !~ /login/;
-		}
+        if (my $e = $c->stash('exception')) {
+            $c->stash('exception')->verbose;
+            my $eframes = $c->stash('exception')->frames;
 
-		if(my $e = $c->stash('exception')) {
-			$c->stash('exception')->verbose;
-			my $eframes = $c->stash('exception')->frames;
+            my @frames;
+            for my $frame (reverse $eframes->@*) {
+                push @frames, {
+                    class => $frame->[0],
+                    file  => $frame->[1],
+                    line  => $frame->[2],
+                    func  => $frame->[3],
+                }
+            }
 
-			my @frames;
-			for my $frame (reverse $eframes->@*) {
-				push @frames, {
-					class => $frame->[0],
-					file  => $frame->[1],
-					line  => $frame->[2],
-					func  => $frame->[3],
-				}
-			}
+            $log->{err} = {
+                fileName   => $frames[0]{file},
+                lineNumber => $frames[0]{line},
+                msg        => $c->stash('exception')->to_string,
+                frames     => \@frames,
+            };
+        }
 
-			$log->{err} = {
-				fileName   => $frames[0]{file},
-				lineNumber => $frames[0]{line},
-				msg        => $c->stash('exception')->to_string,
-				frames     => \@frames,
-			};
-		}
+        my $l = Conch::Log->new(%log_args);
 
-		my $l = Conch::Log->new(%log_args);
-
-		$l->request_id($c->req->request_id);
-		$l->payload($log);
-		$l->info();
-	});
+        $l->request_id($c->req->request_id);
+        $l->payload($log);
+        $l->info();
+    });
 }
-
 
 1;
 __END__
@@ -160,3 +154,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

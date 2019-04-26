@@ -151,7 +151,7 @@ role.
 
 {
     my $i = 0;
-    my %role_to_int = map { $_ => ++$i } __PACKAGE__->column_info('role')->{extra}{list}->@*;
+    my %role_to_int = map +($_ => ++$i), __PACKAGE__->column_info('role')->{extra}{list}->@*;
 
     sub role_cmp {
         my $self = shift;

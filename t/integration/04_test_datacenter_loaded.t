@@ -1,8 +1,10 @@
-use Mojo::Base -strict;
-use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+use strict;
+use warnings;
 use warnings FATAL => 'utf8';
+use utf8;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+
 use Test::More;
-use Data::UUID;
 use Path::Tiny;
 use Test::Deep;
 use Test::Deep::JSON;
@@ -19,41 +21,36 @@ $t->load_validation_plans([{
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
-my $uuid = Data::UUID->new;
-
 $t->authenticate;
 
-isa_ok( $t->tx->res->cookie('conch'), 'Mojo::Cookie::Response' );
+isa_ok($t->tx->res->cookie('conch'), 'Mojo::Cookie::Response');
 
 $t->get_ok('/workspace')
-	->status_is(200)
-	->json_schema_is('WorkspacesAndRoles')
-	->json_is( '/0/name', 'GLOBAL' );
+    ->status_is(200)
+    ->json_schema_is('WorkspacesAndRoles')
+    ->json_is('/0/name', 'GLOBAL');
 
 my $global_ws_id = $t->tx->res->json->[0]{id};
-BAIL_OUT("No workspace ID") unless $global_ws_id;
+BAIL_OUT('No workspace ID') unless $global_ws_id;
 
-$t->post_ok(
-	"/workspace/$global_ws_id/child" => json => {
-		name        => "test",
-		description => "also test",
-	}
-)->status_is(201);
+$t->post_ok("/workspace/$global_ws_id/child",
+        json => { name => 'test', description => 'also test' })
+    ->status_is(201);
 
 my $sub_ws_id = $t->tx->res->json->{id};
-BAIL_OUT("Could not create sub-workspace.") unless $sub_ws_id;
+BAIL_OUT('Could not create sub-workspace.') unless $sub_ws_id;
 
 subtest 'Device Report' => sub {
-	# register the relay referenced by the report
-	$t->post_ok('/relay/deadbeef/register',
-		json => {
-			serial   => 'deadbeef',
-			version  => '0.0.1',
-			ipaddr   => '127.0.0.1',
-			ssh_port => 22,
-			alias    => 'test relay'
-		}
-	)->status_is(204);
+    # register the relay referenced by the report
+    $t->post_ok('/relay/deadbeef/register',
+            json => {
+                serial   => 'deadbeef',
+                version  => '0.0.1',
+                ipaddr   => '127.0.0.1',
+                ssh_port => 22,
+                alias    => 'test relay'
+            })
+        ->status_is(204);
 
     # device reports are submitted thusly:
     # 0: pass
@@ -65,22 +62,22 @@ subtest 'Device Report' => sub {
     # 6: error (empty product_name)
     # 7: pass
 
-	my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
-		->status_is(200)
-		->json_schema_is('ValidationStateWithResults')
-		->json_cmp_deeply(superhashof({
-			device_id => 'TEST',
-			status => 'pass',
-			completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-			results => [
-				superhashof({
-					device_id => 'TEST',
-					order => 0,
-					status => 'pass',
-				}),
-			],
-		}));
+    my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => 'TEST',
+            status => 'pass',
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            results => [
+                superhashof({
+                    device_id => 'TEST',
+                    order => 0,
+                    status => 'pass',
+                }),
+            ],
+        }));
 
     my (@device_report_ids, @validation_state_ids);
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -110,10 +107,10 @@ subtest 'Device Report' => sub {
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         });
 
-	is($device->related_resultset('device_reports')->count, 1, 'one device_report row created');
-	is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
-	is($t->app->db_validation_results->count, 1, 'one validation result row created');
-	is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
+    is($device->related_resultset('device_reports')->count, 1, 'one device_report row created');
+    is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
+    is($t->app->db_validation_results->count, 1, 'one validation result row created');
+    is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
 
     # submit another passing report, this time swapping around some iface_names...
@@ -162,20 +159,20 @@ subtest 'Device Report' => sub {
         'second validation_state deleted');
 
 
-	my $invalid_json_1 = '{"this": 1s n0t v@l,d ǰsøƞ';	# } for brace matching
-	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
-			Encode::encode('UTF-8', $invalid_json_1))
-		->status_is(400);
+    my $invalid_json_1 = '{"this": 1s n0t v@l,d ǰsøƞ'; # } for brace matching
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+            Encode::encode('UTF-8', $invalid_json_1))
+        ->status_is(400);
 
-	cmp_deeply(
-		$device->self_rs->latest_device_report->single,
-		methods(
-			device_id => 'TEST',
-			report => undef,
-			invalid_report => $invalid_json_1,
-		),
-		'stored the invalid report in raw form',
-	);
+    cmp_deeply(
+        $device->self_rs->latest_device_report->single,
+        methods(
+            device_id => 'TEST',
+            report => undef,
+            invalid_report => $invalid_json_1,
+        ),
+        'stored the invalid report in raw form',
+    );
 
     # the device report was saved, but no validations run.
     push @device_report_ids, $t->app->db_device_reports->order_by({ -desc => 'created' })->rows(1)->get_column('id')->single;
@@ -195,13 +192,13 @@ subtest 'Device Report' => sub {
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
     is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
 
-	$t->get_ok('/device/TEST')
-		->status_is(200)
-		->json_schema_is('DetailedDevice')
-		->json_is('/health' => 'pass')
-		->json_is('/latest_report_is_invalid' => JSON::PP::true)
-		->json_is('/latest_report' => undef)
-		->json_is('/invalid_report' => $invalid_json_1);
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_is('/health' => 'pass')
+        ->json_is('/latest_report_is_invalid' => JSON::PP::true)
+        ->json_is('/latest_report' => undef)
+        ->json_is('/invalid_report' => $invalid_json_1);
 
     $t->get_ok('/device_report/'.$device_report_ids[0])
         ->status_is(200)
@@ -215,19 +212,19 @@ subtest 'Device Report' => sub {
         });
 
 
-	my $invalid_json_2 = to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' });
-	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
-			json => { foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' })
-		->status_is(400);
+    my $invalid_json_2 = to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' });
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+            json => { foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' })
+        ->status_is(400);
 
-	cmp_deeply(
-		$device->self_rs->latest_device_report->single,
-		methods(
-			device_id => 'TEST',
-			invalid_report => $invalid_json_2,
-		),
-		'stored the invalid report in raw form',
-	);
+    cmp_deeply(
+        $device->self_rs->latest_device_report->single,
+        methods(
+            device_id => 'TEST',
+            invalid_report => $invalid_json_2,
+        ),
+        'stored the invalid report in raw form',
+    );
 
     # the device report was saved, but no validations run.
     push @device_report_ids, $t->app->db_device_reports->order_by({ -desc => 'created' })->rows(1)->get_column('id')->single;
@@ -247,13 +244,13 @@ subtest 'Device Report' => sub {
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
     is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
 
-	$t->get_ok('/device/TEST')
-		->status_is(200)
-		->json_schema_is('DetailedDevice')
-		->json_is('/health' => 'pass')
-		->json_is('/latest_report_is_invalid' => JSON::PP::true)
-		->json_is('/latest_report' => undef)
-		->json_is('/invalid_report' => $invalid_json_2);
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_is('/health' => 'pass')
+        ->json_is('/latest_report_is_invalid' => JSON::PP::true)
+        ->json_is('/latest_report' => undef)
+        ->json_is('/invalid_report' => $invalid_json_2);
 
 
     # submit another passing report...
@@ -286,11 +283,11 @@ subtest 'Device Report' => sub {
     is($t->app->db_validation_results->count, 1, 'the latest validation result is the same as the first');
 
 
-	my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
-	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
-		->status_is(200)
-		->json_schema_is('ValidationStateWithResults')
-		->json_is('/status', 'error');
+    my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_is('/status', 'error');
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
     push @validation_state_ids, $t->tx->res->json->{id};
@@ -310,18 +307,18 @@ subtest 'Device Report' => sub {
     is($device->related_resultset('validation_states')->count, 4, 'now another validation_state row exists');
     is($t->app->db_validation_results->count, 2, 'now two validation results rows exist');
 
-	$t->get_ok('/device/TEST')
-		->status_is(200)
-		->json_schema_is('DetailedDevice')
-		->json_is('/health' => 'error')
-		->json_is('/latest_report_is_invalid' => JSON::PP::false);
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_is('/health' => 'error')
+        ->json_is('/latest_report_is_invalid' => JSON::PP::false);
 
 
-	# return device to a good state
-	$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
-		->status_is(200)
-		->json_schema_is('ValidationStateWithResults')
-		->json_is('/status', 'pass');
+    # return device to a good state
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_is('/status', 'pass');
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
     push @validation_state_ids, $t->tx->res->json->{id};
@@ -377,14 +374,14 @@ subtest 'Device Report' => sub {
 };
 
 subtest 'Single device' => sub {
-	my $rack_id = $t->load_fixture('legacy_rack')->id;
+    my $rack_id = $t->load_fixture('legacy_rack')->id;
 
-	# device settings that check for 'admin' permission need the device to have a location
-	$t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout",
-			json => { TEST => 1, NEW_DEVICE => 3 })
-		->status_is(200)
-		->json_schema_is('WorkspaceRackLayoutUpdateResponse')
-		->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
+    # device settings that check for 'admin' permission need the device to have a location
+    $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout",
+            json => { TEST => 1, NEW_DEVICE => 3 })
+        ->status_is(200)
+        ->json_schema_is('WorkspaceRackLayoutUpdateResponse')
+        ->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
 
     ok(
         !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
@@ -402,393 +399,374 @@ subtest 'Validations' => sub {
     my $validation_plan_id = $validation_plan->id;
     $validation_plan->find_or_create_related('validation_plan_members', { validation_id => $validation_id });
 
-	subtest 'test validating a device' => sub {
-		my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+    subtest 'test validating a device' => sub {
+        my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 
-		$t->post_ok("/device/TEST/validation/$validation_id", json => {})
-			->status_is(400)
-			->json_schema_is('Error');
+        $t->post_ok("/device/TEST/validation/$validation_id", json => {})
+            ->status_is(400)
+            ->json_schema_is('Error');
 
-		$t->post_ok("/device/TEST/validation/$validation_id",
-				{ 'Content-Type' => 'application/json' }, $good_report)
-			->status_is(200)
-			->json_schema_is('ValidationResults')
-			->json_cmp_deeply([ superhashof({
-				id => undef,
-				device_id => 'TEST',
-			}) ]);
+        $t->post_ok("/device/TEST/validation/$validation_id",
+                { 'Content-Type' => 'application/json' }, $good_report)
+            ->status_is(200)
+            ->json_schema_is('ValidationResults')
+            ->json_cmp_deeply([ superhashof({
+                id => undef,
+                device_id => 'TEST',
+            }) ]);
 
-		my $validation_results = $t->tx->res->json;
+        my $validation_results = $t->tx->res->json;
 
-		$t->post_ok("/device/TEST/validation_plan/$validation_plan_id", json => {})
-			->status_is(400)
-			->json_schema_is('Error');
+        $t->post_ok("/device/TEST/validation_plan/$validation_plan_id", json => {})
+            ->status_is(400)
+            ->json_schema_is('Error');
 
-		$t->post_ok("/device/TEST/validation_plan/$validation_plan_id",
-				{ 'Content-Type' => 'application/json' }, $good_report)
-			->status_is(200)
-			->json_schema_is('ValidationResults')
-			->json_is($validation_results);
-	};
+        $t->post_ok("/device/TEST/validation_plan/$validation_plan_id",
+                { 'Content-Type' => 'application/json' }, $good_report)
+            ->status_is(200)
+            ->json_schema_is('ValidationResults')
+            ->json_is($validation_results);
+    };
 
 
-	my $device = $t->app->db_devices->find('TEST');
-	my $device_report = $t->app->db_device_reports->rows(1)->order_by({ -desc => 'created' })->single;
-	my $validation = $t->load_validation('Conch::Validation::BiosFirmwareVersion');
+    my $device = $t->app->db_devices->find('TEST');
+    my $device_report = $t->app->db_device_reports->rows(1)->order_by({ -desc => 'created' })->single;
+    my $validation = $t->load_validation('Conch::Validation::BiosFirmwareVersion');
 
-	# manually create a failing validation result... ew ew ew.
-	# this uses the new validation plan, which is guaranteed to be different from the passing
-	# valdiation that got recorded for this device via the report earlier.
-	my $validation_state = $t->app->db_validation_states->create({
-		device_id => 'TEST',
-		validation_plan_id => $validation_plan_id,
-		device_report_id => $device_report->id,
-		status => 'fail',
-		completed => \'NOW()',
-		validation_state_members => [{
-			validation_result => {
-				device_id => 'TEST',
-				hardware_product_id => $device->hardware_product_id,
-				validation_id => $validation->id,
-				message => 'faked failure',
-				hint => 'boo',
-				status => 'fail',
-				category => 'test',
-				result_order => 0,
-			},
-		}],
-	});
+    # manually create a failing validation result... ew ew ew.
+    # this uses the new validation plan, which is guaranteed to be different from the passing
+    # valdiation that got recorded for this device via the report earlier.
+    my $validation_state = $t->app->db_validation_states->create({
+        device_id => 'TEST',
+        validation_plan_id => $validation_plan_id,
+        device_report_id => $device_report->id,
+        status => 'fail',
+        completed => \'now()',
+        validation_state_members => [{
+            validation_result => {
+                device_id => 'TEST',
+                hardware_product_id => $device->hardware_product_id,
+                validation_id => $validation->id,
+                message => 'faked failure',
+                hint => 'boo',
+                status => 'fail',
+                category => 'test',
+                result_order => 0,
+            },
+        }],
+    });
 
-	# record another, older, failing test using the same plan.
-	$t->app->db_validation_states->create({
-		device_id => 'TEST',
-		validation_plan_id => $validation_plan_id,
-		device_report_id => $device_report->id,
-		status => 'fail',
-		completed => '2001-01-01',
-		validation_state_members => [{
-			validation_result => {
-				created => '2001-01-01',
-				device_id => 'TEST',
-				hardware_product_id => $device->hardware_product_id,
-				validation_id => $validation->id,
-				message => 'earlier failure',
-				hint => 'boo',
-				status => 'fail',
-				category => 'test',
-				result_order => 0,
-			},
-		}],
-	});
+    # record another, older, failing test using the same plan.
+    $t->app->db_validation_states->create({
+        device_id => 'TEST',
+        validation_plan_id => $validation_plan_id,
+        device_report_id => $device_report->id,
+        status => 'fail',
+        completed => '2001-01-01',
+        validation_state_members => [{
+            validation_result => {
+                created => '2001-01-01',
+                device_id => 'TEST',
+                hardware_product_id => $device->hardware_product_id,
+                validation_id => $validation->id,
+                message => 'earlier failure',
+                hint => 'boo',
+                status => 'fail',
+                category => 'test',
+                result_order => 0,
+            },
+        }],
+    });
 
-	$t->get_ok('/device/TEST/validation_state')
-		->status_is(200)
-		->json_schema_is('ValidationStatesWithResults')
-		->json_cmp_deeply(bag(
-			{
-				id => ignore,
-				validation_plan_id => ignore,
-				device_id => 'TEST',
-				device_report_id => $device_report->id,
-				completed => ignore,
-				created => ignore,
-				status => 'pass',	# we force-validated this device earlier
-				results => [ ignore ],
-			},
-			{
-				id => $validation_state->id,
-				validation_plan_id => $validation_plan_id,
-				device_id => 'TEST',
-				device_report_id => $device_report->id,
-				completed => ignore,
-				created => ignore,
-				status => 'fail',
-				results => [ {
-					id => ignore,
-					device_id => 'TEST',
-					hardware_product_id => $device->hardware_product_id,
-					validation_id => $validation->id,
-					component_id => undef,
-					message => 'faked failure',
-					hint => 'boo',
-					status => 'fail',
-					category => 'test',
-					order => 0,
-				} ],
-			},
-		));
+    $t->get_ok('/device/TEST/validation_state')
+        ->status_is(200)
+        ->json_schema_is('ValidationStatesWithResults')
+        ->json_cmp_deeply(bag(
+            {
+                id => ignore,
+                validation_plan_id => ignore,
+                device_id => 'TEST',
+                device_report_id => $device_report->id,
+                completed => ignore,
+                created => ignore,
+                status => 'pass',   # we force-validated this device earlier
+                results => [ ignore ],
+            },
+            {
+                id => $validation_state->id,
+                validation_plan_id => $validation_plan_id,
+                device_id => 'TEST',
+                device_report_id => $device_report->id,
+                completed => ignore,
+                created => ignore,
+                status => 'fail',
+                results => [{
+                    id => ignore,
+                    device_id => 'TEST',
+                    hardware_product_id => $device->hardware_product_id,
+                    validation_id => $validation->id,
+                    component_id => undef,
+                    message => 'faked failure',
+                    hint => 'boo',
+                    status => 'fail',
+                    category => 'test',
+                    order => 0,
+                }],
+            },
+        ));
 
-	my $validation_states = $t->tx->res->json;
+    my $validation_states = $t->tx->res->json;
 
-	$t->get_ok('/device/TEST/validation_state?status=pass')
-		->status_is(200)
-		->json_schema_is('ValidationStatesWithResults')
-		->json_is([ grep { $_->{status} eq 'pass' } $validation_states->@* ]);
+    $t->get_ok('/device/TEST/validation_state?status=pass')
+        ->status_is(200)
+        ->json_schema_is('ValidationStatesWithResults')
+        ->json_is([ grep $_->{status} eq 'pass', $validation_states->@* ]);
 
-	$t->get_ok('/device/TEST/validation_state?status=fail')
-		->status_is(200)
-		->json_schema_is('ValidationStatesWithResults')
-		->json_is([ grep { $_->{status} eq 'fail' } $validation_states->@* ]);
+    $t->get_ok('/device/TEST/validation_state?status=fail')
+        ->status_is(200)
+        ->json_schema_is('ValidationStatesWithResults')
+        ->json_is([ grep $_->{status} eq 'fail', $validation_states->@* ]);
 
-	$t->get_ok('/device/TEST/validation_state?status=error')
-		->status_is(200)
-		->json_schema_is('ValidationStatesWithResults')
-		->json_cmp_deeply([
-			{
-				id => ignore,
-				validation_plan_id => ignore,
-				device_id => 'TEST',
-				device_report_id => ignore,
-				completed => ignore,
-				created => ignore,
-				status => 'error',
-				results => [ {
-					id => ignore,
-					device_id => 'TEST',
-					hardware_product_id => $device->hardware_product_id,
-					validation_id => ignore,
-					component_id => undef,
-					message => 'Missing \'product_name\' property',
-					hint => ignore,
-					status => 'error',
-					category => 'BIOS',
-					order => 0,
-				} ],
-			},
-		]);
+    $t->get_ok('/device/TEST/validation_state?status=error')
+        ->status_is(200)
+        ->json_schema_is('ValidationStatesWithResults')
+        ->json_cmp_deeply([
+            {
+                id => ignore,
+                validation_plan_id => ignore,
+                device_id => 'TEST',
+                device_report_id => ignore,
+                completed => ignore,
+                created => ignore,
+                status => 'error',
+                results => [{
+                    id => ignore,
+                    device_id => 'TEST',
+                    hardware_product_id => $device->hardware_product_id,
+                    validation_id => ignore,
+                    component_id => undef,
+                    message => 'Missing \'product_name\' property',
+                    hint => ignore,
+                    status => 'error',
+                    category => 'BIOS',
+                    order => 0,
+                }],
+            },
+        ]);
 
-	$t->get_ok('/device/TEST/validation_state?status=pass,fail')
-		->status_is(200)
-		->json_schema_is('ValidationStatesWithResults')
-		->json_is($validation_states);
+    $t->get_ok('/device/TEST/validation_state?status=pass,fail')
+        ->status_is(200)
+        ->json_schema_is('ValidationStatesWithResults')
+        ->json_is($validation_states);
 
-	$t->get_ok('/device/TEST/validation_state?status=pass,bar')
-		->status_is(400)
-		->json_is({ error => "'status' query parameter must be any of 'pass', 'fail', or 'error'." });
+    $t->get_ok('/device/TEST/validation_state?status=pass,bar')
+        ->status_is(400)
+        ->json_is({ error => "'status' query parameter must be any of 'pass', 'fail', or 'error'." });
 };
 
 subtest 'Device location' => sub {
-	$t->post_ok('/device/TEST/location')
-		->status_is(400, 'requires body')
-		->json_like('/error', qr/Expected object/);
+    $t->post_ok('/device/TEST/location')
+        ->status_is(400, 'requires body')
+        ->json_like('/error', qr/Expected object/);
 
-	my $rack_id = $t->load_fixture('legacy_rack')->id;
+    my $rack_id = $t->load_fixture('legacy_rack')->id;
 
-	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 42 })
-		->status_is(409)
-		->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 42 })
+        ->status_is(409)
+        ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
 
-	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
-		->status_is(303)
-		->location_is('/device/TEST/location');
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
+        ->status_is(303)
+        ->location_is('/device/TEST/location');
 
-	$t->delete_ok('/device/TEST/location')
-		->status_is(204, 'can delete device location');
+    $t->delete_ok('/device/TEST/location')
+        ->status_is(204, 'can delete device location');
 
-	$t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
-		->status_is(303, 'add it back');
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
+        ->status_is(303, 'add it back');
 };
 
 subtest 'Log out' => sub {
-	$t->post_ok("/logout")->status_is(204);
-	$t->get_ok("/workspace")->status_is(401);
+    $t->post_ok('/logout')
+        ->status_is(204);
+    $t->get_ok('/workspace')
+        ->status_is(401);
 };
 
 subtest 'Permissions' => sub {
-	my $ro_name = 'wat';
-	my $ro_email = 'readonly@wat.wat';
-	my $ro_pass = 'password';
+    my $ro_name = 'wat';
+    my $ro_email = 'readonly@wat.wat';
+    my $ro_pass = 'password';
 
-	my $rack_id = $t->load_fixture('legacy_rack')->id;
+    my $rack_id = $t->load_fixture('legacy_rack')->id;
 
-	subtest 'Read-only' => sub {
-		my $ro_user = $t->app->db_user_accounts->create({
-			name => $ro_name,
-			email => $ro_email,
-			password => $ro_pass,
-			user_workspace_roles => [{
-				workspace_id => $global_ws_id,
-				role => 'ro',
-			}],
-		});
+    subtest 'Read-only' => sub {
+        my $ro_user = $t->app->db_user_accounts->create({
+            name => $ro_name,
+            email => $ro_email,
+            password => $ro_pass,
+            user_workspace_roles => [{
+                workspace_id => $global_ws_id,
+                role => 'ro',
+            }],
+        });
 
-		$t->authenticate(user => $ro_email, password => $ro_pass);
+        $t->authenticate(user => $ro_email, password => $ro_pass);
 
-		$t->get_ok('/workspace')
-			->status_is(200)
-			->json_schema_is('WorkspacesAndRoles')
-			->json_is( '/0/name', 'GLOBAL' );
+        $t->get_ok('/workspace')
+            ->status_is(200)
+            ->json_schema_is('WorkspacesAndRoles')
+            ->json_is('/0/name', 'GLOBAL');
 
-		subtest "Can't create a subworkspace" => sub {
-			$t->post_ok(
-				"/workspace/$global_ws_id/child" => json => {
-					name        => "test",
-					description => "also test",
-				}
-			)->status_is(403)
-			->json_is({ error => 'Forbidden' });
-		};
+        subtest "Can't create a subworkspace" => sub {
+            $t->post_ok("/workspace/$global_ws_id/child",
+                    json => { name => 'test', description => 'also test' })
+                ->status_is(403);
+        };
 
-		subtest "Can't add a rack" => sub {
-			$t->post_ok( "/workspace/$global_ws_id/rack", json => { id => $rack_id } )
-				->status_is(403)
-				->json_is({ error => 'Forbidden' });
-		};
+        subtest "Can't add a rack" => sub {
+            $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
+                ->status_is(403);
+        };
 
-		subtest "Can't set a rack layout" => sub {
-			$t->post_ok(
-				"/workspace/$global_ws_id/rack/$rack_id/layout",
-				json => {
-					TEST => 1
-				}
-			)->status_is(403)
-			->json_is({ error => 'Forbidden' });
-		};
+        subtest "Can't set a rack layout" => sub {
+            $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout", json => { TEST => 1 })
+                ->status_is(403);
+        };
 
-		subtest "Can't add a user to workspace" => sub {
-			$t->post_ok(
-				"/workspace/$global_ws_id/user",
-				json => {
-					user => 'another@wat.wat',
-					role => 'ro',
-				}
-			)->status_is(403)
-			->json_is({ error => 'Forbidden' });
-		};
+        subtest "Can't add a user to workspace" => sub {
+            $t->post_ok("/workspace/$global_ws_id/user",
+                    json => { user => 'another@wat.wat', role => 'ro' })
+                ->status_is(403);
+        };
 
-		subtest "Can't get a relay list" => sub {
-			$t->get_ok("/relay")->status_is(403);
-		};
+        subtest "Can't get a relay list" => sub {
+            $t->get_ok('/relay')
+                ->status_is(403);
+        };
 
-		$t->get_ok("/workspace/$global_ws_id/user")
-			->status_is(200, 'get list of users for this workspace')
-			->json_schema_is('WorkspaceUsers')
-			->json_cmp_deeply(bag(
-				{
-					id => ignore,
-					name => $t->CONCH_USER,
-					email => $t->CONCH_EMAIL,
-					role => 'admin',
-				},
-				{
-					id => $ro_user->id,
-					name => $ro_name,
-					email => $ro_email,
-					role => 'ro',
-				},
-			));
+        $t->get_ok("/workspace/$global_ws_id/user")
+            ->status_is(200, 'get list of users for this workspace')
+            ->json_schema_is('WorkspaceUsers')
+            ->json_cmp_deeply(bag(
+                {
+                    id => ignore,
+                    name => $t->CONCH_USER,
+                    email => $t->CONCH_EMAIL,
+                    role => 'admin',
+                },
+                {
+                    id => $ro_user->id,
+                    name => $ro_name,
+                    email => $ro_email,
+                    role => 'ro',
+                },
+            ));
 
-		subtest 'device settings' => sub {
-			$t->post_ok('/device/TEST/settings', json => { name => 'new value' })
-				->status_is(403)
-				->json_is({ error => 'Forbidden' });
-			$t->post_ok('/device/TEST/settings/foo', json => { foo => 'new_value' })
-				->status_is(403)
-				->json_is({ error => 'Forbidden' });
-			$t->delete_ok('/device/TEST/settings/foo')
-				->status_is(403)
-				->json_is({ error => 'Forbidden' });
-		};
+        subtest 'device settings' => sub {
+            $t->post_ok('/device/TEST/settings', json => { name => 'new value' })
+                ->status_is(403);
+            $t->post_ok('/device/TEST/settings/foo', json => { foo => 'new_value' })
+                ->status_is(403);
+            $t->delete_ok('/device/TEST/settings/foo')
+                ->status_is(403);
+        };
 
-		$t->post_ok("/logout")->status_is(204);
-	};
+        $t->post_ok('/logout')
+            ->status_is(204);
+    };
 
-	subtest "Read-write" => sub {
-		my $name = 'integrator';
-		my $email = 'integrator@wat.wat';
-		my $pass = 'password';
+    subtest 'Read-write' => sub {
+        my $name = 'integrator';
+        my $email = 'integrator@wat.wat';
+        my $pass = 'password';
 
-		my $user = $t->app->db_user_accounts->create({
-			name => $name,
-			email => $email,
-			password => $pass,
-			user_workspace_roles => [{
-				workspace_id => $global_ws_id,
-				role => 'rw',
-			}],
-		});
+        my $user = $t->app->db_user_accounts->create({
+            name => $name,
+            email => $email,
+            password => $pass,
+            user_workspace_roles => [{
+                workspace_id => $global_ws_id,
+                role => 'rw',
+            }],
+        });
 
-		$t->authenticate(user => $email, password => $pass);
+        $t->authenticate(user => $email, password => $pass);
 
-		$t->get_ok('/workspace')
-			->status_is(200)
-			->json_schema_is('WorkspacesAndRoles')
-			->json_is( '/0/name', 'GLOBAL' );
+        $t->get_ok('/workspace')
+            ->status_is(200)
+            ->json_schema_is('WorkspacesAndRoles')
+            ->json_is('/0/name', 'GLOBAL');
 
-		subtest "Can't create a subworkspace" => sub {
-			$t->post_ok(
-				"/workspace/$global_ws_id/child" => json => {
-					name        => "test",
-					description => "also test",
-				}
-			)->status_is(403)
-			->json_is({ error => 'Forbidden' });
-		};
+        subtest "Can't create a subworkspace" => sub {
+            $t->post_ok("/workspace/$global_ws_id/child",
+                    json => { name => 'test', description => 'also test' })
+                ->status_is(403);
+        };
 
-		subtest "Can't add a user to workspace" => sub {
-			$t->post_ok(
-				"/workspace/$global_ws_id/user",
-				json => {
-					user => 'another@wat.wat',
-					role => 'ro',
-				}
-			)->status_is(403)
-			->json_is({ error => 'Forbidden' });
-		};
+        subtest "Can't add a user to workspace" => sub {
+            $t->post_ok("/workspace/$global_ws_id/user",
+                    json => { user => 'another@wat.wat', role => 'ro' })
+                ->status_is(403);
+        };
 
-		subtest "Can't get a relay list" => sub {
-			$t->get_ok("/relay")->status_is(403);
-		};
+        subtest "Can't get a relay list" => sub {
+            $t->get_ok('/relay')
+                ->status_is(403);
+        };
 
-		$t->get_ok("/workspace/$global_ws_id/user")
-			->status_is(200, 'get list of users for this workspace')
-			->json_schema_is('WorkspaceUsers')
-			->json_cmp_deeply(bag(
-				{
-					id => ignore,
-					name => $t->CONCH_USER,
-					email => $t->CONCH_EMAIL,
-					role => 'admin',
-				},
-				{
-					id => ignore,
-					name => $ro_name,
-					email => $ro_email,
-					role => 'ro',
-				},
-				{
-					id => $user->id,
-					name => $name,
-					email => $email,
-					role => 'rw',
-				},
-			));
+        $t->get_ok("/workspace/$global_ws_id/user")
+            ->status_is(200, 'get list of users for this workspace')
+            ->json_schema_is('WorkspaceUsers')
+            ->json_cmp_deeply(bag(
+                {
+                    id => ignore,
+                    name => $t->CONCH_USER,
+                    email => $t->CONCH_EMAIL,
+                    role => 'admin',
+                },
+                {
+                    id => ignore,
+                    name => $ro_name,
+                    email => $ro_email,
+                    role => 'ro',
+                },
+                {
+                    id => $user->id,
+                    name => $name,
+                    email => $email,
+                    role => 'rw',
+                },
+            ));
 
-		subtest 'device settings' => sub {
-			$t->post_ok('/device/TEST/settings', json => { key => 'value' })
-				->status_is(200, 'writing new key only requires rw');
-			$t->post_ok('/device/TEST/settings/key', json => { key => 'new value' })
-				->status_is(403);
-			$t->delete_ok('/device/TEST/settings/foo')
-				->status_is(403);
+        subtest 'device settings' => sub {
+            $t->post_ok('/device/TEST/settings', json => { key => 'value' })
+                ->status_is(200, 'writing new key only requires rw');
+            $t->post_ok('/device/TEST/settings/key', json => { key => 'new value' })
+                ->status_is(403);
+            $t->delete_ok('/device/TEST/settings/foo')
+                ->status_is(403);
 
-			$t->post_ok('/device/TEST/settings', json => { key => 'new value', 'tag.bar' => 'bar' })
-				->status_is(403);
-			$t->post_ok('/device/TEST/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
-				->status_is(200);
+            $t->post_ok('/device/TEST/settings', json => { key => 'new value', 'tag.bar' => 'bar' })
+                ->status_is(403);
+            $t->post_ok('/device/TEST/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
+                ->status_is(200);
 
-			$t->post_ok('/device/TEST/settings/tag.bar',
-				json => { 'tag.bar' => 'newbar' } )->status_is(200);
-			$t->get_ok('/device/TEST/settings/tag.bar')->status_is(200)
-				->json_is('/tag.bar', 'newbar', 'Setting was updated');
-			$t->delete_ok('/device/TEST/settings/tag.bar')->status_is(204)
-				->content_is('');
-			$t->get_ok('/device/TEST/settings/tag.bar')
-				->status_is(404);
-		};
+            $t->post_ok('/device/TEST/settings/tag.bar', json => { 'tag.bar' => 'newbar' })
+                ->status_is(200);
+            $t->get_ok('/device/TEST/settings/tag.bar')
+                ->status_is(200)
+                ->json_is('/tag.bar', 'newbar', 'Setting was updated');
+            $t->delete_ok('/device/TEST/settings/tag.bar')
+                ->status_is(204)
+                ->content_is('');
+            $t->get_ok('/device/TEST/settings/tag.bar')
+                ->status_is(404);
+        };
 
-		$t->post_ok("/logout")->status_is(204);
-	};
+        $t->post_ok('/logout')
+            ->status_is(204);
+    };
 };
 
 done_testing();

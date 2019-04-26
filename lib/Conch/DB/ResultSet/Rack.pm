@@ -32,13 +32,13 @@ sub assigned_rack_units ($self) {
             rack_unit_start => 'rack_layouts.rack_unit_start',
             rack_unit_size => 'hardware_product_profile.rack_unit',
         },
-        join => { 'hardware_product' => 'hardware_product_profile' },
+        join => { hardware_product => 'hardware_product_profile' },
         order_by => 'rack_unit_start',
     })->hri->all;
 
-    return map {
-        ($_->{rack_unit_start}) .. ($_->{rack_unit_start} + ($_->{rack_unit_size} // 1) - 1)
-    } @layout_data;
+    return map
+        +(($_->{rack_unit_start}) .. ($_->{rack_unit_start} + ($_->{rack_unit_size} // 1) - 1)),
+        @layout_data;
 }
 
 =head2 user_has_permission

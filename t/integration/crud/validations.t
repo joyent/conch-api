@@ -128,7 +128,7 @@ SKIP: {
 
     $t->get_ok("/validation_plan/$validation_plan_id/validation")
         ->status_is(200)
-        ->json_is('', []);
+        ->json_is([]);
 } # end SKIP
 
 

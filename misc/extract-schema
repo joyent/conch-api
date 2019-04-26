@@ -4,9 +4,8 @@ use experimental 'signatures';
 
 use Getopt::Long;
 use Pod::Usage;
-use YAML::XS qw(LoadFile);
 use JSON::MaybeXS ();
-use Mojo::File qw(path);
+use Mojo::File 'path';
 use JSON::Validator;
 
 use Dir::Self;
@@ -28,7 +27,8 @@ sub output_json_schema ($name, $schema) {
     if ($to) {
         path($to)->make_path;
         path("$to/$name.schema.json")->spurt($json->encode($schema));
-    } else {
+    }
+    else {
         say "$name.schema.json";
         say $json->encode($schema);
         say;

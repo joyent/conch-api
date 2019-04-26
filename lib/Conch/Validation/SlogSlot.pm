@@ -9,30 +9,29 @@ use constant category    => 'DISK';
 use constant description => q( Validate ZFS SLOG is in slot 0 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	$self->die("Input data must include 'disks' hash")
-		unless $data->{disks} && ref( $data->{disks} ) eq 'HASH';
+    $self->die("Input data must include 'disks' hash")
+        unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-	my @disks_with_drive_type =
-		grep { $_->{drive_type} } ( values $data->{disks}->%* );
+    my @disks_with_drive_type =
+        grep { $_->{drive_type} } (values $data->{disks}->%*);
 
-	my @ssd_disks = grep {
-		fc( $_->{drive_type} ) eq fc('SAS_SSD')
-			|| fc( $_->{drive_type} ) eq fc('SATA_SSD')
-	} @disks_with_drive_type;
+    my @ssd_disks = grep {
+        fc($_->{drive_type}) eq fc('SAS_SSD')
+            || fc($_->{drive_type}) eq fc('SATA_SSD')
+    } @disks_with_drive_type;
 
-	# Ensure slog is in slot 0 on mixed media systems
-	if ( scalar(@ssd_disks) == 1 ) {
-		my $slog_slot = $ssd_disks[0]->{slot};
+    # Ensure slog is in slot 0 on mixed media systems
+    if (scalar(@ssd_disks) == 1) {
+        my $slog_slot = $ssd_disks[0]->{slot};
 
-		$self->register_result(
-			expected => 0,
-			got      => $slog_slot,
-			hint     => 'ZFS SLOG is in wrong slot'
-		);
-	}
-
+        $self->register_result(
+            expected => 0,
+            got      => $slog_slot,
+            hint     => 'ZFS SLOG is in wrong slot'
+        );
+    }
 }
 
 1;

@@ -11,28 +11,27 @@ hardware product profile
 );
 
 sub validate {
-	my ( $self, $data ) = @_;
+    my ($self, $data) = @_;
 
-	unless($data->{temp}) {
-		$self->die("Missing 'temp' field");
-	}
+    unless($data->{temp}) {
+        $self->die("Missing 'temp' field");
+    }
 
-	unless($data->{temp}->{cpu0} and $data->{temp}->{cpu1}) {
-		$self->die("'cpu0' and 'cpu1' entries are required for 'temp'");
-	}
+    unless($data->{temp}->{cpu0} and $data->{temp}->{cpu1}) {
+        $self->die("'cpu0' and 'cpu1' entries are required for 'temp'");
+    }
 
-	# Value from device_validate_criteria in legacy validations
-	my $MAX_TEMP = 70;
+    # Value from device_validate_criteria in legacy validations
+    my $MAX_TEMP = 70;
 
-	for my $cpu (qw/cpu0 cpu1/) {
-		$self->register_result(
-			type     => 'CPU',
-			expected => $MAX_TEMP,
-			cmp      => '<',
-			got      => $data->{temp}->{$cpu}
-		);
-	}
-
+    for my $cpu (qw/cpu0 cpu1/) {
+        $self->register_result(
+            type     => 'CPU',
+            expected => $MAX_TEMP,
+            cmp      => '<',
+            got      => $data->{temp}->{$cpu}
+        );
+    }
 }
 
 1;

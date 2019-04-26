@@ -37,11 +37,11 @@ $t->get_ok('/layout')
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply(bag(
-      map {
+      map +(
         superhashof({ rack_id => $_, ru_start => 1, product_id => $hw_product_compute->id }),
         superhashof({ rack_id => $_, ru_start => 3, product_id => $hw_product_storage->id }),
         superhashof({ rack_id => $_, ru_start => 11, product_id => $hw_product_storage->id }),
-      } $rack_id, $t->load_fixture('rack_1a')->id
+      ), $rack_id, $t->load_fixture('rack_1a')->id
     ));
 
 my $initial_layouts = $t->tx->res->json;
@@ -50,7 +50,7 @@ my $layout_width_4 = $initial_layouts->[2];    # start 11, width 4.
 $t->get_ok("/layout/$initial_layouts->[0]{id}")
     ->status_is(200)
     ->json_schema_is('RackLayout')
-    ->json_is('', $initial_layouts->[0]);
+    ->json_is($initial_layouts->[0]);
 
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400)

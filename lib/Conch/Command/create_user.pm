@@ -27,11 +27,10 @@ has description => 'Create a new user';
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
 sub run ($self, @opts) {
-
     local @ARGV = @opts;
 
     # decode command line arguments
-    @ARGV = map { Encode::decode('UTF-8', $_) } @ARGV if grep /\P{ASCII}/, @ARGV;
+    @ARGV = map Encode::decode('UTF-8', $_), @ARGV if grep /\P{ASCII}/, @ARGV;
 
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
@@ -46,7 +45,7 @@ sub run ($self, @opts) {
     );
 
     if ($self->app->db_user_accounts->active->search(\[ 'lower(email) = lower(?)', $opt->email ])->exists) {
-        say 'cannot create user: email ' . $opt->email . ' already exists';
+        say 'cannot create user: email '.$opt->email.' already exists';
         return;
     }
 
@@ -61,7 +60,7 @@ sub run ($self, @opts) {
 
     if ($opt->send_email) {
         say 'sending email to ', $opt->email, '...';
-        $self->app->send_mail(welcome_new_user => { map { $_ => $opt->$_ } qw(name email password) });
+        $self->app->send_mail(welcome_new_user => { map +($_ => $opt->$_), qw(name email password) });
     }
 }
 

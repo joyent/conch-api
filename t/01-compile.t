@@ -34,7 +34,7 @@ for my $lib (@module_files)
     # see L<perlfaq8/How can I capture STDERR from an external command?>
     my $stderr = IO::Handle->new;
 
-    diag('Running: ', join(', ', map { my $str = $_; $str =~ s/'/\\'/g; q{'} . $str . q{'} }
+    diag('Running: ', join(', ', map { my $str = $_; $str =~ s/'/\\'/g; q{'}.$str.q{'} }
             $^X, @switches, '-e', "require q[$lib]"))
         if $ENV{PERL_COMPILE_TEST_DEBUG};
 
@@ -63,11 +63,11 @@ foreach my $file (@scripts)
     @switches = (@switches, split(' ', $1)) if $1;
 
     close $fh and skip("$file uses -T; not testable with PERL5LIB", 1)
-        if grep { $_ eq '-T' } @switches and $ENV{PERL5LIB};
+        if grep $_ eq '-T', @switches and $ENV{PERL5LIB};
 
     my $stderr = IO::Handle->new;
 
-    diag('Running: ', join(', ', map { my $str = $_; $str =~ s/'/\\'/g; q{'} . $str . q{'} }
+    diag('Running: ', join(', ', map { my $str = $_; $str =~ s/'/\\'/g; q{'}.$str.q{'} }
             $^X, @switches, '-c', $file))
         if $ENV{PERL_COMPILE_TEST_DEBUG};
 

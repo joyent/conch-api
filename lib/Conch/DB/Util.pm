@@ -45,9 +45,7 @@ at the appropriate hash key), or a subref that returns the hashref.
 =cut
 
 sub get_credentials ($config, $log = Mojo::Log->new) {
-
     # look for overrides from the environment first
-
     my $dsn;
     if ($ENV{POSTGRES_DB} or $ENV{POSTGRES_HOST}) {
         # dsn is as defined in https://metacpan.org/pod/DBI#connect

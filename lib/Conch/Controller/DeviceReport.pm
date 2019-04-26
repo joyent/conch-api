@@ -29,32 +29,32 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub process ($c) {
-	my $unserialized_report = $c->validate_input('DeviceReport');
-	if (not $unserialized_report) {
-		$c->log->debug('Device report input did not match json schema specification');
+    my $unserialized_report = $c->validate_input('DeviceReport');
+    if (not $unserialized_report) {
+        $c->log->debug('Device report input did not match json schema specification');
 
-		if (not $c->db_devices->active->search({ id => $c->stash('device_id') })->exists) {
-			$c->log->debug('Device id '.$c->stash('device_id').' does not exist; cannot store bad report');
-			return;
-		}
+        if (not $c->db_devices->active->search({ id => $c->stash('device_id') })->exists) {
+            $c->log->debug('Device id '.$c->stash('device_id').' does not exist; cannot store bad report');
+            return;
+        }
 
-		# the "report" may not even be valid json, so we cannot store it in a jsonb field.
-		my $device_report = $c->db_device_reports->create({
-			device_id => $c->stash('device_id'),
-			invalid_report => $c->req->text,
-		});
-		$c->log->debug('Stored invalid device report for device id '.$c->stash('device_id'));
-		return;
-	}
+        # the "report" may not even be valid json, so we cannot store it in a jsonb field.
+        my $device_report = $c->db_device_reports->create({
+            device_id => $c->stash('device_id'),
+            invalid_report => $c->req->text,
+        });
+        $c->log->debug('Stored invalid device report for device id '.$c->stash('device_id'));
+        return;
+    }
 
-	# Make sure the API and device report agree on who we're talking about
-	if ($c->stash('device_id') ne $unserialized_report->{serial_number}) {
-		return $c->render(status => 422, json => {
-			error => "Serial number provided to the API does not match the report data."
-		});
-	}
+    # Make sure the API and device report agree on who we're talking about
+    if ($c->stash('device_id') ne $unserialized_report->{serial_number}) {
+        return $c->render(status => 422, json => {
+            error => 'Serial number provided to the API does not match the report data.'
+        });
+    }
 
-	# Make sure that the remote side is telling us about a hardware product we understand
+    # Make sure that the remote side is telling us about a hardware product we understand
     my $hw = $c->_get_hardware_product($unserialized_report);
     return $c->status(409, { error => 'Could not locate hardware product' }) if not $hw;
     return $c->status(409, { error => 'Hardware product does not contain a profile' })
@@ -66,7 +66,7 @@ sub process ($c) {
             if not $c->db_relays->active->search({ id => $relay_serial })->exists;
     }
 
-	my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
+    my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
 
     # capture information about the last report before we store the new one
     # state can be: error, fail, processing, pass, where no validations on a valid report is
@@ -83,68 +83,68 @@ sub process ($c) {
             if $previous_report;
     }
 
-	# Update/create the device and create the device report
-	$c->log->debug("Updating or creating device ".$c->stash('device_id'));
-	
-	my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since} : 
-		$existing_device ? $existing_device->uptime_since : undef;
+    # Update/create the device and create the device report
+    $c->log->debug('Updating or creating device '.$c->stash('device_id'));
 
-	my $device = $c->db_devices->update_or_create({
-		id                  => $c->stash('device_id'),
-		system_uuid         => $unserialized_report->{system_uuid},
-		hardware_product_id => $hw->id,
-		state               => $unserialized_report->{state},
-		health              => 'unknown',
-		last_seen           => \'NOW()',
-		uptime_since        => $uptime,
-		hostname            => $unserialized_report->{os}{hostname},
-		updated             => \'NOW()',
-		deactivated         => undef,
-	});
+    my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since}
+               : $existing_device ? $existing_device->uptime_since
+               : undef;
 
-	$c->log->debug("Creating device report");
-	my $device_report = $device->create_related('device_reports', {
-		report    => $c->req->text, # this is the raw json string
-		# we will always keep this report if the previous report failed, or this is the first
-		# report (in its phase).
-		!$previous_report_status || $previous_report_status ne 'pass' ? ( retain => 1 ) : (),
-		# invalid, created use defaults.
-	});
-	$c->log->info("Created device report ".$device_report->id);
+    my $device = $c->db_devices->update_or_create({
+        id                  => $c->stash('device_id'),
+        system_uuid         => $unserialized_report->{system_uuid},
+        hardware_product_id => $hw->id,
+        state               => $unserialized_report->{state},
+        health              => 'unknown',
+        last_seen           => \'now()',
+        uptime_since        => $uptime,
+        hostname            => $unserialized_report->{os}{hostname},
+        updated             => \'now()',
+        deactivated         => undef,
+    });
 
-
-	$c->log->debug("Recording device configuration");
-	$c->_record_device_configuration(
-		$existing_device,
-		$device,
-		$unserialized_report,
-	);
+    $c->log->debug('Creating device report');
+    my $device_report = $device->create_related('device_reports', {
+        report    => $c->req->text, # this is the raw json string
+        # we will always keep this report if the previous report failed, or this is the first
+        # report (in its phase).
+        !$previous_report_status || $previous_report_status ne 'pass' ? ( retain => 1 ) : (),
+        # invalid, created use defaults.
+    });
+    $c->log->info('Created device report '.$device_report->id);
 
 
-	# Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
+    $c->log->debug('Recording device configuration');
+    $c->_record_device_configuration(
+        $existing_device,
+        $device,
+        $unserialized_report,
+    );
+
+
+    # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
     return $c->status(500, { error => 'failed to find validation plan' }) if not $validation_plan;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
-	my $validation_state = Conch::ValidationSystem->new(
-		schema => $c->schema,
-		log => $c->log,
-	)->run_validation_plan(
-		validation_plan => $validation_plan,
+    my $validation_state = Conch::ValidationSystem->new(
+        schema => $c->schema,
+        log => $c->log,
+    )->run_validation_plan(
+        validation_plan => $validation_plan,
         # TODO: to eliminate needless db queries, we should prefetch all the relationships
         # that various validations will request, e.g. device_location, hardware_product etc
-		device => $c->db_ro_devices->find($device->id),
-		device_report => $device_report,
-	);
+        device => $c->db_ro_devices->find($device->id),
+        device_report => $device_report,
+    );
     return $c->status(400, { error => 'no validations ran' }) if not $validation_state;
-	$c->log->debug("Validations ran with result: ".$validation_state->status);
+    $c->log->debug('Validations ran with result: '.$validation_state->status);
 
-	# calculate the device health based on the validation results.
-	# currently, since there is just one (hardcoded) plan per device, we can simply copy it
-	# from the validation_state, but in the future we should query for the most recent
-	# validation_state of each plan type and use the cumulative results to determine health.
-
-	$device->update({ health => $validation_state->status, updated => \'now()' });
+    # calculate the device health based on the validation results.
+    # currently, since there is just one (hardcoded) plan per device, we can simply copy it
+    # from the validation_state, but in the future we should query for the most recent
+    # validation_state of each plan type and use the cumulative results to determine health.
+    $device->update({ health => $validation_state->status, updated => \'now()' });
 
     # save some state about this report that will help us out next time, when we consider
     # deleting it...  we always keep all failing reports (we also keep the first report after a
@@ -167,7 +167,7 @@ sub process ($c) {
     # prime the resultset cache for the serializer
     $validation_state->prefetch_validation_results;
 
-	$c->status( 200, $validation_state );
+    $c->status(200, $validation_state);
 }
 
 =head2 _record_device_configuration
@@ -176,195 +176,189 @@ Uses a device report to populate configuration information about the given devic
 
 =cut
 
-sub _record_device_configuration {
-	my ( $c, $orig_device, $device, $dr ) = @_;
+sub _record_device_configuration ($c, $orig_device, $device, $dr) {
+    my $log = $c->log;
 
-	my $log = $c->log;
+    $c->schema->txn_do(
+        sub () {
+            # Add a reboot count if there's not a previous uptime but one in this
+            # report (i.e. first uptime reported), or if the previous uptime date is
+            # less than the the current one (i.e. there has been a reboot)
+            my $prev_uptime;
+            if ($orig_device) {
+                $prev_uptime = $orig_device->uptime_since;
+            }
+            _add_reboot_count($device)
+                if (!$prev_uptime && $device->uptime_since)
+                || $device->uptime_since && $prev_uptime < $device->uptime_since;
 
-	$c->schema->txn_do(
-		sub {
-			# Add a reboot count if there's not a previous uptime but one in this
-			# report (i.e. first uptime reported), or if the previous uptime date is
-			# less than the the current one (i.e. there has been a reboot)
-			my $prev_uptime;
-			if($orig_device) {
-				$prev_uptime = $orig_device->uptime_since;
-			}
-			_add_reboot_count($device)
-				if ( !$prev_uptime && $device->uptime_since )
-				|| $device->uptime_since && $prev_uptime < $device->uptime_since;
+            if ($dr->{relay}) {
+                # 'first_seen' column will only be written on create. It should remain
+                # untouched on updates
+                $device->search_related('device_relay_connections',
+                        { relay_id => $dr->{relay}{serial} })
+                    ->update_or_create({ last_seen => \'now()' });
+            }
+            else {
+                $c->log->warn('received report without relay id (device_id '. $device->id.')');
+            }
 
-			if($dr->{relay}) {
-				# 'first_seen' column will only be written on create. It should remain
-				# untouched on updates
-				$device->search_related('device_relay_connections',
-						{ relay_id => $dr->{relay}{serial} })
-					->update_or_create({ last_seen => \'NOW()' });
-			}
-			else {
-				$c->log->warn('received report without relay id (device_id '. $device->id.')');
-			}
+            my $nics_num = 0;
+            # switches use the 'media' attribute, and servers use 'interfaces'
+            if ($dr->{media}) {
+                for my $port (keys $dr->{media}->%*) {
+                    for my $nic (keys $dr->{media}{$port}->%*) {
+                        $nics_num++;
+                    }
+                }
+            }
+            else {
+                $nics_num = scalar keys $dr->{interfaces}->%*;
+            }
 
-			my $nics_num = 0;
-			# switches use the 'media' attribute, and servers use 'interfaces'
-			if ( $dr->{media} ) {
-				for my $port ( keys %{ $dr->{media} } ) {
-					for my $nic ( keys %{ $dr->{media}->{$port} } ) {
-						$nics_num++;
-					}
-				}
-			} else {
-				$nics_num = scalar( keys %{ $dr->{interfaces} } );
-			}
+            if ($dr->{temp}) {
+                $device->related_resultset('device_environment')->update_or_create({
+                    cpu0_temp    => $dr->{temp}->{cpu0},
+                    cpu1_temp    => $dr->{temp}->{cpu1},
+                    inlet_temp   => $dr->{temp}->{inlet},
+                    exhaust_temp => $dr->{temp}->{exhaust},
+                    # TODO: not setting psu0_voltage, psu1_voltage
+                    updated      => \'now()',
+                });
+                $c->log->info('Recorded environment for Device '.$device->id);
+            }
 
-			if ($dr->{temp}) {
-				$device->related_resultset('device_environment')->update_or_create({
-					cpu0_temp    => $dr->{temp}->{cpu0},
-					cpu1_temp    => $dr->{temp}->{cpu1},
-					inlet_temp   => $dr->{temp}->{inlet},
-					exhaust_temp => $dr->{temp}->{exhaust},
-					# TODO: not setting psu0_voltage, psu1_voltage
-					updated      => \'NOW()',
-				});
-				$c->log->info("Recorded environment for Device ".$device->id);
-			}
+            # Keep track of which disk serials have been previously recorded in the
+            # DB but are no longer being reported due to a disk swap, etc.
+            my @device_disk_serials = $device->related_resultset('device_disks')
+                ->active->get_column('serial_number')->all;
+            my %inactive_serials;
+            @inactive_serials{@device_disk_serials} = ();
 
-			# Keep track of which disk serials have been previously recorded in the
-			# DB but are no longer being reported due to a disk swap, etc.
-			my @device_disk_serials = $device->related_resultset('device_disks')
-				->active->get_column('serial_number')->all;
-			my %inactive_serials;
-			@inactive_serials{@device_disk_serials} = ();
+            foreach my $disk (keys $dr->{disks}->%*) {
+                $log->debug('Device '.$device->id.': Recording disk: '.$disk);
 
-			foreach my $disk ( keys %{ $dr->{disks} } ) {
-				$log->debug("Device ".$device->id.": Recording disk: $disk");
+                delete $inactive_serials{$disk};
 
-				delete $inactive_serials{$disk};
+                # if disk already exists on a different device, it will be relocated
+                $c->db_device_disks->update_or_create(
+                    {
+                        device_id => $device->id,
+                        serial_number => $disk,
+                        $dr->{disks}{$disk}->%{qw(
+                            slot
+                            size
+                            vendor
+                            model
+                            firmware
+                            transport
+                            health
+                            drive_type
+                            temp
+                            enclosure
+                            hba
+                        )},
+                        deactivated   => undef,
+                        updated       => \'now()'
+                    },
+                    { key => 'device_disk_serial_number_key' },
+                );
+            }
 
-				# if disk already exists on a different device, it will be relocated
-				$c->db_device_disks->update_or_create(
-					{
-						device_id => $device->id,
-						serial_number => $disk,
-						$dr->{disks}{$disk}->%{qw(
-							slot
-							size
-							vendor
-							model
-							firmware
-							transport
-							health
-							drive_type
-							temp
-							enclosure
-							hba
-						)},
-						deactivated   => undef,
-						updated       => \'NOW()'
-					},
-					{ key => 'device_disk_serial_number_key' },
-				);
-			}
+            my @inactive_serials = keys %inactive_serials;
 
-			my @inactive_serials = keys %inactive_serials;
+            # deactivate all disks that were previously recorded but are no longer
+            # reported in the device report
+            if (@inactive_serials) {
+                $c->db_device_disks->search({ serial_number => { -in => \@inactive_serials } })->deactivate;
+            }
 
-			# deactivate all disks that were previously recorded but are no longer
-			# reported in the device report
-			if (@inactive_serials) {
-				$c->db_device_disks->search({ serial_number => { -in => \@inactive_serials } })->deactivate;
-			}
-
-			$dr->{disks}
-				and $log->info("Recorded disk info for Device ".$device->id);
+            $dr->{disks}
+                and $log->info('Recorded disk info for Device '.$device->id);
 
 
-			my @device_nic_macs = map uc, $device->device_nics->active->get_column('mac')->all;
-			my %inactive_macs; @inactive_macs{@device_nic_macs} = ();
+            my @device_nic_macs = map uc, $device->device_nics->active->get_column('mac')->all;
+            my %inactive_macs; @inactive_macs{@device_nic_macs} = ();
 
-			# deactivate all the nics that are currently located with other devices,
-			# so we can relocate them to this device
-			$c->db_device_nics->active->search({
-				device_id => { '!=' => $device->id },
-				mac => { -in => [ map $_->{mac}, values $dr->{interfaces}->%* ] },
-			})->deactivate;
+            # deactivate all the nics that are currently located with other devices,
+            # so we can relocate them to this device
+            $c->db_device_nics->active->search({
+                device_id => { '!=' => $device->id },
+                mac => { -in => [ map $_->{mac}, values $dr->{interfaces}->%* ] },
+            })->deactivate;
 
-			foreach my $nic ( keys %{ $dr->{interfaces} } ) {
+            foreach my $nic (keys $dr->{interfaces}->%*) {
+                my $mac = uc $dr->{interfaces}{$nic}{mac};
 
-				my $mac = uc( $dr->{interfaces}->{$nic}->{mac} );
+                $log->debug('Device '.$device->id.': Recording NIC: '.$mac);
+                delete $inactive_macs{$mac};
 
-				$log->debug("Device ".$device->id.": Recording NIC: $mac");
+                # deactivate this iface_name where mac is different,
+                # so we can assign it the new mac.
+                $c->db_device_nics->active->search({
+                    device_id => $device->id,
+                    iface_name => $nic,
+                    mac => { '!=' => $mac },
+                })->deactivate;
 
-				delete $inactive_macs{$mac};
+                # if nic already exists on a different device, it will be relocated
+                $c->db_device_nics->update_or_create(
+                    {
+                        device_id    => $device->id,
+                        mac          => $mac,
+                        iface_name   => $nic,
+                        iface_driver => '',
+                        iface_type   => $dr->{interfaces}->{$nic}->{product},
+                        iface_vendor => $dr->{interfaces}->{$nic}->{vendor},
+                        state        => $dr->{interfaces}->{$nic}->{state},
+                        ipaddr       => $dr->{interfaces}->{$nic}->{ipaddr},
+                        mtu          => $dr->{interfaces}->{$nic}->{mtu},
+                        updated      => \'now()',
+                        deactivated  => undef,
+                        # TODO: 'speed' is never set!
+                    },
+                );
 
-				# deactivate this iface_name where mac is different,
-				# so we can assign it the new mac.
-				$c->db_device_nics->active->search({
-					device_id => $device->id,
-					iface_name => $nic,
-					mac => { '!=' => $mac },
-				})->deactivate;
+                my $nic_peers = $c->db_device_neighbors->update_or_create(
+                    {
+                        mac         => $mac,
+                        raw_text    => $dr->{interfaces}->{$nic}->{peer_text},
+                        peer_switch => $dr->{interfaces}->{$nic}->{peer_switch},
+                        peer_port   => $dr->{interfaces}->{$nic}->{peer_port},
+                        peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac},
+                        updated     => \'now()'
+                        # TODO: not setting want_port, want_switch
+                    }
+                );
+            }
 
-				# if nic already exists on a different device, it will be relocated
-				$c->db_device_nics->update_or_create(
-					{
-						device_id    => $device->id,
-						mac          => $mac,
-						iface_name   => $nic,
-						iface_driver => '',
-						iface_type   => $dr->{interfaces}->{$nic}->{product},
-						iface_vendor => $dr->{interfaces}->{$nic}->{vendor},
-						state        => $dr->{interfaces}->{$nic}->{state},
-						ipaddr       => $dr->{interfaces}->{$nic}->{ipaddr},
-						mtu          => $dr->{interfaces}->{$nic}->{mtu},
-						updated      => \'NOW()',
-						deactivated  => undef,
-						# TODO: 'speed' is never set!
-					},
-				);
+            my @inactive_macs = keys %inactive_macs;
 
-				my $nic_peers = $c->db_device_neighbors->update_or_create(
-					{
-						mac         => $mac,
-						raw_text    => $dr->{interfaces}->{$nic}->{peer_text},
-						peer_switch => $dr->{interfaces}->{$nic}->{peer_switch},
-						peer_port   => $dr->{interfaces}->{$nic}->{peer_port},
-						peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac},
-						updated     => \'NOW()'
-						# TODO: not setting want_port, want_switch
-					}
-				);
-			}
-
-			my @inactive_macs = keys %inactive_macs;
-
-			# deactivate all nics that were previously recorded but are no longer
-			# reported in the device report
-			if (@inactive_macs) {
-				$c->db_device_nics->search({ mac => { -in => \@inactive_macs } })->deactivate;
-			}
-
-		}
-	);
+            # deactivate all nics that were previously recorded but are no longer
+            # reported in the device report
+            if (@inactive_macs) {
+                $c->db_device_nics->search({ mac => { -in => \@inactive_macs } })->deactivate;
+            }
+        }
+    );
 }
 
-sub _add_reboot_count {
-	my $device = shift;
+sub _add_reboot_count ($device) {
+    my $reboot_count = $device->find_or_new_related('device_settings', {
+        deactivated => undef,
+        name => 'reboot_count'
+    });
 
-	my $reboot_count = $device->find_or_new_related('device_settings', {
-		deactivated => undef,
-		name => 'reboot_count'
-	});
-
-	if ( $reboot_count->in_storage ) {
-		$reboot_count->update({
-			value => 1 + $reboot_count->value,
-			updated => \'NOW()',
-		});
-	}
-	else {
-		$reboot_count->value(0);
-		$reboot_count->insert;
-	}
+    if ($reboot_count->in_storage) {
+        $reboot_count->update({
+            value => 1 + $reboot_count->value,
+            updated => \'now()',
+        });
+    }
+    else {
+        $reboot_count->value(0);
+        $reboot_count->insert;
+    }
 }
 
 =head2 find_device_report
@@ -529,3 +523,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

@@ -233,9 +233,9 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-19 12:09:12
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bV+RoGDiBpOGivp+NZjVWg
 
-sub TO_JSON {
-    my $self = shift;
+use experimental 'signatures';
 
+sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
     # include hardware_product_profile when available.

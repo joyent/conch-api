@@ -34,7 +34,7 @@ sub list ($c) {
         { 'device.id' => { '!=' => undef } },
         {
             columns => { rack_id => 'rack.id' },
-            select => [ { count => '*', -as => 'count' } ],
+            select => [{ count => '*', -as => 'count' }],
             join => { device_locations => 'device' },
             distinct => 1,  # group by all columns in final resultset
         },
@@ -71,9 +71,9 @@ sub list ($c) {
     )->hri->all;
 
     my $final_rack_data = reduce {
-        push $a->{ delete $b->{az} }->@*, +{
+        push $a->{delete $b->{az}}->@*, +{
             $b->%*,
-            device_progress => $device_progress{ $b->{id} } // {},
+            device_progress => $device_progress{$b->{id}} // {},
         };
         $a;
     } +{}, @rack_data;
@@ -96,7 +96,7 @@ sub find_rack ($c) {
         ->search({ 'rack.id' => $rack_id });
 
     if (not $rack_rs->exists) {
-        $c->log->debug("Could not find rack $rack_id");
+        $c->log->debug('Could not find rack '.$rack_id);
         return $c->status(404);
     }
 
@@ -106,7 +106,7 @@ sub find_rack ($c) {
     $c->stash('rack_rs',
         $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
 
-    $c->log->debug("Found rack $rack_id");
+    $c->log->debug('Found rack '.$rack_id);
     return 1;
 }
 
@@ -120,23 +120,21 @@ Response uses the WorkspaceRack json schema.
 =cut
 
 sub get_layout ($c) {
+    my $format = $c->accepts('json', 'csv');
 
-	my $format = $c->accepts('json', 'csv');
-
-	if ($format eq 'json') {
-
+    if ($format eq 'json') {
         my $layout_rs = $c->stash('rack_rs')
             ->search(undef,
                 {
                     columns => {
-                        ( map {; $_ => "rack.$_" } qw(id name phase) ),
+                        (map +($_ => 'rack.'.$_), qw(id name phase)),
                         role => 'rack_role.name',
                         datacenter => 'datacenter_room.az',
                         'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
-                        ( map {; "layout.$_" => "hardware_product.$_" } qw(alias id name) ),
+                        (map +('layout.'.$_ => 'hardware_product.'.$_), qw(alias id name)),
                         'layout.vendor' => 'hardware_vendor.name',
                         'layout.size' => 'hardware_product_profile.rack_unit',
-                        ( map {; "layout.device.$_" => "device.$_" } $c->schema->source('device')->columns ),
+                        (map +('layout.device.'.$_ => 'device.'.$_), $c->schema->source('device')->columns),
                     },
                     join => [
                         'rack_role',
@@ -155,7 +153,7 @@ sub get_layout ($c) {
         my $rsrc = $c->schema->source('device');
 
         my $layout = {
-            ( map { $_ => $raw_data[0]->{$_} } qw(id name role datacenter phase) ),
+            (map +($_ => $raw_data[0]->{$_}), qw(id name role datacenter phase)),
             slots => [
                 map {
                     my $device = delete $_->{layout}{device};
@@ -173,60 +171,57 @@ sub get_layout ($c) {
 
         $c->log->debug('Found rack layouts for rack id '.$layout->{id});
         return $c->status(200, $layout);
+    }
+    elsif ($format eq 'csv') {
+        my $layout_rs = $c->stash('rack_rs')
+            ->search(undef,
+                {
+                    columns => {
+                        az => 'datacenter_room.az',
+                        rack_name => 'rack.name',
+                        rack_unit_start => 'rack_layouts.rack_unit_start',
+                        hardware_name => 'hardware_product.name',
+                        device_asset_tag => 'device.asset_tag',
+                        device_serial_number => 'device.id',
+                    },
+                    join => [
+                        'datacenter_room',
+                        { rack_layouts => [
+                            'hardware_product',
+                            { device_location => 'device' },
+                          ] },
+                    ],
+                    order_by => 'rack_layouts.rack_unit_start',
+                },
+            );
 
-	} elsif ($format eq 'csv') {
+        # TODO: at a future time, this will be moved to a utility class
+        # which will take in a resultset and list of header names and
+        # generate a csv response.
 
-		my $layout_rs = $c->stash('rack_rs')
-			->search(undef,
-				{
-					columns => {
-						az => 'datacenter_room.az',
-						rack_name => 'rack.name',
-						rack_unit_start => 'rack_layouts.rack_unit_start',
-						hardware_name => 'hardware_product.name',
-						device_asset_tag => 'device.asset_tag',
-						device_serial_number => 'device.id',
-					},
-					join => [
-						'datacenter_room',
-						{ rack_layouts => [
-							'hardware_product',
-							{ device_location => 'device' },
-						  ] },
-					],
-					order_by => 'rack_layouts.rack_unit_start',
-				},
-			);
+        my @raw_data = $layout_rs->hri->all;
 
-		# TODO: at a future time, this will be moved to a utility class
-		# which will take in a resultset and list of header names and
-		# generate a csv response.
+        # specify the desired order of the columns
+        my @headers = qw(az rack_name rack_unit_start hardware_name device_asset_tag device_serial_number);
 
-		my @raw_data = $layout_rs->hri->all;
+        my $csv_content;
+        open my $fh, '>:encoding(UTF-8)', \$csv_content
+            or die "could not open fh for writing to scalarref: $!";
+        my $csv = Text::CSV_XS->new({ binary => 1, eol => $/ });
+        $csv->column_names(@headers);
+        $csv->print($fh, \@headers);
+        $csv->print_hr($fh, $_) for @raw_data;
+        close $fh or die "could not close $fh: $!";
 
-		# specify the desired order of the columns
-		my @headers = qw(az rack_name rack_unit_start hardware_name device_asset_tag device_serial_number);
+        $c->log->debug('Found rack layouts for rack id '.$c->stash('rack_id'));
 
-		my $csv_content;
-		open my $fh, '>:encoding(UTF-8)', \$csv_content
-			or die "could not open fh for writing to scalarref: $!";
-		my $csv = Text::CSV_XS->new({ binary => 1, eol => $/ });
-		$csv->column_names(@headers);
-		$csv->print($fh, \@headers);
-		$csv->print_hr($fh, $_) for @raw_data;
-		close $fh or die "could not close $fh: $!";
-
-		$c->log->debug('Found rack layouts for rack id '.$c->stash('rack_id'));
-
-		$c->res->code(200);
-		$c->respond_to(
-			csv => { text => $csv_content },
-		);
-		return;
-	}
-	else {
-		return $c->status(406, { error => "requested unknown format $format" });
-	}
+        $c->res->code(200);
+        $c->respond_to(csv => { text => $csv_content });
+        return;
+    }
+    else {
+        return $c->status(406, { error => 'requested unknown format '.$format });
+    }
 }
 
 =head2 add
@@ -237,7 +232,7 @@ is assigned to the parent workspace of this one.
 =cut
 
 sub add ($c) {
-    return $c->status(403) unless $c->is_workspace_admin;
+    return $c->status(403) if not $c->is_workspace_admin;
 
     my $input = $c->validate_input('WorkspaceAddRack');
     return if not $input;
@@ -264,14 +259,14 @@ sub add ($c) {
     });
 
     # update rack with additional info, if provided.
-    if (keys %$input) {
+    if (keys $input->%*) {
         my $rack = $c->db_racks->find($rack_id);
         $rack->set_columns($input);
         $rack->update({ updated => \'now()' }) if $rack->is_changed;
     }
 
     $c->status(303);
-    $c->redirect_to($c->url_for('/workspace/'.$c->stash('workspace_id')."/rack/$rack_id"));
+    $c->redirect_to($c->url_for('/workspace/'.$c->stash('workspace_id').'/rack/'.$rack_id));
 }
 
 =head2 remove
@@ -313,7 +308,7 @@ sub assign_layout ($c) {
 
     try {
         $c->schema->txn_do(sub {
-            foreach my $device_id (keys %$input) {
+            foreach my $device_id (keys $input->%*) {
                 try {
                     $c->db_device_locations->assign_device_location(
                         $device_id,
@@ -331,17 +326,17 @@ sub assign_layout ($c) {
         });
     }
     catch {
-        if ($_ =~ /Rollback failed/) {
+        if (/Rollback failed/) {
             local $@ = $_;
             die;    # propagate the error
         }
-        $c->log->debug('aborted assign_layout transaction: ' . $_);
+        $c->log->debug('aborted assign_layout transaction: '.$_);
     };
 
     return $c->status(409, { error => join('; ', @errors) }) if @errors;
 
     # return the list of device_ids that were assigned
-    $c->status(200, { updated => [ keys %$input ] });
+    $c->status(200, { updated => [ keys $input->%* ] });
 }
 
 1;
@@ -358,3 +353,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

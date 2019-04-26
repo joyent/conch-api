@@ -20,32 +20,32 @@ sub register ($self, $app, $config) {
 
 =head2 is_system_admin
 
-	return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
 Verifies that the currently stashed user has the 'is_admin' flag set
 
 =cut
 
-	$app->helper(
-		is_system_admin => sub ($c) {
-			$c->stash('user') && $c->stash('user')->is_admin;
-		},
-	);
+    $app->helper(
+        is_system_admin => sub ($c) {
+            $c->stash('user') && $c->stash('user')->is_admin;
+        },
+    );
 
 =head2 is_workspace_admin
 
-	return $c->status(403) unless $c->is_workspace_admin;
+    return $c->status(403) if not $c->is_workspace_admin;
 
 Verifies that the currently stashed user_id has 'admin' permission on the current workspace (as
 specified by :workspace_id in the path) or one of its ancestors.
 
 =cut
 
-	$app->helper(
-		is_workspace_admin => sub ($c) {
-			return $c->user_has_workspace_auth($c->stash('workspace_id'), 'admin');
-		},
-	);
+    $app->helper(
+        is_workspace_admin => sub ($c) {
+            return $c->user_has_workspace_auth($c->stash('workspace_id'), 'admin');
+        },
+    );
 
 =head2 user_has_workspace_auth
 
@@ -57,19 +57,19 @@ are present.
 
 =cut
 
-	$app->helper(
-		user_has_workspace_auth => sub ($c, $workspace_id, $role_name) {
-			return 0 if not $c->stash('user_id');
-			return 0 if not $workspace_id;
+    $app->helper(
+        user_has_workspace_auth => sub ($c, $workspace_id, $role_name) {
+            return 0 if not $c->stash('user_id');
+            return 0 if not $workspace_id;
 
-			return 1 if $c->is_system_admin;
+            return 1 if $c->is_system_admin;
 
-			$c->db_workspaces
-				->and_workspaces_above($workspace_id)
-				->related_resultset('user_workspace_roles')
-				->user_has_permission($c->stash('user_id'), $role_name);
-		},
-	);
+            $c->db_workspaces
+                ->and_workspaces_above($workspace_id)
+                ->related_resultset('user_workspace_roles')
+                ->user_has_permission($c->stash('user_id'), $role_name);
+        },
+    );
 
 }
 
@@ -87,3 +87,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at http://mozilla.org/MPL/2.0/.
 
 =cut
+# vim: set ts=4 sts=4 sw=4 et :

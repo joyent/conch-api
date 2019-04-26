@@ -24,7 +24,6 @@ has description => 'Clean up unnecessary permissions';
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
 sub run ($self, @opts) {
-
     local @ARGV = @opts;
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
@@ -43,7 +42,6 @@ sub run ($self, @opts) {
     my $deleted = 0;
 
     while (my $uwr = $uwr_rs->next) {
-
         say 'considering workspace ', $uwr->workspace->name, ' for user ', $uwr->user_account->name,
             ' with permission ', $uwr->role, '...';
 

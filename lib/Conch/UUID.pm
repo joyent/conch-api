@@ -2,7 +2,7 @@ package Conch::UUID;
 
 use Mojo::Base -strict, -signatures;
 use Exporter 'import';
-our @EXPORT_OK = qw(is_uuid);
+our @EXPORT_OK = 'is_uuid';
 
 use constant UUID_FORMAT => qr/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ia;
 
@@ -14,7 +14,7 @@ Conch::UUID - Functions for working with UUIDs in Conch
 
 =head1 SYNOPSIS
 
-    use Conch::UUID qw( is_uuid );
+    use Conch::UUID 'is_uuid';
 
 =head1 DESCRIPTION
 
@@ -47,7 +47,7 @@ UUID version and variant ('reserved') hex digit standards are ignored.
 Return a true or false value based on whether a string is a formatted as a UUID.
 
     if (is_uuid('D8DC809C-935E-41B8-9E5F-B356A6BFBCA1')) {...}
-    unless (is_uuid('BAD-ID')) {...}
+    if (not is_uuid('BAD-ID')) {...}
 
 Case insensitive.
 

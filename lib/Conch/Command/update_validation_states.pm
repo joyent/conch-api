@@ -22,7 +22,6 @@ has description => 'Set validation_state.device_report_id in all historical reco
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
 sub run ($self, @opts) {
-
     local @ARGV = @opts;
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
@@ -70,7 +69,6 @@ SQL
         $self->app->db_validation_states->search({ device_report_id => undef })->count;
     say 'You may now run the deployment migration that sets validation_state.device_report_id to not-nullable.';
 }
-
 
 1;
 __END__

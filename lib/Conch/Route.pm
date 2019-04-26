@@ -39,13 +39,12 @@ sub all_routes (
     # provides a route to chain to that first checks the user is a system admin.
     $root->add_shortcut(require_system_admin => sub {
         my ($r, $path) = @_;
-        $r->any(sub {
-            my $c = shift;
+        $r->any(sub ($c) {
             return $c->status(401)
-                unless $c->stash('user') and $c->stash('user_id');
+                if not $c->stash('user') or not $c->stash('user_id');
 
             return $c->status(403, { error => 'Must be system admin' })
-                unless $c->is_system_admin;
+                if not $c->is_system_admin;
 
             return 1;
         })->under;
@@ -56,22 +55,13 @@ sub all_routes (
 
 
     # GET /doc
-    $root->get( '/doc',
-        sub { shift->reply->static('public/doc/index.html') } );
+    $root->get('/doc', sub ($c) { $c->reply->static('public/doc/index.html') });
 
     # GET /ping
-    $root->get(
-        '/ping',
-        sub { shift->status( 200, { status => 'ok' } ) },
-    );
+    $root->get('/ping', sub ($c) { $c->status(200, { status => 'ok' }) });
 
     # GET /version
-    $root->get(
-        '/version' => sub {
-            my $c = shift;
-            $c->status( 200, { version => $c->version_tag } );
-        }
-    );
+    $root->get('/version', sub ($c) { $c->status(200, { version => $c->version_tag }) });
 
     # POST /login
     $root->post('/login')->to('login#session_login');
@@ -83,8 +73,8 @@ sub all_routes (
     $root->post('/reset_password')->to('login#reset_password');
 
     # GET /schema/:input_or_response/:schema_name
-    $root->get( '/schema/:request_or_response/:name' =>
-        [ request_or_response => [qw(request response)] ] )->to('schema#get');
+    $root->get('/schema/:request_or_response/:name',
+        [ request_or_response => [qw(request response)] ])->to('schema#get');
 
     # GET /workspace/:workspace/device-totals
     $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals');
@@ -93,8 +83,8 @@ sub all_routes (
 
     my $secured = $root->under('/')->to('login#authenticate');
 
-    $secured->get( '/login', sub { shift->status(204) } );
-    $secured->get( '/me',    sub { shift->status(204) } );
+    $secured->get('/login', sub ($c) { $c->status(204) });
+    $secured->get('/me',    sub ($c) { $c->status(204) });
     $secured->post('/refresh_token')->to('login#refresh_token');
 
     Conch::Route::Workspace->routes($secured->any('/workspace'));

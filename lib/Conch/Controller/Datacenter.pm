@@ -31,7 +31,7 @@ sub find_datacenter ($c) {
     }
 
     $c->log->debug('Found datacenter '.$datacenter_id);
-    $c->stash('datacenter' => $datacenter);
+    $c->stash('datacenter', $datacenter);
     return 1;
 }
 
@@ -44,7 +44,7 @@ Response uses the Datacenters json schema.
 =cut
 
 sub get_all ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my @datacenters = $c->db_datacenters->all;
     $c->log->debug('Found '.scalar(@datacenters).' datacenters');
@@ -60,7 +60,7 @@ Response uses the Datacenter json schema.
 =cut
 
 sub get_one ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
     $c->status(200, $c->stash('datacenter'));
 }
 
@@ -73,7 +73,7 @@ Response uses the DatacenterRoomsDetailed json schema.
 =cut
 
 sub get_rooms ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my @rooms = $c->db_datacenter_rooms->search({ datacenter_id => $c->stash('datacenter')->id })->all;
 
@@ -88,14 +88,14 @@ Create a new datacenter.
 =cut
 
 sub create ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     my $input = $c->validate_input('DatacenterCreate');
     return if not $input;
 
     my $datacenter = $c->db_datacenters->create($input);
     $c->log->debug('Created datacenter '.$datacenter->id);
-    $c->status(303 => '/dc/'.$datacenter->id);
+    $c->status(303, '/dc/'.$datacenter->id);
 }
 
 =head2 update
@@ -105,7 +105,8 @@ Update an existing datacenter.
 =cut
 
 sub update ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
+
     my $input = $c->validate_input('DatacenterUpdate');
     return if not $input;
 
@@ -114,7 +115,7 @@ sub update ($c) {
     $datacenter->update({ updated => \'now()' }) if $datacenter->is_changed;
 
     $c->log->debug('Updated datacenter '.$datacenter->id);
-    $c->status(303 => '/dc/'.$datacenter->id);
+    $c->status(303, '/dc/'.$datacenter->id);
 }
 
 =head2 delete
@@ -124,11 +125,11 @@ Permanently delete a datacenter.
 =cut
 
 sub delete ($c) {
-    return $c->status(403) unless $c->is_system_admin;
+    return $c->status(403) if not $c->is_system_admin;
 
     if ($c->stash('datacenter')->related_resultset('datacenter_rooms')->exists) {
         $c->log->debug('Cannot delete datacenter: in use by one or more datacenter_rooms');
-        return $c->status(400 => { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });
+        return $c->status(400, { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });
     }
 
     $c->stash('datacenter')->delete;

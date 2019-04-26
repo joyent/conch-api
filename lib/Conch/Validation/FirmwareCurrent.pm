@@ -10,20 +10,20 @@ Validate that firmware is 'current' in device settings
 );
 
 sub validate {
-	my ( $self ) = @_;
+    my ($self) = @_;
 
-	my $firmware_value = $self->device_settings->{firmware};
+    my $firmware_value = $self->device_settings->{firmware};
 
-	if ($firmware_value) {
-		$self->register_result(
-			expected => 'current',
-			got      => $firmware_value
-		);
-	}
-	else {
-		$self->fail("No 'firmware' setting in device settings",
-			hint => 'Device may not have started initial setup yet' );
-	}
+    if ($firmware_value) {
+        $self->register_result(
+            expected => 'current',
+            got      => $firmware_value
+        );
+    }
+    else {
+        $self->fail("No 'firmware' setting in device settings",
+            hint => 'Device may not have started initial setup yet');
+    }
 }
 
 1;
