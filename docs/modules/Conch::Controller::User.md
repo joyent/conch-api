@@ -67,7 +67,7 @@ forcing the user to log in again.  Possible options are:
 
 Generates a new random password for a user. System admin only.
 
-Optionally takes a query parameter 'send\_password\_reset\_mail' (defaulting to true), to send an
+Optionally takes a query parameter 'send\_mail' (defaulting to true), to send an
 email to the user with the new password.
 
 Optionally takes a query parameter 'clear\_tokens', to also revoke session tokens for the user,

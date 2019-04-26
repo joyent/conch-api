@@ -221,7 +221,7 @@ sub change_own_password ($c) {
 
 Generates a new random password for a user. System admin only.
 
-Optionally takes a query parameter 'send_password_reset_mail' (defaulting to true), to send an
+Optionally takes a query parameter 'send_mail' (defaulting to true), to send an
 email to the user with the new password.
 
 Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
@@ -277,7 +277,7 @@ sub reset_user_password ($c) {
         From => 'noreply@conch.joyent.us',
         Subject => 'Your Conch password has changed.',
         password => $update{password},
-    ) if $c->req->query_params->param('send_password_reset_mail') // 1;
+    ) if $c->req->query_params->param('send_mail') // 1;
 
     return $c->status(204);
 }

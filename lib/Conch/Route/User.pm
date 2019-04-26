@@ -94,7 +94,7 @@ sub routes {
 
         # POST /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
-        # DELETE /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>
+        # DELETE /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_mail=<1|0>
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user
@@ -336,7 +336,7 @@ C<api_only> and C<login_only> are set, no tokens will be revoked.
 
 =back
 
-=head3 C<< DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0> >>
+=head3 C<< DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_mail=<1|0> >>
 
 Optionally accepts the following query parameters:
 
@@ -354,7 +354,7 @@ Optionally accepts the following query parameters:
 
 =back
 
-=item * C<send_password_reset_mail> which takes C<< <1|0> >> (default C<1>). If set to C<1> this will cause an email to be sent to the user with password reset instructions.
+=item * C<send_mail> which takes C<< <1|0> >> (default C<1>). If set to C<1> this will cause an email to be sent to the user with password reset instructions.
 
 =back
 

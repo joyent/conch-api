@@ -123,7 +123,7 @@ By default it will revoke both login/session and API tokens. If both
 - Requires System Admin Authentication
 - Response: `204 NO CONTENT`
 
-### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>`
+### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_mail=<1|0>`
 
 Optionally accepts the following query parameters:
 
@@ -131,7 +131,7 @@ Optionally accepts the following query parameters:
     - `0`, `no`, `false`
     - `login_only`, `1` (default, for backcompat, `1` is treated as `login_only`)
     - `all` - also affects all API tokens (and thus other tools).
-- `send_password_reset_mail` which takes `<1|0>` (default `1`). If set to `1` this will cause an email to be sent to the user with password reset instructions.
+- `send_mail` which takes `<1|0>` (default `1`). If set to `1` this will cause an email to be sent to the user with password reset instructions.
 
 - Requires System Admin Authentication
 - Response: `204 NO CONTENT`
