@@ -8,8 +8,6 @@ with 'Conch::Role::MojoLog';
 use Mojo::Exception;
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
-use Conch::UUID 'is_uuid';
-use Email::Valid;
 
 =pod
 
@@ -290,34 +288,6 @@ sub reset_user_password ($c) {
         password => $update{password},
     });
     return $c->status(202);
-}
-
-=head2 find_user
-
-Chainable action that validates the user_id or email address (prefaced with 'email=') provided
-in the path, and stashes the corresponding user row in C<target_user>.
-
-=cut
-
-sub find_user ($c) {
-    my $user_param = $c->stash('target_user_id_or_email');
-    return $c->status(400, { error => 'invalid identifier format for '.$user_param })
-        if not is_uuid($user_param)
-            and not ($user_param =~ /^email\=/ and Email::Valid->address($'));
-
-    my $user_rs = $c->db_user_accounts;
-
-    # when deactivating users or removing users from a workspace, we want to find
-    # already-deactivated users too.
-    $user_rs = $user_rs->active if $c->req->method ne 'DELETE';
-
-    $c->log->debug('looking up user '.$user_param);
-    my $user = $user_rs->lookup_by_id_or_email($user_param);
-
-    return $c->status(404) if not $user;
-
-    $c->stash('target_user', $user);
-    return 1;
 }
 
 =head2 get

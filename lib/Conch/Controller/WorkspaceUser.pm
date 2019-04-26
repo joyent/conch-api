@@ -65,8 +65,8 @@ sub add_user ($c) {
     my $input = $c->validate_input('WorkspaceAddUser');
     return if not $input;
 
-    my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$input->{user});
-    return $c->status(404) if not $user;
+    return if not $c->find_user('email='.$input->{user});
+    my $user = $c->stash('target_user');
 
     # check if the user already has access to this workspace
     if (my $existing_role_via = $c->db_workspaces
