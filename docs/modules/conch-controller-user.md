@@ -108,7 +108,8 @@ Optionally takes a query parameter:
 Deactivates a user. System admin only.
 
 Optionally takes a query parameter 'clear\_tokens' (defaulting to true), to also revoke all
-session tokens for the user, forcing all tools to log in again.
+session tokens for the user, which would force all tools to log in again should the account be
+reactivated (for which there is no api endpoint at present).
 
 All workspace permissions are removed and are not recoverable.
 
