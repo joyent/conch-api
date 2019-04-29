@@ -26,6 +26,17 @@
 
     },
 
+    mail => {
+        # all these configs are provided as-is to Email::Sender::Transport::SMTP.
+        transport => {
+            timeout => 10,
+            host => 'relay.joyent.us',
+            # port
+            # ssl
+            # ..etc
+        },
+    },
+
     # Rollbar access token. Must be a token with write permissions
     # rollbar_access_token => '00000000000000000000000000000000',
 

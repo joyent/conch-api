@@ -1,0 +1,11 @@
+Hello,
+
+Your account at Joyent Conch has been updated:
+
+<%==
+    sprintf("%12s: %s -> %s\n", $_, $orig_data->{$_}, $new_data->{$_})
+        foreach sort keys $new_data->%*
+%>\
+
+Thank you,
+Joyent Build Ops Team

@@ -8,8 +8,6 @@ with 'Conch::Role::MojoLog';
 use Mojo::Exception;
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
-use Conch::UUID 'is_uuid';
-use Email::Valid;
 
 =pod
 
@@ -34,6 +32,9 @@ tokens is allowed).
 
 System admin only (unless reached via /user/me).
 
+Sends an email to the affected user, unless C<?send_mail=0> is included in the query (or
+revoking for oneself).
+
 =cut
 
 sub revoke_user_tokens ($c) {
@@ -47,10 +48,30 @@ sub revoke_user_tokens ($c) {
     my $user = $c->stash('target_user');
     $c->log->debug('revoking session tokens for user '.$user->name.', forcing them to /login again');
 
+    my $send_mail = $user->id ne $c->stash('user_id') && ($c->req->query_params->param('send_mail') // 1);
+
     my $rs = $user->user_session_tokens->unexpired;
     $rs = $rs->login_only if $login_only;
     $rs = $rs->api_only if $api_only;
+    my @token_names = $send_mail ? $rs->order_by('name')->get_column('name')->all : ();
     $rs->expire;
+
+    if (@token_names and $send_mail) {
+        my @removed_login_tokens = grep /^login_jwt_/, @token_names;
+        @token_names = (
+            (grep !/^login_jwt_/, @token_names),
+            @removed_login_tokens
+                ? scalar(@removed_login_tokens).' login token'.(@removed_login_tokens > 1 ? 's' : '')
+                : (),
+        );
+
+        $c->send_mail(
+            template_file => 'revoked_user_tokens',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch tokens have been revoked.',
+            token_names => \@token_names,
+        );
+    }
 
     $user->update({ refuse_session_auth => 1 }) if $login_only;
 
@@ -283,41 +304,13 @@ sub reset_user_password ($c) {
 
     return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
 
-    $c->log->info('sending "password was changed" mail to user '.$user->name);
-    $c->send_mail(changed_user_password => {
-        name     => $user->name,
-        email    => $user->email,
+    $c->send_mail(
+        template_file => 'changed_user_password',
+        From => 'noreply@conch.joyent.us',
+        Subject => 'Your Conch password has changed.',
         password => $update{password},
-    });
+    );
     return $c->status(202);
-}
-
-=head2 find_user
-
-Chainable action that validates the user_id or email address (prefaced with 'email=') provided
-in the path, and stashes the corresponding user row in C<target_user>.
-
-=cut
-
-sub find_user ($c) {
-    my $user_param = $c->stash('target_user_id_or_email');
-    return $c->status(400, { error => 'invalid identifier format for '.$user_param })
-        if not is_uuid($user_param)
-            and not ($user_param =~ /^email\=/ and Email::Valid->address($'));
-
-    my $user_rs = $c->db_user_accounts;
-
-    # when deactivating users or removing users from a workspace, we want to find
-    # already-deactivated users too.
-    $user_rs = $user_rs->active if $c->req->method ne 'DELETE';
-
-    $c->log->debug('looking up user '.$user_param);
-    my $user = $user_rs->lookup_by_id_or_email($user_param);
-
-    return $c->status(404) if not $user;
-
-    $c->stash('target_user', $user);
-    return 1;
 }
 
 =head2 get
@@ -336,6 +329,7 @@ sub get ($c) {
 =head2 update
 
 Updates user attributes. System admin only.
+Sends an email to the affected user, unless C<?send_mail=0> is included in the query.
 
 Response uses the UserDetailed json schema.
 
@@ -354,8 +348,28 @@ sub update ($c) {
     }
 
     my $user = $c->stash('target_user');
+    my %orig_columns = $user->get_columns;
+    $user->set_columns($input);
+
+    if ($c->req->query_params->param('send_mail') // 1) {
+        my %dirty_columns = $user->get_dirty_columns;
+        %orig_columns = %orig_columns{keys %dirty_columns};
+
+        if (exists $dirty_columns{is_admin}) {
+            $_ = $_ ? 'true' : 'false' foreach $orig_columns{is_admin}, $dirty_columns{is_admin};
+        }
+
+        $c->send_mail(
+            template_file => 'updated_user_account',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch account has been updated.',
+            orig_data => \%orig_columns,
+            new_data => \%dirty_columns,
+        );
+    }
+
     $c->log->debug('updating user '.$user->email.': '.$c->req->text);
-    $user->update($input);
+    $user->update;
 
     $user->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
     return $c->status(200, $user);
@@ -414,11 +428,13 @@ sub create ($c) {
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 
     if ($c->req->query_params->param('send_mail') // 1) {
-        $c->log->info('sending "welcome new user" mail to user '.$user->name);
-        $c->send_mail(welcome_new_user => {
-            (map +($_ => $user->$_), qw(name email)),
+        $c->stash('target_user', $user);
+        $c->send_mail(
+            template_file => 'new_user_account',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Welcome to Conch!',
             password => $password,
-        });
+        );
     }
 
     return $c->status(201, { map +($_ => $user->$_), qw(id email name) });

@@ -1,0 +1,12 @@
+Hello,
+
+An account has been created for you in Joyent Conch.
+<%# TODO: we should template on the conch URL here %>\
+Please log into https://conch.joyent.us using the credentials below:
+
+    Username: <%= $target_user->name %>
+    Email:    <%= $target_user->email %>
+    Password: <%= $password %>
+
+Thank you,
+Joyent Build Ops Team

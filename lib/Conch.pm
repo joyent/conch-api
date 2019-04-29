@@ -37,6 +37,7 @@ sub startup {
     $self->plugin('Conch::Plugin::Features', $self->config);
     $self->plugin('Conch::Plugin::Logging', $self->config);
     $self->plugin('Conch::Plugin::Database', $self->config);
+    $self->plugin('Conch::Plugin::FindHelpers', $self->config);
 
     # specify which MIME types we can handle
     $self->types->type(json => 'application/json');

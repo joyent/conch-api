@@ -13,7 +13,7 @@ create_user - create a new user, optionally sending an email
   --email       The user's email address. Required.
   --name        The user's name. Required.
   --password    The user's temporary password. If not provided, one will be randomly generated.
-  --send-mail   When set, a welcome message will be mailed to the user.
+  --send-mail   Send a welcome email to the user (defaults to true)
 
 =cut
 
@@ -39,7 +39,7 @@ sub run ($self, @opts) {
         [ 'name|n=s',       'the user\'s name', { required => 1 } ],
         [ 'email|e=s',      'the user\'s email address', { required => 1 } ],
         [ 'password|p=s',   'the user password' ],
-        [ 'send-email',     'send email to user' ],
+        [ 'send-email',     'send email to user', { default => 1 } ],
         [],
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );
@@ -60,7 +60,15 @@ sub run ($self, @opts) {
 
     if ($opt->send_email) {
         say 'sending email to ', $opt->email, '...';
-        $self->app->send_mail(welcome_new_user => { map +($_ => $opt->$_), qw(name email password) });
+        $self->app->defaults(target_user => $user);
+        $self->app->send_mail(
+            template_file => 'new_user_account',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Welcome to Conch!',
+            password => $opt->password,
+        );
+
+        Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
     }
 }
 

@@ -531,6 +531,7 @@ definitions:
       - role
     properties:
       user:
+        # TODO: maybe this should accept a user_id as well?
         $ref: /definitions/email_address
       role:
         type: string

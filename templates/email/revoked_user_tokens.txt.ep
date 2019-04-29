@@ -1,0 +1,11 @@
+Hello,
+
+The following tokens at Joyent Conch have been reset:
+
+<%= join("\n", map '    '.$_, $token_names->@*) %>
+
+<%# TODO: we should template on the conch URL here %>\
+You should now log into https://conch.joyent.us using your login credentials.
+
+Thank you,
+Joyent Build Ops Team
