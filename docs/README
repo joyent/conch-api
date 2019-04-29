@@ -1,0 +1,6 @@
+Yeah, there's ruby stuff in here. You can ignore every bit of it unless you'd
+like to preview changes locally.
+
+If you do, install ruby's bundler via your OS's packages and run 'make vendor'
+and then 'make serve'. hit up http://localhost:4000 and preview away 
+

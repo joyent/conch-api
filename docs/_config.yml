@@ -1,0 +1,9 @@
+title: Conch API
+logo: joyent.png
+show_downloads: true
+
+exclude:
+    - vendor
+    - .git
+
+theme: jekyll-theme-minimal
