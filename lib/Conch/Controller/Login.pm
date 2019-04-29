@@ -224,10 +224,7 @@ Handles the act of logging in, given a user and password in the form. Returns a 
 
 sub session_login ($c) {
     my $input = $c->validate_input('Login');
-    if (not $input) {
-        $c->log->debug('session login failed validation');
-        return;
-    }
+    return if not $input;
 
     # TODO: it would be nice to be sure of which type of data we were being passed here, so we
     # don't have to look up by all columns.
