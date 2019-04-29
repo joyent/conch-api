@@ -74,7 +74,7 @@ my %canned_definitions = (
         using => {
             name => 'conch',
             email => 'conch@conch.joyent.us',
-            password => 'conch@conch.joyent.us',  # convention for test accounts
+            password => 'CONCH_PASSWORD',
             is_admin => 1,
         },
     },

@@ -35,7 +35,7 @@ Includes JSON validation ability.
 # see also the 'conch_user' fixture in Test::Conch::Fixtures
 use constant CONCH_USER => 'conch';
 use constant CONCH_EMAIL => 'conch@conch.joyent.us';
-use constant CONCH_PASSWORD => CONCH_EMAIL;
+use constant CONCH_PASSWORD => 'CONCH_PASSWORD';
 
 $ENV{EMAIL_SENDER_TRANSPORT} = 'Test';  # see Email::Sender::Manual::QuickStart
 
@@ -408,7 +408,7 @@ Optionally will bail out of *all* tests on failure.  This will set 'user' in the
 sub authenticate ($self, %args) {
     $args{bailout} //= 1 if not $args{user};
     $args{user} //= CONCH_EMAIL;
-    $args{password} //= $args{user};  # convention for test accounts
+    $args{password} //= $args{user} eq 'conch@conch.joyent.us' ? CONCH_PASSWORD : $args{user};
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     $self->post_ok('/login', json => { %args{qw(user password)} })
