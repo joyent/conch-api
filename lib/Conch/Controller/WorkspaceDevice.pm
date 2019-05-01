@@ -2,9 +2,6 @@ package Conch::Controller::WorkspaceDevice;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use Conch::UUID 'is_uuid';
 use List::Util 'none';
 

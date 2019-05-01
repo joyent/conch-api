@@ -43,7 +43,7 @@ corresponding user row in C<target_user>.
         # already-deactivated users too.
         $user_rs = $user_rs->active if $c->req->method ne 'DELETE';
 
-        $c->app->log->debug('looking up user '.$user_param);
+        $c->log->debug('looking up user '.$user_param);
         my $user = $user_rs->lookup_by_id_or_email($user_param);
 
         return $c->status(404) if not $user;

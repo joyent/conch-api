@@ -45,7 +45,7 @@
     # rollbar_environment => 'staging',
 
     features => {
-        audit          => 0,
+        audit          => 0,    # turns on logging of request and response bodies
         rollbar        => 0,
         nytprof        => 0,
 
@@ -118,10 +118,14 @@
         post_hook => 'around_dispatch',
     },
 
-    # logging => {
-    #     # directory where all logs will be placed.
-    #     # if not absolute, will be relative to the root of the application.
-    #     dir => 'log',
-    # },
+    logging => {
+        # directory where all logs will be placed.
+        # if not absolute, will be relative to the root of the application.
+        # dir => 'log',     # default
+
+        # level => 'debug', # default
+        # bunyan => 1,      # default
+        # with_trace => 0,  # default
+    },
 
 }

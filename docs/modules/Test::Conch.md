@@ -35,6 +35,8 @@ Constructor. Takes the following arguments:
 ```perl
 * pg (optional). uses this as the postgres db.
   Otherwise, an empty database is created, using the schema in sql/schema.sql.
+
+* config (optional). adds the provided configuration data.
 ```
 
 ## init\_db
@@ -172,6 +174,27 @@ Remember: "Line endings in the body will normalized to CRLF." (see ["create" in 
 ## email\_not\_sent
 
 Tests that \*no\* email was sent as a result of the last request.
+
+## log\_is
+
+Searches the log lines emitted for the last request for one with the provided message,
+which can be either an exact string or anything that [Test::Deep](https://metacpan.org/pod/Test::Deep) recognizes.
+
+If you are expecting a list of message strings (sent at once to the logger), pass a listref
+rather than a list.
+
+A log line at any level matches, or you can use a more specific method that matches only
+one specific log level:
+
+## log\_debug\_is
+
+## log\_info\_is
+
+## log\_warn\_is
+
+## log\_error\_is
+
+## log\_fatal\_is
 
 # LICENSING
 

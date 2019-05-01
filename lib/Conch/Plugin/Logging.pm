@@ -26,6 +26,9 @@ sub register ($self, $app, $config) {
 
     my %log_args = (
         level => 'debug',
+        bunyan => 1,
+        $app->feature('audit') ? ( with_trace => 1 ) : (),
+        $plugin_config->%*,
     );
 
     # without 'path' option, Mojo::Log defaults to *STDERR
@@ -46,6 +49,20 @@ sub register ($self, $app, $config) {
 
     $app->log(Conch::Log->new(%log_args));
 
+    $app->helper(log => sub ($c) { $c->app->log });
+
+    $app->hook(around_dispatch => sub ($next, $c) {
+        local $Conch::Log::REQUEST_ID = $c->req->request_id;
+        $next->();
+    });
+
+    my $dispatch_log = Conch::Log->new(
+        history => $app->log->history,  # share history buffers
+        %log_args,
+        bunyan => 1,
+        with_trace => 0,
+    );
+
     $app->hook(after_dispatch => sub ($c) {
         my $u_str = $c->stash('user')
           ? $c->stash('user')->email.' ('.$c->stash('user')->id.')'
@@ -54,78 +71,53 @@ sub register ($self, $app, $config) {
         my $req_headers = $c->req->headers->to_hash(1);
         delete $req_headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
 
-        my $log = {
-            v        => 1,
-            pid      => $$,
-            hostname => hostname,
-            time     => Conch::Time->now->iso8601,
-            level    => 'info',
-            msg      => 'dispatch',
-            name     => 'conch-api',
-            req_id   => $c->req->request_id,
-            src      => {
-                func => __PACKAGE__,
-            },
-            req => {
-                user         => $u_str,
-                method       => $c->req->method,
-                url          => $c->req->url,
-                remoteAddress => $c->tx->original_remote_address,
-                remotePort   => $c->tx->remote_port,
-                headers      => $req_headers,
-                params       => $c->req->params->to_hash,
-            },
-        };
-
         my $res_headers = $c->res->headers->to_hash(1);
         delete $res_headers->@{qw(Set-Cookie)};
 
-        $log->{res} = {
-            headers => $res_headers,
+        my $req_json = $c->req->json;
+        my $res_json = $c->res->json;
+
+        my $data = {
+            msg => 'dispatch',
+            req => {
+                user        => $u_str,
+                method      => $c->req->method,
+                url         => $c->req->url,
+                remoteAddress => $c->tx->original_remote_address,
+                remotePort  => $c->tx->remote_port,
+                headers     => $req_headers,
+                query_params => $c->req->query_params->to_hash,
+                # no body_params: presently we do not permit application/x-www-form-urlencoded
+                $c->feature('audit') && !(ref $req_json eq 'HASH' and exists $req_json->{password})
+                    ? ( body => $c->req->text ) : (),
+            },
+            res => {
+                headers => $res_headers,
+                statusCode => $c->res->code,
+                $c->res->code >= 400
+                        || ($c->feature('audit') && !(ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*))
+                    ? ( body => $c->res->text ) : (),
+            },
         };
 
-        if ($c->res->code) {
-            $log->{res}{statusCode} = $c->res->code;
-            $log->{res}{body} = $c->res->text if $c->res->code >= 400;
-        }
+        if (my $exception = $c->stash('exception')) {
+            $exception->verbose;
+            my @frames = map +{
+                class => $_->[0],
+                file  => $_->[1],
+                line  => $_->[2],
+                func  => $_->[3],
+            },
+            reverse $exception->frames->@*;
 
-        if ($c->feature('audit')) {
-            my $req_json = $c->req->json;
-            $log->{req}{body} = $c->req->text
-                if not (ref $req_json eq 'HASH' and exists $req_json->{password});
-
-            my $res_json = $c->res->json;
-            $log->{res}{body} //= $c->res->text
-                if not (ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*);
-        }
-
-        if (my $e = $c->stash('exception')) {
-            $c->stash('exception')->verbose;
-            my $eframes = $c->stash('exception')->frames;
-
-            my @frames;
-            for my $frame (reverse $eframes->@*) {
-                push @frames, {
-                    class => $frame->[0],
-                    file  => $frame->[1],
-                    line  => $frame->[2],
-                    func  => $frame->[3],
-                }
-            }
-
-            $log->{err} = {
-                fileName   => $frames[0]{file},
-                lineNumber => $frames[0]{line},
-                msg        => $c->stash('exception')->to_string,
-                frames     => \@frames,
+            $data->{err} = {
+                msg     => $exception->to_string,
+                frames  => \@frames,
             };
         }
 
-        my $l = Conch::Log->new(%log_args);
-
-        $l->request_id($c->req->request_id);
-        $l->payload($log);
-        $l->info();
+        local $Conch::Log::REQUEST_ID = $c->req->request_id;
+        $dispatch_log->info($data);
     });
 }
 

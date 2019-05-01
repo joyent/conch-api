@@ -53,8 +53,7 @@ Rollbar entry thus created.
 sub _record_exception ($c, $exception, @) {
     my $access_token = $c->config('rollbar_access_token');
     if (not $access_token) {
-        my $log = $c->can('log') ? $c->log : $c->app->log;
-        $log->warn('Unable to send exception to Rollbar - no access token configured');
+        $c->log->warn('Unable to send exception to Rollbar - no access token configured');
         return;
     }
 
@@ -83,6 +82,7 @@ sub _record_exception ($c, $exception, @) {
     delete $headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
 
     my $rollbar_id = Data::UUID->new->create_str;
+    my $request_id = length($c->req->url) ? $c->req->request_id : undef;
 
     # Payload documented at https://rollbar.com/docs/api/items_post/
     my $exception_payload = {
@@ -118,7 +118,7 @@ sub _record_exception ($c, $exception, @) {
             $user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),
 
             custom => {
-                request_id => $c->req->request_id,
+                request_id => $request_id,
                 stash => +{
                     # we only go one level deep for most things, to avoid leaking
                     # potentially secret data.
@@ -138,12 +138,13 @@ sub _record_exception ($c, $exception, @) {
     };
 
     # asynchronously post to Rollbar, log if the request fails
+    my $log = $c->log;
     $c->ua->post(
         ROLLBAR_ENDPOINT,
         json => $exception_payload,
         sub ($ua, $tx) {
             if (my $err = $tx->error) {
-                my $log = $c->can('log') ? $c->log : $c->app->log;
+                local $Conch::Log::REQUEST_ID = $request_id;
                 $log->error('Unable to send exception to Rollbar. HTTP '
                     .$err->{code}." '$err->{message}'");
             }

@@ -1,36 +1,47 @@
 # Conch::Log
 
-Enhanced Mojo logger that logs with file path, and caller data using the Bunyan
-log format
-
-See also: [Mojo::Log](https://metacpan.org/pod/Mojo::Log), [Mojo::Log::More](https://metacpan.org/pod/Mojo::Log::More), and
-[node-bunyan](https://github.com/trentm/node-bunyan/).
+Enhanced Mojo logger with formatters to log in
+[Bunyan](https://metacpan.org/pod/|https:#github.com-trentm-node-bunyan) format, optionally with stack traces.
 
 # SYNOPSIS
 
+```perl
+$app->log(Conch::Log->new(bunyan => 1));
+
+$app->log->debug('a message');
+
+local $Conch::Log::REQUEST_ID = 'deadbeef';
+$log->info({ raw_data => [1,2,3] });
 ```
-$app->log(Conch::Log->new)
-```
+
+# ATTRIBUTES
+
+[Conch::Log](https://joyent.github.io/conch/modules/Conch::Log) inherits all attributes from [Mojo::Log](https://metacpan.org/pod/Mojo::Log) and implements the
+following new ones:
+
+## bunyan
+
+A boolean option (defaulting to false): log in bunyan format.  If passed a string or list of
+strings, these are added as the `msg` field in the logged data; otherwise, the passed-in data
+will be included as-is.
+
+`$Conch::Log::REQUEST_ID` is included in the data, when defined (make sure to localize this to
+the scope of your request or asynchronous subroutine).
+
+## with\_trace
+
+A boolean option (defaulting to false): include stack trace information. Must be combined with
+`bunyan => 1`.
 
 # METHODS
 
-## debug
+[Conch::Log](https://joyent.github.io/conch/modules/Conch::Log) inherits all methods from [Mojo::Log](https://metacpan.org/pod/Mojo::Log).
 
-## info
+# SEE ALSO
 
-## warn
-
-## error
-
-## fatal
-
-## raw
-
-See [Conch::Plugin::Logger](https://joyent.github.io/conch/modules/Conch::Plugin::Logger) for a use case of `raw`
+[node-bunyan](https://github.com/trentm/node-bunyan/)
 
 # LICENSING
-
-Based on Mojo::Log::More : https://metacpan.org/pod/Mojo::Log::More
 
 Copyright Joyent, Inc.
 

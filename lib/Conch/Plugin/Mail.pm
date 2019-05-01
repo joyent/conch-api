@@ -69,12 +69,14 @@ sub register ($self, $app, $config) {
         }
 
         my $email = compose_message($c, %args);
-        my $log = $c->can('log') ? $c->log : $c->app->log;
+        my $log = $c->log;
+        my $request_id = length($c->req->url) ? $c->req->request_id : undef;
 
         Mojo::IOLoop->subprocess(
             # called in the context of the child process; returns the email object that was
             # sent for delivery
             sub ($subprocess) {
+                local $Conch::Log::REQUEST_ID = $request_id;
                 $log->info('sending email "'
                     .($args{template_file} // substr(0,20,$args{template} // $args{content}).'...')
                     .'" to '.$email->header('to'));
@@ -88,6 +90,7 @@ sub register ($self, $app, $config) {
 
             # called in the context of the parent process on completion
             sub ($subprocess, $err, @args) {
+                local $Conch::Log::REQUEST_ID = $request_id;
                 if ($err) {
                     $log->warn('sending email errored: '.$err);
                     return;

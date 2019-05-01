@@ -2,9 +2,6 @@ package Conch::Controller::HardwareVendor;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use Conch::UUID 'is_uuid';
 
 =pod
