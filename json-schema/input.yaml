@@ -417,9 +417,9 @@ definitions:
       - password
     properties:
       user:
-        allOf:
-          - description: this is either a uuid, or email=<email address>
-          - $ref: /definitions/non_empty_string
+        anyOf:
+          - $ref: /definitions/uuid
+          - $ref: /definitions/email_address
       password:
         $ref: /definitions/non_empty_string
   ResetPassword:

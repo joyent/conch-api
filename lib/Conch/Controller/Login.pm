@@ -175,7 +175,7 @@ sub authenticate ($c) {
 
     if ($user_id and is_uuid($user_id)) {
         $c->log->debug('looking up user by id '.$user_id.'...');
-        if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email($user_id)) {
+        if (my $user = $c->db_user_accounts->active->find($user_id)) {
             if ($user_id and $jwt_sig) {
                 $c->log->debug('setting jwt_sig in cookie');
                 $c->cookie(
@@ -232,8 +232,8 @@ sub session_login ($c) {
     # TODO: it would be nice to be sure of which type of data we were being passed here, so we
     # don't have to look up by all columns.
     my $user_rs = $c->db_user_accounts->active;
-    my $user = $user_rs->lookup_by_id_or_email($input->{user})
-        || $user_rs->lookup_by_id_or_email('email='.$input->{user});
+    my $user = is_uuid($input->{user}) && $user_rs->find($input->{user})
+        || $user_rs->lookup_by_email($input->{user});
 
     if (not $user) {
         $c->log->debug('user lookup for '.$input->{user}.' failed');

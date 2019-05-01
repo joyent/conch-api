@@ -28,6 +28,10 @@ $t->get_ok('/ping')
 $t->get_ok('/me')->status_is(401);
 $t->get_ok('/login')->status_is(401);
 
+$t->post_ok('/login', json => { user => 'a', password => 'b' })
+    ->status_is(400)
+    ->json_like('/error', qr/does not match/);
+
 my $now = Conch::Time->now;
 
 $t->authenticate;

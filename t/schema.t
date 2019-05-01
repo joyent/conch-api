@@ -308,11 +308,14 @@ $t->get_ok('/schema/request/Login')
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         type => 'object',
         properties => {
-            user => { allOf => supersetof({'$ref' => '/definitions/non_empty_string'}) },
+            user => { anyOf => [ map +{ '$ref' => '/definitions/'.$_ }, qw(uuid email_address) ] },
             password => { '$ref' => '/definitions/non_empty_string' },
         },
         definitions => {
             non_empty_string => { type => 'string', minLength => 1 },
+            uuid => superhashof({}),
+            email_address => superhashof({}),
+            mojo_relaxed_placeholder => superhashof({}),
         },
     }));
 

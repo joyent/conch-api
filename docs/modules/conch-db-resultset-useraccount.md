@@ -33,6 +33,17 @@ $schema->resultset('user_account') or $c->db_user_accounts
   });
 ```
 
+## lookup\_by\_email
+
+Queries for user by (case-insensitive) email address.
+by user id.
+
+If more than one user is found, we return the one created most recently, and a warning will be
+logged (via DBIx::Class::ResultSet::single).
+
+If you want to search only for \*active\* users, apply the `->active` resultset to the
+caller first.
+
 ## lookup\_by\_id\_or\_email
 
 Queries for user by (case-insensitive) email if string matches `/^email=/`, otherwise queries
