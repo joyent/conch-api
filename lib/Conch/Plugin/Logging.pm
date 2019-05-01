@@ -46,22 +46,6 @@ sub register ($self, $app, $config) {
 
     $app->log(Conch::Log->new(%log_args));
 
-    if ($app->feature('rollbar')) {
-        $app->hook(
-            before_render => sub ($c, $args) {
-                my $template = $args->{template};
-
-                if (my $exception = $c->stash('exception')
-                        or ($template and $template =~ /exception/)) {
-                    $exception //= $args->{exception};
-                    $exception->verbose(1);
-                    my $rollbar_id = $c->send_exception_to_rollbar($exception);
-                    $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
-                }
-            }
-        );
-    }
-
     $app->hook(after_dispatch => sub ($c) {
         my $u_str = $c->stash('user')
           ? $c->stash('user')->email.' ('.$c->stash('user')->id.')'
