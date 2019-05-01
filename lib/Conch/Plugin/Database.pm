@@ -99,13 +99,13 @@ the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
         my $plural = noun($source_name)->plural;
 
         $app->helper('db_'.$plural, sub ($c) {
-            my $source = $c->app->schema->source($source_name);
+            my $source = $c->schema->source($source_name);
             # note that $source_name eq $source->from unless we screwed up.
             $source->resultset->search(undef, { alias => $source->from });
         });
 
         $app->helper('db_ro_'.$plural, sub ($c) {
-            my $ro_source = $c->app->ro_schema->source($source_name);
+            my $ro_source = $c->ro_schema->source($source_name);
             $ro_source->resultset->search(undef, { alias => $ro_source->from });
         });
     }
