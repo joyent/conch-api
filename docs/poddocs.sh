@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+rm -rf docs/modules
 mkdir -p docs/modules
 
 for file in $(find lib -type f -iname \*.pm); do
