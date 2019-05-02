@@ -9,5 +9,3 @@ for file in $(find lib -type f -iname \*.pm); do
 	echo "pod2github $file > $mdpath"
 	carton exec pod2github $file > $mdpath
 done
-
-

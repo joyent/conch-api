@@ -8,7 +8,7 @@ Conch has two major backend systems.
 
 First, edge software boots new hardware, upgrades firmware, performs burn-in
 testing, and gathers the general state of the hardware. (This software is
-currently closed source.) 
+currently closed source.)
 
 Second, this edge data is fed into the Conch API (this codebase) where the data
 is processed, validated, stored, and reported upon.
@@ -63,4 +63,3 @@ Copyright Joyent Inc
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, you can obtain one at <http://mozilla.org/MPL/2.0/>
-
