@@ -100,6 +100,7 @@ sub new {
             },
 
             secrets => ['********'],
+            features => { audit => 1 },
         }
     );
 
