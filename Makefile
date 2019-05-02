@@ -28,7 +28,7 @@ test_loud: local ## Run tests but tell the Mojo harness to log verbosely to log/
 doc: public/doc/index.html ## Build docs
 
 .PHONY: ghdocs
-ghdocs:
+ghdocs: build
 	docs/poddocs.sh
 
 public/doc/index.html: \
