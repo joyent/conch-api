@@ -29,7 +29,7 @@ GET     /workspace/:workspace_id_or_name/relay/:relay_id/device
 
 GET     /workspace/:workspace_id_or_name/user
 POST    /workspace/:workspace_id_or_name/user?send_mail=<1|0>
-DELETE  /workspace/:workspace_id_or_name/user/#target_user_id_or_email
+DELETE  /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
 ```
 
 Note that in all routes using `:workspace_id_or_name`, the stash for `workspace_id` will be
@@ -41,4 +41,4 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at http://mozilla.org/MPL/2.0/.
+one at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).

@@ -148,10 +148,35 @@ Given a subref, execute the code inside a transaction that is rolled back at the
 for testing with mutated data that should not affect other tests.  The subref is called as a
 subtest and is invoked with the test object as well as any additional provided arguments.
 
+## email\_cmp\_deeply
+
+Wrapper around ["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test::Deep#cmp_deeply) to test the email(s) that were "sent".
+`$got` should contain a hashref, or an arrayref of hashrefs, containing the headers and
+content of the message(s), allowing you to test any portion of these that you like using
+cmp\_deeply constructs.
+
+```perl
+$t->email_cmp_deeply({
+    To => '"Foo" <foo@conch.us>',
+    From => '"Admin' <admin@conch.us>',
+    Subject => 'About your new account',
+    body => re(qr/^An account has been created for you.*Username:\s+foo.*Email:\s+foo@conch.us\s+Password:/ms),
+});
+```
+
+A default 'From' header corresponding to the main test user is added as a default to your
+`$expected` messages if you don't provide one.
+
+Remember: "Line endings in the body will normalized to CRLF." (see ["create" in Email::Simple](https://metacpan.org/pod/Email::Simple#create))
+
+## email\_not\_sent
+
+Tests that \*no\* email was sent as a result of the last request.
+
 # LICENSING
 
 Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at http://mozilla.org/MPL/2.0/.
+one at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).

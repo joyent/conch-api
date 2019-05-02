@@ -21,6 +21,9 @@ tokens is allowed).
 
 System admin only (unless reached via /user/me).
 
+Sends an email to the affected user, unless `?send_mail=0` is included in the query (or
+revoking for oneself).
+
 ## set\_settings
 
 Override the settings for a user with the provided payload
@@ -75,11 +78,6 @@ forcing the user to log in again.  Possible options are:
 If all tokens are revoked, the user must also change their password after logging in, as they
 will not be able to log in with it again.
 
-## find\_user
-
-Chainable action that validates the user\_id or email address (prefaced with 'email=') provided
-in the path, and stashes the corresponding user row in `target_user`.
-
 ## get
 
 Gets information about a user. System admin only (unless reached via /user/me).
@@ -88,6 +86,7 @@ Response uses the UserDetailed json schema.
 ## update
 
 Updates user attributes. System admin only.
+Sends an email to the affected user, unless `?send_mail=0` is included in the query.
 
 Response uses the UserDetailed json schema.
 
@@ -146,4 +145,4 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at http://mozilla.org/MPL/2.0/.
+one at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).
