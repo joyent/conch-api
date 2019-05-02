@@ -9,7 +9,6 @@ use Test::More;
 use Test::Warnings ':all';
 use Test::Deep;
 use Test::Deep::NumberTolerant;
-use Test::Deep::JSON;
 use Conch::Log;
 use Test::Conch;
 use Time::HiRes 'time'; # time() now has µs precision
@@ -360,7 +359,7 @@ sub add_test_routes ($app) {
             res => {
                 headers => superhashof({}),
                 statusCode => 400,
-                body => json({ error => 'something bad happened' }),
+                body => { error => 'something bad happened' },
             },
         },
         'dispatch line for an error includes the response body',
@@ -392,7 +391,7 @@ sub add_test_routes ($app) {
             res => {
                 headers => superhashof({}),
                 statusCode => 500,
-                body => json({ error => 'An exception occurred' }),
+                body => { error => 'An exception occurred' },
             },
             err => {
                 msg => 'ach, I am slain at '.__FILE__." line $lines{die}.\n",
@@ -449,7 +448,7 @@ sub add_test_routes ($app) {
             res => {
                 headers => superhashof({}),
                 statusCode => 401,
-                body => json({ error => 'Unauthorized' }),
+                body => { error => 'Unauthorized' },
             },
         },
         'dispatch line for /login error includes the response body',
@@ -541,12 +540,12 @@ sub add_test_routes ($app) {
                 remotePort  => ignore,
                 headers     => superhashof({}),
                 query_params => { query_param => 'value0' },
-                body        => json({ body_param => 'value1' }),
+                body        => { body_param => 'value1' },
             },
             res => {
                 headers => superhashof({}),
                 statusCode => 400,
-                body => json({ error => 'something bad happened' }),
+                body => { error => 'something bad happened' },
             },
         },
         'dispatch line for an error in audit mode includes both the request and response body',
@@ -574,12 +573,12 @@ sub add_test_routes ($app) {
                 remotePort  => ignore,
                 headers     => superhashof({}),
                 query_params => { query_param => 'value0' },
-                body        => json({ body_param => 'value1' }),
+                body        => { body_param => 'value1' },
             },
             res => {
                 headers => superhashof({}),
                 statusCode => 500,
-                body => json({ error => 'An exception occurred' }),
+                body => { error => 'An exception occurred' },
             },
             err => {
                 msg => 'ach, I am slain at '.__FILE__." line $lines{die}.\n",
@@ -637,7 +636,7 @@ sub add_test_routes ($app) {
             res => {
                 headers => superhashof({}),
                 statusCode => 401,
-                body => json({ error => 'Unauthorized' }),
+                body => { error => 'Unauthorized' },
             },
         },
         'dispatch line for /login error in audit mode does NOT contain the request body',
@@ -670,7 +669,7 @@ sub add_test_routes ($app) {
             res => {
                 headers => superhashof({}),
                 statusCode => 401,
-                body => json({ error => 'Unauthorized' }),
+                body => { error => 'Unauthorized' },
             },
         },
         'dispatch line for basic auth in audit mode does NOT contain the password',
@@ -732,7 +731,7 @@ sub add_test_routes ($app) {
                 remotePort  => ignore,
                 headers     => superhashof({}),
                 query_params => {},
-                body        => json({ name => 'my api token' }),
+                body        => { name => 'my api token' },
             },
             res => {
                 headers => superhashof({}),

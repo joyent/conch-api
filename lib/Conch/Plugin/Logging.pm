@@ -89,14 +89,14 @@ sub register ($self, $app, $config) {
                 query_params => $c->req->query_params->to_hash,
                 # no body_params: presently we do not permit application/x-www-form-urlencoded
                 $c->feature('audit') && !(ref $req_json eq 'HASH' and exists $req_json->{password})
-                    ? ( body => $c->req->text ) : (),
+                    ? ( body => $c->req->json // $c->req->text ) : (),
             },
             res => {
                 headers => $res_headers,
                 statusCode => $c->res->code,
                 $c->res->code >= 400
                         || ($c->feature('audit') && !(ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*))
-                    ? ( body => $c->res->text ) : (),
+                    ? ( body => $c->res->json // $c->res->text ) : (),
             },
         };
 
