@@ -30,6 +30,9 @@ sub get ($c) {
     my $schema = _extract_schema_definition($validator, $name);
     return $c->status(404) if not $schema;
 
+    # ensure $id is unique
+    $schema->{'$id'} =~ s/^urn:\K/$type./;
+
     return $c->status(200, $schema);
 }
 

@@ -297,7 +297,7 @@ $t->get_ok('/schema/response/Login')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:Login.schema.json',
+        '$id' => 'urn:response.Login.schema.json',
         title => 'Login',
         type => 'object',
         additionalProperties => bool(0),
@@ -310,7 +310,7 @@ $t->get_ok('/schema/request/Login')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:Login.schema.json',
+        '$id' => 'urn:request.Login.schema.json',
         title => 'Login',
         type => 'object',
         additionalProperties => bool(0),
