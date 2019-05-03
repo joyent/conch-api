@@ -106,8 +106,13 @@ sub register ($self, $app, $config) {
         }
 
         if ($c->feature('audit')) {
-            $log->{req}{body} = $c->req->text;
-            $log->{res}{body} //= $c->res->text if $c->req->url !~ /login/;
+            my $req_json = $c->req->json;
+            $log->{req}{body} = $c->req->text
+                if not ($req_json and exists $req_json->{password});
+
+            my $res_json = $c->res->json;
+            $log->{res}{body} //= $c->res->text
+                if not ($res_json and grep /token/, keys $res_json->%*);
         }
 
         if (my $e = $c->stash('exception')) {
