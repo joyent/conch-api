@@ -548,7 +548,11 @@ sub log_fatal_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'fatal'); goto \&
 sub _request_ok ($self, @args) {
     undef $self->{_mail_composed};
     $self->app->log->history([]);
-    $self->next::method(@args);
+    my $result = $self->next::method(@args);
+    Test::More::diag 'log history: ',
+            Data::Dumper->new([ $self->app->log->history ])->Indent(1)->Terse(1)->Dump
+        if $self->tx->res->code == 500 and $self->tx->req->url->path ne '/die';
+    return $result;
 }
 
 1;
