@@ -8,4 +8,3 @@ serve:
 
 vendor:
 	bundle install --path vendor/bundle
-
