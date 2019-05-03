@@ -79,6 +79,7 @@ sub register ($self, $app, $config) {
 
         my $data = {
             msg => 'dispatch',
+            api_version => $c->version_tag,
             req => {
                 user        => $u_str,
                 method      => $c->req->method,
