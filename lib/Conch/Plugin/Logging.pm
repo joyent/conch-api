@@ -113,11 +113,11 @@ sub register ($self, $app, $config) {
 		if ($c->feature('audit')) {
             my $req_json = $c->req->json;
             $log->{req}{body} = $c->req->text
-                if not ($req_json and exists $req_json->{password});
+                if not (ref $req_json eq 'HASH' and exists $req_json->{password});
 
             my $res_json = $c->res->json;
             $log->{res}{body} //= $c->res->text
-                if not ($res_json and grep /token/, keys $res_json->%*);
+                if not (ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*);
 		}
 
 		if(my $e = $c->stash('exception')) {
