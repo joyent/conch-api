@@ -2,7 +2,6 @@ package Conch::Controller::Login;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
 use Time::HiRes ();
@@ -17,7 +16,8 @@ Conch::Controller::Login
 
 =head2 _create_jwt
 
-Create a JWT and sets it up to be returned in the response body under the key 'jwt_token'.
+Create a JWT to be returned to the user, for future presentation in the 'Authorization Bearer'
+header.
 
 =cut
 
@@ -31,20 +31,13 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
             # normal default: 1 day
       : ($jwt_config->{normal_expiry} || 86400));
 
-    my ($new_token_row, $token) = $c->db_user_session_tokens->generate_for_user(
+    my ($session_token, $jwt) = $c->generate_jwt(
         $user_id,
         $expires_abs,
         'login_jwt_'.join('_', Time::HiRes::gettimeofday), # reasonably unique name
     );
 
-    return Mojo::JWT->new(
-        claims => {
-            uid => $user_id,
-            jti => $token
-        },
-        secret  => $c->app->config('secrets')->[0],
-        expires => $expires_abs,
-    )->encode;
+    return $jwt;
 }
 
 =head2 authenticate
@@ -75,23 +68,25 @@ sub authenticate ($c) {
 
         # Attempt to decode with every configured secret, in case JWT token was
         # signed with a rotated secret
-        my $jwt;
+        my $jwt_claims;
         for my $secret ($c->app->config('secrets')->@*) {
             # Mojo::JWT->decode blows up if the token is invalid
             try {
-                $jwt = Mojo::JWT->new(secret => $secret)->decode($token);
+                $jwt_claims = Mojo::JWT->new(secret => $secret)->decode($token);
             };
-            last if $jwt;
+            last if $jwt_claims;
         }
 
-        if (not $jwt or not $jwt->{uid} or not is_uuid($jwt->{uid})) {
+        if (not $jwt_claims or not $jwt_claims->{user_id} or not is_uuid($jwt_claims->{user_id}
+                or not $jwt_claims->{token_id} or not is_uuid($jwt_claims->{token_id}
+                or not $jwt_claims->{exp} or $jwt_claims->{exp} !~ /^[0-9]+$/))) {
             $c->log->debug('auth failed: JWT could not be decoded');
             return $c->status(401);
         }
 
-        $user_id = $jwt->{uid};
+        $user_id = $jwt_claims->{user_id};
 
-        if ($jwt->{exp} <= time) {
+        if ($jwt_claims->{exp} <= time) {
             $c->log->debug('auth failed: JWT for user_id '.$user_id.' has expired');
             return $c->status(401);
         }
@@ -101,20 +96,21 @@ sub authenticate ($c) {
 
         if (not $session_token = $c->db_user_session_tokens
                 ->unexpired
-                ->search_for_user_token($user_id, $jwt->{jti})->single) {
-            $c->log->debug('JWT auth failed for user_id '.$user_id);
+                ->search({ id => $jwt_claims->{token_id}, user_id => $user_id })
+                ->single) {
+            $c->log->debug('auth failed: JWT for user_id '.$user_id.' could not be found');
             return $c->status(401);
         }
 
         $session_token->update({ last_used => \'now()' });
-        $c->stash('token_id', $jwt->{jti});
+        $c->stash('token_id', $jwt_claims->{token_id});
     }
 
     # did we manage to authenticate the user, or find session info indicating we did so
     # earlier (via /login)?
-    $user_id ||= $c->session('user');
+    $user_id ||= $c->session('user') if $c->session('user') and is_uuid($c->session('user'));
 
-    if ($user_id and is_uuid($user_id)) {
+    if ($user_id) {
         $c->log->debug('looking up user by id '.$user_id.'...');
         if (my $user = $c->db_user_accounts->active->find($user_id)) {
             # api tokens are exempt from this check
@@ -151,7 +147,8 @@ sub authenticate ($c) {
 
 =head2 session_login
 
-Handles the act of logging in, given a user and password in the form. Returns a JWT token.
+Handles the act of logging in, given a user and password in the form.
+Response uses the Login json schema, containing a JWT.
 
 =cut
 
@@ -224,7 +221,7 @@ sub session_logout ($c) {
     # (assuming we have the user's id, which we probably don't)
     if ($c->stash('user_id') and $c->stash('token_id')) {
         $c->db_user_session_tokens
-            ->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
+            ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
             ->unexpired
             ->expire;
     }
@@ -254,7 +251,7 @@ sub refresh_token ($c) {
 
     # expire this token
     my $token_valid = $c->db_user_session_tokens
-        ->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
+        ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
         ->unexpired->expire;
 
     # clear out all expired session tokens

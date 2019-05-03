@@ -481,7 +481,7 @@ sub get_api_tokens ($c) {
 
 =head2 create_api_token
 
-Create a new token, creating a JWT from it. Response uses the NewUserToken json schema.
+Generate a new token, creating a JWT from it. Response uses the NewUserToken json schema.
 This is the only time the token string is provided to the user, so don't lose it!
 
 =cut
@@ -496,28 +496,18 @@ sub create_api_token ($c) {
 
     my $user = $c->stash('target_user');
 
-    return $c->status(409, { error => 'name "'.$input->{name}.'" is already in use' })
-        if $user->user_session_tokens->search({ name => $input->{name} })->exists;
-
     # default expiration: 5 years
     my $expires_abs = time + (($c->app->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
 
-    # TODO: ew ew ew, some duplication with Conch::Controller::Login::_create_jwt.
-    my ($new_db_row, $token) = $c->db_user_session_tokens->generate_for_user(
-        $user->id, $expires_abs, $input->{name});
-
-    my $jwt = Mojo::JWT->new(
-        claims => { uid => $user->id, jti => $token },
-        secret => $c->app->config('secrets')->[0],
-        expires => $expires_abs,
-    )->encode;
+    my ($token, $jwt) = $c->generate_jwt($user->id, $expires_abs, $input->{name});
+    return if $c->res->code;
 
     $c->res->headers->location($c->url_for('/user/'
         .($user->id eq $c->stash('user_id') ? 'me' : $user->id)
         .'/token/'.$input->{name}));
     return $c->status(201, {
         token => $jwt,
-        $new_db_row->TO_JSON->%*,
+        $token->TO_JSON->%*,
     });
 }
 

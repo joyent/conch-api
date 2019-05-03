@@ -240,6 +240,20 @@ subtest 'JWT authentication' => sub {
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200, 'user can provide Authentication header with full JWT to authenticate');
 
+    $t->reset_session;
+    # we're going to be cheeky here and hack the JWT to doctor it...
+    # this only works because we have access to the symmetric secret embedded in the app.
+    my $jwt_claims = Mojo::JWT->new(secret => $t->app->config('secrets')->[0])->decode($jwt_token);
+    my $bad_user_id = create_uuid_str();
+    my $hacked_jwt_token = Mojo::JWT->new(
+        claims => { $jwt_claims->%{token_id}, user_id => $bad_user_id },
+        secret => $t->app->config('secrets')->[0],
+        expires => $jwt_claims->{exp},
+    )->encode;
+    $t->get_ok('/workspace', { Authorization => 'Bearer '.$hacked_jwt_token })
+        ->status_is(401, 'the user_id is verified in the JWT');
+    $t->log_debug_is('auth failed: JWT for user_id '.$bad_user_id.' could not be found');
+
     $t->post_ok('/refresh_token', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200)
         ->json_has('/jwt_token');

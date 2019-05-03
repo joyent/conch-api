@@ -545,11 +545,11 @@ ALTER TABLE public.user_relay_connection OWNER TO conch;
 
 CREATE TABLE public.user_session_token (
     user_id uuid NOT NULL,
-    token_hash bytea NOT NULL,
     expires timestamp with time zone NOT NULL,
     name text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    last_used timestamp with time zone
+    last_used timestamp with time zone,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL
 );
 
 
@@ -944,7 +944,7 @@ ALTER TABLE ONLY public.user_relay_connection
 --
 
 ALTER TABLE ONLY public.user_session_token
-    ADD CONSTRAINT user_session_token_pkey PRIMARY KEY (user_id, token_hash);
+    ADD CONSTRAINT user_session_token_pkey PRIMARY KEY (id);
 
 
 --

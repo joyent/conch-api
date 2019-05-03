@@ -33,6 +33,17 @@ workspace (as indicated by :workspace\_id in the path).
 Users with the admin flag set will always return true, even if no user\_workspace\_role records
 are present.
 
+## generate\_jwt
+
+Generates a session token for the specified user and stores it in the database.
+Returns the new row and the JWT.
+
+`expires` is an epoch time.
+
+## generate\_jwt\_from\_token
+
+Given a session token, generate a JWT for it.
+
 # LICENSING
 
 Copyright Joyent, Inc.

@@ -6,7 +6,8 @@ Conch::Controller::Login
 
 ## \_create\_jwt
 
-Create a JWT and sets it up to be returned in the response body under the key 'jwt\_token'.
+Create a JWT to be returned to the user, for future presentation in the 'Authorization Bearer'
+header.
 
 ## authenticate
 
@@ -23,7 +24,8 @@ subsequent routes and actions.
 
 ## session\_login
 
-Handles the act of logging in, given a user and password in the form. Returns a JWT token.
+Handles the act of logging in, given a user and password in the form.
+Response uses the Login json schema, containing a JWT.
 
 ## session\_logout
 

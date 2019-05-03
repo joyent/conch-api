@@ -18,11 +18,6 @@ Chainable resultset to limit results to session tokens that are not expired.
 
 Chainable resultset to limit results to those that aren't expired.
 
-## search\_for\_user\_token
-
-Chainable resultset to search for matching tokens.
-This does \*not\* check the expires field: chain with 'unexpired' if this is desired.
-
 ## login\_only
 
 Chainable resultset to search for login tokens (created via the main /login flow).
@@ -34,13 +29,6 @@ Chainable resultset to search for api tokens (NOT created via the main /login fl
 ## expire
 
 Update all matching rows by setting expires = now(). (Returns the number of rows updated.)
-
-## generate\_for\_user
-
-Generates a session token for the user and stores it in the database.
-'expires' is an epoch time.
-
-Returns the db row inserted, and the token string that we generated.
 
 # LICENSING
 

@@ -23,9 +23,6 @@ has description => 'Create a new application token';
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
-use Session::Token;
-use Mojo::JWT;
-
 sub run ($self, @opts) {
     local @ARGV = @opts;
     my ($opt, $usage) = describe_options(
@@ -41,22 +38,8 @@ sub run ($self, @opts) {
     my $user = $self->app->db_user_accounts->active->lookup_by_email($opt->email);
     die 'cannot find user with email ', $opt->email if not $user;
 
-    # NOTE: all this code will change very soon with the user_session_token refactor
-    my $token = Session::Token->new->get;
     my $expires_abs = time + (($self->app->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
-    my $row = $self->app->db_user_session_tokens->create({
-        user_id => $user->id,
-        name => $opt->name,
-        token_hash => \[ q{digest(?, 'sha256')}, $token ],
-        expires => \[ q{to_timestamp(?)::timestamptz}, $expires_abs ],
-    });
-
-    my $jwt = Mojo::JWT->new(
-        claims => { uid => $user->id, jti => $token },
-        secret => $self->app->config('secrets')->[0],
-        expires => $expires_abs,
-    )->encode;
-
+    my ($token, $jwt) = $self->app->generate_jwt($user->id, $expires_abs, $opt->name);
     say $jwt;
 }
 
