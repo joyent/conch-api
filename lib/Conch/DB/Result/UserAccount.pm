@@ -195,8 +195,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-18 11:14:52
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iTfN8qDvzBsoGQS162cx9g
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lpCibSMzmLuJyOnM4Hz69g
 
 __PACKAGE__->add_columns(
     '+password_hash' => { is_serializable => 0 },

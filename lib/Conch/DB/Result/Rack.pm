@@ -237,8 +237,8 @@ Composing rels: L</workspace_racks> -> workspace
 __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-04-18 13:31:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gsU10g932Bm/rPRdxIykyA
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mbWMmEU6H1A2Ag4qoTg3Ow
 
 __PACKAGE__->add_columns(
     '+phase' => { retrieve_on_insert => 1 },

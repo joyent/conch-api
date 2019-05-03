@@ -184,8 +184,8 @@ __PACKAGE__->might_have(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3IUBSxX6sn0jXd5M8JyA2w
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YL6wl6I8EwnHYaDlg8IcIg
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

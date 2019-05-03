@@ -185,8 +185,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Xi5ASzt2zuwUhj0wjj3a8A
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KXO3aW6sCj8u1N2+OpYzhQ
 
 __PACKAGE__->add_columns(
     '+module' => { is_serializable => 0 },

@@ -25,3 +25,5 @@ loader_options:
   # this is usually more useful than not, but take care that you don't blow away any changes
   # not yet in git!
   overwrite_modifications: 1
+
+  omit_timestamp: 1
