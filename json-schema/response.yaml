@@ -1115,7 +1115,7 @@ definitions:
         - num_devices
       properties:
         id:
-          type: string
+          $ref: /definitions/relay_id
         alias:
           oneOf:
             - type: string
