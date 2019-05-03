@@ -122,7 +122,7 @@ sub process ($c) {
 
     # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
-    return $c->status(500, { error => 'failed to find validation plan' }) if not $validation_plan;
+    return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
     my $validation_state = Conch::ValidationSystem->new(
@@ -419,7 +419,7 @@ sub validate_report ($c) {
         if not $hw->hardware_product_profile;
 
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
-    return $c->status(500, { error => 'failed to find validation plan' }) if not $validation_plan;
+    return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
     my ($status, @validation_results);
