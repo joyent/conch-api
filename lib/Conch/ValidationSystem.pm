@@ -1,7 +1,6 @@
 package Conch::ValidationSystem;
 
 use Mojo::Base -base, -signatures;
-use Mojo::Util 'trim';
 use Path::Tiny;
 use Try::Tiny;
 use Module::Runtime 'require_module';
@@ -83,7 +82,7 @@ sub check_validation_plan ($self, $validation_plan) {
             my $failed;
 
             foreach my $field (qw(version name description)) {
-                if ($validation->$field ne trim($module->$field)) {
+                if ($validation->$field ne $module->$field) {
                     $self->log->warn('"'.$field.'" field for validation id '.$validation->id
                         .' does not match value in '.$module
                         .' ("'.$validation->$field.'" vs "'.$module->$field.'")');
@@ -161,7 +160,7 @@ sub load_validations ($self) {
                 version => $module->version,
             })->single) {
             $validation_row->set_columns({
-                description => trim($module->description),
+                description => $module->description,
                 module => $module,
             });
             if ($validation_row->is_changed) {
@@ -174,7 +173,7 @@ sub load_validations ($self) {
             $self->schema->resultset('validation')->create({
                 name => $module->name,
                 version => $module->version,
-                description => trim($module->description),
+                description => $module->description,
                 module => $module,
             });
             $num_loaded_validations++;

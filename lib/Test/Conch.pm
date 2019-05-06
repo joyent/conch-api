@@ -9,7 +9,6 @@ use Conch::DB;
 use Test::Conch::Fixtures;
 use Path::Tiny;
 use Test::Deep ();
-use Mojo::Util 'trim';
 use Module::Runtime 'require_module';
 use List::Util 'maxstr';
 use Conch::DB::Util;
@@ -322,7 +321,7 @@ sub load_validation ($self, $module) {
     $validation = $self->app->db_validations->create({
         name => $module->name,
         version => $module->version,
-        description => trim($module->description),
+        description => $module->description,
         module => $module,
     });
     return $self->app->db_ro_validations->find($validation->id);

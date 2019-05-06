@@ -5,9 +5,7 @@ use Mojo::Base 'Conch::Validation';
 use constant name        => 'firmware_current';
 use constant version     => 1;
 use constant category    => 'BIOS';
-use constant description => q(
-Validate that firmware is 'current' in device settings
-);
+use constant description => 'Validate that firmware is \'current\' in device settings';
 
 sub validate {
     my ($self) = @_;

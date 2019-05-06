@@ -6,7 +6,7 @@ use v5.20;
 use constant name        => 'raid_lun_num';
 use constant version     => 1;
 use constant category    => 'DISK';
-use constant description => q( Validate expected number of RAID LUNs );
+use constant description => 'Validate expected number of RAID LUNs';
 
 sub validate {
     my ($self, $data) = @_;

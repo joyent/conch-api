@@ -6,7 +6,7 @@ use v5.20;
 use constant name        => 'nvme_ssd_num';
 use constant version     => 1;
 use constant category    => 'DISK';
-use constant description => q( Validate expected number of NVMe SSDs );
+use constant description => 'Validate expected number of NVMe SSDs';
 
 sub validate {
     my ($self, $data) = @_;

@@ -43,7 +43,7 @@ subtest 'try loading again' => sub {
 
 subtest 'update an existing validation' => sub {
     no warnings 'once', 'redefine';
-    *Conch::Validation::DeviceProductName::description = sub () { '  this is better than before!' };
+    *Conch::Validation::DeviceProductName::description = sub () { 'this is better than before!' };
     reset_log;
 
     is($validation_system->load_validations, 1, 'Updated validation loaded into the database');

@@ -6,7 +6,7 @@ use v5.20;
 use constant name        => 'sas_hdd_num';
 use constant version     => 1;
 use constant category    => 'DISK';
-use constant description => q( Validate expected number of SAS HDDs );
+use constant description => 'Validate expected number of SAS HDDs';
 
 sub validate {
     my ($self, $data) = @_;

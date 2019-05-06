@@ -5,9 +5,7 @@ use Mojo::Base 'Conch::Validation';
 use constant name        => 'links_up';
 use constant version     => 2;
 use constant category    => 'NET';
-use constant description => q(
-Validate that there are at least 4 NICs in the 'up' state, not counting ipmi1
-);
+use constant description => 'Validate that there are at least 4 NICs in the \'up\' state, not counting ipmi1';
 
 sub validate {
     my ($self, $data) = @_;

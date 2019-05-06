@@ -6,8 +6,7 @@ use v5.20;
 use constant name     => 'disk_smart_status';
 use constant version  => 2;
 use constant category => 'DISK';
-use constant description =>
-    q( Validate that all real disks report 'OK' SMART status);
+use constant description => 'Validate that all real disks report \'OK\' SMART status';
 
 sub validate {
     my ($self, $data) = @_;
