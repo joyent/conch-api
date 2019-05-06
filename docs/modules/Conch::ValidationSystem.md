@@ -21,9 +21,13 @@ Returns the name of all modules successfully loaded.
 ## load\_validations
 
 Load all Conch::Validation::\* sub-classes into the database.
-Existing validation records will only be modified if attributes change.
+Existing validation records will not be modified if attributes change -- instead, existing
+records will be deactivated and new records will be created to reflect the updated data.
 
-Returns the number of new or changed validations loaded.
+Returns a tuple: the number of validations that were deactivated, and the number of new
+validation rows that were created.
+
+This method is poorly-named: it should be 'create\_validations'.
 
 ## run\_validation\_plan
 

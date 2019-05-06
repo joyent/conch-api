@@ -6,6 +6,7 @@ use Conch::ValidationSystem;
 use Test::Conch;
 use Mojo::Log;
 use Path::Tiny;
+use Test::Fatal;
 
 open my $log_fh, '>', \my $fake_log or die "cannot open to scalarref: $!";
 my $logger = Mojo::Log->new(handle => $log_fh);
@@ -22,13 +23,15 @@ my @validation_modules = map { s{^lib/}{}; s{/}{::}g; s/\.pm$//r }
     path('lib/Conch/Validation')->visit(sub { $_[1]->{$_[0]} = 1 }, { recurse => 1 });
 
 subtest 'insert new validation rows' => sub {
-    my $num_updates = $validation_system->load_validations;
-    note "inserted $num_updates validation rows";
+    my ($num_deactivated, $num_created) = $validation_system->load_validations;
+    note "deactivated $num_deactivated validation rows";
+    note "inserted $num_created validation rows";
 
-    like($fake_log, qr/Created entry for $_/, "logged something for $_")
+    like($fake_log, qr/created validation row for $_/, "logged something for $_")
         foreach @validation_modules;
 
-    is($num_updates, scalar @validation_modules, 'all validation rows were inserted into the database');
+    is($num_deactivated, 0, 'there were no validations to deactivate');
+    is($num_created, scalar @validation_modules, 'all validation rows were inserted into the database');
 
     is(
         scalar @validation_modules,
@@ -38,38 +41,33 @@ subtest 'insert new validation rows' => sub {
 };
 
 subtest 'try loading again' => sub {
-    is($validation_system->load_validations, 0, 'No new validations loaded');
+    is($validation_system->load_validations, 0, 'No validations needed to change');
 };
 
-subtest 'update an existing validation' => sub {
+subtest 'an existing validation has changed but the version was not incremented' => sub {
     no warnings 'once', 'redefine';
-    *Conch::Validation::DeviceProductName::description = sub () { 'this is better than before!' };
+    *Conch::Validation::DeviceProductName::description = sub () { 'I made a change but forgot to update the version' };
     reset_log;
 
-    is($validation_system->load_validations, 1, 'Updated validation loaded into the database');
-
-    like($fake_log, qr/Updated entry for Conch::Validation::DeviceProductName/, 'logged the update');
-
-    cmp_deeply(
-        $validation_rs->search({ module => 'Conch::Validation::DeviceProductName' })->single,
-        methods(
-            module => 'Conch::Validation::DeviceProductName',
-            version => 1,
-            description => 'this is better than before!',
-        ),
-        'entry was updated',
+    like(
+        exception { $validation_system->load_validations },
+        qr/\Qcannot create new row for validation named product_name, as there is already a row with its name and version (did you forget to increment the version in Conch::Validation::DeviceProductName?)\E/,
+        'attempt to update validations exploded',
     );
 };
 
-subtest 'deactivate a validation and update its version (presumably the code changed too)' => sub {
-    $validation_rs->search({ module => 'Conch::Validation::DeviceProductName' })->deactivate;
+subtest 'increment a validation\'s version (presumably the code changed too)' => sub {
     no warnings 'once', 'redefine';
+    *Conch::Validation::DeviceProductName::description = sub () { 'this is better than before!' };
     *Conch::Validation::DeviceProductName::version = sub () { 2 };
     reset_log;
 
-    is($validation_system->load_validations, 1, 'New version of validation loaded into the database');
+    my ($num_deactivated, $num_created) = $validation_system->load_validations;
+    is($num_deactivated, 1, 'the old version was deactivated');
+    is($num_created, 1, 'the new version was inserted');
 
-    like($fake_log, qr/Created entry for Conch::Validation::DeviceProductName/, 'logged the insert');
+    like($fake_log, qr/deactivated existing validation row for Conch::Validation::DeviceProductName/, 'logged the deactivation');
+    like($fake_log, qr/created validation row for Conch::Validation::DeviceProductName/, 'logged the insert');
 
     cmp_deeply(
         $validation_rs->search({
@@ -79,8 +77,8 @@ subtest 'deactivate a validation and update its version (presumably the code cha
         methods(
             module => 'Conch::Validation::DeviceProductName',
             version => 1,
-            description => 'this is better than before!',
-            deactivated => bool(1),
+            description => 'Validate reported product name matches product name expected in rack layout',
+            deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         ),
         'old entry was deactivated',
     );
@@ -91,6 +89,7 @@ subtest 'deactivate a validation and update its version (presumably the code cha
             module => 'Conch::Validation::DeviceProductName',
             version => 2,
             description => 'this is better than before!',
+            deactivated => undef,
         ),
         'new entry was added for bumped version',
     );
@@ -106,6 +105,25 @@ subtest 'deactivate a validation and update its version (presumably the code cha
         scalar @validation_modules + 1,
         'Number of total validation modules has gone up by one',
     );
+};
+
+subtest 'a validation module was deleted entirely' => sub {
+    my $old_validation = $validation_rs->create({
+        name => 'old_and_crufty',
+        version => 1,
+        description => 'this validation used to be great but now it is not',
+        module => 'Conch::Validation::OldAndCrufty',
+    });
+
+    my ($num_deactivated, $num_created) = $validation_system->load_validations;
+    is($num_deactivated, 1, 'the old validation was deactivated');
+    is($num_created, 0, 'there are no new validations to insert');
+
+    $old_validation->discard_changes;
+    like($old_validation->deactivated, qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/,
+        'the validation has been deactivated');
+
+    like($fake_log, qr/deactivating validation for no-longer-present modules: Conch::Validation::OldAndCrufty/, 'logged the deactivation');
 };
 
 done_testing;
