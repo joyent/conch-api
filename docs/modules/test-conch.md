@@ -2,7 +2,7 @@
 
 Takes care of setting up a [Test::Mojo](https://metacpan.org/pod/Test::Mojo) with the Conch application pre-configured.
 
-Includes JSON validation ability via [Test::MojoSchema](https://metacpan.org/pod/Test::MojoSchema).
+Includes JSON validation ability.
 
 ```perl
 my $t = Test::Conch->new();
@@ -34,9 +34,8 @@ Constructor. Takes the following arguments:
 
 ```perl
 * pg (optional). uses this as the postgres db.
+  Otherwise, an empty database is created, using the schema in sql/schema.sql.
 ```
-
-An empty database is created, using the schema in sql/schema.sql.
 
 ## init\_db
 

@@ -198,7 +198,7 @@ The first value is a string to be added after C<< WHERE <column> >>; the remaind
 values to be used in C<< \[ $query_string, @binds ] >>.
 
 C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
-a resultset (which must return a single column of distinct workspace_id(s)).
+or a resultset (which must return a single column of distinct workspace_id(s)).
 
 =cut
 

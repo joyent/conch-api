@@ -23,7 +23,7 @@ use Scalar::Util 'weaken';
 
 Takes care of setting up a L<Test::Mojo> with the Conch application pre-configured.
 
-Includes JSON validation ability via L<Test::MojoSchema>.
+Includes JSON validation ability.
 
     my $t = Test::Conch->new();
     $t->get_ok('/')->status_is(200)->json_schema_is('Whatever');
@@ -81,8 +81,7 @@ has fixtures => sub ($self) {
 Constructor. Takes the following arguments:
 
   * pg (optional). uses this as the postgres db.
-
-An empty database is created, using the schema in sql/schema.sql.
+    Otherwise, an empty database is created, using the schema in sql/schema.sql.
 
 =cut
 

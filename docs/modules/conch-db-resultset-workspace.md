@@ -71,7 +71,7 @@ The first value is a string to be added after `WHERE <column>`; the remainder ar
 values to be used in `\[ $query_string, @binds ]`.
 
 `$workspace_id` can be a single workspace\_id, an arrayref of multiple distinct workspace\_ids,
-a resultset (which must return a single column of distinct workspace\_id(s)).
+or a resultset (which must return a single column of distinct workspace\_id(s)).
 
 # LICENSING
 
