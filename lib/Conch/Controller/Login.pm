@@ -121,19 +121,20 @@ sub authenticate ($c) {
         return 1;
     }
 
-    my ($user_id, $jwt, $jwt_sig, $session_token);
+    my ($user_id, $jwt_sig, $session_token);
     if ($c->req->headers->authorization
         && $c->req->headers->authorization =~ /^Bearer (.+)/)
     {
         $c->log->debug('attempting to authenticate with Authorization: Bearer header...');
         my $token = $1;
-        $jwt_sig = $c->cookie('jwt_sig');
-        if ($jwt_sig) {
+        if ($jwt_sig = $c->cookie('jwt_sig')) {
+            # danger! we are not checking if we already had a complete token
             $token = $token.'.'.$jwt_sig;
         }
 
         # Attempt to decode with every configured secret, in case JWT token was
         # signed with a rotated secret
+        my $jwt;
         for my $secret ($c->config('secrets')->@*) {
             # Mojo::JWT->decode blows up if the token is invalid
             try {
@@ -142,21 +143,29 @@ sub authenticate ($c) {
             last if $jwt;
         }
 
+        if (not $jwt or not $jwt->{uid} or not is_uuid($jwt->{uid})) {
+            $c->log->debug('auth failed: JWT could not be decoded');
+            return $c->status(401);
+        }
+
+        $user_id = $jwt->{uid};
+
+        if ($jwt->{exp} <= time) {
+            $c->log->debug('auth failed: JWT for user_id '.$user_id.' has expired');
+            return $c->status(401);
+        }
+
         # clear out all expired session tokens
         $c->db_user_session_tokens->expired->delete;
 
-        unless ($jwt
-            and $jwt->{exp} > time
-            and $session_token = $c->db_user_session_tokens
+        if (not $session_token = $c->db_user_session_tokens
                 ->unexpired
-                ->search_for_user_token($jwt->{uid}, $jwt->{jti})->single)
-        {
-            $c->log->debug('JWT auth failed');
+                ->search_for_user_token($user_id, $jwt->{jti})->single) {
+            $c->log->debug('JWT auth failed for user_id '.$user_id);
             return $c->status(401);
         }
 
         $session_token->update({ last_used => \'now()' });
-        $user_id = $jwt->{uid};
         $c->stash('token_id', $jwt->{jti});
     }
 
