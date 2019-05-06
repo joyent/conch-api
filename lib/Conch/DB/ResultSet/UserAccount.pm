@@ -42,6 +42,27 @@ allowing us to receive the 'password' key, which we hash into 'password_hash'.
 
 =cut
 
+=head2 lookup_by_email
+
+Queries for user by (case-insensitive) email address.
+by user id.
+
+If more than one user is found, we return the one created most recently, and a warning will be
+logged (via DBIx::Class::ResultSet::single).
+
+If you want to search only for *active* users, apply the C<< ->active >> resultset to the
+caller first.
+
+=cut
+
+sub lookup_by_email ($self, $email) {
+    return $self
+        ->search(\[ 'lower(email) = lower(?)', $email ])
+        ->order_by({ -desc => 'created' })
+        ->rows(1)
+        ->one_row;
+}
+
 =head2 lookup_by_id_or_email
 
 Queries for user by (case-insensitive) email if string matches C</^email=/>, otherwise queries

@@ -130,8 +130,8 @@ definitions:
       device_id:
         $ref: /definitions/device_id
       rack_unit_start:
-        type: integer
         description: Starting RU slot position
+        type: integer
       device_asset_tag:
         oneOf:
           - $ref: /definitions/device_asset_tag
@@ -151,8 +151,8 @@ definitions:
       device_id:
         $ref: /definitions/device_id
       rack_unit_start:
-        type: integer
         description: Starting RU slot position
+        type: integer
   RackPhase:
     type: object
     additionaProperties: false
@@ -378,8 +378,9 @@ definitions:
       hardware_vendor_id:
         $ref: /definitions/uuid
       vendor:
-        description: for backcompat only.
-        $ref: /definitions/uuid
+        allOf:
+          - description: for backcompat only.
+          - $ref: /definitions/uuid
       specification:
         description: json blob of additional data
         oneOf:
@@ -416,8 +417,9 @@ definitions:
       - password
     properties:
       user:
-        description: either a uuid, or email=<email address>
-        $ref: /definitions/non_empty_string
+        anyOf:
+          - $ref: /definitions/uuid
+          - $ref: /definitions/email_address
       password:
         $ref: /definitions/non_empty_string
   ResetPassword:
@@ -581,8 +583,9 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      description: datacenter room ids
-      $ref: /definitions/uuid
+      allOf:
+        - description: datacenter room ids
+        - $ref: /definitions/uuid
   RegisterRelay:
     type: object
     additionaProperties: false

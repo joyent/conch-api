@@ -128,7 +128,7 @@ definitions:
           - serial
         properties:
           serial:
-            $ref: common.yaml#/definitions/non_empty_string
+            $ref: common.yaml#/definitions/relay_id
       serial_number:
         $ref: common.yaml#/definitions/device_id
       state:

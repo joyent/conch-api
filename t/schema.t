@@ -295,26 +295,38 @@ $t->get_ok('/schema/request/hello')
 $t->get_ok('/schema/response/Login')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
-    ->json_cmp_deeply(superhashof({
+    ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$id' => 'urn:response.Login.schema.json',
+        title => 'Login',
         type => 'object',
+        additionalProperties => bool(0),
+        required => ['jwt_token'],
         properties => { jwt_token => { type => 'string' } },
-    }));
+    });
 
 $t->get_ok('/schema/request/Login')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
-    ->json_cmp_deeply(superhashof({
+    ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$id' => 'urn:request.Login.schema.json',
+        title => 'Login',
         type => 'object',
+        additionalProperties => bool(0),
+        required => [ qw(user password) ],
         properties => {
-            user => { '$ref' => '/definitions/non_empty_string' },
+            user => { anyOf => [ map +{ '$ref' => '/definitions/'.$_ }, qw(uuid email_address) ] },
             password => { '$ref' => '/definitions/non_empty_string' },
         },
         definitions => {
             non_empty_string => { type => 'string', minLength => 1 },
+            uuid => superhashof({}),
+            email_address => superhashof({}),
+            mojo_relaxed_placeholder => superhashof({}),
         },
-    }));
+    });
+
 
 $t->get_ok('/schema/request/HardwareProductCreate')
     ->status_is(200)
