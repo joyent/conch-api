@@ -14,9 +14,6 @@ Conch::Route::DeviceReport
 
 Sets up the routes for /device_report:
 
-    POST    /device_report
-    GET     /device_report/:device_report_id
-
 =cut
 
 sub routes {
@@ -42,6 +39,26 @@ sub routes {
 __END__
 
 =pod
+
+Unless otherwise noted, all routes require authentication.
+
+=head3 C<POST /device_report>
+
+=over 4
+
+=item * Request: device_report.yaml
+
+=item * Response: response.yaml#/ReportValidationResults
+
+=back
+
+=head3 C<GET /device_report/:device_report_id>
+
+=over 4
+
+=item * Response: response.yaml#/DeviceReportRow
+
+=back
 
 =head1 LICENSING
 

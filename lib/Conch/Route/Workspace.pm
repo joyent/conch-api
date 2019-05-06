@@ -12,34 +12,7 @@ Conch::Route::Workspace
 
 =head2 routes
 
-Sets up the routes for /workspace:
-
-    GET     /workspace
-    GET     /workspace/:workspace_id_or_name
-    GET     /workspace/:workspace_id_or_name/child
-    POST    /workspace/:workspace_id_or_name/child
-
-    GET     /workspace/:workspace_id_or_name/device
-                ?graduated=<T|F>
-                ?validated=<T|F>
-                ?health=<error|fail|unknown|pass>
-                ?active=T
-                ?ids_only=T
-    GET     /workspace/:workspace_id_or_name/device/active
-    GET     /workspace/:workspace_id_or_name/device/pxe
-
-    GET     /workspace/:workspace_id_or_name/rack
-    POST    /workspace/:workspace_id_or_name/rack
-    GET     /workspace/:workspace_id_or_name/rack/:rack_id
-    DELETE  /workspace/:workspace_id_or_name/rack/:rack_id
-    POST    /workspace/:workspace_id_or_name/rack/:rack_id/layout
-
-    GET     /workspace/:workspace_id_or_name/relay
-    GET     /workspace/:workspace_id_or_name/relay/:relay_id/device
-
-    GET     /workspace/:workspace_id_or_name/user
-    POST    /workspace/:workspace_id_or_name/user?send_mail=<1|0>
-    DELETE  /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
+Sets up the routes for /workspace.
 
 Note that in all routes using C<:workspace_id_or_name>, the stash for C<workspace_id> will be
 populated, as well as C<workspace_name> if the identifier was not a UUID.
@@ -128,6 +101,183 @@ sub routes {
 __END__
 
 =pod
+
+Unless otherwise noted, all routes require authentication.
+
+=head3 C<GET /workspace>
+
+=over 4
+
+=item * Response: response.yaml#/WorkspacesAndRoles
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name>
+
+=over 4
+
+=item * Response: response.yaml#/WorkspaceAndRole
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/child>
+
+=over 4
+
+=item * Response: response.yaml#/WorkspacesAndRoles
+
+=back
+
+=head3 C<POST /workspace/:workspace_id_or_name/child>
+
+=over 4
+
+=item * Requires Workspace Admin Authentication
+
+=item * Request: input.yaml#/WorkspaceCreate
+
+=item * Response: response.yaml#/WorkspaceAndRole
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/device>
+
+Accepts the following optional query parameters:
+
+=over 4
+
+=item * C<< graduated=<T|F> >> show only devices where the C<graduated> attribute is set/not-set
+
+=item * C<< validated=<T|F> >> show only devices where the C<validated> attribute is set/not-set
+
+=item * C<< health=<value> >> show only devices with the health matching the provided value (case-insensitive)
+
+=item * C<active=t> show only devices which have reported within the last 5 minutes (this is different from all active devices)
+
+=item * C<ids_only=t> only return device IDs, not full device details
+
+=back
+
+=over 4
+
+=item * Response: response.yaml#/Devices
+
+=back
+
+=head3 C<< GET /workspace/:workspace_id_or_name/device/active >>
+
+An alias for C</workspace/:workspace_id_or_name/device?active=t>.
+
+=head3 C<GET /workspace/:workspace_id_or_name/device/pxe>
+
+=over 4
+
+=item * Response: response.yaml#/WorkspaceDevicePXEs
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/rack>
+
+=over 4
+
+=item * Response: response.yaml#/WorkspaceRackSummary
+
+=back
+
+=head3 C<POST /workspace/:workspace_id_or_name/rack>
+
+=over 4
+
+=item * Request: input.yaml#/WorkspaceAddRack
+
+=item * Response: Redirect to the workspace rack
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/rack/:rack_id>
+
+If the Accepts header specifies C<text/csv> it will return a CSV document.
+
+=over 4
+
+=item * Response: response.yaml#/WorkspaceAddRack
+
+=back
+
+=head3 C<DELETE /workspace/:workspace_id_or_name/rack/:rack_id>
+
+=over 4
+
+=item * Requires Workspace Admin Authentication
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<POST /workspace/:workspace_id_or_name/rack/:rack_id/layout>
+
+=over 4
+
+=item * Request: input.yaml#/WorkspaceRackLayoutUpdate
+
+=item * Response: response.yaml#/WorkspaceRackLayoutUpdateResponse
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/relay>
+
+Takes one query optional parameter,  C<active_within=X> to constrain results to
+those updated with in the last C<X> minutes.
+
+=over 4
+
+=item * Response: response.yaml#/WorkspaceRelays
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/relay/:relay_id/device>
+
+=over 4
+
+=item * Response: response.yaml#/Devices
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/user>
+
+=over 4
+
+=item * Response: response.yaml#/WorkspaceUsers
+
+=back
+
+=head3 C<< POST /workspace/:workspace_id_or_name/user?send_mail=<1|0> >>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the user
+
+=over 4
+
+=item * Requires Workspace Admin Authentication
+
+=item * Request: input.yaml#/WorkspaceAddUser
+
+=item * Response: response.yaml#/WorkspaceAndRole
+
+=back
+
+=head3 C<< DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0> >>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the user
+
+=over 4
+
+=item * Requires Workspace Admin Authentication
+
+=item * Returns C<204 NO CONTENT>
+
+=back
 
 =head1 LICENSING
 

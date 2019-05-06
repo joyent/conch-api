@@ -8,12 +8,24 @@ Conch::Route::HardwareVendor
 
 Sets up the routes for /hardware\_vendor:
 
-```
-GET     /hardware_vendor
-GET     /hardware_vendor/:hardware_vendor_id_or_name
-POST    /hardware_vendor/:hardware_vendor_name
-DELETE  /hardware_vendor/:hardware_vendor_id_or_name
-```
+Unless otherwise noted, all routes require authentication.
+
+### `GET /hardware_vendor`
+
+- Response: response.yaml#/HardwareVendors
+
+### `GET /hardware_vendor/:hardware_vendor_id_or_name`
+
+- Response: response.yaml#/HardwareVendor
+
+### `DELETE /hardware_vendor/:hardware_vendor_id_or_name`
+
+- Response: `204 NO CONTENT`
+
+### `POST /hardware_vendor/:hardware_vendor_name`
+
+- Requires System Admin Authentication
+- Response: Redirect to the created hardware vendor
 
 # LICENSING
 

@@ -14,15 +14,6 @@ Conch::Route::Validation
 
 Sets up the routes for /validation, /validation_plan and /validation_state:
 
-    GET     /validation
-    GET     /validation/:validation_id_or_name
-
-    GET     /validation_plan
-    GET     /validation_plan/:validation_plan_id_or_name
-    GET     /validation_plan/:validation_plan_id_or_name/validation
-
-    GET     /validation_state/:validation_state_id
-
 =cut
 
 sub routes {
@@ -83,6 +74,56 @@ sub routes {
 __END__
 
 =pod
+
+Unless otherwise noted, all routes require authentication.
+
+=head3 C<GET /validation>
+
+=over 4
+
+=item * Response: response.yaml#/Validations
+
+=back
+
+=head3 C<GET /validation/:validation_id_or_name>
+
+=over 4
+
+=item * Response: response.yaml#/Validation
+
+=back
+
+=head3 C<GET /validation_plan>
+
+=over 4
+
+=item * Response: response.yaml#/ValidationPlans
+
+=back
+
+=head3 C<GET /validation_plan/:validation_plan_id_or_name>
+
+=over 4
+
+=item * Response: response.yaml#/ValidationPlan
+
+=back
+
+=head3 C<GET /validation_plan/:validation_plan_id_or_name/validation>
+
+=over 4
+
+=item * Response: response.yaml#/Validations
+
+=back
+
+=head3 C<GET /validation_state/:validation_state_id>
+
+=over 4
+
+=item * Response: response.yaml#/ValidationStateWithResults
+
+=back
 
 =head1 LICENSING
 

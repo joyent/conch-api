@@ -14,37 +14,6 @@ Conch::Route::Device
 
 Sets up the routes for /device:
 
-    GET     /device/?hostname=:host, ?mac=:mac, ?ipaddr=:ipaddr, ?:setting_key=:setting_value
-    GET     /device/:device_id
-    GET     /device/:device_id/pxe
-    GET     /device/:device_id/phase
-    POST    /device/:device_id
-    POST    /device/:device_id/graduate
-    POST    /device/:device_id/triton_setup
-    POST    /device/:device_id/triton_uuid
-    POST    /device/:device_id/triton_reboot
-    POST    /device/:device_id/asset_tag
-    POST    /device/:device_id/validated
-    POST    /device/:device_id/phase
-
-    GET     /device/:device_id/location
-    POST    /device/:device_id/location
-    DELETE  /device/:device_id/location
-
-    GET     /device/:device_id/settings
-    POST    /device/:device_id/settings
-    GET     /device/:device_id/settings/#key
-    POST    /device/:device_id/settings/#key
-    DELETE  /device/:device_id/settings/#key
-
-    POST    /device/:device_id/validation/:validation_id
-    POST    /device/:device_id/validation_plan/:validation_plan_id
-    GET     /device/:device_id/validation_state
-
-    GET     /device/:device_id/interface
-    GET     /device/:device_id/interface/:interface_name
-    GET     /device/:device_id/interface/:interface_name/:field
-
 =cut
 
 sub routes {
@@ -147,6 +116,273 @@ sub routes {
 __END__
 
 =pod
+
+Unless otherwise noted, all routes require authentication.
+
+=head3 C<POST /device/:device_id>
+
+=over 4
+
+=item * Request: device_report.yaml
+
+=item * Response: response.yaml#/ValidationStateWithResults
+
+=back
+
+=head3 C<GET /device?:key=:value>
+
+Supports the following query parameters:
+
+=over 4
+
+=item * C</device?hostname=:hostname>
+
+=item * C</device?mac=:macaddr>
+
+=item * C</device?ipaddr=:ipaddr>
+
+=item * C</device?:setting_key=:setting_value>
+
+=back
+
+The value of C<:setting_key> and C<:setting_value> are a device setting key and
+value. For information on how to create a setting key or set its value see
+below.
+
+=over 4
+
+=item * Response: response.yaml#/Devices
+
+=back
+
+=head3 C<GET /device/:device_id>
+
+=over 4
+
+=item * Response: response.yaml#/DetailedDevice
+
+=back
+
+=head3 C<GET /device/:device_id/pxe>
+
+=over 4
+
+=item * Response: response.yaml#/DevicePXE
+
+=back
+
+=head3 C<GET /device/:device_id/phase>
+
+=over 4
+
+=item * Response: response.yaml#/DevicePhase
+
+=back
+
+=head3 C<POST /device/:device_id/graduate>
+
+=over 4
+
+=item * Request: input.yaml#/Null
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<POST /device/:device_id/triton_setup>
+
+=over 4
+
+=item * Request: input.yaml#/Null
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<POST /device/:device_id/triton_uuid>
+
+=over 4
+
+=item * Request: input.yaml#/DeviceTritonUuid
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<POST /device/:device_id/triton_reboot>
+
+=over 4
+
+=item * Request: input.yaml#/Null
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<POST /device/:device_id/asset_tag>
+
+=over 4
+
+=item * Request: input.yaml#/DeviceAssetTag
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<POST /device/:device_id/validated>
+
+=over 4
+
+=item * Request: input.yaml#/Null
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<POST /device/:device_id/phase>
+
+=over 4
+
+=item * Request: input.yaml#/DevicePhase
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<GET /device/:device_id/location>
+
+=over 4
+
+=item * Response: response.yaml#/DeviceLocation
+
+=back
+
+=head3 C<POST /device/:device_id/location>
+
+=over 4
+
+=item * Request: input.yaml#/DeviceLocationUpdate
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<DELETE /device/:device_id/location>
+
+=over 4
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /device/:device_id/settings>
+
+=over 4
+
+=item * Response: response.yaml#/DeviceSettings
+
+=back
+
+=head3 C<POST /device/:device_id/settings>
+
+=over 4
+
+=item * Requires Read/Write Device Authentication
+
+=item * Request: input.yaml#/DeviceSettings
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /device/:device_id/settings/#key>
+
+=over 4
+
+=item * Response: response.yaml#/DeviceSetting
+
+=back
+
+=head3 C<POST /device/:device_id/settings/#key>
+
+=over 4
+
+=item * Requires Read/Write Device Authentication
+
+=item * Request: input.yaml#/DeviceSettings
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<DELETE /device/:device_id/settings/#key>
+
+=over 4
+
+=item * Requires Read/Write Device Authentication
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<POST /device/:device_id/validation/:validation_id>
+
+Does not store validation results.
+
+=over 4
+
+=item * Request: device_report.yaml
+
+=item * Response: response.yaml#/ValidationResults
+
+=back
+
+=head3 C<POST /device/:device_id/validation_plan/:validation_plan_id>
+
+Does not store validation results.
+
+=over 4
+
+=item * Request: device_report.yaml
+
+=item * Response: response.yaml#/ValidationResults
+
+=back
+
+=head3 C<< GET /device/:device_id/validation_state?status=<pass,fail,error> >>
+
+Accepts the query parameter C<status>, indicating the desired status(es)
+(comma-separated) to search for -- one or more of: C<pass>, C<fail>, C<error>.
+
+=over 4
+
+=item * Response: response.yaml#/ValidationStatesWithResults
+
+=back
+
+=head3 C<GET /device/:device_id/interface>
+
+=over 4
+
+=item * Response: response.yaml#/DeviceNics
+
+=back
+
+=head3 C<GET /device/:device_id/interface/:interface_name>
+
+=over 4
+
+=item * Response: response.yaml#/DeviceNic
+
+=back
+
+=head3 C<GET /device/:device_id/interface/:interface_name/:field>
+
+=over 4
+
+=item * Response: response.yaml#/DeviceNicField
+
+=back
 
 =head1 LICENSING
 

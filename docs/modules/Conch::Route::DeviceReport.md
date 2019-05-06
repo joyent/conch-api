@@ -8,10 +8,16 @@ Conch::Route::DeviceReport
 
 Sets up the routes for /device\_report:
 
-```
-POST    /device_report
-GET     /device_report/:device_report_id
-```
+Unless otherwise noted, all routes require authentication.
+
+### `POST /device_report`
+
+- Request: device\_report.yaml
+- Response: response.yaml#/ReportValidationResults
+
+### `GET /device_report/:device_report_id`
+
+- Response: response.yaml#/DeviceReportRow
 
 # LICENSING
 

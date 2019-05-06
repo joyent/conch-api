@@ -106,6 +106,95 @@ __END__
 
 =pod
 
+Unless otherwise specified all routes require authentication.
+
+=head3 C</doc>
+
+=over 4
+
+=item * Does not require authentication.
+
+=back
+
+=head3 C<GET /ping>
+
+=over 4
+
+=item * Does not require authentication.
+
+=item * Response: response.yaml#/Ping
+
+=back
+
+=head3 C<GET /version>
+
+=over 4
+
+=item * Does not require authentication.
+
+=item * Response: response.yaml#/Version
+
+=back
+
+=head3 C<POST /login>
+
+=over 4
+
+=item * Request: input.yaml#/Login
+
+=item * Response: response.yaml#/Login
+
+=back
+
+=head3 C<POST /logout>
+
+=over 4
+
+=item * Does not require authentication.
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /schema/request/:schema_name>
+
+=head3 C<GET /schema/response/:schema_name>
+
+Returns the Request or Response schema specified.
+
+=over 4
+
+=item * Does not require authentication.
+
+=item * Response: JSON-Schema (L<http://json-schema.org/draft-07/schema>)
+
+=back
+
+=head3 C<GET /workspace/:workspace/device-totals>
+
+=head3 C<GET /workspace/:workspace/device-totals.circ>
+
+=over 4
+
+=item * Does not require authentication.
+
+=item * Response: response.yaml#/DeviceTotals
+
+=item * Response (Circonus): response.yaml#/DeviceTotalsCirconus
+
+=back
+
+=head3 C<POST /refresh_token>
+
+=over 4
+
+=item * Request: input.yaml#/Null
+
+=item * Response: response.yaml#/Login
+
+=back
+
+
 =head1 LICENSING
 
 Copyright Joyent, Inc.
