@@ -45,7 +45,6 @@ allowing us to receive the C<password> key, which we hash into C<password_hash>.
 =head2 lookup_by_email
 
 Queries for user by (case-insensitive) email address.
-by user id.
 
 If more than one user is found, we return the one created most recently, and a warning will be
 logged (via L<DBIx::Class::ResultSet/single>).
