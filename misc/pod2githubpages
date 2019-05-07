@@ -1,0 +1,61 @@
+#!/usr/bin/env perl
+use v5.26;
+use strict;
+use warnings;
+
+# This is like pod2github or pod2markdown, but takes a list of filename(s)
+# as arguments and outputs markdown documents in the right location(s)
+# using the right arguments for Conch.
+
+# Usage:
+# misc/pod2githubpages <filename> [filename ... ]
+
+use Pod::Markdown::Github;
+use Devel::Confess;
+
+my %opts = (
+    output_encoding => 'UTF-8',
+    local_module_re => qr/Conch/,
+    local_module_url_prefix => 'https://joyent.github.io/conch/modules/',
+);
+
+while (my $infile = shift @ARGV) {
+    # convert:                          lib/Conch/Time.pm
+    # to:                               doc/modules/Conch::Time.md
+    # to produce a final URL:           https://joyent.github.io/conch/modules/Conch::Time.md
+    # so links in pod that look like:   L<Conch::Time>
+    # convert to markdown like:         https://joyent.github.io/conch/modules/Conch::Time
+
+    my $outfile = $infile;
+    $outfile =~ s{^lib/}{};
+    $outfile =~ s{/}{::}g;
+    $outfile =~ s/\.pm$/\.md/;
+    $outfile =~ s{^lib::}{};
+    $outfile = 'docs/modules/'.$outfile;
+
+    my $in_fh  = get_handle($infile, '<', \*STDIN);
+    my $out_fh = get_handle($outfile, '>', \*STDOUT);
+
+    # Undo any PERL_UNICODE effects.
+    # Pod::Simple expects to receive bytes, and we're going to return bytes.
+    binmode($_, ':bytes') for ($in_fh, $out_fh);
+
+    convert($in_fh, $out_fh);
+}
+
+sub convert {
+    my ($in_file, $out_file) = @_;
+    my $parser = Pod::Markdown::Github->new(%opts);
+    $parser->output_fh($out_file);
+    $parser->parse_file($in_file);
+}
+
+sub get_handle {
+  my ($path, $op, $default) = @_;
+  (!defined($path) || $path eq '-') ? $default : do {
+    open(my $fh, $op, $path)
+      or die "Failed to open '$path': $!\n";
+    $fh;
+  };
+}
+

@@ -24,36 +24,36 @@ Our development process is documented over [here](development.html)
 
 # Routes / URLs
 
-* [Conch::Route::Datacenter](modules/conch-route-datacenter)
+* [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`
   * `/room`
   * `/rack_role`
   * `/layout`
 
-* [Conch::Route::Device](modules/conch-route-device)
+* [Conch::Route::Device](modules/Conch::Route::Device)
   * `/device`
 
-* [Conch::Route::DeviceReport](modules/conch-route-devicereport)
+* [Conch::Route::DeviceReport](modules/Conch::Route::DeviceReport)
   * `/device_report`
 
-* [Conch::Route::HardwareProduct](modules/conch-route-hardwareproduct)
+* [Conch::Route::HardwareProduct](modules/Conch::Route::HardwareProduct)
   * `/hardware_product`
 
-* [Conch::Route::HardwareVendor](modules/conch-route-hardwarevendor)
+* [Conch::Route::HardwareVendor](modules/Conch::Route::HardwareVendor)
   * `/hardware_vendor`
 
-* [Conch::Route::Relay](modules/conch-route-relay)
+* [Conch::Route::Relay](modules/Conch::Route::Relay)
   * `/relay`
 
-* [Conch::Route::User](modules/conch-route-user)
+* [Conch::Route::User](modules/Conch::Route::User)
   * `/user`
 
-* [Conch:Route::Validation](modules/conch-route-validation)
+* [Conch:Route::Validation](modules/Conch::Route::Validation)
   * `/validation`
   * `/validation_plan`
   * `/validation_state`
 
-* [Conch::Route::Workspace](modules/conch-route-workspace)
+* [Conch::Route::Workspace](modules/Conch::Route::Workspace)
   * `/workspace`
 
 # Copyright / License

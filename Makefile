@@ -29,7 +29,9 @@ doc: public/doc/index.html ## Build docs
 
 .PHONY: ghdocs
 ghdocs: build
-	docs/poddocs.sh
+	@rm -rf docs/modules
+	@mkdir -p docs/modules
+	@carton exec misc/pod2githubpages $$(find lib -type f -iname \*.pm)
 
 public/doc/index.html: \
 	docs/conch-api/openapi-spec.yaml \
