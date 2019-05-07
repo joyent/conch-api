@@ -212,6 +212,87 @@ sub load_validations ($self) {
     return ($num_deactivated, $num_created);
 }
 
+=head2 update_validation_plans
+
+Deactivate and/or create validation records for all validation modules currently present,
+then deactivates and creates new validation plans to reference the newest versions of the
+validations it already had as members.
+
+That is: does whatever is necessary after a code deployment to ensure that validation plans
+of the same name continue to run validations pointing to the same code modules.
+
+=cut
+
+sub update_validation_plans ($self) {
+    my $validation_plan_rs = $self->schema->resultset('validation_plan');
+
+    my %validation_plans_and_active_validations = map +(
+        $_->name => {
+            description => $_->description,
+            validation_modules => [
+                map $_->module,
+                grep !$_->deactivated,
+                map $_->validation,
+                $_->validation_plan_members
+            ],
+        },
+    ),
+    $validation_plan_rs->active
+        ->search({ 'validation.deactivated' => undef })
+        ->prefetch({ validation_plan_members => 'validation' });
+
+    # deactivates old validation rows; creates new ones in their place
+    # note that if a conflict is found, this sub will die.
+    my ($num_deactivated, $num_created) = $self->load_validations;
+
+    # we don't care about new modules here, as no plans need to update unless there were also
+    # validations deactivated.
+    return unless $num_deactivated;
+
+    # now get the updated list of all active validations by module name...
+    my %validations = map +($_->module => $_), $self->schema->resultset('validation')->active->all;
+
+    foreach my $validation_plan_name (keys %validation_plans_and_active_validations) {
+        # these are the active validation modules that were in the plan
+        my @had_modules = $validation_plans_and_active_validations{$validation_plan_name}{validation_modules}->@*;
+        next if not @had_modules;
+
+        my @active_modules = $validation_plan_rs
+            ->search({ 'validation_plan.name' => $validation_plan_name }, { alias => 'validation_plan' })
+            ->active
+            ->related_resultset('validation_plan_members')
+            ->related_resultset('validation')
+            ->active
+            ->distinct
+            ->get_column('module')->all;
+
+        if (@had_modules == @active_modules) {
+            $self->log->debug('plan '.$validation_plan_name.' had '.scalar(@had_modules)
+                .' active validations and that has not changed: no updates needed');
+            next;
+        }
+
+        $self->log->info('plan '.$validation_plan_name.' had '.scalar(@had_modules)
+            .' active validations and now has '.scalar(@active_modules).': '
+            .'deactivating the plan and replacing it with a new one containing updated validations');
+
+        $validation_plan_rs->search({
+            name => $validation_plan_name,
+            deactivated => undef,
+        })->update({ deactivated => \'now()' });
+
+        # create a new plan containing the active versions of all validations it had before
+        $validation_plan_rs->create({
+            name => $validation_plan_name,
+            description => $validation_plans_and_active_validations{$validation_plan_name}{description},
+            validation_plan_members => [
+                map +{ validation => $validations{$_} },
+                    grep exists $validations{$_}, @had_modules,
+            ],
+        });
+    }
+}
+
 =head2 run_validation_plan
 
 Runs the provided validation_plan against the provided device.

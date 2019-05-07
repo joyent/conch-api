@@ -29,6 +29,15 @@ validation rows that were created.
 
 This method is poorly-named: it should be 'create\_validations'.
 
+## update\_validation\_plans
+
+Deactivate and/or create validation records for all validation modules currently present,
+then deactivates and creates new validation plans to reference the newest versions of the
+validations it already had as members.
+
+That is: does whatever is necessary after a code deployment to ensure that validation plans
+of the same name continue to run validations pointing to the same code modules.
+
 ## run\_validation\_plan
 
 Runs the provided validation\_plan against the provided device.
