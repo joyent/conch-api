@@ -2893,10 +2893,10 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
-  Pod-Markdown-Github-0.03
-    pathname: M/MI/MINIMAL/Pod-Markdown-Github-0.03.tar.gz
+  Pod-Markdown-Github-0.04
+    pathname: M/MI/MINIMAL/Pod-Markdown-Github-0.04.tar.gz
     provides:
-      Pod::Markdown::Github 0.03
+      Pod::Markdown::Github 0.04
     requirements:
       ExtUtils::MakeMaker 0
       Getopt::Long 0
