@@ -1,5 +1,6 @@
 use Mojo::Base -strict;
 use Test::More;
+use Test::Warnings;
 use Test::Deep;
 use Conch::ValidationSystem;
 use Test::Conch;

@@ -5,6 +5,7 @@ use utf8;
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Test::More;
+use Test::Warnings;
 
 use_ok('Conch::UUID');
 
