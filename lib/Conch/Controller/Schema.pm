@@ -40,8 +40,8 @@ sub get ($c) {
         return $c->status(404);
     }
 
-    # ensure $id is unique
-    $schema->{'$id'} =~ s/^urn:\K/$type./;
+    # the canonical location of this document -- which should be the same URL used to get here
+    $schema->{'$id'} = $c->url_for('/schema/'.$type.'/'.$name)->to_abs;
 
     return $c->status(200, $schema);
 }
@@ -120,7 +120,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
     return {
         title => $schema_name,
         '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:'.$schema_name.'.schema.json',
+        # no $id - we have no idea of this document's canonical location
         keys $definitions->%* ? ( definitions => $definitions ) : (),
         $target->%*,
     };

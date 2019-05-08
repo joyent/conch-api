@@ -21,7 +21,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_nested_refs',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_nested_refs.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     ref1 => {
@@ -53,7 +52,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_a_recursive_ref',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_a_recursive_ref.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     i_have_a_recursive_ref => {
@@ -88,7 +86,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_a_ref_to_another_file',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_a_ref_to_another_file.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     my_name => {
@@ -133,7 +130,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     ref2 => {
@@ -154,7 +150,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref_level_1',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref_level_1.schema.json',
                 # begin i_am_a_ref definition - which is actually (eventually) ref3
                 type => 'integer',
             },
@@ -165,7 +160,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_refs_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_refs_with_the_same_name.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     i_am_a_ref_with_the_same_name => {
@@ -187,7 +181,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref_with_the_same_name.schema.json',
                 # begin i_am_a_ref_with_the_same_name definition - pulled from secondary file
                 type => 'string',
             },
@@ -206,7 +199,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_a_ref_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_a_ref_with_the_same_name.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     i_have_a_ref_with_the_same_name => { type => 'string' },
@@ -229,7 +221,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref_to_another_file',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref_to_another_file.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     ref3 => { type => 'integer' },
@@ -284,6 +275,7 @@ subtest 'extraction with $refs' => sub {
 
 my $t = Test::Conch->new(pg => undef);
 my $json_spec_schema = $_validator->schema->data;
+my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 
 $t->get_ok('/schema/REQUEST/hello')
     ->status_is(404)
@@ -304,7 +296,7 @@ $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:response.Ping.schema.json',
+        '$id' => $base_uri.'schema/response/Ping',
         title => 'Ping',
         type => 'object',
         additionalProperties => bool(0),
@@ -317,7 +309,7 @@ $t->get_ok('/schema/response/LoginToken')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:response.LoginToken.schema.json',
+        '$id' => $base_uri.'schema/response/LoginToken',
         title => 'LoginToken',
         type => 'object',
         additionalProperties => bool(0),
@@ -330,7 +322,7 @@ $t->get_ok('/schema/request/Login')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:request.Login.schema.json',
+        '$id' => $base_uri.'schema/request/Login',
         title => 'Login',
         type => 'object',
         additionalProperties => bool(0),
@@ -355,7 +347,7 @@ $t->get_ok('/schema/query_params/ResetUserPassword')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:query_params.ResetUserPassword.schema.json',
+        '$id' => $base_uri.'schema/query_params/ResetUserPassword',
         title => 'ResetUserPassword',
         definitions => {
             boolean_integer_default_true => { type => 'integer', minimum => 0, maximum => 1, default => 1 },
@@ -372,6 +364,7 @@ $t->get_ok('/schema/request/HardwareProductCreate')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply('', superhashof({
+        '$id' => $base_uri.'schema/request/HardwareProductCreate',
         definitions => {
             map +($_ => superhashof({})), qw(
                 uuid
