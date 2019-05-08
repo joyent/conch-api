@@ -2,8 +2,6 @@ package Conch::Controller::DeviceReport;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Mojo::JSON 'to_json';
-
 =pod
 
 =head1 NAME
