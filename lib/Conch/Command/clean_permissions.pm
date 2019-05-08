@@ -54,13 +54,12 @@ sub run ($self, @opts) {
 
         if (my $role_via = $self->app->db_workspaces
                 ->workspaces_above($uwr->workspace_id)
-                ->search_related('user_workspace_roles',
-                    {
-                        'user_workspace_roles.user_id' => $uwr->user_id,
-                        'user_workspace_roles.role' => { '>=' => \[ q{?::user_workspace_role_enum}, $uwr->role ] },
-                    },
-                    { order_by => { -desc => 'role' }, rows => 1 },
-                )
+                ->search_related('user_workspace_roles', {
+                    'user_workspace_roles.user_id' => $uwr->user_id,
+                    'user_workspace_roles.role' => { '>=' => \[ q{?::user_workspace_role_enum}, $uwr->role ] },
+                })
+                ->order_by({ -desc => 'role' })
+                ->rows(1)
                 ->as_subselect_rs
                 ->prefetch('workspace')
                 ->single) {

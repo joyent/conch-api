@@ -1,10 +1,10 @@
 # NAME
 
-Conch::ValidationError - Internal error representation for [Conch::Validation](https://metacpan.org/pod/Conch::Validation)
+Conch::ValidationError - Internal error representation for Conch::Validation
 
 # DESCRIPTION
 
-Extends 'Mojo::Exception' to store a 'hint' attribute. Intended for use in
+Extends [Mojo::Exception](https://metacpan.org/pod/Mojo::Exception) to store a `hint` attribute. Intended for use in
 [Conch::Validation](https://metacpan.org/pod/Conch::Validation).
 
 # METHODS

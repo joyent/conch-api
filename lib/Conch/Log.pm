@@ -3,7 +3,8 @@
 Enhanced Mojo logger that logs with file path, and caller data using the Bunyan
 log format
 
-See also: Mojo::Log, Mojo::Log::More, and node-bunyan
+See also: L<Mojo::Log>, L<Mojo::Log::More>, and
+L<node-bunyan|https://github.com/trentm/node-bunyan/>.
 
 =head1 SYNOPSIS
 

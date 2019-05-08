@@ -163,9 +163,8 @@ before serializing the workspace object.
 sub with_role_via_data_for_user ($self, $user_id) {
     # this just adds the user_id_for_role column to the result we get back. See
     # role_via_for_user for the actual role-via query.
-    $self->search(undef, {
-        '+select' => [ \[ '?::uuid as user_id_for_role', $user_id ] ],
-        '+as' => [ 'user_id_for_role' ],
+    $self->add_columns({
+        user_id_for_role => [ \[ '?::uuid as user_id_for_role', $user_id ] ],
     });
 }
 
@@ -185,10 +184,10 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
     # because we check for duplicate role entries when creating user_workspace_role rows,
     # we "should" only have *one* row with the highest permission in the entire hierarchy...
     $self->and_workspaces_above($workspace_id)
-        ->search_related('user_workspace_roles',
-            { 'user_workspace_roles.user_id' => $user_id },
-            { order_by => { -desc => 'role' }, rows => 1 },
-        )->single;
+        ->search_related('user_workspace_roles', { 'user_workspace_roles.user_id' => $user_id })
+        ->order_by({ -desc => 'role' })
+        ->rows(1)
+        ->single;
 }
 
 =head2 _workspaces_subquery
@@ -198,7 +197,7 @@ The first value is a string to be added after C<< WHERE <column> >>; the remaind
 values to be used in C<< \[ $query_string, @binds ] >>.
 
 C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
-a resultset (which must return a single column of distinct workspace_id(s)).
+or a resultset (which must return a single column of distinct workspace_id(s)).
 
 =cut
 

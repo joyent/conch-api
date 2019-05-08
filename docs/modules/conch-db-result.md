@@ -5,7 +5,7 @@ Conch::DB::Result
 # DESCRIPTION
 
 Base class for our result classes, to allow us to add on additional functionality from what is
-available in core DBIx::Class.
+available in core [DBIx::Class](https://metacpan.org/pod/DBIx::Class).
 
 # LICENSING
 

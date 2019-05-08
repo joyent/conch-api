@@ -11,27 +11,19 @@ app->plugin('Conch::Plugin::JsonValidator');
 
 sub endpoint ($c) {
     my $body = $c->validate_input('MyInputDefinition');
-
-    [ ... ]
-
-    $c->status_with_validation(200, MyOutputDefinition => $ret);
+    ...
 }
 ```
 
 # DESCRIPTION
 
 Conch::Plugin::JsonValidator provides an optional manner to validate input and
-output from a Mojo controller against JSON Schema.
+output from a Mojo controller against a JSON Schema.
 
 The `validate_input` helper uses the provided schema definition to validate
 **JUST** the incoming JSON request. Headers and query parameters **ARE NOT**
 validated. If the data fails validation, a 400 status is returned to user
 with an error payload containing the validation errors.
-
-The `status_with_validation` helper validates the outgoing data against the
-provided schema definition. If the data validates, `status` is called, using
-the provided status code and data. If the data validation fails, a
-`Mojo::Exception` is thrown, returning a 500 to the user.
 
 # SCHEMAS
 
@@ -46,11 +38,11 @@ response if validation failed; returns validated input on success.
 
 ## get\_input\_validator
 
-Returns a JSON::Validator object suitable for validating an endpoint input.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint input.
 
 ## get\_response\_validator
 
-Returns a JSON::Validator object suitable for validating an endpoint response.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint response.
 
 # LICENSING
 

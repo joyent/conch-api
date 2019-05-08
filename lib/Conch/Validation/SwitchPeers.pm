@@ -48,14 +48,12 @@ sub validate {
         last if $peer_vendor;
     }
 
-    my @rack_unit_starts = map $_->{rack_unit_start},
-        $self->device_location
-            ->search_related('rack')
-            ->search_related('rack_layouts', undef, {
-                columns => { rack_unit_start => 'rack_layouts.rack_unit_start' },
-                order_by => 'rack_unit_start',
-            })
-            ->hri->all;
+    my @rack_unit_starts = $self->device_location
+        ->related_resultset('rack')
+        ->related_resultset('rack_layouts')
+        ->order_by('rack_unit_start')
+        ->get_column('rack_unit_start')
+        ->all;
 
     my @peer_ports = $self->_calculate_switch_peer_ports(
         $self->device_location->rack_unit_start,

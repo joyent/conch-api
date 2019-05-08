@@ -39,7 +39,7 @@ subtest preliminaries => sub {
         ->status_is(204);
 
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
-        ->status_is(500)
+        ->status_is(422)
         ->json_is({ error => 'failed to find validation plan' });
 };
 

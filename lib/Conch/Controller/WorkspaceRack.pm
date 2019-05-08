@@ -92,8 +92,7 @@ sub find_rack ($c) {
     my $rack_id = $c->stash('rack_id');
     my $rack_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
-        ->related_resultset('rack')
-        ->search({ 'rack.id' => $rack_id });
+        ->search_related('rack', { 'rack.id' => $rack_id });
 
     if (not $rack_rs->exists) {
         $c->log->debug('Could not find rack '.$rack_id);
@@ -246,8 +245,8 @@ sub add ($c) {
     if (not $c->stash('workspace_rs')
             ->related_resultset('parent_workspace')
             ->related_resultset('workspace_racks')
-            ->related_resultset('rack')
-            ->search({ 'rack.id' => $rack_id })->exists) {
+            ->search_related('rack', { 'rack.id' => $rack_id })
+            ->exists) {
         return $c->status(409,
             { error => "Rack '$rack_id' must be assigned in parent workspace to be assignable." },
         );

@@ -5,7 +5,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Role::Tiny::With;
 with 'Conch::Role::MojoLog';
 
-use Mojo::Exception;
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
 
@@ -89,8 +88,6 @@ sub set_settings ($c) {
     return if not $input;
 
     my $user = $c->stash('target_user');
-    Mojo::Exception->throw('Could not find previously stashed user')
-        unless $user;
 
     # deactivate *all* settings first
     $user->related_resultset('user_settings')->active->deactivate;
@@ -119,23 +116,12 @@ sub set_setting ($c) {
     return $c->status(400, { error => 'Setting key in request object must match name in the URL (\''.$key.'\')' }) if not $value;
 
     my $user = $c->stash('target_user');
-    Mojo::Exception->throw('Could not find previously stashed user')
-        unless $user;
 
     # FIXME? we should have a unique constraint on user_id+name
     # rather than creating additional rows.
     $user->search_related('user_settings', { name => $key })->active->deactivate;
-    my $setting = $user->create_related('user_settings', {
-        name => $key,
-        value => to_json($value),
-    });
-
-    if ($setting) {
-        return $c->status(200);
-    }
-    else {
-        return $c->status(500, 'Failed to set setting');
-    }
+    $user->create_related('user_settings', { name => $key, value => to_json($value) });
+    return $c->status(200);
 }
 
 =head2 get_settings
@@ -145,15 +131,11 @@ Get the key/values of every setting for a user.
 =cut
 
 sub get_settings ($c) {
-    my $user = $c->stash('target_user');
-    Mojo::Exception->throw('Could not find previously stashed user')
-        unless $user;
-
     # turn user_setting db rows into name => value entries,
     # newer entries overwriting older ones
     my %output = map
         +($_->name => from_json($_->value)),
-        $user->user_settings->active->search(undef, { order_by => 'created' });
+        $c->stash('target_user')->user_settings->active->order_by('created');
 
     $c->status(200, \%output);
 }
@@ -166,15 +148,11 @@ Get the individual key/value pair for a setting for the target user.
 
 sub get_setting ($c) {
     my $key = $c->stash('key');
-
-    my $user = $c->stash('target_user');
-    Mojo::Exception->throw('Could not find previously stashed user')
-        unless $user;
-
-    my $setting = $user->user_settings->active->search(
-        { name => $key },
-        { order_by => { -desc => 'created' } },
-    )->one_row;
+    my $setting = $c->stash('target_user')
+        ->search_related('user_settings', { name => $key })
+        ->active
+        ->order_by({ -desc => 'created' })
+        ->one_row;
 
     return $c->status(404) if not $setting;
     $c->status(200, { $key => from_json($setting->value) });
@@ -187,19 +165,12 @@ Delete a single setting for a user, provided it was set previously.
 =cut
 
 sub delete_setting ($c) {
-    my $key = $c->stash('key');
-
-    my $user = $c->stash('target_user');
-    Mojo::Exception->throw('Could not find previously stashed user')
-        unless $user;
-
-    my $count = $user
-        ->search_related('user_settings', { name => $key })
+    my $count = $c->stash('target_user')
+        ->search_related('user_settings', { name => $c->stash('key') })
         ->active
         ->deactivate;
 
-    return $c->status(404) if not $count;
-    return $c->status(204);
+    return $c->status($count ? 204 : 404);
 }
 
 =head2 change_own_password
@@ -223,14 +194,9 @@ sub change_own_password ($c) {
     return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
         if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
 
-    my $new_password = $input->{password};
-
     my $user = $c->stash('user');
-    Mojo::Exception->throw('Could not find previously stashed user')
-        unless $user;
-
     $user->update({
-        password => $new_password,
+        password => $input->{password},
         refuse_session_auth => 0,
         force_password_change => 0,
     });
@@ -239,7 +205,7 @@ sub change_own_password ($c) {
 
     return $c->status(204) if not $clear_tokens or $clear_tokens eq 'no' or $clear_tokens eq 'false';
 
-    my $rs = $c->stash('user')->user_session_tokens;
+    my $rs = $user->user_session_tokens;
     $rs = $rs->login_only if $clear_tokens ne 'all';
     $rs->delete;
 
@@ -445,7 +411,8 @@ sub create ($c) {
 Deactivates a user. System admin only.
 
 Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke all
-session tokens for the user, forcing all tools to log in again.
+session tokens for the user, which would force all tools to log in again should the account be
+reactivated (for which there is no api endpoint at present).
 
 All workspace permissions are removed and are not recoverable.
 

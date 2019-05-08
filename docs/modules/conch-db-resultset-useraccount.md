@@ -4,12 +4,12 @@ Conch::DB::ResultSet::UserAccount
 
 # DESCRIPTION
 
-Interface to queries against the 'user\_account' table.
+Interface to queries against the `user_account` table.
 
 ## create
 
 This method is built in to all resultsets.  In Conch::DB::Result::UserAccount we have overrides
-allowing us to receive the 'password' key, which we hash into 'password\_hash'.
+allowing us to receive the `password` key, which we hash into `password_hash`.
 
 ```perl
 $schema->resultset('user_account') or $c->db_user_accounts
@@ -23,7 +23,7 @@ $schema->resultset('user_account') or $c->db_user_accounts
 ## update
 
 This method is built in to all resultsets.  In Conch::DB::Result::UserAccount we have overrides
-allowing us to receive the 'password' key, which we hash into 'password\_hash'.
+allowing us to receive the `password` key, which we hash into `password_hash`.
 
 ```perl
 $schema->resultset('user_account') or $c->db_user_accounts
@@ -36,10 +36,9 @@ $schema->resultset('user_account') or $c->db_user_accounts
 ## lookup\_by\_email
 
 Queries for user by (case-insensitive) email address.
-by user id.
 
 If more than one user is found, we return the one created most recently, and a warning will be
-logged (via DBIx::Class::ResultSet::single).
+logged (via ["single" in DBIx::Class::ResultSet](https://metacpan.org/pod/DBIx::Class::ResultSet#single)).
 
 If you want to search only for \*active\* users, apply the `->active` resultset to the
 caller first.
@@ -50,7 +49,7 @@ Queries for user by (case-insensitive) email if string matches `/^email=/`, othe
 by user id.
 
 If more than one user is found, we return the one created most recently, and a warning will be
-logged (via DBIx::Class::ResultSet::single).
+logged (via ["single" in DBIx::Class::ResultSet](https://metacpan.org/pod/DBIx::Class::ResultSet#single)).
 
 If you want to search only for \*active\* users, apply the `->active` resultset to the
 caller first.

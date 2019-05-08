@@ -38,7 +38,7 @@ sub get ($c) {
 
 =head2 _extract_schema_definition
 
-Given a JSON::Validator object containing a schema definition, extract the requested portion
+Given a L<JSON::Validator> object containing a schema definition, extract the requested portion
 out of the "definitions" section, including any named references, and add some standard
 headers.
 

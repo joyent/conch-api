@@ -2,6 +2,7 @@ use v5.26;
 use strict;
 use warnings;
 use Test::More;
+use Test::Warnings;
 use Test::Conch::Validation 'test_validation';
 
 use lib 't/lib';

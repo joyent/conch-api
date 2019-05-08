@@ -118,12 +118,11 @@ sub get_single ($c) {
     # no need to check 'ro' perms - find_device() already checked the workspace
 
     my $setting = $c->stash('device_rs')
-        ->related_resultset('device_settings')
+        ->search_related('device_settings', { name => $setting_key })
         ->active
-        ->search(
-            { name => $setting_key },
-            { order_by => { -desc => 'created' }, rows => 1 },
-        )->single;
+        ->order_by({ -desc => 'created' })
+        ->rows(1)
+        ->single;
 
     return $c->status(404) if not $setting;
     $c->status(200, { $setting_key => $setting->value });
@@ -149,9 +148,8 @@ sub delete_single ($c) {
 
     # 0 rows updated -> 0E0 which is boolean truth, not false
     if ($c->stash('device_rs')
-            ->related_resultset('device_settings')
+            ->search_related('device_settings', { name => $setting_key })
             ->active
-            ->search({ name => $setting_key })
             ->deactivate <= 0) {
         $c->log->debug("No such setting '$setting_key'");
         return $c->status(404);

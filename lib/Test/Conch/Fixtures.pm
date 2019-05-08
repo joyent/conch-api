@@ -749,11 +749,11 @@ Add a new fixture definition.
 
 =head2 get_definition
 
-Used by DBIx::Class::Fixtures.
+Used by L<DBIx::Class::Fixtures>.
 
 =head2 all_fixture_names
 
-Used by DBIx::Class::Fixtures.
+Used by L<DBIx::Class::Fixtures>.
 
 =cut
 

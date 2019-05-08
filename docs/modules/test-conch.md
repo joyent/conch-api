@@ -1,8 +1,8 @@
 # DESCRIPTION
 
-Takes care of setting up a Test::Mojo with the Conch application pre-configured.
+Takes care of setting up a [Test::Mojo](https://metacpan.org/pod/Test::Mojo) with the Conch application pre-configured.
 
-Includes JSON validation ability via [Test::MojoSchema](https://metacpan.org/pod/Test::MojoSchema).
+Includes JSON validation ability.
 
 ```perl
 my $t = Test::Conch->new();
@@ -15,7 +15,7 @@ $t->get_ok('/')->status_is(200)->json_schema_is('Whatever');
 
 ## pg
 
-Override with your own Test::PostgreSQL object if you want to use a custom database, perhaps
+Override with your own [Test::PostgreSQL](https://metacpan.org/pod/Test::PostgreSQL) object if you want to use a custom database, perhaps
 with extra settings or loaded with additional data.
 
 This is the attribute to copy if you want multiple Test::Conch objects to be able to talk to
@@ -34,9 +34,8 @@ Constructor. Takes the following arguments:
 
 ```perl
 * pg (optional). uses this as the postgres db.
+  Otherwise, an empty database is created, using the schema in sql/schema.sql.
 ```
-
-An empty database is created, using the schema in sql/schema.sql.
 
 ## init\_db
 
@@ -44,16 +43,16 @@ Sets up the database for testing, using the final schema rather than running mig
 Mirrors functionality in ["initialize\_db" in Conch::DB::Util](https://metacpan.org/pod/Conch::DB::Util#initialize_db).
 No data is added -- you must load all desired fixtures.
 
-Note that the Test::PostgreSQL object must stay in scope for the duration of your tests.
+Note that the [Test::PostgreSQL](https://metacpan.org/pod/Test::PostgreSQL) object must stay in scope for the duration of your tests.
 Returns the Conch::DB object as well when called in list context.
 
 ## ro\_schema
 
-Returns a read-only connection to a Test::PostgreSQL instance.
+Returns a read-only connection to an existing [Test::PostgreSQL](https://metacpan.org/pod/Test::PostgreSQL) instance.
 
 ## location\_is
 
-Stolen from Test::Mojo's examples. I don't know why this isn't just part of the interface!
+Stolen from [Test::Mojo](https://metacpan.org/pod/Test::Mojo)'s examples. I don't know why this isn't just part of the interface!
 
 ## json\_schema\_is
 
@@ -64,8 +63,9 @@ the hash as the schema to validate.
 
 ## json\_cmp\_deeply
 
-Like json\_is, but uses Test::Deep::cmp\_deeply for the comparison instead of Test::More::is\_deep.
-This allows for more flexibility in how we test various parts of the data.
+Like ["json\_is" in Test::Mojo](https://metacpan.org/pod/Test::Mojo#json_is), but uses ["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test::Deep#cmp_deeply) for the comparison instead of
+["is\_deep" in Test::More](https://metacpan.org/pod/Test::More#is_deep).  This allows for more flexibility in how we test various parts of the
+data.
 
 ## load\_validation\_plans
 

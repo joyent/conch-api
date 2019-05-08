@@ -15,6 +15,7 @@ $t->get_ok('/ping')
 
 $t->get_ok('/version')
     ->status_is(200)
+    ->json_schema_is('Version')
     ->json_cmp_deeply({ version => re(qr/^v/) });
 
 
@@ -28,7 +29,7 @@ subtest 'device totals' => sub {
     my $test_compute = $hardware_product_rs->search({ alias => 'Test Compute' })->single;
 
     # find a rack
-    my $rack = $t->app->db_racks->search(undef, { rows => 1 })->single;
+    my $rack = $t->app->db_racks->rows(1)->single;
 
     # create/update some rack layouts
     $rack->update_or_create_related('rack_layouts', $_, { key => 'rack_layout_rack_id_rack_unit_start_key' })

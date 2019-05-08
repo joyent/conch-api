@@ -49,7 +49,7 @@ sub nic_ipmi ($self) {
     my $ipmi_rs = $self
         ->search({ $me.'.iface_name' => 'ipmi1' })
         ->active
-        ->columns({ '' => \'array[mac::text, host(ipaddr)]' });
+        ->columns([ \'array[mac::text, host(ipaddr)]' ]);
 }
 
 1;

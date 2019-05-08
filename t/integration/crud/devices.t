@@ -206,11 +206,8 @@ subtest 'located device' => sub {
 
     subtest 'permissions for POST queries' => sub {
         my @queries = (
-            '/device/LOCATED_DEVICE/graduate',
-            '/device/LOCATED_DEVICE/triton_reboot',
             [ '/device/LOCATED_DEVICE/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str } ],
-            '/device/LOCATED_DEVICE/triton_setup',
-            '/device/LOCATED_DEVICE/validated',
+            (map '/device/LOCATED_DEVICE/'.$_, qw(graduate triton_reboot triton_setup validated)),
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
         );
 

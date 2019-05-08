@@ -1,6 +1,7 @@
 use v5.20;
 use warnings;
 use Test::More;
+use Test::Warnings;
 use Test::Conch::Validation 'test_validation';
 
 test_validation(
