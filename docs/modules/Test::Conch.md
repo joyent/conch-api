@@ -214,6 +214,15 @@ one specific log level:
 
 ## log\_fatal\_is
 
+## logs\_are
+
+Like ["log\_is"](#log_is), but tests for multiple messages at once.
+
+## reset\_log
+
+Clears the log history. This does not normally need to be explicitly called, since it is
+cleared before every request.
+
 # LICENSING
 
 Copyright Joyent, Inc.

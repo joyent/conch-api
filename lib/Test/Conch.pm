@@ -584,7 +584,7 @@ sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
     $self->_test(
         'Test::Deep::cmp_deeply',
         $self->app->log->history,
-        Test::Deep::supersetof([
+        Test::Deep::superbagof([
             Test::Deep::ignore,             # time
             $level // Test::Deep::ignore,   # level
             ref $expected_msg eq 'ARRAY' ? $expected_msg->@* : $expected_msg, # content
@@ -599,10 +599,42 @@ sub log_warn_is  ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'warn'); goto \&l
 sub log_error_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'error'); goto \&log_is }
 sub log_fatal_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'fatal'); goto \&log_is }
 
+=head2 logs_are
+
+Like L</log_is>, but tests for multiple messages at once.
+
+=cut
+
+sub logs_are ($self, $expected_msgs, $test_name = 'log line', $level = undef) {
+    $self->_test(
+        'Test::Deep::cmp_deeply',
+        $self->app->log->history,
+        Test::Deep::superbagof(
+            map [
+                Test::Deep::ignore,             # time
+                $level // Test::Deep::ignore,   # level
+                $_,                             # content
+            ],
+            $expected_msgs->@*,
+        ),
+        $test_name,
+    );
+}
+
+=head2 reset_log
+
+Clears the log history. This does not normally need to be explicitly called, since it is
+cleared before every request.
+
+=cut
+
+sub reset_log ($self) {
+    $self->app->log->history([]);
+}
 
 sub _request_ok ($self, @args) {
     undef $self->{_mail_composed};
-    $self->app->log->history([]);
+    $self->reset_log;
     my $result = $self->next::method(@args);
     Test::More::diag 'log history: ',
             Data::Dumper->new([ $self->app->log->history ])->Indent(1)->Terse(1)->Dump

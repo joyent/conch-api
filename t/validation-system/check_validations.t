@@ -14,14 +14,10 @@ use lib 't/lib';
 
 my $uuid_re = Conch::UUID::UUID_FORMAT;
 
-open my $log_fh, '>', \my $fake_log or die "cannot open to scalarref: $!";
-my $logger = Mojo::Log->new(handle => $log_fh);
-sub reset_log { $fake_log = ''; seek $log_fh, 0, 0; }
-
-my ($pg, $rw_schema) = Test::Conch->init_db;
-
-my $ro_schema = Test::Conch->ro_schema($pg);
-my $validation_system = Conch::ValidationSystem->new(log => $logger, schema => $ro_schema);
+my $t = Test::Conch->new;
+my $rw_schema = $t->app->schema;
+my $ro_schema = $t->app->ro_schema;
+my $validation_system = Conch::ValidationSystem->new(log => $t->app->log, schema => $ro_schema);
 
 subtest 'inactive validation in an active plan' => sub {
     my $validation_plan = $rw_schema->resultset('validation_plan')->create({
@@ -40,18 +36,16 @@ subtest 'inactive validation in an active plan' => sub {
         ],
     });
 
-    reset_log;
+    $t->reset_log;
     my @modules = $validation_system->check_validation_plan($validation_plan);
     is(scalar @modules, 0, 'no valid validations in this plan');
 
-    like(
-        $fake_log,
-        qr/validation id $uuid_re "inactive validation" is inactive but is referenced by an active plan \("plan with inactive validation"\)/,
+    $t->log_is(
+        re(qr/validation id $uuid_re "inactive validation" is inactive but is referenced by an active plan \("plan with inactive validation"\)/),
         'logged for inactive validation',
     );
-    like(
-        $fake_log,
-        qr/Validation plan id $uuid_re "plan with inactive validation" is valid/,
+    $t->log_is(
+        re(qr/Validation plan id $uuid_re "plan with inactive validation" is valid/),
         'logged validation plan non-failure',
     );
 };
@@ -72,18 +66,16 @@ subtest 'non-existent module' => sub {
         ],
     });
 
-    reset_log;
+    $t->reset_log;
     my @modules = $validation_system->check_validation_plan($validation_plan);
     is(scalar @modules, 0, 'no valid validations in this plan');
 
-    like(
-        $fake_log,
-        qr{\Qcould not load Conch::Validation::DoesNotExist, used in validation plan "plan with missing module": Can't locate Conch/Validation/DoesNotExist.pm in \E},
+    $t->log_is(
+        re(qr{\Qcould not load Conch::Validation::DoesNotExist, used in validation plan "plan with missing module": Can't locate Conch/Validation/DoesNotExist.pm in \E}),
         'logged for missing validation module',
     );
-    like(
-        $fake_log,
-        qr/Validation plan id $uuid_re "plan with missing module" is not valid/,
+    $t->log_is(
+        re(qr/Validation plan id $uuid_re "plan with missing module" is not valid/),
         'logged validation plan failure',
     );
 };
@@ -104,18 +96,16 @@ subtest 'module with syntax error' => sub {
         ],
     });
 
-    reset_log;
+    $t->reset_log;
     my @modules = $validation_system->check_validation_plan($validation_plan);
     is(scalar @modules, 0, 'no valid validations in this plan');
 
-    like(
-        $fake_log,
-        qr/could not load Conch::Validation::Broken, used in validation plan "plan with broken module": Missing right curly or square bracket/,
+    $t->log_is(
+        re(qr/could not load Conch::Validation::Broken, used in validation plan "plan with broken module": Missing right curly or square bracket/),
         'logged for broken validation module',
     );
-    like(
-        $fake_log,
-        qr/Validation plan id $uuid_re "plan with broken module" is not valid/,
+    $t->log_is(
+        re(qr/Validation plan id $uuid_re "plan with broken module" is not valid/),
         'logged validation plan failure',
     );
 };
@@ -136,18 +126,16 @@ subtest 'module does not inherit from Conch::Validation' => sub {
         ],
     });
 
-    reset_log;
+    $t->reset_log;
     my @modules = $validation_system->check_validation_plan($validation_plan);
     is(scalar @modules, 0, 'no valid validations in this plan');
 
-    like(
-        $fake_log,
-        qr/Conch::Validation::WrongParentage must be a sub-class of Conch::Validation/,
+    $t->log_is(
+        re(qr/Conch::Validation::WrongParentage must be a sub-class of Conch::Validation/),
         'logged for validation module with wrong parentage',
     );
-    like(
-        $fake_log,
-        qr/Validation plan id $uuid_re "plan with module with wrong parentage" is not valid/,
+    $t->log_is(
+        re(qr/Validation plan id $uuid_re "plan with module with wrong parentage" is not valid/),
         'logged validation plan failure',
     );
 };
@@ -169,18 +157,16 @@ foreach my $field (qw(version name description)) {
             ],
         });
 
-        reset_log;
+        $t->reset_log;
         my @modules = $validation_system->check_validation_plan($validation_plan);
         is(scalar @modules, 0, 'no valid validations in this plan');
 
-        like(
-            $fake_log,
-            qr/"$field" field for validation id $uuid_re does not match value in Conch::Validation::Wrong${\ ucfirst($field) } \("[^"]+" vs "[^"]+"\)/,
+        $t->log_is(
+            re(qr/"$field" field for validation id $uuid_re does not match value in Conch::Validation::Wrong${\ ucfirst($field) } \("[^"]+" vs "[^"]+"\)/),
             "logged for validation module with wrong $field",
         );
-        like(
-            $fake_log,
-            qr/Validation plan id $uuid_re "plan with module with wrong $field" is not valid/,
+        $t->log_is(
+            re(qr/Validation plan id $uuid_re "plan with module with wrong $field" is not valid/),
             'logged validation plan failure',
         );
     };
@@ -202,18 +188,16 @@ subtest 'missing category' => sub {
         ],
     });
 
-    reset_log;
+    $t->reset_log;
     my @modules = $validation_system->check_validation_plan($validation_plan);
     is(scalar @modules, 0, 'no valid validations in this plan');
 
-    like(
-        $fake_log,
-        qr/Conch::Validation::MissingCategory does not set a category/,
+    $t->log_is(
+        re(qr/Conch::Validation::MissingCategory does not set a category/),
         'logged for validation module with missing category',
     );
-    like(
-        $fake_log,
-        qr/Validation plan id $uuid_re "plan with module with missing category" is not valid/,
+    $t->log_is(
+        re(qr/Validation plan id $uuid_re "plan with module with missing category" is not valid/),
         'logged validation plan failure',
     );
 };
@@ -226,7 +210,7 @@ $rw_schema->resultset('validation')->delete;
 subtest 'a real validator' => sub {
     require Conch::Validation::DeviceProductName;
     my $validator = Conch::Validation::DeviceProductName->new(
-        log => $logger,
+        log => $t->app->log,
         device => $ro_schema->resultset('device')->new_result({}),
     );
 
@@ -243,23 +227,25 @@ subtest 'a real validator' => sub {
         ],
     });
 
-    reset_log;
+    $t->reset_log;
     my @modules = $validation_system->check_validation_plan($validation_plan);
     is(scalar @modules, 1, 'one valid validations in this plan');
 
-    like(
-        $fake_log,
-        qr/Validation plan id $uuid_re "a plan with a real validation" is valid/,
+    $t->log_is(
+        re(qr/Validation plan id $uuid_re "a plan with a real validation" is valid/),
         'logged validation plan success',
     );
 };
 
 subtest 'all plans, and all real validation modules' => sub {
-    reset_log;
-    my $num_validations_added = Conch::ValidationSystem->new(log => $logger, schema => $rw_schema)
+    $t->reset_log;
+    my $num_validations_added = Conch::ValidationSystem->new(log => $t->app->log, schema => $rw_schema)
         ->load_validations;
 
-    unlike($fake_log, qr/fatal/, 'there were no fatal errors with the existing validations');
+    ok(
+        (!grep /fatal/, map $_->[1], $t->app->log->history->@*),
+        'there were no fatal errors with the existing validations',
+    );
 
     my $validation_plan = $rw_schema->resultset('validation_plan')->create({
         name => 'a plan with all real validations',
@@ -271,13 +257,16 @@ subtest 'all plans, and all real validation modules' => sub {
         'found all the validations we just loaded, plus the one from the previous test');
     $validation_plan->add_to_validations($_) foreach @validations;
 
-    reset_log;
+    $t->reset_log;
     my $module_count = $validation_system->check_validation_plans;
     is($module_count, $num_validations_added + 1, 'all validations are in these plans, and valid');
 
-    like($fake_log, $_, 'logged validation plan success') foreach (
-        qr/Validation plan id $uuid_re "a plan with a real validation" is valid/,
-        qr/Validation plan id $uuid_re "a plan with all real validations" is valid/,
+    $t->logs_are(
+        [
+            re(qr/Validation plan id $uuid_re "a plan with a real validation" is valid/),
+            re(qr/Validation plan id $uuid_re "a plan with all real validations" is valid/),
+        ],
+        'logged validation plan success',
     );
 };
 
