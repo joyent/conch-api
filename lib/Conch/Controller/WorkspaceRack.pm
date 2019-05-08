@@ -2,9 +2,6 @@ package Conch::Controller::WorkspaceRack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use Text::CSV_XS;
 use Try::Tiny;
 use List::Util 'reduce';

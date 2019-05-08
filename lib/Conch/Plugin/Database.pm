@@ -99,13 +99,13 @@ the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
         my $plural = noun($source_name)->plural;
 
         $app->helper('db_'.$plural, sub ($c) {
-            my $source = $c->app->schema->source($source_name);
+            my $source = $c->schema->source($source_name);
             # note that $source_name eq $source->from unless we screwed up.
             $source->resultset->search(undef, { alias => $source->from });
         });
 
         $app->helper('db_ro_'.$plural, sub ($c) {
-            my $ro_source = $c->app->ro_schema->source($source_name);
+            my $ro_source = $c->ro_schema->source($source_name);
             $ro_source->resultset->search(undef, { alias => $ro_source->from });
         });
     }
@@ -129,10 +129,9 @@ line of the exception.
         }
         catch {
             my $exception = $_;
-            my $log = $c->can('log') ? $c->log : $c->app->log;
-            $log->debug('rolled back transaction');
+            $c->log->debug('rolled back transaction');
             if ($exception !~ /^rollback/) {
-                $log->error($exception);
+                $c->log->error($exception);
                 my ($error) = split(/\n/, $exception, 2);
                 $c->status($c->res->code // 400, { error => $error });
             }

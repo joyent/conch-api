@@ -2,9 +2,6 @@ package Conch::Controller::RackRole;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 =pod
 
 =head1 NAME

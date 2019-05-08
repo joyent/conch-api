@@ -2,9 +2,6 @@ package Conch::Controller::DeviceSettings;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use List::Util 'pairmap';
 
 =pod

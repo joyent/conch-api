@@ -2,9 +2,6 @@ package Conch::Controller::Rack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use List::Util qw(any none first);
 
 =pod

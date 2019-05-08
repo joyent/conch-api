@@ -2,9 +2,6 @@ package Conch::Controller::User;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
 

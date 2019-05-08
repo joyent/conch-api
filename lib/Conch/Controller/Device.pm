@@ -2,9 +2,6 @@ package Conch::Controller::Device;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use List::Util 'any';
 use Mojo::JSON 'from_json';
 

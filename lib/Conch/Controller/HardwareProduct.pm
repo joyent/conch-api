@@ -2,9 +2,6 @@ package Conch::Controller::HardwareProduct;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use List::Util 'none';
 
 =pod

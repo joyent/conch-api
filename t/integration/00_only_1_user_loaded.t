@@ -22,8 +22,8 @@ $t->load_fixture('conch_user_global_workspace');
 $t->get_ok('/ping')
     ->status_is(200)
     ->json_is({ status => 'ok' })
-    ->header_isnt('Request-Id' => undef)
-    ->header_isnt('X-Request-ID' => undef);
+    ->header_exists('Request-Id')
+    ->header_exists('X-Request-ID');
 
 $t->get_ok('/me')->status_is(401);
 $t->get_ok('/login')->status_is(401);

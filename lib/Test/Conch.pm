@@ -16,6 +16,7 @@ use Conch::DB::Util;
 use Scalar::Util 'blessed';
 use Mojo::URL;
 use Scalar::Util 'weaken';
+use Mojo::JSON 'from_json';
 
 =pod
 
@@ -35,7 +36,7 @@ Includes JSON validation ability.
 # see also the 'conch_user' fixture in Test::Conch::Fixtures
 use constant CONCH_USER => 'conch';
 use constant CONCH_EMAIL => 'conch@conch.joyent.us';
-use constant CONCH_PASSWORD => CONCH_EMAIL;
+use constant CONCH_PASSWORD => 'CONCH_PASSWORD';
 
 $ENV{EMAIL_SENDER_TRANSPORT} = 'Test';  # see Email::Sender::Manual::QuickStart
 
@@ -83,6 +84,8 @@ Constructor. Takes the following arguments:
   * pg (optional). uses this as the postgres db.
     Otherwise, an empty database is created, using the schema in sql/schema.sql.
 
+  * config (optional). adds the provided configuration data.
+
 =cut
 
 sub new {
@@ -100,6 +103,9 @@ sub new {
             },
 
             secrets => ['********'],
+            features => { audit => 1 },
+
+            $args->{config} ? $args->{config}->%* : (),
         }
     );
 
@@ -408,7 +414,7 @@ Optionally will bail out of *all* tests on failure.  This will set 'user' in the
 sub authenticate ($self, %args) {
     $args{bailout} //= 1 if not $args{user};
     $args{user} //= CONCH_EMAIL;
-    $args{password} //= $args{user};  # convention for test accounts
+    $args{password} //= $args{user} eq 'conch@conch.joyent.us' ? CONCH_PASSWORD : $args{user};
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     $self->post_ok('/login', json => { %args{qw(user password)} })
@@ -496,9 +502,57 @@ sub email_not_sent ($self) {
     );
 }
 
+=head2 log_is
+
+Searches the log lines emitted for the last request for one with the provided message,
+which can be either an exact string or anything that L<Test::Deep> recognizes.
+
+If you are expecting a list of message strings (sent at once to the logger), pass a listref
+rather than a list.
+
+A log line at any level matches, or you can use a more specific method that matches only
+one specific log level:
+
+=head2 log_debug_is
+
+=head2 log_info_is
+
+=head2 log_warn_is
+
+=head2 log_error_is
+
+=head2 log_fatal_is
+
+=cut
+
+sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
+    $self->_test(
+        'Test::Deep::cmp_deeply',
+        $self->app->log->history,
+        Test::Deep::supersetof([
+            Test::Deep::ignore,             # time
+            $level // Test::Deep::ignore,   # level
+            ref $expected_msg eq 'ARRAY' ? $expected_msg->@* : $expected_msg, # content
+        ]),
+        $test_name,
+    );
+}
+
+sub log_debug_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'debug'); goto \&log_is }
+sub log_info_is  ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'info'); goto \&log_is }
+sub log_warn_is  ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'warn'); goto \&log_is }
+sub log_error_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'error'); goto \&log_is }
+sub log_fatal_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'fatal'); goto \&log_is }
+
+
 sub _request_ok ($self, @args) {
     undef $self->{_mail_composed};
-    $self->next::method(@args);
+    $self->app->log->history([]);
+    my $result = $self->next::method(@args);
+    Test::More::diag 'log history: ',
+            Data::Dumper->new([ $self->app->log->history ])->Indent(1)->Terse(1)->Dump
+        if $self->tx->res->code == 500 and $self->tx->req->url->path ne '/die';
+    return $result;
 }
 
 1;

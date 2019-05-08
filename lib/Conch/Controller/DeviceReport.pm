@@ -2,9 +2,6 @@ package Conch::Controller::DeviceReport;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Role::Tiny::With;
-with 'Conch::Role::MojoLog';
-
 use Mojo::JSON 'to_json';
 
 =pod
