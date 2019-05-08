@@ -19,7 +19,6 @@ Create a JWT and sets it up to be returned in the response in two parts:
 Handle the details of authenticating the user, with one of the following options:
 
 ```perl
-* HTTP Basic Auth
 * existing session for the user
 * JWT split between Authorization Bearer header value and jwt_sig cookie
 * JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"

@@ -434,10 +434,6 @@ subtest 'modify another user' => sub {
         ->status_is(201)
         ->location_is('/user/me/token/my second api token');
 
-    my $t3 = Test::Conch->new(pg => $t->pg); # we will only use this $mojo for basic auth
-    $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
-        ->status_is(204, 'user can also use the app with basic auth');
-
     $t->post_ok("/user/$new_user_id/revoke?login_only=1")
         ->status_is(204, 'revoked login tokens for the new user')
         ->email_cmp_deeply({
@@ -541,10 +537,6 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => 'foo' })
         ->status_is(401, 'cannot log in with the old password');
 
-    $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:'.$insecure_password)->path('/me'))
-        ->status_is(401, 'user cannot use new password with basic auth to go anywhere else')
-        ->location_is('/user/me/password');
-
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $insecure_password })
         ->status_is(200, 'user can log in with new password')
         ->location_is('/user/me/password');
@@ -586,9 +578,6 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
         ->status_is(204, 'user authenticate with JWT again after his password is changed');
     is($t2->tx->res->body, '', '...with no extra response messages');
-
-    $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:'.$secure_password)->path('/me'))
-        ->status_is(204, 'after user fixes his password, he can use basic auth again');
 
 
     $t->delete_ok('/user/foobar@joyent.conch.us')

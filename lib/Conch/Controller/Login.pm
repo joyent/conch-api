@@ -69,7 +69,6 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 
 Handle the details of authenticating the user, with one of the following options:
 
- * HTTP Basic Auth
  * existing session for the user
  * JWT split between Authorization Bearer header value and jwt_sig cookie
  * JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
@@ -83,38 +82,6 @@ subsequent routes and actions.
 sub authenticate ($c) {
     if (my $user = $c->stash('user')) {
         $c->log->debug('already authenticated (user '.$user->name.')');
-        return 1;
-    }
-
-    # basic auth: look for user:password in the URL
-    my $url = $c->req->url->to_abs;
-    if ($url->userinfo) {
-        $c->log->debug('attempting to authenticate with email:password...');
-        my ($email, $password) = ($url->username, $url->password);
-
-        $c->log->debug('looking up user by email '.$email.'...');
-        my $user = $c->db_user_accounts->active->lookup_by_email($email);
-
-        if (not $user) {
-            $c->log->debug('basic auth failed: user not found');
-            return $c->status(401);
-        }
-
-        if (not $user->validate_password($password)) {
-            $c->log->debug('basic auth failed: incorrect password');
-            return $c->status(401);
-        }
-
-        if ($user->force_password_change) {
-            $c->log->debug('basic auth failed: password correct, but force_password_change was set');
-            $c->res->headers->location($c->url_for('/user/me/password'));
-            return $c->status(401);
-        }
-
-        # pass through to whatever action the user was trying to reach
-        $c->log->debug('user '.$user->name.' ('.$user->email.') accepted using basic auth');
-        $c->stash('user_id', $user->id);
-        $c->stash('user', $user);
         return 1;
     }
 
