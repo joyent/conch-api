@@ -11,12 +11,12 @@ use Conch::Time;
 
 =head1 DESCRIPTION
 
-Automatically inflates/deflates timestamps in the database to Conch::Time objects (which
-is a subclass of L<Time::Moment>).
+Automatically inflates/deflates timestamps in the database to L<Conch::Time> objects (which is
+a subclass of L<Time::Moment>).
 
 No extra work needs to be done for deflation, because postgres is happy to accept our slight
 modifications to the format used in C<to_string>.  All we need to do is rebless the
-L<Time::Moment> object into Conch::Time, and work around the bug in
+L<Time::Moment> object into L<Conch::Time>, and work around the bug in
 L<RT#125975|https://rt.cpan.org/Ticket/Display.html?id=125975>.
 
 =cut

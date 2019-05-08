@@ -9,7 +9,7 @@ Conch::DB::AsEpoch
 
 =head1 DESCRIPTION
 
-A component for Conch::DB::ResultSet classes that provides the C<as_epoch> method.
+A component for L<Conch::DB::ResultSet> classes that provides the C<as_epoch> method.
 
 This code is postgres-specific.
 

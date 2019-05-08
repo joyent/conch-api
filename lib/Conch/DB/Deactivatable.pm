@@ -10,8 +10,8 @@ Conch::DB::Deactivatable
 
 =head1 DESCRIPTION
 
-A component for Conch::DB::ResultSet classes for database tables with a C<deactivated> column,
-to provide common query functionality.
+A component for L<Conch::DB::ResultSet> classes for database tables with a C<deactivated>
+column, to provide common query functionality.
 
 =head1 USAGE
 
