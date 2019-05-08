@@ -5,9 +5,7 @@ use Mojo::Base 'Conch::Validation';
 use constant name        => 'nics_num';
 use constant version     => 1;
 use constant category    => 'NET';
-use constant description => q(
-Validate the reported number of NICs match the hardware product profile
-);
+use constant description => 'Validate the reported number of NICs match the hardware product profile';
 
 sub validate {
     my ($self, $data) = @_;

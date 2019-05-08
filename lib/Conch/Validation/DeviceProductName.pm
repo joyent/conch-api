@@ -5,7 +5,7 @@ use Mojo::Base 'Conch::Validation';
 use constant name        => 'product_name';
 use constant version     => 1;
 use constant category    => 'BIOS';
-use constant description => q(Validate reported product name matches product name expected in rack layout);
+use constant description => 'Validate reported product name matches product name expected in rack layout';
 
 sub validate {
     my ($self, $data) = @_;

@@ -9,7 +9,6 @@ use Conch::ValidationSystem;
 use Test::Conch;
 use Mojo::Log;
 use Path::Tiny;
-use Mojo::Util 'trim';
 
 use lib 't/lib';
 
@@ -237,7 +236,7 @@ subtest 'a real validator' => sub {
         validation_plan_members => [
             {
                 validation => {
-                    (map +($_ => trim($validator->$_)), qw(name version description)),
+                    (map +($_ => $validator->$_), qw(name version description)),
                     module => 'Conch::Validation::DeviceProductName',
                 },
             },

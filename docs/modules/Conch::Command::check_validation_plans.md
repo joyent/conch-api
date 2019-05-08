@@ -1,13 +1,13 @@
 # NAME
 
-update\_validations\_release\_223 - A one-time command to update validations to the Server validation plan for release 2.23.
+check\_validation\_plans - Utility to check all validations and plans are up to date
 
 # SYNOPSIS
 
 ```
-bin/conch update_validations_release_223 [long options...]
+bin/conch check_validation_plans [long options...]
 
-    --help  print usage message and exit
+    --help          print usage message and exit
 ```
 
 # LICENSING

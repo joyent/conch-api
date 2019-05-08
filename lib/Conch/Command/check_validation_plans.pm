@@ -1,24 +1,23 @@
-package Conch::Command::update_validations;
+package Conch::Command::check_validation_plans;
 
 =pod
 
 =head1 NAME
 
-update_validations - Update validation entries in the database to match Conch::Validation::* classes.
+check_validation_plans - Utility to check all validations and plans are up to date
 
 =head1 SYNOPSIS
 
-    bin/conch update_validations [long options...]
+    bin/conch check_validation_plans [long options...]
 
-        --help  print usage message and exit
+        --help          print usage message and exit
 
 =cut
 
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Getopt::Long::Descriptive;
-use Mojo::JSON 'from_json', 'encode_json';
 
-has description => 'update database validation entries to match Conch::Validation::* classes';
+has description => 'check all validations and validation plans';
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
@@ -27,15 +26,14 @@ sub run ($self, @opts) {
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
-        'update_validations %o',
+        'check_validation_plans %o',
         [],
-        [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
+        [ 'help',  'print usage message and exit', { shortcircuit => 1 } ],
     );
 
-    Conch::ValidationSystem->new(
-        log => Mojo::Log->new(handle => \*STDOUT),
-        schema => $self->app->schema,
-    )->load_validations;
+    # any issues found go to stderr
+    Conch::ValidationSystem->new(log => Conch::Log->new, schema => $self->app->ro_schema)
+        ->check_validation_plans;
 }
 
 1;

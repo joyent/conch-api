@@ -6,9 +6,7 @@ use List::Util 'sum';
 use constant name        => 'ram_total';
 use constant version     => 2;
 use constant category    => 'RAM';
-use constant description => q(
-Validate the reported RAM match the hardware product profile
-);
+use constant description => 'Validate the reported RAM match the hardware product profile';
 
 sub validate {
     my ($self, $data) = @_;

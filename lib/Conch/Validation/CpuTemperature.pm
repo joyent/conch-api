@@ -3,12 +3,9 @@ package Conch::Validation::CpuTemperature;
 use Mojo::Base 'Conch::Validation';
 
 use constant name        => 'cpu_temperature';
-use constant version     => 1;
+use constant version     => 2;
 use constant category    => 'CPU';
-use constant description => q(
-Validate the reported CPU temperatures are less than the maximum in the
-hardware product profile
-);
+use constant description => 'Validate the reported CPU temperatures are less than the maximum in the hardware product profile';
 
 sub validate {
     my ($self, $data) = @_;

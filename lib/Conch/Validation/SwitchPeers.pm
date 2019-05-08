@@ -4,12 +4,9 @@ use Mojo::Base 'Conch::Validation';
 use List::Util 'first';
 
 use constant name        => 'switch_peers';
-use constant version     => 1;
+use constant version     => 2;
 use constant category    => 'NET';
-use constant description => q(
-Validate the number of peer switches, the number of peer ports, and the
-expected peer port according to the rack layout
-);
+use constant description => 'Validate the number of peer switches, the number of peer ports, and the expected peer port according to the rack layout';
 
 sub validate {
     my ($self, $data) = @_;

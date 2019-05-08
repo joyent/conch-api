@@ -5,9 +5,7 @@ use Mojo::Base 'Conch::Validation';
 use constant name        => 'cpu_count';
 use constant version     => 2;
 use constant category    => 'CPU';
-use constant description => q(
-Validate the reported number of CPUs match the hardware product profile
-);
+use constant description => 'Validate the reported number of CPUs match the hardware product profile';
 
 sub validate {
     my ($self, $data) = @_;

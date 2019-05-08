@@ -6,9 +6,7 @@ use v5.20;
 use constant name        => 'disk_temperature';
 use constant version     => 1;
 use constant category    => 'DISK';
-use constant description => q(
-Validate the reported disk temperatures are under the maximum threshold
-);
+use constant description => 'Validate the reported disk temperatures are under the maximum threshold';
 
 sub validate {
     my ($self, $data) = @_;

@@ -1,7 +1,6 @@
 package Conch::ValidationSystem;
 
 use Mojo::Base -base, -signatures;
-use Mojo::Util 'trim';
 use Path::Tiny;
 use Try::Tiny;
 use Module::Runtime 'require_module';
@@ -83,7 +82,7 @@ sub check_validation_plan ($self, $validation_plan) {
             my $failed;
 
             foreach my $field (qw(version name description)) {
-                if ($validation->$field ne trim($module->$field)) {
+                if ($validation->$field ne $module->$field) {
                     $self->log->warn('"'.$field.'" field for validation id '.$validation->id
                         .' does not match value in '.$module
                         .' ("'.$validation->$field.'" vs "'.$module->$field.'")');
@@ -122,16 +121,22 @@ sub check_validation_plan ($self, $validation_plan) {
 =head2 load_validations
 
 Load all Conch::Validation::* sub-classes into the database.
-Existing validation records will only be modified if attributes change.
+Existing validation records will not be modified if attributes change -- instead, existing
+records will be deactivated and new records will be created to reflect the updated data.
 
-Returns the number of new or changed validations loaded.
+Returns a tuple: the number of validations that were deactivated, and the number of new
+validation rows that were created.
+
+This method is poorly-named: it should be 'create_validations'.
 
 =cut
 
 sub load_validations ($self) {
-    my $num_loaded_validations = 0;
+    my ($num_deactivated, $num_created) = (0, 0);
 
     $self->log->debug('loading modules under lib/Conch/Validation/');
+    my $validation_rs = $self->schema->resultset('validation');
+    my @modules;
 
     my $iterator = sub {
         my $filename = shift;
@@ -141,6 +146,8 @@ sub load_validations ($self) {
         my $relative = $filename->relative('lib');
         my ($module) = $relative =~ s{/}{::}gr;
         $module =~ s/\.pm$//;
+        push @modules, $module;
+
         $self->log->info("loading $module");
         require $relative;
 
@@ -156,35 +163,134 @@ sub load_validations ($self) {
             return;
         }
 
-        if (my $validation_row = $self->schema->resultset('validation')->search({
+        # if the active validation row exactly matches the code, we have nothing to change
+        return if $validation_rs->active
+            ->search({
                 name => $module->name,
                 version => $module->version,
-            })->single) {
-            $validation_row->set_columns({
-                description => trim($module->description),
+                description => $module->description,
                 module => $module,
-            });
-            if ($validation_row->is_changed) {
-                $validation_row->update({ updated => \'now()' });
-                $num_loaded_validations++;
-                $self->log->info("Updated entry for $module");
+            })->exists;
+
+        if (my $existing_validation = $validation_rs->active->search({ module => $module })->single) {
+            if ($existing_validation->name eq $module->name and $existing_validation->version == $module->version) {
+                # if we just log an error and return, it may not be obvious to the operator that
+                # something bad has happened... and the old validation row would stay active
+                # and cause more problems downstream
+                die 'cannot create new row for validation named ', $existing_validation->name,
+                    ', as there is already a row with its name and version ',
+                    '(did you forget to increment the version in ', $module, '?)';
             }
+
+            # deactivate all existing rows for this module
+            my $deactivated = $validation_rs->active->search({ module => $module })->deactivate;
+            $num_deactivated += $deactivated;
+            $self->log->info('deactivated existing validation row for '.$module) if $deactivated > 0;
         }
-        else {
-            $self->schema->resultset('validation')->create({
-                name => $module->name,
-                version => $module->version,
-                description => trim($module->description),
-                module => $module,
-            });
-            $num_loaded_validations++;
-            $self->log->info("Created entry for $module");
-        }
+
+        # create a new row with current data (this will explode with a unique constraint
+        # violation if the version was not incremented)
+        $validation_rs->create({
+            name => $module->name,
+            version => $module->version,
+            description => $module->description,
+            module => $module,
+        });
+        $num_created += 1;
+        $self->log->info('created validation row for '.$module);
     };
 
     path('lib/Conch/Validation')->visit($iterator, { recurse => 1 });
 
-    return $num_loaded_validations;
+    my $old_validations_rs = $validation_rs->active->search({ module => { -not_in => \@modules } });
+    if ($old_validations_rs->exists) {
+        $self->log->info('deactivating validation for no-longer-present modules: '
+            .join(', ', $old_validations_rs->get_column('module')->all));
+        $num_deactivated += $old_validations_rs->deactivate;
+    }
+
+    return ($num_deactivated, $num_created);
+}
+
+=head2 update_validation_plans
+
+Deactivate and/or create validation records for all validation modules currently present,
+then deactivates and creates new validation plans to reference the newest versions of the
+validations it already had as members.
+
+That is: does whatever is necessary after a code deployment to ensure that validation plans
+of the same name continue to run validations pointing to the same code modules.
+
+=cut
+
+sub update_validation_plans ($self) {
+    my $validation_plan_rs = $self->schema->resultset('validation_plan');
+
+    my %validation_plans_and_active_validations = map +(
+        $_->name => {
+            description => $_->description,
+            validation_modules => [
+                map $_->module,
+                grep !$_->deactivated,
+                map $_->validation,
+                $_->validation_plan_members
+            ],
+        },
+    ),
+    $validation_plan_rs->active
+        ->search({ 'validation.deactivated' => undef })
+        ->prefetch({ validation_plan_members => 'validation' });
+
+    # deactivates old validation rows; creates new ones in their place
+    # note that if a conflict is found, this sub will die.
+    my ($num_deactivated, $num_created) = $self->load_validations;
+
+    # we don't care about new modules here, as no plans need to update unless there were also
+    # validations deactivated.
+    return unless $num_deactivated;
+
+    # now get the updated list of all active validations by module name...
+    my %validations = map +($_->module => $_), $self->schema->resultset('validation')->active->all;
+
+    foreach my $validation_plan_name (keys %validation_plans_and_active_validations) {
+        # these are the active validation modules that were in the plan
+        my @had_modules = $validation_plans_and_active_validations{$validation_plan_name}{validation_modules}->@*;
+        next if not @had_modules;
+
+        my @active_modules = $validation_plan_rs
+            ->search({ 'validation_plan.name' => $validation_plan_name }, { alias => 'validation_plan' })
+            ->active
+            ->related_resultset('validation_plan_members')
+            ->related_resultset('validation')
+            ->active
+            ->distinct
+            ->get_column('module')->all;
+
+        if (@had_modules == @active_modules) {
+            $self->log->debug('plan '.$validation_plan_name.' had '.scalar(@had_modules)
+                .' active validations and that has not changed: no updates needed');
+            next;
+        }
+
+        $self->log->info('plan '.$validation_plan_name.' had '.scalar(@had_modules)
+            .' active validations and now has '.scalar(@active_modules).': '
+            .'deactivating the plan and replacing it with a new one containing updated validations');
+
+        $validation_plan_rs->search({
+            name => $validation_plan_name,
+            deactivated => undef,
+        })->update({ deactivated => \'now()' });
+
+        # create a new plan containing the active versions of all validations it had before
+        $validation_plan_rs->create({
+            name => $validation_plan_name,
+            description => $validation_plans_and_active_validations{$validation_plan_name}{description},
+            validation_plan_members => [
+                map +{ validation => $validations{$_} },
+                    grep exists $validations{$_}, @had_modules,
+            ],
+        });
+    }
 }
 
 =head2 run_validation_plan

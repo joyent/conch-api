@@ -3,12 +3,9 @@ package Conch::Validation::BiosFirmwareVersion;
 use Mojo::Base 'Conch::Validation';
 
 use constant name        => 'bios_firmware_version';
-use constant version     => 1;
+use constant version     => 2;
 use constant category    => 'BIOS';
-use constant description => q(
-Validate the reported BIOS firmware version matches the hardware product
-profile
-);
+use constant description => 'Validate the reported BIOS firmware version matches the hardware product profile';
 
 sub validate {
     my ($self, $data) = @_;
