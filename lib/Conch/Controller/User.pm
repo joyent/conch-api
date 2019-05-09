@@ -34,6 +34,9 @@ revoking for oneself).
 =cut
 
 sub revoke_user_tokens ($c) {
+    $c->validate_input('Null');
+    return if $c->res->code;
+
     my $login_only = $c->req->query_params->param('login_only') // 0;
     my $api_only = $c->req->query_params->param('api_only') // 0;
 
@@ -125,6 +128,8 @@ sub set_setting ($c) {
 
 Get the key/values of every setting for a user.
 
+Response uses the UserSettings json schema.
+
 =cut
 
 sub get_settings ($c) {
@@ -140,6 +145,8 @@ sub get_settings ($c) {
 =head2 get_setting
 
 Get the individual key/value pair for a setting for the target user.
+
+Response uses the UserSetting json schema.
 
 =cut
 
@@ -294,7 +301,7 @@ sub get ($c) {
 Updates user attributes. System admin only.
 Sends an email to the affected user, unless C<?send_mail=0> is included in the query.
 
-Response uses the UserDetailed json schema.
+Response uses the UserDetailed json schema (or UserError for some error conditions).
 
 =cut
 
@@ -361,6 +368,8 @@ Optionally takes a query parameter:
 
 * 'send_mail' (defaulting to true), to send an email to the user with the new password
 
+Response uses the NewUser json schema (or UserError for some error conditions).
+
 =cut
 
 sub create ($c) {
@@ -412,6 +421,8 @@ session tokens for the user, which would force all tools to log in again should 
 reactivated (for which there is no api endpoint at present).
 
 All workspace permissions are removed and are not recoverable.
+
+Response uses the UserError json schema on some error conditions.
 
 =cut
 

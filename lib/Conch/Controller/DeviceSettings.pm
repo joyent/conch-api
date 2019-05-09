@@ -96,6 +96,8 @@ sub set_single ($c) {
 
 Get all settings for a device as a hash
 
+Response uses the DeviceSettings json schema.
+
 =cut
 
 sub get_all ($c) {
@@ -106,6 +108,8 @@ sub get_all ($c) {
 =head2 get_single
 
 Get a single setting from a device
+
+Response uses the DeviceSetting json schema.
 
 =cut
 

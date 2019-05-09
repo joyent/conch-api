@@ -164,10 +164,12 @@ $t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")
 
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
     ->status_is(200)
+    ->json_schema_is('DeviceIds')
     ->json_is(['TEST', 'NEW_DEVICE']);
 
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
     ->status_is(200)
+    ->json_schema_is('DeviceIds')
     ->json_is(['TEST']);
 
 $t->get_ok("/workspace/$global_ws_id/device?active=t")

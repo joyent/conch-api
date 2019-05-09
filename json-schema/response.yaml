@@ -40,6 +40,14 @@ definitions:
     properties:
       error:
         type: string
+  Ping:
+    type: object
+    additionalProperties: false
+    required:
+      - status
+    properties:
+      status:
+        const: ok
   Login:
     type: object
     additionalProperties: false
@@ -265,6 +273,11 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
+  DeviceIds:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/device_id
   Devices:
     type: array
     uniqueItems: true
@@ -606,6 +619,15 @@ definitions:
           vendor:
             description: Hardware product vendor name
             type: string
+  DeviceSetting:
+    allOf:
+      - $ref: /definitions/DeviceSettings
+      - type: object
+        maxProperties: 1
+  DeviceSettings:
+    type: object
+    additionalProperties:
+      type: string
   HardwareProducts:
     type: array
     uniqueItems: true
@@ -1478,7 +1500,7 @@ definitions:
       rack_unit_size:
         description: number of slots (expected to be) occupied by the hardware
         type: integer
-  User:
+  NewUser:
     type: object
     additionalProperties: false
     required:
@@ -1492,14 +1514,6 @@ definitions:
         $ref: /definitions/email_address
       name:
         type: string
-      created:
-        type: string
-        format: date-time
-      deactivated:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
   UserError:
     type: object
     additionalProperties: false
@@ -1510,7 +1524,29 @@ definitions:
       error:
         type: string
       user:
-        $ref: /definitions/User
+        type: object
+        additionalProperties: false
+        required:
+          - id
+          - email
+          - name
+          - created
+          - deactivated
+        properties:
+          id:
+            $ref: /definitions/uuid
+          email:
+            $ref: /definitions/email_address
+          name:
+            type: string
+          created:
+            type: string
+            format: date-time
+          deactivated:
+            oneOf:
+              - type: string
+                format: date-time
+              - type: 'null'
   UserDetailed:
     type: object
     additionalProperties: false
@@ -1555,6 +1591,13 @@ definitions:
     uniqueItems: true
     items:
        $ref: /definitions/UserDetailed
+  UserSettings:
+    type: object
+  UserSetting:
+    allOf:
+      - $ref: /definitions/UserSettings
+      - type: object
+        maxProperties: 1
   UserTokens:
     type: array
     uniqueItems: true

@@ -247,6 +247,9 @@ Marks the device as "graduated" (VLAN flipped)
 =cut
 
 sub graduate ($c) {
+    $c->validate_input('Null');
+    return if $c->res->code;
+
     my $device = $c->stash('device_rs')->single;
     my $device_id = $device->id;
 
@@ -270,6 +273,9 @@ Sets the C<latest_triton_reboot> field on a device
 =cut
 
 sub set_triton_reboot ($c) {
+    $c->validate_input('Null');
+    return if $c->res->code;
+
     my $device = $c->stash('device_rs')->single;
     $device->update({ latest_triton_reboot => \'now()', updated => \'now()' });
 
@@ -307,6 +313,9 @@ the C<triton_setup> field. Fails if the device has already been marked as such.
 =cut
 
 sub set_triton_setup ($c) {
+    $c->validate_input('Null');
+    return if $c->res->code;
+
     my $device = $c->stash('device_rs')->single;
     my $device_id = $device->id;
 
@@ -356,6 +365,9 @@ Sets the C<validated> field on a device unless that field has already been set
 =cut
 
 sub set_validated ($c) {
+    $c->validate_input('Null');
+    return if $c->res->code;
+
     my $device = $c->stash('device_rs')->single;
     my $device_id = $device->id;
     return $c->status(204) if defined($device->validated);

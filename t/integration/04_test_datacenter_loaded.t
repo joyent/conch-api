@@ -756,6 +756,7 @@ subtest 'Permissions' => sub {
                 ->status_is(200);
             $t->get_ok('/device/TEST/settings/tag.bar')
                 ->status_is(200)
+                ->json_schema_is('DeviceSetting')
                 ->json_is('/tag.bar', 'newbar', 'Setting was updated');
             $t->delete_ok('/device/TEST/settings/tag.bar')
                 ->status_is(204)
