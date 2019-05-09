@@ -69,8 +69,8 @@ sub all_routes (
     # POST /logout
     $root->post('/logout')->to('login#session_logout');
 
-    # POST /reset_password
-    $root->post('/reset_password')->to('login#reset_password');
+    # POST /reset_password -> GONE
+    $root->post('/reset_password', sub ($c) { $c->status(410) });
 
     # GET /schema/:input_or_response/:schema_name
     $root->get('/schema/:request_or_response/:name',

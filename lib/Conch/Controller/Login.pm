@@ -305,19 +305,6 @@ sub session_logout ($c) {
     $c->status(204);
 }
 
-=head2 reset_password
-
-Resets a user's password, given an email address, and sends the user an email
-with their new password.
-
-=cut
-
-sub reset_password ($c) {
-    my $input = $c->validate_input('ResetPassword');
-    return if not $input;
-    return $c->status(301, '/user/email='.$input->{email}.'/password');
-}
-
 =head2 refresh_token
 
 Refresh a user's JWT token. Deletes the old token.

@@ -422,14 +422,6 @@ definitions:
           - $ref: /definitions/email_address
       password:
         $ref: /definitions/non_empty_string
-  ResetPassword:
-    type: object
-    additionalProperties: false
-    required:
-      - email
-    properties:
-      email:
-        $ref: /definitions/email_address
   UserPassword:
     type: object
     additionalProperties: false
