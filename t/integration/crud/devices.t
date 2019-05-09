@@ -70,8 +70,7 @@ subtest 'unlocated device, no registered relay' => sub {
 
 subtest 'unlocated device with a registered relay' => sub {
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
@@ -401,8 +400,7 @@ subtest 'mutate device attributes' => sub {
     $detailed_device->{validated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/validated')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     $t->post_ok('/device/TEST/phase', json => { phase => 'decommissioned' })
         ->status_is(303)
@@ -445,8 +443,7 @@ subtest 'Device settings' => sub {
         ->status_is(404);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
-        ->status_is(200)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(200)
@@ -466,7 +463,7 @@ subtest 'Device settings' => sub {
         ->status_is(400, 'Fail if parameter and key do not match');
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { fizzle => 'gibbet' })
-        ->status_is(200);
+        ->status_is(204);
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/fizzle')
         ->status_is(200)
@@ -474,8 +471,7 @@ subtest 'Device settings' => sub {
         ->json_is('/fizzle', 'gibbet');
 
     $t->delete_ok('/device/LOCATED_DEVICE/settings/fizzle')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/fizzle')
         ->status_is(404);
@@ -484,10 +480,10 @@ subtest 'Device settings' => sub {
         ->status_is(404);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
-        ->status_is(200);
+        ->status_is(204);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/tag.bar', json => { 'tag.bar' => 'newbar' })
-        ->status_is(200);
+        ->status_is(204);
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
         ->status_is(200)
@@ -495,8 +491,7 @@ subtest 'Device settings' => sub {
         ->json_is('/tag.bar', 'newbar', 'Setting was updated');
 
     $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.bar')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
         ->status_is(404);

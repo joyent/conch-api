@@ -47,7 +47,7 @@ sub set_all ($c) {
     # store new settings
     $settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
 
-    $c->status(200);
+    $c->status(204);
 }
 
 =head2 set_single
@@ -89,7 +89,7 @@ sub set_single ($c) {
     $existing_setting->update({ deactivated => \'now()' }) if $existing_setting;
     $settings_rs->create({ name => $setting_key, value => $setting_value });
 
-    $c->status(200);
+    $c->status(204);
 }
 
 =head2 get_all

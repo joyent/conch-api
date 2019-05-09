@@ -134,7 +134,7 @@ subtest 'transactions' => sub {
                     email => 'foo@bar',
                     password => 'foo',
                 });
-                $my_c->status(200);
+                $my_c->status(204);
             }, $c->req->query_params->param('id'));
         },
     );
@@ -146,7 +146,7 @@ subtest 'transactions' => sub {
     is($t->app->db_user_accounts->count, $user_count, 'no new user was created');
 
     $t->get_ok('/test_txn_wrapper?id='.Data::UUID->new->create_str)
-        ->status_is(200);
+        ->status_is(204);
 
     is($t->app->db_user_accounts->count, $user_count + 1, 'one user was successfully created');
 };

@@ -112,7 +112,7 @@ sub add_user ($c) {
             permission => $input->{role},
         ) if $c->req->query_params->param('send_mail') // 1;
 
-        return $c->status(201);
+        return $c->status(204);
     }
 
     $user->create_related('user_workspace_roles', {
@@ -129,7 +129,7 @@ sub add_user ($c) {
         permission => $input->{role},
     ) if $c->req->query_params->param('send_mail') // 1;
 
-    $c->status(201);
+    $c->status(204);
 }
 
 =head2 remove
@@ -153,7 +153,7 @@ sub remove ($c) {
         ->search_related('user_workspace_roles', { user_id => $user->id });
 
     my $num_rows = $rs->count;
-    return $c->status(201) if not $num_rows;
+    return $c->status(204) if not $num_rows;
 
     my $workspace_name = $c->stash('workspace_rs')->get_column('name')->single;
 
@@ -169,7 +169,7 @@ sub remove ($c) {
         workspace => $workspace_name,
     ) if $deleted > 0 and $c->req->query_params->param('send_mail') // 1;
 
-    return $c->status(201);
+    return $c->status(204);
 }
 
 1;

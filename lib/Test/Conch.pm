@@ -14,6 +14,7 @@ use Conch::DB::Util;
 use Scalar::Util 'blessed';
 use Mojo::URL;
 use Scalar::Util 'weaken';
+use List::Util 'any';
 
 =pod
 
@@ -193,6 +194,41 @@ sub ro_schema ($class, $pgsql) {
             ReadOnly            => 1,
         },
     );
+}
+
+=head2 status_is
+
+Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
+
+ * successful GET requests should not return 201, 202 (ideally just 200, 204).
+ * successful DELETE requests should not return 201
+ * 200,201 requests should have content.
+ * 204 requests should not have content.
+
+=cut
+
+sub status_is ($self, $status, $desc = undef) {
+    my $result = do {
+        local $Test::Builder::Level = $Test::Builder::Level + 1;
+        $self->next::method($status, $desc);
+    };
+
+    if ((my $code = $self->tx->res->code) =~ /^2../) {
+        my $method = $self->tx->req->method;
+        $self->_test('fail', $method.' requests should not return '.$status)
+            if $method eq 'GET' and any { $status == $_ } 201,202;
+
+        $self->_test('fail', $method.' requests should not return '.$status)
+            if $method eq 'DELETE' and $status == 201;
+
+        $self->_test('fail', $code.' responses should have content')
+            if any { $code == $_ } 200,201 and not $self->tx->res->text;
+
+        $self->_test('fail', $code.' responses should not have content')
+            if $code == 204 and $self->tx->res->text;
+    }
+
+    return $result;
 }
 
 =head2 location_is

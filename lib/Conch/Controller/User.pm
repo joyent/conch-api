@@ -96,7 +96,7 @@ sub set_settings ($c) {
     $user->related_resultset('user_settings')
         ->populate([ pairmap { +{ name => $a, value => to_json($b) } } $input->%* ]);
 
-    $c->status(200);
+    $c->status(204);
 }
 
 =head2 set_setting
@@ -121,7 +121,7 @@ sub set_setting ($c) {
     # rather than creating additional rows.
     $user->search_related('user_settings', { name => $key })->active->deactivate;
     $user->create_related('user_settings', { name => $key, value => to_json($value) });
-    return $c->status(200);
+    return $c->status(204);
 }
 
 =head2 get_settings
@@ -272,15 +272,14 @@ sub reset_user_password ($c) {
     $c->log->warn('user '.$c->stash('user')->name.' resetting password for user '.$user->name);
     $user->update({ %update });
 
-    return $c->status(204) if not $c->req->query_params->param('send_password_reset_mail') // 1;
-
     $c->send_mail(
         template_file => 'changed_user_password',
         From => 'noreply@conch.joyent.us',
         Subject => 'Your Conch password has changed.',
         password => $update{password},
-    );
-    return $c->status(202);
+    ) if $c->req->query_params->param('send_password_reset_mail') // 1;
+
+    return $c->status(204);
 }
 
 =head2 get

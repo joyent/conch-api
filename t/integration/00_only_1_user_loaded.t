@@ -46,8 +46,7 @@ ok($conch_user->last_login >= $now, 'user last_login is updated')
 
 subtest 'User' => sub {
     $t->get_ok('/me')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
@@ -65,8 +64,7 @@ subtest 'User' => sub {
         ->status_is(404);
 
     $t->post_ok('/user/me/settings/TEST', json => { TEST => 'TEST' })
-        ->status_is(200)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings/TEST')
         ->status_is(200)
@@ -79,8 +77,7 @@ subtest 'User' => sub {
         ->json_is({ TEST => 'TEST' });
 
     $t->post_ok('/user/me/settings/TEST2', json => { TEST2 => { foo => 'bar' } })
-        ->status_is(200)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings/TEST2')
         ->status_is(200)
@@ -93,8 +90,7 @@ subtest 'User' => sub {
         ->json_is({ TEST => 'TEST', TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
@@ -102,8 +98,7 @@ subtest 'User' => sub {
         ->json_is({ TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST2')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
@@ -114,8 +109,7 @@ subtest 'User' => sub {
         ->status_is(404);
 
     $t->post_ok('/user/me/settings/dot.setting', json => { 'dot.setting' => 'set' })
-        ->status_is(200)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings/dot.setting')
         ->status_is(200)
@@ -123,19 +117,16 @@ subtest 'User' => sub {
         ->json_is({ 'dot.setting' => 'set' });
 
     $t->delete_ok('/user/me/settings/dot.setting')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     # everything should be deactivated now.
     # starting over, let's see if set_settings overwrites everything...
 
     $t->post_ok('/user/me/settings', json => { TEST1 => 'TEST', TEST2 => 'ohhai' })
-        ->status_is(200)
-        ->content_is('');
+        ->status_is(204);
 
     $t->post_ok('/user/me/settings', json => { TEST1 => 'test1', TEST3 => 'test3' })
-        ->status_is(200)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
@@ -303,7 +294,7 @@ subtest 'Workspaces' => sub {
             user => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(201, 'added the user to the GLOBAL workspace')
+        ->status_is(204, 'added the user to the GLOBAL workspace')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -573,7 +564,7 @@ subtest 'Sub-Workspace' => sub {
             user => 'test_user@conch.joyent.us',
             role => 'admin',
         })
-        ->status_is(201, 'can upgrade existing permission')
+        ->status_is(204, 'can upgrade existing permission')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -608,7 +599,7 @@ subtest 'Sub-Workspace' => sub {
             user => 'test_user@conch.joyent.us',
             role => 'admin',
         })
-        ->status_is(201, 'can upgrade existing permission that exists in a parent workspace')
+        ->status_is(204, 'can upgrade existing permission that exists in a parent workspace')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -657,7 +648,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
 
     $t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
-        ->status_is(201, 'extra permissions for user are removed from the sub workspace and its children')
+        ->status_is(204, 'extra permissions for user are removed from the sub workspace and its children')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -676,7 +667,7 @@ subtest 'Sub-Workspace' => sub {
             'test user now only has rw access to everything again (via GLOBAL)');
 
     $t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
-        ->status_is(201, 'deleting again is a no-op')
+        ->status_is(204, 'deleting again is a no-op')
         ->email_not_sent;
 
     $t->post_ok('/user',
@@ -701,7 +692,7 @@ subtest 'Sub-Workspace' => sub {
             user => 'untrusted_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(201, 'added the user to the child workspace')
+        ->status_is(204, 'added the user to the child workspace')
         ->email_cmp_deeply({
             To => '"untrusted user" <untrusted_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -799,7 +790,7 @@ subtest 'Sub-Workspace' => sub {
             user => 'untrusted_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(201, 'can upgrade existing permission that exists in this workspace')
+        ->status_is(204, 'can upgrade existing permission that exists in this workspace')
         ->email_cmp_deeply({
             To => '"untrusted user" <untrusted_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -1062,7 +1053,7 @@ subtest 'modify another user' => sub {
         ->status_is(404, 'attempted to reset the password for a non-existent user');
 
     $t->delete_ok("/user/$new_user_id/password")
-        ->status_is(202, 'reset the new user\'s password')
+        ->status_is(204, 'reset the new user\'s password')
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -1071,7 +1062,7 @@ subtest 'modify another user' => sub {
         });
 
     $t->delete_ok('/user/email=FOO@CONCH.JOYENT.US/password')
-        ->status_is(202, 'reset the new user\'s password again, with case insensitive email lookup')
+        ->status_is(204, 'reset the new user\'s password again, with case insensitive email lookup')
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -1255,8 +1246,7 @@ subtest 'user tokens (our own)' => sub {
     undef $t2;
 
     $t->delete_ok('/user/me/token/my first 💩 // to.ken @@')
-        ->status_is(204)
-        ->content_is('');
+        ->status_is(204);
 
     $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(404);
