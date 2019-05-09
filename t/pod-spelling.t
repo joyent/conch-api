@@ -41,6 +41,7 @@ deduplication
 dsn
 filepath
 hba
+iff
 ipmi
 ISO
 iso8601

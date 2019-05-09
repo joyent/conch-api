@@ -5,7 +5,6 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Conch::DB ();
 use Lingua::EN::Inflexion 'noun';
 use Try::Tiny;
-use List::Util 'maxstr';
 use Conch::DB::Util;
 
 =pod

@@ -2,8 +2,6 @@ package Conch::Controller::HardwareProduct;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use List::Util 'none';
-
 =pod
 
 =head1 NAME
