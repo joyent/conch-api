@@ -59,13 +59,18 @@ Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test::Mojo#
 ```
 * successful GET requests should not return 201, 202 (ideally just 200, 204).
 * successful DELETE requests should not return 201
-* 200,201 requests should have content.
+* 200 requests should have content.
+* 201 and most 30x requests should have a Location header.
 * 204 requests should not have content.
 ```
 
 ## location\_is
 
 Stolen from [Test::Mojo](https://metacpan.org/pod/Test::Mojo)'s examples. I don't know why this isn't just part of the interface!
+
+## location\_like
+
+As ["location\_is"](#location_is), but takes a regular expression.
 
 ## json\_schema\_is
 

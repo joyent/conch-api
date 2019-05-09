@@ -37,7 +37,7 @@ $t->post_ok("/workspace/$global_ws_id/child",
         json => { name => 'test', description => 'also test' })
     ->status_is(201);
 
-my $sub_ws_id = $t->tx->res->json->{id};
+$t->location_is('/workspace/'.(my $sub_ws_id = $t->tx->res->json->{id}));
 BAIL_OUT('Could not create sub-workspace.') unless $sub_ws_id;
 
 subtest 'Device Report' => sub {

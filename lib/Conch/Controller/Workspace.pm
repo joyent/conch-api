@@ -150,6 +150,7 @@ sub create_sub_workspace ($c) {
     # signal to serializer to include role data
     $sub_ws->user_id_for_role($c->stash('user_id'));
 
+    $c->res->headers->location($c->url_for('/workspace/'.$sub_ws->id));
     $c->status(201, $sub_ws);
 }
 
