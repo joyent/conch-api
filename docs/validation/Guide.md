@@ -10,11 +10,6 @@ Guide: Writing, Deploying, and Testing a Conch Validation
 * [Dispatching on Device Attributes](#dispatching-on-device-attributes)
 * [Writing unit tests for Validations](#writing-unit-tests-for-validations)
 * [Deploying the Validation](#deploying-the-validation)
-* [Using Validations with the Conch Shell](#using-validations-with-the-conch-shell)
-  + [Listing validations](#listing-validations)
-  + [Testing a validation with a device](#testing-a-validation-with-a-device)
-  + [Creating and managing validation plans](#creating-and-managing-validation-plans)
-  + [Testing validation plans](#testing-validation-plans)
 * [Tips for Writing Validations](#tips-for-writing-validations)
 
 
@@ -43,6 +38,9 @@ Guide: Writing, Deploying, and Testing a Conch Validation
 Documentation for the [Validation base class](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md)
 and [Validation test harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md)
 are useful references for writing and testing a new Conch Validation.
+
+More documentation on using the Conch Shell with validations can be found in
+[its repository](https://joyent.github.com/conch-shell/validations)
 
 Setting up the Conch Repository
 -------------------------------
@@ -387,116 +385,6 @@ However, your validation won't actually be included in one of the active validat
 To get it included, create an issue on GitHub requesting that it be added to
 the switch and/or server plan(s).
 
-
-Using Validations with the Conch Shell
---------------------------------------
-
-The [Conch Shell](https://github.com/joyent/conch-shell) CLI tool provides
-commands for managing validations and validation plans. [You may download the
-latest version of a compiled binary for your system
-here.](https://github.com/joyent/conch-shell/releases). Save the binary
-somewhere on your $PATH. To set up and authenticate your account, run the
-command `conch profile create` once installed.
-
-### Listing validations
-
-`conch validations` lists all available validations.  Each validation has an
-UUID ID. In commands on a single validation, you may use the full idea or the
-first 8 hexadecimal digits of the UUID (all characters before the first dash).
-For example, `39cb3ab6-1963-4c9a-94ea-e2d9258d8be0` may be shortened to
-`39cb3ab6`.
-
-### Testing a validation with a device
-
-`conch validation VALIDATION_ID test DEVICE_ID` tests a validation against a
-device. The `DEVICE_ID` is a device's serial number. The command returns a
-table of the validation results from running the validation. *This does not
-store the validations results in the database*. This command is intended for
-testing a new validation or new reporting agent code.
-
-`conch validation VALIDATION_ID test DEVICE_ID` receives the input
-data to validate from STDIN. The input data must be in JSON format. For
-example, you can do any of the following to test a validation:
-
-```bash
-conch validation 39cb3ab6 test COFFEE < report_data.json
-
-# 'jo' is https://github.com/jpmens/jo
-jo 'power[gigawatts]=1.21'  | conch validation 39cb3ab6 test COFFEE
-
-conch validation 39cb3ab6 test COFFEE <<EOF
-{
-	"power" : {
-		"gigawatts" : 1.21
-	}
-}
-EOF
-```
-
-Optionally, you also start the command (hitting enter after the command) and
-type in your input data and end with `^D` (Control-D)
-
-```
-conch validation 39cb3ab6 test COFFEE<ENTER>
-{
-	"power" : {
-		"gigawatts" : 1.21
-	}
-}
-^D
-```
-
-### Creating and managing validation plans
-
-Validation plans are collections of validations. Validations plans are is
-executed during device report ingest and by orchestration workflows.
-Validations are independent and un-ordered within a validation plan. A given
-validation may be in 0 or many validation plans, and a validation plan may have
-0, 1, or many validations associated with it.
-
-Anyone with a Conch account may list and test validation plans.
-
-`conch validation-plans get` lists all available validation plans. Like
-validation IDs, you may shorten the UUID to the first 8 characters in commands.
-
-`conch validation-plan PLAN_ID validations` lists all validations associated
-with the plan.
-
-### Testing validation plans
-
-`conch validation-plan VALIDATION_PLAN_ID test DEVICE_ID` tests a validation
-plan against a device. Any authenticated user may test a validation plan
-against a device. Testing with a validation plan works identically to testing
-with a single validation, except the input data is processed by all validations
-in the validation plan.  This command is useful for verifying a device report
-can satisfy the schemas for all validations in a validation plans when
-developing a reporting agent.
-
-Like testing a validation, the command receives the JSON-formatted input data
-from STDIN. Any of the following options work.
-
-```bash
-conch validation-plan 39cb3ab6 test COFFEE < report_data.json
-
-# 'jo' is https://github.com/jpmens/jo
-jo 'power[gigawatts]=1.21' | conch validation-plan 39cb3ab6 test COFFEE
-
-conch validation-plan 39cb3ab6 test COFFEE <<EOF
-{
-	"power" : {
-		"gigawatts" : 1.21
-	}
-}
-EOF
-
-conch validation 39cb3ab6 test COFFEE<ENTER>
-{
-	"power" : {
-		"gigawatts" : 1.21
-	}
-}
-^D
-```
 
 Tips for Writing Validations
 ----------------------------
