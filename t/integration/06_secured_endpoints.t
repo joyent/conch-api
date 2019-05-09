@@ -10,9 +10,9 @@ my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
 
-$t->get_ok('/me')->status_is(401);
-$t->get_ok('/login')->status_is(401);
+$t->get_ok('/ping')->status_is(200);
 
+$t->get_ok('/me')->status_is(401);
 $t->get_ok('/workspace')->status_is(401);
 $t->get_ok('/workspace/'.$uuid->create_str)->status_is(401);
 

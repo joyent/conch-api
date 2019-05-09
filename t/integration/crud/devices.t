@@ -432,6 +432,7 @@ subtest 'Device settings' => sub {
 
     $t->get_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(200)
+        ->json_schema_is('DeviceSettings')
         ->json_is({});
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
@@ -449,10 +450,12 @@ subtest 'Device settings' => sub {
 
     $t->get_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(200)
+        ->json_schema_is('DeviceSettings')
         ->json_is('/foo', 'bar', 'Setting was stored');
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
         ->status_is(200)
+        ->json_schema_is('DeviceSetting')
         ->json_is('/foo', 'bar', 'Setting was stored');
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => { bar => 'baz' } })
@@ -467,6 +470,7 @@ subtest 'Device settings' => sub {
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/fizzle')
         ->status_is(200)
+        ->json_schema_is('DeviceSetting')
         ->json_is('/fizzle', 'gibbet');
 
     $t->delete_ok('/device/LOCATED_DEVICE/settings/fizzle')
@@ -487,6 +491,7 @@ subtest 'Device settings' => sub {
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
         ->status_is(200)
+        ->json_schema_is('DeviceSetting')
         ->json_is('/tag.bar', 'newbar', 'Setting was updated');
 
     $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.bar')

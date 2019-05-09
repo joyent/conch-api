@@ -21,6 +21,8 @@ definitions:
     $ref: common.yaml#/definitions/int_or_stringy_int
   email_address:
     $ref: common.yaml#/definitions/email_address
+  Null:
+    type: 'null'
   DatacenterCreate:
     type: object
     additionalProperties: false

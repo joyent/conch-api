@@ -312,6 +312,9 @@ Refresh a user's JWT token. Deletes the old token.
 =cut
 
 sub refresh_token ($c) {
+    $c->validate_input('Null');
+    return if $c->res->code;
+
     # Allow users with 'conch' cookie to get a JWT without requiring
     # re-authentication. Expires 'conch' cookie
     if (my $user_id = $c->session('user')){

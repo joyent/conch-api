@@ -21,12 +21,12 @@ $t->load_fixture('conch_user_global_workspace');
 
 $t->get_ok('/ping')
     ->status_is(200)
+    ->json_schema_is('Ping')
     ->json_is({ status => 'ok' })
     ->header_exists('Request-Id')
     ->header_exists('X-Request-ID');
 
 $t->get_ok('/me')->status_is(401);
-$t->get_ok('/login')->status_is(401);
 
 $t->post_ok('/login', json => { user => 'a', password => 'b' })
     ->status_is(400)
@@ -51,6 +51,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
+        ->json_schema_is('UserSettings')
         ->json_is({});
 
     $t->get_ok('/user/me/settings/BAD')
@@ -69,10 +70,12 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings/TEST')
         ->status_is(200)
+        ->json_schema_is('UserSetting')
         ->json_is({ TEST => 'TEST' });
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
+        ->json_schema_is('UserSettings')
         ->json_is({ TEST => 'TEST' });
 
     $t->post_ok('/user/me/settings/TEST2', json => { TEST2 => { foo => 'bar' } })
@@ -81,10 +84,12 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings/TEST2')
         ->status_is(200)
+        ->json_schema_is('UserSetting')
         ->json_is({ TEST2 => { foo => 'bar' } });
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
+        ->json_schema_is('UserSettings')
         ->json_is({ TEST => 'TEST', TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST')
@@ -93,6 +98,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
+        ->json_schema_is('UserSettings')
         ->json_is({ TEST2 => { foo => 'bar' } });
 
     $t->delete_ok('/user/me/settings/TEST2')
@@ -101,6 +107,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
+        ->json_schema_is('UserSettings')
         ->json_is({});
 
     $t->get_ok('/user/me/settings/TEST')
@@ -112,6 +119,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings/dot.setting')
         ->status_is(200)
+        ->json_schema_is('UserSetting')
         ->json_is({ 'dot.setting' => 'set' });
 
     $t->delete_ok('/user/me/settings/dot.setting')
@@ -131,6 +139,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
+        ->json_schema_is('UserSettings')
         ->json_is({
             TEST1 => 'test1',
             TEST3 => 'test3',
@@ -277,7 +286,12 @@ subtest 'Workspaces' => sub {
     $t->post_ok('/user',
             json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
         ->status_is(201, 'created new user test_user')
-        ->json_schema_is('User')
+        ->json_schema_is('NewUser')
+        ->json_cmp_deeply({
+            id => re(Conch::UUID::UUID_FORMAT),
+            email => 'test_user@conch.joyent.us',
+            name => 'test user',
+        })
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -680,7 +694,7 @@ subtest 'Sub-Workspace' => sub {
     $t->post_ok('/user?send_mail=0',
             json => { email => 'untrusted_user@conch.joyent.us', name => 'untrusted user', password => '123' })
         ->status_is(201, 'created new untrusted user')
-        ->json_schema_is('User')
+        ->json_schema_is('NewUser')
         ->email_not_sent;
 
     $t->post_ok('/workspace/child_ws/user', json => {
@@ -895,7 +909,7 @@ subtest 'modify another user' => sub {
     $t->post_ok('/user?send_mail=0',
             json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
         ->status_is(201, 'created new user foo')
-        ->json_schema_is('User')
+        ->json_schema_is('NewUser')
         ->json_has('/id', 'got user id')
         ->json_is('/email' => 'foo@conch.joyent.us', 'got email')
         ->json_is('/name' => 'foo', 'got name')

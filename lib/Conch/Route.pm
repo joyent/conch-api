@@ -83,8 +83,7 @@ sub all_routes (
 
     my $secured = $root->under('/')->to('login#authenticate');
 
-    $secured->get('/login', sub ($c) { $c->status(204) });
-    $secured->get('/me',    sub ($c) { $c->status(204) });
+    $secured->get('/me', sub ($c) { $c->status(204) });
     $secured->post('/refresh_token')->to('login#refresh_token');
 
     Conch::Route::Workspace->routes($secured->any('/workspace'));
