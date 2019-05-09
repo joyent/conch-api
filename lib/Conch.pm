@@ -17,6 +17,7 @@ use Mojo::Base 'Mojolicious', -signatures;
 
 use Conch::Route;
 use Conch::ValidationSystem;
+use List::Util 'any';
 
 =head2 startup
 
@@ -74,7 +75,7 @@ sub startup {
 
             $c->res->code($code);
 
-            if ($code == 303) {
+            if (any { $code == $_ } 301, 302, 303, 307, 308) {
                 $c->redirect_to($c->url_for($payload));
             }
             else {
