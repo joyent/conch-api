@@ -128,7 +128,7 @@ sub add_test_routes ($app) {
     $app->routes->get('/hello')->to(cb => sub ($c) {
         $c->log->warn('this is a warn message');
         $c->log->debug('this is a debug message');
-        $c->status(200);
+        $c->status(204);
     });
     $app->routes->post('/error')->to(cb => sub ($c) {
         $c->log->error('error line from controller');
@@ -215,7 +215,7 @@ sub add_test_routes ($app) {
     my %lines = add_test_routes($t->app);
 
     $t->get_ok('/hello')
-        ->status_is(200);
+        ->status_is(204);
 
     my $request_id = $t->tx->res->headers->header('Request-Id');
 
@@ -239,7 +239,7 @@ sub add_test_routes ($app) {
         },
         res => {
             headers => superhashof({}),
-            statusCode => 200,
+            statusCode => 204,
         },
     };
 
@@ -264,7 +264,7 @@ sub add_test_routes ($app) {
                 +{
                     # this is the response logged by Mojolicious::Controller
                     level => 'debug',
-                    msg => re(qr/200 OK/),
+                    msg => re(qr/204 NO CONTENT/i),
                 },
                 # final dispatch line
                 $dispatch_data,
@@ -292,7 +292,7 @@ sub add_test_routes ($app) {
     $t->app->log->with_trace(1);
 
     $t->get_ok('/hello')
-        ->status_is(200);
+        ->status_is(204);
 
     $request_id = $t->tx->res->headers->header('Request-Id');
 
@@ -324,7 +324,7 @@ sub add_test_routes ($app) {
                     # this is the response logged by Mojolicious::Controller
                     level => 'debug',
                     src => superhashof({ func => 'Mojolicious::Controller::rendered' }),
-                    msg => re(qr/200 OK/),
+                    msg => re(qr/204 NO CONTENT/i),
 
                 },
                 # final dispatch line

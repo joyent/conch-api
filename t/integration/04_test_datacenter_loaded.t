@@ -741,7 +741,7 @@ subtest 'Permissions' => sub {
 
         subtest 'device settings' => sub {
             $t->post_ok('/device/TEST/settings', json => { key => 'value' })
-                ->status_is(200, 'writing new key only requires rw');
+                ->status_is(204, 'writing new key only requires rw');
             $t->post_ok('/device/TEST/settings/key', json => { key => 'new value' })
                 ->status_is(403);
             $t->delete_ok('/device/TEST/settings/foo')
@@ -750,17 +750,16 @@ subtest 'Permissions' => sub {
             $t->post_ok('/device/TEST/settings', json => { key => 'new value', 'tag.bar' => 'bar' })
                 ->status_is(403);
             $t->post_ok('/device/TEST/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
-                ->status_is(200);
+                ->status_is(204);
 
             $t->post_ok('/device/TEST/settings/tag.bar', json => { 'tag.bar' => 'newbar' })
-                ->status_is(200);
+                ->status_is(204);
             $t->get_ok('/device/TEST/settings/tag.bar')
                 ->status_is(200)
                 ->json_schema_is('DeviceSetting')
                 ->json_is('/tag.bar', 'newbar', 'Setting was updated');
             $t->delete_ok('/device/TEST/settings/tag.bar')
-                ->status_is(204)
-                ->content_is('');
+                ->status_is(204);
             $t->get_ok('/device/TEST/settings/tag.bar')
                 ->status_is(404);
         };
