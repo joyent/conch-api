@@ -8,7 +8,7 @@ create_user - create a new user, optionally sending an email
 
 =head1 SYNOPSIS
 
-   bin/conch create_user --email <email> --name <name> [--password <password>] [--send-mail]
+    bin/conch create_user --email <email> --name <name> [--password <password>] [--send-mail]
 
   --email       The user's email address. Required.
   --name        The user's name. Required.
