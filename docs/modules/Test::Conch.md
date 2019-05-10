@@ -52,6 +52,17 @@ Returns the [Conch::DB](https://joyent.github.io/conch/modules/Conch::DB) object
 
 Returns a read-only connection to an existing [Test::PostgreSQL](https://metacpan.org/pod/Test::PostgreSQL) instance.
 
+## status\_is
+
+Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test::Mojo#status_is), adding some additional checks.
+
+```
+* successful GET requests should not return 201, 202 (ideally just 200, 204).
+* successful DELETE requests should not return 201
+* 200,201 requests should have content.
+* 204 requests should not have content.
+```
+
 ## location\_is
 
 Stolen from [Test::Mojo](https://metacpan.org/pod/Test::Mojo)'s examples. I don't know why this isn't just part of the interface!

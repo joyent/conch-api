@@ -38,9 +38,13 @@ FIXME: the key name is repeated in the URL and the payload :(
 
 Get the key/values of every setting for a user.
 
+Response uses the UserSettings json schema.
+
 ## get\_setting
 
 Get the individual key/value pair for a setting for the target user.
+
+Response uses the UserSetting json schema.
 
 ## delete\_setting
 
@@ -88,7 +92,7 @@ Response uses the UserDetailed json schema.
 Updates user attributes. System admin only.
 Sends an email to the affected user, unless `?send_mail=0` is included in the query.
 
-Response uses the UserDetailed json schema.
+Response uses the UserDetailed json schema (or UserError for some error conditions).
 
 ## list
 
@@ -103,6 +107,8 @@ Optionally takes a query parameter:
 
 \* 'send\_mail' (defaulting to true), to send an email to the user with the new password
 
+Response uses the NewUser json schema (or UserError for some error conditions).
+
 ## deactivate
 
 Deactivates a user. System admin only.
@@ -112,6 +118,8 @@ session tokens for the user, which would force all tools to log in again should 
 reactivated (for which there is no api endpoint at present).
 
 All workspace permissions are removed and are not recoverable.
+
+Response uses the UserError json schema on some error conditions.
 
 ## get\_api\_tokens
 

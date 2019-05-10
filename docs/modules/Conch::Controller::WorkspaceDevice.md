@@ -21,7 +21,7 @@ active=1        only devices last seen within 5 minutes (FIXME: ambiguous name)
 ids_only=1      only return device ids, not full data
 ```
 
-Response uses the Devices json schema.
+Response uses the Devices json schema, or DeviceIds iff `ids_only=1`.
 
 ## get\_pxe\_devices
 

@@ -37,11 +37,6 @@ Handles the act of logging in, given a user and password in the form. Returns a 
 
 Logs a user out by expiring their session
 
-## reset\_password
-
-Resets a user's password, given an email address, and sends the user an email
-with their new password.
-
 ## refresh\_token
 
 Refresh a user's JWT token. Deletes the old token.
