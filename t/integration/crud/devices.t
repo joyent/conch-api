@@ -288,6 +288,12 @@ subtest 'device network interfaces' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceNic');
 
+    $t->get_ok('/device/TEST/interface/ipmi1/device_id')
+        ->status_is(404);
+
+    $t->get_ok('/device/TEST/interface/ipmi1/created')
+        ->status_is(404);
+
     $t->get_ok('/device/TEST/interface/ipmi1/mac')
         ->status_is(200)
         ->json_schema_is('DeviceNicField')

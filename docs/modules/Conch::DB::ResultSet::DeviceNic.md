@@ -23,6 +23,10 @@ network interface(s) named "ipmi1".
 Suitable for embedding as a sub-query; post-processing will be required to extract the two
 columns into the desired format.
 
+## fields
+
+The list of fields associated with each network interface entry.
+
 # LICENSING
 
 Copyright Joyent, Inc.

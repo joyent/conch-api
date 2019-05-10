@@ -46,11 +46,7 @@ Response uses the DeviceNicField json schema.
 =cut
 
 sub get_one_field ($c) {
-    my $field = $c->stash('field_name');
-
-    return $c->status(400, "column '$field' is not recognized.")
-        if none { $field eq $_ } $c->schema->source('device_nic')->columns;
-
+    my $field = $c->stash('field');
     my $rs = $c->stash('device_interface_rs');
     return $c->status(200, { $field => $rs->get_column($field)->single });
 }

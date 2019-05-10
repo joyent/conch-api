@@ -52,6 +52,17 @@ sub nic_ipmi ($self) {
         ->columns([ \'array[mac::text, host(ipaddr)]' ]);
 }
 
+=head2 fields
+
+The list of fields associated with each network interface entry.
+
+=cut
+
+sub fields ($self) {
+    my %exclude; @exclude{qw(device_id deactivated created updated)} = ();
+    grep !exists $exclude{$_}, $self->result_source->columns;
+}
+
 1;
 __END__
 
