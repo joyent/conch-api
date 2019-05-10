@@ -59,6 +59,7 @@ sub get_one_field ($c) {
 Retrieves all device_nic fields for the specified device interface.
 
 Response uses the DeviceNic json schema.
+
 =cut
 
 sub get_one ($c) {
