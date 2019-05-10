@@ -29,6 +29,7 @@ requires 'Email::Valid';
 requires 'Email::Simple';
 requires 'Email::Sender::Simple';
 requires 'Email::Sender::Transport::SMTP';
+requires 'Net::DNS';    # not used directly, but Email::Valid sometimes demands it
 
 # mojolicious and networking
 requires 'Mojolicious', '8.15';
@@ -90,8 +91,6 @@ on 'test' => sub {
     requires 'MooX::HandlesVia';
     requires 'Storable';
     requires 'Test::Deep::NumberTolerant';
-
-    local $ENV{PERL_USE_UNSAFE_INC} = 1;
     requires 'Test::Spelling';
 };
 
