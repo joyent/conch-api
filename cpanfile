@@ -92,7 +92,7 @@ on 'test' => sub {
     requires 'Test::Deep::NumberTolerant';
 
     local $ENV{PERL_USE_UNSAFE_INC} = 1;
-    recommends 'Test::Spelling';
+    requires 'Test::Spelling';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is
