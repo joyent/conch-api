@@ -23,9 +23,9 @@ Response uses the ValidationStatesWithResults json schema.
 =cut
 
 sub list_validation_states ($c) {
-    my @statuses = split /,/, $c->param('status') // '';
+    my @statuses = split /,/, $c->req->query_params->param('status') // '';
     if (not all { my $status = $_; any { $status eq $_ } qw(pass fail error) } @statuses) {
-        $c->log->debug('Status params of '.$c->param('status') ." contains something other than 'pass', 'fail', or 'error'");
+        $c->log->debug('Status params of '.join(',',@statuses)." contains something other than 'pass', 'fail', or 'error'");
         return $c->status(400, {
             error => "'status' query parameter must be any of 'pass', 'fail', or 'error'."
         });

@@ -42,31 +42,33 @@ sub list ($c) {
         ->prefetch('device_location')
         ->order_by('device.created');
 
+    my $params = $c->req->query_params->to_hash;
+
     $devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })
-        if defined $c->param('graduated') and uc $c->param('graduated') eq 'T';
+        if defined $params->{graduated} and uc $params->{graduated} eq 'T';
 
     $devices_rs = $devices_rs->search({ graduated => undef })
-        if defined $c->param('graduated') and uc $c->param('graduated') eq 'F';
+        if defined $params->{graduated} and uc $params->{graduated} eq 'F';
 
     $devices_rs = $devices_rs->search({ validated => { '!=' => undef } })
-        if defined $c->param('validated') and uc $c->param('validated') eq 'T';
+        if defined $params->{validated} and uc $params->{validated} eq 'T';
 
     $devices_rs = $devices_rs->search({ validated => undef })
-        if defined $c->param('validated') and uc $c->param('validated') eq 'F';
+        if defined $params->{validated} and uc $params->{validated} eq 'F';
 
-    if (defined $c->param('health')) {
+    if (defined $params->{health}) {
         # requested health parameter is incompatible with device_health_enum
         return $c->status(200, [])
-            if none { lc $c->param('health') eq $_ } $devices_rs->result_source->column_info('health')->{extra}{list}->@*;
+            if none { lc $params->{health} eq $_ } $devices_rs->result_source->column_info('health')->{extra}{list}->@*;
 
-        $devices_rs = $devices_rs->search({ health => lc $c->param('health') });
+        $devices_rs = $devices_rs->search({ health => lc $params->{health} });
     }
 
     $devices_rs = $devices_rs->search({ last_seen => { '>' => \q{now() - interval '300 second'}} })
-        if defined $c->param('active');
+        if defined $params->{active};
 
     $devices_rs = $devices_rs->get_column('id')
-        if defined $c->param('ids_only');
+        if defined $params->{ids_only};
 
     my @devices = $devices_rs->all;
 
