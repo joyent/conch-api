@@ -40,6 +40,8 @@ sub find_device_interface ($c) {
 
 Retrieves the value of the specified device_nic field for the specified device interface.
 
+Response uses the DeviceNicField json schema.
+
 =cut
 
 sub get_one_field ($c) {

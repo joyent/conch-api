@@ -290,10 +290,12 @@ subtest 'device network interfaces' => sub {
 
     $t->get_ok('/device/TEST/interface/ipmi1/mac')
         ->status_is(200)
+        ->json_schema_is('DeviceNicField')
         ->json_is({ mac => '18:66:da:78:d9:b3' });
 
     $t->get_ok('/device/TEST/interface/ipmi1/ipaddr')
         ->status_is(200)
+        ->json_schema_is('DeviceNicField')
         ->json_is({ ipaddr => '10.72.160.146' });
 };
 
