@@ -6,13 +6,7 @@ Conch::Controller::Login
 
 ## \_create\_jwt
 
-Create a JWT and sets it up to be returned in the response in two parts:
-
-```perl
-* the signature in a cookie named 'jwt_sig',
-* and a response body named 'jwt_token'. 'jwt_token' includes two claims: 'uid', for the
-  user ID, and 'jti', for the token ID.
-```
+Create a JWT and sets it up to be returned in the response body under the key 'jwt\_token'.
 
 ## authenticate
 
@@ -20,8 +14,7 @@ Handle the details of authenticating the user, with one of the following options
 
 ```perl
 * existing session for the user
-* JWT split between Authorization Bearer header value and jwt_sig cookie
-* JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
+* signed JWT in the Authorization Bearer header
 * Old 'conch' session cookie
 ```
 

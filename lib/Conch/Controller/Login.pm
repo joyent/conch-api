@@ -17,11 +17,7 @@ Conch::Controller::Login
 
 =head2 _create_jwt
 
-Create a JWT and sets it up to be returned in the response in two parts:
-
-    * the signature in a cookie named 'jwt_sig',
-    * and a response body named 'jwt_token'. 'jwt_token' includes two claims: 'uid', for the
-      user ID, and 'jti', for the token ID.
+Create a JWT and sets it up to be returned in the response body under the key 'jwt_token'.
 
 =cut
 
@@ -41,7 +37,7 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
         'login_jwt_'.join('_', Time::HiRes::gettimeofday), # reasonably unique name
     );
 
-    my $jwt = Mojo::JWT->new(
+    return Mojo::JWT->new(
         claims => {
             uid => $user_id,
             jti => $token
@@ -49,20 +45,6 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
         secret  => $c->app->config('secrets')->[0],
         expires => $expires_abs,
     )->encode;
-
-    my ($header, $payload, $sig) = split /\./, $jwt;
-
-    $c->cookie(
-        jwt_sig => $sig,
-        {
-            expires => $expires_abs,
-            secure => $c->req->is_secure,
-            httponly => 1,
-        },
-    );
-
-    # this should be returned in the json payload under the 'jwt_token' key.
-    return $header.'.'.$payload;
 }
 
 =head2 authenticate
@@ -70,8 +52,7 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
 Handle the details of authenticating the user, with one of the following options:
 
  * existing session for the user
- * JWT split between Authorization Bearer header value and jwt_sig cookie
- * JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
+ * signed JWT in the Authorization Bearer header
  * Old 'conch' session cookie
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
@@ -85,16 +66,12 @@ sub authenticate ($c) {
         return 1;
     }
 
-    my ($user_id, $jwt_sig, $session_token);
+    my ($user_id, $session_token);
     if ($c->req->headers->authorization
         && $c->req->headers->authorization =~ /^Bearer (.+)/)
     {
         $c->log->debug('attempting to authenticate with Authorization: Bearer header...');
         my $token = $1;
-        if ($jwt_sig = $c->cookie('jwt_sig')) {
-            # danger! we are not checking if we already had a complete token
-            $token = $token.'.'.$jwt_sig;
-        }
 
         # Attempt to decode with every configured secret, in case JWT token was
         # signed with a rotated secret
@@ -140,14 +117,6 @@ sub authenticate ($c) {
     if ($user_id and is_uuid($user_id)) {
         $c->log->debug('looking up user by id '.$user_id.'...');
         if (my $user = $c->db_user_accounts->active->find($user_id)) {
-            if ($user_id and $jwt_sig) {
-                $c->log->debug('setting jwt_sig in cookie');
-                $c->cookie(
-                    jwt_sig => $jwt_sig,
-                    { expires => time + 3600, secure => $c->req->is_secure, httponly => 1 }
-                );
-            }
-
             # api tokens are exempt from this check
             if ((not $session_token or $session_token->is_login)
                     and $user->refuse_session_auth) {
@@ -262,11 +231,6 @@ sub session_logout ($c) {
 
     # delete all expired session tokens
     $c->db_user_session_tokens->expired->delete;
-
-    $c->cookie(
-        jwt_sig => '',
-        { expires => 1, secure => $c->req->is_secure, httponly => 1 }
-    ) if $c->cookie('jwt_sig');
 
     $c->status(204);
 }

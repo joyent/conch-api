@@ -77,7 +77,7 @@ sub _record_exception ($c, $exception, @) {
     my $user = $c->stash('user');
 
     my $headers = $c->req->headers->to_hash(1);
-    delete $headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
+    delete $headers->@{qw(Authorization Cookie jwt_token)};
 
     my $rollbar_id = create_uuid_str();
     my $request_id = length($c->req->url) ? $c->req->request_id : undef;
