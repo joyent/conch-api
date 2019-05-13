@@ -166,7 +166,8 @@ subtest 'User' => sub {
     }
 
     $t->post_ok('/user/me/token', json => { name => 'an api token' })
-        ->status_is(201);
+        ->status_is(201)
+        ->location_is('/user/me/token/an api token');
     my $api_token = $t->tx->res->json->{token};
 
     $t->post_ok('/user/me/password', json => { password => 'øƕḩẳȋ' })
@@ -277,6 +278,7 @@ subtest 'Workspaces' => sub {
     $t->post_ok('/user',
             json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
         ->status_is(201, 'created new user test_user')
+        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}!)
         ->json_schema_is('NewUser')
         ->json_cmp_deeply({
             id => re(Conch::UUID::UUID_FORMAT),
@@ -407,7 +409,7 @@ subtest 'Sub-Workspace' => sub {
             role_via    => $global_ws_id,
         });
 
-    my $child_ws_id = $t->tx->res->json->{id};
+    $t->location_is('/workspace/'.(my $child_ws_id = $t->tx->res->json->{id}));
     $workspace_data{conch}[1] = $t->tx->res->json;
 
     $t->get_ok("/workspace/$global_ws_id/child")
@@ -443,7 +445,7 @@ subtest 'Sub-Workspace' => sub {
             role_via    => $global_ws_id,
         });
 
-    my $grandchild_ws_id = $t->tx->res->json->{id};
+    $t->location_is('/workspace/'.(my $grandchild_ws_id = $t->tx->res->json->{id}));
     $workspace_data{conch}[2] = $t->tx->res->json;
 
     $t->get_ok("/workspace/$global_ws_id/child")
@@ -685,6 +687,7 @@ subtest 'Sub-Workspace' => sub {
     $t->post_ok('/user?send_mail=0',
             json => { email => 'untrusted_user@conch.joyent.us', name => 'untrusted user', password => '123' })
         ->status_is(201, 'created new untrusted user')
+        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}!)
         ->json_schema_is('NewUser')
         ->email_not_sent;
 
@@ -906,7 +909,7 @@ subtest 'modify another user' => sub {
         ->json_is('/name' => 'foo', 'got name')
         ->email_not_sent;
 
-    my $new_user_id = $t->tx->res->json->{id};
+    $t->location_is('/user/'.(my $new_user_id = $t->tx->res->json->{id}));
     my $new_user = $t->app->db_user_accounts->find($new_user_id);
 
     $t->get_ok("/user/$new_user_id")
@@ -974,11 +977,13 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me')->status_is(204);
 
     $t2->post_ok('/user/me/token', json => { name => 'my api token' })
-        ->status_is(201);
+        ->status_is(201)
+        ->location_is('/user/me/token/my api token');
     my $api_token = $t2->tx->res->json->{token};
 
     $t2->post_ok('/user/me/token', json => { name => 'my second api token' })
-        ->status_is(201);
+        ->status_is(201)
+        ->location_is('/user/me/token/my second api token');
 
     my $t3 = Test::Conch->new(pg => $t->pg); # we will only use this $mojo for basic auth
     $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
@@ -1023,7 +1028,8 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me')->status_is(204, 'session token re-established');
 
     $t2->post_ok('/user/me/token', json => { name => 'my api token' })
-        ->status_is(201, 'got a new api token');
+        ->status_is(201, 'got a new api token')
+        ->location_is('/user/me/token/my api token');
     $api_token = $t2->tx->res->json->{token};
 
     $t2->reset_session; # force JWT to be used to authenticate
@@ -1164,7 +1170,7 @@ subtest 'modify another user' => sub {
     $t->post_ok('/user?send_mail=0',
             json => { email => 'foo@conch.joyent.us', name => 'FOO', password => '123' })
         ->status_is(201, 'created user "again"');
-    my $second_new_user_id = $t->tx->res->json->{id};
+    $t->location_is('/user/'.(my $second_new_user_id = $t->tx->res->json->{id}));
 
     isnt($second_new_user_id, $new_user_id, 'created user with a new id');
     my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);

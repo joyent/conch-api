@@ -2439,17 +2439,6 @@ DISTRIBUTIONS
       List::Util 1.41
       Time::Local 1.2
       perl 5.010001
-  Mojolicious-Plugin-Bcrypt-0.14
-    pathname: M/MI/MINIMAL/Mojolicious-Plugin-Bcrypt-0.14.tar.gz
-    provides:
-      Mojolicious::Plugin::Bcrypt 0.14
-    requirements:
-      Crypt::Eksblowfish::Bcrypt 0
-      ExtUtils::MakeMaker 6.30
-      Mojo::Base 0
-      Mojolicious 4.0
-      strict 0
-      warnings 0
   Mojolicious-Plugin-NYTProf-0.21
     pathname: L/LE/LEEJO/Mojolicious-Plugin-NYTProf-0.21.tar.gz
     provides:

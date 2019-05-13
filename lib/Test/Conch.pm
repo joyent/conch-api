@@ -202,7 +202,8 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
 
  * successful GET requests should not return 201, 202 (ideally just 200, 204).
  * successful DELETE requests should not return 201
- * 200,201 requests should have content.
+ * 200 requests should have content.
+ * 201 and most 30x requests should have a Location header.
  * 204 requests should not have content.
 
 =cut
@@ -213,8 +214,13 @@ sub status_is ($self, $status, $desc = undef) {
         $self->next::method($status, $desc);
     };
 
-    if ((my $code = $self->tx->res->code) =~ /^2../) {
+    my $code = $self->tx->res->code;
+    $self->_test('fail', $code.' responses should have a Location header')
+        if any { $code == $_ } 201,301,302,303,307,308 and not $self->header_exists('Location');
+
+    if ($code =~ /^2../) {
         my $method = $self->tx->req->method;
+
         $self->_test('fail', $method.' requests should not return '.$status)
             if $method eq 'GET' and any { $status == $_ } 201,202;
 
@@ -222,7 +228,7 @@ sub status_is ($self, $status, $desc = undef) {
             if $method eq 'DELETE' and $status == 201;
 
         $self->_test('fail', $code.' responses should have content')
-            if any { $code == $_ } 200,201 and not $self->tx->res->text;
+            if $code == 200 and not $self->tx->res->text;
 
         $self->_test('fail', $code.' responses should not have content')
             if $code == 204 and $self->tx->res->text;
@@ -240,6 +246,16 @@ Stolen from L<Test::Mojo>'s examples. I don't know why this isn't just part of t
 sub location_is ($t, $value, $desc = 'location header') {
     $value = Mojo::URL->new($value) if not blessed($value);
     return $t->success(Test::More->builder->is_eq($t->tx->res->headers->location, $value, $desc));
+}
+
+=head2 location_like
+
+As L</location_is>, but takes a regular expression.
+
+=cut
+
+sub location_like ($t, $pattern, $desc = 'location header') {
+    return $t->success(Test::More->builder->like($t->tx->res->headers->location, $pattern, $desc));
 }
 
 =head2 json_schema_is

@@ -408,6 +408,7 @@ sub create ($c) {
         );
     }
 
+    $c->res->headers->location($c->url_for('/user/'.$user->id));
     return $c->status(201, { map +($_ => $user->$_), qw(id email name) });
 }
 

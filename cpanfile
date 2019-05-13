@@ -32,9 +32,7 @@ requires 'Email::Sender::Transport::SMTP';
 # mojolicious and networking
 requires 'Mojolicious', '8.15';
 requires 'Mojo::Pg';
-requires 'Mojo::Server::PSGI';
 requires 'Mojo::JWT';
-requires 'Mojolicious::Plugin::Bcrypt';
 requires 'Mojolicious::Plugin::Util::RandomString', '0.07'; # memory leak: https://rt.cpan.org/Ticket/Display.html?id=125981
 requires 'Mojolicious::Plugin::NYTProf';
 requires 'Mozilla::CA'; # not used directly, but IO::Socket::SSL sometimes demands it
@@ -92,7 +90,7 @@ on 'test' => sub {
     requires 'Test::Deep::NumberTolerant';
 
     local $ENV{PERL_USE_UNSAFE_INC} = 1;
-    recommends 'Test::Spelling';
+    requires 'Test::Spelling';
 };
 
 # note: DBD::Pg will fail to install on macos 10.13.x because Apple is

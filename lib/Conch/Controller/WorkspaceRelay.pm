@@ -22,7 +22,7 @@ Response uses the WorkspaceRelays json schema.
 =cut
 
 sub list ($c) {
-    my $active_minutes = $c->param('active_within');
+    my $active_minutes = $c->req->query_params->param('active_within');
 
     my $latest_relay_connections = $c->db_device_relay_connections
         ->search(

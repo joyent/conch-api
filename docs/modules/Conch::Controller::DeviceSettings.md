@@ -18,9 +18,13 @@ overwritten, unless the value is unchanged.
 
 Get all settings for a device as a hash
 
+Response uses the DeviceSettings json schema.
+
 ## get\_single
 
 Get a single setting from a device
+
+Response uses the DeviceSetting json schema.
 
 ## delete\_single
 
