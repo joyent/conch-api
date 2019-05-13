@@ -34,7 +34,7 @@ revoking for oneself).
 =cut
 
 sub revoke_user_tokens ($c) {
-    $c->validate_input('Null');
+    $c->validate_request('Null');
     return if $c->res->code;
 
     my $login_only = $c->req->query_params->param('login_only') // 0;
@@ -84,7 +84,7 @@ Override the settings for a user with the provided payload
 =cut
 
 sub set_settings ($c) {
-    my $input = $c->validate_input('UserSettings');
+    my $input = $c->validate_request('UserSettings');
     return if not $input;
 
     my $user = $c->stash('target_user');
@@ -108,7 +108,7 @@ FIXME: the key name is repeated in the URL and the payload :(
 =cut
 
 sub set_setting ($c) {
-    my $input = $c->validate_input('UserSetting');
+    my $input = $c->validate_request('UserSetting');
     return if not $input;
 
     my $key = $c->stash('key');
@@ -191,7 +191,7 @@ forcing the user to log in again.  Possible options are:
 =cut
 
 sub change_own_password ($c) {
-    my $input = $c->validate_input('UserPassword');
+    my $input = $c->validate_request('UserPassword');
     return if not $input;
 
     my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
@@ -305,7 +305,7 @@ Response uses the UserDetailed json schema (or UserError for some error conditio
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_input('UpdateUser');
+    my $input = $c->validate_request('UpdateUser');
     return if not $input;
 
     if (exists $input->{email}
@@ -372,7 +372,7 @@ Response uses the NewUser json schema (or UserError for some error conditions).
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_input('NewUser');
+    my $input = $c->validate_request('NewUser');
     return if not $input;
 
     my $name = $input->{name} // $input->{email};
@@ -477,7 +477,7 @@ Create a new token, creating a JWT from it.  Response uses the NewUserToken json
 =cut
 
 sub create_api_token ($c) {
-    my $input = $c->validate_input('NewUserToken');
+    my $input = $c->validate_request('NewUserToken');
     return if not $input;
 
     # we use this naming convention to indicate login tokens

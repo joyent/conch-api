@@ -24,7 +24,7 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub process ($c) {
-    my $unserialized_report = $c->validate_input('DeviceReport');
+    my $unserialized_report = $c->validate_request('DeviceReport');
     if (not $unserialized_report) {
         $c->log->debug('Device report input did not match json schema specification');
 
@@ -402,7 +402,7 @@ Response uses the ReportValidationResults json schema.
 =cut
 
 sub validate_report ($c) {
-    my $unserialized_report = $c->validate_input('DeviceReport');
+    my $unserialized_report = $c->validate_request('DeviceReport');
     if (not $unserialized_report) {
         $c->log->debug('Device report input did not match json schema specification');
         return;

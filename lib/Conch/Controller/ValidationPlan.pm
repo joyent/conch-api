@@ -26,7 +26,7 @@ sub create ($c) {
     # this endpoint is temporarily (?) disabled
     return $c->status(410);
 
-    my $input = $c->validate_input('CreateValidationPlan');
+    my $input = $c->validate_request('CreateValidationPlan');
     return if not $input;
 
     if (my $existing_validation_plan = $c->db_validation_plans->active->search({ name => $input->{name} })->single) {
@@ -121,7 +121,7 @@ sub add_validation ($c) {
     # this endpoint is temporarily (?) disabled
     return $c->status(410);
 
-    my $input = $c->validate_input('AddValidationToPlan');
+    my $input = $c->validate_request('AddValidationToPlan');
     return if not $input;
 
     my $validation = $c->db_validations->active->find($input->{id});

@@ -54,7 +54,7 @@ Stores data as a new rack row, munging 'role' to 'rack_role_id'.
 sub create ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('RackCreate');
+    my $input = $c->validate_request('RackCreate');
     return if not $input;
 
     if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
@@ -136,7 +136,7 @@ Update an existing rack.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_input('RackUpdate');
+    my $input = $c->validate_request('RackUpdate');
     return if not $input;
 
     my $rack_rs = $c->stash('rack_rs');
@@ -233,7 +233,7 @@ Existing devices in referenced slots will be removed as needed.
 =cut
 
 sub set_assignment ($c) {
-    my $input = $c->validate_input('RackAssignmentUpdates');
+    my $input = $c->validate_request('RackAssignmentUpdates');
     return if not $input;
 
     return $c->status(400, { error => 'duplication of device_ids is not permitted' })
@@ -314,7 +314,7 @@ sub set_assignment ($c) {
 =cut
 
 sub delete_assignment ($c) {
-    my $input = $c->validate_input('RackAssignmentDeletes');
+    my $input = $c->validate_request('RackAssignmentDeletes');
     return if not $input;
 
     my @layouts = $c->stash('rack_rs')->search_related('rack_layouts',
@@ -370,7 +370,7 @@ located devices' phases as well.
 =cut
 
 sub set_phase ($c) {
-    my $input = $c->validate_input('RackPhase');
+    my $input = $c->validate_request('RackPhase');
     return if not $input;
 
     $c->stash('rack_rs')->update({ phase => $input->{phase}, updated => \'now()' });

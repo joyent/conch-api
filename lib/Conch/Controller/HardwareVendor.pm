@@ -74,7 +74,7 @@ sub get_one ($c) {
 sub create ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    $c->validate_input('Null');
+    $c->validate_request('Null');
     return if $c->res->code;
 
     if ($c->db_hardware_vendors->active->search({ name => $c->stash('hardware_vendor_name') }) > 0) {

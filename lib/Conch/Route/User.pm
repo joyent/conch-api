@@ -155,7 +155,7 @@ C<api_only> and C<login_only> are set, no tokens will be revoked.
 
 =over 4
 
-=item * Request: input.yaml#/UserSettings
+=item * Request: request.yaml#/UserSettings
 
 =item * Response: C<204 NO CONTENT>
 
@@ -181,7 +181,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =over 4
 
-=item * Request: input.yaml#/UserSettings
+=item * Request: request.yaml#/UserSettings
 
 =item * Response: C<204 NO CONTENT> (The user session is terminated).
 
@@ -200,7 +200,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =over 4
 
-=item * Request: input.yaml#/UserSettings
+=item * Request: request.yaml#/UserSettings
 
 =item * Response: C<204 NO CONTENT>
 
@@ -218,7 +218,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =over 4
 
-=item * Request: input.yaml#/UserSetting
+=item * Request: request.yaml#/UserSetting
 
 =item * Response: C<204 NO CONTENT>
 
@@ -228,7 +228,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =over 4
 
-=item * Request: input.yaml#/DeviceSetting
+=item * Request: request.yaml#/DeviceSetting
 
 =item * Response: C<204 NO CONTENT>
 
@@ -246,7 +246,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =over 4
 
-=item * Response: input.yaml#/NewUserToken
+=item * Response: request.yaml#/NewUserToken
 
 =item * Response: response.yaml#/NewUserToken
 
@@ -287,7 +287,7 @@ an email telling the user their tokens were revoked
 
 =item * Requires System Admin Authentication
 
-=item * Request: input.yaml#/UpdateUser
+=item * Request: request.yaml#/UpdateUser
 
 =item * Response: response.yaml#/UserDetailed
 
@@ -383,7 +383,7 @@ email to the user with the new password.
 
 =item * Requires System Admin Authentication
 
-=item * Request: input.yaml#/NewUser
+=item * Request: request.yaml#/NewUser
 
 =item * Response: response.yaml#/User
 

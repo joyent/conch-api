@@ -137,7 +137,7 @@ Response uses the WorkspaceAndRole json schema.
 sub create_sub_workspace ($c) {
     return $c->status(403) if not $c->is_workspace_admin;
 
-    my $input = $c->validate_input('WorkspaceCreate');
+    my $input = $c->validate_request('WorkspaceCreate');
     return if not $input;
 
     return $c->status(400, { error => "workspace '$input->{name}' already exists" })

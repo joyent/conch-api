@@ -20,7 +20,7 @@ Existing settings are deactivated even if they are not being replaced with new o
 =cut
 
 sub set_all ($c) {
-    my $input = $c->validate_input('DeviceSettings');
+    my $input = $c->validate_request('DeviceSettings');
     return if not $input;
 
     # we cannot do device_rs->related_resultset, or ->create loses device_id
@@ -58,7 +58,7 @@ overwritten, unless the value is unchanged.
 =cut
 
 sub set_single ($c) {
-    my $input = $c->validate_input('DeviceSetting');
+    my $input = $c->validate_request('DeviceSetting');
     return if not $input;
 
     my $setting_key   = $c->stash('key');

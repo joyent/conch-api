@@ -40,7 +40,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: input.yaml#/RegisterRelay
+=item * Request: request.yaml#/RegisterRelay
 
 =item * Response: C<204 NO CONTENT>
 

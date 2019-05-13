@@ -4,9 +4,6 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 use JSON::Validator;
 
-use constant OUTPUT_SCHEMA_FILE => "json-schema/response.yaml";
-use constant INPUT_SCHEMA_FILE => "json-schema/input.yaml";
-
 =pod
 
 =head1 NAME
@@ -20,7 +17,7 @@ Conch::Plugin::JsonValidator
     [ ... in a controller ]
 
     sub endpoint ($c) {
-        my $body = $c->validate_input('MyInputDefinition');
+        my $body = $c->validate_request('MyRequestDefinition');
         ...
     }
 
@@ -29,14 +26,14 @@ Conch::Plugin::JsonValidator
 Conch::Plugin::JsonValidator provides an optional manner to validate input and
 output from a Mojo controller against a JSON Schema.
 
-The C<validate_input> helper uses the provided schema definition to validate
-B<JUST> the incoming JSON request. Headers and query parameters B<ARE NOT>
-validated. If the data fails validation, a 400 status is returned to user
-with an error payload containing the validation errors.
+The C<validate_request> helper uses the provided schema definition to validate B<JUST> the
+incoming JSON request payload. Headers and query parameters B<ARE NOT> validated. If the data
+fails validation, a 400 status is returned to user with an error payload containing the
+validation errors.
 
 =head1 SCHEMAS
 
-C<validate_input> validates data against the C<json-schema/input.yaml> file.
+C<validate_request> validates data against the C<json-schema/request.yaml> file.
 
 =head1 HELPERS
 
@@ -45,15 +42,15 @@ C<validate_input> validates data against the C<json-schema/input.yaml> file.
 sub register ($self, $app, $config) {
 
 
-=head2 validate_input
+=head2 validate_request
 
 Given a json schema name validate the provided input against it, and prepare a HTTP 400
 response if validation failed; returns validated input on success.
 
 =cut
 
-    $app->helper(validate_input => sub ($c, $schema_name, $input = $c->req->json) {
-        my $validator = $c->get_input_validator;
+    $app->helper(validate_request => sub ($c, $schema_name, $input = $c->req->json) {
+        my $validator = $c->get_request_validator;
         my $schema = $validator->get('/definitions/'.$schema_name);
 
         if (not $schema) {
@@ -66,24 +63,26 @@ response if validation failed; returns validated input on success.
             return $c->status(400, { error => join("\n",@errors) });
         }
 
-        $c->log->debug("Passed data validation for input schema $schema_name");
+        $c->log->debug("Passed data validation for request schema $schema_name");
         return $input;
     });
 
 
-=head2 get_input_validator
+=head2 get_request_validator
 
 Returns a L<JSON::Validator> object suitable for validating an endpoint input.
 
 =cut
 
-    my $_input_validator;
-    $app->helper(get_input_validator => sub ($c) {
-        return $_input_validator if $_input_validator;
-        $_input_validator = JSON::Validator->new;
+    my $_request_validator;
+    $app->helper(get_request_validator => sub ($c) {
+        return $_request_validator if $_request_validator;
+        $_request_validator = JSON::Validator->new;
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
-        $_input_validator->load_and_validate_schema(INPUT_SCHEMA_FILE, { schema => 'http://json-schema.org/draft-07/schema#' });
-        return $_input_validator;
+        $_request_validator->load_and_validate_schema(
+            'json-schema/request.yaml',
+            { schema => 'http://json-schema.org/draft-07/schema#' });
+        return $_request_validator;
     });
 
 
@@ -98,7 +97,9 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint response
         return $_response_validator if $_response_validator;
         my $_response_validator = JSON::Validator->new;
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
-        $_response_validator->load_and_validate_schema(OUTPUT_SCHEMA_FILE, { schema => 'http://json-schema.org/draft-07/schema#' });
+        $_response_validator->load_and_validate_schema(
+            'json-schema/response.yaml',
+            { schema => 'http://json-schema.org/draft-07/schema#' });
         return $_response_validator;
     });
 }

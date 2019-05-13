@@ -231,7 +231,7 @@ is assigned to the parent workspace of this one.
 sub add ($c) {
     return $c->status(403) if not $c->is_workspace_admin;
 
-    my $input = $c->validate_input('WorkspaceAddRack');
+    my $input = $c->validate_request('WorkspaceAddRack');
     return if not $input;
 
     my $rack_id = delete $input->{id};
@@ -296,7 +296,7 @@ Response uses the WorkspaceRackLayoutUpdateResponse json schema.
 =cut
 
 sub assign_layout ($c) {
-    my $input = $c->validate_input('WorkspaceRackLayoutUpdate');
+    my $input = $c->validate_request('WorkspaceRackLayoutUpdate');
     return if not $input;
 
     my $rack_id = $c->stash('rack_id');

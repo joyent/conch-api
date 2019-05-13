@@ -18,7 +18,7 @@ it if the relay does not already exists
 =cut
 
 sub register ($c) {
-    my $input = $c->validate_input('RegisterRelay');
+    my $input = $c->validate_request('RegisterRelay');
     return if not $input;
 
     return $c->status(422, { error => 'serial number in path doesn\'t match payload data' })

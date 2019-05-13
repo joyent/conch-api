@@ -23,7 +23,7 @@ sub get ($c) {
     my $name = camelize $c->stash('name');
 
     my $validator = $type eq 'response' ? $c->get_response_validator
-        : $type eq 'request' ? $c->get_input_validator
+        : $type eq 'request' ? $c->get_request_validator
         : undef;
     return $c->status(400, { error => 'Cannot find validator' }) if not $validator;
 

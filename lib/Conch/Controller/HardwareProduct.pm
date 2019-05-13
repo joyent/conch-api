@@ -88,7 +88,7 @@ Creates a new hardware_product, and possibly also a hardware_product_profile.
 sub create ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('HardwareProductCreate');
+    my $input = $c->validate_request('HardwareProductCreate');
     return if not $input;
 
     for my $key (qw(name alias sku)) {
@@ -128,7 +128,7 @@ as needed.
 sub update ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('HardwareProductUpdate');
+    my $input = $c->validate_request('HardwareProductUpdate');
     return if not $input;
 
     my $hardware_product = $c->stash('hardware_product_rs')
@@ -162,7 +162,7 @@ sub update ($c) {
                     # when creating a new hardware product profile, we apply a stricter
                     # schema to the input
                     die 'rollback'
-                        if not $c->validate_input('HardwareProductProfileCreate', $profile);
+                        if not $c->validate_request('HardwareProductProfileCreate', $profile);
 
                     $hardware_product->create_related('hardware_product_profile', $profile);
                     $c->log->debug('Created new hardware_product_profile for hardware product '.$hardware_product->id);

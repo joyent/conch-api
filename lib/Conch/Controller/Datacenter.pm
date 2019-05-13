@@ -87,7 +87,7 @@ Create a new datacenter.
 sub create ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('DatacenterCreate');
+    my $input = $c->validate_request('DatacenterCreate');
     return if not $input;
 
     my $datacenter = $c->db_datacenters->create($input);
@@ -104,7 +104,7 @@ Update an existing datacenter.
 sub update ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('DatacenterUpdate');
+    my $input = $c->validate_request('DatacenterUpdate');
     return if not $input;
 
     my $datacenter = $c->stash('datacenter');

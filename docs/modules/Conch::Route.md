@@ -26,7 +26,7 @@ Unless otherwise specified all routes require authentication.
 
 ### `POST /login`
 
-- Request: input.yaml#/Login
+- Request: request.yaml#/Login
 - Response: response.yaml#/Login
 
 ### `POST /logout`
@@ -53,7 +53,7 @@ Returns the Request or Response schema specified.
 
 ### `POST /refresh_token`
 
-- Request: input.yaml#/Null
+- Request: request.yaml#/Null
 - Response: response.yaml#/Login
 
 # LICENSING

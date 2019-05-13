@@ -16,7 +16,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /dc`
 
-- Request: input.yaml#/DatacenterCreate
+- Request: request.yaml#/DatacenterCreate
 - Response: Redirect to the created datacenter
 
 ### `GET /dc/:datacenter_id`
@@ -25,7 +25,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /dc/:datacenter_id`
 
-- Request: input.yaml#/DatacenterUpdate
+- Request: request.yaml#/DatacenterUpdate
 - Response: Redirect to the updated datacenter
 
 ### `DELETE /dc/:datacenter_id`
@@ -45,7 +45,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /room`
 
 - Requires System Admin Authorization
-- Request: input.yaml#/DatacenterRoomCreate
+- Request: request.yaml#/DatacenterRoomCreate
 - Response: Redirect to the created room
 
 ### `GET /room/:datacenter_room_id`
@@ -56,7 +56,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /room/:datacenter_room_id`
 
 - Requires System Admin Authorization
-- Request: input.yaml#/DatacenterRoomUpdate
+- Request: request.yaml#/DatacenterRoomUpdate
 - Response: Redirect to the updated room
 
 ### `DELETE /room/:datacenter_room_id`
@@ -77,7 +77,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /rack_role`
 
 - Requires System Admin Authorization
-- Request: input.yaml#/RackRoleCreate
+- Request: request.yaml#/RackRoleCreate
 - Response: Redirect to the created rack role
 
 ### `GET /rack_role/:rack_role_id_or_name`
@@ -87,7 +87,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /rack_role/:rack_role_id_or_name`
 
-- Request: input.yaml#/RackRoleUpdate
+- Request: request.yaml#/RackRoleUpdate
 - Response: Redirect to the updated rack role
 
 ### `DELETE /rack_role/:rack_role_id_or_name`
@@ -102,7 +102,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /rack`
 
 - Requires System Admin Authentication
-- Request: input.yaml#/RackCreate
+- Request: request.yaml#/RackCreate
 - Response: Redirect to the created rack
 
 ### `GET /rack/:rack_id`
@@ -111,7 +111,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /rack/:rack_id`
 
-- Request: input.yaml#/RackUpdate
+- Request: request.yaml#/RackUpdate
 - Response: Redirect to the updated rack
 
 ### `DELETE /rack/:rack_id`
@@ -128,14 +128,14 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /rack/:rack_id/assignment`
 
-- Request: input.yaml#/RackAssignmentUpdates
+- Request: request.yaml#/RackAssignmentUpdates
 - Response: Redirect to the updated rack assignment
 
 ### `DELETE /rack/:rack_id/assignment`
 
 This method requires a request body.
 
-- Request: input.yaml#/RackAssignmentDeletes
+- Request: request.yaml#/RackAssignmentDeletes
 - Response: `204 NO CONTENT`
 
 ### `POST /rack/:rack_id/phase?rack_only=<0|1>`
@@ -143,7 +143,7 @@ This method requires a request body.
 The query parameter `rack_only` (default 0) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
 
-- Request: input.yaml#/RackPhase
+- Request: request.yaml#/RackPhase
 - Response: `204 NO CONTENT`
 
 ### `GET /layout`
@@ -153,7 +153,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 ### `POST /layout`
 
 - Requires Admin Authentication
-- Request: input.yaml#/RackLayoutCreate
+- Request: request.yaml#/RackLayoutCreate
 - Response: Redirect to the created rack layout
 
 ### `GET /layout/:layout_id`
@@ -162,7 +162,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 ### `POST /layout/:layout_id`
 
-- Request: input.yaml#/RackLayoutUpdate
+- Request: request.yaml#/RackLayoutUpdate
 - Response: Redirect to the update rack layout
 
 ### `DELETE /layout/:layout_id`

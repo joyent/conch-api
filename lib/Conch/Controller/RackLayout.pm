@@ -41,7 +41,7 @@ Creates a new rack_layout entry according to the passed-in specification.
 sub create ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('RackLayoutCreate');
+    my $input = $c->validate_request('RackLayoutCreate');
     return if not $input;
 
     $input->{hardware_product_id} = delete $input->{product_id};
@@ -144,7 +144,7 @@ rack starting position.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_input('RackLayoutUpdate');
+    my $input = $c->validate_request('RackLayoutUpdate');
     return if not $input;
 
     $input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};

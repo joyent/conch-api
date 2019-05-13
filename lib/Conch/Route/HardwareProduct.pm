@@ -76,7 +76,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires System Admin Authentication
 
-=item * Request: input.yaml#/HardwareProductCreate
+=item * Request: request.yaml#/HardwareProductCreate
 
 =item * Response: Redirect to the created hardware product
 
@@ -96,7 +96,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires System Admin Authentication
 
-=item * Request: input.yaml#/HardwareProductUpdate
+=item * Request: request.yaml#/HardwareProductUpdate
 
 =item * Response: Redirect to the updated hardware product
 

@@ -64,7 +64,7 @@ sub validate ($c) {
         return $c->status(404);
     }
 
-    my $data = $c->validate_input('DeviceReport');
+    my $data = $c->validate_request('DeviceReport');
     if (not $data) {
         $c->log->debug('Device report input failed validation');
         return;
@@ -103,7 +103,7 @@ sub run_validation_plan ($c) {
         return $c->status(404);
     }
 
-    my $data = $c->validate_input('DeviceReport');
+    my $data = $c->validate_request('DeviceReport');
     if (not $data) {
         $c->log->debug('Device report input failed validation');
         return;
