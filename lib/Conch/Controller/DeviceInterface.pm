@@ -25,7 +25,8 @@ sub find_device_interface ($c) {
         .' for device_id '.$c->stash('device_id'));
 
     my $nic_rs = $c->stash('device_rs')
-        ->search_related('device_nics', { iface_name => $interface_name });
+        ->search_related('device_nics', { iface_name => $interface_name })
+        ->active;
     if (not $nic_rs->exists) {
         $c->log->debug("Failed to find interface $interface_name for device ".$c->stash('device_id'));
         return $c->status(404);
@@ -45,11 +46,7 @@ Response uses the DeviceNicField json schema.
 =cut
 
 sub get_one_field ($c) {
-    my $field = $c->stash('field_name');
-
-    return $c->status(400, "column '$field' is not recognized.")
-        if none { $field eq $_ } $c->schema->source('device_nic')->columns;
-
+    my $field = $c->stash('field');
     my $rs = $c->stash('device_interface_rs');
     return $c->status(200, { $field => $rs->get_column($field)->single });
 }
@@ -59,6 +56,7 @@ sub get_one_field ($c) {
 Retrieves all device_nic fields for the specified device interface.
 
 Response uses the DeviceNic json schema.
+
 =cut
 
 sub get_one ($c) {
@@ -74,7 +72,7 @@ Response uses the DeviceNics json schema.
 =cut
 
 sub get_all ($c) {
-    my $rs = $c->stash('device_rs')->related_resultset('device_nics');
+    my $rs = $c->stash('device_rs')->related_resultset('device_nics')->active;
     return $c->status(200, [ $rs->all ]);
 }
 

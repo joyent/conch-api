@@ -12,13 +12,19 @@ Chainable action that looks up the device interface by its id or name.
 
 Retrieves the value of the specified device\_nic field for the specified device interface.
 
+Response uses the DeviceNicField json schema.
+
 ## get\_one
 
 Retrieves all device\_nic fields for the specified device interface.
 
+Response uses the DeviceNic json schema.
+
 ## get\_all
 
 Retrieves all device\_nic records for the specified device.
+
+Response uses the DeviceNics json schema.
 
 # LICENSING
 

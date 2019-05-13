@@ -133,7 +133,7 @@ sub startup {
     Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)
         ->check_validation_plans;
 
-    Conch::Route->all_routes($self->routes);
+    Conch::Route->all_routes($self->routes, $self);
 }
 
 1;

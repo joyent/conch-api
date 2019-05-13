@@ -383,18 +383,22 @@ definitions:
     items:
       $ref: /definitions/DeviceNic
   DeviceNic:
+    allOf:
+      - $ref: /definitions/DeviceNicFields
+      - type: object
+        required:
+          - device_id
+          - mac
+          - iface_name
+          - iface_vendor
+          - iface_driver
+          - state
+          - speed
+          - ipaddr
+          - mtu
+  DeviceNicFields:
     type: object
     additionalProperties: false
-    required:
-      - device_id
-      - mac
-      - iface_name
-      - iface_vendor
-      - iface_driver
-      - state
-      - speed
-      - ipaddr
-      - mtu
     properties:
       device_id:
         $ref: /definitions/device_id
@@ -425,8 +429,14 @@ definitions:
           - type: integer
           - type: 'null'
   DeviceNicField:
-    type: object
-    maxProperties: 1
+    allOf:
+      - $ref: /definitions/DeviceNicFields
+      - type: object
+        maxProperties: 1
+      - not:
+          type: object
+          required:
+            - device_id
   DevicePXE:
     type: object
     additionalProperties: false

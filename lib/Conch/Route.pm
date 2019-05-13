@@ -33,7 +33,8 @@ Set up the full route structure
 
 sub all_routes (
     $class,
-    $root,    # this is the base routing object
+    $root,  # this is the base routing object
+    $app,   # the Conch app
 ) {
 
     # provides a route to chain to that first checks the user is a system admin.
@@ -87,7 +88,7 @@ sub all_routes (
     $secured->post('/refresh_token')->to('login#refresh_token');
 
     Conch::Route::Workspace->routes($secured->any('/workspace'));
-    Conch::Route::Device->routes($secured->any('/device'));
+    Conch::Route::Device->routes($secured->any('/device'), $app);
     Conch::Route::DeviceReport->routes($secured->any('/device_report'));
     Conch::Route::Relay->routes($secured->any('/relay'));
     Conch::Route::User->routes($secured->any('/user'));

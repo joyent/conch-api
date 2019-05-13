@@ -50,6 +50,7 @@ Sets up the routes for /device:
 sub routes {
     my $class = shift;
     my $device = shift; # secured, under /device
+    my $app = shift;
 
     # POST /device/:device_id
     $device->post('/:device_id')->to('device_report#process');
@@ -136,7 +137,8 @@ sub routes {
             $with_interface_name->get('/')->to('#get_one');
 
             # GET /device/:device_id/interface/:interface_name/:field
-            $with_interface_name->get('/:field_name')->to('#get_one_field');
+            $with_interface_name->get('/:field', [ field => [ $app->db_device_nics->fields ] ])
+                ->to('#get_one_field');
         }
     }
 }
