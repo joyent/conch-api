@@ -424,6 +424,9 @@ definitions:
         oneOf:
           - type: integer
           - type: 'null'
+  DeviceNicField:
+    type: object
+    maxProperties: 1
   DevicePXE:
     type: object
     additionalProperties: false
