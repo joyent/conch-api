@@ -101,11 +101,11 @@ subtest 'device totals' => sub {
         ->json_schema_is('DeviceTotalsCirconus')
         ->json_is({
             'Switch Vendor' => {
-                health => { PASS => 0, FAIL => 1, UNKNOWN => 0 },
+                health => { pass => 0, fail => 1, unknown => 0 },
                 count => 1,
             },
             'Test Compute' => {
-                health => { PASS => 1, FAIL => 0, UNKNOWN => 0 },
+                health => { pass => 1, fail => 0, unknown => 0 },
                 count => 1,
             },
             compute => { count => 1 },

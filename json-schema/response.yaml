@@ -1766,13 +1766,12 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - PASS
-            - FAIL
-            - UNKNOWN
+            - pass
+            - fail
+            - unknown
           patternProperties:
-            # these are the values of /definitions/device_health, but uppercased.
-            # TODO: no longer upper-case these in responses
-            ^(PASS|FAIL|UNKNOWN|ERROR)$:
+            # these are the values of /definitions/device_health
+            ^(pass|fail|unknown|error)$:
               type: integer
         count:
           type: integer
