@@ -197,7 +197,8 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
             }
 
             my $nics_num = 0;
-            # switches use the 'media' attribute, and servers use 'interfaces'
+            # FIXME: switches use the 'media' attribute, and servers use 'interfaces'
+            # be consistent!
             if ($dr->{media}) {
                 for my $port (keys $dr->{media}->%*) {
                     for my $nic (keys $dr->{media}{$port}->%*) {

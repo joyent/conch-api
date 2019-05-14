@@ -1710,31 +1710,31 @@ definitions:
       $ref: /definitions/HardwareVendor
   DeviceTotals:
     type: object
-    additionalProperties: false
     required:
       - all
       - compute
       - servers
       - storage
       - switches
-    patternProperties:
-      .:
-        type: array
-        uniqueItems: true
-        items:
-          type: object
-          additionalProperties: false
-          required:
-            - alias
-            - health
-            - count
-          properties:
-            alias:
-              type: string
-            health:
-              $ref: /definitions/device_health
-            count:
-              type: integer
+    minProperties: 5
+    maxProperties: 5
+    additionalProperties:
+      type: array
+      uniqueItems: true
+      items:
+        type: object
+        additionalProperties: false
+        required:
+          - alias
+          - health
+          - count
+        properties:
+          alias:
+            type: string
+          health:
+            $ref: /definitions/device_health
+          count:
+            type: integer
   DeviceTotalsCirconus:
     type: object
     properties:
@@ -1764,15 +1764,14 @@ definitions:
       properties:
         health:
           type: object
-          additionalProperties: false
           required:
             - pass
             - fail
             - unknown
-          patternProperties:
-            # these are the values of /definitions/device_health
-            ^(pass|fail|unknown|error)$:
-              type: integer
+          propertyNames:
+            $ref: /definitions/device_health
+          additionalProperties:
+            type: integer
         count:
           type: integer
   DeviceReportRow:

@@ -117,6 +117,9 @@ definitions:
       media:
         # TODO: this is required for switches
         type: object
+        # TODO: define this key better,
+        # with propertyNames + additionalProperties instead of patternProperties.
+        # See notes in Conch::Controller:DeviceReport for media.
         patternProperties:
           ^\S$:
             description: port

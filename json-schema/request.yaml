@@ -191,10 +191,11 @@ definitions:
     type: object
     additionalProperties: false
     minProperties: 1
-    patternProperties:
-      ^[\w-]+$:         # device id
-        description: rack_unit_start
-        type: integer
+    propertyNames:
+      $ref: common.yaml#/definitions/device_id
+    additionalProperties:
+      description: rack_unit_start
+      type: integer
   DeviceLocationUpdate:
     type: object
     additionalProperties: false
