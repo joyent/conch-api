@@ -185,7 +185,7 @@ definitions:
             mac:
               $ref: common.yaml#/definitions/macaddr
             iface_name:
-              type: string
+              $ref: common.yaml#/definitions/device_interface_name
             iface_vendor:
               type: string
             iface_type:
@@ -227,7 +227,7 @@ definitions:
             id:
               $ref: common.yaml#/definitions/uuid
             serial_number:
-              type: string
+              $ref: common.yaml#/definitions/disk_serial_number
             slot:
               oneOf:
                 - type: integer
@@ -423,7 +423,7 @@ definitions:
       mac:
         $ref: common.yaml#/definitions/macaddr
       iface_name:
-        type: string
+        $ref: common.yaml#/definitions/device_interface_name
       iface_vendor:
         type: string
       iface_type:
@@ -657,6 +657,8 @@ definitions:
         maxProperties: 1
   DeviceSettings:
     type: object
+    propertyNames:
+      $ref: common.yaml#/definitions/device_setting_key
     additionalProperties:
       type: string
   HardwareProducts:
@@ -850,40 +852,41 @@ definitions:
   WorkspaceRackSummary:
     type: object
     additionalProperties: false
-    patternProperties:
-      ^[\w-]+$:   # key is a room az name
-        type: array
-        uniqueItems: true
-        items:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              $ref: common.yaml#/definitions/uuid
-            name:
-              type: string
-            phase:
-              $ref: common.yaml#/definitions/device_phase
-            role: # TODO: this really should be rack_role_id
-              type: string
-            size:
-              type: integer
-            device_progress:
-              type: object
-              additionalProperties: false
-              properties:
-                # see also device_health
-                # TODO: no longer upper-case these in responses
-                VALID:
-                  type: integer
-                PASS:
-                  type: integer
-                FAIL:
-                  type: integer
-                UNKNOWN:
-                  type: integer
-                ERROR:
-                  type: integer
+    propertyNames:
+      $ref: common.yaml#/definitions/room_az
+    additionalProperties:
+      type: array
+      uniqueItems: true
+      items:
+        type: object
+        additionalProperties: false
+        properties:
+          id:
+            $ref: common.yaml#/definitions/uuid
+          name:
+            type: string
+          phase:
+            $ref: common.yaml#/definitions/device_phase
+          role: # TODO: this really should be rack_role_id
+            type: string
+          size:
+            type: integer
+          device_progress:
+            type: object
+            additionalProperties: false
+            properties:
+              # see also device_health
+              # TODO: no longer upper-case these in responses
+              VALID:
+                type: integer
+              PASS:
+                type: integer
+              FAIL:
+                type: integer
+              UNKNOWN:
+                type: integer
+              ERROR:
+                type: integer
   WorkspaceRack:
     type: object
     additionalProperties: false
@@ -1626,6 +1629,8 @@ definitions:
        $ref: /definitions/UserDetailed
   UserSettings:
     type: object
+    propertyNames:
+      $ref: common.yaml#/definitions/user_setting_key
   UserSetting:
     allOf:
       - $ref: /definitions/UserSettings

@@ -100,12 +100,12 @@ sub routes {
             $with_device_interface->get('/')->to('#get_all');
 
             # chainable action that extracts and looks up interface_name from the path
-            my $with_interface_name = $with_device_interface->under('/:interface_name')->to('#find_device_interface');
+            my $with_interface_name = $with_device_interface->under('/#interface_name')->to('#find_device_interface');
 
-            # GET /device/:device_id/interface/:interface_name
+            # GET /device/:device_id/interface/#interface_name
             $with_interface_name->get('/')->to('#get_one');
 
-            # GET /device/:device_id/interface/:interface_name/:field
+            # GET /device/:device_id/interface/#interface_name/:field
             $with_interface_name->get('/:field', [ field => [ $app->db_device_nics->fields ] ])
                 ->to('#get_one_field');
         }

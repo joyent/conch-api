@@ -31,6 +31,21 @@ definitions:
       - production
       - diagnostics
       - decommissioned
+  device_interface_name:
+    allOf:
+      - type: string
+        pattern: ^\S+$
+      - $ref: /definitions/mojo_relaxed_placeholder
+  device_setting_key:
+    $ref: /definitions/mojo_relaxed_placeholder
+  disk_serial_number:
+    type: string
+    pattern: ^\S+$
+  room_az:
+    type: string
+    pattern: ^[\w-]+$
+  user_setting_key:
+    $ref: /definitions/mojo_relaxed_placeholder
   non_empty_string:
     type: string
     minLength: 1

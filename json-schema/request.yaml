@@ -445,7 +445,7 @@ definitions:
     type: object
     minProperties: 1
     propertyNames:
-      $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+      $ref: common.yaml#/definitions/user_setting_key
   NewUserToken:
     type: object
     additionalProperties: false
@@ -552,7 +552,7 @@ definitions:
       type: string
     minProperties: 1
     propertyNames:
-      $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+      $ref: common.yaml#/definitions/device_setting_key
   WorkspaceRoomReplace:
     type: array
     uniqueItems: true

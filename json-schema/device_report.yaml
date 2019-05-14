@@ -40,36 +40,36 @@ definitions:
               $ref: /definitions/int_or_stringy_int
       disks:
         type: object
-        patternProperties:
-          ^\S+$:
-            description: device_disk.serial_number
-            type: object
-            properties:
-              slot:
-                $ref: /definitions/int_or_stringy_int
-              size:
-                type: integer
-              vendor:
-                type: string
-              model:
-                type: string
-              firmware:
-                type: string
-              transport:
-                type: string
-              health:
-                type: string  # TODO: enum?
-              drive_type:
-                type: string
-              temp:
-                $ref: /definitions/int_or_stringy_int
-              enclosure:
-                $ref: /definitions/int_or_stringy_int
-              hba:
-                $ref: /definitions/int_or_stringy_int
-              block_sz:
-                type: integer
-              # any additional fields are not currently used.
+        propertyNames:
+          $ref: common.yaml#/definitions/disk_serial_number
+        additionalProperties:
+          type: object
+          properties:
+            slot:
+              $ref: /definitions/int_or_stringy_int
+            size:
+              type: integer
+            vendor:
+              type: string
+            model:
+              type: string
+            firmware:
+              type: string
+            transport:
+              type: string
+            health:
+              type: string  # TODO: enum?
+            drive_type:
+              type: string
+            temp:
+              $ref: /definitions/int_or_stringy_int
+            enclosure:
+              $ref: /definitions/int_or_stringy_int
+            hba:
+              $ref: /definitions/int_or_stringy_int
+            block_sz:
+              type: integer
+            # any additional fields are not currently used.
       device_type:
         type: string
         enum:
@@ -78,42 +78,42 @@ definitions:
       interfaces:
         # TODO: this is required for servers
         type: object
-        patternProperties:
-          ^\S+$:
-            description: key = interface name
-            type: object
-            required:
-              - mac
-              - product
-              - vendor
-            properties:
-              mac:
-                $ref: common.yaml#/definitions/macaddr
-              product:
-                type: string
-              vendor:
-                type: string
-              state:
-                oneOf:
-                  - type: string
-                  - type: 'null'
-              # note: no speed yet?
-              ipaddr:
-                oneOf:
-                  - $ref: common.yaml#/definitions/ipaddr
-                  - type: 'null'
-              mtu:
-                oneOf:
-                  - $ref: /definitions/int_or_stringy_int
-                  - type: 'null'
-              peer_mac:
-                oneOf:
-                  - $ref: common.yaml#/definitions/macaddr
-                  - type: 'null'
-              # peer_text, peer_switch, peer_port, all optional with no constraints
-              # peer_vendor: # TODO! see Conch::Validation::SwitchPeers.
-              #   type: string
-              #   pattern: ^\S+$
+        propertyNames:
+          $ref: common.yaml#/definitions/device_interface_name
+        additionalProperties:
+          type: object
+          required:
+            - mac
+            - product
+            - vendor
+          properties:
+            mac:
+              $ref: common.yaml#/definitions/macaddr
+            product:
+              type: string
+            vendor:
+              type: string
+            state:
+              oneOf:
+                - type: string
+                - type: 'null'
+            # note: no speed yet?
+            ipaddr:
+              oneOf:
+                - $ref: common.yaml#/definitions/ipaddr
+                - type: 'null'
+            mtu:
+              oneOf:
+                - $ref: /definitions/int_or_stringy_int
+                - type: 'null'
+            peer_mac:
+              oneOf:
+                - $ref: common.yaml#/definitions/macaddr
+                - type: 'null'
+            # peer_text, peer_switch, peer_port, all optional with no constraints
+            # peer_vendor: # TODO! see Conch::Validation::SwitchPeers.
+            #   type: string
+            #   pattern: ^\S+$
       media:
         # TODO: this is required for switches
         type: object
