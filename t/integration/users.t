@@ -493,12 +493,10 @@ subtest 'modify another user' => sub {
 
     # in order to get the user's new password, we need to extract it from a method call before
     # we forget it -- so we pull it out of the call to UserAccount->update.
-    my $orig_update = \&Conch::DB::Result::UserAccount::update;
+    use Class::Method::Modifiers 'before';
     my $_new_password;
-    no warnings 'redefine';
-    local *Conch::DB::Result::UserAccount::update = sub {
+    before 'Conch::DB::Result::UserAccount::update' => sub {
         $_new_password = $_[1]->{password} if exists $_[1]->{password};
-        $orig_update->(@_);
     };
 
     $t->delete_ok('/user/foobar/password')

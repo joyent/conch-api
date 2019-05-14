@@ -9,6 +9,7 @@ use MooX::HandlesVia;
 use List::Util 'any';
 use Scalar::Util 'blessed';
 use Storable 'dclone';
+use Authen::Passphrase::AcceptAll;
 use namespace::autoclean;
 
 =pod
@@ -58,7 +59,7 @@ my %canned_definitions = (
         using => {
             name => 'conch',
             email => 'conch@conch.joyent.us',
-            password => 'CONCH_PASSWORD',
+            password => Authen::Passphrase::AcceptAll->new,
             is_admin => 1,
         },
     },
@@ -67,7 +68,7 @@ my %canned_definitions = (
         using => {
             name => 'null_user',
             email => 'null_user@conch.joyent.us',
-            password => 'null_user@conch.joyent.us',  # convention for test accounts
+            password => Authen::Passphrase::AcceptAll->new,
             is_admin => 0,
         },
     },
@@ -76,7 +77,7 @@ my %canned_definitions = (
         using => {
             name => 'ro_user',
             email => 'ro_user@conch.joyent.us',
-            password => 'ro_user@conch.joyent.us',  # convention for test accounts
+            password => Authen::Passphrase::AcceptAll->new,
             is_admin => 0,
         },
     },
@@ -85,7 +86,7 @@ my %canned_definitions = (
         using => {
             name => 'rw_user',
             email => 'rw_user@conch.joyent.us',
-            password => 'rw_user@conch.joyent.us',  # convention for test accounts
+            password => Authen::Passphrase::AcceptAll->new,
             is_admin => 0,
         },
     },

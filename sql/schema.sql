@@ -512,7 +512,7 @@ ALTER TABLE public.relay OWNER TO conch;
 CREATE TABLE public.user_account (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name text NOT NULL,
-    password_hash text NOT NULL,
+    password text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     last_login timestamp with time zone,
     email text NOT NULL,

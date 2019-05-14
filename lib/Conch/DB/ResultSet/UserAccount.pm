@@ -15,33 +15,6 @@ Conch::DB::ResultSet::UserAccount
 
 Interface to queries against the C<user_account> table.
 
-=head2 create
-
-This method is built in to all resultsets. In L<Conch::DB::Result::UserAccount> we have
-overrides allowing us to receive the C<password> key, which we hash into C<password_hash>.
-
-    $schema->resultset('user_account') or $c->db_user_accounts
-      ->create({
-        name => ...,        # required, but usually the same as email :/
-        email => ...,       # required
-        password => ...,    # required, if password_hash not provided
-      });
-
-=cut
-
-=head2 update
-
-This method is built in to all resultsets. In L<Conch::DB::Result::UserAccount> we have
-overrides allowing us to receive the C<password> key, which we hash into C<password_hash>.
-
-    $schema->resultset('user_account') or $c->db_user_accounts
-      ->update({
-        password => ...,
-        ... possibly other things
-      });
-
-=cut
-
 =head2 lookup_by_email
 
 Queries for user by (case-insensitive) email address.

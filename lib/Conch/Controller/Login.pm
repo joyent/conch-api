@@ -167,7 +167,7 @@ sub session_login ($c) {
         return $c->status(401);
     }
 
-    if (not $user->validate_password($input->{password})) {
+    if (not $user->check_password($input->{password})) {
         $c->log->debug('password validation for '.($input->{user}//$input->{email}).' failed');
         return $c->status(401);
     }

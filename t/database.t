@@ -8,6 +8,7 @@ use Test::Memory::Cycle;
 use Test::Deep;
 use Conch::UUID 'create_uuid_str';
 use Conch::DB::Util;
+use Crypt::Eksblowfish::Bcrypt 'bcrypt';
 
 subtest 'db connection without Conch, and data preservation' => sub {
     my ($pgsql, $schema) = Test::Conch->init_db;
@@ -177,6 +178,45 @@ subtest 'get_migration_level' => sub {
 
     cmp_ok($latest_migration, '==', $expected_latest_migration,
         'migration level (numerically) matches the latest disk file because we inserted that value manually into the db');
+};
+
+subtest 'Authen::Passphrase handling' => sub {
+    # generated via: Conch::DB::Result::UserAccount::_hash_password('my password');
+    # (before that code was deleted)
+    my $legacy_hashed_password = '$2a$04$ZDP2bkfuYFb1KxLzRkLvWeHwHTZu.D3Be9EGOvd23/EcFV0CNb0iC';
+
+    is(
+        # only need the algorithm parameters including salt (22 base64 digits after prefix)
+        bcrypt('my password', substr($legacy_hashed_password, 0, 29)),
+        $legacy_hashed_password,
+        'verified old hashed password using direct method',
+    );
+
+    my $obj = Authen::Passphrase->from_crypt($legacy_hashed_password);
+    ok($obj->match('my password'), 'Authen::Passphrase verified our old hashed password');
+
+    my $t = Test::Conch->new;
+    my $legacy_account = $t->app->db_user_accounts->new_result({
+        name => 'guinea pig 2',
+        email => 'baz@baz.com',
+    });
+    $legacy_account->store_column(password => $legacy_hashed_password);   # bypass deflator
+    $legacy_account->insert;
+    ok(
+        $legacy_account->check_password('my password'),
+        'checked password of legacy account using new helper method',
+    );
+
+    my $new_account = $t->app->db_user_accounts->create({
+        name => 'King Zøg',
+        email => 'zog@zog.com',
+        password => 'Zøg rules, 💩 drools',
+    });
+    ok($new_account->password->isa('Authen::Passphrase'), 'password is an inflated object');
+    ok(
+        $new_account->check_password('Zøg rules, 💩 drools'),
+        'unicode is ok too',
+    );
 };
 
 done_testing;

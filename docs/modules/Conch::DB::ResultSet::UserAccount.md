@@ -6,33 +6,6 @@ Conch::DB::ResultSet::UserAccount
 
 Interface to queries against the `user_account` table.
 
-## create
-
-This method is built in to all resultsets. In [Conch::DB::Result::UserAccount](../modules/Conch::DB::Result::UserAccount) we have
-overrides allowing us to receive the `password` key, which we hash into `password_hash`.
-
-```perl
-$schema->resultset('user_account') or $c->db_user_accounts
-  ->create({
-    name => ...,        # required, but usually the same as email :/
-    email => ...,       # required
-    password => ...,    # required, if password_hash not provided
-  });
-```
-
-## update
-
-This method is built in to all resultsets. In [Conch::DB::Result::UserAccount](../modules/Conch::DB::Result::UserAccount) we have
-overrides allowing us to receive the `password` key, which we hash into `password_hash`.
-
-```perl
-$schema->resultset('user_account') or $c->db_user_accounts
-  ->update({
-    password => ...,
-    ... possibly other things
-  });
-```
-
 ## lookup\_by\_email
 
 Queries for user by (case-insensitive) email address.

@@ -5,6 +5,7 @@ use Mojo::Base 'Test::Mojo', -signatures;
 
 use Test::More ();
 use Test::PostgreSQL;
+BEGIN { $ENV{CONCH_BLOWFISH_COST} = 1 }  # make /login run in 0.1ms instead of 4s
 use Conch::DB;
 use Test::Conch::Fixtures;
 use Path::Tiny;
@@ -35,7 +36,7 @@ Includes JSON validation ability.
 # see also the 'conch_user' fixture in Test::Conch::Fixtures
 use constant CONCH_USER => 'conch';
 use constant CONCH_EMAIL => 'conch@conch.joyent.us';
-use constant CONCH_PASSWORD => 'CONCH_PASSWORD';
+use constant CONCH_PASSWORD => '*';     # in the test fixture, all passwords are accepted
 
 $ENV{EMAIL_SENDER_TRANSPORT} = 'Test';  # see Email::Sender::Manual::QuickStart
 
@@ -473,7 +474,7 @@ Optionally will bail out of *all* tests on failure. This will set 'user' in the 
 sub authenticate ($self, %args) {
     $args{bailout} //= 1 if not $args{email};
     $args{email} //= CONCH_EMAIL;
-    $args{password} //= $args{email} eq 'conch@conch.joyent.us' ? CONCH_PASSWORD : $args{email};
+    $args{password} //= CONCH_PASSWORD; # note that if a fixture is used, everything is accepted (for speed)
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     $self->post_ok('/login', json => { %args{qw(email password)} })

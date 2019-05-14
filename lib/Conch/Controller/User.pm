@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
+use Authen::Passphrase::RejectAll;
 
 =pod
 
@@ -450,7 +451,7 @@ sub deactivate ($c) {
 
     $c->log->warn('user '.$c->stash('user')->name.' deactivating user '.$user->name
         .($workspaces ? ', direct member of workspaces: '.$workspaces : ''));
-    $user->update({ password => $c->random_string, deactivated => \'now()' });
+    $user->update({ password => Authen::Passphrase::RejectAll->new, deactivated => \'now()' });
 
     $user->delete_related('user_workspace_roles');
 

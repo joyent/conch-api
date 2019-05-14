@@ -24,7 +24,7 @@ data_type: 'text'
 is_nullable: 0
 ```
 
-## password\_hash
+## password
 
 ```
 data_type: 'text'
@@ -117,21 +117,14 @@ Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch::DB::Res
 
 # METHODS
 
+## check\_password
+
+Checks the provided password against the value in the database, returning true/false.
+Because hard cryptography is used, this is \*not\* a fast call!
+
 ## TO\_JSON
 
 Include information about the user's workspaces, if available.
-
-## new
-
-Overrides original to move 'password' to 'password\_hash'.
-
-## update
-
-Overrides original to move 'password' to 'password\_hash'.
-
-## validate\_password
-
-Check whether the given password text has a hash matching the stored password hash.
 
 # LICENSING
 

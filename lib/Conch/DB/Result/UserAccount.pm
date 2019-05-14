@@ -40,7 +40,7 @@ __PACKAGE__->table("user_account");
   data_type: 'text'
   is_nullable: 0
 
-=head2 password_hash
+=head2 password
 
   data_type: 'text'
   is_nullable: 0
@@ -97,7 +97,7 @@ __PACKAGE__->add_columns(
   },
   "name",
   { data_type => "text", is_nullable => 0 },
-  "password_hash",
+  "password",
   { data_type => "text", is_nullable => 0 },
   "created",
   {
@@ -196,18 +196,33 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lpCibSMzmLuJyOnM4Hz69g
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oCbg42AWlr5N3Qt7+pLmKA
+
+use DBIx::Class::PassphraseColumn 0.04 ();
+__PACKAGE__->load_components('PassphraseColumn');
 
 __PACKAGE__->add_columns(
-    '+password_hash' => { is_serializable => 0 },
+    '+password' => {
+        is_serializable  => 0,
+        passphrase       => 'crypt',    # encoding used: 'rfc2307' or 'crypt'
+        passphrase_class => 'BlowfishCrypt',
+        passphrase_args  => {   # args passed to Authen::Passphrase::BlowfishCrypt->new
+            cost => (!$ENV{MOJO_MODE} && $ENV{CONCH_BLOWFISH_COST}) || 16,
+            salt_random => 1,
+        },
+        passphrase_check_method => 'check_password',
+    },
     '+deactivated' => { is_serializable => 0 },
 );
 
 use experimental 'signatures';
-use Encode ();
-use Crypt::Eksblowfish::Bcrypt qw(bcrypt en_base64);
 
 =head1 METHODS
+
+=head2 check_password
+
+Checks the provided password against the value in the database, returning true/false.
+Because hard cryptography is used, this is *not* a fast call!
 
 =head2 TO_JSON
 
@@ -250,66 +265,6 @@ sub TO_JSON ($self) {
     }
 
     return $data;
-}
-
-=head2 new
-
-Overrides original to move 'password' to 'password_hash'.
-
-=cut
-
-sub new ($self, $args) {
-    # extract non-column data to store in the right place
-    $args->{password_hash} = _hash_password(delete $args->{password})
-        if exists $args->{password};
-
-    return $self->next::method($args);
-}
-
-=head2 update
-
-Overrides original to move 'password' to 'password_hash'.
-
-=cut
-
-sub update ($self, $args = {}) {
-    # extract non-column data to store in the right place
-    $args->{password_hash} = _hash_password(delete $args->{password})
-        if exists $args->{password};
-
-    return $self->next::method($args);
-}
-
-=head2 validate_password
-
-Check whether the given password text has a hash matching the stored password hash.
-
-=cut
-
-sub validate_password ($self, $password) {
-    # handle legacy Dancer passwords (TODO: remove all remaining CRYPT constructs from
-    # passwords in the database using a migration script.)
-    (my $password_hash = $self->password_hash) =~ s/^{CRYPT}//;
-
-    return Mojo::Util::secure_compare(
-        $password_hash,
-        bcrypt(Encode::encode('UTF-8', $password), $password_hash),
-    );
-}
-
-use constant _BCRYPT_COST => 4; # dancer2 legacy
-
-sub _hash_password ($password) {
-    return bcrypt(
-        Encode::encode('UTF-8', $password),
-        join('$', '$2a', sprintf('%02d', _BCRYPT_COST || 6), _bcrypt_salt()),
-    );
-}
-
-sub _bcrypt_salt () {
-    my $num = 999999;
-    my $cr = crypt(rand($num), rand($num)) . crypt(rand($num), rand($num));
-    en_base64(substr($cr, 4, 16));
 }
 
 1;
