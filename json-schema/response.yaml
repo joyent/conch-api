@@ -284,7 +284,7 @@ definitions:
         description: the contents of the device report. Given its age we cannot provide a schema.
         anyOf:
           - type: 'null'
-          - $ref: device_report.yaml#/definitions/DeviceReport_v2.29
+          - $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
           - type: object
       invalid_report:
         description: this could be anything, from encoded json to random junk

@@ -123,7 +123,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: device_report.yaml
+=item * Request: device_report.yaml#/DeviceReport_v3.0.0
 
 =item * Response: response.yaml#/ValidationStateWithResults
 

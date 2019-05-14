@@ -60,7 +60,7 @@ definitions:
       vendor_name:
         type: string
   DeviceReport:
-    $ref: device_report.yaml#/definitions/DeviceReport_v2.29
+    $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
   RackCreate:
     type: object
     additionalProperties: false
