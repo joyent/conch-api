@@ -1,26 +1,6 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
-  non_empty_string:
-    $ref: common.yaml#/definitions/non_empty_string
-  uuid:
-    $ref: common.yaml#/definitions/uuid
-  relay_id:
-    $ref: common.yaml#/definitions/relay_id
-  device_id:
-    $ref: common.yaml#/definitions/device_id
-  device_asset_tag:
-    $ref: common.yaml#/definitions/device_asset_tag
-  device_phase:
-    $ref: common.yaml#/definitions/device_phase
-  ipaddr:
-    $ref: common.yaml#/definitions/ipaddr
-  macaddr:
-    $ref: common.yaml#/definitions/macaddr
-  int_or_stringy_int:
-    $ref: common.yaml#/definitions/int_or_stringy_int
-  email_address:
-    $ref: common.yaml#/definitions/email_address
   Null:
     type: 'null'
   DatacenterCreate:
@@ -60,7 +40,7 @@ definitions:
       - alias
     properties:
       datacenter:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       az:
         type: string
       alias:
@@ -72,7 +52,7 @@ definitions:
     additionalProperties: false
     properties:
       datacenter:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       az:
         type: string
       alias:
@@ -92,11 +72,11 @@ definitions:
       name:
         type: string
       datacenter_room_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       role:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
   RackUpdate:
     type: object
     additionalProperties: false
@@ -104,9 +84,9 @@ definitions:
       name:
         type: string
       datacenter_room_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       role: # TODO: this really should be rack_role_id
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       serial_number:
         oneOf:
           - type: 'null'
@@ -116,7 +96,7 @@ definitions:
           - type: 'null'
           - type: string
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
   RackAssignmentUpdates:
     type: array
     uniqueItems: true
@@ -130,13 +110,13 @@ definitions:
       - rack_unit_start
     properties:
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       rack_unit_start:
         description: Starting RU slot position
         type: integer
       device_asset_tag:
         oneOf:
-          - $ref: /definitions/device_asset_tag
+          - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
   RackAssignmentDeletes:
     type: array
@@ -151,7 +131,7 @@ definitions:
       - rack_unit_start
     properties:
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       rack_unit_start:
         description: Starting RU slot position
         type: integer
@@ -162,7 +142,7 @@ definitions:
       - phase
     properties:
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
   RackRoleCreate:
     type: object
     additionalProperties: false
@@ -191,9 +171,9 @@ definitions:
       - ru_start
     properties:
       rack_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       product_id: # TODO: this really should be hardware_product_id
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       ru_start: # TODO: this really should be rack_unit_start
         type: integer
   RackLayoutUpdate:
@@ -202,9 +182,9 @@ definitions:
     properties:
       # this field is deprecated: cannot change rack_id in an existing layout
       rack_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       product_id: # TODO: this really should be hardware_product_id
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       ru_start: # TODO: this really should be rack_unit_start
         type: integer
   WorkspaceRackLayoutUpdate:
@@ -223,7 +203,7 @@ definitions:
       - rack_unit
     properties:
       rack_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       rack_unit:
         type: integer
   HardwareProductCreate:
@@ -248,9 +228,9 @@ definitions:
           - type: string
           - type: 'null'
       vendor:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       hardware_vendor_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       specification:
         description: json blob of additional data
         oneOf:
@@ -378,11 +358,11 @@ definitions:
           - type: string
           - type: 'null'
       hardware_vendor_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       vendor:
         allOf:
           - description: for backcompat only.
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
       specification:
         description: json blob of additional data
         oneOf:
@@ -420,10 +400,10 @@ definitions:
     properties:
       user:
         anyOf:
-          - $ref: /definitions/uuid
-          - $ref: /definitions/email_address
+          - $ref: common.yaml#/definitions/uuid
+          - $ref: common.yaml#/definitions/email_address
       password:
-        $ref: /definitions/non_empty_string
+        $ref: common.yaml#/definitions/non_empty_string
   UserPassword:
     type: object
     additionalProperties: false
@@ -441,7 +421,7 @@ definitions:
       name:
         type: string
       email:
-        $ref: /definitions/email_address
+        $ref: common.yaml#/definitions/email_address
       password:
         type: string
       is_admin:
@@ -453,7 +433,7 @@ definitions:
       name:
         type: string
       email:
-        $ref: /definitions/email_address
+        $ref: common.yaml#/definitions/email_address
       is_admin:
         type: boolean
   UserSetting:
@@ -492,7 +472,7 @@ definitions:
       - id
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
   WorkspaceAddRack:
     type: object
     additionalProperties: false
@@ -500,7 +480,7 @@ definitions:
       - id
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       serial_number:
         type: string
       asset_tag:
@@ -513,12 +493,12 @@ definitions:
     properties:
       name:
         allOf:
-          - $ref: /definitions/non_empty_string
+          - $ref: common.yaml#/definitions/non_empty_string
           - $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         oneOf:
           - type: 'null'
-          - $ref: /definitions/non_empty_string
+          - $ref: common.yaml#/definitions/non_empty_string
   WorkspaceAddUser:
     type: object
     additionalProperties: false
@@ -528,7 +508,7 @@ definitions:
     properties:
       user:
         # TODO: maybe this should accept a user_id as well?
-        $ref: /definitions/email_address
+        $ref: common.yaml#/definitions/email_address
       role:
         type: string
         enum:
@@ -543,7 +523,7 @@ definitions:
     properties:
       asset_tag:
         oneOf:
-          - $ref: /definitions/device_asset_tag
+          - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
   DeviceTritonUuid:
     type: object
@@ -552,7 +532,7 @@ definitions:
       - triton_uuid
     properties:
       triton_uuid:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
   DevicePhase:
     type: object
     additionaProperties: false
@@ -560,7 +540,7 @@ definitions:
       - phase
     properties:
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
   DeviceSetting:
     allOf:
       - $ref: /definitions/DeviceSettings
@@ -579,7 +559,7 @@ definitions:
     items:
       allOf:
         - description: datacenter room ids
-        - $ref: /definitions/uuid
+        - $ref: common.yaml#/definitions/uuid
   RegisterRelay:
     type: object
     additionaProperties: false
@@ -587,7 +567,7 @@ definitions:
       - serial
     properties:
       serial:
-        $ref: /definitions/relay_id
+        $ref: common.yaml#/definitions/relay_id
       alias:
         type: string
       version:

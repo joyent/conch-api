@@ -1,22 +1,6 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
-  uuid:
-    $ref: common.yaml#/definitions/uuid
-  relay_id:
-    $ref: common.yaml#/definitions/relay_id
-  device_id:
-    $ref: common.yaml#/definitions/device_id
-  device_asset_tag:
-    $ref: common.yaml#/definitions/device_asset_tag
-  device_phase:
-    $ref: common.yaml#/definitions/device_phase
-  ipaddr:
-    $ref: common.yaml#/definitions/ipaddr
-  macaddr:
-    $ref: common.yaml#/definitions/macaddr
-  email_address:
-    $ref: common.yaml#/definitions/email_address
   validation_status:
     type: string
     enum:
@@ -85,16 +69,16 @@ definitions:
       - invalid_report
     properties:
       id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       asset_tag:
         oneOf:
-          - $ref: /definitions/device_asset_tag
+          - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
       created:
         type: string
         format: date-time
       hardware_product:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       health:
         $ref: /definitions/device_health
       hostname:
@@ -121,7 +105,7 @@ definitions:
       system_uuid:
         oneOf:
           - type: 'null'
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
       triton_setup:
         oneOf:
           - type: string
@@ -129,7 +113,7 @@ definitions:
           - type: 'null'
       triton_uuid:
         oneOf:
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       updated:
         type: string
@@ -145,7 +129,7 @@ definitions:
             format: date-time
           - type: 'null'
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
       location:
         oneOf:
           - $ref: /definitions/DeviceLocation
@@ -165,7 +149,7 @@ definitions:
             - peer_switch
           properties:
             mac:
-              $ref: /definitions/macaddr
+              $ref: common.yaml#/definitions/macaddr
             iface_name:
               type: string
             iface_vendor:
@@ -207,7 +191,7 @@ definitions:
             - updated
           properties:
             id:
-              $ref: /definitions/uuid
+              $ref: common.yaml#/definitions/uuid
             serial_number:
               type: string
             slot:
@@ -277,7 +261,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: /definitions/device_id
+      $ref: common.yaml#/definitions/device_id
   Devices:
     type: array
     uniqueItems: true
@@ -308,16 +292,16 @@ definitions:
       - rack_unit_start
     properties:
       id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       asset_tag:
         oneOf:
-          - $ref: /definitions/device_asset_tag
+          - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
       created:
         type: string
         format: date-time
       hardware_product:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       health:
         $ref: /definitions/device_health
       hostname:
@@ -344,10 +328,10 @@ definitions:
       system_uuid:
         oneOf:
           - type: 'null'
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
       triton_uuid:
         oneOf:
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       triton_setup:
         oneOf:
@@ -368,10 +352,10 @@ definitions:
             format: date-time
           - type: 'null'
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
       rack_id:
         oneOf:
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       rack_unit_start:
         oneOf:
@@ -401,9 +385,9 @@ definitions:
     additionalProperties: false
     properties:
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       mac:
-        $ref: /definitions/macaddr
+        $ref: common.yaml#/definitions/macaddr
       iface_name:
         type: string
       iface_vendor:
@@ -422,7 +406,7 @@ definitions:
           - type: 'null'
       ipaddr:
         oneOf:
-          - $ref: /definitions/ipaddr
+          - $ref: common.yaml#/definitions/ipaddr
           - type: 'null'
       mtu:
         oneOf:
@@ -447,7 +431,7 @@ definitions:
       - pxe
     properties:
       id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       location:
         oneOf:
           - type: 'null'
@@ -493,11 +477,11 @@ definitions:
               - ip
             properties:
               mac:
-                $ref: /definitions/macaddr
+                $ref: common.yaml#/definitions/macaddr
               ip:
                 oneOf:
                   - type: 'null'
-                  - $ref: /definitions/ipaddr
+                  - $ref: common.yaml#/definitions/ipaddr
       pxe:
         oneOf:
           - type: 'null'
@@ -507,7 +491,7 @@ definitions:
               - mac
             properties:
               mac:
-                $ref: /definitions/macaddr
+                $ref: common.yaml#/definitions/macaddr
   DevicePhase:
     type: object
     additionalProperties: false
@@ -516,9 +500,9 @@ definitions:
       - phase
     properties:
       id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
   WorkspaceDevicePXEs:
     type: array
     uniqueItems: true
@@ -532,7 +516,7 @@ definitions:
         - pxe
       properties:
         id:
-          $ref: /definitions/device_id
+          $ref: common.yaml#/definitions/device_id
         location:
           type: object
           additionalProperties: false
@@ -576,11 +560,11 @@ definitions:
                 - ip
               properties:
                 mac:
-                  $ref: /definitions/macaddr
+                  $ref: common.yaml#/definitions/macaddr
                 ip:
                   oneOf:
                     - type: 'null'
-                    - $ref: /definitions/ipaddr
+                    - $ref: common.yaml#/definitions/ipaddr
         pxe:
           oneOf:
             - type: 'null'
@@ -590,7 +574,7 @@ definitions:
                 - mac
               properties:
                 mac:
-                  $ref: /definitions/macaddr
+                  $ref: common.yaml#/definitions/macaddr
   DeviceLocation:
     type: object
     additionalProperties: false
@@ -622,7 +606,7 @@ definitions:
           id:
             allOf:
               - description: hardware product ID
-              - $ref: /definitions/uuid
+              - $ref: common.yaml#/definitions/uuid
           name:
             description: Hardware product name
             type: string
@@ -664,7 +648,7 @@ definitions:
       - updated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       alias:
@@ -676,7 +660,7 @@ definitions:
       hardware_vendor_id:
         allOf:
           - description: Hardware product vendor id
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
       generation_name:
         oneOf:
           - type: string
@@ -738,7 +722,7 @@ definitions:
       - usb_num
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       bios_firmware:
         type: string
       cpu_num:
@@ -841,7 +825,7 @@ definitions:
           additionalProperties: false
           properties:
             id:
-              $ref: /definitions/uuid
+              $ref: common.yaml#/definitions/uuid
             name:
               type: string
             phase:
@@ -878,7 +862,7 @@ definitions:
       - slots
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       role: # TODO: this really should be rack_role_id
@@ -887,7 +871,7 @@ definitions:
         description: datacenter room AZ
         type: string
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
       slots:
         type: array
         uniqueItems: true
@@ -906,7 +890,7 @@ definitions:
             id:
               allOf:
                 - description: Hardware product ID
-                - $ref: /definitions/uuid
+                - $ref: common.yaml#/definitions/uuid
             rack_unit_start:
               description: Starting RU slot position
               type: integer
@@ -958,7 +942,7 @@ definitions:
       - deactivated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       version:
@@ -991,7 +975,7 @@ definitions:
       - created
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       description:
@@ -1017,7 +1001,7 @@ definitions:
       id:
         oneOf:
           - type: 'null'
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
       category:
         type: string
       component_id:
@@ -1025,9 +1009,9 @@ definitions:
           - type: 'null'
           - type: string
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       hardware_product_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       hint:
         oneOf:
           - type: 'null'
@@ -1039,7 +1023,7 @@ definitions:
       status:
         $ref: /definitions/validation_status
       validation_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
   ValidationResults:
     type: array
     uniqueItems: true
@@ -1058,7 +1042,7 @@ definitions:
       - device_report_id
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       completed:
         oneOf:
           - type: 'null'
@@ -1068,13 +1052,13 @@ definitions:
         type: string
         format: date-time
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       status:
         $ref: /definitions/validation_status
       validation_plan_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       device_report_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
   ValidationStatesWithResults:
     type: array
     uniqueItems: true
@@ -1094,7 +1078,7 @@ definitions:
       - device_report_id
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       completed:
         oneOf:
           - type: 'null'
@@ -1104,7 +1088,7 @@ definitions:
         type: string
         format: date-time
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       results:
         type: array
         uniqueItems: true
@@ -1113,9 +1097,9 @@ definitions:
       status:
         $ref: /definitions/validation_status
       validation_plan_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       device_report_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
   ReportValidationResults:
     type: object
     additionalProperties: false
@@ -1126,9 +1110,9 @@ definitions:
       - results
     properties:
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       validation_plan_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       status:
         $ref: /definitions/validation_status
       results:
@@ -1152,7 +1136,7 @@ definitions:
         - num_devices
       properties:
         id:
-          $ref: /definitions/relay_id
+          $ref: common.yaml#/definitions/relay_id
         alias:
           oneOf:
             - type: string
@@ -1163,7 +1147,7 @@ definitions:
             - type: 'null'
         ipaddr:
           oneOf:
-            - $ref: /definitions/ipaddr
+            - $ref: common.yaml#/definitions/ipaddr
             - type: 'null'
         ssh_port:
           oneOf:
@@ -1187,7 +1171,7 @@ definitions:
             - az
           properties:
             rack_id:
-              $ref: /definitions/uuid
+              $ref: common.yaml#/definitions/uuid
             rack_name:
               type: string
             rack_unit_start:
@@ -1212,7 +1196,7 @@ definitions:
       - role
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       description:
@@ -1221,7 +1205,7 @@ definitions:
           - type: 'null'
       parent_id:
         oneOf:
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       role:
         type: string
@@ -1232,7 +1216,7 @@ definitions:
       role_via:
         allOf:
           - description: the id of the workspace where the permissions came from
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
   WorkspacesAndRoles:
     type: array
     uniqueItems: true
@@ -1251,17 +1235,17 @@ definitions:
         - role
       properties:
         id:
-          $ref: /definitions/uuid
+          $ref: common.yaml#/definitions/uuid
         name:
           type: string
         email:
-          $ref: /definitions/email_address
+          $ref: common.yaml#/definitions/email_address
         role:
           type: string
         role_via:
           allOf:
             - description: this is the id of the workspace where the permissions came from
-            - $ref: /definitions/uuid
+            - $ref: common.yaml#/definitions/uuid
   Datacenters:
     type: array
     uniqueItems: true
@@ -1280,7 +1264,7 @@ definitions:
       - updated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       vendor:
         type: string
       vendor_name:
@@ -1315,7 +1299,7 @@ definitions:
       - updated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       az:
         type: string
       alias:
@@ -1327,7 +1311,7 @@ definitions:
       datacenter:
         allOf:
           - description: datacenter id
-          - $ref: /definitions/uuid
+          - $ref: common.yaml#/definitions/uuid
       created:
         type: string
         format: date-time
@@ -1352,7 +1336,7 @@ definitions:
       - version
     properties:
       id:
-        $ref: /definitions/relay_id
+        $ref: common.yaml#/definitions/relay_id
       alias:
         oneOf:
           - type: string
@@ -1362,7 +1346,7 @@ definitions:
         format: date-time
       ipaddr:
         oneOf:
-          - $ref: /definitions/ipaddr
+          - $ref: common.yaml#/definitions/ipaddr
           - type: 'null'
       ssh_port:
         oneOf:
@@ -1403,23 +1387,23 @@ definitions:
       - updated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       datacenter_room_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       role: # TODO: this really should be rack_role_id
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       serial_number:
         oneOf:
           - type: string
           - type: 'null'
       asset_tag:
         oneOf:
-          - $ref: /definitions/device_asset_tag
+          - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
       phase:
-        $ref: /definitions/device_phase
+        $ref: common.yaml#/definitions/device_phase
       created:
         type: string
         format: date-time
@@ -1437,7 +1421,7 @@ definitions:
       - updated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       rack_size:
@@ -1470,11 +1454,11 @@ definitions:
       - updated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       rack_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       product_id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       ru_start: # TODO: this really should be rack_unit_start
         type: integer
       created:
@@ -1500,11 +1484,11 @@ definitions:
     properties:
       device_id:
         oneOf:
-          - $ref: /definitions/device_id
+          - $ref: common.yaml#/definitions/device_id
           - type: 'null'
       device_asset_tag:
         oneOf:
-          - $ref: /definitions/device_asset_tag
+          - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
       hardware_product:
         description: name of the hardware_product designated for that slot
@@ -1524,9 +1508,9 @@ definitions:
       - name
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       email:
-        $ref: /definitions/email_address
+        $ref: common.yaml#/definitions/email_address
       name:
         type: string
   UserError:
@@ -1549,9 +1533,9 @@ definitions:
           - deactivated
         properties:
           id:
-            $ref: /definitions/uuid
+            $ref: common.yaml#/definitions/uuid
           email:
-            $ref: /definitions/email_address
+            $ref: common.yaml#/definitions/email_address
           name:
             type: string
           created:
@@ -1577,11 +1561,11 @@ definitions:
       - workspaces
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       email:
-        $ref: /definitions/email_address
+        $ref: common.yaml#/definitions/email_address
       created:
         type: string
         format: date-time
@@ -1675,7 +1659,7 @@ definitions:
       - updated
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       name:
         type: string
       created:
@@ -1767,9 +1751,9 @@ definitions:
       - invalid_report
     properties:
       id:
-        $ref: /definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       device_id:
-        $ref: /definitions/device_id
+        $ref: common.yaml#/definitions/device_id
       report:
         description: the contents of the device report. Given its age we cannot provide a schema.
         oneOf:
