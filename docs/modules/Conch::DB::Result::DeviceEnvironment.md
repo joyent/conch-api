@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceEnvironment
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `device_environment`
 
@@ -86,7 +86,7 @@ original: {default_value => \"now()"}
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](https://joyent.github.io/conch/modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](/modules/Conch::DB::Result::Device)
 
 # LICENSING
 

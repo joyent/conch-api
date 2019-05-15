@@ -16,15 +16,15 @@ use Devel::Confess;
 my %opts = (
     output_encoding => 'UTF-8',
     local_module_re => qr/Conch/,
-    local_module_url_prefix => 'https://joyent.github.io/conch/modules/',
+    local_module_url_prefix => '/modules/',
 );
 
 while (my $infile = shift @ARGV) {
     # convert:                          lib/Conch/Time.pm
     # to:                               doc/modules/Conch::Time.md
-    # to produce a final URL:           https://joyent.github.io/conch/modules/Conch::Time.md
-    # so links in pod that look like:   L<Conch::Time>
-    # convert to markdown like:         https://joyent.github.io/conch/modules/Conch::Time
+    # containing pod links like:        L<Conch::Time>
+    # become relative URLs like:        /modules/Conch::Time
+    # that turn into the absolute url:  https://joyent.github.io/conch/modules/Conch::Time
 
     my $outfile = $infile;
     $outfile =~ s{^lib/}{};

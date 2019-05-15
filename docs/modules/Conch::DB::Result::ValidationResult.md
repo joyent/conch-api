@@ -2,7 +2,7 @@
 
 Conch::DB::Result::ValidationResult
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `validation_result`
 
@@ -105,25 +105,25 @@ original: {default_value => \"now()"}
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](https://joyent.github.io/conch/modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](/modules/Conch::DB::Result::Device)
 
 ## hardware\_product
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::HardwareProduct](https://joyent.github.io/conch/modules/Conch::DB::Result::HardwareProduct)
+Related object: [Conch::DB::Result::HardwareProduct](/modules/Conch::DB::Result::HardwareProduct)
 
 ## validation
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Validation](https://joyent.github.io/conch/modules/Conch::DB::Result::Validation)
+Related object: [Conch::DB::Result::Validation](/modules/Conch::DB::Result::Validation)
 
 ## validation\_state\_members
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationStateMember](https://joyent.github.io/conch/modules/Conch::DB::Result::ValidationStateMember)
+Related object: [Conch::DB::Result::ValidationStateMember](/modules/Conch::DB::Result::ValidationStateMember)
 
 ## validation\_states
 

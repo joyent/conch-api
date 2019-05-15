@@ -2,7 +2,7 @@
 
 Conch::DB::Result::RackRole
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `rack_role`
 
@@ -70,7 +70,7 @@ original: {default_value => \"now()"}
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::Rack](https://joyent.github.io/conch/modules/Conch::DB::Result::Rack)
+Related object: [Conch::DB::Result::Rack](/modules/Conch::DB::Result::Rack)
 
 # LICENSING
 

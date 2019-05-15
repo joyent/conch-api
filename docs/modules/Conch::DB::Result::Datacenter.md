@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Datacenter
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `datacenter`
 
@@ -73,7 +73,7 @@ original: {default_value => \"now()"}
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DatacenterRoom](https://joyent.github.io/conch/modules/Conch::DB::Result::DatacenterRoom)
+Related object: [Conch::DB::Result::DatacenterRoom](/modules/Conch::DB::Result::DatacenterRoom)
 
 # LICENSING
 
