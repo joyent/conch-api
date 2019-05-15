@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceNic
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `device_nic`
 
@@ -114,13 +114,13 @@ is_nullable: 1
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](https://joyent.github.io/conch/modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](/modules/Conch::DB::Result::Device)
 
 ## device\_neighbor
 
 Type: might\_have
 
-Related object: [Conch::DB::Result::DeviceNeighbor](https://joyent.github.io/conch/modules/Conch::DB::Result::DeviceNeighbor)
+Related object: [Conch::DB::Result::DeviceNeighbor](/modules/Conch::DB::Result::DeviceNeighbor)
 
 # LICENSING
 

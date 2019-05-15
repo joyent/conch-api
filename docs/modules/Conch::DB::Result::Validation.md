@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Validation
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `validation`
 
@@ -87,13 +87,13 @@ is_nullable: 1
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationPlanMember](https://joyent.github.io/conch/modules/Conch::DB::Result::ValidationPlanMember)
+Related object: [Conch::DB::Result::ValidationPlanMember](/modules/Conch::DB::Result::ValidationPlanMember)
 
 ## validation\_results
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationResult](https://joyent.github.io/conch/modules/Conch::DB::Result::ValidationResult)
+Related object: [Conch::DB::Result::ValidationResult](/modules/Conch::DB::Result::ValidationResult)
 
 ## validation\_plans
 

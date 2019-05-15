@@ -2,7 +2,7 @@
 
 Conch::DB::Result::HardwareProduct
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `hardware_product`
 
@@ -110,31 +110,31 @@ is_nullable: 1
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::Device](https://joyent.github.io/conch/modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](/modules/Conch::DB::Result::Device)
 
 ## hardware\_product\_profile
 
 Type: might\_have
 
-Related object: [Conch::DB::Result::HardwareProductProfile](https://joyent.github.io/conch/modules/Conch::DB::Result::HardwareProductProfile)
+Related object: [Conch::DB::Result::HardwareProductProfile](/modules/Conch::DB::Result::HardwareProductProfile)
 
 ## hardware\_vendor
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::HardwareVendor](https://joyent.github.io/conch/modules/Conch::DB::Result::HardwareVendor)
+Related object: [Conch::DB::Result::HardwareVendor](/modules/Conch::DB::Result::HardwareVendor)
 
 ## rack\_layouts
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::RackLayout](https://joyent.github.io/conch/modules/Conch::DB::Result::RackLayout)
+Related object: [Conch::DB::Result::RackLayout](/modules/Conch::DB::Result::RackLayout)
 
 ## validation\_results
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationResult](https://joyent.github.io/conch/modules/Conch::DB::Result::ValidationResult)
+Related object: [Conch::DB::Result::ValidationResult](/modules/Conch::DB::Result::ValidationResult)
 
 # LICENSING
 

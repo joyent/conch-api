@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceNeighbor
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `device_neighbor`
 
@@ -86,7 +86,7 @@ is_nullable: 1
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::DeviceNic](https://joyent.github.io/conch/modules/Conch::DB::Result::DeviceNic)
+Related object: [Conch::DB::Result::DeviceNic](/modules/Conch::DB::Result::DeviceNic)
 
 # LICENSING
 

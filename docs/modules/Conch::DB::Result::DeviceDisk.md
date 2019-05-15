@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceDisk
 
-# BASE CLASS: [Conch::DB::Result](https://joyent.github.io/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
 
 # TABLE: `device_disk`
 
@@ -150,7 +150,7 @@ is_nullable: 1
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](https://joyent.github.io/conch/modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](/modules/Conch::DB::Result::Device)
 
 # LICENSING
 
