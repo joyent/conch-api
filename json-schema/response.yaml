@@ -964,6 +964,7 @@ definitions:
           pattern: ^[\w-]+$
   Validations:
     type: array
+    uniqueItems: true
     items:
       $ref: /definitions/Validation
   Validation:
