@@ -406,25 +406,6 @@ definitions:
     properties:
       name:
         type: string
-  CreateValidationPlan:
-    type: object
-    additionalProperties: false
-    required:
-      - name
-      - description
-    properties:
-      name:
-        type: string
-      description:
-        type: string
-  AddValidationToPlan:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-    properties:
-      id:
-        $ref: common.yaml#/definitions/uuid
   WorkspaceAddRack:
     type: object
     additionalProperties: false
@@ -501,13 +482,6 @@ definitions:
     minProperties: 1
     propertyNames:
       $ref: common.yaml#/definitions/device_setting_key
-  WorkspaceRoomReplace:
-    type: array
-    uniqueItems: true
-    items:
-      allOf:
-        - description: datacenter room ids
-        - $ref: common.yaml#/definitions/uuid
   RegisterRelay:
     type: object
     additionaProperties: false

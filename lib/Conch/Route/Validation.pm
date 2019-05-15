@@ -39,9 +39,6 @@ sub routes {
     my $vp = $r->any('/validation_plan');
     $vp->to({ controller => 'validation_plan' });
 
-    # POST /validation_plan -> GONE
-    $vp->post('/')->to('#create');
-
     # GET /validation_plan
     $vp->get('/')->to('#list');
 
@@ -53,12 +50,6 @@ sub routes {
 
         # GET /validation_plan/:validation_plan_id_or_name/validation
         $with_plan->get('/validation')->to('#list_validations');
-
-        # POST /validation_plan/:validation_plan_id_or_name/validation -> GONE
-        $with_plan->post('/validation')->to('#add_validation');
-
-        # DELETE /validation_plan/:validation_plan_id_or_name/validation/:validation_id -> GONE
-        $with_plan->delete('/validation/<validation_id:uuid>')->to('#remove_validation');
     }
 
     {

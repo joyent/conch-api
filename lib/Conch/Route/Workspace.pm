@@ -72,11 +72,6 @@ sub routes {
             $with_workspace_rack->delete('/')->to('workspace_rack#remove');
         }
 
-        # GET /workspace/:workspace_id_or_name/room -> GONE
-        $with_workspace->get('/room', sub { shift->status(410) });
-        # PUT /workspace/:workspace_id_or_name/room -> GONE
-        $with_workspace->put('/room', sub { shift->status(410) });
-
         # GET /workspace/:workspace_id_or_name/relay
         $with_workspace->get('/relay')->to('workspace_relay#list');
         # GET /workspace/:workspace_id_or_name/relay/:relay_id/device

@@ -14,35 +14,6 @@ Controller for managing Validation Plans
 
 =head1 METHODS
 
-=head2 create
-
-Create new Validation Plan.
-
-=cut
-
-sub create ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
-    # this endpoint is temporarily (?) disabled
-    return $c->status(410);
-
-    my $input = $c->validate_request('CreateValidationPlan');
-    return if not $input;
-
-    if (my $existing_validation_plan = $c->db_validation_plans->active->search({ name => $input->{name} })->single) {
-        $c->log->debug("Name conflict on '$input->{name}'");
-        return $c->status(409, {
-            error => "A Validation Plan already exists with the name '$input->{name}'"
-        });
-    }
-
-    my $validation_plan = $c->db_validation_plans->create($input);
-
-    $c->log->debug('Created validation plan '.$validation_plan->id);
-
-    $c->status(303, '/validation_plan/'.$validation_plan->id);
-}
-
 =head2 list
 
 List all available Validation Plans.
@@ -107,62 +78,6 @@ sub list_validations ($c) {
     $c->log->debug('Found '.scalar(@validations).' validations for validation plan '.$c->stash('validation_plan')->id);
 
     $c->status(200, \@validations);
-}
-
-=head2 add_validation
-
-Add a validation to a validation plan.
-
-=cut
-
-sub add_validation ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
-    # this endpoint is temporarily (?) disabled
-    return $c->status(410);
-
-    my $input = $c->validate_request('AddValidationToPlan');
-    return if not $input;
-
-    my $validation = $c->db_validations->active->find($input->{id});
-    if (not $validation) {
-        $c->log->debug("Failed to find validation $input->{id}");
-        return $c->status(409, { error => "Validation with ID '$input->{id}' doesn't exist" });
-    }
-
-    $c->stash('validation_plan')
-        ->find_or_create_related('validation_plan_members', { validation_id => $validation->id });
-
-    $c->log->debug('Added validation '.$validation->id.' to validation plan'.$c->stash('validation_plan')->id);
-
-    $c->status(204);
-}
-
-=head2 remove_validation
-
-Remove a Validation associated with the Validation Plan
-
-=cut
-
-sub remove_validation ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
-    # this endpoint is temporarily (?) disabled
-    return $c->status(410);
-
-    my $validation_id = $c->stash('validation_id');
-    my $validation_plan = $c->stash('validation_plan');
-    if (not $validation_plan->search_related('validation_plan_members', { validation_id => $validation_id })) {
-        $c->log->debug("Validation with ID '$validation_id' isn't a member of the Validation Plan");
-        return $c->status(409, {
-            error => "Validation with ID '$validation_id' isn't a member of the Validation Plan"
-        });
-    }
-
-    $validation_plan->delete_related('validation_plan_members', { validation_id => $validation_id });
-    $c->log->debug("Removed validation $validation_id from validation plan".$c->stash('validation_plan')->id);
-
-    $c->status(204);
 }
 
 1;
