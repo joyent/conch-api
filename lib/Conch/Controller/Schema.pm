@@ -19,7 +19,7 @@ Get the json-schema in JSON format.
 =cut
 
 sub get ($c) {
-    my $type = $c->stash('request_or_response');
+    my $type = $c->stash('schema_type');
     my $name = camelize $c->stash('name');
 
     my $validator = $type eq 'response' ? $c->get_response_validator
