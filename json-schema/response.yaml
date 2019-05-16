@@ -946,20 +946,6 @@ definitions:
               oneOf:
                 - $ref: /definitions/Device
                 - type: 'null'
-  WorkspaceRackLayoutUpdateResponse:
-    type: object
-    additionalProperties: false
-    required:
-      - updated
-    properties:
-      updated:
-        type: array
-        uniqueItems: true
-        minItems: 1
-        items:
-          description: device_id
-          type: string
-          pattern: ^[\w-]+$
   Validations:
     type: array
     uniqueItems: true

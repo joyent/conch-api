@@ -377,22 +377,6 @@ subtest 'Device Report' => sub {
     );
 };
 
-subtest 'Single device' => sub {
-    my $rack_id = $t->load_fixture('legacy_rack')->id;
-
-    # device settings that check for 'admin' permission need the device to have a location
-    $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout",
-            json => { TEST => 1, NEW_DEVICE => 3 })
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRackLayoutUpdateResponse')
-        ->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
-
-    ok(
-        !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
-        'device is now located',
-    );
-};
-
 subtest 'Validations' => sub {
     my $validation_id = $t->app->db_validations->get_column('id')->single;
 
@@ -633,11 +617,6 @@ subtest 'Permissions' => sub {
 
         subtest "Can't add a rack" => sub {
             $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
-                ->status_is(403);
-        };
-
-        subtest "Can't set a rack layout" => sub {
-            $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout", json => { TEST => 1 })
                 ->status_is(403);
         };
 

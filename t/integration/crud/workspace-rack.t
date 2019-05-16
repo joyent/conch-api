@@ -152,15 +152,17 @@ CSV
 };
 
 subtest 'Assign device to a location' => sub {
-    $t->post_ok("/workspace/$sub_ws_id/rack/$rack_id/layout", json => { TEST => 42 })
-        ->status_is(409)
-        ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
+    $t->post_ok('/rack/'.$rack_id.'/assignment',
+            json => [ { device_id => 'TEST', rack_unit_start => 42 } ])
+        ->status_is(400)
+        ->json_is({ error => 'missing layout for rack_unit_start 42' });
 
-    $t->post_ok("/workspace/$sub_ws_id/rack/$rack_id/layout",
-            json => { TEST => 1, NEW_DEVICE => 3 })
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRackLayoutUpdateResponse')
-        ->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
+    $t->post_ok('/rack/'.$rack_id.'/assignment', json => [
+            { device_id => 'TEST', rack_unit_start => 1 },
+            { device_id => 'NEW_DEVICE', rack_unit_start => 3 },
+        ])
+        ->status_is(303)
+        ->location_is('/rack/'.$rack_id.'/assignment');
 
     ok(
         !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,

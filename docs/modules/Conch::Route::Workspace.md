@@ -71,11 +71,6 @@ If the Accepts header specifies `text/csv` it will return a CSV document.
 - Requires Workspace Admin Authentication
 - Response: `204 NO CONTENT`
 
-### `POST /workspace/:workspace_id_or_name/rack/:rack_id/layout`
-
-- Request: request.yaml#/WorkspaceRackLayoutUpdate
-- Response: response.yaml#/WorkspaceRackLayoutUpdateResponse
-
 ### `GET /workspace/:workspace_id_or_name/relay`
 
 Takes one query optional parameter,  `active_within=X` to constrain results to
