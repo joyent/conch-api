@@ -73,7 +73,8 @@ sub all_routes (
     # POST /reset_password -> GONE
     $root->post('/reset_password', sub ($c) { $c->status(410) });
 
-    # GET /schema/:input_or_response/:schema_name
+    # GET /schema/request/:schema_name
+    # GET /schema/response/:schema_name
     $root->get('/schema/:request_or_response/:name',
         [ request_or_response => [qw(request response)] ])->to('schema#get');
 

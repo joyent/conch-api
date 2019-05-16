@@ -20,6 +20,11 @@ Sets up the routes for /workspace:
     POST    /workspace/:workspace_id_or_name/child
 
     GET     /workspace/:workspace_id_or_name/device
+                ?graduated=<T|F>
+                ?validated=<T|F>
+                ?health=<error|fail|unknown|pass>
+                ?active=T
+                ?ids_only=T
     GET     /workspace/:workspace_id_or_name/device/active
     GET     /workspace/:workspace_id_or_name/device/pxe
 
@@ -62,10 +67,10 @@ sub routes {
         # POST /workspace/:workspace_id_or_name/child
         $with_workspace->post('/child')->to('workspace#create_sub_workspace');
 
-        # GET /workspace/:workspace_id_or_name/device
+        # GET /workspace/:workspace_id_or_name/device?<various query params>
         $with_workspace->get('/device')->to('workspace_device#list');
 
-        # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?t
+        # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?active=t
         $with_workspace->get(
             '/device/active',
             sub ($c) {
