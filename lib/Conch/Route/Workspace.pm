@@ -43,16 +43,6 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/device?<various query params>
         $with_workspace->get('/device')->to('workspace_device#list');
 
-        # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?active=t
-        $with_workspace->get(
-            '/device/active',
-            sub ($c) {
-                $c->redirect_to(
-                    $c->url_for('/workspace/'.$c->stash('workspace_id').'/device')
-                        ->query(active => 't'));
-            }
-        );
-
         # GET /workspace/:workspace_id_or_name/device/pxe
         $with_workspace->get('/device/pxe')->to('workspace_device#get_pxe_devices');
 
@@ -155,10 +145,6 @@ Accepts the following optional query parameters:
 =item * Response: response.yaml#/Devices
 
 =back
-
-=head3 C<< GET /workspace/:workspace_id_or_name/device/active >>
-
-An alias for C</workspace/:workspace_id_or_name/device?active=t>.
 
 =head3 C<GET /workspace/:workspace_id_or_name/device/pxe>
 

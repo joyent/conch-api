@@ -181,24 +181,6 @@ $t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
 
-# /device/active redirects to /device so first make sure there is a redirect,
-# then follow it and verify the results
-subtest 'Redirect /workspace/:id/device/active' => sub {
-    $t->get_ok("/workspace/$global_ws_id/device/active")
-        ->status_is(302)
-        ->location_is("/workspace/$global_ws_id/device?active=t");
-
-    my $temp = $t->ua->max_redirects;
-    $t->ua->max_redirects(1);
-
-    $t->get_ok("/workspace/$global_ws_id/device/active")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_is([ $devices_data->[0] ]);
-
-    $t->ua->max_redirects($temp);
-};
-
 subtest 'Devices with PXE data' => sub {
     $t->app->db_device_neighbors->delete;
     $t->app->db_device_nics->delete;

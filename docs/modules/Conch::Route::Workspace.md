@@ -43,10 +43,6 @@ Accepts the following optional query parameters:
 
 - Response: response.yaml#/Devices
 
-### `GET /workspace/:workspace_id_or_name/device/active`
-
-An alias for `/workspace/:workspace_id_or_name/device?active=t`.
-
 ### `GET /workspace/:workspace_id_or_name/device/pxe`
 
 - Response: response.yaml#/WorkspaceDevicePXEs
