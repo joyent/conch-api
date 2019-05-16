@@ -15,6 +15,11 @@ GET     /workspace/:workspace_id_or_name/child
 POST    /workspace/:workspace_id_or_name/child
 
 GET     /workspace/:workspace_id_or_name/device
+            ?graduated=<T|F>
+            ?validated=<T|F>
+            ?health=<error|fail|unknown|pass>
+            ?active=T
+            ?ids_only=T
 GET     /workspace/:workspace_id_or_name/device/active
 GET     /workspace/:workspace_id_or_name/device/pxe
 
