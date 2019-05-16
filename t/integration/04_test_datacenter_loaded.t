@@ -540,12 +540,12 @@ subtest 'Validations' => sub {
             },
         ]);
 
-    $t->get_ok('/device/TEST/validation_state?status=pass,fail')
+    $t->get_ok('/device/TEST/validation_state?status=pass&status=fail')
         ->status_is(200)
         ->json_schema_is('ValidationStatesWithResults')
         ->json_is($validation_states);
 
-    $t->get_ok('/device/TEST/validation_state?status=pass,bar')
+    $t->get_ok('/device/TEST/validation_state?status=pass&status=bar')
         ->status_is(400)
         ->json_is({ error => "'status' query parameter must be any of 'pass', 'fail', or 'error'." });
 };
