@@ -128,15 +128,15 @@ Accepts the following optional query parameters:
 
 =over 4
 
-=item * C<< graduated=<T|F> >> show only devices where the C<graduated> attribute is set/not-set
+=item * C<< graduated=<1|0> >> show only devices where the C<graduated> attribute is set/not-set
 
-=item * C<< validated=<T|F> >> show only devices where the C<validated> attribute is set/not-set
+=item * C<< validated=<1|0> >> show only devices where the C<validated> attribute is set/not-set
 
-=item * C<< health=<value> >> show only devices with the health matching the provided value (case-insensitive)
+=item * C<< health=<value> >> show only devices with the health matching the provided value
 
-=item * C<active=t> show only devices which have reported within the last 5 minutes (this is different from all active devices)
+=item * C<active_minutes=X> show only devices which have reported within the last X minutes (this is different from all active devices)
 
-=item * C<ids_only=t> only return device IDs, not full device details
+=item * C<ids_only=1> only return device IDs, not full device details
 
 =back
 

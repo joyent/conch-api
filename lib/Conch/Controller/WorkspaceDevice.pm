@@ -18,14 +18,16 @@ Conch::Controller::WorkspaceDevice
 Get a list of all active devices in the current workspace (as specified by :workspace_id in the
 path).
 
-Supports these query parameters to constrain results (which are ANDed together, not ORed):
+Supports these query parameters to constrain results (which are ANDed together for the search,
+not ORed):
 
-    graduated=T     only devices with graduated set
-    graduated=F     only devices with graduated not set
-    validated=T     only devices with validated set
-    validated=F     only devices with validated not set
-    health=<value>  only devices with health matching provided value (case-insensitive)
-    active=1        only devices last seen within 5 minutes (FIXME: ambiguous name)
+    graduated=1     only devices with graduated set
+    graduated=0     only devices with graduated not set
+    validated=1     only devices with validated set
+    validated=0     only devices with validated not set
+    health=<value>  only devices with health matching the provided value
+        (can be used more than once to search for ANY of the specified health values)
+    active_minutes=X  only devices last seen within X minutes
     ids_only=1      only return device ids, not full data
 
 Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>.
@@ -44,27 +46,29 @@ sub list ($c) {
     my $params = $c->req->query_params->to_hash;
 
     $devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })
-        if defined $params->{graduated} and uc $params->{graduated} eq 'T';
+        if $params->{graduated};
 
     $devices_rs = $devices_rs->search({ graduated => undef })
-        if defined $params->{graduated} and uc $params->{graduated} eq 'F';
+        if defined $params->{graduated} and not $params->{graduated};
 
     $devices_rs = $devices_rs->search({ validated => { '!=' => undef } })
-        if defined $params->{validated} and uc $params->{validated} eq 'T';
+        if $params->{validated};
 
     $devices_rs = $devices_rs->search({ validated => undef })
-        if defined $params->{validated} and uc $params->{validated} eq 'F';
+        if defined $params->{validated} and not $params->{validated};
 
     if (defined $params->{health}) {
-        # requested health parameter is incompatible with device_health_enum
-        return $c->status(200, [])
-            if none { lc $params->{health} eq $_ } $devices_rs->result_source->column_info('health')->{extra}{list}->@*;
+        my @all_health_values = $devices_rs->result_source->column_info('health')->{extra}{list}->@*;
+        my @health = $c->req->query_params->every_param('health')->@*;
+        if (my @bad = grep { my $val = $_; none { $val eq $_ } @all_health_values } @health) {
+            return $c->status(400, { error => 'Unrecognized device health value "'.$bad[0].'"' } );
+        }
 
-        $devices_rs = $devices_rs->search({ health => lc $params->{health} });
+        $devices_rs = $devices_rs->search({ health => \@health });
     }
 
-    $devices_rs = $devices_rs->search({ last_seen => { '>' => \q{now() - interval '300 second'}} })
-        if defined $params->{active};
+    $devices_rs = $devices_rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
+        if $params->{active_minutes};
 
     $devices_rs = $params->{ids_only}
         ? $devices_rs->get_column('id')
