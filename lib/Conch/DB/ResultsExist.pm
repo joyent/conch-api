@@ -41,7 +41,7 @@ sub exists ($self) {
 
     my ($exists) = $self->result_source->schema->storage->dbh_do(sub ($storage, $dbh) {
         # cribbed from DBIx::Class::Storage::DBI::_format_for_trace
-        $storage->debugobj->query_start($statement, map +(defined($_) ? qq{'$_'} : q{NULL}), @binds)
+        $storage->debugobj->query_start($statement, map +(defined($_) ? qq{'$_'} : 'NULL'), @binds)
             if $storage->debug;
 
         $dbh->selectrow_array($statement, undef, @binds);
