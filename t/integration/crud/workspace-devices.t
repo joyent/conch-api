@@ -171,12 +171,12 @@ $t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
     ->json_schema_is('DeviceIds')
     ->json_is(['TEST']);
 
-$t->get_ok("/workspace/$global_ws_id/device?active=t")
+$t->get_ok("/workspace/$global_ws_id/device?active=1")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
+$t->get_ok("/workspace/$global_ws_id/device?active=1&graduated=t")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
@@ -186,7 +186,7 @@ $t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
 subtest 'Redirect /workspace/:id/device/active' => sub {
     $t->get_ok("/workspace/$global_ws_id/device/active")
         ->status_is(302)
-        ->location_is("/workspace/$global_ws_id/device?active=t");
+        ->location_is("/workspace/$global_ws_id/device?active=1");
 
     my $temp = $t->ua->max_redirects;
     $t->ua->max_redirects(1);

@@ -18,8 +18,8 @@ GET     /workspace/:workspace_id_or_name/device
             ?graduated=<T|F>
             ?validated=<T|F>
             ?health=<error|fail|unknown|pass>
-            ?active=T
-            ?ids_only=T
+            ?active=1
+            ?ids_only=1
 GET     /workspace/:workspace_id_or_name/device/active
 GET     /workspace/:workspace_id_or_name/device/pxe
 

@@ -23,8 +23,8 @@ Sets up the routes for /workspace:
                 ?graduated=<T|F>
                 ?validated=<T|F>
                 ?health=<error|fail|unknown|pass>
-                ?active=T
-                ?ids_only=T
+                ?active=1
+                ?ids_only=1
     GET     /workspace/:workspace_id_or_name/device/active
     GET     /workspace/:workspace_id_or_name/device/pxe
 
@@ -70,13 +70,13 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/device?<various query params>
         $with_workspace->get('/device')->to('workspace_device#list');
 
-        # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?active=t
+        # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?active=1
         $with_workspace->get(
             '/device/active',
             sub ($c) {
                 $c->redirect_to(
                     $c->url_for('/workspace/'.$c->stash('workspace_id').'/device')
-                        ->query(active => 't'));
+                        ->query(active => '1'));
             }
         );
 
