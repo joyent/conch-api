@@ -39,7 +39,6 @@ sub list ($c) {
         ->related_resultset('device_locations')
         ->related_resultset('device')
         ->active
-        ->prefetch('device_location')
         ->order_by('device.created');
 
     my $params = $c->req->query_params->to_hash;
@@ -67,8 +66,9 @@ sub list ($c) {
     $devices_rs = $devices_rs->search({ last_seen => { '>' => \q{now() - interval '300 second'}} })
         if defined $params->{active};
 
-    $devices_rs = $devices_rs->get_column('id')
-        if defined $params->{ids_only};
+    $devices_rs = $params->{ids_only}
+        ? $devices_rs->get_column('id')
+        : $devices_rs->prefetch('device_location');
 
     my @devices = $devices_rs->all;
 
