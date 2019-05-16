@@ -1,6 +1,13 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
+  int_or_stringy_int:
+    description: an integer that may be presented as a json string
+    # note that when JSON::Validator has 'coerce' mode on, both of these rules will match.
+    oneOf:
+      - type: integer
+      - type: string
+        pattern: "^[0-9]+$"
   DeviceReport_v2.29:
     description: the contents of a posted device report from relays and reporters
     type: object
@@ -30,7 +37,7 @@ definitions:
             memory-serial-number:
               type: string
             memory-size:
-              $ref: common.yaml#/definitions/int_or_stringy_int
+              $ref: /definitions/int_or_stringy_int
       disks:
         type: object
         patternProperties:
@@ -39,7 +46,7 @@ definitions:
             type: object
             properties:
               slot:
-                $ref: common.yaml#/definitions/int_or_stringy_int
+                $ref: /definitions/int_or_stringy_int
               size:
                 type: integer
               vendor:
@@ -55,11 +62,11 @@ definitions:
               drive_type:
                 type: string
               temp:
-                $ref: common.yaml#/definitions/int_or_stringy_int
+                $ref: /definitions/int_or_stringy_int
               enclosure:
-                $ref: common.yaml#/definitions/int_or_stringy_int
+                $ref: /definitions/int_or_stringy_int
               hba:
-                $ref: common.yaml#/definitions/int_or_stringy_int
+                $ref: /definitions/int_or_stringy_int
               block_sz:
                 type: integer
               # any additional fields are not currently used.
@@ -97,7 +104,7 @@ definitions:
                   - type: 'null'
               mtu:
                 oneOf:
-                  - $ref: common.yaml#/definitions/int_or_stringy_int
+                  - $ref: /definitions/int_or_stringy_int
                   - type: 'null'
               peer_mac:
                 oneOf:
@@ -144,13 +151,13 @@ definitions:
           - cpu1
         properties:
           cpu0:
-            $ref: common.yaml#/definitions/int_or_stringy_int
+            $ref: /definitions/int_or_stringy_int
           cpu1:
-            $ref: common.yaml#/definitions/int_or_stringy_int
+            $ref: /definitions/int_or_stringy_int
           exhaust:
-            $ref: common.yaml#/definitions/int_or_stringy_int
+            $ref: /definitions/int_or_stringy_int
           inlet:
-            $ref: common.yaml#/definitions/int_or_stringy_int
+            $ref: /definitions/int_or_stringy_int
       uptime_since:
         type: string
 
