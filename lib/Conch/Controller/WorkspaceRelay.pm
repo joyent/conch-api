@@ -40,9 +40,9 @@ sub list ($c) {
 
     my $me = $latest_relay_connections->current_source_alias;
 
-    $latest_relay_connections = $latest_relay_connections
-            ->search({ $me.'.last_seen' => { '>=' => \"now() - interval '$active_minutes minutes'" } })
-        if $active_minutes;
+    $latest_relay_connections = $latest_relay_connections->search({
+        $me.'.last_seen' => { '>=' => \[ 'now() - ?::interval', $active_minutes.' minutes' ] }
+    }) if $active_minutes;
 
     my $num_devices_rs = $c->db_device_relay_connections->search(
         { $me.'_corr.relay_id' => { '=' => \"$me.relay_id" } },

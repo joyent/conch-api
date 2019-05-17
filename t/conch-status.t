@@ -33,24 +33,24 @@ sub add_test_routes ($app) {
 
     add_test_routes( $t->app );
 
-    $t->get_ok('/301')->status_is('301')->location_is('/301-success');
-    $t->get_ok('/302')->status_is('302')->location_is('/302-success');
-    $t->get_ok('/303')->status_is('303')->location_is('/303-success');
-    $t->get_ok('/307')->status_is('307')->location_is('/307-success');
-    $t->get_ok('/308')->status_is('308')->location_is('/308-success');
+    $t->get_ok('/301')->status_is(301)->location_is('/301-success');
+    $t->get_ok('/302')->status_is(302)->location_is('/302-success');
+    $t->get_ok('/303')->status_is(303)->location_is('/303-success');
+    $t->get_ok('/307')->status_is(307)->location_is('/307-success');
+    $t->get_ok('/308')->status_is(308)->location_is('/308-success');
 
-    $t->get_ok('/401')->status_is('401')->json_is({ error => 'Unauthorized' });
-    $t->get_ok('/403')->status_is('403')->json_is({ error => 'Forbidden' });
-    $t->get_ok('/404')->status_is('404')->json_is({ error => 'Not Found' });
-    $t->get_ok('/501')->status_is('501')->json_is({ error => 'Unimplemented' });
+    $t->get_ok('/401')->status_is(401)->json_is({ error => 'Unauthorized' });
+    $t->get_ok('/403')->status_is(403)->json_is({ error => 'Forbidden' });
+    $t->get_ok('/404')->status_is(404)->json_is({ error => 'Not Found' });
+    $t->get_ok('/501')->status_is(501)->json_is({ error => 'Unimplemented' });
 
-    $t->get_ok('/409')->status_is('409')->json_is({ error => 'Conflict'});
+    $t->get_ok('/409')->status_is(409)->json_is({ error => 'Conflict'});
 
-    $t->get_ok('/200-object')->status_is('200')->json_is({ status => 'OK'});
-    $t->get_ok('/200-array')->status_is('200')->json_is([]);
+    $t->get_ok('/200-object')->status_is(200)->json_is({ status => 'OK'});
+    $t->get_ok('/200-array')->status_is(200)->json_is([]);
 
-    $t->get_ok('/204')->status_is('204')->content_is('');
-    $t->get_ok('/410')->status_is('410')->content_is('');
+    $t->get_ok('/204')->status_is(204)->content_is('');
+    $t->get_ok('/410')->status_is(410)->content_is('');
 }
 
 done_testing;

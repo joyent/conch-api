@@ -7,6 +7,7 @@ requires 'perl', '5.026';
 die "Your perl is too old! Requires 5.026, but this is $]" if "$]" < '5.026';
 
 # basics
+requires 'Carton';
 requires 'Cpanel::JSON::XS', '4.10';
 requires 'List::MoreUtils::XS';         # make List::MoreUtils faster
 requires 'Data::UUID';
