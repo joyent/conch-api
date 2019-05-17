@@ -80,7 +80,7 @@ definitions:
       vendor_name:
         type: string
   DeviceReport:
-    $ref: device_report.yaml#/definitions/DeviceReport_v2.24
+    $ref: device_report.yaml#/definitions/DeviceReport_v2.29
   RackCreate:
     type: object
     additionalProperties: false
