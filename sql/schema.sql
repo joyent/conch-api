@@ -461,27 +461,6 @@ CREATE TABLE public.migration (
 ALTER TABLE public.migration OWNER TO conch;
 
 --
--- Name: migration_id_seq; Type: SEQUENCE; Schema: public; Owner: conch
---
-
-CREATE SEQUENCE public.migration_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.migration_id_seq OWNER TO conch;
-
---
--- Name: migration_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: conch
---
-
-ALTER SEQUENCE public.migration_id_seq OWNED BY public.migration.id;
-
-
---
 -- Name: rack; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -748,13 +727,6 @@ CREATE TABLE public.workspace_rack (
 
 
 ALTER TABLE public.workspace_rack OWNER TO conch;
-
---
--- Name: migration id; Type: DEFAULT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.migration ALTER COLUMN id SET DEFAULT nextval('public.migration_id_seq'::regclass);
-
 
 --
 -- Name: datacenter datacenter_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
