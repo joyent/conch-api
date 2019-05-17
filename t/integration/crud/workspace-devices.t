@@ -19,16 +19,16 @@ $t->load_validation_plans([{
 my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
 my @layouts = $t->load_fixture(map 'rack_0a_layout_'.$_, '1_2', '3_6');
 
-my $new_device = $t->app->db_devices->create($_) foreach (
+my @devices = map $t->app->db_devices->create($_), (
     {
-        id => 'TEST',
+        serial_number => 'TEST',
         hardware_product_id => $layouts[0]->hardware_product_id,
         state => 'UNKNOWN',
         health => 'pass',
         device_location => { map +($_ => $layouts[0]->$_), qw(rack_id rack_unit_start) },
     },
     {
-        id => 'NEW_DEVICE',
+        serial_number => 'DEVICE1',
         hardware_product_id => $layouts[1]->hardware_product_id,
         state => 'UNKNOWN',
         health => 'unknown',
@@ -51,12 +51,13 @@ $t->post_ok('/relay/deadbeef/register',
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
     ->status_is(200)
-    ->json_schema_is('ValidationStateWithResults');
+    ->json_schema_is('ValidationStateWithResults')
+    ->json_is('/device_id', $devices[0]->id);
 
-foreach my $query ('/device/TEST/graduate', '/device/TEST/validated') {
+foreach my $query ('/device/'.$devices[0]->id.'/graduate', '/device/'.$devices[0]->id.'/validated') {
     $t->post_ok($query)
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$devices[0]->id);
 }
 
 $t->get_ok("/workspace/$global_ws_id/device")
@@ -64,14 +65,14 @@ $t->get_ok("/workspace/$global_ws_id/device")
     ->json_schema_is('Devices')
     ->json_cmp_deeply([
         superhashof({
-            id => 'TEST',
+            id => $devices[0]->id,
             graduated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             validated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             health => 'pass',
         }),
         superhashof({
-            id => 'NEW_DEVICE',
+            id => $devices[1]->id,
             graduated => undef,
             validated => undef,
             last_seen => undef,
@@ -139,12 +140,12 @@ $t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=0")
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
     ->status_is(200)
     ->json_schema_is('DeviceIds')
-    ->json_is(['TEST', 'NEW_DEVICE']);
+    ->json_is([$devices[0]->id, $devices[1]->id]);
 
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
     ->status_is(200)
     ->json_schema_is('DeviceIds')
-    ->json_is(['TEST']);
+    ->json_is([$devices[0]->id]);
 
 $t->get_ok("/workspace/$global_ws_id/device?active_minutes=5")
     ->status_is(200)
@@ -161,7 +162,7 @@ subtest 'Devices with PXE data' => sub {
     $t->app->db_device_nics->delete;
     $t->app->db_device_nics->create($_) foreach (
         {
-            device_id => 'TEST',
+            device_id => $devices[0]->id,
             state => 'up',
             iface_name => 'milhouse',
             iface_type => 'human',
@@ -170,7 +171,7 @@ subtest 'Devices with PXE data' => sub {
             ipaddr => '0.0.0.1',
         },
         {
-            device_id => 'TEST',
+            device_id => $devices[0]->id,
             state => 'up',
             iface_name => 'ned',
             iface_type => 'human',
@@ -179,7 +180,7 @@ subtest 'Devices with PXE data' => sub {
             ipaddr => '0.0.0.2',
         },
         {
-            device_id => 'TEST',
+            device_id => $devices[0]->id,
             state => undef,
             iface_name => 'ipmi1',
             iface_type => 'human',
@@ -196,7 +197,7 @@ subtest 'Devices with PXE data' => sub {
         ->json_schema_is('WorkspaceDevicePXEs')
         ->json_cmp_deeply([
             {
-                id => 'TEST',
+                id => $devices[0]->id,
                 location => {
                     datacenter => {
                         name => $datacenter->region,
@@ -216,7 +217,7 @@ subtest 'Devices with PXE data' => sub {
                 },
             },
             {
-                id => 'NEW_DEVICE',
+                id => $devices[1]->id,
                 location => {
                     datacenter => {
                         name => $datacenter->region,

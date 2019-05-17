@@ -28,7 +28,7 @@ __PACKAGE__->table("device");
 
 =head1 ACCESSORS
 
-=head2 id
+=head2 serial_number
 
   data_type: 'text'
   is_nullable: 0
@@ -129,10 +129,17 @@ __PACKAGE__->table("device");
   extra: {custom_type_name => "device_phase_enum",list => ["integration","installation","production","diagnostics","decommissioned"]}
   is_nullable: 0
 
+=head2 id
+
+  data_type: 'uuid'
+  default_value: gen_random_uuid()
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
+  "serial_number",
   { data_type => "text", is_nullable => 0 },
   "system_uuid",
   { data_type => "uuid", is_nullable => 1, size => 16 },
@@ -199,6 +206,13 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
+  "id",
+  {
+    data_type => "uuid",
+    default_value => \"gen_random_uuid()",
+    is_nullable => 0,
+    size => 16,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -214,6 +228,18 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
+
+=head2 C<device_serial_number_key>
+
+=over 4
+
+=item * L</serial_number>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("device_serial_number_key", ["serial_number"]);
 
 =head2 C<device_system_uuid_key>
 
@@ -381,7 +407,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4Rz+lLAk39kRKJTYTEasxQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JDXe2OjiOFs4aJsXhaLS3Q
 
 __PACKAGE__->has_many(
   "active_device_disks",

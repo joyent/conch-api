@@ -181,7 +181,7 @@ ALTER TABLE public.datacenter_room OWNER TO conch;
 --
 
 CREATE TABLE public.device (
-    id text NOT NULL,
+    serial_number text NOT NULL,
     system_uuid uuid,
     hardware_product_id uuid NOT NULL,
     state text NOT NULL,
@@ -198,7 +198,8 @@ CREATE TABLE public.device (
     asset_tag text,
     triton_setup timestamp with time zone,
     hostname text,
-    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL
+    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL
 );
 
 
@@ -210,7 +211,6 @@ ALTER TABLE public.device OWNER TO conch;
 
 CREATE TABLE public.device_disk (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     serial_number text NOT NULL,
     slot integer,
     size integer,
@@ -225,7 +225,8 @@ CREATE TABLE public.device_disk (
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     enclosure integer,
-    hba integer
+    hba integer,
+    device_id uuid NOT NULL
 );
 
 
@@ -236,7 +237,6 @@ ALTER TABLE public.device_disk OWNER TO conch;
 --
 
 CREATE TABLE public.device_environment (
-    device_id text NOT NULL,
     cpu0_temp integer,
     cpu1_temp integer,
     inlet_temp integer,
@@ -244,7 +244,8 @@ CREATE TABLE public.device_environment (
     psu0_voltage numeric,
     psu1_voltage numeric,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    device_id uuid NOT NULL
 );
 
 
@@ -255,11 +256,11 @@ ALTER TABLE public.device_environment OWNER TO conch;
 --
 
 CREATE TABLE public.device_location (
-    device_id text NOT NULL,
     rack_id uuid NOT NULL,
     rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
+    device_id uuid NOT NULL,
     CONSTRAINT device_location_rack_unit_start_check CHECK ((rack_unit_start > 0))
 );
 
@@ -291,7 +292,6 @@ ALTER TABLE public.device_neighbor OWNER TO conch;
 
 CREATE TABLE public.device_nic (
     mac macaddr NOT NULL,
-    device_id text NOT NULL,
     iface_name text NOT NULL,
     iface_type text NOT NULL,
     iface_vendor text NOT NULL,
@@ -302,7 +302,8 @@ CREATE TABLE public.device_nic (
     state text,
     speed text,
     ipaddr inet,
-    mtu integer
+    mtu integer,
+    device_id uuid NOT NULL
 );
 
 
@@ -313,10 +314,10 @@ ALTER TABLE public.device_nic OWNER TO conch;
 --
 
 CREATE TABLE public.device_relay_connection (
-    device_id text NOT NULL,
     first_seen timestamp with time zone DEFAULT now() NOT NULL,
     last_seen timestamp with time zone DEFAULT now() NOT NULL,
-    relay_id uuid NOT NULL
+    relay_id uuid NOT NULL,
+    device_id uuid NOT NULL
 );
 
 
@@ -328,11 +329,11 @@ ALTER TABLE public.device_relay_connection OWNER TO conch;
 
 CREATE TABLE public.device_report (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     report jsonb,
     created timestamp with time zone DEFAULT now() NOT NULL,
     invalid_report text,
-    retain boolean
+    retain boolean,
+    device_id uuid NOT NULL
 );
 
 
@@ -344,12 +345,12 @@ ALTER TABLE public.device_report OWNER TO conch;
 
 CREATE TABLE public.device_setting (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     value text,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     deactivated timestamp with time zone,
-    name text NOT NULL
+    name text NOT NULL,
+    device_id uuid NOT NULL
 );
 
 
@@ -651,7 +652,6 @@ ALTER TABLE public.validation_plan_member OWNER TO conch;
 
 CREATE TABLE public.validation_result (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     hardware_product_id uuid NOT NULL,
     validation_id uuid NOT NULL,
     message text NOT NULL,
@@ -661,6 +661,7 @@ CREATE TABLE public.validation_result (
     component text,
     result_order integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
+    device_id uuid NOT NULL,
     CONSTRAINT validation_result_result_order_check CHECK ((result_order >= 0))
 );
 
@@ -673,12 +674,12 @@ ALTER TABLE public.validation_result OWNER TO conch;
 
 CREATE TABLE public.validation_state (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum NOT NULL,
     completed timestamp with time zone NOT NULL,
-    device_report_id uuid NOT NULL
+    device_report_id uuid NOT NULL,
+    device_id uuid NOT NULL
 );
 
 
@@ -816,6 +817,14 @@ ALTER TABLE ONLY public.device_relay_connection
 
 ALTER TABLE ONLY public.device_report
     ADD CONSTRAINT device_report_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: device device_serial_number_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.device
+    ADD CONSTRAINT device_serial_number_key UNIQUE (serial_number);
 
 
 --
@@ -1091,13 +1100,6 @@ CREATE INDEX device_hardware_product_id_idx ON public.device USING btree (hardwa
 --
 
 CREATE INDEX device_hostname_idx ON public.device USING btree (hostname);
-
-
---
--- Name: device_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX device_id_idx ON public.device USING btree (id) WHERE (deactivated IS NULL);
 
 
 --

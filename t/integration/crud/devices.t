@@ -32,6 +32,7 @@ $t->authenticate(email => $ro_user->email);
 $t->get_ok('/device/nonexistent')
     ->status_is(404);
 
+my $test_device_id;
 
 subtest 'unlocated device, no registered relay' => sub {
     my $report_data = from_json(path('t/integration/resource/passing-device-report.json')->slurp_utf8);
@@ -46,6 +47,7 @@ subtest 'unlocated device, no registered relay' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults');
 
+    $test_device_id = $t->tx->res->json->{device_id};
     my $device_report_id = $t->tx->res->json->{device_report_id};
 
     $t->get_ok('/device/TEST')
@@ -59,7 +61,15 @@ subtest 'unlocated device, no registered relay' => sub {
 
         $t->get_ok('/device/TEST')
             ->status_is(200)
-            ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
+            ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user')
+            ->json_is('/id', $test_device_id)
+            ->json_is('/serial_number', 'TEST');
+
+        $t->get_ok('/device/'.$test_device_id)
+            ->status_is(200)
+            ->json_schema_is('DetailedDevice')
+            ->json_is('/id', $test_device_id)
+            ->json_is('/serial_number', 'TEST');
 
         $t->get_ok('/device_report/'.$device_report_id)
             ->status_is(200)
@@ -85,7 +95,7 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('DeviceReportRow')
         ->json_cmp_deeply({
             id => $validation_state->{device_report_id},
-            device_id => 'TEST',
+            device_id => $test_device_id,
             report => from_json($report),
             invalid_report => undef,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -95,7 +105,8 @@ subtest 'unlocated device with a registered relay' => sub {
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
-            id => 'TEST',
+            id => $test_device_id,
+            serial_number => 'TEST',
             health => 'pass',
             state => ignore,
             hostname => 'elfo',
@@ -117,7 +128,8 @@ subtest 'unlocated device with a registered relay' => sub {
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
-            id => 'TEST',
+            id => $test_device_id,
+            serial_number => 'TEST',
             health => 'pass',
             state => ignore,
             hostname => 'elfo',
@@ -163,21 +175,26 @@ subtest 'unlocated device with a registered relay' => sub {
     }
 };
 
+my $located_device_id;
+
 subtest 'located device' => sub {
     # create the device in the requested rack location
-    $t->app->db_devices->create({
-        id      => 'LOCATED_DEVICE',
+    my $device = $t->app->db_devices->create({
+        serial_number => 'LOCATED_DEVICE',
         hardware_product_id => $t->app->db_rack_layouts->search({ rack_id => $rack_id, rack_unit_start => 1 })->get_column('hardware_product_id')->as_query,
         health  => 'unknown',
         state   => 'UNKNOWN',
         device_location => { rack_id => $rack_id, rack_unit_start => 1 },
     });
 
-    $t->get_ok('/device/LOCATED_DEVICE')
+    $located_device_id = $device->id;
+
+    $t->get_ok('/device/'.$located_device_id)
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
-            id => 'LOCATED_DEVICE',
+            id => $located_device_id,
+            serial_number => 'LOCATED_DEVICE',
             health => 'unknown',
             state => 'UNKNOWN',
             phase => 'integration',
@@ -221,7 +238,7 @@ subtest 'located device' => sub {
         foreach my $query (@queries) {
             $t->post_ok(ref $query ? $query->@* : $query)
                 ->status_is(303)
-                ->location_is('/device/LOCATED_DEVICE');
+                ->location_is('/device/'.$located_device_id);
         }
 
         # now switch back to ro_user...
@@ -233,16 +250,16 @@ subtest 'located device' => sub {
     };
 
     subtest 'permissions for GET queries' => sub {
-        $t->app->db_devices->search({ id => 'LOCATED_DEVICE' })->update({
+        $t->app->db_devices->search({ id => $located_device_id })->update({
             hostname => 'Luci',
         });
         $t->app->db_device_settings->create({
-            device_id => 'LOCATED_DEVICE',
+            device_id => $located_device_id,
             name => 'hello',
             value => 'world',
         });
         $t->app->db_device_nics->create({
-            device_id => 'LOCATED_DEVICE',
+            device_id => $located_device_id,
             iface_name => 'home',
             iface_type => 'me',
             iface_vendor => 'me',
@@ -321,7 +338,7 @@ my $detailed_device = $t->tx->res->json;
 
 $t->app->db_device_nics->create({
     mac => '00:00:00:00:00:0'.$_,
-    device_id => 'TEST',
+    device_id => $test_device_id,
     iface_name => $_,
     iface_type => 'foo',
     iface_vendor => 'bar',
@@ -338,7 +355,7 @@ my @macs = map $_->{mac}, $detailed_device->{nics}->@*;
 
 my $undetailed_device = {
     $detailed_device->%*,
-    ($t->app->db_device_locations->search({ device_id => 'TEST' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+    ($t->app->db_device_locations->search({ device_id => $test_device_id })->hri->single // {})->%{qw(rack_id rack_unit_start)},
 };
 delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
 
@@ -366,16 +383,17 @@ subtest 'mutate device attributes' => sub {
 
     $t->post_ok('/device/TEST/graduate')
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
+
     $detailed_device->{graduated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/triton_setup')
         ->status_is(409)
-        ->json_is({ error => 'Device TEST must be marked as rebooted into Triton and the Triton UUID set before it can be marked as set up for Triton' });
+        ->json_is({ error => 'Device '.$test_device_id.' must be marked as rebooted into Triton and the Triton UUID set before it can be marked as set up for Triton' });
 
     $t->post_ok('/device/TEST/triton_reboot')
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
     $detailed_device->{latest_triton_reboot} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/triton_uuid')
@@ -390,12 +408,12 @@ subtest 'mutate device attributes' => sub {
 
     $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => create_uuid_str() })
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
     $detailed_device->{triton_uuid} = re(Conch::UUID::UUID_FORMAT);
 
     $t->post_ok('/device/TEST/triton_setup')
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
     $detailed_device->{triton_setup} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/asset_tag')
@@ -410,15 +428,15 @@ subtest 'mutate device attributes' => sub {
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => undef })
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
 
     $t->post_ok('/device/TEST/validated')
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
     $detailed_device->{validated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/validated')
@@ -426,13 +444,13 @@ subtest 'mutate device attributes' => sub {
 
     $t->post_ok('/device/TEST/phase', json => { phase => 'decommissioned' })
         ->status_is(303)
-        ->location_is('/device/TEST');
+        ->location_is('/device/'.$test_device_id);
     $detailed_device->{phase} = 'decommissioned';
 
     $t->get_ok('/device/TEST/phase')
         ->status_is(200)
         ->json_schema_is('DevicePhase')
-        ->json_is({ id => 'TEST', phase => 'decommissioned' });
+        ->json_is({ id => $test_device_id, phase => 'decommissioned' });
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -447,7 +465,7 @@ subtest 'Device settings' => sub {
     # device settings that check for 'admin' permission need the device to have a location
     $t->authenticate(email => $admin_user->email);
 
-    $t->app->db_device_settings->search({ device_id => 'LOCATED_DEVICE' })->delete;
+    $t->app->db_device_settings->search({ device_id => $located_device_id })->delete;
 
     $t->get_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(200)
@@ -528,7 +546,7 @@ subtest 'Device settings' => sub {
 
     my $undetailed_device = {
         $detailed_device->%*,
-        ($t->app->db_device_locations->search({ device_id => 'LOCATED_DEVICE' })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+        ($t->app->db_device_locations->search({ device_id => $located_device_id })->hri->single // {})->%{qw(rack_id rack_unit_start)},
     };
     delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
 
@@ -578,7 +596,7 @@ subtest 'Device PXE' => sub {
     my $relay = $t->app->db_relays->create({ serial_number => 'my_relay' });
 
     my $device_pxe = $t->app->db_devices->create({
-        id => 'PXE_TEST',
+        serial_number => 'PXE_TEST',
         hardware_product_id => $layout->hardware_product_id,
         state => 'UNKNOWN',
         health => 'unknown',
@@ -620,7 +638,7 @@ subtest 'Device PXE' => sub {
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
-            id => 'PXE_TEST',
+            id => $device_pxe->id,
             location => undef,
             ipmi => {
                 mac => '00:00:00:00:00:cc',
@@ -631,14 +649,14 @@ subtest 'Device PXE' => sub {
             },
         });
 
-    $layout->create_related('device_location', { device_id => 'PXE_TEST' });
+    $layout->create_related('device_location', { device_id => $device_pxe->id });
     my $datacenter = $t->load_fixture('datacenter_0');
 
     $t->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
-            id => 'PXE_TEST',
+            id => $device_pxe->id,
             location => {
                 datacenter => {
                     name => $datacenter->region,
@@ -666,7 +684,7 @@ subtest 'Device PXE' => sub {
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
-            id => 'PXE_TEST',
+            id => $device_pxe->id,
             location => undef,
             ipmi => undef,
             pxe => undef,
@@ -685,7 +703,7 @@ subtest 'Device location' => sub {
 
     $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(303)
-        ->location_is('/device/TEST/location');
+        ->location_is('/device/'.$test_device_id.'/location');
 
     $t->delete_ok('/device/TEST/location')
         ->status_is(204, 'can delete device location');

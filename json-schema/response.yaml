@@ -102,6 +102,7 @@ definitions:
     additionalProperties: false
     required:
       - id
+      - serial_number
       - asset_tag
       - created
       - hardware_product_id
@@ -126,7 +127,9 @@ definitions:
       - invalid_report
     properties:
       id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
+      serial_number:
+        $ref: common.yaml#/definitions/device_serial_number
       asset_tag:
         oneOf:
           - $ref: common.yaml#/definitions/device_asset_tag
@@ -318,7 +321,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: common.yaml#/definitions/device_id
+      $ref: common.yaml#/definitions/uuid
   Devices:
     type: array
     uniqueItems: true
@@ -329,6 +332,7 @@ definitions:
     additionalProperties: false
     required:
       - id
+      - serial_number
       - asset_tag
       - created
       - hardware_product_id
@@ -349,7 +353,9 @@ definitions:
       - rack_unit_start
     properties:
       id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
+      serial_number:
+        $ref: common.yaml#/definitions/device_serial_number
       asset_tag:
         oneOf:
           - $ref: common.yaml#/definitions/device_asset_tag
@@ -442,7 +448,7 @@ definitions:
     additionalProperties: false
     properties:
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       mac:
         $ref: common.yaml#/definitions/macaddr
       iface_name:
@@ -488,7 +494,7 @@ definitions:
       - pxe
     properties:
       id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       location:
         oneOf:
           - type: 'null'
@@ -557,7 +563,7 @@ definitions:
       - phase
     properties:
       id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       phase:
         $ref: common.yaml#/definitions/device_phase
   WorkspaceDevicePXEs:
@@ -573,7 +579,7 @@ definitions:
         - pxe
       properties:
         id:
-          $ref: common.yaml#/definitions/device_id
+          $ref: common.yaml#/definitions/uuid
         location:
           type: object
           additionalProperties: false
@@ -1092,7 +1098,7 @@ definitions:
         type: string
         format: date-time
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       status:
         $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
@@ -1126,7 +1132,7 @@ definitions:
         type: string
         format: date-time
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       results:
         type: array
         uniqueItems: true
@@ -1142,13 +1148,13 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - device_id
+      - device_serial_number
       - validation_plan_id
       - status
       - results
     properties:
-      device_id:
-        $ref: common.yaml#/definitions/device_id
+      device_serial_number:
+        $ref: common.yaml#/definitions/device_serial_number
       validation_plan_id:
         $ref: common.yaml#/definitions/uuid
       status:
@@ -1525,7 +1531,7 @@ definitions:
     properties:
       device_id:
         oneOf:
-          - $ref: common.yaml#/definitions/device_id
+          - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       device_asset_tag:
         oneOf:
@@ -1792,7 +1798,7 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       report:
         description: the contents of the device report. Given its age we cannot provide a schema.
         oneOf:

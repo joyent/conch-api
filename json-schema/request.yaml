@@ -109,11 +109,17 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - device_id
       - rack_unit_start
+    anyOf:
+      - required:
+        - device_id
+      - required:
+        - device_serial_number
     properties:
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
+      device_serial_number:
+        $ref: common.yaml#/definitions/device_serial_number
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
       device_asset_tag:
@@ -133,7 +139,7 @@ definitions:
       - rack_unit_start
     properties:
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
   RackPhase:

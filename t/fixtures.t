@@ -41,7 +41,7 @@ subtest 'generate_definition' => sub {
     # load device_location, which should load all its dependencies as well.
     my $device_location = $t->load_fixture(first { /^device_location_\d+$/ } @definitions);
 
-    is($device_location->device_id, 'DEVICE_99', 'unique id is used in the default device id');
+    is($device_location->device->serial_number, 'DEVICE_99', 'unique string is used in the device serial number');
 
     is(
         $device_location->device->hardware_product_id,
@@ -80,7 +80,7 @@ subtest 'generate_fixture_definitions wrapper' => sub {
 
     my $device = first { $_->isa('Conch::DB::Result::Device') } @objects;
 
-    is($device->id, 'DEVICE_1000', 'unique id is used in the default device id');
+    is($device->serial_number, 'DEVICE_1000', 'unique string is used in the device serial_number');
 
     is(
         $device->hardware_product_id,

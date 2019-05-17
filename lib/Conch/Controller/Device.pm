@@ -2,6 +2,7 @@ package Conch::Controller::Device;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Conch::UUID 'is_uuid';
 use List::Util 'any';
 use Mojo::JSON 'from_json';
 
@@ -15,20 +16,39 @@ Conch::Controller::Device
 
 =head2 find_device
 
-Chainable action that validates the 'device_id' provided in the path.
+Chainable action that uses the 'device_id_or_serial_number' provided in the path
+to find the device and verify the user has permissions to operate on it.
 
 =cut
 
 sub find_device ($c) {
-    my $device_id = $c->stash('device_id');
-    $c->log->debug('Looking up device '.$device_id.' for user '.$c->stash('user_id'));
+    my $rs = $c->db_devices;
+    my $identifier;
+    if ($identifier = $c->stash('device_id')) {
+        $rs = $rs->search({ id => $identifier });
+    }
+    elsif ($identifier= $c->stash('device_serial_number')) {
+        $rs = $rs->search({ serial_number => $identifier });
+    }
+    elsif ($identifier = $c->stash('device_id_or_serial_number')) {
+        $rs = $rs->search({
+            is_uuid($identifier)
+          ? do { $c->stash('device_id', $identifier); ( id => $identifier ) }
+          : do { $c->stash('device_serial_number', $identifier); ( serial_number => $identifier ) }
+        });
+    }
+    else {
+        return $c->status(404);
+    }
 
-    # fetch for device existence and location in one query
-    my $device_check = $c->db_devices
-        ->search(
-            { id => $device_id },
+    $c->log->debug('Looking up device '.$identifier.' for user '.$c->stash('user_id'));
+
+    # fetch for device existence, id and location in one query
+    my $device_check = $rs
+        ->search(undef,
             {
                 join => 'device_location',
+                '+columns' => ['id'],
                 select => [
                     { '' => \1, -as => 'exists' },
                     { '' => \'device_location.rack_id is not null', -as => 'has_location' },
@@ -41,12 +61,15 @@ sub find_device ($c) {
 
     # if the device doesn't exist, we can bail out right now
     if (not $device_check->{exists}) {
-        $c->log->debug('Failed to find device '.$device_id);
+        $c->log->debug('Failed to find device '.$identifier);
         return $c->status(404);
     }
 
+    my $device_id = $device_check->{id};
+    $c->stash('device_id', $device_id);
+
     if ($c->is_system_admin) {
-        $c->log->debug('User has system admin privileges to access device '.$device_id);
+        $c->log->debug('User has system admin privileges to access device '.$identifier);
     }
     elsif ($device_check->{has_location}) {
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
@@ -58,14 +81,14 @@ sub find_device ($c) {
 
         if (not $c->db_devices->search({ 'device.id' => $device_id })
                 ->user_has_permission($c->stash('user_id'), $requires_permission)) {
-            $c->log->debug('User lacks permission to access device '.$device_id);
+            $c->log->debug('User lacks permission to access device '.$identifier);
             return $c->status(403);
         }
     }
     else {
         # look for unlocated devices among those that have sent a device report proxied by a
         # relay using the user's credentials
-        $c->log->debug('looking for device '.$device_id.' associated with relay reports');
+        $c->log->debug('looking for device '.$identifier.' associated with relay reports');
 
         my $device_rs = $c->db_devices
             ->search({ 'device.id' => $device_id })
@@ -75,12 +98,12 @@ sub find_device ($c) {
             ->search({ 'user_relay_connections.user_id' => $c->stash('user_id') });
 
         if (not $device_rs->exists) {
-            $c->log->debug('User lacks permission to access device '.$device_id);
+            $c->log->debug('User lacks permission to access device '.$identifier);
             return $c->status(403);
         }
     }
 
-    $c->log->debug('Found device '.$device_id);
+    $c->log->debug('Found device id '.$device_id);
 
     # store the simplified query to access the device, now that we've confirmed the user has
     # permission to access it.
@@ -99,7 +122,7 @@ Retrieves details about a single (active) device. Response uses the DetailedDevi
 sub get ($c) {
     my ($device) = $c->stash('device_rs')
         ->prefetch([ { active_device_nics => 'device_neighbor' }, 'active_device_disks' ])
-        ->order_by([ qw(iface_name serial_number) ])
+        ->order_by([ qw(iface_name active_device_disks.serial_number) ])
         ->all;
 
     my $device_location_rs = $c->stash('device_rs')

@@ -48,7 +48,7 @@ subtest preliminaries => sub {
         ->status_is(422)
         ->json_is({ error => 'failed to find validation plan' });
 
-    ok(!$t->app->db_devices->search({ id => 'TEST' })->exists,
+    ok(!$t->app->db_devices->search({ serial_number => 'TEST' })->exists,
         'the device was not inserted into the database');
 };
 
@@ -72,7 +72,7 @@ subtest 'run report without an existing device' => sub {
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
         ->json_cmp_deeply({
-            device_id => 'different_device',
+            device_serial_number => 'different_device',
             validation_plan_id => $full_validation_plan->id,
             status => any(qw(error fail pass)), # likely some validations will hate this report.
             # validations each produce one or more results
@@ -89,12 +89,13 @@ subtest 'run report without an existing device' => sub {
             }, @validations)),
         });
 
-    ok(!$t->app->db_devices->search({ id => 'different_device' })->exists,
+    ok(!$t->app->db_devices->search({ serial_number => 'different_device' })->exists,
         'the device was not inserted into the database');
 };
 
 subtest 'create device via report' => sub {
-    ok(!$t->app->db_devices->search({ id => 'TEST' })->exists, 'the TEST device does not exist yet');
+    ok(!$t->app->db_devices->search({ serial_number => 'TEST' })->exists,
+        'the TEST device does not exist yet');
 
     # for these tests, we need to use a plan containing a validation we know will pass.
     # we move aside the plan containing all validations and replace it with a new one.
@@ -121,7 +122,7 @@ subtest 'create device via report' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
-            device_id => 'TEST',
+            device_id => re(Conch::UUID::UUID_FORMAT),
             status => 'pass',
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => [
@@ -132,16 +133,19 @@ subtest 'create device via report' => sub {
             ],
         }));
 
+    my $device_id = $t->tx->res->json->{device_id};
     my (@device_report_ids, @validation_state_ids);
     push @device_report_ids, $t->tx->res->json->{device_report_id};
     push @validation_state_ids, $t->tx->res->json->{id};
 
-    my $device = $t->app->db_devices->find('TEST');
+    my $device = $t->app->db_devices->find({ serial_number => 'TEST' });
+    is($device->id, $device_id, 'got same device as was created on report submission');
+
     cmp_deeply(
         $device->self_rs->latest_device_report->single,
         methods(
             id => $device_report_ids[0],
-            device_id => 'TEST',
+            device_id => $device_id,
             report => json(from_json($good_report)),
             invalid_report => undef,
             retain => bool(1),    # first report is always saved
@@ -154,7 +158,7 @@ subtest 'create device via report' => sub {
         ->json_schema_is('DeviceReportRow')
         ->json_cmp_deeply({
             id => $device_report_ids[0],
-            device_id => 'TEST',
+            device_id => $device_id,
             report => from_json($good_report),
             invalid_report => undef,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -175,7 +179,7 @@ subtest 'create device via report' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
-            device_id => 'TEST',
+            device_id => $device_id,
             status => 'pass',
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
@@ -193,7 +197,7 @@ subtest 'create device via report' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
-            device_id => 'TEST',
+            device_id => $device_id,
             status => 'pass',
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
@@ -222,7 +226,7 @@ subtest 'create device via report' => sub {
     cmp_deeply(
         $device->self_rs->latest_device_report->single,
         methods(
-            device_id => 'TEST',
+            device_id => $device_id,
             report => undef,
             invalid_report => $invalid_json_1,
         ),
@@ -237,7 +241,7 @@ subtest 'create device via report' => sub {
         ->json_schema_is('DeviceReportRow')
         ->json_cmp_deeply({
             id => $device_report_ids[-1],
-            device_id => 'TEST',
+            device_id => $device_id,
             report => undef,
             invalid_report => $invalid_json_1,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -247,7 +251,7 @@ subtest 'create device via report' => sub {
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
     is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
 
-    $t->get_ok('/device/TEST')
+    $t->get_ok('/device/'.$device_id)
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_is('/health' => 'pass')
@@ -260,7 +264,7 @@ subtest 'create device via report' => sub {
         ->json_schema_is('DeviceReportRow')
         ->json_cmp_deeply({
             id => $device_report_ids[0],
-            device_id => 'TEST',
+            device_id => $device_id,
             report => from_json($good_report),
             invalid_report => undef,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -277,7 +281,7 @@ subtest 'create device via report' => sub {
     cmp_deeply(
         $device->self_rs->latest_device_report->single,
         methods(
-            device_id => 'TEST',
+            device_id => $device_id,
             invalid_report => $invalid_json_2,
         ),
         'stored the invalid report in raw form',
@@ -291,7 +295,7 @@ subtest 'create device via report' => sub {
         ->json_schema_is('DeviceReportRow')
         ->json_cmp_deeply({
             id => $device_report_ids[-1],
-            device_id => 'TEST',
+            device_id => $device_id,
             report => undef,
             invalid_report => to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' }),
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -315,7 +319,7 @@ subtest 'create device via report' => sub {
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
-            device_id => 'TEST',
+            device_id => $device_id,
             status => 'pass',
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
@@ -327,7 +331,7 @@ subtest 'create device via report' => sub {
         $device->self_rs->latest_device_report->single,
         methods(
             id => $device_report_ids[-1],
-            device_id => 'TEST',
+            device_id => $device_id,
             report => json(from_json($good_report)),
             invalid_report => undef,
             retain => bool(1),    # we keep the first report after an error result
@@ -354,7 +358,7 @@ subtest 'create device via report' => sub {
         ->json_schema_is('DeviceReportRow')
         ->json_cmp_deeply({
             id => $device_report_ids[-1],
-            device_id => 'TEST',
+            device_id => $device_id,
             report => from_json($error_report),
             invalid_report => undef,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -405,7 +409,7 @@ subtest 'create device via report' => sub {
         my $disk_serial = (keys $report_data->{disks}->%*)[0];
         $report_data->{disks}{$disk_serial}{size} += 100;    # ugh! make report not-unique
         my $new_device = $t->app->db_devices->create({
-            id => 'ANOTHER_DEVICE',
+            serial_number => 'ANOTHER_DEVICE',
             hardware_product_id => $device->hardware_product_id,
             state => 'UNKNOWN',
             health => 'unknown',
@@ -420,12 +424,12 @@ subtest 'create device via report' => sub {
             ->json_is('/status', 'pass');
 
         $disk->discard_changes;
-        is($disk->device_id, $device->id, 'an existing disk is relocated to the latest device reporting it');
+        is($disk->device_id, $device_id, 'an existing disk is relocated to the latest device reporting it');
     };
 
 
     ok(
-        $t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        $t->app->db_devices->search({ serial_number => 'TEST' })->devices_without_location->exists,
         'device is unlocated',
     );
 };

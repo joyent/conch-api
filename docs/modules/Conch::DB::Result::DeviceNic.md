@@ -15,14 +15,6 @@ data_type: 'macaddr'
 is_nullable: 0
 ```
 
-## device\_id
-
-```
-data_type: 'text'
-is_foreign_key: 1
-is_nullable: 0
-```
-
 ## iface\_name
 
 ```
@@ -102,6 +94,15 @@ is_nullable: 1
 ```
 data_type: 'integer'
 is_nullable: 1
+```
+
+## device\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
 ```
 
 # PRIMARY KEY

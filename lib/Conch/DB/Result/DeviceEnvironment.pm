@@ -28,12 +28,6 @@ __PACKAGE__->table("device_environment");
 
 =head1 ACCESSORS
 
-=head2 device_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 cpu0_temp
 
   data_type: 'integer'
@@ -78,11 +72,16 @@ __PACKAGE__->table("device_environment");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 device_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
-  "device_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "cpu0_temp",
   { data_type => "integer", is_nullable => 1 },
   "cpu1_temp",
@@ -109,6 +108,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "device_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -142,7 +143,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4dN/sIMOzt7QCIWD7S8VkQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:q0AjY6HubGVc6awjjIY9lQ
 
 1;
 __END__

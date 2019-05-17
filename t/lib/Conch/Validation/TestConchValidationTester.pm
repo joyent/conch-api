@@ -50,7 +50,7 @@ sub _device_inflation ($self, $data) {
         all(
             isa('Conch::DB::Result::Device'),
             methods(
-                id => $data->{device_id} // re(qr/^DEVICE_\d+$/),
+                serial_number => $data->{device_serial_number} // re(qr/^DEVICE_\d+$/),
                 state => 'UNKNOWN',
                 health => 'unknown',
                 hardware_product_id => re(Conch::UUID::UUID_FORMAT),
@@ -127,7 +127,7 @@ sub _device_location_inflation ($self, $data) {
         all(
             isa('Conch::DB::Result::DeviceLocation'),
             methods(
-                device_id => $data->{device_id} // re(qr/^DEVICE_\d+$/),
+                device_id => re(Conch::UUID::UUID_FORMAT),
                 rack_unit_start => $data->{rack_unit_start},
                 in_storage => bool(1),
             ),

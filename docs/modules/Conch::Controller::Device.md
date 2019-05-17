@@ -6,7 +6,8 @@ Conch::Controller::Device
 
 ## find\_device
 
-Chainable action that validates the 'device\_id' provided in the path.
+Chainable action that uses the 'device\_id\_or\_serial\_number' provided in the path
+to find the device and verify the user has permissions to operate on it.
 
 ## get
 

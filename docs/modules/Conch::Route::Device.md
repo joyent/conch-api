@@ -30,121 +30,121 @@ below.
 
 - Response: response.yaml#/Devices
 
-### `GET /device/:device_id`
+### `GET /device/:device_id_or_serial_number`
 
 - Response: response.yaml#/DetailedDevice
 
-### `GET /device/:device_id/pxe`
+### `GET /device/:device_id_or_serial_number/pxe`
 
 - Response: response.yaml#/DevicePXE
 
-### `GET /device/:device_id/phase`
+### `GET /device/:device_id_or_serial_number/phase`
 
 - Response: response.yaml#/DevicePhase
 
-### `POST /device/:device_id/graduate`
+### `POST /device/:device_id_or_serial_number/graduate`
 
 - Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
-### `POST /device/:device_id/triton_setup`
+### `POST /device/:device_id_or_serial_number/triton_setup`
 
 - Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
-### `POST /device/:device_id/triton_uuid`
+### `POST /device/:device_id_or_serial_number/triton_uuid`
 
 - Request: request.yaml#/DeviceTritonUuid
 - Response: Redirect to the updated device
 
-### `POST /device/:device_id/triton_reboot`
+### `POST /device/:device_id_or_serial_number/triton_reboot`
 
 - Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
-### `POST /device/:device_id/asset_tag`
+### `POST /device/:device_id_or_serial_number/asset_tag`
 
 - Request: request.yaml#/DeviceAssetTag
 - Response: Redirect to the updated device
 
-### `POST /device/:device_id/validated`
+### `POST /device/:device_id_or_serial_number/validated`
 
 - Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
-### `POST /device/:device_id/phase`
+### `POST /device/:device_id_or_serial_number/phase`
 
 - Request: request.yaml#/DevicePhase
 - Response: Redirect to the updated device
 
-### `GET /device/:device_id/location`
+### `GET /device/:device_id_or_serial_number/location`
 
 - Response: response.yaml#/DeviceLocation
 
-### `POST /device/:device_id/location`
+### `POST /device/:device_id_or_serial_number/location`
 
 - Request: request.yaml#/DeviceLocationUpdate
 - Response: Redirect to the updated device
 
-### `DELETE /device/:device_id/location`
+### `DELETE /device/:device_id_or_serial_number/location`
 
 - Response: `204 NO CONTENT`
 
-### `GET /device/:device_id/settings`
+### `GET /device/:device_id_or_serial_number/settings`
 
 - Response: response.yaml#/DeviceSettings
 
-### `POST /device/:device_id/settings`
+### `POST /device/:device_id_or_serial_number/settings`
 
 - Requires read/write device authorization
 - Request: request.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
-### `GET /device/:device_id/settings/:key`
+### `GET /device/:device_id_or_serial_number/settings/:key`
 
 - Response: response.yaml#/DeviceSetting
 
-### `POST /device/:device_id/settings/:key`
+### `POST /device/:device_id_or_serial_number/settings/:key`
 
 - Requires read/write device authorization
 - Request: request.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
-### `DELETE /device/:device_id/settings/:key`
+### `DELETE /device/:device_id_or_serial_number/settings/:key`
 
 - Requires read/write device authorization
 - Response: `204 NO CONTENT`
 
-### `POST /device/:device_id/validation/:validation_id`
+### `POST /device/:device_id_or_serial_number/validation/:validation_id`
 
 Does not store validation results.
 
 - Request: device\_report.yaml
 - Response: response.yaml#/ValidationResults
 
-### `POST /device/:device_id/validation_plan/:validation_plan_id`
+### `POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id`
 
 Does not store validation results.
 
 - Request: device\_report.yaml
 - Response: response.yaml#/ValidationResults
 
-### `GET /device/:device_id/validation_state?status=<pass|fail|error>&status=...`
+### `GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...`
 
 Accepts the query parameter `status`, indicating the desired status(es)
 to search for (one of `pass`, `fail`, `error`). Can be used more than once.
 
 - Response: response.yaml#/ValidationStatesWithResults
 
-### `GET /device/:device_id/interface`
+### `GET /device/:device_id_or_serial_number/interface`
 
 - Response: response.yaml#/DeviceNics
 
-### `GET /device/:device_id/interface/:interface_name`
+### `GET /device/:device_id_or_serial_number/interface/:interface_name`
 
 - Response: response.yaml#/DeviceNic
 
-### `GET /device/:device_id/interface/:interface_name/:field`
+### `GET /device/:device_id_or_serial_number/interface/:interface_name/:field`
 
 - Response: response.yaml#/DeviceNicField
 

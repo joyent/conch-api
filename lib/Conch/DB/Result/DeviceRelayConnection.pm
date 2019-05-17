@@ -28,12 +28,6 @@ __PACKAGE__->table("device_relay_connection");
 
 =head1 ACCESSORS
 
-=head2 device_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 first_seen
 
   data_type: 'timestamp with time zone'
@@ -55,11 +49,16 @@ __PACKAGE__->table("device_relay_connection");
   is_nullable: 0
   size: 16
 
+=head2 device_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
-  "device_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "first_seen",
   {
     data_type     => "timestamp with time zone",
@@ -75,6 +74,8 @@ __PACKAGE__->add_columns(
     original      => { default_value => \"now()" },
   },
   "relay_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "device_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
@@ -126,7 +127,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9KcINGmXryGqjfv5NzQvXg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xo1APS+oLWoO+HXXniyYQw
 
 __PACKAGE__->has_many(
   "user_relay_connections",

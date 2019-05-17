@@ -35,12 +35,6 @@ __PACKAGE__->table("device_setting");
   is_nullable: 0
   size: 16
 
-=head2 device_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 value
 
   data_type: 'text'
@@ -70,6 +64,13 @@ __PACKAGE__->table("device_setting");
   data_type: 'text'
   is_nullable: 0
 
+=head2 device_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -80,8 +81,6 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "device_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "value",
   { data_type => "text", is_nullable => 1 },
   "created",
@@ -102,6 +101,8 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "name",
   { data_type => "text", is_nullable => 0 },
+  "device_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -135,7 +136,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:A4RtpB4JwMkNlZgNxI3gVw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zesljIjuOPXuxzGqbp38HQ
 
 1;
 __END__

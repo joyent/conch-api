@@ -21,6 +21,7 @@ sub routes {
     my $device = shift; # secured, under /device
     my $app = shift;
 
+    # TODO: this should be POST /device_report
     # POST /device/:device_serial_number
     $device->post('/:device_serial_number')->to('device_report#process');
 
@@ -28,42 +29,42 @@ sub routes {
     $device->get('/')->to('device#lookup_by_other_attribute');
 
     {
-        # chainable action that extracts and looks up device_id from the path
-        my $with_device = $device->under('/:device_id')->to('device#find_device');
+        # chainable action that extracts and looks up the device id or serial_number from the path
+        my $with_device = $device->under('/:device_id_or_serial_number')->to('device#find_device');
 
-        # GET /device/:device_id
+        # GET /device/:device_id_or_serial_number
         $with_device->get('/')->to('device#get');
 
-        # GET /device/:device_id/pxe
+        # GET /device/:device_id_or_serial_number/pxe
         $with_device->get('/pxe')->to('device#get_pxe');
 
-        # GET /device/:device_id/phase
+        # GET /device/:device_id_or_serial_number/phase
         $with_device->get('/phase')->to('device#get_phase');
 
-        # POST /device/:device_id/graduate
+        # POST /device/:device_id_or_serial_number/graduate
         $with_device->post('/graduate')->to('device#graduate');
-        # POST /device/:device_id/triton_setup
+        # POST /device/:device_id_or_serial_number/triton_setup
         $with_device->post('/triton_setup')->to('device#set_triton_setup');
-        # POST /device/:device_id/triton_uuid
+        # POST /device/:device_id_or_serial_number/triton_uuid
         $with_device->post('/triton_uuid')->to('device#set_triton_uuid');
-        # POST /device/:device_id/triton_reboot
+        # POST /device/:device_id_or_serial_number/triton_reboot
         $with_device->post('/triton_reboot')->to('device#set_triton_reboot');
-        # POST /device/:device_id/asset_tag
+        # POST /device/:device_id_or_serial_number/asset_tag
         $with_device->post('/asset_tag')->to('device#set_asset_tag');
-        # POST /device/:device_id/validated
+        # POST /device/:device_id_or_serial_number/validated
         $with_device->post('/validated')->to('device#set_validated');
-        # POST /device/:device_id/phase
+        # POST /device/:device_id_or_serial_number/phase
         $with_device->post('/phase')->to('device#set_phase');
 
         {
             my $with_device_location = $with_device->any('/location');
             $with_device_location->to({ controller => 'device_location' });
 
-            # GET /device/:device_id/location
+            # GET /device/:device_id_or_serial_number/location
             $with_device_location->get('/')->to('#get');
-            # POST /device/:device_id/location
+            # POST /device/:device_id_or_serial_number/location
             $with_device_location->post('/')->to('#set');
-            # DELETE /device/:device_id/location
+            # DELETE /device/:device_id_or_serial_number/location
             $with_device_location->delete('/')->to('#delete');
         }
 
@@ -71,41 +72,41 @@ sub routes {
             my $with_device_settings = $with_device->any('/settings');
             $with_device_settings->to({ controller => 'device_settings' });
 
-            # GET /device/:device_id/settings
+            # GET /device/:device_id_or_serial_number/settings
             $with_device_settings->get('/')->to('#get_all');
-            # POST /device/:device_id/settings
+            # POST /device/:device_id_or_serial_number/settings
             $with_device_settings->post('/')->to('#set_all');
 
             my $with_device_settings_with_key = $with_device_settings->any('/#key');
-            # GET /device/:device_id/settings/#key
+            # GET /device/:device_id_or_serial_number/settings/#key
             $with_device_settings_with_key->get('/')->to('#get_single');
-            # POST /device/:device_id/settings/#key
+            # POST /device/:device_id_or_serial_number/settings/#key
             $with_device_settings_with_key->post('/')->to('#set_single');
-            # DELETE /device/:device_id/settings/#key
+            # DELETE /device/:device_id_or_serial_number/settings/#key
             $with_device_settings_with_key->delete('/')->to('#delete_single');
         }
 
-        # POST /device/:device_id/validation/:validation_id
+        # POST /device/:device_id_or_serial_number/validation/:validation_id
         $with_device->post('/validation/<validation_id:uuid>')->to('device_validation#validate');
-        # POST /device/:device_id/validation_plan/:validation_plan_id
+        # POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id
         $with_device->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
-        # GET /device/:device_id/validation_state?status=<pass|fail|error>&status=...
+        # GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 
         {
             my $with_device_interface = $with_device->any('/interface');
             $with_device_interface->to({ controller => 'device_interface' });
 
-            # GET /device/:device_id/interface
+            # GET /device/:device_id_or_serial_number/interface
             $with_device_interface->get('/')->to('#get_all');
 
             # chainable action that extracts and looks up interface_name from the path
             my $with_interface_name = $with_device_interface->under('/#interface_name')->to('#find_device_interface');
 
-            # GET /device/:device_id/interface/#interface_name
+            # GET /device/:device_id_or_serial_number/interface/#interface_name
             $with_interface_name->get('/')->to('#get_one');
 
-            # GET /device/:device_id/interface/#interface_name/:field
+            # GET /device/:device_id_or_serial_number/interface/#interface_name/:field
             $with_interface_name->get('/:field', [ field => [ $app->db_device_nics->fields ] ])
                 ->to('#get_one_field');
         }
@@ -155,7 +156,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id>
+=head3 C<GET /device/:device_id_or_serial_number>
 
 =over 4
 
@@ -163,7 +164,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id/pxe>
+=head3 C<GET /device/:device_id_or_serial_number/pxe>
 
 =over 4
 
@@ -171,7 +172,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id/phase>
+=head3 C<GET /device/:device_id_or_serial_number/phase>
 
 =over 4
 
@@ -179,7 +180,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/graduate>
+=head3 C<POST /device/:device_id_or_serial_number/graduate>
 
 =over 4
 
@@ -189,7 +190,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/triton_setup>
+=head3 C<POST /device/:device_id_or_serial_number/triton_setup>
 
 =over 4
 
@@ -199,7 +200,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/triton_uuid>
+=head3 C<POST /device/:device_id_or_serial_number/triton_uuid>
 
 =over 4
 
@@ -209,7 +210,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/triton_reboot>
+=head3 C<POST /device/:device_id_or_serial_number/triton_reboot>
 
 =over 4
 
@@ -219,7 +220,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/asset_tag>
+=head3 C<POST /device/:device_id_or_serial_number/asset_tag>
 
 =over 4
 
@@ -229,7 +230,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/validated>
+=head3 C<POST /device/:device_id_or_serial_number/validated>
 
 =over 4
 
@@ -239,7 +240,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/phase>
+=head3 C<POST /device/:device_id_or_serial_number/phase>
 
 =over 4
 
@@ -249,7 +250,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id/location>
+=head3 C<GET /device/:device_id_or_serial_number/location>
 
 =over 4
 
@@ -257,7 +258,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/location>
+=head3 C<POST /device/:device_id_or_serial_number/location>
 
 =over 4
 
@@ -267,7 +268,7 @@ below.
 
 =back
 
-=head3 C<DELETE /device/:device_id/location>
+=head3 C<DELETE /device/:device_id_or_serial_number/location>
 
 =over 4
 
@@ -275,7 +276,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id/settings>
+=head3 C<GET /device/:device_id_or_serial_number/settings>
 
 =over 4
 
@@ -283,7 +284,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/settings>
+=head3 C<POST /device/:device_id_or_serial_number/settings>
 
 =over 4
 
@@ -295,7 +296,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id/settings/:key>
+=head3 C<GET /device/:device_id_or_serial_number/settings/:key>
 
 =over 4
 
@@ -303,7 +304,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/settings/:key>
+=head3 C<POST /device/:device_id_or_serial_number/settings/:key>
 
 =over 4
 
@@ -315,7 +316,7 @@ below.
 
 =back
 
-=head3 C<DELETE /device/:device_id/settings/:key>
+=head3 C<DELETE /device/:device_id_or_serial_number/settings/:key>
 
 =over 4
 
@@ -325,7 +326,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/validation/:validation_id>
+=head3 C<POST /device/:device_id_or_serial_number/validation/:validation_id>
 
 Does not store validation results.
 
@@ -337,7 +338,7 @@ Does not store validation results.
 
 =back
 
-=head3 C<POST /device/:device_id/validation_plan/:validation_plan_id>
+=head3 C<POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id>
 
 Does not store validation results.
 
@@ -349,7 +350,7 @@ Does not store validation results.
 
 =back
 
-=head3 C<< GET /device/:device_id/validation_state?status=<pass|fail|error>&status=... >>
+=head3 C<< GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=... >>
 
 Accepts the query parameter C<status>, indicating the desired status(es)
 to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
@@ -360,7 +361,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =back
 
-=head3 C<GET /device/:device_id/interface>
+=head3 C<GET /device/:device_id_or_serial_number/interface>
 
 =over 4
 
@@ -368,7 +369,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =back
 
-=head3 C<GET /device/:device_id/interface/:interface_name>
+=head3 C<GET /device/:device_id_or_serial_number/interface/:interface_name>
 
 =over 4
 
@@ -376,7 +377,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =back
 
-=head3 C<GET /device/:device_id/interface/:interface_name/:field>
+=head3 C<GET /device/:device_id_or_serial_number/interface/:interface_name/:field>
 
 =over 4
 

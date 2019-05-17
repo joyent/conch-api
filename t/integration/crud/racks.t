@@ -162,23 +162,24 @@ my $assignments = $t->tx->res->json;
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {
-            device_id => 'FOO',
+            device_serial_number => 'FOO', # new device
             rack_unit_start => 2,
         },
     ])
     ->status_is(409)
     ->json_is({ error => 'missing layout for rack_unit_start 2' });
 
-my ($device) = $t->generate_fixtures(device => { hardware_product_id => $hardware_product_storage->id });
+my ($bar) = $t->generate_fixtures(device => { hardware_product_id => $hardware_product_storage->id });
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {
-            device_id => 'FOO', # new device
+            device_serial_number => 'FOO', # new device
             device_asset_tag => 'ohhai',
             rack_unit_start => 1,
         },
         {
-            device_id => $device->id, # existing device
+            device_id => $bar->id, # existing device
+            device_serial_number => 'BAR',
             device_asset_tag => 'hello',
             rack_unit_start => 3,
         },
@@ -186,8 +187,10 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
     ->status_is(303)
     ->location_is('/rack/'.$rack->id.'/assignment');
 
-$assignments->[0]->@{qw(device_id device_asset_tag)} = ('FOO','ohhai');
-$assignments->[1]->@{qw(device_id device_asset_tag)} = ($device->id,'hello');
+my $foo = $t->app->db_devices->find({ serial_number => 'FOO' });
+
+$assignments->[0]->@{qw(device_id device_asset_tag)} = ($foo->id,'ohhai');
+$assignments->[1]->@{qw(device_id device_asset_tag)} = ($bar->id,'hello');
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -202,8 +205,8 @@ subtest 'rack phases' => sub {
     cmp_deeply(
         [ $device_phase_rs->all ],
         bag(
-            { id => 'FOO', phase => 'integration' },
-            { id => $device->id, phase => 'integration' },
+            { id => $foo->id, phase => 'integration' },
+            { id => $bar->id, phase => 'integration' },
         ),
         'all assigned devices are initially in the integration phase',
     );
@@ -220,8 +223,8 @@ subtest 'rack phases' => sub {
     cmp_deeply(
         [ $device_phase_rs->all ],
         bag(
-            { id => 'FOO', phase => 'integration' },
-            { id => $device->id, phase => 'integration' },
+            { id => $foo->id, phase => 'integration' },
+            { id => $bar->id, phase => 'integration' },
         ),
         'all assigned devices are still in the integration phase',
     );
@@ -233,55 +236,89 @@ subtest 'rack phases' => sub {
     cmp_deeply(
         [ $device_phase_rs->all ],
         bag(
-            { id => 'FOO', phase => 'production' },
-            { id => $device->id, phase => 'production' },
+            { id => $foo->id, phase => 'production' },
+            { id => $bar->id, phase => 'production' },
         ),
         'all assigned devices are moved to the production phase',
     );
 };
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
-        { device_id => 'FOO', rack_unit_start => 11 },
-        { device_id => 'FOO', rack_unit_start => 13 },
+        { device_id => $foo->id, rack_unit_start => 11 },
+        { device_id => $foo->id, rack_unit_start => 13 },
     ])
     ->status_is(400)
-    ->json_is({ error => 'duplication of device_ids is not permitted' });
+    ->json_is({ error => 'duplication of devices is not permitted' });
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
-        { device_id => 'FOO', rack_unit_start => 11 },
-        { device_id => 'BAR', rack_unit_start => 11 },
+        { device_serial_number => 'FOO', rack_unit_start => 11 },
+        { device_serial_number => 'FOO', rack_unit_start => 13 },
+    ])
+    ->status_is(400)
+    ->json_is({ error => 'duplication of devices is not permitted' });
+
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        { device_id => $foo->id, rack_unit_start => 11 },
+        { device_serial_number => 'FOO', rack_unit_start => 13 },
+    ])
+    ->status_is(400)
+    ->json_is({ error => 'duplication of devices is not permitted' });
+
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        { device_serial_number => 'FOO', rack_unit_start => 11 },
+        { device_serial_number => 'BAR', rack_unit_start => 11 },
     ])
     ->status_is(400)
     ->json_is({ error => 'duplication of rack_unit_starts is not permitted' });
 
+my $new_id = create_uuid_str();
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        { device_id => $new_id, rack_unit_start => 11 },
+    ])
+    ->status_is(404)
+    ->log_is('no device corresponding to device id '.$new_id);
+
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        { device_id => $foo->id, device_serial_number => 'BAR', rack_unit_start => 11 },
+    ])
+    ->status_is(400)
+    ->log_is(re(qr/unique constraint.*serial_number/));
+
+# Note that at present, two devices cannot exchange serials atomically...
+# this will cause a db explosion (and rollback) via constraint violations.
+# This is only possible if we change the constraints to 'deferred initially immediate',
+# and then at the top of the transaction we do 'set constraints all deferred;'
+
 # move FOO from rack unit 1 to rack unit 3; pushing out the existing occupant of 3
-# BAR is created and put in rack unit 11.
+# BAZ is created and put in rack unit 11.
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {
-            device_id => 'FOO',
+            device_serial_number => 'FOO',
             rack_unit_start => 3,
         },
         {
-            device_id => 'BAR',
+            device_serial_number => 'BAZ',
             rack_unit_start => 11,
         },
     ])
     ->status_is(303);
 
+my $baz = $t->app->db_devices->find({ serial_number => 'BAZ' });
+
 $assignments->[1]->@{qw(device_id device_asset_tag)} = $assignments->[0]->@{qw(device_id device_asset_tag)};
 $assignments->[0]->@{qw(device_id device_asset_tag)} = (undef, undef);
-$assignments->[2]->{device_id} = 'BAR';
+$assignments->[2]->{device_id} = $baz->id;
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('RackAssignments')
     ->json_is($assignments);
 
-ok(!$t->app->db_device_locations->search({ device_id => $device->id })->exists, 'previous occupant is now homeless');
+ok(!$t->app->db_device_locations->search({ device_id => $bar->id })->exists, 'previous occupant is now homeless');
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
-            device_id => 'FOO',
+            device_id => $foo->id,
             rack_unit_start => 2,   # this rack_unit_start doesn't exist
         },
     ])
@@ -289,7 +326,7 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
-            device_id => 'FOO',
+            device_id => $foo->id,
             rack_unit_start => 1,   # this slot isn't occupied
         },
     ])
@@ -297,7 +334,7 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
-            device_id => 'FOO',
+            device_id => $foo->id,
             rack_unit_start => 11,  # wrong slot for this device
         },
     ])
@@ -305,7 +342,7 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
-            device_id => 'FOO',
+            device_id => $foo->id,
             rack_unit_start => 3,
         },
     ])

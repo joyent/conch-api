@@ -136,7 +136,7 @@ definitions:
           serial:
             $ref: common.yaml#/definitions/relay_serial_number
       serial_number:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/device_serial_number
       state:
         type: string
       system_uuid:

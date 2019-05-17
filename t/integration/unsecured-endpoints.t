@@ -62,14 +62,14 @@ subtest 'device totals' => sub {
     # create a few devices and locate them in this rack
     $t->app->db_devices->create($_) foreach (
         {
-            id => 'test switch',
+            serial_number => 'test switch',
             hardware_product_id => $switch_vendor->{id},
             state => 'ignore',
             health => 'fail',
             device_location => { rack_id => $rack->id, rack_unit_start => 1 },
         },
         {
-            id => 'test compute',
+            serial_number => 'test compute',
             hardware_product_id => $test_compute->{id},
             state => 'ignore',
             health => 'pass',

@@ -300,7 +300,7 @@ $t->get_ok("/rack/$rack_id/layouts")
 
 
 my $device = $hw_product_storage->create_related('devices', {
-    id  => 'my device',
+    serial_number => 'my device',
     state => 'I wish I were an enum',
     health => 'unknown',
     device_location => { rack_id => $rack_id, rack_unit_start => 20 },

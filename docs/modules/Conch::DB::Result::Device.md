@@ -8,7 +8,7 @@ Conch::DB::Result::Device
 
 # ACCESSORS
 
-## id
+## serial\_number
 
 ```
 data_type: 'text'
@@ -145,11 +145,24 @@ extra: {custom_type_name => "device_phase_enum",list => ["integration","installa
 is_nullable: 0
 ```
 
+## id
+
+```
+data_type: 'uuid'
+default_value: gen_random_uuid()
+is_nullable: 0
+size: 16
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)
 
 # UNIQUE CONSTRAINTS
+
+## `device_serial_number_key`
+
+- ["serial\_number"](#serial_number)
 
 ## `device_system_uuid_key`
 

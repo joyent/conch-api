@@ -17,14 +17,6 @@ is_nullable: 0
 size: 16
 ```
 
-## device\_id
-
-```
-data_type: 'text'
-is_foreign_key: 1
-is_nullable: 0
-```
-
 ## validation\_plan\_id
 
 ```
@@ -59,6 +51,15 @@ is_nullable: 0
 ```
 
 ## device\_report\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
+```
+
+## device\_id
 
 ```
 data_type: 'uuid'

@@ -46,7 +46,7 @@ Response uses the RackAssignments json schema.
 
 ## set\_assignment
 
-Assigns devices to rack layouts, also optionally updating asset\_tags.
+Assigns devices to rack layouts, also optionally updating serial\_numbers and asset\_tags.
 Existing devices in referenced slots will be removed as needed.
 
 ## delete\_assignment
