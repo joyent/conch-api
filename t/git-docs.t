@@ -6,7 +6,7 @@ plan skip_all => 'no .git: cannot check dirty files' if not -d '.git';
 
 system(qw(make ghdocs));
 
-chomp(my $dirty = `git diff --name-only docs`);
+chomp(my $dirty = `git status --untracked --porcelain docs`);
 is(split("\n", $dirty), 0, 'no files changed after running "make ghdocs"')
     or diag 'files need updating:',"\n",$dirty;
 
