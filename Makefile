@@ -9,7 +9,7 @@ morbo: ## Run under morbo, listening on :5001
 build: local ## Install deps (TODO: and build docs)
 
 clean:
-	\rm -rf local log public/doc
+	\rm -rf local log
 
 local: cpanfile.snapshot ## Install perl dependencies
 # '--deployment' installs the same dep versions that are in the lockfile
@@ -25,20 +25,11 @@ test: local ## Run tests
 test_loud: local ## Run tests but tell the Mojo harness to log verbosely to log/
 	MOJO_LOG_LEVEL=debug carton exec prove -lpr t/
 
-doc: public/doc/index.html ## Build docs
-
 .PHONY: ghdocs
 ghdocs: build
 	@rm -rf docs/modules
 	@mkdir -p docs/modules
 	@carton exec misc/pod2githubpages $$(find lib -type f -iname \*.pm)
-
-public/doc/index.html: \
-	docs/conch-api/openapi-spec.yaml \
-	docs/conch-api/yarn.lock docs/conch-api/index.js
-	@cd docs/conch-api && yarn install && yarn run render
-	@mkdir -p public/doc
-	@cp docs/conch-api/index.html public/doc/index.html
 
 watch-test:
 	@find lib t | entr -r -c make test
