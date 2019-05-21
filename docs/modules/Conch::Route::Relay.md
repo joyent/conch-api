@@ -8,10 +8,17 @@ Conch::Route::Relay
 
 Sets up the routes for /relay:
 
-```
-POST  /relay/:relay_id/register
-GET   /relay
-```
+Unless otherwise noted, all routes require authentication.
+
+### `POST /relay/:relay_id/register`
+
+- Request: input.yaml#/RegisterRelay
+- Response: `204 NO CONTENT`
+
+### `GET /relay`
+
+- Requires System Admin Authentication
+- Response: response.yaml#/Relays
 
 # LICENSING
 

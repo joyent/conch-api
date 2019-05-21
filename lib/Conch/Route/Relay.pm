@@ -14,9 +14,6 @@ Conch::Route::Relay
 
 Sets up the routes for /relay:
 
-    POST  /relay/:relay_id/register
-    GET   /relay
-
 =cut
 
 sub routes {
@@ -36,6 +33,32 @@ sub routes {
 __END__
 
 =pod
+
+Unless otherwise noted, all routes require authentication.
+
+=head3 C<POST /relay/:relay_id/register>
+
+=over 4
+
+=item * Request: input.yaml#/RegisterRelay
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=cut
+
+=head3 C<GET /relay>
+
+=over 4
+
+=item * Requires System Admin Authentication
+
+=item * Response: response.yaml#/Relays
+
+=back
+
+=cut
 
 =head1 LICENSING
 

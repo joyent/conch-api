@@ -14,43 +14,6 @@ Conch::Route::Datacenter
 
 Sets up the routes for /dc, /room, /rack_role, /rack and /layout:
 
-    GET     /dc
-    POST    /dc
-    GET     /dc/:datacenter_id
-    POST    /dc/:datacenter_id
-    DELETE  /dc/:datacenter_id
-    GET     /dc/:datacenter_id/rooms
-
-    GET     /room
-    POST    /room
-    GET     /room/:datacenter_room_id
-    POST    /room/:datacenter_room_id
-    DELETE  /room/:datacenter_room_id
-    GET     /room/:datacenter_room_id/racks
-
-    GET     /rack_role
-    POST    /rack_role
-    GET     /rack_role/:rack_role_id_or_name
-    POST    /rack_role/:rack_role_id_or_name
-    DELETE  /rack_role/:rack_role_id_or_name
-
-    GET     /rack
-    POST    /rack
-    GET     /rack/:rack_id
-    POST    /rack/:rack_id
-    DELETE  /rack/:rack_id
-    GET     /rack/:rack_id/layouts
-    GET     /rack/:rack_id/assignment
-    POST    /rack/:rack_id/assignment
-    DELETE  /rack/:rack_id/assignment
-    POST    /rack/:rack_id/phase?rack_only=<0|1>
-
-    GET     /layout
-    POST    /layout
-    GET     /layout/:layout_id
-    POST    /layout/:layout_id
-    DELETE  /layout/:layout_id
-
 =cut
 
 sub routes {
@@ -179,6 +142,324 @@ sub routes {
 __END__
 
 =pod
+
+Unless otherwise noted, all routes require authentication.
+
+=cut
+
+=head3 C<GET /dc>
+
+=over 4
+
+=item * Response: response.yaml#/Datacenters
+
+=back
+
+=head3 C<POST /dc>
+
+=over 4
+
+=item * Request: input.yaml#/DatacenterCreate
+
+=item * Response: Redirect to the created datacenter
+
+=back
+
+=head3 C<GET /dc/:datacenter_id>
+
+=over 4
+
+=item * Response: response.yaml#/Datacenter
+
+=back
+
+=head3 C<POST /dc/:datacenter_id>
+
+=over 4
+
+=item * Request: input.yaml#/DatacenterUpdate
+
+=item * Response: Redirect to the updated datacenter
+
+=back
+
+=head3 C<DELETE /dc/:datacenter_id>
+
+=over 4
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /dc/:datacenter_id/rooms>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Response: response.yaml#/DatacenterRoomsDetailed
+
+=back
+
+=head3 C<GET /room>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Response: response.yaml#/DatacenterRoomsDetailed
+
+=back
+
+=head3 C<POST /room>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Request: input.yaml#/DatacenterRoomCreate
+
+=item * Response: Redirect to the created room
+
+=back
+
+=head3 C<GET /room/:datacenter_room_id>
+
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Response: response.yaml#/DatacenterRoomDetailed
+
+=back
+
+=head3 C<POST /room/:datacenter_room_id>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Request: input.yaml#/DatacenterRoomUpdate
+
+=item * Response: Redirect to the updated room
+
+=back
+
+=head3 C<DELETE /room/:datacenter_room_id>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /room/:datacenter_room_id/racks>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Response: response.yaml#/Racks
+
+=back
+
+=head3 C<GET /rack_role>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Response: response.yaml#/RackRoles
+
+=back
+
+=head3 C<POST /rack_role>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Request: input.yaml#/RackRoleCreate
+
+=item * Response: Redirect to the created rack role
+
+=back
+
+=head3 C<GET /rack_role/:rack_role_id_or_name>
+
+=over 4
+
+=item * Requires System Admin Authorization
+
+=item * Response: response.yaml#/RackRole
+
+=back
+
+=head3 C<POST /rack_role/:rack_role_id_or_name>
+
+=over 4
+
+=item * Request: input.yaml#/RackRoleUpdate
+
+=item * Response: Redirect to the updated rack role
+
+=back
+
+=head3 C<DELETE /rack_role/:rack_role_id_or_name>
+
+=over 4
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /rack>
+
+=over 4
+
+=item * Requires System Admin Authentication
+
+=item * Response: response.yaml#/Racks
+
+=back
+
+=head3 C<POST /rack>
+
+=over 4
+
+=item * Requires System Admin Authentication
+
+=item * Request: input.yaml#/RackCreate
+
+=item * Response: Redirect to the created rack
+
+=back
+
+=head3 C<GET /rack/:rack_id>
+
+=over 4
+
+=item * Response: response.yaml#/Rack
+
+=back
+
+=head3 C<POST /rack/:rack_id>
+
+=over 4
+
+=item * Request: input.yaml#/RackUpdate
+
+=item * Response: Redirect to the updated rack
+
+=back
+
+=head3 C<DELETE /rack/:rack_id>
+
+=over 4
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /rack/:rack_id/layouts>
+
+=over 4
+
+=item * Response: response.yaml#/RackLayouts
+
+=back
+
+=head3 C<GET /rack/:rack_id/assignment>
+
+=over 4
+
+=item * Response: response.yaml#/RackAssignments
+
+=back
+
+=head3 C<POST /rack/:rack_id/assignment>
+
+=over 4
+
+=item * Request: input.yaml#/RackAssignmentUpdates
+
+=item * Response: Redirect to the updated rack assignment
+
+=back
+
+=head3 C<DELETE /rack/:rack_id/assignment>
+
+This method requires a request body.
+
+=over 4
+
+=item * Request: input.yaml#/RackAssignmentDeletes
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<< POST /rack/:rack_id/phase?rack_only=<0|1> >>
+
+The query parameter C<rack_only> (default 0) specifies whether to update
+only the rack's phase, or all the rack's devices' phases as well.
+
+=over 4
+
+=item * Request: input.yaml#/RackPhase
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /layout>
+
+=over 4
+
+=item * Response: response.yaml#/RackLayouts
+
+=back
+
+=head3 C<POST /layout>
+
+=over 4
+
+=item * Requires Admin Authentication
+
+=item * Request: input.yaml#/RackLayoutCreate
+
+=item * Response: Redirect to the created rack layout
+
+=back
+
+=head3 C<GET /layout/:layout_id>
+
+=over 4
+
+=item * Response: response.yaml#/RackLayout
+
+=back
+
+=head3 C<POST /layout/:layout_id>
+
+=over 4
+
+=item * Request: input.yaml#/RackLayoutUpdate
+
+=item * Response: Redirect to the update rack layout
+
+=back
+
+=head3 C<DELETE /layout/:layout_id>
+
+=over 4
+
+=item * Response: C<204 NO CONTENT>
+
+=back
 
 =head1 LICENSING
 

@@ -8,18 +8,32 @@ Conch::Route::HardwareProduct
 
 Sets up the routes for /hardware\_product:
 
-```
-GET     /hardware_product
-POST    /hardware_product
+Unless otherwise noted, all routes require authentication.
 
-        key is one of: name, alias, sku
-GET     /hardware_product/:hardware_product_id
-GET     /hardware_product/:hardware_product_key=value
-POST    /hardware_product/:hardware_product_id
-POST    /hardware_product/:hardware_product_key=value
-DELETE  /hardware_product/:hardware_product_id
-DELETE  /hardware_product/:hardware_product_key=value
-```
+### `GET /hardware_product`
+
+- Response: response.yaml#/HardwareProducts
+
+### `POST /hardware_product`
+
+- Requires System Admin Authentication
+- Request: input.yaml#/HardwareProductCreate
+- Response: Redirect to the created hardware product
+
+### `GET /hardware_product/:identifier`
+
+- Response: response.yaml#/HardwareProduct
+
+### `POST /hardware_product/:identifier`
+
+- Requires System Admin Authentication
+- Request: input.yaml#/HardwareProductUpdate
+- Response: Redirect to the updated hardware product
+
+### `DELETE /hardware_product/:identifier`
+
+- Requires System Admin Authentication
+- Response: `204 NO CONTENT`
 
 # LICENSING
 

@@ -24,6 +24,18 @@ Our development process is documented over [here](development.html)
 
 # Routes / URLs
 
+The majority of our endpoints consume and respond with JSON documents that
+conform to a set of JSON schema. These schema can be found in the
+[json-schema](https://github.com/joyent/conch/tree/master/json-schema)
+directory in the main repository.
+
+* [Conch::Route](modules/Conch::Route)
+  * `/login`
+  * `/logout`
+  * `/refresh_token`
+  * `/schema`
+  * `/version`
+
 * [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`
   * `/room`
