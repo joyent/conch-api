@@ -18,8 +18,6 @@ CHANGELOG.md
 # Conch
 conch.conf
 report
-public/doc
-docs/conch-api/index.html
 log
 bin/hypnotoad.pid
 nytprof

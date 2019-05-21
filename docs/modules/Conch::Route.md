@@ -14,10 +14,6 @@ Set up the full route structure
 
 Unless otherwise specified all routes require authentication.
 
-### `/doc`
-
-- Does not require authentication.
-
 ### `GET /ping`
 
 - Does not require authentication.

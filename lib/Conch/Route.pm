@@ -55,9 +55,6 @@ sub all_routes (
     $root->add_type(uuid => Conch::UUID::UUID_FORMAT);
 
 
-    # GET /doc
-    $root->get('/doc', sub ($c) { $c->reply->static('public/doc/index.html') });
-
     # GET /ping
     $root->get('/ping', sub ($c) { $c->status(200, { status => 'ok' }) });
 
@@ -107,14 +104,6 @@ __END__
 =pod
 
 Unless otherwise specified all routes require authentication.
-
-=head3 C</doc>
-
-=over 4
-
-=item * Does not require authentication.
-
-=back
 
 =head3 C<GET /ping>
 
