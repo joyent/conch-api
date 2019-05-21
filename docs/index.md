@@ -30,11 +30,13 @@ conform to a set of JSON schema. These schema can be found in the
 directory in the main repository.
 
 * [Conch::Route](modules/Conch::Route)
+  * `/ping`
+  * `/version`
   * `/login`
   * `/logout`
   * `/refresh_token`
+  * `/me`
   * `/schema`
-  * `/version`
 
 * [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`

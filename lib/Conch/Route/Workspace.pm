@@ -200,7 +200,7 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 
 =over 4
 
-=item * Response: response.yaml#/WorkspaceAddRack
+=item * Response: response.yaml#/WorkspaceRack
 
 =back
 
