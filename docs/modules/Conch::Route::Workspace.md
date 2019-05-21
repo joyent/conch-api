@@ -64,7 +64,7 @@ An alias for `/workspace/:workspace_id_or_name/device?active=t`.
 
 If the Accepts header specifies `text/csv` it will return a CSV document.
 
-- Response: response.yaml#/WorkspaceAddRack
+- Response: response.yaml#/WorkspaceRack
 
 ### `DELETE /workspace/:workspace_id_or_name/rack/:rack_id`
 
