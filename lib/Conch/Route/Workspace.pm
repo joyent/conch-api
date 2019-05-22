@@ -266,7 +266,7 @@ an email to the user
 
 =back
 
-=head3 C<< DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0> >>
+=head3 C<< DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
 an email to the user

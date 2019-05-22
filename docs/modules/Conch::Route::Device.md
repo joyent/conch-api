@@ -100,17 +100,17 @@ below.
 - Request: input.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
-### `GET /device/:device_id/settings/#key`
+### `GET /device/:device_id/settings/:key`
 
 - Response: response.yaml#/DeviceSetting
 
-### `POST /device/:device_id/settings/#key`
+### `POST /device/:device_id/settings/:key`
 
 - Requires Read/Write Device Authentication
 - Request: input.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
-### `DELETE /device/:device_id/settings/#key`
+### `DELETE /device/:device_id/settings/:key`
 
 - Requires Read/Write Device Authentication
 - Response: `204 NO CONTENT`
