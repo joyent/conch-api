@@ -21,8 +21,8 @@ sub routes {
     my $device = shift; # secured, under /device
     my $app = shift;
 
-    # POST /device/:device_id
-    $device->post('/:device_id')->to('device_report#process');
+    # POST /device/:device_serial_number
+    $device->post('/:device_serial_number')->to('device_report#process');
 
     # GET /device?key=:value
     $device->get('/')->to('device#lookup_by_other_attribute');
@@ -119,7 +119,7 @@ __END__
 
 Unless otherwise noted, all routes require authentication.
 
-=head3 C<POST /device/:device_id>
+=head3 C<POST /device/:device_serial_number>
 
 =over 4
 

@@ -28,22 +28,22 @@ sub process ($c) {
     if (not $unserialized_report) {
         $c->log->debug('Device report input did not match json schema specification');
 
-        if (not $c->db_devices->active->search({ id => $c->stash('device_id') })->exists) {
-            $c->log->debug('Device id '.$c->stash('device_id').' does not exist; cannot store bad report');
+        if (not $c->db_devices->active->search({ id => $c->stash('device_serial_number') })->exists) {
+            $c->log->debug('Device id '.$c->stash('device_serial_number').' does not exist; cannot store bad report');
             return;
         }
 
         # the "report" may not even be valid json, so we cannot store it in a jsonb field.
         my $device_report = $c->db_device_reports->create({
-            device_id => $c->stash('device_id'),
+            device_id => $c->stash('device_serial_number'),
             invalid_report => $c->req->text,
         });
-        $c->log->debug('Stored invalid device report for device id '.$c->stash('device_id'));
+        $c->log->debug('Stored invalid device report for device id '.$c->stash('device_serial_number'));
         return;
     }
 
     # Make sure the API and device report agree on who we're talking about
-    if ($c->stash('device_id') ne $unserialized_report->{serial_number}) {
+    if ($c->stash('device_serial_number') ne $unserialized_report->{serial_number}) {
         return $c->status(422, { error => 'Serial number provided to the API does not match the report data.' });
     }
 
@@ -58,7 +58,7 @@ sub process ($c) {
             if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
     }
 
-    my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
+    my $existing_device = $c->db_devices->active->find($c->stash('device_serial_number'));
 
     # capture information about the last report before we store the new one
     # state can be: error, fail, pass, where no validations on a valid report is
@@ -79,14 +79,14 @@ sub process ($c) {
     return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
 
     # Update/create the device and create the device report
-    $c->log->debug('Updating or creating device '.$c->stash('device_id'));
+    $c->log->debug('Updating or creating device '.$c->stash('device_serial_number'));
 
     my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since}
                : $existing_device ? $existing_device->uptime_since
                : undef;
 
     my $device = $c->db_devices->update_or_create({
-        id                  => $c->stash('device_id'),
+        id                  => $c->stash('device_serial_number'),
         system_uuid         => $unserialized_report->{system_uuid},
         hardware_product_id => $hw->id,
         state               => $unserialized_report->{state},

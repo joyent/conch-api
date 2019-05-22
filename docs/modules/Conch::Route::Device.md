@@ -10,7 +10,7 @@ Sets up the routes for /device:
 
 Unless otherwise noted, all routes require authentication.
 
-### `POST /device/:device_id`
+### `POST /device/:device_serial_number`
 
 - Request: device\_report.yaml#/DeviceReport\_v3.0.0
 - Response: response.yaml#/ValidationStateWithResults
