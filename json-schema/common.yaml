@@ -23,6 +23,7 @@ definitions:
     type: string
     pattern: ^\S+$
   device_phase:
+    description: corresponds to device_phase_enum in the database
     type: string
     enum:
       - integration
@@ -33,12 +34,12 @@ definitions:
   non_empty_string:
     type: string
     minLength: 1
-  # see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders
   mojo_standard_placeholder:
+    description: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders
     type: string
     pattern: "^[^/.]+$"
-  # see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders
   mojo_relaxed_placeholder:
+    description: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders
     type: string
     pattern: "^[^/]+$"
   email_address:

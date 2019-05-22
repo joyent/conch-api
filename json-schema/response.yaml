@@ -2,6 +2,7 @@
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   validation_status:
+    description: corresponds to validation_status_enum in the database
     type: string
     enum:
       # TODO: remove antiquated 'processing'
@@ -10,6 +11,7 @@ definitions:
       - processing
       - pass
   device_health:
+    description: corresponds to device_health_enum in the database
     type: string
     enum:
       - error
@@ -1751,7 +1753,8 @@ definitions:
         properties:
           count:
             type: integer
-    additionalProperties:  # additional keys will be hardware product aliases
+    additionalProperties:
+      description: additional keys will be hardware product aliases
       type: object
       additionalProperties: false
       required:
