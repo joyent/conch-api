@@ -46,6 +46,13 @@ definitions:
     pattern: ^[\w-]+$
   user_setting_key:
     $ref: /definitions/mojo_relaxed_placeholder
+  user_workspace_role:
+    description: corresponds to user_workspace_role_enum in the database
+    type: string
+    enum:
+      - ro
+      - rw
+      - admin
   non_empty_string:
     type: string
     minLength: 1

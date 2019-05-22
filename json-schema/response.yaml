@@ -1245,11 +1245,7 @@ definitions:
           - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       role:
-        type: string
-        enum:
-          - ro
-          - rw
-          - admin
+        $ref: common.yaml#/definitions/user_workspace_role
       role_via:
         allOf:
           - description: the id of the workspace where the permissions came from

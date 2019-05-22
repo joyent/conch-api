@@ -510,11 +510,7 @@ definitions:
         # TODO: maybe this should accept a user_id as well?
         $ref: common.yaml#/definitions/email_address
       role:
-        type: string
-        enum:
-          - ro
-          - rw
-          - admin
+        $ref: common.yaml#/definitions/user_workspace_role
   DeviceAssetTag:
     type: object
     additionalProperties: false
