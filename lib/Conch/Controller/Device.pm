@@ -253,14 +253,10 @@ sub graduate ($c) {
     my $device = $c->stash('device_rs')->single;
     my $device_id = $device->id;
 
-    # FIXME this shouldn't be an error
-    if (defined($device->graduated)) {
-        $c->log->debug('Device '.$device_id.' has already been graduated');
-        return $c->status(409, { error => 'Device '.$device_id.' has already been graduated' });
+    if (not $device->graduated) {
+        $device->update({ graduated => \'now()', updated => \'now()' });
+        $c->log->debug('Marked '.$device_id.' as graduated');
     }
-
-    $device->update({ graduated => \'now()', updated => \'now()' });
-    $c->log->debug('Marked '.$device_id.' as graduated');
 
     $c->status(303, '/device/'.$device_id);
 }
@@ -323,14 +319,10 @@ sub set_triton_setup ($c) {
         });
     }
 
-    # FIXME this should not be an error
-    if (defined($device->triton_setup)) {
-        $c->log->debug('Device '.$device_id.' has already been marked as set up for Triton');
-        return $c->status(409, { error => 'Device '.$device_id.' has already been marked as set up for Triton' });
+    if (not $device->triton_setup) {
+        $device->update({ triton_setup => \'now()', updated => \'now()' });
+        $c->log->debug('Device '.$device_id.' marked as set up for triton');
     }
-
-    $device->update({ triton_setup => \'now()', updated => \'now()' });
-    $c->log->debug('Device '.$device_id.' marked as set up for triton');
 
     $c->status(303, '/device/'.$device_id);
 }
