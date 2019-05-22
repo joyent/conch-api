@@ -23,14 +23,13 @@ sub routes {
     # POST /device_report
     $device_report->post('/')->to('device_report#validate_report');
 
-    # chainable action that extracts and looks up device_report_id from the path
-    # and device_id from the device_report
-    my $with_device_report = $device_report->under('/<device_report_id:uuid>')
-        ->to('device_report#find_device_report');
-
-    # chainable action that checks the device from the stashed device_id
-    my $with_device_report_and_device = $with_device_report->get('/')->under
-        ->to('device#find_device');
+    # chainable action that looks up device_report_id, saves a device_report_rs,
+    # and checks device permissions
+    my $with_device_report_and_device = $device_report
+        # extract and look up device_report_id from the path and device_id from the device_report
+        ->under('/<device_report_id:uuid>')->to('device_report#find_device_report')
+        # check the device (and permissions) from the stashed device_id
+        ->under('/')->to('device#find_device');
 
     # GET /device_report/:device_report_id
     $with_device_report_and_device->get('/')->to('device_report#get');
