@@ -17,8 +17,10 @@ definitions:
     type: string
     pattern: ^\S+$
   device_id:
-    type: string
-    pattern: ^\S+$
+    allOf:
+      - type: string
+        pattern: ^\S+$
+      - $ref: /definitions/mojo_standard_placeholder
   device_asset_tag:
     type: string
     pattern: ^\S+$
