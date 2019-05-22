@@ -282,7 +282,7 @@ subtest 'extraction with $refs' => sub {
 };
 
 
-my $t = Test::Conch->new;
+my $t = Test::Conch->new(pg => undef);
 my $json_spec_schema = $_validator->schema->data;
 
 $t->get_ok('/schema/REQUEST/hello')

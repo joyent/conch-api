@@ -134,7 +134,8 @@ sub startup {
     push $self->commands->namespaces->@*, 'Conch::Command';
 
     Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)
-        ->check_validation_plans;
+            ->check_validation_plans
+        if not $self->feature('no_db');
 
     Conch::Route->all_routes($self->routes, $self);
 }

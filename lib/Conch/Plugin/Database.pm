@@ -145,6 +145,7 @@ line of the exception.
         };
     });
 
+    return if $app->feature('no_db');
 
     # verify that we are running the version of postgres we expect...
     my $pgsql_version = Conch::DB::Util::get_postgres_version($app->schema);

@@ -90,18 +90,18 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-    my $pg = $args->{pg} // $class->init_db;
-    $pg or Test::More::BAIL_OUT('failed to create test database');
+    my $pg = exists $args->{pg} ? $args->{pg}
+        : $class->init_db // Test::More::BAIL_OUT('failed to create test database');
 
     my $self = Test::Mojo->new(
         Conch => {
             database => {
-                dsn => $pg->dsn,
-                username => $pg->dbowner,
+                $pg ? ( dsn => $pg->dsn, username => $pg->dbowner )
+                    : ( dsn => 'there is no database', username => '' )
             },
 
             secrets => ['********'],
-            features => { audit => 1 },
+            features => { audit => 1, no_db => ($pg ? 0 : 1) },
 
             $args->{config} ? $args->{config}->%* : (),
         }

@@ -7,7 +7,7 @@ use Test::Warnings;
 use Test::Conch;
 
 {
-    my $t = Test::Conch->new();
+    my $t = Test::Conch->new(pg => undef);
 
     $t->app->routes->${\ $_->[0] }($_->[1], $_->[2]) foreach (
         # method, path, sub
