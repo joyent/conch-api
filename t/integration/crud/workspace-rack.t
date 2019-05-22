@@ -230,7 +230,7 @@ CSV
         ->json_is({
             'room-0a' => [
                 {
-                    device_progress => { UNKNOWN => 1, VALID => 1 },
+                    device_progress => { unknown => 1, valid => 1 },
                     id => $rack_id,
                     phase => 'integration',
                     name => 'rack 0a',

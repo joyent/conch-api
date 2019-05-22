@@ -873,20 +873,12 @@ definitions:
             type: integer
           device_progress:
             type: object
-            additionalProperties: false
-            properties:
-              # see also device_health
-              # TODO: no longer upper-case these in responses
-              VALID:
-                type: integer
-              PASS:
-                type: integer
-              FAIL:
-                type: integer
-              UNKNOWN:
-                type: integer
-              ERROR:
-                type: integer
+            propertyNames:
+              oneOf:
+                - const: valid
+                - $ref: /definitions/device_health
+            additionalProperties:
+              type: integer
   WorkspaceRack:
     type: object
     additionalProperties: false
