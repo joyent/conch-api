@@ -93,7 +93,7 @@ sub authenticate ($c) {
         my ($email, $password) = ($url->username, $url->password);
 
         $c->log->debug('looking up user by email '.$email.'...');
-        my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$email);
+        my $user = $c->db_user_accounts->active->lookup_by_email($email);
 
         if (not $user) {
             $c->log->debug('basic auth failed: user not found');

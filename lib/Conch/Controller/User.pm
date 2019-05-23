@@ -309,7 +309,7 @@ sub update ($c) {
     return if not $input;
 
     if (exists $input->{email}
-            and my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$input->{email})) {
+            and my $user = $c->db_user_accounts->active->lookup_by_email($input->{email})) {
         return $c->status(409, {
             error => 'duplicate user found',
             user => { map +($_ => $user->$_), qw(id email name created deactivated) },
@@ -381,7 +381,7 @@ sub create ($c) {
     # this would cause horrible clashes with our /user routes!
     return $c->status(400, { error => 'user name "me" is prohibited' }) if $name eq 'me';
 
-    if (my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$email)) {
+    if (my $user = $c->db_user_accounts->active->lookup_by_email($email)) {
         return $c->status(409, {
             error => 'duplicate user found',
             user => { map +($_ => $user->$_), qw(id email name created deactivated) },
