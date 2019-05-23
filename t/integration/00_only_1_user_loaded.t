@@ -356,9 +356,6 @@ subtest 'Workspaces' => sub {
         ->json_is('/1/email', 'test_user@conch.joyent.us')
         ->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
 
-    my $main_user_id = $t->tx->res->json->[0]{id};
-    my $test_user_id = $t->tx->res->json->[1]{id};
-
     push $users{GLOBAL}->@*, {
         id    => ignore,
         name  => 'test user',
@@ -527,9 +524,6 @@ subtest 'Sub-Workspace' => sub {
         ->json_is('/0/workspaces' => $workspace_data{conch})
         ->json_is('/1/email', 'test_user@conch.joyent.us')
         ->json_is('/1/workspaces' => $workspace_data{test_user});
-
-    my $main_user_id = $t->tx->res->json->[0]{id};
-    my $test_user_id = $t->tx->res->json->[1]{id};
 
     $users{child_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
     $users{grandchild_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
