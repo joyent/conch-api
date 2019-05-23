@@ -213,12 +213,7 @@ definitions:
     required:
       - name
       - alias
-    oneOf:
-      - required:
-        - hardware_vendor_id
-      # old name maintained for backcompat for now. please switch to the full name.
-      - required:
-        - vendor
+      - hardware_vendor_id
     properties:
       name:
         type: string
@@ -228,8 +223,6 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
-      vendor:
-        $ref: common.yaml#/definitions/uuid
       hardware_vendor_id:
         $ref: common.yaml#/definitions/uuid
       specification:
@@ -344,11 +337,6 @@ definitions:
   HardwareProductUpdate:
     type: object
     additionalProperties: false
-    not:
-      required:
-        # cannot have hardware_vendor_id *and* vendor together.
-        - hardware_vendor_id
-        - vendor
     properties:
       name:
         type: string
@@ -360,10 +348,6 @@ definitions:
           - type: 'null'
       hardware_vendor_id:
         $ref: common.yaml#/definitions/uuid
-      vendor:
-        allOf:
-          - description: for backcompat only.
-          - $ref: common.yaml#/definitions/uuid
       specification:
         description: json blob of additional data
         oneOf:

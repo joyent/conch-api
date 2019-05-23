@@ -39,16 +39,6 @@ $t->post_ok('/hardware_product', json => { wat => 'wat' })
 
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',
-        vendor => $vendor_id,
-        hardware_vendor_id => $vendor_id,
-        alias => 'sungo',
-    })
-    ->status_is(400)
-    ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/all of the oneof rules match/i) } ]);
-
-$t->post_ok('/hardware_product', json => {
-        name => 'sungo',
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
     })
@@ -82,20 +72,12 @@ $t->get_ok('/hardware_product')
 
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',
-        vendor => $vendor_id,
+        hardware_vendor_id => $vendor_id,
         alias => 'sungo',
     })
     ->status_is(400)
     ->json_schema_is('Error')
     ->json_is({ error => 'Unique constraint violated on \'name\'' });
-
-$t->post_ok("/hardware_product/$new_hw_id", json => {
-        vendor => $vendor_id,
-        hardware_vendor_id => $vendor_id,
-    })
-    ->status_is(400, 'cannot provide both vendor and hardware_vendor_id')
-    ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/should not match/i) } ]);
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
     ->status_is(303);

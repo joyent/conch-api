@@ -99,9 +99,6 @@ sub create ($c) {
         }
     }
 
-    # backcompat only
-    $input->{hardware_vendor_id} = delete $input->{vendor} if exists $input->{vendor};
-
     # create hardware_product_profile entries as well, as needed.
     my $hardware_product = $c->txn_wrapper(sub ($c) {
         $c->db_hardware_products->create($input);
@@ -144,9 +141,6 @@ sub update ($c) {
             return $c->status(400, { error => "Unique constraint violated on '$key'" });
         }
     }
-
-    # backcompat only
-    $input->{hardware_vendor_id} = delete $input->{vendor} if exists $input->{vendor};
 
     $c->txn_wrapper(sub ($c) {
         $c->log->debug('start of transaction...');

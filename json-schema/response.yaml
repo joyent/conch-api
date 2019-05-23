@@ -694,9 +694,7 @@ definitions:
           - type: string
           - type: 'null'
       hardware_vendor_id:
-        allOf:
-          - description: Hardware product vendor id
-          - $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/definitions/uuid
       generation_name:
         oneOf:
           - type: string
