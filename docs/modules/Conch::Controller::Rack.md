@@ -10,7 +10,7 @@ Supports rack lookups by uuid.
 
 ## create
 
-Stores data as a new rack row, munging 'role' to 'rack\_role\_id'.
+Stores data as a new rack row.
 
 ## get
 

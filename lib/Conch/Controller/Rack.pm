@@ -47,7 +47,7 @@ sub find_rack ($c) {
 
 =head2 create
 
-Stores data as a new rack row, munging 'role' to 'rack_role_id'.
+Stores data as a new rack row.
 
 =cut
 
@@ -61,11 +61,9 @@ sub create ($c) {
         return $c->status(400, { error => 'Room does not exist' });
     }
 
-    if (not $c->db_rack_roles->search({ id => $input->{role} })->exists) {
+    if (not $c->db_rack_roles->search({ id => $input->{rack_role_id} })->exists) {
         return $c->status(400, { error => 'Rack role does not exist' });
     }
-
-    $input->{rack_role_id} = delete $input->{role};
 
     my $rack = $c->db_racks->create($input);
     $c->log->debug('Created rack '.$rack->id);
@@ -150,8 +148,7 @@ sub update ($c) {
     }
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it
-    if (exists $input->{role}
-            and ($input->{rack_role_id} = delete $input->{role}) ne $rack->rack_role_id) {
+    if (exists $input->{rack_role_id} and $input->{rack_role_id} ne $rack->rack_role_id) {
         my $rack_role = $c->db_rack_roles->find($input->{rack_role_id});
         if (not $rack_role) {
             return $c->status(400, { error => 'Rack role does not exist' });

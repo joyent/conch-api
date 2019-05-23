@@ -244,14 +244,6 @@ __PACKAGE__->add_columns(
     '+phase' => { retrieve_on_insert => 1 },
 );
 
-use experimental 'signatures';
-
-sub TO_JSON ($self) {
-    my $data = $self->next::method(@_);
-    $data->{role} = delete $data->{rack_role_id};
-    return $data;
-}
-
 1;
 __END__
 

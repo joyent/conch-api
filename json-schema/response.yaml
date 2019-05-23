@@ -1405,7 +1405,7 @@ definitions:
       - id
       - name
       - datacenter_room_id
-      - role
+      - rack_role_id
       - serial_number
       - asset_tag
       - phase
@@ -1418,7 +1418,7 @@ definitions:
         type: string
       datacenter_room_id:
         $ref: common.yaml#/definitions/uuid
-      role: # TODO: this really should be rack_role_id
+      rack_role_id:
         $ref: common.yaml#/definitions/uuid
       serial_number:
         oneOf:

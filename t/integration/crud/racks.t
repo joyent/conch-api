@@ -40,9 +40,9 @@ $t->post_ok('/rack', json => { wat => 'wat' })
 $t->post_ok('/rack', json => { name => 'r4ck', datacenter_room_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ { path => '/rack_role_id', message => re(qr/missing property/i) } ]);
 
-$t->post_ok('/rack', json => { name => 'r4ck', role => $fake_id })
+$t->post_ok('/rack', json => { name => 'r4ck', rack_role_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/datacenter_room_id', message => re(qr/missing property/i) } ]);
@@ -50,7 +50,7 @@ $t->post_ok('/rack', json => { name => 'r4ck', role => $fake_id })
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $fake_id,
-        role => $rack->rack_role_id,
+        rack_role_id => $rack->rack_role_id,
     })
     ->status_is(400)
     ->json_schema_is('Error')
@@ -59,7 +59,7 @@ $t->post_ok('/rack', json => {
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
-        role => $fake_id,
+        rack_role_id => $fake_id,
     })
     ->status_is(400)
     ->json_schema_is('Error')
@@ -68,7 +68,7 @@ $t->post_ok('/rack', json => {
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
-        role => $rack->rack_role_id,
+        rack_role_id => $rack->rack_role_id,
     })
     ->status_is(303);
 
@@ -79,7 +79,7 @@ $t->get_ok($t->tx->res->headers->location)
         id => re(Conch::UUID::UUID_FORMAT),
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
-        role => $rack->rack_role_id,
+        rack_role_id => $rack->rack_role_id,
         serial_number => undef,
         asset_tag => undef,
         phase => 'integration',
@@ -90,7 +90,7 @@ my $new_rack_id = $t->tx->res->json->{id};
 
 my $small_rack_role = $t->app->db_rack_roles->create({ name => '10U', rack_size => 10 });
 
-$t->post_ok('/rack/'.$rack->id, json => { role => $small_rack_role->id })
+$t->post_ok('/rack/'.$rack->id, json => { rack_role_id => $small_rack_role->id })
     ->status_is(400)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
@@ -102,10 +102,10 @@ $t->post_ok("/rack/$new_rack_id", json => {
     })
     ->status_is(303);
 
-$t->post_ok("/rack/$new_rack_id", json => { role => $small_rack_role->id })
+$t->post_ok("/rack/$new_rack_id", json => { rack_role_id => $small_rack_role->id })
     ->status_is(303);
 
-$t->post_ok("/rack/$new_rack_id", json => { role => $small_rack_role->id })
+$t->post_ok("/rack/$new_rack_id", json => { rack_role_id => $small_rack_role->id })
     ->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)
