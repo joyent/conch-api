@@ -291,8 +291,20 @@ subtest 'Workspaces' => sub {
             body => re(qr/\R\R^\s*Username:\s+test user\R^\s*Email:\s+test_user\@conch\.joyent\.us\R^\s*Password:\s+123\R\R/m),
         });
 
+    my $test_user_id = $t->tx->res->json->{id};
+
+    $t->post_ok("/workspace/$global_ws_id/user", json => { role => 'rw' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', bag(map +{ path => $_, message => re(qr/missing property/i) }, qw(/user_id /email)));
+
+    $t->post_ok("/workspace/$global_ws_id/user", json => { email => 'test_user@conch.joyent.us' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
+
     $t->post_ok("/workspace/$global_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'rw',
         })
         ->status_is(204, 'added the user to the GLOBAL workspace')
@@ -316,17 +328,26 @@ subtest 'Workspaces' => sub {
     );
 
     $t->post_ok("/workspace/$global_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            user_id => $test_user_id,
             role => 'rw',
         })
         ->status_is(200, 'redundant add requests do nothing')
         ->email_not_sent;
 
+    $t->post_ok("/workspace/$global_ws_id/user", json => {
+            user_id => $test_user_id,
+            email => 'test_user@conch.joyent.us',
+            role => 'rw',
+        })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/all of the oneof rules/i) } ]);
+
     is($t->app->db_user_workspace_roles->count, 2,
         'still just two user_workspace_role entries');
 
     $t->post_ok("/workspace/$global_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
         ->status_is(400)
@@ -537,7 +558,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'data for users who can access grandchild workspace');
 
     $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'rw',
         })
         ->status_is(200, 'redundant add requests do nothing')
@@ -547,7 +568,7 @@ subtest 'Sub-Workspace' => sub {
         'still just two user_workspace_role entries');
 
     $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
         ->status_is(400)
@@ -555,7 +576,7 @@ subtest 'Sub-Workspace' => sub {
         ->email_not_sent;
 
     $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'admin',
         })
         ->status_is(204, 'can upgrade existing permission')
@@ -572,14 +593,14 @@ subtest 'Sub-Workspace' => sub {
     # now let's try manipulating permissions on the workspace in the middle of the hierarchy
 
     $t->post_ok("/workspace/$child_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'rw',
         })
         ->status_is(200, 'redundant add requests do nothing')
         ->email_not_sent;
 
     $t->post_ok("/workspace/$child_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
         ->status_is(400)
@@ -590,7 +611,7 @@ subtest 'Sub-Workspace' => sub {
         'still just three user_workspace_role entries');
 
     $t->post_ok("/workspace/$child_ws_id/user", json => {
-            user => 'test_user@conch.joyent.us',
+            email => 'test_user@conch.joyent.us',
             role => 'admin',
         })
         ->status_is(204, 'can upgrade existing permission that exists in a parent workspace')
@@ -685,7 +706,7 @@ subtest 'Sub-Workspace' => sub {
         ->email_not_sent;
 
     $t->post_ok('/workspace/child_ws/user', json => {
-            user => 'untrusted_user@conch.joyent.us',
+            email => 'untrusted_user@conch.joyent.us',
             role => 'ro',
         })
         ->status_is(204, 'added the user to the child workspace')
@@ -783,7 +804,7 @@ subtest 'Sub-Workspace' => sub {
 
 
     $t->post_ok('/workspace/child_ws/user', json => {
-            user => 'untrusted_user@conch.joyent.us',
+            email => 'untrusted_user@conch.joyent.us',
             role => 'rw',
         })
         ->status_is(204, 'can upgrade existing permission that exists in this workspace')

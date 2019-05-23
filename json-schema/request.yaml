@@ -436,11 +436,16 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - user
       - role
+    oneOf:
+      - required:
+        - user_id
+      - required:
+        - email
     properties:
-      user:
-        # TODO: maybe this should accept a user_id as well?
+      user_id:
+        $ref: common.yaml#/definitions/uuid
+      email:
         $ref: common.yaml#/definitions/email_address
       role:
         $ref: common.yaml#/definitions/user_workspace_role
