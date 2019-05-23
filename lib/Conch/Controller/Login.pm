@@ -223,19 +223,18 @@ sub session_login ($c) {
     my $input = $c->validate_request('Login');
     return if not $input;
 
-    # TODO: it would be nice to be sure of which type of data we were being passed here, so we
-    # don't have to look up by all columns.
     my $user_rs = $c->db_user_accounts->active;
-    my $user = is_uuid($input->{user}) && $user_rs->find($input->{user})
-        || $user_rs->lookup_by_email($input->{user});
+    my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
+        : $input->{email} ? $user_rs->lookup_by_email($input->{email})
+        : undef;
 
     if (not $user) {
-        $c->log->debug('user lookup for '.$input->{user}.' failed');
+        $c->log->debug('user lookup for '.($input->{user}//$input->{email}).' failed');
         return $c->status(401);
     }
 
     if (not $user->validate_password($input->{password})) {
-        $c->log->debug('password validation for '.$input->{user}.' failed');
+        $c->log->debug('password validation for '.($input->{user}//$input->{email}).' failed');
         return $c->status(401);
     }
 

@@ -598,7 +598,7 @@ subtest 'Permissions' => sub {
             }],
         });
 
-        $t->authenticate(user => $ro_email, password => $ro_pass);
+        $t->authenticate(email => $ro_email, password => $ro_pass);
 
         $t->get_ok('/workspace')
             ->status_is(200)
@@ -673,7 +673,7 @@ subtest 'Permissions' => sub {
             }],
         });
 
-        $t->authenticate(user => $email, password => $pass);
+        $t->authenticate(email => $email, password => $pass);
 
         $t->get_ok('/workspace')
             ->status_is(200)

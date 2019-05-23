@@ -10,7 +10,7 @@ use Test::Conch;
 my $t = Test::Conch->new;
 
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
-$t->authenticate(user => $ro_user->email);
+$t->authenticate(email => $ro_user->email);
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 

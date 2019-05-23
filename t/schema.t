@@ -314,9 +314,11 @@ $t->get_ok('/schema/request/Login')
         title => 'Login',
         type => 'object',
         additionalProperties => bool(0),
-        required => [ qw(user password) ],
+        required => [ 'password' ],
+        oneOf => [ { required => [ 'user_id' ] }, { required => [ 'email' ] } ],
         properties => {
-            user => { anyOf => [ map +{ '$ref' => '/definitions/'.$_ }, qw(uuid email_address) ] },
+            user_id => { '$ref' => '/definitions/uuid' },
+            email => { '$ref' => '/definitions/email_address' },
             password => { '$ref' => '/definitions/non_empty_string' },
         },
         definitions => {

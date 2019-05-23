@@ -13,7 +13,7 @@ use Conch::UUID 'create_uuid_str';
 my $t = Test::Conch->new(pg => undef);
 
 subtest 'failed request validation' => sub {
-    $t->post_ok('/login', json => { user => 'foo@bar.com' })
+    $t->post_ok('/login', json => { email => 'foo@bar.com' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply({

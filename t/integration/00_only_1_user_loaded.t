@@ -26,10 +26,18 @@ $t->get_ok('/ping')
 
 $t->get_ok('/me')->status_is(401);
 
-$t->post_ok('/login', json => { user => 'a', password => 'b' })
+$t->post_ok('/login', json => { email => 'a', password => 'b' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', array_each({ path => '/user', message => re(qr/does not match/i) }));
+    ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ]);
+
+$t->post_ok('/login', json => { email => 'foo@bar.com' })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/password', message => re(qr/missing property/i) } ]);
+
+$t->post_ok('/login', json => { email => 'foo@bar.com', password => 'b' })
+    ->status_is(401);
 
 my $now = Conch::Time->now;
 
@@ -148,12 +156,14 @@ subtest 'User' => sub {
     # get another JWT
     $t->authenticate;
     push @login_token, $t->tx->res->json->{jwt_token}.'.'.$t->tx->res->cookie('jwt_sig')->value;
+    my $user_id;
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[1] })
             ->status_is(200, 'second login token works without cookies etc')
             ->json_schema_is('UserDetailed')
             ->json_is('/email' => $t2->CONCH_EMAIL);
+        $user_id = $t2->tx->res->json->{id};
     }
 
     {
@@ -176,7 +186,7 @@ subtest 'User' => sub {
     $t->get_ok('/user/me/settings')
         ->status_is(401, 'session tokens revoked too');
 
-    $t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
+    $t->post_ok('/login', json => { email => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
         ->status_is(401, 'cannot use old password after changing it');
 
     {
@@ -198,7 +208,7 @@ subtest 'User' => sub {
             ->json_is('/email' => $t2->CONCH_EMAIL);
     }
 
-    $t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => 'øƕḩẳȋ' })
+    $t->post_ok('/login', json => { email => $t->CONCH_EMAIL, password => 'øƕḩẳȋ' })
         ->status_is(200, 'logged in using new password');
 
     $t->post_ok('/user/me/password?clear_tokens=all', json => { password => 'another password' })
@@ -210,13 +220,13 @@ subtest 'User' => sub {
             ->status_is(401, 'api login token no longer works either');
     }
 
-    $t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => 'another password' })
-        ->status_is(200, 'logged in using second new password');
+    $t->post_ok('/login', json => { user_id => $user_id, password => 'another password' })
+        ->status_is(200, 'logged in using second new password, and user_id instead of email');
 
     $t->post_ok('/user/me/password', json => { password => $t->CONCH_PASSWORD })
         ->status_is(204, 'changed password back to original');
 
-    $t->post_ok('/login', json => { user => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
+    $t->post_ok('/login', json => { email => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
         ->status_is(200, 'logged in using original password');
 
     $t->get_ok('/user/me/settings')
@@ -767,7 +777,7 @@ subtest 'Sub-Workspace' => sub {
 
 
     my $untrusted = Test::Conch->new(pg => $t->pg);
-    $untrusted->authenticate(user => 'untrusted_user@conch.joyent.us', password => '123');
+    $untrusted->authenticate(email => 'untrusted_user@conch.joyent.us', password => '123');
 
     # this user cannot be shown the GLOBAL workspace or its id
     undef $workspace_data{untrusted_user}[0]{parent_id};
@@ -983,7 +993,7 @@ subtest 'modify another user' => sub {
         });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => '123' })
+    $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => '123' })
         ->status_is(200, 'new user can log in');
     my $jwt_token = $t2->tx->res->json->{jwt_token};
     my $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
@@ -1034,7 +1044,7 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me', { Authorization => "Bearer $api_token" })
         ->status_is(401, 'new user cannot authenticate with the api token after api tokens are revoked');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => '123' })
+    $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => '123' })
         ->status_is(200, 'new user can still log in again');
     $jwt_token = $t2->tx->res->json->{jwt_token};
     $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
@@ -1103,14 +1113,14 @@ subtest 'modify another user' => sub {
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'foo@conch.joyent.us');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => 'foo' })
+    $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => 'foo' })
         ->status_is(401, 'cannot log in with the old password');
 
     $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:'.$insecure_password)->path('/me'))
         ->status_is(401, 'user cannot use new password with basic auth to go anywhere else')
         ->location_is('/user/me/password');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password })
+    $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $insecure_password })
         ->status_is(200, 'user can log in with new password')
         ->location_is('/user/me/password');
     $jwt_token = $t2->tx->res->json->{jwt_token};
@@ -1126,7 +1136,7 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user can\'t use his JWT to do anything else')
         ->location_is('/user/me/password');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $insecure_password })
+    $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $insecure_password })
         ->status_is(401, 'user cannot log in with the same insecure password again');
 
     $t2->post_ok('/user/me/password' => { Authorization => "Bearer $jwt_token.$jwt_sig" },
@@ -1136,7 +1146,7 @@ subtest 'modify another user' => sub {
     my $secure_password = $_new_password;
     is($secure_password, 'a more secure password', 'provided password was saved to the db');
 
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password })
+    $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $secure_password })
         ->status_is(200, 'user can log in with new password')
         ->json_has('/jwt_token')
         ->json_hasnt('/message');
@@ -1167,7 +1177,7 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user cannot log in with saved browser session');
 
     $t2->reset_session; # force JWT to be used to authenticate
-    $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => $secure_password })
+    $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $secure_password })
         ->status_is(401, 'user can no longer log in with credentials');
 
     $t->delete_ok("/user/$new_user_id")
@@ -1311,7 +1321,7 @@ subtest 'user tokens (someone else\'s)' => sub {
     $t->app->db_user_accounts->active->find({ email => $email })->update({ password => $password });
 
     my $t_other_user = Test::Conch->new(pg => $t->pg);
-    $t_other_user->authenticate(user => $email, password => $password);
+    $t_other_user->authenticate(email => $email, password => $password);
 
     $t_other_user->post_ok('/user/me/token', json => { name => 'my first 💩 // to.ken @@' })
         ->status_is(201)

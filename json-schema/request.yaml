@@ -347,13 +347,17 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - user
       - password
+    oneOf:
+      - required:
+        - user_id
+      - required:
+        - email
     properties:
-      user:
-        anyOf:
-          - $ref: common.yaml#/definitions/uuid
-          - $ref: common.yaml#/definitions/email_address
+      user_id:
+        $ref: common.yaml#/definitions/uuid
+      email:
+        $ref: common.yaml#/definitions/email_address
       password:
         $ref: common.yaml#/definitions/non_empty_string
   UserPassword:

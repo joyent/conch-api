@@ -26,7 +26,7 @@ my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 my $null_user = $t->load_fixture('null_user');
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
-$t->authenticate(user => $ro_user->email);
+$t->authenticate(email => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
     ->status_is(404);
@@ -54,7 +54,7 @@ subtest 'unlocated device, no registered relay' => sub {
         ->status_is(403, 'unlocated device report isn\'t visible to a ro user');
 
     {
-        $t->authenticate(user => $admin_user->email);
+        $t->authenticate(email => $admin_user->email);
 
         $t->get_ok('/device/TEST')
             ->status_is(200)
@@ -64,7 +64,7 @@ subtest 'unlocated device, no registered relay' => sub {
             ->status_is(200)
             ->json_schema_is('DeviceReportRow', 'device reports are always visible to a sysadmin user');
 
-        $t->authenticate(user => $ro_user->email);
+        $t->authenticate(email => $ro_user->email);
     }
 };
 
@@ -138,7 +138,7 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('ValidationStateWithResults')
         ->json_is($validation_state);
 
-    $t->authenticate(user => $null_user->email);
+    $t->authenticate(email => $null_user->email);
     $t->get_ok('/device/TEST')
         ->status_is(403, 'cannot see device without the relay connection');
 
@@ -158,7 +158,7 @@ subtest 'unlocated device with a registered relay' => sub {
 
         $null_user->update({ is_admin => 0 });
 
-        $t->authenticate(user => $ro_user->email);
+        $t->authenticate(email => $ro_user->email);
     }
 };
 
@@ -216,7 +216,7 @@ subtest 'located device' => sub {
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
         );
 
-        $t->authenticate(user => $t->load_fixture('rw_user_global_workspace')->user_account->email);
+        $t->authenticate(email => $t->load_fixture('rw_user_global_workspace')->user_account->email);
 
         foreach my $query (@queries) {
             $t->post_ok(ref $query ? $query->@* : $query)
@@ -225,7 +225,7 @@ subtest 'located device' => sub {
         }
 
         # now switch back to ro_user...
-        $t->authenticate(user => $ro_user->email);
+        $t->authenticate(email => $ro_user->email);
         foreach my $query (@queries) {
             $t->post_ok(ref $query ? $query->@* : $query)
                 ->status_is(403);
@@ -444,7 +444,7 @@ subtest 'mutate device attributes' => sub {
 subtest 'Device settings' => sub {
     # device settings that check for 'admin' permission need the device to have a location
     my $user_workspace_role = $t->reload_fixture('conch_user_global_workspace');
-    $t->authenticate(user => $user_workspace_role->user_account->email);
+    $t->authenticate(email => $user_workspace_role->user_account->email);
 
     $t->app->db_device_settings->search({ device_id => 'LOCATED_DEVICE' })->delete;
 
