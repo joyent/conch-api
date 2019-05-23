@@ -38,7 +38,8 @@ $t->get_ok('/room/'.$room->id.'/racks')
 
 $t->post_ok('/room', json => { wat => 'wat' })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
 $t->post_ok('/room', json => { datacenter => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
     ->status_is(303);

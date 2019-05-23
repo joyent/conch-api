@@ -66,8 +66,8 @@ $t->get_ok("/workspace/$global_ws_id/rack/".$uuid->create_str)
 
 subtest 'Add rack to workspace' => sub {
     $t->post_ok("/workspace/$sub_ws_id/rack")
-        ->status_is(400, 'Requires request body')
-        ->json_cmp_deeply({ error => re(qr/Expected object/) });
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
     $t->post_ok("/workspace/$sub_ws_id/rack", json => {
             id => $rack_id,

@@ -17,32 +17,26 @@ sub endpoint ($c) {
 
 # DESCRIPTION
 
-Conch::Plugin::JsonValidator provides an optional manner to validate input and
-output from a Mojo controller against a JSON Schema.
-
-The `validate_request` helper uses the provided schema definition to validate **JUST** the
-incoming JSON request payload. Headers and query parameters **ARE NOT** validated. If the data
-fails validation, a 400 status is returned to user with an error payload containing the
-validation errors.
-
-# SCHEMAS
-
-`validate_request` validates data against the `json-schema/request.yaml` file.
+Conch::Plugin::JsonValidator provides a mechanism to validate request and response payloads
+from an API endpoint against a JSON Schema.
 
 # HELPERS
 
 ## validate\_request
 
-Given a json schema name validate the provided input against it, and prepare a HTTP 400
-response if validation failed; returns validated input on success.
+Given the name of a json schema in the request namespace, validate the provided payload against
+it (defaulting to the request's json payload).
+
+On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
+using the RequestValidationError json response schema.
 
 ## get\_request\_validator
 
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint input.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint's request payload.
 
 ## get\_response\_validator
 
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint response.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint's json response payload.
 
 # LICENSING
 

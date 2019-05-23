@@ -24,6 +24,38 @@ definitions:
     properties:
       error:
         type: string
+  JsonValidationError:
+    description: JSON::Validator::Error object
+    type: object
+    additionalProperties: false
+    required:
+      - path
+      - message
+    properties:
+      path:
+        type: string
+        format: json-pointer
+      message:
+        type: string
+  RequestValidationError:
+    type: object
+    additionalProperties: false
+    required:
+      - error
+      - details
+      - schema
+    properties:
+      error:
+        const: request did not match required format
+      details:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          $ref: /definitions/JsonValidationError
+      schema:
+        type: string
+        format: uri
   Ping:
     type: object
     additionalProperties: false

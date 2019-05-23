@@ -34,15 +34,18 @@ $t->get_ok('/rack/'.$rack->id)
 
 $t->post_ok('/rack', json => { wat => 'wat' })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
 $t->post_ok('/rack', json => { name => 'r4ck', datacenter_room_id => $fake_id })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
 
 $t->post_ok('/rack', json => { name => 'r4ck', role => $fake_id })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/datacenter_room_id', message => re(qr/missing property/i) } ]);
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',

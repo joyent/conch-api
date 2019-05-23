@@ -30,7 +30,8 @@ $t->get_ok('/me')->status_is(401);
 
 $t->post_ok('/login', json => { user => 'a', password => 'b' })
     ->status_is(400)
-    ->json_like('/error', qr/does not match/);
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', array_each({ path => '/user', message => re(qr/does not match/i) }));
 
 my $now = Conch::Time->now;
 
@@ -377,15 +378,14 @@ subtest 'Sub-Workspace' => sub {
 
     $t->post_ok("/workspace/$global_ws_id/child")
         ->status_is(400, 'No body is bad request')
-        ->json_like('/error', qr/Expected object/);
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
-    $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'foo/bar' })
+    $t->post_ok("/workspace/$global_ws_id/child", json => { name => $_ })
         ->status_is(400)
-        ->json_cmp_deeply({ error => re(qr/name: .*does not match/) });
-
-    $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'foo.bar' })
-        ->status_is(400)
-        ->json_cmp_deeply({ error => re(qr/name: .*does not match/) });
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/name', message => re(qr/does not match/i) } ])
+            foreach 'foo/bar', 'foo.bar';
 
     $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'GLOBAL' })
         ->status_is(400, 'Cannot create duplicate workspace')
@@ -669,7 +669,8 @@ subtest 'Sub-Workspace' => sub {
     $t->post_ok('/user',
             json => { email => 'untrusted/user@conch.joyent.us', name => 'me', password => '123' })
         ->status_is(400)
-        ->json_cmp_deeply({ error => re(qr/email: .*does not match/) })
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ])
         ->email_not_sent;
 
     $t->post_ok('/user',

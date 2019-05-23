@@ -162,7 +162,9 @@ subtest 'Device Report' => sub {
     my $invalid_json_1 = '{"this": 1s n0t v@l,d ǰsøƞ'; # } for brace matching
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
             Encode::encode('UTF-8', $invalid_json_1))
-        ->status_is(400);
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
     cmp_deeply(
         $device->self_rs->latest_device_report->single,
@@ -215,7 +217,9 @@ subtest 'Device Report' => sub {
     my $invalid_json_2 = to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' });
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
             json => { foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' })
-        ->status_is(400);
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
 
     cmp_deeply(
         $device->self_rs->latest_device_report->single,
@@ -404,7 +408,8 @@ subtest 'Validations' => sub {
 
         $t->post_ok("/device/TEST/validation/$validation_id", json => {})
             ->status_is(400)
-            ->json_schema_is('Error');
+            ->json_schema_is('RequestValidationError')
+            ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
 
         $t->post_ok("/device/TEST/validation/$validation_id",
                 { 'Content-Type' => 'application/json' }, $good_report)
@@ -419,7 +424,8 @@ subtest 'Validations' => sub {
 
         $t->post_ok("/device/TEST/validation_plan/$validation_plan_id", json => {})
             ->status_is(400)
-            ->json_schema_is('Error');
+            ->json_schema_is('RequestValidationError')
+            ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
 
         $t->post_ok("/device/TEST/validation_plan/$validation_plan_id",
                 { 'Content-Type' => 'application/json' }, $good_report)
@@ -566,8 +572,9 @@ subtest 'Validations' => sub {
 
 subtest 'Device location' => sub {
     $t->post_ok('/device/TEST/location')
-        ->status_is(400, 'requires body')
-        ->json_like('/error', qr/Expected object/);
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
     my $rack_id = $t->load_fixture('legacy_rack')->id;
 

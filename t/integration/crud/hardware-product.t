@@ -34,7 +34,8 @@ $t->get_ok("/hardware_product/$hw_id")
 
 $t->post_ok('/hardware_product', json => { wat => 'wat' })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',
@@ -42,9 +43,9 @@ $t->post_ok('/hardware_product', json => {
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
     })
-    ->status_is(400, 'cannot provide both vendor and hardware_vendor_id')
-    ->json_schema_is('Error')
-    ->json_cmp_deeply({ error => re(qr/oneOf rules/i) });
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/all of the oneof rules match/i) } ]);
 
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',
@@ -93,8 +94,8 @@ $t->post_ok("/hardware_product/$new_hw_id", json => {
         hardware_vendor_id => $vendor_id,
     })
     ->status_is(400, 'cannot provide both vendor and hardware_vendor_id')
-    ->json_schema_is('Error')
-    ->json_cmp_deeply({ error => re(qr/should not match/i) });
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/should not match/i) } ]);
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
     ->status_is(303);
@@ -126,8 +127,8 @@ subtest 'create profile on existing product' => sub {
             hardware_product_profile => { rack_unit => 1 },
         })
         ->status_is(400)
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/missing property/i) });
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
 
     $new_hw_profile = {
         rack_unit => 2,
@@ -188,8 +189,8 @@ subtest 'create a new hardware_product_profile in an existing product' => sub {
             },
         })
         ->status_is(400)
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/missing property/i) });
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
 
     $t->post_ok("/hardware_product/$new_hw_id",
             json => { hardware_product_profile => $new_hw_profile })
@@ -214,8 +215,8 @@ subtest 'create a hardware product and hardware product profile all together' =>
             hardware_product_profile => { rack_unit => 1 },
         })
         ->status_is(400)
-        ->json_schema_is('Error')
-        ->json_cmp_deeply({ error => re(qr/missing property/i) });
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', array_each({ path => re(qr{^/hardware_product_profile/}), message => re(qr/missing property/i) }));
 
     $new_hw_profile = {
         rack_unit => 2,

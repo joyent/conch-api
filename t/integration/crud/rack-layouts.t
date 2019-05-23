@@ -54,7 +54,8 @@ $t->get_ok("/layout/$initial_layouts->[0]{id}")
 
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400)
-    ->json_schema_is('Error');
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)

@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use experimental 'signatures';
 
 use Test::Conch;
 use Test::More;
@@ -9,6 +10,17 @@ use Test::Deep;
 use Test::Fatal;
 
 my $t = Test::Conch->new(pg => undef);
+
+subtest 'failed request validation' => sub {
+    $t->post_ok('/login', json => { user => 'foo@bar.com' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply({
+            error => 'request did not match required format',
+            details => [ { path => '/password', message => re(qr/missing property/i) } ],
+            schema => '/schema/request/login',
+        });
+};
 
 subtest '/device/:id/interface/:iface_name/:field validation' => sub {
     my $validator = $t->app->get_response_validator;
