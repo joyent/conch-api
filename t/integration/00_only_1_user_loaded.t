@@ -364,7 +364,7 @@ subtest 'Workspaces' => sub {
         ->json_is({ error => "user test user already has rw access to workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
-    $t->get_ok('/user/email=test_user@conch.joyent.us')
+    $t->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
@@ -491,7 +491,7 @@ subtest 'Sub-Workspace' => sub {
                 $workspace_data{conch}[2],
             ], 'data for all workspaces with recursive query');
 
-    $t->get_ok('/user/email='.$t->CONCH_EMAIL)
+    $t->get_ok('/user/'.$t->CONCH_EMAIL)
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => $t->CONCH_EMAIL)
@@ -513,7 +513,7 @@ subtest 'Sub-Workspace' => sub {
             ],
             '/user/me returns the same data');
 
-    $t->get_ok('/user/email=test_user@conch.joyent.us')
+    $t->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
@@ -642,7 +642,7 @@ subtest 'Sub-Workspace' => sub {
     $workspace_data{test_user}[2]{role} = 'admin';
     delete $workspace_data{test_user}[2]{role_via};
 
-    $t->get_ok('/user/email='.$t->CONCH_EMAIL)
+    $t->get_ok('/user/'.$t->CONCH_EMAIL)
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => $t->CONCH_EMAIL)
@@ -653,7 +653,7 @@ subtest 'Sub-Workspace' => sub {
             ],
             'main user has access to all workspaces via GLOBAL');
 
-    $t->get_ok('/user/email=test_user@conch.joyent.us')
+    $t->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
@@ -672,7 +672,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_is('/1/email', 'test_user@conch.joyent.us')
         ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
 
-    $t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
+    $t->delete_ok("/workspace/$child_ws_id/user/test_user\@conch.joyent.us")
         ->status_is(204, 'extra permissions for user are removed from the sub workspace and its children')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
@@ -684,14 +684,14 @@ subtest 'Sub-Workspace' => sub {
     $workspace_data{test_user}[1]->@{qw(role role_via)} = ('rw', $global_ws_id);
     $workspace_data{test_user}[2]->@{qw(role role_via)} = ('rw', $global_ws_id);
 
-    $t->get_ok('/user/email=test_user@conch.joyent.us')
+    $t->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
         ->json_is('/workspaces' => $workspace_data{test_user},
             'test user now only has rw access to everything again (via GLOBAL)');
 
-    $t->delete_ok("/workspace/$child_ws_id/user/email=test_user\@conch.joyent.us")
+    $t->delete_ok("/workspace/$child_ws_id/user/test_user\@conch.joyent.us")
         ->status_is(204, 'deleting again is a no-op')
         ->email_not_sent;
 
@@ -858,7 +858,7 @@ subtest 'JWT authentication' => sub {
     $t->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
         ->status_is(401, 'Cannot reuse old JWT');
 
-    $t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke?api_only=1',
+    $t->post_ok('/user/'.$t->CONCH_EMAIL.'/revoke?api_only=1',
             { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(204, 'Revoke api tokens for user')
         ->email_not_sent;
@@ -866,7 +866,7 @@ subtest 'JWT authentication' => sub {
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(200, 'user can still use the login token');
 
-    $t->post_ok('/user/email='.$t->CONCH_EMAIL.'/revoke',
+    $t->post_ok('/user/'.$t->CONCH_EMAIL.'/revoke',
             { Authorization => "Bearer $new_jwt_token" })
         ->status_is(204, 'Revoke all tokens for user')
         ->email_not_sent;
@@ -964,7 +964,7 @@ subtest 'modify another user' => sub {
         ->json_is('/user/name' => 'foo', 'got user name')
         ->json_is('/user/deactivated' => undef, 'got user deactivated date');
 
-    $t->post_ok('/user/email=foo@conch.joyent.us', json => { email => 'test_user@conch.joyent.us' })
+    $t->post_ok('/user/foo@conch.joyent.us', json => { email => 'test_user@conch.joyent.us' })
         ->status_is(409)
         ->json_cmp_deeply({
             error => 'duplicate user found',
@@ -976,7 +976,7 @@ subtest 'modify another user' => sub {
         })
         ->email_not_sent;
 
-    $t->post_ok('/user/email=foo@conch.joyent.us',
+    $t->post_ok('/user/foo@conch.joyent.us',
             json => { name => 'FOO', is_admin => JSON::PP::true })
         ->status_is(200)
         ->json_schema_is('UserDetailed')
@@ -1075,11 +1075,11 @@ subtest 'modify another user' => sub {
         ->status_is(400, 'bad format')
         ->json_is({ error => 'invalid identifier format for foobar' });
 
-    $t->delete_ok('/user/email=foobar/password')
-        ->status_is(400, 'bad format')
-        ->json_is({ error => 'invalid identifier format for email=foobar' });
+    $t->delete_ok('/user/foobar/password')
+        ->status_is(400)
+        ->json_is({ error => 'invalid identifier format for foobar' });
 
-    $t->delete_ok('/user/email=foobar@conch.joyent.us/password')
+    $t->delete_ok('/user/foobar@conch.joyent.us/password')
         ->status_is(404, 'attempted to reset the password for a non-existent user');
 
     $t->delete_ok("/user/$new_user_id/password")
@@ -1091,7 +1091,7 @@ subtest 'modify another user' => sub {
             body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    foo\@conch.joyent.us\R    Password: .*\R/ms),
         });
 
-    $t->delete_ok('/user/email=FOO@CONCH.JOYENT.US/password')
+    $t->delete_ok('/user/FOO@CONCH.JOYENT.US/password')
         ->status_is(204, 'reset the new user\'s password again, with case insensitive email lookup')
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
@@ -1166,7 +1166,7 @@ subtest 'modify another user' => sub {
         ->status_is(204, 'after user fixes his password, he can use basic auth again');
 
 
-    $t->delete_ok('/user/email=foobar@joyent.conch.us')
+    $t->delete_ok('/user/foobar@joyent.conch.us')
         ->status_is(404, 'attempted to deactivate a non-existent user');
 
     $t->delete_ok("/user/$new_user_id")
@@ -1312,7 +1312,7 @@ subtest 'user tokens (our own)' => sub {
 subtest 'user tokens (someone else\'s)' => sub {
     my ($email, $password) = ('foo@conch.joyent.us', 'neupassword');
 
-    $t->get_ok('/user/email='.$email.'/token')
+    $t->get_ok('/user/'.$email.'/token')
         ->status_is(200)
         ->json_schema_is('UserTokens')
         ->json_is([]);
@@ -1329,7 +1329,7 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->location_is('/user/me/token/my first 💩 // to.ken @@');
     my @jwts = $t_other_user->tx->res->json->{token};
 
-    $t->get_ok('/user/email='.$email.'/token')
+    $t->get_ok('/user/'.$email.'/token')
         ->status_is(200)
         ->json_schema_is('UserTokens')
         ->json_cmp_deeply([
@@ -1342,17 +1342,17 @@ subtest 'user tokens (someone else\'s)' => sub {
         ]);
     my @tokens = $t->tx->res->json->@*;
 
-    $t->get_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+    $t->get_ok('/user/'.$email.'/token/'.$tokens[0]->{name})
         ->status_is(200)
         ->json_schema_is('UserToken')
         ->json_is($tokens[0]);
 
     # can't use the sysadmin endpoints, even to ask about ourself
-    $t_other_user->get_ok('/user/email='.$email.'/token')
+    $t_other_user->get_ok('/user/'.$email.'/token')
         ->status_is(403);
-    $t_other_user->get_ok('/user/email='.$email.'/token/foo')
+    $t_other_user->get_ok('/user/'.$email.'/token/foo')
         ->status_is(403);
-    $t_other_user->delete_ok('/user/email='.$email.'/token/foo')
+    $t_other_user->delete_ok('/user/'.$email.'/token/foo')
         ->status_is(403);
 
     $t_other_user->post_ok('/user/me/token', json => { name => 'my second token' })
@@ -1361,7 +1361,7 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->location_is('/user/me/token/my second token');
     push @jwts, $t_other_user->tx->res->json->{token};
 
-    $t->get_ok('/user/email='.$email.'/token')
+    $t->get_ok('/user/'.$email.'/token')
         ->status_is(200)
         ->json_schema_is('UserTokens')
         ->json_cmp_deeply([
@@ -1375,15 +1375,15 @@ subtest 'user tokens (someone else\'s)' => sub {
         ]);
     @tokens = $t->tx->res->json->@*;
 
-    $t->delete_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+    $t->delete_ok('/user/'.$email.'/token/'.$tokens[0]->{name})
         ->status_is(204);
 
-    $t->get_ok('/user/email='.$email.'/token')
+    $t->get_ok('/user/'.$email.'/token')
         ->status_is(200)
         ->json_schema_is('UserTokens')
         ->json_is([ $tokens[1] ]);
 
-    $t->get_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+    $t->get_ok('/user/'.$email.'/token/'.$tokens[0]->{name})
         ->status_is(404);
 
     $t_other_user->reset_session;   # force JWT to be used to authenticate
@@ -1404,7 +1404,7 @@ subtest 'user tokens (someone else\'s)' => sub {
     $t_other_user->get_ok('/user/me/token/'.$tokens[0]->{name}, { Authorization => 'Bearer '.$jwts[1] })
         ->status_is(404);
 
-    $t->post_ok('/user/email='.$email.'/revoke')
+    $t->post_ok('/user/'.$email.'/revoke')
         ->status_is(204)
         ->email_cmp_deeply({
             To => '"FOO" <'.$email.'>',
@@ -1429,13 +1429,13 @@ subtest 'user tokens (someone else\'s)' => sub {
         'first token has already been deleted; second token still remains, but is expired',
     );
 
-    $t->delete_ok('/user/email='.$email.'/token/'.$tokens[0]->{name})
+    $t->delete_ok('/user/'.$email.'/token/'.$tokens[0]->{name})
         ->status_is(404);
 
-    $t->delete_ok('/user/email='.$email.'/token/'.$tokens[1]->{name})
+    $t->delete_ok('/user/'.$email.'/token/'.$tokens[1]->{name})
         ->status_is(404);
 
-    $t->get_ok('/user/email='.$email.'/token')
+    $t->get_ok('/user/'.$email.'/token')
         ->status_is(200)
         ->json_schema_is('UserTokens')
         ->json_is([]);

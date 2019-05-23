@@ -27,16 +27,12 @@ sub register ($self, $app, $config) {
 
 =head2 find_user
 
-Validates the provided user_id or email address (prefaced with 'email='), and stashes the
-corresponding user row in C<target_user>.
+Validates the provided user_id or email address, and stashes the corresponding user row in
+C<target_user>.
 
 =cut
 
     $app->helper(find_user => sub ($c, $user_param) {
-        return $c->status(400, { error => 'invalid identifier format for '.$user_param })
-            if not is_uuid($user_param)
-                and not ($user_param =~ /^email\=/ and Email::Valid->address($'));
-
         my $user_rs = $c->db_user_accounts;
 
         # when deactivating users or removing users from a workspace, we want to find
@@ -44,7 +40,9 @@ corresponding user row in C<target_user>.
         $user_rs = $user_rs->active if $c->req->method ne 'DELETE';
 
         $c->log->debug('looking up user '.$user_param);
-        my $user = $user_rs->lookup_by_id_or_email($user_param);
+        my $user = is_uuid($user_param) ? $user_rs->find($user_param)
+            : Email::Valid->address($user_param) ? $user_rs->lookup_by_email($user_param)
+            : return $c->status(400, { error => 'invalid identifier format for '.$user_param });
 
         return $c->status(404) if not $user;
 
