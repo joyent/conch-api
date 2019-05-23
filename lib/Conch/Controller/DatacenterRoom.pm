@@ -75,8 +75,6 @@ sub create ($c) {
     my $input = $c->validate_request('DatacenterRoomCreate');
     return if not $input;
 
-    $input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
-
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
     $c->status(303, '/room/'.$room->id);
@@ -93,8 +91,6 @@ sub update ($c) {
 
     my $input = $c->validate_request('DatacenterRoomUpdate');
     return if not $input;
-
-    $input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
     $c->stash('datacenter_room')->update({ $input->%*, updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id'));

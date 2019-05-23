@@ -41,7 +41,7 @@ $t->post_ok('/room', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
-$t->post_ok('/room', json => { datacenter => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
+$t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
     ->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)

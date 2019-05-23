@@ -1320,7 +1320,7 @@ definitions:
       - az
       - alias
       - vendor_name
-      - datacenter
+      - datacenter_id
       - created
       - updated
     properties:
@@ -1334,10 +1334,8 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
-      datacenter:
-        allOf:
-          - description: datacenter id
-          - $ref: common.yaml#/definitions/uuid
+      datacenter_id:
+        $ref: common.yaml#/definitions/uuid
       created:
         type: string
         format: date-time

@@ -35,11 +35,11 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - datacenter
+      - datacenter_id
       - az
       - alias
     properties:
-      datacenter:
+      datacenter_id:
         $ref: common.yaml#/definitions/uuid
       az:
         type: string
@@ -51,7 +51,7 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      datacenter:
+      datacenter_id:
         $ref: common.yaml#/definitions/uuid
       az:
         type: string
