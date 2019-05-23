@@ -167,14 +167,14 @@ definitions:
     additionalProperties: false
     required:
       - rack_id
-      - product_id
-      - ru_start
+      - hardware_product_id
+      - rack_unit_start
     properties:
       rack_id:
         $ref: common.yaml#/definitions/uuid
-      product_id: # TODO: this really should be hardware_product_id
+      hardware_product_id:
         $ref: common.yaml#/definitions/uuid
-      ru_start: # TODO: this really should be rack_unit_start
+      rack_unit_start:
         type: integer
   RackLayoutUpdate:
     type: object
@@ -183,9 +183,9 @@ definitions:
       # this field is deprecated: cannot change rack_id in an existing layout
       rack_id:
         $ref: common.yaml#/definitions/uuid
-      product_id: # TODO: this really should be hardware_product_id
+      hardware_product_id:
         $ref: common.yaml#/definitions/uuid
-      ru_start: # TODO: this really should be rack_unit_start
+      rack_unit_start:
         type: integer
   WorkspaceRackLayoutUpdate:
     type: object

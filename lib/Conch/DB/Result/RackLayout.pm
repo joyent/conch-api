@@ -189,8 +189,6 @@ use experimental 'signatures';
 
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
-    $data->{product_id} = delete $data->{hardware_product_id};
-    $data->{ru_start} = delete $data->{rack_unit_start};
 
     $data->{rack_unit_size} = $self->get_column('rack_unit_size')
         if $self->has_column_loaded('rack_unit_size');

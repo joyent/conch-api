@@ -44,9 +44,6 @@ sub create ($c) {
     my $input = $c->validate_request('RackLayoutCreate');
     return if not $input;
 
-    $input->{hardware_product_id} = delete $input->{product_id};
-    $input->{rack_unit_start} = delete $input->{ru_start};
-
     if (not $c->db_racks->search({ id => $input->{rack_id} })->exists) {
         $c->log->debug('Could not find rack '.$input->{rack_id});
         return $c->status(400, { error => 'Rack does not exist' });
@@ -63,8 +60,8 @@ sub create ($c) {
     )->get_column('rack_size')->single;
 
     if ($input->{rack_unit_start} > $rack_size) {
-        $c->log->debug("ru_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
-        return $c->status(400, { error => 'ru_start beyond maximum' });
+        $c->log->debug("rack_unit_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
+        return $c->status(400, { error => 'rack_unit_start beyond maximum' });
     }
 
     my $new_rack_unit_size = $c->db_hardware_products
@@ -78,7 +75,7 @@ sub create ($c) {
     if ($input->{rack_unit_start} + $new_rack_unit_size - 1 > $rack_size) {
         $c->log->debug('layout ends at rack unit '.($input->{rack_unit_start} + $new_rack_unit_size - 1)
             .", beyond the end of the rack (size $rack_size)");
-        return $c->status(400, { error => 'ru_start+rack_unit_size beyond maximum' });
+        return $c->status(400, { error => 'rack_unit_start+rack_unit_size beyond maximum' });
     }
 
     my %assigned_rack_units = map +($_ => 1),
@@ -88,7 +85,7 @@ sub create ($c) {
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
         $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
-        return $c->status(400, { error => 'ru_start conflict' });
+        return $c->status(400, { error => 'rack_unit_start conflict' });
     }
 
     my $layout = $c->db_rack_layouts->create($input);
@@ -147,9 +144,6 @@ sub update ($c) {
     my $input = $c->validate_request('RackLayoutUpdate');
     return if not $input;
 
-    $input->{hardware_product_id} = delete $input->{product_id} if exists $input->{product_id};
-    $input->{rack_unit_start} = delete $input->{ru_start} if exists $input->{ru_start};
-
     # if changing rack...
     if ($input->{rack_id} and $input->{rack_id} ne $c->stash('rack_layout')->rack_id) {
         $c->log->debug('Cannot move a layout to a new rack. Delete this layout and create a new one at the new location');
@@ -180,13 +174,13 @@ sub update ($c) {
                     rack_id => $c->stash('rack_layout')->rack_id,
                     rack_unit_start => $input->{rack_unit_start},
                 })->exists) {
-            $c->log->debug('Conflict with ru_start value of '.$input->{rack_unit_start});
-            return $c->status(400, { error => 'ru_start conflict' });
+            $c->log->debug('Conflict with rack_unit_start value of '.$input->{rack_unit_start});
+            return $c->status(400, { error => 'rack_unit_start conflict' });
         }
 
         if ($input->{rack_unit_start} > $rack_size) {
-            $c->log->debug("ru_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
-            return $c->status(400, { error => 'ru_start beyond maximum' });
+            $c->log->debug("rack_unit_start $input->{rack_unit_start} starts beyond the end of the rack (size $rack_size)");
+            return $c->status(400, { error => 'rack_unit_start beyond maximum' });
         }
     }
 
@@ -213,7 +207,7 @@ sub update ($c) {
     if ($new_rack_unit_start + $new_rack_unit_size - 1 > $rack_size) {
         $c->log->debug('layout ends at rack unit '.($new_rack_unit_start + $new_rack_unit_size - 1)
             .", beyond the end of the rack (size $rack_size)");
-        return $c->status(400, { error => 'ru_start+rack_unit_size beyond maximum' });
+        return $c->status(400, { error => 'rack_unit_start+rack_unit_size beyond maximum' });
     }
 
     my %assigned_rack_units = map +($_ => 1), $c->stash('rack_layout')
@@ -228,7 +222,7 @@ sub update ($c) {
 
     if (any { $assigned_rack_units{$_} } @desired_positions) {
         $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
-        return $c->status(400, { error => 'ru_start conflict' });
+        return $c->status(400, { error => 'rack_unit_start conflict' });
     }
 
     $c->stash('rack_layout')->update({ $input->%*, updated => \'now()' });

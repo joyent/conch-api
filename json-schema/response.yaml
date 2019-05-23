@@ -81,7 +81,7 @@ definitions:
       - id
       - asset_tag
       - created
-      - hardware_product
+      - hardware_product_id
       - health
       - hostname
       - graduated
@@ -111,7 +111,7 @@ definitions:
       created:
         type: string
         format: date-time
-      hardware_product:
+      hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       health:
         $ref: /definitions/device_health
@@ -308,7 +308,7 @@ definitions:
       - id
       - asset_tag
       - created
-      - hardware_product
+      - hardware_product_id
       - health
       - hostname
       - graduated
@@ -334,7 +334,7 @@ definitions:
       created:
         type: string
         format: date-time
-      hardware_product:
+      hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       health:
         $ref: /definitions/device_health
@@ -1472,8 +1472,8 @@ definitions:
     required:
       - id
       - rack_id
-      - product_id
-      - ru_start
+      - hardware_product_id
+      - rack_unit_start
       - created
       - updated
     properties:
@@ -1481,9 +1481,9 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       rack_id:
         $ref: common.yaml#/definitions/uuid
-      product_id:
+      hardware_product_id:
         $ref: common.yaml#/definitions/uuid
-      ru_start: # TODO: this really should be rack_unit_start
+      rack_unit_start:
         type: integer
       created:
         type: string

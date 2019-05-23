@@ -38,9 +38,9 @@ $t->get_ok('/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply(bag(
       map +(
-        superhashof({ rack_id => $_, ru_start => 1, product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $_, ru_start => 3, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $_, ru_start => 11, product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $_, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_id => $_, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $_, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
       ), $rack_id, $t->load_fixture('rack_1a')->id
     ));
 
@@ -61,26 +61,26 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, ru_start => 1, product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 3, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
     ]);
 
 my $layout_1_2 = $t->load_fixture('rack_0a_layout_1_2');
-$t->post_ok('/layout/'.$layout_1_2->id, json => { ru_start => 43 })
+$t->post_ok('/layout/'.$layout_1_2->id, json => { rack_unit_start => 43 })
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'ru_start beyond maximum' });
+    ->json_is({ error => 'rack_unit_start beyond maximum' });
 
-$t->post_ok('/layout/'.$layout_1_2->id, json => { ru_start => 42 })
+$t->post_ok('/layout/'.$layout_1_2->id, json => { rack_unit_start => 42 })
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'ru_start+rack_unit_size beyond maximum' });
+    ->json_is({ error => 'rack_unit_start+rack_unit_size beyond maximum' });
 
 $t->post_ok('/layout', json => {
         rack_id => $fake_id,
-        product_id => $hw_product_compute->id,
-        ru_start => 1,
+        hardware_product_id => $hw_product_compute->id,
+        rack_unit_start => 1,
     })
     ->status_is(400)
     ->json_schema_is('Error')
@@ -88,8 +88,8 @@ $t->post_ok('/layout', json => {
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $fake_id,
-        ru_start => 1,
+        hardware_product_id => $fake_id,
+        rack_unit_start => 1,
     })
     ->status_is(400)
     ->json_schema_is('Error')
@@ -97,26 +97,26 @@ $t->post_ok('/layout', json => {
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $hw_product_switch->id,
-        ru_start => 43,
+        hardware_product_id => $hw_product_switch->id,
+        rack_unit_start => 43,
     })
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'ru_start beyond maximum' });
+    ->json_is({ error => 'rack_unit_start beyond maximum' });
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $hw_product_storage->id,
-        ru_start => 42,
+        hardware_product_id => $hw_product_storage->id,
+        rack_unit_start => 42,
     })
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'ru_start+rack_unit_size beyond maximum' });
+    ->json_is({ error => 'rack_unit_start+rack_unit_size beyond maximum' });
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $hw_product_switch->id,
-        ru_start => 42,
+        hardware_product_id => $hw_product_switch->id,
+        rack_unit_start => 42,
     })
     ->status_is(303);
 
@@ -126,32 +126,32 @@ $t->get_ok($t->tx->res->headers->location)
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $hw_product_switch->id,
-        ru_start => 42,
+        hardware_product_id => $hw_product_switch->id,
+        rack_unit_start => 42,
     })
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'ru_start conflict' });
+    ->json_is({ error => 'rack_unit_start conflict' });
 
 # the start of this product will overlap with assigned slots (need 12-15, 11-14 are assigned)
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $hw_product_storage->id,
-        ru_start => 12,
+        hardware_product_id => $hw_product_storage->id,
+        rack_unit_start => 12,
     })
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'ru_start conflict' });
+    ->json_is({ error => 'rack_unit_start conflict' });
 
 # the end of this product will overlap with assigned slots (need 10-13, 11-14 are assigned)
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $hw_product_storage->id,
-        ru_start => 10,
+        hardware_product_id => $hw_product_storage->id,
+        rack_unit_start => 10,
     })
     ->status_is(400)
     ->json_schema_is('Error')
-    ->json_is({ error => 'ru_start conflict' });
+    ->json_is({ error => 'rack_unit_start conflict' });
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
@@ -167,10 +167,10 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, ru_start => 1, product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 3, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 42, product_id => $hw_product_switch->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 42, hardware_product_id => $hw_product_switch->id }),
     ]);
 
 my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');
@@ -182,23 +182,23 @@ $t->post_ok('/layout/'.$layout_3_6->id,
     ->json_is({ error => 'cannot change rack_id' });
 
 # can't put something into an assigned position
-$t->post_ok('/layout/'.$layout_3_6->id, json => { ru_start => 11 })
+$t->post_ok('/layout/'.$layout_3_6->id, json => { rack_unit_start => 11 })
     ->status_is(400)
-    ->json_is({ error => 'ru_start conflict' });
+    ->json_is({ error => 'rack_unit_start conflict' });
 
 # the start of this product will overlap with assigned slots (need 12-15, 11-14 are assigned)
-$t->post_ok('/layout/'.$layout_3_6->id, json => { ru_start => 12 })
+$t->post_ok('/layout/'.$layout_3_6->id, json => { rack_unit_start => 12 })
     ->status_is(400)
-    ->json_is({ error => 'ru_start conflict' });
+    ->json_is({ error => 'rack_unit_start conflict' });
 
 # the end of this product will overlap with assigned slots (need 10-13, 11-14 are assigned)
 $t->post_ok('/layout/'.$layout_1_2->id,
-        json => { ru_start => 10, product_id => $hw_product_storage->id })
+        json => { rack_unit_start => 10, hardware_product_id => $hw_product_storage->id })
     ->status_is(400)
-    ->json_is({ error => 'ru_start conflict' });
+    ->json_is({ error => 'rack_unit_start conflict' });
 
 $t->post_ok('/layout/'.$layout_1_2->id,
-        json => { ru_start => 19, product_id => $hw_product_storage->id })
+        json => { rack_unit_start => 19, hardware_product_id => $hw_product_storage->id })
     ->status_is(303)
     ->location_is('/layout/'.$layout_1_2->id);
 
@@ -207,7 +207,7 @@ undef $layout_1_2;
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
-    ->json_is('/ru_start' => 19)
+    ->json_is('/rack_unit_start' => 19)
     ->json_schema_is('RackLayout');
 
 # now we have these assigned slots:
@@ -220,21 +220,21 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, ru_start => 3, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 19, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 42, product_id => $hw_product_switch->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 19, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 42, hardware_product_id => $hw_product_switch->id }),
     ]);
 
-$t->post_ok('/layout/'.$layout_19_22->id, json => { product_id => $fake_id })
+$t->post_ok('/layout/'.$layout_19_22->id, json => { hardware_product_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('Error')
     ->json_is({ error => 'Hardware product does not exist' });
 
 $t->post_ok('/layout', json => {
         rack_id => $rack_id,
-        product_id => $hw_product_compute->id,
-        ru_start => 1,
+        hardware_product_id => $hw_product_compute->id,
+        rack_unit_start => 1,
     })
     ->status_is(303);
 
@@ -249,15 +249,15 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, ru_start => 1, product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 3, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 11, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 19, product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, ru_start => 42, product_id => $hw_product_switch->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 19, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_id => $rack_id, rack_unit_start => 42, hardware_product_id => $hw_product_switch->id }),
     ]);
 
 # slide a layout forward, overlapping with itself
-$t->post_ok('/layout/'.$layout_19_22->id, json => { ru_start => 20 })
+$t->post_ok('/layout/'.$layout_19_22->id, json => { rack_unit_start => 20 })
     ->status_is(303)
     ->location_is('/layout/'.$layout_19_22->id);
 
@@ -275,11 +275,11 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ ru_start => 1, product_id => $hw_product_compute->id }),
-        superhashof({ ru_start => 3, product_id => $hw_product_storage->id }),
-        superhashof({ ru_start => 11, product_id => $hw_product_storage->id }),
-        superhashof({ ru_start => 20, product_id => $hw_product_storage->id }),
-        superhashof({ ru_start => 42, product_id => $hw_product_switch->id }),
+        superhashof({ rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_unit_start => 20, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_unit_start => 42, hardware_product_id => $hw_product_switch->id }),
     ]);
 
 
@@ -292,7 +292,7 @@ my $device = $hw_product_storage->create_related('devices', {
 $t->app->db_device_locations->assign_device_location($device->id, $rack_id, 20);
 
 # try to move layout from 20-23 back to 19-22
-$t->post_ok('/layout/'.$layout_20_23->id, json => { ru_start => 19 })
+$t->post_ok('/layout/'.$layout_20_23->id, json => { rack_unit_start => 19 })
     ->status_is(400)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot update a layout with a device occupying it' });
