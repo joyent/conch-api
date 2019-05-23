@@ -372,6 +372,7 @@ definitions:
     type: object
     additionalProperties: false
     required:
+      - name
       - email
     properties:
       name:

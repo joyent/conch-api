@@ -375,27 +375,21 @@ sub create ($c) {
     my $input = $c->validate_request('NewUser');
     return if not $input;
 
-    my $name = $input->{name} // $input->{email};
-    my $email = $input->{email};
-
     # this would cause horrible clashes with our /user routes!
-    return $c->status(400, { error => 'user name "me" is prohibited' }) if $name eq 'me';
+    return $c->status(400, { error => 'user name "me" is prohibited' }) if $input->{name} eq 'me';
 
-    if (my $user = $c->db_user_accounts->active->lookup_by_email($email)) {
+    if (my $user = $c->db_user_accounts->active->lookup_by_email($input->{email})) {
         return $c->status(409, {
             error => 'duplicate user found',
             user => { map +($_ => $user->$_), qw(id email name created deactivated) },
         });
     }
 
-    my $password = $input->{password} // $c->random_string;
+    $input->{password} //= $c->random_string;
+    $input->{is_admin} = ($input->{is_admin} ? 1 : 0);
 
-    my $user = $c->db_user_accounts->create({
-        name => $name,
-        email => $email,
-        password => $password,    # will be hashed in constructor
-        is_admin => ($input->{is_admin} ? 1 : 0),
-    });
+    # password will be hashed in constructor
+    my $user = $c->db_user_accounts->create($input);
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 
     if ($c->req->query_params->param('send_mail') // 1) {
@@ -404,7 +398,7 @@ sub create ($c) {
             template_file => 'new_user_account',
             From => 'noreply@conch.joyent.us',
             Subject => 'Welcome to Conch!',
-            password => $password,
+            password => $input->{password},
         );
     }
 
