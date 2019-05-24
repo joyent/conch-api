@@ -844,6 +844,8 @@ definitions:
               $ref: /definitions/uuid
             name:
               type: string
+            phase:
+              $ref: common.yaml#/definitions/device_phase
             role: # TODO: this really should be rack_role_id
               type: string
             size:

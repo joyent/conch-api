@@ -59,6 +59,7 @@ sub list ($c) {
                 az => 'datacenter_room.az',
                 id => 'rack.id',
                 name => 'rack.name',
+                phase => 'rack.phase',
                 role => 'rack_role.name',
                 size => 'rack_role.rack_size',
             },

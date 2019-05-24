@@ -42,6 +42,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
             {
                 id => $rack_id,
                 name => 'rack 0a',
+                phase => 'integration',
                 role => 'rack_role 42U',
                 size => 42,
                 device_progress => {},
@@ -49,6 +50,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
             {
                 id => $rack2->id,
                 name => 'second rack',
+                phase => 'integration',
                 role => 'rack_role 42U',
                 size => 42,
                 device_progress => {},
@@ -83,6 +85,7 @@ subtest 'Add rack to workspace' => sub {
                 {
                     id => $rack_id,
                     name => 'rack 0a',
+                    phase => 'integration',
                     role => 'rack_role 42U',
                     size => 42,
                     device_progress => {},
@@ -229,6 +232,7 @@ CSV
                 {
                     device_progress => { UNKNOWN => 1, VALID => 1 },
                     id => $rack_id,
+                    phase => 'integration',
                     name => 'rack 0a',
                     role => 'rack_role 42U',
                     size => 42,
