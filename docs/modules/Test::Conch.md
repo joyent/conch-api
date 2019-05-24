@@ -5,7 +5,7 @@ Takes care of setting up a [Test::Mojo](https://metacpan.org/pod/Test::Mojo) wit
 Includes JSON validation ability.
 
 ```perl
-my $t = Test::Conch->new();
+my $t = Test::Conch->new;
 $t->get_ok('/')->status_is(200)->json_schema_is('Whatever');
 ```
 

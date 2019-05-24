@@ -118,4 +118,4 @@ like(
     "Roundtrip timestamptz"
 );
 
-done_testing();
+done_testing;

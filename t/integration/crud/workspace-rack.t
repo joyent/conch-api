@@ -61,7 +61,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
 $t->get_ok("/workspace/$global_ws_id/rack/notauuid")
     ->status_is(404);
 
-$t->get_ok("/workspace/$global_ws_id/rack/".$uuid->create_str())
+$t->get_ok("/workspace/$global_ws_id/rack/".$uuid->create_str)
     ->status_is(404);
 
 subtest 'Add rack to workspace' => sub {

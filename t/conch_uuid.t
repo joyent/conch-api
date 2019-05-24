@@ -24,4 +24,4 @@ ok( ! is_uuid('235D562Β-EE0F-4381-9CCB-14D3A38430BD'), 'non-ascii alpha chars a
 # that first 8 is not actually ASCII DIGIT EIGHT, but BENGALI DIGIT FOUR.
 ok( ! is_uuid('৪35D562B-EE0F-4381-9CCB-14D3A38430BD'), 'non-ascii digits are not valid');
 
-done_testing();
+done_testing;

@@ -24,7 +24,7 @@ Takes care of setting up a L<Test::Mojo> with the Conch application pre-configur
 
 Includes JSON validation ability.
 
-    my $t = Test::Conch->new();
+    my $t = Test::Conch->new;
     $t->get_ok('/')->status_is(200)->json_schema_is('Whatever');
 
 =head1 CONSTANTS

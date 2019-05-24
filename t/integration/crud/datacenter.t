@@ -76,5 +76,5 @@ $t->delete_ok("/dc/$idd")
 $t->get_ok("/dc/$idd")
     ->status_is(404);
 
-done_testing();
+done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

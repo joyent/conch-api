@@ -1,7 +1,7 @@
 package Conch::Plugin::Rollbar;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
-use Sys::Hostname;
+use Sys::Hostname ();
 use Data::UUID;
 
 use constant ROLLBAR_ENDPOINT => 'https://api.rollbar.com/api/1/item/';
@@ -98,7 +98,7 @@ sub _record_exception ($c, $exception, @) {
                     }
                 },
             },
-            timestamp    => time(),
+            timestamp    => time,
             code_version => $c->version_hash,
             platform    => $c->tx->original_remote_address eq '127.0.0.1' ? 'client' : 'browser',
             language    => 'perl',
@@ -112,7 +112,7 @@ sub _record_exception ($c, $exception, @) {
                 body    => $c->req->text,
             },
             server => {
-                host => hostname(),
+                host => Sys::Hostname::hostname,
                 root => $c->app->home->child('lib')->to_string
             },
             $user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),

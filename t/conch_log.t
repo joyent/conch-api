@@ -186,7 +186,7 @@ sub add_test_routes ($app) {
     );
 
     $t->app->helper(some_helper => sub ($c) { $c->log->info('info from a helper') });
-    $t->app->some_helper();
+    $t->app->some_helper;
 
     cmp_deeply(
         $t->app->log->history->[-1],

@@ -115,5 +115,5 @@ $t->get_ok('/rack_role')
         superhashof({ name => 'rack_role 42U', rack_size => 14 }),
     ]);
 
-done_testing();
+done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

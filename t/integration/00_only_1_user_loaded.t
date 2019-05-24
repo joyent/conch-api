@@ -255,7 +255,7 @@ subtest 'Workspaces' => sub {
         ->json_schema_is('WorkspaceAndRole')
         ->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace, by name');
 
-    $t->get_ok('/workspace/'.$uuid->create_str())
+    $t->get_ok('/workspace/'.$uuid->create_str)
         ->status_is(404);
 
     $t->get_ok("/workspace/$global_ws_id/user")
@@ -1434,4 +1434,4 @@ warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');
 });
 
-done_testing();
+done_testing;

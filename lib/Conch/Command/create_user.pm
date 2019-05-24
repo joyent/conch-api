@@ -52,7 +52,7 @@ sub run ($self, @opts) {
     my $user = $self->app->db_user_accounts->create({
         name => $opt->name,
         email => $opt->email,
-        password => $opt->password // $self->app->random_string(), # will be hashed in constructor
+        password => $opt->password // $self->app->random_string, # will be hashed in constructor
     });
     my $user_id = $user->id;
 

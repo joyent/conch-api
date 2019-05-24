@@ -325,7 +325,7 @@ test_validation(
 	]
 );
 
-done_testing();
+done_testing;
 ```
 
 This tests the basic logic, but doesn't test the edge case we introduced with
@@ -338,7 +338,7 @@ named arguments and an example are given in the documentation for the test
 harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md).
 
 In the same file, after the `test_validation()` call and before
-`done_testing();`, we add tests for the edge case:
+`done_testing;`, we add tests for the edge case:
 
 ```perl
 test_validation(

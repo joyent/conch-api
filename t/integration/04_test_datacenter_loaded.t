@@ -769,4 +769,4 @@ subtest 'Permissions' => sub {
     };
 };
 
-done_testing();
+done_testing;

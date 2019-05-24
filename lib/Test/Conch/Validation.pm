@@ -170,7 +170,7 @@ sub test_validation {
                 \&_test_case => ($validation, $validation_module, $case));
         }
 
-        had_no_warnings();
+        had_no_warnings;
     };
 }
 

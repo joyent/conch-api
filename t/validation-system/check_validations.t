@@ -12,7 +12,7 @@ use Path::Tiny;
 
 use lib 't/lib';
 
-my $uuid_re = Conch::UUID::UUID_FORMAT();
+my $uuid_re = Conch::UUID::UUID_FORMAT;
 
 open my $log_fh, '>', \my $fake_log or die "cannot open to scalarref: $!";
 my $logger = Mojo::Log->new(handle => $log_fh);
