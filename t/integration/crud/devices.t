@@ -363,7 +363,7 @@ subtest 'mutate device attributes' => sub {
 
     $t->post_ok('/device/TEST/triton_setup')
         ->status_is(409)
-        ->json_like('/error', qr/must be marked .+ before it can be .+ set up for Triton/);
+        ->json_is({ error => 'Device TEST must be marked as rebooted into Triton and the Triton UUID set before it can be marked as set up for Triton' });
 
     $t->post_ok('/device/TEST/triton_reboot')
         ->status_is(303)
