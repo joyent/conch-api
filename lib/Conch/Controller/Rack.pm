@@ -367,7 +367,7 @@ sub set_phase ($c) {
         $c->log->debug('set the phase for all devices in rack '.$c->stash('rack_id').' to '.$input->{phase});
     }
 
-    $c->status(204);
+    $c->status(303, '/rack/'.$c->stash('rack_id'));
 }
 
 1;
