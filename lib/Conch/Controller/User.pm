@@ -184,9 +184,11 @@ Stores a new password for the current user.
 Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
 forcing the user to log in again.  Possible options are:
 
-  * 0, no, false
-  * login_only (default) (for backcompat, '1' is treated as login_only)
-  * all - also affects all APIs and tools
+  * none
+  * login_only (default) - clear login tokens only
+  * all - clear all tokens (login and api - affects all APIs and tools)
+
+When login tokens are cleared, the user is also logged out.
 
 =cut
 
@@ -196,7 +198,7 @@ sub change_own_password ($c) {
 
     my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
     return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
-        if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
+        if $clear_tokens !~ /^none|login_only|all$/;
 
     my $user = $c->stash('user');
     $user->update({
@@ -207,7 +209,7 @@ sub change_own_password ($c) {
 
     $c->log->debug('updated password for user '.$user->name.' at their request');
 
-    return $c->status(204) if not $clear_tokens or $clear_tokens eq 'no' or $clear_tokens eq 'false';
+    return $c->status(204) if $clear_tokens eq 'none';
 
     my $rs = $user->user_session_tokens;
     $rs = $rs->login_only if $clear_tokens ne 'all';
@@ -227,9 +229,9 @@ email to the user with the new password.
 Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
 forcing the user to log in again.  Possible options are:
 
-  * 0, no, false
-  * login_only (default) (for backcompat, '1' is treated as login_only)
-  * all - also affects all APIs and tools
+  * none
+  * login_only (default)
+  * all - clear all tokens (login and api - affects all APIs and tools)
 
 If all tokens are revoked, the user must also change their password after logging in, as they
 will not be able to log in with it again.
@@ -239,14 +241,14 @@ will not be able to log in with it again.
 sub reset_user_password ($c) {
     my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
     return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
-        if $clear_tokens and $clear_tokens !~ /^0|no|false|1|login_only|all$/;
+        if $clear_tokens !~ /^none|login_only|all$/;
 
     my $user = $c->stash('target_user');
     my %update = (
         password => $c->random_string(),
     );
 
-    if ($clear_tokens and $clear_tokens ne 'no' and $clear_tokens ne 'false') {
+    if ($clear_tokens ne 'none') {
         my $rs = $user->user_session_tokens;
         $rs = $rs->login_only if $clear_tokens ne 'all';
         my $count = $rs->delete;

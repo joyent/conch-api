@@ -28,14 +28,14 @@ By default it will revoke both login/session and API tokens. If both
 - Request: request.yaml#/UserSettings
 - Response: `204 NO CONTENT`
 
-### `POST /user/me/password?clear_tokens=<login_only|0|all>`
+### `POST /user/me/password?clear_tokens=<login_only|none|all>`
 
 Optionally takes a query parameter `clear_tokens`, to also revoke the session
 tokens for the user, forcing the user to log in again. Possible options are:
 
-- `0`, `no`, `false`
-- `login_only`, `1` (default, for backcompat, `1` is treated as `login_only`)
-- `all` - also affects all API tokens (and thus other tools).
+- `none`
+- `login_only`
+- `all` - clear all tokens (login and api - affects all APIs and tools)
 
 If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 `204 NO CONTENT` will be returned but the user session will remain..
@@ -123,14 +123,14 @@ By default it will revoke both login/session and API tokens. If both
 - Requires System Admin Authentication
 - Response: `204 NO CONTENT`
 
-### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_mail=<1|0>`
+### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>`
 
 Optionally accepts the following query parameters:
 
 - `clear_tokens` (default `login_only`) to also revoke tokens for the user, takes the following possible values
-    - `0`, `no`, `false`
-    - `login_only`, `1` (default, for backcompat, `1` is treated as `login_only`)
-    - `all` - also affects all API tokens (and thus other tools).
+    - `none`
+    - `login_only`
+    - `all` - clear all tokens (login and api - affects all APIs and tools)
 - `send_mail` which takes `<1|0>` (default `1`). If set to `1` this will cause an email to be sent to the user with password reset instructions.
 
 - Requires System Admin Authentication

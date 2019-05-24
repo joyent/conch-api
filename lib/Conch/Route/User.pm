@@ -35,7 +35,7 @@ sub routes {
         # POST /user/me/revoke?send_mail=<1|0>& login_only=<0|1> or ?api_only=<0|1>
         $user_me->post('/revoke')->to('#revoke_user_tokens');
 
-        # POST /user/me/password?clear_tokens=<login_only|0|all>
+        # POST /user/me/password?clear_tokens=<login_only|none|all>
         # (after changing password, (possibly) pass through to logging out too)
         $user->under('/me/password')->to('#change_own_password')
             ->post('/')->to('login#session_logout');
@@ -94,7 +94,7 @@ sub routes {
 
         # POST /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
-        # DELETE /user/#target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_mail=<1|0>
+        # DELETE /user/#target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user
@@ -161,18 +161,18 @@ C<api_only> and C<login_only> are set, no tokens will be revoked.
 
 =back
 
-=head3 C<< POST /user/me/password?clear_tokens=<login_only|0|all> >>
+=head3 C<< POST /user/me/password?clear_tokens=<login_only|none|all> >>
 
 Optionally takes a query parameter C<clear_tokens>, to also revoke the session
 tokens for the user, forcing the user to log in again. Possible options are:
 
 =over 4
 
-=item * C<0>, C<no>, C<false>
+=item * C<none>
 
-=item * C<login_only>, C<1> (default, for backcompat, C<1> is treated as C<login_only>)
+=item * C<login_only>
 
-=item * C<all> - also affects all API tokens (and thus other tools).
+=item * C<all> - clear all tokens (login and api - affects all APIs and tools)
 
 =back
 
@@ -336,7 +336,7 @@ C<api_only> and C<login_only> are set, no tokens will be revoked.
 
 =back
 
-=head3 C<< DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_mail=<1|0> >>
+=head3 C<< DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0> >>
 
 Optionally accepts the following query parameters:
 
@@ -346,11 +346,11 @@ Optionally accepts the following query parameters:
 
 =over 4
 
-=item * C<0>, C<no>, C<false>
+=item * C<none>
 
-=item * C<login_only>, C<1> (default, for backcompat, C<1> is treated as C<login_only>)
+=item * C<login_only>
 
-=item * C<all> - also affects all API tokens (and thus other tools).
+=item * C<all> - clear all tokens (login and api - affects all APIs and tools)
 
 =back
 

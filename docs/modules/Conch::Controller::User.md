@@ -58,10 +58,12 @@ Optionally takes a query parameter 'clear\_tokens', to also revoke session token
 forcing the user to log in again.  Possible options are:
 
 ```
-* 0, no, false
-* login_only (default) (for backcompat, '1' is treated as login_only)
-* all - also affects all APIs and tools
+* none
+* login_only (default) - clear login tokens only
+* all - clear all tokens (login and api - affects all APIs and tools)
 ```
+
+When login tokens are cleared, the user is also logged out.
 
 ## reset\_user\_password
 
@@ -74,9 +76,9 @@ Optionally takes a query parameter 'clear\_tokens', to also revoke session token
 forcing the user to log in again.  Possible options are:
 
 ```
-* 0, no, false
-* login_only (default) (for backcompat, '1' is treated as login_only)
-* all - also affects all APIs and tools
+* none
+* login_only (default)
+* all - clear all tokens (login and api - affects all APIs and tools)
 ```
 
 If all tokens are revoked, the user must also change their password after logging in, as they
