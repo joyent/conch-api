@@ -206,7 +206,8 @@ subtest 'rack phases' => sub {
     );
 
     $t->post_ok('/rack/'.$rack->id.'/phase?rack_only=1', json => { phase => 'production' })
-        ->status_is(204);
+        ->status_is(303)
+        ->location_is('/rack/'.$rack->id);
 
     $t->get_ok('/rack/'.$rack->id)
         ->status_is(200)
@@ -223,7 +224,8 @@ subtest 'rack phases' => sub {
     );
 
     $t->post_ok('/rack/'.$rack->id.'/phase', json => { phase => 'production' })
-        ->status_is(204);
+        ->status_is(303)
+        ->location_is('/rack/'.$rack->id);
 
     cmp_deeply(
         [ $device_phase_rs->all ],
