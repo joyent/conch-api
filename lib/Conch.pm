@@ -76,7 +76,7 @@ sub startup {
             $c->res->code($code);
 
             if (any { $code == $_ } 301, 302, 303, 307, 308) {
-                $c->redirect_to($c->url_for($payload));
+                $c->redirect_to($payload);
             }
             else {
                 $c->respond_to(

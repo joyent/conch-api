@@ -67,8 +67,7 @@ sub set ($c) {
 
     return $c->status(409, { error => $error }) if $error;
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$device_id.'/location'));
+    $c->status(303, '/device/'.$device_id.'/location');
 }
 
 =head2 delete
