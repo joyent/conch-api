@@ -111,6 +111,13 @@ the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
 
 =head2 txn_wrapper
 
+    my $result = $c->txn_wrapper(sub ($c) {
+        # many update, delete queries etc...
+    });
+
+    # if the result code was already set, we errored and rolled back the db...
+    return if $c->res->code;
+
 Wraps the provided subref in a database transaction, rolling back in case of an exception.
 Any provided arguments are passed to the sub, along with the invocant controller.
 
