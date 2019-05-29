@@ -2,7 +2,7 @@ package Conch::Controller::Rack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use List::Util qw(any none first);
+use List::Util qw(any none first uniq);
 
 =pod
 
@@ -228,12 +228,18 @@ sub get_assignment ($c) {
 =head2 set_assignment
 
 Assigns devices to rack layouts, also optionally updating asset_tags.
+Existing devices in referenced slots will be removed as needed.
 
 =cut
 
 sub set_assignment ($c) {
     my $input = $c->validate_input('RackAssignmentUpdates');
     return if not $input;
+
+    return $c->status(400, { error => 'duplication of device_ids is not permitted' })
+        if (uniq map $_->{device_id}, $input->@*) != $input->@*;
+    return $c->status(400, { error => 'duplication of rack_unit_starts is not permitted' })
+        if (uniq map $_->{rack_unit_start}, $input->@*) != $input->@*;
 
     my @layouts = $c->stash('rack_rs')->search_related('rack_layouts',
             { 'rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
@@ -248,44 +254,56 @@ sub set_assignment ($c) {
         return $c->status(400, { error => 'missing layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing) });
     }
 
-    if (my @occupied = grep $_->device_location, @layouts) {
-        return $c->status(400, { error => 'already occupied: rack_unit_start '
-            .join(', ', map $_->rack_unit_start, @occupied) });
-    }
+    my %devices = map +($_->id => $_),
+        $c->db_devices->search({ id => { -in => [ map $_->{device_id}, $input->@* ] } });
 
-    if (my @located = $c->db_device_locations->search({ device_id => { -in => [ map $_->{device_id}, $input->@* ] } })) {
-        return $c->status(400, { error => 'device'.(@located > 1 ? 's ' : ' ')
-            .join(', ', map $_->device_id, @located).' already '
-            .(@located > 1 ? 'have assigned locations' : 'has an assigned location') });
-    }
+    my $device_locations_rs = $c->stash('rack_rs')->related_resultset('device_locations');
 
-    foreach my $entry ($input->@*) {
-        my $layout = first { $_->rack_unit_start == $entry->{rack_unit_start} } @layouts;
-        if (my $device = $c->db_devices->find($entry->{device_id})) {
-            if (exists $entry->{device_asset_tag}) {
-                $device->asset_tag($entry->{device_asset_tag});
-                $device->update({ updated => \'now()' }) if $device->is_changed;
+    $c->txn_wrapper(sub ($c) {
+        foreach my $entry ($input->@*) {
+            my $layout = first { $_->rack_unit_start == $entry->{rack_unit_start} } @layouts;
+            if (my $device = $devices{$entry->{device_id}}) {
+                if (exists $entry->{device_asset_tag}) {
+                    $device->asset_tag($entry->{device_asset_tag});
+                    $device->update({ updated => \'now()' }) if $device->is_changed;
+                }
+                # we'll allow this as it will be caught by a validation later on,
+                # but it's probably user error of some kind.
+                $c->log->warn('locating device id '.$device->id
+                        .' in slot with incorrect hardware: expecting hardware_product_id '
+                        .$layout->hardware_product_id.', but instead it has hardware_product_id '
+                        .$device->hardware_product_id)
+                    if $device->hardware_product_id ne $layout->hardware_product_id;
             }
-            # we'll allow this as it will be caught by a validation later on,
-            # but it's probably user error of some kind.
-            $c->log->warn('locating device id '.$device->id
-                    .' in slot with incorrect hardware: expecting hardware_product_id '
-                    .$layout->hardware_product_id.', but instead it has hardware_product_id '
-                    .$device->hardware_product_id)
-                if $device->hardware_product_id ne $layout->hardware_product_id;
-        }
-        else {
-            my $device = $c->db_devices->create({
-                id => $entry->{device_id},
-                asset_tag => $entry->{device_asset_tag},
-                hardware_product_id => $layout->hardware_product_id,
-                health => 'unknown',
-                state => 'UNKNOWN',
-            });
-        }
+            else {
+                my $device = $c->db_devices->create({
+                    id => $entry->{device_id},
+                    asset_tag => $entry->{device_asset_tag},
+                    hardware_product_id => $layout->hardware_product_id,
+                    health => 'unknown',
+                    state => 'UNKNOWN',
+                });
+            }
 
-        $layout->create_related('device_location', { device_id => $entry->{device_id} });
-    }
+            next if $device_locations_rs->search({ $entry->%{qw(device_id rack_unit_start)} })->exists;
+
+            # remove current occupant, if it exists
+            # (TODO: with deferred constraints, if it is moving to another slot we should not delete)
+            $device_locations_rs->search({ rack_unit_start => $entry->{rack_unit_start} })->delete;
+
+            $c->db_device_locations->update_or_create(
+                {
+                    rack_id => $c->stash('rack_id'),
+                    $entry->%{qw(device_id rack_unit_start)},
+                    updated => \'now()',
+                },
+                { key => 'primary' },   # only search for conflicts by device_id
+            );
+        }
+    });
+
+    # if the result code was already set, we errored and rolled back the db...
+    return if $c->res->code;
 
     $c->log->debug('Updated device assignments for rack '.$c->stash('rack_id'));
     $c->status(303, '/rack/'.$c->stash('rack_id').'/assignment');

@@ -181,7 +181,8 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 3,
         },
     ])
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack/'.$rack->id.'/assignment');
 
 $assignments->[0]->@{qw(device_id device_asset_tag)} = ('FOO','ohhai');
 $assignments->[1]->@{qw(device_id device_asset_tag)} = ($device->id,'hello');
@@ -238,13 +239,43 @@ subtest 'rack phases' => sub {
 };
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        { device_id => 'FOO', rack_unit_start => 11 },
+        { device_id => 'FOO', rack_unit_start => 13 },
+    ])
+    ->status_is(400)
+    ->json_is({ error => 'duplication of device_ids is not permitted' });
+
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        { device_id => 'FOO', rack_unit_start => 11 },
+        { device_id => 'BAR', rack_unit_start => 11 },
+    ])
+    ->status_is(400)
+    ->json_is({ error => 'duplication of rack_unit_starts is not permitted' });
+
+# move FOO from rack unit 1 to rack unit 3; pushing out the existing occupant of 3
+# BAR is created and put in rack unit 11.
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_id => 'FOO',
+            rack_unit_start => 3,
+        },
+        {
+            device_id => 'BAR',
             rack_unit_start => 11,
         },
     ])
-    ->status_is(400)
-    ->json_is({ error => 'device FOO already has an assigned location' });
+    ->status_is(303);
+
+$assignments->[1]->@{qw(device_id device_asset_tag)} = $assignments->[0]->@{qw(device_id device_asset_tag)};
+$assignments->[0]->@{qw(device_id device_asset_tag)} = (undef, undef);
+$assignments->[2]->{device_id} = 'BAR';
+
+$t->get_ok($t->tx->res->headers->location)
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is($assignments);
+
+ok(!$t->app->db_device_locations->search({ device_id => $device->id })->exists, 'previous occupant is now homeless');
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
@@ -257,7 +288,7 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_id => 'FOO',
-            rack_unit_start => 11,   # this slot isn't occupied
+            rack_unit_start => 1,   # this slot isn't occupied
         },
     ])
     ->status_is(404);
@@ -265,7 +296,7 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_id => 'FOO',
-            rack_unit_start => 3,   # wrong slot for this device
+            rack_unit_start => 11,  # wrong slot for this device
         },
     ])
     ->status_is(404);
@@ -273,12 +304,12 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_id => 'FOO',
-            rack_unit_start => 1,
+            rack_unit_start => 3,
         },
     ])
     ->status_is(204);
 
-$assignments->[0]->@{qw(device_id device_asset_tag)} = ();
+$assignments->[1]->@{qw(device_id device_asset_tag)} = ();
 
 $t->get_ok('/rack/'.$rack->id.'/assignment')
     ->status_is(200)
