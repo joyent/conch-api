@@ -1,0 +1,131 @@
+# Note: for now, defaults are for documentation purposes only.
+# see https://github.com/mojolicious/json-validator/issues/158
+$schema: 'http://json-schema.org/draft-07/schema#'
+definitions:
+  boolean_integer:
+    type: integer
+    minimum: 0
+    maximum: 1
+  boolean_integer_default_false:
+    type: integer
+    minimum: 0
+    maximum: 1
+    default: 0
+  boolean_integer_default_true:
+    type: integer
+    minimum: 0
+    maximum: 1
+    default: 1
+  RevokeUserTokens:
+    allOf:
+      - type: object
+        additionalProperties: false
+        properties:
+          login_only:
+            $ref: /definitions/boolean_integer_default_false
+          api_only:
+            $ref: /definitions/boolean_integer_default_false
+          send_mail:
+            $ref: /definitions/boolean_integer_default_true
+      - not:
+          type: object
+          required:
+            - login_only
+            - api_only
+          properties:
+            login_only:
+              const: 1
+            api_only:
+              const: 1
+  ChangePassword:
+    type: object
+    additionalProperties: false
+    properties:
+      clear_tokens:
+        type: string
+        enum:
+          - none
+          - login_only
+          - all
+        default: login_only
+  DeactivateUser:
+    $ref: /definitions/ChangePassword
+  ResetUserPassword:
+    type: object
+    additionalProperties: false
+    properties:
+      clear_tokens:
+        type: string
+        enum:
+          - none
+          - login_only
+          - all
+        default: login_only
+      send_mail:
+        $ref: /definitions/boolean_integer_default_true
+  ModifyUser:
+    description: used for user creation and update, and adding/removing user to/from workspace
+    type: object
+    additionalProperties: false
+    properties:
+      send_mail:
+        $ref: /definitions/boolean_integer_default_true
+  GetDeviceByAttribute:
+    type: object
+    minProperties: 1
+    maxProperties: 1
+    properties:
+      hostname:
+        type: string
+      mac:
+        $ref: common.yaml#/definitions/macaddr
+      ipaddr:
+        $ref: common.yaml#/definitions/ipaddr
+    propertyNames:
+      $ref: common.yaml#/definitions/device_setting_key
+    additionalProperties:
+      type: string
+  GetValidationStates:
+    type: object
+    additionalProperties: false
+    properties:
+      status:
+        oneOf:
+          - $ref: common.yaml#/definitions/validation_status
+          - type: array
+            uniqueItems: true
+            minItems: 2
+            items:
+              $ref: common.yaml#/definitions/validation_status
+  SetPhase:
+    type: object
+    additionalProperties: false
+    properties:
+      rack_only:
+        $ref: /definitions/boolean_integer_default_false
+  WorkspaceDevices:
+    type: object
+    additionalProperties: false
+    properties:
+      graduated:
+        $ref: /definitions/boolean_integer
+      validated:
+        $ref: /definitions/boolean_integer
+      health:
+        oneOf:
+          - $ref: common.yaml#/definitions/device_health
+          - type: array
+            uniqueItems: true
+            minItems: 2
+            items:
+              $ref: common.yaml#/definitions/device_health
+      active_minutes:
+        $ref: common.yaml#/definitions/non_negative_integer
+      ids_only:
+        $ref: /definitions/boolean_integer_default_false
+  WorkspaceRelays:
+    type: object
+    additionalProperties: false
+    properties:
+      active_minutes:
+        $ref: common.yaml#/definitions/non_negative_integer

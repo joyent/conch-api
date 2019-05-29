@@ -858,6 +858,13 @@ subtest 'JWT authentication' => sub {
     $t->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
         ->status_is(401, 'Cannot reuse old JWT');
 
+    $t->post_ok('/user/'.$t->CONCH_EMAIL.'/revoke?login_only=1&api_only=1',
+            { Authorization => 'Bearer '.$new_jwt_token })
+        ->status_is(400)
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{allOf/1 should not match}i) } ])
+        ->email_not_sent;
+
     $t->post_ok('/user/'.$t->CONCH_EMAIL.'/revoke?api_only=1',
             { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(204, 'Revoke api tokens for user')

@@ -12,6 +12,24 @@ use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new(pg => undef);
 
+subtest 'failed query params validation' => sub {
+    $t->app->routes->get('/hello', sub ($c) {
+        my $params = $c->validate_query_params('ChangePassword');
+        return if not $params;
+        return $c->status(200);
+    });
+
+    $t->get_ok('/hello?clear_tokens=whargarbl')
+        ->status_is(400)
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply({
+            error => 'query parameters did not match required format',
+            details => [ { path => '/clear_tokens', message => re(qr/not in enum list/i) } ],
+            schema => '/schema/query_params/change_password',
+            data => { clear_tokens => 'whargarbl' },
+        });
+};
+
 subtest 'failed request validation' => sub {
     $t->post_ok('/login', json => { email => 'foo@bar.com' })
         ->status_is(400)

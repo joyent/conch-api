@@ -60,6 +60,9 @@ to the user.
 sub add_user ($c) {
     return $c->status(403) if not $c->is_workspace_admin;
 
+    my $params = $c->validate_query_params('ModifyUser');
+    return if not $params;
+
     my $input = $c->validate_request('WorkspaceAddUser');
     return if not $input;
 
@@ -114,7 +117,7 @@ sub add_user ($c) {
             Subject => 'Your Conch access has changed',
             workspace => $c->stash('workspace_rs')->get_column('name')->single,
             permission => $input->{role},
-        ) if $c->req->query_params->param('send_mail') // 1;
+        ) if $params->{send_mail} // 1;
 
         return $c->status(204);
     }
@@ -131,7 +134,7 @@ sub add_user ($c) {
         Subject => 'Your Conch access has changed',
         workspace => $c->stash('workspace_rs')->get_column('name')->single,
         permission => $input->{role},
-    ) if $c->req->query_params->param('send_mail') // 1;
+    ) if $params->{send_mail} // 1;
 
     $c->status(204);
 }
@@ -150,6 +153,9 @@ to the user.
 =cut
 
 sub remove ($c) {
+    my $params = $c->validate_query_params('ModifyUser');
+    return if not $params;
+
     my $user = $c->stash('target_user');
 
     my $rs = $c->db_workspaces
@@ -171,7 +177,7 @@ sub remove ($c) {
         From => 'noreply@conch.joyent.us',
         Subject => 'Your Conch workspaces have been updated.',
         workspace => $workspace_name,
-    ) if $deleted > 0 and $c->req->query_params->param('send_mail') // 1;
+    ) if $deleted > 0 and $params->{send_mail} // 1;
 
     return $c->status(204);
 }

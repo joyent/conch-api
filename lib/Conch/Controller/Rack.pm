@@ -363,13 +363,16 @@ located devices' phases as well.
 =cut
 
 sub set_phase ($c) {
+    my $params = $c->validate_query_params('SetPhase');
+    return if not $params;
+
     my $input = $c->validate_request('RackPhase');
     return if not $input;
 
     $c->stash('rack_rs')->update({ phase => $input->{phase}, updated => \'now()' });
     $c->log->debug('set the phase for rack '.$c->stash('rack_id').' to '.$input->{phase});
 
-    if (not $c->req->query_params->param('rack_only') // 0) {
+    if (not $params->{rack_only} // 0) {
         $c->stash('rack_rs')
             ->related_resultset('device_locations')
             ->related_resultset('device')

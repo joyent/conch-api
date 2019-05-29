@@ -1,23 +1,6 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
-  validation_status:
-    description: corresponds to validation_status_enum in the database
-    type: string
-    enum:
-      # TODO: remove antiquated 'processing'
-      - error
-      - fail
-      - processing
-      - pass
-  device_health:
-    description: corresponds to device_health_enum in the database
-    type: string
-    enum:
-      - error
-      - fail
-      - unknown
-      - pass
   Error:
     type: object
     additionalProperties: false
@@ -63,6 +46,32 @@ definitions:
         pattern: "/schema/[^/]+/[^/]+$"
       data:
         description: any supplementary details will be included here
+  QueryParamsValidationError:
+    allOf:
+      - $ref: /definitions/ValidationError
+      - type: object
+        required:
+          - data
+        properties:
+          error:
+            const: query parameters did not match required format
+          schema:
+            pattern: "/schema/query_params/[^/]+$"
+          data:
+            description: the parsed form of the query parameters, as they were passed to the schema for validation
+            type: object
+            additionalProperties:
+              anyOf:
+                - type: integer
+                - type: number
+                - type: string
+                - type: array
+                  minItems: 2
+                  items:
+                    anyOf:
+                      - type: integer
+                      - type: number
+                      - type: string
   RequestValidationError:
     allOf:
       - $ref: /definitions/ValidationError
@@ -128,7 +137,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       health:
-        $ref: /definitions/device_health
+        $ref: common.yaml#/definitions/device_health
       hostname:
         oneOf:
           - type: string
@@ -351,7 +360,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       health:
-        $ref: /definitions/device_health
+        $ref: common.yaml#/definitions/device_health
       hostname:
         oneOf:
           - type: string
@@ -895,7 +904,7 @@ definitions:
             propertyNames:
               oneOf:
                 - const: valid
-                - $ref: /definitions/device_health
+                - $ref: common.yaml#/definitions/device_health
             additionalProperties:
               $ref: common.yaml#/definitions/positive_integer
   WorkspaceRack:
@@ -1054,7 +1063,7 @@ definitions:
       order:
         $ref: common.yaml#/definitions/non_negative_integer
       status:
-        $ref: /definitions/validation_status
+        $ref: common.yaml#/definitions/validation_status
       validation_id:
         $ref: common.yaml#/definitions/uuid
   ValidationResults:
@@ -1087,7 +1096,7 @@ definitions:
       device_id:
         $ref: common.yaml#/definitions/device_id
       status:
-        $ref: /definitions/validation_status
+        $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
         $ref: common.yaml#/definitions/uuid
       device_report_id:
@@ -1128,7 +1137,7 @@ definitions:
         items:
           $ref: /definitions/ValidationResult
       status:
-        $ref: /definitions/validation_status
+        $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
         $ref: common.yaml#/definitions/uuid
       device_report_id:
@@ -1147,7 +1156,7 @@ definitions:
       validation_plan_id:
         $ref: common.yaml#/definitions/uuid
       status:
-        $ref: /definitions/validation_status
+        $ref: common.yaml#/definitions/validation_status
       results:
         $ref: /definitions/ValidationResults
   WorkspaceRelays:
@@ -1726,7 +1735,7 @@ definitions:
           alias:
             type: string
           health:
-            $ref: /definitions/device_health
+            $ref: common.yaml#/definitions/device_health
           count:
             $ref: common.yaml#/definitions/positive_integer
   DeviceTotalsCirconus:
@@ -1763,7 +1772,7 @@ definitions:
             - fail
             - unknown
           propertyNames:
-            $ref: /definitions/device_health
+            $ref: common.yaml#/definitions/device_health
           additionalProperties:
             $ref: common.yaml#/definitions/non_negative_integer
         count:

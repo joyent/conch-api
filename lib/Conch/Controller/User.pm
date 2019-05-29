@@ -34,20 +34,19 @@ revoking for oneself).
 =cut
 
 sub revoke_user_tokens ($c) {
+    my $params = $c->validate_query_params('RevokeUserTokens');
+    return if not $params;
+
     $c->validate_request('Null');
     return if $c->res->code;
 
-    my $login_only = $c->req->query_params->param('login_only') // 0;
-    my $api_only = $c->req->query_params->param('api_only') // 0;
-
-    # logically this would yield a null result
-    return $c->status(400, { error => 'cannot use login_only and api_only together' })
-        if $login_only and $api_only;
+    my $login_only = $params->{login_only} // 0;
+    my $api_only = $params->{api_only} // 0;
 
     my $user = $c->stash('target_user');
     $c->log->debug('revoking session tokens for user '.$user->name.', forcing them to /login again');
 
-    my $send_mail = $user->id ne $c->stash('user_id') && ($c->req->query_params->param('send_mail') // 1);
+    my $send_mail = $user->id ne $c->stash('user_id') && ($params->{send_mail} // 1);
 
     my $rs = $user->user_session_tokens->unexpired;
     $rs = $rs->login_only if $login_only;
@@ -193,12 +192,13 @@ When login tokens are cleared, the user is also logged out.
 =cut
 
 sub change_own_password ($c) {
+    my $params = $c->validate_query_params('ChangePassword');
+    return if not $params;
+
     my $input = $c->validate_request('UserPassword');
     return if not $input;
 
-    my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
-    return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
-        if $clear_tokens !~ /^none|login_only|all$/;
+    my $clear_tokens = $params->{clear_tokens} // 'login_only';
 
     my $user = $c->stash('user');
     $user->update({
@@ -239,9 +239,10 @@ will not be able to log in with it again.
 =cut
 
 sub reset_user_password ($c) {
-    my $clear_tokens = $c->req->query_params->param('clear_tokens') // 'login_only';
-    return $c->status(400, { error => 'unrecognized "clear_tokens" value "'.$clear_tokens.'"' })
-        if $clear_tokens !~ /^none|login_only|all$/;
+    my $params = $c->validate_query_params('ResetUserPassword');
+    return if not $params;
+
+    my $clear_tokens = $params->{clear_tokens} // 'login_only';
 
     my $user = $c->stash('target_user');
     my %update = (
@@ -279,7 +280,7 @@ sub reset_user_password ($c) {
         From => 'noreply@conch.joyent.us',
         Subject => 'Your Conch password has changed.',
         password => $update{password},
-    ) if $c->req->query_params->param('send_mail') // 1;
+    ) if $params->{send_mail} // 1;
 
     return $c->status(204);
 }
@@ -307,6 +308,9 @@ Response uses the UserDetailed json schema (or UserError for some error conditio
 =cut
 
 sub update ($c) {
+    my $params = $c->validate_query_params('ModifyUser');
+    return if not $params;
+
     my $input = $c->validate_request('UpdateUser');
     return if not $input;
 
@@ -322,7 +326,7 @@ sub update ($c) {
     my %orig_columns = $user->get_columns;
     $user->set_columns($input);
 
-    if ($c->req->query_params->param('send_mail') // 1) {
+    if ($params->{send_mail} // 1) {
         my %dirty_columns = $user->get_dirty_columns;
         %orig_columns = %orig_columns{keys %dirty_columns};
 
@@ -374,6 +378,9 @@ Response uses the NewUser json schema (or UserError for some error conditions).
 =cut
 
 sub create ($c) {
+    my $params = $c->validate_query_params('ModifyUser');
+    return if not $params;
+
     my $input = $c->validate_request('NewUser');
     return if not $input;
 
@@ -394,7 +401,7 @@ sub create ($c) {
     my $user = $c->db_user_accounts->create($input);
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 
-    if ($c->req->query_params->param('send_mail') // 1) {
+    if ($params->{send_mail} // 1) {
         $c->stash('target_user', $user);
         $c->send_mail(
             template_file => 'new_user_account',
@@ -423,6 +430,9 @@ Response uses the UserError json schema on some error conditions.
 =cut
 
 sub deactivate ($c) {
+    my $params = $c->validate_query_params('DeactivateUser');
+    return if not $params;
+
     my $user = $c->stash('target_user');
 
     if ($user->deactivated) {
@@ -441,7 +451,7 @@ sub deactivate ($c) {
 
     $user->delete_related('user_workspace_roles');
 
-    if ($c->req->query_params->param('clear_tokens') // 1) {
+    if ($params->{clear_tokens} // 1) {
         $c->log->warn('user '.$c->stash('user')->name.' deleting all user session tokens for user '.$user->name);
         $user->delete_related('user_session_tokens');
     }

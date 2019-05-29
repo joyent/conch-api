@@ -35,6 +35,9 @@ Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>.
 =cut
 
 sub list ($c) {
+    my $params = $c->validate_query_params('WorkspaceDevices');
+    return if not $params;
+
     my $devices_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')
@@ -42,8 +45,6 @@ sub list ($c) {
         ->related_resultset('device')
         ->active
         ->order_by('device.created');
-
-    my $params = $c->req->query_params->to_hash;
 
     $devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })
         if $params->{graduated};
@@ -57,15 +58,7 @@ sub list ($c) {
     $devices_rs = $devices_rs->search({ validated => undef })
         if defined $params->{validated} and not $params->{validated};
 
-    if (defined $params->{health}) {
-        my @all_health_values = $devices_rs->result_source->column_info('health')->{extra}{list}->@*;
-        my @health = $c->req->query_params->every_param('health')->@*;
-        if (my @bad = grep { my $val = $_; none { $val eq $_ } @all_health_values } @health) {
-            return $c->status(400, { error => 'Unrecognized device health value "'.$bad[0].'"' } );
-        }
-
-        $devices_rs = $devices_rs->search({ health => \@health });
-    }
+    $devices_rs = $devices_rs->search({ health => $params->{health} }) if $params->{health};
 
     $devices_rs = $devices_rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
         if $params->{active_minutes};

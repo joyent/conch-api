@@ -545,9 +545,17 @@ subtest 'Validations' => sub {
         ->json_schema_is('ValidationStatesWithResults')
         ->json_is($validation_states);
 
+    $t->get_ok('/device/TEST/validation_state?status=bar')
+        ->status_is(400)
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply('/data' => { status => 'bar' })
+        ->json_cmp_deeply('/details', [ { path => '/status', message => re(qr/not in enum list/i) } ]);
+
     $t->get_ok('/device/TEST/validation_state?status=pass&status=bar')
         ->status_is(400)
-        ->json_is({ error => "'status' query parameter must be any of 'pass', 'fail', or 'error'." });
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply('/data' => { status => [ qw(pass bar) ] })
+        ->json_cmp_deeply('/details', [ { path => '/status/1', message => re(qr/not in enum list/i) } ]);
 };
 
 subtest 'Device location' => sub {
