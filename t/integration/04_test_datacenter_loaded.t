@@ -578,18 +578,18 @@ subtest 'Device location' => sub {
 
     my $rack_id = $t->load_fixture('legacy_rack')->id;
 
-    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 42 })
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 42 })
         ->status_is(409)
         ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
 
-    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(303)
         ->location_is('/device/TEST/location');
 
     $t->delete_ok('/device/TEST/location')
         ->status_is(204, 'can delete device location');
 
-    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit => 3 })
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(303, 'add it back');
 };
 

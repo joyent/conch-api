@@ -201,11 +201,11 @@ definitions:
     additionalProperties: false
     required:
       - rack_id
-      - rack_unit
+      - rack_unit_start
     properties:
       rack_id:
         $ref: common.yaml#/definitions/uuid
-      rack_unit:
+      rack_unit_start:
         type: integer
   HardwareProductCreate:
     type: object

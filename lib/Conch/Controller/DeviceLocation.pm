@@ -59,7 +59,7 @@ sub set ($c) {
 
     my $error;
     try {
-        $c->db_device_locations->assign_device_location($device_id, $input->@{qw(rack_id rack_unit)});
+        $c->db_device_locations->assign_device_location($device_id, $input->@{qw(rack_id rack_unit_start)});
     }
     catch {
         chomp($error = $_);
