@@ -206,6 +206,8 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
  * 201 and most 30x requests should have a Location header.
  * 204 requests should not have content.
 
+Also, unexpected responses will dump the response payload.
+
 =cut
 
 sub status_is ($self, $status, $desc = undef) {
@@ -233,6 +235,10 @@ sub status_is ($self, $status, $desc = undef) {
         $self->_test('fail', $code.' responses should not have content')
             if $code == 204 and $self->tx->res->text;
     }
+
+    Test::More::diag('got response: ', Data::Dumper->new([ $self->tx->res->json ])
+            ->Sortkeys(1)->Indent(1)->Terse(1)->Maxdepth(5)->Dump)
+        if $self->tx->res->code != $status;
 
     return $result;
 }

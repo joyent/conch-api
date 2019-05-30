@@ -64,6 +64,8 @@ Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test::Mojo#
 * 204 requests should not have content.
 ```
 
+Also, unexpected responses will dump the response payload.
+
 ## location\_is
 
 Stolen from [Test::Mojo](https://metacpan.org/pod/Test::Mojo)'s examples. I don't know why this isn't just part of the interface!
