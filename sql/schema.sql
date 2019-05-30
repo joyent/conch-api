@@ -45,20 +45,6 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 
 --
--- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
-
-
---
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
-
-
---
 -- Name: device_health_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
@@ -612,7 +598,7 @@ ALTER TABLE public.user_workspace_role OWNER TO conch;
 --
 
 CREATE TABLE public.validation (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name text NOT NULL,
     version integer NOT NULL,
     description text NOT NULL,
@@ -630,7 +616,7 @@ ALTER TABLE public.validation OWNER TO conch;
 --
 
 CREATE TABLE public.validation_plan (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name text NOT NULL,
     description text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
@@ -657,7 +643,7 @@ ALTER TABLE public.validation_plan_member OWNER TO conch;
 --
 
 CREATE TABLE public.validation_result (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     device_id text NOT NULL,
     hardware_product_id uuid NOT NULL,
     validation_id uuid NOT NULL,
@@ -678,7 +664,7 @@ ALTER TABLE public.validation_result OWNER TO conch;
 --
 
 CREATE TABLE public.validation_state (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     device_id text NOT NULL,
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
@@ -707,7 +693,7 @@ ALTER TABLE public.validation_state_member OWNER TO conch;
 --
 
 CREATE TABLE public.workspace (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name text NOT NULL,
     description text,
     parent_workspace_id uuid
