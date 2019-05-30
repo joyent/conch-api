@@ -1,7 +1,6 @@
 package Conch::Controller::Schema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-
 use Mojo::Util 'camelize';
 
 =pod
@@ -26,7 +25,7 @@ sub get ($c) {
     return $c->status(304) if $c->is_fresh(last_modified => $c->startup_time->epoch);
 
     my $type = $c->stash('schema_type');
-    my $name = camelize $c->stash('name');
+    my $name = $c->stash('name');
 
     my $validator = $type eq 'response' ? $c->get_response_validator
         : $type eq 'request' ? $c->get_request_validator
@@ -36,6 +35,10 @@ sub get ($c) {
 
     my $schema = _extract_schema_definition($validator, $name);
     if (not $schema) {
+        my $camelized = camelize($name);
+        return $c->status(308, $c->req->url->path_query =~ s/\b$name\b/$camelized/r)
+            if $camelized ne $name and $validator->schema->get('/definitions/'.$camelized);
+
         $c->log->warn('Could not find '.$type.' schema '.$name);
         return $c->status(404);
     }

@@ -282,7 +282,7 @@ $t->get_ok('/schema/REQUEST/hello')
     ->json_is({ error => 'Route Not Found' })
     ->log_warn_is('no endpoint found for: GET /schema/REQUEST/hello');
 
-$t->get_ok('/schema/request/hello')
+$t->get_ok('/schema/request/Hello')
     ->status_is(404)
     ->log_warn_is('Could not find request schema Hello');
 
@@ -303,6 +303,10 @@ $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006
         required => ['status'],
         properties => { status => { const => 'ok' } },
     });
+
+$t->get_ok('/schema/response/login_token')
+    ->status_is(308)
+    ->location_is('/schema/response/LoginToken');
 
 $t->get_ok('/schema/response/LoginToken')
     ->status_is(200)
@@ -377,7 +381,7 @@ $t->get_ok('/schema/request/HardwareProductCreate')
         },
     }), 'nested definitions are found and included');
 
-$t->get_ok('/schema/request/device_report')
+$t->get_ok('/schema/request/DeviceReport')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
@@ -385,7 +389,7 @@ $t->get_ok('/schema/request/device_report')
 # ensure that one of the schemas can validate some data
 {
     my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
-    my $schema = $t->get_ok('/schema/request/device_report')->tx->res->json;
+    my $schema = $t->get_ok('/schema/request/DeviceReport')->tx->res->json;
 
     # FIXME: JSON::Validator should be picking this up out of the schema on its own.
     my $jv = JSON::Validator->new;
@@ -395,7 +399,7 @@ $t->get_ok('/schema/request/device_report')
     is(scalar @errors, 0, 'no errors');
 }
 
-$t->get_ok('/schema/request/device_report')
+$t->get_ok('/schema/request/DeviceReport')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
@@ -403,7 +407,7 @@ $t->get_ok('/schema/request/device_report')
 # ensure that one of the schemas can validate some data
 {
     my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
-    my $schema = $t->get_ok('/schema/request/device_report')->tx->res->json;
+    my $schema = $t->get_ok('/schema/request/DeviceReport')->tx->res->json;
     my $jv = JSON::Validator->new;
     $jv->load_and_validate_schema($schema);
     my @errors = $jv->validate($report);

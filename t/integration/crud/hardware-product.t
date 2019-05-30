@@ -80,7 +80,7 @@ $t->post_ok('/hardware_product', json => { %hw_fields, specification => { disk_s
     ->json_cmp_deeply({
         error => 'request did not match required format',
         details => superbagof({ path => '/specification/disk_size', message => re(qr{Expected object - got string}) }),
-        schema => '/schema/request/hardware_product_create',
+        schema => '/schema/request/HardwareProductCreate',
     });
 
 $hw_fields{specification} = { disk_size => { _default => 0, AcmeCorp => 512 } };
@@ -193,7 +193,7 @@ $t->post_ok("/hardware_product/$new_hw_id", json => { specification => { disk_si
     ->json_cmp_deeply({
         error => 'request did not match required format',
         details => superbagof({ path => '/specification/disk_size', message => re(qr{Expected object - got string}) }),
-        schema => '/schema/request/hardware_product_update',
+        schema => '/schema/request/HardwareProductUpdate',
     });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
@@ -277,7 +277,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
       details => [ { path => '/', message => re(qr/Expected object - got string/) } ],
-      schema => '/schema/request/hardware_product_specification',
+      schema => '/schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size', json => 1)
@@ -285,7 +285,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
       details => [ { path => '/disk_size', message => re(qr/Expected object - got number/) } ],
-      schema => '/schema/request/hardware_product_specification',
+      schema => '/schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size',
@@ -306,7 +306,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
       details => [ { path => '/disk_size/SEAGATE_8000', message => re(qr/Expected integer - got object/) } ],
-      schema => '/schema/request/hardware_product_specification',
+      schema => '/schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',

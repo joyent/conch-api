@@ -27,7 +27,7 @@ subtest 'failed query params validation' => sub {
         ->json_cmp_deeply({
             error => 'query parameters did not match required format',
             details => [ { path => '/clear_tokens', message => re(qr/Not in enum list/) } ],
-            schema => '/schema/query_params/change_password',
+            schema => '/schema/query_params/ChangePassword',
             data => { clear_tokens => 'whargarbl' },
         })
         ->log_warn_like(qr{^FAILED query_params validation for schema ChangePassword: /clear_tokens: Not in enum list});
@@ -40,7 +40,7 @@ subtest 'failed request validation' => sub {
         ->json_cmp_deeply({
             error => 'request did not match required format',
             details => [ { path => '/password', message => re(qr/missing property/i) } ],
-            schema => '/schema/request/login',
+            schema => '/schema/request/Login',
         })
         ->log_warn_like(qr{^FAILED request payload validation for schema Login: /password: Missing property});
 };
