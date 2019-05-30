@@ -72,7 +72,6 @@ subtest 'Device Report' => sub {
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => [
                 superhashof({
-                    device_id => 'TEST',
                     order => 0,
                     status => 'pass',
                 }),
@@ -401,7 +400,6 @@ subtest 'Validations' => sub {
             ->json_schema_is('ValidationResults')
             ->json_cmp_deeply([ superhashof({
                 id => undef,
-                device_id => 'TEST',
             }) ]);
 
         my $validation_results = $t->tx->res->json;
@@ -492,7 +490,6 @@ subtest 'Validations' => sub {
                 status => 'fail',
                 results => [{
                     id => ignore,
-                    device_id => 'TEST',
                     hardware_product_id => $device->hardware_product_id,
                     validation_id => $validation->id,
                     component_id => undef,
@@ -531,7 +528,6 @@ subtest 'Validations' => sub {
                 status => 'error',
                 results => [{
                     id => ignore,
-                    device_id => 'TEST',
                     hardware_product_id => $device->hardware_product_id,
                     validation_id => ignore,
                     component_id => undef,

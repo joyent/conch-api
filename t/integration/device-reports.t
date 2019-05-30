@@ -69,7 +69,6 @@ subtest 'run report without an existing device' => sub {
                 validation_id => $_->id,
                 category => $_->module->category,
                 component_id => ignore,
-                device_id => 'TEST',
                 hardware_product_id => $hardware_product->id,
                 hint => ignore,
                 message => ignore,

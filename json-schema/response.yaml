@@ -1012,7 +1012,6 @@ definitions:
       - id
       - category
       - component_id
-      - device_id
       - hardware_product_id
       - hint
       - message
@@ -1030,8 +1029,6 @@ definitions:
         oneOf:
           - type: 'null'
           - type: string
-      device_id:
-        $ref: common.yaml#/definitions/device_id
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       hint:
