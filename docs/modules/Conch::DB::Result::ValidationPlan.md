@@ -12,7 +12,7 @@ Conch::DB::Result::ValidationPlan
 
 ```
 data_type: 'uuid'
-default_value: uuid_generate_v4()
+default_value: gen_random_uuid()
 is_nullable: 0
 size: 16
 ```
