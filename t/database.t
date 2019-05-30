@@ -103,29 +103,30 @@ subtest 'transactions' => sub {
 
     is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back');
 
-
-    is(
-        $t->app->txn_wrapper(sub ($self, @args) {
-            cmp_deeply(\@args, [ 'hello', 'there' ], 'got the extra argument(s)');
-
-            $t->app->db_user_accounts->create({
-                name => 'another new user',
-                email => 'test2@conch.joyent.us',
-                password => 'whargarbl',
-            });
-            is($t->app->db_user_accounts->count, $user_count + 1, 'another user was created');
-            die 'rollback';
-
-        }, 'hello', 'there'),
-        undef,
-        'return value is undef in case of an exception',
-    );
-
-    is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back (again)');
-
     my $r = Mojolicious::Routes->new;
     $r->get(
-        '/test_txn_wrapper',
+        '/test_txn_wrapper1',
+        sub ($c) {
+            my $result = $c->txn_wrapper(sub ($self, @args) {
+                cmp_deeply(\@args, [ 'hello', 'there' ], 'got the extra argument(s)');
+                $c->db_user_accounts->create({
+                    name => 'another new user',
+                    email => 'test2@conch.joyent.us',
+                    password => 'whargarbl',
+                });
+                is($c->db_user_accounts->count, $user_count + 1, 'another user was created');
+                die 'rollback';
+
+            }, 'hello', 'there');
+            is($result, undef, 'return value is undef in case of an exception');
+
+            is($c->res->code, undef, 'no response code was set on intentional rollback');
+            $c->rendered(200);
+        },
+    );
+
+    $r->get(
+        '/test_txn_wrapper2',
         sub ($c) {
             $c->txn_wrapper(sub ($my_c, $id) {
                 $my_c->db_user_accounts->create({
@@ -141,13 +142,19 @@ subtest 'transactions' => sub {
 
     $t->add_routes($r);
 
-    $t->get_ok('/test_txn_wrapper?id=bad_id')
+    $t->get_ok('/test_txn_wrapper1')
+        ->content_is('', 'no error response was prepared on intentional rollback');
+
+    is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back (again)');
+
+
+    $t->get_ok('/test_txn_wrapper2?id=bad_id')
         ->status_is(400)
         ->json_cmp_deeply({ error => re(qr/invalid input syntax for (?:type )?uuid: "bad_id"/) });
 
     is($t->app->db_user_accounts->count, $user_count, 'no new user was created');
 
-    $t->get_ok('/test_txn_wrapper?id='.Data::UUID->new->create_str)
+    $t->get_ok('/test_txn_wrapper2?id='.Data::UUID->new->create_str)
         ->status_is(204);
 
     is($t->app->db_user_accounts->count, $user_count + 1, 'one user was successfully created');

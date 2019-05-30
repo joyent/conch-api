@@ -141,7 +141,6 @@ line of the exception.
                 my ($error) = split(/\n/, $exception, 2);
                 $c->status($c->res->code // 400, { error => $error });
             }
-            $c->rendered(400) if not $c->res->code;
             return;
         };
     });
