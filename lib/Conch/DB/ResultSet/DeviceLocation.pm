@@ -15,56 +15,6 @@ Interface to queries involving device locations.
 
 =head1 METHODS
 
-=head2 assign_device_location
-
-Atomically assign a device to the provided rack and rack unit start position.
-
-- checks that the rack layout exists (dying otherwise)
-- removes the current occupant of the location
-- makes the location assignment, moving the device if it had a previous location
-
-=cut
-
-sub assign_device_location ($self, $device_id, $rack_id, $rack_unit_start) {
-    my $schema = $self->result_source->schema;
-    my $layout_rs = $schema->resultset('rack_layout')->search(
-        {
-            'rack_layout.rack_id' => $rack_id,
-            'rack_layout.rack_unit_start' => $rack_unit_start,
-        },
-        { alias => 'rack_layout' },
-    );
-
-    $schema->txn_do(sub {
-        die "slot $rack_unit_start does not exist in the layout for rack $rack_id\n"
-            if not $layout_rs->exists;
-
-        # create a device if it doesn't exist
-        if (not $schema->resultset('device')->search({ id => $device_id })->exists) {
-            $schema->resultset('device')->create({
-                id      => $device_id,
-                hardware_product_id => $layout_rs->get_column('hardware_product_id')->as_query,
-                health  => 'unknown',
-                state   => 'UNKNOWN',
-            });
-        }
-
-        # remove current occupant if it exists
-        $layout_rs->related_resultset('device_location')->delete;
-
-        # create device_location entry, moving the device's location if it already had one
-        $self->update_or_create(
-            {
-                device_id => $device_id,
-                rack_id => $rack_id,
-                rack_unit_start => $rack_unit_start,
-                updated => \'now()',
-            },
-            { key => 'primary' },
-        );
-    });
-}
-
 =head2 target_hardware_product
 
 Returns a resultset that will produce the 'target_hardware_product' portion of the

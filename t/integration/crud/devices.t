@@ -163,8 +163,14 @@ subtest 'unlocated device with a registered relay' => sub {
 };
 
 subtest 'located device' => sub {
-    # this autovivifies the device in the requested rack location
-    $t->app->db_device_locations->assign_device_location('LOCATED_DEVICE', $rack_id, 1);
+    # create the device in the requested rack location
+    $t->app->db_devices->create({
+        id      => 'LOCATED_DEVICE',
+        hardware_product_id => $t->app->db_rack_layouts->search({ rack_id => $rack_id, rack_unit_start => 1 })->get_column('hardware_product_id')->as_query,
+        health  => 'unknown',
+        state   => 'UNKNOWN',
+        device_location => { rack_id => $rack_id, rack_unit_start => 1 },
+    });
 
     $t->get_ok('/device/LOCATED_DEVICE')
         ->status_is(200)

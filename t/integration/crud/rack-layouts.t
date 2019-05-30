@@ -287,9 +287,8 @@ my $device = $hw_product_storage->create_related('devices', {
     id  => 'my device',
     state => 'I wish I were an enum',
     health => 'unknown',
+    device_location => { rack_id => $rack_id, rack_unit_start => 20 },
 });
-
-$t->app->db_device_locations->assign_device_location($device->id, $rack_id, 20);
 
 # try to move layout from 20-23 back to 19-22
 $t->post_ok('/layout/'.$layout_20_23->id, json => { rack_unit_start => 19 })
