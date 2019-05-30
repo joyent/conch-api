@@ -287,12 +287,12 @@ $t->get_ok('/schema/request/Hello')
     ->log_warn_is('Could not find request schema Hello');
 
 $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2040 00:00:00 GMT' })
-    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
-    ->status_is(304);
+    ->status_is(304)
+    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'));
 
 $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006 00:00:00 GMT' })
-    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->status_is(200)
+    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
@@ -386,30 +386,15 @@ $t->get_ok('/schema/request/DeviceReport')
     ->json_schema_is($json_spec_schema)
     ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
 
+my $schema = $t->tx->res->json;
+
 # ensure that one of the schemas can validate some data
 {
     my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
-    my $schema = $t->get_ok('/schema/request/DeviceReport')->tx->res->json;
-
     # FIXME: JSON::Validator should be picking this up out of the schema on its own.
     my $jv = JSON::Validator->new;
     $jv->load_and_validate_schema($schema, { schema => $schema->{'$schema'} });
     is($jv->version, 7, 'schema declares JSON Schema version 7');
-    my @errors = $jv->validate($report);
-    is(scalar @errors, 0, 'no errors');
-}
-
-$t->get_ok('/schema/request/DeviceReport')
-    ->status_is(200)
-    ->json_schema_is($json_spec_schema)
-    ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
-
-# ensure that one of the schemas can validate some data
-{
-    my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
-    my $schema = $t->get_ok('/schema/request/DeviceReport')->tx->res->json;
-    my $jv = JSON::Validator->new;
-    $jv->load_and_validate_schema($schema);
     my @errors = $jv->validate($report);
     is(scalar @errors, 0, 'no errors');
 }
