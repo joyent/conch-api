@@ -208,11 +208,11 @@ subtest list => sub {
     my $elapsed_minutes =
         int((Conch::Time->now->epoch - Conch::Time->new('2018-01-04T00:00:00.000Z')->epoch) / 60) + 2;
 
-    $t->get_ok("/workspace/$global_ws_id/relay?active_within=$elapsed_minutes")
+    $t->get_ok("/workspace/$global_ws_id/relay?active_minutes=$elapsed_minutes")
         ->status_is(200)
         ->json_schema_is('WorkspaceRelays')
         ->json_is('', [ $all_relays->[1] ],
-            'X minutes after last update, active_within=X+2 only sees one relay');
+            'X minutes after last update, active_minutes=X+2 only sees one relay');
 };
 
 subtest get_relay_devices => sub {

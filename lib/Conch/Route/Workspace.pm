@@ -194,7 +194,7 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 
 =head3 C<GET /workspace/:workspace_id_or_name/relay>
 
-Takes one query optional parameter,  C<active_within=X> to constrain results to
+Takes one query optional parameter,  C<?active_minutes=X> to constrain results to
 those updated with in the last C<X> minutes.
 
 =over 4

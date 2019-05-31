@@ -9,7 +9,7 @@ Conch::Controller::WorkspaceRelay
 List all relays located in the current workspace (as specified by :workspace\_id in the path)
 or sub-workspaces beneath it.
 
-Use `?active_within=X` to constrains results to those updated in the last X minutes.
+Use `?active_minutes=X` to constrains results to those updated in the last X minutes.
 
 Response uses the WorkspaceRelays json schema.
 

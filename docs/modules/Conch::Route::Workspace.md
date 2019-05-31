@@ -69,7 +69,7 @@ If the Accepts header specifies `text/csv` it will return a CSV document.
 
 ### `GET /workspace/:workspace_id_or_name/relay`
 
-Takes one query optional parameter,  `active_within=X` to constrain results to
+Takes one query optional parameter,  `?active_minutes=X` to constrain results to
 those updated with in the last `X` minutes.
 
 - Response: response.yaml#/WorkspaceRelays
