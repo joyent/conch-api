@@ -230,11 +230,11 @@ definitions:
               $ref: common.yaml#/definitions/disk_serial_number
             slot:
               oneOf:
-                - type: integer
+                - $ref: common.yaml#/definitions/non_negative_integer
                 - type: 'null'
             size:
               oneOf:
-                - type: integer
+                - $ref: common.yaml#/definitions/non_negative_integer
                 - type: 'null'
             vendor:
               oneOf:
@@ -393,7 +393,7 @@ definitions:
           - type: 'null'
       rack_unit_start:
         oneOf:
-          - type: integer
+          - $ref: common.yaml#/definitions/positive_integer
           - type: 'null'
   DeviceNics:
     type: array
@@ -500,7 +500,7 @@ definitions:
                   name:
                     type: string
                   rack_unit_start:
-                    type: integer
+                    $ref: common.yaml#/definitions/positive_integer
       ipmi:
         oneOf:
           - type: 'null'
@@ -583,7 +583,7 @@ definitions:
                 name:
                   type: string
                 rack_unit_start:
-                  type: integer
+                  $ref: common.yaml#/definitions/positive_integer
         ipmi:
           oneOf:
             - type: 'null'
@@ -626,7 +626,7 @@ definitions:
       rack:
         $ref: /definitions/Rack
       rack_unit_start:
-        type: integer
+        $ref: common.yaml#/definitions/positive_integer
       target_hardware_product:
         description: Details of the hardware product the device is expected to be based on its current position and the rack layout.
         type: object
@@ -778,7 +778,7 @@ definitions:
       purpose:
         type: string
       rack_unit:
-        type: integer
+        $ref: common.yaml#/definitions/positive_integer
       ram_total:
         type: integer
       sas_hdd_num:
@@ -868,7 +868,7 @@ definitions:
           role: # TODO: this really should be rack_role_id
             type: string
           size:
-            type: integer
+            $ref: common.yaml#/definitions/positive_integer
           device_progress:
             type: object
             propertyNames:
@@ -876,7 +876,7 @@ definitions:
                 - const: valid
                 - $ref: /definitions/device_health
             additionalProperties:
-              type: integer
+              $ref: common.yaml#/definitions/positive_integer
   WorkspaceRack:
     type: object
     additionalProperties: false
@@ -919,8 +919,7 @@ definitions:
                 - description: Hardware product ID
                 - $ref: common.yaml#/definitions/uuid
             rack_unit_start:
-              description: Starting RU slot position
-              type: integer
+              $ref: common.yaml#/definitions/positive_integer
             alias:
               description: Hardware product alias
               type: string
@@ -928,8 +927,7 @@ definitions:
               description: Hardware product name
               type: string
             size:
-              description: Number of RUs for slot
-              type: integer
+              $ref: common.yaml#/definitions/positive_integer
             vendor:
               description: Hardware product vendor
               type: string
@@ -974,7 +972,7 @@ definitions:
       name:
         type: string
       version:
-        type: number
+        $ref: common.yaml#/definitions/positive_integer
       description:
         type: string
       created:
@@ -1047,7 +1045,7 @@ definitions:
       message:
         type: string
       order:
-        type: integer
+        $ref: common.yaml#/definitions/non_negative_integer
       status:
         $ref: /definitions/validation_status
       validation_id:
@@ -1179,7 +1177,7 @@ definitions:
             - type: 'null'
         ssh_port:
           oneOf:
-            - type: integer
+            - $ref: common.yaml#/definitions/non_negative_integer
             - type: 'null'
         created:
           type: string
@@ -1203,7 +1201,7 @@ definitions:
             rack_name:
               type: string
             rack_unit_start:
-              type: integer
+              $ref: common.yaml#/definitions/positive_integer
             role_name:
               type: string
             az:
@@ -1212,7 +1210,7 @@ definitions:
           type: string
           format: date-time
         num_devices:
-          type: integer
+          $ref: common.yaml#/definitions/positive_integer
   WorkspaceAndRole:
     type: object
     additionalProperties: false
@@ -1372,7 +1370,7 @@ definitions:
           - type: 'null'
       ssh_port:
         oneOf:
-          - type: integer
+          - $ref: common.yaml#/definitions/non_negative_integer
           - type: 'null'
       updated:
         type: string
@@ -1447,7 +1445,7 @@ definitions:
       name:
         type: string
       rack_size:
-        type: integer
+        $ref: common.yaml#/definitions/positive_integer
       created:
         type: string
         format: date-time
@@ -1482,7 +1480,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       rack_unit_start:
-        type: integer
+        $ref: common.yaml#/definitions/positive_integer
       created:
         type: string
         format: date-time
@@ -1516,11 +1514,9 @@ definitions:
         description: name of the hardware_product designated for that slot
         type: string
       rack_unit_start:
-        description: Starting RU slot position
-        type: integer
+        $ref: common.yaml#/definitions/positive_integer
       rack_unit_size:
-        description: number of slots (expected to be) occupied by the hardware
-        type: integer
+        $ref: common.yaml#/definitions/positive_integer
   NewUser:
     type: object
     additionalProperties: false
@@ -1723,7 +1719,7 @@ definitions:
           health:
             $ref: /definitions/device_health
           count:
-            type: integer
+            $ref: common.yaml#/definitions/positive_integer
   DeviceTotalsCirconus:
     type: object
     properties:
@@ -1734,7 +1730,7 @@ definitions:
           - count
         properties:
           count:
-            type: integer
+            $ref: common.yaml#/definitions/positive_integer
       compute:
         type: object
         additionalProperties: false
@@ -1742,7 +1738,7 @@ definitions:
           - count
         properties:
           count:
-            type: integer
+            $ref: common.yaml#/definitions/positive_integer
     additionalProperties:
       description: additional keys will be hardware product aliases
       type: object
@@ -1760,9 +1756,9 @@ definitions:
           propertyNames:
             $ref: /definitions/device_health
           additionalProperties:
-            type: integer
+            $ref: common.yaml#/definitions/non_negative_integer
         count:
-          type: integer
+          $ref: common.yaml#/definitions/positive_integer
   DeviceReportRow:
     type: object
     additionalProperties: false

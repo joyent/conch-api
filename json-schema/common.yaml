@@ -56,6 +56,12 @@ definitions:
   non_empty_string:
     type: string
     minLength: 1
+  positive_integer:
+    type: integer
+    minimum: 1
+  non_negative_integer:
+    type: integer
+    minimum: 0
   mojo_standard_placeholder:
     description: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders
     type: string
