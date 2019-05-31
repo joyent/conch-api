@@ -1508,7 +1508,7 @@ definitions:
     required:
       - device_id
       - device_asset_tag
-      - hardware_product
+      - hardware_product_name
       - rack_unit_start
       - rack_unit_size
     properties:
@@ -1520,8 +1520,7 @@ definitions:
         oneOf:
           - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
-      hardware_product:
-        description: name of the hardware_product designated for that slot
+      hardware_product_name:
         type: string
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer

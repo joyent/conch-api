@@ -208,7 +208,7 @@ sub get_assignment ($c) {
             '+columns' => {
                 device_id => 'device.id',
                 device_asset_tag => 'device.asset_tag',
-                hardware_product => 'hardware_product.name',
+                hardware_product_name => 'hardware_product.name',
                 # TODO: this should be renamed in the db itself.
                 rack_unit_size =>  'hardware_product_profile.rack_unit',
             },

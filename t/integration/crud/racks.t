@@ -142,21 +142,21 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
             rack_unit_size => 2,
             device_id => undef,
             device_asset_tag => undef,
-            hardware_product => $hardware_product_compute->name,
+            hardware_product_name => $hardware_product_compute->name,
         },
         {
             rack_unit_start => 3,
             rack_unit_size => 4,
             device_id => undef,
             device_asset_tag => undef,
-            hardware_product => $hardware_product_storage->name,
+            hardware_product_name => $hardware_product_storage->name,
         },
         {
             rack_unit_start => 11,
             rack_unit_size => 4,
             device_id => undef,
             device_asset_tag => undef,
-            hardware_product => $hardware_product_storage->name,
+            hardware_product_name => $hardware_product_storage->name,
         },
     ]);
 my $assignments = $t->tx->res->json;
