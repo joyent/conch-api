@@ -55,8 +55,9 @@ subtest 'GET /workspace/:workspace_id_or_name/rack validation' => sub {
         some_room_name => [ {
             id => $uuid->create_str,
             name => 'some name',
-            role => 'some role',
-            size => 1,
+            phase => 'production',
+            role_name => 'some role',
+            rack_size => 1,
             device_progress => {},
         } ],
     };

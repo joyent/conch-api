@@ -59,8 +59,8 @@ sub list ($c) {
                 id => 'rack.id',
                 name => 'rack.name',
                 phase => 'rack.phase',
-                role => 'rack_role.name',
-                size => 'rack_role.rack_size',
+                role_name => 'rack_role.name',
+                rack_size => 'rack_role.rack_size',
             },
             join => [ qw(datacenter_room rack_role) ],
             collapse => 1,
@@ -124,12 +124,13 @@ sub get_layout ($c) {
                 {
                     columns => {
                         (map +($_ => 'rack.'.$_), qw(id name phase)),
-                        role => 'rack_role.name',
+                        role_name => 'rack_role.name',
+                        rack_size => 'rack_role.rack_size',
                         datacenter => 'datacenter_room.az',
                         'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
                         (map +('layout.'.$_ => 'hardware_product.'.$_), qw(alias id name)),
                         'layout.vendor' => 'hardware_vendor.name',
-                        'layout.size' => 'hardware_product_profile.rack_unit',
+                        'layout.rack_unit_size' => 'hardware_product_profile.rack_unit',
                         (map +('layout.device.'.$_ => 'device.'.$_), $c->schema->source('device')->columns),
                     },
                     join => [
@@ -149,7 +150,7 @@ sub get_layout ($c) {
         my $rsrc = $c->schema->source('device');
 
         my $layout = {
-            (map +($_ => $raw_data[0]->{$_}), qw(id name role datacenter phase)),
+            (map +($_ => $raw_data[0]->{$_}), qw(id name role_name rack_size datacenter phase)),
             slots => [
                 map {
                     my $device = delete $_->{layout}{device};

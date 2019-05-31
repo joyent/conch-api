@@ -858,6 +858,13 @@ definitions:
       items:
         type: object
         additionalProperties: false
+        required:
+          - id
+          - name
+          - phase
+          - role_name
+          - rack_size
+          - device_progress
         properties:
           id:
             $ref: common.yaml#/definitions/uuid
@@ -865,9 +872,9 @@ definitions:
             type: string
           phase:
             $ref: common.yaml#/definitions/device_phase
-          role: # TODO: this really should be rack_role_id
+          role_name:
             type: string
-          size:
+          rack_size:
             $ref: common.yaml#/definitions/positive_integer
           device_progress:
             type: object
@@ -883,7 +890,8 @@ definitions:
     required:
       - id
       - name
-      - role
+      - role_name
+      - rack_size
       - datacenter
       - phase
       - slots
@@ -892,8 +900,10 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       name:
         type: string
-      role: # TODO: this really should be rack_role_id
+      role_name:
         type: string
+      rack_size:
+        $ref: common.yaml#/definitions/positive_integer
       datacenter:
         description: datacenter room AZ
         type: string
@@ -910,7 +920,7 @@ definitions:
             - rack_unit_start
             - alias
             - name
-            - size
+            - rack_unit_size
             - vendor
             - occupant
           properties:
@@ -926,7 +936,7 @@ definitions:
             name:
               description: Hardware product name
               type: string
-            size:
+            rack_unit_size:
               $ref: common.yaml#/definitions/positive_integer
             vendor:
               description: Hardware product vendor
