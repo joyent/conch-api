@@ -29,17 +29,21 @@ my $hw_product_storage = $t->load_fixture('hardware_product_storage');  # rack_u
 
 my $fake_id = create_uuid_str();
 
-my $rack_id = $t->load_fixture('rack_0a')->id;
-
 $t->get_ok('/layout')
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply(bag(
-      map +(
-        superhashof({ rack_id => $_, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $_, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $_, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
-      ), $rack_id, $t->load_fixture('rack_1a')->id
+        map +{
+            $_->%*,
+            id => re(Conch::UUID::UUID_FORMAT),
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        },
+        (map +(
+            { rack_id => $_, rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
+            { rack_id => $_, rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+            { rack_id => $_, rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        ), my $rack_id = $t->load_fixture('rack_0a')->id, $t->load_fixture('rack_1a')->id)
     ));
 
 my $initial_layouts = $t->tx->res->json;
@@ -59,9 +63,16 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
+        map +{
+            $_->%*,
+            id => re(Conch::UUID::UUID_FORMAT),
+            rack_id => $rack_id,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        },
+        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
+        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
     ]);
 
 my $layout_1_2 = $t->load_fixture('rack_0a_layout_1_2');
@@ -165,10 +176,17 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 42, hardware_product_id => $hw_product_switch->id }),
+        map +{
+            $_->%*,
+            id => re(Conch::UUID::UUID_FORMAT),
+            rack_id => $rack_id,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        },
+        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
+        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        { rack_unit_start => 42, rack_unit_size => 1, hardware_product_id => $hw_product_switch->id },
     ]);
 
 my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');

@@ -14,21 +14,21 @@ Conch::Controller::RackLayout
 
 =head2 find_rack_layout
 
-Supports rack layout lookups by id
+Supports rack layout lookups by id.
 
 =cut
 
 sub find_rack_layout ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $layout = $c->db_rack_layouts->find($c->stash('layout_id'));
-    if (not $layout) {
+    my $layout_rs = $c->db_rack_layouts->search({ 'rack_layout.id' => $c->stash('layout_id') });
+    if (not $layout_rs->exists) {
         $c->log->debug('Could not find rack layout '.$c->stash('layout_id'));
         return $c->status(404);
     }
 
-    $c->log->debug('Found rack layout '.$layout->id);
-    $c->stash('rack_layout', $layout);
+    $c->log->debug('Found rack layout '.$c->stash('layout_id'));
+    $c->stash('rack_layout_rs', $layout_rs);
     return 1;
 }
 
@@ -103,7 +103,7 @@ Response uses the RackLayout json schema.
 =cut
 
 sub get ($c) {
-    $c->status(200, $c->stash('rack_layout'));
+    $c->status(200, $c->stash('rack_layout_rs')->with_rack_unit_size->single);
 }
 
 =head2 get_all
@@ -117,15 +117,8 @@ Response uses the RackLayouts json schema.
 sub get_all ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    # TODO: to be more helpful to the UI, we should include the width of the hardware that is
-    # assigned to each rack_unit(s).
-
     my @layouts = $c->db_rack_layouts
-        #->search(undef, {
-        #    join => { hardware_product => 'hardware_product_profile' },
-        #    '+columns' => { rack_unit_size =>  'hardware_product_profile.rack_unit' },
-        #    collapse => 1,
-        #})
+        ->with_rack_unit_size
         ->order_by([ qw(rack_id rack_unit_start) ])
         ->all;
 
@@ -144,7 +137,7 @@ sub update ($c) {
     my $input = $c->validate_request('RackLayoutUpdate');
     return if not $input;
 
-    my $layout = $c->stash('rack_layout');
+    my $layout = $c->stash('rack_layout_rs')->single;
 
     # if changing rack...
     if ($input->{rack_id} and $input->{rack_id} ne $layout->rack_id) {
@@ -235,13 +228,13 @@ Deletes the specified rack layout.
 =cut
 
 sub delete ($c) {
-    if (my $device_location = $c->stash('rack_layout')->device_location) {
-        $c->log->debug('Cannot delete layout: occupied by device id '.$device_location->device_id);
+    if (my $device_id = $c->stash('rack_layout_rs')->related_resultset('device_location')->get_column('device_id')->single) {
+        $c->log->debug('Cannot delete layout: occupied by device id '.$device_id);
         return $c->status(400, { error => 'cannot delete a layout with a device occupying it' });
     }
 
-    $c->stash('rack_layout')->delete;
-    $c->log->debug('Deleted rack layout '.$c->stash('rack_layout')->id);
+    $c->stash('rack_layout_rs')->delete;
+    $c->log->debug('Deleted rack layout '.$c->stash('layout_id'));
     return $c->status(204);
 }
 
