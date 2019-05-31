@@ -46,7 +46,7 @@ sub find_validation($c) {
         return $c->status(404);
     }
 
-    $c->stash('validation_rs', scalar $validation_rs);
+    $c->stash('validation_rs', $validation_rs);
     return 1;
 }
 

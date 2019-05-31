@@ -374,7 +374,7 @@ sub find_device_report ($c) {
     }
 
     $c->stash('device_id', $device_id);
-    $c->stash('device_report_rs', scalar $device_report_rs);
+    $c->stash('device_report_rs', $device_report_rs);
 
     return 1;
 }

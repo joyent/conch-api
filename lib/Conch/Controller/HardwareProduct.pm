@@ -60,7 +60,7 @@ sub find_hardware_product ($c) {
         return $c->status(404);
     }
 
-    $c->stash('hardware_product_rs', scalar $hardware_product_rs);
+    $c->stash('hardware_product_rs', $hardware_product_rs);
     return 1;
 }
 

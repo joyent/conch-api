@@ -32,7 +32,7 @@ sub find_device_interface ($c) {
         return $c->status(404);
     }
 
-    $c->stash('device_interface_rs', scalar $nic_rs);
+    $c->stash('device_interface_rs', $nic_rs);
 
     return 1;
 }
