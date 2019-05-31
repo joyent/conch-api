@@ -144,34 +144,36 @@ sub update ($c) {
     my $input = $c->validate_request('RackLayoutUpdate');
     return if not $input;
 
+    my $layout = $c->stash('rack_layout');
+
     # if changing rack...
-    if ($input->{rack_id} and $input->{rack_id} ne $c->stash('rack_layout')->rack_id) {
+    if ($input->{rack_id} and $input->{rack_id} ne $layout->rack_id) {
         $c->log->debug('Cannot move a layout to a new rack. Delete this layout and create a new one at the new location');
         return $c->status(400, { error => 'cannot change rack_id' });
     }
 
     # cannot alter an occupied layout
-    if (my $device_location = $c->stash('rack_layout')->device_location) {
+    if (my $device_location = $layout->device_location) {
         $c->log->debug('Cannot update layout: occupied by device id '.$device_location->device_id);
         return $c->status(400, { error => 'cannot update a layout with a device occupying it' });
     }
 
     # if changing hardware_product_id...
-    if ($input->{hardware_product_id} and $input->{hardware_product_id} ne $c->stash('rack_layout')->hardware_product_id) {
+    if ($input->{hardware_product_id} and $input->{hardware_product_id} ne $layout->hardware_product_id) {
         if (not $c->db_hardware_products->active->search({ id => $input->{hardware_product_id} })->exists) {
             return $c->status(400, { error => 'Hardware product does not exist' });
         }
     }
 
     my $rack_size = $c->db_rack_roles->search(
-        { 'racks.id' => $c->stash('rack_layout')->rack_id },
+        { 'racks.id' => $layout->rack_id },
         { join => 'racks' },
     )->get_column('rack_size')->single;
 
     # if changing rack location...
-    if ($input->{rack_unit_start} and $input->{rack_unit_start} != $c->stash('rack_layout')->rack_unit_start) {
+    if ($input->{rack_unit_start} and $input->{rack_unit_start} != $layout->rack_unit_start) {
         if ($c->db_rack_layouts->search({
-                    rack_id => $c->stash('rack_layout')->rack_id,
+                    rack_id => $layout->rack_id,
                     rack_unit_start => $input->{rack_unit_start},
                 })->exists) {
             $c->log->debug('Conflict with rack_unit_start value of '.$input->{rack_unit_start});
@@ -188,10 +190,10 @@ sub update ($c) {
     # we will be giving up)
 
     my $current_rack_unit_size = $c->db_hardware_products->search(
-        { 'hardware_product.id' => $c->stash('rack_layout')->hardware_product_id })
+        { 'hardware_product.id' => $layout->hardware_product_id })
         ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single;
 
-    return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$c->stash('rack_layout')->hardware_product_id })
+    return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$layout->hardware_product_id })
         if not $current_rack_unit_size;
 
     my $new_rack_unit_size = $input->{hardware_product_id}
@@ -202,7 +204,7 @@ sub update ($c) {
     return $c->status(400, { error => 'missing hardware product profile on hardware product id '.$input->{hardware_product_id} })
         if not $new_rack_unit_size;
 
-    my $new_rack_unit_start = $input->{rack_unit_start} // $c->stash('rack_layout')->rack_unit_start;
+    my $new_rack_unit_start = $input->{rack_unit_start} // $layout->rack_unit_start;
 
     if ($new_rack_unit_start + $new_rack_unit_size - 1 > $rack_size) {
         $c->log->debug('layout ends at rack unit '.($new_rack_unit_start + $new_rack_unit_size - 1)
@@ -210,13 +212,9 @@ sub update ($c) {
         return $c->status(400, { error => 'rack_unit_start+rack_unit_size beyond maximum' });
     }
 
-    my %assigned_rack_units = map +($_ => 1), $c->stash('rack_layout')
-        ->related_resultset('rack')->assigned_rack_units;
+    my %assigned_rack_units = map +($_ => 1), $layout->related_resultset('rack')->assigned_rack_units;
 
-    delete @assigned_rack_units{
-        $c->stash('rack_layout')->rack_unit_start ..
-        ($c->stash('rack_layout')->rack_unit_start + $current_rack_unit_size - 1)
-    };
+    delete @assigned_rack_units{$layout->rack_unit_start .. ($layout->rack_unit_start + $current_rack_unit_size - 1) };
 
     my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
 
@@ -225,9 +223,9 @@ sub update ($c) {
         return $c->status(400, { error => 'rack_unit_start conflict' });
     }
 
-    $c->stash('rack_layout')->update({ $input->%*, updated => \'now()' });
+    $layout->update({ $input->%*, updated => \'now()' });
 
-    return $c->status(303, '/layout/'.$c->stash('rack_layout')->id);
+    return $c->status(303, '/layout/'.$layout->id);
 }
 
 =head2 delete
