@@ -629,7 +629,7 @@ cleared before every request.
 =cut
 
 sub reset_log ($self) {
-    $self->app->log->history([]);
+    $self->app->log->history->@* = ();
 }
 
 sub _request_ok ($self, @args) {
