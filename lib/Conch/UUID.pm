@@ -54,7 +54,7 @@ Case insensitive.
 =cut
 
 sub is_uuid ($uuid) {
-    return ($uuid =~ qr/^${\UUID_FORMAT()}$/);
+    return ($uuid =~ qr/^${\UUID_FORMAT}$/);
 }
 
 1;

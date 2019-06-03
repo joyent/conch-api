@@ -363,7 +363,7 @@ subtest 'mutate device attributes' => sub {
 
     $t->post_ok('/device/TEST/triton_setup')
         ->status_is(409)
-        ->json_like('/error', qr/must be marked .+ before it can be .+ set up for Triton/);
+        ->json_is({ error => 'Device TEST must be marked as rebooted into Triton and the Triton UUID set before it can be marked as set up for Triton' });
 
     $t->post_ok('/device/TEST/triton_reboot')
         ->status_is(303)
@@ -377,7 +377,7 @@ subtest 'mutate device attributes' => sub {
         ->status_is(400)
         ->json_like('/error', qr/String does not match/);
 
-    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str() })
+    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str })
         ->status_is(303)
         ->location_is('/device/TEST');
     $detailed_device->{triton_uuid} = re(Conch::UUID::UUID_FORMAT);

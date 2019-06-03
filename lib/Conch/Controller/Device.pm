@@ -322,7 +322,7 @@ sub set_triton_setup ($c) {
     if (not defined $device->latest_triton_reboot or not defined $device->triton_uuid) {
         $c->log->warn('Input failed validation');
         return $c->status(409, {
-            error => 'Device '.$device_id.' must be marked as rebooted into Triton and the Trition UUID set before it can be marked as set up for Triton'
+            error => 'Device '.$device_id.' must be marked as rebooted into Triton and the Triton UUID set before it can be marked as set up for Triton'
         });
     }
 

@@ -6,32 +6,26 @@ use Test::More;
 use Test::Warnings;
 use Test::Conch;
 
-sub add_test_routes ($app) {
-    $app->routes->get('/301', sub ($c) { $c->status(301, '/301-success') });
-    $app->routes->get('/302', sub ($c) { $c->status(302, '/302-success') });
-    $app->routes->get('/303', sub ($c) { $c->status(303, '/303-success') });
-    $app->routes->get('/307', sub ($c) { $c->status(307, '/307-success') });
-    $app->routes->get('/308', sub ($c) { $c->status(308, '/308-success') });
-
-    $app->routes->get('/401', sub ($c) { $c->status(401) });
-    $app->routes->get('/403', sub ($c) { $c->status(403) });
-    $app->routes->get('/404', sub ($c) { $c->status(404) });
-    $app->routes->get('/501', sub ($c) { $c->status(501) });
-
-    $app->routes->get('/200-object', sub ($c) { $c->status(200, { status => 'OK' }) });
-    $app->routes->get('/200-array', sub ($c) { $c->status(200, []) });
-
-    $app->routes->get('/409', sub ($c) { $c->status(409, { error => 'Conflict'}) });
-
-    $app->routes->get('/204', sub ($c) { $c->status(204) });
-    $app->routes->get('/410', sub ($c) { $c->status(410) });
-}
-
-
 {
     my $t = Test::Conch->new();
 
-    add_test_routes( $t->app );
+    $t->app->routes->${\ $_->[0] }($_->[1], $_->[2]) foreach (
+        # method, path, sub
+        [ 'get', '/301', sub ($c) { $c->status(301, '/301-success') } ],
+        [ 'get', '/302', sub ($c) { $c->status(302, '/302-success') } ],
+        [ 'get', '/303', sub ($c) { $c->status(303, '/303-success') } ],
+        [ 'get', '/307', sub ($c) { $c->status(307, '/307-success') } ],
+        [ 'get', '/308', sub ($c) { $c->status(308, '/308-success') } ],
+        [ 'get', '/401', sub ($c) { $c->status(401) } ],
+        [ 'get', '/403', sub ($c) { $c->status(403) } ],
+        [ 'get', '/404', sub ($c) { $c->status(404) } ],
+        [ 'get', '/501', sub ($c) { $c->status(501) } ],
+        [ 'get', '/200-object', sub ($c) { $c->status(200, { status => 'OK' }) } ],
+        [ 'get', '/200-array', sub ($c) { $c->status(200, []) } ],
+        [ 'get', '/409', sub ($c) { $c->status(409, { error => 'Conflict'}) } ],
+        [ 'get', '/204', sub ($c) { $c->status(204) } ],
+        [ 'get', '/410', sub ($c) { $c->status(410) } ],
+    );
 
     $t->get_ok('/301')->status_is(301)->location_is('/301-success');
     $t->get_ok('/302')->status_is(302)->location_is('/302-success');

@@ -20,6 +20,7 @@ sub routes {
     my $class = shift;
     my $device_report = shift; # secured, under /device_report
 
+    # POST /device_report
     $device_report->post('/')->to('device_report#validate_report');
 
     # chainable action that extracts and looks up device_report_id from the path

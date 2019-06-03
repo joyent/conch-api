@@ -28,7 +28,7 @@ Conch::Time->new($pg_timestamptz);
 ## now
 
 ```perl
-my $t = Conch::Time->now();
+my $t = Conch::Time->now;
 ```
 
 Return an object based on the current time.
@@ -39,7 +39,7 @@ nanosecond.
 ## from\_epoch
 
 ```
-Conch::Time->from_epoch(time());
+Conch::Time->from_epoch(time);
 
 Conch::Time->from_epoch(Time::HiRes::gettimeofday);
 

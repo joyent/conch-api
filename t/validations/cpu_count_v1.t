@@ -27,4 +27,4 @@ test_validation(
     ]
 );
 
-done_testing();
+done_testing;

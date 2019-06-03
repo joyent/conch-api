@@ -28,7 +28,7 @@ sub with_permission ($self, $permission) {
     Carp::croak('permission must be one of: ro, rw, admin')
         if none { $permission eq $_ } qw(ro rw admin);
 
-    $self->search({ role => { '>=' => \[ q{?::user_workspace_role_enum}, $permission ] } });
+    $self->search({ role => { '>=' => \[ '?::user_workspace_role_enum', $permission ] } });
 }
 
 =head2 user_has_permission

@@ -31,4 +31,4 @@ $t->post_ok('/user/me/settings/test.dot', json => { 'test.dot' => 'b' })->status
 $t->get_ok('/hardware_product')->status_is(401);
 $t->get_ok('/hardware_product/'.$uuid->create_str)->status_is(401);
 
-done_testing();
+done_testing;

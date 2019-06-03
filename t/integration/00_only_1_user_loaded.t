@@ -255,7 +255,7 @@ subtest 'Workspaces' => sub {
         ->json_schema_is('WorkspaceAndRole')
         ->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace, by name');
 
-    $t->get_ok('/workspace/'.$uuid->create_str())
+    $t->get_ok('/workspace/'.$uuid->create_str)
         ->status_is(404);
 
     $t->get_ok("/workspace/$global_ws_id/user")
@@ -355,9 +355,6 @@ subtest 'Workspaces' => sub {
         ->json_is('/0/workspaces' => [ $workspace_data{conch}[0] ])
         ->json_is('/1/email', 'test_user@conch.joyent.us')
         ->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
-
-    my $main_user_id = $t->tx->res->json->[0]{id};
-    my $test_user_id = $t->tx->res->json->[1]{id};
 
     push $users{GLOBAL}->@*, {
         id    => ignore,
@@ -527,9 +524,6 @@ subtest 'Sub-Workspace' => sub {
         ->json_is('/0/workspaces' => $workspace_data{conch})
         ->json_is('/1/email', 'test_user@conch.joyent.us')
         ->json_is('/1/workspaces' => $workspace_data{test_user});
-
-    my $main_user_id = $t->tx->res->json->[0]{id};
-    my $test_user_id = $t->tx->res->json->[1]{id};
 
     $users{child_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
     $users{grandchild_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
@@ -1434,4 +1428,4 @@ warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');
 });
 
-done_testing();
+done_testing;

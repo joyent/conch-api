@@ -18,7 +18,7 @@ $t->get_ok('/rack')
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 
 my $uuid = Data::UUID->new;
-my $fake_id = $uuid->create_str();
+my $fake_id = $uuid->create_str;
 
 my $rack = $t->load_fixture('rack_0a');
 
@@ -316,5 +316,5 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
     ->json_is($assignments);
 
-done_testing();
+done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

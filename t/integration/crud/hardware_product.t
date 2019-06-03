@@ -304,5 +304,5 @@ subtest 'delete a hardware product' => sub {
     );
 };
 
-done_testing();
+done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

@@ -254,4 +254,4 @@ subtest '->register_result' => sub {
     );
 };
 
-done_testing();
+done_testing;

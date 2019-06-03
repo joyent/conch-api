@@ -46,7 +46,7 @@ sub list ($c) {
 
     my $num_devices_rs = $c->db_device_relay_connections->search(
         { $me.'_corr.relay_id' => { '=' => \"$me.relay_id" } },
-        { alias => ${me}.'_corr' },
+        { alias => $me.'_corr' },
     )->count_rs;
 
     my $workspace_racks = $c->stash('workspace_rs')

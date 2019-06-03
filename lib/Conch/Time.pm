@@ -47,7 +47,7 @@ sub new {
 
 =head2 now
 
-    my $t = Conch::Time->now();
+    my $t = Conch::Time->now;
 
 Return an object based on the current time.
 
@@ -58,7 +58,7 @@ nanosecond.
 
 =head2 from_epoch
 
-    Conch::Time->from_epoch(time());
+    Conch::Time->from_epoch(time);
 
     Conch::Time->from_epoch(Time::HiRes::gettimeofday);
 

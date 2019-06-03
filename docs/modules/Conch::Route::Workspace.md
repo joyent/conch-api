@@ -100,7 +100,7 @@ an email to the user
 - Request: input.yaml#/WorkspaceAddUser
 - Response: response.yaml#/WorkspaceAndRole
 
-### `DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>`
+### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user

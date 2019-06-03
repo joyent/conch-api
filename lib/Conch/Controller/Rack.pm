@@ -41,7 +41,7 @@ sub find_rack ($c) {
     }
 
     $c->log->debug('Found rack '.$c->stash('rack_id'));
-    $c->stash('rack_rs', scalar $rack_rs);
+    $c->stash('rack_rs', $rack_rs);
     return 1;
 }
 

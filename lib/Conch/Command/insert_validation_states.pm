@@ -96,8 +96,8 @@ sub run ($self, @opts) {
                         validation_plan_id => $validation_plan_id,
                     })
                     ->update({
-                        status => \[ q{least(?, status)}, $status ],
-                        completed => \[ q{greatest(?, completed)}, $timestamp],
+                        status => \[ 'least(?, status)', $status ],
+                        completed => \[ 'greatest(?, completed)', $timestamp],
                     });
                 $exists_report_ids{$report_id} = ();
             }

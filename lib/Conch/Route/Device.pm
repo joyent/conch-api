@@ -295,7 +295,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id/settings/#key>
+=head3 C<GET /device/:device_id/settings/:key>
 
 =over 4
 
@@ -303,7 +303,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id/settings/#key>
+=head3 C<POST /device/:device_id/settings/:key>
 
 =over 4
 
@@ -315,7 +315,7 @@ below.
 
 =back
 
-=head3 C<DELETE /device/:device_id/settings/#key>
+=head3 C<DELETE /device/:device_id/settings/:key>
 
 =over 4
 

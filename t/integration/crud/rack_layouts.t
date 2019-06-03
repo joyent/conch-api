@@ -29,7 +29,7 @@ my $uuid = Data::UUID->new;
 # start 3, width 4
 # start 11, width 4
 
-my $fake_id = $uuid->create_str();
+my $fake_id = $uuid->create_str;
 
 my $rack_id = $t->load_fixture('rack_0a')->id;
 
@@ -306,5 +306,5 @@ $t->delete_ok('/layout/'.$layout_3_6->id)
 $t->get_ok('/layout/'.$layout_3_6->id)
     ->status_is(404);
 
-done_testing();
+done_testing;
 # vim: set ts=4 sts=4 sw=4 et :
