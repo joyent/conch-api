@@ -1953,6 +1953,16 @@ DISTRIBUTIONS
       HTML::Tagset 3.20
     requirements:
       ExtUtils::MakeMaker 0
+  HTTP-BrowserDetect-3.23
+    pathname: O/OA/OALDERS/HTTP-BrowserDetect-3.23.tar.gz
+    provides:
+      HTTP::BrowserDetect 3.23
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.006
+      strict 0
+      vars 0
+      warnings 0
   HTTP-Tinyish-0.15
     pathname: M/MI/MIYAGAWA/HTTP-Tinyish-0.15.tar.gz
     provides:

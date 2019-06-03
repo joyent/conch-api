@@ -115,6 +115,9 @@ sub startup {
         }
     );
 
+    $self->plugin('Conch::Plugin::ClientVerification', $self->config)
+        if $self->feature('verify_client_version') // 1;
+
     $self->plugin('Util::RandomString' => {
         alphabet => '2345679bdfhmnprtFGHJLMNPRT*#!@^-_+=',
         length => 30
