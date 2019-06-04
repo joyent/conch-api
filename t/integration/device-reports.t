@@ -450,5 +450,21 @@ subtest 'system_uuid collisions' => sub {
     is($existing_device->health, 'error', 'bad reports flip device health to error');
 };
 
+subtest 'submit report for decommissioned device' => sub {
+    $t->app->db_devices->update_or_create({
+        serial_number => 'DECOMMISSIONED_TEST',
+        hardware_product_id => $t->load_fixture('hardware_product_profile_compute')->hardware_product_id,
+        health => 'pass',
+        phase => 'decommissioned',
+    });
+
+    my $altered_report = from_json($report);
+    $altered_report->{serial_number} = 'DECOMMISSIONED_TEST';
+
+    $t->post_ok('/device/DECOMMISSIONED_TEST', json => $altered_report)
+        ->status_is(409)
+        ->json_is({ error => 'device is decommissioned' });
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :
