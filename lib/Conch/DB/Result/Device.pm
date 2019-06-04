@@ -96,25 +96,9 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
-=head2 latest_triton_reboot
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
-
-=head2 triton_uuid
-
-  data_type: 'uuid'
-  is_nullable: 1
-  size: 16
-
 =head2 asset_tag
 
   data_type: 'text'
-  is_nullable: 1
-
-=head2 triton_setup
-
-  data_type: 'timestamp with time zone'
   is_nullable: 1
 
 =head2 hostname
@@ -180,14 +164,8 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "validated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
-  "latest_triton_reboot",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
-  "triton_uuid",
-  { data_type => "uuid", is_nullable => 1, size => 16 },
   "asset_tag",
   { data_type => "text", is_nullable => 1 },
-  "triton_setup",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
   "hostname",
   { data_type => "text", is_nullable => 1 },
   "phase",
@@ -407,7 +385,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JDXe2OjiOFs4aJsXhaLS3Q
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RVk8TSbeEVmd1vjY7CnF2Q
 
 __PACKAGE__->has_many(
   "active_device_disks",

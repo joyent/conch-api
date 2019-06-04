@@ -100,32 +100,10 @@ data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## latest\_triton\_reboot
-
-```
-data_type: 'timestamp with time zone'
-is_nullable: 1
-```
-
-## triton\_uuid
-
-```
-data_type: 'uuid'
-is_nullable: 1
-size: 16
-```
-
 ## asset\_tag
 
 ```
 data_type: 'text'
-is_nullable: 1
-```
-
-## triton\_setup
-
-```
-data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 

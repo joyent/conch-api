@@ -110,11 +110,8 @@ definitions:
       - hostname
       - graduated
       - last_seen
-      - latest_triton_reboot
       - state
       - system_uuid
-      - triton_setup
-      - triton_uuid
       - updated
       - uptime_since
       - validated
@@ -155,26 +152,12 @@ definitions:
           - type: string
             format: date-time
           - type: 'null'
-      latest_triton_reboot:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
       state:
         type: string
       system_uuid:
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/definitions/uuid
-      triton_setup:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-      triton_uuid:
-        oneOf:
-          - $ref: common.yaml#/definitions/uuid
-          - type: 'null'
       updated:
         type: string
         format: date-time
@@ -340,14 +323,11 @@ definitions:
       - hostname
       - graduated
       - last_seen
-      - latest_triton_reboot
       - state
       - system_uuid
-      - triton_uuid
       - updated
       - uptime_since
       - validated
-      - triton_setup
       - phase
       - rack_id
       - rack_unit_start
@@ -381,26 +361,12 @@ definitions:
           - type: string
             format: date-time
           - type: 'null'
-      latest_triton_reboot:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
       state:
         type: string
       system_uuid:
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/definitions/uuid
-      triton_uuid:
-        oneOf:
-          - $ref: common.yaml#/definitions/uuid
-          - type: 'null'
-      triton_setup:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
       updated:
         type: string
         format: date-time

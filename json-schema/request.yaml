@@ -476,14 +476,6 @@ definitions:
         oneOf:
           - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
-  DeviceTritonUuid:
-    type: object
-    additionalProperties: false
-    required:
-      - triton_uuid
-    properties:
-      triton_uuid:
-        $ref: common.yaml#/definitions/uuid
   DevicePhase:
     type: object
     additionaProperties: false

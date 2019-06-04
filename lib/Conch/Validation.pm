@@ -124,7 +124,7 @@ L<Conch::DB::Result::Device> object under validation.  Use in validation
 logic to dispatch on Device attributes.
 
     my $device = $self->device;
-    if ($device->triton_setup) {...}
+    if ($device->asset_tag eq '...') {...}
 
 Any additional data related to devices may be read as normal using L<DBIx::Class> interfaces.
 The result object is built using a read-only database handle, so attempts to alter the data

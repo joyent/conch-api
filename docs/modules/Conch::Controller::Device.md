@@ -36,20 +36,6 @@ Response uses the DevicePXE json schema.
 
 Marks the device as "graduated" (VLAN flipped)
 
-## set\_triton\_reboot
-
-Sets the `latest_triton_reboot` field on a device
-
-## set\_triton\_uuid
-
-Sets the `triton_uuid` field on a device, given a triton\_uuid field that is a
-valid UUID
-
-## set\_triton\_setup
-
-If a device has been marked as rebooted into Triton and has a Triton UUID, sets
-the `triton_setup` field. Fails if the device has already been marked as such.
-
 ## set\_asset\_tag
 
 Sets the `asset_tag` field on a device

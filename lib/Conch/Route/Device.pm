@@ -43,12 +43,6 @@ sub routes {
 
         # POST /device/:device_id_or_serial_number/graduate
         $with_device->post('/graduate')->to('device#graduate');
-        # POST /device/:device_id_or_serial_number/triton_setup
-        $with_device->post('/triton_setup')->to('device#set_triton_setup');
-        # POST /device/:device_id_or_serial_number/triton_uuid
-        $with_device->post('/triton_uuid')->to('device#set_triton_uuid');
-        # POST /device/:device_id_or_serial_number/triton_reboot
-        $with_device->post('/triton_reboot')->to('device#set_triton_reboot');
         # POST /device/:device_id_or_serial_number/asset_tag
         $with_device->post('/asset_tag')->to('device#set_asset_tag');
         # POST /device/:device_id_or_serial_number/validated
@@ -181,36 +175,6 @@ below.
 =back
 
 =head3 C<POST /device/:device_id_or_serial_number/graduate>
-
-=over 4
-
-=item * Request: request.yaml#/Null
-
-=item * Response: Redirect to the updated device
-
-=back
-
-=head3 C<POST /device/:device_id_or_serial_number/triton_setup>
-
-=over 4
-
-=item * Request: request.yaml#/Null
-
-=item * Response: Redirect to the updated device
-
-=back
-
-=head3 C<POST /device/:device_id_or_serial_number/triton_uuid>
-
-=over 4
-
-=item * Request: request.yaml#/DeviceTritonUuid
-
-=item * Response: Redirect to the updated device
-
-=back
-
-=head3 C<POST /device/:device_id_or_serial_number/triton_reboot>
 
 =over 4
 

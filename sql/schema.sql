@@ -193,10 +193,7 @@ CREATE TABLE public.device (
     updated timestamp with time zone DEFAULT now() NOT NULL,
     uptime_since timestamp with time zone,
     validated timestamp with time zone,
-    latest_triton_reboot timestamp with time zone,
-    triton_uuid uuid,
     asset_tag text,
-    triton_setup timestamp with time zone,
     hostname text,
     phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL,
     id uuid DEFAULT public.gen_random_uuid() NOT NULL

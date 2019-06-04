@@ -47,21 +47,6 @@ below.
 - Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
-### `POST /device/:device_id_or_serial_number/triton_setup`
-
-- Request: request.yaml#/Null
-- Response: Redirect to the updated device
-
-### `POST /device/:device_id_or_serial_number/triton_uuid`
-
-- Request: request.yaml#/DeviceTritonUuid
-- Response: Redirect to the updated device
-
-### `POST /device/:device_id_or_serial_number/triton_reboot`
-
-- Request: request.yaml#/Null
-- Response: Redirect to the updated device
-
 ### `POST /device/:device_id_or_serial_number/asset_tag`
 
 - Request: request.yaml#/DeviceAssetTag

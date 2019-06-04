@@ -112,7 +112,7 @@ subtest 'unlocated device with a registered relay' => sub {
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
-            (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
+            (map +($_ => undef), qw(asset_tag graduated uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
             location => undef,
@@ -135,7 +135,7 @@ subtest 'unlocated device with a registered relay' => sub {
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
-            (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
+            (map +($_ => undef), qw(asset_tag graduated uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
             location => undef,
@@ -198,7 +198,7 @@ subtest 'located device' => sub {
             health => 'unknown',
             state => 'UNKNOWN',
             phase => 'integration',
-            (map +($_ => undef), qw(asset_tag graduated hostname last_seen latest_triton_reboot system_uuid triton_setup triton_uuid uptime_since validated)),
+            (map +($_ => undef), qw(asset_tag graduated hostname last_seen system_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
             hardware_product_id => $hardware_product_id,
             location => {
@@ -229,8 +229,7 @@ subtest 'located device' => sub {
 
     subtest 'permissions for POST queries' => sub {
         my @queries = (
-            [ '/device/LOCATED_DEVICE/triton_uuid', json => { triton_uuid => create_uuid_str() } ],
-            (map '/device/LOCATED_DEVICE/'.$_, qw(graduate triton_reboot triton_setup validated)),
+            (map '/device/LOCATED_DEVICE/'.$_, qw(graduate validated)),
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
         );
 
@@ -386,35 +385,6 @@ subtest 'mutate device attributes' => sub {
         ->location_is('/device/'.$test_device_id);
 
     $detailed_device->{graduated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
-
-    $t->post_ok('/device/TEST/triton_setup')
-        ->status_is(409)
-        ->json_is({ error => 'Device '.$test_device_id.' must be marked as rebooted into Triton and the Triton UUID set before it can be marked as set up for Triton' });
-
-    $t->post_ok('/device/TEST/triton_reboot')
-        ->status_is(303)
-        ->location_is('/device/'.$test_device_id);
-    $detailed_device->{latest_triton_reboot} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
-
-    $t->post_ok('/device/TEST/triton_uuid')
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
-
-    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => 'not a UUID' })
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/triton_uuid', message => re(qr/string does not match/i) } ]);
-
-    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => create_uuid_str() })
-        ->status_is(303)
-        ->location_is('/device/'.$test_device_id);
-    $detailed_device->{triton_uuid} = re(Conch::UUID::UUID_FORMAT);
-
-    $t->post_ok('/device/TEST/triton_setup')
-        ->status_is(303)
-        ->location_is('/device/'.$test_device_id);
-    $detailed_device->{triton_setup} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/asset_tag')
         ->status_is(400)

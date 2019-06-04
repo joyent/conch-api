@@ -86,7 +86,7 @@ logic to dispatch on Device attributes.
 
 ```perl
 my $device = $self->device;
-if ($device->triton_setup) {...}
+if ($device->asset_tag eq '...') {...}
 ```
 
 Any additional data related to devices may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class) interfaces.
