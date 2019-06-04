@@ -11,7 +11,7 @@ to find the device and verify the user has permissions to operate on it.
 
 ## get
 
-Retrieves details about a single (active) device. Response uses the DetailedDevice json schema.
+Retrieves details about a single device. Response uses the DetailedDevice json schema.
 
 ## lookup\_by\_other\_attribute
 

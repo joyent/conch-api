@@ -185,7 +185,6 @@ CREATE TABLE public.device (
     system_uuid uuid,
     hardware_product_id uuid NOT NULL,
     health public.device_health_enum NOT NULL,
-    deactivated timestamp with time zone,
     last_seen timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,

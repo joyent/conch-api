@@ -71,7 +71,7 @@ sub validate ($c) {
         log => $c->log,
     )->run_validation(
         validation => $validation,
-        device => $c->db_ro_devices->active->find($c->stash('device_id')),
+        device => $c->db_ro_devices->find($c->stash('device_id')),
         data => $data,
     );
 
@@ -110,7 +110,7 @@ sub run_validation_plan ($c) {
         log => $c->log,
     )->run_validation_plan(
         validation_plan => $validation_plan,
-        device => $c->db_ro_devices->active->find($c->stash('device_id')),
+        device => $c->db_ro_devices->find($c->stash('device_id')),
         data => $data,
         no_save_db => 1,
     );

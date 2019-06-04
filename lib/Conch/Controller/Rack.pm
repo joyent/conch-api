@@ -232,7 +232,7 @@ sub set_assignment ($c) {
     # serial numbers...
     foreach my $entry ($input->@*) {
         if (my $serial = $entry->{device_serial_number} and not $entry->{device_id}) {
-            my $id = $c->db_devices->active->search({ serial_number => $serial })->get_column('id')->single;
+            my $id = $c->db_devices->search({ serial_number => $serial })->get_column('id')->single;
             $entry->{device_id} = $id if $id;
         }
     }

@@ -55,7 +55,6 @@ sub find_device ($c) {
                 ],
             },
         )
-        ->active
         ->hri
         ->single;
 
@@ -115,7 +114,7 @@ sub find_device ($c) {
 
 =head2 get
 
-Retrieves details about a single (active) device. Response uses the DetailedDevice json schema.
+Retrieves details about a single device. Response uses the DetailedDevice json schema.
 
 =cut
 
@@ -191,7 +190,7 @@ sub lookup_by_other_attribute ($c) {
     my ($key, $value) = $params->%*;
     $c->log->debug('looking up device by '.$key.' = '.$value);
 
-    my $device_rs = $c->db_devices->prefetch('device_location')->active;
+    my $device_rs = $c->db_devices->prefetch('device_location');
     if ($key eq 'hostname') {
         $device_rs = $device_rs->search({ $key => $value });
     }
@@ -206,8 +205,7 @@ sub lookup_by_other_attribute ($c) {
         $device_rs = $c->db_device_settings->active
             ->search({ name => $key, value => $value })
             ->related_resultset('device')
-            ->prefetch('device_location')
-            ->active;
+            ->prefetch('device_location');
     }
 
     my @devices = $device_rs->order_by('device.created')->all;

@@ -28,7 +28,7 @@ sub process ($c) {
     if (not $unserialized_report) {
         $c->log->debug('Device report input did not match json schema specification');
 
-        my $device = $c->db_devices->active->find({ serial_number => $c->stash('device_serial_number') });
+        my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
         if (not $device) {
             $c->log->debug('Device id '.$c->stash('device_serial_number').' does not exist; cannot store bad report');
             return;
@@ -59,7 +59,7 @@ sub process ($c) {
             if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
     }
 
-    my $existing_device = $c->db_devices->active->find({ serial_number => $c->stash('device_serial_number') });
+    my $existing_device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
 
     # capture information about the last report before we store the new one
     # state can be: error, fail, pass, where no validations on a valid report is
@@ -96,7 +96,6 @@ sub process ($c) {
         uptime_since        => $uptime,
         hostname            => $unserialized_report->{os}{hostname},
         updated             => \'now()',
-        deactivated         => undef,
     }, { key => 'device_serial_number_key' });
 
     $c->log->debug('Creating device report');
@@ -423,7 +422,6 @@ sub validate_report ($c) {
             uptime_since        => $unserialized_report->{uptime_since},
             hostname            => $unserialized_report->{os}{hostname},
             updated             => \'now()',
-            deactivated         => undef,
         });
 
         # we do not call _record_device_configuration, because no validations

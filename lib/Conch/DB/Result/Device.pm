@@ -52,11 +52,6 @@ __PACKAGE__->table("device");
   extra: {custom_type_name => "device_health_enum",list => ["error","fail","unknown","pass"]}
   is_nullable: 0
 
-=head2 deactivated
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
-
 =head2 last_seen
 
   data_type: 'timestamp with time zone'
@@ -128,8 +123,6 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
-  "deactivated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
   "last_seen",
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
@@ -371,7 +364,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:w38Vt48rwG68U4EODyc/CQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DQ1DA/u3x67C2dnZEr6j8g
 
 __PACKAGE__->has_many(
   "active_device_disks",
@@ -397,10 +390,6 @@ __PACKAGE__->has_many(
     };
   },
   { cascade_copy => 0, cascade_delete => 0 },
-);
-
-__PACKAGE__->add_columns(
-    '+deactivated' => { is_serializable => 0 },
 );
 
 use experimental 'signatures';

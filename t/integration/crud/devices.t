@@ -226,7 +226,7 @@ subtest 'located device' => sub {
     subtest 'permissions for POST queries' => sub {
         my @queries = (
             '/device/LOCATED_DEVICE/validated',
-            [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
+            [ '/device/LOCATED_DEVICE/phase', json => { phase => 'installation' } ],
         );
 
         $t->authenticate(email => $rw_user->email);
