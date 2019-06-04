@@ -134,17 +134,11 @@ sub get ($c) {
         ->add_columns({ rack_unit_start => 'device_location.rack_unit_start' })
         ->single;
 
-    my $latest_report = $c->stash('device_rs')
-        ->latest_device_report
-        ->columns([qw(report invalid_report)])
-        ->single;
+    my $latest_report = $c->stash('device_rs')->latest_device_report->get_column('report')->single;
 
     my $detailed_device = +{
         $device->TO_JSON->%*,
-        latest_report_is_invalid => \($latest_report && $latest_report->invalid_report ? 1 : 0),
-        latest_report => $latest_report && $latest_report->report ? from_json($latest_report->report) : undef,
-        # if not null, this is text - maybe json-encoded, maybe random junk
-        invalid_report => $latest_report ? $latest_report->invalid_report : undef,
+        latest_report => $latest_report ? from_json($latest_report) : undef,
         nics => [ map {
             my $device_nic = $_;
             my $device_neighbor = $device_nic->device_neighbor;

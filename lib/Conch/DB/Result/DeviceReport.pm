@@ -47,11 +47,6 @@ __PACKAGE__->table("device_report");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 invalid_report
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 retain
 
   data_type: 'boolean'
@@ -83,8 +78,6 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
-  "invalid_report",
-  { data_type => "text", is_nullable => 1 },
   "retain",
   { data_type => "boolean", is_nullable => 1 },
   "device_id",
@@ -137,7 +130,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1cRqxqvm0pY5HgS0xJz1TQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rjhHrnB9kuyrsxzUnmgDZw
 
 __PACKAGE__->add_columns(
     '+retain' => { is_serializable => 0 },

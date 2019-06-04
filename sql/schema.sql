@@ -325,7 +325,6 @@ CREATE TABLE public.device_report (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     report jsonb,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    invalid_report text,
     retain boolean,
     device_id uuid NOT NULL
 );

@@ -25,23 +25,7 @@ Response uses the ValidationStateWithResults json schema.
 
 sub process ($c) {
     my $unserialized_report = $c->validate_request('DeviceReport');
-    if (not $unserialized_report) {
-        $c->log->debug('Device report input did not match json schema specification');
-
-        my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
-        if (not $device) {
-            $c->log->debug('Device id '.$c->stash('device_serial_number').' does not exist; cannot store bad report');
-            return;
-        }
-
-        # the "report" may not even be valid json, so we cannot store it in a jsonb field.
-        my $device_report = $c->db_device_reports->create({
-            device_id => $device->id,
-            invalid_report => $c->req->text,
-        });
-        $c->log->debug('Stored invalid device report for device id '.$device->id);
-        return;
-    }
+    return if not $unserialized_report;
 
     # Make sure the API and device report agree on who we're talking about
     if ($c->stash('device_serial_number') ne $unserialized_report->{serial_number}) {

@@ -117,9 +117,7 @@ definitions:
       - location
       - nics
       - disks
-      - latest_report_is_invalid
       - latest_report
-      - invalid_report
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -278,19 +276,12 @@ definitions:
             updated:
               type: string
               format: date-time
-      latest_report_is_invalid:
-        type: boolean
       latest_report:
         description: the contents of the device report. Given its age we cannot provide a schema.
         anyOf:
           - type: 'null'
           - $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
           - type: object
-      invalid_report:
-        description: this could be anything, from encoded json to random junk
-        oneOf:
-          - type: string
-          - type: 'null'
   DeviceIds:
     type: array
     uniqueItems: true
@@ -1741,7 +1732,6 @@ definitions:
       - device_id
       - report
       - created
-      - invalid_report
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1755,10 +1745,5 @@ definitions:
       created:
         type: string
         format: date-time
-      invalid_report:
-        description: this could be anything, from encoded json to random junk
-        oneOf:
-          - type: string
-          - type: 'null'
 
 # vim: set sts=2 sw=2 et :

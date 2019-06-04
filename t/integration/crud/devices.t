@@ -97,7 +97,6 @@ subtest 'unlocated device with a registered relay' => sub {
             id => $validation_state->{device_report_id},
             device_id => $test_device_id,
             report => from_json($report),
-            invalid_report => undef,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         });
 
@@ -115,9 +114,7 @@ subtest 'unlocated device with a registered relay' => sub {
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
             location => undef,
-            latest_report_is_invalid => JSON::PP::false,
             latest_report => from_json($report),
-            invalid_report => undef,
             nics => supersetof(),
             disks => supersetof(superhashof({ serial_number => 'BTHC640405WM1P6PGN' })),
         });
@@ -137,9 +134,7 @@ subtest 'unlocated device with a registered relay' => sub {
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
             location => undef,
-            latest_report_is_invalid => JSON::PP::false,
             latest_report => superhashof({ product_name => 'Joyent-G1' }),
-            invalid_report => undef,
             nics => supersetof(),
             disks => [],
         });
@@ -208,9 +203,7 @@ subtest 'located device' => sub {
                 datacenter_room => superhashof({ az => 'room-0a' }),
                 target_hardware_product => superhashof({ alias => 'Test Compute' }),
             },
-            latest_report_is_invalid => JSON::PP::false,
             latest_report => undef,
-            invalid_report => undef,
             nics => [],
             disks => [],
         });
@@ -352,7 +345,7 @@ my $undetailed_device = {
     $detailed_device->%*,
     ($t->app->db_device_locations->search({ device_id => $test_device_id })->hri->single // {})->%{qw(rack_id rack_unit_start)},
 };
-delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
+delete $undetailed_device->@{qw(latest_report location nics disks)};
 
 subtest 'get by device attributes' => sub {
     $t->get_ok('/device?hostname=elfo')
@@ -508,7 +501,7 @@ subtest 'Device settings' => sub {
         $detailed_device->%*,
         ($t->app->db_device_locations->search({ device_id => $located_device_id })->hri->single // {})->%{qw(rack_id rack_unit_start)},
     };
-    delete $undetailed_device->@{qw(latest_report_is_invalid latest_report invalid_report location nics disks)};
+    delete $undetailed_device->@{qw(latest_report location nics disks)};
 
     $t->get_ok('/device?foo=bar')
         ->status_is(200)
