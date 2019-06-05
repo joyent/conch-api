@@ -41,6 +41,9 @@ subtest preliminaries => sub {
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(422)
         ->json_is({ error => 'failed to find validation plan' });
+
+    ok(!$t->app->db_devices->search({ id => 'TEST' })->exists,
+        'the device was not inserted into the database');
 };
 
 # matches report's product_name = Joyent-G1
