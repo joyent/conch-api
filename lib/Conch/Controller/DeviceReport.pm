@@ -145,7 +145,8 @@ sub process ($c) {
         if $validation_state->status ne 'pass' and not $device_report->retain;
 
     # now delete that previous report, if we can
-    if ($previous_report_id and $previous_report_status eq 'pass') {
+    if ($validation_state->status eq 'pass'
+            and $previous_report_id and $previous_report_status eq 'pass') {
         if ($c->db_device_reports
             ->search({ id => $previous_report_id, retain => \'is not TRUE' })
             ->delete > 0)
