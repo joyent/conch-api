@@ -411,7 +411,6 @@ subtest 'create device via report' => sub {
         my $new_device = $t->app->db_devices->create({
             serial_number => 'ANOTHER_DEVICE',
             hardware_product_id => $device->hardware_product_id,
-            state => 'UNKNOWN',
             health => 'unknown',
         });
         my $disk = $t->app->db_device_disks->search({ serial_number => $disk_serial })->single;

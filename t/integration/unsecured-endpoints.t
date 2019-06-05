@@ -64,14 +64,12 @@ subtest 'device totals' => sub {
         {
             serial_number => 'test switch',
             hardware_product_id => $switch_vendor->{id},
-            state => 'ignore',
             health => 'fail',
             device_location => { rack_id => $rack->id, rack_unit_start => 1 },
         },
         {
             serial_number => 'test compute',
             hardware_product_id => $test_compute->{id},
-            state => 'ignore',
             health => 'pass',
             device_location => { rack_id => $rack->id, rack_unit_start => 5 },
         },

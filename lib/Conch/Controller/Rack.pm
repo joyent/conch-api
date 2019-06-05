@@ -293,7 +293,6 @@ sub set_assignment ($c) {
                     asset_tag => $entry->{device_asset_tag},
                     hardware_product_id => $layout->hardware_product_id,
                     health => 'unknown',
-                    state => 'UNKNOWN',
                 });
                 $entry->{device_id} = $device->id;
             }

@@ -184,7 +184,6 @@ CREATE TABLE public.device (
     serial_number text NOT NULL,
     system_uuid uuid,
     hardware_product_id uuid NOT NULL,
-    state text NOT NULL,
     health public.device_health_enum NOT NULL,
     graduated timestamp with time zone,
     deactivated timestamp with time zone,

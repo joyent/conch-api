@@ -15,7 +15,6 @@ definitions:
       - bios_version
       - product_name
       - serial_number
-      - state
       - system_uuid
     properties:
       bios_version:
@@ -137,8 +136,6 @@ definitions:
             $ref: common.yaml#/definitions/relay_serial_number
       serial_number:
         $ref: common.yaml#/definitions/device_serial_number
-      state:
-        type: string
       system_uuid:
         $ref: common.yaml#/definitions/uuid
       temp:

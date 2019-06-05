@@ -23,14 +23,12 @@ my @devices = map $t->app->db_devices->create($_), (
     {
         serial_number => 'TEST',
         hardware_product_id => $layouts[0]->hardware_product_id,
-        state => 'UNKNOWN',
         health => 'pass',
         device_location => { map +($_ => $layouts[0]->$_), qw(rack_id rack_unit_start) },
     },
     {
         serial_number => 'DEVICE1',
         hardware_product_id => $layouts[1]->hardware_product_id,
-        state => 'UNKNOWN',
         health => 'unknown',
         device_location => { map +($_ => $layouts[1]->$_), qw(rack_id rack_unit_start) },
     },

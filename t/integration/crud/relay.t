@@ -40,7 +40,6 @@ my @rack_layouts = map {
         serial_number => 'DEVICE'.$device_num++,
         hardware_product_id => $_->{hardware_product_id},
         health  => 'unknown',
-        state   => 'UNKNOWN',
         device_location => { $_->%{qw(rack_id rack_unit_start)} },
     }), @_layouts;
     \@_layouts

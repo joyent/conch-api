@@ -51,7 +51,6 @@ sub _device_inflation ($self, $data) {
             isa('Conch::DB::Result::Device'),
             methods(
                 serial_number => $data->{device_serial_number} // re(qr/^DEVICE_\d+$/),
-                state => 'UNKNOWN',
                 health => 'unknown',
                 hardware_product_id => re(Conch::UUID::UUID_FORMAT),
                 in_storage => bool(1),

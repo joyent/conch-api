@@ -32,13 +32,6 @@ is_nullable: 0
 size: 16
 ```
 
-## state
-
-```
-data_type: 'text'
-is_nullable: 0
-```
-
 ## health
 
 ```perl

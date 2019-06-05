@@ -46,11 +46,6 @@ __PACKAGE__->table("device");
   is_nullable: 0
   size: 16
 
-=head2 state
-
-  data_type: 'text'
-  is_nullable: 0
-
 =head2 health
 
   data_type: 'enum'
@@ -129,8 +124,6 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_nullable => 1, size => 16 },
   "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "state",
-  { data_type => "text", is_nullable => 0 },
   "health",
   {
     data_type => "enum",
@@ -385,7 +378,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RVk8TSbeEVmd1vjY7CnF2Q
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6X/HnMhjJIFMGD8OTj1GUg
 
 __PACKAGE__->has_many(
   "active_device_disks",

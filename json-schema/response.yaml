@@ -110,7 +110,6 @@ definitions:
       - hostname
       - graduated
       - last_seen
-      - state
       - system_uuid
       - updated
       - uptime_since
@@ -152,8 +151,6 @@ definitions:
           - type: string
             format: date-time
           - type: 'null'
-      state:
-        type: string
       system_uuid:
         oneOf:
           - type: 'null'
@@ -323,7 +320,6 @@ definitions:
       - hostname
       - graduated
       - last_seen
-      - state
       - system_uuid
       - updated
       - uptime_since
@@ -361,8 +357,6 @@ definitions:
           - type: string
             format: date-time
           - type: 'null'
-      state:
-        type: string
       system_uuid:
         oneOf:
           - type: 'null'

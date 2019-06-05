@@ -108,7 +108,6 @@ subtest 'unlocated device with a registered relay' => sub {
             id => $test_device_id,
             serial_number => 'TEST',
             health => 'pass',
-            state => ignore,
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
@@ -131,7 +130,6 @@ subtest 'unlocated device with a registered relay' => sub {
             id => $test_device_id,
             serial_number => 'TEST',
             health => 'pass',
-            state => ignore,
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
@@ -183,7 +181,6 @@ subtest 'located device' => sub {
         serial_number => 'LOCATED_DEVICE',
         hardware_product_id => $t->app->db_rack_layouts->search({ rack_id => $rack_id, rack_unit_start => 1 })->get_column('hardware_product_id')->as_query,
         health  => 'unknown',
-        state   => 'UNKNOWN',
         device_location => { rack_id => $rack_id, rack_unit_start => 1 },
     });
 
@@ -196,7 +193,6 @@ subtest 'located device' => sub {
             id => $located_device_id,
             serial_number => 'LOCATED_DEVICE',
             health => 'unknown',
-            state => 'UNKNOWN',
             phase => 'integration',
             (map +($_ => undef), qw(asset_tag graduated hostname last_seen system_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
@@ -568,7 +564,6 @@ subtest 'Device PXE' => sub {
     my $device_pxe = $t->app->db_devices->create({
         serial_number => 'PXE_TEST',
         hardware_product_id => $layout->hardware_product_id,
-        state => 'UNKNOWN',
         health => 'unknown',
         device_relay_connections => [{
             relay => {
