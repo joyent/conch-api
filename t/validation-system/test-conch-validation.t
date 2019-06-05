@@ -103,7 +103,7 @@ subtest 'database object construction' => sub {
     test_validation(
         'Conch::Validation::TestConchValidationTester',
         hardware_product => {
-            hardware_product_profile => { rack_unit => 4 },
+            hardware_product_profile => { dimms_num => 4 },
         },
         cases => [
             {
@@ -118,7 +118,7 @@ subtest 'database object construction' => sub {
             },
             {
                 description => 'hardware_product_profile inflation',
-                data => { subname => '_hardware_product_profile_inflation', hardware_product_profile_rack_unit => 4 },
+                data => { subname => '_hardware_product_profile_inflation', hardware_product_profile_dimms_num => 4 },
                 success_num => 2,
             },
             {

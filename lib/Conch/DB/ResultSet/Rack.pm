@@ -30,9 +30,9 @@ sub assigned_rack_units ($self) {
     my @layout_data = $self->search_related('rack_layouts', undef, {
         columns => {
             rack_unit_start => 'rack_layouts.rack_unit_start',
-            rack_unit_size => 'hardware_product_profile.rack_unit',
+            rack_unit_size => 'hardware_product.rack_unit_size',
         },
-        join => { hardware_product => 'hardware_product_profile' },
+        join => 'hardware_product',
         order_by => 'rack_unit_start',
     })->hri->all;
 

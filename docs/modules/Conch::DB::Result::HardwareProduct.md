@@ -100,6 +100,13 @@ data_type: 'text'
 is_nullable: 1
 ```
 
+## rack\_unit\_size
+
+```
+data_type: 'integer'
+is_nullable: 0
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)

@@ -96,6 +96,11 @@ __PACKAGE__->table("hardware_product");
   data_type: 'text'
   is_nullable: 1
 
+=head2 rack_unit_size
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -138,6 +143,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "legacy_product_name",
   { data_type => "text", is_nullable => 1 },
+  "rack_unit_size",
+  { data_type => "integer", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -231,7 +238,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0hTIkj6YBJs9YfiYJ0dKog
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uAGpzIKHGyPai0IfNRmrRg
 
 use experimental 'signatures';
 

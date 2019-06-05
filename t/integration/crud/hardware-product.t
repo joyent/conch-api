@@ -41,6 +41,7 @@ $t->post_ok('/hardware_product', json => {
         name => 'sungo',
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
+        rack_unit_size => 2,
     })
     ->status_is(303);
 
@@ -59,6 +60,7 @@ $t->get_ok($t->tx->res->headers->location)
         sku => undef,
         generation_name => undef,
         legacy_product_name => undef,
+        rack_unit_size => 2,
         hardware_product_profile => undef,
     });
 
@@ -74,6 +76,7 @@ $t->post_ok('/hardware_product', json => {
         name => 'sungo',
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
+        rack_unit_size => 1,
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -106,14 +109,13 @@ my $new_hw_profile;
 
 subtest 'create profile on existing product' => sub {
     $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => { rack_unit => 1 },
+            hardware_product_profile => { bios_firmware => 'foo' },
         })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
 
     $new_hw_profile = {
-        rack_unit => 2,
         purpose => 'because',
         bios_firmware => 'kittens',
         cpu_num => 2,
@@ -145,15 +147,16 @@ subtest 'update some fields in an existing profile and product' => sub {
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             name => 'ether1',
+            rack_unit_size => 4,
             hardware_product_profile => {
-                rack_unit => 3,
+                dimms_num => 3,
                 psu_total => undef,
             },
         })
         ->status_is(303);
 
-    $new_product->@{qw(name updated)} = ('ether1',re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/));
-    $new_product->{hardware_product_profile}->@{qw(rack_unit psu_total)} = (3,undef);
+    $new_product->@{qw(name rack_unit_size updated)} = ('ether1',4,re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/));
+    $new_product->{hardware_product_profile}->@{qw(dimms_num psu_total)} = (3,undef);
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(200)
@@ -167,7 +170,7 @@ subtest 'create a new hardware_product_profile in an existing product' => sub {
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             hardware_product_profile => {
-                rack_unit => 1,
+                dimms_num => 2,
             },
         })
         ->status_is(400)
@@ -178,7 +181,7 @@ subtest 'create a new hardware_product_profile in an existing product' => sub {
             json => { hardware_product_profile => $new_hw_profile })
         ->status_is(303);
 
-    $new_product->{hardware_product_profile}->@{qw(id rack_unit psu_total)} = (re(Conch::UUID::UUID_FORMAT),2,1);
+    $new_product->{hardware_product_profile}->@{qw(id dimms_num psu_total)} = (re(Conch::UUID::UUID_FORMAT),4,1);
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(200)
@@ -194,14 +197,14 @@ subtest 'create a hardware product and hardware product profile all together' =>
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
             alias => 'ether',
-            hardware_product_profile => { rack_unit => 1 },
+            rack_unit_size => 1,
+            hardware_product_profile => { dimms_num => 2 },
         })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', array_each({ path => re(qr{^/hardware_product_profile/}), message => re(qr/missing property/i) }));
 
     $new_hw_profile = {
-        rack_unit => 2,
         purpose => 'because',
         bios_firmware => 'kittens',
         cpu_num => 2,
@@ -217,6 +220,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
             alias => 'ether',
+            rack_unit_size => 2,
             hardware_product_profile => $new_hw_profile,
         })
         ->status_is(303);
@@ -236,6 +240,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             sku => undef,
             generation_name => undef,
             legacy_product_name => undef,
+            rack_unit_size => 2,
             hardware_product_profile => {
                 $new_hw_profile->%*,
                 id => re(Conch::UUID::UUID_FORMAT),

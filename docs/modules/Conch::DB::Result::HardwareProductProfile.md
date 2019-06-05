@@ -26,13 +26,6 @@ is_nullable: 0
 size: 16
 ```
 
-## rack\_unit
-
-```
-data_type: 'integer'
-is_nullable: 0
-```
-
 ## purpose
 
 ```

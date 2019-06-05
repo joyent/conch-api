@@ -370,7 +370,9 @@ CREATE TABLE public.hardware_product (
     specification jsonb,
     sku text,
     generation_name text,
-    legacy_product_name text
+    legacy_product_name text,
+    rack_unit_size integer NOT NULL,
+    CONSTRAINT hardware_product_rack_unit_size_check CHECK ((rack_unit_size > 0))
 );
 
 
@@ -383,7 +385,6 @@ ALTER TABLE public.hardware_product OWNER TO conch;
 CREATE TABLE public.hardware_product_profile (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     hardware_product_id uuid NOT NULL,
-    rack_unit integer NOT NULL,
     purpose text NOT NULL,
     bios_firmware text NOT NULL,
     hba_firmware text,
