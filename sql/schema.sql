@@ -259,7 +259,8 @@ CREATE TABLE public.device_location (
     rack_id uuid NOT NULL,
     rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT device_location_rack_unit_start_check CHECK ((rack_unit_start > 0))
 );
 
 
@@ -440,7 +441,8 @@ ALTER TABLE public.hardware_vendor OWNER TO conch;
 
 CREATE TABLE public.migration (
     id integer NOT NULL,
-    created timestamp with time zone DEFAULT now()
+    created timestamp with time zone DEFAULT now(),
+    CONSTRAINT migration_id_check CHECK ((id >= 0))
 );
 
 
@@ -475,7 +477,8 @@ CREATE TABLE public.rack_layout (
     hardware_product_id uuid NOT NULL,
     rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT rack_layout_rack_unit_start_check CHECK ((rack_unit_start > 0))
 );
 
 
@@ -490,7 +493,8 @@ CREATE TABLE public.rack_role (
     name text NOT NULL,
     rack_size integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT rack_role_rack_size_check CHECK ((rack_size > 0))
 );
 
 
@@ -508,7 +512,8 @@ CREATE TABLE public.relay (
     ssh_port integer,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT relay_ssh_port_check CHECK ((ssh_port >= 0))
 );
 
 
@@ -605,7 +610,8 @@ CREATE TABLE public.validation (
     module text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
-    deactivated timestamp with time zone
+    deactivated timestamp with time zone,
+    CONSTRAINT validation_version_check CHECK ((version > 0))
 );
 
 
@@ -653,7 +659,8 @@ CREATE TABLE public.validation_result (
     category text NOT NULL,
     component text,
     result_order integer NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT validation_result_result_order_check CHECK ((result_order >= 0))
 );
 
 
