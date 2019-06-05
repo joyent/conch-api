@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Conch::Log;
 use Sys::Hostname;
 use Mojo::File 'path';
+use Time::HiRes 'time'; # time() now has µs precision
 
 =pod
 
@@ -56,6 +57,10 @@ sub register ($self, $app, $config) {
         $next->();
     });
 
+    $app->hook(before_dispatch => sub ($c) {
+        $c->timing->begin('request_latency');
+    });
+
     my $dispatch_log = Conch::Log->new(
         history => $app->log->history,  # share history buffers
         %log_args,
@@ -99,6 +104,7 @@ sub register ($self, $app, $config) {
                         || ($c->feature('audit') && !(ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*))
                     ? ( body => $c->res->json // $c->res->text ) : (),
             },
+            latency => int(1000 * $c->timing->elapsed('request_latency')),
         };
 
         if (my $exception = $c->stash('exception')) {
