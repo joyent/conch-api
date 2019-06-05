@@ -208,38 +208,16 @@ definitions:
       rack_unit_start:
         type: integer
   HardwareProductCreate:
-    type: object
-    additionalProperties: false
-    required:
-      - name
-      - alias
-      - hardware_vendor_id
-    properties:
-      name:
-        type: string
-      alias:
-        type: string
-      prefix:
-        oneOf:
-          - type: string
-          - type: 'null'
-      hardware_vendor_id:
-        $ref: common.yaml#/definitions/uuid
-      specification:
-        description: json blob of additional data
-        oneOf:
-          - type: string
-          - type: 'null'
-      sku:              # nullable in the db, but required for new entries
-        type: string
-      generation_name:  # nullable in the db, but required for new entries
-        type: string
-      legacy_product_name:
-        oneOf:
-          - type: string
-          - type: 'null'
-      hardware_product_profile:
-        $ref: /definitions/HardwareProductProfileCreate
+    allOf:
+      - $ref: /definitions/HardwareProductUpdate
+      - required:
+        - name
+        - alias
+        - hardware_vendor_id
+      - type: object
+        properties:
+          hardware_product_profile:
+            $ref: /definitions/HardwareProductProfileCreate
   HardwareProductProfileUpdate:
     type: object
     additionalProperties: false

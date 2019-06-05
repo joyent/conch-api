@@ -334,6 +334,7 @@ $t->get_ok('/schema/request/HardwareProductCreate')
     ->json_cmp_deeply('', superhashof({
         definitions => {
             uuid => superhashof({}),
+            HardwareProductUpdate => superhashof({}),
             HardwareProductProfileCreate => superhashof({}),
             HardwareProductProfileUpdate => superhashof({}),
         },
