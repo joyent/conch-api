@@ -276,7 +276,7 @@ You may also provide the following attributes to override validation results
     attribute.
 
     This value is not stored in the database. To disambiguate multiple results in the database, use
-    `component_id`.
+    `component`.
 
     ```perl
     $self->register_result(
@@ -314,16 +314,16 @@ You may also provide the following attributes to override validation results
     );
     ```
 
-- `component_id`
+- `component`
 
-    You may specify the optional string attribute `component_id` to set an
+    You may specify the optional string attribute `component` to set an
     identifier to help identify a specific component under test.
 
     ```perl
     $self->register_result(
         expected     => 'OK',
         got          => $disk->{health},
-        component_id => $disk->{serial_number}
+        component    => $disk->{serial_number}
     );
     ```
 
@@ -370,7 +370,7 @@ $self->fail('This validation fails but validation evaluation will continue')
     unless defined($data->{required_value});
 ```
 
-The attributes `name`, `category`, `component_id`, and `hint` may be
+The attributes `name`, `category`, `component`, and `hint` may be
 specified like with ["register\_result"](#register_result).
 
 ```perl

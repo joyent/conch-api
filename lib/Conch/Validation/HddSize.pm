@@ -17,7 +17,7 @@ sub validate ($self, $data) {
         my $drive_model = $data->{disks}{$disk_serial}{model};
         if (not $drive_model) {
             $self->fail('missing drive model for disk '.$disk_serial,
-                component_id => $disk_serial);
+                component => $disk_serial);
             next;
         }
 
@@ -25,14 +25,14 @@ sub validate ($self, $data) {
         my $size_spec = $hw_spec->{disk_size}{$drive_model} // $hw_spec->{disk_size}{_default};
         if (not $size_spec) {
             $self->fail('missing size specification for model '.$drive_model,
-                component_id => $disk_serial);
+                component => $disk_serial);
             next;
         }
 
         $self->register_result(
             got => $data->{disks}{$disk_serial}{block_sz},
             expected => $size_spec,
-            component_id => $disk_serial,
+            component => $disk_serial,
         );
     }
 }

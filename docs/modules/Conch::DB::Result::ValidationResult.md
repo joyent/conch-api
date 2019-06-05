@@ -72,7 +72,7 @@ data_type: 'text'
 is_nullable: 0
 ```
 
-## component\_id
+## component
 
 ```
 data_type: 'text'

@@ -650,7 +650,7 @@ CREATE TABLE public.validation_result (
     hint text,
     status public.validation_status_enum NOT NULL,
     category text NOT NULL,
-    component_id text,
+    component text,
     result_order integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL
 );

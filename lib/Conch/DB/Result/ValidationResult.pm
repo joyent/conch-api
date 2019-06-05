@@ -76,7 +76,7 @@ __PACKAGE__->table("validation_result");
   data_type: 'text'
   is_nullable: 0
 
-=head2 component_id
+=head2 component
 
   data_type: 'text'
   is_nullable: 1
@@ -124,7 +124,7 @@ __PACKAGE__->add_columns(
   },
   "category",
   { data_type => "text", is_nullable => 0 },
-  "component_id",
+  "component",
   { data_type => "text", is_nullable => 1 },
   "result_order",
   { data_type => "integer", is_nullable => 0 },
@@ -227,7 +227,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j+BVGcQVKqfsmaxGO5beRg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7w+LDN1uxN72P3styqzW5A
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

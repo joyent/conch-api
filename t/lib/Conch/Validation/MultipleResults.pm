@@ -12,7 +12,7 @@ sub validate ($self, $data) {
     $self->register_result(
         got => 'hi',
         expected => 'hi',
-        component_id => 'x',
+        component => 'x',
         hint => 'this is ignored',
     );
     $self->register_result(
@@ -21,7 +21,7 @@ sub validate ($self, $data) {
         name => 'new name',
         message => 'new message',
         category => 'new category',
-        component_id => 'y',
+        component => 'y',
         hint => 'stfu',
     );
 }

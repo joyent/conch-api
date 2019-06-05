@@ -1034,7 +1034,7 @@ definitions:
     required:
       - id
       - category
-      - component_id
+      - component
       - hardware_product_id
       - hint
       - message
@@ -1048,7 +1048,7 @@ definitions:
           - $ref: common.yaml#/definitions/uuid
       category:
         type: string
-      component_id:
+      component:
         oneOf:
           - type: 'null'
           - type: string

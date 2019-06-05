@@ -30,7 +30,7 @@ sub validate {
         $self->register_result(
             expected     => 'OK',
             got          => $disk->{health},
-            component_id => $disk_sn
+            component    => $disk_sn
         );
     }
 }

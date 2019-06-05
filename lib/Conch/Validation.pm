@@ -423,7 +423,7 @@ Validation class. You may override the validation result name with this
 attribute.
 
 This value is not stored in the database. To disambiguate multiple results in the database, use
-C<component_id>.
+C<component>.
 
     $self->register_result(
         expected => 'hello',
@@ -455,15 +455,15 @@ attribute.
         category => 'BIOS'
     );
 
-=item C<component_id>
+=item C<component>
 
-You may specify the optional string attribute C<component_id> to set an
+You may specify the optional string attribute C<component> to set an
 identifier to help identify a specific component under test.
 
     $self->register_result(
         expected     => 'OK',
         got          => $disk->{health},
-        component_id => $disk->{serial_number}
+        component    => $disk->{serial_number}
     );
 
 =item C<hint>
@@ -556,7 +556,7 @@ sub register_result ($self, %attrs) {
         message  => $attrs{message}  || $message,
         name     => $attrs{name}     || $self->name,
         category => $attrs{category} || $self->category,
-        component_id => $attrs{component_id},
+        component    => $attrs{component},
         status       => $success ? _STATUS_PASS : _STATUS_FAIL,
         hint         => $success ? undef : $attrs{hint},
     };
@@ -626,7 +626,7 @@ continue validating other parts of the data.
     $self->fail('This validation fails but validation evaluation will continue')
         unless defined($data->{required_value});
 
-The attributes C<name>, C<category>, C<component_id>, and C<hint> may be
+The attributes C<name>, C<category>, C<component>, and C<hint> may be
 specified like with L</register_result>.
 
     $self->fail('I fail!',
@@ -641,7 +641,7 @@ sub fail ($self, $message, %attrs) {
         message      => $message,
         name         => $attrs{name} || $self->name,
         category     => $attrs{category} || $self->category,
-        component_id => $attrs{component_id},
+        component    => $attrs{component},
         status       => _STATUS_FAIL,
         hint         => $attrs{hint}
     };

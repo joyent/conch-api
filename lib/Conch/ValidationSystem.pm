@@ -351,7 +351,7 @@ sub run_validation_plan ($self, %options) {
                 validation_id       => $validation->id,
                 device_id           => $device->id,
                 hardware_product_id => $validator->hardware_product->id,
-                $_->%{qw(message hint status category component_id)},
+                $_->%{qw(message hint status category component)},
             }),
             $validator->validation_results;
     }
@@ -419,7 +419,7 @@ sub run_validation ($self, %options) {
             validation_id       => $validation->id,
             device_id           => $device->id,
             hardware_product_id => $validator->hardware_product->id,
-            $_->%{qw(message hint status category component_id)},
+            $_->%{qw(message hint status category component)},
         }),
         $validator->validation_results;
 
