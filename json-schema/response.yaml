@@ -1086,10 +1086,8 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       completed:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: string
+        format: date-time
       created:
         type: string
         format: date-time
@@ -1122,10 +1120,8 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       completed:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: string
+        format: date-time
       created:
         type: string
         format: date-time

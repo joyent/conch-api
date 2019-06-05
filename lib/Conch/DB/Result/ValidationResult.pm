@@ -68,7 +68,7 @@ __PACKAGE__->table("validation_result");
 =head2 status
 
   data_type: 'enum'
-  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","processing","pass"]}
+  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
   is_nullable: 0
 
 =head2 category
@@ -118,7 +118,7 @@ __PACKAGE__->add_columns(
     data_type => "enum",
     extra => {
       custom_type_name => "validation_status_enum",
-      list => ["error", "fail", "processing", "pass"],
+      list => ["error", "fail", "pass"],
     },
     is_nullable => 0,
   },
@@ -227,7 +227,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:L5ZgyNsNYfWBo+KYSmPVoQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j+BVGcQVKqfsmaxGO5beRg
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

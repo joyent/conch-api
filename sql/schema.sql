@@ -93,7 +93,6 @@ ALTER TYPE public.user_workspace_role_enum OWNER TO conch;
 CREATE TYPE public.validation_status_enum AS ENUM (
     'error',
     'fail',
-    'processing',
     'pass'
 );
 
@@ -669,7 +668,7 @@ CREATE TABLE public.validation_state (
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum NOT NULL,
-    completed timestamp with time zone,
+    completed timestamp with time zone NOT NULL,
     device_report_id uuid NOT NULL
 );
 
@@ -1383,7 +1382,7 @@ CREATE INDEX validation_state_device_id_idx ON public.validation_state USING btr
 -- Name: validation_state_device_id_validation_plan_id_completed_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC) WHERE (completed IS NOT NULL);
+CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC);
 
 
 --

@@ -67,10 +67,8 @@ definitions:
     description: corresponds to validation_status_enum in the database
     type: string
     enum:
-      # TODO: remove antiquated 'processing'
       - error
       - fail
-      - processing
       - pass
   non_empty_string:
     type: string

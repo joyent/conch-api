@@ -47,7 +47,7 @@ original: {default_value => \"now()"}
 
 ```perl
 data_type: 'enum'
-extra: {custom_type_name => "validation_status_enum",list => ["error","fail","processing","pass"]}
+extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
 is_nullable: 0
 ```
 
@@ -55,7 +55,7 @@ is_nullable: 0
 
 ```
 data_type: 'timestamp with time zone'
-is_nullable: 1
+is_nullable: 0
 ```
 
 ## device\_report\_id

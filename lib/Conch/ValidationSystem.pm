@@ -365,7 +365,6 @@ sub run_validation_plan ($self, %options) {
     my $status = reduce {
         $a eq 'error' || $b eq 'error' ? 'error'
       : $a eq 'fail' || $b eq 'fail' ? 'fail'
-      : $a eq 'processing' || $b eq 'processing' ? 'processing'
       : $a; # pass
     } map $_->status, @validation_results;
 

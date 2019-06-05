@@ -61,7 +61,7 @@ is_nullable: 1
 
 ```perl
 data_type: 'enum'
-extra: {custom_type_name => "validation_status_enum",list => ["error","fail","processing","pass"]}
+extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
 is_nullable: 0
 ```
 

@@ -58,13 +58,13 @@ __PACKAGE__->table("validation_state");
 =head2 status
 
   data_type: 'enum'
-  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","processing","pass"]}
+  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
   is_nullable: 0
 
 =head2 completed
 
   data_type: 'timestamp with time zone'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 device_report_id
 
@@ -99,12 +99,12 @@ __PACKAGE__->add_columns(
     data_type => "enum",
     extra => {
       custom_type_name => "validation_status_enum",
-      list => ["error", "fail", "processing", "pass"],
+      list => ["error", "fail", "pass"],
     },
     is_nullable => 0,
   },
   "completed",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
+  { data_type => "timestamp with time zone", is_nullable => 0 },
   "device_report_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
@@ -199,7 +199,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yN5z1kiYZILdKOK92ANSgA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IW7WIVipHk9DhkNSWWdevw
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },

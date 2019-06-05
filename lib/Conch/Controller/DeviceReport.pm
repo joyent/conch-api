@@ -62,7 +62,7 @@ sub process ($c) {
     my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
 
     # capture information about the last report before we store the new one
-    # state can be: error, fail, processing, pass, where no validations on a valid report is
+    # state can be: error, fail, pass, where no validations on a valid report is
     # considered to be a pass.
     my ($previous_report_id, $previous_report_status);
     if ($existing_device) {
