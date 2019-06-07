@@ -49,12 +49,10 @@ Restrict results to those that do not have a registered location.
 =cut
 
 sub devices_without_location ($self) {
-    $self->search({
-        # all devices in device_location table
-        $self->current_source_alias.'.id' => {
-            -not_in => $self->result_source->schema->resultset('device_location')->get_column('device_id')->as_query
-         },
-    });
+    $self->search(
+        { 'device_location.rack_id' => undef },
+        { join => 'device_location' },
+    );
 }
 
 =head2 latest_device_report
