@@ -22,6 +22,8 @@ my $hostname = Sys::Hostname::hostname;
 open my $log_fh, '>:raw', \my $fake_log_file or die "cannot open to scalarref: $!";
 sub reset_log { $fake_log_file = ''; seek $log_fh, 0, 0; }
 
+my $api_version_re = qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/;
+
 {
     my $regular_log = Conch::Log->new(handle => $log_fh);
     $regular_log->info('this is a 💩 info', 'message 0');
@@ -227,7 +229,7 @@ sub add_test_routes ($app) {
     my $dispatch_data = +{
         level => 'info',
         msg => 'dispatch',
-        api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+        api_version => re($api_version_re),
         latency => re(qr/^\d+$/),
         req => {
             user        => 'NOT AUTHED',
@@ -349,7 +351,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
@@ -383,7 +385,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
@@ -442,7 +444,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
@@ -477,7 +479,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
@@ -542,7 +544,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
@@ -577,7 +579,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
@@ -637,7 +639,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
@@ -672,7 +674,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
@@ -708,7 +710,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
@@ -743,7 +745,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
@@ -779,7 +781,7 @@ sub add_test_routes ($app) {
             level => 'info',
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
-            api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
