@@ -148,8 +148,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OI7LN23DmloIV1FBrPHuJQ
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GYdtFEOP7vwaSfglNtVehw
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

@@ -218,8 +218,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-11 12:50:48
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fyW7v8ejtONdS6AEVOBvUA
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9iRHJyYrxtWJ0Vrr+DegaQ
 
 __PACKAGE__->add_columns(
     '+device_id' => { is_serializable => 0 },

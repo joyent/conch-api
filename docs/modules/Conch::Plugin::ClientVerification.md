@@ -1,14 +1,14 @@
 # NAME
 
-update\_validation\_states - set validation\_state.device\_report\_id
+Conch::Plugin::ClientVerification
 
-# SYNOPSIS
+# DESCRIPTION
 
-```
-bin/conch update_validation_states [long options...]
+Checks the version of the client sending us a request, possibly rejecting it if it does not
+meet our criteria.
 
-    --help  print usage message and exit
-```
+For security reasons we do not specify the reason for the rejection in the error response,
+but we will log it.
 
 # LICENSING
 

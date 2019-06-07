@@ -8,13 +8,10 @@ use Mojo::Log;
 use Path::Tiny;
 use Test::Fatal;
 
-open my $log_fh, '>', \my $fake_log or die "cannot open to scalarref: $!";
-my $logger = Mojo::Log->new(handle => $log_fh);
-sub reset_log { $logger->history([]); }
+my $t = Test::Conch->new;
+my $schema = $t->app->schema;
 
-my ($pg, $schema) = Test::Conch->init_db;
-
-my $validation_system = Conch::ValidationSystem->new(log => $logger, schema => $schema);
+my $validation_system = Conch::ValidationSystem->new(log => $t->app->log, schema => $schema);
 my $validation_rs = $schema->resultset('validation');
 
 # ether still likes to play a round or two if the course is nice
@@ -35,7 +32,7 @@ my $validation_plan = $schema->resultset('validation_plan')->create({
 subtest 'an existing validation has changed but the version was not incremented' => sub {
     no warnings 'once', 'redefine';
     *Conch::Validation::DeviceProductName::description = sub () { 'I made a change but forgot to update the version' };
-    reset_log;
+    $t->reset_log;
 
     like(
         exception { $validation_system->update_validation_plans },
@@ -48,7 +45,7 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
     no warnings 'once', 'redefine';
     *Conch::Validation::DeviceProductName::description = sub () { 'this is better than before!' };
     *Conch::Validation::DeviceProductName::version = sub () { 2 };
-    reset_log;
+    $t->reset_log;
 
     $validation_system->update_validation_plans;
     $validation_plan->discard_changes({ prefetch => { validation_plan_members => 'validation' } });
@@ -90,10 +87,8 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
         'the new validation_plan contains the new validation record with updated information',
     );
 
-    cmp_deeply(
-        $logger->history,
-        superbagof([ ignore, ignore,
-            'plan my_humble_plan had 2 active validations and now has 1: deactivating the plan and replacing it with a new one containing updated validations' ]),
+    $t->log_is(
+        'plan my_humble_plan had 2 active validations and now has 1: deactivating the plan and replacing it with a new one containing updated validations',
         'logged the plan update',
     );
 };
@@ -149,12 +144,11 @@ subtest 'a validation module was deleted entirely' => sub {
     is($newest_validation_plan->validation_plan_members, 2,
         'newest version of the validation plan is back down to 2 active validations');
 
-    cmp_deeply(
-        $logger->history,
-        superbagof(
-            [ ignore, ignore, 'deactivating validation for no-longer-present modules: Conch::Validation::OldAndCrufty' ],
-            [ ignore, ignore, 'plan my_humble_plan had 3 active validations and now has 2: deactivating the plan and replacing it with a new one containing updated validations' ],
-        ),
+    $t->logs_are(
+        [
+            'deactivating validation for no-longer-present modules: Conch::Validation::OldAndCrufty',
+            'plan my_humble_plan had 3 active validations and now has 2: deactivating the plan and replacing it with a new one containing updated validations',
+        ],
         'logged the validation deactivation and plan update',
     );
 };

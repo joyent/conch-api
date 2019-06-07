@@ -228,6 +228,7 @@ sub add_test_routes ($app) {
         level => 'info',
         msg => 'dispatch',
         api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+        latency => re(qr/^\d+$/),
         req => {
             user        => 'NOT AUTHED',
             method      => 'GET',
@@ -349,6 +350,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
@@ -382,6 +384,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
@@ -440,6 +443,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
@@ -474,6 +478,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
                 method      => 'POST',
@@ -538,6 +543,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
@@ -572,6 +578,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
@@ -631,6 +638,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
@@ -665,6 +673,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'GET',
@@ -700,6 +709,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
                 method      => 'POST',
@@ -734,6 +744,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
                 method      => 'POST',
@@ -769,6 +780,7 @@ sub add_test_routes ($app) {
             req_id => $t->tx->res->headers->header('Request-Id'),
             msg => 'dispatch',
             api_version => re(qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/),
+            latency => re(qr/^\d+$/),
             req => {
                 user        => $t->CONCH_EMAIL.' ('.$user_id.')',
                 method      => 'POST',

@@ -20,17 +20,12 @@ my $t = Test::Conch->new;
 my $device = $t->load_fixture('device_HAL');
 $device = $t->app->db_ro_devices->find($device->id);
 
-open my $log_fh, '>', \my $fake_log or die "cannot open to scalarref: $!";
-my $logger = Mojo::Log->new(handle => $log_fh);
-sub reset_log { $fake_log = ''; seek $log_fh, 0, 0; }
-
-
 subtest '->run, local exception' => sub {
-    reset_log;
+    $t->reset_log;
 
     require Conch::Validation::LocalException;
     my $validator = Conch::Validation::LocalException->new(
-        log              => $logger,
+        log              => $t->app->log,
         device           => $device,
     );
     $validator->run({});
@@ -49,9 +44,8 @@ subtest '->run, local exception' => sub {
         'correctly parsed an exception from an external library containing a stack trace',
     );
 
-    like(
-        $fake_log,
-        qr/Validation 'local_exception' threw an exception: I did something dumb/,
+    $t->log_is(
+        re(qr/Validation 'local_exception' threw an exception: I did something dumb/),
         'logged the unexpected exception',
     );
 };
@@ -61,11 +55,11 @@ my $exception_test = sub ($use_stack_traces = 0) {
         ? Devel::Confess->import
         : Devel::Confess->unimport;
 
-    reset_log;
+    $t->reset_log;
 
     require Conch::Validation::ExternalException;
     my $validator = Conch::Validation::ExternalException->new(
-        log              => $logger,
+        log              => $t->app->log,
         device           => $device,
     );
     $validator->run({});
@@ -84,9 +78,8 @@ my $exception_test = sub ($use_stack_traces = 0) {
         'correctly parsed an exception from an external library, identifying the validator line that called the library',
     );
 
-    like(
-        $fake_log,
-        qr/unexpected end of string while parsing JSON string/,
+    $t->log_is(
+        re(qr/unexpected end of string while parsing JSON string/),
         'logged the unexpected exception',
     );
 };
@@ -96,11 +89,11 @@ subtest '->run, unblessed external exception with no stack trace' => $exception_
 subtest '->run, unblessed external exception with stack trace' => $exception_test, 1;
 
 subtest '->run, blessed external exception containing a stack trace' => sub {
-    reset_log;
+    $t->reset_log;
 
     require Conch::Validation::MutateDevice;
     my $validator = Conch::Validation::MutateDevice->new(
-        log              => $logger,
+        log              => $t->app->log,
         device           => $device,
     );
     $validator->run({});
@@ -119,9 +112,8 @@ subtest '->run, blessed external exception containing a stack trace' => sub {
         'correctly parsed an exception from an external library containing a stack trace',
     );
 
-    like(
-        $fake_log,
-        qr/Validation 'mutate_device' threw an exception: .*cannot execute UPDATE in a read-only transaction/,
+    $t->log_is(
+        re(qr/Validation 'mutate_device' threw an exception: .*cannot execute UPDATE in a read-only transaction/),
         'logged the unexpected exception',
     );
 };

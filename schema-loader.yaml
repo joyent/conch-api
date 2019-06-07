@@ -20,6 +20,10 @@ loader_options:
     DeviceNeighbor:
       mac: device_nic
 
+  naming: v8 # the latest and greatest (v7 is still the default)
+
   # this is usually more useful than not, but take care that you don't blow away any changes
   # not yet in git!
   overwrite_modifications: 1
+
+  omit_timestamp: 1

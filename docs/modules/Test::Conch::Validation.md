@@ -34,7 +34,7 @@ test_validation(
         }
     },
     device_location => {
-        rack_unit       => 2,
+        rack_unit_start => 2,
         rack => {
             rack_layouts => [
                 { rack_unit_start => 1 },

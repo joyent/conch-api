@@ -8,7 +8,7 @@ use JSON::Validator;
 use Test::Deep;
 use Test::Fatal;
 
-my $t = Test::Conch->new;
+my $t = Test::Conch->new(pg => undef);
 
 subtest '/device/:id/interface/:iface_name/:field validation' => sub {
     my $validator = $t->app->get_response_validator;

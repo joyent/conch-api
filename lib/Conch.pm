@@ -76,7 +76,7 @@ sub startup {
             $c->res->code($code);
 
             if (any { $code == $_ } 301, 302, 303, 307, 308) {
-                $c->redirect_to($c->url_for($payload));
+                $c->redirect_to($payload);
             }
             else {
                 $c->respond_to(
@@ -115,6 +115,9 @@ sub startup {
         }
     );
 
+    $self->plugin('Conch::Plugin::ClientVerification', $self->config)
+        if $self->feature('verify_client_version') // 1;
+
     $self->plugin('Util::RandomString' => {
         alphabet => '2345679bdfhmnprtFGHJLMNPRT*#!@^-_+=',
         length => 30
@@ -131,7 +134,8 @@ sub startup {
     push $self->commands->namespaces->@*, 'Conch::Command';
 
     Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)
-        ->check_validation_plans;
+            ->check_validation_plans
+        if not $self->feature('no_db');
 
     Conch::Route->all_routes($self->routes, $self);
 }

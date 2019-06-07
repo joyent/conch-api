@@ -90,18 +90,18 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-    my $pg = $args->{pg} // $class->init_db;
-    $pg or Test::More::BAIL_OUT('failed to create test database');
+    my $pg = exists $args->{pg} ? $args->{pg}
+        : $class->init_db // Test::More::BAIL_OUT('failed to create test database');
 
     my $self = Test::Mojo->new(
         Conch => {
             database => {
-                dsn => $pg->dsn,
-                username => $pg->dbowner,
+                $pg ? ( dsn => $pg->dsn, username => $pg->dbowner )
+                    : ( dsn => 'there is no database', username => '' )
             },
 
             secrets => ['********'],
-            features => { audit => 1 },
+            features => { audit => 1, no_db => ($pg ? 0 : 1) },
 
             $args->{config} ? $args->{config}->%* : (),
         }
@@ -439,7 +439,7 @@ Not-nullable fields are filled in with sensible defaults, but all may be overrid
 e.g.:
 
     $t->generate_fixture_definitions(
-        device_location => { rack_unit => 3 },
+        device_location => { rack_unit_start => 3 },
         rack_layouts => [
             { rack_unit_start => 1 },
             { rack_unit_start => 2 },
@@ -584,7 +584,7 @@ sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
     $self->_test(
         'Test::Deep::cmp_deeply',
         $self->app->log->history,
-        Test::Deep::supersetof([
+        Test::Deep::superbagof([
             Test::Deep::ignore,             # time
             $level // Test::Deep::ignore,   # level
             ref $expected_msg eq 'ARRAY' ? $expected_msg->@* : $expected_msg, # content
@@ -599,10 +599,42 @@ sub log_warn_is  ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'warn'); goto \&l
 sub log_error_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'error'); goto \&log_is }
 sub log_fatal_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'fatal'); goto \&log_is }
 
+=head2 logs_are
+
+Like L</log_is>, but tests for multiple messages at once.
+
+=cut
+
+sub logs_are ($self, $expected_msgs, $test_name = 'log line', $level = undef) {
+    $self->_test(
+        'Test::Deep::cmp_deeply',
+        $self->app->log->history,
+        Test::Deep::superbagof(
+            map [
+                Test::Deep::ignore,             # time
+                $level // Test::Deep::ignore,   # level
+                $_,                             # content
+            ],
+            $expected_msgs->@*,
+        ),
+        $test_name,
+    );
+}
+
+=head2 reset_log
+
+Clears the log history. This does not normally need to be explicitly called, since it is
+cleared before every request.
+
+=cut
+
+sub reset_log ($self) {
+    $self->app->log->history->@* = ();
+}
 
 sub _request_ok ($self, @args) {
     undef $self->{_mail_composed};
-    $self->app->log->history([]);
+    $self->reset_log;
     my $result = $self->next::method(@args);
     Test::More::diag 'log history: ',
             Data::Dumper->new([ $self->app->log->history ])->Indent(1)->Terse(1)->Dump

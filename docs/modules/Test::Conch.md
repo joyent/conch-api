@@ -145,7 +145,7 @@ e.g.:
 
 ```perl
 $t->generate_fixture_definitions(
-    device_location => { rack_unit => 3 },
+    device_location => { rack_unit_start => 3 },
     rack_layouts => [
         { rack_unit_start => 1 },
         { rack_unit_start => 2 },
@@ -213,6 +213,15 @@ one specific log level:
 ## log\_error\_is
 
 ## log\_fatal\_is
+
+## logs\_are
+
+Like ["log\_is"](#log_is), but tests for multiple messages at once.
+
+## reset\_log
+
+Clears the log history. This does not normally need to be explicitly called, since it is
+cleared before every request.
 
 # LICENSING
 

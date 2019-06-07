@@ -135,8 +135,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-12 15:36:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+QPeM7zTnRVpPfuHsLXs8A
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/0ptty/13YaSE5Dw6xd/5Q
 
 __PACKAGE__->add_columns(
     '+retain' => { is_serializable => 0 },

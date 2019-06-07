@@ -141,11 +141,11 @@ line of the exception.
                 my ($error) = split(/\n/, $exception, 2);
                 $c->status($c->res->code // 400, { error => $error });
             }
-            $c->rendered(400) if not $c->res->code;
             return;
         };
     });
 
+    return if $app->feature('no_db');
 
     # verify that we are running the version of postgres we expect...
     my $pgsql_version = Conch::DB::Util::get_postgres_version($app->schema);

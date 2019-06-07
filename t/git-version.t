@@ -4,7 +4,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Conch;
 
-my $t = Test::Conch->new;
+my $t = Test::Conch->new(pg => undef);
 
 like($t->app->version_tag, qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/, 'got the version tag');
 

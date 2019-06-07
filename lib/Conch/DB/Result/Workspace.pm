@@ -174,8 +174,8 @@ Composing rels: L</workspace_racks> -> rack
 __PACKAGE__->many_to_many("racks", "workspace_racks", "rack");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-03-05 12:50:12
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XPeRYrFMA7VfFHuKwOS8Sw
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RsBlQ3oLCLqT577UfUsn2g
 
 use experimental 'signatures';
 

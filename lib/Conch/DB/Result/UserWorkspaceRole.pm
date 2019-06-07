@@ -136,8 +136,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-28 09:38:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hs71O1DNkAntlZaQf80Fng
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:C9QntnAPTnpmIVzf6eU4Ow
 
 =head2 role_cmp
 

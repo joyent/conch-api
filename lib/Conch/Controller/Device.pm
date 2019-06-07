@@ -262,8 +262,7 @@ sub graduate ($c) {
     $device->update({ graduated => \'now()', updated => \'now()' });
     $c->log->debug('Marked '.$device_id.' as graduated');
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$device_id));
+    $c->status(303, '/device/'.$device_id);
 }
 
 =head2 set_triton_reboot
@@ -281,8 +280,7 @@ sub set_triton_reboot ($c) {
 
     $c->log->debug('Marked '.$device->id.' as rebooted into triton');
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$device->id));
+    $c->status(303, '/device/'.$device->id);
 }
 
 =head2 set_triton_uuid
@@ -301,8 +299,7 @@ sub set_triton_uuid ($c) {
     $device->update({ triton_uuid => $input->{triton_uuid}, updated => \'now()' });
     $c->log->debug('Set the triton uuid for device '.$device->id.' to '.$input->{triton_uuid});
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$device->id));
+    $c->status(303, '/device/'.$device->id);
 }
 
 =head2 set_triton_setup
@@ -335,8 +332,7 @@ sub set_triton_setup ($c) {
     $device->update({ triton_setup => \'now()', updated => \'now()' });
     $c->log->debug('Device '.$device_id.' marked as set up for triton');
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$device_id));
+    $c->status(303, '/device/'.$device_id);
 }
 
 =head2 set_asset_tag
@@ -354,8 +350,7 @@ sub set_asset_tag ($c) {
     $device->update({ asset_tag => $input->{asset_tag}, updated => \'now()' });
     $c->log->debug('Set the asset tag for device '.$device->id.' to '.($input->{asset_tag} // 'null'));
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$device->id));
+    $c->status(303, '/device/'.$device->id);
 }
 
 =head2 set_validated
@@ -375,8 +370,7 @@ sub set_validated ($c) {
     $device->update({ validated => \'now()', updated => \'now()' });
     $c->log->debug('Marked the device '.$device_id.' as validated');
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$device_id));
+    $c->status(303, '/device/'.$device_id);
 }
 
 =head2 get_phase
@@ -400,8 +394,7 @@ sub set_phase ($c) {
     $c->stash('device_rs')->update({ phase => $input->{phase}, updated => \'now()' });
     $c->log->debug('Set the phase for device '.$c->stash('device_id').' to '.$input->{phase});
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/device/'.$c->stash('device_id')));
+    $c->status(303, '/device/'.$c->stash('device_id'));
 }
 
 1;

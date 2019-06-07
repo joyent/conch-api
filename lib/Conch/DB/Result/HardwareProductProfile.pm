@@ -327,8 +327,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-12 15:57:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:35Fj4oXqqLgKviBKufQi/A
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:A0d1Pmyg3nXXBUIx/wf1oA
 
 __PACKAGE__->add_columns(
     '+hardware_product_id' => { is_serializable => 0 },

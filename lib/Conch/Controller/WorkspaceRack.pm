@@ -262,8 +262,7 @@ sub add ($c) {
         $rack->update({ updated => \'now()' }) if $rack->is_changed;
     }
 
-    $c->status(303);
-    $c->redirect_to($c->url_for('/workspace/'.$c->stash('workspace_id').'/rack/'.$rack_id));
+    $c->status(303, '/workspace/'.$c->stash('workspace_id').'/rack/'.$rack_id);
 }
 
 =head2 remove
