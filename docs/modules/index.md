@@ -43,7 +43,6 @@
 * [Conch::DB::Result::DatacenterRoom](../modules/Conch::DB::Result::DatacenterRoom)
 * [Conch::DB::Result::Device](../modules/Conch::DB::Result::Device)
 * [Conch::DB::Result::DeviceDisk](../modules/Conch::DB::Result::DeviceDisk)
-* [Conch::DB::Result::DeviceEnvironment](../modules/Conch::DB::Result::DeviceEnvironment)
 * [Conch::DB::Result::DeviceLocation](../modules/Conch::DB::Result::DeviceLocation)
 * [Conch::DB::Result::DeviceNeighbor](../modules/Conch::DB::Result::DeviceNeighbor)
 * [Conch::DB::Result::DeviceNic](../modules/Conch::DB::Result::DeviceNic)

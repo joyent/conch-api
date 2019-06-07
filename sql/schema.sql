@@ -227,25 +227,6 @@ CREATE TABLE public.device_disk (
 ALTER TABLE public.device_disk OWNER TO conch;
 
 --
--- Name: device_environment; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_environment (
-    cpu0_temp integer,
-    cpu1_temp integer,
-    inlet_temp integer,
-    exhaust_temp integer,
-    psu0_voltage numeric,
-    psu1_voltage numeric,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL,
-    device_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.device_environment OWNER TO conch;
-
---
 -- Name: device_location; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -746,14 +727,6 @@ ALTER TABLE ONLY public.device_disk
 
 ALTER TABLE ONLY public.device_disk
     ADD CONSTRAINT device_disk_serial_number_key UNIQUE (serial_number);
-
-
---
--- Name: device_environment device_environment_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_environment
-    ADD CONSTRAINT device_environment_pkey PRIMARY KEY (device_id);
 
 
 --
@@ -1466,14 +1439,6 @@ ALTER TABLE ONLY public.datacenter_room
 
 ALTER TABLE ONLY public.device_disk
     ADD CONSTRAINT device_disk_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
-
-
---
--- Name: device_environment device_environment_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_environment
-    ADD CONSTRAINT device_environment_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
 
 
 --

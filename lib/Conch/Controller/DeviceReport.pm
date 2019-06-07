@@ -188,18 +188,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                 $c->log->warn('received report without relay id (device_id '. $device->id.')');
             }
 
-            if ($dr->{temp}) {
-                $device->related_resultset('device_environment')->update_or_create({
-                    cpu0_temp    => $dr->{temp}->{cpu0},
-                    cpu1_temp    => $dr->{temp}->{cpu1},
-                    inlet_temp   => $dr->{temp}->{inlet},
-                    exhaust_temp => $dr->{temp}->{exhaust},
-                    # TODO: not setting psu0_voltage, psu1_voltage
-                    updated      => \'now()',
-                });
-                $c->log->info('Recorded environment for Device '.$device->id);
-            }
-
             # Keep track of which disk serials have been previously recorded in the
             # DB but are no longer being reported due to a disk swap, etc.
             my @device_disk_serials = $device->related_resultset('device_disks')

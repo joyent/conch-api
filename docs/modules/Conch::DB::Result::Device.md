@@ -133,12 +133,6 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceDisk](../modules/Conch::DB::Result::DeviceDisk)
 
-## device\_environment
-
-Type: might\_have
-
-Related object: [Conch::DB::Result::DeviceEnvironment](../modules/Conch::DB::Result::DeviceEnvironment)
-
 ## device\_location
 
 Type: might\_have

@@ -227,21 +227,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 device_environment
-
-Type: might_have
-
-Related object: L<Conch::DB::Result::DeviceEnvironment>
-
-=cut
-
-__PACKAGE__->might_have(
-  "device_environment",
-  "Conch::DB::Result::DeviceEnvironment",
-  { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 device_location
 
 Type: might_have
@@ -364,7 +349,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DQ1DA/u3x67C2dnZEr6j8g
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8lBNoN9iNbTHrZ0MPBJo/w
 
 __PACKAGE__->has_many(
   "active_device_disks",
