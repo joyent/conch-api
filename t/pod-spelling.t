@@ -7,12 +7,8 @@ use Test::Warnings;
 use Test::Spelling 0.12;
 use Pod::Wordlist;
 use YAML::XS;
-use Conch::Plugin::JsonValidator;
 
-foreach my $file (
-    Conch::Plugin::JsonValidator::OUTPUT_SCHEMA_FILE,
-    Conch::Plugin::JsonValidator::INPUT_SCHEMA_FILE,
-) {
+foreach my $file (glob('json-schema/*.yaml')) {
     my $data = YAML::XS::LoadFile($file);
     add_stopwords(keys $data->{definitions}->%*);
 }
