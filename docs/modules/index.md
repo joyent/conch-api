@@ -123,6 +123,7 @@
 * [Conch::Route::RackLayout](../modules/Conch::Route::RackLayout)
 * [Conch::Route::RackRole](../modules/Conch::Route::RackRole)
 * [Conch::Route::Relay](../modules/Conch::Route::Relay)
+* [Conch::Route::Schema](../modules/Conch::Route::Schema)
 * [Conch::Route::User](../modules/Conch::Route::User)
 * [Conch::Route::Validation](../modules/Conch::Route::Validation)
 * [Conch::Route::Workspace](../modules/Conch::Route::Workspace)
