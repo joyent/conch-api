@@ -2,7 +2,7 @@ package Conch::Plugin::Rollbar;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Sys::Hostname ();
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 
 use constant ROLLBAR_ENDPOINT => 'https://api.rollbar.com/api/1/item/';
 
@@ -81,7 +81,7 @@ sub _record_exception ($c, $exception, @) {
     my $headers = $c->req->headers->to_hash(1);
     delete $headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
 
-    my $rollbar_id = Data::UUID->new->create_str;
+    my $rollbar_id = create_uuid_str();
     my $request_id = length($c->req->url) ? $c->req->request_id : undef;
 
     # Payload documented at https://rollbar.com/docs/api/items_post/

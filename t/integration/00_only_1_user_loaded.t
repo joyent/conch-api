@@ -5,7 +5,7 @@ use utf8;
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Test::More;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 use Path::Tiny;
 use Test::Warnings ':all';
 use Test::Conch;
@@ -13,8 +13,6 @@ use Test::Deep;
 use Test::Deep::NumberTolerant;
 use Time::HiRes 'time'; # time() now has µs precision
 use Test::Memory::Cycle;
-
-my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
 $t->load_fixture('conch_user_global_workspace');
@@ -256,7 +254,7 @@ subtest 'Workspaces' => sub {
         ->json_schema_is('WorkspaceAndRole')
         ->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace, by name');
 
-    $t->get_ok('/workspace/'.$uuid->create_str)
+    $t->get_ok('/workspace/'.create_uuid_str())
         ->status_is(404);
 
     $t->get_ok("/workspace/$global_ws_id/user")

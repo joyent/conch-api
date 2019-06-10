@@ -2,7 +2,7 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 use Test::Conch;
 
 my $t = Test::Conch->new;
@@ -22,14 +22,12 @@ my $hw_product_switch = $t->load_fixture('hardware_product_switch');    # rack_u
 my $hw_product_compute = $t->load_fixture('hardware_product_compute');  # rack_unit_size 2
 my $hw_product_storage = $t->load_fixture('hardware_product_storage');  # rack_unit_size 4
 
-my $uuid = Data::UUID->new;
-
 # at the start, both racks have these assigned slots:
 # start 1, width 2
 # start 3, width 4
 # start 11, width 4
 
-my $fake_id = $uuid->create_str;
+my $fake_id = create_uuid_str();
 
 my $rack_id = $t->load_fixture('rack_0a')->id;
 

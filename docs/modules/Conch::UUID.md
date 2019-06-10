@@ -45,7 +45,12 @@ if (is_uuid('D8DC809C-935E-41B8-9E5F-B356A6BFBCA1')) {...}
 if (not is_uuid('BAD-ID')) {...}
 ```
 
-Case insensitive.
+Case insensitive, as per RFC4122 (output characters are lower-cased, but characters are
+case insensitive on input.)
+
+## create\_uuid\_str
+
+Returns a newly-generated rfc4122-compliant uuid string.
 
 # LICENSING
 

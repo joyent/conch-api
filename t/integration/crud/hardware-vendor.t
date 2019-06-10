@@ -3,11 +3,9 @@ use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Test::More;
 use Test::Warnings;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 use Test::Deep;
 use Test::Conch;
-
-my $uuid = Data::UUID->new;
 
 my $t = Test::Conch->new;
 $t->load_fixture(qw(conch_user_global_workspace hardware_vendor_0));
@@ -20,7 +18,7 @@ $t->get_ok('/hardware_vendor')
 
 my $vendors = $t->tx->res->json;
 
-$t->get_ok('/hardware_vendor/'.$uuid->create_str)
+$t->get_ok('/hardware_vendor/'.create_uuid_str())
     ->status_is(404);
 
 $t->get_ok('/hardware_vendor/foo')

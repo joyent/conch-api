@@ -1,10 +1,12 @@
 package Conch::UUID;
 
 use Mojo::Base -strict, -signatures;
+use Data::UUID;
 use Exporter 'import';
-our @EXPORT_OK = 'is_uuid';
+our @EXPORT_OK = qw(is_uuid create_uuid_str);
 
-use constant UUID_FORMAT => qr/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ia;
+use constant UUID_FORMAT_LAX => qr/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ia;
+use constant UUID_FORMAT => qr/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/a;
 
 =pod
 
@@ -49,12 +51,24 @@ Return a true or false value based on whether a string is a formatted as a UUID.
     if (is_uuid('D8DC809C-935E-41B8-9E5F-B356A6BFBCA1')) {...}
     if (not is_uuid('BAD-ID')) {...}
 
-Case insensitive.
+Case insensitive, as per RFC4122 (output characters are lower-cased, but characters are
+case insensitive on input.)
 
 =cut
 
 sub is_uuid ($uuid) {
-    return ($uuid =~ qr/^${\UUID_FORMAT}$/);
+    return ($uuid =~ qr/^${\UUID_FORMAT_LAX}$/);
+}
+
+=head2 create_uuid_str
+
+Returns a newly-generated rfc4122-compliant uuid string.
+
+=cut
+
+sub create_uuid_str () {
+    # TODO: switch to Data::GUID
+    Data::UUID->new->create_str =~ tr/A-Z/a-z/r;
 }
 
 1;

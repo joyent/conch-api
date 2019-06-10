@@ -6,7 +6,7 @@ use Test::Warnings;
 use Path::Tiny;
 use Test::Deep;
 use Test::Conch;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
@@ -211,7 +211,7 @@ subtest 'located device' => sub {
 
     subtest 'permissions for POST queries' => sub {
         my @queries = (
-            [ '/device/LOCATED_DEVICE/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str } ],
+            [ '/device/LOCATED_DEVICE/triton_uuid', json => { triton_uuid => create_uuid_str() } ],
             (map '/device/LOCATED_DEVICE/'.$_, qw(graduate triton_reboot triton_setup validated)),
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
         );
@@ -386,7 +386,7 @@ subtest 'mutate device attributes' => sub {
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', [ { path => '/triton_uuid', message => re(qr/string does not match/i) } ]);
 
-    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str })
+    $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => create_uuid_str() })
         ->status_is(303)
         ->location_is('/device/TEST');
     $detailed_device->{triton_uuid} = re(Conch::UUID::UUID_FORMAT);

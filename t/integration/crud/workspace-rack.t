@@ -5,7 +5,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
@@ -25,8 +25,6 @@ my $rack_id = $rack->id;
 my $room = $t->load_fixture('datacenter_room_0a');
 my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
 my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
-
-my $uuid = Data::UUID->new;
 
 # this rack is reachable through GLOBAL (via the room) but not through the sub-workspace.
 my $rack2 = $rack->datacenter_room->add_to_racks({
@@ -61,7 +59,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
 $t->get_ok("/workspace/$global_ws_id/rack/notauuid")
     ->status_is(404);
 
-$t->get_ok("/workspace/$global_ws_id/rack/".$uuid->create_str)
+$t->get_ok("/workspace/$global_ws_id/rack/".create_uuid_str())
     ->status_is(404);
 
 subtest 'Add rack to workspace' => sub {

@@ -8,10 +8,9 @@ use Test::Warnings;
 use JSON::Validator;
 use Test::Deep;
 use Test::Fatal;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new(pg => undef);
-my $uuid = Data::UUID->new;
 
 subtest 'failed request validation' => sub {
     $t->post_ok('/login', json => { user => 'foo@bar.com' })
@@ -53,7 +52,7 @@ subtest 'GET /workspace/:workspace_id_or_name/rack validation' => sub {
 
     my $summary = {
         some_room_name => [ {
-            id => $uuid->create_str,
+            id => create_uuid_str(),
             name => 'some name',
             phase => 'production',
             role_name => 'some role',

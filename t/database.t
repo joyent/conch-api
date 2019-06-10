@@ -6,7 +6,7 @@ use Test::Fatal;
 use Test::Warnings ':all';
 use Test::Memory::Cycle;
 use Test::Deep;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 use Conch::DB::Util;
 
 subtest 'db connection without Conch, and data preservation' => sub {
@@ -150,7 +150,7 @@ subtest 'transactions' => sub {
 
     is($t->app->db_user_accounts->count, $user_count, 'no new user was created');
 
-    $t->get_ok('/test_txn_wrapper2?id='.Data::UUID->new->create_str)
+    $t->get_ok('/test_txn_wrapper2?id='.create_uuid_str())
         ->status_is(204);
 
     is($t->app->db_user_accounts->count, $user_count + 1, 'one user was successfully created');
