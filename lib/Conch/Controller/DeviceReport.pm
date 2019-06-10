@@ -257,7 +257,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                 and $log->info('Recorded disk info for Device '.$device->id);
 
 
-            my @device_nic_macs = map uc, $device->device_nics->active->get_column('mac')->all;
+            my @device_nic_macs = $device->device_nics->active->get_column('mac')->all;
             my %inactive_macs; @inactive_macs{@device_nic_macs} = ();
 
             # deactivate all the nics that are currently located with other devices,
@@ -268,7 +268,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
             })->deactivate;
 
             foreach my $nic (keys $dr->{interfaces}->%*) {
-                my $mac = uc $dr->{interfaces}{$nic}{mac};
+                my $mac = $dr->{interfaces}{$nic}{mac};
 
                 $log->debug('Device '.$device->id.': Recording NIC: '.$mac);
                 delete $inactive_macs{$mac};

@@ -261,7 +261,7 @@
       "product": "Ethernet 10G 2P X520 Adapter",
       "state": "up",
       "vendor": "Intel",
-      "mac": "A0:36:9F:D2:CB:5A",
+      "mac": "a0:36:9f:d2:cb:5a",
       "peer_switch": "eu-c-1a-112-tor2"
     },
     "eth1": {
@@ -274,12 +274,12 @@
       "ipaddr": null,
       "peer_switch": "eu-c-1a-112-tor1",
       "vendor": "Intel",
-      "mac": "24:6E:96:34:48:E8"
+      "mac": "24:6e:96:34:48:e8"
     },
     "eth0": {
       "mtu": "1500",
       "ipaddr": null,
-      "mac": "24:6E:96:34:48:EC",
+      "mac": "24:6e:96:34:48:ec",
       "state": "down",
       "vendor": "Intel",
       "product": "I350 Gigabit Network Connection"
@@ -287,7 +287,7 @@
     "eth2": {
       "vendor": "Intel",
       "product": "I350 Gigabit Network Connection",
-      "mac": "24:6E:96:34:48:ED",
+      "mac": "24:6e:96:34:48:ed",
       "state": "down",
       "ipaddr": null,
       "mtu": "1500"
@@ -301,7 +301,7 @@
       "state": "up",
       "product": "82599ES 10-Gigabit SFI/SFP+ Network Connection",
       "peer_switch": "eu-c-1a-112-tor1",
-      "mac": "24:6E:96:34:48:EA",
+      "mac": "24:6e:96:34:48:ea",
       "vendor": "Intel"
     },
     "ipmi1": {
@@ -312,7 +312,7 @@
     },
     "eth4": {
       "vendor": "Intel",
-      "mac": "A0:36:9F:D2:CB:58",
+      "mac": "a0:36:9f:d2:cb:58",
       "peer_switch": "eu-c-1a-112-tor2",
       "ipaddr": null,
       "peer_mac": "14:18:77:de:75:d5",

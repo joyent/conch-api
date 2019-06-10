@@ -12,7 +12,7 @@ definitions:
         format: ipv6
   macaddr:
     type: string
-    pattern: "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$"
+    pattern: "^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$"
   relay_id:
     type: string
     pattern: ^\S+$
