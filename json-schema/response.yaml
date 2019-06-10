@@ -285,7 +285,7 @@ definitions:
         anyOf:
           - type: 'null'
           - $ref: device_report.yaml#/definitions/DeviceReport_v2.29
-          - type: object  # TODO: remove this loose alternative when we purge historical db records
+          - type: object
       invalid_report:
         description: this could be anything, from encoded json to random junk
         oneOf:
