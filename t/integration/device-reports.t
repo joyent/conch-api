@@ -466,5 +466,54 @@ subtest 'submit report for decommissioned device' => sub {
         ->json_is({ error => 'device is decommissioned' });
 };
 
+subtest 'submit report for production device' => sub {
+    my $new_device = $t->app->db_devices->create({
+        serial_number => 'PRODUCTION_TEST',
+        hardware_product_id => $hardware_product->id,
+        health => 'unknown',
+    });
+
+    my $altered_report = from_json($report);
+    $altered_report->{serial_number} = 'PRODUCTION_TEST';
+    $altered_report->{system_uuid} = create_uuid_str();
+
+    $t->post_ok('/device/PRODUCTION_TEST', json => $altered_report)
+        ->status_is(200)
+        ->location_is('/device/'.$t->tx->res->json->{device_id})
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => re(Conch::UUID::UUID_FORMAT),
+            status => ignore,
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            results => ignore,
+        }));
+
+    my $device = $t->app->db_devices->find({ serial_number => 'PRODUCTION_TEST' });
+    my @device_interfaces = $device->device_nics->active->order_by('mac')->hri->all;
+    $device->update({ phase => 'production' });
+
+    ($altered_report->{interfaces}{eth5}{mac}, $altered_report->{interfaces}{eth1}{mac}) =
+        ($altered_report->{interfaces}{eth1}{mac}, $altered_report->{interfaces}{eth5}{mac});
+
+    $t->post_ok('/device/PRODUCTION_TEST', json => $altered_report)
+        ->status_is(200)
+        ->location_is('/device/'.$device->id)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => $device->id,
+            status => ignore,
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            results => ignore,
+        }));
+
+    is($device->device_reports->count, 2, 'two reports were recorded for the device');
+
+    cmp_deeply(
+        [ $device->device_nics->active->order_by('mac')->hri->all ],
+        \@device_interfaces,
+        'device data was not updated in the database after moving its phase to production',
+    );
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

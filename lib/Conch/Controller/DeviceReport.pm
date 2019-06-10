@@ -104,14 +104,17 @@ sub process ($c) {
     });
     $c->log->info('Created device report '.$device_report->id);
 
-    $c->log->debug('Recording device configuration');
-    $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report)
-    or do {
-        $device->discard_changes;
-        $device->health('error');
-        $device->update({ updated => \'now()' }) if $device->is_changed;
-        return $c->status(400);
-    };
+    # we do not update data when a device is in the production or later phase
+    if ($device->phase_cmp('production') < 0) {
+        $c->log->debug('Recording device configuration');
+        $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report)
+        or do {
+            $device->discard_changes;
+            $device->health('error');
+            $device->update({ updated => \'now()' }) if $device->is_changed;
+            return $c->status(400);
+        };
+    }
 
     # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
     my $validation_plan = $c->db_validation_plans->search({
