@@ -196,20 +196,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                 $c->log->warn('received report without relay id (device_id '. $device->id.')');
             }
 
-            my $nics_num = 0;
-            # FIXME: switches use the 'media' attribute, and servers use 'interfaces'
-            # be consistent!
-            if ($dr->{media}) {
-                for my $port (keys $dr->{media}->%*) {
-                    for my $nic (keys $dr->{media}{$port}->%*) {
-                        $nics_num++;
-                    }
-                }
-            }
-            else {
-                $nics_num = scalar keys $dr->{interfaces}->%*;
-            }
-
             if ($dr->{temp}) {
                 $device->related_resultset('device_environment')->update_or_create({
                     cpu0_temp    => $dr->{temp}->{cpu0},
