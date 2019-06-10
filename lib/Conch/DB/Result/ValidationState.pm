@@ -237,11 +237,10 @@ non-private way of extracting related rows from the result.
 =cut
 
 sub prefetch_validation_results ($self) {
-    for my $members ($self->{_relationship_data}{validation_state_members}) {
-        $_->related_resultset('validation_result')->set_cache([ $_->validation_result ])
-            foreach $members->@*;
-        $self->related_resultset('validation_state_members')->set_cache($members);
-    }
+    my $members = $self->{_relationship_data}{validation_state_members};
+    $_->related_resultset('validation_result')->set_cache([ $_->validation_result ])
+        foreach $members->@*;
+    $self->related_resultset('validation_state_members')->set_cache($members);
 }
 
 1;
