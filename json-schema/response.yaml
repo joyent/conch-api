@@ -39,7 +39,8 @@ definitions:
         format: json-pointer
       message:
         type: string
-  RequestValidationError:
+  ValidationError:
+    description: base structure for all validation error responses
     type: object
     additionalProperties: false
     required:
@@ -48,7 +49,8 @@ definitions:
       - schema
     properties:
       error:
-        const: request did not match required format
+        type: string
+        pattern: " did not match required format$"
       details:
         type: array
         uniqueItems: true
@@ -58,6 +60,18 @@ definitions:
       schema:
         type: string
         format: uri
+        pattern: "/schema/[^/]+/[^/]+$"
+      data:
+        description: any supplementary details will be included here
+  RequestValidationError:
+    allOf:
+      - $ref: /definitions/ValidationError
+      - type: object
+        properties:
+          error:
+            const: request did not match required format
+          schema:
+            pattern: "/schema/request/[^/]+$"
   Ping:
     type: object
     additionalProperties: false
