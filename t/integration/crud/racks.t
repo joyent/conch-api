@@ -1,4 +1,4 @@
-use Mojo::Base -strict;
+use Mojo::Base -strict, -signatures;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
@@ -285,10 +285,41 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
     ->status_is(400)
     ->log_is(re(qr/unique constraint.*serial_number/));
 
-# Note that at present, two devices cannot exchange serials atomically...
-# this will cause a db explosion (and rollback) via constraint violations.
-# This is only possible if we change the constraints to 'deferred initially immediate',
-# and then at the top of the transaction we do 'set constraints all deferred;'
+# current layout:
+# slot 1, tag=ohhai - FOO = new device
+# slot 3, tag=hello - BAR = existing device.
+# slot 11, empty.
+
+# devices exchange serials atomically
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => $foo->id,
+            device_serial_number => 'BAR',  # previous serial = FOO
+            rack_unit_start => 3,
+        },
+        {
+            device_id => $bar->id,
+            device_serial_number => 'FOO',  # previous serial = BAR
+            rack_unit_start => 11,
+        },
+    ])
+    ->status_is(303);
+
+$foo->discard_changes;
+$bar->discard_changes;
+cmp_deeply(
+    [ map $_->serial_number, $foo, $bar],
+    [ qw(BAR FOO) ],
+    'FOO and BAR exchanged serials atomically',
+);
+
+# undo that change, for the sanity of our variable names...
+$t->app->schema->txn_do(sub {
+    $t->app->schema->storage->dbh_do(sub ($, $dbh) { $dbh->do('set constraints all deferred') });
+    $foo->update({ serial_number => 'FOO' });
+    $bar->update({ serial_number => 'BAR' });
+});
+
 
 # move FOO from rack unit 1 to rack unit 3; pushing out the existing occupant of 3
 # BAZ is created and put in rack unit 11.

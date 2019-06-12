@@ -260,6 +260,7 @@ sub set_assignment ($c) {
     my $device_locations_rs = $c->db_device_locations->search({ rack_id => $c->stash('rack_id') });
 
     $c->txn_wrapper(sub ($c) {
+        $c->schema->storage->dbh_do(sub ($, $dbh) { $dbh->do('set constraints all deferred') });
         foreach my $entry ($input->@*) {
             my $layout = first { $_->rack_unit_start == $entry->{rack_unit_start} } @layouts;
 

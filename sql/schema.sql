@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.13
--- Dumped by pg_dump version 9.6.13
+-- Dumped from database version 10.9
+-- Dumped by pg_dump version 10.9
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -801,7 +801,7 @@ ALTER TABLE ONLY public.device_report
 --
 
 ALTER TABLE ONLY public.device
-    ADD CONSTRAINT device_serial_number_key UNIQUE (serial_number);
+    ADD CONSTRAINT device_serial_number_key UNIQUE (serial_number) DEFERRABLE;
 
 
 --
