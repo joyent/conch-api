@@ -17,7 +17,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /hardware_product`
 
 - Requires System Admin Authentication
-- Request: input.yaml#/HardwareProductCreate
+- Request: request.yaml#/HardwareProductCreate
 - Response: Redirect to the created hardware product
 
 ### `GET /hardware_product/:identifier`
@@ -27,7 +27,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /hardware_product/:identifier`
 
 - Requires System Admin Authentication
-- Request: input.yaml#/HardwareProductUpdate
+- Request: request.yaml#/HardwareProductUpdate
 - Response: Redirect to the updated hardware product
 
 ### `DELETE /hardware_product/:identifier`

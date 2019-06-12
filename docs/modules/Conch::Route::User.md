@@ -25,7 +25,7 @@ Optionally accepts the following query parameters:
 By default it will revoke both login/session and API tokens. If both
 `api_only` and `login_only` are set, no tokens will be revoked.
 
-- Request: input.yaml#/UserSettings
+- Request: request.yaml#/UserSettings
 - Response: `204 NO CONTENT`
 
 ### `POST /user/me/password?clear_tokens=<login_only|0|all>`
@@ -40,7 +40,7 @@ tokens for the user, forcing the user to log in again. Possible options are:
 If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 `204 NO CONTENT` will be returned but the user session will remain..
 
-- Request: input.yaml#/UserSettings
+- Request: request.yaml#/UserSettings
 - Response: `204 NO CONTENT` (The user session is terminated).
 
 ### `GET /user/me/settings`
@@ -49,7 +49,7 @@ If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 
 ### `POST /user/me/settings`
 
-- Request: input.yaml#/UserSettings
+- Request: request.yaml#/UserSettings
 - Response: `204 NO CONTENT`
 
 ### `GET /user/me/settings/:key`
@@ -58,12 +58,12 @@ If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 
 ### `POST /user/me/settings/:key`
 
-- Request: input.yaml#/UserSetting
+- Request: request.yaml#/UserSetting
 - Response: `204 NO CONTENT`
 
 ### `DELETE /user/me/settings/:key`
 
-- Request: input.yaml#/DeviceSetting
+- Request: request.yaml#/DeviceSetting
 - Response: `204 NO CONTENT`
 
 ### `GET /user/me/token`
@@ -72,7 +72,7 @@ If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 
 ### `POST /user/me/token`
 
-- Response: input.yaml#/NewUserToken
+- Response: request.yaml#/NewUserToken
 - Response: response.yaml#/NewUserToken
 
 ### `GET /user/me/token/:token_name`
@@ -94,7 +94,7 @@ Optionally take the query parameter `send_mail=<1|0>` (default 1) - send
 an email telling the user their tokens were revoked
 
 - Requires System Admin Authentication
-- Request: input.yaml#/UpdateUser
+- Request: request.yaml#/UpdateUser
 - Response: response.yaml#/UserDetailed
 
 ### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
@@ -146,7 +146,7 @@ Optionally takes a query parameter, `send_mail` (defaults to `1`) to send an
 email to the user with the new password.
 
 - Requires System Admin Authentication
-- Request: input.yaml#/NewUser
+- Request: request.yaml#/NewUser
 - Response: response.yaml#/User
 
 ### `GET /user/:target_user_id_or_email/token`

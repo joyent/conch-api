@@ -72,10 +72,8 @@ Create a new datacenter room.
 sub create ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('DatacenterRoomCreate');
+    my $input = $c->validate_request('DatacenterRoomCreate');
     return if not $input;
-
-    $input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
@@ -91,10 +89,8 @@ Update an existing room.
 sub update ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('DatacenterRoomUpdate');
+    my $input = $c->validate_request('DatacenterRoomUpdate');
     return if not $input;
-
-    $input->{datacenter_id} = delete $input->{datacenter} if exists $input->{datacenter};
 
     $c->stash('datacenter_room')->update({ $input->%*, updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id'));

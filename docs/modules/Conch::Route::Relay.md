@@ -12,7 +12,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /relay/:relay_id/register`
 
-- Request: input.yaml#/RegisterRelay
+- Request: request.yaml#/RegisterRelay
 - Response: `204 NO CONTENT`
 
 ### `GET /relay`

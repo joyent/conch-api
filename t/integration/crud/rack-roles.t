@@ -36,15 +36,13 @@ $t->get_ok('/rack_role/name=rack_role 42U')
 
 $t->post_ok('/rack_role', json => { wat => 'wat' })
     ->status_is(400)
-    ->json_cmp_deeply({ error => re(qr/Properties not allowed/) });
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/Properties not allowed/) } ]);
 
-$t->post_ok('/rack_role', json => { name => 'foo/bar' })
+$t->post_ok('/rack_role', json => { name => $_ })
     ->status_is(400)
-    ->json_cmp_deeply({ error => re(qr/name: .*does not match/) });
-
-$t->post_ok('/rack_role', json => { name => 'foo.bar' })
-    ->status_is(400)
-    ->json_cmp_deeply({ error => re(qr/name: .*does not match/) });
+    ->json_cmp_deeply('/details', superbagof({ path => '/name', message => re(qr/does not match/i) }))
+foreach 'foo/bar', 'foo.bar';
 
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 2 })
     ->status_is(303);

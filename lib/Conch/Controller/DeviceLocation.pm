@@ -52,14 +52,14 @@ Sets the location for a device, given a valid rack id and rack unit
 =cut
 
 sub set ($c) {
-    my $input = $c->validate_input('DeviceLocationUpdate');
+    my $input = $c->validate_request('DeviceLocationUpdate');
     return if not $input;
 
     my $device_id = $c->stash('device_id');
 
     my $error;
     try {
-        $c->db_device_locations->assign_device_location($device_id, $input->@{qw(rack_id rack_unit)});
+        $c->db_device_locations->assign_device_location($device_id, $input->@{qw(rack_id rack_unit_start)});
     }
     catch {
         chomp($error = $_);

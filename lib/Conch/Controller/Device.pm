@@ -247,7 +247,7 @@ Marks the device as "graduated" (VLAN flipped)
 =cut
 
 sub graduate ($c) {
-    $c->validate_input('Null');
+    $c->validate_request('Null');
     return if $c->res->code;
 
     my $device = $c->stash('device_rs')->single;
@@ -272,7 +272,7 @@ Sets the C<latest_triton_reboot> field on a device
 =cut
 
 sub set_triton_reboot ($c) {
-    $c->validate_input('Null');
+    $c->validate_request('Null');
     return if $c->res->code;
 
     my $device = $c->stash('device_rs')->single;
@@ -293,7 +293,7 @@ valid UUID
 sub set_triton_uuid ($c) {
     my $device = $c->stash('device_rs')->single;
 
-    my $input = $c->validate_input('DeviceTritonUuid');
+    my $input = $c->validate_request('DeviceTritonUuid');
     return if not $input;
 
     $device->update({ triton_uuid => $input->{triton_uuid}, updated => \'now()' });
@@ -310,7 +310,7 @@ the C<triton_setup> field. Fails if the device has already been marked as such.
 =cut
 
 sub set_triton_setup ($c) {
-    $c->validate_input('Null');
+    $c->validate_request('Null');
     return if $c->res->code;
 
     my $device = $c->stash('device_rs')->single;
@@ -342,7 +342,7 @@ Sets the C<asset_tag> field on a device
 =cut
 
 sub set_asset_tag ($c) {
-    my $input = $c->validate_input('DeviceAssetTag');
+    my $input = $c->validate_request('DeviceAssetTag');
     return if not $input;
 
     my $device = $c->stash('device_rs')->single;
@@ -360,7 +360,7 @@ Sets the C<validated> field on a device unless that field has already been set
 =cut
 
 sub set_validated ($c) {
-    $c->validate_input('Null');
+    $c->validate_request('Null');
     return if $c->res->code;
 
     my $device = $c->stash('device_rs')->single;
@@ -388,7 +388,7 @@ sub get_phase ($c) {
 =cut
 
 sub set_phase ($c) {
-    my $input = $c->validate_input('DevicePhase');
+    my $input = $c->validate_request('DevicePhase');
     return if not $input;
 
     $c->stash('device_rs')->update({ phase => $input->{phase}, updated => \'now()' });

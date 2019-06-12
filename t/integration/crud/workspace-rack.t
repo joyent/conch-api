@@ -43,16 +43,16 @@ $t->get_ok("/workspace/$global_ws_id/rack")
                 id => $rack_id,
                 name => 'rack 0a',
                 phase => 'integration',
-                role => 'rack_role 42U',
-                size => 42,
+                role_name => 'rack_role 42U',
+                rack_size => 42,
                 device_progress => {},
             },
             {
                 id => $rack2->id,
                 name => 'second rack',
                 phase => 'integration',
-                role => 'rack_role 42U',
-                size => 42,
+                role_name => 'rack_role 42U',
+                rack_size => 42,
                 device_progress => {},
             },
          ),
@@ -66,8 +66,8 @@ $t->get_ok("/workspace/$global_ws_id/rack/".$uuid->create_str)
 
 subtest 'Add rack to workspace' => sub {
     $t->post_ok("/workspace/$sub_ws_id/rack")
-        ->status_is(400, 'Requires request body')
-        ->json_cmp_deeply({ error => re(qr/Expected object/) });
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
     $t->post_ok("/workspace/$sub_ws_id/rack", json => {
             id => $rack_id,
@@ -86,8 +86,8 @@ subtest 'Add rack to workspace' => sub {
                     id => $rack_id,
                     name => 'rack 0a',
                     phase => 'integration',
-                    role => 'rack_role 42U',
-                    size => 42,
+                    role_name => 'rack_role 42U',
+                    rack_size => 42,
                     device_progress => {},
                 },
              ],
@@ -99,8 +99,8 @@ subtest 'Add rack to workspace' => sub {
         ->json_cmp_deeply({
             id => $rack_id,
             name => 'rack 0a',
-            role => 'rack_role 42U',
-            # TODO? size => 42,
+            role_name => 'rack_role 42U',
+            rack_size => 42,
             datacenter => $room->az,
             phase => 'integration',
             slots => [
@@ -110,7 +110,7 @@ subtest 'Add rack to workspace' => sub {
                     alias => $hardware_product_compute->alias,
                     vendor => $hardware_product_compute->hardware_vendor->name,
                     rack_unit_start => 1,
-                    size => 2,
+                    rack_unit_size => 2,
                     occupant => undef,
                 },
                 {
@@ -119,7 +119,7 @@ subtest 'Add rack to workspace' => sub {
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,
                     rack_unit_start => 3,
-                    size => 4,
+                    rack_unit_size => 4,
                     occupant => undef,
                 },
                 {
@@ -128,7 +128,7 @@ subtest 'Add rack to workspace' => sub {
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,
                     rack_unit_start => 11,
-                    size => 4,
+                    rack_unit_size => 4,
                     occupant => undef,
                 },
             ],
@@ -177,8 +177,8 @@ subtest 'Assign device to a location' => sub {
         ->json_cmp_deeply({
             id => $rack_id,
             name => 'rack 0a',
-            role => 'rack_role 42U',
-            # TODO? size => 42,
+            role_name => 'rack_role 42U',
+            rack_size => 42,
             datacenter => $room->az,
             phase => 'integration',
             slots => [
@@ -188,7 +188,7 @@ subtest 'Assign device to a location' => sub {
                     alias => $hardware_product_compute->alias,
                     vendor => $hardware_product_compute->hardware_vendor->name,
                     rack_unit_start => 1,
-                    size => 2,
+                    rack_unit_size => 2,
                     occupant => superhashof({ id => 'TEST' }),
                 },
                 {
@@ -197,7 +197,7 @@ subtest 'Assign device to a location' => sub {
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,
                     rack_unit_start => 3,
-                    size => 4,
+                    rack_unit_size => 4,
                     occupant => superhashof({ id => 'NEW_DEVICE' }),
                 },
                 {
@@ -206,7 +206,7 @@ subtest 'Assign device to a location' => sub {
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,
                     rack_unit_start => 11,
-                    size => 4,
+                    rack_unit_size => 4,
                     occupant => undef,
                 },
             ],
@@ -230,12 +230,12 @@ CSV
         ->json_is({
             'room-0a' => [
                 {
-                    device_progress => { UNKNOWN => 1, VALID => 1 },
+                    device_progress => { unknown => 1, valid => 1 },
                     id => $rack_id,
                     phase => 'integration',
                     name => 'rack 0a',
-                    role => 'rack_role 42U',
-                    size => 42,
+                    role_name => 'rack_role 42U',
+                    rack_size => 42,
                 }
              ]
         });

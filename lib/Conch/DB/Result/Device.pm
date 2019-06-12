@@ -418,7 +418,6 @@ use Mojo::JSON 'from_json';
 
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
-    $data->{hardware_product} = delete $data->{hardware_product_id};
 
     # include location information, when available
     if (my $cached_location = $self->related_resultset('device_location')->get_cache) {

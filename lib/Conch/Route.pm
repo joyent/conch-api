@@ -129,7 +129,7 @@ Unless otherwise specified all routes require authentication.
 
 =over 4
 
-=item * Request: input.yaml#/Login
+=item * Request: request.yaml#/Login
 
 =item * Response: response.yaml#/Login
 
@@ -177,7 +177,7 @@ Returns the Request or Response schema specified.
 
 =over 4
 
-=item * Request: input.yaml#/Null
+=item * Request: request.yaml#/Null
 
 =item * Response: response.yaml#/Login
 

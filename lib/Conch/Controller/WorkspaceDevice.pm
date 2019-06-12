@@ -184,23 +184,23 @@ sub device_totals ($c) {
     for (@counts) {
         if ($circ{$_->{alias}}) {
             $circ{$_->{alias}}{count} += $_->{count};
-            if ($circ{$_->{alias}}{health}{uc $_->{health}}) {
-                $circ{$_->{alias}}{health}{uc $_->{health}} += $_->{count};
+            if ($circ{$_->{alias}}{health}{$_->{health}}) {
+                $circ{$_->{alias}}{health}{$_->{health}} += $_->{count};
             }
             else {
-                $circ{$_->{alias}}{health}{uc $_->{health}} = $_->{count};
+                $circ{$_->{alias}}{health}{$_->{health}} = $_->{count};
             }
         }
         else {
             $circ{$_->{alias}} = {
                 count => $_->{count},
                 health => {
-                    FAIL => 0,
-                    PASS => 0,
-                    UNKNOWN => 0,
+                    fail => 0,
+                    pass => 0,
+                    unknown => 0,
                 }
             };
-            $circ{$_->{alias}}{health}{uc $_->{health}} = $_->{count};
+            $circ{$_->{alias}}{health}{$_->{health}} = $_->{count};
         }
     }
 

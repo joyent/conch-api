@@ -54,7 +54,7 @@ Create a new rack role.
 sub create ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my $input = $c->validate_input('RackRoleCreate');
+    my $input = $c->validate_request('RackRoleCreate');
     return if not $input;
 
     if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
@@ -104,7 +104,7 @@ Modify an existing rack role.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_input('RackRoleUpdate');
+    my $input = $c->validate_request('RackRoleUpdate');
     return if not $input;
 
     if ($input->{name}) {

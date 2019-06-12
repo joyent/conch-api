@@ -220,7 +220,7 @@ Handles the act of logging in, given a user and password in the form. Returns a 
 =cut
 
 sub session_login ($c) {
-    my $input = $c->validate_input('Login');
+    my $input = $c->validate_request('Login');
     return if not $input;
 
     # TODO: it would be nice to be sure of which type of data we were being passed here, so we
@@ -312,7 +312,7 @@ Refresh a user's JWT token. Deletes the old token.
 =cut
 
 sub refresh_token ($c) {
-    $c->validate_input('Null');
+    $c->validate_request('Null');
     return if $c->res->code;
 
     # Allow users with 'conch' cookie to get a JWT without requiring

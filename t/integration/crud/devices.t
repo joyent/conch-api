@@ -102,7 +102,7 @@ subtest 'unlocated device with a registered relay' => sub {
             phase => 'integration',
             (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
-            hardware_product => $hardware_product_id,
+            hardware_product_id => $hardware_product_id,
             location => undef,
             latest_report_is_invalid => JSON::PP::false,
             latest_report => from_json($report),
@@ -124,7 +124,7 @@ subtest 'unlocated device with a registered relay' => sub {
             phase => 'integration',
             (map +($_ => undef), qw(asset_tag graduated latest_triton_reboot triton_setup triton_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
-            hardware_product => $hardware_product_id,
+            hardware_product_id => $hardware_product_id,
             location => undef,
             latest_report_is_invalid => JSON::PP::false,
             latest_report => superhashof({ product_name => 'Joyent-G1' }),
@@ -176,11 +176,11 @@ subtest 'located device' => sub {
             phase => 'integration',
             (map +($_ => undef), qw(asset_tag graduated hostname last_seen latest_triton_reboot system_uuid triton_setup triton_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
-            hardware_product => $hardware_product_id,
+            hardware_product_id => $hardware_product_id,
             location => {
                 rack => {
                     (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag phase)),
-                    role => $rack->rack_role_id,
+                    rack_role_id => $rack->rack_role_id,
                     (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
                 },
                 rack_unit_start => 1,
@@ -371,11 +371,14 @@ subtest 'mutate device attributes' => sub {
     $detailed_device->{latest_triton_reboot} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/triton_uuid')
-        ->status_is(400, 'Request body required');
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
     $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => 'not a UUID' })
         ->status_is(400)
-        ->json_like('/error', qr/String does not match/);
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/triton_uuid', message => re(qr/string does not match/i) } ]);
 
     $t->post_ok('/device/TEST/triton_uuid', json => { triton_uuid => Data::UUID->new->create_str })
         ->status_is(303)
@@ -388,11 +391,14 @@ subtest 'mutate device attributes' => sub {
     $detailed_device->{triton_setup} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/asset_tag')
-        ->status_is(400, 'Request body required');
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset tag' })
         ->status_is(400)
-        ->json_like('/error', qr/String does not match/);
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/asset_tag', message => re(qr/string does not match/i) } ]);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
         ->status_is(303)
@@ -445,7 +451,9 @@ subtest 'Device settings' => sub {
         ->status_is(404);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings')
-        ->status_is(400, 'Requires body');
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
         ->status_is(404);
@@ -465,7 +473,8 @@ subtest 'Device settings' => sub {
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => { bar => 'baz' } })
         ->status_is(400)
-        ->json_cmp_deeply({ error => re(qr/foo: /) });  # validation failure
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string.*got object/i) } ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { no_match => 'gibbet' })
         ->status_is(400, 'Fail if parameter and key do not match');

@@ -15,6 +15,7 @@ use Scalar::Util 'blessed';
 use Mojo::URL;
 use Scalar::Util 'weaken';
 use List::Util 'any';
+use Data::Dumper ();
 
 =pod
 
@@ -289,14 +290,15 @@ sub json_schema_is ($self, $schema, $message = undef) {
     }
 
     my $error_count = @errors;
-    my $req         = $self->tx->req->method.' '.$self->tx->req->url->path;
-
     return $self->_test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
-        ->or(sub {
+        ->or(sub ($self) {
+            my $errors = [ map +{ path => $_->path, message => $_->message }, @errors ];
             Test::More::diag($error_count
-                    ." Error(s) occurred when validating $req with schema "
-                    ."$schema':\n\t"
-                    .join("\n\t", @errors));
+                .' error(s) occurred when validating '
+                .$self->tx->req->method.' '.$self->tx->req->url->path
+                .' with schema '.$schema.":\n\t"
+                .Data::Dumper->new([ $errors ])->Indent(1)->Terse(1)->Dump);
+
             0;
         }
     );

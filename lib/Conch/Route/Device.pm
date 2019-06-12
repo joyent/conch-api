@@ -100,12 +100,12 @@ sub routes {
             $with_device_interface->get('/')->to('#get_all');
 
             # chainable action that extracts and looks up interface_name from the path
-            my $with_interface_name = $with_device_interface->under('/:interface_name')->to('#find_device_interface');
+            my $with_interface_name = $with_device_interface->under('/#interface_name')->to('#find_device_interface');
 
-            # GET /device/:device_id/interface/:interface_name
+            # GET /device/:device_id/interface/#interface_name
             $with_interface_name->get('/')->to('#get_one');
 
-            # GET /device/:device_id/interface/:interface_name/:field
+            # GET /device/:device_id/interface/#interface_name/:field
             $with_interface_name->get('/:field', [ field => [ $app->db_device_nics->fields ] ])
                 ->to('#get_one_field');
         }
@@ -183,7 +183,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/Null
+=item * Request: request.yaml#/Null
 
 =item * Response: Redirect to the updated device
 
@@ -193,7 +193,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/Null
+=item * Request: request.yaml#/Null
 
 =item * Response: Redirect to the updated device
 
@@ -203,7 +203,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/DeviceTritonUuid
+=item * Request: request.yaml#/DeviceTritonUuid
 
 =item * Response: Redirect to the updated device
 
@@ -213,7 +213,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/Null
+=item * Request: request.yaml#/Null
 
 =item * Response: Redirect to the updated device
 
@@ -223,7 +223,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/DeviceAssetTag
+=item * Request: request.yaml#/DeviceAssetTag
 
 =item * Response: Redirect to the updated device
 
@@ -233,7 +233,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/Null
+=item * Request: request.yaml#/Null
 
 =item * Response: Redirect to the updated device
 
@@ -243,7 +243,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/DevicePhase
+=item * Request: request.yaml#/DevicePhase
 
 =item * Response: Redirect to the updated device
 
@@ -261,7 +261,7 @@ below.
 
 =over 4
 
-=item * Request: input.yaml#/DeviceLocationUpdate
+=item * Request: request.yaml#/DeviceLocationUpdate
 
 =item * Response: Redirect to the updated device
 
@@ -289,7 +289,7 @@ below.
 
 =item * Requires Read/Write Device Authentication
 
-=item * Request: input.yaml#/DeviceSettings
+=item * Request: request.yaml#/DeviceSettings
 
 =item * Response: C<204 NO CONTENT>
 
@@ -309,7 +309,7 @@ below.
 
 =item * Requires Read/Write Device Authentication
 
-=item * Request: input.yaml#/DeviceSettings
+=item * Request: request.yaml#/DeviceSettings
 
 =item * Response: C<204 NO CONTENT>
 

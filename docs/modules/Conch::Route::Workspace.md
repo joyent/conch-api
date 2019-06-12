@@ -28,7 +28,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /workspace/:workspace_id_or_name/child`
 
 - Requires Workspace Admin Authentication
-- Request: input.yaml#/WorkspaceCreate
+- Request: request.yaml#/WorkspaceCreate
 - Response: response.yaml#/WorkspaceAndRole
 
 ### `GET /workspace/:workspace_id_or_name/device`
@@ -57,7 +57,7 @@ An alias for `/workspace/:workspace_id_or_name/device?active=t`.
 
 ### `POST /workspace/:workspace_id_or_name/rack`
 
-- Request: input.yaml#/WorkspaceAddRack
+- Request: request.yaml#/WorkspaceAddRack
 - Response: Redirect to the workspace rack
 
 ### `GET /workspace/:workspace_id_or_name/rack/:rack_id`
@@ -73,7 +73,7 @@ If the Accepts header specifies `text/csv` it will return a CSV document.
 
 ### `POST /workspace/:workspace_id_or_name/rack/:rack_id/layout`
 
-- Request: input.yaml#/WorkspaceRackLayoutUpdate
+- Request: request.yaml#/WorkspaceRackLayoutUpdate
 - Response: response.yaml#/WorkspaceRackLayoutUpdateResponse
 
 ### `GET /workspace/:workspace_id_or_name/relay`
@@ -97,7 +97,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user
 
 - Requires Workspace Admin Authentication
-- Request: input.yaml#/WorkspaceAddUser
+- Request: request.yaml#/WorkspaceAddUser
 - Response: response.yaml#/WorkspaceAndRole
 
 ### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`

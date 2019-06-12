@@ -24,7 +24,7 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub process ($c) {
-    my $unserialized_report = $c->validate_input('DeviceReport');
+    my $unserialized_report = $c->validate_request('DeviceReport');
     if (not $unserialized_report) {
         $c->log->debug('Device report input did not match json schema specification');
 
@@ -197,7 +197,8 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
             }
 
             my $nics_num = 0;
-            # switches use the 'media' attribute, and servers use 'interfaces'
+            # FIXME: switches use the 'media' attribute, and servers use 'interfaces'
+            # be consistent!
             if ($dr->{media}) {
                 for my $port (keys $dr->{media}->%*) {
                     for my $nic (keys $dr->{media}{$port}->%*) {
@@ -402,7 +403,7 @@ Response uses the ReportValidationResults json schema.
 =cut
 
 sub validate_report ($c) {
-    my $unserialized_report = $c->validate_input('DeviceReport');
+    my $unserialized_report = $c->validate_request('DeviceReport');
     if (not $unserialized_report) {
         $c->log->debug('Device report input did not match json schema specification');
         return;

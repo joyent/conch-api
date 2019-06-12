@@ -60,7 +60,7 @@ to the user.
 sub add_user ($c) {
     return $c->status(403) if not $c->is_workspace_admin;
 
-    my $input = $c->validate_input('WorkspaceAddUser');
+    my $input = $c->validate_request('WorkspaceAddUser');
     return if not $input;
 
     return if not $c->find_user('email='.$input->{user});

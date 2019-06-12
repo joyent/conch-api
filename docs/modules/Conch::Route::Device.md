@@ -44,37 +44,37 @@ below.
 
 ### `POST /device/:device_id/graduate`
 
-- Request: input.yaml#/Null
+- Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id/triton_setup`
 
-- Request: input.yaml#/Null
+- Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id/triton_uuid`
 
-- Request: input.yaml#/DeviceTritonUuid
+- Request: request.yaml#/DeviceTritonUuid
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id/triton_reboot`
 
-- Request: input.yaml#/Null
+- Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id/asset_tag`
 
-- Request: input.yaml#/DeviceAssetTag
+- Request: request.yaml#/DeviceAssetTag
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id/validated`
 
-- Request: input.yaml#/Null
+- Request: request.yaml#/Null
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id/phase`
 
-- Request: input.yaml#/DevicePhase
+- Request: request.yaml#/DevicePhase
 - Response: Redirect to the updated device
 
 ### `GET /device/:device_id/location`
@@ -83,7 +83,7 @@ below.
 
 ### `POST /device/:device_id/location`
 
-- Request: input.yaml#/DeviceLocationUpdate
+- Request: request.yaml#/DeviceLocationUpdate
 - Response: Redirect to the updated device
 
 ### `DELETE /device/:device_id/location`
@@ -97,7 +97,7 @@ below.
 ### `POST /device/:device_id/settings`
 
 - Requires Read/Write Device Authentication
-- Request: input.yaml#/DeviceSettings
+- Request: request.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
 ### `GET /device/:device_id/settings/:key`
@@ -107,7 +107,7 @@ below.
 ### `POST /device/:device_id/settings/:key`
 
 - Requires Read/Write Device Authentication
-- Request: input.yaml#/DeviceSettings
+- Request: request.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
 ### `DELETE /device/:device_id/settings/:key`

@@ -159,7 +159,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: input.yaml#/DatacenterCreate
+=item * Request: request.yaml#/DatacenterCreate
 
 =item * Response: Redirect to the created datacenter
 
@@ -177,7 +177,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: input.yaml#/DatacenterUpdate
+=item * Request: request.yaml#/DatacenterUpdate
 
 =item * Response: Redirect to the updated datacenter
 
@@ -217,7 +217,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires System Admin Authorization
 
-=item * Request: input.yaml#/DatacenterRoomCreate
+=item * Request: request.yaml#/DatacenterRoomCreate
 
 =item * Response: Redirect to the created room
 
@@ -240,7 +240,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires System Admin Authorization
 
-=item * Request: input.yaml#/DatacenterRoomUpdate
+=item * Request: request.yaml#/DatacenterRoomUpdate
 
 =item * Response: Redirect to the updated room
 
@@ -282,7 +282,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires System Admin Authorization
 
-=item * Request: input.yaml#/RackRoleCreate
+=item * Request: request.yaml#/RackRoleCreate
 
 =item * Response: Redirect to the created rack role
 
@@ -302,7 +302,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: input.yaml#/RackRoleUpdate
+=item * Request: request.yaml#/RackRoleUpdate
 
 =item * Response: Redirect to the updated rack role
 
@@ -332,7 +332,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires System Admin Authentication
 
-=item * Request: input.yaml#/RackCreate
+=item * Request: request.yaml#/RackCreate
 
 =item * Response: Redirect to the created rack
 
@@ -350,7 +350,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: input.yaml#/RackUpdate
+=item * Request: request.yaml#/RackUpdate
 
 =item * Response: Redirect to the updated rack
 
@@ -384,7 +384,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: input.yaml#/RackAssignmentUpdates
+=item * Request: request.yaml#/RackAssignmentUpdates
 
 =item * Response: Redirect to the updated rack assignment
 
@@ -396,7 +396,7 @@ This method requires a request body.
 
 =over 4
 
-=item * Request: input.yaml#/RackAssignmentDeletes
+=item * Request: request.yaml#/RackAssignmentDeletes
 
 =item * Response: C<204 NO CONTENT>
 
@@ -409,7 +409,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =over 4
 
-=item * Request: input.yaml#/RackPhase
+=item * Request: request.yaml#/RackPhase
 
 =item * Response: C<204 NO CONTENT>
 
@@ -429,7 +429,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * Requires Admin Authentication
 
-=item * Request: input.yaml#/RackLayoutCreate
+=item * Request: request.yaml#/RackLayoutCreate
 
 =item * Response: Redirect to the created rack layout
 
@@ -447,7 +447,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =over 4
 
-=item * Request: input.yaml#/RackLayoutUpdate
+=item * Request: request.yaml#/RackLayoutUpdate
 
 =item * Response: Redirect to the update rack layout
 

@@ -13,7 +13,7 @@ use lib __DIR__ =~ s{/misc}{}r . '/lib';
 
 use Conch::Controller::Schema;
 
-my $schema_file = __DIR__.'/../json-schema/input.yaml';
+my $schema_file = __DIR__.'/../json-schema/request.yaml';
 
 GetOptions(
     'file|f:s' => \$schema_file,
@@ -66,7 +66,7 @@ as the original file.
 
 =item B<--file|-f FILE>
 
-The base file for extracting from; defaulting to the C<json-schema/input.yaml> in this
+The base file for extracting from; defaulting to the C<json-schema/request.yaml> in this
 repository.
 
 =item B<--output|--to DIR>

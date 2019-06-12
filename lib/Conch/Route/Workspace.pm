@@ -134,7 +134,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires Workspace Admin Authentication
 
-=item * Request: input.yaml#/WorkspaceCreate
+=item * Request: request.yaml#/WorkspaceCreate
 
 =item * Response: response.yaml#/WorkspaceAndRole
 
@@ -188,7 +188,7 @@ An alias for C</workspace/:workspace_id_or_name/device?active=t>.
 
 =over 4
 
-=item * Request: input.yaml#/WorkspaceAddRack
+=item * Request: request.yaml#/WorkspaceAddRack
 
 =item * Response: Redirect to the workspace rack
 
@@ -218,7 +218,7 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 
 =over 4
 
-=item * Request: input.yaml#/WorkspaceRackLayoutUpdate
+=item * Request: request.yaml#/WorkspaceRackLayoutUpdate
 
 =item * Response: response.yaml#/WorkspaceRackLayoutUpdateResponse
 
@@ -260,7 +260,7 @@ an email to the user
 
 =item * Requires Workspace Admin Authentication
 
-=item * Request: input.yaml#/WorkspaceAddUser
+=item * Request: request.yaml#/WorkspaceAddUser
 
 =item * Response: response.yaml#/WorkspaceAndRole
 
