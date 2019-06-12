@@ -120,6 +120,7 @@ subtest 'create device via report' => sub {
     my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
+        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => re(Conch::UUID::UUID_FORMAT),
@@ -177,6 +178,7 @@ subtest 'create device via report' => sub {
 
     $t->post_ok('/device/TEST', json => $altered_report)
         ->status_is(200)
+        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
@@ -195,6 +197,7 @@ subtest 'create device via report' => sub {
     # submit another passing report (this makes 3)
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
+        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
@@ -317,6 +320,7 @@ subtest 'create device via report' => sub {
     # submit another passing report...
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
+        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
@@ -347,6 +351,7 @@ subtest 'create device via report' => sub {
     my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
         ->status_is(200)
+        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_is('/status', 'error');
 
@@ -378,6 +383,7 @@ subtest 'create device via report' => sub {
     # return device to a good state
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
+        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_is('/status', 'pass');
 
@@ -419,6 +425,7 @@ subtest 'create device via report' => sub {
         # then submit the report again and observe it moving back.
         $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
             ->status_is(200)
+            ->location_is('/device/'.$t->tx->res->json->{device_id})
             ->json_schema_is('ValidationStateWithResults')
             ->json_is('/status', 'pass');
 

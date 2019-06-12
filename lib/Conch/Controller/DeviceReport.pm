@@ -160,6 +160,7 @@ sub process ($c) {
     # prime the resultset cache for the serializer
     $validation_state->prefetch_validation_results;
 
+    $c->res->headers->location($c->url_for('/device/'.$device->id));
     $c->status(200, $validation_state);
 }
 
