@@ -141,6 +141,21 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 user_organization_roles
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::UserOrganizationRole>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_organization_roles",
+  "Conch::DB::Result::UserOrganizationRole",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 user_relay_connections
 
 Type: has_many
@@ -201,6 +216,16 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 organizations
+
+Type: many_to_many
+
+Composing rels: L</user_organization_roles> -> organization
+
+=cut
+
+__PACKAGE__->many_to_many("organizations", "user_organization_roles", "organization");
+
 =head2 relays
 
 Type: many_to_many
@@ -223,7 +248,7 @@ __PACKAGE__->many_to_many("workspaces", "user_workspace_roles", "workspace");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vpTbeHmoxnxcjZ7EUUg9yA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KQ7+QU/4ZJXYM8WZw89t6g
 
 use DBIx::Class::PassphraseColumn 0.04 ();
 __PACKAGE__->load_components('PassphraseColumn');

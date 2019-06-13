@@ -98,6 +98,21 @@ __PACKAGE__->add_unique_constraint("workspace_name_key", ["name"]);
 
 =head1 RELATIONS
 
+=head2 organization_workspace_roles
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::OrganizationWorkspaceRole>
+
+=cut
+
+__PACKAGE__->has_many(
+  "organization_workspace_roles",
+  "Conch::DB::Result::OrganizationWorkspaceRole",
+  { "foreign.workspace_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 parent_workspace
 
 Type: belongs_to
@@ -163,6 +178,20 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 organizations
+
+Type: many_to_many
+
+Composing rels: L</organization_workspace_roles> -> organization
+
+=cut
+
+__PACKAGE__->many_to_many(
+  "organizations",
+  "organization_workspace_roles",
+  "organization",
+);
+
 =head2 racks
 
 Type: many_to_many
@@ -185,7 +214,7 @@ __PACKAGE__->many_to_many("user_accounts", "user_workspace_roles", "user_account
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UTkb6H9/XmVkYnMTHm2uQw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Urk+hHQeLcSJ6VUznFO6Hg
 
 use experimental 'signatures';
 use Sub::Install;

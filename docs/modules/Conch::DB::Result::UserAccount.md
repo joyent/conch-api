@@ -98,6 +98,12 @@ is_nullable: 1
 
 # RELATIONS
 
+## user\_organization\_roles
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch::DB::Result::UserOrganizationRole)
+
 ## user\_relay\_connections
 
 Type: has\_many
@@ -121,6 +127,12 @@ Related object: [Conch::DB::Result::UserSetting](../modules/Conch::DB::Result::U
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch::DB::Result::UserWorkspaceRole)
+
+## organizations
+
+Type: many\_to\_many
+
+Composing rels: ["user\_organization\_roles"](#user_organization_roles) -> organization
 
 ## relays
 

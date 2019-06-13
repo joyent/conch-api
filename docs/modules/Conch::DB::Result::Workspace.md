@@ -52,6 +52,12 @@ size: 16
 
 # RELATIONS
 
+## organization\_workspace\_roles
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch::DB::Result::OrganizationWorkspaceRole)
+
 ## parent\_workspace
 
 Type: belongs\_to
@@ -75,6 +81,12 @@ Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch::DB::Result:
 Type: has\_many
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch::DB::Result::Workspace)
+
+## organizations
+
+Type: many\_to\_many
+
+Composing rels: ["organization\_workspace\_roles"](#organization_workspace_roles) -> organization
 
 ## racks
 
