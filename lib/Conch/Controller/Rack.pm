@@ -219,6 +219,10 @@ sub get_assignment ($c) {
 Assigns devices to rack layouts, also optionally updating serial_numbers and asset_tags.
 Existing devices in referenced slots will be removed as needed.
 
+Note: the assignment is still performed even if there is no physical room in the rack
+for the new hardware (its rack_unit_size overlaps into a subsequent layout), or that
+the device's hardware matches what the layout specifies.
+
 =cut
 
 sub set_assignment ($c) {
@@ -261,6 +265,14 @@ sub set_assignment ($c) {
 
     $c->txn_wrapper(sub ($c) {
         $c->schema->storage->dbh_do(sub ($, $dbh) { $dbh->do('set constraints all deferred') });
+
+        # remove current occupants, if there are any (but if they are moving somewhere else
+        # in the same rack, we will re-use that record for its relocation)
+        $device_locations_rs->search({
+            device_id => { -not_in => [ grep defined, map $_->{device_id}, $input->@* ] },
+            rack_unit_start => { -in => [ map $_->{rack_unit_start}, $input->@* ] },
+        })->delete;
+
         foreach my $entry ($input->@*) {
             my $layout = first { $_->rack_unit_start == $entry->{rack_unit_start} } @layouts;
 
@@ -294,10 +306,6 @@ sub set_assignment ($c) {
                 });
                 $entry->{device_id} = $device->id;
             }
-
-            # remove current occupant, if it exists
-            # (TODO: with deferred constraints, if it is moving to another slot we should not delete)
-            $device_locations_rs->search({ $entry->%{rack_unit_start} })->delete;
 
             $c->db_device_locations->update_or_create(
                 {

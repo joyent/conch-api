@@ -753,7 +753,7 @@ ALTER TABLE ONLY public.device_location
 --
 
 ALTER TABLE ONLY public.device_location
-    ADD CONSTRAINT device_location_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start);
+    ADD CONSTRAINT device_location_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start) DEFERRABLE;
 
 
 --

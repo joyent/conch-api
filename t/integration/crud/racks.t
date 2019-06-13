@@ -295,12 +295,12 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_id => $foo->id,
             device_serial_number => 'BAR',  # previous serial = FOO
-            rack_unit_start => 3,
+            rack_unit_start => 1,
         },
         {
             device_id => $bar->id,
             device_serial_number => 'FOO',  # previous serial = BAR
-            rack_unit_start => 11,
+            rack_unit_start => 3,
         },
     ])
     ->status_is(303);
@@ -320,13 +320,49 @@ $t->app->schema->txn_do(sub {
     $bar->update({ serial_number => 'BAR' });
 });
 
+$t->get_ok('/rack/'.$rack->id.'/assignment')
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is($assignments);
 
-# move FOO from rack unit 1 to rack unit 3; pushing out the existing occupant of 3
+
+my @device_locations = $rack->device_locations->order_by('rack_unit_start')->hri;
+
+# devices exchange locations atomically
+$t->post_ok('/rack/'.$rack->id.'/assignment', json => [
+        {
+            device_id => $bar->id,  # previous occupant: FOO
+            rack_unit_start => 1,
+        },
+        {
+            device_id => $foo->id,  # previous occupant: BAR
+            rack_unit_start => 3,
+        },
+    ])
+    ->status_is(303);
+
+$assignments->@[0,1] = (
+    { $assignments->[0]->%*, $assignments->[1]->%{qw(device_id device_asset_tag)} },
+    { $assignments->[1]->%*, $assignments->[0]->%{qw(device_id device_asset_tag)} },
+);
+
+$t->get_ok('/rack/'.$rack->id.'/assignment')
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is($assignments);
+
+cmp_deeply(
+    [ $rack->device_locations->order_by('rack_unit_start')->hri->get_column('created')->all ],
+    [ map $_->{created}, @device_locations ],
+    'previous device_location records are preserved during the swap',
+);
+
+# move FOO from rack unit 3 to rack unit 1; evicting the existing occupant of 1; 3 is now empty
 # BAZ is created and put in rack unit 11.
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_serial_number => 'FOO',
-            rack_unit_start => 3,
+            rack_unit_start => 1,
         },
         {
             device_serial_number => 'BAZ',
@@ -337,8 +373,8 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
 
 my $baz = $t->app->db_devices->find({ serial_number => 'BAZ' });
 
-$assignments->[1]->@{qw(device_id device_asset_tag)} = $assignments->[0]->@{qw(device_id device_asset_tag)};
-$assignments->[0]->@{qw(device_id device_asset_tag)} = (undef, undef);
+$assignments->[0]->@{qw(device_id device_asset_tag)} = $assignments->[1]->@{qw(device_id device_asset_tag)};
+$assignments->[1]->@{qw(device_id device_asset_tag)} = (undef, undef);
 $assignments->[2]->{device_id} = $baz->id;
 
 $t->get_ok($t->tx->res->headers->location)
@@ -359,7 +395,7 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_id => $foo->id,
-            rack_unit_start => 1,   # this slot isn't occupied
+            rack_unit_start => 3,   # this slot isn't occupied
         },
     ])
     ->status_is(404);
@@ -375,12 +411,12 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
             device_id => $foo->id,
-            rack_unit_start => 3,
+            rack_unit_start => 1,
         },
     ])
     ->status_is(204);
 
-$assignments->[1]->@{qw(device_id device_asset_tag)} = ();
+$assignments->[0]->@{qw(device_id device_asset_tag)} = ();
 
 $t->get_ok('/rack/'.$rack->id.'/assignment')
     ->status_is(200)
