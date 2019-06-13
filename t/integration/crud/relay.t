@@ -35,9 +35,13 @@ my @rack_layouts = map {
         ->related_resultset('rack')
         ->related_resultset('rack_layouts')
         ->order_by('rack_unit_start')->hri->all;
-    $t->app->db_device_locations->assign_device_location(
-        'DEVICE'.$device_num++, $_->{rack_id}, $_->{rack_unit_start}
-    ) foreach @_layouts;
+    $t->app->db_devices->create({
+        id => 'DEVICE'.$device_num++,
+        hardware_product_id => $_->{hardware_product_id},
+        health  => 'unknown',
+        state   => 'UNKNOWN',
+        device_location => { $_->%{qw(rack_id rack_unit_start)} },
+    }) foreach @_layouts;
     \@_layouts
 } @workspace_ids;
 

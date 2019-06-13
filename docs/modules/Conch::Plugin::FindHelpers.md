@@ -14,8 +14,8 @@ method.
 
 ## find\_user
 
-Validates the provided user\_id or email address (prefaced with 'email='), and stashes the
-corresponding user row in `target_user`.
+Validates the provided user\_id or email address, and stashes the corresponding user row in
+`target_user`.
 
 # LICENSING
 

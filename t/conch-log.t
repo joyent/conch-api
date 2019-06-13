@@ -430,7 +430,7 @@ sub add_test_routes ($app) {
         'dispatch line for an uncaught exception includes the full stack trace',
     );
 
-    $t->post_ok('/login', json => { user => 'foo@example.com', password => 'PASSWORD' })
+    $t->post_ok('/login', json => { email => 'foo@example.com', password => 'PASSWORD' })
         ->status_is(401);
 
     cmp_deeply(
@@ -625,7 +625,7 @@ sub add_test_routes ($app) {
         'dispatch line for an uncaught exception in audit mode includes the full stack trace',
     );
 
-    $t->post_ok('/login', json => { user => 'foo@example.com', password => 'PASSWORD' })
+    $t->post_ok('/login', json => { email => 'foo@example.com', password => 'PASSWORD' })
         ->status_is(401);
 
     cmp_deeply(

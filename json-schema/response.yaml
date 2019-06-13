@@ -284,8 +284,8 @@ definitions:
         description: the contents of the device report. Given its age we cannot provide a schema.
         anyOf:
           - type: 'null'
-          - $ref: device_report.yaml#/definitions/DeviceReport_v2.29
-          - type: object  # TODO: remove this loose alternative when we purge historical db records
+          - $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
+          - type: object
       invalid_report:
         description: this could be anything, from encoded json to random junk
         oneOf:
@@ -946,20 +946,6 @@ definitions:
               oneOf:
                 - $ref: /definitions/Device
                 - type: 'null'
-  WorkspaceRackLayoutUpdateResponse:
-    type: object
-    additionalProperties: false
-    required:
-      - updated
-    properties:
-      updated:
-        type: array
-        uniqueItems: true
-        minItems: 1
-        items:
-          description: device_id
-          type: string
-          pattern: ^[\w-]+$
   Validations:
     type: array
     uniqueItems: true
@@ -1026,7 +1012,6 @@ definitions:
       - id
       - category
       - component_id
-      - device_id
       - hardware_product_id
       - hint
       - message
@@ -1044,8 +1029,6 @@ definitions:
         oneOf:
           - type: 'null'
           - type: string
-      device_id:
-        $ref: common.yaml#/definitions/device_id
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       hint:
@@ -1480,6 +1463,7 @@ definitions:
       - rack_id
       - hardware_product_id
       - rack_unit_start
+      - rack_unit_size
       - created
       - updated
     properties:
@@ -1490,6 +1474,8 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       rack_unit_start:
+        $ref: common.yaml#/definitions/positive_integer
+      rack_unit_size:
         $ref: common.yaml#/definitions/positive_integer
       created:
         type: string

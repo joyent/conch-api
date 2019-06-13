@@ -70,15 +70,7 @@ sub routes {
 
             # DELETE /workspace/:workspace_id_or_name/rack/:rack_id
             $with_workspace_rack->delete('/')->to('workspace_rack#remove');
-
-            # POST /workspace/:workspace_id_or_name/rack/:rack_id/layout
-            $with_workspace_rack->post('/layout')->to('workspace_rack#assign_layout');
         }
-
-        # GET /workspace/:workspace_id_or_name/room -> GONE
-        $with_workspace->get('/room', sub { shift->status(410) });
-        # PUT /workspace/:workspace_id_or_name/room -> GONE
-        $with_workspace->put('/room', sub { shift->status(410) });
 
         # GET /workspace/:workspace_id_or_name/relay
         $with_workspace->get('/relay')->to('workspace_relay#list');
@@ -211,16 +203,6 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 =item * Requires Workspace Admin Authentication
 
 =item * Response: C<204 NO CONTENT>
-
-=back
-
-=head3 C<POST /workspace/:workspace_id_or_name/rack/:rack_id/layout>
-
-=over 4
-
-=item * Request: request.yaml#/WorkspaceRackLayoutUpdate
-
-=item * Response: response.yaml#/WorkspaceRackLayoutUpdateResponse
 
 =back
 

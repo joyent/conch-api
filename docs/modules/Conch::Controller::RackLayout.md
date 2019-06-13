@@ -6,7 +6,7 @@ Conch::Controller::RackLayout
 
 ## find\_rack\_layout
 
-Supports rack layout lookups by id
+Supports rack layout lookups by id.
 
 ## create
 

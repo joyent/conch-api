@@ -3,7 +3,6 @@ package Conch::Controller::WorkspaceRack;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Text::CSV_XS;
-use Try::Tiny;
 use List::Util 'reduce';
 
 =pod
@@ -283,56 +282,6 @@ sub remove ($c) {
         ->delete;
 
     return $c->status(204);
-}
-
-=head2 assign_layout
-
-Assign a full or partial layout for a rack
-
-Response returns the list of devices that were updated.
-
-Response uses the WorkspaceRackLayoutUpdateResponse json schema.
-
-=cut
-
-sub assign_layout ($c) {
-    my $input = $c->validate_request('WorkspaceRackLayoutUpdate');
-    return if not $input;
-
-    my $rack_id = $c->stash('rack_id');
-    my @errors;
-
-    try {
-        $c->schema->txn_do(sub {
-            foreach my $device_id (keys $input->%*) {
-                try {
-                    $c->db_device_locations->assign_device_location(
-                        $device_id,
-                        $rack_id,
-                        $input->{$device_id},   # rack_unit_start
-                    );
-                }
-                catch {
-                    push @errors, $_;
-                };
-            }
-
-            chomp @errors;
-            die join('; ', @errors) if @errors;
-        });
-    }
-    catch {
-        if (/Rollback failed/) {
-            local $@ = $_;
-            die;    # propagate the error
-        }
-        $c->log->debug('aborted assign_layout transaction: '.$_);
-    };
-
-    return $c->status(409, { error => join('; ', @errors) }) if @errors;
-
-    # return the list of device_ids that were assigned
-    $c->status(200, { updated => [ keys $input->%* ] });
 }
 
 1;

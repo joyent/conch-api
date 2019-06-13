@@ -469,14 +469,14 @@ Optionally will bail out of *all* tests on failure.  This will set 'user' in the
 =cut
 
 sub authenticate ($self, %args) {
-    $args{bailout} //= 1 if not $args{user};
-    $args{user} //= CONCH_EMAIL;
-    $args{password} //= $args{user} eq 'conch@conch.joyent.us' ? CONCH_PASSWORD : $args{user};
+    $args{bailout} //= 1 if not $args{email};
+    $args{email} //= CONCH_EMAIL;
+    $args{password} //= $args{email} eq 'conch@conch.joyent.us' ? CONCH_PASSWORD : $args{email};
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    $self->post_ok('/login', json => { %args{qw(user password)} })
-        ->status_is(200, $args{message} // 'logged in as '.$args{user})
-            or $args{bailout} and Test::More::BAIL_OUT('Failed to log in as '.$args{user});
+    $self->post_ok('/login', json => { %args{qw(email password)} })
+        ->status_is(200, $args{message} // 'logged in as '.$args{email})
+            or $args{bailout} and Test::More::BAIL_OUT('Failed to log in as '.$args{email});
 
     return $self;
 }

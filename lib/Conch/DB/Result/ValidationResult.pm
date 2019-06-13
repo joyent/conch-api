@@ -231,6 +231,7 @@ __PACKAGE__->many_to_many(
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },
+    '+device_id' => { is_serializable => 0 },
 );
 
 use experimental 'signatures';

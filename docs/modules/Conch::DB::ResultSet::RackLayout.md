@@ -1,17 +1,16 @@
 # NAME
 
-Conch::DB::ResultSet::DeviceLocation
+Conch::DB::ResultSet::RackLayout
 
 # DESCRIPTION
 
-Interface to queries involving device locations.
+Interface to queries involving rack layouts.
 
 # METHODS
 
-## target\_hardware\_product
+## with\_rack\_unit\_size
 
-Returns a resultset that will produce the 'target\_hardware\_product' portion of the
-DeviceLocation json schema (one hashref per matching device\_location).
+Chainable resultset that adds `rack_unit_size` to the results.
 
 # LICENSING
 

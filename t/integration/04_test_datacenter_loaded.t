@@ -72,7 +72,6 @@ subtest 'Device Report' => sub {
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => [
                 superhashof({
-                    device_id => 'TEST',
                     order => 0,
                     status => 'pass',
                 }),
@@ -377,22 +376,6 @@ subtest 'Device Report' => sub {
     );
 };
 
-subtest 'Single device' => sub {
-    my $rack_id = $t->load_fixture('legacy_rack')->id;
-
-    # device settings that check for 'admin' permission need the device to have a location
-    $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout",
-            json => { TEST => 1, NEW_DEVICE => 3 })
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRackLayoutUpdateResponse')
-        ->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
-
-    ok(
-        !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
-        'device is now located',
-    );
-};
-
 subtest 'Validations' => sub {
     my $validation_id = $t->app->db_validations->get_column('id')->single;
 
@@ -417,7 +400,6 @@ subtest 'Validations' => sub {
             ->json_schema_is('ValidationResults')
             ->json_cmp_deeply([ superhashof({
                 id => undef,
-                device_id => 'TEST',
             }) ]);
 
         my $validation_results = $t->tx->res->json;
@@ -508,7 +490,6 @@ subtest 'Validations' => sub {
                 status => 'fail',
                 results => [{
                     id => ignore,
-                    device_id => 'TEST',
                     hardware_product_id => $device->hardware_product_id,
                     validation_id => $validation->id,
                     component_id => undef,
@@ -547,7 +528,6 @@ subtest 'Validations' => sub {
                 status => 'error',
                 results => [{
                     id => ignore,
-                    device_id => 'TEST',
                     hardware_product_id => $device->hardware_product_id,
                     validation_id => ignore,
                     component_id => undef,
@@ -618,7 +598,7 @@ subtest 'Permissions' => sub {
             }],
         });
 
-        $t->authenticate(user => $ro_email, password => $ro_pass);
+        $t->authenticate(email => $ro_email, password => $ro_pass);
 
         $t->get_ok('/workspace')
             ->status_is(200)
@@ -633,11 +613,6 @@ subtest 'Permissions' => sub {
 
         subtest "Can't add a rack" => sub {
             $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
-                ->status_is(403);
-        };
-
-        subtest "Can't set a rack layout" => sub {
-            $t->post_ok("/workspace/$global_ws_id/rack/$rack_id/layout", json => { TEST => 1 })
                 ->status_is(403);
         };
 
@@ -698,7 +673,7 @@ subtest 'Permissions' => sub {
             }],
         });
 
-        $t->authenticate(user => $email, password => $pass);
+        $t->authenticate(email => $email, password => $pass);
 
         $t->get_ok('/workspace')
             ->status_is(200)

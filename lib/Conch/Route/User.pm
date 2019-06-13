@@ -81,7 +81,7 @@ sub routes {
 
     # administrator interfaces for updating a different user's account...
     {
-        # syntax: <uuid> or email=<email address>
+        # this value can be a user_id or an email address
         my $user_with_target = $user->require_system_admin->under('/#target_user_id_or_email')
             ->to(cb => sub ($c) { $c->find_user($c->stash('target_user_id_or_email')) });
 

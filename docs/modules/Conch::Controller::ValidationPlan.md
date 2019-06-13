@@ -6,10 +6,6 @@ Controller for managing Validation Plans
 
 # METHODS
 
-## create
-
-Create new Validation Plan.
-
 ## list
 
 List all available Validation Plans.
@@ -32,14 +28,6 @@ Response uses the ValidationPlan json schema.
 List all Validations associated with the Validation Plan, both active and deactivated.
 
 Response uses the Validations json schema.
-
-## add\_validation
-
-Add a validation to a validation plan.
-
-## remove\_validation
-
-Remove a Validation associated with the Validation Plan
 
 # LICENSING
 

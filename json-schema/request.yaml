@@ -60,7 +60,7 @@ definitions:
       vendor_name:
         type: string
   DeviceReport:
-    $ref: device_report.yaml#/definitions/DeviceReport_v2.29
+    $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
   RackCreate:
     type: object
     additionalProperties: false
@@ -185,14 +185,6 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
-  WorkspaceRackLayoutUpdate:
-    type: object
-    additionalProperties: false
-    minProperties: 1
-    propertyNames:
-      $ref: common.yaml#/definitions/device_id
-    additionalProperties:
-      $ref: common.yaml#/definitions/positive_integer
   DeviceLocationUpdate:
     type: object
     additionalProperties: false
@@ -355,13 +347,17 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - user
       - password
+    oneOf:
+      - required:
+        - user_id
+      - required:
+        - email
     properties:
-      user:
-        anyOf:
-          - $ref: common.yaml#/definitions/uuid
-          - $ref: common.yaml#/definitions/email_address
+      user_id:
+        $ref: common.yaml#/definitions/uuid
+      email:
+        $ref: common.yaml#/definitions/email_address
       password:
         $ref: common.yaml#/definitions/non_empty_string
   UserPassword:
@@ -376,6 +372,7 @@ definitions:
     type: object
     additionalProperties: false
     required:
+      - name
       - email
     properties:
       name:
@@ -414,25 +411,6 @@ definitions:
     properties:
       name:
         type: string
-  CreateValidationPlan:
-    type: object
-    additionalProperties: false
-    required:
-      - name
-      - description
-    properties:
-      name:
-        type: string
-      description:
-        type: string
-  AddValidationToPlan:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-    properties:
-      id:
-        $ref: common.yaml#/definitions/uuid
   WorkspaceAddRack:
     type: object
     additionalProperties: false
@@ -463,11 +441,16 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - user
       - role
+    oneOf:
+      - required:
+        - user_id
+      - required:
+        - email
     properties:
-      user:
-        # TODO: maybe this should accept a user_id as well?
+      user_id:
+        $ref: common.yaml#/definitions/uuid
+      email:
         $ref: common.yaml#/definitions/email_address
       role:
         $ref: common.yaml#/definitions/user_workspace_role
@@ -509,13 +492,6 @@ definitions:
     minProperties: 1
     propertyNames:
       $ref: common.yaml#/definitions/device_setting_key
-  WorkspaceRoomReplace:
-    type: array
-    uniqueItems: true
-    items:
-      allOf:
-        - description: datacenter room ids
-        - $ref: common.yaml#/definitions/uuid
   RegisterRelay:
     type: object
     additionaProperties: false

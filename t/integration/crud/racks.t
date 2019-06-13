@@ -2,7 +2,7 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 use Test::Conch;
 
 my $t = Test::Conch->new;
@@ -17,8 +17,7 @@ $t->get_ok('/rack')
 
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 
-my $uuid = Data::UUID->new;
-my $fake_id = $uuid->create_str;
+my $fake_id = create_uuid_str();
 
 my $rack = $t->load_fixture('rack_0a');
 

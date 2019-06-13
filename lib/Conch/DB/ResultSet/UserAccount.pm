@@ -62,38 +62,6 @@ sub lookup_by_email ($self, $email) {
         ->one_row;
 }
 
-=head2 lookup_by_id_or_email
-
-Queries for user by (case-insensitive) email if string matches C</^email=/>, otherwise queries
-by user id.
-
-If more than one user is found, we return the one created most recently, and a warning will be
-logged (via L<DBIx::Class::ResultSet/single>).
-
-If you want to search only for *active* users, apply the C<< ->active >> resultset to the
-caller first.
-
-=cut
-
-sub lookup_by_id_or_email ($self, $identifier) {
-    if ($identifier =~ /^email=/) {
-        return $self
-            ->search(\[ 'lower(email) = lower(?)', $' ])
-            ->order_by({ -desc => 'created' })
-            ->rows(1)
-            ->one_row;
-    }
-
-    # avoid pg exception "invalid input syntax for uuid"
-    if (is_uuid($identifier)) {
-        return $self->find($identifier);
-    }
-
-    warn 'invalid identifier format for '.$identifier
-        if not Email::Valid->address($identifier);
-    return;
-}
-
 1;
 __END__
 

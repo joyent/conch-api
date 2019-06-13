@@ -33,14 +33,6 @@ Remove a rack from a workspace.
 
 Requires 'admin' permissions on the workspace.
 
-## assign\_layout
-
-Assign a full or partial layout for a rack
-
-Response returns the list of devices that were updated.
-
-Response uses the WorkspaceRackLayoutUpdateResponse json schema.
-
 # LICENSING
 
 Copyright Joyent, Inc.

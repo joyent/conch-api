@@ -12,7 +12,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /device/:device_id`
 
-- Request: device\_report.yaml
+- Request: device\_report.yaml#/DeviceReport\_v3.0.0
 - Response: response.yaml#/ValidationStateWithResults
 
 ### `GET /device?:key=:value`

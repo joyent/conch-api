@@ -8,7 +8,7 @@ definitions:
       - type: integer
       - type: string
         pattern: "^[0-9]+$"
-  DeviceReport_v2.29:
+  DeviceReport_v3.0.0:
     description: the contents of a posted device report from relays and reporters
     type: object
     required:
@@ -114,16 +114,6 @@ definitions:
             # peer_vendor: # TODO! see Conch::Validation::SwitchPeers.
             #   type: string
             #   pattern: ^\S+$
-      media:
-        # TODO: this is required for switches
-        type: object
-        # TODO: define this key better,
-        # with propertyNames + additionalProperties instead of patternProperties.
-        # See notes in Conch::Controller:DeviceReport for media.
-        patternProperties:
-          ^\S$:
-            description: port
-            # type: unknown and not used.
       os:
         type: object
         required:

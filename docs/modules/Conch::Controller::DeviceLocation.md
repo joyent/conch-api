@@ -12,7 +12,9 @@ Response uses the DeviceLocation json schema.
 
 ## set
 
-Sets the location for a device, given a valid rack id and rack unit
+Sets the location for a device, given a valid rack id and rack unit. The existing occupant is
+removed, if there is one.  The device is created based on the hardware\_product specified for
+the layout if it does not yet exist.
 
 ## delete
 

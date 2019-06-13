@@ -2,8 +2,6 @@ package Conch::Controller::DeviceLocation;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Try::Tiny;
-
 =pod
 
 =head1 NAME
@@ -47,7 +45,9 @@ sub get ($c) {
 
 =head2 set
 
-Sets the location for a device, given a valid rack id and rack unit
+Sets the location for a device, given a valid rack id and rack unit. The existing occupant is
+removed, if there is one.  The device is created based on the hardware_product specified for
+the layout if it does not yet exist.
 
 =cut
 
@@ -55,17 +55,41 @@ sub set ($c) {
     my $input = $c->validate_request('DeviceLocationUpdate');
     return if not $input;
 
+    my $layout_rs = $c->db_rack_layouts->search({ map +('rack_layout.'.$_ => $input->{$_}), qw(rack_id rack_unit_start) });
+    return $c->status(409, { error => "slot $input->{rack_unit_start} does not exist in the layout for rack $input->{rack_id}" }) if not $layout_rs->exists;
+
     my $device_id = $c->stash('device_id');
 
-    my $error;
-    try {
-        $c->db_device_locations->assign_device_location($device_id, $input->@{qw(rack_id rack_unit_start)});
-    }
-    catch {
-        chomp($error = $_);
-    };
+    return $c->status(303, '/device/'.$device_id.'/location')
+        if $layout_rs->search_related('device_location', { device_id => $device_id })->exists;
 
-    return $c->status(409, { error => $error }) if $error;
+    my $result = $c->txn_wrapper(sub ($c) {
+        # create a device if it doesn't exist
+        if (not $c->db_devices->search({ id => $device_id })->exists) {
+            $c->db_devices->create({
+                id      => $device_id,
+                hardware_product_id => $layout_rs->get_column('hardware_product_id')->as_query,
+                health  => 'unknown',
+                state   => 'UNKNOWN',
+            });
+        }
+
+        # remove current occupant if it exists
+        $layout_rs->related_resultset('device_location')->delete;
+
+        # create device_location entry, moving the device's location if it already had one
+        $c->db_device_locations->update_or_create(
+            {
+                device_id => $device_id,
+                $input->%*,
+                updated => \'now()',
+            },
+            { key => 'primary' },   # only search for conflicts by device_id
+        );
+    });
+
+    # if the result code was already set, we errored and rolled back the db...
+    return if $c->res->code;
 
     $c->status(303, '/device/'.$device_id.'/location');
 }

@@ -5,7 +5,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
@@ -25,8 +25,6 @@ my $rack_id = $rack->id;
 my $room = $t->load_fixture('datacenter_room_0a');
 my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
 my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
-
-my $uuid = Data::UUID->new;
 
 # this rack is reachable through GLOBAL (via the room) but not through the sub-workspace.
 my $rack2 = $rack->datacenter_room->add_to_racks({
@@ -61,7 +59,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
 $t->get_ok("/workspace/$global_ws_id/rack/notauuid")
     ->status_is(404);
 
-$t->get_ok("/workspace/$global_ws_id/rack/".$uuid->create_str)
+$t->get_ok("/workspace/$global_ws_id/rack/".create_uuid_str())
     ->status_is(404);
 
 subtest 'Add rack to workspace' => sub {
@@ -152,15 +150,17 @@ CSV
 };
 
 subtest 'Assign device to a location' => sub {
-    $t->post_ok("/workspace/$sub_ws_id/rack/$rack_id/layout", json => { TEST => 42 })
-        ->status_is(409)
-        ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
+    $t->post_ok('/rack/'.$rack_id.'/assignment',
+            json => [ { device_id => 'TEST', rack_unit_start => 42 } ])
+        ->status_is(400)
+        ->json_is({ error => 'missing layout for rack_unit_start 42' });
 
-    $t->post_ok("/workspace/$sub_ws_id/rack/$rack_id/layout",
-            json => { TEST => 1, NEW_DEVICE => 3 })
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRackLayoutUpdateResponse')
-        ->json_cmp_deeply({ updated => bag('TEST', 'NEW_DEVICE') });
+    $t->post_ok('/rack/'.$rack_id.'/assignment', json => [
+            { device_id => 'TEST', rack_unit_start => 1 },
+            { device_id => 'NEW_DEVICE', rack_unit_start => 3 },
+        ])
+        ->status_is(303)
+        ->location_is('/rack/'.$rack_id.'/assignment');
 
     ok(
         !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,

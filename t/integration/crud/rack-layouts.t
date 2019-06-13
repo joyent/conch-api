@@ -2,7 +2,7 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Data::UUID;
+use Conch::UUID 'create_uuid_str';
 use Test::Conch;
 
 my $t = Test::Conch->new;
@@ -22,26 +22,28 @@ my $hw_product_switch = $t->load_fixture('hardware_product_switch');    # rack_u
 my $hw_product_compute = $t->load_fixture('hardware_product_compute');  # rack_unit_size 2
 my $hw_product_storage = $t->load_fixture('hardware_product_storage');  # rack_unit_size 4
 
-my $uuid = Data::UUID->new;
-
 # at the start, both racks have these assigned slots:
 # start 1, width 2
 # start 3, width 4
 # start 11, width 4
 
-my $fake_id = $uuid->create_str;
-
-my $rack_id = $t->load_fixture('rack_0a')->id;
+my $fake_id = create_uuid_str();
 
 $t->get_ok('/layout')
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply(bag(
-      map +(
-        superhashof({ rack_id => $_, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $_, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $_, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
-      ), $rack_id, $t->load_fixture('rack_1a')->id
+        map +{
+            $_->%*,
+            id => re(Conch::UUID::UUID_FORMAT),
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        },
+        (map +(
+            { rack_id => $_, rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
+            { rack_id => $_, rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+            { rack_id => $_, rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        ), my $rack_id = $t->load_fixture('rack_0a')->id, $t->load_fixture('rack_1a')->id)
     ));
 
 my $initial_layouts = $t->tx->res->json;
@@ -61,9 +63,16 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
+        map +{
+            $_->%*,
+            id => re(Conch::UUID::UUID_FORMAT),
+            rack_id => $rack_id,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        },
+        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
+        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
     ]);
 
 my $layout_1_2 = $t->load_fixture('rack_0a_layout_1_2');
@@ -167,10 +176,17 @@ $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
-        superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 11, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_id => $rack_id, rack_unit_start => 42, hardware_product_id => $hw_product_switch->id }),
+        map +{
+            $_->%*,
+            id => re(Conch::UUID::UUID_FORMAT),
+            rack_id => $rack_id,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        },
+        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
+        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        { rack_unit_start => 42, rack_unit_size => 1, hardware_product_id => $hw_product_switch->id },
     ]);
 
 my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');
@@ -287,9 +303,8 @@ my $device = $hw_product_storage->create_related('devices', {
     id  => 'my device',
     state => 'I wish I were an enum',
     health => 'unknown',
+    device_location => { rack_id => $rack_id, rack_unit_start => 20 },
 });
-
-$t->app->db_device_locations->assign_device_location($device->id, $rack_id, 20);
 
 # try to move layout from 20-23 back to 19-22
 $t->post_ok('/layout/'.$layout_20_23->id, json => { rack_unit_start => 19 })
