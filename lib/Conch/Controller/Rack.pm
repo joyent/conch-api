@@ -257,7 +257,7 @@ sub set_assignment ($c) {
     my %devices = map +($_->id => $_),
         $c->db_devices->search({ id => { -in => [ map $_->{device_id} // (), $input->@* ] } });
 
-    my $device_locations_rs = $c->stash('rack_rs')->related_resultset('device_locations');
+    my $device_locations_rs = $c->db_device_locations->search({ rack_id => $c->stash('rack_id') });
 
     $c->txn_wrapper(sub ($c) {
         foreach my $entry ($input->@*) {
@@ -357,10 +357,10 @@ sub delete_assignment ($c) {
 
     return if $c->res->code;
 
-    my $deleted = $c->stash('rack_rs')->search_related('rack_layouts',
-            { 'rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
-        ->related_resultset('device_location')
-        ->delete;
+    my $deleted = $c->db_device_locations->search({
+        rack_id => $c->stash('rack_id'),
+        rack_unit_start => { -in => [ map $_->{rack_unit_start}, $input->@* ] },
+    })->delete;
 
     $c->log->debug('deleted '.$deleted.' device-rack assignment'.($deleted > 1 ? 's' : ''));
 
