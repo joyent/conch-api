@@ -28,10 +28,10 @@ $t->get_ok('/validation_plan')
     ->json_schema_is('ValidationPlans')
     ->json_cmp_deeply([
         {
-            id => ignore,
+            id => re(Conch::UUID::UUID_FORMAT),
             name => 'Conch v1 Legacy Plan: Server',
             description => 'Test Plan',
-            created => ignore,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         },
     ]);
 

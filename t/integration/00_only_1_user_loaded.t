@@ -272,7 +272,7 @@ subtest 'Workspaces' => sub {
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply('', [
             {
-                id    => ignore,
+                id    => re(Conch::UUID::UUID_FORMAT),
                 name  => $t->CONCH_USER,
                 email => $t->CONCH_EMAIL,
                 role  => 'admin',
@@ -387,7 +387,7 @@ subtest 'Workspaces' => sub {
         ->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
 
     push $users{GLOBAL}->@*, {
-        id    => ignore,
+        id    => re(Conch::UUID::UUID_FORMAT),
         name  => 'test user',
         email => 'test_user@conch.joyent.us',
         role  => 'rw',
@@ -427,7 +427,7 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(201)
         ->json_schema_is('WorkspaceAndRole')
         ->json_cmp_deeply({
-            id          => ignore,
+            id          => re(Conch::UUID::UUID_FORMAT),
             name        => 'child_ws',
             description => 'one level of workspaces',
             parent_id   => $global_ws_id,
@@ -463,7 +463,7 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(201, 'created a grandchild workspace')
         ->json_schema_is('WorkspaceAndRole')
         ->json_cmp_deeply({
-            id          => ignore,
+            id          => re(Conch::UUID::UUID_FORMAT),
             name        => 'grandchild_ws',
             description => 'two levels of subworkspaces',
             parent_id   => $child_ws_id,
@@ -733,7 +733,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply('', bag($users{GLOBAL}->@*), 'no change to users who can access GLOBAL');
 
     push $users{child_ws}->@*, {
-        id    => ignore,
+        id    => re(Conch::UUID::UUID_FORMAT),
         name  => 'untrusted user',
         email => 'untrusted_user@conch.joyent.us',
         role  => 'ro',

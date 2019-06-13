@@ -161,8 +161,8 @@ subtest list => sub {
                 version => 'v2.0',
                 ipaddr  => '192.168.0.2',
                 ssh_port => 123,
-                created => ignore,
-                updated => ignore,
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[1][2]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 1a',
@@ -178,8 +178,8 @@ subtest list => sub {
                 version => 'v1.1',
                 ipaddr  => '192.168.1.2',
                 ssh_port => 123,
-                created => ignore,
-                updated => ignore,
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[0][0]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 0a',
