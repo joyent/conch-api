@@ -335,11 +335,14 @@ $t->get_ok('/schema/request/HardwareProductCreate')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply('', superhashof({
         definitions => {
-            uuid => superhashof({}),
-            positive_integer => superhashof({}),
-            HardwareProductUpdate => superhashof({}),
-            HardwareProductProfileCreate => superhashof({}),
-            HardwareProductProfileUpdate => superhashof({}),
+            map +($_ => superhashof({})), qw(
+                uuid
+                positive_integer
+                mojo_standard_placeholder
+                HardwareProductUpdate
+                HardwareProductProfileCreate
+                HardwareProductProfileUpdate
+            )
         },
     }), 'nested definitions are found and included');
 

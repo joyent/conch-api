@@ -700,9 +700,9 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       name:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       alias:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       prefix:
         oneOf:
           - type: string
@@ -719,7 +719,7 @@ definitions:
           - type: 'null'
       sku:
         oneOf:
-          - type: string
+          - $ref: common.yaml#/definitions/mojo_standard_placeholder
           - type: 'null'
       specification:
         description: json blob of additional data
@@ -980,7 +980,7 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       name:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       version:
         $ref: common.yaml#/definitions/positive_integer
       description:
@@ -1013,7 +1013,7 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       name:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         type: string
       created:
@@ -1231,7 +1231,7 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       name:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         oneOf:
           - type: string
@@ -1690,7 +1690,7 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       name:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       created:
         type: string
         format: date-time
