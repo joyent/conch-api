@@ -20,17 +20,35 @@ Unless otherwise noted, all routes require authentication.
 - Request: request.yaml#/HardwareProductCreate
 - Response: Redirect to the created hardware product
 
-### `GET /hardware_product/:identifier`
+### `GET /hardware_product/:hardware_product_id`
+
+### `GET /hardware_product/name=:hardware_product_name`
+
+### `GET /hardware_product/alias=:hardware_product_alias`
+
+### `GET /hardware_product/sku=:hardware_product_sku`
 
 - Response: response.yaml#/HardwareProduct
 
-### `POST /hardware_product/:identifier`
+### `POST /hardware_product/:hardware_product_id`
+
+### `POST /hardware_product/name=:hardware_product_name`
+
+### `POST /hardware_product/alias=:hardware_product_alias`
+
+### `POST /hardware_product/sku=:hardware_product_sku`
 
 - Requires System Admin Authentication
 - Request: request.yaml#/HardwareProductUpdate
 - Response: Redirect to the updated hardware product
 
-### `DELETE /hardware_product/:identifier`
+### `DELETE /hardware_product/:hardware_product_id`
+
+### `DELETE /hardware_product/name=:hardware_product_name`
+
+### `DELETE /hardware_product/alias=:hardware_product_alias`
+
+### `DELETE /hardware_product/sku=:hardware_product_sku`
 
 - Requires System Admin Authentication
 - Response: `204 NO CONTENT`

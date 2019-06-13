@@ -33,7 +33,7 @@ sub routes {
         my $with_hardware_product_id = $hardware_product->under('/<hardware_product_id:uuid>')
             ->to('#find_hardware_product');
 
-        # /hardware_product/<name=:hardware_product_name
+        # /hardware_product/name=:hardware_product_name
         # /hardware_product/alias=:hardware_product_alias
         # /hardware_product/sku=:hardware_product_sku
         my $with_hardware_product_key_and_value =
@@ -82,7 +82,13 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<GET /hardware_product/:identifier>
+=head3 C<GET /hardware_product/:hardware_product_id>
+
+=head3 C<GET /hardware_product/name=:hardware_product_name>
+
+=head3 C<GET /hardware_product/alias=:hardware_product_alias>
+
+=head3 C<GET /hardware_product/sku=:hardware_product_sku>
 
 =over 4
 
@@ -90,7 +96,13 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<POST /hardware_product/:identifier>
+=head3 C<POST /hardware_product/:hardware_product_id>
+
+=head3 C<POST /hardware_product/name=:hardware_product_name>
+
+=head3 C<POST /hardware_product/alias=:hardware_product_alias>
+
+=head3 C<POST /hardware_product/sku=:hardware_product_sku>
 
 =over 4
 
@@ -102,7 +114,13 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<DELETE /hardware_product/:identifier>
+=head3 C<DELETE /hardware_product/:hardware_product_id>
+
+=head3 C<DELETE /hardware_product/name=:hardware_product_name>
+
+=head3 C<DELETE /hardware_product/alias=:hardware_product_alias>
+
+=head3 C<DELETE /hardware_product/sku=:hardware_product_sku>
 
 =over 4
 
