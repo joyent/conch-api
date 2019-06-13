@@ -137,8 +137,8 @@ line of the exception.
             my $exception = $_;
             $c->log->debug('rolled back transaction');
             if ($exception !~ /^rollback/) {
-                $c->log->error($exception);
                 my ($error) = split(/\n/, $exception, 2);
+                $c->log->error($c->log->is_level('debug') ? $exception : $error);
                 $c->status($c->res->code // 400, { error => $error });
             }
             return;
