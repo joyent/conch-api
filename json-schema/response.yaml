@@ -1696,5 +1696,75 @@ definitions:
       created:
         type: string
         format: date-time
+  UserTerse:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - email
+    properties:
+      id:
+        $ref: common.yaml#/definitions/uuid
+      name:
+        type: string
+      email:
+        $ref: common.yaml#/definitions/email_address
+  Organization:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - description
+      - created
+      - admins
+      - workspaces
+    properties:
+      id:
+        $ref: common.yaml#/definitions/uuid
+      name:
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+      description:
+        oneOf:
+          - type: 'null'
+          - type: string
+      created:
+        type: string
+        format: date-time
+      admins:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          $ref: /definitions/UserTerse
+      workspaces:
+        $ref: /definitions/WorkspacesAndRoles
+  Organizations:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/Organization
+  OrganizationUsers:
+    type: array
+    uniqueItems: true
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - email
+        - role
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          type: string
+        email:
+          $ref: common.yaml#/definitions/email_address
+        role:
+          $ref: common.yaml#/definitions/role
 
 # vim: set sts=2 sw=2 et :

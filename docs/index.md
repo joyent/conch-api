@@ -56,6 +56,9 @@ directory in the main repository.
 * [Conch::Route::RackLayout](modules/Conch::Route::RackLayout)
   * `/layout`
 
+* [Conch::Route::Organization](modules/Conch::Route::Organization)
+  * `/organization`
+
 * [Conch::Route::Rack](modules/Conch::Route::Rack)
   * `/rack`
 

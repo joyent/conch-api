@@ -150,6 +150,61 @@ __PACKAGE__->many_to_many("workspaces", "organization_workspace_roles", "workspa
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VfC1BoN/FWn5FjaRHSj03Q
 
+__PACKAGE__->add_columns(
+    '+deactivated' => { is_serializable => 0 },
+);
+
+use experimental 'signatures';
+
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include information about the organization's admins and workspaces.
+
+=cut
+
+sub TO_JSON ($self) {
+    my $data = $self->next::method(@_);
+
+    $data->{admins} = [
+        map {
+            my ($user) = $_->related_resultset('user_account')->get_cache->@*;
+            +{ map +($_ => $user->$_), qw(id name email) };
+        }
+        $self->related_resultset('user_organization_roles')->get_cache->@*
+    ];
+
+    # add workspace data (very similar to Conch::DB::Result::UserAccount::TO_JSON)
+    my $cached_owrs = $self->related_resultset('organization_workspace_roles')->get_cache;
+    my %seen_workspaces;
+    $data->{workspaces} = [
+        # we process the direct owr+workspace entries first so we do not produce redundant rows
+        (map {
+            my $workspace = $_->workspace;
+            ++$seen_workspaces{$workspace->id};
+            +{
+                $workspace->TO_JSON->%*,
+                role => $_->role,
+            },
+        } $cached_owrs->@*),
+
+        (map +(
+            map +(
+                # $_ is a workspace where the organization inherits a role
+                $seen_workspaces{$_->id} ? () : do {
+                    ++$seen_workspaces{$_->id};
+                    # instruct the workspace serializer to fill in the role fields
+                    $_->organization_id_for_role($self->id);
+                    $_->TO_JSON
+                }
+            ), $self->result_source->schema->resultset('workspace')
+                ->workspaces_beneath($_->workspace_id)
+        ), $cached_owrs->@*),
+    ];
+
+    return $data;
+}
 
 1;
 __END__

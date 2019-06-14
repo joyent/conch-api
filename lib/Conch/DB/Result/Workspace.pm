@@ -252,11 +252,16 @@ Accessor for informational column, which is by the serializer in the result data
 =head2 user_id_for_role
 
 Accessor for informational column, which is used by the serializer to signal we should fetch
-and include inherited role data.
+and include inherited role data for the user.
+
+=head2 organization_id_for_role
+
+Accessor for informational column, which is used by the serializer to signal we should fetch
+and include inherited role data for the organization.
 
 =cut
 
-foreach my $column (qw(role user_id_for_role)) {
+foreach my $column (qw(role user_id_for_role organization_id_for_role)) {
     Sub::Install::install_sub({
         as   => $column,
         code => sub {

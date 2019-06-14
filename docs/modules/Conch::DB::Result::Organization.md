@@ -77,6 +77,12 @@ Type: many\_to\_many
 
 Composing rels: ["organization\_workspace\_roles"](#organization_workspace_roles) -> workspace
 
+# METHODS
+
+## TO\_JSON
+
+Include information about the organization's admins and workspaces.
+
 # LICENSING
 
 Copyright Joyent, Inc.
