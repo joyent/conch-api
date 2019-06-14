@@ -360,7 +360,7 @@ subtest 'Workspaces' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => "user test user already has rw access to workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
@@ -417,7 +417,7 @@ subtest 'Sub-Workspace' => sub {
             foreach 'foo/bar', 'foo.bar';
 
     $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'GLOBAL' })
-        ->status_is(400, 'Cannot create duplicate workspace')
+        ->status_is(409, 'Cannot create duplicate workspace')
         ->json_is({ error => "workspace 'GLOBAL' already exists" });
 
     $t->post_ok("/workspace/$global_ws_id/child", json => {
@@ -581,7 +581,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => "user test user already has rw access to workspace $grandchild_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
@@ -613,7 +613,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => "user test user already has rw access to workspace $child_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
@@ -1072,7 +1072,7 @@ subtest 'modify another user' => sub {
     };
 
     $t->delete_ok('/user/foobar/password')
-        ->status_is(400, 'bad format')
+        ->status_is(400)
         ->json_is({ error => 'invalid identifier format for foobar' });
 
     $t->delete_ok('/user/foobar/password')
@@ -1265,7 +1265,7 @@ subtest 'user tokens (our own)' => sub {
         });
 
     $t->post_ok('/user/me/token', json => { name => 'my first 💩 // to.ken @@' })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => 'name "my first 💩 // to.ken @@" is already in use' });
 
     my $t2 = Test::Conch->new(pg => $t->pg);

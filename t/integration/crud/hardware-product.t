@@ -75,7 +75,7 @@ $t->post_ok('/hardware_product', json => {
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Unique constraint violated on \'name\'' });
 

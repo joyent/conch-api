@@ -41,6 +41,7 @@ $t->post_ok('/rack_role', json => { wat => 'wat' })
 
 $t->post_ok('/rack_role', json => { name => $_ })
     ->status_is(400)
+    ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', superbagof({ path => '/name', message => re(qr/does not match/i) }))
 foreach 'foo/bar', 'foo.bar';
 
@@ -54,7 +55,7 @@ $t->get_ok($t->tx->res->headers->location)
 my $idr = $t->tx->res->json->{id};
 
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 10 })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'name is already taken' });
 
@@ -75,7 +76,7 @@ $t->get_ok("/rack_role/$idr")
     ->json_cmp_deeply(superhashof({ name => 'role', rack_size => 10 }));
 
 $t->post_ok('/rack_role/'.$role->id, json => { rack_size => 13 })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
 
@@ -96,7 +97,7 @@ $t->get_ok('/rack_role')
     ));
 
 $t->delete_ok('/rack_role/'.$role->id)
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot delete a rack_role when a rack is referencing it' });
 

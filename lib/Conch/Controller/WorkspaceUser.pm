@@ -87,7 +87,7 @@ sub add_user ($c) {
         }
 
         if ($existing_role_via->role_cmp($input->{role}) > 0) {
-            return $c->status(400, { error =>
+            return $c->status(409, { error =>
                     'user '.$user->name.' already has '.$existing_role_via->role
                 .' access to workspace '.$workspace_id
                 .($existing_role_via->workspace_id ne $workspace_id

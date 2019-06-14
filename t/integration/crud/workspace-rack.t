@@ -152,7 +152,7 @@ CSV
 subtest 'Assign device to a location' => sub {
     $t->post_ok('/rack/'.$rack_id.'/assignment',
             json => [ { device_id => 'TEST', rack_unit_start => 42 } ])
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => 'missing layout for rack_unit_start 42' });
 
     $t->post_ok('/rack/'.$rack_id.'/assignment', json => [

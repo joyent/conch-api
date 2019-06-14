@@ -59,7 +59,7 @@ sub create ($c) {
 
     if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
         $c->log->debug("Name conflict on '".$input->{name}."'");
-        return $c->status(400, { error => 'name is already taken' });
+        return $c->status(409, { error => 'name is already taken' });
     }
 
     my $rack_role = $c->db_rack_roles->create($input);
@@ -110,7 +110,7 @@ sub update ($c) {
     if ($input->{name}) {
         if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
             $c->log->debug("Name conflict on '".$input->{name}."'");
-            return $c->status(400, { error => 'name is already taken' });
+            return $c->status(409, { error => 'name is already taken' });
         }
     }
 
@@ -129,7 +129,7 @@ sub update ($c) {
                 $c->log->debug('found layout used by rack_role id '.$rack_role->id
                     .' that has assigned rack_units greater requested new rack_size of '
                     .$input->{rack_size}.': ', join(', ', @out_of_range));
-                return $c->status(400, { error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
+                return $c->status(409, { error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
             }
         }
     }
@@ -149,7 +149,7 @@ Delete a rack role.
 sub delete ($c) {
     if ($c->stash('rack_role')->related_resultset('racks')->exists) {
         $c->log->debug('Cannot delete rack_role: in use by one or more racks');
-        return $c->status(400, { error => 'cannot delete a rack_role when a rack is referencing it' });
+        return $c->status(409, { error => 'cannot delete a rack_role when a rack is referencing it' });
     }
 
     $c->stash('rack_role')->delete;

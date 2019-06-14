@@ -58,11 +58,11 @@ sub create ($c) {
     return if not $input;
 
     if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
-        return $c->status(400, { error => 'Room does not exist' });
+        return $c->status(409, { error => 'Room does not exist' });
     }
 
     if (not $c->db_rack_roles->search({ id => $input->{rack_role_id} })->exists) {
-        return $c->status(400, { error => 'Rack role does not exist' });
+        return $c->status(409, { error => 'Rack role does not exist' });
     }
 
     my $rack = $c->db_racks->create($input);
@@ -139,7 +139,7 @@ sub update ($c) {
     if ($input->{datacenter_room_id}
             and $input->{datacenter_room_id} ne $rack->datacenter_room_id) {
         if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
-            return $c->status(400, { error => 'Room does not exist' });
+            return $c->status(409, { error => 'Room does not exist' });
         }
     }
 
@@ -147,7 +147,7 @@ sub update ($c) {
     if (exists $input->{rack_role_id} and $input->{rack_role_id} ne $rack->rack_role_id) {
         my $rack_role = $c->db_rack_roles->find($input->{rack_role_id});
         if (not $rack_role) {
-            return $c->status(400, { error => 'Rack role does not exist' });
+            return $c->status(409, { error => 'Rack role does not exist' });
         }
 
         my @assigned_rack_units = $rack_rs->assigned_rack_units;
@@ -156,7 +156,7 @@ sub update ($c) {
             $c->log->debug('found layout used by rack id '.$c->stash('rack_id')
                 .' that has assigned rack_units greater requested new rack_size of '
                 .$rack_role->rack_size.': ', join(', ', @out_of_range));
-            return $c->status(400, { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
+            return $c->status(409, { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
         }
     }
 
@@ -175,7 +175,7 @@ Delete a rack.
 sub delete ($c) {
     if ($c->stash('rack_rs')->related_resultset('rack_layouts')->exists) {
         $c->log->debug('Cannot delete rack: in use by one or more rack_layouts');
-        return $c->status(400, { error => 'cannot delete a rack when a rack_layout is referencing it' });
+        return $c->status(409, { error => 'cannot delete a rack when a rack_layout is referencing it' });
     }
 
     # deletions will cascade to workspace_rack.
@@ -244,7 +244,7 @@ sub set_assignment ($c) {
             my $ru = $_;
             none { $ru == $_->rack_unit_start } @layouts;
         } map $_->{rack_unit_start}, $input->@*;
-        return $c->status(400, { error => 'missing layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing) });
+        return $c->status(409, { error => 'missing layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing) });
     }
 
     my %devices = map +($_->id => $_),

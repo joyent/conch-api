@@ -140,7 +140,7 @@ sub create_sub_workspace ($c) {
     my $input = $c->validate_request('WorkspaceCreate');
     return if not $input;
 
-    return $c->status(400, { error => "workspace '$input->{name}' already exists" })
+    return $c->status(409, { error => "workspace '$input->{name}' already exists" })
         if $c->db_workspaces->search({ name => $input->{name} })->exists;
 
     my $sub_ws = $c->db_workspaces

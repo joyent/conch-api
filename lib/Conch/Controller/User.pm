@@ -480,7 +480,7 @@ sub create_api_token ($c) {
 
     my $user = $c->stash('target_user');
 
-    return $c->status(400, { error => 'name "'.$input->{name}.'" is already in use' })
+    return $c->status(409, { error => 'name "'.$input->{name}.'" is already in use' })
         if $user->user_session_tokens->search({ name => $input->{name} })->exists;
 
     # default expiration: 5 years
