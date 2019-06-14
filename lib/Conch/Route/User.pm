@@ -289,7 +289,9 @@ an email telling the user their tokens were revoked
 
 =item * Request: request.yaml#/UpdateUser
 
-=item * Response: response.yaml#/UserDetailed
+=item * Success Response: response.yaml#/UserDetailed
+
+=item * Error response on duplicate user: response.yaml#/UserError
 
 =back
 
@@ -385,7 +387,9 @@ email to the user with the new password.
 
 =item * Request: request.yaml#/NewUser
 
-=item * Response: response.yaml#/User
+=item * Success Response: response.yaml#/User
+
+=item * Error response on duplicate user: response.yaml#/UserError
 
 =back
 
@@ -409,7 +413,9 @@ email to the user with the new password.
 
 =over 4
 
-=item * Response: C<204 NO CONTENT>
+=item * Success Response: C<204 NO CONTENT>
+
+=item * Error response when user already deactivated: response.yaml#/UserError
 
 =back
 

@@ -95,7 +95,8 @@ an email telling the user their tokens were revoked
 
 - Requires System Admin Authentication
 - Request: request.yaml#/UpdateUser
-- Response: response.yaml#/UserDetailed
+- Success Response: response.yaml#/UserDetailed
+- Error response on duplicate user: response.yaml#/UserError
 
 ### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
 
@@ -147,7 +148,8 @@ email to the user with the new password.
 
 - Requires System Admin Authentication
 - Request: request.yaml#/NewUser
-- Response: response.yaml#/User
+- Success Response: response.yaml#/User
+- Error response on duplicate user: response.yaml#/UserError
 
 ### `GET /user/:target_user_id_or_email/token`
 
@@ -159,7 +161,8 @@ email to the user with the new password.
 
 ### `DELETE /user/:target_user_id_or_email/token/:token_name`
 
-- Response: `204 NO CONTENT`
+- Success Response: `204 NO CONTENT`
+- Error response when user already deactivated: response.yaml#/UserError
 
 # LICENSING
 

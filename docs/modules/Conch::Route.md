@@ -14,6 +14,14 @@ Set up the full route structure
 
 Unless otherwise specified all routes require authentication.
 
+Successful (http 2xx code) response structures are as described for each endpoint.
+
+Error responses will use:
+
+- failure to validate query parameters: http 400, response.yaml#/QueryParamsValidationError
+- failure to validate request body payload: http 400, response.yaml#/RequestValidationError
+- all other errors, unless specified: http 4xx, response.yaml/#Error
+
 ### `GET /ping`
 
 - Does not require authentication.

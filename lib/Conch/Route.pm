@@ -102,6 +102,20 @@ __END__
 
 Unless otherwise specified all routes require authentication.
 
+Successful (http 2xx code) response structures are as described for each endpoint.
+
+Error responses will use:
+
+=over
+
+=item * failure to validate query parameters: http 400, response.yaml#/QueryParamsValidationError
+
+=item * failure to validate request body payload: http 400, response.yaml#/RequestValidationError
+
+=item * all other errors, unless specified: http 4xx, response.yaml/#Error
+
+=back
+
 =head3 C<GET /ping>
 
 =over 4
