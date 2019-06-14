@@ -32,10 +32,6 @@ Gets PXE-specific information about a device.
 
 Response uses the DevicePXE json schema.
 
-## graduate
-
-Marks the device as "graduated" (VLAN flipped)
-
 ## set\_asset\_tag
 
 Sets the `asset_tag` field on a device

@@ -42,11 +42,6 @@ below.
 
 - Response: response.yaml#/DevicePhase
 
-### `POST /device/:device_id_or_serial_number/graduate`
-
-- Request: request.yaml#/Null
-- Response: Redirect to the updated device
-
 ### `POST /device/:device_id_or_serial_number/asset_tag`
 
 - Request: request.yaml#/DeviceAssetTag

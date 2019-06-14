@@ -257,27 +257,6 @@ sub get_pxe ($c) {
     $c->status(200, $device);
 }
 
-=head2 graduate
-
-Marks the device as "graduated" (VLAN flipped)
-
-=cut
-
-sub graduate ($c) {
-    $c->validate_request('Null');
-    return if $c->res->code;
-
-    my $device = $c->stash('device_rs')->single;
-    my $device_id = $device->id;
-
-    if (not $device->graduated) {
-        $device->update({ graduated => \'now()', updated => \'now()' });
-        $c->log->debug('Marked '.$device_id.' as graduated');
-    }
-
-    $c->status(303, '/device/'.$device_id);
-}
-
 =head2 set_asset_tag
 
 Sets the C<asset_tag> field on a device

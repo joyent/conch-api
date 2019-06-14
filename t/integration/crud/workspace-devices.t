@@ -52,11 +52,9 @@ $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
     ->json_schema_is('ValidationStateWithResults')
     ->json_is('/device_id', $devices[0]->id);
 
-foreach my $query ('/device/'.$devices[0]->id.'/graduate', '/device/'.$devices[0]->id.'/validated') {
-    $t->post_ok($query)
-        ->status_is(303)
-        ->location_is('/device/'.$devices[0]->id);
-}
+$t->post_ok('/device/'.$devices[0]->id.'/validated')
+    ->status_is(303)
+    ->location_is('/device/'.$devices[0]->id);
 
 $t->get_ok("/workspace/$global_ws_id/device")
     ->status_is(200)
@@ -64,14 +62,12 @@ $t->get_ok("/workspace/$global_ws_id/device")
     ->json_cmp_deeply([
         superhashof({
             id => $devices[0]->id,
-            graduated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             validated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             health => 'pass',
         }),
         superhashof({
             id => $devices[1]->id,
-            graduated => undef,
             validated => undef,
             last_seen => undef,
             health => 'unknown',
@@ -79,16 +75,6 @@ $t->get_ok("/workspace/$global_ws_id/device")
     ]);
 
 my $devices_data = $t->tx->res->json;
-
-$t->get_ok("/workspace/$global_ws_id/device?graduated=0")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[1] ]);
-
-$t->get_ok("/workspace/$global_ws_id/device?graduated=1")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[0] ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?validated=0")
     ->status_is(200)
@@ -125,16 +111,6 @@ $t->get_ok("/workspace/$global_ws_id/device?health=bunk")
     ->json_schema_is('QueryParamsValidationError')
     ->json_cmp_deeply('/details', [ { path => '/health', message => re(qr/not in enum list/i) } ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=1")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[0] ]);
-
-$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=0")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([]);
-
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
     ->status_is(200)
     ->json_schema_is('DeviceIds')
@@ -150,7 +126,7 @@ $t->get_ok("/workspace/$global_ws_id/device?active_minutes=5")
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?active_minutes=5&graduated=1")
+$t->get_ok("/workspace/$global_ws_id/device?active_minutes=5&validated=1")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);

@@ -40,13 +40,6 @@ extra: {custom_type_name => "device_health_enum",list => ["error","fail","unknow
 is_nullable: 0
 ```
 
-## graduated
-
-```
-data_type: 'timestamp with time zone'
-is_nullable: 1
-```
-
 ## deactivated
 
 ```

@@ -35,7 +35,6 @@ Unless otherwise noted, all routes require authentication.
 
 Accepts the following optional query parameters:
 
-- `graduated=<1|0>` show only devices where the `graduated` attribute is set/not-set
 - `validated=<1|0>` show only devices where the `validated` attribute is set/not-set
 - `health=<value>` show only devices with the health matching the provided value
 - `active_minutes=X` show only devices which have reported within the last X minutes (this is different from all active devices)

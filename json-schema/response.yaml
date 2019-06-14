@@ -108,7 +108,6 @@ definitions:
       - hardware_product_id
       - health
       - hostname
-      - graduated
       - last_seen
       - system_uuid
       - updated
@@ -140,11 +139,6 @@ definitions:
       hostname:
         oneOf:
           - type: string
-          - type: 'null'
-      graduated:
-        oneOf:
-          - type: string
-            format: date-time
           - type: 'null'
       last_seen:
         oneOf:
@@ -318,7 +312,6 @@ definitions:
       - hardware_product_id
       - health
       - hostname
-      - graduated
       - last_seen
       - system_uuid
       - updated
@@ -346,11 +339,6 @@ definitions:
       hostname:
         oneOf:
           - type: string
-          - type: 'null'
-      graduated:
-        oneOf:
-          - type: string
-            format: date-time
           - type: 'null'
       last_seen:
         oneOf:

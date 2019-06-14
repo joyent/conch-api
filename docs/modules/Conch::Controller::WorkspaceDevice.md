@@ -13,8 +13,6 @@ Supports these query parameters to constrain results (which are ANDed together f
 not ORed):
 
 ```perl
-graduated=1     only devices with graduated set
-graduated=0     only devices with graduated not set
 validated=1     only devices with validated set
 validated=0     only devices with validated not set
 health=<value>  only devices with health matching the provided value

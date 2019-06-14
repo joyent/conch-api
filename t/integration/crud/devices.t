@@ -111,7 +111,7 @@ subtest 'unlocated device with a registered relay' => sub {
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
-            (map +($_ => undef), qw(asset_tag graduated uptime_since validated)),
+            (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
             location => undef,
@@ -133,7 +133,7 @@ subtest 'unlocated device with a registered relay' => sub {
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
-            (map +($_ => undef), qw(asset_tag graduated uptime_since validated)),
+            (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
             location => undef,
@@ -194,7 +194,7 @@ subtest 'located device' => sub {
             serial_number => 'LOCATED_DEVICE',
             health => 'unknown',
             phase => 'integration',
-            (map +($_ => undef), qw(asset_tag graduated hostname last_seen system_uuid uptime_since validated)),
+            (map +($_ => undef), qw(asset_tag hostname last_seen system_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
             hardware_product_id => $hardware_product_id,
             location => {
@@ -225,7 +225,7 @@ subtest 'located device' => sub {
 
     subtest 'permissions for POST queries' => sub {
         my @queries = (
-            (map '/device/LOCATED_DEVICE/'.$_, qw(graduate validated)),
+            '/device/LOCATED_DEVICE/validated',
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
         );
 
@@ -373,14 +373,8 @@ subtest 'get by device attributes' => sub {
 };
 
 subtest 'mutate device attributes' => sub {
-    $t->post_ok('/device/nonexistent/graduate')
+    $t->post_ok('/device/nonexistent/validate')
         ->status_is(404);
-
-    $t->post_ok('/device/TEST/graduate')
-        ->status_is(303)
-        ->location_is('/device/'.$test_device_id);
-
-    $detailed_device->{graduated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
     $t->post_ok('/device/TEST/asset_tag')
         ->status_is(400)

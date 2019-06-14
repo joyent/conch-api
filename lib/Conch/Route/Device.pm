@@ -41,8 +41,6 @@ sub routes {
         # GET /device/:device_id_or_serial_number/phase
         $with_device->get('/phase')->to('device#get_phase');
 
-        # POST /device/:device_id_or_serial_number/graduate
-        $with_device->post('/graduate')->to('device#graduate');
         # POST /device/:device_id_or_serial_number/asset_tag
         $with_device->post('/asset_tag')->to('device#set_asset_tag');
         # POST /device/:device_id_or_serial_number/validated
@@ -171,16 +169,6 @@ below.
 =over 4
 
 =item * Response: response.yaml#/DevicePhase
-
-=back
-
-=head3 C<POST /device/:device_id_or_serial_number/graduate>
-
-=over 4
-
-=item * Request: request.yaml#/Null
-
-=item * Response: Redirect to the updated device
 
 =back
 

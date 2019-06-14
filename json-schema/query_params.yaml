@@ -107,8 +107,6 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      graduated:
-        $ref: /definitions/boolean_integer
       validated:
         $ref: /definitions/boolean_integer
       health:
