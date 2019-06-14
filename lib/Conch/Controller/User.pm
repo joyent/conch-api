@@ -341,7 +341,7 @@ The response uses the UserError json schema for some error conditions; on succes
 =cut
 
 sub update ($c) {
-    my $params = $c->validate_query_params('ModifyUser');
+    my $params = $c->validate_query_params('NotifyUsers');
     return if not $params;
 
     my $input = $c->validate_request('UpdateUser');
@@ -410,7 +410,7 @@ Response uses the NewUser json schema (or UserError for some error conditions).
 =cut
 
 sub create ($c) {
-    my $params = $c->validate_query_params('ModifyUser');
+    my $params = $c->validate_query_params('NotifyUsers');
     return if not $params;
 
     my $input = $c->validate_request('NewUser');

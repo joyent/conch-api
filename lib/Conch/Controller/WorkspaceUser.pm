@@ -62,7 +62,7 @@ to the user.
 sub add_user ($c) {
     return $c->status(403) if not $c->is_workspace_admin;
 
-    my $params = $c->validate_query_params('ModifyUser');
+    my $params = $c->validate_query_params('NotifyUsers');
     return if not $params;
 
     my $input = $c->validate_request('WorkspaceAddUser');
@@ -152,7 +152,7 @@ to the user.
 =cut
 
 sub remove ($c) {
-    my $params = $c->validate_query_params('ModifyUser');
+    my $params = $c->validate_query_params('NotifyUsers');
     return if not $params;
 
     my $user = $c->stash('target_user');

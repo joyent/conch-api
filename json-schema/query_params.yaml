@@ -63,8 +63,8 @@ definitions:
         default: login_only
       send_mail:
         $ref: /definitions/boolean_integer_default_true
-  ModifyUser:
-    description: used for user creation and update, and adding/removing user to/from workspace
+  NotifyUsers:
+    description: used for operations where email can optionally be sent
     type: object
     additionalProperties: false
     properties:
