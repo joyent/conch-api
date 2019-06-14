@@ -145,8 +145,6 @@ __END__
 
 Unless otherwise noted, all routes require authentication.
 
-=cut
-
 =head3 C<GET /dc>
 
 =over 4

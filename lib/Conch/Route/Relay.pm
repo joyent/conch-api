@@ -46,8 +46,6 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=cut
-
 =head3 C<GET /relay>
 
 =over 4
@@ -57,8 +55,6 @@ Unless otherwise noted, all routes require authentication.
 =item * Response: response.yaml#/Relays
 
 =back
-
-=cut
 
 =head1 LICENSING
 
