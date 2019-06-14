@@ -1270,7 +1270,7 @@ definitions:
         email:
           $ref: common.yaml#/definitions/email_address
         role:
-          type: string
+          $ref: common.yaml#/definitions/user_workspace_role
         role_via:
           allOf:
             - description: this is the id of the workspace where the permissions came from
