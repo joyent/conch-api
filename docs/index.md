@@ -20,7 +20,7 @@ is processed, validated, stored, and reported upon.
 
 # Development
 
-Our development process is documented over [here](development.html)
+Our development process is documented over [here](development).
 
 # Routes / URLs
 
