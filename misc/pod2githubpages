@@ -16,7 +16,7 @@ use Devel::Confess;
 my %opts = (
     output_encoding => 'UTF-8',
     local_module_re => qr/Conch/,
-    local_module_url_prefix => '/modules/',
+    local_module_url_prefix => '/conch/modules/',   # '' is better but Pod::Markdown doesn't respect it
 );
 
 while (my $infile = shift @ARGV) {

@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceRelayConnection
 
-# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
 
 # TABLE: `device_relay_connection`
 
@@ -53,13 +53,13 @@ original: {default_value => \"now()"}
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](/modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](/conch/modules/Conch::DB::Result::Device)
 
 ## relay
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Relay](/modules/Conch::DB::Result::Relay)
+Related object: [Conch::DB::Result::Relay](/conch/modules/Conch::DB::Result::Relay)
 
 # LICENSING
 

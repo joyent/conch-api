@@ -2,7 +2,7 @@
 
 Conch::DB::Result::HardwareProductProfile
 
-# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
 
 # TABLE: `hardware_product_profile`
 
@@ -256,7 +256,7 @@ is_nullable: 1
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::HardwareProduct](/modules/Conch::DB::Result::HardwareProduct)
+Related object: [Conch::DB::Result::HardwareProduct](/conch/modules/Conch::DB::Result::HardwareProduct)
 
 # LICENSING
 
