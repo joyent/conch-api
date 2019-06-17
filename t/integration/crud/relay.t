@@ -135,7 +135,7 @@ $t->get_ok('/relay')
     ]);
 
 {
-    my $other_user = $t->load_fixture('null_user');
+    my $other_user = $t->generate_fixtures('user_account');
     my $t2 = Test::Conch->new(pg => $t->pg);
     $t2->authenticate(email => $other_user->email);
 

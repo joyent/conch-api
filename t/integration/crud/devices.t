@@ -23,7 +23,7 @@ my $rack_id = $rack->id;
 my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 
 # perform most tests as a user with read only access to the GLOBAL workspace
-my $null_user = $t->load_fixture('null_user');
+my $null_user = $t->generate_fixtures('user_account');
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 my $rw_user = $t->load_fixture('rw_user_global_workspace')->user_account;
 my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
