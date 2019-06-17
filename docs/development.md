@@ -20,12 +20,6 @@ The `master` branch is protected and cannot be modified directly:
   manager (currently [ether](https://github.com/karenetheridge)) to
   determine which version is most appropriate.
 
-## Choosing Work
-
-Choosing work is analagous to Kanban style development. We grab work out
-of the Github issues and get it done. Sometimes high priority work comes
-in and we shift focus to that. But in general, we work the backlog.
-
 The build world is an odd duck in that we are also the customers of our
 own work. [The Conch Shell](https://github.com/joyent/conch-shell) and
 [Conch Web UI](https://github.com/joyent/conch-ui.git) are the main consumers
