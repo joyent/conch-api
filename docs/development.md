@@ -74,7 +74,7 @@ visible in the BuildOps Google Calendar.
 
 In general, we prefer a two week deploy cadence. v2.45.0 goes into
 staging on Monday and we begin accepting PRs for v2.46. Two weeks later,
-v2.45 goes to production, v2.46 is deployed to staging, and we being to accept
+v2.45 goes to production, v2.46 is deployed to staging, and we begin to accept
 PRs for v2.47.
 
 ## Tests
