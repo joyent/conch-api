@@ -77,6 +77,24 @@ staging on Monday and we begin accepting PRs for v2.46. Two weeks later,
 v2.45 goes to production, v2.46 is deployed to staging, and we being to accept
 PRs for v2.47.
 
+## Tests
+
+Every change pushed to github (unless a branch rule has been configured on a
+subbranch) will result in a webhook event that triggers Buildbot to execute a
+test run. These test results are reported to the `~conch-devel` chat channel,
+as well as emailed to the user who triggered the build.
+
+The tests are executed via `make test` in the Makefile at the root of the
+repository. The tests cover all aspects of the application, from low level
+functionality such as database access, logging, and json schema evaluation,
+to higher level integration testing of individual api endpoints.  All the
+tests live in the `t/` directory in the repository.
+
+It is a necessary requirement that all pull requests must pass tests before
+they are considered for merging, whether to the master branch or a
+topic/feature branch. If you received a failure notificaton, follow the links
+in Buildbot to get more information about how your tests failed.
+
 ## Summary
 
 When written out like this, the development and release processes seem
