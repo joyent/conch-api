@@ -272,7 +272,7 @@ subtest 'Workspaces' => sub {
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply('', [
             {
-                id    => ignore,
+                id    => re(Conch::UUID::UUID_FORMAT),
                 name  => $t->CONCH_USER,
                 email => $t->CONCH_EMAIL,
                 role  => 'admin',
@@ -360,7 +360,7 @@ subtest 'Workspaces' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => "user test user already has rw access to workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
@@ -387,7 +387,7 @@ subtest 'Workspaces' => sub {
         ->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
 
     push $users{GLOBAL}->@*, {
-        id    => ignore,
+        id    => re(Conch::UUID::UUID_FORMAT),
         name  => 'test user',
         email => 'test_user@conch.joyent.us',
         role  => 'rw',
@@ -417,7 +417,7 @@ subtest 'Sub-Workspace' => sub {
             foreach 'foo/bar', 'foo.bar';
 
     $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'GLOBAL' })
-        ->status_is(400, 'Cannot create duplicate workspace')
+        ->status_is(409, 'Cannot create duplicate workspace')
         ->json_is({ error => "workspace 'GLOBAL' already exists" });
 
     $t->post_ok("/workspace/$global_ws_id/child", json => {
@@ -427,7 +427,7 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(201)
         ->json_schema_is('WorkspaceAndRole')
         ->json_cmp_deeply({
-            id          => ignore,
+            id          => re(Conch::UUID::UUID_FORMAT),
             name        => 'child_ws',
             description => 'one level of workspaces',
             parent_id   => $global_ws_id,
@@ -463,7 +463,7 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(201, 'created a grandchild workspace')
         ->json_schema_is('WorkspaceAndRole')
         ->json_cmp_deeply({
-            id          => ignore,
+            id          => re(Conch::UUID::UUID_FORMAT),
             name        => 'grandchild_ws',
             description => 'two levels of subworkspaces',
             parent_id   => $child_ws_id,
@@ -581,7 +581,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => "user test user already has rw access to workspace $grandchild_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
@@ -613,7 +613,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'ro',
         })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => "user test user already has rw access to workspace $child_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
@@ -733,7 +733,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply('', bag($users{GLOBAL}->@*), 'no change to users who can access GLOBAL');
 
     push $users{child_ws}->@*, {
-        id    => ignore,
+        id    => re(Conch::UUID::UUID_FORMAT),
         name  => 'untrusted user',
         email => 'untrusted_user@conch.joyent.us',
         role  => 'ro',
@@ -857,6 +857,13 @@ subtest 'JWT authentication' => sub {
 
     $t->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
         ->status_is(401, 'Cannot reuse old JWT');
+
+    $t->post_ok('/user/'.$t->CONCH_EMAIL.'/revoke?login_only=1&api_only=1',
+            { Authorization => 'Bearer '.$new_jwt_token })
+        ->status_is(400)
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{allOf/1 should not match}i) } ])
+        ->email_not_sent;
 
     $t->post_ok('/user/'.$t->CONCH_EMAIL.'/revoke?api_only=1',
             { Authorization => 'Bearer '.$new_jwt_token })
@@ -1072,7 +1079,7 @@ subtest 'modify another user' => sub {
     };
 
     $t->delete_ok('/user/foobar/password')
-        ->status_is(400, 'bad format')
+        ->status_is(400)
         ->json_is({ error => 'invalid identifier format for foobar' });
 
     $t->delete_ok('/user/foobar/password')
@@ -1265,7 +1272,7 @@ subtest 'user tokens (our own)' => sub {
         });
 
     $t->post_ok('/user/me/token', json => { name => 'my first 💩 // to.ken @@' })
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => 'name "my first 💩 // to.ken @@" is already in use' });
 
     my $t2 = Test::Conch->new(pg => $t->pg);

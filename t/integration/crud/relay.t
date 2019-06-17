@@ -161,8 +161,8 @@ subtest list => sub {
                 version => 'v2.0',
                 ipaddr  => '192.168.0.2',
                 ssh_port => 123,
-                created => ignore,
-                updated => ignore,
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[1][2]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 1a',
@@ -178,8 +178,8 @@ subtest list => sub {
                 version => 'v1.1',
                 ipaddr  => '192.168.1.2',
                 ssh_port => 123,
-                created => ignore,
-                updated => ignore,
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[0][0]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 0a',
@@ -208,11 +208,11 @@ subtest list => sub {
     my $elapsed_minutes =
         int((Conch::Time->now->epoch - Conch::Time->new('2018-01-04T00:00:00.000Z')->epoch) / 60) + 2;
 
-    $t->get_ok("/workspace/$global_ws_id/relay?active_within=$elapsed_minutes")
+    $t->get_ok("/workspace/$global_ws_id/relay?active_minutes=$elapsed_minutes")
         ->status_is(200)
         ->json_schema_is('WorkspaceRelays')
         ->json_is('', [ $all_relays->[1] ],
-            'X minutes after last update, active_within=X+2 only sees one relay');
+            'X minutes after last update, active_minutes=X+2 only sees one relay');
 };
 
 subtest get_relay_devices => sub {

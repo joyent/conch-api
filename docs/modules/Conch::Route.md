@@ -14,6 +14,14 @@ Set up the full route structure
 
 Unless otherwise specified all routes require authentication.
 
+Successful (http 2xx code) response structures are as described for each endpoint.
+
+Error responses will use:
+
+- failure to validate query parameters: http 400, response.yaml#/QueryParamsValidationError
+- failure to validate request body payload: http 400, response.yaml#/RequestValidationError
+- all other errors, unless specified: http 4xx, response.yaml/#Error
+
 ### `GET /ping`
 
 - Does not require authentication.
@@ -34,11 +42,13 @@ Unless otherwise specified all routes require authentication.
 - Does not require authentication.
 - Response: `204 NO CONTENT`
 
+### `GET /schema/query_params/:schema_name`
+
 ### `GET /schema/request/:schema_name`
 
 ### `GET /schema/response/:schema_name`
 
-Returns the Request or Response schema specified.
+Returns the schema specified by type and name.
 
 - Does not require authentication.
 - Response: JSON-Schema ([http://json-schema.org/draft-07/schema](http://json-schema.org/draft-07/schema))

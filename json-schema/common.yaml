@@ -24,6 +24,14 @@ definitions:
   device_asset_tag:
     type: string
     pattern: ^\S+$
+  device_health:
+    description: corresponds to device_health_enum in the database
+    type: string
+    enum:
+      - error
+      - fail
+      - unknown
+      - pass
   device_phase:
     description: corresponds to device_phase_enum in the database
     type: string
@@ -55,6 +63,15 @@ definitions:
       - ro
       - rw
       - admin
+  validation_status:
+    description: corresponds to validation_status_enum in the database
+    type: string
+    enum:
+      # TODO: remove antiquated 'processing'
+      - error
+      - fail
+      - processing
+      - pass
   non_empty_string:
     type: string
     minLength: 1

@@ -77,12 +77,12 @@ $t->get_ok("/rack/$rack_id/layouts")
 
 my $layout_1_2 = $t->load_fixture('rack_0a_layout_1_2');
 $t->post_ok('/layout/'.$layout_1_2->id, json => { rack_unit_start => 43 })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start beyond maximum' });
 
 $t->post_ok('/layout/'.$layout_1_2->id, json => { rack_unit_start => 42 })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start+rack_unit_size beyond maximum' });
 
@@ -91,7 +91,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_compute->id,
         rack_unit_start => 1,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Rack does not exist' });
 
@@ -100,7 +100,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $fake_id,
         rack_unit_start => 1,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Hardware product does not exist' });
 
@@ -109,7 +109,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_switch->id,
         rack_unit_start => 43,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start beyond maximum' });
 
@@ -118,7 +118,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_storage->id,
         rack_unit_start => 42,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start+rack_unit_size beyond maximum' });
 
@@ -138,7 +138,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_switch->id,
         rack_unit_start => 42,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start conflict' });
 
@@ -148,7 +148,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_storage->id,
         rack_unit_start => 12,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start conflict' });
 
@@ -158,7 +158,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_storage->id,
         rack_unit_start => 10,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start conflict' });
 
@@ -195,22 +195,22 @@ my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');
 $t->post_ok('/layout/'.$layout_3_6->id,
         json => { rack_id => $t->load_fixture('rack_1a')->id })
     ->status_is(400)
-    ->json_is({ error => 'cannot change rack_id' });
+    ->json_is({ error => 'changing rack_id is not permitted' });
 
 # can't put something into an assigned position
 $t->post_ok('/layout/'.$layout_3_6->id, json => { rack_unit_start => 11 })
-    ->status_is(400)
+    ->status_is(409)
     ->json_is({ error => 'rack_unit_start conflict' });
 
 # the start of this product will overlap with assigned slots (need 12-15, 11-14 are assigned)
 $t->post_ok('/layout/'.$layout_3_6->id, json => { rack_unit_start => 12 })
-    ->status_is(400)
+    ->status_is(409)
     ->json_is({ error => 'rack_unit_start conflict' });
 
 # the end of this product will overlap with assigned slots (need 10-13, 11-14 are assigned)
 $t->post_ok('/layout/'.$layout_1_2->id,
         json => { rack_unit_start => 10, hardware_product_id => $hw_product_storage->id })
-    ->status_is(400)
+    ->status_is(409)
     ->json_is({ error => 'rack_unit_start conflict' });
 
 $t->post_ok('/layout/'.$layout_1_2->id,
@@ -243,7 +243,7 @@ $t->get_ok("/rack/$rack_id/layouts")
     ]);
 
 $t->post_ok('/layout/'.$layout_19_22->id, json => { hardware_product_id => $fake_id })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Hardware product does not exist' });
 
@@ -308,12 +308,12 @@ my $device = $hw_product_storage->create_related('devices', {
 
 # try to move layout from 20-23 back to 19-22
 $t->post_ok('/layout/'.$layout_20_23->id, json => { rack_unit_start => 19 })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot update a layout with a device occupying it' });
 
 $t->delete_ok('/layout/'.$layout_20_23->id)
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot delete a layout with a device occupying it' });
 

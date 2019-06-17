@@ -306,9 +306,9 @@ definitions:
     additionalProperties: false
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       alias:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       prefix:
         oneOf:
           - type: string
@@ -321,7 +321,7 @@ definitions:
           - type: string
           - type: 'null'
       sku:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       generation_name:
         type: string
       legacy_product_name:
@@ -430,9 +430,7 @@ definitions:
       - name
     properties:
       name:
-        allOf:
-          - $ref: common.yaml#/definitions/non_empty_string
-          - $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         oneOf:
           - type: 'null'

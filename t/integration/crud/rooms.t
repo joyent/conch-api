@@ -68,7 +68,7 @@ $t->get_ok($t->tx->res->headers->location)
     }));
 
 $t->delete_ok('/room/'.$room->id)
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot delete a datacenter_room when a rack is referencing it' });
 

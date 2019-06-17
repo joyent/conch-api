@@ -471,12 +471,12 @@ subtest 'Validations' => sub {
         ->json_schema_is('ValidationStatesWithResults')
         ->json_cmp_deeply(bag(
             {
-                id => ignore,
-                validation_plan_id => ignore,
+                id => re(Conch::UUID::UUID_FORMAT),
+                validation_plan_id => re(Conch::UUID::UUID_FORMAT),
                 device_id => 'TEST',
                 device_report_id => $device_report->id,
-                completed => ignore,
-                created => ignore,
+                completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 status => 'pass',   # we force-validated this device earlier
                 results => [ ignore ],
             },
@@ -485,11 +485,11 @@ subtest 'Validations' => sub {
                 validation_plan_id => $validation_plan_id,
                 device_id => 'TEST',
                 device_report_id => $device_report->id,
-                completed => ignore,
-                created => ignore,
+                completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 status => 'fail',
                 results => [{
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     hardware_product_id => $device->hardware_product_id,
                     validation_id => $validation->id,
                     component_id => undef,
@@ -519,17 +519,17 @@ subtest 'Validations' => sub {
         ->json_schema_is('ValidationStatesWithResults')
         ->json_cmp_deeply([
             {
-                id => ignore,
-                validation_plan_id => ignore,
+                id => re(Conch::UUID::UUID_FORMAT),
+                validation_plan_id => re(Conch::UUID::UUID_FORMAT),
                 device_id => 'TEST',
-                device_report_id => ignore,
-                completed => ignore,
-                created => ignore,
+                device_report_id => re(Conch::UUID::UUID_FORMAT),
+                completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 status => 'error',
                 results => [{
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     hardware_product_id => $device->hardware_product_id,
-                    validation_id => ignore,
+                    validation_id => re(Conch::UUID::UUID_FORMAT),
                     component_id => undef,
                     message => 'Missing \'product_name\' property',
                     hint => ignore,
@@ -540,14 +540,22 @@ subtest 'Validations' => sub {
             },
         ]);
 
-    $t->get_ok('/device/TEST/validation_state?status=pass,fail')
+    $t->get_ok('/device/TEST/validation_state?status=pass&status=fail')
         ->status_is(200)
         ->json_schema_is('ValidationStatesWithResults')
         ->json_is($validation_states);
 
-    $t->get_ok('/device/TEST/validation_state?status=pass,bar')
+    $t->get_ok('/device/TEST/validation_state?status=bar')
         ->status_is(400)
-        ->json_is({ error => "'status' query parameter must be any of 'pass', 'fail', or 'error'." });
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply('/data' => { status => 'bar' })
+        ->json_cmp_deeply('/details', [ { path => '/status', message => re(qr/not in enum list/i) } ]);
+
+    $t->get_ok('/device/TEST/validation_state?status=pass&status=bar')
+        ->status_is(400)
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply('/data' => { status => [ qw(pass bar) ] })
+        ->json_cmp_deeply('/details', [ { path => '/status/1', message => re(qr/not in enum list/i) } ]);
 };
 
 subtest 'Device location' => sub {
@@ -632,7 +640,7 @@ subtest 'Permissions' => sub {
             ->json_schema_is('WorkspaceUsers')
             ->json_cmp_deeply(bag(
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $t->CONCH_USER,
                     email => $t->CONCH_EMAIL,
                     role => 'admin',
@@ -702,13 +710,13 @@ subtest 'Permissions' => sub {
             ->json_schema_is('WorkspaceUsers')
             ->json_cmp_deeply(bag(
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $t->CONCH_USER,
                     email => $t->CONCH_EMAIL,
                     role => 'admin',
                 },
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $ro_name,
                     email => $ro_email,
                     role => 'ro',

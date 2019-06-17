@@ -79,7 +79,7 @@ sub create ($c) {
 
     if ($c->db_hardware_vendors->active->search({ name => $c->stash('hardware_vendor_name') }) > 0) {
         $c->log->debug('Failed to create hardware vendor: unique constraint violation for name');
-        return $c->status(400, { error => 'Unique constraint violated on \'name\'' });
+        return $c->status(409, { error => 'Unique constraint violated on \'name\'' });
     }
 
     my $hardware_vendor = $c->db_hardware_vendors->create({ name => $c->stash('hardware_vendor_name') });

@@ -81,42 +81,22 @@ $t->get_ok("/workspace/$global_ws_id/device")
 
 my $devices_data = $t->tx->res->json;
 
-$t->get_ok("/workspace/$global_ws_id/device?graduated=f")
+$t->get_ok("/workspace/$global_ws_id/device?graduated=0")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[1] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?graduated=F")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[1] ]);
-
-$t->get_ok("/workspace/$global_ws_id/device?graduated=t")
+$t->get_ok("/workspace/$global_ws_id/device?graduated=1")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?graduated=T")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[0] ]);
-
-$t->get_ok("/workspace/$global_ws_id/device?validated=f")
+$t->get_ok("/workspace/$global_ws_id/device?validated=0")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[1] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?validated=F")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[1] ]);
-
-$t->get_ok("/workspace/$global_ws_id/device?validated=t")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[0] ]);
-
-$t->get_ok("/workspace/$global_ws_id/device?validated=T")
+$t->get_ok("/workspace/$global_ws_id/device?validated=1")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
@@ -126,17 +106,7 @@ $t->get_ok("/workspace/$global_ws_id/device?health=fail")
     ->json_schema_is('Devices')
     ->json_is([]);
 
-$t->get_ok("/workspace/$global_ws_id/device?health=FAIL")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([]);
-
 $t->get_ok("/workspace/$global_ws_id/device?health=pass")
-    ->status_is(200)
-    ->json_schema_is('Devices')
-    ->json_is([ $devices_data->[0] ]);
-
-$t->get_ok("/workspace/$global_ws_id/device?health=PASS")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
@@ -146,17 +116,22 @@ $t->get_ok("/workspace/$global_ws_id/device?health=unknown")
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[1] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?health=bunk")
+$t->get_ok("/workspace/$global_ws_id/device?health=pass&health=unknown")
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is([]);
+    ->json_is($devices_data);
 
-$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=t")
+$t->get_ok("/workspace/$global_ws_id/device?health=bunk")
+    ->status_is(400)
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/health', message => re(qr/not in enum list/i) } ]);
+
+$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=1")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=f")
+$t->get_ok("/workspace/$global_ws_id/device?health=pass&graduated=0")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([]);
@@ -171,33 +146,15 @@ $t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
     ->json_schema_is('DeviceIds')
     ->json_is(['TEST']);
 
-$t->get_ok("/workspace/$global_ws_id/device?active=t")
+$t->get_ok("/workspace/$global_ws_id/device?active_minutes=5")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
 
-$t->get_ok("/workspace/$global_ws_id/device?active=t&graduated=t")
+$t->get_ok("/workspace/$global_ws_id/device?active_minutes=5&graduated=1")
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([ $devices_data->[0] ]);
-
-# /device/active redirects to /device so first make sure there is a redirect,
-# then follow it and verify the results
-subtest 'Redirect /workspace/:id/device/active' => sub {
-    $t->get_ok("/workspace/$global_ws_id/device/active")
-        ->status_is(302)
-        ->location_is("/workspace/$global_ws_id/device?active=t");
-
-    my $temp = $t->ua->max_redirects;
-    $t->ua->max_redirects(1);
-
-    $t->get_ok("/workspace/$global_ws_id/device/active")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_is([ $devices_data->[0] ]);
-
-    $t->ua->max_redirects($temp);
-};
 
 subtest 'Devices with PXE data' => sub {
     $t->app->db_device_neighbors->delete;

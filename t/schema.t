@@ -329,17 +329,36 @@ $t->get_ok('/schema/request/Login')
         },
     });
 
+$t->get_ok('/schema/query_params/workspace_relays')
+    ->status_is(200)
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply({
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$id' => 'urn:query_params.WorkspaceRelays.schema.json',
+        title => 'WorkspaceRelays',
+        definitions => {
+            non_negative_integer => { type => 'integer', minimum => 0 },
+        },
+        type => 'object',
+        additionalProperties => bool(0),
+        properties => {
+            active_minutes => { '$ref' => '/definitions/non_negative_integer' },
+        },
+    });
 
 $t->get_ok('/schema/request/HardwareProductCreate')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply('', superhashof({
         definitions => {
-            uuid => superhashof({}),
-            positive_integer => superhashof({}),
-            HardwareProductUpdate => superhashof({}),
-            HardwareProductProfileCreate => superhashof({}),
-            HardwareProductProfileUpdate => superhashof({}),
+            map +($_ => superhashof({})), qw(
+                uuid
+                positive_integer
+                mojo_standard_placeholder
+                HardwareProductUpdate
+                HardwareProductProfileCreate
+                HardwareProductProfileUpdate
+            )
         },
     }), 'nested definitions are found and included');
 

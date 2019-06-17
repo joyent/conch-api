@@ -103,7 +103,7 @@ subtest 'Add rack to workspace' => sub {
             phase => 'integration',
             slots => [
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $hardware_product_compute->name,
                     alias => $hardware_product_compute->alias,
                     vendor => $hardware_product_compute->hardware_vendor->name,
@@ -112,7 +112,7 @@ subtest 'Add rack to workspace' => sub {
                     occupant => undef,
                 },
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $hardware_product_storage->name,
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,
@@ -121,7 +121,7 @@ subtest 'Add rack to workspace' => sub {
                     occupant => undef,
                 },
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $hardware_product_storage->name,
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,
@@ -152,7 +152,7 @@ CSV
 subtest 'Assign device to a location' => sub {
     $t->post_ok('/rack/'.$rack_id.'/assignment',
             json => [ { device_id => 'TEST', rack_unit_start => 42 } ])
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => 'missing layout for rack_unit_start 42' });
 
     $t->post_ok('/rack/'.$rack_id.'/assignment', json => [
@@ -183,7 +183,7 @@ subtest 'Assign device to a location' => sub {
             phase => 'integration',
             slots => [
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $hardware_product_compute->name,
                     alias => $hardware_product_compute->alias,
                     vendor => $hardware_product_compute->hardware_vendor->name,
@@ -192,7 +192,7 @@ subtest 'Assign device to a location' => sub {
                     occupant => superhashof({ id => 'TEST' }),
                 },
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $hardware_product_storage->name,
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,
@@ -201,7 +201,7 @@ subtest 'Assign device to a location' => sub {
                     occupant => superhashof({ id => 'NEW_DEVICE' }),
                 },
                 {
-                    id => ignore,
+                    id => re(Conch::UUID::UUID_FORMAT),
                     name => $hardware_product_storage->name,
                     alias => $hardware_product_storage->alias,
                     vendor => $hardware_product_storage->hardware_vendor->name,

@@ -67,10 +67,11 @@ sub all_routes (
     # POST /logout
     $root->post('/logout')->to('login#session_logout');
 
+    # GET /schema/query_params/:schema_name
     # GET /schema/request/:schema_name
     # GET /schema/response/:schema_name
-    $root->get('/schema/:request_or_response/:name',
-        [ request_or_response => [qw(request response)] ])->to('schema#get');
+    $root->get('/schema/:schema_type/:name',
+        [ schema_type => [qw(query_params request response)] ])->to('schema#get');
 
     # GET /workspace/:workspace/device-totals
     $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals');
@@ -101,6 +102,20 @@ __END__
 =pod
 
 Unless otherwise specified all routes require authentication.
+
+Successful (http 2xx code) response structures are as described for each endpoint.
+
+Error responses will use:
+
+=over
+
+=item * failure to validate query parameters: http 400, response.yaml#/QueryParamsValidationError
+
+=item * failure to validate request body payload: http 400, response.yaml#/RequestValidationError
+
+=item * all other errors, unless specified: http 4xx, response.yaml/#Error
+
+=back
 
 =head3 C<GET /ping>
 
@@ -142,11 +157,13 @@ Unless otherwise specified all routes require authentication.
 
 =back
 
+=head3 C<GET /schema/query_params/:schema_name>
+
 =head3 C<GET /schema/request/:schema_name>
 
 =head3 C<GET /schema/response/:schema_name>
 
-Returns the Request or Response schema specified.
+Returns the schema specified by type and name.
 
 =over 4
 

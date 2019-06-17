@@ -28,14 +28,14 @@ By default it will revoke both login/session and API tokens. If both
 - Request: request.yaml#/UserSettings
 - Response: `204 NO CONTENT`
 
-### `POST /user/me/password?clear_tokens=<login_only|0|all>`
+### `POST /user/me/password?clear_tokens=<login_only|none|all>`
 
 Optionally takes a query parameter `clear_tokens`, to also revoke the session
 tokens for the user, forcing the user to log in again. Possible options are:
 
-- `0`, `no`, `false`
-- `login_only`, `1` (default, for backcompat, `1` is treated as `login_only`)
-- `all` - also affects all API tokens (and thus other tools).
+- `none`
+- `login_only`
+- `all` - clear all tokens (login and api - affects all APIs and tools)
 
 If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 `204 NO CONTENT` will be returned but the user session will remain..
@@ -95,7 +95,8 @@ an email telling the user their tokens were revoked
 
 - Requires System Admin Authentication
 - Request: request.yaml#/UpdateUser
-- Response: response.yaml#/UserDetailed
+- Success Response: response.yaml#/UserDetailed
+- Error response on duplicate user: response.yaml#/UserError
 
 ### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
 
@@ -122,15 +123,15 @@ By default it will revoke both login/session and API tokens. If both
 - Requires System Admin Authentication
 - Response: `204 NO CONTENT`
 
-### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|0|all>&send_password_reset_mail=<1|0>`
+### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>`
 
 Optionally accepts the following query parameters:
 
 - `clear_tokens` (default `login_only`) to also revoke tokens for the user, takes the following possible values
-    - `0`, `no`, `false`
-    - `login_only`, `1` (default, for backcompat, `1` is treated as `login_only`)
-    - `all` - also affects all API tokens (and thus other tools).
-- `send_password_reset_mail` which takes `<1|0>` (default `1`). If set to `1` this will cause an email to be sent to the user with password reset instructions.
+    - `none`
+    - `login_only`
+    - `all` - clear all tokens (login and api - affects all APIs and tools)
+- `send_mail` which takes `<1|0>` (default `1`). If set to `1` this will cause an email to be sent to the user with password reset instructions.
 
 - Requires System Admin Authentication
 - Response: `204 NO CONTENT`
@@ -147,7 +148,8 @@ email to the user with the new password.
 
 - Requires System Admin Authentication
 - Request: request.yaml#/NewUser
-- Response: response.yaml#/User
+- Success Response: response.yaml#/User
+- Error response on duplicate user: response.yaml#/UserError
 
 ### `GET /user/:target_user_id_or_email/token`
 
@@ -159,7 +161,8 @@ email to the user with the new password.
 
 ### `DELETE /user/:target_user_id_or_email/token/:token_name`
 
-- Response: `204 NO CONTENT`
+- Success Response: `204 NO CONTENT`
+- Error response when user already deactivated: response.yaml#/UserError
 
 # LICENSING
 

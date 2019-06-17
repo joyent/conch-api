@@ -15,25 +15,20 @@ Conch::Controller::DeviceValidation
 =head2 list_validation_states
 
 Get the latest validation states for a device. Accepts the query parameter 'status',
-indicating the desired status(es) (comma-separated) to search for -- one or more of:
-pass, fail, error.
+indicating the desired status(es) to search for -- one or more of: pass, fail, error.
+e.g. C<?status=pass>, C<?status=error&status=fail>.
 
 Response uses the ValidationStatesWithResults json schema.
 
 =cut
 
 sub list_validation_states ($c) {
-    my @statuses = split /,/, $c->req->query_params->param('status') // '';
-    if (not all { my $status = $_; any { $status eq $_ } qw(pass fail error) } @statuses) {
-        $c->log->debug('Status params of '.join(',',@statuses)." contains something other than 'pass', 'fail', or 'error'");
-        return $c->status(400, {
-            error => "'status' query parameter must be any of 'pass', 'fail', or 'error'."
-        });
-    }
+    my $params = $c->validate_query_params('GetValidationStates');
+    return if not $params;
 
     my @validation_states = $c->stash('device_rs')
         ->search_related('validation_states',
-            @statuses ? { 'validation_states.status' => { -in => \@statuses } } : ())
+            $params->{status} ? { 'validation_states.status' => $params->{status} } : ())
         ->latest_completed_state_per_plan
         ->prefetch({ validation_state_members => 'validation_result' })
         ->all;

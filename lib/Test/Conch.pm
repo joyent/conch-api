@@ -277,18 +277,20 @@ the hash as the schema to validate.
 sub json_schema_is ($self, $schema, $message = undef) {
     my @errors;
     return $self->_test('fail', 'No request has been made') unless $self->tx;
-    my $json = $self->tx->res->json;
-    return $self->_test('fail', 'No JSON in response') unless $json;
+    my $data = $self->tx->res->json;
+    return $self->_test('fail', 'No JSON in response') unless $data;
 
-    if (ref $schema eq 'HASH') {
-        @errors = $self->validator->validate($json, $schema);
+    my $schema_name;
+    if (ref $schema) {
+        $schema_name = '<inlined>';
     }
     else {
-        my $component_schema = $self->validator->get("/definitions/$schema");
-        die "Component schema '$schema' is not defined in JSON schema" if not $component_schema;
-        @errors = $self->validator->validate($json, $component_schema);
+        $schema_name = $schema;
+        $schema = $self->validator->get('/definitions/'.$schema_name);
+        die "schema '$schema_name' not found" if not $schema;
     }
 
+    @errors = $self->validator->validate($data, $schema);
     my $error_count = @errors;
     return $self->_test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
         ->or(sub ($self) {
@@ -296,7 +298,7 @@ sub json_schema_is ($self, $schema, $message = undef) {
             Test::More::diag($error_count
                 .' error(s) occurred when validating '
                 .$self->tx->req->method.' '.$self->tx->req->url->path
-                .' with schema '.$schema.":\n\t"
+                .' with schema '.$schema_name.":\n\t"
                 .Data::Dumper->new([ $errors ])->Indent(1)->Terse(1)->Dump);
 
             0;

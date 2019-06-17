@@ -26,7 +26,6 @@ ANDed
 api
 auth
 az
-backcompat
 bunyan
 chainable
 circ

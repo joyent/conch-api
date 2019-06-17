@@ -43,16 +43,6 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/device?<various query params>
         $with_workspace->get('/device')->to('workspace_device#list');
 
-        # GET /workspace/:workspace_id_or_name/device/active -> /workspace/:workspace_id_or_name/device?active=t
-        $with_workspace->get(
-            '/device/active',
-            sub ($c) {
-                $c->redirect_to(
-                    $c->url_for('/workspace/'.$c->stash('workspace_id').'/device')
-                        ->query(active => 't'));
-            }
-        );
-
         # GET /workspace/:workspace_id_or_name/device/pxe
         $with_workspace->get('/device/pxe')->to('workspace_device#get_pxe_devices');
 
@@ -138,15 +128,15 @@ Accepts the following optional query parameters:
 
 =over 4
 
-=item * C<< graduated=<T|F> >> show only devices where the C<graduated> attribute is set/not-set
+=item * C<< graduated=<1|0> >> show only devices where the C<graduated> attribute is set/not-set
 
-=item * C<< validated=<T|F> >> show only devices where the C<validated> attribute is set/not-set
+=item * C<< validated=<1|0> >> show only devices where the C<validated> attribute is set/not-set
 
-=item * C<< health=<value> >> show only devices with the health matching the provided value (case-insensitive)
+=item * C<< health=<value> >> show only devices with the health matching the provided value
 
-=item * C<active=t> show only devices which have reported within the last 5 minutes (this is different from all active devices)
+=item * C<active_minutes=X> show only devices which have reported within the last X minutes (this is different from all active devices)
 
-=item * C<ids_only=t> only return device IDs, not full device details
+=item * C<ids_only=1> only return device IDs, not full device details
 
 =back
 
@@ -155,10 +145,6 @@ Accepts the following optional query parameters:
 =item * Response: response.yaml#/Devices
 
 =back
-
-=head3 C<< GET /workspace/:workspace_id_or_name/device/active >>
-
-An alias for C</workspace/:workspace_id_or_name/device?active=t>.
 
 =head3 C<GET /workspace/:workspace_id_or_name/device/pxe>
 
@@ -208,7 +194,7 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 
 =head3 C<GET /workspace/:workspace_id_or_name/relay>
 
-Takes one query optional parameter,  C<active_within=X> to constrain results to
+Takes one query optional parameter,  C<?active_minutes=X> to constrain results to
 those updated with in the last C<X> minutes.
 
 =over 4

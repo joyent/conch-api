@@ -19,11 +19,12 @@ Get the json-schema in JSON format.
 =cut
 
 sub get ($c) {
-    my $type = $c->stash('request_or_response');
+    my $type = $c->stash('schema_type');
     my $name = camelize $c->stash('name');
 
     my $validator = $type eq 'response' ? $c->get_response_validator
         : $type eq 'request' ? $c->get_request_validator
+        : $type eq 'query_params' ? $c->get_query_params_validator
         : undef;
     return $c->status(400, { error => 'Cannot find validator' }) if not $validator;
 

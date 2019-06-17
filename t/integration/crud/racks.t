@@ -51,7 +51,7 @@ $t->post_ok('/rack', json => {
         datacenter_room_id => $fake_id,
         rack_role_id => $rack->rack_role_id,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Room does not exist' });
 
@@ -60,7 +60,7 @@ $t->post_ok('/rack', json => {
         datacenter_room_id => $rack->datacenter_room_id,
         rack_role_id => $fake_id,
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Rack role does not exist' });
 
@@ -90,7 +90,7 @@ my $new_rack_id = $t->tx->res->json->{id};
 my $small_rack_role = $t->app->db_rack_roles->create({ name => '10U', rack_size => 10 });
 
 $t->post_ok('/rack/'.$rack->id, json => { rack_role_id => $small_rack_role->id })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
 
@@ -118,7 +118,7 @@ $t->get_ok("/rack/$new_rack_id/assignment")
     ->json_is([]);
 
 $t->delete_ok('/rack/'.$rack->id)
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot delete a rack when a rack_layout is referencing it' });
 
@@ -166,7 +166,7 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 2,
         },
     ])
-    ->status_is(400)
+    ->status_is(409)
     ->json_is({ error => 'missing layout for rack_unit_start 2' });
 
 my ($device) = $t->generate_fixtures(device => { hardware_product_id => $hardware_product_storage->id });

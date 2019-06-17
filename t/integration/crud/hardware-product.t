@@ -48,13 +48,13 @@ $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply({
-        id => ignore,
+        id => re(Conch::UUID::UUID_FORMAT),
         name => 'sungo',
         alias => 'sungo',
         prefix => undef,
         hardware_vendor_id => $vendor_id,
-        created => ignore,
-        updated => ignore,
+        created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         specification => undef,
         sku => undef,
         generation_name => undef,
@@ -75,7 +75,7 @@ $t->post_ok('/hardware_product', json => {
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
     })
-    ->status_is(400)
+    ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Unique constraint violated on \'name\'' });
 
@@ -83,7 +83,7 @@ $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
     ->status_is(303);
 
 $new_product->{name} = 'sungo2';
-$new_product->{updated} = ignore;
+$new_product->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -152,7 +152,7 @@ subtest 'update some fields in an existing profile and product' => sub {
         })
         ->status_is(303);
 
-    $new_product->@{qw(name updated)} = ('ether1',ignore);
+    $new_product->@{qw(name updated)} = ('ether1',re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/));
     $new_product->{hardware_product_profile}->@{qw(rack_unit psu_total)} = (3,undef);
 
     $t->get_ok("/hardware_product/$new_hw_id")
@@ -178,7 +178,7 @@ subtest 'create a new hardware_product_profile in an existing product' => sub {
             json => { hardware_product_profile => $new_hw_profile })
         ->status_is(303);
 
-    $new_product->{hardware_product_profile}->@{qw(id rack_unit psu_total)} = (ignore,2,1);
+    $new_product->{hardware_product_profile}->@{qw(id rack_unit psu_total)} = (re(Conch::UUID::UUID_FORMAT),2,1);
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(200)
@@ -225,20 +225,20 @@ subtest 'create a hardware product and hardware product profile all together' =>
         ->status_is(200)
         ->json_schema_is('HardwareProduct')
         ->json_cmp_deeply({
-            id => ignore,
+            id => re(Conch::UUID::UUID_FORMAT),
             name => 'ether2',
             alias => 'ether',
             prefix => undef,
             hardware_vendor_id => $vendor_id,
-            created => ignore,
-            updated => ignore,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             specification => undef,
             sku => undef,
             generation_name => undef,
             legacy_product_name => undef,
             hardware_product_profile => {
                 $new_hw_profile->%*,
-                id => ignore,
+                id => re(Conch::UUID::UUID_FORMAT),
                 hba_firmware => undef,
                 sata_hdd_num => undef,
                 sata_hdd_size => undef,

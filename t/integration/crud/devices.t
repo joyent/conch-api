@@ -35,7 +35,7 @@ $t->get_ok('/device/nonexistent')
 subtest 'unlocated device, no registered relay' => sub {
     my $report_data = from_json(path('t/integration/resource/passing-device-report.json')->slurp_utf8);
     $t->post_ok('/device/TEST', json => $report_data)
-        ->status_is(400)
+        ->status_is(409)
         ->json_schema_is('Error')
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
@@ -483,7 +483,7 @@ subtest 'Device settings' => sub {
         ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string.*got object/i) } ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { no_match => 'gibbet' })
-        ->status_is(400, 'Fail if parameter and key do not match');
+        ->status_is(400);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { fizzle => 'gibbet' })
         ->status_is(204);

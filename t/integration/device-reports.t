@@ -32,7 +32,7 @@ subtest preliminaries => sub {
     $t->load_fixture('hardware_product_profile_compute');
 
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
-        ->status_is(400)
+        ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })

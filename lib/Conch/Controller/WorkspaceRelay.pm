@@ -15,14 +15,15 @@ Conch::Controller::WorkspaceRelay
 List all relays located in the current workspace (as specified by :workspace_id in the path)
 or sub-workspaces beneath it.
 
-Use C<?active_within=X> to constrains results to those updated in the last X minutes.
+Use C<?active_minutes=X> to constrains results to those updated in the last X minutes.
 
 Response uses the WorkspaceRelays json schema.
 
 =cut
 
 sub list ($c) {
-    my $active_minutes = $c->req->query_params->param('active_within');
+    my $params = $c->validate_query_params('WorkspaceRelays');
+    return if not $params;
 
     my $latest_relay_connections = $c->db_device_relay_connections
         ->search(
@@ -41,8 +42,8 @@ sub list ($c) {
     my $me = $latest_relay_connections->current_source_alias;
 
     $latest_relay_connections = $latest_relay_connections->search({
-        $me.'.last_seen' => { '>=' => \[ 'now() - ?::interval', $active_minutes.' minutes' ] }
-    }) if $active_minutes;
+        $me.'.last_seen' => { '>=' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] }
+    }) if $params->{active_minutes};
 
     my $num_devices_rs = $c->db_device_relay_connections->search(
         { $me.'_corr.relay_id' => { '=' => \"$me.relay_id" } },

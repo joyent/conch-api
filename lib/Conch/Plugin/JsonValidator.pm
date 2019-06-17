@@ -18,7 +18,11 @@ Conch::Plugin::JsonValidator
     [ ... in a controller ]
 
     sub endpoint ($c) {
+        my $query_params = $c->validate_query_params('MyQueryParamsDefinition');
+        return if not $query_params;
+
         my $body = $c->validate_request('MyRequestDefinition');
+        return if not $body;
         ...
     }
 
@@ -33,6 +37,40 @@ from an API endpoint against a JSON Schema.
 
 sub register ($self, $app, $config) {
 
+=head2 validate_query_params
+
+Given the name of a json schema in the query_params namespace, validate the provided data
+against it (defaulting to the request's query parameters converted into a hashref: parameters
+appearing once are scalars, parameters appearing more than once have their values in an
+arrayref).
+
+On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
+QueryParamsValidationError json response schema.
+
+=cut
+
+    $app->helper(validate_query_params => sub ($c, $schema_name, $data = $c->req->params->to_hash) {
+        my $validator = $c->get_query_params_validator;
+        my $schema = $validator->get('/definitions/'.$schema_name);
+
+        if (not $schema) {
+            Mojo::Exception->throw("unable to locate query_params schema $schema");
+            return;
+        }
+
+        if (my @errors = $validator->validate($data, $schema)) {
+            $c->log->error("FAILED query_params validation for schema $schema_name".join(' // ', @errors));
+            return $c->status(400, {
+                error => 'query parameters did not match required format',
+                data => $data,
+                details => \@errors,
+                schema => $c->url_for('/schema/query_params/'.decamelize($schema_name)),
+            });
+        }
+
+        $c->log->debug("Passed data validation for query_params schema $schema_name");
+        return $data;
+    });
 
 =head2 validate_request
 
@@ -49,12 +87,12 @@ using the RequestValidationError json response schema.
         my $schema = $validator->get('/definitions/'.$schema_name);
 
         if (not $schema) {
-            Mojo::Exception->throw("unable to locate schema $schema");
+            Mojo::Exception->throw("unable to locate request schema $schema");
             return;
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->error("FAILED data validation for schema $schema_name".join(' // ', @errors));
+            $c->log->error("FAILED request payload validation for schema $schema_name".join(' // ', @errors));
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,
@@ -66,10 +104,32 @@ using the RequestValidationError json response schema.
         return $data;
     });
 
+=head2 get_query_params_validator
+
+Returns a L<JSON::Validator> object suitable for validating an endpoint's query parameters
+(when transformed into a hashref: see L</validate_query_params>).
+
+Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
+typing is possible.  No default population is done yet though; see
+L<https://github.com/mojolicious/json-validator/issues/158>.
+
+=cut
+
+    my $_query_params_validator;
+    $app->helper(get_query_params_validator => sub ($c) {
+        return $_query_params_validator if $_query_params_validator;
+        # TODO: ->new(coerce => '...,defaults')
+        $_query_params_validator = JSON::Validator->new(coerce => 'numbers');
+        # FIXME: JSON::Validator should be extracting $schema out of the document - see https://github.com/mojolicious/json-validator/pull/152
+        $_query_params_validator->load_and_validate_schema(
+            'json-schema/query_params.yaml',
+            { schema => 'http://json-schema.org/draft-07/schema#' });
+        return $_query_params_validator;
+    });
 
 =head2 get_request_validator
 
-Returns a L<JSON::Validator> object suitable for validating an endpoint's request payload.
+Returns a L<JSON::Validator> object suitable for validating an endpoint's json request payload.
 
 =cut
 

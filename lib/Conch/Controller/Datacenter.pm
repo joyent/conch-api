@@ -126,7 +126,7 @@ sub delete ($c) {
 
     if ($c->stash('datacenter')->related_resultset('datacenter_rooms')->exists) {
         $c->log->debug('Cannot delete datacenter: in use by one or more datacenter_rooms');
-        return $c->status(400, { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });
+        return $c->status(409, { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });
     }
 
     $c->stash('datacenter')->delete;

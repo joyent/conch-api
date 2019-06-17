@@ -95,7 +95,7 @@ sub create ($c) {
         next if not $input->{$key};
         if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug('Failed to create hardware product: unique constraint violation for '.$key);
-            return $c->status(400, { error => "Unique constraint violated on '$key'" });
+            return $c->status(409, { error => "Unique constraint violated on '$key'" });
         }
     }
 
@@ -138,7 +138,7 @@ sub update ($c) {
 
         if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
             $c->log->debug('Failed to create hardware product: unique constraint violation for '.$key);
-            return $c->status(400, { error => "Unique constraint violated on '$key'" });
+            return $c->status(409, { error => "Unique constraint violated on '$key'" });
         }
     }
 

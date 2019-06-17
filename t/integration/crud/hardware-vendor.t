@@ -44,9 +44,9 @@ $t->get_ok('/hardware_vendor/MyNewVendor')
     ->json_schema_is('HardwareVendor')
     ->json_cmp_deeply({
         name => 'MyNewVendor',
-        id => ignore,
-        created => ignore,
-        updated => ignore,
+        id => re(Conch::UUID::UUID_FORMAT),
+        created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
     });
 
 push @$vendors, $t->tx->res->json;

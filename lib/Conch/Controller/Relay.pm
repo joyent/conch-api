@@ -21,7 +21,7 @@ sub register ($c) {
     my $input = $c->validate_request('RegisterRelay');
     return if not $input;
 
-    return $c->status(422, { error => 'serial number in path doesn\'t match payload data' })
+    return $c->status(400, { error => 'serial number in path doesn\'t match payload data' })
         if $c->stash('relay_id') ne $input->{serial};
 
 
