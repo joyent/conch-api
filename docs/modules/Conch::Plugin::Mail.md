@@ -1,6 +1,10 @@
 # NAME
 
-Conch::Plugin::Mail - Sets up a helper to send emails
+Conch::Plugin::Mail
+
+## DESCRIPTION
+
+Helper methods for sending emails
 
 ## HELPERS
 
@@ -14,13 +18,18 @@ $c->send_mail(
         OR
     content => $raw_content,
 
-    to => $to_email,        defaults to stashed 'target_user'
-    from => $from_email,    defaults to stashed 'user'
-    subject => $subject,
+    To => $to_email,        defaults to stashed 'target_user'
+    From => $from_email,    defaults to stashed 'user'
+    Subject => $subject,
 
     ... all additional arguments are passed to the template renderer ...
 );
 ```
+
+## construct\_address\_list
+
+Given a list of [Conch::DB::Result::UserAccount](https://metacpan.org/pod/user) records, returns a string suitable to be
+used in a `To` header, comprising names and email addresses.
 
 # LICENSING
 

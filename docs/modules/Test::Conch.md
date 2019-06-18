@@ -182,16 +182,18 @@ content of the message(s), allowing you to test any portion of these that you li
 cmp\_deeply constructs.
 
 ```perl
-$t->email_cmp_deeply({
-    To => '"Foo" <foo@conch.us>',
-    From => '"Admin' <admin@conch.us>',
-    Subject => 'About your new account',
-    body => re(qr/^An account has been created for you.*Username:\s+foo.*Email:\s+foo@conch.us\s+Password:/ms),
-});
+$t->email_cmp_deeply([
+    {
+        To => '"Foo" <foo@conch.us>',
+        From => '"Admin' <admin@conch.us>',
+        Subject => 'About your new account',
+        body => re(qr/^An account has been created for you.*Username:\s+foo.*Email:\s+foo@conch.us\s+Password:/ms),
+    },
+]);
 ```
 
 A default 'From' header corresponding to the main test user is added as a default to your
-`$expected` messages if you don't provide one.
+`$expected` message(s) if you don't provide one.
 
 Remember: "Line endings in the body will normalized to CRLF." (see ["create" in Email::Simple](https://metacpan.org/pod/Email::Simple#create))
 
