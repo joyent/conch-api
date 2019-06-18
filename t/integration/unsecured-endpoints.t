@@ -5,19 +5,36 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
-$t->load_fixture('legacy_datacenter');
 
 $t->get_ok('/ping')
     ->status_is(200)
-    ->json_is({ status => 'ok' });
+    ->json_schema_is('Ping')
+    ->json_is({ status => 'ok' })
+    ->header_exists('Request-Id')
+    ->header_exists('X-Request-ID');
+
+$t->get_ok('/me')->status_is(401);
 
 $t->get_ok('/version')
     ->status_is(200)
     ->json_schema_is('Version')
     ->json_cmp_deeply({ version => re(qr/^v/) });
 
+$t->get_ok('/workspace')->status_is(401);
+$t->get_ok('/workspace/'.create_uuid_str())->status_is(401);
+
+$t->get_ok('/device/TEST')->status_is(401);
+$t->post_ok('/device/TEST', json => { a => 'b' })->status_is(401);
+
+$t->post_ok('/relay/TEST/register', json => { a => 'b' })->status_is(401);
+
+$t->get_ok('/hardware_product')->status_is(401);
+$t->get_ok('/hardware_product/'.create_uuid_str())->status_is(401);
+
+$t->load_fixture('legacy_datacenter');
 
 subtest 'device totals' => sub {
 

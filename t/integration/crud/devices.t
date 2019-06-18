@@ -25,6 +25,7 @@ my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 # perform most tests as a user with read only access to the GLOBAL workspace
 my $null_user = $t->load_fixture('null_user');
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
+my $rw_user = $t->load_fixture('rw_user_global_workspace')->user_account;
 my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
 $t->authenticate(email => $ro_user->email);
 
@@ -216,8 +217,7 @@ subtest 'located device' => sub {
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'decommissioned' } ],
         );
 
-        $t->authenticate(email => $t->load_fixture('rw_user_global_workspace')->user_account->email);
-
+        $t->authenticate(email => $rw_user->email);
         foreach my $query (@queries) {
             $t->post_ok(ref $query ? $query->@* : $query)
                 ->status_is(303)
@@ -269,19 +269,21 @@ subtest 'located device' => sub {
                 ->status_is(200);
         }
 
-        $t->app->db_user_workspace_roles->delete;
+        $t->txn_local('remove all workspace permissions', sub ($t) {
+            $t->app->db_user_workspace_roles->delete;
 
-        foreach my $query (@queries) {
-            $t->get_ok($query)
-                ->status_is(403);
-        }
+            foreach my $query (@queries) {
+                $t->get_ok($query)
+                    ->status_is(403);
+            }
 
-        $ro_user->update({ is_admin => 1 });
-        foreach my $query (@queries) {
-            $t->get_ok($query)
-                ->status_is(200);
-        }
-        $ro_user->update({ is_admin => 0 });
+            $ro_user->update({ is_admin => 1 });
+            foreach my $query (@queries) {
+                $t->get_ok($query)
+                    ->status_is(200);
+            }
+            $ro_user->update({ is_admin => 0 });
+        });
     };
 };
 
@@ -443,8 +445,7 @@ subtest 'mutate device attributes' => sub {
 
 subtest 'Device settings' => sub {
     # device settings that check for 'admin' permission need the device to have a location
-    my $user_workspace_role = $t->reload_fixture('conch_user_global_workspace');
-    $t->authenticate(email => $user_workspace_role->user_account->email);
+    $t->authenticate(email => $admin_user->email);
 
     $t->app->db_device_settings->search({ device_id => 'LOCATED_DEVICE' })->delete;
 
@@ -535,9 +536,43 @@ subtest 'Device settings' => sub {
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_is('', [ $undetailed_device ], 'got device by arbitrary setting key');
+
+    $t->authenticate(email => $ro_user->email);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => 'new_value' })
+        ->status_is(403);
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { name => 'new value' })
+        ->status_is(403);
+    $t->delete_ok('/device/LOCATED_DEVICE/settings/foo')
+        ->status_is(403);
+
+    $t->authenticate(email => $rw_user->email);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { key => 'value' })
+        ->status_is(204, 'writing new non-tag key only requires rw');
+    $t->post_ok('/device/LOCATED_DEVICE/settings/key', json => { key => 'new value' })
+        ->status_is(403);
+    $t->delete_ok('/device/LOCATED_DEVICE/settings/foo')
+        ->status_is(403);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { key => 'new value', 'tag.bar' => 'bar' })
+        ->status_is(403);
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
+        ->status_is(204);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/tag.bar', json => { 'tag.bar' => 'newbar' })
+        ->status_is(204);
+    $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
+        ->status_is(200)
+        ->json_schema_is('DeviceSetting')
+        ->json_is('/tag.bar', 'newbar', 'Setting was updated');
+    $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.bar')
+        ->status_is(204);
+    $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
 };
 
 subtest 'Device PXE' => sub {
+    $t->authenticate(email => $admin_user->email);
     my $layout = $t->load_fixture('rack_0a_layout_3_6');
 
     my $device_pxe = $t->app->db_devices->create({
@@ -634,6 +669,27 @@ subtest 'Device PXE' => sub {
             ipmi => undef,
             pxe => undef,
         });
+};
+
+subtest 'Device location' => sub {
+    $t->post_ok('/device/TEST/location')
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
+
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 42 })
+        ->status_is(409)
+        ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
+
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
+        ->status_is(303)
+        ->location_is('/device/TEST/location');
+
+    $t->delete_ok('/device/TEST/location')
+        ->status_is(204, 'can delete device location');
+
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
+        ->status_is(303, 'add it back');
 };
 
 done_testing;
