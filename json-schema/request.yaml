@@ -22,6 +22,7 @@ definitions:
   DatacenterUpdate:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       vendor:
         type: string
@@ -50,6 +51,7 @@ definitions:
   DatacenterRoomUpdate:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       datacenter_id:
         $ref: common.yaml#/definitions/uuid
@@ -80,6 +82,7 @@ definitions:
   RackUpdate:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       name:
         type: string
@@ -155,6 +158,7 @@ definitions:
   RackRoleUpdate:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       name:
         type: string
@@ -177,6 +181,7 @@ definitions:
   RackLayoutUpdate:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       # this field is deprecated: cannot change rack_id in an existing layout
       rack_id:
@@ -210,6 +215,7 @@ definitions:
   HardwareProductProfileUpdate:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       rack_unit:
         $ref: common.yaml#/definitions/positive_integer
@@ -304,6 +310,7 @@ definitions:
   HardwareProductUpdate:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       name:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
@@ -386,6 +393,7 @@ definitions:
   UpdateUser:
     type: object
     additionalProperties: false
+    minProperties: 1
     properties:
       name:
         type: string
