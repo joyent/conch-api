@@ -230,7 +230,7 @@ an email to the user.
 
 =item * Request: request.yaml#/WorkspaceAddUser
 
-=item * Response: response.yaml#/WorkspaceAndRole
+=item * Response: C<204 NO CONTENT>
 
 =back
 

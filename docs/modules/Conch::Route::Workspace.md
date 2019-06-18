@@ -89,7 +89,7 @@ an email to the user.
 
 - Requires workspace admin authorization
 - Request: request.yaml#/WorkspaceAddUser
-- Response: response.yaml#/WorkspaceAndRole
+- Response: `204 NO CONTENT`
 
 ### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`
 
