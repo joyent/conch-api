@@ -24,7 +24,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /hardware_vendor/:hardware_vendor_name`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: Redirect to the created hardware vendor
 
 # LICENSING

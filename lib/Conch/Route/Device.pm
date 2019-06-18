@@ -287,7 +287,7 @@ below.
 
 =over 4
 
-=item * Requires Read/Write Device Authentication
+=item * Requires read/write device authorization
 
 =item * Request: request.yaml#/DeviceSettings
 
@@ -307,7 +307,7 @@ below.
 
 =over 4
 
-=item * Requires Read/Write Device Authentication
+=item * Requires read/write device authorization
 
 =item * Request: request.yaml#/DeviceSettings
 
@@ -319,7 +319,7 @@ below.
 
 =over 4
 
-=item * Requires Read/Write Device Authentication
+=item * Requires read/write device authorization
 
 =item * Response: C<204 NO CONTENT>
 

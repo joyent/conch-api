@@ -50,7 +50,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/Relays
 

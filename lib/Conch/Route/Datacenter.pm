@@ -193,7 +193,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/DatacenterRoomsDetailed
 
@@ -203,7 +203,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/DatacenterRoomsDetailed
 
@@ -213,7 +213,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/DatacenterRoomCreate
 
@@ -226,7 +226,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/DatacenterRoomDetailed
 
@@ -236,7 +236,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/DatacenterRoomUpdate
 
@@ -248,7 +248,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 
@@ -258,7 +258,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/Racks
 
@@ -268,7 +268,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/RackRoles
 
@@ -278,7 +278,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/RackRoleCreate
 
@@ -290,7 +290,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authorization
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/RackRole
 
@@ -318,7 +318,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/Racks
 
@@ -328,7 +328,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/RackCreate
 
@@ -425,7 +425,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =over 4
 
-=item * Requires Admin Authentication
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/RackLayoutCreate
 

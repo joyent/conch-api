@@ -96,7 +96,7 @@ below.
 
 ### `POST /device/:device_id/settings`
 
-- Requires Read/Write Device Authentication
+- Requires read/write device authorization
 - Request: request.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
@@ -106,13 +106,13 @@ below.
 
 ### `POST /device/:device_id/settings/:key`
 
-- Requires Read/Write Device Authentication
+- Requires read/write device authorization
 - Request: request.yaml#/DeviceSettings
 - Response: `204 NO CONTENT`
 
 ### `DELETE /device/:device_id/settings/:key`
 
-- Requires Read/Write Device Authentication
+- Requires read/write device authorization
 - Response: `204 NO CONTENT`
 
 ### `POST /device/:device_id/validation/:validation_id`

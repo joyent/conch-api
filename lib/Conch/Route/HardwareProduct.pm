@@ -74,7 +74,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/HardwareProductCreate
 
@@ -106,7 +106,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/HardwareProductUpdate
 
@@ -124,7 +124,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 

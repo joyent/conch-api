@@ -17,7 +17,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /relay`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: response.yaml#/Relays
 
 # LICENSING

@@ -272,7 +272,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/UserDetailed
 
@@ -285,7 +285,7 @@ an email telling the user their tokens were revoked
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/UpdateUser
 
@@ -305,7 +305,7 @@ revoke all session tokens for the user forcing all tools to log in again.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/UserDetailed
 
@@ -330,7 +330,7 @@ C<api_only> and C<login_only> are set, no tokens will be revoked.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 
@@ -360,7 +360,7 @@ Optionally accepts the following query parameters:
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 
@@ -370,7 +370,7 @@ Optionally accepts the following query parameters:
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/UsersDetailed
 
@@ -383,7 +383,7 @@ email to the user with the new password.
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/NewUser
 

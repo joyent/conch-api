@@ -27,7 +27,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /workspace/:workspace_id_or_name/child`
 
-- Requires Workspace Admin Authentication
+- Requires workspace admin authorization
 - Request: request.yaml#/WorkspaceCreate
 - Response: response.yaml#/WorkspaceAndRole
 
@@ -64,7 +64,7 @@ If the Accepts header specifies `text/csv` it will return a CSV document.
 
 ### `DELETE /workspace/:workspace_id_or_name/rack/:rack_id`
 
-- Requires Workspace Admin Authentication
+- Requires workspace admin authorization
 - Response: `204 NO CONTENT`
 
 ### `GET /workspace/:workspace_id_or_name/relay`
@@ -85,18 +85,18 @@ those updated with in the last `X` minutes.
 ### `POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>`
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
-an email to the user
+an email to the user.
 
-- Requires Workspace Admin Authentication
+- Requires workspace admin authorization
 - Request: request.yaml#/WorkspaceAddUser
 - Response: response.yaml#/WorkspaceAndRole
 
 ### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
-an email to the user
+an email to the user.
 
-- Requires Workspace Admin Authentication
+- Requires workspace admin authorization
 - Returns `204 NO CONTENT`
 
 # LICENSING

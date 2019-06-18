@@ -114,7 +114,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires Workspace Admin Authentication
+=item * Requires workspace admin authorization
 
 =item * Request: request.yaml#/WorkspaceCreate
 
@@ -186,7 +186,7 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 
 =over 4
 
-=item * Requires Workspace Admin Authentication
+=item * Requires workspace admin authorization
 
 =item * Response: C<204 NO CONTENT>
 
@@ -222,11 +222,11 @@ those updated with in the last C<X> minutes.
 =head3 C<< POST /workspace/:workspace_id_or_name/user?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
-an email to the user
+an email to the user.
 
 =over 4
 
-=item * Requires Workspace Admin Authentication
+=item * Requires workspace admin authorization
 
 =item * Request: request.yaml#/WorkspaceAddUser
 
@@ -237,11 +237,11 @@ an email to the user
 =head3 C<< DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
-an email to the user
+an email to the user.
 
 =over 4
 
-=item * Requires Workspace Admin Authentication
+=item * Requires workspace admin authorization
 
 =item * Returns C<204 NO CONTENT>
 

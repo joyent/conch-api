@@ -34,55 +34,55 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /dc/:datacenter_id/rooms`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Response: response.yaml#/DatacenterRoomsDetailed
 
 ### `GET /room`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Response: response.yaml#/DatacenterRoomsDetailed
 
 ### `POST /room`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Request: request.yaml#/DatacenterRoomCreate
 - Response: Redirect to the created room
 
 ### `GET /room/:datacenter_room_id`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Response: response.yaml#/DatacenterRoomDetailed
 
 ### `POST /room/:datacenter_room_id`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Request: request.yaml#/DatacenterRoomUpdate
 - Response: Redirect to the updated room
 
 ### `DELETE /room/:datacenter_room_id`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 ### `GET /room/:datacenter_room_id/racks`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Response: response.yaml#/Racks
 
 ### `GET /rack_role`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Response: response.yaml#/RackRoles
 
 ### `POST /rack_role`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Request: request.yaml#/RackRoleCreate
 - Response: Redirect to the created rack role
 
 ### `GET /rack_role/:rack_role_id_or_name`
 
-- Requires System Admin Authorization
+- Requires system admin authorization
 - Response: response.yaml#/RackRole
 
 ### `POST /rack_role/:rack_role_id_or_name`
@@ -96,12 +96,12 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /rack`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: response.yaml#/Racks
 
 ### `POST /rack`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Request: request.yaml#/RackCreate
 - Response: Redirect to the created rack
 
@@ -152,7 +152,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 ### `POST /layout`
 
-- Requires Admin Authentication
+- Requires system admin authorization
 - Request: request.yaml#/RackLayoutCreate
 - Response: Redirect to the created rack layout
 
