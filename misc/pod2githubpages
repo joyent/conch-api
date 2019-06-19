@@ -53,8 +53,9 @@ while (my $infile = shift @ARGV) {
     print $fh "# Module documentation\n\n";
 
     foreach my $filename (sort @markdown_files) {
-        my $module = $filename =~ s/.md$//r;
-        print $fh '* <', $module, ">\n";
+        $filename =~ s/.md$//;
+        my $module = $filename =~ s/_/\\_/gr;
+        print $fh '* [', $module, '](', $filename, ")\n";
     }
 
     print $fh <<'FOOTER';
