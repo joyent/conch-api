@@ -2,7 +2,7 @@
 
 Conch::DB::Result::ValidationState
 
-# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
 
 # TABLE: `validation_state`
 
@@ -77,25 +77,25 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](/../modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](../modules/Conch::DB::Result::Device)
 
 ## device\_report
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::DeviceReport](/../modules/Conch::DB::Result::DeviceReport)
+Related object: [Conch::DB::Result::DeviceReport](../modules/Conch::DB::Result::DeviceReport)
 
 ## validation\_plan
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::ValidationPlan](/../modules/Conch::DB::Result::ValidationPlan)
+Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch::DB::Result::ValidationPlan)
 
 ## validation\_state\_members
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationStateMember](/../modules/Conch::DB::Result::ValidationStateMember)
+Related object: [Conch::DB::Result::ValidationStateMember](../modules/Conch::DB::Result::ValidationStateMember)
 
 ## validation\_results
 

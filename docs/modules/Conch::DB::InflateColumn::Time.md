@@ -1,11 +1,11 @@
 # DESCRIPTION
 
-Automatically inflates/deflates timestamps in the database to [Conch::Time](/../modules/Conch::Time) objects (which is
+Automatically inflates/deflates timestamps in the database to [Conch::Time](../modules/Conch::Time) objects (which is
 a subclass of [Time::Moment](https://metacpan.org/pod/Time::Moment)).
 
 No extra work needs to be done for deflation, because postgres is happy to accept our slight
 modifications to the format used in `to_string`.  All we need to do is rebless the
-[Time::Moment](https://metacpan.org/pod/Time::Moment) object into [Conch::Time](/../modules/Conch::Time), and work around the bug in
+[Time::Moment](https://metacpan.org/pod/Time::Moment) object into [Conch::Time](../modules/Conch::Time), and work around the bug in
 [RT#125975](https://rt.cpan.org/Ticket/Display.html?id=125975).
 
 # LICENSING

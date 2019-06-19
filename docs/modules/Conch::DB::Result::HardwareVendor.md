@@ -2,7 +2,7 @@
 
 Conch::DB::Result::HardwareVendor
 
-# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
 
 # TABLE: `hardware_vendor`
 
@@ -59,7 +59,7 @@ original: {default_value => \"now()"}
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::HardwareProduct](/../modules/Conch::DB::Result::HardwareProduct)
+Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareProduct)
 
 # LICENSING
 
