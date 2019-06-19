@@ -4,7 +4,7 @@ Conch::DB::ToJSON
 
 # DESCRIPTION
 
-A component for [Conch::DB::Result](/../modules/Conch::DB::Result) classes to provide serialization functionality via `TO_JSON`.
+A component for [Conch::DB::Result](../modules/Conch::DB::Result) classes to provide serialization functionality via `TO_JSON`.
 Sub-classes [DBIx::Class::Helper::Row::ToJSON](https://metacpan.org/pod/DBIx::Class::Helper::Row::ToJSON) to also serialize 'text' data.
 
 # USAGE

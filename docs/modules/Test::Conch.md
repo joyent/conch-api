@@ -25,7 +25,7 @@ the same database.
 
 ## fixtures
 
-Provides access to the fixtures defined in [Test::Conch::Fixtures](/../modules/Test::Conch::Fixtures).
+Provides access to the fixtures defined in [Test::Conch::Fixtures](../modules/Test::Conch::Fixtures).
 See ["load\_fixture"](#load_fixture).
 
 ## new
@@ -42,11 +42,11 @@ Constructor. Takes the following arguments:
 ## init\_db
 
 Sets up the database for testing, using the final schema rather than running migrations.
-Mirrors functionality in ["initialize\_db" in Conch::DB::Util](/../modules/Conch::DB::Util#initialize_db).
+Mirrors functionality in ["initialize\_db" in Conch::DB::Util](../modules/Conch::DB::Util#initialize_db).
 No data is added -- you must load all desired fixtures.
 
 Note that the [Test::PostgreSQL](https://metacpan.org/pod/Test::PostgreSQL) object must stay in scope for the duration of your tests.
-Returns the [Conch::DB](/../modules/Conch::DB) object as well when called in list context.
+Returns the [Conch::DB](../modules/Conch::DB) object as well when called in list context.
 
 ## ro\_schema
 
@@ -132,7 +132,7 @@ Add one or more fixture definition(s), and populate the database with it.
 ## load\_fixture\_set
 
 Generates a set of fixtures by name and optional arguments, then loads them into the database.
-See ["generate\_set" in Test::Conch::Fixtures](/../modules/Test::Conch::Fixtures#generate_set) for available sets.
+See ["generate\_set" in Test::Conch::Fixtures](../modules/Test::Conch::Fixtures#generate_set) for available sets.
 
 ## generate\_fixtures
 
@@ -154,7 +154,7 @@ $t->generate_fixture_definitions(
 );
 ```
 
-See ["\_generate\_definition" in Test::Conch::Fixtures](/../modules/Test::Conch::Fixtures#generate_definition) for the list of recognized types.
+See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test::Conch::Fixtures#generate_definition) for the list of recognized types.
 
 ## authenticate
 

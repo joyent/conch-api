@@ -2,7 +2,7 @@
 
 Conch::DB::Result::UserWorkspaceRole
 
-# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
 
 # TABLE: `user_workspace_role`
 
@@ -54,13 +54,13 @@ is_nullable: 0
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::UserAccount](/../modules/Conch::DB::Result::UserAccount)
+Related object: [Conch::DB::Result::UserAccount](../modules/Conch::DB::Result::UserAccount)
 
 ## workspace
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Workspace](/../modules/Conch::DB::Result::Workspace)
+Related object: [Conch::DB::Result::Workspace](../modules/Conch::DB::Result::Workspace)
 
 ## role\_cmp
 
