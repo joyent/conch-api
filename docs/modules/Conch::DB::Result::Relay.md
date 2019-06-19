@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Relay
 
-# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
 
 # TABLE: `relay`
 
@@ -78,13 +78,13 @@ original: {default_value => \"now()"}
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceRelayConnection](/conch/modules/Conch::DB::Result::DeviceRelayConnection)
+Related object: [Conch::DB::Result::DeviceRelayConnection](/../modules/Conch::DB::Result::DeviceRelayConnection)
 
 ## user\_relay\_connections
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserRelayConnection](/conch/modules/Conch::DB::Result::UserRelayConnection)
+Related object: [Conch::DB::Result::UserRelayConnection](/../modules/Conch::DB::Result::UserRelayConnection)
 
 # LICENSING
 

@@ -2,7 +2,7 @@
 
 Conch::DB::Result::RackLayout
 
-# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
 
 # TABLE: `rack_layout`
 
@@ -77,19 +77,19 @@ original: {default_value => \"now()"}
 
 Type: might\_have
 
-Related object: [Conch::DB::Result::DeviceLocation](/conch/modules/Conch::DB::Result::DeviceLocation)
+Related object: [Conch::DB::Result::DeviceLocation](/../modules/Conch::DB::Result::DeviceLocation)
 
 ## hardware\_product
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::HardwareProduct](/conch/modules/Conch::DB::Result::HardwareProduct)
+Related object: [Conch::DB::Result::HardwareProduct](/../modules/Conch::DB::Result::HardwareProduct)
 
 ## rack
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Rack](/conch/modules/Conch::DB::Result::Rack)
+Related object: [Conch::DB::Result::Rack](/../modules/Conch::DB::Result::Rack)
 
 # LICENSING
 

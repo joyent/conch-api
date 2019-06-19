@@ -2,7 +2,7 @@
 
 Conch::DB::Result::ValidationPlan
 
-# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
 
 # TABLE: `validation_plan`
 
@@ -57,13 +57,13 @@ is_nullable: 1
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationPlanMember](/conch/modules/Conch::DB::Result::ValidationPlanMember)
+Related object: [Conch::DB::Result::ValidationPlanMember](/../modules/Conch::DB::Result::ValidationPlanMember)
 
 ## validation\_states
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationState](/conch/modules/Conch::DB::Result::ValidationState)
+Related object: [Conch::DB::Result::ValidationState](/../modules/Conch::DB::Result::ValidationState)
 
 ## validations
 

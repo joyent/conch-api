@@ -2,7 +2,7 @@
 
 Conch::DB::Result::UserAccount
 
-# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
 
 # TABLE: `user_account`
 
@@ -95,25 +95,25 @@ is_nullable: 0
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserRelayConnection](/conch/modules/Conch::DB::Result::UserRelayConnection)
+Related object: [Conch::DB::Result::UserRelayConnection](/../modules/Conch::DB::Result::UserRelayConnection)
 
 ## user\_session\_tokens
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserSessionToken](/conch/modules/Conch::DB::Result::UserSessionToken)
+Related object: [Conch::DB::Result::UserSessionToken](/../modules/Conch::DB::Result::UserSessionToken)
 
 ## user\_settings
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserSetting](/conch/modules/Conch::DB::Result::UserSetting)
+Related object: [Conch::DB::Result::UserSetting](/../modules/Conch::DB::Result::UserSetting)
 
 ## user\_workspace\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserWorkspaceRole](/conch/modules/Conch::DB::Result::UserWorkspaceRole)
+Related object: [Conch::DB::Result::UserWorkspaceRole](/../modules/Conch::DB::Result::UserWorkspaceRole)
 
 # METHODS
 

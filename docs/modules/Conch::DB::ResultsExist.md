@@ -4,7 +4,7 @@ Conch::DB::ResultsExist
 
 # DESCRIPTION
 
-A component for [Conch::DB::ResultSet](/conch/modules/Conch::DB::ResultSet) classes that provides the `exists` method.
+A component for [Conch::DB::ResultSet](/../modules/Conch::DB::ResultSet) classes that provides the `exists` method.
 
 See also [DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist), which is not usable in its
 present form due to [https://github.com/frioux/DBIx-Class-Helpers/issues/54](https://github.com/frioux/DBIx-Class-Helpers/issues/54).

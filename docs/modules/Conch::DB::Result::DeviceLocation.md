@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceLocation
 
-# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/../modules/Conch::DB::Result)
 
 # TABLE: `device_location`
 
@@ -68,19 +68,19 @@ original: {default_value => \"now()"}
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](/conch/modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](/../modules/Conch::DB::Result::Device)
 
 ## rack
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Rack](/conch/modules/Conch::DB::Result::Rack)
+Related object: [Conch::DB::Result::Rack](/../modules/Conch::DB::Result::Rack)
 
 ## rack\_layout
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::RackLayout](/conch/modules/Conch::DB::Result::RackLayout)
+Related object: [Conch::DB::Result::RackLayout](/../modules/Conch::DB::Result::RackLayout)
 
 # LICENSING
 
