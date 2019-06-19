@@ -16,7 +16,8 @@ use Devel::Confess;
 my %opts = (
     output_encoding => 'UTF-8',
     local_module_re => qr/Conch/,
-    local_module_url_prefix => '/conch/modules/',   # '' is better but Pod::Markdown doesn't respect it
+    local_module_url_prefix => '/../modules/', # '' is better but Pod::Markdown doesn't respect it
+                                        # see https://rt.cpan.org/Ticket/Display.html?id=129865
 );
 
 my @markdown_files;
@@ -25,8 +26,9 @@ while (my $infile = shift @ARGV) {
     # convert:                          lib/Conch/Time.pm
     # to:                               doc/modules/Conch::Time.md
     # containing pod links like:        L<Conch::Time>
-    # become relative URLs like:        /modules/Conch::Time
-    # that turn into the absolute url:  https://joyent.github.io/conch/modules/Conch::Time
+    # become relative URLs like:        /../modules/Conch::Time
+    # that turn into the absolute urls: https://joyent.github.io/conch/modules/Conch::Time
+    # ...and:                            http://localhost:4000/modules/Conch::Time
 
     my $outfile = $infile;
     $outfile =~ s{^lib/}{};
@@ -53,9 +55,8 @@ while (my $infile = shift @ARGV) {
     print $fh "# Module documentation\n\n";
 
     foreach my $filename (sort @markdown_files) {
-        $filename =~ s/.md$//;
-        my $module = $filename =~ s/_/\\_/gr;
-        print $fh '* [', $module, '](', $filename, ")\n";
+        my $module = $filename =~ s/.md$//r;
+        print $fh '* [', $module, '](../modules/', $module, ")\n";
     }
 
     print $fh <<'FOOTER';

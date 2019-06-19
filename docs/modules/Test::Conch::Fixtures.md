@@ -17,7 +17,7 @@ my $fixtures = Test::Conch::Fixtures->new(
 );
 ```
 
-See ["fixtures" in Test::Conch](/conch/modules/Test::Conch#fixtures) for main usage.
+See ["fixtures" in Test::Conch](/../modules/Test::Conch#fixtures) for main usage.
 
 # METHODS
 
