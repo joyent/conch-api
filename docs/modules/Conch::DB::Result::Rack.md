@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Rack
 
-# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
 
 # TABLE: `rack`
 
@@ -93,31 +93,31 @@ is_nullable: 0
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::DatacenterRoom](/modules/Conch::DB::Result::DatacenterRoom)
+Related object: [Conch::DB::Result::DatacenterRoom](/conch/modules/Conch::DB::Result::DatacenterRoom)
 
 ## device\_locations
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceLocation](/modules/Conch::DB::Result::DeviceLocation)
+Related object: [Conch::DB::Result::DeviceLocation](/conch/modules/Conch::DB::Result::DeviceLocation)
 
 ## rack\_layouts
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::RackLayout](/modules/Conch::DB::Result::RackLayout)
+Related object: [Conch::DB::Result::RackLayout](/conch/modules/Conch::DB::Result::RackLayout)
 
 ## rack\_role
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::RackRole](/modules/Conch::DB::Result::RackRole)
+Related object: [Conch::DB::Result::RackRole](/conch/modules/Conch::DB::Result::RackRole)
 
 ## workspace\_racks
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::WorkspaceRack](/modules/Conch::DB::Result::WorkspaceRack)
+Related object: [Conch::DB::Result::WorkspaceRack](/conch/modules/Conch::DB::Result::WorkspaceRack)
 
 ## workspaces
 

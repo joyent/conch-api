@@ -10,7 +10,7 @@ Conch::DB::ToJSON
 
 =head1 DESCRIPTION
 
-A component for Conch::DB::Result classes to provide serialization functionality via C<TO_JSON>.
+A component for L<Conch::DB::Result> classes to provide serialization functionality via C<TO_JSON>.
 Sub-classes L<DBIx::Class::Helper::Row::ToJSON> to also serialize 'text' data.
 
 =head1 USAGE

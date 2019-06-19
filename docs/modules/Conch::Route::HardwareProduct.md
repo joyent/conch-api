@@ -16,7 +16,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /hardware_product`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Request: request.yaml#/HardwareProductCreate
 - Response: Redirect to the created hardware product
 
@@ -38,7 +38,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /hardware_product/sku=:hardware_product_sku`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Request: request.yaml#/HardwareProductUpdate
 - Response: Redirect to the updated hardware product
 
@@ -50,7 +50,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `DELETE /hardware_product/sku=:hardware_product_sku`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 # LICENSING

@@ -20,12 +20,6 @@ The `master` branch is protected and cannot be modified directly:
   manager (currently [ether](https://github.com/karenetheridge)) to
   determine which version is most appropriate.
 
-## Choosing Work
-
-Choosing work is analagous to Kanban style development. We grab work out
-of the Github issues and get it done. Sometimes high priority work comes
-in and we shift focus to that. But in general, we work the backlog.
-
 The build world is an odd duck in that we are also the customers of our
 own work. [The Conch Shell](https://github.com/joyent/conch-shell) and
 [Conch Web UI](https://github.com/joyent/conch-ui.git) are the main consumers
@@ -74,8 +68,26 @@ visible in the BuildOps Google Calendar.
 
 In general, we prefer a two week deploy cadence. v2.45.0 goes into
 staging on Monday and we begin accepting PRs for v2.46. Two weeks later,
-v2.45 goes to production, v2.46 is deployed to staging, and we being to accept
+v2.45 goes to production, v2.46 is deployed to staging, and we begin to accept
 PRs for v2.47.
+
+## Tests
+
+Every change pushed to github (unless a branch rule has been configured on a
+subbranch) will result in a webhook event that triggers Buildbot to execute a
+test run. These test results are reported to the `~conch-devel` chat channel,
+as well as emailed to the user who triggered the build.
+
+The tests are executed via `make test` in the Makefile at the root of the
+repository. The tests cover all aspects of the application, from low level
+functionality such as database access, logging, and json schema evaluation,
+to higher level integration testing of individual api endpoints.  All the
+tests live in the `t/` directory in the repository.
+
+It is a necessary requirement that all pull requests must pass tests before
+they are considered for merging, whether to the master branch or a
+topic/feature branch. If you received a failure notificaton, follow the links
+in Buildbot to get more information about how your tests failed.
 
 ## Summary
 

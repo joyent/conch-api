@@ -2,7 +2,7 @@
 
 Conch::DB::Result::ValidationPlanMember
 
-# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
 
 # TABLE: `validation_plan_member`
 
@@ -37,13 +37,13 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Validation](/modules/Conch::DB::Result::Validation)
+Related object: [Conch::DB::Result::Validation](/conch/modules/Conch::DB::Result::Validation)
 
 ## validation\_plan
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::ValidationPlan](/modules/Conch::DB::Result::ValidationPlan)
+Related object: [Conch::DB::Result::ValidationPlan](/conch/modules/Conch::DB::Result::ValidationPlan)
 
 # LICENSING
 

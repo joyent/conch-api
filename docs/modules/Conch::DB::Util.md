@@ -6,7 +6,7 @@ Conch::DB:::Util - utility functions for working with the Conch database
 
 ## get\_credentials
 
-Return the credentials and connection options suitable for passing to [Conch::DB](/modules/Conch::DB) for both
+Return the credentials and connection options suitable for passing to [Conch::DB](/conch/modules/Conch::DB) for both
 read-write and read-only connections, containing keys:
 
 returns a hashref containing keys:

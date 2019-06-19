@@ -54,8 +54,6 @@ Return an object based on the current time.
 Time are high resolution and will generate unique timestamps to the
 nanosecond.
 
-=cut
-
 =head2 from_epoch
 
     Conch::Time->from_epoch(time);
@@ -65,8 +63,6 @@ nanosecond.
     Conch::Time->from_epoch(1234567890, 123);
 
 See also L<Time::Moment/from_epoch>.
-
-=cut
 
 =head2 CONVERSIONS
 

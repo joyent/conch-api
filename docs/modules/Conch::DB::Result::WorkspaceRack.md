@@ -2,7 +2,7 @@
 
 Conch::DB::Result::WorkspaceRack
 
-# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
 
 # TABLE: `workspace_rack`
 
@@ -37,13 +37,13 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Rack](/modules/Conch::DB::Result::Rack)
+Related object: [Conch::DB::Result::Rack](/conch/modules/Conch::DB::Result::Rack)
 
 ## workspace
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Workspace](/modules/Conch::DB::Result::Workspace)
+Related object: [Conch::DB::Result::Workspace](/conch/modules/Conch::DB::Result::Workspace)
 
 # LICENSING
 

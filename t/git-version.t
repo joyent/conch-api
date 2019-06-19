@@ -6,7 +6,7 @@ use Test::Conch;
 
 my $t = Test::Conch->new(pg => undef);
 
-like($t->app->version_tag, qr/^v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+$/, 'got the version tag');
+like($t->app->version_tag, qr/^v\d+\.\d+\.\d+(.*)-\d+-g[[:xdigit:]]+$/, 'got the version tag');
 
 like($t->app->version_hash, qr/^[[:xdigit:]]+$/, 'got the version hash');
 

@@ -16,7 +16,7 @@ $log->info({ raw_data => [1,2,3] });
 
 # ATTRIBUTES
 
-[Conch::Log](/modules/Conch::Log) inherits all attributes from [Mojo::Log](https://metacpan.org/pod/Mojo::Log) and implements the
+[Conch::Log](/conch/modules/Conch::Log) inherits all attributes from [Mojo::Log](https://metacpan.org/pod/Mojo::Log) and implements the
 following new ones:
 
 ## bunyan
@@ -35,7 +35,7 @@ A boolean option (defaulting to false): include stack trace information. Must be
 
 # METHODS
 
-[Conch::Log](/modules/Conch::Log) inherits all methods from [Mojo::Log](https://metacpan.org/pod/Mojo::Log).
+[Conch::Log](/conch/modules/Conch::Log) inherits all methods from [Mojo::Log](https://metacpan.org/pod/Mojo::Log).
 
 # SEE ALSO
 

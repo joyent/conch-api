@@ -16,8 +16,10 @@ use Devel::Confess;
 my %opts = (
     output_encoding => 'UTF-8',
     local_module_re => qr/Conch/,
-    local_module_url_prefix => '/modules/',
+    local_module_url_prefix => '/conch/modules/',   # '' is better but Pod::Markdown doesn't respect it
 );
+
+my @markdown_files;
 
 while (my $infile = shift @ARGV) {
     # convert:                          lib/Conch/Time.pm
@@ -31,6 +33,7 @@ while (my $infile = shift @ARGV) {
     $outfile =~ s{/}{::}g;
     $outfile =~ s/\.pm$/\.md/;
     $outfile =~ s{^lib::}{};
+    push @markdown_files, $outfile;
     $outfile = 'docs/modules/'.$outfile;
 
     my $in_fh  = get_handle($infile, '<', \*STDIN);
@@ -41,6 +44,30 @@ while (my $infile = shift @ARGV) {
     binmode($_, ':bytes') for ($in_fh, $out_fh);
 
     convert($in_fh, $out_fh);
+}
+
+{
+    open my $fh, '>', 'docs/modules/index.md'
+        or die "cannot open docs/modules/index.md for writing: $!";
+
+    print $fh "# Module documentation\n\n";
+
+    foreach my $filename (sort @markdown_files) {
+        my $module = $filename =~ s/.md$//r;
+        print $fh '* <', $module, ">\n";
+    }
+
+    print $fh <<'FOOTER';
+
+# Copyright / License
+
+Copyright Joyent, Inc.
+
+This Source Code Form is subject to the terms of the Mozilla Public License,
+v.2.0. If a copy of the MPL was not distributed with this file, you can
+obtain one at <http://mozilla.org/MPL/2.0/>.
+FOOTER
+    close $fh;
 }
 
 sub convert {

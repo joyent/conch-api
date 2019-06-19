@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Device
 
-# BASE CLASS: [Conch::DB::Result](/modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](/conch/modules/Conch::DB::Result)
 
 # TABLE: `device`
 
@@ -161,61 +161,61 @@ is_nullable: 0
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceDisk](/modules/Conch::DB::Result::DeviceDisk)
+Related object: [Conch::DB::Result::DeviceDisk](/conch/modules/Conch::DB::Result::DeviceDisk)
 
 ## device\_environment
 
 Type: might\_have
 
-Related object: [Conch::DB::Result::DeviceEnvironment](/modules/Conch::DB::Result::DeviceEnvironment)
+Related object: [Conch::DB::Result::DeviceEnvironment](/conch/modules/Conch::DB::Result::DeviceEnvironment)
 
 ## device\_location
 
 Type: might\_have
 
-Related object: [Conch::DB::Result::DeviceLocation](/modules/Conch::DB::Result::DeviceLocation)
+Related object: [Conch::DB::Result::DeviceLocation](/conch/modules/Conch::DB::Result::DeviceLocation)
 
 ## device\_nics
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceNic](/modules/Conch::DB::Result::DeviceNic)
+Related object: [Conch::DB::Result::DeviceNic](/conch/modules/Conch::DB::Result::DeviceNic)
 
 ## device\_relay\_connections
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceRelayConnection](/modules/Conch::DB::Result::DeviceRelayConnection)
+Related object: [Conch::DB::Result::DeviceRelayConnection](/conch/modules/Conch::DB::Result::DeviceRelayConnection)
 
 ## device\_reports
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceReport](/modules/Conch::DB::Result::DeviceReport)
+Related object: [Conch::DB::Result::DeviceReport](/conch/modules/Conch::DB::Result::DeviceReport)
 
 ## device\_settings
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceSetting](/modules/Conch::DB::Result::DeviceSetting)
+Related object: [Conch::DB::Result::DeviceSetting](/conch/modules/Conch::DB::Result::DeviceSetting)
 
 ## hardware\_product
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::HardwareProduct](/modules/Conch::DB::Result::HardwareProduct)
+Related object: [Conch::DB::Result::HardwareProduct](/conch/modules/Conch::DB::Result::HardwareProduct)
 
 ## validation\_results
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationResult](/modules/Conch::DB::Result::ValidationResult)
+Related object: [Conch::DB::Result::ValidationResult](/conch/modules/Conch::DB::Result::ValidationResult)
 
 ## validation\_states
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationState](/modules/Conch::DB::Result::ValidationState)
+Related object: [Conch::DB::Result::ValidationState](/conch/modules/Conch::DB::Result::ValidationState)
 
 ## latest\_report\_data
 

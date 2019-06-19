@@ -85,7 +85,7 @@ If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 
 ### `GET /user/:target_user_id_or_email`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: response.yaml#/UserDetailed
 
 ### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
@@ -93,7 +93,7 @@ If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 Optionally take the query parameter `send_mail=<1|0>` (default 1) - send
 an email telling the user their tokens were revoked
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Request: request.yaml#/UpdateUser
 - Success Response: response.yaml#/UserDetailed
 - Error response on duplicate user: response.yaml#/UserError
@@ -106,7 +106,7 @@ unrecoverable.
 Optionally takes a query parameter `clear_tokens` (defaults to `1`), to also
 revoke all session tokens for the user forcing all tools to log in again.
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: response.yaml#/UserDetailed
 - Response: `204 NO CONTENT`
 
@@ -120,7 +120,7 @@ Optionally accepts the following query parameters:
 By default it will revoke both login/session and API tokens. If both
 `api_only` and `login_only` are set, no tokens will be revoked.
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 ### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>`
@@ -133,12 +133,12 @@ Optionally accepts the following query parameters:
     - `all` - clear all tokens (login and api - affects all APIs and tools)
 - `send_mail` which takes `<1|0>` (default `1`). If set to `1` this will cause an email to be sent to the user with password reset instructions.
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 ### `GET /user`
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Response: response.yaml#/UsersDetailed
 
 ### `POST /user?send_mail=<1|0>`
@@ -146,7 +146,7 @@ Optionally accepts the following query parameters:
 Optionally takes a query parameter, `send_mail` (defaults to `1`) to send an
 email to the user with the new password.
 
-- Requires System Admin Authentication
+- Requires system admin authorization
 - Request: request.yaml#/NewUser
 - Success Response: response.yaml#/User
 - Error response on duplicate user: response.yaml#/UserError

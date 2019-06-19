@@ -46,19 +46,15 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=cut
-
 =head3 C<GET /relay>
 
 =over 4
 
-=item * Requires System Admin Authentication
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/Relays
 
 =back
-
-=cut
 
 =head1 LICENSING
 

@@ -8,7 +8,7 @@ Interface to queries against the `user_account` table.
 
 ## create
 
-This method is built in to all resultsets.  In [Conch::DB::Result::UserAccount](/modules/Conch::DB::Result::UserAccount) we have
+This method is built in to all resultsets.  In [Conch::DB::Result::UserAccount](/conch/modules/Conch::DB::Result::UserAccount) we have
 overrides allowing us to receive the `password` key, which we hash into `password_hash`.
 
 ```perl
@@ -22,7 +22,7 @@ $schema->resultset('user_account') or $c->db_user_accounts
 
 ## update
 
-This method is built in to all resultsets.  In [Conch::DB::Result::UserAccount](/modules/Conch::DB::Result::UserAccount) we have
+This method is built in to all resultsets.  In [Conch::DB::Result::UserAccount](/conch/modules/Conch::DB::Result::UserAccount) we have
 overrides allowing us to receive the `password` key, which we hash into `password_hash`.
 
 ```perl
