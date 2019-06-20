@@ -89,7 +89,6 @@ subtest 'device totals' => sub {
     $t->get_ok("/workspace/123/device-totals")
         ->status_is(404);
 
-    # note this response type uses lower-cased health values.
     $t->get_ok("/workspace/$global_ws_id/device-totals")
         ->status_is(200)
         ->json_schema_is('DeviceTotals')
@@ -110,7 +109,6 @@ subtest 'device totals' => sub {
             ],
         });
 
-    # note this response type uses upper-cased health values.
     $t->get_ok("/workspace/$global_ws_id/device-totals.circ")
         ->status_is(200)
         ->json_schema_is('DeviceTotalsCirconus')
