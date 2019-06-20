@@ -34,12 +34,10 @@ $t->post_ok('/relay/TEST/register', json => { a => 'b' })->status_is(401);
 $t->get_ok('/hardware_product')->status_is(401);
 $t->get_ok('/hardware_product/'.create_uuid_str())->status_is(401);
 
-$t->load_fixture('legacy_datacenter');
+$t->load_fixture_set('workspace_room_rack_layout', 0);
+$t->load_fixture(qw(hardware_product_switch hardware_product_compute hardware_product_storage));
 
 subtest 'device totals' => sub {
-
-    # TODO: DBIx::Class::EasyFixture can make this nicer across lots of tests.
-
     my $global_ws_id = $t->app->db_workspaces->search({ name => 'GLOBAL' })->get_column('id')->single;
     my $hardware_product_rs = $t->app->db_hardware_products->active->hri;
     my $switch_vendor = $hardware_product_rs->search({ alias => 'Switch Vendor' })->single;
