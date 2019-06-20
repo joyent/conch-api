@@ -496,7 +496,7 @@ sub create_api_token ($c) {
         if $user->user_session_tokens->search({ name => $input->{name} })->exists;
 
     # default expiration: 5 years
-    my $expires_abs = time + (($c->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
+    my $expires_abs = time + (($c->app->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
 
     # TODO: ew ew ew, some duplication with Conch::Controller::Login::_create_jwt.
     my ($new_db_row, $token) = $c->db_user_session_tokens->generate_for_user(
@@ -504,7 +504,7 @@ sub create_api_token ($c) {
 
     my $jwt = Mojo::JWT->new(
         claims => { uid => $user->id, jti => $token },
-        secret => $c->config('secrets')->[0],
+        secret => $c->app->config('secrets')->[0],
         expires => $expires_abs,
     )->encode;
 

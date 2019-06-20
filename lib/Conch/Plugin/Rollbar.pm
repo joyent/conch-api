@@ -51,7 +51,7 @@ Rollbar entry thus created.
 =cut
 
 sub _record_exception ($c, $exception, @) {
-    my $access_token = $c->config('rollbar_access_token');
+    my $access_token = $c->app->config('rollbar_access_token');
     if (not $access_token) {
         $c->log->warn('Unable to send exception to Rollbar - no access token configured');
         return;
@@ -88,7 +88,7 @@ sub _record_exception ($c, $exception, @) {
     my $exception_payload = {
         access_token => $access_token,
         data         => {
-            environment => $c->config('rollbar_environment') || 'development',
+            environment => $c->app->config('rollbar_environment') || 'development',
             body        => {
                 trace => {
                     frames    => \@frames,

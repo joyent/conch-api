@@ -142,9 +142,9 @@ sub device_totals ($c) {
     }
     return $c->reply->not_found if not $workspace;
 
-    my %switch_aliases = map +($_ => 1), $c->config->{switch_aliases}->@*;
-    my %storage_aliases = map +($_ => 1), $c->config->{storage_aliases}->@*;
-    my %compute_aliases = map +($_ => 1), $c->config->{compute_aliases}->@*;
+    my %switch_aliases = map +($_ => 1), $c->app->config->{switch_aliases}->@*;
+    my %storage_aliases = map +($_ => 1), $c->app->config->{storage_aliases}->@*;
+    my %compute_aliases = map +($_ => 1), $c->app->config->{compute_aliases}->@*;
 
     my @counts = $workspace
         ->related_resultset('workspace_racks')
