@@ -294,7 +294,10 @@ Response uses the UserDetailed json schema.
 
 sub get ($c) {
     my $user = $c->stash('target_user')
-        ->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
+        ->discard_changes({
+            prefetch => { user_workspace_roles => 'workspace' },
+            order_by => ['workspace.name'],
+        });
     return $c->status(200, $user);
 }
 

@@ -28,6 +28,7 @@ sub list ($c) {
         ->and_workspaces_above($workspace_id)
         ->related_resultset('user_workspace_roles')
         ->related_resultset('user_account')
+        ->order_by('user_account.name')
         ->active;
 
     my $user_data = [

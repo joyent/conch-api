@@ -23,8 +23,8 @@ Response uses the Validations json schema (including deactivated ones).
 =cut
 
 sub list ($c) {
-    my @validations = $c->db_validations->all;
-    $c->status(200, \@validations);
+    my $rs = $c->db_validations->order_by([ qw(name version) ]);
+    $c->status(200, [ $rs->all ]);
 }
 
 =head2 find_validation

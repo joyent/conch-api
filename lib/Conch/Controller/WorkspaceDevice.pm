@@ -44,7 +44,7 @@ sub list ($c) {
         ->related_resultset('device_locations')
         ->related_resultset('device')
         ->active
-        ->order_by('device.created');
+        ->order_by([ map 'device_locations.'.$_, qw(rack_id rack_unit_start) ]);
 
     $devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })
         if $params->{graduated};

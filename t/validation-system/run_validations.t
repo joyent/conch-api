@@ -181,7 +181,7 @@ subtest run_validation => sub {
                     validation_id => $validation_multi->id,
                 ),
             ),
-            bag(
+            [
                 methods(
                     result_order => 0,
                     status => 'pass',
@@ -198,7 +198,7 @@ subtest run_validation => sub {
                     component_id => 'y',
                     hint => 'stfu',
                 ),
-            ),
+            ],
         ),
         'validation results are correct',
     );

@@ -50,7 +50,7 @@ Response uses the HardwareVendors json schema.
 =cut
 
 sub get_all ($c) {
-    my @hardware_vendors = $c->db_hardware_vendors->active->all;
+    my @hardware_vendors = $c->db_hardware_vendors->active->order_by('name')->all;
     $c->log->debug('Found '. (scalar @hardware_vendors) .' hardware vendors');
     return $c->status(200, \@hardware_vendors);
 }

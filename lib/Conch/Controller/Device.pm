@@ -186,7 +186,7 @@ sub lookup_by_other_attribute ($c) {
             ->active;
     }
 
-    my @devices = $device_rs->all;
+    my @devices = $device_rs->order_by('device.created')->all;
 
     if (not @devices) {
         $c->log->debug('Failed to find devices matching '.$key.'='.$value);

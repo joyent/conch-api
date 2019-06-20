@@ -91,7 +91,7 @@ Response uses the RackRoles json schema.
 sub get_all ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my @rack_roles = $c->db_rack_roles->all;
+    my @rack_roles = $c->db_rack_roles->order_by('name')->all;
     $c->log->debug('Found '.scalar(@rack_roles).' rack roles');
 
     $c->status(200, \@rack_roles);

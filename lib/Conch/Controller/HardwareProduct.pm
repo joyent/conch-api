@@ -22,6 +22,7 @@ sub list ($c) {
     my @hardware_products_raw = $c->db_hardware_products
         ->active
         ->prefetch('hardware_product_profile')
+        ->order_by('hardware_product.name')
         ->all;
 
     $c->status(200, \@hardware_products_raw);

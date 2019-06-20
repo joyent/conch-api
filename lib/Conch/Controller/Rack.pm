@@ -95,7 +95,7 @@ sub get_all ($c) {
     # TODO: instead of sysadmin privs, filter out results by workspace permissions
     return $c->status(403) if not $c->is_system_admin;
 
-    my @racks = $c->db_racks->all;
+    my @racks = $c->db_racks->order_by('name')->all;
     $c->log->debug('Found '.scalar(@racks).' racks');
 
     $c->status(200, \@racks);
