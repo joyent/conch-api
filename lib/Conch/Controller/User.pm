@@ -306,7 +306,8 @@ sub get ($c) {
 Updates user attributes. System admin only.
 Sends an email to the affected user, unless C<?send_mail=0> is included in the query.
 
-Response uses the UserDetailed json schema (or UserError for some error conditions).
+The response uses the UserError json schema for some error conditions; on success, redirects to
+'GET /user/:id'.
 
 =cut
 
@@ -349,8 +350,7 @@ sub update ($c) {
     $c->log->debug('updating user '.$user->email.': '.$c->req->text);
     $user->update;
 
-    $user->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
-    return $c->status(200, $user);
+    $c->status(303, '/user/'.$user->id);
 }
 
 =head2 list

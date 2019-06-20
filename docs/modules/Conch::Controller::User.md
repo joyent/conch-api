@@ -94,7 +94,8 @@ Response uses the UserDetailed json schema.
 Updates user attributes. System admin only.
 Sends an email to the affected user, unless `?send_mail=0` is included in the query.
 
-Response uses the UserDetailed json schema (or UserError for some error conditions).
+The response uses the UserError json schema for some error conditions; on success, redirects to
+'GET /user/:id'.
 
 ## list
 

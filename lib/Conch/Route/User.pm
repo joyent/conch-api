@@ -289,7 +289,7 @@ an email telling the user their tokens were revoked
 
 =item * Request: request.yaml#/UpdateUser
 
-=item * Success Response: response.yaml#/UserDetailed
+=item * Success Response: Redirect to the user that was updated
 
 =item * Error response on duplicate user: response.yaml#/UserError
 

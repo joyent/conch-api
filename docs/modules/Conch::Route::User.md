@@ -95,7 +95,7 @@ an email telling the user their tokens were revoked
 
 - Requires system admin authorization
 - Request: request.yaml#/UpdateUser
-- Success Response: response.yaml#/UserDetailed
+- Success Response: Redirect to the user that was updated
 - Error response on duplicate user: response.yaml#/UserError
 
 ### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
