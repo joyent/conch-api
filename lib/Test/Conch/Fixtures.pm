@@ -38,12 +38,6 @@ my %canned_definitions = (
     # see DBIx::Class::EasyFixture::Tutorial for syntax.
 
     # groups
-    legacy_datacenter => [
-        'conch_user_global_workspace',
-        '00-hardware',
-        '01-hardware-profiles',
-        '03-test-datacenter',
-    ],
     '00-hardware' => [qw(
         hardware_vendor_0
         hardware_vendor_1
@@ -56,16 +50,6 @@ my %canned_definitions = (
         hardware_product_profile_storage
         hardware_product_profile_compute
     )],
-    '03-test-datacenter' => [qw(
-        legacy_rack_role_10u
-        legacy_datacenter_region_1
-        legacy_datacenter_room_1a
-        legacy_rack
-        legacy_rack_layout_1_2
-        legacy_rack_layout_3_4
-        legacy_rack_layout_7_10
-    )],
-
 
     # individual definitions
 
@@ -263,75 +247,6 @@ my %canned_definitions = (
         },
         requires => {
             hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
-        },
-    },
-
-    legacy_rack_role_10u => {
-        new => 'rack_role',
-        using => {
-            name => 'TEST_RACK_ROLE',
-            rack_size => 10,
-        },
-    },
-    legacy_datacenter_region_1 => {
-        new => 'datacenter',
-        using => {
-            vendor => 'Test Vendor',
-            vendor_name => 'Test Name',
-            region => 'test-region-1',
-            location => 'Testlandia, Testopolis',
-        },
-    },
-    legacy_datacenter_room_1a => {
-        new => 'datacenter_room',
-        using => {
-            az => 'test-region-1a',
-            alias => 'TT1',
-            vendor_name => 'TEST1.1',
-        },
-        requires => {
-            legacy_datacenter_region_1 => { our => 'datacenter_id', their => 'id' },
-            # TODO: indicate a dependency on 'global_workspace'
-        },
-    },
-    legacy_rack => {
-        new => 'rack',
-        using => {
-            name => 'Test Rack',
-        },
-        requires => {
-            legacy_datacenter_room_1a => { our => 'datacenter_room_id', their => 'id' },
-            legacy_rack_role_10u => { our => 'rack_role_id', their => 'id' },
-        },
-    },
-    legacy_rack_layout_1_2 => {
-        new => 'rack_layout',
-        using => {
-            rack_unit_start => 1,
-        },
-        requires => {
-            legacy_rack => { our => 'rack_id', their => 'id' },
-            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
-        },
-    },
-    legacy_rack_layout_3_4 => {
-        new => 'rack_layout',
-        using => {
-            rack_unit_start => 3,
-        },
-        requires => {
-            legacy_rack => { our => 'rack_id', their => 'id' },
-            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
-        },
-    },
-    legacy_rack_layout_7_10 => {
-        new => 'rack_layout',
-        using => {
-            rack_unit_start => 7,
-        },
-        requires => {
-            legacy_rack => { our => 'rack_id', their => 'id' },
-            hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
         },
     },
 

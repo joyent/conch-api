@@ -1,11 +1,17 @@
-use v5.26;
-use Mojo::Base -strict, -signatures;
+use strict;
+use warnings;
+use warnings FATAL => 'utf8';
+use utf8;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Test::More;
 use Test::Warnings;
 use Path::Tiny;
 use Test::Deep;
+use Test::Deep::JSON;
 use Test::Conch;
+use Mojo::JSON qw(from_json to_json);
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 
@@ -41,6 +47,9 @@ subtest preliminaries => sub {
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(422)
         ->json_is({ error => 'failed to find validation plan' });
+
+    ok(!$t->app->db_devices->search({ id => 'TEST' })->exists,
+        'the device was not inserted into the database');
 };
 
 # matches report's product_name = Joyent-G1
@@ -49,19 +58,22 @@ my $hardware_product = $t->load_fixture('hardware_product_compute');
 # create a validation plan with all current validations in it
 Conch::ValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
 my @validations = $t->app->db_validations->all;
-my ($validation_plan) = $t->load_validation_plans([{
+my ($full_validation_plan) = $t->load_validation_plans([{
     name        => 'Conch v1 Legacy Plan: Server',
     description => 'Test Plan',
     validations => [ map $_->module, @validations ],
 }]);
 
 subtest 'run report without an existing device' => sub {
-    $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $report)
+    my $report_data = from_json($report);
+    $report_data->{serial_number} = 'different_device';
+    $report_data->{system_uuid} = create_uuid_str();
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
         ->json_cmp_deeply({
-            device_id => 'TEST',
-            validation_plan_id => $validation_plan->id,
+            device_id => 'different_device',
+            validation_plan_id => $full_validation_plan->id,
             status => any(qw(error fail pass)), # likely some validations will hate this report.
             # validations each produce one or more results
             results => array_each(any(map +{
@@ -76,6 +88,347 @@ subtest 'run report without an existing device' => sub {
                 status => any(qw(error fail pass)),
             }, @validations)),
         });
+
+    ok(!$t->app->db_devices->search({ id => 'different_device' })->exists,
+        'the device was not inserted into the database');
+};
+
+subtest 'create device via report' => sub {
+    ok(!$t->app->db_devices->search({ id => 'TEST' })->exists, 'the TEST device does not exist yet');
+
+    # for these tests, we need to use a plan containing a validation we know will pass.
+    # we move aside the plan containing all validations and replace it with a new one.
+    $t->app->db_validation_plans->find($full_validation_plan->id)->update({ name => 'all validations' });
+
+    $t->load_validation_plans([{
+        name        => 'Conch v1 Legacy Plan: Server',
+        description => 'Test Plan',
+        validations => [ 'Conch::Validation::DeviceProductName' ],
+    }]);
+
+    # device reports are submitted thusly:
+    # 0: pass
+    # 1: pass (eventually deleted)
+    # 2: pass
+    # 3: - (invalid json)
+    # 4: - (valid json, but does not pass the schema)
+    # 5: pass
+    # 6: error (empty product_name)
+    # 7: pass
+
+    my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => 'TEST',
+            status => 'pass',
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            results => [
+                superhashof({
+                    order => 0,
+                    status => 'pass',
+                }),
+            ],
+        }));
+
+    my (@device_report_ids, @validation_state_ids);
+    push @device_report_ids, $t->tx->res->json->{device_report_id};
+    push @validation_state_ids, $t->tx->res->json->{id};
+
+    my $device = $t->app->db_devices->find('TEST');
+    cmp_deeply(
+        $device->self_rs->latest_device_report->single,
+        methods(
+            id => $device_report_ids[0],
+            device_id => 'TEST',
+            report => json(from_json($good_report)),
+            invalid_report => undef,
+            retain => bool(1),    # first report is always saved
+        ),
+        'stored the report in raw form',
+    );
+
+    $t->get_ok('/device_report/'.$device_report_ids[0])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[0],
+            device_id => 'TEST',
+            report => from_json($good_report),
+            invalid_report => undef,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
+    is($device->related_resultset('device_reports')->count, 1, 'one device_report row created');
+    is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
+    is($t->app->db_validation_results->count, 1, 'one validation result row created');
+    is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
+
+
+    # submit another passing report, this time swapping around some iface_names...
+    my $altered_report = from_json($good_report);
+    ($altered_report->{interfaces}{eth5}{mac}, $altered_report->{interfaces}{eth1}{mac}) =
+        ($altered_report->{interfaces}{eth1}{mac}, $altered_report->{interfaces}{eth5}{mac});
+
+    $t->post_ok('/device/TEST', json => $altered_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => 'TEST',
+            status => 'pass',
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        }));
+
+    push @device_report_ids, $t->tx->res->json->{device_report_id};
+    push @validation_state_ids, $t->tx->res->json->{id};
+
+    is($device->related_resultset('device_reports')->count, 2, 'two device_report rows exist');
+    is($device->related_resultset('validation_states')->count, 2, 'two validation_state rows exist');
+    is($t->app->db_validation_results->count, 1, 'the second validation result is the same as the first');
+
+
+    # submit another passing report (this makes 3)
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => 'TEST',
+            status => 'pass',
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        }));
+
+    push @device_report_ids, $t->tx->res->json->{device_report_id};
+    push @validation_state_ids, $t->tx->res->json->{id};
+
+    # now the 2nd of the 3 reports should be deleted.
+    is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
+    is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
+    is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
+
+    ok(!$t->app->db_device_reports->search({ id => $device_report_ids[1] })->exists,
+        'second device_report deleted');
+    ok(!$t->app->db_validation_states->search({ id => $validation_state_ids[1] })->exists,
+        'second validation_state deleted');
+
+
+    my $invalid_json_1 = '{"this": 1s n0t v@l,d ǰsøƞ'; # } for brace matching
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+            Encode::encode('UTF-8', $invalid_json_1))
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
+
+    cmp_deeply(
+        $device->self_rs->latest_device_report->single,
+        methods(
+            device_id => 'TEST',
+            report => undef,
+            invalid_report => $invalid_json_1,
+        ),
+        'stored the invalid report in raw form',
+    );
+
+    # the device report was saved, but no validations run.
+    push @device_report_ids, $t->app->db_device_reports->order_by({ -desc => 'created' })->rows(1)->get_column('id')->single;
+
+    $t->get_ok('/device_report/'.$device_report_ids[-1])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[-1],
+            device_id => 'TEST',
+            report => undef,
+            invalid_report => $invalid_json_1,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
+    is($device->related_resultset('device_reports')->count, 3, 'now three device_report rows exist');
+    is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
+    is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_is('/health' => 'pass')
+        ->json_is('/latest_report_is_invalid' => JSON::PP::true)
+        ->json_is('/latest_report' => undef)
+        ->json_is('/invalid_report' => $invalid_json_1);
+
+    $t->get_ok('/device_report/'.$device_report_ids[0])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[0],
+            device_id => 'TEST',
+            report => from_json($good_report),
+            invalid_report => undef,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
+
+    my $invalid_json_2 = to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' });
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+            json => { foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
+
+    cmp_deeply(
+        $device->self_rs->latest_device_report->single,
+        methods(
+            device_id => 'TEST',
+            invalid_report => $invalid_json_2,
+        ),
+        'stored the invalid report in raw form',
+    );
+
+    # the device report was saved, but no validations run.
+    push @device_report_ids, $t->app->db_device_reports->order_by({ -desc => 'created' })->rows(1)->get_column('id')->single;
+
+    $t->get_ok('/device_report/'.$device_report_ids[-1])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[-1],
+            device_id => 'TEST',
+            report => undef,
+            invalid_report => to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' }),
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
+    is($device->related_resultset('device_reports')->count, 4, 'now four device_report rows exist');
+    is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
+    is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_is('/health' => 'pass')
+        ->json_is('/latest_report_is_invalid' => JSON::PP::true)
+        ->json_is('/latest_report' => undef)
+        ->json_is('/invalid_report' => $invalid_json_2);
+
+
+    # submit another passing report...
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => 'TEST',
+            status => 'pass',
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        }));
+
+    push @device_report_ids, $t->tx->res->json->{device_report_id};
+    push @validation_state_ids, $t->tx->res->json->{id};
+
+    cmp_deeply(
+        $device->self_rs->latest_device_report->single,
+        methods(
+            id => $device_report_ids[-1],
+            device_id => 'TEST',
+            report => json(from_json($good_report)),
+            invalid_report => undef,
+            retain => bool(1),    # we keep the first report after an error result
+        ),
+        'stored the report in raw form',
+    );
+
+    is($device->related_resultset('device_reports')->count, 5, 'now five device_report rows exist');
+    is($device->related_resultset('validation_states')->count, 3, 'three validation_state rows exist');
+    is($t->app->db_validation_results->count, 1, 'the latest validation result is the same as the first');
+
+
+    my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_is('/status', 'error');
+
+    push @device_report_ids, $t->tx->res->json->{device_report_id};
+    push @validation_state_ids, $t->tx->res->json->{id};
+
+    $t->get_ok('/device_report/'.$device_report_ids[-1])
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow')
+        ->json_cmp_deeply({
+            id => $device_report_ids[-1],
+            device_id => 'TEST',
+            report => from_json($error_report),
+            invalid_report => undef,
+            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
+    is($device->related_resultset('device_reports')->count, 6, 'now six device_report rows exist');
+    is($device->related_resultset('validation_states')->count, 4, 'now another validation_state row exists');
+    is($t->app->db_validation_results->count, 2, 'now two validation results rows exist');
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_is('/health' => 'error')
+        ->json_is('/latest_report_is_invalid' => JSON::PP::false);
+
+
+    # return device to a good state
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(200)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_is('/status', 'pass');
+
+    push @device_report_ids, $t->tx->res->json->{device_report_id};
+    push @validation_state_ids, $t->tx->res->json->{id};
+
+    is($device->related_resultset('device_reports')->count, 7, 'now seven device_report rows exist');
+    is($device->related_resultset('validation_states')->count, 5, 'now four validation_state rows exist');
+    is($t->app->db_validation_results->count, 2, 'still just two validation result rows exist');
+
+
+    cmp_deeply(
+        [ $t->app->db_device_reports->order_by('created')->get_column('id')->all ],
+        [ @device_report_ids[0,2,3,4,5,6,7] ],
+        'kept all device reports except the passing report with a pass on both sides',
+    );
+
+    cmp_deeply(
+        [ $t->app->db_validation_states->order_by('created')->get_column('id')->all ],
+        [ @validation_state_ids[0,2,-3,-2,-1] ],
+        'not every device report had an associated validation_state record',
+    );
+
+
+    subtest 'relocate a disk' => sub {
+        # move one of the device's disks to a different device (and change another field so it
+        # needs to be updated)...
+        my $report_data = from_json($good_report);
+        my $disk_serial = (keys $report_data->{disks}->%*)[0];
+        $report_data->{disks}{$disk_serial}{size} += 100;    # ugh! make report not-unique
+        my $new_device = $t->app->db_devices->create({
+            id => 'ANOTHER_DEVICE',
+            hardware_product_id => $device->hardware_product_id,
+            state => 'UNKNOWN',
+            health => 'unknown',
+        });
+        my $disk = $t->app->db_device_disks->search({ serial_number => $disk_serial })->single;
+        $disk->update({ device_id => $new_device->id, vendor => 'King Zøg' });
+
+        # then submit the report again and observe it moving back.
+        $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
+            ->status_is(200)
+            ->json_schema_is('ValidationStateWithResults')
+            ->json_is('/status', 'pass');
+
+        $disk->discard_changes;
+        is($disk->device_id, $device->id, 'an existing disk is relocated to the latest device reporting it');
+    };
+
+
+    ok(
+        $t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        'device is unlocated',
+    );
 };
 
 done_testing;
+# vim: set ts=4 sts=4 sw=4 et :

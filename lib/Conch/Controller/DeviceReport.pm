@@ -76,6 +76,9 @@ sub process ($c) {
             if $previous_report;
     }
 
+    my $validation_plan = $c->_get_validation_plan($unserialized_report);
+    return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
+
     # Update/create the device and create the device report
     $c->log->debug('Updating or creating device '.$c->stash('device_id'));
 
@@ -114,10 +117,7 @@ sub process ($c) {
         $unserialized_report,
     );
 
-
     # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
-    my $validation_plan = $c->_get_validation_plan($unserialized_report);
-    return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
     my $validation_state = Conch::ValidationSystem->new(
