@@ -6,8 +6,8 @@ Conch::Controller::Relay
 
 ## register
 
-Registers a relay and connects it with the current user. The relay is created
-it if the relay does not already exists.
+Registers a relay and connects it with the current user. The relay is created if the relay does
+not already exist.
 
 ## list
 
