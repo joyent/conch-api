@@ -140,11 +140,11 @@ This method requires a request body.
 
 ### `POST /rack/:rack_id/phase?rack_only=<0|1>`
 
-The query parameter `rack_only` (default 0) specifies whether to update
+The query parameter `rack_only` (defaults to `0`) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
 
 - Request: request.yaml#/RackPhase
-- Response: `204 NO CONTENT`
+- Response: Redirect to the updated rack
 
 ### `GET /layout`
 

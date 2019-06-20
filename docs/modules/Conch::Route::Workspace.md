@@ -69,7 +69,7 @@ If the Accepts header specifies `text/csv` it will return a CSV document.
 
 ### `GET /workspace/:workspace_id_or_name/relay`
 
-Takes one query optional parameter,  `?active_minutes=X` to constrain results to
+Takes one query optional parameter, `?active_minutes=X` to constrain results to
 those updated with in the last `X` minutes.
 
 - Response: response.yaml#/WorkspaceRelays
@@ -84,7 +84,7 @@ those updated with in the last `X` minutes.
 
 ### `POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>`
 
-Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
+Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
 an email to the user.
 
 - Requires workspace admin authorization
@@ -93,7 +93,7 @@ an email to the user.
 
 ### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`
 
-Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
+Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
 an email to the user.
 
 - Requires workspace admin authorization

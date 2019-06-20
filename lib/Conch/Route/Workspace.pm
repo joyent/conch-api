@@ -194,7 +194,7 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 
 =head3 C<GET /workspace/:workspace_id_or_name/relay>
 
-Takes one query optional parameter,  C<?active_minutes=X> to constrain results to
+Takes one query optional parameter, C<?active_minutes=X> to constrain results to
 those updated with in the last C<X> minutes.
 
 =over 4
@@ -221,7 +221,7 @@ those updated with in the last C<X> minutes.
 
 =head3 C<< POST /workspace/:workspace_id_or_name/user?send_mail=<1|0> >>
 
-Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
 an email to the user.
 
 =over 4
@@ -236,7 +236,7 @@ an email to the user.
 
 =head3 C<< DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0> >>
 
-Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
 an email to the user.
 
 =over 4

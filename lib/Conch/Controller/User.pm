@@ -482,6 +482,7 @@ sub get_api_tokens ($c) {
 =head2 create_api_token
 
 Create a new token, creating a JWT from it.  Response uses the NewUserToken json schema.
+This is the only time the token string is provided to the user, so don't lose it!
 
 =cut
 

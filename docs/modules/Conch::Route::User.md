@@ -14,16 +14,16 @@ Unless otherwise noted, all routes require authentication.
 
 - Response: response.yaml#/UserDetailed
 
-### `POST /user/me/revoke?send_mail=<1|0>& login_only=<0|1> or ?api_only=<0|1>`
+### `POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1>`
 
 Optionally accepts the following query parameters:
 
-- `send_mail=<1|0>` (default 1) - send an email telling the user their tokens were revoked
-- `login_only=<0|1>` (default 0) - revoke only login/session tokens
-- `api_only=<0|1>` (default 0) - revoke only  API tokens
+- `send_mail=<1|0>` (default `1`) - send an email telling the user their tokens were revoked
+- `login_only=<0|1>` (default `0`) - revoke only login/session tokens
+- `api_only=<0|1>` (default `0`) - revoke only API tokens
 
-By default it will revoke both login/session and API tokens. If both
-`api_only` and `login_only` are set, no tokens will be revoked.
+By default it will revoke both login/session and API tokens.
+`api_only` and `login_only` cannot both be `1`.
 
 - Request: request.yaml#/UserSettings
 - Response: `204 NO CONTENT`
@@ -37,11 +37,11 @@ tokens for the user, forcing the user to log in again. Possible options are:
 - `login_only`
 - `all` - clear all tokens (login and api - affects all APIs and tools)
 
-If the `clear_tokens` parameter is set to `0`, `no`, `false` then
-`204 NO CONTENT` will be returned but the user session will remain..
+If the `clear_tokens` parameter is set to `none` then the user session will remain;
+otherwise, the user is logged out.
 
 - Request: request.yaml#/UserSettings
-- Response: `204 NO CONTENT` (The user session is terminated).
+- Response: `204 NO CONTENT`
 
 ### `GET /user/me/settings`
 
@@ -79,7 +79,7 @@ If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 
 - Response: response.yaml#/UserToken
 
-### `DELETE  /user/me/token/:token_name`
+### `DELETE /user/me/token/:token_name`
 
 - Response: `204 NO CONTENT`
 
@@ -90,7 +90,7 @@ If the `clear_tokens` parameter is set to `0`, `no`, `false` then
 
 ### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
 
-Optionally take the query parameter `send_mail=<1|0>` (default 1) - send
+Optionally take the query parameter `send_mail` (defaults to `1`) to send
 an email telling the user their tokens were revoked
 
 - Requires system admin authorization
@@ -110,15 +110,15 @@ revoke all session tokens for the user forcing all tools to log in again.
 - Response: response.yaml#/UserDetailed
 - Response: `204 NO CONTENT`
 
-### `POST /user/:target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>`
+### `POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1>`
 
 Optionally accepts the following query parameters:
 
-- `login_only=<0|1>` (default 0) - revoke only login/session tokens
-- `api_only=<0|1>` (default 0) - revoke only  API tokens
+- `login_only=<0|1>` (default `0`) - revoke only login/session tokens
+- `api_only=<0|1>` (default `0`) - revoke only API tokens
 
 By default it will revoke both login/session and API tokens. If both
-`api_only` and `login_only` are set, no tokens will be revoked.
+`api_only` and `login_only` cannot both be `1`.
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
@@ -127,11 +127,11 @@ By default it will revoke both login/session and API tokens. If both
 
 Optionally accepts the following query parameters:
 
-- `clear_tokens` (default `login_only`) to also revoke tokens for the user, takes the following possible values
+- `clear_tokens` (default `login_only`) to also revoke tokens for the user, takes the following possible values:
     - `none`
     - `login_only`
     - `all` - clear all tokens (login and api - affects all APIs and tools)
-- `send_mail` which takes `<1|0>` (default `1`). If set to `1` this will cause an email to be sent to the user with password reset instructions.
+- `send_mail` which takes `<1|0>` (defaults to `1`) to send an email to the user with password reset instructions.
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`

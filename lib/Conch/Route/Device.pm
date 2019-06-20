@@ -89,7 +89,7 @@ sub routes {
         $with_device->post('/validation/<validation_id:uuid>')->to('device_validation#validate');
         # POST /device/:device_id/validation_plan/:validation_plan_id
         $with_device->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
-        # GET /device/:device_id/validation_state
+        # GET /device/:device_id/validation_state?status=<pass|fail|error>&status=...
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 
         {
@@ -349,10 +349,10 @@ Does not store validation results.
 
 =back
 
-=head3 C<< GET /device/:device_id/validation_state?status=<pass,fail,error> >>
+=head3 C<< GET /device/:device_id/validation_state?status=<pass|fail|error>&status=... >>
 
 Accepts the query parameter C<status>, indicating the desired status(es)
-(comma-separated) to search for -- one or more of: C<pass>, C<fail>, C<error>.
+to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =over 4
 
