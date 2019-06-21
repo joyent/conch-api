@@ -14,9 +14,13 @@ use Email::Sender::Transport::SMTP;
 
 Conch::Plugin::Mail - Sets up a helper to send emails
 
-=head2 DESCRIPTION
+=head2 HELPERS
 
-Provides the helper sub 'send_mail' to the app and controllers:
+=cut
+
+sub register ($self, $app, $config) {
+
+=head2 send_mail
 
     $c->send_mail(
         template_file => $filename, # file in templates/email, without extension
@@ -34,7 +38,6 @@ Provides the helper sub 'send_mail' to the app and controllers:
 
 =cut
 
-sub register ($self, $app, $config) {
     $app->helper(send_mail => sub ($c, %args) {
         state sub compose_message ($c, %args) {
             # see Mojolicious::Guides::Rendering, Mojo::Template

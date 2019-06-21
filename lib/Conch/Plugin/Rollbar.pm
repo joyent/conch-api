@@ -16,15 +16,20 @@ Conch::Plugin::Rollbar
 
 Mojo plugin to send exceptions to L<Rollbar|https://rollbar.com>
 
-=head1 METHODS
-
-=head2 register
-
-Adds `send_exception_to_rollbar` to Mojolicious app
+=head1 HELPERS
 
 =cut
 
 sub register ($self, $app, $config) {
+
+=head2 send_exception_to_rollbar
+
+Asynchronously send exception details to Rollbar if 'rollbar_access_token' is
+configured. Returns a unique uuid suitable for logging, to correlate with the
+Rollbar entry thus created.
+
+=cut
+
     $app->helper(send_exception_to_rollbar => \&_record_exception);
 
     $app->hook(
@@ -42,13 +47,6 @@ sub register ($self, $app, $config) {
     );
 }
 
-=head2 send_exception_to_rollbar
-
-Asynchronously send exception details to Rollbar if 'rollbar_access_token' is
-configured. Returns a unique uuid suitable for logging, to correlate with the
-Rollbar entry thus created.
-
-=cut
 
 sub _record_exception ($c, $exception, @) {
     my $access_token = $c->app->config('rollbar_access_token');

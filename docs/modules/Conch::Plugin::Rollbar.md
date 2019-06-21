@@ -6,11 +6,7 @@ Conch::Plugin::Rollbar
 
 Mojo plugin to send exceptions to [Rollbar](https://rollbar.com)
 
-# METHODS
-
-## register
-
-Adds \`send\_exception\_to\_rollbar\` to Mojolicious app
+# HELPERS
 
 ## send\_exception\_to\_rollbar
 

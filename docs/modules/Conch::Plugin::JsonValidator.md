@@ -5,7 +5,7 @@ Conch::Plugin::JsonValidator
 # SYNOPSIS
 
 ```perl
-app->plugin('Conch::Plugin::JsonValidator');
+$app->plugin('Conch::Plugin::JsonValidator');
 
 [ ... in a controller ]
 

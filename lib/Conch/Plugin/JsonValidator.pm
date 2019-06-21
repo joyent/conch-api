@@ -13,7 +13,7 @@ Conch::Plugin::JsonValidator
 
 =head1 SYNOPSIS
 
-    app->plugin('Conch::Plugin::JsonValidator');
+    $app->plugin('Conch::Plugin::JsonValidator');
 
     [ ... in a controller ]
 

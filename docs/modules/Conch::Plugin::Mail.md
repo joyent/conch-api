@@ -2,9 +2,9 @@
 
 Conch::Plugin::Mail - Sets up a helper to send emails
 
-## DESCRIPTION
+## HELPERS
 
-Provides the helper sub 'send\_mail' to the app and controllers:
+## send\_mail
 
 ```perl
 $c->send_mail(
