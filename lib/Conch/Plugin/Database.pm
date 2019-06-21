@@ -29,7 +29,7 @@ sub register ($self, $app, $config) {
 
 =head2 schema
 
-Provides read/write access to the database via L<DBIx::Class>.  Returns a L<Conch::DB> object
+Provides read/write access to the database via L<DBIx::Class>. Returns a L<Conch::DB> object
 that persists for the lifetime of the application.
 
 =cut
@@ -52,7 +52,7 @@ See L</schema>; can be used interchangeably with it.
 
 =head2 ro_schema
 
-Provides (guaranteed) read-only access to the database via L<DBIx::Class>.  Returns a
+Provides (guaranteed) read-only access to the database via L<DBIx::Class>. Returns a
 L<Conch::DB> object that persists for the lifetime of the application.
 
 Note that because of the use of C<< AutoCommit => 0 >>, database errors must be explicitly
@@ -64,7 +64,7 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
     $app->helper(ro_schema => sub {
         if ($_ro_schema) {
             # clear the transaction of any errors, which accumulate because we have
-            # AutoCommit => 0 for this connection.  Otherwise, we will get:
+            # AutoCommit => 0 for this connection. Otherwise, we will get:
             # "current transaction is aborted, commands ignored until end of transaction block"
             # (as an alternative, we can turn the ReadOnly and AutoCommit flags off, and use
             # the read-only credentials to connect to the server.. but it is better to have
@@ -87,7 +87,7 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 
 =head2 db_<table>s, db_ro_<table>s
 
-Provides direct read/write and read-only accessors to resultsets.  The table name is used in
+Provides direct read/write and read-only accessors to resultsets. The table name is used in
 the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
 
 =cut

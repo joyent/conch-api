@@ -55,7 +55,7 @@ Delete a single setting for a user, provided it was set previously.
 Stores a new password for the current user.
 
 Optionally takes a query parameter 'clear\_tokens', to also revoke session tokens for the user,
-forcing the user to log in again.  Possible options are:
+forcing the user to log in again. Possible options are:
 
 ```
 * none
@@ -73,7 +73,7 @@ Optionally takes a query parameter 'send\_mail' (defaulting to true), to send an
 email to the user with the new password.
 
 Optionally takes a query parameter 'clear\_tokens', to also revoke session tokens for the user,
-forcing the user to log in again.  Possible options are:
+forcing the user to log in again. Possible options are:
 
 ```
 * none
@@ -132,7 +132,7 @@ Response uses the UserTokens json schema.
 
 ## create\_api\_token
 
-Create a new token, creating a JWT from it.  Response uses the NewUserToken json schema.
+Create a new token, creating a JWT from it. Response uses the NewUserToken json schema.
 This is the only time the token string is provided to the user, so don't lose it!
 
 ## find\_api\_token

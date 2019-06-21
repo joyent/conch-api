@@ -181,7 +181,7 @@ sub delete_setting ($c) {
 Stores a new password for the current user.
 
 Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
-forcing the user to log in again.  Possible options are:
+forcing the user to log in again. Possible options are:
 
   * none
   * login_only (default) - clear login tokens only
@@ -227,7 +227,7 @@ Optionally takes a query parameter 'send_mail' (defaulting to true), to send an
 email to the user with the new password.
 
 Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
-forcing the user to log in again.  Possible options are:
+forcing the user to log in again. Possible options are:
 
   * none
   * login_only (default)
@@ -481,7 +481,7 @@ sub get_api_tokens ($c) {
 
 =head2 create_api_token
 
-Create a new token, creating a JWT from it.  Response uses the NewUserToken json schema.
+Create a new token, creating a JWT from it. Response uses the NewUserToken json schema.
 This is the only time the token string is provided to the user, so don't lose it!
 
 =cut

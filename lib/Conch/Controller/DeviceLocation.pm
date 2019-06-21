@@ -46,7 +46,7 @@ sub get ($c) {
 =head2 set
 
 Sets the location for a device, given a valid rack id and rack unit. The existing occupant is
-removed, if there is one.  The device is created based on the hardware_product specified for
+removed, if there is one. The device is created based on the hardware_product specified for
 the layout if it does not yet exist.
 
 =cut

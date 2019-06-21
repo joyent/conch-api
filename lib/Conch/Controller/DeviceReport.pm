@@ -140,7 +140,7 @@ sub process ($c) {
     $device->update({ health => $validation_state->status, updated => \'now()' });
 
     # save some state about this report that will help us out next time, when we consider
-    # deleting it...  we always keep all failing reports (we also keep the first report after a
+    # deleting it... we always keep all failing reports (we also keep the first report after a
     # failure)
     $device_report->update({ retain => 1 })
         if $validation_state->status ne 'pass' and not $device_report->retain;

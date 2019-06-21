@@ -45,7 +45,7 @@ Runs the provided validation\_plan against the provided device.
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
 If `no_save_db => 1` is passed, the validation records are returned (along with the
-overall result status), without writing them to the database.  Otherwise, a validation\_state
+overall result status), without writing them to the database. Otherwise, a validation\_state
 record is created and validation\_result records saved with deduplication logic applied.
 
 Takes options as a hash:

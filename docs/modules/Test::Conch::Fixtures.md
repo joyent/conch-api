@@ -23,7 +23,7 @@ See ["fixtures" in Test::Conch](../modules/Test::Conch#fixtures) for main usage.
 
 ## generate\_set
 
-Generates new fixture definition(s).  Adds them to the internal definition list, but does not
+Generates new fixture definition(s). Adds them to the internal definition list, but does not
 load them to the database.
 
 Available sets:
@@ -33,8 +33,8 @@ rack, and a layout suitable for various hardware. Takes a single integer for uni
 
 ## generate\_definitions
 
-Generates fixture definition(s) using generic data, and any necessary dependencies.  Uses a
-unique number to generate unique fixture names.  Not-nullable fields are filled in with
+Generates fixture definition(s) using generic data, and any necessary dependencies. Uses a
+unique number to generate unique fixture names. Not-nullable fields are filled in with
 sensible defaults, but all may be overridden.
 
 Requires data format:

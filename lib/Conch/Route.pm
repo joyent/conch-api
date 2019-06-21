@@ -90,9 +90,7 @@ sub all_routes (
     Conch::Route::User->routes($secured->any('/user'));
     Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
     Conch::Route::Validation->routes($secured);
-
     Conch::Route::Datacenter->routes($secured);
-
     Conch::Route::HardwareVendor->routes($secured->any('/hardware_vendor'));
 }
 

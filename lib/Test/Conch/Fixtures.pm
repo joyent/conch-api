@@ -267,7 +267,7 @@ my %canned_definitions = (
 
 =head2 generate_set
 
-Generates new fixture definition(s).  Adds them to the internal definition list, but does not
+Generates new fixture definition(s). Adds them to the internal definition list, but does not
 load them to the database.
 
 Available sets:
@@ -395,8 +395,8 @@ sub generate_set ($self, $set_name, @args) {
 
 =head2 generate_definitions
 
-Generates fixture definition(s) using generic data, and any necessary dependencies.  Uses a
-unique number to generate unique fixture names.  Not-nullable fields are filled in with
+Generates fixture definition(s) using generic data, and any necessary dependencies. Uses a
+unique number to generate unique fixture names. Not-nullable fields are filled in with
 sensible defaults, but all may be overridden.
 
 Requires data format:
@@ -420,7 +420,7 @@ sub generate_definitions ($self, $unique_num, %specification) {
 
         # find hashrefs, arrayrefs in the specification and make them first-class
         # specifications. This overwrites any existing specification data, which may need to be
-        # fixed later.  (This does not yet work for fixture specifications that are arrayrefs,
+        # fixed later. (This does not yet work for fixture specifications that are arrayrefs,
         # e.g. rack_layouts.)
         if (ref $specification{$name} eq 'HASH'
             and my @ref_keys = grep

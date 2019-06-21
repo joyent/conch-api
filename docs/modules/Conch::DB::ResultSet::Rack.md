@@ -11,7 +11,7 @@ Interface to queries involving racks.
 ## assigned\_rack\_units
 
 Returns a list of rack\_unit positions that are assigned to current layouts (including positions
-assigned to hardware that start at an earlier position) at the specified rack.  (Will return
+assigned to hardware that start at an earlier position) at the specified rack. (Will return
 merged results when passed a resultset referencing multiple racks, so don't do that.)
 
 This is used for identifying potential conflicts when adjusting layouts.

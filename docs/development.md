@@ -81,7 +81,7 @@ as well as emailed to the user who triggered the build.
 The tests are executed via `make test` in the Makefile at the root of the
 repository. The tests cover all aspects of the application, from low level
 functionality such as database access, logging, and json schema evaluation,
-to higher level integration testing of individual api endpoints.  All the
+to higher level integration testing of individual api endpoints. All the
 tests live in the `t/` directory in the repository.
 
 It is a necessary requirement that all pull requests must pass tests before
