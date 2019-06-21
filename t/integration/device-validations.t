@@ -125,7 +125,7 @@ $t->app->db_validation_states->create({
 $t->get_ok('/device/TEST/validation_state')
     ->status_is(200)
     ->json_schema_is('ValidationStatesWithResults')
-    ->json_cmp_deeply(bag(
+    ->json_cmp_deeply([
         {
             id => re(Conch::UUID::UUID_FORMAT),
             validation_plan_id => $server_validation_plan->id,
@@ -156,7 +156,7 @@ $t->get_ok('/device/TEST/validation_state')
                 order => 0,
             }],
         },
-    ));
+    ]);
 
 my $validation_states = $t->tx->res->json;
 

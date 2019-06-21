@@ -309,7 +309,7 @@ sub json_schema_is ($self, $schema, $message = undef) {
 =head2 json_cmp_deeply
 
 Like L<Test::Mojo/json_is>, but uses L<Test::Deep/cmp_deeply> for the comparison instead of
-L<Test::More/is_deep>.  This allows for more flexibility in how we test various parts of the
+L<Test::More/is_deep>. This allows for more flexibility in how we test various parts of the
 data.
 
 =cut
@@ -465,7 +465,7 @@ sub generate_fixtures ($self, %specification) {
 =head2 authenticate
 
 Authenticates a user in the current test instance. Uses default credentials if not provided.
-Optionally will bail out of *all* tests on failure.  This will set 'user' in the session
+Optionally will bail out of *all* tests on failure. This will set 'user' in the session
 (C<< $t->app->session('user') >>).
 
 =cut
@@ -486,7 +486,7 @@ sub authenticate ($self, %args) {
 =head2 txn_local
 
 Given a subref, execute the code inside a transaction that is rolled back at the end. Useful
-for testing with mutated data that should not affect other tests.  The subref is called as a
+for testing with mutated data that should not affect other tests. The subref is called as a
 subtest and is invoked with the test object as well as any additional provided arguments.
 
 =cut

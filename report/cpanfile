@@ -1,3 +1,0 @@
-requires 'DBD::Pg';
-requires 'Data::Printer';
-requires 'DateTime::Format::Pg';

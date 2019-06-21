@@ -402,14 +402,14 @@ This method requires a request body.
 
 =head3 C<< POST /rack/:rack_id/phase?rack_only=<0|1> >>
 
-The query parameter C<rack_only> (default 0) specifies whether to update
+The query parameter C<rack_only> (defaults to C<0>) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
 
 =over 4
 
 =item * Request: request.yaml#/RackPhase
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: Redirect to the updated rack
 
 =back
 

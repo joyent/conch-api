@@ -43,7 +43,9 @@ Response uses the Datacenters json schema.
 sub get_all ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my @datacenters = $c->db_datacenters->all;
+    my @datacenters = $c->db_datacenters
+        ->order_by([ qw(vendor region location) ])
+        ->all;
     $c->log->debug('Found '.scalar(@datacenters).' datacenters');
     return $c->status(200, \@datacenters);
 }

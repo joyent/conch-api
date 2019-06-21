@@ -181,7 +181,7 @@ sub delete_setting ($c) {
 Stores a new password for the current user.
 
 Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
-forcing the user to log in again.  Possible options are:
+forcing the user to log in again. Possible options are:
 
   * none
   * login_only (default) - clear login tokens only
@@ -227,7 +227,7 @@ Optionally takes a query parameter 'send_mail' (defaulting to true), to send an
 email to the user with the new password.
 
 Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
-forcing the user to log in again.  Possible options are:
+forcing the user to log in again. Possible options are:
 
   * none
   * login_only (default)
@@ -294,7 +294,10 @@ Response uses the UserDetailed json schema.
 
 sub get ($c) {
     my $user = $c->stash('target_user')
-        ->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
+        ->discard_changes({
+            prefetch => { user_workspace_roles => 'workspace' },
+            order_by => ['workspace.name'],
+        });
     return $c->status(200, $user);
 }
 
@@ -303,7 +306,8 @@ sub get ($c) {
 Updates user attributes. System admin only.
 Sends an email to the affected user, unless C<?send_mail=0> is included in the query.
 
-Response uses the UserDetailed json schema (or UserError for some error conditions).
+The response uses the UserError json schema for some error conditions; on success, redirects to
+'GET /user/:id'.
 
 =cut
 
@@ -346,8 +350,7 @@ sub update ($c) {
     $c->log->debug('updating user '.$user->email.': '.$c->req->text);
     $user->update;
 
-    $user->discard_changes({ prefetch => { user_workspace_roles => 'workspace' } });
-    return $c->status(200, $user);
+    $c->status(303, '/user/'.$user->id);
 }
 
 =head2 list
@@ -478,7 +481,8 @@ sub get_api_tokens ($c) {
 
 =head2 create_api_token
 
-Create a new token, creating a JWT from it.  Response uses the NewUserToken json schema.
+Create a new token, creating a JWT from it. Response uses the NewUserToken json schema.
+This is the only time the token string is provided to the user, so don't lose it!
 
 =cut
 
@@ -496,7 +500,7 @@ sub create_api_token ($c) {
         if $user->user_session_tokens->search({ name => $input->{name} })->exists;
 
     # default expiration: 5 years
-    my $expires_abs = time + (($c->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
+    my $expires_abs = time + (($c->app->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
 
     # TODO: ew ew ew, some duplication with Conch::Controller::Login::_create_jwt.
     my ($new_db_row, $token) = $c->db_user_session_tokens->generate_for_user(
@@ -504,7 +508,7 @@ sub create_api_token ($c) {
 
     my $jwt = Mojo::JWT->new(
         claims => { uid => $user->id, jti => $token },
-        secret => $c->config('secrets')->[0],
+        secret => $c->app->config('secrets')->[0],
         expires => $expires_abs,
     )->encode;
 

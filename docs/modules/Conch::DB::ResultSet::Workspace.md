@@ -49,7 +49,7 @@ Query for workspace(s) with an extra field attached to the query which will sign
 workspace serializer to include the "role" and "via" columns, containing information about the
 effective permissions the user has for the workspace.
 
-Only one user\_id can be calculated at a time.  If you need to generate workspace-and-role data
+Only one user\_id can be calculated at a time. If you need to generate workspace-and-role data
 for multiple users at once, you can manually do:
 
 ```perl

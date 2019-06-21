@@ -129,10 +129,10 @@ Does not store validation results.
 - Request: device\_report.yaml
 - Response: response.yaml#/ValidationResults
 
-### `GET /device/:device_id/validation_state?status=<pass,fail,error>`
+### `GET /device/:device_id/validation_state?status=<pass|fail|error>&status=...`
 
 Accepts the query parameter `status`, indicating the desired status(es)
-(comma-separated) to search for -- one or more of: `pass`, `fail`, `error`.
+to search for (one of `pass`, `fail`, `error`). Can be used more than once.
 
 - Response: response.yaml#/ValidationStatesWithResults
 

@@ -23,7 +23,7 @@ Response uses the ValidationPlans json schema.
 =cut
 
 sub list ($c) {
-    my @validation_plans = $c->db_validation_plans->active->all;
+    my @validation_plans = $c->db_validation_plans->active->order_by('name')->all;
     $c->log->debug('Found '.scalar(@validation_plans).' validation plans');
     $c->status(200, \@validation_plans);
 }
@@ -73,7 +73,11 @@ Response uses the Validations json schema.
 =cut
 
 sub list_validations ($c) {
-    my @validations = $c->stash('validation_plan')->validations;
+    my @validations = $c->stash('validation_plan')
+        ->related_resultset('validation_plan_members')
+        ->related_resultset('validation')
+        ->order_by([ 'validation.name', 'validation.version' ])
+        ->all;
 
     $c->log->debug('Found '.scalar(@validations).' validations for validation plan '.$c->stash('validation_plan')->id);
 

@@ -13,7 +13,7 @@ Conch::Plugin::JsonValidator
 
 =head1 SYNOPSIS
 
-    app->plugin('Conch::Plugin::JsonValidator');
+    $app->plugin('Conch::Plugin::JsonValidator');
 
     [ ... in a controller ]
 
@@ -110,7 +110,7 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's query 
 (when transformed into a hashref: see L</validate_query_params>).
 
 Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
-typing is possible.  No default population is done yet though; see
+typing is possible. No default population is done yet though; see
 L<https://github.com/mojolicious/json-validator/issues/158>.
 
 =cut

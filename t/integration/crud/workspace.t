@@ -116,7 +116,7 @@ subtest 'Workspaces' => sub {
             user_id => $test_user_id,
             role => 'rw',
         })
-        ->status_is(200, 'redundant add requests do nothing')
+        ->status_is(204, 'redundant add requests do nothing')
         ->email_not_sent;
 
     $t->post_ok("/workspace/$global_ws_id/user", json => {
@@ -346,7 +346,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(200, 'redundant add requests do nothing')
+        ->status_is(204, 'redundant add requests do nothing')
         ->email_not_sent;
 
     is($t->app->db_user_workspace_roles->count, 2,
@@ -381,7 +381,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(200, 'redundant add requests do nothing')
+        ->status_is(204, 'redundant add requests do nothing')
         ->email_not_sent;
 
     $t->post_ok("/workspace/$child_ws_id/user", json => {

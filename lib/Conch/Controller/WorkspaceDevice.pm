@@ -44,7 +44,7 @@ sub list ($c) {
         ->related_resultset('device_locations')
         ->related_resultset('device')
         ->active
-        ->order_by('device.created');
+        ->order_by([ map 'device_locations.'.$_, qw(rack_id rack_unit_start) ]);
 
     $devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })
         if $params->{graduated};
@@ -142,9 +142,9 @@ sub device_totals ($c) {
     }
     return $c->reply->not_found if not $workspace;
 
-    my %switch_aliases = map +($_ => 1), $c->config->{switch_aliases}->@*;
-    my %storage_aliases = map +($_ => 1), $c->config->{storage_aliases}->@*;
-    my %compute_aliases = map +($_ => 1), $c->config->{compute_aliases}->@*;
+    my %switch_aliases = map +($_ => 1), $c->app->config->{switch_aliases}->@*;
+    my %storage_aliases = map +($_ => 1), $c->app->config->{storage_aliases}->@*;
+    my %compute_aliases = map +($_ => 1), $c->app->config->{compute_aliases}->@*;
 
     my @counts = $workspace
         ->related_resultset('workspace_racks')

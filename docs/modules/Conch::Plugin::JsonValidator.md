@@ -5,7 +5,7 @@ Conch::Plugin::JsonValidator
 # SYNOPSIS
 
 ```perl
-app->plugin('Conch::Plugin::JsonValidator');
+$app->plugin('Conch::Plugin::JsonValidator');
 
 [ ... in a controller ]
 
@@ -50,7 +50,7 @@ Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object sui
 (when transformed into a hashref: see ["validate\_query\_params"](#validate_query_params)).
 
 Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
-typing is possible.  No default population is done yet though; see
+typing is possible. No default population is done yet though; see
 [https://github.com/mojolicious/json-validator/issues/158](https://github.com/mojolicious/json-validator/issues/158).
 
 ## get\_request\_validator

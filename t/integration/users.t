@@ -400,18 +400,21 @@ subtest 'modify another user' => sub {
 
     $t->post_ok('/user/foo@conch.joyent.us',
             json => { name => 'FOO', is_admin => JSON::PP::true })
+        ->status_is(303)
+        ->location_is('/user/'.$new_user_id)
+        ->email_cmp_deeply({
+            To => '"FOO" <foo@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch account has been updated.',
+            body => re(qr/^Your account at Joyent Conch has been updated:\R\R {4}is_admin: false -> true\R {8}name: foo -> FOO\R\R/m),
+        });
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is({
             $new_user_data->%*,
             name => 'FOO',
             is_admin => JSON::PP::true,
-        })
-        ->email_cmp_deeply({
-            To => '"FOO" <foo@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch account has been updated.',
-            body => re(qr/^Your account at Joyent Conch has been updated:\R\R {4}is_admin: false -> true\R {8}name: foo -> FOO\R\R/m),
         });
 
     my $t2 = Test::Conch->new(pg => $t->pg);

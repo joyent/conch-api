@@ -72,7 +72,10 @@ Response uses the DeviceNics json schema.
 =cut
 
 sub get_all ($c) {
-    my $rs = $c->stash('device_rs')->related_resultset('device_nics')->active;
+    my $rs = $c->stash('device_rs')
+        ->related_resultset('device_nics')
+        ->order_by('iface_name')
+        ->active;
     return $c->status(200, [ $rs->all ]);
 }
 

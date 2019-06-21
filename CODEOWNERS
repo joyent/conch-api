@@ -6,7 +6,8 @@
 # required to sign off.
 
 * @karenetheridge
-/json-schema/{common.yaml,device_report.yaml} @karenetheridge @perigrin @sungo @dustinryerson
+/json-schema/common.yaml @karenetheridge @perigrin @sungo @dustinryerson
+/json-schema/device_report.yaml @karenetheridge @perigrin @sungo @dustinryerson
 /json-schema/ @karenetheridge @sungo @dustinryerson
 /docker @sungo
 /Docker* @sungo

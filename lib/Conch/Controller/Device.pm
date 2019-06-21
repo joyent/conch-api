@@ -92,7 +92,7 @@ sub find_device ($c) {
 
 =head2 get
 
-Retrieves details about a single (active) device.  Response uses the DetailedDevice json schema.
+Retrieves details about a single (active) device. Response uses the DetailedDevice json schema.
 
 =cut
 
@@ -161,6 +161,7 @@ sub lookup_by_other_attribute ($c) {
     my $params = $c->validate_query_params('GetDeviceByAttribute');
     return if not $params;
 
+# XXX fixme - permissions!
     # TODO: not checking if the user has permissions to view this device.
     # need to get workspace(s) containing each device and filter them out.
 
@@ -186,7 +187,7 @@ sub lookup_by_other_attribute ($c) {
             ->active;
     }
 
-    my @devices = $device_rs->all;
+    my @devices = $device_rs->order_by('device.created')->all;
 
     if (not @devices) {
         $c->log->debug('Failed to find devices matching '.$key.'='.$value);
@@ -360,7 +361,7 @@ sub set_validated ($c) {
 
 =head2 get_phase
 
-Gets just the device's phase.  Response uses the DevicePhase json schema.
+Gets just the device's phase. Response uses the DevicePhase json schema.
 
 =cut
 

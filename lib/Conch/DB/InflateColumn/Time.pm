@@ -15,7 +15,7 @@ Automatically inflates/deflates timestamps in the database to L<Conch::Time> obj
 a subclass of L<Time::Moment>).
 
 No extra work needs to be done for deflation, because postgres is happy to accept our slight
-modifications to the format used in C<to_string>.  All we need to do is rebless the
+modifications to the format used in C<to_string>. All we need to do is rebless the
 L<Time::Moment> object into L<Conch::Time>, and work around the bug in
 L<RT#125975|https://rt.cpan.org/Ticket/Display.html?id=125975>.
 

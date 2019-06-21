@@ -30,7 +30,7 @@ following new ones:
 
 =head2 bunyan
 
-A boolean option (defaulting to false): log in bunyan format.  If passed a string or list of
+A boolean option (defaulting to false): log in bunyan format. If passed a string or list of
 strings, these are added as the C<msg> field in the logged data; otherwise, the passed-in data
 will be included as-is.
 

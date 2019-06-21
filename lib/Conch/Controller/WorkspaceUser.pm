@@ -28,6 +28,7 @@ sub list ($c) {
         ->and_workspaces_above($workspace_id)
         ->related_resultset('user_workspace_roles')
         ->related_resultset('user_account')
+        ->order_by('user_account.name')
         ->active;
 
     my $user_data = [
@@ -83,10 +84,7 @@ sub add_user ($c) {
                 .' already has '.$input->{role}.' access to workspace '.$workspace_id
                 .' via workspace '.$existing_role_via->workspace_id
                 .': nothing to do');
-            my $workspace = $c->stash('workspace_rs')
-                ->with_role_via_data_for_user($user->id)
-                ->single;
-            return $c->status(200, $workspace);
+            return $c->status(204);
         }
 
         if ($existing_role_via->role_cmp($input->{role}) > 0) {

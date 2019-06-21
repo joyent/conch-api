@@ -36,7 +36,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
     ->status_is(200)
     ->json_schema_is('WorkspaceRackSummary')
     ->json_cmp_deeply({
-        'room-0a' => bag(
+        'room-0a' => [
             {
                 id => $rack_id,
                 name => 'rack 0a',
@@ -53,7 +53,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
                 rack_size => 42,
                 device_progress => {},
             },
-         ),
+         ],
     });
 
 $t->get_ok("/workspace/$global_ws_id/rack/notauuid")

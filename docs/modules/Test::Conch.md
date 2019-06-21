@@ -84,7 +84,7 @@ the hash as the schema to validate.
 ## json\_cmp\_deeply
 
 Like ["json\_is" in Test::Mojo](https://metacpan.org/pod/Test::Mojo#json_is), but uses ["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test::Deep#cmp_deeply) for the comparison instead of
-["is\_deep" in Test::More](https://metacpan.org/pod/Test::More#is_deep).  This allows for more flexibility in how we test various parts of the
+["is\_deep" in Test::More](https://metacpan.org/pod/Test::More#is_deep). This allows for more flexibility in how we test various parts of the
 data.
 
 ## load\_validation\_plans
@@ -159,13 +159,13 @@ See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test::Conch::
 ## authenticate
 
 Authenticates a user in the current test instance. Uses default credentials if not provided.
-Optionally will bail out of \*all\* tests on failure.  This will set 'user' in the session
+Optionally will bail out of \*all\* tests on failure. This will set 'user' in the session
 (`$t->app->session('user')`).
 
 ## txn\_local
 
 Given a subref, execute the code inside a transaction that is rolled back at the end. Useful
-for testing with mutated data that should not affect other tests.  The subref is called as a
+for testing with mutated data that should not affect other tests. The subref is called as a
 subtest and is invoked with the test object as well as any additional provided arguments.
 
 ## email\_cmp\_deeply

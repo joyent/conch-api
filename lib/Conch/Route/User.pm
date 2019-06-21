@@ -32,7 +32,7 @@ sub routes {
         # GET /user/me
         $user_me->get('/')->to('#get');
 
-        # POST /user/me/revoke?send_mail=<1|0>& login_only=<0|1> or ?api_only=<0|1>
+        # POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1>
         $user_me->post('/revoke')->to('#revoke_user_tokens');
 
         # POST /user/me/password?clear_tokens=<login_only|none|all>
@@ -92,7 +92,7 @@ sub routes {
         # DELETE /user/#target_user_id_or_email?clear_tokens=<1|0>
         $user_with_target->delete('/')->to('#deactivate');
 
-        # POST /user/#target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1>
+        # POST /user/#target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1>
         $user_with_target->post('/revoke')->to('#revoke_user_tokens');
         # DELETE /user/#target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>
         $user_with_target->delete('/password')->to('#reset_user_password');
@@ -136,22 +136,22 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<< POST /user/me/revoke?send_mail=<1|0>& login_only=<0|1> or ?api_only=<0|1> >>
+=head3 C<< POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1> >>
 
 Optionally accepts the following query parameters:
 
 =over 4
 
-=item * C<< send_mail=<1|0> >> (default 1) - send an email telling the user their tokens were revoked
+=item * C<< send_mail=<1|0> >> (default C<1>) - send an email telling the user their tokens were revoked
 
-=item * C<< login_only=<0|1> >> (default 0) - revoke only login/session tokens
+=item * C<< login_only=<0|1> >> (default C<0>) - revoke only login/session tokens
 
-=item * C<< api_only=<0|1> >> (default 0) - revoke only  API tokens
+=item * C<< api_only=<0|1> >> (default C<0>) - revoke only API tokens
 
 =back
 
-By default it will revoke both login/session and API tokens. If both
-C<api_only> and C<login_only> are set, no tokens will be revoked.
+By default it will revoke both login/session and API tokens.
+C<api_only> and C<login_only> cannot both be C<1>.
 
 =over 4
 
@@ -176,14 +176,14 @@ tokens for the user, forcing the user to log in again. Possible options are:
 
 =back
 
-If the C<clear_tokens> parameter is set to C<0>, C<no>, C<false> then
-C<204 NO CONTENT> will be returned but the user session will remain..
+If the C<clear_tokens> parameter is set to C<none> then the user session will remain;
+otherwise, the user is logged out.
 
 =over 4
 
 =item * Request: request.yaml#/UserSettings
 
-=item * Response: C<204 NO CONTENT> (The user session is terminated).
+=item * Response: C<204 NO CONTENT>
 
 =back
 
@@ -260,7 +260,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =back
 
-=head3 C<DELETE  /user/me/token/:token_name>
+=head3 C<DELETE /user/me/token/:token_name>
 
 =over 4
 
@@ -280,7 +280,7 @@ C<204 NO CONTENT> will be returned but the user session will remain..
 
 =head3 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
 
-Optionally take the query parameter C<< send_mail=<1|0> >> (default 1) - send
+Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
 an email telling the user their tokens were revoked
 
 =over 4
@@ -289,7 +289,7 @@ an email telling the user their tokens were revoked
 
 =item * Request: request.yaml#/UpdateUser
 
-=item * Success Response: response.yaml#/UserDetailed
+=item * Success Response: Redirect to the user that was updated
 
 =item * Error response on duplicate user: response.yaml#/UserError
 
@@ -313,20 +313,20 @@ revoke all session tokens for the user forcing all tools to log in again.
 
 =back
 
-=head3 C<< POST /user/:target_user_id_or_email/revoke?login_only=<0|1> or ?api_only=<0|1> >>
+=head3 C<< POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1> >>
 
 Optionally accepts the following query parameters:
 
 =over 4
 
-=item * C<< login_only=<0|1> >> (default 0) - revoke only login/session tokens
+=item * C<< login_only=<0|1> >> (default C<0>) - revoke only login/session tokens
 
-=item * C<< api_only=<0|1> >> (default 0) - revoke only  API tokens
+=item * C<< api_only=<0|1> >> (default C<0>) - revoke only API tokens
 
 =back
 
 By default it will revoke both login/session and API tokens. If both
-C<api_only> and C<login_only> are set, no tokens will be revoked.
+C<api_only> and C<login_only> cannot both be C<1>.
 
 =over 4
 
@@ -342,7 +342,7 @@ Optionally accepts the following query parameters:
 
 =over 4
 
-=item * C<clear_tokens> (default C<login_only>) to also revoke tokens for the user, takes the following possible values
+=item * C<clear_tokens> (default C<login_only>) to also revoke tokens for the user, takes the following possible values:
 
 =over 4
 
@@ -354,7 +354,7 @@ Optionally accepts the following query parameters:
 
 =back
 
-=item * C<send_mail> which takes C<< <1|0> >> (default C<1>). If set to C<1> this will cause an email to be sent to the user with password reset instructions.
+=item * C<send_mail> which takes C<< <1|0> >> (defaults to C<1>) to send an email to the user with password reset instructions.
 
 =back
 

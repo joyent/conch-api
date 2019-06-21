@@ -194,7 +194,7 @@ subtest 'Devices with PXE data' => sub {
     $t->get_ok('/workspace/'.$global_ws_id.'/device/pxe')
         ->status_is(200)
         ->json_schema_is('WorkspaceDevicePXEs')
-        ->json_cmp_deeply(bag(
+        ->json_cmp_deeply([
             {
                 id => 'TEST',
                 location => {
@@ -230,7 +230,7 @@ subtest 'Devices with PXE data' => sub {
                 ipmi => undef,
                 pxe => undef,
             },
-        ));
+        ]);
 };
 
 done_testing;

@@ -10,7 +10,7 @@ Chainable action that validates the 'device\_id' provided in the path.
 
 ## get
 
-Retrieves details about a single (active) device.  Response uses the DetailedDevice json schema.
+Retrieves details about a single (active) device. Response uses the DetailedDevice json schema.
 
 ## lookup\_by\_other\_attribute
 
@@ -59,7 +59,7 @@ Sets the `validated` field on a device unless that field has already been set
 
 ## get\_phase
 
-Gets just the device's phase.  Response uses the DevicePhase json schema.
+Gets just the device's phase. Response uses the DevicePhase json schema.
 
 ## set\_phase
 

@@ -91,10 +91,10 @@ $t->get_ok('/rack_role/'.$role->id)
 $t->get_ok('/rack_role')
     ->status_is(200)
     ->json_schema_is('RackRoles')
-    ->json_cmp_deeply(bag(
+    ->json_cmp_deeply([
         superhashof({ name => 'rack_role 42U', rack_size => 14 }),
         superhashof({ name => 'role', rack_size => 10 }),
-    ));
+    ]);
 
 $t->delete_ok('/rack_role/'.$role->id)
     ->status_is(409)

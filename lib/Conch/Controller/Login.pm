@@ -26,7 +26,7 @@ Create a JWT and sets it up to be returned in the response in two parts:
 =cut
 
 sub _create_jwt ($c, $user_id, $expires_delta = undef) {
-    my $jwt_config = $c->config('jwt') || {};
+    my $jwt_config = $c->app->config('jwt') || {};
 
     my $expires_abs = time + (
         defined $expires_delta ? $expires_delta
@@ -46,7 +46,7 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
             uid => $user_id,
             jti => $token
         },
-        secret  => $c->config('secrets')->[0],
+        secret  => $c->app->config('secrets')->[0],
         expires => $expires_abs,
     )->encode;
 
@@ -132,7 +132,7 @@ sub authenticate ($c) {
         # Attempt to decode with every configured secret, in case JWT token was
         # signed with a rotated secret
         my $jwt;
-        for my $secret ($c->config('secrets')->@*) {
+        for my $secret ($c->app->config('secrets')->@*) {
             # Mojo::JWT->decode blows up if the token is invalid
             try {
                 $jwt = Mojo::JWT->new(secret => $secret)->decode($token);

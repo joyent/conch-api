@@ -12,7 +12,7 @@ conch-db - commands to administrate a database
 
 =head1 DESCRIPTION
 
-Work with the Conch database.  Run C<bin/conch-db --help> for a list of options.
+Work with the Conch database. Run C<bin/conch-db --help> for a list of options.
 
 =cut
 
@@ -42,7 +42,7 @@ apply-dump-migration [n] generate new DBIC result classes, schema.sql after app
 all                      alias for initialize create-validations create-admin-user
 
 The environment variables POSTGRES_DB, POSTGRES_HOST, POSTGRES_USER and POSTGRES_PASSWORD are
-used if set.  Otherwise, the config file will be used to find database credentials.
+used if set. Otherwise, the config file will be used to find database credentials.
 PREAMBLE
 
     [ 'help|h',     'print usage message and exit', { shortcircuit => 1 } ],

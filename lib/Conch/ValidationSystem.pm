@@ -300,7 +300,7 @@ Runs the provided validation_plan against the provided device.
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
 If C<< no_save_db => 1 >> is passed, the validation records are returned (along with the
-overall result status), without writing them to the database.  Otherwise, a validation_state
+overall result status), without writing them to the database. Otherwise, a validation_state
 record is created and validation_result records saved with deduplication logic applied.
 
 Takes options as a hash:

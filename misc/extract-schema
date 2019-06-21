@@ -71,7 +71,7 @@ repository.
 
 =item B<--output|--to DIR>
 
-The directory in which to create the json files.  If not provided, all content is emitted to
+The directory in which to create the json files. If not provided, all content is emitted to
 STDOUT, preceded by each definition's filename.
 
 =item B<-h>

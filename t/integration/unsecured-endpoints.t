@@ -78,13 +78,13 @@ subtest 'device totals' => sub {
     );
 
     # doctor the configs so they match the hw products we already have in the test data.
-    $t->app->stash('config')->%* = (
-        $t->app->stash('config')->%*,
+    $t->app->config({
+        $t->app->config->%*,
         switch_aliases => [ 'Switch Vendor' ],
         server_aliases => [],
         storage_aliases => [ 'Test Storage' ],
         compute_aliases => [ 'Test Compute' ],
-    );
+    });
 
     $t->get_ok("/workspace/123/device-totals")
         ->status_is(404);

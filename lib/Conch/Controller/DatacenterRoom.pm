@@ -44,7 +44,7 @@ Response uses the DatacenterRoomsDetailed json schema.
 sub get_all ($c) {
     return $c->status(403) if not $c->is_system_admin;
 
-    my @rooms = $c->db_datacenter_rooms->all;
+    my @rooms = $c->db_datacenter_rooms->order_by('alias')->all;
     $c->log->debug('Found '.scalar(@rooms).' datacenter rooms');
 
     return $c->status(200, \@rooms);

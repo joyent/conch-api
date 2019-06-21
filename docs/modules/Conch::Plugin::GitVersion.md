@@ -6,11 +6,15 @@ Conch::Plugin::GitVersion
 
 Mojo plugin registering the git version tag and hash for the repository
 
-# METHODS
+# HELPERS
 
-## register
+## version\_tag
 
-Register `version_tag` and `version_hash`.
+Provides a string that uniquely describes the version and commit of the currently-running code.
+
+## version\_tag
+
+Provides the exact git SHA of the currently-running code.
 
 # LICENSING
 
