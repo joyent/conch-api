@@ -11,7 +11,7 @@ and stashes the query to get to it in `workspace_rs`.
 
 If `workspace_name` is provided, `workspace_id` is looked up and stashed.
 
-If `workspace_role` is provided, it is used as the minimum required role for the user to
+If `require_role` is provided, it is used as the minimum required role for the user to
 continue.
 
 ## list

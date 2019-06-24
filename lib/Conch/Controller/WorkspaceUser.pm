@@ -13,14 +13,13 @@ Conch::Controller::WorkspaceUser
 =head2 list
 
 Get a list of users for the indicated workspace.
+Requires the 'admin' role on the workspace.
 
 Response uses the WorkspaceUsers json schema.
 
 =cut
 
 sub list ($c) {
-    # TODO: restrict to workspace admins?
-
     my $workspace_id = $c->stash('workspace_id');
 
     # users who can access any ancestor of this workspace
@@ -61,8 +60,6 @@ to the user.
 =cut
 
 sub add_user ($c) {
-    return $c->status(403) if not $c->is_workspace_admin;
-
     my $params = $c->validate_query_params('NotifyUsers');
     return if not $params;
 

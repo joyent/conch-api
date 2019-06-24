@@ -85,7 +85,7 @@ those updated with in the last `X` minutes.
 
 ### `GET /workspace/:workspace_id_or_name/user`
 
-- User requires the read-only role
+- User requires the admin role
 - Response: response.yaml#/WorkspaceUsers
 
 ### `POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>`

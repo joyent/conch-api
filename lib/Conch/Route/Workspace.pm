@@ -64,13 +64,17 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/relay/<relay_id:uuid>/device
         $with_workspace->get('/relay/<relay_id:uuid>/device')->to('workspace_relay#get_relay_devices');
 
+        # like $with_workspace, but requires 'admin' access to the workspace
+        my $with_workspace_admin = $workspace->under('/:workspace_id_or_name')
+            ->to('workspace#find_workspace', require_role => 'admin');
+
         # GET /workspace/:workspace_id_or_name/user
-        $with_workspace->get('/user')->to('workspace_user#list');
+        $with_workspace_admin->get('/user')->to('workspace_user#list');
 
         # POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>
-        $with_workspace->post('/user')->to('workspace_user#add_user');
+        $with_workspace_admin->post('/user')->to('workspace_user#add_user');
         # DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
-        $with_workspace->under('/user/#target_user_id_or_email')->to('user#find_user')
+        $with_workspace_admin->under('/user/#target_user_id_or_email')->to('user#find_user')
             ->delete('/')->to('workspace_user#remove');
     }
 }
@@ -220,7 +224,7 @@ those updated with in the last C<X> minutes.
 
 =over 4
 
-=item * User requires the read-only role
+=item * User requires the admin role
 
 =item * Response: response.yaml#/WorkspaceUsers
 

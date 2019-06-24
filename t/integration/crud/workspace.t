@@ -550,6 +550,32 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(403);
 
     $untrusted->get_ok('/workspace/child_ws/user')
+        ->status_is(403);
+
+    $t->post_ok('/workspace/child_ws/user', json => {
+            email => 'untrusted_user@conch.joyent.us',
+            role => 'admin',
+        })
+        ->status_is(204, 'can upgrade existing role that exists in this workspace')
+        ->email_cmp_deeply({
+            To => '"untrusted user" <untrusted_user@conch.joyent.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
+        });
+
+    $users{child_ws}[-1]{role} = 'admin';
+    $users{grandchild_ws}[-1]{role} = 'admin';
+
+    $t->get_ok('/workspace/child_ws/user')
+        ->status_is(200)
+        ->json_schema_is('WorkspaceUsers')
+        ->json_cmp_deeply($users{child_ws});
+
+    $untrusted->get_ok('/workspace/GLOBAL/user')
+        ->status_is(403);
+
+    $untrusted->get_ok('/workspace/child_ws/user')
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply($users{child_ws});
@@ -558,19 +584,6 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply($users{grandchild_ws});
-
-
-    $t->post_ok('/workspace/child_ws/user', json => {
-            email => 'untrusted_user@conch.joyent.us',
-            role => 'rw',
-        })
-        ->status_is(204, 'can upgrade existing role that exists in this workspace')
-        ->email_cmp_deeply({
-            To => '"untrusted user" <untrusted_user@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch access has changed',
-            body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "rw"\./m),
-        });
 };
 
 subtest 'Roles' => sub {
@@ -595,8 +608,7 @@ subtest 'Roles' => sub {
             ->status_is(403);
 
         $t->get_ok("/workspace/$global_ws_id/user")
-            ->status_is(200)
-            ->json_schema_is('WorkspaceUsers');
+            ->status_is(403);
 
         $t->post_ok('/logout')
             ->status_is(204);
@@ -620,8 +632,7 @@ subtest 'Roles' => sub {
             ->status_is(403);
 
         $t->get_ok("/workspace/$global_ws_id/user")
-            ->status_is(200)
-            ->json_schema_is('WorkspaceUsers');
+            ->status_is(403);
     };
 };
 

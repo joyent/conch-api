@@ -7,6 +7,7 @@ Conch::Controller::WorkspaceUser
 ## list
 
 Get a list of users for the indicated workspace.
+Requires the 'admin' role on the workspace.
 
 Response uses the WorkspaceUsers json schema.
 
