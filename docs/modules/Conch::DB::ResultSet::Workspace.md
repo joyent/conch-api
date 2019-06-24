@@ -64,6 +64,10 @@ For a given workspace\_id and user\_id, find the user\_workspace\_role row that 
 providing the user access to the workspace (the user\_workspace\_role with the greatest
 role that is attached to an ancestor workspace).
 
+## admins
+
+All the 'admin' users for the provided workspace(s).
+
 ## \_workspaces\_subquery
 
 Generate values for inserting into a recursive query.

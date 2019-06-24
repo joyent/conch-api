@@ -184,6 +184,20 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
         ->single;
 }
 
+=head2 admins
+
+All the 'admin' users for the provided workspace(s).
+
+=cut
+
+sub admins ($self) {
+    $self->search_related('user_workspace_roles', { role => 'admin' })
+        ->related_resultset('user_account')
+        ->active
+        ->distinct
+        ->order_by('user_account.name');
+}
+
 =head2 _workspaces_subquery
 
 Generate values for inserting into a recursive query.

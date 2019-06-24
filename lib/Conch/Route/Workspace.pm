@@ -233,7 +233,7 @@ those updated with in the last C<X> minutes.
 =head3 C<< POST /workspace/:workspace_id_or_name/user?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
-an email to the user.
+an email to the user and workspace admins.
 
 =over 4
 
@@ -248,7 +248,7 @@ an email to the user.
 =head3 C<< DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
-an email to the user.
+an email to the user and workspace admins.
 
 =over 4
 

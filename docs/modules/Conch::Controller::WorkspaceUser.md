@@ -18,7 +18,7 @@ workspace.
 Requires the 'admin' role on the workspace.
 
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
-to the user.
+to the user and to all workspace admins.
 
 ## remove
 
@@ -29,7 +29,7 @@ Note this may not have the desired effect if the user is getting access to the w
 a parent workspace. When in doubt, check at `GET /user/<id or name>`.
 
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
-to the user.
+to the user and to all workspace admins.
 
 # LICENSING
 
