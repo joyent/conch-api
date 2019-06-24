@@ -29,14 +29,15 @@ sub list ($c) {
         ->related_resultset('user_workspace_roles')
         ->related_resultset('user_account')
         ->order_by('user_account.name')
-        ->active;
+        ->columns([ map 'user_account.'.$_, qw(id name email) ])
+        ->active
+        ->hri;
 
     my $user_data = [
         map {
-            my $user = $_;
-            my $role_via = $c->db_workspaces->role_via_for_user($workspace_id, $user->id);
+            my $role_via = $c->db_workspaces->role_via_for_user($workspace_id, $_->{id});
             +{
-                (map +($_ => $user->$_), qw(id name email)),
+                $_->%*, # user.id, name, email
                 role => $role_via->role,
                 $role_via->workspace_id ne $workspace_id ? ( role_via => $role_via->workspace_id ) : (),
             }
