@@ -101,6 +101,8 @@ __END__
 
 Unless otherwise specified all routes require authentication.
 
+Full access is granted to system admin users, regardless of workspace or other role entries.
+
 Successful (http 2xx code) response structures are as described for each endpoint.
 
 Error responses will use:

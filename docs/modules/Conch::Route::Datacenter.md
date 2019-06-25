@@ -12,24 +12,29 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /dc`
 
+- Requires system admin authorization
 - Response: response.yaml#/Datacenters
 
 ### `POST /dc`
 
+- Requires system admin authorization
 - Request: request.yaml#/DatacenterCreate
 - Response: Redirect to the created datacenter
 
 ### `GET /dc/:datacenter_id`
 
+- Requires system admin authorization
 - Response: response.yaml#/Datacenter
 
 ### `POST /dc/:datacenter_id`
 
+- Requires system admin authorization
 - Request: request.yaml#/DatacenterUpdate
 - Response: Redirect to the updated datacenter
 
 ### `DELETE /dc/:datacenter_id`
 
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 ### `GET /dc/:datacenter_id/rooms`
@@ -87,11 +92,13 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /rack_role/:rack_role_id_or_name`
 
+- Requires system admin authorization
 - Request: request.yaml#/RackRoleUpdate
 - Response: Redirect to the updated rack role
 
 ### `DELETE /rack_role/:rack_role_id_or_name`
 
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 ### `GET /rack`
@@ -107,27 +114,33 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /rack/:rack_id`
 
+- User requires the read-only role on a workspace that contains the rack
 - Response: response.yaml#/Rack
 
 ### `POST /rack/:rack_id`
 
+- User requires the read/write role on a workspace that contains the rack
 - Request: request.yaml#/RackUpdate
 - Response: Redirect to the updated rack
 
 ### `DELETE /rack/:rack_id`
 
+- User requires the read/write role on a workspace that contains the rack
 - Response: `204 NO CONTENT`
 
 ### `GET /rack/:rack_id/layouts`
 
+- User requires the read-only role on a workspace that contains the rack
 - Response: response.yaml#/RackLayouts
 
 ### `GET /rack/:rack_id/assignment`
 
+- User requires the read-only role on a workspace that contains the rack
 - Response: response.yaml#/RackAssignments
 
 ### `POST /rack/:rack_id/assignment`
 
+- User requires the read/write role on a workspace that contains the rack
 - Request: request.yaml#/RackAssignmentUpdates
 - Response: Redirect to the updated rack assignment
 
@@ -135,6 +148,7 @@ Unless otherwise noted, all routes require authentication.
 
 This method requires a request body.
 
+- User requires the read/write role on a workspace that contains the rack
 - Request: request.yaml#/RackAssignmentDeletes
 - Response: `204 NO CONTENT`
 
@@ -143,11 +157,13 @@ This method requires a request body.
 The query parameter `rack_only` (defaults to `0`) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
 
+- User requires the read/write role on a workspace that contains the rack
 - Request: request.yaml#/RackPhase
 - Response: Redirect to the updated rack
 
 ### `GET /layout`
 
+- Requires system admin authorization
 - Response: response.yaml#/RackLayouts
 
 ### `POST /layout`
@@ -158,15 +174,18 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 ### `GET /layout/:layout_id`
 
+- Requires system admin authorization
 - Response: response.yaml#/RackLayout
 
 ### `POST /layout/:layout_id`
 
+- Requires system admin authorization
 - Request: request.yaml#/RackLayoutUpdate
 - Response: Redirect to the update rack layout
 
 ### `DELETE /layout/:layout_id`
 
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 # LICENSING

@@ -86,9 +86,14 @@ __END__
 
 Unless otherwise noted, all routes require authentication.
 
+Users will require access to the workspace (or one of its ancestors) at a minimum
+L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
+
 =head3 C<GET /workspace>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/WorkspacesAndRoles
 
@@ -98,6 +103,8 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/WorkspaceAndRole
 
 =back
@@ -105,6 +112,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<GET /workspace/:workspace_id_or_name/child>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/WorkspacesAndRoles
 
@@ -114,7 +123,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Requires workspace admin authorization
+=item * User requires the admin role
 
 =item * Request: request.yaml#/WorkspaceCreate
 
@@ -140,6 +149,8 @@ Accepts the following optional query parameters:
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/Devices
 
 =back
@@ -147,6 +158,8 @@ Accepts the following optional query parameters:
 =head3 C<GET /workspace/:workspace_id_or_name/device/pxe>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/WorkspaceDevicePXEs
 
@@ -156,6 +169,8 @@ Accepts the following optional query parameters:
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/WorkspaceRackSummary
 
 =back
@@ -163,6 +178,8 @@ Accepts the following optional query parameters:
 =head3 C<POST /workspace/:workspace_id_or_name/rack>
 
 =over 4
+
+=item * User requires the admin role
 
 =item * Request: request.yaml#/WorkspaceAddRack
 
@@ -184,7 +201,7 @@ If the Accepts header specifies C<text/csv> it will return a CSV document.
 
 =over 4
 
-=item * Requires workspace admin authorization
+=item * User requires the admin role
 
 =item * Response: C<204 NO CONTENT>
 
@@ -197,6 +214,8 @@ those updated with in the last C<X> minutes.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/WorkspaceRelays
 
 =back
@@ -205,6 +224,8 @@ those updated with in the last C<X> minutes.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/Devices
 
 =back
@@ -212,6 +233,8 @@ those updated with in the last C<X> minutes.
 =head3 C<GET /workspace/:workspace_id_or_name/user>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/WorkspaceUsers
 
@@ -224,7 +247,7 @@ an email to the user.
 
 =over 4
 
-=item * Requires workspace admin authorization
+=item * User requires the admin role
 
 =item * Request: request.yaml#/WorkspaceAddUser
 
@@ -239,7 +262,7 @@ an email to the user.
 
 =over 4
 
-=item * Requires workspace admin authorization
+=item * User requires the admin role
 
 =item * Returns C<204 NO CONTENT>
 

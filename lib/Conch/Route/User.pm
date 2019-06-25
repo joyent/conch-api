@@ -297,8 +297,7 @@ an email telling the user their tokens were revoked
 
 =head3 C<< DELETE /user/:target_user_id_or_email?clear_tokens=<1|0> >>
 
-When a user is deleted all workspace permissions are removed and are
-unrecoverable.
+When a user is deleted, all workspace role entries are removed and are unrecoverable.
 
 Optionally takes a query parameter C<clear_tokens> (defaults to C<1>), to also
 revoke all session tokens for the user forcing all tools to log in again.
@@ -397,6 +396,8 @@ email to the user with the new password.
 
 =over 4
 
+=item * Requires system admin authorization
+
 =item * Response: response.yaml#/UserTokens
 
 =back
@@ -405,6 +406,8 @@ email to the user with the new password.
 
 =over 4
 
+=item * Requires system admin authorization
+
 =item * Response: response.yaml#/UserTokens
 
 =back
@@ -412,6 +415,8 @@ email to the user with the new password.
 =head3 C<DELETE /user/:target_user_id_or_email/token/:token_name>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Success Response: C<204 NO CONTENT>
 

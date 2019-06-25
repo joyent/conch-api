@@ -149,6 +149,8 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
+=item * Requires system admin authorization
+
 =item * Response: response.yaml#/Datacenters
 
 =back
@@ -156,6 +158,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<POST /dc>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/DatacenterCreate
 
@@ -167,6 +171,8 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
+=item * Requires system admin authorization
+
 =item * Response: response.yaml#/Datacenter
 
 =back
@@ -174,6 +180,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<POST /dc/:datacenter_id>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/DatacenterUpdate
 
@@ -184,6 +192,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<DELETE /dc/:datacenter_id>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 
@@ -300,6 +310,8 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
+=item * Requires system admin authorization
+
 =item * Request: request.yaml#/RackRoleUpdate
 
 =item * Response: Redirect to the updated rack role
@@ -309,6 +321,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<DELETE /rack_role/:rack_role_id_or_name>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 
@@ -340,6 +354,8 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
+=item * User requires the read-only role on a workspace that contains the rack
+
 =item * Response: response.yaml#/Rack
 
 =back
@@ -347,6 +363,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<POST /rack/:rack_id>
 
 =over 4
+
+=item * User requires the read/write role on a workspace that contains the rack
 
 =item * Request: request.yaml#/RackUpdate
 
@@ -358,6 +376,8 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
+=item * User requires the read/write role on a workspace that contains the rack
+
 =item * Response: C<204 NO CONTENT>
 
 =back
@@ -365,6 +385,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<GET /rack/:rack_id/layouts>
 
 =over 4
+
+=item * User requires the read-only role on a workspace that contains the rack
 
 =item * Response: response.yaml#/RackLayouts
 
@@ -374,6 +396,8 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
+=item * User requires the read-only role on a workspace that contains the rack
+
 =item * Response: response.yaml#/RackAssignments
 
 =back
@@ -381,6 +405,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<POST /rack/:rack_id/assignment>
 
 =over 4
+
+=item * User requires the read/write role on a workspace that contains the rack
 
 =item * Request: request.yaml#/RackAssignmentUpdates
 
@@ -393,6 +419,8 @@ Unless otherwise noted, all routes require authentication.
 This method requires a request body.
 
 =over 4
+
+=item * User requires the read/write role on a workspace that contains the rack
 
 =item * Request: request.yaml#/RackAssignmentDeletes
 
@@ -407,6 +435,8 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =over 4
 
+=item * User requires the read/write role on a workspace that contains the rack
+
 =item * Request: request.yaml#/RackPhase
 
 =item * Response: Redirect to the updated rack
@@ -416,6 +446,8 @@ only the rack's phase, or all the rack's devices' phases as well.
 =head3 C<GET /layout>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Response: response.yaml#/RackLayouts
 
@@ -437,6 +469,8 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =over 4
 
+=item * Requires system admin authorization
+
 =item * Response: response.yaml#/RackLayout
 
 =back
@@ -444,6 +478,8 @@ only the rack's phase, or all the rack's devices' phases as well.
 =head3 C<POST /layout/:layout_id>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Request: request.yaml#/RackLayoutUpdate
 
@@ -454,6 +490,8 @@ only the rack's phase, or all the rack's devices' phases as well.
 =head3 C<DELETE /layout/:layout_id>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 
