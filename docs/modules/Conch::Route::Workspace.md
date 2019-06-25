@@ -63,13 +63,7 @@ Accepts the following optional query parameters:
 
 - User requires the admin role
 - Request: request.yaml#/WorkspaceAddRack
-- Response: Redirect to the workspace rack
-
-### `GET /workspace/:workspace_id_or_name/rack/:rack_id`
-
-If the Accepts header specifies `text/csv` it will return a CSV document.
-
-- Response: response.yaml#/WorkspaceRack
+- Response: Redirect to the workspace's racks
 
 ### `DELETE /workspace/:workspace_id_or_name/rack/:rack_id`
 

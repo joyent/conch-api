@@ -55,9 +55,6 @@ sub routes {
             my $with_workspace_rack =
                 $with_workspace->under('/rack/<rack_id:uuid>')->to('workspace_rack#find_rack');
 
-            # GET /workspace/:workspace_id_or_name/rack/:rack_id
-            $with_workspace_rack->get('/')->to('workspace_rack#get_layout');
-
             # DELETE /workspace/:workspace_id_or_name/rack/:rack_id
             $with_workspace_rack->delete('/')->to('workspace_rack#remove');
         }
@@ -183,17 +180,7 @@ Accepts the following optional query parameters:
 
 =item * Request: request.yaml#/WorkspaceAddRack
 
-=item * Response: Redirect to the workspace rack
-
-=back
-
-=head3 C<GET /workspace/:workspace_id_or_name/rack/:rack_id>
-
-If the Accepts header specifies C<text/csv> it will return a CSV document.
-
-=over 4
-
-=item * Response: response.yaml#/WorkspaceRack
+=item * Response: Redirect to the workspace's racks
 
 =back
 

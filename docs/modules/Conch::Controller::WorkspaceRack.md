@@ -15,13 +15,6 @@ Response uses the WorkspaceRackSummary json schema.
 Chainable action that takes the `rack_id` provided in the path and looks it up in the
 database, stashing a resultset to access it as `rack_rs`.
 
-## get\_layout
-
-Get the layout of the indicated rack.
-Supports json, csv formats.
-
-Response uses the WorkspaceRack json schema.
-
 ## add
 
 Add a rack to a workspace, unless it is the GLOBAL workspace, provided the rack
