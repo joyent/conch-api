@@ -42,6 +42,7 @@ directory in the main repository.
   * `/dc`
   * `/room`
   * `/rack_role`
+  * `/rack`
   * `/layout`
 
 * [Conch::Route::Device](modules/Conch::Route::Device)
