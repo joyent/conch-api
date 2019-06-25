@@ -110,9 +110,6 @@ Response uses the RackLayouts json schema.
 =cut
 
 sub layouts ($c) {
-    # TODO: to be more helpful to the UI, we should include the width of the hardware that will
-    # occupy each rack_unit(s).
-
     my @layouts = $c->stash('rack_rs')
         ->related_resultset('rack_layouts')
         ->with_rack_unit_size
