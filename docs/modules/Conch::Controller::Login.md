@@ -4,10 +4,10 @@ Conch::Controller::Login
 
 # METHODS
 
-## \_create\_jwt
+## \_respond\_with\_jwt
 
-Create a JWT to be returned to the user, for future presentation in the 'Authorization Bearer'
-header.
+Create a response containing a login JWT, which the user should later present in the
+'Authorization Bearer' header.
 
 ## authenticate
 

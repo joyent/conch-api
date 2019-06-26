@@ -14,14 +14,14 @@ Conch::Controller::Login
 
 =head1 METHODS
 
-=head2 _create_jwt
+=head2 _respond_with_jwt
 
-Create a JWT to be returned to the user, for future presentation in the 'Authorization Bearer'
-header.
+Create a response containing a login JWT, which the user should later present in the
+'Authorization Bearer' header.
 
 =cut
 
-sub _create_jwt ($c, $user_id, $expires_delta = undef) {
+sub _respond_with_jwt ($c, $user_id, $expires_delta = undef) {
     my $jwt_config = $c->app->config('jwt') || {};
 
     my $expires_abs = time + (
@@ -37,7 +37,8 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
         'login_jwt_'.join('_', Time::HiRes::gettimeofday), # reasonably unique name
     );
 
-    return $jwt;
+    return if $c->res->code;
+    return $c->status(200, { jwt_token => $jwt });
 }
 
 =head2 authenticate
@@ -189,14 +190,8 @@ sub session_login ($c) {
         $c->session(expires => time + 10 * 60);
 
         # we logged the user in, but he must now change his password (within 10 minutes)
-        $c->res->code(200);
         $c->res->headers->location($c->url_for('/user/me/password'));
-        my $payload = { jwt_token => $c->_create_jwt($user->id, 10 * 60) };
-        $c->respond_to(
-            json => { json => $payload },
-            any  => { json => $payload },
-        );
-        return 0;
+        return $c->_respond_with_jwt($user->id, 10 * 60);
     }
 
     # allow the user to use session auth again
@@ -205,7 +200,7 @@ sub session_login ($c) {
         refuse_session_auth => 0,
     });
 
-    return $c->status(200, { jwt_token => $c->_create_jwt($user->id) });
+    return $c->_respond_with_jwt($user->id);
 }
 
 =head2 session_logout
@@ -246,7 +241,7 @@ sub refresh_token ($c) {
     # re-authentication. Expires 'conch' cookie
     if (my $user_id = $c->session('user')){
         $c->session(expires => 1);
-        return $c->status(200, { jwt_token => $c->_create_jwt($user_id) });
+        return $c->_respond_with_jwt($user_id);
     }
 
     # expire this token
@@ -260,7 +255,7 @@ sub refresh_token ($c) {
     return $c->status(403, { error => 'Invalid token ID' })
         if not $token_valid;
 
-    return $c->status(200, { jwt_token => $c->_create_jwt($c->stash('user_id')) });
+    return $c->_respond_with_jwt($c->stash('user_id'));
 }
 
 1;
