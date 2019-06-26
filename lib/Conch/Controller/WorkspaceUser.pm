@@ -113,7 +113,7 @@ sub add_user ($c) {
             template_file => 'workspace_change_access',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch access has changed',
-            workspace => $c->stash('workspace_rs')->get_column('name')->single,
+            workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
             permission => $input->{role},
         ) if $params->{send_mail} // 1;
 
@@ -130,7 +130,7 @@ sub add_user ($c) {
         template_file => 'workspace_add_user',
         From => 'noreply@conch.joyent.us',
         Subject => 'Your Conch access has changed',
-        workspace => $c->stash('workspace_rs')->get_column('name')->single,
+        workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
         permission => $input->{role},
     ) if $params->{send_mail} // 1;
 
@@ -163,7 +163,7 @@ sub remove ($c) {
     my $num_rows = $rs->count;
     return $c->status(204) if not $num_rows;
 
-    my $workspace_name = $c->stash('workspace_rs')->get_column('name')->single;
+    my $workspace_name = $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single;
 
     $c->log->debug('removing user '.$user->name.' from workspace '
         .$workspace_name.' and all sub-workspaces ('.$num_rows.'rows in total)');
