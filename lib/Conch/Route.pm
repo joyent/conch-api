@@ -197,6 +197,41 @@ Returns the schema specified by type and name.
 
 =back
 
+=head3 C<* /dc>, C<* /room>, C<* /rack_role>, C<* /rack>, C<* /layout>
+
+See L<Conch::Route::Datacenter/routes>
+
+=head3 C<* /device>
+
+See L<Conch::Route::Device/routes>
+
+=head3 C<* /device_report>
+
+See L<Conch::Route::DeviceReport/routes>
+
+=head3 C<* /hardware_product>
+
+See L<Conch::Route::HardwareProduct/routes>
+
+=head3 C<* /hardware_vendor>
+
+See L<Conch::Route::HardwareVendor/routes>
+
+=head3 C<* /relay>
+
+See L<Conch::Route::Relay/routes>
+
+=head3 C<* /user>
+
+See L<Conch::Route::User/routes>
+
+=head3 C<* /validation>, C<* /validation_plan>, C<* /validation_state>
+
+See L<Conch:Route::Validation/routes>
+
+=head3 C<* /workspace>
+
+See L<Conch::Route::Workspace/routes>
 
 =head1 LICENSING
 
