@@ -71,7 +71,7 @@ subtest 'unlocated device, no registered relay' => sub {
 
 subtest 'unlocated device with a registered relay' => sub {
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
-        ->status_is(204);
+        ->status_is(201);
 
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)

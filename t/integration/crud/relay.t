@@ -53,7 +53,8 @@ $t->post_ok('/relay/relay'.$_.'/register',
             ipaddr => '192.168.'.$_.'.2',
             ssh_port => 123,
         })
-    ->status_is(204)
+    ->status_is(201)
+    ->location_is('/relay/relay'.$_)
 foreach (0..1);
 
 my $relay0 = $t->app->db_relays->find({ id => 'relay0' });
@@ -70,6 +71,24 @@ cmp_deeply(
     ],
     'user_relay_connection timestamps are set',
 );
+
+my $rs = $t->app->db_relays->search({ id => 'relay0' })->rows(1)->prefetch('user_relay_connections');
+
+my ($relay_data) = $rs->hri->all;
+
+$t->post_ok('/relay/relay0/register', json => { serial => 'relay0' })
+    ->status_is(204)
+    ->location_is('/relay/'.$relay0->id);
+
+my ($new_relay_data) = $rs->hri->all;
+
+isnt(
+    $new_relay_data->{user_relay_connections}[0]{last_seen},
+    $relay_data->{user_relay_connections}[0]{last_seen},
+    'user_relay_connection.last_seen has been updated',
+);
+
+is($new_relay_data->{updated}, $relay_data->{updated}, 'relay itself was not changed');
 
 $t->get_ok('/relay/relay0')
     ->status_is(200)
@@ -112,11 +131,13 @@ $t->get_ok('/relay')
         ->status_is(403);
 
     $t2->post_ok('/relay/relay0/register', json => { serial => 'relay0' })
-        ->status_is(204);
+        ->status_is(204)
+        ->location_is('/relay/'.$relay0->id);
 
     $t2->get_ok('/relay/relay0')
         ->status_is(200)
-        ->json_schema_is('Relay');
+        ->json_schema_is('Relay')
+        ->json_is({ map +($_ => $relay0->$_), qw(id alias version ipaddr ssh_port created updated) });
 }
 
 $relay0->user_relay_connections->update({
@@ -129,7 +150,8 @@ $t->post_ok('/relay/relay0/register',
             serial => 'relay0',
             version => 'v2.0',
         })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/relay/'.$relay0->id);
 
 $relay0->discard_changes;    # reload from db
 

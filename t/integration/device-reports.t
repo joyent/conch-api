@@ -42,7 +42,7 @@ subtest preliminaries => sub {
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
-        ->status_is(204);
+        ->status_is(201);
 
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(422)

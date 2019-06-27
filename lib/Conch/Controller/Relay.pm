@@ -13,7 +13,7 @@ Conch::Controller::Relay
 =head2 register
 
 Registers a relay and connects it with the current user. The relay is created if the relay does
-not already exist.
+not already exist, or is updated with additional payload information otherwise.
 
 =cut
 
@@ -24,20 +24,25 @@ sub register ($c) {
     return $c->status(400, { error => 'serial number in path doesn\'t match payload data' })
         if $c->stash('relay_serial_number') ne $input->{serial};
 
+    my $relay = $c->db_relays->find_or_new({ id => delete $input->{serial} });
+    $relay->set_inflated_columns({ $input->%*, deactivated => undef });
 
-    my $relay = $c->db_relays->update_or_create({
-        id => delete $input->{serial},
-        $input->%*,
-        updated    => \'now()',
-        deactivated => undef,
-    });
+    if (not $relay->in_storage) {
+        $relay->insert;
+        $c->status(201);
+    }
+    else {
+        $relay->update({ updated => \'now()' }) if $relay->is_changed;
+        $c->status(204);
+    }
 
     $relay->update_or_create_related('user_relay_connections', {
         user_id => $c->stash('user_id'),
         last_seen => \'now()',
     });
 
-    $c->status(204);
+    $c->res->headers->location($c->url_for('/relay/'.$relay->id));
+    return;
 }
 
 =head2 list

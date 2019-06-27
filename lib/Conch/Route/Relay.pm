@@ -45,7 +45,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Request: request.yaml#/RegisterRelay
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<201 CREATED> or C<204 NO CONTENT>, plus Location header
 
 =back
 

@@ -13,7 +13,7 @@ Unless otherwise noted, all routes require authentication.
 ### `POST /relay/:relay_serial_number/register`
 
 - Request: request.yaml#/RegisterRelay
-- Response: `204 NO CONTENT`
+- Response: `201 CREATED` or `204 NO CONTENT`, plus Location header
 
 ### `GET /relay`
 
