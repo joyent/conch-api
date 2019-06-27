@@ -46,7 +46,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: device_report.yaml
+=item * Request: device_report.yaml#/DeviceReport
 
 =item * Response: response.yaml#/ReportValidationResults
 

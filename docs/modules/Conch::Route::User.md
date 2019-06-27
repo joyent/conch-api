@@ -63,7 +63,6 @@ otherwise, the user is logged out.
 
 ### `DELETE /user/me/settings/:key`
 
-- Request: request.yaml#/DeviceSetting
 - Response: `204 NO CONTENT`
 
 ### `GET /user/me/token`
@@ -72,7 +71,7 @@ otherwise, the user is logged out.
 
 ### `POST /user/me/token`
 
-- Response: request.yaml#/NewUserToken
+- Request: request.yaml#/NewUserToken
 - Response: response.yaml#/NewUserToken
 
 ### `GET /user/me/token/:token_name`

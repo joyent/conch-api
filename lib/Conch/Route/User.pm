@@ -228,8 +228,6 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Request: request.yaml#/DeviceSetting
-
 =item * Response: C<204 NO CONTENT>
 
 =back
@@ -246,7 +244,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Response: request.yaml#/NewUserToken
+=item * Request: request.yaml#/NewUserToken
 
 =item * Response: response.yaml#/NewUserToken
 

@@ -19,7 +19,7 @@ using a relay that registered with that user's credentials.
 
 ### `POST /device/:device_serial_number`
 
-- Request: device\_report.yaml#/DeviceReport\_v3.0.0
+- Request: device\_report.yaml#/DeviceReport
 - Response: response.yaml#/ValidationStateWithResults
 
 ### `GET /device?:key=:value`
@@ -132,7 +132,7 @@ otherwise.
 Does not store validation results.
 
 - User requires the read/write role
-- Request: device\_report.yaml
+- Request: device\_report.yaml#/DeviceReport
 - Response: response.yaml#/ValidationResults
 
 ### `POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id`
@@ -140,7 +140,7 @@ Does not store validation results.
 Does not store validation results.
 
 - User requires the read/write role
-- Request: device\_report.yaml
+- Request: device\_report.yaml#/DeviceReport
 - Response: response.yaml#/ValidationResults
 
 ### `GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...`
