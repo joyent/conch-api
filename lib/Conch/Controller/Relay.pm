@@ -22,7 +22,7 @@ sub register ($c) {
     return if not $input;
 
     return $c->status(400, { error => 'serial number in path doesn\'t match payload data' })
-        if $c->stash('relay_id') ne $input->{serial};
+        if $c->stash('relay_serial_number') ne $input->{serial};
 
 
     my $relay = $c->db_relays->update_or_create({

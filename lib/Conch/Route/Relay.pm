@@ -22,8 +22,8 @@ sub routes {
 
     $relay->to({ controller => 'relay' });
 
-    # POST /relay/:relay_id/register
-    $relay->post('/:relay_id/register')->to('#register');
+    # POST /relay/:relay_serial_number/register
+    $relay->post('/:relay_serial_number/register')->to('#register');
 
     # GET /relay
     $relay->get('/')->to('#list');
@@ -36,7 +36,7 @@ __END__
 
 Unless otherwise noted, all routes require authentication.
 
-=head3 C<POST /relay/:relay_id/register>
+=head3 C<POST /relay/:relay_serial_number/register>
 
 =over 4
 

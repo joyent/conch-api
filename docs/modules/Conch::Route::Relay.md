@@ -10,7 +10,7 @@ Sets up the routes for /relay:
 
 Unless otherwise noted, all routes require authentication.
 
-### `POST /relay/:relay_id/register`
+### `POST /relay/:relay_serial_number/register`
 
 - Request: request.yaml#/RegisterRelay
 - Response: `204 NO CONTENT`
