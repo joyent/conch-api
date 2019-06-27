@@ -84,6 +84,16 @@ $t->get_ok('/relay')
         }, (0..1)
     ]);
 
+{
+    my $other_user = $t->load_fixture('null_user');
+    my $t2 = Test::Conch->new(pg => $t->pg);
+    $t2->authenticate(email => $other_user->email);
+
+    $t2->get_ok('/relay')
+        ->status_is(403);
+}
+
+
 $relay0->user_relay_connections->update({
     first_seen => '1999-01-01',
     last_seen => '1999-01-01',
