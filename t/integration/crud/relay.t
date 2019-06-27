@@ -56,7 +56,9 @@ $t->post_ok('/relay/relay'.$_.'/register',
     ->status_is(204)
 foreach (0..1);
 
-my $relay0 = $t->app->db_relays->find('relay0');
+my $relay0 = $t->app->db_relays->find({ id => 'relay0' });
+my $relay1 = $t->app->db_relays->find({ id => 'relay1' });
+
 cmp_deeply(
     [ $relay0->user_relay_connections ],
     [
@@ -69,6 +71,20 @@ cmp_deeply(
     'user_relay_connection timestamps are set',
 );
 
+$t->get_ok('/relay/relay0')
+    ->status_is(200)
+    ->json_schema_is('Relay')
+    ->json_is({
+        id => 'relay0',
+        alias => 'relay_number_0',
+        version => 'v1.0',
+        ipaddr => '192.168.0.2',
+        ssh_port => 123,
+        created => $relay0->created,
+        updated => $relay0->updated,
+    });
+
+
 $t->get_ok('/relay')
     ->status_is(200)
     ->json_schema_is('Relays')
@@ -79,8 +95,8 @@ $t->get_ok('/relay')
             version => 'v1.'.$_,
             ipaddr => '192.168.'.$_.'.2',
             ssh_port => 123,
-            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            created => str(($relay0, $relay1)[$_]->created),
+            updated => str(($relay0, $relay1)[$_]->updated),
         }, (0..1)
     ]);
 
@@ -91,8 +107,17 @@ $t->get_ok('/relay')
 
     $t2->get_ok('/relay')
         ->status_is(403);
-}
 
+    $t2->get_ok('/relay/relay0')
+        ->status_is(403);
+
+    $t2->post_ok('/relay/relay0/register', json => { serial => 'relay0' })
+        ->status_is(204);
+
+    $t2->get_ok('/relay/relay0')
+        ->status_is(200)
+        ->json_schema_is('Relay');
+}
 
 $relay0->user_relay_connections->update({
     first_seen => '1999-01-01',

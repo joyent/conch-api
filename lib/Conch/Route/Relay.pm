@@ -27,6 +27,9 @@ sub routes {
 
     # GET /relay
     $relay->get('/')->to('#list');
+
+    # GET /relay/:relay_serial_number
+    $relay->get('/:relay_serial_number')->to('#get');
 }
 
 1;
@@ -53,6 +56,16 @@ Unless otherwise noted, all routes require authentication.
 =item * Requires system admin authorization
 
 =item * Response: response.yaml#/Relays
+
+=back
+
+=head3 C<GET /relay/:relay_serial_number>
+
+=over 4
+
+=item * Requires system admin authorization, or the user to have previously registered the relay.
+
+=item * Response: response.yaml#/Relay
 
 =back
 

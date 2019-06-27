@@ -54,6 +54,27 @@ sub list ($c) {
     $c->status(200, [ $c->db_relays->active->order_by('id')->all ]);
 }
 
+=head2 get
+
+Get the details of a single relay.
+Requires the user to be a system admin, or have previously registered the relay.
+
+Response uses the Relay json schema.
+
+=cut
+
+sub get ($c) {
+    my $rs = $c->db_relays->active->search_rs({ id => $c->stash('relay_serial_number') });
+    return $c->status(404) if not $rs->exists;
+
+    $rs = $rs->search({ user_id => $c->stash('user_id') }, { join => 'user_relay_connections' })
+        if not $c->is_system_admin;
+
+    my $relay = $rs->single;
+    return $c->status(403) if not $relay;
+    $c->status(200, $relay);
+}
+
 1;
 __END__
 

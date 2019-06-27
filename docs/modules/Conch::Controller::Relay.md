@@ -16,6 +16,13 @@ Requires the user to be a system admin.
 
 Response uses the Relays json schema.
 
+## get
+
+Get the details of a single relay.
+Requires the user to be a system admin, or have previously registered the relay.
+
+Response uses the Relay json schema.
+
 # LICENSING
 
 Copyright Joyent, Inc.
