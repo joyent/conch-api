@@ -314,9 +314,9 @@ ALTER TABLE public.device_nic OWNER TO conch;
 
 CREATE TABLE public.device_relay_connection (
     device_id text NOT NULL,
-    relay_id text NOT NULL,
     first_seen timestamp with time zone DEFAULT now() NOT NULL,
-    last_seen timestamp with time zone DEFAULT now() NOT NULL
+    last_seen timestamp with time zone DEFAULT now() NOT NULL,
+    relay_id uuid NOT NULL
 );
 
 
@@ -505,14 +505,15 @@ ALTER TABLE public.rack_role OWNER TO conch;
 --
 
 CREATE TABLE public.relay (
-    id text NOT NULL,
-    alias text,
+    serial_number text NOT NULL,
+    name text,
     version text,
     ipaddr inet,
     ssh_port integer,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     CONSTRAINT relay_ssh_port_check CHECK ((ssh_port >= 0))
 );
 
@@ -545,9 +546,9 @@ ALTER TABLE public.user_account OWNER TO conch;
 
 CREATE TABLE public.user_relay_connection (
     user_id uuid NOT NULL,
-    relay_id text NOT NULL,
     first_seen timestamp with time zone DEFAULT now() NOT NULL,
-    last_seen timestamp with time zone DEFAULT now() NOT NULL
+    last_seen timestamp with time zone DEFAULT now() NOT NULL,
+    relay_id uuid NOT NULL
 );
 
 
@@ -927,6 +928,14 @@ ALTER TABLE ONLY public.rack_role
 
 ALTER TABLE ONLY public.relay
     ADD CONSTRAINT relay_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: relay relay_serial_number_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.relay
+    ADD CONSTRAINT relay_serial_number_key UNIQUE (serial_number);
 
 
 --

@@ -28,8 +28,8 @@ sub routes {
     # GET /relay
     $relay->get('/')->to('#list');
 
-    # GET /relay/:relay_serial_number
-    $relay->get('/:relay_serial_number')->to('#get');
+    # GET /relay/:relay_id_or_serial_number
+    $relay->get('/:relay_id_or_serial_number')->to('#get');
 }
 
 1;
@@ -59,7 +59,7 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<GET /relay/:relay_serial_number>
+=head3 C<GET /relay/:relay_id_or_serial_number>
 
 =over 4
 

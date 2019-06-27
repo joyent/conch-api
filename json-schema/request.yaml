@@ -505,8 +505,8 @@ definitions:
       - serial
     properties:
       serial:
-        $ref: common.yaml#/definitions/relay_id
-      alias:
+        $ref: common.yaml#/definitions/relay_serial_number
+      name:
         type: string
       version:
         description: usually a git commit SHA

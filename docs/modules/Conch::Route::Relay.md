@@ -20,7 +20,7 @@ Unless otherwise noted, all routes require authentication.
 - Requires system admin authorization
 - Response: response.yaml#/Relays
 
-### `GET /relay/:relay_serial_number`
+### `GET /relay/:relay_id_or_serial_number`
 
 - Requires system admin authorization, or the user to have previously registered the relay.
 - Response: response.yaml#/Relay

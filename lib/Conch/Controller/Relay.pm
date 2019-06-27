@@ -2,6 +2,8 @@ package Conch::Controller::Relay;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -24,8 +26,8 @@ sub register ($c) {
     return $c->status(400, { error => 'serial number in path doesn\'t match payload data' })
         if $c->stash('relay_serial_number') ne $input->{serial};
 
-    my $relay = $c->db_relays->find_or_new({ id => delete $input->{serial} });
-    $relay->set_inflated_columns({ $input->%*, deactivated => undef });
+    my $relay = $c->db_relays->find_or_new({ serial_number => delete $input->{serial} });
+    $relay->set_columns({ $input->%*, deactivated => undef });
 
     if (not $relay->in_storage) {
         $relay->insert;
@@ -56,7 +58,7 @@ Response uses the Relays json schema.
 
 sub list ($c) {
     return $c->status(403) if not $c->is_system_admin;
-    $c->status(200, [ $c->db_relays->active->order_by('id')->all ]);
+    $c->status(200, [ $c->db_relays->active->order_by('serial_number')->all ]);
 }
 
 =head2 get
@@ -69,7 +71,12 @@ Response uses the Relay json schema.
 =cut
 
 sub get ($c) {
-    my $rs = $c->db_relays->active->search_rs({ id => $c->stash('relay_serial_number') });
+    my $identifier = $c->stash('relay_id_or_serial_number');
+
+    my $rs = $c->db_relays
+        ->active
+        ->search({ is_uuid($identifier) ? 'id' : 'serial_number' => $identifier });
+
     return $c->status(404) if not $rs->exists;
 
     $rs = $rs->search({ user_id => $c->stash('user_id') }, { join => 'user_relay_connections' })

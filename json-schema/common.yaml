@@ -13,7 +13,7 @@ definitions:
   macaddr:
     type: string
     pattern: "^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$"
-  relay_id:
+  relay_serial_number:
     type: string
     pattern: ^\S+$
   device_id:

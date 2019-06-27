@@ -35,12 +35,6 @@ __PACKAGE__->table("user_relay_connection");
   is_nullable: 0
   size: 16
 
-=head2 relay_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 first_seen
 
   data_type: 'timestamp with time zone'
@@ -55,13 +49,18 @@ __PACKAGE__->table("user_relay_connection");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 relay_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
   "user_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "relay_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "first_seen",
   {
     data_type     => "timestamp with time zone",
@@ -76,6 +75,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "relay_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -126,7 +127,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aR4gZ+TwJhzfL38PFNfm3g
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yuxJRLzF48Nk/Eyom+u0gw
 
 1;
 __END__
