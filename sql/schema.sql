@@ -970,14 +970,6 @@ ALTER TABLE ONLY public.user_workspace_role
 
 
 --
--- Name: user_workspace_role user_workspace_role_user_id_workspace_id_role_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_workspace_role
-    ADD CONSTRAINT user_workspace_role_user_id_workspace_id_role_key UNIQUE (user_id, workspace_id, role);
-
-
---
 -- Name: validation validation_name_version_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
