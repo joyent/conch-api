@@ -64,19 +64,8 @@ subtest 'Workspaces' => sub {
     is($t->app->db_user_workspace_roles->count, 1,
         'currently one user_workspace_role entry');
 
-    $t->post_ok('/user?send_mail=0',
-            json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
-        ->status_is(201, 'created new user "test user"')
-        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}!)
-        ->json_schema_is('NewUser')
-        ->json_cmp_deeply({
-            id => re(Conch::UUID::UUID_FORMAT),
-            email => 'test_user@conch.joyent.us',
-            name => 'test user',
-        })
-        ->email_not_sent;
-
-    my $test_user_id = $t->tx->res->json->{id};
+    my $test_user = $t->generate_fixtures('user_account',
+        { email => 'test_user@conch.joyent.us', name => 'test user' });
 
     $t->post_ok("/workspace/$global_ws_id/user", json => { role => 'rw' })
         ->status_is(400)
@@ -121,14 +110,14 @@ subtest 'Workspaces' => sub {
     );
 
     $t->post_ok("/workspace/$global_ws_id/user", json => {
-            user_id => $test_user_id,
+            user_id => $test_user->id,
             role => 'rw',
         })
         ->status_is(204, 'redundant add requests do nothing')
         ->email_not_sent;
 
     $t->post_ok("/workspace/$global_ws_id/user", json => {
-            user_id => $test_user_id,
+            user_id => $test_user->id,
             email => 'test_user@conch.joyent.us',
             role => 'rw',
         })
@@ -474,25 +463,8 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(204, 'deleting again is a no-op')
         ->email_not_sent;
 
-    $t->post_ok('/user',
-            json => { email => 'untrusted/user@conch.joyent.us', name => 'me', password => '123' })
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ])
-        ->email_not_sent;
-
-    $t->post_ok('/user',
-            json => { email => 'untrusted_user@conch.joyent.us', name => 'me', password => '123' })
-        ->status_is(400)
-        ->json_is({ error => 'user name "me" is prohibited' })
-        ->email_not_sent;
-
-    $t->post_ok('/user?send_mail=0',
-            json => { email => 'untrusted_user@conch.joyent.us', name => 'untrusted user', password => '123' })
-        ->status_is(201, 'created new untrusted user')
-        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}!)
-        ->json_schema_is('NewUser')
-        ->email_not_sent;
+    my $untrusted_user = $t->generate_fixtures('user_account',
+        { email => 'untrusted_user@conch.joyent.us', name => 'untrusted user', password => 123 });
 
     $t->post_ok('/workspace/child_ws/user', json => {
             email => 'untrusted_user@conch.joyent.us',
@@ -582,9 +554,6 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
         ->json_is($workspace_data{untrusted_user}[1]);
-
-    $untrusted->get_ok('/user')
-        ->status_is(403);
 
     $untrusted->get_ok('/workspace/GLOBAL/user')
         ->status_is(403);

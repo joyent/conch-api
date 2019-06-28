@@ -318,6 +318,12 @@ subtest 'modify another user' => sub {
         ->json_is({ error => 'user name "me" is prohibited' })
         ->email_not_sent;
 
+    $t->post_ok('/user', json => { email => 'foo/bar@conch.joyent.us', name => 'foo' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ])
+        ->email_not_sent;
+
     $t->post_ok('/user', json => { name => 'foo', email => $t->CONCH_EMAIL })
         ->status_is(409, 'cannot create user with a duplicate email address')
         ->json_schema_is('UserError')
@@ -651,6 +657,29 @@ subtest 'modify another user' => sub {
     my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);
     is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
     is($second_new_user->name, $new_user->name, '...but the names are the same');
+
+
+    $t2->post_ok('/logout')->status_is(204);
+
+    my $untrusted_user = $t2->generate_fixtures('user_account');
+    $t2->authenticate(email => $untrusted_user->email);
+
+    my $EMAIL = 'conch@conch.joyent.us';
+    my @queries = (
+        [ GET => '/user' ],
+        [ GET => '/user/'.$EMAIL ],
+        [ POST => '/user', json => { email => $EMAIL, name => 'test' } ],
+        [ POST => '/user/'.$EMAIL, json => json => { name => 'hi' } ],
+        [ POST => '/user/'.$EMAIL, json => { is_admin => JSON::PP::true } ],
+        [ DELETE => '/user/'.$EMAIL ],
+        [ POST => '/user/'.$EMAIL.'/revoke' ],
+        [ DELETE => '/user/'.$EMAIL.'/password' ],
+        [ GET => '/user/'.$EMAIL.'/token' ],
+        [ GET => '/user/'.$EMAIL.'/token/foo' ],
+        [ DELETE => '/user/'.$EMAIL.'/token/foo' ],
+    );
+    $t2->_build_ok($_->@*)->status_is(403) foreach @queries;
+
 
     warnings(sub {
         memory_cycle_ok($t2, 'no leaks in the Test::Conch object');
