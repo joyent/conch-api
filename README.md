@@ -8,12 +8,13 @@ all devices.
 
 Conch is open source, licensed under MPL2.
 
+[More documentation can be found here.](https://joyent.github.io/conch/)
+
 ## Caveat Emptor
 
-At the time of writing, the API is not considered to be stable. While we do our
-best to prevent breakage, the core is in considerable flux and we do not
-guarantee fit or function right now. The [conch
-shell](https://github.com/joyent/conch-shell) is our current stable interface.
+The API is in a constant state of flux. Contact the development team before
+attempting to use it directly.
+The [conch shell](https://github.com/joyent/conch-shell) is our current stable interface.
 
 ## Installation
 
