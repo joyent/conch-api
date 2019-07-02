@@ -22,16 +22,16 @@ Verifies that the currently stashed user has the `is_admin` flag set.
 return $c->status(403) if not $c->is_workspace_admin;
 ```
 
-Verifies that the user indicated by the stashed `user_id` has 'admin' permission on the
+Verifies that the user indicated by the stashed `user_id` has the 'admin' role on the
 workspace indicated by the stashed `workspace_id` or one of its ancestors.
 
 ## user\_has\_workspace\_auth
 
-Verifies that the user indicated by the stashed `user_id` has (at least) this auth role on the
+Verifies that the user indicated by the stashed `user_id` has (at least) this role on the
 workspace indicated by the stashed `workspace_id` or one of its ancestors.
 
-Users with the admin flag set will always return true, even if no user\_workspace\_role records
-are present.
+System admin users set will always return true, even if no user\_workspace\_role records are
+present.
 
 ## generate\_jwt
 

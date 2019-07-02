@@ -217,9 +217,9 @@ subtest 'located device' => sub {
             ->status_is(403);
     });
 
-    # TODO: permissions for PUT, DELETE queries
+    # TODO: required role for PUT, DELETE queries
 
-    subtest 'permissions for POST queries' => sub {
+    subtest 'required role for POST queries' => sub {
         my @queries = (
             '/device/LOCATED_DEVICE/validated',
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'installation' } ],
@@ -241,7 +241,7 @@ subtest 'located device' => sub {
         }
     };
 
-    subtest 'permissions for GET queries' => sub {
+    subtest 'required role for GET queries' => sub {
         $t->app->db_devices->search({ id => $located_device_id })->update({
             hostname => 'Luci',
         });
@@ -267,7 +267,7 @@ subtest 'located device' => sub {
             '/device/LOCATED_DEVICE/validation_state',
             '/device/LOCATED_DEVICE/interface',
             '/device/LOCATED_DEVICE/phase',
-            # TODO: filter search results for permissions
+            # TODO: filter search results for required role
             #'/device?hostname=Luci',
             #'/device?mac=00:00:00:00:00:00',
             #'/device?ipaddr=127.0.0.1',
@@ -279,7 +279,7 @@ subtest 'located device' => sub {
                 ->status_is(200);
         }
 
-        $t->txn_local('remove all workspace permissions', sub ($t) {
+        $t->txn_local('remove all workspace roles', sub ($t) {
             $t->app->db_user_workspace_roles->delete;
 
             foreach my $query (@queries) {
@@ -474,7 +474,7 @@ subtest 'mutate device attributes' => sub {
 };
 
 subtest 'Device settings' => sub {
-    # device settings that check for 'admin' permission need the device to have a location
+    # device settings that check for the 'admin' role need the device to have a location
     $t->authenticate(email => $admin_user->email);
 
     $t->app->db_device_settings->search({ device_id => $located_device_id })->delete;

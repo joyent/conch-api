@@ -84,7 +84,7 @@ Composing rels: ["workspace\_racks"](#workspace_racks) -> rack
 
 ## TO\_JSON
 
-Include information about the user's permissions, if available.
+Include information about the user's role, if available.
 
 ## user\_id\_for\_role
 

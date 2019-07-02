@@ -24,7 +24,7 @@ is assigned to the parent workspace of this one.
 
 Remove a rack from a workspace (and all descendants).
 
-Requires 'admin' permissions on the workspace.
+Requires the 'admin' role on the workspace.
 
 # LICENSING
 

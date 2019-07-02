@@ -24,12 +24,12 @@ Uses a device report to populate configuration information about the given devic
 Chainable action that validates the 'device\_report\_id' provided in the path.
 Stores the device\_id and device\_report resultset to the stash for later retrieval.
 
-Permissions checks are done in the next controller action in the chain.
+Role checks are done in the next controller action in the chain.
 
 ## get
 
 Get the device\_report record specified by uuid.
-A permissions check has already been done by device#find\_device.
+A role check has already been done by [device#find\_device](../modules/Conch::Controller::Device#find_device).
 
 Response uses the DeviceReportRow json schema.
 

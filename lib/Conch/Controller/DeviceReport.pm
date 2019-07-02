@@ -325,7 +325,7 @@ sub _add_reboot_count ($device) {
 Chainable action that validates the 'device_report_id' provided in the path.
 Stores the device_id and device_report resultset to the stash for later retrieval.
 
-Permissions checks are done in the next controller action in the chain.
+Role checks are done in the next controller action in the chain.
 
 =cut
 
@@ -348,7 +348,7 @@ sub find_device_report ($c) {
 =head2 get
 
 Get the device_report record specified by uuid.
-A permissions check has already been done by device#find_device.
+A role check has already been done by L<device#find_device|Conch::Controller::Device/find_device>.
 
 Response uses the DeviceReportRow json schema.
 

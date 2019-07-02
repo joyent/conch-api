@@ -17,7 +17,7 @@ Conch::Controller::Device
 =head2 find_device
 
 Chainable action that uses the C<device_id_or_serial_number> provided in the path
-to find the device and verify the user has permissions to operate on it.
+to find the device and verify the user has the required role to operate on it.
 
 =cut
 
@@ -73,14 +73,14 @@ sub find_device ($c) {
     elsif ($device_check->{has_location}) {
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
         my $method = $c->req->method;
-        my $requires_permission =
+        my $requires_role =
             (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
           : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
           : die 'need handling for '.$method.' method';
 
         if (not $c->db_devices->search({ 'device.id' => $device_id })
-                ->user_has_permission($c->stash('user_id'), $requires_permission)) {
-            $c->log->debug('User lacks permission to access device '.$identifier);
+                ->user_has_role($c->stash('user_id'), $requires_role)) {
+            $c->log->debug('User lacks the required role to access device '.$identifier);
             return $c->status(403);
         }
     }
@@ -97,7 +97,7 @@ sub find_device ($c) {
             ->search({ 'user_relay_connections.user_id' => $c->stash('user_id') });
 
         if (not $device_rs->exists) {
-            $c->log->debug('User lacks permission to access device '.$identifier);
+            $c->log->debug('User lacks the required role to access device '.$identifier);
             return $c->status(403);
         }
     }
@@ -105,7 +105,7 @@ sub find_device ($c) {
     $c->log->debug('Found device id '.$device_id);
 
     # store the simplified query to access the device, now that we've confirmed the user has
-    # permission to access it.
+    # the required role to access it.
     # No queries have been made yet, so you can add on more criteria or prefetches.
     $c->stash('device_rs', $c->db_devices->search_rs({ 'device.id' => $device_id }));
 
@@ -178,8 +178,7 @@ sub lookup_by_other_attribute ($c) {
     my $params = $c->validate_query_params('GetDeviceByAttribute');
     return if not $params;
 
-# XXX fixme - permissions!
-    # TODO: not checking if the user has permissions to view this device.
+    # TODO: not checking if the user has the required role to view this device.
     # need to get workspace(s) containing each device and filter them out.
 
     my ($key, $value) = $params->%*;

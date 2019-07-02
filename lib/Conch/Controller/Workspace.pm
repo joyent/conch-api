@@ -48,13 +48,13 @@ sub find_workspace ($c) {
 
     # HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
     my $method = $c->req->method;
-    my $requires_permission =
+    my $requires_role =
         (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
       : (any { $method eq $_ } qw(POST PUT)) ? 'rw'
       : $method eq 'DELETE'                  ? 'admin'
       : die "need handling for $method method";
     return $c->status(403)
-        if not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_permission);
+        if not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_role);
 
     # stash a resultset for easily accessing the workspace, e.g. for calling ->single, or
     # joining to.

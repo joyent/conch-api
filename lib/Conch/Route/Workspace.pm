@@ -28,7 +28,7 @@ sub routes {
 
     {
         # chainable action that extracts and looks up workspace_id from the path
-        # and performs basic permission checking for the workspace
+        # and performs basic role checking for the workspace
         my $with_workspace = $workspace->under('/:workspace_id_or_name')
             ->to('workspace#find_workspace');
 

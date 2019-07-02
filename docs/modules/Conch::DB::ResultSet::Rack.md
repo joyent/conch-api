@@ -16,9 +16,9 @@ merged results when passed a resultset referencing multiple racks, so don't do t
 
 This is used for identifying potential conflicts when adjusting layouts.
 
-## user\_has\_permission
+## user\_has\_role
 
-Checks that the provided user\_id has (at least) the specified permission in at least one
+Checks that the provided user\_id has (at least) the specified role in at least one
 workspace associated with the specified rack(s), including parent workspaces.
 
 # LICENSING

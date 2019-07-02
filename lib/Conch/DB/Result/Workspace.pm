@@ -181,7 +181,7 @@ use experimental 'signatures';
 
 =head2 TO_JSON
 
-Include information about the user's permissions, if available.
+Include information about the user's role, if available.
 
 =cut
 
@@ -192,7 +192,7 @@ sub TO_JSON ($self) {
     # Conch::DB::ResultSet::Workspace::with_role_via_data_for_user
     if (my $user_id = $self->user_id_for_role) {
         my $role_via = $self->result_source->resultset->role_via_for_user($self->id, $user_id);
-        Carp::croak('tried to get permission data for a user that has no permissions for this workspace: workspace_id ', $self->id, ', user_id ', $user_id) if not $role_via;
+        Carp::croak('tried to get role data for a user that has no role for this workspace: workspace_id ', $self->id, ', user_id ', $user_id) if not $role_via;
 
         $data->{role} = $role_via->role;
         $data->{role_via} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;

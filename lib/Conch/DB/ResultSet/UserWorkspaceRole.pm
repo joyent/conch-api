@@ -13,34 +13,34 @@ Conch::DB::ResultSet::UserWorkspaceRole
 
 =head1 DESCRIPTION
 
-Interface to queries involving user/workspace permissions.
+Interface to queries involving user/workspace roles.
 
 =head1 METHODS
 
-=head2 with_permission
+=head2 with_role
 
-Constrains the resultset to those user_workspace_role rows that grant (at least) the specified
-permission level.
+Constrains the resultset to those user_workspace_role rows that grants (at least) the specified
+role.
 
 =cut
 
-sub with_permission ($self, $permission) {
-    Carp::croak('permission must be one of: ro, rw, admin')
-        if none { $permission eq $_ } qw(ro rw admin);
+sub with_role ($self, $role) {
+    Carp::croak('role must be one of: ro, rw, admin')
+        if none { $role eq $_ } qw(ro rw admin);
 
-    $self->search({ role => { '>=' => \[ '?::user_workspace_role_enum', $permission ] } });
+    $self->search({ role => { '>=' => \[ '?::user_workspace_role_enum', $role ] } });
 }
 
-=head2 user_has_permission
+=head2 user_has_role
 
-Returns a boolean indicating whether there exists a user_workspace_role row that grant (at
-least) the specified permission level.
+Returns a boolean indicating whether there exists a user_workspace_role row that grants (at
+least) the specified role.
 
 =cut
 
-sub user_has_permission ($self, $user_id, $permission) {
+sub user_has_role ($self, $user_id, $role) {
     $self->search({ user_id => $user_id })
-        ->with_permission($permission)
+        ->with_role($role)
         ->exists;
 }
 

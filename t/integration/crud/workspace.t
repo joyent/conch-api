@@ -97,7 +97,7 @@ subtest 'Workspaces' => sub {
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^You have been added to the "GLOBAL" workspace at Joyent Conch with "rw" permissions\./m),
+            body => re(qr/^You have been added to the "GLOBAL" workspace at Joyent Conch with the "rw" role\./m),
         });
 
     is($t->app->db_user_workspace_roles->count, 2,
@@ -347,7 +347,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'admin',
         })
-        ->status_is(204, 'can upgrade existing permission')
+        ->status_is(204, 'can upgrade existing role')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -358,7 +358,7 @@ subtest 'Sub-Workspace' => sub {
     is($t->app->db_user_workspace_roles->count, 3,
         'now there are three user_workspace_role entries');
 
-    # now let's try manipulating permissions on the workspace in the middle of the hierarchy
+    # now let's try manipulating role entries on the workspace in the middle of the hierarchy
 
     $t->post_ok("/workspace/$child_ws_id/user", json => {
             email => 'test_user@conch.joyent.us',
@@ -382,7 +382,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'admin',
         })
-        ->status_is(204, 'can upgrade existing permission that exists in a parent workspace')
+        ->status_is(204, 'can upgrade existing role that exists in a parent workspace')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -394,7 +394,7 @@ subtest 'Sub-Workspace' => sub {
     is($t->app->db_user_workspace_roles->count, 4,
         'now there are four user_workspace_role entries');
 
-    # update our idea of what all the permissions should look like:
+    # update our idea of what all the roles should look like:
     $workspace_data{test_user}[1]{role} = 'admin';
     delete $workspace_data{test_user}[1]{role_via};
     $workspace_data{test_user}[2]{role} = 'admin';
@@ -421,7 +421,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
 
     $t->delete_ok("/workspace/$child_ws_id/user/test_user\@conch.joyent.us")
-        ->status_is(204, 'extra permissions for user are removed from the sub workspace and its children')
+        ->status_is(204, 'extra roles for user are removed from the sub workspace and its children')
         ->email_cmp_deeply({
             To => '"test user" <test_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -471,7 +471,7 @@ subtest 'Sub-Workspace' => sub {
             To => '"untrusted user" <untrusted_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^You have been added to the "child_ws" workspace at Joyent Conch with "ro" permissions\./m),
+            body => re(qr/^You have been added to the "child_ws" workspace at Joyent Conch with the "ro" role\./m),
         });
 
     $t->get_ok('/workspace/GLOBAL/user')
@@ -564,7 +564,7 @@ subtest 'Sub-Workspace' => sub {
             email => 'untrusted_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(204, 'can upgrade existing permission that exists in this workspace')
+        ->status_is(204, 'can upgrade existing role that exists in this workspace')
         ->email_cmp_deeply({
             To => '"untrusted user" <untrusted_user@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -573,7 +573,7 @@ subtest 'Sub-Workspace' => sub {
         });
 };
 
-subtest 'Permissions' => sub {
+subtest 'Roles' => sub {
     subtest 'Read-only' => sub {
         my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
         $t->authenticate(email => $ro_user->email);

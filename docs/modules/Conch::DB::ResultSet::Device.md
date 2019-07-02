@@ -8,9 +8,9 @@ Interface to queries involving devices.
 
 # METHODS
 
-## user\_has\_permission
+## user\_has\_role
 
-Checks that the provided user\_id has (at least) the specified permission in at least one
+Checks that the provided user\_id has (at least) the specified role in at least one
 workspace associated with the specified device(s), including parent workspaces.
 
 ## devices\_without\_location

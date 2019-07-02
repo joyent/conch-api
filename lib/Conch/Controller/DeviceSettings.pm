@@ -28,13 +28,13 @@ sub set_all ($c) {
 
     # overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
     my @non_tags = grep !/^tag\./, keys $input->%*;
-    my $perm_needed =
+    my $requires_role =
         @non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 
     # 'rw' already checked by find_device
-    if ($perm_needed eq 'admin') {
-        if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-            $c->log->debug('failed permission check (required '.$perm_needed.')');
+    if ($requires_role eq 'admin') {
+        if (not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
+            $c->log->debug('failed role check (required '.$requires_role.')');
             return $c->status(403);
         }
     }
@@ -76,12 +76,12 @@ sub set_single ($c) {
     return $c->status(204) if $existing_setting and $existing_setting->value eq $setting_value;
 
     # overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-    my $perm_needed = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
+    my $requires_role = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
     # 'rw' already checked by find_device
-    if ($perm_needed eq 'admin') {
-        if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-            $c->log->debug('failed permission check (required '.$perm_needed.')');
+    if ($requires_role eq 'admin') {
+        if (not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
+            $c->log->debug('failed role check (required '.$requires_role.')');
             return $c->status(403);
         }
     }
@@ -116,7 +116,7 @@ Response uses the DeviceSetting json schema.
 sub get_single ($c) {
     my $setting_key = $c->stash('key');
 
-    # no need to check 'ro' perms - find_device() already checked the workspace
+    # no need to check for the 'ro' role - find_device() already checked the workspace
 
     my $setting = $c->stash('device_rs')
         ->search_related('device_settings', { name => $setting_key })
@@ -137,12 +137,12 @@ Delete a single setting from a device, provide that setting was previously set
 
 sub delete_single ($c) {
     my $setting_key = $c->stash('key');
-    my $perm_needed = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
+    my $requires_role = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
     # 'rw' already checked by find_device
-    if ($perm_needed eq 'admin') {
-        if (not $c->stash('device_rs')->user_has_permission($c->stash('user_id'), $perm_needed)) {
-            $c->log->debug('failed permission check (required '.$perm_needed.')');
+    if ($requires_role eq 'admin') {
+        if (not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
+            $c->log->debug('failed role check (required '.$requires_role.')');
             return $c->status(403);
         }
     }

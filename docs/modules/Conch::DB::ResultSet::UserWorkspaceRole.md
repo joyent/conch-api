@@ -4,19 +4,19 @@ Conch::DB::ResultSet::UserWorkspaceRole
 
 # DESCRIPTION
 
-Interface to queries involving user/workspace permissions.
+Interface to queries involving user/workspace roles.
 
 # METHODS
 
-## with\_permission
+## with\_role
 
-Constrains the resultset to those user\_workspace\_role rows that grant (at least) the specified
-permission level.
+Constrains the resultset to those user\_workspace\_role rows that grants (at least) the specified
+role.
 
-## user\_has\_permission
+## user\_has\_role
 
-Returns a boolean indicating whether there exists a user\_workspace\_role row that grant (at
-least) the specified permission level.
+Returns a boolean indicating whether there exists a user\_workspace\_role row that grants (at
+least) the specified role.
 
 # LICENSING
 

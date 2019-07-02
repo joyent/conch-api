@@ -17,16 +17,16 @@ Interface to queries involving devices.
 
 =head1 METHODS
 
-=head2 user_has_permission
+=head2 user_has_role
 
-Checks that the provided user_id has (at least) the specified permission in at least one
+Checks that the provided user_id has (at least) the specified role in at least one
 workspace associated with the specified device(s), including parent workspaces.
 
 =cut
 
-sub user_has_permission ($self, $user_id, $permission) {
-    Carp::croak('permission must be one of: ro, rw, admin')
-        if none { $permission eq $_ } qw(ro rw admin);
+sub user_has_role ($self, $user_id, $role) {
+    Carp::croak('role must be one of: ro, rw, admin')
+        if none { $role eq $_ } qw(ro rw admin);
 
     my $device_workspaces_ids_rs = $self
         ->related_resultset('device_location')
@@ -39,7 +39,7 @@ sub user_has_permission ($self, $user_id, $permission) {
     $self->result_source->schema->resultset('workspace')
         ->and_workspaces_above($device_workspaces_ids_rs)
         ->related_resultset('user_workspace_roles')
-        ->user_has_permission($user_id, $permission);
+        ->user_has_role($user_id, $role);
 }
 
 =head2 devices_without_location

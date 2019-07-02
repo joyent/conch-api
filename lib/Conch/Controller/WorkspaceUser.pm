@@ -51,7 +51,8 @@ sub list ($c) {
 
 =head2 add_user
 
-Adds a user to the indicated workspace, or upgrades an existing permission to a workspace.
+Adds a user to the indicated workspace, or upgrades an existing role entry to access the
+workspace.
 Requires the 'admin' role on the workspace.
 
 Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
@@ -115,7 +116,7 @@ sub add_user ($c) {
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch access has changed',
             workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
-            permission => $input->{role},
+            role => $input->{role},
         ) if $params->{send_mail} // 1;
 
         return $c->status(204);
@@ -125,14 +126,14 @@ sub add_user ($c) {
         workspace_id => $workspace_id,
         role => $input->{role},
     });
-    $c->log->info('Added user '.$user->id.' to workspace '.$workspace_id.' at '.$input->{role}.' permission');
+    $c->log->info('Added user '.$user->id.' to workspace '.$workspace_id.' with the '.$input->{role}.' role');
 
     $c->send_mail(
         template_file => 'workspace_add_user',
         From => 'noreply@conch.joyent.us',
         Subject => 'Your Conch access has changed',
         workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
-        permission => $input->{role},
+        role => $input->{role},
     ) if $params->{send_mail} // 1;
 
     $c->status(204);
@@ -141,7 +142,7 @@ sub add_user ($c) {
 =head2 remove
 
 Removes the indicated user from the workspace, as well as all sub-workspaces.
-Requires 'admin' permissions on the workspace.
+Requires the 'admin' role for the workspace.
 
 Note this may not have the desired effect if the user is getting access to the workspace via
 a parent workspace. When in doubt, check at C<< GET /user/<id or name> >>.
