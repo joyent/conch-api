@@ -31,9 +31,7 @@ __PACKAGE__->table("migration");
 =head2 id
 
   data_type: 'integer'
-  is_auto_increment: 1
   is_nullable: 0
-  sequence: 'migration_id_seq'
 
 =head2 created
 
@@ -46,12 +44,7 @@ __PACKAGE__->table("migration");
 
 __PACKAGE__->add_columns(
   "id",
-  {
-    data_type         => "integer",
-    is_auto_increment => 1,
-    is_nullable       => 0,
-    sequence          => "migration_id_seq",
-  },
+  { data_type => "integer", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -74,8 +67,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hyl49PiJbIKla/K14uYZTQ
+# Created by DBIx::Class::Schema::Loader v0.07049
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eZuUEhBQKuK4OzJ1T7AxjQ
 
 1;
 __END__

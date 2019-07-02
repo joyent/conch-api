@@ -16,7 +16,7 @@ sub validate ($self, $data) {
     $self->register_result(
         got => 'hi',
         expected => 'hi',
-        component_id => 'x',
+        component => 'x',
         hint => 'we should have died before getting here',
     );
 }

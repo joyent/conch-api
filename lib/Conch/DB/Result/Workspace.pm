@@ -31,7 +31,7 @@ __PACKAGE__->table("workspace");
 =head2 id
 
   data_type: 'uuid'
-  default_value: uuid_generate_v4()
+  default_value: gen_random_uuid()
   is_nullable: 0
   size: 16
 
@@ -58,7 +58,7 @@ __PACKAGE__->add_columns(
   "id",
   {
     data_type => "uuid",
-    default_value => \"uuid_generate_v4()",
+    default_value => \"gen_random_uuid()",
     is_nullable => 0,
     size => 16,
   },
@@ -175,7 +175,7 @@ __PACKAGE__->many_to_many("racks", "workspace_racks", "rack");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RsBlQ3oLCLqT577UfUsn2g
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jAQTz8eBEJas87XgWV7xbw
 
 use experimental 'signatures';
 

@@ -31,7 +31,7 @@ __PACKAGE__->table("validation_plan");
 =head2 id
 
   data_type: 'uuid'
-  default_value: uuid_generate_v4()
+  default_value: gen_random_uuid()
   is_nullable: 0
   size: 16
 
@@ -63,7 +63,7 @@ __PACKAGE__->add_columns(
   "id",
   {
     data_type => "uuid",
-    default_value => \"uuid_generate_v4()",
+    default_value => \"gen_random_uuid()",
     is_nullable => 0,
     size => 16,
   },
@@ -138,7 +138,7 @@ __PACKAGE__->many_to_many("validations", "validation_plan_members", "validation"
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZxCTbfKSl997ecwJ/FJ3+Q
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pY3RQbK9VIIedyEO0h1hnw
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

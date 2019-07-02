@@ -187,7 +187,7 @@ subtest run_validation => sub {
                     status => 'pass',
                     message => "Expected eq 'hi'. Got 'hi'.",
                     category => 'multi',
-                    component_id => 'x',
+                    component => 'x',
                     hint => undef,
                 ),
                 methods(
@@ -195,7 +195,7 @@ subtest run_validation => sub {
                     status => 'fail',
                     message => 'new message',   # override
                     category => 'new category', # override
-                    component_id => 'y',
+                    component => 'y',
                     hint => 'stfu',
                 ),
             ],

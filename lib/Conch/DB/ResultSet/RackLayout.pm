@@ -23,8 +23,8 @@ Chainable resultset that adds C<rack_unit_size> to the results.
 
 sub with_rack_unit_size ($self) {
     $self->search(undef, {
-        join => { hardware_product => 'hardware_product_profile' },
-        '+columns' => { rack_unit_size => 'hardware_product_profile.rack_unit' },
+        join => 'hardware_product',
+        '+columns' => { rack_unit_size => 'hardware_product.rack_unit_size' },
         collapse => 1,
     });
 }

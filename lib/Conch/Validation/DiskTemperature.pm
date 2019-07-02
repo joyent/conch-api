@@ -33,7 +33,7 @@ sub validate {
             expected     => $MAX_TEMP,
             got          => $disk->{temp},
             cmp          => '<',
-            component_id => $disk_sn,
+            component    => $disk_sn,
         );
     }
 }

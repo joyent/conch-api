@@ -102,7 +102,7 @@ sub _hardware_product_profile_inflation ($self, $data) {
             $self->hardware_product->hardware_product_profile,
             methods(
                 id => re(Conch::UUID::UUID_FORMAT),
-                $data->{hardware_product_profile_rack_unit} ? ( rack_unit => $data->{hardware_product_profile_rack_unit} ) : (),
+                $data->{hardware_product_profile_dimms_num} ? ( dimms_num => $data->{hardware_product_profile_dimms_num} ) : (),
                 in_storage => bool(1),
             ),
         ),

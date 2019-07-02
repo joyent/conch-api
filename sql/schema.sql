@@ -45,20 +45,6 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 
 --
--- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
-
-
---
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
-
-
---
 -- Name: device_health_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
@@ -107,7 +93,6 @@ ALTER TYPE public.user_workspace_role_enum OWNER TO conch;
 CREATE TYPE public.validation_status_enum AS ENUM (
     'error',
     'fail',
-    'processing',
     'pass'
 );
 
@@ -274,7 +259,8 @@ CREATE TABLE public.device_location (
     rack_id uuid NOT NULL,
     rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT device_location_rack_unit_start_check CHECK ((rack_unit_start > 0))
 );
 
 
@@ -385,7 +371,9 @@ CREATE TABLE public.hardware_product (
     specification jsonb,
     sku text,
     generation_name text,
-    legacy_product_name text
+    legacy_product_name text,
+    rack_unit_size integer NOT NULL,
+    CONSTRAINT hardware_product_rack_unit_size_check CHECK ((rack_unit_size > 0))
 );
 
 
@@ -398,7 +386,6 @@ ALTER TABLE public.hardware_product OWNER TO conch;
 CREATE TABLE public.hardware_product_profile (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     hardware_product_id uuid NOT NULL,
-    rack_unit integer NOT NULL,
     purpose text NOT NULL,
     bios_firmware text NOT NULL,
     hba_firmware text,
@@ -454,32 +441,12 @@ ALTER TABLE public.hardware_vendor OWNER TO conch;
 
 CREATE TABLE public.migration (
     id integer NOT NULL,
-    created timestamp with time zone DEFAULT now()
+    created timestamp with time zone DEFAULT now(),
+    CONSTRAINT migration_id_check CHECK ((id >= 0))
 );
 
 
 ALTER TABLE public.migration OWNER TO conch;
-
---
--- Name: migration_id_seq; Type: SEQUENCE; Schema: public; Owner: conch
---
-
-CREATE SEQUENCE public.migration_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.migration_id_seq OWNER TO conch;
-
---
--- Name: migration_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: conch
---
-
-ALTER SEQUENCE public.migration_id_seq OWNED BY public.migration.id;
-
 
 --
 -- Name: rack; Type: TABLE; Schema: public; Owner: conch
@@ -510,7 +477,8 @@ CREATE TABLE public.rack_layout (
     hardware_product_id uuid NOT NULL,
     rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT rack_layout_rack_unit_start_check CHECK ((rack_unit_start > 0))
 );
 
 
@@ -525,7 +493,8 @@ CREATE TABLE public.rack_role (
     name text NOT NULL,
     rack_size integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT rack_role_rack_size_check CHECK ((rack_size > 0))
 );
 
 
@@ -543,7 +512,8 @@ CREATE TABLE public.relay (
     ssh_port integer,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT relay_ssh_port_check CHECK ((ssh_port >= 0))
 );
 
 
@@ -633,14 +603,15 @@ ALTER TABLE public.user_workspace_role OWNER TO conch;
 --
 
 CREATE TABLE public.validation (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name text NOT NULL,
     version integer NOT NULL,
     description text NOT NULL,
     module text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
-    deactivated timestamp with time zone
+    deactivated timestamp with time zone,
+    CONSTRAINT validation_version_check CHECK ((version > 0))
 );
 
 
@@ -651,7 +622,7 @@ ALTER TABLE public.validation OWNER TO conch;
 --
 
 CREATE TABLE public.validation_plan (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name text NOT NULL,
     description text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
@@ -678,7 +649,7 @@ ALTER TABLE public.validation_plan_member OWNER TO conch;
 --
 
 CREATE TABLE public.validation_result (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     device_id text NOT NULL,
     hardware_product_id uuid NOT NULL,
     validation_id uuid NOT NULL,
@@ -686,9 +657,10 @@ CREATE TABLE public.validation_result (
     hint text,
     status public.validation_status_enum NOT NULL,
     category text NOT NULL,
-    component_id text,
+    component text,
     result_order integer NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT validation_result_result_order_check CHECK ((result_order >= 0))
 );
 
 
@@ -699,12 +671,12 @@ ALTER TABLE public.validation_result OWNER TO conch;
 --
 
 CREATE TABLE public.validation_state (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     device_id text NOT NULL,
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum NOT NULL,
-    completed timestamp with time zone,
+    completed timestamp with time zone NOT NULL,
     device_report_id uuid NOT NULL
 );
 
@@ -728,7 +700,7 @@ ALTER TABLE public.validation_state_member OWNER TO conch;
 --
 
 CREATE TABLE public.workspace (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name text NOT NULL,
     description text,
     parent_workspace_id uuid
@@ -748,13 +720,6 @@ CREATE TABLE public.workspace_rack (
 
 
 ALTER TABLE public.workspace_rack OWNER TO conch;
-
---
--- Name: migration id; Type: DEFAULT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.migration ALTER COLUMN id SET DEFAULT nextval('public.migration_id_seq'::regclass);
-
 
 --
 -- Name: datacenter datacenter_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
@@ -1002,14 +967,6 @@ ALTER TABLE ONLY public.user_setting
 
 ALTER TABLE ONLY public.user_workspace_role
     ADD CONSTRAINT user_workspace_role_pkey PRIMARY KEY (user_id, workspace_id);
-
-
---
--- Name: user_workspace_role user_workspace_role_user_id_workspace_id_role_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_workspace_role
-    ADD CONSTRAINT user_workspace_role_user_id_workspace_id_role_key UNIQUE (user_id, workspace_id, role);
 
 
 --
@@ -1425,7 +1382,7 @@ CREATE INDEX validation_state_device_id_idx ON public.validation_state USING btr
 -- Name: validation_state_device_id_validation_plan_id_completed_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC) WHERE (completed IS NOT NULL);
+CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC);
 
 
 --

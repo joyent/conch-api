@@ -31,7 +31,7 @@ __PACKAGE__->table("validation_result");
 =head2 id
 
   data_type: 'uuid'
-  default_value: uuid_generate_v4()
+  default_value: gen_random_uuid()
   is_nullable: 0
   size: 16
 
@@ -68,7 +68,7 @@ __PACKAGE__->table("validation_result");
 =head2 status
 
   data_type: 'enum'
-  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","processing","pass"]}
+  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
   is_nullable: 0
 
 =head2 category
@@ -76,7 +76,7 @@ __PACKAGE__->table("validation_result");
   data_type: 'text'
   is_nullable: 0
 
-=head2 component_id
+=head2 component
 
   data_type: 'text'
   is_nullable: 1
@@ -99,7 +99,7 @@ __PACKAGE__->add_columns(
   "id",
   {
     data_type => "uuid",
-    default_value => \"uuid_generate_v4()",
+    default_value => \"gen_random_uuid()",
     is_nullable => 0,
     size => 16,
   },
@@ -118,13 +118,13 @@ __PACKAGE__->add_columns(
     data_type => "enum",
     extra => {
       custom_type_name => "validation_status_enum",
-      list => ["error", "fail", "processing", "pass"],
+      list => ["error", "fail", "pass"],
     },
     is_nullable => 0,
   },
   "category",
   { data_type => "text", is_nullable => 0 },
-  "component_id",
+  "component",
   { data_type => "text", is_nullable => 1 },
   "result_order",
   { data_type => "integer", is_nullable => 0 },
@@ -227,7 +227,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:E0g/P81PqD6kJxx9zk0Lbw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7w+LDN1uxN72P3styqzW5A
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

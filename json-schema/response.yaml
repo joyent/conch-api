@@ -702,6 +702,7 @@ definitions:
       - legacy_product_name
       - sku
       - specification
+      - rack_unit_size
       - hardware_product_profile
       - created
       - updated
@@ -735,6 +736,8 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
+      rack_unit_size:
+        $ref: common.yaml#/definitions/positive_integer
       hardware_product_profile:
         oneOf:
           - $ref: /definitions/HardwareProductProfile
@@ -758,7 +761,6 @@ definitions:
       - nics_num
       - psu_total
       - purpose
-      - rack_unit
       - ram_total
       - sas_hdd_num
       - sas_hdd_size
@@ -800,8 +802,6 @@ definitions:
           - type: 'null'
       purpose:
         type: string
-      rack_unit:
-        $ref: common.yaml#/definitions/positive_integer
       ram_total:
         type: integer
       sas_hdd_num:
@@ -1034,7 +1034,7 @@ definitions:
     required:
       - id
       - category
-      - component_id
+      - component
       - hardware_product_id
       - hint
       - message
@@ -1048,7 +1048,7 @@ definitions:
           - $ref: common.yaml#/definitions/uuid
       category:
         type: string
-      component_id:
+      component:
         oneOf:
           - type: 'null'
           - type: string
@@ -1086,10 +1086,8 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       completed:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: string
+        format: date-time
       created:
         type: string
         format: date-time
@@ -1122,10 +1120,8 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       completed:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: string
+        format: date-time
       created:
         type: string
         format: date-time

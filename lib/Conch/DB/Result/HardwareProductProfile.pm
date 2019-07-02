@@ -42,11 +42,6 @@ __PACKAGE__->table("hardware_product_profile");
   is_nullable: 0
   size: 16
 
-=head2 rack_unit
-
-  data_type: 'integer'
-  is_nullable: 0
-
 =head2 purpose
 
   data_type: 'text'
@@ -208,8 +203,6 @@ __PACKAGE__->add_columns(
   },
   "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "rack_unit",
-  { data_type => "integer", is_nullable => 0 },
   "purpose",
   { data_type => "text", is_nullable => 0 },
   "bios_firmware",
@@ -328,7 +321,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:A0d1Pmyg3nXXBUIx/wf1oA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gCQaYu/NdLtRe78u+a+1QA
 
 __PACKAGE__->add_columns(
     '+hardware_product_id' => { is_serializable => 0 },

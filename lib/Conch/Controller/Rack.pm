@@ -199,14 +199,13 @@ sub get_assignment ($c) {
         ->search(undef, {
             join => [
                 { device_location => 'device' },
-                { hardware_product => 'hardware_product_profile' },
+                'hardware_product',
             ],
             '+columns' => {
                 device_id => 'device.id',
                 device_asset_tag => 'device.asset_tag',
                 hardware_product_name => 'hardware_product.name',
-                # TODO: this should be renamed in the db itself.
-                rack_unit_size =>  'hardware_product_profile.rack_unit',
+                rack_unit_size => 'hardware_product.rack_unit_size',
             },
             collapse => 1,
         })

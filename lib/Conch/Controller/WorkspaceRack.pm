@@ -129,7 +129,7 @@ sub get_layout ($c) {
                         'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
                         (map +('layout.'.$_ => 'hardware_product.'.$_), qw(alias id name)),
                         'layout.vendor' => 'hardware_vendor.name',
-                        'layout.rack_unit_size' => 'hardware_product_profile.rack_unit',
+                        'layout.rack_unit_size' => 'hardware_product.rack_unit_size',
                         (map +('layout.device.'.$_ => 'device.'.$_), $c->schema->source('device')->columns),
                     },
                     join => [
@@ -137,7 +137,7 @@ sub get_layout ($c) {
                         'datacenter_room',
                         { rack_layouts => [
                             { device_location => 'device' },
-                            { hardware_product => [ 'hardware_vendor', 'hardware_product_profile' ] },
+                            { hardware_product => 'hardware_vendor' },
                           ] },
                     ],
                     order_by => 'rack_layouts.rack_unit_start',

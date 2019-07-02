@@ -351,7 +351,7 @@ sub run_validation_plan ($self, %options) {
                 validation_id       => $validation->id,
                 device_id           => $device->id,
                 hardware_product_id => $validator->hardware_product->id,
-                $_->%{qw(message hint status category component_id)},
+                $_->%{qw(message hint status category component)},
             }),
             $validator->validation_results;
     }
@@ -365,7 +365,6 @@ sub run_validation_plan ($self, %options) {
     my $status = reduce {
         $a eq 'error' || $b eq 'error' ? 'error'
       : $a eq 'fail' || $b eq 'fail' ? 'fail'
-      : $a eq 'processing' || $b eq 'processing' ? 'processing'
       : $a; # pass
     } map $_->status, @validation_results;
 
@@ -420,7 +419,7 @@ sub run_validation ($self, %options) {
             validation_id       => $validation->id,
             device_id           => $device->id,
             hardware_product_id => $validator->hardware_product->id,
-            $_->%{qw(message hint status category component_id)},
+            $_->%{qw(message hint status category component)},
         }),
         $validator->validation_results;
 

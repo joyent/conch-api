@@ -208,6 +208,7 @@ definitions:
         - name
         - alias
         - hardware_vendor_id
+        - rack_unit_size
       - type: object
         properties:
           hardware_product_profile:
@@ -217,8 +218,6 @@ definitions:
     additionalProperties: false
     minProperties: 1
     properties:
-      rack_unit:
-        $ref: common.yaml#/definitions/positive_integer
       purpose:
         type: string
       bios_firmware:
@@ -335,13 +334,14 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
+      rack_unit_size:
+        $ref: common.yaml#/definitions/positive_integer
       hardware_product_profile:
         $ref: /definitions/HardwareProductProfileUpdate
   HardwareProductProfileCreate:
     allOf:
       - $ref: /definitions/HardwareProductProfileUpdate
       - required:
-        - rack_unit
         - purpose
         - bios_firmware
         - cpu_num

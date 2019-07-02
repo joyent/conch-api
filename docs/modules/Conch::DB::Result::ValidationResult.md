@@ -12,7 +12,7 @@ Conch::DB::Result::ValidationResult
 
 ```
 data_type: 'uuid'
-default_value: uuid_generate_v4()
+default_value: gen_random_uuid()
 is_nullable: 0
 size: 16
 ```
@@ -61,7 +61,7 @@ is_nullable: 1
 
 ```perl
 data_type: 'enum'
-extra: {custom_type_name => "validation_status_enum",list => ["error","fail","processing","pass"]}
+extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
 is_nullable: 0
 ```
 
@@ -72,7 +72,7 @@ data_type: 'text'
 is_nullable: 0
 ```
 
-## component\_id
+## component
 
 ```
 data_type: 'text'

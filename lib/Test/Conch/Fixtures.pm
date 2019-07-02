@@ -149,6 +149,7 @@ my %canned_definitions = (
             alias => 'Switch Vendor',
             prefix => 'F10',
             legacy_product_name => 'FuerzaDiaz',
+            rack_unit_size => 1,
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
@@ -164,6 +165,7 @@ my %canned_definitions = (
             sku => '550-551-001',
             generation_name => 'Joyent-G1',
             legacy_product_name => 'Joyent-Compute-Platform',
+            rack_unit_size => 2,
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
@@ -179,6 +181,7 @@ my %canned_definitions = (
             sku => '550-552-003',
             generation_name => 'Joyent-S1',
             legacy_product_name => 'Joyent-Storage-Platform',
+            rack_unit_size => 4,
         },
         requires => {
             hardware_vendor_1 => { our => 'hardware_vendor_id', their => 'id' },
@@ -196,7 +199,6 @@ my %canned_definitions = (
             ram_total => 3,
             nics_num => 48,
             psu_total => 2,
-            rack_unit => 1,
             usb_num => 0,
         },
         requires => {
@@ -219,7 +221,6 @@ my %canned_definitions = (
             sata_ssd_size => 93,
             sata_ssd_slots => '0',
             psu_total => 2,
-            rack_unit => 4,
             usb_num => 1,
         },
         requires => {
@@ -242,7 +243,6 @@ my %canned_definitions = (
             sata_ssd_size => 93,
             sata_ssd_slots => '0',
             psu_total => 2,
-            rack_unit => 2,
             usb_num => 1,
         },
         requires => {
@@ -555,6 +555,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 using => {
                     name => "hardware_product_$num",
                     alias => "hardware_product_$num",
+                    rack_unit_size => 42,
                     ($specification // {})->%*,
                 },
                 requires => {
@@ -569,7 +570,6 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
             "hardware_product_profile_$num" => {
                 new => 'hardware_product_profile',
                 using => {
-                    rack_unit => 42,
                     purpose => 'none',
                     bios_firmware => 'none',
                     cpu_num => 0,

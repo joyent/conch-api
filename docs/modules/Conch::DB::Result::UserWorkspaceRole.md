@@ -40,14 +40,6 @@ is_nullable: 0
 - ["user\_id"](#user_id)
 - ["workspace\_id"](#workspace_id)
 
-# UNIQUE CONSTRAINTS
-
-## `user_workspace_role_user_id_workspace_id_role_key`
-
-- ["user\_id"](#user_id)
-- ["workspace\_id"](#workspace_id)
-- ["role"](#role)
-
 # RELATIONS
 
 ## user\_account

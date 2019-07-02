@@ -12,9 +12,7 @@ Conch::DB::Result::Migration
 
 ```
 data_type: 'integer'
-is_auto_increment: 1
 is_nullable: 0
-sequence: 'migration_id_seq'
 ```
 
 ## created

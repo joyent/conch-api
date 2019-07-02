@@ -73,7 +73,7 @@ sub validate {
             expected     => [@peer_ports],
             got          => $peer_port,
             cmp          => 'oneOf',
-            component_id => $nic->{nic},
+            component    => $nic->{nic},
             name         => 'peer_ports'
         );
 

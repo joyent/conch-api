@@ -66,11 +66,7 @@ sub create ($c) {
 
     my $new_rack_unit_size = $c->db_hardware_products
         ->search({ 'hardware_product.id' => $input->{hardware_product_id} })
-        ->related_resultset('hardware_product_profile')
-        ->get_column('rack_unit')->single;
-
-    return $c->status(409, { error => 'missing hardware product profile on hardware product id '.$input->{hardware_product_id} })
-        if not $new_rack_unit_size;
+        ->get_column('rack_unit_size')->single;
 
     if ($input->{rack_unit_start} + $new_rack_unit_size - 1 > $rack_size) {
         $c->log->debug('layout ends at rack unit '.($input->{rack_unit_start} + $new_rack_unit_size - 1)
@@ -182,20 +178,14 @@ sub update ($c) {
     # determine assigned slots, not counting the slots currently assigned to this layout (which
     # we will be giving up)
 
-    my $current_rack_unit_size = $c->db_hardware_products->search(
-        { 'hardware_product.id' => $layout->hardware_product_id })
-        ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single;
-
-    return $c->status(409, { error => 'missing hardware product profile on hardware product id '.$layout->hardware_product_id })
-        if not $current_rack_unit_size;
+    my $current_rack_unit_size = $c->db_hardware_products
+        ->search({ 'hardware_product.id' => $layout->hardware_product_id })
+        ->get_column('rack_unit_size')->single;
 
     my $new_rack_unit_size = $input->{hardware_product_id}
         ? $c->db_hardware_products->search({ 'hardware_product.id' => $input->{hardware_product_id} })
-            ->related_resultset('hardware_product_profile')->get_column('rack_unit')->single
+            ->get_column('rack_unit_size')->single
         : $current_rack_unit_size;
-
-    return $c->status(409, { error => 'missing hardware product profile on hardware product id '.$input->{hardware_product_id} })
-        if not $new_rack_unit_size;
 
     my $new_rack_unit_start = $input->{rack_unit_start} // $layout->rack_unit_start;
 
