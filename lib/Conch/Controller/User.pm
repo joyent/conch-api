@@ -20,8 +20,8 @@ Revoke a specified user's tokens and prevents future token authentication,
 forcing the user to /login again. By default *all* of a user's tokens are deleted,
 but this can be adjusted with query parameters:
 
- * ?login_only=1    login tokens are removed; api tokens are left alone
- * ?api_only=1      login tokens are left alone; api tokens are removed
+ * C<?login_only=1> login tokens are removed; api tokens are left alone
+ * C<?api_only=1>   login tokens are left alone; api tokens are removed
 
 If login tokens are affected, C<user_session_auth> is also set for the user, which forces the
 user to change his password as soon as a login token is used again (but use of any existing api
@@ -181,7 +181,7 @@ sub delete_setting ($c) {
 
 Stores a new password for the current user.
 
-Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
+Optionally takes a query parameter C<clear_tokens>, to also revoke session tokens for the user,
 forcing the user to log in again. Possible options are:
 
   * none
@@ -224,10 +224,10 @@ sub change_own_password ($c) {
 
 Generates a new random password for a user. System admin only.
 
-Optionally takes a query parameter 'send_mail' (defaulting to true), to send an
+Optionally takes a query parameter C<send_mail> (defaulting to true), to send an
 email to the user with the new password.
 
-Optionally takes a query parameter 'clear_tokens', to also revoke session tokens for the user,
+Optionally takes a query parameter C<clear_tokens>, to also revoke session tokens for the user,
 forcing the user to log in again. Possible options are:
 
   * none
@@ -373,9 +373,8 @@ sub list ($c) {
 
 Creates a user. System admin only.
 
-Optionally takes a query parameter:
-
-* 'send_mail' (defaulting to true), to send an email to the user with the new password
+Optionally takes a query parameter C<send_mail> (defaulting to true), to send an
+email to the user with the new password.
 
 Response uses the NewUser json schema (or UserError for some error conditions).
 
@@ -423,7 +422,7 @@ sub create ($c) {
 
 Deactivates a user. System admin only.
 
-Optionally takes a query parameter 'clear_tokens' (defaulting to true), to also revoke all
+Optionally takes a query parameter C<clear_tokens> (defaulting to true), to also revoke all
 session tokens for the user, which would force all tools to log in again should the account be
 reactivated (for which there is no api endpoint at present).
 
@@ -514,8 +513,8 @@ sub create_api_token ($c) {
 
 =head2 find_api_token
 
-Chainable action that takes the 'token_name' provided in the path and looks it up in the
-database, stashing a resultset to access it as 'token_rs'.
+Chainable action that takes the C<token_name> provided in the path and looks it up in the
+database, stashing a resultset to access it as C<token_rs>.
 
 Only api tokens may be retrieved by this flow.
 

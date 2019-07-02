@@ -6,18 +6,18 @@ Conch::Controller::WorkspaceRack
 
 ## list
 
-Get a list of racks for the current workspace (as specified by :workspace\_id in the path).
+Get a list of racks for the indicated workspace.
 
 Response uses the WorkspaceRackSummary json schema.
 
 ## find\_rack
 
-Chainable action that takes the 'rack\_id' provided in the path and looks it up in the
-database, stashing a resultset to access it as 'rack\_rs'.
+Chainable action that takes the `rack_id` provided in the path and looks it up in the
+database, stashing a resultset to access it as `rack_rs`.
 
 ## get\_layout
 
-Get the layout of the current rack (as specified by :rack\_id in the path).
+Get the layout of the indicated rack.
 Supports json, csv formats.
 
 Response uses the WorkspaceRack json schema.
@@ -29,7 +29,7 @@ is assigned to the parent workspace of this one.
 
 ## remove
 
-Remove a rack from a workspace.
+Remove a rack from a workspace (and all descendants).
 
 Requires 'admin' permissions on the workspace.
 

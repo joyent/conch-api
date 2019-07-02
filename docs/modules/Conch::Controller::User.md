@@ -11,8 +11,8 @@ forcing the user to /login again. By default \*all\* of a user's tokens are dele
 but this can be adjusted with query parameters:
 
 ```
-* ?login_only=1    login tokens are removed; api tokens are left alone
-* ?api_only=1      login tokens are left alone; api tokens are removed
+* C<?login_only=1> login tokens are removed; api tokens are left alone
+* C<?api_only=1>   login tokens are left alone; api tokens are removed
 ```
 
 If login tokens are affected, `user_session_auth` is also set for the user, which forces the
@@ -54,7 +54,7 @@ Delete a single setting for a user, provided it was set previously.
 
 Stores a new password for the current user.
 
-Optionally takes a query parameter 'clear\_tokens', to also revoke session tokens for the user,
+Optionally takes a query parameter `clear_tokens`, to also revoke session tokens for the user,
 forcing the user to log in again. Possible options are:
 
 ```
@@ -69,10 +69,10 @@ When login tokens are cleared, the user is also logged out.
 
 Generates a new random password for a user. System admin only.
 
-Optionally takes a query parameter 'send\_mail' (defaulting to true), to send an
+Optionally takes a query parameter `send_mail` (defaulting to true), to send an
 email to the user with the new password.
 
-Optionally takes a query parameter 'clear\_tokens', to also revoke session tokens for the user,
+Optionally takes a query parameter `clear_tokens`, to also revoke session tokens for the user,
 forcing the user to log in again. Possible options are:
 
 ```
@@ -106,9 +106,8 @@ Response uses the UsersDetailed json schema.
 
 Creates a user. System admin only.
 
-Optionally takes a query parameter:
-
-\* 'send\_mail' (defaulting to true), to send an email to the user with the new password
+Optionally takes a query parameter `send_mail` (defaulting to true), to send an
+email to the user with the new password.
 
 Response uses the NewUser json schema (or UserError for some error conditions).
 
@@ -116,7 +115,7 @@ Response uses the NewUser json schema (or UserError for some error conditions).
 
 Deactivates a user. System admin only.
 
-Optionally takes a query parameter 'clear\_tokens' (defaulting to true), to also revoke all
+Optionally takes a query parameter `clear_tokens` (defaulting to true), to also revoke all
 session tokens for the user, which would force all tools to log in again should the account be
 reactivated (for which there is no api endpoint at present).
 
@@ -137,8 +136,8 @@ This is the only time the token string is provided to the user, so don't lose it
 
 ## find\_api\_token
 
-Chainable action that takes the 'token\_name' provided in the path and looks it up in the
-database, stashing a resultset to access it as 'token\_rs'.
+Chainable action that takes the `token_name` provided in the path and looks it up in the
+database, stashing a resultset to access it as `token_rs`.
 
 Only api tokens may be retrieved by this flow.
 

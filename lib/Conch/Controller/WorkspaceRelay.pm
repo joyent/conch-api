@@ -12,8 +12,7 @@ Conch::Controller::WorkspaceRelay
 
 =head2 list
 
-List all relays located in the current workspace (as specified by :workspace_id in the path)
-or sub-workspaces beneath it.
+List all relays located in the indicated workspace and sub-workspaces beneath it.
 
 Use C<?active_minutes=X> to constrains results to those updated in the last X minutes.
 

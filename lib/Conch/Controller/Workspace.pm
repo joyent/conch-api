@@ -86,7 +86,7 @@ sub list ($c) {
 
 =head2 get
 
-Get the details of the current workspace.
+Get the details of the indicated workspace.
 
 Response uses the WorkspaceAndRole json schema.
 
@@ -105,8 +105,7 @@ sub get ($c) {
 
 =head2 get_sub_workspaces
 
-Get all sub workspaces for the current stashed C<user_id> and current workspace (as specified
-by :workspace_id in the path)
+Get all sub-workspaces for the indicated workspace.
 
 Response uses the WorkspacesAndRoles json schema.
 
@@ -128,7 +127,7 @@ sub get_sub_workspaces ($c) {
 
 =head2 create_sub_workspace
 
-Create a new subworkspace for the current workspace.
+Create a new subworkspace for the indicated workspace.
 
 Response uses the WorkspaceAndRole json schema.
 

@@ -15,8 +15,7 @@ Conch::Controller::WorkspaceDevice
 
 =head2 list
 
-Get a list of all devices in the current workspace (as specified by :workspace_id in the
-path).
+Get a list of all devices in the indicated workspace.
 
 Supports these query parameters to constrain results (which are ANDed together for the search,
 not ORed):

@@ -15,7 +15,7 @@ Conch::Controller::WorkspaceRack
 
 =head2 list
 
-Get a list of racks for the current workspace (as specified by :workspace_id in the path).
+Get a list of racks for the indicated workspace.
 
 Response uses the WorkspaceRackSummary json schema.
 
@@ -79,8 +79,8 @@ sub list ($c) {
 
 =head2 find_rack
 
-Chainable action that takes the 'rack_id' provided in the path and looks it up in the
-database, stashing a resultset to access it as 'rack_rs'.
+Chainable action that takes the C<rack_id> provided in the path and looks it up in the
+database, stashing a resultset to access it as C<rack_rs>.
 
 =cut
 
@@ -107,7 +107,7 @@ sub find_rack ($c) {
 
 =head2 get_layout
 
-Get the layout of the current rack (as specified by :rack_id in the path).
+Get the layout of the indicated rack.
 Supports json, csv formats.
 
 Response uses the WorkspaceRack json schema.
@@ -266,7 +266,7 @@ sub add ($c) {
 
 =head2 remove
 
-Remove a rack from a workspace.
+Remove a rack from a workspace (and all descendants).
 
 Requires 'admin' permissions on the workspace.
 
