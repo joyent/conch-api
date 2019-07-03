@@ -64,8 +64,8 @@ sub routes {
 
         # GET /workspace/:workspace_id_or_name/relay
         $with_workspace->get('/relay')->to('workspace_relay#list');
-        # GET /workspace/:workspace_id_or_name/relay/:relay_id/device
-        $with_workspace->get('/relay/:relay_id/device')->to('workspace_relay#get_relay_devices');
+        # GET /workspace/:workspace_id_or_name/relay/<relay_id:uuid>/device
+        $with_workspace->get('/relay/<relay_id:uuid>/device')->to('workspace_relay#get_relay_devices');
 
         # GET /workspace/:workspace_id_or_name/user
         $with_workspace->get('/user')->to('workspace_user#list');

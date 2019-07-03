@@ -54,9 +54,8 @@ sub process ($c) {
         if not $hw->hardware_product_profile;
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
-        # TODO: relay id should be a uuid
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
-            if not $c->db_relays->active->search({ id => $relay_serial })->exists;
+            if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
     }
 
     my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
@@ -186,11 +185,18 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                 || $device->uptime_since && $prev_uptime < $device->uptime_since;
 
             if ($dr->{relay}) {
-                # 'first_seen' column will only be written on create. It should remain
-                # untouched on updates
-                $device->search_related('device_relay_connections',
-                        { relay_id => $dr->{relay}{serial} })
-                    ->update_or_create({ last_seen => \'now()' });
+                my $relay_rs = $c->db_relays->active->search({ serial_number => $dr->{relay}{serial} });
+                if (my $drc = $relay_rs
+                        ->search_related('device_relay_connections' => { device_id => $device->id })
+                        ->single) {
+                    $drc->update({ last_seen => \'now()' });
+                }
+                else {
+                    $c->db_device_relay_connections->create({
+                        device_id => $device->id,
+                        relay_id => $relay_rs->get_column('id')->single,
+                    });
+                }
             }
             else {
                 $c->log->warn('received report without relay id (device_id '. $device->id.')');

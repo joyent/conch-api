@@ -28,12 +28,12 @@ __PACKAGE__->table("relay");
 
 =head1 ACCESSORS
 
-=head2 id
+=head2 serial_number
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 alias
+=head2 name
 
   data_type: 'text'
   is_nullable: 1
@@ -72,12 +72,19 @@ __PACKAGE__->table("relay");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 id
+
+  data_type: 'uuid'
+  default_value: gen_random_uuid()
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
+  "serial_number",
   { data_type => "text", is_nullable => 0 },
-  "alias",
+  "name",
   { data_type => "text", is_nullable => 1 },
   "version",
   { data_type => "text", is_nullable => 1 },
@@ -101,6 +108,13 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "id",
+  {
+    data_type => "uuid",
+    default_value => \"gen_random_uuid()",
+    is_nullable => 0,
+    size => 16,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -114,6 +128,20 @@ __PACKAGE__->add_columns(
 =cut
 
 __PACKAGE__->set_primary_key("id");
+
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<relay_serial_number_key>
+
+=over 4
+
+=item * L</serial_number>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("relay_serial_number_key", ["serial_number"]);
 
 =head1 RELATIONS
 
@@ -149,7 +177,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GYdtFEOP7vwaSfglNtVehw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:H0EoEEnlWK/jcq27Jrz+bw
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

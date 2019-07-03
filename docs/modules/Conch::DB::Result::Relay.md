@@ -8,14 +8,14 @@ Conch::DB::Result::Relay
 
 # ACCESSORS
 
-## id
+## serial\_number
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## alias
+## name
 
 ```
 data_type: 'text'
@@ -68,9 +68,24 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
+## id
+
+```
+data_type: 'uuid'
+default_value: gen_random_uuid()
+is_nullable: 0
+size: 16
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)
+
+# UNIQUE CONSTRAINTS
+
+## `relay_serial_number_key`
+
+- ["serial\_number"](#serial_number)
 
 # RELATIONS
 

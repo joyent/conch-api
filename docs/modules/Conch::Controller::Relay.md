@@ -7,13 +7,21 @@ Conch::Controller::Relay
 ## register
 
 Registers a relay and connects it with the current user. The relay is created if the relay does
-not already exist.
+not already exist, or is updated with additional payload information otherwise.
 
 ## list
 
-If the user is a system admin, retrieve a list of all active relays in the database
+If the user is a system admin, retrieve a list of all active relays in the database.
+Requires the user to be a system admin.
 
 Response uses the Relays json schema.
+
+## get
+
+Get the details of a single relay.
+Requires the user to be a system admin, or have previously registered the relay.
+
+Response uses the Relay json schema.
 
 # LICENSING
 

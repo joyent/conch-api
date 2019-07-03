@@ -17,14 +17,6 @@ is_nullable: 0
 size: 16
 ```
 
-## relay\_id
-
-```
-data_type: 'text'
-is_foreign_key: 1
-is_nullable: 0
-```
-
 ## first\_seen
 
 ```perl
@@ -41,6 +33,15 @@ data_type: 'timestamp with time zone'
 default_value: current_timestamp
 is_nullable: 0
 original: {default_value => \"now()"}
+```
+
+## relay\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
 ```
 
 # PRIMARY KEY

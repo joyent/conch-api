@@ -1163,7 +1163,8 @@ definitions:
       additionalProperties: false
       required:
         - id
-        - alias
+        - serial_number
+        - name
         - version
         - ipaddr
         - ssh_port
@@ -1174,8 +1175,10 @@ definitions:
         - num_devices
       properties:
         id:
-          $ref: common.yaml#/definitions/relay_id
-        alias:
+          $ref: common.yaml#/definitions/uuid
+        serial_number:
+          $ref: common.yaml#/definitions/relay_serial_number
+        name:
           oneOf:
             - type: string
             - type: 'null'
@@ -1360,16 +1363,19 @@ definitions:
     additionalProperties: false
     required:
       - id
-      - alias
-      - created
+      - serial_number
+      - name
+      - version
       - ipaddr
       - ssh_port
+      - created
       - updated
-      - version
     properties:
       id:
-        $ref: common.yaml#/definitions/relay_id
-      alias:
+        $ref: common.yaml#/definitions/uuid
+      serial_number:
+        $ref: common.yaml#/definitions/relay_serial_number
+      name:
         oneOf:
           - type: string
           - type: 'null'

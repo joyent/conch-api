@@ -22,11 +22,14 @@ sub routes {
 
     $relay->to({ controller => 'relay' });
 
-    # POST /relay/:relay_id/register
-    $relay->post('/:relay_id/register')->to('#register');
+    # POST /relay/:relay_serial_number/register
+    $relay->post('/:relay_serial_number/register')->to('#register');
 
     # GET /relay
     $relay->get('/')->to('#list');
+
+    # GET /relay/:relay_id_or_serial_number
+    $relay->get('/:relay_id_or_serial_number')->to('#get');
 }
 
 1;
@@ -36,13 +39,13 @@ __END__
 
 Unless otherwise noted, all routes require authentication.
 
-=head3 C<POST /relay/:relay_id/register>
+=head3 C<POST /relay/:relay_serial_number/register>
 
 =over 4
 
 =item * Request: request.yaml#/RegisterRelay
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<201 CREATED> or C<204 NO CONTENT>, plus Location header
 
 =back
 
@@ -53,6 +56,16 @@ Unless otherwise noted, all routes require authentication.
 =item * Requires system admin authorization
 
 =item * Response: response.yaml#/Relays
+
+=back
+
+=head3 C<GET /relay/:relay_id_or_serial_number>
+
+=over 4
+
+=item * Requires system admin authorization, or the user to have previously registered the relay.
+
+=item * Response: response.yaml#/Relay
 
 =back
 

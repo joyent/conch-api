@@ -31,7 +31,7 @@ my ($server_validation_plan) = $t->load_validation_plans([{
 }]);
 
 $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
-    ->status_is(204);
+    ->status_is(201);
 
 # create the device and two reports
 $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)

@@ -48,15 +48,18 @@ my @rack_layouts = map {
 $t->post_ok('/relay/relay'.$_.'/register',
         json => {
             serial => 'relay'.$_,
-            alias => 'relay_number_'.$_,
+            name => 'relay_number_'.$_,
             version => 'v1.'.$_,
             ipaddr => '192.168.'.$_.'.2',
             ssh_port => 123,
         })
-    ->status_is(204)
+    ->status_is(201)
+    ->location_like(qr!^/relay/${\Conch::UUID::UUID_FORMAT}!)
 foreach (0..1);
 
-my $relay0 = $t->app->db_relays->find('relay0');
+my $relay0 = $t->app->db_relays->find({ serial_number => 'relay0' });
+my $relay1 = $t->app->db_relays->find({ serial_number => 'relay1' });
+
 cmp_deeply(
     [ $relay0->user_relay_connections ],
     [
@@ -69,20 +72,88 @@ cmp_deeply(
     'user_relay_connection timestamps are set',
 );
 
+my $rs = $t->app->db_relays->search({ serial_number => 'relay0' })->rows(1)->prefetch('user_relay_connections');
+
+my ($relay_data) = $rs->hri->all;
+
+$t->post_ok('/relay/relay0/register', json => { serial => 'relay0' })
+    ->status_is(204)
+    ->location_is('/relay/'.$relay0->id);
+
+my ($new_relay_data) = $rs->hri->all;
+
+isnt(
+    $new_relay_data->{user_relay_connections}[0]{last_seen},
+    $relay_data->{user_relay_connections}[0]{last_seen},
+    'user_relay_connection.last_seen has been updated',
+);
+
+is($new_relay_data->{updated}, $relay_data->{updated}, 'relay itself was not changed');
+
+$t->get_ok('/relay/'.$relay0->id)
+    ->status_is(200)
+    ->json_schema_is('Relay')
+    ->json_is({
+        id => $relay0->id,
+        serial_number => 'relay0',
+        name => 'relay_number_0',
+        version => 'v1.0',
+        ipaddr => '192.168.0.2',
+        ssh_port => 123,
+        created => $relay0->created,
+        updated => $relay0->updated,
+    });
+
+$t->get_ok('/relay/relay0')
+    ->status_is(200)
+    ->json_schema_is('Relay')
+    ->json_is({
+        id => $relay0->id,
+        serial_number => 'relay0',
+        name => 'relay_number_0',
+        version => 'v1.0',
+        ipaddr => '192.168.0.2',
+        ssh_port => 123,
+        created => $relay0->created,
+        updated => $relay0->updated,
+    });
+
 $t->get_ok('/relay')
     ->status_is(200)
     ->json_schema_is('Relays')
     ->json_cmp_deeply([
         map +{
-            id => 'relay'.$_,
-            alias => 'relay_number_'.$_,
+            id => ($relay0, $relay1)[$_]->id,
+            serial_number => 'relay'.$_,
+            name => 'relay_number_'.$_,
             version => 'v1.'.$_,
             ipaddr => '192.168.'.$_.'.2',
             ssh_port => 123,
-            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            created => str(($relay0, $relay1)[$_]->created),
+            updated => str(($relay0, $relay1)[$_]->updated),
         }, (0..1)
     ]);
+
+{
+    my $other_user = $t->load_fixture('null_user');
+    my $t2 = Test::Conch->new(pg => $t->pg);
+    $t2->authenticate(email => $other_user->email);
+
+    $t2->get_ok('/relay')
+        ->status_is(403);
+
+    $t2->get_ok('/relay/relay0')
+        ->status_is(403);
+
+    $t2->post_ok('/relay/relay0/register', json => { serial => 'relay0' })
+        ->status_is(204)
+        ->location_is('/relay/'.$relay0->id);
+
+    $t2->get_ok('/relay/relay0')
+        ->status_is(200)
+        ->json_schema_is('Relay')
+        ->json_is({ map +($_ => $relay0->$_), qw(id serial_number name version ipaddr ssh_port created updated) });
+}
 
 $relay0->user_relay_connections->update({
     first_seen => '1999-01-01',
@@ -94,7 +165,8 @@ $t->post_ok('/relay/relay0/register',
             serial => 'relay0',
             version => 'v2.0',
         })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/relay/'.$relay0->id);
 
 $relay0->discard_changes;    # reload from db
 
@@ -102,7 +174,7 @@ $t->get_ok('/relay')
     ->status_is(200)
     ->json_schema_is('Relays')
     ->json_cmp_deeply('', superbagof(superhashof({
-            id => 'relay0',
+            serial_number => 'relay0',
             version => 'v2.0',
         })), 'version was updated');
 
@@ -110,18 +182,17 @@ my $y2000 = Conch::Time->new(year => 2000);
 cmp_ok(($relay0->user_relay_connections)[0]->first_seen, '<', $y2000, 'first_seen was not updated');
 cmp_ok(($relay0->user_relay_connections)[0]->last_seen, '>', $y2000, 'last_seen was updated');
 
-
 # now register the relays on various devices in both workspace racks...
 
 $t->app->db_device_relay_connections->create($_) foreach (
     {
-        relay_id => 'relay0',
+        relay_id => $relay0->id,
         device_id => 'DEVICE0',         # workspace 0, layout 0
         first_seen => '2001-01-01',
         last_seen => '2018-01-01',
     },
     {
-        relay_id => 'relay0',
+        relay_id => $relay0->id,
         device_id => 'DEVICE5',         # workspace 1, layout 2
         first_seen => '2001-01-01',
         last_seen => '2018-01-02',      # <-- latest known location for relay0
@@ -130,19 +201,19 @@ $t->app->db_device_relay_connections->create($_) foreach (
 
 $t->app->db_device_relay_connections->create($_) foreach (
     {
-        relay_id => 'relay1',
+        relay_id => $relay1->id,
         device_id => 'DEVICE2',         # workspace 0, layout 2
         first_seen => '2001-01-01',
         last_seen => '2018-01-02',
     },
     {
-        relay_id => 'relay1',
+        relay_id => $relay1->id,
         device_id => 'DEVICE4',         # workspace 1, layout 1
         first_seen => '2001-01-01',
         last_seen => '2018-01-03',
     },
     {
-        relay_id => 'relay1',
+        relay_id => $relay1->id,
         device_id => 'DEVICE0',         # workspace 0, layout 0
         first_seen => '2001-01-01',
         last_seen => '2018-01-04',      # <-- latest known location for relay1
@@ -156,8 +227,9 @@ subtest list => sub {
         ->json_schema_is('WorkspaceRelays')
         ->json_cmp_deeply([
             {
-                id      => 'relay0',
-                alias   => 'relay_number_0',
+                id => $relay0->id,
+                serial_number => 'relay0',
+                name => 'relay_number_0',
                 version => 'v2.0',
                 ipaddr  => '192.168.0.2',
                 ssh_port => 123,
@@ -173,8 +245,9 @@ subtest list => sub {
                 num_devices => 2,
             },
             {
-                id => 'relay1',
-                alias   => 'relay_number_1',
+                id => $relay1->id,
+                serial_number => 'relay1',
+                name => 'relay_number_1',
                 version => 'v1.1',
                 ipaddr  => '192.168.1.2',
                 ssh_port => 123,
@@ -215,8 +288,11 @@ subtest list => sub {
             'X minutes after last update, active_minutes=X+2 only sees one relay');
 };
 
+my $relay0_id = $relay0->id;
+my $relay1_id = $relay1->id;
+
 subtest get_relay_devices => sub {
-    $t->get_ok("/workspace/$global_ws_id/relay/relay0/device")
+    $t->get_ok("/workspace/$global_ws_id/relay/$relay0_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply('', [
@@ -224,7 +300,7 @@ subtest get_relay_devices => sub {
             superhashof({ id => 'DEVICE5' }),
         ]);
 
-    $t->get_ok("/workspace/$global_ws_id/relay/relay1/device")
+    $t->get_ok("/workspace/$global_ws_id/relay/$relay1_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
@@ -233,14 +309,14 @@ subtest get_relay_devices => sub {
             superhashof({ id => 'DEVICE4' }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[0]/relay/relay0/device")
+    $t->get_ok("/workspace/$workspace_ids[0]/relay/$relay0_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
             superhashof({ id => 'DEVICE0' }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[0]/relay/relay1/device")
+    $t->get_ok("/workspace/$workspace_ids[0]/relay/$relay1_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
@@ -248,14 +324,14 @@ subtest get_relay_devices => sub {
             superhashof({ id => 'DEVICE2' }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[1]/relay/relay0/device")
+    $t->get_ok("/workspace/$workspace_ids[1]/relay/$relay0_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
             superhashof({ id => 'DEVICE5' }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[1]/relay/relay1/device")
+    $t->get_ok("/workspace/$workspace_ids[1]/relay/$relay1_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([

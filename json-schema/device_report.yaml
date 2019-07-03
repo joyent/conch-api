@@ -130,7 +130,7 @@ definitions:
           - serial
         properties:
           serial:
-            $ref: common.yaml#/definitions/relay_id
+            $ref: common.yaml#/definitions/relay_serial_number
       serial_number:
         $ref: common.yaml#/definitions/device_id
       state:

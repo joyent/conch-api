@@ -71,7 +71,7 @@ subtest 'unlocated device, no registered relay' => sub {
 
 subtest 'unlocated device with a registered relay' => sub {
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
-        ->status_is(204);
+        ->status_is(201);
 
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
@@ -575,6 +575,8 @@ subtest 'Device PXE' => sub {
     $t->authenticate(email => $admin_user->email);
     my $layout = $t->load_fixture('rack_0a_layout_3_6');
 
+    my $relay = $t->app->db_relays->create({ serial_number => 'my_relay' });
+
     my $device_pxe = $t->app->db_devices->create({
         id => 'PXE_TEST',
         hardware_product_id => $layout->hardware_product_id,
@@ -582,7 +584,7 @@ subtest 'Device PXE' => sub {
         health => 'unknown',
         device_relay_connections => [{
             relay => {
-                id => 'relay_id',
+                id => $relay->id,
                 user_relay_connections => [ { user_id => $t->load_fixture('conch_user')->id } ],
             }
         }],

@@ -44,9 +44,9 @@ $t->post_ok('/relay/deadbeef/register',
             version  => '0.0.1',
             ipaddr   => '127.0.0.1',
             ssh_port => 22,
-            alias    => 'test relay',
+            name     => 'test relay',
         })
-    ->status_is(204);
+    ->status_is(201);
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
