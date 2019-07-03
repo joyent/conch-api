@@ -105,6 +105,12 @@ __PACKAGE__->table("device");
   is_nullable: 0
   size: 16
 
+=head2 links
+
+  data_type: 'text[]'
+  default_value: '{}'::text[]
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -169,6 +175,12 @@ __PACKAGE__->add_columns(
     default_value => \"gen_random_uuid()",
     is_nullable => 0,
     size => 16,
+  },
+  "links",
+  {
+    data_type     => "text[]",
+    default_value => \"'{}'::text[]",
+    is_nullable   => 0,
   },
 );
 
@@ -349,7 +361,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8lBNoN9iNbTHrZ0MPBJo/w
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iOf4s64d7wK8hyLDdMkJTw
 
 __PACKAGE__->has_many(
   "active_device_disks",

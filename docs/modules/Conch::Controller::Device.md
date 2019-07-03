@@ -21,6 +21,7 @@ Looks up one or more devices by query parameter. Supports:
 /device?hostname=$hostname
 /device?mac=$macaddr
 /device?ipaddr=$ipaddr
+/device?link=$link
 /device?$setting_key=$setting_value
 ```
 
@@ -45,6 +46,14 @@ Sets the `validated` field on a device unless that field has already been set
 Gets just the device's phase. Response uses the DevicePhase json schema.
 
 ## set\_phase
+
+## add\_links
+
+Appends the provided link(s) to the device record.
+
+## remove\_links
+
+Removes all links from the device record.
 
 # LICENSING
 

@@ -79,6 +79,8 @@ sub process ($c) {
         last_seen           => \'now()',
         uptime_since        => $uptime,
         hostname            => $unserialized_report->{os}{hostname},
+        $unserialized_report->{links}
+            ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
         updated             => \'now()',
     }, { key => 'device_serial_number_key' });
 

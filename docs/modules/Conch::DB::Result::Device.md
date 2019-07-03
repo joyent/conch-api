@@ -111,6 +111,14 @@ is_nullable: 0
 size: 16
 ```
 
+## links
+
+```
+data_type: 'text[]'
+default_value: '{}'::text[]
+is_nullable: 0
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)

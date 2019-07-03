@@ -153,4 +153,10 @@ definitions:
             $ref: /definitions/int_or_stringy_int
       uptime_since:
         type: string
-
+      links:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          type: string
+          format: uri

@@ -120,6 +120,19 @@ CREATE FUNCTION public.add_rack_to_global_workspace() RETURNS trigger
 ALTER FUNCTION public.add_rack_to_global_workspace() OWNER TO conch;
 
 --
+-- Name: array_cat_distinct(anyarray, anyarray); Type: FUNCTION; Schema: public; Owner: conch
+--
+
+CREATE FUNCTION public.array_cat_distinct(anyarray, anyarray) RETURNS anyarray
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+      select array(select distinct unnest(array_cat($1, $2)) order by 1);
+    $_$;
+
+
+ALTER FUNCTION public.array_cat_distinct(anyarray, anyarray) OWNER TO conch;
+
+--
 -- Name: run_migration(integer, text); Type: FUNCTION; Schema: public; Owner: conch
 --
 
@@ -193,7 +206,8 @@ CREATE TABLE public.device (
     asset_tag text,
     hostname text,
     phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL,
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    links text[] DEFAULT '{}'::text[] NOT NULL
 );
 
 
@@ -1062,6 +1076,13 @@ CREATE INDEX device_hardware_product_id_idx ON public.device USING btree (hardwa
 --
 
 CREATE INDEX device_hostname_idx ON public.device USING btree (hostname);
+
+
+--
+-- Name: device_links_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_links_idx ON public.device USING gin (links);
 
 
 --

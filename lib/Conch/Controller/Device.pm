@@ -167,6 +167,7 @@ Looks up one or more devices by query parameter. Supports:
     /device?hostname=$hostname
     /device?mac=$macaddr
     /device?ipaddr=$ipaddr
+    /device?link=$link
     /device?$setting_key=$setting_value
 
 Response uses the Devices json schema.
@@ -187,6 +188,11 @@ sub lookup_by_other_attribute ($c) {
     my $device_rs = $c->db_devices->prefetch('device_location');
     if ($key eq 'hostname') {
         $device_rs = $device_rs->search({ $key => $value });
+    }
+    elsif ($key eq 'link') {
+        # we do this instead of '? = any(links)' in order to take
+        # advantage of the built-in GIN indexing on the @> operator
+        $device_rs = $device_rs->search(\[ 'links @> array[?]', $value ]);
     }
     elsif (any { $key eq $_ } qw(mac ipaddr)) {
         $device_rs = $device_rs->search(
@@ -309,6 +315,40 @@ sub set_phase ($c) {
     $c->log->debug('Set the phase for device '.$c->stash('device_id').' to '.$input->{phase});
 
     $c->status(303, '/device/'.$c->stash('device_id'));
+}
+
+=head2 add_links
+
+Appends the provided link(s) to the device record.
+
+=cut
+
+sub add_links ($c) {
+    my $input = $c->validate_request('DeviceLinks');
+    return if not $input;
+
+    # only perform the update if not all links are already present
+    $c->stash('device_rs')
+        ->search(\[ 'not(links @> ?)', [{},$input->{links}] ])
+        ->update({
+            links => \[ 'array_cat_distinct(links,?)', [{},$input->{links}] ],
+            updated => \'now()',
+        });
+
+    $c->status(303, '/device/'.$c->stash('device_id'));
+}
+
+=head2 remove_links
+
+Removes all links from the device record.
+
+=cut
+
+sub remove_links ($c) {
+    $c->stash('device_rs')
+        ->search({ links => { '!=' => '{}' } })
+        ->update({ links => '{}', updated => \'now()' });
+    $c->status(204);
 }
 
 1;

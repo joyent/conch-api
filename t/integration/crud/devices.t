@@ -110,6 +110,7 @@ subtest 'unlocated device with a registered relay' => sub {
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
+            links => [],
             (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
@@ -130,6 +131,7 @@ subtest 'unlocated device with a registered relay' => sub {
             hostname => 'elfo',
             system_uuid => ignore,
             phase => 'integration',
+            links => [],
             (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product_id,
@@ -189,6 +191,7 @@ subtest 'located device' => sub {
             serial_number => 'LOCATED_DEVICE',
             health => 'unknown',
             phase => 'integration',
+            links => [],
             (map +($_ => undef), qw(asset_tag hostname last_seen system_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
             hardware_product_id => $hardware_product_id,
@@ -220,6 +223,7 @@ subtest 'located device' => sub {
         my @queries = (
             '/device/LOCATED_DEVICE/validated',
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'installation' } ],
+            [ '/device/LOCATED_DEVICE/links', json => { links => [ 'https://foo.com/1' ] } ],
         );
 
         $t->authenticate(email => $rw_user->email);
@@ -267,6 +271,7 @@ subtest 'located device' => sub {
             #'/device?hostname=Luci',
             #'/device?mac=00:00:00:00:00:00',
             #'/device?ipaddr=127.0.0.1',
+            #'/device?links=https://foo.com/1',
         );
 
         foreach my $query (@queries) {
@@ -363,6 +368,14 @@ subtest 'get by device attributes' => sub {
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_is('', [ $undetailed_device ], 'got device by ipaddr');
+
+    $t->app->db_devices->search({ id => $test_device_id })->update({ links => ['foo'] });
+    $undetailed_device->{links} = ['foo'];
+    $t->get_ok('/device?link=foo')
+        ->status_is(200)
+        ->json_schema_is('Devices')
+        ->json_is('', [ $undetailed_device ], 'got device by link');
+    $t->app->db_devices->search({ id => $test_device_id })->update({ links => '{}' });
 };
 
 subtest 'mutate device attributes' => sub {
@@ -405,13 +418,59 @@ subtest 'mutate device attributes' => sub {
         ->json_schema_is('DevicePhase')
         ->json_is({ id => $test_device_id, phase => 'decommissioned' });
 
+    my $device = $t->app->db_devices->find({ serial_number => 'TEST' });
+
+    $t->delete_ok('/device/TEST/links')
+        ->status_is(204);
+
     $t->get_ok('/device/TEST')
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
             $detailed_device->%*,
-            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            updated => str($device->updated),    # needless update is not performed
         });
+
+    $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
+    $detailed_device->{links} = [ 'https://foo.com/1' ];
+    $detailed_device->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
+    $detailed_device->{updated} = $t->tx->res->json->{updated};
+
+    $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
+
+    $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1', 'https://foo.com/0' ] })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
+    $detailed_device->{links} = [ 'https://foo.com/0', 'https://foo.com/1' ];
+    $detailed_device->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
+
+    $t->delete_ok('/device/TEST/links')
+        ->status_is(204);
+    $detailed_device->{links} = [];
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
 };
 
 subtest 'Device settings' => sub {

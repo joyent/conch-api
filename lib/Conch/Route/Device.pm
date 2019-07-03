@@ -47,6 +47,10 @@ sub routes {
         $with_device->post('/validated')->to('device#set_validated');
         # POST /device/:device_id_or_serial_number/phase
         $with_device->post('/phase')->to('device#set_phase');
+        # POST /device/:device_id_or_serial_number/links
+        $with_device->post('/links')->to('device#add_links');
+        # DELETE /device/:device_id_or_serial_number/links
+        $with_device->delete('/links')->to('device#remove_links');
 
         {
             my $with_device_location = $with_device->any('/location');
@@ -199,6 +203,28 @@ below.
 =item * Request: request.yaml#/DevicePhase
 
 =item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<POST /device/:device_id_or_serial_number/links>
+
+=over 4
+
+=item * User requires the read/write role
+
+=item * Request: request.yaml#/DeviceLinks
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head3 C<DELETE /device/:device_id_or_serial_number/links>
+
+=over 4
+
+=item * User requires the read/write role
+
+=item * Response: 204 NO CONTENT
 
 =back
 

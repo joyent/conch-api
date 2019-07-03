@@ -358,6 +358,37 @@ subtest 'create device via report' => sub {
         is($disk->device_id, $device_id, 'an existing disk is relocated to the latest device reporting it');
     };
 
+    subtest 'links' => sub {
+        my $report_data = from_json($report);
+
+        delete $report_data->@{qw(disks interfaces)};
+        $report_data->{links} = [ 'https://foo.com/1' ];
+
+        $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
+            ->status_is(200)
+            ->location_is('/device/'.$device_id)
+            ->json_schema_is('ValidationStateWithResults')
+            ->json_is('/status', 'pass');
+
+        cmp_deeply(
+            $t->app->db_devices->search({ serial_number => 'TEST' })->get_column('links')->single,
+            [ 'https://foo.com/1' ],
+            'single link is saved to the device',
+        );
+
+        push $report_data->{links}->@*, 'https://foo.com/0';
+        $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
+            ->status_is(200)
+            ->location_is('/device/'.$device_id)
+            ->json_schema_is('ValidationStateWithResults')
+            ->json_is('/status', 'pass');
+
+        cmp_deeply(
+            $t->app->db_devices->search({ serial_number => 'TEST' })->get_column('links')->single,
+            [ 'https://foo.com/0', 'https://foo.com/1' ],
+            'new link is added to the device, without introducing duplicates; order is maintained',
+        );
+    };
 
     ok(
         $t->app->db_devices->search({ serial_number => 'TEST' })->devices_without_location->exists,

@@ -57,6 +57,17 @@ below.
 - Request: request.yaml#/DevicePhase
 - Response: Redirect to the updated device
 
+### `POST /device/:device_id_or_serial_number/links`
+
+- User requires the read/write role
+- Request: request.yaml#/DeviceLinks
+- Response: Redirect to the updated device
+
+### `DELETE /device/:device_id_or_serial_number/links`
+
+- User requires the read/write role
+- Response: 204 NO CONTENT
+
 ### `GET /device/:device_id_or_serial_number/location`
 
 - Response: response.yaml#/DeviceLocation
