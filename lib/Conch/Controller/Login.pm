@@ -107,9 +107,12 @@ sub authenticate ($c) {
         $c->stash('token_id', $jwt_claims->{token_id});
     }
 
-    # did we manage to authenticate the user, or find session info indicating we did so
-    # earlier (via /login)?
-    $user_id ||= $c->session('user') if $c->session('user') and is_uuid($c->session('user'));
+    if ($c->session('user')) {
+        return $c->status(400, { error => 'user session is invalid' })
+            if not is_uuid($c->session('user')) or ($user_id and $c->session('user') ne $user_id);
+        $c->log->debug('using session user='.$c->session('user'));
+        $user_id ||= $c->session('user');
+    }
 
     if ($user_id) {
         $c->log->debug('looking up user by id '.$user_id.'...');
