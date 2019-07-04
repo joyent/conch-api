@@ -693,20 +693,18 @@ subtest 'user tokens (our own)' => sub {
         ->json_is('/email' => $t2->CONCH_EMAIL);
     undef $t2;
 
+    cmp_deeply(
+        $t->app->db_user_session_tokens->search({ name => 'my first 💩 // to.ken @@' })
+            ->as_epoch('last_used')->get_column('last_used')->single,
+        within_tolerance(time, plus_or_minus => 10),
+        'token was last used approximately now',
+    );
+
     $t->delete_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(204);
 
     $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(404);
-
-    my $last_used = $t->app->db_user_session_tokens->search({ name => 'my first 💩 // to.ken @@' })
-        ->as_epoch('last_used')->get_column('last_used')->single;
-
-    cmp_deeply(
-        $last_used,
-        within_tolerance(time, plus_or_minus => 10),
-        'token was last used approximately now',
-    );
 
     $t->get_ok('/user/me/token')
         ->status_is(200)

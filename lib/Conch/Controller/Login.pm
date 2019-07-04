@@ -92,9 +92,6 @@ sub authenticate ($c) {
             return $c->status(401);
         }
 
-        # clear out all expired session tokens
-        $c->db_user_session_tokens->expired->delete;
-
         if (not $session_token = $c->db_user_session_tokens
                 ->unexpired
                 ->search({ id => $jwt_claims->{token_id}, user_id => $user_id })
@@ -113,6 +110,9 @@ sub authenticate ($c) {
         $c->log->debug('using session user='.$c->session('user'));
         $user_id ||= $c->session('user');
     }
+
+    # clear out all expired session tokens
+    $c->db_user_session_tokens->expired->delete;
 
     if ($user_id) {
         $c->log->debug('looking up user by id '.$user_id.'...');
