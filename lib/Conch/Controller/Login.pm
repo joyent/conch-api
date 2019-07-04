@@ -203,6 +203,17 @@ sub session_login ($c) {
         refuse_session_auth => 0,
     });
 
+    # reuse an existing JWT if one is suitable; otherwise generate a new one
+    # where suitable = half its lifetime remains
+    my $token_rs = $c->db_user_session_tokens
+        ->login_only
+        ->unexpired
+        ->search({ user_id => $c->stash('user_id') })
+        ->search(\[ '(expires - now()) >= (now() - created)' ]);
+    if (my $token = $token_rs->order_by({ -desc => 'created' })->rows(1)->single) {
+        return $c->status(200, { jwt_token => $c->generate_jwt_from_token($token) });
+    }
+
     return $c->_respond_with_jwt($user->id);
 }
 
