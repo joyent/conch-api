@@ -267,11 +267,10 @@ subtest 'located device' => sub {
             '/device/LOCATED_DEVICE/validation_state',
             '/device/LOCATED_DEVICE/interface',
             '/device/LOCATED_DEVICE/phase',
-            # TODO: filter search results for required role
-            #'/device?hostname=Luci',
-            #'/device?mac=00:00:00:00:00:00',
-            #'/device?ipaddr=127.0.0.1',
-            #'/device?links=https://foo.com/1',
+            '/device?hostname=Luci',
+            '/device?mac=00:00:00:00:00:00',
+            '/device?ipaddr=127.0.0.1',
+            '/device?link=https://foo.com/1',
         );
 
         foreach my $query (@queries) {
