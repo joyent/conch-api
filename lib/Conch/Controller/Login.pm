@@ -232,7 +232,7 @@ sub session_logout ($c) {
 
 =head2 refresh_token
 
-Refresh a user's JWT token. Deletes the old token.
+Refresh a user's JWT token. Deletes the old token and expires the session.
 
 =cut
 
@@ -240,23 +240,15 @@ sub refresh_token ($c) {
     $c->validate_request('Null');
     return if $c->res->code;
 
-    # Allow users with 'conch' cookie to get a JWT without requiring
-    # re-authentication. Expires 'conch' cookie
-    if (my $user_id = $c->session('user')){
-        $c->session(expires => 1);
-        return $c->_respond_with_jwt($user_id);
-    }
+    $c->session('expires', 1) if $c->session('user');
 
-    # expire this token
-    my $token_valid = $c->db_user_session_tokens
-        ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
-        ->unexpired->expire;
+    $c->db_user_session_tokens
+            ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
+            ->unexpired->expire
+        if $c->stash('token_id');
 
     # clear out all expired session tokens
     $c->db_user_session_tokens->expired->delete;
-
-    return $c->status(403, { error => 'Invalid token ID' })
-        if not $token_valid;
 
     return $c->_respond_with_jwt($c->stash('user_id'));
 }

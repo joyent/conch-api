@@ -33,7 +33,7 @@ Logs a user out by expiring their session
 
 ## refresh\_token
 
-Refresh a user's JWT token. Deletes the old token.
+Refresh a user's JWT token. Deletes the old token and expires the session.
 
 # LICENSING
 
