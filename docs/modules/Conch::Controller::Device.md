@@ -9,6 +9,9 @@ Conch::Controller::Device
 Chainable action that uses the `device_id_or_serial_number` provided in the path
 to find the device and verify the user has the required role to operate on it.
 
+If `require_role` is provided, it is used as the minimum required role for the user to
+continue.
+
 ## get
 
 Retrieves details about a single device. Response uses the DetailedDevice json schema.

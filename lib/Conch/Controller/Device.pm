@@ -19,6 +19,9 @@ Conch::Controller::Device
 Chainable action that uses the C<device_id_or_serial_number> provided in the path
 to find the device and verify the user has the required role to operate on it.
 
+If C<require_role> is provided, it is used as the minimum required role for the user to
+continue.
+
 =cut
 
 sub find_device ($c) {
@@ -71,9 +74,10 @@ sub find_device ($c) {
         $c->log->debug('User has system admin privileges to access device '.$identifier);
     }
     elsif ($device_check->{has_location}) {
+        # if no minimum role was specified, use a heuristic:
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
         my $method = $c->req->method;
-        my $requires_role =
+        my $requires_role = $c->stash('require_role') //
             (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
           : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
           : die 'need handling for '.$method.' method';
