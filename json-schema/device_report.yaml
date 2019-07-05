@@ -28,7 +28,9 @@ definitions:
             memory-locator:
               type: string
             memory-serial-number:
-              type: string
+              oneOf:
+                - $ref: common.yaml#/definitions/non_empty_string
+                - type: 'null'
             memory-size:
               oneOf:
                 - $ref: common.yaml#/definitions/int_or_stringy_int
