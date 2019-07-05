@@ -30,7 +30,9 @@ definitions:
             memory-serial-number:
               type: string
             memory-size:
-              $ref: common.yaml#/definitions/int_or_stringy_int
+              oneOf:
+                - $ref: common.yaml#/definitions/int_or_stringy_int
+                - type: 'null'
       disks:
         type: object
         patternProperties:
