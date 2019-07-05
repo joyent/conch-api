@@ -32,11 +32,12 @@ sub set_all ($c) {
         @non_tags && $settings_rs->active->search({ name => \@non_tags })->exists ? 'admin' : 'rw';
 
     # 'rw' already checked by find_device
-    if ($requires_role eq 'admin') {
-        if (not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
-            $c->log->debug('failed role check (required '.$requires_role.')');
-            return $c->status(403);
-        }
+    if ($requires_role eq 'admin'
+            and not $c->is_system_admin
+            and not $c->stash('device_rs')->devices_without_location->exists
+            and not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
+        $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$c->stash('device_id'));
+        return $c->status(403);
     }
 
     # deactivate existing settings with the same keys
@@ -79,11 +80,12 @@ sub set_single ($c) {
     my $requires_role = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
     # 'rw' already checked by find_device
-    if ($requires_role eq 'admin') {
-        if (not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
-            $c->log->debug('failed role check (required '.$requires_role.')');
-            return $c->status(403);
-        }
+    if ($requires_role eq 'admin'
+            and not $c->is_system_admin
+            and not $c->stash('device_rs')->devices_without_location->exists
+            and not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
+        $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$c->stash('device_id'));
+        return $c->status(403);
     }
 
     $existing_setting->update({ deactivated => \'now()' }) if $existing_setting;
@@ -140,11 +142,12 @@ sub delete_single ($c) {
     my $requires_role = $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
     # 'rw' already checked by find_device
-    if ($requires_role eq 'admin') {
-        if (not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
-            $c->log->debug('failed role check (required '.$requires_role.')');
-            return $c->status(403);
-        }
+    if ($requires_role eq 'admin'
+            and not $c->is_system_admin
+            and not $c->stash('device_rs')->devices_without_location->exists
+            and not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
+        $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$c->stash('device_id'));
+        return $c->status(403);
     }
 
     # 0 rows updated -> 0E0 which is boolean truth, not false
