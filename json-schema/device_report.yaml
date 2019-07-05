@@ -37,7 +37,9 @@ definitions:
             memory-serial-number:
               type: string
             memory-size:
-              $ref: /definitions/int_or_stringy_int
+              oneOf:
+                - $ref: /definitions/int_or_stringy_int
+                - type: 'null'
       disks:
         type: object
         propertyNames:
