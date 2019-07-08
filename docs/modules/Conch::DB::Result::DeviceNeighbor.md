@@ -37,20 +37,6 @@ data_type: 'text'
 is_nullable: 1
 ```
 
-## want\_switch
-
-```
-data_type: 'text'
-is_nullable: 1
-```
-
-## want\_port
-
-```
-data_type: 'text'
-is_nullable: 1
-```
-
 ## created
 
 ```perl

@@ -285,7 +285,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                         peer_port   => $dr->{interfaces}->{$nic}->{peer_port},
                         peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac},
                         updated     => \'now()'
-                        # TODO: not setting want_port, want_switch
                     }
                 );
             }

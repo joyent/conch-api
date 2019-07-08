@@ -250,8 +250,6 @@ CREATE TABLE public.device_neighbor (
     raw_text text,
     peer_switch text,
     peer_port text,
-    want_switch text,
-    want_port text,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     peer_mac macaddr
