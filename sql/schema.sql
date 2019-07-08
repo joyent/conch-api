@@ -214,7 +214,6 @@ CREATE TABLE public.device_disk (
     transport text,
     health text,
     drive_type text,
-    temp integer,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,

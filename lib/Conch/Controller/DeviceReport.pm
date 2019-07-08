@@ -214,7 +214,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                             transport
                             health
                             drive_type
-                            temp
                             enclosure
                             hba
                         )},

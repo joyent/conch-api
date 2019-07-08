@@ -217,7 +217,6 @@ definitions:
             - transport
             - health
             - drive_type
-            - temp
             - enclosure
             - created
             - updated
@@ -257,10 +256,6 @@ definitions:
             drive_type:
               oneOf:
                 - type: string
-                - type: 'null'
-            temp:
-              oneOf:
-                - type: integer
                 - type: 'null'
             enclosure:
               oneOf:

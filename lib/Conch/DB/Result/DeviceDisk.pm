@@ -80,11 +80,6 @@ __PACKAGE__->table("device_disk");
   data_type: 'text'
   is_nullable: 1
 
-=head2 temp
-
-  data_type: 'integer'
-  is_nullable: 1
-
 =head2 deactivated
 
   data_type: 'timestamp with time zone'
@@ -149,8 +144,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "drive_type",
   { data_type => "text", is_nullable => 1 },
-  "temp",
-  { data_type => "integer", is_nullable => 1 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
@@ -220,7 +213,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0WrDCwLN8/3fDYsBTwCMKw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UPmScp0EKqINJu73Ka14UA
 
 __PACKAGE__->add_columns(
     '+device_id' => { is_serializable => 0 },
