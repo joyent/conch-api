@@ -77,11 +77,6 @@ __PACKAGE__->table("device_nic");
   data_type: 'text'
   is_nullable: 1
 
-=head2 speed
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 ipaddr
 
   data_type: 'inet'
@@ -129,8 +124,6 @@ __PACKAGE__->add_columns(
     original      => { default_value => \"now()" },
   },
   "state",
-  { data_type => "text", is_nullable => 1 },
-  "speed",
   { data_type => "text", is_nullable => 1 },
   "ipaddr",
   { data_type => "inet", is_nullable => 1 },
@@ -186,7 +179,7 @@ __PACKAGE__->might_have(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uLQ5FpFFqCfq4uhJdOQC6A
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gRrqZ7XzKE56gbryiOLzsw
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

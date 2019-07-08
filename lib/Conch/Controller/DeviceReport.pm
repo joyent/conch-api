@@ -274,7 +274,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                         mtu          => $dr->{interfaces}->{$nic}->{mtu},
                         updated      => \'now()',
                         deactivated  => undef,
-                        # TODO: 'speed' is never set!
                     },
                 );
 

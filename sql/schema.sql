@@ -274,7 +274,6 @@ CREATE TABLE public.device_nic (
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     state text,
-    speed text,
     ipaddr inet,
     mtu integer,
     device_id uuid NOT NULL

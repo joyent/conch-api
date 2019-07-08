@@ -100,7 +100,6 @@ definitions:
               oneOf:
                 - type: string
                 - type: 'null'
-            # note: no speed yet?
             ipaddr:
               oneOf:
                 - $ref: common.yaml#/definitions/ipaddr

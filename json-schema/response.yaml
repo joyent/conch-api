@@ -374,7 +374,6 @@ definitions:
           - iface_vendor
           - iface_driver
           - state
-          - speed
           - ipaddr
           - mtu
   DeviceNicFields:
@@ -394,10 +393,6 @@ definitions:
       iface_driver:
         type: string
       state:
-        oneOf:
-          - type: string
-          - type: 'null'
-      speed:
         oneOf:
           - type: string
           - type: 'null'

@@ -75,13 +75,6 @@ data_type: 'text'
 is_nullable: 1
 ```
 
-## speed
-
-```
-data_type: 'text'
-is_nullable: 1
-```
-
 ## ipaddr
 
 ```
