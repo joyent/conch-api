@@ -725,6 +725,14 @@ ALTER TABLE ONLY public.datacenter_room
 
 
 --
+-- Name: datacenter datacenter_vendor_region_location_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.datacenter
+    ADD CONSTRAINT datacenter_vendor_region_location_key UNIQUE (vendor, region, location);
+
+
+--
 -- Name: device_disk device_disk_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 

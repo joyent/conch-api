@@ -92,9 +92,21 @@ sub create ($c) {
     my $input = $c->validate_request('DatacenterCreate');
     return if not $input;
 
-    my $datacenter = $c->db_datacenters->create($input);
-    $c->log->debug('Created datacenter '.$datacenter->id);
-    $c->status(303, '/dc/'.$datacenter->id);
+    if (my $dc = $c->db_datacenters->find({ $input->%{qw(vendor region location)} })) {
+        $dc->set_columns({ $input->%{vendor_name} });   # set all columns not used in the unique key
+        if ($dc->is_changed) {
+            return $c->status(409, { error => 'a datacenter already exists with that vendor-region-location' });
+        }
+        else {
+            $c->res->headers->location('/dc/'.$dc->id);
+            return $c->status(204);
+        }
+    }
+
+    my $dc = $c->db_datacenters->create($input);
+    $c->log->debug('Created datacenter '.$dc->id);
+    $c->res->headers->location('/dc/'.$dc->id);
+    $c->status(201);
 }
 
 =head2 update

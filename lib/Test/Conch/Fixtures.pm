@@ -611,7 +611,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 new => 'datacenter',
                 using => {
                     vendor => 'vendor',
-                    region => 'region',
+                    region => 'region_'.$num,
                     location => 'location',
                     ($specification // {})->%*,
                 },

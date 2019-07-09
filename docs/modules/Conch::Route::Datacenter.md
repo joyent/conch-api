@@ -19,7 +19,7 @@ Unless otherwise noted, all routes require authentication.
 
 - Requires system admin authorization
 - Request: request.yaml#/DatacenterCreate
-- Response: Redirect to the created datacenter
+- Response: `201 CREATED` or `204 NO CONTENT`, plus Location header
 
 ### `GET /dc/:datacenter_id`
 
