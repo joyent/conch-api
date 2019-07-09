@@ -228,18 +228,28 @@ Include information about the user's role, if available.
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    # check for column that would have been added via
-    # Conch::DB::ResultSet::Workspace::add_role_column or
+    # check for column that would have been added via any of:
+    # Conch::DB::ResultSet::Workspace::add_role_column
     # Conch::DB::ResultSet::Workspace::with_role_via_data_for_user
     if (my $role = $self->role) {
         $data->{role} = $role;
     }
+    # we are fetching workspace data from the perspective of a particular user
     elsif (my $user_id = $self->user_id_for_role) {
         my $role_via = $self->result_source->resultset->role_via_for_user($self->id, $user_id);
         Carp::croak('tried to get role data for a user that has no role for this workspace: workspace_id ', $self->id, ', user_id ', $user_id) if not $role_via;
 
         $data->{role} = $role_via->role;
-        $data->{role_via} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;
+        $data->{role_via_workspace_id} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;
+        $data->{role_via_organization_id} = $role_via->organization_id if $role_via->can('organization_id');
+    }
+    # we are fetching workspace data from the perspective of a particular organization
+    elsif (my $organization_id = $self->organization_id_for_role) {
+        my $role_via = $self->result_source->resultset->role_via_for_organization($self->id, $organization_id);
+        Carp::croak('tried to get role data for an organization that has no role for this workspace: workspace_id ', $self->id, ', organization_id ', $organization_id) if not $role_via;
+
+        $data->{role} = $role_via->role;
+        $data->{role_via_workspace_id} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;
     }
 
     return $data;

@@ -31,6 +31,7 @@ __PACKAGE__->load_components(
     '+Conch::DB::Helper::ResultSet::AsEpoch',   # provides as_epoch
     'Helper::ResultSet::SetOperations',         # provides union, intersect, except, and *_all
     'Helper::ResultSet::Shortcut::GroupBy',     # provides group_by
+    '+Conch::DB::Helper::ResultSet::WithRole',  # provides with_role
 );
 
 1;

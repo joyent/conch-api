@@ -361,9 +361,401 @@ $t->delete_ok('/user/'.$admin_user->id)
         user => { map +($_ => $admin_user->$_), qw(id email name created deactivated) },
     });
 
-$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
+
+my $global_ws = $t->load_fixture('global_workspace');
+my $sub_ws = $t->generate_fixtures('workspace', { parent_workspace_id => $global_ws->id, name => 'sub ws' });
+
+$t->get_ok('/workspace/'.$sub_ws->id.'/organization')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceOrganizations')
+    ->json_is([]);
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => { role => 'ro' })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/organization_id', message => re(qr/missing property/i) } ]);
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => { organization_id => $organization->{id} })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
+
+$t2->get_ok('/workspace/'.$sub_ws->id.'/organization')
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for workspace '.$sub_ws->id);
+
+$t2->post_ok('/workspace/'.$sub_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'ro',
+    })
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for workspace '.$sub_ws->id);
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'ro',
+    })
+    ->status_is(204)
+    ->email_cmp_deeply([
+        {
+            To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your "my first organization" organization has been added to the\R"${\$sub_ws->name}" workspace at Joyent Conch with the "ro" role\./m),
+        },
+        {
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We added an organization to your workspace',
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added the "my first organization" organization to the\R"${\$sub_ws->name}" workspace at Joyent Conch with the "ro" role\./m),
+        },
+    ]);
+
+$t->get_ok('/workspace/'.$sub_ws->id.'/organization')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceOrganizations')
+    ->json_is([
+        {
+            $organization->%{qw(id name description)},
+            role => 'ro',
+            admins => [
+                { map +($_ => $admin_user->$_), qw(id name email) },
+                { map +($_ => $new_user->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+push $organization->{workspaces}->@*, +{ (map +($_ => $sub_ws->$_), qw(id parent_workspace_id name description)), role => 'ro' };
+
+$t->get_ok('/organization/my first organization')
+    ->status_is(200)
+    ->json_schema_is('Organization')
+    ->json_is($organization);
+
+$t->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is([ $organization, $organization2 ]);
+
+$t2->get_ok('/organization/my first organization')
+    ->status_is(200)
+    ->json_schema_is('Organization')
+    ->json_is({
+        $organization->%*,
+        workspaces => [
+            {
+                (map +($_ => $sub_ws->$_), qw(id name description)),
+                parent_workspace_id => undef, # user does not have the role to see GLOBAL
+                role => 'ro',
+            },
+        ],
+    });
+
+$t2->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is([
+        {
+            $organization->%*,
+            workspaces => [
+                {
+                    (map +($_ => $sub_ws->$_), qw(id name description)),
+                    parent_workspace_id => undef, # user does not have the role to see GLOBAL
+                    role => 'ro',
+                },
+            ],
+        },
+        # user is not a member of organization2
+    ]);
+
+my $grandchild_ws = $t->generate_fixtures('workspace', { parent_workspace_id => $sub_ws->id, name => 'grandchild ws' });
+
+push $organization->{workspaces}->@*, +{ (map +($_ => $grandchild_ws->$_), qw(id parent_workspace_id name description)), role => 'ro', role_via_workspace_id => $sub_ws->id };
+
+$t->get_ok('/workspace/'.$grandchild_ws->id.'/organization')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceOrganizations')
+    ->json_is([
+        {
+            $organization->%{qw(id name description)},
+            role => 'ro',
+            role_via_workspace_id => $sub_ws->id,
+            admins => [
+                { map +($_ => $admin_user->$_), qw(id name email) },
+                { map +($_ => $new_user->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+$t->get_ok('/workspace/'.$sub_ws->id.'/user')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceUsers')
+    ->json_is([
+        {
+            (map +($_ => $admin_user->$_), qw(id name email)),
+            role => 'ro',
+            role_via_organization_id => $organization->{id},
+        },
+        {
+            (map +($_ => $new_user->$_), qw(id name email)),
+            role => 'ro',
+            role_via_organization_id => $organization->{id},
+        },
+    ]);
+
+$t->get_ok('/workspace/'.$grandchild_ws->id.'/user')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceUsers')
+    ->json_is([
+        {
+            (map +($_ => $admin_user->$_), qw(id name email)),
+            role => 'ro',
+            role_via_workspace_id => $sub_ws->id,
+            role_via_organization_id => $organization->{id},
+        },
+        {
+            (map +($_ => $new_user->$_), qw(id name email)),
+            role => 'ro',
+            role_via_workspace_id => $sub_ws->id,
+            role_via_organization_id => $organization->{id},
+        },
+    ]);
+
+$t2->get_ok('/workspace')
+    ->status_is(200)
+    ->json_schema_is('WorkspacesAndRoles')
+    ->json_is([
+        # $new_user cannot see GLOBAL
+        {
+            (map +($_ => $sub_ws->$_), qw(id name description)),
+            parent_workspace_id => undef,
+            role => 'ro',
+            role_via_organization_id => $organization->{id},
+        },
+        {
+            (map +($_ => $grandchild_ws->$_), qw(id name description parent_workspace_id)),
+            role => 'ro',
+            role_via_workspace_id => $sub_ws->id,
+            role_via_organization_id => $organization->{id},
+        },
+    ]);
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'rw',
+    })
+    ->status_is(204)
+    ->email_cmp_deeply([
+        {
+            To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your access to the "${\$sub_ws->name}" workspace at Joyent Conch\Rvia the "my first organization" organization has been adjusted to the "rw" role\./m),
+        },
+        {
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We modified an organization\'s access to your workspace',
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "${\$sub_ws->name}" workspace at Joyent Conch to the "rw" role\./m),
+        },
+    ]);
+
+$t->get_ok('/workspace/'.$sub_ws->id.'/organization')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceOrganizations')
+    ->json_is([
+        {
+            $organization->%{qw(id name description)},
+            role => 'rw',
+            admins => [
+                { map +($_ => $admin_user->$_), qw(id name email) },
+                { map +($_ => $new_user->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+$_->{role} = 'rw' foreach $organization->{workspaces}->@*;
+
+$t->get_ok('/organization/my first organization')
+    ->status_is(200)
+    ->json_schema_is('Organization')
+    ->json_is($organization);
+
+$t->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is([ $organization, $organization2 ]);
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'rw',
+    })
+    ->status_is(204)
+    ->log_debug_is('organization "my first organization" already has rw access to workspace '.$sub_ws->id.': nothing to do')
+    ->email_not_sent;
+
+$t->post_ok('/workspace/'.$grandchild_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'rw',
+    })
+    ->status_is(204)
+    ->log_debug_is('organization "my first organization" already has rw access to workspace '.$grandchild_ws->id.' via workspace '.$sub_ws->id.': nothing to do')
+    ->email_not_sent;
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'ro',
+    })
+    ->status_is(409)
+    ->json_is({ error => 'organization "my first organization" already has rw access to workspace '.$sub_ws->id.': cannot downgrade role to ro' })
+    ->email_not_sent;
+
+$t->post_ok('/workspace/'.$grandchild_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'ro',
+    })
+    ->status_is(409)
+    ->json_is({ error => 'organization "my first organization" already has rw access to workspace '.$grandchild_ws->id.' via workspace '.$sub_ws->id.': cannot downgrade role to ro' })
+    ->email_not_sent;
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/user', json => {
+        user_id => $new_user->id,
+        role => 'rw',
+    })
+    ->log_debug_is('user '.$new_user->name.' already has rw access to workspace '.$sub_ws->id.' via organization '.$organization->{id}.': nothing to do')
+    ->status_is(204)
+    ->email_not_sent;
+
+$t->post_ok('/workspace/'.$grandchild_ws->id.'/user', json => {
+        user_id => $new_user->id,
+        role => 'rw',
+    })
+    ->log_debug_is('user '.$new_user->name.' already has rw access to workspace '.$grandchild_ws->id.' via workspace '.$sub_ws->id.' and organization '.$organization->{id}.': nothing to do')
+    ->status_is(204)
+    ->email_not_sent;
+
+$t->post_ok('/workspace/'.$sub_ws->id.'/user', json => {
+        user_id => $new_user->id,
+        role => 'ro',
+    })
+    ->status_is(409)
+    ->json_is({ error => 'user '.$new_user->name.' already has rw access to workspace '.$sub_ws->id.' via organization '.$organization->{id}.': cannot downgrade role to ro' })
+    ->email_not_sent;
+
+$t->post_ok('/workspace/'.$grandchild_ws->id.'/user', json => {
+        user_id => $new_user->id,
+        role => 'ro',
+    })
+    ->status_is(409)
+    ->json_is({ error => 'user '.$new_user->name.' already has rw access to workspace '.$grandchild_ws->id.' via workspace '.$sub_ws->id.' and organization '.$organization->{id}.': cannot downgrade role to ro' })
+    ->email_not_sent;
+
+$t2->delete_ok('/workspace/grandchild ws/organization/my first organization')
     ->status_is(403);
 
+
+my $t3 = Test::Conch->new(pg => $t->pg);
+$t3->authenticate(email => $admin_user->email);
+
+$t3->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
+    ->status_is(403);
+
+$t3->delete_ok('/workspace/'.$sub_ws->id.'/organization/'.$organization->{id})
+    ->status_is(403);
+
+$t->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
+    ->status_is(204)
+    ->email_not_sent;
+
+
+$t->get_ok('/workspace/'.$grandchild_ws->id.'/organization')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceOrganizations')
+    ->json_is([
+        {
+            $organization->%{qw(id name description)},
+            role => 'rw',
+            role_via_workspace_id => $sub_ws->id,
+            admins => [
+                { map +($_ => $admin_user->$_), qw(id name email) },
+                { map +($_ => $new_user->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+$t->post_ok('/workspace/'.$grandchild_ws->id.'/organization', json => {
+        organization_id => $organization->{id},
+        role => 'admin',
+    })
+    ->status_is(204)
+    ->email_cmp_deeply([
+        {
+            To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your access to the "${\$grandchild_ws->name}" workspace at Joyent Conch\Rvia the "my first organization" organization has been adjusted to the "admin" role\./m),
+        },
+        {
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We modified an organization\'s access to your workspace',
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "${\$grandchild_ws->name}" workspace at Joyent Conch to the "admin" role\./m),
+        },
+    ]);
+
+$t->get_ok('/workspace/'.$grandchild_ws->id.'/organization')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceOrganizations')
+    ->json_is([
+        {
+            $organization->%{qw(id name description)},
+            role => 'admin',
+            admins => [
+                { map +($_ => $admin_user->$_), qw(id name email) },
+                { map +($_ => $new_user->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+$t->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
+    ->status_is(204)
+    ->email_cmp_deeply([
+        {
+            To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch workspaces have been updated',
+            body => re(qr/^Your "my first organization" organization has been removed from the\R"grandchild ws" workspace at Joyent Conch\./m),
+        },
+        {
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We removed an organization from your workspace',
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) removed the "my first organization"\Rorganization from the "grandchild ws" workspace at Joyent Conch\./m),
+        },
+    ]);
+
+$t->get_ok('/workspace/'.$grandchild_ws->id.'/organization')
+    ->status_is(200)
+    ->json_schema_is('WorkspaceOrganizations')
+    ->json_is([
+        {
+            $organization->%{qw(id name description)},
+            role => 'rw',
+            role_via_workspace_id => $sub_ws->id,
+            admins => [
+                { map +($_ => $admin_user->$_), qw(id name email) },
+                { map +($_ => $new_user->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+$t->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is([ $organization, $organization2 ]);
+
+$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
+    ->status_is(403);
 
 $t->delete_ok('/organization/my first organization/user/foo@bar.com')
     ->status_is(404);
@@ -389,7 +781,7 @@ $t->get_ok('/organization')
 
 $t->delete_ok('/organization/my first organization')
     ->status_is(204)
-    ->log_debug_is('Deactivated organization my first organization, removing 2 user memberships and removing from 0 workspaces');
+    ->log_debug_is('Deactivated organization my first organization, removing 2 user memberships and removing from 2 workspaces');
 
 $t->get_ok('/organization')
     ->status_is(200)

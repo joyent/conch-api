@@ -666,6 +666,28 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
             },
         };
     }
+    elsif ($fixture_type eq 'workspace') {
+        return +{
+            "workspace_$num" => {
+                new => 'workspace',
+                using => {
+                    name => "workspace_$num",
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    elsif ($fixture_type eq 'organization') {
+        return +{
+            "organization_$num" => {
+                new => 'organization',
+                using => {
+                    name => "organization_$num",
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
     else {
         die 'unrecognized fixture type '.$fixture_type;
     }

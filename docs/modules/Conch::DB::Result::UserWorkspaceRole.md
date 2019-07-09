@@ -54,14 +54,6 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch::DB::Result::Workspace)
 
-## role\_cmp
-
-Acts like the `cmp` operator, returning -1, 0 or 1 depending on whether the first role is less
-than, the same as, or greater than the second role.
-
-If only one role argument is passed, the role in the current row is compared to the passed-in
-role.
-
 # LICENSING
 
 Copyright Joyent, Inc.
