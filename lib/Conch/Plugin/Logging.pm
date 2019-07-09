@@ -108,7 +108,6 @@ sub register ($self, $app, $config) {
         };
 
         if (my $exception = $c->stash('exception')) {
-            $exception->verbose;
             my @frames = map +{
                 class => $_->[0],
                 file  => $_->[1],
