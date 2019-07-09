@@ -35,12 +35,6 @@ __PACKAGE__->table("device_disk");
   is_nullable: 0
   size: 16
 
-=head2 device_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 serial_number
 
   data_type: 'text'
@@ -86,11 +80,6 @@ __PACKAGE__->table("device_disk");
   data_type: 'text'
   is_nullable: 1
 
-=head2 temp
-
-  data_type: 'integer'
-  is_nullable: 1
-
 =head2 deactivated
 
   data_type: 'timestamp with time zone'
@@ -120,6 +109,13 @@ __PACKAGE__->table("device_disk");
   data_type: 'integer'
   is_nullable: 1
 
+=head2 device_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -130,8 +126,6 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "device_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "serial_number",
   { data_type => "text", is_nullable => 0 },
   "slot",
@@ -150,8 +144,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "drive_type",
   { data_type => "text", is_nullable => 1 },
-  "temp",
-  { data_type => "integer", is_nullable => 1 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
@@ -172,6 +164,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 1 },
   "hba",
   { data_type => "integer", is_nullable => 1 },
+  "device_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -219,7 +213,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9iRHJyYrxtWJ0Vrr+DegaQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UPmScp0EKqINJu73Ka14UA
 
 __PACKAGE__->add_columns(
     '+device_id' => { is_serializable => 0 },

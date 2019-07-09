@@ -47,7 +47,7 @@ test_validation(
         foo => 'bar'
     },
     device => {
-        triton_setup => 1,
+        asset_tag => 'foo',
     },
 
     cases => [ ... ]

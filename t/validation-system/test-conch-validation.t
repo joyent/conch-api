@@ -46,11 +46,11 @@ subtest 'database object construction' => sub {
 
     test_validation(
         'Conch::Validation::TestConchValidationTester',
-        device => { id => 'my device' },
+        device => { serial_number => 'my device' },
         cases => [
             {
                 description => 'device inflation',
-                data => { subname => '_device_inflation', device_id => 'my device' },
+                data => { subname => '_device_inflation', device_serial_number => 'my device' },
                 success_num => 2,
             },
             {

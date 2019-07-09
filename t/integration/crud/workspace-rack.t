@@ -151,19 +151,21 @@ CSV
 
 subtest 'Assign device to a location' => sub {
     $t->post_ok('/rack/'.$rack_id.'/assignment',
-            json => [ { device_id => 'TEST', rack_unit_start => 42 } ])
+            json => [ { device_serial_number => 'TEST', rack_unit_start => 42 } ])
         ->status_is(409)
         ->json_is({ error => 'missing layout for rack_unit_start 42' });
 
     $t->post_ok('/rack/'.$rack_id.'/assignment', json => [
-            { device_id => 'TEST', rack_unit_start => 1 },
-            { device_id => 'NEW_DEVICE', rack_unit_start => 3 },
+            { device_serial_number => 'TEST', rack_unit_start => 1 },
+            { device_serial_number => 'NEW_DEVICE', rack_unit_start => 3 },
         ])
         ->status_is(303)
         ->location_is('/rack/'.$rack_id.'/assignment');
 
+    my $test = $t->app->db_devices->find({ serial_number => 'TEST' });
+    my $new_device = $t->app->db_devices->find({ serial_number => 'NEW_DEVICE' });
     ok(
-        !$t->app->db_devices->search({ id => 'TEST' })->devices_without_location->exists,
+        !$test->self_rs->devices_without_location->exists,
         'device is now located',
     );
 
@@ -189,7 +191,7 @@ subtest 'Assign device to a location' => sub {
                     vendor => $hardware_product_compute->hardware_vendor->name,
                     rack_unit_start => 1,
                     rack_unit_size => 2,
-                    occupant => superhashof({ id => 'TEST' }),
+                    occupant => superhashof({ id => $test->id }),
                 },
                 {
                     id => re(Conch::UUID::UUID_FORMAT),
@@ -198,7 +200,7 @@ subtest 'Assign device to a location' => sub {
                     vendor => $hardware_product_storage->hardware_vendor->name,
                     rack_unit_start => 3,
                     rack_unit_size => 4,
-                    occupant => superhashof({ id => 'NEW_DEVICE' }),
+                    occupant => superhashof({ id => $new_device->id }),
                 },
                 {
                     id => re(Conch::UUID::UUID_FORMAT),

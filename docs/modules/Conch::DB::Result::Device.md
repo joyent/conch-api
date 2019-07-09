@@ -8,7 +8,7 @@ Conch::DB::Result::Device
 
 # ACCESSORS
 
-## id
+## serial\_number
 
 ```
 data_type: 'text'
@@ -32,33 +32,12 @@ is_nullable: 0
 size: 16
 ```
 
-## state
-
-```
-data_type: 'text'
-is_nullable: 0
-```
-
 ## health
 
 ```perl
 data_type: 'enum'
 extra: {custom_type_name => "device_health_enum",list => ["error","fail","unknown","pass"]}
 is_nullable: 0
-```
-
-## graduated
-
-```
-data_type: 'timestamp with time zone'
-is_nullable: 1
-```
-
-## deactivated
-
-```
-data_type: 'timestamp with time zone'
-is_nullable: 1
 ```
 
 ## last\_seen
@@ -100,32 +79,10 @@ data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## latest\_triton\_reboot
-
-```
-data_type: 'timestamp with time zone'
-is_nullable: 1
-```
-
-## triton\_uuid
-
-```
-data_type: 'uuid'
-is_nullable: 1
-size: 16
-```
-
 ## asset\_tag
 
 ```
 data_type: 'text'
-is_nullable: 1
-```
-
-## triton\_setup
-
-```
-data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
@@ -145,11 +102,32 @@ extra: {custom_type_name => "device_phase_enum",list => ["integration","installa
 is_nullable: 0
 ```
 
+## id
+
+```
+data_type: 'uuid'
+default_value: gen_random_uuid()
+is_nullable: 0
+size: 16
+```
+
+## links
+
+```
+data_type: 'text[]'
+default_value: '{}'::text[]
+is_nullable: 0
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)
 
 # UNIQUE CONSTRAINTS
+
+## `device_serial_number_key`
+
+- ["serial\_number"](#serial_number)
 
 ## `device_system_uuid_key`
 
@@ -162,12 +140,6 @@ is_nullable: 0
 Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceDisk](../modules/Conch::DB::Result::DeviceDisk)
-
-## device\_environment
-
-Type: might\_have
-
-Related object: [Conch::DB::Result::DeviceEnvironment](../modules/Conch::DB::Result::DeviceEnvironment)
 
 ## device\_location
 

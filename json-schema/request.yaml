@@ -109,11 +109,17 @@ definitions:
     type: object
     additionalProperties: false
     required:
-      - device_id
       - rack_unit_start
+    anyOf:
+      - required:
+        - device_id
+      - required:
+        - device_serial_number
     properties:
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
+      device_serial_number:
+        $ref: common.yaml#/definitions/device_serial_number
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
       device_asset_tag:
@@ -133,7 +139,7 @@ definitions:
       - rack_unit_start
     properties:
       device_id:
-        $ref: common.yaml#/definitions/device_id
+        $ref: common.yaml#/definitions/uuid
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
   RackPhase:
@@ -470,14 +476,6 @@ definitions:
         oneOf:
           - $ref: common.yaml#/definitions/device_asset_tag
           - type: 'null'
-  DeviceTritonUuid:
-    type: object
-    additionalProperties: false
-    required:
-      - triton_uuid
-    properties:
-      triton_uuid:
-        $ref: common.yaml#/definitions/uuid
   DevicePhase:
     type: object
     additionaProperties: false
@@ -486,6 +484,19 @@ definitions:
     properties:
       phase:
         $ref: common.yaml#/definitions/device_phase
+  DeviceLinks:
+    type: object
+    additionaProperties: false
+    required:
+      - links
+    properties:
+      links:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          format: uri
   DeviceSetting:
     allOf:
       - $ref: /definitions/DeviceSettings

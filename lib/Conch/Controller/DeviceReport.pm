@@ -25,25 +25,10 @@ Response uses the ValidationStateWithResults json schema.
 
 sub process ($c) {
     my $unserialized_report = $c->validate_request('DeviceReport');
-    if (not $unserialized_report) {
-        $c->log->debug('Device report input did not match json schema specification');
-
-        if (not $c->db_devices->active->search({ id => $c->stash('device_id') })->exists) {
-            $c->log->debug('Device id '.$c->stash('device_id').' does not exist; cannot store bad report');
-            return;
-        }
-
-        # the "report" may not even be valid json, so we cannot store it in a jsonb field.
-        my $device_report = $c->db_device_reports->create({
-            device_id => $c->stash('device_id'),
-            invalid_report => $c->req->text,
-        });
-        $c->log->debug('Stored invalid device report for device id '.$c->stash('device_id'));
-        return;
-    }
+    return if not $unserialized_report;
 
     # Make sure the API and device report agree on who we're talking about
-    if ($c->stash('device_id') ne $unserialized_report->{serial_number}) {
+    if ($c->stash('device_serial_number') ne $unserialized_report->{serial_number}) {
         return $c->status(422, { error => 'Serial number provided to the API does not match the report data.' });
     }
 
@@ -58,7 +43,7 @@ sub process ($c) {
             if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
     }
 
-    my $existing_device = $c->db_devices->active->find($c->stash('device_id'));
+    my $existing_device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
 
     # capture information about the last report before we store the new one
     # state can be: error, fail, pass, where no validations on a valid report is
@@ -79,24 +64,25 @@ sub process ($c) {
     return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
 
     # Update/create the device and create the device report
-    $c->log->debug('Updating or creating device '.$c->stash('device_id'));
+    $c->log->debug('Updating or creating device '.$c->stash('device_serial_number'));
 
     my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since}
                : $existing_device ? $existing_device->uptime_since
                : undef;
 
+    # this may be a different device_id than $existing_device.
     my $device = $c->db_devices->update_or_create({
-        id                  => $c->stash('device_id'),
+        serial_number       => $c->stash('device_serial_number'),
         system_uuid         => $unserialized_report->{system_uuid},
         hardware_product_id => $hw->id,
-        state               => $unserialized_report->{state},
         health              => 'unknown',
         last_seen           => \'now()',
         uptime_since        => $uptime,
         hostname            => $unserialized_report->{os}{hostname},
+        $unserialized_report->{links}
+            ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
         updated             => \'now()',
-        deactivated         => undef,
-    });
+    }, { key => 'device_serial_number_key' });
 
     $c->log->debug('Creating device report');
     my $device_report = $device->create_related('device_reports', {
@@ -145,7 +131,8 @@ sub process ($c) {
         if $validation_state->status ne 'pass' and not $device_report->retain;
 
     # now delete that previous report, if we can
-    if ($previous_report_id and $previous_report_status eq 'pass') {
+    if ($validation_state->status eq 'pass'
+            and $previous_report_id and $previous_report_status eq 'pass') {
         if ($c->db_device_reports
             ->search({ id => $previous_report_id, retain => \'is not TRUE' })
             ->delete > 0)
@@ -159,6 +146,7 @@ sub process ($c) {
     # prime the resultset cache for the serializer
     $validation_state->prefetch_validation_results;
 
+    $c->res->headers->location($c->url_for('/device/'.$device->id));
     $c->status(200, $validation_state);
 }
 
@@ -202,18 +190,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                 $c->log->warn('received report without relay id (device_id '. $device->id.')');
             }
 
-            if ($dr->{temp}) {
-                $device->related_resultset('device_environment')->update_or_create({
-                    cpu0_temp    => $dr->{temp}->{cpu0},
-                    cpu1_temp    => $dr->{temp}->{cpu1},
-                    inlet_temp   => $dr->{temp}->{inlet},
-                    exhaust_temp => $dr->{temp}->{exhaust},
-                    # TODO: not setting psu0_voltage, psu1_voltage
-                    updated      => \'now()',
-                });
-                $c->log->info('Recorded environment for Device '.$device->id);
-            }
-
             # Keep track of which disk serials have been previously recorded in the
             # DB but are no longer being reported due to a disk swap, etc.
             my @device_disk_serials = $device->related_resultset('device_disks')
@@ -240,7 +216,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                             transport
                             health
                             drive_type
-                            temp
                             enclosure
                             hba
                         )},
@@ -301,7 +276,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                         mtu          => $dr->{interfaces}->{$nic}->{mtu},
                         updated      => \'now()',
                         deactivated  => undef,
-                        # TODO: 'speed' is never set!
                     },
                 );
 
@@ -313,7 +287,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                         peer_port   => $dr->{interfaces}->{$nic}->{peer_port},
                         peer_mac    => $dr->{interfaces}->{$nic}->{peer_mac},
                         updated     => \'now()'
-                        # TODO: not setting want_port, want_switch
                     }
                 );
             }
@@ -413,16 +386,14 @@ sub validate_report ($c) {
     my ($status, @validation_results);
     $c->txn_wrapper(sub ($c) {
         my $device = $c->db_devices->update_or_create({
-            id                  => $unserialized_report->{serial_number},
+            serial_number       => $unserialized_report->{serial_number},
             system_uuid         => $unserialized_report->{system_uuid},
             hardware_product_id => $hw->id,
-            state               => $unserialized_report->{state},
             health              => 'unknown',
             last_seen           => \'now()',
             uptime_since        => $unserialized_report->{uptime_since},
             hostname            => $unserialized_report->{os}{hostname},
             updated             => \'now()',
-            deactivated         => undef,
         });
 
         # we do not call _record_device_configuration, because no validations
@@ -444,7 +415,7 @@ sub validate_report ($c) {
     return $c->status(400, { error => 'no validations ran' }) if not @validation_results;
 
     $c->status(200, {
-        device_id => $unserialized_report->{serial_number},
+        device_serial_number => $unserialized_report->{serial_number},
         validation_plan_id => $validation_plan->id,
         status => $status,
         results => \@validation_results,

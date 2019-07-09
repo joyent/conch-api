@@ -219,7 +219,7 @@ sub get_assignment ($c) {
 
 =head2 set_assignment
 
-Assigns devices to rack layouts, also optionally updating asset_tags.
+Assigns devices to rack layouts, also optionally updating serial_numbers and asset_tags.
 Existing devices in referenced slots will be removed as needed.
 
 =cut
@@ -228,8 +228,18 @@ sub set_assignment ($c) {
     my $input = $c->validate_request('RackAssignmentUpdates');
     return if not $input;
 
-    return $c->status(400, { error => 'duplication of device_ids is not permitted' })
-        if (uniq map $_->{device_id}, $input->@*) != $input->@*;
+    # in order to determine if we have duplicate devices, we need to look up all ids for device
+    # serial numbers...
+    foreach my $entry ($input->@*) {
+        if (my $serial = $entry->{device_serial_number} and not $entry->{device_id}) {
+            my $id = $c->db_devices->search({ serial_number => $serial })->get_column('id')->single;
+            $entry->{device_id} = $id if $id;
+        }
+    }
+
+    return $c->status(400, { error => 'duplication of devices is not permitted' })
+        if (uniq map $_->{device_id} // (), $input->@*) != (grep $_->{device_id}, $input->@*)
+            or (uniq map $_->{device_serial_number} // (), $input->@*) != (grep $_->{device_serial_number}, $input->@*);
     return $c->status(400, { error => 'duplication of rack_unit_starts is not permitted' })
         if (uniq map $_->{rack_unit_start}, $input->@*) != $input->@*;
 
@@ -246,19 +256,22 @@ sub set_assignment ($c) {
         return $c->status(409, { error => 'missing layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing) });
     }
 
+    # we already looked up all ids for devices that were referenced only by serial_number
     my %devices = map +($_->id => $_),
-        $c->db_devices->search({ id => { -in => [ map $_->{device_id}, $input->@* ] } });
+        $c->db_devices->search({ id => { -in => [ map $_->{device_id} // (), $input->@* ] } });
 
     my $device_locations_rs = $c->stash('rack_rs')->related_resultset('device_locations');
 
     $c->txn_wrapper(sub ($c) {
         foreach my $entry ($input->@*) {
             my $layout = first { $_->rack_unit_start == $entry->{rack_unit_start} } @layouts;
-            if (my $device = $devices{$entry->{device_id}}) {
-                if (exists $entry->{device_asset_tag}) {
-                    $device->asset_tag($entry->{device_asset_tag});
-                    $device->update({ updated => \'now()' }) if $device->is_changed;
-                }
+
+            # find device by id that we looked up before...
+            if ($entry->{device_id} and my $device = $devices{$entry->{device_id}}) {
+                $device->serial_number($entry->{device_serial_number}) if $entry->{device_serial_number};
+                $device->asset_tag($entry->{device_asset_tag}) if $entry->{device_asset_tag};
+                $device->update({ updated => \'now()' }) if $device->is_changed;
+
                 # we'll allow this as it will be caught by a validation later on,
                 # but it's probably user error of some kind.
                 $c->log->warn('locating device id '.$device->id
@@ -266,22 +279,27 @@ sub set_assignment ($c) {
                         .$layout->hardware_product_id.', but instead it has hardware_product_id '
                         .$device->hardware_product_id)
                     if $device->hardware_product_id ne $layout->hardware_product_id;
+
+                next if $device_locations_rs->search({ device_id => $device->id, $entry->%{rack_unit_start} })->exists;
+            }
+            elsif ($entry->{device_id}) {
+                $c->log->error('no device corresponding to device id '.$entry->{device_id});
+                $c->status(404);
+                die 'rollback';
             }
             else {
                 my $device = $c->db_devices->create({
-                    id => $entry->{device_id},
+                    serial_number => $entry->{device_serial_number},
                     asset_tag => $entry->{device_asset_tag},
                     hardware_product_id => $layout->hardware_product_id,
                     health => 'unknown',
-                    state => 'UNKNOWN',
                 });
+                $entry->{device_id} = $device->id;
             }
-
-            next if $device_locations_rs->search({ $entry->%{qw(device_id rack_unit_start)} })->exists;
 
             # remove current occupant, if it exists
             # (TODO: with deferred constraints, if it is moving to another slot we should not delete)
-            $device_locations_rs->search({ rack_unit_start => $entry->{rack_unit_start} })->delete;
+            $device_locations_rs->search({ $entry->%{rack_unit_start} })->delete;
 
             $c->db_device_locations->update_or_create(
                 {

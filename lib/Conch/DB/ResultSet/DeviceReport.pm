@@ -32,7 +32,7 @@ sub with_report_status ($self) {
         {
             '+columns' => {
                 status => {
-                    '' => \qq{case when $me.invalid_report is not null then 'error' else coalesce(min(validation_states.status),'pass') end},
+                    '' => \q{coalesce(min(validation_states.status),'pass')},
                     -as => 'status',
                 }
             },

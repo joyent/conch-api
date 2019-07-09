@@ -178,7 +178,7 @@ sub get_layout ($c) {
                         rack_unit_start => 'rack_layouts.rack_unit_start',
                         hardware_name => 'hardware_product.name',
                         device_asset_tag => 'device.asset_tag',
-                        device_serial_number => 'device.id',
+                        device_serial_number => 'device.serial_number',
                     },
                     join => [
                         'datacenter_room',

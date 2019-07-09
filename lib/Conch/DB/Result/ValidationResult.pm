@@ -35,12 +35,6 @@ __PACKAGE__->table("validation_result");
   is_nullable: 0
   size: 16
 
-=head2 device_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 hardware_product_id
 
   data_type: 'uuid'
@@ -93,6 +87,13 @@ __PACKAGE__->table("validation_result");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 device_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -103,8 +104,6 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "device_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "validation_id",
@@ -135,6 +134,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "device_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -227,7 +228,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7w+LDN1uxN72P3styqzW5A
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:plpoY5p27ah5uepmndhPyA
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

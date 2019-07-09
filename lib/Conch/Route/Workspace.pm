@@ -128,8 +128,6 @@ Accepts the following optional query parameters:
 
 =over 4
 
-=item * C<< graduated=<1|0> >> show only devices where the C<graduated> attribute is set/not-set
-
 =item * C<< validated=<1|0> >> show only devices where the C<validated> attribute is set/not-set
 
 =item * C<< health=<value> >> show only devices with the health matching the provided value

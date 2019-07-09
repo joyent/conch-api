@@ -81,6 +81,9 @@ definitions:
         $ref: common.yaml#/definitions/macaddr
       ipaddr:
         $ref: common.yaml#/definitions/ipaddr
+      link:
+        type: string
+        format: uri
     propertyNames:
       $ref: common.yaml#/definitions/device_setting_key
     additionalProperties:
@@ -107,8 +110,6 @@ definitions:
     type: object
     additionalProperties: false
     properties:
-      graduated:
-        $ref: /definitions/boolean_integer
       validated:
         $ref: /definitions/boolean_integer
       health:

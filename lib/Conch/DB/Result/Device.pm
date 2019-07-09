@@ -28,7 +28,7 @@ __PACKAGE__->table("device");
 
 =head1 ACCESSORS
 
-=head2 id
+=head2 serial_number
 
   data_type: 'text'
   is_nullable: 0
@@ -46,26 +46,11 @@ __PACKAGE__->table("device");
   is_nullable: 0
   size: 16
 
-=head2 state
-
-  data_type: 'text'
-  is_nullable: 0
-
 =head2 health
 
   data_type: 'enum'
   extra: {custom_type_name => "device_health_enum",list => ["error","fail","unknown","pass"]}
   is_nullable: 0
-
-=head2 graduated
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
-
-=head2 deactivated
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
 
 =head2 last_seen
 
@@ -96,25 +81,9 @@ __PACKAGE__->table("device");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
-=head2 latest_triton_reboot
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 1
-
-=head2 triton_uuid
-
-  data_type: 'uuid'
-  is_nullable: 1
-  size: 16
-
 =head2 asset_tag
 
   data_type: 'text'
-  is_nullable: 1
-
-=head2 triton_setup
-
-  data_type: 'timestamp with time zone'
   is_nullable: 1
 
 =head2 hostname
@@ -129,17 +98,28 @@ __PACKAGE__->table("device");
   extra: {custom_type_name => "device_phase_enum",list => ["integration","installation","production","diagnostics","decommissioned"]}
   is_nullable: 0
 
+=head2 id
+
+  data_type: 'uuid'
+  default_value: gen_random_uuid()
+  is_nullable: 0
+  size: 16
+
+=head2 links
+
+  data_type: 'text[]'
+  default_value: '{}'::text[]
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
+  "serial_number",
   { data_type => "text", is_nullable => 0 },
   "system_uuid",
   { data_type => "uuid", is_nullable => 1, size => 16 },
   "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "state",
-  { data_type => "text", is_nullable => 0 },
   "health",
   {
     data_type => "enum",
@@ -149,10 +129,6 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
-  "graduated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
-  "deactivated",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
   "last_seen",
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
@@ -173,14 +149,8 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "validated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
-  "latest_triton_reboot",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
-  "triton_uuid",
-  { data_type => "uuid", is_nullable => 1, size => 16 },
   "asset_tag",
   { data_type => "text", is_nullable => 1 },
-  "triton_setup",
-  { data_type => "timestamp with time zone", is_nullable => 1 },
   "hostname",
   { data_type => "text", is_nullable => 1 },
   "phase",
@@ -199,6 +169,19 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
+  "id",
+  {
+    data_type => "uuid",
+    default_value => \"gen_random_uuid()",
+    is_nullable => 0,
+    size => 16,
+  },
+  "links",
+  {
+    data_type     => "text[]",
+    default_value => \"'{}'::text[]",
+    is_nullable   => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -214,6 +197,18 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
+
+=head2 C<device_serial_number_key>
+
+=over 4
+
+=item * L</serial_number>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("device_serial_number_key", ["serial_number"]);
 
 =head2 C<device_system_uuid_key>
 
@@ -240,21 +235,6 @@ Related object: L<Conch::DB::Result::DeviceDisk>
 __PACKAGE__->has_many(
   "device_disks",
   "Conch::DB::Result::DeviceDisk",
-  { "foreign.device_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 device_environment
-
-Type: might_have
-
-Related object: L<Conch::DB::Result::DeviceEnvironment>
-
-=cut
-
-__PACKAGE__->might_have(
-  "device_environment",
-  "Conch::DB::Result::DeviceEnvironment",
   { "foreign.device_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -381,7 +361,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4Rz+lLAk39kRKJTYTEasxQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iOf4s64d7wK8hyLDdMkJTw
 
 __PACKAGE__->has_many(
   "active_device_disks",
@@ -407,10 +387,6 @@ __PACKAGE__->has_many(
     };
   },
   { cascade_copy => 0, cascade_delete => 0 },
-);
-
-__PACKAGE__->add_columns(
-    '+deactivated' => { is_serializable => 0 },
 );
 
 use experimental 'signatures';

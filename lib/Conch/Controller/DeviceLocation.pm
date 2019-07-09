@@ -70,7 +70,6 @@ sub set ($c) {
                 id      => $device_id,
                 hardware_product_id => $layout_rs->get_column('hardware_product_id')->as_query,
                 health  => 'unknown',
-                state   => 'UNKNOWN',
             });
         }
 

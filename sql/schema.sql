@@ -120,6 +120,19 @@ CREATE FUNCTION public.add_rack_to_global_workspace() RETURNS trigger
 ALTER FUNCTION public.add_rack_to_global_workspace() OWNER TO conch;
 
 --
+-- Name: array_cat_distinct(anyarray, anyarray); Type: FUNCTION; Schema: public; Owner: conch
+--
+
+CREATE FUNCTION public.array_cat_distinct(anyarray, anyarray) RETURNS anyarray
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+      select array(select distinct unnest(array_cat($1, $2)) order by 1);
+    $_$;
+
+
+ALTER FUNCTION public.array_cat_distinct(anyarray, anyarray) OWNER TO conch;
+
+--
 -- Name: run_migration(integer, text); Type: FUNCTION; Schema: public; Owner: conch
 --
 
@@ -181,24 +194,20 @@ ALTER TABLE public.datacenter_room OWNER TO conch;
 --
 
 CREATE TABLE public.device (
-    id text NOT NULL,
+    serial_number text NOT NULL,
     system_uuid uuid,
     hardware_product_id uuid NOT NULL,
-    state text NOT NULL,
     health public.device_health_enum NOT NULL,
-    graduated timestamp with time zone,
-    deactivated timestamp with time zone,
     last_seen timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     uptime_since timestamp with time zone,
     validated timestamp with time zone,
-    latest_triton_reboot timestamp with time zone,
-    triton_uuid uuid,
     asset_tag text,
-    triton_setup timestamp with time zone,
     hostname text,
-    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL
+    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    links text[] DEFAULT '{}'::text[] NOT NULL
 );
 
 
@@ -210,7 +219,6 @@ ALTER TABLE public.device OWNER TO conch;
 
 CREATE TABLE public.device_disk (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     serial_number text NOT NULL,
     slot integer,
     size integer,
@@ -220,46 +228,27 @@ CREATE TABLE public.device_disk (
     transport text,
     health text,
     drive_type text,
-    temp integer,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     enclosure integer,
-    hba integer
+    hba integer,
+    device_id uuid NOT NULL
 );
 
 
 ALTER TABLE public.device_disk OWNER TO conch;
 
 --
--- Name: device_environment; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.device_environment (
-    device_id text NOT NULL,
-    cpu0_temp integer,
-    cpu1_temp integer,
-    inlet_temp integer,
-    exhaust_temp integer,
-    psu0_voltage numeric,
-    psu1_voltage numeric,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE public.device_environment OWNER TO conch;
-
---
 -- Name: device_location; Type: TABLE; Schema: public; Owner: conch
 --
 
 CREATE TABLE public.device_location (
-    device_id text NOT NULL,
     rack_id uuid NOT NULL,
     rack_unit_start integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
+    device_id uuid NOT NULL,
     CONSTRAINT device_location_rack_unit_start_check CHECK ((rack_unit_start > 0))
 );
 
@@ -275,8 +264,6 @@ CREATE TABLE public.device_neighbor (
     raw_text text,
     peer_switch text,
     peer_port text,
-    want_switch text,
-    want_port text,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     peer_mac macaddr
@@ -291,7 +278,6 @@ ALTER TABLE public.device_neighbor OWNER TO conch;
 
 CREATE TABLE public.device_nic (
     mac macaddr NOT NULL,
-    device_id text NOT NULL,
     iface_name text NOT NULL,
     iface_type text NOT NULL,
     iface_vendor text NOT NULL,
@@ -300,9 +286,9 @@ CREATE TABLE public.device_nic (
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     state text,
-    speed text,
     ipaddr inet,
-    mtu integer
+    mtu integer,
+    device_id uuid NOT NULL
 );
 
 
@@ -313,10 +299,10 @@ ALTER TABLE public.device_nic OWNER TO conch;
 --
 
 CREATE TABLE public.device_relay_connection (
-    device_id text NOT NULL,
     first_seen timestamp with time zone DEFAULT now() NOT NULL,
     last_seen timestamp with time zone DEFAULT now() NOT NULL,
-    relay_id uuid NOT NULL
+    relay_id uuid NOT NULL,
+    device_id uuid NOT NULL
 );
 
 
@@ -328,11 +314,10 @@ ALTER TABLE public.device_relay_connection OWNER TO conch;
 
 CREATE TABLE public.device_report (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     report jsonb,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    invalid_report text,
-    retain boolean
+    retain boolean,
+    device_id uuid NOT NULL
 );
 
 
@@ -344,12 +329,12 @@ ALTER TABLE public.device_report OWNER TO conch;
 
 CREATE TABLE public.device_setting (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     value text,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     deactivated timestamp with time zone,
-    name text NOT NULL
+    name text NOT NULL,
+    device_id uuid NOT NULL
 );
 
 
@@ -651,7 +636,6 @@ ALTER TABLE public.validation_plan_member OWNER TO conch;
 
 CREATE TABLE public.validation_result (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     hardware_product_id uuid NOT NULL,
     validation_id uuid NOT NULL,
     message text NOT NULL,
@@ -661,6 +645,7 @@ CREATE TABLE public.validation_result (
     component text,
     result_order integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
+    device_id uuid NOT NULL,
     CONSTRAINT validation_result_result_order_check CHECK ((result_order >= 0))
 );
 
@@ -673,12 +658,12 @@ ALTER TABLE public.validation_result OWNER TO conch;
 
 CREATE TABLE public.validation_state (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    device_id text NOT NULL,
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum NOT NULL,
     completed timestamp with time zone NOT NULL,
-    device_report_id uuid NOT NULL
+    device_report_id uuid NOT NULL,
+    device_id uuid NOT NULL
 );
 
 
@@ -755,14 +740,6 @@ ALTER TABLE ONLY public.device_disk
 
 
 --
--- Name: device_environment device_environment_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_environment
-    ADD CONSTRAINT device_environment_pkey PRIMARY KEY (device_id);
-
-
---
 -- Name: device_location device_location_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -816,6 +793,14 @@ ALTER TABLE ONLY public.device_relay_connection
 
 ALTER TABLE ONLY public.device_report
     ADD CONSTRAINT device_report_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: device device_serial_number_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.device
+    ADD CONSTRAINT device_serial_number_key UNIQUE (serial_number);
 
 
 --
@@ -1094,10 +1079,10 @@ CREATE INDEX device_hostname_idx ON public.device USING btree (hostname);
 
 
 --
--- Name: device_id_idx; Type: INDEX; Schema: public; Owner: conch
+-- Name: device_links_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE INDEX device_id_idx ON public.device USING btree (id) WHERE (deactivated IS NULL);
+CREATE INDEX device_links_idx ON public.device USING gin (links);
 
 
 --
@@ -1471,14 +1456,6 @@ ALTER TABLE ONLY public.datacenter_room
 
 ALTER TABLE ONLY public.device_disk
     ADD CONSTRAINT device_disk_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
-
-
---
--- Name: device_environment device_environment_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.device_environment
-    ADD CONSTRAINT device_environment_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.device(id);
 
 
 --

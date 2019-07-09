@@ -35,12 +35,6 @@ __PACKAGE__->table("device_report");
   is_nullable: 0
   size: 16
 
-=head2 device_id
-
-  data_type: 'text'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 report
 
   data_type: 'jsonb'
@@ -53,15 +47,17 @@ __PACKAGE__->table("device_report");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 invalid_report
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 retain
 
   data_type: 'boolean'
   is_nullable: 1
+
+=head2 device_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
 
 =cut
 
@@ -73,8 +69,6 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "device_id",
-  { data_type => "text", is_foreign_key => 1, is_nullable => 0 },
   "report",
   { data_type => "jsonb", is_nullable => 1 },
   "created",
@@ -84,10 +78,10 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
-  "invalid_report",
-  { data_type => "text", is_nullable => 1 },
   "retain",
   { data_type => "boolean", is_nullable => 1 },
+  "device_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -136,7 +130,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/0ptty/13YaSE5Dw6xd/5Q
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rjhHrnB9kuyrsxzUnmgDZw
 
 __PACKAGE__->add_columns(
     '+retain' => { is_serializable => 0 },

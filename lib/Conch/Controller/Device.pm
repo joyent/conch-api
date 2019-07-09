@@ -2,6 +2,7 @@ package Conch::Controller::Device;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Conch::UUID 'is_uuid';
 use List::Util 'any';
 use Mojo::JSON 'from_json';
 
@@ -15,38 +16,59 @@ Conch::Controller::Device
 
 =head2 find_device
 
-Chainable action that validates the 'device_id' provided in the path.
+Chainable action that uses the 'device_id_or_serial_number' provided in the path
+to find the device and verify the user has permissions to operate on it.
 
 =cut
 
 sub find_device ($c) {
-    my $device_id = $c->stash('device_id');
-    $c->log->debug('Looking up device '.$device_id.' for user '.$c->stash('user_id'));
+    my $rs = $c->db_devices;
+    my $identifier;
+    if ($identifier = $c->stash('device_id')) {
+        $rs = $rs->search({ id => $identifier });
+    }
+    elsif ($identifier= $c->stash('device_serial_number')) {
+        $rs = $rs->search({ serial_number => $identifier });
+    }
+    elsif ($identifier = $c->stash('device_id_or_serial_number')) {
+        $rs = $rs->search({
+            is_uuid($identifier)
+          ? do { $c->stash('device_id', $identifier); ( id => $identifier ) }
+          : do { $c->stash('device_serial_number', $identifier); ( serial_number => $identifier ) }
+        });
+    }
+    else {
+        return $c->status(404);
+    }
 
-    # fetch for device existence and location in one query
-    my $device_check = $c->db_devices
-        ->search(
-            { id => $device_id },
+    $c->log->debug('Looking up device '.$identifier.' for user '.$c->stash('user_id'));
+
+    # fetch for device existence, id and location in one query
+    my $device_check = $rs
+        ->search(undef,
             {
                 join => 'device_location',
+                '+columns' => ['id'],
                 select => [
                     { '' => \1, -as => 'exists' },
                     { '' => \'device_location.rack_id is not null', -as => 'has_location' },
                 ],
             },
         )
-        ->active
         ->hri
         ->single;
 
     # if the device doesn't exist, we can bail out right now
     if (not $device_check->{exists}) {
-        $c->log->debug('Failed to find device '.$device_id);
+        $c->log->debug('Failed to find device '.$identifier);
         return $c->status(404);
     }
 
+    my $device_id = $device_check->{id};
+    $c->stash('device_id', $device_id);
+
     if ($c->is_system_admin) {
-        $c->log->debug('User has system admin privileges to access device '.$device_id);
+        $c->log->debug('User has system admin privileges to access device '.$identifier);
     }
     elsif ($device_check->{has_location}) {
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
@@ -58,14 +80,14 @@ sub find_device ($c) {
 
         if (not $c->db_devices->search({ 'device.id' => $device_id })
                 ->user_has_permission($c->stash('user_id'), $requires_permission)) {
-            $c->log->debug('User lacks permission to access device '.$device_id);
+            $c->log->debug('User lacks permission to access device '.$identifier);
             return $c->status(403);
         }
     }
     else {
         # look for unlocated devices among those that have sent a device report proxied by a
         # relay using the user's credentials
-        $c->log->debug('looking for device '.$device_id.' associated with relay reports');
+        $c->log->debug('looking for device '.$identifier.' associated with relay reports');
 
         my $device_rs = $c->db_devices
             ->search({ 'device.id' => $device_id })
@@ -75,12 +97,12 @@ sub find_device ($c) {
             ->search({ 'user_relay_connections.user_id' => $c->stash('user_id') });
 
         if (not $device_rs->exists) {
-            $c->log->debug('User lacks permission to access device '.$device_id);
+            $c->log->debug('User lacks permission to access device '.$identifier);
             return $c->status(403);
         }
     }
 
-    $c->log->debug('Found device '.$device_id);
+    $c->log->debug('Found device id '.$device_id);
 
     # store the simplified query to access the device, now that we've confirmed the user has
     # permission to access it.
@@ -92,14 +114,14 @@ sub find_device ($c) {
 
 =head2 get
 
-Retrieves details about a single (active) device. Response uses the DetailedDevice json schema.
+Retrieves details about a single device. Response uses the DetailedDevice json schema.
 
 =cut
 
 sub get ($c) {
     my ($device) = $c->stash('device_rs')
         ->prefetch([ { active_device_nics => 'device_neighbor' }, 'active_device_disks' ])
-        ->order_by([ qw(iface_name serial_number) ])
+        ->order_by([ qw(iface_name active_device_disks.serial_number) ])
         ->all;
 
     my $device_location_rs = $c->stash('device_rs')
@@ -112,17 +134,11 @@ sub get ($c) {
         ->add_columns({ rack_unit_start => 'device_location.rack_unit_start' })
         ->single;
 
-    my $latest_report = $c->stash('device_rs')
-        ->latest_device_report
-        ->columns([qw(report invalid_report)])
-        ->single;
+    my $latest_report = $c->stash('device_rs')->latest_device_report->get_column('report')->single;
 
     my $detailed_device = +{
         $device->TO_JSON->%*,
-        latest_report_is_invalid => \($latest_report && $latest_report->invalid_report ? 1 : 0),
-        latest_report => $latest_report && $latest_report->report ? from_json($latest_report->report) : undef,
-        # if not null, this is text - maybe json-encoded, maybe random junk
-        invalid_report => $latest_report ? $latest_report->invalid_report : undef,
+        latest_report => $latest_report ? from_json($latest_report) : undef,
         nics => [ map {
             my $device_nic = $_;
             my $device_neighbor = $device_nic->device_neighbor;
@@ -151,6 +167,7 @@ Looks up one or more devices by query parameter. Supports:
     /device?hostname=$hostname
     /device?mac=$macaddr
     /device?ipaddr=$ipaddr
+    /device?link=$link
     /device?$setting_key=$setting_value
 
 Response uses the Devices json schema.
@@ -168,9 +185,14 @@ sub lookup_by_other_attribute ($c) {
     my ($key, $value) = $params->%*;
     $c->log->debug('looking up device by '.$key.' = '.$value);
 
-    my $device_rs = $c->db_devices->prefetch('device_location')->active;
+    my $device_rs = $c->db_devices->prefetch('device_location');
     if ($key eq 'hostname') {
         $device_rs = $device_rs->search({ $key => $value });
+    }
+    elsif ($key eq 'link') {
+        # we do this instead of '? = any(links)' in order to take
+        # advantage of the built-in GIN indexing on the @> operator
+        $device_rs = $device_rs->search(\[ 'links @> array[?]', $value ]);
     }
     elsif (any { $key eq $_ } qw(mac ipaddr)) {
         $device_rs = $device_rs->search(
@@ -183,8 +205,7 @@ sub lookup_by_other_attribute ($c) {
         $device_rs = $c->db_device_settings->active
             ->search({ name => $key, value => $value })
             ->related_resultset('device')
-            ->prefetch('device_location')
-            ->active;
+            ->prefetch('device_location');
     }
 
     my @devices = $device_rs->order_by('device.created')->all;
@@ -232,93 +253,6 @@ sub get_pxe ($c) {
     $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;
 
     $c->status(200, $device);
-}
-
-=head2 graduate
-
-Marks the device as "graduated" (VLAN flipped)
-
-=cut
-
-sub graduate ($c) {
-    $c->validate_request('Null');
-    return if $c->res->code;
-
-    my $device = $c->stash('device_rs')->single;
-    my $device_id = $device->id;
-
-    if (not $device->graduated) {
-        $device->update({ graduated => \'now()', updated => \'now()' });
-        $c->log->debug('Marked '.$device_id.' as graduated');
-    }
-
-    $c->status(303, '/device/'.$device_id);
-}
-
-=head2 set_triton_reboot
-
-Sets the C<latest_triton_reboot> field on a device
-
-=cut
-
-sub set_triton_reboot ($c) {
-    $c->validate_request('Null');
-    return if $c->res->code;
-
-    my $device = $c->stash('device_rs')->single;
-    $device->update({ latest_triton_reboot => \'now()', updated => \'now()' });
-
-    $c->log->debug('Marked '.$device->id.' as rebooted into triton');
-
-    $c->status(303, '/device/'.$device->id);
-}
-
-=head2 set_triton_uuid
-
-Sets the C<triton_uuid> field on a device, given a triton_uuid field that is a
-valid UUID
-
-=cut
-
-sub set_triton_uuid ($c) {
-    my $device = $c->stash('device_rs')->single;
-
-    my $input = $c->validate_request('DeviceTritonUuid');
-    return if not $input;
-
-    $device->update({ triton_uuid => $input->{triton_uuid}, updated => \'now()' });
-    $c->log->debug('Set the triton uuid for device '.$device->id.' to '.$input->{triton_uuid});
-
-    $c->status(303, '/device/'.$device->id);
-}
-
-=head2 set_triton_setup
-
-If a device has been marked as rebooted into Triton and has a Triton UUID, sets
-the C<triton_setup> field. Fails if the device has already been marked as such.
-
-=cut
-
-sub set_triton_setup ($c) {
-    $c->validate_request('Null');
-    return if $c->res->code;
-
-    my $device = $c->stash('device_rs')->single;
-    my $device_id = $device->id;
-
-    if (not defined $device->latest_triton_reboot or not defined $device->triton_uuid) {
-        $c->log->warn('Input failed validation');
-        return $c->status(409, {
-            error => 'Device '.$device_id.' must be marked as rebooted into Triton and the Triton UUID set before it can be marked as set up for Triton'
-        });
-    }
-
-    if (not $device->triton_setup) {
-        $device->update({ triton_setup => \'now()', updated => \'now()' });
-        $c->log->debug('Device '.$device_id.' marked as set up for triton');
-    }
-
-    $c->status(303, '/device/'.$device_id);
 }
 
 =head2 set_asset_tag
@@ -381,6 +315,40 @@ sub set_phase ($c) {
     $c->log->debug('Set the phase for device '.$c->stash('device_id').' to '.$input->{phase});
 
     $c->status(303, '/device/'.$c->stash('device_id'));
+}
+
+=head2 add_links
+
+Appends the provided link(s) to the device record.
+
+=cut
+
+sub add_links ($c) {
+    my $input = $c->validate_request('DeviceLinks');
+    return if not $input;
+
+    # only perform the update if not all links are already present
+    $c->stash('device_rs')
+        ->search(\[ 'not(links @> ?)', [{},$input->{links}] ])
+        ->update({
+            links => \[ 'array_cat_distinct(links,?)', [{},$input->{links}] ],
+            updated => \'now()',
+        });
+
+    $c->status(303, '/device/'.$c->stash('device_id'));
+}
+
+=head2 remove_links
+
+Removes all links from the device record.
+
+=cut
+
+sub remove_links ($c) {
+    $c->stash('device_rs')
+        ->search({ links => { '!=' => '{}' } })
+        ->update({ links => '{}', updated => \'now()' });
+    $c->status(204);
 }
 
 1;

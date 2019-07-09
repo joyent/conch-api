@@ -15,14 +15,12 @@ Conch::Controller::WorkspaceDevice
 
 =head2 list
 
-Get a list of all active devices in the current workspace (as specified by :workspace_id in the
+Get a list of all devices in the current workspace (as specified by :workspace_id in the
 path).
 
 Supports these query parameters to constrain results (which are ANDed together for the search,
 not ORed):
 
-    graduated=1     only devices with graduated set
-    graduated=0     only devices with graduated not set
     validated=1     only devices with validated set
     validated=0     only devices with validated not set
     health=<value>  only devices with health matching the provided value
@@ -43,14 +41,7 @@ sub list ($c) {
         ->related_resultset('rack')
         ->related_resultset('device_locations')
         ->related_resultset('device')
-        ->active
         ->order_by([ map 'device_locations.'.$_, qw(rack_id rack_unit_start) ]);
-
-    $devices_rs = $devices_rs->search({ graduated => { '!=' => undef } })
-        if $params->{graduated};
-
-    $devices_rs = $devices_rs->search({ graduated => undef })
-        if defined $params->{graduated} and not $params->{graduated};
 
     $devices_rs = $devices_rs->search({ validated => { '!=' => undef } })
         if $params->{validated};
@@ -84,8 +75,7 @@ sub get_pxe_devices ($c) {
         ->related_resultset('rack')
         ->related_resultset('device_locations')
         ->as_subselect_rs  # avoids earlier device_locations from interfering with subqueries
-        ->related_resultset('device')
-        ->active;
+        ->related_resultset('device');
 
     my @devices = $device_rs->search(undef,
         {
@@ -151,7 +141,6 @@ sub device_totals ($c) {
         ->related_resultset('rack')
         ->related_resultset('device_locations')
         ->related_resultset('device')
-        ->active
         ->search(
             undef,
             {

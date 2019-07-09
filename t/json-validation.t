@@ -46,7 +46,7 @@ subtest '/device/:id/interface/:iface_name/:field validation' => sub {
     my $schema = $validator->get('/definitions/DeviceNicField');
 
     cmp_deeply(
-        [ $validator->validate({ device_id => 'TEST' }, $schema) ],
+        [ $validator->validate({ device_id => create_uuid_str() }, $schema) ],
         [ methods(message => re(qr/should not match/i)) ],
         'device_id is not a valid response field',
     );

@@ -15,7 +15,6 @@ definitions:
       - bios_version
       - product_name
       - serial_number
-      - state
       - system_uuid
     properties:
       bios_version:
@@ -101,7 +100,6 @@ definitions:
               oneOf:
                 - type: string
                 - type: 'null'
-            # note: no speed yet?
             ipaddr:
               oneOf:
                 - $ref: common.yaml#/definitions/ipaddr
@@ -136,9 +134,7 @@ definitions:
           serial:
             $ref: common.yaml#/definitions/relay_serial_number
       serial_number:
-        $ref: common.yaml#/definitions/device_id
-      state:
-        type: string
+        $ref: common.yaml#/definitions/device_serial_number
       system_uuid:
         $ref: common.yaml#/definitions/uuid
       temp:
@@ -157,4 +153,10 @@ definitions:
             $ref: /definitions/int_or_stringy_int
       uptime_since:
         type: string
-
+      links:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          type: string
+          format: uri

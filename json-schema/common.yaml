@@ -16,7 +16,7 @@ definitions:
   relay_serial_number:
     type: string
     pattern: ^\S+$
-  device_id:
+  device_serial_number:
     allOf:
       - type: string
         pattern: ^\S+$
