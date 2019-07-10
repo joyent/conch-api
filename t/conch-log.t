@@ -660,41 +660,6 @@ sub add_test_routes ($app) {
         'dispatch line for /login error in audit mode does NOT contain the request body',
     );
 
-    $t->get_ok($t->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
-        ->status_is(401);
-
-    cmp_deeply(
-        decode_json((split(/\n/, $fake_log_file))[-1]),
-        +{
-            name => 'conch-api',
-            hostname => $hostname,
-            pid => $$,
-            time => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            v => 2,
-            level => 'info',
-            req_id => $t->tx->res->headers->header('Request-Id'),
-            msg => 'dispatch',
-            api_version => re($api_version_re),
-            latency => re(qr/^\d+$/),
-            req => {
-                user        => 'NOT AUTHED',
-                method      => 'GET',
-                url         => '/me',
-                remoteAddress => '127.0.0.1',
-                remotePort  => ignore,
-                headers     => superhashof({}),
-                query_params => {},
-                body        => '',
-            },
-            res => {
-                headers => superhashof({}),
-                statusCode => 401,
-                body => { error => 'Unauthorized' },
-            },
-        },
-        'dispatch line for basic auth in audit mode does NOT contain the password',
-    );
-
     $t->load_fixture('conch_user_global_workspace');
     my $user_id = $t->app->db_user_accounts->search({ email => $t->CONCH_EMAIL })->get_column('id')->single;
     $t->authenticate->json_has('/jwt_token');

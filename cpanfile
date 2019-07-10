@@ -23,7 +23,6 @@ requires 'Encode', '2.98';
 requires 'IPC::System::Simple';
 requires 'Dir::Self';
 requires 'Carp';
-requires 'Crypt::Eksblowfish::Bcrypt';
 requires 'Module::Runtime';
 requires 'Email::Valid';
 requires 'Email::Simple';
@@ -72,7 +71,8 @@ requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';
 requires 'Text::CSV_XS';
-
+requires 'DBIx::Class::PassphraseColumn', dist => 'ETHER/DBIx-Class-PassphraseColumn-0.04-TRIAL.tar.gz';
+requires 'Authen::Passphrase::BlowfishCrypt';
 
 on 'test' => sub {
     requires 'Test::More';

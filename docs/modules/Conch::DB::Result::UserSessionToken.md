@@ -17,13 +17,6 @@ is_nullable: 0
 size: 16
 ```
 
-## token\_hash
-
-```
-data_type: 'bytea'
-is_nullable: 0
-```
-
 ## expires
 
 ```
@@ -54,10 +47,18 @@ data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
+## id
+
+```
+data_type: 'uuid'
+default_value: gen_random_uuid()
+is_nullable: 0
+size: 16
+```
+
 # PRIMARY KEY
 
-- ["user\_id"](#user_id)
-- ["token\_hash"](#token_hash)
+- ["id"](#id)
 
 # UNIQUE CONSTRAINTS
 

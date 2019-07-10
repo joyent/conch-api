@@ -74,7 +74,7 @@ sub register ($self, $app, $config) {
           : 'NOT AUTHED';
 
         my $req_headers = $c->req->headers->to_hash(1);
-        delete $req_headers->@{qw(Authorization Cookie jwt_token jwt_sig)};
+        delete $req_headers->@{qw(Authorization Cookie jwt_token)};
 
         my $res_headers = $c->res->headers->to_hash(1);
         delete $res_headers->@{qw(Set-Cookie)};

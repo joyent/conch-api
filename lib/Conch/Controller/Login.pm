@@ -2,7 +2,6 @@ package Conch::Controller::Login;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Mojo::JWT;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
 use Time::HiRes ();
@@ -15,17 +14,14 @@ Conch::Controller::Login
 
 =head1 METHODS
 
-=head2 _create_jwt
+=head2 _respond_with_jwt
 
-Create a JWT and sets it up to be returned in the response in two parts:
-
-    * the signature in a cookie named 'jwt_sig',
-    * and a response body named 'jwt_token'. 'jwt_token' includes two claims: 'uid', for the
-      user ID, and 'jti', for the token ID.
+Create a response containing a login JWT, which the user should later present in the
+'Authorization Bearer' header.
 
 =cut
 
-sub _create_jwt ($c, $user_id, $expires_delta = undef) {
+sub _respond_with_jwt ($c, $user_id, $expires_delta = undef) {
     my $jwt_config = $c->app->config('jwt') || {};
 
     my $expires_abs = time + (
@@ -35,44 +31,22 @@ sub _create_jwt ($c, $user_id, $expires_delta = undef) {
             # normal default: 1 day
       : ($jwt_config->{normal_expiry} || 86400));
 
-    my ($new_token_row, $token) = $c->db_user_session_tokens->generate_for_user(
+    my ($session_token, $jwt) = $c->generate_jwt(
         $user_id,
         $expires_abs,
         'login_jwt_'.join('_', Time::HiRes::gettimeofday), # reasonably unique name
     );
 
-    my $jwt = Mojo::JWT->new(
-        claims => {
-            uid => $user_id,
-            jti => $token
-        },
-        secret  => $c->app->config('secrets')->[0],
-        expires => $expires_abs,
-    )->encode;
-
-    my ($header, $payload, $sig) = split /\./, $jwt;
-
-    $c->cookie(
-        jwt_sig => $sig,
-        {
-            expires => $expires_abs,
-            secure => $c->req->is_secure,
-            httponly => 1,
-        },
-    );
-
-    # this should be returned in the json payload under the 'jwt_token' key.
-    return $header.'.'.$payload;
+    return if $c->res->code;
+    return $c->status(200, { jwt_token => $jwt });
 }
 
 =head2 authenticate
 
 Handle the details of authenticating the user, with one of the following options:
 
- * HTTP Basic Auth
  * existing session for the user
- * JWT split between Authorization Bearer header value and jwt_sig cookie
- * JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
+ * signed JWT in the Authorization Bearer header
  * Old 'conch' session cookie
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
@@ -86,101 +60,63 @@ sub authenticate ($c) {
         return 1;
     }
 
-    # basic auth: look for user:password in the URL
-    my $url = $c->req->url->to_abs;
-    if ($url->userinfo) {
-        $c->log->debug('attempting to authenticate with email:password...');
-        my ($email, $password) = ($url->username, $url->password);
-
-        $c->log->debug('looking up user by email '.$email.'...');
-        my $user = $c->db_user_accounts->active->lookup_by_email($email);
-
-        if (not $user) {
-            $c->log->debug('basic auth failed: user not found');
-            return $c->status(401);
-        }
-
-        if (not $user->validate_password($password)) {
-            $c->log->debug('basic auth failed: incorrect password');
-            return $c->status(401);
-        }
-
-        if ($user->force_password_change) {
-            $c->log->debug('basic auth failed: password correct, but force_password_change was set');
-            $c->res->headers->location($c->url_for('/user/me/password'));
-            return $c->status(401);
-        }
-
-        # pass through to whatever action the user was trying to reach
-        $c->log->debug('user '.$user->name.' ('.$user->email.') accepted using basic auth');
-        $c->stash('user_id', $user->id);
-        $c->stash('user', $user);
-        return 1;
-    }
-
-    my ($user_id, $jwt_sig, $session_token);
+    my ($user_id, $session_token);
     if ($c->req->headers->authorization
         && $c->req->headers->authorization =~ /^Bearer (.+)/)
     {
         $c->log->debug('attempting to authenticate with Authorization: Bearer header...');
         my $token = $1;
-        if ($jwt_sig = $c->cookie('jwt_sig')) {
-            # danger! we are not checking if we already had a complete token
-            $token = $token.'.'.$jwt_sig;
-        }
 
         # Attempt to decode with every configured secret, in case JWT token was
         # signed with a rotated secret
-        my $jwt;
+        my $jwt_claims;
         for my $secret ($c->app->config('secrets')->@*) {
             # Mojo::JWT->decode blows up if the token is invalid
             try {
-                $jwt = Mojo::JWT->new(secret => $secret)->decode($token);
+                $jwt_claims = Mojo::JWT->new(secret => $secret)->decode($token);
             };
-            last if $jwt;
+            last if $jwt_claims;
         }
 
-        if (not $jwt or not $jwt->{uid} or not is_uuid($jwt->{uid})) {
+        if (not $jwt_claims or not $jwt_claims->{user_id} or not is_uuid($jwt_claims->{user_id}
+                or not $jwt_claims->{token_id} or not is_uuid($jwt_claims->{token_id}
+                or not $jwt_claims->{exp} or $jwt_claims->{exp} !~ /^[0-9]+$/))) {
             $c->log->debug('auth failed: JWT could not be decoded');
             return $c->status(401);
         }
 
-        $user_id = $jwt->{uid};
+        $user_id = $jwt_claims->{user_id};
 
-        if ($jwt->{exp} <= time) {
+        if ($jwt_claims->{exp} <= time) {
             $c->log->debug('auth failed: JWT for user_id '.$user_id.' has expired');
             return $c->status(401);
         }
 
-        # clear out all expired session tokens
-        $c->db_user_session_tokens->expired->delete;
-
         if (not $session_token = $c->db_user_session_tokens
                 ->unexpired
-                ->search_for_user_token($user_id, $jwt->{jti})->single) {
-            $c->log->debug('JWT auth failed for user_id '.$user_id);
+                ->search({ id => $jwt_claims->{token_id}, user_id => $user_id })
+                ->single) {
+            $c->log->debug('auth failed: JWT for user_id '.$user_id.' could not be found');
             return $c->status(401);
         }
 
         $session_token->update({ last_used => \'now()' });
-        $c->stash('token_id', $jwt->{jti});
+        $c->stash('token_id', $jwt_claims->{token_id});
     }
 
-    # did we manage to authenticate the user, or find session info indicating we did so
-    # earlier (via /login)?
-    $user_id ||= $c->session('user');
+    if ($c->session('user')) {
+        return $c->status(400, { error => 'user session is invalid' })
+            if not is_uuid($c->session('user')) or ($user_id and $c->session('user') ne $user_id);
+        $c->log->debug('using session user='.$c->session('user'));
+        $user_id ||= $c->session('user');
+    }
 
-    if ($user_id and is_uuid($user_id)) {
+    # clear out all expired session tokens
+    $c->db_user_session_tokens->expired->delete;
+
+    if ($user_id) {
         $c->log->debug('looking up user by id '.$user_id.'...');
         if (my $user = $c->db_user_accounts->active->find($user_id)) {
-            if ($user_id and $jwt_sig) {
-                $c->log->debug('setting jwt_sig in cookie');
-                $c->cookie(
-                    jwt_sig => $jwt_sig,
-                    { expires => time + 3600, secure => $c->req->is_secure, httponly => 1 }
-                );
-            }
-
             # api tokens are exempt from this check
             if ((not $session_token or $session_token->is_login)
                     and $user->refuse_session_auth) {
@@ -215,7 +151,8 @@ sub authenticate ($c) {
 
 =head2 session_login
 
-Handles the act of logging in, given a user and password in the form. Returns a JWT token.
+Handles the act of logging in, given a user and password in the form.
+Response uses the Login json schema, containing a JWT.
 
 =cut
 
@@ -233,7 +170,7 @@ sub session_login ($c) {
         return $c->status(401);
     }
 
-    if (not $user->validate_password($input->{password})) {
+    if (not $user->check_password($input->{password})) {
         $c->log->debug('password validation for '.($input->{user}//$input->{email}).' failed');
         return $c->status(401);
     }
@@ -256,14 +193,8 @@ sub session_login ($c) {
         $c->session(expires => time + 10 * 60);
 
         # we logged the user in, but he must now change his password (within 10 minutes)
-        $c->res->code(200);
         $c->res->headers->location($c->url_for('/user/me/password'));
-        my $payload = { jwt_token => $c->_create_jwt($user->id, 10 * 60) };
-        $c->respond_to(
-            json => { json => $payload },
-            any  => { json => $payload },
-        );
-        return 0;
+        return $c->_respond_with_jwt($user->id, 10 * 60);
     }
 
     # allow the user to use session auth again
@@ -272,7 +203,18 @@ sub session_login ($c) {
         refuse_session_auth => 0,
     });
 
-    return $c->status(200, { jwt_token => $c->_create_jwt($user->id) });
+    # reuse an existing JWT if one is suitable; otherwise generate a new one
+    # where suitable = half its lifetime remains
+    my $token_rs = $c->db_user_session_tokens
+        ->login_only
+        ->unexpired
+        ->search({ user_id => $c->stash('user_id') })
+        ->search(\[ '(expires - now()) >= (now() - created)' ]);
+    if (my $token = $token_rs->order_by({ -desc => 'created' })->rows(1)->single) {
+        return $c->status(200, { jwt_token => $c->generate_jwt_from_token($token) });
+    }
+
+    return $c->_respond_with_jwt($user->id);
 }
 
 =head2 session_logout
@@ -288,7 +230,7 @@ sub session_logout ($c) {
     # (assuming we have the user's id, which we probably don't)
     if ($c->stash('user_id') and $c->stash('token_id')) {
         $c->db_user_session_tokens
-            ->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
+            ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
             ->unexpired
             ->expire;
     }
@@ -296,17 +238,12 @@ sub session_logout ($c) {
     # delete all expired session tokens
     $c->db_user_session_tokens->expired->delete;
 
-    $c->cookie(
-        jwt_sig => '',
-        { expires => 1, secure => $c->req->is_secure, httponly => 1 }
-    ) if $c->cookie('jwt_sig');
-
     $c->status(204);
 }
 
 =head2 refresh_token
 
-Refresh a user's JWT token. Deletes the old token.
+Refresh a user's JWT token. Deletes the old token and expires the session.
 
 =cut
 
@@ -314,25 +251,17 @@ sub refresh_token ($c) {
     $c->validate_request('Null');
     return if $c->res->code;
 
-    # Allow users with 'conch' cookie to get a JWT without requiring
-    # re-authentication. Expires 'conch' cookie
-    if (my $user_id = $c->session('user')){
-        $c->session(expires => 1);
-        return $c->status(200, { jwt_token => $c->_create_jwt($user_id) });
-    }
+    $c->session('expires', 1) if $c->session('user');
 
-    # expire this token
-    my $token_valid = $c->db_user_session_tokens
-        ->search_for_user_token($c->stash('user_id'), $c->stash('token_id'))
-        ->unexpired->expire;
+    $c->db_user_session_tokens
+            ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
+            ->unexpired->expire
+        if $c->stash('token_id');
 
     # clear out all expired session tokens
     $c->db_user_session_tokens->expired->delete;
 
-    return $c->status(403, { error => 'Invalid token ID' })
-        if not $token_valid;
-
-    return $c->status(200, { jwt_token => $c->_create_jwt($c->stash('user_id')) });
+    return $c->_respond_with_jwt($c->stash('user_id'));
 }
 
 1;

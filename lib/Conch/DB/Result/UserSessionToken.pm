@@ -35,11 +35,6 @@ __PACKAGE__->table("user_session_token");
   is_nullable: 0
   size: 16
 
-=head2 token_hash
-
-  data_type: 'bytea'
-  is_nullable: 0
-
 =head2 expires
 
   data_type: 'timestamp with time zone'
@@ -62,13 +57,18 @@ __PACKAGE__->table("user_session_token");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 id
+
+  data_type: 'uuid'
+  default_value: gen_random_uuid()
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
   "user_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "token_hash",
-  { data_type => "bytea", is_nullable => 0 },
   "expires",
   { data_type => "timestamp with time zone", is_nullable => 0 },
   "name",
@@ -82,21 +82,26 @@ __PACKAGE__->add_columns(
   },
   "last_used",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "id",
+  {
+    data_type => "uuid",
+    default_value => \"gen_random_uuid()",
+    is_nullable => 0,
+    size => 16,
+  },
 );
 
 =head1 PRIMARY KEY
 
 =over 4
 
-=item * L</user_id>
-
-=item * L</token_hash>
+=item * L</id>
 
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("user_id", "token_hash");
+__PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
@@ -133,11 +138,11 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:15Sr4wSfiSJztRKBxV4kzQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z2yHwYmbD8FJiwNYT64xBA
 
 __PACKAGE__->add_columns(
+    '+id' => { is_serializable => 0 },
     '+user_id' => { is_serializable => 0 },
-    '+token_hash' => { is_serializable => 0 },
     '+created' => { retrieve_on_insert => 1 },
     '+expires' => { retrieve_on_insert => 1 },
 );

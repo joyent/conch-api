@@ -4,25 +4,18 @@ Conch::Controller::Login
 
 # METHODS
 
-## \_create\_jwt
+## \_respond\_with\_jwt
 
-Create a JWT and sets it up to be returned in the response in two parts:
-
-```perl
-* the signature in a cookie named 'jwt_sig',
-* and a response body named 'jwt_token'. 'jwt_token' includes two claims: 'uid', for the
-  user ID, and 'jti', for the token ID.
-```
+Create a response containing a login JWT, which the user should later present in the
+'Authorization Bearer' header.
 
 ## authenticate
 
 Handle the details of authenticating the user, with one of the following options:
 
 ```perl
-* HTTP Basic Auth
 * existing session for the user
-* JWT split between Authorization Bearer header value and jwt_sig cookie
-* JWT combined with a Authorization Bearer header using format "$jwt_token.$jwt_sig"
+* signed JWT in the Authorization Bearer header
 * Old 'conch' session cookie
 ```
 
@@ -31,7 +24,8 @@ subsequent routes and actions.
 
 ## session\_login
 
-Handles the act of logging in, given a user and password in the form. Returns a JWT token.
+Handles the act of logging in, given a user and password in the form.
+Response uses the Login json schema, containing a JWT.
 
 ## session\_logout
 
@@ -39,7 +33,7 @@ Logs a user out by expiring their session
 
 ## refresh\_token
 
-Refresh a user's JWT token. Deletes the old token.
+Refresh a user's JWT token. Deletes the old token and expires the session.
 
 # LICENSING
 

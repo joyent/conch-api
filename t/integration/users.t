@@ -135,7 +135,7 @@ subtest 'User' => sub {
         });
 
     $t->authenticate;
-    my @login_token = ($t->tx->res->json->{jwt_token}.'.'.$t->tx->res->cookie('jwt_sig')->value);
+    my @login_token = ($t->tx->res->json->{jwt_token});
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
@@ -146,7 +146,7 @@ subtest 'User' => sub {
 
     # get another JWT
     $t->authenticate;
-    push @login_token, $t->tx->res->json->{jwt_token}.'.'.$t->tx->res->cookie('jwt_sig')->value;
+    push @login_token, $t->tx->res->json->{jwt_token};
     my $user_id;
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
@@ -235,25 +235,36 @@ subtest 'JWT authentication' => sub {
     $t->authenticate(bailout => 0)->json_has('/jwt_token');
 
     my $jwt_token = $t->tx->res->json->{jwt_token};
-    my $jwt_sig   = $t->tx->res->cookie('jwt_sig')->value;
 
-    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token" })
-        ->status_is(200, 'user can provide JWT token with cookie to authenticate');
     $t->reset_session;  # force JWT to be used to authenticate
-    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t->get_ok('/workspace', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200, 'user can provide Authentication header with full JWT to authenticate');
 
-    $t->post_ok('/refresh_token', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t->reset_session;
+    # we're going to be cheeky here and hack the JWT to doctor it...
+    # this only works because we have access to the symmetric secret embedded in the app.
+    my $jwt_claims = Mojo::JWT->new(secret => $t->app->config('secrets')->[0])->decode($jwt_token);
+    my $bad_user_id = create_uuid_str();
+    my $hacked_jwt_token = Mojo::JWT->new(
+        claims => { $jwt_claims->%{token_id}, user_id => $bad_user_id },
+        secret => $t->app->config('secrets')->[0],
+        expires => $jwt_claims->{exp},
+    )->encode;
+    $t->get_ok('/workspace', { Authorization => 'Bearer '.$hacked_jwt_token })
+        ->status_is(401, 'the user_id is verified in the JWT');
+    $t->log_debug_is('auth failed: JWT for user_id '.$bad_user_id.' could not be found');
+
+    $t->post_ok('/refresh_token', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200)
         ->json_has('/jwt_token');
 
     my $new_jwt_token = $t->tx->res->json->{jwt_token};
-    $t->get_ok('/workspace', { Authorization => "Bearer $new_jwt_token" })
+    $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(200, 'Can authenticate with new token');
-    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t->get_ok('/workspace', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401, 'Cannot use old token');
 
-    $t->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401, 'Cannot reuse old JWT');
 
     $t->post_ok('/user/'.$t->CONCH_EMAIL.'/revoke?login_only=1&api_only=1',
@@ -421,7 +432,6 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => '123' })
         ->status_is(200, 'new user can log in');
     my $jwt_token = $t2->tx->res->json->{jwt_token};
-    my $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
 
     $t2->get_ok('/me')->status_is(204);
 
@@ -433,10 +443,6 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/user/me/token', json => { name => 'my second api token' })
         ->status_is(201)
         ->location_is('/user/me/token/my second api token');
-
-    my $t3 = Test::Conch->new(pg => $t->pg); # we will only use this $mojo for basic auth
-    $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:123')->path('/me'))
-        ->status_is(204, 'user can also use the app with basic auth');
 
     $t->post_ok("/user/$new_user_id/revoke?login_only=1")
         ->status_is(204, 'revoked login tokens for the new user')
@@ -450,7 +456,7 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me')
         ->status_is(401, 'persistent session cleared when login tokens are revoked');
 
-    $t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401, 'new user cannot authenticate with the login JWT after login tokens are revoked');
 
     $t2->get_ok('/me', { Authorization => 'Bearer '.$api_token })
@@ -472,7 +478,6 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => '123' })
         ->status_is(200, 'new user can still log in again');
     $jwt_token = $t2->tx->res->json->{jwt_token};
-    $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
 
     $t2->get_ok('/me')->status_is(204, 'session token re-established');
 
@@ -482,18 +487,16 @@ subtest 'modify another user' => sub {
     $api_token = $t2->tx->res->json->{token};
 
     $t2->reset_session; # force JWT to be used to authenticate
-    $t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(204, 'new JWT established');
 
 
     # in order to get the user's new password, we need to extract it from a method call before
     # we forget it -- so we pull it out of the call to UserAccount->update.
-    my $orig_update = \&Conch::DB::Result::UserAccount::update;
+    use Class::Method::Modifiers 'before';
     my $_new_password;
-    no warnings 'redefine';
-    local *Conch::DB::Result::UserAccount::update = sub {
+    before 'Conch::DB::Result::UserAccount::update' => sub {
         $_new_password = $_[1]->{password} if exists $_[1]->{password};
-        $orig_update->(@_);
     };
 
     $t->delete_ok('/user/foobar/password')
@@ -530,7 +533,7 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user can no longer use his saved session after his password is changed');
 
     $t2->reset_session; # force JWT to be used to authenticate
-    $t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401, 'user cannot authenticate with login JWT after his password is changed');
 
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
@@ -541,30 +544,24 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => 'foo' })
         ->status_is(401, 'cannot log in with the old password');
 
-    $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:'.$insecure_password)->path('/me'))
-        ->status_is(401, 'user cannot use new password with basic auth to go anywhere else')
-        ->location_is('/user/me/password');
-
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $insecure_password })
         ->status_is(200, 'user can log in with new password')
         ->location_is('/user/me/password');
     $jwt_token = $t2->tx->res->json->{jwt_token};
-    $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
-    cmp_ok($t2->tx->res->cookie('jwt_sig')->expires, '<', time + 11 * 60, 'JWT expires in 10 minutes');
 
     $t2->get_ok('/me')
         ->status_is(401, 'user can\'t use his session to do anything else')
         ->location_is('/user/me/password');
 
     $t2->reset_session; # force JWT to be used to authenticate
-    $t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401, 'user can\'t use his JWT to do anything else')
         ->location_is('/user/me/password');
 
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $insecure_password })
         ->status_is(401, 'user cannot log in with the same insecure password again');
 
-    $t2->post_ok('/user/me/password' => { Authorization => "Bearer $jwt_token.$jwt_sig" },
+    $t2->post_ok('/user/me/password' => { Authorization => 'Bearer '.$jwt_token },
             json => { password => 'a more secure password' })
         ->status_is(204, 'user finally acquiesced and changed his password');
 
@@ -576,19 +573,15 @@ subtest 'modify another user' => sub {
         ->json_has('/jwt_token')
         ->json_hasnt('/message');
     $jwt_token = $t2->tx->res->json->{jwt_token};
-    $jwt_sig   = $t2->tx->res->cookie('jwt_sig')->value;
 
     $t2->get_ok('/me')
         ->status_is(204, 'user can use his saved session again after changing his password');
     is($t2->tx->res->body, '', '...with no extra response messages');
 
     $t2->reset_session; # force JWT to be used to authenticate
-    $t2->get_ok('/me', { Authorization => "Bearer $jwt_token.$jwt_sig" })
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(204, 'user authenticate with JWT again after his password is changed');
     is($t2->tx->res->body, '', '...with no extra response messages');
-
-    $t3->get_ok($t3->ua->server->url->userinfo('foo@conch.joyent.us:'.$secure_password)->path('/me'))
-        ->status_is(204, 'after user fixes his password, he can use basic auth again');
 
 
     $t->delete_ok('/user/foobar@joyent.conch.us')
@@ -700,20 +693,18 @@ subtest 'user tokens (our own)' => sub {
         ->json_is('/email' => $t2->CONCH_EMAIL);
     undef $t2;
 
+    cmp_deeply(
+        $t->app->db_user_session_tokens->search({ name => 'my first 💩 // to.ken @@' })
+            ->as_epoch('last_used')->get_column('last_used')->single,
+        within_tolerance(time, plus_or_minus => 10),
+        'token was last used approximately now',
+    );
+
     $t->delete_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(204);
 
     $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(404);
-
-    my $last_used = $t->app->db_user_session_tokens->search({ name => 'my first 💩 // to.ken @@' })
-        ->as_epoch('last_used')->get_column('last_used')->single;
-
-    cmp_deeply(
-        $last_used,
-        within_tolerance(time, plus_or_minus => 10),
-        'token was last used approximately now',
-    );
 
     $t->get_ok('/user/me/token')
         ->status_is(200)

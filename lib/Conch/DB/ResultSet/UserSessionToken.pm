@@ -4,7 +4,6 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use experimental 'signatures';
-use Session::Token;
 
 =head1 NAME
 
@@ -42,24 +41,6 @@ sub unexpired ($self) {
     $self->search({ $self->current_source_alias.'.expires' => { '>' => \'now()' } });
 }
 
-=head2 search_for_user_token
-
-Chainable resultset to search for matching tokens.
-This does *not* check the expires field: chain with 'unexpired' if this is desired.
-
-=cut
-
-sub search_for_user_token ($self, $user_id, $token) {
-    warn 'user_id is null' if not $user_id;
-    warn 'token is null' if not $token;
-
-    # note: returns a resultset, not a result!
-    $self->search({
-        user_id => $user_id,
-        token_hash => { '=' => \[ q{digest(?, 'sha256')}, $token ] },
-    });
-}
-
 =head2 login_only
 
 Chainable resultset to search for login tokens (created via the main /login flow).
@@ -90,31 +71,6 @@ Update all matching rows by setting expires = now(). (Returns the number of rows
 
 sub expire ($self) {
     $self->update({ expires => \'now()' });
-}
-
-=head2 generate_for_user
-
-Generates a session token for the user and stores it in the database.
-'expires' is an epoch time.
-
-Returns the db row inserted, and the token string that we generated.
-
-=cut
-
-sub generate_for_user ($self, $user_id, $expires, $name) {
-    warn 'user_id is null' if not $user_id;
-    warn 'expires is not set' if not $expires;
-
-    my $token = Session::Token->new->get;
-
-    my $row = $self->create({
-        user_id => $user_id,
-        name => $name,
-        token_hash => \[ q{digest(?, 'sha256')}, $token ],
-        expires => \[ q{to_timestamp(?)::timestamptz}, $expires ],
-    });
-
-    return ($row, $token);
 }
 
 1;
