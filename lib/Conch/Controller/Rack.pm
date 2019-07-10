@@ -28,9 +28,10 @@ sub find_rack ($c) {
         return $c->status(404);
     }
 
+    # if no minimum role was specified, use a heuristic:
     # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
     my $method = $c->req->method;
-    my $requires_role =
+    my $requires_role = $c->stash('require_role') //
         (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
       : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
       : die 'need handling for '.$method.' method';

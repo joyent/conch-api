@@ -123,6 +123,12 @@ $t->delete_ok('/rack/'.$rack->id)
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot delete a rack when a rack_layout is referencing it' });
 
+my $null_user = $t->generate_fixtures('user_account');
+my $t2 = Test::Conch->new(pg => $t->pg);
+$t2->authenticate(email => $null_user->email);
+$t2->delete_ok("/rack/$new_rack_id")
+    ->status_is(403);
+
 $t->delete_ok("/rack/$new_rack_id")
     ->status_is(204);
 

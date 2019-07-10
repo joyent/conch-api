@@ -34,7 +34,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `DELETE /rack/:rack_id`
 
-- User requires the read/write role on a workspace that contains the rack
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 ### `GET /rack/:rack_id/layouts`
