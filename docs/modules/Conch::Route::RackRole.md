@@ -12,7 +12,6 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /rack_role`
 
-- Requires system admin authorization
 - Response: response.yaml#/RackRoles
 
 ### `POST /rack_role`
@@ -23,7 +22,6 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /rack_role/:rack_role_id_or_name`
 
-- Requires system admin authorization
 - Response: response.yaml#/RackRole
 
 ### `POST /rack_role/:rack_role_id_or_name`
