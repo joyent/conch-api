@@ -42,8 +42,7 @@ sub all_routes (
 ) {
 
     # provides a route to chain to that first checks the user is a system admin.
-    $root->add_shortcut(require_system_admin => sub {
-        my ($r, $path) = @_;
+    $root->add_shortcut(require_system_admin => sub ($r) {
         $r->any(sub ($c) {
             return $c->status(401)
                 if not $c->stash('user') or not $c->stash('user_id');

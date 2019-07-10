@@ -53,8 +53,6 @@ Stores data as a new rack row.
 =cut
 
 sub create ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('RackCreate');
     return if not $input;
 
@@ -93,9 +91,6 @@ Response uses the Racks json schema.
 =cut
 
 sub get_all ($c) {
-    # TODO: instead of sysadmin privs, filter out results by workspace roles
-    return $c->status(403) if not $c->is_system_admin;
-
     my @racks = $c->db_racks->order_by('name')->all;
     $c->log->debug('Found '.scalar(@racks).' racks');
 

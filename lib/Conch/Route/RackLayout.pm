@@ -20,7 +20,7 @@ sub routes {
     my $class = shift;
     my $layout = shift; # secured, under /layout
 
-    $layout->to({ controller => 'rack_layout' });
+    $layout = $layout->require_system_admin->to({ controller => 'rack_layout' });
 
     # GET /layout
     $layout->get('/')->to('#get_all');

@@ -56,7 +56,6 @@ Response uses the Relays json schema.
 =cut
 
 sub list ($c) {
-    return $c->status(403) if not $c->is_system_admin;
     $c->status(200, [ $c->db_relays->active->order_by('serial_number')->all ]);
 }
 

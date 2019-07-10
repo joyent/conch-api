@@ -87,8 +87,6 @@ Creates a new hardware_product, and possibly also a hardware_product_profile.
 =cut
 
 sub create ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('HardwareProductCreate');
     return if not $input;
 
@@ -124,8 +122,6 @@ as needed.
 =cut
 
 sub update ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('HardwareProductUpdate');
     return if not $input;
 
@@ -182,8 +178,6 @@ sub update ($c) {
 =cut
 
 sub delete ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $id = $c->stash('hardware_product_rs')->get_column('id')->single;
     $c->stash('hardware_product_rs')->deactivate;
 

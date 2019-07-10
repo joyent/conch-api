@@ -26,7 +26,7 @@ sub routes {
     $hardware_product->get('/')->to('#list');
 
     # POST /hardware_product
-    $hardware_product->post('/')->to('#create');
+    $hardware_product->require_system_admin->post('/')->to('#create');
 
     {
         # /hardware_product/:hardware_product_id
@@ -47,10 +47,10 @@ sub routes {
             $_->get('/')->to('#get');
 
             # POST /hardware_product/<:identifier>
-            $_->post('/')->to('#update');
+            $_->require_system_admin->post('/')->to('#update');
 
             # DELETE /hardware_product/<:identifier>
-            $_->delete('/')->to('#delete');
+            $_->require_system_admin->delete('/')->to('#delete');
         }
     }
 }

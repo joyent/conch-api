@@ -23,9 +23,9 @@ sub routes {
     $rack->to({ controller => 'rack' });
 
     # GET /rack
-    $rack->get('/')->to('#get_all');
+    $rack->require_system_admin->get('/')->to('#get_all');
     # POST /rack
-    $rack->post('/')->to('#create');
+    $rack->require_system_admin->post('/')->to('#create');
 
     my $with_rack = $rack->under('/<rack_id:uuid>')->to('#find_rack');
 

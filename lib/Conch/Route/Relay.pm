@@ -26,7 +26,7 @@ sub routes {
     $relay->post('/:relay_serial_number/register')->to('#register');
 
     # GET /relay
-    $relay->get('/')->to('#list');
+    $relay->require_system_admin->get('/')->to('#list');
 
     # GET /relay/:relay_id_or_serial_number
     $relay->get('/:relay_id_or_serial_number')->to('#get');
