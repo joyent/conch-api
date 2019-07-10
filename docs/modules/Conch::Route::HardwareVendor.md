@@ -20,6 +20,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `DELETE /hardware_vendor/:hardware_vendor_id_or_name`
 
+- Requires system admin authorization
 - Response: `204 NO CONTENT`
 
 ### `POST /hardware_vendor/:hardware_vendor_name`
