@@ -40,10 +40,6 @@ directory in the main repository.
 
 * [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`
-  * `/room`
-  * `/rack_role`
-  * `/rack`
-  * `/layout`
 
 * [Conch::Route::Device](modules/Conch::Route::Device)
   * `/device`
@@ -57,8 +53,20 @@ directory in the main repository.
 * [Conch::Route::HardwareVendor](modules/Conch::Route::HardwareVendor)
   * `/hardware_vendor`
 
+* [Conch::Route::RackLayout](modules/Conch::Route::RackLayout)
+  * `/layout`
+
+* [Conch::Route::Rack](modules/Conch::Route::Rack)
+  * `/rack`
+
+* [Conch::Route::RackRole](modules/Conch::Route::RackRole)
+  * `/rack_role`
+
 * [Conch::Route::Relay](modules/Conch::Route::Relay)
   * `/relay`
+
+* [Conch::Route::DatacenterRoom](modules/Conch::Route::DatacenterRoom)
+  * `/room`
 
 * [Conch::Route::User](modules/Conch::Route::User)
   * `/user`

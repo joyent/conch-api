@@ -11,6 +11,10 @@ use Conch::Route::User;
 use Conch::Route::HardwareProduct;
 use Conch::Route::Validation;
 use Conch::Route::Datacenter;
+use Conch::Route::DatacenterRoom;
+use Conch::Route::RackRole;
+use Conch::Route::Rack;
+use Conch::Route::RackLayout;
 use Conch::Route::HardwareVendor;
 
 =pod
@@ -90,7 +94,11 @@ sub all_routes (
     Conch::Route::User->routes($secured->any('/user'));
     Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
     Conch::Route::Validation->routes($secured);
-    Conch::Route::Datacenter->routes($secured);
+    Conch::Route::Datacenter->routes($secured->any('/dc'));
+    Conch::Route::DatacenterRoom->routes($secured->any('/room'));
+    Conch::Route::RackRole->routes($secured->any('/rack_role'));
+    Conch::Route::Rack->routes($secured->any('/rack'));
+    Conch::Route::RackLayout->routes($secured->any('/layout'));
     Conch::Route::HardwareVendor->routes($secured->any('/hardware_vendor'));
 }
 
