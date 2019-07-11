@@ -81,7 +81,11 @@ sub get ($c) {
         if not $c->is_system_admin;
 
     my $relay = $rs->single;
-    return $c->status(403) if not $relay;
+    if (not $relay) {
+        $c->log->debug('User cannot access unregistered relay '.$identifier);
+        return $c->status(403);
+    }
+
     $c->status(200, $relay);
 }
 

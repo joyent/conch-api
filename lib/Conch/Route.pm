@@ -47,8 +47,10 @@ sub all_routes (
             return $c->status(401)
                 if not $c->stash('user') or not $c->stash('user_id');
 
-            return $c->status(403, { error => 'Must be system admin' })
-                if not $c->is_system_admin;
+            if (not $c->is_system_admin) {
+                $c->log->debug('User must be system admin');
+                return $c->status(403);
+            }
 
             return 1;
         })->under;

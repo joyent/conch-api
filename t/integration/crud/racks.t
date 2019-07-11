@@ -127,7 +127,8 @@ my $null_user = $t->generate_fixtures('user_account');
 my $t2 = Test::Conch->new(pg => $t->pg);
 $t2->authenticate(email => $null_user->email);
 $t2->delete_ok("/rack/$new_rack_id")
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (rw) for rack '.$new_rack_id);
 
 $t->delete_ok("/rack/$new_rack_id")
     ->status_is(204);

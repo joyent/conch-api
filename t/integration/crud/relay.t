@@ -140,10 +140,12 @@ $t->get_ok('/relay')
     $t2->authenticate(email => $other_user->email);
 
     $t2->get_ok('/relay')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
 
     $t2->get_ok('/relay/relay0')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unregistered relay relay0');
 
     $t2->post_ok('/relay/relay0/register', json => { serial => 'relay0' })
         ->status_is(204)

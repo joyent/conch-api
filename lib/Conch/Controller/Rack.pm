@@ -37,7 +37,7 @@ sub find_rack ($c) {
       : die 'need handling for '.$method.' method';
 
     if (not $c->is_system_admin and not $rack_rs->user_has_role($c->stash('user_id'), $requires_role)) {
-        $c->log->debug('User lacks role to access rack'.$c->stash('rack_id'));
+        $c->log->debug('User lacks the required role ('.$requires_role.') for rack '.$c->stash('rack_id'));
         return $c->status(403);
     }
 

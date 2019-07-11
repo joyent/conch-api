@@ -54,8 +54,10 @@ sub find_workspace ($c) {
       : (any { $method eq $_ } qw(POST PUT)) ? 'rw'
       : $method eq 'DELETE'                  ? 'admin'
       : die "need handling for $method method");
-    return $c->status(403)
-        if not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_role);
+    if (not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_role)) {
+        $c->log->debug('User lacks the required role ('.$requires_role.') for workspace '.$identifier);
+        return $c->status(403);
+    }
 
     # stash a resultset for easily accessing the workspace, e.g. for calling ->single, or
     # joining to.

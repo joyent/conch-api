@@ -894,11 +894,14 @@ subtest 'user tokens (someone else\'s)' => sub {
 
     # can't use the sysadmin endpoints, even to ask about ourself
     $t_other_user->get_ok('/user/'.$email.'/token')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
     $t_other_user->get_ok('/user/'.$email.'/token/foo')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
     $t_other_user->delete_ok('/user/'.$email.'/token/foo')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
 
     $t_other_user->post_ok('/user/me/token', json => { name => 'my second token' })
         ->status_is(201)

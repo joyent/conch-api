@@ -543,7 +543,8 @@ subtest 'Sub-Workspace' => sub {
     delete $users{GLOBAL};
 
     $untrusted->get_ok('/workspace/GLOBAL')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (ro) for workspace GLOBAL');
 
     $untrusted->get_ok('/workspace/child_ws')
         ->status_is(200)
@@ -556,10 +557,12 @@ subtest 'Sub-Workspace' => sub {
         ->json_is($workspace_data{untrusted_user}[1]);
 
     $untrusted->get_ok('/workspace/GLOBAL/user')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (admin) for workspace GLOBAL');
 
     $untrusted->get_ok('/workspace/child_ws/user')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (admin) for workspace child_ws');
 
     $t->post_ok('/workspace/child_ws/user', json => {
             email => 'untrusted_user@conch.joyent.us',
@@ -590,7 +593,8 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply($users{child_ws});
 
     $untrusted->get_ok('/workspace/GLOBAL/user')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (admin) for workspace GLOBAL');
 
     $untrusted->get_ok('/workspace/child_ws/user')
         ->status_is(200)
@@ -615,17 +619,21 @@ subtest 'Roles' => sub {
 
         $t->post_ok("/workspace/$global_ws_id/child",
                 json => { name => 'test', description => 'also test' })
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (rw) for workspace '.$global_ws_id);
 
         $t->post_ok("/workspace/$global_ws_id/rack", json => { id => create_uuid_str() })
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (rw) for workspace '.$global_ws_id);
 
         $t->post_ok("/workspace/$global_ws_id/user",
                 json => { user => 'another@wat.wat', role => 'ro' })
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for workspace '.$global_ws_id);
 
         $t->get_ok("/workspace/$global_ws_id/user")
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for workspace '.$global_ws_id);
 
         $t->post_ok('/logout')
             ->status_is(204);
@@ -646,10 +654,12 @@ subtest 'Roles' => sub {
 
         $t->post_ok("/workspace/$global_ws_id/user",
                 json => { user => 'another@wat.wat', role => 'ro' })
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for workspace '.$global_ws_id);
 
         $t->get_ok("/workspace/$global_ws_id/user")
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for workspace '.$global_ws_id);
     };
 };
 
