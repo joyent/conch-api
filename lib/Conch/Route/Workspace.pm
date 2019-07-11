@@ -123,7 +123,7 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =over 4
 
-=item * User requires the admin role
+=item * User requires the read/write role
 
 =item * Request: request.yaml#/WorkspaceCreate
 

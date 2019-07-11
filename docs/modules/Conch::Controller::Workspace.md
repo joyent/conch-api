@@ -34,7 +34,8 @@ Response uses the WorkspacesAndRoles json schema.
 
 ## create\_sub\_workspace
 
-Create a new subworkspace for the indicated workspace.
+Create a new subworkspace for the indicated workspace. The user is given the 'admin' role on
+the new workspace.
 
 Response uses the WorkspaceAndRole json schema.
 

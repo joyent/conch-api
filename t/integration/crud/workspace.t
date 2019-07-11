@@ -648,10 +648,6 @@ subtest 'Roles' => sub {
             ->json_schema_is('WorkspacesAndRoles')
             ->json_is('/0/name' => 'GLOBAL');
 
-        $t->post_ok("/workspace/$global_ws_id/child",
-                json => { name => 'test', description => 'also test' })
-            ->status_is(403);
-
         $t->post_ok("/workspace/$global_ws_id/user",
                 json => { user => 'another@wat.wat', role => 'ro' })
             ->status_is(403)

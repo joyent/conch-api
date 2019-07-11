@@ -33,7 +33,7 @@ Users will require access to the workspace (or one of its ancestors) at a minimu
 
 ### `POST /workspace/:workspace_id_or_name/child`
 
-- User requires the admin role
+- User requires the read/write role
 - Request: request.yaml#/WorkspaceCreate
 - Response: response.yaml#/WorkspaceAndRole
 

@@ -132,15 +132,14 @@ sub get_sub_workspaces ($c) {
 
 =head2 create_sub_workspace
 
-Create a new subworkspace for the indicated workspace.
+Create a new subworkspace for the indicated workspace. The user is given the 'admin' role on
+the new workspace.
 
 Response uses the WorkspaceAndRole json schema.
 
 =cut
 
 sub create_sub_workspace ($c) {
-    return $c->status(403) if not $c->is_workspace_admin;
-
     my $input = $c->validate_request('WorkspaceCreate');
     return if not $input;
 
@@ -150,6 +149,9 @@ sub create_sub_workspace ($c) {
     my $sub_ws = $c->db_workspaces
         # we should do create_related, but due to a DBIC bug the parent_workspace_id is lost
         ->create({ $input->%*, parent_workspace_id => $c->stash('workspace_id') });
+
+    $sub_ws->create_related('user_workspace_role', { role => 'admin' })
+        if not $c->is_workspace_admin;
 
     # signal to serializer to include role data
     $sub_ws->user_id_for_role($c->stash('user_id'));
