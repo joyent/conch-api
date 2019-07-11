@@ -201,9 +201,29 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 relays
+
+Type: many_to_many
+
+Composing rels: L</user_relay_connections> -> relay
+
+=cut
+
+__PACKAGE__->many_to_many("relays", "user_relay_connections", "relay");
+
+=head2 workspaces
+
+Type: many_to_many
+
+Composing rels: L</user_workspace_roles> -> workspace
+
+=cut
+
+__PACKAGE__->many_to_many("workspaces", "user_workspace_roles", "workspace");
+
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V1hIBHgsrrsR+UYtGDMI9g
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vpTbeHmoxnxcjZ7EUUg9yA
 
 use DBIx::Class::PassphraseColumn 0.04 ();
 __PACKAGE__->load_components('PassphraseColumn');

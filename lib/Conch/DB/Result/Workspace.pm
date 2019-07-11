@@ -173,9 +173,19 @@ Composing rels: L</workspace_racks> -> rack
 
 __PACKAGE__->many_to_many("racks", "workspace_racks", "rack");
 
+=head2 user_accounts
+
+Type: many_to_many
+
+Composing rels: L</user_workspace_roles> -> user_account
+
+=cut
+
+__PACKAGE__->many_to_many("user_accounts", "user_workspace_roles", "user_account");
+
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jAQTz8eBEJas87XgWV7xbw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UTkb6H9/XmVkYnMTHm2uQw
 
 use experimental 'signatures';
 use Sub::Install;
