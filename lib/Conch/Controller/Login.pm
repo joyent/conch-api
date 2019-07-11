@@ -5,6 +5,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Try::Tiny;
 use Conch::UUID 'is_uuid';
 use Time::HiRes ();
+use Authen::Passphrase::RejectAll;
 
 =pod
 
@@ -187,7 +188,7 @@ sub session_login ($c) {
         $c->log->info('user '.$user->name.' logging in with one-time insecure password');
         $user->update({
             last_login => \'now()',
-            password => $c->random_string,    # ensure password cannot be used again
+            password => Authen::Passphrase::RejectAll->new, # ensure password cannot be used again
         });
         # password must be reset within 10 minutes
         $c->session(expires => time + 10 * 60);
