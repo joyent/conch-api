@@ -77,6 +77,10 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       rack_role_id:
         $ref: common.yaml#/definitions/uuid
+      serial_number:
+        $ref: common.yaml#/definitions/non_empty_string
+      asset_tag:
+        $ref: common.yaml#/definitions/non_empty_string
       phase:
         $ref: common.yaml#/definitions/device_phase
   RackUpdate:
