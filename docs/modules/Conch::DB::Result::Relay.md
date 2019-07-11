@@ -86,6 +86,18 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::UserRelayConnection](/modules/Conch::DB::Result::UserRelayConnection)
 
+## devices
+
+Type: many\_to\_many
+
+Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> device
+
+## user\_accounts
+
+Type: many\_to\_many
+
+Composing rels: ["user\_relay\_connections"](#user_relay_connections) -> user\_account
+
 # LICENSING
 
 Copyright Joyent, Inc.

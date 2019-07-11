@@ -82,6 +82,12 @@ Type: many\_to\_many
 
 Composing rels: ["workspace\_racks"](#workspace_racks) -> rack
 
+## user\_accounts
+
+Type: many\_to\_many
+
+Composing rels: ["user\_workspace\_roles"](#user_workspace_roles) -> user\_account
+
 ## TO\_JSON
 
 Include information about the user's permissions, if available.

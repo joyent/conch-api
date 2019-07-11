@@ -194,9 +194,29 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 relays
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-18 11:14:52
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iTfN8qDvzBsoGQS162cx9g
+Type: many_to_many
+
+Composing rels: L</user_relay_connections> -> relay
+
+=cut
+
+__PACKAGE__->many_to_many("relays", "user_relay_connections", "relay");
+
+=head2 workspaces
+
+Type: many_to_many
+
+Composing rels: L</user_workspace_roles> -> workspace
+
+=cut
+
+__PACKAGE__->many_to_many("workspaces", "user_workspace_roles", "workspace");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-07 15:04:34
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZeVSfBUDX/v+0ACnH1KXrw
 
 __PACKAGE__->add_columns(
     '+password_hash' => { is_serializable => 0 },
