@@ -38,14 +38,19 @@ isa_ok($t->tx->res->cookie('conch'), 'Mojo::Cookie::Response');
 
 my $conch_user = $t->app->db_user_accounts->search({ name => $t->CONCH_USER })->single;
 
-ok($conch_user->last_login >= $now, 'user last_login is updated')
-    or diag('last_login not updated: '.$conch_user->last_login.' is not updated to '.$now);
+ok($conch_user->last_login >= $now, 'user last_login is updated');
+ok($conch_user->last_seen >= $now, 'user last_seen is updated');
 
+$now = Conch::Time->now;
+
+$t->get_ok('/me')
+    ->status_is(204);
+
+$conch_user->discard_changes;
+ok($conch_user->last_login < $now, 'user last_login is not updated with normal auth');
+ok($conch_user->last_seen >= $now, 'user last_seen is updated');
 
 subtest 'User' => sub {
-    $t->get_ok('/me')
-        ->status_is(204);
-
     $t->get_ok('/user/me/settings')
         ->status_is(200)
         ->json_schema_is('UserSettings')
@@ -367,6 +372,7 @@ subtest 'modify another user' => sub {
             email => 'foo@conch.joyent.us',
             created => $new_user->created,
             last_login => undef,
+            last_seen => undef,
             refuse_session_auth => JSON::PP::false,
             force_password_change => JSON::PP::false,
             is_admin => JSON::PP::false,

@@ -85,6 +85,13 @@ default_value: false
 is_nullable: 0
 ```
 
+## last\_seen
+
+```
+data_type: 'timestamp with time zone'
+is_nullable: 1
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)

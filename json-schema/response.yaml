@@ -1542,6 +1542,7 @@ definitions:
       - email
       - created
       - last_login
+      - last_seen
       - refuse_session_auth
       - force_password_change
       - is_admin
@@ -1557,6 +1558,11 @@ definitions:
         type: string
         format: date-time
       last_login:
+        oneOf:
+          - type: 'null'
+          - type: string
+            format: date-time
+      last_seen:
         oneOf:
           - type: 'null'
           - type: string

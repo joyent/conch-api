@@ -118,6 +118,8 @@ sub authenticate ($c) {
     if ($user_id) {
         $c->log->debug('looking up user by id '.$user_id.'...');
         if (my $user = $c->db_user_accounts->active->find($user_id)) {
+            $user->update({ last_seen => \'now()' });
+
             # api tokens are exempt from this check
             if ((not $session_token or $session_token->is_login)
                     and $user->refuse_session_auth) {
@@ -188,6 +190,7 @@ sub session_login ($c) {
         $c->log->info('user '.$user->name.' logging in with one-time insecure password');
         $user->update({
             last_login => \'now()',
+            last_seen => \'now()',
             password => Authen::Passphrase::RejectAll->new, # ensure password cannot be used again
         });
         # password must be reset within 10 minutes
@@ -201,6 +204,7 @@ sub session_login ($c) {
     # allow the user to use session auth again
     $user->update({
         last_login => \'now()',
+        last_seen => \'now()',
         refuse_session_auth => 0,
     });
 
