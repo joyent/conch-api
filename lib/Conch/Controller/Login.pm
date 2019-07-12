@@ -161,7 +161,7 @@ sub session_login ($c) {
 
     my $user_rs = $c->db_user_accounts->active;
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
-        : $input->{email} ? $user_rs->lookup_by_email($input->{email})
+        : $input->{email} ? $user_rs->find_by_email($input->{email})
         : undef;
 
     if (not $user) {

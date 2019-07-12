@@ -41,7 +41,7 @@ C<target_user>.
 
         $c->log->debug('looking up user '.$user_param);
         my $user = is_uuid($user_param) ? $user_rs->find($user_param)
-            : Email::Valid->address($user_param) ? $user_rs->lookup_by_email($user_param)
+            : Email::Valid->address($user_param) ? $user_rs->find_by_email($user_param)
             : return $c->status(400, { error => 'invalid identifier format for '.$user_param });
 
         return $c->status(404) if not $user;

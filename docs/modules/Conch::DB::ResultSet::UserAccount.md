@@ -6,7 +6,7 @@ Conch::DB::ResultSet::UserAccount
 
 Interface to queries against the `user_account` table.
 
-## lookup\_by\_email
+## find\_by\_email
 
 Queries for user by (case-insensitive) email address.
 
@@ -15,6 +15,10 @@ logged (via ["single" in DBIx::Class::ResultSet](https://metacpan.org/pod/DBIx::
 
 If you want to search only for \*active\* users, apply the `->active` resultset to the
 caller first.
+
+## search\_by\_email
+
+Just the resultset for ["find\_by\_email"](#find_by_email).
 
 # LICENSING
 

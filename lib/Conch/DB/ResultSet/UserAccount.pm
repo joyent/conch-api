@@ -15,7 +15,7 @@ Conch::DB::ResultSet::UserAccount
 
 Interface to queries against the C<user_account> table.
 
-=head2 lookup_by_email
+=head2 find_by_email
 
 Queries for user by (case-insensitive) email address.
 
@@ -27,12 +27,21 @@ caller first.
 
 =cut
 
-sub lookup_by_email ($self, $email) {
+sub find_by_email ($self, $email) {
+    return $self->search_by_email($email)->one_row;
+}
+
+=head2 search_by_email
+
+Just the resultset for L</find_by_email>.
+
+=cut
+
+sub search_by_email ($self, $email) {
     return $self
         ->search(\[ 'lower(email) = lower(?)', $email ])
         ->order_by({ -desc => 'created' })
-        ->rows(1)
-        ->one_row;
+        ->rows(1);
 }
 
 1;
