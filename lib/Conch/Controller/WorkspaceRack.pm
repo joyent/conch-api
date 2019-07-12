@@ -125,8 +125,7 @@ sub add ($c) {
     # note this only checks one layer up, rather than all the way up the hierarchy.
     if (not $c->stash('workspace_rs')
             ->related_resultset('parent_workspace')
-            ->related_resultset('workspace_racks')
-            ->search_related('rack', { 'rack.id' => $rack_id })
+            ->search_related('workspace_racks', { rack_id => $rack_id })
             ->exists) {
         return $c->status(409,
             { error => "Rack '$rack_id' must be assigned in parent workspace to be assignable." },
