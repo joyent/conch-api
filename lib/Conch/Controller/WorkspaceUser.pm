@@ -27,9 +27,10 @@ sub list ($c) {
         ->and_workspaces_above($workspace_id)
         ->related_resultset('user_workspace_roles')
         ->related_resultset('user_account')
+        ->active
+        ->distinct
         ->order_by('user_account.name')
         ->columns([ map 'user_account.'.$_, qw(id name email) ])
-        ->active
         ->hri;
 
     my $user_data = [
