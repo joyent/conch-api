@@ -96,4 +96,3 @@ foreach my $line (reverse @lines) {
     say "* [$h]($commit->{html_url}) - \`$bits[0]\`";
 }
 say "\n- - -\n";
-

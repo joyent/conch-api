@@ -21,4 +21,3 @@ services:
         mode: 0440
     deploy:
       mode: global
-

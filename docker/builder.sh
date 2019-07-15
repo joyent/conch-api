@@ -14,4 +14,3 @@ docker build \
 	--build-arg VERSION=${TAG} \
 	--build-arg VCS_REF=${HASH} \
 	$@
-

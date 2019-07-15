@@ -96,6 +96,3 @@ complicated. In practice, however, it is pretty lightweight and has minimal
 requirements for the developer. The release process requires more work out of
 the release manager but, again, in practice the process is pretty lightweight,
 particularly on a two week release cadence.
-
-
-

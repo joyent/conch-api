@@ -10,4 +10,3 @@ will happen". (Seriously don't run this in prod.)
 * The database *will be silently blown away and recreated*
 * A dummy admin user named `conch` will be created with the *ultra-secure*
   password of 'conch'
-

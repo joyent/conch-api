@@ -44,4 +44,3 @@ services:
         read_only: true
     depends_on:
       - postgres
-

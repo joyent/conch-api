@@ -142,4 +142,3 @@ SELECT run_migration(109, $$
             references device(id);
 
 $$);
-
