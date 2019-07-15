@@ -46,7 +46,7 @@ Find the hardware product for the device referenced by the report.
 
 ## \_get\_validation\_plan
 
-Find the validation plan that should be used to validate the the device referenced by the
+Find the validation plan that should be used to validate the device referenced by the
 report.
 
 # LICENSING

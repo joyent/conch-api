@@ -23,7 +23,7 @@ sub register ($self, $app, $config) {
 
     return $c->status(403) if not $c->is_system_admin;
 
-Verifies that the currently stashed user has the 'is_admin' flag set
+Verifies that the currently stashed user has the C<is_admin> flag set.
 
 =cut
 
@@ -37,8 +37,8 @@ Verifies that the currently stashed user has the 'is_admin' flag set
 
     return $c->status(403) if not $c->is_workspace_admin;
 
-Verifies that the currently stashed user_id has 'admin' permission on the current workspace (as
-specified by :workspace_id in the path) or one of its ancestors.
+Verifies that the user indicated by the stashed C<user_id> has 'admin' permission on the
+workspace indicated by the stashed C<workspace_id> or one of its ancestors.
 
 =cut
 
@@ -50,8 +50,8 @@ specified by :workspace_id in the path) or one of its ancestors.
 
 =head2 user_has_workspace_auth
 
-Verifies that the currently stashed user_id has (at least) this auth role on the specified
-workspace (as indicated by :workspace_id in the path).
+Verifies that the user indicated by the stashed C<user_id> has (at least) this auth role on the
+workspace indicated by the stashed C<workspace_id> or one of its ancestors.
 
 Users with the admin flag set will always return true, even if no user_workspace_role records
 are present.

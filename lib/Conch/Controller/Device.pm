@@ -16,7 +16,7 @@ Conch::Controller::Device
 
 =head2 find_device
 
-Chainable action that uses the 'device_id_or_serial_number' provided in the path
+Chainable action that uses the C<device_id_or_serial_number> provided in the path
 to find the device and verify the user has permissions to operate on it.
 
 =cut

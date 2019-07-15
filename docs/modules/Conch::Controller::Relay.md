@@ -11,8 +11,7 @@ not already exist, or is updated with additional payload information otherwise.
 
 ## list
 
-If the user is a system admin, retrieve a list of all active relays in the database.
-Requires the user to be a system admin.
+Retrieve a list of all active relays in the database.
 
 Response uses the Relays json schema.
 

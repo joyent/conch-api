@@ -63,7 +63,6 @@ otherwise, the user is logged out.
 
 ### `DELETE /user/me/settings/:key`
 
-- Request: request.yaml#/DeviceSetting
 - Response: `204 NO CONTENT`
 
 ### `GET /user/me/token`
@@ -72,7 +71,7 @@ otherwise, the user is logged out.
 
 ### `POST /user/me/token`
 
-- Response: request.yaml#/NewUserToken
+- Request: request.yaml#/NewUserToken
 - Response: response.yaml#/NewUserToken
 
 ### `GET /user/me/token/:token_name`
@@ -100,8 +99,7 @@ an email telling the user their tokens were revoked
 
 ### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
 
-When a user is deleted all workspace permissions are removed and are
-unrecoverable.
+When a user is deleted, all workspace role entries are removed and are unrecoverable.
 
 Optionally takes a query parameter `clear_tokens` (defaults to `1`), to also
 revoke all session tokens for the user forcing all tools to log in again.
@@ -153,14 +151,17 @@ email to the user with the new password.
 
 ### `GET /user/:target_user_id_or_email/token`
 
+- Requires system admin authorization
 - Response: response.yaml#/UserTokens
 
 ### `GET /user/:target_user_id_or_email/token/:token_name`
 
+- Requires system admin authorization
 - Response: response.yaml#/UserTokens
 
 ### `DELETE /user/:target_user_id_or_email/token/:token_name`
 
+- Requires system admin authorization
 - Success Response: `204 NO CONTENT`
 - Error response when user already deactivated: response.yaml#/UserError
 

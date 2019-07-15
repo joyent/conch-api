@@ -11,6 +11,10 @@ use Conch::Route::User;
 use Conch::Route::HardwareProduct;
 use Conch::Route::Validation;
 use Conch::Route::Datacenter;
+use Conch::Route::DatacenterRoom;
+use Conch::Route::RackRole;
+use Conch::Route::Rack;
+use Conch::Route::RackLayout;
 use Conch::Route::HardwareVendor;
 
 =pod
@@ -90,7 +94,11 @@ sub all_routes (
     Conch::Route::User->routes($secured->any('/user'));
     Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
     Conch::Route::Validation->routes($secured);
-    Conch::Route::Datacenter->routes($secured);
+    Conch::Route::Datacenter->routes($secured->any('/dc'));
+    Conch::Route::DatacenterRoom->routes($secured->any('/room'));
+    Conch::Route::RackRole->routes($secured->any('/rack_role'));
+    Conch::Route::Rack->routes($secured->any('/rack'));
+    Conch::Route::RackLayout->routes($secured->any('/layout'));
     Conch::Route::HardwareVendor->routes($secured->any('/hardware_vendor'));
 }
 
@@ -100,6 +108,8 @@ __END__
 =pod
 
 Unless otherwise specified all routes require authentication.
+
+Full access is granted to system admin users, regardless of workspace or other role entries.
 
 Successful (http 2xx code) response structures are as described for each endpoint.
 
@@ -195,6 +205,41 @@ Returns the schema specified by type and name.
 
 =back
 
+=head3 C<* /dc>, C<* /room>, C<* /rack_role>, C<* /rack>, C<* /layout>
+
+See L<Conch::Route::Datacenter/routes>
+
+=head3 C<* /device>
+
+See L<Conch::Route::Device/routes>
+
+=head3 C<* /device_report>
+
+See L<Conch::Route::DeviceReport/routes>
+
+=head3 C<* /hardware_product>
+
+See L<Conch::Route::HardwareProduct/routes>
+
+=head3 C<* /hardware_vendor>
+
+See L<Conch::Route::HardwareVendor/routes>
+
+=head3 C<* /relay>
+
+See L<Conch::Route::Relay/routes>
+
+=head3 C<* /user>
+
+See L<Conch::Route::User/routes>
+
+=head3 C<* /validation>, C<* /validation_plan>, C<* /validation_state>
+
+See L<Conch:Route::Validation/routes>
+
+=head3 C<* /workspace>
+
+See L<Conch::Route::Workspace/routes>
 
 =head1 LICENSING
 

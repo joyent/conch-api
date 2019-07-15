@@ -163,7 +163,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
         sub () {
             # Add a reboot count if there's not a previous uptime but one in this
             # report (i.e. first uptime reported), or if the previous uptime date is
-            # less than the the current one (i.e. there has been a reboot)
+            # less than the current one (i.e. there has been a reboot)
             my $prev_uptime;
             if ($orig_device) {
                 $prev_uptime = $orig_device->uptime_since;
@@ -452,7 +452,7 @@ sub _get_hardware_product ($c, $unserialized_report) {
 
 =head2 _get_validation_plan
 
-Find the validation plan that should be used to validate the the device referenced by the
+Find the validation plan that should be used to validate the device referenced by the
 report.
 
 =cut

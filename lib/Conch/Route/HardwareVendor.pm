@@ -77,6 +77,8 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Request: request.yaml#/Null
+
 =item * Response: Redirect to the created hardware vendor
 
 =back

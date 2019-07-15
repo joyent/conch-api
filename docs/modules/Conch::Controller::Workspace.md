@@ -20,20 +20,19 @@ Response uses the WorkspacesAndRoles json schema.
 
 ## get
 
-Get the details of the current workspace.
+Get the details of the indicated workspace.
 
 Response uses the WorkspaceAndRole json schema.
 
 ## get\_sub\_workspaces
 
-Get all sub workspaces for the current stashed `user_id` and current workspace (as specified
-by :workspace\_id in the path)
+Get all sub-workspaces for the indicated workspace.
 
 Response uses the WorkspacesAndRoles json schema.
 
 ## create\_sub\_workspace
 
-Create a new subworkspace for the current workspace.
+Create a new subworkspace for the indicated workspace.
 
 Response uses the WorkspaceAndRole json schema.
 

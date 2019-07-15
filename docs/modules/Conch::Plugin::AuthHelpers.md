@@ -14,7 +14,7 @@ Contains all convenience handlers for authentication
 return $c->status(403) if not $c->is_system_admin;
 ```
 
-Verifies that the currently stashed user has the 'is\_admin' flag set
+Verifies that the currently stashed user has the `is_admin` flag set.
 
 ## is\_workspace\_admin
 
@@ -22,13 +22,13 @@ Verifies that the currently stashed user has the 'is\_admin' flag set
 return $c->status(403) if not $c->is_workspace_admin;
 ```
 
-Verifies that the currently stashed user\_id has 'admin' permission on the current workspace (as
-specified by :workspace\_id in the path) or one of its ancestors.
+Verifies that the user indicated by the stashed `user_id` has 'admin' permission on the
+workspace indicated by the stashed `workspace_id` or one of its ancestors.
 
 ## user\_has\_workspace\_auth
 
-Verifies that the currently stashed user\_id has (at least) this auth role on the specified
-workspace (as indicated by :workspace\_id in the path).
+Verifies that the user indicated by the stashed `user_id` has (at least) this auth role on the
+workspace indicated by the stashed `workspace_id` or one of its ancestors.
 
 Users with the admin flag set will always return true, even if no user\_workspace\_role records
 are present.

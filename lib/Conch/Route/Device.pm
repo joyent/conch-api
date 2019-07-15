@@ -116,11 +116,18 @@ __END__
 
 Unless otherwise noted, all routes require authentication.
 
+The user's role (required for most endpoints) is determined by the rack location of the device,
+and the workspace(s) the rack is contained in (where users are assigned a
+L<role|Conch::DB::Result::UserWorkspaceRole/role> in that workspace).
+
+Full (admin-level) access is also granted to a device if a report was sent for that device
+using a relay that registered with that user's credentials.
+
 =head3 C<POST /device/:device_serial_number>
 
 =over 4
 
-=item * Request: device_report.yaml#/DeviceReport_v3.0.0
+=item * Request: device_report.yaml#/DeviceReport
 
 =item * Response: response.yaml#/ValidationStateWithResults
 
@@ -156,6 +163,8 @@ below.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/DetailedDevice
 
 =back
@@ -163,6 +172,8 @@ below.
 =head3 C<GET /device/:device_id_or_serial_number/pxe>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/DevicePXE
 
@@ -172,6 +183,8 @@ below.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/DevicePhase
 
 =back
@@ -179,6 +192,8 @@ below.
 =head3 C<POST /device/:device_id_or_serial_number/asset_tag>
 
 =over 4
+
+=item * User requires the read/write role
 
 =item * Request: request.yaml#/DeviceAssetTag
 
@@ -190,6 +205,8 @@ below.
 
 =over 4
 
+=item * User requires the read/write role
+
 =item * Request: request.yaml#/Null
 
 =item * Response: Redirect to the updated device
@@ -199,6 +216,8 @@ below.
 =head3 C<POST /device/:device_id_or_serial_number/phase>
 
 =over 4
+
+=item * User requires the read/write role
 
 =item * Request: request.yaml#/DevicePhase
 
@@ -232,6 +251,8 @@ below.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/DeviceLocation
 
 =back
@@ -239,6 +260,8 @@ below.
 =head3 C<POST /device/:device_id_or_serial_number/location>
 
 =over 4
+
+=item * User requires the read/write role
 
 =item * Request: request.yaml#/DeviceLocationUpdate
 
@@ -250,6 +273,8 @@ below.
 
 =over 4
 
+=item * User requires the read/write role
+
 =item * Response: C<204 NO CONTENT>
 
 =back
@@ -257,6 +282,8 @@ below.
 =head3 C<GET /device/:device_id_or_serial_number/settings>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/DeviceSettings
 
@@ -266,7 +293,8 @@ below.
 
 =over 4
 
-=item * Requires read/write device authorization
+=item * User requires the read/write role, or admin when overwriting existing
+settings that do not start with C<tag.>.
 
 =item * Request: request.yaml#/DeviceSettings
 
@@ -278,6 +306,8 @@ below.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/DeviceSetting
 
 =back
@@ -286,7 +316,8 @@ below.
 
 =over 4
 
-=item * Requires read/write device authorization
+=item * User requires the read/write role, or admin when overwriting existing
+settings that do not start with C<tag.>.
 
 =item * Request: request.yaml#/DeviceSettings
 
@@ -298,7 +329,8 @@ below.
 
 =over 4
 
-=item * Requires read/write device authorization
+=item * User requires the read/write role for settings that start with C<tag.>, and admin
+otherwise.
 
 =item * Response: C<204 NO CONTENT>
 
@@ -310,7 +342,9 @@ Does not store validation results.
 
 =over 4
 
-=item * Request: device_report.yaml
+=item * User requires the read/write role
+
+=item * Request: device_report.yaml#/DeviceReport
 
 =item * Response: response.yaml#/ValidationResults
 
@@ -322,7 +356,9 @@ Does not store validation results.
 
 =over 4
 
-=item * Request: device_report.yaml
+=item * User requires the read/write role
+
+=item * Request: device_report.yaml#/DeviceReport
 
 =item * Response: response.yaml#/ValidationResults
 
@@ -335,6 +371,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/ValidationStatesWithResults
 
 =back
@@ -342,6 +380,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 =head3 C<GET /device/:device_id_or_serial_number/interface>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/DeviceNics
 
@@ -351,6 +391,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =over 4
 
+=item * User requires the read-only role
+
 =item * Response: response.yaml#/DeviceNic
 
 =back
@@ -358,6 +400,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 =head3 C<GET /device/:device_id_or_serial_number/interface/:interface_name/:field>
 
 =over 4
+
+=item * User requires the read-only role
 
 =item * Response: response.yaml#/DeviceNicField
 

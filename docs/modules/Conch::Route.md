@@ -14,6 +14,8 @@ Set up the full route structure
 
 Unless otherwise specified all routes require authentication.
 
+Full access is granted to system admin users, regardless of workspace or other role entries.
+
 Successful (http 2xx code) response structures are as described for each endpoint.
 
 Error responses will use:
@@ -65,6 +67,42 @@ Returns the schema specified by type and name.
 
 - Request: request.yaml#/Null
 - Response: response.yaml#/Login
+
+### `* /dc`, `* /room`, `* /rack_role`, `* /rack`, `* /layout`
+
+See ["routes" in Conch::Route::Datacenter](../modules/Conch::Route::Datacenter#routes)
+
+### `* /device`
+
+See ["routes" in Conch::Route::Device](../modules/Conch::Route::Device#routes)
+
+### `* /device_report`
+
+See ["routes" in Conch::Route::DeviceReport](../modules/Conch::Route::DeviceReport#routes)
+
+### `* /hardware_product`
+
+See ["routes" in Conch::Route::HardwareProduct](../modules/Conch::Route::HardwareProduct#routes)
+
+### `* /hardware_vendor`
+
+See ["routes" in Conch::Route::HardwareVendor](../modules/Conch::Route::HardwareVendor#routes)
+
+### `* /relay`
+
+See ["routes" in Conch::Route::Relay](../modules/Conch::Route::Relay#routes)
+
+### `* /user`
+
+See ["routes" in Conch::Route::User](../modules/Conch::Route::User#routes)
+
+### `* /validation`, `* /validation_plan`, `* /validation_state`
+
+See [Conch:Route::Validation/routes](Conch:Route::Validation/routes)
+
+### `* /workspace`
+
+See ["routes" in Conch::Route::Workspace](../modules/Conch::Route::Workspace#routes)
 
 # LICENSING
 
