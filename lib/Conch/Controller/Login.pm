@@ -2,7 +2,6 @@ package Conch::Controller::Login;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Try::Tiny;
 use Conch::UUID 'is_uuid';
 use Time::HiRes ();
 use Authen::Passphrase::RejectAll;
@@ -73,10 +72,7 @@ sub authenticate ($c) {
         my $jwt_claims;
         for my $secret ($c->app->config('secrets')->@*) {
             # Mojo::JWT->decode blows up if the token is invalid
-            try {
-                $jwt_claims = Mojo::JWT->new(secret => $secret)->decode($token);
-            };
-            last if $jwt_claims;
+            $jwt_claims = eval { Mojo::JWT->new(secret => $secret)->decode($token) } and last;
         }
 
         if (not $jwt_claims or not $jwt_claims->{user_id} or not is_uuid($jwt_claims->{user_id}
