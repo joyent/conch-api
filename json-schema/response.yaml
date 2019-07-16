@@ -1182,7 +1182,7 @@ definitions:
       - id
       - name
       - description
-      - parent_id
+      - parent_workspace_id
       - role
     properties:
       id:
@@ -1193,7 +1193,7 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
-      parent_id:
+      parent_workspace_id:
         oneOf:
           - $ref: common.yaml#/definitions/uuid
           - type: 'null'
