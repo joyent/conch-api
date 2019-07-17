@@ -1,4 +1,4 @@
-package Conch::DB::Deactivatable;
+package Conch::DB::Helper::ResultSet::Deactivatable;
 use v5.26;
 use warnings;
 
@@ -6,7 +6,7 @@ use experimental 'signatures';
 
 =head1 NAME
 
-Conch::DB::Deactivatable
+Conch::DB::Helper::ResultSet::Deactivatable
 
 =head1 DESCRIPTION
 
@@ -15,7 +15,7 @@ column, to provide common query functionality.
 
 =head1 USAGE
 
-    __PACKAGE__->load_components('+Conch::DB::Deactivatable');
+    __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::Deactivatable');
 
 =head1 METHODS
 
