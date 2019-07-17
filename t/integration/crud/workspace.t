@@ -17,6 +17,9 @@ my $global_ws_id = $t->app->db_workspaces->get_column('id')->single;
 my %workspace_data;
 my %users;
 
+my $test_user = $t->generate_fixtures('user_account',
+    { email => 'test_user@conch.joyent.us', name => 'test user' });
+
 subtest 'Workspaces' => sub {
     $t->get_ok('/workspace/notauuid')
         ->status_is(404);
@@ -64,9 +67,6 @@ subtest 'Workspaces' => sub {
     is($t->app->db_user_workspace_roles->count, 1,
         'currently one user_workspace_role entry');
 
-    my $test_user = $t->generate_fixtures('user_account',
-        { email => 'test_user@conch.joyent.us', name => 'test user' });
-
     $t->post_ok("/workspace/$global_ws_id/user", json => { role => 'ro' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
@@ -113,7 +113,8 @@ subtest 'Workspaces' => sub {
             user_id => $test_user->id,
             role => 'ro',
         })
-        ->status_is(204, 'redundant add requests do nothing')
+        ->status_is(204)
+        ->log_debug_is('user '.$test_user->name.' already has ro access to workspace '.$global_ws_id.': nothing to do')
         ->email_not_sent;
 
     $t->post_ok("/workspace/$global_ws_id/user", json => {
@@ -367,7 +368,16 @@ subtest 'Sub-Workspace' => sub {
             email => 'test_user@conch.joyent.us',
             role => 'rw',
         })
-        ->status_is(204, 'redundant add requests do nothing')
+        ->status_is(204)
+        ->log_debug_is('user '.$test_user->name.' already has rw access to workspace '.$child_ws_id.': nothing to do')
+        ->email_not_sent;
+
+    $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
+            email => 'test_user@conch.joyent.us',
+            role => 'rw',
+        })
+        ->status_is(204)
+        ->log_debug_is('user '.$test_user->name.' already has rw access to workspace '.$grandchild_ws_id.' via workspace '.$child_ws_id.': nothing to do')
         ->email_not_sent;
 
     is($t->app->db_user_workspace_roles->count, 3,

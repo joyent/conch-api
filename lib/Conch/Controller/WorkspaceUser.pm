@@ -79,21 +79,17 @@ sub add_user ($c) {
     # check if the user already has access to this workspace
     if (my $existing_role_via = $c->db_workspaces
             ->role_via_for_user($workspace_id, $user->id)) {
-        if ($existing_role_via->role eq $input->{role}) {
-            $c->log->debug('user '.$user->name
-                .' already has '.$input->{role}.' access to workspace '.$workspace_id
-                .' via workspace '.$existing_role_via->workspace_id
-                .': nothing to do');
-            return $c->status(204);
-        }
-
-        if ($existing_role_via->role_cmp($input->{role}) > 0) {
-            return $c->status(409, { error =>
-                    'user '.$user->name.' already has '.$existing_role_via->role
+        if ((my $role_cmp = $existing_role_via->role_cmp($input->{role})) >= 0) {
+            my $str = 'user '.$user->name.' already has '.$existing_role_via->role
                 .' access to workspace '.$workspace_id
                 .($existing_role_via->workspace_id ne $workspace_id
-                    ? (' via workspace '.$existing_role_via->workspace_id) : '')
-                .': cannot downgrade role to '.$input->{role} });
+                    ? (' via workspace '.$existing_role_via->workspace_id) : '');
+
+            $c->log->debug($str.': nothing to do'), return $c->status(204)
+                if $role_cmp == 0;
+
+            return $c->status(409, { error => $str.': cannot downgrade role to '.$input->{role} })
+                if $role_cmp > 0;
         }
 
         my $rs = $user->search_related('user_workspace_roles', { workspace_id => $workspace_id });
