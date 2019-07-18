@@ -70,7 +70,7 @@ sub authenticate ($c) {
         # Attempt to decode with every configured secret, in case JWT token was
         # signed with a rotated secret
         my $jwt_claims;
-        for my $secret ($c->app->config('secrets')->@*) {
+        for my $secret ($c->app->secrets->@*) {
             # Mojo::JWT->decode blows up if the token is invalid
             $jwt_claims = eval { Mojo::JWT->new(secret => $secret)->decode($token) } and last;
         }

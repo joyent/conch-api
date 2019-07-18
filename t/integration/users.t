@@ -248,11 +248,11 @@ subtest 'JWT authentication' => sub {
     $t->reset_session;
     # we're going to be cheeky here and hack the JWT to doctor it...
     # this only works because we have access to the symmetric secret embedded in the app.
-    my $jwt_claims = Mojo::JWT->new(secret => $t->app->config('secrets')->[0])->decode($jwt_token);
+    my $jwt_claims = Mojo::JWT->new(secret => $t->app->secrets->[0])->decode($jwt_token);
     my $bad_user_id = create_uuid_str();
     my $hacked_jwt_token = Mojo::JWT->new(
         claims => { $jwt_claims->%{token_id}, user_id => $bad_user_id },
-        secret => $t->app->config('secrets')->[0],
+        secret => $t->app->secrets->[0],
         expires => $jwt_claims->{exp},
     )->encode;
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$hacked_jwt_token })
