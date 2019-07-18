@@ -468,6 +468,59 @@ $t2->get_ok('/organization')
         # user is not a member of organization2
     ]);
 
+$t->get_ok('/user/'.$admin_user->email)
+    ->status_is(200)
+    ->json_schema_is('UserDetailed')
+    ->json_cmp_deeply(superhashof({
+        id => $admin_user->id,
+        organizations => [
+            { $organization->%{qw(id name description)}, role => 'admin' },
+            { $organization2->%{qw(id name description)}, role => 'admin' },
+        ],
+        workspaces => [
+            {
+                (map +($_ => $sub_ws->$_), qw(id name description parent_workspace_id)),
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+            },
+        ],
+    }));
+
+$t->get_ok('/user/'.$new_user->email)
+    ->status_is(200)
+    ->json_schema_is('UserDetailed')
+    ->json_cmp_deeply(superhashof({
+        id => $new_user->id,
+        organizations => [
+            { $organization->%{qw(id name description)}, role => 'admin' },
+        ],
+        workspaces => [
+            {
+                (map +($_ => $sub_ws->$_), qw(id name description parent_workspace_id)),
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+            },
+        ],
+    }));
+
+$t2->get_ok('/user/me')
+    ->status_is(200)
+    ->json_schema_is('UserDetailed')
+    ->json_cmp_deeply(superhashof({
+        id => $new_user->id,
+        organizations => [
+            { $organization->%{qw(id name description)}, role => 'admin' },
+        ],
+        workspaces => [
+            {
+                (map +($_ => $sub_ws->$_), qw(id name description)),
+                parent_workspace_id => undef, # user does not have the role to see GLOBAL
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+            },
+        ],
+    }));
+
 my $grandchild_ws = $t->generate_fixtures('workspace', { parent_workspace_id => $sub_ws->id, name => 'grandchild ws' });
 
 push $organization->{workspaces}->@*, +{ (map +($_ => $grandchild_ws->$_), qw(id parent_workspace_id name description)), role => 'ro', role_via_workspace_id => $sub_ws->id };
@@ -486,6 +539,77 @@ $t->get_ok('/workspace/'.$grandchild_ws->id.'/organization')
             ],
         },
     ]);
+
+$t->get_ok('/user/'.$admin_user->email)
+    ->status_is(200)
+    ->json_schema_is('UserDetailed')
+    ->json_cmp_deeply(superhashof({
+        id => $admin_user->id,
+        organizations => [
+            { $organization->%{qw(id name description)}, role => 'admin' },
+            { $organization2->%{qw(id name description)}, role => 'admin' },
+        ],
+        workspaces => [
+            {
+                (map +($_ => $sub_ws->$_), qw(id name description parent_workspace_id)),
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+            },
+            {
+                (map +($_ => $grandchild_ws->$_), qw(id name description parent_workspace_id)),
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+                role_via_workspace_id => $sub_ws->id,
+            },
+        ],
+    }));
+
+$t->get_ok('/user/'.$new_user->email)
+    ->status_is(200)
+    ->json_schema_is('UserDetailed')
+    ->json_cmp_deeply(superhashof({
+        id => $new_user->id,
+        organizations => [
+            { $organization->%{qw(id name description)}, role => 'admin' },
+        ],
+        workspaces => [
+            {
+                (map +($_ => $sub_ws->$_), qw(id name description parent_workspace_id)),
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+            },
+            {
+                (map +($_ => $grandchild_ws->$_), qw(id name description parent_workspace_id)),
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+                role_via_workspace_id => $sub_ws->id,
+            },
+        ],
+    }));
+
+$t2->get_ok('/user/me')
+    ->status_is(200)
+    ->json_schema_is('UserDetailed')
+    ->json_cmp_deeply(superhashof({
+        id => $new_user->id,
+        organizations => [
+            { $organization->%{qw(id name description)}, role => 'admin' },
+        ],
+        workspaces => [
+            {
+                (map +($_ => $sub_ws->$_), qw(id name description)),
+                parent_workspace_id => undef, # user does not have the role to see GLOBAL
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+            },
+            {
+                (map +($_ => $grandchild_ws->$_), qw(id name description parent_workspace_id)),
+                role => 'ro',
+                role_via_organization_id => $organization->{id},
+                role_via_workspace_id => $sub_ws->id,
+            },
+        ],
+    }));
 
 $t->get_ok('/workspace/'.$sub_ws->id.'/user')
     ->status_is(200)

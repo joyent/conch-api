@@ -330,7 +330,7 @@ sub get ($c) {
         ->search({ 'user_account.id' => $c->stash('target_user')->id })
         ->prefetch({
                 user_workspace_roles => 'workspace',
-                user_organization_roles => 'organization',
+                user_organization_roles => { organization => { organization_workspace_roles => 'workspace' } },
             })
         ->order_by([qw(workspace.name organization.name)])
         ->all;
@@ -411,7 +411,7 @@ sub list ($c) {
         ->active
         ->prefetch({
                 user_workspace_roles => 'workspace',
-                user_organization_roles => 'organization',
+                user_organization_roles => { organization => { organization_workspace_roles => 'workspace' } },
             })
         ->order_by([qw(user_account.name workspace.name organization.name)]);
 
