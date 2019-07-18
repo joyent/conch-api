@@ -31,7 +31,7 @@ POSTGRES_PASSWORD
 
 If not all credentials can be determined from environment variables, the `$config` is read
 from. It should be a database configuration hashref (such as that extracted from `conch.conf`
-at the appropriate hash key), or a subref that returns the hashref.
+at the appropriate hash key).
 
 ## get\_postgres\_version
 

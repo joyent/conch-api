@@ -40,7 +40,7 @@ Overrides are accepted from the following environment variables:
 
 If not all credentials can be determined from environment variables, the C<$config> is read
 from. It should be a database configuration hashref (such as that extracted from F<conch.conf>
-at the appropriate hash key), or a subref that returns the hashref.
+at the appropriate hash key).
 
 =cut
 
@@ -71,14 +71,6 @@ sub get_credentials ($config, $log = Mojo::Log->new) {
     # fall back to config hash if needed (password is permitted to be undef)
 
     if (not $dsn or not $username) {
-        $config = $config->() if ref $config eq 'CODE';
-
-        if (not $config->{dsn}) {
-            my $message = 'Your conch.conf is out of date. Please update it following the format in conch.conf.dist';
-            $log->fatal($message);
-            die $message;
-        }
-
         $dsn //= $config->{dsn};
         $username //= $config->{username};
         $password //= $config->{password};
