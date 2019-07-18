@@ -249,25 +249,24 @@ sub TO_JSON ($self) {
         $data->{workspaces} = [
             # we process the direct uwr+workspace entries first so we do not produce redundant rows
             (map {
-                my $workspace = $_->workspace;
-                ++$seen_workspaces{$workspace->id};
+                ++$seen_workspaces{$_->workspace->id};
                 +{
-                    $workspace->TO_JSON->%*,
+                    $_->workspace->TO_JSON->%*,
                     role => $_->role,
                 },
             } $cached_uwrs->@*),
 
-            (map {
-                map {
+            (map +(
+                map +(
                     # $_ is a workspace where the user inherits a role
-                    $seen_workspaces{$_->id} ? () : do {
-                        ++$seen_workspaces{$_->id};
+                    $seen_workspaces{$_->id}++ ? () : do {
+                        # instruct the workspace serializer to fill in the role fields
                         $_->user_id_for_role($self->id);
                         $_->TO_JSON
                     }
-                } $self->result_source->schema->resultset('workspace')
+                ), $self->result_source->schema->resultset('workspace')
                     ->workspaces_beneath($_->workspace_id)
-            } $cached_uwrs->@*),
+            ), $cached_uwrs->@*),
         ];
     }
 
