@@ -112,8 +112,8 @@ sub authenticate ($c) {
     $c->db_user_session_tokens->expired->delete;
 
     if ($user_id) {
-        $c->log->debug('looking up user by id '.$user_id.'...');
         if (my $user = $c->db_user_accounts->active->find($user_id)) {
+            $c->log->debug('looking up user by id '.$user_id.': found '.$user->name. ' ('.$user->email.')');
             $user->update({ last_seen => \'now()' });
 
             # api tokens are exempt from this check
@@ -142,6 +142,8 @@ sub authenticate ($c) {
             $c->stash('user', $user);
             return 1;
         }
+
+        $c->log->debug('looking up user by id '.$user_id.': not found');
     }
 
     $c->log->debug('auth failed: no credentials provided');
