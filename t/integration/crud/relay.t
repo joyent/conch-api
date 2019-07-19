@@ -9,11 +9,19 @@ use Test::Deep;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
+my $super_user = $t->load_fixture('super_user');
+my $null_user = $t->generate_fixtures('user_account');
+my $global_ws_id = $t->load_fixture('admin_user_global_workspace')->workspace_id;
 
-$t->authenticate;
+$t->authenticate(email => $null_user->email);
 
 $t->get_ok('/workspace/'.$global_ws_id.'/relay')
+    ->status_is(403);
+
+my $t_super = Test::Conch->new(pg => $t->pg);
+$t_super->authenticate(email => $super_user->email);
+
+$t_super->get_ok('/workspace/'.$global_ws_id.'/relay')
     ->status_is(200)
     ->json_schema_is('WorkspaceRelays')
     ->json_is([]);
@@ -64,7 +72,7 @@ cmp_deeply(
     [ $relay0->user_relay_connections ],
     [
         methods(
-            user_id => $t->app->db_user_accounts->search({ email => $t->CONCH_EMAIL })->get_column('id')->single,
+            user_id => $null_user->id,
             first_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         ),
@@ -119,6 +127,9 @@ $t->get_ok('/relay/relay0')
     });
 
 $t->get_ok('/relay')
+    ->status_is(403);
+
+$t_super->get_ok('/relay')
     ->status_is(200)
     ->json_schema_is('Relays')
     ->json_cmp_deeply([
@@ -172,7 +183,7 @@ $t->post_ok('/relay/relay0/register',
 
 $relay0->discard_changes;    # reload from db
 
-$t->get_ok('/relay')
+$t_super->get_ok('/relay')
     ->status_is(200)
     ->json_schema_is('Relays')
     ->json_cmp_deeply('', superbagof(superhashof({
@@ -223,8 +234,9 @@ $t->app->db_device_relay_connections->create($_) foreach (
 );
 
 subtest list => sub {
-    # the global workspace can see all relays, by virtue of all rooms being in the global workspace.
-    $t->get_ok("/workspace/$global_ws_id/relay")
+    # the global workspace can see all relays, by virtue of all racks being in the global workspace
+    # and we connected the relays to devices located in a rack.
+    $t_super->get_ok("/workspace/$global_ws_id/relay")
         ->status_is(200)
         ->json_schema_is('WorkspaceRelays')
         ->json_cmp_deeply([
@@ -266,14 +278,14 @@ subtest list => sub {
             },
         ]);
 
-    my $all_relays = $t->tx->res->json;
+    my $all_relays = $t_super->tx->res->json;
 
-    $t->get_ok("/workspace/$workspace_ids[0]/relay")
+    $t_super->get_ok("/workspace/$workspace_ids[0]/relay")
         ->status_is(200)
         ->json_schema_is('WorkspaceRelays')
         ->json_is('', [ $all_relays->[1] ], 'this workspace can only see relay1');
 
-    $t->get_ok("/workspace/$workspace_ids[1]/relay")
+    $t_super->get_ok("/workspace/$workspace_ids[1]/relay")
         ->status_is(200)
         ->json_schema_is('WorkspaceRelays')
         ->json_is('', [ $all_relays->[0] ], 'this workspace can only see relay0');
@@ -283,7 +295,7 @@ subtest list => sub {
     my $elapsed_minutes =
         int((Conch::Time->now->epoch - Conch::Time->new('2018-01-04T00:00:00.000Z')->epoch) / 60) + 2;
 
-    $t->get_ok("/workspace/$global_ws_id/relay?active_minutes=$elapsed_minutes")
+    $t_super->get_ok("/workspace/$global_ws_id/relay?active_minutes=$elapsed_minutes")
         ->status_is(200)
         ->json_schema_is('WorkspaceRelays')
         ->json_is('', [ $all_relays->[1] ],
@@ -294,7 +306,7 @@ my $relay0_id = $relay0->id;
 my $relay1_id = $relay1->id;
 
 subtest get_relay_devices => sub {
-    $t->get_ok("/workspace/$global_ws_id/relay/$relay0_id/device")
+    $t_super->get_ok("/workspace/$global_ws_id/relay/$relay0_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply('', [
@@ -302,7 +314,7 @@ subtest get_relay_devices => sub {
             superhashof({ id => $devices[5]->id }),
         ]);
 
-    $t->get_ok("/workspace/$global_ws_id/relay/$relay1_id/device")
+    $t_super->get_ok("/workspace/$global_ws_id/relay/$relay1_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
@@ -311,14 +323,14 @@ subtest get_relay_devices => sub {
             superhashof({ id => $devices[4]->id }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[0]/relay/$relay0_id/device")
+    $t_super->get_ok("/workspace/$workspace_ids[0]/relay/$relay0_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
             superhashof({ id => $devices[0]->id }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[0]/relay/$relay1_id/device")
+    $t_super->get_ok("/workspace/$workspace_ids[0]/relay/$relay1_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
@@ -326,14 +338,14 @@ subtest get_relay_devices => sub {
             superhashof({ id => $devices[2]->id }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[1]/relay/$relay0_id/device")
+    $t_super->get_ok("/workspace/$workspace_ids[1]/relay/$relay0_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([
             superhashof({ id => $devices[5]->id }),
         ]);
 
-    $t->get_ok("/workspace/$workspace_ids[1]/relay/$relay1_id/device")
+    $t_super->get_ok("/workspace/$workspace_ids[1]/relay/$relay1_id/device")
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_cmp_deeply([

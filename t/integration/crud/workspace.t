@@ -9,11 +9,12 @@ use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
-$t->load_fixture('conch_user_global_workspace');
+my $super_user = $t->load_fixture('super_user');
+my $global_ws_id = $t->load_fixture('admin_user_global_workspace')->workspace_id;
+my $admin_user = $t->load_fixture('admin_user');
 
 $t->authenticate;
 
-my $global_ws_id = $t->app->db_workspaces->get_column('id')->single;
 my %workspace_data;
 my %users;
 
@@ -35,7 +36,7 @@ subtest 'Workspaces' => sub {
             parent_workspace_id => undef,
         }]);
 
-    $workspace_data{conch}[0] = $t->tx->res->json->[0];
+    $workspace_data{conch}[0] = $workspace_data{admin_user}[0] = $t->tx->res->json->[0];
 
     $t->get_ok("/workspace/$global_ws_id")
         ->status_is(200)
@@ -56,8 +57,8 @@ subtest 'Workspaces' => sub {
         ->json_cmp_deeply([
             {
                 id    => re(Conch::UUID::UUID_FORMAT),
-                name  => $t->CONCH_USER,
-                email => $t->CONCH_EMAIL,
+                name  => $admin_user->name,
+                email => $admin_user->email,
                 role  => 'admin',
             }
         ]);
@@ -77,6 +78,10 @@ subtest 'Workspaces' => sub {
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
 
+    $t->post_ok('/workspace/'.$global_ws_id.'/user', json => { email => $super_user->email, role => 'ro' })
+        ->status_is(204)
+        ->email_not_sent;
+
     $t->post_ok("/workspace/$global_ws_id/user", json => {
             email => 'test_user@conch.joyent.us',
             role => 'ro',
@@ -90,10 +95,10 @@ subtest 'Workspaces' => sub {
                 body => re(qr/^You have been added to the "GLOBAL" workspace at Joyent Conch with the "ro" role\./m),
             },
             {
-                To => '"'.${\$t->CONCH_USER}.'" <'.${\$t->CONCH_EMAIL}.'>',
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
                 From => 'noreply@conch.joyent.us',
                 Subject => 'We added a user to your workspace',
-                body => re(qr/^${\$t->CONCH_USER} \(${\$t->CONCH_EMAIL}\) has added test user \(test_user\@conch.joyent.us\) to the\R"GLOBAL" workspace at Joyent Conch with the "ro" role\./m),
+                body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) has added test user \(test_user\@conch.joyent.us\) to the\R"GLOBAL" workspace at Joyent Conch with the "ro" role\./m),
             },
         ]);
 
@@ -146,10 +151,12 @@ subtest 'Workspaces' => sub {
     $t->get_ok('/user')
         ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email' => $t->CONCH_EMAIL)
-        ->json_is('/0/workspaces' => [ $workspace_data{conch}[0] ])
-        ->json_is('/1/email' => 'test_user@conch.joyent.us')
-        ->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
+        ->json_is('/0/email' => $admin_user->email)
+        ->json_is('/0/workspaces' => [ $workspace_data{admin_user}[0] ])
+        ->json_is('/1/email' => $super_user->email)
+        ->json_is('/1/workspaces' => [])
+        ->json_is('/2/email' => 'test_user@conch.joyent.us')
+        ->json_is('/2/workspaces' => [ $workspace_data{test_user}[0] ]);
 
     push $users{GLOBAL}->@*, {
         id    => re(Conch::UUID::UUID_FORMAT),
@@ -197,33 +204,39 @@ subtest 'Sub-Workspace' => sub {
             description => 'one level of workspaces',
             parent_workspace_id => $global_ws_id,
             role        => 'admin',
-            role_via    => $global_ws_id,
         });
 
     $t->location_is('/workspace/'.(my $child_ws_id = $t->tx->res->json->{id}));
     $workspace_data{conch}[1] = $t->tx->res->json;
+    $workspace_data{admin_user}[1] = { $t->tx->res->json->%*, role_via => $global_ws_id };
+
+    $t->authenticate(email => $admin_user->email);
+    $t->get_ok('/workspace/'.$child_ws_id)
+        ->status_is(200)
+        ->json_schema_is('WorkspaceAndRole')
+        ->json_cmp_deeply($workspace_data{admin_user}[1]);
 
     push $users{child_ws}->@*, map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@*;
 
     $t->get_ok("/workspace/$global_ws_id/child")
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is([ $workspace_data{conch}[1] ]);
+        ->json_is([ $workspace_data{admin_user}[1] ]);
 
     $t->get_ok('/workspace/GLOBAL/child')
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is([ $workspace_data{conch}[1] ]);
+        ->json_is([ $workspace_data{admin_user}[1] ]);
 
     $t->get_ok("/workspace/$child_ws_id")
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is($workspace_data{conch}[1]);
+        ->json_is($workspace_data{admin_user}[1]);
 
     $t->get_ok('/workspace/child_ws')
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is($workspace_data{conch}[1]);
+        ->json_is($workspace_data{admin_user}[1]);
 
     $t->get_ok("/workspace/$child_ws_id/user")
         ->status_is(200)
@@ -243,10 +256,10 @@ subtest 'Sub-Workspace' => sub {
                 body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "rw"\./m),
             },
             {
-                To => '"'.${\$t->CONCH_USER}.'" <'.${\$t->CONCH_EMAIL}.'>',
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
                 From => 'noreply@conch.joyent.us',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$t->CONCH_USER} \(${\$t->CONCH_EMAIL}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "rw" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "rw" role\./m),
             },
         ]);
 
@@ -267,11 +280,11 @@ subtest 'Sub-Workspace' => sub {
         ->email_not_sent;
 
     $t->post_ok("/workspace/$child_ws_id/user", json => {
-            email => $t->CONCH_EMAIL,
+            email => $admin_user->email,
             role => 'ro',
         })
         ->status_is(409)
-        ->json_is({ error => "user conch already has admin access to workspace $child_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
+        ->json_is({ error => "user admin_user already has admin access to workspace $child_ws_id via workspace $global_ws_id: cannot downgrade role to ro" })
         ->email_not_sent;
 
     $t->post_ok("/workspace/$child_ws_id/child",
@@ -288,31 +301,37 @@ subtest 'Sub-Workspace' => sub {
         });
 
     $t->location_is('/workspace/'.(my $grandchild_ws_id = $t->tx->res->json->{id}));
-    $workspace_data{conch}[2] = $t->tx->res->json;
+    $workspace_data{admin_user}[2] = $t->tx->res->json;
 
     $t->get_ok("/workspace/$global_ws_id/child")
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_cmp_deeply(bag($workspace_data{conch}->@[1,2]));
+        ->json_cmp_deeply(bag($workspace_data{admin_user}->@[1,2]));
 
     $t->get_ok('/workspace')
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_cmp_deeply(bag($workspace_data{conch}->@*));
+        ->json_cmp_deeply(bag($workspace_data{admin_user}->@*));
 
-    $t->get_ok('/user/'.$t->CONCH_EMAIL)
-        ->status_is(200)
-        ->json_schema_is('UserDetailed')
-        ->json_is('/email' => $t->CONCH_EMAIL)
-        ->json_cmp_deeply('/workspaces' => bag($workspace_data{conch}->@*));
+    $t->get_ok('/user/'.$admin_user->email)
+        ->status_is(403);
 
     $t->get_ok('/user/me')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
-        ->json_is('/email' => $t->CONCH_EMAIL)
-        ->json_cmp_deeply('/workspaces' => bag($workspace_data{conch}->@*));
+        ->json_is('/email' => $admin_user->email)
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{admin_user}->@*));
 
-    $t->get_ok('/user/test_user@conch.joyent.us')
+    my $t_super = Test::Conch->new(pg => $t->pg);
+    $t_super->authenticate(email => $super_user->email);
+
+    $t_super->get_ok('/user/'.$admin_user->email)
+        ->status_is(200)
+        ->json_schema_is('UserDetailed')
+        ->json_is('/email' => $admin_user->email)
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{admin_user}->@*));
+
+    $t_super->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
@@ -342,15 +361,17 @@ subtest 'Sub-Workspace' => sub {
             ],
             'new user has access to all workspaces via GLOBAL');
 
-    $workspace_data{test_user} = $t->tx->res->json->{workspaces};
+    $workspace_data{test_user} = $t_super->tx->res->json->{workspaces};
 
-    $t->get_ok('/user')
+    $t_super->get_ok('/user')
         ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email' => $t->CONCH_EMAIL)
-        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
-        ->json_is('/1/email' => 'test_user@conch.joyent.us')
-        ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
+        ->json_is('/0/email' => $admin_user->email)
+        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{admin_user}->@*))
+        ->json_is('/1/email' => $super_user->email)
+        ->json_is('/1/workspaces' => [])
+        ->json_is('/2/email' => 'test_user@conch.joyent.us')
+        ->json_cmp_deeply('/2/workspaces' => bag($workspace_data{test_user}->@*));
 
     push $users{grandchild_ws}->@*, map +{ role_via => $child_ws_id, $_->%* }, $users{child_ws}->@*;
 
@@ -404,10 +425,10 @@ subtest 'Sub-Workspace' => sub {
                 body => re(qr/^Your access to the "grandchild_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
             },
             {
-                To => '"'.${\$t->CONCH_USER}.'" <'.${\$t->CONCH_EMAIL}.'>',
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
                 From => 'noreply@conch.joyent.us',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$t->CONCH_USER} \(${\$t->CONCH_EMAIL}\) has modified a user's access to the "grandchild_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "grandchild_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
             },
         ]);
 
@@ -435,10 +456,10 @@ subtest 'Sub-Workspace' => sub {
                 body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
             },
             {
-                To => '"'.${\$t->CONCH_USER}.'" <'.${\$t->CONCH_EMAIL}.'>',
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
                 From => 'noreply@conch.joyent.us',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$t->CONCH_USER} \(${\$t->CONCH_EMAIL}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
             },
         ]);
 
@@ -452,25 +473,27 @@ subtest 'Sub-Workspace' => sub {
     $workspace_data{test_user}[2]{role} = 'admin';
     delete $workspace_data{test_user}[2]{role_via};
 
-    $t->get_ok('/user/'.$t->CONCH_EMAIL)
+    $t_super->get_ok('/user/'.$admin_user->email)
         ->status_is(200)
         ->json_schema_is('UserDetailed')
-        ->json_is('/email' => $t->CONCH_EMAIL)
-        ->json_cmp_deeply('/workspaces' => bag($workspace_data{conch}->@*));
+        ->json_is('/email' => $admin_user->email)
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{admin_user}->@*));
 
-    $t->get_ok('/user/test_user@conch.joyent.us')
+    $t_super->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
         ->json_cmp_deeply('/workspaces' => bag($workspace_data{test_user}->@*));
 
-    $t->get_ok('/user')
+    $t_super->get_ok('/user')
         ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email' => $t->CONCH_EMAIL)
-        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
-        ->json_is('/1/email' => 'test_user@conch.joyent.us')
-        ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
+        ->json_is('/0/email' => $admin_user->email)
+        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{admin_user}->@*))
+        ->json_is('/1/email' => $super_user->email)
+        ->json_cmp_deeply('/1/workspaces' => [])
+        ->json_is('/2/email' => 'test_user@conch.joyent.us')
+        ->json_cmp_deeply('/2/workspaces' => bag($workspace_data{test_user}->@*));
 
     $t->delete_ok("/workspace/$child_ws_id/user/test_user\@conch.joyent.us")
         ->status_is(204, 'extra roles for user are removed from the sub workspace and its children')
@@ -482,10 +505,10 @@ subtest 'Sub-Workspace' => sub {
                 body => re(qr/^You have been removed from the "child_ws" workspace at Joyent Conch\./m),
             },
             {
-                To => '"'.${\$t->CONCH_USER}.'" <'.${\$t->CONCH_EMAIL}.'>',
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
                 From => 'noreply@conch.joyent.us',
                 Subject => 'We removed a user from your workspace',
-                body => re(qr/^${\$t->CONCH_USER} \(${\$t->CONCH_EMAIL}\) has removed test user \(test_user\@conch.joyent.us\) from the\R"child_ws" workspace at Joyent Conch\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has removed test user \(test_user\@conch.joyent.us\) from the\R"child_ws" workspace at Joyent Conch\./m),
             },
         ]);
 
@@ -507,7 +530,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_schema_is('WorkspaceUsers')
         ->json_cmp_deeply($users{grandchild_ws});
 
-    $t->get_ok('/user/test_user@conch.joyent.us')
+    $t_super->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
@@ -533,10 +556,10 @@ subtest 'Sub-Workspace' => sub {
                 body => re(qr/^You have been added to the "child_ws" workspace at Joyent Conch with the "ro" role\./m),
             },
             {
-                To => '"'.${\$t->CONCH_USER}.'" <'.${\$t->CONCH_EMAIL}.'>',
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
                 From => 'noreply@conch.joyent.us',
                 Subject => 'We added a user to your workspace',
-                body => re(qr/^${\$t->CONCH_USER} \(${\$t->CONCH_EMAIL}\) has added untrusted user \(untrusted_user\@conch.joyent.us\) to the\R"child_ws" workspace at Joyent Conch with the "ro" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has added untrusted user \(untrusted_user\@conch.joyent.us\) to the\R"child_ws" workspace at Joyent Conch with the "ro" role\./m),
             },
         ]);
 
@@ -568,25 +591,27 @@ subtest 'Sub-Workspace' => sub {
 
     $workspace_data{untrusted_user} = [
         {
-            $workspace_data{conch}[1]->%{qw(id name description parent_workspace_id)},
+            $workspace_data{admin_user}[1]->%{qw(id name description parent_workspace_id)},
             role => 'ro',
         },
         {
-            $workspace_data{conch}[2]->%{qw(id name description parent_workspace_id)},
+            $workspace_data{admin_user}[2]->%{qw(id name description parent_workspace_id)},
             role => 'ro',
             role_via => $child_ws_id,
         },
     ];
 
-    $t->get_ok('/user')
+    $t_super->get_ok('/user')
         ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email' => $t->CONCH_EMAIL)
-        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
-        ->json_is('/1/email' => 'test_user@conch.joyent.us')
-        ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*))
-        ->json_is('/2/email' => 'untrusted_user@conch.joyent.us')
-        ->json_cmp_deeply('/2/workspaces' => bag($workspace_data{untrusted_user}->@*));
+        ->json_is('/0/email' => $admin_user->email)
+        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{admin_user}->@*))
+        ->json_is('/1/email' => $super_user->email)
+        ->json_is('/1/workspaces' => [])
+        ->json_is('/2/email' => 'test_user@conch.joyent.us')
+        ->json_cmp_deeply('/2/workspaces' => bag($workspace_data{test_user}->@*))
+        ->json_is('/3/email' => 'untrusted_user@conch.joyent.us')
+        ->json_cmp_deeply('/3/workspaces' => bag($workspace_data{untrusted_user}->@*));
 
 
     my $untrusted = Test::Conch->new(pg => $t->pg);
@@ -631,10 +656,10 @@ subtest 'Sub-Workspace' => sub {
                 body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
             },
             {
-                To => '"'.${\$t->CONCH_USER}.'" <'.${\$t->CONCH_EMAIL}.'>',
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
                 From => 'noreply@conch.joyent.us',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$t->CONCH_USER} \(${\$t->CONCH_EMAIL}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Runtrusted user \(untrusted_user\@conch.joyent.us\) now has the "admin" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Runtrusted user \(untrusted_user\@conch.joyent.us\) now has the "admin" role\./m),
             },
         ]);
 

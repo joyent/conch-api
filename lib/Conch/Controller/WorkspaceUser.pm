@@ -12,7 +12,7 @@ Conch::Controller::WorkspaceUser
 
 =head2 list
 
-Get a list of users for the indicated workspace.
+Get a list of users for the indicated workspace (not including system admin users).
 Requires the 'admin' role on the workspace.
 
 Response uses the WorkspaceUsers json schema.
@@ -73,6 +73,8 @@ sub add_user ($c) {
         : undef;
     return $c->status(404) if not $user;
 
+    return $c->status(204) if $user->is_admin;
+
     $c->stash('target_user', $user);
     my $workspace_id = $c->stash('workspace_id');
 
@@ -114,7 +116,8 @@ sub add_user ($c) {
                 workspace => $workspace_name,
                 role => $input->{role},
             );
-            my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+            my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))
+                ->admins('with_sysadmins')
                 ->search({ 'user_account.id' => { '!=' => $user->id } });
             $c->send_mail(
                 template_file => 'workspace_user_update_admins',
@@ -144,7 +147,8 @@ sub add_user ($c) {
             workspace => $workspace_name,
             role => $input->{role},
         );
-        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))
+            ->admins('with_sysadmins')
             ->search({ 'user_account.id' => { '!=' => $user->id } });
         $c->send_mail(
             template_file => 'workspace_user_add_admins',
@@ -199,7 +203,8 @@ sub remove ($c) {
             Subject => 'Your Conch workspaces have been updated',
             workspace => $workspace_name,
         );
-        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))
+            ->admins('with_sysadmins')
             ->search({ 'user_account.id' => { '!=' => $user->id } });
         $c->send_mail(
             template_file => 'workspace_user_remove_admins',

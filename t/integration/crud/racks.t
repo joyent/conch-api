@@ -6,7 +6,7 @@ use Conch::UUID 'create_uuid_str';
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture('conch_user_global_workspace');
+$t->load_fixture('super_user');
 
 $t->authenticate;
 

@@ -471,9 +471,11 @@ sub generate_fixtures ($self, @specification) {
 
 =head2 authenticate
 
-Authenticates a user in the current test instance. Uses default credentials if not provided.
-Optionally will bail out of *all* tests on failure. This will set 'user' in the session
-(C<< $t->app->session('user') >>).
+Authenticates a user in the current test instance. Uses default (superuser) credentials if not
+provided.  Optionally will bail out of *all* tests on failure.
+
+This will set 'user' in the session (C<< $t->app->session('user') >>), so a token is not needed
+on subsequent requests.
 
 =cut
 

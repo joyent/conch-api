@@ -8,7 +8,8 @@ use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
-my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
+$t->load_fixture('super_user');
+my $global_ws_id = $t->load_fixture('global_workspace')->id;
 
 $t->authenticate;
 

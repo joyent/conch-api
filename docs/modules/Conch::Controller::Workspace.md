@@ -39,6 +39,11 @@ the new workspace.
 
 Response uses the WorkspaceAndRole json schema.
 
+## \_user\_has\_workspace\_auth
+
+Verifies that the user indicated by the stashed `user_id` has (at least) this role on the
+workspace indicated by the provided `workspace_id` or one of its ancestors.
+
 # LICENSING
 
 Copyright Joyent, Inc.

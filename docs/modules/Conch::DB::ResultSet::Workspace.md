@@ -43,11 +43,20 @@ As [workspaces\_above](https://metacpan.org/pod/workspaces_above), but also incl
 `$workspace_id` can be a single workspace\_id, an arrayref of multiple distinct workspace\_ids,
 or a resultset, which must return a single column of distinct workspace\_id(s)).
 
+## add\_role\_column
+
+Query for workspace(s) with an extra field attached to the result, containing information about
+the effective role the user has for the workspace.
+
+The indicated role is used directly, with no additional queries done (consequently "role\_via"
+will not appear in the serialized data).  This is intended to be used in preference to
+["with\_role\_via\_data\_for\_user"](#with_role_via_data_for_user) when the user is a system admin.
+
 ## with\_role\_via\_data\_for\_user
 
 Query for workspace(s) with an extra field attached to the query which will signal the
-workspace serializer to include the "role" and "via" columns, containing information about the
-effective role the user has for the workspace.
+workspace serializer to include the "role" and "role\_via" columns, containing information about
+the effective role the user has for the workspace.
 
 Only one user\_id can be calculated at a time. If you need to generate workspace-and-role data
 for multiple users at once, you can manually do:
@@ -66,7 +75,8 @@ role that is attached to an ancestor workspace).
 
 ## admins
 
-All the 'admin' users for the provided workspace(s).
+All the 'admin' users for the provided workspace(s).  Pass a true argument to also include all
+system admin users in the result.
 
 ## \_workspaces\_subquery
 

@@ -45,18 +45,19 @@ sub find_workspace ($c) {
                 or (not $c->stash('workspace_name')
                     and not $c->db_workspaces->search({ id => $c->stash('workspace_id') })->exists);
     }
-
-    # if no minimum role was specified, use a heuristic:
-    # HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
-    my $method = $c->req->method;
-    my $requires_role = $c->stash('require_role') //
-       ((any { $method eq $_ } qw(HEAD GET)) ? 'ro'
-      : (any { $method eq $_ } qw(POST PUT)) ? 'rw'
-      : $method eq 'DELETE'                  ? 'admin'
-      : die "need handling for $method method");
-    if (not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_role)) {
-        $c->log->debug('User lacks the required role ('.$requires_role.') for workspace '.$identifier);
-        return $c->status(403);
+    else {
+        # if no minimum role was specified, use a heuristic:
+        # HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
+        my $method = $c->req->method;
+        my $requires_role = $c->stash('require_role') //
+           ((any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+          : (any { $method eq $_ } qw(POST PUT)) ? 'rw'
+          : $method eq 'DELETE'                  ? 'admin'
+          : die "need handling for $method method");
+        if (not $c->_user_has_workspace_auth($c->stash('workspace_id'), $requires_role)) {
+            $c->log->debug('User lacks the required role ('.$requires_role.') for workspace '.$identifier);
+            return $c->status(403);
+        }
     }
 
     # stash a resultset for easily accessing the workspace, e.g. for calling ->single, or
@@ -77,16 +78,21 @@ Response uses the WorkspacesAndRoles json schema.
 =cut
 
 sub list ($c) {
-    my $direct_workspace_ids_rs = $c->stash('user')
-        ->related_resultset('user_workspace_roles')
-        ->distinct
-        ->get_column('workspace_id');
+    my $rs = $c->db_workspaces;
+    if ($c->is_system_admin) {
+        $rs = $rs->add_role_column('admin');
+    }
+    else {
+        my $direct_workspace_ids_rs = $c->stash('user')
+            ->related_resultset('user_workspace_roles')
+            ->distinct
+            ->get_column('workspace_id');
+        $rs = $rs
+            ->and_workspaces_beneath($direct_workspace_ids_rs)
+            ->with_role_via_data_for_user($c->stash('user_id'));
+    }
 
-    my $workspaces_rs = $c->db_workspaces
-        ->and_workspaces_beneath($direct_workspace_ids_rs)
-        ->with_role_via_data_for_user($c->stash('user_id'));
-
-    $c->status(200, [ $workspaces_rs->all ]);
+    $c->status(200, [ $rs->all ]);
 }
 
 =head2 get
@@ -98,12 +104,17 @@ Response uses the WorkspaceAndRole json schema.
 =cut
 
 sub get ($c) {
-    my $workspace = $c->stash('workspace_rs')
-        ->with_role_via_data_for_user($c->stash('user_id'))
-        ->single;
-
-    $workspace->parent_workspace_id(undef)
-        if not $c->user_has_workspace_auth($workspace->parent_workspace_id, 'ro');
+    my $workspace;
+    if ($c->is_system_admin) {
+        $workspace = $c->stash('workspace_rs')->add_role_column('admin')->single;
+    }
+    else {
+        $workspace = $c->stash('workspace_rs')
+            ->with_role_via_data_for_user($c->stash('user_id'))
+            ->single;
+        $workspace->parent_workspace_id(undef)
+            if not $c->_user_has_workspace_auth($workspace->parent_workspace_id, 'ro');
+    }
 
     $c->status(200, $workspace);
 }
@@ -117,14 +128,22 @@ Response uses the WorkspacesAndRoles json schema.
 =cut
 
 sub get_sub_workspaces ($c) {
-    my $workspaces_rs = $c->db_workspaces
-        ->workspaces_beneath($c->stash('workspace_id'))
-        ->with_role_via_data_for_user($c->stash('user_id'));
+    my $workspaces_rs = $c->db_workspaces->workspaces_beneath($c->stash('workspace_id'));
+
+    if ($c->is_system_admin) {
+        $workspaces_rs = $workspaces_rs->add_role_column('admin');
+    }
+    else {
+        $workspaces_rs = $workspaces_rs->with_role_via_data_for_user($c->stash('user_id'));
+    }
 
     my @workspaces = $workspaces_rs->all;
-    foreach my $workspace (@workspaces) {
-        $workspace->parent_workspace_id(undef)
-            if not $c->user_has_workspace_auth($workspace->parent_workspace_id, 'ro');
+    if (not $c->is_system_admin) {
+        foreach my $workspace (@workspaces) {
+            $workspace->parent_workspace_id(undef)
+                if $workspace->id eq $c->stash('workspace_id')
+                    and not $c->_user_has_workspace_auth($workspace->parent_workspace_id, 'ro');
+        }
     }
 
     $c->status(200, \@workspaces);
@@ -150,15 +169,37 @@ sub create_sub_workspace ($c) {
         # we should do create_related, but due to a DBIC bug the parent_workspace_id is lost
         ->create({ $input->%*, parent_workspace_id => $c->stash('workspace_id') });
 
-    $sub_ws->create_related('user_workspace_role', { role => 'admin' })
-        if not $c->is_workspace_admin;
-
     # signal to serializer to include role data
-    $sub_ws->user_id_for_role($c->stash('user_id'));
+    if ($c->is_system_admin) {
+        $sub_ws->role('admin');
+    }
+    elsif ($c->_user_has_workspace_auth($c->stash('workspace_id'), 'admin')) {
+        $sub_ws->user_id_for_role($c->stash('user_id'));
+    }
+    else {
+        $sub_ws->create_related('user_workspace_role', { role => 'admin' });
+        $sub_ws->role('admin');
+    }
 
     $c->res->headers->location($c->url_for('/workspace/'.$sub_ws->id));
     $c->status(201, $sub_ws);
 }
+
+=head2 _user_has_workspace_auth
+
+Verifies that the user indicated by the stashed C<user_id> has (at least) this role on the
+workspace indicated by the provided C<workspace_id> or one of its ancestors.
+
+=cut
+
+sub _user_has_workspace_auth ($c, $workspace_id, $role_name) {
+    return 0 if not $c->stash('user_id');
+
+    $c->db_workspaces
+        ->and_workspaces_above($workspace_id)
+        ->related_resultset('user_workspace_roles')
+        ->user_has_role($c->stash('user_id'), $role_name);
+};
 
 1;
 __END__

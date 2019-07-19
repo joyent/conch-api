@@ -469,8 +469,7 @@ sub add_test_routes ($t) {
         'dispatch line for /login error includes the response body',
     );
 
-    $t->load_fixture('conch_user_global_workspace');
-    my $user_id = $t->app->db_user_accounts->search({ email => $t->CONCH_EMAIL })->get_column('id')->single;
+    my $user_id = $t->load_fixture('super_user')->id;
     $t->authenticate->json_has('/jwt_token');
 
     cmp_deeply(
@@ -666,8 +665,7 @@ sub add_test_routes ($t) {
         'dispatch line for /login error in audit mode does NOT contain the request body',
     );
 
-    $t->load_fixture('conch_user_global_workspace');
-    my $user_id = $t->app->db_user_accounts->search({ email => $t->CONCH_EMAIL })->get_column('id')->single;
+    my $user_id = $t->load_fixture('super_user')->id;
     $t->authenticate->json_has('/jwt_token');
 
     cmp_deeply(

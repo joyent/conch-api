@@ -49,7 +49,7 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/rack
         $with_workspace->get('/rack')->to('workspace_rack#list');
         # POST /workspace/:workspace_id_or_name/rack
-        $with_workspace->post('/rack')->to('workspace_rack#add');
+        $with_workspace->post('/rack')->to('workspace_rack#add', require_role => 'admin');
 
         {
             my $with_workspace_rack =

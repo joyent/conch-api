@@ -8,7 +8,7 @@ use Test::Deep;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture(qw(conch_user_global_workspace hardware_vendor_0));
+$t->load_fixture(qw(super_user hardware_vendor_0));
 
 $t->authenticate;
 

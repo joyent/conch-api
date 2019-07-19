@@ -54,7 +54,7 @@ my %canned_definitions = (
 
     # individual definitions
 
-    conch_user => {
+    super_user => {
         new => 'user_account',
         using => {
             name => 'conch',
@@ -81,6 +81,15 @@ my %canned_definitions = (
             is_admin => 0,
         },
     },
+    admin_user => {
+        new => 'user_account',
+        using => {
+            name => 'admin_user',
+            email => 'admin_user@conch.joyent.us',
+            password => Authen::Passphrase::AcceptAll->new,
+            is_admin => 0,
+        },
+    },
 
     # also created by migration 0012.
     global_workspace => {
@@ -91,16 +100,16 @@ my %canned_definitions = (
         },
     },
 
-    conch_user_global_workspace => {
+    admin_user_global_workspace => {
         new => 'user_workspace_role',
         using => {
             role => 'admin',
             # cannot do this until I fix https://github.com/Ovid/dbix-class-easyfixture/issues/15
-            # user_id => { conch_user => 'id' },
+            # user_id => { admin_user => 'id' },
             # workspace_id => { global_workspace => 'id' },
         },
         requires => {
-            conch_user => { our => 'user_id', their => 'id' },
+            admin_user => { our => 'user_id', their => 'id' },
             global_workspace => { our => 'workspace_id', their => 'id' },
         },
     },
@@ -282,11 +291,11 @@ sub generate_set ($self, $set_name, @args) {
                 using => { name => "sub_ws_$num" },
                 requires => { global_workspace => { our => 'parent_workspace_id', their => 'id' } },
             },
-            "conch_user_sub_workspace_${num}_ro" => {
+            "ro_user_sub_workspace_${num}_ro" => {
                 new => 'user_workspace_role',
                 using => { role => 'ro' },
                 requires => {
-                    conch_user => { our => 'user_id', their => 'id' },
+                    ro_user => { our => 'user_id', their => 'id' },
                     "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },

@@ -26,7 +26,8 @@ my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 my $null_user = $t->generate_fixtures('user_account');
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 my $rw_user = $t->load_fixture('rw_user_global_workspace')->user_account;
-my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
+my $admin_user = $t->load_fixture('admin_user_global_workspace')->user_account;
+my $super_user = $t->load_fixture('super_user');
 $t->authenticate(email => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
@@ -58,7 +59,8 @@ subtest 'unlocated device, no registered relay' => sub {
         ->status_is(403);
 
     {
-        $t->authenticate(email => $admin_user->email);
+        my $t = Test::Conch->new(pg => $t->pg);
+        $t->authenticate(email => $super_user->email);
 
         $t->get_ok('/device/TEST')
             ->status_is(200)
@@ -75,8 +77,6 @@ subtest 'unlocated device, no registered relay' => sub {
         $t->get_ok('/device_report/'.$device_report_id)
             ->status_is(200)
             ->json_schema_is('DeviceReportRow');
-
-        $t->authenticate(email => $ro_user->email);
     }
 };
 
@@ -749,7 +749,8 @@ subtest 'Device settings' => sub {
 };
 
 subtest 'Device PXE' => sub {
-    $t->authenticate(email => $admin_user->email);
+    my $t = Test::Conch->new(pg => $t->pg, fixtures => $t->fixtures);
+    $t->authenticate(email => $super_user->email);
     my $layout = $t->load_fixture('rack_0a_layout_3_6');
 
     my $relay = $t->app->db_relays->create({ serial_number => 'my_relay' });
@@ -761,7 +762,7 @@ subtest 'Device PXE' => sub {
         device_relay_connections => [{
             relay => {
                 id => $relay->id,
-                user_relay_connections => [ { user_id => $t->load_fixture('conch_user')->id } ],
+                user_relay_connections => [ { user_id => $super_user->id } ],
             }
         }],
         device_nics => [
@@ -810,6 +811,8 @@ subtest 'Device PXE' => sub {
     $layout->create_related('device_location', { device_id => $device_pxe->id });
     my $datacenter = $t->load_fixture('datacenter_0');
 
+    $t->authenticate(email => $ro_user->email);
+
     $t->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
@@ -839,6 +842,10 @@ subtest 'Device PXE' => sub {
     $device_pxe->delete_related('device_nics');
 
     $t->get_ok('/device/PXE_TEST/pxe')
+        ->status_is(403);
+
+    $t->authenticate(email => $super_user->email);
+    $t->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
@@ -850,6 +857,16 @@ subtest 'Device PXE' => sub {
 };
 
 subtest 'Device location' => sub {
+    $t->post_ok('/device/TEST/location')
+        ->status_is(403);
+
+    $t->delete_ok('/device/TEST/location')
+        ->status_is(403);
+
+    $t->authenticate(email => $super_user->email);
+
+    # TODO? possibly we should be able to set the location if the user has permission to
+    # access the target location of the device.
     $t->post_ok('/device/TEST/location')
         ->status_is(400)
         ->json_schema_is('RequestValidationError')

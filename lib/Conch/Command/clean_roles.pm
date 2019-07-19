@@ -51,8 +51,11 @@ sub run ($self, @opts) {
             print '--> ', $uwr->role, ' role found for deactivated user. ';
             $delete = 1;
         }
-
-        if (my $role_via = $self->app->db_workspaces
+        elsif ($uwr->user_account->is_admin) {
+            print '--> unnecessary ', $uwr->role, ' role found for sysadmin user. ';
+            $delete = 1;
+        }
+        elsif (my $role_via = $self->app->db_workspaces
                 ->workspaces_above($uwr->workspace_id)
                 ->search_related('user_workspace_roles', {
                     'user_workspace_roles.user_id' => $uwr->user_id,
