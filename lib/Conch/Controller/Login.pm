@@ -102,7 +102,7 @@ sub authenticate ($c) {
     }
 
     if ($c->session('user')) {
-        return $c->status(400, { error => 'user session is invalid' })
+        return $c->status(401, { error => 'user session is invalid' })
             if not is_uuid($c->session('user')) or ($user_id and $c->session('user') ne $user_id);
         $c->log->debug('using session user='.$c->session('user'));
         $user_id ||= $c->session('user');
