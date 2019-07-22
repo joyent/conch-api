@@ -478,7 +478,7 @@ subtest 'Sub-Workspace' => sub {
             {
                 To => '"test user" <test_user@conch.joyent.us>',
                 From => 'noreply@conch.joyent.us',
-                Subject => 'Your Conch workspaces have been updated.',
+                Subject => 'Your Conch workspaces have been updated',
                 body => re(qr/^You have been removed from the "child_ws" workspace at Joyent Conch\./m),
             },
             {

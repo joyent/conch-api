@@ -196,7 +196,7 @@ sub remove ($c) {
         $c->send_mail(
             template_file => 'workspace_user_remove_user',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch workspaces have been updated.',
+            Subject => 'Your Conch workspaces have been updated',
             workspace => $workspace_name,
         );
         my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins

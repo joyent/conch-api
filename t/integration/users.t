@@ -487,7 +487,7 @@ subtest 'modify another user' => sub {
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch account has been updated.',
+            Subject => 'Your Conch account has been updated',
             body => re(qr/^Your account at Joyent Conch has been updated:\R\R {4}is_admin: false -> true\R {8}name: foo -> FOO\R\R/m),
         });
     $new_user_data->{name} = 'FOO';
@@ -519,7 +519,7 @@ subtest 'modify another user' => sub {
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch tokens have been revoked.',
+            Subject => 'Your Conch tokens have been revoked',
             body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    1 login token\R\R/m),
         });
 
@@ -538,7 +538,7 @@ subtest 'modify another user' => sub {
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch tokens have been revoked.',
+            Subject => 'Your Conch tokens have been revoked',
             body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    my api token\R    my second api token\R/m),
         });
 
@@ -585,7 +585,7 @@ subtest 'modify another user' => sub {
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch password has changed.',
+            Subject => 'Your Conch password has changed',
             body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    foo\@conch.joyent.us\R    Password: .*\R/ms),
         });
 
@@ -594,7 +594,7 @@ subtest 'modify another user' => sub {
         ->email_cmp_deeply({
             To => '"FOO" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch password has changed.',
+            Subject => 'Your Conch password has changed',
             body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    foo\@conch.joyent.us\R    Password: .*\R\R/ms),
         });
     my $insecure_password = $_new_password;
@@ -957,7 +957,7 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->email_cmp_deeply({
             To => '"FOO" <'.$email.'>',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch tokens have been revoked.',
+            Subject => 'Your Conch tokens have been revoked',
             body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    my second token\R    1 login token\R\R/m),
         });
 
