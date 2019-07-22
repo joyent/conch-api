@@ -561,11 +561,13 @@ Tests that *no* email was sent as a result of the last request.
 =cut
 
 sub email_not_sent ($self) {
-    return $self->_test(
+    $self->_test(
         'ok',
         (!$self->{_mail_composed} || !$self->{_mail_composed}->@*),
         'no email was sent',
     );
+    Test::More::diag('emails sent: ', Test::More::explain($self->{_mail_composed})) if not $self->success;
+    return $self;
 }
 
 =head2 log_is
