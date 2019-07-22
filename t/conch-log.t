@@ -469,7 +469,7 @@ sub add_test_routes ($t) {
         'dispatch line for /login error includes the response body',
     );
 
-    my $user_id = $t->load_fixture('super_user')->id;
+    my $user = $t->load_fixture('super_user');
     $t->authenticate->json_has('/jwt_token');
 
     cmp_deeply(
@@ -486,7 +486,7 @@ sub add_test_routes ($t) {
             api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
-                user        => $t->CONCH_EMAIL.' ('.$user_id.')',
+                user        => $user->email.' ('.$user->id.')',
                 method      => 'POST',
                 url         => '/login',
                 remoteAddress => '127.0.0.1',
@@ -665,7 +665,7 @@ sub add_test_routes ($t) {
         'dispatch line for /login error in audit mode does NOT contain the request body',
     );
 
-    my $user_id = $t->load_fixture('super_user')->id;
+    my $user = $t->load_fixture('super_user');
     $t->authenticate->json_has('/jwt_token');
 
     cmp_deeply(
@@ -682,7 +682,7 @@ sub add_test_routes ($t) {
             api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
-                user        => $t->CONCH_EMAIL.' ('.$user_id.')',
+                user        => $user->email.' ('.$user->id.')',
                 method      => 'POST',
                 url         => '/login',
                 remoteAddress => '127.0.0.1',
@@ -717,7 +717,7 @@ sub add_test_routes ($t) {
             api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
-                user        => $t->CONCH_EMAIL.' ('.$user_id.')',
+                user        => $user->email.' ('.$user->id.')',
                 method      => 'POST',
                 url         => '/user/me/token',
                 remoteAddress => '127.0.0.1',
@@ -753,7 +753,7 @@ sub add_test_routes ($t) {
             api_version => re($api_version_re),
             latency => re(qr/^\d+$/),
             req => {
-                user        => $t->CONCH_EMAIL.' ('.$user_id.')',
+                user        => $user->email.' ('.$user->id.')',
                 method      => 'POST',
                 url         => '/user/me/password',
                 remoteAddress => '127.0.0.1',
