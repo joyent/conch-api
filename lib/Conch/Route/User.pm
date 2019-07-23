@@ -304,8 +304,6 @@ revoke all session tokens for the user forcing all tools to log in again.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/UserDetailed
-
 =item * Response: C<204 NO CONTENT>
 
 =back
