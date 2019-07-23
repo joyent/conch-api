@@ -8,4 +8,3 @@ docker run \
 	--mount type=volume,src=${PREFIX}-api-test-carton,dst=/app/conch/local \
 	--rm \
 	${PREFIX}/conch-api
-

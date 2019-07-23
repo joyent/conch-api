@@ -29,7 +29,7 @@ subtest 'Workspaces' => sub {
             name        => 'GLOBAL',
             role        => 'admin',
             description => 'Global workspace. Ancestor of all workspaces.',
-            parent_id   => undef,
+            parent_workspace_id => undef,
         }]);
 
     $workspace_data{conch}[0] = $t->tx->res->json->[0];
@@ -148,7 +148,7 @@ subtest 'Workspaces' => sub {
                 name => 'GLOBAL',
                 description => 'Global workspace. Ancestor of all workspaces.',
                 role => 'rw',
-                parent_id => undef,
+                parent_workspace_id => undef,
             }]);
 
     $workspace_data{test_user} = $t->tx->res->json->{workspaces};
@@ -205,7 +205,7 @@ subtest 'Sub-Workspace' => sub {
             id          => re(Conch::UUID::UUID_FORMAT),
             name        => 'child_ws',
             description => 'one level of workspaces',
-            parent_id   => $global_ws_id,
+            parent_workspace_id => $global_ws_id,
             role        => 'admin',
             role_via    => $global_ws_id,
         });
@@ -241,7 +241,7 @@ subtest 'Sub-Workspace' => sub {
             id          => re(Conch::UUID::UUID_FORMAT),
             name        => 'grandchild_ws',
             description => 'two levels of subworkspaces',
-            parent_id   => $child_ws_id,
+            parent_workspace_id => $child_ws_id,
             role        => 'admin',
             role_via    => $global_ws_id,
         });
@@ -297,14 +297,14 @@ subtest 'Sub-Workspace' => sub {
                     id => $global_ws_id,
                     name => 'GLOBAL',
                     description => 'Global workspace. Ancestor of all workspaces.',
-                    parent_id => undef,
+                    parent_workspace_id => undef,
                     role => 'rw',
                 },
                 {
                     id => $child_ws_id,
                     name => 'child_ws',
                     description => 'one level of workspaces',
-                    parent_id => $global_ws_id,
+                    parent_workspace_id => $global_ws_id,
                     role => 'rw',
                     role_via => $global_ws_id,
                 },
@@ -312,7 +312,7 @@ subtest 'Sub-Workspace' => sub {
                     id => $grandchild_ws_id,
                     name => 'grandchild_ws',
                     description => 'two levels of subworkspaces',
-                    parent_id => $child_ws_id,
+                    parent_workspace_id => $child_ws_id,
                     role => 'rw',
                     role_via => $global_ws_id,
                 },
@@ -530,11 +530,11 @@ subtest 'Sub-Workspace' => sub {
 
     $workspace_data{untrusted_user} = [
         {
-            $workspace_data{conch}[1]->%{qw(id name description parent_id)},
+            $workspace_data{conch}[1]->%{qw(id name description parent_workspace_id)},
             role => 'ro',
         },
         {
-            $workspace_data{conch}[2]->%{qw(id name description parent_id)},
+            $workspace_data{conch}[2]->%{qw(id name description parent_workspace_id)},
             role => 'ro',
             role_via => $child_ws_id,
         },
@@ -555,7 +555,7 @@ subtest 'Sub-Workspace' => sub {
     $untrusted->authenticate(email => 'untrusted_user@conch.joyent.us', password => '123');
 
     # this user cannot be shown the GLOBAL workspace or its id
-    undef $workspace_data{untrusted_user}[0]{parent_id};
+    undef $workspace_data{untrusted_user}[0]{parent_workspace_id};
     delete $users{GLOBAL};
 
     $untrusted->get_ok('/workspace/GLOBAL')

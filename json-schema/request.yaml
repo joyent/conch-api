@@ -12,26 +12,26 @@ definitions:
       - location
     properties:
       vendor:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       region:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       vendor_name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       location:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
   DatacenterUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       vendor:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       region:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       vendor_name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       location:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
   DatacenterRoomCreate:
     type: object
     additionalProperties: false
@@ -43,11 +43,11 @@ definitions:
       datacenter_id:
         $ref: common.yaml#/definitions/uuid
       az:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       alias:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       vendor_name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
   DatacenterRoomUpdate:
     type: object
     additionalProperties: false
@@ -56,11 +56,11 @@ definitions:
       datacenter_id:
         $ref: common.yaml#/definitions/uuid
       az:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       alias:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       vendor_name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
   DeviceReport:
     $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
   RackCreate:
@@ -72,11 +72,15 @@ definitions:
       - rack_role_id
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       datacenter_room_id:
         $ref: common.yaml#/definitions/uuid
       rack_role_id:
         $ref: common.yaml#/definitions/uuid
+      serial_number:
+        $ref: common.yaml#/definitions/non_empty_string
+      asset_tag:
+        $ref: common.yaml#/definitions/non_empty_string
       phase:
         $ref: common.yaml#/definitions/device_phase
   RackUpdate:
@@ -85,7 +89,7 @@ definitions:
     minProperties: 1
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       datacenter_room_id:
         $ref: common.yaml#/definitions/uuid
       rack_role_id:
@@ -93,11 +97,11 @@ definitions:
       serial_number:
         oneOf:
           - type: 'null'
-          - type: string
+          - $ref: common.yaml#/definitions/non_empty_string
       asset_tag:
         oneOf:
           - type: 'null'
-          - type: string
+          - $ref: common.yaml#/definitions/non_empty_string
       phase:
         $ref: common.yaml#/definitions/device_phase
   RackAssignmentUpdates:
@@ -167,7 +171,7 @@ definitions:
     minProperties: 1
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       rack_size:
         $ref: common.yaml#/definitions/positive_integer
   RackLayoutCreate:
@@ -323,7 +327,7 @@ definitions:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       prefix:
         oneOf:
-          - type: string
+          - $ref: common.yaml#/definitions/non_empty_string
           - type: 'null'
       hardware_vendor_id:
         $ref: common.yaml#/definitions/uuid
@@ -335,10 +339,10 @@ definitions:
       sku:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       generation_name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       legacy_product_name:
         oneOf:
-          - type: string
+          - $ref: common.yaml#/definitions/non_empty_string
           - type: 'null'
       rack_unit_size:
         $ref: common.yaml#/definitions/positive_integer
@@ -380,7 +384,7 @@ definitions:
       - password
     properties:
       password:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
   NewUser:
     type: object
     additionalProperties: false
@@ -389,11 +393,11 @@ definitions:
       - email
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       email:
         $ref: common.yaml#/definitions/email_address
       password:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       is_admin:
         type: boolean
   UpdateUser:
@@ -402,7 +406,7 @@ definitions:
     minProperties: 1
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       email:
         $ref: common.yaml#/definitions/email_address
       is_admin:
@@ -424,7 +428,7 @@ definitions:
       - name
     properties:
       name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
   WorkspaceAddRack:
     type: object
     additionalProperties: false
@@ -434,9 +438,9 @@ definitions:
       id:
         $ref: common.yaml#/definitions/uuid
       serial_number:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       asset_tag:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
   WorkspaceCreate:
     type: object
     additionalProperties: false
@@ -505,7 +509,7 @@ definitions:
   DeviceSettings:
     type: object
     additionalProperties:
-      type: string
+      $ref: common.yaml#/definitions/non_empty_string
     minProperties: 1
     propertyNames:
       $ref: common.yaml#/definitions/device_setting_key
@@ -518,7 +522,7 @@ definitions:
       serial:
         $ref: common.yaml#/definitions/relay_serial_number
       name:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       version:
         description: usually a git commit SHA
         type: string

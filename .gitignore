@@ -1,7 +1,4 @@
 # Temporary, backup, dependency, and object files
-*.o
-*.bs
-/_eumm/
 *.swp
 *.tmp
 *.bak
@@ -9,29 +6,16 @@ tags
 .lvimrc
 .agignore
 .DS_Store
-
 .ackrc
 .vimlocal
 
-CHANGELOG.md
-
 # Conch
-conch.conf
-report
-log
-bin/hypnotoad.pid
-nytprof
-nytprof.log
+/conch.conf
+/log
+/bin/hypnotoad.pid
+/nytprof
+/nytprof.log
+/local/
 
-# Carton-installed dependency folder
-local/
-
-
-# deploy files
-deploy/site.retry
-deploy/staging
-deploy/production
-deploy/.vault_pass
-
-# used by the docker-compse file
-postgres
+# used by the docker-compose file
+/postgres

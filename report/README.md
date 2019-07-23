@@ -30,5 +30,3 @@ define the phases and assets for Manta job. The job directory can contain
 scripts and supporting files to be used in the Manta job. The entire directory
 will be uploaded to Manta, and assets can be used in a Manta phase with the
 `"assets"` property in `job.json`.
-
-

@@ -2,7 +2,6 @@ package Conch::Controller::WorkspaceRack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Text::CSV_XS;
 use List::Util 'reduce';
 
 =pod
@@ -105,121 +104,6 @@ sub find_rack ($c) {
     return 1;
 }
 
-=head2 get_layout
-
-Get the layout of the indicated rack.
-Supports json, csv formats.
-
-Response uses the WorkspaceRack json schema.
-
-=cut
-
-sub get_layout ($c) {
-    my $format = $c->accepts('json', 'csv');
-
-    if ($format eq 'json') {
-        my $layout_rs = $c->stash('rack_rs')
-            ->search(undef,
-                {
-                    columns => {
-                        (map +($_ => 'rack.'.$_), qw(id name phase)),
-                        role_name => 'rack_role.name',
-                        rack_size => 'rack_role.rack_size',
-                        datacenter => 'datacenter_room.az',
-                        'layout.rack_unit_start' => 'rack_layouts.rack_unit_start',
-                        (map +('layout.'.$_ => 'hardware_product.'.$_), qw(alias id name)),
-                        'layout.vendor' => 'hardware_vendor.name',
-                        'layout.rack_unit_size' => 'hardware_product.rack_unit_size',
-                        (map +('layout.device.'.$_ => 'device.'.$_), $c->schema->source('device')->columns),
-                    },
-                    join => [
-                        'rack_role',
-                        'datacenter_room',
-                        { rack_layouts => [
-                            { device_location => 'device' },
-                            { hardware_product => 'hardware_vendor' },
-                          ] },
-                    ],
-                    order_by => 'rack_layouts.rack_unit_start',
-                },
-            );
-
-        my @raw_data = $layout_rs->hri->all;
-        my $device_class = $c->db_devices->result_class;
-        my $rsrc = $c->schema->source('device');
-
-        my $layout = {
-            (map +($_ => $raw_data[0]->{$_}), qw(id name role_name rack_size datacenter phase)),
-            slots => [
-                map {
-                    my $device = delete $_->{layout}{device};
-                    +{
-                        $_->{layout}->%*,
-                        occupant => $device ? +{
-                            $device_class->inflate_result($rsrc, $device)->TO_JSON->%*,
-                            rack_id => $c->stash('rack_id'),
-                            rack_unit_start => $_->{layout}{rack_unit_start},
-                        } : undef,
-                    }
-                } @raw_data
-            ],
-        };
-
-        $c->log->debug('Found rack layouts for rack id '.$layout->{id});
-        return $c->status(200, $layout);
-    }
-    elsif ($format eq 'csv') {
-        my $layout_rs = $c->stash('rack_rs')
-            ->search(undef,
-                {
-                    columns => {
-                        az => 'datacenter_room.az',
-                        rack_name => 'rack.name',
-                        rack_unit_start => 'rack_layouts.rack_unit_start',
-                        hardware_name => 'hardware_product.name',
-                        device_asset_tag => 'device.asset_tag',
-                        device_serial_number => 'device.serial_number',
-                    },
-                    join => [
-                        'datacenter_room',
-                        { rack_layouts => [
-                            'hardware_product',
-                            { device_location => 'device' },
-                          ] },
-                    ],
-                    order_by => 'rack_layouts.rack_unit_start',
-                },
-            );
-
-        # TODO: at a future time, this will be moved to a utility class
-        # which will take in a resultset and list of header names and
-        # generate a csv response.
-
-        my @raw_data = $layout_rs->hri->all;
-
-        # specify the desired order of the columns
-        my @headers = qw(az rack_name rack_unit_start hardware_name device_asset_tag device_serial_number);
-
-        my $csv_content;
-        open my $fh, '>:encoding(UTF-8)', \$csv_content
-            or die "could not open fh for writing to scalarref: $!";
-        my $csv = Text::CSV_XS->new({ binary => 1, eol => $/ });
-        $csv->column_names(@headers);
-        $csv->print($fh, \@headers);
-        $csv->print_hr($fh, $_) for @raw_data;
-        close $fh or die "could not close $fh: $!";
-
-        $c->log->debug('Found rack layouts for rack id '.$c->stash('rack_id'));
-
-        $c->res->code(200);
-        $c->respond_to(csv => { text => $csv_content });
-        return;
-    }
-    else {
-        return $c->status(406, { error => 'requested unknown format '.$format });
-    }
-}
-
 =head2 add
 
 Add a rack to a workspace, unless it is the GLOBAL workspace, provided the rack
@@ -261,7 +145,7 @@ sub add ($c) {
         $rack->update({ updated => \'now()' }) if $rack->is_changed;
     }
 
-    $c->status(303, '/workspace/'.$c->stash('workspace_id').'/rack/'.$rack_id);
+    $c->status(303, '/workspace/'.$c->stash('workspace_id').'/rack');
 }
 
 =head2 remove

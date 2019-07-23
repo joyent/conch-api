@@ -85,6 +85,11 @@ __PACKAGE__->table("user_account");
   default_value: false
   is_nullable: 0
 
+=head2 last_seen
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -118,6 +123,8 @@ __PACKAGE__->add_columns(
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "is_admin",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "last_seen",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -196,7 +203,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oCbg42AWlr5N3Qt7+pLmKA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V1hIBHgsrrsR+UYtGDMI9g
 
 use DBIx::Class::PassphraseColumn 0.04 ();
 __PACKAGE__->load_components('PassphraseColumn');

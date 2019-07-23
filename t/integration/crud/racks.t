@@ -68,6 +68,7 @@ $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
         rack_role_id => $rack->rack_role_id,
+        serial_number => 'abc',
     })
     ->status_is(303);
 
@@ -79,7 +80,7 @@ $t->get_ok($t->tx->res->headers->location)
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
         rack_role_id => $rack->rack_role_id,
-        serial_number => undef,
+        serial_number => 'abc',
         asset_tag => undef,
         phase => 'integration',
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),

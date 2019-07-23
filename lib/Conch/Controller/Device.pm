@@ -27,7 +27,7 @@ sub find_device ($c) {
     if ($identifier = $c->stash('device_id')) {
         $rs = $rs->search({ id => $identifier });
     }
-    elsif ($identifier= $c->stash('device_serial_number')) {
+    elsif ($identifier = $c->stash('device_serial_number')) {
         $rs = $rs->search({ serial_number => $identifier });
     }
     elsif ($identifier = $c->stash('device_id_or_serial_number')) {

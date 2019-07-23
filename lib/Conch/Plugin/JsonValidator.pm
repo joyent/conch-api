@@ -54,7 +54,7 @@ QueryParamsValidationError json response schema.
         my $schema = $validator->get('/definitions/'.$schema_name);
 
         if (not $schema) {
-            Mojo::Exception->throw("unable to locate query_params schema $schema");
+            Mojo::Exception->throw("unable to locate query_params schema $schema_name");
             return;
         }
 
@@ -87,7 +87,7 @@ using the RequestValidationError json response schema.
         my $schema = $validator->get('/definitions/'.$schema_name);
 
         if (not $schema) {
-            Mojo::Exception->throw("unable to locate request schema $schema");
+            Mojo::Exception->throw("unable to locate request schema $schema_name");
             return;
         }
 

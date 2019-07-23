@@ -38,14 +38,19 @@ isa_ok($t->tx->res->cookie('conch'), 'Mojo::Cookie::Response');
 
 my $conch_user = $t->app->db_user_accounts->search({ name => $t->CONCH_USER })->single;
 
-ok($conch_user->last_login >= $now, 'user last_login is updated')
-    or diag('last_login not updated: '.$conch_user->last_login.' is not updated to '.$now);
+ok($conch_user->last_login >= $now, 'user last_login is updated');
+ok($conch_user->last_seen >= $now, 'user last_seen is updated');
 
+$now = Conch::Time->now;
+
+$t->get_ok('/me')
+    ->status_is(204);
+
+$conch_user->discard_changes;
+ok($conch_user->last_login < $now, 'user last_login is not updated with normal auth');
+ok($conch_user->last_seen >= $now, 'user last_seen is updated');
 
 subtest 'User' => sub {
-    $t->get_ok('/me')
-        ->status_is(204);
-
     $t->get_ok('/user/me/settings')
         ->status_is(200)
         ->json_schema_is('UserSettings')
@@ -243,11 +248,11 @@ subtest 'JWT authentication' => sub {
     $t->reset_session;
     # we're going to be cheeky here and hack the JWT to doctor it...
     # this only works because we have access to the symmetric secret embedded in the app.
-    my $jwt_claims = Mojo::JWT->new(secret => $t->app->config('secrets')->[0])->decode($jwt_token);
+    my $jwt_claims = Mojo::JWT->new(secret => $t->app->secrets->[0])->decode($jwt_token);
     my $bad_user_id = create_uuid_str();
     my $hacked_jwt_token = Mojo::JWT->new(
         claims => { $jwt_claims->%{token_id}, user_id => $bad_user_id },
-        secret => $t->app->config('secrets')->[0],
+        secret => $t->app->secrets->[0],
         expires => $jwt_claims->{exp},
     )->encode;
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$hacked_jwt_token })
@@ -367,6 +372,7 @@ subtest 'modify another user' => sub {
             email => 'foo@conch.joyent.us',
             created => $new_user->created,
             last_login => undef,
+            last_seen => undef,
             refuse_session_auth => JSON::PP::false,
             force_password_change => JSON::PP::false,
             is_admin => JSON::PP::false,

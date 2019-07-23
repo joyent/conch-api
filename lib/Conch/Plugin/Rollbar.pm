@@ -39,7 +39,6 @@ Rollbar entry thus created.
             if (my $exception = $c->stash('exception')
                     or ($template and $template =~ /exception/)) {
                 $exception //= $args->{exception};
-                $exception->verbose(1);
                 my $rollbar_id = $c->send_exception_to_rollbar($exception);
                 $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
             }
@@ -70,9 +69,6 @@ sub _record_exception ($c, $exception, @) {
         pre  => [ map $_->[1], $exception->lines_before->@* ],
         post => [ map $_->[1], $exception->lines_after->@* ],
     };
-
-    # keep value from stash more compact
-    $exception->verbose(0);
 
     my $user = $c->stash('user');
 

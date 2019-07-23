@@ -519,7 +519,8 @@ CREATE TABLE public.user_account (
     deactivated timestamp with time zone,
     refuse_session_auth boolean DEFAULT false NOT NULL,
     force_password_change boolean DEFAULT false NOT NULL,
-    is_admin boolean DEFAULT false NOT NULL
+    is_admin boolean DEFAULT false NOT NULL,
+    last_seen timestamp with time zone
 );
 
 

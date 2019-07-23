@@ -107,7 +107,7 @@ Given a session token, generate a JWT for it.
         generate_jwt_from_token => sub ($c, $session_token) {
             return Mojo::JWT->new(
                 claims => { user_id => $session_token->user_id, token_id => $session_token->id },
-                secret => $c->app->config('secrets')->[0],
+                secret => $c->app->secrets->[0],
                 expires => $session_token->expires->epoch,
             )->encode;
         },

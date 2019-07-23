@@ -15,4 +15,3 @@ docker run \
 	test \
 && \
 docker push ${PREFIX}/conch-api:${LABEL}
-

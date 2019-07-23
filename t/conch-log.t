@@ -373,6 +373,7 @@ sub add_test_routes ($app) {
 
     $t->post_ok('/die?query_param=value0', json => { body_param => 'value1' })
         ->status_is(500);
+    my $post_line = __LINE__ - 2;
 
     cmp_deeply(
         decode_json((split(/\n/, $fake_log_file))[-1]),
@@ -402,7 +403,7 @@ sub add_test_routes ($app) {
                 body => { error => 'An exception occurred' },
             },
             err => {
-                msg => 'ach, I am slain at '.__FILE__." line $lines{die}.\n",
+                msg => re(qr/^ach, I am slain at ${\__FILE__} line $lines{die}\.$/m),
                 frames => all(
                     array_each({
                         class => ignore,
@@ -415,12 +416,12 @@ sub add_test_routes ($app) {
                             class => 'main',
                             file => __FILE__,
                             func => 'Test::Mojo::post_ok',
-                            line => ignore,
+                            line => $post_line,
                         },
                         {
                             class => 'main',
                             file => __FILE__,
-                            func => re('__ANON__'),
+                            func => ignore,
                             line => $lines{die},
                         },
                     ),
@@ -567,6 +568,7 @@ sub add_test_routes ($app) {
 
     $t->post_ok('/die?query_param=value0', json => { body_param => 'value1' })
         ->status_is(500);
+    my $post_line = __LINE__ - 2;
 
     cmp_deeply(
         decode_json((split(/\n/, $fake_log_file))[-1]),
@@ -597,7 +599,7 @@ sub add_test_routes ($app) {
                 body => { error => 'An exception occurred' },
             },
             err => {
-                msg => 'ach, I am slain at '.__FILE__." line $lines{die}.\n",
+                msg => re(qr/^ach, I am slain at ${\__FILE__} line $lines{die}\.$/m),
                 frames => all(
                     array_each({
                         class => ignore,
@@ -610,12 +612,12 @@ sub add_test_routes ($app) {
                             class => 'main',
                             file => __FILE__,
                             func => 'Test::Mojo::post_ok',
-                            line => ignore,
+                            line => $post_line,
                         },
                         {
                             class => 'main',
                             file => __FILE__,
-                            func => re('__ANON__'),
+                            func => ignore,
                             line => $lines{die},
                         },
                     ),

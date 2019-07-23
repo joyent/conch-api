@@ -2,9 +2,9 @@ package Conch::Controller::Login;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use Try::Tiny;
 use Conch::UUID 'is_uuid';
 use Time::HiRes ();
+use Authen::Passphrase::RejectAll;
 
 =pod
 
@@ -70,12 +70,9 @@ sub authenticate ($c) {
         # Attempt to decode with every configured secret, in case JWT token was
         # signed with a rotated secret
         my $jwt_claims;
-        for my $secret ($c->app->config('secrets')->@*) {
+        for my $secret ($c->app->secrets->@*) {
             # Mojo::JWT->decode blows up if the token is invalid
-            try {
-                $jwt_claims = Mojo::JWT->new(secret => $secret)->decode($token);
-            };
-            last if $jwt_claims;
+            $jwt_claims = eval { Mojo::JWT->new(secret => $secret)->decode($token) } and last;
         }
 
         if (not $jwt_claims or not $jwt_claims->{user_id} or not is_uuid($jwt_claims->{user_id}
@@ -117,6 +114,8 @@ sub authenticate ($c) {
     if ($user_id) {
         $c->log->debug('looking up user by id '.$user_id.'...');
         if (my $user = $c->db_user_accounts->active->find($user_id)) {
+            $user->update({ last_seen => \'now()' });
+
             # api tokens are exempt from this check
             if ((not $session_token or $session_token->is_login)
                     and $user->refuse_session_auth) {
@@ -187,7 +186,8 @@ sub session_login ($c) {
         $c->log->info('user '.$user->name.' logging in with one-time insecure password');
         $user->update({
             last_login => \'now()',
-            password => $c->random_string,    # ensure password cannot be used again
+            last_seen => \'now()',
+            password => Authen::Passphrase::RejectAll->new, # ensure password cannot be used again
         });
         # password must be reset within 10 minutes
         $c->session(expires => time + 10 * 60);
@@ -200,6 +200,7 @@ sub session_login ($c) {
     # allow the user to use session auth again
     $user->update({
         last_login => \'now()',
+        last_seen => \'now()',
         refuse_session_auth => 0,
     });
 

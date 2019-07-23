@@ -187,7 +187,6 @@ Include information about the user's permissions, if available.
 
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
-    $data->{parent_id} = delete $data->{parent_workspace_id};
 
     # check for column that would have been added via
     # Conch::DB::ResultSet::Workspace::with_role_via_data_for_user

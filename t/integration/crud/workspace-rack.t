@@ -56,12 +56,6 @@ $t->get_ok("/workspace/$global_ws_id/rack")
          ],
     });
 
-$t->get_ok("/workspace/$global_ws_id/rack/notauuid")
-    ->status_is(404);
-
-$t->get_ok("/workspace/$global_ws_id/rack/".create_uuid_str())
-    ->status_is(404);
-
 subtest 'Add rack to workspace' => sub {
     $t->post_ok("/workspace/$sub_ws_id/rack")
         ->json_schema_is('RequestValidationError')
@@ -73,7 +67,7 @@ subtest 'Add rack to workspace' => sub {
             asset_tag => 'deadbeef',
         })
         ->status_is(303)
-        ->location_is("/workspace/$sub_ws_id/rack/$rack_id");
+        ->location_is("/workspace/$sub_ws_id/rack");
 
     $t->get_ok("/workspace/$sub_ws_id/rack")
         ->status_is(200)
@@ -90,57 +84,6 @@ subtest 'Add rack to workspace' => sub {
                 },
              ],
         });
-
-    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRack')
-        ->json_cmp_deeply({
-            id => $rack_id,
-            name => 'rack 0a',
-            role_name => 'rack_role 42U',
-            rack_size => 42,
-            datacenter => $room->az,
-            phase => 'integration',
-            slots => [
-                {
-                    id => re(Conch::UUID::UUID_FORMAT),
-                    name => $hardware_product_compute->name,
-                    alias => $hardware_product_compute->alias,
-                    vendor => $hardware_product_compute->hardware_vendor->name,
-                    rack_unit_start => 1,
-                    rack_unit_size => 2,
-                    occupant => undef,
-                },
-                {
-                    id => re(Conch::UUID::UUID_FORMAT),
-                    name => $hardware_product_storage->name,
-                    alias => $hardware_product_storage->alias,
-                    vendor => $hardware_product_storage->hardware_vendor->name,
-                    rack_unit_start => 3,
-                    rack_unit_size => 4,
-                    occupant => undef,
-                },
-                {
-                    id => re(Conch::UUID::UUID_FORMAT),
-                    name => $hardware_product_storage->name,
-                    alias => $hardware_product_storage->alias,
-                    vendor => $hardware_product_storage->hardware_vendor->name,
-                    rack_unit_start => 11,
-                    rack_unit_size => 4,
-                    occupant => undef,
-                },
-            ],
-        });
-
-    $t->get_ok("/workspace/$global_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
-        ->status_is(200)
-        ->content_is(<<CSV);
-az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number
-room-0a,"rack 0a",1,${\ $hardware_product_compute->name},,
-room-0a,"rack 0a",3,${\ $hardware_product_storage->name},,
-room-0a,"rack 0a",11,${\ $hardware_product_storage->name},,
-CSV
-
 
     subtest 'Cannot modify GLOBAL workspace' => sub {
         $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
@@ -173,55 +116,32 @@ subtest 'Assign device to a location' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceLocation');
 
-    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
+    $t->get_ok('/rack/'.$rack_id.'/assignment')
         ->status_is(200)
-        ->json_schema_is('WorkspaceRack')
-        ->json_cmp_deeply({
-            id => $rack_id,
-            name => 'rack 0a',
-            role_name => 'rack_role 42U',
-            rack_size => 42,
-            datacenter => $room->az,
-            phase => 'integration',
-            slots => [
-                {
-                    id => re(Conch::UUID::UUID_FORMAT),
-                    name => $hardware_product_compute->name,
-                    alias => $hardware_product_compute->alias,
-                    vendor => $hardware_product_compute->hardware_vendor->name,
-                    rack_unit_start => 1,
-                    rack_unit_size => 2,
-                    occupant => superhashof({ id => $test->id }),
-                },
-                {
-                    id => re(Conch::UUID::UUID_FORMAT),
-                    name => $hardware_product_storage->name,
-                    alias => $hardware_product_storage->alias,
-                    vendor => $hardware_product_storage->hardware_vendor->name,
-                    rack_unit_start => 3,
-                    rack_unit_size => 4,
-                    occupant => superhashof({ id => $new_device->id }),
-                },
-                {
-                    id => re(Conch::UUID::UUID_FORMAT),
-                    name => $hardware_product_storage->name,
-                    alias => $hardware_product_storage->alias,
-                    vendor => $hardware_product_storage->hardware_vendor->name,
-                    rack_unit_start => 11,
-                    rack_unit_size => 4,
-                    occupant => undef,
-                },
-            ],
-        });
-
-    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id" => { Accept => 'text/csv' })
-        ->status_is(200)
-        ->content_is(<<CSV);
-az,rack_name,rack_unit_start,hardware_name,device_asset_tag,device_serial_number
-room-0a,"rack 0a",1,${\ $hardware_product_compute->name},,TEST
-room-0a,"rack 0a",3,${\ $hardware_product_storage->name},,NEW_DEVICE
-room-0a,"rack 0a",11,${\ $hardware_product_storage->name},,
-CSV
+        ->json_schema_is('RackAssignments')
+        ->json_is([
+            {
+                rack_unit_start => 1,
+                rack_unit_size => 2,
+                device_id => $test->id,
+                device_asset_tag => undef,
+                hardware_product_name => $hardware_product_compute->name,
+            },
+            {
+                rack_unit_start => 3,
+                rack_unit_size => 4,
+                device_id => $new_device->id,
+                device_asset_tag => undef,
+                hardware_product_name => $hardware_product_storage->name,
+            },
+            {
+                rack_unit_start => 11,
+                rack_unit_size => 4,
+                device_id => undef,
+                device_asset_tag => undef,
+                hardware_product_name => $hardware_product_storage->name,
+            },
+        ]);
 
     $t->post_ok('/device/NEW_DEVICE/validated')
         ->status_is(303);
@@ -247,8 +167,10 @@ subtest 'Remove rack from workspace' => sub {
     $t->delete_ok("/workspace/$sub_ws_id/rack/$rack_id")
         ->status_is(204);
 
-    $t->get_ok("/workspace/$sub_ws_id/rack/$rack_id")
-        ->status_is(404);
+    $t->get_ok("/workspace/$sub_ws_id/rack")
+        ->status_is(200)
+        ->json_schema_is('WorkspaceRackSummary')
+        ->json_is({});
 
     $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
         ->status_is(400)

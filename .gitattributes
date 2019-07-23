@@ -1,3 +1,7 @@
-*.pl linguist-language=Perl
-*.pm linguist-language=Perl
-*.t linguist-language=Perl
+*.pl linguist-language=Perl whitespace=trailing-space,space-before-tab,tab-in-indent
+*.pm linguist-language=Perl whitespace=trailing-space,space-before-tab,tab-in-indent
+*.t linguist-language=Perl whitespace=trailing-space,space-before-tab,tab-in-indent
+Makefile whitespace=trailing-space,space-before-tab,-tab-in-indent
+/docker whitespace=trailing-space,space-before-tab,-tab-in-indent
+/Dockerfile* whitespace=trailing-space,space-before-tab,-tab-in-indent
+sql/schema.sql whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,tab-in-indent

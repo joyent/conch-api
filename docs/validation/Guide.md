@@ -29,11 +29,11 @@ Guide: Writing, Deploying, and Testing a Conch Validation
    the validation is available on the system and via the API.
 5. Using the [Conch Shell CLI tool](https://github.com/joyent/conch-shell), you
    can do the following:
-	1. List available validations. `conch validations`
-	2. Test a validation against a device using supplied data. `conch
-	   validation VALIDATION_ID test DEVICE_ID`
-	3. Add a validation to a validation plan. `conch validation-plan
-	   VALIDATION_PLAN add-validation VALIDATION_ID`
+    1. List available validations. `conch validations`
+    2. Test a validation against a device using supplied data. `conch
+       validation VALIDATION_ID test DEVICE_ID`
+    3. Add a validation to a validation plan. `conch validation-plan
+       VALIDATION_PLAN add-validation VALIDATION_ID`
 
 Documentation for the [Validation base class](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md)
 and [Validation test harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md)
@@ -113,9 +113,9 @@ of the data input to the validation. Like so:
 
 ```perl
 sub validate {
-	my ($self, $data) = @_;
-	# assuming the input data has a 'product_name' field
-	my $product_name = $data->{product_name};
+    my ($self, $data) = @_;
+    # assuming the input data has a 'product_name' field
+    my $product_name = $data->{product_name};
 }
 ```
 
@@ -163,23 +163,23 @@ has 'category' => 'EXAMPLE';
 has 'description' => q(A basic example of a validation.);
 
 sub validate {
-	my ($self, $data) = @_;
-	my $power = $data->{power};
+    my ($self, $data) = @_;
+    my $power = $data->{power};
 
-	$self->die("'power' key is required in the input data") unless defined($power);
-	$self->die("'power' value must be a hash") unless ref($power) eq 'HASH';
+    $self->die("'power' key is required in the input data") unless defined($power);
+    $self->die("'power' value must be a hash") unless ref($power) eq 'HASH';
 
-	my $gigawatts = $power->{gigawatts};
+    my $gigawatts = $power->{gigawatts};
 
-	$self->die("'gigawatts' is required in the input data") unless defined($gigawatts);
-	$self->die("'gigawatts' must be a number') unless ( $gigawatts =~ /\d+(\.\d+)?/ );
+    $self->die("'gigawatts' is required in the input data") unless defined($gigawatts);
+    $self->die("'gigawatts' must be a number') unless ( $gigawatts =~ /\d+(\.\d+)?/ );
 
-	$self->register_result(
-		expected => 1.21,
-		got      => $gigawatts,
-		cmp      => '>=',
-		hint     => 'We require at least 1.21 gigawatts of power for this device'
-	);
+    $self->register_result(
+        expected => 1.21,
+        got      => $gigawatts,
+        cmp      => '>=',
+        hint     => 'We require at least 1.21 gigawatts of power for this device'
+    );
 }
 
 1;
@@ -238,22 +238,22 @@ has 'category' => 'EXAMPLE';
 has 'description' => q(A basic example of a validation.);
 
 sub validate {
-	my ($self, $data) = @_;
-	# we can safely assume this hash path is present because it was verified with the schema
-	my $gigawatts = $data->{power}->{gigawatts};
+    my ($self, $data) = @_;
+    # we can safely assume this hash path is present because it was verified with the schema
+    my $gigawatts = $data->{power}->{gigawatts};
 
-	my $expected_gigawatts;
-	if ($self->hardware_product_name eq 'DMC-12') {
-		$expected_gigawatts = 1.21 * $self->hardware_product_profile->psu_total;
-	} else {
-		$expected_gigawatts = 1.21;
-	}
-	$self->register_result(
-		expected => $expected_gigawatts,
-		got      => $gigawatts,
-		cmp      => '>=',
-		hint     => "We require at least $expected_gigawatts gigawatts for this device"
-	);
+    my $expected_gigawatts;
+    if ($self->hardware_product_name eq 'DMC-12') {
+        $expected_gigawatts = 1.21 * $self->hardware_product_profile->psu_total;
+    } else {
+        $expected_gigawatts = 1.21;
+    }
+    $self->register_result(
+        expected => $expected_gigawatts,
+        got      => $gigawatts,
+        cmp      => '>=',
+        hint     => "We require at least $expected_gigawatts gigawatts for this device"
+    );
 }
 
 1;
@@ -289,40 +289,40 @@ use Test::More;
 use Test::Conch::Validation 'test_validation';
 
 test_validation(
-	'Conch::Validation::MyValidation',
-	hardware_product => { name => 'Test Product' },
-	cases => [
-		{
-			description => 'Providing no input data dies',
-			data        => {},
-			dies        => 1
-		},
-		{
-			description => 'If 'power' is not a hash, it dies',
-			data        => { power => 'bad power'},
-			dies        => 1
-		},
-		{
-			description => 'If 'gigawatts' is not a number, it dies',
-			data        => { power => { gigawatts => 'bad' } },
-			dies        => 1
-		},
-		{
-			description => 'If 'gigawatts' is not at least 1.21, it fails',
-			data        => { power => { gigawatts => 1.00 } },
-			failure_num => 1
-		},
-		{
-			description => 'If 'gigawatts' is exactly least 1.21, it passes',
-			data        => { power => { gigawatts => 1.21 } },
-			success_num => 1
-		},
-		{
-			description => 'If 'gigawatts' is more than 1.21, it passes',
-			data        => { power => { gigawatts => 1.22 } },
-			success_num => 1
-		},
-	]
+    'Conch::Validation::MyValidation',
+    hardware_product => { name => 'Test Product' },
+    cases => [
+        {
+            description => 'Providing no input data dies',
+            data        => {},
+            dies        => 1
+        },
+        {
+            description => 'If 'power' is not a hash, it dies',
+            data        => { power => 'bad power'},
+            dies        => 1
+        },
+        {
+            description => 'If 'gigawatts' is not a number, it dies',
+            data        => { power => { gigawatts => 'bad' } },
+            dies        => 1
+        },
+        {
+            description => 'If 'gigawatts' is not at least 1.21, it fails',
+            data        => { power => { gigawatts => 1.00 } },
+            failure_num => 1
+        },
+        {
+            description => 'If 'gigawatts' is exactly least 1.21, it passes',
+            data        => { power => { gigawatts => 1.21 } },
+            success_num => 1
+        },
+        {
+            description => 'If 'gigawatts' is more than 1.21, it passes',
+            data        => { power => { gigawatts => 1.22 } },
+            success_num => 1
+        },
+    ]
 );
 
 done_testing;
@@ -342,29 +342,29 @@ In the same file, after the `test_validation()` call and before
 
 ```perl
 test_validation(
-	'Conch::Validation::MyValidation',
-	hardware_product => {
-		name => 'DMC-12',
-		# profile has 2 PSUs
-		profile => { psu_total => 2 },
-	},
-	cases => [
-		{
-			description => 'If 'gigawatts' is 1.21, it fails',
-			data        => { power => { gigawatts => 1.21 } },
-			failure_num => 1
-		},
-		{
-			description => 'If 'gigawatts' is exactly 2 * 1.21 = 2.42, it passes',
-			data        => { power => { gigawatts => 2.42 } },
-			success_num => 1
-		},
-		{
-			description => 'If 'gigawatts' is more than 2.42, it passes',
-			data        => { power => { gigawatts => 2.5 } },
-			success_num => 1
-		},
-	]
+    'Conch::Validation::MyValidation',
+    hardware_product => {
+        name => 'DMC-12',
+        # profile has 2 PSUs
+        profile => { psu_total => 2 },
+    },
+    cases => [
+        {
+            description => 'If 'gigawatts' is 1.21, it fails',
+            data        => { power => { gigawatts => 1.21 } },
+            failure_num => 1
+        },
+        {
+            description => 'If 'gigawatts' is exactly 2 * 1.21 = 2.42, it passes',
+            data        => { power => { gigawatts => 2.42 } },
+            success_num => 1
+        },
+        {
+            description => 'If 'gigawatts' is more than 2.42, it passes',
+            data        => { power => { gigawatts => 2.5 } },
+            success_num => 1
+        },
+    ]
 );
 ```
 
@@ -399,10 +399,10 @@ the issue. For example:
 
 ```perl
 $self->register_result(
-	expected => $expected_temp,
-	got      => $temp,
-	cmp      => '<',
-	hint     => "This device is too hot! Make it cooler!"
+    expected => $expected_temp,
+    got      => $temp,
+    cmp      => '<',
+    hint     => "This device is too hot! Make it cooler!"
 );
 ```
 

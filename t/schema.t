@@ -354,6 +354,7 @@ $t->get_ok('/schema/request/HardwareProductCreate')
             map +($_ => superhashof({})), qw(
                 uuid
                 positive_integer
+                non_empty_string
                 mojo_standard_placeholder
                 HardwareProductUpdate
                 HardwareProductProfileCreate

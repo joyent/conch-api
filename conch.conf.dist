@@ -1,7 +1,8 @@
 {
-    # Secrets used for HMAC-signed (not encrypted!) cookies. Only the first is
-    # used to create new signatures, but all of them for verification. This
-    # is for rotating in new passphrases and rotating out old ones.
+    # Secrets used for HMAC-signed (not encrypted!) cookies and tokens. Only
+    # the first is used to create new signatures, but all of them for
+    # verification. This is for rotating in new passphrases and rotating out
+    # old ones.
     secrets => ["hunter2"],
 
     jwt => {

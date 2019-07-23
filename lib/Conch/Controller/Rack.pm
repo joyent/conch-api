@@ -266,7 +266,7 @@ sub set_assignment ($c) {
             # find device by id that we looked up before...
             if ($entry->{device_id} and my $device = $devices{$entry->{device_id}}) {
                 $device->serial_number($entry->{device_serial_number}) if $entry->{device_serial_number};
-                $device->asset_tag($entry->{device_asset_tag}) if $entry->{device_asset_tag};
+                $device->asset_tag($entry->{device_asset_tag}) if exists $entry->{device_asset_tag};
                 $device->update({ updated => \'now()' }) if $device->is_changed;
 
                 # we'll allow this as it will be caught by a validation later on,

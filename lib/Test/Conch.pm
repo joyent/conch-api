@@ -596,6 +596,10 @@ sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
         ]),
         $test_name,
     );
+    Test::More::note('got log: ',
+            Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Dump)
+        if not $self->success;
+    return $self;
 }
 
 sub log_debug_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'debug'); goto \&log_is }
