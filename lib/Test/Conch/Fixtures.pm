@@ -130,6 +130,21 @@ my %canned_definitions = (
         },
     },
 
+    ro_user_organization => {
+        new => 'user_organization_role',
+        using => { role => 'admin' },
+        requires => {
+            ro_user => { our => 'user_id', their => 'id' },
+            main_organization => { our => 'organization_id', their => 'id' },
+        },
+    },
+    main_organization => {
+        new => 'organization',
+        using => {
+            name => 'our first organization',
+        },
+    },
+
     hardware_vendor_0 => {
         new => 'hardware_vendor',
         using => {

@@ -278,7 +278,7 @@ Because hard cryptography is used, this is *not* a fast call!
 
 =head2 TO_JSON
 
-Include information about the user's workspaces, if available.
+Include information about the user's workspaces and organizations, if available.
 
 =cut
 
@@ -288,8 +288,22 @@ sub TO_JSON ($self) {
     # Mojo::JSON renders \0, \1 as json booleans
     $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change is_admin);
 
-    # add workspace data, if it has been prefetched
-    if (my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache) {
+    # add organization and workspace data, if they have been prefetched
+    # (we expect neither or both)
+    # (see also Conch::DB::Result::Organization::TO_JSON)
+    if (my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache
+        and my $cached_uors = $self->related_resultset('user_organization_roles')->get_cache) {
+
+        $data->{organizations} = [
+            map {
+                my $organization = $_->organization;
+                +{
+                    (map +($_ => $organization->$_), qw(id name description)),
+                    role => $_->role,
+                }
+            } $cached_uors->@*,
+        ];
+
         my %seen_workspaces;
         $data->{workspaces} = [
             # we process the direct uwr+workspace entries first so we do not produce redundant rows
@@ -298,9 +312,10 @@ sub TO_JSON ($self) {
                 +{
                     $_->workspace->TO_JSON->%*,
                     role => $_->role,
-                },
+                }
             } $cached_uwrs->@*),
 
+            # all the workspaces the user can reach indirectly
             (map +(
                 map +(
                     # $_ is a workspace where the user inherits a role

@@ -1489,6 +1489,7 @@ definitions:
       - force_password_change
       - is_admin
       - workspaces
+      - organizations
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1517,6 +1518,28 @@ definitions:
         type: boolean
       workspaces:
         $ref: /definitions/WorkspacesAndRoles
+      organizations:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - name
+            - description
+            - role
+          properties:
+            id:
+              $ref: common.yaml#/definitions/uuid
+            name:
+              $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+            description:
+              oneOf:
+                - type: 'null'
+                - type: string
+            role:
+              $ref: common.yaml#/definitions/role
   UsersDetailed:
     type: array
     uniqueItems: true

@@ -155,7 +155,7 @@ Because hard cryptography is used, this is \*not\* a fast call!
 
 ## TO\_JSON
 
-Include information about the user's workspaces, if available.
+Include information about the user's workspaces and organizations, if available.
 
 # LICENSING
 

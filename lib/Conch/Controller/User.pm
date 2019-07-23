@@ -326,11 +326,14 @@ Response uses the UserDetailed json schema.
 =cut
 
 sub get ($c) {
-    my $user = $c->stash('target_user')
-        ->discard_changes({
-            prefetch => { user_workspace_roles => 'workspace' },
-            order_by => ['workspace.name'],
-        });
+    my ($user) = $c->db_user_accounts
+        ->search({ 'user_account.id' => $c->stash('target_user')->id })
+        ->prefetch({
+                user_workspace_roles => 'workspace',
+                user_organization_roles => 'organization',
+            })
+        ->order_by([qw(workspace.name organization.name)])
+        ->all;
 
     return $c->status(200, $user) if $c->is_system_admin;
 
@@ -406,8 +409,11 @@ Response uses the UsersDetailed json schema.
 sub list ($c) {
     my $user_rs = $c->db_user_accounts
         ->active
-        ->prefetch({ user_workspace_roles => 'workspace' })
-        ->order_by([qw(user_account.name workspace.name)]);
+        ->prefetch({
+                user_workspace_roles => 'workspace',
+                user_organization_roles => 'organization',
+            })
+        ->order_by([qw(user_account.name workspace.name organization.name)]);
 
     return $c->status(200, [ $user_rs->all ]);
 }
