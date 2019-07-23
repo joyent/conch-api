@@ -39,7 +39,7 @@ project. All of these should be run in the top level directory.
 
 #### Needed Packages
 
-* PostgreSQL 10
+* PostgreSQL 10.9
 * Git
 * Perl, 5.26 or above (e.g. via [perlbrew](https://perlbrew.pl/))
 * [Carton](https://metacpan.org/dist/Carton)

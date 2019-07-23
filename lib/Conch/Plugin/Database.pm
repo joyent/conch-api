@@ -155,7 +155,7 @@ line of the exception.
     # are not aware of any issues on PostgreSQL 10.x.
     my ($major, $minor, $rest) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)(\.\d+)?\b/;
     $minor //= 0;
-    $app->log->warn("Running $major.$minor$rest, expected at least 9.6!") if "$major.$minor" < 9.6;
+    $app->log->warn("Running $major.$minor$rest, expected at least 10.9!") if "$major.$minor" < 10.9;
 
 
     my ($latest_migration, $expected_latest_migration) = Conch::DB::Util::get_migration_level($app->schema);
