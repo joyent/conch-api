@@ -160,11 +160,17 @@ sub get_sub_workspaces ($c) {
 Create a new subworkspace for the indicated workspace. The user is given the 'admin' role on
 the new workspace.
 
+Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
+to all parent workspace admins.
+
 Response uses the WorkspaceAndRole json schema.
 
 =cut
 
 sub create_sub_workspace ($c) {
+    my $params = $c->validate_query_params('NotifyUsers');
+    return if not $params;
+
     my $input = $c->validate_request('WorkspaceCreate');
     return if not $input;
 
@@ -185,6 +191,20 @@ sub create_sub_workspace ($c) {
     else {
         $sub_ws->create_related('user_workspace_role', { role => 'admin' });
         $sub_ws->role('admin');
+    }
+
+    if ($params->{send_mail} // 1) {
+        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))
+            ->admins('with_sysadmins')
+            ->search({ 'user_account.id' => { '!=' => $c->stash('user')->id } });
+        $c->send_mail(
+            template_file => 'workspace_subworkspace_create_admins',
+            To => $c->construct_address_list(@admins),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We added a child workspace to your workspace',
+            parent_workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
+            workspace => $input->{name},
+        ) if @admins;
     }
 
     $c->res->headers->location($c->url_for('/workspace/'.$sub_ws->id));

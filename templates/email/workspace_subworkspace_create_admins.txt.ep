@@ -1,0 +1,8 @@
+Hello,
+
+<%# TODO: we should specify the conch URL here %>\
+<%= $user->name %> (<%= $user->email %>) has created the "<%= $workspace %>" child workspace
+beneath the "<%= $parent_workspace %>" workspace at Joyent Conch.
+
+Thank you,
+Joyent Build Ops Team

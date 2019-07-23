@@ -190,7 +190,8 @@ subtest 'Sub-Workspace' => sub {
 
     $t->post_ok("/workspace/$global_ws_id/child", json => { name => 'GLOBAL' })
         ->status_is(409, 'Cannot create duplicate workspace')
-        ->json_is({ error => "workspace 'GLOBAL' already exists" });
+        ->json_is({ error => "workspace 'GLOBAL' already exists" })
+        ->email_not_sent;
 
     $t->post_ok("/workspace/$global_ws_id/child", json => {
             name        => 'child_ws',
@@ -204,7 +205,15 @@ subtest 'Sub-Workspace' => sub {
             description => 'one level of workspaces',
             parent_workspace_id => $global_ws_id,
             role        => 'admin',
-        });
+        })
+        ->email_cmp_deeply([
+            {
+                To => '"'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>',
+                From => 'noreply@conch.joyent.us',
+                Subject => 'We added a child workspace to your workspace',
+                body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) has created the "child_ws" child workspace\Rbeneath the "GLOBAL" workspace at Joyent Conch\./m),
+            },
+        ]);
 
     $t->location_is('/workspace/'.(my $child_ws_id = $t->tx->res->json->{id}));
     $workspace_data{conch}[1] = $t->tx->res->json;
@@ -298,7 +307,15 @@ subtest 'Sub-Workspace' => sub {
             parent_workspace_id => $child_ws_id,
             role        => 'admin',
             role_via    => $global_ws_id,
-        });
+        })
+        ->email_cmp_deeply([
+            {
+                To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>',
+                From => 'noreply@conch.joyent.us',
+                Subject => 'We added a child workspace to your workspace',
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has created the "grandchild_ws" child workspace\Rbeneath the "child_ws" workspace at Joyent Conch\./m),
+            },
+        ]);
 
     $t->location_is('/workspace/'.(my $grandchild_ws_id = $t->tx->res->json->{id}));
     $workspace_data{admin_user}[2] = $t->tx->res->json;
