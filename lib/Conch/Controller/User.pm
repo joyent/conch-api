@@ -327,7 +327,17 @@ sub get ($c) {
             prefetch => { user_workspace_roles => 'workspace' },
             order_by => ['workspace.name'],
         });
-    return $c->status(200, $user);
+
+    return $c->status(200, $user) if $c->is_system_admin;
+
+    my $user_data = $user->TO_JSON;
+    my %workspace_ids; @workspace_ids{map $_->{id}, $user_data->{workspaces}->@*} = ();
+    foreach my $ws ($user_data->{workspaces}->@*) {
+        undef $ws->{parent_workspace_id}
+            if $ws->{parent_workspace_id} and not exists $workspace_ids{$ws->{parent_workspace_id}};
+    }
+
+    return $c->status(200, $user_data);
 }
 
 =head2 update

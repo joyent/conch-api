@@ -635,6 +635,11 @@ subtest 'Sub-Workspace' => sub {
         ->json_schema_is('WorkspaceAndRole')
         ->json_is($workspace_data{untrusted_user}[1]);
 
+    $untrusted->get_ok('/workspace')
+        ->status_is(200)
+        ->json_schema_is('WorkspacesAndRoles')
+        ->json_is($workspace_data{untrusted_user});
+
     $untrusted->get_ok('/workspace/GLOBAL/user')
         ->status_is(403)
         ->log_debug_is('User lacks the required role (admin) for workspace GLOBAL');

@@ -78,21 +78,27 @@ Response uses the WorkspacesAndRoles json schema.
 =cut
 
 sub list ($c) {
-    my $rs = $c->db_workspaces;
     if ($c->is_system_admin) {
-        $rs = $rs->add_role_column('admin');
-    }
-    else {
-        my $direct_workspace_ids_rs = $c->stash('user')
-            ->related_resultset('user_workspace_roles')
-            ->distinct
-            ->get_column('workspace_id');
-        $rs = $rs
-            ->and_workspaces_beneath($direct_workspace_ids_rs)
-            ->with_role_via_data_for_user($c->stash('user_id'));
+        my $rs = $c->db_workspaces->add_role_column('admin');
+        return $c->status(200, [ $rs->all ]);
     }
 
-    $c->status(200, [ $rs->all ]);
+    my $direct_workspace_ids_rs = $c->stash('user')
+        ->related_resultset('user_workspace_roles')
+        ->distinct
+        ->get_column('workspace_id');
+    my @data = $c->db_workspaces
+        ->and_workspaces_beneath($direct_workspace_ids_rs)
+        ->with_role_via_data_for_user($c->stash('user_id'))
+        ->all;
+
+    my %workspace_ids; @workspace_ids{map $_->id, @data} = ();
+    foreach my $ws (@data) {
+        $ws->parent_workspace_id(undef)
+            if $ws->parent_workspace_id and not exists $workspace_ids{$ws->parent_workspace_id};
+    }
+
+    $c->status(200, \@data);
 }
 
 =head2 get

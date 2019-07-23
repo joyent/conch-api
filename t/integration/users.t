@@ -17,7 +17,8 @@ use Test::Memory::Cycle;
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
 my $ro_user = $t->load_fixture('ro_user');
-my $global_ws = $t->load_fixture('ro_user_global_workspace')->workspace;
+my $global_ws = $t->load_fixture('global_workspace');
+my $child_ws = $global_ws->create_related('workspaces', { name => 'child_ws', user_workspace_roles => [{ role => 'ro', user_id => $ro_user->id }] });
 
 $t->post_ok('/login', json => { email => 'a', password => 'b' })
     ->status_is(400)
@@ -165,14 +166,14 @@ subtest 'User' => sub {
                 force_password_change => JSON::PP::false,
                 is_admin => JSON::PP::false,
                 workspaces => [ {
-                    id => $global_ws->id,
-                    parent_workspace_id => undef,
-                    name => 'GLOBAL',
-                    description => $global_ws->description,
+                    (map +($_ => $child_ws->$_), qw(id name description)),
+                    parent_workspace_id => undef,   # user does not have the role to see GLOBAL
                     role => 'ro',
                 } ],
             });
         $user_detailed = $t2->tx->res->json;
+        # the superuser always sees parent workspace ids
+        $user_detailed->{workspaces}[0]{parent_workspace_id} = $child_ws->parent_workspace_id;
     }
 
     $t->get_ok('/user')
@@ -218,6 +219,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
+                workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -230,6 +232,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
+                workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -270,6 +273,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
+                workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -858,6 +862,7 @@ subtest 'user tokens (our own)' => sub {
         ->json_schema_is('UserDetailed')
         ->json_cmp_deeply({
             $user_detailed->%*,
+            workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
             last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         });
