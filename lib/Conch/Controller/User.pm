@@ -364,7 +364,8 @@ Response uses the UsersDetailed json schema.
 sub list ($c) {
     my $user_rs = $c->db_user_accounts
         ->active
-        ->prefetch({ user_workspace_roles => 'workspace' });
+        ->prefetch({ user_workspace_roles => 'workspace' })
+        ->order_by([qw(user_account.name workspace.name)]);
 
     return $c->status(200, [ $user_rs->all ]);
 }
