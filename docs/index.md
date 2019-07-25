@@ -79,6 +79,10 @@ directory in the main repository.
 * [Conch::Route::Workspace](modules/Conch::Route::Workspace)
   * `/workspace`
 
+# Modules
+
+Individual module documentation can be found [here](modules).
+
 # Copyright / License
 
 Copyright Joyent, Inc.
