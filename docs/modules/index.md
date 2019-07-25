@@ -90,7 +90,6 @@
 * [Conch::Plugin::ClientVerification](../modules/Conch::Plugin::ClientVerification)
 * [Conch::Plugin::Database](../modules/Conch::Plugin::Database)
 * [Conch::Plugin::Features](../modules/Conch::Plugin::Features)
-* [Conch::Plugin::FindHelpers](../modules/Conch::Plugin::FindHelpers)
 * [Conch::Plugin::GitVersion](../modules/Conch::Plugin::GitVersion)
 * [Conch::Plugin::JsonValidator](../modules/Conch::Plugin::JsonValidator)
 * [Conch::Plugin::Logging](../modules/Conch::Plugin::Logging)

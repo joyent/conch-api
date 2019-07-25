@@ -2,6 +2,8 @@ package Conch::Controller::User;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Conch::UUID 'is_uuid';
+use Email::Valid;
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
 use Authen::Passphrase::RejectAll;
@@ -13,6 +15,32 @@ use Authen::Passphrase::RejectAll;
 Conch::Controller::User
 
 =head1 METHODS
+
+=head2 find_user
+
+Chainable action that validates the C<target_user_id_or_email> provided in the path, and
+stashes the corresponding user row in C<target_user>.
+
+=cut
+
+sub find_user ($c) {
+    my $identifier = $c->stash('target_user_id_or_email');
+    my $user_rs = $c->db_user_accounts;
+
+    # when deactivating users or removing users from a workspace, we want to find
+    # already-deactivated users too.
+    $user_rs = $user_rs->active if $c->req->method ne 'DELETE';
+
+    $c->log->debug('looking up user '.$identifier);
+    my $user = is_uuid($identifier) ? $user_rs->find($identifier)
+        : Email::Valid->address($identifier) ? $user_rs->find_by_email($identifier)
+        : return $c->status(400, { error => 'invalid identifier format for '.$identifier });
+
+    return $c->status(404) if not $user;
+
+    $c->stash('target_user', $user);
+    return 1;
+}
 
 =head2 revoke_user_tokens
 
