@@ -596,6 +596,9 @@ subtest 'modify another user' => sub {
     $t->delete_ok("/user/$new_user_id")
         ->status_is(204, 'new user is deactivated');
 
+    $t->get_ok("/user/$new_user_id")
+        ->status_is(404);
+
     # we haven't cleared the user's session yet...
     $t2->get_ok('/me')
         ->status_is(401, 'user cannot log in with saved browser session');
