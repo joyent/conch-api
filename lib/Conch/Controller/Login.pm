@@ -185,7 +185,7 @@ sub session_login ($c) {
     $c->db_user_session_tokens->expired->delete;
 
     if ($user->force_password_change) {
-        $c->log->info('user '.$user->name.' logging in with one-time insecure password');
+        $c->log->info('user '.$user->name.' ('.$user->email.') logging in with one-time insecure password');
         $user->update({
             last_login => \'now()',
             last_seen => \'now()',
@@ -198,6 +198,8 @@ sub session_login ($c) {
         $c->res->headers->location($c->url_for('/user/me/password'));
         return $c->_respond_with_jwt($user->id, 10 * 60);
     }
+
+    $c->log->info('user '.$user->name.' ('.$user->email.') logged in');
 
     # allow the user to use session auth again
     $user->update({
