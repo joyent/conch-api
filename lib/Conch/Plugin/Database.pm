@@ -58,6 +58,8 @@ L<Conch::DB> object that persists for the lifetime of the application.
 Note that because of the use of C<< AutoCommit => 0 >>, database errors must be explicitly
 cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 
+See also: L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>.
+
 =cut
 
     my $_ro_schema;
@@ -73,7 +75,7 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
             return $_ro_schema;
         }
 
-        # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
+        # see https://metacpan.org/pod/DBIx::Class::Storage::DBI#DBIx::Class-and-AutoCommit
         local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
         $_ro_schema = Conch::DB->connect(
             $db_credentials->@{qw(dsn ro_username ro_password)},

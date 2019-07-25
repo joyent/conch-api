@@ -42,6 +42,8 @@ If not all credentials can be determined from environment variables, the C<$conf
 from. It should be a database configuration hashref (such as that extracted from F<conch.conf>
 at the appropriate hash key).
 
+See L<DBI/connect> and L<DBD::Pg/connect> for the correct syntax for these values.
+
 =cut
 
 sub get_credentials ($config, $log = Mojo::Log->new) {
