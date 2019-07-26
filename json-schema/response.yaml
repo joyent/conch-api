@@ -1574,10 +1574,7 @@ definitions:
       is_admin:
         type: boolean
       workspaces:
-        type: array
-        uniqueItems: true
-        items:
-          $ref: /definitions/WorkspaceAndRole
+        $ref: /definitions/WorkspacesAndRoles
   UsersDetailed:
     type: array
     uniqueItems: true
