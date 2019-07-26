@@ -28,7 +28,7 @@ Chainable resultset to limit results to those that aren't deactivated.
 sub active ($self) {
     Carp::croak($self->result_source->result_class->table,
             ' does not have a \'deactivated\' column')
-        if not $self->result_source->has_column('deactivated');
+        if !$ENV{MOJO_MODE} and not $self->result_source->has_column('deactivated');
 
     $self->search({ $self->current_source_alias.'.deactivated' => undef });
 }
@@ -42,7 +42,7 @@ Update all matching rows by setting deactivated = now().
 sub deactivate ($self) {
     Carp::croak($self->result_source->result_class->table,
             ' does not have a \'deactivated\' column')
-        if not $self->result_source->has_column('deactivated');
+        if !$ENV{MOJO_MODE} and not $self->result_source->has_column('deactivated');
 
     $self->update({
         deactivated => \'now()',
