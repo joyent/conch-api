@@ -37,12 +37,12 @@ subtest 'Workspaces' => sub {
     $t->get_ok("/workspace/$global_ws_id")
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace, by id');
+        ->json_is($workspace_data{conch}[0]);
 
     $t->get_ok('/workspace/GLOBAL')
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is('', $workspace_data{conch}[0], 'data for GLOBAL workspace, by name');
+        ->json_is($workspace_data{conch}[0]);
 
     $t->get_ok('/workspace/'.create_uuid_str())
         ->status_is(404);
@@ -50,14 +50,14 @@ subtest 'Workspaces' => sub {
     $t->get_ok("/workspace/$global_ws_id/user")
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', [
+        ->json_cmp_deeply([
             {
                 id    => re(Conch::UUID::UUID_FORMAT),
                 name  => $t->CONCH_USER,
                 email => $t->CONCH_EMAIL,
                 role  => 'admin',
             }
-        ], 'data for users who can access GLOBAL');
+        ]);
 
     %users = (GLOBAL => $t->tx->res->json);
 
@@ -153,12 +153,12 @@ subtest 'Workspaces' => sub {
 
     $workspace_data{test_user} = $t->tx->res->json->{workspaces};
 
-    $t->get_ok('/user/')
+    $t->get_ok('/user')
         ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email', $t->CONCH_EMAIL)
+        ->json_is('/0/email' => $t->CONCH_EMAIL)
         ->json_is('/0/workspaces' => [ $workspace_data{conch}[0] ])
-        ->json_is('/1/email', 'test_user@conch.joyent.us')
+        ->json_is('/1/email' => 'test_user@conch.joyent.us')
         ->json_is('/1/workspaces' => [ $workspace_data{test_user}[0] ]);
 
     push $users{GLOBAL}->@*, {
@@ -171,7 +171,7 @@ subtest 'Workspaces' => sub {
     $t->get_ok("/workspace/$global_ws_id/user")
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{GLOBAL}->@*), 'updated data for users who can access GLOBAL');
+        ->json_cmp_deeply($users{GLOBAL});
 };
 
 subtest 'Sub-Workspace' => sub {
@@ -216,22 +216,22 @@ subtest 'Sub-Workspace' => sub {
     $t->get_ok("/workspace/$global_ws_id/child")
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is('', [ $workspace_data{conch}[1] ], 'data for workspaces under GLOBAL, by id');
+        ->json_is([ $workspace_data{conch}[1] ]);
 
     $t->get_ok('/workspace/GLOBAL/child')
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is('', [ $workspace_data{conch}[1] ], 'data for workspaces under GLOBAL, by name');
+        ->json_is([ $workspace_data{conch}[1] ]);
 
     $t->get_ok("/workspace/$child_ws_id")
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by id');
+        ->json_is($workspace_data{conch}[1]);
 
     $t->get_ok('/workspace/child_ws')
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is('', $workspace_data{conch}[1], 'data for subworkspace, by name');
+        ->json_is($workspace_data{conch}[1]);
 
     $t->post_ok("/workspace/$child_ws_id/child",
             json => { name => 'grandchild_ws', description => 'two levels of subworkspaces' })
@@ -252,41 +252,24 @@ subtest 'Sub-Workspace' => sub {
     $t->get_ok("/workspace/$global_ws_id/child")
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is('', [
-                $workspace_data{conch}[1],
-                $workspace_data{conch}[2],
-            ], 'data for workspaces under GLOBAL with recursive query');
+        ->json_cmp_deeply(bag($workspace_data{conch}->@[1,2]));
 
     $t->get_ok('/workspace')
         ->status_is(200)
         ->json_schema_is('WorkspacesAndRoles')
-        ->json_is('', [
-                $workspace_data{conch}[0],
-                $workspace_data{conch}[1],
-                $workspace_data{conch}[2],
-            ], 'data for all workspaces with recursive query');
+        ->json_cmp_deeply(bag($workspace_data{conch}->@*));
 
     $t->get_ok('/user/'.$t->CONCH_EMAIL)
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => $t->CONCH_EMAIL)
-        ->json_is('/workspaces' => [
-                $workspace_data{conch}[0],
-                $workspace_data{conch}[1],
-                $workspace_data{conch}[2],
-            ],
-            'main user has access to all workspaces via GLOBAL');
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{conch}->@*));
 
     $t->get_ok('/user/me')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => $t->CONCH_EMAIL)
-        ->json_is('/workspaces' => [
-                $workspace_data{conch}[0],
-                $workspace_data{conch}[1],
-                $workspace_data{conch}[2],
-            ],
-            '/user/me returns the same data');
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{conch}->@*));
 
     $t->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
@@ -322,12 +305,12 @@ subtest 'Sub-Workspace' => sub {
     $workspace_data{test_user} = $t->tx->res->json->{workspaces};
 
     $t->get_ok('/user')
-        ->status_is(200, 'data for all users, all workspaces')
+        ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email', $t->CONCH_EMAIL)
-        ->json_is('/0/workspaces' => $workspace_data{conch})
-        ->json_is('/1/email', 'test_user@conch.joyent.us')
-        ->json_is('/1/workspaces' => $workspace_data{test_user});
+        ->json_is('/0/email' => $t->CONCH_EMAIL)
+        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
+        ->json_is('/1/email' => 'test_user@conch.joyent.us')
+        ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
 
     $users{child_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
     $users{grandchild_ws} = [ map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@* ];
@@ -335,12 +318,12 @@ subtest 'Sub-Workspace' => sub {
     $t->get_ok("/workspace/$child_ws_id/user")
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{child_ws}->@*), 'data for users who can access subworkspace');
+        ->json_cmp_deeply($users{child_ws});
 
     $t->get_ok("/workspace/$grandchild_ws_id/user")
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'data for users who can access grandchild workspace');
+        ->json_cmp_deeply($users{grandchild_ws});
 
     $t->post_ok("/workspace/$grandchild_ws_id/user", json => {
             email => 'test_user@conch.joyent.us',
@@ -421,30 +404,20 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => $t->CONCH_EMAIL)
-        ->json_is('/workspaces' => [
-                $workspace_data{conch}[0],
-                $workspace_data{conch}[1],
-                $workspace_data{conch}[2],
-            ],
-            'main user has access to all workspaces via GLOBAL');
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{conch}->@*));
 
     $t->get_ok('/user/test_user@conch.joyent.us')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
-        ->json_cmp_deeply('/workspaces' => bag(
-                $workspace_data{test_user}[0],
-                $workspace_data{test_user}[1],
-                $workspace_data{test_user}[2],
-            ),
-            'test user now has direct access to all workspaces');
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{test_user}->@*));
 
     $t->get_ok('/user')
-        ->status_is(200, 'data for all users, all workspaces')
+        ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email', $t->CONCH_EMAIL)
+        ->json_is('/0/email' => $t->CONCH_EMAIL)
         ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
-        ->json_is('/1/email', 'test_user@conch.joyent.us')
+        ->json_is('/1/email' => 'test_user@conch.joyent.us')
         ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*));
 
     $t->delete_ok("/workspace/$child_ws_id/user/test_user\@conch.joyent.us")
@@ -463,8 +436,7 @@ subtest 'Sub-Workspace' => sub {
         ->status_is(200)
         ->json_schema_is('UserDetailed')
         ->json_is('/email' => 'test_user@conch.joyent.us')
-        ->json_is('/workspaces' => $workspace_data{test_user},
-            'test user now only has rw access to everything again (via GLOBAL)');
+        ->json_cmp_deeply('/workspaces' => bag($workspace_data{test_user}->@*));
 
     $t->delete_ok("/workspace/$child_ws_id/user/test_user\@conch.joyent.us")
         ->status_is(204, 'deleting again is a no-op')
@@ -505,7 +477,7 @@ subtest 'Sub-Workspace' => sub {
     $t->get_ok('/workspace/GLOBAL/user')
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{GLOBAL}->@*), 'no change to users who can access GLOBAL');
+        ->json_cmp_deeply($users{GLOBAL});
 
     push $users{child_ws}->@*, {
         id    => re(Conch::UUID::UUID_FORMAT),
@@ -521,12 +493,12 @@ subtest 'Sub-Workspace' => sub {
     $t->get_ok('/workspace/child_ws/user')
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{child_ws}->@*), 'updated data for users who can access child ws');
+        ->json_cmp_deeply($users{child_ws});
 
     $t->get_ok('/workspace/grandchild_ws/user')
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'updated data for users who can access grandchild ws');
+        ->json_cmp_deeply($users{grandchild_ws});
 
     $workspace_data{untrusted_user} = [
         {
@@ -540,15 +512,15 @@ subtest 'Sub-Workspace' => sub {
         },
     ];
 
-    $t->get_ok('/user/')
+    $t->get_ok('/user')
         ->status_is(200)
         ->json_schema_is('UsersDetailed')
-        ->json_is('/0/email', $t->CONCH_EMAIL)
-        ->json_is('/0/workspaces' => $workspace_data{conch})
-        ->json_is('/1/email', 'test_user@conch.joyent.us')
-        ->json_is('/1/workspaces' => $workspace_data{test_user})
-        ->json_is('/2/email', 'untrusted_user@conch.joyent.us')
-        ->json_is('/2/workspaces' => $workspace_data{untrusted_user});
+        ->json_is('/0/email' => $t->CONCH_EMAIL)
+        ->json_cmp_deeply('/0/workspaces' => bag($workspace_data{conch}->@*))
+        ->json_is('/1/email' => 'test_user@conch.joyent.us')
+        ->json_cmp_deeply('/1/workspaces' => bag($workspace_data{test_user}->@*))
+        ->json_is('/2/email' => 'untrusted_user@conch.joyent.us')
+        ->json_cmp_deeply('/2/workspaces' => bag($workspace_data{untrusted_user}->@*));
 
 
     my $untrusted = Test::Conch->new(pg => $t->pg);
@@ -559,33 +531,33 @@ subtest 'Sub-Workspace' => sub {
     delete $users{GLOBAL};
 
     $untrusted->get_ok('/workspace/GLOBAL')
-        ->status_is(403, 'new user not authorized to view GLOBAL');
+        ->status_is(403);
 
     $untrusted->get_ok('/workspace/child_ws')
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is('', $workspace_data{untrusted_user}[0], 'data for child workspace');
+        ->json_is($workspace_data{untrusted_user}[0]);
 
     $untrusted->get_ok('/workspace/grandchild_ws')
         ->status_is(200)
         ->json_schema_is('WorkspaceAndRole')
-        ->json_is('', $workspace_data{untrusted_user}[1], 'data for grandchild workspace');
+        ->json_is($workspace_data{untrusted_user}[1]);
 
     $untrusted->get_ok('/user')
-        ->status_is(403, 'system admin privs required for this endpoint');
+        ->status_is(403);
 
     $untrusted->get_ok('/workspace/GLOBAL/user')
-        ->status_is(403, 'new user not authorized to view GLOBAL');
+        ->status_is(403);
 
     $untrusted->get_ok('/workspace/child_ws/user')
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{child_ws}->@*), 'user gets the same list of users who can access child ws');
+        ->json_cmp_deeply($users{child_ws});
 
     $untrusted->get_ok('/workspace/grandchild_ws/user')
         ->status_is(200)
         ->json_schema_is('WorkspaceUsers')
-        ->json_cmp_deeply('', bag($users{grandchild_ws}->@*), 'user gets the same list of users who can access grandchild ws');
+        ->json_cmp_deeply($users{grandchild_ws});
 
 
     $t->post_ok('/workspace/child_ws/user', json => {
@@ -609,27 +581,21 @@ subtest 'Permissions' => sub {
         $t->get_ok('/workspace')
             ->status_is(200)
             ->json_schema_is('WorkspacesAndRoles')
-            ->json_is('/0/name', 'GLOBAL');
+            ->json_is('/0/name' => 'GLOBAL');
 
-        subtest "Can't create a subworkspace" => sub {
-            $t->post_ok("/workspace/$global_ws_id/child",
-                    json => { name => 'test', description => 'also test' })
-                ->status_is(403);
-        };
+        $t->post_ok("/workspace/$global_ws_id/child",
+                json => { name => 'test', description => 'also test' })
+            ->status_is(403);
 
-        subtest "Can't add a rack" => sub {
-            $t->post_ok("/workspace/$global_ws_id/rack", json => { id => create_uuid_str() })
-                ->status_is(403);
-        };
+        $t->post_ok("/workspace/$global_ws_id/rack", json => { id => create_uuid_str() })
+            ->status_is(403);
 
-        subtest "Can't add a user to workspace" => sub {
-            $t->post_ok("/workspace/$global_ws_id/user",
-                    json => { user => 'another@wat.wat', role => 'ro' })
-                ->status_is(403);
-        };
+        $t->post_ok("/workspace/$global_ws_id/user",
+                json => { user => 'another@wat.wat', role => 'ro' })
+            ->status_is(403);
 
         $t->get_ok("/workspace/$global_ws_id/user")
-            ->status_is(200, 'get list of users for this workspace')
+            ->status_is(200)
             ->json_schema_is('WorkspaceUsers');
 
         $t->post_ok('/logout')
@@ -643,22 +609,18 @@ subtest 'Permissions' => sub {
         $t->get_ok('/workspace')
             ->status_is(200)
             ->json_schema_is('WorkspacesAndRoles')
-            ->json_is('/0/name', 'GLOBAL');
+            ->json_is('/0/name' => 'GLOBAL');
 
-        subtest "Can't create a subworkspace" => sub {
-            $t->post_ok("/workspace/$global_ws_id/child",
-                    json => { name => 'test', description => 'also test' })
-                ->status_is(403);
-        };
+        $t->post_ok("/workspace/$global_ws_id/child",
+                json => { name => 'test', description => 'also test' })
+            ->status_is(403);
 
-        subtest "Can't add a user to workspace" => sub {
-            $t->post_ok("/workspace/$global_ws_id/user",
-                    json => { user => 'another@wat.wat', role => 'ro' })
-                ->status_is(403);
-        };
+        $t->post_ok("/workspace/$global_ws_id/user",
+                json => { user => 'another@wat.wat', role => 'ro' })
+            ->status_is(403);
 
         $t->get_ok("/workspace/$global_ws_id/user")
-            ->status_is(200, 'get list of users for this workspace')
+            ->status_is(200)
             ->json_schema_is('WorkspaceUsers');
     };
 };

@@ -85,11 +85,9 @@ subtest 'Add rack to workspace' => sub {
              ],
         });
 
-    subtest 'Cannot modify GLOBAL workspace' => sub {
-        $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
-            ->status_is(400)
-            ->json_is({ error => 'Cannot modify GLOBAL workspace' });
-    };
+    $t->post_ok("/workspace/$global_ws_id/rack", json => { id => $rack_id })
+        ->status_is(400)
+        ->json_is({ error => 'Cannot modify GLOBAL workspace' });
 };
 
 subtest 'Assign device to a location' => sub {

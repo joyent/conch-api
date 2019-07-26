@@ -64,7 +64,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Request: request.yaml#/DatacenterCreate
 
-=item * Response: Redirect to the created datacenter
+=item * Response: C<201 CREATED> or C<204 NO CONTENT>, plus Location header
 
 =back
 

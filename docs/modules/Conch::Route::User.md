@@ -105,7 +105,6 @@ Optionally takes a query parameter `clear_tokens` (defaults to `1`), to also
 revoke all session tokens for the user forcing all tools to log in again.
 
 - Requires system admin authorization
-- Response: response.yaml#/UserDetailed
 - Response: `204 NO CONTENT`
 
 ### `POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1>`

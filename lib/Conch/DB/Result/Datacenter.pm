@@ -115,6 +115,27 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<datacenter_vendor_region_location_key>
+
+=over 4
+
+=item * L</vendor>
+
+=item * L</region>
+
+=item * L</location>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint(
+  "datacenter_vendor_region_location_key",
+  ["vendor", "region", "location"],
+);
+
 =head1 RELATIONS
 
 =head2 datacenter_rooms
@@ -134,7 +155,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:U5BmPoAs1ZAPjbqKzj/Q0w
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tNDz5pB75SuWTRSF/f4rYg
 
 1;
 __END__

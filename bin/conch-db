@@ -95,12 +95,10 @@ if ($opt->dry_run or $use_test_db) {
 }
 else {
     # environment variables are used first, if set
-    $db_credentials = Conch::DB::Util::get_credentials(sub {
-        $log->info('loading config from ', $opt->config, '...');
-        require Mojolicious::Plugin::Config;
-        my $config = Mojolicious::Plugin::Config->load($opt->config, undef, +{});
-        return $config->{database};
-    }, $log);
+    $log->info('loading config from ', $opt->config, '...');
+    require Mojolicious::Plugin::Config;
+    my $config = Mojolicious::Plugin::Config->load($opt->config, undef, +{});
+    $db_credentials = Conch::DB::Util::get_credentials($config->{database}, $log);
 }
 
 $log->info('connecting to '.$db_credentials->{dsn}.'...');

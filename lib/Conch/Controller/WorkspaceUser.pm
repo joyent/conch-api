@@ -29,14 +29,15 @@ sub list ($c) {
         ->related_resultset('user_workspace_roles')
         ->related_resultset('user_account')
         ->order_by('user_account.name')
-        ->active;
+        ->columns([ map 'user_account.'.$_, qw(id name email) ])
+        ->active
+        ->hri;
 
     my $user_data = [
         map {
-            my $user = $_;
-            my $role_via = $c->db_workspaces->role_via_for_user($workspace_id, $user->id);
+            my $role_via = $c->db_workspaces->role_via_for_user($workspace_id, $_->{id});
             +{
-                (map +($_ => $user->$_), qw(id name email)),
+                $_->%*, # user.id, name, email
                 role => $role_via->role,
                 $role_via->workspace_id ne $workspace_id ? ( role_via => $role_via->workspace_id ) : (),
             }
@@ -69,7 +70,7 @@ sub add_user ($c) {
 
     my $user_rs = $c->db_user_accounts->active;
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
-        : $input->{email} ? $user_rs->lookup_by_email($input->{email})
+        : $input->{email} ? $user_rs->find_by_email($input->{email})
         : undef;
     return $c->status(404) if not $user;
 
@@ -113,7 +114,7 @@ sub add_user ($c) {
             template_file => 'workspace_change_access',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch access has changed',
-            workspace => $c->stash('workspace_rs')->get_column('name')->single,
+            workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
             permission => $input->{role},
         ) if $params->{send_mail} // 1;
 
@@ -130,7 +131,7 @@ sub add_user ($c) {
         template_file => 'workspace_add_user',
         From => 'noreply@conch.joyent.us',
         Subject => 'Your Conch access has changed',
-        workspace => $c->stash('workspace_rs')->get_column('name')->single,
+        workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
         permission => $input->{role},
     ) if $params->{send_mail} // 1;
 
@@ -163,7 +164,7 @@ sub remove ($c) {
     my $num_rows = $rs->count;
     return $c->status(204) if not $num_rows;
 
-    my $workspace_name = $c->stash('workspace_rs')->get_column('name')->single;
+    my $workspace_name = $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single;
 
     $c->log->debug('removing user '.$user->name.' from workspace '
         .$workspace_name.' and all sub-workspaces ('.$num_rows.'rows in total)');

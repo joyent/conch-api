@@ -92,7 +92,7 @@ sub new {
     my $class = shift;
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
-    my $pg = exists $args->{pg} ? $args->{pg}
+    my $pg = exists $args->{pg} ? delete $args->{pg}
         : $class->init_db // Test::More::BAIL_OUT('failed to create test database');
 
     my $self = Test::Mojo->new(
@@ -105,12 +105,13 @@ sub new {
             secrets => ['********'],
             features => { audit => 1, no_db => ($pg ? 0 : 1) },
 
-            $args->{config} ? $args->{config}->%* : (),
+            $args->{config} ? delete($args->{config})->%* : (),
         }
     );
 
     bless($self, $class);
     $self->pg($pg);
+    $self->$_($args->{$_}) foreach keys $args->%*;
 
     # load all controllers, to find syntax errors sooner
     # (hypnotoad does this at startup, but in tests controllers only get loaded as needed)
@@ -443,7 +444,7 @@ Not-nullable fields are filled in with sensible defaults, but all may be overrid
 
 e.g.:
 
-    $t->generate_fixture_definitions(
+    $t->generate_fixtures(
         device_location => { rack_unit_start => 3 },
         rack_layouts => [
             { rack_unit_start => 1 },
@@ -452,12 +453,17 @@ e.g.:
         ],
     );
 
+or, to get all the defaults with no overrides:
+
+    $t->generate_fixtures('device_location');
+
 See L<Test::Conch::Fixtures/_generate_definition> for the list of recognized types.
 
 =cut
 
-sub generate_fixtures ($self, %specification) {
+sub generate_fixtures ($self, @specification) {
     state $unique_num = 1000;
+    my %specification = @specification % 2 ? (@specification, {}) : @specification;
     my @fixture_names = $self->fixtures->generate_definitions($unique_num++, %specification);
     return if not @fixture_names;
     $self->fixtures->load(@fixture_names);
@@ -555,11 +561,13 @@ Tests that *no* email was sent as a result of the last request.
 =cut
 
 sub email_not_sent ($self) {
-    return $self->_test(
+    $self->_test(
         'ok',
         (!$self->{_mail_composed} || !$self->{_mail_composed}->@*),
         'no email was sent',
     );
+    Test::More::diag('emails sent: ', Test::More::explain($self->{_mail_composed})) if not $self->success;
+    return $self;
 }
 
 =head2 log_is

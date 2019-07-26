@@ -117,16 +117,15 @@ sub add ($c) {
     my $input = $c->validate_request('WorkspaceAddRack');
     return if not $input;
 
-    my $rack_id = delete $input->{id};
-
     return $c->status(400, { error => 'Cannot modify GLOBAL workspace' })
-        if $c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL';
+        if ($c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single) eq 'GLOBAL';
+
+    my $rack_id = delete $input->{id};
 
     # note this only checks one layer up, rather than all the way up the hierarchy.
     if (not $c->stash('workspace_rs')
             ->related_resultset('parent_workspace')
-            ->related_resultset('workspace_racks')
-            ->search_related('rack', { 'rack.id' => $rack_id })
+            ->search_related('workspace_racks', { rack_id => $rack_id })
             ->exists) {
         return $c->status(409,
             { error => "Rack '$rack_id' must be assigned in parent workspace to be assignable." },
@@ -158,7 +157,7 @@ Requires 'admin' permissions on the workspace.
 
 sub remove ($c) {
     return $c->status(400, { error => 'Cannot modify GLOBAL workspace' })
-        if $c->stash('workspace_rs')->get_column('name')->single eq 'GLOBAL';
+        if ($c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single) eq 'GLOBAL';
 
     $c->db_workspaces
         ->and_workspaces_beneath($c->stash('workspace_id'))

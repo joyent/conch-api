@@ -102,7 +102,7 @@ sub authenticate ($c) {
     }
 
     if ($c->session('user')) {
-        return $c->status(400, { error => 'user session is invalid' })
+        return $c->status(401, { error => 'user session is invalid' })
             if not is_uuid($c->session('user')) or ($user_id and $c->session('user') ne $user_id);
         $c->log->debug('using session user='.$c->session('user'));
         $user_id ||= $c->session('user');
@@ -112,8 +112,8 @@ sub authenticate ($c) {
     $c->db_user_session_tokens->expired->delete;
 
     if ($user_id) {
-        $c->log->debug('looking up user by id '.$user_id.'...');
         if (my $user = $c->db_user_accounts->active->find($user_id)) {
+            $c->log->debug('looking up user by id '.$user_id.': found '.$user->name. ' ('.$user->email.')');
             $user->update({ last_seen => \'now()' });
 
             # api tokens are exempt from this check
@@ -142,6 +142,8 @@ sub authenticate ($c) {
             $c->stash('user', $user);
             return 1;
         }
+
+        $c->log->debug('looking up user by id '.$user_id.': not found');
     }
 
     $c->log->debug('auth failed: no credentials provided');
@@ -161,7 +163,7 @@ sub session_login ($c) {
 
     my $user_rs = $c->db_user_accounts->active;
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
-        : $input->{email} ? $user_rs->lookup_by_email($input->{email})
+        : $input->{email} ? $user_rs->find_by_email($input->{email})
         : undef;
 
     if (not $user) {
@@ -183,7 +185,7 @@ sub session_login ($c) {
     $c->db_user_session_tokens->expired->delete;
 
     if ($user->force_password_change) {
-        $c->log->info('user '.$user->name.' logging in with one-time insecure password');
+        $c->log->info('user '.$user->name.' ('.$user->email.') logging in with one-time insecure password');
         $user->update({
             last_login => \'now()',
             last_seen => \'now()',
@@ -196,6 +198,8 @@ sub session_login ($c) {
         $c->res->headers->location($c->url_for('/user/me/password'));
         return $c->_respond_with_jwt($user->id, 10 * 60);
     }
+
+    $c->log->info('user '.$user->name.' ('.$user->email.') logged in');
 
     # allow the user to use session auth again
     $user->update({

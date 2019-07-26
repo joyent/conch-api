@@ -144,7 +144,7 @@ Not-nullable fields are filled in with sensible defaults, but all may be overrid
 e.g.:
 
 ```perl
-$t->generate_fixture_definitions(
+$t->generate_fixtures(
     device_location => { rack_unit_start => 3 },
     rack_layouts => [
         { rack_unit_start => 1 },
@@ -152,6 +152,12 @@ $t->generate_fixture_definitions(
         { rack_unit_start => 3 },
     ],
 );
+```
+
+or, to get all the defaults with no overrides:
+
+```
+$t->generate_fixtures('device_location');
 ```
 
 See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test::Conch::Fixtures#generate_definition) for the list of recognized types.

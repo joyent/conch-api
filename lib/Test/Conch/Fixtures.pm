@@ -63,15 +63,6 @@ my %canned_definitions = (
             is_admin => 1,
         },
     },
-    null_user => {
-        new => 'user_account',
-        using => {
-            name => 'null_user',
-            email => 'null_user@conch.joyent.us',
-            password => Authen::Passphrase::AcceptAll->new,
-            is_admin => 0,
-        },
-    },
     ro_user => {
         new => 'user_account',
         using => {
@@ -620,7 +611,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 new => 'datacenter',
                 using => {
                     vendor => 'vendor',
-                    region => 'region',
+                    region => 'region_'.$num,
                     location => 'location',
                     ($specification // {})->%*,
                 },
@@ -633,6 +624,19 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 new => 'hardware_vendor',
                 using => {
                     name => "hardware_vendor_$num",
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    elsif ($fixture_type eq 'user_account') {
+        return +{
+            "user_account_$num" => {
+                new => 'user_account',
+                using => {
+                    name => "user_$num",
+                    email => "user_${num}\@conch.joyent.us",
+                    password => Authen::Passphrase::AcceptAll->new,
                     ($specification // {})->%*,
                 },
             },

@@ -83,7 +83,7 @@ sub routes {
     {
         # this value can be a user_id or an email address
         my $user_with_target = $user->require_system_admin->under('/#target_user_id_or_email')
-            ->to(cb => sub ($c) { $c->find_user($c->stash('target_user_id_or_email')) });
+            ->to('#find_user');
 
         # GET /user/#target_user_id_or_email
         $user_with_target->get('/')->to('#get');
@@ -303,8 +303,6 @@ revoke all session tokens for the user forcing all tools to log in again.
 =over 4
 
 =item * Requires system admin authorization
-
-=item * Response: response.yaml#/UserDetailed
 
 =item * Response: C<204 NO CONTENT>
 

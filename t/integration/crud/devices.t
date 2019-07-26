@@ -23,7 +23,7 @@ my $rack_id = $rack->id;
 my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 
 # perform most tests as a user with read only access to the GLOBAL workspace
-my $null_user = $t->load_fixture('null_user');
+my $null_user = $t->generate_fixtures('user_account');
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 my $rw_user = $t->load_fixture('rw_user_global_workspace')->user_account;
 my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
@@ -51,17 +51,17 @@ subtest 'unlocated device, no registered relay' => sub {
     my $device_report_id = $t->tx->res->json->{device_report_id};
 
     $t->get_ok('/device/TEST')
-        ->status_is(403, 'unlocated device isn\'t visible to a ro user');
+        ->status_is(403);
 
     $t->get_ok('/device_report/'.$device_report_id)
-        ->status_is(403, 'unlocated device report isn\'t visible to a ro user');
+        ->status_is(403);
 
     {
         $t->authenticate(email => $admin_user->email);
 
         $t->get_ok('/device/TEST')
             ->status_is(200)
-            ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user')
+            ->json_schema_is('DetailedDevice')
             ->json_is('/id', $test_device_id)
             ->json_is('/serial_number', 'TEST');
 
@@ -73,7 +73,7 @@ subtest 'unlocated device, no registered relay' => sub {
 
         $t->get_ok('/device_report/'.$device_report_id)
             ->status_is(200)
-            ->json_schema_is('DeviceReportRow', 'device reports are always visible to a sysadmin user');
+            ->json_schema_is('DeviceReportRow');
 
         $t->authenticate(email => $ro_user->email);
     }
@@ -148,21 +148,21 @@ subtest 'unlocated device with a registered relay' => sub {
 
     $t->authenticate(email => $null_user->email);
     $t->get_ok('/device/TEST')
-        ->status_is(403, 'cannot see device without the relay connection');
+        ->status_is(403);
 
     $t->get_ok('/device_report/'.$validation_state->{device_report_id})
-        ->status_is(403, 'cannot see device report without the relay connection');
+        ->status_is(403);
 
     {
         $null_user->update({ is_admin => 1 });
 
         $t->get_ok('/device/TEST')
             ->status_is(200)
-            ->json_schema_is('DetailedDevice', 'devices are always visible to a sysadmin user');
+            ->json_schema_is('DetailedDevice');
 
         $t->get_ok('/device_report/'.$validation_state->{device_report_id})
             ->status_is(200)
-            ->json_schema_is('DeviceReportRow', 'device reports are always visible to a sysadmin user');
+            ->json_schema_is('DeviceReportRow');
 
         $null_user->update({ is_admin => 0 });
 
@@ -214,7 +214,7 @@ subtest 'located device' => sub {
     $t->txn_local('remove device from its workspace', sub ($t) {
         $t->app->db_workspace_racks->delete;
         $t->get_ok('/device/LOCATED_DEVICE')
-            ->status_is(403, 'device isn\'t in a workspace anymore');
+            ->status_is(403);
     });
 
     # TODO: permissions for PUT, DELETE queries
@@ -579,7 +579,7 @@ subtest 'Device settings' => sub {
     $t->authenticate(email => $rw_user->email);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { key => 'value' })
-        ->status_is(204, 'writing new non-tag key only requires rw');
+        ->status_is(204);
     $t->post_ok('/device/LOCATED_DEVICE/settings/key', json => { key => 'new value' })
         ->status_is(403);
     $t->delete_ok('/device/LOCATED_DEVICE/settings/foo')

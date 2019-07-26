@@ -16,20 +16,22 @@ $t->get_ok('/ping')
     ->json_is({ status => 'ok' });
 
 $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0' })
+    ->status_is(200);
+
+$t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => 'v3.0.2.1-gdeadbeef' })
     ->status_is(403)
-    ->log_error_is('browser detected but cannot determine Conch UI version')
+    ->log_error_is('Conch UI too old: requires at least 4.x')
     ->log_info_is(superhashof({
             req => superhashof({
                 user => 'NOT AUTHED',
-                headers => superhashof({ 'User-Agent' => [ 'Mozilla/5.0' ] }),
+                headers => superhashof({
+                    'User-Agent' => [ 'Mozilla/5.0 Macintosh' ],
+                    'X-Conch-UI' => [ 'v3.0.2.1-gdeadbeef' ],
+                }),
                 url => str('/ping'),
             }),
             res => superhashof({ statusCode => 403 }),
         }), 'we still logged the request');
-
-$t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => 'v3.0.2.1-gdeadbeef' })
-    ->status_is(403)
-    ->log_error_is('Conch UI too old: requires at least 4.x');
 
 $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => 'v4.0.0.3.gdeadbeef' })
     ->status_is(200);

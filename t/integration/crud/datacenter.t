@@ -46,7 +46,8 @@ $t->post_ok('/dc', json => { wat => 'wat' })
     ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
 $t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location => 'locati0n' })
-    ->status_is(303);
+    ->status_is(201)
+    ->location_like(qr!^/dc/${\Conch::UUID::UUID_FORMAT}!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -54,8 +55,16 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_cmp_deeply(
         superhashof({ vendor => 'vend0r', region => 'regi0n', location => 'locati0n' }),
     );
-
 my $idd = $t->tx->res->json->{id};
+
+$t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location => 'locati0n' })
+    ->status_is(204)
+    ->location_is('/dc/'.$idd);
+
+$t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location => 'locati0n', vendor_name => 'hi' })
+    ->status_is(409)
+    ->json_is({ error => 'a datacenter already exists with that vendor-region-location' });
+
 $t->post_ok("/dc/$idd", json => { vendor => 'vendor' })
     ->status_is(303);
 

@@ -25,6 +25,8 @@ Provides (guaranteed) read-only access to the database via [DBIx::Class](https:/
 Note that because of the use of `AutoCommit => 0`, database errors must be explicitly
 cleared with `->txn_rollback`; see ["ReadOnly-(boolean)" in DBD::Pg](https://metacpan.org/pod/DBD::Pg#ReadOnly--boolean).
 
+See also: ["DBIx::Class and AutoCommit" in DBIx::Class::Storage::DBI](https://metacpan.org/pod/DBIx::Class::Storage::DBI#DBIx::Class-and-AutoCommit).
+
 ## db\_&lt;table>s, db\_ro\_&lt;table>s
 
 Provides direct read/write and read-only accessors to resultsets. The table name is used in

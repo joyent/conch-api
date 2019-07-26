@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.13
--- Dumped by pg_dump version 9.6.13
+-- Dumped from database version 10.9
+-- Dumped by pg_dump version 10.9
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -725,6 +725,14 @@ ALTER TABLE ONLY public.datacenter_room
 
 
 --
+-- Name: datacenter datacenter_vendor_region_location_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.datacenter
+    ADD CONSTRAINT datacenter_vendor_region_location_key UNIQUE (vendor, region, location);
+
+
+--
 -- Name: device_disk device_disk_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -753,7 +761,7 @@ ALTER TABLE ONLY public.device_location
 --
 
 ALTER TABLE ONLY public.device_location
-    ADD CONSTRAINT device_location_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start);
+    ADD CONSTRAINT device_location_rack_id_rack_unit_start_key UNIQUE (rack_id, rack_unit_start) DEFERRABLE;
 
 
 --
@@ -801,7 +809,7 @@ ALTER TABLE ONLY public.device_report
 --
 
 ALTER TABLE ONLY public.device
-    ADD CONSTRAINT device_serial_number_key UNIQUE (serial_number);
+    ADD CONSTRAINT device_serial_number_key UNIQUE (serial_number) DEFERRABLE;
 
 
 --

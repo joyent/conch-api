@@ -35,7 +35,7 @@ sub run ($self, @opts) {
         [ 'help', 'print usage message and exit', { shortcircuit => 1 } ],
     );
 
-    my $user = $self->app->db_user_accounts->active->lookup_by_email($opt->email);
+    my $user = $self->app->db_user_accounts->active->find_by_email($opt->email);
     die 'cannot find user with email ', $opt->email if not $user;
 
     my $expires_abs = time + (($self->app->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);

@@ -67,6 +67,14 @@ original: {default_value => \"now()"}
 
 - ["id"](#id)
 
+# UNIQUE CONSTRAINTS
+
+## `datacenter_vendor_region_location_key`
+
+- ["vendor"](#vendor)
+- ["region"](#region)
+- ["location"](#location)
+
 # RELATIONS
 
 ## datacenter\_rooms

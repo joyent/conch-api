@@ -54,7 +54,7 @@ push @$vendors, $t->tx->res->json;
 $t->get_ok('/hardware_vendor')
     ->status_is(200)
     ->json_schema_is('HardwareVendors')
-    ->json_cmp_deeply(bag(@$vendors));
+    ->json_cmp_deeply($vendors);
 
 $t->delete_ok('/hardware_vendor/MyNewVendor')
     ->status_is(204);

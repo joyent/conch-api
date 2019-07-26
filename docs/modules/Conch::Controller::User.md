@@ -4,6 +4,11 @@ Conch::Controller::User
 
 # METHODS
 
+## find\_user
+
+Chainable action that validates the `target_user_id_or_email` provided in the path, and
+stashes the corresponding user row in `target_user`.
+
 ## revoke\_user\_tokens
 
 Revoke a specified user's tokens and prevents future token authentication,

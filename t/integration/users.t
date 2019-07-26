@@ -28,7 +28,8 @@ $t->post_ok('/login', json => { email => 'foo@bar.com' })
     ->json_cmp_deeply('/details', [ { path => '/password', message => re(qr/missing property/i) } ]);
 
 $t->post_ok('/login', json => { email => 'foo@bar.com', password => 'b' })
-    ->status_is(401);
+    ->status_is(401)
+    ->log_debug_is('user lookup for foo@bar.com failed');
 
 my $now = Conch::Time->now;
 
@@ -180,10 +181,12 @@ subtest 'User' => sub {
         ->email_not_sent;
 
     $t->get_ok('/user/me/settings')
-        ->status_is(401, 'session tokens revoked too');
+        ->status_is(401, 'session tokens revoked too')
+        ->log_debug_is('auth failed: no credentials provided');
 
     $t->post_ok('/login', json => { email => $t->CONCH_EMAIL, password => $t->CONCH_PASSWORD })
-        ->status_is(401, 'cannot use old password after changing it');
+        ->status_is(401)
+        ->log_debug_is('password validation for '.$t->CONCH_EMAIL.' failed');
 
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
@@ -205,7 +208,8 @@ subtest 'User' => sub {
     }
 
     $t->post_ok('/login', json => { email => $t->CONCH_EMAIL, password => 'øƕḩẳȋ' })
-        ->status_is(200, 'logged in using new password');
+        ->status_is(200)
+        ->log_info_is('user conch ('.$t->CONCH_EMAIL.') logged in');
 
     $t->post_ok('/user/me/password?clear_tokens=all', json => { password => 'another password' })
         ->status_is(204, 'changed password again');
@@ -536,11 +540,13 @@ subtest 'modify another user' => sub {
     my $insecure_password = $_new_password;
 
     $t2->get_ok('/me')
-        ->status_is(401, 'user can no longer use his saved session after his password is changed');
+        ->status_is(401)
+        ->log_debug_is('auth failed: no credentials provided');
 
     $t2->reset_session; # force JWT to be used to authenticate
     $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
-        ->status_is(401, 'user cannot authenticate with login JWT after his password is changed');
+        ->status_is(401)
+        ->log_debug_is('auth failed: JWT for user_id '.$new_user_id.' could not be found');
 
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
         ->status_is(200, 'but the api token still works after his password is changed')
@@ -548,45 +554,56 @@ subtest 'modify another user' => sub {
         ->json_is('/email' => 'foo@conch.joyent.us');
 
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => 'foo' })
-        ->status_is(401, 'cannot log in with the old password');
+        ->status_is(401)
+        ->log_debug_is('password validation for foo@conch.joyent.us failed');
 
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $insecure_password })
-        ->status_is(200, 'user can log in with new password')
+        ->status_is(200)
+        ->log_info_is('user FOO (foo@conch.joyent.us) logging in with one-time insecure password')
         ->location_is('/user/me/password');
     $jwt_token = $t2->tx->res->json->{jwt_token};
 
     $t2->get_ok('/me')
-        ->status_is(401, 'user can\'t use his session to do anything else')
+        ->status_is(401)
+        ->log_debug_is('attempt to authenticate before changing insecure password')
         ->location_is('/user/me/password');
 
     $t2->reset_session; # force JWT to be used to authenticate
     $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
-        ->status_is(401, 'user can\'t use his JWT to do anything else')
+        ->status_is(401)
+        ->log_debug_is('attempt to authenticate before changing insecure password')
         ->location_is('/user/me/password');
 
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $insecure_password })
-        ->status_is(401, 'user cannot log in with the same insecure password again');
+        ->status_is(401)
+        ->log_debug_is('password validation for foo@conch.joyent.us failed');
 
     $t2->post_ok('/user/me/password' => { Authorization => 'Bearer '.$jwt_token },
             json => { password => 'a more secure password' })
-        ->status_is(204, 'user finally acquiesced and changed his password');
+        ->status_is(204)
+        ->log_debug_is('updated password for user FOO at their request');
 
     my $secure_password = $_new_password;
     is($secure_password, 'a more secure password', 'provided password was saved to the db');
 
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $secure_password })
-        ->status_is(200, 'user can log in with new password')
+        ->status_is(200)
+        ->log_info_is('user FOO (foo@conch.joyent.us) logged in')
         ->json_has('/jwt_token')
         ->json_hasnt('/message');
     $jwt_token = $t2->tx->res->json->{jwt_token};
 
     $t2->get_ok('/me')
-        ->status_is(204, 'user can use his saved session again after changing his password');
+        ->status_is(204)
+        ->log_debug_is('using session user='.$new_user_id)
+        ->log_debug_is('looking up user by id '.$new_user_id.': found FOO (foo@conch.joyent.us)');
     is($t2->tx->res->body, '', '...with no extra response messages');
 
     $t2->reset_session; # force JWT to be used to authenticate
     $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
-        ->status_is(204, 'user authenticate with JWT again after his password is changed');
+        ->status_is(204)
+        ->log_debug_is('attempting to authenticate with Authorization: Bearer header...')
+        ->log_debug_is('looking up user by id '.$new_user_id.': found FOO (foo@conch.joyent.us)');
     is($t2->tx->res->body, '', '...with no extra response messages');
 
 
@@ -596,9 +613,13 @@ subtest 'modify another user' => sub {
     $t->delete_ok("/user/$new_user_id")
         ->status_is(204, 'new user is deactivated');
 
+    $t->get_ok("/user/$new_user_id")
+        ->status_is(404);
+
     # we haven't cleared the user's session yet...
     $t2->get_ok('/me')
-        ->status_is(401, 'user cannot log in with saved browser session');
+        ->status_is(401)
+        ->log_debug_is('auth failed: no credentials provided');
 
     $t2->reset_session; # force JWT to be used to authenticate
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => $secure_password })
@@ -617,8 +638,14 @@ subtest 'modify another user' => sub {
 
     $t->post_ok('/user?send_mail=0',
             json => { email => 'foo@conch.joyent.us', name => 'FOO', password => '123' })
-        ->status_is(201, 'created user "again"');
-    $t->location_is('/user/'.(my $second_new_user_id = $t->tx->res->json->{id}));
+        ->status_is(201)
+        ->location_is('/user/'.(my $second_new_user_id = $t->tx->res->json->{id}));
+    $t->json_is({
+            id => $second_new_user_id,
+            name => 'FOO',
+            email => 'foo@conch.joyent.us',
+        })
+        ->log_info_is('created user: FOO, email: foo@conch.joyent.us, id: '.$second_new_user_id);
 
     isnt($second_new_user_id, $new_user_id, 'created user with a new id');
     my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);
