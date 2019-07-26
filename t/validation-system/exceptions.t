@@ -10,7 +10,6 @@ use Test::Warnings;
 use Test::Conch;
 use Test::Deep;
 use Conch::Validation;
-use Mojo::Log;
 require Devel::Confess;
 
 use lib 't/lib';

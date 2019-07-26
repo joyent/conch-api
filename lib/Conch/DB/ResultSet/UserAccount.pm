@@ -4,8 +4,6 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use experimental 'signatures';
-use Conch::UUID 'is_uuid';
-use Email::Valid;
 
 =head1 NAME
 

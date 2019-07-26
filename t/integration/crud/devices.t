@@ -6,7 +6,6 @@ use Test::Warnings;
 use Path::Tiny;
 use Test::Deep;
 use Test::Conch;
-use Conch::UUID 'create_uuid_str';
 use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
