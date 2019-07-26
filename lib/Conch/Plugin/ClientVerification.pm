@@ -2,8 +2,6 @@ package Conch::Plugin::ClientVerification;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use HTTP::BrowserDetect;
-
 =pod
 
 =head1 NAME
@@ -26,14 +24,7 @@ sub register ($self, $app, $config) {
             my $headers = $c->req->headers;
             my $user_agent = $headers->user_agent;
 
-            my $detector = HTTP::BrowserDetect->new($user_agent);
-            if ($detector->browser) {
-                my $conch_ui_version = $headers->header('X-Conch-UI');
-                if (not $conch_ui_version) {
-                    $c->log->error('browser detected but cannot determine Conch UI version');
-                    return $c->status(403);
-                }
-
+            if (my $conch_ui_version = $headers->header('X-Conch-UI')) {
                 my ($major, $minor, $tiny, $rest) = $conch_ui_version =~ /^v(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/;
                 if (not $major or $major < 4) {
                     $c->log->error('Conch UI too old: requires at least 4.x');
