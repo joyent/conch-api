@@ -65,7 +65,6 @@ no Moo::sification;
 use strictures 2;
 use experimental 'signatures';
 use Types::Standard qw(Str ArrayRef HashRef InstanceOf);
-use Mojo::JSON;
 use Try::Tiny;
 use Conch::ValidationError;
 use Path::Tiny;
@@ -345,8 +344,8 @@ sub run ($self, $data) {
                 map s/^.* at (.+ line \d+)\.?$/$1/mr, split /\R/, $err;
         }
 
-        $self->log->error("Validation '".$self->name."' threw an exception: ".$message);
-        $self->log->debug("Bad data: ". Mojo::JSON::to_json($data));
+        $self->log->error("Validation '".$self->name.'\' threw an exception on device id \''
+            .$self->device->id.'\': '.$message);
 
         my $validation_error = {
             message  => $message,
