@@ -220,6 +220,7 @@ sub add_test_routes ($app) {
         ->status_is(204);
 
     my $request_id = $t->tx->res->headers->header('Request-Id');
+    cmp_ok(length($request_id), '>=', 12, 'request_id has some heft to it');
 
     $t->log_warn_is('this is a warn message');
     $t->log_debug_is('this is a debug message');
