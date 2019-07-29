@@ -74,8 +74,7 @@ Sub-second precision will use 3, 6 or 9 digits as necessary.
 =cut
 
 sub rfc3339 {
-    my $self = shift;
-    return $self->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
+    return shift->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
 }
 
 =head3 timestamp
