@@ -3532,17 +3532,21 @@ DISTRIBUTIONS
       Test::Builder::Module 0
       Test::More 0.47
       perl 5.006
-  Test-Spelling-0.20
-    pathname: S/SA/SARTAK/Test-Spelling-0.20.tar.gz
+  Test-Spelling-0.25
+    pathname: C/CA/CAPOEIRAB/Test-Spelling-0.25.tar.gz
     provides:
-      Test::Spelling 0.20
+      Test::Spelling 0.25
     requirements:
-      ExtUtils::MakeMaker 6.59
-      IPC::Run3 0.044
-      Pod::Spell 1.01
-      Test::More 0.88
-      Test::Tester 0
-      perl 5.006
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      File::Spec 0
+      IPC::Run3 0
+      Pod::Spell 0
+      Symbol 0
+      Test::Builder 0
+      Text::Wrap 0
+      strict 0
+      warnings 0
   Test-Warn-0.36
     pathname: B/BI/BIGJ/Test-Warn-0.36.tar.gz
     provides:

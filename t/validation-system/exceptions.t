@@ -51,7 +51,7 @@ subtest '->run, local exception' => sub {
 
     like(
         $fake_log,
-        qr/Validation 'local_exception' threw an exception: I did something dumb/,
+        qr/Validation 'local_exception' threw an exception on device id 'HAL': I did something dumb/,
         'logged the unexpected exception',
     );
 };
@@ -121,7 +121,7 @@ subtest '->run, blessed external exception containing a stack trace' => sub {
 
     like(
         $fake_log,
-        qr/Validation 'mutate_device' threw an exception: .*cannot execute UPDATE in a read-only transaction/,
+        qr/Validation 'mutate_device' threw an exception on device id 'HAL': .*cannot execute UPDATE in a read-only transaction/,
         'logged the unexpected exception',
     );
 };
