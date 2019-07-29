@@ -45,7 +45,7 @@ subtest '->run, local exception' => sub {
     );
 
     $t->log_is(
-        re(qr/Validation 'local_exception' threw an exception: I did something dumb/),
+        re(qr/Validation 'local_exception' threw an exception on device id '${\$device->id}': I did something dumb/),
         'logged the unexpected exception',
     );
 };
@@ -113,7 +113,7 @@ subtest '->run, blessed external exception containing a stack trace' => sub {
     );
 
     $t->log_is(
-        re(qr/Validation 'mutate_device' threw an exception: .*cannot execute UPDATE in a read-only transaction/),
+        re(qr/Validation 'mutate_device' threw an exception on device id '${\$device->id}': .*cannot execute UPDATE in a read-only transaction/),
         'logged the unexpected exception',
     );
 };
