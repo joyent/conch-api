@@ -238,7 +238,7 @@ subtest list => sub {
                 location => {
                     $rack_layouts[1][2]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 1a',
-                    role_name => 'rack_role 42U',
+                    rack_role_name => 'rack_role 42U',
                     az => 'room-1a',
                 },
                 last_seen => '2018-01-02T00:00:00.000Z',
@@ -256,7 +256,7 @@ subtest list => sub {
                 location => {
                     $rack_layouts[0][0]->%{qw(rack_id rack_unit_start)},
                     rack_name => 'rack 0a',
-                    role_name => 'rack_role 42U',
+                    rack_role_name => 'rack_role 42U',
                     az => 'room-0a',
                 },
                 last_seen => '2018-01-04T00:00:00.000Z',

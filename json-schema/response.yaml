@@ -834,7 +834,7 @@ definitions:
           - id
           - name
           - phase
-          - role_name
+          - rack_role_name
           - rack_size
           - device_progress
         properties:
@@ -844,7 +844,7 @@ definitions:
             type: string
           phase:
             $ref: common.yaml#/definitions/device_phase
-          role_name:
+          rack_role_name:
             type: string
           rack_size:
             $ref: common.yaml#/definitions/positive_integer
@@ -1095,7 +1095,7 @@ definitions:
             - rack_id
             - rack_name
             - rack_unit_start
-            - role_name
+            - rack_role_name
             - az
           properties:
             rack_id:
@@ -1104,7 +1104,7 @@ definitions:
               type: string
             rack_unit_start:
               $ref: common.yaml#/definitions/positive_integer
-            role_name:
+            rack_role_name:
               type: string
             az:
               type: string
