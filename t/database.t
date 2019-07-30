@@ -104,7 +104,8 @@ subtest 'transactions' => sub {
 
     is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back');
 
-    $t->app->routes->get(
+    my $r = Mojolicious::Routes->new;
+    $r->get(
         '/test_txn_wrapper1',
         sub ($c) {
             my $result = $c->txn_wrapper(sub ($self, @args) {
@@ -125,12 +126,7 @@ subtest 'transactions' => sub {
         },
     );
 
-    $t->get_ok('/test_txn_wrapper1')
-        ->content_is('', 'no error response was prepared on intentional rollback');
-
-    is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back (again)');
-
-    $t->app->routes->get(
+    $r->get(
         '/test_txn_wrapper2',
         sub ($c) {
             $c->txn_wrapper(sub ($my_c, $id) {
@@ -144,6 +140,13 @@ subtest 'transactions' => sub {
             }, $c->req->query_params->param('id'));
         },
     );
+
+    $t->add_routes($r);
+
+    $t->get_ok('/test_txn_wrapper1')
+        ->content_is('', 'no error response was prepared on intentional rollback');
+
+    is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back (again)');
 
     $t->get_ok('/test_txn_wrapper2?id=bad_id')
         ->status_is(400)

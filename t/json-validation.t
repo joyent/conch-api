@@ -13,11 +13,13 @@ use Conch::UUID 'create_uuid_str';
 my $t = Test::Conch->new(pg => undef);
 
 subtest 'failed query params validation' => sub {
-    $t->app->routes->get('/hello', sub ($c) {
+    my $r = Mojolicious::Routes->new;
+    $r->get('/hello', sub ($c) {
         my $params = $c->validate_query_params('ChangePassword');
         return if not $params;
         return $c->status(200);
     });
+    $t->add_routes($r);
 
     $t->get_ok('/hello?clear_tokens=whargarbl')
         ->status_is(400)

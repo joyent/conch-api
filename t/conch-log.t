@@ -126,19 +126,22 @@ my $api_version_re = qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/;
     );
 }
 
-sub add_test_routes ($app) {
-    $app->routes->get('/hello')->to(cb => sub ($c) {
+sub add_test_routes ($t) {
+    my $r = Mojolicious::Routes->new;
+
+    $r->get('/hello')->to(cb => sub ($c) {
         $c->log->warn('this is a warn message');
         $c->log->debug('this is a debug message');
         $c->status(204);
     });
-    $app->routes->post('/error')->to(cb => sub ($c) {
+    $r->post('/error')->to(cb => sub ($c) {
         $c->log->error('error line from controller');
         $c->status(400, { error => 'something bad happened' });
     });
-    $app->routes->post('/die')->to(cb => sub ($c) { die 'ach, I am slain' });
+    $r->post('/die')->to(cb => sub ($c) { die 'ach, I am slain' });
+    $t->add_routes($r);
 
-    return (warn => __LINE__-10, debug => __LINE__-9, error => __LINE__-5, die => __LINE__-2);
+    return (warn => __LINE__-11, debug => __LINE__-10, error => __LINE__-6, die => __LINE__-3);
 }
 
 {
@@ -214,7 +217,7 @@ sub add_test_routes ($app) {
         'helper sub called outside a request logged in bunyan format, without trace or request_id',
     );
 
-    my %lines = add_test_routes($t->app);
+    my %lines = add_test_routes($t);
 
     $t->get_ok('/hello')
         ->status_is(204);
@@ -510,7 +513,7 @@ sub add_test_routes ($app) {
         },
     );
 
-    my %lines = add_test_routes($t->app);
+    my %lines = add_test_routes($t);
 
     $t->post_ok('/error?query_param=value0', json => { body_param => 'value1' })
         ->status_is(400);
