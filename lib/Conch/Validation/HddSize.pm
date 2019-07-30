@@ -9,7 +9,7 @@ use constant category    => 'DISK';
 use constant description => 'Check hard drive sizes';
 
 sub validate ($self, $data) {
-    my $hw_spec = from_json($self->hardware_product_specification // {});
+    my $hw_spec = from_json($self->hardware_product_specification // '{}');
 
     return if not $hw_spec->{disk_size};
 
