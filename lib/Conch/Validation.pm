@@ -345,7 +345,7 @@ sub run ($self, $data) {
         }
 
         $self->log->error("Validation '".$self->name.'\' threw an exception on device id \''
-            .$self->device->id.'\': '.$message);
+            .$self->device->id.'\': '.($message // $err));
 
         my $validation_error = {
             message  => $message,
