@@ -123,8 +123,8 @@ subtest 'transactions' => sub {
 
     is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back (again)');
 
-
-    $t->app->routes->get(
+    my $r = Mojolicious::Routes->new;
+    $r->get(
         '/test_txn_wrapper',
         sub ($c) {
             $c->txn_wrapper(sub ($my_c, $id) {
@@ -138,6 +138,8 @@ subtest 'transactions' => sub {
             }, $c->req->query_params->param('id'));
         },
     );
+
+    $t->add_routes($r);
 
     $t->get_ok('/test_txn_wrapper?id=bad_id')
         ->status_is(400)

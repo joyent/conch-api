@@ -214,6 +214,13 @@ one specific log level:
 
 ## log\_fatal\_is
 
+## add\_routes
+
+Convenience method to add additional route(s) to the application, without breaking the routes
+that are already in a specific order.
+
+`$routes` should be a [Mojolicious::Routes](https://metacpan.org/pod/Mojolicious::Routes) object that holds the route(s) to be added.
+
 # LICENSING
 
 Copyright Joyent, Inc.
