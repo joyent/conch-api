@@ -348,7 +348,7 @@ sub run ($self, $data) {
             .$self->device->id.'\': '.($message // $err));
 
         my $validation_error = {
-            message  => $message,
+            message  => $message // $err,
             name     => $self->name,
             status   => _STATUS_ERROR,
             hint     => $hint,
