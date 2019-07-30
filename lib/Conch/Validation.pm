@@ -339,9 +339,9 @@ sub run ($self, $data) {
         # remove the 'at $filename line $line_number' from the exception
         # message. We might not want to reveal Conch's path
         else {
-            ($message) = $err =~ /^(.+) at/;
+            ($message) = $err =~ /\A(.+) at /ms;
             $hint = first { path($_)->is_relative }
-                map s/^.* at (.+ line \d+)\.?$/$1/mr, split /\R/, $err;
+                map s/\A.+ at (.+ line \d+)\.?\Z/$1/msr, split /\R/, $err;
         }
 
         $self->log->error("Validation '".$self->name.'\' threw an exception on device id \''
