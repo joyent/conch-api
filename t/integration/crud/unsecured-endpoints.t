@@ -18,6 +18,15 @@ $t->get_ok('/version')
     ->json_schema_is('Version')
     ->json_cmp_deeply({ version => re(qr/^v/) });
 
+$t->get_ok('/foo/bar/baz')
+    ->status_is(404)
+    ->json_is({ error => 'Not Found' })
+    ->log_error_is('no endpoint found for: GET /foo/bar/baz');
+
+$t->post_ok('/boop?some_arg=1')
+    ->status_is(404)
+    ->json_is({ error => 'Not Found' })
+    ->log_error_is('no endpoint found for: POST /boop');
 
 subtest 'device totals' => sub {
 

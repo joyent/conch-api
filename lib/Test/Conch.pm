@@ -610,6 +610,25 @@ sub _request_ok ($self, @args) {
     return $result;
 }
 
+=head2 add_routes
+
+Convenience method to add additional route(s) to the application, without breaking the routes
+that are already in a specific order.
+
+C<$routes> should be a L<Mojolicious::Routes> object that holds the route(s) to be added.
+
+=cut
+
+sub add_routes ($self, $routes) {
+    my $r = $self->app->routes;
+    my $catchall = $r->find('catchall')->remove;
+
+    # we need the babycart because add_child mutates the underlying list
+    $r->add_child($_) foreach @{[ $routes->children->@* ]};
+
+    $r->add_child($catchall);
+}
+
 1;
 __END__
 

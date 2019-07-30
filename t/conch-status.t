@@ -8,6 +8,7 @@ use Test::Conch;
 
 {
     my $t = Test::Conch->new();
+    my $catchall = $t->app->routes->find('catchall')->remove;
 
     $t->app->routes->${\ $_->[0] }($_->[1], $_->[2]) foreach (
         # method, path, sub
