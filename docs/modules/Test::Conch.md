@@ -229,6 +229,13 @@ Like ["log\_is"](#log_is), but tests for multiple messages at once.
 Clears the log history. This does not normally need to be explicitly called, since it is
 cleared before every request.
 
+## add\_routes
+
+Convenience method to add additional route(s) to the application, without breaking the routes
+that are already in a specific order.
+
+`$routes` should be a [Mojolicious::Routes](https://metacpan.org/pod/Mojolicious::Routes) object that holds the route(s) to be added.
+
 # LICENSING
 
 Copyright Joyent, Inc.

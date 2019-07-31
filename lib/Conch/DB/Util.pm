@@ -147,6 +147,7 @@ sub initialize_db ($schema) {
         # create tables in the default database
         # $dbh->$do('CREATE DATABASE conch OWNER conch');
 
+        $dbh->$do('CREATE ROLE conch_read_only LOGIN');
         say STDERR 'loading sql/schema.sql' if $debug;
         $dbh->do(path('sql/schema.sql')->slurp_utf8) or die 'SQL load failed in sql/schema.sql';
         $dbh->$do('RESET search_path');  # go back to "$user", public

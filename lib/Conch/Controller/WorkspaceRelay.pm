@@ -65,7 +65,7 @@ sub list ($c) {
                     rack_id => 'device_location.rack_id',
                     rack_name => 'rack.name',
                     rack_unit_start => 'device_location.rack_unit_start',
-                    role_name => 'rack_role.name',
+                    rack_role_name => 'rack_role.name',
                     az => 'datacenter_room.az',
                     num_devices => $num_devices_rs->as_query,
                 },
@@ -77,7 +77,7 @@ sub list ($c) {
         my %cols = $connection->get_columns;
         +{
             $connection->relay->TO_JSON->%*,
-            location => +{ %cols{qw(rack_id rack_name rack_unit_start role_name az)} },
+            location => +{ %cols{qw(rack_id rack_name rack_unit_start rack_role_name az)} },
             last_seen => $connection->last_seen,
             num_devices => $cols{num_devices},
         }

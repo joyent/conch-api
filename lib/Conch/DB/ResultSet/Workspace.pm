@@ -33,7 +33,6 @@ L</and_workspaces_beneath> for that.
 =cut
 
 sub workspaces_beneath ($self, $workspace_id) {
-    Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my $query = q{
@@ -62,7 +61,6 @@ or a resultset, which must return a single column of distinct workspace_id(s)).
 =cut
 
 sub and_workspaces_beneath ($self, $workspace_id) {
-    Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my ($workspace_id_clause, @binds) = $self->_workspaces_subquery($workspace_id);
@@ -94,7 +92,6 @@ L</and_workspaces_above> for that.
 =cut
 
 sub workspaces_above ($self, $workspace_id) {
-    Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my $query = qq{
@@ -124,7 +121,6 @@ or a resultset, which must return a single column of distinct workspace_id(s)).
 =cut
 
 sub and_workspaces_above ($self, $workspace_id) {
-    Carp::croak('missing workspace_id') if not defined $workspace_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
     my ($workspace_id_clause, @binds) = $self->_workspaces_subquery($workspace_id);
@@ -177,8 +173,6 @@ permission that is attached to an ancestor workspace).
 =cut
 
 sub role_via_for_user ($self, $workspace_id, $user_id) {
-    Carp::croak('missing workspace_id') if not defined $workspace_id;
-    Carp::croak('missing user_id') if not defined $user_id;
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
     # because we check for duplicate role entries when creating user_workspace_role rows,

@@ -50,7 +50,7 @@ workspace associated with the specified rack(s), including parent workspaces.
 
 sub user_has_permission ($self, $user_id, $permission) {
     Carp::croak('permission must be one of: ro, rw, admin')
-        if none { $permission eq $_ } qw(ro rw admin);
+        if !$ENV{MOJO_MODE} and none { $permission eq $_ } qw(ro rw admin);
 
     my $rack_workspaces_ids_rs = $self
         ->related_resultset('workspace_racks')

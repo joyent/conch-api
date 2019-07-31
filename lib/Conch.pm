@@ -18,6 +18,7 @@ use Mojo::Base 'Mojolicious', -signatures;
 use Conch::Route;
 use Conch::ValidationSystem;
 use List::Util 'any';
+use Digest::SHA ();
 
 =head2 startup
 
@@ -113,6 +114,16 @@ sub startup {
             $headers->header('X-Request-Id' => $request_id);
         }
     );
+
+    # see Mojo::Message::Request for original implementation
+    my ($SEED, $COUNTER) = ($$ . time . rand, int rand 0xffffff);
+    $self->hook(
+        after_build_tx => sub ($tx, $app) {
+            my $checksum = Digest::SHA::sha1_base64($SEED . ($COUNTER = ($COUNTER + 1) % 0xffffff));
+            $tx->req->request_id(substr $checksum, 0, 12);
+        }
+    );
+
 
     $self->plugin('Conch::Plugin::ClientVerification', $self->config)
         if $self->feature('verify_client_version') // 1;

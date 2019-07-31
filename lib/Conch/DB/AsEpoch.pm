@@ -33,8 +33,6 @@ epoch time format (number of seconds since 1970-01-01 00:00:00 UTC).
 =cut
 
 sub as_epoch ($self, $column_name) {
-    Carp::croak('missing column_name') if not $column_name;
-
     my $me = $self->current_source_alias;
     $self->search(
         undef,

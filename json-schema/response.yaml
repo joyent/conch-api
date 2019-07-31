@@ -834,7 +834,7 @@ definitions:
           - id
           - name
           - phase
-          - role_name
+          - rack_role_name
           - rack_size
           - device_progress
         properties:
@@ -844,7 +844,7 @@ definitions:
             type: string
           phase:
             $ref: common.yaml#/definitions/device_phase
-          role_name:
+          rack_role_name:
             type: string
           rack_size:
             $ref: common.yaml#/definitions/positive_integer
@@ -856,68 +856,6 @@ definitions:
                 - $ref: common.yaml#/definitions/device_health
             additionalProperties:
               $ref: common.yaml#/definitions/positive_integer
-  WorkspaceRack:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - name
-      - role_name
-      - rack_size
-      - datacenter
-      - phase
-      - slots
-    properties:
-      id:
-        $ref: common.yaml#/definitions/uuid
-      name:
-        type: string
-      role_name:
-        type: string
-      rack_size:
-        $ref: common.yaml#/definitions/positive_integer
-      datacenter:
-        description: datacenter room AZ
-        type: string
-      phase:
-        $ref: common.yaml#/definitions/device_phase
-      slots:
-        type: array
-        uniqueItems: true
-        items:
-          type: object
-          additionalProperties: false
-          required:
-            - id
-            - rack_unit_start
-            - alias
-            - name
-            - rack_unit_size
-            - vendor
-            - occupant
-          properties:
-            id:
-              allOf:
-                - description: Hardware product ID
-                - $ref: common.yaml#/definitions/uuid
-            rack_unit_start:
-              $ref: common.yaml#/definitions/positive_integer
-            alias:
-              description: Hardware product alias
-              type: string
-            name:
-              description: Hardware product name
-              type: string
-            rack_unit_size:
-              $ref: common.yaml#/definitions/positive_integer
-            vendor:
-              description: Hardware product vendor
-              type: string
-            occupant:
-              description: Device assigned to this slot, if any
-              oneOf:
-                - $ref: /definitions/Device
-                - type: 'null'
   Validations:
     type: array
     uniqueItems: true
@@ -1157,7 +1095,7 @@ definitions:
             - rack_id
             - rack_name
             - rack_unit_start
-            - role_name
+            - rack_role_name
             - az
           properties:
             rack_id:
@@ -1166,7 +1104,7 @@ definitions:
               type: string
             rack_unit_start:
               $ref: common.yaml#/definitions/positive_integer
-            role_name:
+            rack_role_name:
               type: string
             az:
               type: string
@@ -1574,10 +1512,7 @@ definitions:
       is_admin:
         type: boolean
       workspaces:
-        type: array
-        uniqueItems: true
-        items:
-          $ref: /definitions/WorkspaceAndRole
+        $ref: /definitions/WorkspacesAndRoles
   UsersDetailed:
     type: array
     uniqueItems: true

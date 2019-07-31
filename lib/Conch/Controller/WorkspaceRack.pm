@@ -57,7 +57,7 @@ sub list ($c) {
                 id => 'rack.id',
                 name => 'rack.name',
                 phase => 'rack.phase',
-                role_name => 'rack_role.name',
+                rack_role_name => 'rack_role.name',
                 rack_size => 'rack_role.rack_size',
             },
             join => [ qw(datacenter_room rack_role) ],

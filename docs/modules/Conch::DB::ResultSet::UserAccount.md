@@ -10,8 +10,7 @@ Interface to queries against the `user_account` table.
 
 Queries for user by (case-insensitive) email address.
 
-If more than one user is found, we return the one created most recently, and a warning will be
-logged (via ["single" in DBIx::Class::ResultSet](https://metacpan.org/pod/DBIx::Class::ResultSet#single)).
+If more than one user is found, we return the one created most recently.
 
 If you want to search only for \*active\* users, apply the `->active` resultset to the
 caller first.

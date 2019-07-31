@@ -100,6 +100,11 @@ sub all_routes (
     Conch::Route::Rack->routes($secured->any('/rack'));
     Conch::Route::RackLayout->routes($secured->any('/layout'));
     Conch::Route::HardwareVendor->routes($secured->any('/hardware_vendor'));
+
+    $root->any('/*all', sub ($c) {
+        $c->log->error('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
+        $c->status(404);
+    })->name('catchall');
 }
 
 1;
