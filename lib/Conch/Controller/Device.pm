@@ -48,16 +48,12 @@ sub find_device ($c) {
 
     # fetch for device existence, id and location in one query
     my $device_check = $rs
-        ->search(undef,
-            {
-                join => 'device_location',
-                '+columns' => ['id'],
-                select => [
-                    { '' => \1, -as => 'exists' },
-                    { '' => \'device_location.rack_id is not null', -as => 'has_location' },
-                ],
-            },
-        )
+        ->search(undef, { join => 'device_location' })
+        ->add_columns([
+            'id',
+            { exists => \1 },
+            { has_location => \'device_location.rack_id is not null' },
+        ])
         ->hri
         ->single;
 
@@ -259,7 +255,6 @@ sub get_pxe ($c) {
                 # ipmi = the (newest) interface named ipmi1.
                 ipmi_mac_ip => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
             },
-            collapse => 1,
             join => { device_location => { rack => { datacenter_room => 'datacenter' } } },
         })
         ->hri

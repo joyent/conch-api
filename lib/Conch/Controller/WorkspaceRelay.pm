@@ -97,8 +97,8 @@ sub get_relay_devices ($c) {
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')
         ->related_resultset('device_locations')
-        ->related_resultset('device')
-        ->search({ relay_id => $c->stash('relay_id') }, { join => 'device_relay_connections' })
+        ->search_related('device',
+            { relay_id => $c->stash('relay_id') }, { join => 'device_relay_connections' })
         ->prefetch('device_location')
         ->order_by('device.created');
 

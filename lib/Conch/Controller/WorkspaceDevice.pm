@@ -139,17 +139,15 @@ sub device_totals ($c) {
         ->related_resultset('workspace_racks')
         ->related_resultset('rack')
         ->related_resultset('device_locations')
-        ->related_resultset('device')
-        ->search(
-            undef,
-            {
-                columns => { alias => 'hardware_product.alias', health => 'device.health' },
-                select => [{ count => '*', -as => 'count' }],
-                group_by => [ 'hardware_product.alias', 'device.health' ],
-                order_by => [ 'hardware_product.alias', 'device.health' ],
-                join => 'hardware_product',
-            },
-        )->hri->all;
+        ->search_related('device', undef, { join => 'hardware_product' })
+        ->columns({
+            alias => 'hardware_product.alias',
+            health => 'device.health',
+            count => { count => '*' },
+        })
+        ->group_by([ qw(hardware_product.alias device.health) ])
+        ->order_by([ qw(hardware_product.alias device.health) ])
+        ->hri->all;
 
     my @switch_counts = grep $switch_aliases{$_->{alias}}, @counts;
     my @server_counts = grep !$switch_aliases{$_->{alias}}, @counts;

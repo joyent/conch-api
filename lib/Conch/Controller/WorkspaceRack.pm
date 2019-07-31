@@ -27,13 +27,10 @@ sub list ($c) {
 
     my $device_health_rs = $racks_rs->search(
         { 'device.id' => { '!=' => undef } },
-        {
-            columns => { rack_id => 'rack.id' },
-            select => [{ count => '*', -as => 'count' }],
-            join => { device_locations => 'device' },
-            distinct => 1,  # group by all columns in final resultset
-        },
-    );
+        { join => { device_locations => 'device' } }
+    )
+    ->columns({ rack_id => 'rack.id', count => { count => '*' } })
+    ->distinct;  # group by all columns in final resultset
 
     my $invalid_rs = $device_health_rs->search(
         { 'device.validated' => undef },
