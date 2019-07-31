@@ -1748,6 +1748,223 @@ ALTER TABLE ONLY public.workspace_rack
 
 
 --
+-- Name: TABLE datacenter; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.datacenter TO conch_read_only;
+
+
+--
+-- Name: TABLE datacenter_room; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.datacenter_room TO conch_read_only;
+
+
+--
+-- Name: TABLE device; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device TO conch_read_only;
+
+
+--
+-- Name: TABLE device_disk; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device_disk TO conch_read_only;
+
+
+--
+-- Name: TABLE device_location; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device_location TO conch_read_only;
+
+
+--
+-- Name: TABLE device_neighbor; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device_neighbor TO conch_read_only;
+
+
+--
+-- Name: TABLE device_nic; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device_nic TO conch_read_only;
+
+
+--
+-- Name: TABLE device_relay_connection; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device_relay_connection TO conch_read_only;
+
+
+--
+-- Name: TABLE device_report; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device_report TO conch_read_only;
+
+
+--
+-- Name: TABLE device_setting; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.device_setting TO conch_read_only;
+
+
+--
+-- Name: TABLE hardware_product; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.hardware_product TO conch_read_only;
+
+
+--
+-- Name: TABLE hardware_product_profile; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.hardware_product_profile TO conch_read_only;
+
+
+--
+-- Name: TABLE hardware_vendor; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.hardware_vendor TO conch_read_only;
+
+
+--
+-- Name: TABLE migration; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.migration TO conch_read_only;
+
+
+--
+-- Name: TABLE rack; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.rack TO conch_read_only;
+
+
+--
+-- Name: TABLE rack_layout; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.rack_layout TO conch_read_only;
+
+
+--
+-- Name: TABLE rack_role; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.rack_role TO conch_read_only;
+
+
+--
+-- Name: TABLE relay; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.relay TO conch_read_only;
+
+
+--
+-- Name: TABLE user_account; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.user_account TO conch_read_only;
+
+
+--
+-- Name: TABLE user_relay_connection; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.user_relay_connection TO conch_read_only;
+
+
+--
+-- Name: TABLE user_session_token; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.user_session_token TO conch_read_only;
+
+
+--
+-- Name: TABLE user_setting; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.user_setting TO conch_read_only;
+
+
+--
+-- Name: TABLE user_workspace_role; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.user_workspace_role TO conch_read_only;
+
+
+--
+-- Name: TABLE validation; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation TO conch_read_only;
+
+
+--
+-- Name: TABLE validation_plan; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation_plan TO conch_read_only;
+
+
+--
+-- Name: TABLE validation_plan_member; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation_plan_member TO conch_read_only;
+
+
+--
+-- Name: TABLE validation_result; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation_result TO conch_read_only;
+
+
+--
+-- Name: TABLE validation_state; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation_state TO conch_read_only;
+
+
+--
+-- Name: TABLE validation_state_member; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation_state_member TO conch_read_only;
+
+
+--
+-- Name: TABLE workspace; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.workspace TO conch_read_only;
+
+
+--
+-- Name: TABLE workspace_rack; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.workspace_rack TO conch_read_only;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
