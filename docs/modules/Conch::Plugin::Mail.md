@@ -28,7 +28,7 @@ $c->send_mail(
 
 ## construct\_address\_list
 
-Given a list of [Conch::DB::Result::UserAccount](https://metacpan.org/pod/user) records, returns a string suitable to be
+Given a list of [user](../modules/Conch::DB::Result::UserAccount) records, returns a string suitable to be
 used in a `To` header, comprising names and email addresses.
 
 # LICENSING

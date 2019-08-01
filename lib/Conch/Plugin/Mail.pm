@@ -116,7 +116,7 @@ sub register ($self, $app, $config) {
 
 =head2 construct_address_list
 
-Given a list of L<Conch::DB::Result::UserAccount|user> records, returns a string suitable to be
+Given a list of L<user|Conch::DB::Result::UserAccount> records, returns a string suitable to be
 used in a C<To> header, comprising names and email addresses.
 
 =cut
