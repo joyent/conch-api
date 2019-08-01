@@ -159,7 +159,7 @@ sub add_role_column ($self, $role) {
         if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
 
     $self->add_columns({
-        role => [ \[ '?::user_workspace_role_enum as role', $role ] ],
+        role => [ \[ '?::role_enum as role', $role ] ],
     });
 }
 
@@ -240,7 +240,7 @@ sub with_user_role ($self, $user_id, $role) {
 
     $self->search(
         {
-            $role ne 'ro' ? ('user_workspace_roles.role' => { '>=' => \[ '?::user_workspace_role_enum', $role ] } ) : (),
+            $role ne 'ro' ? ('user_workspace_roles.role' => { '>=' => \[ '?::role_enum', $role ] } ) : (),
             'user_workspace_roles.user_id' => $user_id,
         },
         { join => 'user_workspace_roles' },

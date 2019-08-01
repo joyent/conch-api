@@ -485,7 +485,7 @@ definitions:
       email:
         $ref: common.yaml#/definitions/email_address
       role:
-        $ref: common.yaml#/definitions/user_workspace_role
+        $ref: common.yaml#/definitions/role
   DeviceAssetTag:
     type: object
     additionalProperties: false

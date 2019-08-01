@@ -46,7 +46,7 @@ __PACKAGE__->table("user_workspace_role");
 
   data_type: 'enum'
   default_value: 'ro'
-  extra: {custom_type_name => "user_workspace_role_enum",list => ["ro","rw","admin"]}
+  extra: {custom_type_name => "role_enum",list => ["ro","rw","admin"]}
   is_nullable: 0
 
 =cut
@@ -60,10 +60,7 @@ __PACKAGE__->add_columns(
   {
     data_type => "enum",
     default_value => "ro",
-    extra => {
-      custom_type_name => "user_workspace_role_enum",
-      list => ["ro", "rw", "admin"],
-    },
+    extra => { custom_type_name => "role_enum", list => ["ro", "rw", "admin"] },
     is_nullable => 0,
   },
 );
@@ -116,7 +113,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ou3awMImfudGc6HMnEfdlQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hztQ0pH4Hj4A+sMl+Ih55A
 
 =head2 role_cmp
 

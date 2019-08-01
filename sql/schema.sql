@@ -74,17 +74,17 @@ CREATE TYPE public.device_phase_enum AS ENUM (
 ALTER TYPE public.device_phase_enum OWNER TO conch;
 
 --
--- Name: user_workspace_role_enum; Type: TYPE; Schema: public; Owner: conch
+-- Name: role_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
-CREATE TYPE public.user_workspace_role_enum AS ENUM (
+CREATE TYPE public.role_enum AS ENUM (
     'ro',
     'rw',
     'admin'
 );
 
 
-ALTER TYPE public.user_workspace_role_enum OWNER TO conch;
+ALTER TYPE public.role_enum OWNER TO conch;
 
 --
 -- Name: validation_status_enum; Type: TYPE; Schema: public; Owner: conch
@@ -580,7 +580,7 @@ ALTER TABLE public.user_setting OWNER TO conch;
 CREATE TABLE public.user_workspace_role (
     user_id uuid NOT NULL,
     workspace_id uuid NOT NULL,
-    role public.user_workspace_role_enum DEFAULT 'ro'::public.user_workspace_role_enum NOT NULL
+    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
 );
 
 

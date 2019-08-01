@@ -29,7 +29,7 @@ sub with_role ($self, $role) {
         if none { $role eq $_ } qw(ro rw admin);
 
     return $self->search if $role eq 'ro';
-    $self->search({ role => { '>=' => \[ '?::user_workspace_role_enum', $role ] } });
+    $self->search({ role => { '>=' => \[ '?::role_enum', $role ] } });
 }
 
 1;

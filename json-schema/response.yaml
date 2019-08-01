@@ -1136,7 +1136,7 @@ definitions:
           - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       role:
-        $ref: common.yaml#/definitions/user_workspace_role
+        $ref: common.yaml#/definitions/role
       role_via:
         allOf:
           - description: the id of the workspace where the role comes from
@@ -1165,7 +1165,7 @@ definitions:
         email:
           $ref: common.yaml#/definitions/email_address
         role:
-          $ref: common.yaml#/definitions/user_workspace_role
+          $ref: common.yaml#/definitions/role
         role_via:
           allOf:
             - description: this is the id of the workspace where the role comes from

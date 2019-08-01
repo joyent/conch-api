@@ -31,7 +31,7 @@ size: 16
 ```perl
 data_type: 'enum'
 default_value: 'ro'
-extra: {custom_type_name => "user_workspace_role_enum",list => ["ro","rw","admin"]}
+extra: {custom_type_name => "role_enum",list => ["ro","rw","admin"]}
 is_nullable: 0
 ```
 
