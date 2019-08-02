@@ -354,6 +354,9 @@ sub run_validation_plan ($self, %options) {
                 $_->%{qw(message hint status category component_id)},
             }),
             $validator->validation_results;
+
+        $self->log->debug('validation '.$validation->name.' returned no results for device id '.$device->id)
+            if not @validation_results;
     }
 
     # maybe no validations ran? this is a problem.
@@ -370,6 +373,9 @@ sub run_validation_plan ($self, %options) {
     } map $_->status, @validation_results;
 
     return ($status, @validation_results) if $options{no_save_db};
+
+    $self->log->debug('recording validation status '.$status.' with '
+        .(scalar @validation_results).' results for device id '.$device->id);
 
     return $self->schema->resultset('validation_state')->create({
         device_id => $device->id,
