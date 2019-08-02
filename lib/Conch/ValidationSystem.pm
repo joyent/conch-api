@@ -356,7 +356,7 @@ sub run_validation_plan ($self, %options) {
             $validator->validation_results;
 
         $self->log->debug('validation '.$validation->name.' returned no results for device id '.$device->id)
-            if not @validation_results;
+            if not $validator->validation_results;
     }
 
     # maybe no validations ran? this is a problem.
