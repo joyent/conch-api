@@ -29,6 +29,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::CorrelateRelationship', # provides correlate
     'Helper::ResultSet::Shortcut::AddColumns',  # provides add_columns
     '+Conch::DB::AsEpoch',                      # provides as_epoch
+    'Helper::ResultSet::Shortcut::GroupBy',     # provides group_by
 );
 
 1;
