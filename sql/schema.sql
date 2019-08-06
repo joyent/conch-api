@@ -686,7 +686,6 @@ CREATE TABLE public.validation_result (
     status public.validation_status_enum NOT NULL,
     category text NOT NULL,
     component_id text,
-    result_order integer NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -716,7 +715,9 @@ ALTER TABLE public.validation_state OWNER TO conch;
 
 CREATE TABLE public.validation_state_member (
     validation_state_id uuid NOT NULL,
-    validation_result_id uuid NOT NULL
+    validation_result_id uuid NOT NULL,
+    result_order integer NOT NULL,
+    CONSTRAINT validation_state_member_result_order_check CHECK ((result_order >= 0))
 );
 
 
@@ -1382,7 +1383,7 @@ CREATE UNIQUE INDEX validation_plan_name_idx ON public.validation_plan USING btr
 -- Name: validation_result_all_columns_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE INDEX validation_result_all_columns_idx ON public.validation_result USING btree (device_id, hardware_product_id, validation_id, message, hint, status, category, component_id, result_order);
+CREATE INDEX validation_result_all_columns_idx ON public.validation_result USING btree (device_id, hardware_product_id, validation_id, message, hint, status, category, component_id);
 
 
 --

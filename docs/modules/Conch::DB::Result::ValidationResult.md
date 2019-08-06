@@ -79,13 +79,6 @@ data_type: 'text'
 is_nullable: 1
 ```
 
-## result\_order
-
-```
-data_type: 'integer'
-is_nullable: 0
-```
-
 ## created
 
 ```perl

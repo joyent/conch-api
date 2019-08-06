@@ -97,7 +97,8 @@ sub validate {
         $self->register_result(
             expected => 2,
             got      => $num_ports,
-            name     => 'num_ports'
+            name     => 'num_ports',
+            component_id => $switch_name,
         );
     }
 }
