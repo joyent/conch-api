@@ -1816,7 +1816,7 @@ ALTER TABLE ONLY public.validation_state
 --
 
 ALTER TABLE ONLY public.validation_state_member
-    ADD CONSTRAINT validation_state_member_validation_result_id_fkey FOREIGN KEY (validation_result_id) REFERENCES public.validation_result(id);
+    ADD CONSTRAINT validation_state_member_validation_result_id_fkey FOREIGN KEY (validation_result_id) REFERENCES public.validation_result(id) ON DELETE CASCADE;
 
 
 --

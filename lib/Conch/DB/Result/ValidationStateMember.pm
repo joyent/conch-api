@@ -86,7 +86,7 @@ __PACKAGE__->belongs_to(
   "validation_result",
   "Conch::DB::Result::ValidationResult",
   { id => "validation_result_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 =head2 validation_state
@@ -106,7 +106,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4os448NsLGQiC9wCPSeH4w
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uqNRvm7JRcN3eZg57CJEUg
 
 1;
 __END__
