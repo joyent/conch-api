@@ -88,6 +88,7 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
     status => 'fail',
     completed => \'now()',
     validation_state_members => [{
+        result_order => 0,
         validation_result => {
             device_id => $device->id,
             hardware_product_id => $device->hardware_product_id,
@@ -96,7 +97,6 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
             hint => 'boo',
             status => 'fail',
             category => 'test',
-            result_order => 0,
         },
     }],
 })->id;
@@ -109,6 +109,7 @@ push @fail_validation_state_id, $t->app->db_validation_states->create({
     status => 'fail',
     completed => '2001-01-01',
     validation_state_members => [{
+        result_order => 0,
         validation_result => {
             created => '2001-01-01',
             device_id => $device->id,
@@ -118,7 +119,6 @@ push @fail_validation_state_id, $t->app->db_validation_states->create({
             hint => 'boo',
             status => 'fail',
             category => 'test',
-            result_order => 0,
         },
     }],
 })->id;
@@ -154,7 +154,6 @@ $t->get_ok('/device/TEST/validation_state')
                 hint => 'boo',
                 status => 'fail',
                 category => 'test',
-                order => 0,
             }],
         },
     ]);
@@ -196,7 +195,6 @@ $t->get_ok('/device/TEST/validation_state?status=error')
                 hint => ignore,
                 status => 'error',
                 category => 'BIOS',
-                order => 0,
             }],
         },
     ]);

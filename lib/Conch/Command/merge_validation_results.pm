@@ -96,7 +96,7 @@ sub run ($self, @opts) {
 sub _process_device ($self, $device) {
     print 'device id ', $device->id, ': ';
 
-    my @grouping_cols = qw(device_id hardware_product_id validation_id message hint status category component result_order);
+    my @grouping_cols = qw(device_id hardware_product_id validation_id message hint status category component);
 
     my $schema = $self->app->schema;
     my ($group_count, $results_deleted) = (0)x2;

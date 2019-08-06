@@ -925,7 +925,6 @@ definitions:
       - hardware_product_id
       - hint
       - message
-      - order
       - status
       - validation_id
     properties:
@@ -947,8 +946,6 @@ definitions:
           - type: string
       message:
         type: string
-      order:
-        $ref: common.yaml#/definitions/non_negative_integer
       status:
         $ref: common.yaml#/definitions/validation_status
       validation_id:

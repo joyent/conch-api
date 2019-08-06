@@ -84,7 +84,6 @@ subtest 'run report without an existing device' => sub {
                 hardware_product_id => $hardware_product->id,
                 hint => ignore,
                 message => ignore,
-                order => ignore,
                 status => any(qw(error fail pass)),
             }, @validations)),
         });
@@ -128,7 +127,6 @@ subtest 'create device via report' => sub {
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => [
                 superhashof({
-                    order => 0,
                     status => 'pass',
                 }),
             ],

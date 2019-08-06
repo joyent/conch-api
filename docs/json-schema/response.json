@@ -2392,9 +2392,6 @@
         "message" : {
           "type" : "string"
         },
-        "order" : {
-          "$ref" : "common.json#/definitions/non_negative_integer"
-        },
         "status" : {
           "$ref" : "common.json#/definitions/validation_status"
         },
@@ -2409,7 +2406,6 @@
         "hardware_product_id",
         "hint",
         "message",
-        "order",
         "status",
         "validation_id"
       ],

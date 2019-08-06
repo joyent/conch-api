@@ -341,13 +341,8 @@ sub run_validation_plan ($self, %options) {
 
         $validator->run($data);
 
-        my $result_order = 0;
         push @validation_results, map
             $validation_result_rs->new_result({
-                # each time a ValidationResult is created, increment order value
-                # post-assignment. This allows us to distinguish between multiples
-                # of similar results
-                result_order        => $result_order++,
                 validation_id       => $validation->id,
                 device_id           => $device->id,
                 hardware_product_id => $validator->hardware_product->id,
@@ -376,6 +371,7 @@ sub run_validation_plan ($self, %options) {
     $self->log->debug('recording validation status '.$status.' with '
         .(scalar @validation_results).' results for device id '.$device->id);
 
+    my $result_order = 0;
     return $self->schema->resultset('validation_state')->create({
         device_id => $device->id,
         device_report_id => $device_report->id,
@@ -384,7 +380,10 @@ sub run_validation_plan ($self, %options) {
         completed => \'now()',
         # provided column data is used to determine if these result(s) already exist in the db,
         # and they are reused if so, otherwise they are inserted
-        validation_state_members => [ map +{ validation_result => $_ }, @validation_results ],
+        validation_state_members => [ map +{
+            result_order => $result_order++,
+            validation_result => $_,
+        }, @validation_results ],
     });
 }
 
@@ -414,14 +413,9 @@ sub run_validation ($self, %options) {
     );
     $validator->run($data);
 
-    my $result_order = 0;
     my $validation_result_rs = $self->schema->resultset('validation_result');
     my @validation_results = map
         $validation_result_rs->new_result({
-            # each time a ValidationResult is created, increment order value
-            # post-assignment. This allows us to distinguish between multiples
-            # of similar results
-            result_order        => $result_order++,
             validation_id       => $validation->id,
             device_id           => $device->id,
             hardware_product_id => $validator->hardware_product->id,
