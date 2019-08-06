@@ -16,6 +16,8 @@ use Test::Memory::Cycle;
 
 my $t = Test::Conch->new;
 $t->load_fixture('conch_user_global_workspace');
+my $global_ws = $t->app->db_workspaces->find({ name => 'GLOBAL' });
+my $main_user = $t->app->db_user_accounts->find_by_email($t->CONCH_EMAIL);
 
 $t->post_ok('/login', json => { email => 'a', password => 'b' })
     ->status_is(400)
@@ -50,6 +52,8 @@ $t->get_ok('/me')
 $conch_user->discard_changes;
 ok($conch_user->last_login < $now, 'user last_login is not updated with normal auth');
 ok($conch_user->last_seen >= $now, 'user last_seen is updated');
+
+my $user_detailed;
 
 subtest 'User' => sub {
     $t->get_ok('/user/me/settings')
@@ -147,20 +151,49 @@ subtest 'User' => sub {
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
             ->status_is(200, 'login token works without cookies etc')
             ->json_schema_is('UserDetailed')
-            ->json_is('/email' => $t2->CONCH_EMAIL);
+            ->json_cmp_deeply({
+                id => $main_user->id,
+                name => $main_user->name,
+                email => $t2->CONCH_EMAIL,
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                refuse_session_auth => JSON::PP::false,
+                force_password_change => JSON::PP::false,
+                is_admin => JSON::PP::true,
+                workspaces => [ {
+                    id => $global_ws->id,
+                    parent_workspace_id => undef,
+                    name => 'GLOBAL',
+                    description => $global_ws->description,
+                    role => 'admin',
+                } ],
+            });
+        $user_detailed = $t2->tx->res->json;
     }
+
+    $t->get_ok('/user')
+        ->status_is(200)
+        ->json_schema_is('UsersDetailed')
+        ->json_cmp_deeply([{
+            $user_detailed->%*,
+            last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        }]);
 
     # get another JWT
     $t->authenticate;
     push @login_token, $t->tx->res->json->{jwt_token};
-    my $user_id;
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[1] })
             ->status_is(200, 'second login token works without cookies etc')
             ->json_schema_is('UserDetailed')
-            ->json_is('/email' => $t2->CONCH_EMAIL);
-        $user_id = $t2->tx->res->json->{id};
+            ->json_cmp_deeply({
+                $user_detailed->%*,
+                last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            });
     }
 
     {
@@ -168,7 +201,11 @@ subtest 'User' => sub {
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
             ->status_is(200, 'and first login token still works')
             ->json_schema_is('UserDetailed')
-            ->json_is('/email' => $t2->CONCH_EMAIL);
+            ->json_cmp_deeply({
+                $user_detailed->%*,
+                last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            });
     }
 
     $t->post_ok('/user/me/token', json => { name => 'an api token' })
@@ -204,7 +241,11 @@ subtest 'User' => sub {
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
             ->status_is(200, 'api token still works after changing password')
             ->json_schema_is('UserDetailed')
-            ->json_is('/email' => $t2->CONCH_EMAIL);
+            ->json_cmp_deeply({
+                $user_detailed->%*,
+                last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            });
     }
 
     $t->post_ok('/login', json => { email => $t->CONCH_EMAIL, password => 'øƕḩẳȋ' })
@@ -220,7 +261,7 @@ subtest 'User' => sub {
             ->status_is(401, 'api login token no longer works either');
     }
 
-    $t->post_ok('/login', json => { user_id => $user_id, password => 'another password' })
+    $t->post_ok('/login', json => { user_id => $user_detailed->{id}, password => 'another password' })
         ->status_is(200, 'logged in using second new password, and user_id instead of email');
 
     $t->post_ok('/user/me/password', json => { password => $t->CONCH_PASSWORD })
@@ -312,10 +353,17 @@ subtest 'JWT authentication' => sub {
     $t->authenticate;
 };
 
+my $new_user_data;
 subtest 'modify another user' => sub {
     $t->post_ok('/user', json => { name => 'me', email => 'foo@conch.joyent.us' })
         ->status_is(400, 'user name "me" is prohibited')
         ->json_is({ error => 'user name "me" is prohibited' })
+        ->email_not_sent;
+
+    $t->post_ok('/user', json => { email => 'foo/bar@conch.joyent.us', name => 'foo' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ])
         ->email_not_sent;
 
     $t->post_ok('/user', json => { name => 'foo', email => $t->CONCH_EMAIL })
@@ -353,9 +401,11 @@ subtest 'modify another user' => sub {
             json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
         ->status_is(201, 'created new user foo')
         ->json_schema_is('NewUser')
-        ->json_has('/id', 'got user id')
-        ->json_is('/email' => 'foo@conch.joyent.us', 'got email')
-        ->json_is('/name' => 'foo', 'got name')
+        ->json_cmp_deeply({
+            id => re(Conch::UUID::UUID_FORMAT),
+            email => 'foo@conch.joyent.us',
+            name => 'foo',
+        })
         ->email_cmp_deeply({
             To => '"foo" <foo@conch.joyent.us>',
             From => 'noreply@conch.joyent.us',
@@ -383,17 +433,28 @@ subtest 'modify another user' => sub {
             workspaces => [],
         }, 'returned all the right fields (and not the password)');
 
-    my $new_user_data = $t->tx->res->json;
+    $new_user_data = $t->tx->res->json;
+
+    $t->get_ok('/user')
+        ->status_is(200)
+        ->json_schema_is('UsersDetailed')
+        ->json_cmp_deeply([
+            {
+                $user_detailed->%*,
+                last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            },
+            $new_user_data,
+        ]);
 
     $t->post_ok('/user?send_mail=0',
             json => { email => 'foo@conch.joyent.us', name => 'foo', password => '123' })
         ->status_is(409, 'cannot create the same user again')
         ->json_schema_is('UserError')
-        ->json_is('/error' => 'duplicate user found')
-        ->json_is('/user/id' => $new_user_id, 'got user id')
-        ->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
-        ->json_is('/user/name' => 'foo', 'got user name')
-        ->json_is('/user/deactivated' => undef, 'got user deactivated date');
+        ->json_is({
+            error => 'duplicate user found',
+            user => { $new_user_data->%{qw(id email name created deactivated)} },
+        });
 
     $t->post_ok('/user?send_mail=0',
             json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
@@ -429,14 +490,13 @@ subtest 'modify another user' => sub {
             Subject => 'Your Conch account has been updated.',
             body => re(qr/^Your account at Joyent Conch has been updated:\R\R {4}is_admin: false -> true\R {8}name: foo -> FOO\R\R/m),
         });
+    $new_user_data->{name} = 'FOO';
+    $new_user_data->{is_admin} = JSON::PP::true;
+
     $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
         ->json_schema_is('UserDetailed')
-        ->json_is({
-            $new_user_data->%*,
-            name => 'FOO',
-            is_admin => JSON::PP::true,
-        });
+        ->json_is($new_user_data);
 
     my $t2 = Test::Conch->new(pg => $t->pg);
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => '123' })
@@ -551,7 +611,13 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
         ->status_is(200, 'but the api token still works after his password is changed')
         ->json_schema_is('UserDetailed')
-        ->json_is('/email' => 'foo@conch.joyent.us');
+        ->json_cmp_deeply({
+            $new_user_data->%*,
+            last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            refuse_session_auth => JSON::PP::true,
+            force_password_change => JSON::PP::true,
+        });
 
     $t2->post_ok('/login', json => { email => 'foo@conch.joyent.us', password => 'foo' })
         ->status_is(401)
@@ -628,10 +694,13 @@ subtest 'modify another user' => sub {
     $t->delete_ok("/user/$new_user_id")
         ->status_is(410, 'new user was already deactivated')
         ->json_schema_is('UserError')
-        ->json_is('/error' => 'user was already deactivated')
-        ->json_is('/user/id' => $new_user_id, 'got user id')
-        ->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
-        ->json_is('/user/name' => 'FOO', 'got user name');
+        ->json_cmp_deeply({
+            error => 'user was already deactivated',
+            user => {
+                $new_user_data->%{qw(id email name created)},
+                deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            },
+        });
 
     $new_user->discard_changes;
     ok($new_user->deactivated, 'user still exists, but is marked deactivated');
@@ -651,6 +720,29 @@ subtest 'modify another user' => sub {
     my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);
     is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
     is($second_new_user->name, $new_user->name, '...but the names are the same');
+
+
+    $t2->post_ok('/logout')->status_is(204);
+
+    my $untrusted_user = $t2->generate_fixtures('user_account');
+    $t2->authenticate(email => $untrusted_user->email);
+
+    my $EMAIL = 'conch@conch.joyent.us';
+    my @queries = (
+        [ GET => '/user' ],
+        [ GET => '/user/'.$EMAIL ],
+        [ POST => '/user', json => { email => $EMAIL, name => 'test' } ],
+        [ POST => '/user/'.$EMAIL, json => json => { name => 'hi' } ],
+        [ POST => '/user/'.$EMAIL, json => { is_admin => JSON::PP::true } ],
+        [ DELETE => '/user/'.$EMAIL ],
+        [ POST => '/user/'.$EMAIL.'/revoke' ],
+        [ DELETE => '/user/'.$EMAIL.'/password' ],
+        [ GET => '/user/'.$EMAIL.'/token' ],
+        [ GET => '/user/'.$EMAIL.'/token/foo' ],
+        [ DELETE => '/user/'.$EMAIL.'/token/foo' ],
+    );
+    $t2->_build_ok($_->@*)->status_is(403) foreach @queries;
+
 
     warnings(sub {
         memory_cycle_ok($t2, 'no leaks in the Test::Conch object');
@@ -723,7 +815,11 @@ subtest 'user tokens (our own)' => sub {
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$jwt })
         ->status_is(200)
         ->json_schema_is('UserDetailed')
-        ->json_is('/email' => $t2->CONCH_EMAIL);
+        ->json_cmp_deeply({
+            $user_detailed->%*,
+            last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
     undef $t2;
 
     cmp_deeply(

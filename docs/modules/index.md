@@ -3,7 +3,7 @@
 * [Conch](../modules/Conch)
 * [Conch::Command::check_layouts](../modules/Conch::Command::check_layouts)
 * [Conch::Command::check_validation_plans](../modules/Conch::Command::check_validation_plans)
-* [Conch::Command::clean_permissions](../modules/Conch::Command::clean_permissions)
+* [Conch::Command::clean_roles](../modules/Conch::Command::clean_roles)
 * [Conch::Command::create_token](../modules/Conch::Command::create_token)
 * [Conch::Command::create_user](../modules/Conch::Command::create_user)
 * [Conch::Command::thin_device_reports](../modules/Conch::Command::thin_device_reports)

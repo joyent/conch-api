@@ -131,7 +131,7 @@ otherwise.
 
 Does not store validation results.
 
-- User requires the read/write role
+- User requires the read-only role
 - Request: device\_report.yaml#/DeviceReport
 - Response: response.yaml#/ValidationResults
 
@@ -139,7 +139,7 @@ Does not store validation results.
 
 Does not store validation results.
 
-- User requires the read/write role
+- User requires the read-only role
 - Request: device\_report.yaml#/DeviceReport
 - Response: response.yaml#/ValidationResults
 

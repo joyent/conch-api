@@ -146,28 +146,119 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('ValidationStateWithResults')
         ->json_is($validation_state);
 
-    $t->authenticate(email => $null_user->email);
-    $t->get_ok('/device/TEST')
+    my @post_queries = (
+        [ '/device/TEST/validated' ],
+        [ '/device/TEST/phase', json => { phase => 'installation' } ],
+        [ '/device/TEST/links', json => { links => [ 'https://foo.com/1' ] } ],
+        [ '/device/TEST/settings/hello', json => { hello => 'world' } ],
+        [ '/device/TEST/settings/tag.hello', json => { 'tag.hello' => 'hi' } ],
+    );
+
+    foreach my $query (@post_queries) {
+        $t->post_ok($query->@*);
+        if ($query->[0] =~ /settings/) {
+            $t->status_is(204);
+        } else {
+            $t->status_is(303)
+            ->location_is('/device/'.$test_device_id);
+        }
+    }
+
+    $t->app->db_device_nics->create({
+        device_id => $test_device_id,
+        iface_name => 'home',
+        iface_type => 'me',
+        iface_vendor => 'me',
+        mac => '00:00:00:00:00:00',
+        ipaddr => '127.0.0.1',
+    });
+
+    my @get_queries = (
+        '/device/TEST',
+        '/device/TEST/settings',
+        '/device/TEST/settings/hello',
+        '/device/TEST/settings/tag.hello',
+        '/device/TEST/validation_state',
+        '/device/TEST/interface',
+        '/device/TEST/phase',
+        '/device?hostname=elfo',
+        '/device?mac=00:00:00:00:00:00',
+        '/device?ipaddr=127.0.0.1',
+        '/device?link=https://foo.com/1',
+    );
+
+    foreach my $query (@get_queries) {
+        $t->get_ok($query)
+            ->status_is(200);
+    }
+
+    my $t2 = Test::Conch->new(pg => $t->pg);
+    $t2->authenticate(email => $null_user->email);
+
+    $t2->get_ok('/device/TEST')
         ->status_is(403);
+
+    $t2->get_ok('/device_report/'.$validation_state->{device_report_id})
+        ->status_is(403);
+
+    foreach my $query (@post_queries) {
+        $t2->post_ok($query->@*)
+            ->status_is(403);
+    }
+
+    foreach my $query (@get_queries) {
+        $t2->get_ok($query)
+            ->status_is(403);
+    }
+
+    my @delete_queries = (
+        '/device/TEST/settings/hello',
+        '/device/TEST/settings/tag.hello',
+        '/device/TEST/links',
+    );
+
+    foreach my $query (@delete_queries) {
+        $t2->delete_ok($query)
+            ->status_is(403);
+    }
+
+    foreach my $query (@delete_queries) {
+        $t->delete_ok($query)
+            ->status_is(204);
+    }
+
+    $null_user->update({ is_admin => 1 });
+
+    $t2->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice');
+
+    foreach my $query (@post_queries) {
+        $t2->post_ok($query->@*);
+        if ($query->[0] =~ /settings|validated/) {
+            $t2->status_is(204);
+        } else {
+            $t2->status_is(303)
+                ->location_is('/device/'.$test_device_id);
+        }
+    }
+
+    foreach my $query (@get_queries) {
+        $t2->get_ok($query)
+            ->status_is(200);
+    }
+
+    foreach my $query (@delete_queries) {
+        $t2->delete_ok($query)
+            ->status_is(204);
+    }
 
     $t->get_ok('/device_report/'.$validation_state->{device_report_id})
-        ->status_is(403);
+        ->status_is(200)
+        ->json_schema_is('DeviceReportRow');
 
-    {
-        $null_user->update({ is_admin => 1 });
-
-        $t->get_ok('/device/TEST')
-            ->status_is(200)
-            ->json_schema_is('DetailedDevice');
-
-        $t->get_ok('/device_report/'.$validation_state->{device_report_id})
-            ->status_is(200)
-            ->json_schema_is('DeviceReportRow');
-
-        $null_user->update({ is_admin => 0 });
-
-        $t->authenticate(email => $ro_user->email);
-    }
+    $null_user->update({ is_admin => 0 });
+    #$t->app->db_device_nics->search({ device_id => $test_device_id })->delete;
 };
 
 my $located_device_id;
@@ -217,40 +308,45 @@ subtest 'located device' => sub {
             ->status_is(403);
     });
 
-    # TODO: permissions for PUT, DELETE queries
-
-    subtest 'permissions for POST queries' => sub {
-        my @queries = (
-            '/device/LOCATED_DEVICE/validated',
+    subtest 'required role for POST queries' => sub {
+        my @post_queries = (
+            [ '/device/LOCATED_DEVICE/validated' ],
+            [ '/device/LOCATED_DEVICE/settings/hello', json => { hello => 'world' } ],
+            [ '/device/LOCATED_DEVICE/settings/tag.hello', json => { 'tag.hello' => 'hi' } ],
+            [ '/device/LOCATED_DEVICE/settings/tag.hello', json => { 'tag.hello' => 'bye' } ], # not a typo!
             [ '/device/LOCATED_DEVICE/phase', json => { phase => 'installation' } ],
             [ '/device/LOCATED_DEVICE/links', json => { links => [ 'https://foo.com/1' ] } ],
         );
 
         $t->authenticate(email => $rw_user->email);
-        foreach my $query (@queries) {
-            $t->post_ok(ref $query ? $query->@* : $query)
-                ->status_is(303)
+        foreach my $query (@post_queries) {
+            $t->post_ok($query->@*);
+            if ($query->[0] =~ /settings/) {
+                $t->status_is(204);
+            } else {
+                $t->status_is(303)
                 ->location_is('/device/'.$located_device_id);
+            }
         }
+        $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })
+            ->status_is(403);
 
-        # now switch back to ro_user...
+        $t->authenticate(email => $admin_user->email);
+        $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })
+            ->status_is(204);
+
         $t->authenticate(email => $ro_user->email);
-        foreach my $query (@queries) {
-            $t->post_ok(ref $query ? $query->@* : $query)
+        foreach my $query (@post_queries) {
+            $t->post_ok($query->@*)
                 ->status_is(403);
         }
     };
 
-    subtest 'permissions for GET queries' => sub {
+    subtest 'required role for GET queries' => sub {
         $t->app->db_devices->search({ id => $located_device_id })->update({
             hostname => 'Luci',
         });
-        $t->app->db_device_settings->create({
-            device_id => $located_device_id,
-            name => 'hello',
-            value => 'world',
-        });
-        $t->app->db_device_nics->create({
+        $t->app->db_device_nics->update_or_create({
             device_id => $located_device_id,
             iface_name => 'home',
             iface_type => 'me',
@@ -259,41 +355,66 @@ subtest 'located device' => sub {
             ipaddr => '127.0.0.1',
         });
 
-        my @queries = (
+        my @get_queries = (
             '/device/LOCATED_DEVICE',
             '/device/LOCATED_DEVICE/location',
             '/device/LOCATED_DEVICE/settings',
             '/device/LOCATED_DEVICE/settings/hello',
+            '/device/LOCATED_DEVICE/settings/tag.hello',
             '/device/LOCATED_DEVICE/validation_state',
             '/device/LOCATED_DEVICE/interface',
             '/device/LOCATED_DEVICE/phase',
-            # TODO: filter search results for permissions
-            #'/device?hostname=Luci',
-            #'/device?mac=00:00:00:00:00:00',
-            #'/device?ipaddr=127.0.0.1',
-            #'/device?links=https://foo.com/1',
+            '/device?hostname=Luci',
+            '/device?mac=00:00:00:00:00:00',
+            '/device?ipaddr=127.0.0.1',
+            '/device?link=https://foo.com/1',
         );
 
-        foreach my $query (@queries) {
+        foreach my $query (@get_queries) {
             $t->get_ok($query)
                 ->status_is(200);
         }
 
-        $t->txn_local('remove all workspace permissions', sub ($t) {
+        $t->txn_local('remove all workspace roles', sub ($t) {
             $t->app->db_user_workspace_roles->delete;
 
-            foreach my $query (@queries) {
+            foreach my $query (@get_queries) {
                 $t->get_ok($query)
                     ->status_is(403);
             }
 
             $ro_user->update({ is_admin => 1 });
-            foreach my $query (@queries) {
+            foreach my $query (@get_queries) {
                 $t->get_ok($query)
                     ->status_is(200);
             }
             $ro_user->update({ is_admin => 0 });
         });
+    };
+
+
+    subtest 'required role for DELETE queries' => sub {
+        $t->authenticate(email => $ro_user->email);
+        $t->delete_ok('/device/LOCATED_DEVICE/settings/hello')
+            ->status_is(403);
+        $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.hello')
+            ->status_is(403);
+        $t->delete_ok('/device/LOCATED_DEVICE/links')
+            ->status_is(403);
+
+        $t->authenticate(email => $rw_user->email);
+        $t->delete_ok('/device/LOCATED_DEVICE/settings/hello')
+            ->status_is(403);
+        $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.hello')
+            ->status_is(204);
+        $t->delete_ok('/device/LOCATED_DEVICE/links')
+            ->status_is(204);
+
+        $t->authenticate(email => $admin_user->email);
+        $t->delete_ok('/device/LOCATED_DEVICE/settings/hello')
+            ->status_is(204);
+
+        $t->authenticate(email => $ro_user->email);
     };
 };
 
@@ -400,6 +521,7 @@ subtest 'mutate device attributes' => sub {
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
 
+    $t->app->db_devices->search({ serial_number => 'TEST' })->update({ validated => undef });
     $t->post_ok('/device/TEST/validated')
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
@@ -474,7 +596,7 @@ subtest 'mutate device attributes' => sub {
 };
 
 subtest 'Device settings' => sub {
-    # device settings that check for 'admin' permission need the device to have a location
+    # device settings that check for the 'admin' role need the device to have a location
     $t->authenticate(email => $admin_user->email);
 
     $t->app->db_device_settings->search({ device_id => $located_device_id })->delete;

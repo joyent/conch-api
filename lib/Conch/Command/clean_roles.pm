@@ -1,14 +1,14 @@
-package Conch::Command::clean_permissions;
+package Conch::Command::clean_roles;
 
 =pod
 
 =head1 NAME
 
-clean_permissions - clean up unnecessary user_workspace_role entries
+clean_roles - clean up unnecessary user_workspace_role entries
 
 =head1 SYNOPSIS
 
-    bin/conch clean_permissions [-nv] [long options...]
+    bin/conch clean_roles [-nv] [long options...]
         -n --dry-run  dry-run (no changes are made)
         -v --verbose  verbose
 
@@ -19,7 +19,7 @@ clean_permissions - clean up unnecessary user_workspace_role entries
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Getopt::Long::Descriptive;
 
-has description => 'Clean up unnecessary permissions';
+has description => 'Clean up unnecessary user_workspace_role entries';
 
 has usage => sub { shift->extract_usage };  # extracts from SYNOPSIS
 
@@ -28,7 +28,7 @@ sub run ($self, @opts) {
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
-        'clean_permissions %o',
+        'clean_roles %o',
         [ 'dry-run|n',      'dry-run (no changes are made)' ],
         [ 'verbose|v',      'verbose' ],
         [],
@@ -43,12 +43,12 @@ sub run ($self, @opts) {
 
     while (my $uwr = $uwr_rs->next) {
         say 'considering workspace ', $uwr->workspace->name, ' for user ', $uwr->user_account->name,
-            ' with permission ', $uwr->role, '...';
+            ' with role ', $uwr->role, '...';
 
         my $delete;
 
         if ($uwr->user_account->deactivated) {
-            print '--> ', $uwr->role, ' permission found for deactivated user. ';
+            print '--> ', $uwr->role, ' role found for deactivated user. ';
             $delete = 1;
         }
 
@@ -64,7 +64,7 @@ sub run ($self, @opts) {
                 ->prefetch('workspace')
                 ->single) {
 
-            print '--> ', $role_via->role, ' permission found ',
+            print '--> ', $role_via->role, ' role found ',
                 'in parent workspace ', $role_via->workspace->name, '. ';
             $delete = 1;
         }

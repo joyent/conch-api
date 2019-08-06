@@ -28,15 +28,16 @@ sub find_rack ($c) {
         return $c->status(404);
     }
 
+    # if no minimum role was specified, use a heuristic:
     # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
     my $method = $c->req->method;
-    my $requires_permission =
+    my $requires_role = $c->stash('require_role') //
         (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
       : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
       : die 'need handling for '.$method.' method';
 
-    if (not $rack_rs->user_has_permission($c->stash('user_id'), $requires_permission)) {
-        $c->log->debug('User lacks permission to access rack'.$c->stash('rack_id'));
+    if (not $rack_rs->user_has_role($c->stash('user_id'), $requires_role)) {
+        $c->log->debug('User lacks role to access rack'.$c->stash('rack_id'));
         return $c->status(403);
     }
 
@@ -92,7 +93,7 @@ Response uses the Racks json schema.
 =cut
 
 sub get_all ($c) {
-    # TODO: instead of sysadmin privs, filter out results by workspace permissions
+    # TODO: instead of sysadmin privs, filter out results by workspace roles
     return $c->status(403) if not $c->is_system_admin;
 
     my @racks = $c->db_racks->order_by('name')->all;

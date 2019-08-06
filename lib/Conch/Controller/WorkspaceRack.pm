@@ -94,8 +94,8 @@ sub find_rack ($c) {
         return $c->status(404);
     }
 
-    # store the simplified query to access the device, now that we've confirmed the user has
-    # permission to access it.
+    # store the simplified query to access the rack, now that we've confirmed the user has
+    # authorization to access it.
     # No queries have been made yet, so you can add on more criteria or prefetches.
     $c->stash('rack_rs',
         $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
@@ -151,7 +151,7 @@ sub add ($c) {
 
 Remove a rack from a workspace (and all descendants).
 
-Requires 'admin' permissions on the workspace.
+Requires the 'admin' role on the workspace.
 
 =cut
 

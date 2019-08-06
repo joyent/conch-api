@@ -145,7 +145,7 @@ SELECT DISTINCT workspace_and_parents.id FROM workspace_and_parents
 
 Query for workspace(s) with an extra field attached to the query which will signal the
 workspace serializer to include the "role" and "via" columns, containing information about the
-effective permissions the user has for the workspace.
+effective role the user has for the workspace.
 
 Only one user_id can be calculated at a time. If you need to generate workspace-and-role data
 for multiple users at once, you can manually do:
@@ -168,7 +168,7 @@ sub with_role_via_data_for_user ($self, $user_id) {
 
 For a given workspace_id and user_id, find the user_workspace_role row that is responsible for
 providing the user access to the workspace (the user_workspace_role with the greatest
-permission that is attached to an ancestor workspace).
+role that is attached to an ancestor workspace).
 
 =cut
 
@@ -176,12 +176,26 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
     Carp::croak('resultset should not have conditions') if $self->{cond};
 
     # because we check for duplicate role entries when creating user_workspace_role rows,
-    # we "should" only have *one* row with the highest permission in the entire hierarchy...
+    # we "should" only have *one* row with the greatest role in the entire hierarchy...
     $self->and_workspaces_above($workspace_id)
         ->search_related('user_workspace_roles', { 'user_workspace_roles.user_id' => $user_id })
         ->order_by({ -desc => 'role' })
         ->rows(1)
         ->single;
+}
+
+=head2 admins
+
+All the 'admin' users for the provided workspace(s).
+
+=cut
+
+sub admins ($self) {
+    $self->search_related('user_workspace_roles', { role => 'admin' })
+        ->related_resultset('user_account')
+        ->active
+        ->distinct
+        ->order_by('user_account.name');
 }
 
 =head2 _workspaces_subquery

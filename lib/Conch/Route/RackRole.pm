@@ -25,16 +25,16 @@ sub routes {
     # GET /rack_role
     $rack_role->get('/')->to('#get_all');
     # POST /rack_role
-    $rack_role->post('/')->to('#create');
+    $rack_role->require_system_admin->post('/')->to('#create');
 
     my $with_rack_role = $rack_role->under('/:rack_role_id_or_name')->to('#find_rack_role');
 
     # GET /rack_role/:rack_role_id_or_name
     $with_rack_role->get('/')->to('#get');
     # POST /rack_role/:rack_role_id_or_name
-    $with_rack_role->post('/')->to('#update');
+    $with_rack_role->require_system_admin->post('/')->to('#update');
     # DELETE /rack_role/:rack_role_id_or_name
-    $with_rack_role->delete('/')->to('#delete');
+    $with_rack_role->require_system_admin->delete('/')->to('#delete');
 }
 
 1;
@@ -47,8 +47,6 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<GET /rack_role>
 
 =over 4
-
-=item * Requires system admin authorization
 
 =item * Response: response.yaml#/RackRoles
 
@@ -69,8 +67,6 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<GET /rack_role/:rack_role_id_or_name>
 
 =over 4
-
-=item * Requires system admin authorization
 
 =item * Response: response.yaml#/RackRole
 

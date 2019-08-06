@@ -20,7 +20,7 @@ and stashes the query to get to it in C<workspace_rs>.
 
 If C<workspace_name> is provided, C<workspace_id> is looked up and stashed.
 
-If C<workspace_role> is provided, it is used as the minimum required role for the user to
+If C<require_role> is provided, it is used as the minimum required role for the user to
 continue.
 
 =cut
@@ -46,15 +46,16 @@ sub find_workspace ($c) {
                     and not $c->db_workspaces->search({ id => $c->stash('workspace_id') })->exists);
     }
 
+    # if no minimum role was specified, use a heuristic:
     # HEAD, GET requires 'ro'; POST requires 'rw', PUT, DELETE requires 'admin'.
     my $method = $c->req->method;
-    my $requires_permission =
-        (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+    my $requires_role = $c->stash('require_role') //
+       ((any { $method eq $_ } qw(HEAD GET)) ? 'ro'
       : (any { $method eq $_ } qw(POST PUT)) ? 'rw'
       : $method eq 'DELETE'                  ? 'admin'
-      : die "need handling for $method method";
+      : die "need handling for $method method");
     return $c->status(403)
-        if not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_permission);
+        if not $c->user_has_workspace_auth($c->stash('workspace_id'), $requires_role);
 
     # stash a resultset for easily accessing the workspace, e.g. for calling ->single, or
     # joining to.

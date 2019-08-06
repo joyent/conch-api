@@ -1,11 +1,11 @@
 # NAME
 
-clean\_permissions - clean up unnecessary user\_workspace\_role entries
+clean\_roles - clean up unnecessary user\_workspace\_role entries
 
 # SYNOPSIS
 
 ```
-bin/conch clean_permissions [-nv] [long options...]
+bin/conch clean_roles [-nv] [long options...]
     -n --dry-run  dry-run (no changes are made)
     -v --verbose  verbose
 

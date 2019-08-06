@@ -1139,7 +1139,7 @@ definitions:
         $ref: common.yaml#/definitions/user_workspace_role
       role_via:
         allOf:
-          - description: the id of the workspace where the permissions came from
+          - description: the id of the workspace where the role comes from
           - $ref: common.yaml#/definitions/uuid
   WorkspacesAndRoles:
     type: array
@@ -1168,7 +1168,7 @@ definitions:
           $ref: common.yaml#/definitions/user_workspace_role
         role_via:
           allOf:
-            - description: this is the id of the workspace where the permissions came from
+            - description: this is the id of the workspace where the role comes from
             - $ref: common.yaml#/definitions/uuid
   Datacenters:
     type: array

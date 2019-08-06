@@ -12,13 +12,25 @@ use Email::Sender::Transport::SMTP;
 
 =head1 NAME
 
-Conch::Plugin::Mail - Sets up a helper to send emails
+Conch::Plugin::Mail
+
+=head2 DESCRIPTION
+
+Helper methods for sending emails
 
 =head2 HELPERS
 
 =cut
 
 sub register ($self, $app, $config) {
+
+    state sub address ($user) {
+        my $name = $user->name;
+        my $email = $user->email;
+        return $name eq $email
+            ? $email
+            : '"'.$name.'" <'.$email.'>';
+    }
 
 =head2 send_mail
 
@@ -29,9 +41,9 @@ sub register ($self, $app, $config) {
             OR
         content => $raw_content,
 
-        to => $to_email,        defaults to stashed 'target_user'
-        from => $from_email,    defaults to stashed 'user'
-        subject => $subject,
+        To => $to_email,        defaults to stashed 'target_user'
+        From => $from_email,    defaults to stashed 'user'
+        Subject => $subject,
 
         ... all additional arguments are passed to the template renderer ...
     );
@@ -48,14 +60,6 @@ sub register ($self, $app, $config) {
                 format => 'txt',    # handler defaults to 'ep'
                 %args,
             );
-
-            state sub address ($user) {
-                my $name = $user->name;
-                my $email = $user->email;
-                return $name eq $email
-                    ? $email
-                    : '"'.$name.'" <'.$email.'>';
-            }
 
             my $to = $args{To} // address($c->stash('target_user'));
             my $from = $args{From} // address($c->stash('user'));
@@ -108,6 +112,17 @@ sub register ($self, $app, $config) {
 
         # the only listener here is in our test infrastructure
         $c->app->plugins->emit(mail_composed => $email);
+    });
+
+=head2 construct_address_list
+
+Given a list of L<Conch::DB::Result::UserAccount|user> records, returns a string suitable to be
+used in a C<To> header, comprising names and email addresses.
+
+=cut
+
+    $app->helper(construct_address_list => sub ($c, @users) {
+        join(', ', map address($_), @users);
     });
 }
 

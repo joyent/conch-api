@@ -8,14 +8,24 @@ Interface to queries involving devices.
 
 # METHODS
 
-## user\_has\_permission
+## with\_user\_role
 
-Checks that the provided user\_id has (at least) the specified permission in at least one
+Constrains the resultset to those where the provided user\_id has (at least) the specified role
+in at least one workspace associated with the specified device(s), including parent workspaces.
+
+## user\_has\_role
+
+Checks that the provided user\_id has (at least) the specified role in at least one
 workspace associated with the specified device(s), including parent workspaces.
 
 ## devices\_without\_location
 
 Restrict results to those that do not have a registered location.
+
+## devices\_reported\_by\_user\_relay
+
+Restrict results to those that have sent a device report proxied by a relay
+registered using the provided user's credentials.
 
 ## latest\_device\_report
 

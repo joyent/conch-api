@@ -34,7 +34,8 @@ sub routes {
     # POST /rack/:rack_id
     $with_rack->post('/')->to('#update');
     # DELETE /rack/:rack_id
-    $with_rack->delete('/')->to('#delete');
+    $with_rack->require_system_admin->delete('/')->to('#delete');
+
     # GET /rack/:rack_id/layouts
     $with_rack->get('/layouts')->to('#layouts');
 
@@ -104,7 +105,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * User requires the read/write role on a workspace that contains the rack
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 

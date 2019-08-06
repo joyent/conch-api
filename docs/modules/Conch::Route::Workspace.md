@@ -85,13 +85,13 @@ those updated with in the last `X` minutes.
 
 ### `GET /workspace/:workspace_id_or_name/user`
 
-- User requires the read-only role
+- User requires the admin role
 - Response: response.yaml#/WorkspaceUsers
 
 ### `POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>`
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
-an email to the user.
+an email to the user and workspace admins.
 
 - User requires the admin role
 - Request: request.yaml#/WorkspaceAddUser
@@ -100,7 +100,7 @@ an email to the user.
 ### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
-an email to the user.
+an email to the user and workspace admins.
 
 - User requires the admin role
 - Returns `204 NO CONTENT`

@@ -13,14 +13,13 @@ Conch::Controller::WorkspaceUser
 =head2 list
 
 Get a list of users for the indicated workspace.
+Requires the 'admin' role on the workspace.
 
 Response uses the WorkspaceUsers json schema.
 
 =cut
 
 sub list ($c) {
-    # TODO: restrict to workspace admins?
-
     my $workspace_id = $c->stash('workspace_id');
 
     # users who can access any ancestor of this workspace
@@ -51,17 +50,16 @@ sub list ($c) {
 
 =head2 add_user
 
-Adds a user to the indicated workspace, or upgrades an existing permission to a workspace.
+Adds a user to the indicated workspace, or upgrades an existing role entry to access the
+workspace.
 Requires the 'admin' role on the workspace.
 
 Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
-to the user.
+to the user and to all workspace admins.
 
 =cut
 
 sub add_user ($c) {
-    return $c->status(403) if not $c->is_workspace_admin;
-
     my $params = $c->validate_query_params('NotifyUsers');
     return if not $params;
 
@@ -110,13 +108,26 @@ sub add_user ($c) {
 
         $c->log->info('Upgraded user '.$user->id.' in workspace '.$workspace_id.' to '.$input->{role});
 
-        $c->send_mail(
-            template_file => 'workspace_change_access',
-            From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch access has changed',
-            workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
-            permission => $input->{role},
-        ) if $params->{send_mail} // 1;
+        if ($params->{send_mail} // 1) {
+            my $workspace_name = $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single;
+            $c->send_mail(
+                template_file => 'workspace_user_update_user',
+                From => 'noreply@conch.joyent.us',
+                Subject => 'Your Conch access has changed',
+                workspace => $workspace_name,
+                role => $input->{role},
+            );
+            my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+                ->search({ 'user_account.id' => { '!=' => $user->id } });
+            $c->send_mail(
+                template_file => 'workspace_user_update_admins',
+                To => $c->construct_address_list(@admins),
+                From => 'noreply@conch.joyent.us',
+                Subject => 'We modified a user\'s access to your workspace',
+                workspace => $workspace_name,
+                role => $input->{role},
+            ) if @admins;
+        }
 
         return $c->status(204);
     }
@@ -125,15 +136,28 @@ sub add_user ($c) {
         workspace_id => $workspace_id,
         role => $input->{role},
     });
-    $c->log->info('Added user '.$user->id.' to workspace '.$workspace_id.' at '.$input->{role}.' permission');
+    $c->log->info('Added user '.$user->id.' to workspace '.$workspace_id.' with the '.$input->{role}.' role');
 
-    $c->send_mail(
-        template_file => 'workspace_add_user',
-        From => 'noreply@conch.joyent.us',
-        Subject => 'Your Conch access has changed',
-        workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
-        permission => $input->{role},
-    ) if $params->{send_mail} // 1;
+    if ($params->{send_mail} // 1) {
+        my $workspace_name = $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single;
+        $c->send_mail(
+            template_file => 'workspace_user_add_user',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            workspace => $workspace_name,
+            role => $input->{role},
+        );
+        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+            ->search({ 'user_account.id' => { '!=' => $user->id } });
+        $c->send_mail(
+            template_file => 'workspace_user_add_admins',
+            To => $c->construct_address_list(@admins),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We added a user to your workspace',
+            workspace => $workspace_name,
+            role => $input->{role},
+        ) if @admins;
+    }
 
     $c->status(204);
 }
@@ -141,13 +165,13 @@ sub add_user ($c) {
 =head2 remove
 
 Removes the indicated user from the workspace, as well as all sub-workspaces.
-Requires 'admin' permissions on the workspace.
+Requires the 'admin' role for the workspace.
 
 Note this may not have the desired effect if the user is getting access to the workspace via
 a parent workspace. When in doubt, check at C<< GET /user/<id or name> >>.
 
 Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
-to the user.
+to the user and to all workspace admins.
 
 =cut
 
@@ -171,12 +195,23 @@ sub remove ($c) {
 
     my $deleted = $rs->delete;
 
-    $c->send_mail(
-        template_file => 'workspace_remove_user',
-        From => 'noreply@conch.joyent.us',
-        Subject => 'Your Conch workspaces have been updated.',
-        workspace => $workspace_name,
-    ) if $deleted > 0 and $params->{send_mail} // 1;
+    if ($deleted > 0 and $params->{send_mail} // 1) {
+        $c->send_mail(
+            template_file => 'workspace_user_remove_user',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch workspaces have been updated.',
+            workspace => $workspace_name,
+        );
+        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+            ->search({ 'user_account.id' => { '!=' => $user->id } });
+        $c->send_mail(
+            template_file => 'workspace_user_remove_admins',
+            To => $c->construct_address_list(@admins),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We removed a user from your workspace',
+            workspace => $workspace_name,
+        ) if @admins;
+    }
 
     return $c->status(204);
 }

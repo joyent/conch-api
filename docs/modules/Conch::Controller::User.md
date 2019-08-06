@@ -124,7 +124,7 @@ Optionally takes a query parameter `clear_tokens` (defaulting to true), to also 
 session tokens for the user, which would force all tools to log in again should the account be
 reactivated (for which there is no api endpoint at present).
 
-All workspace permissions are removed and are not recoverable.
+All user\_workspace\_role entries are removed and are not recoverable.
 
 Response uses the UserError json schema on some error conditions.
 

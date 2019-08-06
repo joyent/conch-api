@@ -1,0 +1,7 @@
+Hello,
+
+<%# TODO: we should specify the conch URL here %>\
+Your access to the "<%= $workspace %>" workspace at Joyent Conch has been adjusted to "<%= $role %>".
+
+Thank you,
+Joyent Build Ops Team

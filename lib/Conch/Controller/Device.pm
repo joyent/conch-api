@@ -17,7 +17,10 @@ Conch::Controller::Device
 =head2 find_device
 
 Chainable action that uses the C<device_id_or_serial_number> provided in the path
-to find the device and verify the user has permissions to operate on it.
+to find the device and verify the user has the required role to operate on it.
+
+If C<require_role> is provided, it is used as the minimum required role for the user to
+continue.
 
 =cut
 
@@ -71,16 +74,17 @@ sub find_device ($c) {
         $c->log->debug('User has system admin privileges to access device '.$identifier);
     }
     elsif ($device_check->{has_location}) {
+        # if no minimum role was specified, use a heuristic:
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
         my $method = $c->req->method;
-        my $requires_permission =
+        my $requires_role = $c->stash('require_role') //
             (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
           : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
           : die 'need handling for '.$method.' method';
 
         if (not $c->db_devices->search({ 'device.id' => $device_id })
-                ->user_has_permission($c->stash('user_id'), $requires_permission)) {
-            $c->log->debug('User lacks permission to access device '.$identifier);
+                ->user_has_role($c->stash('user_id'), $requires_role)) {
+            $c->log->debug('User lacks the required role to access device '.$identifier);
             return $c->status(403);
         }
     }
@@ -91,13 +95,10 @@ sub find_device ($c) {
 
         my $device_rs = $c->db_devices
             ->search({ 'device.id' => $device_id })
-            ->related_resultset('device_relay_connections')
-            ->related_resultset('relay')
-            ->related_resultset('user_relay_connections')
-            ->search({ 'user_relay_connections.user_id' => $c->stash('user_id') });
+            ->devices_reported_by_user_relay($c->stash('user_id'));
 
         if (not $device_rs->exists) {
-            $c->log->debug('User lacks permission to access device '.$identifier);
+            $c->log->debug('User lacks the required role to access device '.$identifier);
             return $c->status(403);
         }
     }
@@ -105,7 +106,7 @@ sub find_device ($c) {
     $c->log->debug('Found device id '.$device_id);
 
     # store the simplified query to access the device, now that we've confirmed the user has
-    # permission to access it.
+    # the required role to access it.
     # No queries have been made yet, so you can add on more criteria or prefetches.
     $c->stash('device_rs', $c->db_devices->search_rs({ 'device.id' => $device_id }));
 
@@ -178,16 +179,12 @@ sub lookup_by_other_attribute ($c) {
     my $params = $c->validate_query_params('GetDeviceByAttribute');
     return if not $params;
 
-# XXX fixme - permissions!
-    # TODO: not checking if the user has permissions to view this device.
-    # need to get workspace(s) containing each device and filter them out.
-
     my ($key, $value) = $params->%*;
     $c->log->debug('looking up device by '.$key.' = '.$value);
 
-    my $device_rs = $c->db_devices->prefetch('device_location');
+    my $device_rs = $c->db_devices;
     if ($key eq 'hostname') {
-        $device_rs = $device_rs->search({ $key => $value });
+        $device_rs = $device_rs->search({ 'device.'.$key => $value });
     }
     elsif ($key eq 'link') {
         # we do this instead of '? = any(links)' in order to take
@@ -203,17 +200,33 @@ sub lookup_by_other_attribute ($c) {
     else {
         # for any other key, look for it in device_settings.
         $device_rs = $c->db_device_settings->active
-            ->search({ name => $key, value => $value })
-            ->related_resultset('device')
-            ->prefetch('device_location');
+            ->search({ 'device_setting.name' => $key, value => $value })
+            ->related_resultset('device');
     }
 
-    my @devices = $device_rs->order_by('device.created')->all;
-
-    if (not @devices) {
+    # save ourselves a more expensive query if there are no matches
+    if (not $device_rs->exists) {
         $c->log->debug('Failed to find devices matching '.$key.'='.$value);
         return $c->status(404);
     }
+
+    # Now filter the results by what the user is permitted to see. Depending on the size of the
+    # initial resultset, this could be slow!
+    if (not $c->is_system_admin) {
+        my $device_in_workspace_rs = $device_rs
+            ->with_user_role($c->stash('user_id'), 'ro');
+        my $device_via_relay_rs = $device_rs
+            ->devices_without_location
+            ->devices_reported_by_user_relay($c->stash('user_id'));
+        $device_rs = $device_in_workspace_rs->union($device_via_relay_rs);
+    }
+
+    my @devices = $device_rs
+        ->prefetch('device_location')
+        ->order_by('device.created')
+        ->all;
+
+    return $c->status(403) if not @devices;
 
     $c->log->debug(scalar(@devices).' devices found');
     return $c->status(200, \@devices);

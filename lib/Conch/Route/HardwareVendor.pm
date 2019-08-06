@@ -33,7 +33,7 @@ sub routes {
         $with_hv->get('/')->to('#get_one');
 
         # DELETE /hardware_vendor/:hardware_vendor_id_or_name
-        $with_hv->delete('/')->to('#delete');
+        $with_hv->require_system_admin->delete('/')->to('#delete');
     }
 
     # POST /hardware_vendor/:hardware_vendor_name
@@ -66,6 +66,8 @@ Unless otherwise noted, all routes require authentication.
 =head3 C<DELETE /hardware_vendor/:hardware_vendor_id_or_name>
 
 =over 4
+
+=item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
 

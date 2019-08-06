@@ -47,7 +47,7 @@ or a resultset, which must return a single column of distinct workspace\_id(s)).
 
 Query for workspace(s) with an extra field attached to the query which will signal the
 workspace serializer to include the "role" and "via" columns, containing information about the
-effective permissions the user has for the workspace.
+effective role the user has for the workspace.
 
 Only one user\_id can be calculated at a time. If you need to generate workspace-and-role data
 for multiple users at once, you can manually do:
@@ -62,7 +62,11 @@ before serializing the workspace object.
 
 For a given workspace\_id and user\_id, find the user\_workspace\_role row that is responsible for
 providing the user access to the workspace (the user\_workspace\_role with the greatest
-permission that is attached to an ancestor workspace).
+role that is attached to an ancestor workspace).
+
+## admins
+
+All the 'admin' users for the provided workspace(s).
 
 ## \_workspaces\_subquery
 

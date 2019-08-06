@@ -83,9 +83,9 @@ sub routes {
         }
 
         # POST /device/:device_id_or_serial_number/validation/:validation_id
-        $with_device->post('/validation/<validation_id:uuid>')->to('device_validation#validate');
+        $with_device->post('/validation/<validation_id:uuid>')->to('device_validation#validate', require_role => 'ro');
         # POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id
-        $with_device->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
+        $with_device->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan', require_role => 'ro');
         # GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 
@@ -342,7 +342,7 @@ Does not store validation results.
 
 =over 4
 
-=item * User requires the read/write role
+=item * User requires the read-only role
 
 =item * Request: device_report.yaml#/DeviceReport
 
@@ -356,7 +356,7 @@ Does not store validation results.
 
 =over 4
 
-=item * User requires the read/write role
+=item * User requires the read-only role
 
 =item * Request: device_report.yaml#/DeviceReport
 
