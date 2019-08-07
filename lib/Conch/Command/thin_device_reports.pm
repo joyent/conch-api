@@ -10,7 +10,9 @@ thin_device_reports - remove unwanted device reports
 
     bin/conch thin_device_reports [long options...]
 
-        --help  print usage message and exit
+        -n --dry-run  dry-run (no changes are made)
+
+        --help        print usage message and exit
 
 =cut
 

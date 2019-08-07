@@ -9,6 +9,7 @@ bin/conch create_token [long options...]
 
     --name    required; the name to give the token
     --email   required; the user account for which to create the token
+
     --help    print usage message and exit
 ```
 

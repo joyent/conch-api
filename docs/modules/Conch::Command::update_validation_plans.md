@@ -7,9 +7,10 @@ update\_validation\_plans - Utility to bring validations and validation\_plans u
 ```perl
 bin/conch update_validation_plans [long options...]
 
-    --help          print usage message and exit
-    --use_latest    deactivate old versions of validation <name>,
+    --update_all    deactivate old versions of validation <name>,
                     update all plans to use the new version of this validation
+
+    --help          print usage message and exit
 ```
 
 # LICENSING

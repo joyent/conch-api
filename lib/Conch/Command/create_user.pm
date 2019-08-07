@@ -15,6 +15,8 @@ create_user - create a new user, optionally sending an email
   --password    The user's temporary password. If not provided, one will be randomly generated.
   --send-mail   Send a welcome email to the user (defaults to true)
 
+      --help    print usage message and exit
+
 =cut
 
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8

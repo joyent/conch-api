@@ -14,6 +14,7 @@ check_layouts - check for rack layout conflicts
     bin/conch check_layouts [long options...]
 
         --ws --workspace  workspace name
+
         --help            print usage message and exit
 
 =cut
