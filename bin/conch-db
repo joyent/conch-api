@@ -113,7 +113,7 @@ if (any { $_ eq 'create-validations' } @ARGV) {
     Conch::DB::Util::create_validation_plans($schema, $log);
 }
 
-if (any { $_ eq 'global-workspace' } @ARGV) {
+if (any { $_ eq 'create-global-workspace' } @ARGV) {
     $schema->resultset('workspace')->create({
         name => 'GLOBAL',
         description => 'Global workspace',
