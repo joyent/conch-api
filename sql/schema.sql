@@ -1094,6 +1094,14 @@ ALTER TABLE ONLY public.validation_plan
 
 
 --
+-- Name: validation_result validation_result_all_columns_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_result
+    ADD CONSTRAINT validation_result_all_columns_key UNIQUE (device_id, hardware_product_id, validation_id, message, hint, status, category, component);
+
+
+--
 -- Name: validation_result validation_result_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1440,20 +1448,6 @@ CREATE INDEX validation_plan_member_validation_plan_id_idx ON public.validation_
 --
 
 CREATE UNIQUE INDEX validation_plan_name_idx ON public.validation_plan USING btree (name) WHERE (deactivated IS NULL);
-
-
---
--- Name: validation_result_all_columns_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_result_all_columns_idx ON public.validation_result USING btree (device_id, hardware_product_id, validation_id, message, hint, status, category, component);
-
-
---
--- Name: validation_result_device_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_result_device_id_idx ON public.validation_result USING btree (device_id);
 
 
 --
