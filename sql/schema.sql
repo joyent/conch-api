@@ -156,6 +156,23 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: build; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.build (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name text NOT NULL,
+    description text,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    started timestamp with time zone,
+    completed timestamp with time zone,
+    completed_user_id uuid
+);
+
+
+ALTER TABLE public.build OWNER TO conch;
+
+--
 -- Name: datacenter; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -207,7 +224,8 @@ CREATE TABLE public.device (
     hostname text,
     phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL,
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    links text[] DEFAULT '{}'::text[] NOT NULL
+    links text[] DEFAULT '{}'::text[] NOT NULL,
+    build_id uuid
 );
 
 
@@ -449,6 +467,19 @@ CREATE TABLE public.organization (
 ALTER TABLE public.organization OWNER TO conch;
 
 --
+-- Name: organization_build_role; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.organization_build_role (
+    organization_id uuid NOT NULL,
+    build_id uuid NOT NULL,
+    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
+);
+
+
+ALTER TABLE public.organization_build_role OWNER TO conch;
+
+--
 -- Name: organization_workspace_role; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -474,7 +505,8 @@ CREATE TABLE public.rack (
     updated timestamp with time zone DEFAULT now() NOT NULL,
     serial_number text,
     asset_tag text,
-    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL
+    phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL,
+    build_id uuid
 );
 
 
@@ -554,6 +586,19 @@ CREATE TABLE public.user_account (
 
 
 ALTER TABLE public.user_account OWNER TO conch;
+
+--
+-- Name: user_build_role; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.user_build_role (
+    user_id uuid NOT NULL,
+    build_id uuid NOT NULL,
+    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
+);
+
+
+ALTER TABLE public.user_build_role OWNER TO conch;
 
 --
 -- Name: user_organization_role; Type: TABLE; Schema: public; Owner: conch
@@ -751,6 +796,22 @@ CREATE TABLE public.workspace_rack (
 ALTER TABLE public.workspace_rack OWNER TO conch;
 
 --
+-- Name: build build_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.build
+    ADD CONSTRAINT build_name_key UNIQUE (name);
+
+
+--
+-- Name: build build_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.build
+    ADD CONSTRAINT build_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: datacenter datacenter_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -911,6 +972,14 @@ ALTER TABLE ONLY public.migration
 
 
 --
+-- Name: organization_build_role organization_build_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.organization_build_role
+    ADD CONSTRAINT organization_build_role_pkey PRIMARY KEY (organization_id, build_id);
+
+
+--
 -- Name: organization organization_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -996,6 +1065,14 @@ ALTER TABLE ONLY public.relay
 
 ALTER TABLE ONLY public.user_account
     ADD CONSTRAINT user_account_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_build_role user_build_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.user_build_role
+    ADD CONSTRAINT user_build_role_pkey PRIMARY KEY (user_id, build_id);
 
 
 --
@@ -1532,11 +1609,27 @@ CREATE TRIGGER all_racks_in_global_workspace AFTER INSERT ON public.rack FOR EAC
 
 
 --
+-- Name: build build_completed_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.build
+    ADD CONSTRAINT build_completed_user_id_fkey FOREIGN KEY (completed_user_id) REFERENCES public.user_account(id);
+
+
+--
 -- Name: datacenter_room datacenter_room_datacenter_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.datacenter_room
     ADD CONSTRAINT datacenter_room_datacenter_fkey FOREIGN KEY (datacenter_id) REFERENCES public.datacenter(id);
+
+
+--
+-- Name: device device_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.device
+    ADD CONSTRAINT device_build_id_fkey FOREIGN KEY (build_id) REFERENCES public.build(id);
 
 
 --
@@ -1636,6 +1729,22 @@ ALTER TABLE ONLY public.hardware_product
 
 
 --
+-- Name: organization_build_role organization_build_role_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.organization_build_role
+    ADD CONSTRAINT organization_build_role_build_id_fkey FOREIGN KEY (build_id) REFERENCES public.build(id);
+
+
+--
+-- Name: organization_build_role organization_build_role_organization_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.organization_build_role
+    ADD CONSTRAINT organization_build_role_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+
+
+--
 -- Name: organization_workspace_role organization_workspace_role_organization_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1649,6 +1758,14 @@ ALTER TABLE ONLY public.organization_workspace_role
 
 ALTER TABLE ONLY public.organization_workspace_role
     ADD CONSTRAINT organization_workspace_role_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
+
+
+--
+-- Name: rack rack_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack
+    ADD CONSTRAINT rack_build_id_fkey FOREIGN KEY (build_id) REFERENCES public.build(id);
 
 
 --
@@ -1689,6 +1806,22 @@ ALTER TABLE ONLY public.device_location
 
 ALTER TABLE ONLY public.rack
     ADD CONSTRAINT rack_role_fkey FOREIGN KEY (rack_role_id) REFERENCES public.rack_role(id);
+
+
+--
+-- Name: user_build_role user_build_role_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.user_build_role
+    ADD CONSTRAINT user_build_role_build_id_fkey FOREIGN KEY (build_id) REFERENCES public.build(id);
+
+
+--
+-- Name: user_build_role user_build_role_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.user_build_role
+    ADD CONSTRAINT user_build_role_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
 
 
 --
@@ -1860,6 +1993,13 @@ ALTER TABLE ONLY public.workspace_rack
 
 
 --
+-- Name: TABLE build; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.build TO conch_read_only;
+
+
+--
 -- Name: TABLE datacenter; Type: ACL; Schema: public; Owner: conch
 --
 
@@ -1965,6 +2105,13 @@ GRANT SELECT ON TABLE public.organization TO conch_read_only;
 
 
 --
+-- Name: TABLE organization_build_role; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.organization_build_role TO conch_read_only;
+
+
+--
 -- Name: TABLE organization_workspace_role; Type: ACL; Schema: public; Owner: conch
 --
 
@@ -2004,6 +2151,13 @@ GRANT SELECT ON TABLE public.relay TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.user_account TO conch_read_only;
+
+
+--
+-- Name: TABLE user_build_role; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.user_build_role TO conch_read_only;
 
 
 --

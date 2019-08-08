@@ -21,6 +21,8 @@ loader_options:
     user: user_account
     DeviceNeighbor:
       mac: device_nic
+    UserAccount:
+      builds_2s: completed_builds
 
   naming: v8 # the latest and greatest (v7 is still the default)
 
