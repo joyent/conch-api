@@ -92,7 +92,7 @@ sub create ($c) {
 
     for my $key (qw(name alias sku)) {
         next if not $input->{$key};
-        if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
+        if ($c->db_hardware_products->active->search({ $input->%{$key} })->exists) {
             $c->log->debug('Failed to create hardware product: unique constraint violation for '.$key);
             return $c->status(409, { error => "Unique constraint violated on '$key'" });
         }
@@ -133,7 +133,7 @@ sub update ($c) {
         next if not defined $input->{$key};
         next if $input->{$key} eq $hardware_product->$key;
 
-        if ($c->db_hardware_products->active->search({ $key => $input->{$key} })->exists) {
+        if ($c->db_hardware_products->active->search({ $input->%{$key} })->exists) {
             $c->log->debug('Failed to create hardware product: unique constraint violation for '.$key);
             return $c->status(409, { error => "Unique constraint violated on '$key'" });
         }
