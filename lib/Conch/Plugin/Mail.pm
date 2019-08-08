@@ -36,16 +36,16 @@ sub register ($self, $app, $config) {
 
     $c->send_mail(
         template_file => $filename, # file in templates/email, without extension
-            OR
+            # OR
         template => $template_string,
-            OR
+            # OR
         content => $raw_content,
 
-        To => $to_email,        defaults to stashed 'target_user'
-        From => $from_email,    defaults to stashed 'user'
+        To => $to_email,        # defaults to stashed 'target_user'
+        From => $from_email,    # defaults to stashed 'user'
         Subject => $subject,
 
-        ... all additional arguments are passed to the template renderer ...
+        # ... all additional arguments are passed to the template renderer ...
     );
 
 =cut
