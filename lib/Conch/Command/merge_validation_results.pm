@@ -119,7 +119,9 @@ sub _process_device ($self, $device) {
         ->page(1)
         ->hri;
 
-    foreach my $page (1 .. $groups_to_merge_rs->pager->last_page) {
+    # we go through the pages backward so we can delete rows as we go and not
+    # break queries for the other pages.
+    foreach my $page (reverse(1 .. $groups_to_merge_rs->pager->last_page)) {
         $groups_to_merge_rs = $groups_to_merge_rs->page($page);
 
         # foreach matching set,
