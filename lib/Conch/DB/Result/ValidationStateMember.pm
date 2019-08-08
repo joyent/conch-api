@@ -42,6 +42,11 @@ __PACKAGE__->table("validation_state_member");
   is_nullable: 0
   size: 16
 
+=head2 result_order
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -49,6 +54,8 @@ __PACKAGE__->add_columns(
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "validation_result_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "result_order",
+  { data_type => "integer", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -98,8 +105,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-10-16 13:17:28
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:waeVK0lJGoJZbkd640IX7A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-07 15:18:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wSfsdnq0/4c54N8Q8R3sUA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

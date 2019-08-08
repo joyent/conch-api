@@ -7,9 +7,10 @@
 
 * @karenetheridge
 /json-schema/ @karenetheridge @sungo @dustinryerson
+/json-schema/common.yaml @karenetheridge @perigrin @sungo @dustinryerson
+/json-schema/device_report.yaml @karenetheridge @perigrin @sungo @dustinryerson
 /docker @sungo
 /Docker* @sungo
 /docker* @sungo
 Makefile @sungo @karenetheridge
 /bin/ @sungo @karenetheridge
-* @sungo

@@ -217,6 +217,12 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationState](/modules/Conch::DB::Result::ValidationState)
 
+## relays
+
+Type: many\_to\_many
+
+Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> relay
+
 ## latest\_report\_data
 
 Returns the JSON-decoded content from the most recent device report.

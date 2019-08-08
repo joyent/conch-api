@@ -450,11 +450,12 @@ sub validate_report ($c) {
 
     return $c->status(400, { error => 'no validations ran' }) if not @validation_results;
 
+    my $result_order = 0;
     $c->status(200, {
         device_id => $unserialized_report->{serial_number},
         validation_plan_id => $validation_plan->id,
         status => $status,
-        results => \@validation_results,
+        results => [ map +{ $_->TO_JSON->%*, order => $result_order++ }, @validation_results ],
     });
 }
 

@@ -91,9 +91,6 @@ subtest 'run_validation_plan, without saving state' => sub {
                     hardware_product_id => $device->hardware_product_id,
                     category => 'BIOS',
                     status => 'pass',
-                    # each validator only issues one result. we do not increment results
-                    # across the entire plan, but only across each validator module.
-                    result_order => 0,
                 ),
             ),
             bag(
@@ -139,9 +136,6 @@ subtest 'run_validation_plan, with saving state' => sub {
                             hardware_product_id => $device->hardware_product_id,
                             category => 'BIOS',
                             status => 'pass',
-                            # each validator only issues one result. we do not increment results
-                            # across the entire plan, but only across each validator module.
-                            result_order => 0,
                         ),
                     ),
                     bag(
@@ -183,7 +177,6 @@ subtest run_validation => sub {
             ),
             bag(
                 methods(
-                    result_order => 0,
                     status => 'pass',
                     message => "Expected eq 'hi'. Got 'hi'.",
                     category => 'multi',
@@ -191,7 +184,6 @@ subtest run_validation => sub {
                     hint => undef,
                 ),
                 methods(
-                    result_order => 1,
                     status => 'fail',
                     message => 'new message',   # override
                     category => 'new category', # override

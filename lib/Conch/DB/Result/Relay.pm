@@ -147,9 +147,29 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 devices
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2018-09-17 14:52:33
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OI7LN23DmloIV1FBrPHuJQ
+Type: many_to_many
+
+Composing rels: L</device_relay_connections> -> device
+
+=cut
+
+__PACKAGE__->many_to_many("devices", "device_relay_connections", "device");
+
+=head2 user_accounts
+
+Type: many_to_many
+
+Composing rels: L</user_relay_connections> -> user_account
+
+=cut
+
+__PACKAGE__->many_to_many("user_accounts", "user_relay_connections", "user_account");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-07 15:04:34
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tfbo9GY1rO+VsSV9mdf9/w
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
