@@ -31,7 +31,7 @@ __PACKAGE__->table("validation_state");
 =head2 id
 
   data_type: 'uuid'
-  default_value: uuid_generate_v4()
+  default_value: gen_random_uuid()
   is_nullable: 0
   size: 16
 
@@ -79,7 +79,7 @@ __PACKAGE__->add_columns(
   "id",
   {
     data_type => "uuid",
-    default_value => \"uuid_generate_v4()",
+    default_value => \"gen_random_uuid()",
     is_nullable => 0,
     size => 16,
   },
@@ -198,8 +198,8 @@ __PACKAGE__->many_to_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-02-12 15:14:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:62AGs6yNbvUQTQWAr0xhCA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-08 10:16:28
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tlHn7VElCr/Bj2mZQMdeHA
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },

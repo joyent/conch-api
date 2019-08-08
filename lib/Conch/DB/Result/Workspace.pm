@@ -31,7 +31,7 @@ __PACKAGE__->table("workspace");
 =head2 id
 
   data_type: 'uuid'
-  default_value: uuid_generate_v4()
+  default_value: gen_random_uuid()
   is_nullable: 0
   size: 16
 
@@ -58,7 +58,7 @@ __PACKAGE__->add_columns(
   "id",
   {
     data_type => "uuid",
-    default_value => \"uuid_generate_v4()",
+    default_value => \"gen_random_uuid()",
     is_nullable => 0,
     size => 16,
   },
@@ -184,8 +184,8 @@ Composing rels: L</user_workspace_roles> -> user_account
 __PACKAGE__->many_to_many("user_accounts", "user_workspace_roles", "user_account");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-07 15:04:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:grjgLmZfiUYtsI/oAXzn9A
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-08-08 10:23:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7PPE0ecivO5ZkN8DKv0mXw
 
 use experimental 'signatures';
 
