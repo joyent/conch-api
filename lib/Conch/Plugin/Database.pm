@@ -156,15 +156,23 @@ line of the exception.
 
     return if $app->feature('no_db');
 
+
     # verify that we are running the version of postgres we expect...
     my $pgsql_version = Conch::DB::Util::get_postgres_version($app->schema);
     $app->log->info("Running $pgsql_version");
 
-    # at present we do all testing on 9.6 so that is the most preferred configuration, but we
-    # are not aware of any issues on PostgreSQL 10.x.
+    use constant POSTGRES_MINIMUM_VERSION_MAJOR => 10;
+    use constant POSTGRES_MINIMUM_VERSION_MINOR => 9;
+
+    # at present we do all testing on 10.x so that is the most preferred configuration, but we
+    # are not aware of any issues on PostgreSQL 11.x.
     my ($major, $minor, $rest) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)(\.\d+)?\b/;
     $minor //= 0;
-    $app->log->warn("Running $major.$minor$rest, expected at least 10.9!") if "$major.$minor" < 10.9;
+    $rest //= '';
+    $app->log->warn('Running '.$major.'.'.$minor.$rest.', expected at least '
+            .POSTGRES_MINIMUM_VERSION_MAJOR.'.'.POSTGRES_MINIMUM_VERSION_MINOR.'!')
+        if $major < POSTGRES_MINIMUM_VERSION_MAJOR
+            or $major == POSTGRES_MINIMUM_VERSION_MAJOR and $minor < POSTGRES_MINIMUM_VERSION_MINOR;
 
 
     my ($latest_migration, $expected_latest_migration) = Conch::DB::Util::get_migration_level($app->schema);

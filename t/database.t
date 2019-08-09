@@ -10,6 +10,22 @@ use Conch::UUID 'create_uuid_str';
 use Conch::DB::Util;
 use Crypt::Eksblowfish::Bcrypt 'bcrypt';
 
+subtest 'assert db version' => sub {
+    my ($pgsql, $schema) = Test::Conch->init_db;
+    my $pgsql_version = Conch::DB::Util::get_postgres_version($schema);
+    diag 'Running '.$pgsql_version;
+    my ($major, $minor, $rest) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)(\.\d+)?\b/;
+    $minor //= 0;
+    $rest //= '';
+    require Conch::Plugin::Database;
+    is($major, Conch::Plugin::Database->POSTGRES_MINIMUM_VERSION_MAJOR,
+        'running postgres '.Conch::Plugin::Database->POSTGRES_MINIMUM_VERSION_MAJOR.'.x')
+        and
+    cmp_ok($minor, '>=', Conch::Plugin::Database->POSTGRES_MINIMUM_VERSION_MINOR,
+        'running at least postgres '.Conch::Plugin::Database->POSTGRES_MINIMUM_VERSION_MAJOR
+        .'.'.Conch::Plugin::Database->POSTGRES_MINIMUM_VERSION_MINOR);
+};
+
 subtest 'db connection without Conch, and data preservation' => sub {
     my ($pgsql, $schema) = Test::Conch->init_db;
 
