@@ -104,7 +104,7 @@ sub _process_device ($self, $device) {
 
     # find groups of validation_result rows that share identical column
     # values that we have an index on (where new validation_states point
-    # to existing rows: see the end of Conch::ValidationSystem::run_validation_plan.
+    # to existing rows): see the end of Conch::ValidationSystem::run_validation_plan.
     # Consider these groups in pages of 100 rows each.
     my $groups_to_merge_rs = $schema->resultset('validation_result')
         ->columns(\@grouping_cols)
