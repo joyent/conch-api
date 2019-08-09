@@ -19,8 +19,6 @@ Supports rack layout lookups by id.
 =cut
 
 sub find_rack_layout ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $layout_rs = $c->db_rack_layouts->search({ 'rack_layout.id' => $c->stash('layout_id') });
     if (not $layout_rs->exists) {
         $c->log->debug('Could not find rack layout '.$c->stash('layout_id'));
@@ -39,8 +37,6 @@ Creates a new rack_layout entry according to the passed-in specification.
 =cut
 
 sub create ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('RackLayoutCreate');
     return if not $input;
 
@@ -111,8 +107,6 @@ Response uses the RackLayouts json schema.
 =cut
 
 sub get_all ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my @layouts = $c->db_rack_layouts
         ->with_rack_unit_size
         ->order_by([ qw(rack_id rack_unit_start) ])

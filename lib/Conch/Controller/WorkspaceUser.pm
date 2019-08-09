@@ -12,7 +12,7 @@ Conch::Controller::WorkspaceUser
 
 =head2 list
 
-Get a list of users for the indicated workspace.
+Get a list of users for the indicated workspace (not including system admin users).
 Requires the 'admin' role on the workspace.
 
 Response uses the WorkspaceUsers json schema.
@@ -27,9 +27,10 @@ sub list ($c) {
         ->and_workspaces_above($workspace_id)
         ->related_resultset('user_workspace_roles')
         ->related_resultset('user_account')
+        ->active
+        ->distinct
         ->order_by('user_account.name')
         ->columns([ map 'user_account.'.$_, qw(id name email) ])
-        ->active
         ->hri;
 
     my $user_data = [
@@ -72,27 +73,25 @@ sub add_user ($c) {
         : undef;
     return $c->status(404) if not $user;
 
+    return $c->status(204) if $user->is_admin;
+
     $c->stash('target_user', $user);
     my $workspace_id = $c->stash('workspace_id');
 
     # check if the user already has access to this workspace
     if (my $existing_role_via = $c->db_workspaces
             ->role_via_for_user($workspace_id, $user->id)) {
-        if ($existing_role_via->role eq $input->{role}) {
-            $c->log->debug('user '.$user->name
-                .' already has '.$input->{role}.' access to workspace '.$workspace_id
-                .' via workspace '.$existing_role_via->workspace_id
-                .': nothing to do');
-            return $c->status(204);
-        }
-
-        if ($existing_role_via->role_cmp($input->{role}) > 0) {
-            return $c->status(409, { error =>
-                    'user '.$user->name.' already has '.$existing_role_via->role
+        if ((my $role_cmp = $existing_role_via->role_cmp($input->{role})) >= 0) {
+            my $str = 'user '.$user->name.' already has '.$existing_role_via->role
                 .' access to workspace '.$workspace_id
                 .($existing_role_via->workspace_id ne $workspace_id
-                    ? (' via workspace '.$existing_role_via->workspace_id) : '')
-                .': cannot downgrade role to '.$input->{role} });
+                    ? (' via workspace '.$existing_role_via->workspace_id) : '');
+
+            $c->log->debug($str.': nothing to do'), return $c->status(204)
+                if $role_cmp == 0;
+
+            return $c->status(409, { error => $str.': cannot downgrade role to '.$input->{role} })
+                if $role_cmp > 0;
         }
 
         my $rs = $user->search_related('user_workspace_roles', { workspace_id => $workspace_id });
@@ -117,7 +116,8 @@ sub add_user ($c) {
                 workspace => $workspace_name,
                 role => $input->{role},
             );
-            my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+            my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))
+                ->admins('with_sysadmins')
                 ->search({ 'user_account.id' => { '!=' => $user->id } });
             $c->send_mail(
                 template_file => 'workspace_user_update_admins',
@@ -147,7 +147,8 @@ sub add_user ($c) {
             workspace => $workspace_name,
             role => $input->{role},
         );
-        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))
+            ->admins('with_sysadmins')
             ->search({ 'user_account.id' => { '!=' => $user->id } });
         $c->send_mail(
             template_file => 'workspace_user_add_admins',
@@ -199,10 +200,11 @@ sub remove ($c) {
         $c->send_mail(
             template_file => 'workspace_user_remove_user',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch workspaces have been updated.',
+            Subject => 'Your Conch workspaces have been updated',
             workspace => $workspace_name,
         );
-        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))->admins
+        my @admins = $c->db_workspaces->and_workspaces_above($c->stash('workspace_id'))
+            ->admins('with_sysadmins')
             ->search({ 'user_account.id' => { '!=' => $user->id } });
         $c->send_mail(
             template_file => 'workspace_user_remove_admins',

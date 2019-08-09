@@ -20,7 +20,7 @@ sub routes {
     my $class = shift;
     my $room = shift;   # secured, under /room
 
-    $room->to({ controller => 'datacenter_room' });
+    $room = $room->require_system_admin->to({ controller => 'datacenter_room' });
 
     # GET /room
     $room->get('/')->to('#get_all');

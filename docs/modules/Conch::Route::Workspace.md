@@ -31,9 +31,12 @@ Users will require access to the workspace (or one of its ancestors) at a minimu
 - User requires the read-only role
 - Response: response.yaml#/WorkspacesAndRoles
 
-### `POST /workspace/:workspace_id_or_name/child`
+### `POST /workspace/:workspace_id_or_name/child?send_mail=<1|0>`
 
-- User requires the admin role
+Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
+an email to the parent workspace admins.
+
+- User requires the read/write role
 - Request: request.yaml#/WorkspaceCreate
 - Response: response.yaml#/WorkspaceAndRole
 

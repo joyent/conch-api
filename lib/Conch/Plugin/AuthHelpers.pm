@@ -33,44 +33,6 @@ Verifies that the currently stashed user has the C<is_admin> flag set.
         },
     );
 
-=head2 is_workspace_admin
-
-    return $c->status(403) if not $c->is_workspace_admin;
-
-Verifies that the user indicated by the stashed C<user_id> has the 'admin' role on the
-workspace indicated by the stashed C<workspace_id> or one of its ancestors.
-
-=cut
-
-    $app->helper(
-        is_workspace_admin => sub ($c) {
-            return $c->user_has_workspace_auth($c->stash('workspace_id'), 'admin');
-        },
-    );
-
-=head2 user_has_workspace_auth
-
-Verifies that the user indicated by the stashed C<user_id> has (at least) this role on the
-workspace indicated by the stashed C<workspace_id> or one of its ancestors.
-
-System admin users set will always return true, even if no user_workspace_role records are
-present.
-
-=cut
-
-    $app->helper(
-        user_has_workspace_auth => sub ($c, $workspace_id, $role_name) {
-            return 0 if not $c->stash('user_id');
-            return 0 if not $workspace_id;
-
-            return 1 if $c->is_system_admin;
-
-            $c->db_workspaces
-                ->and_workspaces_above($workspace_id)
-                ->related_resultset('user_workspace_roles')
-                ->user_has_role($c->stash('user_id'), $role_name);
-        },
-    );
 
 =head2 generate_jwt
 

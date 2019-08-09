@@ -72,8 +72,6 @@ sub get_one ($c) {
 =cut
 
 sub create ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     $c->validate_request('Null');
     return if $c->res->code;
 

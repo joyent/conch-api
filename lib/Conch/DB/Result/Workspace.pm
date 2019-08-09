@@ -178,6 +178,7 @@ __PACKAGE__->many_to_many("racks", "workspace_racks", "rack");
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jAQTz8eBEJas87XgWV7xbw
 
 use experimental 'signatures';
+use Sub::Install;
 
 =head2 TO_JSON
 
@@ -189,8 +190,12 @@ sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
     # check for column that would have been added via
+    # Conch::DB::ResultSet::Workspace::add_role_column or
     # Conch::DB::ResultSet::Workspace::with_role_via_data_for_user
-    if (my $user_id = $self->user_id_for_role) {
+    if (my $role = $self->role) {
+        $data->{role} = $role;
+    }
+    elsif (my $user_id = $self->user_id_for_role) {
         my $role_via = $self->result_source->resultset->role_via_for_user($self->id, $user_id);
         Carp::croak('tried to get role data for a user that has no role for this workspace: workspace_id ', $self->id, ', user_id ', $user_id) if not $role_via;
 
@@ -201,6 +206,10 @@ sub TO_JSON ($self) {
     return $data;
 }
 
+=head2 role
+
+Accessor for informational column, which is by the serializer in the result data.
+
 =head2 user_id_for_role
 
 Accessor for informational column, which is used by the serializer to signal we should fetch
@@ -208,16 +217,20 @@ and include inherited role data.
 
 =cut
 
-sub user_id_for_role {
-    my $self = shift;
-
-    if (@_) {
-        # DBIC has no public way of setting this outside of the constructor :/
-        $self->{_column_data}{user_id_for_role} = shift;
-    }
-    else {
-        $self->has_column_loaded('user_id_for_role') && $self->get_column('user_id_for_role');
-    }
+foreach my $column (qw(role user_id_for_role)) {
+    Sub::Install::install_sub({
+        as   => $column,
+        code => sub {
+            my $self = shift;
+            if (@_) {
+                # DBIC has no public way of setting this outside of the constructor :/
+                $self->{_column_data}{$column} = shift;
+            }
+            else {
+                $self->has_column_loaded($column) && $self->get_column($column);
+            }
+        },
+    });
 }
 
 1;

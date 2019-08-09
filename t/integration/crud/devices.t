@@ -26,7 +26,8 @@ my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
 my $null_user = $t->generate_fixtures('user_account');
 my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 my $rw_user = $t->load_fixture('rw_user_global_workspace')->user_account;
-my $admin_user = $t->load_fixture('conch_user_global_workspace')->user_account;
+my $admin_user = $t->load_fixture('admin_user_global_workspace')->user_account;
+my $super_user = $t->load_fixture('super_user');
 $t->authenticate(email => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
@@ -51,13 +52,15 @@ subtest 'unlocated device, no registered relay' => sub {
     my $device_report_id = $t->tx->res->json->{device_report_id};
 
     $t->get_ok('/device/TEST')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
 
     $t->get_ok('/device_report/'.$device_report_id)
         ->status_is(403);
 
     {
-        $t->authenticate(email => $admin_user->email);
+        my $t = Test::Conch->new(pg => $t->pg);
+        $t->authenticate(email => $super_user->email);
 
         $t->get_ok('/device/TEST')
             ->status_is(200)
@@ -74,8 +77,6 @@ subtest 'unlocated device, no registered relay' => sub {
         $t->get_ok('/device_report/'.$device_report_id)
             ->status_is(200)
             ->json_schema_is('DeviceReportRow');
-
-        $t->authenticate(email => $ro_user->email);
     }
 };
 
@@ -196,19 +197,25 @@ subtest 'unlocated device with a registered relay' => sub {
     $t2->authenticate(email => $null_user->email);
 
     $t2->get_ok('/device/TEST')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
 
     $t2->get_ok('/device_report/'.$validation_state->{device_report_id})
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
 
     foreach my $query (@post_queries) {
         $t2->post_ok($query->@*)
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User cannot access unlocated device '.$test_device_id);
     }
 
     foreach my $query (@get_queries) {
         $t2->get_ok($query)
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is(
+                $query =~ /TEST/ ? 'User cannot access unlocated device '.$test_device_id
+                : 'User cannot access requested device(s)');
     }
 
     my @delete_queries = (
@@ -219,7 +226,8 @@ subtest 'unlocated device with a registered relay' => sub {
 
     foreach my $query (@delete_queries) {
         $t2->delete_ok($query)
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User cannot access unlocated device '.$test_device_id);
     }
 
     foreach my $query (@delete_queries) {
@@ -305,7 +313,8 @@ subtest 'located device' => sub {
     $t->txn_local('remove device from its workspace', sub ($t) {
         $t->app->db_workspace_racks->delete;
         $t->get_ok('/device/LOCATED_DEVICE')
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (ro) for device '.$located_device_id);
     });
 
     subtest 'required role for POST queries' => sub {
@@ -329,7 +338,8 @@ subtest 'located device' => sub {
             }
         }
         $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id);
 
         $t->authenticate(email => $admin_user->email);
         $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })
@@ -338,7 +348,8 @@ subtest 'located device' => sub {
         $t->authenticate(email => $ro_user->email);
         foreach my $query (@post_queries) {
             $t->post_ok($query->@*)
-                ->status_is(403);
+                ->status_is(403)
+                ->log_debug_is('User lacks the required role (rw) for device '.$located_device_id);
         }
     };
 
@@ -380,7 +391,10 @@ subtest 'located device' => sub {
 
             foreach my $query (@get_queries) {
                 $t->get_ok($query)
-                    ->status_is(403);
+                    ->status_is(403)
+                    ->log_debug_is(
+                        $query =~ /LOCATED_DEVICE/ ? 'User lacks the required role (ro) for device '.$located_device_id
+                        : 'User cannot access requested device(s)');
             }
 
             $ro_user->update({ is_admin => 1 });
@@ -395,16 +409,21 @@ subtest 'located device' => sub {
 
     subtest 'required role for DELETE queries' => sub {
         $t->authenticate(email => $ro_user->email);
-        $t->delete_ok('/device/LOCATED_DEVICE/settings/hello')
-            ->status_is(403);
-        $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.hello')
-            ->status_is(403);
-        $t->delete_ok('/device/LOCATED_DEVICE/links')
-            ->status_is(403);
+
+        foreach my $query (qw(
+            /device/LOCATED_DEVICE/settings/hello
+            /device/LOCATED_DEVICE/settings/tag.hello
+            /device/LOCATED_DEVICE/links
+        )) {
+            $t->delete_ok($query)
+                ->status_is(403)
+                ->log_debug_is('User lacks the required role (rw) for device '.$located_device_id);
+        }
 
         $t->authenticate(email => $rw_user->email);
         $t->delete_ok('/device/LOCATED_DEVICE/settings/hello')
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id);
         $t->delete_ok('/device/LOCATED_DEVICE/settings/tag.hello')
             ->status_is(204);
         $t->delete_ok('/device/LOCATED_DEVICE/links')
@@ -692,23 +711,29 @@ subtest 'Device settings' => sub {
     $t->authenticate(email => $ro_user->email);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => 'new_value' })
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (rw) for device '.$located_device_id);
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { name => 'new value' })
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (rw) for device '.$located_device_id);
     $t->delete_ok('/device/LOCATED_DEVICE/settings/foo')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (rw) for device '.$located_device_id);
 
     $t->authenticate(email => $rw_user->email);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { key => 'value' })
         ->status_is(204);
     $t->post_ok('/device/LOCATED_DEVICE/settings/key', json => { key => 'new value' })
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id);
     $t->delete_ok('/device/LOCATED_DEVICE/settings/foo')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { key => 'new value', 'tag.bar' => 'bar' })
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id);
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
         ->status_is(204);
 
@@ -724,7 +749,8 @@ subtest 'Device settings' => sub {
 };
 
 subtest 'Device PXE' => sub {
-    $t->authenticate(email => $admin_user->email);
+    my $t = Test::Conch->new(pg => $t->pg, fixtures => $t->fixtures);
+    $t->authenticate(email => $super_user->email);
     my $layout = $t->load_fixture('rack_0a_layout_3_6');
 
     my $relay = $t->app->db_relays->create({ serial_number => 'my_relay' });
@@ -736,7 +762,7 @@ subtest 'Device PXE' => sub {
         device_relay_connections => [{
             relay => {
                 id => $relay->id,
-                user_relay_connections => [ { user_id => $t->load_fixture('conch_user')->id } ],
+                user_relay_connections => [ { user_id => $super_user->id } ],
             }
         }],
         device_nics => [
@@ -785,6 +811,8 @@ subtest 'Device PXE' => sub {
     $layout->create_related('device_location', { device_id => $device_pxe->id });
     my $datacenter = $t->load_fixture('datacenter_0');
 
+    $t->authenticate(email => $ro_user->email);
+
     $t->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
@@ -814,6 +842,10 @@ subtest 'Device PXE' => sub {
     $device_pxe->delete_related('device_nics');
 
     $t->get_ok('/device/PXE_TEST/pxe')
+        ->status_is(403);
+
+    $t->authenticate(email => $super_user->email);
+    $t->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
@@ -825,6 +857,16 @@ subtest 'Device PXE' => sub {
 };
 
 subtest 'Device location' => sub {
+    $t->post_ok('/device/TEST/location')
+        ->status_is(403);
+
+    $t->delete_ok('/device/TEST/location')
+        ->status_is(403);
+
+    $t->authenticate(email => $super_user->email);
+
+    # TODO? possibly we should be able to set the location if the user has permission to
+    # access the target location of the device.
     $t->post_ok('/device/TEST/location')
         ->status_is(400)
         ->json_schema_is('RequestValidationError')

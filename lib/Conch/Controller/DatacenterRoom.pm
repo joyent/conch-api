@@ -17,8 +17,6 @@ Handles looking up the object by id.
 =cut
 
 sub find_datacenter_room ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $room_id = $c->stash('datacenter_room_id');
     $c->log->debug('Looking up datacenter room '.$room_id);
     my $room = $c->db_datacenter_rooms->find($room_id);
@@ -42,8 +40,6 @@ Response uses the DatacenterRoomsDetailed json schema.
 =cut
 
 sub get_all ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my @rooms = $c->db_datacenter_rooms->order_by('alias')->all;
     $c->log->debug('Found '.scalar(@rooms).' datacenter rooms');
 
@@ -59,7 +55,6 @@ Response uses the DatacenterRoomDetailed json schema.
 =cut
 
 sub get_one ($c) {
-    return $c->status(403) if not $c->is_system_admin;
     $c->status(200, $c->stash('datacenter_room'));
 }
 
@@ -70,8 +65,6 @@ Create a new datacenter room.
 =cut
 
 sub create ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('DatacenterRoomCreate');
     return if not $input;
 
@@ -87,8 +80,6 @@ Update an existing room.
 =cut
 
 sub update ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('DatacenterRoomUpdate');
     return if not $input;
 
@@ -104,8 +95,6 @@ Permanently delete a datacenter room.
 =cut
 
 sub delete ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     if ($c->stash('datacenter_room')->related_resultset('racks')->exists) {
         $c->log->debug('Cannot delete datacenter_room: in use by one or more racks');
         return $c->status(409, { error => 'cannot delete a datacenter_room when a rack is referencing it' });
@@ -123,8 +112,6 @@ Response uses the Racks json schema.
 =cut
 
 sub racks ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my @racks = $c->stash('datacenter_room')->related_resultset('racks')->all;
     $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room')->id);
     return $c->status(200, \@racks);

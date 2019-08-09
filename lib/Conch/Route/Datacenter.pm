@@ -20,7 +20,7 @@ sub routes {
     my $class = shift;
     my $dc = shift;     # secured, under /dc
 
-    $dc->to({ controller => 'datacenter' });
+    $dc = $dc->require_system_admin->to({ controller => 'datacenter' });
 
     # GET /dc
     $dc->get('/')->to('#get_all');

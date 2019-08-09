@@ -261,7 +261,7 @@ sub TO_JSON ($self) {
                     # $_ is a workspace where the user inherits a role
                     $seen_workspaces{$_->id}++ ? () : do {
                         # instruct the workspace serializer to fill in the role fields
-                        $_->user_id_for_role($self->id);
+                        $self->is_admin ? $_->role('admin') : $_->user_id_for_role($self->id);
                         $_->TO_JSON
                     }
                 ), $self->result_source->schema->resultset('workspace')

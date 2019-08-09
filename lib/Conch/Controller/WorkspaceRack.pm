@@ -112,8 +112,6 @@ is assigned to the parent workspace of this one.
 =cut
 
 sub add ($c) {
-    return $c->status(403) if not $c->is_workspace_admin;
-
     my $input = $c->validate_request('WorkspaceAddRack');
     return if not $input;
 

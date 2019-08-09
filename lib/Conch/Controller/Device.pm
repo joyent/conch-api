@@ -71,7 +71,7 @@ sub find_device ($c) {
     $c->stash('device_id', $device_id);
 
     if ($c->is_system_admin) {
-        $c->log->debug('User has system admin privileges to access device '.$identifier);
+        $c->log->debug('User has system admin privileges to access device '.$device_id);
     }
     elsif ($device_check->{has_location}) {
         # if no minimum role was specified, use a heuristic:
@@ -84,21 +84,21 @@ sub find_device ($c) {
 
         if (not $c->db_devices->search({ 'device.id' => $device_id })
                 ->user_has_role($c->stash('user_id'), $requires_role)) {
-            $c->log->debug('User lacks the required role to access device '.$identifier);
+            $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$device_id);
             return $c->status(403);
         }
     }
     else {
         # look for unlocated devices among those that have sent a device report proxied by a
         # relay using the user's credentials
-        $c->log->debug('looking for device '.$identifier.' associated with relay reports');
+        $c->log->debug('looking for device '.$device_id.' associated with relay reports');
 
         my $device_rs = $c->db_devices
             ->search({ 'device.id' => $device_id })
             ->devices_reported_by_user_relay($c->stash('user_id'));
 
         if (not $device_rs->exists) {
-            $c->log->debug('User lacks the required role to access device '.$identifier);
+            $c->log->debug('User cannot access unlocated device '.$device_id);
             return $c->status(403);
         }
     }
@@ -226,7 +226,10 @@ sub lookup_by_other_attribute ($c) {
         ->order_by('device.created')
         ->all;
 
-    return $c->status(403) if not @devices;
+    if (not @devices) {
+        $c->log->debug('User cannot access requested device(s)');
+        return $c->status(403);
+    }
 
     $c->log->debug(scalar(@devices).' devices found');
     return $c->status(200, \@devices);

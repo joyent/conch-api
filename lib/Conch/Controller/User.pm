@@ -95,7 +95,7 @@ sub revoke_user_tokens ($c) {
         $c->send_mail(
             template_file => 'revoked_user_tokens',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch tokens have been revoked.',
+            Subject => 'Your Conch tokens have been revoked',
             token_names => \@token_names,
         );
     }
@@ -307,7 +307,7 @@ sub reset_user_password ($c) {
     $c->send_mail(
         template_file => 'changed_user_password',
         From => 'noreply@conch.joyent.us',
-        Subject => 'Your Conch password has changed.',
+        Subject => 'Your Conch password has changed',
         password => $update{password},
     ) if $params->{send_mail} // 1;
 
@@ -327,7 +327,17 @@ sub get ($c) {
             prefetch => { user_workspace_roles => 'workspace' },
             order_by => ['workspace.name'],
         });
-    return $c->status(200, $user);
+
+    return $c->status(200, $user) if $c->is_system_admin;
+
+    my $user_data = $user->TO_JSON;
+    my %workspace_ids; @workspace_ids{map $_->{id}, $user_data->{workspaces}->@*} = ();
+    foreach my $ws ($user_data->{workspaces}->@*) {
+        undef $ws->{parent_workspace_id}
+            if $ws->{parent_workspace_id} and not exists $workspace_ids{$ws->{parent_workspace_id}};
+    }
+
+    return $c->status(200, $user_data);
 }
 
 =head2 update
@@ -370,7 +380,7 @@ sub update ($c) {
         $c->send_mail(
             template_file => 'updated_user_account',
             From => 'noreply@conch.joyent.us',
-            Subject => 'Your Conch account has been updated.',
+            Subject => 'Your Conch account has been updated',
             orig_data => \%orig_columns,
             new_data => \%dirty_columns,
         );

@@ -7,7 +7,7 @@ use Test::Deep;
 use Test::Conch;
 
 my $t = Test::Conch->new;
-$t->load_fixture('conch_user_global_workspace');
+$t->load_fixture('super_user');
 $t->load_validation_plans([{
     name        => 'Conch v1 Legacy Plan: Server',
     description => 'Test Plan',

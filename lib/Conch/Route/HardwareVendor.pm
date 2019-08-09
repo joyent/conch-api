@@ -37,7 +37,7 @@ sub routes {
     }
 
     # POST /hardware_vendor/:hardware_vendor_name
-    $hv->post('/:hardware_vendor_name')->to('#create');
+    $hv->require_system_admin->post('/:hardware_vendor_name')->to('#create');
 }
 
 1;

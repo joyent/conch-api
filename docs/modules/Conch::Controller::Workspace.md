@@ -34,9 +34,18 @@ Response uses the WorkspacesAndRoles json schema.
 
 ## create\_sub\_workspace
 
-Create a new subworkspace for the indicated workspace.
+Create a new subworkspace for the indicated workspace. The user is given the 'admin' role on
+the new workspace.
+
+Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
+to all parent workspace admins.
 
 Response uses the WorkspaceAndRole json schema.
+
+## \_user\_has\_workspace\_auth
+
+Verifies that the user indicated by the stashed `user_id` has (at least) this role on the
+workspace indicated by the provided `workspace_id` or one of its ancestors.
 
 # LICENSING
 

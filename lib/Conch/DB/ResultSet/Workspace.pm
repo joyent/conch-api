@@ -6,6 +6,7 @@ use parent 'Conch::DB::ResultSet';
 use experimental 'signatures';
 use Conch::UUID 'is_uuid';
 use Safe::Isa;
+use List::Util 'none';
 
 =head1 NAME
 
@@ -141,11 +142,31 @@ SELECT DISTINCT workspace_and_parents.id FROM workspace_and_parents
     $self->search({ $self->current_source_alias.'.id' => { -in => \[ $query, @binds ] } });
 }
 
+=head2 add_role_column
+
+Query for workspace(s) with an extra field attached to the result, containing information about
+the effective role the user has for the workspace.
+
+The indicated role is used directly, with no additional queries done (consequently "role_via"
+will not appear in the serialized data).  This is intended to be used in preference to
+L</with_role_via_data_for_user> when the user is a system admin.
+
+=cut
+
+sub add_role_column ($self, $role) {
+    Carp::croak('role must be one of: ro, rw, admin')
+        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
+
+    $self->add_columns({
+        role => [ \[ '?::user_workspace_role_enum as role', $role ] ],
+    });
+}
+
 =head2 with_role_via_data_for_user
 
 Query for workspace(s) with an extra field attached to the query which will signal the
-workspace serializer to include the "role" and "via" columns, containing information about the
-effective role the user has for the workspace.
+workspace serializer to include the "role" and "role_via" columns, containing information about
+the effective role the user has for the workspace.
 
 Only one user_id can be calculated at a time. If you need to generate workspace-and-role data
 for multiple users at once, you can manually do:
@@ -186,13 +207,19 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
 
 =head2 admins
 
-All the 'admin' users for the provided workspace(s).
+All the 'admin' users for the provided workspace(s).  Pass a true argument to also include all
+system admin users in the result.
 
 =cut
 
-sub admins ($self) {
-    $self->search_related('user_workspace_roles', { role => 'admin' })
-        ->related_resultset('user_account')
+sub admins ($self, $include_sysadmins = undef) {
+    my $rs = $self->search_related('user_workspace_roles', { role => 'admin' })
+        ->related_resultset('user_account');
+
+    $rs = $rs->union($self->result_source->schema->resultset('user_account')->search_rs({ is_admin => 1 }))
+        if $include_sysadmins;
+
+    return $rs
         ->active
         ->distinct
         ->order_by('user_account.name');

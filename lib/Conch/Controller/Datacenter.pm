@@ -17,8 +17,6 @@ Handles looking up the object by id.
 =cut
 
 sub find_datacenter ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $datacenter_id = $c->stash('datacenter_id');
     my $datacenter = $c->db_datacenters->find($datacenter_id);
 
@@ -41,8 +39,6 @@ Response uses the Datacenters json schema.
 =cut
 
 sub get_all ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my @datacenters = $c->db_datacenters
         ->order_by([ qw(vendor region location) ])
         ->all;
@@ -59,7 +55,6 @@ Response uses the Datacenter json schema.
 =cut
 
 sub get_one ($c) {
-    return $c->status(403) if not $c->is_system_admin;
     $c->status(200, $c->stash('datacenter'));
 }
 
@@ -72,8 +67,6 @@ Response uses the DatacenterRoomsDetailed json schema.
 =cut
 
 sub get_rooms ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my @rooms = $c->db_datacenter_rooms->search({ datacenter_id => $c->stash('datacenter')->id })->all;
 
     $c->log->debug('Found '.scalar(@rooms).' datacenter rooms');
@@ -87,8 +80,6 @@ Create a new datacenter.
 =cut
 
 sub create ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('DatacenterCreate');
     return if not $input;
 
@@ -116,8 +107,6 @@ Update an existing datacenter.
 =cut
 
 sub update ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     my $input = $c->validate_request('DatacenterUpdate');
     return if not $input;
 
@@ -136,8 +125,6 @@ Permanently delete a datacenter.
 =cut
 
 sub delete ($c) {
-    return $c->status(403) if not $c->is_system_admin;
-
     if ($c->stash('datacenter')->related_resultset('datacenter_rooms')->exists) {
         $c->log->debug('Cannot delete datacenter: in use by one or more datacenter_rooms');
         return $c->status(409, { error => 'cannot delete a datacenter when a datacenter_room is referencing it' });

@@ -16,23 +16,6 @@ return $c->status(403) if not $c->is_system_admin;
 
 Verifies that the currently stashed user has the `is_admin` flag set.
 
-## is\_workspace\_admin
-
-```
-return $c->status(403) if not $c->is_workspace_admin;
-```
-
-Verifies that the user indicated by the stashed `user_id` has the 'admin' role on the
-workspace indicated by the stashed `workspace_id` or one of its ancestors.
-
-## user\_has\_workspace\_auth
-
-Verifies that the user indicated by the stashed `user_id` has (at least) this role on the
-workspace indicated by the stashed `workspace_id` or one of its ancestors.
-
-System admin users set will always return true, even if no user\_workspace\_role records are
-present.
-
 ## generate\_jwt
 
 Generates a session token for the specified user and stores it in the database.

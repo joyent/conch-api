@@ -37,7 +37,7 @@ sub routes {
 
         # GET /workspace/:workspace_id_or_name/child
         $with_workspace->get('/child')->to('workspace#get_sub_workspaces');
-        # POST /workspace/:workspace_id_or_name/child
+        # POST /workspace/:workspace_id_or_name/child?send_mail=<1|0>
         $with_workspace->post('/child')->to('workspace#create_sub_workspace');
 
         # GET /workspace/:workspace_id_or_name/device?<various query params>
@@ -49,7 +49,7 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/rack
         $with_workspace->get('/rack')->to('workspace_rack#list');
         # POST /workspace/:workspace_id_or_name/rack
-        $with_workspace->post('/rack')->to('workspace_rack#add');
+        $with_workspace->post('/rack')->to('workspace_rack#add', require_role => 'admin');
 
         {
             my $with_workspace_rack =
@@ -119,11 +119,14 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =back
 
-=head3 C<POST /workspace/:workspace_id_or_name/child>
+=head3 C<< POST /workspace/:workspace_id_or_name/child?send_mail=<1|0> >>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
+an email to the parent workspace admins.
 
 =over 4
 
-=item * User requires the admin role
+=item * User requires the read/write role
 
 =item * Request: request.yaml#/WorkspaceCreate
 

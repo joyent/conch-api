@@ -16,7 +16,8 @@ $t->load_validation_plans([{
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
-my $global_ws_id = $t->load_fixture('conch_user_global_workspace')->workspace_id;
+$t->load_fixture('super_user');
+my $global_ws_id = $t->load_fixture('global_workspace')->id;
 my @layouts = $t->load_fixture(map 'rack_0a_layout_'.$_, '1_2', '3_6');
 
 my @devices = map $t->app->db_devices->create($_), (

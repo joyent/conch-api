@@ -86,6 +86,10 @@ Composing rels: ["workspace\_racks"](#workspace_racks) -> rack
 
 Include information about the user's role, if available.
 
+## role
+
+Accessor for informational column, which is by the serializer in the result data.
+
 ## user\_id\_for\_role
 
 Accessor for informational column, which is used by the serializer to signal we should fetch
