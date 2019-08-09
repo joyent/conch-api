@@ -1,4 +1,4 @@
-SELECT run_migration(94, $$
+SELECT run_migration(93, $$
 
     alter table validation alter column id set default gen_random_uuid();
     alter table validation_plan alter column id set default gen_random_uuid();
