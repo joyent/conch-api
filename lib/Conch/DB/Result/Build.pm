@@ -230,6 +230,38 @@ __PACKAGE__->many_to_many("user_accounts", "user_build_roles", "user_account");
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/yxSdyffA8uJFiFb4mEu6A
 
+__PACKAGE__->add_columns(
+    '+completed_user_id' => { is_serializable => 0 },
+);
+
+use experimental 'signatures';
+
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include information about the build's admins and user who marked the build completed.
+
+=cut
+
+sub TO_JSON ($self) {
+    my $data = $self->next::method(@_);
+
+    $data->{admins} = [
+        map {
+            my ($user) = $_->related_resultset('user_account')->get_cache->@*;
+            +{ map +($_ => $user->$_), qw(id name email) };
+        }
+        $self->related_resultset('user_build_roles')->get_cache->@*
+    ];
+
+    my ($completed_user) = $data->{completed} && $self->related_resultset('completed_user')->get_cache->@*;
+    $data->{completed_user} =
+        $completed_user ? +{ map +($_ => $completed_user->$_), qw(id name email) }
+      : undef;
+
+    return $data;
+}
 
 1;
 __END__

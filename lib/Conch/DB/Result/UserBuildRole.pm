@@ -115,6 +115,7 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xcVJBRprcxo4BVwltjmcEQ
 
+__PACKAGE__->load_components('+Conch::DB::Helper::Row::WithRole');
 
 1;
 __END__

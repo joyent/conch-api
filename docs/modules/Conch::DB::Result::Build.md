@@ -117,6 +117,12 @@ Type: many\_to\_many
 
 Composing rels: ["user\_build\_roles"](#user_build_roles) -> user\_account
 
+# METHODS
+
+## TO\_JSON
+
+Include information about the build's admins and user who marked the build completed.
+
 # LICENSING
 
 Copyright Joyent, Inc.

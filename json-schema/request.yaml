@@ -603,5 +603,52 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       role:
         $ref: common.yaml#/definitions/role
+  BuildCreate:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - admins
+    properties:
+      name:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
+      description:
+        type: string
+      admins:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          oneOf:
+            - required:
+              - user_id
+            - required:
+              - email
+          properties:
+            user_id:
+              $ref: common.yaml#/definitions/uuid
+            email:
+              $ref: common.yaml#/definitions/email_address
+  BuildUpdate:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      description:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/non_empty_string
+      started:
+        oneOf:
+          - type: 'null'
+          - type: string
+            format: date-time
+      completed:
+        oneOf:
+          - type: 'null'
+          - type: string
+            format: date-time
 
 # vim: set sts=2 sw=2 et :

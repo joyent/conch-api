@@ -2,6 +2,89 @@
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/schema/response/$schema_name' endpoints, or within conch itself, json-schema/response.yaml.",
   "$schema" : "http://json-schema.org/draft-07/schema#",
   "definitions" : {
+    "Build" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "admins" : {
+          "items" : {
+            "$ref" : "/definitions/UserTerse"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "completed" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "completed_user" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "/definitions/UserTerse"
+            }
+          ]
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "description" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
+        },
+        "started" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "description",
+        "created",
+        "started",
+        "completed",
+        "admins",
+        "completed_user"
+      ],
+      "type" : "object"
+    },
+    "Builds" : {
+      "items" : {
+        "$ref" : "/definitions/Build"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "Datacenter" : {
       "additionalProperties" : false,
       "properties" : {

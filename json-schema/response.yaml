@@ -1832,5 +1832,54 @@ definitions:
           minItems: 1
           items:
             $ref: /definitions/UserTerse
+  Build:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - description
+      - created
+      - started
+      - completed
+      - admins
+      - completed_user
+    properties:
+      id:
+        $ref: common.yaml#/definitions/uuid
+      name:
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+      description:
+        oneOf:
+          - type: 'null'
+          - type: string
+      created:
+        type: string
+        format: date-time
+      started:
+        oneOf:
+          - type: 'null'
+          - type: string
+            format: date-time
+      completed:
+        oneOf:
+          - type: 'null'
+          - type: string
+            format: date-time
+      admins:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          $ref: /definitions/UserTerse
+      completed_user:
+        oneOf:
+          - type: 'null'
+          - $ref: /definitions/UserTerse
+  Builds:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/Build
 
 # vim: set sts=2 sw=2 et :
