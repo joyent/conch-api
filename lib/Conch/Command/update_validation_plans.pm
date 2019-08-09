@@ -10,9 +10,10 @@ update_validation_plans - Utility to bring validations and validation_plans up t
 
     bin/conch update_validation_plans [long options...]
 
-        --help          print usage message and exit
-        --use_latest    deactivate old versions of validation <name>,
+        --update_all    deactivate old versions of validation <name>,
                         update all plans to use the new version of this validation
+
+        --help          print usage message and exit
 
 =cut
 
@@ -30,9 +31,9 @@ sub run ($self, @opts) {
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
         'update_validation_plans %o',
+        [ 'update_all', 'update all active validation plans to use the latest validation versions (default behaviour)', { default => 1 } ],
         [],
         [ 'help',  'print usage message and exit', { shortcircuit => 1 } ],
-        [ 'update_all', 'update all active validation plans to use the latest validation versions (default behaviour)', { default => 1 } ],
     );
 
     if (not $opt->update_all) {

@@ -11,7 +11,7 @@ use warnings;
 # misc/pod2githubpages <filename> [filename ... ]
 
 use Pod::Markdown::Github;
-use Devel::Confess;
+use Class::Method::Modifiers 'around';
 
 my %opts = (
     output_encoding => 'UTF-8',
@@ -20,23 +20,43 @@ my %opts = (
                                         # see https://rt.cpan.org/Ticket/Display.html?id=129865
 );
 
-my @markdown_files;
+around 'Pod::Markdown::format_perldoc_url' => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    my $url = $self->$orig(@_);
+    if ($url =~ /^\Q${\ $self->perldoc_url_prefix }\E/ and -x "bin/$'") {
+        $url = '../scripts/'.$';
+    }
+    return $url;
+};
+
+my (@module_files, @bin_files);
+
+mkdir 'docs/modules' if not -d 'docs/modules';
+mkdir 'docs/scripts' if not -d 'docs/scripts';
 
 while (my $infile = shift @ARGV) {
-    # convert:                          lib/Conch/Time.pm
-    # to:                               doc/modules/Conch::Time.md
-    # containing pod links like:        L<Conch::Time>
-    # become relative URLs like:        /../modules/Conch::Time
+    # convert:                          lib/Conch/Time.pm            and  bin/conch-db
+    # to:                               docs/modules/Conch::Time.md  and  docs/scripts/conch-db.md
+    # containing pod links like:        L<Conch::Time>               and  L<conch-db>
+    # become relative URLs like:        ../modules/Conch::Time       and  ../scripts/conch-db
     # that turn into the absolute urls: https://joyent.github.io/conch/modules/Conch::Time
-    # ...and:                            http://localhost:4000/modules/Conch::Time
+    # ...and:                           http://localhost:4000/modules/Conch::Time
+
 
     my $outfile = $infile;
-    $outfile =~ s{^lib/}{};
-    $outfile =~ s{/}{::}g;
-    $outfile =~ s/\.pm$/\.md/;
-    $outfile =~ s{^lib::}{};
-    push @markdown_files, $outfile;
-    $outfile = 'docs/modules/'.$outfile;
+    if ($outfile =~ s{^lib/}{}) {
+        $outfile =~ s{/}{::}g;
+        $outfile =~ s/\.pm$/\.md/;
+        push @module_files, $outfile;
+        $outfile = 'docs/modules/'.$outfile;
+    }
+    elsif ($outfile =~ s{^bin/}{}) {
+        $outfile =~ s/$/\.md/;
+        push @bin_files, $outfile;
+        $outfile = 'docs/scripts/'.$outfile;
+    }
 
     my $in_fh  = get_handle($infile, '<', \*STDIN);
     my $out_fh = get_handle($outfile, '>', \*STDOUT);
@@ -48,18 +68,7 @@ while (my $infile = shift @ARGV) {
     convert($in_fh, $out_fh);
 }
 
-{
-    open my $fh, '>', 'docs/modules/index.md'
-        or die "cannot open docs/modules/index.md for writing: $!";
-
-    print $fh "# Module documentation\n\n";
-
-    foreach my $filename (sort @markdown_files) {
-        my $module = $filename =~ s/.md$//r;
-        print $fh '* [', $module, '](../modules/', $module, ")\n";
-    }
-
-    print $fh <<'FOOTER';
+my $footer = <<'FOOTER';
 
 # Copyright / License
 
@@ -69,6 +78,34 @@ This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, you can
 obtain one at <http://mozilla.org/MPL/2.0/>.
 FOOTER
+
+{
+    open my $fh, '>', 'docs/modules/index.md'
+        or die "cannot open docs/modules/index.md for writing: $!";
+
+    print $fh "# Module documentation\n\n";
+
+    foreach my $filename (sort @module_files) {
+        my $module = $filename =~ s/.md$//r;
+        print $fh '* [', $module, '](../modules/', $module, ")\n";
+    }
+
+    print $fh $footer;
+    close $fh;
+}
+
+{
+    open my $fh, '>', 'docs/scripts/index.md'
+        or die "cannot open docs/scripts/index.md for writing: $!";
+
+    print $fh "# Executable documentation (in `bin/`)\n\n";
+
+    foreach my $filename (sort @bin_files) {
+        my $exe = $filename =~ s/.md$//r;
+        print $fh '* [', $exe, '](../scripts/', $exe, ")\n";
+    }
+
+    print $fh $footer;
     close $fh;
 }
 

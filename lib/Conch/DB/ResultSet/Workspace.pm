@@ -54,7 +54,7 @@ SELECT workspace_children.id FROM workspace_children
 
 =head2 and_workspaces_beneath
 
-As L<workspaces_beneath>, but also includes the original workspace.
+As L</workspaces_beneath>, but also includes the original workspace.
 
 C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
 or a resultset, which must return a single column of distinct workspace_id(s)).
@@ -114,7 +114,7 @@ SELECT workspace_parents.id FROM workspace_parents
 
 =head2 and_workspaces_above
 
-As L<workspaces_above>, but also includes the original workspace.
+As L</workspaces_above>, but also includes the original workspace.
 
 C<$workspace_id> can be a single workspace_id, an arrayref of multiple distinct workspace_ids,
 or a resultset, which must return a single column of distinct workspace_id(s)).

@@ -12,7 +12,7 @@ use Conch::Time;
 =head1 Conch::Log
 
 Enhanced Mojo logger with formatters to log in
-L<Bunyan||https://github.com/trentm/node-bunyan/> format, optionally with stack traces.
+L<Bunyan|https://github.com/trentm/node-bunyan> format, optionally with stack traces.
 
 =head1 SYNOPSIS
 

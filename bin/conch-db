@@ -25,6 +25,7 @@ use open ':std', ':encoding(UTF-8)';
 use Getopt::Long::Descriptive;
 use Dir::Self;
 use List::Util 'any';
+use Class::Method::Modifiers 'around';
 use lib __DIR__ =~ s{/bin}{}r . '/lib';
 use Conch::DB;
 use Conch::DB::Util;
@@ -112,7 +113,7 @@ if (any { $_ eq 'create-validations' } @ARGV) {
     Conch::DB::Util::create_validation_plans($schema, $log);
 }
 
-if (any { $_ eq 'global-workspace' } @ARGV) {
+if (any { $_ eq 'create-global-workspace' } @ARGV) {
     $schema->resultset('workspace')->create({
         name => 'GLOBAL',
         description => 'Global workspace',
@@ -176,6 +177,11 @@ if (any { $_ eq 'apply-dump-migration' } @ARGV) {
         files => ['schema-loader.yaml']
     })->{'schema-loader.yaml'};
     require DBIx::Class::Schema::Loader;
+    require DBIx::Class::Schema::Loader::Base;
+    around 'DBIx::Class::Schema::Loader::Base::_default_custom_content' => sub {
+        my $orig = shift; my $self = shift;
+        return "\n\n1;\n__END__\n\n=pod\n\n=head1 LICENSING\n\nCopyright Joyent, Inc.\n\nThis Source Code Form is subject to the terms of the Mozilla Public License,\nv.2.0. If a copy of the MPL was not distributed with this file, You can obtain\none at L<http://mozilla.org/MPL/2.0/>.\n\n=cut\n# vim: set ts=4 sts=4 sw=4 et :\n";
+    };
     DBIx::Class::Schema::Loader::make_schema_at(
         $loader_config->{schema_class},
         $loader_config->{loader_options},

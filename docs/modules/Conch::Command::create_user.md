@@ -11,6 +11,8 @@ create\_user - create a new user, optionally sending an email
 --name        The user's name. Required.
 --password    The user's temporary password. If not provided, one will be randomly generated.
 --send-mail   Send a welcome email to the user (defaults to true)
+
+    --help    print usage message and exit
 ```
 
 # LICENSING

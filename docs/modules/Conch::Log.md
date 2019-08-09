@@ -1,7 +1,7 @@
 # Conch::Log
 
 Enhanced Mojo logger with formatters to log in
-[Bunyan](https://metacpan.org/pod/|https:#github.com-trentm-node-bunyan) format, optionally with stack traces.
+[Bunyan](https://github.com/trentm/node-bunyan) format, optionally with stack traces.
 
 # SYNOPSIS
 

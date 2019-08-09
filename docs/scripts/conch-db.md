@@ -1,17 +1,16 @@
 # NAME
 
-create\_token - create a new api token
+conch-db - commands to administrate a database
 
 # SYNOPSIS
 
-```perl
-bin/conch create_token [long options...]
-
-    --name    required; the name to give the token
-    --email   required; the user account for which to create the token
-
-    --help    print usage message and exit
 ```
+bin/conch-db [long options...] [arguments]
+```
+
+# DESCRIPTION
+
+Work with the Conch database. Run `bin/conch-db --help` for a list of options.
 
 # LICENSING
 

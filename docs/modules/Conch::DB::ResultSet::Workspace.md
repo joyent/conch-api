@@ -23,7 +23,7 @@ The resultset does \*not\* include the original workspace itself -- see
 
 ## and\_workspaces\_beneath
 
-As [workspaces\_beneath](https://metacpan.org/pod/workspaces_beneath), but also includes the original workspace.
+As ["workspaces\_beneath"](#workspaces_beneath), but also includes the original workspace.
 
 `$workspace_id` can be a single workspace\_id, an arrayref of multiple distinct workspace\_ids,
 or a resultset, which must return a single column of distinct workspace\_id(s)).
@@ -38,7 +38,7 @@ The resultset does \*not\* include the original workspace itself -- see
 
 ## and\_workspaces\_above
 
-As [workspaces\_above](https://metacpan.org/pod/workspaces_above), but also includes the original workspace.
+As ["workspaces\_above"](#workspaces_above), but also includes the original workspace.
 
 `$workspace_id` can be a single workspace\_id, an arrayref of multiple distinct workspace\_ids,
 or a resultset, which must return a single column of distinct workspace\_id(s)).

@@ -29,7 +29,7 @@ test_loud: local ## Run tests but tell the Mojo harness to log verbosely to log/
 ghdocs: build
 	@rm -rf docs/modules
 	@mkdir -p docs/modules
-	@carton exec misc/pod2githubpages $$(find lib -type f -iname \*.pm)
+	@carton exec misc/pod2githubpages $$(find lib -type f -iname \*.pm) $$(find bin -type f -perm -u-x)
 
 watch-test:
 	@find lib t | entr -r -c make test

@@ -12,6 +12,7 @@ create_token - create a new api token
 
         --name    required; the name to give the token
         --email   required; the user account for which to create the token
+
         --help    print usage message and exit
 
 =cut
