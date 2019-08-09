@@ -26,8 +26,7 @@ sub validate {
             type     => 'CPU',
             expected => $MAX_TEMP,
             cmp      => '<',
-            got      => $data->{temp}->{$cpu},
-            component_id => $cpu,
+            got      => $data->{temp}->{$cpu}
         );
     }
 }

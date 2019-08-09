@@ -79,8 +79,7 @@ sub validate ($c) {
         data => $data,
     );
 
-    my $result_order = 0;
-    $c->status(200, [ map +{ $_->TO_JSON->%*, order => $result_order++ }, @validation_results ]);
+    $c->status(200, \@validation_results);
 }
 
 =head2 run_validation_plan
@@ -120,8 +119,7 @@ sub run_validation_plan ($c) {
         no_save_db => 1,
     );
 
-    my $result_order = 0;
-    $c->status(200, [ map +{ $_->TO_JSON->%*, order => $result_order++ }, @validation_results ]);
+    $c->status(200, \@validation_results);
 }
 
 1;
