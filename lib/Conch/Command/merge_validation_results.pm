@@ -11,6 +11,7 @@ merge_validation_results - collapse duplicate validation_result rows together
     bin/conch merge_validation_results [long options...]
 
         -n --dry-run  dry-run (no changes are made)
+
         --help        print usage message and exit
 
 =cut
