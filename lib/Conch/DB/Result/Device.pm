@@ -359,9 +359,19 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 relays
+
+Type: many_to_many
+
+Composing rels: L</device_relay_connections> -> relay
+
+=cut
+
+__PACKAGE__->many_to_many("relays", "device_relay_connections", "relay");
+
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iOf4s64d7wK8hyLDdMkJTw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:t9HvAuvB75DLfvSRojlSSw
 
 __PACKAGE__->has_many(
   "active_device_disks",

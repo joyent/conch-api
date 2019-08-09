@@ -122,6 +122,18 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch::DB::Result::UserWorkspaceRole)
 
+## relays
+
+Type: many\_to\_many
+
+Composing rels: ["user\_relay\_connections"](#user_relay_connections) -> relay
+
+## workspaces
+
+Type: many\_to\_many
+
+Composing rels: ["user\_workspace\_roles"](#user_workspace_roles) -> workspace
+
 # METHODS
 
 ## check\_password
