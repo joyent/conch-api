@@ -49,10 +49,14 @@ sub new {
 
     my $t = Conch::Time->now;
 
-Return an object based on the current time.
+Return an object based on the current time, using the UTC timezone.
 
 Time are high resolution and will generate unique timestamps to the
 nanosecond.
+
+=cut
+
+sub now { return shift->now_utc }
 
 =head2 from_epoch
 
@@ -68,13 +72,13 @@ See also L<Time::Moment/from_epoch>.
 
 =head3 rfc3339
 
-Return an RFC3339 compatible string.
+Return an RFC3339 compatible string as UTC.
 Sub-second precision will use 3, 6 or 9 digits as necessary.
 
 =cut
 
 sub rfc3339 {
-    return shift->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
+    return shift->at_utc->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
 }
 
 =head3 timestamp
