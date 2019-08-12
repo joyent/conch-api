@@ -170,6 +170,171 @@ sub update ($c) {
     $c->status(303, '/build/'.$build->id);
 }
 
+=head2 list_users
+
+Get a list of user members of the current build.
+Requires the 'admin' role on the build.
+
+Response uses the BuildUsers json schema.
+
+=cut
+
+sub list_users ($c) {
+    my $rs = $c->stash('build_rs')
+        ->related_resultset('user_build_roles')
+        ->related_resultset('user_account')
+        ->active
+        ->columns([ { role => 'user_build_roles.role' }, map 'user_account.'.$_, qw(id name email) ])
+        ->order_by([ { -desc => 'role' }, 'name' ]);
+
+    $c->status(200, [ $rs->hri->all ]);
+}
+
+=head2 add_user
+
+Adds a user to the current build, or upgrades an existing role entry to access the build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
+to the user and to all build admins.
+
+This endpoint is nearly identical to L<Conch::Controller::Organization/add_user>.
+
+=cut
+
+sub add_user ($c) {
+    my $params = $c->validate_query_params('NotifyUsers');
+    return if not $params;
+
+    my $input = $c->validate_request('BuildAddUser');
+    return if not $input;
+
+    my $user_rs = $c->db_user_accounts->active;
+    my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
+        : $input->{email} ? $user_rs->find_by_email($input->{email})
+        : undef;
+    return $c->status(404) if not $user;
+
+    $c->stash('target_user', $user);
+    my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
+
+    # check if the user already has access to this build
+    if (my $existing_role = $c->stash('build_rs')
+            ->search_related('user_build_roles', { user_id => $user->id })->single) {
+        if ($existing_role->role eq $input->{role}) {
+            $c->log->debug('user '.$user->id.' ('.$user->name.') already has '.$input->{role}
+                .' access to build '.$c->stash('build_id_or_name').': nothing to do');
+            return $c->status(204);
+        }
+
+        $existing_role->update({ role => $input->{role} });
+        $c->log->info('Updated access for user '.$user->id.' ('.$user->name.') in build '
+            .$c->stash('build_id_or_name').' to the '.$input->{role}.' role');
+
+        if ($params->{send_mail} // 1) {
+            $c->send_mail(
+                template_file => 'build_user_update_user',
+                From => 'noreply@conch.joyent.us',
+                Subject => 'Your Conch access has changed',
+                build => $build_name,
+                role => $input->{role},
+            );
+            my @admins = $c->stash('build_rs')
+                ->admins('with_sysadmins')
+                ->search({ 'user_account.id' => { '!=' => $user->id } });
+            $c->send_mail(
+                template_file => 'build_user_update_admins',
+                To => $c->construct_address_list(@admins),
+                From => 'noreply@conch.joyent.us',
+                Subject => 'We modified a user\'s access to your build',
+                build => $build_name,
+                role => $input->{role},
+            ) if @admins;
+        }
+
+        return $c->status(204);
+    }
+
+    $user->create_related('user_build_roles', {
+        build_id => $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single,
+        role => $input->{role},
+    });
+    $c->log->info('Added user '.$user->id.' ('.$user->name.') to build '.$c->stash('build_id_or_name').' with the '.$input->{role}.' role');
+
+    if ($params->{send_mail} // 1) {
+        $c->send_mail(
+            template_file => 'build_user_add_user',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            build => $build_name,
+            role => $input->{role},
+        );
+        my @admins = $c->stash('build_rs')
+            ->admins('with_sysadmins')
+            ->search({ 'user_account.id' => { '!=' => $user->id } });
+        $c->send_mail(
+            template_file => 'build_user_add_admins',
+            To => $c->construct_address_list(@admins),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We added a user to your build',
+            build => $build_name,
+            role => $input->{role},
+        ) if @admins;
+    }
+
+    $c->status(204);
+}
+
+=head2 remove_user
+
+Removes the indicated user from the build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
+to the user and to all build admins.
+
+This endpoint is nearly identical to L<Conch::Controller::Organization/remove_user>.
+
+=cut
+
+sub remove_user ($c) {
+    my $params = $c->validate_query_params('NotifyUsers');
+    return if not $params;
+
+    my $user = $c->stash('target_user');
+    my $rs = $c->stash('build_rs')
+        ->search_related('user_build_roles', { user_id => $user->id });
+    return $c->status(204) if not $rs->exists;
+
+    return $c->status(409, { error => 'builds must have an admin' })
+        if $rs->search({ role => 'admin' })->exists
+            and $c->stash('build_rs')
+                ->search_related('user_build_roles', { role => 'admin' })->count == 1;
+
+    $c->log->info('removing user '.$user->id.' ('.$user->name.') from build '.$c->stash('build_id_or_name'));
+    my $deleted = $rs->delete;
+
+    if ($deleted > 0 and $params->{send_mail} // 1) {
+        my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
+        $c->send_mail(
+            template_file => 'build_user_remove_user',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch builds have been updated',
+            build => $build_name,
+        );
+        my @admins = $c->stash('build_rs')->admins('with_sysadmins');
+        $c->send_mail(
+            template_file => 'build_user_remove_admins',
+            To => $c->construct_address_list(@admins),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We removed a user from your build',
+            build => $build_name,
+        ) if @admins;
+    }
+
+    return $c->status(204);
+}
+
 1;
 __END__
 

@@ -78,6 +78,35 @@
       ],
       "type" : "object"
     },
+    "BuildUsers" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "email" : {
+            "$ref" : "common.json#/definitions/email_address"
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "role" : {
+            "$ref" : "common.json#/definitions/role"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "email",
+          "role"
+        ],
+        "type" : "object"
+      },
+      "minItems" : 1,
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "Builds" : {
       "items" : {
         "$ref" : "/definitions/Build"

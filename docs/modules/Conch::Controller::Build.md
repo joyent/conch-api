@@ -37,6 +37,33 @@ Response uses the Build json schema.
 Modifies a build attribute: one or more of description, started, completed.
 Requires the 'admin' role on the build.
 
+## list\_users
+
+Get a list of user members of the current build.
+Requires the 'admin' role on the build.
+
+Response uses the BuildUsers json schema.
+
+## add\_user
+
+Adds a user to the current build, or upgrades an existing role entry to access the build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
+to the user and to all build admins.
+
+This endpoint is nearly identical to ["add\_user" in Conch::Controller::Organization](../modules/Conch::Controller::Organization#add_user).
+
+## remove\_user
+
+Removes the indicated user from the build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
+to the user and to all build admins.
+
+This endpoint is nearly identical to ["remove\_user" in Conch::Controller::Organization](../modules/Conch::Controller::Organization#remove_user).
+
 # LICENSING
 
 Copyright Joyent, Inc.

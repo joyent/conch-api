@@ -650,5 +650,22 @@ definitions:
           - type: 'null'
           - type: string
             format: date-time
+  BuildAddUser:
+    type: object
+    additionalProperties: false
+    required:
+      - role
+    oneOf:
+      - required:
+        - user_id
+      - required:
+        - email
+    properties:
+      user_id:
+        $ref: common.yaml#/definitions/uuid
+      email:
+        $ref: common.yaml#/definitions/email_address
+      role:
+        $ref: common.yaml#/definitions/role
 
 # vim: set sts=2 sw=2 et :

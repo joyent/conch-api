@@ -1,0 +1,7 @@
+Hello,
+
+<%# TODO: we should specify the conch URL here %>\
+You have been removed from the "<%= $build %>" build at Joyent Conch.
+
+Thank you,
+Joyent Build Ops Team

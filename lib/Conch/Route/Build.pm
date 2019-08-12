@@ -42,6 +42,17 @@ sub routes {
 
         # POST /build/:build_id_or_name
         $with_build_admin->post('/')->to('#update');
+
+        # GET /build/:build_id_or_name/user
+        $with_build_admin->get('/user')->to('#list_users');
+
+        # POST /build/:build_id_or_name/user?send_mail=<1|0>
+        $with_build_admin->post('/user')->to('#add_user');
+
+        # DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
+        $with_build_admin->under('/user/#target_user_id_or_email')
+            ->to('user#find_user')
+            ->delete('/')->to('build#remove_user');
     }
 }
 
@@ -91,6 +102,44 @@ Unless otherwise noted, all routes require authentication.
 =item * Request: request.yaml#/BuildUpdate
 
 =item * Response: Redirect to the build
+
+=back
+
+=head3 C<GET /build/:build_id_or_name/user>
+
+=over 4
+
+=item * Requires system admin authorization or the admin role on the build
+
+=item * Response: response.yaml#/BuildUsers
+
+=back
+
+=head3 C<POST /build/:build_id_or_name/user?send_mail=<1|0>>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the user.
+
+=over 4
+
+=item * Requires system admin authorization or the admin role on the build
+
+=item * Request: request.yaml#/BuildAddUser
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the user.
+
+=over 4
+
+=item * Requires system admin authorization or the admin role on the build
+
+=item * Returns C<204 NO CONTENT>
 
 =back
 

@@ -17,6 +17,26 @@ Interface to queries involving builds.
 
 =head1 METHODS
 
+=head2 admins
+
+All the 'admin' users for the provided build(s).  Pass a true argument to also include all
+system admin users in the result.
+
+=cut
+
+sub admins ($self, $include_sysadmins = undef) {
+    my $rs = $self->search_related('user_build_roles', { role => 'admin' })
+        ->related_resultset('user_account');
+
+    $rs = $rs->union_all($self->result_source->schema->resultset('user_account')->search_rs({ is_admin => 1 }))
+        if $include_sysadmins;
+
+    return $rs
+        ->active
+        ->distinct
+        ->order_by('user_account.name');
+}
+
 =head2 user_has_role
 
 Checks that the provided user_id has (at least) the specified role in at least one build in the
