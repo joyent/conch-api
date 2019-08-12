@@ -69,28 +69,21 @@ Response uses the WorkspaceDevicePXEs json schema.
 =cut
 
 sub get_pxe_devices ($c) {
-    my $device_rs = $c->stash('workspace_rs')
+    my @devices = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
-        ->related_resultset('rack')
+        ->search_related('rack', undef, { join => { datacenter_room => 'datacenter' } })
         ->related_resultset('device_locations')
-        ->as_subselect_rs  # avoids earlier device_locations from interfering with subqueries
-        ->related_resultset('device');
-
-    my @devices = $device_rs->search(undef,
-        {
-            columns => {
-                id => 'device.id',
-                'location.datacenter.name' => 'datacenter.region',
-                'location.datacenter.vendor_name' => 'datacenter.vendor_name',
-                'location.rack.name' => 'rack.name',
-                'location.rack.rack_unit_start' => 'device_location.rack_unit_start',
-                # pxe = the first (sorted by name) interface that is status=up
-                'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
-                # ipmi = the (newest) interface named ipmi1.
-                ipmi_mac_ip => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
-            },
-            collapse => 1,
-            join => { device_location => { rack => { datacenter_room => 'datacenter' } } },
+        ->related_resultset('device')
+        ->columns({
+            id => 'device.id',
+            'location.datacenter.name' => 'datacenter.region',
+            'location.datacenter.vendor_name' => 'datacenter.vendor_name',
+            'location.rack.name' => 'rack.name',
+            'location.rack.rack_unit_start' => 'device_locations.rack_unit_start',
+            # pxe = the first (sorted by name) interface that is status=up
+            'pxe.mac' => $c->db_devices->correlate('device_nics')->nic_pxe->as_query,
+            # ipmi = the (newest) interface named ipmi1.
+            ipmi_mac_ip => $c->db_devices->correlate('device_nics')->nic_ipmi->as_query,
         })
         ->order_by('device.created')
         ->hri

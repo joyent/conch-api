@@ -47,7 +47,7 @@ sub list ($c) {
         $device_progress{$entry->{rack_id}}{$entry->{status} // 'valid'} += $entry->{count};
     }
 
-    my @rack_data = $racks_rs->as_subselect_rs->search(undef,
+    my @rack_data = $racks_rs->search(undef,
         {
             columns => {
                 az => 'datacenter_room.az',
@@ -58,7 +58,6 @@ sub list ($c) {
                 rack_size => 'rack_role.rack_size',
             },
             join => [ qw(datacenter_room rack_role) ],
-            collapse => 1,
         },
     )->hri->all;
 
