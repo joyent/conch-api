@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
 
 BASEDIR=$(cd `dirname "$0"` && pwd)
 
