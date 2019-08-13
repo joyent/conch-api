@@ -725,7 +725,7 @@ subtest 'Roles' => sub {
 
         $t->post_ok("/workspace/$global_ws_id/rack", json => { id => create_uuid_str() })
             ->status_is(403)
-            ->log_debug_is('User lacks the required role (rw) for workspace '.$global_ws_id);
+            ->log_debug_is('User lacks the required role (admin) for workspace '.$global_ws_id);
 
         $t->post_ok("/workspace/$global_ws_id/user",
                 json => { user => 'another@wat.wat', role => 'ro' })
