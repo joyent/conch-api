@@ -29,8 +29,10 @@ sub routes {
     $device->get('/')->to('device#lookup_by_other_attribute');
 
     {
-        # chainable action that extracts and looks up the device id or serial_number from the path
+        # chainable actions that extract and look up the device id or serial_number from the path
         my $with_device = $device->under('/:device_id_or_serial_number')->to('device#find_device');
+        my $with_device_ro = $device->under('/:device_id_or_serial_number')
+            ->to('device#find_device', require_role => 'ro');
 
         # GET /device/:device_id_or_serial_number
         $with_device->get('/')->to('device#get');
@@ -83,9 +85,9 @@ sub routes {
         }
 
         # POST /device/:device_id_or_serial_number/validation/:validation_id
-        $with_device->post('/validation/<validation_id:uuid>')->to('device_validation#validate', require_role => 'ro');
+        $with_device_ro->post('/validation/<validation_id:uuid>')->to('device_validation#validate');
         # POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id
-        $with_device->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan', require_role => 'ro');
+        $with_device_ro->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
         # GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 

@@ -27,10 +27,12 @@ sub routes {
     $workspace->get('/')->to('workspace#list');
 
     {
-        # chainable action that extracts and looks up workspace_id from the path
+        # chainable actions that extract and look up workspace_id from the path
         # and performs basic role checking for the workspace
         my $with_workspace = $workspace->under('/:workspace_id_or_name')
             ->to('workspace#find_workspace');
+        my $with_workspace_admin = $workspace->under('/:workspace_id_or_name')
+            ->to('workspace#find_workspace', require_role => 'admin');
 
         # GET /workspace/:workspace_id_or_name
         $with_workspace->get('/')->to('workspace#get');
@@ -49,7 +51,7 @@ sub routes {
         # GET /workspace/:workspace_id_or_name/rack
         $with_workspace->get('/rack')->to('workspace_rack#list');
         # POST /workspace/:workspace_id_or_name/rack
-        $with_workspace->post('/rack')->to('workspace_rack#add', require_role => 'admin');
+        $with_workspace_admin->post('/rack')->to('workspace_rack#add');
 
         {
             my $with_workspace_rack =
@@ -63,10 +65,6 @@ sub routes {
         $with_workspace->get('/relay')->to('workspace_relay#list');
         # GET /workspace/:workspace_id_or_name/relay/<relay_id:uuid>/device
         $with_workspace->get('/relay/<relay_id:uuid>/device')->to('workspace_relay#get_relay_devices');
-
-        # like $with_workspace, but requires 'admin' access to the workspace
-        my $with_workspace_admin = $workspace->under('/:workspace_id_or_name')
-            ->to('workspace#find_workspace', require_role => 'admin');
 
         # GET /workspace/:workspace_id_or_name/user
         $with_workspace_admin->get('/user')->to('workspace_user#list');
