@@ -75,6 +75,35 @@ an email to the organization members and build admins.
 - User requires the admin role
 - Returns `204 NO CONTENT`
 
+### `GET /build/:build_id_or_name/device`
+
+- Requires system admin authorization or the read-only role on the build
+- Response: response.yaml#/Devices
+
+### `POST /build/:build_id_or_name/device/:device_id_or_serial_number`
+
+- Requires system admin authorization, or the read/write role on the build and the
+read-only role on the device (via a workspace or a relay registration, see
+["routes" in Conch::Route::Device](../modules/Conch::Route::Device#routes))
+
+### `DELETE /build/:build_id_or_name/device/:device_id_or_serial_number`
+
+- Requires system admin authorization, or the read/write role on the build
+
+### `GET /build/:build_id_or_name/rack`
+
+- Requires system admin authorization or the read-only role on the build
+- Response: response.yaml#/Racks
+
+### `POST /build/:build_id_or_name/rack/:rack_id`
+
+- Requires system admin authorization, or the read/write role on the build and the
+read-only role on a workspace that contains the rack
+
+### `DELETE /build/:build_id_or_name/rack/:rack_id`
+
+- Requires system admin authorization, or the read/write role on the build
+
 # LICENSING
 
 Copyright Joyent, Inc.

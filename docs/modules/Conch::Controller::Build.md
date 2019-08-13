@@ -88,6 +88,44 @@ Requires the 'admin' role on the build.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to all organization members and to all build admins.
 
+## get\_devices
+
+Get the devices in this build.  (Includes devices located in rack(s) in this build.)
+Requires the 'read-only' role on the build.
+
+Response uses the Devices json schema.
+
+## add\_device
+
+Adds the specified device to the build (as long as it isn't in another build, or located in a
+rack in another build).
+
+Requires the 'read/write' role on the build.
+
+## remove\_device
+
+Removes the specified device from the build (if it is \*directly\* in the build, not via a rack).
+
+Requires the 'read/write' role on the build.
+
+## get\_racks
+
+Get the racks in this build.
+Requires the 'read-only' role on the build.
+
+Response uses the Racks json schema.
+
+## add\_rack
+
+Adds the specified rack to the build (as long as it isn't in another build, or contains devices
+located in another build).
+
+Requires the 'read/write' role on the build.
+
+## remove\_rack
+
+Requires the 'read/write' role on the build.
+
 # LICENSING
 
 Copyright Joyent, Inc.

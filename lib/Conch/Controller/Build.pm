@@ -550,6 +550,173 @@ sub remove_organization ($c) {
     return $c->status(204);
 }
 
+=head2 get_devices
+
+Get the devices in this build.  (Includes devices located in rack(s) in this build.)
+Requires the 'read-only' role on the build.
+
+Response uses the Devices json schema.
+
+=cut
+
+sub get_devices ($c) {
+    my $direct_devices_rs = $c->stash('build_rs')
+        ->related_resultset('devices');
+
+    my $rack_devices_rs = $c->stash('build_rs')
+        ->related_resultset('racks')
+        ->related_resultset('device_locations')
+        ->related_resultset('device');
+
+    # this query is carefully constructed to be efficient.
+    # don't mess with it without checking with DBIC_TRACE=1.
+    my $rs = $c->db_devices
+        ->search({ id => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
+        ->prefetch('device_location')
+        ->order_by('device.created');
+
+    $c->status(200, [ $rs->all ]);
+}
+
+=head2 add_device
+
+Adds the specified device to the build (as long as it isn't in another build, or located in a
+rack in another build).
+
+Requires the 'read/write' role on the build.
+
+=cut
+
+sub add_device ($c) {
+    my $device = $c->stash('device_rs')
+        ->prefetch([ 'build', { device_location => { rack => 'build' } } ])
+        ->single;
+    my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
+
+    if ($device->build_id) {
+        return $c->status(204) if $device->build_id eq $build_id;
+
+        $c->log->warn('cannot add device '.$c->stash('device_id').' ('.$device->serial_number
+            .') to build '.$c->stash('build_id_or_name').' -- already a member of build '
+            .$device->build_id.' ('.$device->build->name.')');
+        return $c->status(409, { error => 'device already member of build '.$device->build_id.' ('.$device->build->name.')' });
+    }
+
+    if ($device->device_location
+            and my $current_build = $device->device_location->rack->build) {
+        return $c->status(204) if $current_build->id eq $build_id;
+
+        $c->log->warn('cannot add device '.$c->stash('device_id').' ('.$device->serial_number
+            .') to build '.$c->stash('build_id_or_name').' -- already a member of build '
+            .$current_build->id.' ('.$device->device_location->rack->build->name
+            .') via its rack location');
+        return $c->status(409, { error => 'device already member of build '.$current_build->id.' ('.$current_build->name.') via rack id '.$device->device_location->rack_id });
+    }
+
+    # TODO: check other constraints..
+    # - what if the build is completed?
+    # - what about device.phase or rack.phase?
+
+    $c->log->debug('adding device '.$device->id.' ('.$device->serial_number
+        .') to build '.$c->stash('build_id_or_name'));
+    $device->update({ build_id => $build_id, updated => \'now()' });
+    return $c->status(204);
+}
+
+=head2 remove_device
+
+Removes the specified device from the build (if it is *directly* in the build, not via a rack).
+
+Requires the 'read/write' role on the build.
+
+=cut
+
+sub remove_device ($c) {
+    my $rs = $c->stash('build_rs')->search_related('devices', { 'devices.id' => $c->stash('device_id') });
+    if (not $rs->exists) {
+        $c->log->warn('device '.$c->stash('device_id').' is not in build '.$c->stash('build_id_or_name').': cannot remove');
+        return $c->status(404);
+    }
+
+    # TODO: check other constraints..
+    # - what if the build is completed?
+    # - what about devices located in a rack under a different build?
+    # - what about device.phase or rack.phase?
+    # - what if rack.build_id is set?
+
+    $c->log->debug('removing device '.$c->stash('device_id').' from build '.$c->stash('build_id_or_name'));
+    $c->stash('device_rs')->update({ build_id => undef, updated => \'now()' });
+    return $c->status(204);
+}
+
+=head2 get_racks
+
+Get the racks in this build.
+Requires the 'read-only' role on the build.
+
+Response uses the Racks json schema.
+
+=cut
+
+sub get_racks ($c) {
+    $c->status(200, [ $c->stash('build_rs')->related_resultset('racks')->all ]);
+}
+
+=head2 add_rack
+
+Adds the specified rack to the build (as long as it isn't in another build, or contains devices
+located in another build).
+
+Requires the 'read/write' role on the build.
+
+=cut
+
+sub add_rack ($c) {
+    my $rack = $c->stash('rack_rs')->single;
+    my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
+
+    if ($rack->build_id) {
+        return $c->status(204) if $rack->build_id eq $build_id;
+
+        $c->log->warn('cannot add rack '.$rack->id
+            .' to build '.$c->stash('build_id_or_name').' -- already a member of build '
+            .$rack->build_id.' ('.$rack->build->name.')');
+        return $c->status(409, { error => 'rack already member of build '.$rack->build_id.' ('.$rack->build->name.')' });
+    }
+
+    # TODO: check other constraints..
+    # - what if the build is completed?
+    # - what if device.build_id is set (for any devices located here)?
+    # - what about device.phase or rack.phase?
+
+    $c->log->debug('adding rack '.$rack->id.' to build '.$c->stash('build_id_or_name'));
+    $rack->update({ build_id => $build_id, updated => \'now()' });
+    return $c->status(204);
+}
+
+=head2 remove_rack
+
+Requires the 'read/write' role on the build.
+
+=cut
+
+sub remove_rack ($c) {
+    my $rs = $c->stash('build_rs')->search_related('racks', { 'racks.id' => $c->stash('rack_id') });
+    if (not $rs->exists) {
+        $c->log->warn('rack '.$c->stash('rack_id').' is not in build '.$c->stash('build_id_or_name').': cannot remove');
+        return $c->status(404);
+    }
+
+    # TODO: check other constraints..
+    # - what if the build is completed?
+    # - what if device.build_id is set (for any devices located here)?
+    # - what about device.phase or rack.phase?
+
+    $c->log->debug('removing rack '.$c->stash('rack_id').' from build '.$c->stash('build_id_or_name'));
+    $c->stash('rack_rs')->update({ build_id => undef, updated => \'now()' });
+    return $c->status(204);
+}
+
 1;
 __END__
 

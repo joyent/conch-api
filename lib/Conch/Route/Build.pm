@@ -34,6 +34,9 @@ sub routes {
         my $with_build_ro = $build->under('/:build_id_or_name')
             ->to('#find_build', require_role => 'ro');
 
+        my $with_build_rw = $build->under('/:build_id_or_name')
+            ->to('#find_build', require_role => 'rw');
+
         my $with_build_admin = $build->under('/:build_id_or_name')
             ->to('#find_build', require_role => 'admin');
 
@@ -64,6 +67,32 @@ sub routes {
         $with_build_admin->under('/organization/:organization_id_or_name')
             ->to('organization#find_organization')
             ->delete('/')->to('build#remove_organization');
+
+        # GET /build/:build_id_or_name/device
+        $with_build_ro->get('/device')->to('#get_devices');
+
+        # POST /build/:build_id_or_name/device/:device_id_or_serial_number
+        $with_build_rw->under('/device/:device_id_or_serial_number')
+            ->to('device#find_device', require_role => 'ro')
+            ->post('/')->to('build#add_device');
+
+        # DELETE /build/:build_id_or_name/device/:device_id_or_serial_number
+        $with_build_rw->under('/device/:device_id_or_serial_number')
+            ->to('device#find_device', require_role => 'none')
+            ->delete('/')->to('build#remove_device');
+
+        # GET /build/:build_id_or_name/rack
+        $with_build_ro->get('/rack')->to('#get_racks');
+
+        # POST /build/:build_id_or_name/rack/:rack_id
+        $with_build_rw->under('/rack/<rack_id:uuid>')
+            ->to('rack#find_rack', require_role => 'ro')
+            ->post('/')->to('build#add_rack');
+
+        # DELETE /build/:build_id_or_name/rack/:rack_id
+        $with_build_rw->under('/rack/<rack_id:uuid>')
+            ->to('rack#find_rack', require_role => 'none')
+            ->delete('/')->to('build#remove_rack');
     }
 }
 
@@ -189,6 +218,61 @@ an email to the organization members and build admins.
 =item * User requires the admin role
 
 =item * Returns C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /build/:build_id_or_name/device>
+
+=over 4
+
+=item * Requires system admin authorization or the read-only role on the build
+
+=item * Response: response.yaml#/Devices
+
+=back
+
+=head3 C<POST /build/:build_id_or_name/device/:device_id_or_serial_number>
+
+=over 4
+
+=item * Requires system admin authorization, or the read/write role on the build and the
+read-only role on the device (via a workspace or a relay registration, see
+L<Conch::Route::Device/routes>)
+
+=back
+
+=head3 C<DELETE /build/:build_id_or_name/device/:device_id_or_serial_number>
+
+=over 4
+
+=item * Requires system admin authorization, or the read/write role on the build
+
+=back
+
+=head3 C<GET /build/:build_id_or_name/rack>
+
+=over 4
+
+=item * Requires system admin authorization or the read-only role on the build
+
+=item * Response: response.yaml#/Racks
+
+=back
+
+=head3 C<POST /build/:build_id_or_name/rack/:rack_id>
+
+=over 4
+
+=item * Requires system admin authorization, or the read/write role on the build and the
+read-only role on a workspace that contains the rack
+
+=back
+
+=head3 C<DELETE /build/:build_id_or_name/rack/:rack_id>
+
+=over 4
+
+=item * Requires system admin authorization, or the read/write role on the build
 
 =back
 

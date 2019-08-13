@@ -5,6 +5,7 @@ use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
 use Conch::UUID 'create_uuid_str';
+use List::Util 'first';
 
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
@@ -585,5 +586,160 @@ $t->get_ok('/build/'.$build->{id}.'/organization')
     ->json_schema_is('BuildOrganizations')
     ->json_is([]);
 
+
+$t->get_ok('/build/my first build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->get_ok('/build/my first build/rack')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_is([]);
+
+my $device1 = first { $_->isa('Conch::DB::Result::Device') } $t->generate_fixtures('device');
+my $rack_layout1 = first { $_->isa('Conch::DB::Result::RackLayout') } $t->generate_fixtures('rack_layouts');
+my $rack1 = $rack_layout1->rack;
+
+$t2->post_ok('/build/my first build/rack/'.$rack1->id)
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (rw) for build my first build');
+
+$t->post_ok('/build/my first build/rack/'.$rack1->id)
+    ->status_is(204)
+    ->log_debug_is('adding rack '.$rack1->id.' to build my first build');
+
+$t->get_ok('/build/my first build/rack')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_cmp_deeply([
+        superhashof({ id => $rack1->id }),
+    ]);
+
+$t->get_ok('/build/my first build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$device1->create_related('device_location', { rack_id => $rack1->id, rack_unit_start => $rack_layout1->rack_unit_start });
+
+$t->get_ok('/build/my first build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([ superhashof({
+        (map +($_ => $device1->$_), qw(id serial_number)),
+        build_id => undef,  # in the build via the rack, not directly (FIXME)
+        rack_id => $rack1->id,
+    }) ]);
+
+$t->post_ok('/build/our second build/rack/'.$rack1->id)
+    ->status_is(409)
+    ->log_warn_is('cannot add rack '.$rack1->id.' to build our second build -- already a member of build '.$build->{id}.' (my first build)')
+    ->json_is({ error => 'rack already member of build '.$build->{id}.' (my first build)' });
+
+
+# create a new device, located in a different rack in a different build
+my $device2 = first { $_->isa('Conch::DB::Result::Device') } $t->generate_fixtures('device');
+$device2->update({ build_id => $build2->{id} });
+
+$t->post_ok('/build/my first build/device/'.$device2->id)
+    ->status_is(409)
+    ->log_warn_is('cannot add device '.$device2->id.' ('.$device2->serial_number.') to build my first build -- already a member of build '.$build2->{id}.' (our second build)')
+    ->json_is({ error => 'device already member of build '.$build2->{id}.' (our second build)' });
+
+my $rack_layout2 = first { $_->isa('Conch::DB::Result::RackLayout') } $t->generate_fixtures('rack_layouts');
+my $rack2 = $rack_layout2->rack;
+$device2->update({ build_id => undef });
+$rack2->update({ build_id => $build2->{id} });
+$device2->create_related('device_location', { rack_id => $rack2->id, rack_unit_start => $rack_layout2->rack_unit_start });
+
+$t->post_ok('/build/my first build/device/'.$device2->id)
+    ->status_is(409)
+    ->log_warn_is('cannot add device '.$device2->id.' ('.$device2->serial_number.') to build my first build -- already a member of build '.$build2->{id}.' (our second build) via its rack location')
+    ->json_is({ error => 'device already member of build '.$build2->{id}.' (our second build) via rack id '.$rack2->id });
+
+$device2->delete_related('device_location');
+$t->post_ok('/build/my first build/device/'.$device2->id)
+    ->status_is(204)
+    ->log_debug_is('adding device '.$device2->id.' ('.$device2->serial_number.') to build my first build');
+
+# build1 contains device2 directly.
+# build1 contains rack1, which has device1 in it (which is not in the build)
+# build2 contains rack2.
+
+$t->get_ok('/build/my first build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([
+        superhashof({
+            (map +($_ => $device1->$_), qw(id serial_number)),
+            build_id => undef,  # in the build via the rack, not directly (FIXME)
+            rack_id => $rack1->id,
+        }),
+        superhashof({
+            (map +($_ => $device2->$_), qw(id serial_number)),
+            build_id => $build->{id},
+            rack_id => undef,
+        }),
+    ]);
+
+$t->get_ok('/build/my first build/rack')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_cmp_deeply([
+        superhashof({ id => $rack1->id }),
+    ]);
+
+$t->get_ok('/build/our second build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->get_ok('/build/our second build/rack')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_cmp_deeply([
+        superhashof({ id => $rack2->id }),
+    ]);
+
+$t->delete_ok('/build/my first build/device/'.$device1->id)
+    ->status_is(404)
+    ->log_warn_is('device '.$device1->id.' is not in build my first build: cannot remove');
+
+$t->delete_ok('/build/our second build/rack/'.$rack1->id)
+    ->status_is(404)
+    ->log_warn_is('rack '.$rack1->id.' is not in build our second build: cannot remove');
+
+$t->delete_ok('/build/my first build/device/'.$device2->id)
+    ->status_is(204)
+    ->log_debug_is('removing device '.$device2->id.' from build my first build');
+
+$t->delete_ok('/build/my first build/rack/'.$rack1->id)
+    ->status_is(204)
+    ->log_debug_is('removing rack '.$rack1->id.' from build my first build');
+
+$t->delete_ok('/build/our second build/rack/'.$rack2->id)
+    ->status_is(204)
+    ->log_debug_is('removing rack '.$rack2->id.' from build our second build');
+
+$t->get_ok('/build/my first build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->get_ok('/build/my first build/rack')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_is([]);
+
+$t->get_ok('/build/our second build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->get_ok('/build/our second build/rack')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_is([]);
 
 done_testing;
