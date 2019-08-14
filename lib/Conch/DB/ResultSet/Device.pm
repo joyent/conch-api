@@ -114,6 +114,22 @@ sub latest_device_report ($self) {
         ->rows(1);
 }
 
+=head2 device_settings_as_hash
+
+Returns a hash of all (active) device settings for the specified device(s).  (Will return
+merged results when passed a resultset referencing multiple devices, which is probably not what
+you want, so don't do that.)
+
+=cut
+
+sub device_settings_as_hash {
+    my $self = shift;
+
+    # when interpolated into a hash, newer rows will override older.
+    return map +($_->name => $_->value),
+        $self->related_resultset('device_settings')->active->order_by('created');
+}
+
 1;
 __END__
 

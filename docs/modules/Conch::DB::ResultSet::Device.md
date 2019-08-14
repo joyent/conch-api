@@ -47,6 +47,12 @@ $self->search(undef, {
 });
 ```
 
+## device\_settings\_as\_hash
+
+Returns a hash of all (active) device settings for the specified device(s).  (Will return
+merged results when passed a resultset referencing multiple devices, which is probably not what
+you want, so don't do that.)
+
 # LICENSING
 
 Copyright Joyent, Inc.

@@ -264,7 +264,7 @@ has device_settings => (
     default => sub ($self) {
         my $device = $self->device;
         return +{} if not $device;
-        +{ $device->device_settings_as_hash };
+        +{ $device->self_rs->device_settings_as_hash };
     },
 );
 
