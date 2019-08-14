@@ -224,6 +224,23 @@ one specific log level:
 
 ## log\_fatal\_is
 
+## log\_like
+
+Like ["log\_like"](#log_like), but uses a regular expression to express the expected log content.
+
+A log line at any level matches, or you can use a more specific method that matches only
+one specific log level:
+
+## log\_debug\_like
+
+## log\_info\_like
+
+## log\_warn\_like
+
+## log\_error\_like
+
+## log\_fatal\_like
+
 ## logs\_are
 
 Like ["log\_is"](#log_is), but tests for multiple messages at once.
