@@ -10,10 +10,16 @@ Get a list of racks for the indicated workspace.
 
 Response uses the WorkspaceRackSummary json schema.
 
-## find\_rack
+## find\_workspace\_rack
 
-Chainable action that takes the `rack_id` provided in the path and looks it up in the
-database, stashing a resultset to access it as `rack_rs`.
+Chainable action that uses the `workspace_rs` and `rack_id` stash values and confirms the
+rack is a (direct or indirect) member of the workspace.
+
+Relies on ["find\_workspace" in Conch::Controller::Workspace](../modules/Conch::Controller::Workspace#find_workspace) and
+["find\_rack" in Conch::Controller::Rack](../modules/Conch::Controller::Rack#find_rack) to have already run, verified user roles, and populated
+the stash values.
+
+Saves `workspace_rack_rs` to the stash.
 
 ## add
 

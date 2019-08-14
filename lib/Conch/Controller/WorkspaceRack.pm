@@ -72,27 +72,31 @@ sub list ($c) {
     $c->status(200, $final_rack_data);
 }
 
-=head2 find_rack
+=head2 find_workspace_rack
 
-Chainable action that takes the C<rack_id> provided in the path and looks it up in the
-database, stashing a resultset to access it as C<rack_rs>.
+Chainable action that uses the C<workspace_rs> and C<rack_id> stash values and confirms the
+rack is a (direct or indirect) member of the workspace.
+
+Relies on L<Conch::Controller::Workspace/find_workspace> and
+L<Conch::Controller::Rack/find_rack> to have already run, verified user roles, and populated
+the stash values.
+
+Saves C<workspace_rack_rs> to the stash.
 
 =cut
 
-sub find_rack ($c) {
-    my $rack_id = $c->stash('rack_id');
+sub find_workspace_rack ($c) {
+    my $rs = $c->db_workspace_racks->search({
+        workspace_id => $c->stash('workspace_id'),
+        rack_id => $c->stash('rack_id'),
+    });
 
-    if (not $c->db_workspace_racks->search({ workspace_id => $c->stash('workspace_id'), rack_id => $rack_id })->exists) {
-        $c->log->debug('Could not find rack '.$rack_id);
+    if (not $rs->exists) {
+        $c->log->debug('Could not find rack '.$c->stash('rack_id').' in or beneath workspace '.$c->stash('workspace_id'));
         return $c->status(404);
     }
 
-    # store the simplified query to access the rack, now that we've confirmed the user has
-    # authorization to access it via this workspace.
-    # No queries have been made yet, so you can add on more criteria or prefetches.
-    $c->stash('rack_rs', $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
-
-    $c->log->debug('Found rack '.$rack_id);
+    $c->stash('workspace_rack_rs', $rs);
     return 1;
 }
 
@@ -149,11 +153,10 @@ sub remove ($c) {
     return $c->status(400, { error => 'Cannot modify GLOBAL workspace' })
         if ($c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single) eq 'GLOBAL';
 
-    $c->db_workspaces
-        ->and_workspaces_beneath($c->stash('workspace_id'))
-        ->search_related('workspace_racks', { rack_id => $c->stash('rack_id') })
-        ->delete;
+    my $row = $c->stash('workspace_rack_rs')->single;
+    $row->delete;
 
+    $c->log->debug('deleted workspace_rack entry for workspace_id '.$row->workspace_id.' and rack_id '.$c->stash('rack_id'));
     return $c->status(204);
 }
 

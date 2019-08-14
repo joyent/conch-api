@@ -55,7 +55,8 @@ sub routes {
 
         {
             my $with_workspace_rack =
-                $with_workspace->under('/rack/<rack_id:uuid>')->to('workspace_rack#find_rack');
+                $with_workspace->under('/rack/<rack_id:uuid>')->to('rack#find_rack')
+                    ->under('/')->to('workspace_rack#find_workspace_rack');
 
             # DELETE /workspace/:workspace_id_or_name/rack/:rack_id
             $with_workspace_rack->delete('/')->to('workspace_rack#remove');
