@@ -269,6 +269,8 @@ __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QnDbXrOdTyIuHsfOh6+wIw
 
+__PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
+
 __PACKAGE__->add_columns(
     '+phase' => { retrieve_on_insert => 1 },
 );

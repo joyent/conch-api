@@ -45,6 +45,7 @@
 * [Conch::DB::Helper::ResultSet::ResultsExist](../modules/Conch::DB::Helper::ResultSet::ResultsExist)
 * [Conch::DB::Helper::ResultSet::WithRole](../modules/Conch::DB::Helper::ResultSet::WithRole)
 * [Conch::DB::Helper::Row::ToJSON](../modules/Conch::DB::Helper::Row::ToJSON)
+* [Conch::DB::Helper::Row::WithPhase](../modules/Conch::DB::Helper::Row::WithPhase)
 * [Conch::DB::Helper::Row::WithRole](../modules/Conch::DB::Helper::Row::WithRole)
 * [Conch::DB::InflateColumn::Time](../modules/Conch::DB::InflateColumn::Time)
 * [Conch::DB::Result](../modules/Conch::DB::Result)

@@ -402,6 +402,8 @@ __PACKAGE__->many_to_many("relays", "device_relay_connections", "relay");
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ygCrs0YElHPOZ3jUN4DWUg
 
+__PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
+
 __PACKAGE__->has_many(
   "active_device_disks",
   "Conch::DB::Result::DeviceDisk",
