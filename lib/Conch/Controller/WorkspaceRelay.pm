@@ -13,6 +13,8 @@ Conch::Controller::WorkspaceRelay
 =head2 list
 
 List all relays located in the indicated workspace and sub-workspaces beneath it.
+Note that this information is only accurate if the device the relay(s) reported
+have not since been moved to another location.
 
 Use C<?active_minutes=X> to constrains results to those updated in the last X minutes.
 
@@ -65,14 +67,13 @@ sub list ($c) {
                 },
             },
         )
-        ->order_by('last_seen');
+        ->order_by('relay.last_seen');
 
     my @relays = map {
         my %cols = $_->get_columns;
         +{
             $_->relay->TO_JSON->%*,
             location => +{ %cols{qw(rack_id rack_name rack_unit_start rack_role_name az)} },
-            last_seen => $_->last_seen,
             num_devices => $cols{num_devices},
         }
     } $relays_rs->all;

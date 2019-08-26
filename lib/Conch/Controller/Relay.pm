@@ -34,7 +34,8 @@ sub register ($c) {
         $c->status(201);
     }
     else {
-        $relay->update({ updated => \'now()' }) if $relay->is_changed;
+        $relay->updated(\'now()') if $relay->is_changed;
+        $relay->update({ last_seen => \'now()' });
         $c->status(204);
     }
 

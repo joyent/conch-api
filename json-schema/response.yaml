@@ -1057,8 +1057,8 @@ definitions:
         - ssh_port
         - created
         - updated
-        - location
         - last_seen
+        - location
         - num_devices
       properties:
         id:
@@ -1087,6 +1087,9 @@ definitions:
         updated:
           type: string
           format: date-time
+        last_seen:
+          type: string
+          format: date-time
         location:
           description: Last reported location of the relay
           type: object
@@ -1108,9 +1111,6 @@ definitions:
               type: string
             az:
               type: string
-        last_seen:
-          type: string
-          format: date-time
         num_devices:
           $ref: common.yaml#/definitions/positive_integer
   WorkspaceAndRole:
@@ -1257,6 +1257,7 @@ definitions:
       - ssh_port
       - created
       - updated
+      - last_seen
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1278,6 +1279,9 @@ definitions:
           - $ref: common.yaml#/definitions/non_negative_integer
           - type: 'null'
       updated:
+        type: string
+        format: date-time
+      last_seen:
         type: string
         format: date-time
       version:

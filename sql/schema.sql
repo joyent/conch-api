@@ -499,6 +499,7 @@ CREATE TABLE public.relay (
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    last_seen timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT relay_ssh_port_check CHECK ((ssh_port >= 0))
 );
 
