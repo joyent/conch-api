@@ -37,6 +37,37 @@ sub admins ($self, $include_sysadmins = undef) {
         ->order_by('user_account.name');
 }
 
+=head2 with_user_role
+
+Constrains the resultset to those builds where the provided user_id has (at least) the
+specified role.
+
+=cut
+
+sub with_user_role ($self, $user_id, $role) {
+    return $self if $role eq 'none';
+
+    Carp::croak('role must be one of: ro, rw, admin')
+        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
+
+    my $via_user_rs = $self->search(
+        {
+            $role ne 'ro' ? ('user_build_roles.role' => { '>=' => \[ '?::role_enum', $role ] } ) : (),
+            'user_build_roles.user_id' => $user_id,
+        },
+        { join => 'user_build_roles' },
+    );
+
+    my $via_org_rs = $self->search(
+        {
+            $role ne 'ro' ? ('organization_build_roles.role' => { '>=' => \[ '?::role_enum', $role ] }) : (),
+            'user_organization_roles.user_id' => $user_id,
+        },
+        { join => { organization_build_roles => { organization => 'user_organization_roles' } } } );
+
+    return $via_user_rs->union_all($via_org_rs)->distinct;
+}
+
 =head2 user_has_role
 
 Checks that the provided user_id has (at least) the specified role in at least one build in the
@@ -47,13 +78,24 @@ Returns a boolean.
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
+    return 1 if $role eq 'none';
+
     Carp::croak('role must be one of: ro, rw, admin')
         if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
 
-    $self
+    my $via_user_rs = $self
         ->search_related('user_build_roles', { user_id => $user_id })
         ->with_role($role)
-        ->exists;
+        ->related_resultset('user_account');
+
+    my $via_org_rs = $self
+        ->related_resultset('organization_build_roles')
+        ->with_role($role)
+        ->related_resultset('organization')
+        ->search_related('user_organization_roles', { user_id => $user_id })
+        ->related_resultset('user_account');
+
+    return $via_user_rs->union_all($via_org_rs)->exists;
 }
 
 1;

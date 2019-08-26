@@ -31,8 +31,7 @@ sub list ($c) {
 
     # normal users can only see builds in which they are a member
     $rs = $rs->search({ 'build.id' => { -in =>
-                $c->db_user_build_roles->search({ user_id => $c->stash('user_id') })
-                ->get_column('build_id')->as_query
+                $c->db_builds->with_user_role($c->stash('user_id'), 'ro')->get_column('id')->as_query
             } })
         if not $c->is_system_admin;
 

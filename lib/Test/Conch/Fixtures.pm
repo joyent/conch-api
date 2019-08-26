@@ -690,6 +690,17 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
             },
         };
     }
+    elsif ($fixture_type eq 'build') {
+        return +{
+            "build_$num" => {
+                new => 'build',
+                using => {
+                    name => "build_$num",
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
     else {
         die 'unrecognized fixture type '.$fixture_type;
     }
