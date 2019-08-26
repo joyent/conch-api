@@ -27,6 +27,9 @@ sub routes {
 
     # GET /relay
     $relay->get('/')->to('#list');
+
+    # DELETE /relay/:relay_serial_number
+    $relay->require_system_admin->delete('/:relay_serial_number')->to('#delete');
 }
 
 1;
@@ -59,6 +62,16 @@ Unless otherwise noted, all routes require authentication.
 =back
 
 =cut
+
+=head2 C<DELETE /relay/:relay_serial_number>
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Response: C<204 NO CONTENT>
+
+=back
 
 =head1 LICENSING
 

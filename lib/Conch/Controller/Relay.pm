@@ -53,6 +53,28 @@ sub list ($c) {
     $c->status(200, [ $c->db_relays->active->all ]);
 }
 
+=head2 delete
+
+=cut
+
+sub delete ($c) {
+    my $identifier = $c->stash('relay_serial_number');
+
+    my $rs = $c->db_relays
+        ->active
+        ->search({ id => $identifier });
+    return $c->status(404) if not $rs->exists;
+
+    my $drc_count = $rs->related_resultset('device_relay_connections')->delete;
+    my $urc_count = $rs->related_resultset('user_relay_connections')->delete;
+    $rs->deactivate;
+
+    $c->log->debug('Deactivated relay '.$identifier
+        .', removing '.$drc_count.' associated device connections and '
+        .$urc_count.' associated user connections');
+    return $c->status(204);
+}
+
 1;
 __END__
 
