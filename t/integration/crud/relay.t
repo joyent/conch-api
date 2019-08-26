@@ -353,5 +353,21 @@ subtest get_relay_devices => sub {
         ]);
 };
 
+subtest delete => sub {
+    $t->delete_ok('/relay/'.$relay0->id)
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
+
+    $t_super->delete_ok('/relay/'.$relay0->id)
+        ->status_is(204)
+        ->log_debug_is('Deactivated relay '.$relay0->id.', removing 2 associated device connections and 2 associated user connections');
+
+    $t_super->get_ok('/relay/'.$relay0->id)
+        ->status_is(404);
+
+    $t_super->delete_ok('/relay/'.$relay0->id)
+        ->status_is(404);
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

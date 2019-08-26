@@ -25,6 +25,11 @@ Unless otherwise noted, all routes require authentication.
 - Requires system admin authorization, or the user to have previously registered the relay.
 - Response: response.yaml#/Relay
 
+## `DELETE /relay/:relay_id_or_serial_number`
+
+- Requires system admin authorization
+- Response: `204 NO CONTENT`
+
 # LICENSING
 
 Copyright Joyent, Inc.

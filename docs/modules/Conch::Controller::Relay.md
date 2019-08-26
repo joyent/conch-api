@@ -22,6 +22,8 @@ Requires the user to be a system admin, or have previously registered the relay.
 
 Response uses the Relay json schema.
 
+## delete
+
 # LICENSING
 
 Copyright Joyent, Inc.
