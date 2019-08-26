@@ -21,7 +21,7 @@ size: 16
 
 ```
 data_type: 'text'
-is_nullable: 1
+is_nullable: 0
 ```
 
 ## created

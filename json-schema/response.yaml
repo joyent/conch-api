@@ -1526,6 +1526,8 @@ definitions:
     type: object
     propertyNames:
       $ref: common.yaml#/definitions/user_setting_key
+    additionalProperties:
+      type: string
   UserSetting:
     allOf:
       - $ref: /definitions/UserSettings

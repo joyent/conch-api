@@ -38,7 +38,7 @@ __PACKAGE__->table("device_setting");
 =head2 value
 
   data_type: 'text'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 created
 
@@ -82,7 +82,7 @@ __PACKAGE__->add_columns(
     size => 16,
   },
   "value",
-  { data_type => "text", is_nullable => 1 },
+  { data_type => "text", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -136,7 +136,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zesljIjuOPXuxzGqbp38HQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:odPmpcZVmId8nl5iPLbUNw
 
 1;
 __END__

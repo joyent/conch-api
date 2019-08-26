@@ -5,7 +5,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 use Email::Valid;
 use List::Util 'pairmap';
-use Mojo::JSON qw(to_json from_json);
 use Authen::Passphrase::RejectAll;
 
 =pod
@@ -122,7 +121,7 @@ sub set_settings ($c) {
 
     # store new settings
     $user->related_resultset('user_settings')
-        ->populate([ pairmap { +{ name => $a, value => to_json($b) } } $input->%* ]);
+        ->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
 
     $c->status(204);
 }
@@ -140,15 +139,20 @@ sub set_setting ($c) {
     return if not $input;
 
     my $key = $c->stash('key');
+    return $c->status(400, { error => 'Setting key in request payload must match name in the URL (\''.$key.'\')' })
+        if not exists $input->{$key};
+
     my $value = $input->{$key};
-    return $c->status(400, { error => 'Setting key in request object must match name in the URL (\''.$key.'\')' }) if not $value;
 
-    my $user = $c->stash('target_user');
+    my $settings_rs = $c->db_user_settings->search({ user_id => $c->stash('target_user')->id });
 
-    # FIXME? we should have a unique constraint on user_id+name
-    # rather than creating additional rows.
-    $user->search_related('user_settings', { name => $key })->active->deactivate;
-    $user->create_related('user_settings', { name => $key, value => to_json($value) });
+    # return early if the setting exists and is not being altered
+    my $existing_setting = $settings_rs->active->search({ name => $key })->single;
+    return $c->status(204) if $existing_setting and $existing_setting->value eq $value;
+
+    $existing_setting->self_rs->deactivate if $existing_setting;
+    $settings_rs->create({ name => $key, value => $value });
+
     return $c->status(204);
 }
 
@@ -164,8 +168,8 @@ sub get_settings ($c) {
     # turn user_setting db rows into name => value entries,
     # newer entries overwriting older ones
     my %output = map
-        +($_->name => from_json($_->value)),
-        $c->stash('target_user')->user_settings->active->order_by('created');
+        +($_->name => $_->value),
+        $c->stash('target_user')->related_resultset('user_settings')->active->order_by('created');
 
     $c->status(200, \%output);
 }
@@ -187,7 +191,7 @@ sub get_setting ($c) {
         ->one_row;
 
     return $c->status(404) if not $setting;
-    $c->status(200, { $key => from_json($setting->value) });
+    $c->status(200, { $key => $setting->value });
 }
 
 =head2 delete_setting

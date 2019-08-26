@@ -36,7 +36,7 @@ is_nullable: 0
 ## value
 
 ```
-data_type: 'jsonb'
+data_type: 'text'
 is_nullable: 0
 ```
 
