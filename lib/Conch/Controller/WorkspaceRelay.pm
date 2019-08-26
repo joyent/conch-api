@@ -24,9 +24,19 @@ sub list ($c) {
     my $params = $c->validate_query_params('WorkspaceRelays');
     return if not $params;
 
-    my $latest_relay_connections = $c->db_device_relay_connections
+    my $workspace_racks = $c->stash('workspace_rs')
+        ->related_resultset('workspace_racks')
+        ->related_resultset('rack')
+        ->get_column('id');
+
+    # this is a bit gross, as we need to find all relays' last locations before we can
+    # constrain down to locations within this workspace
+    my $relays_rs = $c->db_device_relay_connections
         ->search(
-            undef,
+            $params->{active_minutes}
+                ? { last_seen =>
+                    { '>=' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } }
+                : undef,
             {
                 '+select' => [{
                     '' => \'row_number() over (partition by relay_id order by last_seen desc)',
@@ -35,53 +45,37 @@ sub list ($c) {
             },
         )
         ->as_subselect_rs
-        ->search({ result_num => 1 })
-        ->order_by('last_seen');
-
-    my $me = $latest_relay_connections->current_source_alias;
-
-    $latest_relay_connections = $latest_relay_connections->search({
-        $me.'.last_seen' => { '>=' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] }
-    }) if $params->{active_minutes};
-
-    my $num_devices_rs = $c->db_device_relay_connections->search(
-        { $me.'_corr.relay_id' => { '=' => \"$me.relay_id" } },
-        { alias => $me.'_corr' },
-    )->count_rs;
-
-    my $workspace_racks = $c->stash('workspace_rs')
-        ->related_resultset('workspace_racks')
-        ->related_resultset('rack')
-        ->get_column('id');
-
-    my $workspace_relays_with_location = $latest_relay_connections
         ->search(
-            { rack_id => { -in => $workspace_racks->as_query } },
+            {
+                rack_id => { -in => $workspace_racks->as_query },
+                result_num => 1,
+            },
             {
                 prefetch => 'relay',
                 join => { device => { device_location => {
-                            rack => [ 'rack_role', 'datacenter_room' ] } } },
-                '+columns' => {
+                            rack => [ qw(rack_role datacenter_room) ] } } },
+                columns => {
+                    last_seen => 'device_relay_connection.last_seen',
                     rack_id => 'device_location.rack_id',
                     rack_name => 'rack.name',
                     rack_unit_start => 'device_location.rack_unit_start',
                     rack_role_name => 'rack_role.name',
                     az => 'datacenter_room.az',
-                    num_devices => $num_devices_rs->as_query,
+                    num_devices => $c->db_relays->correlate('device_relay_connections')->count_rs->as_query,
                 },
             },
-        );
+        )
+        ->order_by('last_seen');
 
     my @relays = map {
-        my $connection = $_;
-        my %cols = $connection->get_columns;
+        my %cols = $_->get_columns;
         +{
-            $connection->relay->TO_JSON->%*,
+            $_->relay->TO_JSON->%*,
             location => +{ %cols{qw(rack_id rack_name rack_unit_start rack_role_name az)} },
-            last_seen => $connection->last_seen,
+            last_seen => $_->last_seen,
             num_devices => $cols{num_devices},
         }
-    } $workspace_relays_with_location->all;
+    } $relays_rs->all;
 
     $c->log->debug('Found '.scalar(@relays).' relays in workspace '.$c->stash('workspace_id'));
     $c->status(200, \@relays);
