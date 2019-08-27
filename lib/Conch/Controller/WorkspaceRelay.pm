@@ -16,7 +16,7 @@ List all relays located in the indicated workspace and sub-workspaces beneath it
 Note that this information is only accurate if the device the relay(s) reported
 have not since been moved to another location.
 
-Use C<?active_minutes=X> to constrains results to those updated in the last X minutes.
+Use C<?active_minutes=X> to constrain results to those updated in the last X minutes.
 
 Response uses the WorkspaceRelays json schema.
 
