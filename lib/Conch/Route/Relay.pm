@@ -25,11 +25,16 @@ sub routes {
     # POST /relay/:relay_serial_number/register
     $relay->post('/:relay_serial_number/register')->to('#register');
 
+    my $relay_with_admin = $relay->require_system_admin;
+
     # GET /relay
-    $relay->require_system_admin->get('/')->to('#list');
+    $relay_with_admin->get('/')->to('#list');
 
     # GET /relay/:relay_id_or_serial_number
     $relay->get('/:relay_id_or_serial_number')->to('#get');
+
+    # DELETE /relay/:relay_id_or_serial_number
+    $relay_with_admin->delete('/:relay_id_or_serial_number')->to('#delete');
 }
 
 1;
@@ -66,6 +71,16 @@ Unless otherwise noted, all routes require authentication.
 =item * Requires system admin authorization, or the user to have previously registered the relay.
 
 =item * Response: response.yaml#/Relay
+
+=back
+
+=head2 C<DELETE /relay/:relay_id_or_serial_number>
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Response: C<204 NO CONTENT>
 
 =back
 
