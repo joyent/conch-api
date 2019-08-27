@@ -20,14 +20,18 @@ Interface to queries involving devices.
 Constrains the resultset to those where the provided user_id has (at least) the specified role
 in at least one workspace associated with the specified device(s), including parent workspaces.
 
+This is a nested query which searches all workspaces in the database, so only use this query
+when its impact is outweighed by the impact of filtering a large resultset of devices in the
+database.  (That is, usually you should start with a single device and then apply
+C<< $device_rs->user_has_role($user_id, $role) >> to it.)
+
 =cut
 
 sub with_user_role ($self, $user_id, $role) {
     my $schema = $self->result_source->schema;
-    my $workspace_ids_rs = $schema->resultset('user_workspace_role')
-        ->search({ user_id => $user_id })
-        ->with_role($role)
-        ->get_column('workspace_id');
+    my $workspace_ids_rs = $schema->resultset('workspace')
+        ->with_user_role($user_id, $role)
+        ->get_column('id');
 
     my $all_workspace_ids_rs = $schema->resultset('workspace')
         ->and_workspaces_beneath($workspace_ids_rs)
