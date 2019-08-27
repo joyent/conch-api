@@ -183,7 +183,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
                 else {
                     $c->db_device_relay_connections->create({
                         device_id => $device->id,
-                        relay_id => $relay_rs->get_column('id')->single,
+                        relay_id => $relay_rs->get_column('id')->as_query,
                     });
                 }
             }
