@@ -45,20 +45,14 @@ sub with_user_role ($self, $user_id, $role) {
 Checks that the provided user_id has (at least) the specified role in at least one
 workspace associated with the specified device(s), including parent workspaces.
 
+Returns a boolean.
+
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
-    my $device_workspaces_ids_rs = $self
+    $self
         ->related_resultset('device_location')
         ->related_resultset('rack')
-        ->related_resultset('workspace_racks')
-        ->related_resultset('workspace')
-        ->distinct
-        ->get_column('id');
-
-    $self->result_source->schema->resultset('workspace')
-        ->and_workspaces_above($device_workspaces_ids_rs)
-        ->related_resultset('user_workspace_roles')
         ->user_has_role($user_id, $role);
 }
 

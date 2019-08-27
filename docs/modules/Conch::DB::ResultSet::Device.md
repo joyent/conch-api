@@ -18,6 +18,8 @@ in at least one workspace associated with the specified device(s), including par
 Checks that the provided user\_id has (at least) the specified role in at least one
 workspace associated with the specified device(s), including parent workspaces.
 
+Returns a boolean.
+
 ## devices\_without\_location
 
 Restrict results to those that do not have a registered location.
