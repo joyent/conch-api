@@ -35,7 +35,7 @@ sub with_user_role ($self, $user_id, $role) {
 
     $self->search(
         { 'workspace_racks.workspace_id' => { -in => $all_workspace_ids_rs->as_query } },
-        { join => { device_location => { rack_layout => { rack => 'workspace_racks' } } } },
+        { join => { device_location => { rack => 'workspace_racks' } } },
     );
 }
 
