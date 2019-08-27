@@ -60,7 +60,6 @@ sub user_has_role ($self, $user_id, $role) {
 
     $self->result_source->schema->resultset('workspace')
         ->and_workspaces_above($rack_workspaces_ids_rs)
-        ->related_resultset('user_workspace_roles')
         ->user_has_role($user_id, $role);
 }
 

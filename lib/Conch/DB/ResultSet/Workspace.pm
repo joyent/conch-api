@@ -4,6 +4,7 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use experimental 'signatures';
+use Carp ();
 use Conch::UUID 'is_uuid';
 use Safe::Isa;
 use List::Util 'none';
@@ -223,6 +224,25 @@ sub admins ($self, $include_sysadmins = undef) {
         ->active
         ->distinct
         ->order_by('user_account.name');
+}
+
+=head2 user_has_role
+
+Checks that the provided user_id has (at least) the specified role in at least one workspace in
+the resultset. (Does not search recursively; add C<< ->and_workspaces_above($workspace_id) >>
+to your resultset first, if this is what you want.)
+
+Returns a boolean.
+
+=cut
+
+sub user_has_role ($self, $user_id, $role) {
+    Carp::croak('role must be one of: ro, rw, admin')
+        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
+
+    $self->search_related('user_workspace_roles', { user_id => $user_id })
+        ->with_role($role)
+        ->exists;
 }
 
 =head2 _workspaces_subquery

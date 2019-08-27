@@ -219,11 +219,8 @@ workspace indicated by the provided C<workspace_id> or one of its ancestors.
 =cut
 
 sub _user_has_workspace_auth ($c, $workspace_id, $role_name) {
-    return 0 if not $c->stash('user_id');
-
-    $c->db_workspaces
+    return $c->db_workspaces
         ->and_workspaces_above($workspace_id)
-        ->related_resultset('user_workspace_roles')
         ->user_has_role($c->stash('user_id'), $role_name);
 };
 

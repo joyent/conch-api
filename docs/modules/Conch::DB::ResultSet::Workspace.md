@@ -78,6 +78,14 @@ role that is attached to an ancestor workspace).
 All the 'admin' users for the provided workspace(s).  Pass a true argument to also include all
 system admin users in the result.
 
+## user\_has\_role
+
+Checks that the provided user\_id has (at least) the specified role in at least one workspace in
+the resultset. (Does not search recursively; add `->and_workspaces_above($workspace_id)`
+to your resultset first, if this is what you want.)
+
+Returns a boolean.
+
 ## \_workspaces\_subquery
 
 Generate values for inserting into a recursive query.

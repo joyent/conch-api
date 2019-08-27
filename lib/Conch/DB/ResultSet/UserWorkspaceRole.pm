@@ -31,19 +31,6 @@ sub with_role ($self, $role) {
     $self->search({ role => { '>=' => \[ '?::user_workspace_role_enum', $role ] } });
 }
 
-=head2 user_has_role
-
-Returns a boolean indicating whether there exists a user_workspace_role row that grants (at
-least) the specified role.
-
-=cut
-
-sub user_has_role ($self, $user_id, $role) {
-    $self->search({ user_id => $user_id })
-        ->with_role($role)
-        ->exists;
-}
-
 1;
 __END__
 
