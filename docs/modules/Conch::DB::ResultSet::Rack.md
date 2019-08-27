@@ -18,8 +18,10 @@ This is used for identifying potential conflicts when adjusting layouts.
 
 ## user\_has\_role
 
-Checks that the provided user\_id has (at least) the specified role in at least one
-workspace associated with the specified rack(s), including parent workspaces.
+Checks that the provided user\_id has (at least) the specified role in at least one workspace
+associated with the specified rack(s) (implicitly including parent workspaces).
+
+Returns a boolean.
 
 # LICENSING
 

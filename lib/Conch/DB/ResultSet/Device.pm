@@ -28,17 +28,15 @@ C<< $device_rs->user_has_role($user_id, $role) >> to it.)
 =cut
 
 sub with_user_role ($self, $user_id, $role) {
-    my $schema = $self->result_source->schema;
-    my $workspace_ids_rs = $schema->resultset('workspace')
+    my $workspace_ids_rs = $self->result_source->schema->resultset('workspace')
         ->with_user_role($user_id, $role)
         ->get_column('id');
 
-    my $all_workspace_ids_rs = $schema->resultset('workspace')
-        ->and_workspaces_beneath($workspace_ids_rs)
-        ->get_column('id');
-
+    # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
+    # not need to search the workspace heirarchy here, but simply look for a role entry for any
+    # workspace the rack is associated with.
     $self->search(
-        { 'workspace_racks.workspace_id' => { -in => $all_workspace_ids_rs->as_query } },
+        { 'workspace_racks.workspace_id' => { -in => $workspace_ids_rs->as_query } },
         { join => { device_location => { rack => 'workspace_racks' } } },
     )
     ->distinct;
