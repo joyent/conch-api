@@ -20,6 +20,11 @@ Unless otherwise noted, all routes require authentication.
 - Requires System Admin Authentication
 - Response: response.yaml#/Relays
 
+## `DELETE /relay/:relay_serial_number`
+
+- Requires system admin authorization
+- Response: `204 NO CONTENT`
+
 # LICENSING
 
 Copyright Joyent, Inc.

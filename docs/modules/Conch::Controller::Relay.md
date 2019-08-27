@@ -15,6 +15,8 @@ If the user is a system admin, retrieve a list of all active relays in the datab
 
 Response uses the Relays json schema.
 
+## delete
+
 # LICENSING
 
 Copyright Joyent, Inc.
