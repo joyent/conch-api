@@ -732,8 +732,11 @@ subtest 'modify another user' => sub {
     $t_super->delete_ok('/user/foobar@joyent.conch.us')
         ->status_is(404, 'attempted to deactivate a non-existent user');
 
+    $new_user->create_related('user_workspace_roles', { workspace_id => $child_ws->id, role => 'rw' });
+
     $t_super->delete_ok("/user/$new_user_id")
-        ->status_is(204, 'new user is deactivated');
+        ->status_is(204)
+        ->log_warn_is('user '.$super_user->name.' deactivating user UNTRUSTED, direct member of workspaces: child_ws (rw)');
 
     $t_super->get_ok("/user/$new_user_id")
         ->status_is(404);

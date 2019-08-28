@@ -81,20 +81,16 @@ database, stashing a resultset to access it as C<rack_rs>.
 
 sub find_rack ($c) {
     my $rack_id = $c->stash('rack_id');
-    my $rack_rs = $c->stash('workspace_rs')
-        ->related_resultset('workspace_racks')
-        ->search_related('rack', { 'rack.id' => $rack_id });
 
-    if (not $rack_rs->exists) {
+    if (not $c->db_workspace_racks->search({ workspace_id => $c->stash('workspace_id'), rack_id => $rack_id })->exists) {
         $c->log->debug('Could not find rack '.$rack_id);
         return $c->status(404);
     }
 
     # store the simplified query to access the rack, now that we've confirmed the user has
-    # authorization to access it.
+    # authorization to access it via this workspace.
     # No queries have been made yet, so you can add on more criteria or prefetches.
-    $c->stash('rack_rs',
-        $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
+    $c->stash('rack_rs', $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
 
     $c->log->debug('Found rack '.$rack_id);
     return 1;
