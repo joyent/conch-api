@@ -12,6 +12,18 @@ Conch::DB::Result
 Base class for our result classes, to allow us to add on additional functionality from what is
 available in core L<DBIx::Class>.
 
+=head1 METHODS
+
+Methods added are:
+
+=over 4
+
+=item * L<self_rs|DBIx::Class::Helper::Row::SelfResultSet/self_rs>
+
+=item * L<TO_JSON|Conch::DB::Helper::Row::ToJSON>
+
+=back
+
 =cut
 
 __PACKAGE__->load_components(
