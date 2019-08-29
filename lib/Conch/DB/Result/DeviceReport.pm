@@ -38,7 +38,7 @@ __PACKAGE__->table("device_report");
 =head2 report
 
   data_type: 'jsonb'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 created
 
@@ -70,7 +70,7 @@ __PACKAGE__->add_columns(
     size => 16,
   },
   "report",
-  { data_type => "jsonb", is_nullable => 1 },
+  { data_type => "jsonb", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -130,7 +130,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rjhHrnB9kuyrsxzUnmgDZw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DknxBwVAxO4T5RbebwF/qg
 
 __PACKAGE__->add_columns(
     '+retain' => { is_serializable => 0 },
