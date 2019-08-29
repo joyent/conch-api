@@ -95,8 +95,10 @@ isnt(
     $relay_data->{user_relay_connections}[0]{last_seen},
     'user_relay_connection.last_seen has been updated',
 );
+isnt($new_relay_data->{last_seen}, $relay_data->{last_seen}, 'relay.last_seen has been updated');
+is($new_relay_data->{updated}, $relay_data->{updated}, 'relay update timestamp did not change');
 
-is($new_relay_data->{updated}, $relay_data->{updated}, 'relay itself was not changed');
+$relay0->last_seen(Conch::Time->from_string($new_relay_data->{last_seen}, lenient => 1));
 
 $t->get_ok('/relay/'.$relay0->id)
     ->status_is(200)
@@ -110,6 +112,7 @@ $t->get_ok('/relay/'.$relay0->id)
         ssh_port => 123,
         created => $relay0->created,
         updated => $relay0->updated,
+        last_seen => $relay0->last_seen,
     });
 
 $t->get_ok('/relay/relay0')
@@ -124,6 +127,7 @@ $t->get_ok('/relay/relay0')
         ssh_port => 123,
         created => $relay0->created,
         updated => $relay0->updated,
+        last_seen => $relay0->last_seen,
     });
 
 $t->get_ok('/relay')
@@ -142,6 +146,7 @@ $t_super->get_ok('/relay')
             ssh_port => 123,
             created => str(($relay0, $relay1)[$_]->created),
             updated => str(($relay0, $relay1)[$_]->updated),
+            last_seen => str(($relay0, $relay1)[$_]->last_seen),
         }, (0..1)
     ]);
 
@@ -165,7 +170,7 @@ $t_super->get_ok('/relay')
     $t2->get_ok('/relay/relay0')
         ->status_is(200)
         ->json_schema_is('Relay')
-        ->json_is({ map +($_ => $relay0->$_), qw(id serial_number name version ipaddr ssh_port created updated) });
+        ->json_cmp_deeply({ (map +($_ => str($relay0->$_)), qw(id serial_number name version ipaddr ssh_port created updated)), last_seen => ignore });
 }
 
 $relay0->user_relay_connections->update({
@@ -192,8 +197,8 @@ $t_super->get_ok('/relay')
         })), 'version was updated');
 
 my $y2000 = Conch::Time->new(year => 2000);
-cmp_ok(($relay0->user_relay_connections)[0]->first_seen, '<', $y2000, 'first_seen was not updated');
-cmp_ok(($relay0->user_relay_connections)[0]->last_seen, '>', $y2000, 'last_seen was updated');
+cmp_ok(($relay0->user_relay_connections)[0]->first_seen, '<', $y2000, 'urc first_seen was not updated');
+cmp_ok(($relay0->user_relay_connections)[0]->last_seen, '>', $y2000, 'urc last_seen was updated');
 
 # now register the relays on various devices in both workspace racks...
 
@@ -232,6 +237,10 @@ $t->app->db_device_relay_connections->create($_) foreach (
         last_seen => '2018-01-04',      # <-- latest known location for relay1
     },
 );
+
+# update relay last_seen to match our doctored values
+$relay0->update({ last_seen => '2018-01-02' });
+$relay1->update({ last_seen => '2018-01-04' });
 
 subtest list => sub {
     # the global workspace can see all relays, by virtue of all racks being in the global workspace

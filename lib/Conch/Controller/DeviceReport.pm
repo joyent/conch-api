@@ -174,6 +174,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
 
             if ($dr->{relay}) {
                 my $relay_rs = $c->db_relays->active->search({ serial_number => $dr->{relay}{serial} });
+                $relay_rs->update({ last_seen => \'now()' });
                 if (my $drc = $relay_rs
                         ->search_related('device_relay_connections' => { device_id => $device->id })
                         ->single) {

@@ -79,6 +79,13 @@ __PACKAGE__->table("relay");
   is_nullable: 0
   size: 16
 
+=head2 last_seen
+
+  data_type: 'timestamp with time zone'
+  default_value: current_timestamp
+  is_nullable: 0
+  original: {default_value => \"now()"}
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -114,6 +121,13 @@ __PACKAGE__->add_columns(
     default_value => \"gen_random_uuid()",
     is_nullable => 0,
     size => 16,
+  },
+  "last_seen",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+    original      => { default_value => \"now()" },
   },
 );
 
@@ -197,7 +211,7 @@ __PACKAGE__->many_to_many("user_accounts", "user_relay_connections", "user_accou
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xrcJDGh7U5PUiE3GqsWqkQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xMpqCXk+kpN2bu77AEmjUA
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
