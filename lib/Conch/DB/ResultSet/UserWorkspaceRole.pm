@@ -28,6 +28,7 @@ sub with_role ($self, $role) {
     Carp::croak('role must be one of: ro, rw, admin')
         if none { $role eq $_ } qw(ro rw admin);
 
+    return $self->search if $role eq 'ro';
     $self->search({ role => { '>=' => \[ '?::user_workspace_role_enum', $role ] } });
 }
 
