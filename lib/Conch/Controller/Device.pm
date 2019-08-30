@@ -214,7 +214,7 @@ sub lookup_by_other_attribute ($c) {
         my $device_via_relay_rs = $device_rs
             ->devices_without_location
             ->devices_reported_by_user_relay($c->stash('user_id'));
-        $device_rs = $device_in_workspace_rs->union($device_via_relay_rs);
+        $device_rs = $device_in_workspace_rs->union_all($device_via_relay_rs);
     }
 
     my @devices = $device_rs
