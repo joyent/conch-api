@@ -14,14 +14,14 @@ my $t = Test::Conch->new(pg => undef);
 
 subtest 'failed query params validation' => sub {
     my $r = Mojolicious::Routes->new;
-    $r->get('/hello', sub ($c) {
+    $r->get('/_hello', sub ($c) {
         my $params = $c->validate_query_params('ChangePassword');
         return if not $params;
         return $c->status(200);
     });
     $t->add_routes($r);
 
-    $t->get_ok('/hello?clear_tokens=whargarbl')
+    $t->get_ok('/_hello?clear_tokens=whargarbl')
         ->status_is(400)
         ->json_schema_is('QueryParamsValidationError')
         ->json_cmp_deeply({

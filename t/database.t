@@ -122,7 +122,7 @@ subtest 'transactions' => sub {
 
     my $r = Mojolicious::Routes->new;
     $r->get(
-        '/test_txn_wrapper1',
+        '/_test_txn_wrapper1',
         sub ($c) {
             my $result = $c->txn_wrapper(sub ($self, @args) {
                 cmp_deeply(\@args, [ 'hello', 'there' ], 'got the extra argument(s)');
@@ -143,7 +143,7 @@ subtest 'transactions' => sub {
     );
 
     $r->get(
-        '/test_txn_wrapper2',
+        '/_test_txn_wrapper2',
         sub ($c) {
             $c->txn_wrapper(sub ($my_c, $id) {
                 $my_c->db_user_accounts->create({
@@ -159,18 +159,18 @@ subtest 'transactions' => sub {
 
     $t->add_routes($r);
 
-    $t->get_ok('/test_txn_wrapper1')
+    $t->get_ok('/_test_txn_wrapper1')
         ->content_is('', 'no error response was prepared on intentional rollback');
 
     is($t->app->db_user_accounts->count, $user_count, 'the new user was rolled back (again)');
 
-    $t->get_ok('/test_txn_wrapper2?id=bad_id')
+    $t->get_ok('/_test_txn_wrapper2?id=bad_id')
         ->status_is(400)
         ->json_cmp_deeply({ error => re(qr/invalid input syntax for (?:type )?uuid: "bad_id"/) });
 
     is($t->app->db_user_accounts->count, $user_count, 'no new user was created');
 
-    $t->get_ok('/test_txn_wrapper2?id='.create_uuid_str())
+    $t->get_ok('/_test_txn_wrapper2?id='.create_uuid_str())
         ->status_is(204);
 
     is($t->app->db_user_accounts->count, $user_count + 1, 'one user was successfully created');

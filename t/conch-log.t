@@ -129,16 +129,16 @@ my $api_version_re = qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/;
 sub add_test_routes ($t) {
     my $r = Mojolicious::Routes->new;
 
-    $r->get('/hello')->to(cb => sub ($c) {
+    $r->get('/_hello')->to(cb => sub ($c) {
         $c->log->warn('this is a warn message');
         $c->log->debug('this is a debug message');
         $c->status(204);
     });
-    $r->post('/error')->to(cb => sub ($c) {
+    $r->post('/_error')->to(cb => sub ($c) {
         $c->log->error('error line from controller');
         $c->status(400, { error => 'something bad happened' });
     });
-    $r->post('/die')->to(cb => sub ($c) { die 'ach, I am slain' });
+    $r->post('/_die')->to(cb => sub ($c) { die 'ach, I am slain' });
     $t->add_routes($r);
 
     return (warn => __LINE__-11, debug => __LINE__-10, error => __LINE__-6, die => __LINE__-3);
@@ -219,7 +219,7 @@ sub add_test_routes ($t) {
 
     my %lines = add_test_routes($t);
 
-    $t->get_ok('/hello')
+    $t->get_ok('/_hello')
         ->status_is(204);
 
     my $request_id = $t->tx->res->headers->header('Request-Id');
@@ -238,7 +238,7 @@ sub add_test_routes ($t) {
         req => {
             user        => 'NOT AUTHED',
             method      => 'GET',
-            url         => '/hello',
+            url         => '/_hello',
             remoteAddress => '127.0.0.1',
             remotePort  => ignore,
             headers     => superhashof({}),
@@ -298,7 +298,7 @@ sub add_test_routes ($t) {
 
     $t->app->log->with_trace(1);
 
-    $t->get_ok('/hello')
+    $t->get_ok('/_hello')
         ->status_is(204);
 
     $request_id = $t->tx->res->headers->header('Request-Id');
@@ -341,7 +341,7 @@ sub add_test_routes ($t) {
         'our controller logged two messages in bunyan format with trace and request id; dispatch line never has trace info',
     );
 
-    $t->post_ok('/error?query_param=value0', json => { body_param => 'value1' })
+    $t->post_ok('/_error?query_param=value0', json => { body_param => 'value1' })
         ->status_is(400);
 
     cmp_deeply(
@@ -360,7 +360,7 @@ sub add_test_routes ($t) {
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
-                url         => '/error?query_param=value0',
+                url         => '/_error?query_param=value0',
                 remoteAddress => '127.0.0.1',
                 remotePort  => ignore,
                 headers     => superhashof({}),
@@ -375,7 +375,7 @@ sub add_test_routes ($t) {
         'dispatch line for an error includes the response body',
     );
 
-    $t->post_ok('/die?query_param=value0', json => { body_param => 'value1' })
+    $t->post_ok('/_die?query_param=value0', json => { body_param => 'value1' })
         ->status_is(500);
     my $post_line = __LINE__ - 2;
 
@@ -395,7 +395,7 @@ sub add_test_routes ($t) {
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
-                url         => '/die?query_param=value0',
+                url         => '/_die?query_param=value0',
                 remoteAddress => '127.0.0.1',
                 remotePort  => ignore,
                 headers     => superhashof({}),
@@ -514,7 +514,7 @@ sub add_test_routes ($t) {
 
     my %lines = add_test_routes($t);
 
-    $t->post_ok('/error?query_param=value0', json => { body_param => 'value1' })
+    $t->post_ok('/_error?query_param=value0', json => { body_param => 'value1' })
         ->status_is(400);
 
     cmp_deeply(
@@ -553,7 +553,7 @@ sub add_test_routes ($t) {
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
-                url         => '/error?query_param=value0',
+                url         => '/_error?query_param=value0',
                 remoteAddress => '127.0.0.1',
                 remotePort  => ignore,
                 headers     => superhashof({}),
@@ -569,7 +569,7 @@ sub add_test_routes ($t) {
         'dispatch line for an error in audit mode includes both the request and response body',
     );
 
-    $t->post_ok('/die?query_param=value0', json => { body_param => 'value1' })
+    $t->post_ok('/_die?query_param=value0', json => { body_param => 'value1' })
         ->status_is(500);
     my $post_line = __LINE__ - 2;
 
@@ -589,7 +589,7 @@ sub add_test_routes ($t) {
             req => {
                 user        => 'NOT AUTHED',
                 method      => 'POST',
-                url         => '/die?query_param=value0',
+                url         => '/_die?query_param=value0',
                 remoteAddress => '127.0.0.1',
                 remotePort  => ignore,
                 headers     => superhashof({}),

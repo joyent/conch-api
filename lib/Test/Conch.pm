@@ -698,7 +698,7 @@ sub _request_ok ($self, @args) {
     my $result = $self->next::method(@args);
     Test::More::diag 'log history: ',
             Data::Dumper->new([ $self->app->log->history ])->Indent(1)->Terse(1)->Dump
-        if $self->tx->res->code == 500 and $self->tx->req->url->path ne '/die';
+        if $self->tx->res->code == 500 and $self->tx->req->url->path ne '/_die';
     return $result;
 }
 
