@@ -44,6 +44,7 @@ requires 'MooX::HandlesVia';
 requires 'strictures', '2';
 requires 'namespace::clean';
 requires 'Types::Standard';
+requires 'Type::Tiny::XS';  # faster Type::Tiny and Types::Standard
 requires 'Role::Tiny';
 requires 'Getopt::Long::Descriptive';
 requires 'Session::Token';
