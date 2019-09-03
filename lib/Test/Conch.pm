@@ -223,7 +223,7 @@ sub status_is ($self, $status, $desc = undef) {
 
     my $code = $self->tx->res->code;
     $self->_test('fail', $code.' responses should have a Location header')
-        if any { $code == $_ } 201,301,302,303,307,308 and not $self->header_exists('Location');
+        if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
 
     if ($code =~ /^2../) {
         my $method = $self->tx->req->method;
