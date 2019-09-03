@@ -209,7 +209,7 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
  * successful DELETE requests should not return 201
  * 200 responses should have content.
  * 201 and most 30x responses should have a Location header.
- * 204 responses should not have content.
+ * 204 and most 30x responses should not have body content.
 
 Also, unexpected responses will dump the response payload.
 
@@ -238,7 +238,7 @@ sub status_is ($self, $status, $desc = undef) {
             if $code == 200 and not $self->tx->res->text;
 
         $self->_test('fail', $code.' responses should not have content')
-            if $code == 204 and $self->tx->res->text;
+            if any { $status == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
     }
 
     Test::More::diag('got response: ', Data::Dumper->new([ $self->tx->res->json ])

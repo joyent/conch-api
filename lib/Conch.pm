@@ -68,7 +68,7 @@ sub startup {
             $payload //= { error => 'Unimplemented' } if $code == 501;
 
             if (not $payload) {
-                # no content - hopefully we set a 204 response code
+                # no content - hopefully we set an appropriate response code (e.g. 204, 30x)
                 $c->rendered($code);
                 return 0;
             }
