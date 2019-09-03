@@ -329,7 +329,7 @@ ALTER TABLE public.device_report OWNER TO conch;
 
 CREATE TABLE public.device_setting (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    value text,
+    value text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     deactivated timestamp with time zone,
@@ -565,7 +565,7 @@ CREATE TABLE public.user_setting (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     name text NOT NULL,
-    value jsonb NOT NULL,
+    value text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     deactivated timestamp with time zone
 );

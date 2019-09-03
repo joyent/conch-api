@@ -70,9 +70,14 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me/settings/TEST', json => { NOTTEST => 'test' })
         ->status_is(400)
-        ->json_is({ error => "Setting key in request object must match name in the URL ('TEST')" });
+        ->json_is({ error => "Setting key in request payload must match name in the URL ('TEST')" });
 
-    $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
+    $t->post_ok('/user/me/settings/TEST', json => { TEST => 'bar', MORETEST => 'quux' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/too many properties/i) } ]);
+
+    $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 'TEST' })
         ->status_is(404);
 
     $t->post_ok('/user/me/settings/TEST', json => { TEST => 'TEST' })
@@ -88,28 +93,34 @@ subtest 'User' => sub {
         ->json_schema_is('UserSettings')
         ->json_is({ TEST => 'TEST' });
 
-    $t->post_ok('/user/me/settings/TEST2', json => { TEST2 => { foo => 'bar' } })
-        ->status_is(204);
+    $t->post_ok('/user/me/settings/TEST', json => { bar => 'baz' })
+        ->status_is(400)
+        ->json_is({ error => "Setting key in request payload must match name in the URL ('TEST')" });
 
-    $t->get_ok('/user/me/settings/TEST2')
-        ->status_is(200)
-        ->json_schema_is('UserSetting')
-        ->json_is({ TEST2 => { foo => 'bar' } });
+    $t->post_ok('/user/me/settings', json => { TEST => undef })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/TEST', message => re(qr/expected string.*got null/i) } ]);
+
+    $t->post_ok('/user/me/settings/TEST', json => { TEST => undef })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/TEST', message => re(qr/expected string.*got null/i) } ]);
+
+    $t->post_ok('/user/me/settings/TEST', json => { TEST => { foo => 'bar' } })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/TEST', message => re(qr/expected string.*got object/i) } ]);
+
+    $t->post_ok('/user/me/settings/TEST', json => { TEST => 'TEST2' })
+        ->status_is(204);
 
     $t->get_ok('/user/me/settings')
         ->status_is(200)
         ->json_schema_is('UserSettings')
-        ->json_is({ TEST => 'TEST', TEST2 => { foo => 'bar' } });
+        ->json_is({ TEST => 'TEST2' });
 
     $t->delete_ok('/user/me/settings/TEST')
-        ->status_is(204);
-
-    $t->get_ok('/user/me/settings')
-        ->status_is(200)
-        ->json_schema_is('UserSettings')
-        ->json_is({ TEST2 => { foo => 'bar' } });
-
-    $t->delete_ok('/user/me/settings/TEST2')
         ->status_is(204);
 
     $t->get_ok('/user/me/settings')

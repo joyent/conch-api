@@ -633,8 +633,21 @@ subtest 'Device settings' => sub {
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
-    $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 1 })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string/i) } ]);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => 'bar', baz => 'quux' })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/too many properties/i) } ]);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 'foo' })
         ->status_is(404);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'baz' })
+        ->status_is(204);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
         ->status_is(204);
@@ -642,12 +655,26 @@ subtest 'Device settings' => sub {
     $t->get_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(200)
         ->json_schema_is('DeviceSettings')
-        ->json_is('/foo', 'bar', 'Setting was stored');
+        ->json_is({ foo => 'bar' });
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
         ->status_is(200)
         ->json_schema_is('DeviceSetting')
-        ->json_is('/foo', 'bar', 'Setting was stored');
+        ->json_is({ foo => 'bar' });
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { bar => 'baz' })
+        ->status_is(400)
+        ->json_is({ error => "Setting key in request payload must match name in the URL ('foo')" });
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => undef })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string.*got null/i) } ]);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => undef })
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string.*got null/i) } ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => { bar => 'baz' } })
         ->status_is(400)

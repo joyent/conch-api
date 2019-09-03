@@ -418,6 +418,8 @@ definitions:
         maxProperties: 1
   UserSettings:
     type: object
+    additionalProperties:
+      $ref: common.yaml#/definitions/non_empty_string
     minProperties: 1
     propertyNames:
       $ref: common.yaml#/definitions/user_setting_key

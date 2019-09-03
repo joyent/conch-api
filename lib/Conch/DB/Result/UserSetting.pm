@@ -49,7 +49,7 @@ __PACKAGE__->table("user_setting");
 
 =head2 value
 
-  data_type: 'jsonb'
+  data_type: 'text'
   is_nullable: 0
 
 =head2 created
@@ -79,7 +79,7 @@ __PACKAGE__->add_columns(
   "name",
   { data_type => "text", is_nullable => 0 },
   "value",
-  { data_type => "jsonb", is_nullable => 0 },
+  { data_type => "text", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -122,7 +122,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Og7g3jO7RntMSjdeW+0rug
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:so7vfCYr2lOZmaXqii1GPQ
 
 1;
 __END__

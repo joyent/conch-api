@@ -62,11 +62,11 @@ sub set_single ($c) {
     my $input = $c->validate_request('DeviceSetting');
     return if not $input;
 
-    my $setting_key   = $c->stash('key');
-    my $setting_value = $input->{$setting_key};
+    my $setting_key = $c->stash('key');
+    return $c->status(400, { error => "Setting key in request payload must match name in the URL ('$setting_key')" })
+        if not exists $input->{$setting_key};
 
-    return $c->status(400, { error => "Setting key in request object must match name in the URL ('$setting_key')" })
-        if not $setting_value;
+    my $setting_value = $input->{$setting_key};
 
     # we cannot do device_rs->related_resultset, or ->create loses device_id
     my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
@@ -88,7 +88,7 @@ sub set_single ($c) {
         return $c->status(403);
     }
 
-    $existing_setting->update({ deactivated => \'now()' }) if $existing_setting;
+    $existing_setting->self_rs->deactivate if $existing_setting;
     $settings_rs->create({ name => $setting_key, value => $setting_value });
 
     $c->status(204);
