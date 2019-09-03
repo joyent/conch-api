@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Sys::Hostname ();
 use Conch::UUID 'create_uuid_str';
 
-use constant ROLLBAR_ENDPOINT => 'https://api.rollbar.com/api/1/item/';
+sub ROLLBAR_ENDPOINT { 'https://api.rollbar.com/api/1/item/' }
 
 =pod
 
@@ -139,8 +139,9 @@ sub _record_exception ($c, $exception, @) {
         sub ($ua, $tx) {
             if (my $err = $tx->error) {
                 local $Conch::Log::REQUEST_ID = $request_id;
-                $log->error('Unable to send exception to Rollbar. HTTP '
-                    .$err->{code}." '$err->{message}'");
+                $log->error('Unable to send exception to Rollbar.'
+                    .($err->{code} ? (' HTTP '.$err->{code}) : '')
+                    ." '$err->{message}'");
             }
         }
     );
