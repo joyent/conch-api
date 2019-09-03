@@ -3939,15 +3939,6 @@ DISTRIBUTIONS
       Exporter::Tiny 0.040
       ExtUtils::MakeMaker 6.17
       perl 5.006001
-  Types-UUID-0.004
-    pathname: T/TO/TOBYINK/Types-UUID-0.004.tar.gz
-    provides:
-      Types::UUID 0.004
-    requirements:
-      ExtUtils::MakeMaker 6.17
-      Type::Tiny 1.000000
-      UUID::Tiny 1.02
-      perl 5.008
   URI-1.76
     pathname: O/OA/OALDERS/URI-1.76.tar.gz
     provides:
@@ -4012,19 +4003,6 @@ DISTRIBUTIONS
       strict 0
       utf8 0
       warnings 0
-  UUID-Tiny-1.04
-    pathname: C/CA/CAUGUSTIN/UUID-Tiny-1.04.tar.gz
-    provides:
-      UUID::Tiny 1.04
-    requirements:
-      Carp 0
-      Digest::MD5 0
-      ExtUtils::MakeMaker 0
-      IO::File 0
-      MIME::Base64 0
-      POSIX 0
-      Test::More 0
-      Time::HiRes 0
   Variable-Magic-0.62
     pathname: V/VP/VPIT/Variable-Magic-0.62.tar.gz
     provides:
