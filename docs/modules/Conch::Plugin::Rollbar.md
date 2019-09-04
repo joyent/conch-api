@@ -16,14 +16,14 @@ Sends exceptions to Rollbar.
 
 ## send\_exception\_to\_rollbar
 
-Asynchronously send exception details to Rollbar (if `rollbar_access_token` is
-configured). Returns a unique uuid suitable for logging, to correlate with the
-Rollbar entry thus created.
+Asynchronously send exception details to Rollbar (if the `rollbar` `access_token` is
+configured).  Returns a unique uuid suitable for logging, to correlate with the Rollbar entry
+thus created.
 
 ## send\_message\_to\_rollbar
 
-Asynchronously send a message to Rollbar (if `rollbar_access_token` is configured). Returns a
-unique uuid suitable for logging, to correlate with the Rollbar entry thus created.
+Asynchronously send a message to Rollbar (if the `rollbar` `access_token` is configured).
+Returns a unique uuid suitable for logging, to correlate with the Rollbar entry thus created.
 
 Requires a message string. A hashref of additional data is optional.
 

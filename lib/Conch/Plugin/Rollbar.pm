@@ -48,9 +48,9 @@ sub register ($self, $app, $config) {
 
 =head2 send_exception_to_rollbar
 
-Asynchronously send exception details to Rollbar (if C<rollbar_access_token> is
-configured). Returns a unique uuid suitable for logging, to correlate with the
-Rollbar entry thus created.
+Asynchronously send exception details to Rollbar (if the C<rollbar> C<access_token> is
+configured).  Returns a unique uuid suitable for logging, to correlate with the Rollbar entry
+thus created.
 
 =cut
 
@@ -105,8 +105,8 @@ Rollbar entry thus created.
 
 =head2 send_message_to_rollbar
 
-Asynchronously send a message to Rollbar (if C<rollbar_access_token> is configured). Returns a
-unique uuid suitable for logging, to correlate with the Rollbar entry thus created.
+Asynchronously send a message to Rollbar (if the C<rollbar> C<access_token> is configured).
+Returns a unique uuid suitable for logging, to correlate with the Rollbar entry thus created.
 
 Requires a message string. A hashref of additional data is optional.
 
@@ -182,14 +182,14 @@ sub _get_extra_data ($c) {
 }
 
 sub _create_notifier ($app, $config) {
-    my $access_token = $config->{rollbar_access_token};
+    my $access_token = $config->{rollbar}{access_token};
     if (not $access_token) {
         $app->log->warn('Unable to send exception to Rollbar - no access token configured');
         return;
     }
     WebService::Rollbar::Notifier->new(
         access_token => $access_token,
-        environment => $config->{rollbar_environment} // $app->mode,
+        environment => $config->{rollbar}{environment} // $app->mode,
         code_version => $app->version_hash,
         language => 'perl '.$Config{version},
         server => {

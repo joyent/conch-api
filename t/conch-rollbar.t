@@ -17,8 +17,10 @@ use Path::Tiny;
 my $t = Test::Conch->new(
     config => {
         features => { rollbar => 1, no_db => 1 },
-        rollbar_access_token => 'TOKEN',
-        rollbar_environment => 'custom_environment',
+        rollbar => {
+            access_token => 'TOKEN',
+            environment => 'custom_environment',
+        },
     },
     pg => undef,
 );
