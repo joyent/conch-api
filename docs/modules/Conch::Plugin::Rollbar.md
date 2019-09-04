@@ -6,12 +6,18 @@ Conch::Plugin::Rollbar
 
 Mojo plugin to send exceptions to [Rollbar](https://rollbar.com)
 
+# HOOKS
+
+## before\_render
+
+Sends exceptions to Rollbar.
+
 # HELPERS
 
 ## send\_exception\_to\_rollbar
 
-Asynchronously send exception details to Rollbar if 'rollbar\_access\_token' is
-configured. Returns a unique uuid suitable for logging, to correlate with the
+Asynchronously send exception details to Rollbar (if `rollbar_access_token` is
+configured). Returns a unique uuid suitable for logging, to correlate with the
 Rollbar entry thus created.
 
 # LICENSING

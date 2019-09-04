@@ -4044,6 +4044,21 @@ DISTRIBUTIONS
       base 0
       lib 0
       perl 5.008
+  WebService-Rollbar-Notifier-1.002009
+    pathname: B/BJ/BJAKUBSKI/WebService-Rollbar-Notifier-1.002009.tar.gz
+    provides:
+      WebService::Rollbar::Notifier 1.002009
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      IO::Socket::SSL 1.94
+      Mojo::Base 0
+      Mojo::UserAgent 0
+      Mojolicious 6.04
+      Scalar::Util 0
+      perl 5.006
+      strict 0
+      warnings 0
   Win32-ShellQuote-0.003001
     pathname: H/HA/HAARG/Win32-ShellQuote-0.003001.tar.gz
     provides:

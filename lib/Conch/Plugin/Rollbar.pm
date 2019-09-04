@@ -3,8 +3,9 @@ package Conch::Plugin::Rollbar;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Sys::Hostname ();
 use Conch::UUID 'create_uuid_str';
-
-sub ROLLBAR_ENDPOINT { 'https://api.rollbar.com/api/1/item/' }
+use WebService::Rollbar::Notifier;
+use Digest::SHA ();
+use Config;
 
 =pod
 
@@ -16,87 +17,96 @@ Conch::Plugin::Rollbar
 
 Mojo plugin to send exceptions to L<Rollbar|https://rollbar.com>
 
-=head1 HELPERS
+=head1 HOOKS
+
+=head2 before_render
+
+Sends exceptions to Rollbar.
 
 =cut
 
 sub register ($self, $app, $config) {
 
+    $app->hook(before_render => sub ($c, $args) {
+        my $template = $args->{template};
+
+        if (my $exception = $c->stash('exception')
+                or ($template and $template =~ /exception/)) {
+            $exception //= $args->{exception};
+            my $rollbar_id = $c->send_exception_to_rollbar($exception);
+            $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
+        }
+    });
+
+
+=head1 HELPERS
+
 =head2 send_exception_to_rollbar
 
-Asynchronously send exception details to Rollbar if 'rollbar_access_token' is
-configured. Returns a unique uuid suitable for logging, to correlate with the
+Asynchronously send exception details to Rollbar (if C<rollbar_access_token> is
+configured). Returns a unique uuid suitable for logging, to correlate with the
 Rollbar entry thus created.
 
 =cut
 
-    $app->helper(send_exception_to_rollbar => \&_record_exception);
+    # this is cached at the app level, rather than for the entire interpreter runtime
+    my $notifier;
 
-    $app->hook(
-        before_render => sub ($c, $args) {
-            my $template = $args->{template};
+    $app->helper(send_exception_to_rollbar => sub ($c, $exception) {
+        $notifier //= _create_notifier($c->app, $c->config);
+        return if not $notifier;
 
-            if (my $exception = $c->stash('exception')
-                    or ($template and $template =~ /exception/)) {
-                $exception //= $args->{exception};
-                my $rollbar_id = $c->send_exception_to_rollbar($exception);
-                $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
-            }
+        my @frames = map +{
+            class_name => $_->[0],
+            filename   => $_->[1],
+            lineno     => $_->[2],
+            method     => $_->[3],
+        },
+        $exception->frames->@*;
+
+        if (@frames) {
+            # we only have context for the first frame.
+            # Mojo::Exception data contains line numbers as well.
+            $frames[0]->{code} = $exception->line->[1];
+            $frames[0]->{context} = {
+                pre  => [ map $_->[1], $exception->lines_before->@* ],
+                post => [ map $_->[1], $exception->lines_after->@* ],
+            };
         }
-    );
+
+        my $rollbar_id = create_uuid_str();
+
+        # see https://docs.rollbar.com/docs/grouping-algorithm
+        my $fingerprint = join(':',
+            $exception->message,
+            map join(',', $_->@{qw(filename method lineno)}), @frames,
+        );
+        $fingerprint = Digest::SHA::sha1_hex($fingerprint) if length($fingerprint) > 40;
+
+        # asynchronously post to Rollbar, logging if the request fails
+        $notifier->report_trace(
+            ref($exception),
+            $exception->message,
+            \@frames,
+            {
+                fingerprint => $fingerprint,
+                uuid => $rollbar_id,
+                _get_extra_data($c)->%*,
+            },
+        );
+
+        return $rollbar_id;
+    });
 }
 
-
-sub _record_exception ($c, $exception, @) {
-    my $access_token = $c->app->config('rollbar_access_token');
-    if (not $access_token) {
-        $c->log->warn('Unable to send exception to Rollbar - no access token configured');
-        return;
-    }
-
-    my @frames = map +{
-        class_name => $_->[0],
-        filename   => $_->[1],
-        lineno     => $_->[2],
-        method     => $_->[3],
-    },
-    $exception->frames->@*;
-
-    # we only have context for the first frame.
-    # Mojo::Exception data contains line numbers as well.
-    $frames[0]->{code} = $exception->line->[1];
-    $frames[0]->{context} = {
-        pre  => [ map $_->[1], $exception->lines_before->@* ],
-        post => [ map $_->[1], $exception->lines_after->@* ],
-    };
-
+sub _get_extra_data ($c) {
     my $user = $c->stash('user');
-
     my $headers = $c->req->headers->to_hash(1);
     delete $headers->@{qw(Authorization Cookie jwt_token)};
 
-    my $rollbar_id = create_uuid_str();
-    my $request_id = length($c->req->url) ? $c->req->request_id : undef;
-
-    # Payload documented at https://rollbar.com/docs/api/items_post/
-    my $exception_payload = {
-        access_token => $access_token,
-        data         => {
-            environment => $c->app->config('rollbar_environment') || 'development',
-            body        => {
-                trace => {
-                    frames    => \@frames,
-                    exception => {
-                        class   => ref($exception),
-                        message => $exception->message
-                    }
-                },
-            },
-            timestamp    => time,
-            code_version => $c->version_hash,
-            platform    => $c->tx->original_remote_address eq '127.0.0.1' ? 'client' : 'browser',
-            language    => 'perl',
-            request        => {
+    +{
+        length($c->req->url) ? (
+            request => {
                 url     => $c->req->url->to_abs->to_string,
                 user_ip => $c->tx->original_remote_address,
                 method  => $c->req->method,
@@ -104,49 +114,57 @@ sub _record_exception ($c, $exception, @) {
                 query_string => $c->req->query_params->to_string,
                 charset => $c->req->content->charset || $c->req->default_charset,
                 body    => $c->req->text,
+                # TODO, when we store these values in the stash via a common shortcut:
+                # GET => $c->stash('parsed_query_params'),
+                # POST => $c->stash('parsed_body_params'),
             },
-            server => {
-                host => Sys::Hostname::hostname,
-                root => $c->app->home->child('lib')->to_string
+            $c->stash('action') ? (context => ($c->stash('controller')//'').'#'.$c->stash('action')): (),
+        ) : (),
+        $user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),
+
+        custom => {
+            request_id => (length($c->req->url) ? $c->req->request_id : undef),
+            stash => +{
+                # we only go one level deep, to avoid leaking potentially secret data.
+                map {
+                    my $val = $c->stash($_);
+                    $_ => ref $val ? ($val.'') : $val;
+                }
+                grep $_ ne 'exception' && $_ ne 'snapshot' && !/^mojo\./,
+                keys $c->stash->%*,
             },
-            $user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),
-
-            custom => {
-                request_id => $request_id,
-                stash => +{
-                    # we only go one level deep for most things, to avoid leaking
-                    # potentially secret data.
-                    map {
-                        my $val = $c->stash($_);
-                        $_ => $val eq 'mojo' || !ref $val ? $val : ($val.'');
-                    }
-                    keys $c->stash->%*,
-                },
-            },
-
-            # see https://docs.rollbar.com/docs/grouping-algorithm
-            fingerprint => join(':', map join(',', $_->@{qw(filename method lineno)}), @frames),
-
-            uuid => $rollbar_id,
-        }
+        },
     };
+}
 
-    # asynchronously post to Rollbar, log if the request fails
-    my $log = $c->log;
-    $c->ua->post(
-        ROLLBAR_ENDPOINT,
-        json => $exception_payload,
-        sub ($ua, $tx) {
+sub _create_notifier ($app, $config) {
+    my $access_token = $config->{rollbar_access_token};
+    if (not $access_token) {
+        $app->log->warn('Unable to send exception to Rollbar - no access token configured');
+        return;
+    }
+    WebService::Rollbar::Notifier->new(
+        access_token => $access_token,
+        environment => $config->{rollbar_environment} // $app->mode,
+        code_version => $app->version_hash,
+        language => 'perl '.$Config{version},
+        server => {
+            host => Sys::Hostname::hostname,
+            root => $app->home->child('lib')->to_string,
+            (map +($_ => $Config{$_}), qw(perlpath archname osname osvers)),
+        },
+        _ua => $app->ua,
+
+        callback => sub ($ua, $tx) {
             if (my $err = $tx->error) {
+                my $request_id = length($tx->req->url) ? $tx->req->request_id : undef;
                 local $Conch::Log::REQUEST_ID = $request_id;
-                $log->error('Unable to send exception to Rollbar.'
+                $ua->server->app->log->error('Unable to send exception to Rollbar.'
                     .($err->{code} ? (' HTTP '.$err->{code}) : '')
                     ." '$err->{message}'");
             }
-        }
+        },
     );
-
-    return $rollbar_id;
 }
 
 1;
