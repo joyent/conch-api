@@ -138,8 +138,10 @@ sub new {
 sub DESTROY ($self) {
     # explicitly disconnect before terminating the server, to avoid exceptions like:
     # "DBI Exception: DBD::Pg::st DESTROY failed: FATAL:  terminating connection due to administrator command"
-    do { $_->disconnect if $_->connected }
-        foreach $self->app->rw_schema->storage, $self->app->ro_schema->storage;
+    if (not $self->app->feature('no_db')) {
+        do { $_->disconnect if $_->connected }
+            foreach $self->app->rw_schema->storage, $self->app->ro_schema->storage;
+    }
 }
 
 =head2 init_db
