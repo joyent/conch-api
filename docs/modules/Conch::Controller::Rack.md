@@ -24,7 +24,7 @@ Get all racks
 
 Response uses the Racks json schema.
 
-## layouts
+## get\_layouts
 
 Gets all the layouts for the specified rack.
 

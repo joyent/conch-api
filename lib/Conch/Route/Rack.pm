@@ -37,7 +37,7 @@ sub routes {
     $with_rack->require_system_admin->delete('/')->to('#delete');
 
     # GET /rack/:rack_id/layouts
-    $with_rack->get('/layouts')->to('#layouts');
+    $with_rack->get('/layouts')->to('#get_layouts');
 
     # GET /rack/:rack_id/assignment
     $with_rack->get('/assignment')->to('#get_assignment');

@@ -97,7 +97,7 @@ sub get_all ($c) {
     $c->status(200, \@racks);
 }
 
-=head2 layouts
+=head2 get_layouts
 
 Gets all the layouts for the specified rack.
 
@@ -105,7 +105,7 @@ Response uses the RackLayouts json schema.
 
 =cut
 
-sub layouts ($c) {
+sub get_layouts ($c) {
     my @layouts = $c->stash('rack_rs')
         ->related_resultset('rack_layouts')
         ->with_rack_unit_size
