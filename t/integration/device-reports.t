@@ -266,7 +266,7 @@ subtest 'create device via report' => sub {
     push @validation_state_ids, $t->tx->res->json->{id};
 
     ok(
-        !$device->related_resultset('device_reports')->search({ id => $device_report_ids[-2] })->exists,
+        !$device->search_related('device_reports', { id => $device_report_ids[-2] })->exists,
         'the previous report was deleted, on receipt of another passing report',
     );
 

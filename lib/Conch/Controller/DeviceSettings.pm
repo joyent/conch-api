@@ -103,8 +103,7 @@ Response uses the DeviceSettings json schema.
 =cut
 
 sub get_all ($c) {
-    my %settings = $c->stash('device_rs')->single->device_settings_as_hash;
-    $c->status(200, \%settings);
+    $c->status(200, +{ $c->stash('device_rs')->device_settings_as_hash });
 }
 
 =head2 get_single

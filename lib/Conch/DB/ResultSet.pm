@@ -30,6 +30,7 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::AddColumns',  # provides add_columns
     '+Conch::DB::AsEpoch',                      # provides as_epoch
     'Helper::ResultSet::SetOperations',         # provides union, intersect, except, and *_all
+    'Helper::ResultSet::Shortcut::GroupBy',     # provides group_by
 );
 
 1;

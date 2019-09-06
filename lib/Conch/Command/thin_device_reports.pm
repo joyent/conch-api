@@ -188,16 +188,14 @@ sub _process_device ($self, $device) {
             last if not @ids;
             $pager->current_page($pager->current_page + 1);
 
-            $device_reports_deleted += $device
-                ->search_related('device_reports', { id => { -in => \@ids } })
-                ->delete;
+            $device_reports_deleted += $device->delete_related('device_reports', { id => { -in => \@ids } });
         }
 
         # delete all newly-orphaned validation_result rows for this device
-        $validation_results_deleted = $device->search_related('validation_results',
+        $validation_results_deleted = $device->delete_related('validation_results',
             { 'validation_state_members.validation_state_id' => undef },
             { join => 'validation_state_members' },
-        )->delete;
+        );
     }
 
     print "\n";

@@ -488,8 +488,9 @@ sub deactivate ($c) {
         });
     }
 
-    my $workspaces = join(', ', map $_->workspace->name.' ('.$_->role.')',
-        $user->related_resultset('user_workspace_roles')->prefetch('workspace')->all);
+    my $workspaces = join(', ', map $_->{workspace}{name}.' ('.$_->{role}.')',
+        $user->search_related('user_workspace_roles', undef, { join => 'workspace' })
+            ->columns([ qw(workspace.name role) ])->hri->all);
 
     $c->log->warn('user '.$c->stash('user')->name.' deactivating user '.$user->name
         .($workspaces ? ', direct member of workspaces: '.$workspaces : ''));

@@ -20,23 +20,26 @@ Interface to queries involving devices.
 Constrains the resultset to those where the provided user_id has (at least) the specified role
 in at least one workspace associated with the specified device(s), including parent workspaces.
 
+This is a nested query which searches all workspaces in the database, so only use this query
+when its impact is outweighed by the impact of filtering a large resultset of devices in the
+database.  (That is, usually you should start with a single device and then apply
+C<< $device_rs->user_has_role($user_id, $role) >> to it.)
+
 =cut
 
 sub with_user_role ($self, $user_id, $role) {
-    my $schema = $self->result_source->schema;
-    my $workspace_ids_rs = $schema->resultset('user_workspace_role')
-        ->search({ user_id => $user_id })
-        ->with_role($role)
-        ->get_column('workspace_id');
-
-    my $all_workspace_ids_rs = $schema->resultset('workspace')
-        ->and_workspaces_beneath($workspace_ids_rs)
+    my $workspace_ids_rs = $self->result_source->schema->resultset('workspace')
+        ->with_user_role($user_id, $role)
         ->get_column('id');
 
+    # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
+    # not need to search the workspace heirarchy here, but simply look for a role entry for any
+    # workspace the rack is associated with.
     $self->search(
-        { 'workspace_racks.workspace_id' => { -in => $all_workspace_ids_rs->as_query } },
-        { join => { device_location => { rack_layout => { rack => 'workspace_racks' } } } },
-    );
+        { 'workspace_racks.workspace_id' => { -in => $workspace_ids_rs->as_query } },
+        { join => { device_location => { rack => 'workspace_racks' } } },
+    )
+    ->distinct;
 }
 
 =head2 user_has_role
@@ -44,20 +47,14 @@ sub with_user_role ($self, $user_id, $role) {
 Checks that the provided user_id has (at least) the specified role in at least one
 workspace associated with the specified device(s), including parent workspaces.
 
+Returns a boolean.
+
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
-    my $device_workspaces_ids_rs = $self
+    $self
         ->related_resultset('device_location')
         ->related_resultset('rack')
-        ->related_resultset('workspace_racks')
-        ->related_resultset('workspace')
-        ->distinct
-        ->get_column('id');
-
-    $self->result_source->schema->resultset('workspace')
-        ->and_workspaces_above($device_workspaces_ids_rs)
-        ->related_resultset('user_workspace_roles')
         ->user_has_role($user_id, $role);
 }
 
@@ -112,6 +109,22 @@ sub latest_device_report ($self) {
     $self->related_resultset('device_reports')
         ->order_by({ -desc => 'device_reports.created' })
         ->rows(1);
+}
+
+=head2 device_settings_as_hash
+
+Returns a hash of all (active) device settings for the specified device(s).  (Will return
+merged results when passed a resultset referencing multiple devices, which is probably not what
+you want, so don't do that.)
+
+=cut
+
+sub device_settings_as_hash {
+    my $self = shift;
+
+    # when interpolated into a hash, newer rows will override older.
+    return map +($_->name => $_->value),
+        $self->related_resultset('device_settings')->active->order_by('created');
 }
 
 1;

@@ -13,10 +13,17 @@ Interface to queries involving devices.
 Constrains the resultset to those where the provided user\_id has (at least) the specified role
 in at least one workspace associated with the specified device(s), including parent workspaces.
 
+This is a nested query which searches all workspaces in the database, so only use this query
+when its impact is outweighed by the impact of filtering a large resultset of devices in the
+database.  (That is, usually you should start with a single device and then apply
+`$device_rs->user_has_role($user_id, $role)` to it.)
+
 ## user\_has\_role
 
 Checks that the provided user\_id has (at least) the specified role in at least one
 workspace associated with the specified device(s), including parent workspaces.
+
+Returns a boolean.
 
 ## devices\_without\_location
 
@@ -46,6 +53,12 @@ $self->search(undef, {
     },
 });
 ```
+
+## device\_settings\_as\_hash
+
+Returns a hash of all (active) device settings for the specified device(s).  (Will return
+merged results when passed a resultset referencing multiple devices, which is probably not what
+you want, so don't do that.)
 
 # LICENSING
 

@@ -199,10 +199,6 @@ Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> rel
 
 Returns the JSON-decoded content from the most recent device report.
 
-## device\_settings\_as\_hash
-
-Returns a hash of all (active) device settings.
-
 # LICENSING
 
 Copyright Joyent, Inc.

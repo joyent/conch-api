@@ -13,11 +13,6 @@ Interface to queries involving user/workspace roles.
 Constrains the resultset to those user\_workspace\_role rows that grants (at least) the specified
 role.
 
-## user\_has\_role
-
-Returns a boolean indicating whether there exists a user\_workspace\_role row that grants (at
-least) the specified role.
-
 # LICENSING
 
 Copyright Joyent, Inc.

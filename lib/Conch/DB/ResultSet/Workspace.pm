@@ -4,6 +4,7 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use experimental 'signatures';
+use Carp ();
 use Conch::UUID 'is_uuid';
 use Safe::Isa;
 use List::Util 'none';
@@ -41,7 +42,7 @@ WITH RECURSIVE workspace_children (id) AS (
   SELECT id
     FROM workspace base
     WHERE base.parent_workspace_id = ?
-  UNION
+  UNION ALL
     SELECT child.id
     FROM workspace child, workspace_children parent
     WHERE child.parent_workspace_id = parent.id
@@ -71,7 +72,7 @@ WITH RECURSIVE workspace_and_children (id) AS (
   SELECT id
     FROM workspace base
     WHERE (base.id $workspace_id_clause)
-  UNION
+  UNION ALL
     SELECT child.id
     FROM workspace child, workspace_and_children parent
     WHERE child.parent_workspace_id = parent.id
@@ -101,7 +102,7 @@ WITH RECURSIVE workspace_parents (id, parent_workspace_id) AS (
     FROM workspace base
     JOIN workspace base_child ON base_child.parent_workspace_id = base.id
     WHERE base_child.id = ?
-  UNION
+  UNION ALL
     SELECT parent.id, parent.parent_workspace_id
     FROM workspace parent, workspace_parents child
     WHERE parent.id = child.parent_workspace_id
@@ -131,7 +132,7 @@ WITH RECURSIVE workspace_and_parents (id, parent_workspace_id) AS (
   SELECT id, parent_workspace_id
     FROM workspace base
     WHERE (base.id $workspace_id_clause)
-  UNION
+  UNION ALL
     SELECT parent.id, parent.parent_workspace_id
     FROM workspace parent, workspace_and_parents child
     WHERE parent.id = child.parent_workspace_id
@@ -216,13 +217,53 @@ sub admins ($self, $include_sysadmins = undef) {
     my $rs = $self->search_related('user_workspace_roles', { role => 'admin' })
         ->related_resultset('user_account');
 
-    $rs = $rs->union($self->result_source->schema->resultset('user_account')->search_rs({ is_admin => 1 }))
+    $rs = $rs->union_all($self->result_source->schema->resultset('user_account')->search_rs({ is_admin => 1 }))
         if $include_sysadmins;
 
     return $rs
         ->active
         ->distinct
         ->order_by('user_account.name');
+}
+
+=head2 with_user_role
+
+Constrains the resultset to those where the provided user_id has (at least) the specified role
+in at last one workspace in the resultset.  (Does not search recursively; add
+C<< ->and_workspaces_above($workspace_id) >> to your resultset first, if this is what you want.)
+
+=cut
+
+sub with_user_role ($self, $user_id, $role) {
+    Carp::croak('role must be one of: ro, rw, admin')
+        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
+
+    $self->search(
+        {
+            $role ne 'ro' ? ('user_workspace_roles.role' => { '>=' => \[ '?::user_workspace_role_enum', $role ] } ) : (),
+            'user_workspace_roles.user_id' => $user_id,
+        },
+        { join => 'user_workspace_roles' },
+    );
+}
+
+=head2 user_has_role
+
+Checks that the provided user_id has (at least) the specified role in at least one workspace in
+the resultset. (Does not search recursively; add C<< ->and_workspaces_above($workspace_id) >>
+to your resultset first, if this is what you want.)
+
+Returns a boolean.
+
+=cut
+
+sub user_has_role ($self, $user_id, $role) {
+    Carp::croak('role must be one of: ro, rw, admin')
+        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
+
+    $self->search_related('user_workspace_roles', { user_id => $user_id })
+        ->with_role($role)
+        ->exists;
 }
 
 =head2 _workspaces_subquery

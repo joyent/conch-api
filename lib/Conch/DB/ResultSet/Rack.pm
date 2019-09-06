@@ -43,24 +43,20 @@ sub assigned_rack_units ($self) {
 
 =head2 user_has_role
 
-Checks that the provided user_id has (at least) the specified role in at least one
-workspace associated with the specified rack(s), including parent workspaces.
+Checks that the provided user_id has (at least) the specified role in at least one workspace
+associated with the specified rack(s) (implicitly including parent workspaces).
+
+Returns a boolean.
 
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
-    Carp::croak('role must be one of: ro, rw, admin')
-        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
-
-    my $rack_workspaces_ids_rs = $self
+    # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
+    # not need to search the workspace heirarchy here, but simply look for a role entry for any
+    # workspace the rack is associated with.
+    $self
         ->related_resultset('workspace_racks')
         ->related_resultset('workspace')
-        ->distinct
-        ->get_column('id');
-
-    $self->result_source->schema->resultset('workspace')
-        ->and_workspaces_above($rack_workspaces_ids_rs)
-        ->related_resultset('user_workspace_roles')
         ->user_has_role($user_id, $role);
 }
 

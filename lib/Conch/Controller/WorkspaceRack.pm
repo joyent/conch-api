@@ -27,13 +27,10 @@ sub list ($c) {
 
     my $device_health_rs = $racks_rs->search(
         { 'device.id' => { '!=' => undef } },
-        {
-            columns => { rack_id => 'rack.id' },
-            select => [{ count => '*', -as => 'count' }],
-            join => { device_locations => 'device' },
-            distinct => 1,  # group by all columns in final resultset
-        },
-    );
+        { join => { device_locations => 'device' } }
+    )
+    ->columns({ rack_id => 'rack.id', count => { count => '*' } })
+    ->distinct;  # group by all columns in final resultset
 
     my $invalid_rs = $device_health_rs->search(
         { 'device.validated' => undef },
@@ -50,7 +47,7 @@ sub list ($c) {
         $device_progress{$entry->{rack_id}}{$entry->{status} // 'valid'} += $entry->{count};
     }
 
-    my @rack_data = $racks_rs->as_subselect_rs->search(undef,
+    my @rack_data = $racks_rs->search(undef,
         {
             columns => {
                 az => 'datacenter_room.az',
@@ -61,7 +58,6 @@ sub list ($c) {
                 rack_size => 'rack_role.rack_size',
             },
             join => [ qw(datacenter_room rack_role) ],
-            collapse => 1,
         },
     )->hri->all;
 
@@ -85,20 +81,16 @@ database, stashing a resultset to access it as C<rack_rs>.
 
 sub find_rack ($c) {
     my $rack_id = $c->stash('rack_id');
-    my $rack_rs = $c->stash('workspace_rs')
-        ->related_resultset('workspace_racks')
-        ->search_related('rack', { 'rack.id' => $rack_id });
 
-    if (not $rack_rs->exists) {
+    if (not $c->db_workspace_racks->search({ workspace_id => $c->stash('workspace_id'), rack_id => $rack_id })->exists) {
         $c->log->debug('Could not find rack '.$rack_id);
         return $c->status(404);
     }
 
     # store the simplified query to access the rack, now that we've confirmed the user has
-    # authorization to access it.
+    # authorization to access it via this workspace.
     # No queries have been made yet, so you can add on more criteria or prefetches.
-    $c->stash('rack_rs',
-        $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
+    $c->stash('rack_rs', $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
 
     $c->log->debug('Found rack '.$rack_id);
     return 1;

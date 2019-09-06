@@ -187,14 +187,10 @@ Response uses the RackAssignments json schema.
 
 sub get_assignment ($c) {
     my @assignments = $c->stash('rack_rs')
-        ->related_resultset('rack_layouts')
-        ->columns([ 'rack_unit_start' ])
-        ->search(undef, {
-            join => [
-                { device_location => 'device' },
-                'hardware_product',
-            ],
-            '+columns' => {
+        ->search_related('rack_layouts', undef, {
+            join => [ { device_location => 'device' }, 'hardware_product' ],
+            columns => {
+                rack_unit_start => 'rack_layouts.rack_unit_start',
                 device_id => 'device.id',
                 device_asset_tag => 'device.asset_tag',
                 hardware_product_name => 'hardware_product.name',

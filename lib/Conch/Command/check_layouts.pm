@@ -66,8 +66,7 @@ sub run ($self, @opts) {
                         "$rack_size: @out_of_range!\n";
             }
 
-            my $occupied_layout_rs = $rack->related_resultset('rack_layouts')
-                ->search(
+            my $occupied_layout_rs = $rack->search_related('rack_layouts',
                     { 'device_location.device_id' => { '!=' => undef } },
                     { prefetch => [
                             'hardware_product',
