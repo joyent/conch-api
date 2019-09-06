@@ -73,10 +73,10 @@ sub create ($c) {
     my %assigned_rack_units = map +($_ => 1),
         $c->db_racks->search({ 'rack.id' => $input->{rack_id} })->assigned_rack_units;
 
-    my @desired_positions = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
+    my @desired_slots = $input->{rack_unit_start} .. ($input->{rack_unit_start} + $new_rack_unit_size - 1);
 
-    if (any { $assigned_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
+    if (any { $assigned_rack_units{$_} } @desired_slots) {
+        $c->log->debug('Rack unit slot '.$input->{rack_unit_start}.' is already assigned');
         return $c->status(409, { error => 'rack_unit_start conflict' });
     }
 
@@ -193,10 +193,10 @@ sub update ($c) {
 
     delete @assigned_rack_units{$layout->rack_unit_start .. ($layout->rack_unit_start + $current_rack_unit_size - 1) };
 
-    my @desired_positions = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
+    my @desired_slots = $new_rack_unit_start .. ($new_rack_unit_start + $new_rack_unit_size - 1);
 
-    if (any { $assigned_rack_units{$_} } @desired_positions) {
-        $c->log->debug('Rack unit position '.$input->{rack_unit_start}.' is already assigned');
+    if (any { $assigned_rack_units{$_} } @desired_slots) {
+        $c->log->debug('Rack unit slot '.$input->{rack_unit_start}.' is already assigned');
         return $c->status(409, { error => 'rack_unit_start conflict' });
     }
 
