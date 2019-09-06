@@ -106,6 +106,7 @@ sub all_routes (
 
     $root->any('/*all', sub ($c) {
         $c->log->error('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
+        $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path) if $c->feature('rollbar');
         $c->status(404);
     })->name('catchall');
 }

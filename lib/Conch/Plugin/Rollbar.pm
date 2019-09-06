@@ -6,6 +6,11 @@ use Conch::UUID 'create_uuid_str';
 use WebService::Rollbar::Notifier;
 use Digest::SHA ();
 use Config;
+use Mojo::JSON 'to_json';
+use List::Util 'none';
+use Carp;
+
+my @message_levels = qw(critical error warning info debug);
 
 =pod
 
@@ -15,7 +20,7 @@ Conch::Plugin::Rollbar
 
 =head1 DESCRIPTION
 
-Mojo plugin to send exceptions to L<Rollbar|https://rollbar.com>
+Mojo plugin to send messages and exceptions to L<Rollbar|https://rollbar.com>.
 
 =head1 HOOKS
 
@@ -91,6 +96,45 @@ Rollbar entry thus created.
             {
                 fingerprint => $fingerprint,
                 uuid => $rollbar_id,
+                _get_extra_data($c)->%*,
+            },
+        );
+
+        return $rollbar_id;
+    });
+
+=head2 send_message_to_rollbar
+
+Asynchronously send a message to Rollbar (if C<rollbar_access_token> is configured). Returns a
+unique uuid suitable for logging, to correlate with the Rollbar entry thus created.
+
+Requires a message string. A hashref of additional data is optional.
+
+=cut
+
+    $app->helper(send_message_to_rollbar => sub ($c, $severity, $message_string, $payload = {}) {
+        Carp::croak('severity must be one of: '.join(', ',@message_levels))
+            if !$ENV{MOJO_MODE} and none { $severity eq $_ } @message_levels;
+
+        $notifier //= _create_notifier($c->app, $c->config);
+        return if not $notifier;
+
+        my $rollbar_id = create_uuid_str();
+
+        # see https://docs.rollbar.com/docs/grouping-algorithm
+        my $fingerprint = join(',',
+            $message_string,
+            to_json($payload),
+        );
+        $fingerprint = Digest::SHA::sha1_hex($fingerprint) if length($fingerprint) > 40;
+
+        # asynchronously post to Rollbar, logging if the request fails
+        $notifier->report_message(
+            [ $message_string, $payload ],
+            {
+                fingerprint => $fingerprint,
+                uuid => $rollbar_id,
+                level => $severity,
                 _get_extra_data($c)->%*,
             },
         );

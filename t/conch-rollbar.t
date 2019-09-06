@@ -30,6 +30,14 @@ $r->post('/_die/cb')->to(cb => sub ($c) {
 });
 $r->post('/_die/action')->to('user#die');
 $r->post('/_die/dbix_class')->to('user#dbix_class');
+$r->post('/_send_message')->to(cb => sub ($c) {
+    $c->send_message_to_rollbar(
+        'info',
+        'here is a message',
+        { foo => 'bar', baz => 123 },
+    );
+    $c->status(204);
+});
 $t->add_routes($r);
 
 package Conch::Controller::User {
@@ -109,6 +117,35 @@ my $exception_payload = {
             ),
         },
         # optional, that we don't send: level framework client title
+    },
+};
+
+my $message_payload = {
+    access_token => 'TOKEN',
+    data => {
+        environment => 'custom_environment',
+        body => {
+            message => superhashof({
+                body => isa(''),    # a string
+                # all other keys are optional and can take any form
+            }),
+        },
+        # optional but conch always sends these:
+        (map +($_ => ignore), qw(timestamp code_version platform fingerprint uuid context notifier)),
+        language => 'perl '.$Config::Config{version},
+        request => subhashof({ map +($_ => ignore), qw(url method headers params GET query_string POST body user_ip charset) }),
+        # person - only sent when there is an authed user
+        server => subhashof({ map +($_ => ignore), qw(cpu host root branch code_version perlpath archname osname osvers) }),
+        level => any(qw(critical error warning info debug)),
+        custom => {
+            request_id => code(sub { $_[0] eq $t->tx->res->headers->header('Request-Id') }),
+            stash => all(
+                # privileged data (e.g. from config file) is not leaked
+                hash_each(isa('')),    # not a ref
+                superhashof({ config => re(qr/^HASH\(0x/) }),
+            ),
+        },
+        # optional, that we don't send: framework client title
     },
 };
 
@@ -264,6 +301,81 @@ $t->do_and_wait_for_event(
             $payload->{data}{body}{trace}{exception}{message},
             re(qr/^ach, I am slain/),
             'exception message',
+        );
+    },
+);
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->get_ok('/i_do_not_exist')
+            ->status_is(404)
+            ->json_is({ error => 'Not Found' });
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            $message_payload,
+            'basic message payload',
+        );
+
+        cmp_deeply(
+            $payload->{data}{request},
+            superhashof({
+                method => 'GET',
+                url => re(qr{/i_do_not_exist}),
+                query_string => '',
+                body => '',
+            }),
+            'request details are included',
+        );
+
+        cmp_deeply(
+            $payload->{data}{body},
+            {
+                message => {
+                    body => 'no endpoint found for: GET /i_do_not_exist',
+                },
+            },
+            'message for endpoint-not-found',
+        );
+    },
+);
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->post_ok('/_send_message')
+            ->status_is(204);
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            $message_payload,
+            'basic message payload',
+        );
+
+        cmp_deeply(
+            $payload->{data}{request},
+            superhashof({
+                method => 'POST',
+                url => re(qr{/_send_message}),
+                query_string => '',
+                body => '',
+            }),
+            'request details are included',
+        );
+
+        cmp_deeply(
+            $payload->{data}{body},
+            {
+                message => {
+                    body => 'here is a message',
+                    foo => 'bar',
+                    baz => 123,
+                },
+            },
+            'arbitrary message',
         );
     },
 );
