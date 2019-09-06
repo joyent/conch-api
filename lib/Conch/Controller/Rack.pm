@@ -2,7 +2,7 @@ package Conch::Controller::Rack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use List::Util qw(any none first uniq);
+use List::Util qw(any none first uniq max);
 
 =pod
 
@@ -114,6 +114,87 @@ sub get_layouts ($c) {
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');
     $c->status(200, \@layouts);
+}
+
+=head2 overwrite_layouts
+
+Given the layout definitions for an entire rack, removes all existing layouts that are not in
+the new definition, as well as removing any device_location assignments in those layouts.
+
+=cut
+
+sub overwrite_layouts ($c) {
+    my $input = $c->validate_request('RackLayouts');
+    return if not $input;
+
+    my %layout_sizes = map +($_->{id} => $_->{rack_unit_size}),
+        $c->db_hardware_products->active->search({ id => { -in => [ map $_->{hardware_product_id}, $input->@* ] } })
+            ->columns([qw(id rack_unit_size)])
+            ->hri->all;
+
+    my %desired_slots; # map of all slots that will be occupied (slot => rack_unit_start)
+    foreach my $layout ($input->@*) {
+        my $size = $layout_sizes{$layout->{hardware_product_id}};
+        return $c->status(409, { error => 'hardware_product_id '.$layout->{hardware_product_id}.' does not exist' }) if not $size;
+        my @slots = $layout->{rack_unit_start} .. $layout->{rack_unit_start} + $size - 1;
+        my @overlaps = grep defined, map $desired_slots{$_}, @slots;
+        return $c->status(409, { error => 'layouts starting at rack_units '.$overlaps[0].' and '.$layout->{rack_unit_start}.' overlap' }) if @overlaps;
+        $desired_slots{$_} = $layout->{rack_unit_start} foreach @slots;
+    }
+
+    if (my $last_slot = max(keys %desired_slots)) {
+        return $c->status(409, { error => 'layout starting at rack_unit '.$desired_slots{$last_slot}.' will extend beyond the end of the rack' })
+            if $last_slot > $c->stash('rack_rs')->related_resultset('rack_role')->get_column('rack_size')->single;
+    }
+
+    my @existing_layouts = $c->stash('rack_rs')
+        ->related_resultset('rack_layouts')
+        ->columns([qw(hardware_product_id rack_unit_start)])
+        ->hri->all;
+
+    my @layouts_to_delete = grep {
+        my $existing_layout = $_;
+        none {
+            $existing_layout->{hardware_product_id} eq $_->{hardware_product_id}
+                and $existing_layout->{rack_unit_start} eq $_->{rack_unit_start}
+        } $input->@*;
+    }
+    @existing_layouts;
+
+    my @layouts_to_create = grep {
+        my $new_layout = $_;
+        none {
+            $new_layout->{hardware_product_id} eq $_->{hardware_product_id}
+                and $new_layout->{rack_unit_start} eq $_->{rack_unit_start}
+        } @existing_layouts;
+    }
+    $input->@*;
+
+    $c->txn_wrapper(sub ($c) {
+        my $layouts_rs = $c->stash('rack_rs')
+            ->search_related('rack_layouts', [ map +( +{
+                    'rack_layouts.hardware_product_id' => $_->{hardware_product_id},
+                    'rack_layouts.rack_unit_start' => $_->{rack_unit_start},
+                } ), @layouts_to_delete ] );
+
+        my $device_locations_rs = $layouts_rs->related_resultset('device_location');
+
+        my $deleted_device_locations = 0+$device_locations_rs->delete;
+        my $deleted_layouts = 0+$layouts_rs->delete;
+        $c->db_rack_layouts->populate([ map +{ rack_id => $c->stash('rack_id'), $_->%*, }, @layouts_to_create ]);
+
+        $c->log->debug(
+            join(', ',
+                ($deleted_device_locations ? ('unlocated '.$deleted_device_locations.' devices') : ()),
+                ($deleted_layouts ? ('deleted '.$deleted_layouts.' rack layouts') : ()),
+                (@layouts_to_create ? ('created '.scalar(@layouts_to_create).' rack layouts') : ()),
+            ).' for rack '.$c->stash('rack_id'));
+    });
+
+    # if the result code was already set, we errored and rolled back the db...
+    return if $c->res->code;
+
+    $c->status(303, '/rack/'.$c->stash('rack_id').'/layouts');
 }
 
 =head2 update

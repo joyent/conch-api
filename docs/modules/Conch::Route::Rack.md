@@ -42,6 +42,12 @@ Unless otherwise noted, all routes require authentication.
 - User requires the read-only role on a workspace that contains the rack
 - Response: response.yaml#/RackLayouts
 
+### `POST /rack/:rack_id/layouts`
+
+- User requires the read/write role on a workspace that contains the rack
+- Request: request.yaml#/RackLayouts
+- Response: Redirect to the rack's layouts
+
 ### `GET /rack/:rack_id/assignment`
 
 - User requires the read-only role on a workspace that contains the rack

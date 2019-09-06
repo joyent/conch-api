@@ -38,6 +38,8 @@ sub routes {
 
     # GET /rack/:rack_id/layouts
     $with_rack->get('/layouts')->to('#get_layouts');
+    # POST /rack/:rack_id/layouts
+    $with_rack->post('/layouts')->to('#overwrite_layouts');
 
     # GET /rack/:rack_id/assignment
     $with_rack->get('/assignment')->to('#get_assignment');
@@ -118,6 +120,18 @@ Unless otherwise noted, all routes require authentication.
 =item * User requires the read-only role on a workspace that contains the rack
 
 =item * Response: response.yaml#/RackLayouts
+
+=back
+
+=head3 C<POST /rack/:rack_id/layouts>
+
+=over 4
+
+=item * User requires the read/write role on a workspace that contains the rack
+
+=item * Request: request.yaml#/RackLayouts
+
+=item * Response: Redirect to the rack's layouts
 
 =back
 

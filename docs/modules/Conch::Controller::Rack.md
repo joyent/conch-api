@@ -30,6 +30,11 @@ Gets all the layouts for the specified rack.
 
 Response uses the RackLayouts json schema.
 
+## overwrite\_layouts
+
+Given the layout definitions for an entire rack, removes all existing layouts that are not in
+the new definition, as well as removing any device\_location assignments in those layouts.
+
 ## update
 
 Update an existing rack.
