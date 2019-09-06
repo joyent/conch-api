@@ -92,3 +92,5 @@ definitions:
       - type: string
         format: email
       - $ref: /definitions/mojo_relaxed_placeholder
+
+# vim: set sts=2 sw=2 et :

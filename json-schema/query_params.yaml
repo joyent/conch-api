@@ -1,5 +1,6 @@
 # Note: for now, defaults are for documentation purposes only.
 # see https://github.com/mojolicious/json-validator/issues/158
+---
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   boolean_integer:
@@ -130,3 +131,5 @@ definitions:
     properties:
       active_minutes:
         $ref: common.yaml#/definitions/non_negative_integer
+
+# vim: set sts=2 sw=2 et :
