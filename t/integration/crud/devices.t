@@ -941,7 +941,8 @@ subtest 'Device location' => sub {
         ->status_is(204, 'can delete device location');
 
     $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
-        ->status_is(303, 'add it back');
+        ->status_is(303, 'add it back')
+        ->location_is('/device/'.$test_device_id.'/location');
 };
 
 done_testing;

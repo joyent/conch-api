@@ -143,7 +143,8 @@ subtest 'Assign device to a location' => sub {
         ]);
 
     $t->post_ok('/device/NEW_DEVICE/validated')
-        ->status_is(303);
+        ->status_is(303)
+        ->location_is('/device/'.$new_device->id);
 
     $t->get_ok("/workspace/$sub_ws_id/rack")
         ->status_is(200)

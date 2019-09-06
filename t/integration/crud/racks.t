@@ -100,13 +100,16 @@ $t->post_ok("/rack/$new_rack_id", json => {
         serial_number => 'abc',
         asset_tag => 'deadbeef',
     })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack/'.$new_rack_id);
 
 $t->post_ok("/rack/$new_rack_id", json => { rack_role_id => $small_rack_role->id })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack/'.$new_rack_id);
 
 $t->post_ok("/rack/$new_rack_id", json => { rack_role_id => $small_rack_role->id })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack/'.$new_rack_id);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -310,7 +313,8 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 3,
         },
     ])
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack/'.$rack->id.'/assignment');
 
 $foo->discard_changes;
 $bar->discard_changes;
@@ -346,7 +350,8 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 3,
         },
     ])
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack/'.$rack->id.'/assignment');
 
 $assignments->@[0,1] = (
     { $assignments->[0]->%*, $assignments->[1]->%{qw(device_id device_asset_tag)} },
@@ -376,7 +381,8 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 11,
         },
     ])
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack/'.$rack->id.'/assignment');
 
 my $baz = $t->app->db_devices->find({ serial_number => 'BAZ' });
 

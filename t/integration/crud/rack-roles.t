@@ -46,7 +46,8 @@ $t->post_ok('/rack_role', json => { name => $_ })
 foreach 'foo/bar', 'foo.bar';
 
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 2 })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_like(qr!^/rack_role/${\Conch::UUID::UUID_FORMAT}!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -60,7 +61,8 @@ $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 10 })
     ->json_is({ error => 'name is already taken' });
 
 $t->post_ok("/rack_role/$idr", json => { name => 'role' })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack_role/'.$idr);
 
 $t->get_ok("/rack_role/$idr")
     ->status_is(200)
@@ -68,7 +70,8 @@ $t->get_ok("/rack_role/$idr")
     ->json_cmp_deeply(superhashof({ name => 'role', rack_size => 2 }));
 
 $t->post_ok("/rack_role/$idr", json => { rack_size => 10 })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack_role/'.$idr);
 
 $t->get_ok("/rack_role/$idr")
     ->status_is(200)
@@ -81,7 +84,8 @@ $t->post_ok('/rack_role/'.$role->id, json => { rack_size => 13 })
     ->json_is({ error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
 
 $t->post_ok('/rack_role/'.$role->id, json => { rack_size => 14 })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/rack_role/'.$role->id);
 
 $t->get_ok('/rack_role/'.$role->id)
     ->status_is(200)
