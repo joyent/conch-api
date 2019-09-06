@@ -53,7 +53,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
                 rack_size => 42,
                 device_progress => {},
             },
-         ],
+        ],
     });
 
 subtest 'Add rack to workspace' => sub {
