@@ -20,6 +20,7 @@ my $t = Test::Conch->new(
         rollbar => {
             access_token => 'TOKEN',
             environment => 'custom_environment',
+            error_match_header => { 'My-Buggy-Client' => qr/^1\.[0-9]$/ },
         },
     },
     pg => undef,
@@ -40,6 +41,7 @@ $r->post('/_send_message')->to(cb => sub ($c) {
     );
     $c->status(204);
 });
+$r->post('/_conflict')->to('user#conflict');
 $t->add_routes($r);
 
 package Conch::Controller::User {
@@ -49,6 +51,9 @@ package Conch::Controller::User {
     sub dbix_class ($c) {
         require DBIx::Class::Exception;
         DBIx::Class::Exception->throw('ach, I am slain', 1);
+    }
+    sub conflict ($c) {
+        $c->status(409, { error => 'something bad happened and you should feel bad' });
     }
 }
 
@@ -378,6 +383,62 @@ $t->do_and_wait_for_event(
                 },
             },
             'arbitrary message',
+        );
+    },
+);
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->post_ok('/_conflict', { 'My-Buggy-Client' => '1.1' }, json => { ugh => [ 1, 2, 3 ] })
+            ->status_is(409)
+            ->json_is({ error => 'something bad happened and you should feel bad' });
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            $message_payload,
+            'basic message payload',
+        );
+
+        cmp_deeply(
+            $payload->{data}{request},
+            superhashof({
+                method => 'POST',
+                url => re(qr{/_conflict}),
+                query_string => '',
+                body => '{"ugh":[1,2,3]}',
+                # POST => { ugh => [ 1, 2, 3 ] },
+            }),
+            'request details are included',
+        );
+
+        cmp_deeply(
+            $payload->{data}{body},
+            {
+                message => {
+                    body => 'api error',
+                    api_version => re(qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/),
+                    latency => re(qr/^\d+$/),
+                    req => {
+                        user        => 'NOT AUTHED',
+                        method      => 'POST',
+                        url         => '/_conflict',
+                        remoteAddress => '127.0.0.1',
+                        remotePort  => ignore,
+                        headers     => superhashof({
+                            'My-Buggy-Client' => [ '1.1' ],
+                        }),
+                        query_params => {},
+                    },
+                    res => {
+                        headers => superhashof({}),
+                        statusCode => 409,
+                        body => { error => 'something bad happened and you should feel bad' },
+                    },
+                },
+            },
+            'message sent when client error encountered',
         );
     },
 );

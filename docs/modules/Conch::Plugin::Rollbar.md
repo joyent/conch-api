@@ -6,11 +6,23 @@ Conch::Plugin::Rollbar
 
 Mojo plugin to send messages and exceptions to [Rollbar](https://rollbar.com).
 
+Also support sending various errors to Rollbar, depending on matching criteria.
+
 # HOOKS
 
 ## before\_render
 
 Sends exceptions to Rollbar.
+
+# EVENTS
+
+## dispatch\_message\_payload
+
+Listens to the `dispatch_message_payload` event (which is sent by the dispatch logger in
+[Conch::Plugin::Logging](../modules/Conch::Plugin::Logging)). When an error response is generated (any 4xx response code other
+than 401, 403 or 404), and a request header matches a key in the `rollbar` config
+`error_match_header`, and the header value matches the corresponding regular expression, a
+message is sent to Rollbar.
 
 # HELPERS
 

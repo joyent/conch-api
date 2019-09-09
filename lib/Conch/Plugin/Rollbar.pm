@@ -7,7 +7,7 @@ use WebService::Rollbar::Notifier;
 use Digest::SHA ();
 use Config;
 use Mojo::JSON 'to_json';
-use List::Util 'none';
+use List::Util qw(none any);
 use Carp;
 
 my @message_levels = qw(critical error warning info debug);
@@ -21,6 +21,8 @@ Conch::Plugin::Rollbar
 =head1 DESCRIPTION
 
 Mojo plugin to send messages and exceptions to L<Rollbar|https://rollbar.com>.
+
+Also support sending various errors to Rollbar, depending on matching criteria.
 
 =head1 HOOKS
 
@@ -42,6 +44,37 @@ sub register ($self, $app, $config) {
             $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
         }
     });
+
+
+=head1 EVENTS
+
+=head2 dispatch_message_payload
+
+Listens to the C<dispatch_message_payload> event (which is sent by the dispatch logger in
+L<Conch::Plugin::Logging>). When an error response is generated (any 4xx response code other
+than 401, 403 or 404), and a request header matches a key in the C<rollbar> config
+C<error_match_header>, and the header value matches the corresponding regular expression, a
+message is sent to Rollbar.
+
+=cut
+
+    # message emitted by dispatch logger in Conch::Plugin::Logging
+    $app->plugins->on(dispatch_message_payload => sub ($, $c, $payload) {
+        my $response_code = $payload->{res}{statusCode};
+        if ($response_code >= 400 and $response_code < 500
+                and none { $response_code == $_ } (401, 403, 404)
+                and any {
+                    if (my $headers = $payload->{req}{headers}{$_}) {
+                        my $regex = $config->{rollbar}{error_match_header}{$_};
+                        any { /$regex/ } $headers->@*;
+                    }
+                } keys $config->{rollbar}{error_match_header}->%*) {
+
+            delete $payload->@{qw(level msg)};
+            $c->send_message_to_rollbar('error', 'api error', $payload);
+        }
+    })
+    if keys $config->{rollbar}{error_match_header}->%*;
 
 
 =head1 HELPERS
