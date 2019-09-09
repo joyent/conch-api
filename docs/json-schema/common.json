@@ -1,0 +1,141 @@
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "definitions" : {
+    "device_asset_tag" : {
+      "pattern" : "^\\S+$",
+      "type" : "string"
+    },
+    "device_health" : {
+      "description" : "corresponds to device_health_enum in the database",
+      "enum" : [
+        "error",
+        "fail",
+        "unknown",
+        "pass"
+      ],
+      "type" : "string"
+    },
+    "device_interface_name" : {
+      "allOf" : [
+        {
+          "pattern" : "^\\S+$",
+          "type" : "string"
+        },
+        {
+          "$ref" : "/definitions/mojo_relaxed_placeholder"
+        }
+      ]
+    },
+    "device_phase" : {
+      "description" : "corresponds to device_phase_enum in the database",
+      "enum" : [
+        "integration",
+        "installation",
+        "production",
+        "diagnostics",
+        "decommissioned"
+      ],
+      "type" : "string"
+    },
+    "device_serial_number" : {
+      "allOf" : [
+        {
+          "pattern" : "^\\S+$",
+          "type" : "string"
+        },
+        {
+          "$ref" : "/definitions/mojo_standard_placeholder"
+        }
+      ]
+    },
+    "device_setting_key" : {
+      "$ref" : "/definitions/mojo_relaxed_placeholder"
+    },
+    "disk_serial_number" : {
+      "pattern" : "^\\S+$",
+      "type" : "string"
+    },
+    "email_address" : {
+      "allOf" : [
+        {
+          "format" : "email",
+          "type" : "string"
+        },
+        {
+          "$ref" : "/definitions/mojo_relaxed_placeholder"
+        }
+      ]
+    },
+    "ipaddr" : {
+      "oneOf" : [
+        {
+          "format" : "ipv4",
+          "type" : "string"
+        },
+        {
+          "format" : "ipv6",
+          "type" : "string"
+        }
+      ]
+    },
+    "macaddr" : {
+      "pattern" : "^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$",
+      "type" : "string"
+    },
+    "mojo_relaxed_placeholder" : {
+      "description" : "see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders",
+      "pattern" : "^[^/]+$",
+      "type" : "string"
+    },
+    "mojo_standard_placeholder" : {
+      "description" : "see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders",
+      "pattern" : "^[^/.]+$",
+      "type" : "string"
+    },
+    "non_empty_string" : {
+      "minLength" : 1,
+      "type" : "string"
+    },
+    "non_negative_integer" : {
+      "minimum" : 0,
+      "type" : "integer"
+    },
+    "positive_integer" : {
+      "minimum" : 1,
+      "type" : "integer"
+    },
+    "relay_serial_number" : {
+      "pattern" : "^\\S+$",
+      "type" : "string"
+    },
+    "role" : {
+      "description" : "corresponds to role_enum in the database",
+      "enum" : [
+        "ro",
+        "rw",
+        "admin"
+      ],
+      "type" : "string"
+    },
+    "room_az" : {
+      "pattern" : "^[\\w-]+$",
+      "type" : "string"
+    },
+    "user_setting_key" : {
+      "$ref" : "/definitions/mojo_relaxed_placeholder"
+    },
+    "uuid" : {
+      "pattern" : "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type" : "string"
+    },
+    "validation_status" : {
+      "description" : "corresponds to validation_status_enum in the database",
+      "enum" : [
+        "error",
+        "fail",
+        "pass"
+      ],
+      "type" : "string"
+    }
+  }
+}

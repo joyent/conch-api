@@ -1,0 +1,2959 @@
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "definitions" : {
+    "Datacenter" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "location" : {
+          "type" : "string"
+        },
+        "region" : {
+          "type" : "string"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "vendor" : {
+          "type" : "string"
+        },
+        "vendor_name" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "vendor",
+        "vendor_name",
+        "region",
+        "location",
+        "created",
+        "updated"
+      ],
+      "type" : "object"
+    },
+    "DatacenterRoomDetailed" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "alias" : {
+          "type" : "string"
+        },
+        "az" : {
+          "type" : "string"
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "datacenter_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "vendor_name" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "az",
+        "alias",
+        "vendor_name",
+        "datacenter_id",
+        "created",
+        "updated"
+      ],
+      "type" : "object"
+    },
+    "DatacenterRoomsDetailed" : {
+      "items" : {
+        "$ref" : "/definitions/DatacenterRoomDetailed"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Datacenters" : {
+      "items" : {
+        "$ref" : "/definitions/Datacenter"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "DetailedDevice" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "asset_tag" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_asset_tag"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "disks" : {
+          "items" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "created" : {
+                "format" : "date-time",
+                "type" : "string"
+              },
+              "drive_type" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "enclosure" : {
+                "oneOf" : [
+                  {
+                    "type" : "integer"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "firmware" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "hba" : {
+                "oneOf" : [
+                  {
+                    "type" : "integer"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "health" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              },
+              "model" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "serial_number" : {
+                "$ref" : "common.json#/definitions/disk_serial_number"
+              },
+              "size" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "common.json#/definitions/non_negative_integer"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "slot" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "common.json#/definitions/non_negative_integer"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "transport" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "updated" : {
+                "format" : "date-time",
+                "type" : "string"
+              },
+              "vendor" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              }
+            },
+            "required" : [
+              "id",
+              "serial_number",
+              "slot",
+              "size",
+              "vendor",
+              "model",
+              "firmware",
+              "transport",
+              "health",
+              "drive_type",
+              "enclosure",
+              "created",
+              "updated"
+            ],
+            "type" : "object"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "health" : {
+          "$ref" : "common.json#/definitions/device_health"
+        },
+        "hostname" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "last_seen" : {
+          "oneOf" : [
+            {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "latest_report" : {
+          "anyOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "device_report.json#/definitions/DeviceReport_v3.0.0"
+            },
+            {
+              "type" : "object"
+            }
+          ],
+          "description" : "the contents of the device report. Given its age we cannot provide a schema."
+        },
+        "links" : {
+          "items" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "location" : {
+          "oneOf" : [
+            {
+              "$ref" : "/definitions/DeviceLocation"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "nics" : {
+          "items" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "iface_name" : {
+                "$ref" : "common.json#/definitions/device_interface_name"
+              },
+              "iface_type" : {
+                "type" : "string"
+              },
+              "iface_vendor" : {
+                "type" : "string"
+              },
+              "mac" : {
+                "$ref" : "common.json#/definitions/macaddr"
+              },
+              "peer_mac" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "peer_port" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "peer_switch" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              }
+            },
+            "required" : [
+              "mac",
+              "iface_name",
+              "iface_vendor",
+              "peer_mac",
+              "peer_port",
+              "peer_switch"
+            ],
+            "type" : "object"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        },
+        "serial_number" : {
+          "$ref" : "common.json#/definitions/device_serial_number"
+        },
+        "system_uuid" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "uptime_since" : {
+          "oneOf" : [
+            {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "validated" : {
+          "oneOf" : [
+            {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "serial_number",
+        "asset_tag",
+        "created",
+        "hardware_product_id",
+        "health",
+        "hostname",
+        "last_seen",
+        "system_uuid",
+        "updated",
+        "uptime_since",
+        "validated",
+        "phase",
+        "links",
+        "location",
+        "nics",
+        "disks",
+        "latest_report"
+      ],
+      "type" : "object"
+    },
+    "Device" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "asset_tag" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_asset_tag"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "health" : {
+          "$ref" : "common.json#/definitions/device_health"
+        },
+        "hostname" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "last_seen" : {
+          "oneOf" : [
+            {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "links" : {
+          "items" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        },
+        "rack_id" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "rack_unit_start" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/positive_integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "serial_number" : {
+          "$ref" : "common.json#/definitions/device_serial_number"
+        },
+        "system_uuid" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "uptime_since" : {
+          "oneOf" : [
+            {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "validated" : {
+          "oneOf" : [
+            {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "serial_number",
+        "asset_tag",
+        "created",
+        "hardware_product_id",
+        "health",
+        "hostname",
+        "last_seen",
+        "system_uuid",
+        "updated",
+        "uptime_since",
+        "validated",
+        "phase",
+        "links",
+        "rack_id",
+        "rack_unit_start"
+      ],
+      "type" : "object"
+    },
+    "DeviceIds" : {
+      "items" : {
+        "$ref" : "common.json#/definitions/uuid"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "DeviceLocation" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "datacenter" : {
+          "$ref" : "/definitions/Datacenter"
+        },
+        "datacenter_room" : {
+          "$ref" : "/definitions/DatacenterRoomDetailed"
+        },
+        "rack" : {
+          "$ref" : "/definitions/Rack"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "target_hardware_product" : {
+          "additionalProperties" : false,
+          "description" : "Details of the hardware product the device is expected to be based on its current position and the rack layout.",
+          "properties" : {
+            "alias" : {
+              "description" : "Hardware product alias",
+              "type" : "string"
+            },
+            "id" : {
+              "allOf" : [
+                {
+                  "description" : "hardware product ID"
+                },
+                {
+                  "$ref" : "common.json#/definitions/uuid"
+                }
+              ]
+            },
+            "name" : {
+              "description" : "Hardware product name",
+              "type" : "string"
+            },
+            "vendor" : {
+              "description" : "Hardware product vendor name",
+              "type" : "string"
+            }
+          },
+          "required" : [
+            "id",
+            "name",
+            "alias",
+            "vendor"
+          ],
+          "type" : "object"
+        }
+      },
+      "required" : [
+        "datacenter",
+        "datacenter_room",
+        "rack",
+        "rack_unit_start",
+        "target_hardware_product"
+      ],
+      "type" : "object"
+    },
+    "DeviceNic" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/DeviceNicFields"
+        },
+        {
+          "required" : [
+            "device_id",
+            "mac",
+            "iface_name",
+            "iface_vendor",
+            "iface_driver",
+            "state",
+            "ipaddr",
+            "mtu"
+          ],
+          "type" : "object"
+        }
+      ]
+    },
+    "DeviceNicField" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/DeviceNicFields"
+        },
+        {
+          "maxProperties" : 1,
+          "type" : "object"
+        },
+        {
+          "not" : {
+            "required" : [
+              "device_id"
+            ],
+            "type" : "object"
+          }
+        }
+      ]
+    },
+    "DeviceNicFields" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "device_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "iface_driver" : {
+          "type" : "string"
+        },
+        "iface_name" : {
+          "$ref" : "common.json#/definitions/device_interface_name"
+        },
+        "iface_type" : {
+          "type" : "string"
+        },
+        "iface_vendor" : {
+          "type" : "string"
+        },
+        "ipaddr" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/ipaddr"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "mac" : {
+          "$ref" : "common.json#/definitions/macaddr"
+        },
+        "mtu" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "state" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "type" : "object"
+    },
+    "DeviceNics" : {
+      "items" : {
+        "$ref" : "/definitions/DeviceNic"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "DevicePXE" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "ipmi" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "additionalProperties" : false,
+              "properties" : {
+                "ip" : {
+                  "oneOf" : [
+                    {
+                      "type" : "null"
+                    },
+                    {
+                      "$ref" : "common.json#/definitions/ipaddr"
+                    }
+                  ]
+                },
+                "mac" : {
+                  "$ref" : "common.json#/definitions/macaddr"
+                }
+              },
+              "required" : [
+                "mac",
+                "ip"
+              ],
+              "type" : "object"
+            }
+          ]
+        },
+        "location" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "additionalProperties" : false,
+              "properties" : {
+                "datacenter" : {
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "name" : {
+                      "description" : "datacenter.region",
+                      "type" : "string"
+                    },
+                    "vendor_name" : {
+                      "description" : "datacenter.vendor_name",
+                      "oneOf" : [
+                        {
+                          "type" : "null"
+                        },
+                        {
+                          "type" : "string"
+                        }
+                      ]
+                    }
+                  },
+                  "required" : [
+                    "name",
+                    "vendor_name"
+                  ],
+                  "type" : "object"
+                },
+                "rack" : {
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "name" : {
+                      "type" : "string"
+                    },
+                    "rack_unit_start" : {
+                      "$ref" : "common.json#/definitions/positive_integer"
+                    }
+                  },
+                  "required" : [
+                    "name",
+                    "rack_unit_start"
+                  ],
+                  "type" : "object"
+                }
+              },
+              "required" : [
+                "datacenter",
+                "rack"
+              ],
+              "type" : "object"
+            }
+          ]
+        },
+        "pxe" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "additionalProperties" : false,
+              "properties" : {
+                "mac" : {
+                  "$ref" : "common.json#/definitions/macaddr"
+                }
+              },
+              "required" : [
+                "mac"
+              ],
+              "type" : "object"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "location",
+        "ipmi",
+        "pxe"
+      ],
+      "type" : "object"
+    },
+    "DevicePhase" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        }
+      },
+      "required" : [
+        "id",
+        "phase"
+      ],
+      "type" : "object"
+    },
+    "DeviceReportRow" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "device_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "report" : {
+          "description" : "the contents of the device report. Given its age we cannot provide a schema.",
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "object"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "device_id",
+        "report",
+        "created"
+      ],
+      "type" : "object"
+    },
+    "DeviceSetting" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/DeviceSettings"
+        },
+        {
+          "maxProperties" : 1,
+          "type" : "object"
+        }
+      ]
+    },
+    "DeviceSettings" : {
+      "additionalProperties" : {
+        "type" : "string"
+      },
+      "propertyNames" : {
+        "$ref" : "common.json#/definitions/device_setting_key"
+      },
+      "type" : "object"
+    },
+    "DeviceTotals" : {
+      "additionalProperties" : {
+        "items" : {
+          "additionalProperties" : false,
+          "properties" : {
+            "alias" : {
+              "type" : "string"
+            },
+            "count" : {
+              "$ref" : "common.json#/definitions/positive_integer"
+            },
+            "health" : {
+              "$ref" : "common.json#/definitions/device_health"
+            }
+          },
+          "required" : [
+            "alias",
+            "health",
+            "count"
+          ],
+          "type" : "object"
+        },
+        "type" : "array",
+        "uniqueItems" : true
+      },
+      "maxProperties" : 5,
+      "minProperties" : 5,
+      "required" : [
+        "all",
+        "compute",
+        "servers",
+        "storage",
+        "switches"
+      ],
+      "type" : "object"
+    },
+    "DeviceTotalsCirconus" : {
+      "additionalProperties" : {
+        "additionalProperties" : false,
+        "description" : "additional keys will be hardware product aliases",
+        "properties" : {
+          "count" : {
+            "$ref" : "common.json#/definitions/positive_integer"
+          },
+          "health" : {
+            "additionalProperties" : {
+              "$ref" : "common.json#/definitions/non_negative_integer"
+            },
+            "propertyNames" : {
+              "$ref" : "common.json#/definitions/device_health"
+            },
+            "required" : [
+              "pass",
+              "fail",
+              "unknown"
+            ],
+            "type" : "object"
+          }
+        },
+        "required" : [
+          "health",
+          "count"
+        ],
+        "type" : "object"
+      },
+      "properties" : {
+        "compute" : {
+          "additionalProperties" : false,
+          "properties" : {
+            "count" : {
+              "$ref" : "common.json#/definitions/positive_integer"
+            }
+          },
+          "required" : [
+            "count"
+          ],
+          "type" : "object"
+        },
+        "storage" : {
+          "additionalProperties" : false,
+          "properties" : {
+            "count" : {
+              "$ref" : "common.json#/definitions/positive_integer"
+            }
+          },
+          "required" : [
+            "count"
+          ],
+          "type" : "object"
+        }
+      },
+      "type" : "object"
+    },
+    "Devices" : {
+      "items" : {
+        "$ref" : "/definitions/Device"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Error" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "error" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "error"
+      ],
+      "type" : "object"
+    },
+    "HardwareProduct" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "alias" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "generation_name" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "hardware_product_profile" : {
+          "oneOf" : [
+            {
+              "$ref" : "/definitions/HardwareProductProfile"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "hardware_vendor_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "legacy_product_name" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "prefix" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "rack_unit_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "sku" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "specification" : {
+          "description" : "json blob of additional data",
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "alias",
+        "prefix",
+        "hardware_vendor_id",
+        "generation_name",
+        "legacy_product_name",
+        "sku",
+        "specification",
+        "rack_unit_size",
+        "hardware_product_profile",
+        "created",
+        "updated"
+      ],
+      "type" : "object"
+    },
+    "HardwareProductProfile" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "bios_firmware" : {
+          "type" : "string"
+        },
+        "cpu_num" : {
+          "type" : "integer"
+        },
+        "cpu_type" : {
+          "type" : "string"
+        },
+        "dimms_num" : {
+          "type" : "integer"
+        },
+        "hba_firmware" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "nics_num" : {
+          "type" : "integer"
+        },
+        "nvme_ssd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "nvme_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "nvme_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "psu_total" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "purpose" : {
+          "type" : "string"
+        },
+        "raid_lun_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "ram_total" : {
+          "type" : "integer"
+        },
+        "sas_hdd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_hdd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_hdd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "usb_num" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [
+        "id",
+        "bios_firmware",
+        "cpu_num",
+        "cpu_type",
+        "dimms_num",
+        "hba_firmware",
+        "nics_num",
+        "psu_total",
+        "purpose",
+        "ram_total",
+        "sas_hdd_num",
+        "sas_hdd_size",
+        "sas_hdd_slots",
+        "sata_hdd_num",
+        "sata_hdd_size",
+        "sata_hdd_slots",
+        "sata_ssd_num",
+        "sata_ssd_size",
+        "sata_ssd_slots",
+        "sas_ssd_num",
+        "sas_ssd_size",
+        "sas_ssd_slots",
+        "nvme_ssd_num",
+        "nvme_ssd_size",
+        "nvme_ssd_slots",
+        "raid_lun_num",
+        "usb_num"
+      ],
+      "type" : "object"
+    },
+    "HardwareProducts" : {
+      "items" : {
+        "$ref" : "/definitions/HardwareProduct"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "HardwareVendor" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "created",
+        "updated"
+      ],
+      "type" : "object"
+    },
+    "HardwareVendors" : {
+      "items" : {
+        "$ref" : "/definitions/HardwareVendor"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "JsonValidationError" : {
+      "additionalProperties" : false,
+      "description" : "JSON::Validator::Error object",
+      "properties" : {
+        "message" : {
+          "type" : "string"
+        },
+        "path" : {
+          "format" : "json-pointer",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "path",
+        "message"
+      ],
+      "type" : "object"
+    },
+    "Login" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "jwt_token" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "jwt_token"
+      ],
+      "type" : "object"
+    },
+    "NewUser" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "email",
+        "name"
+      ],
+      "type" : "object"
+    },
+    "NewUserToken" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "expires" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "last_used" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "token" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "token",
+        "created",
+        "last_used",
+        "expires",
+        "name"
+      ],
+      "type" : "object"
+    },
+    "Organization" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "admins" : {
+          "items" : {
+            "$ref" : "/definitions/UserTerse"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "description" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
+        },
+        "workspaces" : {
+          "$ref" : "/definitions/WorkspacesAndRoles"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "description",
+        "created",
+        "admins",
+        "workspaces"
+      ],
+      "type" : "object"
+    },
+    "OrganizationUsers" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "email" : {
+            "$ref" : "common.json#/definitions/email_address"
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "role" : {
+            "$ref" : "common.json#/definitions/role"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "email",
+          "role"
+        ],
+        "type" : "object"
+      },
+      "minItems" : 1,
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Organizations" : {
+      "items" : {
+        "$ref" : "/definitions/Organization"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Ping" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "status" : {
+          "const" : "ok"
+        }
+      },
+      "required" : [
+        "status"
+      ],
+      "type" : "object"
+    },
+    "QueryParamsValidationError" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/ValidationError"
+        },
+        {
+          "properties" : {
+            "data" : {
+              "additionalProperties" : {
+                "anyOf" : [
+                  {
+                    "type" : "integer"
+                  },
+                  {
+                    "type" : "number"
+                  },
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "items" : {
+                      "anyOf" : [
+                        {
+                          "type" : "integer"
+                        },
+                        {
+                          "type" : "number"
+                        },
+                        {
+                          "type" : "string"
+                        }
+                      ]
+                    },
+                    "minItems" : 2,
+                    "type" : "array"
+                  }
+                ]
+              },
+              "description" : "the parsed form of the query parameters, as they were passed to the schema for validation",
+              "type" : "object"
+            },
+            "error" : {
+              "const" : "query parameters did not match required format"
+            },
+            "schema" : {
+              "pattern" : "/schema/query_params/[^/]+$"
+            }
+          },
+          "required" : [
+            "data"
+          ],
+          "type" : "object"
+        }
+      ]
+    },
+    "Rack" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "asset_tag" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_asset_tag"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "datacenter_room_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        },
+        "rack_role_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "serial_number" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "datacenter_room_id",
+        "rack_role_id",
+        "serial_number",
+        "asset_tag",
+        "phase",
+        "created",
+        "updated"
+      ],
+      "type" : "object"
+    },
+    "RackAssignment" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "device_asset_tag" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_asset_tag"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "device_id" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "hardware_product_name" : {
+          "type" : "string"
+        },
+        "rack_unit_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "device_id",
+        "device_asset_tag",
+        "hardware_product_name",
+        "rack_unit_start",
+        "rack_unit_size"
+      ],
+      "type" : "object"
+    },
+    "RackAssignments" : {
+      "items" : {
+        "$ref" : "/definitions/RackAssignment"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "RackLayout" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_unit_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "rack_id",
+        "hardware_product_id",
+        "rack_unit_start",
+        "rack_unit_size",
+        "created",
+        "updated"
+      ],
+      "type" : "object"
+    },
+    "RackLayouts" : {
+      "items" : {
+        "$ref" : "/definitions/RackLayout"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "RackRole" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "rack_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "rack_size",
+        "created",
+        "updated"
+      ],
+      "type" : "object"
+    },
+    "RackRoles" : {
+      "items" : {
+        "$ref" : "/definitions/RackRole"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Racks" : {
+      "items" : {
+        "$ref" : "/definitions/Rack"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Relay" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "ipaddr" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/ipaddr"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "last_seen" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "name" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "serial_number" : {
+          "$ref" : "common.json#/definitions/relay_serial_number"
+        },
+        "ssh_port" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/non_negative_integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "version" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "id",
+        "serial_number",
+        "name",
+        "version",
+        "ipaddr",
+        "ssh_port",
+        "created",
+        "updated",
+        "last_seen"
+      ],
+      "type" : "object"
+    },
+    "Relays" : {
+      "items" : {
+        "$ref" : "/definitions/Relay"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "ReportValidationResults" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "device_serial_number" : {
+          "$ref" : "common.json#/definitions/device_serial_number"
+        },
+        "results" : {
+          "$ref" : "/definitions/ValidationResults"
+        },
+        "status" : {
+          "$ref" : "common.json#/definitions/validation_status"
+        },
+        "validation_plan_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "device_serial_number",
+        "validation_plan_id",
+        "status",
+        "results"
+      ],
+      "type" : "object"
+    },
+    "RequestValidationError" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/ValidationError"
+        },
+        {
+          "properties" : {
+            "error" : {
+              "const" : "request did not match required format"
+            },
+            "schema" : {
+              "pattern" : "/schema/request/[^/]+$"
+            }
+          },
+          "type" : "object"
+        }
+      ]
+    },
+    "UserDetailed" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "force_password_change" : {
+          "type" : "boolean"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "is_admin" : {
+          "type" : "boolean"
+        },
+        "last_login" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "last_seen" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "organizations" : {
+          "items" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "description" : {
+                "oneOf" : [
+                  {
+                    "type" : "null"
+                  },
+                  {
+                    "type" : "string"
+                  }
+                ]
+              },
+              "id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              },
+              "name" : {
+                "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
+              },
+              "role" : {
+                "$ref" : "common.json#/definitions/role"
+              }
+            },
+            "required" : [
+              "id",
+              "name",
+              "description",
+              "role"
+            ],
+            "type" : "object"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "refuse_session_auth" : {
+          "type" : "boolean"
+        },
+        "workspaces" : {
+          "$ref" : "/definitions/WorkspacesAndRoles"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "email",
+        "created",
+        "last_login",
+        "last_seen",
+        "refuse_session_auth",
+        "force_password_change",
+        "is_admin",
+        "workspaces",
+        "organizations"
+      ],
+      "type" : "object"
+    },
+    "UserError" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "error" : {
+          "type" : "string"
+        },
+        "user" : {
+          "additionalProperties" : false,
+          "properties" : {
+            "created" : {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            "deactivated" : {
+              "oneOf" : [
+                {
+                  "format" : "date-time",
+                  "type" : "string"
+                },
+                {
+                  "type" : "null"
+                }
+              ]
+            },
+            "email" : {
+              "$ref" : "common.json#/definitions/email_address"
+            },
+            "id" : {
+              "$ref" : "common.json#/definitions/uuid"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          },
+          "required" : [
+            "id",
+            "email",
+            "name",
+            "created",
+            "deactivated"
+          ],
+          "type" : "object"
+        }
+      },
+      "required" : [
+        "error",
+        "user"
+      ],
+      "type" : "object"
+    },
+    "UserSetting" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/UserSettings"
+        },
+        {
+          "maxProperties" : 1,
+          "type" : "object"
+        }
+      ]
+    },
+    "UserSettings" : {
+      "additionalProperties" : {
+        "type" : "string"
+      },
+      "propertyNames" : {
+        "$ref" : "common.json#/definitions/user_setting_key"
+      },
+      "type" : "object"
+    },
+    "UserTerse" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "email"
+      ],
+      "type" : "object"
+    },
+    "UserToken" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "expires" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "last_used" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "name" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "name",
+        "created",
+        "last_used",
+        "expires"
+      ],
+      "type" : "object"
+    },
+    "UserTokens" : {
+      "items" : {
+        "$ref" : "/definitions/UserToken"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "UsersDetailed" : {
+      "items" : {
+        "$ref" : "/definitions/UserDetailed"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Validation" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "deactivated" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "version" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "version",
+        "description",
+        "created",
+        "updated",
+        "deactivated"
+      ],
+      "type" : "object"
+    },
+    "ValidationError" : {
+      "additionalProperties" : false,
+      "description" : "base structure for all validation error responses",
+      "properties" : {
+        "data" : {
+          "description" : "any supplementary details will be included here"
+        },
+        "details" : {
+          "items" : {
+            "$ref" : "/definitions/JsonValidationError"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "error" : {
+          "pattern" : " did not match required format$",
+          "type" : "string"
+        },
+        "schema" : {
+          "format" : "uri",
+          "pattern" : "/schema/[^/]+/[^/]+$",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "error",
+        "details",
+        "schema"
+      ],
+      "type" : "object"
+    },
+    "ValidationPlan" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "description",
+        "created"
+      ],
+      "type" : "object"
+    },
+    "ValidationPlans" : {
+      "items" : {
+        "$ref" : "/definitions/ValidationPlan"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "ValidationResult" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "category" : {
+          "type" : "string"
+        },
+        "component" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "hint" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "id" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
+        "message" : {
+          "type" : "string"
+        },
+        "order" : {
+          "$ref" : "common.json#/definitions/non_negative_integer"
+        },
+        "status" : {
+          "$ref" : "common.json#/definitions/validation_status"
+        },
+        "validation_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "id",
+        "category",
+        "component",
+        "hardware_product_id",
+        "hint",
+        "message",
+        "order",
+        "status",
+        "validation_id"
+      ],
+      "type" : "object"
+    },
+    "ValidationResults" : {
+      "items" : {
+        "$ref" : "/definitions/ValidationResult"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "ValidationState" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "completed" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "device_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "device_report_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "status" : {
+          "$ref" : "common.json#/definitions/validation_status"
+        },
+        "validation_plan_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "id",
+        "completed",
+        "created",
+        "device_id",
+        "status",
+        "validation_plan_id",
+        "device_report_id"
+      ],
+      "type" : "object"
+    },
+    "ValidationStateWithResults" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "completed" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "device_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "device_report_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "results" : {
+          "items" : {
+            "$ref" : "/definitions/ValidationResult"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "status" : {
+          "$ref" : "common.json#/definitions/validation_status"
+        },
+        "validation_plan_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "id",
+        "completed",
+        "created",
+        "device_id",
+        "results",
+        "status",
+        "validation_plan_id",
+        "device_report_id"
+      ],
+      "type" : "object"
+    },
+    "ValidationStatesWithResults" : {
+      "items" : {
+        "$ref" : "/definitions/ValidationStateWithResults"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Validations" : {
+      "items" : {
+        "$ref" : "/definitions/Validation"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "Version" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "version" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "version"
+      ],
+      "type" : "object"
+    },
+    "WorkspaceAndRole" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "description" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "parent_workspace_id" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "role" : {
+          "$ref" : "common.json#/definitions/role"
+        },
+        "role_via_organization_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "role_via_workspace_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "description",
+        "parent_workspace_id",
+        "role"
+      ],
+      "type" : "object"
+    },
+    "WorkspaceDevicePXEs" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "ipmi" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "additionalProperties" : false,
+                "properties" : {
+                  "ip" : {
+                    "oneOf" : [
+                      {
+                        "type" : "null"
+                      },
+                      {
+                        "$ref" : "common.json#/definitions/ipaddr"
+                      }
+                    ]
+                  },
+                  "mac" : {
+                    "$ref" : "common.json#/definitions/macaddr"
+                  }
+                },
+                "required" : [
+                  "mac",
+                  "ip"
+                ],
+                "type" : "object"
+              }
+            ]
+          },
+          "location" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "datacenter" : {
+                "additionalProperties" : false,
+                "properties" : {
+                  "name" : {
+                    "description" : "datacenter.region",
+                    "type" : "string"
+                  },
+                  "vendor_name" : {
+                    "description" : "datacenter.vendor_name",
+                    "oneOf" : [
+                      {
+                        "type" : "null"
+                      },
+                      {
+                        "type" : "string"
+                      }
+                    ]
+                  }
+                },
+                "required" : [
+                  "name",
+                  "vendor_name"
+                ],
+                "type" : "object"
+              },
+              "rack" : {
+                "additionalProperties" : false,
+                "properties" : {
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "rack_unit_start" : {
+                    "$ref" : "common.json#/definitions/positive_integer"
+                  }
+                },
+                "required" : [
+                  "name",
+                  "rack_unit_start"
+                ],
+                "type" : "object"
+              }
+            },
+            "required" : [
+              "datacenter",
+              "rack"
+            ],
+            "type" : "object"
+          },
+          "pxe" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "additionalProperties" : false,
+                "properties" : {
+                  "mac" : {
+                    "$ref" : "common.json#/definitions/macaddr"
+                  }
+                },
+                "required" : [
+                  "mac"
+                ],
+                "type" : "object"
+              }
+            ]
+          }
+        },
+        "required" : [
+          "id",
+          "location",
+          "ipmi",
+          "pxe"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "WorkspaceOrganizations" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "admins" : {
+            "items" : {
+              "$ref" : "/definitions/UserTerse"
+            },
+            "minItems" : 1,
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "description" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "type" : "string"
+              }
+            ]
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "role" : {
+            "$ref" : "common.json#/definitions/role"
+          },
+          "role_via_workspace_id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "description",
+          "role",
+          "admins"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "WorkspaceRackSummary" : {
+      "additionalProperties" : {
+        "items" : {
+          "additionalProperties" : false,
+          "properties" : {
+            "device_progress" : {
+              "additionalProperties" : {
+                "$ref" : "common.json#/definitions/positive_integer"
+              },
+              "propertyNames" : {
+                "oneOf" : [
+                  {
+                    "const" : "valid"
+                  },
+                  {
+                    "$ref" : "common.json#/definitions/device_health"
+                  }
+                ]
+              },
+              "type" : "object"
+            },
+            "id" : {
+              "$ref" : "common.json#/definitions/uuid"
+            },
+            "name" : {
+              "type" : "string"
+            },
+            "phase" : {
+              "$ref" : "common.json#/definitions/device_phase"
+            },
+            "rack_role_name" : {
+              "type" : "string"
+            },
+            "rack_size" : {
+              "$ref" : "common.json#/definitions/positive_integer"
+            }
+          },
+          "required" : [
+            "id",
+            "name",
+            "phase",
+            "rack_role_name",
+            "rack_size",
+            "device_progress"
+          ],
+          "type" : "object"
+        },
+        "type" : "array",
+        "uniqueItems" : true
+      },
+      "propertyNames" : {
+        "$ref" : "common.json#/definitions/room_az"
+      },
+      "type" : "object"
+    },
+    "WorkspaceRelays" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "created" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "ipaddr" : {
+            "oneOf" : [
+              {
+                "$ref" : "common.json#/definitions/ipaddr"
+              },
+              {
+                "type" : "null"
+              }
+            ]
+          },
+          "last_seen" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "location" : {
+            "additionalProperties" : false,
+            "description" : "Last reported location of the relay",
+            "properties" : {
+              "az" : {
+                "type" : "string"
+              },
+              "rack_id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              },
+              "rack_name" : {
+                "type" : "string"
+              },
+              "rack_role_name" : {
+                "type" : "string"
+              },
+              "rack_unit_start" : {
+                "$ref" : "common.json#/definitions/positive_integer"
+              }
+            },
+            "required" : [
+              "rack_id",
+              "rack_name",
+              "rack_unit_start",
+              "rack_role_name",
+              "az"
+            ],
+            "type" : "object"
+          },
+          "name" : {
+            "oneOf" : [
+              {
+                "type" : "string"
+              },
+              {
+                "type" : "null"
+              }
+            ]
+          },
+          "num_devices" : {
+            "$ref" : "common.json#/definitions/positive_integer"
+          },
+          "serial_number" : {
+            "$ref" : "common.json#/definitions/relay_serial_number"
+          },
+          "ssh_port" : {
+            "oneOf" : [
+              {
+                "$ref" : "common.json#/definitions/non_negative_integer"
+              },
+              {
+                "type" : "null"
+              }
+            ]
+          },
+          "updated" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "version" : {
+            "oneOf" : [
+              {
+                "type" : "string"
+              },
+              {
+                "type" : "null"
+              }
+            ]
+          }
+        },
+        "required" : [
+          "id",
+          "serial_number",
+          "name",
+          "version",
+          "ipaddr",
+          "ssh_port",
+          "created",
+          "updated",
+          "last_seen",
+          "location",
+          "num_devices"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "WorkspaceUsers" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "email" : {
+            "$ref" : "common.json#/definitions/email_address"
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "role" : {
+            "$ref" : "common.json#/definitions/role"
+          },
+          "role_via_organization_id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "role_via_workspace_id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "email",
+          "role"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "WorkspacesAndRoles" : {
+      "items" : {
+        "$ref" : "/definitions/WorkspaceAndRole"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    }
+  }
+}
