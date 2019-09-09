@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.9
--- Dumped by pg_dump version 10.9
+-- Dumped from database version 10.10
+-- Dumped by pg_dump version 10.10
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -314,7 +314,7 @@ ALTER TABLE public.device_relay_connection OWNER TO conch;
 
 CREATE TABLE public.device_report (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    report jsonb,
+    report jsonb NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     retain boolean,
     device_id uuid NOT NULL
