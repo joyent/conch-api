@@ -70,6 +70,8 @@ while (my $infile = shift @ARGV) {
 
 my $footer = <<'FOOTER';
 
+[Back to main index](../)
+
 # Copyright / License
 
 Copyright Joyent, Inc.
