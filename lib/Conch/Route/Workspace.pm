@@ -74,6 +74,17 @@ sub routes {
         # DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_workspace_admin->under('/user/#target_user_id_or_email')->to('user#find_user')
             ->delete('/')->to('workspace_user#remove');
+
+        # GET /workspace/:workspace_id_or_name/organization
+        $with_workspace_admin->get('/organization')->to('workspace_organization#list_workspace_organizations');
+
+        # POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0>
+        $with_workspace_admin->post('/organization')->to('workspace_organization#add_workspace_organization');
+
+        # DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>
+        $with_workspace_admin->under('/organization/:organization_id_or_name')
+            ->to('organization#find_organization')
+            ->delete('/')->to('workspace_organization#remove_workspace_organization');
     }
 }
 
@@ -250,6 +261,44 @@ an email to the user and workspace admins.
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
 an email to the user and workspace admins.
+
+=over 4
+
+=item * User requires the admin role
+
+=item * Returns C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /workspace/:workspace_id_or_name/organization>
+
+=over 4
+
+=item * User requires the admin role
+
+=item * Response: response.yaml#/WorkspaceOrganizations
+
+=back
+
+=head3 C<< POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0> >>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the organization members and workspace admins.
+
+=over 4
+
+=item * User requires the admin role
+
+=item * Request: request.yaml#/WorkspaceAddOrganization
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<< DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0> >>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the organization members and workspace admins.
 
 =over 4
 

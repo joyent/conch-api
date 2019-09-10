@@ -1,6 +1,6 @@
 # NAME
 
-Conch::DB::AsEpoch
+Conch::DB::Helper::ResultSet::AsEpoch
 
 # DESCRIPTION
 
@@ -11,7 +11,7 @@ This code is postgres-specific.
 # USAGE
 
 ```
-__PACKAGE__->load_components('+Conch::DB::AsEpoch');
+__PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::AsEpoch');
 ```
 
 # METHODS

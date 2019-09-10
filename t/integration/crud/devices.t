@@ -21,6 +21,7 @@ $t->load_validation_plans([{
 my $rack = $t->load_fixture('rack_0a');
 my $rack_id = $rack->id;
 my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
+my $global_ws = $t->load_fixture('global_workspace');
 
 # perform most tests as a user with read only access to the GLOBAL workspace
 my $null_user = $t->generate_fixtures('user_account');
@@ -309,6 +310,35 @@ subtest 'located device' => sub {
             nics => [],
             disks => [],
         });
+    my $device_data = $t->tx->res->json;
+
+    $t->app->db_devices->search({ id => $located_device_id })->update({ hostname => 'located_host' });
+    $device_data->{hostname} = 'located_host';
+
+    {
+        my $t = Test::Conch->new(pg => $t->pg);
+        my $null_user = $t->generate_fixtures('user_account');
+        $t->authenticate(email => $null_user->email);
+        $t->get_ok('/device/'.$located_device_id)
+            ->status_is(403);
+
+        $t->get_ok('/device?hostname=located_host')
+            ->status_is(403);
+
+        my $org = $t->generate_fixtures('organization');
+        $org->create_related('user_organization_roles', { user_id => $null_user->id, role => 'ro' });
+        $global_ws->create_related('organization_workspace_roles', { organization_id => $org->id, role => 'ro' });
+
+        $t->get_ok('/device/'.$located_device_id)
+            ->status_is(200)
+            ->json_schema_is('DetailedDevice')
+            ->json_cmp_deeply($device_data);
+
+        $t->get_ok('/device?hostname=located_host')
+            ->status_is(200)
+            ->json_schema_is('Devices')
+            ->json_cmp_deeply([ superhashof({ id => $located_device_id }) ]);
+    }
 
     $t->txn_local('remove device from its workspace', sub ($t) {
         $t->app->db_workspace_racks->delete;

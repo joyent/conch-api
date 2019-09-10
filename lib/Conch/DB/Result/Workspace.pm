@@ -98,6 +98,21 @@ __PACKAGE__->add_unique_constraint("workspace_name_key", ["name"]);
 
 =head1 RELATIONS
 
+=head2 organization_workspace_roles
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::OrganizationWorkspaceRole>
+
+=cut
+
+__PACKAGE__->has_many(
+  "organization_workspace_roles",
+  "Conch::DB::Result::OrganizationWorkspaceRole",
+  { "foreign.workspace_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 parent_workspace
 
 Type: belongs_to
@@ -163,6 +178,20 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 organizations
+
+Type: many_to_many
+
+Composing rels: L</organization_workspace_roles> -> organization
+
+=cut
+
+__PACKAGE__->many_to_many(
+  "organizations",
+  "organization_workspace_roles",
+  "organization",
+);
+
 =head2 racks
 
 Type: many_to_many
@@ -185,7 +214,7 @@ __PACKAGE__->many_to_many("user_accounts", "user_workspace_roles", "user_account
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UTkb6H9/XmVkYnMTHm2uQw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Urk+hHQeLcSJ6VUznFO6Hg
 
 use experimental 'signatures';
 use Sub::Install;
@@ -199,18 +228,28 @@ Include information about the user's role, if available.
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    # check for column that would have been added via
-    # Conch::DB::ResultSet::Workspace::add_role_column or
+    # check for column that would have been added via any of:
+    # Conch::DB::ResultSet::Workspace::add_role_column
     # Conch::DB::ResultSet::Workspace::with_role_via_data_for_user
     if (my $role = $self->role) {
         $data->{role} = $role;
     }
+    # we are fetching workspace data from the perspective of a particular user
     elsif (my $user_id = $self->user_id_for_role) {
         my $role_via = $self->result_source->resultset->role_via_for_user($self->id, $user_id);
         Carp::croak('tried to get role data for a user that has no role for this workspace: workspace_id ', $self->id, ', user_id ', $user_id) if not $role_via;
 
         $data->{role} = $role_via->role;
-        $data->{role_via} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;
+        $data->{role_via_workspace_id} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;
+        $data->{role_via_organization_id} = $role_via->organization_id if $role_via->can('organization_id');
+    }
+    # we are fetching workspace data from the perspective of a particular organization
+    elsif (my $organization_id = $self->organization_id_for_role) {
+        my $role_via = $self->result_source->resultset->role_via_for_organization($self->id, $organization_id);
+        Carp::croak('tried to get role data for an organization that has no role for this workspace: workspace_id ', $self->id, ', organization_id ', $organization_id) if not $role_via;
+
+        $data->{role} = $role_via->role;
+        $data->{role_via_workspace_id} = $role_via->workspace_id if $role_via->workspace_id ne $self->id;
     }
 
     return $data;
@@ -223,11 +262,16 @@ Accessor for informational column, which is by the serializer in the result data
 =head2 user_id_for_role
 
 Accessor for informational column, which is used by the serializer to signal we should fetch
-and include inherited role data.
+and include inherited role data for the user.
+
+=head2 organization_id_for_role
+
+Accessor for informational column, which is used by the serializer to signal we should fetch
+and include inherited role data for the organization.
 
 =cut
 
-foreach my $column (qw(role user_id_for_role)) {
+foreach my $column (qw(role user_id_for_role organization_id_for_role)) {
     Sub::Install::install_sub({
         as   => $column,
         code => sub {

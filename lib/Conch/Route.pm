@@ -16,6 +16,7 @@ use Conch::Route::RackRole;
 use Conch::Route::Rack;
 use Conch::Route::RackLayout;
 use Conch::Route::HardwareVendor;
+use Conch::Route::Organization;
 
 =pod
 
@@ -101,6 +102,7 @@ sub all_routes (
     Conch::Route::Rack->routes($secured->any('/rack'));
     Conch::Route::RackLayout->routes($secured->any('/layout'));
     Conch::Route::HardwareVendor->routes($secured->any('/hardware_vendor'));
+    Conch::Route::Organization->routes($secured->any('/organization'));
 
     $root->any('/*all', sub ($c) {
         $c->log->error('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
@@ -230,6 +232,10 @@ See L<Conch::Route::HardwareProduct/routes>
 =head3 C<* /hardware_vendor>
 
 See L<Conch::Route::HardwareVendor/routes>
+
+=head3 C<* /organization>
+
+See L<Conch::Route::Organization/routes>
 
 =head3 C<* /relay>
 

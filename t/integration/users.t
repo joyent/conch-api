@@ -19,6 +19,7 @@ my $super_user = $t->load_fixture('super_user');
 my $ro_user = $t->load_fixture('ro_user');
 my $global_ws = $t->load_fixture('global_workspace');
 my $child_ws = $global_ws->create_related('workspaces', { name => 'child_ws', user_workspace_roles => [{ role => 'ro', user_id => $ro_user->id }] });
+my $organization = $t->load_fixture('ro_user_organization')->organization;
 
 $t->post_ok('/login', json => { email => 'a', password => 'b' })
     ->status_is(400)
@@ -176,6 +177,10 @@ subtest 'User' => sub {
                 refuse_session_auth => JSON::PP::false,
                 force_password_change => JSON::PP::false,
                 is_admin => JSON::PP::false,
+                organizations => [ {
+                    (map +($_ => $organization->$_), qw(id name description)),
+                    role => 'admin',
+                } ],
                 workspaces => [ {
                     (map +($_ => $child_ws->$_), qw(id name description)),
                     parent_workspace_id => undef,   # user does not have the role to see GLOBAL
@@ -203,6 +208,7 @@ subtest 'User' => sub {
             refuse_session_auth => JSON::PP::false,
             force_password_change => JSON::PP::false,
             is_admin => JSON::PP::true,
+            organizations => [],
             workspaces => [],
         });
     $super_user_data = $t_super->tx->res->json;
@@ -486,6 +492,7 @@ subtest 'modify another user' => sub {
             refuse_session_auth => JSON::PP::false,
             force_password_change => JSON::PP::false,
             is_admin => JSON::PP::false,
+            organizations => [],
             workspaces => [],
         }, 'returned all the right fields (and not the password)');
 

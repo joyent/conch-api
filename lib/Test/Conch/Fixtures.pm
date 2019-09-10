@@ -130,6 +130,21 @@ my %canned_definitions = (
         },
     },
 
+    ro_user_organization => {
+        new => 'user_organization_role',
+        using => { role => 'admin' },
+        requires => {
+            ro_user => { our => 'user_id', their => 'id' },
+            main_organization => { our => 'organization_id', their => 'id' },
+        },
+    },
+    main_organization => {
+        new => 'organization',
+        using => {
+            name => 'our first organization',
+        },
+    },
+
     hardware_vendor_0 => {
         new => 'hardware_vendor',
         using => {
@@ -646,6 +661,28 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     name => "user_$num",
                     email => "user_${num}\@conch.joyent.us",
                     password => Authen::Passphrase::AcceptAll->new,
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    elsif ($fixture_type eq 'workspace') {
+        return +{
+            "workspace_$num" => {
+                new => 'workspace',
+                using => {
+                    name => "workspace_$num",
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    elsif ($fixture_type eq 'organization') {
+        return +{
+            "organization_$num" => {
+                new => 'organization',
+                using => {
+                    name => "organization_$num",
                     ($specification // {})->%*,
                 },
             },

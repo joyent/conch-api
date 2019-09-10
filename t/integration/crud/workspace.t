@@ -217,7 +217,7 @@ subtest 'Sub-Workspace' => sub {
 
     $t->location_is('/workspace/'.(my $child_ws_id = $t->tx->res->json->{id}));
     $workspace_data{conch}[1] = $t->tx->res->json;
-    $workspace_data{admin_user}[1] = { $t->tx->res->json->%*, role_via => $global_ws_id };
+    $workspace_data{admin_user}[1] = { $t->tx->res->json->%*, role_via_workspace_id => $global_ws_id };
 
     $t->authenticate(email => $admin_user->email);
     $t->get_ok('/workspace/'.$child_ws_id)
@@ -225,7 +225,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_schema_is('WorkspaceAndRole')
         ->json_cmp_deeply($workspace_data{admin_user}[1]);
 
-    push $users{child_ws}->@*, map +{ $_->%*, role_via => $global_ws_id }, $users{GLOBAL}->@*;
+    push $users{child_ws}->@*, map +{ $_->%*, role_via_workspace_id => $global_ws_id }, $users{GLOBAL}->@*;
 
     $t->get_ok("/workspace/$global_ws_id/child")
         ->status_is(200)
@@ -272,7 +272,7 @@ subtest 'Sub-Workspace' => sub {
             },
         ]);
 
-    delete $users{child_ws}->[1]{role_via};
+    delete $users{child_ws}->[1]{role_via_workspace_id};
     $users{child_ws}->[1]{role} = 'rw';
 
     $t->get_ok("/workspace/$child_ws_id/user")
@@ -306,7 +306,7 @@ subtest 'Sub-Workspace' => sub {
             description => 'two levels of subworkspaces',
             parent_workspace_id => $child_ws_id,
             role        => 'admin',
-            role_via    => $global_ws_id,
+            role_via_workspace_id => $global_ws_id,
         })
         ->email_cmp_deeply([
             {
@@ -373,7 +373,7 @@ subtest 'Sub-Workspace' => sub {
                     description => 'two levels of subworkspaces',
                     parent_workspace_id => $child_ws_id,
                     role => 'rw',
-                    role_via => $child_ws_id,
+                    role_via_workspace_id => $child_ws_id,
                 },
             ],
             'new user has access to all workspaces via GLOBAL');
@@ -390,7 +390,7 @@ subtest 'Sub-Workspace' => sub {
         ->json_is('/2/email' => 'test_user@conch.joyent.us')
         ->json_cmp_deeply('/2/workspaces' => bag($workspace_data{test_user}->@*));
 
-    push $users{grandchild_ws}->@*, map +{ role_via => $child_ws_id, $_->%* }, $users{child_ws}->@*;
+    push $users{grandchild_ws}->@*, map +{ role_via_workspace_id => $child_ws_id, $_->%* }, $users{child_ws}->@*;
 
     $t->get_ok("/workspace/$child_ws_id/user")
         ->status_is(200)
@@ -449,7 +449,7 @@ subtest 'Sub-Workspace' => sub {
             },
         ]);
 
-    delete $users{grandchild_ws}->[1]{role_via};
+    delete $users{grandchild_ws}->[1]{role_via_workspace_id};
     $users{grandchild_ws}->[1]{role} = 'admin';
 
     $t->get_ok("/workspace/$grandchild_ws_id/user")
@@ -486,9 +486,9 @@ subtest 'Sub-Workspace' => sub {
 
     # update our idea of what all the roles should look like:
     $workspace_data{test_user}[1]{role} = 'admin';
-    delete $workspace_data{test_user}[1]{role_via};
+    delete $workspace_data{test_user}[1]{role_via_workspace_id};
     $workspace_data{test_user}[2]{role} = 'admin';
-    delete $workspace_data{test_user}[2]{role_via};
+    delete $workspace_data{test_user}[2]{role_via_workspace_id};
 
     $t_super->get_ok('/user/'.$admin_user->email)
         ->status_is(200)
@@ -529,13 +529,13 @@ subtest 'Sub-Workspace' => sub {
             },
         ]);
 
-    $users{child_ws}->[1]{role_via} = $global_ws_id;
+    $users{child_ws}->[1]{role_via_workspace_id} = $global_ws_id;
     $users{child_ws}->[1]{role} = $users{GLOBAL}->[1]{role};
-    $users{grandchild_ws}->[1]{role_via} = $global_ws_id;
+    $users{grandchild_ws}->[1]{role_via_workspace_id} = $global_ws_id;
     $users{grandchild_ws}->[1]{role} = $users{GLOBAL}->[1]{role};
 
-    $workspace_data{test_user}[1]->@{qw(role role_via)} = ('ro', $global_ws_id);
-    $workspace_data{test_user}[2]->@{qw(role role_via)} = ('ro', $global_ws_id);
+    $workspace_data{test_user}[1]->@{qw(role role_via_workspace_id)} = ('ro', $global_ws_id);
+    $workspace_data{test_user}[2]->@{qw(role role_via_workspace_id)} = ('ro', $global_ws_id);
 
     $t->get_ok("/workspace/$child_ws_id/user")
         ->status_is(200)
@@ -593,7 +593,7 @@ subtest 'Sub-Workspace' => sub {
     };
     push $users{grandchild_ws}->@*, {
         $users{child_ws}[2]->%*,
-        role_via => $child_ws_id,
+        role_via_workspace_id => $child_ws_id,
     };
 
     $t->get_ok('/workspace/child_ws/user')
@@ -614,7 +614,7 @@ subtest 'Sub-Workspace' => sub {
         {
             $workspace_data{admin_user}[2]->%{qw(id name description parent_workspace_id)},
             role => 'ro',
-            role_via => $child_ws_id,
+            role_via_workspace_id => $child_ws_id,
         },
     ];
 

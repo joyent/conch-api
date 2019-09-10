@@ -83,10 +83,20 @@ sub list ($c) {
         return $c->status(200, [ $rs->all ]);
     }
 
-    my $direct_workspace_ids_rs = $c->stash('user')
+    my $user_workspaces_rs = $c->stash('user')
         ->related_resultset('user_workspace_roles')
+        ->related_resultset('workspace');
+
+    my $organization_workspaces_rs = $c->stash('user')
+        ->related_resultset('user_organization_roles')
+        ->related_resultset('organization')
+        ->related_resultset('organization_workspace_roles')
+        ->related_resultset('workspace');
+
+    my $direct_workspace_ids_rs = $user_workspaces_rs->union_all($organization_workspaces_rs)
         ->distinct
-        ->get_column('workspace_id');
+        ->get_column('id');
+
     my @data = $c->db_workspaces
         ->and_workspaces_beneath($direct_workspace_ids_rs)
         ->with_role_via_data_for_user($c->stash('user_id'))

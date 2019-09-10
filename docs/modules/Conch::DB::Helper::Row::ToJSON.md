@@ -1,6 +1,6 @@
 # NAME
 
-Conch::DB::ToJSON
+Conch::DB::Helper::Row::ToJSON
 
 # DESCRIPTION
 
@@ -10,7 +10,7 @@ Sub-classes [DBIx::Class::Helper::Row::ToJSON](https://metacpan.org/pod/DBIx::Cl
 # USAGE
 
 ```
-__PACKAGE__->load_components('+Conch::DB::ToJSON');
+__PACKAGE__->load_components('+Conch::DB::Helper::Row::ToJSON');
 ```
 
 # LICENSING

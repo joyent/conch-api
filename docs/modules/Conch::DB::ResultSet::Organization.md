@@ -1,17 +1,17 @@
 # NAME
 
-Conch::DB::ResultSet::UserWorkspaceRole
+Conch::DB::ResultSet::Organization
 
 # DESCRIPTION
 
-Interface to queries involving user/workspace roles.
+Interface to queries involving organizations.
 
 # METHODS
 
-## with\_role
+## admins
 
-Constrains the resultset to those user\_workspace\_role rows that grants (at least) the specified
-role.
+All the 'admin' users for the provided organization(s).  Pass a true argument to also include all
+system admin users in the result.
 
 # LICENSING
 

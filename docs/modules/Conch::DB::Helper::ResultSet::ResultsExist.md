@@ -1,6 +1,6 @@
 # NAME
 
-Conch::DB::ResultsExist
+Conch::DB::Helper::ResultSet::ResultsExist
 
 # DESCRIPTION
 
@@ -14,7 +14,7 @@ This code is postgres-specific.
 # USAGE
 
 ```
-__PACKAGE__->load_components('+Conch::DB::ResultsExist');
+__PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::ResultsExist');
 ```
 
 # METHODS

@@ -88,6 +88,10 @@ See ["routes" in Conch::Route::HardwareProduct](../modules/Conch::Route::Hardwar
 
 See ["routes" in Conch::Route::HardwareVendor](../modules/Conch::Route::HardwareVendor#routes)
 
+### `* /organization`
+
+See ["routes" in Conch::Route::Organization](../modules/Conch::Route::Organization#routes)
+
 ### `* /relay`
 
 See ["routes" in Conch::Route::Relay](../modules/Conch::Route::Relay#routes)

@@ -74,17 +74,17 @@ CREATE TYPE public.device_phase_enum AS ENUM (
 ALTER TYPE public.device_phase_enum OWNER TO conch;
 
 --
--- Name: user_workspace_role_enum; Type: TYPE; Schema: public; Owner: conch
+-- Name: role_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
-CREATE TYPE public.user_workspace_role_enum AS ENUM (
+CREATE TYPE public.role_enum AS ENUM (
     'ro',
     'rw',
     'admin'
 );
 
 
-ALTER TYPE public.user_workspace_role_enum OWNER TO conch;
+ALTER TYPE public.role_enum OWNER TO conch;
 
 --
 -- Name: validation_status_enum; Type: TYPE; Schema: public; Owner: conch
@@ -434,6 +434,34 @@ CREATE TABLE public.migration (
 ALTER TABLE public.migration OWNER TO conch;
 
 --
+-- Name: organization; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.organization (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name text NOT NULL,
+    description text,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    deactivated timestamp with time zone
+);
+
+
+ALTER TABLE public.organization OWNER TO conch;
+
+--
+-- Name: organization_workspace_role; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.organization_workspace_role (
+    organization_id uuid NOT NULL,
+    workspace_id uuid NOT NULL,
+    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
+);
+
+
+ALTER TABLE public.organization_workspace_role OWNER TO conch;
+
+--
 -- Name: rack; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -528,6 +556,19 @@ CREATE TABLE public.user_account (
 ALTER TABLE public.user_account OWNER TO conch;
 
 --
+-- Name: user_organization_role; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.user_organization_role (
+    user_id uuid NOT NULL,
+    organization_id uuid NOT NULL,
+    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
+);
+
+
+ALTER TABLE public.user_organization_role OWNER TO conch;
+
+--
 -- Name: user_relay_connection; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -580,7 +621,7 @@ ALTER TABLE public.user_setting OWNER TO conch;
 CREATE TABLE public.user_workspace_role (
     user_id uuid NOT NULL,
     workspace_id uuid NOT NULL,
-    role public.user_workspace_role_enum DEFAULT 'ro'::public.user_workspace_role_enum NOT NULL
+    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
 );
 
 
@@ -870,6 +911,22 @@ ALTER TABLE ONLY public.migration
 
 
 --
+-- Name: organization organization_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.organization
+    ADD CONSTRAINT organization_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: organization_workspace_role organization_workspace_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.organization_workspace_role
+    ADD CONSTRAINT organization_workspace_role_pkey PRIMARY KEY (organization_id, workspace_id);
+
+
+--
 -- Name: rack_layout rack_layout_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -939,6 +996,14 @@ ALTER TABLE ONLY public.relay
 
 ALTER TABLE ONLY public.user_account
     ADD CONSTRAINT user_account_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_organization_role user_organization_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.user_organization_role
+    ADD CONSTRAINT user_organization_role_pkey PRIMARY KEY (user_id, organization_id);
 
 
 --
@@ -1212,6 +1277,13 @@ CREATE UNIQUE INDEX hardware_product_sku_key ON public.hardware_product USING bt
 --
 
 CREATE UNIQUE INDEX hardware_vendor_name_key ON public.hardware_vendor USING btree (name) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: organization_name_key; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX organization_name_key ON public.organization USING btree (name) WHERE (deactivated IS NULL);
 
 
 --
@@ -1564,6 +1636,22 @@ ALTER TABLE ONLY public.hardware_product
 
 
 --
+-- Name: organization_workspace_role organization_workspace_role_organization_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.organization_workspace_role
+    ADD CONSTRAINT organization_workspace_role_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+
+
+--
+-- Name: organization_workspace_role organization_workspace_role_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.organization_workspace_role
+    ADD CONSTRAINT organization_workspace_role_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
+
+
+--
 -- Name: rack rack_datacenter_room_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1601,6 +1689,22 @@ ALTER TABLE ONLY public.device_location
 
 ALTER TABLE ONLY public.rack
     ADD CONSTRAINT rack_role_fkey FOREIGN KEY (rack_role_id) REFERENCES public.rack_role(id);
+
+
+--
+-- Name: user_organization_role user_organization_role_organization_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.user_organization_role
+    ADD CONSTRAINT user_organization_role_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
+
+
+--
+-- Name: user_organization_role user_organization_role_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.user_organization_role
+    ADD CONSTRAINT user_organization_role_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
 
 
 --
@@ -1854,6 +1958,20 @@ GRANT SELECT ON TABLE public.migration TO conch_read_only;
 
 
 --
+-- Name: TABLE organization; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.organization TO conch_read_only;
+
+
+--
+-- Name: TABLE organization_workspace_role; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.organization_workspace_role TO conch_read_only;
+
+
+--
 -- Name: TABLE rack; Type: ACL; Schema: public; Owner: conch
 --
 
@@ -1886,6 +2004,13 @@ GRANT SELECT ON TABLE public.relay TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.user_account TO conch_read_only;
+
+
+--
+-- Name: TABLE user_organization_role; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.user_organization_role TO conch_read_only;
 
 
 --

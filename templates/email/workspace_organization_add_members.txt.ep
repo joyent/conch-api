@@ -1,0 +1,8 @@
+Hello,
+
+<%# TODO: we should specify the conch URL here %>\
+Your "<%= $organization %>" organization has been added to the
+"<%= $workspace %>" workspace at Joyent Conch with the "<%= $role %>" role.
+
+Thank you,
+Joyent Build Ops Team

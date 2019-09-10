@@ -326,11 +326,14 @@ Response uses the UserDetailed json schema.
 =cut
 
 sub get ($c) {
-    my $user = $c->stash('target_user')
-        ->discard_changes({
-            prefetch => { user_workspace_roles => 'workspace' },
-            order_by => ['workspace.name'],
-        });
+    my ($user) = $c->db_user_accounts
+        ->search({ 'user_account.id' => $c->stash('target_user')->id })
+        ->prefetch({
+                user_workspace_roles => 'workspace',
+                user_organization_roles => { organization => { organization_workspace_roles => 'workspace' } },
+            })
+        ->order_by([qw(workspace.name organization.name)])
+        ->all;
 
     return $c->status(200, $user) if $c->is_system_admin;
 
@@ -406,8 +409,11 @@ Response uses the UsersDetailed json schema.
 sub list ($c) {
     my $user_rs = $c->db_user_accounts
         ->active
-        ->prefetch({ user_workspace_roles => 'workspace' })
-        ->order_by([qw(user_account.name workspace.name)]);
+        ->prefetch({
+                user_workspace_roles => 'workspace',
+                user_organization_roles => { organization => { organization_workspace_roles => 'workspace' } },
+            })
+        ->order_by([qw(user_account.name workspace.name organization.name)]);
 
     return $c->status(200, [ $user_rs->all ]);
 }
@@ -469,7 +475,7 @@ Optionally takes a query parameter C<clear_tokens> (defaulting to true), to also
 session tokens for the user, which would force all tools to log in again should the account be
 reactivated (for which there is no api endpoint at present).
 
-All user_workspace_role entries are removed and are not recoverable.
+All memberships in workspaces and organizations are removed and are not recoverable.
 
 Response uses the UserError json schema on some error conditions.
 
@@ -488,14 +494,38 @@ sub deactivate ($c) {
         });
     }
 
+    # do not allow removing user if he is the only admin of an organization
+    my $org_admins_rs = $c->db_organizations->correlate('user_organization_roles')->search({ role => 'admin' });
+    my $org_rs = $c->db_organizations->search(
+        { user_id => $user->id, role => 'admin' },
+        {
+            '+select' => [{ '' => $org_admins_rs->count_rs->as_query, -as => 'admin_count' }],
+            join => 'user_organization_roles',
+        },
+    )
+    ->as_subselect_rs
+    ->search({ admin_count => 1 });
+
+    if (my $organization = $org_rs->rows(1)->one_row) {
+        return $c->status(409, {
+            error => 'user is the only admin of the "'.$organization->name.'" organization ('.$organization->id.')',
+            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
+        });
+    }
+
+    my $organizations = join(', ', map $_->{organization}{name}.' ('.$_->{role}.')',
+        $user->search_related('user_organization_roles', undef, { join => 'organization' })
+            ->columns([ qw(organization.name role) ])->hri->all);
     my $workspaces = join(', ', map $_->{workspace}{name}.' ('.$_->{role}.')',
         $user->search_related('user_workspace_roles', undef, { join => 'workspace' })
             ->columns([ qw(workspace.name role) ])->hri->all);
 
     $c->log->warn('user '.$c->stash('user')->name.' deactivating user '.$user->name
+        .($organizations ? ', member of organizations: '.$organizations : '')
         .($workspaces ? ', direct member of workspaces: '.$workspaces : ''));
     $user->update({ password => Authen::Passphrase::RejectAll->new, deactivated => \'now()' });
 
+    $user->delete_related('user_organization_roles');
     $user->delete_related('user_workspace_roles');
 
     if ($params->{clear_tokens} // 1) {

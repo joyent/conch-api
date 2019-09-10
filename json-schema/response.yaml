@@ -1136,11 +1136,11 @@ definitions:
           - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       role:
-        $ref: common.yaml#/definitions/user_workspace_role
-      role_via:
-        allOf:
-          - description: the id of the workspace where the role comes from
-          - $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/definitions/role
+      role_via_workspace_id:
+        $ref: common.yaml#/definitions/uuid
+      role_via_organization_id:
+        $ref: common.yaml#/definitions/uuid
   WorkspacesAndRoles:
     type: array
     uniqueItems: true
@@ -1165,11 +1165,11 @@ definitions:
         email:
           $ref: common.yaml#/definitions/email_address
         role:
-          $ref: common.yaml#/definitions/user_workspace_role
-        role_via:
-          allOf:
-            - description: this is the id of the workspace where the role comes from
-            - $ref: common.yaml#/definitions/uuid
+          $ref: common.yaml#/definitions/role
+        role_via_workspace_id:
+          $ref: common.yaml#/definitions/uuid
+        role_via_organization_id:
+          $ref: common.yaml#/definitions/uuid
   Datacenters:
     type: array
     uniqueItems: true
@@ -1489,6 +1489,7 @@ definitions:
       - force_password_change
       - is_admin
       - workspaces
+      - organizations
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1517,6 +1518,28 @@ definitions:
         type: boolean
       workspaces:
         $ref: /definitions/WorkspacesAndRoles
+      organizations:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - name
+            - description
+            - role
+          properties:
+            id:
+              $ref: common.yaml#/definitions/uuid
+            name:
+              $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+            description:
+              oneOf:
+                - type: 'null'
+                - type: string
+            role:
+              $ref: common.yaml#/definitions/role
   UsersDetailed:
     type: array
     uniqueItems: true
@@ -1696,5 +1719,106 @@ definitions:
       created:
         type: string
         format: date-time
+  UserTerse:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - email
+    properties:
+      id:
+        $ref: common.yaml#/definitions/uuid
+      name:
+        type: string
+      email:
+        $ref: common.yaml#/definitions/email_address
+  Organization:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - name
+      - description
+      - created
+      - admins
+      - workspaces
+    properties:
+      id:
+        $ref: common.yaml#/definitions/uuid
+      name:
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+      description:
+        oneOf:
+          - type: 'null'
+          - type: string
+      created:
+        type: string
+        format: date-time
+      admins:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          $ref: /definitions/UserTerse
+      workspaces:
+        $ref: /definitions/WorkspacesAndRoles
+  Organizations:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/Organization
+  OrganizationUsers:
+    type: array
+    uniqueItems: true
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - email
+        - role
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          type: string
+        email:
+          $ref: common.yaml#/definitions/email_address
+        role:
+          $ref: common.yaml#/definitions/role
+  WorkspaceOrganizations:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - description
+        - role
+        - admins
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          type: string
+        description:
+          oneOf:
+            - type: 'null'
+            - type: string
+        role:
+          $ref: common.yaml#/definitions/role
+        role_via_workspace_id:
+          $ref: common.yaml#/definitions/uuid
+        admins:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: /definitions/UserTerse
 
 # vim: set sts=2 sw=2 et :

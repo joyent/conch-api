@@ -22,11 +22,21 @@ Response uses the WorkspaceUsers json schema.
 sub list ($c) {
     my $workspace_id = $c->stash('workspace_id');
 
-    # users who can access any ancestor of this workspace
-    my $users_rs = $c->db_workspaces
+    # users who can access any ancestor of this workspace (directly)
+    my $direct_users_rs = $c->db_workspaces
         ->and_workspaces_above($workspace_id)
         ->related_resultset('user_workspace_roles')
-        ->related_resultset('user_account')
+        ->related_resultset('user_account');
+
+    # users who can access any ancestor of this workspace (through an organization)
+    my $organization_users_rs = $c->db_workspaces
+        ->and_workspaces_above($workspace_id)
+        ->related_resultset('organization_workspace_roles')
+        ->related_resultset('organization')
+        ->related_resultset('user_organization_roles')
+        ->related_resultset('user_account');
+
+    my $users_rs = $direct_users_rs->union_all($organization_users_rs)
         ->active
         ->distinct
         ->order_by('user_account.name')
@@ -39,7 +49,9 @@ sub list ($c) {
             +{
                 $_->%*, # user.id, name, email
                 role => $role_via->role,
-                $role_via->workspace_id ne $workspace_id ? ( role_via => $role_via->workspace_id ) : (),
+                $role_via->workspace_id ne $workspace_id
+                    ? ( role_via_workspace_id => $role_via->workspace_id ) : (),
+                $role_via->can('organization_id') ? ( role_via_organization_id => $role_via->organization_id ) : (),
             }
         }
         $users_rs->all
@@ -78,14 +90,19 @@ sub add_user ($c) {
     $c->stash('target_user', $user);
     my $workspace_id = $c->stash('workspace_id');
 
-    # check if the user already has access to this workspace
+    # check if the user already has access to this workspace (whether directly, through a
+    # parent workspace, through an organization etc)
     if (my $existing_role_via = $c->db_workspaces
             ->role_via_for_user($workspace_id, $user->id)) {
         if ((my $role_cmp = $existing_role_via->role_cmp($input->{role})) >= 0) {
             my $str = 'user '.$user->name.' already has '.$existing_role_via->role
-                .' access to workspace '.$workspace_id
-                .($existing_role_via->workspace_id ne $workspace_id
-                    ? (' via workspace '.$existing_role_via->workspace_id) : '');
+                .' access to workspace '.$workspace_id;
+            my $str2 = join(' and',
+                ($existing_role_via->workspace_id ne $workspace_id
+                    ? (' workspace '.$existing_role_via->workspace_id) : ()),
+                ($existing_role_via->can('organization_id')
+                    ? (' organization '.$existing_role_via->organization_id) : ()));
+            $str .= ' via'.$str2 if $str2;
 
             $c->log->debug($str.': nothing to do'), return $c->status(204)
                 if $role_cmp == 0;

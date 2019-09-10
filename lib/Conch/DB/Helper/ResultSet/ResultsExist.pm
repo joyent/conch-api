@@ -1,11 +1,11 @@
-package Conch::DB::ResultsExist;
+package Conch::DB::Helper::ResultSet::ResultsExist;
 use v5.26;
 use warnings;
 use experimental 'signatures';
 
 =head1 NAME
 
-Conch::DB::ResultsExist
+Conch::DB::Helper::ResultSet::ResultsExist
 
 =head1 DESCRIPTION
 
@@ -18,7 +18,7 @@ This code is postgres-specific.
 
 =head1 USAGE
 
-    __PACKAGE__->load_components('+Conch::DB::ResultsExist');
+    __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::ResultsExist');
 
 =head1 METHODS
 

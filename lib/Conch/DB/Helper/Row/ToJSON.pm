@@ -1,4 +1,4 @@
-package Conch::DB::ToJSON;
+package Conch::DB::Helper::Row::ToJSON;
 use v5.26;
 use warnings;
 
@@ -6,7 +6,7 @@ use parent 'DBIx::Class::Helper::Row::ToJSON';
 
 =head1 NAME
 
-Conch::DB::ToJSON
+Conch::DB::Helper::Row::ToJSON
 
 =head1 DESCRIPTION
 
@@ -15,7 +15,7 @@ Sub-classes L<DBIx::Class::Helper::Row::ToJSON> to also serialize 'text' data.
 
 =head1 USAGE
 
-    __PACKAGE__->load_components('+Conch::DB::ToJSON');
+    __PACKAGE__->load_components('+Conch::DB::Helper::Row::ToJSON');
 
 =cut
 

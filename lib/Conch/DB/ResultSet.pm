@@ -15,7 +15,7 @@ available in core L<DBIx::Class>.
 =cut
 
 __PACKAGE__->load_components(
-    '+Conch::DB::Deactivatable',                # provides active, deactivate
+    '+Conch::DB::Helper::ResultSet::Deactivatable', # provides active, deactivate
     'Helper::ResultSet::RemoveColumns',         # provides remove_columns (must be applied early!)
     'Helper::ResultSet::OneRow',                # provides one_row
     'Helper::ResultSet::Shortcut::HRI',         # provides hri: raw unblessed + uninflated data
@@ -23,14 +23,15 @@ __PACKAGE__->load_components(
     'Helper::ResultSet::Shortcut::OrderBy',     # provides order_by
     'Helper::ResultSet::Shortcut::Rows',        # provides rows
     'Helper::ResultSet::Shortcut::Distinct',    # provides distinct
-    '+Conch::DB::ResultsExist',                 # provides exists
+    '+Conch::DB::Helper::ResultSet::ResultsExist',  # provides exists
     'Helper::ResultSet::Shortcut::Columns',     # provides columns
     'Helper::ResultSet::Shortcut::Page',        # provides page
     'Helper::ResultSet::CorrelateRelationship', # provides correlate
     'Helper::ResultSet::Shortcut::AddColumns',  # provides add_columns
-    '+Conch::DB::AsEpoch',                      # provides as_epoch
+    '+Conch::DB::Helper::ResultSet::AsEpoch',   # provides as_epoch
     'Helper::ResultSet::SetOperations',         # provides union, intersect, except, and *_all
     'Helper::ResultSet::Shortcut::GroupBy',     # provides group_by
+    '+Conch::DB::Helper::ResultSet::WithRole',  # provides with_role
 );
 
 1;

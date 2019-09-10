@@ -616,11 +616,46 @@ sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
     return $self;
 }
 
-sub log_debug_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'debug'); goto \&log_is }
-sub log_info_is  ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'info'); goto \&log_is }
-sub log_warn_is  ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'warn'); goto \&log_is }
-sub log_error_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'error'); goto \&log_is }
-sub log_fatal_is ($s, $e, $n = 'log line') { @_ = ($s, $e, $n, 'fatal'); goto \&log_is }
+sub log_debug_is ($s, $e, $n = 'debug log line') { @_ = ($s, $e, $n, 'debug'); goto \&log_is }
+sub log_info_is  ($s, $e, $n = 'info log line') { @_ = ($s, $e, $n, 'info'); goto \&log_is }
+sub log_warn_is  ($s, $e, $n = 'warn log line') { @_ = ($s, $e, $n, 'warn'); goto \&log_is }
+sub log_error_is ($s, $e, $n = 'error log line') { @_ = ($s, $e, $n, 'error'); goto \&log_is }
+sub log_fatal_is ($s, $e, $n = 'fatal log line') { @_ = ($s, $e, $n, 'fatal'); goto \&log_is }
+
+=head2 log_like
+
+Like L</log_like>, but uses a regular expression to express the expected log content.
+
+A log line at any level matches, or you can use a more specific method that matches only
+one specific log level:
+
+=head2 log_debug_like
+
+=head2 log_info_like
+
+=head2 log_warn_like
+
+=head2 log_error_like
+
+=head2 log_fatal_like
+
+=cut
+
+sub log_like ($self, $expected_msg_re, $test_name = 'log line', $level = undef) {
+    @_ = ($self,
+        ref $expected_msg_re eq 'ARRAY'
+          ? (map Test::Deep::re($_), $expected_msg_re->@*)
+          : Test::Deep::re($expected_msg_re),
+        $test_name, $level);
+
+    goto \&log_is;
+}
+
+sub log_debug_like ($s, $e, $n = 'debug log line') { @_ = ($s, $e, $n, 'debug'); goto \&log_like }
+sub log_info_like  ($s, $e, $n = 'info log line') { @_ = ($s, $e, $n, 'info'); goto \&log_like }
+sub log_warn_like  ($s, $e, $n = 'warn log line') { @_ = ($s, $e, $n, 'warn'); goto \&log_like }
+sub log_error_like ($s, $e, $n = 'error log line') { @_ = ($s, $e, $n, 'error'); goto \&log_like }
+sub log_fatal_like ($s, $e, $n = 'fatal log line') { @_ = ($s, $e, $n, 'fatal'); goto \&log_like }
 
 =head2 logs_are
 
@@ -628,7 +663,7 @@ Like L</log_is>, but tests for multiple messages at once.
 
 =cut
 
-sub logs_are ($self, $expected_msgs, $test_name = 'log line', $level = undef) {
+sub logs_are ($self, $expected_msgs, $test_name = 'log lines', $level = undef) {
     $self->_test(
         'Test::Deep::cmp_deeply',
         $self->app->log->history,

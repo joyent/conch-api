@@ -141,6 +141,21 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 user_organization_roles
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::UserOrganizationRole>
+
+=cut
+
+__PACKAGE__->has_many(
+  "user_organization_roles",
+  "Conch::DB::Result::UserOrganizationRole",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 user_relay_connections
 
 Type: has_many
@@ -201,6 +216,16 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 organizations
+
+Type: many_to_many
+
+Composing rels: L</user_organization_roles> -> organization
+
+=cut
+
+__PACKAGE__->many_to_many("organizations", "user_organization_roles", "organization");
+
 =head2 relays
 
 Type: many_to_many
@@ -223,7 +248,7 @@ __PACKAGE__->many_to_many("workspaces", "user_workspace_roles", "workspace");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vpTbeHmoxnxcjZ7EUUg9yA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KQ7+QU/4ZJXYM8WZw89t6g
 
 use DBIx::Class::PassphraseColumn 0.04 ();
 __PACKAGE__->load_components('PassphraseColumn');
@@ -253,7 +278,7 @@ Because hard cryptography is used, this is *not* a fast call!
 
 =head2 TO_JSON
 
-Include information about the user's workspaces, if available.
+Include information about the user's workspaces and organizations, if available.
 
 =cut
 
@@ -263,8 +288,28 @@ sub TO_JSON ($self) {
     # Mojo::JSON renders \0, \1 as json booleans
     $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change is_admin);
 
-    # add workspace data, if it has been prefetched
-    if (my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache) {
+    # add organization and workspace data, if they have been prefetched
+    # (we expect neither or both)
+    # (see also Conch::DB::Result::Organization::TO_JSON)
+    if (my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache
+        and my $cached_uors = $self->related_resultset('user_organization_roles')->get_cache) {
+
+        $data->{organizations} = [
+            map {
+                my $organization = $_->organization;
+                +{
+                    (map +($_ => $organization->$_), qw(id name description)),
+                    role => $_->role,
+                }
+            } $cached_uors->@*,
+        ];
+
+        # we assume we prefetched our user(s) with:
+        # { user_organization_roles => { organization => { organization_workspace_roles => 'workspace' } } }
+        my @cached_owrs = map
+            $_->organization->related_resultset('organization_workspace_roles')->get_cache->@*,
+            $cached_uors->@*;
+
         my %seen_workspaces;
         $data->{workspaces} = [
             # we process the direct uwr+workspace entries first so we do not produce redundant rows
@@ -273,9 +318,22 @@ sub TO_JSON ($self) {
                 +{
                     $_->workspace->TO_JSON->%*,
                     role => $_->role,
-                },
+                }
             } $cached_uwrs->@*),
 
+            # direct owr_workspace entries
+            (map +(
+                $seen_workspaces{$_->id}++ ? () : do {
+                    my $workspace = $_->workspace;
+                    +{
+                        $workspace->TO_JSON->%*,
+                        role => $_->role,
+                        role_via_organization_id => $_->organization_id,
+                    }
+                }
+            ), @cached_owrs),
+
+            # all the workspaces the user can reach indirectly
             (map +(
                 map +(
                     # $_ is a workspace where the user inherits a role
@@ -287,6 +345,23 @@ sub TO_JSON ($self) {
                 ), $self->result_source->schema->resultset('workspace')
                     ->workspaces_beneath($_->workspace_id)
             ), $cached_uwrs->@*),
+
+            # all the workspaces the user's organization(s) can reach indirectly
+            (map {
+                my $owr = $_;
+                map +(
+                    # $_ is a workspace where the organization inherits a role
+                    $seen_workspaces{$_->id}++ ? () : do {
+                        # instruct the workspace serializer to fill in the role fields
+                        $self->is_admin ? $_->role('admin') : $_->organization_id_for_role($owr->organization_id);
+                        +{
+                            $_->TO_JSON->%*,
+                            role_via_organization_id => $owr->organization_id,
+                        }
+                    }
+                ), $self->result_source->schema->resultset('workspace')
+                    ->workspaces_beneath($_->workspace_id)
+            } @cached_owrs),
         ];
     }
 

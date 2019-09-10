@@ -1,11 +1,11 @@
-package Conch::DB::AsEpoch;
+package Conch::DB::Helper::ResultSet::AsEpoch;
 use v5.26;
 use warnings;
 use experimental 'signatures';
 
 =head1 NAME
 
-Conch::DB::AsEpoch
+Conch::DB::Helper::ResultSet::AsEpoch
 
 =head1 DESCRIPTION
 
@@ -15,7 +15,7 @@ This code is postgres-specific.
 
 =head1 USAGE
 
-    __PACKAGE__->load_components('+Conch::DB::AsEpoch');
+    __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::AsEpoch');
 
 =head1 METHODS
 

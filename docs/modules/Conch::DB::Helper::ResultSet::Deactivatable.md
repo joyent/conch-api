@@ -1,6 +1,6 @@
 # NAME
 
-Conch::DB::Deactivatable
+Conch::DB::Helper::ResultSet::Deactivatable
 
 # DESCRIPTION
 
@@ -10,7 +10,7 @@ column, to provide common query functionality.
 # USAGE
 
 ```
-__PACKAGE__->load_components('+Conch::DB::Deactivatable');
+__PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::Deactivatable');
 ```
 
 # METHODS
