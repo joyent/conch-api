@@ -2,13 +2,39 @@
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 conch-db - commands to administrate a database
 
 =head1 SYNOPSIS
 
-    bin/conch-db [long options...] [arguments]
+    bin/conch-db [subcommand subcommand...] [-hnv] [long options...] [arguments]
+
+    initialize               initialize a new Conch database and its tables
+    create-validations       create validation plans for the Conch application
+    create-global-workspace  create the GLOBAL workspace
+    create-admin-user        create a user with admin privileges
+    migrate                  run outstanding migrations on a Conch database (no effect with 'all')
+    apply-dump-migration [n] generate new DBIC result classes, schema.sql after applying a migration(s)
+    all                      alias for initialize create-validations create-admin-user
+
+    The environment variables POSTGRES_DB, POSTGRES_HOST, POSTGRES_USER and POSTGRES_PASSWORD are
+    used if set. Otherwise, the config file will be used to find database credentials.
+
+        -h --help       print usage message and exit
+        -n --dry-run    use a test database instead of credentials you provide
+        -v --verbose    print the queries that are executed
+
+        --config STR    configuration file
+                        (default value: conch.conf)
+        --username STR  the new admin user's name
+                        (default value: admin)
+        --email STR     the new admin user's email address (required for
+                        create-admin-user)
+        --password STR  the new admin user's password (or one will be
+                        randomly generated)
 
 =head1 DESCRIPTION
 
