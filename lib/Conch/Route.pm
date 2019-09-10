@@ -116,7 +116,7 @@ __END__
 
 =pod
 
-Unless otherwise specified all routes require authentication.
+Unless otherwise specified, all routes require authentication.
 
 Full access is granted to system admin users, regardless of workspace or other role entries.
 
@@ -126,11 +126,11 @@ Error responses will use:
 
 =over
 
-=item * failure to validate query parameters: http 400, response.yaml#/QueryParamsValidationError
+=item * failure to validate query parameters: http 400, F<response.yaml#/definitions/QueryParamsValidationError>
 
-=item * failure to validate request body payload: http 400, response.yaml#/RequestValidationError
+=item * failure to validate request body payload: http 400, F<response.yaml#/RequestValidationError>
 
-=item * all other errors, unless specified: http 4xx, response.yaml/#Error
+=item * all other errors, unless specified: http 4xx, F<response.yaml#/Error>
 
 =back
 
@@ -140,7 +140,7 @@ Error responses will use:
 
 =item * Does not require authentication.
 
-=item * Response: response.yaml#/Ping
+=item * Response: F<response.yaml#/definitions/Ping>
 
 =back
 
@@ -150,7 +150,7 @@ Error responses will use:
 
 =item * Does not require authentication.
 
-=item * Response: response.yaml#/Version
+=item * Response: F<response.yaml#/definitions/Version>
 
 =back
 
@@ -158,9 +158,9 @@ Error responses will use:
 
 =over 4
 
-=item * Request: request.yaml#/Login
+=item * Request: F<request.yaml#/definitions/Login>
 
-=item * Response: response.yaml#/Login
+=item * Response: F<response.yaml#/definitions/Login>
 
 =back
 
@@ -198,9 +198,9 @@ Returns the schema specified by type and name.
 
 =item * Does not require authentication.
 
-=item * Response: response.yaml#/DeviceTotals
+=item * Response: F<response.yaml#/definitions/DeviceTotals>
 
-=item * Response (Circonus): response.yaml#/DeviceTotalsCirconus
+=item * Response (Circonus): F<response.yaml#/definitions/DeviceTotalsCirconus>
 
 =back
 
@@ -208,9 +208,9 @@ Returns the schema specified by type and name.
 
 =over 4
 
-=item * Request: request.yaml#/Null
+=item * Request: F<request.yaml#/definitions/Null>
 
-=item * Response: response.yaml#/Login
+=item * Response: F<response.yaml#/definitions/Login>
 
 =back
 

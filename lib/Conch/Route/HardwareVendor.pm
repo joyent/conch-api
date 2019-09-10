@@ -51,7 +51,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/HardwareVendors
+=item * Response: F<response.yaml#/definitions/HardwareVendors>
 
 =back
 
@@ -59,7 +59,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/HardwareVendor
+=item * Response: F<response.yaml#/definitions/HardwareVendor>
 
 =back
 
@@ -79,7 +79,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/Null
+=item * Request: F<request.yaml#/definitions/Null>
 
 =item * Response: Redirect to the created hardware vendor
 

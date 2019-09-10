@@ -52,7 +52,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/Datacenters
+=item * Response: F<response.yaml#/definitions/Datacenters>
 
 =back
 
@@ -62,7 +62,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/DatacenterCreate
+=item * Request: F<request.yaml#/definitions/DatacenterCreate>
 
 =item * Response: C<201 CREATED> or C<204 NO CONTENT>, plus Location header
 
@@ -74,7 +74,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/Datacenter
+=item * Response: F<response.yaml#/definitions/Datacenter>
 
 =back
 
@@ -84,7 +84,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/DatacenterUpdate
+=item * Request: F<request.yaml#/definitions/DatacenterUpdate>
 
 =item * Response: Redirect to the updated datacenter
 
@@ -106,7 +106,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/DatacenterRoomsDetailed
+=item * Response: F<response.yaml#/definitions/DatacenterRoomsDetailed>
 
 =back
 
@@ -116,7 +116,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/DatacenterRoomsDetailed
+=item * Response: F<response.yaml#/definitions/DatacenterRoomsDetailed>
 
 =back
 

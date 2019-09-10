@@ -12,7 +12,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /user/me`
 
-- Response: response.yaml#/UserDetailed
+- Response: [response.json#/definitions/UserDetailed](../json-schema/response.json#/definitions/UserDetailed)
 
 ### `POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1>`
 
@@ -25,7 +25,7 @@ Optionally accepts the following query parameters:
 By default it will revoke both login/session and API tokens.
 `api_only` and `login_only` cannot both be `1`.
 
-- Request: request.yaml#/UserSettings
+- Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
 - Response: `204 NO CONTENT`
 
 ### `POST /user/me/password?clear_tokens=<login_only|none|all>`
@@ -40,25 +40,25 @@ tokens for the user, forcing the user to log in again. Possible options are:
 If the `clear_tokens` parameter is set to `none` then the user session will remain;
 otherwise, the user is logged out.
 
-- Request: request.yaml#/UserSettings
+- Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
 - Response: `204 NO CONTENT`
 
 ### `GET /user/me/settings`
 
-- Response: response.yaml#/UserSettings
+- Response: [response.json#/definitions/UserSettings](../json-schema/response.json#/definitions/UserSettings)
 
 ### `POST /user/me/settings`
 
-- Request: request.yaml#/UserSettings
+- Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
 - Response: `204 NO CONTENT`
 
 ### `GET /user/me/settings/:key`
 
-- Response: response.yaml#/UserSetting
+- Response: [response.json#/definitions/UserSetting](../json-schema/response.json#/definitions/UserSetting)
 
 ### `POST /user/me/settings/:key`
 
-- Request: request.yaml#/UserSetting
+- Request: [request.json#/definitions/UserSetting](../json-schema/request.json#/definitions/UserSetting)
 - Response: `204 NO CONTENT`
 
 ### `DELETE /user/me/settings/:key`
@@ -67,16 +67,16 @@ otherwise, the user is logged out.
 
 ### `GET /user/me/token`
 
-- Response: response.yaml#/UserTokens
+- Response: [response.json#/definitions/UserTokens](../json-schema/response.json#/definitions/UserTokens)
 
 ### `POST /user/me/token`
 
-- Request: request.yaml#/NewUserToken
-- Response: response.yaml#/NewUserToken
+- Request: [request.json#/definitions/NewUserToken](../json-schema/request.json#/definitions/NewUserToken)
+- Response: [response.json#/definitions/NewUserToken](../json-schema/response.json#/definitions/NewUserToken)
 
 ### `GET /user/me/token/:token_name`
 
-- Response: response.yaml#/UserToken
+- Response: [response.json#/definitions/UserToken](../json-schema/response.json#/definitions/UserToken)
 
 ### `DELETE /user/me/token/:token_name`
 
@@ -85,7 +85,7 @@ otherwise, the user is logged out.
 ### `GET /user/:target_user_id_or_email`
 
 - Requires system admin authorization
-- Response: response.yaml#/UserDetailed
+- Response: [response.json#/definitions/UserDetailed](../json-schema/response.json#/definitions/UserDetailed)
 
 ### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
 
@@ -93,9 +93,9 @@ Optionally take the query parameter `send_mail` (defaults to `1`) to send
 an email telling the user their tokens were revoked
 
 - Requires system admin authorization
-- Request: request.yaml#/UpdateUser
+- Request: [request.json#/definitions/UpdateUser](../json-schema/request.json#/definitions/UpdateUser)
 - Success Response: Redirect to the user that was updated
-- Error response on duplicate user: response.yaml#/UserError
+- Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError)
 
 ### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
 
@@ -136,7 +136,7 @@ Optionally accepts the following query parameters:
 ### `GET /user`
 
 - Requires system admin authorization
-- Response: response.yaml#/UsersDetailed
+- Response: [response.json#/definitions/UsersDetailed](../json-schema/response.json#/definitions/UsersDetailed)
 
 ### `POST /user?send_mail=<1|0>`
 
@@ -144,25 +144,25 @@ Optionally takes a query parameter, `send_mail` (defaults to `1`) to send an
 email to the user with the new password.
 
 - Requires system admin authorization
-- Request: request.yaml#/NewUser
-- Success Response: response.yaml#/User
-- Error response on duplicate user: response.yaml#/UserError
+- Request: [request.json#/definitions/NewUser](../json-schema/request.json#/definitions/NewUser)
+- Success Response: [response.json#/definitions/User](../json-schema/response.json#/definitions/User)
+- Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError)
 
 ### `GET /user/:target_user_id_or_email/token`
 
 - Requires system admin authorization
-- Response: response.yaml#/UserTokens
+- Response: [response.json#/definitions/UserTokens](../json-schema/response.json#/definitions/UserTokens)
 
 ### `GET /user/:target_user_id_or_email/token/:token_name`
 
 - Requires system admin authorization
-- Response: response.yaml#/UserTokens
+- Response: [response.json#/definitions/UserTokens](../json-schema/response.json#/definitions/UserTokens)
 
 ### `DELETE /user/:target_user_id_or_email/token/:token_name`
 
 - Requires system admin authorization
 - Success Response: `204 NO CONTENT`
-- Error response when user already deactivated: response.yaml#/UserError
+- Error response when user already deactivated: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError)
 
 # LICENSING
 

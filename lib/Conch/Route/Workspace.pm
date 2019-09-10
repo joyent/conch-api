@@ -104,7 +104,7 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/WorkspacesAndRoles
+=item * Response: F<response.yaml#/definitions/WorkspacesAndRoles>
 
 =back
 
@@ -114,7 +114,7 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/WorkspaceAndRole
+=item * Response: F<response.yaml#/definitions/WorkspaceAndRole>
 
 =back
 
@@ -124,7 +124,7 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/WorkspacesAndRoles
+=item * Response: F<response.yaml#/definitions/WorkspacesAndRoles>
 
 =back
 
@@ -137,9 +137,9 @@ an email to the parent workspace admins.
 
 =item * User requires the read/write role
 
-=item * Request: request.yaml#/WorkspaceCreate
+=item * Request: F<request.yaml#/definitions/WorkspaceCreate>
 
-=item * Response: response.yaml#/WorkspaceAndRole
+=item * Response: F<response.yaml#/definitions/WorkspaceAndRole>
 
 =back
 
@@ -163,7 +163,7 @@ Accepts the following optional query parameters:
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/Devices
+=item * Response: F<response.yaml#/definitions/Devices>
 
 =back
 
@@ -173,7 +173,7 @@ Accepts the following optional query parameters:
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/WorkspaceDevicePXEs
+=item * Response: F<response.yaml#/definitions/WorkspaceDevicePXEs>
 
 =back
 
@@ -183,7 +183,7 @@ Accepts the following optional query parameters:
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/WorkspaceRackSummary
+=item * Response: F<response.yaml#/definitions/WorkspaceRackSummary>
 
 =back
 
@@ -193,7 +193,7 @@ Accepts the following optional query parameters:
 
 =item * User requires the admin role
 
-=item * Request: request.yaml#/WorkspaceAddRack
+=item * Request: F<request.yaml#/definitions/WorkspaceAddRack>
 
 =item * Response: Redirect to the workspace's racks
 
@@ -218,7 +218,7 @@ those updated with in the last C<X> minutes.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/WorkspaceRelays
+=item * Response: F<response.yaml#/definitions/WorkspaceRelays>
 
 =back
 
@@ -228,7 +228,7 @@ those updated with in the last C<X> minutes.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/Devices
+=item * Response: F<response.yaml#/definitions/Devices>
 
 =back
 
@@ -238,7 +238,7 @@ those updated with in the last C<X> minutes.
 
 =item * User requires the admin role
 
-=item * Response: response.yaml#/WorkspaceUsers
+=item * Response: F<response.yaml#/definitions/WorkspaceUsers>
 
 =back
 
@@ -251,7 +251,7 @@ an email to the user and workspace admins.
 
 =item * User requires the admin role
 
-=item * Request: request.yaml#/WorkspaceAddUser
+=item * Request: F<request.yaml#/definitions/WorkspaceAddUser>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -276,7 +276,7 @@ an email to the user and workspace admins.
 
 =item * User requires the admin role
 
-=item * Response: response.yaml#/WorkspaceOrganizations
+=item * Response: F<response.yaml#/definitions/WorkspaceOrganizations>
 
 =back
 
@@ -289,7 +289,7 @@ an email to the organization members and workspace admins.
 
 =item * User requires the admin role
 
-=item * Request: request.yaml#/WorkspaceAddOrganization
+=item * Request: F<request.yaml#/definitions/WorkspaceAddOrganization>
 
 =item * Response: C<204 NO CONTENT>
 

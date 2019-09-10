@@ -12,7 +12,7 @@ Set up all the routes for the Conch Mojo application.
 
 Set up the full route structure
 
-Unless otherwise specified all routes require authentication.
+Unless otherwise specified, all routes require authentication.
 
 Full access is granted to system admin users, regardless of workspace or other role entries.
 
@@ -20,24 +20,24 @@ Successful (http 2xx code) response structures are as described for each endpoin
 
 Error responses will use:
 
-- failure to validate query parameters: http 400, response.yaml#/QueryParamsValidationError
-- failure to validate request body payload: http 400, response.yaml#/RequestValidationError
-- all other errors, unless specified: http 4xx, response.yaml/#Error
+- failure to validate query parameters: http 400, [response.json#/definitions/QueryParamsValidationError](../json-schema/response.json#/definitions/QueryParamsValidationError)
+- failure to validate request body payload: http 400, [response.json#/RequestValidationError](../json-schema/response.json#/RequestValidationError)
+- all other errors, unless specified: http 4xx, [response.json#/Error](../json-schema/response.json#/Error)
 
 ### `GET /ping`
 
 - Does not require authentication.
-- Response: response.yaml#/Ping
+- Response: [response.json#/definitions/Ping](../json-schema/response.json#/definitions/Ping)
 
 ### `GET /version`
 
 - Does not require authentication.
-- Response: response.yaml#/Version
+- Response: [response.json#/definitions/Version](../json-schema/response.json#/definitions/Version)
 
 ### `POST /login`
 
-- Request: request.yaml#/Login
-- Response: response.yaml#/Login
+- Request: [request.json#/definitions/Login](../json-schema/request.json#/definitions/Login)
+- Response: [response.json#/definitions/Login](../json-schema/response.json#/definitions/Login)
 
 ### `POST /logout`
 
@@ -60,13 +60,13 @@ Returns the schema specified by type and name.
 ### `GET /workspace/:workspace/device-totals.circ`
 
 - Does not require authentication.
-- Response: response.yaml#/DeviceTotals
-- Response (Circonus): response.yaml#/DeviceTotalsCirconus
+- Response: [response.json#/definitions/DeviceTotals](../json-schema/response.json#/definitions/DeviceTotals)
+- Response (Circonus): [response.json#/definitions/DeviceTotalsCirconus](../json-schema/response.json#/definitions/DeviceTotalsCirconus)
 
 ### `POST /refresh_token`
 
-- Request: request.yaml#/Null
-- Response: response.yaml#/Login
+- Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
+- Response: [response.json#/definitions/Login](../json-schema/response.json#/definitions/Login)
 
 ### `* /dc`, `* /room`, `* /rack_role`, `* /rack`, `* /layout`
 

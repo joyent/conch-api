@@ -12,13 +12,13 @@ Unless otherwise noted, all routes require authentication.
 
 ### `POST /device_report`
 
-- Request: device\_report.yaml#/DeviceReport
-- Response: response.yaml#/ReportValidationResults
+- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Response: [response.json#/definitions/ReportValidationResults](../json-schema/response.json#/definitions/ReportValidationResults)
 
 ### `GET /device_report/:device_report_id`
 
 - User requires the read-only role, as described in ["routes" in Conch::Route::Device](../modules/Conch::Route::Device#routes).
-- Response: response.yaml#/DeviceReportRow
+- Response: [response.json#/definitions/DeviceReportRow](../json-schema/response.json#/definitions/DeviceReportRow)
 
 # LICENSING
 

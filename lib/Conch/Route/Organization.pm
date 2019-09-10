@@ -63,7 +63,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/Organizations
+=item * Response: F<response.yaml#/definitions/Organizations>
 
 =back
 
@@ -73,7 +73,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/OrganizationCreate
+=item * Request: F<request.yaml#/definitions/OrganizationCreate>
 
 =item * Response: Redirect to the organization
 
@@ -85,7 +85,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization or the admin role on the organization
 
-=item * Response: response.yaml#/Organization
+=item * Response: F<response.yaml#/definitions/Organization>
 
 =back
 
@@ -105,7 +105,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization or the admin role on the organization
 
-=item * Response: response.yaml#/OrganizationUsers
+=item * Response: F<response.yaml#/definitions/OrganizationUsers>
 
 =back
 
@@ -118,7 +118,7 @@ an email to the user.
 
 =item * Requires system admin authorization or the admin role on the organization
 
-=item * Request: request.yaml#/OrganizationAddUser
+=item * Request: F<request.yaml#/definitions/OrganizationAddUser>
 
 =item * Response: C<204 NO CONTENT>
 

@@ -66,7 +66,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/HardwareProducts
+=item * Response: F<response.yaml#/definitions/HardwareProducts>
 
 =back
 
@@ -76,7 +76,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/HardwareProductCreate
+=item * Request: F<request.yaml#/definitions/HardwareProductCreate>
 
 =item * Response: Redirect to the created hardware product
 
@@ -92,7 +92,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/HardwareProduct
+=item * Response: F<response.yaml#/definitions/HardwareProduct>
 
 =back
 
@@ -108,7 +108,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/HardwareProductUpdate
+=item * Request: F<request.yaml#/definitions/HardwareProductUpdate>
 
 =item * Response: Redirect to the updated hardware product
 

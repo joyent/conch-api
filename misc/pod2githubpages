@@ -34,6 +34,16 @@ around 'Pod::Markdown::format_perldoc_url' => sub {
     return $url;
 };
 
+around 'Pod::Markdown::end_F' => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    return $self->$orig(@_) if $self->_private->{stacks}[-1][-1] !~ m{^[^.]+\.yaml};
+
+    my $text = $self->_pop_stack_text =~ s{^([^.]+)\.yaml}{$1.json}r;
+    $self->_save('['.$text.']('.'../json-schema/'.$text.')');
+};
+
 my (@module_files, @bin_files, @json_schema_files);
 
 foreach my $dir (qw(modules scripts json-schema)) {

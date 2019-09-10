@@ -13,23 +13,23 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /room`
 
 - Requires system admin authorization
-- Response: response.yaml#/DatacenterRoomsDetailed
+- Response: [response.json#/definitions/DatacenterRoomsDetailed](../json-schema/response.json#/definitions/DatacenterRoomsDetailed)
 
 ### `POST /room`
 
 - Requires system admin authorization
-- Request: request.yaml#/DatacenterRoomCreate
+- Request: [request.json#/definitions/DatacenterRoomCreate](../json-schema/request.json#/definitions/DatacenterRoomCreate)
 - Response: Redirect to the created room
 
 ### `GET /room/:datacenter_room_id`
 
 - Requires system admin authorization
-- Response: response.yaml#/DatacenterRoomDetailed
+- Response: [response.json#/definitions/DatacenterRoomDetailed](../json-schema/response.json#/definitions/DatacenterRoomDetailed)
 
 ### `POST /room/:datacenter_room_id`
 
 - Requires system admin authorization
-- Request: request.yaml#/DatacenterRoomUpdate
+- Request: [request.json#/definitions/DatacenterRoomUpdate](../json-schema/request.json#/definitions/DatacenterRoomUpdate)
 - Response: Redirect to the updated room
 
 ### `DELETE /room/:datacenter_room_id`
@@ -40,7 +40,7 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /room/:datacenter_room_id/racks`
 
 - Requires system admin authorization
-- Response: response.yaml#/Racks
+- Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
 
 # LICENSING
 

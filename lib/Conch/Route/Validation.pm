@@ -72,7 +72,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/Validations
+=item * Response: F<response.yaml#/definitions/Validations>
 
 =back
 
@@ -80,7 +80,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/Validation
+=item * Response: F<response.yaml#/definitions/Validation>
 
 =back
 
@@ -88,7 +88,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/ValidationPlans
+=item * Response: F<response.yaml#/definitions/ValidationPlans>
 
 =back
 
@@ -96,7 +96,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/ValidationPlan
+=item * Response: F<response.yaml#/definitions/ValidationPlan>
 
 =back
 
@@ -104,7 +104,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/Validations
+=item * Response: F<response.yaml#/definitions/Validations>
 
 =back
 
@@ -112,7 +112,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/ValidationStateWithResults
+=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
 
 =back
 

@@ -13,23 +13,23 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /layout`
 
 - Requires system admin authorization
-- Response: response.yaml#/RackLayouts
+- Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
 ### `POST /layout`
 
 - Requires system admin authorization
-- Request: request.yaml#/RackLayoutCreate
+- Request: [request.json#/definitions/RackLayoutCreate](../json-schema/request.json#/definitions/RackLayoutCreate)
 - Response: Redirect to the created rack layout
 
 ### `GET /layout/:layout_id`
 
 - Requires system admin authorization
-- Response: response.yaml#/RackLayout
+- Response: [response.json#/definitions/RackLayout](../json-schema/response.json#/definitions/RackLayout)
 
 ### `POST /layout/:layout_id`
 
 - Requires system admin authorization
-- Request: request.yaml#/RackLayoutUpdate
+- Request: [request.json#/definitions/RackLayoutUpdate](../json-schema/request.json#/definitions/RackLayoutUpdate)
 - Response: Redirect to the update rack layout
 
 ### `DELETE /layout/:layout_id`
