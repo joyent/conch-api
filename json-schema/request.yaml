@@ -203,11 +203,11 @@ definitions:
         rack_unit_start:
           $ref: common.yaml#/definitions/positive_integer
   RackLayoutUpdate:
+    $comment: "NOTE: rack_id is deprecated: cannot change rack_id in an existing layout"
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
-      # this field is deprecated: cannot change rack_id in an existing layout
       rack_id:
         $ref: common.yaml#/definitions/uuid
       hardware_product_id:

@@ -748,6 +748,7 @@
       "type" : "object"
     },
     "RackLayoutUpdate" : {
+      "$comment" : "NOTE: rack_id is deprecated: cannot change rack_id in an existing layout",
       "additionalProperties" : false,
       "minProperties" : 1,
       "properties" : {
