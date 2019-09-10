@@ -321,5 +321,97 @@ $t->delete_ok('/layout/'.$layout_3_6->id)
 $t->get_ok('/layout/'.$layout_3_6->id)
     ->status_is(404);
 
+# now we have these assigned slots:
+# start 1, width 2
+# start 11, width 4
+# start 20, width 4     # occupied by 'my device'
+# start 42, width 1
+
+$t->post_ok('/rack/'.$rack_id.'/layouts',
+        json => [{ rack_unit_start => 1, hardware_product_id => create_uuid_str }])
+    ->status_is(409)
+    ->json_cmp_deeply({ error => re(qr/^hardware_product_id ${\Conch::UUID::UUID_FORMAT} does not exist$/) });
+
+$t->post_ok('/rack/'.$rack_id.'/layouts',
+        json => [{ rack_unit_start => 42, hardware_product_id => $hw_product_compute->id }])
+    ->status_is(409)
+    ->json_is({ error => 'layout starting at rack_unit 42 will extend beyond the end of the rack' });
+
+$t->post_ok('/rack/'.$rack_id.'/layouts',
+        json => [
+            { rack_unit_start => 1, hardware_product_id => $hw_product_compute->id },
+            { rack_unit_start => 2, hardware_product_id => $hw_product_compute->id },
+        ])
+    ->status_is(409)
+    ->json_is({ error => 'layouts starting at rack_units 1 and 2 overlap' });
+
+$t->post_ok('/rack/'.$rack_id.'/layouts',
+        json => [
+            # unchanged
+            { rack_unit_start => 1, hardware_product_id => $hw_product_compute->id },
+            # unchanged, and has a located device
+            { rack_unit_start => 20, hardware_product_id => $hw_product_storage->id },
+            # new layout
+            { rack_unit_start => 26, hardware_product_id => $hw_product_compute->id },
+        ])
+    ->status_is(303)
+    ->location_is('/rack/'.$rack_id.'/layouts')
+    ->log_debug_is('deleted 2 rack layouts, created 1 rack layouts for rack '.$rack_id);
+
+$t->get_ok('/rack/'.$rack_id.'/layouts')
+    ->status_is(200)
+    ->json_schema_is('RackLayouts')
+    ->json_cmp_deeply([
+        superhashof({ rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_unit_start => 20, hardware_product_id => $hw_product_storage->id }),
+        superhashof({ rack_unit_start => 26, hardware_product_id => $hw_product_compute->id }),
+    ]);
+
+$t->get_ok('/rack/'.$rack_id.'/assignment')
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_cmp_deeply([
+        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
+        { rack_unit_start => 20, rack_unit_size => 4, hardware_product_name => $hw_product_storage->name, device_id => $device->id, device_asset_tag => undef },
+        { rack_unit_start => 26, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
+    ]);
+
+$t->post_ok('/rack/'.$rack_id.'/layouts',
+        json => [
+            { rack_unit_start => 3, hardware_product_id => $hw_product_compute->id },
+        ])
+    ->status_is(303)
+    ->location_is('/rack/'.$rack_id.'/layouts')
+    ->log_debug_is('unlocated 1 devices, deleted 3 rack layouts, created 1 rack layouts for rack '.$rack_id);
+
+$t->get_ok('/rack/'.$rack_id.'/layouts')
+    ->status_is(200)
+    ->json_schema_is('RackLayouts')
+    ->json_cmp_deeply([
+        superhashof({ rack_unit_start => 3, hardware_product_id => $hw_product_compute->id }),
+    ]);
+
+$t->get_ok('/rack/'.$rack_id.'/assignment')
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_cmp_deeply([
+        { rack_unit_start => 3, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
+    ]);
+
+$t->post_ok('/rack/'.$rack_id.'/layouts', json => [])
+    ->status_is(303)
+    ->location_is('/rack/'.$rack_id.'/layouts')
+    ->log_debug_is('deleted 1 rack layouts for rack '.$rack_id);
+
+$t->get_ok('/rack/'.$rack_id.'/layouts')
+    ->status_is(200)
+    ->json_schema_is('RackLayouts')
+    ->json_is([]);
+
+$t->get_ok('/rack/'.$rack_id.'/assignment')
+    ->status_is(200)
+    ->json_schema_is('RackAssignments')
+    ->json_is([]);
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :
