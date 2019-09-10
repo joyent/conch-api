@@ -12,6 +12,4 @@ docker run \
 	--rm \
 	--entrypoint=make \
 	${PREFIX}/conch-api:${LABEL} \
-	test \
-&& \
-docker push ${PREFIX}/conch-api:${LABEL}
+	test

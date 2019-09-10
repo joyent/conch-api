@@ -37,9 +37,7 @@ largely be determined in-house.
 
 * When the tag is pushed into Github, Buildbot executes a test run
   and, if successful, creates a new Github release. The text of that
-  release is the changelog that was posted in the relevant tag. Buildbot also
-  creates a docker image of the release and makes it available on
-  [hub.docker](https://hub.docker.com/r/joyentbuildops/conch-api).
+  release is the changelog that was posted in the relevant tag.
 
 * This new release is pushed into staging by a member of the Conch team using
   Ansible (see the private

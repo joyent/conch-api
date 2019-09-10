@@ -55,20 +55,13 @@ including database connectivity information.
 
 ## Docker
 
-### Images
-
-For every release, the Joyent test infrastructure publishes a docker image to
-hub.docker.com . These images are available at
-https://hub.docker.com/r/joyentbuildops/conch-api/tags and it is wise to
-consult the Github release page ( https://github.com/joyent/conch/releases ) to
-determine if the release is a staging or production image.
-
-The 'latest' image is not supported and is rebuilt manually and infrequently.
-*Always* use a release tag.
-
 ### Compose
 
 The most simple way to get going with the Conch API is to use Docker Compose.
+
+#### Build
+
+First, build the image locally using `docker/builder.sh`
 
 #### First Run
 
