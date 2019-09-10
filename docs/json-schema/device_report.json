@@ -1,0 +1,256 @@
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "definitions" : {
+    "DeviceReport_v3.0.0" : {
+      "description" : "the contents of a posted device report from relays and reporters",
+      "properties" : {
+        "bios_version" : {
+          "type" : "string"
+        },
+        "cpus" : {
+          "items" : {
+            "type" : "object"
+          },
+          "type" : "array"
+        },
+        "device_type" : {
+          "enum" : [
+            "server",
+            "switch"
+          ],
+          "type" : "string"
+        },
+        "dimms" : {
+          "items" : {
+            "properties" : {
+              "memory-locator" : {
+                "type" : "string"
+              },
+              "memory-serial-number" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "common.json#/definitions/non_empty_string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "memory-size" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "/definitions/int_or_stringy_int"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              }
+            },
+            "required" : [
+              "memory-locator"
+            ],
+            "type" : "object"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "disks" : {
+          "additionalProperties" : {
+            "properties" : {
+              "block_sz" : {
+                "type" : "integer"
+              },
+              "drive_type" : {
+                "type" : "string"
+              },
+              "enclosure" : {
+                "$ref" : "/definitions/int_or_stringy_int"
+              },
+              "firmware" : {
+                "type" : "string"
+              },
+              "hba" : {
+                "$ref" : "/definitions/int_or_stringy_int"
+              },
+              "health" : {
+                "type" : "string"
+              },
+              "model" : {
+                "type" : "string"
+              },
+              "size" : {
+                "type" : "integer"
+              },
+              "slot" : {
+                "$ref" : "/definitions/int_or_stringy_int"
+              },
+              "temp" : {
+                "$ref" : "/definitions/int_or_stringy_int"
+              },
+              "transport" : {
+                "type" : "string"
+              },
+              "vendor" : {
+                "type" : "string"
+              }
+            },
+            "type" : "object"
+          },
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/disk_serial_number"
+          },
+          "type" : "object"
+        },
+        "interfaces" : {
+          "additionalProperties" : {
+            "properties" : {
+              "ipaddr" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "common.json#/definitions/ipaddr"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "mac" : {
+                "$ref" : "common.json#/definitions/macaddr"
+              },
+              "mtu" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "/definitions/int_or_stringy_int"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "peer_mac" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "common.json#/definitions/macaddr"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "product" : {
+                "type" : "string"
+              },
+              "state" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "vendor" : {
+                "type" : "string"
+              }
+            },
+            "required" : [
+              "mac",
+              "product",
+              "vendor"
+            ],
+            "type" : "object"
+          },
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/device_interface_name"
+          },
+          "type" : "object"
+        },
+        "links" : {
+          "items" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "os" : {
+          "properties" : {
+            "hostname" : {
+              "type" : "string"
+            }
+          },
+          "required" : [
+            "hostname"
+          ],
+          "type" : "object"
+        },
+        "product_name" : {
+          "type" : "string"
+        },
+        "relay" : {
+          "properties" : {
+            "serial" : {
+              "$ref" : "common.json#/definitions/relay_serial_number"
+            }
+          },
+          "required" : [
+            "serial"
+          ],
+          "type" : "object"
+        },
+        "serial_number" : {
+          "$ref" : "common.json#/definitions/device_serial_number"
+        },
+        "system_uuid" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "temp" : {
+          "properties" : {
+            "cpu0" : {
+              "$ref" : "/definitions/int_or_stringy_int"
+            },
+            "cpu1" : {
+              "$ref" : "/definitions/int_or_stringy_int"
+            },
+            "exhaust" : {
+              "$ref" : "/definitions/int_or_stringy_int"
+            },
+            "inlet" : {
+              "$ref" : "/definitions/int_or_stringy_int"
+            }
+          },
+          "required" : [
+            "cpu0",
+            "cpu1"
+          ],
+          "type" : "object"
+        },
+        "uptime_since" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "bios_version",
+        "product_name",
+        "serial_number",
+        "system_uuid"
+      ],
+      "type" : "object"
+    },
+    "int_or_stringy_int" : {
+      "description" : "an integer that may be presented as a json string",
+      "oneOf" : [
+        {
+          "type" : "integer"
+        },
+        {
+          "pattern" : "^[0-9]+$",
+          "type" : "string"
+        }
+      ]
+    }
+  }
+}

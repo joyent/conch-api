@@ -1,0 +1,1029 @@
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "definitions" : {
+    "DatacenterCreate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "location" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "region" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "vendor" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "vendor_name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "required" : [
+        "vendor",
+        "region",
+        "location"
+      ],
+      "type" : "object"
+    },
+    "DatacenterRoomCreate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "alias" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "az" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "datacenter_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "vendor_name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "required" : [
+        "datacenter_id",
+        "az",
+        "alias"
+      ],
+      "type" : "object"
+    },
+    "DatacenterRoomUpdate" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "alias" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "az" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "datacenter_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "vendor_name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "type" : "object"
+    },
+    "DatacenterUpdate" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "location" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "region" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "vendor" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "vendor_name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "type" : "object"
+    },
+    "DeviceAssetTag" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "asset_tag" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_asset_tag"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "required" : [
+        "asset_tag"
+      ],
+      "type" : "object"
+    },
+    "DeviceLinks" : {
+      "additionaProperties" : false,
+      "properties" : {
+        "links" : {
+          "items" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        }
+      },
+      "required" : [
+        "links"
+      ],
+      "type" : "object"
+    },
+    "DeviceLocationUpdate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "rack_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "rack_id",
+        "rack_unit_start"
+      ],
+      "type" : "object"
+    },
+    "DevicePhase" : {
+      "additionaProperties" : false,
+      "properties" : {
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        }
+      },
+      "required" : [
+        "phase"
+      ],
+      "type" : "object"
+    },
+    "DeviceReport" : {
+      "$ref" : "device_report.json#/definitions/DeviceReport_v3.0.0"
+    },
+    "DeviceSetting" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/DeviceSettings"
+        },
+        {
+          "maxProperties" : 1,
+          "type" : "object"
+        }
+      ]
+    },
+    "DeviceSettings" : {
+      "additionalProperties" : {
+        "$ref" : "common.json#/definitions/non_empty_string"
+      },
+      "minProperties" : 1,
+      "propertyNames" : {
+        "$ref" : "common.json#/definitions/device_setting_key"
+      },
+      "type" : "object"
+    },
+    "HardwareProductCreate" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/HardwareProductUpdate"
+        },
+        {
+          "required" : [
+            "name",
+            "alias",
+            "hardware_vendor_id",
+            "rack_unit_size"
+          ]
+        },
+        {
+          "properties" : {
+            "hardware_product_profile" : {
+              "$ref" : "/definitions/HardwareProductProfileCreate"
+            }
+          },
+          "type" : "object"
+        }
+      ]
+    },
+    "HardwareProductProfileCreate" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/HardwareProductProfileUpdate"
+        },
+        {
+          "required" : [
+            "purpose",
+            "bios_firmware",
+            "cpu_num",
+            "cpu_type",
+            "dimms_num",
+            "ram_total",
+            "nics_num",
+            "usb_num"
+          ]
+        }
+      ]
+    },
+    "HardwareProductProfileUpdate" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "bios_firmware" : {
+          "type" : "string"
+        },
+        "cpu_num" : {
+          "type" : "integer"
+        },
+        "cpu_type" : {
+          "type" : "string"
+        },
+        "dimms_num" : {
+          "type" : "integer"
+        },
+        "hba_firmware" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "nics_num" : {
+          "type" : "integer"
+        },
+        "nvme_ssd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "nvme_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "nvme_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "psu_total" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "purpose" : {
+          "type" : "string"
+        },
+        "raid_lun_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "ram_total" : {
+          "type" : "integer"
+        },
+        "sas_hdd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_hdd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_hdd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_num" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "usb_num" : {
+          "type" : "integer"
+        }
+      },
+      "type" : "object"
+    },
+    "HardwareProductUpdate" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "alias" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "generation_name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "hardware_product_profile" : {
+          "$ref" : "/definitions/HardwareProductProfileUpdate"
+        },
+        "hardware_vendor_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "legacy_product_name" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/non_empty_string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "prefix" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/non_empty_string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "rack_unit_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "sku" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "specification" : {
+          "description" : "json blob of additional data",
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        }
+      },
+      "type" : "object"
+    },
+    "Login" : {
+      "additionalProperties" : false,
+      "oneOf" : [
+        {
+          "required" : [
+            "user_id"
+          ]
+        },
+        {
+          "required" : [
+            "email"
+          ]
+        }
+      ],
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "password" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "user_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "password"
+      ],
+      "type" : "object"
+    },
+    "NewUser" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "is_admin" : {
+          "type" : "boolean"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "password" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "required" : [
+        "name",
+        "email"
+      ],
+      "type" : "object"
+    },
+    "NewUserToken" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "required" : [
+        "name"
+      ],
+      "type" : "object"
+    },
+    "Null" : {
+      "type" : "null"
+    },
+    "OrganizationAddUser" : {
+      "additionalProperties" : false,
+      "oneOf" : [
+        {
+          "required" : [
+            "user_id"
+          ]
+        },
+        {
+          "required" : [
+            "email"
+          ]
+        }
+      ],
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "role" : {
+          "$ref" : "common.json#/definitions/role"
+        },
+        "user_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "role"
+      ],
+      "type" : "object"
+    },
+    "OrganizationCreate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "admins" : {
+          "items" : {
+            "additionalProperties" : false,
+            "oneOf" : [
+              {
+                "required" : [
+                  "user_id"
+                ]
+              },
+              {
+                "required" : [
+                  "email"
+                ]
+              }
+            ],
+            "properties" : {
+              "email" : {
+                "$ref" : "common.json#/definitions/email_address"
+              },
+              "user_id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              }
+            },
+            "type" : "object"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        }
+      },
+      "required" : [
+        "name",
+        "admins"
+      ],
+      "type" : "object"
+    },
+    "RackAssignmentDelete" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "device_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "device_id",
+        "rack_unit_start"
+      ],
+      "type" : "object"
+    },
+    "RackAssignmentDeletes" : {
+      "items" : {
+        "$ref" : "/definitions/RackAssignmentDelete"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "RackAssignmentUpdate" : {
+      "additionalProperties" : false,
+      "anyOf" : [
+        {
+          "required" : [
+            "device_id"
+          ]
+        },
+        {
+          "required" : [
+            "device_serial_number"
+          ]
+        }
+      ],
+      "properties" : {
+        "device_asset_tag" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_asset_tag"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "device_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "device_serial_number" : {
+          "$ref" : "common.json#/definitions/device_serial_number"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "rack_unit_start"
+      ],
+      "type" : "object"
+    },
+    "RackAssignmentUpdates" : {
+      "items" : {
+        "$ref" : "/definitions/RackAssignmentUpdate"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "RackCreate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "asset_tag" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "datacenter_room_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        },
+        "rack_role_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "serial_number" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "required" : [
+        "name",
+        "datacenter_room_id",
+        "rack_role_id"
+      ],
+      "type" : "object"
+    },
+    "RackLayoutCreate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "rack_id",
+        "hardware_product_id",
+        "rack_unit_start"
+      ],
+      "type" : "object"
+    },
+    "RackLayoutUpdate" : {
+      "$comment" : "NOTE: rack_id is deprecated: cannot change rack_id in an existing layout",
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_unit_start" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "type" : "object"
+    },
+    "RackLayouts" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "hardware_product_id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "rack_unit_start" : {
+            "$ref" : "common.json#/definitions/positive_integer"
+          }
+        },
+        "required" : [
+          "hardware_product_id",
+          "rack_unit_start"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "RackPhase" : {
+      "additionaProperties" : false,
+      "properties" : {
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        }
+      },
+      "required" : [
+        "phase"
+      ],
+      "type" : "object"
+    },
+    "RackRoleCreate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "rack_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "name",
+        "rack_size"
+      ],
+      "type" : "object"
+    },
+    "RackRoleUpdate" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "rack_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "type" : "object"
+    },
+    "RackUpdate" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "asset_tag" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/non_empty_string"
+            }
+          ]
+        },
+        "datacenter_room_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        },
+        "rack_role_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "serial_number" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/non_empty_string"
+            }
+          ]
+        }
+      },
+      "type" : "object"
+    },
+    "RegisterRelay" : {
+      "additionaProperties" : false,
+      "properties" : {
+        "ipaddr" : {
+          "description" : "postgres \"inet\": ipv4 or ipv6, with optional netmask",
+          "type" : "string"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "serial" : {
+          "$ref" : "common.json#/definitions/relay_serial_number"
+        },
+        "ssh_port" : {
+          "$ref" : "common.json#/definitions/non_negative_integer"
+        },
+        "version" : {
+          "description" : "usually a git commit SHA",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "serial"
+      ],
+      "type" : "object"
+    },
+    "UpdateUser" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "is_admin" : {
+          "type" : "boolean"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "type" : "object"
+    },
+    "UserPassword" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "password" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "required" : [
+        "password"
+      ],
+      "type" : "object"
+    },
+    "UserSetting" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/UserSettings"
+        },
+        {
+          "maxProperties" : 1,
+          "type" : "object"
+        }
+      ]
+    },
+    "UserSettings" : {
+      "additionalProperties" : {
+        "$ref" : "common.json#/definitions/non_empty_string"
+      },
+      "minProperties" : 1,
+      "propertyNames" : {
+        "$ref" : "common.json#/definitions/user_setting_key"
+      },
+      "type" : "object"
+    },
+    "WorkspaceAddOrganization" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "organization_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "role" : {
+          "$ref" : "common.json#/definitions/role"
+        }
+      },
+      "required" : [
+        "organization_id",
+        "role"
+      ],
+      "type" : "object"
+    },
+    "WorkspaceAddRack" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "asset_tag" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "serial_number" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "required" : [
+        "id"
+      ],
+      "type" : "object"
+    },
+    "WorkspaceAddUser" : {
+      "additionalProperties" : false,
+      "oneOf" : [
+        {
+          "required" : [
+            "user_id"
+          ]
+        },
+        {
+          "required" : [
+            "email"
+          ]
+        }
+      ],
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "role" : {
+          "$ref" : "common.json#/definitions/role"
+        },
+        "user_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "role"
+      ],
+      "type" : "object"
+    },
+    "WorkspaceCreate" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "description" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/non_empty_string"
+            }
+          ]
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        }
+      },
+      "required" : [
+        "name"
+      ],
+      "type" : "object"
+    }
+  }
+}

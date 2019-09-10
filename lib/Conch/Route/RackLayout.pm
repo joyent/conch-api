@@ -50,7 +50,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/RackLayouts
+=item * Response: F<response.yaml#/definitions/RackLayouts>
 
 =back
 
@@ -60,7 +60,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/RackLayoutCreate
+=item * Request: F<request.yaml#/definitions/RackLayoutCreate>
 
 =item * Response: Redirect to the created rack layout
 
@@ -72,7 +72,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/RackLayout
+=item * Response: F<response.yaml#/definitions/RackLayout>
 
 =back
 
@@ -82,7 +82,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/RackLayoutUpdate
+=item * Request: F<request.yaml#/definitions/RackLayoutUpdate>
 
 =item * Response: Redirect to the update rack layout
 

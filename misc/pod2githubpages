@@ -12,6 +12,9 @@ use warnings;
 
 use Pod::Markdown::Github;
 use Class::Method::Modifiers 'around';
+use Path::Tiny;
+use JSON::MaybeXS;
+use YAML::XS;
 
 my %opts = (
     output_encoding => 'UTF-8',
@@ -31,10 +34,21 @@ around 'Pod::Markdown::format_perldoc_url' => sub {
     return $url;
 };
 
-my (@module_files, @bin_files);
+around 'Pod::Markdown::end_F' => sub {
+    my $orig = shift;
+    my $self = shift;
 
-mkdir 'docs/modules' if not -d 'docs/modules';
-mkdir 'docs/scripts' if not -d 'docs/scripts';
+    return $self->$orig(@_) if $self->_private->{stacks}[-1][-1] !~ m{^[^.]+\.yaml};
+
+    my $text = $self->_pop_stack_text =~ s{^([^.]+)\.yaml}{$1.json}r;
+    $self->_save('['.$text.']('.'../json-schema/'.$text.')');
+};
+
+my (@module_files, @bin_files, @json_schema_files);
+
+foreach my $dir (qw(modules scripts json-schema)) {
+    mkdir 'docs/'.$dir if not -d 'docs/'.$dir;
+}
 
 while (my $infile = shift @ARGV) {
     # convert:                          lib/Conch/Time.pm            and  bin/conch-db
@@ -68,7 +82,23 @@ while (my $infile = shift @ARGV) {
     convert($in_fh, $out_fh);
 }
 
+my $json_encoder = JSON()->new->pretty->indent_length(2)->canonical(1);
+foreach my $filename (glob('json-schema/*.yaml')) {
+    my $data = YAML::XS::LoadFile($filename);
+    my $base = path($filename)->basename('.yaml');
+    my $json_content = $json_encoder->encode($data);
+
+    my @lines = split("\n", $json_content);
+    s/\.yaml/\.json/ foreach @lines;
+
+    path('docs/json-schema/'.$base.'.json')->spew_utf8(join("\n", @lines), "\n");
+    push @json_schema_files, $base.'.json';
+}
+
+
 my $footer = <<'FOOTER';
+
+[Back to main index](../)
 
 # Copyright / License
 
@@ -103,6 +133,21 @@ FOOTER
     foreach my $filename (sort @bin_files) {
         my $exe = $filename =~ s/.md$//r;
         print $fh '* [', $exe, '](../scripts/', $exe, ")\n";
+    }
+
+    print $fh $footer;
+    close $fh;
+}
+
+{
+    open my $fh, '>', 'docs/json-schema/index.md'
+        or die "cannot open docs/json-schema/index.md for writing: $!";
+
+    print $fh "# JSON Schema documentation (in `json-schema/`)\n\n";
+
+    foreach my $filename (sort @json_schema_files) {
+        my $sch = $filename =~ s/.json$//r;
+        print $fh '* [', $sch, '](../json-schema/', $filename, ")\n";
     }
 
     print $fh $footer;

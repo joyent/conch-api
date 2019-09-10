@@ -12,6 +12,62 @@ Conch::DB::ResultSet
 Base class for our resultsets, to allow us to add on additional functionality from what is
 available in core L<DBIx::Class>.
 
+=head1 METHODS
+
+=for stopwords hri prefetch
+
+Methods added are:
+
+=over 4
+
+=item * L<active|Conch::DB::Helper::ResultSet::Deactivatable/active>
+
+=item * L<add_columns|DBIx::Class::Helper::ResultSet::Shortcut/add_columns>
+
+=item * L<as_epoch|Conch::DB::Helper::ResultSet::AsEpoch/as_epoch>
+
+=item * L<columns|DBIx::Class::Helper::ResultSet::Shortcut/columns>
+
+=item * L<correlate|DBIx::Class::Helper::ResultSet::CorrelateRelationship/correlate>
+
+=item * L<deactivate|Conch::DB::Helper::ResultSet::Deactivatable/deactivate>
+
+=item * L<distinct|DBIx::Class::Helper::ResultSet::Shortcut/distinct>
+
+=item * L<except|DBIx::Class::Helper::ResultSet::SetOperations/except>
+
+=item * L<except_all|DBIx::Class::Helper::ResultSet::SetOperations/except_all>
+
+=item * L<exists|Conch::DB::Helper::ResultSet::ResultsExist/exists>
+
+=item * L<group_by|DBIx::Class::Helper::ResultSet::Shortcut/group_by>
+
+=item * L<hri|DBIx::Class::Helper::ResultSet::Shortcut/hri>
+
+=item * L<intersect|DBIx::Class::Helper::ResultSet::SetOperations/intersect>
+
+=item * L<intersect_all|DBIx::Class::Helper::ResultSet::SetOperations/intersect_all>
+
+=item * L<one_row|DBIx::Class::Helper::ResultSet::OneRow/one_row>
+
+=item * L<order_by|DBIx::Class::Helper::ResultSet::Shortcut/order_by>
+
+=item * L<page|DBIx::Class::Helper::ResultSet::Shortcut/page>
+
+=item * L<prefetch|DBIx::Class::Helper::ResultSet::Shortcut/prefetch>
+
+=item * L<remove_columns|DBIx::Class::Helper::ResultSet::RemoveColumns/remove_columns>
+
+=item * L<rows|DBIx::Class::Helper::ResultSet::Shortcut/rows>
+
+=item * L<union|DBIx::Class::Helper::ResultSet::SetOperations/union>
+
+=item * L<union_all|DBIx::Class::Helper::ResultSet::SetOperations/union_all>
+
+=item * L<with_role|Conch::DB::Helper::ResultSet::WithRole/with_role>
+
+=back
+
 =cut
 
 __PACKAGE__->load_components(

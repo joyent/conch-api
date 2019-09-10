@@ -65,7 +65,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/Racks
+=item * Response: F<response.yaml#/definitions/Racks>
 
 =back
 
@@ -75,7 +75,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/RackCreate
+=item * Request: F<request.yaml#/definitions/RackCreate>
 
 =item * Response: Redirect to the created rack
 
@@ -87,7 +87,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * User requires the read-only role on a workspace that contains the rack
 
-=item * Response: response.yaml#/Rack
+=item * Response: F<response.yaml#/definitions/Rack>
 
 =back
 
@@ -97,7 +97,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * User requires the read/write role on a workspace that contains the rack
 
-=item * Request: request.yaml#/RackUpdate
+=item * Request: F<request.yaml#/definitions/RackUpdate>
 
 =item * Response: Redirect to the updated rack
 
@@ -119,7 +119,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * User requires the read-only role on a workspace that contains the rack
 
-=item * Response: response.yaml#/RackLayouts
+=item * Response: F<response.yaml#/definitions/RackLayouts>
 
 =back
 
@@ -129,7 +129,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * User requires the read/write role on a workspace that contains the rack
 
-=item * Request: request.yaml#/RackLayouts
+=item * Request: F<request.yaml#/definitions/RackLayouts>
 
 =item * Response: Redirect to the rack's layouts
 
@@ -141,7 +141,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * User requires the read-only role on a workspace that contains the rack
 
-=item * Response: response.yaml#/RackAssignments
+=item * Response: F<response.yaml#/definitions/RackAssignments>
 
 =back
 
@@ -151,7 +151,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * User requires the read/write role on a workspace that contains the rack
 
-=item * Request: request.yaml#/RackAssignmentUpdates
+=item * Request: F<request.yaml#/definitions/RackAssignmentUpdates>
 
 =item * Response: Redirect to the updated rack assignment
 
@@ -165,7 +165,7 @@ This method requires a request body.
 
 =item * User requires the read/write role on a workspace that contains the rack
 
-=item * Request: request.yaml#/RackAssignmentDeletes
+=item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -180,7 +180,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * User requires the read/write role on a workspace that contains the rack
 
-=item * Request: request.yaml#/RackPhase
+=item * Request: F<request.yaml#/definitions/RackPhase>
 
 =item * Response: Redirect to the updated rack
 

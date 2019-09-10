@@ -19,8 +19,8 @@ using a relay that registered with that user's credentials.
 
 ### `POST /device/:device_serial_number`
 
-- Request: device\_report.yaml#/DeviceReport
-- Response: response.yaml#/ValidationStateWithResults
+- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
 
 ### `GET /device?:key=:value`
 
@@ -35,45 +35,45 @@ The value of `:setting_key` and `:setting_value` are a device setting key and
 value. For information on how to create a setting key or set its value see
 below.
 
-- Response: response.yaml#/Devices
+- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices)
 
 ### `GET /device/:device_id_or_serial_number`
 
 - User requires the read-only role
-- Response: response.yaml#/DetailedDevice
+- Response: [response.json#/definitions/DetailedDevice](../json-schema/response.json#/definitions/DetailedDevice)
 
 ### `GET /device/:device_id_or_serial_number/pxe`
 
 - User requires the read-only role
-- Response: response.yaml#/DevicePXE
+- Response: [response.json#/definitions/DevicePXE](../json-schema/response.json#/definitions/DevicePXE)
 
 ### `GET /device/:device_id_or_serial_number/phase`
 
 - User requires the read-only role
-- Response: response.yaml#/DevicePhase
+- Response: [response.json#/definitions/DevicePhase](../json-schema/response.json#/definitions/DevicePhase)
 
 ### `POST /device/:device_id_or_serial_number/asset_tag`
 
 - User requires the read/write role
-- Request: request.yaml#/DeviceAssetTag
+- Request: [request.json#/definitions/DeviceAssetTag](../json-schema/request.json#/definitions/DeviceAssetTag)
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id_or_serial_number/validated`
 
 - User requires the read/write role
-- Request: request.yaml#/Null
+- Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id_or_serial_number/phase`
 
 - User requires the read/write role
-- Request: request.yaml#/DevicePhase
+- Request: [request.json#/definitions/DevicePhase](../json-schema/request.json#/definitions/DevicePhase)
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id_or_serial_number/links`
 
 - User requires the read/write role
-- Request: request.yaml#/DeviceLinks
+- Request: [request.json#/definitions/DeviceLinks](../json-schema/request.json#/definitions/DeviceLinks)
 - Response: Redirect to the updated device
 
 ### `DELETE /device/:device_id_or_serial_number/links`
@@ -84,12 +84,12 @@ below.
 ### `GET /device/:device_id_or_serial_number/location`
 
 - User requires the read-only role
-- Response: response.yaml#/DeviceLocation
+- Response: [response.json#/definitions/DeviceLocation](../json-schema/response.json#/definitions/DeviceLocation)
 
 ### `POST /device/:device_id_or_serial_number/location`
 
 - User requires the read/write role
-- Request: request.yaml#/DeviceLocationUpdate
+- Request: [request.json#/definitions/DeviceLocationUpdate](../json-schema/request.json#/definitions/DeviceLocationUpdate)
 - Response: Redirect to the updated device
 
 ### `DELETE /device/:device_id_or_serial_number/location`
@@ -100,25 +100,25 @@ below.
 ### `GET /device/:device_id_or_serial_number/settings`
 
 - User requires the read-only role
-- Response: response.yaml#/DeviceSettings
+- Response: [response.json#/definitions/DeviceSettings](../json-schema/response.json#/definitions/DeviceSettings)
 
 ### `POST /device/:device_id_or_serial_number/settings`
 
 - User requires the read/write role, or admin when overwriting existing
 settings that do not start with `tag.`.
-- Request: request.yaml#/DeviceSettings
+- Request: [request.json#/definitions/DeviceSettings](../json-schema/request.json#/definitions/DeviceSettings)
 - Response: `204 NO CONTENT`
 
 ### `GET /device/:device_id_or_serial_number/settings/:key`
 
 - User requires the read-only role
-- Response: response.yaml#/DeviceSetting
+- Response: [response.json#/definitions/DeviceSetting](../json-schema/response.json#/definitions/DeviceSetting)
 
 ### `POST /device/:device_id_or_serial_number/settings/:key`
 
 - User requires the read/write role, or admin when overwriting existing
 settings that do not start with `tag.`.
-- Request: request.yaml#/DeviceSettings
+- Request: [request.json#/definitions/DeviceSettings](../json-schema/request.json#/definitions/DeviceSettings)
 - Response: `204 NO CONTENT`
 
 ### `DELETE /device/:device_id_or_serial_number/settings/:key`
@@ -132,16 +132,16 @@ otherwise.
 Does not store validation results.
 
 - User requires the read-only role
-- Request: device\_report.yaml#/DeviceReport
-- Response: response.yaml#/ValidationResults
+- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Response: [response.json#/definitions/ValidationResults](../json-schema/response.json#/definitions/ValidationResults)
 
 ### `POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id`
 
 Does not store validation results.
 
 - User requires the read-only role
-- Request: device\_report.yaml#/DeviceReport
-- Response: response.yaml#/ValidationResults
+- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Response: [response.json#/definitions/ValidationResults](../json-schema/response.json#/definitions/ValidationResults)
 
 ### `GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...`
 
@@ -149,22 +149,22 @@ Accepts the query parameter `status`, indicating the desired status(es)
 to search for (one of `pass`, `fail`, `error`). Can be used more than once.
 
 - User requires the read-only role
-- Response: response.yaml#/ValidationStatesWithResults
+- Response: [response.json#/definitions/ValidationStatesWithResults](../json-schema/response.json#/definitions/ValidationStatesWithResults)
 
 ### `GET /device/:device_id_or_serial_number/interface`
 
 - User requires the read-only role
-- Response: response.yaml#/DeviceNics
+- Response: [response.json#/definitions/DeviceNics](../json-schema/response.json#/definitions/DeviceNics)
 
 ### `GET /device/:device_id_or_serial_number/interface/:interface_name`
 
 - User requires the read-only role
-- Response: response.yaml#/DeviceNic
+- Response: [response.json#/definitions/DeviceNic](../json-schema/response.json#/definitions/DeviceNic)
 
 ### `GET /device/:device_id_or_serial_number/interface/:interface_name/:field`
 
 - User requires the read-only role
-- Response: response.yaml#/DeviceNicField
+- Response: [response.json#/definitions/DeviceNicField](../json-schema/response.json#/definitions/DeviceNicField)
 
 # LICENSING
 

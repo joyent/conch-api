@@ -1,0 +1,200 @@
+{
+  "$comment" : "Note: for now, defaults are for documentation purposes only. see https://github.com/mojolicious/json-validator/issues/158",
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "definitions" : {
+    "ChangePassword" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "clear_tokens" : {
+          "default" : "login_only",
+          "enum" : [
+            "none",
+            "login_only",
+            "all"
+          ],
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "DeactivateUser" : {
+      "$ref" : "/definitions/ChangePassword"
+    },
+    "GetDeviceByAttribute" : {
+      "additionalProperties" : {
+        "type" : "string"
+      },
+      "maxProperties" : 1,
+      "minProperties" : 1,
+      "properties" : {
+        "hostname" : {
+          "type" : "string"
+        },
+        "ipaddr" : {
+          "$ref" : "common.json#/definitions/ipaddr"
+        },
+        "link" : {
+          "format" : "uri",
+          "type" : "string"
+        },
+        "mac" : {
+          "$ref" : "common.json#/definitions/macaddr"
+        }
+      },
+      "propertyNames" : {
+        "$ref" : "common.json#/definitions/device_setting_key"
+      },
+      "type" : "object"
+    },
+    "GetValidationStates" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "status" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/validation_status"
+            },
+            {
+              "items" : {
+                "$ref" : "common.json#/definitions/validation_status"
+              },
+              "minItems" : 2,
+              "type" : "array",
+              "uniqueItems" : true
+            }
+          ]
+        }
+      },
+      "type" : "object"
+    },
+    "NotifyUsers" : {
+      "additionalProperties" : false,
+      "description" : "used for operations where email can optionally be sent",
+      "properties" : {
+        "send_mail" : {
+          "$ref" : "/definitions/boolean_integer_default_true"
+        }
+      },
+      "type" : "object"
+    },
+    "ResetUserPassword" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "clear_tokens" : {
+          "default" : "login_only",
+          "enum" : [
+            "none",
+            "login_only",
+            "all"
+          ],
+          "type" : "string"
+        },
+        "send_mail" : {
+          "$ref" : "/definitions/boolean_integer_default_true"
+        }
+      },
+      "type" : "object"
+    },
+    "RevokeUserTokens" : {
+      "allOf" : [
+        {
+          "additionalProperties" : false,
+          "properties" : {
+            "api_only" : {
+              "$ref" : "/definitions/boolean_integer_default_false"
+            },
+            "login_only" : {
+              "$ref" : "/definitions/boolean_integer_default_false"
+            },
+            "send_mail" : {
+              "$ref" : "/definitions/boolean_integer_default_true"
+            }
+          },
+          "type" : "object"
+        },
+        {
+          "not" : {
+            "properties" : {
+              "api_only" : {
+                "const" : 1
+              },
+              "login_only" : {
+                "const" : 1
+              }
+            },
+            "required" : [
+              "login_only",
+              "api_only"
+            ],
+            "type" : "object"
+          }
+        }
+      ]
+    },
+    "SetPhase" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "rack_only" : {
+          "$ref" : "/definitions/boolean_integer_default_false"
+        }
+      },
+      "type" : "object"
+    },
+    "WorkspaceDevices" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "active_minutes" : {
+          "$ref" : "common.json#/definitions/non_negative_integer"
+        },
+        "health" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_health"
+            },
+            {
+              "items" : {
+                "$ref" : "common.json#/definitions/device_health"
+              },
+              "minItems" : 2,
+              "type" : "array",
+              "uniqueItems" : true
+            }
+          ]
+        },
+        "ids_only" : {
+          "$ref" : "/definitions/boolean_integer_default_false"
+        },
+        "validated" : {
+          "$ref" : "/definitions/boolean_integer"
+        }
+      },
+      "type" : "object"
+    },
+    "WorkspaceRelays" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "active_minutes" : {
+          "$ref" : "common.json#/definitions/non_negative_integer"
+        }
+      },
+      "type" : "object"
+    },
+    "boolean_integer" : {
+      "maximum" : 1,
+      "minimum" : 0,
+      "type" : "integer"
+    },
+    "boolean_integer_default_false" : {
+      "default" : 0,
+      "maximum" : 1,
+      "minimum" : 0,
+      "type" : "integer"
+    },
+    "boolean_integer_default_true" : {
+      "default" : 1,
+      "maximum" : 1,
+      "minimum" : 0,
+      "type" : "integer"
+    }
+  }
+}

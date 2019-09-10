@@ -12,18 +12,18 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /organization`
 
-- Response: response.yaml#/Organizations
+- Response: [response.json#/definitions/Organizations](../json-schema/response.json#/definitions/Organizations)
 
 ### `POST /organization`
 
 - Requires system admin authorization
-- Request: request.yaml#/OrganizationCreate
+- Request: [request.json#/definitions/OrganizationCreate](../json-schema/request.json#/definitions/OrganizationCreate)
 - Response: Redirect to the organization
 
 ### `GET /organization/:organization_id_or_name`
 
 - Requires system admin authorization or the admin role on the organization
-- Response: response.yaml#/Organization
+- Response: [response.json#/definitions/Organization](../json-schema/response.json#/definitions/Organization)
 
 ### `DELETE /organization/:organization_id_or_name`
 
@@ -33,7 +33,7 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /organization/:organization_id_or_name/user`
 
 - Requires system admin authorization or the admin role on the organization
-- Response: response.yaml#/OrganizationUsers
+- Response: [response.json#/definitions/OrganizationUsers](../json-schema/response.json#/definitions/OrganizationUsers)
 
 ### `POST /organization/:organization_id_or_name/user?send_mail=<1|0`>
 
@@ -41,7 +41,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.
 
 - Requires system admin authorization or the admin role on the organization
-- Request: request.yaml#/OrganizationAddUser
+- Request: [request.json#/definitions/OrganizationAddUser](../json-schema/request.json#/definitions/OrganizationAddUser)
 - Response: `204 NO CONTENT`
 
 ### `DELETE /organization/:organization_id_or_name/user/#target_user_id_or_email?send_mail=<1|0`>

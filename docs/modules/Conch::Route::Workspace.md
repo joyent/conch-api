@@ -19,17 +19,17 @@ Users will require access to the workspace (or one of its ancestors) at a minimu
 ### `GET /workspace`
 
 - User requires the read-only role
-- Response: response.yaml#/WorkspacesAndRoles
+- Response: [response.json#/definitions/WorkspacesAndRoles](../json-schema/response.json#/definitions/WorkspacesAndRoles)
 
 ### `GET /workspace/:workspace_id_or_name`
 
 - User requires the read-only role
-- Response: response.yaml#/WorkspaceAndRole
+- Response: [response.json#/definitions/WorkspaceAndRole](../json-schema/response.json#/definitions/WorkspaceAndRole)
 
 ### `GET /workspace/:workspace_id_or_name/child`
 
 - User requires the read-only role
-- Response: response.yaml#/WorkspacesAndRoles
+- Response: [response.json#/definitions/WorkspacesAndRoles](../json-schema/response.json#/definitions/WorkspacesAndRoles)
 
 ### `POST /workspace/:workspace_id_or_name/child?send_mail=<1|0>`
 
@@ -37,8 +37,8 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
 an email to the parent workspace admins.
 
 - User requires the read/write role
-- Request: request.yaml#/WorkspaceCreate
-- Response: response.yaml#/WorkspaceAndRole
+- Request: [request.json#/definitions/WorkspaceCreate](../json-schema/request.json#/definitions/WorkspaceCreate)
+- Response: [response.json#/definitions/WorkspaceAndRole](../json-schema/response.json#/definitions/WorkspaceAndRole)
 
 ### `GET /workspace/:workspace_id_or_name/device`
 
@@ -50,22 +50,22 @@ Accepts the following optional query parameters:
 - `ids_only=1` only return device IDs, not full device details
 
 - User requires the read-only role
-- Response: response.yaml#/Devices
+- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices)
 
 ### `GET /workspace/:workspace_id_or_name/device/pxe`
 
 - User requires the read-only role
-- Response: response.yaml#/WorkspaceDevicePXEs
+- Response: [response.json#/definitions/WorkspaceDevicePXEs](../json-schema/response.json#/definitions/WorkspaceDevicePXEs)
 
 ### `GET /workspace/:workspace_id_or_name/rack`
 
 - User requires the read-only role
-- Response: response.yaml#/WorkspaceRackSummary
+- Response: [response.json#/definitions/WorkspaceRackSummary](../json-schema/response.json#/definitions/WorkspaceRackSummary)
 
 ### `POST /workspace/:workspace_id_or_name/rack`
 
 - User requires the admin role
-- Request: request.yaml#/WorkspaceAddRack
+- Request: [request.json#/definitions/WorkspaceAddRack](../json-schema/request.json#/definitions/WorkspaceAddRack)
 - Response: Redirect to the workspace's racks
 
 ### `DELETE /workspace/:workspace_id_or_name/rack/:rack_id`
@@ -79,17 +79,17 @@ Takes one query optional parameter, `?active_minutes=X` to constrain results to
 those updated with in the last `X` minutes.
 
 - User requires the read-only role
-- Response: response.yaml#/WorkspaceRelays
+- Response: [response.json#/definitions/WorkspaceRelays](../json-schema/response.json#/definitions/WorkspaceRelays)
 
 ### `GET /workspace/:workspace_id_or_name/relay/:relay_id/device`
 
 - User requires the read-only role
-- Response: response.yaml#/Devices
+- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices)
 
 ### `GET /workspace/:workspace_id_or_name/user`
 
 - User requires the admin role
-- Response: response.yaml#/WorkspaceUsers
+- Response: [response.json#/definitions/WorkspaceUsers](../json-schema/response.json#/definitions/WorkspaceUsers)
 
 ### `POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>`
 
@@ -97,7 +97,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
 an email to the user and workspace admins.
 
 - User requires the admin role
-- Request: request.yaml#/WorkspaceAddUser
+- Request: [request.json#/definitions/WorkspaceAddUser](../json-schema/request.json#/definitions/WorkspaceAddUser)
 - Response: `204 NO CONTENT`
 
 ### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`
@@ -111,7 +111,7 @@ an email to the user and workspace admins.
 ### `GET /workspace/:workspace_id_or_name/organization`
 
 - User requires the admin role
-- Response: response.yaml#/WorkspaceOrganizations
+- Response: [response.json#/definitions/WorkspaceOrganizations](../json-schema/response.json#/definitions/WorkspaceOrganizations)
 
 ### `POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0>`
 
@@ -119,7 +119,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the organization members and workspace admins.
 
 - User requires the admin role
-- Request: request.yaml#/WorkspaceAddOrganization
+- Request: [request.json#/definitions/WorkspaceAddOrganization](../json-schema/request.json#/definitions/WorkspaceAddOrganization)
 - Response: `204 NO CONTENT`
 
 ### `DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>`

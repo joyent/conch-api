@@ -13,23 +13,23 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /rack`
 
 - Requires system admin authorization
-- Response: response.yaml#/Racks
+- Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
 
 ### `POST /rack`
 
 - Requires system admin authorization
-- Request: request.yaml#/RackCreate
+- Request: [request.json#/definitions/RackCreate](../json-schema/request.json#/definitions/RackCreate)
 - Response: Redirect to the created rack
 
 ### `GET /rack/:rack_id`
 
 - User requires the read-only role on a workspace that contains the rack
-- Response: response.yaml#/Rack
+- Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
 
 ### `POST /rack/:rack_id`
 
 - User requires the read/write role on a workspace that contains the rack
-- Request: request.yaml#/RackUpdate
+- Request: [request.json#/definitions/RackUpdate](../json-schema/request.json#/definitions/RackUpdate)
 - Response: Redirect to the updated rack
 
 ### `DELETE /rack/:rack_id`
@@ -40,23 +40,23 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /rack/:rack_id/layouts`
 
 - User requires the read-only role on a workspace that contains the rack
-- Response: response.yaml#/RackLayouts
+- Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
 ### `POST /rack/:rack_id/layouts`
 
 - User requires the read/write role on a workspace that contains the rack
-- Request: request.yaml#/RackLayouts
+- Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)
 - Response: Redirect to the rack's layouts
 
 ### `GET /rack/:rack_id/assignment`
 
 - User requires the read-only role on a workspace that contains the rack
-- Response: response.yaml#/RackAssignments
+- Response: [response.json#/definitions/RackAssignments](../json-schema/response.json#/definitions/RackAssignments)
 
 ### `POST /rack/:rack_id/assignment`
 
 - User requires the read/write role on a workspace that contains the rack
-- Request: request.yaml#/RackAssignmentUpdates
+- Request: [request.json#/definitions/RackAssignmentUpdates](../json-schema/request.json#/definitions/RackAssignmentUpdates)
 - Response: Redirect to the updated rack assignment
 
 ### `DELETE /rack/:rack_id/assignment`
@@ -64,7 +64,7 @@ Unless otherwise noted, all routes require authentication.
 This method requires a request body.
 
 - User requires the read/write role on a workspace that contains the rack
-- Request: request.yaml#/RackAssignmentDeletes
+- Request: [request.json#/definitions/RackAssignmentDeletes](../json-schema/request.json#/definitions/RackAssignmentDeletes)
 - Response: `204 NO CONTENT`
 
 ### `POST /rack/:rack_id/phase?rack_only=<0|1>`
@@ -73,7 +73,7 @@ The query parameter `rack_only` (defaults to `0`) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
 
 - User requires the read/write role on a workspace that contains the rack
-- Request: request.yaml#/RackPhase
+- Request: [request.json#/definitions/RackPhase](../json-schema/request.json#/definitions/RackPhase)
 - Response: Redirect to the updated rack
 
 # LICENSING

@@ -46,9 +46,9 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: device_report.yaml#/DeviceReport
+=item * Request: F<device_report.yaml#/definitions/DeviceReport>
 
-=item * Response: response.yaml#/ReportValidationResults
+=item * Response: F<response.yaml#/definitions/ReportValidationResults>
 
 =back
 
@@ -58,7 +58,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * User requires the read-only role, as described in L<Conch::Route::Device/routes>.
 
-=item * Response: response.yaml#/DeviceReportRow
+=item * Response: F<response.yaml#/definitions/DeviceReportRow>
 
 =back
 

@@ -1,0 +1,252 @@
+{
+  "definitions" : {
+    "RollbarPayload" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "access_token" : {
+          "type" : "string"
+        },
+        "data" : {
+          "additionalProperties" : false,
+          "properties" : {
+            "body" : {
+              "oneOf" : [
+                {
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "trace" : {
+                      "additionalProperties" : false,
+                      "properties" : {
+                        "exception" : {
+                          "additionalProperties" : false,
+                          "properties" : {
+                            "class" : {
+                              "type" : "string"
+                            },
+                            "description" : {
+                              "type" : "string"
+                            },
+                            "message" : {
+                              "type" : "string"
+                            }
+                          },
+                          "required" : [
+                            "class"
+                          ],
+                          "type" : "object"
+                        },
+                        "frames" : {
+                          "items" : {
+                            "additionalProperties" : false,
+                            "properties" : {
+                              "class_name" : {
+                                "type" : "string"
+                              },
+                              "code" : {
+                                "type" : "string"
+                              },
+                              "context" : {
+                                "additionalProperties" : false,
+                                "properties" : {
+                                  "post" : {
+                                    "items" : {
+                                      "type" : "string"
+                                    },
+                                    "type" : "array"
+                                  },
+                                  "pre" : {
+                                    "items" : {
+                                      "type" : "string"
+                                    },
+                                    "type" : "array"
+                                  }
+                                },
+                                "type" : "object"
+                              },
+                              "filename" : {
+                                "type" : "string"
+                              },
+                              "lineno" : {
+                                "type" : "integer"
+                              },
+                              "method" : {
+                                "type" : "string"
+                              }
+                            },
+                            "required" : [
+                              "filename"
+                            ],
+                            "type" : "object"
+                          },
+                          "type" : "array"
+                        }
+                      },
+                      "required" : [
+                        "frames",
+                        "exception"
+                      ],
+                      "type" : "object"
+                    }
+                  },
+                  "required" : [
+                    "trace"
+                  ],
+                  "type" : "object"
+                },
+                {
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "message" : {
+                      "properties" : {
+                        "body" : {
+                          "type" : "string"
+                        }
+                      },
+                      "required" : [
+                        "body"
+                      ],
+                      "type" : "object"
+                    }
+                  },
+                  "required" : [
+                    "message"
+                  ],
+                  "type" : "object"
+                }
+              ]
+            },
+            "code_version" : {
+              "maxLength" : 40,
+              "pattern" : "^([0-9]+\\.[0-9]+\\.[0-9]+|[0-9]+|[0-9a-z]+)",
+              "type" : "string"
+            },
+            "context" : {
+              "type" : "string"
+            },
+            "custom" : {
+              "type" : "object"
+            },
+            "environment" : {
+              "type" : "string"
+            },
+            "fingerprint" : {
+              "maxLength" : 40,
+              "type" : "string"
+            },
+            "framework" : {
+              "type" : "string"
+            },
+            "language" : {
+              "type" : "string"
+            },
+            "level" : {
+              "enum" : [
+                "critical",
+                "error",
+                "warning",
+                "info",
+                "debug"
+              ],
+              "type" : "string"
+            },
+            "notifier" : {
+              "additionalProperties" : false,
+              "properties" : {
+                "name" : {
+                  "type" : "string"
+                },
+                "version" : {
+                  "type" : "string"
+                }
+              },
+              "type" : "object"
+            },
+            "platform" : {
+              "type" : "string"
+            },
+            "request" : {
+              "properties" : {
+                "GET" : {
+                  "type" : "object"
+                },
+                "POST" : {
+                  "type" : "object"
+                },
+                "body" : {
+                  "type" : "string"
+                },
+                "headers" : {
+                  "type" : "object"
+                },
+                "method" : {
+                  "type" : "string"
+                },
+                "params" : {
+                  "type" : "object"
+                },
+                "person" : {
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "email" : {
+                      "maxLength" : 255,
+                      "type" : "string"
+                    },
+                    "id" : {
+                      "maxLength" : 40,
+                      "type" : "string"
+                    },
+                    "username" : {
+                      "maxLength" : 255,
+                      "type" : "string"
+                    }
+                  },
+                  "required" : [
+                    "id"
+                  ],
+                  "type" : "object"
+                },
+                "query_string" : {
+                  "type" : "string"
+                },
+                "url" : {
+                  "type" : "string"
+                },
+                "user_id" : {
+                  "type" : "string"
+                }
+              },
+              "type" : "object"
+            },
+            "server" : {
+              "properties" : {
+                "host" : {
+                  "type" : "string"
+                },
+                "root" : {
+                  "type" : "string"
+                }
+              },
+              "type" : "object"
+            },
+            "timestamp" : {
+              "type" : "integer"
+            },
+            "uuid" : {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          },
+          "required" : [
+            "environment",
+            "body"
+          ],
+          "type" : "object"
+        }
+      },
+      "required" : [
+        "access_token",
+        "data"
+      ],
+      "type" : "object"
+    }
+  }
+}

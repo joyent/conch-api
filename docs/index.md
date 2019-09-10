@@ -24,10 +24,26 @@ Our development process is documented over [here](development).
 
 # Routes / URLs
 
+Unless otherwise specified, all routes require authentication: a user must
+[POST /login](modules/Conch::Route#post-login) first, and
+then use the provided [JSON Web Token](https://tools.ietf.org/html/rfc7519) for subsequent
+requests.
+
+Full access is granted to system admin users; otherwise, access restrictions are as noted.
+
 The majority of our endpoints consume and respond with JSON documents that
-conform to a set of JSON schema. These schema can be found in the
-[json-schema](https://github.com/joyent/conch/tree/master/json-schema)
-directory in the main repository.
+conform to a set of JSON schema. These schema can be found in the [json-schema](json-schema)
+directory in the main repository, as well as on this documentation site.
+
+Successful (http 2xx code) response structures are as described for each endpoint.
+
+Error responses will use:
+
+- failure to validate query parameters: http 400, [response.json#/definitions/QueryParamsValidationError](json-schema/response.json#/definitions/QueryParamsValidationError)
+- failure to validate request body payload: http 400, [response.json#/definitions/RequestValidationError](json-schema/response.json#/definitions/RequestValidationError)
+- all other errors, unless specified: http 4xx, [response.json#/definitions/Error](json-schema/response.json#/definitions/Error)
+
+Available routes are:
 
 * [Conch::Route](modules/Conch::Route)
   * `/ping`
@@ -85,6 +101,10 @@ directory in the main repository.
 # Modules
 
 Individual module documentation can be found [here](modules).
+
+Script documentation can be found [here](scripts).
+
+JSON Schema defining request and response payloads can be found [here](json-schema).
 
 # Copyright / License
 

@@ -48,7 +48,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Request: request.yaml#/RegisterRelay
+=item * Request: F<request.yaml#/definitions/RegisterRelay>
 
 =item * Response: C<201 CREATED> or C<204 NO CONTENT>, plus Location header
 
@@ -60,7 +60,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/Relays
+=item * Response: F<response.yaml#/definitions/Relays>
 
 =back
 
@@ -70,7 +70,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization, or the user to have previously registered the relay.
 
-=item * Response: response.yaml#/Relay
+=item * Response: F<response.yaml#/definitions/Relay>
 
 =back
 

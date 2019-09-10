@@ -129,9 +129,9 @@ using a relay that registered with that user's credentials.
 
 =over 4
 
-=item * Request: device_report.yaml#/DeviceReport
+=item * Request: F<device_report.yaml#/definitions/DeviceReport>
 
-=item * Response: response.yaml#/ValidationStateWithResults
+=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
 
 =back
 
@@ -157,7 +157,7 @@ below.
 
 =over 4
 
-=item * Response: response.yaml#/Devices
+=item * Response: F<response.yaml#/definitions/Devices>
 
 =back
 
@@ -167,7 +167,7 @@ below.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DetailedDevice
+=item * Response: F<response.yaml#/definitions/DetailedDevice>
 
 =back
 
@@ -177,7 +177,7 @@ below.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DevicePXE
+=item * Response: F<response.yaml#/definitions/DevicePXE>
 
 =back
 
@@ -187,7 +187,7 @@ below.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DevicePhase
+=item * Response: F<response.yaml#/definitions/DevicePhase>
 
 =back
 
@@ -197,7 +197,7 @@ below.
 
 =item * User requires the read/write role
 
-=item * Request: request.yaml#/DeviceAssetTag
+=item * Request: F<request.yaml#/definitions/DeviceAssetTag>
 
 =item * Response: Redirect to the updated device
 
@@ -209,7 +209,7 @@ below.
 
 =item * User requires the read/write role
 
-=item * Request: request.yaml#/Null
+=item * Request: F<request.yaml#/definitions/Null>
 
 =item * Response: Redirect to the updated device
 
@@ -221,7 +221,7 @@ below.
 
 =item * User requires the read/write role
 
-=item * Request: request.yaml#/DevicePhase
+=item * Request: F<request.yaml#/definitions/DevicePhase>
 
 =item * Response: Redirect to the updated device
 
@@ -233,7 +233,7 @@ below.
 
 =item * User requires the read/write role
 
-=item * Request: request.yaml#/DeviceLinks
+=item * Request: F<request.yaml#/definitions/DeviceLinks>
 
 =item * Response: Redirect to the updated device
 
@@ -255,7 +255,7 @@ below.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DeviceLocation
+=item * Response: F<response.yaml#/definitions/DeviceLocation>
 
 =back
 
@@ -265,7 +265,7 @@ below.
 
 =item * User requires the read/write role
 
-=item * Request: request.yaml#/DeviceLocationUpdate
+=item * Request: F<request.yaml#/definitions/DeviceLocationUpdate>
 
 =item * Response: Redirect to the updated device
 
@@ -287,7 +287,7 @@ below.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DeviceSettings
+=item * Response: F<response.yaml#/definitions/DeviceSettings>
 
 =back
 
@@ -298,7 +298,7 @@ below.
 =item * User requires the read/write role, or admin when overwriting existing
 settings that do not start with C<tag.>.
 
-=item * Request: request.yaml#/DeviceSettings
+=item * Request: F<request.yaml#/definitions/DeviceSettings>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -310,7 +310,7 @@ settings that do not start with C<tag.>.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DeviceSetting
+=item * Response: F<response.yaml#/definitions/DeviceSetting>
 
 =back
 
@@ -321,7 +321,7 @@ settings that do not start with C<tag.>.
 =item * User requires the read/write role, or admin when overwriting existing
 settings that do not start with C<tag.>.
 
-=item * Request: request.yaml#/DeviceSettings
+=item * Request: F<request.yaml#/definitions/DeviceSettings>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -346,9 +346,9 @@ Does not store validation results.
 
 =item * User requires the read-only role
 
-=item * Request: device_report.yaml#/DeviceReport
+=item * Request: F<device_report.yaml#/definitions/DeviceReport>
 
-=item * Response: response.yaml#/ValidationResults
+=item * Response: F<response.yaml#/definitions/ValidationResults>
 
 =back
 
@@ -360,9 +360,9 @@ Does not store validation results.
 
 =item * User requires the read-only role
 
-=item * Request: device_report.yaml#/DeviceReport
+=item * Request: F<device_report.yaml#/definitions/DeviceReport>
 
-=item * Response: response.yaml#/ValidationResults
+=item * Response: F<response.yaml#/definitions/ValidationResults>
 
 =back
 
@@ -375,7 +375,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/ValidationStatesWithResults
+=item * Response: F<response.yaml#/definitions/ValidationStatesWithResults>
 
 =back
 
@@ -385,7 +385,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DeviceNics
+=item * Response: F<response.yaml#/definitions/DeviceNics>
 
 =back
 
@@ -395,7 +395,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DeviceNic
+=item * Response: F<response.yaml#/definitions/DeviceNic>
 
 =back
 
@@ -405,7 +405,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * User requires the read-only role
 
-=item * Response: response.yaml#/DeviceNicField
+=item * Response: F<response.yaml#/definitions/DeviceNicField>
 
 =back
 

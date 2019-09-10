@@ -12,27 +12,27 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /validation`
 
-- Response: response.yaml#/Validations
+- Response: [response.json#/definitions/Validations](../json-schema/response.json#/definitions/Validations)
 
 ### `GET /validation/:validation_id_or_name`
 
-- Response: response.yaml#/Validation
+- Response: [response.json#/definitions/Validation](../json-schema/response.json#/definitions/Validation)
 
 ### `GET /validation_plan`
 
-- Response: response.yaml#/ValidationPlans
+- Response: [response.json#/definitions/ValidationPlans](../json-schema/response.json#/definitions/ValidationPlans)
 
 ### `GET /validation_plan/:validation_plan_id_or_name`
 
-- Response: response.yaml#/ValidationPlan
+- Response: [response.json#/definitions/ValidationPlan](../json-schema/response.json#/definitions/ValidationPlan)
 
 ### `GET /validation_plan/:validation_plan_id_or_name/validation`
 
-- Response: response.yaml#/Validations
+- Response: [response.json#/definitions/Validations](../json-schema/response.json#/definitions/Validations)
 
 ### `GET /validation_state/:validation_state_id`
 
-- Response: response.yaml#/ValidationStateWithResults
+- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
 
 # LICENSING
 

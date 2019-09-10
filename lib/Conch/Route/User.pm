@@ -132,7 +132,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/UserDetailed
+=item * Response: F<response.yaml#/definitions/UserDetailed>
 
 =back
 
@@ -155,7 +155,7 @@ C<api_only> and C<login_only> cannot both be C<1>.
 
 =over 4
 
-=item * Request: request.yaml#/UserSettings
+=item * Request: F<request.yaml#/definitions/UserSettings>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -181,7 +181,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Request: request.yaml#/UserSettings
+=item * Request: F<request.yaml#/definitions/UserSettings>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -192,7 +192,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Response: response.yaml#/UserSettings
+=item * Response: F<response.yaml#/definitions/UserSettings>
 
 =back
 
@@ -200,7 +200,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Request: request.yaml#/UserSettings
+=item * Request: F<request.yaml#/definitions/UserSettings>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -210,7 +210,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Response: response.yaml#/UserSetting
+=item * Response: F<response.yaml#/definitions/UserSetting>
 
 =back
 
@@ -218,7 +218,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Request: request.yaml#/UserSetting
+=item * Request: F<request.yaml#/definitions/UserSetting>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -236,7 +236,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Response: response.yaml#/UserTokens
+=item * Response: F<response.yaml#/definitions/UserTokens>
 
 =back
 
@@ -244,9 +244,9 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Request: request.yaml#/NewUserToken
+=item * Request: F<request.yaml#/definitions/NewUserToken>
 
-=item * Response: response.yaml#/NewUserToken
+=item * Response: F<response.yaml#/definitions/NewUserToken>
 
 =back
 
@@ -254,7 +254,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Response: response.yaml#/UserToken
+=item * Response: F<response.yaml#/definitions/UserToken>
 
 =back
 
@@ -272,7 +272,7 @@ otherwise, the user is logged out.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/UserDetailed
+=item * Response: F<response.yaml#/definitions/UserDetailed>
 
 =back
 
@@ -285,11 +285,11 @@ an email telling the user their tokens were revoked
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/UpdateUser
+=item * Request: F<request.yaml#/definitions/UpdateUser>
 
 =item * Success Response: Redirect to the user that was updated
 
-=item * Error response on duplicate user: response.yaml#/UserError
+=item * Error response on duplicate user: F<response.yaml#/definitions/UserError>
 
 =back
 
@@ -367,7 +367,7 @@ Optionally accepts the following query parameters:
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/UsersDetailed
+=item * Response: F<response.yaml#/definitions/UsersDetailed>
 
 =back
 
@@ -380,11 +380,11 @@ email to the user with the new password.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/NewUser
+=item * Request: F<request.yaml#/definitions/NewUser>
 
-=item * Success Response: response.yaml#/User
+=item * Success Response: F<response.yaml#/definitions/User>
 
-=item * Error response on duplicate user: response.yaml#/UserError
+=item * Error response on duplicate user: F<response.yaml#/definitions/UserError>
 
 =back
 
@@ -394,7 +394,7 @@ email to the user with the new password.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/UserTokens
+=item * Response: F<response.yaml#/definitions/UserTokens>
 
 =back
 
@@ -404,7 +404,7 @@ email to the user with the new password.
 
 =item * Requires system admin authorization
 
-=item * Response: response.yaml#/UserTokens
+=item * Response: F<response.yaml#/definitions/UserTokens>
 
 =back
 
@@ -416,7 +416,7 @@ email to the user with the new password.
 
 =item * Success Response: C<204 NO CONTENT>
 
-=item * Error response when user already deactivated: response.yaml#/UserError
+=item * Error response when user already deactivated: F<response.yaml#/definitions/UserError>
 
 =back
 

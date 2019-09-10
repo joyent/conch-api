@@ -13,23 +13,23 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /dc`
 
 - Requires system admin authorization
-- Response: response.yaml#/Datacenters
+- Response: [response.json#/definitions/Datacenters](../json-schema/response.json#/definitions/Datacenters)
 
 ### `POST /dc`
 
 - Requires system admin authorization
-- Request: request.yaml#/DatacenterCreate
+- Request: [request.json#/definitions/DatacenterCreate](../json-schema/request.json#/definitions/DatacenterCreate)
 - Response: `201 CREATED` or `204 NO CONTENT`, plus Location header
 
 ### `GET /dc/:datacenter_id`
 
 - Requires system admin authorization
-- Response: response.yaml#/Datacenter
+- Response: [response.json#/definitions/Datacenter](../json-schema/response.json#/definitions/Datacenter)
 
 ### `POST /dc/:datacenter_id`
 
 - Requires system admin authorization
-- Request: request.yaml#/DatacenterUpdate
+- Request: [request.json#/definitions/DatacenterUpdate](../json-schema/request.json#/definitions/DatacenterUpdate)
 - Response: Redirect to the updated datacenter
 
 ### `DELETE /dc/:datacenter_id`
@@ -40,12 +40,12 @@ Unless otherwise noted, all routes require authentication.
 ### `GET /dc/:datacenter_id/rooms`
 
 - Requires system admin authorization
-- Response: response.yaml#/DatacenterRoomsDetailed
+- Response: [response.json#/definitions/DatacenterRoomsDetailed](../json-schema/response.json#/definitions/DatacenterRoomsDetailed)
 
 ### `GET /room`
 
 - Requires system admin authorization
-- Response: response.yaml#/DatacenterRoomsDetailed
+- Response: [response.json#/definitions/DatacenterRoomsDetailed](../json-schema/response.json#/definitions/DatacenterRoomsDetailed)
 
 # LICENSING
 

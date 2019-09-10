@@ -48,7 +48,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/RackRoles
+=item * Response: F<response.yaml#/definitions/RackRoles>
 
 =back
 
@@ -58,7 +58,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/RackRoleCreate
+=item * Request: F<request.yaml#/definitions/RackRoleCreate>
 
 =item * Response: Redirect to the created rack role
 
@@ -68,7 +68,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * Response: response.yaml#/RackRole
+=item * Response: F<response.yaml#/definitions/RackRole>
 
 =back
 
@@ -78,7 +78,7 @@ Unless otherwise noted, all routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Request: request.yaml#/RackRoleUpdate
+=item * Request: F<request.yaml#/definitions/RackRoleUpdate>
 
 =item * Response: Redirect to the updated rack role
 

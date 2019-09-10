@@ -12,22 +12,22 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /rack_role`
 
-- Response: response.yaml#/RackRoles
+- Response: [response.json#/definitions/RackRoles](../json-schema/response.json#/definitions/RackRoles)
 
 ### `POST /rack_role`
 
 - Requires system admin authorization
-- Request: request.yaml#/RackRoleCreate
+- Request: [request.json#/definitions/RackRoleCreate](../json-schema/request.json#/definitions/RackRoleCreate)
 - Response: Redirect to the created rack role
 
 ### `GET /rack_role/:rack_role_id_or_name`
 
-- Response: response.yaml#/RackRole
+- Response: [response.json#/definitions/RackRole](../json-schema/response.json#/definitions/RackRole)
 
 ### `POST /rack_role/:rack_role_id_or_name`
 
 - Requires system admin authorization
-- Request: request.yaml#/RackRoleUpdate
+- Request: [request.json#/definitions/RackRoleUpdate](../json-schema/request.json#/definitions/RackRoleUpdate)
 - Response: Redirect to the updated rack role
 
 ### `DELETE /rack_role/:rack_role_id_or_name`
