@@ -257,6 +257,13 @@ that are already in a specific order.
 
 `$routes` should be a [Mojolicious::Routes](https://metacpan.org/pod/Mojolicious::Routes) object that holds the route(s) to be added.
 
+## do\_and\_wait\_for\_event
+
+Sets up a [Mojo::Promise](https://metacpan.org/pod/Mojo::Promise) to wait for a specific event name, then executes the first subref
+provided. When the event is received \*and\* the task subref has finished, the success subref is
+invoked with the argument(s) sent to the event. If the timeout is reached, the failure subref
+is called, or if left undefined a test failure is generated.
+
 # LICENSING
 
 Copyright Joyent, Inc.

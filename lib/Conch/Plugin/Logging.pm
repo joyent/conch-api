@@ -122,6 +122,8 @@ sub register ($self, $app, $config) {
             };
         }
 
+        $c->app->plugins->emit(dispatch_message_payload => $c, $data);
+
         local $Conch::Log::REQUEST_ID = $c->req->request_id;
         $dispatch_log->info($data);
     });

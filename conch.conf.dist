@@ -38,12 +38,23 @@
         },
     },
 
-    # Rollbar access token. Must be a token with write permissions
-    # rollbar_access_token => '00000000000000000000000000000000',
+    rollbar => {
+        # Rollbar access token: must have scope "post_server_item" or "post_client_item".
+        # You can generate one from https://rollbar.com/$account/$application/settings/access_tokens/
+        # access_token => '00000000000000000000000000000000',
 
-    # Optional environment string override for rollbar exceptions. If not
-    # present, uses the value of $app->mode ('production' with Hypnotoad).
-    # rollbar_environment => 'staging',
+        # Optional environment string override for rollbar exceptions. If not
+        # present, uses the value of $app->mode ('production' with Hypnotoad).
+        # environment => 'staging',
+
+        # a hash of regexes that are matched against the named request header:
+        # if there is a match, all 4xx responses (other than 401, 403, 404) are
+        # forwarded to rollbar
+        # error_match_header => {
+        #   'X-Conch-UI' => qr/^v4.[3-9]/,      # forward errors for X-Conch-UI 4.3 and later
+        #   'User-Agent' => qr/^Conch\/(3.1|2.6.0$)/,  # " for Conch/3.1* or Conch/2.6.0 exactly
+        # },
+    },
 
     features => {
         audit          => 0,    # turns on logging of request and response bodies

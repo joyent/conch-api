@@ -1,0 +1,302 @@
+# bits that we don't use in Conch are commented out, for faster evaluation.
+---
+definitions:
+  RollbarPayload:
+    type: object
+    additionalProperties: false
+    required:
+      - access_token
+      - data
+    properties:
+      access_token:
+        type: string
+      data:
+        type: object
+        additionalProperties: false
+        required:
+          - environment
+          - body
+        properties:
+          environment:
+            type: string
+          body:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - trace
+                properties:
+                  trace:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - frames
+                      - exception
+                    properties:
+                      frames:
+                        type: array
+                        items:
+                          type: object
+                          additionalProperties: false
+                          required:
+                            - filename
+                          properties:
+                            filename:
+                              type: string
+                            lineno:
+                              type: integer
+#                           colno:
+#                             type: integer
+                            method:
+                              type: string
+                            code:
+                              type: string
+                            class_name:
+                              type: string
+                            context:
+                              type: object
+                              additionalProperties: false
+                              properties:
+                                pre:
+                                  type: array
+                                  items:
+                                    type: string
+                                post:
+                                  type: array
+                                  items:
+                                    type: string
+#                           argspec:
+#                             type: array
+#                           varargspec:
+#                             type: string
+#                           keywordspec:
+#                             type: string
+#                           locals:
+#                             type: object
+                      exception:
+                        type: object
+                        additionalProperties: false
+                        required:
+                          - class
+                        properties:
+                          class:
+                            type: string
+                          message:
+                            type: string
+                          description:
+                            type: string
+#                 telemetry:
+#                   type: array
+#                   items:
+#                     type: object
+#                     additionalProperties: false
+#                     required:
+#                       - level
+#                       - type
+#                       - source
+#                       - timestamp_ms
+#                       - body
+#                     properties:
+#                       level:
+#                         type: string
+#                         enum:
+#                           - critical
+#                           - error
+#                           - warning
+#                           - info
+#                           - debug
+#                       type:
+#                         type: string
+#                         enum:
+#                           - log
+#                           - network
+#                           - dom
+#                           - navigation
+#                           - error
+#                           - manual
+#                       source:
+#                         type: string
+#                       body:
+#                         type: object
+#                         propertyNames:
+#                           type: string
+#                         allOf:
+#                           - if:
+#                               properties:
+#                                 type:
+#                                   const: log
+#                             then:
+#                               required:
+#                                 - message
+#                           - if:
+#                               properties:
+#                                 type:
+#                                   const: network
+#                             then:
+#                               required:
+#                                 - method
+#                                 - url
+#                                 - status_code
+#                           - if:
+#                               properties:
+#                                 type:
+#                                   const: dom
+#                             then:
+#                               required:
+#                                 - element
+#                           - if:
+#                               properties:
+#                                 type:
+#                                   const: error
+#                             then:
+#                               required:
+#                                 - message
+#             - type: object
+#               additionalProperties: false
+#               required:
+#                 - trace_chain
+#               properties:
+#                 trace_chain:
+#                   type: array
+#                   minItems: 1
+#                   items:
+#                     $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/trace
+#                 telemetry:
+#                   $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry
+              - type: object
+                additionalProperties: false
+                required:
+                  - message
+                properties:
+                  message:
+                    type: object
+                    required:
+                      - body
+                    properties:
+                      body:
+                        type: string
+#                 telemetry:
+#                   $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry
+#             - type: object
+#               additionalProperties: false
+#               required:
+#                 - crash_report
+#               properties:
+#                 crash_report:
+#                   type: object
+#                   additionalProperties: false
+#                   required:
+#                     - raw
+#                   properties:
+#                     raw:
+#                       type: string
+#                 telemetry:
+#                   $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry
+          level:
+            type: string
+            enum:
+              - critical
+              - error
+              - warning
+              - info
+              - debug
+          timestamp:
+            type: integer
+          code_version:
+            type: string
+            maxLength: 40
+            pattern: "^([0-9]+\\.[0-9]+\\.[0-9]+|[0-9]+|[0-9a-z]+)"
+          platform:
+            type: string
+          language:
+            type: string
+          framework:
+            type: string
+          context:
+            type: string
+          request:
+            type: object
+            properties:
+              url:
+                type: string
+              method:
+                type: string
+              headers:
+                type: object
+              params:
+                type: object
+              GET:
+                type: object
+              query_string:
+                type: string
+              POST:
+                type: object
+              body:
+                type: string
+              user_id:
+                type: string
+              person:
+                type: object
+                required:
+                  - id
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    maxLength: 40
+                  username:
+                    type: string
+                    maxLength: 255
+                  email:
+                    type: string
+                    maxLength: 255
+          server:
+            type: object
+            properties:
+#             cpu:
+#               type: string
+#               maxLength: 255
+              host:
+                type: string
+              root:
+                type: string
+#             branch:
+#               type: string
+#             code_version:
+#               type: string
+#         client:
+#           type: object
+#           properties:
+#             cpu:
+#               type: string
+#               maxLength: 255
+#           javascript:
+#             type: object
+#             additionalProperties: false
+#             properties:
+#               browser:
+#                 type: string
+#               code_version:
+#                 type: string
+#               source_map_enabled:
+#                 type: boolean
+#               guess_uncaught_frames:
+#                 type: boolean
+          custom:
+            type: object
+          fingerprint:
+            type: string
+            maxLength: 40
+#         title:
+#           type: string
+#           maxLength: 255
+          uuid:
+            $ref: common.yaml#/definitions/uuid
+          notifier:
+            type: object
+            additionalProperties: false
+            properties:
+              name:
+                type: string
+              version:
+                type: string

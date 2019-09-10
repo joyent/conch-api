@@ -138,8 +138,10 @@ sub new {
 sub DESTROY ($self) {
     # explicitly disconnect before terminating the server, to avoid exceptions like:
     # "DBI Exception: DBD::Pg::st DESTROY failed: FATAL:  terminating connection due to administrator command"
-    do { $_->disconnect if $_->connected }
-        foreach $self->app->rw_schema->storage, $self->app->ro_schema->storage;
+    if (not $self->app->feature('no_db')) {
+        do { $_->disconnect if $_->connected }
+            foreach $self->app->rw_schema->storage, $self->app->ro_schema->storage;
+    }
 }
 
 =head2 init_db
@@ -696,7 +698,7 @@ sub _request_ok ($self, @args) {
     my $result = $self->next::method(@args);
     Test::More::diag 'log history: ',
             Data::Dumper->new([ $self->app->log->history ])->Indent(1)->Terse(1)->Dump
-        if $self->tx->res->code == 500 and $self->tx->req->url->path ne '/die';
+        if $self->tx->res->code == 500 and $self->tx->req->url->path !~ qr{^/_die};
     return $result;
 }
 
@@ -717,6 +719,47 @@ sub add_routes ($self, $routes) {
     $r->add_child($_) foreach @{[ $routes->children->@* ]};
 
     $r->add_child($catchall);
+}
+
+=head2 do_and_wait_for_event
+
+Sets up a L<Mojo::Promise> to wait for a specific event name, then executes the first subref
+provided. When the event is received *and* the task subref has finished, the success subref is
+invoked with the argument(s) sent to the event. If the timeout is reached, the failure subref
+is called, or if left undefined a test failure is generated.
+
+=cut
+
+sub do_and_wait_for_event ($self, $emitter, $event_name, $task, $success, $fail = undef) {
+    # resolved when event $event_name is received
+    my $event_promise = Mojo::Promise->new->timeout(2);
+
+    $emitter->once($event_name => sub ($, @args) {
+        $event_promise->resolve(@args);
+    });
+
+    # resolved when $task returns
+    my $task_promise = Mojo::Promise->new;
+
+    my $all_promises = Mojo::Promise->all($event_promise, $task_promise)
+        ->then(
+            sub ($event_promise_result, $task_promise_result) {
+                $success->($event_promise_result->@*)
+            },
+            $fail //
+                sub { Test::More::fail('promises failed while waiting for/handling '.$event_name.": @_"); },
+        )
+        ->catch(sub { Test::More::fail("promise failed: @_") });
+
+    # execute the task, which should trigger the event and then all tests in $success
+    Test::More::subtest 'listening for '.$event_name.' event' => sub {
+        $task->($self);
+        $task_promise->resolve;
+
+        $all_promises->wait;
+    };
+
+    return $self;
 }
 
 1;
