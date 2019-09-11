@@ -10,6 +10,38 @@ conch
 
 Start script for conch Mojo app
 
+=head1 SYNOPSIS
+
+See C<bin/conch --help> for full usage.
+
+Usage: APPLICATION COMMAND [OPTIONS]
+
+Conch-specific commands are:
+
+=begin eval
+
+    # this is code run by misc/pod2githubpages. its return value is inserted in this section's place.
+    # (see similar code in Mojolicious::Commands::run)
+    require Mojolicious::Commands;
+    require Mojo::Loader;
+    my %all;
+    my $ns = 'Conch::Command';
+    push @INC, 'lib';
+    $all{substr $_, length "${ns}::"} //= $_->new->description
+      for grep Mojolicious::Commands::_command($_),
+        Mojo::Loader::find_modules($ns), Mojo::Loader::find_packages($ns);
+
+    join(
+      "\n\n",
+      '=over 4',
+      (map
+        '=item *'."\n\n".'L<'.$_.'|Conch::Command::'.$_.">\n\n".$all{$_},
+        sort keys %all),
+      '=back'
+    )
+
+=end eval
+
 =cut
 
 use strict;
