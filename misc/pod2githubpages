@@ -38,10 +38,42 @@ around 'Pod::Markdown::end_F' => sub {
     my $orig = shift;
     my $self = shift;
 
-    return $self->$orig(@_) if $self->_private->{stacks}[-1][-1] !~ m{^[^.]+\.yaml};
+    return $self->$orig(@_) if $self->_last_string !~ m{^[^.]+\.yaml};
 
     my $text = $self->_pop_stack_text =~ s{^([^.]+)\.yaml}{$1.json}r;
     $self->_save('['.$text.']('.'../json-schema/'.$text.')');
+};
+
+around 'Pod::Markdown::start_for' => sub {
+    my $orig = shift;
+    my $self = shift;
+    $self->$orig(@_);
+
+    if ($_[0]->{target_matching} eq 'eval') {
+        $self->_stack_state->{for_eval} = 1;
+        $self->_private->{no_escape} = 1;
+        $self->_private->{encode_amp} = 0;
+        $self->_private->{encode_lt} = 0;
+    }
+};
+
+around 'Pod::Markdown::end_for' => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    return $self->$orig(@_) if not $self->_stack_state->{for_eval};
+
+    my $text = $self->_pop_stack_text;
+
+    my $newtext = eval($text) || $@;
+
+    # pass resulting pod through pod -> markdown conversion
+    $newtext = "=pod\n\n". $newtext;
+    my $outstr;
+    open my $outfh, '>', \$outstr;
+    open my $infh, '<', \$newtext;
+    convert($infh, $outfh);
+    $self->_save_block($self->_chomp_all($outstr));
 };
 
 my (@module_files, @bin_files, @json_schema_files);
@@ -155,10 +187,13 @@ FOOTER
 }
 
 sub convert {
-    my ($in_file, $out_file) = @_;
+    my ($in_fh, $out_fh) = @_;
     my $parser = Pod::Markdown::Github->new(%opts);
-    $parser->output_fh($out_file);
-    $parser->parse_file($in_file);
+
+    $parser->accept_targets(qw(markdown html eval));
+
+    $parser->output_fh($out_fh);
+    $parser->parse_file($in_fh);
 }
 
 sub get_handle {
