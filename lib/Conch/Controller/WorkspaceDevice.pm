@@ -75,6 +75,7 @@ sub get_pxe_devices ($c) {
         ->related_resultset('device')
         ->columns({
             id => 'device.id',
+            phase => 'device.phase',
             'location.datacenter.name' => 'datacenter.region',
             'location.datacenter.vendor_name' => 'datacenter.vendor_name',
             'location.rack.name' => 'rack.name',
@@ -89,9 +90,14 @@ sub get_pxe_devices ($c) {
         ->all;
 
     foreach my $device (@devices) {
-        # DBIC collapse is inconsistent here with handling the lack of a datacenter_room->datacenter
-        $device->{location}{datacenter} = undef
-            if $device->{location} and not defined $device->{location}{datacenter}{name};
+        if (Conch::DB::Result::Device->phase_cmp($device->{phase}, 'production') >= 0) {
+            delete $device->{location};
+        }
+        else {
+            # DBIC collapse is inconsistent here with handling the lack of a datacenter_room->datacenter
+            $device->{location}{datacenter} = undef
+                if $device->{location} and not defined $device->{location}{datacenter}{name};
+        }
 
         my $ipmi = delete $device->{ipmi_mac_ip};
         $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;

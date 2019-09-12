@@ -6,7 +6,8 @@ Conch::Controller::DeviceLocation
 
 ## get
 
-Retrieves location data for the current device.
+Retrieves location data for the current device.  **Note:** This information is not considered to
+be canonical if the device is in the 'production' phase or later.
 
 Response uses the DeviceLocation json schema.
 

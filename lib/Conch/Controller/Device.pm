@@ -122,43 +122,55 @@ sub get ($c) {
     # TODO: this is really a weak etag. requires https://github.com/mojolicious/mojo/pull/1420
     return $c->status(304) if $c->is_fresh(etag => $etag);
 
-    my ($device) = $c->stash('device_rs')
-        ->prefetch([ { active_device_nics => 'device_neighbor' }, 'active_device_disks' ])
-        ->order_by([ qw(iface_name active_device_disks.serial_number) ])
-        ->all;
-
-    my $device_location_rs = $c->stash('device_rs')
-        ->related_resultset('device_location');
-
-    # fetch rack, room and datacenter in one query
-    my $rack = $device_location_rs
-        ->related_resultset('rack')
-        ->prefetch({ datacenter_room => 'datacenter' })
-        ->add_columns({ rack_unit_start => 'device_location.rack_unit_start' })
-        ->single;
-
+    my $device = $c->stash('device_rs')->single;
     my $latest_report = $c->stash('device_rs')->latest_device_report->get_column('report')->single;
 
     my $detailed_device = +{
         $device->TO_JSON->%*,
         latest_report => $latest_report ? from_json($latest_report) : undef,
-        nics => [ map {
+    };
+
+    if ($device->phase_cmp('production') < 0) {
+        my $device_location_rs = $c->stash('device_rs')
+            ->related_resultset('device_location');
+
+        # fetch rack, room and datacenter in one query
+        my $rack = $device_location_rs
+            ->related_resultset('rack')
+            ->prefetch({ datacenter_room => 'datacenter' })
+            ->add_columns({ rack_unit_start => 'device_location.rack_unit_start' })
+            ->single;
+
+        $detailed_device->{location} = $rack ? +{
+            rack => $rack,
+            rack_unit_start => $rack->get_column('rack_unit_start'),
+            datacenter_room => $rack->datacenter_room,
+            datacenter => $rack->datacenter_room->datacenter,
+            target_hardware_product => $device_location_rs->target_hardware_product->single,
+        } : undef;
+
+        $detailed_device->{nics} = [ map {
             my $device_nic = $_;
             my $device_neighbor = $device_nic->device_neighbor;
             +{
                 (map +($_ => $device_nic->$_), qw(mac iface_name iface_type iface_vendor)),
                 (map +($_ => $device_neighbor && $device_neighbor->$_), qw(peer_mac peer_port peer_switch)),
             }
-        } $device->active_device_nics ],
-        location => $rack ? +{
-            rack => $rack,
-            rack_unit_start => $rack->get_column('rack_unit_start'),
-            datacenter_room => $rack->datacenter_room,
-            datacenter => $rack->datacenter_room->datacenter,
-            target_hardware_product => $device_location_rs->target_hardware_product->single,
-        } : undef,
-        disks => [ $device->active_device_disks ],
-    };
+        }
+            $c->stash('device_rs')
+                ->related_resultset('active_device_nics')
+                ->prefetch('device_neighbor')
+                ->order_by('iface_name')
+                ->all
+        ];
+
+        $detailed_device->{disks} = [
+            $c->stash('device_rs')
+                ->related_resultset('active_device_disks')
+                ->order_by('serial_number')
+                ->all
+        ];
+    }
 
     $c->status(200, $detailed_device);
 }
@@ -252,6 +264,7 @@ sub get_pxe ($c) {
         {
             columns => {
                 id => 'device.id',
+                phase => 'device.phase',
                 'location.datacenter.name' => 'datacenter.region',
                 'location.datacenter.vendor_name' => 'datacenter.vendor_name',
                 'location.rack.name' => 'rack.name',
@@ -265,6 +278,10 @@ sub get_pxe ($c) {
         })
         ->hri
         ->all;
+
+    if (Conch::DB::Result::Device->phase_cmp($device->{phase}, 'production') >= 0) {
+        delete $device->{location};
+    }
 
     my $ipmi = delete $device->{ipmi_mac_ip};
     $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;
