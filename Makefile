@@ -30,7 +30,7 @@ ghdocs: build
 	@rm -rf docs/{modules,scripts,json-schema}
 	@carton exec misc/pod2githubpages \
 		$$(find lib -type f -iname \*.pm) \
-		$$(find bin -type f -perm -u-x) \
+		$$(find bin -type f -perm -u-x -not -name \*swp) \
 		$$(find json-schema -type f -iname \*.yaml)
 
 watch-test:
