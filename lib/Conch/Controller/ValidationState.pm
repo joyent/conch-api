@@ -26,6 +26,7 @@ sub get ($c) {
     my ($validation_state) = $c->db_validation_states
         ->search({ 'validation_state.id' => $c->stash('validation_state_id') })
         ->prefetch({ validation_state_members => 'validation_result' })
+        ->order_by('validation_state_members.result_order')
         ->all;
 
     if (not $validation_state) {
