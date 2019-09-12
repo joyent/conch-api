@@ -128,10 +128,12 @@ my $json_encoder = JSON()->new->pretty->indent_length(2)->canonical(1);
 foreach my $filename (grep m{^json-schema/[^.]+\.yaml$}, @all_files) {
     my $data = YAML::XS::LoadFile($filename);
     my $base = path($filename)->basename('.yaml');
+    my ($type) = $filename =~ m{^json-schema/([^.]+)\.yaml$};
+    $data->{'$comment'} = 'NOTE: This file is for human reference ONLY. For programmatic use, use the GET \'/schema/'.$type.'/$schema_name\' endpoints, or within conch itself, json-schema/'.$type.'.yaml.' . ($data->{'$comment'} ? ("\n".$data->{'$comment'}) : '');
     my $json_content = $json_encoder->encode($data);
 
     my @lines = split("\n", $json_content);
-    s/\.yaml/\.json/ foreach @lines;
+    s{(?<!json-schema/$type)\.yaml}{\.json} foreach @lines;
 
     path('docs/json-schema/'.$base.'.json')->spew_utf8(join("\n", @lines), "\n");
     push @json_schema_files, $base.'.json';
