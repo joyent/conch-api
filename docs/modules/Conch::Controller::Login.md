@@ -13,7 +13,7 @@ Create a response containing a login JWT, which the user should later present in
 
 Handle the details of authenticating the user, with one of the following options:
 
-```perl
+```
 * existing session for the user
 * signed JWT in the Authorization Bearer header
 * Old 'conch' session cookie

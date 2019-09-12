@@ -76,13 +76,22 @@ around 'Pod::Markdown::end_for' => sub {
     $self->_save_block($self->_chomp_all($outstr));
 };
 
+around 'Pod::Markdown::Github::syntax' => sub {
+    my $orig = shift;
+    my $self = shift;
+    my $lang = $self->$orig(@_);
+    # the heuristic is a bit too eager -- do not assume perl if $ is nowhere to be seen
+    $lang eq 'perl' && $_[0] !~ /\$/ ? '' : $lang;
+};
+
 my (@module_files, @bin_files, @json_schema_files);
 
 foreach my $dir (qw(modules scripts json-schema)) {
     mkdir 'docs/'.$dir if not -d 'docs/'.$dir;
 }
 
-while (my $infile = shift @ARGV) {
+my @all_files = @ARGV;
+foreach my $infile (@all_files) {
     # convert:                          lib/Conch/Time.pm            and  bin/conch-db
     # to:                               docs/modules/Conch::Time.md  and  docs/scripts/conch-db.md
     # containing pod links like:        L<Conch::Time>               and  L<conch-db>
@@ -103,6 +112,7 @@ while (my $infile = shift @ARGV) {
         push @bin_files, $outfile;
         $outfile = 'docs/scripts/'.$outfile;
     }
+    else { next }
 
     my $in_fh  = get_handle($infile, '<', \*STDIN);
     my $out_fh = get_handle($outfile, '>', \*STDOUT);
@@ -115,7 +125,7 @@ while (my $infile = shift @ARGV) {
 }
 
 my $json_encoder = JSON()->new->pretty->indent_length(2)->canonical(1);
-foreach my $filename (glob('json-schema/*.yaml')) {
+foreach my $filename (grep m{^json-schema/[^.]+\.yaml$}, @all_files) {
     my $data = YAML::XS::LoadFile($filename);
     my $base = path($filename)->basename('.yaml');
     my $json_content = $json_encoder->encode($data);

@@ -32,7 +32,7 @@ See ["load\_fixture"](#load_fixture).
 
 Constructor. Takes the following arguments:
 
-```perl
+```
 * pg (optional). uses this as the postgres db.
   Otherwise, an empty database is created, using the schema in sql/schema.sql.
 
@@ -94,7 +94,7 @@ exist) and adds specified validation plans for each of the structured hashes.
 
 Each hash has the structure:
 
-```perl
+```
 {
     name        => 'Validation plan name',
     description => 'Validation plan description',

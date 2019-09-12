@@ -23,7 +23,7 @@ The available models are `hardware_product`, `device_location`,
 which will be constructed to the correct classes in the body of
 ["test\_validation"](#test_validation). For example:
 
-```perl
+```
 test_validation(
     'Conch::Validation::TestValidation',
     hardware_product => {
@@ -91,7 +91,7 @@ A test case is specified with a hashref with the attributes:
 
 Example:
 
-```perl
+```
 test_validation(
     'Conch::Validation::TestValidation',
     cases => [

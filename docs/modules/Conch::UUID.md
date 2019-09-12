@@ -4,7 +4,7 @@ Conch::UUID - Functions for working with UUIDs in Conch
 
 # SYNOPSIS
 
-```perl
+```
 use Conch::UUID 'is_uuid';
 ```
 

@@ -28,7 +28,7 @@ size: 16
 
 ## created
 
-```perl
+```
 data_type: 'timestamp with time zone'
 default_value: current_timestamp
 is_nullable: 0
@@ -37,7 +37,7 @@ original: {default_value => \"now()"}
 
 ## status
 
-```perl
+```
 data_type: 'enum'
 extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
 is_nullable: 0

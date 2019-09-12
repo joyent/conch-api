@@ -4,7 +4,7 @@ create\_token - create a new api token
 
 # SYNOPSIS
 
-```perl
+```
 bin/conch create_token [long options...]
 
     --name    required; the name to give the token

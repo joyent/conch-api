@@ -11,7 +11,7 @@ read-write and read-only connections, containing keys:
 
 returns a hashref containing keys:
 
-```perl
+```
 dsn
 username
 password
