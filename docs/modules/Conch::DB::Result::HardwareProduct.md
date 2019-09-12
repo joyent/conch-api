@@ -56,7 +56,7 @@ is_nullable: 1
 
 ## created
 
-```perl
+```
 data_type: 'timestamp with time zone'
 default_value: current_timestamp
 is_nullable: 0
@@ -65,7 +65,7 @@ original: {default_value => \"now()"}
 
 ## updated
 
-```perl
+```
 data_type: 'timestamp with time zone'
 default_value: current_timestamp
 is_nullable: 0

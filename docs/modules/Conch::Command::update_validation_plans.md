@@ -4,7 +4,7 @@ update\_validation\_plans - Utility to bring validations and validation\_plans u
 
 # SYNOPSIS
 
-```perl
+```
 bin/conch update_validation_plans [long options...]
 
     --update_all    deactivate old versions of validation <name>,

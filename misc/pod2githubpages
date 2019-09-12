@@ -76,6 +76,14 @@ around 'Pod::Markdown::end_for' => sub {
     $self->_save_block($self->_chomp_all($outstr));
 };
 
+around 'Pod::Markdown::Github::syntax' => sub {
+    my $orig = shift;
+    my $self = shift;
+    my $lang = $self->$orig(@_);
+    # the heuristic is a bit too eager -- do not assume perl if $ is nowhere to be seen
+    $lang eq 'perl' && $_[0] !~ /\$/ ? '' : $lang;
+};
+
 my (@module_files, @bin_files, @json_schema_files);
 
 foreach my $dir (qw(modules scripts json-schema)) {

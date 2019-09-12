@@ -44,7 +44,7 @@ size: 16
 
 ## created
 
-```perl
+```
 data_type: 'timestamp with time zone'
 default_value: current_timestamp
 is_nullable: 0
@@ -53,7 +53,7 @@ original: {default_value => \"now()"}
 
 ## updated
 
-```perl
+```
 data_type: 'timestamp with time zone'
 default_value: current_timestamp
 is_nullable: 0
@@ -76,7 +76,7 @@ is_nullable: 1
 
 ## phase
 
-```perl
+```
 data_type: 'enum'
 default_value: 'integration'
 extra: {custom_type_name => "device_phase_enum",list => ["integration","installation","production","diagnostics","decommissioned"]}

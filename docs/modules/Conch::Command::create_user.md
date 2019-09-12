@@ -4,7 +4,7 @@ create\_user - create a new user, optionally sending an email
 
 # SYNOPSIS
 
-```perl
+```
   bin/conch create_user --email <email> --name <name> [--password <password>] [--send-mail]
 
 --email       The user's email address. Required.

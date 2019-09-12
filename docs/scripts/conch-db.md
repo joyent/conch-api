@@ -4,7 +4,7 @@ conch-db - commands to administrate a database
 
 # SYNOPSIS
 
-```perl
+```
 bin/conch-db [subcommand subcommand...] [-hnv] [long options...] [arguments]
 
 initialize               initialize a new Conch database and its tables

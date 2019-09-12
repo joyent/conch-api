@@ -39,7 +39,7 @@ sensible defaults, but all may be overridden.
 
 Requires data format:
 
-```perl
+```
 fixture_type => { field data.. },
 ...,
 ```
