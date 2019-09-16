@@ -431,4 +431,159 @@ $t->get_ok('/build/our second build/user')
         { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
     ]);
 
+
+my $org_admin = $t->generate_fixtures('user_account');
+$t->post_ok('/organization', json => { name => 'my first organization', admins => [ { user_id => $org_admin->id } ] })
+    ->status_is(303)
+    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
+    ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(my first organization\)$/);
+my $organization = $t->app->db_organizations->find($t->tx->res->headers->location =~ s!^/organization/(${\Conch::UUID::UUID_FORMAT})$!$1!r);
+
+my $org_member = $t->generate_fixtures('user_account');
+$t->post_ok('/organization/my first organization/user?send_mail=0', json => {
+        email => $org_member->email,
+        role => 'ro',
+    })
+    ->status_is(204)
+    ->email_not_sent;
+
+$t->get_ok('/build/'.$build->{id}.'/organization')
+    ->status_is(200)
+    ->json_schema_is('BuildOrganizations')
+    ->json_is([]);
+
+$t->post_ok('/build/'.$build->{id}.'/organization', json => { role => 'ro' })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/organization_id', message => re(qr/missing property/i) } ]);
+
+$t->post_ok('/build/'.$build->{id}.'/organization', json => { organization_id => $organization->id })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
+
+my $t3 = Test::Conch->new(pg => $t->pg);
+$t3->authenticate(email => $new_user2->email);
+
+$t3->get_ok('/build/'.$build->{id}.'/organization')
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for build '.$build->{id});
+
+$t3->post_ok('/build/'.$build->{id}.'/organization', json => {
+        organization_id => $organization->id,
+        role => 'ro',
+    })
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for build '.$build->{id});
+
+
+$t->post_ok('/build/'.$build->{id}.'/organization', json => {
+        organization_id => $organization->id,
+        role => 'ro',
+    })
+    ->status_is(204)
+    ->email_cmp_deeply([
+        {
+            To => '"'.$org_admin->name.'" <'.$org_admin->email.'>, "'.$org_member->name.'" <'.$org_member->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your "my first organization" organization has been added to the\R"my first build" build at Joyent Conch with the "ro" role\./m),
+        },
+        {
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We added an organization to your build',
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added the "my first organization" organization to the\R"my first build" build at Joyent Conch with the "ro" role\./m),
+        },
+    ]);
+
+$t->get_ok('/build/'.$build->{id}.'/organization')
+    ->status_is(200)
+    ->json_schema_is('BuildOrganizations')
+    ->json_is([
+        {
+            (map +($_ => $organization->$_), qw(id name description)),
+            role => 'ro',
+            admins => [
+                { map +($_ => $org_admin->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+$t->post_ok('/build/'.$build->{id}.'/organization', json => {
+        organization_id => $organization->id,
+        role => 'rw',
+    })
+    ->status_is(204)
+    ->email_cmp_deeply([
+        {
+            To => '"'.$org_admin->name.'" <'.$org_admin->email.'>, "'.$org_member->name.'" <'.$org_member->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            body => re(qr/^Your access to the "my first build" build at Joyent Conch\Rvia the "my first organization" organization has been adjusted to the "rw" role\./m),
+        },
+        {
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We modified an organization\'s access to your build',
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "my first build" build at Joyent Conch to the "rw" role\./m),
+        },
+    ]);
+
+$t->get_ok('/build/'.$build->{id}.'/organization')
+    ->status_is(200)
+    ->json_schema_is('BuildOrganizations')
+    ->json_is([
+        {
+            (map +($_ => $organization->$_), qw(id name description)),
+            role => 'rw',
+            admins => [
+                { map +($_ => $org_admin->$_), qw(id name email) },
+            ],
+        },
+    ]);
+
+$t->post_ok('/build/'.$build->{id}.'/organization', json => {
+        organization_id => $organization->id,
+        role => 'rw',
+    })
+    ->status_is(204)
+    ->log_debug_is('organization "my first organization" already has rw access to build '.$build->{id}.': nothing to do')
+    ->email_not_sent;
+
+$t->post_ok('/build/'.$build->{id}.'/organization', json => {
+        organization_id => $organization->id,
+        role => 'ro',
+    })
+    ->status_is(409)
+    ->json_is({ error => 'organization "my first organization" already has rw access to build '.$build->{id}.': cannot downgrade role to ro' })
+    ->email_not_sent;
+
+$t3->delete_ok('/build/'.$build->{id}.'/organization/my first organization')
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for build '.$build->{id});
+
+$t->delete_ok('/build/'.$build->{id}.'/organization/'.$organization->id)
+    ->status_is(204)
+    ->email_cmp_deeply([
+        {
+            To => '"'.$org_admin->name.'" <'.$org_admin->email.'>, "'.$org_member->name.'" <'.$org_member->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch builds have been updated',
+            body => re(qr/^Your "my first organization" organization has been removed from the\R"my first build" build at Joyent Conch\./m),
+        },
+        {
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We removed an organization from your build',
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) removed the "my first organization"\Rorganization from the "my first build" build at Joyent Conch\./m),
+        },
+    ]);
+
+$t->get_ok('/build/'.$build->{id}.'/organization')
+    ->status_is(200)
+    ->json_schema_is('BuildOrganizations')
+    ->json_is([]);
+
+
 done_testing;

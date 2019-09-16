@@ -64,6 +64,30 @@ to the user and to all build admins.
 
 This endpoint is nearly identical to ["remove\_user" in Conch::Controller::Organization](../modules/Conch::Controller::Organization#remove_user).
 
+## list\_organizations
+
+Get a list of organization members of the current build.
+Requires the 'admin' role on the build.
+
+Response uses the BuildOrganizations json schema.
+
+## add\_organization
+
+Adds a organization to the current build, or upgrades an existing role entry to access the
+build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
+to all organization members and all build admins.
+
+## remove\_organization
+
+Removes the indicated organization from the build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
+to all organization members and to all build admins.
+
 # LICENSING
 
 Copyright Joyent, Inc.

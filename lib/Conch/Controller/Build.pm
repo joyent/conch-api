@@ -335,6 +335,221 @@ sub remove_user ($c) {
     return $c->status(204);
 }
 
+=head2 list_organizations
+
+Get a list of organization members of the current build.
+Requires the 'admin' role on the build.
+
+Response uses the BuildOrganizations json schema.
+
+=cut
+
+sub list_organizations ($c) {
+    my $rs = $c->db_organizations
+        ->search(
+            {
+                build_id => $c->stash('build_id'),
+                'user_organization_roles.role' => 'admin',
+            },
+            {
+                join => [ 'organization_build_roles', { user_organization_roles => 'user_account' } ],
+                collapse => 1,
+            },
+        )
+        ->active
+        ->columns([
+            (map 'organization.'.$_, qw(id name description)),
+            (map +('organization_build_roles.'.$_), qw(organization_id build_id role)),
+            (map +('user_organization_roles.'.$_), qw(user_id organization_id)),
+            +{ map +('user_organization_roles.user_account.'.$_ => 'user_account.'.$_), qw(id name email) },
+        ])
+        ->order_by([qw(organization.name user_account.name)])
+        ->hri;
+
+    my $org_data = [
+        map {
+            my $org = $_;
+            +{
+                role => (delete $_->{organization_build_roles})->[0]{role},
+                admins => [ map $_->{user_account}, (delete $org->{user_organization_roles})->@* ],
+                $org->%*,
+            }
+        }
+        $rs->all
+    ];
+
+    $c->log->debug('Found '.scalar($org_data->@*).' organizations');
+    $c->status(200, $org_data);
+}
+
+=head2 add_organization
+
+Adds a organization to the current build, or upgrades an existing role entry to access the
+build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
+to all organization members and all build admins.
+
+=cut
+
+sub add_organization ($c) {
+    # Note: this method is very similar to Conch::Controller::WorkspaceUser::add_user
+    # and Conch::Controller::WorkspaceOrganization::add_workspace_organization
+
+    my $params = $c->validate_query_params('NotifyUsers');
+    return if not $params;
+
+    my $input = $c->validate_request('BuildAddOrganization');
+    return if not $input;
+
+    my $organization = $c->db_organizations->active->find($input->{organization_id});
+    return $c->status(404) if not $organization;
+
+    my $build_id = $c->stash('build_id');
+
+    # check if the organization already has access to this build
+    if (my $existing_role = $c->stash('build_rs')
+            ->search_related('organization_build_roles', { organization_id  => $organization->id })
+            ->single) {
+        if ((my $role_cmp = $existing_role->role_cmp($input->{role})) >= 0) {
+            my $str = 'organization "'.$organization->name.'" already has '.$existing_role->role
+                .' access to build '.$build_id;
+
+            $c->log->debug($str.': nothing to do'), return $c->status(204)
+                if $role_cmp == 0;
+
+            return $c->status(409, { error => $str.': cannot downgrade role to '.$input->{role} })
+                if $role_cmp > 0;
+        }
+
+        $existing_role->update({ role => $input->{role} });
+        $c->log->info('Upgraded organization '.$organization->id.' in build '.$build_id.' to '.$input->{role});
+
+        my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
+        if ($params->{send_mail} // 1) {
+            $c->send_mail(
+                template_file => 'build_organization_update_members',
+                To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
+                From => 'noreply@conch.joyent.us',
+                Subject => 'Your Conch access has changed',
+                organization => $organization->name,
+                build => $build_name,
+                role => $input->{role},
+            );
+            my @build_admins = $c->db_builds
+                ->admins('with_sysadmins')
+                ->search({
+                    'user_account.id' => { -not_in => $organization
+                        ->related_resultset('user_organization_roles')
+                        ->get_column('user_id')
+                        ->as_query },
+                });
+            $c->send_mail(
+                template_file => 'build_organization_update_admins',
+                To => $c->construct_address_list(@build_admins),
+                From => 'noreply@conch.joyent.us',
+                Subject => 'We modified an organization\'s access to your build',
+                organization => $organization->name,
+                build => $build_name,
+                role => $input->{role},
+            ) if @build_admins;
+        }
+
+        return $c->status(204);
+    }
+
+    $organization->create_related('organization_build_roles', {
+        build_id => $build_id,
+        role => $input->{role},
+    });
+    $c->log->info('Added organization '.$organization->id.' to build '.$build_id.' with the '.$input->{role}.' role');
+
+    if ($params->{send_mail} // 1) {
+        my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
+        $c->send_mail(
+            template_file => 'build_organization_add_members',
+            To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch access has changed',
+            organization => $organization->name,
+            build => $build_name,
+            role => $input->{role},
+        );
+        my @build_admins = $c->db_builds
+            ->admins('with_sysadmins')
+            ->search({
+                'user_account.id' => { -not_in => $organization
+                    ->related_resultset('user_organization_roles')
+                    ->get_column('user_id')
+                    ->as_query },
+            });
+        $c->send_mail(
+            template_file => 'build_organization_add_admins',
+            To => $c->construct_address_list(@build_admins),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We added an organization to your build',
+            organization => $organization->name,
+            build => $build_name,
+            role => $input->{role},
+        ) if @build_admins;
+    }
+
+    $c->status(204);
+}
+
+=head2 remove_organization
+
+Removes the indicated organization from the build.
+Requires the 'admin' role on the build.
+
+Optionally takes a query parameter C<send_mail> (defaulting to true), to send an email
+to all organization members and to all build admins.
+
+=cut
+
+sub remove_organization ($c) {
+    # Note: this method is very similar to Conch::Controller::WorkspaceUser::remove
+
+    my $params = $c->validate_query_params('NotifyUsers');
+    return if not $params;
+
+    my $organization = $c->stash('organization_rs')->single;
+
+    my $rs = $c->db_builds
+        ->search_related('organization_build_roles', { organization_id => $organization->id });
+    return $c->status(204) if not $rs->exists;
+
+    my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
+    $c->log->debug('removing organization '.$organization->name.' from build '.$build_name);
+
+    $rs->delete;
+
+    if ($params->{send_mail} // 1) {
+        $c->send_mail(
+            template_file => 'build_organization_remove_members',
+            To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch builds have been updated',
+            organization => $organization->name,
+            build => $build_name,
+        );
+        my @build_admins = $c->db_builds
+            ->admins('with_sysadmins')
+            ->search({ 'user_account.id' => { -not_in => $organization->user_accounts->get_column('id')->as_query } });
+        $c->send_mail(
+            template_file => 'build_organization_remove_admins',
+            To => $c->construct_address_list(@build_admins),
+            From => 'noreply@conch.joyent.us',
+            Subject => 'We removed an organization from your build',
+            organization => $organization->name,
+            build => $build_name,
+        ) if @build_admins;
+    }
+
+    return $c->status(204);
+}
+
 1;
 __END__
 

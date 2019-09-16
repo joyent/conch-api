@@ -1902,5 +1902,36 @@ definitions:
           $ref: common.yaml#/definitions/email_address
         role:
           $ref: common.yaml#/definitions/role
+  BuildOrganizations:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - description
+        - role
+        - admins
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          type: string
+        description:
+          oneOf:
+            - type: 'null'
+            - type: string
+        role:
+          $ref: common.yaml#/definitions/role
+        role_via_workspace_id:
+          $ref: common.yaml#/definitions/uuid
+        admins:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: /definitions/UserTerse
 
 # vim: set sts=2 sw=2 et :

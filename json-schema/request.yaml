@@ -667,5 +667,16 @@ definitions:
         $ref: common.yaml#/definitions/email_address
       role:
         $ref: common.yaml#/definitions/role
+  BuildAddOrganization:
+    type: object
+    additionalProperties: false
+    required:
+      - organization_id
+      - role
+    properties:
+      organization_id:
+        $ref: common.yaml#/definitions/uuid
+      role:
+        $ref: common.yaml#/definitions/role
 
 # vim: set sts=2 sw=2 et :

@@ -53,6 +53,28 @@ an email to the user.
 - Requires system admin authorization or the admin role on the build
 - Returns `204 NO CONTENT`
 
+### `GET /build/:build_id_or_name/organization`
+
+- User requires the admin role
+- Response: [response.json#/definitions/BuildOrganizations](../json-schema/response.json#/definitions/BuildOrganizations)
+
+### `POST /build/:build_id_or_name/organization?send_mail=<1|0>`
+
+Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
+an email to the organization members and build admins.
+
+- User requires the admin role
+- Request: [request.json#/definitions/BuildAddOrganization](../json-schema/request.json#/definitions/BuildAddOrganization)
+- Response: `204 NO CONTENT`
+
+### `DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>`
+
+Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
+an email to the organization members and build admins.
+
+- User requires the admin role
+- Returns `204 NO CONTENT`
+
 # LICENSING
 
 Copyright Joyent, Inc.

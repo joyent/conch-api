@@ -53,6 +53,17 @@ sub routes {
         $with_build_admin->under('/user/#target_user_id_or_email')
             ->to('user#find_user')
             ->delete('/')->to('build#remove_user');
+
+        # GET /build/:build_id_or_name/organization
+        $with_build_admin->get('/organization')->to('#list_organizations');
+
+        # POST /build/:build_id_or_name/organization?send_mail=<1|0>
+        $with_build_admin->post('/organization')->to('#add_organization');
+
+        # DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>
+        $with_build_admin->under('/organization/:organization_id_or_name')
+            ->to('organization#find_organization')
+            ->delete('/')->to('build#remove_organization');
     }
 }
 
@@ -138,6 +149,44 @@ an email to the user.
 =over 4
 
 =item * Requires system admin authorization or the admin role on the build
+
+=item * Returns C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /build/:build_id_or_name/organization>
+
+=over 4
+
+=item * User requires the admin role
+
+=item * Response: F<response.yaml#/definitions/BuildOrganizations>
+
+=back
+
+=head3 C<< POST /build/:build_id_or_name/organization?send_mail=<1|0> >>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the organization members and build admins.
+
+=over 4
+
+=item * User requires the admin role
+
+=item * Request: F<request.yaml#/definitions/BuildAddOrganization>
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<< DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0> >>
+
+Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
+an email to the organization members and build admins.
+
+=over 4
+
+=item * User requires the admin role
 
 =item * Returns C<204 NO CONTENT>
 
