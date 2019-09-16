@@ -75,11 +75,6 @@ __PACKAGE__->table("validation_result");
   data_type: 'text'
   is_nullable: 1
 
-=head2 result_order
-
-  data_type: 'integer'
-  is_nullable: 0
-
 =head2 created
 
   data_type: 'timestamp with time zone'
@@ -125,8 +120,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "component",
   { data_type => "text", is_nullable => 1 },
-  "result_order",
-  { data_type => "integer", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -228,21 +221,12 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:plpoY5p27ah5uepmndhPyA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+l8wIgJwgE/xE72CF/Dr4Q
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },
     '+device_id' => { is_serializable => 0 },
 );
-
-use experimental 'signatures';
-
-sub TO_JSON ($self) {
-    my $data = $self->next::method(@_);
-    $data->{order} = delete $data->{result_order};
-
-    return $data;
-}
 
 1;
 __END__
