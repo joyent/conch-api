@@ -759,7 +759,7 @@ sub add_test_routes ($t) {
                 url         => '/user/me/password',
                 remoteAddress => '127.0.0.1',
                 remotePort  => ignore,
-                headers     => notexists('Authorization'),
+                headers     => superhashof({ Authorization => '--REDACTED--' }),
                 query_params => {},
                 # no body! that contains the password!!!
             },
@@ -771,19 +771,6 @@ sub add_test_routes ($t) {
         },
         'dispatch line for changing password in audit mode does not contain the password',
     );
-}
-
-# TODO: replace with Test::Deep::notexists($key)
-sub notexists
-{
-    my @keys = @_;
-    Test::Deep::code(sub {
-        return (0, 'not a HASH') if ref $_[0] ne 'HASH';
-        foreach my $key (@keys) {
-            return (0, "'$key' key exists") if exists $_[0]->{$key};
-        }
-        return 1;
-    });
 }
 
 done_testing;

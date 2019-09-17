@@ -74,10 +74,12 @@ sub register ($self, $app, $config) {
           : 'NOT AUTHED';
 
         my $req_headers = $c->req->headers->to_hash(1);
-        delete $req_headers->@{qw(Authorization Cookie jwt_token)};
+        $req_headers->{$_} = '--REDACTED--'
+            foreach grep exists $req_headers->{$_}, qw(Authorization Cookie jwt_token);
 
         my $res_headers = $c->res->headers->to_hash(1);
-        delete $res_headers->@{qw(Set-Cookie)};
+        $res_headers->{$_} = '--REDACTED--'
+            foreach grep exists $res_headers->{$_}, qw(Set-Cookie);
 
         my $req_json = $c->req->json;
         my $res_json = $c->res->json;
