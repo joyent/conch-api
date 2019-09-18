@@ -47,7 +47,7 @@ $t->post_ok('/dc', json => { wat => 'wat' })
 
 $t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location => 'locati0n' })
     ->status_is(201)
-    ->location_like(qr!^/dc/${\Conch::UUID::UUID_FORMAT}!);
+    ->location_like(qr!^/dc/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)

@@ -70,7 +70,8 @@ $t->post_ok('/rack', json => {
         rack_role_id => $rack->rack_role_id,
         serial_number => 'abc',
     })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_like(qr!^/rack/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)

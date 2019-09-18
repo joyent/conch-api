@@ -47,7 +47,7 @@ foreach 'foo/bar', 'foo.bar';
 
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 2 })
     ->status_is(303)
-    ->location_like(qr!^/rack_role/${\Conch::UUID::UUID_FORMAT}!);
+    ->location_like(qr!^/rack_role/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)

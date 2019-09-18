@@ -44,7 +44,7 @@ $t->post_ok('/hardware_product', json => {
         rack_unit_size => 2,
     })
     ->status_is(303)
-    ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}!);
+    ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -229,7 +229,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             hardware_product_profile => $new_hw_profile,
         })
         ->status_is(303)
-        ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}!);
+        ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
 
     $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)

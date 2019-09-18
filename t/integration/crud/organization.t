@@ -58,7 +58,7 @@ $t->post_ok('/organization', json => {
 my $admin_user = $t->generate_fixtures('user_account');
 $t->post_ok('/organization', json => { name => 'my first organization', admins => [ { user_id => $admin_user->id } ] })
     ->status_is(303)
-    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}!)
+    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(my first organization\)$/);
 
 $t->get_ok($t->tx->res->headers->location)
@@ -96,7 +96,7 @@ $t->post_ok('/organization', json => { name => 'my first organization', admins =
 
 $t->post_ok('/organization', json => { name => 'our second organization', description => 'funky', admins => [ { email => $admin_user->email } ] })
     ->status_is(303)
-    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}!)
+    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(our second organization\)$/);
 
 $t->get_ok('/organization')

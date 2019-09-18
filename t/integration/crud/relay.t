@@ -62,7 +62,7 @@ $t->post_ok('/relay/relay'.$_.'/register',
             ssh_port => 123,
         })
     ->status_is(201)
-    ->location_like(qr!^/relay/${\Conch::UUID::UUID_FORMAT}!)
+    ->location_like(qr!^/relay/${\Conch::UUID::UUID_FORMAT}$!)
 foreach (0..1);
 
 my $relay0 = $t->app->db_relays->find({ serial_number => 'relay0' });

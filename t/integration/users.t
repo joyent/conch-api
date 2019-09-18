@@ -522,7 +522,7 @@ subtest 'modify another user' => sub {
     $t_super->post_ok('/user?send_mail=0',
             json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
         ->status_is(201, 'created new user test_user')
-        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}!)
+        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}$!)
         ->json_schema_is('NewUser')
         ->json_cmp_deeply({
             id => re(Conch::UUID::UUID_FORMAT),
