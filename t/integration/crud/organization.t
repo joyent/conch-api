@@ -778,13 +778,13 @@ $t2->delete_ok('/workspace/grandchild ws/organization/my first organization')
     ->status_is(403);
 
 
-my $t3 = Test::Conch->new(pg => $t->pg);
-$t3->authenticate(email => $admin_user->email);
+my $t_admin_user = Test::Conch->new(pg => $t->pg);
+$t_admin_user->authenticate(email => $admin_user->email);
 
-$t3->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
+$t_admin_user->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
     ->status_is(403);
 
-$t3->delete_ok('/workspace/'.$sub_ws->id.'/organization/'.$organization->{id})
+$t_admin_user->delete_ok('/workspace/'.$sub_ws->id.'/organization/'.$organization->{id})
     ->status_is(403);
 
 $t->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
