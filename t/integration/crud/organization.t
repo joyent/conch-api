@@ -219,7 +219,7 @@ $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for organization '.$organization->{id});
 
-$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
+$t2->delete_ok('/organization/my first organization/user/'.$admin_user->email)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
@@ -264,7 +264,7 @@ $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for organization '.$organization->{id});
 
-$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
+$t2->delete_ok('/organization/my first organization/user/'.$admin_user->email)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
@@ -890,10 +890,6 @@ $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
     ->json_is([ $organization, $organization2 ]);
-
-# cannot remove self from organization
-$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
-    ->status_is(403);
 
 $t->delete_ok('/organization/my first organization/user/foo@bar.com')
     ->status_is(404);

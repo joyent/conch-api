@@ -330,8 +330,6 @@ sub remove_user ($c) {
     return if not $params;
 
     my $user = $c->stash('target_user');
-    return $c->status(403) if $user->id eq $c->stash('user_id');
-
     my $rs = $c->stash('organization_rs')
         ->search_related('user_organization_roles', { user_id => $user->id });
     return $c->status(204) if not $rs->exists;
