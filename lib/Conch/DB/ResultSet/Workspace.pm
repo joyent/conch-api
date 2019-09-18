@@ -295,9 +295,9 @@ sub admins ($self, $include_sysadmins = undef) {
 
 =head2 with_user_role
 
-Constrains the resultset to those where the provided user_id has (at least) the specified role
-in at last one workspace in the resultset.  (Does not search recursively; add
-C<< ->and_workspaces_above($workspace_id) >> to your resultset first, if this is what you want.)
+Constrains the resultset to those where the provided user_id has (at least) the specified role.
+(Does not search recursively; add C<< ->and_workspaces_above($workspace_id) >> to your
+resultset first, if this is what you want.)
 
 =cut
 
