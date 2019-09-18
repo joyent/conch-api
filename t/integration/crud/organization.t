@@ -174,7 +174,7 @@ $t->post_ok('/organization/my first organization/user', json => {
             body => re(qr/^You have been added to the "my first organization" organization at Joyent Conch with the "ro" role\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We added a user to your organization',
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added ${\$new_user->name} \(${\$new_user->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
@@ -231,7 +231,7 @@ $t->post_ok('/organization/my first organization/user', json => {
             body => re(qr/^Your access to the "my first organization" organization at Joyent Conch has been adjusted to "rw"\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We modified a user\'s access to your organization',
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "rw" role\./m),
@@ -273,7 +273,7 @@ $t->post_ok('/organization/'.$organization->{id}.'/user', json => {
             body => re(qr/^Your access to the "my first organization" organization at Joyent Conch has been adjusted to "admin"\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We modified a user\'s access to your organization',
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "admin" role\./m),
@@ -311,7 +311,7 @@ $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
             body => re(qr/^You have been added to the "my first organization" organization at Joyent Conch with the "ro" role\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We added a user to your organization',
             body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) added ${\$new_user2->name} \(${\$new_user2->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
@@ -338,7 +338,7 @@ $t2->delete_ok('/organization/my first organization/user/'.$new_user2->email)
             body => re(qr/^You have been removed from the "my first organization" organization at Joyent Conch\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We removed a user from your organization',
             body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) removed ${\$new_user2->name} \(${\$new_user2->email}\) from the\R"my first organization" organization at Joyent Conch\./m),
