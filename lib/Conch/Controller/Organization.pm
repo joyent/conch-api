@@ -121,10 +121,13 @@ sub find_organization ($c) {
 
     return $c->status(404) if not $rs->exists;
 
-    return $c->status(403)
-        if not $c->is_system_admin
+    my $requires_role = $c->stash('require_role') // 'admin';
+    if (not $c->is_system_admin
             and not $rs->search_related('user_organization_roles',
-                { user_id => $c->stash('user_id'), role => 'admin' })->exists;
+                { user_id => $c->stash('user_id'), role => $requires_role })->exists) {
+        $c->log->debug('User lacks the required role ('.$requires_role.') for organization '.$identifier);
+        return $c->status(403);
+    }
 
     $c->stash('organization_rs', $rs);
 }
