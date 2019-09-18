@@ -216,13 +216,12 @@ sub remove_workspace_organization ($c) {
     return $c->status(204) if not $num_rows;
 
     my $workspace_name = $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single;
-
     $c->log->debug('removing organization '.$organization->name.' from workspace '
         .$workspace_name.' and all sub-workspaces ('.$num_rows.'rows in total)');
 
-    my $deleted = $rs->delete;
+    $rs->delete;
 
-    if ($deleted > 0 and $params->{send_mail} // 1) {
+    if ($params->{send_mail} // 1) {
         $c->send_mail(
             template_file => 'workspace_organization_remove_members',
             To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
