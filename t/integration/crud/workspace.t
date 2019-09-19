@@ -331,7 +331,8 @@ subtest 'Sub-Workspace' => sub {
         ->json_cmp_deeply(bag($workspace_data{admin_user}->@*));
 
     $t->get_ok('/user/'.$admin_user->email)
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
 
     $t->get_ok('/user/me')
         ->status_is(200)

@@ -782,7 +782,8 @@ my $t_admin_user = Test::Conch->new(pg => $t->pg);
 $t_admin_user->authenticate(email => $admin_user->email);
 
 $t_admin_user->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for workspace '.$grandchild_ws->id);
 
 $t_admin_user->delete_ok('/workspace/'.$sub_ws->id.'/organization/'.$organization->{id})
     ->status_is(403);

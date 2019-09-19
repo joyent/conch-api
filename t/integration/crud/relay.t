@@ -16,7 +16,8 @@ my $global_ws_id = $t->load_fixture('admin_user_global_workspace')->workspace_id
 $t->authenticate(email => $null_user->email);
 
 $t->get_ok('/workspace/'.$global_ws_id.'/relay')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (ro) for workspace '.$global_ws_id);
 
 my $t_super = Test::Conch->new(pg => $t->pg);
 $t_super->authenticate(email => $super_user->email);
@@ -131,7 +132,8 @@ $t->get_ok('/relay/relay0')
     });
 
 $t->get_ok('/relay')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User must be system admin');
 
 $t_super->get_ok('/relay')
     ->status_is(200)
