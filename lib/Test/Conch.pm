@@ -465,8 +465,8 @@ See L<Test::Conch::Fixtures/_generate_definition> for the list of recognized typ
 
 sub generate_fixtures ($self, @specification) {
     state $unique_num = 1000;
-    my %specification = @specification % 2 ? (@specification, {}) : @specification;
-    my @fixture_names = $self->fixtures->generate_definitions($unique_num++, %specification);
+    push @specification, undef if @specification % 2;
+    my @fixture_names = $self->fixtures->generate_definitions($unique_num++, @specification);
     return if not @fixture_names;
     $self->fixtures->load(@fixture_names);
 }
