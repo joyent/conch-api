@@ -25,6 +25,10 @@ sub register ($self, $app, $config) {
     my $plugin_config = $config->{logging} // {};
     my $log_dir = $plugin_config->{dir} // 'log';
 
+    my %LEVEL = (debug => 1, info => 2, warn => 3, error => 4, fatal => 5);
+    die 'unrecognized log level '.$plugin_config->{level}
+        if $plugin_config->{level} and not exists $LEVEL{$plugin_config->{level}};
+
     my %log_args = (
         level => 'debug',
         bunyan => 1,
