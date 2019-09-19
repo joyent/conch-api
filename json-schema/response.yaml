@@ -115,6 +115,7 @@ definitions:
       - validated
       - phase
       - links
+      - build_id
       - location
       - nics
       - disks
@@ -169,6 +170,10 @@ definitions:
         items:
           type: string
           format: uri
+      build_id:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/uuid
       location:
         oneOf:
           - $ref: /definitions/DeviceLocation
@@ -312,6 +317,7 @@ definitions:
       - validated
       - phase
       - links
+      - build_id
       - rack_id
       - rack_unit_start
     properties:
@@ -364,6 +370,10 @@ definitions:
         items:
           type: string
           format: uri
+      build_id:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/uuid
       rack_id:
         oneOf:
           - $ref: common.yaml#/definitions/uuid
@@ -1311,6 +1321,7 @@ definitions:
       - phase
       - created
       - updated
+      - build_id
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1336,6 +1347,10 @@ definitions:
       updated:
         type: string
         format: date-time
+      build_id:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/uuid
   RackRole:
     type: object
     additionalProperties: false

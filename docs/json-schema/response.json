@@ -119,6 +119,16 @@
             }
           ]
         },
+        "build_id" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -442,6 +452,7 @@
         "validated",
         "phase",
         "links",
+        "build_id",
         "location",
         "nics",
         "disks",
@@ -459,6 +470,16 @@
             },
             {
               "type" : "null"
+            }
+          ]
+        },
+        "build_id" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
             }
           ]
         },
@@ -582,6 +603,7 @@
         "validated",
         "phase",
         "links",
+        "build_id",
         "rack_id",
         "rack_unit_start"
       ],
@@ -1693,6 +1715,16 @@
             }
           ]
         },
+        "build_id" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -1736,7 +1768,8 @@
         "asset_tag",
         "phase",
         "created",
-        "updated"
+        "updated",
+        "build_id"
       ],
       "type" : "object"
     },

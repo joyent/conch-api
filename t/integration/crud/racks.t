@@ -86,6 +86,7 @@ $t->get_ok($t->tx->res->headers->location)
         phase => 'integration',
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        build_id => undef,
     });
 my $new_rack_id = $t->tx->res->json->{id};
 
