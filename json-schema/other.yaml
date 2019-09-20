@@ -45,8 +45,10 @@ definitions:
                               type: string
                             lineno:
                               type: integer
+                              minimum: 0
 #                           colno:
 #                             type: integer
+#                             minimum: 0
                             method:
                               type: string
                             code:
