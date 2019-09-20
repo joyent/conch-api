@@ -50,7 +50,6 @@ use open ':std', ':encoding(UTF-8)';
 
 use Getopt::Long::Descriptive;
 use Dir::Self;
-use List::Util 'any';
 use Class::Method::Modifiers 'around';
 use lib __DIR__ =~ s{/bin}{}r . '/lib';
 use Conch::DB;
@@ -88,27 +87,15 @@ print($usage->text), exit if $opt->help or not @ARGV;
 
 # order matters, so we don't just shove the handlers into a dispatch hash table.
 
-foreach my $cmd (@ARGV) {
-    next if any { $cmd eq $_ }
-        qw(all initialize create-validations create-global-workspace create-admin-user migrate apply-dump-migration);
-    die 'unrecognized command '.$cmd;
-}
-
-
-if (any { $_ eq 'all' } @ARGV) {
-     unshift @ARGV, qw(initialize create-validations create-admin-user);
+if (@ARGV == 1 and $ARGV[0] eq 'all') {
+    @ARGV = qw(initialize create-validations create-admin-user);
 }
 
 my $use_test_db;
-if (any { $_ eq 'apply-dump-migration' } @ARGV) {
+if ($ARGV[0] eq 'apply-dump-migration') {
     $use_test_db = 1;
     print("need one or more migration numbers for apply-dump-migration\n\n", $usage->text), exit
-        if not grep /^\d+$/, @ARGV;
-}
-
-if (any { $_ eq 'create-admin-user' } @ARGV) {
-    print("--email option is required for create-admin-user\n\n", $usage->text), exit
-        if not $opt->email;
+        if grep !/^\d+$/, @ARGV[1 .. $#ARGV];
 }
 
 $ENV{DBIC_TRACE} = 1 if $opt->verbose;
@@ -138,15 +125,18 @@ else {
 $log->info('connecting to '.$db_credentials->{dsn}.'...');
 my $schema = Conch::DB->connect($db_credentials->@{qw(dsn username password options)});
 
-if (any { $_ eq 'initialize' } @ARGV) {
+if ($ARGV[0] eq 'initialize') {
+    shift @ARGV;
     Conch::DB::Util::initialize_db($schema);
 }
 
-if (any { $_ eq 'create-validations' } @ARGV) {
+if ($ARGV[0] eq 'create-validations') {
+    shift @ARGV;
     Conch::DB::Util::create_validation_plans($schema, $log);
 }
 
-if (any { $_ eq 'create-global-workspace' } @ARGV) {
+if ($ARGV[0] eq 'create-global-workspace') {
+    shift @ARGV;
     $schema->resultset('workspace')->create({
         name => 'GLOBAL',
         description => 'Global workspace',
@@ -154,11 +144,16 @@ if (any { $_ eq 'create-global-workspace' } @ARGV) {
     });
 }
 
-if (any { $_ eq 'migrate' } @ARGV) {
+if ($ARGV[0] eq 'migrate') {
+    shift @ARGV;
     Conch::DB::Util::migrate_db($schema, $log);
 }
 
-if (any { $_ eq 'create-admin-user' } @ARGV) {
+if ($ARGV[0] eq 'create-admin-user') {
+    shift @ARGV;
+    print("--email option is required for create-admin-user\n\n", $usage->text), exit
+        if not $opt->email;
+
     my $password = $opt->password // do {
         require Session::Token;
         Session::Token->new(length => 32)->get;
@@ -183,11 +178,13 @@ if (any { $_ eq 'create-admin-user' } @ARGV) {
         .($opt->password ? '' : (' and password "'.$password.'"')));
 }
 
-if (any { $_ eq 'apply-dump-migration' } @ARGV) {
+if ($ARGV[0] eq 'apply-dump-migration') {
+    shift @ARGV; my @migrations = @ARGV; @ARGV = ();
+
     # apply sql/schema.sql to test db, and pretend that all migration files were run
     Conch::DB::Util::initialize_db($schema);
     # remove record that these migrations were "run"
-    $schema->resultset('migration')->search({ id => { -in => [ grep /^\d+$/, @ARGV ] } })->delete;
+    $schema->resultset('migration')->search({ id => { -in => [ grep /^\d+$/, @migrations ] } })->delete;
     # ..so now they will be run for real
     Conch::DB::Util::migrate_db($schema);
 
@@ -222,6 +219,8 @@ if (any { $_ eq 'apply-dump-migration' } @ARGV) {
     );
 }
 
+# if there is anything left in ARGV, complain about it.
+die 'unrecognized command: ', @ARGV if @ARGV;
 
 END {
     Conch::DB->storage->disconnect if Conch::DB->storage and Conch::DB->storage->connected;
