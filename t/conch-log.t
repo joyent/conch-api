@@ -217,6 +217,7 @@ sub add_test_routes ($t) {
         'helper sub called outside a request logged in bunyan format, without trace or request_id',
     );
 
+    reset_log;
     my %lines = add_test_routes($t);
 
     $t->get_ok('/_hello')

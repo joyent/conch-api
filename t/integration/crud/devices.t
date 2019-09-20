@@ -57,7 +57,8 @@ subtest 'unlocated device, no registered relay' => sub {
         ->log_debug_is('User cannot access unlocated device '.$test_device_id);
 
     $t->get_ok('/device_report/'.$device_report_id)
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
 
     {
         my $t = Test::Conch->new(pg => $t->pg);
@@ -320,10 +321,12 @@ subtest 'located device' => sub {
         my $null_user = $t->generate_fixtures('user_account');
         $t->authenticate(email => $null_user->email);
         $t->get_ok('/device/'.$located_device_id)
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (ro) for device '.$located_device_id);
 
         $t->get_ok('/device?hostname=located_host')
-            ->status_is(403);
+            ->status_is(403)
+            ->log_debug_is('User cannot access requested device(s)');
 
         my $org = $t->generate_fixtures('organization');
         $org->create_related('user_organization_roles', { user_id => $null_user->id, role => 'ro' });
@@ -899,7 +902,8 @@ subtest 'Device PXE' => sub {
     $device_pxe->delete_related('device_nics');
 
     $t->get_ok('/device/PXE_TEST/pxe')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unlocated device '.$device_pxe->id);
 
     $t->authenticate(email => $super_user->email);
     $t->get_ok('/device/PXE_TEST/pxe')
@@ -915,10 +919,12 @@ subtest 'Device PXE' => sub {
 
 subtest 'Device location' => sub {
     $t->post_ok('/device/TEST/location')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
 
     $t->delete_ok('/device/TEST/location')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
 
     $t->authenticate(email => $super_user->email);
 
@@ -941,7 +947,8 @@ subtest 'Device location' => sub {
         ->status_is(204, 'can delete device location');
 
     $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
-        ->status_is(303, 'add it back');
+        ->status_is(303, 'add it back')
+        ->location_is('/device/'.$test_device_id.'/location');
 };
 
 done_testing;

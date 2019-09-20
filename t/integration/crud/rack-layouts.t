@@ -127,7 +127,8 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_switch->id,
         rack_unit_start => 42,
     })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_like(qr!^/layout/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -252,7 +253,8 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_compute->id,
         rack_unit_start => 1,
     })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_like(qr!^/layout/${\Conch::UUID::UUID_FORMAT}$!);
 
 # now we have these assigned slots:
 # start 1, width 2

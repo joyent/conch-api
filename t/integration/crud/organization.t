@@ -58,7 +58,7 @@ $t->post_ok('/organization', json => {
 my $admin_user = $t->generate_fixtures('user_account');
 $t->post_ok('/organization', json => { name => 'my first organization', admins => [ { user_id => $admin_user->id } ] })
     ->status_is(303)
-    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}!)
+    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(my first organization\)$/);
 
 $t->get_ok($t->tx->res->headers->location)
@@ -96,7 +96,7 @@ $t->post_ok('/organization', json => { name => 'my first organization', admins =
 
 $t->post_ok('/organization', json => { name => 'our second organization', description => 'funky', admins => [ { email => $admin_user->email } ] })
     ->status_is(303)
-    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}!)
+    ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(our second organization\)$/);
 
 $t->get_ok('/organization')
@@ -174,7 +174,7 @@ $t->post_ok('/organization/my first organization/user', json => {
             body => re(qr/^You have been added to the "my first organization" organization at Joyent Conch with the "ro" role\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We added a user to your organization',
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added ${\$new_user->name} \(${\$new_user->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
@@ -231,7 +231,7 @@ $t->post_ok('/organization/my first organization/user', json => {
             body => re(qr/^Your access to the "my first organization" organization at Joyent Conch has been adjusted to "rw"\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We modified a user\'s access to your organization',
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "rw" role\./m),
@@ -273,7 +273,7 @@ $t->post_ok('/organization/'.$organization->{id}.'/user', json => {
             body => re(qr/^Your access to the "my first organization" organization at Joyent Conch has been adjusted to "admin"\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We modified a user\'s access to your organization',
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "admin" role\./m),
@@ -311,7 +311,7 @@ $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
             body => re(qr/^You have been added to the "my first organization" organization at Joyent Conch with the "ro" role\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We added a user to your organization',
             body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) added ${\$new_user2->name} \(${\$new_user2->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
@@ -338,7 +338,7 @@ $t2->delete_ok('/organization/my first organization/user/'.$new_user2->email)
             body => re(qr/^You have been removed from the "my first organization" organization at Joyent Conch\./m),
         },
         {
-            To => '"'.${\$super_user->name}.'" <'.${\$super_user->email}.'>, "'.${\$admin_user->name}.'" <'.${\$admin_user->email}.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
+            To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
             From => 'noreply@conch.joyent.us',
             Subject => 'We removed a user from your organization',
             body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) removed ${\$new_user2->name} \(${\$new_user2->email}\) from the\R"my first organization" organization at Joyent Conch\./m),
@@ -778,13 +778,14 @@ $t2->delete_ok('/workspace/grandchild ws/organization/my first organization')
     ->status_is(403);
 
 
-my $t3 = Test::Conch->new(pg => $t->pg);
-$t3->authenticate(email => $admin_user->email);
+my $t_admin_user = Test::Conch->new(pg => $t->pg);
+$t_admin_user->authenticate(email => $admin_user->email);
 
-$t3->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
-    ->status_is(403);
+$t_admin_user->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for workspace '.$grandchild_ws->id);
 
-$t3->delete_ok('/workspace/'.$sub_ws->id.'/organization/'.$organization->{id})
+$t_admin_user->delete_ok('/workspace/'.$sub_ws->id.'/organization/'.$organization->{id})
     ->status_is(403);
 
 $t->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})

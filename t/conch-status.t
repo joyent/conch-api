@@ -15,6 +15,7 @@ use Test::Conch;
         [ 'get', '/301', sub ($c) { $c->status(301, '/301-success') } ],
         [ 'get', '/302', sub ($c) { $c->status(302, '/302-success') } ],
         [ 'get', '/303', sub ($c) { $c->status(303, '/303-success') } ],
+        [ 'get', '/305', sub ($c) { $c->status(305, '/305-success') } ],
         [ 'get', '/307', sub ($c) { $c->status(307, '/307-success') } ],
         [ 'get', '/308', sub ($c) { $c->status(308, '/308-success') } ],
         [ 'get', '/401', sub ($c) { $c->status(401) } ],
@@ -31,6 +32,7 @@ use Test::Conch;
     $t->get_ok('/301')->status_is(301)->location_is('/301-success');
     $t->get_ok('/302')->status_is(302)->location_is('/302-success');
     $t->get_ok('/303')->status_is(303)->location_is('/303-success');
+    $t->get_ok('/305')->status_is(305)->location_is('/305-success');
     $t->get_ok('/307')->status_is(307)->location_is('/307-success');
     $t->get_ok('/308')->status_is(308)->location_is('/308-success');
 

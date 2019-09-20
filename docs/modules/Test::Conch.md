@@ -61,7 +61,7 @@ Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test::Mojo#
 * successful DELETE requests should not return 201
 * 200 responses should have content.
 * 201 and most 30x responses should have a Location header.
-* 204 responses should not have content.
+* 204 and most 30x responses should not have body content.
 ```
 
 Also, unexpected responses will dump the response payload.

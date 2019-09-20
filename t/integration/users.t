@@ -193,7 +193,8 @@ subtest 'User' => sub {
     }
 
     $t->get_ok('/user')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
 
     $t_super->get_ok('/user/me')
         ->status_is(200)
@@ -421,7 +422,8 @@ subtest 'JWT authentication' => sub {
 my $new_user_data;
 subtest 'modify another user' => sub {
     $t->post_ok('/user')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
 
     $t_super->post_ok('/user', json => { name => 'me', email => 'foo@conch.joyent.us' })
         ->status_is(400, 'user name "me" is prohibited')
@@ -522,7 +524,7 @@ subtest 'modify another user' => sub {
     $t_super->post_ok('/user?send_mail=0',
             json => { email => 'test_user@conch.joyent.us', name => 'test user', password => '123' })
         ->status_is(201, 'created new user test_user')
-        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}!)
+        ->location_like(qr!^/user/${\Conch::UUID::UUID_FORMAT}$!)
         ->json_schema_is('NewUser')
         ->json_cmp_deeply({
             id => re(Conch::UUID::UUID_FORMAT),
@@ -807,7 +809,8 @@ subtest 'modify another user' => sub {
         [ GET => '/user/'.$EMAIL.'/token/foo' ],
         [ DELETE => '/user/'.$EMAIL.'/token/foo' ],
     );
-    $t2->_build_ok($_->@*)->status_is(403) foreach @queries;
+    $t2->_build_ok($_->@*)->status_is(403)->log_debug_is('User must be system admin')
+        foreach @queries;
 
 
     warnings(sub {
@@ -925,7 +928,8 @@ subtest 'user tokens (someone else\'s)' => sub {
     my ($email, $password) = ('untrusted@conch.joyent.us', 'neupassword');
 
     $t->get_ok('/user/'.$email.'/token')
-        ->status_is(403);
+        ->status_is(403)
+        ->log_debug_is('User must be system admin');
 
     $t_super->get_ok('/user/'.$email.'/token')
         ->status_is(200)

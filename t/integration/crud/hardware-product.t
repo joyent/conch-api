@@ -43,7 +43,8 @@ $t->post_ok('/hardware_product', json => {
         alias => 'sungo',
         rack_unit_size => 2,
     })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -83,7 +84,8 @@ $t->post_ok('/hardware_product', json => {
     ->json_is({ error => 'Unique constraint violated on \'name\'' });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/hardware_product/'.$new_hw_id);
 
 $new_product->{name} = 'sungo2';
 $new_product->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
@@ -130,7 +132,8 @@ subtest 'create profile on existing product' => sub {
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             hardware_product_profile => $new_hw_profile,
         })
-        ->status_is(303);
+        ->status_is(303)
+        ->location_is('/hardware_product/'.$new_hw_id);
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(200)
@@ -153,7 +156,8 @@ subtest 'update some fields in an existing profile and product' => sub {
                 psu_total => undef,
             },
         })
-        ->status_is(303);
+        ->status_is(303)
+        ->location_is('/hardware_product/'.$new_hw_id);
 
     $new_product->@{qw(name rack_unit_size updated)} = ('ether1',4,re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/));
     $new_product->{hardware_product_profile}->@{qw(dimms_num psu_total)} = (3,undef);
@@ -179,7 +183,8 @@ subtest 'create a new hardware_product_profile in an existing product' => sub {
 
     $t->post_ok("/hardware_product/$new_hw_id",
             json => { hardware_product_profile => $new_hw_profile })
-        ->status_is(303);
+        ->status_is(303)
+        ->location_is('/hardware_product/'.$new_hw_id);
 
     $new_product->{hardware_product_profile}->@{qw(id dimms_num psu_total)} = (re(Conch::UUID::UUID_FORMAT),4,1);
 
@@ -223,7 +228,8 @@ subtest 'create a hardware product and hardware product profile all together' =>
             rack_unit_size => 2,
             hardware_product_profile => $new_hw_profile,
         })
-        ->status_is(303);
+        ->status_is(303)
+        ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
 
     $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)

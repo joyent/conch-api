@@ -195,10 +195,6 @@ Type: many\_to\_many
 
 Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> relay
 
-## latest\_report\_data
-
-Returns the JSON-decoded content from the most recent device report.
-
 # LICENSING
 
 Copyright Joyent, Inc.

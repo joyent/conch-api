@@ -209,7 +209,7 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
  * successful DELETE requests should not return 201
  * 200 responses should have content.
  * 201 and most 30x responses should have a Location header.
- * 204 responses should not have content.
+ * 204 and most 30x responses should not have body content.
 
 Also, unexpected responses will dump the response payload.
 
@@ -223,7 +223,7 @@ sub status_is ($self, $status, $desc = undef) {
 
     my $code = $self->tx->res->code;
     $self->_test('fail', $code.' responses should have a Location header')
-        if any { $code == $_ } 201,301,302,303,307,308 and not $self->header_exists('Location');
+        if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
 
     if ($code =~ /^2../) {
         my $method = $self->tx->req->method;
@@ -238,7 +238,7 @@ sub status_is ($self, $status, $desc = undef) {
             if $code == 200 and not $self->tx->res->text;
 
         $self->_test('fail', $code.' responses should not have content')
-            if $code == 204 and $self->tx->res->text;
+            if any { $status == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
     }
 
     Test::More::diag('got response: ', Data::Dumper->new([ $self->tx->res->json ])
@@ -465,8 +465,8 @@ See L<Test::Conch::Fixtures/_generate_definition> for the list of recognized typ
 
 sub generate_fixtures ($self, @specification) {
     state $unique_num = 1000;
-    my %specification = @specification % 2 ? (@specification, {}) : @specification;
-    my @fixture_names = $self->fixtures->generate_definitions($unique_num++, %specification);
+    push @specification, undef if @specification % 2;
+    my @fixture_names = $self->fixtures->generate_definitions($unique_num++, @specification);
     return if not @fixture_names;
     $self->fixtures->load(@fixture_names);
 }

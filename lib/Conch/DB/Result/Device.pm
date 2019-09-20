@@ -400,7 +400,6 @@ __PACKAGE__->has_many(
 );
 
 use experimental 'signatures';
-use Mojo::JSON 'from_json';
 
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
@@ -413,20 +412,6 @@ sub TO_JSON ($self) {
     }
 
     return $data;
-}
-
-=head2 latest_report_data
-
-Returns the JSON-decoded content from the most recent device report.
-
-=cut
-
-sub latest_report_data {
-    my $self = shift;
-
-    my $json = $self->self_rs->latest_device_report->get_column('report')->single;
-
-    defined $json ? from_json($json) : undef;
 }
 
 1;

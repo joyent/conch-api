@@ -507,12 +507,13 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
         exists $specification->{hardware_product_id} ? () : 'hardware_product';
     }
     elsif ($fixture_type eq 'device_location') {
+        $specification //= {};
         my $rack_unit_start = delete $specification->{rack_unit_start};
         return +{
             "device_location_$num" => {
                 new => 'device_location',
                 using => {
-                    ($specification // {})->%*,
+                    $specification->%*,
                 },
                 requires => {
                     "device_$num" => { our => 'device_id', their => 'id' },
@@ -527,11 +528,12 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
         'device', 'rack';
     }
     elsif ($fixture_type eq 'rack_layouts') {
+        $specification //= [ {} ];
         return +{
             map +(
-                "rack_layout_${num}_ru".$_->{rack_unit_start} => +{
+                "rack_layout_${num}_ru".($_->{rack_unit_start} // $num) => +{
                     new => 'rack_layout',
-                    using => $_,
+                    using => { rack_unit_start => $num, $_->%* },
                     # TODO: current limitation: all layouts use the same hardware_product.
                     # in the future we can check for hardware_product_id in provided field list.
                     requires => {

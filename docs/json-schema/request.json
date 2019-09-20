@@ -1,4 +1,5 @@
 {
+  "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/schema/request/$schema_name' endpoints, or within conch itself, json-schema/request.yaml.",
   "$schema" : "http://json-schema.org/draft-07/schema#",
   "definitions" : {
     "DatacenterCreate" : {

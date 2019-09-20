@@ -97,9 +97,9 @@ system admin users in the result.
 
 ## with\_user\_role
 
-Constrains the resultset to those where the provided user\_id has (at least) the specified role
-in at last one workspace in the resultset.  (Does not search recursively; add
-`->and_workspaces_above($workspace_id)` to your resultset first, if this is what you want.)
+Constrains the resultset to those where the provided user\_id has (at least) the specified role.
+(Does not search recursively; add `->and_workspaces_above($workspace_id)` to your
+resultset first, if this is what you want.)
 
 ## user\_has\_role
 

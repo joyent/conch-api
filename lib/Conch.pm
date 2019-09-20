@@ -68,14 +68,14 @@ sub startup {
             $payload //= { error => 'Unimplemented' } if $code == 501;
 
             if (not $payload) {
-                # no content - hopefully we set a 204 response code
+                # no content - hopefully we set an appropriate response code (e.g. 204, 30x)
                 $c->rendered($code);
                 return 0;
             }
 
             $c->res->code($code);
 
-            if (any { $code == $_ } 301, 302, 303, 307, 308) {
+            if (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
                 $c->redirect_to($payload);
             }
             else {

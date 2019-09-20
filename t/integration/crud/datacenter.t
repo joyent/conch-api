@@ -47,7 +47,7 @@ $t->post_ok('/dc', json => { wat => 'wat' })
 
 $t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location => 'locati0n' })
     ->status_is(201)
-    ->location_like(qr!^/dc/${\Conch::UUID::UUID_FORMAT}!);
+    ->location_like(qr!^/dc/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -66,7 +66,8 @@ $t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location =>
     ->json_is({ error => 'a datacenter already exists with that vendor-region-location' });
 
 $t->post_ok("/dc/$idd", json => { vendor => 'vendor' })
-    ->status_is(303);
+    ->status_is(303)
+    ->location_is('/dc/'.$idd);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
