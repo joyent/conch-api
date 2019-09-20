@@ -302,6 +302,8 @@ resultset first, if this is what you want.)
 =cut
 
 sub with_user_role ($self, $user_id, $role) {
+    return $self if $role eq 'none';
+
     Carp::croak('role must be one of: ro, rw, admin')
         if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
 
@@ -337,6 +339,8 @@ Returns a boolean.
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
+    return 1 if $role eq 'none';
+
     Carp::croak('role must be one of: ro, rw, admin')
         if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
 

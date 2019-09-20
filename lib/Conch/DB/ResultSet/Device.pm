@@ -28,6 +28,8 @@ C<< $device_rs->user_has_role($user_id, $role) >> to it.)
 =cut
 
 sub with_user_role ($self, $user_id, $role) {
+    return $self if $role eq 'none';
+
     my $workspace_ids_rs = $self->result_source->schema->resultset('workspace')
         ->with_user_role($user_id, $role)
         ->get_column('id');
@@ -52,6 +54,8 @@ Returns a boolean.
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
+    return 1 if $role eq 'none';
+
     $self
         ->related_resultset('device_location')
         ->related_resultset('rack')

@@ -52,6 +52,11 @@ Returns a boolean.
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
+    return 1 if $role eq 'none';
+
+    Carp::croak('role must be one of: ro, rw, admin')
+        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
+
     # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
     # not need to search the workspace heirarchy here, but simply look for a role entry for any
     # workspace the rack is associated with.
