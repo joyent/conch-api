@@ -1,0 +1,97 @@
+#!/bin/env perl
+
+use strict;
+use warnings;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+use v5.26;
+use experimental 'signatures';
+
+use Getopt::Long;
+use Pod::Usage;
+use HTTP::Tiny;
+use IO::Socket::SSL;
+use JSON::PP;
+
+my $base_url = 'https://edge.conch.joyent.us';
+
+GetOptions(
+    'base_url|u:s'  => \$base_url,
+    'email|e:s'     => \my $email,
+    'help|h'        => \my $help,
+);
+
+pod2usage(1) if $help;
+pod2usage(1) if not $email;
+
+require Term::ReadKey;
+Term::ReadKey::ReadMode('noecho');
+print 'password: ';
+chomp(my $password = Term::ReadKey::ReadLine(0));
+Term::ReadKey::ReadMode('normal');
+
+my $login_content = do_post('/login', { email => $email, password => $password });
+my $login_token = $login_content->{jwt_token};
+
+my $token_content = do_post(
+    '/user/me/token',
+    { name => 'get-api-token-'.time() },
+    { 'Authorization' => 'Bearer '.$login_token },
+);
+
+my $api_token = $token_content->{token};
+
+say 'here is your api token (keep it in a safe place!)';
+say $api_token;
+say '';
+say 'Hint: you can put "Authorization: Bearer <token>" in ~/.conch-client.json,';
+say 'and then in the future you can do:   curl -H @~/.conch-token ...';
+
+exit;
+
+sub do_get ($path, $headers = {}) {
+    my $http = HTTP::Tiny->new;
+    my $response = $http->request('GET', $base_url.$path, { headers => $headers });
+
+    die $path, ' failed: ', $response->{content} if not $response->{success};
+    return decode_json($response->{content});
+}
+
+sub do_post ($path, $payload, $headers = {}) {
+    my $http = HTTP::Tiny->new(default_headers => { 'Content-Type' => 'application/json' });
+    my $response = $http->request('POST',
+        $base_url . $path,
+        { headers => $headers, content => encode_json($payload) },
+    );
+
+    die $path, ' failed: ', $response->{content} if not $response->{success};
+    return decode_json($response->{content});
+}
+__END__
+
+=pod
+
+=head1 NAME
+
+get-api-token - obtain a long-lived API authentication token from conch.
+
+=head1 SYNOPSIS
+
+    get-api-token --email EMAIL [--url BASE URL ]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --url BASE URL
+
+The base url to use for the conch api. Defaults to L<https://edge.conch.joyent.us>.
+
+=item --email EMAIL
+
+The user's email address.
+
+=back
+
+The password is prompted for, and cannot be supplied as an argument.
+
+=cut

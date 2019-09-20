@@ -88,6 +88,13 @@ print($usage->text), exit if $opt->help or not @ARGV;
 
 # order matters, so we don't just shove the handlers into a dispatch hash table.
 
+foreach my $cmd (@ARGV) {
+    next if any { $cmd eq $_ }
+        qw(all initialize create-validations create-global-workspace create-admin-user migrate apply-dump-migration);
+    die 'unrecognized command '.$cmd;
+}
+
+
 if (any { $_ eq 'all' } @ARGV) {
      unshift @ARGV, qw(initialize create-validations create-admin-user);
 }

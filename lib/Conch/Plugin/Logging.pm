@@ -25,6 +25,10 @@ sub register ($self, $app, $config) {
     my $plugin_config = $config->{logging} // {};
     my $log_dir = $plugin_config->{dir} // 'log';
 
+    my %LEVEL = (debug => 1, info => 2, warn => 3, error => 4, fatal => 5);
+    die 'unrecognized log level '.$plugin_config->{level}
+        if $plugin_config->{level} and not exists $LEVEL{$plugin_config->{level}};
+
     my %log_args = (
         level => 'debug',
         bunyan => 1,
@@ -50,7 +54,9 @@ sub register ($self, $app, $config) {
 
     $app->log(Conch::Log->new(%log_args));
 
-    $app->helper(log => sub ($c) { $c->app->log });
+    $app->helper(log => sub ($c) {
+        return $c->stash->{'mojo.log'} //= $c->app->log;
+    });
 
     $app->hook(around_dispatch => sub ($next, $c) {
         local $Conch::Log::REQUEST_ID = $c->req->request_id;
@@ -74,10 +80,12 @@ sub register ($self, $app, $config) {
           : 'NOT AUTHED';
 
         my $req_headers = $c->req->headers->to_hash(1);
-        delete $req_headers->@{qw(Authorization Cookie jwt_token)};
+        $req_headers->{$_} = '--REDACTED--'
+            foreach grep exists $req_headers->{$_}, qw(Authorization Cookie jwt_token);
 
         my $res_headers = $c->res->headers->to_hash(1);
-        delete $res_headers->@{qw(Set-Cookie)};
+        $res_headers->{$_} = '--REDACTED--'
+            foreach grep exists $res_headers->{$_}, qw(Set-Cookie);
 
         my $req_json = $c->req->json;
         my $res_json = $c->res->json;

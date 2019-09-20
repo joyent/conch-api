@@ -165,7 +165,12 @@ subtest 'Assign device to a location' => sub {
 
 subtest 'Remove rack from workspace' => sub {
     $t->delete_ok("/workspace/$sub_ws_id/rack/$rack_id")
-        ->status_is(204);
+        ->status_is(204)
+        ->log_debug_is('deleted workspace_rack entry for workspace_id '.$sub_ws_id.' and rack_id '.$rack_id);
+
+    $t->delete_ok("/workspace/$sub_ws_id/rack/$rack_id")
+        ->status_is(404)
+        ->log_debug_is('Could not find rack '.$rack_id.' in or beneath workspace '.$sub_ws_id);
 
     $t->get_ok("/workspace/$sub_ws_id/rack")
         ->status_is(200)

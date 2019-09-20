@@ -131,16 +131,19 @@ $t2->get_ok('/organization')
     ->json_is([]);
 
 $t2->get_ok('/organization/'.$organization->{id})
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization '.$organization->{id});
 
 $t2->get_ok('/organization/my first organization')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 $t2->delete_ok('/organization/foo')
     ->status_is(404);
 
 $t2->delete_ok('/organization/my first organization')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 
 $t->get_ok('/organization/my first organization/user')
@@ -201,20 +204,24 @@ $t->get_ok('/organization/my first organization')
     ->json_is($organization);
 
 $t2->delete_ok('/organization/my first organization')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 $t2->get_ok('/organization/my first organization/user')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 my $new_user2 = $t->generate_fixtures('user_account');
 $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
         email => $new_user2->email,
         role => 'ro',
     })
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization '.$organization->{id});
 
-$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
-    ->status_is(403);
+$t2->delete_ok('/organization/my first organization/user/'.$admin_user->email)
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 
 $t->post_ok('/organization/my first organization/user', json => {
@@ -247,16 +254,19 @@ $t->get_ok('/organization/my first organization/user')
     ]);
 
 $t2->get_ok('/organization/my first organization/user')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
         email => $new_user2->email,
         role => 'ro',
     })
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization '.$organization->{id});
 
-$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
-    ->status_is(403);
+$t2->delete_ok('/organization/my first organization/user/'.$admin_user->email)
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 
 $t->post_ok('/organization/'.$organization->{id}.'/user', json => {
@@ -775,7 +785,8 @@ $t->post_ok('/workspace/'.$grandchild_ws->id.'/user', json => {
     ->email_not_sent;
 
 $t2->delete_ok('/workspace/grandchild ws/organization/my first organization')
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for workspace grandchild ws');
 
 
 my $t_admin_user = Test::Conch->new(pg => $t->pg);
@@ -786,7 +797,8 @@ $t_admin_user->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$orga
     ->log_debug_is('User lacks the required role (admin) for workspace '.$grandchild_ws->id);
 
 $t_admin_user->delete_ok('/workspace/'.$sub_ws->id.'/organization/'.$organization->{id})
-    ->status_is(403);
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for workspace '.$sub_ws->id);
 
 $t->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{id})
     ->status_is(204)
@@ -878,9 +890,6 @@ $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
     ->json_is([ $organization, $organization2 ]);
-
-$t2->delete_ok('/organization/my first organization/user/'.$new_user->email)
-    ->status_is(403);
 
 $t->delete_ok('/organization/my first organization/user/foo@bar.com')
     ->status_is(404);

@@ -9,6 +9,7 @@ use Test::More;
 use Test::Warnings ':all';
 use Test::Deep;
 use Test::Deep::NumberTolerant;
+use Test::Fatal;
 use Conch::Log;
 use Test::Conch;
 use Time::HiRes 'time'; # time() now has µs precision
@@ -23,6 +24,14 @@ open my $log_fh, '>:raw', \my $fake_log_file or die "cannot open to scalarref: $
 sub reset_log { $fake_log_file = ''; seek $log_fh, 0, 0; }
 
 my $api_version_re = qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/;
+
+{
+    like(
+        exception { Test::Conch->new(config => { logging => { level => 'whargarbl' } }) },
+        qr/unrecognized log level whargarbl/,
+        'reject bad log levels',
+    );
+}
 
 {
     my $regular_log = Conch::Log->new(handle => $log_fh);
@@ -759,7 +768,7 @@ sub add_test_routes ($t) {
                 url         => '/user/me/password',
                 remoteAddress => '127.0.0.1',
                 remotePort  => ignore,
-                headers     => notexists('Authorization'),
+                headers     => superhashof({ Authorization => '--REDACTED--' }),
                 query_params => {},
                 # no body! that contains the password!!!
             },
@@ -771,19 +780,6 @@ sub add_test_routes ($t) {
         },
         'dispatch line for changing password in audit mode does not contain the password',
     );
-}
-
-# TODO: replace with Test::Deep::notexists($key)
-sub notexists
-{
-    my @keys = @_;
-    Test::Deep::code(sub {
-        return (0, 'not a HASH') if ref $_[0] ne 'HASH';
-        foreach my $key (@keys) {
-            return (0, "'$key' key exists") if exists $_[0]->{$key};
-        }
-        return 1;
-    });
 }
 
 done_testing;

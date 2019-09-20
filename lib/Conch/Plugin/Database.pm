@@ -162,7 +162,7 @@ line of the exception.
     $app->log->info("Running $pgsql_version");
 
     use constant POSTGRES_MINIMUM_VERSION_MAJOR => 10;
-    use constant POSTGRES_MINIMUM_VERSION_MINOR => 9;
+    use constant POSTGRES_MINIMUM_VERSION_MINOR => 10;
 
     # at present we do all testing on 10.x so that is the most preferred configuration, but we
     # are not aware of any issues on PostgreSQL 11.x.
