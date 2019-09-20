@@ -54,7 +54,9 @@ sub register ($self, $app, $config) {
 
     $app->log(Conch::Log->new(%log_args));
 
-    $app->helper(log => sub ($c) { $c->app->log });
+    $app->helper(log => sub ($c) {
+        return $c->stash->{'mojo.log'} //= $c->app->log;
+    });
 
     $app->hook(around_dispatch => sub ($next, $c) {
         local $Conch::Log::REQUEST_ID = $c->req->request_id;
