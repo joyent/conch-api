@@ -58,7 +58,6 @@ sub run ($self, @opts) {
 
     # consider each device, oldest devices first, in pages of 100 rows each
     my $device_rs = $schema->resultset('device')
-        ->active
         ->rows(100)
         ->page(1)
         ->order_by('created');
