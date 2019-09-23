@@ -76,7 +76,7 @@ subtest 'test validating a device' => sub {
 
 
 my $device = $t->app->db_devices->find({ serial_number => 'TEST' });
-my @device_reports = $t->app->db_device_reports->rows(2)->order_by({ -desc => 'created' });
+my @device_reports = $t->app->db_device_reports->rows(2)->order_by('created');
 
 # manually create a failing validation result... ew ew ew.
 # this uses the new validation plan, which is guaranteed to be different from the passing
@@ -84,7 +84,7 @@ my @device_reports = $t->app->db_device_reports->rows(2)->order_by({ -desc => 'c
 my (@fail_validation_state_id) = $t->app->db_validation_states->create({
     device_id => $device->id,
     validation_plan_id => $test_validation_plan->id,
-    device_report_id => $device_reports[0]->id,
+    device_report_id => $device_reports[1]->id,
     status => 'fail',
     completed => \'now()',
     validation_state_members => [{
@@ -105,7 +105,7 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
 push @fail_validation_state_id, $t->app->db_validation_states->create({
     device_id => $device->id,
     validation_plan_id => $test_validation_plan->id,
-    device_report_id => $device_reports[0]->id,
+    device_report_id => $device_reports[1]->id,
     status => 'fail',
     completed => '2001-01-01',
     validation_state_members => [{
@@ -131,7 +131,7 @@ $t->get_ok('/device/TEST/validation_state')
             id => $pass_validation_state_id,
             validation_plan_id => $server_validation_plan->id,
             device_id => $device->id,
-            device_report_id => $device_reports[0]->id,
+            device_report_id => $device_reports[1]->id,
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'pass',   # we force-validated this device earlier
@@ -141,7 +141,7 @@ $t->get_ok('/device/TEST/validation_state')
             id => $fail_validation_state_id[0],
             validation_plan_id => $test_validation_plan->id,
             device_id => $device->id,
-            device_report_id => $device_reports[0]->id,
+            device_report_id => $device_reports[1]->id,
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'fail',
@@ -182,7 +182,7 @@ $t->get_ok('/device/TEST/validation_state?status=error')
             id => $error_validation_state_id,
             validation_plan_id => $server_validation_plan->id,
             device_id => $device->id,
-            device_report_id => re(Conch::UUID::UUID_FORMAT),
+            device_report_id => $device_reports[0]->id,
             completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'error',
