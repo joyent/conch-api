@@ -96,6 +96,21 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 hardware_products
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::HardwareProduct>
+
+=cut
+
+__PACKAGE__->has_many(
+  "hardware_products",
+  "Conch::DB::Result::HardwareProduct",
+  { "foreign.validation_plan_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 validation_plan_members
 
 Type: has_many
@@ -138,7 +153,7 @@ __PACKAGE__->many_to_many("validations", "validation_plan_members", "validation"
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pY3RQbK9VIIedyEO0h1hnw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8Va+mP/1Ujni4L+AHcEtfA
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

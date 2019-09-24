@@ -170,6 +170,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
+            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
         },
     },
     # this is a server, not a switch.
@@ -186,6 +187,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
+            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
         },
     },
     # this is a server, not a switch.
@@ -202,6 +204,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_vendor_1 => { our => 'hardware_vendor_id', their => 'id' },
+            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
         },
     },
 
@@ -275,6 +278,14 @@ my %canned_definitions = (
             # copy hardware_product_profile_compute.hardware_product_id to me.hardware_product_id
             # (this ensures we get a hardware_product_profile as well as a hardware_product)
             hardware_product_id => \'hardware_product_profile_compute',
+        },
+    },
+
+    validation_plan_basic => {
+        new => 'validation_plan',
+        using => {
+            name => 'basic validation plan',
+            description => 'whee',
         },
     },
 );
@@ -578,10 +589,11 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
                 requires => {
                     "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
+                    "validation_plan_$num" => { our => 'validation_plan_id', their => 'id' },
                 },
             },
         },
-        'hardware_vendor';
+        'hardware_vendor', 'validation_plan';
     }
     elsif ($fixture_type eq 'hardware_product_profile') {
         return +{
@@ -610,8 +622,8 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
             "datacenter_room_$num" => {
                 new => 'datacenter_room',
                 using => {
-                    az => "datacenter_room_$num",
-                    alias => "room $num",
+                    az => "datacenter_room_az_$num",
+                    alias => "room alias $num",
                     ($specification // {})->%*,
                 },
                 requires => {
@@ -698,6 +710,18 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 new => 'build',
                 using => {
                     name => "build_$num",
+                    ($specification // {})->%*,
+                },
+            },
+        };
+    }
+    elsif ($fixture_type eq 'validation_plan') {
+        return +{
+            "validation_plan_$num" => {
+                new => 'validation_plan',
+                using => {
+                    name => "validation_plan_$num",
+                    description => "validation_plan_$num description",
                     ($specification // {})->%*,
                 },
             },

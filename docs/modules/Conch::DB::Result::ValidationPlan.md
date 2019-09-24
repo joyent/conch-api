@@ -53,6 +53,12 @@ is_nullable: 1
 
 # RELATIONS
 
+## hardware\_products
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareProduct)
+
 ## validation\_plan\_members
 
 Type: has\_many

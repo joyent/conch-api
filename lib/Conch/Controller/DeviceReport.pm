@@ -66,9 +66,6 @@ sub process ($c) {
         ->single;
     my ($previous_report_id, $previous_report_status) = $previous_report ? $previous_report->@{qw(id status)} : ();
 
-    my $validation_plan = $c->_get_validation_plan($unserialized_report);
-    return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
-
     # Update the device and create the device report
     $c->log->debug('Updating device '.$c->stash('device_serial_number'));
     my $prev_uptime = $device->uptime_since;
@@ -114,6 +111,9 @@ sub process ($c) {
     }
 
     # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
+    my $validation_plan = $c->db_validation_plans->search({
+        id => { '=' => $c->db_hardware_products->search({ id => $hardware_product_id })->get_column('validation_plan_id')->as_query },
+    })->single;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
     my $validation_state = Conch::ValidationSystem->new(
@@ -394,8 +394,9 @@ sub validate_report ($c) {
             if $current_hardware_product_id ne $hardware_product_id;
     }
 
-    my $validation_plan = $c->_get_validation_plan($unserialized_report);
-    return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
+    my $validation_plan = $c->db_validation_plans->search({
+        id => { '=' => $c->db_hardware_products->search({ id => $hardware_product_id })->get_column('validation_plan_id')->as_query },
+    })->single;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
     my ($status, @validation_results);
@@ -438,22 +439,6 @@ sub validate_report ($c) {
         status => $status,
         results => \@validation_results,
     });
-}
-
-=head2 _get_validation_plan
-
-Find the validation plan that should be used to validate the device referenced by the
-report.
-
-=cut
-
-sub _get_validation_plan ($c, $unserialized_report) {
-    my $validation_name =
-        $unserialized_report->{device_type} && $unserialized_report->{device_type} eq 'switch'
-            ? 'Conch v1 Legacy Plan: Switch'
-            : 'Conch v1 Legacy Plan: Server';
-
-    return $c->db_ro_validation_plans->active->search({ name => $validation_name })->single;
 }
 
 1;

@@ -1344,6 +1344,9 @@
         "updated" : {
           "format" : "date-time",
           "type" : "string"
+        },
+        "validation_plan_id" : {
+          "$ref" : "common.json#/definitions/uuid"
         }
       },
       "required" : [
@@ -1359,7 +1362,8 @@
         "rack_unit_size",
         "hardware_product_profile",
         "created",
-        "updated"
+        "updated",
+        "validation_plan_id"
       ],
       "type" : "object"
     },

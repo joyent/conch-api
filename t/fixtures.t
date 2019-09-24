@@ -34,6 +34,7 @@ subtest 'generate_definition' => sub {
             'datacenter_room_99',
             'hardware_product_99',
             'hardware_vendor_99',
+            'validation_plan_99',
         ),
         'generated requested fixtures, and for many supporting tables as well',
     );
@@ -73,6 +74,7 @@ subtest 'generate_fixture_definitions wrapper' => sub {
                 DatacenterRoom
                 HardwareProduct
                 HardwareVendor
+                ValidationPlan
             )
         ),
         'loaded requested fixtures into the database (and for many supporting tables as well)',

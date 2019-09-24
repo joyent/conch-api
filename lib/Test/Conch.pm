@@ -328,11 +328,13 @@ sub json_cmp_deeply {
 =head2 load_validation_plans
 
 Takes an array ref of structured hash refs and creates a validation plan (if it doesn't
-exist) and adds specified validation plans for each of the structured hashes.
+exist, or updates an existing entry otherwise) and adds specified validation plans for each of
+the structured hashes.
 
 Each hash has the structure:
 
     {
+        id          => optional, if existing row should be updated
         name        => 'Validation plan name',
         description => 'Validation plan description',
         validations => [
@@ -341,7 +343,7 @@ Each hash has the structure:
         ]
     }
 
-If a validation plan by the name already exists, all associations to
+If a validation plan by the same id or name already exists, all associations to
 validations are dropped before the specified validations are added. This allows
 modifying the membership of the validation plans.
 
@@ -353,8 +355,16 @@ sub load_validation_plans ($self, $plans) {
     my @plans;
 
     for my $plan_data ($plans->@*) {
-        my $plan = $self->app->db_validation_plans->active->search({ name => $plan_data->{name} })->single;
-        unless ($plan) {
+        my $plan = $self->app->db_validation_plans->active->search({
+                exists $plan_data->{id} ? ( $plan_data->%{id} ) : ( $plan_data->%{name} ),
+            })->single;
+        if ($plan) {
+            if (exists $plan_data->{id} and exists $plan_data->{name}) {
+                $plan->name($plan_data->{name});
+                $plan->update if $plan->is_changed;
+            }
+        }
+        else {
             $plan = $self->app->db_validation_plans->create({ $plan_data->%{qw(name description)} });
             $self->app->log->info('Created validation plan '.$plan->name);
         }

@@ -679,6 +679,7 @@ definitions:
       - hardware_product_profile
       - created
       - updated
+      - validation_plan_id
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -721,6 +722,8 @@ definitions:
       updated:
         type: string
         format: date-time
+      validation_plan_id:
+        $ref: common.yaml#/definitions/uuid
   HardwareProductProfile:
     type: object
     additionalProperties: false

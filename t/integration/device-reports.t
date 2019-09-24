@@ -87,14 +87,6 @@ subtest preliminaries => sub {
     $new_compute->update({ deactivated => \'now()' });
     $hardware_product_compute->update({ deactivated => undef });
     $profile->update({ hardware_product_id => $hardware_product_compute->id });
-
-    $t->post_ok('/device/TEST', json => $report_data)
-        ->status_is(422)
-        ->json_is({ error => 'failed to find validation plan' });
-
-    $t->post_ok('/device_report', json => $report_data)
-        ->status_is(422)
-        ->json_is({ error => 'failed to find validation plan' });
 };
 
 # matches report's product_name = Joyent-G1
@@ -104,7 +96,8 @@ my $hardware_product = $t->load_fixture('hardware_product_compute');
 Conch::ValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
 my @validations = $t->app->db_validations->all;
 my ($full_validation_plan) = $t->load_validation_plans([{
-    name        => 'Conch v1 Legacy Plan: Server',
+    id          => $hardware_product->validation_plan_id,
+    name        => 'our validation plan',
     description => 'Test Plan',
     validations => [ map $_->module, @validations ],
 }]);
@@ -140,11 +133,9 @@ subtest 'run report without an existing device and without making updates' => su
 
 subtest 'save reports for device' => sub {
     # for these tests, we need to use a plan containing a validation we know will pass.
-    # we move aside the plan containing all validations and replace it with a new one.
-    $t->app->db_validation_plans->find($full_validation_plan->id)->update({ name => 'all validations' });
-
+    # we remove all the existing validations from the plan and replace it with just one.
     $t->load_validation_plans([{
-        name        => 'Conch v1 Legacy Plan: Server',
+        id          => $hardware_product->validation_plan_id,
         description => 'Test Plan',
         validations => [ 'Conch::Validation::DeviceProductName' ],
     }]);

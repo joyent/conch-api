@@ -46,110 +46,168 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
     *Conch::Validation::DeviceProductName::version = sub () { 2 };
     $t->reset_log;
 
-    $validation_system->update_validation_plans;
+    # make sure we have the current state of the plan and members
     $validation_plan->discard_changes({ prefetch => { validation_plan_members => 'validation' } });
+    $validation_system->update_validation_plans;
 
-    like(
-        $validation_plan->deactivated,
-        qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/,
-        'original validation_plan was deactivated',
-    );
-
-    cmp_deeply(
-        [ $validation_plan->validation_plan_members ],
-        superbagof(
-            methods(validation => methods(
-                module => 'Conch::Validation::DeviceProductName',
-                version => 1,
-                description => 'Validate reported product name matches product name expected in rack layout',
-                deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            )),
-        ),
-        'the validation in the original plan that was modified has been deactivated',
-    );
+    is($validation_plan->deactivated, undef, 'original validation_plan is still active');
 
     my $new_validation_plan = $schema->resultset('validation_plan')->find(
-        { name => 'my_humble_plan', deactivated => undef },
+        { name => 'my_humble_plan' },
         { prefetch => { validation_plan_members => 'validation' } },
     );
 
+    is($new_validation_plan->id, $validation_plan->id, 'the "new" plan is still the original plan');
+
     cmp_deeply(
-        [ $new_validation_plan->validation_plan_members ],
-        superbagof(
-            methods(validation => methods(
+        [ $validation_plan->validations ],
+        [
+            methods(
+                module => 'Conch::Validation::DeviceProductName',
+                version => 1,
+                deactivated => undef,
+            ),
+            methods(
+                module => 'Conch::Validation::FirmwareCurrent',
+                version => 1,
+                deactivated => undef,
+            ),
+        ],
+        'the original plan had version 1 of this validation',
+    );
+
+    cmp_deeply(
+        [ $new_validation_plan->validations ],
+        [
+            methods(
+                module => 'Conch::Validation::FirmwareCurrent',
+                version => 1,
+                deactivated => undef,
+            ),
+            methods(
                 module => 'Conch::Validation::DeviceProductName',
                 version => 2,
                 deactivated => undef,
                 description => 'this is better than before!',
-            )),
-        ),
-        'the new validation_plan contains the new validation record with updated information',
+            ),
+        ],
+        'the updated plan contains the new validation record with updated information',
     );
 
-    $t->log_is(
-        'plan my_humble_plan had 2 active validations and now has 1: deactivating the plan and replacing it with a new one containing updated validations',
-        'logged the plan update',
-    );
+    $t->logs_are([
+        'deactivated existing validation row for Conch::Validation::DeviceProductName',
+        'created validation row for Conch::Validation::DeviceProductName',
+        'validation plan my_humble_plan has a deactivated validation (product_name version 1): removing',
+        'adding product_name version 2 to validation plan my_humble_plan',
+    ]);
 };
 
-subtest 'a validation module was deleted entirely' => sub {
+subtest 'a deactivated validation lives in the plan along with its newer version' => sub {
     my $new_validation_plan = $schema->resultset('validation_plan')->find(
         { name => 'my_humble_plan', deactivated => undef },
         { prefetch => { validation_plan_members => 'validation' } },
     );
 
-    $new_validation_plan->add_to_validations(
-        $validation_rs->create({
-            name => 'old_and_crufty',
-            version => 1,
-            description => 'this validation used to be great but now it is not',
-            module => 'Conch::Validation::OldAndCrufty',
-        })
-    );
+    no warnings 'once', 'redefine';
+    *Conch::Validation::DeviceProductName::description = sub () { 'even more improved' };
+    *Conch::Validation::DeviceProductName::version = sub () { 3 };
+    $t->reset_log;
+
+    # deactivate old validation and create a new one for version 3
+    $validation_system->load_validations;
+
+    $t->logs_are([
+        'deactivated existing validation row for Conch::Validation::DeviceProductName',
+        'created validation row for Conch::Validation::DeviceProductName',
+    ]);
+
+    $new_validation_plan->add_to_validations({
+        name => Conch::Validation::DeviceProductName->name,
+        version => 3,
+        description => Conch::Validation::DeviceProductName->description,
+        module => 'Conch::Validation::DeviceProductName',
+    });
 
     $validation_system->update_validation_plans;
-
     $new_validation_plan->discard_changes({ prefetch => { validation_plan_members => 'validation' } });
 
-    cmp_deeply(
-        $new_validation_plan,
-        all(
-            methods(deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)),
-            listmethods(validation_plan_members => [ (ignore) x 3 ]),
-        ),
-        'second version of validation_plan (with 3 validations) was deactivated; the old validation i the plan has been deactivated',
-    );
+    is($new_validation_plan->deactivated, undef, 'the validation_plan is still active');
 
     cmp_deeply(
-        [ $new_validation_plan->validation_plan_members ],
-        superbagof(
-            methods(validation => methods(
-                module => 'Conch::Validation::OldAndCrufty',
+        [ $new_validation_plan->validations ],
+        [
+            methods(
+                module => 'Conch::Validation::FirmwareCurrent',
                 version => 1,
-                deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            )),
-        ),
-        'the old validation in the plan has been deactivated',
+                deactivated => undef,
+            ),
+            methods(
+                module => 'Conch::Validation::DeviceProductName',
+                version => 3,
+                deactivated => undef,
+            ),
+        ],
+        'validation plan looks good',
     );
 
-    is($schema->resultset('validation_plan')->search({ name => 'my_humble_plan' })->all, 3,
-        'the validation plan has now gone through three iterations');
+    $t->log_info_is('validation plan my_humble_plan has a deactivated validation (product_name version 2): removing');
+};
 
-    my $newest_validation_plan = $schema->resultset('validation_plan')->find(
+subtest 'a validation module was deleted entirely' => sub {
+    $t->reset_log;
+
+    my $new_validation_plan = $schema->resultset('validation_plan')->find(
         { name => 'my_humble_plan', deactivated => undef },
         { prefetch => { validation_plan_members => 'validation' } },
     );
 
-    is($newest_validation_plan->validation_plan_members, 2,
-        'newest version of the validation plan is back down to 2 active validations');
+    my $old_validation = $validation_rs->create({
+        name => 'old_and_crufty',
+        version => 1,
+        description => 'this validation used to be great but now it is not',
+        module => 'Conch::Validation::OldAndCrufty',
+    });
+    $new_validation_plan->add_to_validations($old_validation);
+    $validation_system->update_validation_plans;
+    $new_validation_plan->discard_changes({ prefetch => { validation_plan_members => 'validation' } });
+    $old_validation->discard_changes;
 
-    $t->logs_are(
-        [
-            'deactivating validation for no-longer-present modules: Conch::Validation::OldAndCrufty',
-            'plan my_humble_plan had 3 active validations and now has 2: deactivating the plan and replacing it with a new one containing updated validations',
-        ],
-        'logged the validation deactivation and plan update',
+    is($new_validation_plan->deactivated, undef, 'the validation_plan is still active');
+
+    cmp_deeply(
+        $old_validation,
+        methods(
+            module => 'Conch::Validation::OldAndCrufty',
+            version => 1,
+            deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        ),
+        'the old validation that was in the plan has been deactivated',
     );
+
+    is($new_validation_plan->validation_plan_members, 2,
+        'the validation plan is back down to 2 active validations');
+
+    cmp_deeply(
+        [ $new_validation_plan->validations ],
+        [
+            methods(
+                module => 'Conch::Validation::FirmwareCurrent',
+                version => 1,
+                deactivated => undef,
+            ),
+            methods(
+                module => 'Conch::Validation::DeviceProductName',
+                version => 3,
+                deactivated => undef,
+            ),
+        ],
+        'validation plan looks good',
+    );
+
+    $t->logs_are([
+        'deactivating validation for no-longer-present modules: Conch::Validation::OldAndCrufty',
+        'validation plan my_humble_plan has a deactivated validation (old_and_crufty version 1): removing',
+    ]);
 };
 
 done_testing;

@@ -11,16 +11,17 @@ use Mojo::JSON 'from_json';
 my $t = Test::Conch->new;
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 
-$t->load_validation_plans([{
-    name        => 'Conch v1 Legacy Plan: Server',
-    description => 'Test Plan',
-    validations => [ 'Conch::Validation::DeviceProductName' ],
-}]);
-
 my $rack = $t->load_fixture('rack_0a');
 my $rack_id = $rack->id;
 my $hardware_product = $t->load_fixture('hardware_product_compute');
 my $global_ws = $t->load_fixture('global_workspace');
+
+$t->load_validation_plans([{
+    id          => $hardware_product->validation_plan_id,
+    name        => 'our plan',
+    description => 'Test Plan',
+    validations => [ 'Conch::Validation::DeviceProductName' ],
+}]);
 
 # perform most tests as a user with read only access to the GLOBAL workspace
 my $null_user = $t->generate_fixtures('user_account');

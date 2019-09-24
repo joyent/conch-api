@@ -90,12 +90,14 @@ data.
 ## load\_validation\_plans
 
 Takes an array ref of structured hash refs and creates a validation plan (if it doesn't
-exist) and adds specified validation plans for each of the structured hashes.
+exist, or updates an existing entry otherwise) and adds specified validation plans for each of
+the structured hashes.
 
 Each hash has the structure:
 
 ```
 {
+    id          => optional, if existing row should be updated
     name        => 'Validation plan name',
     description => 'Validation plan description',
     validations => [
@@ -105,7 +107,7 @@ Each hash has the structure:
 }
 ```
 
-If a validation plan by the name already exists, all associations to
+If a validation plan by the same id or name already exists, all associations to
 validations are dropped before the specified validations are added. This allows
 modifying the membership of the validation plans.
 
