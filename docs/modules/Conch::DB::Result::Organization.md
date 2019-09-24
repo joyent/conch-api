@@ -53,6 +53,12 @@ is_nullable: 1
 
 # RELATIONS
 
+## organization\_build\_roles
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch::DB::Result::OrganizationBuildRole)
+
 ## organization\_workspace\_roles
 
 Type: has\_many
@@ -64,6 +70,12 @@ Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch:
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch::DB::Result::UserOrganizationRole)
+
+## builds
+
+Type: many\_to\_many
+
+Composing rels: ["organization\_build\_roles"](#organization_build_roles) -> build
 
 ## user\_accounts
 

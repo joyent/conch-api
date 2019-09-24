@@ -111,6 +111,13 @@ __PACKAGE__->table("device");
   default_value: '{}'::text[]
   is_nullable: 0
 
+=head2 build_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 1
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -182,6 +189,8 @@ __PACKAGE__->add_columns(
     default_value => \"'{}'::text[]",
     is_nullable   => 0,
   },
+  "build_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -223,6 +232,26 @@ __PACKAGE__->add_unique_constraint("device_serial_number_key", ["serial_number"]
 __PACKAGE__->add_unique_constraint("device_system_uuid_key", ["system_uuid"]);
 
 =head1 RELATIONS
+
+=head2 build
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::Build>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "build",
+  "Conch::DB::Result::Build",
+  { id => "build_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
 
 =head2 device_disks
 
@@ -371,7 +400,7 @@ __PACKAGE__->many_to_many("relays", "device_relay_connections", "relay");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:t9HvAuvB75DLfvSRojlSSw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ygCrs0YElHPOZ3jUN4DWUg
 
 __PACKAGE__->has_many(
   "active_device_disks",

@@ -4,6 +4,7 @@ use warnings;
 use parent 'Conch::DB::ResultSet';
 
 use experimental 'signatures';
+use Carp ();
 use List::Util 'none';
 
 =head1 NAME
@@ -52,13 +53,51 @@ Returns a boolean.
 =cut
 
 sub user_has_role ($self, $user_id, $role) {
+    return 1 if $role eq 'none';
+
+    Carp::croak('role must be one of: ro, rw, admin')
+        if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
+
     # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
     # not need to search the workspace heirarchy here, but simply look for a role entry for any
     # workspace the rack is associated with.
-    $self
+    my $ws_rs = $self
         ->related_resultset('workspace_racks')
-        ->related_resultset('workspace')
-        ->user_has_role($user_id, $role);
+        ->related_resultset('workspace');
+
+    # this is Conch::DB::ResultSet::Workspace::user_has_role, unrolled
+    my $ws_via_user_rs = $ws_rs
+        ->search_related('user_workspace_roles', { user_id => $user_id })
+        ->with_role($role)
+        ->related_resultset('user_account');
+
+    my $ws_via_org_rs = $ws_rs
+        ->related_resultset('organization_workspace_roles')
+        ->with_role($role)
+        ->related_resultset('organization')
+        ->search_related('user_organization_roles', { user_id => $user_id })
+        ->related_resultset('user_account');
+
+    my $build_rs = $self->related_resultset('build');
+
+    # this is Conch::DB::ResultSet::Build::user_has_role, unrolled
+    my $build_via_user_rs = $build_rs
+        ->search_related('user_build_roles', { user_id => $user_id })
+        ->with_role($role)
+        ->related_resultset('user_account');
+
+    my $build_via_org_rs = $build_rs
+        ->related_resultset('organization_build_roles')
+        ->with_role($role)
+        ->related_resultset('organization')
+        ->search_related('user_organization_roles', { user_id => $user_id })
+        ->related_resultset('user_account');
+
+    return $ws_via_user_rs
+        ->union_all($ws_via_org_rs)
+        ->union_all($build_via_user_rs)
+        ->union_all($build_via_org_rs)
+        ->exists;
 }
 
 1;

@@ -28,6 +28,8 @@ Constrains the resultset to those rows that grants (at least) the specified role
 =cut
 
 sub with_role ($self, $role) {
+    return $self if $role eq 'none';
+
     Carp::croak('role must be one of: ro, rw, admin')
         if !$ENV{MOJO_MODE} and none { $role eq $_ } qw(ro rw admin);
 

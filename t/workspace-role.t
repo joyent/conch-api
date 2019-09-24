@@ -42,6 +42,15 @@ subtest 'user-role access' => sub {
 
     # [ set name, user, role, expected value ]
     my @tests = (
+        [ 'GLOBAL', $null_user, 'none',  1 ],
+        [ 'GLOBAL', $ws_user,   'none',  1 ],
+        [ 'GLOBAL', $org_user,  'none',  1 ],
+        [ 'GLOBAL', $both_user, 'none',  1 ],
+        [ 'child1', $null_user, 'none',  1 ],
+        [ 'child1', $ws_user,   'none',  1 ],
+        [ 'child1', $org_user,  'none',  1 ],
+        [ 'child1', $both_user, 'none',  1 ],
+
         [ 'GLOBAL', $null_user, 'ro',    0 ],
         [ 'GLOBAL', $ws_user,   'ro',    1 ], # direct user access on GLOBAL
         [ 'GLOBAL', $org_user,  'ro',    1 ], # via org on GLOBAL

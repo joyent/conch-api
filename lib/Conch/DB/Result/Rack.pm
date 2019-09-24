@@ -85,6 +85,13 @@ __PACKAGE__->table("rack");
   extra: {custom_type_name => "device_phase_enum",list => ["integration","installation","production","diagnostics","decommissioned"]}
   is_nullable: 0
 
+=head2 build_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 1
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -135,6 +142,8 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
+  "build_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -150,6 +159,26 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
+
+=head2 build
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::Build>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "build",
+  "Conch::DB::Result::Build",
+  { id => "build_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
 
 =head2 datacenter_room
 
@@ -238,7 +267,7 @@ __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mbWMmEU6H1A2Ag4qoTg3Ow
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QnDbXrOdTyIuHsfOh6+wIw
 
 __PACKAGE__->add_columns(
     '+phase' => { retrieve_on_insert => 1 },

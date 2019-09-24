@@ -83,11 +83,26 @@ extra: {custom_type_name => "device_phase_enum",list => ["integration","installa
 is_nullable: 0
 ```
 
+## build\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 1
+size: 16
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)
 
 # RELATIONS
+
+## build
+
+Type: belongs\_to
+
+Related object: [Conch::DB::Result::Build](../modules/Conch::DB::Result::Build)
 
 ## datacenter\_room
 

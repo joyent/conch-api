@@ -96,6 +96,21 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
+=head2 organization_build_roles
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::OrganizationBuildRole>
+
+=cut
+
+__PACKAGE__->has_many(
+  "organization_build_roles",
+  "Conch::DB::Result::OrganizationBuildRole",
+  { "foreign.organization_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 organization_workspace_roles
 
 Type: has_many
@@ -126,6 +141,16 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 builds
+
+Type: many_to_many
+
+Composing rels: L</organization_build_roles> -> build
+
+=cut
+
+__PACKAGE__->many_to_many("builds", "organization_build_roles", "build");
+
 =head2 user_accounts
 
 Type: many_to_many
@@ -148,7 +173,7 @@ __PACKAGE__->many_to_many("workspaces", "organization_workspace_roles", "workspa
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VfC1BoN/FWn5FjaRHSj03Q
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dyt9DMzLJ4omZdla+GBHiQ
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

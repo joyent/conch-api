@@ -475,7 +475,7 @@ Optionally takes a query parameter C<clear_tokens> (defaulting to true), to also
 session tokens for the user, which would force all tools to log in again should the account be
 reactivated (for which there is no api endpoint at present).
 
-All memberships in workspaces and organizations are removed and are not recoverable.
+All memberships in workspaces, organizations and builds are removed and are not recoverable.
 
 Response uses the UserError json schema on some error conditions.
 
@@ -494,38 +494,47 @@ sub deactivate ($c) {
         });
     }
 
-    # do not allow removing user if he is the only admin of an organization
-    my $org_admins_rs = $c->db_organizations->correlate('user_organization_roles')->search({ role => 'admin' });
-    my $org_rs = $c->db_organizations->search(
-        { user_id => $user->id, role => 'admin' },
-        {
-            '+select' => [{ '' => $org_admins_rs->count_rs->as_query, -as => 'admin_count' }],
-            join => 'user_organization_roles',
-        },
-    )
-    ->as_subselect_rs
-    ->search({ admin_count => 1 });
+    # do not allow removing user if he is the only admin of an organization or build
+    foreach my $type (qw(organization build)) {
+        my $rs_name = 'db_'.$type.'s';
+        my $admins_rs = $c->$rs_name->correlate('user_'.$type.'_roles')->search({ role => 'admin' });
+        my $rs = $c->$rs_name->search(
+            { user_id => $user->id, role => 'admin' },
+            {
+                '+select' => [{ '' => $admins_rs->count_rs->as_query, -as => 'admin_count' }],
+                join => 'user_'.$type.'_roles',
+            },
+        )
+        ->as_subselect_rs
+        ->search({ admin_count => 1 })
+        ->order_by($type.'.name');
 
-    if (my $organization = $org_rs->rows(1)->one_row) {
-        return $c->status(409, {
-            error => 'user is the only admin of the "'.$organization->name.'" organization ('.$organization->id.')',
-            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
-        });
+        if (my $thing = $rs->rows(1)->one_row) {
+            return $c->status(409, {
+                error => 'user is the only admin of the "'.$thing->name.'" '.$type.' ('.$thing->id.')',
+                user => { map +($_ => $user->$_), qw(id email name created deactivated) },
+            });
+        }
     }
 
     my $organizations = join(', ', map $_->{organization}{name}.' ('.$_->{role}.')',
         $user->search_related('user_organization_roles', undef, { join => 'organization' })
             ->columns([ qw(organization.name role) ])->hri->all);
+    my $builds = join(', ', map $_->{build}{name}.' ('.$_->{role}.')',
+        $user->search_related('user_build_roles', undef, { join => 'build' })
+            ->columns([ qw(build.name role) ])->hri->all);
     my $workspaces = join(', ', map $_->{workspace}{name}.' ('.$_->{role}.')',
         $user->search_related('user_workspace_roles', undef, { join => 'workspace' })
             ->columns([ qw(workspace.name role) ])->hri->all);
 
     $c->log->warn('user '.$c->stash('user')->name.' deactivating user '.$user->name
         .($organizations ? ', member of organizations: '.$organizations : '')
+        .($builds ? ', member of builds: '.$builds : '')
         .($workspaces ? ', direct member of workspaces: '.$workspaces : ''));
     $user->update({ password => Authen::Passphrase::RejectAll->new, deactivated => \'now()' });
 
     $user->delete_related('user_organization_roles');
+    $user->delete_related('user_build_roles');
     $user->delete_related('user_workspace_roles');
 
     if ($params->{clear_tokens} // 1) {
