@@ -1,16 +1,9 @@
 # docs: https://help.github.com/en/articles/about-code-owners
 #
 # An important note is that precedence matters. For instance, @karenetheridge
-# is marked to own everything. If a later line only contains '@sungo', then
-# only sungo will get an automated review request and only sungo will be
+# is marked to own everything. If a later line only contains '@billybob', then
+# only billybob will get an automated review request and only billybob will be
 # required to sign off.
 
 * @karenetheridge
-/json-schema/ @karenetheridge @sungo @dustinryerson
-/json-schema/common.yaml @karenetheridge @perigrin @sungo @dustinryerson
-/json-schema/device_report.yaml @karenetheridge @perigrin @sungo @dustinryerson
-/docker @sungo
-/Docker* @sungo
-/docker* @sungo
-Makefile @sungo @karenetheridge
-/bin/ @sungo @karenetheridge
+/json-schema/ @karenetheridge @perigrin @dustinryerson

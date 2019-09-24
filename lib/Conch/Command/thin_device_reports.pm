@@ -52,7 +52,6 @@ sub run ($self, @opts) {
 
     # consider each device, oldest devices first, in pages of 100 rows each
     my $device_rs = ($self->dry_run ? $self->app->db_ro_devices : $self->app->db_devices)
-        ->active
         ->rows(100)
         ->page(1)
         ->order_by('created');

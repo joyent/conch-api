@@ -4,7 +4,6 @@ use Test::Warnings;
 use Test::Deep;
 use Conch::ValidationSystem;
 use Test::Conch;
-use Mojo::Log;
 use Path::Tiny;
 use Test::Fatal;
 

@@ -68,6 +68,7 @@
                                 "type" : "string"
                               },
                               "lineno" : {
+                                "minimum" : 0,
                                 "type" : "integer"
                               },
                               "method" : {

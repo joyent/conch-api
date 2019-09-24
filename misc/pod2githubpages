@@ -64,7 +64,6 @@ around 'Pod::Markdown::end_for' => sub {
     return $self->$orig(@_) if not $self->_stack_state->{for_eval};
 
     my $text = $self->_pop_stack_text;
-
     my $newtext = eval($text) || $@;
 
     # pass resulting pod through pod -> markdown conversion

@@ -7,7 +7,6 @@ sub name { 'self tester' }
 sub description { 'Test::Conch::Validation tester' }
 sub category { 'test' }
 
-use Conch::UUID 'create_uuid_str';
 use Test::Deep;
 use Test::Fatal;
 

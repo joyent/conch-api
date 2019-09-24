@@ -26,7 +26,6 @@ Reports with no validation results are considered to be a 'pass'.
 =cut
 
 sub with_report_status ($self) {
-    my $me = $self->current_source_alias;
     $self->search(
         undef,
         {
@@ -37,7 +36,7 @@ sub with_report_status ($self) {
                 }
             },
             join => 'validation_states',
-            group_by => "$me.id",
+            group_by => $self->current_source_alias.'.id',
         },
     );
 }

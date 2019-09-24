@@ -11,6 +11,7 @@ merge_validation_results - collapse duplicate validation_result rows together
     bin/conch merge_validation_results [long options...]
 
         -n --dry-run  dry-run (no changes are made)
+
         --help        print usage message and exit
 
 =cut
@@ -57,7 +58,6 @@ sub run ($self, @opts) {
 
     # consider each device, oldest devices first, in pages of 100 rows each
     my $device_rs = $schema->resultset('device')
-        ->active
         ->rows(100)
         ->page(1)
         ->order_by('created');
@@ -103,7 +103,7 @@ sub _process_device ($self, $device) {
 
     # find groups of validation_result rows that share identical column
     # values that we have an index on (where new validation_states point
-    # to existing rows: see the end of Conch::ValidationSystem::run_validation_plan.
+    # to existing rows): see the end of Conch::ValidationSystem::run_validation_plan.
     # Consider these groups in pages of 100 rows each.
     my $groups_to_merge_rs = $schema->resultset('validation_result')
         ->columns(\@grouping_cols)

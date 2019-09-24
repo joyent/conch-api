@@ -575,7 +575,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     ($specification // {})->%*,
                 },
                 requires => {
-                     "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
+                    "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
                 },
             },
         },

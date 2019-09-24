@@ -63,7 +63,7 @@ sub set ($c) {
     return $c->status(303, '/device/'.$device_id.'/location')
         if $layout_rs->search_related('device_location', { device_id => $device_id })->exists;
 
-    my $result = $c->txn_wrapper(sub ($c) {
+    $c->txn_wrapper(sub ($c) {
         # create a device if it doesn't exist
         if (not $c->db_devices->search({ id => $device_id })->exists) {
             $c->db_devices->create({

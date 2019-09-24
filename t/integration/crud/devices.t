@@ -6,7 +6,6 @@ use Test::Warnings;
 use Path::Tiny;
 use Test::Deep;
 use Test::Conch;
-use Conch::UUID 'create_uuid_str';
 use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
@@ -371,7 +370,7 @@ subtest 'located device' => sub {
                 $t->status_is(204);
             } else {
                 $t->status_is(303)
-                ->location_is('/device/'.$located_device_id);
+                    ->location_is('/device/'.$located_device_id);
             }
         }
         $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })

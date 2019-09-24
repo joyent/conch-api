@@ -5,7 +5,6 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
-use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 $t->load_fixture('super_user');
@@ -54,7 +53,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
                 rack_size => 42,
                 device_progress => {},
             },
-         ],
+        ],
     });
 
 subtest 'Add rack to workspace' => sub {

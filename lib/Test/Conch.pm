@@ -755,7 +755,6 @@ sub do_and_wait_for_event ($self, $emitter, $event_name, $task, $success, $fail 
     Test::More::subtest 'listening for '.$event_name.' event' => sub {
         $task->($self);
         $task_promise->resolve;
-
         $all_promises->wait;
     };
 

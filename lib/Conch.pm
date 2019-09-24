@@ -6,7 +6,7 @@ Conch - Setup and helpers for Conch Mojo app
 
 =head1 SYNOPSIS
 
-  Mojolicious::Commands->start_app('Conch');
+    Mojolicious::Commands->start_app('Conch');
 
 =head1 METHODS
 
@@ -100,7 +100,7 @@ sub startup {
             # HTTP status code 415 'Unsupported Media Type' is returned.
             if ($headers->content_length
                 and (not $headers->content_type
-                     or $headers->content_type !~ /application\/json/i)) {
+                    or $headers->content_type !~ /application\/json/i)) {
                 return $c->status(415);
             }
         }

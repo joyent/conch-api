@@ -1,7 +1,7 @@
 package Conch::UUID;
 
 use Mojo::Base -strict, -signatures;
-use Data::UUID;
+use Data::UUID ();
 use Exporter 'import';
 our @EXPORT_OK = qw(is_uuid create_uuid_str);
 

@@ -12,11 +12,10 @@ use HTTP::Tiny;
 use IO::Socket::SSL;
 use JSON::PP;
 
-my $base_url = 'https://edge.conch.joyent.us';
-
 GetOptions(
-    'base_url|u:s'  => \$base_url,
+    'base_url|u:s'  => \(my $base_url = 'https://edge.conch.joyent.us'),
     'email|e:s'     => \my $email,
+    'debug|d'       => \my $debug,
     'help|h'        => \my $help,
 );
 
@@ -28,6 +27,7 @@ Term::ReadKey::ReadMode('noecho');
 print 'password: ';
 chomp(my $password = Term::ReadKey::ReadLine(0));
 Term::ReadKey::ReadMode('normal');
+print "\n";
 
 my $login_content = do_post('/login', { email => $email, password => $password });
 my $login_token = $login_content->{jwt_token};
@@ -43,7 +43,7 @@ my $api_token = $token_content->{token};
 say 'here is your api token (keep it in a safe place!)';
 say $api_token;
 say '';
-say 'Hint: you can put "Authorization: Bearer <token>" in ~/.conch-client.json,';
+say 'Hint: you can put "Authorization: Bearer <token>" in ~/.conch-client,';
 say 'and then in the future you can do:   curl -H @~/.conch-token ...';
 
 exit;
