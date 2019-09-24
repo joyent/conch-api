@@ -33,10 +33,11 @@ sub process ($c) {
     }
 
     # Make sure that the remote side is telling us about a hardware product we understand
-    my $hw = $c->_get_hardware_product($unserialized_report);
-    return $c->status(409, { error => 'Could not locate hardware product' }) if not $hw;
+    my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
+    return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
+
     return $c->status(409, { error => 'Hardware product does not contain a profile' })
-        if not $hw->hardware_product_profile;
+        if not $c->db_hardware_product_profiles->active->search({ hardware_product_id => $hardware_product_id })->exists;
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
@@ -75,7 +76,7 @@ sub process ($c) {
         $c->db_devices->update_or_create({
             serial_number       => $c->stash('device_serial_number'),
             system_uuid         => $unserialized_report->{system_uuid},
-            hardware_product_id => $hw->id,
+            hardware_product_id => $hardware_product_id,
             health              => 'unknown',
             last_seen           => \'now()',
             uptime_since        => $uptime,
@@ -395,10 +396,11 @@ sub validate_report ($c) {
         return;
     }
 
-    my $hw = $c->_get_hardware_product($unserialized_report);
-    return $c->status(409, { error => 'Could not locate hardware product' }) if not $hw;
+    my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
+    return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
+
     return $c->status(409, { error => 'Hardware product does not contain a profile' })
-        if not $hw->hardware_product_profile;
+        if not $c->db_hardware_product_profiles->active->search({ hardware_product_id => $hardware_product_id })->exists;
 
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
     return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
@@ -409,7 +411,7 @@ sub validate_report ($c) {
         my $device = $c->db_devices->update_or_create({
             serial_number       => $unserialized_report->{serial_number},
             system_uuid         => $unserialized_report->{system_uuid},
-            hardware_product_id => $hw->id,
+            hardware_product_id => $hardware_product_id,
             health              => 'unknown',
             last_seen           => \'now()',
             uptime_since        => $unserialized_report->{uptime_since},
@@ -444,34 +446,6 @@ sub validate_report ($c) {
         status => $status,
         results => \@validation_results,
     });
-}
-
-=head2 _get_hardware_product
-
-Find the hardware product for the device referenced by the report.
-
-=cut
-
-sub _get_hardware_product ($c, $unserialized_report) {
-    if ($unserialized_report->{device_type} and $unserialized_report->{device_type} eq 'switch') {
-        return $c->db_hardware_products->active
-            ->search({ name => $unserialized_report->{product_name} })
-            ->prefetch('hardware_product_profile')
-            ->single;
-    }
-
-    # search by sku first
-    my $hw = $c->db_hardware_products->active
-        ->search({ sku => $unserialized_report->{sku} })
-        ->prefetch('hardware_product_profile')
-        ->single;
-    return $hw if $hw;
-
-    # fall back to legacy_product_name - this will warn if more than one matching row is found
-    return $c->db_hardware_products->active
-        ->search({ legacy_product_name => $unserialized_report->{product_name} })
-        ->prefetch('hardware_product_profile')
-        ->single;
 }
 
 =head2 _get_validation_plan

@@ -166,6 +166,7 @@ my %canned_definitions = (
             prefix => 'F10',
             legacy_product_name => 'FuerzaDiaz',
             rack_unit_size => 1,
+            sku => 'switch_sku',
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
@@ -570,7 +571,8 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 new => 'hardware_product',
                 using => {
                     name => "hardware_product_$num",
-                    alias => "hardware_product_$num",
+                    alias => "hardware_product_alias_$num",
+                    sku => "hardware_product_sku_$num",
                     rack_unit_size => 42,
                     ($specification // {})->%*,
                 },

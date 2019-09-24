@@ -21,13 +21,15 @@ $t->authenticate(email => $ro_user->email);
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 
 subtest preliminaries => sub {
+    my $report_data = from_json($report);
+
     $t->post_ok('/device/foo', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(422)
         ->json_is({ error => 'Serial number provided to the API does not match the report data.' });
 
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(409)
-        ->json_is({ error => 'Could not locate hardware product' });
+        ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
 
     $t->load_fixture('hardware_product_compute');
 
@@ -73,7 +75,7 @@ subtest 'run report without an existing device' => sub {
 
     $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })
         ->status_is(409)
-        ->json_is({ error => 'Could not locate hardware product' });
+        ->json_is({ error => 'Could not locate hardware product for sku ugh' });
 
     $t->generate_fixtures('hardware_product', { sku => 'ugh' });
     $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })

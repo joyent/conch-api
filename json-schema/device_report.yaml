@@ -14,6 +14,7 @@ definitions:
     required:
       - bios_version
       - product_name
+      - sku
       - serial_number
       - system_uuid
     properties:
@@ -125,6 +126,8 @@ definitions:
             type: string
       product_name:
         # TODO: required for switches, and also for non-switches when 'sku' is not present.
+        type: string
+      sku:
         type: string
       relay:
         type: object

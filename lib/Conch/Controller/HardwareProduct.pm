@@ -134,7 +134,7 @@ sub update ($c) {
 
     for my $key (qw(name alias sku)) {
         next if not defined $input->{$key};
-        next if $hardware_product->$key and $input->{$key} eq $hardware_product->$key;
+        next if $input->{$key} eq $hardware_product->$key;
 
         if ($c->db_hardware_products->active->search({ $input->%{$key} })->exists) {
             $c->log->debug('Failed to create hardware product: unique constraint violation for '.$key);

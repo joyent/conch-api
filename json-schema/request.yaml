@@ -232,6 +232,7 @@ definitions:
         - name
         - alias
         - hardware_vendor_id
+        - sku
         - rack_unit_size
       - type: object
         properties:

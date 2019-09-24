@@ -43,6 +43,7 @@ $t->post_ok('/hardware_product', json => {
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
         rack_unit_size => 2,
+        sku => 'my sku',
     })
     ->status_is(303)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
@@ -59,7 +60,7 @@ $t->get_ok($t->tx->res->headers->location)
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         specification => undef,
-        sku => undef,
+        sku => 'my sku',
         generation_name => undef,
         legacy_product_name => undef,
         rack_unit_size => 2,
@@ -78,6 +79,7 @@ $t->post_ok('/hardware_product', json => {
         name => 'sungo',
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
+        sku => 'another sku',
         rack_unit_size => 1,
     })
     ->status_is(409)
@@ -233,6 +235,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
             alias => 'ether',
+            sku => 'another sku',
             rack_unit_size => 1,
             hardware_product_profile => { dimms_num => 2 },
         })
@@ -256,6 +259,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
             alias => 'ether',
+            sku => 'another sku',
             rack_unit_size => 2,
             hardware_product_profile => $new_hw_profile,
         })
@@ -274,7 +278,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             specification => undef,
-            sku => undef,
+            sku => 'another sku',
             generation_name => undef,
             legacy_product_name => undef,
             rack_unit_size => 2,
