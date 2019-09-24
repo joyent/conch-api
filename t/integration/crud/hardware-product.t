@@ -5,6 +5,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 $t->load_fixture('super_user');
@@ -83,6 +84,17 @@ $t->post_ok('/hardware_product', json => {
     ->json_schema_is('Error')
     ->json_is({ error => 'Unique constraint violated on \'name\'' });
 
+$t->post_ok('/hardware_product', json => {
+        name => 'another name',
+        hardware_vendor_id => create_uuid_str(),
+        alias => 'another alias',
+        sku => 'another sku',
+        rack_unit_size => 1,
+    })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'hardware_vendor_id does not exist' });
+
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
     ->status_is(303)
     ->location_is('/hardware_product/'.$new_hw_id);
@@ -147,6 +159,25 @@ subtest 'create profile on existing product' => sub {
 };
 
 subtest 'update some fields in an existing profile and product' => sub {
+    $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'Switch' })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'Unique constraint violated on \'name\'' });
+
+    $t->post_ok("/hardware_product/$new_hw_id", json => { alias => 'Switch Vendor' })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'Unique constraint violated on \'alias\'' });
+
+    $t->post_ok("/hardware_product/$new_hw_id", json => { sku => '550-551-001' })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'Unique constraint violated on \'sku\'' });
+
+    $t->post_ok("/hardware_product/$new_hw_id", json => { hardware_vendor_id => create_uuid_str() })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'hardware_vendor_id does not exist' });
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             name => 'ether1',
