@@ -595,7 +595,16 @@ subtest 'mutate device attributes' => sub {
         ->json_schema_is('DevicePhase')
         ->json_is({ id => $test_device_id, phase => 'decommissioned' });
 
-    my $device = $t->app->db_devices->find({ serial_number => 'TEST' });
+    my $device = $t->app->db_devices->find({ serial_number => 'TEST' }, { prefetch => 'hardware_product' });
+
+    $t->get_ok('/device/TEST/sku')
+        ->status_is(200)
+        ->json_schema_is('DeviceSku')
+        ->json_is({
+            id => $test_device_id,
+            hardware_product_id => $hardware_product_id,
+            sku => $device->hardware_product->sku,
+        });
 
     $t->delete_ok('/device/TEST/links')
         ->status_is(204);

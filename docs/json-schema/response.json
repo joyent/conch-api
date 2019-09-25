@@ -1126,6 +1126,26 @@
       },
       "type" : "object"
     },
+    "DeviceSku" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "sku" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "id",
+        "hardware_product_id",
+        "sku"
+      ],
+      "type" : "object"
+    },
     "DeviceTotals" : {
       "additionalProperties" : {
         "items" : {

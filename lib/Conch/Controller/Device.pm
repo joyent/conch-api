@@ -314,6 +314,23 @@ sub get_phase ($c) {
     return $c->status(200, $c->stash('device_rs')->columns([qw(id phase)])->hri->single);
 }
 
+=head2 get_sku
+
+Gets just the device's hardware_product_id and sku. Response uses the DeviceSku json schema.
+
+=cut
+
+sub get_sku($c) {
+    my $rs = $c->stash('device_rs')
+        ->search(undef, { join => 'hardware_product' })
+        ->columns({
+            id => 'device.id',
+            hardware_product_id => 'hardware_product.id',
+            sku => 'hardware_product.sku',
+        });
+    return $c->status(200, $rs->hri->single);
+}
+
 =head2 set_phase
 
 =cut
