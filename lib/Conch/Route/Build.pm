@@ -71,6 +71,9 @@ sub routes {
         # GET /build/:build_id_or_name/device
         $with_build_ro->get('/device')->to('#get_devices');
 
+        # POST /build/:build_id_or_name/device
+        $with_build_rw->post('/device')->to('#create_and_add_devices', require_role => 'rw');
+
         # POST /build/:build_id_or_name/device/:device_id_or_serial_number
         $with_build_rw->under('/device/:device_id_or_serial_number')
             ->to('device#find_device', require_role => 'ro')
@@ -228,6 +231,18 @@ an email to the organization members and build admins.
 =item * Requires system admin authorization or the read-only role on the build
 
 =item * Response: response.yaml#/Devices
+
+=back
+
+=head3 C<POST /build/:build_id_or_name/device>
+
+=over 4
+
+=item * Requires system admin authorization, or the read/write role on the build.
+
+=item * Request: F<request.yaml#/definitions/BuildCreateDevice>
+
+=item * Response: C<204 NO CONTENT>
 
 =back
 

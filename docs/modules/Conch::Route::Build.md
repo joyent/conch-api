@@ -80,6 +80,12 @@ an email to the organization members and build admins.
 - Requires system admin authorization or the read-only role on the build
 - Response: response.yaml#/Devices
 
+### `POST /build/:build_id_or_name/device`
+
+- Requires system admin authorization, or the read/write role on the build.
+- Request: [request.json#/definitions/BuildCreateDevice](../json-schema/request.json#/definitions/BuildCreateDevice)
+- Response: `204 NO CONTENT`
+
 ### `POST /build/:build_id_or_name/device/:device_id_or_serial_number`
 
 - Requires system admin authorization, or the read/write role on the build and the

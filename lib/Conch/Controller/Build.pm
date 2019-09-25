@@ -577,6 +577,106 @@ sub get_devices ($c) {
     $c->status(200, [ $rs->all ]);
 }
 
+=head2 create_and_add_devices
+
+Adds the specified device to the build (as long as it isn't in another build, or located in a
+rack in another build).  The device is created if necessary with all data provided (or updated
+with the data if it already exists, so the endpoint is idempotent).
+
+Requires the 'read/write' role on the build.
+
+=cut
+
+sub create_and_add_devices ($c) {
+    my $input = $c->validate_request('BuildCreateDevice');
+    return if not $input;
+
+    foreach my $entry ($input->@*) {
+        if (my $serial = $entry->{serial_number} and not $entry->{id}) {
+            my $id = $c->db_devices->search({ serial_number => $serial })->get_column('id')->single;
+            $entry->{id} = $id if $id;
+        }
+    }
+
+    # we already looked up all ids for devices that were referenced only by serial_number
+    my %devices = map +($_->id => $_),
+        $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } })
+            ->prefetch({ device_location => 'rack' });
+
+    # sku -> hardware_product
+    my %hardware_products;
+    if (my @skus = map $_->{sku} // (), $input->@*) {
+        %hardware_products = map +($_->sku => $_),
+            $c->db_hardware_products->active
+                ->search({ sku => { -in => \@skus } })
+                ->prefetch('hardware_product_profile');
+    }
+
+    my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
+
+    $c->txn_wrapper(sub ($c) {
+        foreach my $entry ($input->@*) {
+            if (not $hardware_products{$entry->{sku}}) {
+                $c->log->error('no hardware_product corresponding to sku '.$entry->{sku});
+                $c->status(404);
+                die 'rollback';
+            }
+
+            # for now, at least, many validations require this
+            if (not $hardware_products{$entry->{sku}}->hardware_product_profile) {
+                $c->log->error('no hardware_product_profile corresponding to sku '.$entry->{sku});
+                $c->status(404);
+                die 'rollback';
+            }
+
+            # find device by id that we looked up before...
+            if ($entry->{id}) {
+                if (my $device = $devices{$entry->{id}}) {
+                    if (($device->build_id and $device->build_id ne $build_id)
+                        or ($device->device_location and $device->device_location->rack->build_id
+                            and $device->device_location->rack->build_id ne $build_id)) {
+                        $c->status(409, { error => 'device '.($entry->{serial_number} // $entry->{id}).' not in build '.$c->stash('build_id_or_name') });
+                        die 'rollback';
+                    }
+
+                    $device->serial_number($entry->{serial_number}) if $entry->{serial_number};
+                    $device->asset_tag($entry->{asset_tag}) if exists $entry->{asset_tag};
+                    $device->hardware_product_id($hardware_products{$entry->{sku}}->id);
+                    $device->links($entry->{links}) if exists $entry->{links};
+
+                    if ($device->is_changed) {
+                        $device->update({ updated => \'now()' });
+                        $c->log->debug('updated device '.$device->serial_number
+                            .' ('.$device->id.')'.' in build '.$c->stash('build_id_or_name'));
+                    }
+                }
+                else {
+                    $c->log->error('no device corresponding to device id '.$entry->{id});
+                    $c->status(404);
+                    die 'rollback';
+                }
+            }
+            else {
+                my $device = $c->db_devices->create({
+                    serial_number => $entry->{serial_number},
+                    asset_tag => $entry->{asset_tag},
+                    hardware_product_id => $hardware_products{$entry->{sku}}->id,
+                    health => 'unknown',
+                    links => $entry->{links} // [],
+                    build_id => $build_id,
+                });
+                $devices{$device->id} = $device;
+                $c->log->debug('created new device '.$entry->{serial_number}.' in build '.$c->stash('build_id_or_name'));
+            }
+        }
+    });
+
+    # if the result code was already set, we errored and rolled back the db...
+    return if $c->res->code;
+
+    $c->status(204);
+}
+
 =head2 add_device
 
 Adds the specified device to the build (as long as it isn't in another build, or located in a

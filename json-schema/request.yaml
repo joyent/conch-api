@@ -679,5 +679,35 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       role:
         $ref: common.yaml#/definitions/role
+  BuildCreateDevice:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - sku
+      anyOf:
+        - required:
+          - id
+        - required:
+          - serial_number
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        serial_number:
+          $ref: common.yaml#/definitions/device_serial_number
+        asset_tag:
+          oneOf:
+            - $ref: common.yaml#/definitions/device_asset_tag
+            - type: 'null'
+        sku:
+          type: string
+        links:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uri
 
 # vim: set sts=2 sw=2 et :
