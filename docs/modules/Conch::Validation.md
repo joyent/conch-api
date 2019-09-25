@@ -112,10 +112,8 @@ location.
 
 ## hardware\_product
 
-The expected [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareProduct) object for the device being validated.
-Note that this is **either** the hardware\_product associated with the rack and slot the device
-is located in, **or** the hardware\_product associated with the device itself (when the device is
-not located in a rack yet). When this distinction is important, check ["has\_device\_location"](#has_device_location).
+The [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareProduct) object for the device being validated
+(originally determined by the sku reported for the device).
 
 Any additional data related to hardware\_products may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class)
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
