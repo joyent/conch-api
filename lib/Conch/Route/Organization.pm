@@ -120,7 +120,7 @@ an email to the user.
 
 =item * Requires system admin authorization or the admin role on the organization
 
-=item * Returns C<204 NO CONTENT>
+=item * Response: C<204 NO CONTENT>
 
 =back
 
