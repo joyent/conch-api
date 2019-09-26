@@ -88,6 +88,7 @@ sub process ($c) {
     });
 
     if (not $device) {
+        $existing_device->update({ health => 'error', updated => \'now()' }) if $existing_device;
         return $c->status(400, { error => 'could not process report for device '
             .$c->stash('device_serial_number')
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
@@ -111,6 +112,11 @@ sub process ($c) {
         $unserialized_report,
     );
 
+    if ($c->res->code) {
+        $device->update({ health => 'error', updated => \'now()' });
+        return;
+    }
+
     # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
@@ -124,9 +130,12 @@ sub process ($c) {
         device => $c->db_ro_devices->find($device->id),
         device_report => $device_report,
     );
-    return $c->status(400, { error => 'no validations ran'
-            .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') })
-        if not $validation_state;
+
+    if (not $validation_state) {
+        $device->update({ health => 'error', updated => \'now()' });
+        return $c->status(400, { error => 'no validations ran'
+            .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
+    }
     $c->log->debug('Validations ran with result: '.$validation_state->status);
 
     # calculate the device health based on the validation results.
@@ -170,8 +179,8 @@ Uses a device report to populate configuration information about the given devic
 sub _record_device_configuration ($c, $orig_device, $device, $dr) {
     my $log = $c->log;
 
-    $c->schema->txn_do(
-        sub () {
+    $c->txn_wrapper(
+        sub {
             # Add a reboot count if there's not a previous uptime but one in this
             # report (i.e. first uptime reported), or if the previous uptime date is
             # less than the current one (i.e. there has been a reboot)
