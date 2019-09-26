@@ -394,5 +394,19 @@ subtest 'create device via report' => sub {
     );
 };
 
+subtest 'system_uuid collisions' => sub {
+    my $report_data = from_json($report);
+    $report_data->{serial_number} = 'i_was_here_first';
+
+    my $existing_device = $t->generate_fixtures('device', { serial_number => 'i_was_here_first' });
+
+    $t->post_ok('/device_report', json => $report_data)
+        ->status_is(400)
+        ->json_cmp_deeply({ error => re(qr/no validations ran: .*duplicate key value violates unique constraint "device_system_uuid_key"/) });
+
+    $t->post_ok('/device/i_was_here_first', json => $report_data)
+        ->json_cmp_deeply({ error => re(qr/could not process report for device i_was_here_first.*duplicate key value violates unique constraint "device_system_uuid_key"/) });
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

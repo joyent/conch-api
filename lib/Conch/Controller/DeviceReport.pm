@@ -70,19 +70,28 @@ sub process ($c) {
                : $existing_device ? $existing_device->uptime_since
                : undef;
 
-    # this may be a different device_id than $existing_device.
-    my $device = $c->db_devices->update_or_create({
-        serial_number       => $c->stash('device_serial_number'),
-        system_uuid         => $unserialized_report->{system_uuid},
-        hardware_product_id => $hw->id,
-        health              => 'unknown',
-        last_seen           => \'now()',
-        uptime_since        => $uptime,
-        hostname            => $unserialized_report->{os}{hostname},
-        $unserialized_report->{links}
-            ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
-        updated             => \'now()',
-    }, { key => 'device_serial_number_key' });
+    # this may be a different device_id than $existing_device. match up the serial_number.
+    my $device = $c->txn_wrapper(sub ($c) {
+        $c->db_devices->update_or_create({
+            serial_number       => $c->stash('device_serial_number'),
+            system_uuid         => $unserialized_report->{system_uuid},
+            hardware_product_id => $hw->id,
+            health              => 'unknown',
+            last_seen           => \'now()',
+            uptime_since        => $uptime,
+            hostname            => $unserialized_report->{os}{hostname},
+            $unserialized_report->{links}
+                ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
+            updated             => \'now()',
+        },
+        { key => 'device_serial_number_key' });
+    });
+
+    if (not $device) {
+        return $c->status(400, { error => 'could not process report for device '
+            .$c->stash('device_serial_number')
+            .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
+    }
 
     $c->log->debug('Creating device report');
     my $device_report = $device->create_related('device_reports', {
@@ -115,7 +124,9 @@ sub process ($c) {
         device => $c->db_ro_devices->find($device->id),
         device_report => $device_report,
     );
-    return $c->status(400, { error => 'no validations ran' }) if not $validation_state;
+    return $c->status(400, { error => 'no validations ran'
+            .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') })
+        if not $validation_state;
     $c->log->debug('Validations ran with result: '.$validation_state->status);
 
     # calculate the device health based on the validation results.
@@ -395,7 +406,8 @@ sub validate_report ($c) {
             uptime_since        => $unserialized_report->{uptime_since},
             hostname            => $unserialized_report->{os}{hostname},
             updated             => \'now()',
-        });
+        },
+        { key => 'device_serial_number_key' });
 
         # we do not call _record_device_configuration, because no validations
         # should be using that information, instead choosing to respect the report data.
@@ -413,7 +425,9 @@ sub validate_report ($c) {
         die 'rollback: device used for report validation should not be persisted';
     });
 
-    return $c->status(400, { error => 'no validations ran' }) if not @validation_results;
+    return $c->status(400, { error => 'no validations ran'
+            .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') })
+        if not @validation_results;
 
     $c->status(200, {
         device_serial_number => $unserialized_report->{serial_number},
