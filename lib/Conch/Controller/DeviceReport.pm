@@ -106,7 +106,7 @@ sub process ($c) {
 
 
     $c->log->debug('Recording device configuration');
-    $c->_record_device_configuration(
+    $c->txn_wrapper(\&_record_device_configuration,
         $existing_device,
         $device,
         $unserialized_report,
@@ -177,10 +177,6 @@ Uses a device report to populate configuration information about the given devic
 =cut
 
 sub _record_device_configuration ($c, $orig_device, $device, $dr) {
-    my $log = $c->log;
-
-    $c->txn_wrapper(
-        sub {
             # Add a reboot count if there's not a previous uptime but one in this
             # report (i.e. first uptime reported), or if the previous uptime date is
             # less than the current one (i.e. there has been a reboot)
@@ -219,7 +215,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
             @inactive_serials{@device_disk_serials} = ();
 
             foreach my $disk (keys $dr->{disks}->%*) {
-                $log->debug('Device '.$device->id.': Recording disk: '.$disk);
+                $c->log->debug('Device '.$device->id.': Recording disk: '.$disk);
 
                 delete $inactive_serials{$disk};
 
@@ -256,7 +252,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
             }
 
             $dr->{disks}
-                and $log->info('Recorded disk info for Device '.$device->id);
+                and $c->log->info('Recorded disk info for Device '.$device->id);
 
 
             my @device_nic_macs = $device->device_nics->active->get_column('mac')->all;
@@ -272,7 +268,7 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
             foreach my $nic (keys $dr->{interfaces}->%*) {
                 my $mac = $dr->{interfaces}{$nic}{mac};
 
-                $log->debug('Device '.$device->id.': Recording NIC: '.$mac);
+                $c->log->debug('Device '.$device->id.': Recording NIC: '.$mac);
                 delete $inactive_macs{$mac};
 
                 # deactivate this iface_name where mac is different,
@@ -319,8 +315,6 @@ sub _record_device_configuration ($c, $orig_device, $device, $dr) {
             if (@inactive_macs) {
                 $c->db_device_nics->search({ mac => { -in => \@inactive_macs } })->deactivate;
             }
-        }
-    );
 }
 
 sub _add_reboot_count ($device) {
