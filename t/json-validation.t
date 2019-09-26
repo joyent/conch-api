@@ -122,4 +122,21 @@ subtest 'GET /workspace/:workspace_id_or_name/rack validation' => sub {
     );
 };
 
+subtest 'device report validation' => sub {
+    my $validator = JSON::Validator->new
+        ->load_and_validate_schema('json-schema/device_report.yaml',
+            { schema => 'http://json-schema.org/draft-07/schema#' });
+
+    my $schema = $validator->get('/definitions/DeviceReport_v3.0.0/properties/system_uuid');
+
+    cmp_deeply(
+        [ $validator->validate('00000000-0000-0000-0000-000000000000', $schema) ],
+        [ methods(
+            path => '/',
+            message => re(qr/should not match/i),
+        ) ],
+        'all-zero system_uuids are rejected',
+    );
+};
+
 done_testing;
