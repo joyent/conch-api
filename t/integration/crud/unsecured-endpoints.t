@@ -11,7 +11,8 @@ $t->load_fixture('legacy_datacenter');
 
 $t->get_ok('/ping')
     ->status_is(200)
-    ->json_is({ status => 'ok' });
+    ->json_is({ status => 'ok' })
+    ->header_is('X-Conch-API', $t->app->version_tag);
 
 $t->get_ok('/version')
     ->status_is(200)
