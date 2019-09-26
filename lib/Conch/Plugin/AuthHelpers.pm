@@ -27,11 +27,9 @@ Verifies that the currently stashed user has the C<is_admin> flag set.
 
 =cut
 
-    $app->helper(
-        is_system_admin => sub ($c) {
-            $c->stash('user') && $c->stash('user')->is_admin;
-        },
-    );
+    $app->helper(is_system_admin => sub ($c) {
+        $c->stash('user') && $c->stash('user')->is_admin;
+    });
 
 
 =head2 generate_jwt
@@ -43,21 +41,19 @@ C<expires> is an epoch time.
 
 =cut
 
-    $app->helper(
-        generate_jwt => sub ($c, $user_id, $expires_abs, $token_name) {
-            return $c->status(409, { error => 'name "'.$token_name.'" is already in use' })
-                if $c->db_user_session_tokens
-                    ->search({ user_id => $user_id, name => $token_name })->exists;
+    $app->helper(generate_jwt => sub ($c, $user_id, $expires_abs, $token_name) {
+        return $c->status(409, { error => 'name "'.$token_name.'" is already in use' })
+            if $c->db_user_session_tokens
+                ->search({ user_id => $user_id, name => $token_name })->exists;
 
-            my $session_token = $c->db_user_session_tokens->create({
-                user_id => $user_id,
-                name => $token_name,
-                expires => \[ q{to_timestamp(?)::timestamptz}, $expires_abs ],
-            });
+        my $session_token = $c->db_user_session_tokens->create({
+            user_id => $user_id,
+            name => $token_name,
+            expires => \[ q{to_timestamp(?)::timestamptz}, $expires_abs ],
+        });
 
-            return ($session_token, $c->generate_jwt_from_token($session_token));
-        },
-    );
+        return ($session_token, $c->generate_jwt_from_token($session_token));
+    });
 
 =head2 generate_jwt_from_token
 
@@ -65,15 +61,13 @@ Given a session token, generate a JWT for it.
 
 =cut
 
-    $app->helper(
-        generate_jwt_from_token => sub ($c, $session_token) {
-            return Mojo::JWT->new(
-                claims => { user_id => $session_token->user_id, token_id => $session_token->id },
-                secret => $c->app->secrets->[0],
-                expires => $session_token->expires->epoch,
-            )->encode;
-        },
-    );
+    $app->helper(generate_jwt_from_token => sub ($c, $session_token) {
+        return Mojo::JWT->new(
+            claims => { user_id => $session_token->user_id, token_id => $session_token->id },
+            secret => $c->app->secrets->[0],
+            expires => $session_token->expires->epoch,
+        )->encode;
+    });
 }
 
 1;
