@@ -47,4 +47,7 @@ $t->get_ok('/ping', { 'User-Agent' => 'Conch/0.0.0 ConchShell/blahblah...' })
 $t->get_ok('/ping', { 'User-Agent' => 'Conch/1.12.0 ConchShell/blahblah...' })
     ->status_is(200);
 
+$t->get_ok('/version', { 'User-Agent' => 'Conch/0.0.0 ConchShell/blahblah...' })
+    ->status_is(200);
+
 done_testing;

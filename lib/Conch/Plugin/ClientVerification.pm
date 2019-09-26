@@ -21,6 +21,8 @@ but we will log it.
 sub register ($self, $app, $config) {
     $app->hook(
         before_dispatch => sub ($c) {
+            return if $c->req->url->path eq '/version';
+
             my $headers = $c->req->headers;
             my $user_agent = $headers->user_agent;
 

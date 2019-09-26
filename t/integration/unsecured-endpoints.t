@@ -14,7 +14,8 @@ $t->get_ok('/ping')
     ->json_schema_is('Ping')
     ->json_is({ status => 'ok' })
     ->header_exists('Request-Id')
-    ->header_exists('X-Request-ID');
+    ->header_exists('X-Request-ID')
+    ->header_is('X-Conch-API', $t->app->version_tag);
 
 $t->get_ok('/me')->status_is(401);
 

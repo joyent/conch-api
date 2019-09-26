@@ -59,6 +59,9 @@ sub startup {
         }
     );
 
+    $self->hook(after_render => sub ($c, @args) {
+        $c->tx->res->headers->add('X-Conch-API', $c->version_tag);
+    });
 
     $self->helper(
         status => sub ($c, $code, $payload = undef) {
