@@ -44,61 +44,56 @@ sub process ($c) {
             if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
     }
 
-    my $existing_device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
+    my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
+    if (not $device) {
+        $c->log->error('Failed to find device '.$c->stash('device_serial_number'));
+        return $c->status(404);
+    }
+
+    if ($hardware_product_id ne $device->hardware_product_id) {
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
+        return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$c->stash('device_serial_number') });
+    }
 
     # capture information about the last report before we store the new one
     # state can be: error, fail, pass, where no validations on a valid report is
     # considered to be a pass.
-    my ($previous_report_id, $previous_report_status);
-    if ($existing_device) {
-        my $previous_report =
-            $existing_device->self_rs->latest_device_report
-                ->columns('device_reports.id')
-                ->with_report_status
-                ->hri
-                ->single;
-        ($previous_report_id, $previous_report_status) = $previous_report->@{qw(id status)}
-            if $previous_report;
-    }
+    my $previous_report = $device->self_rs->latest_device_report
+        ->columns('device_reports.id')
+        ->with_report_status
+        ->hri
+        ->single;
+    my ($previous_report_id, $previous_report_status) = $previous_report ? $previous_report->@{qw(id status)} : ();
 
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
     return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
 
-    # Update/create the device and create the device report
-    $c->log->debug('Updating or creating device '.$c->stash('device_serial_number'));
-
-    my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since}
-               : $existing_device ? $existing_device->uptime_since
-               : undef;
-
-    # this may be a different device_id than $existing_device. match up the serial_number.
-    my $device = $c->txn_wrapper(sub ($c) {
-        $c->db_devices->update_or_create({
-            serial_number       => $c->stash('device_serial_number'),
+    # Update the device and create the device report
+    $c->log->debug('Updating device '.$c->stash('device_serial_number'));
+    my $prev_uptime = $device->uptime_since;
+    $c->txn_wrapper(sub ($c) {
+        $device->update({
             system_uuid         => $unserialized_report->{system_uuid},
-            hardware_product_id => $hardware_product_id,
-            health              => 'unknown',
             last_seen           => \'now()',
-            uptime_since        => $uptime,
+            exists $unserialized_report->{uptime_since} ? ( uptime_since => $unserialized_report->{uptime_since} ) : (),
             hostname            => $unserialized_report->{os}{hostname},
             $unserialized_report->{links}
                 ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
             updated             => \'now()',
-        },
-        { key => 'device_serial_number_key' });
+        });
     });
 
-    if (not $device) {
-        if ($existing_device) {
-            $existing_device->health('error');
-            $existing_device->update({ updated => \'now()' }) if $existing_device->is_changed;
-        }
+    if ($c->res->code) {
+        $device->discard_changes;
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
         return $c->status(400, { error => 'could not process report for device '
             .$c->stash('device_serial_number')
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
     }
 
-    $c->log->debug('Creating device report');
+    $c->log->debug('Storing device report for device '.$c->stash('device_serial_number'));
     my $device_report = $device->create_related('device_reports', {
         report    => $c->req->text, # this is the raw json string
         # we will always keep this report if the previous report failed, or this is the first
@@ -110,11 +105,7 @@ sub process ($c) {
 
 
     $c->log->debug('Recording device configuration');
-    $c->txn_wrapper(\&_record_device_configuration,
-        $existing_device,
-        $device,
-        $unserialized_report,
-    );
+    $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report);
 
     if ($c->res->code) {
         $device->health('error');
@@ -183,14 +174,10 @@ Uses a device report to populate configuration information about the given devic
 
 =cut
 
-sub _record_device_configuration ($c, $orig_device, $device, $dr) {
+sub _record_device_configuration ($c, $prev_uptime, $device, $dr) {
     # Add a reboot count if there's not a previous uptime but one in this
     # report (i.e. first uptime reported), or if the previous uptime date is
     # less than the current one (i.e. there has been a reboot)
-    my $prev_uptime;
-    if ($orig_device) {
-        $prev_uptime = $orig_device->uptime_since;
-    }
     _add_reboot_count($device)
         if (!$prev_uptime && $device->uptime_since)
         || $device->uptime_since && $prev_uptime < $device->uptime_since;

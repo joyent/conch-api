@@ -12,6 +12,7 @@ use Test::Deep::JSON;
 use Test::Conch;
 use Mojo::JSON qw(from_json to_json);
 use Conch::UUID 'create_uuid_str';
+use List::Util 'first';
 
 my $t = Test::Conch->new;
 
@@ -19,6 +20,7 @@ my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 $t->authenticate(email => $ro_user->email);
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+my $hardware_product_compute;
 
 subtest preliminaries => sub {
     my $report_data = from_json($report);
@@ -31,7 +33,8 @@ subtest preliminaries => sub {
         ->status_is(409)
         ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
 
-    $t->load_fixture('hardware_product_compute');
+    $hardware_product_compute = first { $_->isa('Conch::DB::Result::HardwareProduct') }
+        $t->load_fixture('hardware_product_compute');
 
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(409)
@@ -47,11 +50,35 @@ subtest preliminaries => sub {
         ->status_is(201);
 
     $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(404)
+        ->log_error_is('Failed to find device TEST');
+
+    my $device = $t->generate_fixtures('device', {
+        serial_number => 'TEST',
+        hardware_product_id => $hardware_product_compute->id,
+    });
+
+    # deactivate product, create a new product with the same sku
+    $hardware_product_compute->update({ deactivated => \'now()' });
+    my $profile = $hardware_product_compute->hardware_product_profile;
+    my $new_compute = $t->app->db_hardware_products->create(do { my %cols = $hardware_product_compute->get_columns; delete @cols{qw(id deactivated)}; \%cols });
+    $profile->update({ hardware_product_id => $new_compute->id });
+
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+        ->status_is(409)
+        ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
+
+    $device->discard_changes;
+    is($device->health, 'error', 'bad reports flip device health to error');
+
+    # go back to the original hardware_product
+    $new_compute->update({ deactivated => \'now()' });
+    $hardware_product_compute->update({ deactivated => undef });
+    $profile->update({ hardware_product_id => $hardware_product_compute->id });
+
+    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(422)
         ->json_is({ error => 'failed to find validation plan' });
-
-    ok(!$t->app->db_devices->search({ serial_number => 'TEST' })->exists,
-        'the device was not inserted into the database');
 };
 
 # matches report's product_name = Joyent-G1
@@ -66,7 +93,7 @@ my ($full_validation_plan) = $t->load_validation_plans([{
     validations => [ map $_->module, @validations ],
 }]);
 
-subtest 'run report without an existing device' => sub {
+subtest 'run report without an existing device and without making updates' => sub {
     my $report_data = from_json($report);
 
     $t->post_ok('/device_report', json => { $report_data->%*, device_type => 'switch', product_name => '2-ssds-1-cpu' })
@@ -108,10 +135,7 @@ subtest 'run report without an existing device' => sub {
         'the device was not inserted into the database');
 };
 
-subtest 'create device via report' => sub {
-    ok(!$t->app->db_devices->search({ serial_number => 'TEST' })->exists,
-        'the TEST device does not exist yet');
-
+subtest 'save reports for device' => sub {
     # for these tests, we need to use a plan containing a validation we know will pass.
     # we move aside the plan containing all validations and replace it with a new one.
     $t->app->db_validation_plans->find($full_validation_plan->id)->update({ name => 'all validations' });
@@ -414,14 +438,22 @@ subtest 'system_uuid collisions' => sub {
     my $report_data = from_json($report);
     $report_data->{serial_number} = 'i_was_here_first';
 
-    my $existing_device = $t->generate_fixtures('device', { serial_number => 'i_was_here_first' });
+    my $existing_device = $t->app->db_devices->create({
+        serial_number => 'i_was_here_first',
+        hardware_product_id => $hardware_product_compute->id,
+        health => 'unknown',
+    });
 
     $t->post_ok('/device_report', json => $report_data)
         ->status_is(400)
         ->json_cmp_deeply({ error => re(qr/no validations ran: .*duplicate key value violates unique constraint "device_system_uuid_key"/) });
 
     $t->post_ok('/device/i_was_here_first', json => $report_data)
+        ->status_is(400)
         ->json_cmp_deeply({ error => re(qr/could not process report for device i_was_here_first.*duplicate key value violates unique constraint "device_system_uuid_key"/) });
+
+    $existing_device->discard_changes;
+    is($existing_device->health, 'error', 'bad reports flip device health to error');
 };
 
 done_testing;
