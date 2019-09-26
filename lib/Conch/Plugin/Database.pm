@@ -6,6 +6,7 @@ use Conch::DB ();
 use Lingua::EN::Inflexion 'noun';
 use Try::Tiny;
 use Conch::DB::Util;
+use Safe::Isa;
 
 =pod
 
@@ -146,6 +147,9 @@ line of the exception.
             my $exception = $_;
             $c->log->debug('rolled back transaction');
             if ($exception !~ /^rollback/) {
+                $c->stash('exception',
+                    ($exception->$_isa('Mojo::Exception') ? $exception
+                        : Mojo::Exception->new($exception))->inspect);
                 my ($error) = split(/\n/, $exception, 2);
                 $c->log->error($c->log->is_level('debug') ? $exception : $error);
                 $c->status($c->res->code // 400, { error => $error });
