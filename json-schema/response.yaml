@@ -1502,6 +1502,7 @@ definitions:
       - is_admin
       - workspaces
       - organizations
+      - builds
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1552,6 +1553,30 @@ definitions:
                 - type: string
             role:
               $ref: common.yaml#/definitions/role
+      builds:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - name
+            - description
+            - role
+          properties:
+            id:
+              $ref: common.yaml#/definitions/uuid
+            name:
+              $ref: common.yaml#/definitions/mojo_standard_placeholder
+            description:
+              oneOf:
+                - type: string
+                - type: 'null'
+            role:
+              $ref: common.yaml#/definitions/role
+            role_via_organization_id:
+              $ref: common.yaml#/definitions/uuid
   UsersDetailed:
     type: array
     uniqueItems: true
@@ -1755,6 +1780,7 @@ definitions:
       - created
       - admins
       - workspaces
+      - builds
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1775,6 +1801,28 @@ definitions:
           $ref: /definitions/UserTerse
       workspaces:
         $ref: /definitions/WorkspacesAndRoles
+      builds:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - id
+            - name
+            - description
+            - role
+          properties:
+            id:
+              $ref: common.yaml#/definitions/uuid
+            name:
+              $ref: common.yaml#/definitions/mojo_standard_placeholder
+            description:
+              oneOf:
+                - type: string
+                - type: 'null'
+            role:
+              $ref: common.yaml#/definitions/role
   Organizations:
     type: array
     uniqueItems: true

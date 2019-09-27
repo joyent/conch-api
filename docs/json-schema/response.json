@@ -1724,6 +1724,41 @@
           "type" : "array",
           "uniqueItems" : true
         },
+        "builds" : {
+          "items" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "description" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              },
+              "name" : {
+                "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+              },
+              "role" : {
+                "$ref" : "common.json#/definitions/role"
+              }
+            },
+            "required" : [
+              "id",
+              "name",
+              "description",
+              "role"
+            ],
+            "type" : "object"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -1754,7 +1789,8 @@
         "description",
         "created",
         "admins",
-        "workspaces"
+        "workspaces",
+        "builds"
       ],
       "type" : "object"
     },
@@ -2197,6 +2233,44 @@
     "UserDetailed" : {
       "additionalProperties" : false,
       "properties" : {
+        "builds" : {
+          "items" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "description" : {
+                "oneOf" : [
+                  {
+                    "type" : "string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              },
+              "name" : {
+                "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+              },
+              "role" : {
+                "$ref" : "common.json#/definitions/role"
+              },
+              "role_via_organization_id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              }
+            },
+            "required" : [
+              "id",
+              "name",
+              "description",
+              "role"
+            ],
+            "type" : "object"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -2291,7 +2365,8 @@
         "force_password_change",
         "is_admin",
         "workspaces",
-        "organizations"
+        "organizations",
+        "builds"
       ],
       "type" : "object"
     },

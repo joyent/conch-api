@@ -93,7 +93,7 @@ Composing rels: ["organization\_workspace\_roles"](#organization_workspace_roles
 
 ## TO\_JSON
 
-Include information about the organization's admins and workspaces.
+Include information about the organization's admins, workspaces and builds, if available.
 
 # LICENSING
 

@@ -33,8 +33,9 @@ sub list ($c) {
         ->prefetch({
                 user_organization_roles => 'user_account',
                 organization_workspace_roles => 'workspace',
+                organization_build_roles => 'build',
             })
-        ->order_by([qw(organization.name user_account.name)]);
+        ->order_by([ map $_.'.name', qw(organization user_account workspace build) ]);
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 
@@ -152,8 +153,9 @@ sub get ($c) {
         ->prefetch({
                 user_organization_roles => 'user_account',
                 organization_workspace_roles => 'workspace',
+                organization_build_roles => 'build',
             })
-        ->order_by('user_account.name');
+        ->order_by([ map $_.'.name', qw(user_account workspace build) ]);
 
     return $c->status(200, ($rs->all)[0]) if $c->is_system_admin;
 

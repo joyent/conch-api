@@ -73,6 +73,7 @@ $t->get_ok($t->tx->res->headers->location)
             { map +($_ => $admin_user->$_), qw(id name email) },
         ],
         workspaces => [],
+        builds => [],
     });
 my $organization = $t->tx->res->json;
 
@@ -113,6 +114,7 @@ $t->get_ok('/organization')
                 { map +($_ => $admin_user->$_), qw(id name email) },
             ],
             workspaces => [],
+            builds => [],
         },
     ]);
 my $organization2 = $t->tx->res->json->[1];
@@ -459,6 +461,7 @@ $t2->get_ok('/organization/my first organization')
                 role => 'ro',
             },
         ],
+        builds => [],
     });
 
 $t2->get_ok('/organization')
@@ -474,6 +477,7 @@ $t2->get_ok('/organization')
                     role => 'ro',
                 },
             ],
+            builds => [],
         },
         # user is not a member of organization2
     ]);
@@ -494,6 +498,7 @@ $t->get_ok('/user/'.$admin_user->email)
                 role_via_organization_id => $organization->{id},
             },
         ],
+        builds => [],
     }));
 
 $t->get_ok('/user/'.$new_user->email)
@@ -511,6 +516,7 @@ $t->get_ok('/user/'.$new_user->email)
                 role_via_organization_id => $organization->{id},
             },
         ],
+        builds => [],
     }));
 
 $t2->get_ok('/user/me')
@@ -529,6 +535,7 @@ $t2->get_ok('/user/me')
                 role_via_organization_id => $organization->{id},
             },
         ],
+        builds => [],
     }));
 
 my $grandchild_ws = $t->generate_fixtures('workspace', { parent_workspace_id => $sub_ws->id, name => 'grandchild ws' });
@@ -595,6 +602,7 @@ $t->get_ok('/user/'.$new_user->email)
                 role_via_workspace_id => $sub_ws->id,
             },
         ],
+        builds => [],
     }));
 
 $t2->get_ok('/user/me')
@@ -619,6 +627,7 @@ $t2->get_ok('/user/me')
                 role_via_workspace_id => $sub_ws->id,
             },
         ],
+        builds => [],
     }));
 
 $t->get_ok('/workspace/'.$sub_ws->id.'/user')

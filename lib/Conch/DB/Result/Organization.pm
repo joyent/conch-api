@@ -185,7 +185,7 @@ use experimental 'signatures';
 
 =head2 TO_JSON
 
-Include information about the organization's admins and workspaces.
+Include information about the organization's admins, workspaces and builds, if available.
 
 =cut
 
@@ -226,6 +226,17 @@ sub TO_JSON ($self) {
             ), $self->result_source->schema->resultset('workspace')
                 ->workspaces_beneath($_->workspace_id)
         ), $cached_owrs->@*),
+    ];
+
+    my $cached_obrs = $self->related_resultset('organization_build_roles')->get_cache;
+    $data->{builds} = [
+        (map {
+            my $build = $_->build;
+            +{
+                (map +($_ => $build->$_), qw(id name description)),
+                role => $_->role,
+            },
+        } $cached_obrs->@*),
     ];
 
     return $data;

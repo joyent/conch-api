@@ -173,7 +173,7 @@ Because hard cryptography is used, this is \*not\* a fast call!
 
 ## TO\_JSON
 
-Include information about the user's workspaces and organizations, if available.
+Include information about the user's workspaces, organizations and builds, if available.
 
 # LICENSING
 

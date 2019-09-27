@@ -153,10 +153,13 @@ subtest 'Workspaces' => sub {
         ->json_schema_is('UsersDetailed')
         ->json_is('/0/email' => $admin_user->email)
         ->json_is('/0/workspaces' => [ $workspace_data{admin_user}[0] ])
+        ->json_is('/0/builds' => [])
         ->json_is('/1/email' => $super_user->email)
         ->json_is('/1/workspaces' => [])
+        ->json_is('/1/builds' => [])
         ->json_is('/2/email' => 'test_user@conch.joyent.us')
-        ->json_is('/2/workspaces' => [ $workspace_data{test_user}[0] ]);
+        ->json_is('/2/workspaces' => [ $workspace_data{test_user}[0] ])
+        ->json_is('/2/builds' => []);
 
     push $users{GLOBAL}->@*, {
         id    => re(Conch::UUID::UUID_FORMAT),
