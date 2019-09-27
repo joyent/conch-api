@@ -303,7 +303,7 @@ sub json_schema_is ($self, $schema, $message = undef) {
                 .' error(s) occurred when validating '
                 .$self->tx->req->method.' '.$self->tx->req->url->path
                 .' with schema '.$schema_name.":\n\t"
-                .Data::Dumper->new([ $errors ])->Indent(1)->Terse(1)->Dump);
+                .Data::Dumper->new([ $errors ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
 
             0;
         }
@@ -623,7 +623,7 @@ sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
         $test_name,
     );
     Test::More::note('got log: ',
-            Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Dump)
+            Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Terse(1)->Dump)
         if not $self->success;
     return $self;
 }
@@ -711,7 +711,7 @@ sub _request_ok ($self, @args) {
     $self->reset_log;
     my $result = $self->next::method(@args);
     Test::More::diag 'log history: ',
-            Data::Dumper->new([ $self->app->log->history ])->Indent(1)->Terse(1)->Dump
+            Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump
         if $self->tx->res->code == 500 and $self->tx->req->url->path !~ qr{^/_die};
     return $result;
 }
