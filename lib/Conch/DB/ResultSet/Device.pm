@@ -57,9 +57,7 @@ sub with_user_role ($self, $user_id, $role) {
         { join => { device_location => 'rack' } },
     );
 
-    return $devices_in_ws
-        ->union_all($devices_in_builds)
-        ->distinct;
+    return $devices_in_ws->union($devices_in_builds);
 }
 
 =head2 user_has_role
