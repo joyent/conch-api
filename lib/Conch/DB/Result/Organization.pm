@@ -192,10 +192,13 @@ Include information about the organization's admins, workspaces and builds, if a
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    $data->{admins} = [
+    $data->{users} = [
         map {
             my ($user) = $_->related_resultset('user_account')->get_cache->@*;
-            +{ map +($_ => $user->$_), qw(id name email) };
+            +{
+                (map +($_ => $user->$_), qw(id name email)),
+                role => $_->role,
+            };
         }
         $self->related_resultset('user_organization_roles')->get_cache->@*
     ];

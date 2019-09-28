@@ -510,7 +510,6 @@ $t->get_ok('/build/'.$build->{id}.'/organization')
             ],
         },
     ]);
-my $organization_data = $t->tx->res->json->[0];
 
 $t->get_ok('/organization/my first organization')
     ->status_is(200)
@@ -518,7 +517,10 @@ $t->get_ok('/organization/my first organization')
     ->json_cmp_deeply({
         (map +($_ => $organization->$_), qw(id name description)),
         created => $organization->created.'',
-        admins => $organization_data->{admins},
+        users => [
+            { (map +($_ => $org_admin->$_), qw(id name email)), role => 'admin' },
+            { (map +($_ => $org_member->$_), qw(id name email)), role => 'ro' },
+        ],
         workspaces => [],
         builds => [ +{ $build->%{qw(id name description)}, role => 'ro' } ],
     });

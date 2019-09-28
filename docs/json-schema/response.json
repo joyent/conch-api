@@ -1716,14 +1716,6 @@
     "Organization" : {
       "additionalProperties" : false,
       "properties" : {
-        "admins" : {
-          "items" : {
-            "$ref" : "/definitions/UserTerse"
-          },
-          "minItems" : 1,
-          "type" : "array",
-          "uniqueItems" : true
-        },
         "builds" : {
           "items" : {
             "additionalProperties" : false,
@@ -1779,6 +1771,35 @@
         "name" : {
           "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         },
+        "users" : {
+          "items" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "email" : {
+                "$ref" : "common.json#/definitions/email_address"
+              },
+              "id" : {
+                "$ref" : "common.json#/definitions/uuid"
+              },
+              "name" : {
+                "type" : "string"
+              },
+              "role" : {
+                "$ref" : "common.json#/definitions/role"
+              }
+            },
+            "required" : [
+              "id",
+              "name",
+              "email",
+              "role"
+            ],
+            "type" : "object"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        },
         "workspaces" : {
           "$ref" : "/definitions/WorkspacesAndRoles"
         }
@@ -1788,40 +1809,11 @@
         "name",
         "description",
         "created",
-        "admins",
+        "users",
         "workspaces",
         "builds"
       ],
       "type" : "object"
-    },
-    "OrganizationUsers" : {
-      "items" : {
-        "additionalProperties" : false,
-        "properties" : {
-          "email" : {
-            "$ref" : "common.json#/definitions/email_address"
-          },
-          "id" : {
-            "$ref" : "common.json#/definitions/uuid"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "role" : {
-            "$ref" : "common.json#/definitions/role"
-          }
-        },
-        "required" : [
-          "id",
-          "name",
-          "email",
-          "role"
-        ],
-        "type" : "object"
-      },
-      "minItems" : 1,
-      "type" : "array",
-      "uniqueItems" : true
     },
     "Organizations" : {
       "items" : {

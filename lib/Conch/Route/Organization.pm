@@ -40,9 +40,6 @@ sub routes {
         # DELETE /organization/:organization_id_or_name
         $with_organization->require_system_admin->delete('/')->to('#delete');
 
-        # GET /organization/:organization_id_or_name/user
-        $with_organization->get('/user')->to('#list_users');
-
         # POST /organization/:organization_id_or_name/user?send_mail=<1|0>
         $with_organization->post('/user')->to('#add_user');
 
@@ -96,16 +93,6 @@ Unless otherwise noted, all routes require authentication.
 =item * Requires system admin authorization
 
 =item * Response: C<204 NO CONTENT>
-
-=back
-
-=head3 C<GET /organization/:organization_id_or_name/user>
-
-=over 4
-
-=item * Requires system admin authorization or the admin role on the organization
-
-=item * Response: F<response.yaml#/definitions/OrganizationUsers>
 
 =back
 

@@ -29,7 +29,6 @@ Response uses the Organizations json schema.
 sub list ($c) {
     my $rs = $c->db_organizations
         ->active
-        ->search({ 'user_organization_roles.role' => 'admin' })
         ->prefetch({
                 user_organization_roles => 'user_account',
                 organization_workspace_roles => 'workspace',
@@ -149,7 +148,6 @@ Response uses the Organization json schema.
 
 sub get ($c) {
     my $rs = $c->stash('organization_rs')
-        ->search({ 'user_organization_roles.role' => 'admin' })
         ->prefetch({
                 user_organization_roles => 'user_account',
                 organization_workspace_roles => 'workspace',
@@ -206,26 +204,6 @@ sub delete ($c) {
         .' and removing from '.$workspace_count.' workspaces'
         .' and '.$build_count.' builds');
     return $c->status(204);
-}
-
-=head2 list_users
-
-Get a list of members of the current organization.
-Requires the 'admin' role on the organization.
-
-Response uses the OrganizationUsers json schema.
-
-=cut
-
-sub list_users ($c) {
-    my $rs = $c->stash('organization_rs')
-        ->related_resultset('user_organization_roles')
-        ->related_resultset('user_account')
-        ->active
-        ->columns([ { role => 'user_organization_roles.role' }, map 'user_account.'.$_, qw(id name email) ])
-        ->order_by([ { -desc => 'role' }, 'name' ]);
-
-    $c->status(200, [ $rs->hri->all ]);
 }
 
 =head2 add_user
