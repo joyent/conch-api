@@ -906,7 +906,7 @@ $t->delete_ok('/organization/foo')
 
 $t->delete_ok('/organization/our second organization')
     ->status_is(204)
-    ->log_debug_is('Deactivated organization our second organization, removing 1 user memberships and removing from 0 workspaces');
+    ->log_debug_is('Deactivated organization our second organization, removing 1 user memberships and removing from 0 workspaces and 0 builds');
 
 $t->get_ok('/organization')
     ->status_is(200)
@@ -915,7 +915,7 @@ $t->get_ok('/organization')
 
 $t->delete_ok('/organization/my first organization')
     ->status_is(204)
-    ->log_debug_is('Deactivated organization my first organization, removing 2 user memberships and removing from 2 workspaces');
+    ->log_debug_is('Deactivated organization my first organization, removing 2 user memberships and removing from 2 workspaces and 0 builds');
 
 $t->get_ok('/organization')
     ->status_is(200)

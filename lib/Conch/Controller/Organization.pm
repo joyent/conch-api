@@ -192,12 +192,17 @@ sub delete ($c) {
         ->and_workspaces_beneath($direct_workspaces_rs->as_query)
         ->count;
 
+    my $build_count = 0+$c->stash('organization_rs')
+        ->related_resultset('organization_build_roles')
+        ->delete;
+
     $c->stash('organization_rs')->related_resultset('organization_workspace_roles')->delete;
     $c->stash('organization_rs')->deactivate;
 
     $c->log->debug('Deactivated organization '.$c->stash('organization_id_or_name')
-        .', removing '.$user_count.' user memberships and removing from '
-        .$workspace_count.' workspaces');
+        .', removing '.$user_count.' user memberships'
+        .' and removing from '.$workspace_count.' workspaces'
+        .' and '.$build_count.' builds');
     return $c->status(204);
 }
 
