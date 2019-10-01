@@ -88,7 +88,10 @@ sub process ($c) {
     });
 
     if (not $device) {
-        $existing_device->update({ health => 'error', updated => \'now()' }) if $existing_device;
+        if ($existing_device) {
+            $existing_device->health('error');
+            $existing_device->update({ updated => \'now()' }) if $existing_device->is_changed;
+        }
         return $c->status(400, { error => 'could not process report for device '
             .$c->stash('device_serial_number')
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
@@ -113,7 +116,8 @@ sub process ($c) {
     );
 
     if ($c->res->code) {
-        $device->update({ health => 'error', updated => \'now()' });
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
         return;
     }
 
@@ -132,7 +136,8 @@ sub process ($c) {
     );
 
     if (not $validation_state) {
-        $device->update({ health => 'error', updated => \'now()' });
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
         return $c->status(400, { error => 'no validations ran'
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
     }
@@ -142,7 +147,8 @@ sub process ($c) {
     # currently, since there is just one (hardcoded) plan per device, we can simply copy it
     # from the validation_state, but in the future we should query for the most recent
     # validation_state of each plan type and use the cumulative results to determine health.
-    $device->update({ health => $validation_state->status, updated => \'now()' });
+    $device->health($validation_state->status);
+    $device->update({ updated => \'now()' }) if $device->is_changed;
 
     # save some state about this report that will help us out next time, when we consider
     # deleting it... we always keep all failing reports (we also keep the first report after a
