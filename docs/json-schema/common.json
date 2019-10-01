@@ -101,6 +101,18 @@
       "minimum" : 0,
       "type" : "integer"
     },
+    "non_zero_uuid" : {
+      "allOf" : [
+        {
+          "$ref" : "/definitions/uuid"
+        },
+        {
+          "not" : {
+            "const" : "00000000-0000-0000-0000-000000000000"
+          }
+        }
+      ]
+    },
     "positive_integer" : {
       "minimum" : 1,
       "type" : "integer"

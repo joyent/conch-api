@@ -12,7 +12,7 @@ Mojo plugin registering the git version tag and hash for the repository
 
 Provides a string that uniquely describes the version and commit of the currently-running code.
 
-## version\_tag
+## version\_hash
 
 Provides the exact git SHA of the currently-running code.
 

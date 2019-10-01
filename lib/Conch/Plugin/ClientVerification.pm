@@ -19,34 +19,32 @@ but we will log it.
 =cut
 
 sub register ($self, $app, $config) {
-    $app->hook(
-        before_dispatch => sub ($c) {
-            return if $c->req->url->path eq '/version';
+    $app->hook(before_dispatch => sub ($c) {
+        return if $c->req->url->path eq '/version';
 
-            my $headers = $c->req->headers;
-            my $user_agent = $headers->user_agent;
+        my $headers = $c->req->headers;
+        my $user_agent = $headers->user_agent;
 
-            if (my $conch_ui_version = $headers->header('X-Conch-UI')) {
-                my ($major, $minor, $tiny, $rest) = $conch_ui_version =~ /^v(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/;
-                if (not $major or $major < 4) {
-                    $c->log->error('Conch UI too old: requires at least 4.x');
-                    return $c->status(403);
-                }
+        if (my $conch_ui_version = $headers->header('X-Conch-UI')) {
+            my ($major, $minor, $tiny, $rest) = $conch_ui_version =~ /^v(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/;
+            if (not $major or $major < 4) {
+                $c->log->error('Conch UI too old: requires at least 4.x');
+                return $c->status(403);
             }
-            elsif ($user_agent =~ /^conch shell/) {
+        }
+        elsif ($user_agent =~ /^conch shell/) {
+            $c->log->error('Conch Shell too old');
+            return $c->status(403);
+        }
+        elsif ($user_agent =~ /^Conch\/((\d+)\.(\d+)\.(\d+)) /) {
+            my ($all, $major, $minor, $rest) = ($1, $2, $3, $4);
+            if ($all eq '0.0.0') {
                 $c->log->error('Conch Shell too old');
                 return $c->status(403);
             }
-            elsif ($user_agent =~ /^Conch\/((\d+)\.(\d+)\.(\d+)) /) {
-                my ($all, $major, $minor, $rest) = ($1, $2, $3, $4);
-                if ($all eq '0.0.0') {
-                    $c->log->error('Conch Shell too old');
-                    return $c->status(403);
-                }
-                # TODO later: check $major, $minor for minimum compatible version.
-            }
+            # TODO later: check $major, $minor for minimum compatible version.
         }
-    );
+    });
 }
 
 1;

@@ -66,6 +66,20 @@ my ($full_validation_plan) = $t->load_validation_plans([{
 
 subtest 'run report without an existing device' => sub {
     my $report_data = from_json($report);
+
+    $t->post_ok('/device_report', json => { $report_data->%*, device_type => 'switch', product_name => '2-ssds-1-cpu' })
+        ->status_is(422)
+        ->json_is({ error => 'failed to find validation plan' });
+
+    $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })
+        ->status_is(409)
+        ->json_is({ error => 'Could not locate hardware product' });
+
+    $t->generate_fixtures('hardware_product', { sku => 'ugh' });
+    $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })
+        ->status_is(409)
+        ->json_is({ error => 'Hardware product does not contain a profile' });
+
     $report_data->{serial_number} = 'different_device';
     $report_data->{system_uuid} = create_uuid_str();
     $t->post_ok('/device_report', json => $report_data)
@@ -392,6 +406,20 @@ subtest 'create device via report' => sub {
         $t->app->db_devices->search({ serial_number => 'TEST' })->devices_without_location->exists,
         'device is unlocated',
     );
+};
+
+subtest 'system_uuid collisions' => sub {
+    my $report_data = from_json($report);
+    $report_data->{serial_number} = 'i_was_here_first';
+
+    my $existing_device = $t->generate_fixtures('device', { serial_number => 'i_was_here_first' });
+
+    $t->post_ok('/device_report', json => $report_data)
+        ->status_is(400)
+        ->json_cmp_deeply({ error => re(qr/no validations ran: .*duplicate key value violates unique constraint "device_system_uuid_key"/) });
+
+    $t->post_ok('/device/i_was_here_first', json => $report_data)
+        ->json_cmp_deeply({ error => re(qr/could not process report for device i_was_here_first.*duplicate key value violates unique constraint "device_system_uuid_key"/) });
 };
 
 done_testing;

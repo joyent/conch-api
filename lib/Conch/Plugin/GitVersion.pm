@@ -31,7 +31,7 @@ Provides a string that uniquely describes the version and commit of the currentl
     $app->log->fatal('git error') and die 'git error' if not $git_tag;
     $app->helper(version_tag => sub ($) { $git_tag });
 
-=head2 version_tag
+=head2 version_hash
 
 Provides the exact git SHA of the currently-running code.
 

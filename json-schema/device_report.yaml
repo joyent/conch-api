@@ -136,7 +136,7 @@ definitions:
       serial_number:
         $ref: common.yaml#/definitions/device_serial_number
       system_uuid:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/definitions/non_zero_uuid
       temp:
         type: object
         required:

@@ -69,23 +69,28 @@ subtest 'Test parsing of timestamps' => sub {
         },
         {
             input    => '2018-01-02 00:00:00+01',
-            expected => '2018-01-02T00:00:00.000+01:00',
-            message  => 'Appends :00 to positive timezones that do not specify minutes'
+            expected => '2018-01-01T23:00:00.000Z',
+            message  => 'Positive timezone converted to UTC with positive offset',
         },
         {
             input    => '2018-01-02 00:00:00-01',
-            expected => '2018-01-02T00:00:00.000-01:00',
-            message  => 'Appends :00 to negative timezones that do not specify minutes'
+            expected => '2018-01-02T01:00:00.000Z',
+            message  => 'Negative timezone converted to UTC with negative offset',
         },
         {
             input    => '2018-01-02 00:00:00+01:20',
-            expected => '2018-01-02T00:00:00.000+01:20',
-            message  => 'Does not modify timezones that specify minutes'
+            expected => '2018-01-01T22:40:00.000Z',
+            message  => 'Positive timezone with minutes converted to UTC with positive offset',
         },
         {
             input    => '2018-01-02 00:00:00+00:20',
-            expected => '2018-01-02T00:00:00.000+00:20',
-            message  => 'Does not modify 00 timezones that specify minutes'
+            expected => '2018-01-01T23:40:00.000Z',
+            message  => 'Positive timezone with minutes converted to UTC with positive offset',
+        },
+        {
+            input    => '2018-01-02 00:00:00-01:20',
+            expected => '2018-01-02T01:20:00.000Z',
+            message  => 'Negative timezone with minutes converted to UTC with negative offset',
         },
     );
 

@@ -51,8 +51,8 @@ Response uses the RackAssignments json schema.
 
 ## set\_assignment
 
-Assigns devices to rack layouts, also optionally updating serial\_numbers and asset\_tags.
-Existing devices in referenced slots will be removed as needed.
+Assigns devices to rack layouts, also optionally updating serial\_numbers and asset\_tags (and
+creating the device if needed). Existing devices in referenced slots will be unassigned as needed.
 
 Note: the assignment is still performed even if there is no physical room in the rack
 for the new hardware (its rack\_unit\_size overlaps into a subsequent layout), or that

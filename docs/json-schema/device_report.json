@@ -206,7 +206,7 @@
           "$ref" : "common.json#/definitions/device_serial_number"
         },
         "system_uuid" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "$ref" : "common.json#/definitions/non_zero_uuid"
         },
         "temp" : {
           "properties" : {

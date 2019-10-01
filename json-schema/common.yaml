@@ -4,6 +4,11 @@ definitions:
   uuid:
     type: string
     pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  non_zero_uuid:
+    allOf:
+      - $ref: /definitions/uuid
+      - not:
+          const: 00000000-0000-0000-0000-000000000000
   ipaddr:
     oneOf:
       - type: string

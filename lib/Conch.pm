@@ -45,87 +45,77 @@ sub startup {
     $self->types->type(csv => 'text/csv');
 
 
-    $self->hook(
-        before_render => sub ($c, $args) {
-            my $template = $args->{template};
-            return if not $template;
+    $self->hook(before_render => sub ($c, $args) {
+        my $template = $args->{template};
+        return if not $template;
 
-            if ($template =~ /exception/) {
-                return $args->{json} = { error => 'An exception occurred' };
-            }
-            if ($args->{template} =~ /not_found/) {
-                return $args->{json} = { error => 'Not Found' };
-            }
+        if ($template =~ /exception/) {
+            return $args->{json} = { error => 'An exception occurred' };
         }
-    );
+        if ($args->{template} =~ /not_found/) {
+            return $args->{json} = { error => 'Not Found' };
+        }
+    });
 
     $self->hook(after_render => sub ($c, @args) {
         $c->tx->res->headers->add('X-Conch-API', $c->version_tag);
     });
 
-    $self->helper(
-        status => sub ($c, $code, $payload = undef) {
-            $payload //= { error => 'Unauthorized' } if $code == 401;
-            $payload //= { error => 'Forbidden' } if $code == 403;
-            $payload //= { error => 'Not Found' } if $code == 404;
-            $payload //= { error => 'Unimplemented' } if $code == 501;
+    $self->helper(status => sub ($c, $code, $payload = undef) {
+        $payload //= { error => 'Unauthorized' } if $code == 401;
+        $payload //= { error => 'Forbidden' } if $code == 403;
+        $payload //= { error => 'Not Found' } if $code == 404;
+        $payload //= { error => 'Unimplemented' } if $code == 501;
 
-            if (not $payload) {
-                # no content - hopefully we set an appropriate response code (e.g. 204, 30x)
-                $c->rendered($code);
-                return 0;
-            }
-
-            $c->res->code($code);
-
-            if (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
-                $c->redirect_to($payload);
-            }
-            else {
-                $c->respond_to(
-                    json => { json => $payload },
-                    any  => { json => $payload },
-                );
-            }
-
+        if (not $payload) {
+            # no content - hopefully we set an appropriate response code (e.g. 204, 30x)
+            $c->rendered($code);
             return 0;
         }
-    );
+
+        $c->res->code($code);
+
+        if (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
+            $c->redirect_to($payload);
+        }
+        else {
+            $c->respond_to(
+                json => { json => $payload },
+                any  => { json => $payload },
+            );
+        }
+
+        return 0;
+    });
 
 
-    $self->hook(
-        before_routes => sub ($c) {
-            my $headers = $c->req->headers;
+    $self->hook(before_routes => sub ($c) {
+        my $headers = $c->req->headers;
 
-            # Check only applies to requests with payloads (Content-Length
-            # header is specified and greater than 0). Content-Type header must
-            # be specified and must be 'application/json' for all payloads, or
-            # HTTP status code 415 'Unsupported Media Type' is returned.
-            if ($headers->content_length
+        # Check only applies to requests with payloads (Content-Length
+        # header is specified and greater than 0). Content-Type header must
+        # be specified and must be 'application/json' for all payloads, or
+        # HTTP status code 415 'Unsupported Media Type' is returned.
+        if ($headers->content_length
                 and (not $headers->content_type
                     or $headers->content_type !~ /application\/json/i)) {
-                return $c->status(415);
-            }
+            return $c->status(415);
         }
-    );
+    });
 
-    $self->hook(
-        before_dispatch => sub ($c) {
-            my $headers = $c->res->headers;
-            my $request_id = $c->req->request_id;
-            $headers->header('Request-Id' => $request_id);
-            $headers->header('X-Request-Id' => $request_id);
-        }
-    );
+    $self->hook(before_dispatch => sub ($c) {
+        my $headers = $c->res->headers;
+        my $request_id = $c->req->request_id;
+        $headers->header('Request-Id' => $request_id);
+        $headers->header('X-Request-Id' => $request_id);
+    });
 
     # see Mojo::Message::Request for original implementation
     my ($SEED, $COUNTER) = ($$ . time . rand, int rand 0xffffff);
-    $self->hook(
-        after_build_tx => sub ($tx, $app) {
-            my $checksum = Digest::SHA::sha1_base64($SEED . ($COUNTER = ($COUNTER + 1) % 0xffffff));
-            $tx->req->request_id(substr $checksum, 0, 12);
-        }
-    );
+    $self->hook(after_build_tx => sub ($tx, $app) {
+        my $checksum = Digest::SHA::sha1_base64($SEED . ($COUNTER = ($COUNTER + 1) % 0xffffff));
+        $tx->req->request_id(substr $checksum, 0, 12);
+    });
 
 
     $self->plugin('Conch::Plugin::ClientVerification', $self->config)
