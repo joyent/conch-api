@@ -71,13 +71,13 @@ sub process ($c) {
     my $prev_uptime = $device->uptime_since;
     $c->txn_wrapper(sub ($c) {
         $device->update({
-            system_uuid         => $unserialized_report->{system_uuid},
-            last_seen           => \'now()',
+            system_uuid => $unserialized_report->{system_uuid},
+            last_seen   => \'now()',
             exists $unserialized_report->{uptime_since} ? ( uptime_since => $unserialized_report->{uptime_since} ) : (),
-            hostname            => $unserialized_report->{os}{hostname},
+            hostname    => $unserialized_report->{os}{hostname},
             $unserialized_report->{links}
                 ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
-            updated             => \'now()',
+            updated     => \'now()',
         });
     })
     or do {
@@ -91,7 +91,7 @@ sub process ($c) {
 
     $c->log->debug('Storing device report for device '.$c->stash('device_serial_number'));
     my $device_report = $device->create_related('device_reports', {
-        report    => $c->req->text, # this is the raw json string
+        report => $c->req->text, # this is the raw json string
         # we will always keep this report if the previous report failed, or this is the first
         # report (in its phase).
         !$previous_report_status || $previous_report_status ne 'pass' ? ( retain => 1 ) : (),
