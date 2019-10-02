@@ -76,6 +76,10 @@ subtest preliminaries => sub {
         ->status_is(409)
         ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
 
+    $t->post_ok('/device_report', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
+
     $device->discard_changes;
     is($device->health, 'error', 'bad reports flip device health to error');
 

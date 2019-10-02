@@ -389,6 +389,11 @@ sub validate_report ($c) {
     return $c->status(409, { error => 'Hardware product does not contain a profile' })
         if not $c->db_hardware_product_profiles->active->search({ hardware_product_id => $hardware_product_id })->exists;
 
+    if (my $current_hardware_product_id = $c->db_devices->search({ serial_number => $unserialized_report->{serial_number} })->get_column('hardware_product_id')->single) {
+        return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$unserialized_report->{serial_number} })
+            if $current_hardware_product_id ne $hardware_product_id;
+    }
+
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
     return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
