@@ -166,7 +166,9 @@ CREATE TABLE public.build (
     created timestamp with time zone DEFAULT now() NOT NULL,
     started timestamp with time zone,
     completed timestamp with time zone,
-    completed_user_id uuid
+    completed_user_id uuid,
+    CONSTRAINT build_completed_iff_started_check CHECK (((completed IS NULL) OR (started IS NOT NULL))),
+    CONSTRAINT build_completed_xnor_completed_user_id_check CHECK ((((completed IS NULL) AND (completed_user_id IS NULL)) OR ((completed IS NOT NULL) AND (completed_user_id IS NOT NULL))))
 );
 
 
