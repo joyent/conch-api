@@ -64,7 +64,8 @@ sub check_validation_plan ($self, $validation_plan) {
     foreach my $validation ($validation_plan->validations) {
         if ($validation->deactivated) {
             $self->log->warn('validation id '.$validation->id
-                .' "'.$validation->name.'" is inactive but is referenced by an active plan ("'
+                .' "'.$validation->name.'" version '.$validation->version
+                .' is inactive but is referenced by an active plan ("'
                 .$validation_plan->name.'")');
             next;
         }
