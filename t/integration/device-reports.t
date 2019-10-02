@@ -33,10 +33,18 @@ subtest preliminaries => sub {
         ->status_is(409)
         ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
 
+    $t->post_ok('/device_report', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
+
     $hardware_product_compute = first { $_->isa('Conch::DB::Result::HardwareProduct') }
         $t->load_fixture('hardware_product_compute');
 
     $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'Hardware product does not contain a profile' });
+
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Hardware product does not contain a profile' });
 
@@ -79,6 +87,10 @@ subtest preliminaries => sub {
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(422)
         ->json_is({ error => 'failed to find validation plan' });
+
+    $t->post_ok('/device_report', json => $report_data)
+        ->status_is(422)
+        ->json_is({ error => 'failed to find validation plan' });
 };
 
 # matches report's product_name = Joyent-G1
@@ -95,22 +107,9 @@ my ($full_validation_plan) = $t->load_validation_plans([{
 
 subtest 'run report without an existing device and without making updates' => sub {
     my $report_data = from_json($report);
-
-    $t->post_ok('/device_report', json => { $report_data->%*, device_type => 'switch', product_name => '2-ssds-1-cpu' })
-        ->status_is(422)
-        ->json_is({ error => 'failed to find validation plan' });
-
-    $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })
-        ->status_is(409)
-        ->json_is({ error => 'Could not locate hardware product for sku ugh' });
-
-    $t->generate_fixtures('hardware_product', { sku => 'ugh' });
-    $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })
-        ->status_is(409)
-        ->json_is({ error => 'Hardware product does not contain a profile' });
-
     $report_data->{serial_number} = 'different_device';
     $report_data->{system_uuid} = create_uuid_str();
+
     $t->post_ok('/device_report', json => $report_data)
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
