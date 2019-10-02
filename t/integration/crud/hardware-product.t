@@ -5,6 +5,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 $t->load_fixture('super_user');
@@ -42,6 +43,7 @@ $t->post_ok('/hardware_product', json => {
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
         rack_unit_size => 2,
+        sku => 'my sku',
     })
     ->status_is(303)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
@@ -58,7 +60,7 @@ $t->get_ok($t->tx->res->headers->location)
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         specification => undef,
-        sku => undef,
+        sku => 'my sku',
         generation_name => undef,
         legacy_product_name => undef,
         rack_unit_size => 2,
@@ -77,11 +79,23 @@ $t->post_ok('/hardware_product', json => {
         name => 'sungo',
         hardware_vendor_id => $vendor_id,
         alias => 'sungo',
+        sku => 'another sku',
         rack_unit_size => 1,
     })
     ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Unique constraint violated on \'name\'' });
+
+$t->post_ok('/hardware_product', json => {
+        name => 'another name',
+        hardware_vendor_id => create_uuid_str(),
+        alias => 'another alias',
+        sku => 'another sku',
+        rack_unit_size => 1,
+    })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'hardware_vendor_id does not exist' });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
     ->status_is(303)
@@ -147,6 +161,25 @@ subtest 'create profile on existing product' => sub {
 };
 
 subtest 'update some fields in an existing profile and product' => sub {
+    $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'Switch' })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'Unique constraint violated on \'name\'' });
+
+    $t->post_ok("/hardware_product/$new_hw_id", json => { alias => 'Switch Vendor' })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'Unique constraint violated on \'alias\'' });
+
+    $t->post_ok("/hardware_product/$new_hw_id", json => { sku => '550-551-001' })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'Unique constraint violated on \'sku\'' });
+
+    $t->post_ok("/hardware_product/$new_hw_id", json => { hardware_vendor_id => create_uuid_str() })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'hardware_vendor_id does not exist' });
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             name => 'ether1',
@@ -202,6 +235,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
             alias => 'ether',
+            sku => 'another sku',
             rack_unit_size => 1,
             hardware_product_profile => { dimms_num => 2 },
         })
@@ -225,6 +259,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             name => 'ether2',
             hardware_vendor_id => $vendor_id,
             alias => 'ether',
+            sku => 'another sku',
             rack_unit_size => 2,
             hardware_product_profile => $new_hw_profile,
         })
@@ -243,7 +278,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             specification => undef,
-            sku => undef,
+            sku => 'another sku',
             generation_name => undef,
             legacy_product_name => undef,
             rack_unit_size => 2,

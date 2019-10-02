@@ -45,7 +45,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.
 
 - Requires system admin authorization or the admin role on the organization
-- Returns `204 NO CONTENT`
+- Response: `204 NO CONTENT`
 
 # LICENSING
 

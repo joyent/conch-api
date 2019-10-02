@@ -372,7 +372,7 @@ CREATE TABLE public.hardware_product (
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
     specification jsonb,
-    sku text,
+    sku text NOT NULL,
     generation_name text,
     legacy_product_name text,
     rack_unit_size integer NOT NULL,

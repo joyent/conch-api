@@ -39,9 +39,10 @@ sub routes {
 
         # GET /device/:device_id_or_serial_number/pxe
         $with_device->get('/pxe')->to('device#get_pxe');
-
         # GET /device/:device_id_or_serial_number/phase
         $with_device->get('/phase')->to('device#get_phase');
+        # GET /device/:device_id_or_serial_number/sku
+        $with_device->get('/sku')->to('device#get_sku');
 
         # POST /device/:device_id_or_serial_number/asset_tag
         $with_device->post('/asset_tag')->to('device#set_asset_tag');
@@ -188,6 +189,16 @@ below.
 =item * User requires the read-only role
 
 =item * Response: F<response.yaml#/definitions/DevicePhase>
+
+=back
+
+=head3 C<GET /device/:device_id_or_serial_number/sku>
+
+=over 4
+
+=item * User requires the read-only role
+
+=item * Response: F<response.yaml#/definitions/DeviceSku>
 
 =back
 

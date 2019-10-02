@@ -267,7 +267,7 @@ an email to the user and workspace admins.
 
 =item * User requires the admin role
 
-=item * Returns C<204 NO CONTENT>
+=item * Response: C<204 NO CONTENT>
 
 =back
 
@@ -305,7 +305,7 @@ an email to the organization members and workspace admins.
 
 =item * User requires the admin role
 
-=item * Returns C<204 NO CONTENT>
+=item * Response: C<204 NO CONTENT>
 
 =back
 

@@ -33,68 +33,67 @@ sub process ($c) {
     }
 
     # Make sure that the remote side is telling us about a hardware product we understand
-    my $hw = $c->_get_hardware_product($unserialized_report);
-    return $c->status(409, { error => 'Could not locate hardware product' }) if not $hw;
+    my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
+    return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
+
     return $c->status(409, { error => 'Hardware product does not contain a profile' })
-        if not $hw->hardware_product_profile;
+        if not $c->db_hardware_product_profiles->active->search({ hardware_product_id => $hardware_product_id })->exists;
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
             if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
     }
 
-    my $existing_device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
+    my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
+    if (not $device) {
+        $c->log->error('Failed to find device '.$c->stash('device_serial_number'));
+        return $c->status(404);
+    }
+
+    if ($hardware_product_id ne $device->hardware_product_id) {
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
+        return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$c->stash('device_serial_number') });
+    }
 
     # capture information about the last report before we store the new one
     # state can be: error, fail, pass, where no validations on a valid report is
     # considered to be a pass.
-    my ($previous_report_id, $previous_report_status);
-    if ($existing_device) {
-        my $previous_report =
-            $existing_device->self_rs->latest_device_report
-                ->columns('device_reports.id')
-                ->with_report_status
-                ->hri
-                ->single;
-        ($previous_report_id, $previous_report_status) = $previous_report->@{qw(id status)}
-            if $previous_report;
-    }
+    my $previous_report = $device->self_rs->latest_device_report
+        ->columns('device_reports.id')
+        ->with_report_status
+        ->hri
+        ->single;
+    my ($previous_report_id, $previous_report_status) = $previous_report ? $previous_report->@{qw(id status)} : ();
 
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
     return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
 
-    # Update/create the device and create the device report
-    $c->log->debug('Updating or creating device '.$c->stash('device_serial_number'));
-
-    my $uptime = $unserialized_report->{uptime_since} ? $unserialized_report->{uptime_since}
-               : $existing_device ? $existing_device->uptime_since
-               : undef;
-
-    # this may be a different device_id than $existing_device. match up the serial_number.
-    my $device = $c->txn_wrapper(sub ($c) {
-        $c->db_devices->update_or_create({
-            serial_number       => $c->stash('device_serial_number'),
+    # Update the device and create the device report
+    $c->log->debug('Updating device '.$c->stash('device_serial_number'));
+    my $prev_uptime = $device->uptime_since;
+    $c->txn_wrapper(sub ($c) {
+        $device->update({
             system_uuid         => $unserialized_report->{system_uuid},
-            hardware_product_id => $hw->id,
-            health              => 'unknown',
             last_seen           => \'now()',
-            uptime_since        => $uptime,
+            exists $unserialized_report->{uptime_since} ? ( uptime_since => $unserialized_report->{uptime_since} ) : (),
             hostname            => $unserialized_report->{os}{hostname},
             $unserialized_report->{links}
                 ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
             updated             => \'now()',
-        },
-        { key => 'device_serial_number_key' });
+        });
     });
 
-    if (not $device) {
-        $existing_device->update({ health => 'error', updated => \'now()' }) if $existing_device;
+    if ($c->res->code) {
+        $device->discard_changes;
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
         return $c->status(400, { error => 'could not process report for device '
             .$c->stash('device_serial_number')
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
     }
 
-    $c->log->debug('Creating device report');
+    $c->log->debug('Storing device report for device '.$c->stash('device_serial_number'));
     my $device_report = $device->create_related('device_reports', {
         report    => $c->req->text, # this is the raw json string
         # we will always keep this report if the previous report failed, or this is the first
@@ -106,14 +105,11 @@ sub process ($c) {
 
 
     $c->log->debug('Recording device configuration');
-    $c->txn_wrapper(\&_record_device_configuration,
-        $existing_device,
-        $device,
-        $unserialized_report,
-    );
+    $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report);
 
     if ($c->res->code) {
-        $device->update({ health => 'error', updated => \'now()' });
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
         return;
     }
 
@@ -132,7 +128,8 @@ sub process ($c) {
     );
 
     if (not $validation_state) {
-        $device->update({ health => 'error', updated => \'now()' });
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
         return $c->status(400, { error => 'no validations ran'
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
     }
@@ -142,7 +139,8 @@ sub process ($c) {
     # currently, since there is just one (hardcoded) plan per device, we can simply copy it
     # from the validation_state, but in the future we should query for the most recent
     # validation_state of each plan type and use the cumulative results to determine health.
-    $device->update({ health => $validation_state->status, updated => \'now()' });
+    $device->health($validation_state->status);
+    $device->update({ updated => \'now()' }) if $device->is_changed;
 
     # save some state about this report that will help us out next time, when we consider
     # deleting it... we always keep all failing reports (we also keep the first report after a
@@ -176,14 +174,10 @@ Uses a device report to populate configuration information about the given devic
 
 =cut
 
-sub _record_device_configuration ($c, $orig_device, $device, $dr) {
+sub _record_device_configuration ($c, $prev_uptime, $device, $dr) {
     # Add a reboot count if there's not a previous uptime but one in this
     # report (i.e. first uptime reported), or if the previous uptime date is
     # less than the current one (i.e. there has been a reboot)
-    my $prev_uptime;
-    if ($orig_device) {
-        $prev_uptime = $orig_device->uptime_since;
-    }
     _add_reboot_count($device)
         if (!$prev_uptime && $device->uptime_since)
         || $device->uptime_since && $prev_uptime < $device->uptime_since;
@@ -389,10 +383,11 @@ sub validate_report ($c) {
         return;
     }
 
-    my $hw = $c->_get_hardware_product($unserialized_report);
-    return $c->status(409, { error => 'Could not locate hardware product' }) if not $hw;
+    my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
+    return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
+
     return $c->status(409, { error => 'Hardware product does not contain a profile' })
-        if not $hw->hardware_product_profile;
+        if not $c->db_hardware_product_profiles->active->search({ hardware_product_id => $hardware_product_id })->exists;
 
     my $validation_plan = $c->_get_validation_plan($unserialized_report);
     return $c->status(422, { error => 'failed to find validation plan' }) if not $validation_plan;
@@ -403,7 +398,7 @@ sub validate_report ($c) {
         my $device = $c->db_devices->update_or_create({
             serial_number       => $unserialized_report->{serial_number},
             system_uuid         => $unserialized_report->{system_uuid},
-            hardware_product_id => $hw->id,
+            hardware_product_id => $hardware_product_id,
             health              => 'unknown',
             last_seen           => \'now()',
             uptime_since        => $unserialized_report->{uptime_since},
@@ -438,34 +433,6 @@ sub validate_report ($c) {
         status => $status,
         results => \@validation_results,
     });
-}
-
-=head2 _get_hardware_product
-
-Find the hardware product for the device referenced by the report.
-
-=cut
-
-sub _get_hardware_product ($c, $unserialized_report) {
-    if ($unserialized_report->{device_type} and $unserialized_report->{device_type} eq 'switch') {
-        return $c->db_hardware_products->active
-            ->search({ name => $unserialized_report->{product_name} })
-            ->prefetch('hardware_product_profile')
-            ->single;
-    }
-
-    # search by sku first
-    my $hw = $c->db_hardware_products->active
-        ->search({ sku => $unserialized_report->{sku} })
-        ->prefetch('hardware_product_profile')
-        ->single;
-    return $hw if $hw;
-
-    # fall back to legacy_product_name - this will warn if more than one matching row is found
-    return $c->db_hardware_products->active
-        ->search({ legacy_product_name => $unserialized_report->{product_name} })
-        ->prefetch('hardware_product_profile')
-        ->single;
 }
 
 =head2 _get_validation_plan

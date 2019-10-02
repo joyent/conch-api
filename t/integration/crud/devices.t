@@ -19,7 +19,7 @@ $t->load_validation_plans([{
 
 my $rack = $t->load_fixture('rack_0a');
 my $rack_id = $rack->id;
-my $hardware_product_id = $t->load_fixture('hardware_product_compute')->id;
+my $hardware_product = $t->load_fixture('hardware_product_compute');
 my $global_ws = $t->load_fixture('global_workspace');
 
 # perform most tests as a user with read only access to the GLOBAL workspace
@@ -32,6 +32,11 @@ $t->authenticate(email => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
     ->status_is(404);
+
+my $build = $t->generate_fixtures('build');
+$build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'admin' });
+$t->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST', sku => $hardware_product->sku } ])
+    ->status_is(204);
 
 my $test_device_id;
 
@@ -113,10 +118,10 @@ subtest 'unlocated device with a registered relay' => sub {
             system_uuid => ignore,
             phase => 'integration',
             links => [],
-            build_id => undef,
+            build_id => $build->id,
             (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
-            hardware_product_id => $hardware_product_id,
+            hardware_product_id => $hardware_product->id,
             location => undef,
             latest_report => from_json($report),
             nics => supersetof(),
@@ -135,10 +140,10 @@ subtest 'unlocated device with a registered relay' => sub {
             system_uuid => ignore,
             phase => 'integration',
             links => [],
-            build_id => undef,
+            build_id => $build->id,
             (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
-            hardware_product_id => $hardware_product_id,
+            hardware_product_id => $hardware_product->id,
             location => undef,
             latest_report => superhashof({ product_name => 'Joyent-G1' }),
             nics => supersetof(),
@@ -297,7 +302,7 @@ subtest 'located device' => sub {
             build_id => undef,
             (map +($_ => undef), qw(asset_tag hostname last_seen system_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
-            hardware_product_id => $hardware_product_id,
+            hardware_product_id => $hardware_product->id,
             location => {
                 rack => {
                     (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag phase)),
@@ -595,7 +600,16 @@ subtest 'mutate device attributes' => sub {
         ->json_schema_is('DevicePhase')
         ->json_is({ id => $test_device_id, phase => 'decommissioned' });
 
-    my $device = $t->app->db_devices->find({ serial_number => 'TEST' });
+    my $device = $t->app->db_devices->find({ serial_number => 'TEST' }, { prefetch => 'hardware_product' });
+
+    $t->get_ok('/device/TEST/sku')
+        ->status_is(200)
+        ->json_schema_is('DeviceSku')
+        ->json_is({
+            id => $test_device_id,
+            hardware_product_id => $hardware_product->id,
+            sku => $device->hardware_product->sku,
+        });
 
     $t->delete_ok('/device/TEST/links')
         ->status_is(204);

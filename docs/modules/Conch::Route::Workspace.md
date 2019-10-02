@@ -106,7 +106,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
 an email to the user and workspace admins.
 
 - User requires the admin role
-- Returns `204 NO CONTENT`
+- Response: `204 NO CONTENT`
 
 ### `GET /workspace/:workspace_id_or_name/organization`
 
@@ -128,7 +128,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the organization members and workspace admins.
 
 - User requires the admin role
-- Returns `204 NO CONTENT`
+- Response: `204 NO CONTENT`
 
 # LICENSING
 

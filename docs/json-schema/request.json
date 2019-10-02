@@ -93,6 +93,58 @@
       ],
       "type" : "object"
     },
+    "BuildCreateDevice" : {
+      "items" : {
+        "additionalProperties" : false,
+        "anyOf" : [
+          {
+            "required" : [
+              "id"
+            ]
+          },
+          {
+            "required" : [
+              "serial_number"
+            ]
+          }
+        ],
+        "properties" : {
+          "asset_tag" : {
+            "oneOf" : [
+              {
+                "$ref" : "common.json#/definitions/device_asset_tag"
+              },
+              {
+                "type" : "null"
+              }
+            ]
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "links" : {
+            "items" : {
+              "format" : "uri",
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "serial_number" : {
+            "$ref" : "common.json#/definitions/device_serial_number"
+          },
+          "sku" : {
+            "type" : "string"
+          }
+        },
+        "required" : [
+          "sku"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "BuildUpdate" : {
       "additionalProperties" : false,
       "minProperties" : 1,
@@ -315,6 +367,7 @@
             "name",
             "alias",
             "hardware_vendor_id",
+            "sku",
             "rack_unit_size"
           ]
         },

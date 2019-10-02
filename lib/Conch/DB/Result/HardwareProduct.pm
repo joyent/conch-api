@@ -84,7 +84,7 @@ __PACKAGE__->table("hardware_product");
 =head2 sku
 
   data_type: 'text'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 generation_name
 
@@ -138,7 +138,7 @@ __PACKAGE__->add_columns(
   "specification",
   { data_type => "jsonb", is_nullable => 1 },
   "sku",
-  { data_type => "text", is_nullable => 1 },
+  { data_type => "text", is_nullable => 0 },
   "generation_name",
   { data_type => "text", is_nullable => 1 },
   "legacy_product_name",
@@ -238,7 +238,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uAGpzIKHGyPai0IfNRmrRg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:m2umWpjs1iSUxb8ry8FKDg
 
 use experimental 'signatures';
 

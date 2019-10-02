@@ -48,6 +48,10 @@ Sets the `validated` field on a device unless that field has already been set
 
 Gets just the device's phase. Response uses the DevicePhase json schema.
 
+## get\_sku
+
+Gets just the device's hardware\_product\_id and sku. Response uses the DeviceSku json schema.
+
 ## set\_phase
 
 ## add\_links

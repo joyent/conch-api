@@ -209,12 +209,13 @@ sub lookup_by_other_attribute ($c) {
     # Now filter the results by what the user is permitted to see. Depending on the size of the
     # initial resultset, this could be slow!
     if (not $c->is_system_admin) {
-        my $device_in_workspace_rs = $device_rs
+        my $device_in_workspace_or_build_rs = $device_rs
             ->with_user_role($c->stash('user_id'), 'ro');
+
         my $device_via_relay_rs = $device_rs
             ->devices_without_location
             ->devices_reported_by_user_relay($c->stash('user_id'));
-        $device_rs = $device_in_workspace_rs->union_all($device_via_relay_rs);
+        $device_rs = $device_in_workspace_or_build_rs->union($device_via_relay_rs);
     }
 
     my @devices = $device_rs
@@ -312,6 +313,23 @@ Gets just the device's phase. Response uses the DevicePhase json schema.
 
 sub get_phase ($c) {
     return $c->status(200, $c->stash('device_rs')->columns([qw(id phase)])->hri->single);
+}
+
+=head2 get_sku
+
+Gets just the device's hardware_product_id and sku. Response uses the DeviceSku json schema.
+
+=cut
+
+sub get_sku($c) {
+    my $rs = $c->stash('device_rs')
+        ->search(undef, { join => 'hardware_product' })
+        ->columns({
+            id => 'device.id',
+            hardware_product_id => 'hardware_product.id',
+            sku => 'hardware_product.sku',
+        });
+    return $c->status(200, $rs->hri->single);
 }
 
 =head2 set_phase

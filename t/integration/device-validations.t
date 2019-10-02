@@ -6,6 +6,7 @@ use Test::Warnings;
 use Path::Tiny;
 use Test::Deep;
 use Test::Conch;
+use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
 
@@ -22,6 +23,7 @@ my $test_validation_plan = $t->app->db_validation_plans->create({
 
 my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
+my $good_report_data = from_json($good_report);
 
 $t->load_fixture('hardware_product_profile_compute');
 my ($server_validation_plan) = $t->load_validation_plans([{
@@ -34,6 +36,11 @@ $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
     ->status_is(201);
 
 # create the device and two reports
+my $build = $t->generate_fixtures('build');
+$build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'admin' });
+$t->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST', sku => $good_report_data->{sku} } ])
+    ->status_is(204);
+
 $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')

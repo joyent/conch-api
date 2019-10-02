@@ -98,6 +98,9 @@ sub create ($c) {
         }
     }
 
+    return $c->status(409, { error => 'hardware_vendor_id does not exist' })
+        if not $c->db_hardware_vendors->active->search({ id => $input->{hardware_vendor_id} })->exists;
+
     # create hardware_product_profile entries as well, as needed.
     my $hardware_product = $c->txn_wrapper(sub ($c) {
         $c->db_hardware_products->create($input);
@@ -138,6 +141,11 @@ sub update ($c) {
             return $c->status(409, { error => "Unique constraint violated on '$key'" });
         }
     }
+
+    return $c->status(409, { error => 'hardware_vendor_id does not exist' })
+        if exists $input->{hardware_vendor_id}
+            and $input->{hardware_vendor_id} ne $hardware_product->hardware_vendor_id
+            and not $c->db_hardware_vendors->active->search({ id => $input->{hardware_vendor_id} })->exists;
 
     $c->txn_wrapper(sub ($c) {
         $c->log->debug('start of transaction...');

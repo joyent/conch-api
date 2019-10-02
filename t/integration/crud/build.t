@@ -601,14 +601,131 @@ $t->get_ok('/build/'.$build->{id}.'/organization')
     ->json_is([]);
 
 
-$t->get_ok('/build/my first build/device')
+$t->get_ok('/build/our second build/device')
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is([]);
 
-$t->get_ok('/build/my first build/rack')
+$t->get_ok('/build/our second build/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
+    ->json_is([]);
+
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO' } ])
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/0/sku', message => re(qr/missing property/i) } ]);
+
+$t->post_ok('/build/our second build/device', json => [ { sku => 'ugh' } ])
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [
+            { path => '/0/id', message => re(qr/missing property/i) },
+            { path => '/0/serial_number', message => re(qr/missing property/i) },
+        ]);
+
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'nope' } ])
+    ->status_is(404)
+    ->log_error_is('no hardware_product corresponding to sku nope');
+
+my $bad_hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } $t->generate_fixtures('hardware_product', { sku => 'ugh' });
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'ugh' } ])
+    ->status_is(404)
+    ->log_error_is('no hardware_product_profile corresponding to sku ugh');
+
+my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } $t->generate_fixtures('hardware_product_profile');
+
+$t->post_ok('/build/our second build/device', json => [ { id => create_uuid_str(), sku => $hardware_product->sku } ])
+    ->status_is(404)
+    ->log_error_like(qr/no device corresponding to device id ${\Conch::UUID::UUID_FORMAT}$/);
+
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => $hardware_product->sku } ])
+    ->status_is(204)
+    ->log_debug_is('created new device FOO in build our second build');
+
+$t->get_ok('/build/our second build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([
+        superhashof({
+            serial_number => 'FOO',
+            hardware_product_id => $hardware_product->id,
+            asset_tag => undef,
+            links => [],
+            build_id => $build2->{id},
+            rack_id => undef,
+        }),
+    ]);
+my $devices = $t->tx->res->json;
+
+$t->post_ok('/build/our second build/device', json => [ {
+        serial_number => 'FOO',
+        sku => $hardware_product->sku,
+    } ])
+    ->status_is(204);
+
+$t->get_ok('/build/our second build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is($devices);    # identical payload, including update timestamp
+
+$t->post_ok('/build/our second build/device', json => [ { id => $devices->[0]{id}, sku => 'nope' } ])
+    ->status_is(404)
+    ->log_error_is('no hardware_product corresponding to sku nope');
+
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'nope' } ])
+    ->status_is(404)
+    ->log_error_is('no hardware_product corresponding to sku nope');
+
+my $other_device = $t->app->db_devices->create({
+    serial_number => 'another_device',
+    hardware_product_id => $hardware_product->id,
+    health => 'unknown',
+});
+
+$t->post_ok('/build/our second build/device', json => [ {
+            id => $devices->[0]{id},
+            serial_number => $other_device->serial_number,
+            sku => $hardware_product->sku,
+        }, ])
+    ->status_is(400)
+    ->json_cmp_deeply({ error => re(qr/duplicate key value violates unique constraint "device_serial_number_key"/) });
+
+$t->post_ok('/build/my first build/device', json => [ {
+            serial_number => 'FOO',
+            sku => $hardware_product->sku,
+            asset_tag => 'fooey',
+            links => [ 'https://foo.bar.com' ],
+        } ])
+    ->status_is(409)
+    ->json_is({ error => 'device FOO not in build my first build' });
+
+$t->post_ok('/build/our second build/device', json => [ {
+            serial_number => 'FOO',
+            sku => $hardware_product->sku,
+            asset_tag => 'fooey',
+            links => [ 'https://foo.bar.com' ],
+        } ])
+    ->log_debug_is('updated device FOO ('.$devices->[0]{id}.') in build our second build')
+    ->status_is(204);
+
+$t->get_ok('/build/our second build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([
+        {
+            $devices->[0]->%*,
+            asset_tag => 'fooey',
+            links => [ 'https://foo.bar.com' ],
+            build_id => $build2->{id},
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        },
+    ]);
+my $new_device = $t->tx->res->json->[0];
+
+$t->get_ok('/build/my first build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
     ->json_is([]);
 
 my $device1 = first { $_->isa('Conch::DB::Result::Device') } $t->generate_fixtures('device');
@@ -679,7 +796,7 @@ $t->post_ok('/build/my first build/device/'.$device2->id)
 
 # build1 contains device2 directly.
 # build1 contains rack1, which has device1 in it (which is not in the build)
-# build2 contains rack2.
+# build2 contains new_device directly, and rack2.
 
 $t->get_ok('/build/my first build/device')
     ->status_is(200)
@@ -707,7 +824,7 @@ $t->get_ok('/build/my first build/rack')
 $t->get_ok('/build/our second build/device')
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is([]);
+    ->json_is([ $new_device ]);
 
 $t->get_ok('/build/our second build/rack')
     ->status_is(200)
@@ -715,6 +832,20 @@ $t->get_ok('/build/our second build/rack')
     ->json_cmp_deeply([
         superhashof({ id => $rack2->id }),
     ]);
+
+$t->post_ok('/build/our second build/device', json => [ {
+            id => $device2->id,
+            sku => $hardware_product->sku,
+        } ])
+    ->status_is(409)
+    ->json_is({ error => 'device '.$device2->id.' not in build our second build' });
+
+$t->post_ok('/build/our second build/device', json => [ {
+            id => $device1->id,
+            sku => $hardware_product->sku,
+        } ])
+    ->status_is(409)
+    ->json_is({ error => 'device '.$device1->id.' not in build our second build' });
 
 $t->delete_ok('/build/my first build/device/'.$device1->id)
     ->status_is(404)
@@ -749,7 +880,7 @@ $t->get_ok('/build/my first build/rack')
 $t->get_ok('/build/our second build/device')
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is([]);
+    ->json_is([ $new_device ]);
 
 $t->get_ok('/build/our second build/rack')
     ->status_is(200)

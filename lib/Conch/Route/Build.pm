@@ -71,6 +71,9 @@ sub routes {
         # GET /build/:build_id_or_name/device
         $with_build_ro->get('/device')->to('#get_devices');
 
+        # POST /build/:build_id_or_name/device
+        $with_build_rw->post('/device')->to('#create_and_add_devices', require_role => 'rw');
+
         # POST /build/:build_id_or_name/device/:device_id_or_serial_number
         $with_build_rw->under('/device/:device_id_or_serial_number')
             ->to('device#find_device', require_role => 'ro')
@@ -179,7 +182,7 @@ an email to the user.
 
 =item * Requires system admin authorization or the admin role on the build
 
-=item * Returns C<204 NO CONTENT>
+=item * Response: C<204 NO CONTENT>
 
 =back
 
@@ -217,7 +220,7 @@ an email to the organization members and build admins.
 
 =item * User requires the admin role
 
-=item * Returns C<204 NO CONTENT>
+=item * Response: C<204 NO CONTENT>
 
 =back
 
@@ -231,6 +234,18 @@ an email to the organization members and build admins.
 
 =back
 
+=head3 C<POST /build/:build_id_or_name/device>
+
+=over 4
+
+=item * Requires system admin authorization, or the read/write role on the build.
+
+=item * Request: F<request.yaml#/definitions/BuildCreateDevice>
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
 =head3 C<POST /build/:build_id_or_name/device/:device_id_or_serial_number>
 
 =over 4
@@ -239,6 +254,8 @@ an email to the organization members and build admins.
 read-only role on the device (via a workspace or a relay registration, see
 L<Conch::Route::Device/routes>)
 
+=item * Response: C<204 NO CONTENT>
+
 =back
 
 =head3 C<DELETE /build/:build_id_or_name/device/:device_id_or_serial_number>
@@ -246,6 +263,8 @@ L<Conch::Route::Device/routes>)
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build
+
+=item * Response: C<204 NO CONTENT>
 
 =back
 
@@ -266,6 +285,8 @@ L<Conch::Route::Device/routes>)
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-only role on a workspace that contains the rack
 
+=item * Response: C<204 NO CONTENT>
+
 =back
 
 =head3 C<DELETE /build/:build_id_or_name/rack/:rack_id>
@@ -273,6 +294,8 @@ read-only role on a workspace that contains the rack
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build
+
+=item * Response: C<204 NO CONTENT>
 
 =back
 

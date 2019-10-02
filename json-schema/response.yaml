@@ -519,6 +519,20 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       phase:
         $ref: common.yaml#/definitions/device_phase
+  DeviceSku:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - hardware_product_id
+      - sku
+    properties:
+      id:
+        $ref: common.yaml#/definitions/uuid
+      hardware_product_id:
+        $ref: common.yaml#/definitions/uuid
+      sku:
+        type: string
   WorkspaceDevicePXEs:
     type: array
     uniqueItems: true

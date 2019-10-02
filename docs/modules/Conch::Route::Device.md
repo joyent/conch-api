@@ -52,6 +52,11 @@ below.
 - User requires the read-only role
 - Response: [response.json#/definitions/DevicePhase](../json-schema/response.json#/definitions/DevicePhase)
 
+### `GET /device/:device_id_or_serial_number/sku`
+
+- User requires the read-only role
+- Response: [response.json#/definitions/DeviceSku](../json-schema/response.json#/definitions/DeviceSku)
+
 ### `POST /device/:device_id_or_serial_number/asset_tag`
 
 - User requires the read/write role
