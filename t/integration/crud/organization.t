@@ -69,10 +69,11 @@ $t->get_ok($t->tx->res->headers->location)
         name => 'my first organization',
         description => undef,
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-        admins => [
-            { map +($_ => $admin_user->$_), qw(id name email) },
+        users => [
+            { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
         ],
         workspaces => [],
+        builds => [],
     });
 my $organization = $t->tx->res->json;
 
@@ -109,10 +110,11 @@ $t->get_ok('/organization')
             name => 'our second organization',
             description => 'funky',
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            admins => [
-                { map +($_ => $admin_user->$_), qw(id name email) },
+            users => [
+                { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
             ],
             workspaces => [],
+            builds => [],
         },
     ]);
 my $organization2 = $t->tx->res->json->[1];
@@ -146,12 +148,10 @@ $t2->delete_ok('/organization/my first organization')
     ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 
-$t->get_ok('/organization/my first organization/user')
+$t->get_ok('/organization/my first organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-    ]);
+    ->json_schema_is('Organization')
+    ->json_is($organization);
 
 $t->post_ok('/organization/'.$organization->{id}.'/user', json => { role => 'ro' })
     ->status_is(400)
@@ -183,14 +183,12 @@ $t->post_ok('/organization/my first organization/user', json => {
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added ${\$new_user->name} \(${\$new_user->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
         },
     ]);
+push $organization->{users}->@*, +{ (map +($_ => $new_user->$_), qw(id name email)), role => 'ro' };
 
-$t->get_ok('/organization/my first organization/user')
+$t->get_ok('/organization/my first organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-        { (map +($_ => $new_user->$_), qw(id name email)), role => 'ro' },
-    ]);
+    ->json_schema_is('Organization')
+    ->json_is($organization);
 
 # non-admin user can only see the organization(s) he is a member of
 $t2->get_ok('/organization')
@@ -207,7 +205,7 @@ $t2->delete_ok('/organization/my first organization')
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
-$t2->get_ok('/organization/my first organization/user')
+$t2->get_ok('/organization/my first organization')
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
@@ -244,16 +242,14 @@ $t->post_ok('/organization/my first organization/user', json => {
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "rw" role\./m),
         },
     ]);
+$organization->{users}[1]{role} = 'rw';
 
-$t->get_ok('/organization/my first organization/user')
+$t->get_ok('/organization/my first organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-        { (map +($_ => $new_user->$_), qw(id name email)), role => 'rw' },
-    ]);
+    ->json_schema_is('Organization')
+    ->json_is($organization);
 
-$t2->get_ok('/organization/my first organization/user')
+$t2->get_ok('/organization/my first organization')
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
@@ -289,23 +285,17 @@ $t->post_ok('/organization/'.$organization->{id}.'/user', json => {
             body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "admin" role\./m),
         }
     ]);
+$organization->{users}[1]{role} = 'admin';
 
-$t->get_ok('/organization/my first organization/user')
+$t->get_ok('/organization/my first organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-        { (map +($_ => $new_user->$_), qw(id name email)), role => 'admin' },
-    ]);
-push $organization->{admins}->@*, +{ $t->tx->res->json->[1]->%{qw(id name email)} };
+    ->json_schema_is('Organization')
+    ->json_is($organization);
 
-$t2->get_ok('/organization/my first organization/user')
+$t2->get_ok('/organization/my first organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-        { (map +($_ => $new_user->$_), qw(id name email)), role => 'admin' },
-    ]);
+    ->json_schema_is('Organization')
+    ->json_is($organization);
 
 $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
         email => $new_user2->email,
@@ -327,15 +317,12 @@ $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
             body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) added ${\$new_user2->name} \(${\$new_user2->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
         },
     ]);
+push $organization->{users}->@*, +{ (map +($_ => $new_user2->$_), qw(id name email)), role => 'ro' };
 
-$t2->get_ok('/organization/my first organization/user')
+$t2->get_ok('/organization/my first organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-        { (map +($_ => $new_user->$_), qw(id name email)), role => 'admin' },
-        { (map +($_ => $new_user2->$_), qw(id name email)), role => 'ro' },
-    ]);
+    ->json_schema_is('Organization')
+    ->json_is($organization);
 
 $t2->delete_ok('/organization/my first organization/user/'.$new_user2->email)
     ->status_is(204)
@@ -355,13 +342,12 @@ $t2->delete_ok('/organization/my first organization/user/'.$new_user2->email)
         },
     ]);
 
-$t2->get_ok('/organization/my first organization/user')
+pop $organization->{users}->@*;
+
+$t2->get_ok('/organization/my first organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-        { (map +($_ => $new_user->$_), qw(id name email)), role => 'admin' },
-    ]);
+    ->json_schema_is('Organization')
+    ->json_is($organization);
 
 $admin_user->discard_changes;
 $t->delete_ok('/user/'.$admin_user->id)
@@ -459,6 +445,7 @@ $t2->get_ok('/organization/my first organization')
                 role => 'ro',
             },
         ],
+        builds => [],
     });
 
 $t2->get_ok('/organization')
@@ -474,6 +461,7 @@ $t2->get_ok('/organization')
                     role => 'ro',
                 },
             ],
+            builds => [],
         },
         # user is not a member of organization2
     ]);
@@ -494,6 +482,7 @@ $t->get_ok('/user/'.$admin_user->email)
                 role_via_organization_id => $organization->{id},
             },
         ],
+        builds => [],
     }));
 
 $t->get_ok('/user/'.$new_user->email)
@@ -511,6 +500,7 @@ $t->get_ok('/user/'.$new_user->email)
                 role_via_organization_id => $organization->{id},
             },
         ],
+        builds => [],
     }));
 
 $t2->get_ok('/user/me')
@@ -529,6 +519,7 @@ $t2->get_ok('/user/me')
                 role_via_organization_id => $organization->{id},
             },
         ],
+        builds => [],
     }));
 
 my $grandchild_ws = $t->generate_fixtures('workspace', { parent_workspace_id => $sub_ws->id, name => 'grandchild ws' });
@@ -595,6 +586,7 @@ $t->get_ok('/user/'.$new_user->email)
                 role_via_workspace_id => $sub_ws->id,
             },
         ],
+        builds => [],
     }));
 
 $t2->get_ok('/user/me')
@@ -619,6 +611,7 @@ $t2->get_ok('/user/me')
                 role_via_workspace_id => $sub_ws->id,
             },
         ],
+        builds => [],
     }));
 
 $t->get_ok('/workspace/'.$sub_ws->id.'/user')
@@ -894,19 +887,17 @@ $t->get_ok('/organization')
 $t->delete_ok('/organization/my first organization/user/foo@bar.com')
     ->status_is(404);
 
-$t->get_ok('/organization/our second organization/user')
+$t->get_ok('/organization/our second organization')
     ->status_is(200)
-    ->json_schema_is('OrganizationUsers')
-    ->json_is([
-        { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-    ]);
+    ->json_schema_is('Organization')
+    ->json_is($organization2);
 
 $t->delete_ok('/organization/foo')
     ->status_is(404);
 
 $t->delete_ok('/organization/our second organization')
     ->status_is(204)
-    ->log_debug_is('Deactivated organization our second organization, removing 1 user memberships and removing from 0 workspaces');
+    ->log_debug_is('Deactivated organization our second organization, removing 1 user memberships and removing from 0 workspaces and 0 builds');
 
 $t->get_ok('/organization')
     ->status_is(200)
@@ -915,7 +906,7 @@ $t->get_ok('/organization')
 
 $t->delete_ok('/organization/my first organization')
     ->status_is(204)
-    ->log_debug_is('Deactivated organization my first organization, removing 2 user memberships and removing from 2 workspaces');
+    ->log_debug_is('Deactivated organization my first organization, removing 2 user memberships and removing from 2 workspaces and 0 builds');
 
 $t->get_ok('/organization')
     ->status_is(200)

@@ -318,7 +318,7 @@ Because hard cryptography is used, this is *not* a fast call!
 
 =head2 TO_JSON
 
-Include information about the user's workspaces and organizations, if available.
+Include information about the user's workspaces, organizations and builds, if available.
 
 =cut
 
@@ -328,11 +328,12 @@ sub TO_JSON ($self) {
     # Mojo::JSON renders \0, \1 as json booleans
     $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change is_admin);
 
-    # add organization and workspace data, if they have been prefetched
-    # (we expect neither or both)
+    # add organization, build and workspace data, if they have been prefetched
+    # (we expect none or all)
     # (see also Conch::DB::Result::Organization::TO_JSON)
     if (my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache
-        and my $cached_uors = $self->related_resultset('user_organization_roles')->get_cache) {
+        and my $cached_uors = $self->related_resultset('user_organization_roles')->get_cache
+        and my $cached_ubrs = $self->related_resultset('user_build_roles')->get_cache) {
 
         $data->{organizations} = [
             map {
@@ -342,6 +343,38 @@ sub TO_JSON ($self) {
                     role => $_->role,
                 }
             } $cached_uors->@*,
+        ];
+
+        # due to the complicated query, the results of this section of data become unordered,
+        # so we impart a reasonable ordering to them ourselves here.
+        $data->{builds} = [
+            sort { # sort by name asc, then role desc, direct user-build entries first.
+                $a->{name} cmp $b->{name}
+                    ||
+                Conch::DB::Result::UserBuildRole->role_cmp($b->{role}, $a->{role})
+                    ||
+                ((defined $a->{role_via_organization_id} xor defined $b->{role_via_organization_id})
+                    ? (defined $b->{role_via_organization_id} ? -1 : 1)
+                    : 0)
+            }
+            (map {
+                my $build = $_->build;
+                +{
+                    (map +($_ => $build->$_), qw(id name description)),
+                    role => $_->role,
+                }
+            } $cached_ubrs->@*),
+
+            (map {
+                my $build = $_->build;
+                +{
+                    (map +($_ => $build->$_), qw(id name description)),
+                    role => $_->role,
+                    role_via_organization_id => $_->organization_id,
+                }
+            } map
+                $_->organization->related_resultset('organization_build_roles')->get_cache->@*,
+                $cached_uors->@*)
         ];
 
         # we assume we prefetched our user(s) with:
@@ -361,7 +394,7 @@ sub TO_JSON ($self) {
                 }
             } $cached_uwrs->@*),
 
-            # direct owr_workspace entries
+            # direct owr+workspace entries
             (map +(
                 $seen_workspaces{$_->id}++ ? () : do {
                     my $workspace = $_->workspace;

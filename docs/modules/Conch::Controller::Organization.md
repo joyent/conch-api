@@ -47,13 +47,6 @@ Deactivates the organization, preventing its members from exercising any privile
 
 User must have system admin privileges.
 
-## list\_users
-
-Get a list of members of the current organization.
-Requires the 'admin' role on the organization.
-
-Response uses the OrganizationUsers json schema.
-
 ## add\_user
 
 Adds a user to the current organization, or upgrades an existing role entry to access the

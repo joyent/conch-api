@@ -21,6 +21,11 @@ my $global_ws = $t->load_fixture('global_workspace');
 my $child_ws = $global_ws->create_related('workspaces', { name => 'child_ws', user_workspace_roles => [{ role => 'ro', user_id => $ro_user->id }] });
 my $organization = $t->load_fixture('ro_user_organization')->organization;
 
+my ($build1, $build2) = map $t->generate_fixtures('build'), 0..1;
+$build1->create_related('user_build_roles', { user_id => $ro_user->id, role => 'ro' });
+$build1->create_related('organization_build_roles', { organization_id => $organization->id, role => 'rw' });
+$build2->create_related('organization_build_roles', { organization_id => $organization->id, role => 'ro' });
+
 $t->post_ok('/login', json => { email => 'a', password => 'b' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
@@ -186,6 +191,11 @@ subtest 'User' => sub {
                     parent_workspace_id => undef,   # user does not have the role to see GLOBAL
                     role => 'ro',
                 } ],
+                builds => [
+                    { (map +($_ => $build1->$_), qw(id name description)), role => 'rw', role_via_organization_id => $organization->id },
+                    { (map +($_ => $build1->$_), qw(id name description)), role => 'ro' },
+                    { (map +($_ => $build2->$_), qw(id name description)), role => 'ro', role_via_organization_id => $organization->id },
+                ],
             });
         $user_detailed = $t2->tx->res->json;
         # the superuser always sees parent workspace ids
@@ -211,6 +221,7 @@ subtest 'User' => sub {
             is_admin => JSON::PP::true,
             organizations => [],
             workspaces => [],
+            builds => [],
         });
     $super_user_data = $t_super->tx->res->json;
 
@@ -496,6 +507,7 @@ subtest 'modify another user' => sub {
             is_admin => JSON::PP::false,
             organizations => [],
             workspaces => [],
+            builds => [],
         }, 'returned all the right fields (and not the password)');
 
     $new_user_data = $t_super->tx->res->json;

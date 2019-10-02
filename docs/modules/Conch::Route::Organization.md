@@ -30,11 +30,6 @@ Unless otherwise noted, all routes require authentication.
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `GET /organization/:organization_id_or_name/user`
-
-- Requires system admin authorization or the admin role on the organization
-- Response: [response.json#/definitions/OrganizationUsers](../json-schema/response.json#/definitions/OrganizationUsers)
-
 ### `POST /organization/:organization_id_or_name/user?send_mail=<1|0`>
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send

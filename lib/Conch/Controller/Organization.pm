@@ -29,12 +29,12 @@ Response uses the Organizations json schema.
 sub list ($c) {
     my $rs = $c->db_organizations
         ->active
-        ->search({ 'user_organization_roles.role' => 'admin' })
         ->prefetch({
                 user_organization_roles => 'user_account',
                 organization_workspace_roles => 'workspace',
+                organization_build_roles => 'build',
             })
-        ->order_by([qw(organization.name user_account.name)]);
+        ->order_by([ map $_.'.name', qw(organization user_account workspace build) ]);
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 
@@ -148,12 +148,12 @@ Response uses the Organization json schema.
 
 sub get ($c) {
     my $rs = $c->stash('organization_rs')
-        ->search({ 'user_organization_roles.role' => 'admin' })
         ->prefetch({
                 user_organization_roles => 'user_account',
                 organization_workspace_roles => 'workspace',
+                organization_build_roles => 'build',
             })
-        ->order_by('user_account.name');
+        ->order_by([ map $_.'.name', qw(user_account workspace build) ]);
 
     return $c->status(200, ($rs->all)[0]) if $c->is_system_admin;
 
@@ -192,33 +192,18 @@ sub delete ($c) {
         ->and_workspaces_beneath($direct_workspaces_rs->as_query)
         ->count;
 
+    my $build_count = 0+$c->stash('organization_rs')
+        ->related_resultset('organization_build_roles')
+        ->delete;
+
     $c->stash('organization_rs')->related_resultset('organization_workspace_roles')->delete;
     $c->stash('organization_rs')->deactivate;
 
     $c->log->debug('Deactivated organization '.$c->stash('organization_id_or_name')
-        .', removing '.$user_count.' user memberships and removing from '
-        .$workspace_count.' workspaces');
+        .', removing '.$user_count.' user memberships'
+        .' and removing from '.$workspace_count.' workspaces'
+        .' and '.$build_count.' builds');
     return $c->status(204);
-}
-
-=head2 list_users
-
-Get a list of members of the current organization.
-Requires the 'admin' role on the organization.
-
-Response uses the OrganizationUsers json schema.
-
-=cut
-
-sub list_users ($c) {
-    my $rs = $c->stash('organization_rs')
-        ->related_resultset('user_organization_roles')
-        ->related_resultset('user_account')
-        ->active
-        ->columns([ { role => 'user_organization_roles.role' }, map 'user_account.'.$_, qw(id name email) ])
-        ->order_by([ { -desc => 'role' }, 'name' ]);
-
-    $c->status(200, [ $rs->hri->all ]);
 }
 
 =head2 add_user
