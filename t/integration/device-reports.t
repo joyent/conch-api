@@ -25,31 +25,31 @@ my $hardware_product_compute;
 subtest preliminaries => sub {
     my $report_data = from_json($report);
 
-    $t->post_ok('/device/foo', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/foo', json => $report_data)
         ->status_is(422)
         ->json_is({ error => 'Serial number provided to the API does not match the report data.' });
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
 
     $hardware_product_compute = first { $_->isa('Conch::DB::Result::HardwareProduct') }
         $t->load_fixture('hardware_product_compute');
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Hardware product does not contain a profile' });
 
     $t->load_fixture('hardware_product_profile_compute');
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
         ->status_is(201);
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(404)
         ->log_error_is('Failed to find device TEST');
 
@@ -64,7 +64,7 @@ subtest preliminaries => sub {
     my $new_compute = $t->app->db_hardware_products->create(do { my %cols = $hardware_product_compute->get_columns; delete @cols{qw(id deactivated)}; \%cols });
     $profile->update({ hardware_product_id => $new_compute->id });
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
 
@@ -76,7 +76,7 @@ subtest preliminaries => sub {
     $hardware_product_compute->update({ deactivated => undef });
     $profile->update({ hardware_product_id => $hardware_product_compute->id });
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(422)
         ->json_is({ error => 'failed to find validation plan' });
 };
