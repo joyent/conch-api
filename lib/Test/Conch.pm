@@ -689,6 +689,10 @@ sub logs_are ($self, $expected_msgs, $test_name = 'log lines', $level = undef) {
         ),
         $test_name,
     );
+    Test::More::note('got log: ',
+            Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Terse(1)->Dump)
+        if not $self->success;
+    return $self;
 }
 
 =head2 reset_log
