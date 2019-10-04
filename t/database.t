@@ -128,15 +128,16 @@ subtest 'transactions' => sub {
     $r->get(
         '/test_txn_wrapper2',
         sub ($c) {
-            $c->txn_wrapper(sub ($my_c, $id) {
+            my $user = $c->txn_wrapper(sub ($my_c, $id) {
                 $my_c->db_user_accounts->create({
                     id => $id,
                     name => 'new user',
                     email => 'foo@bar',
                     password => 'foo',
                 });
-                $my_c->status(204);
             }, $c->req->query_params->param('id'));
+
+            $c->status($user ? 204 : 400);
         },
     );
 

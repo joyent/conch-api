@@ -107,8 +107,7 @@ sub create ($c) {
         $c->db_hardware_products->create($input);
     });
 
-    # if the result code was already set, we errored and rolled back the db..
-    return if $c->res->code;
+    return $c->status(400) if not $hardware_product;
 
     $c->log->debug('Created hardware product id '.$hardware_product->id.
         ($input->{hardware_product_profile}
@@ -174,10 +173,9 @@ sub update ($c) {
         $c->log->debug('Updated hardware product '.$hardware_product->id);
 
         $c->log->debug('transaction ended successfully');
-    });
-
-    # if the result code was already set, we errored and rolled back the db..
-    return if $c->res->code;
+        return 1;
+    })
+    or return $c->status(400);
 
     $c->status(303, '/hardware_product/'.$hardware_product->id);
 }
