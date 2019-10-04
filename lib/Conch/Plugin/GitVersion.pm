@@ -17,6 +17,9 @@ Mojo plugin registering the git version tag and hash for the repository
 
 =head1 HELPERS
 
+These methods are made available on the C<$c> object (the invocant of all controller methods,
+and therefore other helpers).
+
 =cut
 
 sub register ($self, $app, $config) {

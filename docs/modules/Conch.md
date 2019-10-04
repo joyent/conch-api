@@ -15,6 +15,15 @@ Mojolicious::Commands->start_app('Conch');
 Used by Mojo in the startup process. Loads the config file and sets up the
 helpers, routes and everything else.
 
+# HELPERS
+
+These methods are made available on the `$c` object (the invocant of all controller methods,
+and therefore other helpers).
+
+## status
+
+Helper method for setting the response status code and json content.
+
 # LICENSING
 
 Copyright Joyent, Inc.

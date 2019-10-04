@@ -26,6 +26,9 @@ from an API endpoint against a JSON Schema.
 
 # HELPERS
 
+These methods are made available on the `$c` object (the invocant of all controller methods,
+and therefore other helpers).
+
 ## validate\_query\_params
 
 Given the name of a json schema in the query\_params namespace, validate the provided data

@@ -8,6 +8,9 @@ Sets up the database and provides convenient accessors to it.
 
 # HELPERS
 
+These methods are made available on the `$c` object (the invocant of all controller methods,
+and therefore other helpers).
+
 ## schema
 
 Provides read/write access to the database via [DBIx::Class](https://metacpan.org/pod/DBIx::Class). Returns a [Conch::DB](../modules/Conch::DB) object
