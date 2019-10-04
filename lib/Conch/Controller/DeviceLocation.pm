@@ -85,10 +85,8 @@ sub set ($c) {
             },
             { key => 'primary' },   # only search for conflicts by device_id
         );
-    });
-
-    # if the result code was already set, we errored and rolled back the db...
-    return if $c->res->code;
+    })
+    or return $c->status(400);
 
     $c->status(303, '/device/'.$device_id.'/location');
 }

@@ -118,15 +118,19 @@ the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
         # many update, delete queries etc...
     });
 
-    # if the result code was already set, we errored and rolled back the db...
-    return if $c->res->code;
+    # if the result is false, we errored and rolled back the db...
+    return $c->status(400) if not $result;
 
 Wraps the provided subref in a database transaction, rolling back in case of an exception.
 Any provided arguments are passed to the sub, along with the invocant controller.
 
 If the exception is not C<'rollback'> (which signals an intentional premature bailout), the
-exception will be logged, and a response will be set up as an error response with the first
-line of the exception.
+exception will be logged and stored in the stash, of which the first line will be included in
+the response if no other response is prepared (see L<Conch/status>).
+
+You should B<not> render a response in the subref itself, as you will have a difficult time
+figuring out afterwards whether C<< $c->rendered >> still needs to be called or not. Instead,
+use the subref's return value to signal success.
 
 =cut
 
@@ -150,9 +154,7 @@ line of the exception.
                 $c->stash('exception',
                     ($exception->$_isa('Mojo::Exception') ? $exception
                         : Mojo::Exception->new($exception))->inspect);
-                my ($error) = split(/\n/, $exception, 2);
-                $c->log->error($c->log->is_level('debug') ? $exception : $error);
-                $c->status($c->res->code // 400, { error => $error });
+                $c->log->error($c->log->is_level('debug') ? $exception : (split(/\n/, $exception, 2))[0]);
             }
             return;
         };
