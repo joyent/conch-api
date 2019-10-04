@@ -20,7 +20,9 @@ my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 $t->authenticate(email => $ro_user->email);
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-my $hardware_product_compute;
+
+# matches report's product_name = Joyent-G1 (compute)
+my $hardware_product;
 
 subtest preliminaries => sub {
     my $report_data = from_json($report);
@@ -37,7 +39,7 @@ subtest preliminaries => sub {
         ->status_is(409)
         ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
 
-    $hardware_product_compute = first { $_->isa('Conch::DB::Result::HardwareProduct') }
+    $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') }
         $t->load_fixture('hardware_product_compute');
 
     $t->post_ok('/device/TEST', json => $report_data)
@@ -63,13 +65,13 @@ subtest preliminaries => sub {
 
     my $device = $t->generate_fixtures('device', {
         serial_number => 'TEST',
-        hardware_product_id => $hardware_product_compute->id,
+        hardware_product_id => $hardware_product->id,
     });
 
     # deactivate product, create a new product with the same sku
-    $hardware_product_compute->update({ deactivated => \'now()' });
-    my $profile = $hardware_product_compute->hardware_product_profile;
-    my $new_compute = $t->app->db_hardware_products->create(do { my %cols = $hardware_product_compute->get_columns; delete @cols{qw(id deactivated)}; \%cols });
+    $hardware_product->update({ deactivated => \'now()' });
+    my $profile = $hardware_product->hardware_product_profile;
+    my $new_compute = $t->app->db_hardware_products->create(do { my %cols = $hardware_product->get_columns; delete @cols{qw(id deactivated)}; \%cols });
     $profile->update({ hardware_product_id => $new_compute->id });
 
     $t->post_ok('/device/TEST', json => $report_data)
@@ -85,12 +87,10 @@ subtest preliminaries => sub {
 
     # go back to the original hardware_product
     $new_compute->update({ deactivated => \'now()' });
-    $hardware_product_compute->update({ deactivated => undef });
-    $profile->update({ hardware_product_id => $hardware_product_compute->id });
+    $hardware_product->update({ deactivated => undef });
+    $profile->update({ hardware_product_id => $hardware_product->id });
 };
 
-# matches report's product_name = Joyent-G1
-my $hardware_product = $t->load_fixture('hardware_product_compute');
 
 # create a validation plan with all current validations in it
 Conch::ValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
@@ -434,7 +434,7 @@ subtest 'system_uuid collisions' => sub {
 
     my $existing_device = $t->app->db_devices->create({
         serial_number => 'i_was_here_first',
-        hardware_product_id => $hardware_product_compute->id,
+        hardware_product_id => $hardware_product->id,
         health => 'unknown',
     });
 
