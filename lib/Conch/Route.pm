@@ -59,7 +59,10 @@ sub all_routes (
     $root->get('/ping', sub ($c) { $c->status(200, { status => 'ok' }) });
 
     # GET /version
-    $root->get('/version', sub ($c) { $c->status(200, { version => $c->version_tag }) });
+    $root->get('/version', sub ($c) {
+        $c->res->headers->last_modified(Mojo::Date->new($c->startup_time->epoch));
+        $c->status(200, { version => $c->version_tag })
+    });
 
     # POST /login
     $root->post('/login')->to('login#session_login');
