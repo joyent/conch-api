@@ -51,14 +51,15 @@ sub startup {
 
 
     $self->hook(before_render => sub ($c, $args) {
-        my $template = $args->{template};
-        return if not $template;
-
-        if ($template =~ /exception/) {
-            return $args->{json} = { error => 'An exception occurred' };
-        }
-        if ($args->{template} =~ /not_found/) {
-            return $args->{json} = { error => 'Not Found' };
+        if (my $template = $args->{template}) {
+            if ($template =~ /exception/) {
+                delete $args->{template};
+                $args->{json} = { error => 'An exception occurred' };
+            }
+            elsif ($args->{template} =~ /not_found/) {
+                delete $args->{template};
+                $args->{json} = { error => 'Not Found' };
+            }
         }
     });
 
