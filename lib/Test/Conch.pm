@@ -207,9 +207,10 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
 
  * successful GET requests should not return 201, 202 (ideally just 200, 204).
  * successful DELETE requests should not return 201
- * 200 responses should have content.
- * 201 and most 30x responses should have a Location header.
- * 204 and most 30x responses should not have body content.
+ * GET requests should not have request body content
+ * 200 and most 4xx responses should have content.
+ * 201 and most 3xx responses should have a Location header.
+ * 204 and most 3xx responses should not have body content.
 
 Also, unexpected responses will dump the response payload.
 
@@ -221,25 +222,30 @@ sub status_is ($self, $status, $desc = undef) {
         $self->next::method($status, $desc);
     };
 
+    my $method = $self->tx->req->method;
     my $code = $self->tx->res->code;
+
+    $self->_test('fail', 'GET requests should not have request body content')
+        if $method eq 'GET' and $self->tx->req->text;
+
+    $self->_test('fail', 'HEAD requests should not have body content')
+        if $method eq 'HEAD' and $self->tx->res->text;
+
     $self->_test('fail', $code.' responses should have a Location header')
         if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
 
-    if ($code =~ /^2../) {
-        my $method = $self->tx->req->method;
+    $self->_test('fail', $method.' requests should not return '.$code)
+        if $method eq 'GET' and any { $code == $_ } 201,202;
 
-        $self->_test('fail', $method.' requests should not return '.$status)
-            if $method eq 'GET' and any { $status == $_ } 201,202;
+    $self->_test('fail', $method.' requests should not return '.$code)
+        if $method eq 'DELETE' and $code == 201;
 
-        $self->_test('fail', $method.' requests should not return '.$status)
-            if $method eq 'DELETE' and $status == 201;
+    $self->_test('fail', $code.' responses should have content')
+        if $method ne 'HEAD' and any { $code == $_ } 200,400,401,403,404,409,422 and not $self->tx->res->text;
 
-        $self->_test('fail', $code.' responses should have content')
-            if $code == 200 and not $self->tx->res->text;
+    $self->_test('fail', $code.' responses should not have content')
+        if any { $code == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
 
-        $self->_test('fail', $code.' responses should not have content')
-            if any { $status == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
-    }
 
     Test::More::diag('got response: ', Data::Dumper->new([ $self->tx->res->json ])
             ->Sortkeys(1)->Indent(1)->Terse(1)->Maxdepth(5)->Dump)
