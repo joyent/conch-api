@@ -25,31 +25,39 @@ my $hardware_product_compute;
 subtest preliminaries => sub {
     my $report_data = from_json($report);
 
-    $t->post_ok('/device/foo', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/foo', json => $report_data)
         ->status_is(422)
         ->json_is({ error => 'Serial number provided to the API does not match the report data.' });
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
+
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
 
     $hardware_product_compute = first { $_->isa('Conch::DB::Result::HardwareProduct') }
         $t->load_fixture('hardware_product_compute');
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'Hardware product does not contain a profile' });
+
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Hardware product does not contain a profile' });
 
     $t->load_fixture('hardware_product_profile_compute');
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
         ->status_is(201);
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(404)
         ->log_error_is('Failed to find device TEST');
 
@@ -64,7 +72,11 @@ subtest preliminaries => sub {
     my $new_compute = $t->app->db_hardware_products->create(do { my %cols = $hardware_product_compute->get_columns; delete @cols{qw(id deactivated)}; \%cols });
     $profile->update({ hardware_product_id => $new_compute->id });
 
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
+
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
 
@@ -75,10 +87,6 @@ subtest preliminaries => sub {
     $new_compute->update({ deactivated => \'now()' });
     $hardware_product_compute->update({ deactivated => undef });
     $profile->update({ hardware_product_id => $hardware_product_compute->id });
-
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
-        ->status_is(422)
-        ->json_is({ error => 'failed to find validation plan' });
 };
 
 # matches report's product_name = Joyent-G1
@@ -88,29 +96,17 @@ my $hardware_product = $t->load_fixture('hardware_product_compute');
 Conch::ValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
 my @validations = $t->app->db_validations->all;
 my ($full_validation_plan) = $t->load_validation_plans([{
-    name        => 'Conch v1 Legacy Plan: Server',
+    id          => $hardware_product->validation_plan_id,
+    name        => 'our validation plan',
     description => 'Test Plan',
     validations => [ map $_->module, @validations ],
 }]);
 
 subtest 'run report without an existing device and without making updates' => sub {
     my $report_data = from_json($report);
-
-    $t->post_ok('/device_report', json => { $report_data->%*, device_type => 'switch', product_name => '2-ssds-1-cpu' })
-        ->status_is(422)
-        ->json_is({ error => 'failed to find validation plan' });
-
-    $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })
-        ->status_is(409)
-        ->json_is({ error => 'Could not locate hardware product for sku ugh' });
-
-    $t->generate_fixtures('hardware_product', { sku => 'ugh' });
-    $t->post_ok('/device_report', json => { $report_data->%*, sku => 'ugh' })
-        ->status_is(409)
-        ->json_is({ error => 'Hardware product does not contain a profile' });
-
     $report_data->{serial_number} = 'different_device';
     $report_data->{system_uuid} = create_uuid_str();
+
     $t->post_ok('/device_report', json => $report_data)
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
@@ -137,11 +133,9 @@ subtest 'run report without an existing device and without making updates' => su
 
 subtest 'save reports for device' => sub {
     # for these tests, we need to use a plan containing a validation we know will pass.
-    # we move aside the plan containing all validations and replace it with a new one.
-    $t->app->db_validation_plans->find($full_validation_plan->id)->update({ name => 'all validations' });
-
+    # we remove all the existing validations from the plan and replace it with just one.
     $t->load_validation_plans([{
-        name        => 'Conch v1 Legacy Plan: Server',
+        id          => $hardware_product->validation_plan_id,
         description => 'Test Plan',
         validations => [ 'Conch::Validation::DeviceProductName' ],
     }]);

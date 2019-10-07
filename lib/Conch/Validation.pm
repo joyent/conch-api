@@ -172,10 +172,8 @@ sub has_device_location ($self) {
 
 =head2 hardware_product
 
-The expected L<Conch::DB::Result::HardwareProduct> object for the device being validated.
-Note that this is B<either> the hardware_product associated with the rack and slot the device
-is located in, B<or> the hardware_product associated with the device itself (when the device is
-not located in a rack yet). When this distinction is important, check L</has_device_location>.
+The L<Conch::DB::Result::HardwareProduct> object for the device being validated
+(originally determined by the sku reported for the device).
 
 Any additional data related to hardware_products may be read as normal using L<DBIx::Class>
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
@@ -233,11 +231,7 @@ has hardware_product => (
     isa => InstanceOf['Conch::DB::Result::HardwareProduct'],
     lazy => 1,
     default => sub ($self) {
-        my $device = $self->device;
-        my $device_location = $device->device_location;
-        $device_location
-          ? $device_location->rack_layout->hardware_product
-          : $device->hardware_product;
+        $self->device->hardware_product;
     },
     handles => {
         hardware_product_name => 'name',

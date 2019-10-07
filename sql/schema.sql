@@ -376,6 +376,7 @@ CREATE TABLE public.hardware_product (
     generation_name text,
     legacy_product_name text,
     rack_unit_size integer NOT NULL,
+    validation_plan_id uuid NOT NULL,
     CONSTRAINT hardware_product_rack_unit_size_check CHECK ((rack_unit_size > 0))
 );
 
@@ -1718,6 +1719,14 @@ ALTER TABLE ONLY public.device_setting
 
 ALTER TABLE ONLY public.hardware_product_profile
     ADD CONSTRAINT hardware_product_profile_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id) ON DELETE CASCADE;
+
+
+--
+-- Name: hardware_product hardware_product_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.hardware_product
+    ADD CONSTRAINT hardware_product_validation_plan_id_fkey FOREIGN KEY (validation_plan_id) REFERENCES public.validation_plan(id);
 
 
 --

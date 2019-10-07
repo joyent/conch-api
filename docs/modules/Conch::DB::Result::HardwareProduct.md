@@ -107,6 +107,15 @@ data_type: 'integer'
 is_nullable: 0
 ```
 
+## validation\_plan\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)
@@ -136,6 +145,12 @@ Related object: [Conch::DB::Result::HardwareVendor](../modules/Conch::DB::Result
 Type: has\_many
 
 Related object: [Conch::DB::Result::RackLayout](../modules/Conch::DB::Result::RackLayout)
+
+## validation\_plan
+
+Type: belongs\_to
+
+Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch::DB::Result::ValidationPlan)
 
 ## validation\_results
 

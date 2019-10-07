@@ -27,6 +27,7 @@ my $products = $t->tx->res->json;
 
 my $hw_id = $products->[0]{id};
 my $vendor_id = $products->[0]{hardware_vendor_id};
+my $validation_plan_id = $products->[0]{validation_plan_id};
 
 $t->get_ok("/hardware_product/$hw_id")
     ->status_is(200)
@@ -44,6 +45,7 @@ $t->post_ok('/hardware_product', json => {
         alias => 'sungo',
         rack_unit_size => 2,
         sku => 'my sku',
+        validation_plan_id => $validation_plan_id,
     })
     ->status_is(303)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
@@ -65,6 +67,7 @@ $t->get_ok($t->tx->res->headers->location)
         legacy_product_name => undef,
         rack_unit_size => 2,
         hardware_product_profile => undef,
+        validation_plan_id => $validation_plan_id,
     });
 
 my $new_product = $t->tx->res->json;
@@ -81,6 +84,7 @@ $t->post_ok('/hardware_product', json => {
         alias => 'sungo',
         sku => 'another sku',
         rack_unit_size => 1,
+        validation_plan_id => $validation_plan_id,
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -92,10 +96,23 @@ $t->post_ok('/hardware_product', json => {
         alias => 'another alias',
         sku => 'another sku',
         rack_unit_size => 1,
+        validation_plan_id => $validation_plan_id,
     })
     ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'hardware_vendor_id does not exist' });
+
+$t->post_ok('/hardware_product', json => {
+        name => 'another name',
+        hardware_vendor_id => $vendor_id,
+        alias => 'another alias',
+        sku => 'another sku',
+        rack_unit_size => 1,
+        validation_plan_id => create_uuid_str(),
+    })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'validation_plan_id does not exist' });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
     ->status_is(303)
@@ -181,6 +198,11 @@ subtest 'update some fields in an existing profile and product' => sub {
         ->json_schema_is('Error')
         ->json_is({ error => 'hardware_vendor_id does not exist' });
 
+    $t->post_ok("/hardware_product/$new_hw_id", json => { validation_plan_id => create_uuid_str() })
+        ->status_is(409)
+        ->json_schema_is('Error')
+        ->json_is({ error => 'validation_plan_id does not exist' });
+
     $t->post_ok("/hardware_product/$new_hw_id", json => {
             name => 'ether1',
             rack_unit_size => 4,
@@ -238,6 +260,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             sku => 'another sku',
             rack_unit_size => 1,
             hardware_product_profile => { dimms_num => 2 },
+            validation_plan_id => $validation_plan_id,
         })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
@@ -262,6 +285,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             sku => 'another sku',
             rack_unit_size => 2,
             hardware_product_profile => $new_hw_profile,
+            validation_plan_id => $validation_plan_id,
         })
         ->status_is(303)
         ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
@@ -282,6 +306,7 @@ subtest 'create a hardware product and hardware product profile all together' =>
             generation_name => undef,
             legacy_product_name => undef,
             rack_unit_size => 2,
+            validation_plan_id => $validation_plan_id,
             hardware_product_profile => {
                 $new_hw_profile->%*,
                 id => re(Conch::UUID::UUID_FORMAT),

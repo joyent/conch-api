@@ -31,12 +31,12 @@ This method is poorly-named: it should be 'create\_validations'.
 
 ## update\_validation\_plans
 
-Deactivate and/or create validation records for all validation modules currently present,
-then deactivates and creates new validation plans to reference the newest versions of the
-validations it already had as members.
+Deactivate and/or create validation records for all validation modules currently present, then
+updates validation plan membership to reference the newest versions of the validations it
+previously had as members.
 
 That is: does whatever is necessary after a code deployment to ensure that validation plans
-of the same name continue to run validations pointing to the same code modules.
+continue to run validations pointing to the same code modules.
 
 ## run\_validation\_plan
 

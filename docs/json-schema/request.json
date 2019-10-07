@@ -368,7 +368,8 @@
             "alias",
             "hardware_vendor_id",
             "sku",
-            "rack_unit_size"
+            "rack_unit_size",
+            "validation_plan_id"
           ]
         },
         {
@@ -666,6 +667,9 @@
               "type" : "null"
             }
           ]
+        },
+        "validation_plan_id" : {
+          "$ref" : "common.json#/definitions/uuid"
         }
       },
       "type" : "object"

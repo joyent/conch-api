@@ -25,9 +25,9 @@ my $good_report = path('t/integration/resource/passing-device-report.json')->slu
 my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
 my $good_report_data = from_json($good_report);
 
-$t->load_fixture('hardware_product_profile_compute');
+my $hardware_product_profile = $t->load_fixture('hardware_product_profile_compute');
 my ($server_validation_plan) = $t->load_validation_plans([{
-    name        => 'Conch v1 Legacy Plan: Server',
+    id => $hardware_product_profile->hardware_product->validation_plan_id,
     description => 'Test Plan',
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);

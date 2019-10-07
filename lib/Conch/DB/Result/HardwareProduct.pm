@@ -101,6 +101,13 @@ __PACKAGE__->table("hardware_product");
   data_type: 'integer'
   is_nullable: 0
 
+=head2 validation_plan_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -145,6 +152,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "rack_unit_size",
   { data_type => "integer", is_nullable => 0 },
+  "validation_plan_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -221,6 +230,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 validation_plan
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::ValidationPlan>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "validation_plan",
+  "Conch::DB::Result::ValidationPlan",
+  { id => "validation_plan_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 validation_results
 
 Type: has_many
@@ -238,7 +262,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:m2umWpjs1iSUxb8ry8FKDg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XBj+kJeR/2QEgJOvSdhMHw
 
 use experimental 'signatures';
 

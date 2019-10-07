@@ -39,7 +39,7 @@ subtest 'inactive validation in an active plan' => sub {
     is(scalar @modules, 0, 'no valid validations in this plan');
 
     $t->log_is(
-        re(qr/validation id $uuid_re "inactive validation" is inactive but is referenced by an active plan \("plan with inactive validation"\)/),
+        re(qr/validation id $uuid_re "inactive validation" version 1 is inactive but is referenced by an active plan \("plan with inactive validation"\)/),
         'logged for inactive validation',
     );
     $t->log_is(

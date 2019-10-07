@@ -40,11 +40,6 @@ Process a device report without writing anything to the database; otherwise beha
 
 Response uses the ReportValidationResults json schema.
 
-## \_get\_validation\_plan
-
-Find the validation plan that should be used to validate the device referenced by the
-report.
-
 # LICENSING
 
 Copyright Joyent, Inc.

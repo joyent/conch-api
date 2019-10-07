@@ -234,6 +234,7 @@ definitions:
         - hardware_vendor_id
         - sku
         - rack_unit_size
+        - validation_plan_id
       - type: object
         properties:
           hardware_product_profile:
@@ -363,6 +364,8 @@ definitions:
         $ref: common.yaml#/definitions/positive_integer
       hardware_product_profile:
         $ref: /definitions/HardwareProductProfileUpdate
+      validation_plan_id:
+        $ref: common.yaml#/definitions/uuid
   HardwareProductProfileCreate:
     allOf:
       - $ref: /definitions/HardwareProductProfileUpdate

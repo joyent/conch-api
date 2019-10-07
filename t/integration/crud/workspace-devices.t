@@ -11,7 +11,8 @@ my $t = Test::Conch->new;
 
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 $t->load_validation_plans([{
-    name        => 'Conch v1 Legacy Plan: Server',
+    id          => $t->load_fixture('hardware_product_compute')->validation_plan_id,
+    name        => 'our plan',
     description => 'Test Plan',
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
