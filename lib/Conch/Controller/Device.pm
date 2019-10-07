@@ -5,6 +5,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 use Conch::UUID 'is_uuid';
 use List::Util 'any';
 use Mojo::JSON 'from_json';
+use Digest::MD5 ();
 
 =pod
 
@@ -113,9 +114,20 @@ sub find_device ($c) {
 
 Retrieves details about a single device. Response uses the DetailedDevice json schema.
 
+B<Note:> The results of this endpoint can be cached, but since the checksum is based only on
+the device's last updated time, and not on any other components associated with it (disks,
+network interfaces, location etc) it is only suitable for using to determine if a subsequent
+device report has been submitted for this device. Updates to the device through other means may
+not be reflected in the checksum.
+
 =cut
 
 sub get ($c) {
+    # allow the (authenticated) client to cache the result based on updated time
+    my $etag = Digest::MD5::md5_hex($c->stash('device_rs')->get_column('updated')->single);
+    # TODO: this is really a weak etag. requires https://github.com/mojolicious/mojo/pull/1420
+    return $c->status(304) if $c->is_fresh(etag => $etag);
+
     my ($device) = $c->stash('device_rs')
         ->prefetch([ { active_device_nics => 'device_neighbor' }, 'active_device_disks' ])
         ->order_by([ qw(iface_name active_device_disks.serial_number) ])

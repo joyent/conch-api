@@ -498,6 +498,28 @@ $t->get_ok('/device/TEST')
 
 my $detailed_device = $t->tx->res->json;
 
+subtest 'caching' => sub {
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->header_is('Cache-Control', 'no-cache')
+        ->header_exists('ETag')
+        ->json_schema_is('DetailedDevice')
+        ->json_is($detailed_device);
+
+    my $etag = $t->tx->res->headers->etag;
+
+    $t->get_ok('/device/TEST' => { 'If-None-Match'=> $etag })
+        ->status_is(304)
+        ->header_is('Cache-Control', 'no-cache');
+
+    $t->get_ok('/device/TEST' => { 'If-None-Match'=> 'whargarbl' })
+        ->status_is(200)
+        ->header_is('Cache-Control', 'no-cache')
+        ->header_is('ETag', $etag)
+        ->json_schema_is('DetailedDevice')
+        ->json_is($detailed_device);
+};
+
 $t->app->db_device_nics->create({
     mac => '00:00:00:00:00:0'.$_,
     device_id => $test_device_id,
@@ -507,11 +529,6 @@ $t->app->db_device_nics->create({
     iface_driver => 'baz',
     deactivated => \'now()',
 }) foreach (7..9);
-
-$t->get_ok('/device/TEST')
-    ->status_is(200)
-    ->json_schema_is('DetailedDevice')
-    ->json_is($detailed_device);
 
 my @macs = map $_->{mac}, $detailed_device->{nics}->@*;
 
