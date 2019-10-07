@@ -368,6 +368,9 @@ sub update ($c) {
     my $input = $c->validate_request('UpdateUser');
     return if not $input;
 
+    return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
+        if exists $input->{email} and not Email::Valid->address($input->{email});
+
     if (exists $input->{email}
             and my $user = $c->db_user_accounts->active->find_by_email($input->{email})) {
         return $c->status(409, {
@@ -443,6 +446,9 @@ sub create ($c) {
 
     my $input = $c->validate_request('NewUser');
     return if not $input;
+
+    return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
+        if not Email::Valid->address($input->{email});
 
     # this would cause horrible clashes with our /user routes!
     return $c->status(400, { error => 'user name "me" is prohibited' }) if $input->{name} eq 'me';
