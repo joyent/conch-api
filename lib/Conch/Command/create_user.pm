@@ -8,12 +8,12 @@ create_user - create a new user, optionally sending an email
 
 =head1 SYNOPSIS
 
-    bin/conch create_user --email <email> --name <name> [--password <password>] [--send-mail]
+    bin/conch create_user --email <email> --name <name> [--password <password>] [--send-email]
 
   --email       The user's email address. Required.
   --name        The user's name. Required.
   --password    The user's temporary password. If not provided, one will be randomly generated.
-  --send-mail   Send a welcome email to the user (defaults to true)
+  --send-email   Send a welcome email to the user (defaults to true)
 
       --help    print usage message and exit
 
@@ -41,7 +41,7 @@ sub run ($self, @opts) {
         [ 'name|n=s',       'the user\'s name', { required => 1 } ],
         [ 'email|e=s',      'the user\'s email address', { required => 1 } ],
         [ 'password|p=s',   'the user password' ],
-        [ 'send-email',     'send email to user', { default => 1 } ],
+        [ 'send-email!',    'send email to user', { default => 1 } ],
         [],
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );

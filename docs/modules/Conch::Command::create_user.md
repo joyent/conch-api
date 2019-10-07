@@ -5,12 +5,12 @@ create\_user - create a new user, optionally sending an email
 # SYNOPSIS
 
 ```
-  bin/conch create_user --email <email> --name <name> [--password <password>] [--send-mail]
+  bin/conch create_user --email <email> --name <name> [--password <password>] [--send-email]
 
 --email       The user's email address. Required.
 --name        The user's name. Required.
 --password    The user's temporary password. If not provided, one will be randomly generated.
---send-mail   Send a welcome email to the user (defaults to true)
+--send-email   Send a welcome email to the user (defaults to true)
 
     --help    print usage message and exit
 ```
