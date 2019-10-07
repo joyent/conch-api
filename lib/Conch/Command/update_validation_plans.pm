@@ -10,8 +10,7 @@ update_validation_plans - Utility to bring validations and validation_plans up t
 
     bin/conch update_validation_plans [long options...]
 
-        --update_all    deactivate old versions of validation <name>,
-                        update all plans to use the new version of this validation
+        --update_all    update all plans to use the new version of this validation
 
         --help          print usage message and exit
 
