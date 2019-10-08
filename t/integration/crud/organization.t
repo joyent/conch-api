@@ -899,6 +899,12 @@ $t->delete_ok('/organization/our second organization')
     ->status_is(204)
     ->log_debug_is('Deactivated organization our second organization, removing 1 user memberships and removing from 0 workspaces and 0 builds');
 
+$t->delete_ok('/organization/our second organization')
+    ->status_is(410);
+
+$t->get_ok('/organization/our second organization')
+    ->status_is(410);
+
 $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')

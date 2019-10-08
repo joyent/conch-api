@@ -109,7 +109,7 @@ Requires the 'admin' role on the organization (or the user to be a system admin)
 
 sub find_organization ($c) {
     my $identifier = $c->stash('organization_id_or_name');
-    my $rs = $c->db_organizations->active;
+    my $rs = $c->db_organizations;
     if (is_uuid($identifier)) {
         $c->stash('organization_id', $identifier);
         $rs = $rs->search({ 'organization.id' => $identifier });
@@ -120,6 +120,9 @@ sub find_organization ($c) {
     }
 
     return $c->status(404) if not $rs->exists;
+
+    $rs = $rs->active;
+    return $c->status(410) if not $rs->exists;
 
     my $requires_role = $c->stash('require_role') // 'admin';
     if (not $c->is_system_admin

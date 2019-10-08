@@ -15,6 +15,11 @@ Retrieve a list of all active relays in the database.
 
 Response uses the Relays json schema.
 
+## find\_relay
+
+Chainable action that looks up the relay by id or serial\_number,
+stashing the query to get to it in `relay_rs`.
+
 ## get
 
 Get the details of a single relay.
