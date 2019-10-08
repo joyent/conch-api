@@ -16,6 +16,12 @@ continue.
 
 Retrieves details about a single device. Response uses the DetailedDevice json schema.
 
+**Note:** The results of this endpoint can be cached, but since the checksum is based only on
+the device's last updated time, and not on any other components associated with it (disks,
+network interfaces, location etc) it is only suitable for using to determine if a subsequent
+device report has been submitted for this device. Updates to the device through other means may
+not be reflected in the checksum.
+
 ## lookup\_by\_other\_attribute
 
 Looks up one or more devices by query parameter. Supports:

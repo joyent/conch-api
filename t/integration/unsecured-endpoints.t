@@ -21,6 +21,7 @@ $t->get_ok('/me')->status_is(401);
 
 $t->get_ok('/version')
     ->status_is(200)
+    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->json_schema_is('Version')
     ->json_cmp_deeply({ version => re(qr/^v/) });
 

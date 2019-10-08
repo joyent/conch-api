@@ -24,6 +24,10 @@ and therefore other helpers).
 
 Helper method for setting the response status code and json content.
 
+## startup\_time
+
+Stores a [Conch::Time](../modules/Conch::Time) instance representing the time the server started accepting requests.
+
 # LICENSING
 
 Copyright Joyent, Inc.

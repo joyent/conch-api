@@ -51,6 +51,8 @@ requires 'Session::Token';
 requires 'Sys::Hostname';
 requires 'Sub::Install';
 requires 'WebService::Rollbar::Notifier';
+requires 'Digest::SHA';
+requires 'Digest::MD5';
 
 # debugging aids
 requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';

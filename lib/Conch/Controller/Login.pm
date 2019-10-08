@@ -55,6 +55,10 @@ subsequent routes and actions.
 =cut
 
 sub authenticate ($c) {
+    # ensure that responses from authenticated endpoints are not cached by a proxy without
+    # first verifying their contents (and the user's authentication!) with the api
+    $c->tx->res->headers->cache_control('no-cache');
+
     if (my $user = $c->stash('user')) {
         $c->log->debug('already authenticated (user '.$user->name.')');
         return 1;

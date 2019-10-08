@@ -292,6 +292,24 @@ $t->get_ok('/schema/REQUEST/hello')
 $t->get_ok('/schema/request/hello')
     ->status_is(404);
 
+$t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2040 00:00:00 GMT' })
+    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
+    ->status_is(304);
+
+$t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006 00:00:00 GMT' })
+    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
+    ->status_is(200)
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply({
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$id' => 'urn:response.Ping.schema.json',
+        title => 'Ping',
+        type => 'object',
+        additionalProperties => bool(0),
+        required => ['status'],
+        properties => { status => { const => 'ok' } },
+    });
+
 $t->get_ok('/schema/response/Login')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)

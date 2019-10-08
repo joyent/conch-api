@@ -19,6 +19,12 @@ Get the json-schema in JSON format.
 =cut
 
 sub get ($c) {
+    # set Last-Modified header; return 304 if If-Modified-Since is recent enough.
+    # For now, just use the server start time. We could do something more sophisticated with
+    # the timestamps on the schema file(s), but this is fiddly and involves following all $refs
+    # to see what files they came from.
+    return $c->status(304) if $c->is_fresh(last_modified => $c->startup_time->epoch);
+
     my $type = $c->stash('schema_type');
     my $name = camelize $c->stash('name');
 
