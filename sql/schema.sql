@@ -166,7 +166,9 @@ CREATE TABLE public.build (
     created timestamp with time zone DEFAULT now() NOT NULL,
     started timestamp with time zone,
     completed timestamp with time zone,
-    completed_user_id uuid
+    completed_user_id uuid,
+    CONSTRAINT build_completed_iff_started_check CHECK (((completed IS NULL) OR (started IS NOT NULL))),
+    CONSTRAINT build_completed_xnor_completed_user_id_check CHECK ((((completed IS NULL) AND (completed_user_id IS NULL)) OR ((completed IS NOT NULL) AND (completed_user_id IS NOT NULL))))
 );
 
 
@@ -1211,6 +1213,13 @@ CREATE INDEX datacenter_room_datacenter_id_idx ON public.datacenter_room USING b
 
 
 --
+-- Name: device_build_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX device_build_id_idx ON public.device USING btree (build_id);
+
+
+--
 -- Name: device_disk_device_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1274,13 +1283,6 @@ CREATE INDEX device_nic_ipaddr_idx ON public.device_nic USING btree (ipaddr);
 
 
 --
--- Name: device_relay_connection_device_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX device_relay_connection_device_id_idx ON public.device_relay_connection USING btree (device_id);
-
-
---
 -- Name: device_relay_connection_relay_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1299,13 +1301,6 @@ CREATE INDEX device_report_created_idx ON public.device_report USING btree (crea
 --
 
 CREATE INDEX device_report_device_id_created_idx ON public.device_report USING btree (device_id, created DESC);
-
-
---
--- Name: device_report_device_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX device_report_device_id_idx ON public.device_report USING btree (device_id);
 
 
 --
@@ -1358,10 +1353,31 @@ CREATE UNIQUE INDEX hardware_vendor_name_key ON public.hardware_vendor USING btr
 
 
 --
+-- Name: organization_build_role_build_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX organization_build_role_build_id_idx ON public.organization_build_role USING btree (build_id);
+
+
+--
 -- Name: organization_name_key; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE UNIQUE INDEX organization_name_key ON public.organization USING btree (name) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: organization_workspace_role_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX organization_workspace_role_workspace_id_idx ON public.organization_workspace_role USING btree (workspace_id);
+
+
+--
+-- Name: rack_build_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX rack_build_id_idx ON public.rack USING btree (build_id);
 
 
 --
@@ -1407,17 +1423,24 @@ CREATE INDEX user_account_name_key ON public.user_account USING btree (name);
 
 
 --
+-- Name: user_build_role_build_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX user_build_role_build_id_idx ON public.user_build_role USING btree (build_id);
+
+
+--
+-- Name: user_organization_role_organization_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX user_organization_role_organization_id_idx ON public.user_organization_role USING btree (organization_id);
+
+
+--
 -- Name: user_relay_connection_relay_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE INDEX user_relay_connection_relay_id_idx ON public.user_relay_connection USING btree (relay_id);
-
-
---
--- Name: user_relay_connection_user_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX user_relay_connection_user_id_idx ON public.user_relay_connection USING btree (user_id);
 
 
 --
@@ -1453,13 +1476,6 @@ CREATE INDEX user_setting_user_id_idx ON public.user_setting USING btree (user_i
 --
 
 CREATE UNIQUE INDEX user_setting_user_id_name_idx ON public.user_setting USING btree (user_id, name) WHERE (deactivated IS NULL);
-
-
---
--- Name: user_workspace_role_user_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX user_workspace_role_user_id_idx ON public.user_workspace_role USING btree (user_id);
 
 
 --
@@ -1533,13 +1549,6 @@ CREATE INDEX validation_state_created_idx ON public.validation_state USING btree
 
 
 --
--- Name: validation_state_device_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_state_device_id_idx ON public.validation_state USING btree (device_id);
-
-
---
 -- Name: validation_state_device_id_validation_plan_id_completed_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1558,13 +1567,6 @@ CREATE INDEX validation_state_device_report_id_idx ON public.validation_state US
 --
 
 CREATE INDEX validation_state_member_validation_result_id_idx ON public.validation_state_member USING btree (validation_result_id);
-
-
---
--- Name: validation_state_member_validation_state_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_state_member_validation_state_id_idx ON public.validation_state_member USING btree (validation_state_id);
 
 
 --
@@ -1593,13 +1595,6 @@ CREATE INDEX workspace_parent_workspace_id_idx ON public.workspace USING btree (
 --
 
 CREATE INDEX workspace_rack_rack_id_idx ON public.workspace_rack USING btree (rack_id);
-
-
---
--- Name: workspace_rack_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_rack_workspace_id_idx ON public.workspace_rack USING btree (workspace_id);
 
 
 --

@@ -447,6 +447,11 @@ subtest 'modify another user' => sub {
         ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ])
         ->email_not_sent;
 
+    $t_super->post_ok('/user', json => { email => 'foo@joyent-com', name => 'foo' })
+        ->status_is(400)
+        ->json_is({ error => 'user email "foo@joyent-com" is not a valid RFC822 address' })
+        ->email_not_sent;
+
     $t_super->post_ok('/user', json => { name => 'foo', email => $ro_user->email })
         ->status_is(409, 'cannot create user with a duplicate email address')
         ->json_schema_is('UserError')
@@ -555,6 +560,11 @@ subtest 'modify another user' => sub {
                 deactivated => undef,
             }),
         })
+        ->email_not_sent;
+
+    $t_super->post_ok('/user/untrusted@conch.joyent.us', json => { email => 'foo@joyent-com' })
+        ->status_is(400)
+        ->json_is({ error => 'user email "foo@joyent-com" is not a valid RFC822 address' })
         ->email_not_sent;
 
     $t_super->post_ok('/user/untrusted@conch.joyent.us',

@@ -239,5 +239,51 @@ subtest 'Authen::Passphrase handling' => sub {
     );
 };
 
+subtest 'database constraints' => sub {
+    my ($pgsql, $schema) = Test::Conch->init_db;
+
+    my $user = $schema->resultset('user_account')->create({
+        name => 'constraint check user',
+        email => 'constraint@conch.joyent.us',
+        password => 'whargarbl',
+    });
+
+    like(
+        exception {
+            $schema->resultset('build')->create({
+                name => 'my first build',
+                started => undef,
+                completed => \'now()',
+                completed_user_id => $user->id,
+            });
+        },
+        qr/violates check constraint "build_completed_iff_started_check"/,
+    );
+
+    like(
+        exception {
+            $schema->resultset('build')->create({
+                name => 'my first build',
+                started => \'now()',
+                completed => undef,
+                completed_user_id => $user->id,
+            });
+        },
+        qr/violates check constraint "build_completed_xnor_completed_user_id_check"/,
+    );
+
+    like(
+        exception {
+            $schema->resultset('build')->create({
+                name => 'my first build',
+                started => \'now()',
+                completed => \'now()',
+                completed_user_id => undef,
+            });
+        },
+        qr/violates check constraint "build_completed_xnor_completed_user_id_check"/,
+    );
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :
