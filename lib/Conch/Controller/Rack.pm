@@ -300,10 +300,9 @@ sub set_assignment ($c) {
                 { key => 'primary' },   # only search for conflicts by device_id
             );
         }
-    });
-
-    # if the result code was already set, we errored and rolled back the db...
-    return if $c->res->code;
+        return 1;
+    })
+    or return $c->status(400);
 
     $c->log->debug('Updated device assignments for rack '.$c->stash('rack_id'));
     $c->status(303, '/rack/'.$c->stash('rack_id').'/assignment');

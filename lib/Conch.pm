@@ -61,11 +61,16 @@ sub startup {
     );
 
     $self->hook(after_render => sub ($c, @args) {
+        warn 'called $c->render twice' if $c->stash->{_rendered}++;
+
         $c->tx->res->headers->add('X-Conch-API', $c->version_tag);
     });
 
     $self->helper(
         status => sub ($c, $code, $payload = undef) {
+            $payload //= { error => (split(/\n/, $c->stash('exception'), 2))[0] }
+                if $code >= 400 and $code < 500 and $c->stash('exception');
+
             $payload //= { error => 'Unauthorized' } if $code == 401;
             $payload //= { error => 'Forbidden' } if $code == 403;
             $payload //= { error => 'Not Found' } if $code == 404;

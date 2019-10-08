@@ -37,16 +37,20 @@ my $result = $c->txn_wrapper(sub ($c) {
     # many update, delete queries etc...
 });
 
-# if the result code was already set, we errored and rolled back the db...
-return if $c->res->code;
+# if the result is false, we errored and rolled back the db...
+return $c->status(400) if not $result;
 ```
 
 Wraps the provided subref in a database transaction, rolling back in case of an exception.
 Any provided arguments are passed to the sub, along with the invocant controller.
 
 If the exception is not `'rollback'` (which signals an intentional premature bailout), the
-exception will be logged, and a response will be set up as an error response with the first
-line of the exception.
+exception will be logged and stored in the stash, of which the first line will be included in
+the response if no other response is prepared (see ["status" in Conch](/modules/Conch#status)).
+
+You should **not** render a response in the subref itself, as you will have a difficult time
+figuring out afterwards whether `$c->rendered` still needs to be called or not. Instead,
+use the subref's return value to signal success.
 
 # LICENSING
 
