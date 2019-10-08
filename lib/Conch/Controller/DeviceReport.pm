@@ -79,16 +79,15 @@ sub process ($c) {
                 ? ( links => \['array_cat_distinct(links,?)', [{},$unserialized_report->{links}]] ) : (),
             updated             => \'now()',
         });
-    });
-
-    if ($c->res->code) {
+    })
+    or do {
         $device->discard_changes;
         $device->health('error');
         $device->update({ updated => \'now()' }) if $device->is_changed;
         return $c->status(400, { error => 'could not process report for device '
             .$c->stash('device_serial_number')
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
-    }
+    };
 
     $c->log->debug('Storing device report for device '.$c->stash('device_serial_number'));
     my $device_report = $device->create_related('device_reports', {
@@ -100,15 +99,14 @@ sub process ($c) {
     });
     $c->log->info('Created device report '.$device_report->id);
 
-
     $c->log->debug('Recording device configuration');
-    $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report);
-
-    if ($c->res->code) {
+    $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report)
+    or do {
+        $device->discard_changes;
         $device->health('error');
         $device->update({ updated => \'now()' }) if $device->is_changed;
-        return;
-    }
+        return $c->status(400);
+    };
 
     # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
     my $validation_plan = $c->db_validation_plans->search({
@@ -309,6 +307,8 @@ sub _record_device_configuration ($c, $prev_uptime, $device, $dr) {
     if (@inactive_macs) {
         $c->db_device_nics->search({ mac => { -in => \@inactive_macs } })->deactivate;
     }
+
+    return 1;
 }
 
 sub _add_reboot_count ($device) {

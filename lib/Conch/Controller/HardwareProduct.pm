@@ -110,7 +110,7 @@ sub create ($c) {
     });
 
     # if the result code was already set, we errored and rolled back the db..
-    return if $c->res->code;
+    return $c->status(400) if not $hardware_product;
 
     $c->log->debug('Created hardware product id '.$hardware_product->id.
         ($input->{hardware_product_profile}
@@ -154,8 +154,6 @@ sub update ($c) {
     }
 
     $c->txn_wrapper(sub ($c) {
-        $c->log->debug('start of transaction...');
-
         my $profile = delete $input->{hardware_product_profile};
         if ($profile and keys $profile->%*) {
             if (keys $profile->%*) {
@@ -177,12 +175,9 @@ sub update ($c) {
 
         $hardware_product->update({ $input->%*, updated => \'now()' }) if keys $input->%*;
         $c->log->debug('Updated hardware product '.$hardware_product->id);
-
-        $c->log->debug('transaction ended successfully');
-    });
-
-    # if the result code was already set, we errored and rolled back the db..
-    return if $c->res->code;
+        return 1;
+    })
+    or return $c->res->code(400);
 
     $c->status(303, '/hardware_product/'.$hardware_product->id);
 }

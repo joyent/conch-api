@@ -444,7 +444,7 @@ subtest 'system_uuid collisions' => sub {
 
     $t->post_ok('/device/i_was_here_first', json => $report_data)
         ->status_is(400)
-        ->json_cmp_deeply({ error => re(qr/could not process report for device i_was_here_first.*duplicate key value violates unique constraint "device_system_uuid_key"/) });
+        ->json_cmp_deeply({ error => re(qr/^could not process report for device i_was_here_first.*duplicate key value violates unique constraint "device_system_uuid_key"/) });
 
     $existing_device->discard_changes;
     is($existing_device->health, 'error', 'bad reports flip device health to error');

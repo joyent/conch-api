@@ -614,18 +614,19 @@ sub create_and_add_devices ($c) {
 
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
 
+    my ($code, $payload);
     $c->txn_wrapper(sub ($c) {
         foreach my $entry ($input->@*) {
             if (not $hardware_products{$entry->{sku}}) {
                 $c->log->error('no hardware_product corresponding to sku '.$entry->{sku});
-                $c->status(404);
+                $code = 404;
                 die 'rollback';
             }
 
             # for now, at least, many validations require this
             if (not $hardware_products{$entry->{sku}}->hardware_product_profile) {
                 $c->log->error('no hardware_product_profile corresponding to sku '.$entry->{sku});
-                $c->status(404);
+                $code = 404;
                 die 'rollback';
             }
 
@@ -635,7 +636,8 @@ sub create_and_add_devices ($c) {
                     if (($device->build_id and $device->build_id ne $build_id)
                         or ($device->device_location and $device->device_location->rack->build_id
                             and $device->device_location->rack->build_id ne $build_id)) {
-                        $c->status(409, { error => 'device '.($entry->{serial_number} // $entry->{id}).' not in build '.$c->stash('build_id_or_name') });
+                        $code = 409;
+                        $payload = { error => 'device '.($entry->{serial_number} // $entry->{id}).' not in build '.$c->stash('build_id_or_name') };
                         die 'rollback';
                     }
 
@@ -652,7 +654,7 @@ sub create_and_add_devices ($c) {
                 }
                 else {
                     $c->log->error('no device corresponding to device id '.$entry->{id});
-                    $c->status(404);
+                    $code = 404;
                     die 'rollback';
                 }
             }
@@ -669,10 +671,9 @@ sub create_and_add_devices ($c) {
                 $c->log->debug('created new device '.$entry->{serial_number}.' in build '.$c->stash('build_id_or_name'));
             }
         }
-    });
-
-    # if the result code was already set, we errored and rolled back the db...
-    return if $c->res->code;
+        return 1;
+    })
+    or return $c->status($code // 400, $payload);
 
     $c->status(204);
 }

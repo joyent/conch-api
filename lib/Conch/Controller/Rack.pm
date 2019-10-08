@@ -189,10 +189,10 @@ sub overwrite_layouts ($c) {
                 ($deleted_layouts ? ('deleted '.$deleted_layouts.' rack layouts') : ()),
                 (@layouts_to_create ? ('created '.scalar(@layouts_to_create).' rack layouts') : ()),
             ).' for rack '.$c->stash('rack_id'));
-    });
 
-    # if the result code was already set, we errored and rolled back the db...
-    return if $c->res->code;
+        return 1;
+    })
+    or return $c->status(400);
 
     $c->status(303, '/rack/'.$c->stash('rack_id').'/layouts');
 }
@@ -367,7 +367,7 @@ sub set_assignment ($c) {
             }
             elsif ($entry->{device_id}) {
                 $c->log->error('no device corresponding to device id '.$entry->{device_id});
-                $c->status(404);
+                $c->res->code(404);
                 die 'rollback';
             }
             else {
@@ -389,10 +389,10 @@ sub set_assignment ($c) {
                 { key => 'primary' },   # only search for conflicts by device_id
             );
         }
-    });
 
-    # if the result code was already set, we errored and rolled back the db...
-    return if $c->res->code;
+        return 1;
+    })
+    or return $c->status($c->res->code // 400);
 
     $c->log->debug('Updated device assignments for rack '.$c->stash('rack_id'));
     $c->status(303, '/rack/'.$c->stash('rack_id').'/assignment');
