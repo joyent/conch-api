@@ -33,6 +33,9 @@ from an API endpoint against a JSON Schema.
 
 =head1 HELPERS
 
+These methods are made available on the C<$c> object (the invocant of all controller methods,
+and therefore other helpers).
+
 =cut
 
 sub register ($self, $app, $config) {

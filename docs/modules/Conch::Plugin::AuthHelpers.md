@@ -8,6 +8,9 @@ Contains all convenience handlers for authentication
 
 # HELPERS
 
+These methods are made available on the `$c` object (the invocant of all controller methods,
+and therefore other helpers).
+
 ## is\_system\_admin
 
 ```

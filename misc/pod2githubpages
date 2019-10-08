@@ -19,8 +19,7 @@ use YAML::XS;
 my %opts = (
     output_encoding => 'UTF-8',
     local_module_re => qr/Conch/,
-    local_module_url_prefix => '../modules/', # '' is better but Pod::Markdown doesn't respect it
-                                        # see https://rt.cpan.org/Ticket/Display.html?id=129865
+    local_module_url_prefix => '../modules/',
 );
 
 around 'Pod::Markdown::format_perldoc_url' => sub {

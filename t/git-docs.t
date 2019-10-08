@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Warnings;
 plan skip_all => 'no .git: cannot check dirty files' if not -d '.git';
 
 system(qw(make ghdocs));

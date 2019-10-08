@@ -25,6 +25,11 @@ use Digest::SHA ();
 Used by Mojo in the startup process. Loads the config file and sets up the
 helpers, routes and everything else.
 
+=head1 HELPERS
+
+These methods are made available on the C<$c> object (the invocant of all controller methods,
+and therefore other helpers).
+
 =cut
 
 sub startup {
@@ -62,6 +67,12 @@ sub startup {
 
         $c->tx->res->headers->add('X-Conch-API', $c->version_tag);
     });
+
+=head2 status
+
+Helper method for setting the response status code and json content.
+
+=cut
 
     $self->helper(status => sub ($c, $code, $payload = undef) {
         $payload //= { error => (split(/\n/, $c->stash('exception'), 2))[0] }

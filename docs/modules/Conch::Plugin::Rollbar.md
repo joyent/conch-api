@@ -26,6 +26,9 @@ message is sent to Rollbar.
 
 # HELPERS
 
+These methods are made available on the `$c` object (the invocant of all controller methods,
+and therefore other helpers).
+
 ## send\_exception\_to\_rollbar
 
 Asynchronously send exception details to Rollbar (if the `rollbar` `access_token` is

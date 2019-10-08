@@ -79,6 +79,9 @@ message is sent to Rollbar.
 
 =head1 HELPERS
 
+These methods are made available on the C<$c> object (the invocant of all controller methods,
+and therefore other helpers).
+
 =head2 send_exception_to_rollbar
 
 Asynchronously send exception details to Rollbar (if the C<rollbar> C<access_token> is
