@@ -66,7 +66,7 @@ sub startup {
     $self->hook(after_render => sub ($c, @args) {
         warn 'called $c->render twice' if $c->stash->{_rendered}++;
 
-        $c->tx->res->headers->add('X-Conch-API', $c->version_tag);
+        $c->res->headers->add('X-Conch-API', $c->version_tag);
     });
 
 =head2 status
