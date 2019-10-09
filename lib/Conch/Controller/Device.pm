@@ -219,7 +219,11 @@ sub lookup_by_other_attribute ($c) {
     }
     elsif (any { $key eq $_ } qw(mac ipaddr)) {
         $device_rs = $device_rs->search(
-            { 'device_nics.'.$key => $value },
+            {
+                # production devices do not consider interface data to be canonical
+                $device_rs->current_source_alias.'.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+                'device_nics.'.$key => $value,
+            },
             { join => 'device_nics' },
         );
     }

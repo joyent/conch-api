@@ -709,6 +709,10 @@ subtest 'get by device attributes' => sub {
             ->json_is([ $undetailed_device ]);
     }
 
+    foreach my $query ('/device?ipaddr=172.17.0.173', "/device?mac=$macs[0]") {
+        $t->get_ok($query)->status_is(404);
+    }
+
     $test_device->update({ links => '{}', phase => 'installation' });
 };
 
