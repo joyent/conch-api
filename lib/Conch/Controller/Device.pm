@@ -23,6 +23,9 @@ to find the device and verify the user has the required role to operate on it.
 If C<require_role> is provided, it is used as the minimum required role for the user to
 continue.
 
+If C<phase_earlier_than> is provided, C<409 CONFLICT> is returned if the device is in the
+provided phase (or later).
+
 =cut
 
 sub find_device ($c) {
@@ -100,6 +103,15 @@ sub find_device ($c) {
     # No queries have been made yet, so you can add on more criteria or prefetches.
     $c->stash('device_id', $device_id);
     $c->stash('device_rs', $c->db_devices->search_rs({ 'device.id' => $device_id }));
+
+    if (my $bad_phase = $c->req->query_params->param('phase_earlier_than')
+            // $c->stash('phase_earlier_than')) {
+        my $phase = $c->stash('device_rs')->get_column('phase')->single;
+        if (Conch::DB::Result::Device->phase_cmp($phase, $bad_phase) >= 0) {
+            $c->res->headers->location($c->url_for('/device/'.$device_id.'/links'));
+            return $c->status(409, { error => 'device is in the '.$phase.' phase' });
+        }
+    }
 
     return 1;
 }

@@ -583,6 +583,26 @@ subtest 'device network interfaces' => sub {
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
 
+    foreach my $query (
+        '/device/TEST/interface',
+        '/device/TEST/interface/ipmi1',
+        map '/device/TEST/interface/ipmi1/'.$_,
+            (qw(mac iface_name iface_type iface_vendor iface_driver state ipaddr mtu)),
+    ) {
+        $t->get_ok($query)
+            ->status_is(409)
+            ->location_is('/device/'.$test_device_id.'/links')
+            ->json_is({ error => 'device is in the production phase' });
+    }
+
+    $t->get_ok('/device/TEST/interface?phase_earlier_than=decommissioned')
+        ->status_is(200)
+        ->json_schema_is('DeviceNics');
+
+    $t->get_ok('/device/TEST/interface?phase_earlier_than=')
+        ->status_is(200)
+        ->json_schema_is('DeviceNics');
+
     $t->post_ok('/device/TEST/phase', json => { phase => 'installation' })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
