@@ -46,31 +46,20 @@ sub find_device ($c) {
     }
 
     $c->log->debug('Looking up device '.$identifier.' for user '.$c->stash('user_id'));
+    my $device_id = $rs->get_column('id')->single;
 
-    # fetch for device existence, id and location in one query
-    my $device_check = $rs
-        ->search(undef, { join => 'device_location' })
-        ->add_columns([
-            'id',
-            { exists => \1 },
-            { has_location => \'device_location.rack_id is not null' },
-        ])
-        ->hri
-        ->single;
-
-    # if the device doesn't exist, we can bail out right now
-    if (not $device_check->{exists}) {
+    # if the device id cannot be fetched, we can bail out right now
+    if (not $device_id) {
         $c->log->debug('Failed to find device '.$identifier);
         return $c->status(404);
     }
 
-    my $device_id = $device_check->{id};
-    $c->stash('device_id', $device_id);
+    CHECK_ACCESS: {
+        if ($c->is_system_admin) {
+            $c->log->debug('User has system admin privileges for device '.$device_id);
+            last CHECK_ACCESS;
+        }
 
-    if ($c->is_system_admin) {
-        $c->log->debug('User has system admin privileges to access device '.$device_id);
-    }
-    elsif ($device_check->{has_location}) {
         # if no minimum role was specified, use a heuristic:
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
         my $method = $c->req->method;
@@ -79,25 +68,29 @@ sub find_device ($c) {
           : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
           : die 'need handling for '.$method.' method';
 
-        if (not $c->db_devices->search({ 'device.id' => $device_id })
-                ->user_has_role($c->stash('user_id'), $requires_role)) {
-            $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$device_id);
-            return $c->status(403);
-        }
-    }
-    else {
-        # look for unlocated devices among those that have sent a device report proxied by a
-        # relay using the user's credentials
-        $c->log->debug('looking for device '.$device_id.' associated with relay reports');
+        last CHECK_ACCESS if $requires_role eq 'none';
 
+        if ($c->db_devices->search({ 'device.id' => $device_id })
+                ->user_has_role($c->stash('user_id'), $requires_role)) {
+            $c->log->debug('User has '.$requires_role.' access to device '.$device_id.' via role entry');
+            last CHECK_ACCESS;
+        }
+
+        # look for devices among those that have sent a device report proxied by a relay
+        # using the user's credentials: for historical reasons we consider this equivalent to
+        # 'admin' access (but it really should be 'ro')
+        $c->log->debug('looking for device '.$device_id.' associated with relay reports');
         my $device_rs = $c->db_devices
             ->search({ 'device.id' => $device_id })
             ->devices_reported_by_user_relay($c->stash('user_id'));
 
-        if (not $device_rs->exists) {
-            $c->log->debug('User cannot access unlocated device '.$device_id);
-            return $c->status(403);
+        if ($device_rs->exists) {
+            $c->log->debug('User has de facto '.$requires_role.' access to device '.$device_id.' via relay connection');
+            last CHECK_ACCESS;
         }
+
+        $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$device_id);
+        return $c->status(403);
     }
 
     $c->log->debug('Found device id '.$device_id);
@@ -105,6 +98,7 @@ sub find_device ($c) {
     # store the simplified query to access the device, now that we've confirmed the user has
     # the required role to access it.
     # No queries have been made yet, so you can add on more criteria or prefetches.
+    $c->stash('device_id', $device_id);
     $c->stash('device_rs', $c->db_devices->search_rs({ 'device.id' => $device_id }));
 
     return 1;
@@ -225,7 +219,6 @@ sub lookup_by_other_attribute ($c) {
             ->with_user_role($c->stash('user_id'), 'ro');
 
         my $device_via_relay_rs = $device_rs
-            ->devices_without_location
             ->devices_reported_by_user_relay($c->stash('user_id'));
         $device_rs = $device_in_workspace_or_build_rs->union($device_via_relay_rs);
     }

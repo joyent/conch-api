@@ -89,8 +89,7 @@ sub user_has_role ($self, $user_id, $role) {
         ->search_related('user_organization_roles', { user_id => $user_id })
         ->related_resultset('user_account');
 
-    my $has_rack_role = $via_user_rs->union_all($via_org_rs)->exists;
-    return $has_rack_role if $has_rack_role;
+    return 1 if $via_user_rs->union_all($via_org_rs)->exists;
 
     # this checks:
     # device -> rack -> workspace -> user_workspace_role -> user
