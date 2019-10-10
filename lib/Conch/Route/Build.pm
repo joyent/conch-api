@@ -238,7 +238,8 @@ an email to the organization members and build admins.
 
 =over 4
 
-=item * Requires system admin authorization, or the read/write role on the build.
+=item * Requires system admin authorization, or the read/write role on the build and the
+read-only role on the device.
 
 =item * Request: F<request.yaml#/definitions/BuildCreateDevice>
 

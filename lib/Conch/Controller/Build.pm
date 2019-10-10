@@ -592,7 +592,7 @@ Adds the specified device to the build (as long as it isn't in another build, or
 rack in another build).  The device is created if necessary with all data provided (or updated
 with the data if it already exists, so the endpoint is idempotent).
 
-Requires the 'read/write' role on the build.
+Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
 =cut
 
@@ -692,7 +692,7 @@ sub create_and_add_devices ($c) {
 Adds the specified device to the build (as long as it isn't in another build, or located in a
 rack in another build).
 
-Requires the 'read/write' role on the build.
+Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
 =cut
 
