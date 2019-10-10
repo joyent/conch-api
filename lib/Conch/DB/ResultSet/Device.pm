@@ -35,12 +35,18 @@ sub with_user_role ($self, $user_id, $role) {
         ->with_user_role($user_id, $role)
         ->get_column('id');
 
+    my $me = $self->current_source_alias;
+
     # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
     # not need to search the workspace heirarchy here, but simply look for a role entry for any
     # workspace the rack is associated with.
 
     my $devices_in_ws = $self->search(
-        { 'workspace_racks.workspace_id' => { -in => $workspace_ids_rs->as_query } },
+        {
+            # production devices do not consider location data to be canonical
+            $me.'.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+            'workspace_racks.workspace_id' => { -in => $workspace_ids_rs->as_query },
+        },
         { join => { device_location => { rack => 'workspace_racks' } } },
     );
 
@@ -51,7 +57,7 @@ sub with_user_role ($self, $user_id, $role) {
     my $devices_in_builds = $self->search(
         { -or => [
                 { 'rack.build_id' => { -in => $build_ids_rs->as_query } },
-                { $self->current_source_alias.'.build_id' => { -in => $build_ids_rs->as_query } },
+                { $me.'.build_id' => { -in => $build_ids_rs->as_query } },
             ],
         },
         { join => { device_location => 'rack' } },
@@ -97,6 +103,8 @@ sub user_has_role ($self, $user_id, $role) {
     # device -> rack -> build -> user_build_role -> user
     # device -> rack -> build -> organization_build_role -> organization -> user
     $self
+        # production devices do not consider location data to be canonical
+        ->search({ $self->current_source_alias.'.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] } })
         ->related_resultset('device_location')
         ->related_resultset('rack')
         ->user_has_role($user_id, $role);

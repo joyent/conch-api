@@ -540,18 +540,36 @@ subtest 'located device' => sub {
         $t->authenticate(email => $ro_user->email);
     };
 
+    # give build user ro access to the device through device->device_location->rack->workspace
+    $global_ws->create_related('user_workspace_roles', { user_id => $build_user->id, role => 'ro' });
+    $t->authenticate(email => $build_user->email);
+    $t->post_ok('/build/'.$build->id.'/device/'.$located_device_id)
+        ->status_is(204)
+        ->log_debug_is('User has rw access to build '.$build->id.' via role entry')
+        ->log_debug_is('User has ro access to device '.$located_device_id.' via role entry');
 
     $located_device->update({ phase => 'production' });
+    $device_data->{build_id} = $build->id;
     $device_data->{phase} = 'production';
     delete $device_data->@{qw(location nics disks)};
 
+    # build user still has access through the build
     $t->get_ok('/device/'.$located_device_id)
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
             $device_data->%*,
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-        });
+        })
+        ->log_debug_is('User has ro access to device '.$located_device_id.' via role entry');
+
+    # ro user only had access through device->device_location->rack->workspace
+    $t->authenticate(email => $ro_user->email);
+    $t->get_ok('/device/'.$located_device_id)
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (ro) for device '.$located_device_id);
+
+    $located_device->update({ phase => 'installation' });
 };
 
 subtest 'device network interfaces' => sub {
@@ -1070,12 +1088,12 @@ subtest 'Device PXE' => sub {
     $device_pxe->update({ phase => 'production' });
     delete $pxe_data->{location};
 
-    $t_ro->get_ok('/device/PXE_TEST/pxe')
+    $t_super->get_ok('/device/PXE_TEST/pxe')
         ->status_is(409)
         ->location_is('/device/'.$device_pxe->id.'/links')
         ->json_is({ error => 'device is in the production phase' });
 
-    $t_ro->get_ok('/device/PXE_TEST/pxe?phase_earlier_than=')
+    $t_super->get_ok('/device/PXE_TEST/pxe?phase_earlier_than=')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({ $pxe_data->%*, phase => 'production' });
