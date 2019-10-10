@@ -675,7 +675,6 @@ definitions:
           required:
             - location
   DeviceLocation:
-    $comment: location should not be considered canonical when device 'phase' is 'production' or later
     type: object
     additionalProperties: false
     required:

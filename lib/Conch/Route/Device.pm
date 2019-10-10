@@ -58,7 +58,7 @@ sub routes {
         $with_device->delete('/links')->to('device#remove_links');
 
         {
-            my $with_device_location = $with_device->any('/location')
+            my $with_device_location = $with_device_phase_earlier_than_prod->any('/location')
                 ->to({ controller => 'device_location' });
 
             # GET /device/:device_id_or_serial_number/location

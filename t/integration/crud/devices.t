@@ -709,7 +709,7 @@ subtest 'get by device attributes' => sub {
             ->json_is([ $undetailed_device ]);
     }
 
-    $test_device->update({ links => '{}' });
+    $test_device->update({ links => '{}', phase => 'installation' });
 };
 
 subtest 'mutate device attributes' => sub {
@@ -818,6 +818,8 @@ subtest 'mutate device attributes' => sub {
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply($detailed_device);
+
+    $test_device->update({ phase => 'installation' });
 };
 
 subtest 'Device settings' => sub {
@@ -1123,6 +1125,42 @@ subtest 'Device location' => sub {
     $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id.'/location');
+
+    my $layout = $rack->search_related('rack_layouts', { rack_unit_start => 3 })->single;
+
+    $t_build->get_ok('/device/TEST/location')
+        ->status_is(200)
+        ->json_schema_is('DeviceLocation')
+        ->json_cmp_deeply({
+            datacenter => superhashof({ id => $rack->datacenter_room->datacenter_id }),
+            datacenter_room => superhashof({ datacenter_id => $rack->datacenter_room->datacenter_id }),
+            rack => superhashof({ id => $rack_id, name => $rack->name }),
+            rack_unit_start => 3,
+            target_hardware_product => {
+                (map +($_ => $layout->hardware_product->$_), qw(id name alias)),
+                vendor => $layout->hardware_product->hardware_vendor_id,
+            },
+        });
+    my $location_data = $t_build->tx->res->json;
+
+    $t_build->app->db_devices->search({ id => $test_device_id })->update({ phase => 'production' });
+
+    $t_build->get_ok('/device/TEST/location')
+        ->status_is(409)
+        ->location_is('/device/'.$test_device_id.'/links')
+        ->json_is({ error => 'device is in the production phase' });
+
+    $t_build->get_ok('/device/TEST/location?phase_earlier_than=')
+        ->status_is(200)
+        ->json_schema_is('DeviceLocation')
+        ->json_is($location_data);
+
+    $t_build->delete_ok('/device/TEST/location')
+        ->status_is(409)
+        ->location_is('/device/'.$test_device_id.'/links')
+        ->json_is({ error => 'device is in the production phase' });
+
+    $t_build->app->db_devices->search({ id => $test_device_id })->update({ phase => 'installation' });
 
     $t_rw->delete_ok('/device/TEST/location')
         ->status_is(204);
