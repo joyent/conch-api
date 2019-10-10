@@ -40,7 +40,7 @@ sub routes {
         $with_device->get('/')->to('device#get');
 
         # GET /device/:device_id_or_serial_number/pxe
-        $with_device->get('/pxe')->to('device#get_pxe');
+        $with_device_phase_earlier_than_prod->get('/pxe')->to('device#get_pxe');
         # GET /device/:device_id_or_serial_number/phase
         $with_device->get('/phase')->to('device#get_phase');
         # GET /device/:device_id_or_serial_number/sku

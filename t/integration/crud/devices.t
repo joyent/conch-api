@@ -1065,6 +1065,11 @@ subtest 'Device PXE' => sub {
     delete $pxe_data->{location};
 
     $t_ro->get_ok('/device/PXE_TEST/pxe')
+        ->status_is(409)
+        ->location_is('/device/'.$device_pxe->id.'/links')
+        ->json_is({ error => 'device is in the production phase' });
+
+    $t_ro->get_ok('/device/PXE_TEST/pxe?phase_earlier_than=')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({ $pxe_data->%*, phase => 'production' });
