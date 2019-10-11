@@ -93,24 +93,24 @@ subtest 'unlocated device, no registered relay' => sub {
     }
 
     {
-        my $t = Test::Conch->new(pg => $t->pg);
-        $t->authenticate(email => $build_user->email);
+        my $t_build = Test::Conch->new(pg => $t->pg);
+        $t_build->authenticate(email => $build_user->email);
 
-        $t->get_ok('/device/TEST')
+        $t_build->get_ok('/device/TEST')
             ->status_is(200)
             ->json_schema_is('DetailedDevice')
             ->json_is('/id', $test_device_id)
             ->json_is('/serial_number', 'TEST')
             ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
 
-        $t->get_ok('/device/'.$test_device_id)
+        $t_build->get_ok('/device/'.$test_device_id)
             ->status_is(200)
             ->json_schema_is('DetailedDevice')
             ->json_is('/id', $test_device_id)
             ->json_is('/serial_number', 'TEST')
             ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
 
-        $t->get_ok('/device_report/'.$device_report_id)
+        $t_build->get_ok('/device_report/'.$device_report_id)
             ->status_is(200)
             ->json_schema_is('DeviceReportRow')
             ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
@@ -865,13 +865,13 @@ subtest 'Device settings' => sub {
 };
 
 subtest 'Device PXE' => sub {
-    my $t = Test::Conch->new(pg => $t->pg, fixtures => $t->fixtures);
-    $t->authenticate(email => $super_user->email);
-    my $layout = $t->load_fixture('rack_0a_layout_3_6');
+    my $t_super = Test::Conch->new(pg => $t->pg, fixtures => $t->fixtures);
+    $t_super->authenticate(email => $super_user->email);
+    my $layout = $t_super->load_fixture('rack_0a_layout_3_6');
 
-    my $relay = $t->app->db_relays->create({ serial_number => 'my_relay' });
+    my $relay = $t_super->app->db_relays->create({ serial_number => 'my_relay' });
 
-    my $device_pxe = $t->app->db_devices->create({
+    my $device_pxe = $t_super->app->db_devices->create({
         serial_number => 'PXE_TEST',
         hardware_product_id => $layout->hardware_product_id,
         health => 'unknown',
@@ -909,7 +909,7 @@ subtest 'Device PXE' => sub {
         ],
     });
 
-    $t->get_ok('/device/PXE_TEST/pxe')
+    $t_super->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
@@ -925,11 +925,12 @@ subtest 'Device PXE' => sub {
         });
 
     $layout->create_related('device_location', { device_id => $device_pxe->id });
-    my $datacenter = $t->load_fixture('datacenter_0');
+    my $datacenter = $t_super->load_fixture('datacenter_0');
 
-    $t->authenticate(email => $ro_user->email);
+    my $t_ro = Test::Conch->new(pg => $t_super->pg);
+    $t_ro->authenticate(email => $ro_user->email);
 
-    $t->get_ok('/device/PXE_TEST/pxe')
+    $t_ro->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
@@ -957,12 +958,11 @@ subtest 'Device PXE' => sub {
     $device_pxe->delete_related('device_location');
     $device_pxe->delete_related('device_nics');
 
-    $t->get_ok('/device/PXE_TEST/pxe')
+    $t_ro->get_ok('/device/PXE_TEST/pxe')
         ->status_is(403)
         ->log_debug_is('User lacks the required role (ro) for device '.$device_pxe->id);
 
-    $t->authenticate(email => $super_user->email);
-    $t->get_ok('/device/PXE_TEST/pxe')
+    $t_super->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
         ->json_is({
@@ -974,39 +974,40 @@ subtest 'Device PXE' => sub {
 };
 
 subtest 'Device location' => sub {
-    $t->authenticate(email => $rw_user->email);
+    my $t_rw = Test::Conch->new(pg => $t->pg);
+    $t_rw->authenticate(email => $rw_user->email);
 
-    $t->post_ok('/device/TEST/location')
+    $t_rw->post_ok('/device/TEST/location')
         ->status_is(403)
         ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
 
-    $t->delete_ok('/device/TEST/location')
+    $t_rw->delete_ok('/device/TEST/location')
         ->status_is(403)
         ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
 
-    $t->authenticate(email => $build_user->email);
+    my $t_build = Test::Conch->new(pg => $t->pg);
+    $t_build->authenticate(email => $build_user->email);
 
     # TODO? possibly we should be able to set the location if the user has permission to
     # access the target location of the device.
-    $t->post_ok('/device/TEST/location')
+    $t_build->post_ok('/device/TEST/location')
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
-    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 42 })
+    $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 42 })
         ->status_is(409)
         ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
 
-    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
+    $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id.'/location');
 
-    $t->authenticate(email => $rw_user->email);
-    $t->delete_ok('/device/TEST/location')
+    $t_rw->delete_ok('/device/TEST/location')
         ->status_is(204);
 
     # rw user has lost access to the device because it no longer has a location
-    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
+    $t_rw->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(403);
 };
 
