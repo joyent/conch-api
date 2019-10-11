@@ -68,11 +68,16 @@ Response uses the WorkspaceDevicePXEs json schema.
 =cut
 
 sub get_pxe_devices ($c) {
+    # production devices do not consider location, interface data to be canonical
+    my $bad_phase = $c->req->query_params->param('phase_earlier_than') // 'production';
+
     my @devices = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->search_related('rack', undef, { join => { datacenter_room => 'datacenter' } })
         ->related_resultset('device_locations')
-        ->related_resultset('device')
+        # production devices do not consider interface data to be canonical
+        ->search_related('device',
+            $bad_phase ? { 'device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] } } : ())
         ->columns({
             id => 'device.id',
             phase => 'device.phase',
