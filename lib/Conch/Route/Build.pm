@@ -53,20 +53,24 @@ sub routes {
         $with_build_admin->post('/user')->to('#add_user');
 
         # DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
-        $with_build_admin->under('/user/#target_user_id_or_email')
-            ->to('user#find_user')
+        $with_build_admin
+            ->under('/user/#target_user_id_or_email')->to('user#find_user')
             ->delete('/')->to('build#remove_user');
 
-        # GET /build/:build_id_or_name/organization
-        $with_build_admin->get('/organization')->to('#list_organizations');
+        {
+            my $build_organization = $with_build_admin->any('/organization');
 
-        # POST /build/:build_id_or_name/organization?send_mail=<1|0>
-        $with_build_admin->post('/organization')->to('#add_organization');
+            # GET /build/:build_id_or_name/organization
+            $build_organization->get('/')->to('#list_organizations');
 
-        # DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>
-        $with_build_admin->under('/organization/:organization_id_or_name')
-            ->to('organization#find_organization')
-            ->delete('/')->to('build#remove_organization');
+            # POST /build/:build_id_or_name/organization?send_mail=<1|0>
+            $build_organization->post('/')->to('#add_organization');
+
+            # DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>
+            $build_organization
+                ->under('/:organization_id_or_name')->to('organization#find_organization')
+                ->delete('/')->to('build#remove_organization');
+        }
 
         # GET /build/:build_id_or_name/device
         $with_build_ro->get('/device')->to('#get_devices');

@@ -418,7 +418,7 @@ sub add_organization ($c) {
 
     # check if the organization already has access to this build
     if (my $existing_role = $c->stash('build_rs')
-            ->search_related('organization_build_roles', { organization_id  => $organization->id })
+            ->search_related('organization_build_roles', { organization_id => $organization->id })
             ->single) {
         if ((my $role_cmp = $existing_role->role_cmp($input->{role})) >= 0) {
             my $str = 'organization "'.$organization->name.'" already has '.$existing_role->role

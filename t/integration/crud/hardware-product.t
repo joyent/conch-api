@@ -335,7 +335,6 @@ subtest 'create a hardware product and hardware product profile all together' =>
 };
 
 subtest 'delete a hardware product' => sub {
-
     $t->delete_ok("/hardware_product/$new_hw_id")
         ->status_is(204);
 
