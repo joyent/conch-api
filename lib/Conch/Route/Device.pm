@@ -56,8 +56,8 @@ sub routes {
         $with_device->delete('/links')->to('device#remove_links');
 
         {
-            my $with_device_location = $with_device->any('/location');
-            $with_device_location->to({ controller => 'device_location' });
+            my $with_device_location = $with_device->any('/location')
+                ->to({ controller => 'device_location' });
 
             # GET /device/:device_id_or_serial_number/location
             $with_device_location->get('/')->to('#get');
@@ -68,8 +68,8 @@ sub routes {
         }
 
         {
-            my $with_device_settings = $with_device->any('/settings');
-            $with_device_settings->to({ controller => 'device_settings' });
+            my $with_device_settings = $with_device->any('/settings')
+                ->to({ controller => 'device_settings' });
 
             # GET /device/:device_id_or_serial_number/settings
             $with_device_settings->get('/')->to('#get_all');
@@ -93,8 +93,8 @@ sub routes {
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 
         {
-            my $with_device_interface = $with_device->any('/interface');
-            $with_device_interface->to({ controller => 'device_interface' });
+            my $with_device_interface = $with_device->any('/interface')
+                ->to({ controller => 'device_interface' });
 
             # GET /device/:device_id_or_serial_number/interface
             $with_device_interface->get('/')->to('#get_all');
