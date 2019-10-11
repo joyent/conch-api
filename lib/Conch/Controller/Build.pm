@@ -571,10 +571,14 @@ sub get_devices ($c) {
     my $direct_devices_rs = $c->stash('build_rs')
         ->related_resultset('devices');
 
+    # production devices do not consider location, interface data to be canonical
+    my $bad_phase = $c->req->query_params->param('phase_earlier_than') // 'production';
+
     my $rack_devices_rs = $c->stash('build_rs')
         ->related_resultset('racks')
         ->related_resultset('device_locations')
-        ->related_resultset('device');
+        ->search_related('device',
+            $bad_phase ? { 'device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] } } : ());
 
     # this query is carefully constructed to be efficient.
     # don't mess with it without checking with DBIC_TRACE=1.
