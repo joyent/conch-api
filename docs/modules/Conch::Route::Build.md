@@ -82,7 +82,8 @@ an email to the organization members and build admins.
 
 ### `POST /build/:build_id_or_name/device`
 
-- Requires system admin authorization, or the read/write role on the build.
+- Requires system admin authorization, or the read/write role on the build and the
+read-only role on the device.
 - Request: [request.json#/definitions/BuildCreateDevice](../json-schema/request.json#/definitions/BuildCreateDevice)
 - Response: `204 NO CONTENT`
 

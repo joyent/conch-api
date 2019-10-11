@@ -97,9 +97,18 @@ sub find_build ($c) {
 
     return $c->status(404) if not $rs->exists;
 
-    my $requires_role = $c->stash('require_role') // 'admin';
-    if (not $c->is_system_admin
-            and not $rs->user_has_role($c->stash('user_id'), $requires_role)) {
+    CHECK_ACCESS: {
+        if ($c->is_system_admin) {
+            $c->log->debug('User has system admin access to build '.$identifier);
+            last CHECK_ACCESS;
+        }
+
+        my $requires_role = $c->stash('require_role') // 'admin';
+        if ($rs->user_has_role($c->stash('user_id'), $requires_role)) {
+            $c->log->debug('User has '.$requires_role.' access to build '.$identifier.' via role entry');
+            last CHECK_ACCESS;
+        }
+
         $c->log->debug('User lacks the required role ('.$requires_role.') for build '.$identifier);
         return $c->status(403);
     }
@@ -583,7 +592,7 @@ Adds the specified device to the build (as long as it isn't in another build, or
 rack in another build).  The device is created if necessary with all data provided (or updated
 with the data if it already exists, so the endpoint is idempotent).
 
-Requires the 'read/write' role on the build.
+Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
 =cut
 
@@ -683,7 +692,7 @@ sub create_and_add_devices ($c) {
 Adds the specified device to the build (as long as it isn't in another build, or located in a
 rack in another build).
 
-Requires the 'read/write' role on the build.
+Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
 =cut
 

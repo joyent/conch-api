@@ -77,13 +77,15 @@ $t->get_ok($t->tx->res->headers->location)
             { map +($_ => $admin_user->$_), qw(id name email) },
         ],
         completed_user => undef,
-    });
+    })
+    ->log_debug_is('User has system admin access to build '.$t->tx->res->json->{id});
 my $build = $t->tx->res->json;
 
 $t->get_ok('/build/my first build')
     ->status_is(200)
     ->json_schema_is('Build')
-    ->json_is($build);
+    ->json_is($build)
+    ->log_debug_is('User has system admin access to build my first build');
 
 $t->get_ok('/build')
     ->status_is(200)
@@ -253,10 +255,11 @@ $t2->get_ok('/build')
     ->json_schema_is('Builds')
     ->json_is([ $build ]);
 
-$t->get_ok('/build/my first build')
+$t2->get_ok('/build/my first build')
     ->status_is(200)
     ->json_schema_is('Build')
-    ->json_is($build);
+    ->json_is($build)
+    ->log_debug_is('User has ro access to build my first build via role entry');
 
 $t2->post_ok('/build/my first build', json => { description => 'I hate this build' })
     ->status_is(403)
@@ -363,6 +366,7 @@ $t_build_admin->post_ok('/build/'.$build->{id}.'/user', json => {
         role => 'ro',
     })
     ->status_is(204)
+    ->log_debug_is('User has admin access to build '.$build->{id}.' via role entry')
     ->log_info_is('Added user '.$new_user2->id.' ('.$new_user2->name.') to build '.$build->{id}.' with the ro role')
     ->email_cmp_deeply([
         {

@@ -34,7 +34,7 @@ sub set_all ($c) {
     # 'rw' already checked by find_device
     if ($requires_role eq 'admin'
             and not $c->is_system_admin
-            and not $c->stash('device_rs')->devices_without_location->exists
+            and not $c->stash('device_rs')->devices_reported_by_user_relay($c->stash('user_id'))->exists
             and not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
         $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$c->stash('device_id'));
         return $c->status(403);
@@ -82,7 +82,7 @@ sub set_single ($c) {
     # 'rw' already checked by find_device
     if ($requires_role eq 'admin'
             and not $c->is_system_admin
-            and not $c->stash('device_rs')->devices_without_location->exists
+            and not $c->stash('device_rs')->devices_reported_by_user_relay($c->stash('user_id'))->exists
             and not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
         $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$c->stash('device_id'));
         return $c->status(403);
@@ -143,7 +143,7 @@ sub delete_single ($c) {
     # 'rw' already checked by find_device
     if ($requires_role eq 'admin'
             and not $c->is_system_admin
-            and not $c->stash('device_rs')->devices_without_location->exists
+            and not $c->stash('device_rs')->devices_reported_by_user_relay($c->stash('user_id'))->exists
             and not $c->stash('device_rs')->user_has_role($c->stash('user_id'), $requires_role)) {
         $c->log->debug('User lacks the required role ('.$requires_role.') for device '.$c->stash('device_id'));
         return $c->status(403);

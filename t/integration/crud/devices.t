@@ -29,15 +29,18 @@ my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
 my $rw_user = $t->load_fixture('rw_user_global_workspace')->user_account;
 my $admin_user = $t->load_fixture('admin_user_global_workspace')->user_account;
 my $super_user = $t->load_fixture('super_user');
+my $build_user = $t->generate_fixtures('user_account', { name => 'build_user' });
+
+my $build = $t->generate_fixtures('build');
+$build->create_related('user_build_roles', { user_id => $build_user->id, role => 'admin' });
+$t->authenticate(email => $build_user->email)
+    ->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST', sku => $hardware_product->sku } ])
+    ->status_is(204);
+
 $t->authenticate(email => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
     ->status_is(404);
-
-my $build = $t->generate_fixtures('build');
-$build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'admin' });
-$t->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST', sku => $hardware_product->sku } ])
-    ->status_is(204);
 
 my $test_device_id;
 
@@ -59,11 +62,11 @@ subtest 'unlocated device, no registered relay' => sub {
 
     $t->get_ok('/device/TEST')
         ->status_is(403)
-        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+        ->log_debug_is('User lacks the required role (ro) for device '.$test_device_id);
 
     $t->get_ok('/device_report/'.$device_report_id)
         ->status_is(403)
-        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+        ->log_debug_is('User lacks the required role (ro) for device '.$test_device_id);
 
     {
         my $t = Test::Conch->new(pg => $t->pg);
@@ -73,18 +76,47 @@ subtest 'unlocated device, no registered relay' => sub {
             ->status_is(200)
             ->json_schema_is('DetailedDevice')
             ->json_is('/id', $test_device_id)
-            ->json_is('/serial_number', 'TEST');
+            ->json_is('/serial_number', 'TEST')
+            ->log_debug_is('User has system admin privileges for device '.$test_device_id);
 
         $t->get_ok('/device/'.$test_device_id)
             ->status_is(200)
             ->json_schema_is('DetailedDevice')
             ->json_is('/id', $test_device_id)
-            ->json_is('/serial_number', 'TEST');
+            ->json_is('/serial_number', 'TEST')
+            ->log_debug_is('User has system admin privileges for device '.$test_device_id);
 
         $t->get_ok('/device_report/'.$device_report_id)
             ->status_is(200)
-            ->json_schema_is('DeviceReportRow');
+            ->json_schema_is('DeviceReportRow')
+            ->log_debug_is('User has system admin privileges for device '.$test_device_id);
     }
+
+    {
+        my $t = Test::Conch->new(pg => $t->pg);
+        $t->authenticate(email => $build_user->email);
+
+        $t->get_ok('/device/TEST')
+            ->status_is(200)
+            ->json_schema_is('DetailedDevice')
+            ->json_is('/id', $test_device_id)
+            ->json_is('/serial_number', 'TEST')
+            ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
+
+        $t->get_ok('/device/'.$test_device_id)
+            ->status_is(200)
+            ->json_schema_is('DetailedDevice')
+            ->json_is('/id', $test_device_id)
+            ->json_is('/serial_number', 'TEST')
+            ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
+
+        $t->get_ok('/device_report/'.$device_report_id)
+            ->status_is(200)
+            ->json_schema_is('DeviceReportRow')
+            ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
+    }
+
+    $t->authenticate(email => $ro_user->email);
 };
 
 subtest 'unlocated device with a registered relay' => sub {
@@ -136,7 +168,8 @@ subtest 'unlocated device with a registered relay' => sub {
     $t->get_ok('/device/TEST')
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
-        ->json_cmp_deeply($test_device_data);
+        ->json_cmp_deeply($test_device_data)
+        ->log_debug_is('User has de facto ro access to device '.$test_device_id.' via relay connection');
 
     $t->get_ok('/validation_state/'.$validation_state->{id})
         ->status_is(200)
@@ -194,23 +227,23 @@ subtest 'unlocated device with a registered relay' => sub {
 
     $t2->get_ok('/device/TEST')
         ->status_is(403)
-        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+        ->log_debug_is('User lacks the required role (ro) for device '.$test_device_id);
 
     $t2->get_ok('/device_report/'.$validation_state->{device_report_id})
         ->status_is(403)
-        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+        ->log_debug_is('User lacks the required role (ro) for device '.$test_device_id);
 
     foreach my $query (@post_queries) {
         $t2->post_ok($query->@*)
             ->status_is(403)
-            ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+            ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
     }
 
     foreach my $query (@get_queries) {
         $t2->get_ok($query)
             ->status_is(403)
             ->log_debug_is(
-                $query =~ /TEST/ ? 'User cannot access unlocated device '.$test_device_id
+                $query =~ /TEST/ ? 'User lacks the required role (ro) for device '.$test_device_id
                 : 'User cannot access requested device(s)');
     }
 
@@ -223,7 +256,7 @@ subtest 'unlocated device with a registered relay' => sub {
     foreach my $query (@delete_queries) {
         $t2->delete_ok($query)
             ->status_is(403)
-            ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+            ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
     }
 
     foreach my $query (@delete_queries) {
@@ -925,7 +958,7 @@ subtest 'Device PXE' => sub {
 
     $t->get_ok('/device/PXE_TEST/pxe')
         ->status_is(403)
-        ->log_debug_is('User cannot access unlocated device '.$device_pxe->id);
+        ->log_debug_is('User lacks the required role (ro) for device '.$device_pxe->id);
 
     $t->authenticate(email => $super_user->email);
     $t->get_ok('/device/PXE_TEST/pxe')
@@ -940,15 +973,17 @@ subtest 'Device PXE' => sub {
 };
 
 subtest 'Device location' => sub {
+    $t->authenticate(email => $rw_user->email);
+
     $t->post_ok('/device/TEST/location')
         ->status_is(403)
-        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+        ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
 
     $t->delete_ok('/device/TEST/location')
         ->status_is(403)
-        ->log_debug_is('User cannot access unlocated device '.$test_device_id);
+        ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
 
-    $t->authenticate(email => $super_user->email);
+    $t->authenticate(email => $build_user->email);
 
     # TODO? possibly we should be able to set the location if the user has permission to
     # access the target location of the device.
@@ -965,12 +1000,13 @@ subtest 'Device location' => sub {
         ->status_is(303)
         ->location_is('/device/'.$test_device_id.'/location');
 
+    $t->authenticate(email => $rw_user->email);
     $t->delete_ok('/device/TEST/location')
-        ->status_is(204, 'can delete device location');
+        ->status_is(204);
 
+    # rw user has lost access to the device because it no longer has a location
     $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
-        ->status_is(303, 'add it back')
-        ->location_is('/device/'.$test_device_id.'/location');
+        ->status_is(403);
 };
 
 done_testing;
