@@ -89,7 +89,6 @@
 * [Conch::DB::ResultSet](../modules/Conch::DB::ResultSet)
 * [Conch::DB::ResultSet::Build](../modules/Conch::DB::ResultSet::Build)
 * [Conch::DB::ResultSet::Device](../modules/Conch::DB::ResultSet::Device)
-* [Conch::DB::ResultSet::DeviceLocation](../modules/Conch::DB::ResultSet::DeviceLocation)
 * [Conch::DB::ResultSet::DeviceNic](../modules/Conch::DB::ResultSet::DeviceNic)
 * [Conch::DB::ResultSet::DeviceReport](../modules/Conch::DB::ResultSet::DeviceReport)
 * [Conch::DB::ResultSet::Organization](../modules/Conch::DB::ResultSet::Organization)
