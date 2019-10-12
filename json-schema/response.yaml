@@ -700,7 +700,7 @@ definitions:
           - id
           - name
           - alias
-          - vendor
+          - hardware_vendor_id
         properties:
           id:
             allOf:
@@ -712,9 +712,8 @@ definitions:
           alias:
             description: Hardware product alias
             type: string
-          vendor:
-            description: Hardware product vendor name
-            type: string
+          hardware_vendor_id:
+            $ref: common.yaml#/definitions/uuid
   DeviceSetting:
     allOf:
       - $ref: /definitions/DeviceSettings

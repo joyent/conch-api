@@ -868,6 +868,9 @@
               "description" : "Hardware product alias",
               "type" : "string"
             },
+            "hardware_vendor_id" : {
+              "$ref" : "common.json#/definitions/uuid"
+            },
             "id" : {
               "allOf" : [
                 {
@@ -881,17 +884,13 @@
             "name" : {
               "description" : "Hardware product name",
               "type" : "string"
-            },
-            "vendor" : {
-              "description" : "Hardware product vendor name",
-              "type" : "string"
             }
           },
           "required" : [
             "id",
             "name",
             "alias",
-            "vendor"
+            "hardware_vendor_id"
           ],
           "type" : "object"
         }

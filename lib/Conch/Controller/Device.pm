@@ -158,8 +158,7 @@ sub get ($c) {
             datacenter => $location->rack->datacenter_room->datacenter,
             target_hardware_product => +{ do {
                 my $hardware_product = $location->rack_layout->hardware_product;
-                vendor => $hardware_product->hardware_vendor_id,
-                map +($_ => $hardware_product->$_), qw(id name alias),
+                map +($_ => $hardware_product->$_), qw(id name alias hardware_vendor_id);
             } },
         } : undef;
 

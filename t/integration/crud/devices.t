@@ -1159,8 +1159,7 @@ subtest 'Device location' => sub {
             rack => superhashof({ id => $rack_id, name => $rack->name }),
             rack_unit_start => 3,
             target_hardware_product => {
-                (map +($_ => $layout->hardware_product->$_), qw(id name alias)),
-                vendor => $layout->hardware_product->hardware_vendor_id,
+                (map +($_ => $layout->hardware_product->$_), qw(id name alias hardware_vendor_id)),
             },
         });
     my $location_data = $t_build->tx->res->json;
