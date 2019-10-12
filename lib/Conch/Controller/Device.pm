@@ -170,7 +170,8 @@ sub get ($c) {
             }
         }
             $c->stash('device_rs')
-                ->related_resultset('active_device_nics')
+                ->related_resultset('device_nics')
+                ->active
                 ->prefetch('device_neighbor')
                 ->order_by('iface_name')
                 ->all
@@ -178,7 +179,8 @@ sub get ($c) {
 
         $detailed_device->{disks} = [
             $c->stash('device_rs')
-                ->related_resultset('active_device_disks')
+                ->related_resultset('device_disks')
+                ->active
                 ->order_by('serial_number')
                 ->all
         ];
