@@ -17,7 +17,7 @@ Interface to queries involving validation states.
 
 =head2 latest_completed_state_per_plan
 
-Generates a resultset that returns the single most recent *completed* validation_state entry
+Generates a resultset that returns the single most recent B<completed> validation_state entry
 per validation plan (using whatever other search criteria are already in the resultset).
 
 The query will be closed off as a subselect (that additional chaining will SELECT FROM),

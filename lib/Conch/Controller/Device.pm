@@ -143,22 +143,23 @@ sub get ($c) {
     };
 
     if ($device->phase_cmp('production') < 0) {
-        my $device_location_rs = $c->stash('device_rs')
-            ->related_resultset('device_location');
-
-        # fetch rack, room and datacenter in one query
-        my $rack = $device_location_rs
-            ->related_resultset('rack')
-            ->prefetch({ datacenter_room => 'datacenter' })
-            ->add_columns({ rack_unit_start => 'device_location.rack_unit_start' })
+        my $location = $c->stash('device_rs')
+            ->related_resultset('device_location')
+            ->prefetch({
+                rack_layout => 'hardware_product',
+                rack => { datacenter_room => 'datacenter' },
+            })
             ->single;
 
-        $detailed_device->{location} = $rack ? +{
-            rack => $rack,
-            rack_unit_start => $rack->get_column('rack_unit_start'),
-            datacenter_room => $rack->datacenter_room,
-            datacenter => $rack->datacenter_room->datacenter,
-            target_hardware_product => $device_location_rs->target_hardware_product->single,
+        $detailed_device->{location} = $location ? +{
+            rack => $location->rack,
+            rack_unit_start => $location->get_column('rack_unit_start'),
+            datacenter_room => $location->rack->datacenter_room,
+            datacenter => $location->rack->datacenter_room->datacenter,
+            target_hardware_product => +{ do {
+                my $hardware_product = $location->rack_layout->hardware_product;
+                map +($_ => $hardware_product->$_), qw(id name alias hardware_vendor_id);
+            } },
         } : undef;
 
         $detailed_device->{nics} = [ map {
@@ -170,7 +171,8 @@ sub get ($c) {
             }
         }
             $c->stash('device_rs')
-                ->related_resultset('active_device_nics')
+                ->related_resultset('device_nics')
+                ->active
                 ->prefetch('device_neighbor')
                 ->order_by('iface_name')
                 ->all
@@ -178,7 +180,8 @@ sub get ($c) {
 
         $detailed_device->{disks} = [
             $c->stash('device_rs')
-                ->related_resultset('active_device_disks')
+                ->related_resultset('device_disks')
+                ->active
                 ->order_by('serial_number')
                 ->all
         ];

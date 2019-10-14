@@ -52,7 +52,6 @@ Available routes are:
   * `/logout`
   * `/refresh_token`
   * `/me`
-  * `/schema`
 
 * [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`
@@ -86,6 +85,9 @@ Available routes are:
 
 * [Conch::Route::DatacenterRoom](modules/Conch::Route::DatacenterRoom)
   * `/room`
+
+* [Conch::Route::Schema](modules/Conch::Route::Schema)
+  * `/schema`
 
 * [Conch::Route::User](modules/Conch::Route::User)
   * `/user`

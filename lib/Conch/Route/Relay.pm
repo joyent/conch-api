@@ -25,16 +25,16 @@ sub routes {
     # POST /relay/:relay_serial_number/register
     $relay->post('/:relay_serial_number/register')->to('#register');
 
-    my $relay_with_admin = $relay->require_system_admin;
-
     # GET /relay
-    $relay_with_admin->get('/')->to('#list');
+    $relay->require_system_admin->get('/')->to('#list');
+
+    my $with_relay = $relay->under('/:relay_id_or_serial_number')->to('#find_relay');
 
     # GET /relay/:relay_id_or_serial_number
-    $relay->get('/:relay_id_or_serial_number')->to('#get');
+    $with_relay->get('/')->to('#get');
 
     # DELETE /relay/:relay_id_or_serial_number
-    $relay_with_admin->delete('/:relay_id_or_serial_number')->to('#delete');
+    $with_relay->require_system_admin->delete('/')->to('#delete');
 }
 
 1;

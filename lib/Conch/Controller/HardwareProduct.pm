@@ -36,7 +36,7 @@ pattern, stashing the query to get to it in C<hardware_product_rs>.
 =cut
 
 sub find_hardware_product ($c) {
-    my $hardware_product_rs = $c->db_hardware_products->active;
+    my $hardware_product_rs = $c->db_hardware_products;
 
     # route restricts key to: sku, name, alias
     if (my $key = $c->stash('hardware_product_key')
@@ -59,6 +59,15 @@ sub find_hardware_product ($c) {
             .($c->stash('hardware_product_id') ? ('id '.$c->stash('hardware_product_id'))
                 : ($c->stash('hardware_product_key').' '.$c->stash('hardware_product_value'))));
         return $c->status(404);
+    }
+
+    $hardware_product_rs = $hardware_product_rs->active;
+    if (not $hardware_product_rs->exists) {
+        $c->log->debug('Hardware product '
+            .($c->stash('hardware_product_id') ? ('id '.$c->stash('hardware_product_id'))
+                : ($c->stash('hardware_product_key').' '.$c->stash('hardware_product_value')))
+            .'has already been deactivated');
+        return $c->status(410);
     }
 
     $c->stash('hardware_product_rs', $hardware_product_rs);

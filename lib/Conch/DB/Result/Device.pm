@@ -404,32 +404,6 @@ __PACKAGE__->many_to_many("relays", "device_relay_connections", "relay");
 
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
 
-__PACKAGE__->has_many(
-  "active_device_disks",
-  "Conch::DB::Result::DeviceDisk",
-  sub {
-    my $args = shift;
-    return {
-      "$args->{foreign_alias}.device_id" => { -ident => "$args->{self_alias}.id" },
-      "$args->{foreign_alias}.deactivated" => { '=' => undef },
-    };
-  },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-__PACKAGE__->has_many(
-  "active_device_nics",
-  "Conch::DB::Result::DeviceNic",
-  sub {
-    my $args = shift;
-    return {
-      "$args->{foreign_alias}.device_id" => { -ident => "$args->{self_alias}.id" },
-      "$args->{foreign_alias}.deactivated" => { '=' => undef },
-    };
-  },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 use experimental 'signatures';
 
 sub TO_JSON ($self) {

@@ -3,6 +3,7 @@ package Conch::Route;
 use Mojo::Base -strict, -signatures;
 
 use Conch::UUID;
+use Conch::Route::Schema;
 use Conch::Route::Workspace;
 use Conch::Route::Device;
 use Conch::Route::DeviceReport;
@@ -77,11 +78,7 @@ sub all_routes (
     # POST /logout
     $root->post('/logout')->to('login#session_logout');
 
-    # GET /schema/query_params/:schema_name
-    # GET /schema/request/:schema_name
-    # GET /schema/response/:schema_name
-    $root->get('/schema/:schema_type/:name',
-        [ schema_type => [qw(query_params request response)] ])->to('schema#get');
+    Conch::Route::Schema->routes($root->any('/schema'));
 
     # GET /workspace/:workspace/device-totals
     $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals');
@@ -246,6 +243,10 @@ See L<Conch::Route::Organization/routes>
 =head3 C<* /relay>
 
 See L<Conch::Route::Relay/routes>
+
+=head3 C<* /schema>
+
+See L<Conch::Route::Schema/routes>
 
 =head3 C<* /user>
 

@@ -28,7 +28,8 @@ load them to the database.
 
 Available sets:
 
-\* workspace\_room\_rack\_layout - a new workspace under GLOBAL, with a datacenter\_room,
+- workspace\_room\_rack\_layout
+a new workspace under GLOBAL, with a datacenter\_room,
 rack, and a layout suitable for various hardware. Takes a single integer for uniqueness.
 
 ## generate\_definitions

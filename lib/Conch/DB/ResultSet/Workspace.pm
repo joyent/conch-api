@@ -29,7 +29,7 @@ A parent workspace is "above" a given workspace; its children are "beneath".
 
 Chainable resultset that finds all sub-workspaces beneath the provided workspace id.
 
-The resultset does *not* include the original workspace itself -- see
+The resultset does B<not> include the original workspace itself -- see
 L</and_workspaces_beneath> for that.
 
 =cut
@@ -88,7 +88,7 @@ SELECT DISTINCT workspace_and_children.id FROM workspace_and_children
 Chainable resultset that finds all workspaces above the provided workspace id (that is, all
 parent workspaces, up to the root).
 
-The resultset does *not* include the original workspace itself -- see
+The resultset does B<not> include the original workspace itself -- see
 L</and_workspaces_above> for that.
 
 =cut
@@ -272,8 +272,7 @@ system admin users in the result.
 =cut
 
 sub admins ($self, $include_sysadmins = undef) {
-    my $direct_users_rs = $self->search_related('user_workspace_roles',
-            { 'user_workspace_roles.role' => 'admin' })
+    my $direct_users_rs = $self->search_related('user_workspace_roles', { role => 'admin' })
         ->related_resultset('user_account');
 
     my $organization_users_rs = $self->search_related('organization_workspace_roles',

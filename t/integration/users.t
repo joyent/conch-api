@@ -770,6 +770,9 @@ subtest 'modify another user' => sub {
         ->log_warn_is('user '.$super_user->name.' deactivating user UNTRUSTED, direct member of workspaces: child_ws (rw)');
 
     $t_super->get_ok("/user/$new_user_id")
+        ->status_is(410);
+
+    $t_super->get_ok('/user/'.create_uuid_str)
         ->status_is(404);
 
     # we haven't cleared the user's session yet...
@@ -782,10 +785,10 @@ subtest 'modify another user' => sub {
         ->status_is(401, 'user can no longer log in with credentials');
 
     $t_super->delete_ok("/user/$new_user_id")
-        ->status_is(410, 'new user was already deactivated')
+        ->status_is(410)
         ->json_schema_is('UserError')
         ->json_cmp_deeply({
-            error => 'user was already deactivated',
+            error => 'user is deactivated',
             user => {
                 $new_user_data->%{qw(id email name created)},
                 deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),

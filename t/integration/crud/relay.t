@@ -7,6 +7,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
@@ -100,6 +101,9 @@ isnt($new_relay_data->{last_seen}, $relay_data->{last_seen}, 'relay.last_seen ha
 is($new_relay_data->{updated}, $relay_data->{updated}, 'relay update timestamp did not change');
 
 $relay0->last_seen(Conch::Time->from_string($new_relay_data->{last_seen}, lenient => 1));
+
+$t->get_ok('/relay/'.create_uuid_str())
+    ->status_is(404);
 
 $t->get_ok('/relay/'.$relay0->id)
     ->status_is(200)
@@ -374,10 +378,10 @@ subtest delete => sub {
         ->log_debug_is('Deactivated relay '.$relay0->id.', removing 2 associated device connections and 2 associated user connections');
 
     $t_super->get_ok('/relay/'.$relay0->id)
-        ->status_is(404);
+        ->status_is(410);
 
     $t_super->delete_ok('/relay/'.$relay0->id)
-        ->status_is(404);
+        ->status_is(410);
 };
 
 done_testing;

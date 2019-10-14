@@ -29,6 +29,9 @@ my $hw_id = $products->[0]{id};
 my $vendor_id = $products->[0]{hardware_vendor_id};
 my $validation_plan_id = $products->[0]{validation_plan_id};
 
+$t->get_ok('/hardware_product/'.create_uuid_str())
+    ->status_is(404);
+
 $t->get_ok("/hardware_product/$hw_id")
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
@@ -342,7 +345,7 @@ subtest 'delete a hardware product' => sub {
         ->status_is(204);
 
     $t->get_ok("/hardware_product/$new_hw_id")
-        ->status_is(404);
+        ->status_is(410);
 
     $t->get_ok('/hardware_product')
         ->status_is(200)

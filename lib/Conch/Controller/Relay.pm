@@ -60,6 +60,34 @@ sub list ($c) {
     $c->status(200, [ $c->db_relays->active->order_by('serial_number')->all ]);
 }
 
+=head2 find_relay
+
+Chainable action that looks up the relay by id or serial_number,
+stashing the query to get to it in C<relay_rs>.
+
+=cut
+
+sub find_relay ($c) {
+    my $identifier = $c->stash('relay_id_or_serial_number');
+
+    my $rs = $c->db_relays
+        ->search({ is_uuid($identifier) ? 'id' : 'serial_number' => $identifier });
+    return $c->status(404) if not $rs->exists;
+
+    $rs = $rs->active;
+    return $c->status(410) if not $rs->exists;
+
+    if (not $c->is_system_admin) {
+        if (not $rs->search({ user_id => $c->stash('user_id') }, { join => 'user_relay_connections' })->exists) {
+            $c->log->debug('User cannot access unregistered relay '.$identifier);
+            return $c->status(403);
+        }
+    }
+
+    $c->stash('relay_rs', $rs);
+    return 1;
+}
+
 =head2 get
 
 Get the details of a single relay.
@@ -70,24 +98,7 @@ Response uses the Relay json schema.
 =cut
 
 sub get ($c) {
-    my $identifier = $c->stash('relay_id_or_serial_number');
-
-    my $rs = $c->db_relays
-        ->active
-        ->search({ is_uuid($identifier) ? 'id' : 'serial_number' => $identifier });
-
-    return $c->status(404) if not $rs->exists;
-
-    $rs = $rs->search({ user_id => $c->stash('user_id') }, { join => 'user_relay_connections' })
-        if not $c->is_system_admin;
-
-    my $relay = $rs->single;
-    if (not $relay) {
-        $c->log->debug('User cannot access unregistered relay '.$identifier);
-        return $c->status(403);
-    }
-
-    $c->status(200, $relay);
+    $c->status(200, $c->stash('relay_rs')->single);
 }
 
 =head2 delete
@@ -95,18 +106,13 @@ sub get ($c) {
 =cut
 
 sub delete ($c) {
-    my $identifier = $c->stash('relay_id_or_serial_number');
-
-    my $rs = $c->db_relays
-        ->active
-        ->search({ is_uuid($identifier) ? 'id' : 'serial_number' => $identifier });
-    return $c->status(404) if not $rs->exists;
+    my $rs = $c->stash('relay_rs');
 
     my $drc_count = $rs->related_resultset('device_relay_connections')->delete;
     my $urc_count = $rs->related_resultset('user_relay_connections')->delete;
     $rs->deactivate;
 
-    $c->log->debug('Deactivated relay '.$identifier
+    $c->log->debug('Deactivated relay '.$c->stash('relay_id_or_serial_number')
         .', removing '.$drc_count.' associated device connections and '
         .$urc_count.' associated user connections');
     return $c->status(204);

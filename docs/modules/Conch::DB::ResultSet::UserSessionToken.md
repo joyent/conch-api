@@ -12,15 +12,15 @@ Chainable resultset to limit results to those that are expired.
 
 ## active
 
-Chainable resultset to limit results to session tokens that are not expired.
+Chainable resultset to limit results to those that are not expired.
 
 ## unexpired
 
-Chainable resultset to limit results to those that aren't expired.
+Chainable resultset to limit results to those that are not expired.
 
 ## login\_only
 
-Chainable resultset to search for login tokens (created via the main /login flow).
+Chainable resultset to search for login tokens (created via the main `POST /login` flow).
 
 ## api\_only
 

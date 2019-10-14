@@ -25,8 +25,16 @@ system admin users in the result.
 =cut
 
 sub admins ($self, $include_sysadmins = undef) {
-    my $rs = $self->search_related('user_build_roles', { role => 'admin' })
+    my $direct_users_rs = $self->search_related('user_build_roles', { role => 'admin' })
         ->related_resultset('user_account');
+
+    my $organization_users_rs = $self->search_related('organization_build_roles',
+            { 'organization_build_roles.role' => 'admin' })
+        ->related_resultset('organization')
+        ->related_resultset('user_organization_roles')
+        ->related_resultset('user_account');
+
+    my $rs = $direct_users_rs->union_all($organization_users_rs);
 
     $rs = $rs->union_all($self->result_source->schema->resultset('user_account')->search_rs({ is_admin => 1 }))
         if $include_sysadmins;

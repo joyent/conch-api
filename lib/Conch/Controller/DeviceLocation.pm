@@ -20,28 +20,29 @@ Response uses the DeviceLocation json schema.
 =cut
 
 sub get ($c) {
-    my $device_location_rs = $c->stash('device_rs')
-        ->related_resultset('device_location');
-
-    my $rack = $device_location_rs
-        ->related_resultset('rack')
-        ->prefetch({ datacenter_room => 'datacenter' })
-        ->add_columns({ rack_unit_start => 'device_location.rack_unit_start' })
+    my $location = $c->stash('device_rs')
+        ->related_resultset('device_location')
+        ->prefetch({
+            rack_layout => 'hardware_product',
+            rack => { datacenter_room => 'datacenter' },
+        })
         ->single;
 
-    return $c->status(409, { error =>
-        'Device '.$c->stash('device_id').' is not assigned to a rack'
-    }) if not $rack;
+    return $c->status(409, { error => 'Device '.$c->stash('device_id').' is not assigned to a rack' })
+        if not $location;
 
-    my $location = +{
+    my $rack = $location->rack;
+    my $hardware_product = $location->rack_layout->hardware_product;
+
+    my $location_data = +{
         rack => $rack,
-        rack_unit_start => $rack->get_column('rack_unit_start'),
+        rack_unit_start => $location->get_column('rack_unit_start'),
         datacenter_room => $rack->datacenter_room,
         datacenter => $rack->datacenter_room->datacenter,
-        target_hardware_product => $device_location_rs->target_hardware_product->single,
+        target_hardware_product => { map +($_ => $hardware_product->$_), qw(id name alias hardware_vendor_id) },
     };
 
-    $c->status(200, $location);
+    $c->status(200, $location_data);
 }
 
 =head2 set

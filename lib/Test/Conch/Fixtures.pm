@@ -299,8 +299,13 @@ load them to the database.
 
 Available sets:
 
-* workspace_room_rack_layout - a new workspace under GLOBAL, with a datacenter_room,
+=over 4
+
+=item * workspace_room_rack_layout
+a new workspace under GLOBAL, with a datacenter_room,
 rack, and a layout suitable for various hardware. Takes a single integer for uniqueness.
+
+=back
 
 =cut
 

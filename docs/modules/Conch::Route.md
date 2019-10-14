@@ -96,6 +96,10 @@ See ["routes" in Conch::Route::Organization](../modules/Conch::Route::Organizati
 
 See ["routes" in Conch::Route::Relay](../modules/Conch::Route::Relay#routes)
 
+### `* /schema`
+
+See ["routes" in Conch::Route::Schema](../modules/Conch::Route::Schema#routes)
+
 ### `* /user`
 
 See ["routes" in Conch::Route::User](../modules/Conch::Route::User#routes)

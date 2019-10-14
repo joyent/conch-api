@@ -10,7 +10,7 @@ Interface to queries involving validation states.
 
 ## latest\_completed\_state\_per\_plan
 
-Generates a resultset that returns the single most recent \*completed\* validation\_state entry
+Generates a resultset that returns the single most recent **completed** validation\_state entry
 per validation plan (using whatever other search criteria are already in the resultset).
 
 The query will be closed off as a subselect (that additional chaining will SELECT FROM),

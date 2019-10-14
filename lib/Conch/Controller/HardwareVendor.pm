@@ -19,7 +19,7 @@ Handles looking up the object by id or name.
 =cut
 
 sub find_hardware_vendor ($c) {
-    my $hardware_vendor_rs = $c->db_hardware_vendors->active;
+    my $hardware_vendor_rs = $c->db_hardware_vendors;
     if (is_uuid($c->stash('hardware_vendor_id_or_name'))) {
         $c->log->debug('Looking up a hardware_vendor by id ('.$c->stash('hardware_vendor_id_or_name').')');
         $hardware_vendor_rs = $hardware_vendor_rs->search({ id => $c->stash('hardware_vendor_id_or_name') });
@@ -29,12 +29,13 @@ sub find_hardware_vendor ($c) {
         $hardware_vendor_rs = $hardware_vendor_rs->search({ name => $c->stash('hardware_vendor_id_or_name') });
     }
 
-    my $hardware_vendor = $hardware_vendor_rs->single;
-
-    if (not $hardware_vendor) {
+    if (not $hardware_vendor_rs->exists) {
         $c->log->debug('Could not locate a valid hardware vendor');
         return $c->status(404);
     }
+
+    my $hardware_vendor = $hardware_vendor_rs->active->single;
+    return $c->status(410) if not $hardware_vendor;
 
     $c->log->debug('Found hardware vendor '.$hardware_vendor->id);
     $c->stash('hardware_vendor', $hardware_vendor);

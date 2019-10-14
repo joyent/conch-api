@@ -25,7 +25,7 @@ sub expired ($self) {
 
 =head2 active
 
-Chainable resultset to limit results to session tokens that are not expired.
+Chainable resultset to limit results to those that are not expired.
 
 =cut
 
@@ -33,7 +33,7 @@ sub active ($self) { $self->unexpired }
 
 =head2 unexpired
 
-Chainable resultset to limit results to those that aren't expired.
+Chainable resultset to limit results to those that are not expired.
 
 =cut
 
@@ -43,7 +43,7 @@ sub unexpired ($self) {
 
 =head2 login_only
 
-Chainable resultset to search for login tokens (created via the main /login flow).
+Chainable resultset to search for login tokens (created via the main C<POST /login> flow).
 
 =cut
 

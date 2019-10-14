@@ -169,7 +169,7 @@ Composing rels: ["user\_workspace\_roles"](#user_workspace_roles) -> workspace
 ## check\_password
 
 Checks the provided password against the value in the database, returning true/false.
-Because hard cryptography is used, this is \*not\* a fast call!
+Because hard cryptography is used, this is **not** a fast call!
 
 ## TO\_JSON
 

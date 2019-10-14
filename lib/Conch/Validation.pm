@@ -127,7 +127,7 @@ logic to dispatch on Device attributes.
 
 Any additional data related to devices may be read as normal using L<DBIx::Class> interfaces.
 The result object is built using a read-only database handle, so attempts to alter the data
-will *not* be permitted.
+will B<not> be permitted.
 
 =cut
 
@@ -177,7 +177,7 @@ The L<Conch::DB::Result::HardwareProduct> object for the device being validated
 
 Any additional data related to hardware_products may be read as normal using L<DBIx::Class>
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
-the data will *not* be permitted.
+the data will B<not> be permitted.
 
 =head2 hardware_product_name
 

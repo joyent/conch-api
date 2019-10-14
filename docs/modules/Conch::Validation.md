@@ -91,7 +91,7 @@ if ($device->asset_tag eq '...') {...}
 
 Any additional data related to devices may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class) interfaces.
 The result object is built using a read-only database handle, so attempts to alter the data
-will \*not\* be permitted.
+will **not** be permitted.
 
 ## device\_location
 
@@ -117,7 +117,7 @@ The [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareP
 
 Any additional data related to hardware\_products may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class)
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
-the data will \*not\* be permitted.
+the data will **not** be permitted.
 
 ## hardware\_product\_name
 

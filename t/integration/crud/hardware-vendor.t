@@ -60,7 +60,7 @@ $t->delete_ok('/hardware_vendor/MyNewVendor')
     ->status_is(204);
 
 $t->delete_ok('/hardware_vendor/MyNewVendor')
-    ->status_is(404);
+    ->status_is(410);
 
 $t->get_ok('/hardware_vendor')
     ->status_is(200)
@@ -68,7 +68,7 @@ $t->get_ok('/hardware_vendor')
     ->json_is('', [ $vendors->[0] ], 'deleted vendor is not in returned list');
 
 $t->get_ok('/hardware_vendor/MyNewVendor')
-    ->status_is(404);
+    ->status_is(410);
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

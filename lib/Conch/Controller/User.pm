@@ -26,16 +26,19 @@ sub find_user ($c) {
     my $identifier = $c->stash('target_user_id_or_email');
     my $user_rs = $c->db_user_accounts;
 
-    # when deactivating users or removing users from a workspace, we want to find
-    # already-deactivated users too.
-    $user_rs = $user_rs->active if $c->req->method ne 'DELETE';
-
     $c->log->debug('looking up user '.$identifier);
     my $user = is_uuid($identifier) ? $user_rs->find($identifier)
         : Email::Valid->address($identifier) ? $user_rs->find_by_email($identifier)
         : return $c->status(400, { error => 'invalid identifier format for '.$identifier });
 
     return $c->status(404) if not $user;
+
+    if ($user->deactivated) {
+        return $c->status(410, {
+            error => 'user is deactivated',
+            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
+        });
+    }
 
     $c->stash('target_user', $user);
     return 1;
@@ -44,7 +47,7 @@ sub find_user ($c) {
 =head2 revoke_user_tokens
 
 Revoke a specified user's tokens and prevents future token authentication,
-forcing the user to /login again. By default *all* of a user's tokens are deleted,
+forcing the user to /login again. By default B<all> of a user's tokens are deleted,
 but this can be adjusted with query parameters:
 
  * C<?login_only=1> login tokens are removed; api tokens are left alone
@@ -500,13 +503,6 @@ sub deactivate ($c) {
     return if not $params;
 
     my $user = $c->stash('target_user');
-
-    if ($user->deactivated) {
-        return $c->status(410, {
-            error => 'user was already deactivated',
-            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
-        });
-    }
 
     # do not allow removing user if he is the only admin of an organization or build
     foreach my $type (qw(organization build)) {
