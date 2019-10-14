@@ -20,7 +20,7 @@ Response uses the RackLayout json schema.
 
 ## get\_all
 
-Gets \*all\* rack layouts.
+Gets **all** rack layouts.
 
 Response uses the RackLayouts json schema.
 

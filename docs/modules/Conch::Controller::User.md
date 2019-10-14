@@ -12,7 +12,7 @@ stashes the corresponding user row in `target_user`.
 ## revoke\_user\_tokens
 
 Revoke a specified user's tokens and prevents future token authentication,
-forcing the user to /login again. By default \*all\* of a user's tokens are deleted,
+forcing the user to /login again. By default **all** of a user's tokens are deleted,
 but this can be adjusted with query parameters:
 
 ```

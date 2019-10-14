@@ -490,7 +490,7 @@ sub generate_fixtures ($self, @specification) {
 =head2 authenticate
 
 Authenticates a user in the current test instance. Uses default (superuser) credentials if not
-provided.  Optionally will bail out of *all* tests on failure.
+provided.  Optionally will bail out of B<all> tests on failure.
 
 This will set 'user' in the session (C<< $t->app->session('user') >>), so a token is not needed
 on subsequent requests.
@@ -580,7 +580,7 @@ sub email_cmp_deeply ($self, $expected, $test_name = 'email was sent correctly')
 
 =head2 email_not_sent
 
-Tests that *no* email was sent as a result of the last request.
+Tests that B<no> email was sent as a result of the last request.
 
 =cut
 
@@ -744,7 +744,7 @@ sub add_routes ($self, $routes) {
 =head2 do_and_wait_for_event
 
 Sets up a L<Mojo::Promise> to wait for a specific event name, then executes the first subref
-provided. When the event is received *and* the task subref has finished, the success subref is
+provided. When the event is received B<and> the task subref has finished, the success subref is
 invoked with the argument(s) sent to the event. If the timeout is reached, the failure subref
 is called, or if left undefined a test failure is generated.
 

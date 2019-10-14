@@ -44,7 +44,7 @@ Retrieves the current running version of postgres.
 Returns as a tuple the number of the latest database migration that has been applied, and the
 latest migration file found on disk.
 
-Note that the migration level retrieved from the database does \*not\* have leading zeroes.
+Note that the migration level retrieved from the database does **not** have leading zeroes.
 
 ## initialize\_db
 

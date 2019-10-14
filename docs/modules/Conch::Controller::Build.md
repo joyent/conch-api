@@ -112,7 +112,7 @@ Requires the 'read/write' role on the build, and the 'read-only' role on the dev
 
 ## remove\_device
 
-Removes the specified device from the build (if it is \*directly\* in the build, not via a rack).
+Removes the specified device from the build (if it is **directly** in the build, not via a rack).
 
 Requires the 'read/write' role on the build.
 

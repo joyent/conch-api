@@ -29,7 +29,7 @@ A parent workspace is "above" a given workspace; its children are "beneath".
 
 Chainable resultset that finds all sub-workspaces beneath the provided workspace id.
 
-The resultset does *not* include the original workspace itself -- see
+The resultset does B<not> include the original workspace itself -- see
 L</and_workspaces_beneath> for that.
 
 =cut
@@ -88,7 +88,7 @@ SELECT DISTINCT workspace_and_children.id FROM workspace_and_children
 Chainable resultset that finds all workspaces above the provided workspace id (that is, all
 parent workspaces, up to the root).
 
-The resultset does *not* include the original workspace itself -- see
+The resultset does B<not> include the original workspace itself -- see
 L</and_workspaces_above> for that.
 
 =cut

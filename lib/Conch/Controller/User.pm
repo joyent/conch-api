@@ -47,7 +47,7 @@ sub find_user ($c) {
 =head2 revoke_user_tokens
 
 Revoke a specified user's tokens and prevents future token authentication,
-forcing the user to /login again. By default *all* of a user's tokens are deleted,
+forcing the user to /login again. By default B<all> of a user's tokens are deleted,
 but this can be adjusted with query parameters:
 
  * C<?login_only=1> login tokens are removed; api tokens are left alone

@@ -738,7 +738,7 @@ sub add_device ($c) {
 
 =head2 remove_device
 
-Removes the specified device from the build (if it is *directly* in the build, not via a rack).
+Removes the specified device from the build (if it is B<directly> in the build, not via a rack).
 
 Requires the 'read/write' role on the build.
 

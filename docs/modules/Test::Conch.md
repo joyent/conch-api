@@ -168,7 +168,7 @@ See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test::Conch::
 ## authenticate
 
 Authenticates a user in the current test instance. Uses default (superuser) credentials if not
-provided.  Optionally will bail out of \*all\* tests on failure.
+provided.  Optionally will bail out of **all** tests on failure.
 
 This will set 'user' in the session (`$t->app->session('user')`), so a token is not needed
 on subsequent requests.
@@ -204,7 +204,7 @@ Remember: "Line endings in the body will normalized to CRLF." (see ["create" in 
 
 ## email\_not\_sent
 
-Tests that \*no\* email was sent as a result of the last request.
+Tests that **no** email was sent as a result of the last request.
 
 ## log\_is
 
@@ -263,7 +263,7 @@ that are already in a specific order.
 ## do\_and\_wait\_for\_event
 
 Sets up a [Mojo::Promise](https://metacpan.org/pod/Mojo::Promise) to wait for a specific event name, then executes the first subref
-provided. When the event is received \*and\* the task subref has finished, the success subref is
+provided. When the event is received **and** the task subref has finished, the success subref is
 invoked with the argument(s) sent to the event. If the timeout is reached, the failure subref
 is called, or if left undefined a test failure is generated.
 

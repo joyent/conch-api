@@ -314,7 +314,7 @@ use experimental 'signatures';
 =head2 check_password
 
 Checks the provided password against the value in the database, returning true/false.
-Because hard cryptography is used, this is *not* a fast call!
+Because hard cryptography is used, this is B<not> a fast call!
 
 =head2 TO_JSON
 

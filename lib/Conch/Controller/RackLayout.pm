@@ -100,7 +100,7 @@ sub get ($c) {
 
 =head2 get_all
 
-Gets *all* rack layouts.
+Gets B<all> rack layouts.
 
 Response uses the RackLayouts json schema.
 

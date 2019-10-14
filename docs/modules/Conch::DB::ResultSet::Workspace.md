@@ -18,7 +18,7 @@ A parent workspace is "above" a given workspace; its children are "beneath".
 
 Chainable resultset that finds all sub-workspaces beneath the provided workspace id.
 
-The resultset does \*not\* include the original workspace itself -- see
+The resultset does **not** include the original workspace itself -- see
 ["and\_workspaces\_beneath"](#and_workspaces_beneath) for that.
 
 ## and\_workspaces\_beneath
@@ -33,7 +33,7 @@ or a resultset, which must return a single column of distinct workspace\_id(s)).
 Chainable resultset that finds all workspaces above the provided workspace id (that is, all
 parent workspaces, up to the root).
 
-The resultset does \*not\* include the original workspace itself -- see
+The resultset does **not** include the original workspace itself -- see
 ["and\_workspaces\_above"](#and_workspaces_above) for that.
 
 ## and\_workspaces\_above
