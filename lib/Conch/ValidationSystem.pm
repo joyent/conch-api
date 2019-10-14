@@ -334,6 +334,7 @@ sub run_validation_plan ($self, %options) {
     my @validation_results;
     my $validation_result_rs = $self->schema->resultset('validation_result');
     while (my $validation = $validation_rs->next) {
+        require_module($validation->module);
         my $validator = $validation->module->new(
             log              => $self->log,
             device           => $device,
@@ -409,6 +410,7 @@ sub run_validation ($self, %options) {
     my $device = delete $options{device} || Carp::croak('missing device');
     my $data = delete $options{data} || Carp::croak('missing data');
 
+    require_module($validation->module);
     my $validator = $validation->module->new(
         log              => $self->log,
         device           => $device,
