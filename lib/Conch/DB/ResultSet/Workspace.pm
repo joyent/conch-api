@@ -272,8 +272,7 @@ system admin users in the result.
 =cut
 
 sub admins ($self, $include_sysadmins = undef) {
-    my $direct_users_rs = $self->search_related('user_workspace_roles',
-            { 'user_workspace_roles.role' => 'admin' })
+    my $direct_users_rs = $self->search_related('user_workspace_roles', { role => 'admin' })
         ->related_resultset('user_account');
 
     my $organization_users_rs = $self->search_related('organization_workspace_roles',
