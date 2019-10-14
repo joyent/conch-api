@@ -33,12 +33,14 @@ sub routes {
         my $with_device = $device->under('/:device_id_or_serial_number')->to('device#find_device');
         my $with_device_ro = $device->under('/:device_id_or_serial_number')
             ->to('device#find_device', require_role => 'ro');
+        my $with_device_phase_earlier_than_prod = $device->under('/:device_id_or_serial_number')
+            ->to('device#find_device', phase_earlier_than => 'production');
 
         # GET /device/:device_id_or_serial_number
         $with_device->get('/')->to('device#get');
 
         # GET /device/:device_id_or_serial_number/pxe
-        $with_device->get('/pxe')->to('device#get_pxe');
+        $with_device_phase_earlier_than_prod->get('/pxe')->to('device#get_pxe');
         # GET /device/:device_id_or_serial_number/phase
         $with_device->get('/phase')->to('device#get_phase');
         # GET /device/:device_id_or_serial_number/sku
@@ -56,7 +58,7 @@ sub routes {
         $with_device->delete('/links')->to('device#remove_links');
 
         {
-            my $with_device_location = $with_device->any('/location')
+            my $with_device_location = $with_device_phase_earlier_than_prod->any('/location')
                 ->to({ controller => 'device_location' });
 
             # GET /device/:device_id_or_serial_number/location
@@ -93,8 +95,8 @@ sub routes {
         $with_device->get('/validation_state')->to('device_validation#list_validation_states');
 
         {
-            my $with_device_interface = $with_device->any('/interface')
-                ->to({ controller => 'device_interface' });
+            my $with_device_interface = $with_device_phase_earlier_than_prod
+                ->any('/interface')->to({ controller => 'device_interface' });
 
             # GET /device/:device_id_or_serial_number/interface
             $with_device_interface->get('/')->to('#get_all');

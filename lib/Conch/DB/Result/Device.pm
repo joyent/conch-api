@@ -402,6 +402,8 @@ __PACKAGE__->many_to_many("relays", "device_relay_connections", "relay");
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ygCrs0YElHPOZ3jUN4DWUg
 
+__PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
+
 __PACKAGE__->has_many(
   "active_device_disks",
   "Conch::DB::Result::DeviceDisk",
@@ -433,8 +435,9 @@ use experimental 'signatures';
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    # include location information, when available
-    if (my $cached_location = $self->related_resultset('device_location')->get_cache) {
+    # include location information, when available and still relevant
+    if (my $cached_location = $self->related_resultset('device_location')->get_cache
+            and $self->phase_cmp('production') < 0) {
         # the cache is always a listref, if it was prefetched.
         $data->{rack_id} = @$cached_location ? $cached_location->[0]->rack_id : undef;
         $data->{rack_unit_start} = @$cached_location ? $cached_location->[0]->rack_unit_start : undef;

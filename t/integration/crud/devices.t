@@ -176,6 +176,44 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('ValidationStateWithResults')
         ->json_is($validation_state);
 
+    cmp_deeply(
+        [ $t->validator->validate(
+            {
+                do { my %_data = $test_device_data->%*; delete $_data{location}; %_data },
+                phase => 'integration',
+            },
+            $t->validator->get('/definitions/DetailedDevice')) ],
+        [
+            methods(
+                path => '/location',
+                message => re(qr/missing property/i),
+            ),
+        ],
+        'lack of location data is rejected by the response schema when phase=integration',
+    );
+
+    cmp_deeply(
+        [ $t->validator->validate(
+            { $test_device_data->%*, phase => 'production' },
+            $t->validator->get('/definitions/DetailedDevice')) ],
+        [
+            methods(
+                path => '/',
+                message => re(qr/should not match/i),
+            ),
+        ],
+        'location data is rejected by the response schema when phase=production',
+    );
+
+    $t->app->db_devices->search({ id => $test_device_id })->update({ phase => 'production' });
+
+    $test_device_data->{phase} = 'production';
+    delete $test_device_data->@{qw(location nics disks)};
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($test_device_data);
+
     my @post_queries = (
         [ '/device/TEST/validated' ],
         [ '/device/TEST/phase', json => { phase => 'installation' } ],
@@ -426,6 +464,11 @@ subtest 'located device' => sub {
             ipaddr => '127.0.0.1',
         });
 
+        $t->get_ok('/device/LOCATED_DEVICE')
+            ->status_is(200)
+            ->json_schema_is('DetailedDevice');
+        $device_data = $t->tx->res->json;
+
         my @get_queries = (
             '/device/LOCATED_DEVICE',
             '/device/LOCATED_DEVICE/location',
@@ -488,6 +531,7 @@ subtest 'located device' => sub {
             ->status_is(204);
         $t->delete_ok('/device/LOCATED_DEVICE/links')
             ->status_is(204);
+        $device_data->{links} = [];
 
         $t->authenticate(email => $admin_user->email);
         $t->delete_ok('/device/LOCATED_DEVICE/settings/hello')
@@ -495,6 +539,37 @@ subtest 'located device' => sub {
 
         $t->authenticate(email => $ro_user->email);
     };
+
+    # give build user ro access to the device through device->device_location->rack->workspace
+    $global_ws->create_related('user_workspace_roles', { user_id => $build_user->id, role => 'ro' });
+    $t->authenticate(email => $build_user->email);
+    $t->post_ok('/build/'.$build->id.'/device/'.$located_device_id)
+        ->status_is(204)
+        ->log_debug_is('User has rw access to build '.$build->id.' via role entry')
+        ->log_debug_is('User has ro access to device '.$located_device_id.' via role entry');
+
+    $located_device->update({ phase => 'production' });
+    $device_data->{build_id} = $build->id;
+    $device_data->{phase} = 'production';
+    delete $device_data->@{qw(location nics disks)};
+
+    # build user still has access through the build
+    $t->get_ok('/device/'.$located_device_id)
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply({
+            $device_data->%*,
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        })
+        ->log_debug_is('User has ro access to device '.$located_device_id.' via role entry');
+
+    # ro user only had access through device->device_location->rack->workspace
+    $t->authenticate(email => $ro_user->email);
+    $t->get_ok('/device/'.$located_device_id)
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (ro) for device '.$located_device_id);
+
+    $located_device->update({ phase => 'installation' });
 };
 
 subtest 'device network interfaces' => sub {
@@ -521,6 +596,34 @@ subtest 'device network interfaces' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceNicField')
         ->json_is({ ipaddr => '10.72.160.146' });
+
+    $t->post_ok('/device/TEST/phase', json => { phase => 'production' })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
+
+    foreach my $query (
+        '/device/TEST/interface',
+        '/device/TEST/interface/ipmi1',
+        map '/device/TEST/interface/ipmi1/'.$_,
+            (qw(mac iface_name iface_type iface_vendor iface_driver state ipaddr mtu)),
+    ) {
+        $t->get_ok($query)
+            ->status_is(409)
+            ->location_is('/device/'.$test_device_id.'/links')
+            ->json_is({ error => 'device is in the production phase' });
+    }
+
+    $t->get_ok('/device/TEST/interface?phase_earlier_than=decommissioned')
+        ->status_is(200)
+        ->json_schema_is('DeviceNics');
+
+    $t->get_ok('/device/TEST/interface?phase_earlier_than=')
+        ->status_is(200)
+        ->json_schema_is('DeviceNics');
+
+    $t->post_ok('/device/TEST/phase', json => { phase => 'installation' })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
 };
 
 $t->get_ok('/device/TEST')
@@ -595,7 +698,40 @@ subtest 'get by device attributes' => sub {
         ->json_schema_is('Devices')
         ->json_is('', [ $undetailed_device ], 'got device by link');
 
-    $test_device->update({ links => '{}' });
+    $t->get_ok('/device?key=value')
+        ->status_is(404);
+
+    $test_device->create_related('device_settings', { name => 'key', value => 'value' });
+
+    $t->get_ok('/device?key=ugh')
+        ->status_is(404);
+
+    $t->get_ok('/device?key=value')
+        ->status_is(200)
+        ->json_schema_is('Devices')
+        ->json_is([ $undetailed_device ]);
+
+    $test_device->update({ phase => 'production' });
+
+    $undetailed_device->{phase} = 'production';
+    delete $undetailed_device->@{qw(rack_id rack_unit_start)};
+
+    foreach my $query (qw(
+        /device?hostname=elfo
+        /device?link=foo
+        /device?key=value
+    )) {
+        $t->get_ok($query)
+            ->status_is(200)
+            ->json_schema_is('Devices')
+            ->json_is([ $undetailed_device ]);
+    }
+
+    foreach my $query ('/device?ipaddr=172.17.0.173', "/device?mac=$macs[0]") {
+        $t->get_ok($query)->status_is(404);
+    }
+
+    $test_device->update({ links => '{}', phase => 'installation' });
 };
 
 subtest 'mutate device attributes' => sub {
@@ -638,6 +774,9 @@ subtest 'mutate device attributes' => sub {
         ->status_is(200)
         ->json_schema_is('DevicePhase')
         ->json_is({ id => $test_device_id, phase => 'decommissioned' });
+
+    $detailed_device->{phase} = 'decommissioned';
+    delete $detailed_device->@{qw(location nics disks)};
 
     my $test_device = $t->app->db_devices->find({ serial_number => 'TEST' }, { prefetch => 'hardware_product' });
 
@@ -701,6 +840,8 @@ subtest 'mutate device attributes' => sub {
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply($detailed_device);
+
+    $test_device->update({ phase => 'installation' });
 };
 
 subtest 'Device settings' => sub {
@@ -811,19 +952,6 @@ subtest 'Device settings' => sub {
         ->status_is(200)
         ->json_schema_is('DetailedDevice');
 
-    my $detailed_device = $t->tx->res->json;
-
-    my $undetailed_device = {
-        $detailed_device->%*,
-        ($t->app->db_device_locations->search({ device_id => $located_device_id })->hri->single // {})->%{qw(rack_id rack_unit_start)},
-    };
-    delete $undetailed_device->@{qw(latest_report location nics disks)};
-
-    $t->get_ok('/device?foo=bar')
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_is('', [ $undetailed_device ], 'got device by arbitrary setting key');
-
     $t->authenticate(email => $ro_user->email);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => 'new_value' })
@@ -914,6 +1042,7 @@ subtest 'Device PXE' => sub {
         ->json_schema_is('DevicePXE')
         ->json_is({
             id => $device_pxe->id,
+            phase => 'integration',
             location => undef,
             ipmi => {
                 mac => '00:00:00:00:00:cc',
@@ -935,6 +1064,7 @@ subtest 'Device PXE' => sub {
         ->json_schema_is('DevicePXE')
         ->json_is({
             id => $device_pxe->id,
+            phase => 'integration',
             location => {
                 datacenter => {
                     name => $datacenter->region,
@@ -953,8 +1083,22 @@ subtest 'Device PXE' => sub {
                 mac => '00:00:00:00:00:aa',
             },
         });
+    my $pxe_data = $t_ro->tx->res->json;
 
+    $device_pxe->update({ phase => 'production' });
+    delete $pxe_data->{location};
 
+    $t_super->get_ok('/device/PXE_TEST/pxe')
+        ->status_is(409)
+        ->location_is('/device/'.$device_pxe->id.'/links')
+        ->json_is({ error => 'device is in the production phase' });
+
+    $t_super->get_ok('/device/PXE_TEST/pxe?phase_earlier_than=')
+        ->status_is(200)
+        ->json_schema_is('DevicePXE')
+        ->json_is({ $pxe_data->%*, phase => 'production' });
+
+    $device_pxe->update({ phase => 'integration' });
     $device_pxe->delete_related('device_location');
     $device_pxe->delete_related('device_nics');
 
@@ -967,6 +1111,7 @@ subtest 'Device PXE' => sub {
         ->json_schema_is('DevicePXE')
         ->json_is({
             id => $device_pxe->id,
+            phase => 'integration',
             location => undef,
             ipmi => undef,
             pxe => undef,
@@ -1002,6 +1147,42 @@ subtest 'Device location' => sub {
     $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id.'/location');
+
+    my $layout = $rack->search_related('rack_layouts', { rack_unit_start => 3 })->single;
+
+    $t_build->get_ok('/device/TEST/location')
+        ->status_is(200)
+        ->json_schema_is('DeviceLocation')
+        ->json_cmp_deeply({
+            datacenter => superhashof({ id => $rack->datacenter_room->datacenter_id }),
+            datacenter_room => superhashof({ datacenter_id => $rack->datacenter_room->datacenter_id }),
+            rack => superhashof({ id => $rack_id, name => $rack->name }),
+            rack_unit_start => 3,
+            target_hardware_product => {
+                (map +($_ => $layout->hardware_product->$_), qw(id name alias)),
+                vendor => $layout->hardware_product->hardware_vendor_id,
+            },
+        });
+    my $location_data = $t_build->tx->res->json;
+
+    $t_build->app->db_devices->search({ id => $test_device_id })->update({ phase => 'production' });
+
+    $t_build->get_ok('/device/TEST/location')
+        ->status_is(409)
+        ->location_is('/device/'.$test_device_id.'/links')
+        ->json_is({ error => 'device is in the production phase' });
+
+    $t_build->get_ok('/device/TEST/location?phase_earlier_than=')
+        ->status_is(200)
+        ->json_schema_is('DeviceLocation')
+        ->json_is($location_data);
+
+    $t_build->delete_ok('/device/TEST/location')
+        ->status_is(409)
+        ->location_is('/device/'.$test_device_id.'/links')
+        ->json_is({ error => 'device is in the production phase' });
+
+    $t_build->app->db_devices->search({ id => $test_device_id })->update({ phase => 'installation' });
 
     $t_rw->delete_ok('/device/TEST/location')
         ->status_is(204);

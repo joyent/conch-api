@@ -174,6 +174,7 @@ subtest 'Devices with PXE data' => sub {
         ->json_cmp_deeply([
             {
                 id => $devices[0]->id,
+                phase => 'integration',
                 location => {
                     datacenter => {
                         name => $datacenter->region,
@@ -194,6 +195,7 @@ subtest 'Devices with PXE data' => sub {
             },
             {
                 id => $devices[1]->id,
+                phase => 'integration',
                 location => {
                     datacenter => {
                         name => $datacenter->region,
@@ -208,6 +210,21 @@ subtest 'Devices with PXE data' => sub {
                 pxe => undef,
             },
         ]);
+    my $pxe_data = $t->tx->res->json;
+
+    $devices[0]->update({ phase => 'production' });
+    delete $pxe_data->[0]{location};
+    $pxe_data->[0]{phase} = 'production';
+
+    $t->get_ok('/workspace/'.$global_ws_id.'/device/pxe')
+        ->status_is(200)
+        ->json_schema_is('WorkspaceDevicePXEs')
+        ->json_is([ $pxe_data->[1] ]);
+
+    $t->get_ok('/workspace/'.$global_ws_id.'/device/pxe?phase_earlier_than=')
+        ->status_is(200)
+        ->json_schema_is('WorkspaceDevicePXEs')
+        ->json_is($pxe_data);
 };
 
 done_testing;

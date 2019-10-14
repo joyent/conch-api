@@ -837,6 +837,36 @@ $t->get_ok('/build/our second build/rack')
         superhashof({ id => $rack2->id }),
     ]);
 
+$device1->update({ phase => 'production' });
+
+$t->get_ok('/build/my first build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([
+        # device.phase >= production, so its location is no longer canonical
+        superhashof({
+            (map +($_ => $device2->$_), qw(id serial_number)),
+            build_id => $build->{id},
+            rack_id => undef,
+        }),
+    ]);
+
+$t->get_ok('/build/my first build/device?phase_earlier_than=')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([
+        superhashof({
+            (map +($_ => $device1->$_), qw(id serial_number)),
+            build_id => undef,  # in the build via the rack, not directly (FIXME)
+            # rack_id omitted because phase=production
+        }),
+        superhashof({
+            (map +($_ => $device2->$_), qw(id serial_number)),
+            build_id => $build->{id},
+            rack_id => undef,
+        }),
+    ]);
+
 $t->post_ok('/build/our second build/device', json => [ {
             id => $device2->id,
             sku => $hardware_product->sku,

@@ -12,6 +12,9 @@ to find the device and verify the user has the required role to operate on it.
 If `require_role` is provided, it is used as the minimum required role for the user to
 continue.
 
+If `phase_earlier_than` is provided, `409 CONFLICT` is returned if the device is in the
+provided phase (or later).
+
 ## get
 
 Retrieves details about a single device. Response uses the DetailedDevice json schema.

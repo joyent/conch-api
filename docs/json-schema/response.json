@@ -267,6 +267,38 @@
     },
     "DetailedDevice" : {
       "additionalProperties" : false,
+      "else" : {
+        "not" : {
+          "anyOf" : [
+            {
+              "required" : [
+                "location"
+              ]
+            },
+            {
+              "required" : [
+                "nics"
+              ]
+            },
+            {
+              "required" : [
+                "disks"
+              ]
+            }
+          ]
+        }
+      },
+      "if" : {
+        "properties" : {
+          "phase" : {
+            "enum" : [
+              "integration",
+              "installation"
+            ],
+            "type" : "string"
+          }
+        }
+      },
       "properties" : {
         "asset_tag" : {
           "oneOf" : [
@@ -293,6 +325,7 @@
           "type" : "string"
         },
         "disks" : {
+          "$comment" : "disks is included only when device 'phase' is earlier than 'production'",
           "items" : {
             "additionalProperties" : false,
             "properties" : {
@@ -484,6 +517,7 @@
           "uniqueItems" : true
         },
         "location" : {
+          "$comment" : "location is included only when device 'phase' is earlier than 'production'",
           "oneOf" : [
             {
               "$ref" : "/definitions/DeviceLocation"
@@ -494,6 +528,7 @@
           ]
         },
         "nics" : {
+          "$comment" : "nics is included only when device 'phase' is earlier than 'production'",
           "items" : {
             "additionalProperties" : false,
             "properties" : {
@@ -612,15 +647,46 @@
         "phase",
         "links",
         "build_id",
-        "location",
-        "nics",
-        "disks",
         "latest_report"
       ],
+      "then" : {
+        "required" : [
+          "location",
+          "nics",
+          "disks"
+        ]
+      },
       "type" : "object"
     },
     "Device" : {
       "additionalProperties" : false,
+      "else" : {
+        "not" : {
+          "anyOf" : [
+            {
+              "required" : [
+                "rack_id"
+              ]
+            },
+            {
+              "required" : [
+                "rack_unit_start"
+              ]
+            }
+          ]
+        }
+      },
+      "if" : {
+        "properties" : {
+          "phase" : {
+            "enum" : [
+              "integration",
+              "installation"
+            ],
+            "type" : "string"
+          }
+        }
+      },
       "properties" : {
         "asset_tag" : {
           "oneOf" : [
@@ -762,10 +828,14 @@
         "validated",
         "phase",
         "links",
-        "build_id",
-        "rack_id",
-        "rack_unit_start"
+        "build_id"
       ],
+      "then" : {
+        "required" : [
+          "rack_id",
+          "rack_unit_start"
+        ]
+      },
       "type" : "object"
     },
     "DeviceIds" : {
@@ -937,6 +1007,24 @@
     },
     "DevicePXE" : {
       "additionalProperties" : false,
+      "else" : {
+        "not" : {
+          "required" : [
+            "location"
+          ]
+        }
+      },
+      "if" : {
+        "properties" : {
+          "phase" : {
+            "enum" : [
+              "integration",
+              "installation"
+            ],
+            "type" : "string"
+          }
+        }
+      },
       "properties" : {
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
@@ -1029,6 +1117,9 @@
             }
           ]
         },
+        "phase" : {
+          "$ref" : "common.json#/definitions/device_phase"
+        },
         "pxe" : {
           "oneOf" : [
             {
@@ -1051,10 +1142,15 @@
       },
       "required" : [
         "id",
-        "location",
+        "phase",
         "ipmi",
         "pxe"
       ],
+      "then" : {
+        "required" : [
+          "location"
+        ]
+      },
       "type" : "object"
     },
     "DevicePhase" : {
@@ -2863,6 +2959,24 @@
     "WorkspaceDevicePXEs" : {
       "items" : {
         "additionalProperties" : false,
+        "else" : {
+          "not" : {
+            "required" : [
+              "location"
+            ]
+          }
+        },
+        "if" : {
+          "properties" : {
+            "phase" : {
+              "enum" : [
+                "integration",
+                "installation"
+              ],
+              "type" : "string"
+            }
+          }
+        },
         "properties" : {
           "id" : {
             "$ref" : "common.json#/definitions/uuid"
@@ -2948,6 +3062,9 @@
             ],
             "type" : "object"
           },
+          "phase" : {
+            "$ref" : "common.json#/definitions/device_phase"
+          },
           "pxe" : {
             "oneOf" : [
               {
@@ -2970,10 +3087,15 @@
         },
         "required" : [
           "id",
-          "location",
+          "phase",
           "ipmi",
           "pxe"
         ],
+        "then" : {
+          "required" : [
+            "location"
+          ]
+        },
         "type" : "object"
       },
       "type" : "array",
@@ -3107,6 +3229,7 @@
             "type" : "string"
           },
           "location" : {
+            "$comment" : "location should not be considered canonical when device 'phase' is 'production' or later",
             "additionalProperties" : false,
             "description" : "Last reported location of the relay",
             "properties" : {

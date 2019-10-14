@@ -56,6 +56,11 @@ sub process ($c) {
         return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$c->stash('device_serial_number') });
     }
 
+    if ($device->phase eq 'decommissioned') {
+        $c->log->error('report submitted for decommissioned device '.$c->stash('device_serial_number'));
+        return $c->status(409, { error => 'device is decommissioned' });
+    }
+
     # capture information about the last report before we store the new one
     # state can be: error, fail, pass, where no validations on a valid report is
     # considered to be a pass.
@@ -99,14 +104,17 @@ sub process ($c) {
     });
     $c->log->info('Created device report '.$device_report->id);
 
-    $c->log->debug('Recording device configuration');
-    $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report)
-    or do {
-        $device->discard_changes;
-        $device->health('error');
-        $device->update({ updated => \'now()' }) if $device->is_changed;
-        return $c->status(400);
-    };
+    # we do not update data when a device is in the production or later phase
+    if ($device->phase_cmp('production') < 0) {
+        $c->log->debug('Recording device configuration');
+        $c->txn_wrapper(\&_record_device_configuration, $prev_uptime, $device, $unserialized_report)
+        or do {
+            $device->discard_changes;
+            $device->health('error');
+            $device->update({ updated => \'now()' }) if $device->is_changed;
+            return $c->status(400);
+        };
+    }
 
     # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
     my $validation_plan = $c->db_validation_plans->search({

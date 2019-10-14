@@ -116,9 +116,6 @@ definitions:
       - phase
       - links
       - build_id
-      - location
-      - nics
-      - disks
       - latest_report
     properties:
       id:
@@ -175,10 +172,12 @@ definitions:
           - type: 'null'
           - $ref: common.yaml#/definitions/uuid
       location:
+        $comment: location is included only when device 'phase' is earlier than 'production'
         oneOf:
           - $ref: /definitions/DeviceLocation
           - type: 'null'
       nics: # NOTE: see also DeviceNic
+        $comment: nics is included only when device 'phase' is earlier than 'production'
         type: array
         uniqueItems: true
         items:
@@ -213,6 +212,7 @@ definitions:
                 - type: string
                 - type: 'null'
       disks:
+        $comment: disks is included only when device 'phase' is earlier than 'production'
         type: array
         uniqueItems: true
         items:
@@ -289,6 +289,27 @@ definitions:
           - type: 'null'
           - $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
           - type: object
+    if:
+      properties:
+        phase:
+          type: string
+          enum:
+            - integration
+            - installation
+    then:
+      required:
+        - location
+        - nics
+        - disks
+    else:
+      not:
+        anyOf:
+          - required:
+            - location
+          - required:
+            - nics
+          - required:
+            - disks
   DeviceIds:
     type: array
     uniqueItems: true
@@ -318,8 +339,6 @@ definitions:
       - phase
       - links
       - build_id
-      - rack_id
-      - rack_unit_start
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -382,6 +401,24 @@ definitions:
         oneOf:
           - $ref: common.yaml#/definitions/positive_integer
           - type: 'null'
+    if:
+      properties:
+        phase:
+          type: string
+          enum:
+            - integration
+            - installation
+    then:
+      required:
+        - rack_id
+        - rack_unit_start
+    else:
+      not:
+        anyOf:
+          - required:
+            - rack_id
+          - required:
+            - rack_unit_start
   DeviceNics:
     type: array
     uniqueItems: true
@@ -442,12 +479,14 @@ definitions:
     additionalProperties: false
     required:
       - id
-      - location
+      - phase
       - ipmi
       - pxe
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
+      phase:
+        $ref: common.yaml#/definitions/device_phase
       location:
         oneOf:
           - type: 'null'
@@ -508,6 +547,20 @@ definitions:
             properties:
               mac:
                 $ref: common.yaml#/definitions/macaddr
+    if:
+      properties:
+        phase:
+          type: string
+          enum:
+            - integration
+            - installation
+    then:
+      required:
+        - location
+    else:
+      not:
+        required:
+          - location
   DevicePhase:
     type: object
     additionalProperties: false
@@ -541,12 +594,14 @@ definitions:
       additionalProperties: false
       required:
         - id
-        - location
+        - phase
         - ipmi
         - pxe
       properties:
         id:
           $ref: common.yaml#/definitions/uuid
+        phase:
+          $ref: common.yaml#/definitions/device_phase
         location:
           type: object
           additionalProperties: false
@@ -605,6 +660,20 @@ definitions:
               properties:
                 mac:
                   $ref: common.yaml#/definitions/macaddr
+      if:
+        properties:
+          phase:
+            type: string
+            enum:
+              - integration
+              - installation
+      then:
+        required:
+          - location
+      else:
+        not:
+          required:
+            - location
   DeviceLocation:
     type: object
     additionalProperties: false
@@ -1115,6 +1184,7 @@ definitions:
           type: string
           format: date-time
         location:
+          $comment: location should not be considered canonical when device 'phase' is 'production' or later
           description: Last reported location of the relay
           type: object
           additionalProperties: false
