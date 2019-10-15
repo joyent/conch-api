@@ -376,6 +376,7 @@ sub set_assignment ($c) {
                     asset_tag => $entry->{device_asset_tag},
                     hardware_product_id => $layout->hardware_product_id,
                     health => 'unknown',
+                    build_id => $c->stash('rack_rs')->get_column('build_id')->single,
                 });
                 $entry->{device_id} = $device->id;
             }
