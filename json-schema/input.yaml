@@ -157,7 +157,7 @@ definitions:
         type: integer
   RackPhase:
     type: object
-    additionaProperties: false
+    additionalProperties: false
     required:
       - phase
     properties:
@@ -555,7 +555,7 @@ definitions:
         $ref: /definitions/uuid
   DevicePhase:
     type: object
-    additionaProperties: false
+    additionalProperties: false
     required:
       - phase
     properties:
@@ -582,7 +582,7 @@ definitions:
         - $ref: /definitions/uuid
   RegisterRelay:
     type: object
-    additionaProperties: false
+    additionalProperties: false
     required:
       - serial
     properties:
