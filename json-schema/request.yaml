@@ -148,7 +148,7 @@ definitions:
         $ref: common.yaml#/definitions/positive_integer
   RackPhase:
     type: object
-    additionaProperties: false
+    additionalProperties: false
     required:
       - phase
     properties:
@@ -502,7 +502,7 @@ definitions:
           - type: 'null'
   DevicePhase:
     type: object
-    additionaProperties: false
+    additionalProperties: false
     required:
       - phase
     properties:
@@ -510,7 +510,7 @@ definitions:
         $ref: common.yaml#/definitions/device_phase
   DeviceLinks:
     type: object
-    additionaProperties: false
+    additionalProperties: false
     required:
       - links
     properties:
@@ -535,7 +535,7 @@ definitions:
       $ref: common.yaml#/definitions/device_setting_key
   RegisterRelay:
     type: object
-    additionaProperties: false
+    additionalProperties: false
     required:
       - serial
     properties:

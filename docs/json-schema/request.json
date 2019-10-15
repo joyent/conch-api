@@ -288,7 +288,7 @@
       "type" : "object"
     },
     "DeviceLinks" : {
-      "additionaProperties" : false,
+      "additionalProperties" : false,
       "properties" : {
         "links" : {
           "items" : {
@@ -322,7 +322,7 @@
       "type" : "object"
     },
     "DevicePhase" : {
-      "additionaProperties" : false,
+      "additionalProperties" : false,
       "properties" : {
         "phase" : {
           "$ref" : "common.json#/definitions/device_phase"
@@ -973,7 +973,7 @@
       "uniqueItems" : true
     },
     "RackPhase" : {
-      "additionaProperties" : false,
+      "additionalProperties" : false,
       "properties" : {
         "phase" : {
           "$ref" : "common.json#/definitions/device_phase"
@@ -1053,7 +1053,7 @@
       "type" : "object"
     },
     "RegisterRelay" : {
-      "additionaProperties" : false,
+      "additionalProperties" : false,
       "properties" : {
         "ipaddr" : {
           "description" : "postgres \"inet\": ipv4 or ipv6, with optional netmask",
