@@ -44,7 +44,7 @@ say 'here is your api token (keep it in a safe place!)';
 say $api_token;
 say '';
 say 'Hint: you can put "Authorization: Bearer <token>" in ~/.conch-token,';
-say 'and then in the future you can do:   curl -H @~/.conch-token ...';
+say 'and then in the future you can do:   curl -H @$(echo ~/.conch-token) ...';
 
 exit;
 
