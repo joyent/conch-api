@@ -1,5 +1,6 @@
 package Conch::Plugin::Rollbar;
 
+use v5.26;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Sys::Hostname ();
 use Conch::UUID 'create_uuid_str';
@@ -61,18 +62,22 @@ message is sent to Rollbar.
     # message emitted by dispatch logger in Conch::Plugin::Logging
     $app->plugins->on(dispatch_message_payload => sub ($, $c, $payload) {
         my $response_code = $payload->{res}{statusCode};
-        if ($response_code >= 400 and $response_code < 500
-                and none { $response_code == $_ } (401, 403, 404)
-                and any {
-                    if (my $headers = $payload->{req}{headers}{$_}) {
-                        my $regex = $config->{rollbar}{error_match_header}{$_};
-                        any { /$regex/ } $headers->@*;
-                    }
-                } keys $config->{rollbar}{error_match_header}->%*) {
+        return if $response_code < 400 or $response_code >= 500;
+        return if any { $response_code == $_ } (401, 403, 404);
 
-            delete $payload->@{qw(level msg)};
-            $c->send_message_to_rollbar('error', 'api error', $payload);
+        MATCH_HEADERS: {
+            foreach my $header_name (keys $config->{rollbar}{error_match_header}->%*) {
+                foreach my $match_header (grep fc $_ eq fc $header_name, keys $payload->{req}{headers}->%*) {
+                    my $regex = $config->{rollbar}{error_match_header}{$header_name};
+                    last MATCH_HEADERS if any { /$regex/ } $payload->{req}{headers}{$match_header}->@*;
+                }
+            }
+
+            return;
         }
+
+        delete $payload->@{qw(level msg)};
+        $c->send_message_to_rollbar('error', 'api error', $payload);
     })
     if keys $config->{rollbar}{error_match_header}->%*;
 

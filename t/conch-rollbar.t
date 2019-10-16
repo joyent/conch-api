@@ -387,61 +387,66 @@ $t->do_and_wait_for_event(
     },
 );
 
-$t->do_and_wait_for_event(
-    $rollbar_app->plugins, 'rollbar_sent',
-    sub ($t) {
-        $t->post_ok('/_conflict', { 'My-Buggy-Client' => '1.1' }, json => { ugh => [ 1, 2, 3 ] })
-            ->status_is(409)
-            ->json_is({ error => 'something bad happened and you should feel bad' });
-    },
-    sub ($payload) {
-        cmp_deeply(
-            $payload,
-            $message_payload,
-            'basic message payload',
-        );
+foreach my $request (
+    [ '/_conflict', { 'My-Buggy-Client' => '1.1' }, json => { ugh => [ 1, 2, 3 ] } ],
+    [ '/_conflict', { 'my-buggy-client' => '1.1' }, json => { ugh => [ 1, 2, 3 ] } ],
+) {
+    my ($header_key, $header_value) = $request->[1]->%*;
 
-        cmp_deeply(
-            $payload->{data}{request},
-            superhashof({
-                method => 'POST',
-                url => re(qr{/_conflict}),
-                query_string => '',
-                body => '{"ugh":[1,2,3]}',
-                # POST => { ugh => [ 1, 2, 3 ] },
-            }),
-            'request details are included',
-        );
+    $t->do_and_wait_for_event(
+        $rollbar_app->plugins, 'rollbar_sent',
+        sub ($t) {
+            $t->post_ok($request->@*)
+                ->status_is(409)
+                ->json_is({ error => 'something bad happened and you should feel bad' });
+        },
+        sub ($payload) {
+            cmp_deeply(
+                $payload,
+                $message_payload,
+                'basic message payload',
+            );
 
-        cmp_deeply(
-            $payload->{data}{body},
-            {
-                message => {
-                    body => 'api error',
-                    api_version => re(qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/),
-                    latency => re(qr/^\d+$/),
-                    req => {
-                        user        => 'NOT AUTHED',
-                        method      => 'POST',
-                        url         => '/_conflict',
-                        remoteAddress => '127.0.0.1',
-                        remotePort  => ignore,
-                        headers     => superhashof({
-                            'My-Buggy-Client' => [ '1.1' ],
-                        }),
-                        query_params => {},
-                    },
-                    res => {
-                        headers => superhashof({}),
-                        statusCode => 409,
-                        body => { error => 'something bad happened and you should feel bad' },
+            cmp_deeply(
+                $payload->{data}{request},
+                superhashof({
+                    method => 'POST',
+                    url => re(qr{/_conflict}),
+                    query_string => '',
+                    body => '{"ugh":[1,2,3]}',
+                    # POST => { ugh => [ 1, 2, 3 ] },
+                }),
+                'request details are included',
+            );
+
+            cmp_deeply(
+                $payload->{data}{body},
+                {
+                    message => {
+                        body => 'api error',
+                        api_version => re(qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/),
+                        latency => re(qr/^\d+$/),
+                        req => {
+                            user        => 'NOT AUTHED',
+                            method      => 'POST',
+                            url         => '/_conflict',
+                            remoteAddress => '127.0.0.1',
+                            remotePort  => ignore,
+                            headers     => superhashof({ $header_key => [ $header_value ] }),
+                            query_params => {},
+                        },
+                        res => {
+                            headers => superhashof({}),
+                            statusCode => 409,
+                            body => { error => 'something bad happened and you should feel bad' },
+                        },
                     },
                 },
-            },
-            'message sent when client error encountered',
-        );
-    },
-);
+                'message sent when client error encountered',
+            );
+        },
+    );
+}
 
 warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');
