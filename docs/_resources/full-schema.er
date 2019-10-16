@@ -1,0 +1,418 @@
+# This file is read via 'erd', available at https://github.com/BurntSushi/erd
+
+# Entities are declared in '[' ... ']'. All attributes after the entity header
+# up until the end of the file (or the next entity declaration) correspond
+# to this entity.
+
+# Each relationship must be between exactly two entities, which need not
+# be distinct. Each entity in the relationship has exactly one of four
+# possible cardinalities:
+#
+# Cardinality    Syntax
+# 0 or 1         ?
+# exactly 1      1
+# 0 or more      *      (primary key)
+# 1 or more      +      (foreign key)
+
+
+title {label: "Conch database schema (as of v3.0.0-b1, 2019-10-21)", size: "50"}
+
+entity {bgcolor: "#eeeeee", size: "20"}
+
+# user stuff: green - {bgcolor: "#d0e0d0"}
+# groupings (workspaces, builds) - orange - {bgcolor: "#eee0a0"}
+# device stuff - blue -- {bgcolor: "#ececfc"}
+# locations - red {bgcolor: "#fcecec"}
+# validations - yellow {bgcolor: "#fbfbdb"}
+
+[build] {bgcolor: "#eee0a0"}
+*id
+name
+description
+created
+started
+completed
++completed_user_id
+
+[datacenter] {bgcolor: "#fcecec"}
+*id
+vendor
+vendor_name
+region
+location
+created
+updated
+
+[datacenter_room] {bgcolor: "#fcecec"}
+*id
++datacenter_id
+az
+alias
+vendor_name
+created
+updated
+
+[device] {bgcolor: "#ececfc"}
+*id
+serial_number
+system_uuid
++hardware_product_id
+health {label: "error, fail, unknown, pass"}
+last_seen
+created
+updated
+uptime_since
+validated
+asset_tag
+hostname
+phase
+links
++build_id
+
+[device_disk] {bgcolor: "#ececfc"}
+*id
++device_id
+serial_number
+slot
+size
+vendor
+model
+firmware
+transport
+health
+drive_type
+deactivated
+created
+updated
+enclosure
+hba
+
+[device_location] {bgcolor: "#fcecec"}
+*+device_id
++rack_id
++rack_unit_start
+created
+updated
+
+[device_neighbor] {bgcolor: "#ececfc"}
+*mac
+raw_text
+peer_switch
+peer_port
+created
+updated
+peer_mac
+
+[device_nic] {bgcolor: "#ececfc"}
+*mac
++device_id
+iface_name
+iface_type
+iface_vendor
+iface_driver
+deactivated
+created
+updated
+state
+ipaddr
+mtu
+
+[device_relay_connection] {bgcolor: "#ececfc"}
++*device_id
++*relay_id
+first_seen
+last_seen
+
+[device_report] {bgcolor: "#fbfbdb"}
+*id
++device_id
+report
+created
+retain
+
+[device_setting] {bgcolor: "#ececfc"}
+*id
++device_id
+value
+created
+updated
+deactivated
+name
+
+[hardware_product] {bgcolor: "#fbfbdb"}
+*id
+name
+alias
+prefix
++hardware_vendor_id
+created
+updated
+deactivated
+specification
+sku
+generation_name
+legacy_product_name
+rack_unit_size
++validation_plan_id
+
+[hardware_product_profile] {bgcolor: "#fbfbdb"}
+*id
++hardware_product_id
+purpose
+bios_firmware
+hba_firmware
+created
+updated
+deactivated
+cpu_num
+cpu_type
+dimms_num
+nics_num
+nvme_ssd_num
+nvme_ssd_size
+nvme_ssd_slots
+psu_total
+raid_lun_num
+ram_total
+sas_hdd_num
+sas_hdd_size
+sas_hdd_slots
+sas_ssd_num
+sas_ssd_size
+sas_ssd_slots
+sata_hdd_num
+sata_hdd_size
+sata_hdd_slots
+sata_ssd_num
+sata_ssd_size
+sata_ssd_slots
+usb_num
+
+[hardware_vendor] {bgcolor: "#fbfbdb"}
+*id
+name
+deactivated
+created
+updated
+
+[migration]
+*id
+created
+
+[organization] {bgcolor: "#d0e0d0"}
+*id
+name
+description
+created
+deactivated
+
+[organization_build_role] {bgcolor: "#d0e0d0"}
+*+organization_id
+*+build_id
+role {label: "ro, rw, admin"}
+
+[organization_workspace_role] {bgcolor: "#d0e0d0"}
+*+organization_id
+*+workspace_id
+role {label: "ro, rw, admin"}
+
+[rack] {bgcolor: "#fcecec"}
+*id
++datacenter_room_id
+name
++rack_role_id
+created
+updated
+serial_number
+asset_tag
+phase
++build_id
+
+[rack_layout] {bgcolor: "#fcecec"}
+*id
++rack_id
++rack_unit_start
++hardware_product_id
+created
+updated
+
+[rack_role] {bgcolor: "#fcecec"}
+*id
+name
+rack_size
+created
+updated
+
+[relay] {bgcolor: "#ececfc"}
+*id
+serial_number
+name
+version
+ipaddr
+ssh_port
+deactivated
+created
+updated
+last_seen
+
+[user_account] {bgcolor: "#d0e0d0"}
+*id
+name
+password {label: "encrypted"}
+created
+last_login
+email
+deactivated
+refuse_session_auth
+force_password_change
+is_admin
+last_seen
+
+[user_build_role] {bgcolor: "#d0e0d0"}
+*+user_id
+*+build_id
+role {label: "ro, rw, admin"}
+
+[user_organization_role] {bgcolor: "#d0e0d0"}
+*+user_id
+*+organization_id
+role {label: "ro, rw, admin"}
+
+[user_relay_connection] {bgcolor: "#d0e0d0"}
+*+user_id
+*+relay_id
+first_seen
+last_seen
+
+[user_session_token] {bgcolor: "#d0e0d0"}
+*id
++user_id
+expires
+name
+created
+last_used
+
+[user_setting] {bgcolor: "#d0e0d0"}
+*id
++user_id
+name
+value
+created
+deactivated
+
+[user_workspace_role] {bgcolor: "#d0e0d0"}
+*+user_id
+*+workspace_id
+role {label: "ro, rw, admin"}
+
+[validation] {bgcolor: "#fbfbdb"}
+*id
+name
+version
+description
+module
+created
+updated
+deactivated
+
+[validation_plan] {bgcolor: "#fbfbdb"}
+*id
+name
+description
+created
+deactivated
+
+[validation_plan_member] {bgcolor: "#fbfbdb"}
+*+validation_id
+*+validation_plan_id
+
+[validation_result] {bgcolor: "#fbfbdb"}
+*id
++device_id
++hardware_product_id
++validation_id
+message
+hint
+status {label: "error, fail, pass"}
+category
+component
+created
+
+[validation_state] {bgcolor: "#fbfbdb"}
+*id
++validation_plan_id
++device_report_id
++device_id
+created
+status
+completed
+
+[validation_state_member] {bgcolor: "#fbfbdb"}
+*+validation_state_id
+*+validation_result_id
+result_order
+
+[workspace] {bgcolor: "#eee0a0"}
+*id
+name
+description
++parent_workspace_id
+
+[workspace_rack] {bgcolor: "#eee0a0"}
+*+workspace_id
+*+rack_id
+
+# Cardinality    Syntax
+# 0 or 1         ?
+# exactly 1      1
+# 0 or more      *
+# 1 or more      +
+build *--? user_account {label: "completed by", size: "14"}
+datacenter_room 1--* datacenter
+device *--1 hardware_product
+device *--? build
+device_disk *--1 device
+device_location *--1 rack
+device_location ?--1 device
+device_location ?--1 rack_layout
+device_neighbor *--1 device_nic
+device_nic *--1 device
+device_relay_connection *--1 device
+device_relay_connection *--1 relay
+device_report *--1 device
+device_setting *--1 device
+hardware_product_profile ?--1 hardware_product
+hardware_product *--1 validation_plan
+hardware_product *--1 hardware_vendor
+organization_build_role *--1 build
+organization_build_role *--1 organization
+organization_workspace_role *--1 organization
+organization_workspace_role *--1 workspace
+rack *--? build
+rack *--1 datacenter_room
+rack_layout *--1 hardware_product
+rack_layout *--1 rack
+rack *--1 rack_role
+user_build_role +--1 build
+user_build_role *--1 user_account
+user_organization_role +--1 organization
+user_organization_role *--1 user_account
+user_relay_connection *--1 relay
+user_relay_connection *--1 user_account
+user_session_token *--1 user_account
+user_setting *--1 user_account
+user_workspace_role *--1 user_account
+user_workspace_role *--1 workspace
+validation_plan_member *--1 validation
+validation_plan_member *--1 validation_plan
+validation_result *--1 device
+validation_result *--1 hardware_product
+validation_result *--1 validation
+validation_state *--1 device
+validation_state *--1 device_report
+validation_state_member +--1 validation_result
+validation_state_member *--1 validation_state
+validation_state *--1 validation_plan
+workspace 1--* workspace {label: "parent of", size: "14"}
+workspace_rack +--1 rack
+workspace_rack *--1 workspace

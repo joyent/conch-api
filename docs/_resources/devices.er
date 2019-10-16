@@ -1,0 +1,65 @@
+title {label: "Conch database schema (as of v3.0.0-b1, 2019-10-21): device data", size: "40"}
+
+entity {bgcolor: "#ececfc", size: "20"}
+
+[device] {bgcolor: "#fbfbdb"}
+*id
+serial_number
+system_uuid
++hardware_product_id
+health {label: "error, fail, unknown, pass"}
+last_seen
+created
+updated
+uptime_since
+validated
+asset_tag
+hostname
+phase
+links
++build_id
+
+[device_disk]
+*id
++device_id
+serial_number
+slot
+size
+vendor
+model
+firmware
+transport
+health
+drive_type
+deactivated
+created
+updated
+enclosure
+hba
+
+[device_neighbor]
+*mac
+raw_text
+peer_switch
+peer_port
+created
+updated
+peer_mac
+
+[device_nic]
+*mac
++device_id
+iface_name
+iface_type
+iface_vendor
+iface_driver
+deactivated
+created
+updated
+state
+ipaddr
+mtu
+
+device_disk *--1 device
+device_neighbor *--1 device_nic
+device_nic *--1 device

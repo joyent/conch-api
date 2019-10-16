@@ -1,0 +1,73 @@
+title {label: "Conch API database schema (as of v3.0.0-b1, 2019-10-21): device locations", size: "40"}
+
+entity {bgcolor: "#ececfc", size: "20"}
+
+[build] {bgcolor: "#fbfbdb"}
+*id
+name
+description
+created
+started
+completed
++completed_user_id
+
+[datacenter]
+*id
+vendor
+vendor_name
+region
+location
+created
+updated
+
+[datacenter_room]
+*id
++datacenter_id
+az
+alias
+vendor_name
+created
+updated
+
+[device] {bgcolor: "#fbfbdb"}
+*id
+serial_number
+system_uuid
++hardware_product_id
+health {label: "error, fail, unknown, pass"}
+last_seen
+created
+updated
+uptime_since
+validated
+asset_tag
+hostname
+phase
+links
++build_id
+
+[device_location]
+*+device_id
++rack_id
++rack_unit_start
+created
+updated
+
+[rack] {bgcolor: "#fbfbdb"}
+*id
++datacenter_room_id
+name
++rack_role_id
+created
+updated
+serial_number
+asset_tag
+phase
++build_id
+
+datacenter_room 1--* datacenter
+device *--? build
+device_location *--1 rack
+device_location ?--1 device
+rack *--? build
+rack *--1 datacenter_room
