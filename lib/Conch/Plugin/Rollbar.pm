@@ -10,6 +10,7 @@ use Config;
 use Mojo::JSON 'to_json';
 use List::Util qw(none any);
 use Carp;
+use Storable 'dclone';
 
 my @message_levels = qw(critical error warning info debug);
 
@@ -76,8 +77,9 @@ message is sent to Rollbar.
             return;
         }
 
-        delete $payload->@{qw(level msg)};
-        $c->send_message_to_rollbar('error', 'api error', $payload);
+        my $data = dclone($payload);
+        delete $data->@{qw(level msg)};
+        $c->send_message_to_rollbar('error', 'api error', $data);
     })
     if keys $config->{rollbar}{error_match_header}->%*;
 

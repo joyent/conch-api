@@ -13,6 +13,10 @@ use Test::Memory::Cycle;
 use Mojo::Promise;
 use PadWalker 'closed_over';
 use Path::Tiny;
+use Mojo::JSON 'decode_json';
+
+open my $log_fh, '>:raw', \my $fake_log_file or die "cannot open to scalarref: $!";
+sub reset_log { $fake_log_file = ''; seek $log_fh, 0, 0; }
 
 my $t = Test::Conch->new(
     config => {
@@ -22,6 +26,7 @@ my $t = Test::Conch->new(
             environment => 'custom_environment',
             error_match_header => { 'My-Buggy-Client' => qr/^1\.[0-9]$/ },
         },
+        logging => { handle => $log_fh },
     },
     pg => undef,
 );
@@ -393,6 +398,7 @@ foreach my $request (
 ) {
     my ($header_key, $header_value) = $request->[1]->%*;
 
+    reset_log;
     $t->do_and_wait_for_event(
         $rollbar_app->plugins, 'rollbar_sent',
         sub ($t) {
@@ -445,6 +451,37 @@ foreach my $request (
                 'message sent when client error encountered',
             );
         },
+    );
+
+    cmp_deeply(
+        decode_json((split(/\n/, $fake_log_file || '{}'))[-1]),
+        {
+            name => 'conch-api',
+            hostname => ignore,
+            v => 2,
+            pid => $$,
+            time => ignore,
+            level => 'info',
+            req_id => ignore,
+            msg => 'dispatch',
+            api_version => ignore,
+            latency => re(qr/^\d+$/),
+            req => {
+                user        => 'NOT AUTHED',
+                method      => 'POST',
+                url         => '/_conflict',
+                remoteAddress => '127.0.0.1',
+                remotePort  => ignore,
+                headers => superhashof({ $header_key => [ $header_value ] }),
+                query_params => {},
+            },
+            res => {
+                statusCode => 409,
+                headers     => superhashof({}),
+                body => { error => 'something bad happened and you should feel bad' },
+            },
+        },
+        'dispatch log looks good too',
     );
 }
 
