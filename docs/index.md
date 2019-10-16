@@ -100,6 +100,38 @@ Available routes are:
 * [Conch::Route::Workspace](modules/Conch::Route::Workspace)
   * `/workspace`
 
+# Features
+
+The Conch API has many features to make it a fully-functional and robust REST
+application.
+
+* Most endpoints (save trivial ones such as `GET /ping`) require the user to
+be authenticated. This lets us mount the application on a world-reachable host
+while still protecting our private data.  After `POST /login`, the user is
+issued a [Java Web Token](https://en.wikipedia.org/wiki/JSON_Web_Token) for future access.
+
+* Access to various components in the system are protected by a
+layered system of roles; for example, a user can be granted access to data
+pertaining to just one build, without having access to historical build data
+or other devices in the system; or, read-only access to some parts and write
+access to other parts.
+
+* All transactions are logged, both in local files and in syslog and MongoDB
+for later analysis.  Errors are also sent up to
+[Rollbar](https://rollbar.com/joyent_buildops/conch) for immediate developer
+attention.
+
+* All endpoints have strict error checking in both request and response
+payloads, with errors spelled out clearly in the response to enable easy
+development of client code. The payload schemas can be found [here](json-schema).
+
+* Addition, modification and deletion of users, organizations and builds
+trigger email notification to the relevant administrators.
+
+* Data is stored in Postgres and backed up nightly to a Manta store.
+
+* All parts of the application are unicode-clean. 우리는 한국어를 합니다!
+
 # Modules
 
 Individual module documentation can be found [here](modules).
