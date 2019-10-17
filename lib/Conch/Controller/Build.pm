@@ -718,17 +718,6 @@ sub add_device ($c) {
         return $c->status(409, { error => 'device already member of build '.$device->build_id.' ('.$device->build->name.')' });
     }
 
-    if ($device->device_location
-            and my $current_build = $device->device_location->rack->build) {
-        return $c->status(204) if $current_build->id eq $build_id;
-
-        $c->log->warn('cannot add device '.$c->stash('device_id').' ('.$device->serial_number
-            .') to build '.$c->stash('build_id_or_name').' -- already a member of build '
-            .$current_build->id.' ('.$device->device_location->rack->build->name
-            .') via its rack location');
-        return $c->status(409, { error => 'device already member of build '.$current_build->id.' ('.$current_build->name.') via rack id '.$device->device_location->rack_id });
-    }
-
     # TODO: check other constraints..
     # - what if the build is completed?
     # - what about device.phase or rack.phase?

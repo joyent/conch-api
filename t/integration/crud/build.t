@@ -792,11 +792,6 @@ $device2->update({ build_id => undef });
 $rack2->update({ build_id => $build2->{id} });
 $device2->create_related('device_location', { rack_id => $rack2->id, rack_unit_start => $rack_layout2->rack_unit_start });
 
-$t->post_ok('/build/my first build/device/'.$device2->id)
-    ->status_is(409)
-    ->log_warn_is('cannot add device '.$device2->id.' ('.$device2->serial_number.') to build my first build -- already a member of build '.$build2->{id}.' (our second build) via its rack location')
-    ->json_is({ error => 'device already member of build '.$build2->{id}.' (our second build) via rack id '.$rack2->id });
-
 $device2->delete_related('device_location');
 $t->post_ok('/build/my first build/device/'.$device2->id)
     ->status_is(204)
