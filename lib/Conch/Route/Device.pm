@@ -25,7 +25,7 @@ sub routes {
     # POST /device/:device_serial_number
     $device->post('/:device_serial_number')->to('device_report#process');
 
-    # GET /device?key=:value
+    # GET /device?:key=:value
     $device->get('/')->to('device#lookup_by_other_attribute');
 
     {
