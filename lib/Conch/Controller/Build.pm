@@ -157,6 +157,9 @@ sub update ($c) {
     return $c->status(409, { error => 'build was already completed' })
         if $build->completed and $old_columns{completed};
 
+    return $c->status(409, { error => 'build cannot be completed in the future' })
+        if $build->completed and $build->completed > Conch::Time->now;
+
     $c->log->info('build '.$build->id.' ('.$build->name.') started')
         if $build->started and not $old_columns{started};
 

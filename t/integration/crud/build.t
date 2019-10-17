@@ -104,7 +104,7 @@ $t->get_ok('/build/my first build')
 
 foreach my $payload (
     { completed => $now },
-    { completed => $now, started => $now->plus_days(1) },
+    { completed => $now->minus_days(1), started => $now },
     { completed => $now, started => undef },
 ) {
     $t->post_ok('/build/my first build', json => $payload)
@@ -112,11 +112,11 @@ foreach my $payload (
         ->json_is({ error => 'build cannot be completed before it is started' });
 }
 
-$t->post_ok('/build/my first build', json => { started => $now })
+$t->post_ok('/build/my first build', json => { started => $now->minus_days(7) })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
     ->log_info_is('build '.$build->{id}.' (my first build) started');
-$build->{started} = $now->to_string;
+$build->{started} = $now->minus_days(7)->to_string;
 
 $t->get_ok('/build/my first build')
     ->status_is(200)
@@ -124,10 +124,14 @@ $t->get_ok('/build/my first build')
     ->json_is($build);
 
 $t->post_ok('/build/my first build', json => { completed => $now->plus_days(1) })
+    ->status_is(409)
+    ->json_is({ error => 'build cannot be completed in the future' });
+
+$t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
     ->log_info_is("build $build->{id} (my first build) completed; 0 users had role converted from rw to ro");
-$build->{completed} = $now->plus_days(1)->to_string;
+$build->{completed} = $now->minus_days(1)->to_string;
 $build->{completed_user} = { map +($_ => $super_user->$_), qw(id name email) };
 
 $t->get_ok('/build/my first build')
@@ -135,7 +139,7 @@ $t->get_ok('/build/my first build')
     ->json_schema_is('Build')
     ->json_is($build);
 
-$t->post_ok('/build/my first build', json => { completed => $now->plus_days(2) })
+$t->post_ok('/build/my first build', json => { completed => $now })
     ->status_is(409)
     ->json_is({ error => 'build was already completed' });
 
@@ -326,11 +330,11 @@ $t2->delete_ok('/build/my first build/user/'.$new_user->email)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for build my first build');
 
-$t->post_ok('/build/my first build', json => { completed => $now->plus_days(2) })
+$t->post_ok('/build/my first build', json => { completed => $now->minus_hours(2) })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
     ->log_info_is("build $build->{id} (my first build) completed; 1 users had role converted from rw to ro");
-$build->{completed} = $now->plus_days(2)->to_string;
+$build->{completed} = $now->minus_hours(2)->to_string;
 $build->{completed_user} = { map +($_ => $super_user->$_), qw(id name email) };
 
 $t->get_ok('/build/my first build')
