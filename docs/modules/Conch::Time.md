@@ -17,13 +17,13 @@ $time eq $time; # 1
 
 ## new
 
-Overloads the constructor to use `->from_string` when a single argument is passed.
+Overloads the constructor to use `->from_string` when a single argument is passed, for example:
 
 ```
 Conch::Time->new($pg_timestamptz);
-
-... and any other constructor modes supported by Time::Moment
 ```
+
+..and all other constructor modes supported by [Time::Moment](https://metacpan.org/pod/Time::Moment).
 
 ## now
 
@@ -31,9 +31,9 @@ Conch::Time->new($pg_timestamptz);
 my $t = Conch::Time->now;
 ```
 
-Return an object based on the current time, using the UTC timezone.
+Returns a new object based on the current time, using the UTC timezone.
 
-Time are high resolution and will generate unique timestamps to the
+Times are high resolution and will generate unique timestamps to the
 nanosecond.
 
 ## from\_epoch
@@ -46,7 +46,7 @@ Conch::Time->from_epoch(Time::HiRes::gettimeofday);
 Conch::Time->from_epoch(1234567890, 123);
 ```
 
-See also ["from\_epoch" in Time::Moment](https://metacpan.org/pod/Time::Moment#from_epoch).
+See ["from\_epoch" in Time::Moment](https://metacpan.org/pod/Time::Moment#from_epoch).
 
 ## CONVERSIONS
 
