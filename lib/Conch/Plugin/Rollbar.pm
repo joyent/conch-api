@@ -167,7 +167,7 @@ Requires a message string. A hashref of additional data is optional.
         # see https://docs.rollbar.com/docs/grouping-algorithm
         my $fingerprint = join(',',
             $message_string,
-            to_json($payload),
+            $payload ? to_json($payload) : (),
         );
         $fingerprint = Digest::SHA::sha1_hex($fingerprint) if length($fingerprint) > 40;
 
