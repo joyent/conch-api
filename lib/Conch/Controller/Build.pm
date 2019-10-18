@@ -163,12 +163,12 @@ sub update ($c) {
     $c->log->info('build '.$build->id.' ('.$build->name.') started')
         if $build->started and not $old_columns{started};
 
-    if (not $build->completed and $build->completed_user_id) {
+    if (not $build->completed and $old_columns{completed}) {
         $build->completed_user_id(undef);
         $c->log->info('build '.$build->id.' ('.$build->name
             .') moved out of completed state');
     }
-    elsif ($build->completed and not $build->completed_user_id) {
+    elsif ($build->completed and not $old_columns{completed}) {
         $build->completed_user_id($c->stash('user')->id);
         my $users_updated = $build->search_related('user_build_roles', { role => 'rw' })
             ->update({ role => 'ro' });
