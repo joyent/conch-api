@@ -132,6 +132,23 @@ trigger email notification to the relevant administrators.
 
 * All parts of the application are unicode-clean. 우리는 한국어를 합니다!
 
+# Database schemas
+
+The full database schema:
+[<img src="images/full-schema.png" alt="full schema" height="200"/>](images/full-schema.png).
+
+Database tables relevant to user roles:
+[<img src="images/roles.png" alt="roles schema" height="200"/>](images/roles.png).
+
+Database tables relevant to device data:
+[<img src="images/devices.png" alt="devices schema" height="200"/>](images/devices.png).
+
+Database tables relevant to datacenters and device locations:
+[<img src="images/device-locations.png" alt="device-locations schema" height="200"/>](images/device-locations.png).
+
+Database tables relevant to device validations:
+[<img src="images/validations.png" alt="validations schema" height="200"/>](images/validations.png).
+
 # Modules
 
 Individual module documentation can be found [here](modules).
