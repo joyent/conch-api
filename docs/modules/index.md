@@ -7,6 +7,7 @@
 * [Conch::Command::clean_roles](../modules/Conch::Command::clean_roles)
 * [Conch::Command::create_token](../modules/Conch::Command::create_token)
 * [Conch::Command::create_user](../modules/Conch::Command::create_user)
+* [Conch::Command::fix_usernames](../modules/Conch::Command::fix_usernames)
 * [Conch::Command::merge_validation_results](../modules/Conch::Command::merge_validation_results)
 * [Conch::Command::thin_device_reports](../modules/Conch::Command::thin_device_reports)
 * [Conch::Command::update_validation_plans](../modules/Conch::Command::update_validation_plans)

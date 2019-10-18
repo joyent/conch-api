@@ -38,6 +38,10 @@ Conch-specific commands are:
 
     Create a new user
 
+- [fix\_usernames](../modules/Conch::Command::fix_usernames)
+
+    fixes Joyent usernames so they are not the same as the email
+
 - [merge\_validation\_results](../modules/Conch::Command::merge_validation_results)
 
     Collapse duplicate validation\_result rows together
