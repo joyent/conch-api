@@ -238,7 +238,7 @@ See L<Conch::Route::User/routes>
 
 =head3 C<* /validation>, C<* /validation_plan>, C<* /validation_state>
 
-See L<Conch:Route::Validation/routes>
+See L<Conch::Route::Validation/routes>
 
 =head3 C<* /workspace>
 

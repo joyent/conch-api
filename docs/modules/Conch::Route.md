@@ -95,7 +95,7 @@ See ["routes" in Conch::Route::User](../modules/Conch::Route::User#routes)
 
 ### `* /validation`, `* /validation_plan`, `* /validation_state`
 
-See [Conch:Route::Validation/routes](Conch:Route::Validation/routes)
+See ["routes" in Conch::Route::Validation](../modules/Conch::Route::Validation#routes)
 
 ### `* /workspace`
 

@@ -92,7 +92,7 @@ Available routes are:
 * [Conch::Route::User](modules/Conch::Route::User)
   * `/user`
 
-* [Conch:Route::Validation](modules/Conch::Route::Validation)
+* [Conch::Route::Validation](modules/Conch::Route::Validation)
   * `/validation`
   * `/validation_plan`
   * `/validation_state`
