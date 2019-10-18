@@ -160,6 +160,18 @@ sub update ($c) {
     return $c->status(409, { error => 'build cannot be completed in the future' })
         if $build->completed and $build->completed > Conch::Time->now;
 
+    return $c->status(409, { error => 'build cannot be completed when it has unhealthy devices' })
+        if $input->{completed} and
+            ($build->search_related('devices', { health => { '!=' => 'pass' } })->exists
+             or $build
+                ->related_resultset('racks')
+                ->related_resultset('device_locations')
+                ->search_related('device', {
+                    'device.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+                    health => { '!=' => 'pass' }
+                })
+                ->exists);
+
     $c->log->info('build '.$build->id.' ('.$build->name.') started')
         if $build->started and not $old_columns{started};
 

@@ -836,6 +836,26 @@ $t->get_ok('/build/our second build/rack')
         superhashof({ id => $rack2->id }),
     ]);
 
+$t->post_ok('/build/my first build', json => { completed => undef })
+    ->status_is(303)
+    ->location_is('/build/'.$build->{id})
+    ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
+
+$t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
+    ->status_is(409)
+    ->json_is({ error => 'build cannot be completed when it has unhealthy devices' });
+
+$device2->update({ health => 'pass' });
+$t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
+    ->status_is(409)
+    ->json_is({ error => 'build cannot be completed when it has unhealthy devices' });
+
+$device1->update({ health => 'pass' });
+$t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
+    ->status_is(303)
+    ->location_is('/build/'.$build->{id})
+    ->log_info_is("build $build->{id} (my first build) completed; 0 users had role converted from rw to ro");
+
 $device1->update({ phase => 'production' });
 
 $t->get_ok('/build/my first build/device')
