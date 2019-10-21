@@ -11,6 +11,7 @@
 * [Conch::Command::merge_validation_results](../modules/Conch::Command::merge_validation_results)
 * [Conch::Command::thin_device_reports](../modules/Conch::Command::thin_device_reports)
 * [Conch::Command::update_validation_plans](../modules/Conch::Command::update_validation_plans)
+* [Conch::Command::workspace_to_build](../modules/Conch::Command::workspace_to_build)
 * [Conch::Command::workspaces](../modules/Conch::Command::workspaces)
 * [Conch::Controller::Build](../modules/Conch::Controller::Build)
 * [Conch::Controller::Datacenter](../modules/Conch::Controller::Datacenter)

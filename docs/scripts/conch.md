@@ -54,6 +54,10 @@ Conch-specific commands are:
 
     bring validation\_plans up to date with new versions of all validations
 
+- [workspace\_to\_build](../modules/Conch::Command::workspace_to_build)
+
+    convert workspace content to a build
+
 - [workspaces](../modules/Conch::Command::workspaces)
 
     View all workspaces in their heirarchical order
