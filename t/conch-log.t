@@ -156,7 +156,6 @@ sub add_test_routes ($t) {
 {
     reset_log;
     my $t = Test::Conch->new(config => {
-        logging => { handle => $log_fh },
         features => { audit => 0 },
     });
 
@@ -171,6 +170,27 @@ sub add_test_routes ($t) {
             ),
         ),
         'logger via $app gets good default options',
+    );
+}
+
+{
+    reset_log;
+    my $t = Test::Conch->new(config => {
+        logging => { handle => $log_fh },
+        features => { audit => 0 },
+    });
+
+    cmp_deeply(
+        $t->app->log,
+        all(
+            isa('Conch::Log'),
+            methods(
+                handle => ignore,
+                bunyan => 1,
+                with_trace => 0,
+            ),
+        ),
+        'logger via $app gets filehandle',
     );
 
     $t->app->log->info('info to the app');

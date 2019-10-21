@@ -37,7 +37,7 @@ sub register ($self, $app, $config) {
     );
 
     # without 'path' option, Mojo::Log defaults to *STDERR
-    if (not $app->feature('log_to_stderr')) {
+    if (not $app->feature('log_to_stderr') and not $log_args{handle}) {
         $log_dir = path($log_dir);
         $log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
 

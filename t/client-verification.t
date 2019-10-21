@@ -33,6 +33,10 @@ $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => '
             res => superhashof({ statusCode => 403 }),
         }), 'we still logged the request');
 
+$t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'x-conch-ui' => 'v3.0.2.1-gdeadbeef' })
+    ->status_is(403)
+    ->log_error_is('Conch UI too old: requires at least 4.x');
+
 $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => 'v4.0.0.3.gdeadbeef' })
     ->status_is(200);
 

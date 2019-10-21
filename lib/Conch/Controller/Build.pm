@@ -157,15 +157,30 @@ sub update ($c) {
     return $c->status(409, { error => 'build was already completed' })
         if $build->completed and $old_columns{completed};
 
+    return $c->status(409, { error => 'build cannot be completed in the future' })
+        if $build->completed and $build->completed > Conch::Time->now;
+
+    return $c->status(409, { error => 'build cannot be completed when it has unhealthy devices' })
+        if $input->{completed} and
+            ($build->search_related('devices', { health => { '!=' => 'pass' } })->exists
+             or $build
+                ->related_resultset('racks')
+                ->related_resultset('device_locations')
+                ->search_related('device', {
+                    'device.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+                    health => { '!=' => 'pass' }
+                })
+                ->exists);
+
     $c->log->info('build '.$build->id.' ('.$build->name.') started')
         if $build->started and not $old_columns{started};
 
-    if (not $build->completed and $build->completed_user_id) {
+    if (not $build->completed and $old_columns{completed}) {
         $build->completed_user_id(undef);
         $c->log->info('build '.$build->id.' ('.$build->name
             .') moved out of completed state');
     }
-    elsif ($build->completed and not $build->completed_user_id) {
+    elsif ($build->completed and not $old_columns{completed}) {
         $build->completed_user_id($c->stash('user')->id);
         my $users_updated = $build->search_related('user_build_roles', { role => 'rw' })
             ->update({ role => 'ro' });
@@ -713,17 +728,6 @@ sub add_device ($c) {
             .') to build '.$c->stash('build_id_or_name').' -- already a member of build '
             .$device->build_id.' ('.$device->build->name.')');
         return $c->status(409, { error => 'device already member of build '.$device->build_id.' ('.$device->build->name.')' });
-    }
-
-    if ($device->device_location
-            and my $current_build = $device->device_location->rack->build) {
-        return $c->status(204) if $current_build->id eq $build_id;
-
-        $c->log->warn('cannot add device '.$c->stash('device_id').' ('.$device->serial_number
-            .') to build '.$c->stash('build_id_or_name').' -- already a member of build '
-            .$current_build->id.' ('.$device->device_location->rack->build->name
-            .') via its rack location');
-        return $c->status(409, { error => 'device already member of build '.$current_build->id.' ('.$current_build->name.') via rack id '.$device->device_location->rack_id });
     }
 
     # TODO: check other constraints..
