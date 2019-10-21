@@ -27,11 +27,11 @@ use parent 'Time::Moment';
 
 =head2 new
 
-Overloads the constructor to use C<< ->from_string >> when a single argument is passed.
+Overloads the constructor to use C<< ->from_string >> when a single argument is passed, for example:
 
     Conch::Time->new($pg_timestamptz);
 
-    ... and any other constructor modes supported by Time::Moment
+..and all other constructor modes supported by L<Time::Moment>.
 
 =cut
 
@@ -49,9 +49,9 @@ sub new {
 
     my $t = Conch::Time->now;
 
-Return an object based on the current time, using the UTC timezone.
+Returns a new object based on the current time, using the UTC timezone.
 
-Time are high resolution and will generate unique timestamps to the
+Times are high resolution and will generate unique timestamps to the
 nanosecond.
 
 =cut
@@ -66,7 +66,7 @@ sub now { return shift->now_utc }
 
     Conch::Time->from_epoch(1234567890, 123);
 
-See also L<Time::Moment/from_epoch>.
+See L<Time::Moment/from_epoch>.
 
 =head2 CONVERSIONS
 

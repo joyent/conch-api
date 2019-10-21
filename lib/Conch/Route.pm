@@ -176,22 +176,6 @@ Error responses will use:
 
 =back
 
-=head3 C<GET /schema/query_params/:schema_name>
-
-=head3 C<GET /schema/request/:schema_name>
-
-=head3 C<GET /schema/response/:schema_name>
-
-Returns the schema specified by type and name.
-
-=over 4
-
-=item * Does not require authentication.
-
-=item * Response: JSON-Schema (L<http://json-schema.org/draft-07/schema>)
-
-=back
-
 =head3 C<GET /workspace/:workspace/device-totals>
 
 =head3 C<GET /workspace/:workspace/device-totals.circ>
@@ -254,7 +238,7 @@ See L<Conch::Route::User/routes>
 
 =head3 C<* /validation>, C<* /validation_plan>, C<* /validation_state>
 
-See L<Conch:Route::Validation/routes>
+See L<Conch::Route::Validation/routes>
 
 =head3 C<* /workspace>
 

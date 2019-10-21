@@ -1,0 +1,55 @@
+title {label: "Conch database schema (as of v3.0.0-b1, 2019-10-21): role management", size: "40"}
+
+entity {bgcolor: "#ececfc", size: "20"}
+
+[user_account]
+*id
+name
+password {label: "encrypted"}
+created
+last_login
+email
+deactivated
+refuse_session_auth
+force_password_change
+is_admin
+last_seen
+
+[organization]
+*id
+name
+description
+created
+deactivated
+
+[build]
+*id
+name
+description
+created
+started
+completed
++completed_user_id
+
+[user_build_role] {bgcolor: "#d0e0d0"}
+*+user_id
+*+build_id
+role {label: "ro, rw, admin"}
+
+[user_organization_role] {bgcolor: "#d0e0d0"}
+*+user_id
+*+organization_id
+role {label: "ro, rw, admin"}
+
+[organization_build_role] {bgcolor: "#d0e0d0"}
+*+organization_id
+*+build_id
+role {label: "ro, rw, admin"}
+
+user_organization_role +--1 organization
+user_organization_role *--1 user_account
+user_build_role +--1 build
+user_build_role *--1 user_account
+organization_build_role *--1 build
+organization_build_role *--1 organization
+build *--? user_account {label: "completed by", size: "14"}

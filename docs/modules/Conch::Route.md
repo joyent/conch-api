@@ -44,17 +44,6 @@ Error responses will use:
 - Does not require authentication.
 - Response: `204 NO CONTENT`
 
-### `GET /schema/query_params/:schema_name`
-
-### `GET /schema/request/:schema_name`
-
-### `GET /schema/response/:schema_name`
-
-Returns the schema specified by type and name.
-
-- Does not require authentication.
-- Response: JSON-Schema ([http://json-schema.org/draft-07/schema](http://json-schema.org/draft-07/schema))
-
 ### `GET /workspace/:workspace/device-totals`
 
 ### `GET /workspace/:workspace/device-totals.circ`
@@ -106,7 +95,7 @@ See ["routes" in Conch::Route::User](../modules/Conch::Route::User#routes)
 
 ### `* /validation`, `* /validation_plan`, `* /validation_state`
 
-See [Conch:Route::Validation/routes](Conch:Route::Validation/routes)
+See ["routes" in Conch::Route::Validation](../modules/Conch::Route::Validation#routes)
 
 ### `* /workspace`
 

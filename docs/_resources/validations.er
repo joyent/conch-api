@@ -1,0 +1,130 @@
+title {label: "Conch database schema (as of v3.0.0-b1, 2019-10-21): validations", size: "40"}
+
+entity {bgcolor: "#ececfc", size: "20"}
+
+[device]
+*id
+serial_number
+system_uuid
++hardware_product_id
+health {label: "error, fail, unknown, pass"}
+last_seen
+created
+updated
+uptime_since
+validated
+asset_tag
+hostname
+phase
+links
++build_id
+
+[device_report]
+*id
++device_id
+report
+created
+retain
+
+[hardware_product]
+*id
+name
+alias
+prefix
++hardware_vendor_id
++validation_plan_id
+created
+updated
+deactivated
+specification
+sku
+generation_name
+legacy_product_name
+rack_unit_size
+bios_firmware
+hba_firmware
+cpu_num
+cpu_type
+dimms_num
+nics_num
+nvme_ssd_num
+nvme_ssd_size
+nvme_ssd_slots
+psu_total
+raid_lun_num
+ram_total
+sas_hdd_num
+sas_hdd_size
+sas_hdd_slots
+sas_ssd_num
+sas_ssd_size
+sas_ssd_slots
+sata_hdd_num
+sata_hdd_size
+sata_hdd_slots
+sata_ssd_num
+sata_ssd_size
+sata_ssd_slots
+usb_num
+
+[validation]
+*id
+name
+version
+description
+module
+created
+updated
+deactivated
+
+[validation_plan]
+*id
+name
+description
+created
+deactivated
+
+[validation_plan_member] {bgcolor: "#d0e0d0"}
+*+validation_id
+*+validation_plan_id
+
+[validation_result]
+*id
++device_id
++hardware_product_id
++validation_id
+message
+hint
+status {label: "error, fail, pass"}
+category
+component
+created
+
+[validation_state]
+*id
++validation_plan_id
++device_report_id
++device_id
+created
+status
+completed
+
+[validation_state_member] {bgcolor: "#d0e0d0"}
+*+validation_state_id
+*+validation_result_id
+result_order
+
+
+device *--1 hardware_product
+device_report *--1 device
+hardware_product *--1 validation_plan
+validation_plan_member *--1 validation
+validation_plan_member *--1 validation_plan
+validation_result *--1 device
+validation_result *--1 hardware_product
+validation_result *--1 validation
+validation_state *--1 device
+validation_state *--1 device_report
+validation_state_member +--1 validation_result
+validation_state_member *--1 validation_state
+validation_state *--1 validation_plan
