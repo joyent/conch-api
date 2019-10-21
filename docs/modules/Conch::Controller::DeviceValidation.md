@@ -8,7 +8,8 @@ Conch::Controller::DeviceValidation
 
 Get the latest validation states for a device. Accepts the query parameter `status`,
 indicating the desired status(es) to search for -- one or more of: pass, fail, error.
-e.g. `?status=pass`, `?status=error&status=fail`.
+e.g. `?status=pass`, `?status=error&status=fail`. (If no parameters are provided, all
+statuses are searched for.)
 
 Response uses the ValidationStatesWithResults json schema.
 
