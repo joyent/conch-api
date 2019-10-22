@@ -549,6 +549,7 @@ subtest 'modify another user' => sub {
             name => 'test user',
         })
         ->email_not_sent;
+    my $test_user_id = $t_super->tx->res->json->{id};
 
     $t_super->post_ok('/user/untrusted@conch.joyent.us', json => { email => 'test_user@conch.joyent.us' })
         ->status_is(409)
@@ -566,6 +567,28 @@ subtest 'modify another user' => sub {
         ->status_is(400)
         ->json_is({ error => 'user email "foo@joyent-com" is not a valid RFC822 address' })
         ->email_not_sent;
+
+    $t_super->post_ok('/user/test_user@conch.joyent.us', json => {
+            name => 'test user',
+            email => 'test_user@conch.joyent.us',
+            is_admin => JSON::PP::false,
+        })
+        ->status_is(204)
+        ->email_not_sent;
+
+    $t_super->post_ok('/user/test_user@conch.joyent.us', json => {
+            name => 'test user',
+            email => 'TEST_UsER@cONCh.jOYENT.us',
+            is_admin => JSON::PP::false,
+        })
+        ->status_is(303)
+        ->location_is('/user/'.$test_user_id)
+        ->email_cmp_deeply({
+            To => '"test user" <TEST_UsER@cONCh.jOYENT.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch account has been updated',
+            body => re(qr/^Your account at Joyent Conch has been updated:\R\R {7}email: test_user\@conch.joyent.us -> TEST_UsER\@cONCh.jOYENT.us\R\R/m),
+        });
 
     $t_super->post_ok('/user/untrusted@conch.joyent.us',
             json => { name => 'UNTRUSTED', is_admin => JSON::PP::true })
