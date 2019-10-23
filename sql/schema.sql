@@ -1412,7 +1412,7 @@ CREATE INDEX rack_rack_role_id_idx ON public.rack USING btree (rack_role_id);
 -- Name: user_account_email_key; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE UNIQUE INDEX user_account_email_key ON public.user_account USING btree (email) WHERE (deactivated IS NULL);
+CREATE UNIQUE INDEX user_account_email_key ON public.user_account USING btree (lower(email)) WHERE (deactivated IS NULL);
 
 
 --
