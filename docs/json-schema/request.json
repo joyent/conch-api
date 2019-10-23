@@ -85,6 +85,10 @@
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "started" : {
+          "format" : "date-time",
+          "type" : "string"
         }
       },
       "required" : [

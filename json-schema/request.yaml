@@ -618,6 +618,9 @@ definitions:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         type: string
+      started:
+        type: string
+        format: date-time
       admins:
         type: array
         uniqueItems: true

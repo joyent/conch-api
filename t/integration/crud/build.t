@@ -159,7 +159,12 @@ $t->post_ok('/build', json => { name => 'my first build', admins => [ { email =>
     ->status_is(409)
     ->json_is({ error => 'a build already exists with that name' });
 
-$t->post_ok('/build', json => { name => 'our second build', description => 'funky', admins => [ { email => $admin_user->email } ] })
+$t->post_ok('/build', json => {
+        name => 'our second build',
+        description => 'funky',
+        started => '2019-01-01T00:00:00Z',
+        admins => [ { email => $admin_user->email } ],
+    })
     ->status_is(303)
     ->location_like(qr!^/build/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created build ${\Conch::UUID::UUID_FORMAT} \(our second build\)$/);
@@ -174,7 +179,7 @@ $t->get_ok('/build')
             name => 'our second build',
             description => 'funky',
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            started => undef,
+            started => '2019-01-01T00:00:00.000Z',
             completed => undef,
             admins => [
                 { map +($_ => $admin_user->$_), qw(id name email) },
