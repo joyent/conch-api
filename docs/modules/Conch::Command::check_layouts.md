@@ -7,7 +7,7 @@ check\_layouts - check for rack layout conflicts
 ```
 bin/conch check_layouts [long options...]
 
-    --ws --workspace  workspace name
+    --ws --build      build name
 
     --help            print usage message and exit
 ```
