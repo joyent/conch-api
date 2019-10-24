@@ -60,17 +60,32 @@ sub create ($c) {
     return $c->status(409, { error => 'a build already exists with that name' })
         if $c->db_builds->search({ $input->%{name} })->exists;
 
-    # turn emails into user_ids, and confirm they all exist...
-    # [ user_id|email, $value, $user_id ], [ ... ]
-    my @admins = map [
-        $_->%*,
-       ($_->{user_id} && $c->db_user_accounts->search({ id => $_->{user_id} })->exists ? $_->{user_id}
-      : $_->{email} ? $c->db_user_accounts->search_by_email($_->{email})->get_column('id')->single
-      : undef)
-    ], (delete $input->{admins})->@*;
+    my @admins;
+    if ($input->{admins}) {
+        # turn emails into user_ids, and confirm they all exist...
+        # [ user_id|email, $value, $user_id ], [ ... ]
+        @admins = map [
+            $_->%*,
+           ($_->{user_id} && $c->db_user_accounts->search({ id => $_->{user_id} })->exists ? $_->{user_id}
+          : $_->{email} ? $c->db_user_accounts->search_by_email($_->{email})->get_column('id')->single
+          : undef)
+        ], (delete $input->{admins})->@*;
 
-    my @errors = map join(' ', $_->@[0,1]), grep !$_->[2], @admins;
-    return $c->status(409, { error => 'unrecognized '.join(', ', @errors) }) if @errors;
+        my @errors = map join(' ', $_->@[0,1]), grep !$_->[2], @admins;
+        return $c->status(409, { error => 'unrecognized '.join(', ', @errors) }) if @errors;
+    }
+    else {
+        return $c->status(409, { error => 'unrecognized build_id '.$input->{build_id} })
+            if not $c->db_builds->search({ id => $input->{build_id} })->exists;
+
+        @admins = map [ undef, undef, $_ ],
+            $c->db_user_build_roles
+                ->search({ build_id => delete $input->{build_id}, role => 'admin' })
+                ->hri->get_column('user_id')->all;
+
+        return $c->status(409, { error => 'build_id '.$input->{build_id}.' has no admins to clone' })
+            if not @admins;
+    }
 
     my $build = $c->db_builds->create({
         $input->%*,

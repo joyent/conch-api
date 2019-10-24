@@ -32,7 +32,10 @@ $t->post_ok('/build', json => { name => 'my first build', admins => [ {} ] })
 $t->post_ok('/build', json => { name => 'my first build' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/admins', message => re(qr/missing property/i) } ] );
+    ->json_cmp_deeply('/details', [
+            { path => '/admins', message => re(qr/missing property/i) },
+            { path => '/build_id', message => re(qr/missing property/i) },
+        ] );
 
 $t->post_ok('/build', json => {
         name => 'my first build',
@@ -163,7 +166,16 @@ $t->post_ok('/build', json => {
         name => 'our second build',
         description => 'funky',
         started => '2019-01-01T00:00:00Z',
-        admins => [ { email => $admin_user->email } ],
+        build_id => create_uuid_str,
+    })
+    ->status_is(409)
+    ->json_cmp_deeply({ error => re(qr/^unrecognized build_id ${\Conch::UUID::UUID_FORMAT}$/) });
+
+$t->post_ok('/build', json => {
+        name => 'our second build',
+        description => 'funky',
+        started => '2019-01-01T00:00:00Z',
+        build_id => $build->{id},
     })
     ->status_is(303)
     ->location_like(qr!^/build/${\Conch::UUID::UUID_FORMAT}$!)
