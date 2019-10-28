@@ -6,6 +6,7 @@ use Conch::UUID 'is_uuid';
 use Email::Valid;
 use List::Util 'pairmap';
 use Authen::Passphrase::RejectAll;
+use feature 'fc';
 
 =pod
 
@@ -374,20 +375,22 @@ sub update ($c) {
     return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
         if exists $input->{email} and not Email::Valid->address($input->{email});
 
-    if (exists $input->{email}
-            and my $user = $c->db_user_accounts->active->find_by_email($input->{email})) {
-        return $c->status(409, {
-            error => 'duplicate user found',
-            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
-        });
-    }
-
     my $user = $c->stash('target_user');
     my %orig_columns = $user->get_columns;
     $user->set_columns($input);
+    my %dirty_columns = $user->get_dirty_columns;
+
+    return $c->status(204) if not keys %dirty_columns;
+
+    if (exists $dirty_columns{email} and fc $input->{email} ne fc $orig_columns{email}
+            and my $dupe_user = $c->db_user_accounts->active->find_by_email($input->{email})) {
+        return $c->status(409, {
+            error => 'duplicate user found',
+            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
+        });
+    }
 
     if ($params->{send_mail} // 1) {
-        my %dirty_columns = $user->get_dirty_columns;
         %orig_columns = %orig_columns{keys %dirty_columns};
 
         if (exists $dirty_columns{is_admin}) {

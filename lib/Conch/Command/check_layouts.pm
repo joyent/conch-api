@@ -13,7 +13,7 @@ check_layouts - check for rack layout conflicts
 
     bin/conch check_layouts [long options...]
 
-        --ws --workspace  workspace name
+        --ws --build      build name
 
         --help            print usage message and exit
 
@@ -29,19 +29,13 @@ sub run ($self, @opts) {
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
         'check_layouts %o',
-        [ 'workspace|ws=s', 'workspace name' ],
+        [ 'build|b=s', 'build name to limit search to' ],
         [],
-        [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
+        [ 'help',      'print usage message and exit', { shortcircuit => 1 } ],
     );
 
-    my $workspace_rs = $self->app->db_workspaces;
-    $workspace_rs = $workspace_rs->search({ name => $opt->workspace }) if $opt->workspace;
-
-    while (my $workspace = $workspace_rs->next) {
-        my $rack_rs = $workspace
-            ->related_resultset('workspace_racks')
-            ->related_resultset('rack')
-            ->prefetch('rack_role');
+        my $rack_rs = $self->app->db_racks->prefetch([ qw(rack_role build) ]);
+        $rack_rs = $rack_rs->search({ 'build.name' => $opt->build }, { join => 'build' }) if $opt->build;
 
         while (my $rack = $rack_rs->next) {
             my %assigned;
@@ -51,8 +45,9 @@ sub run ($self, @opts) {
             foreach my $rack_unit (@assigned_rack_units) {
                 # check for slot overlaps
                 if ($assigned{$rack_unit} > 1) {
-                    print '# for workspace ', $workspace->id, ' (', $workspace->name,
-                        '), rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                    print '# for ',
+                        ($rack->build_id ? ('build ', $rack->build_id, ' (', $rack->build->name, '), ') : ()),
+                        'rack_id ', $rack->id, ' (', $rack->name, '), found ',
                         "$assigned{$rack_unit} assignees at rack_unit $rack_unit!\n";
                 }
             }
@@ -60,8 +55,9 @@ sub run ($self, @opts) {
             # check slot ranges against rack_role.rack_size
             my $rack_size = $rack->rack_role->rack_size;
             if (my @out_of_range = grep $_ > $rack_size, @assigned_rack_units) {
-                    print '# for workspace ', $workspace->id, ' (', $workspace->name,
-                        '), rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                    print '# for ',
+                        ($rack->build_id ? ('build ', $rack->build_id, ' (', $rack->build->name, '), ') : ()),
+                        'rack_id ', $rack->id, ' (', $rack->name, '), found ',
                         'assigned rack_units beyond the specified rack_size of ',
                         "$rack_size: @out_of_range!\n";
             }
@@ -78,8 +74,9 @@ sub run ($self, @opts) {
                 # this is also checked, sort of, in Conch::Validation::DeviceProductName
                 if ($layout->hardware_product_id
                         ne $layout->device_location->device->hardware_product_id) {
-                    print '# for workspace ', $workspace->id, ' (', $workspace->name,
-                        '), rack_id ', $rack->id, ' (', $rack->name, '), found ',
+                    print '# for ',
+                        ($rack->build_id ? ('build ', $rack->build_id, ' (', $rack->build->name, '), ') : ()),
+                        'rack_id ', $rack->id, ' (', $rack->name, '), found ',
                         'occupied layout at rack_unit_start ', $layout->rack_unit_start,
                         ' with device with hardware_product_id ',
                         $layout->device_location->device->hardware_product_id, ' (',
@@ -90,7 +87,6 @@ sub run ($self, @opts) {
                 }
             }
         }
-    }
 }
 
 1;

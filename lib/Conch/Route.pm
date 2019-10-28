@@ -1,6 +1,8 @@
 package Conch::Route;
 
 use Mojo::Base -strict, -signatures;
+use List::Util qw(uniq any);
+use feature 'current_sub';
 
 use Conch::UUID;
 use Conch::Route::Schema;
@@ -106,9 +108,21 @@ sub all_routes (
     Conch::Route::Organization->routes($secured->any('/organization'));
     Conch::Route::Build->routes($secured->any('/build'));
 
+    # find all the top level path components: these are the only paths that we will send rollbar alerts for
+    my $find_paths = sub ($route) {
+        if (my $pattern = $route->pattern->unparsed) {
+            return ($pattern =~ m{^(/[^/]+)})[0];
+        }
+
+        # this is an under route with no path -- keep looking
+        return map __SUB__->($_), $route->children->@*;
+    };
+    my @top_level_paths = uniq map $find_paths->($_), $root->children->@*;
+
     $root->any('/*all', sub ($c) {
         $c->log->error('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
-        $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path) if $c->feature('rollbar');
+        $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path)
+            if $c->feature('rollbar') and any { $c->req->url->path =~ /^$_/ } @top_level_paths;
         $c->status(404);
     })->name('catchall');
 }

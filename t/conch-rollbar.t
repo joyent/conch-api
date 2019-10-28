@@ -320,7 +320,7 @@ $t->do_and_wait_for_event(
 $t->do_and_wait_for_event(
     $rollbar_app->plugins, 'rollbar_sent',
     sub ($t) {
-        $t->get_ok('/i_do_not_exist')
+        $t->get_ok('/rack/i_do_not_exist')
             ->status_is(404)
             ->json_is({ error => 'Not Found' });
     },
@@ -335,7 +335,7 @@ $t->do_and_wait_for_event(
             $payload->{data}{request},
             superhashof({
                 method => 'GET',
-                url => re(qr{/i_do_not_exist}),
+                url => re(qr{/rack/i_do_not_exist}),
                 query_string => '',
                 body => '',
             }),
@@ -346,12 +346,23 @@ $t->do_and_wait_for_event(
             $payload->{data}{body},
             {
                 message => {
-                    body => 'no endpoint found for: GET /i_do_not_exist',
+                    body => 'no endpoint found for: GET /rack/i_do_not_exist',
                 },
             },
             'message for endpoint-not-found',
         );
     },
+);
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->get_ok('/i_do_not_exist')
+            ->status_is(404)
+            ->json_is({ error => 'Not Found' });
+    },
+    sub ($payload) { fail('rollbar message was incorrectly sent') },
+    sub { pass('no rollbar message was sent for unrecognized path prefix') },
 );
 
 $t->do_and_wait_for_event(
