@@ -3,6 +3,7 @@ use warnings;
 use warnings FATAL => 'utf8';
 use utf8;
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+use feature 'fc';
 
 use Test::More;
 use Data::UUID;
@@ -946,6 +947,32 @@ subtest 'modify another user' => sub {
         })
         ->email_not_sent;
 
+    $t->post_ok('/user/email=foo@conch.joyent.us', json => {
+        name => 'foo',
+        email => 'foo@conch.joyent.us',
+        is_admin => JSON::PP::false,
+    })
+        ->status_is(204)
+        ->email_not_sent;
+
+    $t->post_ok('/user/email=foo@conch.joyent.us', json => {
+        name => 'foo',
+        email => 'FOo@cONCh.jOYENT.us',
+        is_admin => JSON::PP::false,
+    })
+        ->status_is(200)
+        ->json_schema_is('UserDetailed')
+        ->json_is({
+            $new_user_data->%*,
+            email => 'FOo@cONCh.jOYENT.us',
+        })
+        ->email_cmp_deeply({
+            To => '"foo" <FOo@cONCh.jOYENT.us>',
+            From => 'noreply@conch.joyent.us',
+            Subject => 'Your Conch account has been updated.',
+            body => re(qr/^Your account at Joyent Conch has been updated:\R\R {7}email: foo\@conch.joyent.us -> FOo\@cONCh.jOYENT.us\R\R/m),
+        });
+
     $t->post_ok('/user/email=foo@conch.joyent.us',
             json => { name => 'FOO', is_admin => JSON::PP::true })
         ->status_is(200)
@@ -953,10 +980,11 @@ subtest 'modify another user' => sub {
         ->json_is({
             $new_user_data->%*,
             name => 'FOO',
+            email => 'FOo@cONCh.jOYENT.us',
             is_admin => JSON::PP::true,
         })
         ->email_cmp_deeply({
-            To => '"FOO" <foo@conch.joyent.us>',
+            To => '"FOO" <FOo@cONCh.jOYENT.us>',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch account has been updated.',
             body => re(qr/^Your account at Joyent Conch has been updated:\R\R {4}is_admin: false -> true\R {8}name: foo -> FOO\R\R/m),
@@ -986,7 +1014,7 @@ subtest 'modify another user' => sub {
     $t->post_ok("/user/$new_user_id/revoke?login_only=1")
         ->status_is(204, 'revoked login tokens for the new user')
         ->email_cmp_deeply({
-            To => '"FOO" <foo@conch.joyent.us>',
+            To => '"FOO" <FOo@cONCh.jOYENT.us>',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch tokens have been revoked.',
             body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    1 login token\R\R/m),
@@ -1005,7 +1033,7 @@ subtest 'modify another user' => sub {
     $t->post_ok("/user/$new_user_id/revoke?api_only=1")
         ->status_is(204, 'revoked api tokens for the new user')
         ->email_cmp_deeply({
-            To => '"FOO" <foo@conch.joyent.us>',
+            To => '"FOO" <FOo@cONCh.jOYENT.us>',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch tokens have been revoked.',
             body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    my api token\R    my second api token\R/m),
@@ -1055,19 +1083,19 @@ subtest 'modify another user' => sub {
     $t->delete_ok("/user/$new_user_id/password")
         ->status_is(204, 'reset the new user\'s password')
         ->email_cmp_deeply({
-            To => '"FOO" <foo@conch.joyent.us>',
+            To => '"FOO" <FOo@cONCh.jOYENT.us>',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch password has changed.',
-            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    foo\@conch.joyent.us\R    Password: .*\R/ms),
+            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    FOo\@cONCh.jOYENT.us\R    Password: .*\R/ms),
         });
 
     $t->delete_ok('/user/email=FOO@CONCH.JOYENT.US/password')
         ->status_is(204, 'reset the new user\'s password again, with case insensitive email lookup')
         ->email_cmp_deeply({
-            To => '"FOO" <foo@conch.joyent.us>',
+            To => '"FOO" <FOo@cONCh.jOYENT.us>',
             From => 'noreply@conch.joyent.us',
             Subject => 'Your Conch password has changed.',
-            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    foo\@conch.joyent.us\R    Password: .*\R\R/ms),
+            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: FOO\R    Email:    FOo\@cONCh.jOYENT.us\R    Password: .*\R/ms),
         });
     my $insecure_password = $_new_password;
 
@@ -1081,7 +1109,7 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
         ->status_is(200, 'but the api token still works after his password is changed')
         ->json_schema_is('UserDetailed')
-        ->json_is('/email' => 'foo@conch.joyent.us');
+        ->json_is('/email' => 'FOo@cONCh.jOYENT.us');
 
     $t2->post_ok('/login', json => { user => 'foo@conch.joyent.us', password => 'foo' })
         ->status_is(401, 'cannot log in with the old password');
@@ -1155,7 +1183,7 @@ subtest 'modify another user' => sub {
         ->json_schema_is('UserError')
         ->json_is('/error' => 'user was already deactivated')
         ->json_is('/user/id' => $new_user_id, 'got user id')
-        ->json_is('/user/email' => 'foo@conch.joyent.us', 'got user email')
+        ->json_is('/user/email' => 'FOo@cONCh.jOYENT.us', 'got user email')
         ->json_is('/user/name' => 'FOO', 'got user name');
 
     $new_user->discard_changes;
@@ -1168,7 +1196,7 @@ subtest 'modify another user' => sub {
 
     isnt($second_new_user_id, $new_user_id, 'created user with a new id');
     my $second_new_user = $t->app->db_user_accounts->find($second_new_user_id);
-    is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
+    is(fc($second_new_user->email), fc($new_user->email), '...but the email addresses are the same (except for case)');
     is($second_new_user->name, $new_user->name, '...but the names are the same');
 
     warnings(sub {

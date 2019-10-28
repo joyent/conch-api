@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use List::Util 'pairmap';
 use Mojo::JSON qw(to_json from_json);
+use feature 'fc';
 
 =pod
 
@@ -308,20 +309,23 @@ sub update ($c) {
     my $input = $c->validate_input('UpdateUser');
     return if not $input;
 
-    if (exists $input->{email}
-            and my $user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$input->{email})) {
-        return $c->status(409, {
-            error => 'duplicate user found',
-            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
-        });
-    }
-
     my $user = $c->stash('target_user');
     my %orig_columns = $user->get_columns;
     $user->set_columns($input);
 
+    my %dirty_columns = $user->get_dirty_columns;
+
+    return $c->status(204) if not keys %dirty_columns;
+
+    if (exists $dirty_columns{email} and fc $input->{email} ne fc $orig_columns{email}
+            and my $dupe_user = $c->db_user_accounts->active->lookup_by_id_or_email('email='.$input->{email})) {
+        return $c->status(409, {
+            error => 'duplicate user found',
+            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
+        });
+    }
+
     if ($c->req->query_params->param('send_mail') // 1) {
-        my %dirty_columns = $user->get_dirty_columns;
         %orig_columns = %orig_columns{keys %dirty_columns};
 
         if (exists $dirty_columns{is_admin}) {
