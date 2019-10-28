@@ -104,7 +104,7 @@ read-only role on the device.
 
 - Requires system admin authorization, or the read/write role on the build and the
 read-only role on the device (via a workspace or a relay registration, see
-["routes" in Conch::Route::Device](../modules/Conch::Route::Device#routes))
+["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Response: `204 NO CONTENT`
 
 ### `DELETE /build/:build_id_or_name/device/:device_id_or_serial_number`

@@ -2,7 +2,7 @@
 
 Conch::DB::Result::UserAccount
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `user_account`
 
@@ -102,43 +102,43 @@ is_nullable: 1
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::Build](../modules/Conch::DB::Result::Build)
+Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
 ## user\_build\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserBuildRole](../modules/Conch::DB::Result::UserBuildRole)
+Related object: [Conch::DB::Result::UserBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole)
 
 ## user\_organization\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch::DB::Result::UserOrganizationRole)
+Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserOrganizationRole)
 
 ## user\_relay\_connections
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserRelayConnection](../modules/Conch::DB::Result::UserRelayConnection)
+Related object: [Conch::DB::Result::UserRelayConnection](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserRelayConnection)
 
 ## user\_session\_tokens
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserSessionToken](../modules/Conch::DB::Result::UserSessionToken)
+Related object: [Conch::DB::Result::UserSessionToken](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserSessionToken)
 
 ## user\_settings
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserSetting](../modules/Conch::DB::Result::UserSetting)
+Related object: [Conch::DB::Result::UserSetting](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserSetting)
 
 ## user\_workspace\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch::DB::Result::UserWorkspaceRole)
+Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole)
 
 ## builds
 

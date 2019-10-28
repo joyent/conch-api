@@ -6,7 +6,7 @@ Conch::DB:::Util - utility functions for working with the Conch database
 
 ## get\_credentials
 
-Return the credentials and connection options suitable for passing to [Conch::DB](../modules/Conch::DB) for both
+Return the credentials and connection options suitable for passing to [Conch::DB](../modules/Conch%3A%3ADB) for both
 read-write and read-only connections, containing keys:
 
 returns a hashref containing keys:
@@ -33,7 +33,7 @@ If not all credentials can be determined from environment variables, the `$confi
 from. It should be a database configuration hashref (such as that extracted from `conch.conf`
 at the appropriate hash key).
 
-See ["connect" in DBI](https://metacpan.org/pod/DBI#connect) and ["connect" in DBD::Pg](https://metacpan.org/pod/DBD::Pg#connect) for the correct syntax for these values.
+See ["connect" in DBI](https://metacpan.org/pod/DBI#connect) and ["connect" in DBD::Pg](https://metacpan.org/pod/DBD%3A%3APg#connect) for the correct syntax for these values.
 
 ## get\_postgres\_version
 

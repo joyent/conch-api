@@ -2,7 +2,7 @@
 
 Conch::DB::Result::OrganizationBuildRole
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `organization_build_role`
 
@@ -46,13 +46,13 @@ is_nullable: 0
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Build](../modules/Conch::DB::Result::Build)
+Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
 ## organization
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Organization](../modules/Conch::DB::Result::Organization)
+Related object: [Conch::DB::Result::Organization](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganization)
 
 # LICENSING
 

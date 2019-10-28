@@ -86,7 +86,7 @@ A test case is specified with a hashref with the attributes:
 - `debug`
 
     Optional boolean flag to provide additional diagnostic information when running
-    the case using ["diag" in Test::More](https://metacpan.org/pod/Test::More#diag). This is helpful during development of test
+    the case using ["diag" in Test::More](https://metacpan.org/pod/Test%3A%3AMore#diag). This is helpful during development of test
     cases, but should be removed before committing.
 
 Example:

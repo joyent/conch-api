@@ -2,7 +2,7 @@
 
 Conch::DB::Result::UserSetting
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `user_setting`
 
@@ -66,7 +66,7 @@ is_nullable: 1
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::UserAccount](../modules/Conch::DB::Result::UserAccount)
+Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
 # LICENSING
 

@@ -14,7 +14,7 @@ populated, as well as `workspace_name` if the identifier was not a UUID.
 Unless otherwise noted, all routes require authentication.
 
 Users will require access to the workspace (or one of its ancestors) at a minimum
-[role](../modules/Conch::DB::Result::UserWorkspaceRole#role), as indicated.
+[role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole#role), as indicated.
 
 ### `GET /workspace`
 

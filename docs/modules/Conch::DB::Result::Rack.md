@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Rack
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `rack`
 
@@ -102,37 +102,37 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Build](../modules/Conch::DB::Result::Build)
+Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
 ## datacenter\_room
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::DatacenterRoom](../modules/Conch::DB::Result::DatacenterRoom)
+Related object: [Conch::DB::Result::DatacenterRoom](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADatacenterRoom)
 
 ## device\_locations
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::DeviceLocation](../modules/Conch::DB::Result::DeviceLocation)
+Related object: [Conch::DB::Result::DeviceLocation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceLocation)
 
 ## rack\_layouts
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::RackLayout](../modules/Conch::DB::Result::RackLayout)
+Related object: [Conch::DB::Result::RackLayout](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackLayout)
 
 ## rack\_role
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::RackRole](../modules/Conch::DB::Result::RackRole)
+Related object: [Conch::DB::Result::RackRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackRole)
 
 ## workspace\_racks
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch::DB::Result::WorkspaceRack)
+Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspaceRack)
 
 ## workspaces
 

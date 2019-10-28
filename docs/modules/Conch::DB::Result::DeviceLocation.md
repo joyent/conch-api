@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceLocation
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `device_location`
 
@@ -69,19 +69,19 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](../modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
 ## rack
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Rack](../modules/Conch::DB::Result::Rack)
+Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
 ## rack\_layout
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::RackLayout](../modules/Conch::DB::Result::RackLayout)
+Related object: [Conch::DB::Result::RackLayout](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackLayout)
 
 # LICENSING
 

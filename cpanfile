@@ -29,6 +29,7 @@ requires 'Email::Simple';
 requires 'Email::Sender::Simple';
 requires 'Email::Sender::Transport::SMTP';
 requires 'Net::DNS';    # not used directly, but Email::Valid sometimes demands it
+requires 'experimental', '0.020';
 
 # mojolicious and networking
 requires 'Mojolicious', '8.15';
@@ -61,6 +62,7 @@ requires 'Devel::Confess';
 # misc scripts
 requires 'Pod::Usage';
 requires 'Pod::Markdown::Github';
+requires 'Pod::Markdown', '3.200';
 requires 'Getopt::Long';
 
 # database and rendering
@@ -72,7 +74,7 @@ requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';
 requires 'Text::CSV_XS';
-requires 'DBIx::Class::PassphraseColumn', dist => 'ETHER/DBIx-Class-PassphraseColumn-0.04-TRIAL.tar.gz';
+requires 'DBIx::Class::PassphraseColumn';
 requires 'Authen::Passphrase::BlowfishCrypt';
 
 on 'test' => sub {

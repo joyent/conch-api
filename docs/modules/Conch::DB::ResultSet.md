@@ -5,35 +5,35 @@ Conch::DB::ResultSet
 # DESCRIPTION
 
 Base class for our resultsets, to allow us to add on additional functionality from what is
-available in core [DBIx::Class](https://metacpan.org/pod/DBIx::Class).
+available in core [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass).
 
 # METHODS
 
 Methods added are:
 
-- [active](../modules/Conch::DB::Helper::ResultSet::Deactivatable#active)
-- [add\_columns](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#add_columns)
-- [as\_epoch](../modules/Conch::DB::Helper::ResultSet::AsEpoch#as_epoch)
-- [columns](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#columns)
-- [correlate](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::CorrelateRelationship#correlate)
-- [deactivate](../modules/Conch::DB::Helper::ResultSet::Deactivatable#deactivate)
-- [distinct](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#distinct)
-- [except](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::SetOperations#except)
-- [except\_all](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::SetOperations#except_all)
-- [exists](../modules/Conch::DB::Helper::ResultSet::ResultsExist#exists)
-- [group\_by](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#group_by)
-- [hri](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#hri)
-- [intersect](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::SetOperations#intersect)
-- [intersect\_all](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::SetOperations#intersect_all)
-- [one\_row](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::OneRow#one_row)
-- [order\_by](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#order_by)
-- [page](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#page)
-- [prefetch](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#prefetch)
-- [remove\_columns](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::RemoveColumns#remove_columns)
-- [rows](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::Shortcut#rows)
-- [union](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::SetOperations#union)
-- [union\_all](https://metacpan.org/pod/DBIx::Class::Helper::ResultSet::SetOperations#union_all)
-- [with\_role](../modules/Conch::DB::Helper::ResultSet::WithRole#with_role)
+- [active](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3ADeactivatable#active)
+- [add\_columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#add_columns)
+- [as\_epoch](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3AAsEpoch#as_epoch)
+- [columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#columns)
+- [correlate](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ACorrelateRelationship#correlate)
+- [deactivate](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3ADeactivatable#deactivate)
+- [distinct](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#distinct)
+- [except](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#except)
+- [except\_all](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#except_all)
+- [exists](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3AResultsExist#exists)
+- [group\_by](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#group_by)
+- [hri](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#hri)
+- [intersect](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#intersect)
+- [intersect\_all](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#intersect_all)
+- [one\_row](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AOneRow#one_row)
+- [order\_by](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#order_by)
+- [page](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#page)
+- [prefetch](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#prefetch)
+- [remove\_columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ARemoveColumns#remove_columns)
+- [rows](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#rows)
+- [union](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#union)
+- [union\_all](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#union_all)
+- [with\_role](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3AWithRole#with_role)
 
 # LICENSING
 

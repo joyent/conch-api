@@ -5,14 +5,14 @@ Conch::DB::Result
 # DESCRIPTION
 
 Base class for our result classes, to allow us to add on additional functionality from what is
-available in core [DBIx::Class](https://metacpan.org/pod/DBIx::Class).
+available in core [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass).
 
 # METHODS
 
 Methods added are:
 
-- [self\_rs](https://metacpan.org/pod/DBIx::Class::Helper::Row::SelfResultSet#self_rs)
-- [TO\_JSON](../modules/Conch::DB::Helper::Row::ToJSON)
+- [self\_rs](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3ARow%3A%3ASelfResultSet#self_rs)
+- [TO\_JSON](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3ARow%3A%3AToJSON)
 
 # LICENSING
 

@@ -2,7 +2,7 @@
 
 Conch::DB::Result::ValidationStateMember
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `validation_state_member`
 
@@ -44,13 +44,13 @@ is_nullable: 0
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::ValidationResult](../modules/Conch::DB::Result::ValidationResult)
+Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
 
 ## validation\_state
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::ValidationState](../modules/Conch::DB::Result::ValidationState)
+Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
 # LICENSING
 

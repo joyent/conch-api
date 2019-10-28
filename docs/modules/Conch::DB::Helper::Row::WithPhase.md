@@ -4,7 +4,7 @@ Conch::DB::Helper::Row::WithPhase
 
 # DESCRIPTION
 
-A component for [Conch::DB::Result](../modules/Conch::DB::Result) classes for database tables with a `phase` column, to
+A component for [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult) classes for database tables with a `phase` column, to
 provide common functionality.
 
 # USAGE

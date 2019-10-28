@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceReport
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `device_report`
 
@@ -59,13 +59,13 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](../modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
 ## validation\_states
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationState](../modules/Conch::DB::Result::ValidationState)
+Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
 # LICENSING
 

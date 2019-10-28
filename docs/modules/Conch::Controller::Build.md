@@ -52,7 +52,7 @@ Requires the 'admin' role on the build.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to the user and to all build admins.
 
-This endpoint is nearly identical to ["add\_user" in Conch::Controller::Organization](../modules/Conch::Controller::Organization#add_user).
+This endpoint is nearly identical to ["add\_user" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#add_user).
 
 ## remove\_user
 
@@ -62,7 +62,7 @@ Requires the 'admin' role on the build.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to the user and to all build admins.
 
-This endpoint is nearly identical to ["remove\_user" in Conch::Controller::Organization](../modules/Conch::Controller::Organization#remove_user).
+This endpoint is nearly identical to ["remove\_user" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#remove_user).
 
 ## list\_organizations
 

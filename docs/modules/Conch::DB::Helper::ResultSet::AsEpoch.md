@@ -4,7 +4,7 @@ Conch::DB::Helper::ResultSet::AsEpoch
 
 # DESCRIPTION
 
-A component for [Conch::DB::ResultSet](../modules/Conch::DB::ResultSet) classes that provides the `as_epoch` method.
+A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes that provides the `as_epoch` method.
 
 This code is postgres-specific.
 

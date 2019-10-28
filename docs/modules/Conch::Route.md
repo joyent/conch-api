@@ -59,47 +59,47 @@ Error responses will use:
 
 ### `* /dc`, `* /room`, `* /rack_role`, `* /rack`, `* /layout`
 
-See ["routes" in Conch::Route::Datacenter](../modules/Conch::Route::Datacenter#routes)
+See ["routes" in Conch::Route::Datacenter](../modules/Conch%3A%3ARoute%3A%3ADatacenter#routes)
 
 ### `* /device`
 
-See ["routes" in Conch::Route::Device](../modules/Conch::Route::Device#routes)
+See ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes)
 
 ### `* /device_report`
 
-See ["routes" in Conch::Route::DeviceReport](../modules/Conch::Route::DeviceReport#routes)
+See ["routes" in Conch::Route::DeviceReport](../modules/Conch%3A%3ARoute%3A%3ADeviceReport#routes)
 
 ### `* /hardware_product`
 
-See ["routes" in Conch::Route::HardwareProduct](../modules/Conch::Route::HardwareProduct#routes)
+See ["routes" in Conch::Route::HardwareProduct](../modules/Conch%3A%3ARoute%3A%3AHardwareProduct#routes)
 
 ### `* /hardware_vendor`
 
-See ["routes" in Conch::Route::HardwareVendor](../modules/Conch::Route::HardwareVendor#routes)
+See ["routes" in Conch::Route::HardwareVendor](../modules/Conch%3A%3ARoute%3A%3AHardwareVendor#routes)
 
 ### `* /organization`
 
-See ["routes" in Conch::Route::Organization](../modules/Conch::Route::Organization#routes)
+See ["routes" in Conch::Route::Organization](../modules/Conch%3A%3ARoute%3A%3AOrganization#routes)
 
 ### `* /relay`
 
-See ["routes" in Conch::Route::Relay](../modules/Conch::Route::Relay#routes)
+See ["routes" in Conch::Route::Relay](../modules/Conch%3A%3ARoute%3A%3ARelay#routes)
 
 ### `* /schema`
 
-See ["routes" in Conch::Route::Schema](../modules/Conch::Route::Schema#routes)
+See ["routes" in Conch::Route::Schema](../modules/Conch%3A%3ARoute%3A%3ASchema#routes)
 
 ### `* /user`
 
-See ["routes" in Conch::Route::User](../modules/Conch::Route::User#routes)
+See ["routes" in Conch::Route::User](../modules/Conch%3A%3ARoute%3A%3AUser#routes)
 
 ### `* /validation`, `* /validation_plan`, `* /validation_state`
 
-See ["routes" in Conch::Route::Validation](../modules/Conch::Route::Validation#routes)
+See ["routes" in Conch::Route::Validation](../modules/Conch%3A%3ARoute%3A%3AValidation#routes)
 
 ### `* /workspace`
 
-See ["routes" in Conch::Route::Workspace](../modules/Conch::Route::Workspace#routes)
+See ["routes" in Conch::Route::Workspace](../modules/Conch%3A%3ARoute%3A%3AWorkspace#routes)
 
 # LICENSING
 

@@ -2,7 +2,7 @@
 
 Conch::DB::Result::HardwareProduct
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `hardware_product`
 
@@ -126,37 +126,37 @@ size: 16
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::Device](../modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
 ## hardware\_product\_profile
 
 Type: might\_have
 
-Related object: [Conch::DB::Result::HardwareProductProfile](../modules/Conch::DB::Result::HardwareProductProfile)
+Related object: [Conch::DB::Result::HardwareProductProfile](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProductProfile)
 
 ## hardware\_vendor
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::HardwareVendor](../modules/Conch::DB::Result::HardwareVendor)
+Related object: [Conch::DB::Result::HardwareVendor](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareVendor)
 
 ## rack\_layouts
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::RackLayout](../modules/Conch::DB::Result::RackLayout)
+Related object: [Conch::DB::Result::RackLayout](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackLayout)
 
 ## validation\_plan
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch::DB::Result::ValidationPlan)
+Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlan)
 
 ## validation\_results
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationResult](../modules/Conch::DB::Result::ValidationResult)
+Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
 
 # LICENSING
 

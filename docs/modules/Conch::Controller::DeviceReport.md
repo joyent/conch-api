@@ -29,7 +29,7 @@ Role checks are done in the next controller action in the chain.
 ## get
 
 Get the device\_report record specified by uuid.
-A role check has already been done by [device#find\_device](../modules/Conch::Controller::Device#find_device).
+A role check has already been done by [device#find\_device](../modules/Conch%3A%3AController%3A%3ADevice#find_device).
 
 Response uses the DeviceReportRow json schema.
 

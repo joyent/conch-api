@@ -23,7 +23,7 @@ Overloads the constructor to use `->from_string` when a single argument is passe
 Conch::Time->new($pg_timestamptz);
 ```
 
-..and all other constructor modes supported by [Time::Moment](https://metacpan.org/pod/Time::Moment).
+..and all other constructor modes supported by [Time::Moment](https://metacpan.org/pod/Time%3A%3AMoment).
 
 ## now
 
@@ -46,7 +46,7 @@ Conch::Time->from_epoch(Time::HiRes::gettimeofday);
 Conch::Time->from_epoch(1234567890, 123);
 ```
 
-See ["from\_epoch" in Time::Moment](https://metacpan.org/pod/Time::Moment#from_epoch).
+See ["from\_epoch" in Time::Moment](https://metacpan.org/pod/Time%3A%3AMoment#from_epoch).
 
 ## CONVERSIONS
 

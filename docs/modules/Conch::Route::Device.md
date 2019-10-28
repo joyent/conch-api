@@ -12,7 +12,7 @@ Unless otherwise noted, all routes require authentication.
 
 The user's role (required for most endpoints) is determined by the rack location of the device,
 and the workspace(s) the rack is contained in (where users are assigned a
-[role](../modules/Conch::DB::Result::UserWorkspaceRole#role) in that workspace).
+[role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole#role) in that workspace).
 
 Full (admin-level) access is also granted to a device if a report was sent for that device
 using a relay that registered with that user's credentials.
