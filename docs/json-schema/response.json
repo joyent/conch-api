@@ -605,6 +605,9 @@
         "serial_number" : {
           "$ref" : "common.json#/definitions/device_serial_number"
         },
+        "sku" : {
+          "type" : "string"
+        },
         "system_uuid" : {
           "oneOf" : [
             {
@@ -648,6 +651,7 @@
         "asset_tag",
         "created",
         "hardware_product_id",
+        "sku",
         "health",
         "hostname",
         "last_seen",
@@ -802,6 +806,9 @@
         "serial_number" : {
           "$ref" : "common.json#/definitions/device_serial_number"
         },
+        "sku" : {
+          "type" : "string"
+        },
         "system_uuid" : {
           "oneOf" : [
             {
@@ -845,6 +852,7 @@
         "asset_tag",
         "created",
         "hardware_product_id",
+        "sku",
         "health",
         "hostname",
         "last_seen",
@@ -911,12 +919,16 @@
             "name" : {
               "description" : "Hardware product name",
               "type" : "string"
+            },
+            "sku" : {
+              "type" : "string"
             }
           },
           "required" : [
             "id",
             "name",
             "alias",
+            "sku",
             "hardware_vendor_id"
           ],
           "type" : "object"

@@ -409,6 +409,8 @@ use experimental 'signatures';
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
+    $data->{sku} = $self->get_column('sku') if $self->has_column_loaded('sku');
+
     # include location information, when available and still relevant
     # (see $device_rs->with_device_location)
     if ($self->has_column_loaded('rack_id') and $self->phase_cmp('production') < 0) {

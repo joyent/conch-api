@@ -54,7 +54,7 @@ sub list ($c) {
 
     $devices_rs = $params->{ids_only}
         ? $devices_rs->get_column('id')
-        : $devices_rs->with_device_location;
+        : $devices_rs->with_device_location->with_sku;
 
     my @devices = $devices_rs->all;
 

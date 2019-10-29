@@ -614,6 +614,7 @@ sub get_devices ($c) {
     my $rs = $c->db_devices
         ->search({ 'device.id' => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
         ->with_device_location
+        ->with_sku
         ->order_by('device.created');
 
     $c->status(200, [ $rs->all ]);

@@ -193,6 +193,17 @@ sub with_device_location ($self) {
         });
 }
 
+=head2 with_sku
+
+Modifies the resultset to add the C<sku> column.
+
+=cut
+
+sub with_sku ($self) {
+    $self->search(undef, { join => 'hardware_product' })
+        ->add_columns({ sku => 'hardware_product.sku' });
+}
+
 1;
 __END__
 

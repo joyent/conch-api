@@ -119,7 +119,7 @@ subtest 'Assign device to a location' => sub {
             datacenter_room => superhashof({ datacenter_id => $rack->datacenter_room->datacenter_id }),
             datacenter => superhashof({ id => $rack->datacenter_room->datacenter_id }),
             target_hardware_product => {
-                (map +($_ => $hardware_product_compute->$_), qw(id name alias hardware_vendor_id)),
+                (map +($_ => $hardware_product_compute->$_), qw(id name alias sku hardware_vendor_id)),
             },
         });
 

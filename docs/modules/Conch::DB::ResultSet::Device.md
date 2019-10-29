@@ -65,6 +65,10 @@ you want, so don't do that.)
 
 Modifies the resultset to add columns `rack_id`, `rack_unit_start` and `rack_name`.
 
+## with\_sku
+
+Modifies the resultset to add the `sku` column.
+
 # LICENSING
 
 Copyright Joyent, Inc.
