@@ -140,6 +140,15 @@
       },
       "type" : "object"
     },
+    "WithDeviceHealth" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "with_device_health" : {
+          "$ref" : "/definitions/boolean_integer_or_flag"
+        }
+      },
+      "type" : "object"
+    },
     "WorkspaceDevices" : {
       "additionalProperties" : false,
       "properties" : {
@@ -195,6 +204,17 @@
       "maximum" : 1,
       "minimum" : 0,
       "type" : "integer"
+    },
+    "boolean_integer_or_flag" : {
+      "description" : "\"?foo\" and \"?foo=1\" are true; \"?foo=0\" is false",
+      "oneOf" : [
+        {
+          "const" : ""
+        },
+        {
+          "$ref" : "/definitions/boolean_integer"
+        }
+      ]
     }
   }
 }

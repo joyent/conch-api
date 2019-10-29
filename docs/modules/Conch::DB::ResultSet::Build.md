@@ -25,6 +25,11 @@ resultset.
 
 Returns a boolean.
 
+## with\_device\_health\_counts
+
+Modifies the resultset to add on a column named `device_health`) containing an array of arrays
+of correlated counts of device.health values for each build.
+
 # LICENSING
 
 Copyright Joyent, Inc.

@@ -48,6 +48,17 @@
             }
           ]
         },
+        "device_health" : {
+          "additionalProperties" : {
+            "$ref" : "common.json#/definitions/non_negative_integer"
+          },
+          "maxProperties" : 4,
+          "minProperties" : 4,
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/device_health"
+          },
+          "type" : "object"
+        },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
         },

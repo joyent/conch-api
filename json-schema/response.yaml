@@ -2004,6 +2004,14 @@ definitions:
         oneOf:
           - type: 'null'
           - $ref: /definitions/UserTerse
+      device_health:
+        type: object
+        minProperties: 4
+        maxProperties: 4
+        propertyNames:
+          $ref: common.yaml#/definitions/device_health
+        additionalProperties:
+          $ref: common.yaml#/definitions/non_negative_integer
   Builds:
     type: array
     uniqueItems: true

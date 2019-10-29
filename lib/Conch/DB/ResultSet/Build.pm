@@ -106,6 +106,21 @@ sub user_has_role ($self, $user_id, $role) {
     return $via_user_rs->union_all($via_org_rs)->exists;
 }
 
+=head2 with_device_health_counts
+
+Modifies the resultset to add on a column named C<device_health>) containing an array of arrays
+of correlated counts of device.health values for each build.
+
+=cut
+
+sub with_device_health_counts ($self) {
+    my $health_rs = $self->correlate('devices')
+        ->search(undef, { select => [ \'array[health::text, count(*)::text]' ] })
+        ->group_by('health');
+
+    $self->add_columns({ device_health => { array => $health_rs->as_query } });
+}
+
 1;
 __END__
 

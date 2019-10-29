@@ -260,6 +260,14 @@ sub TO_JSON ($self) {
         $completed_user ? +{ map +($_ => $completed_user->$_), qw(id name email) }
       : undef;
 
+    if ($self->has_column_loaded('device_health')) {
+        my @health_enum = $self->related_resultset('devices')->result_source->column_info('health')->{extra}{list}->@*;
+        $data->{device_health}->@{@health_enum} = (0)x@health_enum;
+
+        my %health_data = map $_->@*, $self->get_column('device_health')->@*;
+        $data->{device_health}->@{keys %health_data} = map int, values %health_data;
+    }
+
     return $data;
 }
 

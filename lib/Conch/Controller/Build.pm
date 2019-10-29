@@ -22,10 +22,17 @@ Response uses the Builds json schema.
 =cut
 
 sub list ($c) {
+    my $params = $c->validate_query_params('WithDeviceHealth');
+    return if not $params;
+
     my $rs = $c->db_builds
         ->search({ 'user_build_roles.role' => 'admin' })
         ->prefetch([ { user_build_roles => 'user_account' }, 'completed_user' ])
         ->order_by([qw(build.name user_account.name)]);
+
+    $rs = $rs->with_device_health_counts
+        if !exists $params->{with_device_health} ? 0
+           : length $params->{with_device_health} ? $params->{with_device_health} : 1;
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 
@@ -126,12 +133,19 @@ Response uses the Build json schema.
 =cut
 
 sub get ($c) {
-    my ($build) = $c->stash('build_rs')
+    my $params = $c->validate_query_params('WithDeviceHealth');
+    return if not $params;
+
+    my $rs = $c->stash('build_rs')
         ->search({ 'user_build_roles.role' => 'admin' })
         ->prefetch([ { user_build_roles => 'user_account' }, 'completed_user' ])
-        ->order_by('user_account.name')
-        ->all;
-    $c->status(200, $build);
+        ->order_by('user_account.name');
+
+    $rs = $rs->with_device_health_counts
+        if !exists $params->{with_device_health} ? 0
+           : length $params->{with_device_health} ? $params->{with_device_health} : 1;
+
+    $c->status(200, ($rs->all)[0]);
 }
 
 =head2 update
