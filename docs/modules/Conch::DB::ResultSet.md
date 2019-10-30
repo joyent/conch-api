@@ -29,11 +29,16 @@ Methods added are:
 - [order\_by](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#order_by)
 - [page](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#page)
 - [prefetch](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#prefetch)
-- [remove\_columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ARemoveColumns#remove_columns)
 - [rows](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#rows)
 - [union](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#union)
 - [union\_all](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#union_all)
 - [with\_role](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3AWithRole#with_role)
+
+# ATTRIBUTES
+
+Resultset attributes added are:
+
+- [remove\_columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ARemoveColumns#remove_columns)
 
 # LICENSING
 

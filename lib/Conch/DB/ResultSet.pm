@@ -56,8 +56,6 @@ Methods added are:
 
 =item * L<prefetch|DBIx::Class::Helper::ResultSet::Shortcut/prefetch>
 
-=item * L<remove_columns|DBIx::Class::Helper::ResultSet::RemoveColumns/remove_columns>
-
 =item * L<rows|DBIx::Class::Helper::ResultSet::Shortcut/rows>
 
 =item * L<union|DBIx::Class::Helper::ResultSet::SetOperations/union>
@@ -68,11 +66,21 @@ Methods added are:
 
 =back
 
+=head1 ATTRIBUTES
+
+Resultset attributes added are:
+
+=over 4
+
+=item * L<remove_columns|DBIx::Class::Helper::ResultSet::RemoveColumns/remove_columns>
+
+=back
+
 =cut
 
 __PACKAGE__->load_components(
     '+Conch::DB::Helper::ResultSet::Deactivatable', # provides active, deactivate
-    'Helper::ResultSet::RemoveColumns',         # provides remove_columns (must be applied early!)
+    'Helper::ResultSet::RemoveColumns',         # provides remove_columns attribute (must be applied early!)
     'Helper::ResultSet::OneRow',                # provides one_row
     'Helper::ResultSet::Shortcut::HRI',         # provides hri: raw unblessed + uninflated data
     'Helper::ResultSet::Shortcut::Prefetch',    # provides prefetch
