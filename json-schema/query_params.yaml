@@ -18,6 +18,12 @@ definitions:
     minimum: 0
     maximum: 1
     default: 1
+  boolean_integer_or_flag:
+    description: '"?foo" and "?foo=1" are true; "?foo=0" is false'
+    oneOf:
+      - const: ''
+      - $ref: /definitions/boolean_integer
+
   RevokeUserTokens:
     allOf:
       - type: object
@@ -132,5 +138,11 @@ definitions:
     properties:
       active_minutes:
         $ref: common.yaml#/definitions/non_negative_integer
+  WithDeviceHealth:
+    type: object
+    additionalProperties: false
+    properties:
+      with_device_health:
+        $ref: /definitions/boolean_integer_or_flag
 
 # vim: set sts=2 sw=2 et :

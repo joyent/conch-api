@@ -39,7 +39,7 @@ sub get ($c) {
         rack_unit_start => $location->get_column('rack_unit_start'),
         datacenter_room => $rack->datacenter_room,
         datacenter => $rack->datacenter_room->datacenter,
-        target_hardware_product => { map +($_ => $hardware_product->$_), qw(id name alias hardware_vendor_id) },
+        target_hardware_product => { map +($_ => $hardware_product->$_), qw(id name alias sku hardware_vendor_id) },
     };
 
     $c->status(200, $location_data);

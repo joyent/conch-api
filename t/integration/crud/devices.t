@@ -155,6 +155,7 @@ subtest 'unlocated device with a registered relay' => sub {
             (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product->id,
+            sku => $hardware_product->sku,
             location => undef,
             latest_report => from_json($report),
             nics => supersetof(),
@@ -362,6 +363,7 @@ subtest 'located device' => sub {
             (map +($_ => undef), qw(asset_tag hostname last_seen system_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
             hardware_product_id => $hardware_product->id,
+            sku => $hardware_product->sku,
             location => {
                 rack => {
                     (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag phase)),
@@ -668,7 +670,7 @@ my @macs = map $_->{mac}, $detailed_device->{nics}->@*;
 
 my $undetailed_device = {
     $detailed_device->%*,
-    ($t->app->db_device_locations->search({ device_id => $test_device_id })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+    ($t->app->db_devices->search({ 'device.id' => $test_device_id })->columns([])->with_device_location->hri->single // {})->%{qw(rack_id rack_unit_start rack_name)},
 };
 delete $undetailed_device->@{qw(latest_report location nics disks)};
 
@@ -714,7 +716,7 @@ subtest 'get by device attributes' => sub {
     $test_device->update({ phase => 'production' });
 
     $undetailed_device->{phase} = 'production';
-    delete $undetailed_device->@{qw(rack_id rack_unit_start)};
+    delete $undetailed_device->@{qw(rack_id rack_unit_start rack_name)};
 
     foreach my $query (qw(
         /device?hostname=elfo
@@ -1159,7 +1161,7 @@ subtest 'Device location' => sub {
             rack => superhashof({ id => $rack_id, name => $rack->name }),
             rack_unit_start => 3,
             target_hardware_product => {
-                (map +($_ => $layout->hardware_product->$_), qw(id name alias hardware_vendor_id)),
+                (map +($_ => $layout->hardware_product->$_), qw(id name alias sku hardware_vendor_id)),
             },
         });
     my $location_data = $t_build->tx->res->json;

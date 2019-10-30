@@ -179,6 +179,31 @@ sub device_settings_as_hash {
         $self->related_resultset('device_settings')->active->order_by('created');
 }
 
+=head2 with_device_location
+
+Modifies the resultset to add columns C<rack_id>, C<rack_unit_start> and C<rack_name>.
+
+=cut
+
+sub with_device_location ($self) {
+    $self->search(undef, { join => { device_location => 'rack' } })
+        ->add_columns({
+            (map +($_ => 'device_location.'.$_), qw(rack_id rack_unit_start)),
+            rack_name => 'rack.name',
+        });
+}
+
+=head2 with_sku
+
+Modifies the resultset to add the C<sku> column.
+
+=cut
+
+sub with_sku ($self) {
+    $self->search(undef, { join => 'hardware_product' })
+        ->add_columns({ sku => 'hardware_product.sku' });
+}
+
 1;
 __END__
 

@@ -106,6 +106,7 @@ definitions:
       - asset_tag
       - created
       - hardware_product_id
+      - sku
       - health
       - hostname
       - last_seen
@@ -131,6 +132,8 @@ definitions:
         format: date-time
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
+      sku:
+        type: string
       health:
         $ref: common.yaml#/definitions/device_health
       hostname:
@@ -329,6 +332,7 @@ definitions:
       - asset_tag
       - created
       - hardware_product_id
+      - sku
       - health
       - hostname
       - last_seen
@@ -353,6 +357,8 @@ definitions:
         format: date-time
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
+      sku:
+        type: string
       health:
         $ref: common.yaml#/definitions/device_health
       hostname:
@@ -397,6 +403,10 @@ definitions:
         oneOf:
           - $ref: common.yaml#/definitions/uuid
           - type: 'null'
+      rack_name:
+        oneOf:
+          - type: string
+          - type: 'null'
       rack_unit_start:
         oneOf:
           - $ref: common.yaml#/definitions/positive_integer
@@ -411,12 +421,15 @@ definitions:
     then:
       required:
         - rack_id
+        - rack_name
         - rack_unit_start
     else:
       not:
         anyOf:
           - required:
             - rack_id
+          - required:
+            - rack_name
           - required:
             - rack_unit_start
   DeviceNics:
@@ -700,6 +713,7 @@ definitions:
           - id
           - name
           - alias
+          - sku
           - hardware_vendor_id
         properties:
           id:
@@ -711,6 +725,8 @@ definitions:
             type: string
           alias:
             description: Hardware product alias
+            type: string
+          sku:
             type: string
           hardware_vendor_id:
             $ref: common.yaml#/definitions/uuid
@@ -2004,6 +2020,14 @@ definitions:
         oneOf:
           - type: 'null'
           - $ref: /definitions/UserTerse
+      device_health:
+        type: object
+        minProperties: 4
+        maxProperties: 4
+        propertyNames:
+          $ref: common.yaml#/definitions/device_health
+        additionalProperties:
+          $ref: common.yaml#/definitions/non_negative_integer
   Builds:
     type: array
     uniqueItems: true

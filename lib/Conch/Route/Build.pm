@@ -112,6 +112,9 @@ Unless otherwise noted, all routes require authentication.
 
 =head3 C<GET /build>
 
+Takes one optional query parameter C<< device_health >> (defaults to false) to include
+correlated counts of devices having each health value.
+
 =over 4
 
 =item * Response: response.yaml#/Builds
@@ -131,6 +134,9 @@ Unless otherwise noted, all routes require authentication.
 =back
 
 =head3 C<GET /build/:build_id_or_name>
+
+Takes one optional query parameter C<< device_health >> (defaults to false) to include counts
+of devices having each health value.
 
 =over 4
 

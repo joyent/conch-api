@@ -134,7 +134,7 @@ sub get ($c) {
     # TODO: this is really a weak etag. requires https://github.com/mojolicious/mojo/pull/1420
     return $c->status(304) if $c->is_fresh(etag => $etag);
 
-    my $device = $c->stash('device_rs')->single;
+    my $device = $c->stash('device_rs')->with_sku->single;
     my $latest_report = $c->stash('device_rs')->latest_device_report->get_column('report')->single;
 
     my $detailed_device = +{
@@ -158,7 +158,7 @@ sub get ($c) {
             datacenter => $location->rack->datacenter_room->datacenter,
             target_hardware_product => +{ do {
                 my $hardware_product = $location->rack_layout->hardware_product;
-                map +($_ => $hardware_product->$_), qw(id name alias hardware_vendor_id);
+                map +($_ => $hardware_product->$_), qw(id name alias sku hardware_vendor_id);
             } },
         } : undef;
 
@@ -255,7 +255,8 @@ sub lookup_by_other_attribute ($c) {
     }
 
     my @devices = $device_rs
-        ->prefetch('device_location')
+        ->with_device_location
+        ->with_sku
         ->order_by('device.created')
         ->all;
 

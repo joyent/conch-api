@@ -658,6 +658,7 @@ $t->get_ok('/build/our second build/device')
         superhashof({
             serial_number => 'FOO',
             hardware_product_id => $hardware_product->id,
+            health => 'unknown',
             asset_tag => undef,
             links => [],
             build_id => $build2->{id},
@@ -665,6 +666,43 @@ $t->get_ok('/build/our second build/device')
         }),
     ]);
 my $devices = $t->tx->res->json;
+
+$t->get_ok('/build?with_device_health')
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_is([
+        {
+            $build->%*,
+            device_health => {
+                error => 0,
+                fail => 0,
+                unknown => 0,
+                pass => 0,
+            },
+        },
+        {
+            $build2->%*,
+            device_health => {
+                error => 0,
+                fail => 0,
+                unknown => 1,
+                pass => 0,
+            },
+        },
+    ]);
+
+$t->get_ok('/build/our second build?with_device_health')
+    ->status_is(200)
+    ->json_schema_is('Build')
+    ->json_is({
+        $build2->%*,
+        device_health => {
+            error => 0,
+            fail => 0,
+            unknown => 1,
+            pass => 0,
+        },
+    });
 
 $t->post_ok('/build/our second build/device', json => [ {
         serial_number => 'FOO',

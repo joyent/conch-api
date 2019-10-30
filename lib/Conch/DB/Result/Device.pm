@@ -409,12 +409,13 @@ use experimental 'signatures';
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
+    $data->{sku} = $self->get_column('sku') if $self->has_column_loaded('sku');
+
     # include location information, when available and still relevant
-    if (my $cached_location = $self->related_resultset('device_location')->get_cache
-            and $self->phase_cmp('production') < 0) {
-        # the cache is always a listref, if it was prefetched.
-        $data->{rack_id} = @$cached_location ? $cached_location->[0]->rack_id : undef;
-        $data->{rack_unit_start} = @$cached_location ? $cached_location->[0]->rack_unit_start : undef;
+    # (see $device_rs->with_device_location)
+    if ($self->has_column_loaded('rack_id') and $self->phase_cmp('production') < 0) {
+        $data->@{qw(rack_id rack_unit_start rack_name)} =
+            map $self->get_column($_), qw(rack_id rack_unit_start rack_name);
     }
 
     return $data;

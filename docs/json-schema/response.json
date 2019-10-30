@@ -48,6 +48,17 @@
             }
           ]
         },
+        "device_health" : {
+          "additionalProperties" : {
+            "$ref" : "common.json#/definitions/non_negative_integer"
+          },
+          "maxProperties" : 4,
+          "minProperties" : 4,
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/device_health"
+          },
+          "type" : "object"
+        },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
@@ -594,6 +605,9 @@
         "serial_number" : {
           "$ref" : "common.json#/definitions/device_serial_number"
         },
+        "sku" : {
+          "type" : "string"
+        },
         "system_uuid" : {
           "oneOf" : [
             {
@@ -637,6 +651,7 @@
         "asset_tag",
         "created",
         "hardware_product_id",
+        "sku",
         "health",
         "hostname",
         "last_seen",
@@ -666,6 +681,11 @@
             {
               "required" : [
                 "rack_id"
+              ]
+            },
+            {
+              "required" : [
+                "rack_name"
               ]
             },
             {
@@ -763,6 +783,16 @@
             }
           ]
         },
+        "rack_name" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
         "rack_unit_start" : {
           "oneOf" : [
             {
@@ -775,6 +805,9 @@
         },
         "serial_number" : {
           "$ref" : "common.json#/definitions/device_serial_number"
+        },
+        "sku" : {
+          "type" : "string"
         },
         "system_uuid" : {
           "oneOf" : [
@@ -819,6 +852,7 @@
         "asset_tag",
         "created",
         "hardware_product_id",
+        "sku",
         "health",
         "hostname",
         "last_seen",
@@ -833,6 +867,7 @@
       "then" : {
         "required" : [
           "rack_id",
+          "rack_name",
           "rack_unit_start"
         ]
       },
@@ -884,12 +919,16 @@
             "name" : {
               "description" : "Hardware product name",
               "type" : "string"
+            },
+            "sku" : {
+              "type" : "string"
             }
           },
           "required" : [
             "id",
             "name",
             "alias",
+            "sku",
             "hardware_vendor_id"
           ],
           "type" : "object"
