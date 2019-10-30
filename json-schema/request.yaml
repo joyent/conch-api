@@ -612,12 +612,19 @@ definitions:
     additionalProperties: false
     required:
       - name
-      - admins
+    oneOf:
+      - required:
+        - admins
+      - required:
+        - build_id
     properties:
       name:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         type: string
+      started:
+        type: string
+        format: date-time
       admins:
         type: array
         uniqueItems: true
@@ -635,6 +642,8 @@ definitions:
               $ref: common.yaml#/definitions/uuid
             email:
               $ref: common.yaml#/definitions/email_address
+      build_id:
+        $ref: common.yaml#/definitions/uuid
   BuildUpdate:
     type: object
     additionalProperties: false

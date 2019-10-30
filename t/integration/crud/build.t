@@ -32,7 +32,10 @@ $t->post_ok('/build', json => { name => 'my first build', admins => [ {} ] })
 $t->post_ok('/build', json => { name => 'my first build' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/admins', message => re(qr/missing property/i) } ] );
+    ->json_cmp_deeply('/details', [
+            { path => '/admins', message => re(qr/missing property/i) },
+            { path => '/build_id', message => re(qr/missing property/i) },
+        ] );
 
 $t->post_ok('/build', json => {
         name => 'my first build',
@@ -159,7 +162,21 @@ $t->post_ok('/build', json => { name => 'my first build', admins => [ { email =>
     ->status_is(409)
     ->json_is({ error => 'a build already exists with that name' });
 
-$t->post_ok('/build', json => { name => 'our second build', description => 'funky', admins => [ { email => $admin_user->email } ] })
+$t->post_ok('/build', json => {
+        name => 'our second build',
+        description => 'funky',
+        started => '2019-01-01T00:00:00Z',
+        build_id => create_uuid_str,
+    })
+    ->status_is(409)
+    ->json_cmp_deeply({ error => re(qr/^unrecognized build_id ${\Conch::UUID::UUID_FORMAT}$/) });
+
+$t->post_ok('/build', json => {
+        name => 'our second build',
+        description => 'funky',
+        started => '2019-01-01T00:00:00Z',
+        build_id => $build->{id},
+    })
     ->status_is(303)
     ->location_like(qr!^/build/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created build ${\Conch::UUID::UUID_FORMAT} \(our second build\)$/);
@@ -174,7 +191,7 @@ $t->get_ok('/build')
             name => 'our second build',
             description => 'funky',
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            started => undef,
+            started => '2019-01-01T00:00:00.000Z',
             completed => undef,
             admins => [
                 { map +($_ => $admin_user->$_), qw(id name email) },
@@ -666,6 +683,38 @@ $t->get_ok('/build/our second build/device')
         }),
     ]);
 my $devices = $t->tx->res->json;
+
+$t->get_ok('/build/our second build/device?health=foo')
+    ->status_is(400)
+    ->json_cmp_deeply('/details', [ { path => '/health', message => re(qr/not in enum list/i) } ]);
+
+$t->get_ok('/build/our second build/device?health=fail')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->get_ok('/build/our second build/device?health=unknown')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is($devices);
+
+$t->get_ok('/build/our second build/device?ids_only=1')
+    ->status_is(200)
+    ->json_schema_is('DeviceIds')
+    ->json_is([ $devices->[0]{id} ]);
+
+$t->get_ok('/build/our second build/device?active_minutes=5')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->app->db_devices->search({ id => $devices->[0]{id} })->update({ last_seen => $now });
+$devices->[0]{last_seen} = $now->to_string;
+
+$t->get_ok('/build/our second build/device?active_minutes=5')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is($devices);
 
 $t->get_ok('/build?with_device_health')
     ->status_is(200)

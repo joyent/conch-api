@@ -60,17 +60,32 @@ sub create ($c) {
     return $c->status(409, { error => 'a build already exists with that name' })
         if $c->db_builds->search({ $input->%{name} })->exists;
 
-    # turn emails into user_ids, and confirm they all exist...
-    # [ user_id|email, $value, $user_id ], [ ... ]
-    my @admins = map [
-        $_->%*,
-       ($_->{user_id} && $c->db_user_accounts->search({ id => $_->{user_id} })->exists ? $_->{user_id}
-      : $_->{email} ? $c->db_user_accounts->search_by_email($_->{email})->get_column('id')->single
-      : undef)
-    ], (delete $input->{admins})->@*;
+    my @admins;
+    if ($input->{admins}) {
+        # turn emails into user_ids, and confirm they all exist...
+        # [ user_id|email, $value, $user_id ], [ ... ]
+        @admins = map [
+            $_->%*,
+           ($_->{user_id} && $c->db_user_accounts->search({ id => $_->{user_id} })->exists ? $_->{user_id}
+          : $_->{email} ? $c->db_user_accounts->search_by_email($_->{email})->get_column('id')->single
+          : undef)
+        ], (delete $input->{admins})->@*;
 
-    my @errors = map join(' ', $_->@[0,1]), grep !$_->[2], @admins;
-    return $c->status(409, { error => 'unrecognized '.join(', ', @errors) }) if @errors;
+        my @errors = map join(' ', $_->@[0,1]), grep !$_->[2], @admins;
+        return $c->status(409, { error => 'unrecognized '.join(', ', @errors) }) if @errors;
+    }
+    else {
+        return $c->status(409, { error => 'unrecognized build_id '.$input->{build_id} })
+            if not $c->db_builds->search({ id => $input->{build_id} })->exists;
+
+        @admins = map [ undef, undef, $_ ],
+            $c->db_user_build_roles
+                ->search({ build_id => delete $input->{build_id}, role => 'admin' })
+                ->hri->get_column('user_id')->all;
+
+        return $c->status(409, { error => 'build_id '.$input->{build_id}.' has no admins to clone' })
+            if not @admins;
+    }
 
     my $build = $c->db_builds->create({
         $input->%*,
@@ -592,16 +607,27 @@ sub remove_organization ($c) {
 Get the devices in this build.  (Includes devices located in rack(s) in this build.)
 Requires the 'read-only' role on the build.
 
-Response uses the Devices json schema.
+Supports these query parameters to constrain results (which are ANDed together for the search,
+not ORed):
+
+    health=<value>      only devices with health matching the provided value
+        (can be used more than once to search for ANY of the specified health values)
+    active_minutes=X    only devices last seen (via a report relay) within X minutes
+    ids_only=1          only return device ids, not full data
+
+Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>.
 
 =cut
 
 sub get_devices ($c) {
+    my $params = $c->validate_query_params('BuildDevices');
+    return if not $params;
+
     my $direct_devices_rs = $c->stash('build_rs')
         ->related_resultset('devices');
 
     # production devices do not consider location, interface data to be canonical
-    my $bad_phase = $c->req->query_params->param('phase_earlier_than') // 'production';
+    my $bad_phase = $params->{phase_earlier_than} // 'production';
 
     my $rack_devices_rs = $c->stash('build_rs')
         ->related_resultset('racks')
@@ -613,9 +639,16 @@ sub get_devices ($c) {
     # don't mess with it without checking with DBIC_TRACE=1.
     my $rs = $c->db_devices
         ->search({ 'device.id' => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
-        ->with_device_location
-        ->with_sku
         ->order_by('device.created');
+
+    $rs = $rs->search({ health => $params->{health} }) if $params->{health};
+
+    $rs = $rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
+        if $params->{active_minutes};
+
+    $rs = $params->{ids_only}
+        ? $rs->get_column('id')
+        : $rs->with_device_location->with_sku;
 
     $c->status(200, [ $rs->all ]);
 }

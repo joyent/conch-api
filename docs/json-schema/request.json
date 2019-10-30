@@ -50,6 +50,18 @@
     },
     "BuildCreate" : {
       "additionalProperties" : false,
+      "oneOf" : [
+        {
+          "required" : [
+            "admins"
+          ]
+        },
+        {
+          "required" : [
+            "build_id"
+          ]
+        }
+      ],
       "properties" : {
         "admins" : {
           "items" : {
@@ -80,16 +92,22 @@
           "type" : "array",
           "uniqueItems" : true
         },
+        "build_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
         "description" : {
           "type" : "string"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "started" : {
+          "format" : "date-time",
+          "type" : "string"
         }
       },
       "required" : [
-        "name",
-        "admins"
+        "name"
       ],
       "type" : "object"
     },
