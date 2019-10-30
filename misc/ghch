@@ -2,7 +2,8 @@
 
 use warnings;
 use strict;
-use v5.20;
+use v5.26;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Mojo::JSON 'decode_json';
 use HTTP::Tiny;
