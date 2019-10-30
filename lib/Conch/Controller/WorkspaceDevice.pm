@@ -75,7 +75,7 @@ sub get_pxe_devices ($c) {
         ->related_resultset('workspace_racks')
         ->search_related('rack', undef, { join => { datacenter_room => 'datacenter' } })
         ->related_resultset('device_locations')
-        # production devices do not consider interface data to be canonical
+        # production devices do not consider location data to be canonical
         ->search_related('device',
             $bad_phase ? { 'device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] } } : ())
         ->columns({
