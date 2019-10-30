@@ -612,8 +612,8 @@ sub get_devices ($c) {
     # this query is carefully constructed to be efficient.
     # don't mess with it without checking with DBIC_TRACE=1.
     my $rs = $c->db_devices
-        ->search({ id => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
-        ->prefetch('device_location')
+        ->search({ 'device.id' => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
+        ->with_device_location
         ->order_by('device.created');
 
     $c->status(200, [ $rs->all ]);

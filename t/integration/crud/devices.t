@@ -668,7 +668,7 @@ my @macs = map $_->{mac}, $detailed_device->{nics}->@*;
 
 my $undetailed_device = {
     $detailed_device->%*,
-    ($t->app->db_device_locations->search({ device_id => $test_device_id })->hri->single // {})->%{qw(rack_id rack_unit_start)},
+    ($t->app->db_devices->search({ 'device.id' => $test_device_id })->columns([])->with_device_location->hri->single // {})->%{qw(rack_id rack_unit_start rack_name)},
 };
 delete $undetailed_device->@{qw(latest_report location nics disks)};
 
@@ -714,7 +714,7 @@ subtest 'get by device attributes' => sub {
     $test_device->update({ phase => 'production' });
 
     $undetailed_device->{phase} = 'production';
-    delete $undetailed_device->@{qw(rack_id rack_unit_start)};
+    delete $undetailed_device->@{qw(rack_id rack_unit_start rack_name)};
 
     foreach my $query (qw(
         /device?hostname=elfo

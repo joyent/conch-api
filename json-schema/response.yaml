@@ -397,6 +397,10 @@ definitions:
         oneOf:
           - $ref: common.yaml#/definitions/uuid
           - type: 'null'
+      rack_name:
+        oneOf:
+          - type: string
+          - type: 'null'
       rack_unit_start:
         oneOf:
           - $ref: common.yaml#/definitions/positive_integer
@@ -411,12 +415,15 @@ definitions:
     then:
       required:
         - rack_id
+        - rack_name
         - rack_unit_start
     else:
       not:
         anyOf:
           - required:
             - rack_id
+          - required:
+            - rack_name
           - required:
             - rack_unit_start
   DeviceNics:

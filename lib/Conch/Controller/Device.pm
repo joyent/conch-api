@@ -255,7 +255,7 @@ sub lookup_by_other_attribute ($c) {
     }
 
     my @devices = $device_rs
-        ->prefetch('device_location')
+        ->with_device_location
         ->order_by('device.created')
         ->all;
 

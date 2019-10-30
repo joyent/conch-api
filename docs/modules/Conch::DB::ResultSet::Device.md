@@ -61,6 +61,10 @@ Returns a hash of all (active) device settings for the specified device(s).  (Wi
 merged results when passed a resultset referencing multiple devices, which is probably not what
 you want, so don't do that.)
 
+## with\_device\_location
+
+Modifies the resultset to add columns `rack_id`, `rack_unit_start` and `rack_name`.
+
 # LICENSING
 
 Copyright Joyent, Inc.
