@@ -21,7 +21,7 @@ __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::ResultsExist');
 
 ## exists
 
-Efficiently efficiently determines if a result exists, without needing to do a `->count`.
+Efficiently determines if a result exists, without needing to do a `->count`.
 Essentially does:
 
 ```
