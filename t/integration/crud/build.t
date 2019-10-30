@@ -684,6 +684,38 @@ $t->get_ok('/build/our second build/device')
     ]);
 my $devices = $t->tx->res->json;
 
+$t->get_ok('/build/our second build/device?health=foo')
+    ->status_is(400)
+    ->json_cmp_deeply('/details', [ { path => '/health', message => re(qr/not in enum list/i) } ]);
+
+$t->get_ok('/build/our second build/device?health=fail')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->get_ok('/build/our second build/device?health=unknown')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is($devices);
+
+$t->get_ok('/build/our second build/device?ids_only=1')
+    ->status_is(200)
+    ->json_schema_is('DeviceIds')
+    ->json_is([ $devices->[0]{id} ]);
+
+$t->get_ok('/build/our second build/device?active_minutes=5')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
+$t->app->db_devices->search({ id => $devices->[0]{id} })->update({ last_seen => $now });
+$devices->[0]{last_seen} = $now->to_string;
+
+$t->get_ok('/build/our second build/device?active_minutes=5')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is($devices);
+
 $t->get_ok('/build?with_device_health')
     ->status_is(200)
     ->json_schema_is('Builds')

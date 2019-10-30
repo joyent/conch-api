@@ -93,7 +93,17 @@ to all organization members and to all build admins.
 Get the devices in this build.  (Includes devices located in rack(s) in this build.)
 Requires the 'read-only' role on the build.
 
-Response uses the Devices json schema.
+Supports these query parameters to constrain results (which are ANDed together for the search,
+not ORed):
+
+```
+health=<value>      only devices with health matching the provided value
+    (can be used more than once to search for ANY of the specified health values)
+active_minutes=X    only devices last seen (via a report relay) within X minutes
+ids_only=1          only return device ids, not full data
+```
+
+Response uses the Devices json schema, or DeviceIds iff `ids_only=1`.
 
 ## create\_and\_add\_devices
 

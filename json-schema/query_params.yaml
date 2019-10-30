@@ -144,5 +144,25 @@ definitions:
     properties:
       with_device_health:
         $ref: /definitions/boolean_integer_or_flag
+  BuildDevices:
+    type: object
+    additionalProperties: false
+    properties:
+      phase_earlier_than:
+        oneOf:
+          - const: ''
+          - $ref: common.yaml#/definitions/device_phase
+      health:
+        oneOf:
+          - $ref: common.yaml#/definitions/device_health
+          - type: array
+            uniqueItems: true
+            minItems: 2
+            items:
+              $ref: common.yaml#/definitions/device_health
+      active_minutes:
+        $ref: common.yaml#/definitions/non_negative_integer
+      ids_only:
+        $ref: /definitions/boolean_integer_default_false
 
 # vim: set sts=2 sw=2 et :

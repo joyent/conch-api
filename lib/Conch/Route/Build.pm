@@ -236,6 +236,19 @@ an email to the organization members and build admins.
 
 =head3 C<GET /build/:build_id_or_name/device>
 
+Accepts the following optional query parameters:
+
+=over 4
+
+=item * C<< health=<value> >> show only devices with the health matching the provided value
+(can be used more than once)
+
+=item * C<active_minutes=X> show only devices which have reported within the last X minutes
+
+=item * C<ids_only=1> only return device IDs, not full device details
+
+=back
+
 =over 4
 
 =item * Requires system admin authorization or the read-only role on the build

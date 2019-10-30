@@ -83,6 +83,13 @@ an email to the organization members and build admins.
 
 ### `GET /build/:build_id_or_name/device`
 
+Accepts the following optional query parameters:
+
+- `health=<value>` show only devices with the health matching the provided value
+(can be used more than once)
+- `active_minutes=X` show only devices which have reported within the last X minutes
+- `ids_only=1` only return device IDs, not full device details
+
 - Requires system admin authorization or the read-only role on the build
 - Response: response.yaml#/Devices
 

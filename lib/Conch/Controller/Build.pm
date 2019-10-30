@@ -607,16 +607,27 @@ sub remove_organization ($c) {
 Get the devices in this build.  (Includes devices located in rack(s) in this build.)
 Requires the 'read-only' role on the build.
 
-Response uses the Devices json schema.
+Supports these query parameters to constrain results (which are ANDed together for the search,
+not ORed):
+
+    health=<value>      only devices with health matching the provided value
+        (can be used more than once to search for ANY of the specified health values)
+    active_minutes=X    only devices last seen (via a report relay) within X minutes
+    ids_only=1          only return device ids, not full data
+
+Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>.
 
 =cut
 
 sub get_devices ($c) {
+    my $params = $c->validate_query_params('BuildDevices');
+    return if not $params;
+
     my $direct_devices_rs = $c->stash('build_rs')
         ->related_resultset('devices');
 
     # production devices do not consider location, interface data to be canonical
-    my $bad_phase = $c->req->query_params->param('phase_earlier_than') // 'production';
+    my $bad_phase = $params->{phase_earlier_than} // 'production';
 
     my $rack_devices_rs = $c->stash('build_rs')
         ->related_resultset('racks')
@@ -628,9 +639,16 @@ sub get_devices ($c) {
     # don't mess with it without checking with DBIC_TRACE=1.
     my $rs = $c->db_devices
         ->search({ 'device.id' => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
-        ->with_device_location
-        ->with_sku
         ->order_by('device.created');
+
+    $rs = $rs->search({ health => $params->{health} }) if $params->{health};
+
+    $rs = $rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
+        if $params->{active_minutes};
+
+    $rs = $params->{ids_only}
+        ? $rs->get_column('id')
+        : $rs->with_device_location->with_sku;
 
     $c->status(200, [ $rs->all ]);
 }
