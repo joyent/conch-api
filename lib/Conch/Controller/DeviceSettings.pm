@@ -117,7 +117,7 @@ Response uses the DeviceSetting json schema.
 sub get_single ($c) {
     my $setting_key = $c->stash('key');
 
-    # no need to check for the 'ro' role - find_device() already checked the workspace
+    # no need to check for the 'ro' role - find_device() already performed that check
 
     my $setting = $c->stash('device_rs')
         ->search_related('device_settings', { name => $setting_key })

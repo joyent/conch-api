@@ -295,7 +295,8 @@ an email telling the user their tokens were revoked
 
 =head3 C<< DELETE /user/:target_user_id_or_email?clear_tokens=<1|0> >>
 
-When a user is deleted, all workspace role entries are removed and are unrecoverable.
+When a user is deleted, all role entries (workspace, build, organization) are removed and are
+unrecoverable.
 
 Optionally takes a query parameter C<clear_tokens> (defaults to C<1>), to also
 revoke all session tokens for the user forcing all tools to log in again.

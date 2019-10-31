@@ -18,8 +18,9 @@ Interface to queries involving devices.
 =head2 with_user_role
 
 Constrains the resultset to those where the provided user_id has (at least) the specified role
-in at least one workspace or build associated with the specified device(s), including parent
-workspaces.
+in at least one workspace or build associated with the specified device(s) (also taking into
+consideration the rack location of the device(s) if its phase is early enough), including
+parent workspaces.
 
 This is a nested query which searches all workspaces and builds in the database, so only use
 this query when its impact is outweighed by the impact of filtering a large resultset of
