@@ -3,7 +3,6 @@ package Conch::Controller::DatacenterRoom;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::UUID 'is_uuid';
-use List::Util 'any';
 
 =pod
 

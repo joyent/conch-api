@@ -5,6 +5,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
+use Conch::UUID;
 
 my $t = Test::Conch->new;
 $t->load_fixture('super_user');

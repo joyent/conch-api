@@ -7,6 +7,7 @@ use Test::Warnings;
 use Test::Deep;
 use Conch::ValidationSystem;
 use Test::Conch;
+use Conch::UUID;
 
 use lib 't/lib';
 

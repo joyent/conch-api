@@ -2,8 +2,6 @@ package Conch::Controller::DeviceValidation;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use List::Util qw(all any);
-
 =pod
 
 =head1 NAME

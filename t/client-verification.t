@@ -5,8 +5,6 @@ use Test::Conch;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Test::Deep::JSON;
-use Test::Fatal;
 
 my $t = Test::Conch->new(pg => undef);
 
