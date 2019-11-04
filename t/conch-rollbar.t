@@ -18,6 +18,8 @@ use Mojo::JSON 'decode_json';
 open my $log_fh, '>:raw', \my $fake_log_file or die "cannot open to scalarref: $!";
 sub reset_log { $fake_log_file = ''; seek $log_fh, 0, 0; }
 
+my $api_version_re = qr/^v\d+\.\d+\.\d+(-[ab]\d+)?-\d+-g[[:xdigit:]]+$/;
+
 my $t = Test::Conch->new(
     config => {
         features => { rollbar => 1, no_db => 1 },
@@ -441,7 +443,7 @@ foreach my $request (
                 {
                     message => {
                         body => 'api error',
-                        api_version => re(qr/^v\d+\.\d+\.\d+(-a\d+)?-\d+-g[[:xdigit:]]+$/),
+                        api_version => re($api_version_re),
                         latency => re(qr/^\d+$/),
                         req => {
                             user        => 'NOT AUTHED',
