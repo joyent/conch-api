@@ -17,7 +17,7 @@ my $fixtures = Test::Conch::Fixtures->new(
 );
 ```
 
-See ["fixtures" in Test::Conch](../modules/Test::Conch#fixtures) for main usage.
+See ["fixtures" in Test::Conch](../modules/Test%3A%3AConch#fixtures) for main usage.
 
 # METHODS
 
@@ -64,11 +64,11 @@ Add a new fixture definition.
 
 ## get\_definition
 
-Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx::Class::Fixtures).
+Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AFixtures).
 
 ## all\_fixture\_names
 
-Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx::Class::Fixtures).
+Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AFixtures).
 
 # LICENSING
 

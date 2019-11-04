@@ -18,8 +18,9 @@ Interface to queries involving devices.
 =head2 with_user_role
 
 Constrains the resultset to those where the provided user_id has (at least) the specified role
-in at least one workspace or build associated with the specified device(s), including parent
-workspaces.
+in at least one workspace or build associated with the specified device(s) (also taking into
+consideration the rack location of the device(s) if its phase is early enough), including
+parent workspaces.
 
 This is a nested query which searches all workspaces and builds in the database, so only use
 this query when its impact is outweighed by the impact of filtering a large resultset of
@@ -54,16 +55,22 @@ sub with_user_role ($self, $user_id, $role) {
         ->with_user_role($user_id, $role)
         ->get_column('id');
 
-    my $devices_in_builds = $self->search(
-        { -or => [
-                { 'rack.build_id' => { -in => $build_ids_rs->as_query } },
-                { $me.'.build_id' => { -in => $build_ids_rs->as_query } },
-            ],
+    my $devices_in_device_builds = $self->search(
+        { $me.'.build_id' => { -in => $build_ids_rs->as_query } },
+    );
+
+    my $devices_in_rack_builds = $self->search(
+        {
+            # production devices do not consider location data to be canonical
+            $me.'.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+            'rack.build_id' => { -in => $build_ids_rs->as_query },
         },
         { join => { device_location => 'rack' } },
     );
 
-    return $devices_in_ws->union($devices_in_builds);
+    return $devices_in_ws
+        ->union($devices_in_device_builds)
+        ->union($devices_in_rack_builds);
 }
 
 =head2 user_has_role

@@ -13,7 +13,7 @@ and therefore other helpers).
 
 ## schema
 
-Provides read/write access to the database via [DBIx::Class](https://metacpan.org/pod/DBIx::Class). Returns a [Conch::DB](../modules/Conch::DB) object
+Provides read/write access to the database via [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass). Returns a [Conch::DB](../modules/Conch%3A%3ADB) object
 that persists for the lifetime of the application.
 
 ## rw\_schema
@@ -22,18 +22,18 @@ See ["schema"](#schema); can be used interchangeably with it.
 
 ## ro\_schema
 
-Provides (guaranteed) read-only access to the database via [DBIx::Class](https://metacpan.org/pod/DBIx::Class). Returns a
-[Conch::DB](../modules/Conch::DB) object that persists for the lifetime of the application.
+Provides (guaranteed) read-only access to the database via [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass). Returns a
+[Conch::DB](../modules/Conch%3A%3ADB) object that persists for the lifetime of the application.
 
 Note that because of the use of `AutoCommit => 0`, database errors must be explicitly
-cleared with `->txn_rollback`; see ["ReadOnly-(boolean)" in DBD::Pg](https://metacpan.org/pod/DBD::Pg#ReadOnly--boolean).
+cleared with `->txn_rollback`; see ["ReadOnly-(boolean)" in DBD::Pg](https://metacpan.org/pod/DBD%3A%3APg#ReadOnly--boolean).
 
-See also: ["DBIx::Class and AutoCommit" in DBIx::Class::Storage::DBI](https://metacpan.org/pod/DBIx::Class::Storage::DBI#DBIx::Class-and-AutoCommit).
+See also: ["DBIx::Class and AutoCommit" in DBIx::Class::Storage::DBI](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AStorage%3A%3ADBI#DBIx::Class-and-AutoCommit).
 
 ## db\_&lt;table>s, db\_ro\_&lt;table>s
 
 Provides direct read/write and read-only accessors to resultsets. The table name is used in
-the `alias` attribute (see ["alias" in DBIx::Class::ResultSet](https://metacpan.org/pod/DBIx::Class::ResultSet#alias)).
+the `alias` attribute (see ["alias" in DBIx::Class::ResultSet](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AResultSet#alias)).
 
 ## txn\_wrapper
 

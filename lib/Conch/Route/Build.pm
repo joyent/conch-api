@@ -275,7 +275,7 @@ read-only role on the device.
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-only role on the device (via a workspace or a relay registration, see
+read-only role on the device (via a workspace or build or a relay registration, see
 L<Conch::Route::Device/routes>)
 
 =item * Response: C<204 NO CONTENT>
@@ -307,7 +307,7 @@ L<Conch::Route::Device/routes>)
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-only role on a workspace that contains the rack
+read-only role on a workspace or build that contains the rack
 
 =item * Response: C<204 NO CONTENT>
 

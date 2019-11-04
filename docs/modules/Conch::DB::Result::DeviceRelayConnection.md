@@ -2,7 +2,7 @@
 
 Conch::DB::Result::DeviceRelayConnection
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `device_relay_connection`
 
@@ -55,13 +55,13 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](../modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
 ## relay
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Relay](../modules/Conch::DB::Result::Relay)
+Related object: [Conch::DB::Result::Relay](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARelay)
 
 # LICENSING
 

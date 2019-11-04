@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Workspace
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `workspace`
 
@@ -56,31 +56,31 @@ size: 16
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch::DB::Result::OrganizationWorkspaceRole)
+Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationWorkspaceRole)
 
 ## parent\_workspace
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Workspace](../modules/Conch::DB::Result::Workspace)
+Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
 
 ## user\_workspace\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch::DB::Result::UserWorkspaceRole)
+Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole)
 
 ## workspace\_racks
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch::DB::Result::WorkspaceRack)
+Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspaceRack)
 
 ## workspaces
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::Workspace](../modules/Conch::DB::Result::Workspace)
+Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
 
 ## organizations
 

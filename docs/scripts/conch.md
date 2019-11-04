@@ -14,51 +14,51 @@ Usage: APPLICATION COMMAND \[OPTIONS\]
 
 Conch-specific commands are:
 
-- [check\_layouts](../modules/Conch::Command::check_layouts)
+- [check\_layouts](../modules/Conch%3A%3ACommand%3A%3Acheck_layouts)
 
     Check for conflicts in existing rack layouts
 
-- [check\_validation\_plans](../modules/Conch::Command::check_validation_plans)
+- [check\_validation\_plans](../modules/Conch%3A%3ACommand%3A%3Acheck_validation_plans)
 
     check all validations and validation plans
 
-- [check\_workspace\_racks](../modules/Conch::Command::check_workspace_racks)
+- [check\_workspace\_racks](../modules/Conch%3A%3ACommand%3A%3Acheck_workspace_racks)
 
     verify the integrity of all workspace\_rack rows
 
-- [clean\_roles](../modules/Conch::Command::clean_roles)
+- [clean\_roles](../modules/Conch%3A%3ACommand%3A%3Aclean_roles)
 
     Clean up unnecessary user\_workspace\_role entries
 
-- [create\_token](../modules/Conch::Command::create_token)
+- [create\_token](../modules/Conch%3A%3ACommand%3A%3Acreate_token)
 
     Create a new application token
 
-- [create\_user](../modules/Conch::Command::create_user)
+- [create\_user](../modules/Conch%3A%3ACommand%3A%3Acreate_user)
 
     Create a new user
 
-- [fix\_usernames](../modules/Conch::Command::fix_usernames)
+- [fix\_usernames](../modules/Conch%3A%3ACommand%3A%3Afix_usernames)
 
     fixes Joyent usernames so they are not the same as the email
 
-- [merge\_validation\_results](../modules/Conch::Command::merge_validation_results)
+- [merge\_validation\_results](../modules/Conch%3A%3ACommand%3A%3Amerge_validation_results)
 
     Collapse duplicate validation\_result rows together
 
-- [thin\_device\_reports](../modules/Conch::Command::thin_device_reports)
+- [thin\_device\_reports](../modules/Conch%3A%3ACommand%3A%3Athin_device_reports)
 
     remove unwanted device reports
 
-- [update\_validation\_plans](../modules/Conch::Command::update_validation_plans)
+- [update\_validation\_plans](../modules/Conch%3A%3ACommand%3A%3Aupdate_validation_plans)
 
     bring validation\_plans up to date with new versions of all validations
 
-- [workspace\_to\_build](../modules/Conch::Command::workspace_to_build)
+- [workspace\_to\_build](../modules/Conch%3A%3ACommand%3A%3Aworkspace_to_build)
 
     convert workspace content to a build
 
-- [workspaces](../modules/Conch::Command::workspaces)
+- [workspaces](../modules/Conch%3A%3ACommand%3A%3Aworkspaces)
 
     View all workspaces in their heirarchical order
 

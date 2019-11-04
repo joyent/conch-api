@@ -34,7 +34,7 @@ sub validate {
 
 # DESCRIPTION
 
-[Conch::Validation](../modules/Conch::Validation) provides the base class to define and execute Conch
+[Conch::Validation](../modules/Conch%3A%3AValidation) provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a ["validate"](#validate)
 method.  This method receives the input data (a `HASHREF`) to be validated.
 
@@ -50,7 +50,7 @@ identification of the validation and validation result storage in the
 Validation System infrastructure.
 
 Testing Conch Validations should be done with
-["test\_validation" in Test::Conch::Validation](../modules/Test::Conch::Validation#test_validation) with TAP-based tests. This
+["test\_validation" in Test::Conch::Validation](../modules/Test%3A%3AConch%3A%3AValidation#test_validation) with TAP-based tests. This
 functions tests that Validations define the required attributes and methods,
 and allow you to test the validation logic by running test cases against
 expected results.
@@ -81,7 +81,7 @@ A logging object.
 
 ## device
 
-[Conch::DB::Result::Device](../modules/Conch::DB::Result::Device) object under validation.  Use in validation
+[Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice) object under validation.  Use in validation
 logic to dispatch on Device attributes.
 
 ```perl
@@ -89,13 +89,13 @@ my $device = $self->device;
 if ($device->asset_tag eq '...') {...}
 ```
 
-Any additional data related to devices may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class) interfaces.
+Any additional data related to devices may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass) interfaces.
 The result object is built using a read-only database handle, so attempts to alter the data
 will **not** be permitted.
 
 ## device\_location
 
-[Conch::DB::Result::DeviceLocation](../modules/Conch::DB::Result::DeviceLocation) object for the device being validated.
+[Conch::DB::Result::DeviceLocation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceLocation) object for the device being validated.
 
 This is useful in writing validation logic that may depend on the rack or
 location in the rack a device occupies.
@@ -112,10 +112,10 @@ location.
 
 ## hardware\_product
 
-The [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareProduct) object for the device being validated
+The [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct) object for the device being validated
 (originally determined by the sku reported for the device).
 
-Any additional data related to hardware\_products may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx::Class)
+Any additional data related to hardware\_products may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass)
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
 the data will **not** be permitted.
 
@@ -167,7 +167,7 @@ if ($self->hardware_product_vendor eq 'Dell') {...}
 ## hardware\_product\_profile
 
 Get the expected hardware product profile for the device under validation.
-It is a [Conch::DB::Result::HardwareProductProfile](../modules/Conch::DB::Result::HardwareProductProfile) object.
+It is a [Conch::DB::Result::HardwareProductProfile](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProductProfile) object.
 
 ```perl
 my $expected_ram = self->hardware_product_profile->ram_total;
@@ -219,7 +219,7 @@ $validation->run($validation_data);
 
 Contains the validation logic for validations.
 
-This method must be re-defined in sub-classes of [Conch::Validation](../modules/Conch::Validation) or it will
+This method must be re-defined in sub-classes of [Conch::Validation](../modules/Conch%3A%3AValidation) or it will
 raise an exception.
 
 ```perl
@@ -343,7 +343,7 @@ You may also provide the following attributes to override validation results
 ## register\_result\_cmp\_details
 
 EXPERIMENTAL. A new way of registering validation results. Pass arguments as you would to
-["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test::Deep#cmp_deeply), and a validation result is registered with the result and diagnostics
+["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test%3A%3ADeep#cmp_deeply), and a validation result is registered with the result and diagnostics
 as appropriate.
 
 ## die

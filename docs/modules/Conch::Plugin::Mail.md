@@ -31,7 +31,7 @@ $c->send_mail(
 
 ## construct\_address\_list
 
-Given a list of [user](../modules/Conch::DB::Result::UserAccount) records, returns a string suitable to be
+Given a list of [user](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount) records, returns a string suitable to be
 used in a `To` header, comprising names and email addresses.
 
 # LICENSING

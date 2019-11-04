@@ -4,7 +4,7 @@ Conch::DB::Helper::ResultSet::Deactivatable
 
 # DESCRIPTION
 
-A component for [Conch::DB::ResultSet](../modules/Conch::DB::ResultSet) classes for database tables with a `deactivated`
+A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes for database tables with a `deactivated`
 column, to provide common query functionality.
 
 # USAGE

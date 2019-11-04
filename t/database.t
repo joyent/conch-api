@@ -13,7 +13,7 @@ use Crypt::Eksblowfish::Bcrypt 'bcrypt';
 subtest 'assert db version' => sub {
     my ($pgsql, $schema) = Test::Conch->init_db;
     my $pgsql_version = Conch::DB::Util::get_postgres_version($schema);
-    diag 'Running '.$pgsql_version;
+    diag $schema->storage->connect_info->[0].' running '.$pgsql_version;
     my ($major, $minor, $rest) = $pgsql_version =~ /PostgreSQL (\d+)\.(\d+)(\.\d+)?\b/;
     $minor //= 0;
     $rest //= '';

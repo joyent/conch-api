@@ -24,7 +24,7 @@ This code is postgres-specific.
 
 =head2 exists
 
-Efficiently efficiently determines if a result exists, without needing to do a C<< ->count >>.
+Efficiently determines if a result exists, without needing to do a C<< ->count >>.
 Essentially does:
 
     select exists (select 1 from ... rest of your query ...);

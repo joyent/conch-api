@@ -104,7 +104,7 @@ The response uses the UserError json schema for some error conditions; on succes
 
 ## list
 
-List all active users and their workspaces. System admin only.
+List all active users and their workspaces, builds and organizations. System admin only.
 Response uses the UsersDetailed json schema.
 
 ## create

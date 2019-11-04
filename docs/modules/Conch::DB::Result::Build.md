@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Build
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `build`
 
@@ -79,31 +79,31 @@ size: 16
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::UserAccount](../modules/Conch::DB::Result::UserAccount)
+Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
 ## devices
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::Device](../modules/Conch::DB::Result::Device)
+Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
 ## organization\_build\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch::DB::Result::OrganizationBuildRole)
+Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationBuildRole)
 
 ## racks
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::Rack](../modules/Conch::DB::Result::Rack)
+Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
 ## user\_build\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserBuildRole](../modules/Conch::DB::Result::UserBuildRole)
+Related object: [Conch::DB::Result::UserBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole)
 
 ## organizations
 

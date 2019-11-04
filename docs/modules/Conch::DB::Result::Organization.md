@@ -2,7 +2,7 @@
 
 Conch::DB::Result::Organization
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch::DB::Result)
+# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 # TABLE: `organization`
 
@@ -57,19 +57,19 @@ is_nullable: 1
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch::DB::Result::OrganizationBuildRole)
+Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationBuildRole)
 
 ## organization\_workspace\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch::DB::Result::OrganizationWorkspaceRole)
+Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationWorkspaceRole)
 
 ## user\_organization\_roles
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch::DB::Result::UserOrganizationRole)
+Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserOrganizationRole)
 
 ## builds
 

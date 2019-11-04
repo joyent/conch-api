@@ -17,7 +17,7 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /device_report/:device_report_id`
 
-- User requires the read-only role, as described in ["routes" in Conch::Route::Device](../modules/Conch::Route::Device#routes).
+- User requires the read-only role, as described in ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes).
 - Response: [response.json#/definitions/DeviceReportRow](../json-schema/response.json#/definitions/DeviceReportRow)
 
 # LICENSING

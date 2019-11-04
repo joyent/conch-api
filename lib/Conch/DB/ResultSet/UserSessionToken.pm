@@ -49,7 +49,7 @@ Chainable resultset to search for login tokens (created via the main C<POST /log
 
 sub login_only ($self) {
     my $me = $self->current_source_alias;
-    $self->search({ $me.'.name' => { '-similar to' => 'login_jwt_[0-9_]+' } });
+    $self->search({ $me.'.name' => { '~' => 'login_jwt_[0-9_]+' } });
 }
 
 =head2 api_only
@@ -60,7 +60,7 @@ Chainable resultset to search for api tokens (NOT created via the main /login fl
 
 sub api_only ($self) {
     my $me = $self->current_source_alias;
-    $self->search({ $me.'.name' => { '-not similar to' => 'login_jwt_[0-9_]+' } });
+    $self->search({ $me.'.name' => { '!~' => 'login_jwt_[0-9_]+' } });
 }
 
 =head2 expire

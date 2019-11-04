@@ -196,6 +196,7 @@
           "type" : "string"
         },
         "vendor_name" : {
+          "description" : "the vendor's name for the datacenter",
           "oneOf" : [
             {
               "type" : "string"
@@ -241,6 +242,7 @@
           "type" : "string"
         },
         "vendor_name" : {
+          "description" : "the vendor's name for the room",
           "oneOf" : [
             {
               "type" : "string"
@@ -1113,7 +1115,7 @@
                       "type" : "string"
                     },
                     "vendor_name" : {
-                      "description" : "datacenter.vendor_name",
+                      "description" : "the vendor's name for the datacenter",
                       "oneOf" : [
                         {
                           "type" : "null"
@@ -3060,7 +3062,7 @@
                     "type" : "string"
                   },
                   "vendor_name" : {
-                    "description" : "datacenter.vendor_name",
+                    "description" : "the vendor's name for the datacenter",
                     "oneOf" : [
                       {
                         "type" : "null"

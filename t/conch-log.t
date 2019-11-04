@@ -155,21 +155,32 @@ sub add_test_routes ($t) {
 
 {
     reset_log;
-    my $t = Test::Conch->new(config => {
-        features => { audit => 0 },
-    });
 
     cmp_deeply(
-        $t->app->log,
+        Test::Conch->new(config => { features => { audit => 0, no_db => 1 } })->app->log,
         all(
             isa('Conch::Log'),
             methods(
-                path => str(Path::Tiny->cwd->child('log/development.log')),
+                path => str(Path::Tiny->cwd->child('log/test.log')),
                 bunyan => 1,
                 with_trace => 0,
             ),
         ),
         'logger via $app gets good default options',
+    );
+
+    local $ENV{MOJO_MODE} = 'foo';
+    cmp_deeply(
+        Test::Conch->new(config => { features => { audit => 0, no_db => 1 } })->app->log,
+        all(
+            isa('Conch::Log'),
+            methods(
+                path => str(Path::Tiny->cwd->child('log/foo.log')),
+                bunyan => 1,
+                with_trace => 0,
+            ),
+        ),
+        'logger via $app uses MOJO_MODE for filename',
     );
 }
 
@@ -177,7 +188,7 @@ sub add_test_routes ($t) {
     reset_log;
     my $t = Test::Conch->new(config => {
         logging => { handle => $log_fh },
-        features => { audit => 0 },
+        features => { audit => 0, no_db => 1 },
     });
 
     cmp_deeply(
@@ -538,7 +549,7 @@ sub add_test_routes ($t) {
     my $t = Test::Conch->new(
         config => {
             logging => { handle => $log_fh },
-            features => { audit => 1 },
+            features => { audit => 1, no_db => 1 },
         },
     );
 

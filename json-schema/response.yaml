@@ -520,7 +520,7 @@ definitions:
                     description: datacenter.region
                     type: string
                   vendor_name:
-                    description: datacenter.vendor_name
+                    description: the vendor's name for the datacenter
                     oneOf:
                       - type: 'null'
                       - type: string
@@ -633,7 +633,7 @@ definitions:
                   description: datacenter.region
                   type: string
                 vendor_name:
-                  description: datacenter.vendor_name
+                  description: the vendor's name for the datacenter
                   oneOf:
                     - type: 'null'
                     - type: string
@@ -1301,6 +1301,7 @@ definitions:
       vendor:
         type: string
       vendor_name:
+        description: the vendor's name for the datacenter
         oneOf:
           - type: string
           - type: 'null'
@@ -1338,6 +1339,7 @@ definitions:
       alias:
         type: string
       vendor_name:
+        description: the vendor's name for the room
         oneOf:
           - type: string
           - type: 'null'

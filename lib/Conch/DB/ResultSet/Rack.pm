@@ -46,7 +46,8 @@ sub assigned_rack_units ($self) {
 =head2 user_has_role
 
 Checks that the provided user_id has (at least) the specified role in at least one workspace
-associated with the specified rack(s) (implicitly including parent workspaces).
+associated with the specified rack(s) (implicitly including parent workspaces), or at least one
+build associated with the rack(s).
 
 Returns a boolean.
 

@@ -49,7 +49,7 @@ using the RequestValidationError json response schema.
 
 ## get\_query\_params\_validator
 
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint's query parameters
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's query parameters
 (when transformed into a hashref: see ["validate\_query\_params"](#validate_query_params)).
 
 Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
@@ -58,11 +58,11 @@ typing is possible. No default population is done yet though; see
 
 ## get\_request\_validator
 
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint's json request payload.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's json request payload.
 
 ## get\_response\_validator
 
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON::Validator) object suitable for validating an endpoint's json response payload.
+Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's json response payload.
 
 # LICENSING
 

@@ -125,15 +125,13 @@ definitions:
 #                         allOf:
 #                           - if:
 #                               properties:
-#                                 type:
-#                                   const: log
+#                                 const: log
 #                             then:
 #                               required:
 #                                 - message
 #                           - if:
 #                               properties:
-#                                 type:
-#                                   const: network
+#                                 const: network
 #                             then:
 #                               required:
 #                                 - method
@@ -141,15 +139,13 @@ definitions:
 #                                 - status_code
 #                           - if:
 #                               properties:
-#                                 type:
-#                                   const: dom
+#                                 const: dom
 #                             then:
 #                               required:
 #                                 - element
 #                           - if:
 #                               properties:
-#                                 type:
-#                                   const: error
+#                                 const: error
 #                             then:
 #                               required:
 #                                 - message

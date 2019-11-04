@@ -103,8 +103,8 @@ read-only role on the device.
 ### `POST /build/:build_id_or_name/device/:device_id_or_serial_number`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-only role on the device (via a workspace or a relay registration, see
-["routes" in Conch::Route::Device](../modules/Conch::Route::Device#routes))
+read-only role on the device (via a workspace or build or a relay registration, see
+["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Response: `204 NO CONTENT`
 
 ### `DELETE /build/:build_id_or_name/device/:device_id_or_serial_number`
@@ -120,7 +120,7 @@ read-only role on the device (via a workspace or a relay registration, see
 ### `POST /build/:build_id_or_name/rack/:rack_id`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-only role on a workspace that contains the rack
+read-only role on a workspace or build that contains the rack
 - Response: `204 NO CONTENT`
 
 ### `DELETE /build/:build_id_or_name/rack/:rack_id`

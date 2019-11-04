@@ -414,7 +414,7 @@ sub update ($c) {
 
 =head2 list
 
-List all active users and their workspaces. System admin only.
+List all active users and their workspaces, builds and organizations. System admin only.
 Response uses the UsersDetailed json schema.
 
 =cut

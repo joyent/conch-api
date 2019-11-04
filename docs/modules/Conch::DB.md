@@ -4,7 +4,7 @@ Conch::DB
 
 # DESCRIPTION
 
-Base schema class for the Conch application. See [DBIx::Class::Schema](https://metacpan.org/pod/DBIx::Class::Schema).
+Base schema class for the Conch application. See [DBIx::Class::Schema](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3ASchema).
 
 # LICENSING
 
