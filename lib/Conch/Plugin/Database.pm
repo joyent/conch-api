@@ -168,7 +168,7 @@ use the subref's return value to signal success.
 
     # verify that we are running the version of postgres we expect...
     my $pgsql_version = Conch::DB::Util::get_postgres_version($app->schema);
-    $app->log->info("Running $pgsql_version");
+    $app->log->info($db_credentials->{dsn}.' running '.$pgsql_version);
 
     use constant POSTGRES_MINIMUM_VERSION_MAJOR => 10;
     use constant POSTGRES_MINIMUM_VERSION_MINOR => 10;
