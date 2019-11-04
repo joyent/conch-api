@@ -15,7 +15,7 @@ SELECT run_migration(109, $$
     alter table device_location drop constraint device_location_device_id_fkey;
     alter table device_relay_connection drop constraint device_relay_connection_device_id_fkey;
 
-    drop index device_id_idx;
+    drop index if exists device_id_idx;
     alter table device drop constraint device_pkey;
     alter table device add primary key (id);
 
