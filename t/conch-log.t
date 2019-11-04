@@ -157,7 +157,7 @@ sub add_test_routes ($t) {
     reset_log;
 
     cmp_deeply(
-        Test::Conch->new(config => { features => { audit => 0 } })->app->log,
+        Test::Conch->new(config => { features => { audit => 0, no_db => 1 } })->app->log,
         all(
             isa('Conch::Log'),
             methods(
@@ -171,7 +171,7 @@ sub add_test_routes ($t) {
 
     local $ENV{MOJO_MODE} = 'foo';
     cmp_deeply(
-        Test::Conch->new(config => { features => { audit => 0 } })->app->log,
+        Test::Conch->new(config => { features => { audit => 0, no_db => 1 } })->app->log,
         all(
             isa('Conch::Log'),
             methods(
@@ -188,7 +188,7 @@ sub add_test_routes ($t) {
     reset_log;
     my $t = Test::Conch->new(config => {
         logging => { handle => $log_fh },
-        features => { audit => 0 },
+        features => { audit => 0, no_db => 1 },
     });
 
     cmp_deeply(
@@ -549,7 +549,7 @@ sub add_test_routes ($t) {
     my $t = Test::Conch->new(
         config => {
             logging => { handle => $log_fh },
-            features => { audit => 1 },
+            features => { audit => 1, no_db => 1 },
         },
     );
 
