@@ -95,6 +95,8 @@ sub new {
     my $pg = exists $args->{pg} ? delete $args->{pg}
         : $class->init_db // Test::More::BAIL_OUT('failed to create test database');
 
+    $ENV{MOJO_MODE} ||= 'test';
+
     my $self = Test::Mojo->new(
         Conch => {
             database => {

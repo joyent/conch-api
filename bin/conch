@@ -55,6 +55,9 @@ die '. is in %INC: this is not safe'
 
 use Mojolicious::Commands;
 
+# hypnotoad will override this to 'production'
+$ENV{MOJO_MODE} ||= 'command';
+
 # Start command line interface for application
 Mojolicious::Commands->start_app('Conch');
 
