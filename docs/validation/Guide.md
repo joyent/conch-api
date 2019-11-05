@@ -1,5 +1,7 @@
 # Guide: Writing, Deploying, and Testing a Conch Validation
 
+(This guide is now outdated. Please consult the Conch developers for guidance.)
+
 ## Table of Contents
 
 * [Setting up the Conch Repository](#setting-up-the-conch-repository)
