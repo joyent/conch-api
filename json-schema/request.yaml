@@ -107,6 +107,7 @@ definitions:
   RackAssignmentUpdates:
     type: array
     uniqueItems: true
+    minItems: 1
     items:
       $ref: /definitions/RackAssignmentUpdate
   RackAssignmentUpdate:
@@ -133,6 +134,7 @@ definitions:
   RackAssignmentDeletes:
     type: array
     uniqueItems: true
+    minItems: 1
     items:
       $ref: /definitions/RackAssignmentDelete
   RackAssignmentDelete:
@@ -694,6 +696,7 @@ definitions:
   BuildCreateDevices:
     type: array
     uniqueItems: true
+    minItems: 1
     items:
       type: object
       additionalProperties: false

@@ -160,6 +160,7 @@
         ],
         "type" : "object"
       },
+      "minItems" : 1,
       "type" : "array",
       "uniqueItems" : true
     },
@@ -854,6 +855,7 @@
       "items" : {
         "$ref" : "/definitions/RackAssignmentDelete"
       },
+      "minItems" : 1,
       "type" : "array",
       "uniqueItems" : true
     },
@@ -901,6 +903,7 @@
       "items" : {
         "$ref" : "/definitions/RackAssignmentUpdate"
       },
+      "minItems" : 1,
       "type" : "array",
       "uniqueItems" : true
     },
