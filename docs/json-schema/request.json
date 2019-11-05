@@ -306,6 +306,18 @@
       ],
       "type" : "object"
     },
+    "DeviceBuild" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "build_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "build_id"
+      ],
+      "type" : "object"
+    },
     "DeviceLinks" : {
       "additionalProperties" : false,
       "properties" : {

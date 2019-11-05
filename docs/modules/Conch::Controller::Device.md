@@ -71,6 +71,12 @@ Appends the provided link(s) to the device record.
 
 Removes all links from the device record.
 
+## set\_build
+
+Moves the device to a new build.
+
+Also requires read/write access to the old and new builds.
+
 # LICENSING
 
 Copyright Joyent, Inc.

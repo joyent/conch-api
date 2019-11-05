@@ -37,6 +37,9 @@ $t->authenticate(email => $build_user->email)
     ->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST', sku => $hardware_product->sku } ])
     ->status_is(204);
 
+my $build2 = $t->generate_fixtures('build');
+$build2->create_related('user_build_roles', { user_id => $build_user->id, role => 'admin' });
+
 $t->authenticate(email => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
@@ -807,6 +810,24 @@ subtest 'mutate device attributes' => sub {
         ->location_is('/device/'.$test_device_id);
     $detailed_device->{links} = [ 'https://foo.com/1' ];
     $detailed_device->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (rw) for existing build '.$test_device->build_id);
+    my $ubr = $build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'rw' });
+
+    $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
+        ->status_is(403)
+        ->log_debug_is('User lacks the required role (rw) for new build '.$build2->id);
+
+    $build2->create_related('user_build_roles', { user_id => $ro_user->id, role => 'rw' });
+
+    $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
+    $detailed_device->{build_id} = $build2->id;
+
+    $ubr->delete;
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
