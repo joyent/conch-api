@@ -38,11 +38,10 @@ sub register ($self, $app, $config) {
         }
         elsif ($user_agent =~ /^Conch\/((\d+)\.(\d+)\.(\d+)) /) {
             my ($all, $major, $minor, $rest) = ($1, $2, $3, $4);
-            if ($all eq '0.0.0') {
+            if ($all eq '0.0.0' or $major < 3) {
                 $c->log->error('Conch Shell too old');
                 return $c->status(403);
             }
-            # TODO later: check $major, $minor for minimum compatible version.
         }
     });
 }

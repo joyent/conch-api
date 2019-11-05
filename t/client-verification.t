@@ -48,7 +48,7 @@ $t->get_ok('/ping', { 'User-Agent' => 'Conch/0.0.0 ConchShell/blahblah...' })
     ->status_is(403)
     ->log_error_is('Conch Shell too old');
 
-$t->get_ok('/ping', { 'User-Agent' => 'Conch/1.12.0 ConchShell/blahblah...' })
+$t->get_ok('/ping', { 'User-Agent' => 'Conch/3.12.0 ConchShell/blahblah...' })
     ->status_is(200);
 
 $t->get_ok('/version', { 'User-Agent' => 'Conch/0.0.0 ConchShell/blahblah...' })
