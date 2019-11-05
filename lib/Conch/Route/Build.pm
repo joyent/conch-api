@@ -264,7 +264,7 @@ Accepts the following optional query parameters:
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-only role on the device.
 
-=item * Request: F<request.yaml#/definitions/BuildCreateDevice>
+=item * Request: F<request.yaml#/definitions/BuildCreateDevices>
 
 =item * Response: C<204 NO CONTENT>
 

@@ -691,7 +691,7 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       role:
         $ref: common.yaml#/definitions/role
-  BuildCreateDevice:
+  BuildCreateDevices:
     type: array
     uniqueItems: true
     items:

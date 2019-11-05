@@ -664,7 +664,7 @@ Requires the 'read/write' role on the build, and the 'read-only' role on the dev
 =cut
 
 sub create_and_add_devices ($c) {
-    my $input = $c->validate_request('BuildCreateDevice');
+    my $input = $c->validate_request('BuildCreateDevices');
     return if not $input;
 
     foreach my $entry ($input->@*) {
