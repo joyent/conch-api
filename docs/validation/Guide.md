@@ -1,7 +1,6 @@
-Guide: Writing, Deploying, and Testing a Conch Validation
-=========================================================
+# Guide: Writing, Deploying, and Testing a Conch Validation
 
-### Table of Contents
+## Table of Contents
 
 * [Setting up the Conch Repository](#setting-up-the-conch-repository)
 * [Creating a new Validation](#creating-a-new-validation)
@@ -13,7 +12,7 @@ Guide: Writing, Deploying, and Testing a Conch Validation
 * [Tips for Writing Validations](#tips-for-writing-validations)
 
 
-### Overview of steps
+## Overview of steps
 
 1. Create a sub-class of `Conch::Validation`, the Validation base class. Set
    the `name`, `version`, `description`, and `category` fields, and write a
@@ -42,8 +41,7 @@ are useful references for writing and testing a new Conch Validation.
 More documentation on using the Conch Shell with validations can be found in
 [its repository](https://joyent.github.com/conch-shell/validations)
 
-Setting up the Conch Repository
--------------------------------
+## Setting up the Conch Repository
 
 All Conch Validations are code modules committed in the [Conch
 repository](https://github.com/joyent/conch). To add new validations, you must
@@ -55,8 +53,7 @@ file paths in this tutorial are relative to the root of the repository.
 
 See README.md for more about running Conch.
 
-Creating a new Validation
--------------------------
+## Creating a new Validation
 
 Let's start by creating a simple yet valid validation. Create and write the
 following code to the file `lib/Conch/Validation/MyValidation.pm`:
@@ -102,8 +99,7 @@ All validations must define the `validate` method. `validate` defines the logic
 of the validation. In our example, it does nothing, but next we will define
 validation logic and register results.
 
-Writing validation logic
-------------------------
+## Writing validation logic
 
 The `validate` method defines the validation logic. When a validation is run in
 the validation system, the `validate` method is called for each validation.
@@ -185,8 +181,7 @@ sub validate {
 1;
 ```
 
-Dispatching on Device Attributes
---------------------------------
+## Dispatching on Device Attributes
 
 Your validation may need to evaluate differently based on attributes of the
 device under validation, such as the device hardware product, device location,
@@ -259,8 +254,7 @@ sub validate {
 1;
 ```
 
-Writing unit tests for Validations
----------------------------------
+## Writing unit tests for Validations
 
 Writing unit tests for your new validation is strongly encouraged. A test
 harness is provided to make this process easy and practical. At minimum, you
@@ -368,8 +362,7 @@ test_validation(
 );
 ```
 
-Deploying the Validation
-------------------------
+## Deploying the Validation
 
 A Conch Validation must be deployed in the production Conch instance to be
 available. After you've written and tested your validation, commit it on a
@@ -386,8 +379,7 @@ To get it included, create an issue on GitHub requesting that it be added to
 the switch and/or server plan(s).
 
 
-Tips for Writing Validations
-----------------------------
+## Tips for Writing Validations
 
 Below are some tips for writing effective validations.
 
