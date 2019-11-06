@@ -42,6 +42,11 @@ Unless otherwise noted, all routes require authentication.
 - Requires system admin authorization
 - Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
 
+### `GET /room/:datacenter_room_id_or_alias/:rack_name`
+
+- Requires system admin authorization
+- Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
+
 # LICENSING
 
 Copyright Joyent, Inc.

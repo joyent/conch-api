@@ -4,6 +4,7 @@ use Test::Warnings;
 use Test::Deep;
 use Conch::UUID 'create_uuid_str';
 use Test::Conch;
+use List::Util 'first';
 
 my $t = Test::Conch->new;
 $t->load_fixture('super_user');
@@ -64,6 +65,11 @@ $t->post_ok('/rack', json => {
     ->json_schema_is('Error')
     ->json_is({ error => 'Rack role does not exist' });
 
+$t->post_ok('/rack', json => { map +($_ => $rack->$_), qw(name datacenter_room_id rack_role_id) })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'The room already contains a rack named '.$rack->name });
+
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
@@ -91,6 +97,31 @@ $t->get_ok($t->tx->res->headers->location)
 my $new_rack_id = $t->tx->res->json->{id};
 
 my $small_rack_role = $t->app->db_rack_roles->create({ name => '10U', rack_size => 10 });
+
+$t->post_ok('/rack/'.$rack->id, json => { datacenter_room_id => create_uuid_str() })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Room does not exist' });
+
+$t->post_ok('/rack/'.$rack->id, json => { rack_role_id => create_uuid_str() })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Rack role does not exist' });
+
+my $duplicate_rack = first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack');
+$duplicate_rack->update({ name => $rack->name });
+
+$t->post_ok('/rack/'.$rack->id, json => { datacenter_room_id => $duplicate_rack->datacenter_room_id })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'New room already contains a rack named '.$rack->name });
+
+$duplicate_rack->update({ name => 'something else', datacenter_room_id => $rack->datacenter_room_id });
+
+$t->post_ok('/rack/'.$duplicate_rack->id, json => { name => $rack->name })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'The room already contains a rack named '.$rack->name });
 
 $t->post_ok('/rack/'.$rack->id, json => { rack_role_id => $small_rack_role->id })
     ->status_is(409)

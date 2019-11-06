@@ -158,6 +158,25 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<rack_datacenter_room_id_name_key>
+
+=over 4
+
+=item * L</datacenter_room_id>
+
+=item * L</name>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint(
+  "rack_datacenter_room_id_name_key",
+  ["datacenter_room_id", "name"],
+);
+
 =head1 RELATIONS
 
 =head2 build
@@ -267,7 +286,7 @@ __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QnDbXrOdTyIuHsfOh6+wIw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QfiFGzv3AGrYHflUnsKhGA
 
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
 
