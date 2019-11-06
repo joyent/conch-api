@@ -43,6 +43,7 @@ sub startup {
 
     $self->plugin('Conch::Plugin::Features', $self->config);
     $self->plugin('Conch::Plugin::Logging', $self->config);
+    $self->plugin('Conch::Plugin::GitVersion', $self->config);
     $self->plugin('Conch::Plugin::Database', $self->config);
 
     # specify which MIME types we can handle
@@ -143,7 +144,6 @@ Helper method for setting the response status code and json content.
         length => 30
     });
 
-    $self->plugin('Conch::Plugin::GitVersion', $self->config);
     $self->plugin('Conch::Plugin::JsonValidator', $self->config);
     $self->plugin('Conch::Plugin::AuthHelpers', $self->config);
     $self->plugin('Conch::Plugin::Mail', $self->config);

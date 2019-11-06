@@ -39,10 +39,15 @@ that persists for the lifetime of the application.
 =cut
 
     my $_rw_schema;
-    $app->helper(schema => sub {
+    $app->helper(schema => sub ($c) {
         return $_rw_schema if $_rw_schema;
+        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
         $_rw_schema = Conch::DB->connect(
-            $db_credentials->@{qw(dsn username password options)},
+            $db_credentials->@{qw(dsn username password)},
+            +{
+                $db_credentials->{options}->%*,
+                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
+            },
         );
     });
 
@@ -62,10 +67,15 @@ L<Conch::DB> object that persists for the lifetime of the application.
 =cut
 
     my $_ro_schema;
-    $app->helper(ro_schema => sub {
+    $app->helper(ro_schema => sub ($c) {
         return $_ro_schema if $_ro_schema;
+        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
         $_ro_schema = Conch::DB->connect(
-            $db_credentials->@{qw(dsn ro_username ro_password options)},
+            $db_credentials->@{qw(dsn ro_username ro_password)},
+            +{
+                $db_credentials->{options}->%*,
+                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
+            },
         );
     });
 
