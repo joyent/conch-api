@@ -698,10 +698,20 @@ $t->get_ok('/build/our second build/device?health=unknown')
     ->json_schema_is('Devices')
     ->json_is($devices);
 
+$t->get_ok('/build/our second build/device?ids_only=1&serials_only=1')
+    ->status_is(400)
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{should not match}i) } ]);
+
 $t->get_ok('/build/our second build/device?ids_only=1')
     ->status_is(200)
     ->json_schema_is('DeviceIds')
     ->json_is([ $devices->[0]{id} ]);
+
+$t->get_ok('/build/our second build/device?serials_only=1')
+    ->status_is(200)
+    ->json_schema_is('DeviceSerials')
+    ->json_is([ $devices->[0]{serial_number} ]);
 
 $t->get_ok('/build/our second build/device?active_minutes=5')
     ->status_is(200)

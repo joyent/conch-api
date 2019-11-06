@@ -113,10 +113,20 @@ $t->get_ok("/workspace/$global_ws_id/device?health=bunk")
     ->json_schema_is('QueryParamsValidationError')
     ->json_cmp_deeply('/details', [ { path => '/health', message => re(qr/not in enum list/i) } ]);
 
+$t->get_ok("/workspace/$global_ws_id/device?ids_only=1&serials_only=1")
+    ->status_is(400)
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{should not match}i) } ]);
+
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1")
     ->status_is(200)
     ->json_schema_is('DeviceIds')
     ->json_is([$devices[0]->id, $devices[1]->id]);
+
+$t->get_ok("/workspace/$global_ws_id/device?serials_only=1")
+    ->status_is(200)
+    ->json_schema_is('DeviceSerials')
+    ->json_is([$devices[0]->serial_number, $devices[1]->serial_number]);
 
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1&health=pass")
     ->status_is(200)

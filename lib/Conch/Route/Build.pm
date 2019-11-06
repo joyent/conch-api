@@ -253,7 +253,7 @@ Accepts the following optional query parameters:
 
 =item * Requires system admin authorization or the read-only role on the build
 
-=item * Response: response.yaml#/Devices
+=item * Response: F<response.yaml#/definitions/Devices>, F<response.yaml#/definitions/DeviceIds> or F<response.yaml#/definitions/DeviceSerials>
 
 =back
 

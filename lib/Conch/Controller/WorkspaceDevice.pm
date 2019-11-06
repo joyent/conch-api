@@ -25,8 +25,10 @@ not ORed):
         (can be used more than once to search for ANY of the specified health values)
     active_minutes=X  only devices last seen within X minutes
     ids_only=1      only return device ids, not full data
+    serials_only=1  only return device serial numbers, not full data
 
-Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>.
+Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>, or DeviceSerials iff
+C<serials_only=1>.
 
 =cut
 
@@ -52,8 +54,8 @@ sub list ($c) {
     $devices_rs = $devices_rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
         if $params->{active_minutes};
 
-    $devices_rs = $params->{ids_only}
-        ? $devices_rs->get_column('id')
+    $devices_rs = $params->{ids_only} ? $devices_rs->get_column('id')
+        : $params->{serials_only} ? $devices_rs->get_column('serial_number')
         : $devices_rs->with_device_location->with_sku;
 
     my @devices = $devices_rs->all;

@@ -1242,6 +1242,13 @@
       ],
       "type" : "object"
     },
+    "DeviceSerials" : {
+      "items" : {
+        "$ref" : "common.json#/definitions/device_serial_number"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "DeviceSetting" : {
       "allOf" : [
         {

@@ -164,7 +164,7 @@ Accepts the following optional query parameters:
 
 =item * User requires the read-only role
 
-=item * Response: F<response.yaml#/definitions/Devices>
+=item * Response: F<response.yaml#/definitions/Devices>, F<response.yaml#/definitions/DeviceIds> or F<response.yaml#/definitions/DeviceSerials>
 
 =back
 

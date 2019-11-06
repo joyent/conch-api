@@ -132,6 +132,13 @@ definitions:
         $ref: common.yaml#/definitions/non_negative_integer
       ids_only:
         $ref: /definitions/boolean_integer_default_false
+      serials_only:
+        $ref: /definitions/boolean_integer_default_false
+    not:
+      type: object
+      required:
+        - ids_only
+        - serials_only
   WorkspaceRelays:
     type: object
     additionalProperties: false
@@ -164,5 +171,12 @@ definitions:
         $ref: common.yaml#/definitions/non_negative_integer
       ids_only:
         $ref: /definitions/boolean_integer_default_false
+      serials_only:
+        $ref: /definitions/boolean_integer_default_false
+    not:
+      type: object
+      required:
+        - ids_only
+        - serials_only
 
 # vim: set sts=2 sw=2 et :

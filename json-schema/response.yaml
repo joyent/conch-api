@@ -318,6 +318,11 @@ definitions:
     uniqueItems: true
     items:
       $ref: common.yaml#/definitions/uuid
+  DeviceSerials:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: common.yaml#/definitions/device_serial_number
   Devices:
     type: array
     uniqueItems: true
