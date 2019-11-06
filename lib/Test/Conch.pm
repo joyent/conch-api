@@ -40,6 +40,8 @@ use constant CONCH_PASSWORD => '*';     # in the test fixture, all passwords are
 
 $ENV{EMAIL_SENDER_TRANSPORT} = 'Test';  # see Email::Sender::Manual::QuickStart
 
+use constant API_VERSION_RE => qr/v\d+\.\d+\.\d+(-[ab]\d+)?-\d+-g[[:xdigit:]]+/;
+
 =head1 METHODS
 
 =head2 pg
