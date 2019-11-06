@@ -54,15 +54,15 @@ See L</schema>; can be used interchangeably with it.
 =head2 ro_schema
 
 Provides (guaranteed) read-only access to the database via L<DBIx::Class>.  Returns a
-L<Conch::DB> object that persists for the lifetime of the application.
+L<Conch::DB> object that persists for the lifetime of the request (B<not the application>).
 
 Note that because of the use of C<< AutoCommit => 0 >>, database errors must be explicitly
 cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 
 =cut
 
-    my $_ro_schema;
-    $app->helper(ro_schema => sub {
+    $app->helper(ro_schema => sub ($c) {
+        my $_ro_schema = $c->stash('ro_schema');
         if ($_ro_schema) {
             # clear the transaction of any errors, which accumulate because we have
             # AutoCommit => 0 for this connection.  Otherwise, we will get:
@@ -84,6 +84,8 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
                 AutoCommit  => 0,
             },
         );
+        $c->stash('ro_schema', $_ro_schema);
+        return $_ro_schema;
     });
 
 =head2 db_<table>s, db_ro_<table>s
