@@ -27,16 +27,16 @@ sub routes {
     # POST /room
     $room->post('/')->to('#create');
 
-    my $with_datacenter_room = $room->under('/<datacenter_room_id:uuid>')
+    my $with_datacenter_room = $room->under('/:datacenter_room_id_or_alias')
         ->to('#find_datacenter_room');
 
-    # GET /room/:datacenter_room_id
+    # GET /room/:datacenter_room_id_or_alias
     $with_datacenter_room->get('/')->to('#get_one');
-    # POST /room/:datacenter_room_id
+    # POST /room/:datacenter_room_id_or_alias
     $with_datacenter_room->post('/')->to('#update');
-    # DELETE /room/:datacenter_room_id
+    # DELETE /room/:datacenter_room_id_or_alias
     $with_datacenter_room->delete('/')->to('#delete');
-    # GET /room/:datacenter_room_id/racks
+    # GET /room/:datacenter_room_id_or_alias/racks
     $with_datacenter_room->get('/racks')->to('#racks');
 }
 
@@ -69,7 +69,7 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id>
+=head3 C<GET /room/:datacenter_room_id_or_alias>
 
 
 =over 4
@@ -80,7 +80,7 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<POST /room/:datacenter_room_id>
+=head3 C<POST /room/:datacenter_room_id_or_alias>
 
 =over 4
 
@@ -92,7 +92,7 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<DELETE /room/:datacenter_room_id>
+=head3 C<DELETE /room/:datacenter_room_id_or_alias>
 
 =over 4
 
@@ -102,7 +102,7 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id/racks>
+=head3 C<GET /room/:datacenter_room_id_or_alias/racks>
 
 =over 4
 
