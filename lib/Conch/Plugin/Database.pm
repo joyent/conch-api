@@ -36,10 +36,15 @@ that persists for the lifetime of the application.
 =cut
 
     my $_rw_schema;
-    $app->helper(schema => sub {
+    $app->helper(schema => sub ($c) {
         return $_rw_schema if $_rw_schema;
+        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
         $_rw_schema = Conch::DB->connect(
-            $db_credentials->@{qw(dsn username password options)},
+            $db_credentials->@{qw(dsn username password)},
+            +{
+                $db_credentials->{options}->%*,
+                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
+            },
         );
     });
 
@@ -76,12 +81,15 @@ cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
 
         # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
         local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
+        return $_ro_schema if $_ro_schema;
+        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
         $_ro_schema = Conch::DB->connect(
             $db_credentials->@{qw(dsn ro_username ro_password)},
             +{
                 $db_credentials->{options}->%*,
                 ReadOnly    => 1,
                 AutoCommit  => 0,
+                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
             },
         );
         $c->stash('ro_schema', $_ro_schema);

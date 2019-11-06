@@ -38,6 +38,7 @@ sub startup {
 
     $self->plugin('Conch::Plugin::Features', $self->config);
     $self->plugin('Conch::Plugin::Logging', $self->config);
+    $self->plugin('Conch::Plugin::GitVersion', $self->config);
     $self->plugin('Conch::Plugin::Database', $self->config);
     $self->plugin('Conch::Plugin::FindHelpers', $self->config);
 
@@ -139,7 +140,6 @@ sub startup {
         length => 30
     });
 
-    $self->plugin('Conch::Plugin::GitVersion', $self->config);
     $self->plugin('Conch::Plugin::JsonValidator', $self->config);
     $self->plugin('Conch::Plugin::AuthHelpers', $self->config);
     $self->plugin('Conch::Plugin::Mail', $self->config);
