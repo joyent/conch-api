@@ -79,7 +79,7 @@ subtest 'read-only database handle' => sub {
                 password => 'whargarbl',
             });
         },
-        qr/cannot execute INSERT in a read-only transaction/,
+        qr/permission denied for relation user_account/,
         'cannot create a user using the read-only db handle',
     );
 

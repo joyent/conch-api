@@ -148,6 +148,8 @@ sub initialize_db ($schema) {
         # $dbh->$do('CREATE DATABASE conch OWNER conch');
 
         $dbh->$do('CREATE ROLE conch_read_only LOGIN');
+        $dbh->$do('REVOKE ALL ON ALL TABLES IN SCHEMA public FROM conch_read_only');
+        $dbh->$do('GRANT SELECT ON ALL TABLES IN SCHEMA public TO conch_read_only');
         say STDERR 'loading sql/schema.sql' if $debug;
         $dbh->do(path('sql/schema.sql')->slurp_utf8) or die 'SQL load failed in sql/schema.sql';
         $dbh->$do('RESET search_path');  # go back to "$user", public

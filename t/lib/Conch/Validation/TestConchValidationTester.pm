@@ -59,10 +59,9 @@ sub _device_inflation ($self, $data) {
     );
     $self->register_result_cmp_details(
         [ exception { $self->device->update({ asset_tag => 'ohhai' }) } ],
-        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        [ re(qr/permission denied for relation device/) ],
         'cannot modify the device',
     );
-    $self->device->result_source->schema->txn_rollback;
 }
 
 sub _hardware_product_inflation ($self, $data) {
@@ -80,10 +79,9 @@ sub _hardware_product_inflation ($self, $data) {
     );
     $self->register_result_cmp_details(
         [ exception { $self->hardware_product->update({ alias => 'ohhai' }) } ],
-        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        [ re(qr/permission denied for relation hardware_product/) ],
         'cannot modify the hardware_product',
     );
-    $self->hardware_product->result_source->schema->txn_rollback;
 
     $self->register_result_cmp_details(
         $self->hardware_product_name,
@@ -108,10 +106,9 @@ sub _hardware_product_profile_inflation ($self, $data) {
     );
     $self->register_result_cmp_details(
         [ exception { $self->hardware_product_profile->update({ purpose => 'ohhai' }) } ],
-        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        [ re(qr/permission denied for relation hardware_product_profile/) ],
         'cannot modify the hardware_product_profile',
     );
-    $self->hardware_product_profile->result_source->schema->txn_rollback;
 }
 
 sub _device_location_inflation ($self, $data) {
@@ -134,10 +131,9 @@ sub _device_location_inflation ($self, $data) {
     );
     $self->register_result_cmp_details(
         [ exception { $self->device_location->update({ updated => \'now()' }) } ],
-        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        [ re(qr/permission denied for relation device_location/) ],
         'cannot modify the device_location',
     );
-    $self->device_location->result_source->schema->txn_rollback;
 }
 
 sub _rack_inflation ($self, $data) {
@@ -155,10 +151,9 @@ sub _rack_inflation ($self, $data) {
     );
     $self->register_result_cmp_details(
         [ exception { $self->device_location->rack->update({ name => 'ohhai' }) } ],
-        [ re(qr/cannot execute UPDATE in a read-only transaction/) ],
+        [ re(qr/permission denied for relation rack/) ],
         'cannot modify the rack',
     );
-    $self->device_location->rack->result_source->schema->txn_rollback;
 }
 
 sub _device_settings_storage ($self, $data) {
