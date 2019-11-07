@@ -37,9 +37,18 @@ sub run ($self, @opts) {
 
     my @workspace_names = @ARGV;
 
+    my $admin_id = $self->app->db_user_accounts->search({ email => 'ether@joyent.com' })->get_column('id')->single;
+    my $org = $self->app->db_organizations->find_or_create({
+        name => 'Joyent',
+        description => 'Joyent employees',
+        user_organization_roles => [ { user_id => $admin_id, role => 'admin' } ],
+    });
+
     foreach my $workspace_name (@workspace_names) {
         $self->app->schema->txn_do(sub {
             my $workspace = $self->app->db_workspaces->find({ name => $workspace_name });
+            die 'cannot find workspace '.$workspace_name if not $workspace;
+
             my $build = $self->app->db_builds->find({ name => $workspace_name });
 
             if (not $build) {
@@ -67,18 +76,16 @@ sub run ($self, @opts) {
                     name => $workspace_name,
                     description => $workspace->description,
                     started => minstr($device_created_rs->single, $rack_created_rs->single),
+                    user_build_roles => [{
+                        user_id => $admin_id,
+                        role => 'admin',
+                    }],
+                    organization_build_roles => [{
+                        organization_id => $org->id,
+                        role => 'ro',
+                    }],
                 });
             }
-
-            $build->find_or_create_related('user_build_roles', {
-                user_id => { '=' => $self->app->db_user_accounts->search({ email => 'ether@joyent.com' })->columns('id')->as_query },
-                role => 'admin',
-            });
-
-            $build->find_or_create_related('organization_build_roles', {
-                organization_id => { '=' => $self->app->db_organizations->search({ name => 'joyent' })->columns('id')->as_query },
-                role => 'ro',
-            });
 
             # now put all of the workspace's racks into the build, if they weren't already in
             # another build
