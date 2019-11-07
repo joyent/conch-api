@@ -23,7 +23,7 @@ my $hostname = Sys::Hostname::hostname;
 open my $log_fh, '>:raw', \my $fake_log_file or die "cannot open to scalarref: $!";
 sub reset_log { $fake_log_file = ''; seek $log_fh, 0, 0; }
 
-my $api_version_re = qr/^v\d+\.\d+\.\d+(-[ab]\d+)?-\d+-g[[:xdigit:]]+$/;
+my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 
 {
     like(

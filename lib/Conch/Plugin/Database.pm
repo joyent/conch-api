@@ -39,10 +39,15 @@ that persists for the lifetime of the application.
 =cut
 
     my $_rw_schema;
-    $app->helper(schema => sub {
+    $app->helper(schema => sub ($c) {
         return $_rw_schema if $_rw_schema;
+        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
         $_rw_schema = Conch::DB->connect(
-            $db_credentials->@{qw(dsn username password options)},
+            $db_credentials->@{qw(dsn username password)},
+            +{
+                $db_credentials->{options}->%*,
+                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
+            },
         );
     });
 
@@ -59,34 +64,17 @@ See L</schema>; can be used interchangeably with it.
 Provides (guaranteed) read-only access to the database via L<DBIx::Class>. Returns a
 L<Conch::DB> object that persists for the lifetime of the application.
 
-Note that because of the use of C<< AutoCommit => 0 >>, database errors must be explicitly
-cleared with C<< ->txn_rollback >>; see L<DBD::Pg/"ReadOnly-(boolean)">.
-
-See also: L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>.
-
 =cut
 
     my $_ro_schema;
-    $app->helper(ro_schema => sub {
-        if ($_ro_schema) {
-            # clear the transaction of any errors, which accumulate because we have
-            # AutoCommit => 0 for this connection. Otherwise, we will get:
-            # "current transaction is aborted, commands ignored until end of transaction block"
-            # (as an alternative, we can turn the ReadOnly and AutoCommit flags off, and use
-            # the read-only credentials to connect to the server.. but it is better to have
-            # this safety here.)
-            $_ro_schema->txn_rollback if $_ro_schema->storage->connected;
-            return $_ro_schema;
-        }
-
-        # see https://metacpan.org/pod/DBIx::Class::Storage::DBI#DBIx::Class-and-AutoCommit
-        local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
+    $app->helper(ro_schema => sub ($c) {
+        return $_ro_schema if $_ro_schema;
+        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
         $_ro_schema = Conch::DB->connect(
             $db_credentials->@{qw(dsn ro_username ro_password)},
             +{
                 $db_credentials->{options}->%*,
-                ReadOnly    => 1,
-                AutoCommit  => 0,
+                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
             },
         );
     });

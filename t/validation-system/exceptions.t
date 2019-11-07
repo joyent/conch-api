@@ -103,7 +103,7 @@ subtest '->run, blessed external exception containing a stack trace' => sub {
             {
                 name => 'mutate_device',
                 status => 'error',
-                message => re(qr/cannot execute UPDATE in a read-only transaction/),
+                message => re(qr/permission denied for relation device/),
                 category => 'exception',
                 hint => 't/lib/Conch/Validation/MutateDevice.pm line 14',
             },
@@ -112,7 +112,7 @@ subtest '->run, blessed external exception containing a stack trace' => sub {
     );
 
     $t->log_is(
-        re(qr/Validation 'mutate_device' threw an exception on device id '${\$device->id}': .*cannot execute UPDATE in a read-only transaction/),
+        re(qr/Validation 'mutate_device' threw an exception on device id '${\$device->id}': .*permission denied for relation device/),
         'logged the unexpected exception',
     );
 };

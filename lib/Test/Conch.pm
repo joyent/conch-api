@@ -40,6 +40,8 @@ use constant CONCH_PASSWORD => '*';     # in the test fixture, all passwords are
 
 $ENV{EMAIL_SENDER_TRANSPORT} = 'Test';  # see Email::Sender::Manual::QuickStart
 
+use constant API_VERSION_RE => qr/v\d+\.\d+\.\d+(-[ab]\d+)?-\d+-g[[:xdigit:]]+/;
+
 =head1 METHODS
 
 =head2 pg
@@ -100,12 +102,13 @@ sub new {
     my $self = Test::Mojo->new(
         Conch => {
             database => {
-                $pg ? ( dsn => $pg->dsn, username => $pg->dbowner )
+                $pg ? ( dsn => $pg->dsn, username => $pg->dbowner, ro_username => 'conch_read_only' )
                     : ( dsn => 'there is no database', username => '' )
             },
 
             secrets => ['********'],
             features => { audit => 1, no_db => ($pg ? 0 : 1) },
+            log => { max_history_size => 50 },
 
             $args->{config} ? delete($args->{config})->%* : (),
         }
@@ -161,7 +164,7 @@ sub init_db ($class) {
     my $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8', dbowner => 'conch');
     die $Test::PostgreSQL::errstr if not $pgsql;
 
-    Test::More::note('connecting to ',$pgsql->dsn) if $ENV{DBIC_TRACE};
+    Test::More::note('connecting to ',$pgsql->dsn,' as user ',$pgsql->dbowner) if $ENV{DBIC_TRACE};
     my $schema = Conch::DB->connect(
         $pgsql->dsn, $pgsql->dbowner, undef,
         {
@@ -182,23 +185,22 @@ sub init_db ($class) {
 
 =head2 ro_schema
 
-Returns a read-only connection to an existing L<Test::PostgreSQL> instance.
+Returns a read-only connection to an existing L<Test::PostgreSQL> instance (requires
+L</init_db> to have been run first).
 
 =cut
 
 sub ro_schema ($class, $pgsql) {
-    # see L<DBIx::Class::Storage::DBI/DBIx::Class and AutoCommit>
-    local $ENV{DBIC_UNSAFE_AUTOCOMMIT_OK} = 1;
-    Test::More::note('connecting to ',$pgsql->dsn) if $ENV{DBIC_TRACE};
+    Test::More::note('connecting to ',$pgsql->dsn,' as user conch_read_only') if $ENV{DBIC_TRACE};
     Conch::DB->connect(
-        $pgsql->dsn, $pgsql->dbowner, undef,
+        $pgsql->dsn, 'conch_read_only', undef,
         +{
-            AutoCommit          => 0,
+            # same as from Mojo::Pg->new($uri)->options
+            AutoCommit          => 1,
             AutoInactiveDestroy => 1,
             PrintError          => 0,
             PrintWarn           => 0,
             RaiseError          => 1,
-            ReadOnly            => 1,
         },
     );
 }

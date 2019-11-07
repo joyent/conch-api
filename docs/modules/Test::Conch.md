@@ -50,7 +50,8 @@ Returns the [Conch::DB](../modules/Conch%3A%3ADB) object as well when called in 
 
 ## ro\_schema
 
-Returns a read-only connection to an existing [Test::PostgreSQL](https://metacpan.org/pod/Test%3A%3APostgreSQL) instance.
+Returns a read-only connection to an existing [Test::PostgreSQL](https://metacpan.org/pod/Test%3A%3APostgreSQL) instance (requires
+["init\_db"](#init_db) to have been run first).
 
 ## status\_is
 
