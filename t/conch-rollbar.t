@@ -370,6 +370,17 @@ $t->do_and_wait_for_event(
 $t->do_and_wait_for_event(
     $rollbar_app->plugins, 'rollbar_sent',
     sub ($t) {
+        $t->get_ok('/devicefoo')
+            ->status_is(404)
+            ->json_is({ error => 'Not Found' });
+    },
+    sub ($payload) { fail('rollbar message was incorrectly sent') },
+    sub { pass('no rollbar message was sent for unrecognized path prefix') },
+);
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
         $t->post_ok('/_send_message')
             ->status_is(204);
     },
