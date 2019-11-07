@@ -55,6 +55,15 @@ subtest 'read-only database handle' => sub {
     );
 
     like(
+        $t->app->rw_schema->storage->dbh_do(sub ($storage, $dbh) {
+            my ($name) = $dbh->selectrow_array('select application_name from pg_stat_activity where pid = pg_backend_pid()');
+            return $name;
+        }),
+        qr/^conch-v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+ \($$\)$/,
+        'can properly identify the query process by app and pid in pg_stat_activity',
+    );
+
+    like(
         exception {
             $t->app->db_ro_user_accounts->create({
                 name => 'another new user',
@@ -72,6 +81,15 @@ subtest 'read-only database handle' => sub {
         },
         undef,
         'no exception querying for a user using the read-only db handle',
+    );
+
+    like(
+        $t->app->ro_schema->storage->dbh_do(sub ($storage, $dbh) {
+            my ($name) = $dbh->selectrow_array('select application_name from pg_stat_activity where pid = pg_backend_pid()');
+            return $name;
+        }),
+        qr/^conch-v\d+\.\d+\.\d+-\d+-g[[:xdigit:]]+ \($$\)$/,
+        'can properly identify the query process by app and pid in pg_stat_activity',
     );
 
     warnings(sub {
