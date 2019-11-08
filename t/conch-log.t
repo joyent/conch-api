@@ -27,7 +27,12 @@ my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 
 {
     like(
-        exception { Test::Conch->new(config => { logging => { level => 'whargarbl' } }) },
+        exception {
+            Test::Conch->new(config => {
+                logging => { level => 'whargarbl' },
+                features => { no_db => 1 },
+            })
+        },
         qr/unrecognized log level whargarbl/,
         'reject bad log levels',
     );
@@ -188,7 +193,7 @@ sub add_test_routes ($t) {
     reset_log;
     my $t = Test::Conch->new(config => {
         logging => { handle => $log_fh },
-        features => { audit => 0, no_db => 1 },
+        features => { audit => 0 },
     });
 
     cmp_deeply(
@@ -549,7 +554,7 @@ sub add_test_routes ($t) {
     my $t = Test::Conch->new(
         config => {
             logging => { handle => $log_fh },
-            features => { audit => 1, no_db => 1 },
+            features => { audit => 1 },
         },
     );
 
