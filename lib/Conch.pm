@@ -62,6 +62,20 @@ sub startup {
                 $args->{json} = { error => 'Not Found' };
             }
         }
+
+        $c->send_message_to_rollbar('info', 'payload contains '.$args->{json}->@*.' elements: candidate for paging?')
+            if ref $args->{json} eq 'ARRAY'
+                # TODO: skip if ?page_size is passed (and we actually used it).
+                and $args->{json}->@* >= ($c->app->config->{rollbar}{warn_payload_elements} // 35)
+                and $c->feature('rollbar');
+
+        # do this after the response has been sent
+        $c->on(finish => sub ($c) {
+            my $body_size = $c->res->body_size;
+            $c->send_message_to_rollbar('info', 'payload is '.$body_size.' bytes: candidate for paging or refactoring?')
+                if $body_size >= ($c->app->config->{rollbar}{warn_payload_size} // 10000)
+                    and $c->feature('rollbar');
+        });
     });
 
     $self->hook(after_render => sub ($c, @args) {
