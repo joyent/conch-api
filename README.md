@@ -20,8 +20,8 @@ The [conch shell](https://github.com/joyent/conch-shell) is our current stable i
 
 ### Operating System Support
 
-We currently support SmartOS 17.4 and Docker/Ubuntu. Being a Perl app, the API
-should run most anywhere but the code is only actively tested on SmartOS and
+We currently support Docker/Ubuntu. Being a Perl app, the API
+should run nearly anywhere but the code is only actively tested on macOS and
 Docker/Ubuntu.
 
 ### Perl Support
@@ -86,19 +86,6 @@ docker-compose down
 docker-compose pull
 docker-compose up -d postgres
 docker-compose run --rm web bin/conch-db migrate
-docker-compose up -d
-```
-
-There may be extra commands to run, depending on the specific release. In that
-case, the upgrade will look something like:
-
-```
-docker-compose down
-# Edit compose file for desired release
-docker-compose pull
-docker-compose up -d postgres
-docker-compose run --rm web bin/conch-db migrate
-docker-compose run --rm web bin/conch upgrade_release_225
 docker-compose up -d
 ```
 
