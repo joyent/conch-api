@@ -58,6 +58,11 @@ sub run ($self, @opts) {
         return;
     }
 
+    if ($self->app->db_user_accounts->active->search({ name => $opt->name })->exists) {
+        say 'cannot create user: name '.$opt->name.' already exists';
+        return;
+    }
+
     my $user = $self->app->db_user_accounts->create({
         name => $opt->name,
         email => $opt->email,
