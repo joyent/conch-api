@@ -10,9 +10,10 @@ thin_device_reports - remove unwanted device reports
 
     bin/conch thin_device_reports [long options...]
 
-        -n --dry-run  dry-run (no changes are made)
+        -n --dry-run            dry-run (no changes are made)
+        --updated-since=<date>  only consider devices updated since <ISO8601 date>
 
-        --help        print usage message and exit
+        --help                  print usage message and exit
 
 =cut
 
@@ -40,9 +41,10 @@ sub run ($self, @opts) {
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
         'thin_device_reports %o',
-        [ 'dry-run|n',      'dry-run (no changes are made)' ],
+        [ 'dry-run|n',          'dry-run (no changes are made)' ],
+        [ 'updated-since=s',    'updated-since=date (device update time' ],
         [],
-        [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
+        [ 'help',               'print usage message and exit', { shortcircuit => 1 } ],
     );
 
     $self->dry_run($opt->dry_run);
@@ -55,6 +57,8 @@ sub run ($self, @opts) {
         ->rows(100)
         ->page(1)
         ->order_by('created');
+
+    $device_rs = $device_rs->search({ updated => { '>=', $opt->updated_since } }) if $opt->updated_since;
 
     my ($device_count, $device_reports_deleted, $validation_results_deleted) = (0)x3;
 
