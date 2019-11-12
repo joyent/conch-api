@@ -7,6 +7,8 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Email::Simple;
 use Email::Sender::Simple 'sendmail';
 use Email::Sender::Transport::SMTP;
+use Try::Tiny;
+use Safe::Isa;
 
 =pod
 
@@ -80,6 +82,7 @@ sub register ($self, $app, $config) {
 
         my $email = compose_message($c, %args);
         my $log = $c->log;
+        my $rollbar_sender = sub ($e) { $c->send_exception_to_rollbar($e) };
         my $request_id = length($c->req->url) ? $c->req->request_id : undef;
 
         Mojo::IOLoop->subprocess(
@@ -91,9 +94,16 @@ sub register ($self, $app, $config) {
                     .($args{template_file} // substr(0,20,$args{template} // $args{content}).'...')
                     .'" to '.$email->header('to'));
 
-                my $result = Email::Sender::Simple->send($email, {
-                    transport => Email::Sender::Transport::SMTP->new($config->{mail}{transport} // {}),
-                });
+                my $result = try {
+                    Email::Sender::Simple->send($email, {
+                        transport => Email::Sender::Transport::SMTP->new($config->{mail}{transport} // {}),
+                    });
+                }
+                catch {
+                    my $exception = $_;
+                    $rollbar_sender->(Mojo::Exception->new($exception));
+                    die $exception->$_can('message') ? $exception->message."\n" : $exception;
+                };
 
                 return $result, $email;
             },
@@ -102,13 +112,14 @@ sub register ($self, $app, $config) {
             sub ($subprocess, $err, @args) {
                 local $Conch::Log::REQUEST_ID = $request_id;
                 if ($err) {
-                    $log->warn('sending email errored: '.$err);
+                    $log->error('sending email errored: '.$err);
                     return;
                 }
 
                 my ($result, $email) = @args;
 
                 # this is typically the receipt response from sendmail
+                # (methods not available because the class was never composed in this process)
                 if ($result->{message}) {
                     chomp $result->{message};
                     $log->debug('sent email: '.$result->{message});
