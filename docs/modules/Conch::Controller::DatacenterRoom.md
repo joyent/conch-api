@@ -6,7 +6,7 @@ Conch::Controller::DatacenterRoom
 
 ## find\_datacenter\_room
 
-Handles looking up the object by id.
+Handles looking up the object by id or alias.
 
 ## get\_all
 

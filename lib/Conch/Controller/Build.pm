@@ -614,8 +614,10 @@ not ORed):
         (can be used more than once to search for ANY of the specified health values)
     active_minutes=X    only devices last seen (via a report relay) within X minutes
     ids_only=1          only return device ids, not full data
+    serials_only=1      only return device serial numbers, not full data
 
-Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>.
+Response uses the Devices json schema, or DeviceIds iff C<ids_only=1>, or DeviceSerials iff
+C<serials_only=1>.
 
 =cut
 
@@ -646,8 +648,8 @@ sub get_devices ($c) {
     $rs = $rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
         if $params->{active_minutes};
 
-    $rs = $params->{ids_only}
-        ? $rs->get_column('id')
+    $rs = $params->{ids_only} ? $rs->get_column('id')
+        : $params->{serials_only} ? $rs->get_column('serial_number')
         : $rs->with_device_location->with_sku;
 
     $c->status(200, [ $rs->all ]);
@@ -664,7 +666,7 @@ Requires the 'read/write' role on the build, and the 'read-only' role on the dev
 =cut
 
 sub create_and_add_devices ($c) {
-    my $input = $c->validate_request('BuildCreateDevice');
+    my $input = $c->validate_request('BuildCreateDevices');
     return if not $input;
 
     foreach my $entry ($input->@*) {

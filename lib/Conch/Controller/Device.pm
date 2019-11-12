@@ -422,6 +422,35 @@ sub remove_links ($c) {
     $c->status(204);
 }
 
+=head2 set_build
+
+Moves the device to a new build.
+
+Also requires read/write access to the old and new builds.
+
+=cut
+
+sub set_build ($c) {
+    my $input = $c->validate_request('DeviceBuild');
+    return if not $input;
+
+    my $device = $c->stash('device_rs')->single;
+    if (not $c->is_system_admin) {
+        if ($device->build_id and not $device->related_resultset('build')->user_has_role($c->stash('user_id'), 'rw')) {
+            $c->log->debug('User lacks the required role (rw) for existing build '.$device->build_id);
+            return $c->status(403);
+        }
+
+        if (not $c->db_builds->search({ 'build.id' => $input->{build_id} })->user_has_role($c->stash('user_id'), 'rw')) {
+            $c->log->debug('User lacks the required role (rw) for new build '.$input->{build_id});
+            return $c->status(403);
+        }
+    }
+
+    $device->update({ build_id => $input->{build_id}, updated => \'now()' });
+    $c->status(303, '/device/'.$c->stash('device_id'));
+}
+
 1;
 __END__
 

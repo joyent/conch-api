@@ -31,7 +31,17 @@ $t->get_ok('/room/'.$room->id)
     ->json_schema_is('DatacenterRoomDetailed')
     ->json_cmp_deeply(superhashof({ az => 'room-0a', alias => 'room 0a' }));
 
+$t->get_ok('/room/'.$room->alias)
+    ->status_is(200)
+    ->json_schema_is('DatacenterRoomDetailed')
+    ->json_cmp_deeply(superhashof({ az => 'room-0a', alias => 'room 0a' }));
+
 $t->get_ok('/room/'.$room->id.'/racks')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_cmp_deeply([ superhashof({ name => 'rack 0a' }) ]);
+
+$t->get_ok('/room/'.$room->alias.'/racks')
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_cmp_deeply([ superhashof({ name => 'rack 0a' }) ]);

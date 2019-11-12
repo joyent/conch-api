@@ -111,7 +111,7 @@
       ],
       "type" : "object"
     },
-    "BuildCreateDevice" : {
+    "BuildCreateDevices" : {
       "items" : {
         "additionalProperties" : false,
         "anyOf" : [
@@ -160,6 +160,7 @@
         ],
         "type" : "object"
       },
+      "minItems" : 1,
       "type" : "array",
       "uniqueItems" : true
     },
@@ -302,6 +303,18 @@
       },
       "required" : [
         "asset_tag"
+      ],
+      "type" : "object"
+    },
+    "DeviceBuild" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "build_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "required" : [
+        "build_id"
       ],
       "type" : "object"
     },
@@ -854,6 +867,7 @@
       "items" : {
         "$ref" : "/definitions/RackAssignmentDelete"
       },
+      "minItems" : 1,
       "type" : "array",
       "uniqueItems" : true
     },
@@ -901,6 +915,7 @@
       "items" : {
         "$ref" : "/definitions/RackAssignmentUpdate"
       },
+      "minItems" : 1,
       "type" : "array",
       "uniqueItems" : true
     },

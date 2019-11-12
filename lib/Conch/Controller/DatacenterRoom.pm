@@ -2,6 +2,8 @@ package Conch::Controller::DatacenterRoom;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -12,14 +14,24 @@ Conch::Controller::DatacenterRoom
 
 =head2 find_datacenter_room
 
-Handles looking up the object by id.
+Handles looking up the object by id or alias.
 
 =cut
 
 sub find_datacenter_room ($c) {
-    my $room_id = $c->stash('datacenter_room_id');
-    $c->log->debug('Looking up datacenter room '.$room_id);
-    my $room = $c->db_datacenter_rooms->find($room_id);
+    my $identifier = $c->stash('datacenter_room_id_or_alias');
+    my $rs = $c->db_datacenter_rooms;
+    if (is_uuid($identifier)) {
+        $c->stash('datacenter_room_id', $identifier);
+        $rs = $rs->search({ 'datacenter_room.id' => $identifier });
+    }
+    else {
+        $c->stash('datacenter_room_alias', $identifier);
+        $rs = $rs->search({ 'datacenter_room.alias' => $identifier });
+    }
+
+    $c->log->debug('Looking up datacenter room '.$identifier);
+    my $room = $rs->single;
 
     if (not $room) {
         $c->log->debug('Could not find datacenter room');
@@ -84,7 +96,7 @@ sub update ($c) {
     return if not $input;
 
     $c->stash('datacenter_room')->update({ $input->%*, updated => \'now()' });
-    $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id'));
+    $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     $c->status(303, '/room/'.$c->stash('datacenter_room')->id);
 }
 
@@ -113,7 +125,7 @@ Response uses the Racks json schema.
 
 sub racks ($c) {
     my @racks = $c->stash('datacenter_room')->related_resultset('racks')->all;
-    $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room')->id);
+    $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     return $c->status(200, \@racks);
 }
 

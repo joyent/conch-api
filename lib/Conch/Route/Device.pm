@@ -56,6 +56,8 @@ sub routes {
         $with_device->post('/links')->to('device#add_links');
         # DELETE /device/:device_id_or_serial_number/links
         $with_device->delete('/links')->to('device#remove_links');
+        # POST /device/:device_id_or_serial_number/build
+        $with_device->post('/build')->to('device#set_build');
 
         {
             my $with_device_location = $with_device_phase_earlier_than_prod->any('/location')
@@ -261,6 +263,18 @@ below.
 =item * User requires the read/write role
 
 =item * Response: 204 NO CONTENT
+
+=back
+
+=head3 C<POST /device/:device_id_or_serial_number/build>
+
+=over 4
+
+=item * User requires the read/write role for the device, as well as the old and new builds
+
+=item * Request: F<request.yaml#/definitions/DeviceBuild>
+
+=item * Response: Redirect to the updated device
 
 =back
 

@@ -4,6 +4,13 @@
   "definitions" : {
     "BuildDevices" : {
       "additionalProperties" : false,
+      "not" : {
+        "required" : [
+          "ids_only",
+          "serials_only"
+        ],
+        "type" : "object"
+      },
       "properties" : {
         "active_minutes" : {
           "$ref" : "common.json#/definitions/non_negative_integer"
@@ -35,6 +42,9 @@
               "$ref" : "common.json#/definitions/device_phase"
             }
           ]
+        },
+        "serials_only" : {
+          "$ref" : "/definitions/boolean_integer_default_false"
         }
       },
       "type" : "object"
@@ -188,6 +198,13 @@
     },
     "WorkspaceDevices" : {
       "additionalProperties" : false,
+      "not" : {
+        "required" : [
+          "ids_only",
+          "serials_only"
+        ],
+        "type" : "object"
+      },
       "properties" : {
         "active_minutes" : {
           "$ref" : "common.json#/definitions/non_negative_integer"
@@ -208,6 +225,9 @@
           ]
         },
         "ids_only" : {
+          "$ref" : "/definitions/boolean_integer_default_false"
+        },
+        "serials_only" : {
           "$ref" : "/definitions/boolean_integer_default_false"
         },
         "validated" : {

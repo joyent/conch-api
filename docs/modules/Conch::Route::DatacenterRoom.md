@@ -21,23 +21,23 @@ Unless otherwise noted, all routes require authentication.
 - Request: [request.json#/definitions/DatacenterRoomCreate](../json-schema/request.json#/definitions/DatacenterRoomCreate)
 - Response: Redirect to the created room
 
-### `GET /room/:datacenter_room_id`
+### `GET /room/:datacenter_room_id_or_alias`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/DatacenterRoomDetailed](../json-schema/response.json#/definitions/DatacenterRoomDetailed)
 
-### `POST /room/:datacenter_room_id`
+### `POST /room/:datacenter_room_id_or_alias`
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/DatacenterRoomUpdate](../json-schema/request.json#/definitions/DatacenterRoomUpdate)
 - Response: Redirect to the updated room
 
-### `DELETE /room/:datacenter_room_id`
+### `DELETE /room/:datacenter_room_id_or_alias`
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `GET /room/:datacenter_room_id/racks`
+### `GET /room/:datacenter_room_id_or_alias/racks`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)

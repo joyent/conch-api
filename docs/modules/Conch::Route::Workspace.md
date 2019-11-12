@@ -50,7 +50,7 @@ Accepts the following optional query parameters:
 - `ids_only=1` only return device IDs, not full device details
 
 - User requires the read-only role
-- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices)
+- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
 
 ### `GET /workspace/:workspace_id_or_name/device/pxe`
 

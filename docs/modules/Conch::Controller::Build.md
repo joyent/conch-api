@@ -101,9 +101,11 @@ health=<value>      only devices with health matching the provided value
     (can be used more than once to search for ANY of the specified health values)
 active_minutes=X    only devices last seen (via a report relay) within X minutes
 ids_only=1          only return device ids, not full data
+serials_only=1      only return device serial numbers, not full data
 ```
 
-Response uses the Devices json schema, or DeviceIds iff `ids_only=1`.
+Response uses the Devices json schema, or DeviceIds iff `ids_only=1`, or DeviceSerials iff
+`serials_only=1`.
 
 ## create\_and\_add\_devices
 

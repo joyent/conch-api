@@ -107,6 +107,7 @@ definitions:
   RackAssignmentUpdates:
     type: array
     uniqueItems: true
+    minItems: 1
     items:
       $ref: /definitions/RackAssignmentUpdate
   RackAssignmentUpdate:
@@ -133,6 +134,7 @@ definitions:
   RackAssignmentDeletes:
     type: array
     uniqueItems: true
+    minItems: 1
     items:
       $ref: /definitions/RackAssignmentDelete
   RackAssignmentDelete:
@@ -521,6 +523,14 @@ definitions:
         items:
           type: string
           format: uri
+  DeviceBuild:
+    type: object
+    additionalProperties: false
+    required:
+      - build_id
+    properties:
+      build_id:
+        $ref: common.yaml#/definitions/uuid
   DeviceSetting:
     allOf:
       - $ref: /definitions/DeviceSettings
@@ -691,9 +701,10 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       role:
         $ref: common.yaml#/definitions/role
-  BuildCreateDevice:
+  BuildCreateDevices:
     type: array
     uniqueItems: true
+    minItems: 1
     items:
       type: object
       additionalProperties: false

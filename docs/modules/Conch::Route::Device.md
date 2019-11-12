@@ -88,6 +88,12 @@ below.
 - User requires the read/write role
 - Response: 204 NO CONTENT
 
+### `POST /device/:device_id_or_serial_number/build`
+
+- User requires the read/write role for the device, as well as the old and new builds
+- Request: [request.json#/definitions/DeviceBuild](../json-schema/request.json#/definitions/DeviceBuild)
+- Response: Redirect to the updated device
+
 ### `GET /device/:device_id_or_serial_number/location`
 
 - User requires the read-only role
