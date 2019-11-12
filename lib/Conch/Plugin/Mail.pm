@@ -109,7 +109,10 @@ sub register ($self, $app, $config) {
                 my ($result, $email) = @args;
 
                 # this is typically the receipt response from sendmail
-                $log->debug('sent email: '.$result->{message}) if $result->{message};
+                if ($result->{message}) {
+                    chomp $result->{message};
+                    $log->debug('sent email: '.$result->{message});
+                }
             },
         );
 
