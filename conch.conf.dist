@@ -54,6 +54,9 @@
         #   'X-Conch-UI' => qr/^v4.[3-9]/,      # forward errors for X-Conch-UI 4.3 and later
         #   'User-Agent' => qr/^Conch\/(3.1|2.6.0$)/,  # " for Conch/3.1* or Conch/2.6.0 exactly
         # },
+
+        # warn_payload_elements => 50,
+        # warn_payload_size => 10000,
     },
 
     features => {

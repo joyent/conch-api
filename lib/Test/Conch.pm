@@ -95,6 +95,7 @@ sub new {
     my $args = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
 
     my $pg = exists $args->{pg} ? delete $args->{pg}
+        : $args->{config}{features}{no_db} ? undef
         : $class->init_db // Test::More::BAIL_OUT('failed to create test database');
 
     $ENV{MOJO_MODE} ||= 'test';

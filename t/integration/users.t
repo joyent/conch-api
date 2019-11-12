@@ -452,8 +452,8 @@ subtest 'modify another user' => sub {
         ->json_is({ error => 'user email "foo@joyent-com" is not a valid RFC822 address' })
         ->email_not_sent;
 
-    $t_super->post_ok('/user', json => { name => 'foo', email => $ro_user->email })
-        ->status_is(409, 'cannot create user with a duplicate email address')
+    $t_super->post_ok('/user', json => $_)
+        ->status_is(409)
         ->json_schema_is('UserError')
         ->json_is({
                 error => 'duplicate user found',
@@ -462,20 +462,12 @@ subtest 'modify another user' => sub {
                     deactivated => undef,
                 }
             })
-        ->email_not_sent;
-
-    $t_super->post_ok('/user',
-            json => { name => $ro_user->name, email => uc($ro_user->email) })
-        ->status_is(409, 'emails are not case sensitive when checking for duplicate users')
-        ->json_schema_is('UserError')
-        ->json_is({
-                error => 'duplicate user found',
-                user => {
-                    (map +($_ => $ro_user->$_), qw(id email name created)),
-                    deactivated => undef,
-                }
-            })
-        ->email_not_sent;
+        ->email_not_sent
+            foreach (
+                { name => 'foo', email => $ro_user->email },
+                { name => 'untrusted', email => uc($ro_user->email) },
+                { name => $ro_user->name, email => 'untrusted@conch.joyent.us' },
+            );
 
     $t_super->post_ok('/user',
             json => { email => 'untrusted@conch.joyent.us', name => 'untrusted', password => '123' })
@@ -551,7 +543,7 @@ subtest 'modify another user' => sub {
         ->email_not_sent;
     my $test_user_id = $t_super->tx->res->json->{id};
 
-    $t_super->post_ok('/user/untrusted@conch.joyent.us', json => { email => 'test_user@conch.joyent.us' })
+    $t_super->post_ok('/user/untrusted@conch.joyent.us', json => $_)
         ->status_is(409)
         ->json_cmp_deeply({
             error => 'duplicate user found',
@@ -561,7 +553,12 @@ subtest 'modify another user' => sub {
                 deactivated => undef,
             }),
         })
-        ->email_not_sent;
+        ->email_not_sent
+            foreach (
+                { email => 'test_user@conch.joyent.us' },
+                { email => 'TEsT_uSEr@CONCh.joyent.us' },
+                { name => 'test user' },
+            );
 
     $t_super->post_ok('/user/untrusted@conch.joyent.us', json => { email => 'foo@joyent-com' })
         ->status_is(400)

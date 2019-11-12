@@ -27,6 +27,8 @@ my $t = Test::Conch->new(
             access_token => 'TOKEN',
             environment => 'custom_environment',
             error_match_header => { 'My-Buggy-Client' => qr/^1\.[0-9]$/ },
+            warn_payload_elements => 5,
+            warn_payload_size => 200,
         },
         logging => { handle => $log_fh },
     },
@@ -47,6 +49,12 @@ $r->post('/_send_message')->to(cb => sub ($c) {
         { foo => 'bar', baz => 123 },
     );
     $c->status(204);
+});
+$r->get('/_long_response')->to(cb => sub ($c) {
+    $c->status(200, [ 0..4 ]);
+});
+$r->get('/_large_response')->to(cb => sub ($c) {
+    $c->status(200, { 10..59 });
 });
 $r->post('/_conflict')->to('user#conflict');
 $t->add_routes($r);
@@ -508,6 +516,78 @@ foreach my $request (
         'dispatch log looks good too',
     );
 }
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->get_ok('/_long_response')
+            ->status_is(200);
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            $message_payload,
+            'basic message payload',
+        );
+
+        cmp_deeply(
+            $payload->{data}{request},
+            superhashof({
+                method => 'GET',
+                url => re(qr{/_long_response}),
+                query_string => '',
+                body => '',
+            }),
+            'request details are included',
+        );
+
+        cmp_deeply(
+            $payload->{data}{body},
+            {
+                message => {
+                    body => 'payload contains 5 elements: candidate for paging?',
+                },
+            },
+            'got alert about long response',
+        );
+    },
+);
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->get_ok('/_large_response')
+            ->status_is(200);
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            $message_payload,
+            'basic message payload',
+        );
+
+        cmp_deeply(
+            $payload->{data}{request},
+            superhashof({
+                method => 'GET',
+                url => re(qr{/_large_response}),
+                query_string => '',
+                body => '',
+            }),
+            'request details are included',
+        );
+
+        cmp_deeply(
+            $payload->{data}{body},
+            {
+                message => {
+                    body => 'payload is 201 bytes: candidate for paging or refactoring?',
+                },
+            },
+            'got alert about large response',
+        );
+    },
+);
 
 warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');

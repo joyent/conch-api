@@ -42,6 +42,10 @@ Conch-specific commands are:
 
     fixes Joyent usernames so they are not the same as the email
 
+- [force\_password\_change](../modules/Conch%3A%3ACommand%3A%3Aforce_password_change)
+
+    force a user (or by default, all users) to change their password
+
 - [merge\_validation\_results](../modules/Conch%3A%3ACommand%3A%3Amerge_validation_results)
 
     Collapse duplicate validation\_result rows together

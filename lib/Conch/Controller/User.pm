@@ -390,6 +390,14 @@ sub update ($c) {
         });
     }
 
+    if (exists $dirty_columns{name}
+            and my $dupe_user = $c->db_user_accounts->active->search({ name => $input->{name} })->single) {
+        return $c->status(409, {
+            error => 'duplicate user found',
+            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
+        });
+    }
+
     if ($params->{send_mail} // 1) {
         %orig_columns = %orig_columns{keys %dirty_columns};
 
@@ -459,10 +467,11 @@ sub create ($c) {
     # this would cause horrible clashes with our /user routes!
     return $c->status(400, { error => 'user name "me" is prohibited' }) if $input->{name} eq 'me';
 
-    if (my $user = $c->db_user_accounts->active->find_by_email($input->{email})) {
+    if (my $dupe_user = $c->db_user_accounts->active->search({ name => $input->{name} })->single
+            || $c->db_user_accounts->active->find_by_email($input->{email})) {
         return $c->status(409, {
             error => 'duplicate user found',
-            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
+            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
         });
     }
 

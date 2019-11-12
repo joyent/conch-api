@@ -58,10 +58,16 @@ sub run ($self, @opts) {
         return;
     }
 
+    if ($self->app->db_user_accounts->active->search({ name => $opt->name })->exists) {
+        say 'cannot create user: name '.$opt->name.' already exists';
+        return;
+    }
+
+    my $password = $opt->password // $self->app->random_string;
     my $user = $self->app->db_user_accounts->create({
         name => $opt->name,
         email => $opt->email,
-        password => $opt->password // $self->app->random_string, # will be hashed in constructor
+        password => $password, # will be hashed in constructor
     });
     my $user_id = $user->id;
 
@@ -74,7 +80,7 @@ sub run ($self, @opts) {
             template_file => 'new_user_account',
             From => 'noreply@conch.joyent.us',
             Subject => 'Welcome to Conch!',
-            password => $opt->password,
+            password => $password,
         );
 
         Mojo::IOLoop->start unless Mojo::IOLoop->is_running;

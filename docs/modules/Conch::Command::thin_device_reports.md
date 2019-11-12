@@ -7,9 +7,10 @@ thin\_device\_reports - remove unwanted device reports
 ```
 bin/conch thin_device_reports [long options...]
 
-    -n --dry-run  dry-run (no changes are made)
+    -n --dry-run            dry-run (no changes are made)
+    --updated-since=<date>  only consider devices updated since <ISO8601 date>
 
-    --help        print usage message and exit
+    --help                  print usage message and exit
 ```
 
 # LICENSING
