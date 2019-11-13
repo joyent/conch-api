@@ -1,11 +1,10 @@
 Hello,
 
-The following tokens at Joyent Conch have been reset:
+The following tokens at Joyent Conch (https://<%= host %>) have been reset:
 
 <%= join("\n", map '    '.$_, $token_names->@*) %>
 
-<%# TODO: we should template on the conch URL here %>\
-You should now log into https://conch.joyent.us using your login credentials.
+You should now log into https://<%= host %> using your login credentials.
 
 Thank you,
 Joyent Build Ops Team

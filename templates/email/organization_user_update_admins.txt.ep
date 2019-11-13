@@ -1,7 +1,7 @@
 Hello,
 
-<%# TODO: we should specify the conch URL here %>\
-<%= $user->name %> (<%= $user->email %>) modified a user's access to your organization "<%= $organization %>" at Joyent Conch.
+<%= $user->name %> (<%= $user->email %>) modified a user's access to your organization
+"<%= $organization %>" at Joyent Conch (https://<%= host %>).
 <%= $target_user->name %> (<%= $target_user->email %>) now has the "<%= $role %>" role.
 
 Thank you,

@@ -78,7 +78,7 @@ sub run ($self, @opts) {
         $self->app->defaults(target_user => $user);
         $self->app->send_mail(
             template_file => 'new_user_account',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@conch.joyent.us',  # unfortunately we must hardcode this
             Subject => 'Welcome to Conch!',
             password => $password,
         );

@@ -6,6 +6,8 @@ use Test::Deep;
 use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 
+my $JOYENT = 'Joyent Conch (https://127.0.0.1)';
+
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
 
@@ -172,15 +174,15 @@ $t->post_ok('/organization/my first organization/user', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^You have been added to the "my first organization" organization at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^You have been added to the "my first organization" organization at\R\Q$JOYENT\E with the "ro" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We added a user to your organization',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added ${\$new_user->name} \(${\$new_user->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added ${\$new_user->name} \(${\$new_user->email}\) to the\R"my first organization" organization at \Q$JOYENT\E with the "ro" role\./m),
         },
     ]);
 push $organization->{users}->@*, +{ (map +($_ => $new_user->$_), qw(id name email)), role => 'ro' };
@@ -231,15 +233,15 @@ $t->post_ok('/organization/my first organization/user', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your access to the "my first organization" organization at Joyent Conch has been adjusted to "rw"\./m),
+            body => re(qr/^Your access to the "my first organization" organization at\R\Q$JOYENT\E has been adjusted to "rw"\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We modified a user\'s access to your organization',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "rw" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization\R"my first organization" at \Q$JOYENT\E\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "rw" role\./m),
         },
     ]);
 $organization->{users}[1]{role} = 'rw';
@@ -274,15 +276,15 @@ $t->post_ok('/organization/'.$organization->{id}.'/user', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your access to the "my first organization" organization at Joyent Conch has been adjusted to "admin"\./m),
+            body => re(qr/^Your access to the "my first organization" organization at\R\Q$JOYENT\E has been adjusted to "admin"\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We modified a user\'s access to your organization',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization "my first organization" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "admin" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your organization\R"my first organization" at \Q$JOYENT\E\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "admin" role\./m),
         }
     ]);
 $organization->{users}[1]{role} = 'admin';
@@ -306,15 +308,15 @@ $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$new_user2->name.'" <'.$new_user2->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^You have been added to the "my first organization" organization at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^You have been added to the "my first organization" organization at\R\Q$JOYENT\E with the "ro" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We added a user to your organization',
-            body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) added ${\$new_user2->name} \(${\$new_user2->email}\) to the\R"my first organization" organization at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) added ${\$new_user2->name} \(${\$new_user2->email}\) to the\R"my first organization" organization at \Q$JOYENT\E with the "ro" role\./m),
         },
     ]);
 push $organization->{users}->@*, +{ (map +($_ => $new_user2->$_), qw(id name email)), role => 'ro' };
@@ -330,15 +332,15 @@ $t2->delete_ok('/organization/my first organization/user/'.$new_user2->email)
     ->email_cmp_deeply([
         {
             To => '"'.$new_user2->name.'" <'.$new_user2->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch organizations have been updated',
-            body => re(qr/^You have been removed from the "my first organization" organization at Joyent Conch\./m),
+            body => re(qr/^You have been removed from the "my first organization" organization\Rat \Q$JOYENT\E\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We removed a user from your organization',
-            body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) removed ${\$new_user2->name} \(${\$new_user2->email}\) from the\R"my first organization" organization at Joyent Conch\./m),
+            body => re(qr/^${\$new_user->name} \(${\$new_user->email}\) removed ${\$new_user2->name} \(${\$new_user2->email}\) from the\R"my first organization" organization at \Q$JOYENT\E\./m),
         },
     ]);
 
@@ -395,15 +397,15 @@ $t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your "my first organization" organization has been added to the\R"${\$sub_ws->name}" workspace at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^Your "my first organization" organization has been added to the\R"${\$sub_ws->name}" workspace at \Q$JOYENT\E with the "ro" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We added an organization to your workspace',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added the "my first organization" organization to the\R"${\$sub_ws->name}" workspace at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added the "my first organization" organization to the\R"${\$sub_ws->name}" workspace at \Q$JOYENT\E with the "ro" role\./m),
         },
     ]);
 
@@ -675,15 +677,15 @@ $t->post_ok('/workspace/'.$sub_ws->id.'/organization', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your access to the "${\$sub_ws->name}" workspace at Joyent Conch\Rvia the "my first organization" organization has been adjusted to the "rw" role\./m),
+            body => re(qr/^Your access to the "${\$sub_ws->name}" workspace at \Q$JOYENT\E\Rvia the "my first organization" organization has been adjusted to the "rw" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We modified an organization\'s access to your workspace',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "${\$sub_ws->name}" workspace at Joyent Conch to the "rw" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "${\$sub_ws->name}" workspace at \Q$JOYENT\E to the "rw" role\./m),
         },
     ]);
 
@@ -821,15 +823,15 @@ $t->post_ok('/workspace/'.$grandchild_ws->id.'/organization', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your access to the "${\$grandchild_ws->name}" workspace at Joyent Conch\Rvia the "my first organization" organization has been adjusted to the "admin" role\./m),
+            body => re(qr/^Your access to the "${\$grandchild_ws->name}" workspace at \Q$JOYENT\E\Rvia the "my first organization" organization has been adjusted to the "admin" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We modified an organization\'s access to your workspace',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "${\$grandchild_ws->name}" workspace at Joyent Conch to the "admin" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "${\$grandchild_ws->name}" workspace at \Q$JOYENT\E to the "admin" role\./m),
         },
     ]);
 
@@ -852,15 +854,15 @@ $t->delete_ok('/workspace/'.$grandchild_ws->id.'/organization/'.$organization->{
     ->email_cmp_deeply([
         {
             To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch workspaces have been updated',
-            body => re(qr/^Your "my first organization" organization has been removed from the\R"grandchild ws" workspace at Joyent Conch\./m),
+            body => re(qr/^Your "my first organization" organization has been removed from the\R"grandchild ws" workspace at \Q$JOYENT\E\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We removed an organization from your workspace',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) removed the "my first organization"\Rorganization from the "grandchild ws" workspace at Joyent Conch\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) removed the "my first organization"\Rorganization from the "grandchild ws" workspace at \Q$JOYENT\E\./m),
         },
     ]);
 

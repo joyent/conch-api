@@ -252,7 +252,7 @@ sub add_user ($c) {
         if ($params->{send_mail} // 1) {
             $c->send_mail(
                 template_file => 'organization_user_update_user',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'Your Conch access has changed',
                 organization => $organization_name,
                 role => $input->{role},
@@ -263,7 +263,7 @@ sub add_user ($c) {
             $c->send_mail(
                 template_file => 'organization_user_update_admins',
                 To => $c->construct_address_list(@admins),
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'We modified a user\'s access to your organization',
                 organization => $organization_name,
                 role => $input->{role},
@@ -282,7 +282,7 @@ sub add_user ($c) {
     if ($params->{send_mail} // 1) {
         $c->send_mail(
             template_file => 'organization_user_add_user',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch access has changed',
             organization => $organization_name,
             role => $input->{role},
@@ -293,7 +293,7 @@ sub add_user ($c) {
         $c->send_mail(
             template_file => 'organization_user_add_admins',
             To => $c->construct_address_list(@admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We added a user to your organization',
             organization => $organization_name,
             role => $input->{role},
@@ -334,7 +334,7 @@ sub remove_user ($c) {
         my $organization_name = $c->stash('organization_name') // $c->stash('organization_rs')->get_column('name')->single;
         $c->send_mail(
             template_file => 'organization_user_remove_user',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch organizations have been updated',
             organization => $organization_name,
         );
@@ -342,7 +342,7 @@ sub remove_user ($c) {
         $c->send_mail(
             template_file => 'organization_user_remove_admins',
             To => $c->construct_address_list(@admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We removed a user from your organization',
             organization => $organization_name,
         ) if @admins;

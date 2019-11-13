@@ -1,8 +1,7 @@
 Hello,
 
-<%# TODO: we should specify the conch URL here %>\
 <%= $user->name %> (<%= $user->email %>) has removed <%= $target_user->name %> (<%= $target_user->email %>) from the
-"<%= $workspace %>" workspace at Joyent Conch.
+"<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>).
 
 Thank you,
 Joyent Build Ops Team

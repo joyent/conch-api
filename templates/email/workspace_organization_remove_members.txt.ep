@@ -1,8 +1,7 @@
 Hello,
 
-<%# TODO: we should specify the conch URL here %>\
 Your "<%= $organization %>" organization has been removed from the
-"<%= $workspace %>" workspace at Joyent Conch.
+"<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>).
 
 Thank you,
 Joyent Build Ops Team
