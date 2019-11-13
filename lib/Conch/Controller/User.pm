@@ -309,6 +309,9 @@ sub update ($c) {
     my $input = $c->validate_input('UpdateUser');
     return if not $input;
 
+    return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
+        if exists $input->{email} and not Email::Valid->address($input->{email});
+
     my $user = $c->stash('target_user');
     my %orig_columns = $user->get_columns;
     $user->set_columns($input);
@@ -378,6 +381,9 @@ Response uses the NewUser json schema (or UserError for some error conditions).
 sub create ($c) {
     my $input = $c->validate_input('NewUser');
     return if not $input;
+
+    return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
+        if not Email::Valid->address($input->{email});
 
     my $name = $input->{name} // $input->{email};
     my $email = $input->{email};

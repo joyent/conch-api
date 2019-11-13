@@ -21,6 +21,8 @@ use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Getopt::Long::Descriptive;
 use Encode ();
+use Email::Valid;
+use JSON::Validator::Formats;
 
 has description => 'Create a new user';
 
@@ -43,6 +45,11 @@ sub run ($self, @opts) {
         [],
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
     );
+
+    if (JSON::Validator::Formats::check_email($opt->email) or not Email::Valid->address($opt->email)) {
+        say 'cannot create user: email '.$opt->email.' is not a valid RFC822+RFC5322 address';
+        return;
+    }
 
     if ($self->app->db_user_accounts->active->search(\[ 'lower(email) = lower(?)', $opt->email ])->exists) {
         say 'cannot create user: email '.$opt->email.' already exists';
