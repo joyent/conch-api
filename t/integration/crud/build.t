@@ -7,6 +7,8 @@ use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 use List::Util 'first';
 
+my $JOYENT = 'Joyent Conch (https://127.0.0.1)';
+
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
 my $now = Conch::Time->now;
@@ -250,15 +252,15 @@ $t->post_ok('/build/my first build/user', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^You have been added to the "my first build" build at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^You have been added to the "my first build" build at \Q$JOYENT\E with the "ro" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We added a user to your build',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added ${\$new_user->name} \(${\$new_user->email}\) to the\R"my first build" build at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added ${\$new_user->name} \(${\$new_user->email}\) to the\R"my first build" build at \Q$JOYENT\E with the "ro" role\./m),
         },
     ]);
 
@@ -312,15 +314,15 @@ $t->post_ok('/build/'.$build->{id}.'/user', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$new_user->name.'" <'.$new_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your access to the "my first build" build at Joyent Conch has been adjusted to "rw"\./m),
+            body => re(qr/^Your access to the "my first build" build at \Q$JOYENT\E has been adjusted to "rw"\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We modified a user\'s access to your build',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your build "my first build" at Joyent Conch\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "rw" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified a user's access to your build\R"my first build" at \Q$JOYENT\E\.\R${\$new_user->name} \(${\$new_user->email}\) now has the "rw" role\./m),
         },
     ]);
 
@@ -392,15 +394,15 @@ $t_build_admin->post_ok('/build/'.$build->{id}.'/user', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$new_user2->name.'" <'.$new_user2->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^You have been added to the "my first build" build at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^You have been added to the "my first build" build at \Q$JOYENT\E with the "ro" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We added a user to your build',
-            body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) added ${\$new_user2->name} \(${\$new_user2->email}\) to the\R"my first build" build at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) added ${\$new_user2->name} \(${\$new_user2->email}\) to the\R"my first build" build at \Q$JOYENT\E with the "ro" role\./m),
         },
     ]);
 
@@ -419,15 +421,15 @@ $t_build_admin->delete_ok('/build/my first build/user/'.$new_user2->email)
     ->email_cmp_deeply([
         {
             To => '"'.$new_user2->name.'" <'.$new_user2->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch builds have been updated',
-            body => re(qr/^You have been removed from the "my first build" build at Joyent Conch\./m),
+            body => re(qr/^You have been removed from the "my first build" build at \Q$JOYENT\E\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We removed a user from your build',
-            body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) removed ${\$new_user2->name} \(${\$new_user2->email}\) from the\R"my first build" build at Joyent Conch\./m),
+            body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) removed ${\$new_user2->name} \(${\$new_user2->email}\) from the\R"my first build" build at \Q$JOYENT\E\./m),
         },
     ]);
 
@@ -511,15 +513,15 @@ $t->post_ok('/build/'.$build->{id}.'/organization', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$org_admin->name.'" <'.$org_admin->email.'>, "'.$org_member->name.'" <'.$org_member->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your "my first organization" organization has been added to the\R"my first build" build at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^Your "my first organization" organization has been added to the\R"my first build" build at \Q$JOYENT\E with the "ro" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We added an organization to your build',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added the "my first organization" organization to the\R"my first build" build at Joyent Conch with the "ro" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) added the "my first organization" organization to the\R"my first build" build at \Q$JOYENT\E with the "ro" role\./m),
         },
     ]);
 
@@ -558,15 +560,15 @@ $t->post_ok('/build/'.$build->{id}.'/organization', json => {
     ->email_cmp_deeply([
         {
             To => '"'.$org_admin->name.'" <'.$org_admin->email.'>, "'.$org_member->name.'" <'.$org_member->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch access has changed',
-            body => re(qr/^Your access to the "my first build" build at Joyent Conch\Rvia the "my first organization" organization has been adjusted to the "rw" role\./m),
+            body => re(qr/^Your access to the "my first build" build at \Q$JOYENT\E\Rvia the "my first organization" organization has been adjusted to the "rw" role\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We modified an organization\'s access to your build',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "my first build" build at Joyent Conch to the "rw" role\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) modified the "my first organization" organization's\Raccess to the "my first build" build at \Q$JOYENT\E to the "rw" role\./m),
         },
     ]);
 
@@ -608,15 +610,15 @@ $t->delete_ok('/build/'.$build->{id}.'/organization/'.$organization->id)
     ->email_cmp_deeply([
         {
             To => '"'.$org_admin->name.'" <'.$org_admin->email.'>, "'.$org_member->name.'" <'.$org_member->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch builds have been updated',
-            body => re(qr/^Your "my first organization" organization has been removed from the\R"my first build" build at Joyent Conch\./m),
+            body => re(qr/^Your "my first organization" organization has been removed from the\R"my first build" build at \Q$JOYENT\E\./m),
         },
         {
             To => '"'.$super_user->name.'" <'.$super_user->email.'>, "'.$admin_user->name.'" <'.$admin_user->email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'We removed an organization from your build',
-            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) removed the "my first organization"\Rorganization from the "my first build" build at Joyent Conch\./m),
+            body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) removed the "my first organization"\Rorganization from the "my first build" build at \Q$JOYENT\E\./m),
         },
     ]);
 

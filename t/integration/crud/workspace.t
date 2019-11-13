@@ -8,6 +8,8 @@ use Test::Deep;
 use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 
+my $JOYENT = 'Joyent Conch (https://127.0.0.1)';
+
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
 my $global_ws_id = $t->load_fixture('admin_user_global_workspace')->workspace_id;
@@ -90,15 +92,15 @@ subtest 'Workspaces' => sub {
         ->email_cmp_deeply([
             {
                 To => '"test user" <test_user@conch.joyent.us>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch access has changed',
-                body => re(qr/^You have been added to the "GLOBAL" workspace at Joyent Conch with the "ro" role\./m),
+                body => re(qr/^You have been added to the "GLOBAL" workspace at \Q$JOYENT\E with the "ro" role\./m),
             },
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We added a user to your workspace',
-                body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) has added test user \(test_user\@conch.joyent.us\) to the\R"GLOBAL" workspace at Joyent Conch with the "ro" role\./m),
+                body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) has added test user \(test_user\@conch.joyent.us\) to the\R"GLOBAL" workspace at \Q$JOYENT\E with the "ro" role\./m),
             },
         ]);
 
@@ -212,9 +214,9 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We added a child workspace to your workspace',
-                body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) has created the "child_ws" child workspace\Rbeneath the "GLOBAL" workspace at Joyent Conch\./m),
+                body => re(qr/^${\$super_user->name} \(${\$super_user->email}\) has created the "child_ws" child workspace\Rbeneath the "GLOBAL" workspace at \Q$JOYENT\E\./m),
             },
         ]);
 
@@ -263,15 +265,15 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"test user" <test_user@conch.joyent.us>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch access has changed',
-                body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "rw"\./m),
+                body => re(qr/^Your access to the "child_ws" workspace at \Q$JOYENT\E has been adjusted to "rw"\./m),
             },
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "rw" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the\R"child_ws" workspace at \Q$JOYENT\E\.\Rtest user \(test_user\@conch.joyent.us\) now has the "rw" role\./m),
             },
         ]);
 
@@ -314,9 +316,9 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We added a child workspace to your workspace',
-                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has created the "grandchild_ws" child workspace\Rbeneath the "child_ws" workspace at Joyent Conch\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has created the "grandchild_ws" child workspace\Rbeneath the "child_ws" workspace at \Q$JOYENT\E\./m),
             },
         ]);
 
@@ -441,15 +443,15 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"test user" <test_user@conch.joyent.us>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch access has changed',
-                body => re(qr/^Your access to the "grandchild_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
+                body => re(qr/^Your access to the "grandchild_ws" workspace at \Q$JOYENT\E has been adjusted to "admin"\./m),
             },
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "grandchild_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the\R"grandchild_ws" workspace at \Q$JOYENT\E\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
             },
         ]);
 
@@ -472,15 +474,15 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"test user" <test_user@conch.joyent.us>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch access has changed',
-                body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
+                body => re(qr/^Your access to the "child_ws" workspace at \Q$JOYENT\E has been adjusted to "admin"\./m),
             },
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the\R"child_ws" workspace at \Q$JOYENT\E\.\Rtest user \(test_user\@conch.joyent.us\) now has the "admin" role\./m),
             },
         ]);
 
@@ -521,15 +523,15 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"test user" <test_user@conch.joyent.us>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch workspaces have been updated',
-                body => re(qr/^You have been removed from the "child_ws" workspace at Joyent Conch\./m),
+                body => re(qr/^You have been removed from the "child_ws" workspace at \Q$JOYENT\E\./m),
             },
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We removed a user from your workspace',
-                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has removed test user \(test_user\@conch.joyent.us\) from the\R"child_ws" workspace at Joyent Conch\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has removed test user \(test_user\@conch.joyent.us\) from the\R"child_ws" workspace at \Q$JOYENT\E\./m),
             },
         ]);
 
@@ -572,15 +574,15 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"untrusted user" <untrusted_user@conch.joyent.us>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch access has changed',
-                body => re(qr/^You have been added to the "child_ws" workspace at Joyent Conch with the "ro" role\./m),
+                body => re(qr/^You have been added to the "child_ws" workspace at \Q$JOYENT\E with the "ro" role\./m),
             },
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We added a user to your workspace',
-                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has added untrusted user \(untrusted_user\@conch.joyent.us\) to the\R"child_ws" workspace at Joyent Conch with the "ro" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has added untrusted user \(untrusted_user\@conch.joyent.us\) to the\R"child_ws" workspace at \Q$JOYENT\E with the "ro" role\./m),
             },
         ]);
 
@@ -677,15 +679,15 @@ subtest 'Sub-Workspace' => sub {
         ->email_cmp_deeply([
             {
                 To => '"untrusted user" <untrusted_user@conch.joyent.us>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch access has changed',
-                body => re(qr/^Your access to the "child_ws" workspace at Joyent Conch has been adjusted to "admin"\./m),
+                body => re(qr/^Your access to the "child_ws" workspace at \Q$JOYENT\E has been adjusted to "admin"\./m),
             },
             {
                 To => '"'.$admin_user->name.'" <'.$admin_user->email.'>, "'.$super_user->name.'" <'.$super_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'We modified a user\'s access to your workspace',
-                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the "child_ws" workspace at Joyent Conch\.\Runtrusted user \(untrusted_user\@conch.joyent.us\) now has the "admin" role\./m),
+                body => re(qr/^${\$admin_user->name} \(${\$admin_user->email}\) has modified a user's access to the\R"child_ws" workspace at \Q$JOYENT\E\.\Runtrusted user \(untrusted_user\@conch.joyent.us\) now has the "admin" role\./m),
             },
         ]);
 

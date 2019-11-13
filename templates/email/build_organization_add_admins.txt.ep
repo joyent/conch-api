@@ -1,8 +1,7 @@
 Hello,
 
-<%# TODO: we should specify the conch URL here %>\
 <%= $user->name %> (<%= $user->email %>) added the "<%= $organization %>" organization to the
-"<%= $build %>" build at Joyent Conch with the "<%= $role %>" role.
+"<%= $build %>" build at Joyent Conch (https://<%= host %>) with the "<%= $role %>" role.
 
 Thank you,
 Joyent Build Ops Team

@@ -1,7 +1,6 @@
 Hello,
 
-<%# TODO: we should specify the conch URL here %>\
-Your access to the "<%= $build %>" build at Joyent Conch
+Your access to the "<%= $build %>" build at Joyent Conch (https://<%= host %>)
 via the "<%= $organization %>" organization has been adjusted to the "<%= $role %>" role.
 
 Thank you,

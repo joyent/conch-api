@@ -1,7 +1,6 @@
 Hello,
 
-<%# TODO: we should specify the conch URL here %>\
-You have been added to the "<%= $workspace %>" workspace at Joyent Conch with the "<%= $role %>" role.
+You have been added to the "<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>) with the "<%= $role %>" role.
 
 Thank you,
 Joyent Build Ops Team

@@ -28,6 +28,11 @@ Helper method for setting the response status code and json content.
 
 Stores a [Conch::Time](../modules/Conch%3A%3ATime) instance representing the time the server started accepting requests.
 
+## host
+
+Retrieves the ["host" in Mojo::URL](https://metacpan.org/pod/Mojo%3A%3AURL#host) portion of the request URL, suitable for constructing email
+addresses and base URLs in user-facing content.
+
 # LICENSING
 
 Copyright Joyent, Inc.

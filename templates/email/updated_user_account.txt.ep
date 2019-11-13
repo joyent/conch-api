@@ -1,6 +1,6 @@
 Hello,
 
-Your account at Joyent Conch has been updated:
+Your account at Joyent Conch (https://<%= host %>) has been updated:
 
 <%==
     sprintf("%12s: %s -> %s\n", $_, $orig_data->{$_}, $new_data->{$_})

@@ -117,7 +117,7 @@ sub add_workspace_organization ($c) {
             $c->send_mail(
                 template_file => 'workspace_organization_update_members',
                 To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'Your Conch access has changed',
                 organization => $organization->name,
                 workspace => $workspace_name,
@@ -135,7 +135,7 @@ sub add_workspace_organization ($c) {
             $c->send_mail(
                 template_file => 'workspace_organization_update_admins',
                 To => $c->construct_address_list(@workspace_admins),
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'We modified an organization\'s access to your workspace',
                 organization => $organization->name,
                 workspace => $workspace_name,
@@ -157,7 +157,7 @@ sub add_workspace_organization ($c) {
         $c->send_mail(
             template_file => 'workspace_organization_add_members',
             To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch access has changed',
             organization => $organization->name,
             workspace => $workspace_name,
@@ -175,7 +175,7 @@ sub add_workspace_organization ($c) {
         $c->send_mail(
             template_file => 'workspace_organization_add_admins',
             To => $c->construct_address_list(@workspace_admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We added an organization to your workspace',
             organization => $organization->name,
             workspace => $workspace_name,
@@ -225,7 +225,7 @@ sub remove_workspace_organization ($c) {
         $c->send_mail(
             template_file => 'workspace_organization_remove_members',
             To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch workspaces have been updated',
             organization => $organization->name,
             workspace => $workspace_name,
@@ -237,7 +237,7 @@ sub remove_workspace_organization ($c) {
         $c->send_mail(
             template_file => 'workspace_organization_remove_admins',
             To => $c->construct_address_list(@workspace_admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We removed an organization from your workspace',
             organization => $organization->name,
             workspace => $workspace_name,

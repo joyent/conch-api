@@ -286,7 +286,7 @@ sub add_user ($c) {
         if ($params->{send_mail} // 1) {
             $c->send_mail(
                 template_file => 'build_user_update_user',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'Your Conch access has changed',
                 build => $build_name,
                 role => $input->{role},
@@ -297,7 +297,7 @@ sub add_user ($c) {
             $c->send_mail(
                 template_file => 'build_user_update_admins',
                 To => $c->construct_address_list(@admins),
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'We modified a user\'s access to your build',
                 build => $build_name,
                 role => $input->{role},
@@ -316,7 +316,7 @@ sub add_user ($c) {
     if ($params->{send_mail} // 1) {
         $c->send_mail(
             template_file => 'build_user_add_user',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch access has changed',
             build => $build_name,
             role => $input->{role},
@@ -327,7 +327,7 @@ sub add_user ($c) {
         $c->send_mail(
             template_file => 'build_user_add_admins',
             To => $c->construct_address_list(@admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We added a user to your build',
             build => $build_name,
             role => $input->{role},
@@ -370,7 +370,7 @@ sub remove_user ($c) {
         my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
         $c->send_mail(
             template_file => 'build_user_remove_user',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch builds have been updated',
             build => $build_name,
         );
@@ -378,7 +378,7 @@ sub remove_user ($c) {
         $c->send_mail(
             template_file => 'build_user_remove_admins',
             To => $c->construct_address_list(@admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We removed a user from your build',
             build => $build_name,
         ) if @admins;
@@ -483,7 +483,7 @@ sub add_organization ($c) {
             $c->send_mail(
                 template_file => 'build_organization_update_members',
                 To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'Your Conch access has changed',
                 organization => $organization->name,
                 build => $build_name,
@@ -500,7 +500,7 @@ sub add_organization ($c) {
             $c->send_mail(
                 template_file => 'build_organization_update_admins',
                 To => $c->construct_address_list(@build_admins),
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@'.$c->host,
                 Subject => 'We modified an organization\'s access to your build',
                 organization => $organization->name,
                 build => $build_name,
@@ -522,7 +522,7 @@ sub add_organization ($c) {
         $c->send_mail(
             template_file => 'build_organization_add_members',
             To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch access has changed',
             organization => $organization->name,
             build => $build_name,
@@ -539,7 +539,7 @@ sub add_organization ($c) {
         $c->send_mail(
             template_file => 'build_organization_add_admins',
             To => $c->construct_address_list(@build_admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We added an organization to your build',
             organization => $organization->name,
             build => $build_name,
@@ -581,7 +581,7 @@ sub remove_organization ($c) {
         $c->send_mail(
             template_file => 'build_organization_remove_members',
             To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'Your Conch builds have been updated',
             organization => $organization->name,
             build => $build_name,
@@ -592,7 +592,7 @@ sub remove_organization ($c) {
         $c->send_mail(
             template_file => 'build_organization_remove_admins',
             To => $c->construct_address_list(@build_admins),
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@'.$c->host,
             Subject => 'We removed an organization from your build',
             organization => $organization->name,
             build => $build_name,

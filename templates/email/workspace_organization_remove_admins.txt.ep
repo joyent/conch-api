@@ -1,8 +1,7 @@
 Hello,
 
-<%# TODO: we should specify the conch URL here %>\
 <%= $user->name %> (<%= $user->email %>) removed the "<%= $organization %>"
-organization from the "<%= $workspace %>" workspace at Joyent Conch.
+organization from the "<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>).
 
 Thank you,
 Joyent Build Ops Team

@@ -14,6 +14,8 @@ use Test::Deep::NumberTolerant;
 use Time::HiRes 'time'; # time() now has µs precision
 use Test::Memory::Cycle;
 
+my $JOYENT = 'Joyent Conch (https://127.0.0.1)';
+
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
 my $ro_user = $t->load_fixture('ro_user');
@@ -408,9 +410,9 @@ subtest 'JWT authentication' => sub {
         ->email_cmp_deeply([
             {
                 To => '"'.$ro_user->name.'" <'.$ro_user->email.'>',
-                From => 'noreply@conch.joyent.us',
+                From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch tokens have been revoked',
-                body => re(qr/The following tokens at Joyent Conch have been reset:\R\R    1 login token\R\RYou should now log into https:\/\/conch\.joyent\.us using your login credentials\./m),
+                body => re(qr/The following tokens at \Q$JOYENT\E have been reset:\R\R    1 login token\R\RYou should now log into \Qhttps:\/\/127.0.0.1\E using your login credentials\./m),
             },
         ]);
 
@@ -480,7 +482,7 @@ subtest 'modify another user' => sub {
         })
         ->email_cmp_deeply({
             To => '"untrusted" <untrusted@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Welcome to Conch!',
             body => re(qr/\R\R^\s*Username:\s+untrusted\R^\s*Email:\s+untrusted\@conch\.joyent\.us\R^\s*Password:\s+123\R\R/m),
         });
@@ -582,9 +584,9 @@ subtest 'modify another user' => sub {
         ->location_is('/user/'.$test_user_id)
         ->email_cmp_deeply({
             To => '"test user" <TEST_UsER@cONCh.jOYENT.us>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch account has been updated',
-            body => re(qr/^Your account at Joyent Conch has been updated:\R\R {7}email: test_user\@conch.joyent.us -> TEST_UsER\@cONCh.jOYENT.us\R\R/m),
+            body => re(qr/^Your account at \Q$JOYENT\E has been updated:\R\R {7}email: test_user\@conch.joyent.us -> TEST_UsER\@cONCh.jOYENT.us\R\R/m),
         });
 
     $t_super->post_ok('/user/untrusted@conch.joyent.us',
@@ -593,9 +595,9 @@ subtest 'modify another user' => sub {
         ->location_is('/user/'.$new_user_id)
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch account has been updated',
-            body => re(qr/^Your account at Joyent Conch has been updated:\R\R {4}is_admin: false -> true\R {8}name: untrusted -> UNTRUSTED\R\R/m),
+            body => re(qr/^Your account at \Q$JOYENT\E has been updated:\R\R {4}is_admin: false -> true\R {8}name: untrusted -> UNTRUSTED\R\R/m),
         });
     $new_user_data->{name} = 'UNTRUSTED';
     $new_user_data->{is_admin} = JSON::PP::true;
@@ -625,9 +627,9 @@ subtest 'modify another user' => sub {
         ->status_is(204, 'revoked login tokens for the new user')
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch tokens have been revoked',
-            body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    1 login token\R\R/m),
+            body => re(qr/^The following tokens at \Q$JOYENT\E have been reset:\R\R    1 login token\R\R/m),
         });
 
     $t2->get_ok('/me')
@@ -644,9 +646,9 @@ subtest 'modify another user' => sub {
         ->status_is(204, 'revoked api tokens for the new user')
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch tokens have been revoked',
-            body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    my api token\R    my second api token\R/m),
+            body => re(qr/^The following tokens at \Q$JOYENT\E have been reset:\R\R    my api token\R    my second api token\R/m),
         });
 
     $t2->get_ok('/me', { Authorization => "Bearer $api_token" })
@@ -691,18 +693,18 @@ subtest 'modify another user' => sub {
         ->status_is(204, 'reset the new user\'s password')
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch password has changed',
-            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: UNTRUSTED\R    Email:    untrusted\@conch.joyent.us\R    Password: .*\R/ms),
+            body => re(qr/^Your password at \Q$JOYENT\E has been reset..*\R\R    Username: UNTRUSTED\R    Email:    untrusted\@conch.joyent.us\R    Password: .*\R/ms),
         });
 
     $t_super->delete_ok('/user/UNTRUSTED@CONCH.JOYENT.US/password')
         ->status_is(204, 'reset the new user\'s password again, with case insensitive email lookup')
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch password has changed',
-            body => re(qr/^Your password at Joyent Conch has been reset..*\R\R    Username: UNTRUSTED\R    Email:    untrusted\@conch.joyent.us\R    Password: .*\R\R/ms),
+            body => re(qr/^Your password at \Q$JOYENT\E has been reset..*\R\R    Username: UNTRUSTED\R    Email:    untrusted\@conch.joyent.us\R    Password: .*\R\R/ms),
         });
     my $insecure_password = $_new_password;
 
@@ -1075,9 +1077,9 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->status_is(204)
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <'.$email.'>',
-            From => 'noreply@conch.joyent.us',
+            From => 'noreply@127.0.0.1',
             Subject => 'Your Conch tokens have been revoked',
-            body => re(qr/^The following tokens at Joyent Conch have been reset:\R\R    my second token\R    1 login token\R\R/m),
+            body => re(qr/^The following tokens at \Q$JOYENT\E have been reset:\R\R    my second token\R    1 login token\R\R/m),
         });
 
     cmp_deeply(

@@ -174,6 +174,15 @@ Stores a L<Conch::Time> instance representing the time the server started accept
     my $startup_time = Conch::Time->now;
     $self->helper(startup_time => sub ($c) { $startup_time });
 
+=head2 host
+
+Retrieves the L<Mojo::URL/host> portion of the request URL, suitable for constructing email
+addresses and base URLs in user-facing content.
+
+=cut
+
+    $self->helper(host => sub ($c) { $c->req->url->base->host });
+
     push $self->commands->namespaces->@*, 'Conch::Command';
 
     Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)
