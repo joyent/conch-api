@@ -568,7 +568,7 @@ sub remove_organization ($c) {
 
     my $organization = $c->stash('organization_rs')->single;
 
-    my $rs = $c->db_builds
+    my $rs = $c->stash('build_rs')
         ->search_related('organization_build_roles', { organization_id => $organization->id });
     return $c->status(204) if not $rs->exists;
 
