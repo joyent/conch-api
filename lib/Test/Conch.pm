@@ -109,7 +109,7 @@ sub new {
 
             secrets => ['********'],
             features => { audit => 1, no_db => ($pg ? 0 : 1) },
-            log => { max_history_size => 50 },
+            logging => { max_history_size => 50 },
 
             $args->{config} ? delete($args->{config})->%* : (),
         }
