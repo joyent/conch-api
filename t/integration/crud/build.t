@@ -605,6 +605,12 @@ $t3->delete_ok('/build/'.$build->{id}.'/organization/my first organization')
     ->status_is(403)
     ->log_debug_is('User lacks the required role (admin) for build '.$build->{id});
 
+$t->app->db_organization_build_roles->create({
+    organization_id => $organization->id,
+    build_id => $build2->{id},
+    role => 'ro',
+});
+
 $t->delete_ok('/build/'.$build->{id}.'/organization/'.$organization->id)
     ->status_is(204)
     ->email_cmp_deeply([
@@ -627,6 +633,18 @@ $t->get_ok('/build/'.$build->{id}.'/organization')
     ->json_schema_is('BuildOrganizations')
     ->json_is([]);
 
+$t->get_ok('/build/'.$build2->{id}.'/organization')
+    ->status_is(200)
+    ->json_schema_is('BuildOrganizations')
+    ->json_is([
+        {
+            (map +($_ => $organization->$_), qw(id name description)),
+            role => 'ro',
+            admins => [
+                { map +($_ => $org_admin->$_), qw(id name email) },
+            ],
+        },
+    ]);
 
 $t->get_ok('/build/our second build/device')
     ->status_is(200)
