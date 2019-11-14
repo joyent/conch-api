@@ -125,17 +125,17 @@ else {
 $log->info('connecting to '.$db_credentials->{dsn}.'...');
 my $schema = Conch::DB->connect($db_credentials->@{qw(dsn username password options)});
 
-if ($ARGV[0] eq 'initialize') {
+if (@ARGV and $ARGV[0] eq 'initialize') {
     shift @ARGV;
     Conch::DB::Util::initialize_db($schema);
 }
 
-if ($ARGV[0] eq 'create-validations') {
+if (@ARGV and $ARGV[0] eq 'create-validations') {
     shift @ARGV;
     Conch::DB::Util::create_validation_plans($schema, $log);
 }
 
-if ($ARGV[0] eq 'create-global-workspace') {
+if (@ARGV and $ARGV[0] eq 'create-global-workspace') {
     shift @ARGV;
     $schema->resultset('workspace')->create({
         name => 'GLOBAL',
@@ -144,12 +144,12 @@ if ($ARGV[0] eq 'create-global-workspace') {
     });
 }
 
-if ($ARGV[0] eq 'migrate') {
+if (@ARGV and $ARGV[0] eq 'migrate') {
     shift @ARGV;
     Conch::DB::Util::migrate_db($schema, $log);
 }
 
-if ($ARGV[0] eq 'create-admin-user') {
+if (@ARGV and $ARGV[0] eq 'create-admin-user') {
     shift @ARGV;
     print("--email option is required for create-admin-user\n\n", $usage->text), exit
         if not $opt->email;
@@ -178,7 +178,7 @@ if ($ARGV[0] eq 'create-admin-user') {
         .($opt->password ? '' : (' and password "'.$password.'"')));
 }
 
-if ($ARGV[0] eq 'apply-dump-migration') {
+if (@ARGV and $ARGV[0] eq 'apply-dump-migration') {
     shift @ARGV; my @migrations = @ARGV; @ARGV = ();
 
     # apply sql/schema.sql to test db, and pretend that all migration files were run
