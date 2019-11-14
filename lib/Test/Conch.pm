@@ -109,7 +109,7 @@ sub new {
 
             secrets => ['********'],
             features => { audit => 1, no_db => ($pg ? 0 : 1) },
-            log => { max_history_size => 50 },
+            logging => { max_history_size => 50 },
 
             $args->{config} ? delete($args->{config})->%* : (),
         }
@@ -633,7 +633,7 @@ sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
         ]),
         $test_name,
     );
-    Test::More::note('got log: ',
+    Test::More::diag('got log: ',
             Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Terse(1)->Dump)
         if not $self->success;
     return $self;
@@ -700,7 +700,7 @@ sub logs_are ($self, $expected_msgs, $test_name = 'log lines', $level = undef) {
         ),
         $test_name,
     );
-    Test::More::note('got log: ',
+    Test::More::diag('got log: ',
             Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Terse(1)->Dump)
         if not $self->success;
     return $self;

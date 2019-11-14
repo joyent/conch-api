@@ -32,11 +32,11 @@ sub register ($self, $app, $config) {
                 return $c->status(403);
             }
         }
-        elsif ($user_agent =~ /^conch shell/) {
+        elsif ($user_agent and $user_agent =~ /^conch shell/) {
             $c->log->error('Conch Shell too old');
             return $c->status(403);
         }
-        elsif ($user_agent =~ /^Conch\/((\d+)\.(\d+)\.(\d+)) /) {
+        elsif ($user_agent and $user_agent =~ /^Conch\/((\d+)\.(\d+)\.(\d+)) /) {
             my ($all, $major, $minor, $rest) = ($1, $2, $3, $4);
             if ($all eq '0.0.0' or $major < 3) {
                 $c->log->error('Conch Shell too old');

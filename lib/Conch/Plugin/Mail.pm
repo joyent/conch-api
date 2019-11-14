@@ -82,7 +82,6 @@ sub register ($self, $app, $config) {
 
         my $email = compose_message($c, %args);
         my $log = $c->log;
-        my $rollbar_sender = sub ($e) { $c->send_exception_to_rollbar($e) };
         my $request_id = length($c->req->url) ? $c->req->request_id : undef;
 
         Mojo::IOLoop->subprocess(
@@ -101,7 +100,7 @@ sub register ($self, $app, $config) {
                 }
                 catch {
                     my $exception = $_;
-                    $rollbar_sender->(Mojo::Exception->new($exception));
+                    $c->send_exception_to_rollbar(Mojo::Exception->new($exception));
                     die $exception->$_can('message') ? $exception->message."\n" : $exception;
                 };
 

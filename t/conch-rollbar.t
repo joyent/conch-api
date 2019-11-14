@@ -545,7 +545,10 @@ $t->do_and_wait_for_event(
             $payload->{data}{body},
             {
                 message => {
-                    body => 'payload contains 5 elements: candidate for paging?',
+                    body => 'response payload contains many elements: candidate for paging?',
+                    elements => 5,
+                    action => undef,
+                    url => '/_long_response',
                 },
             },
             'got alert about long response',
@@ -581,7 +584,10 @@ $t->do_and_wait_for_event(
             $payload->{data}{body},
             {
                 message => {
-                    body => 'payload is 201 bytes: candidate for paging or refactoring?',
+                    body => 'response payload size is large: candidate for paging or refactoring?',
+                    bytes => 201,
+                    action => undef,
+                    url => '/_large_response',
                 },
             },
             'got alert about large response',
