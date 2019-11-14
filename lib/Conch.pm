@@ -63,7 +63,11 @@ sub startup {
             }
         }
 
-        $c->send_message_to_rollbar('info', 'payload contains '.$args->{json}->@*.' elements: candidate for paging?')
+        $c->send_message_to_rollbar(
+            'info',
+            'response payload contains many elements: candidate for paging?',
+            { elements => scalar $args->{json}->@*, action => $c->stash('action'), url => $c->url_for },
+        )
             if ref $args->{json} eq 'ARRAY'
                 # TODO: skip if ?page_size is passed (and we actually used it).
                 and $args->{json}->@* >= ($c->app->config->{rollbar}{warn_payload_elements} // 35)
@@ -72,7 +76,11 @@ sub startup {
         # do this after the response has been sent
         $c->on(finish => sub ($c) {
             my $body_size = $c->res->body_size;
-            $c->send_message_to_rollbar('info', 'payload is '.$body_size.' bytes: candidate for paging or refactoring?')
+            $c->send_message_to_rollbar(
+                'info',
+                'response payload size is large: candidate for paging or refactoring?',
+                { bytes => $body_size, action => $c->stash('action'), url => $c->url_for },
+            )
                 if $body_size >= ($c->app->config->{rollbar}{warn_payload_size} // 10000)
                     and $c->feature('rollbar');
         });
