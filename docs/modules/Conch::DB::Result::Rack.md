@@ -87,6 +87,13 @@ is_nullable: 0
 
 - ["id"](#id)
 
+# UNIQUE CONSTRAINTS
+
+## `rack_datacenter_room_id_name_key`
+
+- ["datacenter\_room\_id"](#datacenter_room_id)
+- ["name"](#name)
+
 # RELATIONS
 
 ## datacenter\_room

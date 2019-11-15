@@ -149,6 +149,25 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<rack_datacenter_room_id_name_key>
+
+=over 4
+
+=item * L</datacenter_room_id>
+
+=item * L</name>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint(
+  "rack_datacenter_room_id_name_key",
+  ["datacenter_room_id", "name"],
+);
+
 =head1 RELATIONS
 
 =head2 datacenter_room
@@ -237,8 +256,8 @@ Composing rels: L</workspace_racks> -> workspace
 __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-04-18 13:31:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gsU10g932Bm/rPRdxIykyA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-11-15 10:27:21
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Xj4Pt2RRq8m58GP3wUQPkA
 
 __PACKAGE__->add_columns(
     '+phase' => { retrieve_on_insert => 1 },

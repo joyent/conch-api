@@ -908,6 +908,14 @@ ALTER TABLE ONLY public.migration
 
 
 --
+-- Name: rack rack_datacenter_room_id_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.rack
+    ADD CONSTRAINT rack_datacenter_room_id_name_key UNIQUE (datacenter_room_id, name);
+
+
+--
 -- Name: rack_layout rack_layout_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
