@@ -308,6 +308,7 @@ __PACKAGE__->add_columns(
 );
 
 use experimental 'signatures';
+use List::Util 'reduce';
 
 =head1 METHODS
 
@@ -346,8 +347,11 @@ sub TO_JSON ($self) {
         ];
 
         # due to the complicated query, the results of this section of data become unordered,
-        # so we impart a reasonable ordering to them ourselves here.
-        $data->{builds} = [
+        # so we impart a reasonable ordering to them ourselves here, and then remove duplicate
+        # build entries (such that the most significant and direct role is returned)
+        $data->{builds} = reduce {
+            $a->@* && $a->[-1]{name} eq $b->{name} ? $a : [ $a->@*, $b ];
+        } [], (
             sort { # sort by name asc, then role desc, direct user-build entries first.
                 $a->{name} cmp $b->{name}
                     ||
@@ -375,7 +379,7 @@ sub TO_JSON ($self) {
             } map
                 $_->organization->related_resultset('organization_build_roles')->get_cache->@*,
                 $cached_uors->@*)
-        ];
+        );
 
         # we assume we prefetched our user(s) with:
         # { user_organization_roles => { organization => { organization_workspace_roles => 'workspace' } } }
