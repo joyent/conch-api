@@ -589,6 +589,17 @@ definitions:
               $ref: common.yaml#/definitions/uuid
             email:
               $ref: common.yaml#/definitions/email_address
+  OrganizationUpdate:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      name:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
+      description:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/non_empty_string
   OrganizationAddUser:
     type: object
     additionalProperties: false
