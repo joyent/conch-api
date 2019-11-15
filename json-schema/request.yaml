@@ -659,6 +659,8 @@ definitions:
     additionalProperties: false
     minProperties: 1
     properties:
+      name:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
         oneOf:
           - type: 'null'

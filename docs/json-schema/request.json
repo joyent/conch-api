@@ -189,6 +189,9 @@
             }
           ]
         },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
         "started" : {
           "oneOf" : [
             {

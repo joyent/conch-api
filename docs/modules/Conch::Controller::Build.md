@@ -34,7 +34,7 @@ Response uses the Build json schema.
 
 ## update
 
-Modifies a build attribute: one or more of description, started, completed.
+Modifies a build attribute: one or more of name, description, started, completed.
 Requires the 'admin' role on the build.
 
 ## list\_users

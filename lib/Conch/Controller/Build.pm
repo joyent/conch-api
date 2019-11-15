@@ -165,7 +165,7 @@ sub get ($c) {
 
 =head2 update
 
-Modifies a build attribute: one or more of description, started, completed.
+Modifies a build attribute: one or more of name, description, started, completed.
 Requires the 'admin' role on the build.
 
 =cut
@@ -179,6 +179,9 @@ sub update ($c) {
 
     # set locally but do not save to db just yet
     $build->set_columns($input);
+
+    return $c->status(409, { error => 'duplicate build found' })
+        if $build->name ne $old_columns{name} and $c->db_builds->search({ name => $input->{name} })->exists;
 
     return $c->status(409, { error => 'build cannot be completed before it is started' })
         if $build->completed and (not $build->started or $build->started > $build->completed);
