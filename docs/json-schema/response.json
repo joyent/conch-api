@@ -119,9 +119,6 @@
           },
           "role" : {
             "$ref" : "common.json#/definitions/role"
-          },
-          "role_via_workspace_id" : {
-            "$ref" : "common.json#/definitions/uuid"
           }
         },
         "required" : [

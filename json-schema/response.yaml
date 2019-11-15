@@ -2084,8 +2084,6 @@ definitions:
             - type: string
         role:
           $ref: common.yaml#/definitions/role
-        role_via_workspace_id:
-          $ref: common.yaml#/definitions/uuid
         admins:
           type: array
           uniqueItems: true
