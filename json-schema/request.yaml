@@ -571,7 +571,7 @@ definitions:
       name:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       admins:
         type: array
         uniqueItems: true
@@ -631,7 +631,7 @@ definitions:
       name:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       description:
-        type: string
+        $ref: common.yaml#/definitions/non_empty_string
       started:
         type: string
         format: date-time

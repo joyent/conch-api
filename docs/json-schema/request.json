@@ -96,7 +96,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "description" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/non_empty_string"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
@@ -835,7 +835,7 @@
           "uniqueItems" : true
         },
         "description" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/non_empty_string"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
