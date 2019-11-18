@@ -222,6 +222,7 @@ sub create_validation_plans ($schema, $log = Mojo::Log->new) {
                         Conch::Validation::RaidLunNum
                         Conch::Validation::SataHddNum
                         Conch::Validation::SataSsdNum
+                        Conch::Validation::HddSize
                     )
             ],
         },
