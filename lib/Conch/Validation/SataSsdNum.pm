@@ -4,7 +4,7 @@ use Mojo::Base 'Conch::Validation';
 use v5.20;
 
 use constant name        => 'sata_ssd_num';
-use constant version     => 1;
+use constant version     => 2;
 use constant category    => 'DISK';
 use constant description => 'Validate expected number of SATA SSDs';
 
@@ -26,7 +26,7 @@ sub validate {
     # Intel SATA SSDs and there's no other identifier. Here, we want
     # to avoid missing failed/missing disks, so we jump through a couple
     # extra hoops.
-    if ($self->hardware_product_name eq "Joyent-Compute-Platform-3302") {
+    if (($self->hardware_product->legacy_product_name // '') eq "Joyent-Compute-Platform-3302") {
         if ($sata_ssd_count <= 8) { $sata_ssd_want = 8; }
         if ($sata_ssd_count > 8)  { $sata_ssd_want = 16; }
     }
