@@ -20,7 +20,7 @@ sub validate {
         grep { fc($_->{transport}) eq fc('usb') } (values $data->{disks}->%*);
 
     $self->register_result(
-        expected => $hw_profile->usb_num || 0,
+        expected => $hw_profile->usb_num,
         got      => $usb_num,
     );
 }

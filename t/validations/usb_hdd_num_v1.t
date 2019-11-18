@@ -33,7 +33,7 @@ test_validation(
     },
     cases => [
         {
-            description => 'Failure when no USB disks and usb_num in profile',
+            description => 'Failure when no USB disks present',
             data        => {
                 disks => {}
             },

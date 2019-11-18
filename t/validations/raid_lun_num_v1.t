@@ -15,13 +15,6 @@ test_validation(
             description => 'No Data yields no success',
             data        => {},
         },
-        {
-            description => 'No hdd num in profile assume 0',
-            data        => {
-                disks => {}
-            },
-            success_num => 1
-        },
     ]
 );
 

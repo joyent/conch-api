@@ -425,12 +425,7 @@
           "required" : [
             "purpose",
             "bios_firmware",
-            "cpu_num",
-            "cpu_type",
-            "dimms_num",
-            "ram_total",
-            "nics_num",
-            "usb_num"
+            "cpu_type"
           ]
         }
       ]
@@ -465,14 +460,7 @@
           "type" : "integer"
         },
         "nvme_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "nvme_ssd_size" : {
           "oneOf" : [
@@ -495,40 +483,19 @@
           ]
         },
         "psu_total" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "purpose" : {
           "type" : "string"
         },
         "raid_lun_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "ram_total" : {
           "type" : "integer"
         },
         "sas_hdd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sas_hdd_size" : {
           "oneOf" : [
@@ -551,14 +518,7 @@
           ]
         },
         "sas_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sas_ssd_size" : {
           "oneOf" : [
@@ -581,14 +541,7 @@
           ]
         },
         "sata_hdd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sata_hdd_size" : {
           "oneOf" : [
@@ -611,14 +564,7 @@
           ]
         },
         "sata_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sata_ssd_size" : {
           "oneOf" : [

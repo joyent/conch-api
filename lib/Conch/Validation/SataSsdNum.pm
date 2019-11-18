@@ -20,7 +20,7 @@ sub validate {
         grep { $_->{drive_type} && fc($_->{drive_type}) eq fc('SATA_SSD') }
         (values $data->{disks}->%*);
 
-    my $sata_ssd_want = $hw_profile->sata_ssd_num || 0;
+    my $sata_ssd_want = $hw_profile->sata_ssd_num;
 
     # Joyent-Compute-Platform-3302 special case. HCs can have 8 or 16
     # Intel SATA SSDs and there's no other identifier. Here, we want

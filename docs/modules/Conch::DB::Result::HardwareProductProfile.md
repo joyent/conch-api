@@ -51,6 +51,7 @@ is_nullable: 1
 
 ```
 data_type: 'integer'
+default_value: 0
 is_nullable: 0
 ```
 
@@ -65,6 +66,7 @@ is_nullable: 0
 
 ```
 data_type: 'integer'
+default_value: 0
 is_nullable: 0
 ```
 
@@ -72,6 +74,7 @@ is_nullable: 0
 
 ```
 data_type: 'integer'
+default_value: 0
 is_nullable: 0
 ```
 
@@ -79,6 +82,7 @@ is_nullable: 0
 
 ```
 data_type: 'integer'
+default_value: 0
 is_nullable: 0
 ```
 
@@ -86,7 +90,8 @@ is_nullable: 0
 
 ```
 data_type: 'integer'
-is_nullable: 1
+default_value: 0
+is_nullable: 0
 ```
 
 ## sata\_hdd\_size
@@ -107,7 +112,8 @@ is_nullable: 1
 
 ```
 data_type: 'integer'
-is_nullable: 1
+default_value: 0
+is_nullable: 0
 ```
 
 ## sas\_hdd\_size
@@ -128,7 +134,8 @@ is_nullable: 1
 
 ```
 data_type: 'integer'
-is_nullable: 1
+default_value: 0
+is_nullable: 0
 ```
 
 ## sata\_ssd\_size
@@ -149,7 +156,8 @@ is_nullable: 1
 
 ```
 data_type: 'integer'
-is_nullable: 1
+default_value: 0
+is_nullable: 0
 ```
 
 ## deactivated
@@ -181,6 +189,7 @@ original: {default_value => \"now()"}
 
 ```
 data_type: 'integer'
+default_value: 0
 is_nullable: 0
 ```
 
@@ -188,7 +197,8 @@ is_nullable: 0
 
 ```
 data_type: 'integer'
-is_nullable: 1
+default_value: 0
+is_nullable: 0
 ```
 
 ## sas\_ssd\_size
@@ -209,7 +219,8 @@ is_nullable: 1
 
 ```
 data_type: 'integer'
-is_nullable: 1
+default_value: 0
+is_nullable: 0
 ```
 
 ## nvme\_ssd\_size
@@ -230,7 +241,8 @@ is_nullable: 1
 
 ```
 data_type: 'integer'
-is_nullable: 1
+default_value: 0
+is_nullable: 0
 ```
 
 # PRIMARY KEY

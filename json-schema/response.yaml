@@ -863,17 +863,13 @@ definitions:
       nics_num:
         type: integer
       psu_total:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       purpose:
         type: string
       ram_total:
         type: integer
       sas_hdd_num:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       sas_hdd_size:
         oneOf:
           - type: integer
@@ -883,9 +879,7 @@ definitions:
           - type: string
           - type: 'null'
       sata_hdd_num:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       sata_hdd_size:
         oneOf:
           - type: integer
@@ -895,9 +889,7 @@ definitions:
           - type: string
           - type: 'null'
       sata_ssd_num:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       sata_ssd_size:
         oneOf:
           - type: integer
@@ -907,9 +899,7 @@ definitions:
           - type: string
           - type: 'null'
       sas_ssd_num:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       sas_ssd_size:
         oneOf:
           - type: integer
@@ -919,9 +909,7 @@ definitions:
           - type: string
           - type: 'null'
       nvme_ssd_num:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       nvme_ssd_size:
         oneOf:
           - type: integer
@@ -931,9 +919,7 @@ definitions:
           - type: string
           - type: 'null'
       raid_lun_num:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: integer
       usb_num:
         type: integer
   WorkspaceRackSummary:

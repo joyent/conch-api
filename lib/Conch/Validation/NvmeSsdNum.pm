@@ -21,7 +21,7 @@ sub validate {
         (values $data->{disks}->%*);
 
     $self->register_result(
-        expected => $hw_profile->nvme_ssd_num || 0,
+        expected => $hw_profile->nvme_ssd_num,
         got      => $nvme_ssd_count,
     );
 }

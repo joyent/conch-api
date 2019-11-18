@@ -23,7 +23,7 @@ sub validate {
         fc($_->{drive_type}) eq fc('SAS_SSD')
     } @disks_with_drive_type;
 
-    my $sas_ssd_want = $hw_profile->sas_ssd_num || 0;
+    my $sas_ssd_want = $hw_profile->sas_ssd_num;
 
     $self->register_result(
         expected => $sas_ssd_want,

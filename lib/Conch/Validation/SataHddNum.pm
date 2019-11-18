@@ -21,7 +21,7 @@ sub validate {
         (values $data->{disks}->%*);
 
     $self->register_result(
-        expected => $hw_profile->sata_hdd_num || 0,
+        expected => $hw_profile->sata_hdd_num,
         got      => $sata_hdd_count,
     );
 }

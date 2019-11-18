@@ -21,7 +21,7 @@ sub validate {
         (values $data->{disks}->%*);
 
     $self->register_result(
-        expected => $hw_profile->raid_lun_num || 0,
+        expected => $hw_profile->raid_lun_num,
         got      => $raid_lun_count,
     );
 }

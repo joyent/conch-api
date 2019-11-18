@@ -154,13 +154,8 @@ subtest 'create profile on existing product' => sub {
     $new_hw_profile = {
         purpose => 'because',
         bios_firmware => 'kittens',
-        cpu_num => 2,
         cpu_type => 'hot',
-        dimms_num => 4,
-        ram_total => 1024,
-        nics_num => 16,
         psu_total => 1,
-        usb_num => 4,
     };
 
     $t->post_ok("/hardware_product/$new_hw_id", json => {
@@ -211,14 +206,14 @@ subtest 'update some fields in an existing profile and product' => sub {
             rack_unit_size => 4,
             hardware_product_profile => {
                 dimms_num => 3,
-                psu_total => undef,
+                cpu_type => 'gross',
             },
         })
         ->status_is(303)
         ->location_is('/hardware_product/'.$new_hw_id);
 
     $new_product->@{qw(name rack_unit_size updated)} = ('ether1',4,re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/));
-    $new_product->{hardware_product_profile}->@{qw(dimms_num psu_total)} = (3,undef);
+    $new_product->{hardware_product_profile}->@{qw(dimms_num cpu_type)} = (3,'gross');
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(200)
@@ -244,7 +239,7 @@ subtest 'create a new hardware_product_profile in an existing product' => sub {
         ->status_is(303)
         ->location_is('/hardware_product/'.$new_hw_id);
 
-    $new_product->{hardware_product_profile}->@{qw(id dimms_num psu_total)} = (re(Conch::UUID::UUID_FORMAT),4,1);
+    $new_product->{hardware_product_profile}->@{qw(id dimms_num cpu_type)} = (re(Conch::UUID::UUID_FORMAT),0,'hot');
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(200)
@@ -314,22 +309,22 @@ subtest 'create a hardware product and hardware product profile all together' =>
                 $new_hw_profile->%*,
                 id => re(Conch::UUID::UUID_FORMAT),
                 hba_firmware => undef,
-                sata_hdd_num => undef,
+                sata_hdd_num => 0,
                 sata_hdd_size => undef,
                 sata_hdd_slots => undef,
-                sas_hdd_num => undef,
+                sas_hdd_num => 0,
                 sas_hdd_size => undef,
                 sas_hdd_slots => undef,
-                sata_ssd_num => undef,
+                sata_ssd_num => 0,
                 sata_ssd_size => undef,
                 sata_ssd_slots => undef,
-                sas_ssd_num => undef,
+                sas_ssd_num => 0,
                 sas_ssd_size => undef,
                 sas_ssd_slots => undef,
-                nvme_ssd_num => undef,
+                nvme_ssd_num => 0,
                 nvme_ssd_size => undef,
                 nvme_ssd_slots => undef,
-                raid_lun_num => undef,
+                raid_lun_num => 0,
             }
         });
 
