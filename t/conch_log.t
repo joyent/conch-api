@@ -422,7 +422,9 @@ sub add_test_routes ($t) {
                         {
                             class => 'main',
                             file => __FILE__,
-                            func => re('__ANON__'),
+                            # later versions of Mojolicious::Exception, such as those installed
+                            # via a v3 build, have changed the format of this frame
+                            func => Mojolicious->VERSION > '8.15' ? ignore : re('__ANON__'),
                             line => $lines{die},
                         },
                     ),
@@ -617,7 +619,9 @@ sub add_test_routes ($t) {
                         {
                             class => 'main',
                             file => __FILE__,
-                            func => re('__ANON__'),
+                            # later versions of Mojolicious::Exception, such as those installed
+                            # via a v3 build, have changed the format of this frame
+                            func => Mojolicious->VERSION > '8.15' ? ignore : re('__ANON__'),
                             line => $lines{die},
                         },
                     ),
