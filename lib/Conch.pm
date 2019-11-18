@@ -147,6 +147,15 @@ sub startup {
     $self->plugin(NYTProf => $self->config) if $self->feature('nytprof');
     $self->plugin('Conch::Plugin::Rollbar', $self->config) if $self->feature('rollbar');
 
+=head2 startup_time
+
+Stores a L<Conch::Time> instance representing the time the server started accepting requests.
+
+=cut
+
+    my $startup_time = Conch::Time->now;
+    $self->helper(startup_time => sub ($c) { $startup_time });
+
     push $self->commands->namespaces->@*, 'Conch::Command';
 
     Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)

@@ -31,7 +31,7 @@ Conch::Time->new($pg_timestamptz);
 my $t = Conch::Time->now;
 ```
 
-Return an object based on the current time.
+Return an object based on the current time, using the UTC timezone.
 
 Time are high resolution and will generate unique timestamps to the
 nanosecond.
@@ -52,7 +52,7 @@ See also ["from\_epoch" in Time::Moment](https://metacpan.org/pod/Time::Moment#f
 
 ### rfc3339
 
-Return an RFC3339 compatible string.
+Return an RFC3339 compatible string as UTC.
 Sub-second precision will use 3, 6 or 9 digits as necessary.
 
 ### timestamp
