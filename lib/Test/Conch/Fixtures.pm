@@ -218,7 +218,6 @@ my %canned_definitions = (
             dimms_num => 1,
             ram_total => 3,
             nics_num => 48,
-            psu_total => 2,
             usb_num => 0,
         },
         requires => {
@@ -236,11 +235,7 @@ my %canned_definitions = (
             ram_total => 512,
             nics_num => 7,
             sas_hdd_num => 35,
-            sas_hdd_size => 7452,
             sata_ssd_num => 1,
-            sata_ssd_size => 93,
-            sata_ssd_slots => '0',
-            psu_total => 2,
             usb_num => 1,
         },
         requires => {
@@ -258,11 +253,7 @@ my %canned_definitions = (
             ram_total => 256,
             nics_num => 7,
             sas_hdd_num => 15,
-            sas_hdd_size => 1118,
             sata_ssd_num => 1,
-            sata_ssd_size => 93,
-            sata_ssd_slots => '0',
-            psu_total => 2,
             usb_num => 1,
         },
         requires => {
