@@ -4,7 +4,7 @@ use Mojo::Base 'Conch::Validation';
 use v5.20;
 
 use constant name        => 'sata_ssd_num';
-use constant version     => 1;
+use constant version     => 2;
 use constant category    => 'DISK';
 use constant description => 'Validate expected number of SATA SSDs';
 
