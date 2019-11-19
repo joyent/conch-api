@@ -66,7 +66,11 @@ sub startup {
         $c->send_message_to_rollbar(
             'info',
             'response payload contains many elements: candidate for paging?',
-            { elements => scalar $args->{json}->@*, action => $c->stash('action'), url => $c->url_for },
+            {
+                elements => scalar $args->{json}->@*,
+                endpoint => join('#', map $_//'', $c->match->stack->[-1]->@{qw(controller action)}),
+                url => $c->url_for,
+            },
         )
             if ref $args->{json} eq 'ARRAY'
                 # TODO: skip if ?page_size is passed (and we actually used it).
@@ -79,7 +83,11 @@ sub startup {
             $c->send_message_to_rollbar(
                 'info',
                 'response payload size is large: candidate for paging or refactoring?',
-                { bytes => $body_size, action => $c->stash('action'), url => $c->url_for },
+                {
+                    bytes => $body_size,
+                    endpoint => join('#', map $_//'', $c->match->stack->[-1]->@{qw(controller action)}),
+                    url => $c->url_for,
+                },
             )
                 if $body_size >= ($c->app->config->{rollbar}{warn_payload_size} // 10000)
                     and $c->feature('rollbar');

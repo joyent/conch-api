@@ -50,12 +50,8 @@ $r->post('/_send_message')->to(cb => sub ($c) {
     );
     $c->status(204);
 });
-$r->get('/_long_response')->to(cb => sub ($c) {
-    $c->status(200, [ 0..4 ]);
-});
-$r->get('/_large_response')->to(cb => sub ($c) {
-    $c->status(200, { 10..59 });
-});
+$r->get('/_long_response')->to('yo_momma#long_response');
+$r->get('/_large_response')->to('yo_momma#large_response');
 $r->post('/_conflict')->to('user#conflict');
 $t->add_routes($r);
 
@@ -70,6 +66,12 @@ package Conch::Controller::User {
     sub conflict ($c) {
         $c->status(409, { error => 'something bad happened and you should feel bad' });
     }
+}
+
+package Conch::Controller::YoMomma {
+    use Mojo::Base 'Mojolicious::Controller', -signatures;
+    sub long_response ($c) { $c->status(200, [ 0..4 ]); }
+    sub large_response ($c) { $c->status(200, { 10..59 }); }
 }
 
 package RollbarSimulator {
@@ -547,7 +549,7 @@ $t->do_and_wait_for_event(
                 message => {
                     body => 'response payload contains many elements: candidate for paging?',
                     elements => 5,
-                    action => undef,
+                    endpoint => 'yo_momma#long_response',
                     url => '/_long_response',
                 },
             },
@@ -586,7 +588,7 @@ $t->do_and_wait_for_event(
                 message => {
                     body => 'response payload size is large: candidate for paging or refactoring?',
                     bytes => 201,
-                    action => undef,
+                    endpoint => 'yo_momma#large_response',
                     url => '/_large_response',
                 },
             },
