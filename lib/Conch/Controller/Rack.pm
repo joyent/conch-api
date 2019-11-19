@@ -65,6 +65,10 @@ sub create ($c) {
         return $c->status(400, { error => 'Rack role does not exist' });
     }
 
+    if ($c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} })->exists) {
+        return $c->status(409, { error => 'The room already contains a rack named '.$input->{name} });
+    }
+
     $input->{rack_role_id} = delete $input->{role};
 
     my $rack = $c->db_racks->create($input);
@@ -142,10 +146,18 @@ sub update ($c) {
     my $rack_rs = $c->stash('rack_rs');
     my $rack = $rack_rs->single;
 
-    if ($input->{datacenter_room_id}
-            and $input->{datacenter_room_id} ne $rack->datacenter_room_id) {
+    if ($input->{datacenter_room_id} and $input->{datacenter_room_id} ne $rack->datacenter_room_id) {
         if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
             return $c->status(400, { error => 'Room does not exist' });
+        }
+
+        if ($c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} // $rack->name })->exists) {
+            return $c->status(409, { error => 'New room already contains a rack named '.($input->{name} // $rack->name) });
+        }
+    }
+    elsif ($input->{name} and $input->{name} ne $rack->name) {
+        if ($c->db_racks->search({ datacenter_room_id => $rack->datacenter_room_id, name => $input->{name} })->exists) {
+            return $c->status(409, { error => 'The room already contains a rack named '.($input->{name} // $rack->name) });
         }
     }
 
