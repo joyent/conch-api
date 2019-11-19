@@ -28,7 +28,7 @@ my $t = Test::Conch->new(
             environment => 'custom_environment',
             error_match_header => { 'My-Buggy-Client' => qr/^1\.[0-9]$/ },
             warn_payload_elements => 5,
-            warn_payload_size => 200,
+            warn_payload_size => 100,
         },
         logging => { handle => $log_fh },
     },
@@ -70,8 +70,12 @@ package Conch::Controller::User {
 
 package Conch::Controller::YoMomma {
     use Mojo::Base 'Mojolicious::Controller', -signatures;
-    sub long_response ($c) { $c->status(200, [ 0..4 ]); }
-    sub large_response ($c) { $c->status(200, { 10..59 }); }
+    sub long_response ($c) { $c->status(200, [ 1..$c->req->query_params->to_hash->{elements} ]) }
+    sub large_response ($c) {
+        my $elements = $c->req->query_params->to_hash->{elements};
+        my %hash; @hash{map chr(ord(0)+$_), 0..$elements-1} = (0)x$elements;
+        $c->status(200, \%hash);
+    }
 }
 
 package RollbarSimulator {
@@ -519,10 +523,13 @@ foreach my $request (
     );
 }
 
+my %fingerprints;
+
+foreach my $elements (5, 10) {
 $t->do_and_wait_for_event(
     $rollbar_app->plugins, 'rollbar_sent',
     sub ($t) {
-        $t->get_ok('/_long_response')
+        $t->get_ok('/_long_response?elements='.$elements)
             ->status_is(200);
     },
     sub ($payload) {
@@ -537,7 +544,7 @@ $t->do_and_wait_for_event(
             superhashof({
                 method => 'GET',
                 url => re(qr{/_long_response}),
-                query_string => '',
+                query_string => 'elements='.$elements,
                 body => '',
             }),
             'request details are included',
@@ -548,20 +555,25 @@ $t->do_and_wait_for_event(
             {
                 message => {
                     body => 'response payload contains many elements: candidate for paging?',
-                    elements => 5,
+                    elements => $elements,
                     endpoint => 'yo_momma#long_response',
                     url => '/_long_response',
                 },
             },
             'got alert about long response',
         );
-    },
-);
 
+        push $fingerprints{long_response}->@*, $payload->{data}{fingerprint};
+    },
+); }
+
+is($fingerprints{long_response}->[0], $fingerprints{long_response}->[1], 'the two fingerprints are identical');
+
+foreach my $elements (40, 44) {
 $t->do_and_wait_for_event(
     $rollbar_app->plugins, 'rollbar_sent',
     sub ($t) {
-        $t->get_ok('/_large_response')
+        $t->get_ok('/_large_response?elements='.$elements)
             ->status_is(200);
     },
     sub ($payload) {
@@ -576,7 +588,7 @@ $t->do_and_wait_for_event(
             superhashof({
                 method => 'GET',
                 url => re(qr{/_large_response}),
-                query_string => '',
+                query_string => 'elements='.$elements,
                 body => '',
             }),
             'request details are included',
@@ -587,15 +599,19 @@ $t->do_and_wait_for_event(
             {
                 message => {
                     body => 'response payload size is large: candidate for paging or refactoring?',
-                    bytes => 201,
+                    bytes => 6*$elements + 1,
                     endpoint => 'yo_momma#large_response',
                     url => '/_large_response',
                 },
             },
             'got alert about large response',
         );
+
+        push $fingerprints{large_response}->@*, $payload->{data}{fingerprint};
     },
-);
+); }
+
+is($fingerprints{large_response}->[0], $fingerprints{large_response}->[1], 'the two fingerprints are identical');
 
 warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');

@@ -7,7 +7,7 @@ use Conch::UUID 'create_uuid_str';
 use WebService::Rollbar::Notifier;
 use Digest::SHA ();
 use Config;
-use Mojo::JSON 'to_json';
+use Mojo::JSON 'encode_json';
 use List::Util qw(none any);
 use Carp;
 use Storable 'dclone';
@@ -151,11 +151,13 @@ thus created.
 Asynchronously send a message to Rollbar (if the C<rollbar> C<access_token> is configured).
 Returns a unique uuid suitable for logging, to correlate with the Rollbar entry thus created.
 
-Requires a message string. A hashref of additional data is optional.
+Requires a message string.
+A hashref of additional data is optional.
+A string or data structure of fingerprint data for grouping occurrences is optional.
 
 =cut
 
-    $app->helper(send_message_to_rollbar => sub ($c, $severity, $message_string, $payload = {}) {
+    $app->helper(send_message_to_rollbar => sub ($c, $severity, $message_string, $payload = {}, $fingerprint = undef) {
         Carp::croak('severity must be one of: '.join(', ',@message_levels))
             if !$ENV{MOJO_MODE} and none { $severity eq $_ } @message_levels;
 
@@ -165,10 +167,9 @@ Requires a message string. A hashref of additional data is optional.
         my $rollbar_id = create_uuid_str();
 
         # see https://docs.rollbar.com/docs/grouping-algorithm
-        my $fingerprint = join(',',
-            $message_string,
-            $payload ? to_json($payload) : (),
-        );
+        # optionally use provided data to calculate the fingerprint
+        $fingerprint //= [ $message_string, $payload ];
+        $fingerprint = encode_json($fingerprint) if ref $fingerprint;
         $fingerprint = Digest::SHA::sha1_hex($fingerprint) if length($fingerprint) > 40;
 
         # asynchronously post to Rollbar, logging if the request fails
