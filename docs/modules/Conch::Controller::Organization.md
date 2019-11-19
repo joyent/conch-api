@@ -41,6 +41,11 @@ information about what workspaces the user can access, and at what role, please 
 
 Response uses the Organization json schema.
 
+## update
+
+Modifies an organization attribute: one or more of name, description.
+Requires the 'admin' role on the organization.
+
 ## delete
 
 Deactivates the organization, preventing its members from exercising any privileges from it.

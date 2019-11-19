@@ -37,6 +37,9 @@ sub routes {
         # GET /organization/:organization_id_or_name
         $with_organization->get('/')->to('#get');
 
+        # POST /organization/:organization_id_or_name
+        $with_organization->post('/')->to('#update');
+
         # DELETE /organization/:organization_id_or_name
         $with_organization->require_system_admin->delete('/')->to('#delete');
 
@@ -83,6 +86,18 @@ Unless otherwise noted, all routes require authentication.
 =item * Requires system admin authorization or the admin role on the organization
 
 =item * Response: F<response.yaml#/definitions/Organization>
+
+=back
+
+=head3 C<POST /organization/:organization_id_or_name>
+
+=over 4
+
+=item * Requires system admin authorization or the admin role on the organization
+
+=item * Request: request.yaml#/OrganizationUpdate
+
+=item * Response: Redirect to the organization
 
 =back
 

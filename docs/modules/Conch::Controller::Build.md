@@ -34,12 +34,14 @@ Response uses the Build json schema.
 
 ## update
 
-Modifies a build attribute: one or more of description, started, completed.
+Modifies a build attribute: one or more of name, description, started, completed.
 Requires the 'admin' role on the build.
 
 ## list\_users
 
-Get a list of user members of the current build.
+Get a list of user members of the current build. (Does not include users who can access the
+build via an organization.)
+
 Requires the 'admin' role on the build.
 
 Response uses the BuildUsers json schema.

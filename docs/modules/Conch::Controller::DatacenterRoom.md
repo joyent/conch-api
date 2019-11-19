@@ -36,6 +36,10 @@ Permanently delete a datacenter room.
 
 Response uses the Racks json schema.
 
+## find\_rack
+
+Response uses the Rack json schema.
+
 # LICENSING
 
 Copyright Joyent, Inc.

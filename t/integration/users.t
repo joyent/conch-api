@@ -195,7 +195,6 @@ subtest 'User' => sub {
                 } ],
                 builds => [
                     { (map +($_ => $build1->$_), qw(id name description)), role => 'rw', role_via_organization_id => $organization->id },
-                    { (map +($_ => $build1->$_), qw(id name description)), role => 'ro' },
                     { (map +($_ => $build2->$_), qw(id name description)), role => 'ro', role_via_organization_id => $organization->id },
                 ],
             });

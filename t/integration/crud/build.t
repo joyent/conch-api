@@ -203,6 +203,10 @@ $t->get_ok('/build')
     ]);
 my $build2 = $t->tx->res->json->[1];
 
+$t->post_ok('/build/our second build', json => { name => 'my first build' })
+    ->status_is(409)
+    ->json_is({ error => 'duplicate build found' });
+
 my $new_user = $t->generate_fixtures('user_account');
 
 my $t2 = Test::Conch->new(pg => $t->pg);

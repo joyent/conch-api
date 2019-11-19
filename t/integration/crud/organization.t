@@ -121,6 +121,15 @@ $t->get_ok('/organization')
     ]);
 my $organization2 = $t->tx->res->json->[1];
 
+$t->post_ok('/organization/our second organization', json => { name => 'my first organization' })
+    ->status_is(409)
+    ->json_is({ error => 'duplicate organization found' });
+
+$t->post_ok('/organization/our second organization', json => { description => 'more funky' })
+    ->status_is(303)
+    ->location_is('/organization/'.$organization2->{id});
+$organization2->{description} = 'more funky';
+
 my $new_user = $t->generate_fixtures('user_account');
 
 my $t2 = Test::Conch->new(pg => $t->pg);

@@ -340,6 +340,7 @@ sub get ($c) {
                     } },
                 user_build_roles => 'build',
             })
+        # no need to filter out deactivated rows here, as the *_roles rows will be removed
         ->order_by([ map $_.'.name', qw(workspace organization build) ])
         ->all;
 

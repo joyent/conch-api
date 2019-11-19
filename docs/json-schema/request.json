@@ -96,7 +96,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "description" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/non_empty_string"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
@@ -188,6 +188,9 @@
               "$ref" : "common.json#/definitions/non_empty_string"
             }
           ]
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "started" : {
           "oneOf" : [
@@ -835,7 +838,7 @@
           "uniqueItems" : true
         },
         "description" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/non_empty_string"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
@@ -845,6 +848,26 @@
         "name",
         "admins"
       ],
+      "type" : "object"
+    },
+    "OrganizationUpdate" : {
+      "additionalProperties" : false,
+      "minProperties" : 1,
+      "properties" : {
+        "description" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/non_empty_string"
+            }
+          ]
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        }
+      },
       "type" : "object"
     },
     "RackAssignmentDelete" : {

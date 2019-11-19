@@ -175,6 +175,27 @@ sub get ($c) {
     return $c->status(200, $org_data);
 }
 
+=head2 update
+
+Modifies an organization attribute: one or more of name, description.
+Requires the 'admin' role on the organization.
+
+=cut
+
+sub update ($c) {
+    my $input = $c->validate_request('OrganizationUpdate');
+    return if not $input;
+
+    my $organization = $c->stash('organization_rs')->single;
+
+    return $c->status(409, { error => 'duplicate organization found' })
+        if exists $input->{name} and $input->{name} ne $organization->name
+            and $c->db_organizations->active->search({ name => $input->{name} })->exists;
+
+    $organization->update($input);
+    $c->status(303, '/organization/'.$organization->id);
+}
+
 =head2 delete
 
 Deactivates the organization, preventing its members from exercising any privileges from it.

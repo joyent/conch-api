@@ -25,6 +25,12 @@ Unless otherwise noted, all routes require authentication.
 - Requires system admin authorization or the admin role on the organization
 - Response: [response.json#/definitions/Organization](../json-schema/response.json#/definitions/Organization)
 
+### `POST /organization/:organization_id_or_name`
+
+- Requires system admin authorization or the admin role on the organization
+- Request: request.yaml#/OrganizationUpdate
+- Response: Redirect to the organization
+
 ### `DELETE /organization/:organization_id_or_name`
 
 - Requires system admin authorization
