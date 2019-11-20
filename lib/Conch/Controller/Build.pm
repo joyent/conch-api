@@ -666,9 +666,9 @@ sub get_devices ($c) {
 
 =head2 create_and_add_devices
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).  The device is created if necessary with all data provided (or updated
-with the data if it already exists, so the endpoint is idempotent).
+Adds the specified device to the build (removing it from its previous build).  The device is
+created if necessary with all data provided (or updated with the data if it already exists, so
+the endpoint is idempotent).
 
 Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
@@ -687,8 +687,7 @@ sub create_and_add_devices ($c) {
 
     # we already looked up all ids for devices that were referenced only by serial_number
     my %devices = map +($_->id => $_),
-        $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } })
-            ->prefetch({ device_location => 'rack' });
+        $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } });
 
     # sku -> hardware_product
     my %hardware_products;
@@ -711,17 +710,11 @@ sub create_and_add_devices ($c) {
             # find device by id that we looked up before...
             if ($entry->{id}) {
                 if (my $device = $devices{$entry->{id}}) {
-                    if (($device->build_id and $device->build_id ne $build_id)
-                        or ($device->device_location and $device->device_location->rack->build_id
-                            and $device->device_location->rack->build_id ne $build_id)) {
-                        ($code, $payload) = (409, { error => 'device '.($entry->{serial_number} // $entry->{id}).' not in build '.$c->stash('build_id_or_name') });
-                        die 'rollback';
-                    }
-
                     $device->serial_number($entry->{serial_number}) if $entry->{serial_number};
                     $device->asset_tag($entry->{asset_tag}) if exists $entry->{asset_tag};
                     $device->hardware_product_id($hardware_products{$entry->{sku}}->id);
                     $device->links($entry->{links}) if exists $entry->{links};
+                    $device->build_id($build_id);
 
                     if ($device->is_changed) {
                         $device->update({ updated => \'now()' });
@@ -757,8 +750,7 @@ sub create_and_add_devices ($c) {
 
 =head2 add_device
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).
+Adds the specified device to the build (removing it from its previous build).
 
 Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
@@ -770,14 +762,7 @@ sub add_device ($c) {
         ->single;
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
 
-    if ($device->build_id) {
-        return $c->status(204) if $device->build_id eq $build_id;
-
-        $c->log->warn('cannot add device '.$c->stash('device_id').' ('.$device->serial_number
-            .') to build '.$c->stash('build_id_or_name').' -- already a member of build '
-            .$device->build_id.' ('.$device->build->name.')');
-        return $c->status(409, { error => 'device already member of build '.$device->build_id.' ('.$device->build->name.')' });
-    }
+    return $c->status(204) if $device->build_id and $device->build_id eq $build_id;
 
     # TODO: check other constraints..
     # - what if the build is completed?
@@ -830,8 +815,7 @@ sub get_racks ($c) {
 
 =head2 add_rack
 
-Adds the specified rack to the build (as long as it isn't in another build, or contains devices
-located in another build).
+Adds the specified rack to the build (removing it from its previous build).
 
 Requires the 'read/write' role on the build.
 
@@ -841,14 +825,7 @@ sub add_rack ($c) {
     my $rack = $c->stash('rack_rs')->single;
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
 
-    if ($rack->build_id) {
-        return $c->status(204) if $rack->build_id eq $build_id;
-
-        $c->log->warn('cannot add rack '.$rack->id
-            .' to build '.$c->stash('build_id_or_name').' -- already a member of build '
-            .$rack->build_id.' ('.$rack->build->name.')');
-        return $c->status(409, { error => 'rack already member of build '.$rack->build_id.' ('.$rack->build->name.')' });
-    }
+    return $c->status(204) if $rack->build_id and $rack->build_id eq $build_id;
 
     # TODO: check other constraints..
     # - what if the build is completed?

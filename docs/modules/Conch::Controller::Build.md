@@ -113,16 +113,15 @@ Response uses the Devices json schema, or DeviceIds iff `ids_only=1`, or DeviceS
 
 ## create\_and\_add\_devices
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).  The device is created if necessary with all data provided (or updated
-with the data if it already exists, so the endpoint is idempotent).
+Adds the specified device to the build (removing it from its previous build).  The device is
+created if necessary with all data provided (or updated with the data if it already exists, so
+the endpoint is idempotent).
 
 Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
 ## add\_device
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).
+Adds the specified device to the build (removing it from its previous build).
 
 Requires the 'read/write' role on the build, and the 'read-only' role on the device.
 
@@ -141,8 +140,7 @@ Response uses the Racks json schema.
 
 ## add\_rack
 
-Adds the specified rack to the build (as long as it isn't in another build, or contains devices
-located in another build).
+Adds the specified rack to the build (removing it from its previous build).
 
 Requires the 'read/write' role on the build.
 

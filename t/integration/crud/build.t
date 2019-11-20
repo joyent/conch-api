@@ -817,15 +817,6 @@ $t->post_ok('/build/our second build/device', json => [ {
     ->status_is(400)
     ->json_cmp_deeply({ error => re(qr/duplicate key value violates unique constraint "device_serial_number_key"/) });
 
-$t->post_ok('/build/my first build/device', json => [ {
-            serial_number => 'FOO',
-            sku => $hardware_product->sku,
-            asset_tag => 'fooey',
-            links => [ 'https://foo.bar.com' ],
-        } ])
-    ->status_is(409)
-    ->json_is({ error => 'device FOO not in build my first build' });
-
 $t->post_ok('/build/our second build/device', json => [ {
             serial_number => 'FOO',
             sku => $hardware_product->sku,
@@ -889,21 +880,10 @@ $t->get_ok('/build/my first build/device')
         rack_id => $rack1->id,
     }) ]);
 
-$t->post_ok('/build/our second build/rack/'.$rack1->id)
-    ->status_is(409)
-    ->log_warn_is('cannot add rack '.$rack1->id.' to build our second build -- already a member of build '.$build->{id}.' (my first build)')
-    ->json_is({ error => 'rack already member of build '.$build->{id}.' (my first build)' });
-
 
 # create a new device, located in a different rack in a different build
 my $device2 = first { $_->isa('Conch::DB::Result::Device') } $t->generate_fixtures('device');
 $device2->update({ build_id => $build->{id} });
-
-$t->post_ok('/build/our second build/device/'.$device2->id)
-    ->status_is(409)
-    ->log_warn_is('cannot add device '.$device2->id.' ('.$device2->serial_number.') to build our second build -- already a member of build '.$build->{id}.' (my first build)')
-    ->json_is({ error => 'device already member of build '.$build->{id}.' (my first build)' });
-
 my $rack_layout2 = first { $_->isa('Conch::DB::Result::RackLayout') } $t->generate_fixtures('rack_layouts');
 my $rack2 = $rack_layout2->rack;
 $rack2->update({ build_id => $build2->{id} });
@@ -1030,15 +1010,13 @@ $t->post_ok('/build/our second build/device', json => [ {
             id => $device2->id,
             sku => $hardware_product->sku,
         } ])
-    ->status_is(409)
-    ->json_is({ error => 'device '.$device2->id.' not in build our second build' });
+    ->status_is(204);
 
 $t->post_ok('/build/our second build/device', json => [ {
             id => $device1->id,
             sku => $hardware_product->sku,
         } ])
-    ->status_is(409)
-    ->json_is({ error => 'device '.$device1->id.' not in build our second build' });
+    ->status_is(204);
 
 $t->delete_ok('/build/my first build/device/'.$device1->id)
     ->status_is(404)
@@ -1047,10 +1025,6 @@ $t->delete_ok('/build/my first build/device/'.$device1->id)
 $t->delete_ok('/build/our second build/rack/'.$rack1->id)
     ->status_is(404)
     ->log_warn_is('rack '.$rack1->id.' is not in build our second build: cannot remove');
-
-$t->delete_ok('/build/my first build/device/'.$device2->id)
-    ->status_is(204)
-    ->log_debug_is('removing device '.$device2->id.' from build my first build');
 
 $t->delete_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(204)
@@ -1073,7 +1047,19 @@ $t->get_ok('/build/my first build/rack')
 $t->get_ok('/build/our second build/device')
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is([ $new_device ]);
+    ->json_cmp_deeply([
+        $new_device,
+        superhashof({
+            (map +($_ => $device1->$_), qw(id serial_number)),
+            build_id => $build2->{id},
+            # device.phase >= production, so its location is no longer canonical
+        }),
+        superhashof({
+            (map +($_ => $device2->$_), qw(id serial_number)),
+            build_id => $build2->{id},
+            rack_id => undef,
+        }),
+    ]);
 
 $t->get_ok('/build/our second build/rack')
     ->status_is(200)
