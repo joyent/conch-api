@@ -666,11 +666,11 @@ sub get_devices ($c) {
 
 =head2 create_and_add_devices
 
-Adds the specified device to the build (removing it from its previous build).  The device is
-created if necessary with all data provided (or updated with the data if it already exists, so
-the endpoint is idempotent).
+Adds the specified device(s) to the build (removing them from their previous builds). The
+device is created if necessary with all data provided (or updated with the data if it already
+exists, so the endpoint is idempotent).
 
-Requires the 'read/write' role on the build, and the 'read-only' role on the device.
+Requires the 'read/write' role on the build and on existing device(s).
 
 =cut
 
@@ -685,9 +685,16 @@ sub create_and_add_devices ($c) {
         }
     }
 
-    # we already looked up all ids for devices that were referenced only by serial_number
-    my %devices = map +($_->id => $_),
-        $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } });
+    my %devices;
+    if (grep exists $_->{id}, $input->@*) {
+        # we already looked up all ids for devices that were referenced only by serial_number
+        my $device_rs = $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } });
+        if (not $c->is_system_admin and not $device_rs->user_has_role($c->stash('user_id'), 'rw')) {
+            $c->log->debug('User lacks the required role (rw) for one or more devices');
+            return $c->status(403);
+        }
+        %devices = map +($_->id => $_), $device_rs->all;
+    }
 
     # sku -> hardware_product_id
     my %hardware_product_ids;
@@ -753,7 +760,7 @@ sub create_and_add_devices ($c) {
 
 Adds the specified device to the build (removing it from its previous build).
 
-Requires the 'read/write' role on the build, and the 'read-only' role on the device.
+Requires the 'read/write' role on the build and on the device.
 
 =cut
 
@@ -818,7 +825,7 @@ sub get_racks ($c) {
 
 Adds the specified rack to the build (removing it from its previous build).
 
-Requires the 'read/write' role on the build.
+Requires the 'read/write' role on the build and on the rack.
 
 =cut
 

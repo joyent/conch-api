@@ -685,6 +685,20 @@ $t->post_ok('/build/our second build/device', json => [ { id => create_uuid_str(
     ->json_cmp_deeply({ error => re(qr/^no device corresponding to device id ${\Conch::UUID::UUID_FORMAT}$/) })
     ->log_error_like(qr/^no device corresponding to device id ${\Conch::UUID::UUID_FORMAT}$/);
 
+$t2->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => $hardware_product->sku } ])
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (rw) for build our second build');
+
+my $other_device = $t->app->db_devices->create({
+    serial_number => 'another_device',
+    hardware_product_id => $hardware_product->id,
+    health => 'unknown',
+});
+
+$t_build_admin->post_ok('/build/our second build/device', json => [ { serial_number => 'another_device', sku => $hardware_product->sku } ])
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (rw) for one or more devices');
+
 $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => $hardware_product->sku } ])
     ->status_is(204)
     ->log_debug_is('created new device FOO in build our second build');
@@ -803,12 +817,6 @@ $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO'
     ->status_is(404)
     ->log_error_is('no hardware_product corresponding to sku nope');
 
-my $other_device = $t->app->db_devices->create({
-    serial_number => 'another_device',
-    hardware_product_id => $hardware_product->id,
-    health => 'unknown',
-});
-
 $t->post_ok('/build/our second build/device', json => [ {
             id => $devices->[0]{id},
             serial_number => $other_device->serial_number,
@@ -852,6 +860,10 @@ my $rack1 = $rack_layout1->rack;
 $t2->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for build my first build');
+
+$t_build_admin->post_ok('/build/my first build/rack/'.$rack1->id)
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (rw) for rack '.$rack1->id);
 
 $t->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(204)
@@ -913,6 +925,15 @@ $t->get_ok('/build/our second build/device')
     ]);
 
 $device2->delete_related('device_location');
+
+$t2->post_ok('/build/my first build/device/'.$device2->id)
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (rw) for build my first build');
+
+$t_build_admin->post_ok('/build/my first build/device/'.$device2->id)
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (rw) for device '.$device2->id);
+
 $t->post_ok('/build/my first build/device/'.$device2->id)
     ->status_is(204)
     ->log_debug_is('adding device '.$device2->id.' ('.$device2->serial_number.') to build my first build');
