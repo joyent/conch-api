@@ -32,9 +32,9 @@ sub find_rack ($c) {
     # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
     my $method = $c->req->method;
     my $requires_role = $c->stash('require_role') //
-        (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+       ((any { $method eq $_ } qw(HEAD GET)) ? 'ro'
       : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
-      : die 'need handling for '.$method.' method';
+      : die 'need handling for '.$method.' method');
 
     if (not $c->is_system_admin and not $rack_rs->user_has_role($c->stash('user_id'), $requires_role)) {
         $c->log->debug('User lacks the required role ('.$requires_role.') for rack '.$c->stash('rack_id'));
