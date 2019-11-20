@@ -1003,7 +1003,7 @@ $t->get_ok('/build/my first build/device')
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_cmp_deeply([
-        # device.phase >= production, so its location is no longer canonical
+        # device1 phase >= production, so its location is no longer canonical
         superhashof({
             (map +($_ => $device2->$_), qw(id serial_number)),
             build_id => $build->{id},
