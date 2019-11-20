@@ -704,7 +704,7 @@ sub create_and_add_devices ($c) {
         foreach my $entry ($input->@*) {
             if (not $hardware_products{$entry->{sku}}) {
                 $c->log->error('no hardware_product corresponding to sku '.$entry->{sku});
-                $code = 404;
+                ($code, $payload) = (404, { error => 'no hardware_product corresponding to sku '.$entry->{sku} });
                 die 'rollback';
             }
 
@@ -714,8 +714,7 @@ sub create_and_add_devices ($c) {
                     if (($device->build_id and $device->build_id ne $build_id)
                         or ($device->device_location and $device->device_location->rack->build_id
                             and $device->device_location->rack->build_id ne $build_id)) {
-                        $code = 409;
-                        $payload = { error => 'device '.($entry->{serial_number} // $entry->{id}).' not in build '.$c->stash('build_id_or_name') };
+                        ($code, $payload) = (409, { error => 'device '.($entry->{serial_number} // $entry->{id}).' not in build '.$c->stash('build_id_or_name') });
                         die 'rollback';
                     }
 
@@ -732,7 +731,7 @@ sub create_and_add_devices ($c) {
                 }
                 else {
                     $c->log->error('no device corresponding to device id '.$entry->{id});
-                    $code = 404;
+                    ($code, $payload) = (404, { error => 'no device corresponding to device id '.$entry->{id} });
                     die 'rollback';
                 }
             }
