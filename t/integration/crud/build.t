@@ -895,18 +895,40 @@ $t->post_ok('/build/our second build/rack/'.$rack1->id)
 
 # create a new device, located in a different rack in a different build
 my $device2 = first { $_->isa('Conch::DB::Result::Device') } $t->generate_fixtures('device');
-$device2->update({ build_id => $build2->{id} });
+$device2->update({ build_id => $build->{id} });
 
-$t->post_ok('/build/my first build/device/'.$device2->id)
+$t->post_ok('/build/our second build/device/'.$device2->id)
     ->status_is(409)
-    ->log_warn_is('cannot add device '.$device2->id.' ('.$device2->serial_number.') to build my first build -- already a member of build '.$build2->{id}.' (our second build)')
-    ->json_is({ error => 'device already member of build '.$build2->{id}.' (our second build)' });
+    ->log_warn_is('cannot add device '.$device2->id.' ('.$device2->serial_number.') to build our second build -- already a member of build '.$build->{id}.' (my first build)')
+    ->json_is({ error => 'device already member of build '.$build->{id}.' (my first build)' });
 
 my $rack_layout2 = first { $_->isa('Conch::DB::Result::RackLayout') } $t->generate_fixtures('rack_layouts');
 my $rack2 = $rack_layout2->rack;
-$device2->update({ build_id => undef });
 $rack2->update({ build_id => $build2->{id} });
 $device2->create_related('device_location', { rack_id => $rack2->id, rack_unit_start => $rack_layout2->rack_unit_start });
+
+$t->get_ok('/build/our second build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([
+        $new_device,
+        # device2 is in rack2, but in build1, so it should not be listed here.
+    ]);
+
+$device2->update({ build_id => undef });
+
+$t->get_ok('/build/our second build/device')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_cmp_deeply([
+        $new_device,
+        # now device2 is in build2 via rack2
+        superhashof({
+            (map +($_ => $device2->$_), qw(id serial_number)),
+            build_id => undef,
+            rack_id => $rack2->id,
+        }),
+    ]);
 
 $device2->delete_related('device_location');
 $t->post_ok('/build/my first build/device/'.$device2->id)

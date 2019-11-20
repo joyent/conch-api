@@ -92,7 +92,9 @@ to all organization members and to all build admins.
 
 ## get\_devices
 
-Get the devices in this build.  (Includes devices located in rack(s) in this build.)
+Get the devices in this build. (Does not includes devices located in rack(s) in this build if
+the devices themselves are in other builds.)
+
 Requires the 'read-only' role on the build.
 
 Supports these query parameters to constrain results (which are ANDed together for the search,

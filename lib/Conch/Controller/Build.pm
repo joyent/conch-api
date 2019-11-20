@@ -609,7 +609,9 @@ sub remove_organization ($c) {
 
 =head2 get_devices
 
-Get the devices in this build.  (Includes devices located in rack(s) in this build.)
+Get the devices in this build. (Does not includes devices located in rack(s) in this build if
+the devices themselves are in other builds.)
+
 Requires the 'read-only' role on the build.
 
 Supports these query parameters to constrain results (which are ANDed together for the search,
@@ -630,23 +632,25 @@ sub get_devices ($c) {
     my $params = $c->validate_query_params('BuildDevices');
     return if not $params;
 
-    my $direct_devices_rs = $c->stash('build_rs')
-        ->related_resultset('devices');
-
     # production devices do not consider location, interface data to be canonical
     my $bad_phase = $params->{phase_earlier_than} // 'production';
 
-    my $rack_devices_rs = $c->stash('build_rs')
-        ->related_resultset('racks')
-        ->related_resultset('device_locations')
-        ->search_related('device',
-            $bad_phase ? { 'device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] } } : ());
+    my $build_id = $c->stash('build_id') // { '=' => $c->stash('build_rs')->get_column('id')->as_query };
 
     # this query is carefully constructed to be efficient.
     # don't mess with it without checking with DBIC_TRACE=1.
-    my $rs = $c->db_devices
-        ->search({ 'device.id' => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
-        ->order_by('device.created');
+    my $rs = $c->db_devices->search(
+        { -or => [
+            { 'device.build_id' => $build_id },
+            {
+                'device.build_id' => undef,
+                'rack.build_id' => $build_id,
+                $bad_phase ? ('device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] }) : (),
+            },
+        ] },
+        { join => { device_location => 'rack' } },
+    )
+    ->order_by('device.created');
 
     $rs = $rs->search({ health => $params->{health} }) if $params->{health};
 
@@ -849,7 +853,6 @@ sub add_rack ($c) {
 
     # TODO: check other constraints..
     # - what if the build is completed?
-    # - what if device.build_id is set (for any devices located here)?
     # - what about device.phase or rack.phase?
 
     $c->log->debug('adding rack '.$rack->id.' to build '.$c->stash('build_id_or_name'));
@@ -872,7 +875,6 @@ sub remove_rack ($c) {
 
     # TODO: check other constraints..
     # - what if the build is completed?
-    # - what if device.build_id is set (for any devices located here)?
     # - what about device.phase or rack.phase?
 
     $c->log->debug('removing rack '.$c->stash('rack_id').' from build '.$c->stash('build_id_or_name'));
