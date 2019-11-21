@@ -10,7 +10,7 @@ Interface to queries involving organizations.
 
 ## admins
 
-All the 'admin' users for the provided organization(s).  Pass a true argument to also include all
+All the 'admin' users for the provided organization(s). Pass a true argument to also include all
 system admin users in the result.
 
 # LICENSING

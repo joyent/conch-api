@@ -17,7 +17,7 @@ parent workspaces.
 
 This is a nested query which searches all workspaces and builds in the database, so only use
 this query when its impact is outweighed by the impact of filtering a large resultset of
-devices in the database.  (That is, usually you should start with a single device and then
+devices in the database. (That is, usually you should start with a single device and then
 apply `$device_rs->user_has_role($user_id, $role)` to it.)
 
 ## user\_has\_role
@@ -58,7 +58,7 @@ $self->search(undef, {
 
 ## device\_settings\_as\_hash
 
-Returns a hash of all (active) device settings for the specified device(s).  (Will return
+Returns a hash of all (active) device settings for the specified device(s). (Will return
 merged results when passed a resultset referencing multiple devices, which is probably not what
 you want, so don't do that.)
 

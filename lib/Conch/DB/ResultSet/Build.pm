@@ -19,7 +19,7 @@ Interface to queries involving builds.
 
 =head2 admins
 
-All the 'admin' users for the provided build(s).  Pass a true argument to also include all
+All the 'admin' users for the provided build(s). Pass a true argument to also include all
 system admin users in the result.
 
 =cut

@@ -149,7 +149,7 @@ Query for workspace(s) with an extra field attached to the result, containing in
 the effective role the user has for the workspace.
 
 The indicated role is used directly, with no additional queries done (consequently "role_via"
-will not appear in the serialized data).  This is intended to be used in preference to
+will not appear in the serialized data). This is intended to be used in preference to
 L</with_role_via_data_for_user> when the user is a system admin.
 
 =cut

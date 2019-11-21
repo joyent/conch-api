@@ -3,20 +3,20 @@ FROM ubuntu:bionic
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-	apt-get upgrade -y --no-install-recommends && \
-	apt-get install -y --no-install-recommends \
-		build-essential \
-		ca-certificates \
-		carton \
-		curl \
-		git \
-		libssl-dev \
-		libzip-dev \
-		perl-doc \
-		unzip \
-		postgresql \
-		libpq-dev \
-	&& apt-get clean
+    apt-get upgrade -y --no-install-recommends && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        carton \
+        curl \
+        git \
+        libssl-dev \
+        libzip-dev \
+        perl-doc \
+        unzip \
+        postgresql \
+        libpq-dev \
+    && apt-get clean
 
 RUN mkdir -p /app/conch
 WORKDIR /app/conch
