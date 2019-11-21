@@ -133,6 +133,7 @@ sub find_organization ($c) {
     }
 
     $c->stash('organization_rs', $rs);
+    return 1;
 }
 
 =head2 get

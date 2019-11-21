@@ -136,6 +136,7 @@ sub find_build ($c) {
     }
 
     $c->stash('build_rs', $rs);
+    return 1;
 }
 
 =head2 get
