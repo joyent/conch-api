@@ -689,11 +689,12 @@ sub create_and_add_devices ($c) {
     my %devices = map +($_->id => $_),
         $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } });
 
-    # sku -> hardware_product
-    my %hardware_products;
+    # sku -> hardware_product_id
+    my %hardware_product_ids;
     if (my @skus = map $_->{sku} // (), $input->@*) {
-        %hardware_products = map +($_->sku => $_),
-            $c->db_hardware_products->active->search({ sku => { -in => \@skus } });
+        %hardware_product_ids = map $_->@{qw(sku id)},
+            $c->db_hardware_products->active
+                ->search({ sku => { -in => \@skus } })->columns([qw(id sku)])->hri->all;
     }
 
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
@@ -701,7 +702,7 @@ sub create_and_add_devices ($c) {
     my ($code, $payload);
     $c->txn_wrapper(sub ($c) {
         foreach my $entry ($input->@*) {
-            if (not $hardware_products{$entry->{sku}}) {
+            if (not $hardware_product_ids{$entry->{sku}}) {
                 $c->log->error('no hardware_product corresponding to sku '.$entry->{sku});
                 ($code, $payload) = (404, { error => 'no hardware_product corresponding to sku '.$entry->{sku} });
                 die 'rollback';
@@ -712,7 +713,7 @@ sub create_and_add_devices ($c) {
                 if (my $device = $devices{$entry->{id}}) {
                     $device->serial_number($entry->{serial_number}) if $entry->{serial_number};
                     $device->asset_tag($entry->{asset_tag}) if exists $entry->{asset_tag};
-                    $device->hardware_product_id($hardware_products{$entry->{sku}}->id);
+                    $device->hardware_product_id($hardware_product_ids{$entry->{sku}});
                     $device->links($entry->{links}) if exists $entry->{links};
                     $device->build_id($build_id);
 
@@ -732,7 +733,7 @@ sub create_and_add_devices ($c) {
                 my $device = $c->db_devices->create({
                     serial_number => $entry->{serial_number},
                     asset_tag => $entry->{asset_tag},
-                    hardware_product_id => $hardware_products{$entry->{sku}}->id,
+                    hardware_product_id => $hardware_product_ids{$entry->{sku}},
                     health => 'unknown',
                     links => $entry->{links} // [],
                     build_id => $build_id,
