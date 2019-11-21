@@ -450,6 +450,14 @@ subtest 'Device settings' => sub {
     $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 1 })
         ->status_is(404);
 
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 1 })
+        ->status_is(204);
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(200)
+        ->json_schema_is('DeviceSettings')
+        ->json_is('/foo', 1, 'Setting was stored');
+
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
         ->status_is(204);
 
