@@ -26,7 +26,7 @@ sub validate {
     # Intel SATA SSDs and there's no other identifier. Here, we want
     # to avoid missing failed/missing disks, so we jump through a couple
     # extra hoops.
-    if ($self->hardware_legacy_product_name // '' eq "Joyent-Compute-Platform-3302") {
+    if (($self->hardware_legacy_product_name // '') eq "Joyent-Compute-Platform-3302") {
         if ($sata_ssd_count <= 8) { $sata_ssd_want = 8; }
         if ($sata_ssd_count > 8)  { $sata_ssd_want = 16; }
     }
