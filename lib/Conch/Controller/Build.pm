@@ -836,28 +836,6 @@ sub add_rack ($c) {
     return $c->status(204);
 }
 
-=head2 remove_rack
-
-Requires the 'read/write' role on the build.
-
-=cut
-
-sub remove_rack ($c) {
-    my $rs = $c->stash('build_rs')->search_related('racks', { 'racks.id' => $c->stash('rack_id') });
-    if (not $rs->exists) {
-        $c->log->warn('rack '.$c->stash('rack_id').' is not in build '.$c->stash('build_id_or_name').': cannot remove');
-        return $c->status(404);
-    }
-
-    # TODO: check other constraints..
-    # - what if the build is completed?
-    # - what about device.phase or rack.phase?
-
-    $c->log->debug('removing rack '.$c->stash('rack_id').' from build '.$c->stash('build_id_or_name'));
-    $c->stash('rack_rs')->update({ build_id => undef, updated => \'now()' });
-    return $c->status(204);
-}
-
 1;
 __END__
 

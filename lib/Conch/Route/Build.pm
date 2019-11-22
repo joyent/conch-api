@@ -95,11 +95,6 @@ sub routes {
         $with_build_rw->under('/rack/<rack_id:uuid>')
             ->to('rack#find_rack', require_role => 'ro')
             ->post('/')->to('build#add_rack');
-
-        # DELETE /build/:build_id_or_name/rack/:rack_id
-        $with_build_rw->under('/rack/<rack_id:uuid>')
-            ->to('rack#find_rack', require_role => 'none')
-            ->delete('/')->to('build#remove_rack');
     }
 }
 
@@ -308,16 +303,6 @@ L<Conch::Route::Device/routes>)
 
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-only role on a workspace or build that contains the rack
-
-=item * Response: C<204 NO CONTENT>
-
-=back
-
-=head3 C<DELETE /build/:build_id_or_name/rack/:rack_id>
-
-=over 4
-
-=item * Requires system admin authorization, or the read/write role on the build
 
 =item * Response: C<204 NO CONTENT>
 

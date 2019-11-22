@@ -1022,26 +1022,9 @@ $t->delete_ok('/build/my first build/device/'.$device1->id)
     ->status_is(404)
     ->log_warn_is('device '.$device1->id.' is not in build my first build: cannot remove');
 
-$t->delete_ok('/build/our second build/rack/'.$rack1->id)
-    ->status_is(404)
-    ->log_warn_is('rack '.$rack1->id.' is not in build our second build: cannot remove');
-
-$t->delete_ok('/build/my first build/rack/'.$rack1->id)
-    ->status_is(204)
-    ->log_debug_is('removing rack '.$rack1->id.' from build my first build');
-
-$t->delete_ok('/build/our second build/rack/'.$rack2->id)
-    ->status_is(204)
-    ->log_debug_is('removing rack '.$rack2->id.' from build our second build');
-
 $t->get_ok('/build/my first build/device')
     ->status_is(200)
     ->json_schema_is('Devices')
-    ->json_is([]);
-
-$t->get_ok('/build/my first build/rack')
-    ->status_is(200)
-    ->json_schema_is('Racks')
     ->json_is([]);
 
 $t->get_ok('/build/our second build/device')
@@ -1060,10 +1043,5 @@ $t->get_ok('/build/our second build/device')
             rack_id => undef,
         }),
     ]);
-
-$t->get_ok('/build/our second build/rack')
-    ->status_is(200)
-    ->json_schema_is('Racks')
-    ->json_is([]);
 
 done_testing;

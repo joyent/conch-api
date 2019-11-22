@@ -144,10 +144,6 @@ Adds the specified rack to the build (removing it from its previous build).
 
 Requires the 'read/write' role on the build.
 
-## remove\_rack
-
-Requires the 'read/write' role on the build.
-
 # LICENSING
 
 Copyright Joyent, Inc.

@@ -123,11 +123,6 @@ read-only role on the device (via a workspace or build or a relay registration, 
 read-only role on a workspace or build that contains the rack
 - Response: `204 NO CONTENT`
 
-### `DELETE /build/:build_id_or_name/rack/:rack_id`
-
-- Requires system admin authorization, or the read/write role on the build
-- Response: `204 NO CONTENT`
-
 # LICENSING
 
 Copyright Joyent, Inc.
