@@ -355,7 +355,11 @@ subtest 'Log out' => sub {
 
 subtest 'JWT authentication' => sub {
     $t->authenticate(email => $ro_user->email, bailout => 0)
-        ->json_has('/jwt_token');
+        ->status_is(200)
+        ->header_exists('Last-Modified')
+        ->header_exists('Expires')
+        ->json_schema_is('Login')
+        ->json_cmp_deeply({ jwt_token => re(qr/\..*\./) });
 
     my $jwt_token = $t->tx->res->json->{jwt_token};
 
@@ -617,11 +621,15 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me')->status_is(204);
 
     $t2->post_ok('/user/me/token', json => { name => 'my api token' })
+        ->header_exists('Last-Modified')
+        ->header_exists('Expires')
         ->status_is(201)
         ->location_is('/user/me/token/my api token');
     my $api_token = $t2->tx->res->json->{token};
 
     $t2->post_ok('/user/me/token', json => { name => 'my second api token' })
+        ->header_exists('Last-Modified')
+        ->header_exists('Expires')
         ->status_is(201)
         ->location_is('/user/me/token/my second api token');
 
