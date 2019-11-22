@@ -52,7 +52,7 @@ QueryParamsValidationError json response schema.
 
 =cut
 
-    $app->helper(validate_query_params => sub ($c, $schema_name, $data = $c->req->params->to_hash) {
+    $app->helper(validate_query_params => sub ($c, $schema_name, $data = $c->req->query_params->to_hash) {
         my $validator = $c->get_query_params_validator;
         my $schema = $validator->get('/definitions/'.$schema_name);
 
