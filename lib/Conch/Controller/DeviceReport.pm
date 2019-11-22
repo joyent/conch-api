@@ -37,8 +37,11 @@ sub process ($c) {
     return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
+        my $relay_rs = $c->db_relays->active->search({ serial_number => $relay_serial });
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
-            if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
+            if not $relay_rs->exists;
+        return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered by user '.$c->stash('user')->name })
+            if not $relay_rs->search({ user_id => $c->stash('user_id') })->exists;
     }
 
     my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });

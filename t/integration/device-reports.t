@@ -46,8 +46,18 @@ subtest preliminaries => sub {
         ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
-    $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
+    my $null_user = $t->generate_fixtures('user_account');
+    Test::Conch->new(pg => $t->pg)
+        ->authenticate(email => $null_user->email)
+        ->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
         ->status_is(201);
+
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'relay serial deadbeef is not registered by user '.$ro_user->name });
+
+    $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
+        ->status_is(204);
 
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(404)
