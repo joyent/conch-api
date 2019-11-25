@@ -54,9 +54,7 @@ L</test_validation>. For example:
         hardware_product => {
             name => 'Product Name',
             vendor => 'Product Vendor',
-            hardware_product_profile => {
-                num_cpu => 2
-            }
+            num_cpu => 2,
         },
         device_location => {
             rack_unit_start => 2,

@@ -8,7 +8,6 @@ test_validation(
     'Conch::Validation::SasHddNum',
     hardware_product => {
         name    => 'Test Product',
-        hardware_product_profile => {}
     },
     cases => [
         {
@@ -22,11 +21,11 @@ test_validation(
     'Conch::Validation::SasHddNum',
     hardware_product => {
         name    => 'Test Product',
-        hardware_product_profile => { sas_hdd_num => 2 }
+        sas_hdd_num => 2,
     },
     cases => [
         {
-            description => 'Failure when no SAS HDDs and sas_hdd_num in profile',
+            description => 'Failure when no SAS HDDs and sas_hdd_num in hardware_product',
             data        => {
                 disks => {}
             },

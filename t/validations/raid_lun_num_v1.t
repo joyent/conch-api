@@ -8,7 +8,6 @@ test_validation(
     'Conch::Validation::RaidLunNum',
     hardware_product => {
         name    => 'Test Product',
-        hardware_product_profile => {}
     },
     cases => [
         {
@@ -22,11 +21,11 @@ test_validation(
     'Conch::Validation::RaidLunNum',
     hardware_product => {
         name    => 'Test Product',
-        hardware_product_profile => { raid_lun_num => 2 }
+        raid_lun_num => 2,
     },
     cases => [
         {
-            description => 'Failure when no RAID LUNs but raid_lun_num in profile',
+            description => 'Failure when no RAID LUNs but raid_lun_num in hardware_product',
             data        => {
                 disks => {}
             },

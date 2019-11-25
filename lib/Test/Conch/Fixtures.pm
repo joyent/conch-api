@@ -46,11 +46,6 @@ my %canned_definitions = (
         hardware_product_compute
         hardware_product_storage
     )],
-    '01-hardware-profiles' => [qw(
-        hardware_product_profile_switch
-        hardware_product_profile_storage
-        hardware_product_profile_compute
-    )],
 
     # individual definitions
 
@@ -167,6 +162,14 @@ my %canned_definitions = (
             legacy_product_name => 'FuerzaDiaz',
             rack_unit_size => 1,
             sku => 'switch_sku',
+            purpose => 'TOR switch',
+            bios_firmware => '9.10',
+            cpu_num => 1,
+            cpu_type => 'Intel Rangeley',
+            dimms_num => 1,
+            ram_total => 3,
+            nics_num => 48,
+            usb_num => 0,
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
@@ -184,6 +187,16 @@ my %canned_definitions = (
             generation_name => 'Joyent-G1',
             legacy_product_name => 'Joyent-Compute-Platform',
             rack_unit_size => 2,
+            purpose => 'General Compute',
+            bios_firmware => 'Dell Inc. 2.2.5',
+            cpu_num => 2,
+            cpu_type => 'Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz',
+            dimms_num => 16,
+            ram_total => 256,
+            nics_num => 7,
+            sas_hdd_num => 15,
+            sata_ssd_num => 1,
+            usb_num => 1,
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
@@ -201,32 +214,6 @@ my %canned_definitions = (
             generation_name => 'Joyent-S1',
             legacy_product_name => 'Joyent-Storage-Platform',
             rack_unit_size => 4,
-        },
-        requires => {
-            hardware_vendor_1 => { our => 'hardware_vendor_id', their => 'id' },
-            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
-        },
-    },
-
-    hardware_product_profile_switch => {
-        new => 'hardware_product_profile',
-        using => {
-            purpose => 'TOR switch',
-            bios_firmware => '9.10',
-            cpu_num => 1,
-            cpu_type => 'Intel Rangeley',
-            dimms_num => 1,
-            ram_total => 3,
-            nics_num => 48,
-            usb_num => 0,
-        },
-        requires => {
-            hardware_product_switch => { our => 'hardware_product_id', their => 'id' },
-        },
-    },
-    hardware_product_profile_storage => {
-        new => 'hardware_product_profile',
-        using => {
             purpose => 'Manta Object Store',
             bios_firmware => 'American Megatrends Inc. 2.0a',
             cpu_num => 2,
@@ -239,25 +226,8 @@ my %canned_definitions = (
             usb_num => 1,
         },
         requires => {
-            hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
-        },
-    },
-    hardware_product_profile_compute => {
-        new => 'hardware_product_profile',
-        using => {
-            purpose => 'General Compute',
-            bios_firmware => 'Dell Inc. 2.2.5',
-            cpu_num => 2,
-            cpu_type => 'Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz',
-            dimms_num => 16,
-            ram_total => 256,
-            nics_num => 7,
-            sas_hdd_num => 15,
-            sata_ssd_num => 1,
-            usb_num => 1,
-        },
-        requires => {
-            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
+            hardware_vendor_1 => { our => 'hardware_vendor_id', their => 'id' },
+            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
         },
     },
 
@@ -266,9 +236,9 @@ my %canned_definitions = (
         using => {
             serial_number => 'HAL',
             health => 'unknown',
-            # copy hardware_product_profile_compute.hardware_product_id to me.hardware_product_id
-            # (this ensures we get a hardware_product_profile as well as a hardware_product)
-            hardware_product_id => \'hardware_product_profile_compute',
+        },
+        requires => {
+            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
         },
     },
 
@@ -399,8 +369,8 @@ sub generate_set ($self, $set_name, @args) {
                 },
             },
             "__additional_deps_workspace_room_rack_layout_${num}a" => [
-                'hardware_product_profile_compute',
-                'hardware_product_profile_storage',
+                'hardware_product_compute',
+                'hardware_product_storage',
             ],
         );
     }
@@ -581,21 +551,6 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     alias => "hardware_product_alias_$num",
                     sku => "hardware_product_sku_$num",
                     rack_unit_size => 42,
-                    ($specification // {})->%*,
-                },
-                requires => {
-                    "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
-                    "validation_plan_$num" => { our => 'validation_plan_id', their => 'id' },
-                },
-            },
-        },
-        'hardware_vendor', 'validation_plan';
-    }
-    elsif ($fixture_type eq 'hardware_product_profile') {
-        return +{
-            "hardware_product_profile_$num" => {
-                new => 'hardware_product_profile',
-                using => {
                     purpose => 'none',
                     bios_firmware => 'none',
                     cpu_num => 0,
@@ -607,11 +562,12 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     ($specification // {})->%*,
                 },
                 requires => {
-                    "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
+                    "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
+                    "validation_plan_$num" => { our => 'validation_plan_id', their => 'id' },
                 },
             },
         },
-        'hardware_product';
+        'hardware_vendor', 'validation_plan';
     }
     elsif ($fixture_type eq 'datacenter_room') {
         return +{

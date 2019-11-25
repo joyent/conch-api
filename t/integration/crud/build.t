@@ -677,12 +677,7 @@ $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO'
     ->status_is(404)
     ->log_error_is('no hardware_product corresponding to sku nope');
 
-my $bad_hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } $t->generate_fixtures('hardware_product', { sku => 'ugh' });
-$t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'ugh' } ])
-    ->status_is(404)
-    ->log_error_is('no hardware_product_profile corresponding to sku ugh');
-
-my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } $t->generate_fixtures('hardware_product_profile');
+my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } $t->generate_fixtures('hardware_product');
 
 $t->post_ok('/build/our second build/device', json => [ { id => create_uuid_str(), sku => $hardware_product->sku } ])
     ->status_is(404)

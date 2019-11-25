@@ -16,19 +16,14 @@ subtest 'database object construction' => sub {
                 error_num => 0,
             },
             {
-                description => 'did not request device',
+                description => 'did not request device (but got a generic one)',
                 data => { subname => '_device_inflation' },
                 success_num => 2,
             },
             {
-                description => 'did not request hardware_product',
+                description => 'did not request hardware_product (but got a generic one)',
                 data => { subname => '_hardware_product_inflation' },
                 success_num => 3,
-            },
-            {
-                description => 'did not request hardware_product_profile',
-                data => { subname => '_has_no_hardware_product_profile' },
-                success_num => 1,
             },
             {
                 description => 'did not request device_location',
@@ -54,14 +49,9 @@ subtest 'database object construction' => sub {
                 success_num => 2,
             },
             {
-                description => 'did not request hardware_product',
+                description => 'did not request hardware_product (but got a generic one)',
                 data => { subname => '_hardware_product_inflation' },
                 success_num => 3,
-            },
-            {
-                description => 'did not request hardware_product_profile',
-                data => { subname => '_has_no_hardware_product_profile' },
-                success_num => 1,
             },
             {
                 description => 'did not request device_location',
@@ -77,7 +67,7 @@ subtest 'database object construction' => sub {
         hardware_product => { name => 'my product' },
         cases => [
             {
-                description => 'did not request device',
+                description => 'did not request device (but got a generic one)',
                 data => { subname => '_device_inflation' },
                 success_num => 2,
             },
@@ -85,11 +75,6 @@ subtest 'database object construction' => sub {
                 description => 'hardware_product inflation',
                 data => { subname => '_hardware_product_inflation', hardware_product_name => 'my product' },
                 success_num => 3,
-            },
-            {
-                description => 'did not request hardware_product_profile',
-                data => { subname => '_has_no_hardware_product_profile' },
-                success_num => 1,
             },
             {
                 description => 'did not request device_location',
@@ -103,11 +88,11 @@ subtest 'database object construction' => sub {
     test_validation(
         'Conch::Validation::TestConchValidationTester',
         hardware_product => {
-            hardware_product_profile => { dimms_num => 4 },
+            dimms_num => 4,
         },
         cases => [
             {
-                description => 'did not request device',
+                description => 'did not request device (but got a generic one)',
                 data => { subname => '_device_inflation' },
                 success_num => 2,
             },
@@ -115,11 +100,6 @@ subtest 'database object construction' => sub {
                 description => 'hardware_product inflation',
                 data => { subname => '_hardware_product_inflation' },
                 success_num => 3,
-            },
-            {
-                description => 'hardware_product_profile inflation',
-                data => { subname => '_hardware_product_profile_inflation', hardware_product_profile_dimms_num => 4 },
-                success_num => 2,
             },
             {
                 description => 'did not request device_location',
@@ -138,19 +118,14 @@ subtest 'database object construction' => sub {
         },
         cases => [
             {
-                description => 'did not request device',
+                description => 'did not request device (but got a generic one)',
                 data => { subname => '_device_inflation' },
                 success_num => 2,
             },
             {
-                description => 'did not request hardware_product',
+                description => 'did not request hardware_product (but got a generic one)',
                 data => { subname => '_hardware_product_inflation' },
                 success_num => 3,
-            },
-            {
-                description => 'did not request hardware_product_profile',
-                data => { subname => '_has_no_hardware_product_profile' },
-                success_num => 1,
             },
             {
                 description => 'device_location inflation',
@@ -174,19 +149,14 @@ subtest 'database object construction' => sub {
         },
         cases => [
             {
-                description => 'did not request device',
+                description => 'did not request device (but got a generic one)',
                 data => { subname => '_device_inflation' },
                 success_num => 2,
             },
             {
-                description => 'did not request hardware_product',
+                description => 'did not request hardware_product (but got a generic one)',
                 data => { subname => '_hardware_product_inflation' },
                 success_num => 3,
-            },
-            {
-                description => 'did not request hardware_product_profile',
-                data => { subname => '_has_no_hardware_product_profile' },
-                success_num => 1,
             },
             {
                 description => 'device_location inflation',
@@ -206,19 +176,14 @@ subtest 'database object construction' => sub {
         device_settings => { foo => 'bar' },
         cases => [
             {
-                description => 'did not request device',
+                description => 'did not request device (but got a generic one)',
                 data => { subname => '_device_inflation' },
                 success_num => 2,
             },
             {
-                description => 'did not request hardware_product',
+                description => 'did not request hardware_product (but got a generic one)',
                 data => { subname => '_hardware_product_inflation' },
                 success_num => 3,
-            },
-            {
-                description => 'did not request hardware_product_profile',
-                data => { subname => '_has_no_hardware_product_profile' },
-                success_num => 1,
             },
             {
                 description => 'did not request device_location',

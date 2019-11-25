@@ -14,14 +14,12 @@ sub validate {
     $self->die("Input data must include 'disks' hash")
         unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-    my $hw_profile = $self->hardware_product_profile;
-
     my $sata_hdd_count =
         grep { $_->{drive_type} && fc($_->{drive_type}) eq fc('SATA_HDD') }
         (values $data->{disks}->%*);
 
     $self->register_result(
-        expected => $hw_profile->sata_hdd_num,
+        expected => $self->hardware_product->sata_hdd_num,
         got      => $sata_hdd_count,
     );
 }

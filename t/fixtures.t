@@ -101,9 +101,7 @@ subtest 'nested data' => sub {
     my @objects = $t->generate_fixtures(
         device => {},
         hardware_product => {
-            hardware_product_profile => {
-                purpose => 'glory',
-            },
+            purpose => 'glory',
             hardware_vendor => {
                 name => 'Sparta',
             },
@@ -114,7 +112,7 @@ subtest 'nested data' => sub {
     my $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') } @objects;
 
     is($device->hardware_product_id, $hardware_product->id, 'device joins to hardware_product');
-    is($hardware_product->hardware_product_profile->purpose, 'glory', 'got custom profile data');
+    is($hardware_product->purpose, 'glory', 'got custom hardware_product data');
     is($hardware_product->hardware_vendor->name, 'Sparta', 'got custom vendor data');
 };
 

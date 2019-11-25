@@ -1405,9 +1405,21 @@
         "alias" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
+        "bios_firmware" : {
+          "type" : "string"
+        },
+        "cpu_num" : {
+          "type" : "integer"
+        },
+        "cpu_type" : {
+          "type" : "string"
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
+        },
+        "dimms_num" : {
+          "type" : "integer"
         },
         "generation_name" : {
           "oneOf" : [
@@ -1419,18 +1431,18 @@
             }
           ]
         },
-        "hardware_product_profile" : {
+        "hardware_vendor_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "hba_firmware" : {
           "oneOf" : [
             {
-              "$ref" : "/definitions/HardwareProductProfile"
+              "type" : "string"
             },
             {
               "type" : "null"
             }
           ]
-        },
-        "hardware_vendor_id" : {
-          "$ref" : "common.json#/definitions/uuid"
         },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
@@ -1447,94 +1459,6 @@
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        },
-        "prefix" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "rack_unit_size" : {
-          "$ref" : "common.json#/definitions/positive_integer"
-        },
-        "sku" : {
-          "oneOf" : [
-            {
-              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "specification" : {
-          "description" : "json blob of additional data",
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "updated" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        }
-      },
-      "required" : [
-        "id",
-        "name",
-        "alias",
-        "prefix",
-        "hardware_vendor_id",
-        "generation_name",
-        "legacy_product_name",
-        "sku",
-        "specification",
-        "rack_unit_size",
-        "hardware_product_profile",
-        "created",
-        "updated",
-        "validation_plan_id"
-      ],
-      "type" : "object"
-    },
-    "HardwareProductProfile" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "bios_firmware" : {
-          "type" : "string"
-        },
-        "cpu_num" : {
-          "type" : "integer"
-        },
-        "cpu_type" : {
-          "type" : "string"
-        },
-        "dimms_num" : {
-          "type" : "integer"
-        },
-        "hba_firmware" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "id" : {
-          "$ref" : "common.json#/definitions/uuid"
         },
         "nics_num" : {
           "type" : "integer"
@@ -1562,11 +1486,24 @@
             }
           ]
         },
+        "prefix" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
         "psu_total" : {
           "type" : "integer"
         },
         "purpose" : {
           "type" : "string"
+        },
+        "rack_unit_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
         },
         "raid_lun_num" : {
           "type" : "integer"
@@ -1666,12 +1603,52 @@
             }
           ]
         },
+        "sku" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "specification" : {
+          "description" : "json blob of additional data",
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
         "usb_num" : {
           "type" : "integer"
+        },
+        "validation_plan_id" : {
+          "$ref" : "common.json#/definitions/uuid"
         }
       },
       "required" : [
         "id",
+        "name",
+        "alias",
+        "prefix",
+        "hardware_vendor_id",
+        "generation_name",
+        "legacy_product_name",
+        "sku",
+        "specification",
+        "rack_unit_size",
+        "created",
+        "updated",
+        "validation_plan_id",
         "bios_firmware",
         "cpu_num",
         "cpu_type",

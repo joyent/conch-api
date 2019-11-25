@@ -28,7 +28,7 @@ my $device_report = $t->app->db_device_reports->create({
     device_id => $device->id,
     report => to_json({
         product_name => $device->hardware_product->generation_name,
-        bios_version => $device->hardware_product->hardware_product_profile->bios_firmware,
+        bios_version => $device->hardware_product->bios_firmware,
     }),
 });
 

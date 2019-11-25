@@ -17,14 +17,6 @@ sub validate ($self, $data) {
     }
 }
 
-sub _has_no_hardware_product_profile ($self, $data) {
-    $self->register_result_cmp_details(
-        $self->hardware_product_profile,
-        undef,
-        'no hardware_product_profile data requested -> not populated into the db',
-    );
-}
-
 sub _has_no_device_location ($self, $data) {
     $self->register_result_cmp_details(
         $self->has_device_location,
@@ -87,27 +79,6 @@ sub _hardware_product_inflation ($self, $data) {
         $self->hardware_product_name,
         $data->{hardware_product_name} // re(qr/^hardware_product_\d+$/),
         'hardware_product name is retrievable',
-    );
-}
-
-sub _hardware_product_profile_inflation ($self, $data) {
-    $self->register_result_cmp_details(
-        $self->hardware_product_profile,
-        all(
-            isa('Conch::DB::Result::HardwareProductProfile'),
-            $self->hardware_product->hardware_product_profile,
-            methods(
-                id => re(Conch::UUID::UUID_FORMAT),
-                $data->{hardware_product_profile_dimms_num} ? ( dimms_num => $data->{hardware_product_profile_dimms_num} ) : (),
-                in_storage => bool(1),
-            ),
-        ),
-        'hardware_product_profile is a real result row with a real id, joined to hardware_product',
-    );
-    $self->register_result_cmp_details(
-        [ exception { $self->hardware_product_profile->update({ purpose => 'ohhai' }) } ],
-        [ re(qr/permission denied for relation hardware_product_profile/) ],
-        'cannot modify the hardware_product_profile',
     );
 }
 

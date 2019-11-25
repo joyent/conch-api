@@ -154,16 +154,9 @@ generation_name
 legacy_product_name
 rack_unit_size
 +validation_plan_id
-
-[hardware_product_profile] {bgcolor: "#fbfbdb"}
-*id
-+hardware_product_id
 purpose
 bios_firmware
 hba_firmware
-created
-updated
-deactivated
 cpu_num
 cpu_type
 dimms_num
@@ -381,7 +374,6 @@ device_relay_connection *--1 device
 device_relay_connection *--1 relay
 device_report *--1 device
 device_setting *--1 device
-hardware_product_profile ?--1 hardware_product
 hardware_product *--1 validation_plan
 hardware_product *--1 hardware_vendor
 organization_build_role *--1 build

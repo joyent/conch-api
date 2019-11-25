@@ -7,7 +7,7 @@ use Test::Conch::Validation 'test_validation';
 test_validation(
     'Conch::Validation::CpuCount',
     hardware_product => {
-        hardware_product_profile => { cpu_num => 2 }
+        cpu_num => 2,
     },
     cases => [
         {

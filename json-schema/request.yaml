@@ -237,15 +237,41 @@ definitions:
         - sku
         - rack_unit_size
         - validation_plan_id
-      - type: object
-        properties:
-          hardware_product_profile:
-            $ref: /definitions/HardwareProductProfileCreate
-  HardwareProductProfileUpdate:
+        - purpose
+        - bios_firmware
+        - cpu_type
+  HardwareProductUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
+      name:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
+      alias:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
+      prefix:
+        oneOf:
+          - $ref: common.yaml#/definitions/non_empty_string
+          - type: 'null'
+      hardware_vendor_id:
+        $ref: common.yaml#/definitions/uuid
+      specification:
+        description: json blob of additional data
+        oneOf:
+          - type: string
+          - type: 'null'
+      sku:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
+      generation_name:
+        $ref: common.yaml#/definitions/non_empty_string
+      legacy_product_name:
+        oneOf:
+          - $ref: common.yaml#/definitions/non_empty_string
+          - type: 'null'
+      rack_unit_size:
+        $ref: common.yaml#/definitions/positive_integer
+      validation_plan_id:
+        $ref: common.yaml#/definitions/uuid
       purpose:
         type: string
       bios_firmware:
@@ -320,47 +346,6 @@ definitions:
         type: integer
       usb_num:
         type: integer
-  HardwareProductUpdate:
-    type: object
-    additionalProperties: false
-    minProperties: 1
-    properties:
-      name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
-      alias:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
-      prefix:
-        oneOf:
-          - $ref: common.yaml#/definitions/non_empty_string
-          - type: 'null'
-      hardware_vendor_id:
-        $ref: common.yaml#/definitions/uuid
-      specification:
-        description: json blob of additional data
-        oneOf:
-          - type: string
-          - type: 'null'
-      sku:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
-      generation_name:
-        $ref: common.yaml#/definitions/non_empty_string
-      legacy_product_name:
-        oneOf:
-          - $ref: common.yaml#/definitions/non_empty_string
-          - type: 'null'
-      rack_unit_size:
-        $ref: common.yaml#/definitions/positive_integer
-      hardware_product_profile:
-        $ref: /definitions/HardwareProductProfileUpdate
-      validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
-  HardwareProductProfileCreate:
-    allOf:
-      - $ref: /definitions/HardwareProductProfileUpdate
-      - required:
-        - purpose
-        - bios_firmware
-        - cpu_type
   Login:
     type: object
     additionalProperties: false

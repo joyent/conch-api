@@ -17,7 +17,7 @@ $t->get_ok('/hardware_product')
     ->json_schema_is('HardwareProducts')
     ->json_is([]);
 
-$t->load_fixture('00-hardware', '01-hardware-profiles');
+$t->load_fixture('00-hardware');
 
 $t->get_ok('/hardware_product')
     ->status_is(200)
@@ -42,6 +42,14 @@ $t->post_ok('/hardware_product', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', superbagof({ path => '/', message => re(qr/properties not allowed/i) }));
 
+$t->post_ok('/hardware_product', json => { name => 'sungo', alias => 'sungo' })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', bag(
+        map +{ path => "/$_", message => re(qr/missing property/i) },
+        qw(hardware_vendor_id sku rack_unit_size validation_plan_id purpose bios_firmware cpu_type),
+    ));
+
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',
         hardware_vendor_id => $vendor_id,
@@ -49,6 +57,10 @@ $t->post_ok('/hardware_product', json => {
         rack_unit_size => 2,
         sku => 'my sku',
         validation_plan_id => $validation_plan_id,
+        purpose => 'myself',
+        bios_firmware => '1.2.3',
+        cpu_num => 2,
+        cpu_type => 'fooey',
     })
     ->status_is(303)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
@@ -69,8 +81,33 @@ $t->get_ok($t->tx->res->headers->location)
         generation_name => undef,
         legacy_product_name => undef,
         rack_unit_size => 2,
-        hardware_product_profile => undef,
         validation_plan_id => $validation_plan_id,
+        purpose => 'myself',
+        bios_firmware => '1.2.3',
+        hba_firmware => undef,
+        cpu_num => 2,
+        cpu_type => 'fooey',
+        dimms_num => 0,
+        ram_total => 0,
+        nics_num => 0,
+        sata_hdd_num => 0,
+        sata_hdd_size => undef,
+        sata_hdd_slots => undef,
+        sas_hdd_num => 0,
+        sas_hdd_size => undef,
+        sas_hdd_slots => undef,
+        sata_ssd_num => 0,
+        sata_ssd_size => undef,
+        sata_ssd_slots => undef,
+        sas_ssd_num => 0,
+        sas_ssd_size => undef,
+        sas_ssd_slots => undef,
+        nvme_ssd_num => 0,
+        nvme_ssd_size => undef,
+        nvme_ssd_slots => undef,
+        raid_lun_num => 0,
+        psu_total => 0,
+        usb_num => 0,
     });
 
 my $new_product = $t->tx->res->json;
@@ -88,6 +125,9 @@ $t->post_ok('/hardware_product', json => {
         sku => 'another sku',
         rack_unit_size => 1,
         validation_plan_id => $validation_plan_id,
+        purpose => 'nothing',
+        bios_firmware => '0',
+        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -100,6 +140,9 @@ $t->post_ok('/hardware_product', json => {
         sku => 'another sku',
         rack_unit_size => 1,
         validation_plan_id => $validation_plan_id,
+        purpose => 'nothing',
+        bios_firmware => '0',
+        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -112,6 +155,9 @@ $t->post_ok('/hardware_product', json => {
         sku => 'another sku',
         rack_unit_size => 1,
         validation_plan_id => create_uuid_str(),
+        purpose => 'nothing',
+        bios_firmware => '0',
+        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -140,203 +186,8 @@ $t->get_ok('/hardware_product/name=sungo2')
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply($new_product);
 
-
-my $new_hw_profile;
-
-subtest 'create profile on existing product' => sub {
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => { bios_firmware => 'foo' },
-        })
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
-
-    $new_hw_profile = {
-        purpose => 'because',
-        bios_firmware => 'kittens',
-        cpu_type => 'hot',
-        psu_total => 1,
-    };
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => $new_hw_profile,
-        })
-        ->status_is(303)
-        ->location_is('/hardware_product/'.$new_hw_id);
-
-    $t->get_ok("/hardware_product/$new_hw_id")
-        ->status_is(200)
-        ->json_schema_is('HardwareProduct')
-        ->json_cmp_deeply({
-            $new_product->%*,
-            hardware_product_profile => superhashof($new_hw_profile),
-        });
-
-    $new_product = $t->tx->res->json;
-};
-
-subtest 'update some fields in an existing profile and product' => sub {
-    $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'Switch' })
-        ->status_is(409)
-        ->json_schema_is('Error')
-        ->json_is({ error => 'Unique constraint violated on \'name\'' });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => { alias => 'Switch Vendor' })
-        ->status_is(409)
-        ->json_schema_is('Error')
-        ->json_is({ error => 'Unique constraint violated on \'alias\'' });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => { sku => '550-551-001' })
-        ->status_is(409)
-        ->json_schema_is('Error')
-        ->json_is({ error => 'Unique constraint violated on \'sku\'' });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => { hardware_vendor_id => create_uuid_str() })
-        ->status_is(409)
-        ->json_schema_is('Error')
-        ->json_is({ error => 'hardware_vendor_id does not exist' });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => { validation_plan_id => create_uuid_str() })
-        ->status_is(409)
-        ->json_schema_is('Error')
-        ->json_is({ error => 'validation_plan_id does not exist' });
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            name => 'ether1',
-            rack_unit_size => 4,
-            hardware_product_profile => {
-                dimms_num => 3,
-                cpu_type => 'gross',
-            },
-        })
-        ->status_is(303)
-        ->location_is('/hardware_product/'.$new_hw_id);
-
-    $new_product->@{qw(name rack_unit_size updated)} = ('ether1',4,re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/));
-    $new_product->{hardware_product_profile}->@{qw(dimms_num cpu_type)} = (3,'gross');
-
-    $t->get_ok("/hardware_product/$new_hw_id")
-        ->status_is(200)
-        ->json_schema_is('HardwareProduct')
-        ->json_cmp_deeply($new_product);
-};
-
-subtest 'create a new hardware_product_profile in an existing product' => sub {
-
-    $t->app->db_hardware_product_profiles->search({ id => $new_product->{hardware_product_profile}{id} })->delete;
-
-    $t->post_ok("/hardware_product/$new_hw_id", json => {
-            hardware_product_profile => {
-                dimms_num => 2,
-            },
-        })
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
-
-    $t->post_ok("/hardware_product/$new_hw_id",
-            json => { hardware_product_profile => $new_hw_profile })
-        ->status_is(303)
-        ->location_is('/hardware_product/'.$new_hw_id);
-
-    $new_product->{hardware_product_profile}->@{qw(id dimms_num cpu_type)} = (re(Conch::UUID::UUID_FORMAT),0,'hot');
-
-    $t->get_ok("/hardware_product/$new_hw_id")
-        ->status_is(200)
-        ->json_schema_is('HardwareProduct')
-        ->json_cmp_deeply($new_product);
-};
-
-my $another_new_hw_id;
-my $new_hw_profile_id;
-
-subtest 'create a hardware product and hardware product profile all together' => sub {
-    $t->post_ok('/hardware_product', json => {
-            name => 'ether2',
-            hardware_vendor_id => $vendor_id,
-            alias => 'ether',
-            sku => 'another sku',
-            rack_unit_size => 1,
-            hardware_product_profile => { dimms_num => 2 },
-            validation_plan_id => $validation_plan_id,
-        })
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', array_each({ path => re(qr{^/hardware_product_profile/}), message => re(qr/missing property/i) }));
-
-    $new_hw_profile = {
-        purpose => 'because',
-        bios_firmware => 'kittens',
-        cpu_num => 2,
-        cpu_type => 'hot',
-        dimms_num => 4,
-        ram_total => 1024,
-        nics_num => 16,
-        psu_total => 1,
-        usb_num => 4,
-    };
-
-    $t->post_ok('/hardware_product', json => {
-            name => 'ether2',
-            hardware_vendor_id => $vendor_id,
-            alias => 'ether',
-            sku => 'another sku',
-            rack_unit_size => 2,
-            hardware_product_profile => $new_hw_profile,
-            validation_plan_id => $validation_plan_id,
-        })
-        ->status_is(303)
-        ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
-
-    $t->get_ok($t->tx->res->headers->location)
-        ->status_is(200)
-        ->json_schema_is('HardwareProduct')
-        ->json_cmp_deeply({
-            id => re(Conch::UUID::UUID_FORMAT),
-            name => 'ether2',
-            alias => 'ether',
-            prefix => undef,
-            hardware_vendor_id => $vendor_id,
-            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            specification => undef,
-            sku => 'another sku',
-            generation_name => undef,
-            legacy_product_name => undef,
-            rack_unit_size => 2,
-            validation_plan_id => $validation_plan_id,
-            hardware_product_profile => {
-                $new_hw_profile->%*,
-                id => re(Conch::UUID::UUID_FORMAT),
-                hba_firmware => undef,
-                sata_hdd_num => 0,
-                sata_hdd_size => undef,
-                sata_hdd_slots => undef,
-                sas_hdd_num => 0,
-                sas_hdd_size => undef,
-                sas_hdd_slots => undef,
-                sata_ssd_num => 0,
-                sata_ssd_size => undef,
-                sata_ssd_slots => undef,
-                sas_ssd_num => 0,
-                sas_ssd_size => undef,
-                sas_ssd_slots => undef,
-                nvme_ssd_num => 0,
-                nvme_ssd_size => undef,
-                nvme_ssd_slots => undef,
-                raid_lun_num => 0,
-            }
-        });
-
-    $another_new_hw_id = $t->tx->res->json->{id};
-    $new_hw_profile_id = $t->tx->res->json->{hardware_product_profile}{id};
-};
-
 subtest 'delete a hardware product' => sub {
     $t->delete_ok("/hardware_product/$new_hw_id")
-        ->status_is(204);
-
-    $t->delete_ok("/hardware_product/$another_new_hw_id")
         ->status_is(204);
 
     $t->get_ok("/hardware_product/$new_hw_id")
@@ -346,13 +197,6 @@ subtest 'delete a hardware product' => sub {
         ->status_is(200)
         ->json_schema_is('HardwareProducts')
         ->json_cmp_deeply($products);
-
-    ok(
-        $t->app->db_hardware_product_profiles
-            ->search({ id => $new_hw_profile_id })
-            ->get_column('deactivated'),
-        'new hardware product profile was deleted',
-    );
 };
 
 done_testing;

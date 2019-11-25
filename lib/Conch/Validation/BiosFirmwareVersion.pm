@@ -12,10 +12,8 @@ sub validate {
 
     $self->die("Missing 'bios_version'") unless $data->{bios_version};
 
-    my $hw_profile = $self->hardware_product_profile;
-
     $self->register_result(
-        expected => $hw_profile->bios_firmware,
+        expected => $self->hardware_product->bios_firmware,
         got      => $data->{bios_version}
     );
 }

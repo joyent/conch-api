@@ -8,7 +8,6 @@ test_validation(
     'Conch::Validation::NvmeSsdNum',
     hardware_product => {
         name    => 'Test Product',
-        hardware_product_profile => {}
     },
     cases => [
         {
@@ -22,11 +21,11 @@ test_validation(
     'Conch::Validation::NvmeSsdNum',
     hardware_product => {
         name    => 'Test Product',
-        hardware_product_profile => { nvme_ssd_num => 2 }
+        nvme_ssd_num => 2,
     },
     cases => [
         {
-            description => 'Failure when no NVMe SSDs but nvme_ssd_num in profile',
+            description => 'Failure when no NVMe SSDs but nvme_ssd_num in hardware_product',
             data        => {
                 disks => {}
             },

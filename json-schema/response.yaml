@@ -766,10 +766,35 @@ definitions:
       - sku
       - specification
       - rack_unit_size
-      - hardware_product_profile
       - created
       - updated
       - validation_plan_id
+      - bios_firmware
+      - cpu_num
+      - cpu_type
+      - dimms_num
+      - hba_firmware
+      - nics_num
+      - psu_total
+      - purpose
+      - ram_total
+      - sas_hdd_num
+      - sas_hdd_size
+      - sas_hdd_slots
+      - sata_hdd_num
+      - sata_hdd_size
+      - sata_hdd_slots
+      - sata_ssd_num
+      - sata_ssd_size
+      - sata_ssd_slots
+      - sas_ssd_num
+      - sas_ssd_size
+      - sas_ssd_slots
+      - nvme_ssd_num
+      - nvme_ssd_size
+      - nvme_ssd_slots
+      - raid_lun_num
+      - usb_num
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -802,10 +827,6 @@ definitions:
           - type: 'null'
       rack_unit_size:
         $ref: common.yaml#/definitions/positive_integer
-      hardware_product_profile:
-        oneOf:
-          - $ref: /definitions/HardwareProductProfile
-          - type: 'null'
       created:
         type: string
         format: date-time
@@ -813,40 +834,6 @@ definitions:
         type: string
         format: date-time
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
-  HardwareProductProfile:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - bios_firmware
-      - cpu_num
-      - cpu_type
-      - dimms_num
-      - hba_firmware
-      - nics_num
-      - psu_total
-      - purpose
-      - ram_total
-      - sas_hdd_num
-      - sas_hdd_size
-      - sas_hdd_slots
-      - sata_hdd_num
-      - sata_hdd_size
-      - sata_hdd_slots
-      - sata_ssd_num
-      - sata_ssd_size
-      - sata_ssd_slots
-      - sas_ssd_num
-      - sas_ssd_size
-      - sas_ssd_slots
-      - nvme_ssd_num
-      - nvme_ssd_size
-      - nvme_ssd_slots
-      - raid_lun_num
-      - usb_num
-    properties:
-      id:
         $ref: common.yaml#/definitions/uuid
       bios_firmware:
         type: string

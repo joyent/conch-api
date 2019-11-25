@@ -14,13 +14,11 @@ sub validate {
     $self->die("Input data must include 'disks' hash")
         unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-    my $hw_profile = $self->hardware_product_profile;
-
     my $sata_ssd_count =
         grep { $_->{drive_type} && fc($_->{drive_type}) eq fc('SATA_SSD') }
         (values $data->{disks}->%*);
 
-    my $sata_ssd_want = $hw_profile->sata_ssd_num;
+    my $sata_ssd_want = $self->hardware_product->sata_ssd_num;
 
     # Joyent-Compute-Platform-3302 special case. HCs can have 8 or 16
     # Intel SATA SSDs and there's no other identifier. Here, we want

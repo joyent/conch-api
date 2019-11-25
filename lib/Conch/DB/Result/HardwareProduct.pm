@@ -108,6 +108,148 @@ __PACKAGE__->table("hardware_product");
   is_nullable: 0
   size: 16
 
+=head2 purpose
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 bios_firmware
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 hba_firmware
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 cpu_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 cpu_type
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 dimms_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 ram_total
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 nics_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 sata_hdd_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 sata_hdd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 sata_hdd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 sas_hdd_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 sas_hdd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 sas_hdd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 sata_ssd_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 sata_ssd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 sata_ssd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 psu_total
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 usb_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 sas_ssd_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 sas_ssd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 sas_ssd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 nvme_ssd_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 nvme_ssd_size
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 nvme_ssd_slots
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 raid_lun_num
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -154,6 +296,58 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 0 },
   "validation_plan_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "purpose",
+  { data_type => "text", is_nullable => 0 },
+  "bios_firmware",
+  { data_type => "text", is_nullable => 0 },
+  "hba_firmware",
+  { data_type => "text", is_nullable => 1 },
+  "cpu_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "cpu_type",
+  { data_type => "text", is_nullable => 0 },
+  "dimms_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "ram_total",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "nics_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "sata_hdd_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "sata_hdd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "sata_hdd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "sas_hdd_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "sas_hdd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "sas_hdd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "sata_ssd_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "sata_ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "sata_ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "psu_total",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "usb_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "sas_ssd_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "sas_ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "sas_ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "nvme_ssd_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "nvme_ssd_size",
+  { data_type => "integer", is_nullable => 1 },
+  "nvme_ssd_slots",
+  { data_type => "text", is_nullable => 1 },
+  "raid_lun_num",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -181,21 +375,6 @@ Related object: L<Conch::DB::Result::Device>
 __PACKAGE__->has_many(
   "devices",
   "Conch::DB::Result::Device",
-  { "foreign.hardware_product_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 hardware_product_profile
-
-Type: might_have
-
-Related object: L<Conch::DB::Result::HardwareProductProfile>
-
-=cut
-
-__PACKAGE__->might_have(
-  "hardware_product_profile",
-  "Conch::DB::Result::HardwareProductProfile",
   { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -262,21 +441,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XBj+kJeR/2QEgJOvSdhMHw
-
-use experimental 'signatures';
-
-sub TO_JSON ($self) {
-    my $data = $self->next::method(@_);
-
-    # include hardware_product_profile when available.
-    if (my $cached_profile = $self->related_resultset('hardware_product_profile')->get_cache) {
-        # the cache is always a listref, if it was prefetched.
-        $data->{hardware_product_profile} = @$cached_profile ? $cached_profile->[0]->TO_JSON : undef;
-    }
-
-    return $data;
-}
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dWj98mMvxDNsTIYjHOOsGQ
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

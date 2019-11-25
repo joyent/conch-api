@@ -14,11 +14,9 @@ sub validate {
         $self->die("Missing 'dimms' property");
     }
 
-    my $hw_profile = $self->hardware_product_profile;
-
     my $dimms_num  = scalar grep $_->{'memory-size'} || $_->{'memory-type'},
         $data->{dimms}->@*;
-    my $dimms_want = $hw_profile->dimms_num;
+    my $dimms_want = $self->hardware_product->dimms_num;
 
     $self->register_result(
         expected => $dimms_want,

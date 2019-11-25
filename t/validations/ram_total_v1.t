@@ -8,7 +8,7 @@ test_validation(
     'Conch::Validation::RamTotal',
     hardware_product => {
         name => 'Test Product',
-        hardware_product_profile => { ram_total => 128 }
+        ram_total => 128,
     },
     cases => [
         {

@@ -27,7 +27,6 @@ Conch::Validation - base class for writing Conch Validations
         my $device_location  = $self->device_location;
         my $hardware_vendor  = $self->hardware_product_vendor;
         my $hardware_name    = $self->hardware_product_name;
-        my $hardware_profile = $self->hardware_product_profile;
 
         $self->register_result(expected => 'hello', got => $input_data->{hello});
     }
@@ -42,8 +41,8 @@ method.  This method receives the input data (a C<HASHREF>) to be validated.
 The validation logic in the L</validate> method will evaluate the input data and
 register one or more validation results with the
 L</register_result> method. The logic may use device, device
-settings, hardware product name, hardware product vendor, and hardware product
-profile details to dispatch conditions and evaluation.
+settings, hardware product name, hardware product vendor, and other
+details to dispatch conditions and evaluation.
 
 Conch Validations should also define values for the C<name>, C<version>,
 C<category>, and C<description> attributes. These attributes are used in the
@@ -214,15 +213,6 @@ Get the expected hardware product vendor name for the device under validation.
 
     if ($self->hardware_product_vendor eq 'Dell') {...}
 
-=head2 hardware_product_profile
-
-Get the expected hardware product profile for the device under validation.
-It is a L<Conch::DB::Result::HardwareProductProfile> object.
-
-    my $expected_ram = self->hardware_product_profile->ram_total;
-    my $expected_ssd = self->hardware_product_profile->ssd_num;
-    my $expected_firmware = self->hardware_product_profile->bios_firmware;
-
 =cut
 
 has hardware_product => (
@@ -240,7 +230,6 @@ has hardware_product => (
         hardware_product_sku => 'sku',
         hardware_product_specification => 'specification',
         hardware_product_vendor => 'hardware_vendor',
-        hardware_product_profile => 'hardware_product_profile',
     },
 );
 

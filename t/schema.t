@@ -375,8 +375,6 @@ $t->get_ok('/schema/request/HardwareProductCreate')
                 non_empty_string
                 mojo_standard_placeholder
                 HardwareProductUpdate
-                HardwareProductProfileCreate
-                HardwareProductProfileUpdate
             )
         },
     }), 'nested definitions are found and included');

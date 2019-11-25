@@ -204,9 +204,6 @@ in the database by following the relationship methods provided on these.)
   product vendor name of the expected hardware product for the device
 * `$self->hardware_product_name`: a shortcut to the string containing the hardware
   product name of the expected hardware product for the device
-* `$self->hardware_product_profile`: the `Conch::DB::Result::HardwareProductProfile`
-  object representing the hardware product profile of the expected hardware
-  product for the device
 
 If these methods are used and the device *does not* have details (for example,
 if a device does not have a location assigned), the method will call
@@ -216,10 +213,10 @@ it will fail automatically if the device isn't assigned yet. No need to write
 your own conditional checking logic.
 
 A common validation use-case is comparing values reported, such as the amount
-of RAM, to the value expected by the hardware product profile. For our
+of RAM, to the value expected by the hardware product. For our
 validation, let's assume that we require 1.21 gigawatts per PSU (stay with me
 here), where the number of PSUs is specified by the `psu_total` field of the
-hardware product profile. To add further complexity, this is only applied for
+hardware product. To add further complexity, this is only applied for
 devices with the product name 'DMC-12'. For all other produce names, we require
 the normal 1.21 gigawatts. Let's update our validation with this more complicated
 logic:
@@ -241,7 +238,7 @@ sub validate {
 
     my $expected_gigawatts;
     if ($self->hardware_product_name eq 'DMC-12') {
-        $expected_gigawatts = 1.21 * $self->hardware_product_profile->psu_total;
+        $expected_gigawatts = 1.21 * $self->hardware_product->psu_total;
     } else {
         $expected_gigawatts = 1.21;
     }
@@ -327,7 +324,7 @@ done_testing;
 This tests the basic logic, but doesn't test the edge case we introduced with
 1.21 gigawatts multiplied by the number of PSUs for devices with the hardware
 product name 'DMC-12'. The validation harness also allows us to provide fake
-objects, like hardware product and hardware profile, to be used in the
+objects, like hardware product, to be used in the
 validation under test. This is done by defining named arguments in the
 `test_validation` function like `hardware_product`. [The list of available
 named arguments and an example are given in the documentation for the test
@@ -341,8 +338,7 @@ test_validation(
     'Conch::Validation::MyValidation',
     hardware_product => {
         name => 'DMC-12',
-        # profile has 2 PSUs
-        profile => { psu_total => 2 },
+        psu_total => 2,
     },
     cases => [
         {

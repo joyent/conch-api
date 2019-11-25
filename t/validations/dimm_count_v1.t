@@ -8,7 +8,7 @@ test_validation(
     'Conch::Validation::DimmCount',
     hardware_product => {
         name    => 'Test Product',
-        hardware_product_profile => { dimms_num => 2 }
+        dimms_num => 2,
     },
     cases => [
         {

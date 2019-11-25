@@ -23,12 +23,11 @@ Response uses the HardwareProduct json schema.
 
 ## create
 
-Creates a new hardware\_product, and possibly also a hardware\_product\_profile.
+Creates a new hardware\_product.
 
 ## update
 
-Updates an existing hardware\_product, possibly updating or creating a hardware\_product\_profile
-as needed.
+Updates an existing hardware\_product.
 
 ## delete
 

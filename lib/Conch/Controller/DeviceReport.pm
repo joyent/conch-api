@@ -36,9 +36,6 @@ sub process ($c) {
     my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
     return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
 
-    return $c->status(409, { error => 'Hardware product does not contain a profile' })
-        if not $c->db_hardware_product_profiles->active->search({ hardware_product_id => $hardware_product_id })->exists;
-
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
             if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
@@ -393,9 +390,6 @@ sub validate_report ($c) {
 
     my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
     return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
-
-    return $c->status(409, { error => 'Hardware product does not contain a profile' })
-        if not $c->db_hardware_product_profiles->active->search({ hardware_product_id => $hardware_product_id })->exists;
 
     if (my $current_hardware_product_id = $c->db_devices->search({ serial_number => $unserialized_report->{serial_number} })->get_column('hardware_product_id')->single) {
         return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$unserialized_report->{serial_number} })
