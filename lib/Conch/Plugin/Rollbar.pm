@@ -41,7 +41,6 @@ sub register ($self, $app, $config) {
 
         if (my $exception = $c->stash('exception')
                 or ($template and $template =~ /exception/)) {
-            $exception //= $args->{exception};
             my $rollbar_id = $c->send_exception_to_rollbar($exception);
             $c->log->debug('exception sent to rollbar: id '.$rollbar_id);
         }
