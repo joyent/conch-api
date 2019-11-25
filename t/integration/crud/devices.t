@@ -1023,16 +1023,14 @@ subtest 'Device PXE' => sub {
     $t_super->authenticate(email => $super_user->email);
     my $layout = $t_super->load_fixture('rack_0a_layout_3_6');
 
-    my $relay = $t_super->app->db_relays->create({ serial_number => 'my_relay' });
-
     my $device_pxe = $t_super->app->db_devices->create({
         serial_number => 'PXE_TEST',
         hardware_product_id => $layout->hardware_product_id,
         health => 'unknown',
         device_relay_connections => [{
             relay => {
-                id => $relay->id,
-                user_relay_connections => [ { user_id => $super_user->id } ],
+                serial_number => 'my_relay',
+                user_id => $super_user->id,
             }
         }],
         device_nics => [

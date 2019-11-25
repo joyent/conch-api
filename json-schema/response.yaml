@@ -1085,6 +1085,7 @@ definitions:
         - created
         - updated
         - last_seen
+        - user_id
         - location
         - num_devices
       properties:
@@ -1117,6 +1118,8 @@ definitions:
         last_seen:
           type: string
           format: date-time
+        user_id:
+          $ref: common.yaml#/definitions/uuid
         location:
           $comment: location should not be considered canonical when device 'phase' is 'production' or later
           description: Last reported location of the relay
@@ -1286,6 +1289,7 @@ definitions:
       - created
       - updated
       - last_seen
+      - user_id
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1316,6 +1320,8 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
+      user_id:
+        $ref: common.yaml#/definitions/uuid
   Version:
     type: object
     additionalProperties: false

@@ -86,6 +86,13 @@ __PACKAGE__->table("relay");
   is_nullable: 0
   original: {default_value => \"now()"}
 
+=head2 user_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -129,6 +136,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
+  "user_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
 =head1 PRIMARY KEY
@@ -174,19 +183,19 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 user_relay_connections
+=head2 user_account
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<Conch::DB::Result::UserRelayConnection>
+Related object: L<Conch::DB::Result::UserAccount>
 
 =cut
 
-__PACKAGE__->has_many(
-  "user_relay_connections",
-  "Conch::DB::Result::UserRelayConnection",
-  { "foreign.relay_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "user_account",
+  "Conch::DB::Result::UserAccount",
+  { id => "user_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 devices
@@ -199,19 +208,9 @@ Composing rels: L</device_relay_connections> -> device
 
 __PACKAGE__->many_to_many("devices", "device_relay_connections", "device");
 
-=head2 user_accounts
-
-Type: many_to_many
-
-Composing rels: L</user_relay_connections> -> user_account
-
-=cut
-
-__PACKAGE__->many_to_many("user_accounts", "user_relay_connections", "user_account");
-
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xMpqCXk+kpN2bu77AEmjUA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8r42EA82AMoASKBMCa6Jpw
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

@@ -11,8 +11,8 @@
 # Cardinality    Syntax
 # 0 or 1         ?
 # exactly 1      1
-# 0 or more      *      (primary key)
-# 1 or more      +      (foreign key)
+# 0 or more      *      (marks primary key on table declaration)
+# 1 or more      +      (marks foreign key on table declaration)
 
 
 title {label: "Conch database schema (as of v3.0.0-b1, 2019-10-21)", size: "50"}
@@ -247,6 +247,7 @@ deactivated
 created
 updated
 last_seen
++user_id
 
 [user_account] {bgcolor: "#d0e0d0"}
 *id
@@ -270,12 +271,6 @@ role {label: "ro, rw, admin"}
 *+user_id
 *+organization_id
 role {label: "ro, rw, admin"}
-
-[user_relay_connection] {bgcolor: "#d0e0d0"}
-*+user_id
-*+relay_id
-first_seen
-last_seen
 
 [user_session_token] {bgcolor: "#d0e0d0"}
 *id
@@ -385,12 +380,11 @@ rack *--1 datacenter_room
 rack_layout *--1 hardware_product
 rack_layout *--1 rack
 rack *--1 rack_role
+relay +--1 user_account
 user_build_role +--1 build
 user_build_role *--1 user_account
 user_organization_role +--1 organization
 user_organization_role *--1 user_account
-user_relay_connection *--1 relay
-user_relay_connection *--1 user_account
 user_session_token *--1 user_account
 user_setting *--1 user_account
 user_workspace_role *--1 user_account

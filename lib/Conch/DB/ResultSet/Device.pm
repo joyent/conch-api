@@ -135,12 +135,15 @@ sub devices_without_location ($self) {
 Restrict results to those that have sent a device report proxied by a relay
 registered using the provided user's credentials.
 
+Note: this is not accurate if the relay is now registered to a different user than that which
+sent the report.
+
 =cut
 
 sub devices_reported_by_user_relay ($self, $user_id) {
     $self->search(
-        { 'user_relay_connections.user_id' => $user_id },
-        { join => { device_relay_connections => { relay => 'user_relay_connections' } } },
+        { 'relay.user_id' => $user_id },
+        { join => { device_relay_connections => 'relay' } },
     );
 }
 

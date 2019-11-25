@@ -36,6 +36,9 @@ Restrict results to those that do not have a registered location.
 Restrict results to those that have sent a device report proxied by a relay
 registered using the provided user's credentials.
 
+Note: this is not accurate if the relay is now registered to a different user than that which
+sent the report.
+
 ## latest\_device\_report
 
 Returns a resultset that finds the most recent device report matching the device(s). This is

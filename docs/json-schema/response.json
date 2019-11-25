@@ -2186,6 +2186,9 @@
           "format" : "date-time",
           "type" : "string"
         },
+        "user_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
         "version" : {
           "oneOf" : [
             {
@@ -2206,7 +2209,8 @@
         "ssh_port",
         "created",
         "updated",
-        "last_seen"
+        "last_seen",
+        "user_id"
       ],
       "type" : "object"
     },
@@ -3157,6 +3161,9 @@
             "format" : "date-time",
             "type" : "string"
           },
+          "user_id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
           "version" : {
             "oneOf" : [
               {
@@ -3178,6 +3185,7 @@
           "created",
           "updated",
           "last_seen",
+          "user_id",
           "location",
           "num_devices"
         ],

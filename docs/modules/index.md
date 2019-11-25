@@ -76,7 +76,6 @@
 * [Conch::DB::Result::UserAccount](../modules/Conch::DB::Result::UserAccount)
 * [Conch::DB::Result::UserBuildRole](../modules/Conch::DB::Result::UserBuildRole)
 * [Conch::DB::Result::UserOrganizationRole](../modules/Conch::DB::Result::UserOrganizationRole)
-* [Conch::DB::Result::UserRelayConnection](../modules/Conch::DB::Result::UserRelayConnection)
 * [Conch::DB::Result::UserSessionToken](../modules/Conch::DB::Result::UserSessionToken)
 * [Conch::DB::Result::UserSetting](../modules/Conch::DB::Result::UserSetting)
 * [Conch::DB::Result::UserWorkspaceRole](../modules/Conch::DB::Result::UserWorkspaceRole)
