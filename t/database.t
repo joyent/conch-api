@@ -1,5 +1,10 @@
-use v5.26;
-use Mojo::Base -strict, -signatures;
+use strict;
+use warnings;
+use warnings FATAL => 'utf8';
+use utf8;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+use experimental 'signatures';
+
 use Test::More;
 use Test::Conch;
 use Test::Fatal;
