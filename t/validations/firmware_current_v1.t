@@ -16,8 +16,10 @@ test_validation(
 
 test_validation(
     'Conch::Validation::FirmwareCurrent',
-    device_settings => {
-        firmware => 'updating'
+    device => {
+        device_settings => {
+            firmware => 'updating'
+        },
     },
     cases => [
         {
@@ -29,8 +31,10 @@ test_validation(
 
 test_validation(
     'Conch::Validation::FirmwareCurrent',
-    device_settings => {
-        firmware => 'current'
+    device => {
+        device_settings => {
+            firmware => 'current'
+        },
     },
     cases => [
         {

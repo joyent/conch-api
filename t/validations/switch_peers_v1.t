@@ -6,11 +6,13 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::SwitchPeers',
-    hardware_product => {
-        name => 'Test Product',
-    },
-    device_location => {
-        rack_unit_start => 2,
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+        },
+        device_location => {
+            rack_unit_start => 2,
+        },
     },
     # define other layouts outside this device, as the validation depends on seeing more of the
     # rack than just this one device's slot

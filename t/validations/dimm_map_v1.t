@@ -6,14 +6,16 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::DimmMap',
-    hardware_product => {
-        name => 'Test Product',
-        specification => '{
-            "chassis": { "memory":{ "dimms": [
-                { "slot": "P1-DIMMA1" },
-                { "slot": "P1-DIMMB1" }
-            ] } }
-        }'
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+            specification => '{
+                "chassis": { "memory":{ "dimms": [
+                    { "slot": "P1-DIMMA1" },
+                    { "slot": "P1-DIMMB1" }
+                ] } }
+            }'
+        },
     },
     cases => [
         {

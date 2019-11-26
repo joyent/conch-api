@@ -107,6 +107,14 @@ sub _device_location_inflation ($self, $data) {
     );
 }
 
+sub _rack_layout_different_hardware_product ($self, $data) {
+    $self->register_result_cmp_details(
+        $self->device->device_location->rack_layout->hardware_product_id,
+        none($self->device->hardware_product_id),
+        'rack layout gets a different hardware product than the device',
+    );
+}
+
 sub _rack_inflation ($self, $data) {
     $self->register_result_cmp_details(
         $self->device_location->rack,

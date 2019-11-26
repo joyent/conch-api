@@ -6,9 +6,11 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::DeviceProductName',
-    hardware_product => {
-        name => 'Test Product',
-        generation_name => 'Joyent-G1',
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+            generation_name => 'Joyent-G1',
+        },
     },
     cases            => [
         {
@@ -30,8 +32,10 @@ test_validation(
 
 test_validation(
     'Conch::Validation::DeviceProductName',
-    hardware_product => {
-        name => 'Test Product',
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+        },
     },
     cases            => [
         {

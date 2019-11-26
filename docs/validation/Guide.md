@@ -283,7 +283,9 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::MyValidation',
-    hardware_product => { name => 'Test Product' },
+    device => {
+        hardware_product => { name => 'Test Product' },
+    },
     cases => [
         {
             description => 'Providing no input data dies',
@@ -324,11 +326,8 @@ done_testing;
 This tests the basic logic, but doesn't test the edge case we introduced with
 1.21 gigawatts multiplied by the number of PSUs for devices with the hardware
 product name 'DMC-12'. The validation harness also allows us to provide fake
-objects, like hardware product, to be used in the
-validation under test. This is done by defining named arguments in the
-`test_validation` function like `hardware_product`. [The list of available
-named arguments and an example are given in the documentation for the test
-harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md).
+objects for the device, like hardware product, to be used in the
+validation under test.
 
 In the same file, after the `test_validation()` call and before
 `done_testing;`, we add tests for the edge case:
@@ -336,9 +335,11 @@ In the same file, after the `test_validation()` call and before
 ```perl
 test_validation(
     'Conch::Validation::MyValidation',
-    hardware_product => {
-        name => 'DMC-12',
-        psu_total => 2,
+    device => {
+        hardware_product => {
+            name => 'DMC-12',
+            psu_total => 2,
+        },
     },
     cases => [
         {

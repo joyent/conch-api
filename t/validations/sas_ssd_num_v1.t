@@ -6,8 +6,10 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::SasSsdNum',
-    hardware_product => {
-        name    => 'Test Product',
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+        },
     },
     cases => [
         {
@@ -19,9 +21,11 @@ test_validation(
 
 test_validation(
     'Conch::Validation::SasSsdNum',
-    hardware_product => {
-        name    => 'Test Product',
-        sas_ssd_num => 2,
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+            sas_ssd_num => 2,
+        },
     },
     cases => [
         {

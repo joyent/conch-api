@@ -15,38 +15,35 @@ This function performs the following tests:
 and `description` attributes.
 
 The required arguments are the Conch Validation module as a string, keyword
-arguments specifying optional models available to the Validation, and a keyword
+arguments specifying data to be made available to the Validation, and a keyword
 argument specifying the cases for the test to use.
 
-The available models are `hardware_product`, `device_location`,
-`device_settings`, and `device`. Their attributes are defined with a hashref,
-which will be constructed to the correct classes in the body of
-["test\_validation"](#test_validation). For example:
+The only data made directly available to the validation is `device`, so (most) data
+should be nested underneath that, following the database schema.
+For example:
 
 ```
 test_validation(
     'Conch::Validation::TestValidation',
-    hardware_product => {
-        name => 'Product Name',
-        vendor => 'Product Vendor',
-        num_cpu => 2,
-    },
-    device_location => {
-        rack_unit_start => 2,
-        rack => {
-            rack_layouts => [
-                { rack_unit_start => 1 },
-                { rack_unit_start => 2 },
-                { rack_unit_start => 3 },
-            ],
-        },
-    },
-    device_settings => {
-        foo => 'bar'
-    },
     device => {
         asset_tag => 'foo',
+        hardware_product => {
+            name => 'Product Name',
+            vendor => 'Product Vendor',
+            cpu_num => 2,
+        },
+        device_location => {
+            rack_unit_start => 2,
+        },
+        device_settings => {
+            foo => 'bar'
+        },
     },
+    rack_layouts => [
+        { rack_unit_start => 1 },
+        { rack_unit_start => 2 },
+        { rack_unit_start => 3 },
+    ],
 
     cases => [ ... ]
 );

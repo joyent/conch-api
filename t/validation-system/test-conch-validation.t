@@ -41,7 +41,9 @@ subtest 'database object construction' => sub {
 
     test_validation(
         'Conch::Validation::TestConchValidationTester',
-        device => { serial_number => 'my device' },
+        device => {
+            serial_number => 'my device',
+        },
         cases => [
             {
                 description => 'device inflation',
@@ -64,7 +66,9 @@ subtest 'database object construction' => sub {
 
     test_validation(
         'Conch::Validation::TestConchValidationTester',
-        hardware_product => { name => 'my product' },
+        device => {
+            hardware_product => { name => 'my product' },
+        },
         cases => [
             {
                 description => 'did not request device (but got a generic one)',
@@ -87,8 +91,10 @@ subtest 'database object construction' => sub {
 
     test_validation(
         'Conch::Validation::TestConchValidationTester',
-        hardware_product => {
-            dimms_num => 4,
+        device => {
+            hardware_product => {
+                dimms_num => 4,
+            },
         },
         cases => [
             {
@@ -112,8 +118,11 @@ subtest 'database object construction' => sub {
 
     test_validation(
         'Conch::Validation::TestConchValidationTester',
-        device_location => {
-            rack_unit_start => 2,
+        device => {
+            device_location => {
+                rack_unit_start => 2,
+                # rack_layout is implicit
+            },
         },
         cases => [
             {
@@ -131,18 +140,25 @@ subtest 'database object construction' => sub {
                 data => { subname => '_device_location_inflation', rack_unit_start => 2 },
                 success_num => 3,
             },
-            # Note that in this case, hardware_product comes from the device_location, not device,
-            # but with the current fixture design, this comes out all the same anyway.
-            # Write a test where there are two different hardware_products!
+            {
+                description => 'when rack_layout is defined, it gets a distinct hardware_product',
+                data => { subname => '_rack_layout_different_hardware_product' },
+                success_num => 1,
+            },
         ],
     );
 
     test_validation(
         'Conch::Validation::TestConchValidationTester',
-        device_location => {
-            rack_unit_start => 3,
-            rack => {
-                name => 'my rack',
+        device => {
+            device_location => {
+                rack_unit_start => 3,
+                rack => {
+                    name => 'my rack',
+                },
+                rack_layout => {
+                    hardware_product => { name => 'product B' },
+                },
             },
         },
         cases => [
@@ -152,7 +168,7 @@ subtest 'database object construction' => sub {
                 success_num => 2,
             },
             {
-                description => 'did not request hardware_product (but got a generic one)',
+                description => 'did not request device hardware_product (but got a generic one)',
                 data => { subname => '_hardware_product_inflation' },
                 success_num => 3,
             },
@@ -166,12 +182,19 @@ subtest 'database object construction' => sub {
                 data => { subname => '_rack_inflation', rack_unit_start => 3, rack_name => 'my rack' },
                 success_num => 2,
             },
+            {
+                description => 'explicit hardware_product for rack_layout is distinct',
+                data => { subname => '_rack_layout_different_hardware_product' },
+                success_num => 1,
+            },
         ],
     );
 
     test_validation(
         'Conch::Validation::TestConchValidationTester',
-        device_settings => { foo => 'bar' },
+        device => {
+            device_settings => { foo => 'bar' },
+        },
         cases => [
             {
                 description => 'did not request device (but got a generic one)',

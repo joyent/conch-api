@@ -41,37 +41,34 @@ and C<description> attributes.
 =back
 
 The required arguments are the Conch Validation module as a string, keyword
-arguments specifying optional models available to the Validation, and a keyword
+arguments specifying data to be made available to the Validation, and a keyword
 argument specifying the cases for the test to use.
 
-The available models are C<hardware_product>, C<device_location>,
-C<device_settings>, and C<device>. Their attributes are defined with a hashref,
-which will be constructed to the correct classes in the body of
-L</test_validation>. For example:
+The only data made directly available to the validation is C<device>, so (most) data
+should be nested underneath that, following the database schema.
+For example:
 
     test_validation(
         'Conch::Validation::TestValidation',
-        hardware_product => {
-            name => 'Product Name',
-            vendor => 'Product Vendor',
-            num_cpu => 2,
-        },
-        device_location => {
-            rack_unit_start => 2,
-            rack => {
-                rack_layouts => [
-                    { rack_unit_start => 1 },
-                    { rack_unit_start => 2 },
-                    { rack_unit_start => 3 },
-                ],
-            },
-        },
-        device_settings => {
-            foo => 'bar'
-        },
         device => {
             asset_tag => 'foo',
+            hardware_product => {
+                name => 'Product Name',
+                vendor => 'Product Vendor',
+                cpu_num => 2,
+            },
+            device_location => {
+                rack_unit_start => 2,
+            },
+            device_settings => {
+                foo => 'bar'
+            },
         },
+        rack_layouts => [
+            { rack_unit_start => 1 },
+            { rack_unit_start => 2 },
+            { rack_unit_start => 3 },
+        ],
 
         cases => [ ... ]
     );
@@ -136,17 +133,20 @@ sub test_validation {
     my $validation_module = shift;
     my %args              = @_;
 
+    my %fixtures = map +(exists $args{$_} ? ($_ => delete $args{$_}) : ()), qw(device rack_layouts);
+    $fixtures{device} //= {};   # always create a device, even if generic
+
+    my $cases = delete $args{cases};
+    warn 'unsupported arguments: ', join(', ', keys %args) if keys %args;
+
     state $test_count = 0;
-    subtest $test_count++.": $validation_module (".scalar($args{cases}->@*).' cases)', sub {
+    subtest $test_count++.": $validation_module (".scalar($cases->@*).' cases)', sub {
         my $t = Test::Conch->new;
 
         use_ok($validation_module)
             || diag "$validation_module fails to compile" && return;
 
-        my @objects = $t->generate_fixtures(
-            device => {},    # always create a device, even if generic
-            %args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device rack_layouts) }
-        );
+        my @objects = $t->generate_fixtures(%fixtures);
 
         my $device = first { $_->isa('Conch::DB::Result::Device') } @objects;
 
@@ -161,8 +161,8 @@ sub test_validation {
             device => $t->app->db_ro_devices->find($device->id),
         );
 
-        for my $case_index (0 .. $args{cases}->$#*) {
-            my $case = $args{cases}->[$case_index];
+        for my $case_index (0 .. $cases->$#*) {
+            my $case = $cases->[$case_index];
             subtest(
                 join(': ', "Case $case_index", $case->{description}),
                 \&_test_case => ($validation, $validation_module, $case));

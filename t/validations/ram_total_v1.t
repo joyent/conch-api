@@ -6,9 +6,11 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::RamTotal',
-    hardware_product => {
-        name => 'Test Product',
-        ram_total => 128,
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+            ram_total => 128,
+        },
     },
     cases => [
         {
