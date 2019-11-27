@@ -114,7 +114,6 @@ subtest 'database object construction' => sub {
         'Conch::Validation::TestConchValidationTester',
         device_location => {
             rack_unit_start => 2,
-            rack_layouts => [ { rack_unit_start => 2 } ],
         },
         cases => [
             {
@@ -145,7 +144,6 @@ subtest 'database object construction' => sub {
             rack => {
                 name => 'my rack',
             },
-            rack_layouts => [ { rack_unit_start => 3 } ],
         },
         cases => [
             {

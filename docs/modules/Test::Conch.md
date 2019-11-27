@@ -145,16 +145,21 @@ the database with them.
 
 Not-nullable fields are filled in with sensible defaults, but all may be overridden.
 
+Data may be nested to indicate proper relationships.
+
 e.g.:
 
 ```perl
 $t->generate_fixtures(
-    device_location => { rack_unit_start => 3 },
+    device => {
+        device_location => { rack_unit_start => 2 },    # creates a rack_layout automatically
+    },
     rack_layouts => [
         { rack_unit_start => 1 },
-        { rack_unit_start => 2 },
+        { rack_unit_start => 2 },    # ..making this entry redundant with the above
         { rack_unit_start => 3 },
     ],
+    device_location => { rack_unit_start => 3 },        # but this will work too
 );
 ```
 

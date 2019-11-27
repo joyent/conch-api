@@ -145,7 +145,7 @@ sub test_validation {
 
         my @objects = $t->generate_fixtures(
             device => {},    # always create a device, even if generic
-            %args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device) }
+            %args{ grep exists($args{$_}), qw(hardware_product device_location device_settings device rack_layouts) }
         );
 
         my $device = first { $_->isa('Conch::DB::Result::Device') } @objects;
