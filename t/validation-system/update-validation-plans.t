@@ -23,7 +23,7 @@ my $validation_plan = $schema->resultset('validation_plan')->create({
     name => 'my_humble_plan',
     description => 'sample plan containing a few validations that will be changed',
     validation_plan_members => [
-        { validation => { name => 'product_name', version => 1 } },
+        { validation => { name => 'product_name', version => 2 } },
         { validation => { name => 'firmware_current', version => 1 } },
     ],
 });
@@ -43,7 +43,7 @@ subtest 'an existing validation has changed but the version was not incremented'
 subtest 'increment a validation\'s version (presumably the code changed too)' => sub {
     no warnings 'once', 'redefine';
     *Conch::Validation::DeviceProductName::description = sub () { 'this is better than before!' };
-    *Conch::Validation::DeviceProductName::version = sub () { 2 };
+    *Conch::Validation::DeviceProductName::version = sub () { 3 };
     $t->reset_log;
 
     # make sure we have the current state of the plan and members
@@ -64,7 +64,7 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
         [
             methods(
                 module => 'Conch::Validation::DeviceProductName',
-                version => 1,
+                version => 2,
                 deactivated => undef,
             ),
             methods(
@@ -86,7 +86,7 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
             ),
             methods(
                 module => 'Conch::Validation::DeviceProductName',
-                version => 2,
+                version => 3,
                 deactivated => undef,
                 description => 'this is better than before!',
             ),
@@ -97,8 +97,8 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
     $t->logs_are([
         'deactivated existing validation row for Conch::Validation::DeviceProductName',
         'created validation row for Conch::Validation::DeviceProductName',
-        'validation plan my_humble_plan has a deactivated validation (product_name version 1): removing',
-        'adding product_name version 2 to validation plan my_humble_plan',
+        'validation plan my_humble_plan has a deactivated validation (product_name version 2): removing',
+        'adding product_name version 3 to validation plan my_humble_plan',
     ]);
 };
 
@@ -110,7 +110,7 @@ subtest 'a deactivated validation lives in the plan along with its newer version
 
     no warnings 'once', 'redefine';
     *Conch::Validation::DeviceProductName::description = sub () { 'even more improved' };
-    *Conch::Validation::DeviceProductName::version = sub () { 3 };
+    *Conch::Validation::DeviceProductName::version = sub () { 4 };
     $t->reset_log;
 
     # deactivate old validation and create a new one for version 3
@@ -123,7 +123,7 @@ subtest 'a deactivated validation lives in the plan along with its newer version
 
     $new_validation_plan->add_to_validations({
         name => Conch::Validation::DeviceProductName->name,
-        version => 3,
+        version => 4,
         description => Conch::Validation::DeviceProductName->description,
         module => 'Conch::Validation::DeviceProductName',
     });
@@ -143,14 +143,14 @@ subtest 'a deactivated validation lives in the plan along with its newer version
             ),
             methods(
                 module => 'Conch::Validation::DeviceProductName',
-                version => 3,
+                version => 4,
                 deactivated => undef,
             ),
         ],
         'validation plan looks good',
     );
 
-    $t->log_info_is('validation plan my_humble_plan has a deactivated validation (product_name version 2): removing');
+    $t->log_info_is('validation plan my_humble_plan has a deactivated validation (product_name version 3): removing');
 };
 
 subtest 'a validation module was deleted entirely' => sub {
@@ -197,7 +197,7 @@ subtest 'a validation module was deleted entirely' => sub {
             ),
             methods(
                 module => 'Conch::Validation::DeviceProductName',
-                version => 3,
+                version => 4,
                 deactivated => undef,
             ),
         ],

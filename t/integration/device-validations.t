@@ -201,7 +201,7 @@ $t->get_ok('/device/TEST/validation_state?status=error')
                 message => 'Missing \'product_name\' property',
                 hint => ignore,
                 status => 'error',
-                category => 'BIOS',
+                category => 'IDENTITY',
             }],
         },
     ]);
