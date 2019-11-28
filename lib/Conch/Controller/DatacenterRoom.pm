@@ -15,33 +15,27 @@ Conch::Controller::DatacenterRoom
 =head2 find_datacenter_room
 
 Chainable action that uses the C<datacenter_room_id_or_alias> value provided in the stash
-(usually via the request URL) to look up a datacenter_room, and stashes the result in
-C<datacenter_room>.
+(usually via the request URL) to look up a datacenter_room, and stashes the query to get to it
+in C<datacenter_room_rs>.
 
 =cut
 
 sub find_datacenter_room ($c) {
     my $identifier = $c->stash('datacenter_room_id_or_alias');
-    my $rs = $c->db_datacenter_rooms;
-    if (is_uuid($identifier)) {
-        $c->stash('datacenter_room_id', $identifier);
-        $rs = $rs->search({ 'datacenter_room.id' => $identifier });
-    }
-    else {
-        $c->stash('datacenter_room_alias', $identifier);
-        $rs = $rs->search({ 'datacenter_room.alias' => $identifier });
-    }
+
+    my $rs = $c->db_datacenter_rooms->search({
+        'datacenter_room.'.(is_uuid($identifier) ? 'id' : 'alias') => $identifier,
+    });
 
     $c->log->debug('Looking up datacenter room '.$identifier);
-    my $room = $rs->single;
 
-    if (not $room) {
+    if (not $rs->exists) {
         $c->log->debug('Could not find datacenter room '.$identifier);
         return $c->status(404);
     }
 
     $c->log->debug('Found datacenter room');
-    $c->stash('datacenter_room', $room);
+    $c->stash('datacenter_room_rs', $rs);
     return 1;
 }
 
@@ -69,7 +63,7 @@ Response uses the DatacenterRoomDetailed json schema.
 =cut
 
 sub get_one ($c) {
-    $c->status(200, $c->stash('datacenter_room'));
+    $c->status(200, $c->stash('datacenter_room_rs')->single);
 }
 
 =head2 create
@@ -107,7 +101,7 @@ sub update ($c) {
         if $input->{datacenter_id}
             and not $c->db_datacenters->search({ id => $input->{datacenter_id} })->exists;
 
-    my $room = $c->stash('datacenter_room');
+    my $room = $c->stash('datacenter_room_rs')->single;
 
     return $c->status(409, { error => 'a room already exists with that alias' })
         if $input->{alias} and $input->{alias} ne $room->alias
@@ -125,13 +119,13 @@ Permanently delete a datacenter room.
 =cut
 
 sub delete ($c) {
-    if ($c->stash('datacenter_room')->related_resultset('racks')->exists) {
+    if ($c->stash('datacenter_room_rs')->related_resultset('racks')->exists) {
         $c->log->debug('Cannot delete datacenter_room: in use by one or more racks');
         return $c->status(409, { error => 'cannot delete a datacenter_room when a rack is referencing it' });
     }
 
-    $c->stash('datacenter_room')->delete;
-    $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room')->id);
+    $c->stash('datacenter_room_rs')->delete;
+    $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     return $c->status(204);
 }
 
@@ -142,7 +136,7 @@ Response uses the Racks json schema.
 =cut
 
 sub racks ($c) {
-    my @racks = $c->stash('datacenter_room')->related_resultset('racks')->all;
+    my @racks = $c->stash('datacenter_room_rs')->related_resultset('racks')->all;
     $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     return $c->status(200, \@racks);
 }
@@ -154,7 +148,7 @@ Response uses the Rack json schema.
 =cut
 
 sub find_rack ($c) {
-    my $rack_rs = $c->stash('datacenter_room')
+    my $rack_rs = $c->stash('datacenter_room_rs')
         ->related_resultset('racks')
         ->search({ name => $c->stash('rack_name') });
 
