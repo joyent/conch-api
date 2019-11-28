@@ -8,7 +8,7 @@ use Conch::UUID 'is_uuid';
 
 =head1 NAME
 
-Conch::Controller::User
+Conch::Controller::HardwareVendor
 
 =head1 METHODS
 

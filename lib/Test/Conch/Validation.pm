@@ -19,7 +19,7 @@ our @EXPORT_OK = qw(test_validation);
 
 Test::Conch::Validation - Test Conch Validations
 
-=head2 METHODS
+=head1 EXPORTABLE FUNCTIONS
 
 =head2 test_validation
 

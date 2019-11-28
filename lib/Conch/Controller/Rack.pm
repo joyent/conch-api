@@ -313,8 +313,8 @@ Assigns devices to rack layouts, also optionally updating serial_numbers and ass
 creating the device if needed). Existing devices in referenced slots will be unassigned as needed.
 
 Note: the assignment is still performed even if there is no physical room in the rack
-for the new hardware (its rack_unit_size overlaps into a subsequent layout), or that
-the device's hardware matches what the layout specifies.
+for the new hardware (its rack_unit_size overlaps into a subsequent layout), or if the device's
+hardware doesn't match what the layout specifies.
 
 =cut
 

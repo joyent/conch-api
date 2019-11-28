@@ -1,3 +1,11 @@
+package Conch::Time;
+
+use v5.26;
+use strict;
+use warnings;
+
+use parent 'Time::Moment';
+
 =pod
 
 =head1 NAME
@@ -14,16 +22,6 @@ Conch::Time - format timestamps as RFC 3337 UTC timestamps
     $time eq $time; # 1
 
 =head1 METHODS
-
-=cut
-
-package Conch::Time;
-
-use v5.26;
-use strict;
-use warnings;
-
-use parent 'Time::Moment';
 
 =head2 new
 
@@ -68,9 +66,7 @@ sub now { return shift->now_utc }
 
 See L<Time::Moment/from_epoch>.
 
-=head2 CONVERSIONS
-
-=head3 rfc3339
+=head2 rfc3339
 
 Return an RFC3339 compatible string as UTC.
 Sub-second precision will use 3, 6 or 9 digits as necessary.
@@ -81,7 +77,7 @@ sub rfc3339 {
     return shift->at_utc->strftime('%Y-%m-%dT%H:%M:%S.%N%Z');
 }
 
-=head3 timestamp
+=head2 timestamp
 
 Return an RFC3339 compatible string.
 
@@ -89,7 +85,7 @@ Return an RFC3339 compatible string.
 
 sub timestamp { goto &rfc3339 }
 
-=head3 to_string
+=head2 to_string
 
 Render the timestamp as a RFC 3339 timestamp string. Used to
 overload string coercion.
@@ -98,7 +94,7 @@ overload string coercion.
 
 sub to_string { goto &rfc3339 }
 
-=head3 TO_JSON
+=head2 TO_JSON
 
 Renderer for Mojo, as a RFC 3339 timestamp string
 
@@ -106,7 +102,7 @@ Renderer for Mojo, as a RFC 3339 timestamp string
 
 sub TO_JSON { goto &rfc3339 }
 
-=head3 timestamptz
+=head2 timestamptz
 
 Render a string in PostgreSQL's timestamptz style
 
@@ -116,7 +112,7 @@ sub timestamptz {
     return shift->strftime('%Y-%m-%d %H:%M:%S%f%z');
 }
 
-=head3 iso8601
+=head2 iso8601
 
 Render the timestamp as an ISO8601 extended format, in UTC
 

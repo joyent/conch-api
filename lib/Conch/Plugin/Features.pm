@@ -9,9 +9,11 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 Conch::Plugin::Features - Sets up a helper to access configured features
 
-=head2 DESCRIPTION
+=head1 HELPERS
 
-Provides the helper sub 'feature' to the app and controllers:
+=head2 feature
+
+Checks if a given feature name is enabled.
 
     if ($c->feature('rollbar') { ... }
 

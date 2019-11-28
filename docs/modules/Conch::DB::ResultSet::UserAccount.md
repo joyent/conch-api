@@ -6,6 +6,8 @@ Conch::DB::ResultSet::UserAccount
 
 Interface to queries against the `user_account` table.
 
+# METHODS
+
 ## find\_by\_email
 
 Queries for user by (case-insensitive) email address.

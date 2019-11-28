@@ -1,6 +1,6 @@
 # NAME
 
-Conch::Controller::User
+Conch::Controller::HardwareVendor
 
 # METHODS
 

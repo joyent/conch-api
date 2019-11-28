@@ -16,11 +16,11 @@ use Safe::Isa;
 
 Conch::Plugin::Mail
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
 Helper methods for sending emails
 
-=head2 HELPERS
+=head1 HELPERS
 
 These methods are made available on the C<$c> object (the invocant of all controller methods,
 and therefore other helpers).

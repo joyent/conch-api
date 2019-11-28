@@ -13,6 +13,8 @@ Conch::DB::ResultSet::UserAccount
 
 Interface to queries against the C<user_account> table.
 
+=head1 METHODS
+
 =head2 find_by_email
 
 Queries for user by (case-insensitive) email address.
