@@ -49,7 +49,7 @@ __END__
 
 =pod
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 =head3 C<GET /room>
 
@@ -116,7 +116,7 @@ Unless otherwise noted, all routes require authentication.
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias/:rack_name>
+=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_name>
 
 =over 4
 

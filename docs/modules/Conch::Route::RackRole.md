@@ -8,7 +8,7 @@ Conch::Route::RackRole
 
 Sets up the routes for /rack\_role:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /rack_role`
 

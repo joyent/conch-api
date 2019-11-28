@@ -42,7 +42,7 @@ __END__
 
 =pod
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 =head3 C<GET /layout>
 

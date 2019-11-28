@@ -8,7 +8,7 @@ Conch::Route::Datacenter
 
 Sets up the routes for /dc:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /dc`
 

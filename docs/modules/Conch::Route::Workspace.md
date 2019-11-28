@@ -11,7 +11,7 @@ Sets up the routes for /workspace.
 Note that in all routes using `:workspace_id_or_name`, the stash for `workspace_id` will be
 populated, as well as `workspace_name` if the identifier was not a UUID.
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 Users will require access to the workspace (or one of its ancestors) at a minimum
 [role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole#role), as indicated.

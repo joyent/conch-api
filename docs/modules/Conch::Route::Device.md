@@ -8,7 +8,7 @@ Conch::Route::Device
 
 Sets up the routes for /device:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 The user's role (required for most endpoints) is determined by the build the device is
 contained in (where users are assigned a [role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole#role) in that

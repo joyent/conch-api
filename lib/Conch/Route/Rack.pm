@@ -57,7 +57,7 @@ __END__
 
 =pod
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 =head3 C<GET /rack>
 
@@ -85,7 +85,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * User requires the read-only role on a workspace that contains the rack
+=item * User requires the read-only role on the rack
 
 =item * Response: F<response.yaml#/definitions/Rack>
 
@@ -95,7 +95,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * User requires the read/write role on a workspace that contains the rack
+=item * User requires the read/write role on the rack
 
 =item * Request: F<request.yaml#/definitions/RackUpdate>
 
@@ -117,7 +117,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * User requires the read-only role on a workspace that contains the rack
+=item * User requires the read-only role on the rack
 
 =item * Response: F<response.yaml#/definitions/RackLayouts>
 
@@ -127,7 +127,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * User requires the read/write role on a workspace that contains the rack
+=item * User requires the read/write role on the rack
 
 =item * Request: F<request.yaml#/definitions/RackLayouts>
 
@@ -139,7 +139,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * User requires the read-only role on a workspace that contains the rack
+=item * User requires the read-only role on the rack
 
 =item * Response: F<response.yaml#/definitions/RackAssignments>
 
@@ -149,7 +149,7 @@ Unless otherwise noted, all routes require authentication.
 
 =over 4
 
-=item * User requires the read/write role on a workspace that contains the rack
+=item * User requires the read/write role on the rack
 
 =item * Request: F<request.yaml#/definitions/RackAssignmentUpdates>
 
@@ -163,7 +163,7 @@ This method requires a request body.
 
 =over 4
 
-=item * User requires the read/write role on a workspace that contains the rack
+=item * User requires the read/write role on the rack
 
 =item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
 
@@ -178,7 +178,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =over 4
 
-=item * User requires the read/write role on a workspace that contains the rack
+=item * User requires the read/write role on the rack
 
 =item * Request: F<request.yaml#/definitions/RackPhase>
 

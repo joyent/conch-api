@@ -8,7 +8,7 @@ Conch::Route::DeviceReport
 
 Sets up the routes for /device\_report:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `POST /device_report`
 

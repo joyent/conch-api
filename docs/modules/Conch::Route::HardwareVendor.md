@@ -8,7 +8,7 @@ Conch::Route::HardwareVendor
 
 Sets up the routes for /hardware\_vendor:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /hardware_vendor`
 

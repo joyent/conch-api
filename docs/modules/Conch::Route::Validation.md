@@ -8,7 +8,7 @@ Conch::Route::Validation
 
 Sets up the routes for /validation, /validation\_plan and /validation\_state:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /validation`
 
