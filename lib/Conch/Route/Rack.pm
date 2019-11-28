@@ -1,6 +1,6 @@
 package Conch::Route::Rack;
 
-use Mojo::Base -strict;
+use Mojo::Base -strict, -signatures;
 
 =pod
 
@@ -22,34 +22,55 @@ sub routes {
 
     $rack->to({ controller => 'rack' });
 
+    my $rack_with_system_admin = $rack->require_system_admin;
+
     # GET /rack
-    $rack->require_system_admin->get('/')->to('#get_all');
+    $rack_with_system_admin->get('/')->to('#get_all');
     # POST /rack
-    $rack->require_system_admin->post('/')->to('#create');
+    $rack_with_system_admin->post('/')->to('#create');
 
-    my $with_rack = $rack->under('/#rack_id_or_name')->to('#find_rack');
-
-    # GET /rack/:rack_id_or_name
-    $with_rack->get('/')->to('#get');
-    # POST /rack/:rack_id_or_name
-    $with_rack->post('/')->to('#update');
+    # GET    /rack/:rack_id_or_name
+    # POST   /rack/:rack_id_or_name
     # DELETE /rack/:rack_id_or_name
-    $with_rack->require_system_admin->delete('/')->to('#delete');
-
-    # GET /rack/:rack_id_or_name/layouts
-    $with_rack->get('/layouts')->to('#get_layouts');
-    # POST /rack/:rack_id_or_name/layouts
-    $with_rack->post('/layouts')->to('#overwrite_layouts');
-
-    # GET /rack/:rack_id_or_name/assignment
-    $with_rack->get('/assignment')->to('#get_assignment');
-    # POST /rack/:rack_id_or_name/assignment
-    $with_rack->post('/assignment')->to('#set_assignment');
+    # GET    /rack/:rack_id_or_name/layouts
+    # POST   /rack/:rack_id_or_name/layouts
+    # GET    /rack/:rack_id_or_name/assignment
+    # POST   /rack/:rack_id_or_name/assignment
     # DELETE /rack/:rack_id_or_name/assignment
-    $with_rack->delete('/assignment')->to('#delete_assignment');
+    # POST   /rack/:rack_id_or_name/phase?rack_only=<0|1>
+    $class->one_rack_routes($rack);
+}
 
-    # POST /rack/:rack_id_or_name/phase?rack_only=<0|1>
-    $with_rack->post('/phase')->to('#set_phase');
+=head2 one_rack_routes
+
+Sets up the routes for working with just one rack, mounted under a provided route prefix.
+
+=cut
+
+sub one_rack_routes ($class, $r) {
+    my $one_rack = $r->under('/#rack_id_or_name')->to('#find_rack', controller => 'rack');
+
+    # GET .../rack/:rack_id_or_name
+    $one_rack->get('/')->to('#get');
+    # POST .../rack/:rack_id_or_name
+    $one_rack->post('/')->to('#update');
+    # DELETE .../rack/:rack_id_or_name
+    $one_rack->require_system_admin->delete('/')->to('#delete');
+
+    # GET .../rack/:rack_id_or_name/layouts
+    $one_rack->get('/layouts')->to('#get_layouts');
+    # POST .../rack/:rack_id_or_name/layouts
+    $one_rack->post('/layouts')->to('#overwrite_layouts');
+
+    # GET .../rack/:rack_id_or_name/assignment
+    $one_rack->get('/assignment')->to('#get_assignment');
+    # POST .../rack/:rack_id_or_name/assignment
+    $one_rack->post('/assignment')->to('#set_assignment');
+    # DELETE .../rack/:rack_id_or_name/assignment
+    $one_rack->delete('/assignment')->to('#delete_assignment');
+
+    # POST .../rack/:rack_id_or_name/phase?rack_only=<0|1>
+    $one_rack->post('/phase')->to('#set_phase');
 }
 
 1;
@@ -58,6 +79,10 @@ __END__
 =pod
 
 All routes require authentication.
+
+Take note: All routes that reference a specific rack (prefix C</rack/:rack_id>) are also
+available under C</rack/:rack_id_or_long_name> as well as
+C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =head3 C<GET /rack>
 

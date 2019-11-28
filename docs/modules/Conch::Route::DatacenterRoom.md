@@ -46,8 +46,58 @@ the room (in which case data returned is restricted to those racks)
 
 ### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name`
 
-- User requires system admin authorization, or the read-only role on the rack
+- User requires the read-only role on the rack
 - Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
+
+### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name`
+
+- User requires the read/write role on the rack
+- Request: [request.json#/definitions/RackUpdate](../json-schema/request.json#/definitions/RackUpdate)
+- Response: Redirect to the updated rack
+
+### `DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name`
+
+- Requires system admin authorization
+- Response: `204 NO CONTENT`
+
+### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts`
+
+- User requires the read-only role on the rack
+- Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
+
+### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts`
+
+- User requires the read/write role on the rack
+- Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)
+- Response: Redirect to the rack's layouts
+
+### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment`
+
+- User requires the read-only role on the rack
+- Response: [response.json#/definitions/RackAssignments](../json-schema/response.json#/definitions/RackAssignments)
+
+### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment`
+
+- User requires the read/write role on the rack
+- Request: [request.json#/definitions/RackAssignmentUpdates](../json-schema/request.json#/definitions/RackAssignmentUpdates)
+- Response: Redirect to the updated rack assignment
+
+### `DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment`
+
+This method requires a request body.
+
+- User requires the read/write role on the rack
+- Request: [request.json#/definitions/RackAssignmentDeletes](../json-schema/request.json#/definitions/RackAssignmentDeletes)
+- Response: `204 NO CONTENT`
+
+### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1>`
+
+The query parameter `rack_only` (defaults to `0`) specifies whether to update
+only the rack's phase, or all the rack's devices' phases as well.
+
+- User requires the read/write role on the rack
+- Request: [request.json#/definitions/RackPhase](../json-schema/request.json#/definitions/RackPhase)
+- Response: Redirect to the updated rack
 
 # LICENSING
 

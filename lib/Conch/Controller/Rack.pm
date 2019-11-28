@@ -16,10 +16,13 @@ Conch::Controller::Rack
 =head2 find_rack
 
 Chainable action that uses the C<rack_id_or_name> value provided in the stash (usually via the
-request URL) to look up a rack, and stashes the query to get to it in C<rack_rs>.
+request URL) to look up a rack (constraining to the datacenter_room if C<datacenter_room_rs> is
+also provided) and stashes the query to get to it in C<rack_rs>.
 
-C<rack_id_or_name> must be either a uuid or a "long" rack name
-(L<Conch::DB::Result::DatacenterRoom/vendor_name>) plus L<Conch::DB::Result::Rack/name>).
+When datacenter_room information is B<not> provided, C<rack_id_or_name> must be either a uuid
+or a "long" rack name (L<Conch::DB::Result::DatacenterRoom/vendor_name>) plus
+L<Conch::DB::Result::Rack/name>); otherwise, it can also be a short rack name
+L<Conch::DB::Result::Rack/name>).
 
 If C<require_role> is provided, it is used as the minimum required role for the user to
 continue; otherwise the user must be a system admin.
@@ -29,22 +32,39 @@ continue; otherwise the user must be a system admin.
 sub find_rack ($c) {
     my $identifier = $c->stash('rack_id_or_name');
     my $rack_rs;
+
+    # /room/:id_or_alias/rack/:id -- ok
+    # /room/:id_or_alias/rack/:longname -- ok
+    # /room/:id_or_alias/rack/:shortname -- ok
+    # /rack/:id -- ok
+    # /rack/:longname -- ok
+    # /rack/:shortname -- not ok
     if (is_uuid($identifier)) {
-        $c->log->debug('Looking for rack by id: '.$identifier);
-        $rack_rs = $c->db_racks->search({ 'rack.id' => $identifier });
+        $rack_rs = ($c->stash('datacenter_room_rs')
+            ? $c->stash('datacenter_room_rs')->related_resultset('racks')
+            : $c->db_racks);
+        $rack_rs = $rack_rs->search({ $rack_rs->current_source_alias.'.id' => $identifier });
+    }
+    elsif (my ($room_vendor_name, $rack_name) = ($identifier =~ /(.+):([^:]+)$/)) {
+        # search up by long rack name
+        my $room_rs = ($c->stash('datacenter_room_rs') ? $c->stash('datacenter_room_rs') : $c->db_datacenter_rooms)->search({ 'datacenter_room.vendor_name' => $room_vendor_name });
+        $rack_rs = $room_rs->search_related('racks', { 'racks.name' => $rack_name });
     }
     else {
-        my ($room_vendor_name, $rack_name) = ($identifier =~ /(.+):([^:]+)$/);
-        return $c->status(400, { error => 'cannot parse room and rack name from "'.$identifier.'"' })
-            if not $room_vendor_name or not $rack_name;
+        # search by short rack name (requires room qualifier)l
+        return $c->status(400, { error => 'cannot look up rack by short name without qualifying by room' })
+            if not $c->stash('datacenter_room_rs');
 
-        $c->log->debug('Looking for rack by room and rack name: '.$identifier);
-        $rack_rs = $c->db_datacenter_rooms->search({ 'datacenter_room.vendor_name' => $room_vendor_name })
-            ->search_related('racks', { 'racks.name' => $rack_name });
+        $rack_rs = $c->stash('datacenter_room_rs')
+            ->search_related('racks', { 'racks.name' => $identifier });
     }
 
+    $c->log->debug('Looking for rack '.$identifier
+        .($c->stash('datacenter_room_rs') ? ' in room '.$c->stash('datacenter_room_id_or_alias') : ''));
+
     if (not $rack_rs->exists) {
-        $c->log->debug('Could not find rack '.$identifier);
+        $c->log->debug('Could not find rack '.$identifier
+            .($c->stash('datacenter_room_rs') ? (' in room '.$c->stash('datacenter_room_id_or_alias')) : ''));
         return $c->status(404);
     }
 

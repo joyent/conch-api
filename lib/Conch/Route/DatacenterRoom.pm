@@ -46,10 +46,20 @@ sub routes {
     # GET /room/:datacenter_room_id_or_alias/racks
     $with_datacenter_room_ro->get('/racks')->to('#racks');
 
-    # GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
-    $room->under('/:datacenter_room_id_or_alias')
-        ->to('#find_datacenter_room', require_role => 'none')
-        ->get('/rack/#rack_id_or_name')->to('#find_rack', require_role => 'ro');
+    # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
+    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
+    # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
+    # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts
+    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts
+    # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
+    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
+    # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
+    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1>
+    Conch::Route::Rack->one_rack_routes(
+        $room->under('/:datacenter_room_id_or_alias')
+            ->to('#find_datacenter_room', require_role => 'none')
+            ->any('/rack')->to(require_role => undef)
+    );
 }
 
 1;
@@ -129,9 +139,104 @@ the room (in which case data returned is restricted to those racks)
 
 =over 4
 
-=item * User requires system admin authorization, or the read-only role on the rack
+=item * User requires the read-only role on the rack
 
 =item * Response: F<response.yaml#/definitions/Rack>
+
+=back
+
+=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
+
+=over 4
+
+=item * User requires the read/write role on the rack
+
+=item * Request: F<request.yaml#/definitions/RackUpdate>
+
+=item * Response: Redirect to the updated rack
+
+=back
+
+=head3 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
+
+=over 4
+
+=item * User requires the read-only role on the rack
+
+=item * Response: F<response.yaml#/definitions/RackLayouts>
+
+=back
+
+=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
+
+=over 4
+
+=item * User requires the read/write role on the rack
+
+=item * Request: F<request.yaml#/definitions/RackLayouts>
+
+=item * Response: Redirect to the rack's layouts
+
+=back
+
+=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
+
+=over 4
+
+=item * User requires the read-only role on the rack
+
+=item * Response: F<response.yaml#/definitions/RackAssignments>
+
+=back
+
+=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
+
+=over 4
+
+=item * User requires the read/write role on the rack
+
+=item * Request: F<request.yaml#/definitions/RackAssignmentUpdates>
+
+=item * Response: Redirect to the updated rack assignment
+
+=back
+
+=head3 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
+
+This method requires a request body.
+
+=over 4
+
+=item * User requires the read/write role on the rack
+
+=item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
+
+=item * Response: C<204 NO CONTENT>
+
+=back
+
+=head3 C<< POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1> >>
+
+The query parameter C<rack_only> (defaults to C<0>) specifies whether to update
+only the rack's phase, or all the rack's devices' phases as well.
+
+=over 4
+
+=item * User requires the read/write role on the rack
+
+=item * Request: F<request.yaml#/definitions/RackPhase>
+
+=item * Response: Redirect to the updated rack
 
 =back
 

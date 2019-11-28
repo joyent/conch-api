@@ -166,40 +166,6 @@ sub racks ($c) {
     return $c->status(200, \@racks);
 }
 
-=head2 find_rack
-
-Response uses the Rack json schema.
-
-=cut
-
-sub find_rack ($c) {
-    my $identifier = $c->stash('rack_id_or_name');
-
-    my $rack_rs = $c->stash('datacenter_room_rs')
-        ->related_resultset('racks')
-        ->search({ 'racks.'.(is_uuid($identifier) ? 'id' : 'name') => $identifier });
-
-    if (not $rack_rs->exists) {
-        $c->log->debug('Could not find rack '.$identifier
-            .' in room '.$c->stash('datacenter_room_id_or_alias'));
-        return $c->status(404);
-    }
-
-    if (not $c->is_system_admin
-            and not $rack_rs->user_has_role($c->stash('user_id'), $c->stash('require_role'))) {
-        $c->log->debug('User lacks the required role ('.$c->stash('require_role')
-            .') for rack '.$c->stash('rack_id_or_name')
-            .' in room'.$c->stash('datacenter_room_id_or_alias'));
-        return $c->status(403);
-    }
-
-    my $rack = $rack_rs->single;
-    $c->log->debug('Found rack '.$rack->id);
-
-    $c->res->headers->location('/rack/'.$rack->id);
-    $c->status(200, $rack);
-}
-
 1;
 __END__
 

@@ -8,7 +8,15 @@ Conch::Route::Rack
 
 Sets up the routes for /rack:
 
+## one\_rack\_routes
+
+Sets up the routes for working with just one rack, mounted under a provided route prefix.
+
 All routes require authentication.
+
+Take note: All routes that reference a specific rack (prefix `/rack/:rack_id`) are also
+available under `/rack/:rack_id_or_long_name` as well as
+`/room/datacenter_room_id_or_alias/rack/:rack_id_or_name`.
 
 ### `GET /rack`
 

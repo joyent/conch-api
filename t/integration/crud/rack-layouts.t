@@ -164,10 +164,6 @@ $t->post_ok('/layout', json => {
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start conflict' });
 
-$t->get_ok("/rack/$rack_id/layouts")
-    ->status_is(200)
-    ->location_is('/rack/'.$rack_id.'/layouts')
-    ->json_schema_is('RackLayouts');
 
 # at the moment, we have these assigned slots:
 # start 1, width 2
@@ -175,7 +171,10 @@ $t->get_ok("/rack/$rack_id/layouts")
 # start 11, width 4
 # start 42, width 1
 
-$t->get_ok("/rack/$rack_id/layouts")
+my $rack = $t->app->db_racks->search({ 'rack.id' => $rack_id })->prefetch('datacenter_room')->single;
+my $room = $rack->datacenter_room;
+
+$t->get_ok($_)
     ->status_is(200)
     ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
@@ -191,7 +190,16 @@ $t->get_ok("/rack/$rack_id/layouts")
         { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
         { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
         { rack_unit_start => 42, rack_unit_size => 1, hardware_product_id => $hw_product_switch->id },
-    ]);
+    ])
+    foreach
+        '/rack/'.$rack_id.'/layouts',
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/layouts',
+        '/room/'.$room->id.'/rack/'.$rack->id.'/layouts',
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$rack->name.'/layouts',
+        '/room/'.$room->id.'/rack/'.$rack->name.'/layouts',
+        '/room/'.$room->alias.'/rack/'.$rack->id.'/layouts',
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/layouts',
+        '/room/'.$room->alias.'/rack/'.$rack->name.'/layouts';
 
 my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');
 

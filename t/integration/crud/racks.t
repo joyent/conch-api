@@ -50,9 +50,15 @@ $t->get_ok($_)
         '/rack/'.$rack->id,
         '/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->id.'/rack/'.$rack->id,
+        '/room/'.$room->id.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->id.'/rack/rack.0a',
         '/room/'.$room->alias.'/rack/'.$rack->id,
+        '/room/'.$room->alias.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->alias.'/rack/rack.0a';
+
+$t->get_ok('/rack/rack.0a')
+    ->status_is(400)
+    ->json_is({ error => 'cannot look up rack by short name without qualifying by room' });
 
 $t->post_ok('/rack', json => { wat => 'wat' })
     ->status_is(400)
@@ -145,8 +151,10 @@ $t->get_ok($_)
         '/rack/'.$new_rack->{id},
         '/rack/'.$room->vendor_name.':'.$new_rack->{name},
         '/room/'.$room->id.'/rack/'.$new_rack->{id},
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$new_rack->{name},
         '/room/'.$room->id.'/rack/'.$new_rack->{name},
         '/room/'.$room->alias.'/rack/'.$new_rack->{id},
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$new_rack->{name},
         '/room/'.$room->alias.'/rack/'.$new_rack->{name};
 
 my $small_rack_role = $t->app->db_rack_roles->create({ name => '10U', rack_size => 10 });
@@ -200,7 +208,13 @@ $t->post_ok($_, json => { rack_role_id => $small_rack_role->id })
     ->location_is('/rack/'.$new_rack->{id})
     foreach
         '/rack/'.$new_rack->{id},
-        '/rack/'.$room->vendor_name.':'.$new_rack->{name};
+        '/rack/'.$room->vendor_name.':'.$new_rack->{name},
+        '/room/'.$room->id.'/rack/'.$new_rack->{id},
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$new_rack->{name},
+        '/room/'.$room->id.'/rack/'.$new_rack->{name},
+        '/room/'.$room->alias.'/rack/'.$new_rack->{id},
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$new_rack->{name},
+        '/room/'.$room->alias.'/rack/'.$new_rack->{name};
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -219,7 +233,13 @@ $t->get_ok($_)
     ->json_is([])
     foreach
         '/rack/'.$new_rack->{id}.'/assignment',
-        '/rack/'.$room->vendor_name.':'.$new_rack->{name}.'/assignment';
+        '/rack/'.$room->vendor_name.':'.$new_rack->{name}.'/assignment',
+        '/room/'.$room->id.'/rack/'.$new_rack->{id}.'/assignment',
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$new_rack->{name}.'/assignment',
+        '/room/'.$room->id.'/rack/'.$new_rack->{name}.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$new_rack->{id}.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$new_rack->{name}.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$new_rack->{name}.'/assignment';
 
 $t->delete_ok('/rack/'.$rack->id)
     ->status_is(409)
@@ -327,7 +347,13 @@ $t->get_ok($_)
     ->json_is($assignments)
     foreach
         '/rack/'.$rack->id.'/assignment',
-        '/rack/'.$room->vendor_name.':'.$rack->name.'/assignment';
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
+        '/room/'.$room->id.'/rack/'.$rack->id.'/assignment',
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
+        '/room/'.$room->id.'/rack/'.$rack->name.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$rack->id.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$rack->name.'/assignment';
 
 subtest 'rack phases' => sub {
     my $device_phase_rs = $t->app->db_devices
@@ -565,7 +591,13 @@ $t->get_ok($_)
     ->json_is($assignments)
     foreach
         '/rack/'.$rack->id.'/assignment',
-        '/rack/'.$room->vendor_name.':'.$rack->name.'/assignment';
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
+        '/room/'.$room->id.'/rack/'.$rack->id.'/assignment',
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
+        '/room/'.$room->id.'/rack/'.$rack->name.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$rack->id.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
+        '/room/'.$room->alias.'/rack/'.$rack->name.'/assignment';
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

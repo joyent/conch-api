@@ -55,8 +55,10 @@ $t->get_ok($_)
     ->json_is($rack)
     foreach
         '/room/'.$room->{id}.'/rack/'.$rack->{id},
+        '/room/'.$room->{id}.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->{id}.'/rack/rack.0a',
         '/room/'.$room->{alias}.'/rack/'.$rack->{id},
+        '/room/'.$room->{alias}.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->{alias}.'/rack/rack.0a';
 
 my $build_user = $t->generate_fixtures('user_account', { name => 'build_user' });
@@ -75,8 +77,10 @@ $t2->get_ok($_)
         '/room/'.$room->{id}.'/racks',
         '/room/'.$room->{alias}.'/racks',
         '/room/'.$room->{id}.'/rack/'.$rack->{id},
+        '/room/'.$room->{id}.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->{id}.'/rack/rack.0a',
         '/room/'.$room->{alias}.'/rack/'.$rack->{id},
+        '/room/'.$room->{alias}.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->{alias}.'/rack/rack.0a';
 
 $t->app->db_racks->search({ id => $rack->{id} })->update({ build_id => $build->id });
@@ -109,8 +113,10 @@ $t2->get_ok($_)
     ->json_is($rack)
     foreach
         '/room/'.$room->{id}.'/rack/'.$rack->{id},
+        '/room/'.$room->{id}.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->{id}.'/rack/rack.0a',
         '/room/'.$room->{alias}.'/rack/'.$rack->{id},
+        '/room/'.$room->{alias}.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->{alias}.'/rack/rack.0a';
 
 my $rack2_id = $t->app->db_racks->create({
@@ -135,8 +141,10 @@ $t2->get_ok($_)
     ->status_is(403)
     foreach
         '/room/'.$room->{id}.'/rack/'.$rack2->{id},
+        '/room/'.$room->{id}.'/rack/ROOM:0.A:rack2',
         '/room/'.$room->{id}.'/rack/rack2',
         '/room/'.$room->{alias}.'/rack/'.$rack2->{id},
+        '/room/'.$room->{alias}.'/rack/ROOM:0.A:rack2',
         '/room/'.$room->{alias}.'/rack/rack2';
 
 $t2->get_ok($_)
