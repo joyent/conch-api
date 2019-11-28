@@ -23,7 +23,8 @@ All routes require authentication.
 
 ### `GET /room/:datacenter_room_id_or_alias`
 
-- Requires system admin authorization
+- User requires system admin authorization, or the read-only role on a rack located in
+the room
 - Response: [response.json#/definitions/DatacenterRoomDetailed](../json-schema/response.json#/definitions/DatacenterRoomDetailed)
 
 ### `POST /room/:datacenter_room_id_or_alias`
@@ -39,12 +40,13 @@ All routes require authentication.
 
 ### `GET /room/:datacenter_room_id_or_alias/racks`
 
-- Requires system admin authorization
+- User requires system admin authorization, or the read-only role on a rack located in
+the room (in which case data returned is restricted to those racks)
 - Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
 
 ### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name`
 
-- Requires system admin authorization
+- User requires system admin authorization, or the read-only role on the rack
 - Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
 
 # LICENSING

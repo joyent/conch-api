@@ -43,6 +43,40 @@ sub assigned_rack_units ($self) {
         @layout_data;
 }
 
+=head2 with_user_role
+
+Constrains the resultset to those where the provided user_id has (at least) the specified role
+in at least one workspace or build associated with the specified rack(s), including parent
+workspaces.
+
+=cut
+
+sub with_user_role ($self, $user_id, $role) {
+    return $self if $role eq 'none';
+
+    my $workspace_ids_rs = $self->result_source->schema->resultset('workspace')
+        ->with_user_role($user_id, $role)
+        ->get_column('id');
+
+    # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
+    # not need to search the workspace heirarchy here, but simply look for a role entry for any
+    # workspace the rack is associated with.
+    my $racks_in_ws = $self->search(
+        { 'workspace_racks.workspace_id' => { -in => $workspace_ids_rs->as_query } },
+        { join => 'workspace_racks' },
+    );
+
+    my $build_ids_rs = $self->result_source->schema->resultset('build')
+        ->with_user_role($user_id, $role)
+        ->get_column('id');
+
+    my $racks_in_builds = $self->search({
+        $self->current_source_alias.'.build_id' => { -in => $build_ids_rs->as_query },
+    });
+
+    return $racks_in_ws->union($racks_in_builds);
+}
+
 =head2 user_has_role
 
 Checks that the provided user_id has (at least) the specified role in at least one workspace

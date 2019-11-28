@@ -20,28 +20,36 @@ sub routes {
     my $class = shift;
     my $room = shift;   # secured, under /room
 
-    $room = $room->require_system_admin->to({ controller => 'datacenter_room' });
+    $room = $room->to({ controller => 'datacenter_room' });
+
+    my $room_with_system_admin = $room->require_system_admin;
 
     # GET /room
-    $room->get('/')->to('#get_all');
+    $room_with_system_admin->get('/')->to('#get_all');
     # POST /room
-    $room->post('/')->to('#create');
+    $room_with_system_admin->post('/')->to('#create');
 
-    my $with_datacenter_room = $room->under('/:datacenter_room_id_or_alias')
-        ->to('#find_datacenter_room');
+    my $with_datacenter_room_ro = $room->under('/:datacenter_room_id_or_alias')
+        ->to('#find_datacenter_room', require_role => 'ro');
+
+    my $with_datacenter_room_system_admin =
+        $room_with_system_admin->under('/:datacenter_room_id_or_alias')
+            ->to('#find_datacenter_room');
 
     # GET /room/:datacenter_room_id_or_alias
-    $with_datacenter_room->get('/')->to('#get_one');
+    $with_datacenter_room_ro->get('/')->to('#get_one');
     # POST /room/:datacenter_room_id_or_alias
-    $with_datacenter_room->post('/')->to('#update');
+    $with_datacenter_room_system_admin->post('/')->to('#update');
     # DELETE /room/:datacenter_room_id_or_alias
-    $with_datacenter_room->delete('/')->to('#delete');
+    $with_datacenter_room_system_admin->delete('/')->to('#delete');
 
     # GET /room/:datacenter_room_id_or_alias/racks
-    $with_datacenter_room->get('/racks')->to('#racks');
+    $with_datacenter_room_ro->get('/racks')->to('#racks');
 
     # GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
-    $with_datacenter_room->get('/rack/#rack_id_or_name')->to('#find_rack');
+    $room->under('/:datacenter_room_id_or_alias')
+        ->to('#find_datacenter_room', require_role => 'none')
+        ->get('/rack/#rack_id_or_name')->to('#find_rack', require_role => 'ro');
 }
 
 1;
@@ -75,10 +83,10 @@ All routes require authentication.
 
 =head3 C<GET /room/:datacenter_room_id_or_alias>
 
-
 =over 4
 
-=item * Requires system admin authorization
+=item * User requires system admin authorization, or the read-only role on a rack located in
+the room
 
 =item * Response: F<response.yaml#/definitions/DatacenterRoomDetailed>
 
@@ -110,7 +118,8 @@ All routes require authentication.
 
 =over 4
 
-=item * Requires system admin authorization
+=item * User requires system admin authorization, or the read-only role on a rack located in
+the room (in which case data returned is restricted to those racks)
 
 =item * Response: F<response.yaml#/definitions/Racks>
 
@@ -120,7 +129,7 @@ All routes require authentication.
 
 =over 4
 
-=item * Requires system admin authorization
+=item * User requires system admin authorization, or the read-only role on the rack
 
 =item * Response: F<response.yaml#/definitions/Rack>
 

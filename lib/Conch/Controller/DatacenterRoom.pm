@@ -3,6 +3,7 @@ package Conch::Controller::DatacenterRoom;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::UUID 'is_uuid';
+use List::Util 'any';
 
 =pod
 
@@ -18,6 +19,9 @@ Chainable action that uses the C<datacenter_room_id_or_alias> value provided in 
 (usually via the request URL) to look up a datacenter_room, and stashes the query to get to it
 in C<datacenter_room_rs>.
 
+If C<require_role> is provided, it is used as the minimum required role for the user to
+continue; otherwise the user must be a system admin.
+
 =cut
 
 sub find_datacenter_room ($c) {
@@ -32,6 +36,12 @@ sub find_datacenter_room ($c) {
     if (not $rs->exists) {
         $c->log->debug('Could not find datacenter room '.$identifier);
         return $c->status(404);
+    }
+
+    if (not $c->is_system_admin
+            and not $rs->related_resultset('racks')->user_has_role($c->stash('user_id'), $c->stash('require_role'))) {
+        $c->log->debug('User lacks the required role ('.$c->stash('require_role').') for datacenter room '.$identifier);
+        return $c->status(403);
     }
 
     $c->log->debug('Found datacenter room');
@@ -136,7 +146,13 @@ Response uses the Racks json schema.
 =cut
 
 sub racks ($c) {
-    my @racks = $c->stash('datacenter_room_rs')->related_resultset('racks')->all;
+    my $rs = $c->stash('datacenter_room_rs')->related_resultset('racks');
+
+    # filter the results by what the user is permitted to see. Depending on the size of the
+    # initial resultset, this could be slow!
+    $rs = $rs->with_user_role($c->stash('user_id'), 'ro') if not $c->is_system_admin;
+
+    my @racks = $rs->all;
     $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     return $c->status(200, \@racks);
 }
@@ -160,8 +176,10 @@ sub find_rack ($c) {
         return $c->status(404);
     }
 
-    if (not $c->is_system_admin and not $rack_rs->user_has_role($c->stash('user_id'), 'ro')) {
-        $c->log->debug('User lacks the required role (ro) for rack '.$c->stash('rack_name')
+    if (not $c->is_system_admin
+            and not $rack_rs->user_has_role($c->stash('user_id'), $c->stash('require_role'))) {
+        $c->log->debug('User lacks the required role ('.$c->stash('require_role')
+            .') for rack '.$c->stash('rack_id_or_name')
             .' in room'.$c->stash('datacenter_room_id_or_alias'));
         return $c->status(403);
     }

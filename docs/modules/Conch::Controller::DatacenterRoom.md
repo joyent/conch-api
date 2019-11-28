@@ -10,6 +10,9 @@ Chainable action that uses the `datacenter_room_id_or_alias` value provided in t
 (usually via the request URL) to look up a datacenter\_room, and stashes the query to get to it
 in `datacenter_room_rs`.
 
+If `require_role` is provided, it is used as the minimum required role for the user to
+continue; otherwise the user must be a system admin.
+
 ## get\_all
 
 Get all datacenter rooms.
