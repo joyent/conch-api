@@ -40,8 +40,8 @@ sub routes {
     # GET /room/:datacenter_room_id_or_alias/racks
     $with_datacenter_room->get('/racks')->to('#racks');
 
-    # GET /room/:datacenter_room_id_or_alias/rack/:rack_name
-    $with_datacenter_room->get('/rack/#rack_name')->to('#find_rack');
+    # GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
+    $with_datacenter_room->get('/rack/#rack_id_or_name')->to('#find_rack');
 }
 
 1;
@@ -116,7 +116,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_name>
+=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
 
 =over 4
 

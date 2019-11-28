@@ -148,12 +148,14 @@ Response uses the Rack json schema.
 =cut
 
 sub find_rack ($c) {
+    my $identifier = $c->stash('rack_id_or_name');
+
     my $rack_rs = $c->stash('datacenter_room_rs')
         ->related_resultset('racks')
-        ->search({ name => $c->stash('rack_name') });
+        ->search({ 'racks.'.(is_uuid($identifier) ? 'id' : 'name') => $identifier });
 
     if (not $rack_rs->exists) {
-        $c->log->debug('Could not find rack '.$c->stash('rack_name')
+        $c->log->debug('Could not find rack '.$identifier
             .' in room '.$c->stash('datacenter_room_id_or_alias'));
         return $c->status(404);
     }

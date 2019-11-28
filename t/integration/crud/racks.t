@@ -22,16 +22,28 @@ my $build = $t->generate_fixtures('build');
 my $fake_id = create_uuid_str();
 
 my $rack = $t->load_fixture('rack_0a');
+my $room = $rack->datacenter_room;
 
 $t->get_ok('/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_cmp_deeply([ superhashof({ name => 'rack.0a' }) ]);
 
-$t->get_ok('/rack/'.$rack->id)
+$t->get_ok($_)
     ->status_is(200)
     ->json_schema_is('Rack')
-    ->json_cmp_deeply(superhashof({ name => 'rack.0a' }));
+    ->json_cmp_deeply(superhashof({
+        id => $rack->id,
+        name => 'rack.0a',
+        datacenter_room_id => $room->id,
+        rack_role_id => re(Conch::UUID::UUID_FORMAT),
+    }))
+    foreach
+        '/rack/'.$rack->id,
+        '/room/'.$room->id.'/rack/'.$rack->id,
+        '/room/'.$room->id.'/rack/rack.0a',
+        '/room/'.$room->alias.'/rack/'.$rack->id,
+        '/room/'.$room->alias.'/rack/rack.0a';
 
 $t->post_ok('/rack', json => { wat => 'wat' })
     ->status_is(400)
@@ -113,7 +125,18 @@ $t->get_ok($t->tx->res->headers->location)
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         build_id => $build->id,
     });
-my $new_rack_id = $t->tx->res->json->{id};
+my $new_rack = $t->tx->res->json;
+
+$t->get_ok($_)
+    ->status_is(200)
+    ->json_schema_is('Rack')
+    ->json_is($new_rack)
+    foreach
+        '/rack/'.$new_rack->{id},
+        '/room/'.$room->id.'/rack/'.$new_rack->{id},
+        '/room/'.$room->id.'/rack/'.$new_rack->{name},
+        '/room/'.$room->alias.'/rack/'.$new_rack->{id},
+        '/room/'.$room->alias.'/rack/'.$new_rack->{name};
 
 my $small_rack_role = $t->app->db_rack_roles->create({ name => '10U', rack_size => 10 });
 
@@ -152,21 +175,21 @@ $t->post_ok('/rack/'.$rack->id, json => { rack_role_id => $small_rack_role->id }
     ->json_schema_is('Error')
     ->json_is({ error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
 
-$t->post_ok("/rack/$new_rack_id", json => {
+$t->post_ok("/rack/$new_rack->{id}", json => {
         name => 'rack',
         serial_number => 'abc',
         asset_tag => 'deadbeef',
     })
     ->status_is(303)
-    ->location_is('/rack/'.$new_rack_id);
+    ->location_is('/rack/'.$new_rack->{id});
 
-$t->post_ok("/rack/$new_rack_id", json => { rack_role_id => $small_rack_role->id })
+$t->post_ok("/rack/$new_rack->{id}", json => { rack_role_id => $small_rack_role->id })
     ->status_is(303)
-    ->location_is('/rack/'.$new_rack_id);
+    ->location_is('/rack/'.$new_rack->{id});
 
-$t->post_ok("/rack/$new_rack_id", json => { rack_role_id => $small_rack_role->id })
+$t->post_ok("/rack/$new_rack->{id}", json => { rack_role_id => $small_rack_role->id })
     ->status_is(303)
-    ->location_is('/rack/'.$new_rack_id);
+    ->location_is('/rack/'.$new_rack->{id});
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -178,7 +201,7 @@ $t->get_ok($t->tx->res->headers->location)
         rack_role_id => $small_rack_role->id,
     }));
 
-$t->get_ok("/rack/$new_rack_id/assignment")
+$t->get_ok("/rack/$new_rack->{id}/assignment")
     ->status_is(200)
     ->json_schema_is('RackAssignments')
     ->json_is([]);
@@ -191,16 +214,25 @@ $t->delete_ok('/rack/'.$rack->id)
 my $null_user = $t->generate_fixtures('user_account');
 my $t2 = Test::Conch->new(pg => $t->pg);
 $t2->authenticate(email => $null_user->email);
-$t2->delete_ok("/rack/$new_rack_id")
+$t2->delete_ok("/rack/$new_rack->{id}")
     ->status_is(403)
-    ->log_debug_is('User lacks the required role (rw) for rack '.$new_rack_id);
+    ->log_debug_is('User lacks the required role (rw) for rack '.$new_rack->{id});
 
-$t->delete_ok("/rack/$new_rack_id")
+$t->delete_ok("/rack/$new_rack->{id}")
     ->status_is(204);
 
-$t->get_ok("/rack/$new_rack_id")
+$t->get_ok('/rack/'.$new_rack->{id})
     ->status_is(404)
-    ->log_debug_is('Could not find rack '.$new_rack_id);
+    ->log_debug_is('Could not find rack '.$new_rack->{id});
+
+$t->get_ok($_)
+    ->status_is(404)
+    ->log_debug_is('Could not find rack '.(split('/',$_))[-1].' in room '.(split('/',$_))[2])
+    foreach
+        '/room/'.$room->id.'/rack/'.$new_rack->{id},
+        '/room/'.$room->id.'/rack/'.$new_rack->{name},
+        '/room/'.$room->alias.'/rack/'.$new_rack->{id},
+        '/room/'.$room->alias.'/rack/'.$new_rack->{name};
 
 my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
 my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
