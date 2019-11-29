@@ -82,6 +82,12 @@ sub create ($c) {
     my $input = $c->validate_request('DatacenterRoomCreate');
     return if not $input;
 
+    return $c->status(409, { error => 'Datacenter does not exist' })
+        if not $c->db_datacenters->search({ id => $input->{datacenter_id} })->exists;
+
+    return $c->status(409, { error => 'a room already exists with that alias' })
+        if $c->db_datacenter_rooms->search({ alias => $input->{alias} })->exists;
+
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
     $c->status(303, '/room/'.$room->id);
@@ -97,9 +103,19 @@ sub update ($c) {
     my $input = $c->validate_request('DatacenterRoomUpdate');
     return if not $input;
 
-    $c->stash('datacenter_room')->update({ $input->%*, updated => \'now()' });
+    return $c->status(409, { error => 'Datacenter does not exist' })
+        if $input->{datacenter_id}
+            and not $c->db_datacenters->search({ id => $input->{datacenter_id} })->exists;
+
+    my $room = $c->stash('datacenter_room');
+
+    return $c->status(409, { error => 'a room already exists with that alias' })
+        if $input->{alias} and $input->{alias} ne $room->alias
+            and $c->db_datacenter_rooms->search({ alias => $input->{alias} })->exists;
+
+    $room->update({ $input->%*, updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id_or_alias'));
-    $c->status(303, '/room/'.$c->stash('datacenter_room')->id);
+    $c->status(303, '/room/'.$room->id);
 }
 
 =head2 delete

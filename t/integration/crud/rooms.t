@@ -3,6 +3,7 @@ use Test::More;
 use Test::Warnings;
 use Test::Deep;
 use Test::Conch;
+use Conch::UUID 'create_uuid_str';
 
 my $t = Test::Conch->new;
 $t->load_fixture('super_user');
@@ -56,6 +57,10 @@ $t->post_ok('/room', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
+$t->post_ok('/room', json => { datacenter_id => create_uuid_str, az => 'sungo-test-1', alias => 'me'})
+    ->status_is(409)
+    ->json_is({ error => 'Datacenter does not exist' });
+
 $t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
     ->status_is(303);
 
@@ -67,8 +72,19 @@ $t->get_ok($t->tx->res->headers->location)
         alias => 'me',
         vendor_name => undef,
     }));
-
 my $idr = $t->tx->res->json->{id};
+
+$t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
+    ->status_is(409)
+    ->json_is({ error => 'a room already exists with that alias' });
+
+$t->post_ok("/room/$idr", json => { datacenter_id => create_uuid_str })
+    ->status_is(409)
+    ->json_is({ error => 'Datacenter does not exist' });
+
+$t->post_ok("/room/$idr", json => { alias => $room->alias })
+    ->status_is(409)
+    ->json_is({ error => 'a room already exists with that alias' });
 
 $t->post_ok("/room/$idr", json => { vendor_name => 'sungo', alias => 'you' })
     ->status_is(303);
