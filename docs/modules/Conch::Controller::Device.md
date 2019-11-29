@@ -6,11 +6,12 @@ Conch::Controller::Device
 
 ## find\_device
 
-Chainable action that uses the `device_id_or_serial_number` provided in the path
-to find the device and verify the user has the required role to operate on it.
+Chainable action that uses the `device_id`, `device_serial_number` or
+`device_id_or_serial_number` provided in the stash (usually via the request URL) to look up a
+device, and stashes the query to get to it in `device_rs`.
 
 If `require_role` is provided, it is used as the minimum required role for the user to
-continue.
+continue; otherwise the user must be a registered relay user or a system admin.
 
 If `phase_earlier_than` is provided, `409 CONFLICT` is returned if the device is in the
 provided phase (or later).

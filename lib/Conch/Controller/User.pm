@@ -18,8 +18,8 @@ Conch::Controller::User
 
 =head2 find_user
 
-Chainable action that validates the C<target_user_id_or_email> provided in the path, and
-stashes the corresponding user row in C<target_user>.
+Chainable action that uses the C<target_user_id_or_email> value provided in the stash (usually
+via the request URL) to look up a user, and stashes the result in C<target_user>.
 
 =cut
 

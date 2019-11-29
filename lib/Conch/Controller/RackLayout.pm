@@ -14,7 +14,8 @@ Conch::Controller::RackLayout
 
 =head2 find_rack_layout
 
-Supports rack layout lookups by id.
+Chainable action that uses the C<layout_id> value provided in the stash (usually via the
+request URL) to look up a build, and stashes the query to get to it in C<layout_rs>.
 
 =cut
 

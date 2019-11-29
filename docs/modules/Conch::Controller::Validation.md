@@ -14,7 +14,8 @@ Response uses the Validations json schema (including deactivated ones).
 
 ## find\_validation
 
-Find the Validation specified by uuid or name, and stashes the query to get to it in
+Chainable action that uses the `validation_id_or_name` value provided in the stash (usually
+via the request URL) to look up a validation, and stashes the query to get to it in
 `validation_rs`.
 
 ## get

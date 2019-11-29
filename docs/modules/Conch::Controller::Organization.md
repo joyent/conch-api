@@ -24,10 +24,12 @@ Requires the user to be a system admin.
 
 ## find\_organization
 
-Chainable action that validates the `organization_id` or `organization_name` provided in the
-path, and stashes the query to get to it in `organization_rs`.
+Chainable action that uses the `organization_id_or_name` value provided in the stash (usually
+via the request URL) to look up a build, and stashes the query to get to it in
+`organization_rs`.
 
-Requires the 'admin' role on the organization (or the user to be a system admin).
+If `require_role` is provided, it is used as the minimum required role for the user to
+continue; otherwise the user must have the 'admin' role.
 
 ## get
 

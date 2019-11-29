@@ -6,7 +6,11 @@ Conch::Controller::Rack
 
 ## find\_rack
 
-Supports rack lookups by uuid.
+Chainable action that uses the `rack_id` value provided in the stash (usually via the
+request URL) to look up a rack, and stashes the query to get to it in `rack_rs`.
+
+If `require_role` is provided, it is used as the minimum required role for the user to
+continue; otherwise the user must be a system admin.
 
 ## create
 

@@ -29,8 +29,11 @@ sub list ($c) {
 
 =head2 find_hardware_product
 
-Chainable action that looks up the object by id, sku, name or alias depending on the url
-pattern, stashing the query to get to it in C<hardware_product_rs>.
+Chainable action that uses the C<hardware_product_id> or C<hardware_product_key> and
+C<hardware_product_value> values provided in the stash (usually via the request URL) to look up
+a hardware_product, and stashes the query to get to it in C<hardware_product_rs>.
+
+Supported keys are: C<sku>, C<name>, and C<alias>.
 
 =cut
 

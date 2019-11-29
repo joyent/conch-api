@@ -336,8 +336,11 @@ sub _add_reboot_count ($device) {
 
 =head2 find_device_report
 
-Chainable action that validates the 'device_report_id' provided in the path.
-Stores the device_id and device_report resultset to the stash for later retrieval.
+Chainable action that uses the C<device_report_id> value provided in the stash (usually via the
+request URL) to look up a device report, and stashes the query to get to it in
+C<device_report_rs>.
+
+C<device_id> is also saved to the stash.
 
 Role checks are done in the next controller action in the chain.
 

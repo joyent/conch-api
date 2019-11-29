@@ -62,8 +62,11 @@ sub list ($c) {
 
 =head2 find_relay
 
-Chainable action that looks up the relay by id or serial_number,
-stashing the query to get to it in C<relay_rs>.
+Chainable action that uses the C<relay_id_or_serial_number> provided in the stash (usually
+via the request URL), and stashes the query to get to it in C<relay_rs>.
+
+The relay must have been registered by the user to continue; otherwise the user must be a
+system admin.
 
 =cut
 

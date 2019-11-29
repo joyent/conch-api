@@ -12,7 +12,9 @@ Conch::Controller::Device
 
 =head2 find_device_interface
 
-Chainable action that looks up the device interface by its id or name.
+Chainable action that uses the C<interface_name> value provided in the stash (usually via the
+request URL) to look up a device interface, and stashes the query to get to it in
+C<device_interface_rs>.
 
 =cut
 

@@ -12,7 +12,8 @@ Conch::Controller::RackRole
 
 =head2 find_rack_role
 
-Supports rack role lookups by uuid and name.
+Chainable action that uses the C<rack_role_id_or_name> value provided in the stash (usually via
+the request URL) to look up a build, and stashes the result in C<rack_role>.
 
 =cut
 

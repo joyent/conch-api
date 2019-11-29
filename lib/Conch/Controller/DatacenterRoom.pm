@@ -14,7 +14,9 @@ Conch::Controller::DatacenterRoom
 
 =head2 find_datacenter_room
 
-Handles looking up the object by id or alias.
+Chainable action that uses the C<datacenter_room_id_or_alias> value provided in the stash
+(usually via the request URL) to look up a datacenter_room, and stashes the result in
+C<datacenter_room>.
 
 =cut
 

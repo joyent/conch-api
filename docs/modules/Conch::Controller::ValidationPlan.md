@@ -14,7 +14,8 @@ Response uses the ValidationPlans json schema.
 
 ## find\_validation\_plan
 
-Find the Validation Plan specified by uuid or name and put it in the stash as
+Chainable action that uses the `validation_plan_id_or_name` provided in the stash
+(usually via the request URL) to look up a validation\_plan, and stashes the result in
 `validation_plan`.
 
 ## get

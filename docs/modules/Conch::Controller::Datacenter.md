@@ -6,7 +6,8 @@ Conch::Controller::Datacenter
 
 ## find\_datacenter
 
-Handles looking up the object by id.
+Chainable action that uses the `datacenter_id` value provided in the stash (usually via the
+request URL) to look up a datacenter, and stashes the result in `datacenter`.
 
 ## get\_all
 

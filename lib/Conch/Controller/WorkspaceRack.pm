@@ -74,8 +74,8 @@ sub list ($c) {
 
 =head2 find_workspace_rack
 
-Chainable action that uses the C<workspace_rs> and C<rack_id> stash values and confirms the
-rack is a (direct or indirect) member of the workspace.
+Chainable action that uses the C<workspace_id> and C<rack_id> values provided in the stash
+to confirm the rack is a (direct or indirect) member of the workspace.
 
 Relies on L<Conch::Controller::Workspace/find_workspace> and
 L<Conch::Controller::Rack/find_rack> to have already run, verified user roles, and populated

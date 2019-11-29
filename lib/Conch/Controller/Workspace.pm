@@ -15,13 +15,13 @@ Conch::Controller::Workspace
 
 =head2 find_workspace
 
-Chainable action that validates the C<workspace_id> or C<workspace_name> provided in the path,
-and stashes the query to get to it in C<workspace_rs>.
+Chainable action that uses the C<workspace_id_or__name> provided in the stash (usually via
+the request URL) to look up a workspace, and stashes the query to get to it in C<workspace_rs>.
 
-If C<workspace_name> is provided, C<workspace_id> is looked up and stashed.
+If the workspace name is provided, C<workspace_id> is looked up and stashed.
 
-If C<require_role> is provided, it is used as the minimum required role for the user to
-continue.
+C<require_role> is used as the minimum required role for the user to continue; otherwise the
+user must be a system admin.
 
 =cut
 
