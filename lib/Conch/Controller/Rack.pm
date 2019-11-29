@@ -64,6 +64,10 @@ sub create ($c) {
         return $c->status(409, { error => 'Rack role does not exist' });
     }
 
+    if (not $c->db_builds->search({ id => $input->{build_id} })->exists) {
+        return $c->status(409, { error => 'Build does not exist' });
+    }
+
     if ($c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} })->exists) {
         return $c->status(409, { error => 'The room already contains a rack named '.$input->{name} });
     }
@@ -227,6 +231,10 @@ sub update ($c) {
         if ($c->db_racks->search({ datacenter_room_id => $rack->datacenter_room_id, name => $input->{name} })->exists) {
             return $c->status(409, { error => 'The room already contains a rack named '.($input->{name} // $rack->name) });
         }
+    }
+
+    if ($input->{build_id} and not $c->db_builds->search({ id => $input->{build_id} })->exists) {
+        return $c->status(409, { error => 'Build does not exist' });
     }
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it

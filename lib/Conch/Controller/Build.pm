@@ -830,6 +830,8 @@ sub add_rack ($c) {
     # TODO: check other constraints..
     # - what if the build is completed?
     # - what about device.phase or rack.phase?
+    # - build_id can also change via POST /rack/:id (so copy the checks there or
+    # remove that functionality)
 
     $c->log->debug('adding rack '.$rack->id.' to build '.$c->stash('build_id_or_name'));
     $rack->update({ build_id => $build_id, updated => \'now()' });
