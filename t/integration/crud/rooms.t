@@ -21,7 +21,7 @@ $t->get_ok('/room')
     ->status_is(200)
     ->json_schema_is('DatacenterRoomsDetailed')
     ->json_cmp_deeply([
-        superhashof({ az => 'room-0a', alias => 'room 0a' }),
+        superhashof({ az => 'room-0a', alias => 'room 0a', vendor_name => 'ROOM:0.A' }),
     ]);
 my $rooms = $t->tx->res->json;
 my $room = $rooms->[0];
@@ -147,14 +147,14 @@ $t->post_ok('/room', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
-$t->post_ok('/room', json => { datacenter_id => create_uuid_str, az => 'sungo-test-1', alias => 'me'})
+$t->post_ok('/room', json => { datacenter_id => create_uuid_str, az => 'sungo-test-1', alias => 'me', vendor_name => 'A:B' })
     ->status_is(409)
     ->json_is({ error => 'Datacenter does not exist' });
 
 $t2->post_ok('/room', json => { datacenter_id => $datacenter->id })
     ->status_is(403);
 
-$t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
+$t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me', vendor_name => 'A:B' })
     ->status_is(303);
 
 $t->get_ok($t->tx->res->headers->location)
@@ -163,13 +163,17 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_cmp_deeply(superhashof({
         az => 'sungo-test-1',
         alias => 'me',
-        vendor_name => undef,
+        vendor_name => 'A:B',
     }));
 my $idr = $t->tx->res->json->{id};
 
-$t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me' })
+$t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me', vendor_name => 'C:D' })
     ->status_is(409)
     ->json_is({ error => 'a room already exists with that alias' });
+
+$t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'not me', vendor_name => 'A:B' })
+    ->status_is(409)
+    ->json_is({ error => 'a room already exists with that vendor_name' });
 
 $t->post_ok("/room/$idr", json => { datacenter_id => create_uuid_str })
     ->status_is(409)
@@ -178,6 +182,10 @@ $t->post_ok("/room/$idr", json => { datacenter_id => create_uuid_str })
 $t->post_ok("/room/$idr", json => { alias => $room->{alias} })
     ->status_is(409)
     ->json_is({ error => 'a room already exists with that alias' });
+
+$t->post_ok("/room/$idr", json => { vendor_name => $room->{vendor_name} })
+    ->status_is(409)
+    ->json_is({ error => 'a room already exists with that vendor_name' });
 
 $t2->post_ok("/room/$idr", json => { vendor_name => 'sungo' })
     ->status_is(403);

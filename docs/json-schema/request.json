@@ -248,7 +248,8 @@
       "required" : [
         "datacenter_id",
         "az",
-        "alias"
+        "alias",
+        "vendor_name"
       ],
       "type" : "object"
     },

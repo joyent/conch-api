@@ -92,6 +92,9 @@ sub create ($c) {
     return $c->status(409, { error => 'a room already exists with that alias' })
         if $c->db_datacenter_rooms->search({ alias => $input->{alias} })->exists;
 
+    return $c->status(409, { error => 'a room already exists with that vendor_name' })
+        if $c->db_datacenter_rooms->search({ vendor_name => $input->{vendor_name} })->exists;
+
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
     $c->status(303, '/room/'.$room->id);
@@ -116,6 +119,10 @@ sub update ($c) {
     return $c->status(409, { error => 'a room already exists with that alias' })
         if $input->{alias} and $input->{alias} ne $room->alias
             and $c->db_datacenter_rooms->search({ alias => $input->{alias} })->exists;
+
+    return $c->status(409, { error => 'a room already exists with that vendor_name' })
+        if $input->{vendor_name} and $input->{vendor_name} ne $room->vendor_name
+            and $c->db_datacenter_rooms->search({ vendor_name => $input->{vendor_name} })->exists;
 
     $room->update({ $input->%*, updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id_or_alias'));

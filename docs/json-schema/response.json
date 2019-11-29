@@ -240,14 +240,7 @@
         },
         "vendor_name" : {
           "description" : "the vendor's name for the room",
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "string"
         }
       },
       "required" : [

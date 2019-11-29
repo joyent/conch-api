@@ -39,6 +39,7 @@ definitions:
       - datacenter_id
       - az
       - alias
+      - vendor_name
     properties:
       datacenter_id:
         $ref: common.yaml#/definitions/uuid

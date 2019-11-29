@@ -1319,9 +1319,7 @@ definitions:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       vendor_name:
         description: the vendor's name for the room
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: string
       datacenter_id:
         $ref: common.yaml#/definitions/uuid
       created:

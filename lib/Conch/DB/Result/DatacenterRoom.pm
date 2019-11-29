@@ -55,7 +55,7 @@ __PACKAGE__->table("datacenter_room");
 =head2 vendor_name
 
   data_type: 'text'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 created
 
@@ -88,7 +88,7 @@ __PACKAGE__->add_columns(
   "alias",
   { data_type => "text", is_nullable => 0 },
   "vendor_name",
-  { data_type => "text", is_nullable => 1 },
+  { data_type => "text", is_nullable => 0 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -131,6 +131,18 @@ __PACKAGE__->set_primary_key("id");
 
 __PACKAGE__->add_unique_constraint("datacenter_room_alias_key", ["alias"]);
 
+=head2 C<datacenter_room_vendor_name_key>
+
+=over 4
+
+=item * L</vendor_name>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("datacenter_room_vendor_name_key", ["vendor_name"]);
+
 =head1 RELATIONS
 
 =head2 datacenter
@@ -165,7 +177,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mcbeYZ4W6x5TQUuxkzhy5A
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/HdkgTQ3OY7FN8f1enwONg
 
 1;
 __END__

@@ -200,7 +200,7 @@ CREATE TABLE public.datacenter_room (
     datacenter_id uuid NOT NULL,
     az text NOT NULL,
     alias text NOT NULL,
-    vendor_name text,
+    vendor_name text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -813,6 +813,14 @@ ALTER TABLE ONLY public.datacenter
 
 ALTER TABLE ONLY public.datacenter_room
     ADD CONSTRAINT datacenter_room_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: datacenter_room datacenter_room_vendor_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.datacenter_room
+    ADD CONSTRAINT datacenter_room_vendor_name_key UNIQUE (vendor_name);
 
 
 --

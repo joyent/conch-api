@@ -44,7 +44,7 @@ is_nullable: 0
 
 ```
 data_type: 'text'
-is_nullable: 1
+is_nullable: 0
 ```
 
 ## created
@@ -74,6 +74,10 @@ original: {default_value => \"now()"}
 ## `datacenter_room_alias_key`
 
 - ["alias"](#alias)
+
+## `datacenter_room_vendor_name_key`
+
+- ["vendor\_name"](#vendor_name)
 
 # RELATIONS
 
