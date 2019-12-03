@@ -1318,8 +1318,8 @@ definitions:
       alias:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       vendor_name:
-        description: the vendor's name for the room
-        type: string
+        # description: the vendor's name for the room
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
       datacenter_id:
         $ref: common.yaml#/definitions/uuid
       created:

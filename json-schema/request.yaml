@@ -48,7 +48,7 @@ definitions:
       alias:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       vendor_name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
   DatacenterRoomUpdate:
     type: object
     additionalProperties: false
@@ -61,7 +61,7 @@ definitions:
       alias:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       vendor_name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
   DeviceReport:
     $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
   RackCreate:

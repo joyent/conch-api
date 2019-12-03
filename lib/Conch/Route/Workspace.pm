@@ -55,7 +55,7 @@ sub routes {
 
         {
             my $with_workspace_rack =
-                $with_workspace->under('/rack/<rack_id:uuid>')->to('rack#find_rack')
+                $with_workspace->under('/rack/:rack_id_or_name')->to('rack#find_rack')
                     ->under('/')->to('workspace_rack#find_workspace_rack');
 
             # DELETE /workspace/:workspace_id_or_name/rack/:rack_id
@@ -200,7 +200,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<DELETE /workspace/:workspace_id_or_name/rack/:rack_id>
+=head3 C<DELETE /workspace/:workspace_id_or_name/rack/:rack_id_or_name>
 
 =over 4
 

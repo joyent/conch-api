@@ -239,8 +239,7 @@
           "type" : "string"
         },
         "vendor_name" : {
-          "description" : "the vendor's name for the room",
-          "type" : "string"
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         }
       },
       "required" : [

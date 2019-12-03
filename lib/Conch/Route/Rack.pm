@@ -27,28 +27,28 @@ sub routes {
     # POST /rack
     $rack->require_system_admin->post('/')->to('#create');
 
-    my $with_rack = $rack->under('/<rack_id:uuid>')->to('#find_rack');
+    my $with_rack = $rack->under('/#rack_id_or_name')->to('#find_rack');
 
-    # GET /rack/:rack_id
+    # GET /rack/:rack_id_or_name
     $with_rack->get('/')->to('#get');
-    # POST /rack/:rack_id
+    # POST /rack/:rack_id_or_name
     $with_rack->post('/')->to('#update');
-    # DELETE /rack/:rack_id
+    # DELETE /rack/:rack_id_or_name
     $with_rack->require_system_admin->delete('/')->to('#delete');
 
-    # GET /rack/:rack_id/layouts
+    # GET /rack/:rack_id_or_name/layouts
     $with_rack->get('/layouts')->to('#get_layouts');
-    # POST /rack/:rack_id/layouts
+    # POST /rack/:rack_id_or_name/layouts
     $with_rack->post('/layouts')->to('#overwrite_layouts');
 
-    # GET /rack/:rack_id/assignment
+    # GET /rack/:rack_id_or_name/assignment
     $with_rack->get('/assignment')->to('#get_assignment');
-    # POST /rack/:rack_id/assignment
+    # POST /rack/:rack_id_or_name/assignment
     $with_rack->post('/assignment')->to('#set_assignment');
-    # DELETE /rack/:rack_id/assignment
+    # DELETE /rack/:rack_id_or_name/assignment
     $with_rack->delete('/assignment')->to('#delete_assignment');
 
-    # POST /rack/:rack_id/phase?rack_only=<0|1>
+    # POST /rack/:rack_id_or_name/phase?rack_only=<0|1>
     $with_rack->post('/phase')->to('#set_phase');
 }
 
@@ -81,7 +81,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /rack/:rack_id>
+=head3 C<GET /rack/:rack_id_or_name>
 
 =over 4
 
@@ -91,7 +91,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack/:rack_id>
+=head3 C<POST /rack/:rack_id_or_name>
 
 =over 4
 
@@ -103,7 +103,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /rack/:rack_id>
+=head3 C<DELETE /rack/:rack_id_or_name>
 
 =over 4
 
@@ -113,7 +113,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /rack/:rack_id/layouts>
+=head3 C<GET /rack/:rack_id_or_name/layouts>
 
 =over 4
 
@@ -123,7 +123,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack/:rack_id/layouts>
+=head3 C<POST /rack/:rack_id_or_name/layouts>
 
 =over 4
 
@@ -135,7 +135,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /rack/:rack_id/assignment>
+=head3 C<GET /rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -145,7 +145,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack/:rack_id/assignment>
+=head3 C<POST /rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -157,7 +157,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /rack/:rack_id/assignment>
+=head3 C<DELETE /rack/:rack_id_or_name/assignment>
 
 This method requires a request body.
 
@@ -171,7 +171,7 @@ This method requires a request body.
 
 =back
 
-=head3 C<< POST /rack/:rack_id/phase?rack_only=<0|1> >>
+=head3 C<< POST /rack/:rack_id_or_name/phase?rack_only=<0|1> >>
 
 The query parameter C<rack_only> (defaults to C<0>) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.

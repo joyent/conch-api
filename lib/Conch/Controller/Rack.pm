@@ -3,6 +3,7 @@ package Conch::Controller::Rack;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use List::Util qw(any none first uniq max);
+use Conch::UUID 'is_uuid';
 
 =pod
 
@@ -14,8 +15,11 @@ Conch::Controller::Rack
 
 =head2 find_rack
 
-Chainable action that uses the C<rack_id> value provided in the stash (usually via the
+Chainable action that uses the C<rack_id_or_name> value provided in the stash (usually via the
 request URL) to look up a rack, and stashes the query to get to it in C<rack_rs>.
+
+C<rack_id_or_name> must be either a uuid or a "long" rack name
+(L<Conch::DB::Result::DatacenterRoom/vendor_name>) plus L<Conch::DB::Result::Rack/name>).
 
 If C<require_role> is provided, it is used as the minimum required role for the user to
 continue; otherwise the user must be a system admin.
@@ -23,12 +27,24 @@ continue; otherwise the user must be a system admin.
 =cut
 
 sub find_rack ($c) {
-    $c->log->debug('Looking for rack by id: '.$c->stash('rack_id'));
-    my $rack_rs = $c->db_racks
-        ->search({ 'rack.id' => $c->stash('rack_id') });
+    my $identifier = $c->stash('rack_id_or_name');
+    my $rack_rs;
+    if (is_uuid($identifier)) {
+        $c->log->debug('Looking for rack by id: '.$identifier);
+        $rack_rs = $c->db_racks->search({ 'rack.id' => $identifier });
+    }
+    else {
+        my ($room_vendor_name, $rack_name) = ($identifier =~ /(.+):([^:]+)$/);
+        return $c->status(400, { error => 'cannot parse room and rack name from "'.$identifier.'"' })
+            if not $room_vendor_name or not $rack_name;
+
+        $c->log->debug('Looking for rack by room and rack name: '.$identifier);
+        $rack_rs = $c->db_datacenter_rooms->search({ 'datacenter_room.vendor_name' => $room_vendor_name })
+            ->search_related('racks', { 'racks.name' => $rack_name });
+    }
 
     if (not $rack_rs->exists) {
-        $c->log->debug('Could not find rack '.$c->stash('rack_id'));
+        $c->log->debug('Could not find rack '.$identifier);
         return $c->status(404);
     }
 
@@ -41,12 +57,15 @@ sub find_rack ($c) {
       : die 'need handling for '.$method.' method');
 
     if (not $c->is_system_admin and not $rack_rs->user_has_role($c->stash('user_id'), $requires_role)) {
-        $c->log->debug('User lacks the required role ('.$requires_role.') for rack '.$c->stash('rack_id'));
+        $c->log->debug('User lacks the required role ('.$requires_role.') for rack '.$c->stash('rack_id_or_name'));
         return $c->status(403);
     }
 
-    $c->log->debug('Found rack '.$c->stash('rack_id'));
-    $c->stash('rack_rs', $rack_rs);
+    my $rack_id = $rack_rs->get_column($rack_rs->current_source_alias.'.id')->single;
+    $c->log->debug('Found rack '.$rack_id);
+    $c->stash('rack_id', $rack_id);
+
+    $c->stash('rack_rs', $c->db_racks->search_rs({ 'rack.id' => $rack_id }));
     return 1;
 }
 
@@ -253,7 +272,7 @@ sub update ($c) {
         my @assigned_rack_units = $rack_rs->assigned_rack_units;
 
         if (my @out_of_range = grep $_ > $rack_role->rack_size, @assigned_rack_units) {
-            $c->log->debug('found layout used by rack id '.$c->stash('rack_id')
+            $c->log->debug('found layout used by rack id '.$rack->id
                 .' that has assigned rack_units greater requested new rack_size of '
                 .$rack_role->rack_size.': ', join(', ', @out_of_range));
             return $c->status(409, { error => 'cannot resize rack: found an assigned rack layout that extends beyond the new rack_size' });
@@ -303,7 +322,6 @@ sub get_assignment ($c) {
                 hardware_product_name => 'hardware_product.name',
                 rack_unit_size => 'hardware_product.rack_unit_size',
             },
-            collapse => 1,
         })
         ->order_by('rack_unit_start')
         ->hri
@@ -492,8 +510,9 @@ sub set_phase ($c) {
     my $input = $c->validate_request('RackPhase');
     return if not $input;
 
-    $c->stash('rack_rs')->update({ phase => $input->{phase}, updated => \'now()' });
-    $c->log->debug('set the phase for rack '.$c->stash('rack_id').' to '.$input->{phase});
+    my $rack = $c->stash('rack_rs')->single;
+    $rack->update({ phase => $input->{phase}, updated => \'now()' });
+    $c->log->debug('set the phase for rack '.$rack->id.' to '.$input->{phase});
 
     if (not $params->{rack_only} // 0) {
         $c->stash('rack_rs')

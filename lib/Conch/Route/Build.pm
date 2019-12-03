@@ -91,8 +91,8 @@ sub routes {
         # GET /build/:build_id_or_name/rack
         $with_build_ro->get('/rack')->to('#get_racks');
 
-        # POST /build/:build_id_or_name/rack/:rack_id
-        $with_build_rw->under('/rack/<rack_id:uuid>')
+        # POST /build/:build_id_or_name/rack/:rack_id_or_name
+        $with_build_rw->under('/rack/:rack_id_or_name')
             ->to('rack#find_rack', require_role => 'rw')
             ->post('/')->to('build#add_rack');
     }
@@ -297,7 +297,7 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =back
 
-=head3 C<POST /build/:build_id_or_name/rack/:rack_id>
+=head3 C<POST /build/:build_id_or_name/rack/:rack_id_or_name>
 
 =over 4
 

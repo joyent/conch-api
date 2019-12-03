@@ -24,6 +24,13 @@ my $fake_id = create_uuid_str();
 my $rack = $t->load_fixture('rack_0a');
 my $room = $rack->datacenter_room;
 
+$t->get_ok('/room/'.$room->id)
+    ->status_is(200)
+    ->json_schema_is('DatacenterRoomDetailed')
+    ->json_cmp_deeply(
+        superhashof({ az => 'room-0a', alias => 'room 0a', vendor_name => 'ROOM:0.A' }),
+    );
+
 $t->get_ok('/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
@@ -41,6 +48,7 @@ $t->get_ok($_)
     }))
     foreach
         '/rack/'.$rack->id,
+        '/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->id.'/rack/'.$rack->id,
         '/room/'.$room->id.'/rack/rack.0a',
         '/room/'.$room->alias.'/rack/'.$rack->id,
@@ -117,7 +125,7 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_cmp_deeply({
         id => re(Conch::UUID::UUID_FORMAT),
         name => 'r4ck',
-        datacenter_room_id => $rack->datacenter_room_id,
+        datacenter_room_id => $room->id,
         rack_role_id => $rack->rack_role_id,
         serial_number => 'abc',
         asset_tag => undef,
@@ -135,6 +143,7 @@ $t->get_ok($_)
     ->json_is($new_rack)
     foreach
         '/rack/'.$new_rack->{id},
+        '/rack/'.$room->vendor_name.':'.$new_rack->{name},
         '/room/'.$room->id.'/rack/'.$new_rack->{id},
         '/room/'.$room->id.'/rack/'.$new_rack->{name},
         '/room/'.$room->alias.'/rack/'.$new_rack->{id},
@@ -184,14 +193,14 @@ $t->post_ok("/rack/$new_rack->{id}", json => {
     })
     ->status_is(303)
     ->location_is('/rack/'.$new_rack->{id});
+$new_rack->@{qw(name serial_number asset_tag)} = qw(rack abc deadbeef);
 
-$t->post_ok("/rack/$new_rack->{id}", json => { rack_role_id => $small_rack_role->id })
+$t->post_ok($_, json => { rack_role_id => $small_rack_role->id })
     ->status_is(303)
-    ->location_is('/rack/'.$new_rack->{id});
-
-$t->post_ok("/rack/$new_rack->{id}", json => { rack_role_id => $small_rack_role->id })
-    ->status_is(303)
-    ->location_is('/rack/'.$new_rack->{id});
+    ->location_is('/rack/'.$new_rack->{id})
+    foreach
+        '/rack/'.$new_rack->{id},
+        '/rack/'.$room->vendor_name.':'.$new_rack->{name};
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -203,11 +212,14 @@ $t->get_ok($t->tx->res->headers->location)
         rack_role_id => $small_rack_role->id,
     }));
 
-$t->get_ok("/rack/$new_rack->{id}/assignment")
+$t->get_ok($_)
     ->status_is(200)
     ->location_is('/rack/'.$new_rack->{id}.'/assignment')
     ->json_schema_is('RackAssignments')
-    ->json_is([]);
+    ->json_is([])
+    foreach
+        '/rack/'.$new_rack->{id}.'/assignment',
+        '/rack/'.$room->vendor_name.':'.$new_rack->{name}.'/assignment';
 
 $t->delete_ok('/rack/'.$rack->id)
     ->status_is(409)
@@ -221,20 +233,26 @@ $t2->delete_ok("/rack/$new_rack->{id}")
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for rack '.$new_rack->{id});
 
-$t->delete_ok("/rack/$new_rack->{id}")
-    ->status_is(204);
+$t->delete_ok('/rack/'.$room->vendor_name.':'.$new_rack->{name})
+    ->status_is(204)
+    ->log_debug_is('Deleted rack '.$new_rack->{id});
 
-$t->get_ok('/rack/'.$new_rack->{id})
+$t->get_ok($_)
     ->status_is(404)
-    ->log_debug_is('Could not find rack '.$new_rack->{id});
+    ->log_debug_is('Could not find rack '.(split('/',$_))[-1])
+    foreach
+        '/rack/'.$new_rack->{id},
+        '/rack/'.$room->vendor_name.':'.$new_rack->{name};
 
 $t->get_ok($_)
     ->status_is(404)
     ->log_debug_is('Could not find rack '.(split('/',$_))[-1].' in room '.(split('/',$_))[2])
     foreach
         '/room/'.$room->id.'/rack/'.$new_rack->{id},
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$new_rack->{name},
         '/room/'.$room->id.'/rack/'.$new_rack->{name},
         '/room/'.$room->alias.'/rack/'.$new_rack->{id},
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$new_rack->{name},
         '/room/'.$room->alias.'/rack/'.$new_rack->{name};
 
 my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
@@ -302,11 +320,14 @@ my $foo = $t->app->db_devices->find({ serial_number => 'FOO' });
 $assignments->[0]->@{qw(device_id device_asset_tag)} = ($foo->id,'ohhai');
 $assignments->[1]->@{qw(device_id device_asset_tag)} = ($bar->id,'hello');
 
-$t->get_ok($t->tx->res->headers->location)
+$t->get_ok($_)
     ->status_is(200)
     ->location_is('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
-    ->json_is($assignments);
+    ->json_is($assignments)
+    foreach
+        '/rack/'.$rack->id.'/assignment',
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/assignment';
 
 subtest 'rack phases' => sub {
     my $device_phase_rs = $t->app->db_devices
@@ -537,11 +558,14 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
 
 $assignments->[0]->@{qw(device_id device_asset_tag)} = ();
 
-$t->get_ok('/rack/'.$rack->id.'/assignment')
+$t->get_ok($_)
     ->status_is(200)
     ->location_is('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
-    ->json_is($assignments);
+    ->json_is($assignments)
+    foreach
+        '/rack/'.$rack->id.'/assignment',
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/assignment';
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :
