@@ -171,7 +171,12 @@ $t->post_ok("/rack/$new_rack_id", json => { rack_role_id => $small_rack_role->id
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('Rack')
-    ->json_cmp_deeply(superhashof({ name => 'rack', serial_number => 'abc', asset_tag => 'deadbeef' }));
+    ->json_cmp_deeply(superhashof({
+        name => 'rack',
+        serial_number => 'abc',
+        asset_tag => 'deadbeef',
+        rack_role_id => $small_rack_role->id,
+    }));
 
 $t->get_ok("/rack/$new_rack_id/assignment")
     ->status_is(200)
