@@ -55,12 +55,6 @@ sub process ($c) {
         return $c->status(409, { error => 'device is decommissioned' });
     }
 
-    if ($hardware_product_id ne $device->hardware_product_id) {
-        $device->health('error');
-        $device->update({ updated => \'now()' }) if $device->is_changed;
-        return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$c->stash('device_serial_number') });
-    }
-
     # capture information about the last report before we store the new one
     # state can be: error, fail, pass, where no validations on a valid report is
     # considered to be a pass.
@@ -76,6 +70,7 @@ sub process ($c) {
     my $prev_uptime = $device->uptime_since;
     $c->txn_wrapper(sub ($c) {
         $device->update({
+            hardware_product_id => $hardware_product_id,
             system_uuid => $unserialized_report->{system_uuid},
             last_seen   => \'now()',
             exists $unserialized_report->{uptime_since} ? ( uptime_since => $unserialized_report->{uptime_since} ) : (),
