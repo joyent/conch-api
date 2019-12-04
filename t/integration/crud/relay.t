@@ -266,7 +266,7 @@ subtest list => sub {
                 updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[1][2]->%{qw(rack_id rack_unit_start)},
-                    rack_name => 'rack 1a',
+                    rack_name => 'rack.1a',
                     rack_role_name => 'rack_role 42U',
                     az => 'room-1a',
                 },
@@ -284,7 +284,7 @@ subtest list => sub {
                 updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[0][0]->%{qw(rack_id rack_unit_start)},
-                    rack_name => 'rack 0a',
+                    rack_name => 'rack.0a',
                     rack_role_name => 'rack_role 42U',
                     az => 'room-0a',
                 },

@@ -41,7 +41,7 @@ sub routes {
     $with_datacenter_room->get('/racks')->to('#racks');
 
     # GET /room/:datacenter_room_id_or_alias/rack/:rack_name
-    $with_datacenter_room->get('/rack/:rack_name')->to('#find_rack');
+    $with_datacenter_room->get('/rack/#rack_name')->to('#find_rack');
 }
 
 1;

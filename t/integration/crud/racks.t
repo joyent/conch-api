@@ -26,12 +26,12 @@ my $rack = $t->load_fixture('rack_0a');
 $t->get_ok('/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
-    ->json_cmp_deeply([ superhashof({ name => 'rack 0a' }) ]);
+    ->json_cmp_deeply([ superhashof({ name => 'rack.0a' }) ]);
 
 $t->get_ok('/rack/'.$rack->id)
     ->status_is(200)
     ->json_schema_is('Rack')
-    ->json_cmp_deeply(superhashof({ name => 'rack 0a' }));
+    ->json_cmp_deeply(superhashof({ name => 'rack.0a' }));
 
 $t->post_ok('/rack', json => { wat => 'wat' })
     ->status_is(400)

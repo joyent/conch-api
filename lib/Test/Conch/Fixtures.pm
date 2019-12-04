@@ -345,7 +345,7 @@ sub generate_set ($self, $set_name, @args) {
             },
             "rack_${num}a" => {
                 new => 'rack',
-                using => { name => "rack ${num}a" },
+                using => { name => "rack.${num}a" },
                 requires => {
                     "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
                     rack_role_42u => { our => 'rack_role_id', their => 'id' },
