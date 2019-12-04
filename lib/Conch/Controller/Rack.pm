@@ -134,21 +134,6 @@ sub get ($c) {
     $c->status(200, $c->stash('rack_rs')->single);
 }
 
-=head2 get_all
-
-Get all racks
-
-Response uses the Racks json schema.
-
-=cut
-
-sub get_all ($c) {
-    my @racks = $c->db_racks->order_by('name')->all;
-    $c->log->debug('Found '.scalar(@racks).' racks');
-
-    $c->status(200, \@racks);
-}
-
 =head2 get_layouts
 
 Gets all the layouts for the specified rack.

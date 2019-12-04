@@ -11,11 +11,6 @@ $t->load_fixture('super_user');
 
 $t->authenticate;
 
-$t->get_ok('/rack')
-    ->status_is(200)
-    ->json_schema_is('Racks')
-    ->json_is([]);
-
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 my $build = $t->generate_fixtures('build');
 
@@ -31,7 +26,7 @@ $t->get_ok('/room/'.$room->id)
         superhashof({ az => 'room-0a', alias => 'room 0a', vendor_name => 'ROOM:0.A' }),
     );
 
-$t->get_ok('/rack')
+$t->get_ok('/room/room 0a/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_cmp_deeply([ superhashof({ name => 'rack.0a' }) ]);

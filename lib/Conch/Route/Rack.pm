@@ -24,8 +24,6 @@ sub routes {
 
     my $rack_with_system_admin = $rack->require_system_admin;
 
-    # GET /rack
-    $rack_with_system_admin->get('/')->to('#get_all');
     # POST /rack
     $rack_with_system_admin->post('/')->to('#create');
 
@@ -83,16 +81,6 @@ All routes require authentication.
 Take note: All routes that reference a specific rack (prefix C</rack/:rack_id>) are also
 available under C</rack/:rack_id_or_long_name> as well as
 C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
-
-=head3 C<GET /rack>
-
-=over 4
-
-=item * Requires system admin authorization
-
-=item * Response: F<response.yaml#/definitions/Racks>
-
-=back
 
 =head3 C<POST /rack>
 

@@ -18,11 +18,6 @@ Take note: All routes that reference a specific rack (prefix `/rack/:rack_id`) a
 available under `/rack/:rack_id_or_long_name` as well as
 `/room/datacenter_room_id_or_alias/rack/:rack_id_or_name`.
 
-### `GET /rack`
-
-- Requires system admin authorization
-- Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
-
 ### `POST /rack`
 
 - Requires system admin authorization

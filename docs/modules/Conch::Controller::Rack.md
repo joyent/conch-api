@@ -28,12 +28,6 @@ Get a single rack
 
 Response uses the Rack json schema.
 
-## get\_all
-
-Get all racks
-
-Response uses the Racks json schema.
-
 ## get\_layouts
 
 Gets all the layouts for the specified rack.
