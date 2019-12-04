@@ -38,7 +38,7 @@ the room
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `GET /room/:datacenter_room_id_or_alias/racks`
+### `GET /room/:datacenter_room_id_or_alias/rack`
 
 - User requires system admin authorization, or the read-only role on a rack located in
 the room (in which case data returned is restricted to those racks)

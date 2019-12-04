@@ -32,8 +32,8 @@ sub routes {
     # GET    /rack/:rack_id_or_name
     # POST   /rack/:rack_id_or_name
     # DELETE /rack/:rack_id_or_name
-    # GET    /rack/:rack_id_or_name/layouts
-    # POST   /rack/:rack_id_or_name/layouts
+    # GET    /rack/:rack_id_or_name/layout
+    # POST   /rack/:rack_id_or_name/layout
     # GET    /rack/:rack_id_or_name/assignment
     # POST   /rack/:rack_id_or_name/assignment
     # DELETE /rack/:rack_id_or_name/assignment
@@ -57,10 +57,10 @@ sub one_rack_routes ($class, $r) {
     # DELETE .../rack/:rack_id_or_name
     $one_rack->require_system_admin->delete('/')->to('#delete');
 
-    # GET .../rack/:rack_id_or_name/layouts
-    $one_rack->get('/layouts')->to('#get_layouts');
-    # POST .../rack/:rack_id_or_name/layouts
-    $one_rack->post('/layouts')->to('#overwrite_layouts');
+    # GET .../rack/:rack_id_or_name/layout
+    $one_rack->get('/layout')->to('#get_layouts');
+    # POST .../rack/:rack_id_or_name/layout
+    $one_rack->post('/layout')->to('#overwrite_layouts');
 
     # GET .../rack/:rack_id_or_name/assignment
     $one_rack->get('/assignment')->to('#get_assignment');
@@ -138,7 +138,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<GET /rack/:rack_id_or_name/layouts>
+=head3 C<GET /rack/:rack_id_or_name/layout>
 
 =over 4
 
@@ -148,7 +148,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<POST /rack/:rack_id_or_name/layouts>
+=head3 C<POST /rack/:rack_id_or_name/layout>
 
 =over 4
 

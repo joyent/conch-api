@@ -45,12 +45,12 @@ available under `/rack/:rack_id_or_long_name` as well as
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `GET /rack/:rack_id_or_name/layouts`
+### `GET /rack/:rack_id_or_name/layout`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
-### `POST /rack/:rack_id_or_name/layouts`
+### `POST /rack/:rack_id_or_name/layout`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)

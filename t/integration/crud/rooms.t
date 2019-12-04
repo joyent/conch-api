@@ -37,13 +37,13 @@ $t->get_ok($_)
         '/room/'.$room->{id},
         '/room/'.$room->{alias};
 
-$t->get_ok('/room/'.$room->{id}.'/racks')
+$t->get_ok('/room/'.$room->{id}.'/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_cmp_deeply([ superhashof({ name => 'rack.0a' }) ]);
 my $rack = $t->tx->res->json->[0];
 
-$t->get_ok('/room/'.$room->{alias}.'/racks')
+$t->get_ok('/room/'.$room->{alias}.'/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_is([ $rack ]);
@@ -74,8 +74,8 @@ $t2->get_ok($_)
         '/room',
         '/room/'.$room->{id},
         '/room/'.$room->{alias},
-        '/room/'.$room->{id}.'/racks',
-        '/room/'.$room->{alias}.'/racks',
+        '/room/'.$room->{id}.'/rack',
+        '/room/'.$room->{alias}.'/rack',
         '/room/'.$room->{id}.'/rack/'.$rack->{id},
         '/room/'.$room->{id}.'/rack/ROOM:0.A:rack.0a',
         '/room/'.$room->{id}.'/rack/rack.0a',
@@ -103,8 +103,8 @@ $t2->get_ok($_)
     ->json_schema_is('Racks')
     ->json_is([ $rack ])
     foreach
-        '/room/'.$room->{id}.'/racks',
-        '/room/'.$room->{alias}.'/racks';
+        '/room/'.$room->{id}.'/rack',
+        '/room/'.$room->{alias}.'/rack';
 
 $t2->get_ok($_)
     ->status_is(200)
@@ -132,7 +132,7 @@ $t->get_ok('/room/'.$room->{id}.'/rack/rack2')
     ->json_cmp_deeply(superhashof({ id => $rack2_id, name => 'rack2' }));
 my $rack2 = $t->tx->res->json;
 
-$t->get_ok('/room/'.$room->{id}.'/racks')
+$t->get_ok('/room/'.$room->{id}.'/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_is([ $rack, $rack2 ]);
@@ -152,8 +152,8 @@ $t2->get_ok($_)
     ->json_schema_is('Racks')
     ->json_is([ $rack ])
     foreach
-        '/room/'.$room->{id}.'/racks',
-        '/room/'.$room->{alias}.'/racks';
+        '/room/'.$room->{id}.'/rack',
+        '/room/'.$room->{alias}.'/rack';
 
 $t->post_ok('/room', json => { wat => 'wat' })
     ->status_is(400)

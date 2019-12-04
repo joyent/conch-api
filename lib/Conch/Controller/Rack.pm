@@ -165,7 +165,7 @@ sub get_layouts ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');
-    $c->res->headers->location('/rack/'.$c->stash('rack_id').'/layouts');
+    $c->res->headers->location('/rack/'.$c->stash('rack_id').'/layout');
     $c->status(200, \@layouts);
 }
 
@@ -247,7 +247,7 @@ sub overwrite_layouts ($c) {
     })
     or return $c->status(400);
 
-    $c->status(303, '/rack/'.$c->stash('rack_id').'/layouts');
+    $c->status(303, '/rack/'.$c->stash('rack_id').'/layout');
 }
 
 =head2 update
