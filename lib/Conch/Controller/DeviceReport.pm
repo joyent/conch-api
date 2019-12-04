@@ -50,15 +50,15 @@ sub process ($c) {
         return $c->status(404);
     }
 
+    if ($device->phase eq 'decommissioned') {
+        $c->log->error('report submitted for decommissioned device '.$c->stash('device_serial_number'));
+        return $c->status(409, { error => 'device is decommissioned' });
+    }
+
     if ($hardware_product_id ne $device->hardware_product_id) {
         $device->health('error');
         $device->update({ updated => \'now()' }) if $device->is_changed;
         return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$c->stash('device_serial_number') });
-    }
-
-    if ($device->phase eq 'decommissioned') {
-        $c->log->error('report submitted for decommissioned device '.$c->stash('device_serial_number'));
-        return $c->status(409, { error => 'device is decommissioned' });
     }
 
     # capture information about the last report before we store the new one
