@@ -21,8 +21,7 @@ Response uses the HardwareProducts json schema.
 sub list ($c) {
     my @hardware_products_raw = $c->db_hardware_products
         ->active
-        ->prefetch('hardware_product_profile')
-        ->order_by('hardware_product.name')
+        ->order_by('name')
         ->all;
 
     $c->status(200, \@hardware_products_raw);
@@ -83,15 +82,12 @@ Response uses the HardwareProduct json schema.
 =cut
 
 sub get ($c) {
-    my $rs = $c->stash('hardware_product_rs')
-        ->prefetch('hardware_product_profile');
-
-    $c->status(200, $rs->single);
+    $c->status(200, $c->stash('hardware_product_rs')->single);
 }
 
 =head2 create
 
-Creates a new hardware_product, and possibly also a hardware_product_profile.
+Creates a new hardware_product.
 
 =cut
 
@@ -113,7 +109,6 @@ sub create ($c) {
             if not $c->$rs_name->active->search({ id => $input->{$key} })->exists;
     }
 
-    # create hardware_product_profile entries as well, as needed.
     my $hardware_product = $c->txn_wrapper(sub ($c) {
         $c->db_hardware_products->create($input);
     });
@@ -121,18 +116,13 @@ sub create ($c) {
     # if the result code was already set, we errored and rolled back the db..
     return $c->status(400) if not $hardware_product;
 
-    $c->log->debug('Created hardware product id '.$hardware_product->id.
-        ($input->{hardware_product_profile}
-          ? (' and hardware product profile id '.$hardware_product->hardware_product_profile->id)
-          : '')
-    );
+    $c->log->debug('Created hardware product id '.$hardware_product->id);
     $c->status(303, '/hardware_product/'.$hardware_product->id);
 }
 
 =head2 update
 
-Updates an existing hardware_product, possibly updating or creating a hardware_product_profile
-as needed.
+Updates an existing hardware_product.
 
 =cut
 
@@ -140,9 +130,7 @@ sub update ($c) {
     my $input = $c->validate_request('HardwareProductUpdate');
     return if not $input;
 
-    my $hardware_product = $c->stash('hardware_product_rs')
-        ->prefetch('hardware_product_profile')
-        ->single;
+    my $hardware_product = $c->stash('hardware_product_rs')->single;
 
     for my $key (qw(name alias sku)) {
         next if not defined $input->{$key};
@@ -163,25 +151,6 @@ sub update ($c) {
     }
 
     $c->txn_wrapper(sub ($c) {
-        my $profile = delete $input->{hardware_product_profile};
-        if ($profile and keys $profile->%*) {
-            if (keys $profile->%*) {
-                if ($hardware_product->hardware_product_profile) {
-                    $hardware_product->hardware_product_profile->update({ $profile->%*, updated => \'now()', deactivated => undef });
-                    $c->log->debug('Updated hardware_product_profile for hardware product '.$hardware_product->id);
-                }
-                else {
-                    # when creating a new hardware product profile, we apply a stricter
-                    # schema to the input
-                    die 'rollback'
-                        if not $c->validate_request('HardwareProductProfileCreate', $profile);
-
-                    $hardware_product->create_related('hardware_product_profile', $profile);
-                    $c->log->debug('Created new hardware_product_profile for hardware product '.$hardware_product->id);
-                }
-            }
-        }
-
         $hardware_product->update({ $input->%*, updated => \'now()' }) if keys $input->%*;
         $c->log->debug('Updated hardware product '.$hardware_product->id);
         return 1;
@@ -199,14 +168,7 @@ sub delete ($c) {
     my $id = $c->stash('hardware_product_rs')->get_column('id')->single;
     $c->stash('hardware_product_rs')->deactivate;
 
-    # delete the profile too, since they are 1:1.
-    my $profile_rs = $c->stash('hardware_product_rs')->related_resultset('hardware_product_profile');
-    my $hardware_product_profile_id = $profile_rs->get_column('id')->single;
-    $profile_rs->deactivate;
-
-    $c->log->debug('Deleted hardware product '.$id
-        .($hardware_product_profile_id
-            ? ' and its related hardware product profile id '.$hardware_product_profile_id : ''));
+    $c->log->debug('Deleted hardware product '.$id);
     return $c->status(204);
 }
 

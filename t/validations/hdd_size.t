@@ -7,9 +7,11 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::HddSize',
-    hardware_product => {
-        name => 'Test Product',
-        specification => to_json({}),
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+            specification => to_json({}),
+        },
     },
     cases => [
         {
@@ -23,14 +25,16 @@ test_validation(
 
 test_validation(
     'Conch::Validation::HddSize',
-    hardware_product => {
-        name => 'Test Product',
-        specification => to_json({
-            disk_size => {
-                pinto => 32,
-                gremlin => 64,
-            },
-        }),
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+            specification => to_json({
+                disk_size => {
+                    pinto => 32,
+                    gremlin => 64,
+                },
+            }),
+        },
     },
     cases => [
         {
@@ -113,15 +117,17 @@ test_validation(
 
 test_validation(
     'Conch::Validation::HddSize',
-    hardware_product => {
-        name => 'Test Product',
-        specification => to_json({
-            disk_size => {
-                _default => 128,
-                pinto => 32,
-                gremlin => 64,
-            },
-        }),
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+            specification => to_json({
+                disk_size => {
+                    _default => 128,
+                    pinto => 32,
+                    gremlin => 64,
+                },
+            }),
+        },
     },
     cases => [
         {

@@ -16,7 +16,7 @@ $t->get_ok('/layout')
     ->json_is([]);
 
 $t->load_fixture_set('workspace_room_rack_layout', $_) for 0..1; # contains compute, storage products
-$t->load_fixture('hardware_product_switch', 'hardware_product_profile_switch');
+$t->load_fixture('hardware_product_switch');
 
 my $hw_product_switch = $t->load_fixture('hardware_product_switch');    # rack_unit_size 1
 my $hw_product_compute = $t->load_fixture('hardware_product_compute');  # rack_unit_size 2

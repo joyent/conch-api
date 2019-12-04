@@ -44,16 +44,6 @@ subtest preliminaries => sub {
 
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
-        ->json_is({ error => 'Hardware product does not contain a profile' });
-
-    $t->post_ok('/device_report', json => $report_data)
-        ->status_is(409)
-        ->json_is({ error => 'Hardware product does not contain a profile' });
-
-    $t->load_fixture('hardware_product_profile_compute');
-
-    $t->post_ok('/device/TEST', json => $report_data)
-        ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
@@ -70,9 +60,7 @@ subtest preliminaries => sub {
 
     # deactivate product, create a new product with the same sku
     $hardware_product->update({ deactivated => \'now()' });
-    my $profile = $hardware_product->hardware_product_profile;
     my $new_compute = $t->app->db_hardware_products->create(do { my %cols = $hardware_product->get_columns; delete @cols{qw(id deactivated)}; \%cols });
-    $profile->update({ hardware_product_id => $new_compute->id });
 
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
@@ -88,7 +76,6 @@ subtest preliminaries => sub {
     # go back to the original hardware_product
     $new_compute->update({ deactivated => \'now()' });
     $hardware_product->update({ deactivated => undef });
-    $profile->update({ hardware_product_id => $hardware_product->id });
 };
 
 
@@ -453,7 +440,7 @@ subtest 'system_uuid collisions' => sub {
 subtest 'submit report for decommissioned device' => sub {
     $t->app->db_devices->update_or_create({
         serial_number => 'DECOMMISSIONED_TEST',
-        hardware_product_id => $t->load_fixture('hardware_product_profile_compute')->hardware_product_id,
+        hardware_product_id => $t->load_fixture('hardware_product_compute')->id,
         health => 'pass',
         phase => 'decommissioned',
     });

@@ -3,20 +3,29 @@ package Conch::Validation::DeviceProductName;
 use Mojo::Base 'Conch::Validation';
 
 use constant name        => 'product_name';
-use constant version     => 1;
-use constant category    => 'BIOS';
-use constant description => 'Validate reported product name matches product name expected in rack layout';
+use constant version     => 2;
+use constant category    => 'IDENTITY';
+use constant description => 'Validate reported product name, sku matches product name, sku expected in rack layout';
 
 sub validate {
     my ($self, $data) = @_;
 
+    # these fields are required in the DeviceReport schema, so we should not ever fail here.
     unless($data->{product_name}) {
         $self->die("Missing 'product_name' property");
     }
 
-    # TODO: be more vigorous in the checking:
-    # verify that $device->hardware_product_id
-    # eq $device->device_location->rack_layout->hardware_product_id
+    unless($data->{sku}) {
+        $self->die("Missing 'sku' property");
+    }
+
+    if (my $location = $self->device->device_location) {
+        $self->register_result(
+            got => $data->{sku},
+            expected => $location->rack_layout->hardware_product->sku,
+            hint => 'sku in rack layout where the device is located should match the sku reported by the device',
+        );
+    }
 
     # We do not currently define a Conch or Joyent specific name for
     # switches. This may change in the future, but currently we continue

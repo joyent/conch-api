@@ -12,12 +12,11 @@ sub validate {
 
     $self->die("Input data must include 'interfaces' hash")
         unless $data->{interfaces} && ref($data->{interfaces}) eq 'HASH';
-    my $hw_profile = $self->hardware_product_profile;
 
     my $nics_count = scalar(keys $data->{interfaces}->%*);
 
     $self->register_result(
-        expected => $hw_profile->nics_num,
+        expected => $self->hardware_product->nics_num,
         got      => $nics_count,
     );
 }

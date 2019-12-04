@@ -379,52 +379,37 @@ CREATE TABLE public.hardware_product (
     legacy_product_name text,
     rack_unit_size integer NOT NULL,
     validation_plan_id uuid NOT NULL,
+    purpose text NOT NULL,
+    bios_firmware text NOT NULL,
+    hba_firmware text,
+    cpu_num integer DEFAULT 0 NOT NULL,
+    cpu_type text NOT NULL,
+    dimms_num integer DEFAULT 0 NOT NULL,
+    ram_total integer DEFAULT 0 NOT NULL,
+    nics_num integer DEFAULT 0 NOT NULL,
+    sata_hdd_num integer DEFAULT 0 NOT NULL,
+    sata_hdd_size integer,
+    sata_hdd_slots text,
+    sas_hdd_num integer DEFAULT 0 NOT NULL,
+    sas_hdd_size integer,
+    sas_hdd_slots text,
+    sata_ssd_num integer DEFAULT 0 NOT NULL,
+    sata_ssd_size integer,
+    sata_ssd_slots text,
+    psu_total integer DEFAULT 0 NOT NULL,
+    usb_num integer DEFAULT 0 NOT NULL,
+    sas_ssd_num integer DEFAULT 0 NOT NULL,
+    sas_ssd_size integer,
+    sas_ssd_slots text,
+    nvme_ssd_num integer DEFAULT 0 NOT NULL,
+    nvme_ssd_size integer,
+    nvme_ssd_slots text,
+    raid_lun_num integer DEFAULT 0 NOT NULL,
     CONSTRAINT hardware_product_rack_unit_size_check CHECK ((rack_unit_size > 0))
 );
 
 
 ALTER TABLE public.hardware_product OWNER TO conch;
-
---
--- Name: hardware_product_profile; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.hardware_product_profile (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    hardware_product_id uuid NOT NULL,
-    purpose text NOT NULL,
-    bios_firmware text NOT NULL,
-    hba_firmware text,
-    cpu_num integer NOT NULL,
-    cpu_type text NOT NULL,
-    dimms_num integer NOT NULL,
-    ram_total integer NOT NULL,
-    nics_num integer NOT NULL,
-    sata_hdd_num integer,
-    sata_hdd_size integer,
-    sata_hdd_slots text,
-    sas_hdd_num integer,
-    sas_hdd_size integer,
-    sas_hdd_slots text,
-    sata_ssd_num integer,
-    sata_ssd_size integer,
-    sata_ssd_slots text,
-    psu_total integer,
-    deactivated timestamp with time zone,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL,
-    usb_num integer NOT NULL,
-    sas_ssd_num integer,
-    sas_ssd_size integer,
-    sas_ssd_slots text,
-    nvme_ssd_num integer,
-    nvme_ssd_size integer,
-    nvme_ssd_slots text,
-    raid_lun_num integer
-);
-
-
-ALTER TABLE public.hardware_product_profile OWNER TO conch;
 
 --
 -- Name: hardware_vendor; Type: TABLE; Schema: public; Owner: conch
@@ -940,22 +925,6 @@ ALTER TABLE ONLY public.device
 
 ALTER TABLE ONLY public.hardware_product
     ADD CONSTRAINT hardware_product_pkey PRIMARY KEY (id);
-
-
---
--- Name: hardware_product_profile hardware_product_profile_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_product_profile
-    ADD CONSTRAINT hardware_product_profile_pkey PRIMARY KEY (id);
-
-
---
--- Name: hardware_product_profile hardware_product_profile_product_id_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_product_profile
-    ADD CONSTRAINT hardware_product_profile_product_id_key UNIQUE (hardware_product_id);
 
 
 --
@@ -1717,14 +1686,6 @@ ALTER TABLE ONLY public.device_setting
 
 
 --
--- Name: hardware_product_profile hardware_product_profile_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.hardware_product_profile
-    ADD CONSTRAINT hardware_product_profile_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id) ON DELETE CASCADE;
-
-
---
 -- Name: hardware_product hardware_product_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -2086,13 +2047,6 @@ GRANT SELECT ON TABLE public.device_setting TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.hardware_product TO conch_read_only;
-
-
---
--- Name: TABLE hardware_product_profile; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.hardware_product_profile TO conch_read_only;
 
 
 --

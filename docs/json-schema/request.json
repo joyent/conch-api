@@ -403,42 +403,21 @@
             "hardware_vendor_id",
             "sku",
             "rack_unit_size",
-            "validation_plan_id"
-          ]
-        },
-        {
-          "properties" : {
-            "hardware_product_profile" : {
-              "$ref" : "/definitions/HardwareProductProfileCreate"
-            }
-          },
-          "type" : "object"
-        }
-      ]
-    },
-    "HardwareProductProfileCreate" : {
-      "allOf" : [
-        {
-          "$ref" : "/definitions/HardwareProductProfileUpdate"
-        },
-        {
-          "required" : [
+            "validation_plan_id",
             "purpose",
             "bios_firmware",
-            "cpu_num",
-            "cpu_type",
-            "dimms_num",
-            "ram_total",
-            "nics_num",
-            "usb_num"
+            "cpu_type"
           ]
         }
       ]
     },
-    "HardwareProductProfileUpdate" : {
+    "HardwareProductUpdate" : {
       "additionalProperties" : false,
       "minProperties" : 1,
       "properties" : {
+        "alias" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
         "bios_firmware" : {
           "type" : "string"
         },
@@ -451,6 +430,12 @@
         "dimms_num" : {
           "type" : "integer"
         },
+        "generation_name" : {
+          "$ref" : "common.json#/definitions/non_empty_string"
+        },
+        "hardware_vendor_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
         "hba_firmware" : {
           "oneOf" : [
             {
@@ -461,18 +446,24 @@
             }
           ]
         },
-        "nics_num" : {
-          "type" : "integer"
-        },
-        "nvme_ssd_num" : {
+        "legacy_product_name" : {
           "oneOf" : [
             {
-              "type" : "integer"
+              "$ref" : "common.json#/definitions/non_empty_string"
             },
             {
               "type" : "null"
             }
           ]
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "nics_num" : {
+          "type" : "integer"
+        },
+        "nvme_ssd_num" : {
+          "type" : "integer"
         },
         "nvme_ssd_size" : {
           "oneOf" : [
@@ -494,41 +485,33 @@
             }
           ]
         },
-        "psu_total" : {
+        "prefix" : {
           "oneOf" : [
             {
-              "type" : "integer"
+              "$ref" : "common.json#/definitions/non_empty_string"
             },
             {
               "type" : "null"
             }
           ]
+        },
+        "psu_total" : {
+          "type" : "integer"
         },
         "purpose" : {
           "type" : "string"
         },
+        "rack_unit_size" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        },
         "raid_lun_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "ram_total" : {
           "type" : "integer"
         },
         "sas_hdd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sas_hdd_size" : {
           "oneOf" : [
@@ -551,14 +534,7 @@
           ]
         },
         "sas_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sas_ssd_size" : {
           "oneOf" : [
@@ -581,14 +557,7 @@
           ]
         },
         "sata_hdd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sata_hdd_size" : {
           "oneOf" : [
@@ -611,14 +580,7 @@
           ]
         },
         "sata_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "type" : "integer"
         },
         "sata_ssd_size" : {
           "oneOf" : [
@@ -640,54 +602,6 @@
             }
           ]
         },
-        "usb_num" : {
-          "type" : "integer"
-        }
-      },
-      "type" : "object"
-    },
-    "HardwareProductUpdate" : {
-      "additionalProperties" : false,
-      "minProperties" : 1,
-      "properties" : {
-        "alias" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        },
-        "generation_name" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
-        },
-        "hardware_product_profile" : {
-          "$ref" : "/definitions/HardwareProductProfileUpdate"
-        },
-        "hardware_vendor_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "legacy_product_name" : {
-          "oneOf" : [
-            {
-              "$ref" : "common.json#/definitions/non_empty_string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "name" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        },
-        "prefix" : {
-          "oneOf" : [
-            {
-              "$ref" : "common.json#/definitions/non_empty_string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "rack_unit_size" : {
-          "$ref" : "common.json#/definitions/positive_integer"
-        },
         "sku" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
@@ -701,6 +615,9 @@
               "type" : "null"
             }
           ]
+        },
+        "usb_num" : {
+          "type" : "integer"
         },
         "validation_plan_id" : {
           "$ref" : "common.json#/definitions/uuid"

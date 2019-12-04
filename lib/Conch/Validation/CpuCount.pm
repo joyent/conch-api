@@ -14,10 +14,8 @@ sub validate {
         $self->die("Missing cpus property")
     }
 
-    my $hw_profile = $self->hardware_product_profile;
-
     $self->register_result(
-        expected => $hw_profile->cpu_num,
+        expected => $self->hardware_product->cpu_num,
         got      => scalar $data->{cpus}->@*,
     );
 }

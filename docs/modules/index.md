@@ -64,7 +64,6 @@
 * [Conch::DB::Result::DeviceReport](../modules/Conch::DB::Result::DeviceReport)
 * [Conch::DB::Result::DeviceSetting](../modules/Conch::DB::Result::DeviceSetting)
 * [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareProduct)
-* [Conch::DB::Result::HardwareProductProfile](../modules/Conch::DB::Result::HardwareProductProfile)
 * [Conch::DB::Result::HardwareVendor](../modules/Conch::DB::Result::HardwareVendor)
 * [Conch::DB::Result::Migration](../modules/Conch::DB::Result::Migration)
 * [Conch::DB::Result::Organization](../modules/Conch::DB::Result::Organization)

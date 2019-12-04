@@ -116,6 +116,200 @@ is_nullable: 0
 size: 16
 ```
 
+## purpose
+
+```
+data_type: 'text'
+is_nullable: 0
+```
+
+## bios\_firmware
+
+```
+data_type: 'text'
+is_nullable: 0
+```
+
+## hba\_firmware
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+## cpu\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## cpu\_type
+
+```
+data_type: 'text'
+is_nullable: 0
+```
+
+## dimms\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## ram\_total
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## nics\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## sata\_hdd\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## sata\_hdd\_size
+
+```
+data_type: 'integer'
+is_nullable: 1
+```
+
+## sata\_hdd\_slots
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+## sas\_hdd\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## sas\_hdd\_size
+
+```
+data_type: 'integer'
+is_nullable: 1
+```
+
+## sas\_hdd\_slots
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+## sata\_ssd\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## sata\_ssd\_size
+
+```
+data_type: 'integer'
+is_nullable: 1
+```
+
+## sata\_ssd\_slots
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+## psu\_total
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## usb\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## sas\_ssd\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## sas\_ssd\_size
+
+```
+data_type: 'integer'
+is_nullable: 1
+```
+
+## sas\_ssd\_slots
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+## nvme\_ssd\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
+## nvme\_ssd\_size
+
+```
+data_type: 'integer'
+is_nullable: 1
+```
+
+## nvme\_ssd\_slots
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+## raid\_lun\_num
+
+```
+data_type: 'integer'
+default_value: 0
+is_nullable: 0
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)
@@ -127,12 +321,6 @@ size: 16
 Type: has\_many
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
-
-## hardware\_product\_profile
-
-Type: might\_have
-
-Related object: [Conch::DB::Result::HardwareProductProfile](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProductProfile)
 
 ## hardware\_vendor
 

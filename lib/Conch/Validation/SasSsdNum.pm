@@ -14,8 +14,6 @@ sub validate {
     $self->die("Input data must include 'disks' hash")
         unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-    my $hw_profile = $self->hardware_product_profile;
-
     my @disks_with_drive_type =
         grep { $_->{drive_type} } (values $data->{disks}->%*);
 
@@ -23,7 +21,7 @@ sub validate {
         fc($_->{drive_type}) eq fc('SAS_SSD')
     } @disks_with_drive_type;
 
-    my $sas_ssd_want = $hw_profile->sas_ssd_num || 0;
+    my $sas_ssd_want = $self->hardware_product->sas_ssd_num;
 
     $self->register_result(
         expected => $sas_ssd_want,

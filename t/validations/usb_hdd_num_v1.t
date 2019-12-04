@@ -6,9 +6,10 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::UsbHddNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => {}
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+        },
     },
     cases => [
         {
@@ -16,7 +17,7 @@ test_validation(
             data        => {},
         },
         {
-            description => 'No usb num in profile assume 0',
+            description => 'No usb num in hardware_product; assume 0',
             data        => {
                 disks => {}
             },
@@ -27,13 +28,15 @@ test_validation(
 
 test_validation(
     'Conch::Validation::UsbHddNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => { usb_num => 2 }
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+            usb_num => 2,
+        },
     },
     cases => [
         {
-            description => 'Failure when no USB disks and usb_num in profile',
+            description => 'Failure when no USB disks present',
             data        => {
                 disks => {}
             },

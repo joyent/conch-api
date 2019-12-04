@@ -1405,9 +1405,21 @@
         "alias" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
+        "bios_firmware" : {
+          "type" : "string"
+        },
+        "cpu_num" : {
+          "type" : "integer"
+        },
+        "cpu_type" : {
+          "type" : "string"
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
+        },
+        "dimms_num" : {
+          "type" : "integer"
         },
         "generation_name" : {
           "oneOf" : [
@@ -1419,18 +1431,18 @@
             }
           ]
         },
-        "hardware_product_profile" : {
+        "hardware_vendor_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "hba_firmware" : {
           "oneOf" : [
             {
-              "$ref" : "/definitions/HardwareProductProfile"
+              "type" : "string"
             },
             {
               "type" : "null"
             }
           ]
-        },
-        "hardware_vendor_id" : {
-          "$ref" : "common.json#/definitions/uuid"
         },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
@@ -1448,6 +1460,32 @@
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
+        "nics_num" : {
+          "type" : "integer"
+        },
+        "nvme_ssd_num" : {
+          "type" : "integer"
+        },
+        "nvme_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "nvme_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
         "prefix" : {
           "oneOf" : [
             {
@@ -1458,8 +1496,112 @@
             }
           ]
         },
+        "psu_total" : {
+          "type" : "integer"
+        },
+        "purpose" : {
+          "type" : "string"
+        },
         "rack_unit_size" : {
           "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "raid_lun_num" : {
+          "type" : "integer"
+        },
+        "ram_total" : {
+          "type" : "integer"
+        },
+        "sas_hdd_num" : {
+          "type" : "integer"
+        },
+        "sas_hdd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_hdd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_num" : {
+          "type" : "integer"
+        },
+        "sas_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sas_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_num" : {
+          "type" : "integer"
+        },
+        "sata_hdd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_hdd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_num" : {
+          "type" : "integer"
+        },
+        "sata_ssd_size" : {
+          "oneOf" : [
+            {
+              "type" : "integer"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
+        "sata_ssd_slots" : {
+          "oneOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "null"
+            }
+          ]
         },
         "sku" : {
           "oneOf" : [
@@ -1486,6 +1628,9 @@
           "format" : "date-time",
           "type" : "string"
         },
+        "usb_num" : {
+          "type" : "integer"
+        },
         "validation_plan_id" : {
           "$ref" : "common.json#/definitions/uuid"
         }
@@ -1501,226 +1646,9 @@
         "sku",
         "specification",
         "rack_unit_size",
-        "hardware_product_profile",
         "created",
         "updated",
-        "validation_plan_id"
-      ],
-      "type" : "object"
-    },
-    "HardwareProductProfile" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "bios_firmware" : {
-          "type" : "string"
-        },
-        "cpu_num" : {
-          "type" : "integer"
-        },
-        "cpu_type" : {
-          "type" : "string"
-        },
-        "dimms_num" : {
-          "type" : "integer"
-        },
-        "hba_firmware" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "nics_num" : {
-          "type" : "integer"
-        },
-        "nvme_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "nvme_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "nvme_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "psu_total" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "purpose" : {
-          "type" : "string"
-        },
-        "raid_lun_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "ram_total" : {
-          "type" : "integer"
-        },
-        "sas_hdd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sas_hdd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sas_hdd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sas_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sas_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sas_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sata_hdd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sata_hdd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sata_hdd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sata_ssd_num" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sata_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "sata_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
-          ]
-        },
-        "usb_num" : {
-          "type" : "integer"
-        }
-      },
-      "required" : [
-        "id",
+        "validation_plan_id",
         "bios_firmware",
         "cpu_num",
         "cpu_type",

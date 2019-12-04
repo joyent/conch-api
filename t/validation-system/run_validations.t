@@ -28,7 +28,8 @@ my $device_report = $t->app->db_device_reports->create({
     device_id => $device->id,
     report => to_json({
         product_name => $device->hardware_product->generation_name,
-        bios_version => $device->hardware_product->hardware_product_profile->bios_firmware,
+        bios_version => $device->hardware_product->bios_firmware,
+        sku => '123',   # device is not located, so it does not need to match
     }),
 });
 
@@ -89,13 +90,12 @@ subtest 'run_validation_plan, without saving state' => sub {
                     id => undef,
                     device_id => $device->id,
                     hardware_product_id => $device->hardware_product_id,
-                    category => 'BIOS',
                     status => 'pass',
                 ),
             ),
             bag(
-                methods(validation_id => $validation_product->id),
-                methods(validation_id => $validation_bios->id),
+                methods(category => 'IDENTITY', validation_id => $validation_product->id),
+                methods(category => 'BIOS', validation_id => $validation_bios->id),
             ),
         ),
         'validation results are correct',
@@ -134,13 +134,12 @@ subtest 'run_validation_plan, with saving state' => sub {
                             in_storage => bool(1),
                             device_id => $device->id,
                             hardware_product_id => $device->hardware_product_id,
-                            category => 'BIOS',
                             status => 'pass',
                         ),
                     ),
                     bag(
-                        methods(validation_id => $validation_product->id),
-                        methods(validation_id => $validation_bios->id),
+                        methods(category => 'IDENTITY', validation_id => $validation_product->id),
+                        methods(category => 'BIOS', validation_id => $validation_bios->id),
                     ),
                 ),
             ),

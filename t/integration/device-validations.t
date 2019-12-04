@@ -25,9 +25,9 @@ my $good_report = path('t/integration/resource/passing-device-report.json')->slu
 my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
 my $good_report_data = from_json($good_report);
 
-my $hardware_product_profile = $t->load_fixture('hardware_product_profile_compute');
+my $hardware_product = $t->load_fixture('hardware_product_compute');
 my ($server_validation_plan) = $t->load_validation_plans([{
-    id => $hardware_product_profile->hardware_product->validation_plan_id,
+    id => $hardware_product->validation_plan_id,
     description => 'Test Plan',
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
@@ -201,7 +201,7 @@ $t->get_ok('/device/TEST/validation_state?status=error')
                 message => 'Missing \'product_name\' property',
                 hint => ignore,
                 status => 'error',
-                category => 'BIOS',
+                category => 'IDENTITY',
             }],
         },
     ]);

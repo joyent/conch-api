@@ -6,34 +6,30 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::RaidLunNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => {}
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+        },
     },
     cases => [
         {
             description => 'No Data yields no success',
             data        => {},
         },
-        {
-            description => 'No hdd num in profile assume 0',
-            data        => {
-                disks => {}
-            },
-            success_num => 1
-        },
     ]
 );
 
 test_validation(
     'Conch::Validation::RaidLunNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => { raid_lun_num => 2 }
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+            raid_lun_num => 2,
+        },
     },
     cases => [
         {
-            description => 'Failure when no RAID LUNs but raid_lun_num in profile',
+            description => 'Failure when no RAID LUNs but raid_lun_num in hardware_product',
             data        => {
                 disks => {}
             },

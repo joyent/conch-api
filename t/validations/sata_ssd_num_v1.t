@@ -6,34 +6,30 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::SataSsdNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => {}
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+        },
     },
     cases => [
         {
             description => 'No Data yields no success',
             data        => {},
         },
-        {
-            description => 'No hdd num in profile assume 0',
-            data        => {
-                disks => {}
-            },
-            success_num => 1
-        },
     ]
 );
 
 test_validation(
     'Conch::Validation::SataSsdNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => { sata_ssd_num => 2 }
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+            sata_ssd_num => 2,
+        },
     },
     cases => [
         {
-            description => 'Failure when no SATA SSDs but sata_ssd_num in profile',
+            description => 'Failure when no SATA SSDs but sata_ssd_num in hardware_product',
             data        => {
                 disks => {}
             },
@@ -74,9 +70,11 @@ test_validation(
 # Should have either 8 or 16 SATA SSDs
 test_validation(
     'Conch::Validation::SataSsdNum',
-    hardware_product => {
-        name    => 'Joyent-Compute-Platform-3302',
-        hardware_product_profile => { sata_ssd_num => 2 }
+    device => {
+        hardware_product => {
+            legacy_product_name => 'Joyent-Compute-Platform-3302',
+            sata_ssd_num => 2,
+        },
     },
     cases => [
         {

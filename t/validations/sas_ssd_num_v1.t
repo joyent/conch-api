@@ -6,34 +6,30 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::SasSsdNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => {}
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+        },
     },
     cases => [
         {
             description => 'No Data yields no success',
             data        => {},
         },
-        {
-            description => 'No sas_ssd_num in profile. Assume 0',
-            data        => {
-                disks => {}
-            },
-            success_num => 1
-        },
     ]
 );
 
 test_validation(
     'Conch::Validation::SasSsdNum',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => { sas_ssd_num => 2 }
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+            sas_ssd_num => 2,
+        },
     },
     cases => [
         {
-            description => 'Failure when no SAS SSDs but sas_ssd_num in profile',
+            description => 'Failure when no SAS SSDs but sas_ssd_num in hardware_product',
             data        => {
                 disks => {}
             },

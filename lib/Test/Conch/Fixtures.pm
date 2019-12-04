@@ -6,7 +6,7 @@ extends 'DBIx::Class::EasyFixture';
 
 use experimental 'signatures';
 use MooX::HandlesVia;
-use List::Util 'any';
+use List::Util qw(any pairmap);
 use Scalar::Util 'blessed';
 use Storable 'dclone';
 use Authen::Passphrase::AcceptAll;
@@ -45,11 +45,6 @@ my %canned_definitions = (
         hardware_product_switch
         hardware_product_compute
         hardware_product_storage
-    )],
-    '01-hardware-profiles' => [qw(
-        hardware_product_profile_switch
-        hardware_product_profile_storage
-        hardware_product_profile_compute
     )],
 
     # individual definitions
@@ -167,6 +162,14 @@ my %canned_definitions = (
             legacy_product_name => 'FuerzaDiaz',
             rack_unit_size => 1,
             sku => 'switch_sku',
+            purpose => 'TOR switch',
+            bios_firmware => '9.10',
+            cpu_num => 1,
+            cpu_type => 'Intel Rangeley',
+            dimms_num => 1,
+            ram_total => 3,
+            nics_num => 48,
+            usb_num => 0,
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
@@ -184,6 +187,16 @@ my %canned_definitions = (
             generation_name => 'Joyent-G1',
             legacy_product_name => 'Joyent-Compute-Platform',
             rack_unit_size => 2,
+            purpose => 'General Compute',
+            bios_firmware => 'Dell Inc. 2.2.5',
+            cpu_num => 2,
+            cpu_type => 'Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz',
+            dimms_num => 16,
+            ram_total => 256,
+            nics_num => 7,
+            sas_hdd_num => 15,
+            sata_ssd_num => 1,
+            usb_num => 1,
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
@@ -201,33 +214,6 @@ my %canned_definitions = (
             generation_name => 'Joyent-S1',
             legacy_product_name => 'Joyent-Storage-Platform',
             rack_unit_size => 4,
-        },
-        requires => {
-            hardware_vendor_1 => { our => 'hardware_vendor_id', their => 'id' },
-            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
-        },
-    },
-
-    hardware_product_profile_switch => {
-        new => 'hardware_product_profile',
-        using => {
-            purpose => 'TOR switch',
-            bios_firmware => '9.10',
-            cpu_num => 1,
-            cpu_type => 'Intel Rangeley',
-            dimms_num => 1,
-            ram_total => 3,
-            nics_num => 48,
-            psu_total => 2,
-            usb_num => 0,
-        },
-        requires => {
-            hardware_product_switch => { our => 'hardware_product_id', their => 'id' },
-        },
-    },
-    hardware_product_profile_storage => {
-        new => 'hardware_product_profile',
-        using => {
             purpose => 'Manta Object Store',
             bios_firmware => 'American Megatrends Inc. 2.0a',
             cpu_num => 2,
@@ -236,37 +222,12 @@ my %canned_definitions = (
             ram_total => 512,
             nics_num => 7,
             sas_hdd_num => 35,
-            sas_hdd_size => 7452,
             sata_ssd_num => 1,
-            sata_ssd_size => 93,
-            sata_ssd_slots => '0',
-            psu_total => 2,
             usb_num => 1,
         },
         requires => {
-            hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
-        },
-    },
-    hardware_product_profile_compute => {
-        new => 'hardware_product_profile',
-        using => {
-            purpose => 'General Compute',
-            bios_firmware => 'Dell Inc. 2.2.5',
-            cpu_num => 2,
-            cpu_type => 'Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz',
-            dimms_num => 16,
-            ram_total => 256,
-            nics_num => 7,
-            sas_hdd_num => 15,
-            sas_hdd_size => 1118,
-            sata_ssd_num => 1,
-            sata_ssd_size => 93,
-            sata_ssd_slots => '0',
-            psu_total => 2,
-            usb_num => 1,
-        },
-        requires => {
-            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
+            hardware_vendor_1 => { our => 'hardware_vendor_id', their => 'id' },
+            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
         },
     },
 
@@ -275,9 +236,9 @@ my %canned_definitions = (
         using => {
             serial_number => 'HAL',
             health => 'unknown',
-            # copy hardware_product_profile_compute.hardware_product_id to me.hardware_product_id
-            # (this ensures we get a hardware_product_profile as well as a hardware_product)
-            hardware_product_id => \'hardware_product_profile_compute',
+        },
+        requires => {
+            hardware_product_compute => { our => 'hardware_product_id', their => 'id' },
         },
     },
 
@@ -408,8 +369,8 @@ sub generate_set ($self, $set_name, @args) {
                 },
             },
             "__additional_deps_workspace_room_rack_layout_${num}a" => [
-                'hardware_product_profile_compute',
-                'hardware_product_profile_storage',
+                'hardware_product_compute',
+                'hardware_product_storage',
             ],
         );
     }
@@ -443,30 +404,20 @@ L</_generate_definition>.
 
 sub generate_definitions ($self, $unique_num, %specification) {
     %specification = (dclone \%specification)->%*;
-    my @requested = keys %specification;
+    my @requested = pairmap { [ $a, $unique_num, $b ] } %specification;
+
     my (%definitions, @processed);
 
     # this list will be progressively added to, so we do not use foreach.
-    while (my $name = shift @requested) {
-        next if any { $name eq $_ } @processed;
+    while (my $req = shift @requested) {
+        my ($name, $num, $spec) = $req->@*;
+        next if any { $_->[0] eq $name and $_->[1] eq $num } @processed;
 
-        # find hashrefs, arrayrefs in the specification and make them first-class
-        # specifications. This overwrites any existing specification data, which may need to be
-        # fixed later. (This does not yet work for fixture specifications that are arrayrefs,
-        # e.g. rack_layouts.)
-        if (ref $specification{$name} eq 'HASH'
-            and my @ref_keys = grep
-                +(ref $specification{$name}->{$_} and not blessed $specification{$name}->{$_}),
-                keys $specification{$name}->%*) {
-            @specification{@ref_keys} = delete $specification{$name}->@{@ref_keys};
-            push @requested, @ref_keys;
-        }
-
-        my ($definition, @dependencies) = $self->_generate_definition($name, $unique_num, $specification{$name});
+        my ($definition, @dependencies) = $self->_generate_definition($name, $num, $spec);
 
         @definitions{keys $definition->%*} = values $definition->%*;
         push @requested, @dependencies;
-        push @processed, $name;
+        push @processed, [ $name, $num ];
     }
 
     # add the definitions, if they do not yet exist.
@@ -492,6 +443,7 @@ C<specification> is usually a hashref but might be a listref depending on the fi
 sub _generate_definition ($self, $fixture_type, $num, $specification) {
     if ($fixture_type eq 'device_settings') {
         my $letter = 'a';
+        my $device_spec = delete $specification->{device} // {};
         return +{
             map +(
                 "device_setting_$num".$letter++ => +{
@@ -504,9 +456,12 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 }
             ), keys $specification->%*
         },
-        'device';
+        [ 'device', $num, $device_spec ];
     }
     elsif ($fixture_type eq 'device') {
+        my $hw_spec = delete $specification->{hardware_product} // {};
+        my $location_spec = delete $specification->{device_location};
+        my $setting_specs = delete $specification->{device_settings};
         return +{
             "device_$num" => {
                 new => 'device',
@@ -521,11 +476,16 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 }),
             },
         },
-        exists $specification->{hardware_product_id} ? () : 'hardware_product';
+        exists $specification->{hardware_product_id} ? () : [ 'hardware_product', $num, $hw_spec ],
+        $location_spec ? [ 'device_location', $num, $location_spec ] : (),
+        $setting_specs ? [ 'device_settings', $num, $setting_specs ] : ();
     }
     elsif ($fixture_type eq 'device_location') {
         $specification //= {};
+        my $device_spec = delete $specification->{device} // {};
+        my $rack_spec = delete $specification->{rack} // {};
         my $rack_unit_start = delete $specification->{rack_unit_start};
+        my $layout_spec = delete $specification->{rack_layout} // {};
         return +{
             "device_location_$num" => {
                 new => 'device_location',
@@ -539,28 +499,35 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
             },
         },
-        # NOTE: rack requires additional data (rack_layouts with hardware_product
-        # etc), so it must be defined separately (probably via rack_layouts) before
-        # loading the fixture!
-        'device', 'rack';
+        [ 'device', $num, $device_spec ],
+        [ 'rack', $num, $rack_spec ],
+        [ 'rack_layout', $num, { $layout_spec->%*, rack_unit_start => $rack_unit_start } ];
+    }
+    elsif ($fixture_type eq 'rack_layout') {
+        # note that we name our hardware_products carefully so we do not reuse any that might
+        # be created for devices.
+        my $hw_spec = delete $specification->{hardware_product} // {};
+        my $rack_spec = delete $specification->{rack} // {};
+        my $rack_unit_start = $specification->{rack_unit_start} // $num;
+        my ($long_num, $short_num) =
+            ($num =~ /^(\d+)_ru$rack_unit_start$/ ? ($num, $1)
+                                                  : ($num.'_ru'.$rack_unit_start, $num));
+        return +{
+            "rack_layout_$long_num" => +{
+                new => 'rack_layout',
+                using => { rack_unit_start => $rack_unit_start, $specification->%* },
+                requires => {
+                    "rack_$short_num" => { our => 'rack_id', their => 'id' },
+                    "hardware_product_$long_num" => { our => 'hardware_product_id', their => 'id' },
+                },
+            }
+        },
+        [ 'rack', $short_num, $rack_spec ],
+        [ 'hardware_product', $long_num, $hw_spec ];
     }
     elsif ($fixture_type eq 'rack_layouts') {
-        $specification //= [ {} ];
-        return +{
-            map +(
-                "rack_layout_${num}_ru".($_->{rack_unit_start} // $num) => +{
-                    new => 'rack_layout',
-                    using => { rack_unit_start => $num, $_->%* },
-                    # TODO: current limitation: all layouts use the same hardware_product.
-                    # in the future we can check for hardware_product_id in provided field list.
-                    requires => {
-                        "rack_$num" => { our => 'rack_id', their => 'id' },
-                        "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
-                    },
-                }
-            ), $specification->@*
-        },
-        'rack', 'hardware_product';
+        $specification //= [ { rack_unit_start => $num } ];
+        return {}, map [ 'rack_layout', "${num}_ru".$_->{rack_unit_start}, $_ ], $specification->@*;
     }
     elsif ($fixture_type eq 'rack') {
         return +{
@@ -579,9 +546,10 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
             },
         },
-        'datacenter_room', 'rack_role';
+        [ 'datacenter_room', $num, {} ], [ 'rack_role', $num, {} ];
     }
     elsif ($fixture_type eq 'hardware_product') {
+        my $vendor_spec = delete $specification->{hardware_vendor} // {};
         return +{
             "hardware_product_$num" => {
                 new => 'hardware_product',
@@ -590,21 +558,6 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     alias => "hardware_product_alias_$num",
                     sku => "hardware_product_sku_$num",
                     rack_unit_size => 42,
-                    ($specification // {})->%*,
-                },
-                requires => {
-                    "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
-                    "validation_plan_$num" => { our => 'validation_plan_id', their => 'id' },
-                },
-            },
-        },
-        'hardware_vendor', 'validation_plan';
-    }
-    elsif ($fixture_type eq 'hardware_product_profile') {
-        return +{
-            "hardware_product_profile_$num" => {
-                new => 'hardware_product_profile',
-                using => {
                     purpose => 'none',
                     bios_firmware => 'none',
                     cpu_num => 0,
@@ -616,11 +569,13 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     ($specification // {})->%*,
                 },
                 requires => {
-                    "hardware_product_$num" => { our => 'hardware_product_id', their => 'id' },
+                    "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
+                    "validation_plan_$num" => { our => 'validation_plan_id', their => 'id' },
                 },
             },
         },
-        'hardware_product';
+        [ 'hardware_vendor', $num, $vendor_spec ],
+        [ 'validation_plan', $num, {} ];
     }
     elsif ($fixture_type eq 'datacenter_room') {
         return +{
@@ -636,7 +591,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
             },
         },
-        'datacenter';
+        [ 'datacenter', $num, {} ];
     }
     elsif ($fixture_type eq 'rack_role') {
         return +{

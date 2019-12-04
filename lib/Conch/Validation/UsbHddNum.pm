@@ -14,13 +14,11 @@ sub validate {
     $self->die("Input data must include 'disks' hash")
         unless $data->{disks} && ref($data->{disks}) eq 'HASH';
 
-    my $hw_profile = $self->hardware_product_profile;
-
     my $usb_num =
         grep { fc($_->{transport}) eq fc('usb') } (values $data->{disks}->%*);
 
     $self->register_result(
-        expected => $hw_profile->usb_num || 0,
+        expected => $self->hardware_product->usb_num,
         got      => $usb_num,
     );
 }

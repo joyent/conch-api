@@ -60,7 +60,7 @@ subtest 'an existing validation has changed but the version was not incremented'
 subtest 'increment a validation\'s version (presumably the code changed too)' => sub {
     no warnings 'once', 'redefine';
     *Conch::Validation::DeviceProductName::description = sub :prototype() { 'this is better than before!' };
-    *Conch::Validation::DeviceProductName::version = sub :prototype() { 2 };
+    *Conch::Validation::DeviceProductName::version = sub :prototype() { 3 };
     $t->reset_log;
 
     my ($num_deactivated, $num_created) = $validation_system->load_validations;
@@ -82,8 +82,8 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
             })->single,
         methods(
             module => 'Conch::Validation::DeviceProductName',
-            version => 1,
-            description => 'Validate reported product name matches product name expected in rack layout',
+            version => 2,
+            description => 'Validate reported product name, sku matches product name, sku expected in rack layout',
             deactivated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         ),
         'old entry was deactivated',
@@ -93,7 +93,7 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
         $validation_rs->active->search({ module => 'Conch::Validation::DeviceProductName' })->single,
         methods(
             module => 'Conch::Validation::DeviceProductName',
-            version => 2,
+            version => 3,
             description => 'this is better than before!',
             deactivated => undef,
         ),

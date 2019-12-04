@@ -6,9 +6,11 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::BiosFirmwareVersion',
-    hardware_product => {
-        name    => 'Test Product',
-        hardware_product_profile => { bios_firmware => '1.2.3' }
+    device => {
+        hardware_product => {
+            name    => 'Test Product',
+            bios_firmware => '1.2.3',
+        },
     },
     cases => [
         {

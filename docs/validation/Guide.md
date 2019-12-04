@@ -1,7 +1,8 @@
-Guide: Writing, Deploying, and Testing a Conch Validation
-=========================================================
+# Guide: Writing, Deploying, and Testing a Conch Validation
 
-### Table of Contents
+(This guide is now outdated. Please consult the Conch developers for guidance.)
+
+## Table of Contents
 
 * [Setting up the Conch Repository](#setting-up-the-conch-repository)
 * [Creating a new Validation](#creating-a-new-validation)
@@ -13,7 +14,7 @@ Guide: Writing, Deploying, and Testing a Conch Validation
 * [Tips for Writing Validations](#tips-for-writing-validations)
 
 
-### Overview of steps
+## Overview of steps
 
 1. Create a sub-class of `Conch::Validation`, the Validation base class. Set
    the `name`, `version`, `description`, and `category` fields, and write a
@@ -42,8 +43,7 @@ are useful references for writing and testing a new Conch Validation.
 More documentation on using the Conch Shell with validations can be found in
 [its repository](https://joyent.github.com/conch-shell/validations)
 
-Setting up the Conch Repository
--------------------------------
+## Setting up the Conch Repository
 
 All Conch Validations are code modules committed in the [Conch
 repository](https://github.com/joyent/conch). To add new validations, you must
@@ -55,8 +55,7 @@ file paths in this tutorial are relative to the root of the repository.
 
 See README.md for more about running Conch.
 
-Creating a new Validation
--------------------------
+## Creating a new Validation
 
 Let's start by creating a simple yet valid validation. Create and write the
 following code to the file `lib/Conch/Validation/MyValidation.pm`:
@@ -102,8 +101,7 @@ All validations must define the `validate` method. `validate` defines the logic
 of the validation. In our example, it does nothing, but next we will define
 validation logic and register results.
 
-Writing validation logic
-------------------------
+## Writing validation logic
 
 The `validate` method defines the validation logic. When a validation is run in
 the validation system, the `validate` method is called for each validation.
@@ -185,8 +183,7 @@ sub validate {
 1;
 ```
 
-Dispatching on Device Attributes
---------------------------------
+## Dispatching on Device Attributes
 
 Your validation may need to evaluate differently based on attributes of the
 device under validation, such as the device hardware product, device location,
@@ -207,9 +204,6 @@ in the database by following the relationship methods provided on these.)
   product vendor name of the expected hardware product for the device
 * `$self->hardware_product_name`: a shortcut to the string containing the hardware
   product name of the expected hardware product for the device
-* `$self->hardware_product_profile`: the `Conch::DB::Result::HardwareProductProfile`
-  object representing the hardware product profile of the expected hardware
-  product for the device
 
 If these methods are used and the device *does not* have details (for example,
 if a device does not have a location assigned), the method will call
@@ -219,10 +213,10 @@ it will fail automatically if the device isn't assigned yet. No need to write
 your own conditional checking logic.
 
 A common validation use-case is comparing values reported, such as the amount
-of RAM, to the value expected by the hardware product profile. For our
+of RAM, to the value expected by the hardware product. For our
 validation, let's assume that we require 1.21 gigawatts per PSU (stay with me
 here), where the number of PSUs is specified by the `psu_total` field of the
-hardware product profile. To add further complexity, this is only applied for
+hardware product. To add further complexity, this is only applied for
 devices with the product name 'DMC-12'. For all other produce names, we require
 the normal 1.21 gigawatts. Let's update our validation with this more complicated
 logic:
@@ -244,7 +238,7 @@ sub validate {
 
     my $expected_gigawatts;
     if ($self->hardware_product_name eq 'DMC-12') {
-        $expected_gigawatts = 1.21 * $self->hardware_product_profile->psu_total;
+        $expected_gigawatts = 1.21 * $self->hardware_product->psu_total;
     } else {
         $expected_gigawatts = 1.21;
     }
@@ -259,8 +253,7 @@ sub validate {
 1;
 ```
 
-Writing unit tests for Validations
----------------------------------
+## Writing unit tests for Validations
 
 Writing unit tests for your new validation is strongly encouraged. A test
 harness is provided to make this process easy and practical. At minimum, you
@@ -290,7 +283,9 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::MyValidation',
-    hardware_product => { name => 'Test Product' },
+    device => {
+        hardware_product => { name => 'Test Product' },
+    },
     cases => [
         {
             description => 'Providing no input data dies',
@@ -331,11 +326,8 @@ done_testing;
 This tests the basic logic, but doesn't test the edge case we introduced with
 1.21 gigawatts multiplied by the number of PSUs for devices with the hardware
 product name 'DMC-12'. The validation harness also allows us to provide fake
-objects, like hardware product and hardware profile, to be used in the
-validation under test. This is done by defining named arguments in the
-`test_validation` function like `hardware_product`. [The list of available
-named arguments and an example are given in the documentation for the test
-harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md).
+objects for the device, like hardware product, to be used in the
+validation under test.
 
 In the same file, after the `test_validation()` call and before
 `done_testing;`, we add tests for the edge case:
@@ -343,10 +335,11 @@ In the same file, after the `test_validation()` call and before
 ```perl
 test_validation(
     'Conch::Validation::MyValidation',
-    hardware_product => {
-        name => 'DMC-12',
-        # profile has 2 PSUs
-        profile => { psu_total => 2 },
+    device => {
+        hardware_product => {
+            name => 'DMC-12',
+            psu_total => 2,
+        },
     },
     cases => [
         {
@@ -368,8 +361,7 @@ test_validation(
 );
 ```
 
-Deploying the Validation
-------------------------
+## Deploying the Validation
 
 A Conch Validation must be deployed in the production Conch instance to be
 available. After you've written and tested your validation, commit it on a
@@ -386,8 +378,7 @@ To get it included, create an issue on GitHub requesting that it be added to
 the switch and/or server plan(s).
 
 
-Tips for Writing Validations
-----------------------------
+## Tips for Writing Validations
 
 Below are some tips for writing effective validations.
 

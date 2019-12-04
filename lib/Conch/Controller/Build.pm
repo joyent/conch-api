@@ -690,9 +690,7 @@ sub create_and_add_devices ($c) {
     my %hardware_products;
     if (my @skus = map $_->{sku} // (), $input->@*) {
         %hardware_products = map +($_->sku => $_),
-            $c->db_hardware_products->active
-                ->search({ sku => { -in => \@skus } })
-                ->prefetch('hardware_product_profile');
+            $c->db_hardware_products->active->search({ sku => { -in => \@skus } });
     }
 
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
@@ -702,13 +700,6 @@ sub create_and_add_devices ($c) {
         foreach my $entry ($input->@*) {
             if (not $hardware_products{$entry->{sku}}) {
                 $c->log->error('no hardware_product corresponding to sku '.$entry->{sku});
-                $code = 404;
-                die 'rollback';
-            }
-
-            # for now, at least, many validations require this
-            if (not $hardware_products{$entry->{sku}}->hardware_product_profile) {
-                $c->log->error('no hardware_product_profile corresponding to sku '.$entry->{sku});
                 $code = 404;
                 die 'rollback';
             }

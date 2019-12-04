@@ -6,8 +6,10 @@ use Test::Conch::Validation 'test_validation';
 
 test_validation(
     'Conch::Validation::DiskTemperature',
-    hardware_product => {
-        name => 'Test Product',
+    device => {
+        hardware_product => {
+            name => 'Test Product',
+        },
     },
     cases => [
         {

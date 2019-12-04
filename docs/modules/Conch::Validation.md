@@ -26,7 +26,6 @@ sub validate {
     my $device_location  = $self->device_location;
     my $hardware_vendor  = $self->hardware_product_vendor;
     my $hardware_name    = $self->hardware_product_name;
-    my $hardware_profile = $self->hardware_product_profile;
 
     $self->register_result(expected => 'hello', got => $input_data->{hello});
 }
@@ -41,8 +40,8 @@ method.  This method receives the input data (a `HASHREF`) to be validated.
 The validation logic in the ["validate"](#validate) method will evaluate the input data and
 register one or more validation results with the
 ["register\_result"](#register_result) method. The logic may use device, device
-settings, hardware product name, hardware product vendor, and hardware product
-profile details to dispatch conditions and evaluation.
+settings, hardware product name, hardware product vendor, and other
+details to dispatch conditions and evaluation.
 
 Conch Validations should also define values for the `name`, `version`,
 `category`, and `description` attributes. These attributes are used in the
@@ -162,17 +161,6 @@ Get the expected hardware product vendor name for the device under validation.
 
 ```perl
 if ($self->hardware_product_vendor eq 'Dell') {...}
-```
-
-## hardware\_product\_profile
-
-Get the expected hardware product profile for the device under validation.
-It is a [Conch::DB::Result::HardwareProductProfile](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProductProfile) object.
-
-```perl
-my $expected_ram = self->hardware_product_profile->ram_total;
-my $expected_ssd = self->hardware_product_profile->ssd_num;
-my $expected_firmware = self->hardware_product_profile->bios_firmware;
 ```
 
 ## device\_settings
