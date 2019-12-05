@@ -32,9 +32,9 @@ sub find_rack ($c) {
     # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
     my $method = $c->req->method;
     my $requires_role = $c->stash('require_role') //
-        (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+       ((any { $method eq $_ } qw(HEAD GET)) ? 'ro'
       : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
-      : die 'need handling for '.$method.' method';
+      : die 'need handling for '.$method.' method');
 
     if (not $c->is_system_admin and not $rack_rs->user_has_role($c->stash('user_id'), $requires_role)) {
         $c->log->debug('User lacks the required role ('.$requires_role.') for rack '.$c->stash('rack_id'));
@@ -62,6 +62,10 @@ sub create ($c) {
 
     if (not $c->db_rack_roles->search({ id => $input->{rack_role_id} })->exists) {
         return $c->status(409, { error => 'Rack role does not exist' });
+    }
+
+    if (not $c->db_builds->search({ id => $input->{build_id} })->exists) {
+        return $c->status(409, { error => 'Build does not exist' });
     }
 
     if ($c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} })->exists) {
@@ -227,6 +231,10 @@ sub update ($c) {
         if ($c->db_racks->search({ datacenter_room_id => $rack->datacenter_room_id, name => $input->{name} })->exists) {
             return $c->status(409, { error => 'The room already contains a rack named '.($input->{name} // $rack->name) });
         }
+    }
+
+    if ($input->{build_id} and not $c->db_builds->search({ id => $input->{build_id} })->exists) {
+        return $c->status(409, { error => 'Build does not exist' });
     }
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it

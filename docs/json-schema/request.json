@@ -865,6 +865,9 @@
         "asset_tag" : {
           "$ref" : "common.json#/definitions/non_empty_string"
         },
+        "build_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
         "datacenter_room_id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
@@ -884,7 +887,8 @@
       "required" : [
         "name",
         "datacenter_room_id",
-        "rack_role_id"
+        "rack_role_id",
+        "build_id"
       ],
       "type" : "object"
     },
@@ -999,6 +1003,9 @@
               "$ref" : "common.json#/definitions/non_empty_string"
             }
           ]
+        },
+        "build_id" : {
+          "$ref" : "common.json#/definitions/uuid"
         },
         "datacenter_room_id" : {
           "$ref" : "common.json#/definitions/uuid"

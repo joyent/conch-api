@@ -92,7 +92,9 @@ to all organization members and to all build admins.
 
 ## get\_devices
 
-Get the devices in this build.  (Includes devices located in rack(s) in this build.)
+Get the devices in this build. (Does not includes devices located in rack(s) in this build if
+the devices themselves are in other builds.)
+
 Requires the 'read-only' role on the build.
 
 Supports these query parameters to constrain results (which are ANDed together for the search,
@@ -111,18 +113,17 @@ Response uses the Devices json schema, or DeviceIds iff `ids_only=1`, or DeviceS
 
 ## create\_and\_add\_devices
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).  The device is created if necessary with all data provided (or updated
-with the data if it already exists, so the endpoint is idempotent).
+Adds the specified device(s) to the build (removing them from their previous builds). The
+device is created if necessary with all data provided (or updated with the data if it already
+exists, so the endpoint is idempotent).
 
-Requires the 'read/write' role on the build, and the 'read-only' role on the device.
+Requires the 'read/write' role on the build and on existing device(s).
 
 ## add\_device
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).
+Adds the specified device to the build (removing it from its previous build).
 
-Requires the 'read/write' role on the build, and the 'read-only' role on the device.
+Requires the 'read/write' role on the build and on the device.
 
 ## remove\_device
 
@@ -139,14 +140,9 @@ Response uses the Racks json schema.
 
 ## add\_rack
 
-Adds the specified rack to the build (as long as it isn't in another build, or contains devices
-located in another build).
+Adds the specified rack to the build (removing it from its previous build).
 
-Requires the 'read/write' role on the build.
-
-## remove\_rack
-
-Requires the 'read/write' role on the build.
+Requires the 'read/write' role on the build and on the rack.
 
 # LICENSING
 

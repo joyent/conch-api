@@ -70,6 +70,7 @@ definitions:
       - name
       - datacenter_room_id
       - rack_role_id
+      - build_id
     properties:
       name:
         $ref: common.yaml#/definitions/non_empty_string
@@ -83,6 +84,8 @@ definitions:
         $ref: common.yaml#/definitions/non_empty_string
       phase:
         $ref: common.yaml#/definitions/device_phase
+      build_id:
+        $ref: common.yaml#/definitions/uuid
   RackUpdate:
     type: object
     additionalProperties: false
@@ -104,6 +107,8 @@ definitions:
           - $ref: common.yaml#/definitions/non_empty_string
       phase:
         $ref: common.yaml#/definitions/device_phase
+      build_id:
+        $ref: common.yaml#/definitions/uuid
   RackAssignmentUpdates:
     type: array
     uniqueItems: true

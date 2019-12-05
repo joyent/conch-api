@@ -609,7 +609,9 @@ sub remove_organization ($c) {
 
 =head2 get_devices
 
-Get the devices in this build.  (Includes devices located in rack(s) in this build.)
+Get the devices in this build. (Does not includes devices located in rack(s) in this build if
+the devices themselves are in other builds.)
+
 Requires the 'read-only' role on the build.
 
 Supports these query parameters to constrain results (which are ANDed together for the search,
@@ -630,23 +632,25 @@ sub get_devices ($c) {
     my $params = $c->validate_query_params('BuildDevices');
     return if not $params;
 
-    my $direct_devices_rs = $c->stash('build_rs')
-        ->related_resultset('devices');
-
     # production devices do not consider location, interface data to be canonical
     my $bad_phase = $params->{phase_earlier_than} // 'production';
 
-    my $rack_devices_rs = $c->stash('build_rs')
-        ->related_resultset('racks')
-        ->related_resultset('device_locations')
-        ->search_related('device',
-            $bad_phase ? { 'device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] } } : ());
+    my $build_id = $c->stash('build_id') // { '=' => $c->stash('build_rs')->get_column('id')->as_query };
 
     # this query is carefully constructed to be efficient.
     # don't mess with it without checking with DBIC_TRACE=1.
-    my $rs = $c->db_devices
-        ->search({ 'device.id' => [ map +{ -in => $_->get_column('id')->as_query }, $direct_devices_rs, $rack_devices_rs ] })
-        ->order_by('device.created');
+    my $rs = $c->db_devices->search(
+        { -or => [
+            { 'device.build_id' => $build_id },
+            {
+                'device.build_id' => undef,
+                'rack.build_id' => $build_id,
+                $bad_phase ? ('device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] }) : (),
+            },
+        ] },
+        { join => { device_location => 'rack' } },
+    )
+    ->order_by('device.created');
 
     $rs = $rs->search({ health => $params->{health} }) if $params->{health};
 
@@ -662,11 +666,11 @@ sub get_devices ($c) {
 
 =head2 create_and_add_devices
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).  The device is created if necessary with all data provided (or updated
-with the data if it already exists, so the endpoint is idempotent).
+Adds the specified device(s) to the build (removing them from their previous builds). The
+device is created if necessary with all data provided (or updated with the data if it already
+exists, so the endpoint is idempotent).
 
-Requires the 'read/write' role on the build, and the 'read-only' role on the device.
+Requires the 'read/write' role on the build and on existing device(s).
 
 =cut
 
@@ -681,16 +685,23 @@ sub create_and_add_devices ($c) {
         }
     }
 
-    # we already looked up all ids for devices that were referenced only by serial_number
-    my %devices = map +($_->id => $_),
-        $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } })
-            ->prefetch({ device_location => 'rack' });
+    my %devices;
+    if (grep exists $_->{id}, $input->@*) {
+        # we already looked up all ids for devices that were referenced only by serial_number
+        my $device_rs = $c->db_devices->search({ 'device.id' => { -in => [ map $_->{id} // (), $input->@* ] } });
+        if (not $c->is_system_admin and not $device_rs->user_has_role($c->stash('user_id'), 'rw')) {
+            $c->log->debug('User lacks the required role (rw) for one or more devices');
+            return $c->status(403);
+        }
+        %devices = map +($_->id => $_), $device_rs->all;
+    }
 
-    # sku -> hardware_product
-    my %hardware_products;
+    # sku -> hardware_product_id
+    my %hardware_product_ids;
     if (my @skus = map $_->{sku} // (), $input->@*) {
-        %hardware_products = map +($_->sku => $_),
-            $c->db_hardware_products->active->search({ sku => { -in => \@skus } });
+        %hardware_product_ids = map $_->@{qw(sku id)},
+            $c->db_hardware_products->active
+                ->search({ sku => { -in => \@skus } })->columns([qw(id sku)])->hri->all;
     }
 
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
@@ -698,27 +709,20 @@ sub create_and_add_devices ($c) {
     my ($code, $payload);
     $c->txn_wrapper(sub ($c) {
         foreach my $entry ($input->@*) {
-            if (not $hardware_products{$entry->{sku}}) {
+            if (not $hardware_product_ids{$entry->{sku}}) {
                 $c->log->error('no hardware_product corresponding to sku '.$entry->{sku});
-                $code = 404;
+                ($code, $payload) = (404, { error => 'no hardware_product corresponding to sku '.$entry->{sku} });
                 die 'rollback';
             }
 
             # find device by id that we looked up before...
             if ($entry->{id}) {
                 if (my $device = $devices{$entry->{id}}) {
-                    if (($device->build_id and $device->build_id ne $build_id)
-                        or ($device->device_location and $device->device_location->rack->build_id
-                            and $device->device_location->rack->build_id ne $build_id)) {
-                        $code = 409;
-                        $payload = { error => 'device '.($entry->{serial_number} // $entry->{id}).' not in build '.$c->stash('build_id_or_name') };
-                        die 'rollback';
-                    }
-
                     $device->serial_number($entry->{serial_number}) if $entry->{serial_number};
                     $device->asset_tag($entry->{asset_tag}) if exists $entry->{asset_tag};
-                    $device->hardware_product_id($hardware_products{$entry->{sku}}->id);
+                    $device->hardware_product_id($hardware_product_ids{$entry->{sku}});
                     $device->links($entry->{links}) if exists $entry->{links};
+                    $device->build_id($build_id);
 
                     if ($device->is_changed) {
                         $device->update({ updated => \'now()' });
@@ -728,7 +732,7 @@ sub create_and_add_devices ($c) {
                 }
                 else {
                     $c->log->error('no device corresponding to device id '.$entry->{id});
-                    $code = 404;
+                    ($code, $payload) = (404, { error => 'no device corresponding to device id '.$entry->{id} });
                     die 'rollback';
                 }
             }
@@ -736,7 +740,7 @@ sub create_and_add_devices ($c) {
                 my $device = $c->db_devices->create({
                     serial_number => $entry->{serial_number},
                     asset_tag => $entry->{asset_tag},
-                    hardware_product_id => $hardware_products{$entry->{sku}}->id,
+                    hardware_product_id => $hardware_product_ids{$entry->{sku}},
                     health => 'unknown',
                     links => $entry->{links} // [],
                     build_id => $build_id,
@@ -754,10 +758,9 @@ sub create_and_add_devices ($c) {
 
 =head2 add_device
 
-Adds the specified device to the build (as long as it isn't in another build, or located in a
-rack in another build).
+Adds the specified device to the build (removing it from its previous build).
 
-Requires the 'read/write' role on the build, and the 'read-only' role on the device.
+Requires the 'read/write' role on the build and on the device.
 
 =cut
 
@@ -767,14 +770,7 @@ sub add_device ($c) {
         ->single;
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
 
-    if ($device->build_id) {
-        return $c->status(204) if $device->build_id eq $build_id;
-
-        $c->log->warn('cannot add device '.$c->stash('device_id').' ('.$device->serial_number
-            .') to build '.$c->stash('build_id_or_name').' -- already a member of build '
-            .$device->build_id.' ('.$device->build->name.')');
-        return $c->status(409, { error => 'device already member of build '.$device->build_id.' ('.$device->build->name.')' });
-    }
+    return $c->status(204) if $device->build_id and $device->build_id eq $build_id;
 
     # TODO: check other constraints..
     # - what if the build is completed?
@@ -827,10 +823,9 @@ sub get_racks ($c) {
 
 =head2 add_rack
 
-Adds the specified rack to the build (as long as it isn't in another build, or contains devices
-located in another build).
+Adds the specified rack to the build (removing it from its previous build).
 
-Requires the 'read/write' role on the build.
+Requires the 'read/write' role on the build and on the rack.
 
 =cut
 
@@ -838,45 +833,16 @@ sub add_rack ($c) {
     my $rack = $c->stash('rack_rs')->single;
     my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
 
-    if ($rack->build_id) {
-        return $c->status(204) if $rack->build_id eq $build_id;
-
-        $c->log->warn('cannot add rack '.$rack->id
-            .' to build '.$c->stash('build_id_or_name').' -- already a member of build '
-            .$rack->build_id.' ('.$rack->build->name.')');
-        return $c->status(409, { error => 'rack already member of build '.$rack->build_id.' ('.$rack->build->name.')' });
-    }
+    return $c->status(204) if $rack->build_id and $rack->build_id eq $build_id;
 
     # TODO: check other constraints..
     # - what if the build is completed?
-    # - what if device.build_id is set (for any devices located here)?
     # - what about device.phase or rack.phase?
+    # - build_id can also change via POST /rack/:id (so copy the checks there or
+    # remove that functionality)
 
     $c->log->debug('adding rack '.$rack->id.' to build '.$c->stash('build_id_or_name'));
     $rack->update({ build_id => $build_id, updated => \'now()' });
-    return $c->status(204);
-}
-
-=head2 remove_rack
-
-Requires the 'read/write' role on the build.
-
-=cut
-
-sub remove_rack ($c) {
-    my $rs = $c->stash('build_rs')->search_related('racks', { 'racks.id' => $c->stash('rack_id') });
-    if (not $rs->exists) {
-        $c->log->warn('rack '.$c->stash('rack_id').' is not in build '.$c->stash('build_id_or_name').': cannot remove');
-        return $c->status(404);
-    }
-
-    # TODO: check other constraints..
-    # - what if the build is completed?
-    # - what if device.build_id is set (for any devices located here)?
-    # - what about device.phase or rack.phase?
-
-    $c->log->debug('removing rack '.$c->stash('rack_id').' from build '.$c->stash('build_id_or_name'));
-    $c->stash('rack_rs')->update({ build_id => undef, updated => \'now()' });
     return $c->status(204);
 }
 

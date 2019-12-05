@@ -369,10 +369,8 @@ subtest 'located device' => sub {
             sku => $hardware_product->sku,
             location => {
                 rack => {
-                    (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag phase)),
-                    rack_role_id => $rack->rack_role_id,
+                    (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag phase rack_role_id build_id)),
                     (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
-                    build_id => undef,
                 },
                 rack_unit_start => 1,
                 datacenter => ignore,
@@ -545,13 +543,13 @@ subtest 'located device' => sub {
         $t->authenticate(email => $ro_user->email);
     };
 
-    # give build user ro access to the device through device->device_location->rack->workspace
-    $global_ws->create_related('user_workspace_roles', { user_id => $build_user->id, role => 'ro' });
+    # give build user rw access to the device through device->device_location->rack->workspace
+    $global_ws->create_related('user_workspace_roles', { user_id => $build_user->id, role => 'rw' });
     $t->authenticate(email => $build_user->email);
     $t->post_ok('/build/'.$build->id.'/device/'.$located_device_id)
         ->status_is(204)
         ->log_debug_is('User has rw access to build '.$build->id.' via role entry')
-        ->log_debug_is('User has ro access to device '.$located_device_id.' via role entry');
+        ->log_debug_is('User has rw access to device '.$located_device_id.' via role entry');
 
     $located_device->update({ phase => 'production' });
     $device_data->{build_id} = $build->id;

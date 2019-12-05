@@ -80,7 +80,7 @@ sub routes {
 
         # POST /build/:build_id_or_name/device/:device_id_or_serial_number
         $with_build_rw->under('/device/:device_id_or_serial_number')
-            ->to('device#find_device', require_role => 'ro')
+            ->to('device#find_device', require_role => 'rw')
             ->post('/')->to('build#add_device');
 
         # DELETE /build/:build_id_or_name/device/:device_id_or_serial_number
@@ -93,13 +93,8 @@ sub routes {
 
         # POST /build/:build_id_or_name/rack/:rack_id
         $with_build_rw->under('/rack/<rack_id:uuid>')
-            ->to('rack#find_rack', require_role => 'ro')
+            ->to('rack#find_rack', require_role => 'rw')
             ->post('/')->to('build#add_rack');
-
-        # DELETE /build/:build_id_or_name/rack/:rack_id
-        $with_build_rw->under('/rack/<rack_id:uuid>')
-            ->to('rack#find_rack', require_role => 'none')
-            ->delete('/')->to('build#remove_rack');
     }
 }
 
@@ -262,7 +257,8 @@ Accepts the following optional query parameters:
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-only role on the device.
+read-write role on existing device(s) (via a workspace or build; see
+L<Conch::Route::Device/routes>)
 
 =item * Request: F<request.yaml#/definitions/BuildCreateDevices>
 
@@ -275,8 +271,7 @@ read-only role on the device.
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-only role on the device (via a workspace or build or a relay registration, see
-L<Conch::Route::Device/routes>)
+read-write role on the device (via a workspace or build; see L<Conch::Route::Device/routes>)
 
 =item * Response: C<204 NO CONTENT>
 
@@ -307,17 +302,7 @@ L<Conch::Route::Device/routes>)
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-only role on a workspace or build that contains the rack
-
-=item * Response: C<204 NO CONTENT>
-
-=back
-
-=head3 C<DELETE /build/:build_id_or_name/rack/:rack_id>
-
-=over 4
-
-=item * Requires system admin authorization, or the read/write role on the build
+read-write role on a workspace or build that contains the rack
 
 =item * Response: C<204 NO CONTENT>
 

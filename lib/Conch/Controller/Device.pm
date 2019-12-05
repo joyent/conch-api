@@ -67,9 +67,9 @@ sub find_device ($c) {
         # HEAD, GET requires 'ro'; everything else (for now) requires 'rw'
         my $method = $c->req->method;
         my $requires_role = $c->stash('require_role') //
-            (any { $method eq $_ } qw(HEAD GET)) ? 'ro'
+           ((any { $method eq $_ } qw(HEAD GET)) ? 'ro'
           : (any { $method eq $_ } qw(POST PUT DELETE)) ? 'rw'
-          : die 'need handling for '.$method.' method';
+          : die 'need handling for '.$method.' method');
 
         last CHECK_ACCESS if $requires_role eq 'none';
 

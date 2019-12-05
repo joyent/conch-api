@@ -17,6 +17,7 @@ $t->get_ok('/rack')
     ->json_is([]);
 
 $t->load_fixture_set('workspace_room_rack_layout', 0);
+my $build = $t->generate_fixtures('build');
 
 my $fake_id = create_uuid_str();
 
@@ -37,20 +38,26 @@ $t->post_ok('/rack', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
-$t->post_ok('/rack', json => { name => 'r4ck', datacenter_room_id => $fake_id })
+$t->post_ok('/rack', json => { name => 'r4ck', datacenter_room_id => $fake_id, build_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/rack_role_id', message => re(qr/missing property/i) } ]);
 
-$t->post_ok('/rack', json => { name => 'r4ck', rack_role_id => $fake_id })
+$t->post_ok('/rack', json => { name => 'r4ck', rack_role_id => $fake_id, build_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/datacenter_room_id', message => re(qr/missing property/i) } ]);
+
+$t->post_ok('/rack', json => { name => 'r4ck', rack_role_id => $fake_id, datacenter_room_id => $fake_id })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/build_id', message => re(qr/missing property/i) } ]);
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $fake_id,
         rack_role_id => $rack->rack_role_id,
+        build_id => $build->id,
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -60,12 +67,23 @@ $t->post_ok('/rack', json => {
         name => 'r4ck',
         datacenter_room_id => $rack->datacenter_room_id,
         rack_role_id => $fake_id,
+        build_id => $build->id,
     })
     ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Rack role does not exist' });
 
-$t->post_ok('/rack', json => { map +($_ => $rack->$_), qw(name datacenter_room_id rack_role_id) })
+$t->post_ok('/rack', json => {
+        name => 'r4ck',
+        datacenter_room_id => $rack->datacenter_room_id,
+        rack_role_id => $rack->rack_role_id,
+        build_id => $fake_id,
+    })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Build does not exist' });
+
+$t->post_ok('/rack', json => { map +($_ => $rack->$_), qw(name datacenter_room_id rack_role_id build_id) })
     ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'The room already contains a rack named '.$rack->name });
@@ -75,6 +93,7 @@ $t->post_ok('/rack', json => {
         datacenter_room_id => $rack->datacenter_room_id,
         rack_role_id => $rack->rack_role_id,
         serial_number => 'abc',
+        build_id => $build->id,
     })
     ->status_is(303)
     ->location_like(qr!^/rack/${\Conch::UUID::UUID_FORMAT}$!);
@@ -92,7 +111,7 @@ $t->get_ok($t->tx->res->headers->location)
         phase => 'integration',
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-        build_id => undef,
+        build_id => $build->id,
     });
 my $new_rack_id = $t->tx->res->json->{id};
 
@@ -107,6 +126,11 @@ $t->post_ok('/rack/'.$rack->id, json => { rack_role_id => create_uuid_str() })
     ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Rack role does not exist' });
+
+$t->post_ok('/rack/'.$rack->id, json => { build_id => create_uuid_str() })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'Build does not exist' });
 
 my $duplicate_rack = first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack');
 $duplicate_rack->update({ name => $rack->name });

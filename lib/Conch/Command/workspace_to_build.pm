@@ -38,10 +38,32 @@ sub run ($self, @opts) {
     my @workspace_names = @ARGV;
 
     my $admin_id = $self->app->db_user_accounts->search({ email => 'ether@joyent.com' })->get_column('id')->single;
-    my $org = $self->app->db_organizations->find_or_create({
+    my $company_org = $self->app->db_organizations->find_or_create({
         name => 'Joyent',
         description => 'Joyent employees',
         user_organization_roles => [ { user_id => $admin_id, role => 'admin' } ],
+    });
+    my $dcops_org = $self->app->db_organizations->find_or_create({
+        name => 'DCOps',
+        description => 'Datacenter Operations personnnel',
+        user_organization_roles => [ { user_id => $admin_id, role => 'admin' } ],
+    });
+
+    my $spares = $self->app->db_builds->find_or_create({
+        name => 'spares',
+        description => 'holding area for entities not yet part of an active build',
+        user_build_roles => [{
+            user_id => $admin_id,
+            role => 'admin',
+        }],
+        organization_build_roles => [{
+            organization_id => $company_org->id,
+            role => 'ro',
+        }],
+        organization_build_roles => [{
+            organization_id => $dcops_org->id,
+            role => 'rw',
+        }],
     });
 
     foreach my $workspace_name (@workspace_names) {
@@ -81,8 +103,12 @@ sub run ($self, @opts) {
                         role => 'admin',
                     }],
                     organization_build_roles => [{
-                        organization_id => $org->id,
+                        organization_id => $company_org->id,
                         role => 'ro',
+                    }],
+                    organization_build_roles => [{
+                        organization_id => $dcops_org->id,
+                        role => 'rw',
                     }],
                 });
             }

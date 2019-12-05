@@ -292,6 +292,22 @@ sub generate_set ($self, $set_name, @args) {
                     "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
                 },
             },
+            "build_$num" => {
+                new => 'build',
+                using => {
+                    name => "build_$num",
+                },
+            },
+            "user_build_role_${num}_admin" => {
+                new => 'user_build_role',
+                using => {
+                    role => 'admin',
+                },
+                requires => {
+                    super_user => { our => 'user_id', their => 'id' },
+                    "build_$num" => { our => 'build_id', their => 'id' },
+                },
+            },
             "datacenter_$num" => {
                 new => 'datacenter',
                 using => {
@@ -333,6 +349,7 @@ sub generate_set ($self, $set_name, @args) {
                 requires => {
                     "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
                     rack_role_42u => { our => 'rack_role_id', their => 'id' },
+                    "build_$num" => { our => 'build_id', their => 'id' },
                     # declare dependency for the all_racks_in_global_workspace trigger to run
                     # This is a hack: should be able to specify requirements without copying values.
                     global_workspace => { our => 'asset_tag', their => 'name' },
@@ -663,6 +680,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
             },
         };
+        # TODO: not declaring an admin user; some GET queries may fail json schema validation
     }
     elsif ($fixture_type eq 'build') {
         return +{
@@ -674,6 +692,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
             },
         };
+        # TODO: not declaring an admin user; some GET queries may fail json schema validation
     }
     elsif ($fixture_type eq 'validation_plan') {
         return +{

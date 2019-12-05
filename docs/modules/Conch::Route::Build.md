@@ -96,15 +96,15 @@ Accepts the following optional query parameters:
 ### `POST /build/:build_id_or_name/device`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-only role on the device.
+read-write role on existing device(s) (via a workspace or build; see
+["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Request: [request.json#/definitions/BuildCreateDevices](../json-schema/request.json#/definitions/BuildCreateDevices)
 - Response: `204 NO CONTENT`
 
 ### `POST /build/:build_id_or_name/device/:device_id_or_serial_number`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-only role on the device (via a workspace or build or a relay registration, see
-["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
+read-write role on the device (via a workspace or build; see ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Response: `204 NO CONTENT`
 
 ### `DELETE /build/:build_id_or_name/device/:device_id_or_serial_number`
@@ -120,12 +120,7 @@ read-only role on the device (via a workspace or build or a relay registration, 
 ### `POST /build/:build_id_or_name/rack/:rack_id`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-only role on a workspace or build that contains the rack
-- Response: `204 NO CONTENT`
-
-### `DELETE /build/:build_id_or_name/rack/:rack_id`
-
-- Requires system admin authorization, or the read/write role on the build
+read-write role on a workspace or build that contains the rack
 - Response: `204 NO CONTENT`
 
 # LICENSING
