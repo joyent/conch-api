@@ -46,6 +46,7 @@ sub find_device ($c) {
         });
     }
     else {
+        $c->log->error('missing identifier for #find_device');
         return $c->status(404);
     }
 
@@ -54,7 +55,7 @@ sub find_device ($c) {
 
     # if the device id cannot be fetched, we can bail out right now
     if (not $device_id) {
-        $c->log->debug('Failed to find device '.$identifier);
+        $c->log->debug('Could not find device '.$identifier);
         return $c->status(404);
     }
 
@@ -241,7 +242,7 @@ sub lookup_by_other_attribute ($c) {
 
     # save ourselves a more expensive query if there are no matches
     if (not $device_rs->exists) {
-        $c->log->debug('Failed to find devices matching '.$key.'='.$value);
+        $c->log->debug('Could not find devices matching '.$key.'='.$value);
         return $c->status(404);
     }
 

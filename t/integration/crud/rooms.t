@@ -91,6 +91,7 @@ $t->delete_ok("/room/$idr")
     ->status_is(204);
 
 $t->get_ok("/room/$idr")
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find datacenter room '.$idr);
 
 done_testing;

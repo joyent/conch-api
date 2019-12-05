@@ -36,7 +36,7 @@ sub find_datacenter_room ($c) {
     my $room = $rs->single;
 
     if (not $room) {
-        $c->log->debug('Could not find datacenter room');
+        $c->log->debug('Could not find datacenter room '.$identifier);
         return $c->status(404);
     }
 

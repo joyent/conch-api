@@ -121,7 +121,10 @@ sub find_organization ($c) {
         $rs = $rs->search({ 'organization.name' => $identifier });
     }
 
-    return $c->status(404) if not $rs->exists;
+    if (not $rs->exists) {
+        $c->log->debug('Could not find organization '.$identifier);
+        return $c->status(404);
+    }
 
     $rs = $rs->active;
     return $c->status(410) if not $rs->exists;
@@ -255,7 +258,10 @@ sub add_user ($c) {
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
         : $input->{email} ? $user_rs->find_by_email($input->{email})
         : undef;
-    return $c->status(404) if not $user;
+    if (not $user) {
+        $c->log->debug('Could not find user '.$input->@{qw(user_id email)});
+        return $c->status(404);
+    }
 
     $c->stash('target_user', $user);
     my $organization_name = $c->stash('organization_name') // $c->stash('organization_rs')->get_column('name')->single;

@@ -31,7 +31,7 @@ sub find_hardware_vendor ($c) {
     }
 
     if (not $hardware_vendor_rs->exists) {
-        $c->log->debug('Could not locate a valid hardware vendor');
+        $c->log->debug('Could not find hardware vendor '.$c->stash('hardware_vendor_id_or_name'));
         return $c->status(404);
     }
 

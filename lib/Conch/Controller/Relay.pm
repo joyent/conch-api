@@ -75,7 +75,10 @@ sub find_relay ($c) {
 
     my $rs = $c->db_relays
         ->search({ is_uuid($identifier) ? 'id' : 'serial_number' => $identifier });
-    return $c->status(404) if not $rs->exists;
+    if (not $rs->exists) {
+        $c->log->debug('Could not find relay '.$identifier);
+        return $c->status(404);
+    }
 
     $rs = $rs->active;
     return $c->status(410) if not $rs->exists;

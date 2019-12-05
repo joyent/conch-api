@@ -28,7 +28,7 @@ sub find_device_interface ($c) {
         ->search_related('device_nics', { iface_name => $interface_name })
         ->active;
     if (not $nic_rs->exists) {
-        $c->log->debug("Failed to find interface $interface_name for device ".$c->stash('device_id'));
+        $c->log->debug('Could not find interface '.$interface_name.' for device '.$c->stash('device_id'));
         return $c->status(404);
     }
 

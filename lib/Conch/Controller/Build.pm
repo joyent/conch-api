@@ -117,7 +117,10 @@ sub find_build ($c) {
         $rs = $rs->search({ 'build.name' => $identifier });
     }
 
-    return $c->status(404) if not $rs->exists;
+    if (not $rs->exists) {
+        $c->log->debug('could not find build '.$identifier);
+        return $c->status(404);
+    }
 
     CHECK_ACCESS: {
         if ($c->is_system_admin) {
@@ -271,7 +274,10 @@ sub add_user ($c) {
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
         : $input->{email} ? $user_rs->find_by_email($input->{email})
         : undef;
-    return $c->status(404) if not $user;
+    if (not $user) {
+        $c->log->debug('Could not find user '.$input->@{qw(user_id email)});
+        return $c->status(404);
+    }
 
     $c->stash('target_user', $user);
     my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
@@ -462,7 +468,10 @@ sub add_organization ($c) {
     return if not $input;
 
     my $organization = $c->db_organizations->active->find($input->{organization_id});
-    return $c->status(404) if not $organization;
+    if (not $organization) {
+        $c->log->debug('Could not find organization '.$input->{organization_id});
+        return $c->status(404);
+    }
 
     my $build_id = $c->stash('build_id');
 

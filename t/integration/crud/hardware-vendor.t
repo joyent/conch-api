@@ -19,10 +19,12 @@ $t->get_ok('/hardware_vendor')
 my $vendors = $t->tx->res->json;
 
 $t->get_ok('/hardware_vendor/'.create_uuid_str())
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_like(qr/^Could not find hardware vendor ${\Conch::UUID::UUID_FORMAT}$/);
 
 $t->get_ok('/hardware_vendor/foo')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find hardware vendor foo');
 
 $t->get_ok('/hardware_vendor/'.$vendors->[0]{id})
     ->status_is(200)

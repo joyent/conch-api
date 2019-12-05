@@ -22,7 +22,7 @@ sub find_rack_role ($c) {
     if ($c->stash('rack_role_id_or_name') =~ /^(.+?)\=(.+)$/) {
         my ($key, $value) = ($1, $2);
         if ($key ne 'name') {
-            $c->log->warn("Unknown identifier '$key'");
+            $c->log->error("Unknown identifier '$key'");
             return $c->status(404);
         }
 
@@ -35,7 +35,7 @@ sub find_rack_role ($c) {
     }
 
     if (not $rack_role) {
-        $c->log->debug('Failed to find rack role');
+        $c->log->debug('Could not find rack_role '.$c->stash('rack_role_id_or_name'));
         return $c->status(404);
     }
 

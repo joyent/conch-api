@@ -57,7 +57,7 @@ sub find_hardware_product ($c) {
     }
 
     if (not $hardware_product_rs->exists) {
-        $c->log->debug('Could not locate a valid hardware product with '
+        $c->log->debug('Could not find hardware product with '
             .($c->stash('hardware_product_id') ? ('id '.$c->stash('hardware_product_id'))
                 : ($c->stash('hardware_product_key').' '.$c->stash('hardware_product_value'))));
         return $c->status(404);

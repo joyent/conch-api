@@ -43,7 +43,7 @@ sub find_validation($c) {
     });
 
     if (not $validation_rs->exists) {
-        $c->log->debug("Failed to find validation for '$identifier'");
+        $c->log->debug('Could not find validation '.$identifier);
         return $c->status(404);
     }
 

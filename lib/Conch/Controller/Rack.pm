@@ -28,7 +28,7 @@ sub find_rack ($c) {
         ->search({ 'rack.id' => $c->stash('rack_id') });
 
     if (not $rack_rs->exists) {
-        $c->log->debug('Could not find rack ',$c->stash('rack_id'));
+        $c->log->debug('Could not find rack '.$c->stash('rack_id'));
         return $c->status(404);
     }
 
@@ -390,7 +390,7 @@ sub set_assignment ($c) {
                 next if $device_locations_rs->search({ device_id => $device->id, $entry->%{rack_unit_start} })->exists;
             }
             elsif ($entry->{device_id}) {
-                $c->log->error('no device corresponding to device id '.$entry->{device_id});
+                $c->log->error('Could not find device '.$entry->{device_id});
                 $c->res->code(404);
                 die 'rollback';
             }
@@ -441,13 +441,12 @@ sub delete_assignment ($c) {
             my $ru = $_;
             none { $ru == $_->rack_unit_start } @layouts;
         } map $_->{rack_unit_start}, $input->@*;
-        $c->log->debug('cannot delete nonexistent layout'.(@missing > 1 ? 's' : '').' for rack_unit_start '.join(', ', @missing));
+        $c->log->debug('Cannot delete nonexistent layout for rack_unit_start '.join(', ', @missing));
         return $c->status(404);
     }
 
     if (my @unoccupied = grep !$_->device_location, @layouts) {
-        $c->log->debug('cannot delete assignments for unoccupied slot'.
-            (@unoccupied > 1 ? 's' : '').': rack_unit_start '
+        $c->log->debug('Cannot delete assignment for unoccupied slot at rack_unit_start '
             .join(', ', map $_->rack_unit_start, @unoccupied));
         return $c->status(404);
     }

@@ -126,7 +126,10 @@ sub get_single ($c) {
         ->rows(1)
         ->single;
 
-    return $c->status(404) if not $setting;
+    if (not $setting) {
+        $c->log->debug('Could not find device setting '.$setting_key.' for device '.$c->stash('device_id'));
+        return $c->status(404);
+    }
     $c->status(200, { $setting_key => $setting->value });
 }
 
@@ -154,7 +157,7 @@ sub delete_single ($c) {
             ->search_related('device_settings', { name => $setting_key })
             ->active
             ->deactivate <= 0) {
-        $c->log->debug("No such setting '$setting_key'");
+        $c->log->debug('Could not find device setting '.$setting_key.' for device '.$c->stash('device_id'));
         return $c->status(404);
     }
 

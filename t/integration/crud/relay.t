@@ -103,7 +103,8 @@ is($new_relay_data->{updated}, $relay_data->{updated}, 'relay update timestamp d
 $relay0->last_seen(Conch::Time->from_string($new_relay_data->{last_seen}, lenient => 1));
 
 $t->get_ok('/relay/'.create_uuid_str())
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_like(qr/^Could not find relay ${\Conch::UUID::UUID_FORMAT}$/);
 
 $t->get_ok('/relay/'.$relay0->id)
     ->status_is(200)

@@ -30,7 +30,8 @@ my $vendor_id = $products->[0]{hardware_vendor_id};
 my $validation_plan_id = $products->[0]{validation_plan_id};
 
 $t->get_ok('/hardware_product/'.create_uuid_str())
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_like(qr/^Could not find hardware product with id ${\Conch::UUID::UUID_FORMAT}$/);
 
 $t->get_ok("/hardware_product/$hw_id")
     ->status_is(200)
@@ -176,10 +177,12 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_cmp_deeply($new_product);
 
 $t->get_ok('/hardware_product/foo=sungo')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_error_is('no endpoint found for: GET /hardware_product/foo=sungo');
 
 $t->get_ok('/hardware_product/name=sungo')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find hardware product with name sungo');
 
 $t->get_ok('/hardware_product/name=sungo2')
     ->status_is(200)

@@ -33,11 +33,11 @@ subtest preliminaries => sub {
 
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(409)
-        ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
+        ->json_is({ error => 'Could not find hardware product with sku '.$report_data->{sku} });
 
     $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
-        ->json_is({ error => 'Could not locate hardware product for sku '.$report_data->{sku} });
+        ->json_is({ error => 'Could not find hardware product with sku '.$report_data->{sku} });
 
     $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') }
         $t->load_fixture('hardware_product_compute');
@@ -51,7 +51,7 @@ subtest preliminaries => sub {
 
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(404)
-        ->log_error_is('Failed to find device TEST');
+        ->log_error_is('Could not find device TEST');
 
     my $device = $t->generate_fixtures('device', {
         serial_number => 'TEST',

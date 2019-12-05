@@ -22,7 +22,7 @@ sub find_datacenter ($c) {
     my $datacenter = $c->db_datacenters->find($datacenter_id);
 
     if (not $datacenter) {
-        $c->log->debug('Unable to find datacenter '.$datacenter_id);
+        $c->log->debug('Could not find datacenter '.$datacenter_id);
         return $c->status(404);
     }
 
