@@ -221,6 +221,7 @@ sub get_pxe ($c) {
                 id => 'device.id',
                 'location.datacenter.name' => 'datacenter.region',
                 'location.datacenter.vendor_name' => 'datacenter.vendor_name',
+                (map +('location.datacenter_room.'.$_ => 'datacenter_room.'.$_), qw(az alias vendor_name)),
                 'location.rack.name' => 'rack.name',
                 'location.rack.rack_unit_start' => 'device_location.rack_unit_start',
                 # pxe = the first (sorted by name) interface that is status=up

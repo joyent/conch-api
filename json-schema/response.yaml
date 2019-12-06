@@ -455,6 +455,7 @@ definitions:
             additionalProperties: false
             required:
               - datacenter
+              - datacenter_room
               - rack
             properties:
               datacenter:
@@ -472,6 +473,22 @@ definitions:
                     oneOf:
                       - type: 'null'
                       - type: string
+              datacenter_room:
+                type: object
+                additionalProperties: false
+                required:
+                  - az
+                  - alias
+                  - vendor_name
+                properties:
+                  az:
+                    type: string
+                  alias:
+                    type: string
+                  vendor_name:
+                    oneOf:
+                      - type: string
+                      - type: 'null'
               rack:
                 type: object
                 additionalProperties: false
@@ -538,6 +555,7 @@ definitions:
           additionalProperties: false
           required:
             - datacenter
+            - datacenter_room
             - rack
           properties:
             datacenter:
@@ -555,6 +573,22 @@ definitions:
                   oneOf:
                     - type: 'null'
                     - type: string
+            datacenter_room:
+              type: object
+              additionalProperties: false
+              required:
+                - az
+                - alias
+                - vendor_name
+              properties:
+                az:
+                  type: string
+                alias:
+                  type: string
+                vendor_name:
+                  oneOf:
+                    - type: string
+                    - type: 'null'
             rack:
               type: object
               additionalProperties: false

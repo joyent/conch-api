@@ -245,6 +245,7 @@ subtest 'Devices with PXE data' => sub {
                         name => $datacenter->region,
                         vendor_name => $datacenter->vendor_name,
                     },
+                    datacenter_room => { map +($_ => $layouts[0]->rack->datacenter_room->$_), qw(az alias vendor_name) },
                     rack => {
                         name => $layouts[0]->rack->name,
                         rack_unit_start => $layouts[0]->rack_unit_start,
@@ -265,6 +266,7 @@ subtest 'Devices with PXE data' => sub {
                         name => $datacenter->region,
                         vendor_name => $datacenter->vendor_name,
                     },
+                    datacenter_room => { map +($_ => $layouts[1]->rack->datacenter_room->$_), qw(az alias vendor_name) },
                     rack => {
                         name => $layouts[1]->rack->name,
                         rack_unit_start => $layouts[1]->rack_unit_start,
