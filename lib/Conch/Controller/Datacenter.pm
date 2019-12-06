@@ -113,8 +113,9 @@ sub update ($c) {
 
     my $datacenter = $c->stash('datacenter');
     $datacenter->set_columns($input);
-    $datacenter->update({ updated => \'now()' }) if $datacenter->is_changed;
+    return $c->status(204) if not $datacenter->is_changed;
 
+    $datacenter->update({ updated => \'now()' });
     $c->log->debug('Updated datacenter '.$datacenter->id);
     $c->status(303, '/dc/'.$datacenter->id);
 }

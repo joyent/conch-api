@@ -199,7 +199,7 @@ $t->post_ok("/rack/$new_rack->{id}", json => {
 $new_rack->@{qw(name serial_number asset_tag)} = qw(rack abc deadbeef);
 
 $t->post_ok($_, json => { rack_role_id => $small_rack_role->id })
-    ->status_is(303)
+    ->status_is($_ eq '/rack/'.$new_rack->{id} ? 303 : 204)
     ->location_is('/rack/'.$new_rack->{id})
     foreach
         '/rack/'.$new_rack->{id},

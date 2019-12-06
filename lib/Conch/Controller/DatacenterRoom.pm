@@ -126,9 +126,14 @@ sub update ($c) {
         if $input->{vendor_name} and $input->{vendor_name} ne $room->vendor_name
             and $c->db_datacenter_rooms->search({ vendor_name => $input->{vendor_name} })->exists;
 
-    $room->update({ $input->%*, updated => \'now()' });
+    $c->res->headers->location('/room/'.$room->id);
+
+    $room->set_columns($input);
+    return $c->status(204) if not $room->is_changed;
+
+    $room->update({ updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id_or_alias'));
-    $c->status(303, '/room/'.$room->id);
+    $c->status(303);
 }
 
 =head2 delete

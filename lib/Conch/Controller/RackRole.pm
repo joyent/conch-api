@@ -126,10 +126,14 @@ sub update ($c) {
         }
     }
 
+    $c->res->headers->location('/rack_role/'.$rack_role->id);
+
     $rack_role->set_columns($input);
+    return $c->status(204) if not $rack_role->is_changed;
+
     $rack_role->update({ updated => \'now()' }) if $rack_role->is_changed;
     $c->log->debug('Updated rack role '.$rack_role->id);
-    $c->status(303, '/rack_role/'.$rack_role->id);
+    $c->status(303);
 }
 
 =head2 delete

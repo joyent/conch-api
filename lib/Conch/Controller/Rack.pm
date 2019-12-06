@@ -284,10 +284,14 @@ sub update ($c) {
         }
     }
 
+    $c->res->headers->location('/rack/'.$rack->id);
+
     $rack->set_columns($input);
-    $rack->update({ updated => \'now()' }) if $rack->is_changed;
+    return $c->status(204) if not $rack->is_changed;
+
+    $rack->update({ updated => \'now()' });
     $c->log->debug('Updated rack '.$rack->id);
-    return $c->status(303, '/rack/'.$rack->id);
+    return $c->status(303);
 }
 
 =head2 delete
@@ -516,7 +520,9 @@ sub set_phase ($c) {
     return if not $input;
 
     my $rack = $c->stash('rack_rs')->single;
-    $rack->update({ phase => $input->{phase}, updated => \'now()' });
+    $rack->set_columns($input);
+
+    $rack->update({ updated => \'now()' }) if $rack->is_changed;
     $c->log->debug('set the phase for rack '.$rack->id.' to '.$input->{phase});
 
     if (not $params->{rack_only} // 0) {

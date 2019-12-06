@@ -201,9 +201,13 @@ sub update ($c) {
         return $c->status(409, { error => 'rack_unit_start conflict' });
     }
 
-    $layout->update({ $input->%*, updated => \'now()' });
+    $c->res->headers->location('/layout/'.$layout->id);
 
-    return $c->status(303, '/layout/'.$layout->id);
+    $layout->set_columns($input);
+    return $c->status(204) if not $layout->is_changed;
+
+    $layout->update({ updated => \'now()' });
+    return $c->status(303);
 }
 
 =head2 delete

@@ -314,12 +314,12 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('DetailedDevice');
 
     foreach my $query (@post_queries) {
-        $t2->post_ok($query->@*);
-        if ($query->[0] =~ /settings|validated/) {
+        $t2->post_ok($query->@*)
+            ->location_is('/device/'.$test_device_id);
+        if ($query->[0] =~ /settings|validated|phase/) {
             $t2->status_is(204);
         } else {
-            $t2->status_is(303)
-                ->location_is('/device/'.$test_device_id);
+            $t2->status_is(303);
         }
     }
 
