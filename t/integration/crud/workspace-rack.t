@@ -114,10 +114,10 @@ subtest 'Assign device to a location' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceLocation')
         ->json_cmp_deeply({
-            rack => superhashof({ id => $rack_id }),
+            az => 'room-0a',
+            datacenter_room => 'room 0a',
+            rack => 'ROOM:0.A:rack.0a',
             rack_unit_start => 1,
-            datacenter_room => superhashof({ datacenter_id => $rack->datacenter_room->datacenter_id }),
-            datacenter => superhashof({ id => $rack->datacenter_room->datacenter_id }),
             target_hardware_product => {
                 (map +($_ => $hardware_product_compute->$_), qw(id name alias sku hardware_vendor_id)),
             },

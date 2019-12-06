@@ -146,24 +146,8 @@ sub get ($c) {
     };
 
     if ($device->phase_cmp('production') < 0) {
-        my $location = $c->stash('device_rs')
-            ->related_resultset('device_location')
-            ->prefetch({
-                rack_layout => 'hardware_product',
-                rack => { datacenter_room => 'datacenter' },
-            })
-            ->single;
-
-        $detailed_device->{location} = $location ? +{
-            rack => $location->rack,
-            rack_unit_start => $location->get_column('rack_unit_start'),
-            datacenter_room => $location->rack->datacenter_room,
-            datacenter => $location->rack->datacenter_room->datacenter,
-            target_hardware_product => +{ do {
-                my $hardware_product = $location->rack_layout->hardware_product;
-                map +($_ => $hardware_product->$_), qw(id name alias sku hardware_vendor_id);
-            } },
-        } : undef;
+        $detailed_device->{location} = $c->stash('device_rs')->location_data->single;
+        undef $detailed_device->{location} if not $detailed_device->{location}{rack};
 
         $detailed_device->{nics} = [ map {
             my $device_nic = $_;

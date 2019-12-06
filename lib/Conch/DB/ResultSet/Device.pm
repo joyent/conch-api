@@ -211,6 +211,34 @@ sub with_sku ($self) {
         ->add_columns({ sku => 'hardware_product.sku' });
 }
 
+=head2 location_data
+
+Returns a resultset that provides location data (F<response.yaml#/definitions/DeviceLocation>),
+optionally returned in a subhash using the provided key name.
+
+=cut
+
+sub location_data ($self, $under_key = '') {
+    $under_key .= '.' if $under_key;
+    $self
+        ->search(undef, {
+            join => { device_location => [
+                { rack_layout => 'hardware_product' },
+                { rack => 'datacenter_room' },
+            ] },
+            columns => {
+                $under_key.'az' => 'datacenter_room.az',
+                $under_key.'datacenter_room' => 'datacenter_room.alias',
+                $under_key.'rack' => \q{datacenter_room.vendor_name || ':' || rack.name},
+                $under_key.'rack_unit_start' => 'device_location.rack_unit_start',
+                map +($under_key.'target_hardware_product.'.$_ => 'hardware_product.'.$_),
+                    qw(id name alias sku hardware_vendor_id),
+            },
+            collapse => 1,
+        })
+        ->hri;
+}
+
 1;
 __END__
 

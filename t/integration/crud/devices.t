@@ -369,13 +369,10 @@ subtest 'located device' => sub {
             hardware_product_id => $hardware_product->id,
             sku => $hardware_product->sku,
             location => {
-                rack => {
-                    (map +($_ => $rack->$_), qw(id name datacenter_room_id serial_number asset_tag phase rack_role_id build_id)),
-                    (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
-                },
+                az => 'room-0a',
+                datacenter_room => 'room 0a',
+                rack => 'ROOM:0.A:rack.0a',
                 rack_unit_start => 1,
-                datacenter => ignore,
-                datacenter_room => superhashof({ az => 'room-0a' }),
                 target_hardware_product => superhashof({ alias => 'Test Compute' }),
             },
             latest_report => undef,
@@ -1183,9 +1180,9 @@ subtest 'Device location' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceLocation')
         ->json_cmp_deeply({
-            datacenter => superhashof({ id => $rack->datacenter_room->datacenter_id }),
-            datacenter_room => superhashof({ datacenter_id => $rack->datacenter_room->datacenter_id }),
-            rack => superhashof({ id => $rack_id, name => $rack->name }),
+            az => $rack->datacenter_room->az,
+            datacenter_room => $rack->datacenter_room->alias,
+            rack => $rack->datacenter_room->vendor_name.':'.$rack->name,
             rack_unit_start => 3,
             target_hardware_product => {
                 (map +($_ => $layout->hardware_product->$_), qw(id name alias sku hardware_vendor_id)),
