@@ -589,6 +589,7 @@ subtest 'Device PXE' => sub {
 
     $layout->create_related('device_location', { device_id => 'PXE_TEST' });
     my $datacenter = $t->load_fixture('datacenter_0');
+    my $datacenter_room = $layout->rack->datacenter_room;
 
     $t->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
@@ -600,6 +601,7 @@ subtest 'Device PXE' => sub {
                     name => $datacenter->region,
                     vendor_name => $datacenter->vendor_name,
                 },
+                datacenter_room => { map +($_ => $datacenter_room->$_), qw(az alias vendor_name) },
                 rack => {
                     name => $layout->rack->name,
                     rack_unit_start => $layout->rack_unit_start,
