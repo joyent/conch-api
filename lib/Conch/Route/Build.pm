@@ -72,8 +72,13 @@ sub routes {
                 ->delete('/')->to('build#remove_organization');
         }
 
+        my $build_devices = $with_build_ro->under('/device')->to('#find_devices');
+
         # GET /build/:build_id_or_name/device
-        $with_build_ro->get('/device')->to('#get_devices');
+        $build_devices->get('/')->to('#get_devices');
+
+        # GET /build/:build_id_or_name/device/pxe
+        $build_devices->get('/pxe')->to('#get_pxe_devices');
 
         # POST /build/:build_id_or_name/device
         $with_build_rw->post('/device')->to('#create_and_add_devices', require_role => 'rw');
@@ -249,6 +254,16 @@ Accepts the following optional query parameters:
 =item * Requires system admin authorization or the read-only role on the build
 
 =item * Response: F<response.yaml#/definitions/Devices>, F<response.yaml#/definitions/DeviceIds> or F<response.yaml#/definitions/DeviceSerials>
+
+=back
+
+=head3 C<GET /build/:build_id_or_name/device/pxe>
+
+=over 4
+
+=item * Requires system admin authorization or the read-only role on the build
+
+=item * Response: F<response.yaml#/definitions/DevicePXEs>
 
 =back
 

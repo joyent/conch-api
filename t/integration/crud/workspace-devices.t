@@ -218,6 +218,8 @@ subtest 'Devices with PXE data' => sub {
     delete $pxe_data->[0]{location};
     $pxe_data->[0]{phase} = 'production';
 
+    # in this case, we omit the entire result... because we cannot possibly include the device
+    # and not its location, because it is only present in the workspace via rack.
     $t->get_ok('/workspace/'.$global_ws_id.'/device/pxe')
         ->status_is(200)
         ->json_schema_is('WorkspaceDevicePXEs')

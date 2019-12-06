@@ -549,6 +549,11 @@ definitions:
       not:
         required:
           - location
+  DevicePXEs:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/DevicePXE
   DevicePhase:
     type: object
     additionalProperties: false
@@ -590,6 +595,10 @@ definitions:
           $ref: common.yaml#/definitions/uuid
         phase:
           $ref: common.yaml#/definitions/device_phase
+        # differs from DevicePXEs in that location is always present in the result, if the element
+        # itself is present, because presence in the workspace is only determined via the rack
+        # (location), where phase_earlier_than would remove the entire result, as well as nullify
+        # 'location'
         location:
           $ref: /definitions/DeviceLocation
         ipmi:

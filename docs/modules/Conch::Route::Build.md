@@ -93,6 +93,11 @@ Accepts the following optional query parameters:
 - Requires system admin authorization or the read-only role on the build
 - Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
 
+### `GET /build/:build_id_or_name/device/pxe`
+
+- Requires system admin authorization or the read-only role on the build
+- Response: [response.json#/definitions/DevicePXEs](../json-schema/response.json#/definitions/DevicePXEs)
+
 ### `POST /build/:build_id_or_name/device`
 
 - Requires system admin authorization, or the read/write role on the build and the

@@ -1135,6 +1135,13 @@
       },
       "type" : "object"
     },
+    "DevicePXEs" : {
+      "items" : {
+        "$ref" : "/definitions/DevicePXE"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "DevicePhase" : {
       "additionalProperties" : false,
       "properties" : {

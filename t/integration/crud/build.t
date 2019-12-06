@@ -1037,6 +1037,88 @@ $t->get_ok('/build/my first build/device?phase_earlier_than=')
         }),
     ]);
 
+$device1->update({ phase => 'integration' });
+
+subtest 'Devices with PXE data' => sub {
+    $t->app->db_device_neighbors->delete;
+    $t->app->db_device_nics->delete;
+    $t->app->db_device_nics->create($_) foreach (
+        {
+            device_id => $device1->id,
+            state => 'up',
+            iface_name => 'milhouse',
+            iface_type => 'human',
+            iface_vendor => 'Groening',
+            mac => '00:00:00:00:00:aa',
+            ipaddr => '0.0.0.1',
+        },
+        {
+            device_id => $device1->id,
+            state => 'up',
+            iface_name => 'ned',
+            iface_type => 'human',
+            iface_vendor => 'Groening',
+            mac => '00:00:00:00:00:bb',
+            ipaddr => '0.0.0.2',
+        },
+        {
+            device_id => $device1->id,
+            state => undef,
+            iface_name => 'ipmi1',
+            iface_type => 'human',
+            iface_vendor => 'Groening',
+            mac => '00:00:00:00:00:cc',
+            ipaddr => '0.0.0.3',
+        },
+    );
+
+    $t->get_ok('/build/my first build/device/pxe')
+        ->status_is(200)
+        ->json_schema_is('DevicePXEs')
+        ->json_cmp_deeply([
+            {
+                id => $device1->id,
+                phase => 'integration',
+                location => {
+                    az => $rack1->datacenter_room->az,
+                    datacenter_room => $rack1->datacenter_room->alias,
+                    rack => $rack1->datacenter_room->vendor_name.':'.$rack1->name,
+                    rack_unit_start => $rack_layout1->rack_unit_start,
+                    target_hardware_product => superhashof({ alias => $rack_layout1->hardware_product->alias }),
+                },
+                ipmi => {
+                    mac => '00:00:00:00:00:cc',
+                    ip => '0.0.0.3',
+                },
+                pxe => {
+                    mac => '00:00:00:00:00:aa',
+                },
+            },
+            {
+                id => $device2->id,
+                phase => 'integration',
+                location => undef,
+                ipmi => undef,
+                pxe => undef,
+            },
+        ]);
+    my $pxe_data = $t->tx->res->json;
+
+    $device1->update({ phase => 'production' });
+    delete $pxe_data->[0]{location};
+    $pxe_data->[0]{phase} = 'production';
+
+    $t->get_ok('/build/my first build/device/pxe')
+        ->status_is(200)
+        ->json_schema_is('DevicePXEs')
+        ->json_is([ $pxe_data->[1] ]);
+
+    $t->get_ok('/build/my first build/device/pxe?phase_earlier_than=')
+        ->status_is(200)
+        ->json_schema_is('DevicePXEs')
+        ->json_is($pxe_data);
+};
+
 $t->post_ok('/build/our second build/device', json => [ {
             id => $device2->id,
             sku => $hardware_product->sku,
