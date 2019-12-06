@@ -266,29 +266,23 @@ Response uses the DevicePXE json schema.
 
 sub get_pxe ($c) {
     my $device_rs = $c->stash('device_rs');
-    my ($device) = $device_rs->search(
-        undef,
-        {
-            columns => {
-                id => 'device.id',
-                phase => 'device.phase',
-                'location.datacenter.name' => 'datacenter.region',
-                'location.datacenter.vendor_name' => 'datacenter.vendor_name',
-                'location.rack.name' => 'rack.name',
-                'location.rack.rack_unit_start' => 'device_location.rack_unit_start',
-                # pxe = the first (sorted by name) interface that is status=up
-                'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
-                # ipmi = the (newest) interface named ipmi1.
-                ipmi_mac_ip => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
-            },
-            join => { device_location => { rack => { datacenter_room => 'datacenter' } } },
-        })
-        ->hri
-        ->all;
 
-    if (Conch::DB::Result::Device->phase_cmp($device->{phase}, 'production') >= 0) {
-        delete $device->{location};
-    }
+    $device_rs = $device_rs
+        ->location_data('location')
+        ->add_columns({
+            id => 'device.id',
+            phase => 'device.phase',
+            # pxe = the first (sorted by name) interface that is status=up
+            'pxe.mac' => $device_rs->correlate('device_nics')->nic_pxe->as_query,
+            # ipmi = the (newest) interface named ipmi1.
+            ipmi_mac_ip => $device_rs->correlate('device_nics')->nic_ipmi->as_query,
+        });
+
+    my ($device) = $device_rs->all;
+    undef $device->{location} if not $device->{location}{rack};
+
+    delete $device->{location}
+        if Conch::DB::Result::Device->phase_cmp($device->{phase}, 'production') >= 0;
 
     my $ipmi = delete $device->{ipmi_mac_ip};
     $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;

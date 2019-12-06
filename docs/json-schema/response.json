@@ -1095,55 +1095,7 @@
               "type" : "null"
             },
             {
-              "additionalProperties" : false,
-              "properties" : {
-                "datacenter" : {
-                  "additionalProperties" : false,
-                  "properties" : {
-                    "name" : {
-                      "description" : "datacenter.region",
-                      "type" : "string"
-                    },
-                    "vendor_name" : {
-                      "description" : "the vendor's name for the datacenter",
-                      "oneOf" : [
-                        {
-                          "type" : "null"
-                        },
-                        {
-                          "type" : "string"
-                        }
-                      ]
-                    }
-                  },
-                  "required" : [
-                    "name",
-                    "vendor_name"
-                  ],
-                  "type" : "object"
-                },
-                "rack" : {
-                  "additionalProperties" : false,
-                  "properties" : {
-                    "name" : {
-                      "type" : "string"
-                    },
-                    "rack_unit_start" : {
-                      "$ref" : "common.json#/definitions/positive_integer"
-                    }
-                  },
-                  "required" : [
-                    "name",
-                    "rack_unit_start"
-                  ],
-                  "type" : "object"
-                }
-              },
-              "required" : [
-                "datacenter",
-                "rack"
-              ],
-              "type" : "object"
+              "$ref" : "/definitions/DeviceLocation"
             }
           ]
         },
@@ -2977,55 +2929,7 @@
             ]
           },
           "location" : {
-            "additionalProperties" : false,
-            "properties" : {
-              "datacenter" : {
-                "additionalProperties" : false,
-                "properties" : {
-                  "name" : {
-                    "description" : "datacenter.region",
-                    "type" : "string"
-                  },
-                  "vendor_name" : {
-                    "description" : "the vendor's name for the datacenter",
-                    "oneOf" : [
-                      {
-                        "type" : "null"
-                      },
-                      {
-                        "type" : "string"
-                      }
-                    ]
-                  }
-                },
-                "required" : [
-                  "name",
-                  "vendor_name"
-                ],
-                "type" : "object"
-              },
-              "rack" : {
-                "additionalProperties" : false,
-                "properties" : {
-                  "name" : {
-                    "type" : "string"
-                  },
-                  "rack_unit_start" : {
-                    "$ref" : "common.json#/definitions/positive_integer"
-                  }
-                },
-                "required" : [
-                  "name",
-                  "rack_unit_start"
-                ],
-                "type" : "object"
-              }
-            },
-            "required" : [
-              "datacenter",
-              "rack"
-            ],
-            "type" : "object"
+            "$ref" : "/definitions/DeviceLocation"
           },
           "phase" : {
             "$ref" : "common.json#/definitions/device_phase"

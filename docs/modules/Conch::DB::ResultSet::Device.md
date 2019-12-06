@@ -73,7 +73,7 @@ Modifies the resultset to add the `sku` column.
 ## location\_data
 
 Returns a resultset that provides location data ([response.json#/definitions/DeviceLocation](../json-schema/response.json#/definitions/DeviceLocation)),
-optionally returned in a subhash using the provided key name.
+optionally returned under a hash using the provided key name.
 
 # LICENSING
 

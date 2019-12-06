@@ -1088,18 +1088,15 @@ subtest 'Device PXE' => sub {
     $t_ro->get_ok('/device/PXE_TEST/pxe')
         ->status_is(200)
         ->json_schema_is('DevicePXE')
-        ->json_is({
+        ->json_cmp_deeply({
             id => $device_pxe->id,
             phase => 'integration',
             location => {
-                datacenter => {
-                    name => $datacenter->region,
-                    vendor_name => $datacenter->vendor_name,
-                },
-                rack => {
-                    name => $layout->rack->name,
-                    rack_unit_start => $layout->rack_unit_start,
-                },
+                az => 'room-0a',
+                datacenter_room => 'room 0a',
+                rack => 'ROOM:0.A:rack.0a',
+                rack_unit_start => 3,
+                target_hardware_product => superhashof({ alias => $layout->hardware_product->alias }),
             },
             ipmi => {
                 mac => '00:00:00:00:00:cc',

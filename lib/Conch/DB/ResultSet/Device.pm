@@ -214,7 +214,7 @@ sub with_sku ($self) {
 =head2 location_data
 
 Returns a resultset that provides location data (F<response.yaml#/definitions/DeviceLocation>),
-optionally returned in a subhash using the provided key name.
+optionally returned under a hash using the provided key name.
 
 =cut
 

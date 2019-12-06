@@ -509,38 +509,7 @@ definitions:
       location:
         oneOf:
           - type: 'null'
-          - type: object
-            additionalProperties: false
-            required:
-              - datacenter
-              - rack
-            properties:
-              datacenter:
-                type: object
-                additionalProperties: false
-                required:
-                  - name
-                  - vendor_name
-                properties:
-                  name:
-                    description: datacenter.region
-                    type: string
-                  vendor_name:
-                    description: the vendor's name for the datacenter
-                    oneOf:
-                      - type: 'null'
-                      - type: string
-              rack:
-                type: object
-                additionalProperties: false
-                required:
-                  - name
-                  - rack_unit_start
-                properties:
-                  name:
-                    type: string
-                  rack_unit_start:
-                    $ref: common.yaml#/definitions/positive_integer
+          - $ref: /definitions/DeviceLocation
       ipmi:
         oneOf:
           - type: 'null'
@@ -622,38 +591,7 @@ definitions:
         phase:
           $ref: common.yaml#/definitions/device_phase
         location:
-          type: object
-          additionalProperties: false
-          required:
-            - datacenter
-            - rack
-          properties:
-            datacenter:
-              type: object
-              additionalProperties: false
-              required:
-                - name
-                - vendor_name
-              properties:
-                name:
-                  description: datacenter.region
-                  type: string
-                vendor_name:
-                  description: the vendor's name for the datacenter
-                  oneOf:
-                    - type: 'null'
-                    - type: string
-            rack:
-              type: object
-              additionalProperties: false
-              required:
-                - name
-                - rack_unit_start
-              properties:
-                name:
-                  type: string
-                rack_unit_start:
-                  $ref: common.yaml#/definitions/positive_integer
+          $ref: /definitions/DeviceLocation
         ipmi:
           oneOf:
             - type: 'null'
