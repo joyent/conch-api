@@ -27,27 +27,27 @@ This code is postgres-specific.
 Efficiently determines if a result exists, without needing to do a C<< ->count >>.
 Essentially does:
 
-    select exists (select 1 from ... rest of your query ...);
+    select * from ( select exists (select 1 from ... your query ... ) ) as _existence_subq;
 
 Returns a value that you can treat as a boolean.
 
 =cut
 
 sub exists ($self) {
-    my $inner = $self->search(undef, { select => [ \1 ] })->as_query;
+    my $inner_q = $self->_results_exist_as_query;
+    my (undef, $sth) = $self->result_source
+                        ->schema
+                        ->storage
+                        ->_select($inner_q, \'*', {}, {});
 
-    my $statement = 'select exists '.$inner->$*->[0];
-    my @binds = map +($_->[1]), $inner->$*->@[1 .. $inner->$*->$#*];
-
-    my ($exists) = $self->result_source->schema->storage->dbh_do(sub ($storage, $dbh) {
-        # cribbed from DBIx::Class::Storage::DBI::_format_for_trace
-        $storage->debugobj->query_start($statement, map +(defined($_) ? qq{'$_'} : 'NULL'), @binds)
-            if $storage->debug;
-
-        $dbh->selectrow_array($statement, undef, @binds);
-    });
-
+    my ($exists) = $sth->fetchrow_array;
     return $exists;
+}
+
+sub _results_exist_as_query ($self) {
+    my $inner_q = $self->search(undef, { select => [ \1 ] })->as_query;
+    $$inner_q->[0] = '( select exists '.$$inner_q->[0].' ) as _existence_subq';
+    $inner_q;
 }
 
 1;
