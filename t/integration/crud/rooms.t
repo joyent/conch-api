@@ -84,7 +84,7 @@ $t2->get_ok($_)
         '/room/'.$room->{alias}.'/rack/rack.0a';
 
 $t->app->db_racks->search({ id => $rack->{id} })->update({ build_id => $build->id });
-$rack->{build_id} = $build->id;
+$rack->@{qw(build_id build_name)} = map $build->$_, qw(id name);
 
 $t2->get_ok('/room')
     ->status_is(403);

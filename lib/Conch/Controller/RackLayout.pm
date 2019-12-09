@@ -96,7 +96,11 @@ Response uses the RackLayout json schema.
 =cut
 
 sub get ($c) {
-    $c->status(200, $c->stash('rack_layout_rs')->with_rack_unit_size->single);
+    my $rs = $c->stash('rack_layout_rs')
+        ->with_rack_unit_size
+        ->with_rack_name
+        ->with_sku;
+    $c->status(200, $rs->single);
 }
 
 =head2 get_all
@@ -110,7 +114,9 @@ Response uses the RackLayouts json schema.
 sub get_all ($c) {
     my @layouts = $c->db_rack_layouts
         ->with_rack_unit_size
-        ->order_by([ qw(rack_id rack_unit_start) ])
+        ->with_rack_name
+        ->with_sku
+        ->order_by([ qw(rack.name rack_unit_start) ])
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');

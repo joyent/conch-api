@@ -131,7 +131,13 @@ Response uses the Rack json schema.
 
 sub get ($c) {
     $c->res->headers->location('/rack/'.$c->stash('rack_id'));
-    $c->status(200, $c->stash('rack_rs')->single);
+    my $rs = $c->stash('rack_rs')
+        ->with_build_name
+        ->with_full_rack_name
+        ->with_datacenter_room_alias
+        ->with_rack_role_name;
+
+    $c->status(200, $rs->single);
 }
 
 =head2 get_layouts
@@ -145,7 +151,10 @@ Response uses the RackLayouts json schema.
 sub get_layouts ($c) {
     my @layouts = $c->stash('rack_rs')
         ->related_resultset('rack_layouts')
+        ->as_subselect_rs
         ->with_rack_unit_size
+        ->with_rack_name
+        ->with_sku
         ->order_by('rack_unit_start')
         ->all;
 
@@ -329,6 +338,7 @@ sub get_assignment ($c) {
                 device_id => 'device.id',
                 device_asset_tag => 'device.asset_tag',
                 hardware_product_name => 'hardware_product.name',
+                sku => 'hardware_product.sku',
                 rack_unit_size => 'hardware_product.rack_unit_size',
             },
         })

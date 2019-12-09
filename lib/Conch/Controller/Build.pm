@@ -688,7 +688,7 @@ sub get_devices ($c) {
 
     $rs = $params->{ids_only} ? $rs->get_column('id')
         : $params->{serials_only} ? $rs->get_column('serial_number')
-        : $rs->with_device_location->with_sku;
+        : $rs->with_device_location->with_sku->with_build_name;
 
     $c->status(200, [ $rs->all ]);
 }
@@ -879,7 +879,15 @@ Response uses the Racks json schema.
 =cut
 
 sub get_racks ($c) {
-    $c->status(200, [ $c->stash('build_rs')->related_resultset('racks')->order_by('racks.name')->all ]);
+    my $rs = $c->stash('build_rs')
+        ->related_resultset('racks')
+        ->add_columns({ build_name => 'build.name' })
+        ->with_full_rack_name
+        ->with_datacenter_room_alias
+        ->with_rack_role_name
+        ->order_by('racks.name');
+
+    $c->status(200, [ $rs->all ]);
 }
 
 =head2 add_rack

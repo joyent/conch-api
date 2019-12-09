@@ -711,11 +711,12 @@ $t->get_ok('/build/our second build/device')
         superhashof({
             serial_number => 'FOO',
             hardware_product_id => $hardware_product->id,
+            sku => $hardware_product->sku,
             health => 'unknown',
             asset_tag => undef,
             links => [],
-            build_id => $build2->{id},
-            rack_id => undef,
+            (map +('build_'.$_ => $build2->{$_}), qw(id name)),
+            (map +($_ => undef), qw(rack_id rack_name rack_unit_start)),
         }),
     ]);
 my $devices = $t->tx->res->json;
@@ -843,7 +844,7 @@ $t->get_ok('/build/our second build/device')
             $devices->[0]->%*,
             asset_tag => 'fooey',
             links => [ 'https://foo.bar.com' ],
-            build_id => $build2->{id},
+            (map +('build_'.$_ => $build2->{$_}), qw(id name)),
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         },
     ]);
@@ -898,8 +899,10 @@ $t->get_ok('/build/my first build/device')
     ->json_schema_is('Devices')
     ->json_cmp_deeply([ superhashof({
         (map +($_ => $device1->$_), qw(id serial_number)),
-        build_id => undef,  # in the build via the rack, not directly (FIXME)
+        (map +('build_'.$_ => undef), qw(id name)), # in the build via the rack, not directly (FIXME)
         rack_id => $rack1->id,
+        rack_name => $rack1->datacenter_room->vendor_name.':'.$rack1->name,
+        rack_unit_start => $device1->device_location->rack_unit_start,
     }) ]);
 
 
@@ -929,8 +932,10 @@ $t->get_ok('/build/our second build/device')
         # now device2 is in build2 via rack2
         superhashof({
             (map +($_ => $device2->$_), qw(id serial_number)),
-            build_id => undef,
+            (map +('build_'.$_ => undef), qw(id name)), # in the build via the rack, not directly (FIXME)
             rack_id => $rack2->id,
+            rack_name => $rack2->datacenter_room->vendor_name.':'.$rack2->name,
+            rack_unit_start => $device2->device_location->rack_unit_start,
         }),
     ]);
 
@@ -958,13 +963,15 @@ $t->get_ok('/build/my first build/device')
     ->json_cmp_deeply([
         superhashof({
             (map +($_ => $device1->$_), qw(id serial_number)),
-            build_id => undef,  # in the build via the rack, not directly (FIXME)
+            (map +('build_'.$_ => undef), qw(id name)), # in the build via the rack, not directly (FIXME)
             rack_id => $rack1->id,
+            rack_name => $rack1->datacenter_room->vendor_name.':'.$rack1->name,
+            rack_unit_start => $device1->device_location->rack_unit_start,
         }),
         superhashof({
             (map +($_ => $device2->$_), qw(id serial_number)),
-            build_id => $build->{id},
-            rack_id => undef,
+            (map +('build_'.$_ => $build->{$_}), qw(id name)),
+            (map +($_ => undef), qw(rack_id rack_name rack_unit_start)),
         }),
     ]);
 
@@ -1016,8 +1023,8 @@ $t->get_ok('/build/my first build/device')
         # device1 phase >= production, so its location is no longer canonical
         superhashof({
             (map +($_ => $device2->$_), qw(id serial_number)),
-            build_id => $build->{id},
-            rack_id => undef,
+            (map +('build_'.$_ => $build->{$_}), qw(id name)),
+            (map +($_ => undef), qw(rack_id rack_name rack_unit_start)),
         }),
     ]);
 
@@ -1026,14 +1033,13 @@ $t->get_ok('/build/my first build/device?phase_earlier_than=')
     ->json_schema_is('Devices')
     ->json_cmp_deeply([
         superhashof({
-            (map +($_ => $device1->$_), qw(id serial_number)),
-            build_id => undef,  # in the build via the rack, not directly (FIXME)
+            (map +('build_'.$_ => undef), qw(id name)), # in the build via the rack, not directly (FIXME)
             # rack_id omitted because phase=production
         }),
         superhashof({
             (map +($_ => $device2->$_), qw(id serial_number)),
-            build_id => $build->{id},
-            rack_id => undef,
+            (map +('build_'.$_ => $build->{$_}), qw(id name)),
+            (map +($_ => undef), qw(rack_id rack_name rack_unit_start)),
         }),
     ]);
 
@@ -1147,13 +1153,13 @@ $t->get_ok('/build/our second build/device')
         $new_device,
         superhashof({
             (map +($_ => $device1->$_), qw(id serial_number)),
-            build_id => $build2->{id},
+            (map +('build_'.$_ => $build2->{$_}), qw(id name)),
             # device.phase >= production, so its location is no longer canonical
         }),
         superhashof({
             (map +($_ => $device2->$_), qw(id serial_number)),
-            build_id => $build2->{id},
-            rack_id => undef,
+            (map +('build_'.$_ => $build2->{$_}), qw(id name)),
+            (map +($_ => undef), qw(rack_id rack_name rack_unit_start)),
         }),
     ]);
 

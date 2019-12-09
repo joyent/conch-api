@@ -129,6 +129,51 @@ sub user_has_role ($self, $user_id, $role) {
         ->exists;
 }
 
+=head2 with_build_name
+
+Modifies the resultset to add the C<build_name> column.
+
+=cut
+
+sub with_build_name ($self) {
+    $self->search(undef, { join => 'build' })
+        ->add_columns({ build_name => 'build.name' });
+}
+
+=head2 with_full_rack_name
+
+Modifies the resultset to add the C<full_rack_name> column.
+
+=cut
+
+sub with_full_rack_name ($self) {
+    my $me = $self->current_source_alias;
+    $self->search(undef, { join => 'datacenter_room' })
+        ->add_columns({ full_rack_name => \qq{datacenter_room.vendor_name || ':' || $me.name} });
+}
+
+=head2 with_datacenter_room_alias
+
+Modifies the resultset to add the C<datacenter_room_alias> column.
+
+=cut
+
+sub with_datacenter_room_alias ($self) {
+    $self->search(undef, { join => 'datacenter_room' })
+        ->add_columns({ datacenter_room_alias => 'datacenter_room.alias' });
+}
+
+=head2 with_rack_role_name
+
+Modifies the resultset to add the C<rack_role_name> column.
+
+=cut
+
+sub with_rack_role_name ($self) {
+    $self->search(undef, { join => 'rack_role' })
+        ->add_columns({ rack_role_name => 'rack_role.name' });
+}
+
 1;
 __END__
 

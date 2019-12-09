@@ -138,7 +138,7 @@ sub get ($c) {
     # TODO: this is really a weak etag. requires https://github.com/mojolicious/mojo/pull/1420
     return $c->status(304) if $c->is_fresh(etag => $etag);
 
-    my $device = $c->stash('device_rs')->with_sku->single;
+    my $device = $c->stash('device_rs')->with_sku->with_build_name->single;
     my $latest_report = $c->stash('device_rs')->latest_device_report->get_column('report')->single;
 
     my $detailed_device = +{
@@ -245,6 +245,7 @@ sub lookup_by_other_attribute ($c) {
     my @devices = $device_rs
         ->with_device_location
         ->with_sku
+        ->with_build_name
         ->order_by('device.created')
         ->all;
 

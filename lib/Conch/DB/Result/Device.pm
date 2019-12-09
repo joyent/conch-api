@@ -409,7 +409,9 @@ use experimental 'signatures';
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    $data->{sku} = $self->get_column('sku') if $self->has_column_loaded('sku');
+    foreach my $key (qw(build_name sku)) {
+        $data->{$key} = $self->get_column($key) if $self->has_column_loaded($key);
+    }
 
     # include location information, when available and still relevant
     # (see $device_rs->with_device_location)

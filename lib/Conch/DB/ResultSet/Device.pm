@@ -192,15 +192,16 @@ sub device_settings_as_hash {
 
 =head2 with_device_location
 
-Modifies the resultset to add columns C<rack_id>, C<rack_unit_start> and C<rack_name>.
+Modifies the resultset to add columns C<rack_id>, C<rack_name> (the full rack name including
+room data) and C<rack_unit_start>.
 
 =cut
 
 sub with_device_location ($self) {
-    $self->search(undef, { join => { device_location => 'rack' } })
+    $self->search(undef, { join => { device_location => { rack => 'datacenter_room' } } })
         ->add_columns({
             (map +($_ => 'device_location.'.$_), qw(rack_id rack_unit_start)),
-            rack_name => 'rack.name',
+            rack_name => \q{datacenter_room.vendor_name || ':' || rack.name},
         });
 }
 
@@ -213,6 +214,17 @@ Modifies the resultset to add the C<sku> column.
 sub with_sku ($self) {
     $self->search(undef, { join => 'hardware_product' })
         ->add_columns({ sku => 'hardware_product.sku' });
+}
+
+=head2 with_build_name
+
+Modifies the resultset to add the C<build_name> column.
+
+=cut
+
+sub with_build_name ($self) {
+    $self->search(undef, { join => 'build' })
+        ->add_columns({ build_name => 'build.name' });
 }
 
 =head2 location_data

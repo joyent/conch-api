@@ -101,6 +101,7 @@ sub get_relay_devices ($c) {
             { relay_id => $c->stash('relay_id') }, { join => 'device_relay_connections' })
         ->with_device_location
         ->with_sku
+        ->with_build_name
         ->order_by('device.created');
 
     my @devices = $devices_rs->all;

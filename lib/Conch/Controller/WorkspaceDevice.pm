@@ -56,7 +56,7 @@ sub list ($c) {
 
     $devices_rs = $params->{ids_only} ? $devices_rs->get_column('id')
         : $params->{serials_only} ? $devices_rs->get_column('serial_number')
-        : $devices_rs->with_device_location->with_sku;
+        : $devices_rs->with_device_location->with_sku->with_build_name;
 
     my @devices = $devices_rs->all;
 
