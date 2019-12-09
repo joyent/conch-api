@@ -73,7 +73,9 @@ Response uses the DatacenterRoomDetailed json schema.
 =cut
 
 sub get_one ($c) {
-    $c->status(200, $c->stash('datacenter_room_rs')->single);
+    my $room = $c->stash('datacenter_room_rs')->single;
+    $c->res->headers->location('/room/'.$room->id);
+    $c->status(200, $room);
 }
 
 =head2 create
@@ -194,6 +196,7 @@ sub find_rack ($c) {
     my $rack = $rack_rs->single;
     $c->log->debug('Found rack '.$rack->id);
 
+    $c->res->headers->location('/rack/'.$rack->id);
     $c->status(200, $rack);
 }
 

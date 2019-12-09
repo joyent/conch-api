@@ -31,6 +31,7 @@ $t->get_ok('/rack')
 
 $t->get_ok($_)
     ->status_is(200)
+    ->location_is('/rack/'.$rack->id)
     ->json_schema_is('Rack')
     ->json_cmp_deeply(superhashof({
         id => $rack->id,
@@ -129,6 +130,7 @@ my $new_rack = $t->tx->res->json;
 
 $t->get_ok($_)
     ->status_is(200)
+    ->location_is('/rack/'.$new_rack->{id})
     ->json_schema_is('Rack')
     ->json_is($new_rack)
     foreach
@@ -203,6 +205,7 @@ $t->get_ok($t->tx->res->headers->location)
 
 $t->get_ok("/rack/$new_rack->{id}/assignment")
     ->status_is(200)
+    ->location_is('/rack/'.$new_rack->{id}.'/assignment')
     ->json_schema_is('RackAssignments')
     ->json_is([]);
 
@@ -240,6 +243,7 @@ my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
 
 $t->get_ok('/rack/'.$rack->id.'/assignment')
     ->status_is(200)
+    ->location_is('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
     ->json_is([
         {
@@ -300,6 +304,7 @@ $assignments->[1]->@{qw(device_id device_asset_tag)} = ($bar->id,'hello');
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
+    ->location_is('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
     ->json_is($assignments);
 
@@ -323,6 +328,7 @@ subtest 'rack phases' => sub {
 
     $t->get_ok('/rack/'.$rack->id)
         ->status_is(200)
+        ->location_is('/rack/'.$rack->id)
         ->json_schema_is('Rack')
         ->json_is('/phase', 'production');
 
@@ -428,6 +434,7 @@ $t->app->schema->txn_do(sub {
 
 $t->get_ok('/rack/'.$rack->id.'/assignment')
     ->status_is(200)
+    ->location_is('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
     ->json_is($assignments);
 
@@ -455,6 +462,7 @@ $assignments->@[0,1] = (
 
 $t->get_ok('/rack/'.$rack->id.'/assignment')
     ->status_is(200)
+    ->location_is('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
     ->json_is($assignments);
 
@@ -531,6 +539,7 @@ $assignments->[0]->@{qw(device_id device_asset_tag)} = ();
 
 $t->get_ok('/rack/'.$rack->id.'/assignment')
     ->status_is(200)
+    ->location_is('/rack/'.$rack->id.'/assignment')
     ->json_schema_is('RackAssignments')
     ->json_is($assignments);
 

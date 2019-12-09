@@ -30,6 +30,7 @@ my $datacenter = $t->load_fixture('datacenter_0');
 
 $t->get_ok($_)
     ->status_is(200)
+    ->location_is('/room/'.$room->{id})
     ->json_schema_is('DatacenterRoomDetailed')
     ->json_is($room)
     foreach
@@ -49,6 +50,7 @@ $t->get_ok('/room/'.$room->{alias}.'/racks')
 
 $t->get_ok($_)
     ->status_is(200)
+    ->location_is('/rack/'.$rack->{id})
     ->json_schema_is('Rack')
     ->json_is($rack)
     foreach
@@ -85,6 +87,7 @@ $t2->get_ok('/room')
 
 $t2->get_ok($_)
     ->status_is(200)
+    ->location_is('/room/'.$room->{id})
     ->json_schema_is('DatacenterRoomDetailed')
     ->json_is($room)
     foreach
@@ -101,6 +104,7 @@ $t2->get_ok($_)
 
 $t2->get_ok($_)
     ->status_is(200)
+    ->location_is('/rack/'.$rack->{id})
     ->json_schema_is('Rack')
     ->json_is($rack)
     foreach
@@ -109,16 +113,17 @@ $t2->get_ok($_)
         '/room/'.$room->{alias}.'/rack/'.$rack->{id},
         '/room/'.$room->{alias}.'/rack/rack.0a';
 
-$t->app->db_racks->create({
+my $rack2_id = $t->app->db_racks->create({
     datacenter_room_id => $room->{id},
     name => 'rack2',
     rack_role_id => $rack->{rack_role_id},
-});
+})->id;
 
 $t->get_ok('/room/'.$room->{id}.'/rack/rack2')
     ->status_is(200)
+    ->location_is('/rack/'.$rack2_id)
     ->json_schema_is('Rack')
-    ->json_cmp_deeply(superhashof({ name => 'rack2' }));
+    ->json_cmp_deeply(superhashof({ id => $rack2_id, name => 'rack2' }));
 my $rack2 = $t->tx->res->json;
 
 $t->get_ok('/room/'.$room->{id}.'/racks')

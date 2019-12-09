@@ -91,6 +91,7 @@ Response uses the Rack json schema.
 =cut
 
 sub get ($c) {
+    $c->res->headers->location('/rack/'.$c->stash('rack_id'));
     $c->status(200, $c->stash('rack_rs')->single);
 }
 
@@ -125,6 +126,7 @@ sub get_layouts ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');
+    $c->res->headers->location('/rack/'.$c->stash('rack_id').'/layouts');
     $c->status(200, \@layouts);
 }
 
@@ -308,6 +310,7 @@ sub get_assignment ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@assignments).' device-rack assignments');
+    $c->res->headers->location('/rack/'.$c->stash('rack_id').'/assignment');
     $c->status(200, \@assignments);
 }
 

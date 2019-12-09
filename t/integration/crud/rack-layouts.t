@@ -61,6 +61,7 @@ $t->post_ok('/layout', json => { wat => 'wat' })
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         map +{
@@ -165,6 +166,7 @@ $t->post_ok('/layout', json => {
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts');
 
 # at the moment, we have these assigned slots:
@@ -175,6 +177,7 @@ $t->get_ok("/rack/$rack_id/layouts")
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         map +{
@@ -235,6 +238,7 @@ $t->get_ok($t->tx->res->headers->location)
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
@@ -265,6 +269,7 @@ $t->post_ok('/layout', json => {
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
@@ -291,6 +296,7 @@ undef $layout_19_22;
 
 $t->get_ok("/rack/$rack_id/layouts")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
@@ -363,6 +369,7 @@ $t->post_ok('/rack/'.$rack_id.'/layouts',
 
 $t->get_ok('/rack/'.$rack_id.'/layouts')
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
@@ -389,6 +396,7 @@ $t->post_ok('/rack/'.$rack_id.'/layouts',
 
 $t->get_ok('/rack/'.$rack_id.'/layouts')
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_unit_start => 3, hardware_product_id => $hw_product_compute->id }),
@@ -408,6 +416,7 @@ $t->post_ok('/rack/'.$rack_id.'/layouts', json => [])
 
 $t->get_ok('/rack/'.$rack_id.'/layouts')
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layouts')
     ->json_schema_is('RackLayouts')
     ->json_is([]);
 
