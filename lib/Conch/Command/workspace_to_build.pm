@@ -66,9 +66,11 @@ sub run ($self, @opts) {
         }],
     });
 
+    my $workspace_rs = $self->app->db_workspaces;
+
     foreach my $workspace_name (@workspace_names) {
         $self->app->schema->txn_do(sub {
-            my $workspace = $self->app->db_workspaces->find({ name => $workspace_name });
+            my $workspace = $workspace_rs->find({ name => $workspace_name });
             die 'cannot find workspace '.$workspace_name if not $workspace;
 
             my $build = $self->app->db_builds->find({ name => $workspace_name });
@@ -94,14 +96,27 @@ sub run ($self, @opts) {
                     ->hri
                     ->get_column('created');
 
+                # some of these may be collapsed into organization_build_role entries
+                # later on, but for now, just copy all user_workspace_role -> user_build_role
+                my @user_roles = $self->app->db_workspaces
+                    ->and_workspaces_above($workspace->id)
+                    ->search_related('user_workspace_roles', { user_id => { '!=' => $admin_id } })
+                    ->columns([ 'user_id', { role => { max => 'role' } } ])
+                    ->group_by(['user_id'])
+                    ->hri
+                    ->all;
+
                 $build = $self->app->db_builds->create({
                     name => $workspace_name,
                     description => $workspace->description,
                     started => minstr($device_created_rs->single, $rack_created_rs->single),
-                    user_build_roles => [{
-                        user_id => $admin_id,
-                        role => 'admin',
-                    }],
+                    user_build_roles => [
+                        {
+                            user_id => $admin_id,
+                            role => 'admin',
+                        },
+                        @user_roles,
+                    ],
                     organization_build_roles => [{
                         organization_id => $company_org->id,
                         role => 'ro',
