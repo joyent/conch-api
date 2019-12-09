@@ -204,11 +204,6 @@ deactivated
 *+build_id
 role {label: "ro, rw, admin"}
 
-[organization_workspace_role] {bgcolor: "#d0e0d0"}
-*+organization_id
-*+workspace_id
-role {label: "ro, rw, admin"}
-
 [rack] {bgcolor: "#fcecec"}
 *id
 +datacenter_room_id
@@ -373,8 +368,6 @@ hardware_product *--1 validation_plan
 hardware_product *--1 hardware_vendor
 organization_build_role *--1 build
 organization_build_role *--1 organization
-organization_workspace_role *--1 organization
-organization_workspace_role *--1 workspace
 rack *--? build
 rack *--1 datacenter_room
 rack_layout *--1 hardware_product

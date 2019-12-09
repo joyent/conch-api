@@ -371,11 +371,6 @@ sub TO_JSON ($self) {
                 $cached_uors->@*)
         );
 
-        # we assume we prefetched our user(s) with:
-        # { user_organization_roles => { organization => { organization_workspace_roles => 'workspace' } } }
-        my @cached_owrs = map
-            $_->organization->related_resultset('organization_workspace_roles')->get_cache->@*,
-            $cached_uors->@*;
 
         my %seen_workspaces;
         $data->{workspaces} = [
@@ -387,18 +382,6 @@ sub TO_JSON ($self) {
                     role => $_->role,
                 }
             } $cached_uwrs->@*),
-
-            # direct owr+workspace entries
-            (map +(
-                $seen_workspaces{$_->id}++ ? () : do {
-                    my $workspace = $_->workspace;
-                    +{
-                        $workspace->TO_JSON->%*,
-                        role => $_->role,
-                        role_via_organization_id => $_->organization_id,
-                    }
-                }
-            ), @cached_owrs),
 
             # all the workspaces the user can reach indirectly
             (map +(
@@ -412,23 +395,6 @@ sub TO_JSON ($self) {
                 ), $self->result_source->schema->resultset('workspace')
                     ->workspaces_beneath($_->workspace_id)
             ), $cached_uwrs->@*),
-
-            # all the workspaces the user's organization(s) can reach indirectly
-            (map {
-                my $owr = $_;
-                map +(
-                    # $_ is a workspace where the organization inherits a role
-                    $seen_workspaces{$_->id}++ ? () : do {
-                        # instruct the workspace serializer to fill in the role fields
-                        $self->is_admin ? $_->role('admin') : $_->organization_id_for_role($owr->organization_id);
-                        +{
-                            $_->TO_JSON->%*,
-                            role_via_organization_id => $owr->organization_id,
-                        }
-                    }
-                ), $self->result_source->schema->resultset('workspace')
-                    ->workspaces_beneath($_->workspace_id)
-            } @cached_owrs),
         ];
     }
 

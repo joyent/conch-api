@@ -468,19 +468,6 @@ CREATE TABLE public.organization_build_role (
 ALTER TABLE public.organization_build_role OWNER TO conch;
 
 --
--- Name: organization_workspace_role; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.organization_workspace_role (
-    organization_id uuid NOT NULL,
-    workspace_id uuid NOT NULL,
-    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
-);
-
-
-ALTER TABLE public.organization_workspace_role OWNER TO conch;
-
---
 -- Name: rack; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -955,14 +942,6 @@ ALTER TABLE ONLY public.organization
 
 
 --
--- Name: organization_workspace_role organization_workspace_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.organization_workspace_role
-    ADD CONSTRAINT organization_workspace_role_pkey PRIMARY KEY (organization_id, workspace_id);
-
-
---
 -- Name: rack rack_datacenter_room_id_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1328,13 +1307,6 @@ CREATE INDEX organization_build_role_build_id_idx ON public.organization_build_r
 --
 
 CREATE UNIQUE INDEX organization_name_key ON public.organization USING btree (name) WHERE (deactivated IS NULL);
-
-
---
--- Name: organization_workspace_role_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX organization_workspace_role_workspace_id_idx ON public.organization_workspace_role USING btree (workspace_id);
 
 
 --
@@ -1705,22 +1677,6 @@ ALTER TABLE ONLY public.organization_build_role
 
 
 --
--- Name: organization_workspace_role organization_workspace_role_organization_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.organization_workspace_role
-    ADD CONSTRAINT organization_workspace_role_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
-
-
---
--- Name: organization_workspace_role organization_workspace_role_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.organization_workspace_role
-    ADD CONSTRAINT organization_workspace_role_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
-
-
---
 -- Name: rack rack_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -2054,13 +2010,6 @@ GRANT SELECT ON TABLE public.organization TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.organization_build_role TO conch_read_only;
-
-
---
--- Name: TABLE organization_workspace_role; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.organization_workspace_role TO conch_read_only;
 
 
 --

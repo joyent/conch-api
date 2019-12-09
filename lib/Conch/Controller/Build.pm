@@ -459,7 +459,6 @@ to all organization members and all build admins.
 
 sub add_organization ($c) {
     # Note: this method is very similar to Conch::Controller::WorkspaceUser::add_user
-    # and Conch::Controller::WorkspaceOrganization::add_workspace_organization
 
     my $params = $c->validate_query_params('NotifyUsers');
     return if not $params;

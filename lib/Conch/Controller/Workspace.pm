@@ -87,15 +87,7 @@ sub list ($c) {
         ->related_resultset('user_workspace_roles')
         ->related_resultset('workspace');
 
-    my $organization_workspaces_rs = $c->stash('user')
-        ->related_resultset('user_organization_roles')
-        ->related_resultset('organization')
-        ->related_resultset('organization_workspace_roles')
-        ->related_resultset('workspace');
-
-    my $direct_workspace_ids_rs = $user_workspaces_rs->union_all($organization_workspaces_rs)
-        ->distinct
-        ->get_column('id');
+    my $direct_workspace_ids_rs = $user_workspaces_rs->get_column('id');
 
     my @data = $c->db_workspaces
         ->and_workspaces_beneath($direct_workspace_ids_rs)

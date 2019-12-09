@@ -59,12 +59,6 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationBuildRole)
 
-## organization\_workspace\_roles
-
-Type: has\_many
-
-Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationWorkspaceRole)
-
 ## user\_organization\_roles
 
 Type: has\_many
@@ -83,17 +77,11 @@ Type: many\_to\_many
 
 Composing rels: ["user\_organization\_roles"](#user_organization_roles) -> user\_account
 
-## workspaces
-
-Type: many\_to\_many
-
-Composing rels: ["organization\_workspace\_roles"](#organization_workspace_roles) -> workspace
-
 # METHODS
 
 ## TO\_JSON
 
-Include information about the organization's admins, workspaces and builds, if available.
+Include information about the organization's admins and builds, if available.
 
 # LICENSING
 

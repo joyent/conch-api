@@ -1118,22 +1118,6 @@
       },
       "type" : "object"
     },
-    "WorkspaceAddOrganization" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "organization_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "role" : {
-          "$ref" : "common.json#/definitions/role"
-        }
-      },
-      "required" : [
-        "organization_id",
-        "role"
-      ],
-      "type" : "object"
-    },
     "WorkspaceAddRack" : {
       "additionalProperties" : false,
       "properties" : {

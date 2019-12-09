@@ -1,7 +1,0 @@
-Hello,
-
-Your "<%= $organization %>" organization has been added to the
-"<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>) with the "<%= $role %>" role.
-
-Thank you,
-Joyent Build Ops Team

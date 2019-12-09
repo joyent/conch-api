@@ -1,8 +1,0 @@
-Hello,
-
-<%= $user->name %> (<%= $user->email %>) modified the "<%= $organization %>" organization's
-access to the "<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>) to the "<%= $role %>" role.
-
-Thank you,
-Joyent Build Ops Team
-

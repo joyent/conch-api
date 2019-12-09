@@ -106,7 +106,6 @@ sub user_has_role ($self, $user_id, $role) {
 
     # this checks:
     # device -> rack -> workspace -> user_workspace_role -> user
-    # device -> rack -> workspace -> organization_workspace_role -> organization -> user
     # device -> rack -> build -> user_build_role -> user
     # device -> rack -> build -> organization_build_role -> organization -> user
     $self

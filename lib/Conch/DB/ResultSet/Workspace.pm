@@ -166,9 +166,8 @@ sub add_role_column ($self, $role) {
 =head2 with_role_via_data_for_user
 
 Query for workspace(s) with an extra field attached to the query which will signal the
-workspace serializer to include the "role", "role_via_workspace_id" and
-"role_via_organization_id" columns, containing information about the effective role the user
-has for the workspace.
+workspace serializer to include the "role" and "role_via_workspace_id" columns, containing
+information about the effective role the user has for the workspace.
 
 Only one user_id can be calculated at a time. If you need to generate workspace-and-role data
 for multiple users at once, you can manually do:
@@ -189,9 +188,9 @@ sub with_role_via_data_for_user ($self, $user_id) {
 
 =head2 role_via_for_user
 
-For a given workspace_id and user_id, find the user_workspace_role or
-organization_workspace_role row that is responsible for providing the user access to the
-workspace (the row with the greatest role that is attached to an ancestor workspace).
+For a given workspace_id and user_id, find the user_workspace_role row that is responsible for
+providing the user access to the workspace (the row with the greatest role that is attached to
+an ancestor workspace).
 
 How the role is calculated:
 
@@ -200,11 +199,7 @@ How the role is calculated:
 =item * The role on the user_organization_role role is B<not> used.
 
 =item * The number of workspaces between C<$workspace_id> and the workspace attached to the
-user_workspace_role or organization_workspace_role row is B<not> used.
-
-=item * When both a user_workspace_role and organization_workspace_role row are found with the same
-role, the record directly associated with the workspace (if there is one) is preferred;
-otherwise, the user_workspace_role row is preferred.
+user_workspace_role row is B<not> used.
 
 =back
 
@@ -221,47 +216,7 @@ sub role_via_for_user ($self, $workspace_id, $user_id) {
         ->rows(1)
         ->single;
 
-    return $uwr if $uwr and $uwr->workspace_id eq $workspace_id and $uwr->role eq 'admin';
-
-    # there could be more than one organization that grants the user this role, but it
-    # shouldn't matter which one we single out in the result.
-    my $owr = $self->and_workspaces_above($workspace_id)
-        ->search_related('organization_workspace_roles',
-            { user_id => $user_id }, { join => { organization => 'user_organization_roles' } })
-        ->order_by({ -desc => 'organization_workspace_roles.role' })
-        ->rows(1)
-        ->single;
-
-    my (undef, $role_via) = sort {
-        (!defined $a ? -1 : !defined $b ? 1 : 0)
-     || $a->role_cmp($b->role)
-     || ($a->workspace_id eq $workspace_id ? 1 : 0)
-     || ($b->workspace_id eq $workspace_id ? -1 : 0)
-     || 1   # give up; go with $a ($uwr)
-    } ($uwr, $owr);
-
-    return $role_via;
-}
-
-=head2 role_via_for_organization
-
-For a given workspace_id and organization_id, find the organization_workspace_role row that is
-responsible for providing the organization access to the workspace (the
-organization_workspace_role with the greatest role that is attached to an ancestor
-workspace).
-
-=cut
-
-sub role_via_for_organization ($self, $workspace_id, $organization_id) {
-    Carp::croak('resultset should not have conditions') if $self->{cond};
-
-    # because we check for duplicate role entries when creating organization_workspace_role rows,
-    # we "should" only have *one* row with the greatest role in the entire hierarchy...
-    $self->and_workspaces_above($workspace_id)
-        ->search_related('organization_workspace_roles', { organization_id => $organization_id })
-        ->order_by({ -desc => 'role' })
-        ->rows(1)
-        ->single;
+    return $uwr;
 }
 
 =head2 admins
@@ -272,16 +227,8 @@ system admin users in the result.
 =cut
 
 sub admins ($self, $include_sysadmins = undef) {
-    my $direct_users_rs = $self->search_related('user_workspace_roles', { role => 'admin' })
+    my $rs = $self->search_related('user_workspace_roles', { role => 'admin' })
         ->related_resultset('user_account');
-
-    my $organization_users_rs = $self->search_related('organization_workspace_roles',
-            { 'organization_workspace_roles.role' => 'admin' })
-        ->related_resultset('organization')
-        ->related_resultset('user_organization_roles')
-        ->related_resultset('user_account');
-
-    my $rs = $direct_users_rs->union_all($organization_users_rs);
 
     $rs = $rs->union_all($self->result_source->schema->resultset('user_account')->search_rs({ is_admin => 1 }))
         if $include_sysadmins;
@@ -314,14 +261,7 @@ sub with_user_role ($self, $user_id, $role) {
         { join => 'user_workspace_roles' },
     );
 
-    my $via_org_rs = $self->search(
-        {
-            $role ne 'ro' ? ('organization_workspace_roles.role' => { '>=' => \[ '?::role_enum', $role ] }) : (),
-            'user_organization_roles.user_id' => $user_id,
-        },
-        { join => { organization_workspace_roles => { organization => 'user_organization_roles' } } } );
-
-    return $via_user_rs->union_all($via_org_rs)->distinct;
+    return $via_user_rs;
 }
 
 =head2 user_has_role
@@ -329,9 +269,6 @@ sub with_user_role ($self, $user_id, $role) {
 Checks that the provided user_id has (at least) the specified role in at least one workspace in
 the resultset. (Does not search recursively; add C<< ->and_workspaces_above($workspace_id) >>
 to your resultset first, if this is what you want.)
-
-Both direct C<user_workspace_role> entries and joined
-C<user_organization_role> -> C<organization_workspace_role> entries are checked.
 
 Returns a boolean.
 
@@ -347,13 +284,7 @@ sub user_has_role ($self, $user_id, $role) {
         ->with_role($role)
         ->related_resultset('user_account');
 
-    my $via_org_rs = $self->related_resultset('organization_workspace_roles')
-        ->with_role($role)
-        ->related_resultset('organization')
-        ->search_related('user_organization_roles', { user_id => $user_id })
-        ->related_resultset('user_account');
-
-    return $via_user_rs->union_all($via_org_rs)->exists;
+    return $via_user_rs->exists;
 }
 
 =head2 _workspaces_subquery

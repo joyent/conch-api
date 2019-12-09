@@ -342,7 +342,6 @@ sub get ($c) {
         ->prefetch({
                 user_workspace_roles => 'workspace',
                 user_organization_roles => { organization => {
-                        organization_workspace_roles => 'workspace',
                         organization_build_roles => 'build',
                     } },
                 user_build_roles => 'build',
@@ -441,7 +440,6 @@ sub list ($c) {
         ->prefetch({
                 user_workspace_roles => 'workspace',
                 user_organization_roles => { organization => {
-                        organization_workspace_roles => 'workspace',
                         organization_build_roles => 'build',
                     } },
                 user_build_roles => 'build',

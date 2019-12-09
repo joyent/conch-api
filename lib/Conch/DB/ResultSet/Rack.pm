@@ -96,21 +96,13 @@ sub user_has_role ($self, $user_id, $role) {
     # since every workspace_rack entry has an equivalent entry in the parent workspace, we do
     # not need to search the workspace heirarchy here, but simply look for a role entry for any
     # workspace the rack is associated with.
-    my $ws_rs = $self
-        ->related_resultset('workspace_racks')
-        ->related_resultset('workspace');
 
     # this is Conch::DB::ResultSet::Workspace::user_has_role, unrolled
-    my $ws_via_user_rs = $ws_rs
+    my $ws_via_user_rs = $self
+        ->related_resultset('workspace_racks')
+        ->related_resultset('workspace')
         ->search_related('user_workspace_roles', { user_id => $user_id })
         ->with_role($role)
-        ->related_resultset('user_account');
-
-    my $ws_via_org_rs = $ws_rs
-        ->related_resultset('organization_workspace_roles')
-        ->with_role($role)
-        ->related_resultset('organization')
-        ->search_related('user_organization_roles', { user_id => $user_id })
         ->related_resultset('user_account');
 
     my $build_rs = $self->related_resultset('build');
@@ -129,7 +121,6 @@ sub user_has_role ($self, $user_id, $role) {
         ->related_resultset('user_account');
 
     return $ws_via_user_rs
-        ->union_all($ws_via_org_rs)
         ->union_all($build_via_user_rs)
         ->union_all($build_via_org_rs)
         ->exists;

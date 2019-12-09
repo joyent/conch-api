@@ -111,21 +111,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 organization_workspace_roles
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::OrganizationWorkspaceRole>
-
-=cut
-
-__PACKAGE__->has_many(
-  "organization_workspace_roles",
-  "Conch::DB::Result::OrganizationWorkspaceRole",
-  { "foreign.organization_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 user_organization_roles
 
 Type: has_many
@@ -161,19 +146,9 @@ Composing rels: L</user_organization_roles> -> user_account
 
 __PACKAGE__->many_to_many("user_accounts", "user_organization_roles", "user_account");
 
-=head2 workspaces
-
-Type: many_to_many
-
-Composing rels: L</organization_workspace_roles> -> workspace
-
-=cut
-
-__PACKAGE__->many_to_many("workspaces", "organization_workspace_roles", "workspace");
-
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dyt9DMzLJ4omZdla+GBHiQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:25Kvlbfpw7/C1PDx/1tyRQ
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
@@ -185,7 +160,7 @@ use experimental 'signatures';
 
 =head2 TO_JSON
 
-Include information about the organization's admins, workspaces and builds, if available.
+Include information about the organization's admins and builds, if available.
 
 =cut
 
@@ -201,34 +176,6 @@ sub TO_JSON ($self) {
             };
         }
         $self->related_resultset('user_organization_roles')->get_cache->@*
-    ];
-
-    # add workspace data (very similar to Conch::DB::Result::UserAccount::TO_JSON)
-    my $cached_owrs = $self->related_resultset('organization_workspace_roles')->get_cache;
-    my %seen_workspaces;
-    $data->{workspaces} = [
-        # we process the direct owr+workspace entries first so we do not produce redundant rows
-        (map {
-            my $workspace = $_->workspace;
-            ++$seen_workspaces{$workspace->id};
-            +{
-                $workspace->TO_JSON->%*,
-                role => $_->role,
-            },
-        } $cached_owrs->@*),
-
-        (map +(
-            map +(
-                # $_ is a workspace where the organization inherits a role
-                $seen_workspaces{$_->id} ? () : do {
-                    ++$seen_workspaces{$_->id};
-                    # instruct the workspace serializer to fill in the role fields
-                    $_->organization_id_for_role($self->id);
-                    $_->TO_JSON
-                }
-            ), $self->result_source->schema->resultset('workspace')
-                ->workspaces_beneath($_->workspace_id)
-        ), $cached_owrs->@*),
     ];
 
     my $cached_obrs = $self->related_resultset('organization_build_roles')->get_cache;

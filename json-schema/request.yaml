@@ -592,17 +592,6 @@ definitions:
         $ref: common.yaml#/definitions/email_address
       role:
         $ref: common.yaml#/definitions/role
-  WorkspaceAddOrganization:
-    type: object
-    additionalProperties: false
-    required:
-      - organization_id
-      - role
-    properties:
-      organization_id:
-        $ref: common.yaml#/definitions/uuid
-      role:
-        $ref: common.yaml#/definitions/role
   BuildCreate:
     type: object
     additionalProperties: false

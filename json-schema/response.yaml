@@ -1170,8 +1170,6 @@ definitions:
         $ref: common.yaml#/definitions/role
       role_via_workspace_id:
         $ref: common.yaml#/definitions/uuid
-      role_via_organization_id:
-        $ref: common.yaml#/definitions/uuid
   WorkspacesAndRoles:
     type: array
     uniqueItems: true
@@ -1198,8 +1196,6 @@ definitions:
         role:
           $ref: common.yaml#/definitions/role
         role_via_workspace_id:
-          $ref: common.yaml#/definitions/uuid
-        role_via_organization_id:
           $ref: common.yaml#/definitions/uuid
   Datacenters:
     type: array
@@ -1806,7 +1802,6 @@ definitions:
       - description
       - created
       - users
-      - workspaces
       - builds
     properties:
       id:
@@ -1841,8 +1836,6 @@ definitions:
               $ref: common.yaml#/definitions/email_address
             role:
               $ref: common.yaml#/definitions/role
-      workspaces:
-        $ref: /definitions/WorkspacesAndRoles
       builds:
         type: array
         uniqueItems: true
@@ -1870,37 +1863,6 @@ definitions:
     uniqueItems: true
     items:
       $ref: /definitions/Organization
-  WorkspaceOrganizations:
-    type: array
-    uniqueItems: true
-    items:
-      type: object
-      additionalProperties: false
-      required:
-        - id
-        - name
-        - description
-        - role
-        - admins
-      properties:
-        id:
-          $ref: common.yaml#/definitions/uuid
-        name:
-          type: string
-        description:
-          oneOf:
-            - type: 'null'
-            - type: string
-        role:
-          $ref: common.yaml#/definitions/role
-        role_via_workspace_id:
-          $ref: common.yaml#/definitions/uuid
-        admins:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          items:
-            $ref: /definitions/UserTerse
   Build:
     type: object
     additionalProperties: false

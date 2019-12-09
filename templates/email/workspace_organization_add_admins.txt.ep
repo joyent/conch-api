@@ -1,8 +1,0 @@
-Hello,
-
-<%= $user->name %> (<%= $user->email %>) added the "<%= $organization %>" organization to the
-"<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>) with the "<%= $role %>" role.
-
-Thank you,
-Joyent Build Ops Team
-

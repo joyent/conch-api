@@ -1836,9 +1836,6 @@
           "minItems" : 1,
           "type" : "array",
           "uniqueItems" : true
-        },
-        "workspaces" : {
-          "$ref" : "/definitions/WorkspacesAndRoles"
         }
       },
       "required" : [
@@ -1847,7 +1844,6 @@
         "description",
         "created",
         "users",
-        "workspaces",
         "builds"
       ],
       "type" : "object"
@@ -2861,9 +2857,6 @@
         "role" : {
           "$ref" : "common.json#/definitions/role"
         },
-        "role_via_organization_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
         "role_via_workspace_id" : {
           "$ref" : "common.json#/definitions/uuid"
         }
@@ -2969,53 +2962,6 @@
             "location"
           ]
         },
-        "type" : "object"
-      },
-      "type" : "array",
-      "uniqueItems" : true
-    },
-    "WorkspaceOrganizations" : {
-      "items" : {
-        "additionalProperties" : false,
-        "properties" : {
-          "admins" : {
-            "items" : {
-              "$ref" : "/definitions/UserTerse"
-            },
-            "minItems" : 1,
-            "type" : "array",
-            "uniqueItems" : true
-          },
-          "description" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "type" : "string"
-              }
-            ]
-          },
-          "id" : {
-            "$ref" : "common.json#/definitions/uuid"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "role" : {
-            "$ref" : "common.json#/definitions/role"
-          },
-          "role_via_workspace_id" : {
-            "$ref" : "common.json#/definitions/uuid"
-          }
-        },
-        "required" : [
-          "id",
-          "name",
-          "description",
-          "role",
-          "admins"
-        ],
         "type" : "object"
       },
       "type" : "array",
@@ -3209,9 +3155,6 @@
           },
           "role" : {
             "$ref" : "common.json#/definitions/role"
-          },
-          "role_via_organization_id" : {
-            "$ref" : "common.json#/definitions/uuid"
           },
           "role_via_workspace_id" : {
             "$ref" : "common.json#/definitions/uuid"

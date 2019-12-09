@@ -11,8 +11,6 @@ subtest 'user-role access' => sub {
 
     my $null_user = $t->generate_fixtures('user_account', { name => 'user with no access' });
     my $ws_user = $t->generate_fixtures('user_account', { name => 'user with direct workspace access' });
-    my $org_user = $t->generate_fixtures('user_account', { name => 'user with access via organization' });
-    my $both_user = $t->generate_fixtures('user_account', { name => 'user with access both ways' });
 
     my $org = $t->generate_fixtures('organization');
     my $global_ws = $t->load_fixture('global_workspace');
@@ -20,12 +18,6 @@ subtest 'user-role access' => sub {
 
     $ws_user->create_related('user_workspace_roles', { workspace_id => $global_ws->id, role => 'ro' });
     $ws_user->create_related('user_workspace_roles', { workspace_id => $child1_ws->id, role => 'rw' });
-    $org_user->create_related('user_organization_roles', { organization_id => $org->id, role => 'admin' });
-    $org->create_related('organization_workspace_roles', { workspace_id => $global_ws->id, role => 'rw' });
-    $org->create_related('organization_workspace_roles', { workspace_id => $child1_ws->id, role => 'admin' });
-
-    $both_user->create_related('user_workspace_roles', { workspace_id => $global_ws->id, role => 'ro' });
-    $both_user->create_related('user_organization_roles', { organization_id => $org->id, role => 'admin' });
 
     my @racks = map { first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack') } 0..1;
     $racks[1]->create_related('workspace_racks', { workspace_id => $child1_ws->id });
@@ -44,39 +36,23 @@ subtest 'user-role access' => sub {
     my @tests = (
         [ 'GLOBAL', $null_user, 'none',  1 ],
         [ 'GLOBAL', $ws_user,   'none',  1 ],
-        [ 'GLOBAL', $org_user,  'none',  1 ],
-        [ 'GLOBAL', $both_user, 'none',  1 ],
         [ 'child1', $null_user, 'none',  1 ],
         [ 'child1', $ws_user,   'none',  1 ],
-        [ 'child1', $org_user,  'none',  1 ],
-        [ 'child1', $both_user, 'none',  1 ],
 
         [ 'GLOBAL', $null_user, 'ro',    0 ],
         [ 'GLOBAL', $ws_user,   'ro',    1 ], # direct user access on GLOBAL
-        [ 'GLOBAL', $org_user,  'ro',    1 ], # via org on GLOBAL
-        [ 'GLOBAL', $both_user, 'ro',    1 ],
         [ 'child1', $null_user, 'ro',    0 ],
         [ 'child1', $ws_user,   'ro',    1 ], # indirect user access via GLOBAL, and direct user access on child 1
-        [ 'child1', $org_user,  'ro',    1 ],
-        [ 'child1', $both_user, 'ro',    1 ],
 
         [ 'GLOBAL', $null_user, 'rw',    0 ],
         [ 'GLOBAL', $ws_user,   'rw',    0 ],
-        [ 'GLOBAL', $org_user,  'rw',    1 ],
-        [ 'GLOBAL', $both_user, 'rw',    1 ],
         [ 'child1', $null_user, 'rw',    0 ],
         [ 'child1', $ws_user,   'rw',    1 ], # direct access on child 1
-        [ 'child1', $org_user,  'rw',    1 ],
-        [ 'child1', $both_user, 'rw',    1 ],
 
         [ 'GLOBAL', $null_user, 'admin', 0 ],
         [ 'GLOBAL', $ws_user,   'admin', 0 ],
-        [ 'GLOBAL', $org_user,  'admin', 0 ],
-        [ 'GLOBAL', $both_user, 'admin', 0 ],
         [ 'child1', $null_user, 'admin', 0 ],
         [ 'child1', $ws_user,   'admin', 0 ],
-        [ 'child1', $org_user,  'admin', 1 ], # via org on child 1
-        [ 'child1', $both_user, 'admin', 1 ], # ""
     );
 
     # remember, you can set DBIC_TRACE=1 while you run the tests to see
@@ -109,7 +85,7 @@ subtest 'user-role access' => sub {
     }
 };
 
-subtest 'user_workspace_role and organization_workspace_role role_via_for_user' => sub {
+subtest 'user_workspace_role role_via_for_user' => sub {
     my $t = Test::Conch->new;
     my $user = $t->generate_fixtures('user_account');
     my $org1 = $t->generate_fixtures('organization');
@@ -156,88 +132,6 @@ subtest 'user_workspace_role and organization_workspace_role role_via_for_user' 
                 role => 'rw',
             ),
             'direct user access via grandparent workspace, no organization',
-        ],
-        [
-            {
-                organization_workspace_role => [ { organization_id => $org1->id, workspace_id => $grandchild_ws->id, role => 'admin' } ],
-            },
-            methods(
-                organization_id => $org1->id,
-                workspace_id => $grandchild_ws->id,
-                role => 'admin',
-            ),
-            'direct organization access to the workspace, at admin',
-        ],
-        [
-            {
-                organization_workspace_role => [ { organization_id => $org2->id, workspace_id => $child_ws->id, role => 'rw' } ],
-            },
-            methods(
-                organization_id => $org2->id,
-                workspace_id => $child_ws->id,
-                role => 'rw',
-            ),
-            'organization access via the parent workspace',
-        ],
-        [
-            {
-                user_workspace_role => [ { user_id => $user->id, workspace_id => $child_ws->id, role => 'ro' } ],
-                organization_workspace_role => [ { organization_id => $org1->id, workspace_id => $global_ws->id, role => 'rw' } ],
-            },
-            methods(
-                organization_id => $org1->id,
-                workspace_id => $global_ws->id,
-                role => 'rw',
-            ),
-            'organization access via grandparent workspace prevails over a lower role granted directly to the user on the workspace',
-        ],
-        [
-            {
-                user_workspace_role => [ { user_id => $user->id, workspace_id => $global_ws->id, role => 'rw' } ],
-                organization_workspace_role => [ { organization_id => $org1->id, workspace_id => $grandchild_ws->id, role => 'ro' } ],
-            },
-            methods(
-                user_id => $user->id,
-                workspace_id => $global_ws->id,
-                role => 'rw',
-            ),
-            'user access via GLOBAL prevails over a lower role granted to the organization right on the workspace',
-        ],
-        [
-            {
-                user_workspace_role => [ { user_id => $user->id, workspace_id => $grandchild_ws->id, role => 'rw' } ],
-                organization_workspace_role => [ { organization_id => $org1->id, workspace_id => $grandchild_ws->id, role => 'rw' } ],
-            },
-            methods(
-                user_id => $user->id,
-                workspace_id => $grandchild_ws->id,
-                role => 'rw',
-            ),
-            'tied roles: user access to the workspace prevails over organization access to the workspace',
-        ],
-        [
-            {
-                user_workspace_role => [ { user_id => $user->id, workspace_id => $grandchild_ws->id, role => 'rw' } ],
-                organization_workspace_role => [ { organization_id => $org1->id, workspace_id => $child_ws->id, role => 'rw' } ],
-            },
-            methods(
-                user_id => $user->id,
-                workspace_id => $grandchild_ws->id,
-                role => 'rw',
-            ),
-            'tied roles: user access to the workspace prevails over organization access to the parent workspace',
-        ],
-        [
-            {
-                user_workspace_role => [ { user_id => $user->id, workspace_id => $child_ws->id, role => 'rw' } ],
-                organization_workspace_role => [ { organization_id => $org1->id, workspace_id => $grandchild_ws->id, role => 'rw' } ],
-            },
-            methods(
-                organization_id => $org1->id,
-                workspace_id => $grandchild_ws->id,
-                role => 'rw',
-            ),
-            'tied roles: organization access directly to the workspace prevails over user access to the parent workspace',
         ],
     );
 

@@ -17,11 +17,6 @@ Conch::Controller::Organization
 If the user is a system admin, retrieve a list of all active organizations in the database;
 otherwise, limits the list to those organizations of which the user is a member.
 
-Note: the only workspaces and roles listed are those reachable via the organization, even if
-the user might have direct access to the workspace at a greater role. For comprehensive
-information about what workspaces the user can access, and at what role, please use C<GET
-/workspace> or C<GET /user/me>.
-
 Response uses the Organizations json schema.
 
 =cut
@@ -31,10 +26,9 @@ sub list ($c) {
         ->active
         ->prefetch({
                 user_organization_roles => 'user_account',
-                organization_workspace_roles => 'workspace',
                 organization_build_roles => 'build',
             })
-        ->order_by([ map $_.'.name', qw(organization user_account workspace build) ]);
+        ->order_by([ map $_.'.name', qw(organization user_account build) ]);
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 
@@ -44,23 +38,7 @@ sub list ($c) {
                 ->get_column('organization_id')->as_query
             } });
 
-    my @data = map $_->TO_JSON, $rs->all;
-    my %workspace_ids;
-    @workspace_ids{map $_->{id}, $_->{workspaces}->@*} = () foreach @data;
-
-    foreach my $org (@data) {
-        foreach my $ws ($org->{workspaces}->@*) {
-            undef $ws->{parent_workspace_id}
-                if $ws->{parent_workspace_id}
-                    and not exists $workspace_ids{$ws->{parent_workspace_id}}
-                    and not $c->db_workspaces
-                        ->and_workspaces_above($ws->{parent_workspace_id})
-                        ->related_resultset('user_workspace_roles')
-                        ->exists;
-        }
-    }
-
-    $c->status(200, \@data);
+    $c->status(200, [ $rs->all ]);
 }
 
 =head2 create
@@ -146,11 +124,6 @@ sub find_organization ($c) {
 Get the details of a single organization.
 Requires the 'admin' role on the organization.
 
-Note: the only workspaces and roles listed are those reachable via the organization, even if
-the user might have direct access to the workspace at a greater role. For comprehensive
-information about what workspaces the user can access, and at what role, please use
-C<GET /workspace> or C<GET /user/me>.
-
 Response uses the Organization json schema.
 
 =cut
@@ -159,26 +132,11 @@ sub get ($c) {
     my $rs = $c->stash('organization_rs')
         ->prefetch({
                 user_organization_roles => 'user_account',
-                organization_workspace_roles => 'workspace',
                 organization_build_roles => 'build',
             })
-        ->order_by([ map $_.'.name', qw(user_account workspace build) ]);
+        ->order_by([ map $_.'.name', qw(user_account build) ]);
 
-    return $c->status(200, ($rs->all)[0]) if $c->is_system_admin;
-
-    my $org_data = ($rs->all)[0]->TO_JSON;
-    my %workspace_ids; @workspace_ids{map $_->{id}, $org_data->{workspaces}->@*} = ();
-    foreach my $ws ($org_data->{workspaces}->@*) {
-        undef $ws->{parent_workspace_id}
-            if $ws->{parent_workspace_id}
-                and not exists $workspace_ids{$ws->{parent_workspace_id}}
-                and not $c->db_workspaces
-                    ->and_workspaces_above($ws->{parent_workspace_id})
-                    ->related_resultset('user_workspace_roles')
-                    ->exists;
-    }
-
-    return $c->status(200, $org_data);
+    return $c->status(200, ($rs->all)[0]);
 }
 
 =head2 update
@@ -215,24 +173,15 @@ sub delete ($c) {
         ->related_resultset('user_organization_roles')
         ->delete;
 
-    my $direct_workspaces_rs = $c->stash('organization_rs')
-        ->related_resultset('organization_workspace_roles')
-        ->get_column('workspace_id');
-    my $workspace_count = $c->db_workspaces
-        ->and_workspaces_beneath($direct_workspaces_rs->as_query)
-        ->count;
-
     my $build_count = 0+$c->stash('organization_rs')
         ->related_resultset('organization_build_roles')
         ->delete;
 
-    $c->stash('organization_rs')->related_resultset('organization_workspace_roles')->delete;
     $c->stash('organization_rs')->deactivate;
 
     $c->log->debug('Deactivated organization '.$c->stash('organization_id_or_name')
         .', removing '.$user_count.' user memberships'
-        .' and removing from '.$workspace_count.' workspaces'
-        .' and '.$build_count.' builds');
+        .' and removing from '.$build_count.' builds');
     return $c->status(204);
 }
 

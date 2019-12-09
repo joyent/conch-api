@@ -396,9 +396,7 @@ subtest 'located device' => sub {
             ->status_is(403)
             ->log_debug_is('User cannot access requested device(s)');
 
-        my $org = $t->generate_fixtures('organization');
-        $org->create_related('user_organization_roles', { user_id => $null_user->id, role => 'ro' });
-        $global_ws->create_related('organization_workspace_roles', { organization_id => $org->id, role => 'ro' });
+        $global_ws->create_related('user_workspace_roles', { user_id => $null_user->id, role => 'ro' });
 
         $t->get_ok('/device/'.$located_device_id)
             ->status_is(200)
