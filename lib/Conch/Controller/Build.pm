@@ -879,7 +879,7 @@ Response uses the Racks json schema.
 =cut
 
 sub get_racks ($c) {
-    $c->status(200, [ $c->stash('build_rs')->related_resultset('racks')->all ]);
+    $c->status(200, [ $c->stash('build_rs')->related_resultset('racks')->order_by('racks.name')->all ]);
 }
 
 =head2 add_rack

@@ -166,7 +166,8 @@ sub racks ($c) {
     # initial resultset, this could be slow!
     $rs = $rs->with_user_role($c->stash('user_id'), 'ro') if not $c->is_system_admin;
 
-    my @racks = $rs->all;
+    my @racks = $rs->order_by('racks.name')->all;
+
     $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     return $c->status(200, \@racks);
 }
