@@ -1,12 +1,13 @@
 # NAME
 
-Conch::Controller::User
+Conch::Controller::HardwareVendor
 
 # METHODS
 
 ## find\_hardware\_vendor
 
-Handles looking up the object by id or name.
+Chainable action that uses the `hardware_vendor_id_or_name` value provided in the stash
+(usually via the request URL) to look up a build, and stashes the result in `hardware_vendor`.
 
 ## get\_all
 

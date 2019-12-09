@@ -8,7 +8,7 @@ Conch::Route::DatacenterRoom
 
 Sets up the routes for /room:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /room`
 
@@ -42,7 +42,7 @@ Unless otherwise noted, all routes require authentication.
 - Requires system admin authorization
 - Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
 
-### `GET /room/:datacenter_room_id_or_alias/:rack_name`
+### `GET /room/:datacenter_room_id_or_alias/rack/:rack_name`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)

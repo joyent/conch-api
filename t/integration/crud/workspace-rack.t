@@ -39,7 +39,7 @@ $t->get_ok("/workspace/$global_ws_id/rack")
         'room-0a' => [
             {
                 id => $rack_id,
-                name => 'rack 0a',
+                name => 'rack.0a',
                 phase => 'integration',
                 rack_role_name => 'rack_role 42U',
                 rack_size => 42,
@@ -76,7 +76,7 @@ subtest 'Add rack to workspace' => sub {
             'room-0a' => [
                 {
                     id => $rack_id,
-                    name => 'rack 0a',
+                    name => 'rack.0a',
                     phase => 'integration',
                     rack_role_name => 'rack_role 42U',
                     rack_size => 42,
@@ -163,7 +163,7 @@ subtest 'Assign device to a location' => sub {
                     device_progress => { unknown => 1, valid => 1 },
                     id => $rack_id,
                     phase => 'integration',
-                    name => 'rack 0a',
+                    name => 'rack.0a',
                     rack_role_name => 'rack_role 42U',
                     rack_size => 42,
                 }

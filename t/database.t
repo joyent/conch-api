@@ -1,5 +1,10 @@
-use v5.26;
-use Mojo::Base -strict, -signatures;
+use strict;
+use warnings;
+use warnings FATAL => 'utf8';
+use utf8;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
+use experimental 'signatures';
+
 use Test::More;
 use Test::Conch;
 use Test::Fatal;
@@ -301,6 +306,33 @@ subtest 'database constraints' => sub {
         },
         qr/violates check constraint "build_completed_xnor_completed_user_id_check"/,
     );
+};
+
+subtest 'results exist' => sub {
+    my ($pgsql, $schema) = Test::Conch->init_db;
+    my $rs = $schema->resultset('build');
+
+    ok(!$rs->search({ created => { '!=', undef } })->exists, 'results do not exist');
+
+    my $query = $rs->search({ created => { '!=', undef } })->_results_exist_as_query;
+    my (undef, $sth) = $rs->result_source
+                        ->schema
+                        ->storage
+                        ->_select($query, \'*', {}, {});
+    my (@results) = $sth->fetchrow_array;
+    is(@results, 1, 'only one value is fetched');
+
+
+    $rs->populate([ map +{ name => $_ }, qw(build1 build2 build3) ]);
+    ok($rs->search({ created => { '!=', undef } })->exists, 'results do exist');
+
+    (undef, $sth) = $rs->result_source
+                        ->schema
+                        ->storage
+                        ->_select($query, \'*', {}, {});
+
+    (@results) = $sth->fetchrow_array;
+    is(@results, 1, 'only one value is fetched even when multiple rows exist');
 };
 
 done_testing;

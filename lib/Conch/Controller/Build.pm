@@ -97,11 +97,11 @@ sub create ($c) {
 
 =head2 find_build
 
-Chainable action that validates the C<build_id> or C<build_name> provided in the
-path, and stashes the query to get to it in C<build_rs>.
+Chainable action that uses the C<build_id_or_name> value provided in the stash (usually via the
+request URL) to look up a build, and stashes the query to get to it in C<build_rs>.
 
 If C<require_role> is provided, it is used as the minimum required role for the user to
-continue; otherwise the user must be a system admin.
+continue; otherwise the user must have the 'admin' role.
 
 =cut
 
@@ -117,7 +117,10 @@ sub find_build ($c) {
         $rs = $rs->search({ 'build.name' => $identifier });
     }
 
-    return $c->status(404) if not $rs->exists;
+    if (not $rs->exists) {
+        $c->log->debug('could not find build '.$identifier);
+        return $c->status(404);
+    }
 
     CHECK_ACCESS: {
         if ($c->is_system_admin) {
@@ -136,6 +139,7 @@ sub find_build ($c) {
     }
 
     $c->stash('build_rs', $rs);
+    return 1;
 }
 
 =head2 get
@@ -270,7 +274,10 @@ sub add_user ($c) {
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
         : $input->{email} ? $user_rs->find_by_email($input->{email})
         : undef;
-    return $c->status(404) if not $user;
+    if (not $user) {
+        $c->log->debug('Could not find user '.$input->@{qw(user_id email)});
+        return $c->status(404);
+    }
 
     $c->stash('target_user', $user);
     my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
@@ -461,7 +468,10 @@ sub add_organization ($c) {
     return if not $input;
 
     my $organization = $c->db_organizations->active->find($input->{organization_id});
-    return $c->status(404) if not $organization;
+    if (not $organization) {
+        $c->log->debug('Could not find organization '.$input->{organization_id});
+        return $c->status(404);
+    }
 
     my $build_id = $c->stash('build_id');
 

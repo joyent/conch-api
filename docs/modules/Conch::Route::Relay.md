@@ -8,7 +8,7 @@ Conch::Route::Relay
 
 Sets up the routes for /relay:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `POST /relay/:relay_serial_number/register`
 

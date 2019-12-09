@@ -2,9 +2,11 @@
 
 Conch::Plugin::Features - Sets up a helper to access configured features
 
-## DESCRIPTION
+# HELPERS
 
-Provides the helper sub 'feature' to the app and controllers:
+## feature
+
+Checks if a given feature name is enabled.
 
 ```
 if ($c->feature('rollbar') { ... }

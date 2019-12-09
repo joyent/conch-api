@@ -43,7 +43,8 @@ $build2->create_related('user_build_roles', { user_id => $build_user->id, role =
 $t->authenticate(email => $ro_user->email);
 
 $t->get_ok('/device/nonexistent')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find device nonexistent');
 
 my $test_device_id;
 
@@ -584,11 +585,10 @@ subtest 'device network interfaces' => sub {
         ->status_is(200)
         ->json_schema_is('DeviceNic');
 
-    $t->get_ok('/device/TEST/interface/ipmi1/device_id')
-        ->status_is(404);
-
-    $t->get_ok('/device/TEST/interface/ipmi1/created')
-        ->status_is(404);
+    $t->get_ok('/device/TEST/interface/ipmi1/'.$_)
+        ->status_is(404)
+        ->log_error_is('no endpoint found for: GET /device/TEST/interface/ipmi1/'.$_)
+            foreach qw(device_id created);
 
     $t->get_ok('/device/TEST/interface/ipmi1/mac')
         ->status_is(200)
@@ -702,12 +702,14 @@ subtest 'get by device attributes' => sub {
         ->json_is('', [ $undetailed_device ], 'got device by link');
 
     $t->get_ok('/device?key=value')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find devices matching key=value');
 
     $test_device->create_related('device_settings', { name => 'key', value => 'value' });
 
     $t->get_ok('/device?key=ugh')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find devices matching key=ugh');
 
     $t->get_ok('/device?key=value')
         ->status_is(200)
@@ -738,8 +740,9 @@ subtest 'get by device attributes' => sub {
 };
 
 subtest 'mutate device attributes' => sub {
-    $t->post_ok('/device/nonexistent/validate')
-        ->status_is(404);
+    $t->post_ok('/device/nonexistent/validated')
+        ->status_is(404)
+        ->log_debug_is('Could not find device nonexistent');
 
     $t->post_ok('/device/TEST/asset_tag')
         ->status_is(400)
@@ -877,7 +880,8 @@ subtest 'Device settings' => sub {
         ->json_is({});
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/foo')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find device setting foo for device '.$located_device_id);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(400)
@@ -895,7 +899,8 @@ subtest 'Device settings' => sub {
         ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/too many properties/i) } ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 'foo' })
-        ->status_is(404);
+        ->status_is(404)
+        ->log_error_is('no endpoint found for: POST /device/LOCATED_DEVICE/settings/FOO/BAR');
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'baz' })
         ->status_is(204);
@@ -947,10 +952,12 @@ subtest 'Device settings' => sub {
         ->status_is(204);
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/fizzle')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find device setting fizzle for device '.$located_device_id);
 
     $t->delete_ok('/device/LOCATED_DEVICE/settings/fizzle')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find device setting fizzle for device '.$located_device_id);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { 'tag.foo' => 'foo', 'tag.bar' => 'bar' })
         ->status_is(204);
@@ -967,7 +974,8 @@ subtest 'Device settings' => sub {
         ->status_is(204);
 
     $t->get_ok('/device/LOCATED_DEVICE/settings/tag.bar')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find device setting tag.bar for device '.$located_device_id);
 
     $t->get_ok('/device/LOCATED_DEVICE')
         ->status_is(200)

@@ -25,7 +25,7 @@ Efficiently determines if a result exists, without needing to do a `->count`.
 Essentially does:
 
 ```
-select exists (select 1 from ... rest of your query ...);
+select * from ( select exists (select 1 from ... your query ... ) ) as _existence_subq;
 ```
 
 Returns a value that you can treat as a boolean.

@@ -100,10 +100,12 @@ sub create ($c) {
 
 =head2 find_organization
 
-Chainable action that validates the C<organization_id> or C<organization_name> provided in the
-path, and stashes the query to get to it in C<organization_rs>.
+Chainable action that uses the C<organization_id_or_name> value provided in the stash (usually
+via the request URL) to look up a build, and stashes the query to get to it in
+C<organization_rs>.
 
-Requires the 'admin' role on the organization (or the user to be a system admin).
+If C<require_role> is provided, it is used as the minimum required role for the user to
+continue; otherwise the user must have the 'admin' role.
 
 =cut
 
@@ -119,7 +121,10 @@ sub find_organization ($c) {
         $rs = $rs->search({ 'organization.name' => $identifier });
     }
 
-    return $c->status(404) if not $rs->exists;
+    if (not $rs->exists) {
+        $c->log->debug('Could not find organization '.$identifier);
+        return $c->status(404);
+    }
 
     $rs = $rs->active;
     return $c->status(410) if not $rs->exists;
@@ -133,6 +138,7 @@ sub find_organization ($c) {
     }
 
     $c->stash('organization_rs', $rs);
+    return 1;
 }
 
 =head2 get
@@ -252,7 +258,10 @@ sub add_user ($c) {
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
         : $input->{email} ? $user_rs->find_by_email($input->{email})
         : undef;
-    return $c->status(404) if not $user;
+    if (not $user) {
+        $c->log->debug('Could not find user '.$input->@{qw(user_id email)});
+        return $c->status(404);
+    }
 
     $c->stash('target_user', $user);
     my $organization_name = $c->stash('organization_name') // $c->stash('organization_rs')->get_column('name')->single;

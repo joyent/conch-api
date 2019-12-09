@@ -8,13 +8,14 @@ use Conch::UUID 'is_uuid';
 
 =head1 NAME
 
-Conch::Controller::User
+Conch::Controller::HardwareVendor
 
 =head1 METHODS
 
 =head2 find_hardware_vendor
 
-Handles looking up the object by id or name.
+Chainable action that uses the C<hardware_vendor_id_or_name> value provided in the stash
+(usually via the request URL) to look up a build, and stashes the result in C<hardware_vendor>.
 
 =cut
 
@@ -30,7 +31,7 @@ sub find_hardware_vendor ($c) {
     }
 
     if (not $hardware_vendor_rs->exists) {
-        $c->log->debug('Could not locate a valid hardware vendor');
+        $c->log->debug('Could not find hardware vendor '.$c->stash('hardware_vendor_id_or_name'));
         return $c->status(404);
     }
 

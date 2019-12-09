@@ -94,7 +94,7 @@ __END__
 
 =pod
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 Users will require access to the workspace (or one of its ancestors) at a minimum
 L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.

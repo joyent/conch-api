@@ -48,31 +48,29 @@ Conch::Time->from_epoch(1234567890, 123);
 
 See ["from\_epoch" in Time::Moment](https://metacpan.org/pod/Time%3A%3AMoment#from_epoch).
 
-## CONVERSIONS
-
-### rfc3339
+## rfc3339
 
 Return an RFC3339 compatible string as UTC.
 Sub-second precision will use 3, 6 or 9 digits as necessary.
 
-### timestamp
+## timestamp
 
 Return an RFC3339 compatible string.
 
-### to\_string
+## to\_string
 
 Render the timestamp as a RFC 3339 timestamp string. Used to
 overload string coercion.
 
-### TO\_JSON
+## TO\_JSON
 
 Renderer for Mojo, as a RFC 3339 timestamp string
 
-### timestamptz
+## timestamptz
 
 Render a string in PostgreSQL's timestamptz style
 
-### iso8601
+## iso8601
 
 Render the timestamp as an ISO8601 extended format, in UTC
 

@@ -63,7 +63,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
-          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "started" : {
           "oneOf" : [
@@ -219,7 +219,7 @@
       "additionalProperties" : false,
       "properties" : {
         "alias" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "az" : {
           "type" : "string"
@@ -785,7 +785,7 @@
         "rack_name" : {
           "oneOf" : [
             {
-              "type" : "string"
+              "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
             },
             {
               "type" : "null"
@@ -1862,7 +1862,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
-          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "users" : {
           "items" : {
@@ -2016,7 +2016,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         },
         "phase" : {
           "$ref" : "common.json#/definitions/device_phase"
@@ -2158,7 +2158,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "rack_size" : {
           "$ref" : "common.json#/definitions/positive_integer"
@@ -2415,7 +2415,7 @@
                 "$ref" : "common.json#/definitions/uuid"
               },
               "name" : {
-                "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
+                "$ref" : "common.json#/definitions/mojo_standard_placeholder"
               },
               "role" : {
                 "$ref" : "common.json#/definitions/role"
@@ -3146,13 +3146,13 @@
               "$ref" : "common.json#/definitions/uuid"
             },
             "name" : {
-              "type" : "string"
+              "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
             },
             "phase" : {
               "$ref" : "common.json#/definitions/device_phase"
             },
             "rack_role_name" : {
-              "type" : "string"
+              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
             },
             "rack_size" : {
               "$ref" : "common.json#/definitions/positive_integer"
@@ -3213,10 +3213,10 @@
                 "$ref" : "common.json#/definitions/uuid"
               },
               "rack_name" : {
-                "type" : "string"
+                "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
               },
               "rack_role_name" : {
-                "type" : "string"
+                "$ref" : "common.json#/definitions/mojo_standard_placeholder"
               },
               "rack_unit_start" : {
                 "$ref" : "common.json#/definitions/positive_integer"

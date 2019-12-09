@@ -6,7 +6,9 @@ Conch::Controller::DatacenterRoom
 
 ## find\_datacenter\_room
 
-Handles looking up the object by id or alias.
+Chainable action that uses the `datacenter_room_id_or_alias` value provided in the stash
+(usually via the request URL) to look up a datacenter\_room, and stashes the result in
+`datacenter_room`.
 
 ## get\_all
 

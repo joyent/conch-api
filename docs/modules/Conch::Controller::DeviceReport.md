@@ -21,8 +21,11 @@ Uses a device report to populate configuration information about the given devic
 
 ## find\_device\_report
 
-Chainable action that validates the 'device\_report\_id' provided in the path.
-Stores the device\_id and device\_report resultset to the stash for later retrieval.
+Chainable action that uses the `device_report_id` value provided in the stash (usually via the
+request URL) to look up a device report, and stashes the query to get to it in
+`device_report_rs`.
+
+`device_id` is also saved to the stash.
 
 Role checks are done in the next controller action in the chain.
 

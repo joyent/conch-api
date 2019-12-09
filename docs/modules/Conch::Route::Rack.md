@@ -8,7 +8,7 @@ Conch::Route::Rack
 
 Sets up the routes for /rack:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /rack`
 
@@ -23,12 +23,12 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /rack/:rack_id`
 
-- User requires the read-only role on a workspace that contains the rack
+- User requires the read-only role on the rack
 - Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
 
 ### `POST /rack/:rack_id`
 
-- User requires the read/write role on a workspace that contains the rack
+- User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackUpdate](../json-schema/request.json#/definitions/RackUpdate)
 - Response: Redirect to the updated rack
 
@@ -39,23 +39,23 @@ Unless otherwise noted, all routes require authentication.
 
 ### `GET /rack/:rack_id/layouts`
 
-- User requires the read-only role on a workspace that contains the rack
+- User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
 ### `POST /rack/:rack_id/layouts`
 
-- User requires the read/write role on a workspace that contains the rack
+- User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)
 - Response: Redirect to the rack's layouts
 
 ### `GET /rack/:rack_id/assignment`
 
-- User requires the read-only role on a workspace that contains the rack
+- User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackAssignments](../json-schema/response.json#/definitions/RackAssignments)
 
 ### `POST /rack/:rack_id/assignment`
 
-- User requires the read/write role on a workspace that contains the rack
+- User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackAssignmentUpdates](../json-schema/request.json#/definitions/RackAssignmentUpdates)
 - Response: Redirect to the updated rack assignment
 
@@ -63,7 +63,7 @@ Unless otherwise noted, all routes require authentication.
 
 This method requires a request body.
 
-- User requires the read/write role on a workspace that contains the rack
+- User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackAssignmentDeletes](../json-schema/request.json#/definitions/RackAssignmentDeletes)
 - Response: `204 NO CONTENT`
 
@@ -72,7 +72,7 @@ This method requires a request body.
 The query parameter `rack_only` (defaults to `0`) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
 
-- User requires the read/write role on a workspace that contains the rack
+- User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackPhase](../json-schema/request.json#/definitions/RackPhase)
 - Response: Redirect to the updated rack
 

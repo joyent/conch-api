@@ -233,7 +233,7 @@
       "additionalProperties" : false,
       "properties" : {
         "alias" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "az" : {
           "$ref" : "common.json#/definitions/non_empty_string"
@@ -257,7 +257,7 @@
       "minProperties" : 1,
       "properties" : {
         "alias" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "az" : {
           "$ref" : "common.json#/definitions/non_empty_string"
@@ -872,7 +872,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         },
         "phase" : {
           "$ref" : "common.json#/definitions/device_phase"
@@ -982,7 +982,7 @@
       "minProperties" : 1,
       "properties" : {
         "name" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "rack_size" : {
           "$ref" : "common.json#/definitions/positive_integer"
@@ -1011,7 +1011,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         },
         "phase" : {
           "$ref" : "common.json#/definitions/device_phase"

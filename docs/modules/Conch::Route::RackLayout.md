@@ -8,7 +8,7 @@ Conch::Route::RackLayout
 
 Sets up the routes for /layout:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /layout`
 

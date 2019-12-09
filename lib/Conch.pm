@@ -63,26 +63,32 @@ sub startup {
             }
         }
 
-        $c->send_message_to_rollbar(
-            'info',
-            'response payload contains many elements: candidate for paging?',
-            { elements => scalar $args->{json}->@*, action => $c->stash('action'), url => $c->url_for },
-        )
-            if ref $args->{json} eq 'ARRAY'
+        if (ref $args->{json} eq 'ARRAY'
                 # TODO: skip if ?page_size is passed (and we actually used it).
                 and $args->{json}->@* >= ($c->app->config->{rollbar}{warn_payload_elements} // 35)
-                and $c->feature('rollbar');
+                and $c->feature('rollbar')) {
+            my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
+            $c->send_message_to_rollbar(
+                'info',
+                'response payload contains many elements: candidate for paging?',
+                { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->url_for },
+                [ 'response payload size is large', $endpoint ],
+            );
+        }
 
         # do this after the response has been sent
         $c->on(finish => sub ($c) {
             my $body_size = $c->res->body_size;
-            $c->send_message_to_rollbar(
-                'info',
-                'response payload size is large: candidate for paging or refactoring?',
-                { bytes => $body_size, action => $c->stash('action'), url => $c->url_for },
-            )
-                if $body_size >= ($c->app->config->{rollbar}{warn_payload_size} // 10000)
-                    and $c->feature('rollbar');
+            if ($body_size >= ($c->app->config->{rollbar}{warn_payload_size} // 10000)
+                    and $c->feature('rollbar')) {
+                my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
+                $c->send_message_to_rollbar(
+                    'info',
+                    'response payload size is large: candidate for paging or refactoring?',
+                    { bytes => $body_size, endpoint => $endpoint, url => $c->url_for },
+                    [ 'response payload size is large', $endpoint ],
+                );
+            }
         });
     });
 

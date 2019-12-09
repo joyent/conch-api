@@ -6,7 +6,11 @@ Conch::Controller::Rack
 
 ## find\_rack
 
-Supports rack lookups by uuid.
+Chainable action that uses the `rack_id` value provided in the stash (usually via the
+request URL) to look up a rack, and stashes the query to get to it in `rack_rs`.
+
+If `require_role` is provided, it is used as the minimum required role for the user to
+continue; otherwise the user must be a system admin.
 
 ## create
 
@@ -55,8 +59,8 @@ Assigns devices to rack layouts, also optionally updating serial\_numbers and as
 creating the device if needed). Existing devices in referenced slots will be unassigned as needed.
 
 Note: the assignment is still performed even if there is no physical room in the rack
-for the new hardware (its rack\_unit\_size overlaps into a subsequent layout), or that
-the device's hardware matches what the layout specifies.
+for the new hardware (its rack\_unit\_size overlaps into a subsequent layout), or if the device's
+hardware doesn't match what the layout specifies.
 
 ## delete\_assignment
 

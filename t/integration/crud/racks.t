@@ -26,12 +26,12 @@ my $rack = $t->load_fixture('rack_0a');
 $t->get_ok('/rack')
     ->status_is(200)
     ->json_schema_is('Racks')
-    ->json_cmp_deeply([ superhashof({ name => 'rack 0a' }) ]);
+    ->json_cmp_deeply([ superhashof({ name => 'rack.0a' }) ]);
 
 $t->get_ok('/rack/'.$rack->id)
     ->status_is(200)
     ->json_schema_is('Rack')
-    ->json_cmp_deeply(superhashof({ name => 'rack 0a' }));
+    ->json_cmp_deeply(superhashof({ name => 'rack.0a' }));
 
 $t->post_ok('/rack', json => { wat => 'wat' })
     ->status_is(400)
@@ -194,7 +194,8 @@ $t->delete_ok("/rack/$new_rack_id")
     ->status_is(204);
 
 $t->get_ok("/rack/$new_rack_id")
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find rack '.$new_rack_id);
 
 my $hardware_product_compute = $t->load_fixture('hardware_product_compute');
 my $hardware_product_storage = $t->load_fixture('hardware_product_storage');
@@ -344,7 +345,7 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         { device_id => $new_id, rack_unit_start => 11 },
     ])
     ->status_is(404)
-    ->log_is('no device corresponding to device id '.$new_id);
+    ->log_is('Could not find device '.$new_id);
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         { device_id => $foo->id, device_serial_number => 'BAR', rack_unit_start => 11 },
@@ -460,7 +461,8 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 2,   # this rack_unit_start doesn't exist
         },
     ])
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Cannot delete nonexistent layout for rack_unit_start 2');
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
@@ -468,7 +470,8 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 3,   # this slot isn't occupied
         },
     ])
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Cannot delete assignment for unoccupied slot at rack_unit_start 3');
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {
@@ -476,7 +479,8 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 11,  # wrong slot for this device
         },
     ])
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('rack_unit_start 11 occupied by device_id '.$baz->id.' but was expecting device_id '.$foo->id);
 
 $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
         {

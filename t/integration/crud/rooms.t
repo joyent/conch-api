@@ -39,17 +39,17 @@ $t->get_ok('/room/'.$room->alias)
 $t->get_ok('/room/'.$room->id.'/racks')
     ->status_is(200)
     ->json_schema_is('Racks')
-    ->json_cmp_deeply([ superhashof({ name => 'rack 0a' }) ]);
+    ->json_cmp_deeply([ superhashof({ name => 'rack.0a' }) ]);
 
 $t->get_ok('/room/'.$room->alias.'/racks')
     ->status_is(200)
     ->json_schema_is('Racks')
-    ->json_cmp_deeply([ superhashof({ name => 'rack 0a' }) ]);
+    ->json_cmp_deeply([ superhashof({ name => 'rack.0a' }) ]);
 
-$t->get_ok('/room/'.$room->alias.'/rack/rack 0a')
+$t->get_ok('/room/'.$room->alias.'/rack/rack.0a')
     ->status_is(200)
     ->json_schema_is('Rack')
-    ->json_cmp_deeply(superhashof({ name => 'rack 0a' }));
+    ->json_cmp_deeply(superhashof({ name => 'rack.0a' }));
 
 $t->post_ok('/room', json => { wat => 'wat' })
     ->status_is(400)
@@ -91,6 +91,7 @@ $t->delete_ok("/room/$idr")
     ->status_is(204);
 
 $t->get_ok("/room/$idr")
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find datacenter room '.$idr);
 
 done_testing;

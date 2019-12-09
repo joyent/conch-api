@@ -35,7 +35,10 @@ sub get ($c) {
     return $c->status(400, { error => 'Cannot find validator' }) if not $validator;
 
     my $schema = _extract_schema_definition($validator, $name);
-    return $c->status(404) if not $schema;
+    if (not $schema) {
+        $c->log->debug('Could not find '.$type.' schema '.$name);
+        return $c->status(404);
+    }
 
     # ensure $id is unique
     $schema->{'$id'} =~ s/^urn:\K/$type./;

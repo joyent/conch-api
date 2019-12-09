@@ -321,7 +321,8 @@ $t->delete_ok('/layout/'.$layout_20_23->id)
 $t->delete_ok('/layout/'.$layout_3_6->id)
     ->status_is(204);
 $t->get_ok('/layout/'.$layout_3_6->id)
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find rack layout '.$layout_3_6->id);
 
 # now we have these assigned slots:
 # start 1, width 2

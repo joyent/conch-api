@@ -29,7 +29,8 @@ sub list ($c) {
 
 =head2 find_validation
 
-Find the Validation specified by uuid or name, and stashes the query to get to it in
+Chainable action that uses the C<validation_id_or_name> value provided in the stash (usually
+via the request URL) to look up a validation, and stashes the query to get to it in
 C<validation_rs>.
 
 =cut
@@ -42,7 +43,7 @@ sub find_validation($c) {
     });
 
     if (not $validation_rs->exists) {
-        $c->log->debug("Failed to find validation for '$identifier'");
+        $c->log->debug('Could not find validation '.$identifier);
         return $c->status(404);
     }
 

@@ -12,8 +12,8 @@ Response uses the WorkspaceRackSummary json schema.
 
 ## find\_workspace\_rack
 
-Chainable action that uses the `workspace_rs` and `rack_id` stash values and confirms the
-rack is a (direct or indirect) member of the workspace.
+Chainable action that uses the `workspace_id` and `rack_id` values provided in the stash
+to confirm the rack is a (direct or indirect) member of the workspace.
 
 Relies on ["find\_workspace" in Conch::Controller::Workspace](../modules/Conch%3A%3AController%3A%3AWorkspace#find_workspace) and
 ["find\_rack" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#find_rack) to have already run, verified user roles, and populated

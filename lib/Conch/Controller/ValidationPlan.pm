@@ -30,7 +30,8 @@ sub list ($c) {
 
 =head2 find_validation_plan
 
-Find the Validation Plan specified by uuid or name and put it in the stash as
+Chainable action that uses the C<validation_plan_id_or_name> provided in the stash
+(usually via the request URL) to look up a validation_plan, and stashes the result in
 C<validation_plan>.
 
 =cut
@@ -43,7 +44,7 @@ sub find_validation_plan($c) {
     })->single;
 
     if (not $validation_plan) {
-        $c->log->debug("Failed to find validation plan for '$identifier'");
+        $c->log->debug('Could not find validation plan '.$identifier);
         return $c->status(404);
     }
 

@@ -12,8 +12,11 @@ Response uses the HardwareProducts json schema.
 
 ## find\_hardware\_product
 
-Chainable action that looks up the object by id, sku, name or alias depending on the url
-pattern, stashing the query to get to it in `hardware_product_rs`.
+Chainable action that uses the `hardware_product_id` or `hardware_product_key` and
+`hardware_product_value` values provided in the stash (usually via the request URL) to look up
+a hardware\_product, and stashes the query to get to it in `hardware_product_rs`.
+
+Supported keys are: `sku`, `name`, and `alias`.
 
 ## get
 

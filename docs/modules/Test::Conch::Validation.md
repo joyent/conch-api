@@ -2,7 +2,7 @@
 
 Test::Conch::Validation - Test Conch Validations
 
-## METHODS
+# EXPORTABLE FUNCTIONS
 
 ## test\_validation
 

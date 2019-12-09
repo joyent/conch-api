@@ -74,7 +74,8 @@ subtest 'User' => sub {
         ->json_is({});
 
     $t->get_ok('/user/me/settings/BAD')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find user setting BAD for user '.$ro_user->email);
 
     $t->post_ok('/user/me/settings/TEST', json => { NOTTEST => 'test' })
         ->status_is(400)
@@ -86,7 +87,8 @@ subtest 'User' => sub {
         ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/too many properties/i) } ]);
 
     $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 'TEST' })
-        ->status_is(404);
+        ->status_is(404)
+        ->log_error_is('no endpoint found for: POST /user/me/settings/FOO/BAR');
 
     $t->post_ok('/user/me/settings/TEST', json => { TEST => 'TEST' })
         ->status_is(204);
@@ -137,7 +139,8 @@ subtest 'User' => sub {
         ->json_is({});
 
     $t->get_ok('/user/me/settings/TEST')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find user setting TEST for user '.$ro_user->email);
 
     $t->post_ok('/user/me/settings/dot.setting', json => { 'dot.setting' => 'set' })
         ->status_is(204);
@@ -686,7 +689,8 @@ subtest 'modify another user' => sub {
         ->json_is({ error => 'invalid identifier format for foobar' });
 
     $t_super->delete_ok('/user/foobar@conch.joyent.us/password')
-        ->status_is(404, 'attempted to reset the password for a non-existent user');
+        ->status_is(404)
+        ->log_debug_is('Could not find user foobar@conch.joyent.us');
 
     $t_super->delete_ok("/user/$new_user_id/password")
         ->status_is(204, 'reset the new user\'s password')
@@ -782,7 +786,8 @@ subtest 'modify another user' => sub {
 
 
     $t_super->delete_ok('/user/foobar@joyent.conch.us')
-        ->status_is(404, 'attempted to deactivate a non-existent user');
+        ->status_is(404)
+        ->log_debug_is('Could not find user foobar@joyent.conch.us');
 
     $new_user->create_related('user_workspace_roles', { workspace_id => $child_ws->id, role => 'rw' });
 
@@ -794,7 +799,8 @@ subtest 'modify another user' => sub {
         ->status_is(410);
 
     $t_super->get_ok('/user/'.create_uuid_str)
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_like(qr/^Could not find user ${\Conch::UUID::UUID_FORMAT}$/);
 
     # we haven't cleared the user's session yet...
     $t2->get_ok('/me')
@@ -910,7 +916,8 @@ subtest 'user tokens (our own)' => sub {
         ]);
 
     $t->get_ok('/user/me/token/'.$login_tokens[0]->name)
-        ->status_is(404, 'cannot retrieve login tokens');
+        ->status_is(404)
+        ->log_error_is('Lookup of login tokens not supported');
 
     $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(200)
@@ -949,7 +956,8 @@ subtest 'user tokens (our own)' => sub {
         ->status_is(204);
 
     $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find token my first 💩 // to.ken @@ for user '.$ro_user->email);
 
     $t->get_ok('/user/me/token')
         ->status_is(200)
@@ -957,10 +965,12 @@ subtest 'user tokens (our own)' => sub {
         ->json_is([]);
 
     $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find token my first 💩 // to.ken @@ for user '.$ro_user->email);
 
     $t->delete_ok('/user/me/token/my first 💩 // to.ken @@')
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find token my first 💩 // to.ken @@ for user '.$ro_user->email);
 
     $t2 = Test::Conch->new(pg => $t->pg);
     $t2->get_ok('/user/me', { Authorization => 'Bearer '.$jwt })
@@ -1052,7 +1062,8 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->json_is([ $tokens[1] ]);
 
     $t_super->get_ok('/user/'.$email.'/token/'.$tokens[0]->{name})
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find token '.$tokens[0]->{name}.' for user '.$email);
 
     $t_other_user->reset_session;   # force JWT to be used to authenticate
 
@@ -1070,7 +1081,8 @@ subtest 'user tokens (someone else\'s)' => sub {
         ]);
 
     $t_other_user->get_ok('/user/me/token/'.$tokens[0]->{name}, { Authorization => 'Bearer '.$jwts[1] })
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find token '.$tokens[0]->{name}.' for user '.$email);
 
     $t_super->post_ok('/user/'.$email.'/revoke')
         ->status_is(204)
@@ -1098,10 +1110,12 @@ subtest 'user tokens (someone else\'s)' => sub {
     );
 
     $t_super->delete_ok('/user/'.$email.'/token/'.$tokens[0]->{name})
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find token '.$tokens[0]->{name}.' for user '.$email);
 
     $t_super->delete_ok('/user/'.$email.'/token/'.$tokens[1]->{name})
-        ->status_is(404);
+        ->status_is(404)
+        ->log_debug_is('Could not find token '.$tokens[1]->{name}.' for user '.$email);
 
     $t_super->get_ok('/user/'.$email.'/token')
         ->status_is(200)

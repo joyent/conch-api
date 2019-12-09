@@ -45,7 +45,7 @@ definitions:
       az:
         $ref: common.yaml#/definitions/non_empty_string
       alias:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       vendor_name:
         $ref: common.yaml#/definitions/non_empty_string
   DatacenterRoomUpdate:
@@ -58,7 +58,7 @@ definitions:
       az:
         $ref: common.yaml#/definitions/non_empty_string
       alias:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       vendor_name:
         $ref: common.yaml#/definitions/non_empty_string
   DeviceReport:
@@ -73,7 +73,7 @@ definitions:
       - build_id
     properties:
       name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
       datacenter_room_id:
         $ref: common.yaml#/definitions/uuid
       rack_role_id:
@@ -92,7 +92,7 @@ definitions:
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
       datacenter_room_id:
         $ref: common.yaml#/definitions/uuid
       rack_role_id:
@@ -178,7 +178,7 @@ definitions:
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       rack_size:
         $ref: common.yaml#/definitions/positive_integer
   RackLayoutCreate:

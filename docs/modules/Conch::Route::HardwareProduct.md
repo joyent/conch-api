@@ -8,7 +8,7 @@ Conch::Route::HardwareProduct
 
 Sets up the routes for /hardware\_product:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /hardware_product`
 

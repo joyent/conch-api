@@ -103,7 +103,8 @@ is($new_relay_data->{updated}, $relay_data->{updated}, 'relay update timestamp d
 $relay0->last_seen(Conch::Time->from_string($new_relay_data->{last_seen}, lenient => 1));
 
 $t->get_ok('/relay/'.create_uuid_str())
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_like(qr/^Could not find relay ${\Conch::UUID::UUID_FORMAT}$/);
 
 $t->get_ok('/relay/'.$relay0->id)
     ->status_is(200)
@@ -266,7 +267,7 @@ subtest list => sub {
                 updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[1][2]->%{qw(rack_id rack_unit_start)},
-                    rack_name => 'rack 1a',
+                    rack_name => 'rack.1a',
                     rack_role_name => 'rack_role 42U',
                     az => 'room-1a',
                 },
@@ -284,7 +285,7 @@ subtest list => sub {
                 updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 location => {
                     $rack_layouts[0][0]->%{qw(rack_id rack_unit_start)},
-                    rack_name => 'rack 0a',
+                    rack_name => 'rack.0a',
                     rack_role_name => 'rack_role 42U',
                     az => 'room-0a',
                 },

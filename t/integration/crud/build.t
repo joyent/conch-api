@@ -453,8 +453,10 @@ $t->delete_ok('/user/'.$admin_user->id)
         user => { map +($_ => $admin_user->$_), qw(id email name created deactivated) },
     });
 
+# wtf is this?
 $t->delete_ok('/build/my first build/user/foo@bar.com')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find user foo@bar.com');
 
 $t->get_ok('/build/our second build/user')
     ->status_is(200)
@@ -1003,7 +1005,7 @@ $t->get_ok('/build/my first build/device')
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_cmp_deeply([
-        # device.phase >= production, so its location is no longer canonical
+        # device1 phase >= production, so its location is no longer canonical
         superhashof({
             (map +($_ => $device2->$_), qw(id serial_number)),
             build_id => $build->{id},

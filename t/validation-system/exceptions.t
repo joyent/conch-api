@@ -105,7 +105,7 @@ subtest '->run, blessed external exception containing a stack trace' => sub {
                 status => 'error',
                 message => re(qr/permission denied for relation device/),
                 category => 'exception',
-                hint => 't/lib/Conch/Validation/MutateDevice.pm line 14',
+                hint => 't/lib/Conch/Validation/MutateDevice.pm line 17',
             },
         ],
         'correctly parsed an exception from an external library containing a stack trace',

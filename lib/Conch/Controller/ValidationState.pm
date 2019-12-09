@@ -30,7 +30,7 @@ sub get ($c) {
         ->all;
 
     if (not $validation_state) {
-        $c->log->debug('Failed to find validation for \''.$c->stash('validation_state_id').'\'');
+        $c->log->debug('Could not find validation state '.$c->stash('validation_state_id'));
         return $c->status(404);
     }
 

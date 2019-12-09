@@ -1,5 +1,8 @@
 package Conch::Validation::MutateDevice;
 
+use strict;
+use warnings;
+use warnings FATAL => 'utf8';
 use utf8;
 use Mojo::Base 'Conch::Validation', -signatures;
 

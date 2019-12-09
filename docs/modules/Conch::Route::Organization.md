@@ -8,7 +8,7 @@ Conch::Route::Organization
 
 Sets up the routes for /organization.
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /organization`
 

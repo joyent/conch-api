@@ -13,6 +13,8 @@ Conch::DB::ResultSet::UserSessionToken
 
 Interface to queries against the 'user_session_token' table.
 
+=head1 METHODS
+
 =head2 expired
 
 Chainable resultset to limit results to those that are expired.

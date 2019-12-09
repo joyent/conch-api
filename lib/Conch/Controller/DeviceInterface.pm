@@ -12,7 +12,9 @@ Conch::Controller::Device
 
 =head2 find_device_interface
 
-Chainable action that looks up the device interface by its id or name.
+Chainable action that uses the C<interface_name> value provided in the stash (usually via the
+request URL) to look up a device interface, and stashes the query to get to it in
+C<device_interface_rs>.
 
 =cut
 
@@ -26,7 +28,7 @@ sub find_device_interface ($c) {
         ->search_related('device_nics', { iface_name => $interface_name })
         ->active;
     if (not $nic_rs->exists) {
-        $c->log->debug("Failed to find interface $interface_name for device ".$c->stash('device_id'));
+        $c->log->debug('Could not find interface '.$interface_name.' for device '.$c->stash('device_id'));
         return $c->status(404);
     }
 

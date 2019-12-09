@@ -85,7 +85,8 @@ $t->delete_ok("/dc/$idd")
     ->status_is(204);
 
 $t->get_ok("/dc/$idd")
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find datacenter '.$idd);
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

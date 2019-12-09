@@ -152,7 +152,8 @@ $t2->get_ok('/organization/my first organization')
     ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 $t2->delete_ok('/organization/foo')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find organization foo');
 
 $t2->delete_ok('/organization/my first organization')
     ->status_is(403)
@@ -896,7 +897,8 @@ $t->get_ok('/organization')
     ->json_is([ $organization, $organization2 ]);
 
 $t->delete_ok('/organization/my first organization/user/foo@bar.com')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find user foo@bar.com');
 
 $t->get_ok('/organization/our second organization')
     ->status_is(200)
@@ -904,7 +906,8 @@ $t->get_ok('/organization/our second organization')
     ->json_is($organization2);
 
 $t->delete_ok('/organization/foo')
-    ->status_is(404);
+    ->status_is(404)
+    ->log_debug_is('Could not find organization foo');
 
 $t->delete_ok('/organization/our second organization')
     ->status_is(204)

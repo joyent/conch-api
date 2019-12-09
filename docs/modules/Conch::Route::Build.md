@@ -8,7 +8,7 @@ Conch::Route::Build
 
 Sets up the routes for /build.
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /build`
 

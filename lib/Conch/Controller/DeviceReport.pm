@@ -34,7 +34,7 @@ sub process ($c) {
 
     # Make sure that the remote side is telling us about a hardware product we understand
     my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
-    return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
+    return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
@@ -43,7 +43,7 @@ sub process ($c) {
 
     my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
     if (not $device) {
-        $c->log->error('Failed to find device '.$c->stash('device_serial_number'));
+        $c->log->error('Could not find device '.$c->stash('device_serial_number'));
         return $c->status(404);
     }
 
@@ -336,8 +336,11 @@ sub _add_reboot_count ($device) {
 
 =head2 find_device_report
 
-Chainable action that validates the 'device_report_id' provided in the path.
-Stores the device_id and device_report resultset to the stash for later retrieval.
+Chainable action that uses the C<device_report_id> value provided in the stash (usually via the
+request URL) to look up a device report, and stashes the query to get to it in
+C<device_report_rs>.
+
+C<device_id> is also saved to the stash.
 
 Role checks are done in the next controller action in the chain.
 
@@ -349,7 +352,7 @@ sub find_device_report ($c) {
 
     my $device_id = $device_report_rs->get_column('device_id')->single;
     if (not $device_id) {
-        $c->log->debug('Failed to find device_report id \''.$c->stash('device_report_id').'\'');
+        $c->log->debug('Could not find device report '.$c->stash('device_report_id'));
         return $c->status(404);
     }
 
@@ -389,7 +392,7 @@ sub validate_report ($c) {
     }
 
     my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
-    return $c->status(409, { error => 'Could not locate hardware product for sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
+    return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
 
     if (my $current_hardware_product_id = $c->db_devices->search({ serial_number => $unserialized_report->{serial_number} })->get_column('hardware_product_id')->single) {
         return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$unserialized_report->{serial_number} })

@@ -121,7 +121,7 @@ __END__
 
 =pod
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 The user's role (required for most endpoints) is determined by the build the device is
 contained in (where users are assigned a L<role|Conch::DB::Result::UserBuildRole/role> in that

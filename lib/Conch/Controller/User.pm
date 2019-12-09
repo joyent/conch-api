@@ -18,8 +18,8 @@ Conch::Controller::User
 
 =head2 find_user
 
-Chainable action that validates the C<target_user_id_or_email> provided in the path, and
-stashes the corresponding user row in C<target_user>.
+Chainable action that uses the C<target_user_id_or_email> value provided in the stash (usually
+via the request URL) to look up a user, and stashes the result in C<target_user>.
 
 =cut
 
@@ -32,7 +32,10 @@ sub find_user ($c) {
         : Email::Valid->address($identifier) ? $user_rs->find_by_email($identifier)
         : return $c->status(400, { error => 'invalid identifier format for '.$identifier });
 
-    return $c->status(404) if not $user;
+    if (not $user) {
+        $c->log->debug('Could not find user '.$identifier);
+        return $c->status(404);
+    }
 
     if ($user->deactivated) {
         return $c->status(410, {
@@ -194,7 +197,11 @@ sub get_setting ($c) {
         ->order_by({ -desc => 'created' })
         ->one_row;
 
-    return $c->status(404) if not $setting;
+    if (not $setting) {
+        $c->log->debug('Could not find user setting '.$key.' for user '.$c->stash('target_user')->email);
+        return $c->status(404);
+    }
+
     $c->status(200, { $key => $setting->value });
 }
 
@@ -627,15 +634,18 @@ Only api tokens may be retrieved by this flow.
 =cut
 
 sub find_api_token ($c) {
-    return $c->status(404) if $c->stash('token_name') =~ /^login_jwt_/;
+    if ($c->stash('token_name') =~ /^login_jwt_/) {
+        $c->log->error('Lookup of login tokens not supported');
+        return $c->status(404);
+    }
     my $token_rs = $c->stash('target_user')
         ->user_session_tokens
         ->unexpired
         ->search({ name => $c->stash('token_name') });
 
     if (not $token_rs->exists) {
-        $c->log->debug('Could not find token named "'.$c->stash('token_name')
-            .' for user_id '.$c->stash('target_user')->id);
+        $c->log->debug('Could not find token '.$c->stash('token_name')
+            .' for user '.$c->stash('target_user')->email);
         return $c->status(404);
     }
 

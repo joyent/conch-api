@@ -40,7 +40,9 @@ thus created.
 Asynchronously send a message to Rollbar (if the `rollbar` `access_token` is configured).
 Returns a unique uuid suitable for logging, to correlate with the Rollbar entry thus created.
 
-Requires a message string. A hashref of additional data is optional.
+Requires a message string.
+A hashref of additional data is optional.
+A string or data structure of fingerprint data for grouping occurrences is optional.
 
 # LICENSING
 

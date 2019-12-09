@@ -8,7 +8,7 @@ Conch::Route::User
 
 Sets up the routes for /user:
 
-Unless otherwise noted, all routes require authentication.
+All routes require authentication.
 
 ### `GET /user/me`
 
