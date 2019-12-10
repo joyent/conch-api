@@ -319,8 +319,9 @@ subtest 'results exist' => sub {
                         ->schema
                         ->storage
                         ->_select($query, \'*', {}, {});
-    my (@results) = $sth->fetchrow_array;
-    is(@results, 1, 'only one value is fetched');
+
+    my $results = $sth->fetchall_arrayref;
+    is($results->@*, 1, 'only one value is fetched');
 
 
     $rs->populate([ map +{ name => $_ }, qw(build1 build2 build3) ]);
@@ -331,8 +332,8 @@ subtest 'results exist' => sub {
                         ->storage
                         ->_select($query, \'*', {}, {});
 
-    (@results) = $sth->fetchrow_array;
-    is(@results, 1, 'only one value is fetched even when multiple rows exist');
+    $results = $sth->fetchall_arrayref;
+    is($results->@*, 1, 'only one value is fetched even when multiple rows exist');
 };
 
 done_testing;
