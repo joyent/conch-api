@@ -27,12 +27,12 @@ $t->get_ok('/version')
 
 $t->get_ok('/foo/bar/baz')
     ->status_is(404)
-    ->json_is({ error => 'Not Found' })
+    ->json_is({ error => 'Route Not Found' })
     ->log_error_is('no endpoint found for: GET /foo/bar/baz');
 
 $t->post_ok('/boop?some_arg=1')
     ->status_is(404)
-    ->json_is({ error => 'Not Found' })
+    ->json_is({ error => 'Route Not Found' })
     ->log_error_is('no endpoint found for: POST /boop');
 
 $t->get_ok('/workspace')->status_is(401);

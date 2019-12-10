@@ -123,7 +123,7 @@ sub all_routes (
         $c->log->error('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
         $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path)
             if $c->feature('rollbar') and any { $c->req->url->path =~ m{^$_/} } @top_level_paths;
-        $c->status(404);
+        $c->status(404, { error => 'Route Not Found' });
     })->name('catchall');
 }
 

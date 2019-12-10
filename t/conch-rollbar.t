@@ -338,7 +338,7 @@ $t->do_and_wait_for_event(
     sub ($t) {
         $t->get_ok('/rack/foo/bar/i_do_not_exist')
             ->status_is(404)
-            ->json_is({ error => 'Not Found' });
+            ->json_is({ error => 'Route Not Found' });
     },
     sub ($payload) {
         cmp_deeply(
@@ -375,7 +375,7 @@ $t->do_and_wait_for_event(
     sub ($t) {
         $t->get_ok('/i_do_not_exist')
             ->status_is(404)
-            ->json_is({ error => 'Not Found' });
+            ->json_is({ error => 'Route Not Found' });
     },
     sub ($payload) { fail('rollbar message was incorrectly sent') },
     sub { pass('no rollbar message was sent for unrecognized path prefix') },
@@ -386,7 +386,7 @@ $t->do_and_wait_for_event(
     sub ($t) {
         $t->get_ok('/devicefoo')
             ->status_is(404)
-            ->json_is({ error => 'Not Found' });
+            ->json_is({ error => 'Route Not Found' });
     },
     sub ($payload) { fail('rollbar message was incorrectly sent') },
     sub { pass('no rollbar message was sent for unrecognized path prefix') },

@@ -38,7 +38,7 @@ use Test::Conch;
 
     $t->get_ok('/401')->status_is(401)->json_is({ error => 'Unauthorized' });
     $t->get_ok('/403')->status_is(403)->json_is({ error => 'Forbidden' });
-    $t->get_ok('/404')->status_is(404)->json_is({ error => 'Not Found' });
+    $t->get_ok('/404')->status_is(404)->json_is({ error => 'Entity Not Found' });
     $t->get_ok('/501')->status_is(501)->json_is({ error => 'Unimplemented' });
 
     $t->get_ok('/409')->status_is(409)->json_is({ error => 'Conflict'});
